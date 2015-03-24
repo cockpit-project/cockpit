@@ -63,7 +63,7 @@ $ sudo systemctl restart cockpit</pre>
             var options = {
                 "payload": "stream",
                 "spawn": [ "ping", address.value ],
-                "error": "output",
+                "err": "out",
             };
             channel = cockpit.channel(options);
             channel.onmessage = function(ev, data) {

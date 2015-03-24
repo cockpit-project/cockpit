@@ -543,7 +543,7 @@ You can't specify both "unix" and "spawn" together. When "spawn" is set the
 following options can be specified:
 
  * "directory": The directory to spawn the process in.
- * "error": If "spawn" is set, and "error" is set to "output", then stderr
+ * "err": If "spawn" is set, and "err" is set to "out", then stderr
    is included in the payload data. If "pty" is set then stderr is always
    included.
  * "environ": This is a list of additional environment variables for the new

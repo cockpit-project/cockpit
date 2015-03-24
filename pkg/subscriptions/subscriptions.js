@@ -347,7 +347,7 @@ define([
              * 'subscription-manager status' will only return with exit code 0 if all is well (and subscriptions current)
              */
             cockpit.spawn(['subscription-manager', 'status'],
-                    { directory: '/', superuser: true, environ: ['LC_ALL=C'], error: "output" })
+                    { directory: '/', superuser: true, environ: ['LC_ALL=C'], err: "out" })
                 .stream(function(text) {
                     status_buffer += text;
                     return text.length;
@@ -397,7 +397,7 @@ define([
              * without translations and parse the output
              */
             var buffer = '';
-            var process = cockpit.spawn(args, { directory: '/', superuser: true, environ: ['LC_ALL=C'], error: "output" })
+            var process = cockpit.spawn(args, { directory: '/', superuser: true, environ: ['LC_ALL=C'], err: "out" })
                 .stream(function(text) {
                     buffer += text;
                     return text.length;

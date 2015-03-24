@@ -346,14 +346,14 @@ cockpit_stream_prepare (CockpitChannel *channel)
 
   if (argv)
     {
-      if (!cockpit_json_get_string (options, "error", NULL, &error))
+      if (!cockpit_json_get_string (options, "err", NULL, &error))
         {
-          g_warning ("invalid \"error\" options for stream channel");
+          g_warning ("invalid \"err\" options for stream channel");
           goto out;
         }
 
       flags = COCKPIT_PIPE_STDERR_TO_LOG;
-      if (error && g_str_equal (error, "output"))
+      if (error && g_str_equal (error, "out"))
         flags = COCKPIT_PIPE_STDERR_TO_STDOUT;
 
       self->name = g_strdup (argv[0]);

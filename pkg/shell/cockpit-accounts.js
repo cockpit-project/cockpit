@@ -25,13 +25,6 @@
 var shell = shell || { };
 (function($, cockpit, shell) {
 
-function make_set(array) {
-    var s = { };
-    for (var i = 0; i < array.length; i++)
-        s[array[i]] = true;
-    return s;
-}
-
 function update_accounts_privileged() {
     shell.update_privileged_ui(
         shell.default_permission, ".accounts-privileged",
@@ -44,48 +37,6 @@ function update_accounts_privileged() {
 }
 
 $(shell.default_permission).on("changed", update_accounts_privileged);
-
-function fill_canvas(canvas, overlay, data, width, callback)
-{
-    var img = new window.Image();
-    img.onerror = function () {
-        shell.show_error_dialog(_("Can't use this file"), _("Can't read it."));
-    };
-    img.onload = function () {
-        canvas.width = width;
-        canvas.height = canvas.width * (img.height/img.width);
-        overlay.width = canvas.width;
-        overlay.height = canvas.height;
-        var ctxt = canvas.getContext("2d");
-        ctxt.clearRect(0, 0, canvas.width, canvas.height);
-        ctxt.drawImage(img, 0, 0, canvas.width, canvas.height);
-        callback ();
-    };
-    img.src = data;
-}
-
-function canvas_data(canvas, x1, y1, x2, y2, width, height, format)
-{
-    var dest = $('<canvas/>')[0];
-    dest.width = width;
-    dest.height = height;
-    var dest_w, dest_h;
-    var img_w = x2 - x1, img_h = y2 - y1;
-    if (img_w > img_h) {
-        dest_w = width;
-        dest_h = dest_w * (img_h/img_w);
-    } else {
-        dest_h = height;
-        dest_w = dest_h * (img_w/img_h);
-    }
-    var ctxt = dest.getContext("2d");
-    ctxt.drawImage (canvas,
-                    x1, y1, img_w, img_h,
-                    (width - dest_w)/2, (height - dest_h)/2, dest_w, dest_h);
-    return dest.toDataURL(format);
-}
-
-// XXX - make private
 
 function on_account_changes(client, id, func) {
     function object_added(event, obj) {

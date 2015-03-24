@@ -85,7 +85,7 @@ asyncTest("error log", function() {
 
 asyncTest("error output", function() {
     expect(2);
-    cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"], { error: "output" }).
+    cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"], { err: "out" }).
         done(function(resp) {
             equal(resp, "hi\nyo\n", "showed up");
         }).

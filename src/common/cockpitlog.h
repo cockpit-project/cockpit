@@ -34,7 +34,8 @@ void     cockpit_journal_log_handler    (const gchar *log_domain,
                                          const gchar *message,
                                          gpointer user_data);
 
-void     cockpit_set_journal_logging    (gboolean only);
+void     cockpit_set_journal_logging    (const gchar *stderr_domain,
+                                         gboolean only);
 
 /*
  * GLib doesn't have g_info() yet:

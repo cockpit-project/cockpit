@@ -211,7 +211,7 @@ main (int argc,
       return 2;
     }
 
-  cockpit_set_journal_logging (!isatty (2));
+  cockpit_set_journal_logging (G_LOG_DOMAIN, !isatty (2));
 
   /*
    * This process talks on stdin/stdout. However lots of stuff wants to write

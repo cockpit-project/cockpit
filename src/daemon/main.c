@@ -132,7 +132,7 @@ main (int argc,
   if (g_getenv ("PATH") == NULL)
     g_setenv ("PATH", "/usr/bin:/bin:/usr/sbin:/sbin", TRUE);
 
-  cockpit_set_journal_logging (!isatty (2));
+  cockpit_set_journal_logging (G_LOG_DOMAIN, !isatty (2));
 
   g_debug ("cockpit daemon version %s starting", PACKAGE_VERSION);
 

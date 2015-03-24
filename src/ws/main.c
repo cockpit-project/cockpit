@@ -91,7 +91,7 @@ main (int argc,
       goto out;
     }
 
-  cockpit_set_journal_logging (!isatty (2));
+  cockpit_set_journal_logging (NULL, !isatty (2));
 
   if (opt_no_tls)
     {

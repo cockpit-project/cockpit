@@ -72,8 +72,15 @@ class Test(test.Test):
         # to the results directory so that they get copied out of the
         # virtual machine.
         #
+        # The status of "cp" is ignored because it will fail when
+        # there are no screenshots or journals, but that is not really
+        # an error.
+        #
+        # TODO: Do this only once after running all tests.
+        #
         if not state['job_logdir'].startswith("/tmp/"):
-            process.run("cp -v *.png *.journal '%s'" %  state['job_logdir'], shell=True)
+            process.run("cp -v *.png *.journal '%s'" %  state['job_logdir'],
+                        shell=True, ignore_status=True)
 
         for f in self.cleanup_funcs: f()
 

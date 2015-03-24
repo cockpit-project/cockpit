@@ -499,10 +499,10 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
             real_time_samples_timestamp = vals[0][0];
         }
 
-        function channel_closed(ev, options) {
+        function channel_closed(ev, options, desc) {
             real_time_channel = null;
             if (options.problem)
-                console.log("problem retrieving metrics data: " + options.problem);
+                console.log("problem retrieving " + desc + " metrics data: " + options.problem);
         }
 
         real_time_channel = channel_sampler($.extend({ }, chanopts, {
@@ -518,11 +518,11 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
                     interval: real_time_samples_interval,
                     metrics: fallback
                 }), process_samples);
-                $(real_time_channel).on("close", channel_closed);
+                $(real_time_channel).on("close", channel_closed, "internal");
 
             /* Otherwise it could be just a normal failure */
             } else {
-                channel_closed(event, options);
+                channel_closed(event, options, "real time");
             }
         });
 

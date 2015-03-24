@@ -26,10 +26,10 @@ if ! rpm -q $BASE_PCKGS >& /dev/null; then
             echolog "Setting up repositories for Fedora <=21"
             yum -y -q install yum-plugin-copr
             yum -y -q copr enable lmr/Autotest
-        else 
+        else
             echolog "Setting up repositories for Fedora >=22"
             dnf -y -q install yum-plugin-copr
-            dnf -y -q copr enable lmr/Autotest            
+            dnf -y -q copr enable lmr/Autotest
         fi
     else
         echolog "Can't setup repositories for base packages: Unknown OS"
@@ -38,34 +38,34 @@ if ! rpm -q $BASE_PCKGS >& /dev/null; then
 fi
 
 function yum_install() {
-    echolog "Updating packages"
     yum -y install "$@" | (grep -v "already installed and latest version\|Nothing to do\|Loaded plugins:" || true)
 }
 
 function yum_builddep() {
-    echolog "Updating build dependencies"
     yum-builddep -y "$@" | (grep -v -- "--> Already installed : \|Getting requirements for\|No uninstalled build requires" || true)
 }
 
 function dnf_install() {
-    echolog "Updating packages"
-    dnf -y install "$@" | (grep -v "already installed and latest version\|Nothing to do\|Loaded plugins:" || true)
+    dnf -q -y install "$@" |& (grep -v "already installed, skipping" || true)
 }
 
 function dnf_builddep() {
-    echolog "Updating build dependencies"
-    dnf builddep -y "$@" | (grep -v -- "--> Already installed : \|Getting requirements for\|No uninstalled build requires" || true)
+    dnf -q -y builddep "$@" |& (grep -v "already installed, skipping" || true)
 }
 
 if rpm -q dnf; then
+    echolog "Updating base packages"
     dnf_install $BASE_PCKGS
+    echolog "Updating build dependencies"
     dnf_builddep $spec
-    echolog "run-time:"
-    dnf_install $COCKPIT_DEPS $TEST_DEPS        
+    echolog "Updating run-time dependencies"
+    dnf_install $COCKPIT_DEPS $TEST_DEPS
 else
+    echolog "Updating base packages"
     yum_install $BASE_PCKGS
+    echolog "Updating build dependencies"
     yum_builddep $spec
-    echolog "run-time:"
+    echolog "Updating run-time dependencies"
     yum_install $COCKPIT_DEPS $TEST_DEPS
 fi
 

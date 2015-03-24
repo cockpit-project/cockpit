@@ -463,12 +463,13 @@ units_convertible (pmUnits *a,
   return pmConvScale (PM_TYPE_DOUBLE, &dummy, a, &dummy, b) >= 0;
 }
 
-static gboolean
+static const gchar *
 convert_metric_description (CockpitPcpMetrics *self,
                             JsonNode *node,
                             MetricInfo *info,
                             int index)
 {
+  const gchar *problem = "protocol-error";
   const gchar *units;
   int rc;
 
@@ -479,42 +480,44 @@ convert_metric_description (CockpitPcpMetrics *self,
         {
           g_warning ("%s: invalid \"metrics\" option was specified (no name for metric %d)",
                      self->name, index);
-          return FALSE;
+          goto out;
         }
 
       if (!cockpit_json_get_string (json_node_get_object (node), "units", NULL, &units))
         {
           g_warning ("%s: invalid units for metric %s (not a string)",
                      self->name, info->name);
-          return FALSE;
+          goto out;
         }
 
       if (!cockpit_json_get_string (json_node_get_object (node), "derive", NULL, &info->derive))
         {
           g_warning ("%s: invalid derivation mode for metric %s (not a string)",
                      self->name, info->name);
-          return FALSE;
+          goto out;
         }
     }
   else
     {
       g_warning ("%s: invalid \"metrics\" option was specified (not an object for metric %d)",
                  self->name, index);
-      return FALSE;
+      goto out;
     }
 
   rc = pmLookupName (1, (char **)&info->name, &info->id);
   if (rc < 0)
     {
-      g_warning ("%s: no such metric: %s (%s)", self->name, info->name, pmErrStr (rc));
-      return FALSE;
+      g_message ("%s: no such metric: %s: %s", self->name, info->name, pmErrStr (rc));
+      problem = "not-found";
+      goto out;
     }
 
   rc = pmLookupDesc (info->id, &info->desc);
   if (rc < 0)
     {
-      g_warning ("%s: no such metric: %s (%s)", self->name, info->name, pmErrStr (rc));
-      return FALSE;
+      g_message ("%s: no such metric: %s: %s", self->name, info->name, pmErrStr (rc));
+      problem = "not-found";
+      goto out;
     }
 
   if (units)
@@ -522,13 +525,13 @@ convert_metric_description (CockpitPcpMetrics *self,
       if (my_pmParseUnitsStr (units, &info->units_buf, &info->factor) < 0)
         {
           g_warning ("%s: failed to parse units: %s", self->name, units);
-          return FALSE;
+          goto out;
         }
 
       if (!units_convertible (&info->desc.units, &info->units_buf))
         {
           g_warning ("%s: can't convert metric %s to units %s", self->name, info->name, units);
-          return FALSE;
+          goto out;
         }
 
       if (info->factor != 1.0 || !units_equal (&info->desc.units, &info->units_buf))
@@ -541,13 +544,16 @@ convert_metric_description (CockpitPcpMetrics *self,
       info->factor = 1.0;
     }
 
-  return TRUE;
+  problem = NULL;
+
+out:
+  return problem;
 }
 
-static gboolean
+static const gchar *
 prepare_current_context (CockpitPcpMetrics *self)
 {
-  gboolean result = FALSE;
+  const gchar *problem = "protocol-error";
   JsonObject *options;
   gchar **instances = NULL;
   gchar **omit_instances = NULL;
@@ -591,7 +597,8 @@ prepare_current_context (CockpitPcpMetrics *self)
   for (i = 0; i < self->numpmid; i++)
     {
       MetricInfo *info = &self->metrics[i];
-      if (!convert_metric_description (self, json_array_get_element (metrics, i), info, i))
+      problem = convert_metric_description (self, json_array_get_element (metrics, i), info, i);
+      if (problem)
         goto out;
 
       self->pmidlist[i] = info->id;
@@ -621,12 +628,12 @@ prepare_current_context (CockpitPcpMetrics *self)
         }
     }
 
-  result = TRUE;
+  problem = NULL;
 
  out:
   g_free (instances);
   g_free (omit_instances);
-  return result;
+  return problem;
 }
 
 static void start_archive (CockpitPcpMetrics *self, gint64 timestamp);
@@ -745,6 +752,7 @@ prepare_archives (CockpitPcpMetrics *self,
 static void
 start_archive (CockpitPcpMetrics *self, gint64 timestamp)
 {
+  const gchar *problem;
   ArchiveInfo *info;
   struct timeval stamp;
   int rc;
@@ -784,10 +792,16 @@ start_archive (CockpitPcpMetrics *self, gint64 timestamp)
       return;
     }
 
-  if (!prepare_current_context (self))
+  problem = prepare_current_context (self);
+  if (problem && g_str_equal (problem, "not-found"))
     {
       self->cur_archive = self->cur_archive->next;
       goto again;
+    }
+  else if (problem)
+    {
+      cockpit_channel_close (COCKPIT_CHANNEL (self), problem);
+      return;
     }
 
   /* Make sure we send a meta message.
@@ -969,12 +983,21 @@ cockpit_pcp_metrics_prepare (CockpitChannel *channel)
       self->direct_context = pmNewContext(type, name);
       if (self->direct_context < 0)
         {
-          g_warning ("%s: couldn't create PCP context: %s", self->name, pmErrStr (self->direct_context));
-          problem = "internal-error";
+          if (self->direct_context == -ENOENT)
+            {
+              g_debug ("%s: couldn't create PCP context: %s", self->name, pmErrStr (self->direct_context));
+              problem = "not-supported";
+            }
+          else
+            {
+              g_warning ("%s: couldn't create PCP context: %s", self->name, pmErrStr (self->direct_context));
+              problem = "internal-error";
+            }
           goto out;
         }
 
-      if (!prepare_current_context (self))
+      problem = prepare_current_context (self);
+      if (problem)
         goto out;
     }
 

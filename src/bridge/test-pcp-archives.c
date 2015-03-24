@@ -332,7 +332,7 @@ static void
 test_metrics_archive_directory_late_metric (TestCase *tc,
                                             gconstpointer unused)
 {
-  cockpit_expect_warning ("*no such metric: mock.late (Unknown metric name)*");
+  cockpit_expect_message ("*no such metric: mock.late: Unknown metric name*");
 
   JsonObject *meta;
   JsonObject *options = json_obj("{ 'source': '" BUILDDIR "/mock-archives',"

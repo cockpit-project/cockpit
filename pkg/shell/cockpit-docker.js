@@ -272,17 +272,19 @@ function setup_for_failure(page, client) {
     function show_failure(ex) {
         var msg;
         var show_start = false;
-        console.warn(ex);
 
-        if (typeof ex == "string")
+        if (typeof ex == "string") {
             msg = ex;
-        else if (ex.problem == "not-found") {
+            console.warn(ex);
+        } else if (ex.problem == "not-found") {
             msg = _("Docker is not installed or activated on the system");
             show_start = true;
-        } else if (ex.problem == "access-denied")
+        } else if (ex.problem == "access-denied") {
             msg = _("Not authorized to access Docker on this system");
-        else
+        } else {
             msg = cockpit.format(_("Can't connect to Docker: $0"), ex.toString());
+            console.warn(ex);
+        }
         $("#containers-failure-waiting").hide();
         $("#containers-failure-message").text(msg);
 
@@ -2275,13 +2277,14 @@ function DockerClient() {
                 trigger_event();
             });
             $(watch).on("close", function(event, options) {
-                if (options.problem)
+                if (options.problem && options.problem != "not-found")
                     console.warn("monitor for docker directory failed: " + options.problem);
             });
 
             $(me).triggerHandler("event");
-        }).fail(function (err) {
-            console.warn("monitor for docker directory failed: " + err);
+        }).fail(function(err) {
+            if (err != "not-found")
+                console.warn("monitor for docker directory failed: " + err);
             $(me).triggerHandler("event");
         });
 

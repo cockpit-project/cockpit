@@ -680,7 +680,7 @@ utmp_log (int login)
   ut.ut_tv.tv_sec = tv.tv_sec;
   ut.ut_tv.tv_usec = tv.tv_usec;
 
-  ut.ut_type = login ? USER_PROCESS : DEAD_PROCESS;
+  ut.ut_type = login ? LOGIN_PROCESS : DEAD_PROCESS;
   ut.ut_pid = pid;
 
   pututline (&ut);

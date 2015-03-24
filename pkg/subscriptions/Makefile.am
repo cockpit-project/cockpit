@@ -1,7 +1,7 @@
 
 subscriptionsdir = $(pkgdatadir)/subscriptions
 subscriptions_DATA = \
-	pkg/subscriptions/subscriptions.css \
+	pkg/subscriptions/subscriptions.min.css.gz \
 	pkg/subscriptions/subscriptions.html \
 	pkg/subscriptions/subscriptions.min.html \
 	pkg/subscriptions/subscriptions.min.js.gz \
@@ -11,11 +11,13 @@ subscriptions_DATA = \
 subscriptionsdebugdir = $(DBGDIR)$(subscriptionsdir)
 subscriptionsdebug_DATA = \
 	pkg/subscriptions/subscriptions.js \
+	pkg/subscriptions/subscriptions.css \
 	$(NULL)
 
 CLEANFILES += \
 	pkg/subscriptions/subscriptions.min.js \
 	pkg/subscriptions/subscriptions.min.html \
+	pkg/subscriptions/subscriptions.min.css \
 	$(NULL)
 
 EXTRA_DIST += \

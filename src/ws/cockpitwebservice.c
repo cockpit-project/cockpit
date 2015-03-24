@@ -27,6 +27,7 @@
 #include <gio/gunixinputstream.h>
 #include <gio/gunixoutputstream.h>
 
+#include "common/cockpitconf.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitlog.h"
 #include "common/cockpitpipetransport.h"
@@ -1698,7 +1699,9 @@ create_web_socket_server_for_stream (const gchar **protocols,
 {
   WebSocketConnection *connection;
   const gchar *host = NULL;
-  gchar *origins[2];
+  const gchar **origins;
+  gchar *allocated = NULL;
+  gchar *defaults[2];
   gboolean secure;
   gchar *url;
 
@@ -1715,13 +1718,17 @@ create_web_socket_server_for_stream (const gchar **protocols,
                          query ? "?" : "",
                          query ? query : "");
 
-  origins[0] = g_strdup_printf ("%s://%s", secure ? "https" : "http", host);
-  origins[1] = NULL;
+  origins = cockpit_conf_strv ("WebService", "Origins", ' ');
+  if (origins == NULL)
+    {
+      defaults[0] = g_strdup_printf ("%s://%s", secure ? "https" : "http", host);
+      defaults[1] = NULL;
+      origins = (const gchar **)defaults;
+    }
 
-  connection = web_socket_server_new_for_stream (url, (const gchar **)origins,
-                                                 protocols, io_stream, headers,
-                                                 input_buffer);
-  g_free (origins[0]);
+  connection = web_socket_server_new_for_stream (url, origins, protocols,
+                                                 io_stream, headers, input_buffer);
+  g_free (allocated);
   g_free (url);
 
   return connection;

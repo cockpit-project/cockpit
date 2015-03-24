@@ -30,6 +30,7 @@
 #include "cockpithandlers.h"
 
 #include "common/cockpitcertificate.h"
+#include "common/cockpitconf.h"
 #include "common/cockpitlog.h"
 #include "common/cockpitmemory.h"
 
@@ -188,6 +189,7 @@ out:
   g_clear_object (&certificate);
   g_free (cert_path);
   g_strfreev (roots);
+  cockpit_conf_cleanup ();
   return ret;
 }
 

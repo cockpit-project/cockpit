@@ -41,6 +41,7 @@ EXTRA_DIST += \
 	src/ws/mock-krb5.conf.in \
 	src/ws/mock-kdc.conf.in \
 	src/ws/mock-static \
+	src/ws/mock-config.conf \
 	$(NULL)
 
 # ----------------------------------------------------------------------------------------------------
@@ -75,9 +76,6 @@ cockpit-testing.service : src/ws/cockpit-testing.service.in Makefile
 	$(AM_V_GEN) $(SED_SUBST) $< > $@
 noinst_DATA += cockpit-testing.service
 testassets_systemdunit_data += cockpit-testing.service
-
-cockpitconfdir = $(sysconfdir)/cockpit
-cockpitconf_DATA = src/ws/config
 
 firewalldir = $(prefix)/lib/firewalld/services
 firewall_DATA = src/ws/cockpit.xml

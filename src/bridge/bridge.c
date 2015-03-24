@@ -391,7 +391,7 @@ run_bridge (const gchar *interactive)
   int outfd;
   uid_t uid;
 
-  cockpit_set_journal_logging (!isatty (2));
+  cockpit_set_journal_logging (G_LOG_DOMAIN, !isatty (2));
 
   /* Always set environment variables early */
   uid = geteuid();

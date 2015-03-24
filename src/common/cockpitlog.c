@@ -31,7 +31,6 @@
 #include <errno.h>
 #include <unistd.h>
 
-static GPrintFunc old_printerr;
 static GLogFunc old_handler;
 
 void
@@ -128,62 +127,31 @@ cockpit_journal_log_handler (const gchar *log_domain,
     old_handler (log_domain, log_level, message, NULL);
 }
 
-static void
-printerr_handler (const gchar *string)
+void
+cockpit_set_journal_logging (const gchar *stderr_domain,
+                             gboolean only)
 {
-  /* We sanitize the strings produced by g_assert and friends a bit.
-   */
+  int fd;
 
-  if (old_printerr)
-    old_printerr (string);
+  old_handler = g_log_set_default_handler (cockpit_journal_log_handler, NULL);
 
-  if (g_str_has_prefix (string, "**\n"))
-    string += strlen("**\n");
-  int len = strlen (string);
-  if (len > 0 && string[len-1] == '\n')
-    len -= 1;
-
-  sd_journal_print (LOG_ERR, "%.*s", len, string);
-}
-
-static void
-printerr_stderr (const gchar *string)
-{
-  gssize len;
-  gssize res;
-
-  len = strlen (string);
-  while (len > 0)
+  if (only && stderr_domain)
     {
-      res = write (2, string, len);
-      if (res < 0)
+      fd = sd_journal_stream_fd (stderr_domain, LOG_WARNING, 0);
+      if (fd < 0)
         {
-          if (errno != EAGAIN || errno != EINTR)
-            break;
+          g_warning ("couldn't open journal stream for stderr: %s", g_strerror (-fd));
         }
       else
         {
-          g_assert (res <= len);
-          string += res;
-          len -= res;
+          if (dup2 (2, fd) < 0)
+            {
+              g_warning ("couldn't replace journal stream for stderr: %s", g_strerror (errno));
+              close (fd);
+            }
         }
     }
-}
-
-void
-cockpit_set_journal_logging (gboolean only)
-{
-  old_handler = g_log_set_default_handler (cockpit_journal_log_handler, NULL);
-
-  old_printerr = g_set_printerr_handler (printerr_handler);
-
-  /* HACK: GLib doesn't currently return its original handler */
-  if (!old_printerr)
-    old_printerr = printerr_stderr;
 
   if (only)
-    {
-      old_printerr = NULL;
-      old_handler = NULL;
-    }
+    old_handler = NULL;
 }

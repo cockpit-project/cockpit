@@ -23,6 +23,8 @@
 
 #include "cockpitjson.h"
 
+#include "cockpitconf.h"
+
 #include <glib-object.h>
 
 #include <string.h>
@@ -180,6 +182,9 @@ cockpit_test_init (int *argc,
   g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
 
   g_type_init ();
+
+  // System cockpit configuration file should not be loaded
+  cockpit_config_file = NULL;
 
   if (*argc > 0)
     {

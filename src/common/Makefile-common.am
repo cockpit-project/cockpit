@@ -60,6 +60,8 @@ libcockpit_common_a_SOURCES = \
 	src/common/cockpitwebresponse.c \
 	src/common/cockpitwebserver.h \
 	src/common/cockpitwebserver.c \
+	src/common/cockpitconf.h \
+	src/common/cockpitconf.c \
 	$(NULL)
 
 libcockpit_common_a_CFLAGS = \
@@ -85,6 +87,7 @@ COCKPIT_CHECKS = \
 	test-template \
 	test-webresponse \
 	test-webserver \
+	test-config \
 	$(NULL)
 
 test_hex_CFLAGS = $(libcockpit_common_a_CFLAGS)
@@ -121,6 +124,10 @@ test_webresponse_LDADD = $(libcockpit_common_a_LIBS)
 test_webserver_SOURCES = src/common/test-webserver.c
 test_webserver_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_webserver_LDADD = $(libcockpit_common_a_LIBS)
+
+test_config_CFLAGS = $(libcockpit_common_a_CFLAGS)
+test_config_SOURCES = src/common/test-config.c
+test_config_LDADD = $(libcockpit_common_a_LIBS)
 
 noinst_PROGRAMS += $(COCKPIT_CHECKS)
 TESTS += $(COCKPIT_CHECKS)

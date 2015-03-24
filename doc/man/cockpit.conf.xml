@@ -37,20 +37,41 @@
 
   <refsect1><title>DESCRIPTION</title>
   <para>
-    Cockpit can be configured via /etc/cockpit/config.  That file has a INI
+    Cockpit can be configured via /etc/cockpit/cockpit.conf.  That file has a INI
     file syntax and thus contains key / value pairs, grouped into topical groups.
 
     For example, to set the "group" key in the "login" group to the
-    value "adm", place this into /etc/cockpit/config:
+    value "adm", place this into /etc/cockpit/cockpit.conf:
 
     <programlisting>
       [login]
       group = adm
     </programlisting>
 
-    No configuration options are defined at the moment. To change the port that
-    Cockpit listens change the systemd <filename>cockpit.socket</filename> file:
   </para>
+
+  <para>Note: The port that cockpit listens on cannot be changed in this file. To change the port change the systemd <filename>cockpit.socket</filename> file.</para>
+  </refsect1>
+
+  <refsect1 id="webservice">
+	  <title>WebService</title>
+	  <variablelist>
+	    <varlistentry>
+	      <term><option>Origins</option></term>
+	      <listitem>
+                <para>By default cockpit will not accept crossdomain websocket connections. Use this
+                  setting to allow access from alternate domains. Origins should include scheme, host
+                  and port, if necessary.</para>
+
+          <informalexample>
+            <programlisting language="js">
+[Webservice]
+Origins = https://somedomain1.com https://somedomain2.com:9090
+            </programlisting>
+          </informalexample>
+        </listitem>
+      </varlistentry>
+    </variablelist>
   </refsect1>
 
   <refsect1>

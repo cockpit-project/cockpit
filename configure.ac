@@ -240,7 +240,7 @@ AC_DEFINE_UNQUOTED([PATH_PKEXEC], ["$PKEXEC"], [Location of pkexec binary])
 
 # Config
 
-AC_DEFINE_UNQUOTED([COCKPIT_CONFIG_FILE],["$sysconfdir/cockpit/config"],[Configuration file])
+AC_DEFINE_UNQUOTED([COCKPIT_CONFIG_FILE],["$sysconfdir/cockpit/cockpit.conf"],[Configuration file])
 
 changequote(,)dnl
 if test "x$GCC" = "xyes"; then

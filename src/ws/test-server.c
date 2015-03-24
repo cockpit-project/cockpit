@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "common/cockpitpipe.h"
+#include "common/cockpitconf.h"
 #include "common/cockpitpipetransport.h"
 #include "common/mock-service.h"
 #include "common/cockpitwebserver.h"
@@ -435,6 +436,9 @@ main (int argc,
 
   sig_term = g_unix_signal_add (SIGTERM, on_signal_done, NULL);
   sig_int = g_unix_signal_add (SIGINT, on_signal_done, NULL);
+
+  // System cockpit configuration file should not be loaded
+  cockpit_config_file = NULL;
 
   /* This isolates us from affecting other processes during tests */
   bus = g_test_dbus_new (G_TEST_DBUS_NONE);

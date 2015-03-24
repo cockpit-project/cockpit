@@ -1,0 +1,87 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2014 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "config.h"
+
+#include "cockpitconf.h"
+
+#include "cockpittest.h"
+
+#include <glib.h>
+
+static void
+test_get_strings (void)
+{
+  cockpit_config_file = SRCDIR "/src/ws/mock_config.conf";
+
+  g_assert_null (cockpit_conf_string ("bad-section", "value"));
+  g_assert_null (cockpit_conf_string ("Section1", "value"));
+  g_assert_cmpstr (cockpit_conf_string ("Section2", "value1"),
+                   ==, "string");
+  g_assert_cmpstr (cockpit_conf_string ("Section2", "value2"),
+                   ==, "commas, or spaces");
+  cockpit_conf_cleanup ();
+}
+
+static void
+test_get_strvs (void)
+{
+  const gchar **comma = NULL;
+  const gchar **space = NULL;
+  const gchar **one = NULL;
+
+  cockpit_config_file = SRCDIR "/src/ws/mock_config.conf";
+
+  g_assert_null (cockpit_conf_strv ("bad-section", "value", ' '));
+  g_assert_null (cockpit_conf_strv ("Section1", "value", ' '));
+
+  one = cockpit_conf_strv ("Section2", "value1", ' ');
+  g_assert_cmpstr (one[0], ==, "string");
+
+  space = cockpit_conf_strv ("Section2", "value2", ' ');
+  g_assert_cmpstr (space[0], ==, "commas,");
+  g_assert_cmpstr (space[1], ==, "or");
+  g_assert_cmpstr (space[2], ==, "spaces");
+
+  comma = cockpit_conf_strv ("Section2", "value2", ',');
+  g_assert_cmpstr (comma[0], ==, "commas");
+  g_assert_cmpstr (comma[1], ==, " or spaces");
+
+  cockpit_conf_cleanup ();
+}
+
+static void
+test_fail_load (void)
+{
+  cockpit_config_file = SRCDIR "does-not-exist";
+  g_assert_null (cockpit_conf_string ("Section2", "value1"));
+}
+
+int
+main (int argc,
+      char *argv[])
+{
+  cockpit_test_init (&argc, &argv);
+
+  g_test_add_func ("/conf/test-strings", test_get_strings);
+  g_test_add_func ("/conf/test-strvs", test_get_strvs);
+  g_test_add_func ("/conf/fail_load", test_fail_load);
+
+  return g_test_run ();
+}

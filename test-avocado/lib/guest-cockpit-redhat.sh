@@ -2,14 +2,15 @@
 
 spec=$1
 
-set -e
 set -o pipefail
 
 function echolog() {
     echo "`date -u '+%Y%m%d-%H:%M:%S'` COCKPIT GUEST: $@"
 }
 
-BASE_PCKGS="avocado nodejs npm bind-utils freeipa-client sssd"
+BASE_PCKGS="avocado avocado-plugins-output-html nodejs npm bind-utils freeipa-client sssd"
+COCKPIT_DEPS=`cat $spec | egrep '^Requires: [^%]' | sed -r 's/Requires: ([^ ]*).*/\1/'`
+TEST_DEPS="ntpdate"
 
 if ! rpm -q $BASE_PCKGS >& /dev/null; then
     if cat /etc/redhat-release | grep -sq "Red Hat"; then
@@ -20,9 +21,15 @@ if ! rpm -q $BASE_PCKGS >& /dev/null; then
         curl https://copr.fedoraproject.org/coprs/lmr/Autotest/repo/epel-7/lmr-Autotest-epel-7.repo > /etc/yum.repos.d/lmr-Autotest-epel-7.repo
         yum -y install https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
     elif cat /etc/redhat-release | grep -sq "Fedora"; then
-        echolog "Setting up repositories for Fedora"
-        yum -y -q install yum-plugin-copr
-        yum -y -q copr enable lmr/Autotest
+        if [ `cat /etc/redhat-release | grep Fedora | sed 's/.*Fedora [^0-9]*\([0-9]*\).*/\1/'` -le "21" ]; then
+            echolog "Setting up repositories for Fedora <=21"
+            yum -y -q install yum-plugin-copr
+            yum -y -q copr enable lmr/Autotest
+        else 
+            echolog "Setting up repositories for Fedora >=22"
+            dnf -y -q install yum-plugin-copr
+            dnf -y -q copr enable lmr/Autotest            
+        fi
     else
         echolog "Can't setup repositories for base packages: Unknown OS"
         exit 10
@@ -30,24 +37,36 @@ if ! rpm -q $BASE_PCKGS >& /dev/null; then
 fi
 
 function yum_install() {
+    echolog "Updating packages"
     yum -y install "$@" | (grep -v "already installed and latest version\|Nothing to do\|Loaded plugins:" || true)
 }
 
 function yum_builddep() {
+    echolog "Updating build dependencies"
     yum-builddep -y "$@" | (grep -v -- "--> Already installed : \|Getting requirements for\|No uninstalled build requires" || true)
 }
 
-echolog "Updating base packages"
-yum_install $BASE_PCKGS
+function dnf_install() {
+    echolog "Updating packages"
+    dnf -y install "$@" | (grep -v "already installed and latest version\|Nothing to do\|Loaded plugins:" || true)
+}
 
-echolog "Updating build dependencies"
-yum_builddep $spec
+function dnf_builddep() {
+    echolog "Updating build dependencies"
+    dnf builddep -y "$@" | (grep -v -- "--> Already installed : \|Getting requirements for\|No uninstalled build requires" || true)
+}
 
-COCKPIT_DEPS=`cat $spec | egrep '^Requires: [^%]' | sed -r 's/Requires: ([^ ]*).*/\1/'`
-TEST_DEPS="ntpdate"
-
-echolog "Updating run-time dependencies"
-yum_install $COCKPIT_DEPS $TEST_DEPS
+if rpm -q dnf; then
+    dnf_install $BASE_PCKGS
+    dnf_builddep $spec
+    echolog "run-time:"
+    dnf_install $COCKPIT_DEPS $TEST_DEPS        
+else
+    yum_install $BASE_PCKGS
+    yum_builddep $spec
+    echolog "run-time:"
+    yum_install $COCKPIT_DEPS $TEST_DEPS
+fi
 
 if npm -g list phantomjs 2>/dev/null | grep -q phantomjs; then
     echolog "Phantomjs is already installed"

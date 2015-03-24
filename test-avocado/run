@@ -28,9 +28,25 @@ LUSER=`whoami`
 ENV_VARIABLES=./lib/var.env
 rm -f $ENV_VARIABLES
 
+# setup enviromental variable to override these values (useful for testing on another environment)
+# GUEST_NUMBER , GUESTOS
+if [ -z "$GUEST_NUMBER" ]; then
+    GUEST_NUMBER="7"
+fi
 if [ -z "$GUESTOS" ]; then
     GUESTOS=fedora-21
 fi
+if echo "$GUESTOS" | egrep -qi "centos|fedora|redhat|rhel"; then
+    METHOD="redhat"
+elif echo "$GUESTOS" | egrep -qi "debian"; then
+    METHOD="debian"
+    echolog "Not supported now"
+    exit 0
+else
+    echolog "Not apropriate method for setup guests"
+    exit 5
+fi
+
 echolog ">>> $GUESTOS testing <<<"
 
 if check_host $LUSER; then
@@ -51,8 +67,9 @@ fi
 
 # GUEST1 machine
 #
-vm_create checkmachine7 $GUESTOS
-GUEST1=`vm_get_name checkmachine7 $GUESTOS`
+GUESTNAME="checkmachine${GUEST_NUMBER}"
+vm_create $GUESTNAME $GUESTOS
+GUEST1=`vm_get_name $GUESTNAME $GUESTOS`
 
 if virsh -c qemu:///system snapshot-info $GUEST1 initialized &>/dev/null; then
     echolog "Reverting $GUEST1 to last 'initialized' state"
@@ -62,7 +79,7 @@ fi
 echolog "Setting up $GUEST1"
 vm_ssh $GUEST1 date --set $(date -Ins) >/dev/null
 vm_ssh $GUEST1 bash -c "cat - >/tmp/cockpit.spec" <../tools/cockpit.spec
-vm_ssh $GUEST1 bash -s < ./lib/guest-cockpit.sh /tmp/cockpit.spec
+vm_ssh $GUEST1 bash -s < ./lib/guest-cockpit-$METHOD.sh /tmp/cockpit.spec
 echolog "Saving $GUEST1 'initialized' state"
 virsh -c qemu:///system snapshot-create-as $GUEST1 initialized >/dev/null
 

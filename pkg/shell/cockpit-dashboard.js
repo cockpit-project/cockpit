@@ -417,9 +417,10 @@ PageDashboard.prototype = {
                         .on('hover', function(event, val) {
                             highlight(item, val);
                         });
-                    if (s.options.color != machine.color) {
+                    var color = shell.esc(machine.color);
+                    if (s.options.color != color) {
                         refresh = true;
-                        s.options.color = machine.color;
+                        s.options.color = color;
                     }
                 });
             });

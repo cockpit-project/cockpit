@@ -54,6 +54,7 @@ openssl_make_dummy_cert (const gchar *key_file,
     "-out", out_file,
     "-outform", "PEM",
     "-subj", "/CN=localhost",
+    "-extensions", "v3_req",
     NULL
   };
 

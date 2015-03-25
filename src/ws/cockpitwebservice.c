@@ -529,6 +529,7 @@ struct _CockpitWebService {
   guint ping_timeout;
   gint callers;
   guint next_internal_id;
+  GHashTable *channel_tags;
 };
 
 typedef struct {
@@ -599,6 +600,7 @@ cockpit_web_service_finalize (GObject *object)
   cockpit_creds_unref (self->creds);
   if (self->ping_timeout)
     g_source_remove (self->ping_timeout);
+  g_hash_table_destroy (self->channel_tags);
 
   G_OBJECT_CLASS (cockpit_web_service_parent_class)->finalize (object);
 }
@@ -682,8 +684,7 @@ static gboolean
 process_close (CockpitWebService *self,
                CockpitSocket *socket,
                CockpitSession *session,
-               const gchar *channel,
-               JsonObject *options)
+               const gchar *channel)
 {
   CockpitSideband *sideband;
 
@@ -696,6 +697,83 @@ process_close (CockpitWebService *self,
     cockpit_session_remove_channel (&self->sessions, session, channel);
   if (socket)
     cockpit_socket_remove_channel (&self->sockets, socket, channel);
+  g_hash_table_remove (self->channel_tags, channel);
+
+  return TRUE;
+}
+
+static gboolean
+process_and_relay_close (CockpitWebService *self,
+                         CockpitSocket *socket,
+                         const gchar *channel,
+                         GBytes *payload)
+{
+  CockpitSession *session;
+  gboolean valid;
+
+  session = cockpit_session_by_channel (&self->sessions, channel);
+  valid = process_close (self, socket, session, channel);
+  if (valid && session && !session->sent_done)
+    cockpit_transport_send (session->transport, NULL, payload);
+
+  return valid;
+}
+
+static gboolean
+process_kill (CockpitWebService *self,
+              CockpitSocket *socket,
+              JsonObject *options)
+{
+  CockpitSession *session;
+  GHashTableIter iter;
+  gpointer channel;
+  const gchar *host;
+  const gchar *tag;
+  GBytes *payload;
+  GList *list, *l;
+
+  if (!cockpit_json_get_string (options, "host", NULL, &host) ||
+      !cockpit_json_get_string (options, "tag", NULL, &tag))
+    {
+      g_warning ("%s: received invalid kill command", socket->id);
+      return FALSE;
+    }
+
+  list = NULL;
+  g_hash_table_iter_init (&iter, socket->channels);
+  while (g_hash_table_iter_next (&iter, &channel, NULL))
+    {
+      if (host)
+        {
+          session = cockpit_session_by_channel (&self->sessions, channel);
+          if (!session || !g_str_equal (host, session->host))
+            continue;
+        }
+      if (tag)
+        {
+          if (g_strcmp0 (g_hash_table_lookup (self->channel_tags, channel), tag) != 0)
+            continue;
+        }
+
+      list = g_list_prepend (list, g_strdup (channel));
+    }
+
+  for (l = list; l != NULL; l = g_list_next (l))
+    {
+      channel = l->data;
+
+      g_debug ("%s: killing channel: %s", socket->id, (gchar *)channel);
+
+      /* Send a close message to both parties */
+      payload = build_control ("command", "close", "channel", (gchar *)channel, "problem", "terminated", NULL);
+      g_warn_if_fail (process_and_relay_close (self, socket, channel, payload));
+      web_socket_connection_send (socket->connection, WEB_SOCKET_DATA_TEXT, self->control_prefix, payload);
+      g_bytes_unref (payload);
+
+      g_free (channel);
+    }
+
+  g_list_free (list);
   return TRUE;
 }
 
@@ -876,7 +954,7 @@ on_session_control (CockpitTransport *transport,
         }
       else if (g_strcmp0 (command, "close") == 0)
         {
-          valid = process_close (self, socket, session, channel, options);
+          valid = process_close (self, socket, session, channel);
         }
       else
         {
@@ -1098,6 +1176,7 @@ process_and_relay_open (CockpitWebService *self,
   const gchar *password;
   const gchar *host;
   const gchar *host_key;
+  const gchar *tag;
   GBytes *payload;
   gboolean private;
 
@@ -1110,6 +1189,12 @@ process_and_relay_open (CockpitWebService *self,
   if (cockpit_session_by_channel (&self->sessions, channel))
     {
       g_warning ("cannot open a channel %s with the same id as another channel", channel);
+      return FALSE;
+    }
+
+  if (!cockpit_json_get_string (options, "tag", NULL, &tag))
+    {
+      g_warning ("%s: received open command with invalid tag", socket->id);
       return FALSE;
     }
 
@@ -1162,6 +1247,8 @@ process_and_relay_open (CockpitWebService *self,
   cockpit_session_add_channel (&self->sessions, session, channel);
   if (socket)
     cockpit_socket_add_channel (&self->sockets, socket, channel, data_type);
+  if (tag)
+    g_hash_table_insert (self->channel_tags, g_strdup (channel), g_strdup (tag));
 
   json_object_remove_member (options, "host");
   json_object_remove_member (options, "user");
@@ -1307,11 +1394,13 @@ dispatch_inbound_command (CockpitWebService *self,
         }
       else
         {
-          session = cockpit_session_by_channel (&self->sessions, channel);
-          valid = process_close (self, socket, session, channel, options);
-          if (valid && session && !session->sent_done)
-            cockpit_transport_send (session->transport, NULL, payload);
+          valid = process_and_relay_close (self, socket, channel, payload);
         }
+    }
+  else if (g_strcmp0 (command, "kill") == 0)
+    {
+      /* This command is never forwarded */
+      valid = process_kill (self, socket, options);
     }
   else if (channel)
     {
@@ -1528,6 +1617,7 @@ cockpit_web_service_init (CockpitWebService *self)
   cockpit_sockets_init (&self->sockets);
   cockpit_sidebands_init (&self->sidebands);
   self->ping_timeout = g_timeout_add_seconds (cockpit_ws_ping_interval, on_ping_time, self);
+  self->channel_tags = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 }
 
 static void

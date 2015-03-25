@@ -183,6 +183,8 @@ PageServer.prototype = {
         $(self.server_time).on("changed", function() {
             $('#system_information_systime_button').text(self.server_time.format(true));
         });
+
+        self.plot_controls = shell.setup_plot_controls($('#server-graph-toolbar'));
     },
 
     enter: function() {
@@ -309,6 +311,20 @@ PageServer.prototype = {
                 memory_options.yaxis.max = info.memory;
                 self.memory_plot.set_options(memory_options);
             });
+
+        var plots = [ self.cpu_plot, self.memory_plot, self.network_plot, self.disk_plot ];
+        self.plot_controls.reset(plots);
+        plots.forEach(function (p) {
+            $(p).on("changed", function() {
+                var options = p.get_options();
+                if (p.archives && !options.selection) {
+                    $("#dashboard-toolbar").show();
+                    options.selection = { mode: "x", color: "#d4edfa" };
+                    p.set_options(options);
+                    p.refresh();
+                }
+            });
+        });
 
         /*
          * Parses output like:

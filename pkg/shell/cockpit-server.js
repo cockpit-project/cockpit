@@ -184,7 +184,7 @@ PageServer.prototype = {
             $('#system_information_systime_button').text(self.server_time.format(true));
         });
 
-        self.plot_controls = shell.setup_plot_controls($('#server-graph-toolbar'));
+        self.plot_controls = shell.setup_plot_controls($('#server'), $('#server-graph-toolbar'));
     },
 
     enter: function() {

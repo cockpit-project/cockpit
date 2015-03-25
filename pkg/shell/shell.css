@@ -103,9 +103,20 @@ html, body {
     white-space: nowrap;
 }
 
+.zoom-controls {
+    display: none;
+}
+
+.show-zoom-controls .zoom-controls {
+    display: block;
+}
+
+.show-zoom-cursor .zoomable-plot {
+    cursor: ew-resize;
+}
+
 .dashboard-plot {
     margin-bottom: 10px;
-    cursor: ew-resize;
 }
 
 #host-edit-color-popover .color-cell {

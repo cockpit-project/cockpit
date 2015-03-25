@@ -23,6 +23,9 @@ define([
     "shell/shell"
 ], function($, cockpit, shell) {
 
+var _ = cockpit.gettext;
+var C_ = cockpit.gettext;
+
 /* A thin abstraction over flot and metrics channels.  It mostly
  * shields you from hairy array acrobatics and having to know when it
  * is safe or required to create the flot object.
@@ -631,13 +634,14 @@ shell.plot_simple_template = function simple() {
                 fill: 1.0
             }
         },
-        xaxis: {
-            tickFormatter: function() { return ""; }
-        },
-        yaxis: {
-            tickFormatter: function() { return ""; },
-            ticks: 5,
-        },
+        xaxis: { tickColor: "#d1d1d1",
+                 mode: "time",
+                 tickFormatter: shell.format_date_tick,
+                 minTickSize: [ 1, 'minute' ],
+                 reserveSpace: false
+               },
+        yaxis: { tickColor: "#d1d1d1",
+               },
         /*
          * The point radius influences the margin around the grid even if no points
          * are plotted. We don't want any margin, so we set the radius to zero.
@@ -653,6 +657,101 @@ shell.plot_simple_template = function simple() {
             labelMargin: 0
         }
     };
+};
+
+shell.memory_ticks = function memory_ticks(opts) {
+    // Not more than 5 ticks, nicely rounded to powers of 2.
+    var size = Math.pow(2.0, Math.ceil(Math.log(opts.max/5)/Math.LN2));
+    var ticks = [ ];
+    for (var t = 0; t < opts.max; t += size)
+        ticks.push(t);
+    return ticks;
+};
+
+var month_names = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
+
+shell.format_date_tick = function format_date_tick(val, axis) {
+    function pad(n) {
+        var str = n.toFixed();
+        if(str.length == 1)
+            str = '0' + str;
+        return str;
+    }
+
+    var year_index = 0;
+    var month_index = 1;
+    var day_index = 2;
+    var hour_minute_index = 3;
+
+    var begin;
+    var end;
+
+    // Determine the smallest unit according to the steps from one
+    // tick to the next.
+
+    var size = axis.tickSize[1];
+    if (size == "minute" || size == "hour")
+        end = hour_minute_index;
+    else if (size == "day")
+        end = day_index;
+    else if (size == "month")
+        end = month_index;
+    else
+        end = year_index;
+
+    // Determine biggest unit according to how far away the left edge
+    // of the graph is from 'now'.
+
+    var n = new Date();
+    var l = new Date(axis.min);
+
+    begin = year_index;
+    if (l.getFullYear() == n.getFullYear()) {
+        begin = month_index;
+        if (l.getMonth() == n.getMonth()) {
+            begin = day_index;
+            if (l.getDate() == n.getDate())
+                begin = hour_minute_index;
+        }
+    }
+
+    // Adjust so that it all makes sense
+
+    if (begin > end)
+        begin = end;
+    if (begin == day_index)
+        begin = month_index;
+
+    // And render it
+
+    var d = new Date(val);
+    var label = " ";
+
+    if (year_index >= begin && year_index <= end)
+        label += d.getFullYear().toFixed() + " ";
+    if (month_index >= begin && month_index <= end)
+        label += C_("month-name", month_names[d.getMonth()]) + " ";
+    if (day_index >= begin && day_index <= end)
+        label += d.getDate().toFixed() + " ";
+    if (hour_minute_index >= begin && hour_minute_index <= end)
+        label += pad(d.getHours()) + ':' + pad(d.getMinutes()) + " ";
+
+    return label.substr(0, label.length-1);
+};
+
+shell.format_bytes_tick = function format_bytes_tick(val, axis) {
+    var max = cockpit.format_bytes(axis.max, 1024, true);
+    return cockpit.format_bytes(val, max[1]);
+};
+
+shell.format_bytes_per_sec_tick = function format_bytes_per_sec_tick(val, axis) {
+    var max = cockpit.format_bytes_per_sec(axis.max, 1024, true);
+    return cockpit.format_bytes_per_sec(val, max[1]);
+};
+
+shell.format_bits_per_sec_tick = function format_bits_per_sec_tick(val, axis) {
+    var max = cockpit.format_bits_per_sec(axis.max*8, 1000, true);
+    return cockpit.format_bits_per_sec(val*8, max[1]);
 };
 
 shell.setup_plot_controls = function setup_plot_controls(element, plots) {

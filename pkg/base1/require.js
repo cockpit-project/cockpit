@@ -2093,7 +2093,6 @@ var requirejs, require, define;
 })(require);
 
 
-//# sourceURL=base1/require-config.js
 define('translated', function() {
     var module = { };
 
@@ -2111,4 +2110,3 @@ define('translated', function() {
     return module;
 });
 
-//# sourceURL=base1/require-loaders.js

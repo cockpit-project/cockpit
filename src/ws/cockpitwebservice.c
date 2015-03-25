@@ -1701,6 +1701,7 @@ create_web_socket_server_for_stream (const gchar **protocols,
   const gchar *host = NULL;
   const gchar **origins;
   gchar *allocated = NULL;
+  gchar *origin = NULL;
   gchar *defaults[2];
   gboolean secure;
   gchar *url;
@@ -1721,7 +1722,8 @@ create_web_socket_server_for_stream (const gchar **protocols,
   origins = cockpit_conf_strv ("WebService", "Origins", ' ');
   if (origins == NULL)
     {
-      defaults[0] = g_strdup_printf ("%s://%s", secure ? "https" : "http", host);
+      origin = g_strdup_printf ("%s://%s", secure ? "https" : "http", host);
+      defaults[0] = origin;
       defaults[1] = NULL;
       origins = (const gchar **)defaults;
     }
@@ -1730,6 +1732,7 @@ create_web_socket_server_for_stream (const gchar **protocols,
                                                  io_stream, headers, input_buffer);
   g_free (allocated);
   g_free (url);
+  g_free (origin);
 
   return connection;
 }

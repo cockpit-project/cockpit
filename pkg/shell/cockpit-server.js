@@ -322,19 +322,7 @@ PageServer.prototype = {
                 self.memory_plot.set_options(memory_options);
             });
 
-        var plots = [ self.cpu_plot, self.memory_plot, self.network_plot, self.disk_plot ];
-        self.plot_controls.reset(plots);
-        plots.forEach(function (p) {
-            $(p).on("changed", function() {
-                var options = p.get_options();
-                if (p.archives && !options.selection) {
-                    $("#dashboard-toolbar").show();
-                    options.selection = { mode: "x", color: "#d4edfa" };
-                    p.set_options(options);
-                    p.refresh();
-                }
-            });
-        });
+        self.plot_controls.reset([ self.cpu_plot, self.memory_plot, self.network_plot, self.disk_plot ]);
 
         /*
          * Parses output like:

@@ -469,15 +469,6 @@ PageDashboard.prototype = {
                 var plot = shell.plot($(rm.selector));
                 plot.set_options(options);
                 self.plots.push(plot);
-
-                $(plot).on("changed", function() {
-                    if (plot.archives && !options.selection) {
-                        $("#dashboard-toolbar").show();
-                        options.selection = { mode: "x", color: "#d4edfa" };
-                        plot.set_options(options);
-                        plot.refresh();
-                    }
-                });
             });
 
             series = {};

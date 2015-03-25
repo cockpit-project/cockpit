@@ -790,8 +790,8 @@ define([
                 .done(function(manis) {
                     machine.components = self.build(manis);
                     var etag = req.getResponseHeader("ETag");
-                    if (etag)
-                        machine.checksum = etag;
+                    if (etag) /* and remove quotes */
+                        machine.checksum = etag.replace(/^"?(.+)"?$/,'$1');
                 })
                 .fail(function(ex) {
                     console.warn("failed to load manifests from " + machine.address + ": " + ex);

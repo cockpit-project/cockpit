@@ -518,7 +518,9 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
                     interval: real_time_samples_interval,
                     metrics: fallback
                 }), process_samples);
-                $(real_time_channel).on("close", channel_closed, "internal");
+                $(real_time_channel).on("close", function(event, options) {
+                    channel_closed(event, options, "internal");
+                });
 
             /* Otherwise it could be just a normal failure */
             } else {

@@ -911,6 +911,17 @@ function basic_scope(cockpit) {
         });
     };
 
+    cockpit.kill = function kill(host, tag) {
+        var options = { "command": "kill" };
+        if (host)
+            options.host = host;
+        if (tag)
+            options.tag = tag;
+        ensure_transport(function(transport) {
+            transport.send_control(options);
+        });
+    };
+
     cockpit.transport = {
         inject: function inject(message) {
             if (!default_transport)

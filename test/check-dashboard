@@ -29,6 +29,13 @@ class TestDashboard(MachineCase):
         }
         """)
 
+    def check_discovered_addresses(self, b, addresses):
+        b.click('#dashboard-add')
+        b.wait_popup('dashboard_setup_server_dialog')
+        self.wait_discovered_addresses (b, addresses)
+        b.click('#dashboard_setup_server_dialog button.close')
+        b.wait_popdown('dashboard_setup_server_dialog')
+
     def wait_dashboard_addresses(self, b, expected):
         b.wait_js_func(
             """(function (expected) {
@@ -61,6 +68,7 @@ class TestDashboard(MachineCase):
 
     def add_machine_finish(self, b):
         b.wait_text('#dashboard_setup_next', "Next")
+        b.wait_present("#dashboard_setup_next:not([disabled])")
         b.click('#dashboard_setup_next')
         b.wait_text('#dashboard_setup_next', "Add host")
         b.click('#dashboard_setup_next')
@@ -72,77 +80,73 @@ class TestDashboard(MachineCase):
         b = self.browser
         m = self.machine
 
+        m2 = self.new_machine()
+        m2.start()
+        m2.wait_boot()
+
+        m3 = self.new_machine()
+        m3.start()
+        m3.wait_boot()
+
         self.login_and_go("dashboard", href="/dashboard/list", host=None)
         self.inject_extras(b)
 
         self.wait_dashboard_addresses (b, [ "localhost" ])
-
-        # We don't bother to start multiple machines.  Instead, we add
-        # the same machine multiple times by using different ways to
-        # address it.
-
-        self.add_machine (b, "127.0.0.1")
-        self.wait_dashboard_addresses (b, [ "localhost", "127.0.0.1" ])
-
-        self.add_machine (b, m.address)
-        self.wait_dashboard_addresses (b, [ "localhost", "127.0.0.1", m.address ])
-
-        # Remove two
-        self.machine_remove (b, "127.0.0.1")
-        self.wait_dashboard_addresses (b, [ "localhost", m.address ])
-        self.machine_remove (b, "localhost")
-        self.wait_dashboard_addresses (b, [ m.address ])
 
         # Start second browser and check that it is in sync
         b2 = self.new_browser()
         b2.default_user = "root"
         b2.login_and_go("dashboard", href="/dashboard/list", host=None)
         self.inject_extras(b2)
-        self.wait_dashboard_addresses (b2, [ m.address ])
+        self.wait_dashboard_addresses (b2, [ "localhost" ])
+
+        self.add_machine (b, m2.address)
+        self.wait_dashboard_addresses (b, [ "localhost", m2.address ])
+        self.wait_dashboard_addresses (b2, [ "localhost", m2.address ])
+
+        self.add_machine (b, m3.address)
+        self.wait_dashboard_addresses (b, [ "localhost", m3.address, m2.address ])
+        self.wait_dashboard_addresses (b2, [ "localhost", m3.address, m2.address ])
+
+        # Remove two
+        self.machine_remove (b, m2.address)
+        self.wait_dashboard_addresses (b, [ "localhost", m3.address ])
+        self.wait_dashboard_addresses (b2, [ "localhost", m3.address ])
+
+        self.machine_remove (b, m3.address)
+        self.wait_dashboard_addresses (b, [ "localhost" ])
+        self.wait_dashboard_addresses (b2, [ "localhost" ])
 
         # Check that the two removed machines are listed in "Add Host"
-        b.click('#dashboard-add')
-        b.wait_popup('dashboard_setup_server_dialog')
-        self.wait_discovered_addresses (b, [ "127.0.0.1", "localhost" ])
+        # on both browsers
+        self.check_discovered_addresses (b, [ m2.address, m3.address ])
+        self.check_discovered_addresses (b2, [ m2.address, m3.address ])
 
-        # Add one again
-        b.set_val('#dashboard_setup_address', "localhost")
-        self.add_machine_finish(b)
-        self.wait_dashboard_addresses (b, [ "localhost", m.address ])
+        # Add one back, check addresses on both browsers
+        self.add_machine (b, m2.address)
+        self.wait_dashboard_addresses (b, [ "localhost", m2.address ])
+        self.wait_dashboard_addresses (b2, [ "localhost", m2.address ])
+        self.check_discovered_addresses (b, [ m3.address ])
+        self.check_discovered_addresses (b2, [ m3.address ])
 
-        # Open "Add Host" on second browser
-        b2.click('#dashboard-add')
-        b2.wait_popup('dashboard_setup_server_dialog')
-        self.wait_discovered_addresses (b2, [ "127.0.0.1", "localhost" ])
+        # And the second one, check addresses on both browsers
+        self.add_machine (b, m3.address)
+        self.wait_dashboard_addresses (b, [ "localhost", m2.address, m3.address ])
+        self.wait_dashboard_addresses (b2, [ "localhost", m2.address, m3.address ])
+        self.check_discovered_addresses (b, [  ])
+        self.check_discovered_addresses (b2, [  ])
 
-        # Remove one from dashboard of first browser and check that it
-        # appears in dialog of second
-        self.machine_remove (b, m.address)
-        self.wait_discovered_addresses (b2, [ "127.0.0.1", "localhost" ])
-
-        b2.click('#dashboard_setup_server_dialog button.close')
-        b2.wait_popdown('dashboard_setup_server_dialog')
-
-        self.allow_journal_messages('.*: .* host key for server is not known: .*')
-
-    def testHostSwitcher(self):
-        b = self.browser
-        m = self.machine
-
-        self.login_and_go("dashboard", href="/dashboard/list", host=None)
-        self.inject_extras(b)
-
-        b.click('#dashboard-add')
-        b.wait_popup('dashboard_setup_server_dialog')
-        b.set_val('#dashboard_setup_address', "127.0.0.1")
-        self.add_machine_finish(b)
-
+        # Test switching
         b.leave_page()
-        b.wait_js_cond('$("#machine-dropdown ul li").length == 2')
+        b.wait_js_cond('$("#machine-dropdown ul li").length == 3')
         b.click('#machine-dropdown ul li:nth-child(1) a')
         b.wait_js_cond('window.location.hash == "#/@localhost"')
         b.click('#machine-dropdown ul li:nth-child(2) a')
-        b.wait_js_cond('window.location.hash == "#/@127.0.0.1"')
+        b.wait_js_cond('window.location.hash == "#/@%s"' % m2.address)
+        b.click('#machine-dropdown ul li:nth-child(3) a')
+        b.wait_js_cond('window.location.hash == "#/@%s"' % m3.address)
+
+        self.allow_journal_messages('.*: .* host key for server is not known: .*')
 
     def testEdit(self):
         b = self.browser

@@ -30,6 +30,7 @@
 #include "common/cockpittest.h"
 #include "common/mock-io-stream.h"
 #include "common/cockpitwebserver.h"
+#include "common/cockpitconf.h"
 
 #include "websocket/websocket.h"
 
@@ -77,6 +78,7 @@ typedef struct {
 typedef struct {
   WebSocketFlavor web_socket_flavor;
   const char *origin;
+  const char *config;
 } TestFixture;
 
 static GString *
@@ -184,6 +186,7 @@ setup_mock_webserver (TestCase *test,
                       gconstpointer data)
 {
   const gchar *roots[] = { SRCDIR "/src/ws", NULL };
+
   GError *error = NULL;
   const gchar *user;
 
@@ -442,6 +445,7 @@ start_web_service_and_create_client (TestCase *test,
                                      WebSocketConnection **ws,
                                      CockpitWebService **service)
 {
+  cockpit_config_file = fixture ? fixture->config : NULL;
   const char *origin = fixture ? fixture->origin : NULL;
   if (!origin)
     origin = "http://127.0.0.1";
@@ -510,6 +514,7 @@ close_client_and_stop_web_service (TestCase *test,
   while (service != NULL)
     g_main_context_iteration (NULL, TRUE);
   g_source_remove (timeout);
+  cockpit_conf_cleanup ();
 }
 
 static void
@@ -1024,11 +1029,25 @@ test_expect_host_key (TestCase *test,
 static const TestFixture fixture_bad_origin_rfc6455 = {
   .web_socket_flavor = WEB_SOCKET_FLAVOR_RFC6455,
   .origin = "http://another-place.com",
+  .config = NULL
 };
 
 static const TestFixture fixture_bad_origin_hixie76 = {
   .web_socket_flavor = WEB_SOCKET_FLAVOR_HIXIE76,
   .origin = "http://another-place.com",
+  .config = NULL
+};
+
+static const TestFixture fixture_allowed_origin_rfc6455 = {
+  .web_socket_flavor = WEB_SOCKET_FLAVOR_RFC6455,
+  .origin = "https://another-place.com",
+  .config = SRCDIR "/src/ws/mock-config.conf"
+};
+
+static const TestFixture fixture_allowed_origin_hixie76 = {
+  .web_socket_flavor = WEB_SOCKET_FLAVOR_HIXIE76,
+  .origin = "https://another-place.com:9090",
+  .config = SRCDIR "/src/ws/mock-config.conf"
 };
 
 static void
@@ -1057,6 +1076,7 @@ test_bad_origin (TestCase *test,
   close_client_and_stop_web_service (test, ws, service);
   g_clear_error (&error);
 }
+
 
 static void
 test_fail_spawn (TestCase *test,
@@ -2013,10 +2033,12 @@ main (int argc,
 
   static const TestFixture fixture_rfc6455 = {
       .web_socket_flavor = WEB_SOCKET_FLAVOR_RFC6455,
+      .config = NULL
   };
 
   static const TestFixture fixture_hixie76 = {
       .web_socket_flavor = WEB_SOCKET_FLAVOR_HIXIE76,
+      .config = NULL
   };
 
   g_test_add ("/web-service/handshake-and-auth/rfc6455", TestCase,
@@ -2063,6 +2085,15 @@ main (int argc,
   g_test_add ("/web-service/bad-origin/hixie76", TestCase,
               &fixture_bad_origin_hixie76, setup_for_socket,
               test_bad_origin, teardown_for_socket);
+  g_test_add ("/web-service/bad-origin/withallowed", TestCase,
+              &fixture_bad_origin_rfc6455, setup_for_socket,
+              test_bad_origin, teardown_for_socket);
+  g_test_add ("/web-service/allowed-origin/rfc6455", TestCase,
+              &fixture_allowed_origin_rfc6455, setup_for_socket,
+              test_handshake_and_auth, teardown_for_socket);
+  g_test_add ("/web-service/allowed-origin/hixie76", TestCase,
+              &fixture_allowed_origin_hixie76, setup_for_socket,
+              test_handshake_and_auth, teardown_for_socket);
 
   g_test_add ("/web-service/fail-spawn/rfc6455", TestCase,
               &fixture_rfc6455, setup_for_socket,

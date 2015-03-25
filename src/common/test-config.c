@@ -28,7 +28,7 @@
 static void
 test_get_strings (void)
 {
-  cockpit_config_file = SRCDIR "/src/ws/mock_config.conf";
+  cockpit_config_file = SRCDIR "/src/ws/mock-config.conf";
 
   g_assert_null (cockpit_conf_string ("bad-section", "value"));
   g_assert_null (cockpit_conf_string ("Section1", "value"));
@@ -46,7 +46,7 @@ test_get_strvs (void)
   const gchar **space = NULL;
   const gchar **one = NULL;
 
-  cockpit_config_file = SRCDIR "/src/ws/mock_config.conf";
+  cockpit_config_file = SRCDIR "/src/ws/mock-config.conf";
 
   g_assert_null (cockpit_conf_strv ("bad-section", "value", ' '));
   g_assert_null (cockpit_conf_strv ("Section1", "value", ' '));

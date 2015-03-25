@@ -141,7 +141,7 @@ update-lib::
 	    $(srcdir)/lib/requirejs.$(VX).min.js \
 	    $(srcdir)/pkg/base1/require-config.js \
 	    $(srcdir)/pkg/base1/require-loaders.js
-	$(srcdir)/tools/cssbundle $(srcdir)/pkg/base1/patternfly.css \
+	$(srcdir)/tools/cssbundle -o $(srcdir)/pkg/base1/patternfly.css \
 	    $(srcdir)/lib/patternfly.$(VX).css \
 	    $(srcdir)/lib/bootstrap-datepicker.$(VX).css
 	$(BASE_LN) ../../lib/mustache.$(VX).js mustache.js

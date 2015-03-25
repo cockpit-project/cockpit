@@ -281,7 +281,7 @@ PageDashboard.prototype = {
 
         plot_init();
         set_monitor(current_monitor);
-        shell.setup_plot_controls($('#dashboard-toolbar'), self.plots);
+        shell.setup_plot_controls($('#dashboard'), $('#dashboard-toolbar'), self.plots);
 
         $("#dashboard-hosts")
             .on("click", "a.list-group-item", function() {
@@ -435,8 +435,6 @@ PageDashboard.prototype = {
 
         function plot_init() {
             self.plots = [];
-
-            $("#dashboard-toolbar").hide();
 
             resource_monitors.forEach(function (rm) {
                 function setup_hook(flot) {

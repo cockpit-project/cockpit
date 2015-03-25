@@ -50,7 +50,7 @@
       <div id="dashboard" class="container-fluid" hidden>
         <div class="row">
           <div class="col-md-12">
-            <div id="dashboard-toolbar" class="pull-right" hidden>
+            <div id="dashboard-toolbar" class="pull-right zoom-controls">
               <div class="dropdown" style="display:inline-block">
                 <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                   <span style="width:6em;text-align:left;padding-left:5px;display:inline-block"></span>
@@ -81,10 +81,10 @@
               <li data-monitor-id="3"><a>Disk I/O</a></li>
             </ul>
             <br>
-            <div class="dashboard-plot" id="dashboard-plot-0" style="height:250px"></div>
-            <div class="dashboard-plot" id="dashboard-plot-1" style="height:250px"></div>
-            <div class="dashboard-plot" id="dashboard-plot-2" style="height:250px"></div>
-            <div class="dashboard-plot" id="dashboard-plot-3" style="height:250px"></div>
+            <div class="dashboard-plot zoomable-plot" id="dashboard-plot-0" style="height:250px"></div>
+            <div class="dashboard-plot zoomable-plot" id="dashboard-plot-1" style="height:250px"></div>
+            <div class="dashboard-plot zoomable-plot" id="dashboard-plot-2" style="height:250px"></div>
+            <div class="dashboard-plot zoomable-plot" id="dashboard-plot-3" style="height:250px"></div>
           </div>
         </div>
         <div class="row">
@@ -155,7 +155,7 @@
           </table>
         </div>
         <div id="server-graph-columns" class="col-md-8 col-lg-9">
-          <div id="server-graph-toolbar" class="pull-right">
+          <div id="server-graph-toolbar" class="pull-right zoom-controls">
             <div class="dropdown" style="display:inline-block">
               <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                 <span style="width:6em;text-align:left;padding-left:5px;display:inline-block"></span>
@@ -185,25 +185,25 @@
             <a onclick="cockpit.location.go('cpu_status');">CPU</a>
             <span style="float:right" id="server_cpu_text"></span>
           </div>
-          <div style="height:120px" id="server_cpu_graph" class="server-graph"></div>
+          <div style="height:120px" id="server_cpu_graph" class="server-graph zoomable-plot"></div>
           <br/>
           <div style="color:black">
             <a onclick="cockpit.location.go('memory_status');">Memory</a>
             <span style="float:right" id="server_memory_text"></span>
           </div>
-          <div style="height:120px" id="server_memory_graph" class="server-graph"></div>
+          <div style="height:120px" id="server_memory_graph" class="server-graph zoomable-plot"></div>
           <br/>
           <div style="color:black">
             <a onclick="cockpit.jump('/network/interfaces');">Network Traffic</a>
             <span style="float:right" id="server_network_traffic_text"></span>
           </div>
-          <div style="height:120px" id="server_network_traffic_graph" class="server-graph"></div>
+          <div style="height:120px" id="server_network_traffic_graph" class="server-graph zoomable-plot"></div>
           <br/>
           <div style="color:black">
             <a onclick="cockpit.jump('/storage/devices');">Disk I/O</a>
             <span style="float:right" id="server_disk_io_text"></span>
           </div>
-          <div style="height:120px" id="server_disk_io_graph" class="server-graph"></div>
+          <div style="height:120px" id="server_disk_io_graph" class="server-graph zoomable-plot"></div>
         </div>
       </div>
 

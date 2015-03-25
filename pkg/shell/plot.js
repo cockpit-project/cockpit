@@ -754,7 +754,7 @@ shell.format_bits_per_sec_tick = function format_bits_per_sec_tick(val, axis) {
     return cockpit.format_bits_per_sec(val*8, max[1]);
 };
 
-shell.setup_plot_controls = function setup_plot_controls(element, plots) {
+shell.setup_plot_controls = function setup_plot_controls(container, element, plots) {
 
     var plot_min_x_range = 5*60;
     var plot_zoom_steps = [ 5*60,  60*60, 6*60*60, 24*60*60, 7*24*60*60, 30*24*60*60, 365*24*60*60 ];
@@ -852,6 +852,27 @@ shell.setup_plot_controls = function setup_plot_controls(element, plots) {
             .attr('disabled', plot_x_range >= plot_zoom_steps[plot_zoom_steps.length-1]);
     }
 
+    function update_selection_zooming() {
+        var mode;
+
+        if (container.hasClass('show-zoom-controls') && plot_x_range > plot_min_x_range) {
+            container.addClass('show-zoom-cursor');
+            mode = "x";
+        } else {
+            container.removeClass('show-zoom-cursor');
+            mode = null;
+        }
+
+        plots.forEach(function (p) {
+            var options = p.get_options();
+            if (!options.selection || options.selection.mode != mode) {
+                options.selection = { mode: mode, color: "#d4edfa" };
+                p.set_options(options);
+                p.refresh();
+            }
+        });
+    }
+
     function plot_reset() {
         if (plot_x_range < plot_min_x_range) {
             plot_x_stop += (plot_min_x_range - plot_x_range)/2;
@@ -870,17 +891,15 @@ shell.setup_plot_controls = function setup_plot_controls(element, plots) {
                 p.start_walking();
 
             $(p).on("changed", function() {
-                var options = p.get_options();
-                if (p.archives && !options.selection) {
-                    element.show();
-                    options.selection = { mode: "x", color: "#d4edfa" };
-                    p.set_options(options);
-                    p.refresh();
+                if (p.archives) {
+                    container.addClass('show-zoom-controls');
+                    update_selection_zooming();
                 }
             });
         });
 
         update_plot_buttons();
+        update_selection_zooming();
     }
 
     function reset(p) {

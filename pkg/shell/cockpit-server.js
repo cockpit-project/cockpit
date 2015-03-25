@@ -233,13 +233,15 @@ PageServer.prototype = {
         };
 
         var cpu_options = shell.plot_simple_template();
-        $.extend(cpu_options.yaxis, { max: 100 });
-
+        $.extend(cpu_options.yaxis, { tickFormatter: function(v) { return v.toFixed(0) + "%"; },
+                                      labelWidth: 60,
+                                      max: 100
+                                    });
         self.cpu_plot = shell.plot($("#server_cpu_graph"), 300);
         self.cpu_plot.set_options(cpu_options);
         series = self.cpu_plot.add_metrics_sum_series(cpu_data, { });
         $(series).on("value", function(ev, value) {
-            $("#server_cpu_text").text(value.toFixed(1) + "%");
+            $("#server_cpu_text").text(value.toFixed(0) + "%");
         });
 
         /* Memory graph */
@@ -251,7 +253,10 @@ PageServer.prototype = {
         };
 
         var memory_options = shell.plot_simple_template();
-
+        $.extend(memory_options.yaxis, { ticks: shell.memory_ticks,
+                                         tickFormatter: shell.format_bytes_tick,
+                                         labelWidth: 60
+                                       });
         self.memory_plot = shell.plot($("#server_memory_graph"), 300);
         self.memory_plot.set_options(memory_options);
         series = self.memory_plot.add_metrics_sum_series(memory_data, { });
@@ -269,6 +274,9 @@ PageServer.prototype = {
         };
 
         var network_options = shell.plot_simple_template();
+        $.extend(network_options.yaxis, { tickFormatter: shell.format_bits_per_sec_tick,
+                                          labelWidth: 60
+                                        });
         network_options.setup_hook = function network_setup_hook(plot) {
             var axes = plot.getAxes();
             if (axes.yaxis.datamax < 100000)
@@ -294,8 +302,13 @@ PageServer.prototype = {
             derive: "rate"
         };
 
+        var disk_options = shell.plot_simple_template();
+        $.extend(disk_options.yaxis, { ticks: shell.memory_ticks,
+                                       tickFormatter: shell.format_bytes_per_sec_tick,
+                                       labelWidth: 60
+                                     });
         self.disk_plot = shell.plot($("#server_disk_io_graph"), 300);
-        self.disk_plot.set_options(shell.plot_simple_template());
+        self.disk_plot.set_options(disk_options);
         series = self.disk_plot.add_metrics_sum_series(disk_data, { });
         $(series).on("value", function(ev, value) {
             $("#server_disk_io_text").text(cockpit.format_bytes_per_sec(value));
@@ -305,9 +318,6 @@ PageServer.prototype = {
             done(function (info) {
                 cpu_options.yaxis.max = info.cpus * 100;
                 self.cpu_plot.set_options(cpu_options);
-
-                // TODO - round memory to something nice and/or adjust
-                //        the ticks.
                 memory_options.yaxis.max = info.memory;
                 self.memory_plot.set_options(memory_options);
             });

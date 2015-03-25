@@ -1090,6 +1090,166 @@ test_fail_spawn (TestCase *test,
   close_client_and_stop_web_service (test, ws, service);
 }
 
+static void
+test_kill_tags (TestCase *test,
+                gconstpointer data)
+{
+  WebSocketConnection *ws;
+  GBytes *received = NULL;
+  CockpitWebService *service;
+  GHashTable *seen;
+  gchar *ochannel;
+  const gchar *channel;
+  const gchar *command;
+  JsonObject *options;
+  GBytes *sent;
+  GBytes *payload;
+  gulong handler;
+
+  /* Sends a "test" message in channel "4" */
+  start_web_service_and_connect_client (test, data, &ws, &service);
+
+  sent = g_bytes_new_static ("4\ntest", 6);
+  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
+
+  /* Drain the initial message */
+  WAIT_UNTIL (received != NULL);
+  g_assert (g_bytes_equal (sent, received));
+  g_bytes_unref (received);
+  received = NULL;
+
+  g_signal_handler_disconnect (ws, handler);
+  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+
+  seen = g_hash_table_new (g_str_hash, g_str_equal);
+  g_hash_table_add (seen, "a");
+  g_hash_table_add (seen, "b");
+  g_hash_table_add (seen, "c");
+
+  send_control_message (ws, "open", "a", "payload", "echo", "tag", "test", NULL);
+  send_control_message (ws, "open", "b", "payload", "echo", "tag", "test", NULL);
+  send_control_message (ws, "open", "c", "payload", "echo", "tag", "test", NULL);
+
+  /* Kill all the above channels */
+  send_control_message (ws, "kill", NULL, "tag", "test", NULL);
+
+  /* All the close messages */
+  while (g_hash_table_size (seen) > 0)
+    {
+      WAIT_UNTIL (received != NULL);
+
+      payload = cockpit_transport_parse_frame (received, &ochannel);
+      g_bytes_unref (received);
+      received = NULL;
+
+      g_assert (payload != NULL);
+      g_assert_cmpstr (ochannel, ==, NULL);
+      g_free (ochannel);
+
+      g_assert (cockpit_transport_parse_command (payload, &command, &channel, &options));
+      g_bytes_unref (payload);
+
+      if (!g_str_equal (command, "open"))
+        {
+          g_assert_cmpstr (command, ==, "close");
+          g_assert_cmpstr (json_object_get_string_member (options, "problem"), ==, "terminated");
+          g_assert (g_hash_table_remove (seen, channel));
+        }
+      json_object_unref (options);
+    }
+
+  g_hash_table_destroy (seen);
+
+  g_signal_handler_disconnect (ws, handler);
+  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
+
+  /* Now verify that the original channel is still open */
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
+
+  WAIT_UNTIL (received != NULL);
+  g_assert (g_bytes_equal (received, sent));
+  g_bytes_unref (sent);
+  g_bytes_unref (received);
+  received = NULL;
+
+  g_signal_handler_disconnect (ws, handler);
+
+  close_client_and_stop_web_service (test, ws, service);
+}
+
+static void
+test_kill_host (TestCase *test,
+                gconstpointer data)
+{
+  WebSocketConnection *ws;
+  GBytes *received = NULL;
+  CockpitWebService *service;
+  GHashTable *seen;
+  gchar *ochannel;
+  const gchar *channel;
+  const gchar *command;
+  JsonObject *options;
+  GBytes *payload;
+  gulong handler;
+
+  /* Sends a "test" message in channel "4" */
+  start_web_service_and_connect_client (test, data, &ws, &service);
+
+  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
+
+  /* Drain the initial message */
+  WAIT_UNTIL (received != NULL);
+  g_bytes_unref (received);
+  received = NULL;
+
+  g_signal_handler_disconnect (ws, handler);
+  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+
+  seen = g_hash_table_new (g_str_hash, g_str_equal);
+  g_hash_table_add (seen, "a");
+  g_hash_table_add (seen, "b");
+  g_hash_table_add (seen, "c");
+  g_hash_table_add (seen, "4");
+
+  send_control_message (ws, "open", "a", "payload", "echo", "tag", "test", NULL);
+  send_control_message (ws, "open", "b", "payload", "echo", "tag", "test", NULL);
+  send_control_message (ws, "open", "c", "payload", "echo", "tag", "test", NULL);
+
+  /* Kill all the above channels */
+  send_control_message (ws, "kill", NULL, "host", "localhost", NULL);
+
+  /* All the close messages */
+  while (g_hash_table_size (seen) > 0)
+    {
+      WAIT_UNTIL (received != NULL);
+
+      payload = cockpit_transport_parse_frame (received, &ochannel);
+      g_bytes_unref (received);
+      received = NULL;
+
+      g_assert (payload != NULL);
+      g_assert_cmpstr (ochannel, ==, NULL);
+      g_free (ochannel);
+
+      g_assert (cockpit_transport_parse_command (payload, &command, &channel, &options));
+      g_bytes_unref (payload);
+
+      if (!g_str_equal (command, "open"))
+        {
+          g_assert_cmpstr (command, ==, "close");
+          g_assert_cmpstr (json_object_get_string_member (options, "problem"), ==, "terminated");
+          g_assert (g_hash_table_remove (seen, channel));
+        }
+      json_object_unref (options);
+    }
+
+  g_hash_table_destroy (seen);
+
+  g_signal_handler_disconnect (ws, handler);
+
+  close_client_and_stop_web_service (test, ws, service);
+}
+
 static gboolean
 on_timeout_dummy (gpointer unused)
 {
@@ -1910,6 +2070,11 @@ main (int argc,
   g_test_add ("/web-service/fail-spawn/hixie76", TestCase,
               &fixture_hixie76, setup_for_socket,
               test_fail_spawn, teardown_for_socket);
+
+  g_test_add ("/web-service/kill-tags", TestCase, &fixture_rfc6455,
+              setup_for_socket, test_kill_tags, teardown_for_socket);
+  g_test_add ("/web-service/kill-host", TestCase, &fixture_rfc6455,
+              setup_for_socket, test_kill_host, teardown_for_socket);
 
   g_test_add ("/web-service/specified-creds", TestCase,
               &fixture_rfc6455, setup_for_socket_spec,

@@ -762,7 +762,7 @@ process_kill (CockpitWebService *self,
     {
       channel = l->data;
 
-      g_debug ("%s: killing channel: %s", socket->id, (gchar *)channel);
+      g_debug ("%s killing channel: %s", socket->id, (gchar *)channel);
 
       /* Send a close message to both parties */
       payload = build_control ("command", "close", "channel", (gchar *)channel, "problem", "terminated", NULL);

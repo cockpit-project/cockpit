@@ -62,7 +62,10 @@ function step() {
             fatal(err.message);
         try {
 	    result += redefine(data, name);
-            result += "\n//# sourceURL=" + dir + "/" + file + "\n";
+            if (result[result.length] != "\n")
+                result += "\n";
+            if (result.indexOf("//# sourceURL=") === -1)
+	        result += "//# sourceURL=" + dir + "/" + file + "\n";
 	    step();
         } catch(ex) {
             fatal(ex.message);

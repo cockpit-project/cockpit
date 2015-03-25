@@ -102,6 +102,7 @@ The following fields are defined:
  * "host": The destination host for the channel, defaults to "localhost"
  * "user": Optional alternate user for authenticating with host
  * "superuser": When true, try to run this channel as root.
+ * "tag": A tag that can later be used with the "kill" command.
 
 If "binary" is set then this channel transfers binary messages. If "binary"
 is set to "base64" then messages in the channel are encoded using "base64",
@@ -228,6 +229,21 @@ Example authorize challenge and response messages:
         "cookie": "555",
         "response": "crypt1:$6$r0oetn2039ntoen..."
     }
+
+Command: kill
+-------------
+
+The "kill" command terminates a whole set of channels. It is sent by the frontend
+and processed by cockpit-ws.
+
+The following fields are defined:
+
+ * "host": optional string kills channels with the given host
+ * "tag": optional string to select only channels opened with the given "tag"
+
+If no fields are specified then all channels are terminated. The "kill" command
+is not forwarded.
+
 
 Command: logout
 ---------------

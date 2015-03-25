@@ -868,6 +868,16 @@ shell.setup_plot_controls = function setup_plot_controls(element, plots) {
             p.refresh();
             if (plot_x_stop === undefined)
                 p.start_walking();
+
+            $(p).on("changed", function() {
+                var options = p.get_options();
+                if (p.archives && !options.selection) {
+                    element.show();
+                    options.selection = { mode: "x", color: "#d4edfa" };
+                    p.set_options(options);
+                    p.refresh();
+                }
+            });
         });
 
         update_plot_buttons();

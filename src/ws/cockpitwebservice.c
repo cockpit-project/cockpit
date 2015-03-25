@@ -1300,10 +1300,18 @@ dispatch_inbound_command (CockpitWebService *self,
     }
   else if (g_strcmp0 (command, "close") == 0)
     {
-      session = cockpit_session_by_channel (&self->sessions, channel);
-      valid = process_close (self, socket, session, channel, options);
-      if (valid && session && !session->sent_done)
-        cockpit_transport_send (session->transport, NULL, payload);
+      if (channel == NULL)
+        {
+          g_warning ("got close command without a channel");
+          valid = FALSE;
+        }
+      else
+        {
+          session = cockpit_session_by_channel (&self->sessions, channel);
+          valid = process_close (self, socket, session, channel, options);
+          if (valid && session && !session->sent_done)
+            cockpit_transport_send (session->transport, NULL, payload);
+        }
     }
   else if (channel)
     {

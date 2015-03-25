@@ -683,6 +683,11 @@ define([
                 /* Only control messages with a channel are forwardable */
                 } else if (control.channel === undefined) {
                     return;
+
+                /* Add the frame's tag to all open channel messages */
+                } else if (control.command == "open") {
+                    control.tag = frame.name;
+                    data = "\n" + JSON.stringify(control);
                 }
             }
 
@@ -725,6 +730,8 @@ define([
                 return;
             }
 
+            /* Close all channels for this frame */
+            cockpit.kill(null, child.name);
             delete frame_peers_by_seed[peer.channel_seed];
             delete frame_peers_by_name[child.name];
         };

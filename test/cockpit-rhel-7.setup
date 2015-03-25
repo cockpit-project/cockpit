@@ -87,3 +87,7 @@ touch /.autorelabel
 # Audit events to the journal
 rm -f '/etc/systemd/system/multi-user.target.wants/auditd.service'
 rm -rf /var/log/audit/
+
+# docker image that we need for integration testing
+systemctl start docker
+docker pull busybox

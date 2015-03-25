@@ -140,7 +140,10 @@ cockpit_set_journal_logging (const gchar *stderr_domain,
       fd = sd_journal_stream_fd (stderr_domain, LOG_WARNING, 0);
       if (fd < 0)
         {
-          g_warning ("couldn't open journal stream for stderr: %s", g_strerror (-fd));
+          if (-fd == ENOENT)
+            g_debug ("no journal present to stream stderr");
+          else
+            g_warning ("couldn't open journal stream for stderr: %s", g_strerror (-fd));
         }
       else
         {

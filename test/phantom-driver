@@ -72,18 +72,32 @@ function step ()
 
         function on_load_finished(status)
         {
+            page.onResourceError = null;
             page.onLoadFinished = null;
+            if (status != "success" && page.failure)
+                status = page.failure;
+            page.failure = null;
             sys.stdout.writeLine(JSON.stringify({result: status}));
             step ();
         }
 
+        function on_resource_error(ex) {
+            page.failure = ex.errorString + " " + ex.url;
+        };
+
         if (cmd.cmd == "open") {
+            page.failure = null;
+            page.onResourceError = on_resource_error;
             page.onLoadFinished = on_load_finished;
             page.open(cmd.url);
         } else if (cmd.cmd == "reload") {
+            page.failure = null;
+            page.onResourceError = on_resource_error;
             page.onLoadFinished = on_load_finished;
             page.reload();
         } else if (cmd.cmd == "expect-reload") {
+            page.failure = null;
+            page.onResourceError = on_resource_error;
             page.onLoadFinished = on_load_finished;
         } else if (cmd.cmd == "inject") {
             page.injectJs(cmd.file);

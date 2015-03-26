@@ -1110,6 +1110,7 @@ lookup_or_open_session_for_host (CockpitWebService *self,
 {
   CockpitSession *session = NULL;
   CockpitTransport *transport;
+  const gchar *hostname;
 
   if (host == NULL || g_strcmp0 (host, "") == 0)
     host = "localhost";
@@ -1119,14 +1120,15 @@ lookup_or_open_session_for_host (CockpitWebService *self,
   if (!session)
     {
       /* Used during testing */
+      hostname = host;
       if (g_strcmp0 (host, "localhost") == 0)
         {
           if (cockpit_ws_specific_ssh_port != 0)
-            host = "127.0.0.1";
+            hostname = "127.0.0.1";
         }
 
       transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
-                                "host", host,
+                                "host", hostname,
                                 "port", cockpit_ws_specific_ssh_port,
                                 "command", cockpit_ws_bridge_program,
                                 "creds", creds,

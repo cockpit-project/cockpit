@@ -132,6 +132,9 @@ class Browser:
         self.phantom.do("ph_init()")
 
     def reload(self):
+        self.switch_to_top()
+        self.wait_present("iframe.container-frame[data-loaded]")
+        self.wait_visible("iframe.container-frame[data-loaded]")
         self.phantom.reload()
         self.init_after_load()
 

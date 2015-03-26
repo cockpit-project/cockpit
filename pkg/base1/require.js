@@ -1,3 +1,4 @@
+
 /** vim: et:ts=4:sw=4:sts=4
  * @license RequireJS 2.1.16 Copyright (c) 2010-2015, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
@@ -2083,6 +2084,7 @@ var requirejs, require, define;
 }(this));
 
 //# sourceURL=lib/requirejs.v2.1.16.js
+
 (function(require) {
     require.config({
         baseUrl: "../",
@@ -2093,6 +2095,8 @@ var requirejs, require, define;
 })(require);
 
 
+//# sourceURL=base1/require-config.js
+
 define('translated', function() {
     var module = { };
 
@@ -2102,11 +2106,44 @@ define('translated', function() {
     language = language.split("-")[0];
 
     module.load = function load(name, parentRequire, onload, config) {
-        require([name + "." + language], function(value) {
+        parentRequire([name + "." + language], function(value) {
             onload(value);
         });
     };
 
     return module;
 });
+define('data', function() {
+    var module = { };
 
+    module.load = function load(name, parentRequire, onload, config) {
+
+        /* Predefined in the bundle */
+        var predef = name + "_text";
+        if (parentRequire.specified(predef)) {
+            parentRequire([predef], function(value) {
+                onload(value);
+            });
+            return;
+        }
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", parentRequire.toUrl(name), true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState != 4) {
+                return;
+            } else if (xhr.status == 200) {
+                onload(xhr.responseText);
+            } else if (xhr.statusText) {
+                onload.error(new Error(xhr.statusText));
+            } else {
+                onload.error(new Error(xhr.status + " error"));
+            }
+        };
+        xhr.send();
+    };
+
+    return module;
+});
+
+//# sourceURL=base1/require-loaders.js

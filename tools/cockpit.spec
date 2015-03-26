@@ -199,7 +199,7 @@ install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 %endif
 
 # Build the package lists for resource packages
-find %{buildroot}%{_datadir}/%{name}/base1 %{buildroot}%{_datadir}/%{name}/legacy %{buildroot}%{_datadir}/%{name}/shell %{buildroot}%{_datadir}/%{name}/system -type f > shell.list
+find %{buildroot}%{_datadir}/%{name}/base1 %{buildroot}%{_datadir}/%{name}/legacy %{buildroot}%{_datadir}/%{name}/shell %{buildroot}%{_datadir}/%{name}/system %{buildroot}%{_datadir}/%{name}/domain -type f > shell.list
 find %{buildroot}%{_datadir}/%{name}/subscriptions -type f > subscriptions.list
 
 %ifnarch x86_64 armv7hl

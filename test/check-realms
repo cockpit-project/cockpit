@@ -55,7 +55,7 @@ class TestRealms(MachineCase):
                 b.wait_text("#system_information_realms_button", "Join Domain")
             else:
                 b.wait_text_not("#system_information_realms_button", "Join Domain")
-            b.wait_dbus_prop('com.redhat.Cockpit.Realms', 'Busy', ",")
+            b.wait_not_attr("#system_information_realms_button", "disabled", "disabled")
 
         wait_number_domains(0)
 
@@ -63,11 +63,11 @@ class TestRealms(MachineCase):
         b.click("#system_information_realms_button")
         b.wait_popup("realms-op")
 	with b.wait_timeout(120):
-                b.set_val("#realms-op-address", "cockpit.lan")
-	        b.wait_attr("#realms-op-admin", "placeholder", 'e.g. "admin"')
-	        b.set_val("#realms-op-admin", "admin")
-	        b.set_val("#realms-op-admin-password", "foobarfoo")
-	        b.click("#realms-op-apply")
+                b.set_val(".realms-op-address", "cockpit.lan")
+	        b.wait_attr(".realms-op-admin", "placeholder", 'e.g. "admin"')
+	        b.set_val(".realms-op-admin", "admin")
+	        b.set_val(".realms-op-admin-password", "foobarfoo")
+	        b.click(".realms-op-apply")
 	        b.wait_popdown("realms-op")
 
 	        # Check that this has worked
@@ -76,40 +76,40 @@ class TestRealms(MachineCase):
         # Leave the domain
         b.click("#system_information_realms_button")
         b.wait_popup("realms-op")
-        b.click("#realms-op-apply")
+        b.click(".realms-op-apply")
         b.wait_popdown("realms-op")
         wait_number_domains(0)
 
         # Send a wrong password
         b.click("#system_information_realms_button")
         b.wait_popup("realms-op")
-        b.set_val("#realms-op-address", "cockpit.lan")
-        b.wait_attr("#realms-op-admin", "placeholder", 'e.g. "admin"')
-        b.set_val("#realms-op-admin", "admin")
-        b.set_val("#realms-op-admin-password", "foo")
-        b.click("#realms-op-apply")
-        b.wait_text_not("#realms-op-error", "")
-        b.click("#realms-op-cancel")
+        b.set_val(".realms-op-address", "cockpit.lan")
+        b.wait_attr(".realms-op-admin", "placeholder", 'e.g. "admin"')
+        b.set_val(".realms-op-admin", "admin")
+        b.set_val(".realms-op-admin-password", "foo")
+        b.click(".realms-op-apply")
+        b.wait_text_not(".realms-op-error", "")
+        b.click(".realms-op-cancel")
         b.wait_popdown("realms-op")
 
         # Try to join a non-existing domain
         b.click("#system_information_realms_button")
         b.wait_popup("realms-op")
-        b.set_val("#realms-op-address", "NOPE")
-        b.wait_js_cond("$('#realms-op-address-error').attr('title') != ''")
-        b.click("#realms-op-cancel")
+        b.set_val(".realms-op-address", "NOPE")
+        b.wait_js_cond("$('.realms-op-address-error').attr('title') != ''")
+        b.click(".realms-op-cancel")
         b.wait_popdown("realms-op")
 
         # Cancel a join
         b.click("#system_information_realms_button")
         b.wait_popup("realms-op")
-        b.set_val("#realms-op-address", "cockpit.lan")
-        b.wait_attr("#realms-op-admin", "placeholder", 'e.g. "admin"')
-        b.set_val("#realms-op-admin", "admin")
-        b.set_val("#realms-op-admin-password", "foobarfoo")
-        b.click("#realms-op-apply")
-        b.wait_visible("#realms-op-spinner")
-        b.click("#realms-op-cancel")
+        b.set_val(".realms-op-address", "cockpit.lan")
+        b.wait_attr(".realms-op-admin", "placeholder", 'e.g. "admin"')
+        b.set_val(".realms-op-admin", "admin")
+        b.set_val(".realms-op-admin-password", "foobarfoo")
+        b.click(".realms-op-apply")
+        b.wait_visible(".realms-op-spinner")
+        b.click(".realms-op-cancel")
         b.wait_popdown("realms-op")
 
 KRB5_TEMPLATE = """

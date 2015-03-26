@@ -31,7 +31,6 @@ shelldebug_DATA = \
 	pkg/shell/cockpit-memory-status.js \
 	pkg/shell/cockpit-networking.js \
 	pkg/shell/cockpit-storage.js \
-	pkg/shell/cockpit-realms.js \
 	pkg/shell/cockpit-services.js \
 	pkg/shell/cockpit-accounts.js \
 	pkg/shell/cockpit-docker.js \
@@ -61,7 +60,6 @@ shell_SHELL = \
 	pkg/shell/cockpit-memory-status.min.js \
 	pkg/shell/cockpit-networking.min.js \
 	pkg/shell/cockpit-storage.min.js \
-	pkg/shell/cockpit-realms.min.js \
 	pkg/shell/cockpit-services.min.js \
 	pkg/shell/cockpit-accounts.min.js \
 	pkg/shell/cockpit-docker.min.js \

@@ -91,8 +91,6 @@ libcockpit_legacy_a_SOURCES = \
 	src/legacy/storagelogicalvolume.c \
 	src/legacy/storagejob.h \
 	src/legacy/storagejob.c \
-	src/legacy/realms.h \
-	src/legacy/realms.c \
 	src/legacy/services.h \
 	src/legacy/services.c \
 	src/legacy/cgroup-show.h \

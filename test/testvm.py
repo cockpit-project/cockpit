@@ -611,6 +611,9 @@ class QemuMachine(Machine):
         if tty:
             return subprocess.Popen(cmd)
 
+        quoted = " ".join("'%s'" % x for x in cmd)
+        cmd = [ "/bin/sh", "-c", quoted + " | tee " + self.run_dir + "/qemu-$$.log" ]
+
         return subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
 
     def _monitor_qemu(self, command):

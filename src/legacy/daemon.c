@@ -33,7 +33,6 @@
 #include "mountmonitor.h"
 #include "storageprovider.h"
 #include "storagemanager.h"
-#include "realms.h"
 #include "services.h"
 
 /**
@@ -184,7 +183,6 @@ daemon_constructed (GObject *_object)
   CockpitManager *manager;
   CockpitResourceMonitor *monitor;
   CockpitMultiResourceMonitor *multi_monitor;
-  CockpitRealms *realms;
   CockpitServices *services;
   CockpitStorageManager *storage_manager;
   CockpitObjectSkeleton *object = NULL;
@@ -293,16 +291,6 @@ daemon_constructed (GObject *_object)
   g_object_unref (object);
 
   g_debug ("exported mount monitor");
-
-  /* /com/redhat/Cockpit/Realms */
-  realms = realms_new (daemon);
-  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/Realms");
-  cockpit_object_skeleton_set_realms (object, realms);
-  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
-  g_object_unref (realms);
-  g_object_unref (object);
-
-  g_debug ("exported realms");
 
   /* /com/redhat/Cockpit/Services */
   services = services_new (daemon);

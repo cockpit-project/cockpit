@@ -66,10 +66,6 @@ PageRealmsOp.prototype = {
         $("#realms-op-auth").on('change', function (e) {
             self.update_cred_fields();
         });
-
-        $("#realms-op-software").on('change', function (e) {
-            self.update_auth_methods();
-        });
     },
 
     enter: function() {
@@ -86,12 +82,10 @@ PageRealmsOp.prototype = {
         });
 
         if (me.op == 'join') {
-            me.never_show_software_choice = 1;
             me.title = C_("page-title", "Join a Domain");
             $("#realms-op-apply").text(_("Join"));
             $(".realms-op-join-only-row").show();
         } else if (me.op == 'leave') {
-            me.never_show_software_choice = 1;
             me.title = C_("page-title", "Leave Domain");
             $("#realms-op-apply").text(_("Leave"));
             $(".realms-op-join-only-row").hide();
@@ -131,20 +125,7 @@ PageRealmsOp.prototype = {
     update_discovered_details: function () {
         var me = this;
 
-        var sel = $("#realms-op-software");
-        sel.empty();
-        for (var i = 0; i < me.discovered_details.length; i++) {
-            var d = me.discovered_details[i];
-            var txt = d['client-software'] + " / " + d['server-software'];
-            sel.append('<option value="' + i + '">' + shell.esc(txt) + '</option>');
-        }
         me.update_auth_methods();
-
-        if (me.never_show_software_choice || me.discovered_details.length < 2) {
-            $("#realms-op-software-row").hide();
-        } else {
-            $("#realms-op-software-row").show();
-        }
     },
 
     update_auth_methods: function () {
@@ -164,14 +145,9 @@ PageRealmsOp.prototype = {
 
         if (me.op == 'leave') {
             add_from_details (me.given_details);
-        } else if (me.never_show_software_choice) {
-            // Just merge them all and trust that realmd will do the
-            // right thing.
+        } else {
             for (var i = 0; i < me.discovered_details.length; i++)
                 add_from_details (me.discovered_details[i]);
-        } else {
-            var s = $("#realms-op-software").val();
-            add_from_details (me.discovered_details[s]);
         }
 
         var have_one = 0;
@@ -216,8 +192,7 @@ PageRealmsOp.prototype = {
             $("#realms-op-admin-password-row").show();
             var admin;
             if (me.op == 'join') {
-                var s = $("#realms-op-software").val();
-                var d = s && me.discovered_details[s];
+                var d = me.discovered_details[Object.keys(me.discovered_details)[0]];
                 admin = d && d['suggested-administrator'];
             } else {
                 admin = me.given_details['suggested-administrator'];
@@ -242,7 +217,6 @@ PageRealmsOp.prototype = {
             $("#realms-op-wait-message").show();
             $(".realms-op-field").prop('disabled', true);
             $("#realms-op-apply").prop('disabled', true);
-            $("#realms-op-software").prop('disabled', true);
             $('[data-id="realms-op-auth"]').prop('disabled', true);
         } else {
             $("#realms-op-spinner").hide();
@@ -250,7 +224,6 @@ PageRealmsOp.prototype = {
             $(".realms-op-field").prop('disabled', false);
             $('[data-id="realms-op-auth"]').prop('disabled', false);
             $("#realms-op-apply").prop('disabled', false);
-            $("#realms-op-software").prop('disabled', false);
 
         }
     },
@@ -353,27 +326,11 @@ PageRealmsOp.prototype = {
         var options;
 
         if (me.op == 'join') {
-            var details;
-            if (me.never_show_software_choice)
-                details = { };
-            else {
-                var s = $("#realms-join-software").val();
-                details = me.discovered_details[s];
-            }
-
             options = { 'computer-ou': $("#realms-join-computer-ou").val() };
-
-            if (details['client-software'])
-                options['client-software'] = details['client-software'];
-            if (details['server-software'])
-                options['server-software'] = details['server-software'];
 
             me.working = true;
             me.realm_manager.call("Join", $("#realms-op-address").val(), creds, options, handle_op_result);
         } else if (me.op == 'leave') {
-            options = { 'server-software': me.given_details['server-software'],
-                        'client-software': me.given_details['client-software']
-                      };
             me.working = true;
             me.realm_manager.call("Leave", me.realm, creds, options, handle_op_result);
         }

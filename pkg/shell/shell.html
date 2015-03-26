@@ -9,6 +9,7 @@
     <script src="../base1/bundle.js"></script>
     <script src="../shell/bundle.js"></script>
     <script src="../system/bundle.js"></script>
+    <script src="../domain/bundle.js"></script>
     <script src="shell.js"></script>
     <script>
         require([
@@ -26,7 +27,6 @@
             "shell/cockpit-memory-status",
             "shell/cockpit-networking",
             "shell/cockpit-plot",
-            "shell/cockpit-realms",
             "shell/cockpit-server",
             "shell/cockpit-services",
             "shell/cockpit-setup",
@@ -130,10 +130,9 @@
               <td>Host Name</td>
               <td><button class="btn btn-default hostname-privileged" id="system_information_hostname_button"></button></td>
             </tr>
-            <tr>
+            <tr id="system-info-realms">
               <td>Domain</td>
-              <td>
-                <button class="btn btn-default realm-privileged" id="system_information_realms_button"></button>
+              <td class="button-location">
               </td>
             </tr>
             <tr>
@@ -1173,109 +1172,6 @@
       </div>
     </div>
 
-    <div class="modal" id="realms-op"
-         tabindex="-1" role="dialog"
-         data-backdrop="static">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title" id="realms-op-title"></h4>
-          </div>
-          <div class="modal-body">
-            <div id="realms-op-fields">
-              <table class="cockpit-form-table" id="realms-op-form">
-                <tr class="realms-op-join-only-row">
-                  <td translatable="yes">Domain Address</td>
-                  <td>
-                    <input class="realms-op-field form-control" type="text"
-                           id="realms-op-address" value=""/>
-                  </td>
-                  <td style="width:0px">
-                    <div id="realms-op-address-spinner"
-                         class="waiting"
-                         style="margin-left:-40px;margin-top:4px"></div>
-                    <img id="realms-op-address-error"
-                         src="images/dialog-error.png"
-                         style="margin-left:-40px;margin-top:4px"/>
-                  </td>
-                </tr>
-                <tr class="realms-op-join-only-row">
-                  <td class="header"></td>
-                </tr>
-                <tr class="realms-op-join-only-row">
-                  <td translatable="yes">Computer OU</td>
-                  <td>
-                    <input class="realms-op-field form-control" type="text"
-                           id="realms-op-computer-ou" value=""/>
-                  </td>
-                </tr>
-                <tr id="realms-authentification-row">
-                  <td translatable="yes">Authentication</td>
-                  <td>
-                    <select class="form-control" id="realms-op-auth">
-                    </select>
-                  </td>
-                </tr>
-                <tr id="realms-op-user-row">
-                  <td translatable="yes">User Name</td>
-                  <td>
-                    <input class="realms-op-field form-control" type="text"
-                           id="realms-op-user" value=""/>
-                  </td>
-                </tr>
-                <tr id="realms-op-user-password-row">
-                  <td translatable="yes">User Password</td>
-                  <td>
-                    <input class="realms-op-field form-control" type="password"
-                           id="realms-op-user-password" value=""/>
-                  </td>
-                </tr>
-                <tr id="realms-op-admin-row">
-                  <td translatable="yes">Domain Administrator Name</td>
-                  <td>
-                    <input class="realms-op-field form-control" type="text"
-                           id="realms-op-admin" value=""/>
-                  </td>
-                </tr>
-                <tr id="realms-op-admin-password-row">
-                  <td translatable="yes">Domain Administrator Password</td>
-                  <td>
-                    <input class="realms-op-field form-control" type="password"
-                           id="realms-op-admin-password" value=""/>
-                  </td>
-                </tr>
-                <tr id="realms-op-otp-row">
-                  <td translatable="yes">One Time Password</td>
-                  <td>
-                    <input class="realms-op-field form-control" type="password"
-                           id="realms-op-ot-password" value=""/>
-                  </td>
-                </tr>
-                <tr style="height:50px">
-                  <td colspan="3">
-                    <div id="realms-op-error"
-                         style="text-align:left;font-weight:bold"></div>
-                    <pre id="realms-op-diagnostics"
-                         style="text-align:left; display: none;">
-                    </pre>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <div id="realms-op-spinner" class="waiting" style="float: left"></div>
-            <span id="realms-op-wait-message">This may take a while</span>
-            <button class="btn btn-default" id="realms-op-cancel">
-              Cancel
-            </button>
-            <button class="btn btn-primary" id="realms-op-apply">
-              Next
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <div class="modal" id="accounts-create-dialog"
          tabindex="-1" role="dialog"

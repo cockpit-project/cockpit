@@ -20,10 +20,11 @@
 define([
     "jquery",
     "base1/cockpit",
+    "domain/operation",
     "shell/controls",
     "shell/shell",
     "shell/cockpit-main",
-], function($, cockpit, controls, shell) {
+], function($, cockpit, domain, controls, shell) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -38,16 +39,6 @@ function update_hostname_privileged() {
     );
 }
 
-function update_realm_privileged() {
-    controls.update_privileged_ui(
-        shell.default_permission, ".realm-privileged",
-        cockpit.format(
-            _("The user <b>$0</b> is not permitted to modify realms"),
-            cockpit.user.name)
-    );
-}
-
-$(shell.default_permission).on("changed", update_realm_privileged);
 $(shell.default_permission).on("changed", update_hostname_privileged);
 
 function ServerTime() {
@@ -155,7 +146,6 @@ PageServer.prototype = {
 
     setup: function() {
         var self = this;
-        update_realm_privileged();
         update_hostname_privileged();
 
         self.timedate = cockpit.dbus('org.freedesktop.timedate1').proxy();
@@ -181,17 +171,8 @@ PageServer.prototype = {
             $('#system_information_change_systime').modal('show');
         });
 
-        $('#system_information_realms_button').on('click', function () {
-            if (self.realms.Joined && self.realms.Joined.length > 0) {
-                var name = self.realms.Joined[0][0];
-                var details = self.realms.Joined[0][1];
-                shell.realms_op_set_parameters(self.realms, 'leave', name, details);
-                $('#realms-op').modal('show');
-            } else {
-                shell.realms_op_set_parameters(self.realms, 'join', '', { });
-                $('#realms-op').modal('show');
-            }
-        });
+        self.domain_button = domain.button();
+        $("#system-info-realms td.button-location").append(self.domain_button);
 
         self.server_time = new ServerTime();
         $(self.server_time).on("changed", function() {
@@ -377,12 +358,6 @@ PageServer.prototype = {
 
         bindf("#system_information_hostname_button", self.manager, "StaticHostname", hostname_text);
         bindf("#system_information_hostname_button", self.manager, "PrettyHostname", hostname_text);
-
-        self.realms = self.client.get("/com/redhat/Cockpit/Realms", "com.redhat.Cockpit.Realms");
-
-        $(self.realms).on('notify:Joined.server',
-                          $.proxy(self, "update_realms"));
-        self.update_realms();
     },
 
     show: function() {
@@ -402,8 +377,6 @@ PageServer.prototype = {
 
         $(self.manager).off('.server');
         self.manager = null;
-        $(self.realms).off('.server');
-        self.realms = null;
         $(self.client).off('.server');
         self.client.release();
         self.client = null;
@@ -437,23 +410,6 @@ PageServer.prototype = {
                                                                });
                                            });
     },
-
-    update_realms: function() {
-        var self = this;
-        var joined = self.realms.Joined;
-
-        function realms_text(val) {
-            if (!val || val.length === 0)
-                return _("Join Domain");
-
-            var res = [ ];
-            for (var i = 0; i < val.length; i++)
-                res.push(val[i][0]);
-            return res.join (", ");
-        }
-
-        $('#system_information_realms_button').text(realms_text(joined));
-    }
 };
 
 function PageServer() {

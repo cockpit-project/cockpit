@@ -49,27 +49,33 @@ function step() {
 
     var file = parts[last];
 
+    var ext = null;
     var pos = file.indexOf(".");
-    if (pos !== -1)
-        module = file.substring(0, pos);
-    else
-        module = file;
+    var module = file;
+    if (pos !== -1) {
+        ext = file.substring(pos);
+        if (ends_with(ext, ".js"))
+            module = file.substring(0, pos);
+    }
 
     var name = dir + "/" + module;
 
     fs.readFile(input, { encoding: "utf-8" }, function(err, data) {
         if (err)
             fatal(err.message);
-        try {
-	    result += redefine(data, name);
-            if (result[result.length] != "\n")
-                result += "\n";
-            if (result.indexOf("//# sourceURL=") === -1)
-	        result += "//# sourceURL=" + dir + "/" + file + "\n";
-	    step();
-        } catch(ex) {
-            fatal(ex.message);
+        if (result[result.length] != "\n")
+           result += "\n";
+        if (ends_with(ext, ".js")) {
+	    try {
+	        result += redefine(data, name);
+            } catch(ex) {
+                fatal(ex.message);
+            }
+        } else {
+            result += 'define("' + name + '_text", ' + JSON.stringify(data) + ');';
         }
+        result += "\n//# sourceURL=" + dir + "/" + file + "\n";
+	step();
     });
 }
 
@@ -123,4 +129,8 @@ function redefine(data, name) {
     }
 
     return output;
+}
+
+function ends_with(string, suffix) {
+    return string.indexOf(suffix, string.length - suffix.length) !== -1;
 }

@@ -1,3 +1,4 @@
+
 /*!
  * jQuery JavaScript Library v2.1.0
  * http://jquery.com/
@@ -9111,6 +9112,7 @@ return jQuery;
 }));
 
 //# sourceURL=lib/jquery.v2.1.0.js
+
 /*!
  * Bootstrap v3.1.1 (http://getbootstrap.com)
  * Copyright 2011-2014 Twitter, Inc.
@@ -11063,6 +11065,8 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
 
 }(jQuery);
 
+//# sourceURL=lib/bootstrap.v3.1.1.js
+
 /*!
  * bootstrap-select v1.5.4
  * http://silviomoreto.github.io/bootstrap-select/
@@ -12035,6 +12039,8 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
         .on('focusin.modal', '.bootstrap-select [data-toggle=dropdown], .bootstrap-select [role=menu], .bootstrap-select-searchbox input', function (e) { e.stopPropagation(); });
 
 }(window.jQuery);
+
+//# sourceURL=lib/bootstrap-select.v1.5.4.js
 
 /*!
  * Datepicker for Bootstrap v1.4.0 (https://github.com/eternicode/bootstrap-datepicker)
@@ -13818,6 +13824,8 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
 	});
 
 }(window.jQuery));
+
+//# sourceURL=lib/bootstrap-datepicker.v1.4.0.js
 
 /*! Javascript plotting library for jQuery, v. 0.7.
  *
@@ -16419,6 +16427,8 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
 
 })(jQuery);
 
+//# sourceURL=lib/jquery-flot.v0.7.js
+
 /*
 A simple jQuery function that can add listeners on attribute change.
 http://meetselva.github.io/attrchange/
@@ -16549,3 +16559,4 @@ https://github.com/meetselva/attrchange/blob/master/MIT-License.txt
     };
 })(jQuery);
 
+//# sourceURL=lib/attrchange.js

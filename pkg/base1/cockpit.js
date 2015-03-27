@@ -911,12 +911,12 @@ function basic_scope(cockpit) {
         });
     };
 
-    cockpit.kill = function kill(host, tag) {
+    cockpit.kill = function kill(host, group) {
         var options = { "command": "kill" };
         if (host)
             options.host = host;
-        if (tag)
-            options.tag = tag;
+        if (group)
+            options.group = group;
         ensure_transport(function(transport) {
             transport.send_control(options);
         });

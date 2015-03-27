@@ -1091,8 +1091,8 @@ test_fail_spawn (TestCase *test,
 }
 
 static void
-test_kill_tags (TestCase *test,
-                gconstpointer data)
+test_kill_group (TestCase *test,
+                 gconstpointer data)
 {
   WebSocketConnection *ws;
   GBytes *received = NULL;
@@ -1126,12 +1126,12 @@ test_kill_tags (TestCase *test,
   g_hash_table_add (seen, "b");
   g_hash_table_add (seen, "c");
 
-  send_control_message (ws, "open", "a", "payload", "echo", "tag", "test", NULL);
-  send_control_message (ws, "open", "b", "payload", "echo", "tag", "test", NULL);
-  send_control_message (ws, "open", "c", "payload", "echo", "tag", "test", NULL);
+  send_control_message (ws, "open", "a", "payload", "echo", "group", "test", NULL);
+  send_control_message (ws, "open", "b", "payload", "echo", "group", "test", NULL);
+  send_control_message (ws, "open", "c", "payload", "echo", "group", "test", NULL);
 
   /* Kill all the above channels */
-  send_control_message (ws, "kill", NULL, "tag", "test", NULL);
+  send_control_message (ws, "kill", NULL, "group", "test", NULL);
 
   /* All the close messages */
   while (g_hash_table_size (seen) > 0)
@@ -1211,9 +1211,9 @@ test_kill_host (TestCase *test,
   g_hash_table_add (seen, "c");
   g_hash_table_add (seen, "4");
 
-  send_control_message (ws, "open", "a", "payload", "echo", "tag", "test", NULL);
-  send_control_message (ws, "open", "b", "payload", "echo", "tag", "test", NULL);
-  send_control_message (ws, "open", "c", "payload", "echo", "tag", "test", NULL);
+  send_control_message (ws, "open", "a", "payload", "echo", "group", "test", NULL);
+  send_control_message (ws, "open", "b", "payload", "echo", "group", "test", NULL);
+  send_control_message (ws, "open", "c", "payload", "echo", "group", "test", NULL);
 
   /* Kill all the above channels */
   send_control_message (ws, "kill", NULL, "host", "localhost", NULL);
@@ -2071,8 +2071,8 @@ main (int argc,
               &fixture_hixie76, setup_for_socket,
               test_fail_spawn, teardown_for_socket);
 
-  g_test_add ("/web-service/kill-tags", TestCase, &fixture_rfc6455,
-              setup_for_socket, test_kill_tags, teardown_for_socket);
+  g_test_add ("/web-service/kill-group", TestCase, &fixture_rfc6455,
+              setup_for_socket, test_kill_group, teardown_for_socket);
   g_test_add ("/web-service/kill-host", TestCase, &fixture_rfc6455,
               setup_for_socket, test_kill_host, teardown_for_socket);
 

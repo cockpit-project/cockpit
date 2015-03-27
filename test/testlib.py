@@ -602,8 +602,21 @@ def test_main():
         suite = unittest.TestLoader().loadTestsFromNames(args.tests, module=__main__)
     else:
         suite = unittest.TestLoader().loadTestsFromModule(__main__)
-    runner = unittest.TextTestRunner(verbosity=args.verbosity, failfast=True, resultclass=Result)
-    result = runner.run(suite)
+
+    tries = 0
+    repeat_this = True
+    while repeat_this and tries < 5:
+        runner = unittest.TextTestRunner(verbosity=args.verbosity, failfast=True, resultclass=Result)
+        result = runner.run(suite)
+        repeat_this = False
+        for e in result.errors:
+            if "RepeatThis: " in e[1]:
+                repeat_this = True
+        tries += 1
+
+    if repeat_this:
+        print "Not repeating after %d spurious failures" % tries
+
     sys.exit(not result.wasSuccessful())
 
 class Error(Exception):

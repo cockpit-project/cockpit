@@ -97,6 +97,7 @@ process_open (CockpitTransport *transport,
   CockpitChannel *channel;
   GType channel_type;
   const gchar *payload;
+  gchar **capabilities = NULL;
 
   if (!channel_id)
     {
@@ -108,6 +109,23 @@ process_open (CockpitTransport *transport,
       g_warning ("Caller tried to reuse a channel that's already in use");
       cockpit_transport_close (transport, "protocol-error");
     }
+
+  /*
+   * No capabilities are supported yet. When the first one arrives
+   * we'll add code to process it.
+   */
+
+  else if (!cockpit_json_get_strv (options, "capabilities", NULL, &capabilities))
+    {
+      g_message ("got invalid capabilities field in init message");
+      cockpit_transport_close (transport, "protocol-error");
+    }
+  else if (capabilities && capabilities[0])
+    {
+      g_message ("unsupported capability required: %s", capabilities[0]);
+      cockpit_transport_close (transport, "not-supported");
+    }
+
   else
     {
       if (!cockpit_json_get_string (options, "payload", NULL, &payload))
@@ -148,6 +166,8 @@ process_open (CockpitTransport *transport,
       g_hash_table_insert (channels, g_strdup (channel_id), channel);
       g_signal_connect (channel, "closed", G_CALLBACK (on_channel_closed), NULL);
     }
+
+  g_free (capabilities);
 }
 
 static gboolean

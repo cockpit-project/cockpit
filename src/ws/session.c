@@ -68,7 +68,9 @@ static FILE *authf;
 #endif
 
 static char *
-read_auth_until_eof (size_t *out_len)
+read_fd_until_eof (int fd,
+                   const char *what,
+                   size_t *out_len)
 {
   size_t len = 0;
   size_t alloc = 0;
@@ -82,15 +84,15 @@ read_auth_until_eof (size_t *out_len)
           alloc += 1024;
           buf = realloc (buf, alloc);
           if (!buf)
-            errx (EX, "couldn't allocate memory for password");
+            errx (EX, "couldn't allocate memory for %s", what);
         }
 
-      r = read (AUTH_FD, buf + len, alloc - len);
+      r = read (fd, buf + len, alloc - len);
       if (r < 0)
         {
           if (errno == EAGAIN)
             continue;
-          err (EX, "couldn't read password from cockpit-ws");
+          err (EX, "couldn't read %s", what);
         }
       else if (r == 0)
         {
@@ -442,7 +444,7 @@ perform_basic (void)
   debug ("reading password from cockpit-ws");
 
   /* The input should be a user:password */
-  input = read_auth_until_eof (NULL);
+  input = read_fd_until_eof (AUTH_FD, "password", NULL);
   password = strchr (input, ':');
   if (password == NULL || strchr (password + 1, '\n'))
     {
@@ -518,7 +520,7 @@ perform_gssapi (void)
   setenv ("KRB5CCNAME", "FILE:/dev/null", 1);
 
   debug ("reading kerberos auth from cockpit-ws");
-  input.value = read_auth_until_eof (&input.length);
+  input.value = read_fd_until_eof (AUTH_FD, "gssapi data", &input.length);
 
   major = gss_accept_sec_context (&minor, &context, GSS_C_NO_CREDENTIAL, &input,
                                   GSS_C_NO_CHANNEL_BINDINGS, &name, &mech_type,

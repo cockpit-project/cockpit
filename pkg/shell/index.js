@@ -237,7 +237,7 @@ define([
                 });
             });
         })
-        .off("removed", function(ev, frame) {
+        .on("removed", function(ev, frame) {
             router.unregister(frame.contentWindow);
             $(frame.contentWindow).off();
             $(frame).off();
@@ -535,7 +535,7 @@ define([
             var address = machine.address;
             if (!address)
                 address = "localhost";
-            var list = iframes[machines.address];
+            var list = iframes[machine.address];
             if (list) {
                 delete iframes[address];
                 $.each(list, function(i, frame) {

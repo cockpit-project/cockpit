@@ -51,6 +51,7 @@
  */
 
 #define DEBUG_SESSION 0
+#define MAX_BUFFER 64 * 1024
 #define AUTH_FD 3
 #define EX 127
 
@@ -82,6 +83,8 @@ read_fd_until_eof (int fd,
       if (alloc <= len)
         {
           alloc += 1024;
+          if (alloc > MAX_BUFFER)
+            errx (EX, "input data is too long for %s", what);
           buf = realloc (buf, alloc);
           if (!buf)
             errx (EX, "couldn't allocate memory for %s", what);

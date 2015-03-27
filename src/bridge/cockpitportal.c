@@ -225,7 +225,7 @@ open_portal (CockpitPortal *self)
 
   if (!self->last_init)
     {
-      data = "{\"command\":\"init\",\"version\":0}";
+      data = "{\"command\":\"init\",\"version\":1}";
       self->last_init = g_bytes_new_static (data, strlen (data));
     }
 

@@ -347,7 +347,7 @@ function Transport() {
                 ws.binaryType = "arraybuffer";
                 binary_type_available = true;
             }
-            ws.send("\n{ \"command\": \"init\", \"version\": 0 }");
+            ws.send("\n{ \"command\": \"init\", \"version\": 1 }");
         }
     };
 
@@ -458,9 +458,9 @@ function Transport() {
             return;
         }
 
-        if (options.version !== 0) {
-            console.error("received invalid version in init message");
-            self.close({"problem": "protocol-error"});
+        if (options.version !== 1) {
+            console.error("received unsupported version in init message: " + options.version);
+            self.close({"problem": "not-supported"});
             return;
         }
 

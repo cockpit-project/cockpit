@@ -479,7 +479,7 @@ start_web_service_and_connect_client (TestCase *test,
   g_assert (web_socket_connection_get_ready_state (*ws) == WEB_SOCKET_STATE_OPEN);
 
   /* Send the open control message that starts the bridge. */
-  send_control_message (*ws, "init", NULL, BUILD_INTS, "version", 0, NULL);
+  send_control_message (*ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
   send_control_message (*ws, "open", "4", "payload", "test-text", NULL);
 
   /* This message should be echoed */
@@ -601,7 +601,7 @@ test_echo_large (TestCase *test,
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
 
   /* Send the open control message that starts the bridge. */
-  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 0, NULL);
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
   send_control_message (ws, "open", "4", "payload", "test-text", NULL);
   handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
 
@@ -740,7 +740,7 @@ test_wrong_init_version (TestCase *test,
   /* We should now get a failure */
   while (received == NULL)
     g_main_context_iteration (NULL, TRUE);
-  expect_control_message (received, "close", NULL, "problem", "protocol-error", NULL);
+  expect_control_message (received, "close", NULL, "problem", "not-supported", NULL);
   g_bytes_unref (received);
   received = NULL;
 
@@ -762,10 +762,10 @@ test_bad_init_version (TestCase *test,
     g_main_context_iteration (NULL, TRUE);
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
 
-  cockpit_expect_message ("*socket used unsupported*");
+  cockpit_expect_warning ("*invalid version field*");
   cockpit_expect_log ("WebSocket", G_LOG_LEVEL_MESSAGE, "connection unexpectedly closed*");
 
-  send_control_message (ws, "init", NULL, BUILD_INTS, "version", "blah", NULL);
+  send_control_message (ws, "init", NULL, "version", "blah", NULL);
 
   /* The init from the other end */
   while (received == NULL)
@@ -798,7 +798,7 @@ test_specified_creds (TestCase *test,
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
 
   /* Open a channel with a non-standard command */
-  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 0, NULL);
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
   send_control_message (ws, "open", "4",
                         "payload", "test-text",
                         "user", "user", "password",
@@ -833,7 +833,7 @@ test_specified_creds_fail (TestCase *test,
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   /* Open a channel with a non-standard command, but a bad password */
-  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 0, NULL);
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
   send_control_message (ws, "open", "4",
                         "payload", "test-text",
                         "user", "user",
@@ -987,7 +987,7 @@ test_expect_host_key (TestCase *test,
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
 
-  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 0, NULL);
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
   send_control_message (ws, "open", "4",
                         "payload", "test-text",
                         "host-key", knownhosts,
@@ -1284,7 +1284,7 @@ test_timeout_session (TestCase *test,
   sig = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   /* Queue channel open/close, so we can guarantee having a session */
-  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 0, NULL);
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
   send_control_message (ws, "open", "11x", "payload", "test-text", NULL);
 
   while (received == NULL)
@@ -1446,7 +1446,7 @@ test_logout (TestCase *test,
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
 
   /* Send the logout control message */
-  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 0, NULL);
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
 
   data = "\n{ \"command\": \"logout\", \"disconnect\": true }";
   message = g_bytes_new_static (data, strlen (data));

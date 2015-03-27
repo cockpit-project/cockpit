@@ -72,12 +72,15 @@ static void
 process_init (CockpitTransport *transport,
               JsonObject *options)
 {
-  gint64 version;
+  gint64 version = -1;
 
   if (!cockpit_json_get_int (options, "version", -1, &version))
-    version = -1;
+    {
+      g_warning ("invalid version field in init message");
+      cockpit_transport_close (transport, "protocol-error");
+    }
 
-  if (version == 0)
+  if (version == 1)
     {
       g_debug ("received init message");
       init_received = TRUE;
@@ -85,7 +88,7 @@ process_init (CockpitTransport *transport,
   else
     {
       g_message ("unsupported version of cockpit protocol: %" G_GINT64_FORMAT, version);
-      cockpit_transport_close (transport, "protocol-error");
+      cockpit_transport_close (transport, "not-supported");
     }
 }
 
@@ -235,7 +238,7 @@ send_init_command (CockpitTransport *transport)
 
   object = json_object_new ();
   json_object_set_string_member (object, "command", "init");
-  json_object_set_int_member (object, "version", 0);
+  json_object_set_int_member (object, "version", 1);
 
   checksum = cockpit_packages_get_checksum (packages);
   if (checksum)

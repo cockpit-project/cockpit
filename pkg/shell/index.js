@@ -202,7 +202,10 @@ define([
             maybe_ready();
         })
         .on("added changed", function(ev, machine) {
-            machine.connect();
+            if (machine.visible)
+                machine.connect();
+            else
+                frames.remove(machine);
             update_machines();
             if (machines.loaded)
                 navigate();

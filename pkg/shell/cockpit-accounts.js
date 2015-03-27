@@ -36,6 +36,98 @@ function update_accounts_privileged() {
         .attr('disabled', shell.default_permission.allowed === false);
 }
 
+function passwd_self(old_pass, new_pass) {
+    var old_exps = [
+        /.*\(current\) UNIX password: $/,
+    ];
+    var new_exps = [
+        /.*New password: $/,
+        /.*Retype new password: $/
+    ];
+    var bad_exps = [
+        /.*BAD PASSWORD:.*/
+    ];
+
+    var dfd = $.Deferred();
+    var buffer = "";
+    var sent_new = false;
+    var failure = _("Old password not accepted");
+    var i;
+
+    var timeout = window.setTimeout(function() {
+        failure = _("Prompting via passwd timed out");
+        proc.close("terminated");
+    }, 10 * 1000);
+
+    var proc = cockpit.spawn(["/usr/bin/passwd"], { pty: true, environ: [ "LC_ALL=C" ], err: "out" })
+        .always(function() {
+            window.clearInterval(timeout);
+        })
+        .done(function() {
+            dfd.resolve();
+        })
+        .fail(function(ex) {
+            if (ex.constructor.name == "ProcessError")
+                ex = new Error(failure);
+            dfd.reject(ex);
+        })
+        .stream(function(data) {
+            buffer += data;
+            for (i = 0; i < old_exps.length; i++) {
+                if (old_exps[i].test(buffer)) {
+                    buffer = "";
+                    proc.input(old_pass + "\n", true);
+                    return;
+                }
+            }
+
+            for (i = 0; i < new_exps.length; i++) {
+                if (new_exps[i].test(buffer)) {
+                    buffer = "";
+                    proc.input(new_pass + "\n", true);
+                    failure = _("Failed to change password");
+                    sent_new = true;
+                    return;
+                }
+            }
+
+            for (i = 0; sent_new && i < bad_exps.length; i++) {
+                if (bad_exps[i].test(buffer)) {
+                    failure = _("New password was not accepted");
+                    return;
+                }
+            }
+        });
+
+    return dfd.promise();
+}
+
+function passwd_change(user, new_pass) {
+    var dfd = $.Deferred();
+
+    var buffer = "";
+    cockpit.spawn(["/usr/bin/passwd", "--stdin", user ], {superuser: true, err: "out" })
+        .input(new_pass)
+        .stream(function(data) {
+            buffer += data;
+        })
+        .done(function() {
+            dfd.resolve();
+        })
+        .fail(function(ex) {
+            if (ex.constructor.name == "ProcessError") {
+                console.log(ex);
+                if (buffer)
+                    ex = new Error(buffer);
+                else
+                    ex = new Error(_("Failed to change password"));
+            }
+            dfd.reject(ex);
+        });
+
+    return dfd.promise();
+}
+
 $(shell.default_permission).on("changed", update_accounts_privileged);
 
 function on_account_changes(client, id, func) {
@@ -109,44 +201,6 @@ function parse_group_content(content) {
     }
 
     return ret;
-}
-
-function change_password(user_name, old_pass, new_pass, success_call, failure_call) {
-    var expect_in;
-    var call;
-
-    var percent = /%/g;
-    if (old_pass)
-        old_pass = encodeURIComponent(old_pass).replace(percent, "\\x");
-    if (new_pass)
-        new_pass = encodeURIComponent(new_pass).replace(percent, "\\x");
-
-    if (cockpit.user["user"] == user_name) {
-        expect_in  = 'spawn passwd;' +
-            'expect "Changing password for user ' + user_name + '";' +
-            'expect "Changing password for ' + user_name + '";' +
-            'expect "(current) UNIX password: ";' +
-            'send -- "' + old_pass + '\\r";' +
-            'expect "New password: ";' +
-            'send -- "' + new_pass + '\\r";' +
-            'expect "Retype new password: ";' +
-            'send -- "' + new_pass + '\\r";' +
-            'expect "passwd: all authentication tokens updated successfully.";';
-        call = cockpit.spawn([ "/usr/bin/expect"], { "environ": ["LC_ALL=C"]});
-    } else {
-        expect_in = 'spawn passwd ' + user_name + ';' +
-            'expect "Changing password for user ' + user_name + '";' +
-            'expect "New password: ";' +
-            'send -- "' + new_pass + '\\r";' +
-            'expect "Retype new password: ";' +
-            'send -- "' + new_pass + '\\r";' +
-            'expect "passwd: all authentication tokens updated successfully.";';
-        call = cockpit.spawn([ "/usr/bin/expect"], {"superuser" : true, "environ": ["LC_ALL=C"]});
-    }
-
-    call.input(expect_in)
-        .fail(failure_call)
-        .done(success_call);
 }
 
 function is_user_in_group(user, group) {
@@ -351,11 +405,13 @@ PageAccountsCreate.prototype = {
         cockpit.spawn(prog, { "superuser": true })
            .done(function () {
                 if ($('#accounts-create-pw1').val()) {
-                    change_password($('#accounts-create-user-name').val(),
-                                    "",
-                                    $('#accounts-create-pw1').val(),
-                                    adjust_locked,
-                                    function() { shell.show_unexpected_error(_("Failed to change password")); });
+                    passwd_change($('#accounts-create-user-name').val(), $('#accounts-create-pw1').val())
+                        .done(function() {
+                            adjust_locked();
+                        })
+                        .fail(function(ex) {
+                            shell.show_unexpected_error(ex);
+                        });
                } else {
                    adjust_locked();
                }
@@ -848,11 +904,22 @@ PageAccountSetPassword.prototype = {
     },
 
     apply: function() {
-        change_password(PageAccountSetPassword.user_name,
-                        $('#account-set-password-old').val(),
-                        $('#account-set-password-pw1').val(),
-                        function() { $('#account-set-password-dialog').modal('hide'); },
-                        function() { shell.show_unexpected_error(_("Failed to change password")); });
+        var promise;
+        var user = PageAccountSetPassword.user_name;
+        var password = $('#account-set-password-pw1').val();
+
+        if (cockpit.user["user"] === user)
+            promise = passwd_self($('#account-set-password-old').val(), password);
+        else
+            promise = passwd_change(user, password);
+
+        promise
+            .done(function() {
+                $('#account-set-password-dialog').modal('hide');
+            })
+            .fail(function(ex) {
+                shell.show_unexpected_error(ex);
+            });
     }
 };
 

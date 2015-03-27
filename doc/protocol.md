@@ -78,7 +78,7 @@ open until the "init" message has been received.
 The following fields are defined:
 
  * "version": The version of the protocol. Currently zero, and unstable.
- * "capabilities": An array of capability strings
+ * "capabilities": Optional array of strings advertizing capabilities.
  * "channel-seed": A seed to be used when generating new channel ids.
  * "host": The host being communicated with.
  * "problem": A problem occurred during init.
@@ -103,6 +103,7 @@ The following fields are defined:
  * "user": Optional alternate user for authenticating with host
  * "superuser": When true, try to run this channel as root.
  * "group": A group that can later be used with the "kill" command.
+ * "capabilities": Optional, array of capability strings required from the bridge
 
 If "binary" is set then this channel transfers binary messages. If "binary"
 is set to "base64" then messages in the channel are encoded using "base64",

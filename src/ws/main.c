@@ -41,15 +41,25 @@
 static gint      opt_port         = 9090;
 static gboolean  opt_no_tls       = FALSE;
 static gboolean  opt_local_ssh    = FALSE;
+static gboolean  opt_version      = FALSE;
 
 static GOptionEntry cmd_entries[] = {
   {"port", 'p', 0, G_OPTION_ARG_INT, &opt_port, "Local port to bind to (9090 if unset)", NULL},
   {"no-tls", 0, 0, G_OPTION_ARG_NONE, &opt_no_tls, "Don't use TLS", NULL},
   {"local-ssh", 0, 0, G_OPTION_ARG_NONE, &opt_local_ssh, "Log in locally via SSH", NULL },
+  {"version", 0, 0, G_OPTION_ARG_NONE, &opt_version, "Print version information", NULL },
   {NULL}
 };
 
 /* ---------------------------------------------------------------------------------------------------- */
+
+static void
+print_version (void)
+{
+  g_print ("Version: %s\n", PACKAGE_VERSION);
+  g_print ("Protocol: 1\n");
+  g_print ("Authorization: crypt1\n");
+}
 
 int
 main (int argc,
@@ -88,6 +98,13 @@ main (int argc,
 
   if (!g_option_context_parse (context, &argc, &argv, error))
     {
+      goto out;
+    }
+
+  if (opt_version)
+    {
+      print_version ();
+      ret = 0;
       goto out;
     }
 

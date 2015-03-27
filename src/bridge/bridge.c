@@ -92,6 +92,24 @@ process_init (CockpitTransport *transport,
     }
 }
 
+static struct {
+  const gchar *name;
+  GType (* function) (void);
+} payload_types[] = {
+  { "dbus-json1", cockpit_dbus_json1_get_type },
+  { "dbus-json3", cockpit_dbus_json_get_type },
+  { "http-stream1", cockpit_http_stream_get_type },
+  { "stream", cockpit_stream_get_type },
+  { "fsread1", cockpit_fsread_get_type },
+  { "fsreplace1", cockpit_fsreplace_get_type },
+  { "fswatch1", cockpit_fswatch_get_type },
+  { "fslist1", cockpit_fslist_get_type },
+  { "null", cockpit_null_channel_get_type },
+  { "echo", cockpit_echo_channel_get_type },
+  { "metrics1", cockpit_internal_metrics_get_type },
+  { NULL },
+};
+
 static void
 process_open (CockpitTransport *transport,
               const gchar *channel_id,
@@ -101,6 +119,7 @@ process_open (CockpitTransport *transport,
   GType channel_type;
   const gchar *payload;
   gchar **capabilities = NULL;
+  gint i;
 
   if (!channel_id)
     {
@@ -134,31 +153,17 @@ process_open (CockpitTransport *transport,
       if (!cockpit_json_get_string (options, "payload", NULL, &payload))
         payload = NULL;
 
-      /* TODO: We need to migrate away from dbus-json1 */
-      if (g_strcmp0 (payload, "dbus-json1") == 0)
-        channel_type = COCKPIT_TYPE_DBUS_JSON1;
-      else if (g_strcmp0 (payload, "dbus-json3") == 0)
-        channel_type = COCKPIT_TYPE_DBUS_JSON;
-      else if (g_strcmp0 (payload, "http-stream1") == 0)
-        channel_type = COCKPIT_TYPE_HTTP_STREAM;
-      else if (g_strcmp0 (payload, "stream") == 0)
-        channel_type = COCKPIT_TYPE_STREAM;
-      else if (g_strcmp0 (payload, "fsread1") == 0)
-        channel_type = COCKPIT_TYPE_FSREAD;
-      else if (g_strcmp0 (payload, "fsreplace1") == 0)
-        channel_type = COCKPIT_TYPE_FSREPLACE;
-      else if (g_strcmp0 (payload, "fswatch1") == 0)
-        channel_type = COCKPIT_TYPE_FSWATCH;
-      else if (g_strcmp0 (payload, "fslist1") == 0)
-        channel_type = COCKPIT_TYPE_FSLIST;
-      else if (g_strcmp0 (payload, "null") == 0)
-        channel_type = COCKPIT_TYPE_NULL_CHANNEL;
-      else if (g_strcmp0 (payload, "echo") == 0)
-        channel_type = COCKPIT_TYPE_ECHO_CHANNEL;
-      else if (g_strcmp0 (payload, "metrics1") == 0)
-        channel_type = COCKPIT_TYPE_INTERNAL_METRICS;
-      else
-        channel_type = COCKPIT_TYPE_CHANNEL;
+      /* This will close with "not-supported" */
+      channel_type = COCKPIT_TYPE_CHANNEL;
+
+      for (i = 0; payload_types[i].name != NULL; i++)
+        {
+          if (g_strcmp0 (payload, payload_types[i].name) == 0)
+            {
+              channel_type = payload_types[i].function();
+              break;
+            }
+        }
 
       channel = g_object_new (channel_type,
                               "transport", transport,
@@ -517,6 +522,39 @@ run_bridge (const gchar *interactive)
   return 0;
 }
 
+static void
+print_version (void)
+{
+  gint i, offset, len;
+
+  g_print ("Version: %s\n", PACKAGE_VERSION);
+  g_print ("Protocol: 1\n");
+
+  g_print ("Payloads: ");
+  offset = 10;
+  for (i = 0; payload_types[i].name != NULL; i++)
+    {
+      len = strlen (payload_types[i].name);
+      if (offset + len > 70)
+        {
+          g_print ("\n");
+          offset = 0;
+        }
+
+      if (offset == 0)
+        {
+          g_print ("    ");
+          offset = 4;
+        };
+
+      g_print ("%s ", payload_types[i].name);
+      offset += len + 1;
+    }
+  g_print ("\n");
+
+  g_print ("Authorization: crypt1\n");
+}
+
 int
 main (int argc,
       char **argv)
@@ -526,11 +564,13 @@ main (int argc,
   int ret;
 
   static gboolean opt_packages = FALSE;
+  static gboolean opt_version = FALSE;
   static gchar *opt_interactive = NULL;
 
   static GOptionEntry entries[] = {
-    { "packages", 0, 0, G_OPTION_ARG_NONE, &opt_packages, "Show Cockpit package information", NULL },
     { "interact", 0, 0, G_OPTION_ARG_STRING, &opt_interactive, "Interact with the raw protocol", "boundary" },
+    { "packages", 0, 0, G_OPTION_ARG_NONE, &opt_packages, "Show Cockpit package information", NULL },
+    { "version", 0, 0, G_OPTION_ARG_NONE, &opt_version, "Show Cockpit version information", NULL },
     { NULL }
   };
 
@@ -567,6 +607,11 @@ main (int argc,
   if (opt_packages)
     {
       cockpit_packages_dump ();
+      return 0;
+    }
+  else if (opt_version)
+    {
+      print_version ();
       return 0;
     }
 

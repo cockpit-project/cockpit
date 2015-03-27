@@ -77,16 +77,39 @@ rm -rf $base/mock/*
 mkdir -p $base/mock
 cp --preserve=timestamps /etc/mock/site-defaults.cfg $base/mock/
 cp --preserve=timestamps /etc/mock/logging.ini $base/mock/
-cp --preserve=timestamps /etc/mock/$os-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
-cat >>$base/mock/$os-$arch-cockpit.cfg <<EOF
+
+if [ "$os" == "rhel-7" ]; then
+    os="epel-7"
+    # get epel packages instead, they don't require a subscription
+    cp --preserve=timestamps /etc/mock/$os-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
+    cat >>$base/mock/$os-$arch-cockpit.cfg <<EOF
+config_opts['root'] = "epel-7-$arch-cockpit"
+config_opts['yum.conf'] += """
+[sgallagh-cockpit-preview]
+name=Copr repo for cockpit-preview owned by sgallagh
+baseurl=https://copr-be.cloud.fedoraproject.org/results/sgallagh/cockpit-preview/$os-$arch/
+skip_if_unavailable=True
+gpgcheck=1
+gpgkey=https://copr-be.cloud.fedoraproject.org/results/sgallagh/cockpit-preview/pubkey.gpg
+enabled=1
+"""
+EOF
+else
+    cp --preserve=timestamps /etc/mock/$os-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
+    cat >>$base/mock/$os-$arch-cockpit.cfg <<EOF
 config_opts['root'] = "$os-$arch-cockpit"
 config_opts['yum.conf'] += """
 [updates-testing]
 enabled=1
 """
 EOF
-# HACK: Signatures seem to be unreliable in Fedora 21 right now
-sed -i -e 's/gpgcheck=1/gpgcheck=0/' $base/mock/$os-$arch-cockpit.cfg
+fi
+
+# HACK: Signatures can be unreliable in Fedora
+if [ "$os" == fedora-* ]; then
+    sed -i -e 's/gpgcheck=1/gpgcheck=0/' $base/mock/$os-$arch-cockpit.cfg
+fi
+
 touch -r /etc/mock/$os-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
 
 if LANG=C /usr/bin/mock --quiet $mock_opts $mock_clean_opts --configdir=$base/mock/ \

@@ -14,7 +14,6 @@ base_DATA = \
 	pkg/base1/jquery.min.js.gz \
 	pkg/base1/cockpit.min.js.gz \
 	pkg/base1/bundle.min.js.gz \
-	$(BRAND)/branding.css \
 	$(base_GEN:.js=.js.gz) \
 	$(NULL)
 

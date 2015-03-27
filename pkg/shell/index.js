@@ -684,9 +684,9 @@ define([
                 } else if (control.channel === undefined) {
                     return;
 
-                /* Add the frame's tag to all open channel messages */
+                /* Add the frame's group to all open channel messages */
                 } else if (control.command == "open") {
-                    control.tag = frame.name;
+                    control.group = frame.name;
                     data = "\n" + JSON.stringify(control);
                 }
             }

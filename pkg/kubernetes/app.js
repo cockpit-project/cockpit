@@ -18,8 +18,11 @@ define([
         function calculate() {
             var x = 0;
             var y = 0;
-            if (version !== client.resourceVersion) {
 console.log("client=", client);
+console.log("version=", version);
+console.log("service=", service);
+console.log("calculated=", calculated);
+            if (version !== client.resourceVersion) {
                 //client.metadata.name != "kubernetes") {
                 version = client.resourceVersion;
 
@@ -35,7 +38,9 @@ console.log("client=", client);
                        Running, Succeeded, Failed, and Unknown. 
                     */
                     angular.forEach(pods, function(pod) {
- console.log("status=", pod.status.phase);
+			if (!pod.status || !pod.status.phase)
+                           return;
+ console.log("pod=", pod);
                         switch (pod.status.phase) {
                         case "Failed":
                             y++;
@@ -53,7 +58,6 @@ console.log("client=", client);
                             break;
                         default: // assume Failed
                             y++;
- console.log("default: status=", pod.status.phase);
                         }
                     });
                     calculated.containers = "" + x;
@@ -124,6 +128,9 @@ console.log("client=", client);
                 seen[key] = true;
             });
             angular.forEach(client[type], function(item) {
+                if (item.metadata.name == "kubernetes" ||
+                    item.metadata.name == "kubernetes-ro")
+                    return; // skip special pods created for k8 internal usage
                 var key = item.metadata ? item.metadata.uid : null;
                 if (!key)
                     return;

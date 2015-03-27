@@ -1,0 +1,90 @@
+#!/bin/bash
+
+set -e
+
+# register system
+subscription-manager register --auto-attach --username=`cat ~/.rhel/login` --password=`cat ~/.rhel/pass`
+# remove credentials from test machine
+rm -rf ~/.rhel
+
+yum -y install wget yum-utils
+cd /etc/yum.repos.d
+
+# we need the cockpit-preview copr for storaged and updated glib2
+wget -T 15 -t 4 https://copr.fedoraproject.org/coprs/sgallagh/cockpit-preview/repo/epel-7/sgallagh-cockpit-preview-epel-7.repo
+
+yum-config-manager --enable rhel-7-server-optional-rpms
+yum-config-manager --enable rhel-7-server-extras-rpms
+
+# enable epel for libssh
+mkdir /tmp/dep
+cd /tmp/dep
+wget -T 15 -t 4 http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+rpm -Uvh epel-release-*.rpm
+cd
+rm -rf /tmp/dep
+
+yum --nogpgcheck -y update
+
+echo foobar | passwd --stdin root
+
+# We install all dependencies of the cockpit packages since we want
+# them to not spontaneously change from one test run to the next when
+# the distribution repository is updated.
+COCKPIT_DEPS="\
+docker \
+glib-networking \
+json-glib \
+kubernetes \
+libssh \
+lvm2 \
+mdadm \
+pcp-libs \
+pcp \
+realmd \
+selinux-policy-targeted \
+storaged \
+subscription-manager \
+udisks2 \
+"
+# We also install the packages necessary to join a FreeIPA domain so
+# that we don't have to go to the network during a test run.
+# on epel/rhel we have ipa-client instead of freeipa-client
+IPA_CLIENT_PACKAGES="\
+ipa-client \
+oddjob \
+oddjob-mkhomedir \
+sssd \
+"
+
+TEST_PACKAGES="\
+systemtap-runtime-virtguest \
+"
+
+yum install --nogpgcheck -y $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+
+subscription-manager unregister
+
+maybe() { if type "$1" >/dev/null 2>&1; then "$@"; fi; }
+
+# For the D-Bus test server
+maybe firewall-cmd --permanent --add-port 8765/tcp
+
+echo 'NETWORKING=yes' > /etc/sysconfig/network
+
+useradd -u 1000 -c Administrator -G wheel admin
+echo foobar | passwd --stdin admin
+
+# To enable persistent logging
+mkdir -p /var/log/journal
+
+# We rely on the NetworkManager dispatcher, so let's make sure it is enabled.
+systemctl enable NetworkManager-dispatcher
+
+rm -rf /var/log/journal/*
+
+touch /.autorelabel
+
+# Audit events to the journal
+rm -f '/etc/systemd/system/multi-user.target.wants/auditd.service'
+rm -rf /var/log/audit/

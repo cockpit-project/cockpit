@@ -27,6 +27,7 @@ import tempfile
 import time
 import sys
 import shutil
+from lxml import etree
 
 DEFAULT_FLAVOR="cockpit"
 DEFAULT_OS = "fedora-22"
@@ -86,10 +87,10 @@ class Machine:
 
     def wait_ssh(self):
         """Try to connect to self.address on port 22"""
-        tries_left = 5
+        tries_left = 60
         while (tries_left > 0):
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(2)
+            sock.settimeout(1)
             try:
                 sock.connect((self.address, 22))
                 return True
@@ -100,6 +101,24 @@ class Machine:
             tries_left = tries_left - 1
             time.sleep(1)
         return False
+
+    def wait_user_login(self):
+        """Wait until logging in as non-root works.
+
+           Most tests run as the "admin" user, so we make sure that
+           user sessions are allowed (and cockit-ws will let "admin"
+           in) before declaring a test machine as "booted".
+        """
+        tries_left = 5
+        while (tries_left > 0):
+            try:
+                self.execute("! test -f /run/nologin")
+                return
+            except:
+                pass
+            tries_left = tries_left - 1
+            time.sleep(1)
+        raise Failure("Timed out waiting for /run/nologin to disappear")
 
     def wait_boot(self):
         """Wait for a machine to boot and execute hooks
@@ -614,9 +633,8 @@ class QemuMachine(Machine):
             return subprocess.Popen(cmd)
 
         quoted = " ".join("'%s'" % x for x in cmd)
-        cmd = [ "/bin/sh", "-c", quoted + " | tee " + self.run_dir + "/qemu-$$.log" ]
-
-        return subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+        cmd = [ "/bin/sh", "-c", quoted + " </dev/null >/dev/null" ]
+        return subprocess.Popen(cmd)
 
     def _monitor_qemu(self, command):
         assert self._monitor
@@ -673,56 +691,19 @@ class QemuMachine(Machine):
             self._cleanup()
             raise
 
-    # A canary is a string that the QEMU VM prints out on its console
-    # We return the remainder of teh line after the canary, there is
-    # always an equals between
-    def _parse_cockpit_canary(self, canary, output):
-        prefix = "%s=" % canary
-        pos = output.find(prefix)
-        if pos == -1:
-            return None
-        beg = pos + len(prefix)
-        end = output.find("\n", beg)
-        if end == -1:
-            return None
-        return output[beg:end].strip()
+    def _ip_from_mac(self, mac):
+        tree = etree.parse(open("./network-cockpit.xml"))
+        for h in tree.find(".//dhcp"):
+            if h.get("mac") == mac:
+                return h.get("ip")
+        raise Failure("Can't resolve IP of %s" % mac)
 
     def wait_boot(self):
         assert self._process
-        all_output = ""
-        output = ""
-        address = None
-        ready_to_login = False
-        p = self._process
-        now = time.time()
-        while not (address and ready_to_login) and p.poll() is None:
-            ret = select.select([p.stdout.fileno()], [], [], 10)
-            for fd in ret[0]:
-                if fd == p.stdout.fileno():
-                    data = os.read(fd, 1024)
-                    if self.verbose:
-                        sys.stdout.write(data)
-                    output += data
-                    all_output += data
-                    if "emergency mode" in output:
-                        raise Failure("qemu vm failed to boot, stuck in emergency mode")
-                    parsed_address = self._parse_cockpit_canary("COCKPIT_ADDRESS", output)
-                    if parsed_address:
-                        address = parsed_address
-                    if "login: " in output:
-                        ready_to_login = True
-                    (unused, sep, output) = output.rpartition("\n")
-            if time.time() - now > 600:
-                # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1205529
-                sys.stdout.write("Boot log:\n" + all_output + "\n")
-                raise RepeatThis("qemu vm boot timed out")
-
-        if p.poll():
-            raise Failure("qemu did not run successfully: %d" % (p.returncode, ))
-
-        self.address = address
+        self.address = self._ip_from_mac(self.macaddr)
         if not Machine.wait_ssh(self):
-            raise Failure("Unable to reach machine %s via ssh." % (address))
+            raise Failure("Unable to reach machine %s via ssh." % (self.address))
+        self.wait_user_login()
 
         Machine.wait_boot(self)
 
@@ -761,13 +742,7 @@ class QemuMachine(Machine):
 
     def wait_poweroff(self):
         assert self._process
-        while self._process.poll() is None:
-            fd = self._process.stdout.fileno()
-            ret = select.select([fd], [], [], 1)
-            if fd in ret[0]:
-                data = os.read(fd, 1024)
-                if self.verbose:
-                    sys.stdout.write(data)
+        self._process.wait()
         self._cleanup()
 
     def shutdown(self):

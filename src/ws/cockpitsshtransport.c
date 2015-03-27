@@ -1140,11 +1140,14 @@ cockpit_ssh_source_dispatch (GSource *source,
   CockpitSshSource *cs = (CockpitSshSource *)source;
   CockpitSshTransport *self = cs->transport;
   GIOCondition cond = cs->pfd.revents;
+  gboolean ret = TRUE;
   const gchar *msg;
   gint rc;
 
   g_return_val_if_fail ((cond & G_IO_NVAL) == 0, FALSE);
   g_assert (self->data != NULL);
+
+  g_object_ref (self);
 
   if (self->drain_buffer)
     {
@@ -1192,17 +1195,18 @@ cockpit_ssh_source_dispatch (GSource *source,
           g_message ("%s: failed to process channel: %s", self->logname, msg);
           close_immediately (self, "internal-error");
         }
-      return TRUE;
+      goto out;
     default:
       g_critical ("%s: ssh_event_dopoll() returned %d", self->logname, rc);
-      return FALSE;
+      ret = FALSE;
+      goto out;
     }
 
   if (cond & G_IO_ERR)
     {
       g_message ("%s: error reading from ssh", self->logname);
       close_immediately (self, "disconnected");
-      return TRUE;
+      goto out;
     }
 
   if (self->drain_buffer)
@@ -1221,7 +1225,9 @@ cockpit_ssh_source_dispatch (GSource *source,
         dispatch_close (self);
     }
 
-  return TRUE;
+out:
+  g_object_unref (self);
+  return ret;
 }
 
 static void

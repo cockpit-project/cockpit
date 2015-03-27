@@ -2237,11 +2237,13 @@ function full_scope(cockpit, $, po) {
         else if (problem == "timeout")
             return _("Connection has timed out.");
         else if (problem == "no-cockpit")
-            return _("Cockpit is not installed on the host.");
+            return _("Cockpit is not installed on the system.");
         else if (problem == "no-forwarding")
             return _("Cannot forward login credentials");
         else if (problem == "disconnected")
             return _("Server has closed the connection.");
+        else if (problem == "not-supported")
+            return _("Cockpit is not compatible with the software on the system.");
         else
             return problem;
     };

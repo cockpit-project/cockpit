@@ -12,7 +12,7 @@
 %if 0%{?fedora} > 0 && 0%{?fedora} <= 21
 %define selinux 1
 %endif
-%if 0%{?fedora} > 0 && 0%{?fedora} <= 22
+%if 0%{?fedora} > 0 && 0%{?fedora} <= 23
 %define branding fedora
 %endif
 %if 0%{?rhel}

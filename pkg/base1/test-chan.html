@@ -137,7 +137,7 @@ function MockWebSocket(url, protocol) {
         ws.onopen({"name": "open"});
         var init = {
             "command": "init",
-            "version": 0,
+            "version": 1,
             "channel-seed": "test",
             "user": {
                 "user": "scruffy",
@@ -191,7 +191,7 @@ asyncTest("open channel", function() {
             equal(typeof command, "object", "valid json");
             strictEqual(chan, "", "sent with empty channel");
             equal (command.command, "init", "got init");
-            equal (command.version, 0, "got init version");
+            equal (command.version, 1, "got init version");
             is_inited = true;
         } else {
             equal(command.command, "open", "right command");
@@ -613,7 +613,7 @@ asyncTest("transport options", function() {
             equal(typeof cockpit.transport.options, "object", "is an object");
             deepEqual(cockpit.transport.options, {
                 "command": "init",
-                "version": 0,
+                "version": 1,
                 "channel-seed": "test",
                 "user": {
                     "user": "scruffy",

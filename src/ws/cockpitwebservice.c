@@ -244,7 +244,7 @@ cockpit_session_track (CockpitSessions *sessions,
 
   /* Always send an init message down the new transport */
   object = build_json ("command", "init", NULL);
-  json_object_set_int_member (object, "version", 0);
+  json_object_set_int_member (object, "version", 1);
   json_object_set_string_member (object, "host", host);
   command = cockpit_json_write_bytes (object);
   json_object_unref (object);
@@ -675,9 +675,12 @@ caller_end (CockpitWebService *self)
 
 static void
 outbound_protocol_error (CockpitWebService *self,
-                         CockpitTransport *transport)
+                         CockpitTransport *transport,
+                         const gchar *problem)
 {
-  cockpit_transport_close (transport, "protocol-error");
+  if (problem == NULL)
+    problem = "protocol-error";
+  cockpit_transport_close (transport, problem);
 }
 
 static gboolean
@@ -850,7 +853,7 @@ out:
   return ret;
 }
 
-static gboolean
+static const gchar *
 process_session_init (CockpitWebService *self,
                       CockpitSession *session,
                       JsonObject *options)
@@ -859,9 +862,12 @@ process_session_init (CockpitWebService *self,
   gint64 version;
 
   if (!cockpit_json_get_int (options, "version", -1, &version))
-    version = -1;
+    {
+      g_warning ("invalid version field in init message");
+      return "protocol-error";
+    }
 
-  if (version == 0)
+  if (version == 1)
     {
       g_debug ("%s: received init message", session->host);
       session->init_received = TRUE;
@@ -870,7 +876,7 @@ process_session_init (CockpitWebService *self,
     {
       g_message ("%s: unsupported version of cockpit protocol: %" G_GINT64_FORMAT,
                  session->host, version);
-      return FALSE;
+      return "not-supported";
     }
 
   if (!cockpit_json_get_string (options, "checksum", NULL, &checksum))
@@ -879,7 +885,7 @@ process_session_init (CockpitWebService *self,
   g_free (session->checksum);
   session->checksum = g_strdup (checksum);
 
-  return TRUE;
+  return NULL;
 }
 
 static gboolean
@@ -890,6 +896,7 @@ on_session_control (CockpitTransport *transport,
                     GBytes *payload,
                     gpointer user_data)
 {
+  const gchar *problem = "protocol-error";
   CockpitWebService *self = user_data;
   CockpitSession *session = NULL;
   CockpitSocket *socket = NULL;
@@ -906,7 +913,8 @@ on_session_control (CockpitTransport *transport,
         }
       else if (g_strcmp0 (command, "init") == 0)
         {
-          valid = process_session_init (self, session, options);
+          problem = process_session_init (self, session, options);
+          valid = (problem == NULL);
         }
       else if (!session->init_received)
         {
@@ -974,7 +982,7 @@ on_session_control (CockpitTransport *transport,
 
   if (!valid)
     {
-      outbound_protocol_error (self, transport);
+      outbound_protocol_error (self, transport, problem);
     }
 
   return TRUE; /* handled */
@@ -1007,7 +1015,7 @@ on_session_recv (CockpitTransport *transport,
   else if (session->transport != transport)
     {
       g_warning ("received message with wrong channel %s from session", channel);
-      outbound_protocol_error (self, transport);
+      outbound_protocol_error (self, transport, NULL);
       return FALSE;
     }
 
@@ -1299,7 +1307,7 @@ process_logout (CockpitWebService *self,
   return TRUE;
 }
 
-static gboolean
+static const gchar *
 process_socket_init (CockpitWebService *self,
                      CockpitSocket *socket,
                      JsonObject *options)
@@ -1307,34 +1315,41 @@ process_socket_init (CockpitWebService *self,
   gint64 version;
 
   if (!cockpit_json_get_int (options, "version", -1, &version))
-    version = -1;
+    {
+      g_warning ("invalid version field in init message");
+      return "protocol-error";
+    }
 
-  if (version == 0)
+  if (version == 1)
     {
       g_debug ("received web socket init message");
       socket->init_received = TRUE;
-      return TRUE;
+      return NULL;
     }
   else
     {
       g_message ("web socket used unsupported version of cockpit protocol: %"
                  G_GINT64_FORMAT, version);
-      return FALSE;
+      return "not-supported";
     }
 }
 
 static void
 inbound_protocol_error (CockpitWebService *self,
-                        WebSocketConnection *connection)
+                        WebSocketConnection *connection,
+                        const gchar *problem)
 {
   GBytes *payload;
 
+  if (problem == NULL)
+    problem = "protocol-error";
+
   if (web_socket_connection_get_ready_state (connection) == WEB_SOCKET_STATE_OPEN)
     {
-      payload = build_control ("command", "close", "problem", "protocol-error", NULL);
+      payload = build_control ("command", "close", "problem", problem, NULL);
       web_socket_connection_send (connection, WEB_SOCKET_DATA_TEXT, self->control_prefix, payload);
       g_bytes_unref (payload);
-      web_socket_connection_close (connection, WEB_SOCKET_CLOSE_SERVER_ERROR, "protocol-error");
+      web_socket_connection_close (connection, WEB_SOCKET_CLOSE_SERVER_ERROR, problem);
     }
 }
 
@@ -1343,6 +1358,7 @@ dispatch_inbound_command (CockpitWebService *self,
                           CockpitSocket *socket,
                           GBytes *payload)
 {
+  const gchar *problem = "protocol-error";
   const gchar *command;
   const gchar *channel;
   JsonObject *options = NULL;
@@ -1356,7 +1372,8 @@ dispatch_inbound_command (CockpitWebService *self,
 
   if (g_strcmp0 (command, "init") == 0)
     {
-      valid = process_socket_init (self, socket, options);
+      problem = process_socket_init (self, socket, options);
+      valid = (problem == NULL);
       goto out;
     }
 
@@ -1419,7 +1436,7 @@ dispatch_inbound_command (CockpitWebService *self,
 
 out:
   if (!valid)
-    inbound_protocol_error (self, socket->connection);
+    inbound_protocol_error (self, socket->connection, problem);
   if (options)
     json_object_unref (options);
 }
@@ -1486,7 +1503,7 @@ on_web_socket_open (WebSocketConnection *connection,
 
   object = json_object_new ();
   json_object_set_string_member (object, "command", "init");
-  json_object_set_int_member (object, "version", 0);
+  json_object_set_int_member (object, "version", 1);
   json_object_set_string_member (object, "channel-seed", socket->id);
   json_object_set_string_member (object, "host", "localhost");
   if (web_socket_connection_get_flavor (connection) == WEB_SOCKET_FLAVOR_RFC6455)

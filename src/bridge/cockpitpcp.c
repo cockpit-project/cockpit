@@ -59,9 +59,25 @@ process_init (CockpitTransport *transport,
   gint64 version;
 
   if (!cockpit_json_get_int (options, "version", -1, &version))
+    {
+      g_warning ("invalid version field in init message");
+      cockpit_transport_close (transport, "protocol-error");
+    }
+
+  if (version == 1)
+    {
+      g_debug ("received init message");
+      init_received = TRUE;
+    }
+  else
+    {
+      g_message ("unsupported version of cockpit protocol: %" G_GINT64_FORMAT, version);
+      cockpit_transport_close (transport, "not-supported");
+    }
+  if (!cockpit_json_get_int (options, "version", -1, &version))
     version = -1;
 
-  if (version == 0)
+  if (version == 1)
     {
       g_debug ("received init message");
       init_received = TRUE;
@@ -155,7 +171,7 @@ on_closed_set_flag (CockpitTransport *transport,
 static void
 send_init_command (CockpitTransport *transport)
 {
-  const gchar *response = "{ \"command\": \"init\", \"version\": 0 }";
+  const gchar *response = "{ \"command\": \"init\", \"version\": 1 }";
   GBytes *bytes = g_bytes_new_static (response, strlen (response));
   cockpit_transport_send (transport, NULL, bytes);
   g_bytes_unref (bytes);

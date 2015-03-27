@@ -42,6 +42,9 @@ class Failure(Exception):
     def __str__(self):
         return self.msg
 
+class RepeatThis(Failure):
+    pass
+
 class Machine:
     boot_hook = None
 
@@ -711,8 +714,9 @@ class QemuMachine(Machine):
                         ready_to_login = True
                     (unused, sep, output) = output.rpartition("\n")
             if time.time() - now > 600:
+                # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1205529
                 sys.stdout.write("Boot log:\n" + all_output + "\n")
-                raise Failure("qemu vm boot timed out")
+                raise RepeatThis("qemu vm boot timed out")
 
         if p.poll():
             raise Failure("qemu did not run successfully: %d" % (p.returncode, ))

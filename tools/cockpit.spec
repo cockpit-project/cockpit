@@ -23,7 +23,7 @@ Name:           cockpit
 %if %{defined gitcommit}
 Version:        %{gitcommit}
 %else
-Version:        0.46
+Version:        0.47
 %endif
 Release:        1%{?dist}
 Summary:        A user interface for Linux servers
@@ -84,7 +84,7 @@ Requires: %{name}-bridge = %{version}-%{release}
 Requires: %{name}-daemon = %{version}-%{release}
 Requires: %{name}-ws = %{version}-%{release}
 Requires: %{name}-shell = %{version}-%{release}
-%ifarch x86_64
+%ifarch x86_64 armv7hl
 Requires: %{name}-docker = %{version}-%{release}
 %endif
 %if 0%{?rhel} && 0%{?centos} == 0
@@ -211,7 +211,7 @@ install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 # Build the package lists for resource packages
 find %{buildroot}%{_datadir}/%{name}/base1 %{buildroot}%{_datadir}/%{name}/legacy %{buildroot}%{_datadir}/%{name}/shell %{buildroot}%{_datadir}/%{name}/system -type f > shell.list
 find %{buildroot}%{_datadir}/%{name}/subscriptions -type f > subscriptions.list
-%ifnarch x86_64
+%ifnarch x86_64 armv7hl
 rm -rf %{buildroot}/%{_datadir}/%{name}/docker
 rm -rf %{buildroot}/%{_datadir}/%{name}/kubernetes
 %else
@@ -310,7 +310,7 @@ test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 
 # Conditionally built packages below
 
-%ifarch x86_64
+%ifarch x86_64 armv7hl
 
 %package docker
 Summary: Cockpit user interface for Docker containers
@@ -392,6 +392,15 @@ fi
 %endif
 
 %changelog
+* Fri Mar 27 2015 Peter <petervo@redhat.com> - 0.47-1
+- Update to 0.47 release, build docker on armvrhl
+
+* Thu Mar 26 2015 Stef Walter <stefw@redhat.com> - 0.46-1
+- Update to 0.46 release
+
+* Mon Mar 23 2015 Stef Walter <stefw@redhat.com> - 0.45-1
+- Update to 0.45 release
+
 * Sat Mar 21 2015 Stef Walter <stefw@redhat.com> - 0.44-3
 - Add back debuginfo files to the right place
 

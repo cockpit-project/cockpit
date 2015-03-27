@@ -81,8 +81,19 @@ Password for user@EXAMPLE.COM:
       </varlistentry>
       <varlistentry>
         <term>Google Chrome</term>
-        <listitem><para>Exit your browser completely, and start it with a command line
-          like this: <code>google-chrome --auth-server-whitelist=*example.com</code></para></listitem>
+        <listitem><para>
+          On Linux: create the file
+          <code>/etc/opt/chrome/policies/managed/example-com.json</code>
+          with the contents:
+<programlisting>
+{
+  "AuthServerWhitelist": "*example.com"
+}
+</programlisting>
+          and restart the browser. On other platforms, exit your browser
+          completely, and start it with a command line like this:
+          <code>google-chrome --auth-server-whitelist=*example.com</code>
+          </para></listitem>
       </varlistentry>
     </variablelist>
 
@@ -101,8 +112,20 @@ Password for user@EXAMPLE.COM:
       </varlistentry>
       <varlistentry>
         <term>Google Chrome</term>
-        <listitem><para>Exit your browser completely, and start it with a command line
-          like this: <code>google-chrome --auth-server-whitelist=*example.com --auth-server-delegate-whitelist=*example.com</code></para></listitem>
+        <listitem><para>
+          On Linux: create the file
+          <code>/etc/opt/chrome/policies/managed/example-com.json</code>
+          with the contents:
+<programlisting>
+{
+  "AuthServerWhitelist": "*example.com"
+  "AuthServerDelegateWhitelist": "*example.com"
+}
+</programlisting>
+          and restart the browser. On other platforms, exit your browser
+          completely, and start it with a command line like this:
+          <code>google-chrome --auth-server-whitelist=*example.com --auth-server-delegate-whitelist=*example.com</code>
+          </para></listitem>
       </varlistentry>
     </variablelist>
 

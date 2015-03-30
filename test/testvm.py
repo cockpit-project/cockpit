@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import errno
 import fcntl
 import os
 import re
@@ -28,6 +29,7 @@ import time
 import sys
 import shutil
 from lxml import etree
+from threading import Timer
 
 DEFAULT_FLAVOR="cockpit"
 DEFAULT_OS = "fedora-22"
@@ -681,8 +683,8 @@ class QemuMachine(Machine):
                     sock.sendall("%s\n" % command)
                     sock.shutdown(socket.SHUT_WR)
                     command = None
-        except OSError, ex:
-            if ex.errno == 104: # Connection reset
+        except ex:
+            if ex.errno == errno.ECONNRESET: # Connection reset
                 pass
             else:
                 raise
@@ -764,7 +766,14 @@ class QemuMachine(Machine):
 
     def wait_poweroff(self):
         assert self._process
+        # Don't wait for more than 30 seconds, then kill the process
+        timeout_sec = 30
+
+        timer = Timer(timeout_sec, self.kill)
+        timer.start()
         self._process.wait()
+        timer.cancel()
+
         self._cleanup()
 
     def shutdown(self):

@@ -1,0 +1,7 @@
+#!/bin/sh
+if [ -f $MOCK_OUTPUT/usermod ]; then
+    cp $MOCK_OUTPUT/usermod $MOCK_OUTPUT/usermod.tmp
+fi
+echo "$@" >> $MOCK_OUTPUT/usermod.tmp
+sort < $MOCK_OUTPUT/usermod.tmp > $MOCK_OUTPUT/usermod
+rm $MOCK_OUTPUT/usermod.tmp

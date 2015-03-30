@@ -37,6 +37,8 @@ void                  cockpit_dbus_user_startup          (struct passwd *pwd);
 
 void                  cockpit_dbus_time_startup          (void);
 
+void                  cockpit_dbus_setup_startup         (void);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_DBUS_INTERNAL_H */

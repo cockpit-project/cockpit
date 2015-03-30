@@ -23,12 +23,16 @@
 #include <glib-unix.h>
 #include <gio/gio.h>
 
+#define UDISKS_API_IS_SUBJECT_TO_CHANGE
+#include <udisks/udisks.h>
+
 #include "common/cockpittypes.h"
 #include "common/cockpitenums.h"
 #include "common/cockpiterror.h"
 #include "common/cockpitlog.h"
 
-#include "cockpit-generated.h"
+#include "cockpit-udisks-generated.h"
+#include "com.redhat.lvm2.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -36,55 +40,31 @@
 struct _Daemon;
 typedef struct _Daemon Daemon;
 
-struct _Manager;
-typedef struct _Manager Manager;
+struct _StorageManager;
+typedef struct _StorageManager StorageManager;
 
-struct _Machines;
-typedef struct _Machines Machines;
+struct _StorageProvider;
+typedef struct _StorageProvider StorageProvider;
 
-struct _Machine;
-typedef struct _Machine Machine;
+struct _StorageObject;
+typedef struct _StorageObject StorageObject;
 
-struct _CpuMonitor;
-typedef struct _CpuMonitor CpuMonitor;
+struct _StorageBlock;
+typedef struct _StorageBlock StorageBlock;
 
-struct _Network;
-typedef struct _Network Network;
+struct _StorageDrive;
+typedef struct _StorageDrive StorageDrive;
 
-struct _Netinterface;
-typedef struct _Netinterface Netinterface;
+struct _StorageMDRaid;
+typedef struct _StorageMDRaid StorageMDRaid;
 
-struct _MemoryMonitor;
-typedef struct _MemoryMonitor MemoryMonitor;
+struct _StorageVolumeGroup;
+typedef struct _StorageVolumeGroup StorageVolumeGroup;
 
-struct _NetworkMonitor;
-typedef struct _NetworkMonitor NetworkMonitor;
+struct _StorageLogicalVolume;
+typedef struct _StorageLogicalVolume StorageLogicalVolume;
 
-struct _DiskIOMonitor;
-typedef struct _DiskIOMonitor DiskIOMonitor;
-
-struct _CGroupMonitor;
-typedef struct _CGroupMonitor CGroupMonitor;
-
-struct _NetdevMonitor;
-typedef struct _NetdevMonitor NetdevMonitor;
-
-struct _BlockdevMonitor;
-typedef struct _BlockdevMonitor BlockdevMonitor;
-
-struct _MountMonitor;
-typedef struct _MountMonitor MountMonitor;
-
-struct _Realms;
-typedef struct _Realms Realms;
-
-struct _Services;
-typedef struct _Services Services;
-
-struct _Accounts;
-typedef struct _Accounts Accounts;
-
-struct _Account;
-typedef struct _Account Account;
+struct _StorageJob;
+typedef struct _StorageJob StorageJob;
 
 #endif /* COCKPIT_TYPES_H__ */

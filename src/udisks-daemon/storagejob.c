@@ -32,20 +32,20 @@ typedef struct _StorageJobClass StorageJobClass;
 
 struct _StorageJob
 {
-  CockpitJobSkeleton parent_instance;
+  CockpitStorageJobSkeleton parent_instance;
 
   UDisksJob *udisks_job;
 };
 
 struct _StorageJobClass
 {
-  CockpitJobSkeletonClass parent_class;
+  CockpitStorageJobSkeletonClass parent_class;
 };
 
-static void storage_job_iface_init (CockpitJobIface *iface);
+static void storage_job_iface_init (CockpitStorageJobIface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (StorageJob, storage_job, COCKPIT_TYPE_JOB_SKELETON,
-                         G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_JOB, storage_job_iface_init));
+G_DEFINE_TYPE_WITH_CODE (StorageJob, storage_job, COCKPIT_STORAGE_TYPE_JOB_SKELETON,
+                         G_IMPLEMENT_INTERFACE (COCKPIT_STORAGE_TYPE_JOB, storage_job_iface_init));
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -62,18 +62,18 @@ on_completed (UDisksJob *object,
 static void
 update (StorageJob *job)
 {
-  CockpitJob *rjob = COCKPIT_JOB(job);
-  cockpit_job_set_cancellable (rjob, udisks_job_get_cancelable (job->udisks_job));
+  CockpitStorageJob *rjob = COCKPIT_STORAGE_JOB(job);
+  cockpit_storage_job_set_cancellable (rjob, udisks_job_get_cancelable (job->udisks_job));
 
-  cockpit_job_set_progress (rjob, udisks_job_get_progress (job->udisks_job));
-  cockpit_job_set_progress_valid (rjob, udisks_job_get_progress_valid (job->udisks_job));
+  cockpit_storage_job_set_progress (rjob, udisks_job_get_progress (job->udisks_job));
+  cockpit_storage_job_set_progress_valid (rjob, udisks_job_get_progress_valid (job->udisks_job));
 
   guint64 end = udisks_job_get_expected_end_time (job->udisks_job);
   guint64 now = g_get_real_time ();
   if (end > now)
-    cockpit_job_set_remaining_usecs (rjob, end - now);
+    cockpit_storage_job_set_remaining_usecs (rjob, end - now);
   else
-    cockpit_job_set_remaining_usecs (rjob, 0);
+    cockpit_storage_job_set_remaining_usecs (rjob, 0);
 }
 
 static void
@@ -86,7 +86,7 @@ on_notify (GObject *object,
 }
 
 static gboolean
-handle_cancel (CockpitJob *object,
+handle_cancel (CockpitStorageJob *object,
                GDBusMethodInvocation *invocation)
 {
   StorageJob *job = STORAGE_JOB (object);
@@ -101,7 +101,7 @@ handle_cancel (CockpitJob *object,
       return TRUE;
     }
 
-  cockpit_job_complete_cancel (object, invocation);
+  cockpit_storage_job_complete_cancel (object, invocation);
   return TRUE;
 }
 
@@ -131,26 +131,26 @@ storage_job_class_init (StorageJobClass *klass)
   gobject_class->finalize = storage_job_finalize;
 }
 
-CockpitJob *
+CockpitStorageJob *
 storage_job_new (StorageProvider *provider,
                  UDisksJob *udisks_job)
 {
-  CockpitJob *job = COCKPIT_JOB (g_object_new (TYPE_STORAGE_JOB, NULL));
+  CockpitStorageJob *job = COCKPIT_STORAGE_JOB (g_object_new (TYPE_STORAGE_JOB, NULL));
 
   STORAGE_JOB(job)->udisks_job = g_object_ref (udisks_job);
 
   g_signal_connect (udisks_job, "completed", G_CALLBACK (on_completed), job);
   g_signal_connect (udisks_job, "notify", G_CALLBACK (on_notify), job);
 
-  cockpit_job_set_domain (job, "storage");
-  cockpit_job_set_operation (job, udisks_job_get_operation (udisks_job));
+  cockpit_storage_job_set_domain (job, "storage");
+  cockpit_storage_job_set_operation (job, udisks_job_get_operation (udisks_job));
 
   const gchar *const *objects = udisks_job_get_objects (udisks_job);
   int n_objects = g_strv_length ((gchar **)objects);
   const gchar **targets = g_new0 (const gchar *, n_objects + 1);
   for (int i = 0; i < n_objects; i++)
     targets[i] = storage_provider_translate_path (provider, objects[i]);
-  cockpit_job_set_targets (job, targets);
+  cockpit_storage_job_set_targets (job, targets);
   g_free (targets);
 
   update (STORAGE_JOB(job));
@@ -159,7 +159,7 @@ storage_job_new (StorageProvider *provider,
 }
 
 static void
-storage_job_iface_init (CockpitJobIface *iface)
+storage_job_iface_init (CockpitStorageJobIface *iface)
 {
   iface->handle_cancel = handle_cancel;
 }

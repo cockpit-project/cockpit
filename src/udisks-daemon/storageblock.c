@@ -72,8 +72,8 @@ static void on_udisks_block_notify (GObject    *object,
                                     GParamSpec *pspec,
                                     gpointer    user_data);
 
-G_DEFINE_TYPE_WITH_CODE (StorageBlock, storage_block, COCKPIT_TYPE_STORAGE_BLOCK_SKELETON,
-                         G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_STORAGE_BLOCK, storage_block_iface_init));
+G_DEFINE_TYPE_WITH_CODE (StorageBlock, storage_block, COCKPIT_STORAGE_TYPE_BLOCK_SKELETON,
+                         G_IMPLEMENT_INTERFACE (COCKPIT_STORAGE_TYPE_BLOCK, storage_block_iface_init));
 
 /* ---------------------------------------------------------------------------------------------------- */
 

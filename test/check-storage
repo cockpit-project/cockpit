@@ -23,6 +23,12 @@ import time
 
 class TestStorage(MachineCase):
     def setUp(self):
+
+        self.dbus_client_options = {
+          "service" : "com.redhat.Cockpit.Storage",
+          "object-manager" : "/com/redhat/Cockpit/Storage"
+        }
+
         MachineCase.setUp(self)
         # Install a udev rule to work around the fact that serials from
         # VirtIO devices don't seem to appear early enough for udev to
@@ -37,13 +43,17 @@ class TestStorage(MachineCase):
 
     def add_disk(self, size, serial=None, speed=None):
         id = self.machine.add_disk(size, serial=serial, speed=speed)
-        drive = self.browser.wait_dbus_prop("com.redhat.Cockpit.Storage.Drive", "Serial", serial)
-        self.browser.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "Drive", drive)
+        drive = self.browser.wait_dbus_prop("com.redhat.Cockpit.Storage.Drive", "Serial",
+                                            serial, client_options=self.dbus_client_options)
+        self.browser.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "Drive", drive,
+                                    client_options=self.dbus_client_options)
         return id
 
     def get_block_object(self, serial):
-        drive = self.browser.wait_dbus_prop("com.redhat.Cockpit.Storage.Drive", "Serial", serial)
-        return self.browser.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "Drive", drive)
+        drive = self.browser.wait_dbus_prop("com.redhat.Cockpit.Storage.Drive", "Serial", serial,
+                                            client_options=self.dbus_client_options)
+        return self.browser.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "Drive", drive,
+                                           client_options=self.dbus_client_options)
 
     def content_action_btn(self, index):
         return "#storage_detail_partition_list li:nth-child(%d) .btn-group" % index
@@ -117,7 +127,8 @@ class TestStorage(MachineCase):
         b.click("#format-format")
         b.wait_popdown("storage_format_dialog")
         b.wait_in_text("#storage_detail_partition_list", "FILESYSTEM")
-        path = b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/foo")
+        path = b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/foo",
+                                client_options=self.dbus_client_options)
 
         self.content_default_action(1, "Mount");
         b.wait_in_text("#storage_detail_partition_list", "mounted on /foo")
@@ -132,7 +143,8 @@ class TestStorage(MachineCase):
         b.set_val("#fsysopts-mount-point", "/bar");
         b.click("#fsysopts-apply")
         b.wait_popdown("filesystem_options_dialog")
-        b.wait_dbus_object_prop(path, "com.redhat.Cockpit.Storage.Block", "MountPoint", "/bar")
+        b.wait_dbus_object_prop(path, "com.redhat.Cockpit.Storage.Block", "MountPoint", "/bar",
+                                client_options=self.dbus_client_options)
 
         self.content_default_action(1, "Mount");
         b.wait_in_text("#storage_detail_partition_list", "mounted on /bar")
@@ -171,7 +183,8 @@ class TestStorage(MachineCase):
         b.set_val("#fsysopts-mounting", "default");
         b.click("#fsysopts-apply")
         b.wait_popdown("filesystem_options_dialog")
-        b.wait_dbus_object_prop(path, "com.redhat.Cockpit.Storage.Block", "MountPoint", "")
+        b.wait_dbus_object_prop(path, "com.redhat.Cockpit.Storage.Block", "MountPoint", "",
+                                client_options=self.dbus_client_options)
 
         self.content_default_action(1, "Mount");
         b.wait_in_text("#storage_detail_partition_list", "mounted on /run/media/admin/FILESYSTEM")
@@ -297,7 +310,8 @@ class TestStorage(MachineCase):
             b.wait_in_text("#storage_detail_partition_list", "unlocked")
             b.wait_in_text("#storage_detail_partition_list", "ENCRYPTED")
 
-        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/secret")
+        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/secret",
+                         client_options=self.dbus_client_options)
         assert m.execute("grep 'UUID=' /etc/crypttab") != ""
         assert m.execute("grep /secret /etc/fstab") != ""
         assert m.execute("cat /etc/luks-keys/*") == "maisa-artu-keke-tellu"
@@ -634,7 +648,8 @@ class TestStorage(MachineCase):
         # wait for the disks to be free
         def wait_free(serial):
             block = self.get_block_object(serial)
-            b.wait_dbus_object_prop (block, "com.redhat.Cockpit.Storage.Block", "PvGroup", "/")
+            b.wait_dbus_object_prop (block, "com.redhat.Cockpit.Storage.Block", "PvGroup", "/",
+                                     client_options=self.dbus_client_options)
 
         wait_free("DISK1")
         wait_free("DISK2")
@@ -669,7 +684,8 @@ class TestStorage(MachineCase):
         b.click('#format-format')
         b.wait_popdown('storage_format_dialog')
         b.wait_in_text("#storage_detail_content", "(ext4 File System)")
-        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/one")
+        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/one",
+                         client_options=self.dbus_client_options)
         self.content_default_action(1, "Mount")
         b.wait_in_text("#storage_detail_content", "mounted on /one")
 
@@ -732,7 +748,8 @@ class TestStorage(MachineCase):
         b.wait_popdown('storage_resize_volume_dialog')
         with b.wait_timeout(40):
             b.wait_in_text("#storage_detail_content", "(ext4 File System)")
-        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/thin")
+        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/thin",
+                         client_options=self.dbus_client_options)
 
         # remove volume group
         b.click_action_btn('#vg_action_btn', "Delete")
@@ -862,7 +879,8 @@ class TestStorage(MachineCase):
         m.execute("udevadm settle")
         m.execute("mke2fs -L FS /dev/mapper/dm-test")
         m.execute("echo '/dev/mapper/dm-test /mount ext4 defaults 0 0' >>/etc/fstab")
-        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/mount")
+        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/mount",
+                         client_options=self.dbus_client_options)
 
         # Now doubly hide /dev/mapper/dm-test by locking dm-test and deactivating /dev/TEST/lvol
         m.execute("cryptsetup luksClose dm-test")
@@ -907,7 +925,8 @@ class TestStorage(MachineCase):
         m.execute("parted -s /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mkpart logical ext2 25 50")
         m.execute("udevadm settle")
         m.execute("mke2fs -L TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1-part5")
-        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "IdLabel", "TEST")
+        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "IdLabel", "TEST",
+                         client_options=self.dbus_client_options)
 
         b.click('#storage_create_raid')
         b.wait_popup('create-raid-dialog')

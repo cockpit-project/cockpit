@@ -70,8 +70,8 @@ static void on_udisks_drive_notify (GObject    *object,
                                     GParamSpec *pspec,
                                     gpointer    user_data);
 
-G_DEFINE_TYPE_WITH_CODE (StorageDrive, storage_drive, COCKPIT_TYPE_STORAGE_DRIVE_SKELETON,
-                         G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_STORAGE_DRIVE, storage_drive_iface_init));
+G_DEFINE_TYPE_WITH_CODE (StorageDrive, storage_drive, COCKPIT_STORAGE_TYPE_DRIVE_SKELETON,
+                         G_IMPLEMENT_INTERFACE (COCKPIT_STORAGE_TYPE_DRIVE, storage_drive_iface_init));
 
 /* ---------------------------------------------------------------------------------------------------- */
 

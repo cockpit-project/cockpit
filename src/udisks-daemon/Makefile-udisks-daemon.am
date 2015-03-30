@@ -1,0 +1,100 @@
+libexec_PROGRAMS += cockpit-udisks
+
+udisks_dbus_built_sources = cockpit-udisks-generated.h cockpit-udisks-generated.c
+
+cockpit-udisks-generated.h: cockpit-udisks-generated.c
+cockpit-udisks-generated.c: Makefile.am $(top_srcdir)/src/udisks-daemon/com.redhat.Cockpit.Storage.xml
+	$(AM_V_GEN) $(GDBUS_CODEGEN) \
+		--interface-prefix com.redhat.Cockpit.Storage.				\
+		--c-namespace CockpitStorage					\
+		--c-generate-object-manager						\
+		--generate-c-code cockpit-udisks-generated                             		\
+		--generate-docbook cockpit-udisks-generated-doc					\
+		$(top_srcdir)/src/udisks-daemon/com.redhat.Cockpit.Storage.xml	\
+		$(NULL)
+BUILT_SOURCES += $(udisks_dbus_built_sources)
+CLEANFILES += cockpit-udisks-generated*
+
+lvm_dbus_built_sources = com.redhat.lvm2.h com.redhat.lvm2.c
+
+com.redhat.lvm2.h : com.redhat.lvm2.c
+com.redhat.lvm2.c : Makefile.am src/udisks-daemon/com.redhat.lvm2.xml
+	$(AM_V_GEN) $(GDBUS_CODEGEN)  \
+		--interface-prefix com.redhat.lvm2 	\
+		--c-namespace Lvm 			\
+		--c-generate-object-manager 		\
+		--generate-c-code com.redhat.lvm2 	\
+		$(srcdir)/src/udisks-daemon/com.redhat.lvm2.xml \
+		$(NULL)
+
+BUILT_SOURCES += $(lvm_dbus_built_sources)
+CLEANFILES += $(lvm_dbus_built_sources)
+
+noinst_LIBRARIES += libcockpit-udisks.a
+
+nodist_libcockpit_udisks_a_SOURCES = $(lvm_dbus_built_sources)
+nodist_libcockpit_udisks_a_SOURCES += $(udisks_dbus_built_sources)
+libcockpit_udisks_a_SOURCES = \
+	src/udisks-daemon/types.h \
+	src/udisks-daemon/daemon.h \
+	src/udisks-daemon/daemon.c \
+	src/udisks-daemon/storagemanager.h \
+	src/udisks-daemon/storagemanager.c \
+	src/udisks-daemon/storageprovider.h \
+	src/udisks-daemon/storageprovider.c \
+	src/udisks-daemon/storageobject.h \
+	src/udisks-daemon/storageobject.c \
+	src/udisks-daemon/storageblock.h \
+	src/udisks-daemon/storageblock.c \
+	src/udisks-daemon/storagedrive.h \
+	src/udisks-daemon/storagedrive.c \
+	src/udisks-daemon/storagemdraid.h \
+	src/udisks-daemon/storagemdraid.c \
+	src/udisks-daemon/storagevolumegroup.h \
+	src/udisks-daemon/storagevolumegroup.c \
+	src/udisks-daemon/storagelogicalvolume.h \
+	src/udisks-daemon/storagelogicalvolume.c \
+	src/udisks-daemon/storagejob.h \
+	src/udisks-daemon/storagejob.c \
+	src/udisks-daemon/lvmutil.h \
+	src/udisks-daemon/lvmutil.c \
+	src/udisks-daemon/utils.h \
+	src/udisks-daemon/utils.c \
+	$(NULL)
+
+libcockpit_udisks_a_CFLAGS = \
+	-DG_LOG_DOMAIN=\"cockpit-udisks-daemon\" \
+	$(COCKPIT_DAEMON_CFLAGS) \
+	$(NULL)
+
+cockpit_udisks_SOURCES = \
+	src/udisks-daemon/main.c \
+	$(NULL)
+
+cockpit_udisks_CFLAGS = 					\
+	-I$(top_srcdir)/src/udisks-daemon			\
+	-DG_LOG_DOMAIN=\"cockpit-udisks-daemon\" \
+	$(COCKPIT_DAEMON_CFLAGS)			\
+	$(NULL)
+
+cockpit_udisks_LDADD = 					\
+	libcockpit-udisks.a \
+	libcockpit-common.a \
+	$(COCKPIT_DAEMON_LIBS) \
+	-lm 						\
+	$(NULL)
+
+dbusservice_DATA += com.redhat.Cockpit.Storage.service
+
+com.redhat.Cockpit.Storage.service: src/udisks-daemon/com.redhat.Cockpit.Storage.service.in Makefile.am
+	$(AM_V_GEN) $(SED_SUBST) $< > $@
+
+EXTRA_DIST += \
+	src/udisks-daemon/com.redhat.Cockpit.Storage.xml \
+	src/udisks-daemon/com.redhat.Cockpit.Storage.service.in \
+	src/udisks-daemon/com.redhat.lvm2.xml \
+	$(NULL)
+
+CLEANFILES += \
+	com.redhat.Cockpit.Storage.service \
+	$(NULL)

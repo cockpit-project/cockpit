@@ -50,7 +50,7 @@ typedef struct _StorageObjectClass StorageObjectClass;
  */
 struct _StorageObject
 {
-  CockpitObjectSkeleton parent_instance;
+  CockpitStorageObjectSkeleton parent_instance;
 
   StorageProvider *provider;
 
@@ -69,7 +69,7 @@ struct _StorageObject
 
 struct _StorageObjectClass
 {
-  CockpitObjectSkeletonClass parent_class;
+  CockpitStorageObjectSkeletonClass parent_class;
 };
 
 enum
@@ -83,7 +83,7 @@ enum
   PROP_LVM_LOGICAL_VOLUME,
 };
 
-G_DEFINE_TYPE (StorageObject, storage_object, COCKPIT_TYPE_OBJECT_SKELETON);
+G_DEFINE_TYPE (StorageObject, storage_object, COCKPIT_STORAGE_TYPE_OBJECT_SKELETON);
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -207,7 +207,7 @@ storage_object_update (StorageObject *object)
       if (object->storage_drive_iface == NULL)
         {
           object->storage_drive_iface = storage_drive_new (object);
-          cockpit_object_skeleton_set_storage_drive (COCKPIT_OBJECT_SKELETON (object), object->storage_drive_iface);
+          cockpit_storage_object_skeleton_set_drive (COCKPIT_STORAGE_OBJECT_SKELETON (object), object->storage_drive_iface);
         }
       else
         {
@@ -220,7 +220,7 @@ storage_object_update (StorageObject *object)
       if (object->storage_block_iface == NULL)
         {
           object->storage_block_iface = storage_block_new (object);
-          cockpit_object_skeleton_set_storage_block (COCKPIT_OBJECT_SKELETON (object), object->storage_block_iface);
+          cockpit_storage_object_skeleton_set_block (COCKPIT_STORAGE_OBJECT_SKELETON (object), object->storage_block_iface);
         }
       else
         {
@@ -234,7 +234,7 @@ storage_object_update (StorageObject *object)
       if (object->storage_mdraid_iface == NULL)
         {
           object->storage_mdraid_iface = storage_mdraid_new (object);
-          cockpit_object_skeleton_set_storage_mdraid (COCKPIT_OBJECT_SKELETON (object), object->storage_mdraid_iface);
+          cockpit_storage_object_skeleton_set_mdraid (COCKPIT_STORAGE_OBJECT_SKELETON (object), object->storage_mdraid_iface);
         }
       else
         {
@@ -247,7 +247,7 @@ storage_object_update (StorageObject *object)
       if (object->storage_volume_group_iface == NULL)
         {
           object->storage_volume_group_iface = storage_volume_group_new (object);
-          cockpit_object_skeleton_set_storage_volume_group (COCKPIT_OBJECT_SKELETON (object), object->storage_volume_group_iface);
+          cockpit_storage_object_skeleton_set_volume_group (COCKPIT_STORAGE_OBJECT_SKELETON (object), object->storage_volume_group_iface);
         }
       else
         {
@@ -260,7 +260,7 @@ storage_object_update (StorageObject *object)
       if (object->storage_logical_volume_iface == NULL)
         {
           object->storage_logical_volume_iface = storage_logical_volume_new (object);
-          cockpit_object_skeleton_set_storage_logical_volume (COCKPIT_OBJECT_SKELETON (object), object->storage_logical_volume_iface);
+          cockpit_storage_object_skeleton_set_logical_volume (COCKPIT_STORAGE_OBJECT_SKELETON (object), object->storage_logical_volume_iface);
         }
       else
         {

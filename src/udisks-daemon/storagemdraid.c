@@ -71,8 +71,8 @@ static void on_udisks_mdraid_notify (GObject    *object,
                                      GParamSpec *pspec,
                                      gpointer    user_data);
 
-G_DEFINE_TYPE_WITH_CODE (StorageMDRaid, storage_mdraid, COCKPIT_TYPE_STORAGE_MDRAID_SKELETON,
-                         G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_STORAGE_MDRAID, storage_mdraid_iface_init));
+G_DEFINE_TYPE_WITH_CODE (StorageMDRaid, storage_mdraid, COCKPIT_STORAGE_TYPE_MDRAID_SKELETON,
+                         G_IMPLEMENT_INTERFACE (COCKPIT_STORAGE_TYPE_MDRAID, storage_mdraid_iface_init));
 
 /* ---------------------------------------------------------------------------------------------------- */
 

@@ -55,8 +55,8 @@ enum
 
 static void storage_manager_iface_init (CockpitStorageManagerIface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (StorageManager, storage_manager, COCKPIT_TYPE_STORAGE_MANAGER_SKELETON,
-                         G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_STORAGE_MANAGER, storage_manager_iface_init));
+G_DEFINE_TYPE_WITH_CODE (StorageManager, storage_manager, COCKPIT_STORAGE_TYPE_MANAGER_SKELETON,
+                         G_IMPLEMENT_INTERFACE (COCKPIT_STORAGE_TYPE_MANAGER, storage_manager_iface_init));
 
 static void
 storage_manager_finalize (GObject *object)
@@ -739,12 +739,12 @@ block_is_unused_walker (UDisksClient *client,
       GDBusObjectManagerServer *object_manager_server = daemon_get_object_manager (daemon);
       GDBusObjectManager *object_manager = G_DBUS_OBJECT_MANAGER (object_manager_server);
 
-      CockpitObject *cockpit_object =
-        COCKPIT_OBJECT (storage_provider_lookup_for_udisks_block (provider, block));
+      CockpitStorageObject *cockpit_storage_object =
+        COCKPIT_STORAGE_OBJECT (storage_provider_lookup_for_udisks_block (provider, block));
 
-      if (cockpit_object)
+      if (cockpit_storage_object)
         {
-          CockpitStorageBlock *cockpit_block = cockpit_object_peek_storage_block (cockpit_object);
+          CockpitStorageBlock *cockpit_block = cockpit_storage_object_peek_block (cockpit_storage_object);
           if (cockpit_block)
             {
               const gchar *const *mounted_at = cockpit_storage_block_get_mounted_at (cockpit_block);
@@ -760,10 +760,10 @@ block_is_unused_walker (UDisksClient *client,
               const gchar *mdraid_member = cockpit_storage_block_get_mdraid_member (cockpit_block);
               if (mdraid_member && strcmp (mdraid_member, "/") != 0)
                 {
-                  CockpitObject *raid_object =
-                    COCKPIT_OBJECT (g_dbus_object_manager_get_object (object_manager, mdraid_member));
+                  CockpitStorageObject *raid_object =
+                    COCKPIT_STORAGE_OBJECT (g_dbus_object_manager_get_object (object_manager, mdraid_member));
                   CockpitStorageMDRaid *raid =
-                    cockpit_object_peek_storage_mdraid (raid_object);
+                    cockpit_storage_object_peek_mdraid (raid_object);
 
                   g_set_error (error, UDISKS_ERROR, UDISKS_ERROR_FAILED,
                                "Device %s is in use: member of RAID device %s",
@@ -775,10 +775,10 @@ block_is_unused_walker (UDisksClient *client,
               const gchar *pv_group = cockpit_storage_block_get_pv_group (cockpit_block);
               if (pv_group && strcmp (pv_group, "/") != 0)
                 {
-                  CockpitObject *group_object =
-                    COCKPIT_OBJECT (g_dbus_object_manager_get_object (object_manager, pv_group));
+                  CockpitStorageObject *group_object =
+                    COCKPIT_STORAGE_OBJECT (g_dbus_object_manager_get_object (object_manager, pv_group));
                   CockpitStorageVolumeGroup *group =
-                    cockpit_object_peek_storage_volume_group (group_object);
+                    cockpit_storage_object_peek_volume_group (group_object);
 
                   g_set_error (error, UDISKS_ERROR, UDISKS_ERROR_FAILED,
                                "Device %s is in use: physical volume of %s",

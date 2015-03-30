@@ -415,7 +415,7 @@ provider_update_jobs (StorageProvider *provider)
   for (l = removed; l != NULL; l = l->next)
     {
       UDisksJob *job = UDISKS_JOB (l->data);
-      CockpitJob *object;
+      CockpitStorageJob *object;
 
       object = g_hash_table_lookup (provider->hash_job_to_storage_job, job);
       if (object == NULL)
@@ -436,17 +436,17 @@ provider_update_jobs (StorageProvider *provider)
   for (l = added; l != NULL; l = l->next)
     {
       UDisksJob *job = UDISKS_JOB (l->data);
-      CockpitObjectSkeleton *object;
-      CockpitJob *cockpit_job;
+      CockpitStorageObjectSkeleton *object;
+      CockpitStorageJob *cockpit_storage_job;
       gchar *object_path;
 
-      object_path = utils_generate_object_path ("/com/redhat/Cockpit/Jobs",
+      object_path = utils_generate_object_path ("/com/redhat/Cockpit/Storage/Jobs",
                                                 udisks_job_get_operation (job));
 
-      cockpit_job = storage_job_new (provider, job);
-      object = cockpit_object_skeleton_new (object_path);
-      cockpit_object_skeleton_set_job (object, cockpit_job);
-      g_object_unref (cockpit_job);
+      cockpit_storage_job = storage_job_new (provider, job);
+      object = cockpit_storage_object_skeleton_new (object_path);
+      cockpit_storage_object_skeleton_set_job (object, cockpit_storage_job);
+      g_object_unref (cockpit_storage_job);
 
       g_free (object_path);
 
@@ -500,7 +500,7 @@ provider_update_block (StorageProvider *provider,
   if (storage_object == NULL)
     return;
 
-  CockpitStorageBlock *storage_block = cockpit_object_peek_storage_block (COCKPIT_OBJECT (storage_object));
+  CockpitStorageBlock *storage_block = cockpit_storage_object_peek_block (COCKPIT_STORAGE_OBJECT (storage_object));
   if (storage_block == NULL)
     return;
 

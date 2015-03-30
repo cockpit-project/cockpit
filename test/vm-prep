@@ -44,7 +44,6 @@ NM_CONTROLLED=no
 EOF
 
 	$VIRSH net-define ./network-cockpit.xml
-	rm $xml
 
 	$VIRSH net-autostart cockpit
 	$VIRSH net-start cockpit

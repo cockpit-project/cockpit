@@ -359,6 +359,18 @@ a {
     padding-right: 15px;
 }
 
+/* Override patternfly to fit buttons and such */
+.table > thead > tr > th,
+.table > tbody > tr > td {
+    padding: 8px;
+}
+
+/* Override the heavy patternfly headers */
+.table > thead {
+    background-image: none;
+    background-color: #fff;
+}
+
 /* Make things line up */
 .table tbody tr td:first-child,
 .table thead tr th:first-child {

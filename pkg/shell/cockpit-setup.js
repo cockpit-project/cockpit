@@ -285,7 +285,7 @@ PageSetupServer.prototype = {
         var self = this;
 
         /* TODO: This needs to be migrated away from the old dbus */
-        var client = shell.dbus(self.address, self.options);
+        var client = shell.dbus_client(self.address, self.options);
         $(client).on('state-change', function() {
             if (client.state == "closed") {
                 if (!self.options.host_key && client.error == "unknown-hostkey") {

@@ -21,6 +21,7 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitdbusjson.h \
 	src/bridge/cockpitdbusrules.c \
 	src/bridge/cockpitdbusrules.h \
+	src/bridge/cockpitdbussetup.c \
 	src/bridge/cockpitdbustime.c \
 	src/bridge/cockpitdbususer.c \
 	src/bridge/cockpitdisksamples.c \
@@ -152,6 +153,7 @@ BRIDGE_CHECKS = \
 	test-pcp \
 	test-pcp-archives \
 	test-httpstream \
+	test-setup \
 	$(NULL)
 
 noinst_DATA += mock-pmda.so
@@ -189,6 +191,10 @@ test_paths_LDADD = $(libcockpit_bridge_LIBS)
 test_rules_SOURCES = src/bridge/test-rules.c
 test_rules_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_rules_LDADD = $(libcockpit_bridge_LIBS)
+
+test_setup_SOURCES = src/bridge/test-setup.c
+test_setup_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_setup_LDADD = $(libcockpit_bridge_LIBS)
 
 test_stream_SOURCES = \
 	src/bridge/test-stream.c \
@@ -231,6 +237,7 @@ TESTS += $(BRIDGE_CHECKS)
 
 EXTRA_DIST += \
 	src/bridge/mock-resource \
+	src/bridge/mock-setup \
 	src/bridge/mock-pmda.c \
 	src/bridge/mock-pmns \
 	$(NULL)

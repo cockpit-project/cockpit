@@ -18,6 +18,9 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import datetime
+import time
+
 import parent
 from testlib import *
 
@@ -129,6 +132,117 @@ class TestAccounts(MachineCase):
 
         self.allow_journal_messages("Password quality check failed:")
         self.allow_journal_messages("The password is a palindrome")
+
+    def accountExpiryInfo(self, account, field):
+        for line in self.machine.execute("LC_ALL=C chage -l {0}".format(account)).split("\n"):
+            if line.startswith(field):
+                (name, delim, value) = line.partition(":")
+                return value.strip()
+        return None
+
+    def testExpire(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("useradd scruffy -s /bin/bash -c 'Scruffy' || true")
+        m.execute("echo scruffy:foobar | chpasswd")
+
+        self.login_and_go("/users")
+        b.go("#/scruffy")
+        b.wait_visible("#account")
+        b.wait_text("#account-user-name", "scruffy")
+
+        # Try to expire the account
+        b.wait_text("#account-expiration-button", "Never lock account")
+        self.assertEqual(self.accountExpiryInfo("scruffy", "Account expires"), "never")
+        b.click("#account-expiration-button")
+        b.wait_popup("account-expiration")
+        b.click("#account-expiration-expires")
+
+        # Try an invalid date
+        b.set_val("#account-expiration-input", "blah")
+        b.click("#account-expiration .btn-primary")
+        b.wait_present("#account-expiration .dialog-error")
+        b.wait_text("#account-expiration .dialog-error", "Invalid expiration date")
+
+        # Now a valid date 30 days in the future
+        when = datetime.datetime.now() + datetime.timedelta(days=30)
+        b.set_val("#account-expiration-input", when.isoformat().split("T")[0])
+        b.click("#account-expiration .btn-primary")
+        b.wait_popdown("account-expiration")
+        b.wait_in_text("#account-expiration-button", "Lock account on")
+        self.assertNotEqual(self.accountExpiryInfo("scruffy", "Account expires"), "never")
+
+        # Now try and change it back
+        b.click("#account-expiration-button")
+        b.wait_popup("account-expiration")
+        b.click("#account-expiration-never")
+        b.click("#account-expiration .btn-primary")
+        b.wait_popdown("account-expiration")
+        b.wait_text("#account-expiration-button", "Never lock account")
+        self.assertEqual(self.accountExpiryInfo("scruffy", "Account expires"), "never")
+
+        # Try to expire a password
+        b.wait_text("#password-expiration-button", "Never expire password")
+        self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "never")
+        b.click("#password-expiration-button")
+        b.wait_popup("password-expiration")
+        b.click("#password-expiration-expires")
+
+        # Try an invalid number
+        b.set_val("#password-expiration-input", "-3")
+        b.click("#password-expiration .btn-primary")
+        b.wait_present("#password-expiration .dialog-error")
+        b.wait_text("#password-expiration .dialog-error", "Invalid number of days")
+
+        # Expire password every 30 days
+        b.set_val("#password-expiration-input", "30")
+        b.click("#password-expiration .btn-primary")
+        b.wait_popdown("password-expiration")
+        b.wait_in_text("#password-expiration-button", "Require password change on")
+        self.assertNotEqual(self.accountExpiryInfo("scruffy", "Password expires"), "never")
+
+        # Now try and change it back
+        b.click("#password-expiration-button")
+        b.wait_popup("password-expiration")
+        b.click("#password-expiration-never")
+        b.click("#password-expiration .btn-primary")
+        b.wait_popdown("password-expiration")
+        b.wait_text("#password-expiration-button", "Never expire password")
+        self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "never")
+
+        # Now change it to expire again
+        b.click("#password-expiration-button")
+        b.wait_popup("password-expiration")
+        b.click("#password-expiration-expires")
+        b.set_val("#password-expiration-input", "30")
+        b.click("#password-expiration .btn-primary")
+        b.wait_popdown("password-expiration")
+
+        b.logout()
+        self.allow_authorize_journal_messages()
+        self.login_and_go("/users", user="scruffy")
+        b.go("#/scruffy")
+        b.wait_visible("#account")
+        b.wait_text("#account-user-name", "scruffy")
+        b.wait_text("#account-expiration-button", "Never lock account")
+        b.wait_present("#account-expiration-button.disabled")
+        b.wait_in_text("#password-expiration-button", "Require password change on")
+        b.wait_present("#password-expiration-button.disabled")
+
+        # Lastly force a password change
+        b.logout()
+        self.login_and_go("/users")
+        b.go("#/scruffy")
+        b.wait_visible("#account")
+        b.wait_text("#account-user-name", "scruffy")
+        b.click("#password-reset-button")
+        b.wait_popup("password-reset")
+        b.click("#password-reset .btn-primary")
+        b.wait_popdown("password-reset")
+        b.wait_in_text("#password-expiration-button", "Password must be changed")
+        self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "password must be changed")
+
 
 if __name__ == '__main__':
     test_main()

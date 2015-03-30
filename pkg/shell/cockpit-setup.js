@@ -35,9 +35,11 @@ PageSetupServer.prototype = {
     },
 
     leave: function() {
-        $(this.local_client).off('.setup');
-        this.local_client.release();
-        this.local_client = null;
+        var self = this;
+        $(self.local).off();
+        self.local.close();
+        self.local = null;
+        self.cancel();
     },
 
     setup: function() {
@@ -111,8 +113,9 @@ PageSetupServer.prototype = {
     enter: function() {
         var self = this;
 
+        self.local = cockpit.dbus(null, { bus: "internal", host: "localhost", superuser: true });
+
         self.machines = PageSetupServer.machines;
-        self.client = null;
         self.address = null;
         self.options = { "host-key": "" };
         self.name_is_done = false;
@@ -144,17 +147,6 @@ PageSetupServer.prototype = {
                 if (!disable)
                     self.next();
             }
-        });
-
-        /* TODO: This code needs to be migrated away from old dbus */
-        self.local_client = shell.dbus("localhost");
-        $(self.local_client).on('objectAdded.setup objectRemoved.setup', function(event, object) {
-            if (object.lookup('com.redhat.Cockpit.Machine'))
-                self.update_discovered();
-        });
-        $(self.local_client).on('propertiesChanged.setup', function(event, object, iface) {
-            if (iface._iface_name == "com.redhat.Cockpit.Machine")
-                self.update_discovered();
         });
 
         $('#dashboard_setup_address').val("");
@@ -256,8 +248,9 @@ PageSetupServer.prototype = {
     },
 
     close: function() {
-        if (this.client)
-            this.client.close("cancelled");
+        var self = this;
+        if (self.remote)
+            self.remote.close();
         $("#dashboard_setup_server_dialog").modal('hide');
     },
 
@@ -284,47 +277,50 @@ PageSetupServer.prototype = {
 
         var self = this;
 
-        /* TODO: This needs to be migrated away from the old dbus */
-        var client = shell.dbus_client(self.address, self.options);
-        $(client).on('state-change', function() {
-            if (client.state == "closed") {
-                if (!self.options.host_key && client.error == "unknown-hostkey") {
+        var options = $.extend({ bus: "internal", host: self.address, superuser: true }, self.options);
+        var client = cockpit.dbus(null, options);
+
+        $(client)
+            .on("close", function(event, options) {
+                if (!self.options.host_key && options.problem == "unknown-hostkey") {
                     /* The host key is unknown.  Remember it and try
                      * again while allowing that one host key.  When
                      * the user confirms the host key eventually, we
                      * store it permanently.
                      */
-                    self.options["host-key"] = client.error_details["host-key"];
-                    $('#dashboard_setup_action_fingerprint').text(client.error_details["host-fingerprint"]);
+                    self.options["host-key"] = options["host-key"];
+                    $('#dashboard_setup_action_fingerprint').text(options["host-fingerprint"]);
                     self.connect_server();
                     return;
-                } else if (client.error == "authentication-failed") {
+                } else if (options.problem == "authentication-failed") {
                     /* The given credentials didn't work.  Ask the
                      * user to try again.
                      */
                     self.show_tab('login');
                     self.highlight_error_message('#dashboard_setup_login_error',
-                                                 cockpit.message(client.error));
+                                                 cockpit.message(options.problem));
                     return;
                 }
 
                 /* The connection has failed.  Show the error on every
                  * tab but stay on the current tab.
                  */
-                var problem = client.error || "disconnected";
+                var problem = options.problem || "disconnected";
                 self.highlight_error_message('#dashboard_setup_address_error', cockpit.message(problem));
                 self.highlight_error_message('#dashboard_setup_login_error', cockpit.message(problem));
 
                 $('#dashboard_setup_next').prop('disabled', false);
                 $('#dashboard_setup_next').text(_("Next"));
+            });
 
-                return;
-
-            } else if (client.state == "ready") {
-                /* We are in.  Start the setup.
-                 */
-                self.client = client;
-                self.prepare_setup();
+        var remote = client.proxy("cockpit.Setup", "/setup");
+        var local = self.local.proxy("cockpit.Setup", "/setup");
+        remote.wait(function() {
+            if (remote.valid) {
+                self.remote = client;
+                local.wait(function() {
+                    self.prepare_setup(remote, local);
+                });
             }
         });
     },
@@ -444,136 +440,40 @@ PageSetupServer.prototype = {
         run(0);
     },
 
-    prepare_setup: function() {
-        var me = this;
+    prepare_setup: function(remote, local) {
+        var self = this;
 
-        function get_role_accounts(client, roles) {
-            var i;
-            var accounts = client.getInterfacesFrom("/com/redhat/Cockpit/Accounts/",
-                                                    "com.redhat.Cockpit.Account");
-            var map = { };
+        /* We assume all cockpits support the 'passwd1' mechanism */
+        remote.Prepare("passwd1")
+            .done(function(prepared) {
+                self.reset_tasks();
+                self.add_task(_("Synchronize admin logins"), function(task, done) {
+                    passwd1_mechanism(task, done, prepared);
+                });
+                $('#dashboard_setup_action_address').text(self.address);
+                self.show_tab('action');
+            })
+            .fail(function(ex) {
+                self.highlight_error_message('#dashboard_setup_address_error', ex);
+                self.highlight_error_message('#dashboard_setup_login_error', ex);
+            });
 
-            function groups_contain_roles(groups) {
-                for (var i = 0; i < roles.length; i++) {
-                    if (shell.find_in_array(groups, roles[i][0]))
-                        return true;
-                }
-                return false;
-            }
-
-            for (i = 0; i < accounts.length; i++) {
-                if (roles === null || groups_contain_roles(accounts[i].Groups))
-                    map[accounts[i].UserName] = accounts[i];
-            }
-            return map;
-        }
-
-        var manager = this.local_client.lookup("/com/redhat/Cockpit/Accounts",
-                                               "com.redhat.Cockpit.Accounts");
-        var local = get_role_accounts(this.local_client, manager.Roles);
-        var remote = get_role_accounts(this.client, null);
-
-        function needs_update(l) {
-            // XXX
-            return true;
-        }
-
-        function update_account(templ, task, done) {
-
-            var acc;
-
-            function std_cont(func) {
-                return function(error, result) {
-                    if (error) {
-                        task.error(error.message);
-                        done();
-                    } else {
-                        func(result);
-                    }
-                };
-            }
-
-            function create() {
-                var accounts = me.client.getInterfacesFrom("/com/redhat/Cockpit/Accounts",
-                                                           "com.redhat.Cockpit.Account");
-
-                for (var i = 0; i < accounts.length; i++) {
-                    if (accounts[i].UserName == templ.UserName) {
-                        acc = accounts[i];
-                        set_groups();
-                        return;
-                    }
-                }
-
-                var manager = me.client.lookup("/com/redhat/Cockpit/Accounts",
-                                               "com.redhat.Cockpit.Accounts");
-                manager.call("CreateAccount",
-                             templ.UserName,
-                             templ.RealName,
-                             "",
-                             false,
-                             std_cont(set_groups_path));
-            }
-
-            function set_groups_path(path) {
-                acc = me.client.lookup(path, "com.redhat.Cockpit.Account");
-                if (!acc) {
-                    task.error("Account object not found");
+        function passwd1_mechanism(task, done, prepared) {
+            local.Transfer("passwd1", prepared)
+                .fail(function(ex) {
+                    task.error(ex);
                     done();
-                } else
-                    set_groups();
-            }
-
-            function set_groups() {
-                // XXX - filter out non-role groups and groups that
-                //       don't exist on the target
-                acc.call('ChangeGroups', templ.Groups, [ ],
-                         std_cont(get_avatar));
-            }
-
-            function get_avatar() {
-                templ.call('GetIconDataURL',
-                           std_cont(set_avatar));
-            }
-
-            function set_avatar(dataurl) {
-                if (dataurl) {
-                    acc.call('SetIconDataURL', dataurl,
-                             std_cont(get_password_hash));
-                } else
-                    get_password_hash();
-            }
-
-            function get_password_hash() {
-                templ.call('GetPasswordHash',
-                           std_cont(set_password_hash));
-            }
-
-            function set_password_hash(hash) {
-                acc.call('SetPasswordHash', hash,
-                         std_cont(done));
-            }
-
-            create();
+                })
+                .done(function(result) {
+                    remote.Commit("passwd1", result)
+                        .fail(function(ex) {
+                            task.error(ex);
+                        })
+                        .always(function() {
+                            done();
+                        });
+                });
         }
-
-        this.reset_tasks();
-
-        function create_update_task(templ) {
-            return function(task, done) {
-                update_account(templ, task, done);
-            };
-        }
-
-        for (var l in local) {
-            if (needs_update(l))
-                this.add_task("Synchronize administrator " + local[l].UserName,
-                              create_update_task(local[l]));
-        }
-
-        $('#dashboard_setup_action_address').text(this.address);
-
-        this.show_tab('action');
     },
 
     next_setup: function() {

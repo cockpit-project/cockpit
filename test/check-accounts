@@ -36,7 +36,7 @@ class TestAccounts(MachineCase):
         b.go("account?id=anton")
         b.enter_page("account")
         b.set_val('#account-real-name', "Anton Arbitrary")
-        b.wait_dbus_prop('com.redhat.Cockpit.Account', 'RealName', "Anton Arbitrary")
+        b.wait_not_attr('#account-real-name', 'data-dirty', 'true')
         check("Anton Arbitrary" in m.execute("grep anton /etc/passwd"))
 
         # Delete it

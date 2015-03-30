@@ -130,38 +130,6 @@ function passwd_change(user, new_pass) {
 
 $(shell.default_permission).on("changed", update_accounts_privileged);
 
-function on_account_changes(client, id, func) {
-    function object_added(event, obj) {
-        if (obj.objectPath.indexOf("/com/redhat/Cockpit/Accounts/") === 0)
-            func();
-    }
-
-    function object_removed(event, obj) {
-        if (obj.objectPath.indexOf("/com/redhat/Cockpit/Accounts/") === 0)
-            func();
-    }
-
-    function properties_changed(event, obj) {
-        if (obj.objectPath.indexOf("/com/redhat/Cockpit/Accounts/") === 0)
-            func();
-    }
-
-    function signal_emitted(event, iface, signal, args) {
-        if (iface.getObject().objectPath.indexOf("/com/redhat/Cockpit/Accounts/") === 0 &&
-            signal == "Changed")
-            func();
-    }
-
-    $(client).on("objectAdded." + id, object_added);
-    $(client).on("objectRemoved." + id, object_removed);
-    $(client).on("propertiesChanged." + id, properties_changed);
-    $(client).on("signalEmitted." + id, signal_emitted);
-}
-
-function off_account_changes(client, id) {
-    $(client).off("." + id);
-}
-
 function parse_passwd_content(content) {
     var ret = [ ];
     var lines = content.split('\n');
@@ -556,7 +524,7 @@ PageAccount.prototype = {
     },
 
     enter: function() {
-        this.real_name_dirty = false;
+        $("#account-real-name").removeAttr("data-dirty");
 
         this.get_user();
         this.get_roles();
@@ -580,10 +548,12 @@ PageAccount.prototype = {
         if (this.account) {
             var can_change = this.check_role_for_self_mod();
 
-            $('#account-real-name').attr('disabled', !can_change);
+            var name = $("#account-real-name");
+
+            name.attr('disabled', !can_change);
             $('#account-logout').attr('disabled', !this.logged);
 
-            if (!this.real_name_dirty)
+            if (!name.attr("data-dirty"))
                 $('#account-real-name').val(this.account["gecos"]);
 
             $('#account-user-name').text(this.account["name"]);
@@ -625,7 +595,7 @@ PageAccount.prototype = {
     },
 
     real_name_edited: function() {
-        this.real_name_dirty = true;
+        $("#account-real-name").attr("data-dirty", "true");
     },
 
     check_role_for_self_mod: function () {
@@ -634,21 +604,26 @@ PageAccount.prototype = {
     },
 
     change_real_name: function() {
-        var me = this;
+        var self = this;
 
-        this.real_name_dirty = false;
+        var name = $("#account-real-name");
+        name.attr("data-dirty", "true");
 
-        if (!me.check_role_for_self_mod ()) {
-            me.update ();
+        if (!self.check_role_for_self_mod ()) {
+            self.update ();
             return;
         }
 
         // TODO: unwanted chars check
-        cockpit.spawn(["/usr/sbin/usermod",
-                      me.account["name"], "--comment",
-                      $('#account-real-name').val()],
+        var value = name.val();
+
+        cockpit.spawn(["/usr/sbin/usermod", self.account["name"], "--comment", value],
                       { "superuser": true})
-           .done(function(data) { me.account["gecos"] = $('#account-real-name').val(); me.update(); })
+           .done(function(data) {
+               self.account["gecos"] = value;
+               self.update();
+               name.removeAttr("data-dirty");
+           })
            .fail(shell.show_unexpected_error);
     },
 

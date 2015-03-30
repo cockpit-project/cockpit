@@ -19,6 +19,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 from testlib import *
+import time
 
 os_release = """
 NAME="Foobar Adventure Linux Server"
@@ -60,7 +61,19 @@ class TestSystemInfo(MachineCase):
         b.wait_popdown("system_information_change_hostname")
 
         b.wait_text('#system_information_hostname_button', "Adventure Box (host1.cockpit.lan)")
-        check_eq(m.execute("hostname"), "host1.cockpit.lan\n")
+        # HACK /usr/bin/hostname output is delayed in systemd v208, so that DBus gets notified early
+        # this issue is resolved in systemd v219
+        tries_left = 5
+        current_hostname = ""
+        while tries_left > 0:
+            current_hostname = m.execute("hostname")
+            if current_hostname == "host1.cockpit.lan\n":
+                break
+            # wait a bit and try again
+            time.sleep(1)
+            tries_left = tries_left - 1
+
+        check_eq(current_hostname, "host1.cockpit.lan\n")
 
     def testTime(self):
         m = self.machine

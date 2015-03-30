@@ -282,7 +282,7 @@ PageSetupServer.prototype = {
 
         $(client)
             .on("close", function(event, options) {
-                if (!self.options.host_key && options.problem == "unknown-hostkey") {
+                if (!self.options["host-key"] && options.problem == "unknown-hostkey") {
                     /* The host key is unknown.  Remember it and try
                      * again while allowing that one host key.  When
                      * the user confirms the host key eventually, we
@@ -343,7 +343,7 @@ PageSetupServer.prototype = {
             else {
                 me.options.user = null;
                 me.options.password = null;
-                me.options.host_key = null;
+                me.options["host-key"] = null;
                 me.connect_server();
             }
         } else {

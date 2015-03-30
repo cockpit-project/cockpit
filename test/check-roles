@@ -120,22 +120,13 @@ class TestRoles(MachineCase):
         b.click("#account-change-roles-dialog button:contains('Cancel')")
         b.wait_popdown("account-change-roles-dialog")
 
-        m.execute("groupdel docker")
-
-        # Wait for the D-Bus client to have caught up with this change
-        # TODO: This needs to be migrated away from the old dbus
-        b.wait_js_func(
-            """(function () {
-            var client = shell.dbus();
-            var roles = client.get("/com/redhat/Cockpit/Accounts", "com.redhat.Cockpit.Accounts").Roles;
-            var has_docker = roles && roles.some(function (r) { return r[0] == "docker" });
-            client.release();
-            return roles && !has_docker;
-            })""")
-
         b.click("#account-change-roles")
         b.wait_popup("account-change-roles-dialog")
+
+        # The roles dialog is live, removes entries even when open
+        m.execute("groupdel docker")
         b.wait_not_in_text("#account-change-roles-roles", "Container Administrator")
+
         b.click("#account-change-roles-dialog button:contains('Cancel')")
         b.wait_popdown("account-change-roles-dialog")
 

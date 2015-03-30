@@ -380,24 +380,24 @@ function render_container (client, $panel, filter_button, prefix, id, container,
     var added = false;
     if (!tr.length) {
         $panel.find('button.enable-danger').toggle(true);
-        var img_waiting = $('<div class="waiting">');
+        var img_waiting = $('<div class="spinner">');
         var btn_delete = $('<button class="btn btn-danger pficon pficon-delete btn-delete">').
             on("click", function() {
                 var self = this;
                 $(self).hide().
-                    siblings("div.waiting").show();
+                    siblings("div.spinner").show();
                 client.rm(id, true).
                     fail(function(ex) {
                         shell.show_unexpected_error(ex);
                         $(self).show().
-                            siblings("div.waiting").hide();
+                            siblings("div.spinner").hide();
                     });
                 return false;
             });
         var btn_play = $('<button class="btn btn-default btn-control btn-play">').
             on("click", function() {
                 $(this).hide().
-                    siblings("div.waiting").show();
+                    siblings("div.spinner").show();
                 client.start(id).
                     fail(function(ex) {
                         shell.show_unexpected_error(ex);
@@ -407,7 +407,7 @@ function render_container (client, $panel, filter_button, prefix, id, container,
         var btn_stop = $('<button class="btn btn-default btn-control btn-stop">').
             on("click", function() {
                 $(this).hide().
-                    siblings("div.waiting").show();
+                    siblings("div.spinner").show();
                 client.stop(id).
                     fail(function(ex) {
                         shell.show_unexpected_error(ex);
@@ -442,7 +442,7 @@ function render_container (client, $panel, filter_button, prefix, id, container,
         text(memtext);
 
     var waiting = id in client.waiting;
-    $(row[6]).children("div.waiting").toggle(waiting);
+    $(row[6]).children("div.spinner").toggle(waiting);
     $(row[6]).children("button.btn-delete")
         .toggle(!waiting)
         .toggleClass('disabled', container.State.Running);
@@ -455,7 +455,7 @@ function render_container (client, $panel, filter_button, prefix, id, container,
           .tooltip({html: true});
 
 
-    $(row[7]).children("div.waiting").toggle(waiting);
+    $(row[7]).children("div.spinner").toggle(waiting);
     $(row[7]).children("button.btn-play").toggle(!waiting && !container.State.Running);
     $(row[7]).children("button.btn-stop").toggle(!waiting && container.State.Running);
 
@@ -1513,14 +1513,14 @@ PageSearchImage.prototype = {
     perform_search: function(client) {
         var term = $('#containers-search-image-search')[0].value;
 
-        $('#containers-search-image-waiting').addClass('waiting');
+        $('#containers-search-image-waiting').addClass('spinner');
         $('#containers-search-image-no-results').hide();
         $('#containers-search-image-results').hide();
         $('#containers-search-image-results tbody tr').remove();
         this.search_request = client.search(term).
           done(function(data) {
               var resp = data && JSON.parse(data);
-              $('#containers-search-image-waiting').removeClass('waiting');
+              $('#containers-search-image-waiting').removeClass('spinner');
 
               if(resp && resp.length > 0) {
                   $('#containers-search-image-results').show();
@@ -1761,7 +1761,7 @@ PageContainerDetails.prototype = {
         }
 
         var waiting = !!(this.client.waiting[this.container_id]);
-        $('#container-details div.waiting').toggle(waiting);
+        $('#container-details div.spinner').toggle(waiting);
         $('#container-details button').toggle(!waiting);
         $('#container-details-start').prop('disabled', info.State.Running);
         $('#container-details-stop').prop('disabled', !info.State.Running);

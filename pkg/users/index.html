@@ -102,17 +102,28 @@
           <tr>
             <td translatable="yes">Access</td>
             <td>
-              <div class="checkbox accounts-privileged" data-container="body">
-                <label>
-                  <input type="checkbox" id="account-locked"><span translatable="yes">Lock Account</span>
-                </label>
+              <div class="account-column-one">
+                <div class="checkbox accounts-privileged" data-container="body">
+                  <label>
+                    <input type="checkbox" id="account-locked"><span translatable="yes">Lock Account</span>
+                  </label>
+                </div>
               </div>
+              <a id="account-expiration-button" class="accounts-privileged" data-toggle="modal"
+                   data-target="#account-expiration"></a>
             </td>
           </tr>
           <tr>
             <td translatable="yes">Password</td>
             <td>
-              <button class="btn btn-default accounts-self-privileged" translatable="yes" id="account-set-password" data-container="body">Set Password</button>
+              <div class="account-column-one">
+                <button class="btn btn-default accounts-self-privileged" translatable="yes" id="account-set-password" data-container="body">Set Password</button>
+                <button class="btn btn-default accounts-privileged" translatable="yes"
+                    id="password-reset-button" data-toggle="modal" data-target="#password-reset"
+                    data-container="body">Force Change</button>
+              </div>
+              <a id="password-expiration-button" class="accounts-privileged" data-toggle="modal"
+                 data-target="#password-expiration"></a>
             </td>
           </tr>
 
@@ -265,11 +276,109 @@
                 </div>
               </td>
             </tr>
+            <tr>
+              <td>
+            </tr>
           </table>
         </div>
         <div class="modal-footer">
           <button class="btn btn-default" translate data-dismiss="modal">Cancel</button>
           <button class="btn btn-primary" id="account-set-password-apply" translate>Set</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal expiration-modal" id="account-expiration" tabindex="-1"
+      role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-sm-ct">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" translate>Account Expiration</h4>
+        </div>
+        <div class="modal-body">
+          <form>
+            <table class="form-table-ct">
+              <tr>
+                <td>
+                  <label>
+                    <input type="radio" id="account-expiration-never" name="mode" value="never"/>
+                    <span translate>Never lock account</span>
+                  </label>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label class="dialog-wrapper">
+                    <input type="radio" id="account-expiration-expires" name="mode" value="expires"/>
+                    <span id="account-expiration-before"></span>
+                    <input type='text' class="form-control size-text-ct" id="account-expiration-input"/>
+                    <span id="account-expiration-after"></span>
+                  </label>
+                </td>
+              </tr>
+            </table>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-default" data-dismiss="modal" translate>Cancel</button>
+          <button class="btn btn-primary" translate>Change</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal expiration-modal" id="password-expiration" tabindex="-1"
+      role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-sm-ct">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" translate>Password Expiration</h4>
+        </div>
+        <div class="modal-body">
+          <form>
+            <table class="form-table-ct">
+              <tr>
+                <td>
+                  <label>
+                    <input type="radio" id="password-expiration-never" name="mode" value="never"/>
+                    <span translate>Never lock account</span>
+                  </label>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label class="dialog-wrapper">
+                    <input type="radio" id="password-expiration-expires" name="mode" value="expires"/>
+                    <span id="password-expiration-before"></span>
+                    <input type='text' class="form-control size-text-ct" id="password-expiration-input"/>
+                    <span id="password-expiration-after"></span>
+                  </label>
+                </td>
+              </tr>
+            </table>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-default" data-dismiss="modal" translate>Cancel</button>
+          <button class="btn btn-primary" translate>Change</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="password-reset" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" translate>Force password change</h4>
+        </div>
+        <div class="modal-body">
+          <p></p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-default" translate data-dismiss="modal">Cancel</button>
+          <button class="btn btn-danger btn-primary" translate>Reset</button>
         </div>
       </div>
     </div>

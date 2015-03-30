@@ -44,6 +44,14 @@ def wait_dashboard_addresses(b, expected):
         return expected.sort().toString() == dashboard_addresses().sort().toString();
         })""", expected)
 
+def wait_machine_dropdown_addresses(b, expected):
+    b.wait_js_func(
+        """(function (expected) {
+        var dropdown_items = $('#machine-dropdown [data-address]')
+        var dropdown_addresses = dropdown_items.map(function (i,e) { return $(e).data("address"); }).get();
+        return expected.sort().toString() == dropdown_addresses.sort().toString();
+        })""", expected)
+
 def add_machine(b, address):
     b.click('#dashboard-add')
     b.wait_popup('dashboard_setup_server_dialog')
@@ -149,8 +157,11 @@ class TestMultiMachine(MachineCase):
         add_machine(b, m2.address)
         wait_dashboard_addresses (b, [ "localhost", m2.address ])
 
-        # TODO: These will need to change from server-systemd -> system
+        # Switch to the shell and wait for it to also notice m2.
         b.leave_page()
+        wait_machine_dropdown_addresses(b, [ "localhost", m2.address ])
+
+        # Once the shell knows about m2, we can navigate to it.
         b.go("/@%s/system/terminal" % m2.address)
         b.enter_page("/system/terminal", host=m2.address)
         b.wait_present("body")

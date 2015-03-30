@@ -55,6 +55,20 @@ asyncTest("call method", function() {
         });
 });
 
+asyncTest("close immediately", function() {
+    expect(1);
+
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+    $(dbus).on("close", function(event, options) {
+        equal(options.problem, "test-code", "got right code");
+        start();
+    });
+
+    window.setTimeout(function() {
+        dbus.close("test-code");
+    }, 100);
+});
+
 asyncTest("primitive types", function() {
     expect(2);
 

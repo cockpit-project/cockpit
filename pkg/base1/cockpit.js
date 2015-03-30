@@ -1611,31 +1611,32 @@ function full_scope(cockpit, $, po) {
             }
         });
 
-        this.close = function close(options) {
-            var problem;
-            if (typeof options == "string") {
-                problem = options;
-                options = { "problem": problem };
-            } else if (options) {
-                problem = options.problem;
-            }
-            if (!problem)
-                problem = "disconnected";
-            if (channel)
-                channel.close(options);
+        function close_perform(options) {
+            var problem = options.problem || "disconnected";
             var outstanding = calls;
             calls = { };
             $.each(outstanding, function(id, dfd) {
                 dfd.reject(new DBusError(problem));
             });
-            $(self).triggerHandler("close", [ problem ]);
+            $(self).triggerHandler("close", [ options ]);
+        }
+
+        this.close = function close(options) {
+            if (typeof options == "string")
+                options = { "problem": options };
+            if (!options)
+                options = { };
+            if (channel)
+                channel.close(options);
+            else
+                close_perform(options);
         };
 
         $(channel).on("close", function(event, options) {
             dbus_debug("dbus close:", options);
             $(channel).off();
             channel = null;
-            self.close(options);
+            close_perform(options);
         });
 
         var last_cookie = 1;

@@ -23,9 +23,9 @@ Name:           cockpit
 %if %{defined gitcommit}
 Version:        %{gitcommit}
 %else
-Version:        0.47
+Version:        0.48
 %endif
-Release:        2%{?dist}
+Release:        1%{?dist}
 Summary:        A user interface for Linux servers
 
 License:        LGPLv2+

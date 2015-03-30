@@ -171,8 +171,6 @@ main (int argc,
   g_signal_connect (server, "handle-resource::/apple-touch-icon.png",
                     G_CALLBACK (cockpit_handler_root), &data);
 
-  g_info ("HTTP Server listening on port %d", opt_port);
-
   g_main_loop_run (loop);
 
   ret = 0;

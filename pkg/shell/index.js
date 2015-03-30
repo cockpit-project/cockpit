@@ -576,7 +576,7 @@ define([
                 if (address == "localhost")
                     base = "..";
                 else if (machine.checksum)
-                    base = "../../$" + machine.checksum;
+                    base = "../../" + machine.checksum;
                 else
                     base = "../../@" + machine.address;
 
@@ -792,7 +792,7 @@ define([
 
             var url;
             if (machine.checksum)
-                url = "../../$" + machine.checksum + "/manifests.json";
+                url = "../../" + machine.checksum + "/manifests.json";
             else
                 url = "../../@" + machine.address + "/manifests.json";
 
@@ -801,7 +801,7 @@ define([
                     machine.components = self.build(manis);
                     var etag = req.getResponseHeader("ETag");
                     if (etag) /* and remove quotes */
-                        machine.checksum = etag.replace(/^"?(.+)"?$/,'$1');
+                        machine.checksum = etag.replace(/^"(.+)"$/, '$1');
                 })
                 .fail(function(ex) {
                     console.warn("failed to load manifests from " + machine.address + ": " + ex);

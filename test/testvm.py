@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import datetime
+import errno
 import fcntl
 import os
 import re
@@ -87,10 +89,10 @@ class Machine:
 
     def wait_ssh(self):
         """Try to connect to self.address on port 22"""
-        tries_left = 5
+        tries_left = 60
         while (tries_left > 0):
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(2)
+            sock.settimeout(1)
             try:
                 sock.connect((self.address, 22))
                 return True
@@ -199,7 +201,7 @@ class Machine:
         finally:
             self.stop()
 
-    def execute(self, command=None, script=None, input=None, environment={}):
+    def execute(self, command=None, script=None, input=None, environment={}, ignore_ret_code=False):
         """Execute a shell command in the test machine and return its output.
 
         Either specify @command or @script
@@ -276,7 +278,7 @@ class Machine:
                         proc.stdin.close()
         proc.wait()
 
-        if proc.returncode != 0:
+        if proc.returncode != 0 and not ignore_ret_code:
             raise subprocess.CalledProcessError(proc.returncode, command)
         return output
 
@@ -636,36 +638,51 @@ class QemuMachine(Machine):
         cmd = [ "/bin/sh", "-c", quoted + " </dev/null >/dev/null" ]
         return subprocess.Popen(cmd)
 
-    def _monitor_qemu(self, command):
+    # timeout in seconds, after which "timeout" is returned if nothing can be read or sent
+    def _monitor_qemu(self, command, timeout=60):
         assert self._monitor
-        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         output = ""
-        try:
-            sock.connect(self._monitor)
-            fd = sock.fileno()
-            while True:
-                wset = command and [fd] or []
-                ret = select.select([fd], wset, [], 10)
-                if fd in ret[0]:
-                    data = os.read(fd, 1024)
-                    if not data:
-                        if command:
-                            raise Failure("Couldn't send command to qemu monitor: %s" % command)
-                        break
-                    if self.verbose:
-                        sys.stdout.write(data)
-                    output += data
-                if fd in ret[1]:
-                    sock.sendall("%s\n" % command)
-                    sock.shutdown(socket.SHUT_WR)
-                    command = None
-        except OSError, ex:
-            if ex.errno == 104: # Connection reset
-                pass
-            else:
-                raise
-        finally:
-            sock.close()
+        max_wait = datetime.datetime.now() + datetime.timedelta(seconds=timeout)
+        while (datetime.datetime.now() < max_wait):
+            sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            try:
+                sock.connect(self._monitor)
+                fd = sock.fileno()
+                while True:
+                    wset = command and [fd] or []
+                    ret = select.select([fd], wset, [], 10)
+                    if fd in ret[0]:
+                        data = os.read(fd, 1024)
+                        if not data:
+                            if command:
+                                raise Failure("Couldn't send command to qemu monitor: %s" % command)
+                            break
+                        if self.verbose:
+                            sys.stdout.write(data)
+                        output += data
+                    if fd in ret[1]:
+                        sock.sendall("%s\n" % command)
+                        sock.shutdown(socket.SHUT_WR)
+                        command = None
+                        return output
+                    if (datetime.datetime.now() >= max_wait):
+                        return "timeout"
+            # catch socket errors, connection might be refused for a while
+            # and reset doesn't mean we failed, just closed
+            except socket.error as serr:
+                if serr.errno == errno.ECONNRESET: # Connection reset
+                    break
+                elif serr.errno == errno.ECONNREFUSED: # Connection refused
+                    time.sleep(1)
+                    pass
+                else:
+                    print >> sys.stderr, "error: %d" % (serr.errno)
+                    raise
+            finally:
+                sock.close()
+
+        if (datetime.datetime.now() >= max_wait):
+            return "timeout"
         return output
 
     # This is a special QEMU specific maintenance console
@@ -733,23 +750,40 @@ class QemuMachine(Machine):
             print >> sys.stderr, "WARNING: Cleanup failed:", str(value)
 
     def kill(self):
+        # attempt graceful shutdown first
+        if self._process and self._process.poll() is None:
+            self.execute(command="poweroff", ignore_ret_code=True)
         try:
             if self._process and self._process.poll() is None:
                 self._monitor_qemu("quit")
         finally:
             if self._process and self._process.poll() is None:
+                time.sleep(1)
                 self._process.terminate()
             self._cleanup()
 
     def wait_poweroff(self):
         assert self._process
-        self._process.wait()
-        self._cleanup()
+        # Don't wait for more than 60 seconds, then kill the process
+        timeout_sec = 60
+        max_wait = datetime.datetime.now() + datetime.timedelta(seconds=timeout_sec)
+        while self._process.poll() is None and datetime.datetime.now() < max_wait:
+            time.sleep(1)
+
+        if self._process.poll() is None:
+            print >> sys.stderr, "WARNING: Waiting for poweroff failed, killing"
+            self._monitor_qemu("system_reset")
+            self._monitor_qemu("system_powerdown")
+            time.sleep(5)
+            self.kill()
+        else:
+            self._cleanup()
 
     def shutdown(self):
         assert self._process
         try:
             if self._process.poll() is None:
+                self.execute(command="poweroff", ignore_ret_code=True)
                 self._monitor_qemu("system_powerdown")
                 self.wait_poweroff()
         except:

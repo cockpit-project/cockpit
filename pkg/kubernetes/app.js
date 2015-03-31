@@ -18,10 +18,6 @@ define([
         function calculate() {
             var x = 0;
             var y = 0;
-console.log("client=", client);
-console.log("version=", version);
-console.log("service=", service);
-console.log("calculated=", calculated);
             if (version !== client.resourceVersion) {
                 //client.metadata.name != "kubernetes") {
                 version = client.resourceVersion;
@@ -40,7 +36,6 @@ console.log("calculated=", calculated);
                     angular.forEach(pods, function(pod) {
 			if (!pod.status || !pod.status.phase)
                            return;
- console.log("pod=", pod);
                         switch (pod.status.phase) {
                         case "Failed":
                             y++;

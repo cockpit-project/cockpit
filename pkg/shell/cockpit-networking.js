@@ -20,10 +20,11 @@
 define([
     "jquery",
     "base1/cockpit",
+    "shell/controls",
     "shell/shell",
     "system/server",
     "shell/cockpit-main"
-], function($, cockpit, shell, server) {
+], function($, cockpit, controls, shell, server) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -1237,7 +1238,7 @@ function network_plot_setup_hook(plot) {
 }
 
 function update_network_privileged() {
-    shell.update_privileged_ui(
+    controls.update_privileged_ui(
         shell.default_permission, ".network-privileged",
         cockpit.format(
             _("The user <b>$0</b> is not permitted to modify network settings"),
@@ -1570,7 +1571,7 @@ PageNetworkInterface.prototype = {
         var self = this;
         $('#network-interface-delete').click($.proxy(this, "delete_connections"));
         $('#network-interface-delete').parent().append(
-            this.device_onoff = shell.OnOff(false,
+            this.device_onoff = controls.OnOff(false,
                                             $.proxy(this, "connect"),
                                             $.proxy(this, "disconnect"),
                                             null,
@@ -2136,7 +2137,7 @@ PageNetworkInterface.prototype = {
                                     [ $('<td>').text(""), $('<td>').text("") ] :
                                     $('<td colspan="2">').text(device_state_text(dev))),
                                    $('<td style="text-align:right">').append(
-                                       shell.OnOff(is_active,
+                                       controls.OnOff(is_active,
                                                      function () {
                                                          slave_con.activate(iface.Device).
                                                              fail(shell.show_unexpected_error);
@@ -2261,7 +2262,7 @@ PageNetworkIpSettings.prototype = {
             var onoff;
             var btn = $('<span>').append(
                 $('<span style="margin-right:10px">').text(title),
-                onoff = shell.OnOff(!params[p], function (val) {
+                onoff = controls.OnOff(!params[p], function (val) {
                     params[p] = !val;
                     self.update();
                 }));

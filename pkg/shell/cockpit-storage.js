@@ -20,10 +20,11 @@
 define([
     "jquery",
     "base1/cockpit",
+    "shell/controls",
     "shell/shell",
     "system/server",
     "shell/cockpit-main"
-], function($, cockpit, shell, server) {
+], function($, cockpit, controls, shell, server) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -324,7 +325,7 @@ function format_fsys_usage(used, total) {
 }
 
 function update_storage_privileged() {
-    shell.update_privileged_ui(
+    controls.update_privileged_ui(
         shell.default_permission, ".storage-privileged",
         cockpit.format(
             _("The user <b>$0</b> is not permitted to manage storage"),
@@ -790,7 +791,7 @@ PageStorage.prototype = {
         var text = $('<td style="text-align:right">');
 
         if (block.MountedAt && block.MountedAt.length > 0) {
-            bar_row = shell.BarRow();
+            bar_row = controls.BarRow();
             for (var i = 0; i < block.MountedAt.length; i++) {
                 this.mount_bar_rows[block.MountedAt[i]] = bar_row;
                 this.mount_texts[block.MountedAt[i]] = text;
@@ -1227,7 +1228,7 @@ PageStorageDetail.prototype = {
             });
         }
 
-        this.bitmap_onoff = shell.OnOff(false,
+        this.bitmap_onoff = controls.OnOff(false,
                                           change_bitmap,
                                           undefined,
                                           null, "storage-privileged");

@@ -21,10 +21,11 @@ define([
     "jquery",
     "base1/cockpit",
     "base1/mustache",
+    "shell/controls",
     "shell/shell",
     "shell/machines",
     "shell/cockpit-main"
-], function($, cockpit, Mustache, shell, machines) {
+], function($, cockpit, Mustache, controls, shell, machines) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -227,7 +228,7 @@ function host_edit_dialog(machine) {
 }
 
 function update_servers_privileged() {
-    shell.update_privileged_ui(
+    controls.update_privileged_ui(
         shell.default_permission, ".servers-privileged",
         cockpit.format(
             _("The user <b>$0</b> is not permitted to manage servers"),

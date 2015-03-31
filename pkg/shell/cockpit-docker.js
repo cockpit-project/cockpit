@@ -22,10 +22,11 @@ define([
     "base1/cockpit",
     "base1/mustache",
     "manifests",
+    "shell/controls",
     "shell/shell",
     "shell/cockpit-main",
     "shell/cockpit-util",
-], function($, cockpit, Mustache, manifests, shell) {
+], function($, cockpit, Mustache, manifests, controls, shell) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -432,7 +433,7 @@ function render_container (client, $panel, filter_button, prefix, id, container,
             $('<td class="container-col-image">'),
             $('<td class="container-col-command">'),
             $('<td class="container-col-cpu">'),
-            $('<td class="container-col-memory-graph">').append(shell.BarRow("containers-containers")),
+            $('<td class="container-col-memory-graph">').append(controls.BarRow("containers-containers")),
             $('<td class="container-col-memory-text">'),
             $('<td class="container-col-danger cell-buttons">').append(btn_delete, img_waiting),
             $('<td class="container-col-actions cell-buttons">').append(btn_play, btn_stop, img_waiting.clone()));
@@ -691,7 +692,7 @@ PageContainers.prototype = {
               }
 
               var formated = used + " / " + total;
-              var bar_row = shell.BarRow();
+              var bar_row = controls.BarRow();
               bar_row.attr("value", b_used + "/" + b_total);
               bar_row.toggleClass("bar-row-danger", used > 0.95 * total);
 

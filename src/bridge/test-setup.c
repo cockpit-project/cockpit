@@ -41,7 +41,7 @@ static void
 setup (TestCase *tc,
        gconstpointer unused)
 {
-  cockpit_dbus_internal_startup ();
+  cockpit_dbus_internal_startup (FALSE);
 
   cockpit_dbus_setup_startup ();
   while (g_main_context_iteration (NULL, FALSE));

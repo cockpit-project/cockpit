@@ -1963,14 +1963,14 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
           goto out;
         }
 
-      self->name = NULL;
-
       self->connection = cockpit_dbus_internal_client ();
       if (self->connection == NULL)
         {
           problem = "internal-error";
           goto out;
         }
+
+      self->name = cockpit_dbus_internal_name ();
 
       subscribe_and_cache (self);
       cockpit_channel_ready (channel);

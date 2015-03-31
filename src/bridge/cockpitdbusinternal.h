@@ -29,7 +29,9 @@ GDBusConnection *     cockpit_dbus_internal_client       (void);
 
 GDBusConnection *     cockpit_dbus_internal_server       (void);
 
-void                  cockpit_dbus_internal_startup      (void);
+const gchar *         cockpit_dbus_internal_name         (void);
+
+void                  cockpit_dbus_internal_startup      (gboolean interact);
 
 void                  cockpit_dbus_internal_cleanup      (void);
 

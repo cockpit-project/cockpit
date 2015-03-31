@@ -79,6 +79,9 @@ class TestSystemInfo(MachineCase):
         m = self.machine
         b = self.browser
 
+        # make sure system is on expected timezone EEST
+        m.execute("LC_ALL=C timedatectl set-timezone Europe/Helsinki")
+
         self.login_and_go("server", href="/system/host")
 
         # Make sure the date loads

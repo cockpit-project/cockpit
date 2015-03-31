@@ -266,6 +266,7 @@ shell.pages.push(new PageAccounts());
 PageAccountsCreate.prototype = {
     _init: function() {
         this.id = "accounts-create-dialog";
+        this.default_shell = "";
     },
 
     show: function() {
@@ -276,6 +277,9 @@ PageAccountsCreate.prototype = {
         $('#accounts-create-create').on('click', $.proxy(this, "create"));
         $('#accounts-create-dialog input').on('input focusout', $.proxy(this, "update", "input"));
         $('#accounts-create-uid-select').change($.proxy(this, "update", "change-uid"));
+        $('#accounts-create-shell-select').change($.proxy(this, "update", "change-shell"));
+
+        this.get_default_values();
     },
 
     enter: function() {
@@ -288,6 +292,7 @@ PageAccountsCreate.prototype = {
         }
 
         enter_select('#accounts-create-uid');
+        enter_select('#accounts-create-shell');
 
         $('#accounts-create-user-name').val("");
         $('#accounts-create-real-name').val("");
@@ -301,6 +306,28 @@ PageAccountsCreate.prototype = {
 
     leave: function() {
     },
+
+
+    get_default_values: function() {
+        var self = this;
+
+        function parse_default_values(content) {
+            content = content.split('\n');
+            for (var i = 0; i < content.length; ++i) {
+                if (! content[i])
+                    continue;
+                if (content[i].startsWith("SHELL=")) {
+                   self.default_shell = content[i].substring("SHELL=".length);
+                   $('#accounts-create-shell').val(self.default_shell);
+                }
+            }
+        }
+
+        cockpit.spawn(["/usr/sbin/useradd", "-D"], { "environ" : ["LC_ALL=C"] })
+           .done(parse_default_values)
+           .fail(shell.show_unexpected_error);
+    },
+
 
     update: function(behavior) {
         var self = this;
@@ -342,6 +369,18 @@ PageAccountsCreate.prototype = {
                     hide_error('#uid-error', '#accounts-create-uid');
             } else {
                 hide_error('#uid-error', '#accounts-create-uid');
+            }
+
+            /* Shell */
+            if ($('#accounts-create-shell-select').val() === 'custom') {
+                if ($('#accounts-create-shell').val().length === 0) {
+                    highlight_error('shell-error', '#accounts-create-shell', _("Bad Shell"));
+                    ret = false;
+                } else
+                    hide_error('#shell-error', '#accounts-create-shell');
+            } else {
+                $('#accounts-create-shell').val(self.default_shell);
+                hide_error('#shell-error', '#accounts-create-shell');
             }
 
             return ret &&
@@ -394,6 +433,11 @@ PageAccountsCreate.prototype = {
         if ($('#accounts-create-uid-select').val() == 'custom') {
             prog.push('-u');
             prog.push($('#accounts-create-uid').val());
+        }
+
+        if ($('#accounts-create-shell-select').val() == 'custom') {
+            prog.push('-s');
+            prog.push($('#accounts-create-shell').val());
         }
 
         prog.push($('#accounts-create-user-name').val());

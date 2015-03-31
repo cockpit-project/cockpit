@@ -1,5 +1,4 @@
 shell_js_PARTS = \
-	pkg/shell/polyfills.js \
 	pkg/shell/dbus.js \
 	pkg/shell/controls.js \
 	pkg/shell/plot.js \

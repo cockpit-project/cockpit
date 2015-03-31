@@ -185,7 +185,7 @@ DBusInterface.prototype = {
     _set_props: function(props, prefix, emit_signals) {
         var some_changed = false;
         for (var prop_name in props) {
-            if (prop_name.startsWith(prefix)) {
+            if (prop_name.indexOf(prefix) === 0) {
                 var name = prop_name.substr(prefix.length);
                 if (!this.hasOwnProperty(name) || this[name] != props[prop_name]) {
                     this[name] = props[prop_name];

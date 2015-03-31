@@ -529,7 +529,7 @@ PageStorage.prototype = {
             return "";
 
         var blockdev = block.Device;
-        if (blockdev.startsWith("/dev/"))
+        if (blockdev.indexOf("/dev/") === 0)
             blockdev = blockdev.substr(5);
         this.blockdevs[blockdev] = true;
         return blockdev;

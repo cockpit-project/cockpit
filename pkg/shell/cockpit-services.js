@@ -658,8 +658,12 @@ PageService.prototype = {
         me.monitor = me.client.get ("/com/redhat/Cockpit/LxcMonitor",
                                     "com.redhat.Cockpit.MultiResourceMonitor");
 
+        function endsWith(string, suffix) {
+            return string.indexOf(suffix, string.length - suffix.length) !== -1;
+        }
+
         function is_interesting_cgroup(cgroup) {
-            return cgroup && cgroup.endsWith(me.service);
+            return cgroup && endsWith(cgroup, me.service);
         }
 
         this.cpu_plot = shell.setup_multi_plot('#service-cpu-graph', me.monitor, 4, blues.concat(blues),

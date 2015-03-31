@@ -267,6 +267,7 @@ PageAccountsCreate.prototype = {
     _init: function() {
         this.id = "accounts-create-dialog";
         this.default_shell = "";
+        this.default_home  = "";
     },
 
     show: function() {
@@ -277,6 +278,7 @@ PageAccountsCreate.prototype = {
         $('#accounts-create-create').on('click', $.proxy(this, "create"));
         $('#accounts-create-dialog input').on('input focusout', $.proxy(this, "update", "input"));
         $('#accounts-create-uid-select').change($.proxy(this, "update", "change-uid"));
+        $('#accounts-create-home-select').change($.proxy(this, "update", "change-home"));
         $('#accounts-create-shell-select').change($.proxy(this, "update", "change-shell"));
 
         this.get_default_values();
@@ -292,6 +294,7 @@ PageAccountsCreate.prototype = {
         }
 
         enter_select('#accounts-create-uid');
+        enter_select('#accounts-create-home');
         enter_select('#accounts-create-shell');
 
         $('#accounts-create-user-name').val("");
@@ -307,7 +310,6 @@ PageAccountsCreate.prototype = {
     leave: function() {
     },
 
-
     get_default_values: function() {
         var self = this;
 
@@ -319,6 +321,9 @@ PageAccountsCreate.prototype = {
                 if (content[i].startsWith("SHELL=")) {
                    self.default_shell = content[i].substring("SHELL=".length);
                    $('#accounts-create-shell').val(self.default_shell);
+                } else if (content[i].startsWith("HOME=")) {
+                   self.default_home = content[i].substring("HOME=".length);
+                   $('#accounts-create-home').val(self.default_home + '/');
                 }
             }
         }
@@ -327,7 +332,6 @@ PageAccountsCreate.prototype = {
            .done(parse_default_values)
            .fail(shell.show_unexpected_error);
     },
-
 
     update: function(behavior) {
         var self = this;
@@ -371,6 +375,19 @@ PageAccountsCreate.prototype = {
                 hide_error('#uid-error', '#accounts-create-uid');
             }
 
+            /* Home */
+            if ($('#accounts-create-home-select').val() === 'custom') {
+                if ($('#accounts-create-home').val().length === 0) {
+                    highlight_error('home-error', '#accounts-create-home', _("Bad Home Directory"));
+                    ret = false;
+                } else
+                    hide_error('#home-error', '#accounts-create-home');
+            } else {
+                $('#accounts-create-shell').val(self.default_shell + '/' +
+                                                $('#accounts-create-user-name').val());
+                hide_error('#home-error', '#accounts-create-home');
+            }
+
             /* Shell */
             if ($('#accounts-create-shell-select').val() === 'custom') {
                 if ($('#accounts-create-shell').val().length === 0) {
@@ -401,6 +418,11 @@ PageAccountsCreate.prototype = {
             $(field).prop('disabled', $(select).val() === 'default');
             if ($(select).val() === 'custom')
                 $(field).focus();
+        } else if (behavior === "input") {
+            if ($('#accounts-create-user-name').is(':focus') &&
+                $('#accounts-create-home-select').val() === 'default') {
+                $('#accounts-create-home').val(this.default_home + '/' + $('#accounts-create-user-name').val());
+            }
         }
 
         $('#accounts-create-create').prop('disabled', !check_input());
@@ -433,6 +455,11 @@ PageAccountsCreate.prototype = {
         if ($('#accounts-create-uid-select').val() == 'custom') {
             prog.push('-u');
             prog.push($('#accounts-create-uid').val());
+        }
+
+        if ($('#accounts-create-home-select').val() == 'custom') {
+            prog.push('-d');
+            prog.push($('#accounts-create-home').val());
         }
 
         if ($('#accounts-create-shell-select').val() == 'custom') {

@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import datetime
+import errno
 import fcntl
 import os
 import re
@@ -27,6 +29,7 @@ import tempfile
 import time
 import sys
 import shutil
+from lxml import etree
 
 DEFAULT_FLAVOR="cockpit"
 DEFAULT_OS = "fedora-22"
@@ -86,10 +89,10 @@ class Machine:
 
     def wait_ssh(self):
         """Try to connect to self.address on port 22"""
-        tries_left = 5
+        tries_left = 60
         while (tries_left > 0):
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(2)
+            sock.settimeout(1)
             try:
                 sock.connect((self.address, 22))
                 return True
@@ -100,6 +103,24 @@ class Machine:
             tries_left = tries_left - 1
             time.sleep(1)
         return False
+
+    def wait_user_login(self):
+        """Wait until logging in as non-root works.
+
+           Most tests run as the "admin" user, so we make sure that
+           user sessions are allowed (and cockit-ws will let "admin"
+           in) before declaring a test machine as "booted".
+        """
+        tries_left = 5
+        while (tries_left > 0):
+            try:
+                self.execute("! test -f /run/nologin")
+                return
+            except:
+                pass
+            tries_left = tries_left - 1
+            time.sleep(1)
+        raise Failure("Timed out waiting for /run/nologin to disappear")
 
     def wait_boot(self):
         """Wait for a machine to boot and execute hooks
@@ -180,7 +201,7 @@ class Machine:
         finally:
             self.stop()
 
-    def execute(self, command=None, script=None, input=None, environment={}):
+    def execute(self, command=None, script=None, input=None, environment={}, ignore_ret_code=False):
         """Execute a shell command in the test machine and return its output.
 
         Either specify @command or @script
@@ -257,7 +278,7 @@ class Machine:
                         proc.stdin.close()
         proc.wait()
 
-        if proc.returncode != 0:
+        if proc.returncode != 0 and not ignore_ret_code:
             raise subprocess.CalledProcessError(proc.returncode, command)
         return output
 
@@ -376,7 +397,6 @@ class QemuMachine(Machine):
         self._monitor = None
         self._disks = { }
         self._locks = [ ]
-        self._hack_power_off_via_reset = False
 
     def _setup_fstab(self,gf):
         gf.write("/etc/fstab", "/dev/vda / ext4 defaults\n")
@@ -615,40 +635,54 @@ class QemuMachine(Machine):
             return subprocess.Popen(cmd)
 
         quoted = " ".join("'%s'" % x for x in cmd)
-        cmd = [ "/bin/sh", "-c", quoted + " | tee " + self.run_dir + "/qemu-$$.log" ]
+        cmd = [ "/bin/sh", "-c", quoted + " </dev/null >/dev/null" ]
+        return subprocess.Popen(cmd)
 
-        return subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
-
-    def _monitor_qemu(self, command):
+    # timeout in seconds, after which "timeout" is returned if nothing can be read or sent
+    def _monitor_qemu(self, command, timeout=60):
         assert self._monitor
-        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         output = ""
-        try:
-            sock.connect(self._monitor)
-            fd = sock.fileno()
-            while True:
-                wset = command and [fd] or []
-                ret = select.select([fd], wset, [], 10)
-                if fd in ret[0]:
-                    data = os.read(fd, 1024)
-                    if not data:
-                        if command:
-                            raise Failure("Couldn't send command to qemu monitor: %s" % command)
-                        break
-                    if self.verbose:
-                        sys.stdout.write(data)
-                    output += data
-                if fd in ret[1]:
-                    sock.sendall("%s\n" % command)
-                    sock.shutdown(socket.SHUT_WR)
-                    command = None
-        except OSError, ex:
-            if ex.errno == 104: # Connection reset
-                pass
-            else:
-                raise
-        finally:
-            sock.close()
+        max_wait = datetime.datetime.now() + datetime.timedelta(seconds=timeout)
+        while (datetime.datetime.now() < max_wait):
+            sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            try:
+                sock.connect(self._monitor)
+                fd = sock.fileno()
+                while True:
+                    wset = command and [fd] or []
+                    ret = select.select([fd], wset, [], 10)
+                    if fd in ret[0]:
+                        data = os.read(fd, 1024)
+                        if not data:
+                            if command:
+                                raise Failure("Couldn't send command to qemu monitor: %s" % command)
+                            break
+                        if self.verbose:
+                            sys.stdout.write(data)
+                        output += data
+                    if fd in ret[1]:
+                        sock.sendall("%s\n" % command)
+                        sock.shutdown(socket.SHUT_WR)
+                        command = None
+                        return output
+                    if (datetime.datetime.now() >= max_wait):
+                        return "timeout"
+            # catch socket errors, connection might be refused for a while
+            # and reset doesn't mean we failed, just closed
+            except socket.error as serr:
+                if serr.errno == errno.ECONNRESET: # Connection reset
+                    break
+                elif serr.errno == errno.ECONNREFUSED: # Connection refused
+                    time.sleep(1)
+                    pass
+                else:
+                    print >> sys.stderr, "error: %d" % (serr.errno)
+                    raise
+            finally:
+                sock.close()
+
+        if (datetime.datetime.now() >= max_wait):
+            return "timeout"
         return output
 
     # This is a special QEMU specific maintenance console
@@ -674,56 +708,20 @@ class QemuMachine(Machine):
             self._cleanup()
             raise
 
-    # A canary is a string that the QEMU VM prints out on its console
-    # We return the remainder of teh line after the canary, there is
-    # always an equals between
-    def _parse_cockpit_canary(self, canary, output):
-        prefix = "%s=" % canary
-        pos = output.find(prefix)
-        if pos == -1:
-            return None
-        beg = pos + len(prefix)
-        end = output.find("\n", beg)
-        if end == -1:
-            return None
-        return output[beg:end].strip()
+    def _ip_from_mac(self, mac):
+        tree = etree.parse(open("./network-cockpit.xml"))
+        for h in tree.find(".//dhcp"):
+            if h.get("mac") == mac:
+                return h.get("ip")
+        raise Failure("Can't resolve IP of %s" % mac)
 
     def wait_boot(self):
         assert self._process
-        all_output = ""
-        output = ""
-        address = None
-        ready_to_login = False
-        p = self._process
-        now = time.time()
-        while not (address and ready_to_login) and p.poll() is None:
-            ret = select.select([p.stdout.fileno()], [], [], 10)
-            for fd in ret[0]:
-                if fd == p.stdout.fileno():
-                    data = os.read(fd, 1024)
-                    if self.verbose:
-                        sys.stdout.write(data)
-                    output += data
-                    all_output += data
-                    if "emergency mode" in output:
-                        raise Failure("qemu vm failed to boot, stuck in emergency mode")
-                    parsed_address = self._parse_cockpit_canary("COCKPIT_ADDRESS", output)
-                    if parsed_address:
-                        address = parsed_address
-                    if "login: " in output:
-                        ready_to_login = True
-                    (unused, sep, output) = output.rpartition("\n")
-            if time.time() - now > 600:
-                # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1205529
-                sys.stdout.write("Boot log:\n" + all_output + "\n")
-                raise RepeatThis("qemu vm boot timed out")
-
-        if p.poll():
-            raise Failure("qemu did not run successfully: %d" % (p.returncode, ))
-
-        self.address = address
+        self.address = self._ip_from_mac(self.macaddr)
+        print self.macaddr, self.address
         if not Machine.wait_ssh(self):
-            raise Failure("Unable to reach machine %s via ssh." % (address))
+            raise Failure("Unable to reach machine %s via ssh." % (self.address))
+        self.wait_user_login()
 
         Machine.wait_boot(self)
 
@@ -752,45 +750,41 @@ class QemuMachine(Machine):
             print >> sys.stderr, "WARNING: Cleanup failed:", str(value)
 
     def kill(self):
+        # attempt graceful shutdown first
+        if self._process and self._process.poll() is None:
+            self.execute(command="poweroff", ignore_ret_code=True)
         try:
             if self._process and self._process.poll() is None:
                 self._monitor_qemu("quit")
         finally:
             if self._process and self._process.poll() is None:
+                time.sleep(1)
                 self._process.terminate()
             self._cleanup()
 
     def wait_poweroff(self):
         assert self._process
-        buffer = ""
-        while self._process.poll() is None:
-            fd = self._process.stdout.fileno()
-            ret = select.select([fd], [], [], 1)
-            if fd in ret[0]:
-                data = os.read(fd, 1024)
-                if self.verbose:
-                    sys.stdout.write(data)
+        # Don't wait for more than 60 seconds, then kill the process
+        timeout_sec = 60
+        max_wait = datetime.datetime.now() + datetime.timedelta(seconds=timeout_sec)
+        while self._process.poll() is None and datetime.datetime.now() < max_wait:
+            time.sleep(1)
 
-                # HACK: Work around for qemu exit not working
-                # https://bugzilla.redhat.com/show_bug.cgi?id=1139387
-                buffer += data
-                if self._hack_power_off_via_reset and "reboot: Restarting system" in buffer:
-                    self.kill()
-                    return
-                elif "reboot: System halted" in buffer:
-                    self.kill()
-                    return
-
-        self._cleanup()
+        if self._process.poll() is None:
+            print >> sys.stderr, "WARNING: Waiting for poweroff failed, killing"
+            self._monitor_qemu("system_reset")
+            self._monitor_qemu("system_powerdown")
+            time.sleep(5)
+            self.kill()
+        else:
+            self._cleanup()
 
     def shutdown(self):
         assert self._process
         try:
             if self._process.poll() is None:
-                # HACK: Work around for qemu system_powerdown not working
-                # https://bugzilla.redhat.com/show_bug.cgi?id=1139387
-                self._monitor_qemu("sendkey ctrl-alt-delete")
-                self._hack_power_off_via_reset = True
+                self.execute(command="poweroff", ignore_ret_code=True)
+                self._monitor_qemu("system_powerdown")
                 self.wait_poweroff()
         except:
             self._cleanup()

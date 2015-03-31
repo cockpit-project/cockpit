@@ -1,0 +1,38 @@
+<network>
+	<name>cockpit</name>
+	<uuid>f3605fa4-0763-41ea-8143-49da3bf73262</uuid>
+	<forward mode='nat'>
+		<nat>
+			<port start='1024' end='65535'/>
+		</nat>
+	</forward>
+	<bridge name='cockpit0' stp='on' delay='0' />
+	<mac address='52:54:00:b8:d2:b5'/>
+	<domain name='cockpit.lan'/>
+	<ip address='10.111.111.200' netmask='255.255.255.0'>
+		<dhcp>
+                        <host mac='52:54:00:9e:00:00' ip='10.111.111.10'   name='m10.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:01' ip='10.111.111.11'   name='m11.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:02' ip='10.111.111.12'   name='m12.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:03' ip='10.111.111.13'   name='m13.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:04' ip='10.111.111.14'   name='m14.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:05' ip='10.111.111.15'   name='m15.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:06' ip='10.111.111.16'   name='m16.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:07' ip='10.111.111.17'   name='m17.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:08' ip='10.111.111.18'   name='m18.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:09' ip='10.111.111.19'   name='m19.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:0a' ip='10.111.111.20'   name='m20.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:0b' ip='10.111.111.21'   name='m21.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:0c' ip='10.111.111.22'   name='m22.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:0d' ip='10.111.111.23'   name='m23.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:0e' ip='10.111.111.24'   name='m24.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:0f' ip='10.111.111.25'   name='m25.cockpit.lan'/>
+
+                        <host mac='52:54:00:9e:00:F0' ip='10.111.111.100' name='f0.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:F1' ip='10.111.111.101' name='f1.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:F2' ip='10.111.111.102' name='f2.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:F3' ip='10.111.111.103' name='f3.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:F4' ip='10.111.111.104' name='f4.cockpit.lan'/>
+		</dhcp>
+	</ip>
+</network>

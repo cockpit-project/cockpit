@@ -98,7 +98,12 @@
         </table>
       </div>
     </div>
+    </script>
 
+    <div id="deploy-updating" class="container-fluid" hidden>
+      <div class="spinner spinner-sm pull-left"></div>
+      <span id="deploy-update-message"></span>
+    </div>
 
     <div class="modal" id="deploy-app-dialog" tabindex="-1" role="dialog" data-backdrop="static">
       <div class="modal-dialog">
@@ -115,32 +120,35 @@
                   </label>
                 </td>
                 <td>
-                  <input id="deploy-app-manifest-file" class="form-control" type="text">
+                  <input id="deploy-app-manifest-file" class="form-control" type="file">
                   <div id="deploy-app-manifest-empty" hidden>
                     <span class="help-block" translatable="yes">
-                    Manifest cannot be empty.
+                    Please Provide Valid Manifest file.
                     </span>
                   </div>
                 </td>
               </tr>
               <tr>
                 <td class="top">
-                  <label class="control-label" for="deploy-app-namespace" translatable="yes">
+                  <label class="control-label top" for="deploy-app-namespace" translatable="yes">
                   Namespace
                   </label>
                 </td>
-                <td>
-                  <input id="deploy-app-namespace-text" class="form-control" type="text">
-                  <div id="deploy-app-note" hidden>
-                    <span class="help-block" translatable="yes">
-                    App Cannot be deployed.
-                    </span>
-                    <span id="deploy-app-note-details"></span>
+                <td id="deploy-app-namespace-field">
+                  <div id="deploy-app-namespace-select">
+                  <select id="deploy-app-namespace-text" class="form-control selectpicker">
+                    <!-- <option translatable="yes" value="default">default</option> -->
+                    <!-- <option translatable="yes" value="Custom Namespace">Custom Namespace</option> -->
+                  </select>
                   </div>
-                  <div id="deploy-app-namespace-empty" hidden>
-                    <span class="help-block" translatable="yes">
-                    Namespace cannot be empty.
-                    </span>
+                  <div>
+                    <input id="deploy-app-namespace-custom" class="form-control" type="text"
+                           value="Enter Namespace Here">
+                    <div id="deploy-app-namespace-note" hidden>
+                      <span class="help-block" id="deploy-app-namespace-message" translatable="yes">
+                      Please Provide Valid Namespace.
+                      </span>
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -168,7 +176,6 @@
         </div>
       </div>
     </div>
-  </script>
 
   <script>
       require([

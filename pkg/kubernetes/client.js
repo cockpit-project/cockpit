@@ -358,6 +358,7 @@ define([
         bind("pods");
         bind("services");
         bind("replicationcontrollers");
+        bind("namespaces");
 
         /**
          * client.select()
@@ -466,58 +467,72 @@ define([
             return results;
         };
 
-        this.delete_pod = function delete_pod(pod_name) {
+        this.delete_pod = function delete_pod(ns, pod_name) {
             api.request({"method": "DELETE",
                 "body": "",
-                "path": "/api/v1beta3/namespaces/default/pods/" + encodeURIComponent(pod_name)
+                "path": "/api/v1beta3/namespaces/"+ns+"/pods/" + encodeURIComponent(pod_name)
             }).fail(failure);
         };
 
-        this.delete_node = function delete_node(nodes_name) {
+        this.delete_node = function delete_node(ns, nodes_name) {
             api.request({"method": "DELETE",
                 "body": "",
-                "path": "/api/v1beta3/namespaces/default/nodes/" + encodeURIComponent(nodes_name)
+                "path": "/api/v1beta3/namespaces/"+ns+"/nodes/" + encodeURIComponent(nodes_name)
             }).fail(failure);
         };
 
-        this.delete_replicationcontroller = function delete_replicationcontroller(rc_name) {
+        this.delete_replicationcontroller = function delete_replicationcontroller(ns, rc_name) {
             api.request({"method": "DELETE",
                 "body": "",
-                "path": "/api/v1beta3/namespaces/default/replicationcontrollers/" + encodeURIComponent(rc_name)
+                "path": "/api/v1beta3/namespaces/"+ns+"/replicationcontrollers/" + encodeURIComponent(rc_name)
             }).fail(failure);
         };
 
-        this.delete_service = function delete_service(service_name) {
+        this.delete_service = function delete_service(ns, service_name) {
             api.request({"method": "DELETE",
                 "body": "",
-                "path": "/api/v1beta3/namespaces/default/services/" + encodeURIComponent(service_name)
+                "path": "/api/v1beta3/namespaces/"+ns+"/services/" + encodeURIComponent(service_name)
             }).fail(failure);
         };
 
-        this.create_replicationcontroller = function create_replicationcontroller(replicationcontroller_json) {
-            api.post("/api/v1beta3/namespaces/default/replicationcontrollers", replicationcontroller_json)
+        this.create_ns = function create_ns(ns_json) {
+            api.post("/api/v1beta3/namespaces", ns_json)
+               .done(function(data){
+                    console.log(data);
+               })
+               .fail(function(exception){
+                    var e = exception;
+                    console.log(e.problem);
+                    console.log(e.problem);
+                    console.log(e.problem);
+                    console.log(e.problem);
+               });
+        };
+
+        this.create_replicationcontroller = function create_replicationcontroller(ns, replicationcontroller_json) {
+            api.post("/api/v1beta3/namespaces/"+ns+"/replicationcontrollers", replicationcontroller_json)
                .fail(failure);
         };
 
-        this.create_node = function create_node(node_json) {
-            api.post("/api/v1beta3/namespaces/default/nodes", node_json)
+        this.create_node = function create_node(ns, node_json) {
+            api.post("/api/v1beta3/namespaces/"+ns+"/nodes", node_json)
                .fail(failure);
         };
 
-        this.create_pod = function create_pod(pod_json) {
-            api.post("/api/v1beta3/namespaces/default/pods", pod_json)
+        this.create_pod = function create_pod(ns, pod_json) {
+            api.post("/api/v1beta3/namespaces/"+ns+"/pods", pod_json)
                .fail(failure);
         };
 
-        this.create_service = function create_pod(service_json) {
-            api.post("/api/v1beta3/namespaces/default/services", service_json)
+        this.create_service = function create_service(ns, service_json) {
+            api.post("/api/v1beta3/namespaces/"+ns+"/services", service_json)
                .fail(failure);
         };
 
         this.update_replicationcontroller = function update_replicationcontroller(rc_json, rc_name) {
             api.request({"method": "PUT",
                 "body": rc_json,
-                "path": "/api/v1beta3/namespaces/default/replicationcontrollers/" + encodeURIComponent(rc_name)
+                "path": "/api/v1beta3/namespaces/"+ns+"/replicationcontrollers/" + encodeURIComponent(rc_name)
             }).fail(failure);
         };
 

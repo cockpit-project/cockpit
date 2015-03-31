@@ -28,7 +28,7 @@ parser.add_argument('rpms', metavar='RPM', nargs='*', help='RPMS to install')
 args = parser.parse_args()
 
 try:
-    machine = testvm.QemuMachine(verbose=args.verbose, flavor=args.flavor)
+    machine = testvm.QemuMachine(verbose=args.verbose, flavor=args.flavor, label="install")
     machine.install(args.rpms)
 except testvm.Failure, ex:
     print >> sys.stderr, "vm-install:", ex

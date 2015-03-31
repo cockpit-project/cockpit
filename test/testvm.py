@@ -88,7 +88,7 @@ class Machine:
 
     def wait_ssh(self):
         """Try to connect to self.address on port 22"""
-        tries_left = 60
+        tries_left = 15
         while (tries_left > 0):
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(1)
@@ -110,7 +110,7 @@ class Machine:
            user sessions are allowed (and cockit-ws will let "admin"
            in) before declaring a test machine as "booted".
         """
-        tries_left = 5
+        tries_left = 60
         while (tries_left > 0):
             try:
                 self.execute("! test -f /run/nologin")

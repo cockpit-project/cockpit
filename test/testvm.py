@@ -633,7 +633,7 @@ class QemuMachine(Machine):
             # Used by the qemu maintenance console
             return subprocess.Popen(cmd)
         else:
-            return subprocess.Popen(cmd, stdout=open("run/qemu-%s-%s.log" % (self.label, self.macaddr), "w"))
+            return subprocess.Popen(cmd, stdout=open("run/qemu-%s-%s.log" % (self.label, self.macaddr), "w"), stdin=open("/dev/null"))
 
     def _monitor_qemu(self, command):
         assert self._monitor

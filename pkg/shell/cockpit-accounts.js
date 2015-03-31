@@ -332,7 +332,7 @@ PageAccountsCreate.prototype = {
                 hide_error();
         } else if (behavior == "input") {
             if ($('#accounts-create-pw2').val() !== "" &&
-                !$('#accounts-create-pw1').val().startsWith($('#accounts-create-pw2').val()))
+                $('#accounts-create-pw1').val().indexOf($('#accounts-create-pw2').val()) !== 0)
                 highlight_error();
             else
                 hide_error();
@@ -866,7 +866,7 @@ PageAccountSetPassword.prototype = {
                 hide_error();
         } else if (behavior == "input") {
             if ($('#account-set-password-pw2').val() !== "" &&
-                !$('#account-set-password-pw1').val().startsWith($('#account-set-password-pw2').val()))
+                $('#account-set-password-pw1').val().indexOf($('#account-set-password-pw2').val()) !== 0)
                 highlight_error();
             else
                 hide_error();

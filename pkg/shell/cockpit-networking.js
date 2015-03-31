@@ -744,7 +744,7 @@ function NetworkManagerModel() {
     }
 
     function refresh_udev(obj) {
-        if (!obj.Udi.startsWith("/sys/"))
+        if (obj.Udi.indexOf("/sys/") === -1)
             return;
 
         push_refresh();
@@ -753,7 +753,7 @@ function NetworkManagerModel() {
                 var props = { };
                 function snarf_prop(line, env, prop) {
                     var prefix = "E: " + env + "=";
-                    if (line.startsWith(prefix)) {
+                    if (line.indexOf(prefix) === 0) {
                         props[prop] = line.substr(prefix.length);
                     }
                 }
@@ -1209,10 +1209,10 @@ function render_active_connection(dev, with_link, hide_link_local) {
     }
 
     function is_ipv6_link_local(addr) {
-        return (addr.startsWith("fe8") ||
-                addr.startsWith("fe9") ||
-                addr.startsWith("fea") ||
-                addr.startsWith("feb"));
+        return (addr.indexOf("fe8") === 0 ||
+                addr.indexOf("fe9") === 0 ||
+                addr.indexOf("fea") === 0 ||
+                addr.indexOf("feb") === 0);
     }
 
     if (con && con.Ip6Config) {
@@ -2459,8 +2459,31 @@ function is_interesting_interface(iface) {
             iface.Device.DeviceType == 'bridge');
 }
 
+function array_find(array, predicate) {
+    if (array === null || array === undefined) {
+        throw new TypeError('Array.prototype.find called on null or undefined');
+    }
+    if (typeof predicate !== 'function') {
+        throw new TypeError('predicate must be a function');
+    }
+    var list = Object(array);
+    var length = list.length >>> 0;
+    var thisArg = arguments[1];
+    var value;
+
+    for (var i = 0; i < length; i++) {
+        if (i in list) {
+            value = list[i];
+            if (predicate.call(thisArg, value, i, list)) {
+                return value;
+            }
+        }
+    }
+    return undefined;
+}
+
 function slave_connection_for_interface(master, iface) {
-    return master && master.Slaves.find(function (s) {
+    return master && array_find(master.Slaves, function (s) {
         return is_interface_connection(iface, s);
     });
 }
@@ -2618,7 +2641,7 @@ PageNetworkBondSettings.prototype = {
         if (!PageNetworkBondSettings.connection)
             return null;
 
-        return PageNetworkBondSettings.connection.Slaves.find(function (s) {
+        return array_find(PageNetworkBondSettings.connection.Slaves, function (s) {
             return s.Interfaces.indexOf(iface) >= 0;
         }) || null;
     },
@@ -2795,7 +2818,7 @@ PageNetworkBridgeSettings.prototype = {
         if (!PageNetworkBridgeSettings.connection)
             return null;
 
-        return PageNetworkBridgeSettings.connection.Slaves.find(function (s) {
+        return array_find(PageNetworkBridgeSettings.connection.Slaves, function (s) {
             return s.Interfaces.indexOf(iface) >= 0;
         }) || null;
     },

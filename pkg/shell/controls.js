@@ -20,8 +20,10 @@
 define([
     "jquery",
     "base1/cockpit",
-    "shell/shell"
-], function($, cockpit, shell) {
+], function($, cockpit) {
+"use strict";
+
+var module = { };
 
 /* ----------------------------------------------------------------------------
  * Bar Graphs (in table rows)
@@ -46,7 +48,7 @@ define([
  * graph should update a short while later.
  *
  * On document creation any div.bar-row are automatically turned into
- * Bar graphs. Or use shell.BarRow('name') constructor.
+ * Bar graphs. Or use controls.BarRow('name') constructor.
  *
  * You can also use the el.reflow() function on the element to reflow
  * the corresponding graph.
@@ -185,7 +187,7 @@ function setup_bar_graphs() {
 }
 
 /* Public API */
-shell.BarRow = function BarRow(graph) {
+module.BarRow = function BarRow(graph) {
     var div = $("<div>").addClass('bar-row').attr('graph', graph);
     setup_bar_graph(div);
     return div;
@@ -217,7 +219,7 @@ $(document).ready(setup_bar_graphs);
  * it will get the .slider-warning class and go a bit red.
  *
  * On document creation any div.slider are automatically turned into
- * Bar graphs. Or use shell.Slider() constructor.
+ * Bar graphs. Or use controls.Slider() constructor.
  *
  * Slider has the following extra read/write properties:
  *
@@ -335,7 +337,7 @@ function setup_sliders() {
 }
 
 /* Public API */
-shell.Slider = function Slider() {
+module.Slider = function Slider() {
     var div = $("<div class='slider'>").
         append($("<div class='slider-bar'>").
             append($("<div class='slider-thumb'>")));
@@ -362,7 +364,7 @@ $(document).ready(setup_sliders);
    changes state.  If it returns 'false', the change is declined.
  */
 
-shell.OnOff = function OnOff(val, on, off, role_check, btn_classes) {
+module.OnOff = function OnOff(val, on, off, role_check, btn_classes) {
     function toggle(event) {
         if (role_check && !role_check())
             return false;
@@ -410,7 +412,7 @@ shell.OnOff = function OnOff(val, on, off, role_check, btn_classes) {
     return box;
 };
 
-shell.update_privileged_ui = function update_privileged_ui(perm, selector, denied_message) {
+module.update_privileged_ui = function update_privileged_ui(perm, selector, denied_message) {
     var allowed = (perm.allowed !== false);
     $(selector).each(function() {
         // preserve old title first time to use when allowed
@@ -434,4 +436,5 @@ shell.update_privileged_ui = function update_privileged_ui(perm, selector, denie
     });
 };
 
+return module;
 });

@@ -20,16 +20,17 @@
 define([
     "jquery",
     "base1/cockpit",
+    "shell/controls",
     "shell/shell",
     "shell/cockpit-main"
-], function($, cockpit, shell) {
+], function($, cockpit, controls, shell) {
 "use strict";
 
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 
 function update_accounts_privileged() {
-    shell.update_privileged_ui(
+    controls.update_privileged_ui(
         shell.default_permission, ".accounts-privileged",
         cockpit.format(
             _("The user <b>$0</b> is not permitted to modify accounts"),

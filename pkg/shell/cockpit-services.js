@@ -20,10 +20,11 @@
 define([
     "jquery",
     "base1/cockpit",
+    "shell/controls",
     "shell/shell",
     "system/server",
     "shell/cockpit-main"
-], function($, cockpit, shell, server) {
+], function($, cockpit, controls, shell, server) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -207,7 +208,7 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
 }
 
 function update_service_privileged() {
-    shell.update_privileged_ui(
+    controls.update_privileged_ui(
         shell.default_permission, ".services-privileged",
         cockpit.format(
             _("The user <b>$0</b> is not permitted to modify services"),

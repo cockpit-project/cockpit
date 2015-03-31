@@ -41,9 +41,8 @@
 <script type="text/javascript">
 
 require([
-    "shell/shell",
     "shell/controls"
-], function(shell) {
+], function(controls) {
 
 test("update_privileged_ui", function() {
     p_true = { 'allowed' : true };
@@ -54,7 +53,7 @@ test("update_privileged_ui", function() {
     b2 = $('<button class="btn" id="b2" title="A Real title">');
 
     $('#testing').append(b1, b2);
-    shell.update_privileged_ui(p_true, ".btn", "disabled message");
+    controls.update_privileged_ui(p_true, ".btn", "disabled message");
 
     equal($("#b1").attr('data-original-title'), "", 'b1 true, normal blank title');
     equal($("#b2").attr('data-original-title'), "A Real title", 'b2 true, normal title');
@@ -63,7 +62,7 @@ test("update_privileged_ui", function() {
     ok(!$("#b1").attr("disabled"), 'b1 true, not disabled');
     ok(!$("#b2").attr("disabled"), 'b2 true, not disabled');
 
-    shell.update_privileged_ui(p_false, ".btn", "disabled message");
+    controls.update_privileged_ui(p_false, ".btn", "disabled message");
 
     equal($("#b1").attr('data-original-title'), "disabled message", 'b1 false, disabled title');
     equal($("#b2").attr('data-original-title'), "disabled message", 'b2 false, disabled title');
@@ -72,7 +71,7 @@ test("update_privileged_ui", function() {
     ok(!$("#b1").attr("disabled"), 'b1 false, not disabled');
     ok(!$("#b2").attr("disabled"), 'b2 false, not disabled');
 
-    shell.update_privileged_ui(p_unknown, ".btn", "disabled message");
+    controls.update_privileged_ui(p_unknown, ".btn", "disabled message");
 
     equal($("#b1").attr('data-original-title'), "", 'b1 unknown, back to normal blank title');
     equal($("#b2").attr('data-original-title'), "A Real title", 'b2 unknown, back to normal title');

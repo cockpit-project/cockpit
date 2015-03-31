@@ -174,7 +174,7 @@ function NetworkManagerModel() {
     function get_object(path, type) {
         if (path == "/")
             return null;
-        function constructor() {
+        function Constructor() {
             this[' priv'] = { };
             priv(this).type = type;
             priv(this).path = path;
@@ -182,8 +182,8 @@ function NetworkManagerModel() {
                 this[p] = type.props[p].def;
         }
         if (!objects[path]) {
-            constructor.prototype = type.prototype;
-            objects[path] = new constructor();
+            Constructor.prototype = type.prototype;
+            objects[path] = new Constructor();
             if (type.refresh)
                 type.refresh(objects[path]);
             if (type.exporters && type.exporters[0])

@@ -1463,7 +1463,7 @@ function full_scope(cockpit, $, po) {
 
         /* If watching then do a proper watch, otherwise object is done */
         if (options.watch !== false)
-            client.watch(path).always(function() { waits.fireWith(self); });
+            client.watch({ "path": path, "interface": iface }).always(function() { waits.fireWith(self); });
         else
             waits.fireWith(self);
     }

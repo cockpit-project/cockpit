@@ -72,6 +72,22 @@ rule_equal (gconstpointer one,
 }
 
 static void
+rule_dump (RuleData *rule,
+           GString *string)
+{
+  g_string_append (string, "{ ");
+  if (rule->path)
+    g_string_append_printf (string, "%s: \"%s\", ", rule->is_namespace ? "path_namespace" : "path", rule->path);
+  if (rule->interface)
+    g_string_append_printf (string, "interface: \"%s\", ", rule->interface);
+  if (rule->arg0)
+    g_string_append_printf (string, "arg0: \"%s\", ", rule->arg0);
+  if (rule->arg0)
+    g_string_append_printf (string, "member: \"%s\", ", rule->member);
+  g_string_append (string, "}");
+}
+
+static void
 rule_free (gpointer data)
 {
   RuleData *rule = data;
@@ -90,6 +106,25 @@ struct _CockpitDBusRules {
   gboolean only_paths;
   gboolean nothing;
 };
+
+gchar *
+cockpit_dbus_rules_to_string (CockpitDBusRules *rules)
+{
+  GHashTableIter iter;
+  GString *string;
+  RuleData *rule;
+
+  string = g_string_new ("[ ");
+  g_hash_table_iter_init (&iter, rules->all);
+  while (g_hash_table_iter_next (&iter, (gpointer *)&rule, NULL))
+    {
+      rule_dump (rule, string);
+      g_string_append (string, ", ");
+    }
+  g_string_append (string, "]");
+
+  return g_string_free (string, FALSE);
+}
 
 static gboolean
 rule_match (RuleData *rule,

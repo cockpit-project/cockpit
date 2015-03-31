@@ -46,6 +46,8 @@ gboolean            cockpit_dbus_rules_remove      (CockpitDBusRules *rules,
                                                     const gchar *member,
                                                     const gchar *arg0);
 
+gchar *             cockpit_dbus_rules_to_string   (CockpitDBusRules *rules);
+
 void                cockpit_dbus_rules_free        (CockpitDBusRules *rules);
 
 #endif /* COCKPIT_DBUS_RULES_H_ */

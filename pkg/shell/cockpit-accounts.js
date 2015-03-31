@@ -265,7 +265,6 @@ shell.pages.push(new PageAccounts());
 
 PageAccountsCreate.prototype = {
     _init: function() {
-        this.error_timeout = null;
         this.id = "accounts-create-dialog";
     },
 
@@ -275,18 +274,27 @@ PageAccountsCreate.prototype = {
     setup: function() {
         $('#accounts-create-cancel').on('click', $.proxy(this, "cancel"));
         $('#accounts-create-create').on('click', $.proxy(this, "create"));
-        $('#accounts-create-dialog .check-passwords').on('keydown', $.proxy(this, "update", "keydown"));
-        $('#accounts-create-dialog .check-passwords').on('input', $.proxy(this, "update", "input"));
-        $('#accounts-create-dialog input').on('focusout change', $.proxy(this, "update", "changeFocus"));
+        $('#accounts-create-dialog input').on('input focusout', $.proxy(this, "update", "input"));
+        $('#accounts-create-uid-select').change($.proxy(this, "update", "change-uid"));
     },
 
     enter: function() {
+        function enter_select(field) {
+            $(field).val("");
+            $(field).prop('disabled', true);
+            $(field).removeClass("has-error");
+            $(field + '-select').val("default");
+            $(field + '-select').selectpicker("refresh");
+        }
+
+        enter_select('#accounts-create-uid');
+
         $('#accounts-create-user-name').val("");
         $('#accounts-create-real-name').val("");
         $('#accounts-create-pw1').val("");
         $('#accounts-create-pw2').val("");
         $('#accounts-create-locked').prop('checked', false);
-        $('#accounts-create-message-password-mismatch').css("visibility", "hidden");
+        $('#accounts-create-message').text("");
         $("#account-set-password-dialog .check-passwords").removeClass("has-error");
         this.update ();
     },
@@ -295,53 +303,68 @@ PageAccountsCreate.prototype = {
     },
 
     update: function(behavior) {
-        function check_params ()
-        {
-            return ($('#accounts-create-user-name').val() !== "" &&
-                    $('#accounts-create-real-name').val() !== "" &&
-                    $('#accounts-create-pw1').val() !== "" &&
-                    $('#accounts-create-pw2').val() == $('#accounts-create-pw1').val());
+        var self = this;
+
+        function highlight_error(error, input, error_msg) {
+            if ($('#' + error).length === 0 && ! $(input).is(":focus")) {
+                $(input).parent().addClass("has-error");
+                $('#accounts-create-message').append($("<li>").attr('id', error)
+                                                              .text(error_msg));
+            }
         }
 
-        function highlight_error() {
-            $("#accounts-create-dialog .check-passwords").addClass("has-error");
-            $('#accounts-create-message-password-mismatch').css("visibility", "visible");
+        function hide_error(error, input) {
+            $(input).parent().removeClass("has-error");
+            if ($(error).length !== 0)
+                $(error).remove();
         }
 
-        function hide_error() {
-            $("#accounts-create-dialog .check-passwords").removeClass("has-error");
-            $('#accounts-create-message-password-mismatch').css("visibility", "hidden");
-        }
+        function check_input() {
+            var ret = true;
 
-        function check_password_match() {
+            /* Password */
             if ($('#accounts-create-pw2').val() !== "" &&
-                $('#accounts-create-pw1').val() !== $('#accounts-create-pw2').val())
-                highlight_error();
-            else
-                hide_error();
+                !$('#accounts-create-pw1').val().startsWith($('#accounts-create-pw2').val())) {
+                highlight_error('password-error',
+                                "#accounts-create-dialog .check-passwords",
+                                _("The passwords do not match"));
+                ret = false;
+            } else {
+                hide_error('#password-error', "#accounts-create-dialog .check-passwords");
+            }
+
+            /* UID */
+            if ($('#accounts-create-uid-select').val() === 'custom') {
+                if ($('#accounts-create-uid').val() < 1000) {
+                    highlight_error('uid-error', '#accounts-create-uid', _("Bad User ID"));
+                    ret = false;
+                } else
+                    hide_error('#uid-error', '#accounts-create-uid');
+            } else {
+                hide_error('#uid-error', '#accounts-create-uid');
+            }
+
+            return ret &&
+                   $('#accounts-create-user-name').val() !== "" &&
+                   $('#accounts-create-real-name').val() !== "" &&
+                   $('#accounts-create-pw1').val() !== "" &&
+                   $('#accounts-create-pw2').val() == $('#accounts-create-pw1').val();
         }
 
+        var ret;
         window.clearTimeout(this.error_timeout);
         this.error_timeout = null;
 
-        if (behavior == "changeFocus") {
-            if ($('#accounts-create-pw2').val() !== "" &&
-                $('#accounts-create-pw1').val() !== $('#accounts-create-pw2').val())
-                highlight_error();
-            else
-                hide_error();
-        } else if (behavior == "input") {
-            if ($('#accounts-create-pw2').val() !== "" &&
-                !$('#accounts-create-pw1').val().startsWith($('#accounts-create-pw2').val()))
-                highlight_error();
-            else
-                hide_error();
+        if (behavior && behavior.substring(0, 'change-'.length) === 'change-') {
+            var field = '#accounts-create-' + behavior.substring('change-'.length);
+            var select = field + '-select';
 
-            this.error_timeout = window.setTimeout(check_password_match, 2000);
-            this.setTimeout = null;
+            $(field).prop('disabled', $(select).val() === 'default');
+            if ($(select).val() === 'custom')
+                $(field).focus();
         }
 
-        $('#accounts-create-create').prop('disabled', !check_params());
+        $('#accounts-create-create').prop('disabled', !check_input());
     },
 
     cancel: function() {
@@ -366,6 +389,11 @@ PageAccountsCreate.prototype = {
         if ($('#accounts-create-real-name').val()) {
             prog.push('-c');
             prog.push($('#accounts-create-real-name').val());
+        }
+
+        if ($('#accounts-create-uid-select').val() == 'custom') {
+            prog.push('-u');
+            prog.push($('#accounts-create-uid').val());
         }
 
         prog.push($('#accounts-create-user-name').val());

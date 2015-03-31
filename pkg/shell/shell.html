@@ -1301,10 +1301,18 @@
                 </td>
               </tr>
               <tr>
-                <td></td>
+                <td translatable="yes">User ID</td>
                 <td>
-                  <div id="accounts-create-message-password-mismatch" class="has-error">
-                    <span class="help-block">The passwords do not match</span>
+                  <div class="row">
+                     <div class="col-md-6">
+                       <select class="form-control selectpicker" id="accounts-create-uid-select">
+                         <option translatable="yes" value="default" selected="true">Default</option>
+                         <option translatable="yes" value="custom">Custom</option>
+                       </select>
+                     </div>
+                     <div class="col-md-6">
+                       <input class="form-control" type="number" id="accounts-create-uid" value=""/>
+                     </div>
                   </div>
                 </td>
               </tr>
@@ -1316,6 +1324,15 @@
                       <input type="checkbox" id="accounts-create-locked">
                       <span translatable="yes">Lock Account</span>
                     </label>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>
+                  <div class="has-error">
+                    <ul id="accounts-create-message" class="help-block">
+                    </ul>
                   </div>
                 </td>
               </tr>

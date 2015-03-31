@@ -238,6 +238,7 @@ static void
 send_init_command (CockpitTransport *transport)
 {
   const gchar *checksum;
+  const gchar *name;
   JsonObject *object;
   GBytes *bytes;
 
@@ -248,6 +249,11 @@ send_init_command (CockpitTransport *transport)
   checksum = cockpit_packages_get_checksum (packages);
   if (checksum)
     json_object_set_string_member (object, "checksum", checksum);
+
+  /* Happens when we're in --interact mode */
+  name = cockpit_dbus_internal_name ();
+  if (name)
+    json_object_set_string_member (object, "bridge-dbus-name", name);
 
   bytes = cockpit_json_write_bytes (object);
   cockpit_transport_send (transport, NULL, bytes);
@@ -458,7 +464,7 @@ run_bridge (const gchar *interactive)
     daemon_pid = start_dbus_daemon ();
 
   packages = cockpit_packages_new ();
-  cockpit_dbus_internal_startup ();
+  cockpit_dbus_internal_startup (interactive != NULL);
 
   if (interactive)
     {

@@ -150,12 +150,19 @@ unix_io_stream_new (gint fd)
 
 static GDBusConnection *the_server = NULL;
 static GDBusConnection *the_client = NULL;
+const gchar *the_name = NULL;
 
 GDBusConnection *
 cockpit_dbus_internal_client (void)
 {
   g_return_val_if_fail (the_client != NULL, NULL);
   return g_object_ref (the_client);
+}
+
+const gchar *
+cockpit_dbus_internal_name (void)
+{
+  return the_name;
 }
 
 GDBusConnection *
@@ -176,7 +183,7 @@ on_complete_get_result (GObject *source,
 }
 
 void
-cockpit_dbus_internal_startup (void)
+cockpit_dbus_internal_startup (gboolean interact)
 {
   GAsyncResult *rclient = NULL;
   GAsyncResult *rserver = NULL;
@@ -184,6 +191,26 @@ cockpit_dbus_internal_startup (void)
   GIOStream *io;
   gchar *guid;
   int fds[2];
+
+  /*
+   * When in interactive mode, we allow poking and prodding our internal
+   * DBus interface. Therefore be on the session bus instead of peer-to-peer.
+   */
+  if (interact)
+    {
+      the_server = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+      if (the_server)
+        {
+          the_name = g_dbus_connection_get_unique_name (the_server);
+          the_client = g_object_ref (the_server);
+          return;
+        }
+      else
+        {
+          g_message ("couldn't connect to session bus: %s", error->message);
+          g_clear_error (&error);
+        }
+    }
 
   if (socketpair (PF_LOCAL, SOCK_STREAM, 0, fds) < 0)
     {

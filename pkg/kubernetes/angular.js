@@ -27172,7 +27172,7 @@ function ngViewFillContentFactory($compile, $controller, $route) {
 
 (function () {
     if (typeof define === "function" && define.amd) {
-        define("kubernetes/angular-config", [], function() { return window.angular; });
+        define("kubernetes/angular", [], function() { return window.angular; });
     }
 }());
 

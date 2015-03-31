@@ -49,7 +49,7 @@ class RepeatThis(Failure):
 class Machine:
     boot_hook = None
 
-    def __init__(self, address=None, flavor=None, system=None, arch=None, verbose=False):
+    def __init__(self, address=None, flavor=None, system=None, arch=None, verbose=False, label=None):
         self.verbose = verbose
         self.flavor = flavor or DEFAULT_FLAVOR
 
@@ -67,6 +67,7 @@ class Machine:
         self.test_data = os.environ.get("TEST_DATA") or self.test_dir
         self.address = address
         self.mac = None
+        self.label = label or "UNKNOWN"
 
     def getconf(self, key):
         return key in self.conf and self.conf[key]
@@ -628,13 +629,11 @@ class QemuMachine(Machine):
 
         self.message(*cmd)
 
-        # Used by the qemu maintenance console
         if tty:
+            # Used by the qemu maintenance console
             return subprocess.Popen(cmd)
-
-        quoted = " ".join("'%s'" % x for x in cmd)
-        cmd = [ "/bin/sh", "-c", quoted + " </dev/null >/dev/null" ]
-        return subprocess.Popen(cmd)
+        else:
+            return subprocess.Popen(cmd, stdout=open("run/qemu-%s-%s.log" % (self.label, self.macaddr), "w"))
 
     def _monitor_qemu(self, command):
         assert self._monitor

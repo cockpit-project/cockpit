@@ -1607,6 +1607,7 @@ cockpit_dbus_cache_watch (CockpitDBusCache *self,
                           const gchar *interface)
 {
   GetManagedObjectsData *gmod;
+  const gchar *namespace_path;
   BatchData *batch;
 
   if (!cockpit_dbus_rules_add (self->rules, path, is_namespace, interface, NULL, NULL))
@@ -1621,16 +1622,21 @@ cockpit_dbus_cache_watch (CockpitDBusCache *self,
   batch = batch_create (self);
   path = intern_string (self, path);
 
-  if (is_namespace)
+  namespace_path = is_namespace ? path : NULL;
+
+  if (!namespace_path)
+    namespace_path = cockpit_paths_contain_or_ancestor (self->managed, path);
+
+  if (namespace_path)
     {
       gmod = g_slice_new0 (GetManagedObjectsData);
       gmod->batch = batch_ref (batch);
-      gmod->path = path;
+      gmod->path = namespace_path;
       gmod->self = g_object_ref (self);
 
-      g_debug ("%s: calling GetManagedObjects() on %s", self->logname, gmod->path);
+      g_debug ("%s: calling GetManagedObjects() on %s", self->logname, namespace_path);
 
-      g_dbus_connection_call (self->connection, self->name, gmod->path,
+      g_dbus_connection_call (self->connection, self->name, namespace_path,
                               "org.freedesktop.DBus.ObjectManager", "GetManagedObjects",
                               g_variant_new ("()"), G_VARIANT_TYPE ("(a{oa{sa{sv}}})"),
                               G_DBUS_CALL_FLAGS_NONE, -1, /* timeout */

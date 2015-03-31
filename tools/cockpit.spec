@@ -132,6 +132,7 @@ Requires: %{name}-bridge = %{version}-%{release}
 Requires: NetworkManager
 Requires: shadow-utils
 Requires: grep
+Requires: libpwquality
 Requires: /usr/bin/date
 Requires: mdadm
 Requires: lvm2

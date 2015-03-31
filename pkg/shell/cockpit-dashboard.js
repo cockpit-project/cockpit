@@ -17,16 +17,18 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* global jQuery   */
-/* global cockpit  */
-/* global _        */
-/* global C_       */
-/* global Mustache */
+define([
+    "jquery",
+    "base1/cockpit",
+    "base1/mustache",
+    "shell/shell",
+    "shell/machines",
+    "shell/cockpit-main"
+], function($, cockpit, Mustache, shell, machines) {
+"use strict";
 
-var shell = shell || { };
-var modules = modules || { };
-
-(function($, cockpit, shell, modules) {
+var _ = cockpit.gettext;
+var C_ = cockpit.gettext;
 
 var month_names = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
 
@@ -254,7 +256,7 @@ PageDashboard.prototype = {
     setup: function() {
         var self = this;
 
-        this.machines = modules.machines.instance();
+        this.machines = machines.instance();
 
         function make_color_div(c) {
             return $('<div class="color-cell">').
@@ -263,8 +265,8 @@ PageDashboard.prototype = {
 
         var rows = [ ];
 
-        for (var i = 0; i < modules.machines.colors.length; i += 6) {
-            var part = modules.machines.colors.slice(i, i+6);
+        for (var i = 0; i < machines.colors.length; i += 6) {
+            var part = machines.colors.slice(i, i+6);
             rows.push(
                 $('<div>').
                     append(
@@ -590,4 +592,4 @@ function PageDashboard() {
 
 shell.pages.push(new PageDashboard());
 
-})(jQuery, cockpit, shell, modules);
+});

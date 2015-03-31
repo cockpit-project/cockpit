@@ -1,4 +1,22 @@
-shell_js_PARTS = \
+shelldir = $(pkgdatadir)/shell
+shell_DATA = \
+	pkg/shell/shell.min.js.gz \
+	pkg/shell/bundle.min.js.gz \
+	pkg/shell/index.min.html \
+	pkg/shell/shell.min.css.gz \
+	pkg/shell/shell.min.html.gz \
+	pkg/shell/manifest.json \
+	$(NULL)
+
+shelldebugdir = $(DBGDIR)$(shelldir)
+shelldebug_DATA = \
+	pkg/shell/shell.js \
+	pkg/shell/bundle.js \
+	pkg/shell/index.html \
+	pkg/shell/index.js \
+	pkg/shell/machines.js \
+	pkg/shell/shell.css \
+	pkg/shell/shell.html \
 	pkg/shell/dbus.js \
 	pkg/shell/controls.js \
 	pkg/shell/plot.js \
@@ -19,40 +37,37 @@ shell_js_PARTS = \
 	pkg/shell/cockpit-docker.js \
 	$(NULL)
 
-shell.js: $(shell_js_PARTS)
-	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $^
-	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
-
-shell.min.js: shell.js
-	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $< --mangle > $@.tmp && mv $@.tmp $@
-
-shelldir = $(pkgdatadir)/shell
-shell_DATA = \
-	shell.min.js.gz \
-	pkg/shell/bundle.min.js.gz \
-	pkg/shell/index.min.html \
-	pkg/shell/shell.min.css.gz \
-	pkg/shell/shell.min.html.gz \
-	pkg/shell/manifest.json \
-	$(NULL)
-
-shelldebugdir = $(DBGDIR)$(shelldir)
-shelldebug_DATA = \
-	shell.js \
-	pkg/shell/bundle.js \
-	pkg/shell/index.html \
-	pkg/shell/index.js \
-	pkg/shell/machines.js \
-	pkg/shell/shell.css \
-	pkg/shell/shell.html \
-	$(NULL)
-
 shell_BUNDLE = \
 	pkg/shell/index.min.js \
 	pkg/shell/machines.min.js \
 	$(NULL)
 
 pkg/shell/bundle.min.js: $(shell_BUNDLE)
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
+
+shell_SHELL = \
+	pkg/shell/shell.js \
+	pkg/shell/dbus.min.js \
+	pkg/shell/controls.min.js \
+	pkg/shell/plot.min.js \
+	pkg/shell/canvas.min.js \
+	pkg/shell/cockpit-util.min.js \
+	pkg/shell/cockpit-main.min.js \
+	pkg/shell/cockpit-plot.min.js \
+	pkg/shell/cockpit-dashboard.min.js \
+	pkg/shell/cockpit-setup.min.js \
+	pkg/shell/cockpit-server.min.js \
+	pkg/shell/cockpit-cpu-status.min.js \
+	pkg/shell/cockpit-memory-status.min.js \
+	pkg/shell/cockpit-networking.min.js \
+	pkg/shell/cockpit-storage.min.js \
+	pkg/shell/cockpit-realms.min.js \
+	pkg/shell/cockpit-services.min.js \
+	pkg/shell/cockpit-accounts.min.js \
+	pkg/shell/cockpit-docker.min.js \
+	$(NULL)
+
+pkg/shell/shell.min.js: $(shell_SHELL)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
 shellimagesdir = $(pkgdatadir)/shell/images
@@ -82,8 +97,7 @@ TESTS += $(CHECK_HTML)
 # ----------------------------------------------------------------------------------------------------
 
 CLEANFILES += \
-	shell.js \
-	shell.min.js \
+	pkg/shell/shell.min.js \
 	pkg/shell/bundle.min.js \
 	pkg/shell/index.min.html \
 	pkg/shell/shell.min.html \
@@ -91,13 +105,13 @@ CLEANFILES += \
 	$(NULL)
 
 EXTRA_DIST += \
-	shell.min.js \
+	pkg/shell/shell.min.js \
 	pkg/shell/bundle.min.js \
 	pkg/shell/index.min.html \
 	pkg/shell/shell.min.html \
-	$(shell_js_PARTS) \
 	$(shell_DATA) \
 	$(shell_BUNDLE) \
+	$(shell_SHELL) \
 	$(shelldebug_DATA) \
 	$(shellimages_DATA) \
 	$(CHECK_HTML) \

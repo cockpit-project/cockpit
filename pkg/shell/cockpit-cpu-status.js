@@ -17,13 +17,16 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* global jQuery   */
-/* global cockpit  */
-/* global _        */
-/* global C_       */
+define([
+    "jquery",
+    "base1/cockpit",
+    "shell/shell",
+    "shell/cockpit-main"
+], function($, cockpit, shell) {
+"use strict";
 
-var shell = shell || { };
-(function($, cockpit, shell) {
+var _ = cockpit.gettext;
+var C_ = cockpit.gettext;
 
 PageCpuStatus.prototype = {
     _init: function() {
@@ -91,4 +94,4 @@ function PageCpuStatus() {
 
 shell.pages.push(new PageCpuStatus());
 
-})(jQuery, cockpit, shell);
+});

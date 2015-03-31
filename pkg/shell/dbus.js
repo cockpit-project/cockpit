@@ -117,15 +117,13 @@
 
  */
 
-/* global jQuery   */
-/* global cockpit  */
-/* global _        */
-/* global C_       */
-
 var phantom_checkpoint = phantom_checkpoint || function () { };
 
-var shell = shell || { };
-(function($, cockpit, shell) {
+define([
+    "jquery",
+    "base1/cockpit",
+    "shell/shell"
+], function($, cockpit, shell) {
 
 function dbus_debug() {
     if (window.debugging == "all" || window.debugging == "dbus")
@@ -711,4 +709,4 @@ shell.dbus_client = function dbus_client(target, options) {
     return new DBusClient(target, options);
 };
 
-})(jQuery, cockpit, shell);
+});

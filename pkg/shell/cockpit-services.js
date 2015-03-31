@@ -17,16 +17,18 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* global jQuery   */
-/* global cockpit  */
-/* global _        */
-/* global C_       */
-/* global N_       */
+define([
+    "jquery",
+    "base1/cockpit",
+    "shell/shell",
+    "system/server",
+    "shell/cockpit-main"
+], function($, cockpit, shell, server) {
+"use strict";
 
-var shell = shell || { };
-var modules = modules || { };
-
-(function($, cockpit, shell, modules) {
+var _ = cockpit.gettext;
+var C_ = cockpit.gettext;
+var N_ = cockpit.noop;
 
 function resource_debug() {
     if (window.debugging == "all" || window.debugging == "resource" || true)
@@ -695,9 +697,9 @@ PageService.prototype = {
     },
 
     watch_journal: function () {
-        this.journal_watcher = modules.server.logbox([ "_SYSTEMD_UNIT=" + this.service, "+",
-                                                       "COREDUMP_UNIT=" + this.service, "+",
-                                                       "UNIT=" + this.service ], 10);
+        this.journal_watcher = server.logbox([ "_SYSTEMD_UNIT=" + this.service, "+",
+                                               "COREDUMP_UNIT=" + this.service, "+",
+                                               "UNIT=" + this.service ], 10);
         $('#service-log').empty().append(this.journal_watcher);
     },
 
@@ -860,4 +862,4 @@ function PageService() {
 
 shell.pages.push(new PageService());
 
-})(jQuery, cockpit, shell, modules);
+});

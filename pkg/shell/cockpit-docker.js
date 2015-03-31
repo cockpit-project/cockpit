@@ -17,16 +17,19 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* global jQuery   */
-/* global cockpit  */
-/* global _        */
-/* global C_       */
-/* global Mustache */
+define([
+    "jquery",
+    "base1/cockpit",
+    "base1/mustache",
+    "manifests",
+    "shell/shell",
+    "shell/cockpit-main",
+    "shell/cockpit-util",
+], function($, cockpit, Mustache, manifests, shell) {
+"use strict";
 
-var shell = shell || { };
-var modules = modules || { };
-
-(function($, cockpit, shell, modules) {
+var _ = cockpit.gettext;
+var C_ = cockpit.gettext;
 
 function resource_debug() {
     if (window.debugging == "all" || window.debugging == "resource")
@@ -40,17 +43,27 @@ function docker_debug() {
 
 var docker_clients = shell.util.make_resource_cache();
 
-shell.docker = docker;
-function docker() {
+shell.docker = docker_client;
+function docker_client() {
     return docker_clients.get("default", function () { return new DockerClient(); });
 }
 
-function quote_cmdline (cmds) {
-    return modules.docker.quote_cmdline(cmds || []);
+var docker;
+
+if (manifests["docker"]) {
+    require([
+        'docker/docker'
+    ], function(d) {
+        docker = d;
+    });
 }
 
-function unquote_cmdline (string) {
-    return modules.docker.unquote_cmdline(string);
+function quote_cmdline(cmds) {
+    return docker.quote_cmdline(cmds || []);
+}
+
+function unquote_cmdline(string) {
+    return docker.unquote_cmdline(string);
 }
 
 function render_container_cmdline (container) {
@@ -663,14 +676,14 @@ PageContainers.prototype = {
 
             if (used && total) {
 
-              var b_used = modules.docker.bytes_from_format(used);
-              var b_total = modules.docker.bytes_from_format(total);
+              var b_used = docker.bytes_from_format(used);
+              var b_total = docker.bytes_from_format(total);
 
               // Prefer available if present as that will be accurate for
               // sparse file based devices
               if (avail) {
                   $('#containers-storage').tooltip('destroy');
-                  b_total = modules.docker.bytes_from_format(avail);
+                  b_total = docker.bytes_from_format(avail);
                   total = cockpit.format_bytes(b_used + b_total);
               } else {
                   var warning = _("WARNING: Docker may be reporting the size it has allocated to it's storage pool using sparse files, not the actual space available to the underlying storage device.");
@@ -1466,7 +1479,7 @@ PageSearchImage.prototype = {
         this.client.pull(repo, tag).
             stream(function(data) {
                 buffer += data;
-                var next = modules.docker.json_skip(buffer, 0);
+                var next = docker.json_skip(buffer, 0);
                 if (next === 0)
                     return; /* not enough data yet */
                 var progress = JSON.parse(buffer.substring(0, next));
@@ -1726,7 +1739,7 @@ PageContainerDetails.prototype = {
 
     maybe_show_terminal: function(info) {
         if (!this.terminal) {
-            this.terminal = modules.docker.console(this.container_id, info.Config.Tty);
+            this.terminal = docker.console(this.container_id, info.Config.Tty);
             $("#container-terminal").empty().append(this.terminal);
         }
         if (this.terminal.connected)
@@ -2630,4 +2643,4 @@ function DockerClient() {
     };
 }
 
-})(jQuery, cockpit, shell, modules);
+});

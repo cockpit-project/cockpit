@@ -6,19 +6,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../legacy/cockpit.css" rel="stylesheet">
     <link href="shell.css" rel="stylesheet">
-    <script src="../base1/jquery.js"></script>
-    <script src="../base1/mustache.js"></script>
-    <script src="../base1/cockpit.js"></script>
-
-    <!-- HACK: Mixing AMD and non-AMD in this file -->
-    <script src="../base1/require.js"></script>
-    <script>
-        define('jquery', function() { return window.jQuery; });
-        define('base1/cockpit', function() { return window.cockpit; });
-    </script>
+    <script src="../base1/bundle.js"></script>
+    <script src="../shell/bundle.js"></script>
     <script src="../system/bundle.js"></script>
-    <script src="bundle.js"></script>
     <script src="shell.js"></script>
+    <script>
+        require([
+            "base1/cockpit",
+            "shell/shell",
+            "shell/controls",
+            "shell/dbus",
+            "shell/plot",
+            "shell/canvas",
+            "shell/cockpit-main",
+            "shell/cockpit-accounts",
+            "shell/cockpit-cpu-status",
+            "shell/cockpit-dashboard",
+            "shell/cockpit-docker",
+            "shell/cockpit-memory-status",
+            "shell/cockpit-networking",
+            "shell/cockpit-plot",
+            "shell/cockpit-realms",
+            "shell/cockpit-server",
+            "shell/cockpit-services",
+            "shell/cockpit-setup",
+            "shell/cockpit-storage",
+            "shell/cockpit-util",
+        ], function(cockpit, shell) {
+
+            /* TODO: Some legacy code expects a global cockpit */
+            window.cockpit = cockpit;
+
+            /* Start the actual shell initialization once everything is loaded */
+            shell.init();
+        });
+    </script>
   </head>
   <body>
     <div id="shell-header-extra">

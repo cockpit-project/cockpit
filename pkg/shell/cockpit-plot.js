@@ -17,13 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* global jQuery   */
-/* global cockpit  */
-/* global _        */
-/* global C_       */
-
-var shell = shell || { };
-(function($, cockpit, shell) {
+define([
+    "jquery",
+    "base1/cockpit",
+    "shell/shell",
+    "shell/cockpit-main"
+], function($, cockpit, shell) {
 
 function setup_plot(graph_id, resmon, data, user_options, store_samples) {
     var options = {
@@ -389,4 +388,4 @@ shell.setup_multi_plot = function setup_multi_plot(element, monitor, sample_inde
     return plot;
 };
 
-})(jQuery, cockpit, shell);
+});

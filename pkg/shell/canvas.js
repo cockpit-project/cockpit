@@ -17,12 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* global jQuery   */
-/* global cockpit  */
-/* global _        */
-
-var shell = shell || { };
-(function($, shell) {
+define([
+    "jquery",
+    "base1/cockpit",
+    "shell/shell"
+], function($, cockpit, shell) {
 
 /* Construct a simple image editor inside 'element'.  It can only crop
  * an image to a square region.
@@ -304,4 +303,4 @@ shell.image_editor = function image_editor(element, width, height) {
     return self;
 };
 
-})(jQuery, shell);
+});

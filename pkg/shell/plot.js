@@ -17,13 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* global jQuery   */
-/* global cockpit  */
-/* global _        */
-/* global C_       */
-
-var shell = shell || { };
-(function($, shell) {
+define([
+    "jquery",
+    "base1/cockpit",
+    "shell/shell"
+], function($, cockpit, shell) {
 
 /* A thin abstraction over flot and metrics channels.  It mostly
  * shields you from hairy array acrobatics and having to know when it
@@ -625,4 +623,4 @@ shell.plot_simple_template = function simple() {
     };
 };
 
-})(jQuery, shell);
+});

@@ -17,15 +17,17 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* global jQuery   */
-/* global cockpit  */
-/* global _        */
-/* global C_       */
+define([
+    "jquery",
+    "base1/cockpit",
+    "shell/shell",
+    "system/server",
+    "shell/cockpit-main"
+], function($, cockpit, shell, server) {
+"use strict";
 
-var shell = shell || { };
-var modules = modules || { };
-
-(function($, cockpit, shell, modules) {
+var _ = cockpit.gettext;
+var C_ = cockpit.gettext;
 
 function nm_debug() {
     if (window.debugging == "all" || window.debugging == "nm")
@@ -1319,8 +1321,8 @@ PageNetworking.prototype = {
         });
         $(this.tx_plot).on('highlight', highlight_netdev_row);
 
-        this.log_box = modules.server.logbox([ "_SYSTEMD_UNIT=NetworkManager.service",
-                                               "_SYSTEMD_UNIT=firewalld.service" ], 10);
+        this.log_box = server.logbox([ "_SYSTEMD_UNIT=NetworkManager.service",
+                                       "_SYSTEMD_UNIT=firewalld.service" ], 10);
         $('#networking-log').empty().append(this.log_box);
 
         $(this.model).on('changed.networking', $.proxy(this, "update_devices"));
@@ -3157,4 +3159,4 @@ function PageNetworkVlanSettings() {
 
 shell.dialogs.push(new PageNetworkVlanSettings());
 
-})(jQuery, cockpit, shell, modules);
+});

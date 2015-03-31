@@ -17,14 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* global jQuery   */
-/* global cockpit  */
-/* global _        */
-/* global C_       */
-
-var shell = shell || { };
-
-(function($, cockpit, shell) {
+define([
+    "jquery",
+    "base1/cockpit",
+    "shell/shell"
+], function($, cockpit, shell) {
 
 // Used for escaping things in HTML elements and attributes
 shell.esc = function esc(str) {
@@ -320,4 +317,4 @@ function hostname_for_display(iface) {
         return window.location.hostname;
 }
 
-})(jQuery, cockpit, shell);
+});

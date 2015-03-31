@@ -17,12 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* global jQuery   */
-/* global cockpit  */
-/* global _        */
-/* global C_       */
-
-var shell = shell || { };
+define([
+    "jquery",
+    "base1/cockpit",
+    "shell/shell"
+], function($, cockpit, shell) {
 
 /* ----------------------------------------------------------------------------
  * Bar Graphs (in table rows)
@@ -52,8 +51,6 @@ var shell = shell || { };
  * You can also use the el.reflow() function on the element to reflow
  * the corresponding graph.
  */
-
-(function($, cockpit, shell) {
 
 function reflow_bar_graph(graph, div) {
     var parts;
@@ -196,8 +193,6 @@ shell.BarRow = function BarRow(graph) {
 
 $(document).ready(setup_bar_graphs);
 
-})(jQuery, cockpit, shell);
-
 /* ----------------------------------------------------------------------------
  * Sliders
  *
@@ -233,8 +228,6 @@ $(document).ready(setup_bar_graphs);
  *
  * on('change'): fired when the slider changes, passes value as additional arg.
  */
-
-(function($, cockpit, shell) {
 
 function resize_flex(slider, flex, total, part) {
     var value = 0;
@@ -417,10 +410,6 @@ shell.OnOff = function OnOff(val, on, off, role_check, btn_classes) {
     return box;
 };
 
-/*
- * Update the disabled status and tooltip for all
- * elements with the given selector
- */
 shell.update_privileged_ui = function update_privileged_ui(perm, selector, denied_message) {
     var allowed = (perm.allowed !== false);
     $(selector).each(function() {
@@ -445,4 +434,4 @@ shell.update_privileged_ui = function update_privileged_ui(perm, selector, denie
     });
 };
 
-})(jQuery, cockpit, shell);
+});

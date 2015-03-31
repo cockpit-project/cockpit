@@ -17,15 +17,17 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* global jQuery   */
-/* global cockpit  */
-/* global _        */
-/* global C_       */
+define([
+    "jquery",
+    "base1/cockpit",
+    "shell/shell",
+    "system/server",
+    "shell/cockpit-main"
+], function($, cockpit, shell, server) {
+"use strict";
 
-var shell = shell || { };
-var modules = modules || { };
-
-(function($, cockpit, shell, modules) {
+var _ = cockpit.gettext;
+var C_ = cockpit.gettext;
 
 function fmt_size(bytes)
 {
@@ -285,10 +287,10 @@ function storage_job_box(client, elt)
 }
 
 function storage_log_box(elt) {
-    var logbox = modules.server.logbox([ "_SYSTEMD_UNIT=udisks2.service", "+",
-                                         "_SYSTEMD_UNIT=dm-event.service", "+",
-                                         "_SYSTEMD_UNIT=smartd.service", "+",
-                                         "COCKPIT_DOMAIN=storage" ], 10);
+    var logbox = server.logbox([ "_SYSTEMD_UNIT=udisks2.service", "+",
+                                 "_SYSTEMD_UNIT=dm-event.service", "+",
+                                 "_SYSTEMD_UNIT=smartd.service", "+",
+                                 "COCKPIT_DOMAIN=storage" ], 10);
     elt.empty().append(logbox);
     return logbox;
 }
@@ -3495,4 +3497,4 @@ function PageVGDiskAdd() {
 
 shell.dialogs.push(new PageVGDiskAdd());
 
-})(jQuery, cockpit, shell, modules);
+});

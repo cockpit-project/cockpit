@@ -34,15 +34,20 @@
    last user.
 */
 
-/* global jQuery   */
-/* global cockpit  */
+var phantom_checkpoint = phantom_checkpoint || function () { };
 
-/* global phantom_checkpoint */
+define([
+    "jquery",
+    "base1/cockpit",
+    "shell/shell",
+    "manifests",
+    "shell/cockpit-util",
+    "shell/controls"
+], function($, cockpit, shell, manifests) {
+"use strict";
 
-var shell = shell || { };
-var modules = modules ||  { };
-
-(function($, cockpit, shell, modules) {
+var _ = cockpit.gettext;
+var C_ = cockpit.gettext;
 
 shell.pages = [];
 shell.dialogs = [];
@@ -51,40 +56,11 @@ var visited_dialogs = {};
 
 shell.dbus = dbus;
 
-/* Initialize cockpit when page is loaded and modules available */
-var loaded = false;
-modules.loaded = false;
-
-function maybe_init() {
-    if (loaded && modules.loaded)
-        init();
-}
-
-/* HACK: Until all of the shell is loaded via AMD */
-require([
-    "system/server",
-    "shell/machines",
-    "manifests"
-], function(server, machines, manifests) {
-    modules.server = server;
-    modules.machines = machines;
-    if (manifests["docker"]) {
-        require([ "docker/docker" ], function (docker) {
-            modules.docker = docker;
-            modules.loaded = true;
-            maybe_init();
-        });
-    } else {
-        modules.loaded = true;
-        maybe_init();
-    }
-});
-
-function init() {
+shell.init = function init() {
     $('.dropdown-toggle').dropdown();
     content_init();
     content_show();
-}
+};
 
 require(["translated!base1/po"], function(po) {
     cockpit.locale(po);
@@ -428,17 +404,4 @@ shell.confirm = function confirm(title, body, action_text) {
     return deferred.promise();
 };
 
-/* Run when jQuery thinks page is loaded */
-$(function() {
-    loaded = true;
-    maybe_init();
 });
-
-})(jQuery, cockpit, shell, modules);
-
-function N_(str) {
-    return str;
-}
-
-var _ = cockpit.gettext;
-var C_ = cockpit.gettext;

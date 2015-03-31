@@ -17,13 +17,16 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* global jQuery   */
-/* global cockpit  */
-/* global _        */
-/* global C_       */
+define([
+    "jquery",
+    "base1/cockpit",
+    "shell/shell",
+    "shell/cockpit-main"
+], function($, cockpit, shell) {
+"use strict";
 
-var shell = shell || { };
-(function($, cockpit, shell) {
+var _ = cockpit.gettext;
+var C_ = cockpit.gettext;
 
 PageSetupServer.prototype = {
     _init: function() {
@@ -517,4 +520,4 @@ shell.host_setup = function host_setup(machines) {
     $('#dashboard_setup_server_dialog').modal('show');
 };
 
-})(jQuery, cockpit, shell);
+});

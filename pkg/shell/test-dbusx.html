@@ -23,13 +23,20 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     <title>D-Bus Tests</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="../../lib/qunit-1.14.0.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="../../lib/jquery.v2.1.0.js"></script>
     <script type="text/javascript" src="../../lib/qunit-1.14.0.js"></script>
     <script type="text/javascript" src="../../lib/qunit-tap.js"></script>
     <script type="text/javascript" src="../../tools/qunit-config.js"></script>
 
-    <script type="text/javascript" src="../base1/cockpit.js"></script>
-    <script type="text/javascript" src="dbus.js"></script>
+    <script type="text/javascript" src="../base1/require.js"></script>
+  </head>
+  <body>
+    <h1 id="qunit-header">D-Bus Tests</h1>
+    <h2 id="qunit-banner"></h2>
+    <div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+    <div id="qunit-fixture">test markup, will be hidden</div>
+    <div id="done-flag" style="display:none">Done</div>
 <script>
 
 function basic_tests(client)
@@ -414,8 +421,10 @@ function done(details)
     phantom_checkpoint ();
 }
 
-function dbus_test()
-{
+require([
+    "shell/shell",
+    "shell/dbus",
+], function(shell) {
     var options = {
         "service": "com.redhat.Cockpit.DBusTests.Test",
         "object-manager": "/otree"
@@ -432,17 +441,8 @@ function dbus_test()
             QUnit.start();
         }
     });
-}
+});
 
 </script>
-  </head>
-  <body onload="$(document).ready(function(){dbus_test();})">
-    <h1 id="qunit-header">D-Bus Tests</h1>
-    <h2 id="qunit-banner"></h2>
-    <div id="qunit-testrunner-toolbar"></div>
-    <h2 id="qunit-userAgent"></h2>
-    <ol id="qunit-tests"></ol>
-    <div id="qunit-fixture">test markup, will be hidden</div>
-    <div id="done-flag" style="display:none">Done</div>
   </body>
 </html>

@@ -126,7 +126,7 @@ define([
 ], function($, cockpit, shell) {
 
 function dbus_debug() {
-    if (window.debugging == "all" || window.debugging == "dbus")
+    if (window.debugging == "all" || window.debugging == "dbusx")
         console.debug.apply(console, arguments);
 }
 

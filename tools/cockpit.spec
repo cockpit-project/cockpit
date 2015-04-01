@@ -25,7 +25,7 @@ Version:        %{gitcommit}
 %else
 Version:        0.49
 %endif
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A user interface for Linux servers
 
 License:        LGPLv2+
@@ -91,7 +91,7 @@ Requires: %{name}-subscriptions = %{version}-%{release}
 Requires: %{name}-selinux-policy = %{version}-%{release}
 %endif
 Provides: %{name}-daemon
-Obsoletes: %{name}-daemon < 0.48
+Obsoletes: %{name}-daemon < 0.48-2
 
 %description
 Cockpit runs in a browser and can manage your network of GNU/Linux
@@ -389,6 +389,9 @@ fi
 %endif
 
 %changelog
+* Wed Apr 01 2015 Stephen Gallagher <sgallagh@redhat.com> 0.49-2
+- Fix incorrect Obsoletes: of cockpit-daemon
+
 * Wed Apr 01 2015 Peter <petervo@redhat.com> - 0.49-1
 - Update to 0.49 release.
 - cockpitd was renamed to cockpit-wrapper the cockpit-daemon

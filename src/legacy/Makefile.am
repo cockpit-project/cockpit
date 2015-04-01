@@ -3,14 +3,14 @@ libexec_PROGRAMS += cockpitd
 dbus_built_sources = cockpit-generated.h cockpit-generated.c
 
 cockpit-generated.h: cockpit-generated.c
-cockpit-generated.c: Makefile.am $(top_srcdir)/src/daemon/com.redhat.Cockpit.xml
+cockpit-generated.c: Makefile.am $(top_srcdir)/src/legacy/com.redhat.Cockpit.xml
 	$(AM_V_GEN) $(GDBUS_CODEGEN) \
 		--interface-prefix com.redhat.Cockpit.				\
 		--c-namespace Cockpit							\
 		--c-generate-object-manager						\
 		--generate-c-code cockpit-generated                             		\
 		--generate-docbook cockpit-generated-doc					\
-		$(top_srcdir)/src/daemon/com.redhat.Cockpit.xml	\
+		$(top_srcdir)/src/legacy/com.redhat.Cockpit.xml	\
 		$(NULL)
 
 BUILT_SOURCES += $(dbus_built_sources)
@@ -19,13 +19,13 @@ CLEANFILES += cockpit-generated*
 udisks_built_sources = org.freedesktop.UDisks2.h org.freedesktop.UDisks2.c
 
 org.freedesktop.UDisks2.h: org.freedesktop.UDisks2.c
-org.freedesktop.UDisks2.c: Makefile.am $(top_srcdir)/src/daemon/org.freedesktop.UDisks2.xml
+org.freedesktop.UDisks2.c: Makefile.am $(top_srcdir)/src/legacy/org.freedesktop.UDisks2.xml
 	$(AM_V_GEN) $(GDBUS_CODEGEN) \
                 --interface-prefix org.freedesktop.UDisks2. \
                 --c-namespace UDisks \
                 --c-generate-object-manager \
                 --generate-c-code org.freedesktop.UDisks2 \
-                $(top_srcdir)/src/daemon/org.freedesktop.UDisks2.xml \
+                $(top_srcdir)/src/legacy/org.freedesktop.UDisks2.xml \
                 $(NULL)
 
 BUILT_SOURCES += $(udisks_built_sources)
@@ -34,13 +34,13 @@ CLEANFILES += $(udisks_built_sources)
 lvm_dbus_built_sources = com.redhat.lvm2.h com.redhat.lvm2.c
 
 com.redhat.lvm2.h : com.redhat.lvm2.c
-com.redhat.lvm2.c : Makefile.am src/daemon/com.redhat.lvm2.xml
+com.redhat.lvm2.c : Makefile.am src/legacy/com.redhat.lvm2.xml
 	$(AM_V_GEN) $(GDBUS_CODEGEN)  \
 		--interface-prefix com.redhat.lvm2 	\
 		--c-namespace Lvm 			\
 		--c-generate-object-manager 		\
 		--generate-c-code com.redhat.lvm2 	\
-		$(srcdir)/src/daemon/com.redhat.lvm2.xml \
+		$(srcdir)/src/legacy/com.redhat.lvm2.xml \
 		$(NULL)
 
 BUILT_SOURCES += $(lvm_dbus_built_sources)
@@ -50,57 +50,57 @@ noinst_LIBRARIES += libcockpitd.a
 
 nodist_libcockpitd_a_SOURCES = $(lvm_dbus_built_sources) $(udisks_built_sources)
 libcockpitd_a_SOURCES = \
-	src/daemon/types.h \
-	src/daemon/daemon.h \
-	src/daemon/daemon.c \
-	src/daemon/utils.h \
-	src/daemon/utils.c \
-	src/daemon/manager.h \
-	src/daemon/manager.c \
-	src/daemon/cpumonitor.h \
-	src/daemon/cpumonitor.c \
-	src/daemon/memorymonitor.h \
-	src/daemon/memorymonitor.c \
-	src/daemon/networkmonitor.h \
-	src/daemon/networkmonitor.c \
-	src/daemon/diskiomonitor.h \
-	src/daemon/diskiomonitor.c \
-	src/daemon/cgroupmonitor.h \
-	src/daemon/cgroupmonitor.c \
-	src/daemon/netdevmonitor.h \
-	src/daemon/netdevmonitor.c \
-	src/daemon/blockdevmonitor.h \
-	src/daemon/blockdevmonitor.c \
-	src/daemon/mountmonitor.h \
-	src/daemon/mountmonitor.c \
-	src/daemon/storagemanager.h \
-	src/daemon/storagemanager.c \
-	src/daemon/storageprovider.h \
-	src/daemon/storageprovider.c \
-	src/daemon/storageobject.h \
-	src/daemon/storageobject.c \
-	src/daemon/storageblock.h \
-	src/daemon/storageblock.c \
-	src/daemon/storagedrive.h \
-	src/daemon/storagedrive.c \
-	src/daemon/storagemdraid.h \
-	src/daemon/storagemdraid.c \
-	src/daemon/storagevolumegroup.h \
-	src/daemon/storagevolumegroup.c \
-	src/daemon/storagelogicalvolume.h \
-	src/daemon/storagelogicalvolume.c \
-	src/daemon/storagejob.h \
-	src/daemon/storagejob.c \
-	src/daemon/realms.h \
-	src/daemon/realms.c \
-	src/daemon/services.h \
-	src/daemon/services.c \
-	src/daemon/cgroup-show.h \
-	src/daemon/cgroup-show.c \
-	src/daemon/lvmutil.h \
-	src/daemon/lvmutil.c \
-	src/daemon/udisksclient.h \
-	src/daemon/udisksclient.c \
+	src/legacy/types.h \
+	src/legacy/daemon.h \
+	src/legacy/daemon.c \
+	src/legacy/utils.h \
+	src/legacy/utils.c \
+	src/legacy/manager.h \
+	src/legacy/manager.c \
+	src/legacy/cpumonitor.h \
+	src/legacy/cpumonitor.c \
+	src/legacy/memorymonitor.h \
+	src/legacy/memorymonitor.c \
+	src/legacy/networkmonitor.h \
+	src/legacy/networkmonitor.c \
+	src/legacy/diskiomonitor.h \
+	src/legacy/diskiomonitor.c \
+	src/legacy/cgroupmonitor.h \
+	src/legacy/cgroupmonitor.c \
+	src/legacy/netdevmonitor.h \
+	src/legacy/netdevmonitor.c \
+	src/legacy/blockdevmonitor.h \
+	src/legacy/blockdevmonitor.c \
+	src/legacy/mountmonitor.h \
+	src/legacy/mountmonitor.c \
+	src/legacy/storagemanager.h \
+	src/legacy/storagemanager.c \
+	src/legacy/storageprovider.h \
+	src/legacy/storageprovider.c \
+	src/legacy/storageobject.h \
+	src/legacy/storageobject.c \
+	src/legacy/storageblock.h \
+	src/legacy/storageblock.c \
+	src/legacy/storagedrive.h \
+	src/legacy/storagedrive.c \
+	src/legacy/storagemdraid.h \
+	src/legacy/storagemdraid.c \
+	src/legacy/storagevolumegroup.h \
+	src/legacy/storagevolumegroup.c \
+	src/legacy/storagelogicalvolume.h \
+	src/legacy/storagelogicalvolume.c \
+	src/legacy/storagejob.h \
+	src/legacy/storagejob.c \
+	src/legacy/realms.h \
+	src/legacy/realms.c \
+	src/legacy/services.h \
+	src/legacy/services.c \
+	src/legacy/cgroup-show.h \
+	src/legacy/cgroup-show.c \
+	src/legacy/lvmutil.h \
+	src/legacy/lvmutil.c \
+	src/legacy/udisksclient.h \
+	src/legacy/udisksclient.c \
 	$(NULL)
 
 libcockpitd_a_CFLAGS = \
@@ -109,11 +109,11 @@ libcockpitd_a_CFLAGS = \
 	$(NULL)
 
 cockpitd_SOURCES = \
-	src/daemon/main.c \
+	src/legacy/main.c \
 	$(NULL)
 
 cockpitd_CFLAGS = 					\
-	-I$(top_srcdir)/src/daemon			\
+	-I$(top_srcdir)/src/legacy			\
 	-DG_LOG_DOMAIN=\"cockpit-daemon\" \
 	$(COCKPIT_DAEMON_CFLAGS)			\
 	$(NULL)
@@ -127,14 +127,14 @@ cockpitd_LDADD = 					\
 
 dbusservice_DATA = com.redhat.Cockpit.service
 
-com.redhat.Cockpit.service: src/daemon/com.redhat.Cockpit.service.in Makefile.am
+com.redhat.Cockpit.service: src/legacy/com.redhat.Cockpit.service.in Makefile.am
 	$(AM_V_GEN) $(SED_SUBST) $< > $@
 
 EXTRA_DIST += \
-	src/daemon/com.redhat.Cockpit.xml \
-	src/daemon/com.redhat.Cockpit.service.in \
-	src/daemon/com.redhat.lvm2.xml \
-	src/daemon/org.freedesktop.UDisks2.xml \
+	src/legacy/com.redhat.Cockpit.xml \
+	src/legacy/com.redhat.Cockpit.service.in \
+	src/legacy/com.redhat.lvm2.xml \
+	src/legacy/org.freedesktop.UDisks2.xml \
 	$(NULL)
 
 CLEANFILES += \
@@ -146,7 +146,7 @@ CLEANFILES += \
 
 DAEMON_CHECKS = \
 	test-cgroupmonitor
-test_cgroupmonitor_SOURCES = src/daemon/test-cgroupmonitor.c
+test_cgroupmonitor_SOURCES = src/legacy/test-cgroupmonitor.c
 test_cgroupmonitor_CFLAGS = $(libcockpitd_a_CFLAGS)
 test_cgroupmonitor_LDADD = $(cockpitd_LDADD)
 

@@ -4,7 +4,7 @@
     <title>Cockpit</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="../legacy/cockpit.css" rel="stylesheet">
+    <link href="../base1/cockpit.css" rel="stylesheet">
     <link href="shell.css" rel="stylesheet">
     <script src="../base1/bundle.js"></script>
     <script src="../shell/bundle.js"></script>
@@ -707,7 +707,7 @@
           <br/>
           <div id="containers-failure-message"></div>
           <br/>
-          <div id="containers-failure-waiting" class="waiting"></div>
+          <div id="containers-failure-waiting" class="spinner"></div>
           <button class="btn btn-primary" id="containers-failure-start">Start Docker</button>
           <button class="btn btn-primary" id="containers-failure-retry">Try again</button>
         </center>
@@ -808,7 +808,7 @@
                         data-toggle="modal" data-target="#container-commit-dialog">
                   Commit
                 </button>
-                <div class="waiting" style="display: none;"></div>
+                <div class="spinner" style="display: none;"></div>
               </div>
             </div>
           </div>
@@ -893,7 +893,7 @@
               <div class="pull-right" style="height:25px" id="image-details-buttons">
                 <button class="btn btn-default" id="image-details-run">Run</button>
                 <button class="btn btn-danger" id="image-details-delete">Delete</button>
-                <div class="waiting" style="display: none;"></div>
+                <div class="spinner" style="display: none;"></div>
               </div>
             </div>
           </div>
@@ -1051,7 +1051,7 @@
     <div class="modal" id="system_information_change_systime"
          tabindex="-1" role="dialog"
          data-backdrop="static">
-      <div class="modal-dialog cockpit-modal-sm">
+      <div class="modal-dialog modal-sm">
         <div class="modal-content">
           <div class="modal-header">
             <h4 class="modal-title">Change System Time</h4>
@@ -1192,7 +1192,7 @@
                   </td>
                   <td style="width:0px">
                     <div id="realms-op-address-spinner"
-                         class="waiting"
+                         class="spinner"
                          style="margin-left:-40px;margin-top:4px"></div>
                     <img id="realms-op-address-error"
                          src="images/dialog-error.png"
@@ -1271,7 +1271,7 @@
             </div>
           </div>
           <div class="modal-footer">
-            <div id="realms-op-spinner" class="waiting" style="float: left"></div>
+            <div id="realms-op-spinner" class="spinner" style="float: left"></div>
             <span id="realms-op-wait-message">This may take a while</span>
             <button class="btn btn-default" id="realms-op-cancel">
               Cancel

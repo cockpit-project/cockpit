@@ -600,7 +600,7 @@ PageStorage.prototype = {
                         $('<span class="writing">').text(""))),
                 $('<td style="width:28px">').append(
                     $('<div>', { id: "storage-spinner-" + id,
-                                 "class": "waiting"
+                                 "class": "spinner"
                                })));
 
         // TODO: should show warning icon etc. if disk is failing
@@ -649,7 +649,7 @@ PageStorage.prototype = {
                     $('<span class="col-xs-9 col-xs-pull-3">').text(raid_get_desc(raid))),
                 $('<td style="width:28px">').append(
                     $('<div>', { id: "storage-spinner-" + id,
-                                 "class": "waiting"
+                                 "class": "spinner"
                                })));
 
         // Insert sorted
@@ -694,7 +694,7 @@ PageStorage.prototype = {
                     $('<span class="col-xs-9 col-xs-pull-3">').text(vg.Name)),
                 $('<td style="width:28px">').append(
                     $('<div>', { id: "storage-spinner-" + id,
-                                 "class": "waiting"
+                                 "class": "spinner"
                                })));
 
         // Insert sorted
@@ -754,7 +754,7 @@ PageStorage.prototype = {
                     $('<span class="writing">').text("")),
                 $('<td style="width:28px">').append(
                     $('<div>', { id: "storage-spinner-" + id,
-                                 "class": "waiting"
+                                 "class": "spinner"
                                })));
 
         // Insert sorted
@@ -1477,7 +1477,7 @@ PageStorageDetail.prototype = {
             tr.append(
                 $('<td>', { 'style': 'float:right' }).append(
                     $('<div>', { 'id': 'entry-spinner-' +id,
-                                 'class': 'waiting'
+                                 'class': 'spinner'
                                })));
             list.append(
                 $('<li>', { 'class': 'list-group-item' }).append(

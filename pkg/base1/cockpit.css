@@ -36,11 +36,6 @@ a {
   z-index: auto;
 }
 
-/* HACK: https://github.com/patternfly/patternfly/issues/39 */
-code, kbd, pre, samp {
-  font-family: monospace, Menlo, Monaco, Consolas, "Courier New";
-}
-
 .dropdown-menu > li > a.disabled,
 .dropdown-menu > li > a.disabled:hover,
 .dropdown-menu > li > a.disabled:focus {
@@ -74,7 +69,7 @@ code, kbd, pre, samp {
 /* Container is glued to the navigation and sides */
 
 .container-fluid {
-    margin: 20px;
+    margin-top: 20px;
 }
 
 /* Break up sidebar in columns in smaller sizes*/
@@ -364,6 +359,18 @@ code, kbd, pre, samp {
     padding-right: 15px;
 }
 
+/* Override patternfly to fit buttons and such */
+.table > thead > tr > th,
+.table > tbody > tr > td {
+    padding: 8px;
+}
+
+/* Override the heavy patternfly headers */
+.table > thead {
+    background-image: none;
+    background-color: #fff;
+}
+
 /* Make things line up */
 .table tbody tr td:first-child,
 .table thead tr th:first-child {
@@ -382,29 +389,6 @@ code, kbd, pre, samp {
 /* Vertically center dropdown buttons in panel headers */
 .panel-heading .btn {
     margin-top: -3px;
-}
-
-/*
- * Styling of progress bars. Patternfly ignores this completely
- * so we pick up the slack.
- */
-.progress {
-    background-color: #e7e7e7;
-    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25) inset;
-    font-size: 11px;
-    font-weight: bold;
-    margin-bottom: 0;
-}
-
-.progress-bar {
-    background-color: #0099d3;
-    font-size: 11px;
-    font-weight: bold;
-    box-shadow: none;
-}
-
-.progress-bar-danger {
-    background-color: #af151a;
 }
 
 /* Ensure that btn-default is at least as wide as tall
@@ -464,14 +448,6 @@ code, kbd, pre, samp {
 .terminal-cursor {
     color: #000;
     background: #f0f0f0;
-}
-
-
-/* Patternfly doesn't have modal-sm
-*/
-
-.cockpit-modal-sm {
-    width: 300px;
 }
 
 /* Extra content header */

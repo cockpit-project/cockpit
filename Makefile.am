@@ -62,7 +62,7 @@ po/po.%.js: po/%.po
 
 ACLOCAL_AMFLAGS = -I tools ${ACLOCAL_FLAGS}
 
-SUBDIRS = . po
+SUBDIRS = . po storaged
 
 DISTCHECK_CONFIGURE_FLAGS=						        \
 	--disable-debug \

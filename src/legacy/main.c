@@ -85,7 +85,7 @@ on_sigint (gpointer user_data)
 {
   g_message ("Caught SIGINT. Initiating shutdown");
   g_main_loop_quit (loop);
-  return FALSE;
+  return TRUE;
 }
 
 int

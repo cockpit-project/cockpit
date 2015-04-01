@@ -389,6 +389,15 @@ fi
 %endif
 
 %changelog
+* Wed Apr 01 2015 Peter <petervo@redhat.com> - 0.49-1
+- Update to 0.49 release.
+- cockpitd was renamed to cockpit-wrapper the cockpit-daemon
+  package was removed and is now installed with the
+  cockpit-bridge package.
+
+* Mon Mar 30 2015 Peter <petervo@redhat.com> - 0.48-1
+- Update to 0.48 release
+
 * Mon Mar 30 2015 Stephen Gallagher <sgallagh@redhat.com> 0.47-2
 - Don't attempt to build cockpit-kubernetes on armv7hl
 

@@ -70,8 +70,8 @@ static void on_lvm_logical_volume_notify (GObject    *object,
                                            GParamSpec *pspec,
                                            gpointer    user_data);
 
-G_DEFINE_TYPE_WITH_CODE (StorageLogicalVolume, storage_logical_volume, COCKPIT_TYPE_STORAGE_LOGICAL_VOLUME_SKELETON,
-                         G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_STORAGE_LOGICAL_VOLUME, storage_logical_volume_iface_init));
+G_DEFINE_TYPE_WITH_CODE (StorageLogicalVolume, storage_logical_volume, COCKPIT_STORAGE_TYPE_LOGICAL_VOLUME_SKELETON,
+                         G_IMPLEMENT_INTERFACE (COCKPIT_STORAGE_TYPE_LOGICAL_VOLUME, storage_logical_volume_iface_init));
 
 /* ---------------------------------------------------------------------------------------------------- */
 

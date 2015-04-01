@@ -81,6 +81,7 @@ BuildRequires: xmlto
 
 Requires: %{name}-bridge = %{version}-%{release}
 Requires: %{name}-daemon = %{version}-%{release}
+Requires: %{name}-udisks = %{version}-%{release}
 Requires: %{name}-ws = %{version}-%{release}
 Requires: %{name}-shell = %{version}-%{release}
 %ifarch x86_64 armv7hl
@@ -106,14 +107,22 @@ system on behalf of the web based user interface.
 
 %package daemon
 Summary: Deprecated wrappers for various configuration APIs
-Requires: udisks2 >= 2.1.0
 Requires: mdadm
 Requires: lvm2
 Requires: realmd
-Requires: storaged
 
 %description daemon
-Summary: Deprecated wrappers for various configuration APIs such as udisks2.
+Summary: Deprecated wrappers for various configuration APIs such as
+systemd. Soon these will be accessed directly from the cockpit
+user interface, and this package will disappear.
+
+%package udisks
+Summary: Deprecated wrappers for udisk APIs
+Requires: udisks2 >= 2.1.0
+Requires: storaged
+
+%description udisks
+Summary: Deprecated wrappers for udisks2 and storaged APIs
 Soon these will be accessed directly from the cockpit
 user interface, and this package will disappear.
 
@@ -260,6 +269,10 @@ rm -rf %{buildroot}/debug
 %doc %{_mandir}/man8/cockpitd.8.gz
 %{_datadir}/dbus-1/services/com.redhat.Cockpit.service
 %{_libexecdir}/cockpitd
+
+%files udisks
+%{_libexecdir}/cockpit-udisks
+%{_datadir}/dbus-1/services/com.redhat.Cockpit.Storage.service
 
 %files doc
 %exclude %{_docdir}/%{name}/AUTHORS

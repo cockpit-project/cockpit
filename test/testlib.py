@@ -248,7 +248,10 @@ class Browser:
     def wait_dbus_prop(self, iface, prop, text, client_address = "localhost", client_options = { }):
         return self.wait_js_func('ph_dbus_prop', client_address, client_options, iface, prop, text)
 
-    def wait_dbus_object_prop(self, path, iface, prop, text, client_address = "localhost", client_options = { }):
+    def wait_dbus_object_prop(self, path, iface, prop, text, client_address = "localhost", client_options = None):
+        if not client_options:
+          client_options = {}
+
         return self.wait_js_func('ph_dbus_object_prop', client_address, client_options, path, iface, prop, text)
 
     def wait_popup(self, id):

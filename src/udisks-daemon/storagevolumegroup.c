@@ -69,8 +69,8 @@ static void on_lvm_volume_group_notify (GObject    *object,
                                         GParamSpec *pspec,
                                         gpointer    user_data);
 
-G_DEFINE_TYPE_WITH_CODE (StorageVolumeGroup, storage_volume_group, COCKPIT_TYPE_STORAGE_VOLUME_GROUP_SKELETON,
-                         G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_STORAGE_VOLUME_GROUP, storage_volume_group_iface_init));
+G_DEFINE_TYPE_WITH_CODE (StorageVolumeGroup, storage_volume_group, COCKPIT_STORAGE_TYPE_VOLUME_GROUP_SKELETON,
+                         G_IMPLEMENT_INTERFACE (COCKPIT_STORAGE_TYPE_VOLUME_GROUP, storage_volume_group_iface_init));
 
 /* ---------------------------------------------------------------------------------------------------- */
 

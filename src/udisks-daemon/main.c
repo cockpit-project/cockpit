@@ -119,7 +119,7 @@ main (int argc,
       goto out;
     }
 
-  opt_context = g_option_context_new ("cockpit daemon");
+  opt_context = g_option_context_new ("cockpit storage daemon");
   g_option_context_add_main_entries (opt_context, opt_entries, NULL);
   error = NULL;
   if (!g_option_context_parse (opt_context, &argc, &argv, &error))
@@ -149,7 +149,7 @@ main (int argc,
     }
 
   name_owner_id = g_bus_own_name (G_BUS_TYPE_SESSION,
-                                  "com.redhat.Cockpit",
+                                  "com.redhat.Cockpit.Storage",
                                   G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT |
                                     (opt_replace ? G_BUS_NAME_OWNER_FLAGS_REPLACE : 0),
                                   on_bus_acquired,

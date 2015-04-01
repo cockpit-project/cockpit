@@ -15,24 +15,8 @@ cockpit-generated.c: Makefile.am $(top_srcdir)/src/daemon/com.redhat.Cockpit.xml
 BUILT_SOURCES += $(dbus_built_sources)
 CLEANFILES += cockpit-generated*
 
-lvm_dbus_built_sources = com.redhat.lvm2.h com.redhat.lvm2.c
-
-com.redhat.lvm2.h : com.redhat.lvm2.c
-com.redhat.lvm2.c : Makefile.am src/daemon/com.redhat.lvm2.xml
-	$(AM_V_GEN) $(GDBUS_CODEGEN)  \
-		--interface-prefix com.redhat.lvm2 	\
-		--c-namespace Lvm 			\
-		--c-generate-object-manager 		\
-		--generate-c-code com.redhat.lvm2 	\
-		$(srcdir)/src/daemon/com.redhat.lvm2.xml \
-		$(NULL)
-
-BUILT_SOURCES += $(lvm_dbus_built_sources)
-CLEANFILES += $(lvm_dbus_built_sources)
-
 noinst_LIBRARIES += libcockpitd.a
 
-nodist_libcockpitd_a_SOURCES = $(lvm_dbus_built_sources)
 libcockpitd_a_SOURCES = \
 	src/daemon/types.h \
 	src/daemon/daemon.h \
@@ -57,32 +41,12 @@ libcockpitd_a_SOURCES = \
 	src/daemon/blockdevmonitor.c \
 	src/daemon/mountmonitor.h \
 	src/daemon/mountmonitor.c \
-	src/daemon/storagemanager.h \
-	src/daemon/storagemanager.c \
-	src/daemon/storageprovider.h \
-	src/daemon/storageprovider.c \
-	src/daemon/storageobject.h \
-	src/daemon/storageobject.c \
-	src/daemon/storageblock.h \
-	src/daemon/storageblock.c \
-	src/daemon/storagedrive.h \
-	src/daemon/storagedrive.c \
-	src/daemon/storagemdraid.h \
-	src/daemon/storagemdraid.c \
-	src/daemon/storagevolumegroup.h \
-	src/daemon/storagevolumegroup.c \
-	src/daemon/storagelogicalvolume.h \
-	src/daemon/storagelogicalvolume.c \
-	src/daemon/storagejob.h \
-	src/daemon/storagejob.c \
 	src/daemon/realms.h \
 	src/daemon/realms.c \
 	src/daemon/services.h \
 	src/daemon/services.c \
 	src/daemon/cgroup-show.h \
 	src/daemon/cgroup-show.c \
-	src/daemon/lvmutil.h \
-	src/daemon/lvmutil.c \
 	$(NULL)
 
 libcockpitd_a_CFLAGS = \
@@ -115,7 +79,6 @@ com.redhat.Cockpit.service: src/daemon/com.redhat.Cockpit.service.in Makefile.am
 EXTRA_DIST += \
 	src/daemon/com.redhat.Cockpit.xml \
 	src/daemon/com.redhat.Cockpit.service.in \
-	src/daemon/com.redhat.lvm2.xml \
 	$(NULL)
 
 CLEANFILES += \

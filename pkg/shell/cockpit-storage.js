@@ -79,7 +79,7 @@ function mark_as_target(elt, target) {
 
 function watch_jobs(client) {
     function update() {
-        var objs = client.getObjectsFrom("/com/redhat/Cockpit/Jobs/");
+        var objs = client.getObjectsFrom("/com/redhat/Cockpit/Storage/Jobs/");
         var job;
         var i, j;
 
@@ -89,7 +89,7 @@ function watch_jobs(client) {
         active_targets = [ ];
 
         for (i = 0; i < objs.length; i++) {
-            job = objs[i].lookup("com.redhat.Cockpit.Job");
+            job = objs[i].lookup("com.redhat.Cockpit.Storage.Job");
             if (job) {
                 for (j = 0; j < job.Targets.length; j++) {
                     var t = job_target_class(job.Targets[j]);
@@ -118,7 +118,7 @@ function unwatch_jobs(client) {
 
 function job_box(client, tbody, domain, descriptions, target_describer) {
     function update() {
-        var objs = client.getObjectsFrom("/com/redhat/Cockpit/Jobs/");
+        var objs = client.getObjectsFrom("/com/redhat/Cockpit/Storage/Jobs/");
         var i, j, t, tdesc;
         var target_desc, desc, progress, remaining, cancel;
         var some_added = false;
@@ -134,7 +134,7 @@ function job_box(client, tbody, domain, descriptions, target_describer) {
 
         tbody.empty();
         for (i = 0; i < objs.length; i++) {
-            j = objs[i].lookup("com.redhat.Cockpit.Job");
+            j = objs[i].lookup("com.redhat.Cockpit.Storage.Job");
             if (j && j.Domain == domain) {
                 target_desc = "";
                 for (t = 0; t < j.Targets.length; t++) {
@@ -176,7 +176,7 @@ function job_box(client, tbody, domain, descriptions, target_describer) {
     }
 
     function update_props(event, obj, iface) {
-        if (iface._iface_name == "com.redhat.Cockpit.Job")
+        if (iface._iface_name == "com.redhat.Cockpit.Storage.Job")
             update();
     }
 
@@ -362,7 +362,10 @@ PageStorage.prototype = {
         var self = this;
 
         /* TODO: This code needs to be migrated away from the old dbus */
-        this.client = shell.dbus(null);
+        this.client = shell.dbus(null, {"service" : "com.redhat.Cockpit.Storage",
+                                        "object-manager" : "/com/redhat/Cockpit/Storage"});
+        this.monitor_client = shell.dbus(null);
+
         watch_jobs(this.client);
 
         this._drives = $("#storage_drives");
@@ -415,7 +418,7 @@ PageStorage.prototype = {
             }
         }
 
-        this.monitor = this.client.get("/com/redhat/Cockpit/BlockdevMonitor",
+        this.monitor = this.monitor_client.get("/com/redhat/Cockpit/BlockdevMonitor",
                                        "com.redhat.Cockpit.MultiResourceMonitor");
         $(this.monitor).on('NewSample.storage', render_samples);
 
@@ -448,8 +451,8 @@ PageStorage.prototype = {
             }
         }
 
-        this.mount_monitor = this.client.get("/com/redhat/Cockpit/MountMonitor",
-                                             "com.redhat.Cockpit.MultiResourceMonitor");
+        this.mount_monitor = this.monitor_client.get("/com/redhat/Cockpit/MountMonitor",
+                                                     "com.redhat.Cockpit.MultiResourceMonitor");
         $(this.mount_monitor).on('NewSample.storage', render_mount_samples);
     },
 
@@ -472,6 +475,8 @@ PageStorage.prototype = {
         unwatch_jobs(this.client);
         this.client.release();
         this.client = null;
+        this.monitor_client.release();
+        this.monitor_client = null;
     },
 
     _onObjectAdded: function (event, obj) {
@@ -1089,8 +1094,8 @@ function raid_get_desc(raid)
     if (parts.length != 2)
         return raid.Name;
 
-    var manager = raid._client.lookup("/com/redhat/Cockpit/Manager",
-                                      "com.redhat.Cockpit.Manager");
+    var manager = raid._client.lookup("/com/redhat/Cockpit/Storage/Manager",
+                                      "com.redhat.Cockpit.Storage.Manager");
 
     if (manager && parts[0] == manager.StaticHostname)
         return parts[1];
@@ -1202,6 +1207,8 @@ PageStorageDetail.prototype = {
         $(this.client).off(".storage-details");
         this.client.release();
         this.client = null;
+        this.monitor_client.release();
+        this.monitor_client = null;
     },
 
     setup: function() {
@@ -1258,7 +1265,9 @@ PageStorageDetail.prototype = {
         var id = shell.get_page_param("id");
 
         /* TODO: This code needs to be migrated away from old dbus */
-        this.client = shell.dbus(null);
+        this.client = shell.dbus(null, {"service" : "com.redhat.Cockpit.Storage",
+                                        "object-manager" : "/com/redhat/Cockpit/Storage"});
+        this.monitor_client = shell.dbus(null);
         watch_jobs(this.client);
 
         this._drive = null;

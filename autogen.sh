@@ -35,6 +35,10 @@ PKG_NAME="Cockpit"
 olddir=$(pwd)
 cd $srcdir
 
+if ! test -f storaged/README; then
+    git submodule update --init
+fi
+
 (
 	cd tools
 	npm install # see tools/package.json
@@ -45,6 +49,13 @@ rm -rf autom4te.cache
 autoreconf -f -i -I tools
 
 intltoolize --force --copy || exit $?
+
+(
+  cd storaged
+  rm -rf autom4te.cache
+  autoreconf -f -i
+  intltoolize --force --copy || exit $?
+)
 
 set +x
 
@@ -62,7 +73,7 @@ fi
 
 if test -z "${NOCONFIGURE:-}"; then
     cd $olddir
-    $srcdir/configure --enable-maintainer-mode ${AUTOGEN_CONFIGURE_ARGS:-} "$@" || exit $?
+    $srcdir/configure storaged_prefix="cockpit-" --enable-maintainer-mode ${AUTOGEN_CONFIGURE_ARGS:-} "$@" || exit $?
 
     echo
     echo "Now type 'make' to compile $PKG_NAME."

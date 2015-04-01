@@ -632,6 +632,8 @@ class QemuMachine(Machine):
         if tty:
             # Used by the qemu maintenance console
             return subprocess.Popen(cmd)
+        elif self.verbose:
+            return subprocess.Popen(cmd, stdin=open("/dev/null"))
         else:
             return subprocess.Popen(cmd, stdout=open("run/qemu-%s-%s.log" % (self.label, self.macaddr), "w"), stdin=open("/dev/null"))
 

@@ -40,7 +40,6 @@ Source1:        cockpit.pam
 
 BuildRequires: pkgconfig(gio-unix-2.0)
 BuildRequires: pkgconfig(json-glib-1.0)
-BuildRequires: pkgconfig(udisks2) >= 2.1.0
 BuildRequires: pkgconfig(libsystemd-daemon)
 BuildRequires: pkgconfig(polkit-agent-1) >= 0.105
 BuildRequires: pam-devel

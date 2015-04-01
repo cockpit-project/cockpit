@@ -8,7 +8,7 @@ echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" 
 # them to not spontaneously change from one test run to the next when
 # the distribution repository is updated.
 #
-COCKPIT_DEPS="udisks2 libudisks2 json-glib realmd lvm2 mdadm glib-networking libssh storaged selinux-policy-targeted docker-io pcp-libs pcp kubernetes subscription-manager"
+COCKPIT_DEPS="udisks2 json-glib realmd lvm2 mdadm glib-networking libssh storaged selinux-policy-targeted docker-io pcp-libs pcp kubernetes subscription-manager"
 
 # We also install the packages necessary to join a FreeIPA domain so
 # that we don't have to go to the network during a test run.

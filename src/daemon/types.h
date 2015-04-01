@@ -23,9 +23,6 @@
 #include <glib-unix.h>
 #include <gio/gio.h>
 
-#define UDISKS_API_IS_SUBJECT_TO_CHANGE
-#include <udisks/udisks.h>
-
 #include "common/cockpittypes.h"
 #include "common/cockpitenums.h"
 #include "common/cockpiterror.h"

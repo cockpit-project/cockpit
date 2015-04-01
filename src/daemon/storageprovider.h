@@ -21,6 +21,7 @@
 #define COCKPIT_STORAGE_PROVIDER_H__
 
 #include "types.h"
+#include "udisksclient.h"
 
 G_BEGIN_DECLS
 

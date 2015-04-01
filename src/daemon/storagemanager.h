@@ -21,6 +21,7 @@
 #define COCKPIT_STORAGE_MANAGER_H__
 
 #include "types.h"
+#include "org.freedesktop.UDisks2.h"
 
 G_BEGIN_DECLS
 

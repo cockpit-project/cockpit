@@ -89,7 +89,7 @@ systemd:
 
 This will cause systemd to listen on port 9090 and start cockpit-ws
 when someone connects to it.  Cockpit-ws will in turn activate
-cockpitd via D-Bus when someone logs in successfully.
+cockpit-bridge when someone logs in successfully.
 
 To run Cockpit without systemd, start the cockpit-ws daemon manually:
 
@@ -185,7 +185,7 @@ enabled when trying to track down a problem. To turn it on add a file
 to your system like this:
 
     $ sudo mkdir -p /etc/systemd/system/cockpit.service.d
-    $ sudo printf "[Service]\nEnvironment=G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-bridge\nUser=root\nGroup=\n" > /etc/systemd/system/cockpit.service.d/debug.conf
+    $ sudo printf "[Service]\nEnvironment=G_MESSAGES_DEBUG=cockpit-ws,cockpit-wrapper,cockpit-bridge\nUser=root\nGroup=\n" > /etc/systemd/system/cockpit.service.d/debug.conf
     $ sudo systemctl daemon-reload
     $ sudo systemctl restart cockpit
 
@@ -193,7 +193,7 @@ In the above command you'll notice the string "cockpit-ws". This is a log
 domain. There are various log domains you can enable:
 
  * cockpit-bridge: Cockpit bridge detailed debug messages
- * cockpit-daemon: Cockpit DBus daemon detailed debug messages
+ * cockpit-wrapper: Cockpit DBus wrapper detailed debug messages
  * cockpit-protocol: Very verbose low level traffic logging
  * cockpit-ws: Cockpit Web Service detailed debug messages
  * WebSocket: Verbose low level WebSocket logging
@@ -230,13 +230,13 @@ some of the right bits being installed in order for Cockpit to work
 This is how you would run cockpit-ws under gdb:
 
     $ export G_DEBUG=fatal-criticals
-    $ export G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-bridge
+    $ export G_MESSAGES_DEBUG=cockpit-ws,cockpit-wrapper,cockpit-bridge
     $ gdb --args ./cockpit-ws --port 10000 --no-tls
 
 And you can run cockpit-ws and cockpit-bridge under valgrind like this:
 
     $ export G_DEBUG=fatal-criticals
-    $ export G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-bridge
+    $ export G_MESSAGES_DEBUG=cockpit-ws,cockpit-wrapper,cockpit-bridge
     $ valgrind --trace-children=yes --trace-children-skip='*unix_chkpwd*' \
           ./cockpit-ws --port 10000 --no-tls
 

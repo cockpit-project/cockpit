@@ -868,7 +868,7 @@ class TestStorage(MachineCase):
         m.execute("cryptsetup luksClose dm-test")
         m.execute("lvchange TEST/lvol -a n")
 
-        # Restart cockpitd by logging in again
+        # Restart cockpit-wrapper by logging in again
         self.allow_restart_journal_messages()
         b.relogin('storage')
 

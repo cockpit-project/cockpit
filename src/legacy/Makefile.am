@@ -1,4 +1,4 @@
-libexec_PROGRAMS += cockpitd
+libexec_PROGRAMS += cockpit-wrapper
 
 dbus_built_sources = cockpit-generated.h cockpit-generated.c
 
@@ -46,10 +46,10 @@ com.redhat.lvm2.c : Makefile.am src/legacy/com.redhat.lvm2.xml
 BUILT_SOURCES += $(lvm_dbus_built_sources)
 CLEANFILES += $(lvm_dbus_built_sources)
 
-noinst_LIBRARIES += libcockpitd.a
+noinst_LIBRARIES += libcockpit-legacy.a
 
-nodist_libcockpitd_a_SOURCES = $(lvm_dbus_built_sources) $(udisks_built_sources)
-libcockpitd_a_SOURCES = \
+nodist_libcockpit_legacy_a_SOURCES = $(lvm_dbus_built_sources) $(udisks_built_sources)
+libcockpit_legacy_a_SOURCES = \
 	src/legacy/types.h \
 	src/legacy/daemon.h \
 	src/legacy/daemon.c \
@@ -103,25 +103,25 @@ libcockpitd_a_SOURCES = \
 	src/legacy/udisksclient.c \
 	$(NULL)
 
-libcockpitd_a_CFLAGS = \
-	-DG_LOG_DOMAIN=\"cockpit-daemon\" \
-	$(COCKPIT_DAEMON_CFLAGS) \
+libcockpit_legacy_a_CFLAGS = \
+	-DG_LOG_DOMAIN=\"cockpit-wrapper\" \
+	$(COCKPIT_WRAPPER_CFLAGS) \
 	$(NULL)
 
-cockpitd_SOURCES = \
+cockpit_wrapper_SOURCES = \
 	src/legacy/main.c \
 	$(NULL)
 
-cockpitd_CFLAGS = 					\
+cockpit_wrapper_CFLAGS = \
 	-I$(top_srcdir)/src/legacy			\
-	-DG_LOG_DOMAIN=\"cockpit-daemon\" \
-	$(COCKPIT_DAEMON_CFLAGS)			\
+	-DG_LOG_DOMAIN=\"cockpit-wrapper\" \
+	$(COCKPIT_WRAPPER_CFLAGS) \
 	$(NULL)
 
-cockpitd_LDADD = 					\
-	libcockpitd.a \
+cockpit_wrapper_LDADD = \
+	libcockpit-legacy.a \
 	libcockpit-common.a \
-	$(COCKPIT_DAEMON_LIBS) \
+	$(COCKPIT_WRAPPER_LIBS) \
 	-lm 						\
 	$(NULL)
 
@@ -147,8 +147,8 @@ CLEANFILES += \
 DAEMON_CHECKS = \
 	test-cgroupmonitor
 test_cgroupmonitor_SOURCES = src/legacy/test-cgroupmonitor.c
-test_cgroupmonitor_CFLAGS = $(libcockpitd_a_CFLAGS)
-test_cgroupmonitor_LDADD = $(cockpitd_LDADD)
+test_cgroupmonitor_CFLAGS = $(libcockpit_legacy_a_CFLAGS)
+test_cgroupmonitor_LDADD = $(cockpit_wrapper_LDADD)
 
 noinst_PROGRAMS += $(DAEMON_CHECKS)
 TESTS += $(DAEMON_CHECKS)

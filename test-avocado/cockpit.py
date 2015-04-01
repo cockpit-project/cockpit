@@ -172,7 +172,7 @@ class Test(test.Test):
 
     def check_journal_messages(self):
         """Check for unexpected journal entries."""
-        syslog_ids = [ "cockpitd", "cockpit-ws", "cockpit-session" ]
+        syslog_ids = [ "cockpit-wrapper", "cockpit-ws", "cockpit-session" ]
         messages = self.journal_messages(syslog_ids, 5)
         messages += self.audit_messages("14") # 14xx is selinux
         all_found = True

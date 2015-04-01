@@ -79,7 +79,6 @@ BuildRequires: sed
 BuildRequires: xmlto
 
 Requires: %{name}-bridge = %{version}-%{release}
-Requires: %{name}-daemon = %{version}-%{release}
 Requires: %{name}-ws = %{version}-%{release}
 Requires: %{name}-shell = %{version}-%{release}
 %ifarch x86_64 armv7hl
@@ -91,6 +90,8 @@ Requires: %{name}-subscriptions = %{version}-%{release}
 %if %{defined selinux}
 Requires: %{name}-selinux-policy = %{version}-%{release}
 %endif
+Provides: %{name}-daemon
+Obsoletes: %{name}-daemon < 0.48
 
 %description
 Cockpit runs in a browser and can manage your network of GNU/Linux
@@ -102,19 +103,6 @@ Summary: Cockpit bridge server-side component
 %description bridge
 The Cockpit bridge component installed server side and runs commands on the
 system on behalf of the web based user interface.
-
-%package daemon
-Summary: Deprecated wrappers for various configuration APIs
-Requires: udisks2 >= 2.1.0
-Requires: mdadm
-Requires: lvm2
-Requires: realmd
-Requires: storaged
-
-%description daemon
-Summary: Deprecated wrappers for various configuration APIs such as udisks2.
-Soon these will be accessed directly from the cockpit
-user interface, and this package will disappear.
 
 %package doc
 Summary: Cockpit deployment and developer guide
@@ -139,6 +127,11 @@ Requires: NetworkManager
 Requires: shadow-utils
 Requires: grep
 Requires: /usr/bin/date
+Requires: udisks2 >= 2.1.0
+Requires: mdadm
+Requires: lvm2
+Requires: realmd
+Requires: storaged
 Provides: %{name}-assets
 Obsoletes: %{name}-assets < 0.32
 BuildArch: noarch
@@ -253,12 +246,9 @@ rm -rf %{buildroot}/debug
 %doc %{_mandir}/man1/cockpit-bridge.1.gz
 %{_bindir}/cockpit-bridge
 %attr(4755, -, -) %{_libexecdir}/cockpit-polkit
+%{_libexecdir}/cockpit-wrapper
 %{_libdir}/security/pam_reauthorize.so
-
-%files daemon
-%doc %{_mandir}/man8/cockpitd.8.gz
 %{_datadir}/dbus-1/services/com.redhat.Cockpit.service
-%{_libexecdir}/cockpitd
 
 %files doc
 %exclude %{_docdir}/%{name}/AUTHORS

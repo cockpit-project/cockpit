@@ -1502,9 +1502,7 @@ cockpit_ssh_transport_new (const gchar *host,
  * can't detect that reliably, you really should only
  * be calling this after the transport closes.
  *
- * The host key is a opaque string.  You can pass it to the AddMachine
- * method of cockpitd, for example, but you should not try to
- * interpret it.
+ * The host key is a opaque string.
  *
  * Returns: (transfer none): the host key
  */

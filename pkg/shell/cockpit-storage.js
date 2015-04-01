@@ -451,6 +451,20 @@ PageStorage.prototype = {
         this.mount_monitor = this.client.get("/com/redhat/Cockpit/MountMonitor",
                                              "com.redhat.Cockpit.MultiResourceMonitor");
         $(this.mount_monitor).on('NewSample.storage', render_mount_samples);
+
+        function update_requirements() {
+            var manager = self.client.lookup("/com/redhat/Cockpit/Storage/Manager",
+                                             "com.redhat.Cockpit.Storage.Manager");
+
+            if (!manager || !manager.HaveUDisks || !manager.HaveStoraged) {
+                $('#storage').children().hide();
+                $("#storage-not-supported").show();
+            }
+        }
+        if (this.client.state == "ready")
+            update_requirements();
+        else
+            $(this.client).on("state-change", update_requirements);
     },
 
     show: function() {

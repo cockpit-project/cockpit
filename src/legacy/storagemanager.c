@@ -124,8 +124,7 @@ storage_manager_constructed (GObject *_object)
   storage_manager->udisks = udisks_client_new_sync (NULL, &error);
   if (storage_manager->udisks == NULL)
     {
-      g_warning ("Error connecting to udisks: %s (%s, %d)",
-                 error->message, g_quark_to_string (error->domain), error->code);
+      g_message ("error connecting to udisks: %s", error->message);
       g_clear_error (&error);
     }
 
@@ -138,15 +137,24 @@ storage_manager_constructed (GObject *_object)
                                         &error);
   if (storage_manager->lvm_manager == NULL)
     {
-      g_warning ("Error connecting to storaged: %s (%s, %d)",
-                 error->message, g_quark_to_string (error->domain), error->code);
+      g_message ("error connecting to storaged: %s", error->message);
       g_clear_error (&error);
     }
 
   g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (storage_manager->lvm_manager), G_MAXINT);
 
-  if (G_OBJECT_CLASS (storage_manager_parent_class)->constructed != NULL)
-    G_OBJECT_CLASS (storage_manager_parent_class)->constructed (_object);
+  cockpit_storage_manager_set_have_udisks (COCKPIT_STORAGE_MANAGER (storage_manager),
+                                           storage_manager->udisks != NULL &&
+                                           g_dbus_object_manager_client_get_name_owner (
+                                               G_DBUS_OBJECT_MANAGER_CLIENT (
+                                                      udisks_client_get_object_manager (storage_manager->udisks))));
+
+  cockpit_storage_manager_set_have_storaged (COCKPIT_STORAGE_MANAGER (storage_manager),
+                                             storage_manager->lvm_manager != NULL &&
+                                             g_dbus_proxy_get_name_owner (
+                                                  G_DBUS_PROXY (storage_manager->lvm_manager)));
+
+  G_OBJECT_CLASS (storage_manager_parent_class)->constructed (_object);
 }
 
 static void

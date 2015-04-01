@@ -187,6 +187,9 @@
   -->
   <interface name="com.redhat.Cockpit.Storage.Manager">
 
+    <property name="HaveUDisks" type="b" access="read"/>
+    <property name="HaveStoraged" type="b" access="read"/>
+
     <!--
         MDRaidCreate:
         @blocks: An array of object paths to objects implementing the #com.redhat.Cockpit.Storage.Block interface.

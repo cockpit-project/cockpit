@@ -381,14 +381,6 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        # HACK: MDRAID is broken in kernel-4.0.0-0.rc3.git0.1.fc22.x86_64
-        # fixed in kernel-4.0.0-0.rc4.git1.3.fc22.
-        #
-        # https://bugzilla.redhat.com/show_bug.cgi?id=1202362
-        #
-        if "4.0.0-0.rc3.git0.1.fc22" in m.execute("uname -r"):
-            return
-
         self.login_and_go("storage", href="/storage/devices")
         b.wait_in_text("#storage_drives", "VirtIO")
 

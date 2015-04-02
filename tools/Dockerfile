@@ -1,7 +1,7 @@
 FROM fedora:21
 MAINTAINER "Stef Walter" <stefw@redhat.com>
 
-RUN yum -y update && yum clean all
+RUN yum -y update && yum install -y sed openssl && yum clean all
 
 # A repo where we can find recent Cockpit builds for Fedora
 ADD cockpit-preview.repo /etc/yum.repos.d/
@@ -19,8 +19,13 @@ RUN cd /tmp && \
 
 # And the stuff that starts the container
 RUN mkdir -p /container && ln -s /host/proc/1 /container/target-namespace
-ADD cockpit-container-run /container/cockpit-run
+ADD atomic-* /container/
+RUN chmod -v +x /container/atomic-*
+
+LABEL INSTALL /usr/bin/docker run -ti --rm --privileged -v /:/host IMAGE /container/atomic-install
+LABEL UNINSTALL /usr/bin/docker run -ti --rm --privileged -v /:/host IMAGE /cockpit/atomic-uninstall
+LABEL RUN /usr/bin/docker run -d --privileged --pid=host -v /:/host IMAGE /container/atomic-run --local-ssh
 
 # Look ma, no EXPOSE
 
-CMD ["/container/cockpit-run"]
+CMD ["/container/atomic-run"]

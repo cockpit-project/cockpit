@@ -55,6 +55,16 @@ function esc_id_attr(str) {
     return shell.esc(str).replace(/ /g, "&#20;").replace(/\x09/g, "&#09;").replace(/\x0a/g, "&#0a;").replace(/\x0c/g, "&#0c;").replace(/\x0d/g, "&#0d;");
 }
 
+var _hostnamed = null;
+function hostnamed() {
+    var client;
+    if (!_hostnamed) {
+        client = cockpit.dbus("org.freedesktop.hostname1");
+        _hostnamed = client.proxy();
+    }
+    return _hostnamed;
+}
+
 var active_targets = [ ];
 
 function job_target_class(target) {
@@ -1003,8 +1013,7 @@ function block_go(block)
     }
 }
 
-function block_get_link_desc(block)
-{
+function block_get_link_desc(block) {
     var is_part = false;
     var is_crypt = false;
     var link = null;
@@ -1103,13 +1112,10 @@ function raid_get_desc(raid)
     if (parts.length != 2)
         return raid.Name;
 
-    var manager = raid._client.lookup("/com/redhat/Cockpit/Manager",
-                                      "com.redhat.Cockpit.Manager");
-
-    if (manager && parts[0] == manager.StaticHostname)
+    if (parts[0] == hostnamed().StaticHostname)
         return parts[1];
     else
-        return cockpit.format(_("$name (on $host)"),
+        return cockpit.format(_("$name (from $host)"),
                  { name: parts[1],
                    host: parts[0]
                  });

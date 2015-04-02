@@ -143,6 +143,9 @@ PageServer.prototype = {
     _init: function() {
         this.id = "server";
         this.server_time = null;
+        this.os_file_name = "/etc/os-release";
+        this.client = null;
+        this.hostname_proxy = null;
     },
 
     getTitle: function() {
@@ -162,9 +165,6 @@ PageServer.prototype = {
                     { title: _("Shutdown"),        action: 'shutdown' },
                   ])
         );
-
-        $('#server-avatar').on('click', $.proxy (this, "trigger_change_avatar"));
-        $('#server-avatar-uploader').on('change', $.proxy (this, "change_avatar"));
 
         $('#system_information_hostname_button').on('click', function () {
             PageSystemInformationChangeHostname.client = self.client;
@@ -188,14 +188,34 @@ PageServer.prototype = {
     enter: function() {
         var self = this;
 
-        /* TODO: Need to migrate away from old dbus */
-        self.client = shell.dbus(null);
+        self.client = cockpit.dbus('org.freedesktop.hostname1');
+        self.hostname_proxy = self.client.proxy('org.freedesktop.hostname1',
+                                     '/org/freedesktop/hostname1');
+        self.kernel_hostname = null;
 
-        self.manager = self.client.get("/com/redhat/Cockpit/Manager",
-                                       "com.redhat.Cockpit.Manager");
-        $(self.manager).on('AvatarChanged.server', $.proxy (this, "update_avatar"));
+        // HACK: We really should use OperatingSystemPrettyName
+        // from hostname1 here. Once we require system > 211
+        // we should change this.
+        function parse_pretty_name(data, tag, ex) {
+            if (ex)
+                console.warn("couldn't load os data: " + ex);
 
-        $('#server-avatar').attr('src', "images/server-large.png");
+            var lines = data.split("\n");
+            for (var i = 0; i < lines.length; i++) {
+                var parts = lines[i].split("=");
+                if (parts[0] === "PRETTY_NAME") {
+                    var text = parts[1];
+                    try {
+                        text = JSON.parse(text);
+                    } catch (e) {}
+                    $("#system_information_os_text").text(text);
+                    break;
+                }
+            }
+        }
+
+        self.os_file = cockpit.file(self.os_file_name);
+        self.os_file.watch(parse_pretty_name);
 
         var monitor;
         var series;
@@ -290,20 +310,6 @@ PageServer.prototype = {
                 self.memory_plot.set_options(memory_options);
             });
 
-        self.update_avatar ();
-
-        function bindf(sel, object, prop, func) {
-            function update() {
-                $(sel).text(func(object[prop]));
-            }
-            $(object).on('notify:' + prop + '.server', update);
-            update();
-        }
-
-        function bind(sel, object, prop) {
-            bindf(sel, object, prop, function (s) { return s; });
-        }
-
         /*
          * Parses output like:
          *
@@ -345,23 +351,31 @@ PageServer.prototype = {
                 debug("couldn't read serial dmi info: " + ex);
             });
 
-        bind("#system_information_os_text", self.manager, "OperatingSystem");
-
         function hostname_text() {
-            var pretty_hostname = self.manager.PrettyHostname;
-            var static_hostname = self.manager.StaticHostname;
-            var str;
-            if (!pretty_hostname || pretty_hostname == static_hostname)
-                str = static_hostname;
-            else
+            var pretty_hostname = self.hostname_proxy.PrettyHostname;
+            var static_hostname = self.hostname_proxy.StaticHostname;
+
+            var str = self.kernel_hostname;
+            if (pretty_hostname && static_hostname && static_hostname != pretty_hostname)
                 str = pretty_hostname + " (" + static_hostname + ")";
-            if (str === "")
+            else if (static_hostname)
+                str = static_hostname;
+
+            if (!str)
                 str = _("Set Host name");
-	    return str;
+            $("#system_information_hostname_button").text(str);
         }
 
-        bindf("#system_information_hostname_button", self.manager, "StaticHostname", hostname_text);
-        bindf("#system_information_hostname_button", self.manager, "PrettyHostname", hostname_text);
+        cockpit.spawn(["hostname"], { err: "ignore" })
+            .done(function(output) {
+                self.kernel_hostname = $.trim(output);
+                hostname_text();
+            })
+            .fail(function(ex) {
+                hostname_text();
+                debug("couldn't read kernel hostname: " + ex);
+            });
+        $(self.hostname_proxy).on("changed", hostname_text);
     },
 
     show: function() {
@@ -379,40 +393,19 @@ PageServer.prototype = {
         self.disk_plot.destroy();
         self.network_plot.destroy();
 
-        $(self.manager).off('.server');
-        self.manager = null;
-        $(self.client).off('.server');
-        self.client.release();
+        self.os_file.close();
+        self.os_file = null;
+
+        $(self.hostname_proxy).off();
+        self.hostname_proxy = null;
+
+        self.client.close();
         self.client = null;
     },
 
     shutdown: function(action_type) {
         PageShutdownDialog.type = action_type;
         $('#shutdown-dialog').modal('show');
-    },
-
-    update_avatar: function () {
-        this.manager.call('GetAvatarDataURL', function (error, result) {
-            if (result)
-                $('#server-avatar').attr('src', result);
-        });
-    },
-
-    trigger_change_avatar: function() {
-        if (window.File && window.FileReader)
-            $('#server-avatar-uploader').trigger('click');
-    },
-
-    change_avatar: function() {
-        var me = this;
-        shell.show_change_avatar_dialog('#server-avatar-uploader',
-                                           function (data) {
-                                               me.manager.call('SetAvatarDataURL', data,
-                                                               function (error) {
-                                                                   if (error)
-                                                                       shell.show_unexpected_error(error);
-                                                               });
-                                           });
     },
 };
 
@@ -436,10 +429,10 @@ PageSystemInformationChangeHostname.prototype = {
     enter: function() {
         var self = this;
 
-        self.manager = PageSystemInformationChangeHostname.client.get("/com/redhat/Cockpit/Manager",
-                                                                      "com.redhat.Cockpit.Manager");
-        self._initial_hostname = self.manager.StaticHostname || "";
-        self._initial_pretty_hostname = self.manager.PrettyHostname || "";
+        self.hostname_proxy = PageSystemInformationChangeHostname.client.proxy();
+
+        self._initial_hostname = self.hostname_proxy.StaticHostname || "";
+        self._initial_pretty_hostname = self.hostname_proxy.PrettyHostname || "";
         $("#sich-pretty-hostname").val(self._initial_pretty_hostname);
         $("#sich-hostname").val(self._initial_hostname);
 
@@ -452,6 +445,7 @@ PageSystemInformationChangeHostname.prototype = {
     },
 
     leave: function() {
+        this.hostname_proxy = null;
     },
 
     _on_apply_button: function(event) {
@@ -459,14 +453,18 @@ PageSystemInformationChangeHostname.prototype = {
 
         var new_full_name = $("#sich-pretty-hostname").val();
         var new_name = $("#sich-hostname").val();
-        self.manager.call("SetHostname",
-                          new_full_name, new_name, {},
-                          function(error, reply) {
-                              $("#system_information_change_hostname").modal('hide');
-                              if(error) {
-                                  shell.show_unexpected_error(error);
-                              }
-                          });
+
+        function on_done(resp) {
+            $("#system_information_change_hostname").modal('hide');
+        }
+        function on_fail(error) {
+            $("#system_information_change_hostname").modal('hide');
+            shell.show_unexpected_error(error);
+        }
+        self.hostname_proxy.call("SetStaticHostname", [new_name, true])
+                     .done(on_done).fail(on_fail);
+        self.hostname_proxy.call("SetPrettyHostname", [new_full_name, true])
+                     .done(on_done).fail(on_fail);
     },
 
     _on_full_name_changed: function(event) {

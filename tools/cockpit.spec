@@ -101,6 +101,7 @@ machines.
 
 %package bridge
 Summary: Cockpit bridge server-side component
+Requires: polkit
 
 %description bridge
 The Cockpit bridge component installed server side and runs commands on the

@@ -39,6 +39,11 @@ function update_hostname_privileged() {
     );
 }
 
+function debug() {
+    if (window.debugging == "all" || window.debugging == "system")
+        console.debug.apply(console, arguments);
+}
+
 $(shell.default_permission).on("changed", update_hostname_privileged);
 
 function ServerTime() {
@@ -326,7 +331,7 @@ PageServer.prototype = {
                                                             fields.product_name);
             })
             .fail(function(ex) {
-                console.warn("couldn't read dmi info: " + ex);
+                debug("couldn't read dmi info: " + ex);
             });
 
         cockpit.spawn(["grep", "\\w", "product_serial", "chassis_serial"],
@@ -337,8 +342,7 @@ PageServer.prototype = {
                                                              fields.chassis_serial);
             })
             .fail(function(ex) {
-                if (ex.problem != "access-denied")
-                    console.warn("couldn't read serial dmi info: " + ex);
+                debug("couldn't read serial dmi info: " + ex);
             });
 
         bind("#system_information_os_text", self.manager, "OperatingSystem");

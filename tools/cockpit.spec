@@ -87,9 +87,6 @@ Requires: %{name}-docker = %{version}-%{release}
 %if 0%{?rhel} && 0%{?centos} == 0
 Requires: %{name}-subscriptions = %{version}-%{release}
 %endif
-%if %{defined selinux}
-Requires: %{name}-selinux-policy = %{version}-%{release}
-%endif
 Provides: %{name}-daemon
 Obsoletes: %{name}-daemon < 0.48-2
 

@@ -631,7 +631,7 @@ storage_provider_constructed (GObject *_object)
   provider->lvm_objman =
     g_dbus_object_manager_client_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
                                                    0,
-                                                   "com.redhat.storaged",
+                                                   "com.redhat.Cockpit.LVM",
                                                    "/org/freedesktop/UDisks2",
                                                    lvm_get_proxy_type,
                                                    NULL,
@@ -684,7 +684,7 @@ storage_provider_constructed (GObject *_object)
   if (connection)
     {
       g_dbus_connection_signal_subscribe (connection,
-                                          "com.redhat.storaged",
+                                          "com.redhat.Cockpit.LVM",
                                           "org.freedesktop.DBus.Properties",
                                           "PropertiesChanged",
                                           NULL,

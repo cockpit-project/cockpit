@@ -62,7 +62,7 @@ po/po.%.js: po/%.po
 
 ACLOCAL_AMFLAGS = -I tools ${ACLOCAL_FLAGS}
 
-SUBDIRS = . po storaged
+SUBDIRS = . po
 
 DISTCHECK_CONFIGURE_FLAGS=						        \
 	--disable-debug \
@@ -228,6 +228,7 @@ include pkg/systemd/Makefile.am
 include src/bridge/Makefile.am
 include src/common/Makefile-common.am
 include src/legacy/Makefile.am
+include src/legacy/lvm/Makefile.am
 include src/websocket/Makefile-websocket.am
 include tools/Makefile-tools.am
 include src/ws/Makefile-ws.am

@@ -789,7 +789,7 @@ class QemuMachine(Machine):
         if os.path.exists(path):
             os.unlink(path)
 
-        subprocess.check_call(["qemu-img", "create", "-q", path, str(size)])
+        subprocess.check_call(["qemu-img", "create", "-q", "-f", "raw", path, str(size)])
 
         if speed:
             (unused, nbd) = tempfile.mkstemp(suffix='.nbd', prefix="disk-", dir=self.run_dir)

@@ -48,7 +48,15 @@ fi
 
 cd "$TEST_DATA/images"
 
-curl -s "$URL/$checksum_file" >"$checksum_file.remote"
+if ! curl -f -s "$URL/$checksum_file" -o "$checksum_file.remote"; then
+    if [ ! -f "$checksum_file" ]; then
+        echo Dowloading $URL/$checksum_file failed.
+        exit 1
+    else
+        echo Dowloading $URL/$checksum_file failed, using existing image.
+        exit 0
+    fi
+fi
 
 if [ -f "$checksum_file" ] && cmp "$checksum_file.remote" "$checksum_file"; then
     rm -f "$checksum_file.remote"

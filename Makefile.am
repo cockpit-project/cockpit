@@ -170,6 +170,8 @@ install-data-hook::
 	-chgrp wheel $(DESTDIR)$(localstatedir)/lib/cockpit
 	-chmod 775 $(DESTDIR)$(localstatedir)/lib/cockpit
 
+LATEST = latest/
+
 if ENABLE_DOC
 
 include doc/Makefile-doc.am

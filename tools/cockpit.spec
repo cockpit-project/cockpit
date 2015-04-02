@@ -153,7 +153,7 @@ subscription management.
 %package ws
 Summary: Cockpit Web Service
 Requires: glib-networking
-
+Requires: openssl
 Requires: glib2 >= 2.37.4
 Requires(post): systemd
 Requires(preun): systemd

@@ -71,7 +71,6 @@
     </button>
     <button class="btn btn-default btn-control btn-stop">
     </button>
-    <div class="waiting"></div>
 
     <h2>Dialog</h2>
 
@@ -149,16 +148,6 @@
       </div>
     </div>
 
-    <h2>Progress Bar</h2>
-
-    Patternfly doesn't have progress bars, so we fix them up.
-
-    <div class="progress" style="width: 200px;">
-        <div class="progress-bar" role="progressbar" style="width: 60%;">
-            60%
-        </div>
-    </div>
-
     <h2>Table Bar Graphs</h2>
 
     <p>This is a set of table bar graphs, all size related to one another.</p>
@@ -208,44 +197,6 @@
         </tr>
      </table>
 
-    <h2>Slider Selector</h2>
-
-    <p>A numeric selector: <span id="slider-value">?</span></p>
-
-    <div class="slider" value="0.5" id="slider" style="width: 30%;">
-        <div class="slider-bar">
-            <div class="slider-thumb"></div>
-        </div>
-        <div class="slider-bar">
-            <div class="slider-bar" style="width: 50%"></div>
-            <div class="slider-bar" style="width: 10%"></div>
-        </div>
-        <script>
-            $("#slider").on("change", function(event, value) {
-                $("#slider-value").text(value.toFixed(2));
-            });
-        </script>
-    </div>
-    <br>
-
-    <div class="slider" value="0.6" style="width: 30%;">
-        <div class="slider-bar">
-            <div class="slider-thumb"></div>
-        </div>
-        <div class="slider-bar" style="width: 40%">
-            <div class="slider-bar"></div>
-        </div>
-    </div>
-    <br>
-
-    <div class="slider" disabled="true" value="0.3" style="width: 30%;">
-        <div class="slider-bar">
-            <div class="slider-thumb"></div>
-        </div>
-        <div class="slider-bar" style="width: 40%">
-        </div>
-    </div>
-
     <h2>Panel</h2>
 
     Panels containing table data
@@ -267,39 +218,5 @@
         </tbody>
       </table>
     </div>
-
-    <h2>Panel for Journal</h2>
-    For the journal
-    <br/>
-    <div class="panel panel-default">
-      <div class="panel-heading">Date</div>
-      <div class="list-group">
-        <a href="#" class="list-group-item"><span class="cockpit-logident">App:</span><span class="cockpit-logmsg">Log message</span><span class="cockpit-logtime">time</span></a>
-        <a href="#" class="list-group-item"><span class="cockpit-logident">App:</span><span class="cockpit-logmsg">Log message</span><span class="cockpit-logtime">time</span></a>
-        <a href="#" class="list-group-item"><span class="cockpit-logident">App:</span><span class="cockpit-logmsg">Log message</span><span class="cockpit-logtime"><span class="badge">5</span>time</span></a>
-        <a href="#" class="list-group-item"><span class="cockpit-logident">App:</span><span class="cockpit-logmsg">Log message</span><span class="cockpit-logtime">time</span></a>
-        <a href="#" class="list-group-item list-group-item-warning"><span class="cockpit-logident">App:</span><span class="cockpit-logmsg">Log message</span><span class="cockpit-logtime"><span class="badge">42</span>time</span></a>
-        <a href="#" class="list-group-item"><span class="cockpit-logident">App:</span><span class="cockpit-logmsg">Log message</span><span class="cockpit-logtime">time</span></a>
-        <a href="#" class="list-group-item"><span class="cockpit-logident">App:</span><span class="cockpit-logmsg">Log message</span><span class="cockpit-logtime">time</span></a>
-      </div>
-
-      <div class="panel-heading">Date</div>
-      <div class="list-group">
-        <a href="#" class="list-group-item"><span class="cockpit-logident">App:</span><span class="cockpit-logmsg">Log message</span><span class="cockpit-logtime">time</span></a>
-        <a href="#" class="list-group-item"><span class="cockpit-logident">App:</span><span class="cockpit-logmsg">Log message</span><span class="cockpit-logtime">time</span></a>
-        <a href="#" class="list-group-item"><span class="cockpit-logident">App:</span><span class="cockpit-logmsg">Log message</span><span class="cockpit-logtime"><span class="badge">5</span>time</span></a>
-        <a href="#" class="list-group-item"><span class="cockpit-logident">App:</span><span class="cockpit-logmsg">Log message</span><span class="cockpit-logtime">time</span></a>
-        <a href="#" class="list-group-item list-group-item-warning"><span class="cockpit-logident">App:</span><span class="cockpit-logmsg">Log message</span><span class="cockpit-logtime"><span class="badge">42</span>time</span></a>
-        <a href="#" class="list-group-item"><span class="cockpit-logident">App:</span><span class="cockpit-logmsg">Log message</span><span class="cockpit-logtime">time</span></a>
-        <a href="#" class="list-group-item"><span class="cockpit-logident">App:</span><span class="cockpit-logmsg">Log message</span><span class="cockpit-logtime">time</span></a>
-      </div>
-    </div>
-
-  <h2>IPv4 address input</h2>
-    <div class="ipv4-address form-control">
-      <input type="text" placeholder="192" size="3" maxlength="3" type="number" pattern="[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]"> . <input type="text" placeholder="168" size="3" maxlength="3" type="number" pattern="[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]"> . <input type="text" placeholder="1" size="3" maxlength="3" type="number" pattern="[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]"> . <input type="text" placeholder="2" size="3" maxlength="3" type="number" pattern="[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]">
-    </div>
-    <br/><br/><br/>
-
   </body>
 </html>

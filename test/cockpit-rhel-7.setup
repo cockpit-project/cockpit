@@ -10,7 +10,7 @@ rm -rf ~/.rhel
 yum -y install wget yum-utils
 cd /etc/yum.repos.d
 
-# we need the cockpit-preview copr for storaged and updated glib2
+# we need the cockpit-preview copr for updated glib2
 wget -T 15 -t 4 https://copr.fedoraproject.org/coprs/sgallagh/cockpit-preview/repo/epel-7/sgallagh-cockpit-preview-epel-7.repo
 
 yum-config-manager --enable rhel-7-server-optional-rpms
@@ -43,7 +43,6 @@ pcp-libs \
 pcp \
 realmd \
 selinux-policy-targeted \
-storaged \
 subscription-manager \
 udisks2 \
 "

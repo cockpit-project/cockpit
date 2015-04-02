@@ -62,7 +62,7 @@ BuildRequires: systemd
 BuildRequires: polkit
 BuildRequires: pcp-libs-devel
 
-BuildRequires:  gobject-introspection-devel
+# For cockpit-lvm
 BuildRequires:  libgudev1-devel
 BuildRequires:  lvm2-devel
 BuildRequires:  polkit-devel
@@ -105,9 +105,6 @@ Summary: Cockpit bridge server-side component
 %description bridge
 The Cockpit bridge component installed server side and runs commands on the
 system on behalf of the web based user interface.
-Requires(post): systemd
-Requires(preun): systemd
-Requires(postun): systemd
 
 %package doc
 Summary: Cockpit deployment and developer guide
@@ -136,7 +133,6 @@ Requires: udisks2 >= 2.1.0
 Requires: mdadm
 Requires: lvm2
 Requires: realmd
-Requires: storaged
 Provides: %{name}-assets
 Obsoletes: %{name}-assets < 0.32
 BuildArch: noarch
@@ -175,7 +171,7 @@ The Cockpit Web Service listens on the network, and authenticates users.
 %if %{defined gitcommit}
 env NOCONFIGURE=1 ./autogen.sh
 %endif
-%configure storaged_prefix="cockpit-" --disable-static --disable-silent-rules --with-cockpit-user=cockpit-ws --with-branding=%{branding}
+%configure --disable-static --disable-silent-rules --with-cockpit-user=cockpit-ws --with-branding=%{branding}
 make -j1 %{?extra_flags} all
 %if %{defined selinux}
 make selinux
@@ -252,24 +248,14 @@ rm -rf %{buildroot}/debug
 %{_bindir}/cockpit-bridge
 %attr(4755, -, -) %{_libexecdir}/cockpit-polkit
 %{_libexecdir}/cockpit-wrapper
+%{_libexecdir}/cockpit-lvm
+%{_libexecdir}/cockpit-lvm-helper
 %{_libdir}/security/pam_reauthorize.so
 %{_datadir}/dbus-1/services/com.redhat.Cockpit.service
-%doc %{_mandir}/man8/cockpit-storaged.8.gz
-%{_unitdir}/cockpit-storaged.service
-%{_libdir}/cockpit-storaged
-%{_sysconfdir}/dbus-1/system.d/com.redhat.storaged.conf
-%{_datadir}/dbus-1/interfaces/com.redhat.lvm2.xml
-%{_datadir}/dbus-1/system-services/com.redhat.storaged.service
-%{_datadir}/polkit-1/actions/com.redhat.lvm2.policy
-
-%post bridge
-%systemd_post com.redhat.storaged.service
-
-%preun bridge
-%systemd_preun com.redhat.storaged.service
-
-%postun bridge
-%systemd_postun_with_restart com.redhat.storaged.service
+%{_sysconfdir}/dbus-1/system.d/com.redhat.Cockpit.LVM.conf
+%{_datadir}/dbus-1/system-services/com.redhat.Cockpit.LVM.service
+%{_datadir}/polkit-1/actions/com.redhat.Cockpit.LVM.policy
+%{_datadir}/cockpit/lvm-nolocking/lvm.conf
 
 %files doc
 %exclude %{_docdir}/%{name}/AUTHORS

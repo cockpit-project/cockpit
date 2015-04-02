@@ -31,8 +31,6 @@ AM_MAINTAINER_MODE([enable])
 
 AC_USE_SYSTEM_EXTENSIONS
 
-AC_CONFIG_SUBDIRS([storaged])
-
 AC_PROG_CC
 AC_PROG_CC_C99
 AC_PROG_RANLIB
@@ -114,6 +112,16 @@ COCKPIT_WRAPPER_LIBS="$COCKPIT_LIBS"
 AC_SUBST(COCKPIT_WRAPPER_CFLAGS)
 AC_SUBST(COCKPIT_WRAPPER_LIBS)
 
+PKG_CHECK_MODULES(LVM_DEPS, [polkit-gobject-1 >= 0.92
+			     $POLKIT_REQUIREMENT
+			     lvm2app
+			     gudev-1.0 >= 164])
+
+COCKPIT_LVM_CFLAGS="$COCKPIT_CFLAGS $GIO_CFLAGS $LVM_DEPS_CFLAGS"
+COCKPIT_LVM_LIBS="$COCKPIT_LIBS $GIO_LIBS $LVM_DEPS_LIBS"
+AC_SUBST(COCKPIT_LVM_CFLAGS)
+AC_SUBST(COCKPIT_LVM_LIBS)
+
 # whether to build cockpit-ws
 AC_ARG_ENABLE(ws, AC_HELP_STRING([--disable-ws], [Disable cockpit-ws build]))
 
@@ -135,17 +143,20 @@ fi
 AM_CONDITIONAL(WITH_COCKPIT_WS, test "$enable_ws" = "yes")
 
 # dbus session dir
-AC_MSG_CHECKING(for dbus session services directory)
+AC_MSG_CHECKING(for dbus service directories)
 if test "$enable_prefix_only" = "yes"; then
   dbusservicedir='${datadir}/dbus-1/services'
+  dbussystemdir='${datadir}/dbus-1/system-services'
 else
   dbusservicedir=$($PKG_CONFIG dbus-1 --variable=session_bus_services_dir)
-  if test "$dbusservicedir" = ""; then
-    AC_MSG_ERROR(Couldn't find dbus services directory. Try installing dbus-devel)
+  dbussystemdir=$($PKG_CONFIG dbus-1 --variable=system_bus_services_dir)
+  if test "$dbusservicedir" = "" -o "$dbussystemdir" = ""; then
+    AC_MSG_ERROR(Couldn't find dbus services directories. Try installing dbus-devel)
   fi
 fi
-AC_SUBST([dbusservicedir], [$dbusservicedir])
-AC_MSG_RESULT(dbusservicedir)
+AC_SUBST(dbusservicedir)
+AC_SUBST(dbussystemdir)
+AC_MSG_RESULT($dbusservicedir $dbussystemdir)
 
 # pam
 AC_CHECK_HEADER([security/pam_appl.h], ,
@@ -435,8 +446,8 @@ echo "
         datadir:                    ${datadir}
         sysconfdir:                 ${sysconfdir}
         localstatedir:              ${localstatedir}
-        systemdsystemunitdir:       ${systemdunitdir}
         dbusservicedir:             ${dbusservicedir}
+        dbussystemdir:              ${dbussystemdir}
         pamdir:                     ${pamdir}
 
         compiler:                   ${CC}

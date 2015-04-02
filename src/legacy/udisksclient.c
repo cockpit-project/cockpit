@@ -404,6 +404,39 @@ udisks_client_peek_object (UDisksClient  *client,
   return ret;
 }
 
+UDisksBlock *
+udisks_client_get_block_for_dev (UDisksClient *client,
+                                 dev_t         block_device_number)
+{
+  UDisksBlock *ret = NULL;
+  GList *l, *object_proxies = NULL;
+
+  g_return_val_if_fail (UDISKS_IS_CLIENT (client), NULL);
+
+  object_proxies = g_dbus_object_manager_get_objects (client->object_manager);
+  for (l = object_proxies; l != NULL; l = l->next)
+    {
+      UDisksObject *object = UDISKS_OBJECT (l->data);
+      UDisksBlock *block;
+
+      block = udisks_object_get_block (object);
+     if (block == NULL)
+        continue;
+
+      if (udisks_block_get_device_number (block) == block_device_number)
+        {
+          ret = block;
+          goto out;
+        }
+      g_object_unref (block);
+    }
+
+ out:
+  g_list_foreach (object_proxies, (GFunc) g_object_unref, NULL);
+  g_list_free (object_proxies);
+  return ret;
+}
+
 GList *
 udisks_client_get_block_for_label (UDisksClient        *client,
                                    const gchar         *label)

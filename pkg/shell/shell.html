@@ -99,7 +99,7 @@
           {{! state can be 'failed' or 'connected' }}
           <a data-address="{{address}}" class="list-group-item {{state}}"
               style="border-left-color: {{ color }};" target="_parent" href="/#/@{{address}}/system/host">
-            <button class="btn btn-danger edit-button servers-privileged pficon btn-delete pficon-delete"></button>
+            <button class="btn btn-danger edit-button servers-privileged pficon btn-delete pficon-delete delete-{{address}}"></button>
             <button class="btn btn-default edit-button servers-privileged pficon pficon-edit"></button>
             <img class="host-avatar" src="{{render_avatar}}">
             <span>{{label}}</span>

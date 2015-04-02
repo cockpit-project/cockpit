@@ -99,6 +99,7 @@ class TestDashboard(MachineCase):
         b2.login_and_go("dashboard", href="/dashboard/list", host=None)
         self.inject_extras(b2)
         self.wait_dashboard_addresses (b2, [ "localhost" ])
+        b.wait_present("#dashboard-hosts a:nth-child(1) button.pficon-delete.disabled")
 
         self.add_machine (b, m2.address)
         self.wait_dashboard_addresses (b, [ "localhost", m2.address ])

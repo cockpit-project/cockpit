@@ -1,6 +1,6 @@
 #! /bin/bash
 
-set -ex
+set -e
 
 create_images=
 make_rpms_opts=
@@ -36,8 +36,6 @@ require_binary trickle
 if ! silent $IP address show dev cockpit0; then
   sudo ./vm-prep
 fi
-
-set -x
 
 if [ -z "$create_images" ]; then
     ./vm-download -f cockpit

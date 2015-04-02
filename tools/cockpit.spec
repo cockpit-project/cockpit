@@ -18,6 +18,9 @@
 %if 0%{?rhel}
 %define selinux 1
 %endif
+%if 0%{?centos}
+%define rhel 0
+%endif
 
 Name:           cockpit
 %if %{defined gitcommit}
@@ -89,11 +92,9 @@ Requires: %{name}-shell = %{version}-%{release}
 %ifarch x86_64 armv7hl
 Requires: %{name}-docker = %{version}-%{release}
 %endif
-%if 0%{?rhel} && 0%{?centos} == 0
+%if 0%{?rhel}
 Requires: %{name}-subscriptions = %{version}-%{release}
 %endif
-Provides: %{name}-daemon
-Obsoletes: %{name}-daemon < 0.48-2
 
 %description
 Cockpit runs in a browser and can manage your network of GNU/Linux
@@ -101,6 +102,8 @@ machines.
 
 %package bridge
 Summary: Cockpit bridge server-side component
+Provides: %{name}-daemon
+Obsoletes: %{name}-daemon < 0.48-2
 
 %description bridge
 The Cockpit bridge component installed server side and runs commands on the
@@ -129,25 +132,25 @@ Requires: NetworkManager
 Requires: shadow-utils
 Requires: grep
 Requires: /usr/bin/date
-Requires: udisks2 >= 2.1.0
 Requires: mdadm
 Requires: lvm2
+%if 0%{?rhel} == 0
+Requires: udisks2 >= 2.1.0
 Requires: realmd
+%else
+Provides: %{name}-subscriptions = %{version}-%{release}
+Requires: subscription-manager >= 1.13
+%ifarch x86_64 armv7hl
+Provides: %{name}-docker = %{version}-%{release}
+Requires: docker
+%endif
+%endif
 Provides: %{name}-assets
 Obsoletes: %{name}-assets < 0.32
 BuildArch: noarch
 
 %description shell
 This package contains the Cockpit shell UI assets.
-
-%package subscriptions
-Summary: Cockpit subscription user interface package
-Requires: subscription-manager >= 1.13
-BuildArch: noarch
-
-%description subscriptions
-This package contains the Cockpit user interface integration with local
-subscription management.
 
 %package ws
 Summary: Cockpit Web Service
@@ -200,33 +203,47 @@ install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 %endif
 
 # Build the package lists for resource packages
-find %{buildroot}%{_datadir}/%{name}/base1 %{buildroot}%{_datadir}/%{name}/shell %{buildroot}%{_datadir}/%{name}/system %{buildroot}%{_datadir}/%{name}/domain -type f > shell.list
-find %{buildroot}%{_datadir}/%{name}/subscriptions -type f > subscriptions.list
+echo '%dir %{_datadir}/%{name}/base1' > shell.list
+find %{buildroot}%{_datadir}/%{name}/base1 -type f >> shell.list
 
-%ifnarch x86_64 armv7hl
-rm -rf %{buildroot}/%{_datadir}/%{name}/docker
-%endif # x86_64 armv7hl
+echo '%dir %{_datadir}/%{name}/shell' >> domain.list
+find %{buildroot}%{_datadir}/%{name}/domain -type f >> shell.list
 
-%ifnarch x86_64
-rm -rf %{buildroot}/%{_datadir}/%{name}/kubernetes
-%endif #x86_64
+echo '%dir %{_datadir}/%{name}/shell' >> shell.list
+find %{buildroot}%{_datadir}/%{name}/shell -type f >> shell.list
 
-%ifarch x86_64 armv7hl
-find %{buildroot}%{_datadir}/%{name}/docker -type f > docker.list
-%ifarch x86_64
-find %{buildroot}%{_datadir}/%{name}/kubernetes -type f > kubernetes.list
-%endif # x86_64
-%endif # x86_64 armv7hl
+echo '%dir %{_datadir}/%{name}/system' >> shell.list
+find %{buildroot}%{_datadir}/%{name}/system -type f >> shell.list
+
+echo '%dir %{_datadir}/%{name}/subscriptions' > subscriptions.list
+find %{buildroot}%{_datadir}/%{name}/subscriptions -type f >> subscriptions.list
+
+echo '%dir %{_datadir}/%{name}/docker' > docker.list
+find %{buildroot}%{_datadir}/%{name}/docker -type f >> docker.list
+
+echo '%dir %{_datadir}/%{name}/kubernetes' > kubernetes.list
+find %{buildroot}%{_datadir}/%{name}/kubernetes -type f >> kubernetes.list
 
 sed -i "s|%{buildroot}||" *.list
 
-# Build the package lists for debug package
+# Build the package lists for debug package, and move debug files to installed locations
 find %{buildroot}/debug%{_datadir}/%{name} -type f -o -type l > debug.list
 sed -i "s|%{buildroot}/debug||" debug.list
-
-# Move the debug files into place mixed in with the other files
 tar -C %{buildroot}/debug -cf - . | tar -C %{buildroot} -xf -
 rm -rf %{buildroot}/debug
+
+# On RHEL subscriptions and docker are part of the shell package
+%if 0%{?rhel}
+cat subscriptions.list docker.list >> shell.list
+%endif
+
+%ifnarch x86_64 armv7hl
+rm -rf %{buildroot}/%{_datadir}/%{name}/docker
+%endif
+
+%ifnarch x86_64
+rm -rf %{buildroot}/%{_datadir}/%{name}/kubernetes
+%endif
 
 # Redefine how debug info is built to slip in our extra debug files
 %define __debug_install_post   \
@@ -271,15 +288,6 @@ rm -rf %{buildroot}/debug
 ( cd /var/lib/pcp/pmns && ./Rebuild -du )
 
 %files shell -f shell.list
-%dir %{_datadir}/%{name}/base1
-%dir %{_datadir}/%{name}/base1/fonts
-%dir %{_datadir}/%{name}/base1/images
-%dir %{_datadir}/%{name}/shell
-%dir %{_datadir}/%{name}/shell/images
-%dir %{_datadir}/%{name}/system
-
-%files subscriptions -f subscriptions.list
-%dir %{_datadir}/%{name}/subscriptions
 
 %files ws
 %doc %{_mandir}/man5/cockpit.conf.5.gz
@@ -312,6 +320,19 @@ test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 
 # Conditionally built packages below
 
+%if 0%{?rhel} == 0
+
+%package subscriptions
+Summary: Cockpit subscription user interface package
+Requires: subscription-manager >= 1.13
+BuildArch: noarch
+
+%description subscriptions
+This package contains the Cockpit user interface integration with local
+subscription management.
+
+%files subscriptions -f subscriptions.list
+
 %ifarch x86_64 armv7hl
 
 %package docker
@@ -323,9 +344,13 @@ The Cockpit components for interacting with Docker and user interface.
 This package is not yet complete.
 
 %files docker -f docker.list
-%dir %{_datadir}/%{name}/docker
+
+%endif
+
+%endif
 
 %ifarch x86_64
+
 %package kubernetes
 Summary: Cockpit user interface for Kubernetes cluster
 Requires: kubernetes
@@ -335,9 +360,8 @@ The Cockpit components for visualizing and configuring a Kubernetes
 cluster. Installed on the Kubernetes master. This package is not yet complete.
 
 %files kubernetes -f kubernetes.list
-%dir %{_datadir}/%{name}/kubernetes
-%endif # x86_64
-%endif # x86_64 armv7hl
+
+%endif
 
 %if %{defined gitcommit}
 

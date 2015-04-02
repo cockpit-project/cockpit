@@ -77,9 +77,6 @@ echo foobar | passwd --stdin admin
 # To enable persistent logging
 mkdir -p /var/log/journal
 
-# We rely on the NetworkManager dispatcher, so let's make sure it is enabled.
-systemctl enable NetworkManager-dispatcher
-
 rm -rf /var/log/journal/*
 
 touch /.autorelabel

@@ -419,9 +419,6 @@ class QemuMachine(Machine):
         copy("identity.pub", "/root/.ssh/authorized_keys")
 
     def _setup_fedora_network(self,gf):
-        dispatcher = "/etc/NetworkManager/dispatcher.d/99-cockpit"
-        gf.write(dispatcher, QEMU_ADDR_SCRIPT)
-        gf.chmod(0755, dispatcher)
         ifcfg_eth0 = 'BOOTPROTO="dhcp"\nDEVICE="eth0"\nONBOOT="yes"\n'
         gf.write("/etc/sysconfig/network-scripts/ifcfg-eth0", ifcfg_eth0)
 
@@ -853,12 +850,6 @@ class QemuMachine(Machine):
         return mac
 
 TestMachine = QemuMachine
-
-QEMU_ADDR_SCRIPT = """#!/bin/sh
-if [ "$2" = "up" ]; then
-    /usr/sbin/ip addr show $1 | sed -En 's|.*\\binet ([^/ ]+).*|COCKPIT_ADDRESS=\\1|p' > /dev/console
-fi
-"""
 
 INSTALL_SCRIPT = """#!/bin/sh
 set -eu

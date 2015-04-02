@@ -46,11 +46,6 @@ if [ -f $f ] && ! grep -q TimeoutStopSec $f; then
   systemctl daemon-reload
 fi
 
-# We rely on the NetworkManager dispatcher, but it sometimes is
-# disabled after the update above.  So let's make sure it is enabled.
-#
-systemctl enable NetworkManager-dispatcher
-
 # https://bugzilla.redhat.com/show_bug.cgi?id=1057236
 sed -i -e 's/-u ntp:ntp //' /usr/lib/systemd/system/ntpd.service
 

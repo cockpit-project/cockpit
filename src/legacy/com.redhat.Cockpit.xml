@@ -23,45 +23,6 @@
   -->
 
   <!--
-      com.redhat.Cockpit.Manager:
-      @short_description: Manager singleton
-
-      Interface for top-level manager singleton object located at the
-      object path <literal>/com/redhat/Cockpit/Manager</literal>.
-  -->
-  <interface name="com.redhat.Cockpit.Manager">
-    <!-- Version: The version of the cockpit-wrapper instance currently running  -->
-    <property name="Version" type="s" access="read"/>
-
-    <!-- OperatingSystem: Human-readable string identifying the OS and version -->
-    <property name="OperatingSystem" type="s" access="read"/>
-
-    <!-- Hostname: The transient host name, see <ulink url="http://www.freedesktop.org/wiki/Software/systemd/hostnamed">systemd-hostnamed</ulink> for details -->
-    <property name="Hostname" type="s" access="read"/>
-
-    <!-- StaticHostname: The statically configured host name, see <ulink url="http://www.freedesktop.org/wiki/Software/systemd/hostnamed">systemd-hostnamed</ulink> for details -->
-    <property name="StaticHostname" type="s" access="read"/>
-
-    <!-- PrettyHostname: The pretty host name, see <ulink url="http://www.freedesktop.org/wiki/Software/systemd/hostnamed">systemd-hostnamed</ulink> for details -->
-    <property name="PrettyHostname" type="s" access="read"/>
-
-    <!--
-        SetHostname:
-        @pretty_hostname: Pretty Host Name to set
-        @static_hostname: Regular host name to set
-        @options: Currently unused.
-
-        Sets the host names.
-    -->
-    <method name="SetHostname">
-      <arg name="pretty_hostname" type="s" direction="in"/>
-      <arg name="static_hostname" type="s" direction="in"/>
-      <arg name="options" type="a{sv}" direction="in"/>
-    </method>
-
-  </interface>
-
-  <!--
       com.redhat.Cockpit.ResourceMonitor:
       @short_description: Resource Monitor
 

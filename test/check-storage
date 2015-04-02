@@ -88,7 +88,7 @@ class TestStorage(MachineCase):
         m.execute('parted -s /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL mkpart primary ext2 0 10')
         m.execute('udevadm settle')
         b.wait_in_text("#storage_detail_partition_list", "Partition")
-        m.execute('mke2fs /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL-part1')
+        m.execute('mke2fs -q /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL-part1')
         b.wait_in_text("#storage_detail_partition_list", "File System")
         b.go("storage")
         b.wait_in_text("#storage_drives", "MYSERIAL")
@@ -797,7 +797,7 @@ class TestStorage(MachineCase):
         m.execute("echo einszweidrei | cryptsetup luksFormat /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1-part1")
         m.execute("echo einszweidrei | cryptsetup luksOpen /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1-part1 dm-test")
         m.execute("udevadm settle")
-        m.execute("mke2fs -L TEST /dev/mapper/dm-test")
+        m.execute("mke2fs -q -L TEST /dev/mapper/dm-test")
         m.execute("mount /dev/mapper/dm-test /mnt")
 
         # Now all of /dev/mapper/dm-test, /dev/sda1, and /dev/sda should be 'in use'.
@@ -860,7 +860,7 @@ class TestStorage(MachineCase):
         m.execute("echo einszweidrei | cryptsetup luksFormat /dev/TEST/lvol")
         m.execute("echo einszweidrei | cryptsetup luksOpen /dev/TEST/lvol dm-test")
         m.execute("udevadm settle")
-        m.execute("mke2fs -L FS /dev/mapper/dm-test")
+        m.execute("mke2fs -q -L FS /dev/mapper/dm-test")
         m.execute("echo '/dev/mapper/dm-test /mount ext4 defaults 0 0' >>/etc/fstab")
         b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/mount")
 
@@ -907,7 +907,7 @@ mkpart logical ext2 1 25 \
 mkpart logical ext2 25 50"""
         m.execute("parted -s /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 " + script)
         m.execute("udevadm settle")
-        m.execute("mke2fs -L TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1-part5")
+        m.execute("mke2fs -q -L TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1-part5")
         b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "IdLabel", "TEST")
 
         b.click('#storage_create_raid')
@@ -932,7 +932,7 @@ mkpart logical ext2 25 50"""
         b.wait_in_text("#storage_drives", "VirtIO")
 
         self.add_disk("50M", "DISK1")
-        m.execute("mke2fs -L TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
+        m.execute("mke2fs -q -L TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
         b.wait_in_text("#storage_drives", "DISK1")
         b.wait_in_text("#storage_mounts", "TEST")
 

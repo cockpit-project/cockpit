@@ -499,7 +499,7 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
 
         function channel_closed(ev, options, desc) {
             real_time_channel = null;
-            if (options.problem)
+            if (options.problem && options.problem != "terminated" && options.problem != "disconnected")
                 console.log("problem retrieving " + desc + " metrics data: " + options.problem);
         }
 

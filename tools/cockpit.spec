@@ -62,6 +62,11 @@ BuildRequires: systemd
 BuildRequires: polkit
 BuildRequires: pcp-libs-devel
 
+BuildRequires:  gobject-introspection-devel
+BuildRequires:  libgudev1-devel
+BuildRequires:  lvm2-devel
+BuildRequires:  polkit-devel
+
 %if %{defined gitcommit}
 BuildRequires: npm
 BuildRequires: nodejs
@@ -103,6 +108,9 @@ Summary: Cockpit bridge server-side component
 %description bridge
 The Cockpit bridge component installed server side and runs commands on the
 system on behalf of the web based user interface.
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
 
 %package doc
 Summary: Cockpit deployment and developer guide
@@ -170,7 +178,7 @@ The Cockpit Web Service listens on the network, and authenticates users.
 %if %{defined gitcommit}
 env NOCONFIGURE=1 ./autogen.sh
 %endif
-%configure --disable-static --disable-silent-rules --with-cockpit-user=cockpit-ws --with-branding=%{branding}
+%configure storaged_prefix="cockpit-" --disable-static --disable-silent-rules --with-cockpit-user=cockpit-ws --with-branding=%{branding}
 make -j1 %{?extra_flags} all
 %if %{defined selinux}
 make selinux
@@ -249,6 +257,22 @@ rm -rf %{buildroot}/debug
 %{_libexecdir}/cockpit-wrapper
 %{_libdir}/security/pam_reauthorize.so
 %{_datadir}/dbus-1/services/com.redhat.Cockpit.service
+%doc %{_mandir}/man8/cockpit-storaged.8.gz
+%{_unitdir}/cockpit-storaged.service
+%{_libdir}/cockpit-storaged
+%{_sysconfdir}/dbus-1/system.d/com.redhat.storaged.conf
+%{_datadir}/dbus-1/interfaces/com.redhat.lvm2.xml
+%{_datadir}/dbus-1/system-services/com.redhat.storaged.service
+%{_datadir}/polkit-1/actions/com.redhat.lvm2.policy
+
+%post bridge
+%systemd_post com.redhat.storaged.service
+
+%preun bridge
+%systemd_preun com.redhat.storaged.service
+
+%postun bridge
+%systemd_postun_with_restart com.redhat.storaged.service
 
 %files doc
 %exclude %{_docdir}/%{name}/AUTHORS

@@ -37,10 +37,16 @@ rpm_tmpdir=$(mktemp -d -t rpmbuild.XXXXXX)
 # First make a .tar.gz with all the files tracked by Git
 (
     cd $base/..
+    git submodule --quiet update --init
     git archive HEAD --prefix cockpit-wip/ --output $rpm_tmpdir/cockpit-wip.tar
+    cd storaged
+    git archive --format=tar HEAD --prefix cockpit-wip/storaged/ --output $rpm_tmpdir/storage-wip.tar
+    cd $base/..
     if [ -d tools/node_modules ]; then
         tar -rf $rpm_tmpdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' tools/node_modules
     fi
+    tar -A --file $rpm_tmpdir/cockpit-wip.tar $rpm_tmpdir/storage-wip.tar
+    rm $rpm_tmpdir/storage-wip.tar
     gzip $rpm_tmpdir/cockpit-wip.tar
     cp test/cockpit.pam $rpm_tmpdir
     sed '1i\

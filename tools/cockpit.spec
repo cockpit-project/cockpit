@@ -104,6 +104,7 @@ machines.
 Summary: Cockpit bridge server-side component
 Provides: %{name}-daemon
 Obsoletes: %{name}-daemon < 0.48-2
+Requires: polkit
 
 %description bridge
 The Cockpit bridge component installed server side and runs commands on the

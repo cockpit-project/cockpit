@@ -47,7 +47,7 @@
         No additional options are currently defined.
     -->
     <method name="VolumeGroupCreate">
-      <annotation name="polkit.action_id" value="com.redhat.lvm2.manage-lvm"/>
+      <annotation name="polkit.action_id" value="com.redhat.Cockpit.manage-lvm"/>
       <annotation name="polkit.message" value="Authentication is required to delete a logical volume"/>
       <arg name="name" direction="in" type="s"/>
       <arg name="blocks" direction="in" type="ao"/>
@@ -170,7 +170,7 @@
          No additional options are currently defined.
     -->
     <method name="Delete">
-      <annotation name="polkit.action_id" value="com.redhat.lvm2.manage-lvm"/>
+      <annotation name="polkit.action_id" value="com.redhat.Cockpit.manage-lvm"/>
       <annotation name="polkit.message" value="Authentication is required to delete a volume group"/>
       <arg name="wipe" type="b" direction="in"/>
       <arg name="options" direction="in" type="a{sv}"/>
@@ -188,7 +188,7 @@
          No additional options are currently defined.
     -->
     <method name="Rename">
-      <annotation name="polkit.action_id" value="com.redhat.lvm2.manage-lvm"/>
+      <annotation name="polkit.action_id" value="com.redhat.Cockpit.manage-lvm"/>
       <annotation name="polkit.message" value="Authentication is required to rename a volume group"/>
       <arg name="new_name" type="s" direction="in"/>
       <arg name="options" direction="in" type="a{sv}"/>
@@ -203,7 +203,7 @@
          device will be wiped and all data on it will be lost.
     -->
     <method name="AddDevice">
-      <annotation name="polkit.action_id" value="com.redhat.lvm2.manage-lvm"/>
+      <annotation name="polkit.action_id" value="com.redhat.Cockpit.manage-lvm"/>
       <annotation name="polkit.message" value="Authentication is required to add a device to a volume group"/>
       <arg name="block" type="o" direction="in"/>
       <arg name="options" direction="in" type="a{sv}"/>
@@ -219,7 +219,7 @@
          No additional options are currently defined.
     -->
     <method name="EmptyDevice">
-      <annotation name="polkit.action_id" value="com.redhat.lvm2.manage-lvm"/>
+      <annotation name="polkit.action_id" value="com.redhat.Cockpit.manage-lvm"/>
       <annotation name="polkit.message" value="Authentication is required to empty a device in a volume group"/>
       <arg name="block" type="o" direction="in"/>
       <arg name="options" direction="in" type="a{sv}"/>
@@ -236,7 +236,7 @@
          No additional options are currently defined.
     -->
     <method name="RemoveDevice">
-      <annotation name="polkit.action_id" value="com.redhat.lvm2.manage-lvm"/>
+      <annotation name="polkit.action_id" value="com.redhat.Cockpit.manage-lvm"/>
       <annotation name="polkit.message" value="Authentication is required to remove a device from a volume group"/>
       <arg name="block" type="o" direction="in"/>
       <arg name="wipe" type="b" direction="in"/>
@@ -254,7 +254,7 @@
          No additional options are currently defined.
     -->
     <method name="CreatePlainVolume">
-      <annotation name="polkit.action_id" value="com.redhat.lvm2.manage-lvm"/>
+      <annotation name="polkit.action_id" value="com.redhat.Cockpit.manage-lvm"/>
       <annotation name="polkit.message" value="Authentication is required to create a logical volume"/>
       <arg name="name" type="s" direction="in"/>
       <arg name="size" type="t" direction="in"/>
@@ -274,7 +274,7 @@
          No additional options are currently defined.
     -->
     <method name="CreateThinPoolVolume">
-      <annotation name="polkit.action_id" value="com.redhat.lvm2.manage-lvm"/>
+      <annotation name="polkit.action_id" value="com.redhat.Cockpit.manage-lvm"/>
       <annotation name="polkit.message" value="Authentication is required to create a logical volume"/>
       <arg name="name" type="s" direction="in"/>
       <arg name="size" type="t" direction="in"/>
@@ -295,7 +295,7 @@
          No additional options are currently defined.
     -->
     <method name="CreateThinVolume">
-      <annotation name="polkit.action_id" value="com.redhat.lvm2.manage-lvm"/>
+      <annotation name="polkit.action_id" value="com.redhat.Cockpit.manage-lvm"/>
       <annotation name="polkit.message" value="Authentication is required to create a logical volume"/>
       <arg name="name" type="s" direction="in"/>
       <arg name="size" type="t" direction="in"/>
@@ -404,7 +404,7 @@
          No additional options are currently defined.
     -->
     <method name="Activate">
-      <annotation name="polkit.action_id" value="com.redhat.lvm2.manage-lvm"/>
+      <annotation name="polkit.action_id" value="com.redhat.Cockpit.manage-lvm"/>
       <annotation name="polkit.message" value="Authentication is required to activate a logical volume"/>
       <arg name="result" type="o" direction="out"/>
       <arg name="options" direction="in" type="a{sv}"/>
@@ -422,7 +422,7 @@
          No additional options are currently defined.
     -->
     <method name="Deactivate">
-      <annotation name="polkit.action_id" value="com.redhat.lvm2.manage-lvm"/>
+      <annotation name="polkit.action_id" value="com.redhat.Cockpit.manage-lvm"/>
       <annotation name="polkit.message" value="Authentication is required to deactivate a logical volume"/>
       <arg name="options" direction="in" type="a{sv}"/>
     </method>
@@ -441,7 +441,7 @@
          No additional options are currently defined.
     -->
     <method name="Delete">
-      <annotation name="polkit.action_id" value="com.redhat.lvm2.manage-lvm"/>
+      <annotation name="polkit.action_id" value="com.redhat.Cockpit.manage-lvm"/>
       <annotation name="polkit.message" value="Authentication is required to delete a logical volume"/>
       <arg name="options" direction="in" type="a{sv}"/>
     </method>
@@ -458,7 +458,7 @@
          No additional options are currently defined.
     -->
     <method name="Rename">
-      <annotation name="polkit.action_id" value="com.redhat.lvm2.manage-lvm"/>
+      <annotation name="polkit.action_id" value="com.redhat.Cockpit.manage-lvm"/>
       <annotation name="polkit.message" value="Authentication is required to rename a logical volume"/>
       <arg name="new_name" type="s" direction="in"/>
       <arg name="options" direction="in" type="a{sv}"/>
@@ -477,7 +477,7 @@
                             logical volume as well.  Default to 'false'.
     -->
     <method name="Resize">
-      <annotation name="polkit.action_id" value="com.redhat.lvm2.manage-lvm"/>
+      <annotation name="polkit.action_id" value="com.redhat.Cockpit.manage-lvm"/>
       <annotation name="polkit.message" value="Authentication is required to resize a logical volume"/>
       <arg name="new_size" type="t" direction="in"/>
       <arg name="options" type="a{sv}" direction="in"/>
@@ -503,7 +503,7 @@
          No additional options are currently defined.
     -->
     <method name="CreateSnapshot">
-      <annotation name="polkit.action_id" value="com.redhat.lvm2.manage-lvm"/>
+      <annotation name="polkit.action_id" value="com.redhat.Cockpit.manage-lvm"/>
       <annotation name="polkit.message" value="Authentication is required to resize a logical volume"/>
       <arg name="name" type="s" direction="in"/>
       <arg name="size" type="t" direction="in"/>

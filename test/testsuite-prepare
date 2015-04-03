@@ -54,10 +54,8 @@ fi
 if [ -n "$create_images" ]; then
     ./vm-reset
     ./vm-create -v -f cockpit
-    ./vm-create -v -f ipa
     unset TEST_DATA
     ./vm-save -f cockpit
-    ./vm-save -f ipa
 fi
 
 ./vm-reset

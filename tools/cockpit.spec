@@ -101,6 +101,7 @@ machines.
 
 %package bridge
 Summary: Cockpit bridge server-side component
+Requires: polkit
 
 %description bridge
 The Cockpit bridge component installed server side and runs commands on the
@@ -152,7 +153,7 @@ subscription management.
 %package ws
 Summary: Cockpit Web Service
 Requires: glib-networking
-
+Requires: openssl
 Requires: glib2 >= 2.37.4
 Requires(post): systemd
 Requires(preun): systemd

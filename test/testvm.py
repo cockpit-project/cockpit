@@ -166,8 +166,12 @@ class Machine:
                 "TEST_SETUP_ARGS": " ".join(args),
             }
             self.execute(script="/var/tmp/SETUP", environment=env)
+            self.post_setup()
         finally:
             self.stop()
+
+    def post_setup(self):
+        pass
 
     def run_selinux_relabel(self):
         """Boot an image the first time which allows relabeling"""
@@ -304,6 +308,25 @@ class Machine:
         self.message(" ".join(cmd))
         subprocess.check_call(cmd)
 
+    def download(self, source, dest):
+        """Download a file from the test machine.
+        """
+        assert source and dest
+        assert self.address
+
+        cmd = [
+            "scp",
+            "-i", self._calc_identity(),
+            "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null",
+            "root@%s:%s" % (self.address, source), dest
+        ]
+
+        self.message("Downloading", source)
+        self.message(" ".join(cmd))
+        subprocess.check_call([ "rm", "-rf", dest ])
+        subprocess.check_call(cmd)
+
     def download_dir(self, source, dest):
         """Download a directory from the test machine, recursively.
         """
@@ -384,6 +407,21 @@ class Machine:
             messages = [ ]
         return messages
 
+def highest_version(names, os):
+    # XXX - maybe use the "rpm" module.
+
+    if os == "fedora-21":
+        # HACK - Our fedora-21 image can only boot with the rescue
+        # kernel/initrd sine the real one has the wrong root disk hard
+        # coded into it, probably because I made the magic base
+        # tarball wrong.
+        return filter(lambda n: "rescue" in n, names)[0]
+    else:
+        names = filter(lambda n: not "rescue" in n, names)
+        sorted = subprocess.check_output("echo '%s' | rpmdev-sort" % "\n".join(names),
+                                         shell=True).split("\n")
+        sorted = filter(lambda n: not n == "", sorted)
+        return sorted[len(sorted)-1]
 
 class QemuMachine(Machine):
     macaddr_prefix = "52:54:00:9e:00"
@@ -494,17 +532,24 @@ class QemuMachine(Machine):
             self.message("Unpacking %s into %s" % (tarball, self._image_root))
             gf.tgz_in(tarball, "/")
 
-            kernels = gf.glob_expand ("/boot/vmlinuz-*")
-            initrds = gf.glob_expand ("/boot/initramfs-*")
-            self.message("Extracting:", kernels[0], initrds[0])
-            gf.download(kernels[0], self._image_kernel)
-            gf.download(initrds[0], self._image_initrd)
+            kernel = highest_version(gf.glob_expand("/boot/vmlinuz-*"), self.os)
+            initrd = highest_version(gf.glob_expand("/boot/initramfs-*"), self.os)
+            self.message("Extracting:", kernel, initrd)
+            gf.download(kernel, self._image_kernel)
+            gf.download(initrd, self._image_initrd)
 
             if modify_func:
                 modify_func(gf)
 
         finally:
             gf.close()
+
+    def post_setup(self):
+        kernel = highest_version(self.execute(command="ls -1 /boot/vmlinuz-*").split("\n"), self.os)
+        initrd = highest_version(self.execute(command="ls -1 /boot/initramfs-*").split("\n"), self.os)
+        self.message("Extracting:", kernel, initrd)
+        self.download(kernel, self._image_kernel)
+        self.download(initrd, self._image_initrd)
 
     def save(self):
         assert not self._process

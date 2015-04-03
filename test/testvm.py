@@ -90,7 +90,7 @@ class Machine:
 
     def wait_ssh(self):
         """Try to connect to self.address on port 22"""
-        tries_left = 15
+        tries_left = 120
         while (tries_left > 0):
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(1)

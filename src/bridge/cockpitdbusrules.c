@@ -82,7 +82,7 @@ rule_dump (RuleData *rule,
     g_string_append_printf (string, "interface: \"%s\", ", rule->interface);
   if (rule->arg0)
     g_string_append_printf (string, "arg0: \"%s\", ", rule->arg0);
-  if (rule->arg0)
+  if (rule->member)
     g_string_append_printf (string, "member: \"%s\", ", rule->member);
   g_string_append (string, "}");
 }

@@ -814,7 +814,7 @@ class QemuMachine(Machine):
             proc = None
             nbd = None
 
-        cmd = "drive_add auto file=%s,if=none,serial=%s,id=drive%d" % (file, serial, index)
+        cmd = "drive_add auto file=%s,if=none,serial=%s,id=drive%d,format=raw" % (file, serial, index)
         output = self._monitor_qemu(cmd)
 
         cmd = "device_add scsi-disk,bus=hot.0,drive=drive%d,id=device%d" % (index, index)

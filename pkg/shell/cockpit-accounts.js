@@ -135,6 +135,9 @@ function passwd_change(user, new_pass) {
 $(shell.default_permission).on("changed", update_accounts_privileged);
 
 function parse_passwd_content(content) {
+    if (content === null)
+        return [ ];
+
     var ret = [ ];
     var lines = content.split('\n');
     var column;
@@ -157,6 +160,9 @@ function parse_passwd_content(content) {
 }
 
 function parse_group_content(content) {
+    if (content === null)
+        return [ ];
+
     var ret = [ ];
     var lines = content.split('\n');
     var column;

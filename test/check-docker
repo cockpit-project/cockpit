@@ -20,6 +20,8 @@
 
 from testlib import *
 import json
+import os
+import sys
 
 class TestDocker(MachineCase):
     def confirm(self):
@@ -283,10 +285,14 @@ CMD ["/bin/sh", "-c", "echo '%s' | nc -l -p %d; echo '%s'"]
         b.click("#containers-failure-start")
         b.wait_visible("#containers-containers")
 
-# HACK - Disable all docker tests.
-# docker-io-1.5.0-19.git5d7adce.fc22.x86_64 does not detect
-# when our container-probe exits.
+# HACK - Disable all docker tests on Fedora 22
+#        docker-io-1.5.0-19.git5d7adce.fc22.x86_64 does not detect
+#        when our container-probe exits.
 #
 # https://bugzilla.redhat.com/show_bug.cgi?id=1204620
 #
-# test_main()
+if 'TEST_OS' in os.environ and os.environ['TEST_OS'] == 'fedora-22':
+    print 'Skipping Docker tests.'
+    sys.exit(0)
+else:
+    test_main()

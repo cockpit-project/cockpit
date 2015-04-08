@@ -218,6 +218,7 @@ distcheck-hook: dist-doc-hook
 
 include lib/Makefile.am
 include pkg/base1/Makefile.am
+include pkg/dashboard/Makefile.am
 include pkg/docker/Makefile.am
 include pkg/kubernetes/Makefile.am
 include pkg/playground/Makefile.am

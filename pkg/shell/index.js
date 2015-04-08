@@ -287,14 +287,17 @@ define([
         var component = null;
         var machine = null;
 
+        /* Main dashboard listing */
+        var listing = manifests["dashboard"];
+
         var at = 0;
         if (path.length === at) {
 
             /*
              * When more than one machine, we show dashboard by default
-             * otherwise we  show the server
+             * otherwise we show the server
              */
-            if (machines.list.length <= 1)
+            if (!listing || machines.list.length <= 1)
                 address = "localhost";
 
         } else if (path[at][0] == '@') {
@@ -307,7 +310,10 @@ define([
             /* If the machine is not available, then redirect to dashboard */
             machine = machines.lookup(address);
             if (!machine) {
-                cockpit.location.go("/dashboard/list");
+                if (listing)
+                    cockpit.location.go("/dashboard/list");
+                else
+                    cockpit.location.go("/");
                 return;
             }
 

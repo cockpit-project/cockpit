@@ -476,3 +476,37 @@ a {
 .bootstrap-select.btn-group .dropdown-menu li a span.check-mark {
   display: none;
 }
+
+
+/* Password strengh meter */
+
+.password-strengh-meter {
+    height: 5px;
+}
+
+.password-strengh-meter div {
+    width: 25%;
+    border-right: 3px solid #fff;
+    background-color: transparent;
+}
+
+.password-strengh-meter div:last-child {
+    border-right: none;
+}
+
+.password-strengh-meter.weak div:first-child {
+    background-color: #C00;
+}
+
+.password-strengh-meter.okay div:nth-child(-n+2) {
+    background-color: #EC7A08;
+}
+
+.password-strengh-meter.good div:nth-child(-n+3) {
+    background-color: #3F9C35;
+}
+
+.password-strengh-meter.excellent div:nth-child(-n+4) {
+    background-color: #3F9C35;
+}
+

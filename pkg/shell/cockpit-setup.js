@@ -87,6 +87,7 @@ PageSetupServer.prototype = {
         }
 
         $('#dashboard_setup_next').text(_("Next"));
+        $("#dashboard_setup_spinner").hide();
     },
 
     check_empty_name: function() {
@@ -111,6 +112,7 @@ PageSetupServer.prototype = {
         }
 
         $('#dashboard_setup_next').text(_("Next"));
+        $("#dashboard_setup_spinner").hide();
     },
 
     enter: function() {
@@ -161,6 +163,7 @@ PageSetupServer.prototype = {
         self.show_tab('address');
         self.update_discovered();
         $('#dashboard_setup_next').prop('disabled', true);
+        $("#dashboard_setup_spinner").hide();
     },
 
     update_discovered: function() {
@@ -215,6 +218,7 @@ PageSetupServer.prototype = {
     show_tab: function(tab) {
         $('.cockpit-setup-tab').hide();
         $('#dashboard_setup_next').text(_("Next"));
+        $("#dashboard_setup_spinner").hide();
         if (tab == 'address') {
             $('#dashboard_setup_address_tab').show();
             $("#dashboard_setup_address").focus();
@@ -267,7 +271,7 @@ PageSetupServer.prototype = {
     },
 
     next: function() {
-        $('#dashboard_setup_next').html('<div class="waiting"/>');
+        $("#dashboard_setup_spinner").show();
         $('#dashboard_setup_next').prop('disabled', true);
         this.next_action();
     },
@@ -314,6 +318,7 @@ PageSetupServer.prototype = {
 
                 $('#dashboard_setup_next').prop('disabled', false);
                 $('#dashboard_setup_next').text(_("Next"));
+                $("#dashboard_setup_spinner").hide();
             });
 
         var remote = client.proxy("cockpit.Setup", "/setup");
@@ -351,6 +356,7 @@ PageSetupServer.prototype = {
             }
         } else {
             $('#dashboard_setup_next').text(_("Next"));
+            $("#dashboard_setup_spinner").hide();
             me.highlight_error_message('#dashboard_setup_address_error',
                                        _("IP address or host name cannot be empty."));
         }
@@ -371,6 +377,7 @@ PageSetupServer.prototype = {
             me.connect_server();
         } else {
             $('#dashboard_setup_next').text(_("Next"));
+            $("#dashboard_setup_spinner").hide();
             me.highlight_error_message('#dashboard_setup_login_error',
                                        _("User name cannot be empty."));
         }
@@ -393,7 +400,7 @@ PageSetupServer.prototype = {
                     $('<td/>').text(
                         desc),
                     $('<td style="width:16px"/>').append(
-                        $('<div>',  { 'class': "cockpit-setup-task-spinner waiting",
+                        $('<div>',  { 'class': "cockpit-setup-task-spinner spinner",
                                       'style': "display:none"
                                     }),
                         $('<img/>', { 'class': "cockpit-setup-task-error",

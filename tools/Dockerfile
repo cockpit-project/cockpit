@@ -1,7 +1,7 @@
 FROM fedora:21
 MAINTAINER "Stef Walter" <stefw@redhat.com>
 
-RUN yum -y update && yum install -y sed openssl && yum clean all
+RUN yum -y update && yum install -y sed && yum clean all
 
 # A repo where we can find recent Cockpit builds for Fedora
 ADD cockpit-preview.repo /etc/yum.repos.d/

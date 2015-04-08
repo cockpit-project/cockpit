@@ -219,11 +219,21 @@ find %{buildroot}%{_datadir}/%{name}/system -type f >> shell.list
 echo '%dir %{_datadir}/%{name}/subscriptions' > subscriptions.list
 find %{buildroot}%{_datadir}/%{name}/subscriptions -type f >> subscriptions.list
 
+%ifarch x86_64 armv7hl
 echo '%dir %{_datadir}/%{name}/docker' > docker.list
 find %{buildroot}%{_datadir}/%{name}/docker -type f >> docker.list
+%else
+rm -rf %{buildroot}/%{_datadir}/%{name}/docker
+touch docker.list
+%endif
 
+%ifarch x86_64
 echo '%dir %{_datadir}/%{name}/kubernetes' > kubernetes.list
 find %{buildroot}%{_datadir}/%{name}/kubernetes -type f >> kubernetes.list
+%else
+rm -rf %{buildroot}/%{_datadir}/%{name}/kubernetes
+touch kubernetes.list
+%endif
 
 sed -i "s|%{buildroot}||" *.list
 
@@ -236,14 +246,6 @@ rm -rf %{buildroot}/debug
 # On RHEL subscriptions and docker are part of the shell package
 %if 0%{?rhel}
 cat subscriptions.list docker.list >> shell.list
-%endif
-
-%ifnarch x86_64 armv7hl
-rm -rf %{buildroot}/%{_datadir}/%{name}/docker
-%endif
-
-%ifnarch x86_64
-rm -rf %{buildroot}/%{_datadir}/%{name}/kubernetes
 %endif
 
 # Redefine how debug info is built to slip in our extra debug files
@@ -420,6 +422,9 @@ fi
 %endif
 
 %changelog
+* Tue Apr 07 2015 Stef Walter <stefw@redhat.com> - 0.50-1
+- Update to 0.50 release
+
 * Wed Apr 01 2015 Stephen Gallagher <sgallagh@redhat.com> 0.49-2
 - Fix incorrect Obsoletes: of cockpit-daemon
 

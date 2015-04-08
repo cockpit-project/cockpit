@@ -703,6 +703,28 @@ asyncTest("proxy signal", function() {
         });
 });
 
+asyncTest("proxy explicit notify", function() {
+    expect(1);
+
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+    var proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
+
+    proxy.wait(function() {
+        $(proxy).on("changed", function () {
+            equal(proxy.FinallyNormalName, "externally injected");
+            $(proxy).off("changed");
+            start();
+        });
+        dbus.notify({
+            "/otree/frobber": {
+                "com.redhat.Cockpit.DBusTests.Frobber": {
+                    "FinallyNormalName": "externally injected"
+                }
+            }
+        });
+    });
+});
+
 asyncTest("proxies", function() {
     expect(13);
 

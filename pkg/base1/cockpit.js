@@ -1592,16 +1592,7 @@ function full_scope(cockpit, $, po) {
                     }
                 });
             } else if (msg.notify) {
-                ensure_cache();
-                $.each(msg.notify, function(path, ifaces) {
-                    $.each(ifaces, function(iface, props) {
-                        if (!props)
-                            cache.remove(path, iface);
-                        else
-                            cache.update(path, iface, props);
-                    });
-                });
-                $(self).triggerHandler("notify", [ msg.notify ]);
+                notify(msg.notify);
             } else if (msg.meta) {
                 ensure_cache();
                 $.extend(cache.meta, msg.meta);
@@ -1610,6 +1601,21 @@ function full_scope(cockpit, $, po) {
                 channel.close({"problem": "protocol-error"});
             }
         });
+
+        function notify(data) {
+            ensure_cache();
+            $.each(data, function(path, ifaces) {
+                $.each(ifaces, function(iface, props) {
+                    if (!props)
+                        cache.remove(path, iface);
+                    else
+                        cache.update(path, iface, props);
+                });
+            });
+            $(self).triggerHandler("notify", [ data ]);
+        }
+
+        this.notify = notify;
 
         function close_perform(options) {
             var problem = options.problem || "disconnected";
@@ -1757,6 +1763,7 @@ function full_scope(cockpit, $, po) {
             ensure_cache();
             return new DBusProxies(self, cache, String(iface), String(path_namespace));
         };
+
     }
 
     /* public */

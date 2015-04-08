@@ -207,7 +207,7 @@ install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 echo '%dir %{_datadir}/%{name}/base1' > shell.list
 find %{buildroot}%{_datadir}/%{name}/base1 -type f >> shell.list
 
-echo '%dir %{_datadir}/%{name}/shell' >> domain.list
+echo '%dir %{_datadir}/%{name}/domain' >> shell.list
 find %{buildroot}%{_datadir}/%{name}/domain -type f >> shell.list
 
 echo '%dir %{_datadir}/%{name}/shell' >> shell.list

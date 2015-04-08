@@ -137,7 +137,6 @@ Requires: mdadm
 Requires: lvm2
 %if 0%{?rhel} == 0
 Requires: udisks2 >= 2.1.0
-Requires: realmd
 %else
 Provides: %{name}-subscriptions = %{version}-%{release}
 Requires: subscription-manager >= 1.13

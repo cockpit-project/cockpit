@@ -1263,6 +1263,17 @@
         interface has disappeared.</para>
     </refsection>
 
+    <refsection id="cockpit-dbus-notify">
+      <title>client.notify</title>
+<programlisting>
+  client.notify(data)
+</programlisting>
+    <para>Emits a synthetic <link
+    linkend="cockpit-dbus-onnotify"><code>notify</code></link> event.
+    The <code>data</code> argument should follow the same layout as
+    described for the <code>notify</code> event.</para>
+    </refsection>
+
     <refsection id="cockpit-dbus-variant">
       <title>cockpit.variant()</title>
 <programlisting>

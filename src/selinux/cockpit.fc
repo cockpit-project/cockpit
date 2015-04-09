@@ -15,8 +15,7 @@
 #
 # https://bugzilla.redhat.com/show_bug.cgi?id=1139138
 #
-# Leave this uncommented until upstream updates
-/usr/bin/cockpit-bridge         --	gen_context(system_u:object_r:shell_exec_t,s0)
+# /usr/bin/cockpit-bridge         --	gen_context(system_u:object_r:shell_exec_t,s0)
 
 /var/lib/cockpit(/.*)?		gen_context(system_u:object_r:cockpit_var_lib_t,s0)
 

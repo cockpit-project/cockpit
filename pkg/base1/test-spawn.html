@@ -269,18 +269,20 @@ asyncTest("with problem", function() {
 });
 
 asyncTest("with status", function() {
-    expect(4);
+    expect(5);
 
     var peer = new MockPeer();
     $(peer).on("opened", function(event, channel) {
+        peer.send(channel, "the data");
         peer.close(channel, {"exit-status": 5});
     });
 
     cockpit.spawn("/unused").
-        fail(function(ex) {
+        fail(function(ex, data) {
             strictEqual(ex.problem, null, "got null problem");
             ok(isNaN(ex.exit_signal), "got no signal");
             strictEqual(ex.exit_status, 5, "got status");
+            equal(data, "the data", "got data even with exit status");
         }).
         always(function() {
             equal(this.state(), "rejected", "should fail");
@@ -289,18 +291,20 @@ asyncTest("with status", function() {
 });
 
 asyncTest("with signal", function() {
-    expect(4);
+    expect(5);
 
     var peer = new MockPeer();
     $(peer).on("opened", function(event, channel) {
+        peer.send(channel, "signal data here");
         peer.close(channel, {"exit-signal": "TERM"});
     });
 
     cockpit.spawn("/unused").
-        fail(function(ex) {
+        fail(function(ex, data) {
             strictEqual(ex.problem, null, "got null problem");
             strictEqual(ex.exit_signal, "TERM", "got signal");
             ok(isNaN(ex.exit_status), "got no status");
+            equal(data, "signal data here", "got data even with signal");
         }).
         always(function() {
             equal(this.state(), "rejected", "should fail");

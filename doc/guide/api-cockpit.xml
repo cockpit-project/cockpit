@@ -341,7 +341,7 @@
     <refsection id="cockpit-spawn-fail">
       <title>process.fail()</title>
 <programlisting>
- process.fail(function(exception) { ... })
+ process.fail(function(exception[, data]) { ... })
 </programlisting>
       <para>This is a standard
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
@@ -368,6 +368,9 @@
             This is <code>null</code> if the process did not terminate because of a signal.</para></listitem>
         </varlistentry>
       </variablelist>
+
+      <para>If the process actually ran and produced output before failing, it will be available in
+        the <code>data</code> argument. Otherwise this argument will be <code>undefined</code>.</para>
     </refsection>
 
     <refsection id="cockpit-spawn-always">
@@ -1407,7 +1410,7 @@
     <refsection id="cockpit-http-fail">
       <title>request.fail()</title>
 <programlisting>
- request.fail(function(exception) { ... })
+ request.fail(function(exception[, data]) { ... })
 </programlisting>
       <para>This is a standard
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
@@ -1439,6 +1442,9 @@
             no response was received.</para></listitem>
         </varlistentry>
       </variablelist>
+
+      <para>If the request returned a response body, it will be available in
+        the <code>data</code> argument. Otherwise this argument will be <code>undefined</code>.</para>
     </refsection>
 
     <refsection id="cockpit-http-always">

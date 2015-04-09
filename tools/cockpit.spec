@@ -408,10 +408,10 @@ SELinux policy for Cockpit testing.
 %{_datadir}/selinux/targeted/cockpit.pp
 
 %post selinux-policy
-/usr/sbin/semodule -s targeted -i %{_datadir}/selinux/targeted/cockpit.pp &> /dev/null || :
+/usr/sbin/semodule -s targeted -i %{_datadir}/selinux/targeted/cockpit.pp
 /sbin/fixfiles -R cockpit restore || :
 /sbin/fixfiles -R cockpit-test-assets restore || :
-/sbin/restorecon -R %{_sharedstatedir}/%{name} || :
+/sbin/restorecon -R %{_sharedstatedir}/%{name}
 
 %postun selinux-policy
 if [ $1 -eq 0 ] ; then

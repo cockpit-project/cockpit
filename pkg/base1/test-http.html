@@ -83,17 +83,18 @@ asyncTest("with params", function() {
 });
 
 asyncTest("not found", function() {
-    expect(5);
+    expect(6);
 
     cockpit.http({ "internal": "test-server" })
         .get("/not/found")
         .response(function(status, headers) {
             equal(status, 404, "status code");
         })
-        .fail(function(ex) {
+        .fail(function(ex, data) {
             strictEqual(ex.problem, null, "mapped to cockpit code");
             strictEqual(ex.status, 404, "has status code");
             equal(ex.message, "Not Found", "has reason");
+            equal(data, "<html><head><title>404 Not Found</title></head><body>Not Found</body></html>", "got body");
         })
         .always(function() {
             equal(this.state(), "rejected", "should fail");

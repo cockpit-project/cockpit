@@ -738,10 +738,10 @@ class TestStorage(MachineCase):
 
         self.login_and_go("storage", href="/storage/devices")
         b.wait_in_text("#storage_drives", "VirtIO")
-        self.add_disk("50M", serial="DISK1")
+        self.add_disk("500M", serial="DISK1")
 
         m.execute("vgcreate TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
-        m.execute("lvcreate TEST -n vol -L 20m")
+        m.execute("lvcreate TEST -n vol -L 200m")
         m.execute("mkfs.ext4 -q -L FSYS /dev/TEST/vol")
 
         b.wait_in_text("#storage_vgs", "TEST")
@@ -754,16 +754,16 @@ class TestStorage(MachineCase):
 
         self.content_action(1, "Resize")
         b.wait_popup("storage_resize_volume_dialog")
-        b.set_val("#resize-lvol-size", "40")
+        b.set_val("#resize-lvol-size", "400")
         b.click("#resize-lvol-resize")
         b.wait_popdown("storage_resize_volume_dialog")
 
         size = int(m.execute("df -k --output=size /run/media/admin/FSYS | tail -1").strip())
-        assert (size > 30000)
+        assert (size > 300000)
 
         self.content_action(1, "Resize")
         b.wait_popup("storage_resize_volume_dialog")
-        b.set_val("#resize-lvol-size", "20")
+        b.set_val("#resize-lvol-size", "200")
         b.click("#resize-lvol-resize")
         b.wait_popdown("storage_resize_volume_dialog")
 
@@ -772,7 +772,7 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_detail_partition_list", "/run/media/admin/FSYS")
 
         size = int(m.execute("df -k --output=size /run/media/admin/FSYS | tail -1").strip())
-        assert (size < 30000)
+        assert (size < 300000)
 
     def testUsed(self):
         m = self.machine

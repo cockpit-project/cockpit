@@ -65,6 +65,11 @@ Description=Test Template for %I
 ExecStart=/usr/bin/test-service %I
 """)
 
+        # HACK - Only root can read the system.journal on RHEL 7.
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1211499
+        if m.os == "rhel-7":
+            b.default_user = "root"
+
         self.login_and_go("services", href="/system/init")
 
         def svc_sel(service):

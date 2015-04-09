@@ -19,6 +19,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 from testlib import *
+import os
 
 class TestNetworking(MachineCase):
 
@@ -173,4 +174,14 @@ class TestNetworking(MachineCase):
         b.enter_page("networking")
         b.wait_not_in_text("#networking-interfaces", "tbridge")
 
-test_main()
+if 'TEST_OS' in os.environ and os.environ['TEST_OS'] == "rhel-7":
+
+    # HACK - We lose all connectivity to the VM for about 30 seconds
+    #        after changing the config of the additional network
+    #        interfaces.
+    #
+    # https://bugzilla.redhat.com/show_bug.cgi?id=1211287
+    #
+    print "Skipping check-networking on RHEL 7"
+else:
+    test_main()

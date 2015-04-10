@@ -1138,10 +1138,21 @@
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Password Quality</td>
+                <td></td>
                 <td>
-                  <div class="progress">
-                    <div id="accounts-create-password-bar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                  <div id="accounts-create-password-meter"
+                       class="progress password-strengh-meter">
+                    <div class="progress-bar">
+                      <span class="sr-only">25% Complete (success)</span>
+                    </div>
+                    <div class="progress-bar">
+                      <span class="sr-only">25% Complete (success)</span>
+                    </div>
+                    <div class="progress-bar">
+                      <span class="sr-only">25% Complete (success)</span>
+                    </div>
+                    <div class="progress-bar">
+                      <span class="sr-only">25% Complete (success)</span>
                     </div>
                   </div>
                 </td>
@@ -1149,8 +1160,8 @@
               <tr>
                 <td></td>
                 <td>
-                  <div id="accounts-create-message-password-mismatch" class="has-error">
-                    <span class="help-block">The passwords do not match</span>
+                  <div class="has-error">
+                    <span id="accounts-create-password-meter-message" class="help-block">The passwords do not match</span>
                   </div>
                 </td>
               </tr>
@@ -1217,18 +1228,31 @@
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Password Quality</td>
+                <td></td>
                 <td>
-                  <div class="progress">
-                    <div id="account-set-password-bar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                  <div id="account-set-password-meter"
+                       class="progress password-strengh-meter">
+                    <div class="progress-bar">
+                      <span class="sr-only">25% Complete (success)</span>
+                    </div>
+                    <div class="progress-bar">
+                      <span class="sr-only">25% Complete (success)</span>
+                    </div>
+                    <div class="progress-bar">
+                      <span class="sr-only">25% Complete (success)</span>
+                    </div>
+                    <div class="progress-bar">
+                      <span class="sr-only">25% Complete (success)</span>
                     </div>
                   </div>
                 </td>
               </tr>
               <tr>
                 <td></td>
-                <td><div id="account-set-password-message-password-mismatch" class="has-error">
-                    <span class="help-block">The passwords do not match</span>
+                <td><div class="has-error">
+                    <span id="account-set-password-meter-message" class="help-block">
+                      Password is too weak
+                    </span>
                 </div></td>
               </tr>
             </table>

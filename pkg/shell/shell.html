@@ -2260,7 +2260,11 @@
             <h4 class="modal-title">Image Search</h4>
           </div>
           <div class="modal-body">
-            <input type="search" class="form-control" id="containers-search-image-search"/>
+            <div class="form-group has-feedback">
+              <input type="search" class="form-control" id="containers-search-image-search"/>
+              <span class="fa fa-search form-control-feedback containers-search-image-search-icon"></span>
+            </div>
+            
             <div id="containers-search-image-waiting"></div>
             <div id="containers-search-image-results">
               <table class="table table-hover">

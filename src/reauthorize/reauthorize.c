@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <keyutils.h>
+#include <shadow.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -214,7 +215,7 @@ parse_salt (const char *input)
   if (pos == NULL || pos == input + 1)
     return -1;
   end = strchr (pos + 1, '$');
-  if (end == NULL || end != pos + 17)
+  if (end == NULL || end < pos + 8)
     return -1;
 
   /* Full length of the salt */
@@ -611,6 +612,70 @@ out:
   return ret;
 }
 
+static struct spwd *
+getspnam_a (const char *name)
+{
+  int err;
+  long bufsize = sysconf (_SC_GETPW_R_SIZE_MAX);
+  struct spwd *ret = NULL;
+  struct spwd *buf;
+
+  if (bufsize <= 0)
+    bufsize = 8192;
+
+  buf = malloc (sizeof(struct spwd) + bufsize);
+  if (buf == NULL)
+    {
+      errno = ENOMEM;
+      return NULL;
+    }
+
+  err = getspnam_r (name, buf, (char *)(buf + 1), bufsize, &ret);
+
+  if (ret == NULL)
+    {
+      free (buf);
+      if (err == 0)
+        err = ENOENT;
+      errno = err;
+    }
+
+  return ret;
+}
+
+static int
+lookup_shadow_secret (const char *user,
+                      char **secret)
+{
+  struct spwd *sp;
+
+  sp = getspnam_a (user);
+  if (!sp)
+    {
+      if (errno == ENOENT)
+        {
+          debug ("no shadow for user: %s", user);
+          return 0;
+        }
+      else
+        {
+          message ("couldn't lookup shadow entry for user: %s: %m", user);
+          return -errno;
+        }
+    }
+
+  if (!sp->sp_pwdp || parse_salt (sp->sp_pwdp) < 0)
+    {
+      debug ("no valid salted password hash in shadow for user: %s", user);
+      free (sp);
+      return 0;
+    }
+
+  memmove (sp, sp->sp_pwdp, strlen (sp->sp_pwdp) + 1);
+  *secret = (char *)sp;
+  return 0;
+}
+
 int
 reauthorize_perform (const char *user,
                      const char *response,
@@ -638,6 +703,13 @@ reauthorize_perform (const char *user,
   ret = lookup_reauthorize_secret (user, &secret);
   if (ret < 0)
     goto out;
+
+  if (secret == NULL)
+    {
+      ret = lookup_shadow_secret (user, &secret);
+      if (ret < 0)
+        goto out;
+    }
 
   /* This is where we'll plug in GSSAPI auth */
   if (secret == NULL)

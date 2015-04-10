@@ -319,7 +319,7 @@ test_password_no_prepare (void)
 {
   char *challenge = NULL;
 
-  assert_num_eq (mock_reauthorize ("perform", user, NULL, &challenge), REAUTHORIZE_NO);
+  assert_num_eq (mock_reauthorize ("perform", "unknown", NULL, &challenge), REAUTHORIZE_NO);
 
   free (challenge);
 }

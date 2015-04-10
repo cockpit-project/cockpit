@@ -176,6 +176,9 @@ cockpit-bridge polkit agent:
      * ```nonce = "$6$" encode_alnum(read("/dev/urandom", 16))```
      * ```challenge = "crypt1:" encode_hex(user) ":" salt ":" nonce```
    * If no ```secret``` is present in session kernel keyring
+     * Lookup shadow sp_spwdp entry, and use that as a secret, if present
+       and is a valid salted crypt hash.
+   * If no ```secret``` available
      * ```challenge = "gssapi1:" encode_hex(user)```
    * Send ```challenge``` to cockpit-ws
    * Wait for ```response``` from cockpit-ws

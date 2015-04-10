@@ -437,12 +437,6 @@ define([
             if (component == "system/host") {
                 component = "shell/shell";
                 hash = "/server" + hash;
-            } else if (component == "system/init") {
-                component = "shell/shell";
-                if (options && options.s)
-                    hash = "/service";
-                else
-                    hash = "/services";
             } else if (component == "docker/containers") {
                 component = "shell/shell";
                 hash = "/containers" + hash;

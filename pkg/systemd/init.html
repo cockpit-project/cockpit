@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title translatable="yes">Services</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
+    <script src="../base1/bundle.js"></script>
+    <script src="../system/bundle.js"></script>
+<script>
+    require([
+        "jquery",
+        "system/init"
+    ], function($, init) {
+        $(init);
+    });
+</script>
+</head>
+<body hidden>
+
+  <script id="services-units-tmpl" type="x-template/mustache">
+    <div class="panel panel-default">
+      <div class="panel-heading">{{heading}}</div>
+      <table class="table table-hover">
+        {{#units}}
+        <tr data-goto-unit="{{Id}}">
+          <td style="font-weight:bold">{{Description}}</td>
+          <td>{{Id}}</td>
+          <td style="text-align:right;white-space:nowrap;{{#HasFailed}}color:red;{{/HasFailed}}">
+            {{CombinedState}}
+          </td>
+        {{/units}}
+      </table>
+    </div>
+  </script>
+
+  <div id="services" hidden>
+    <div class="content-header-extra">
+      <div class="btn-group" id="services-filter">
+        <button class="btn btn-default" data-pattern="\.target$" translatable="yes">Targets</button>
+        <button class="btn btn-default active" data-pattern="\.service$" translatable="yes">System Services</button>
+        <button class="btn btn-default" data-pattern="\.socket$" translatable="yes">Sockets</button>
+        <button class="btn btn-default" data-pattern="\.timer$" translatable="yes">Timers</button>
+        <button class="btn btn-default" data-pattern="\.path$" translatable="yes">Paths</button>
+      </div>
+    </div>
+
+    <div class="container-fluid" style="margin-top: 5em">
+      <div id="services-list-enabled"></div>
+      <div id="services-list-disabled"></div>
+      <div id="services-list-static"></div>
+    </div>
+  </div>
+
+  <script id="action-btn-tmpl"  type="x-template/mustache">
+    <div class="btn-group" id="{{id}}">
+      <button data-action="{{def.action}}" data-container="body" class="btn btn-default">{{def.title}}</button>
+      <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu"
+          style="right:0px;left:auto;min-width:0;text-align:left"
+          role="menu">
+        {{#actions}}
+        <li class="presentation">
+          <a data-action="{{action}}" role="menuitem">{{title}}</a>
+        </li>
+        {{/actions}}
+      </ul>
+    </div>
+  </script>
+
+  <script id="service-unit-tmpl" type="x-template/mustache">
+    <div class="panel panel-default">
+      <div class="panel-heading">{{Unit.Description}}</div>
+      <div class="list-group">
+        <div class="list-group-item">
+          <table style="width:100%">
+            <tr>
+              <td style="text-align:left">
+                <span style="font-weight:bold">{{Unit.ActiveState}}</span>
+                ({{Unit.SubState}})
+                <br/>
+                {{Since}}
+              </td>
+              <td style="text-align:right">
+                {{{UnitButton}}}
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="list-group-item">
+          <table style="width:100%">
+            <tr>
+              <td style="text-align:left">
+                {{#HasLoadError}}
+                {{Unit.LoadState}} (Reason: {{LoadError}})
+                {{/HasLoadError}}
+                {{^HasLoadError}}
+                {{Unit.LoadState}} ({{Unit.FragmentPath}}; {{Unit.UnitFileState}})
+                {{/HasLoadError}}
+              </td>
+              <td style="text-align:right">
+                {{{FileButton}}}
+              </td>
+            </tr>
+            {{#TemplateDescription}}
+            <tr>
+              <td>{{{.}}}</td>
+            </tr>
+            {{/TemplateDescription}}
+          </table>
+        </div>
+      </div>
+    </div>
+  </script>
+
+  <script id="service-template-tmpl" type="x-template/mustache">
+    <div class="panel panel-default">
+      <div class="panel-heading">{{Description}}</div>
+      <div class="list-group">
+        <div class="list-group-item">
+          <input style="width:50em"></input>
+          <button translatable="yes">Instantiate</button>
+        </div>
+      </div>
+    </div>
+  </script>
+
+  <div id="service" class="container-fluid" hidden>
+    <ol class="breadcrumb">
+      <li><a id="service-navigate-home" translatable="yes">Services</a></li>
+      <li class="active"></li>
+    </ol>
+
+    <div id="service-valid">
+      <div id="service-unit"></div>
+      <div class="panel panel-default cockpit-log-panel" id="service-log-box">
+        <div class="panel-heading" translatable="yes">Service Journal</div>
+        <div class="panel-body" id="service-log"></div>
+      </div>
+    </div>
+
+    <div id="service-template">
+    </div>
+
+    <div id="service-invalid">
+      <div id="service-error-message"></div>
+    </div>
+
+  </div>
+
+  <div class="modal" id="service-no-install-info-dialog"
+       tabindex="-1" role="dialog"
+       data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" translatable="yes">Note</h4>
+        </div>
+        <div class="modal-body">
+          <p translatable="yes">This unit is not designed to be enabled explicitly.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" data-dismiss="modal" translatable="yes">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="service-error-dialog"
+       tabindex="-1" role="dialog"
+       data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" translatable="yes">Error</h4>
+        </div>
+        <div class="modal-body">
+          <p id="service-error-dialog-message"></p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" data-dismiss="modal" translatable="yes">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

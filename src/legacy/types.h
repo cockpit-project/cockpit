@@ -103,9 +103,6 @@ typedef struct _StorageLogicalVolume StorageLogicalVolume;
 struct _StorageJob;
 typedef struct _StorageJob StorageJob;
 
-struct _Services;
-typedef struct _Services Services;
-
 struct _Accounts;
 typedef struct _Accounts Accounts;
 

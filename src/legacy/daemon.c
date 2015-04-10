@@ -32,7 +32,6 @@
 #include "mountmonitor.h"
 #include "storageprovider.h"
 #include "storagemanager.h"
-#include "services.h"
 
 /**
  * SECTION:daemon
@@ -181,7 +180,6 @@ daemon_constructed (GObject *_object)
   Daemon *daemon = DAEMON (_object);
   CockpitResourceMonitor *monitor;
   CockpitMultiResourceMonitor *multi_monitor;
-  CockpitServices *services;
   CockpitStorageManager *storage_manager;
   CockpitObjectSkeleton *object = NULL;
 
@@ -279,16 +277,6 @@ daemon_constructed (GObject *_object)
   g_object_unref (object);
 
   g_debug ("exported mount monitor");
-
-  /* /com/redhat/Cockpit/Services */
-  services = services_new (daemon);
-  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/Services");
-  cockpit_object_skeleton_set_services (object, services);
-  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
-  g_object_unref (services);
-  g_object_unref (object);
-
-  g_debug ("exported services");
 
   /* /com/redhat/Cockpit/Storage/Manager */
   storage_manager = storage_manager_new (daemon);

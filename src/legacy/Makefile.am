@@ -89,10 +89,6 @@ libcockpit_legacy_a_SOURCES = \
 	src/legacy/storagelogicalvolume.c \
 	src/legacy/storagejob.h \
 	src/legacy/storagejob.c \
-	src/legacy/services.h \
-	src/legacy/services.c \
-	src/legacy/cgroup-show.h \
-	src/legacy/cgroup-show.c \
 	src/legacy/lvmutil.h \
 	src/legacy/lvmutil.c \
 	src/legacy/udisksclient.h \

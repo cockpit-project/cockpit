@@ -70,18 +70,18 @@ ExecStart=/usr/bin/test-service %I
         if m.os == "rhel-7":
             b.default_user = "root"
 
-        self.login_and_go("services", href="/system/init")
+        self.login_and_go("/system/init")
 
         def svc_sel(service):
-            return 'tr[data-unit="%s"]' % service
+            return 'tr[data-goto-unit="%s"]' % service
 
         def wait_service_state(service, state):
+            b.wait_present(svc_sel(service));
             b.wait_in_text(svc_sel(service), state)
 
         def wait_service_in_panel(service, title):
             b.wait_in_text(".panel:contains('%s') .panel-heading" % service, title)
 
-        b.click("#services-filter-services")
         b.wait_in_text("#services", "test.service")
         wait_service_in_panel("test.service", "Disabled")
 
@@ -92,43 +92,48 @@ ExecStart=/usr/bin/test-service %I
         m.execute("systemctl enable test.service")
         wait_service_state("test.service", "inactive")
 
+        unit_action_btn = '#service-valid .list-group-item:nth-child(1) .btn-group'
+        file_action_btn = '#service-valid .list-group-item:nth-child(2) .btn-group'
+
         b.click(svc_sel("test.service"))
-        b.wait_text('#service-active-state', "inactive")
-        b.wait_action_btn('#service-unit-action-btn', "Start")
-        b.click_action_btn('#service-unit-action-btn')
-        b.wait_text('#service-active-state', "active")
-        b.wait_action_btn('#service-unit-action-btn', "Stop")
+        b.wait_visible('#service-valid')
+        b.wait_in_text('#service-valid', "inactive")
+        b.wait_action_btn(unit_action_btn, "Start")
+        b.click_action_btn(unit_action_btn)
+        b.wait_in_text('#service-valid', "active")
+        b.wait_action_btn(unit_action_btn, "Stop")
         b.wait_in_text('#service-log', "START")
         b.wait_in_text('#service-log', "WORKING")
 
-        b.wait_text('#service-file-state', "enabled")
-        b.wait_action_btn('#service-file-action-btn', "Disable")
-        b.click_action_btn('#service-file-action-btn')
-        b.wait_text('#service-file-state', "disabled")
-        b.wait_action_btn('#service-file-action-btn', "Enable")
+        b.wait_in_text('#service-valid', "enabled")
+        b.wait_action_btn(file_action_btn, "Disable")
+        b.click_action_btn(file_action_btn)
+        b.wait_in_text('#service-valid', "disabled")
+        b.wait_action_btn(file_action_btn, "Enable")
 
-        b.go("/services")
-        b.click("#services-filter-services")
+        b.go("/")
         b.wait_in_text("#services", "test-fail.service")
         b.click(svc_sel("test-fail.service"))
-        b.wait_text('#service-active-state', "inactive")
-        b.wait_action_btn('#service-unit-action-btn', "Start")
-        b.click_action_btn('#service-unit-action-btn')
-        b.wait_text('#service-active-state', "failed")
+        b.wait_visible('#service-valid')
+        b.wait_in_text('#service-valid', "inactive")
+        b.wait_action_btn(unit_action_btn, "Start")
+        b.click_action_btn(unit_action_btn)
+        b.wait_in_text('#service-valid', "failed")
 
-        b.go("/services")
-        b.click("#services-filter-services")
+        b.go("/")
         b.wait_in_text("#services", "test-fail.service")
         wait_service_state("test-fail.service", "failed")
 
         # Instantiate a template
         b.wait_in_text("#services", "test-template@.service")
         b.click(svc_sel("test-template@.service"))
-        b.set_val("#service-parameter", "//param-f//o//o//")
-        b.click("#service-instantiate")
-        b.wait_text("#service-name", "Test Template for param-f/o/o")
-        b.wait_js_cond("$('#service-template-link a').attr('onclick')")
-        b.click("#service-template-link a")
-        b.wait_visible("#service-instantiate")
+        b.wait_visible('#service-template')
+        b.set_val("#service-template input", "//param-f//o//o//")
+        b.click("#service-template button")
+        b.wait_visible("#service-valid")
+        b.wait_text("#service-unit .panel-heading", "Test Template for param-f/o/o")
+        b.wait_text("#service-valid a[data-goto-unit]", "test-template@.service")
+        b.click("#service-valid a[data-goto-unit]")
+        b.wait_visible("#service-template")
 
 test_main()

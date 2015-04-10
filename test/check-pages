@@ -43,16 +43,16 @@ WantedBy=default.target
         self.login_and_go(None)
 
         # check that reloading a page with parameters works
-        b.go("/@localhost/system/init?s=test.service")
-        b.enter_page("service")
+        b.go("/@localhost/system/init/test.service")
+        b.enter_page("/system/init")
         b.reload()
-        b.enter_page("service")
-        b.wait_text("#service-name", "Test Service")
+        b.enter_page("/system/init")
+        b.wait_text("#service-unit .panel-heading", "Test Service")
 
         # check that the login dance preserves parameters
         m.execute("systemctl restart cockpit-testing.service")
-        b.relogin("service")
-        b.wait_text("#service-name", "Test Service")
+        b.relogin("/system/init")
+        b.wait_text("#service-unit .panel-heading", "Test Service")
 
         # Navigate inside an iframe
         b.switch_to_top()

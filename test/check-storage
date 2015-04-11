@@ -432,10 +432,10 @@ class TestStorage(MachineCase):
 
         # Degrade and repair it
         dev = b.text("#raid_detail_device")
-        m.execute("mdadm %s --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 --remove /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1" % dev)
+        m.execute("mdadm --quiet %s --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 --remove /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1" % dev)
         b.wait_in_text("#raid_detail_state", "DEGRADED")
         m.execute("wipefs -a /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
-        m.execute("mdadm %s --add /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1" % dev)
+        m.execute("mdadm --quiet %s --add /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1" % dev)
         b.wait_in_text("#raid_detail_state", "Recovering")
         with b.wait_timeout(20):
             b.wait_in_text("#raid_detail_state", "Running")

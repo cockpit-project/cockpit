@@ -85,7 +85,7 @@ class TestStorage(MachineCase):
         check_eq(self.inode(b.text("#disk_detail_device_file")), self.inode("/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL"))
 
         m.execute('parted -s /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL mktable gpt')
-        m.execute('parted -s /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL mkpart primary ext2 0 10')
+        m.execute('parted -s /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL mkpart primary ext2 1M 8M')
         m.execute('udevadm settle')
         b.wait_in_text("#storage_detail_partition_list", "Partition")
         m.execute('mke2fs -q /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL-part1')
@@ -792,7 +792,7 @@ class TestStorage(MachineCase):
         self.add_disk("50M", serial="DISK1")
         b.wait_in_text("#storage_drives", "DISK1")
         m.execute("parted -s /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mktable msdos")
-        m.execute("parted -s /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mkpart primary ext2 0 25")
+        m.execute("parted -s /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mkpart primary ext2 1M 25")
         m.execute("udevadm settle")
         m.execute("echo einszweidrei | cryptsetup luksFormat /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1-part1")
         m.execute("echo einszweidrei | cryptsetup luksOpen /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1-part1 dm-test")
@@ -902,9 +902,9 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_drives", "DISK1")
         b.wait_in_text("#storage_drives", "DISK2")
         script = """mktable msdos \
-mkpart extended 0 50 \
-mkpart logical ext2 1 25 \
-mkpart logical ext2 25 50"""
+mkpart extended 1M 50 \
+mkpart logical ext2 1 24 \
+mkpart logical ext2 24 48"""
         m.execute("parted -s /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 " + script)
         m.execute("udevadm settle")
         m.execute("mke2fs -q -L TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1-part5")

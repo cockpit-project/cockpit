@@ -143,7 +143,7 @@ define([
 
             function create_ns(){
                 if ($.inArray(namespace, available_ns) === -1) {
-                    var ns_json = '{"apiVersion":"v1beta3","kind":"Namespace","metadata":{"name": "'+namespace+'",}}';
+                    var ns_json = '{"apiVersion":"v1beta3","kind":"Namespace","metadata":{"name": "'+namespace+'"}}';
                     client.create_ns(ns_json)
                         .done(display_deploy_app_entity_success)
                         .fail(display_deploy_app_entity_failure);

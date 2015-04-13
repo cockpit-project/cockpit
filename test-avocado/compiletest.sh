@@ -8,6 +8,9 @@
 set -x
 set -e
 
+ARCH64=""
+uname -p | grep '64' && ARCH64='64'
+
 cd /root
 BUILD="build1"
 PACKAGE="cockpit"
@@ -16,7 +19,7 @@ test -d $PACKAGE/$BUILD && /bin/rm -r $PACKAGE/$BUILD
 cd $PACKAGE
 mkdir -p $BUILD
 cd $BUILD
-../autogen.sh --prefix=/usr --enable-maintainer-mode --enable-debug
+../autogen.sh --prefix=/usr --libdir=/usr/lib$ARCH64 --enable-maintainer-mode --enable-debug
 make
 make install install-test-assets
 

@@ -2566,6 +2566,157 @@ function full_scope(cockpit, $, po) {
      *
      */
 
+    function timestamp(when, interval) {
+        if (typeof when == "number")
+            return when * interval;
+        else if (typeof when == "string")
+            when = new Date(when);
+        if (when instanceof Date)
+            return when.getTime();
+        else
+            throw "invalid date or offset";
+    }
+
+    function MetricsChannel(interval, options) {
+        var self = this;
+
+        options = $.extend({
+            payload: "metrics1",
+            interval: interval,
+            source: "internal"
+        }, options);
+
+        self.options = options;
+        var channels = [ ];
+        var host = options.host || "";
+
+        /*
+         * TODO: Provide a fetch function to the series. This should be
+         * intelligent so it doesn't try to fetch data that is arriving
+         * via follow().
+         */
+
+        self.series = cockpit.series(interval, options.cache);
+        delete options.cache;
+
+        function transfer(options, callback) {
+            var channel = cockpit.channel(options);
+            channels.push(channel);
+
+            var meta = null;
+            var last = null;
+            var beg;
+
+            $(channel)
+                .on("close", function(ev, options) {
+                    if (options.problem)
+                        console.warn("metrics channel failed: " + options.problem);
+                })
+                .on("message", function(ev, payload) {
+                    var message = JSON.parse(payload);
+
+                    var data, data_len, last_len, dataj, dataj_len, lastj, lastj_len;
+                    var i, j, k;
+
+                    /* A meta message? */
+                    var message_len = message.length;
+                    if (message_len === undefined) {
+                        meta = message;
+                        last = null;
+                        beg = Math.floor((meta.timestamp || 0) / interval);
+                        callback(beg, meta, null);
+
+                    /* A data message */
+                    } else if (meta) {
+
+                        /* Data decompression */
+                        for (i = 0; i < message_len; i++) {
+                            data = message[i];
+                            if (last) {
+                                data_len = data.length;
+                                last_len = last.length;
+                                for (j = 0; j < data_len; j++) {
+                                    dataj = data[j];
+                                    if (dataj === null) {
+                                        data[j] = last[j];
+                                    } else {
+                                        dataj_len = dataj.length;
+                                        if (dataj_len !== undefined) {
+                                            lastj = last[j];
+                                            lastj_len = last[j].length;
+                                            for (k = 0; k < dataj_len; k++) {
+                                                if (dataj[k] === null)
+                                                    dataj[k] = lastj[k];
+                                            }
+                                            for (; k < lastj_len; k++)
+                                                dataj[k] = lastj[k];
+                                        }
+                                    }
+                                }
+                            }
+                            last = data;
+                        }
+
+                        /* Return the data */
+                        callback(beg, meta, message);
+
+                        /* Bump timestamp for the next message */
+                        beg += message_len;
+                        meta.timestamp += (interval * message_len);
+                    }
+                });
+        }
+
+        function drain(beg, meta, message) {
+            var mapping, map;
+
+            /* Generate a mapping object if necessary */
+            mapping = meta.mapping;
+            if (!mapping) {
+                mapping = { };
+                meta.metrics.forEach(function(metric, i) {
+                    map = { "": i };
+                    mapping[metric.name] = map;
+                    if (metric.instances) {
+                        metric.instances.forEach(function(instance, i) {
+                            map[instance] = { "": i };
+                        });
+                    }
+                });
+                meta.mapping = mapping;
+            }
+
+            if (message)
+                self.series.input(beg, message, mapping);
+        }
+
+        self.fetch = function fetch(beg, end) {
+            var opts = $.extend({ }, self.options, {
+                timestamp: timestamp(beg, interval),
+                limit: end - beg
+            });
+            if (opts.source == "direct")
+                opts.source = "pcp-archive";
+            transfer(opts, drain);
+        };
+
+        self.follow = function follow() {
+            var opts = $.extend({ }, self.options);
+            delete opts.limit;
+            transfer(opts, drain);
+        };
+
+        self.close = function close(options) {
+            var i, len = channels.length;
+            for (i = 0; i < len; i++)
+                channels[i].close(options);
+        };
+    }
+
+    cockpit.metrics = function metrics(interval, options) {
+        return new MetricsChannel(interval, options);
+    };
+
     function SeriesSink(interval, identifier, fetch) {
         var self = this;
 

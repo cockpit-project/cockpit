@@ -16,14 +16,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-# make-srpm  --  Create a srpm out of a Git repository.
-#
-# Usage: make-srpm SPEC [COMMIT]
-#
-# SPEC is the spec file template and must be provided.
-# COMMIT is the Git commit to use.  When omitted, the current working
-# tree is used.
-
 set -eu
 
 if [ $# != 0 ]; then
@@ -34,13 +26,19 @@ fi
 base=$(cd $(dirname $0); pwd -P)
 rpm_tmpdir=$(mktemp -d -t rpmbuild.XXXXXX)
 
-# First make a .tar.gz with all the files tracked by Git
+# First make a .tar.gz with the source code
 (
     cd $base/..
-    git archive HEAD --prefix cockpit-wip/ --output $rpm_tmpdir/cockpit-wip.tar
-    if [ -d tools/node_modules ]; then
-        tar -rf $rpm_tmpdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' tools/node_modules
+
+    if [ -d .git ]; then
+        git archive HEAD --prefix cockpit-wip/ --output $rpm_tmpdir/cockpit-wip.tar
+        if [ -d tools/node_modules ]; then
+            tar -rf $rpm_tmpdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' tools/node_modules
+        fi
+    else
+        tar -cf $rpm_tmpdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' .
     fi
+
     gzip $rpm_tmpdir/cockpit-wip.tar
     cp test/cockpit.pam $rpm_tmpdir
     sed '1i\

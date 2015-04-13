@@ -82,6 +82,7 @@ base_TESTS = \
 	pkg/base1/test-user.html \
 	pkg/base1/test-time.html \
 	pkg/base1/test-permissions.html \
+	pkg/base1/test-series.html \
 	$(NULL)
 
 TESTS += $(base_TESTS)

@@ -1862,6 +1862,90 @@ handle = file.watch(callback);
   </refsection>
 
   <refsection>
+    <title>Metrics</title>
+
+    <para>Metrics about the system can be retrieved from several sources using
+      <link linkend="cockpit-metrics"><code>cockpit.metrics()</code></link> metrics channels.
+      The metrics are made available as series data, and can be used with the
+      <link linkend="cockpit-series"><code>cockpit.series()</code></link> and 
+      <link linkend="cockpit-grid"><code>cockpit.grid()</code></link> facilities.</para>
+
+    <refsection id="cockpit-metrics">
+      <title>cockpit.metrics()</title>
+<programlisting>
+  metrics = cockpit.metrics(interval, options)
+</programlisting>
+
+      <para>Opens a new metrics channel. The data retrieved will be available in the
+        <link linkend="cockpit-metrics-series"><code>metrics.series</code></link> series sink, and can
+        be used together with <link linkend="cockpit-grid"><code>cockpit.grid()</code></link> objects.</para>
+
+      <para>The <code>interval</code> is in milliseconds, and is the granularity of the series data
+        retrieved. Any grids consuming the data must have the same interval.</para>
+
+      <para>The options argument is a javascript plain object with the following fields.
+        The <code>"source"</code> and <code>"metrics"</code> options are required.</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><code>"cache"</code></term>
+          <listitem><para>A cache identifier. If set, then this metrics channel will share data
+            with other metrics channels of the same identifier. Make sure to use a globally
+            unique string.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>"metrics"</code></term>
+          <listitem><para>An array of metrics names to retrieve. Or an array of full metric
+            descriptions, as javascript objects. The specifics of these, and how to determine
+            which ones to use, are unfortunately not yet documented.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>"source"</code></term>
+          <listitem><para>Set to <code>"internal"</code> to retrieve internal metrics read
+            by the bridge. If set to <code>"direct"</code> or <code>"pmcd"</code> then data
+            will be retrieved from <ulink url="http://pcp.io">PCP</ulink>if it is
+            available.</para></listitem>
+        </varlistentry>
+      </variablelist>
+    </refsection>
+
+    <refsection id="cockpit-metrics-fetch">
+      <title>metrics.fetch()</title>
+<programlisting>
+  metrics.fetch(beg, end)
+</programlisting>
+
+      <para>Retrieve archived metrics data between <code>beg</code> and <code>end</code>. The
+        arguments can either be numbers, in which case they are interval based offsets, or they
+        can be javascript Date objects.</para>
+    </refsection>
+
+    <refsection id="cockpit-metrics-follow">
+      <title>metrics.follow()</title>
+<programlisting>
+  metrics.follow()
+</programlisting>
+
+      <para>Start retrieving live metrics data as it become available.</para>
+    </refsection>
+
+    <refsection id="cockpit-metrics-close">
+      <title>metrics.close()</title>
+<programlisting>
+  metrics.close()
+</programlisting>
+
+      <para>Stop the retrieval of metrics and release resources.</para>
+    </refsection>
+
+    <refsection id="cockpit-metrics-series">
+      <title>metrics.series</title>
+      <para>The series sink where data retrieved data will be processed.</para>
+    </refsection>
+
+  </refsection>
+
+  <refsection>
     <title>Series Data</title>
 
     <para>Series data consists of values along a continuous (usually time) axis. We

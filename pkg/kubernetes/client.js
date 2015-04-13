@@ -252,6 +252,11 @@ define([
         var index = new HashIndex(262139);
 
         self.resourceVersion = null;
+        self.k8api = api;
+        self.POD = "Pod";
+        self.SERVICE = "Service";
+        self.RC = "ReplicationController";
+        self.NS = "Namespace";
 
         /*
          * Here we create KubernetesWatch object, and a property
@@ -467,6 +472,10 @@ define([
             return results;
         };
 
+        this.get_api = function get_api(){
+            return self.k8api;
+        };
+
         this.delete_pod = function delete_pod(ns, pod_name) {
             api.request({"method": "DELETE",
                 "body": "",
@@ -496,22 +505,11 @@ define([
         };
 
         this.create_ns = function create_ns(ns_json) {
-            api.post("/api/v1beta3/namespaces", ns_json)
-               .done(function(data){
-                    console.log(data);
-               })
-               .fail(function(exception){
-                    var e = exception;
-                    console.log(e.problem);
-                    console.log(e.problem);
-                    console.log(e.problem);
-                    console.log(e.problem);
-               });
+            return api.post("/api/v1beta3/namespaces", ns_json);
         };
 
         this.create_replicationcontroller = function create_replicationcontroller(ns, replicationcontroller_json) {
-            api.post("/api/v1beta3/namespaces/"+ns+"/replicationcontrollers", replicationcontroller_json)
-               .fail(failure);
+            return api.post("/api/v1beta3/namespaces/"+ns+"/replicationcontrollers", replicationcontroller_json);
         };
 
         this.create_node = function create_node(ns, node_json) {
@@ -520,13 +518,25 @@ define([
         };
 
         this.create_pod = function create_pod(ns, pod_json) {
-            api.post("/api/v1beta3/namespaces/"+ns+"/pods", pod_json)
-               .fail(failure);
+            return api.post("/api/v1beta3/namespaces/"+ns+"/pods", pod_json);
         };
 
         this.create_service = function create_service(ns, service_json) {
-            api.post("/api/v1beta3/namespaces/"+ns+"/services", service_json)
-               .fail(failure);
+            return api.post("/api/v1beta3/namespaces/"+ns+"/services", service_json);
+        };
+
+        this.create_entity = function create_entity(kind, ns, ejson){
+            if(kind === client.POD){
+                return create_pod(ns, ejson);
+            } else if(kind === client.NS){
+                return create_ns(ns, ejson);
+            } else if(kind === client.SERVICE){
+                return create_service(ns, ejson);
+            } else if(kind === client.RC){
+                return create_replicationcontroller(ns, ejson);
+            } else {
+                return null;
+            }
         };
 
         this.update_replicationcontroller = function update_replicationcontroller(rc_json, rc_name) {

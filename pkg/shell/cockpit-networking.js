@@ -747,7 +747,7 @@ function NetworkManagerModel() {
     }
 
     function refresh_udev(obj) {
-        if (obj.Udi.indexOf("/sys/") === -1)
+        if (obj.Udi.indexOf("/sys/") !== 0)
             return;
 
         push_refresh();

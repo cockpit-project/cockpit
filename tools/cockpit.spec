@@ -79,7 +79,7 @@ BuildRequires: nodejs
 %if %{defined selinux}
 BuildRequires: selinux-policy-devel
 BuildRequires: checkpolicy
-BuildRequires: /usr/share/selinux/devel/policyhelp
+BuildRequires: selinux-policy-doc
 BuildRequires: sed
 %endif
 

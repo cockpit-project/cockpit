@@ -35,10 +35,10 @@ echo foobar | passwd --stdin admin
 #
 #     https://bugzilla.redhat.com/show_bug.cgi?id=1211547
 #
-yes | dnf update -y dnf
+dnf -y upgrade dnf
 
-yes | dnf update -y
-yes | dnf install -y $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+dnf -y upgrade
+dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 rm -rf /var/log/journal/*
 

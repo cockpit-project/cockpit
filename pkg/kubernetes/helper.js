@@ -73,6 +73,8 @@ define([
                 return;
             }
 
+            remove_notifications();
+
             var services = [];
             var rcs = [];
             var pods = [];
@@ -90,7 +92,7 @@ define([
             var btn = $('#deploy-app-start');
             
 
-            btn.prop("disabled", true);
+            //btn.prop("disabled", true);
 
             if(isJsonString(jsonData)){
                 var jdata = JSON.parse(jsonData);
@@ -117,7 +119,7 @@ define([
             }
 
 
-
+            /*
             function display_deploy_app_entity_failure(exception ,data){
                 console.log("entity failure = "+data);
                 var jdata = JSON.parse(data);
@@ -187,9 +189,96 @@ define([
             } else {
                 is_deploying.parent().prepend( $(Mustache.render(deploy_notification_success)));
             }
+
+            */
+
+
+            create_everything(namespace, services, rcs, pods)
+                .progress(function(code, response, n, total) {
+                    console.log(" "+code+"  "+response+"  "+n+" / "+total);
+                })
+                .done(function() {
+                    /* code gets run when everything is created */  
+                    hide_progress_message();
+                    is_deploying.parent().prepend( $(Mustache.render(deploy_notification_success)));
+
+                })
+                .fail(function(ex , response) {
+                    /* ex containst the failure */;
+                    var jdata = JSON.parse(response);
+                    hide_progress_message();
+                    var context = {};
+                    is_deploying.parent().prepend( $(Mustache.render(deploy_notification_failure, $.extend(context, jdata))));
+
+                });
         }
         
-        
+        function create_everything(namespace, services, rcs, pods ) {
+            console.log(services[0]);
+            console.log(services[1]);
+            var ns_json = '{"apiVersion":"v1beta3","kind":"Namespace","metadata":{"name": "'+namespace+'"}}';
+            /* functions that return promises */
+            var tasks = [];
+
+            /* ... */
+            tasks.push(["namespace" , function create_namespace() {
+                return client.create_ns(ns_json);
+            }]);
+
+            for(var serv in services) {
+                tasks.push([services[serv].metadata.name, function create_service() {
+                    return client.create_service(namespace, JSON.stringify(services[serv]));
+                }]);
+            }
+
+            for(var rc in rcs) {
+                tasks.push([rcs[rc].metadata.name , function create_replicationcontroller() {
+                    return client.create_replicationcontroller(namespace, JSON.stringify(rcs[rc]));
+                }]);
+            }
+
+            for(var p in pods) {
+                tasks.push([pods[p], function create_pod(){
+                    return client.create_pod(namespace, JSON.stringify(pods[p]));
+                }]);
+            }
+              
+            /*
+            * ... at this point we have a set of functions in the tasks array
+            * wrap them in an outer deferred.
+            */
+            var deferred = $.Deferred();
+            var total = tasks.length;
+            console.log(total);
+
+            function step(qtasks) {
+                var e = qtasks.shift();
+                if (!e) {
+                  deferred.resolve();
+                  return;
+                }
+                var task_name = e[0];
+                var task = e[1];
+                console.log("taskname "+task_name);
+
+                task().done(function(response) {
+                        deferred.notify("created", response, qtasks.length - total, total);
+                        step(qtasks);
+                    }).fail(function(ex, response) {
+                        if (ex.status == 409) {
+                            deferred.notify("skipped", response, qtasks.length - total, total);
+                            step(qtasks);
+                        } else {
+                            deferred.reject(ex,response);
+                        }
+                    });
+            };
+
+            step(tasks);
+              
+            return deferred.promise(); 
+        }
+
         /*
          * Display information about an action in progress
          * Make sure we only have one subscription-manager instance at a time
@@ -203,6 +292,11 @@ define([
             is_deploying.hide();
         }
 
+        function remove_notifications() {
+            $('div.container-fluid.alert').remove();
+            deploy_dialog_remove_errors();
+        }
+
         /* since we only call subscription_manager, we only need to check the update message visibility */
         function action_in_progress() {
             return (is_deploying.is(':visible'));
@@ -213,6 +307,60 @@ define([
         };
     
     }
+
+    function promiseQ(){
+        var order = [];
+        var tasks = [];
+        var funcHash = {}; // Use a hash as you're using keys rather than indicies
+        var me = $(document);//(minor)convention would be to name this $doc
+        
+        var engine = {
+            add: function (func, name) {
+                if(!funcHash.hasOwnProperty(name)) {//name does not exist yet
+                    funcHash[name] = [];
+                    order.unshift(name);
+                }
+                funcHash[name].push(func);//now just queue the function      
+            },
+
+            call: function (name) {
+                me.queue("deferQueue", function () {    
+                    var promiseArr=[];
+                    var funcArr = funcHash[name];
+                    
+                    //funcArr is a hash of arrays don't use for in
+                    //also func was a global variable!]
+                    for(var i = 0; i < funcArr.length; i++){//you can use .forEach or $.each nicely here
+                        promiseArr.push((function(){
+                            var dfd = new jQuery.Deferred();
+                            funcArr[i](dfd);
+                            return dfd.promise();   
+                        })());
+                    }
+                    
+                    //I assume you want to remove the functions after you call them so requeing the same name doesn't add to the old queue
+                    delete funcHash[name];
+
+                    $.when.apply($,promiseArr).then(function () {
+                        console.log("Success "+name);
+                        me.dequeue("deferQueue");
+                    }, function () {
+                        console.log("Fail "+name);
+                    });
+                });
+            },
+
+            start: function () {
+                while(order.length>0) {
+                    engine.call(order.pop());
+                }
+                me.dequeue("deferQueue");
+            }
+        };
+
+        return engine;
+    };
+
 
     function deploy_app() {
         //alert("deploy_app")
@@ -362,9 +510,9 @@ define([
         ns_selector.selectpicker('refresh');
 
 
-	    $('#deploy-app').on('click', function() {
-	        $('#deploy-app-dialog').modal('show');
-	    });
+        $('#deploy-app').on('click', function() {
+            $('#deploy-app-dialog').modal('show');
+        });
 
         kubernetes_helper.manager = deploy_manager();
 

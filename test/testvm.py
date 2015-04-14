@@ -725,7 +725,7 @@ class QemuMachine(Machine):
                     sock.sendall("%s\n" % command)
                     sock.shutdown(socket.SHUT_WR)
                     command = None
-        except ex:
+        except IOError, ex:
             if ex.errno == errno.ECONNRESET: # Connection reset
                 pass
             else:

@@ -276,6 +276,7 @@ control_master_start (void)
   gchar *endptr;
   gint tempfd;
   gint outfd;
+  gint64 uid;
 
   /*
    * Here we start the control master. It needs a command to run, so the
@@ -334,9 +335,11 @@ control_master_start (void)
 
   /* Parse the output into a uid */
   g_strstrip (userid->str);
-  remote_target_uid = g_ascii_strtoull (userid->str, &endptr, 10);
-  if (!endptr || *endptr != '\0' || remote_target_uid > G_MAXUINT)
+  uid = g_ascii_strtoull (userid->str, &endptr, 10);
+  if (!endptr || *endptr != '\0' || uid > G_MAXUINT)
       g_critical ("invalid user id printed by id command: %s", userid->str);
+
+  remote_target_uid = (uid_t) uid;
   g_string_free (userid, TRUE);
 }
 
@@ -531,10 +534,10 @@ testing_target_execute (gchar **output,
   array = prepare_target_command (prog, va);
   va_end (va);
 
-  g_spawn_sync (NULL, (gchar **)array->pdata, NULL, G_SPAWN_SEARCH_PATH,
-                on_child_setup_lifetime, NULL, output, NULL, &exit_status, &error);
-
-  if (error)
+  if (!g_spawn_sync (NULL, (gchar **)array->pdata, NULL, G_SPAWN_SEARCH_PATH,
+                     on_child_setup_lifetime, NULL, output, NULL,
+                     &exit_status, &error)
+      || !g_spawn_check_exit_status (exit_status, &error))
     {
       gchar *cmd = g_strjoinv (" ", (gchar **)array->pdata);
       g_prefix_error (&error, "Couldn't run: %s: ", cmd);

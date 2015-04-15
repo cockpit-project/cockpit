@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2014 Red Hat, Inc.
+ * Copyright (C) 2015 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -27,11 +27,11 @@ define([
 
     var appdeployer = {};
     var client = kubernetes.k8client();
+    var POD = "Pod";
+    var SERVICE = "Service";
+    var RC = "ReplicationController";
+    var NS = "Namespace";
 
-    function debug() {
-        if (window.debugging == "all" || window.debugging == "deploy")
-            console.debug.apply(console, arguments);
-    }
 
     function failure(ex) {
         console.warn(ex);
@@ -98,13 +98,13 @@ define([
                     for (var i = 0; i < jdata.items.length; i++) {
                         var ent_json = jdata.items[i];
                         //console.log(ent_json)
-                        if (ent_json.kind === client.SERVICE) {
+                        if (ent_json.kind === SERVICE) {
                             services.push(ent_json);
-                        } else if (ent_json.kind === client.POD) {
+                        } else if (ent_json.kind === POD) {
                             pods.push(ent_json);
-                        } else if (ent_json.kind === client.RC) {
+                        } else if (ent_json.kind === RC) {
                             rcs.push(ent_json);
-                        } else if (ent_json.kind === client.NS) {
+                        } else if (ent_json.kind === NS) {
                             namespaces.push(ent_json);
                         }
                     }
@@ -122,16 +122,14 @@ define([
                 })
                 .done(function() {
                     /* code gets run when everything is created */
-                    var btn = $('#deploy-app-stop');
-                    btn.removeClass('btn-default');
-                    btn.addClass('btn-primary');
-                    btn.text("OK");
+                    set_deploy_success_buttons();
                     hide_progress_message();
                     is_deploying.parent().prepend($(Mustache.render(deploy_notification_success)));
 
                 })
                 .fail(function(ex, response) {
                     /* ex containst the failure */
+                    reset_deploy_success_buttons();
                     var jdata = JSON.parse(response);
                     hide_progress_message();
                     var context = {};
@@ -198,12 +196,6 @@ define([
             is_deploying.hide();
         }
 
-        function remove_notifications() {
-            $('div.container-fluid.alert').remove();
-            deploy_dialog_remove_errors();
-        }
-
-
         function action_in_progress() {
             return (is_deploying.is(':visible'));
         }
@@ -252,6 +244,29 @@ define([
 
     }
 
+    function remove_notifications() {
+        $('div.container-fluid.alert').remove();
+        deploy_dialog_remove_errors();
+    }
+
+    function set_deploy_success_buttons(){
+        var btn1 = $('#deploy-app-start');
+        btn1.prop("disabled", true);
+        var btn2 = $('#deploy-app-stop');
+        btn2.removeClass('btn-default');
+        btn2.addClass('btn-primary');
+        btn2.text("OK");
+    }
+
+    function reset_deploy_success_buttons(){
+        var btn1 = $('#deploy-app-start');
+        btn1.prop("disabled", false);
+        var btn2 = $('#deploy-app-stop');
+        btn2.addClass('btn-default');
+        btn2.removeClass('btn-primary');
+        btn2.text("Cancel");
+    }
+
     function pre_init() {
         //alert("pre_init")
         var firstTime = true;
@@ -270,6 +285,7 @@ define([
 
         dlg.on('show.bs.modal', function() {
             //alert("show.bs.models");
+            //avoid recreating the options
             if (firstTime) {
                 var optionls = [];
                 var nslist = get_kentities("namespaces");
@@ -284,6 +300,8 @@ define([
             }
             manifest_file.val("");
             deploy_dialog_remove_errors();
+            remove_notifications();
+            reset_deploy_success_buttons();
         });
 
 

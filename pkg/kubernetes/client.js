@@ -250,13 +250,7 @@ define([
 
         /* TODO: Derive this value from cluster size */
         var index = new HashIndex(262139);
-
         self.resourceVersion = null;
-        self.k8api = api;
-        self.POD = "Pod";
-        self.SERVICE = "Service";
-        self.RC = "ReplicationController";
-        self.NS = "Namespace";
 
         /*
          * Here we create KubernetesWatch object, and a property
@@ -472,35 +466,35 @@ define([
             return results;
         };
 
-        this.get_api = function get_api(){
-            return self.k8api;
-        };
-
         this.delete_pod = function delete_pod(ns, pod_name) {
-            api.request({"method": "DELETE",
+            api.request({
+                "method": "DELETE",
                 "body": "",
-                "path": "/api/v1beta3/namespaces/"+ns+"/pods/" + encodeURIComponent(pod_name)
+                "path": "/api/v1beta3/namespaces/" + ns + "/pods/" + encodeURIComponent(pod_name)
             }).fail(failure);
         };
 
         this.delete_node = function delete_node(ns, nodes_name) {
-            api.request({"method": "DELETE",
+            api.request({
+                "method": "DELETE",
                 "body": "",
-                "path": "/api/v1beta3/namespaces/"+ns+"/nodes/" + encodeURIComponent(nodes_name)
+                "path": "/api/v1beta3/namespaces/" + ns + "/nodes/" + encodeURIComponent(nodes_name)
             }).fail(failure);
         };
 
         this.delete_replicationcontroller = function delete_replicationcontroller(ns, rc_name) {
-            api.request({"method": "DELETE",
+            api.request({
+                "method": "DELETE",
                 "body": "",
-                "path": "/api/v1beta3/namespaces/"+ns+"/replicationcontrollers/" + encodeURIComponent(rc_name)
+                "path": "/api/v1beta3/namespaces/" + ns + "/replicationcontrollers/" + encodeURIComponent(rc_name)
             }).fail(failure);
         };
 
         this.delete_service = function delete_service(ns, service_name) {
-            api.request({"method": "DELETE",
+            api.request({
+                "method": "DELETE",
                 "body": "",
-                "path": "/api/v1beta3/namespaces/"+ns+"/services/" + encodeURIComponent(service_name)
+                "path": "/api/v1beta3/namespaces/" + ns + "/services/" + encodeURIComponent(service_name)
             }).fail(failure);
         };
 
@@ -509,26 +503,27 @@ define([
         };
 
         this.create_replicationcontroller = function create_replicationcontroller(ns, replicationcontroller_json) {
-            return api.post("/api/v1beta3/namespaces/"+ns+"/replicationcontrollers", replicationcontroller_json);
+            return api.post("/api/v1beta3/namespaces/" + ns + "/replicationcontrollers", replicationcontroller_json);
         };
 
         this.create_node = function create_node(ns, node_json) {
-            api.post("/api/v1beta3/namespaces/"+ns+"/nodes", node_json)
-               .fail(failure);
+            api.post("/api/v1beta3/namespaces/" + ns + "/nodes", node_json)
+                .fail(failure);
         };
 
         this.create_pod = function create_pod(ns, pod_json) {
-            return api.post("/api/v1beta3/namespaces/"+ns+"/pods", pod_json);
+            return api.post("/api/v1beta3/namespaces/" + ns + "/pods", pod_json);
         };
 
         this.create_service = function create_service(ns, service_json) {
-            return api.post("/api/v1beta3/namespaces/"+ns+"/services", service_json);
+            return api.post("/api/v1beta3/namespaces/" + ns + "/services", service_json);
         };
 
         this.update_replicationcontroller = function update_replicationcontroller(ns, rc_json, rc_name) {
-            api.request({"method": "PUT",
+            api.request({
+                "method": "PUT",
                 "body": rc_json,
-                "path": "/api/v1beta3/namespaces/"+ns+"/replicationcontrollers/" + encodeURIComponent(rc_name)
+                "path": "/api/v1beta3/namespaces/" + ns + "/replicationcontrollers/" + encodeURIComponent(rc_name)
             }).fail(failure);
         };
 

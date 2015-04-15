@@ -140,8 +140,7 @@ class Browser:
 
     def reload(self):
         self.switch_to_top()
-        self.wait_present("iframe.container-frame[data-loaded]")
-        self.wait_visible("iframe.container-frame[data-loaded]")
+        self.wait_js_cond("ph_select('iframe.container-frame').every(function (e) { return e.getAttribute('data-loaded'); })")
         self.phantom.reload()
         self.init_after_load()
 

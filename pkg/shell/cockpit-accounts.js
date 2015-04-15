@@ -134,9 +134,11 @@ function passwd_change(user, new_pass) {
 
 $(shell.default_permission).on("changed", update_accounts_privileged);
 
-function parse_passwd_content(content) {
-    if (content === null)
+function parse_passwd_content(content, tag, error) {
+    if (content === null) {
+        console.warn("Couldn't read /etc/passwd", error);
         return [ ];
+    }
 
     var ret = [ ];
     var lines = content.split('\n');
@@ -159,9 +161,11 @@ function parse_passwd_content(content) {
     return ret;
 }
 
-function parse_group_content(content) {
-    if (content === null)
+function parse_group_content(content, tag, error) {
+    if (content === null) {
+        console.warn("Couldn't read /etc/group", error);
         return [ ];
+    }
 
     var ret = [ ];
     var lines = content.split('\n');

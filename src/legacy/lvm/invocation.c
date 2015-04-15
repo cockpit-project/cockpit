@@ -154,9 +154,9 @@ on_get_connection_unix_user (GObject *source,
         {
           g_variant_get (value, "(u)", &client->uid_peer);
           client->uid_state = UID_VALID;
+          g_debug ("GetConnectionUnixUser('%s') == %u", bus_name, client->uid_peer);
         }
       g_variant_unref (value);
-      g_debug ("GetConnectionUnixUser('%s') == %u", bus_name, client->uid_peer);
     }
   else
     {

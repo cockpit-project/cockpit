@@ -49,7 +49,7 @@ cockpit_lvm_helper_SOURCES = \
 	$(NULL)
 
 cockpit_lvm_helper_CFLAGS = \
-	-DPACKAGE_DATA_DIR="\"$(libexecdir)/cockpit\"" \
+	-DPACKAGE_DATA_DIR="\"$(datadir)/cockpit\"" \
 	$(libstoraged_a_CFLAGS) \
 	$(LVM2_CFLAGS) \
 	$(NULL)

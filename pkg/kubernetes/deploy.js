@@ -68,6 +68,7 @@ define([
             var pods = [];
             var namespaces = [];
             var has_errors = false;
+            var text = "";
             var file_note = $('#deploy-app-manifest-file-note');
             var file_note_details = $('#deploy-app-manifest-file-note-details');
             var deploying_app_details = $('#deploy-app-deploying-details');
@@ -78,22 +79,42 @@ define([
 
             if (isJsonString(jsonData)) {
                 var jdata = JSON.parse(jsonData);
-                if (jdata.items) {
-                    for (var i = 0; i < jdata.items.length; i++) {
-                        var ent_json = jdata.items[i];
-                        if (ent_json.kind === SERVICE) {
-                            services.push(ent_json);
-                        } else if (ent_json.kind === POD) {
-                            pods.push(ent_json);
-                        } else if (ent_json.kind === RC) {
-                            rcs.push(ent_json);
-                        } else if (ent_json.kind === NS) {
-                            namespaces.push(ent_json);
+                if(jdata.kind === "List") {
+                    if (jdata.items) {
+                        for (var i = 0; i < jdata.items.length; i++) {
+                            var ent_json = jdata.items[i];
+                            if (ent_json.kind === SERVICE) {
+                                services.push(ent_json);
+                            } else if (ent_json.kind === POD) {
+                                pods.push(ent_json);
+                            } else if (ent_json.kind === RC) {
+                                rcs.push(ent_json);
+                            } else if (ent_json.kind === NS) {
+                                namespaces.push(ent_json);
+                            }
                         }
+                    } else {
+                        text = _("Unable to Read the file.Please check the json file. ");
+                        file_note.show().text(text);
+                        return;
+                    }
+                } else {
+                    if (jdata.kind === SERVICE) {
+                        services.push(jdata);
+                    } else if (jdata.kind === POD) {
+                        pods.push(jdata);
+                    } else if (jdata.kind === RC) {
+                        rcs.push(jdata);
+                    } else if (jdata.kind === NS) {
+                        namespaces.push(jdata);
+                    } else {
+                        text = _("Unsupported Entity. ");
+                        file_note.show().text(text);
+                        return;
                     }
                 }
             } else {
-                var text = _("Unable to Read the file.Please check the json file. ");
+                text = _("Unable to Read the file.Please check the json file. ");
                 file_note.show().text(text);
                 return;
             }

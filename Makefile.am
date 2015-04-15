@@ -215,6 +215,11 @@ dist-hook: dist-doc-hook
 distcheck-hook: dist-doc-hook
 	@true
 
+upload-pot:
+	zanata-cli push --project-config "$(srcdir)/tools/zanata.xml" -s "$(builddir)/po" -t "$(srcdir)/po"
+
+download-po:
+	zanata-cli pull --project-config "$(srcdir)/tools/zanata.xml" -s "$(builddir)/po" -t "$(srcdir)/po"
 
 include lib/Makefile.am
 include pkg/base1/Makefile.am

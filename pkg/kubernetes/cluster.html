@@ -38,7 +38,7 @@
       <div id="service-list" class="panel panel-default">
         <div class="panel-heading">
           <span style="float: right;">
-            <button class="btn btn-primary btn-primary" id="deploy-app" translatable="yes">Deploy</button>
+            <button class="btn btn-primary" id="deploy-app" translatable="yes">Deploy</button>
           </span>
           <span translatable="yes">Kubernetes Services</span>
         </div>
@@ -123,10 +123,6 @@
         <span class="deploy-app-emphasize">
           {{message}}
         </span>
-        <span>
-          {{message_detail}}
-        </span>
-
       </div>
     </script>
     
@@ -194,7 +190,7 @@
               </div>
             </div>
             <div>
-              <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              <button class="btn btn-default" id="deploy-app-stop" translatable="yes" data-dismiss="modal">
               Cancel
               </button>
               <button class="btn btn-primary" id="deploy-app-start" translatable="yes">
@@ -211,15 +207,15 @@
           "base1/cockpit",
           "translated!base1/po",
           "kubernetes/angular",
-          "kubernetes/helper",
+          "kubernetes/deploy",
           "kubernetes/app",
-          "kubernetes/dashboard",
-      ], function(cockpit, po, angular, helper) {
+          "kubernetes/dashboard"
+      ], function(cockpit, po, angular, deploy) {
           "use strict";
           cockpit.locale(po);
           cockpit.translate();
           angular.bootstrap(document, ["kubernetes"]);
-          helper.init();
+          deploy.init();
       });
   </script>
 </body>

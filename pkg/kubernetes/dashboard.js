@@ -22,10 +22,5 @@ define([
             $([services, nodes]).on("changed", function() {
                 $scope.$digest();
             });
-            $scope.showModal = false;
-            $scope.toggleModal = function(){
-                $scope.showModal = !$scope.showModal;
-            };
         }]);
-
 });

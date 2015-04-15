@@ -525,21 +525,7 @@ define([
             return api.post("/api/v1beta3/namespaces/"+ns+"/services", service_json);
         };
 
-        this.create_entity = function create_entity(kind, ns, ejson){
-            if(kind === client.POD){
-                return create_pod(ns, ejson);
-            } else if(kind === client.NS){
-                return create_ns(ns, ejson);
-            } else if(kind === client.SERVICE){
-                return create_service(ns, ejson);
-            } else if(kind === client.RC){
-                return create_replicationcontroller(ns, ejson);
-            } else {
-                return null;
-            }
-        };
-
-        this.update_replicationcontroller = function update_replicationcontroller(rc_json, rc_name) {
+        this.update_replicationcontroller = function update_replicationcontroller(ns, rc_json, rc_name) {
             api.request({"method": "PUT",
                 "body": rc_json,
                 "path": "/api/v1beta3/namespaces/"+ns+"/replicationcontrollers/" + encodeURIComponent(rc_name)

@@ -134,6 +134,7 @@ lvm_update_from_variant (GPid pid,
   if (error != NULL)
     {
       g_critical ("%s", error->message);
+      lvm_update_done (data);
       return;
     }
 

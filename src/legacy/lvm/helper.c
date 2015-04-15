@@ -77,16 +77,19 @@ list_volume_groups (void)
   struct lvm_str_list *vg_name;
   GVariantBuilder result;
 
-  lvm = init_lvm ();
-
   g_variant_builder_init (&result, G_VARIANT_TYPE ("as"));
-  vg_names = lvm_list_vg_names (lvm);
-  dm_list_iterate_items (vg_name, vg_names)
+
+  lvm = init_lvm ();
+  if (lvm)
     {
-      g_variant_builder_add (&result, "s", vg_name->str);
+      vg_names = lvm_list_vg_names (lvm);
+      dm_list_iterate_items (vg_name, vg_names)
+        {
+          g_variant_builder_add (&result, "s", vg_name->str);
+        }
+      lvm_quit (lvm);
     }
 
-  lvm_quit (lvm);
   return g_variant_builder_end (&result);
 }
 
@@ -166,10 +169,14 @@ show_volume_group (const char *name)
   vg_t vg;
   GVariantBuilder result;
 
+  g_variant_builder_init (&result, G_VARIANT_TYPE ("a{sv}"));
+
   lvm = init_lvm ();
+  if (!lvm)
+    return g_variant_builder_end (&result);
+
   vg = lvm_vg_open (lvm, name, "r", 0);
 
-  g_variant_builder_init (&result, G_VARIANT_TYPE ("a{sv}"));
   if (vg)
     {
       struct dm_list *list;

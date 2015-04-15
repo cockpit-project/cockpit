@@ -20,10 +20,15 @@
 define([
     "jquery",
     "base1/cockpit",
+    "translated!base1/po",
     "kubernetes/client",
     "base1/mustache"
-], function($, cockpit,kubernetes,Mustache) {
+], function($, cockpit,po,kubernetes,Mustache) {
     "use strict";
+
+    cockpit.locale(po);
+    cockpit.translate();
+    var _ = cockpit.gettext;
 
     var appdeployer = {};
     var client = kubernetes.k8client();
@@ -46,19 +51,7 @@ define([
         return true;
     }
 
-    function get_kentities(entity_key) {
-        var elist = [];
-        if (client[entity_key]) {
-            var el = client[entity_key];
-            for (var i = 0; i < el.length; i++) {
-                elist.push(el[i].metadata.name);
-            }
-        }
-        return elist;
-    }
-
     function deploy_manager() {
-
 
         var is_deploying = $('#deploy-app-deploying');
         var deploy_notification_success = $('#deploy-app-notification-success-template').html();
@@ -66,12 +59,7 @@ define([
         Mustache.parse(deploy_notification_success);
         Mustache.parse(deploy_notification_failure);
 
-        function deploy_app(namespace, jsonData) {
-            if (action_in_progress()) {
-                console.log('Unable to Deploy app at this time because a call to deploy manager ' +
-                    'is already in progress. Please try again.');
-                return;
-            }
+        function deploy(namespace, jsonData) {
 
             remove_notifications();
 
@@ -80,14 +68,10 @@ define([
             var pods = [];
             var namespaces = [];
             var has_errors = false;
-            var available_ns = get_kentities("namespaces");
-            var available_rc = get_kentities("replicationcontrollers");
-            var available_services = get_kentities("services");
-            var available_pods = get_kentities("pods");
             var file_note = $('#deploy-app-manifest-file-note');
             var file_note_details = $('#deploy-app-manifest-file-note-details');
             var deploying_app_details = $('#deploy-app-deploying-details');
-            show_progress_message("Deploying App");
+            show_progress_message();
 
             var btn = $('#deploy-app-start');
             btn.prop("disabled", true);
@@ -97,7 +81,6 @@ define([
                 if (jdata.items) {
                     for (var i = 0; i < jdata.items.length; i++) {
                         var ent_json = jdata.items[i];
-                        //console.log(ent_json)
                         if (ent_json.kind === SERVICE) {
                             services.push(ent_json);
                         } else if (ent_json.kind === POD) {
@@ -110,15 +93,15 @@ define([
                     }
                 }
             } else {
-                var text = "Unable to Read the file.Please check the json file. ";
-                file_note.show();
-                file_note_details.text(text);
+                var text = _("Unable to Read the file.Please check the json file. ");
+                file_note.show().text(text);
                 return;
             }
 
             create_everything(namespace, services, rcs, pods)
                 .progress(function(code, response, n, total) {
-                    //console.log(" " + code + "  " + response + "  " + n + " / " + total);
+                    //TODO Progress bar
+
                 })
                 .done(function() {
                     /* code gets run when everything is created */
@@ -139,10 +122,11 @@ define([
         }
 
         function create_everything(namespace, services, rcs, pods) {
-            var ns_json = '{"apiVersion":"v1beta3","kind":"Namespace","metadata":{"name": "' + namespace + '"}}';
+            var ns_json = {"apiVersion":"v1beta3","kind":"Namespace","metadata":{"name": "" }};
+            ns_json.metadata.name = namespace;
             var tasks = [];
 
-            tasks.push(["namespace", [ns_json], client.create_ns]);
+            tasks.push([namespace, [JSON.stringify(ns_json)], client.create_ns]);
 
             for (var serv in services) {
                 tasks.push([services[serv].metadata.name, [namespace, JSON.stringify(services[serv])], client.create_service]);
@@ -159,8 +143,8 @@ define([
             var deferred = $.Deferred();
             var total = tasks.length;
 
-            function step(qtasks) {
-                var e = qtasks.shift();
+            function step() {
+                var e = tasks.shift();
                 if (!e) {
                     deferred.resolve();
                     return;
@@ -170,48 +154,43 @@ define([
                 var task = e[2];
 
                 task.apply(null, args).done(function(response) {
-                    deferred.notify("created", response, qtasks.length - total, total);
-                    step(qtasks);
+                    deferred.notify("created", response, tasks.length - total, total);
+                    step();
                 }).fail(function(ex, response) {
                     if (ex.status == 409) {
-                        deferred.notify("skipped", response, qtasks.length - total, total);
-                        step(qtasks);
+                        deferred.notify("skipped", response, tasks.length - total, total);
+                        step();
                     } else {
                         deferred.reject(ex, response);
                     }
                 });
             }
 
-            step(tasks);
+            step();
 
             return deferred.promise();
         }
 
-        function show_progress_message(message) {
+        function show_progress_message() {
             is_deploying.show();
-            $('#deploy-update-message').text(message);
         }
 
         function hide_progress_message() {
             is_deploying.hide();
         }
 
-        function action_in_progress() {
-            return (is_deploying.is(':visible'));
-        }
-
         return {
-            'deploy_app': deploy_app
+            'deploy': deploy
         };
 
     }
 
     function deploy_app() {
-        //alert("deploy_app")
+
         var jsondata = "";
         deploy_dialog_remove_errors();
         jsondata = appdeployer.jsondata;
-
+ 
         var ns = $('#deploy-app-namespace-field').val();
         if ($('#deploy-app-namespace-field').val() === 'Custom Namespace')
             ns = $('#deploy-app-namespace-field-custom').val().trim();
@@ -228,17 +207,11 @@ define([
             has_errors = true;
         }
         if (!has_errors)
-            appdeployer.manager.deploy_app(ns, jsondata);
+            appdeployer.manager.deploy(ns, jsondata);
     }
 
     function deploy_dialog_remove_errors() {
-        $('#deploy-app-manifest-file-note').hide();
-        $('#deploy-app-manifest-file-note-details').hide();
-        $('#deploy-app-namespace-field-note').hide();
-        $('#deploy-app-namespace-field-note-details').hide();
-        $('#deploy-app-general-error').hide();
-        $('#deploy-app-manifest-file-empty').hide();
-        $('#deploy-app-namespace-field-custom-empty').hide();
+        $('.deploy-dialog-aids').hide();
         $('#deploy-app-namespace-field-custom').parent().removeClass('has-error');
         $('#deploy-app-manifest-file').parent().removeClass('has-error');
 
@@ -268,7 +241,7 @@ define([
     }
 
     function pre_init() {
-        //alert("pre_init")
+
         var firstTime = true;
         var dlg = $('#deploy-app-dialog');
         var btn = $('#deploy-app-start');
@@ -284,21 +257,20 @@ define([
         });
 
         dlg.on('show.bs.modal', function() {
-            //alert("show.bs.models");
             //avoid recreating the options
             if (firstTime) {
-                var optionls = [];
-                var nslist = get_kentities("namespaces");
-                for (var i = 0; i < nslist.length; i++) {
-                    optionls.push('<option translatable="yes" value="' + nslist[i] + '">' + nslist[i] + '</option>');
-                }
-                optionls.push('<option translatable="yes" value="Custom Namespace">Custom Namespace</option>');
-                var optionlshtml = optionls.join('');
-                ns_selector.prepend(optionlshtml);
+                var template = $('#deploy-app-ns-template').html();
+                Mustache.parse(template);
+                var text = Mustache.render(template, $.extend({
+                    "namespaces": client.namespaces
+                }));
+                ns_selector.html(text);
                 ns_selector.selectpicker('refresh');
                 firstTime = false;
             }
             manifest_file.val("");
+            ns_selector.selectpicker('refresh');
+            appdeployer.jsondata = "";
             deploy_dialog_remove_errors();
             remove_notifications();
             reset_deploy_success_buttons();
@@ -311,45 +283,43 @@ define([
         });
 
         manifest_file.on('change', function() {
-            //alert("manifest_file")
 
-            manifest_file_note.hide();
-            manifest_file_details.hide();
-            manifest_file.parent().removeClass('has-error');
+            remove_notifications();
+            reset_deploy_success_buttons();
 
             var files, file, reader;
             files = manifest_file[0].files;
             if (files.length != 1) {
-                text = "No json File was selected.Please select a json file. ";
+                text = _("No metadata file was selected. Please select a Kubernetes metadata file. ");
                 manifest_file_note.show();
-                manifest_file_details.text(text);
-                manifest_file_details.show();
+                manifest_file_details.show().text(text);
                 manifest_file.parent().addClass('has-error');
+                btn.prop("disabled", true);
                 return;
             }
             file = files[0];
             if (!file.type.match("json.*")) {
-                text = "Selected file is Not a Json file.Please select a json file. ";
+                text = _("The selected file is not a Kubernetes metadata file. Please select a Kubernetes metadata file. ");
                 manifest_file_note.show();
-                manifest_file_details.text(text);
-                manifest_file_details.show();
+                manifest_file_details.show().text(text);
                 manifest_file.parent().addClass('has-error');
+                btn.prop("disabled", true);
                 return;
             }
             reader = new window.FileReader();
-            reader.onerror = function() {
-                text = "Unable to Read the file.Please check the json file. ";
+            reader.onerror = function(event) {
+                text = _("Unable to read the metadata file.Code " + event.target.error.code + "");
                 manifest_file_note.show();
-                manifest_file_details.text(text);
-                manifest_file_details.show();
+                manifest_file_details.show().text(text);
                 manifest_file.parent().addClass('has-error');
+                btn.prop("disabled", true);
                 return;
             };
             reader.onload = function() {
                 appdeployer.jsondata = reader.result;
             };
             reader.readAsText(file);
-            deploy_dialog_remove_errors();
+
         });
 
     }
@@ -358,14 +328,15 @@ define([
     pre_init();
 
     appdeployer.init = function() {
-        //alert("init")
+
         var custom_ns = $('#deploy-app-namespace-field-custom');
         var ns_selector = $('#deploy-app-namespace-field');
         var note = $('#deploy-app-namespace-note');
 
         custom_ns.hide();
         ns_selector.on('change', function() {
-            //alert("ns_selecto")
+            remove_notifications();
+            reset_deploy_success_buttons();
             if (ns_selector.val() === 'Custom Namespace') {
                 custom_ns.show();
                 custom_ns.focus();

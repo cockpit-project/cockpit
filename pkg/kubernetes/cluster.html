@@ -124,7 +124,6 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         <span class="deploy-app-emphasize" translatable="yes">
           Application Deployed.
         </span>
-
       </div>
     </script>
     <script id="deploy-app-notification-failure-template" type="x-template/mustache">
@@ -138,7 +137,15 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         </span>
       </div>
     </script>
-    
+    <script id="deploy-app-ns-template" type="x-template/mustache">
+      {{#namespaces}}
+        {{#metadata}}
+          <option translatable="yes" value="{{name}}">{{name}}</option>
+        {{/metadata}}
+      {{/namespaces}}
+      <option translatable="yes" value="Custom Namespace">Custom Namespace</option>
+    </script>
+
     <div class="modal" id="deploy-app-dialog" tabindex="-1" role="dialog" data-backdrop="static">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -155,13 +162,13 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 </td>
                 <td>
                   <input id="deploy-app-manifest-file" class="form-control" type="file">
-                  <div id="deploy-app-manifest-file-empty" hidden>
+                  <div class="deploy-dialog-aids" id="deploy-app-manifest-file-empty" hidden>
                     <span class="help-block" translatable="yes">
-                    Please Provide Valid Manifest file.
+                    No metadata file was selected. Please select a Kubernetes metadata file.
                     </span>
                   </div>
-                  <div id="deploy-app-manifest-file-note" hidden>
-                    <span id="deploy-app-manifest-file-note-details" class="help-block"></span>
+                  <div class="deploy-dialog-aids" id="deploy-app-manifest-file-note" hidden>
+                    <span id="deploy-app-manifest-file-note-details" class="deploy-dialog-aids help-block"></span>
                   </div>
                 </td>
               </tr>
@@ -176,21 +183,21 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                   </select>
                     <input id="deploy-app-namespace-field-custom" class="form-control" type="text"
                            value="Enter Namespace Here">
-                    <div id="deploy-app-namespace-field-custom-empty" hidden>
+                    <div class="deploy-dialog-aids" id="deploy-app-namespace-field-custom-empty" hidden>
                       <span class="help-block" translatable="yes">
                       Namespace cannot be empty.
                       </span>
                     </div>
-                    <div id="deploy-app-namespace-field-note" hidden>
+                    <div class="deploy-dialog-aids" id="deploy-app-namespace-field-note" hidden>
                     <span class="help-block" translatable="yes">
                       Please Provide Valid Namespace.
                     </span>
-                    <span id="deploy-app-namespace-field-note-details" class="help-block"></span>
+                    <span id="deploy-app-namespace-field-note-details" class="deploy-dialog-aids help-block"></span>
                   </div>
                 </td>
               </tr>
             </table>
-            <div id="deploy-app-general-error" class="has-error" hidden>
+            <div id="deploy-app-general-error" class="deploy-dialog-aids has-error" hidden>
               <span id="deploy-app-general-error-msg" class="help-block"></span>
             </div>
           </div>

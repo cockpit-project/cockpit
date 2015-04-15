@@ -471,7 +471,10 @@ define([
             done(function() {
                 if (!last) {
                     reached_end();
-                    procs.push(server.journal(match, { follow: true, count: 0 }).
+                    procs.push(server.journal(match, { follow: true, count: 0,
+                                                       boot: options["boot"],
+                                                       since: options["since"]
+                                                     }).
                         fail(query_error).
                         stream(function(entries) {
                             prepend_entries(entries);

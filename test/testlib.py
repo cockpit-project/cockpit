@@ -56,10 +56,17 @@ __all__ = (
     'check_in',
     'check_not_in',
     'wait',
+    'RepeatThis',
 
     # Random utilities
     'merge'
     )
+
+class RepeatThis(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+    def __str__(self):
+        return self.msg
 
 topdir = os.path.normpath(os.path.dirname(__file__))
 

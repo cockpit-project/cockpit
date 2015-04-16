@@ -23,15 +23,20 @@ unset command_not_found_handle
 # TODO: Currently we have only one set of base packages, but we should
 # allow different sets for different OSes.
 #
-HS_BASE_PCKGS="virt-deploy pystache sshpass telnet fabric python-pip avocado avocado-plugins-output-html virt-manager qemu-img"
+HS_BASE_PCKGS="virt-deploy pystache sshpass fabric python-pip avocado avocado-plugins-output-html virt-manager qemu-img"
 
 export HS_GRP="virtualization"
-HS_CON="-c qemu:///system"
 export HS_POOLNAME="cockpitx"
 export HS_POOLNAME_PATH=/home/$HS_POOLNAME
 
 function echolog(){
     echo "`date -u '+%Y%m%d-%H:%M:%S'` HOST: $@"
+}
+
+function echodebug(){
+    if [ -n "$VERBOSE" ]; then
+        echo "`date -u '+%Y%m%d-%H:%M:%S'` HOST: $@"
+    fi
 }
 
 function host_dependencies_fedora22(){
@@ -55,30 +60,17 @@ function host_dependencies_rhel7(){
     sudo /bin/cp virt-deploy.repo avocado.repo /etc/yum.repos.d/
     sudo yum -y install $HS_BASE_PCKGS
 }
-function definepools(){
+
+function definenet(){
     local HS_PNAME=$1
     local HS_IPEXTENSION=123
-    sudo mkdir -p $HS_POOLNAME_PATH
-    sudo virsh $HS_CON pool-define /dev/stdin <<EOF
-<pool type='dir'>
-  <name>$HS_PNAME</name>
-  <target>
-    <path>$HS_POOLNAME_PATH</path>
-  </target>
-</pool>
-EOF
-    sudo virsh $HS_CON pool-start $HS_PNAME
-    sudo virsh $HS_CON pool-autostart $HS_PNAME
-
-    sudo virsh $HS_CON net-define /dev/stdin <<EOF
+    sudo virsh net-define /dev/stdin <<EOF
 <network>
   <name>$HS_PNAME</name>
   <domain name='cockpit.lan' localOnly='yes'/>
   <forward mode='nat'/>
   <bridge name='$HS_PNAME' stp='on' delay='0'/>
   <mac address='52:54:00:AB:AB:AB'/>
-    <dns>
-   </dns>
   <ip address='192.168.$HS_IPEXTENSION.1' netmask='255.255.255.0'>
     <dhcp>
       <range start='192.168.$HS_IPEXTENSION.2' end='192.168.$HS_IPEXTENSION.254'/>
@@ -86,8 +78,26 @@ EOF
   </ip>
 </network>
 EOF
-    sudo virsh $HS_CON net-start $HS_PNAME
-    sudo virsh $HS_CON net-autostart $HS_PNAME
+}
+
+function definepools(){
+    local HS_PNAME=$1
+    local HS_IPEXTENSION=123
+    sudo mkdir -p $HS_POOLNAME_PATH
+    sudo virsh pool-define /dev/stdin <<EOF
+<pool type='dir'>
+  <name>$HS_PNAME</name>
+  <target>
+    <path>$HS_POOLNAME_PATH</path>
+  </target>
+</pool>
+EOF
+    sudo virsh pool-start $HS_PNAME
+    sudo virsh pool-autostart $HS_PNAME
+
+    definenet $HS_PNAME
+    sudo virsh net-start $HS_PNAME
+    sudo virsh net-autostart $HS_PNAME
     echolog "added network and storage pools"
 }
 
@@ -107,7 +117,6 @@ ResultActive=yes
 "
 
 }
-
 
 HS_USER=$1
 HS_METHOD=$2
@@ -136,7 +145,7 @@ function install_host(){
             exit 10
         fi
     fi
-    if virsh $HS_CON net-dumpxml $HS_POOLNAME |grep -q "domain name='cockpit.lan'"; then
+    if virsh net-dumpxml $HS_POOLNAME |grep -q "domain name='cockpit.lan'"; then
         echolog "Network pool already configured for qemu"
     else
         definepools $HS_POOLNAME
@@ -152,11 +161,11 @@ function install_host(){
 function check_host(){
     HS_USER=$1
     if rpm -q $HS_BASE_PCKGS >& /dev/null; then
-        echolog "All packages alread installed"
+        echodebug "All packages already installed"
         if groups $HS_USER | grep -qs $HS_GRP; then
-            echolog "Virtualization enabled for user"
-            if virsh $HS_CON net-dumpxml $HS_POOLNAME |grep -q "domain name='cockpit.lan'"; then
-                echolog "Network domain configured for qemu"
+            echodebug "Virtualization enabled for user"
+            if virsh net-dumpxml $HS_POOLNAME |grep -q "domain name='cockpit.lan'"; then
+                echodebug "Network domain configured for qemu"
                 return 0
             else
                 echolog "Network domain for virt machines is NOT configured"
@@ -171,6 +180,7 @@ function check_host(){
 
 }
 
+# used when called as a standalone script to install host
 HS_USERS=$1
 for ONEHS_USER in $HS_USERS; do
     install_host $ONEHS_USER

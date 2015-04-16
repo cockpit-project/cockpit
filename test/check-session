@@ -36,7 +36,16 @@ class TestSession(MachineCase):
             def cond():
                 check = check_in if should_exist else check_not_in
                 return check(m.execute("loginctl list-sessions"), "admin")
-            wait (cond)
+            if should_exist:
+                wait(cond)
+            else:
+                # HACK - sometimes the session gets stuck forever in
+                #        state 'closing' with no processes.
+                #        https://bugs.freedesktop.org/show_bug.cgi?id=89024
+                try:
+                    wait(cond)
+                except:
+                    raise RepeatThis("https://bugs.freedesktop.org/show_bug.cgi?id=89024")
 
         def kill_user_admin():
             # logind from systemd 208 is buggy, so we use systemd directly if it fails
@@ -52,14 +61,7 @@ class TestSession(MachineCase):
         # Logout
         b.logout()
         b.wait_visible("#login")
-
-        # HACK - sometimes the session gets stuck forever in state 'closing' with no processes.
-        #        https://bugs.freedesktop.org/show_bug.cgi?id=89024
-        try:
-            wait_session(False)
-        except:
-            print ("WARNING: ran into https://bugs.freedesktop.org/show_bug.cgi?id=89024, skipping rest of test")
-            return
+        wait_session(False)
 
         # Login again
         b.set_val("#login-user-input", "admin")
@@ -72,6 +74,7 @@ class TestSession(MachineCase):
         # Kill session from the outside
         kill_user_admin()
         wait_session(False)
+
         b.relogin("server", "admin")
         wait_session(True)
 

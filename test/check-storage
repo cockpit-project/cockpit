@@ -749,7 +749,7 @@ class TestStorage(MachineCase):
         m.execute("mkfs.ext4 -q -L FSYS /dev/TEST/vol")
 
         b.wait_in_text("#storage_vgs", "TEST")
-        b.click('tr:contains("TEST")')
+        b.click('#storage_vgs tr:contains("TEST")')
         b.enter_page("storage-detail")
         b.wait_in_text("#storage_detail_partition_list", "FSYS")
 

@@ -154,6 +154,10 @@ class TestDocker(MachineCase):
         m = self.machine
         self.allow_journal_messages('.*denied.*name_connect.*docker.*')
 
+        if m.os == "fedora-22":
+            print "Skipping TestDocker.testExpose on Fedora 22"
+            return
+
         m.execute("systemctl start docker")
 
         self.login_and_go("containers", href="/docker/containers")
@@ -285,14 +289,4 @@ CMD ["/bin/sh", "-c", "echo '%s' | nc -l -p %d; echo '%s'"]
         b.click("#containers-failure-start")
         b.wait_visible("#containers-containers")
 
-# HACK - Disable all docker tests on Fedora 22
-#        docker-io-1.5.0-19.git5d7adce.fc22.x86_64 does not detect
-#        when our container-probe exits.
-#
-# https://bugzilla.redhat.com/show_bug.cgi?id=1204620
-#
-if 'TEST_OS' in os.environ and os.environ['TEST_OS'] == 'fedora-22':
-    print 'Skipping Docker tests.'
-    sys.exit(0)
-else:
-    test_main()
+test_main()

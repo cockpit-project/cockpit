@@ -21,7 +21,7 @@
 CTM_PASSWORD="testvm"
 RCTM_USER="root"
 CTM_ARCH="x86_64"
-CTM_SSHOPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+CTM_SSHOPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=10"
 
 CTM_POOLNAME=$HS_POOLNAME
 
@@ -78,8 +78,8 @@ function vm_wait_online(){
     local MAXIMUM_TIMEOUT=60
     local CTM_IP=`vm_get_ip $CTM_NAME`
     for foo in `seq $MAXIMUM_TIMEOUT`;do
-        echo quit | telnet "$CTM_IP" 22 2>/dev/null | grep -q Connected && return 0
-        echo -n . 1>&2
+        echo EOF | nc -w 100ms "$CTM_IP" 22 1>/dev/null 2>&1 && return 0
+        #echo -n . 1>&2
         sleep 1
     done
     return 1
@@ -87,11 +87,11 @@ function vm_wait_online(){
 
 function is_created(){
     local CTM_NAME=$1
-    if virsh -c qemu:///system list | grep -q $CTM_NAME; then
+    if virsh list | grep -q $CTM_NAME; then
         true;
-    elif virsh -c qemu:///system list --inactive| grep -q $CTM_NAME; then
+    elif virsh list --inactive| grep -q $CTM_NAME; then
         echolog "Starting $CTM_NAME"
-        virsh -c qemu:///system start $CTM_NAME
+        virsh start $CTM_NAME
     else
         echolog "$CTM_NAME does not exist"
         return 1
@@ -123,19 +123,19 @@ function vm_get_ip(){
     local CTM_NAME=$1
     local CTM_MAC=`vm_get_mac $CTM_NAME`
     is_created $CTM_NAME  &>/dev/null || return 1
-    local CTM_IP=`virsh -c qemu:///system net-dumpxml $CTM_POOLNAME | grep "$CTM_MAC" |sed -r 's/.*ip=.([0-9.]*).*/\1/'`
+    local CTM_IP=`virsh net-dumpxml $CTM_POOLNAME | grep "$CTM_MAC" |sed -r 's/.*ip=.([0-9.]*).*/\1/'`
     echo $CTM_IP
 }
 function vm_get_mac(){
     local CTM_NAME=$1
-    local CTM_MAC=`virsh -c qemu:///system dumpxml $CTM_NAME | grep 'mac address' | cut -d\' -f2`
+    local CTM_MAC=`virsh dumpxml $CTM_NAME | grep 'mac address' | cut -d\' -f2`
     echo $CTM_MAC
 }
 
 function vm_get_hostname(){
     local CTM_NAME=$1
     local CTM_MAC=`vm_get_mac $CTM_NAME`
-    local CTM_HOSTCTM_NAME=`virsh -c qemu:///system net-dumpxml $CTM_POOLNAME | grep $CTM_MAC |sed -r "s/.*name='([^']*).*$/\1/"`
+    local CTM_HOSTCTM_NAME=`virsh net-dumpxml $CTM_POOLNAME | grep $CTM_MAC |sed -r "s/.*name='([^']*).*$/\1/"`
     echo $CTM_HOSTCTM_NAME
 }
 
@@ -148,7 +148,12 @@ function vm_ssh(){
     vm_wait_online $CTM_HOST
     shift
     set -o pipefail
-    ssh $CTM_SSHOPTS -l $RCTM_USER `vm_get_ip $CTM_HOST` $@ |& (grep -v "Warning: Permanently added" || true)
+    n=0
+    until [ $n -ge 6 ]
+    do
+        ssh $CTM_SSHOPTS -l $RCTM_USER `vm_get_ip $CTM_HOST` $@ |& (grep -v "Warning: Permanently added" || true) && break
+        n=$[$n+1]
+    done
     set +o pipefail
 }
 
@@ -163,8 +168,8 @@ function vm_create(){
 
 function vm_delete_snaps(){
     CTM_NAME=$1
-    for foo in `virsh -c qemu:///system snapshot-list $CTM_NAME --name`; do
-        virsh -c qemu:///system snapshot-delete $CTM_NAME $foo
+    for foo in `virsh snapshot-list $CTM_NAME --name`; do
+        virsh snapshot-delete $CTM_NAME $foo
     done
     echolog All snaps deleted for: $CTM_NAME
 }

@@ -26,7 +26,7 @@ Name:           cockpit
 %if %{defined gitcommit}
 Version:        %{gitcommit}
 %else
-Version:        0.51
+Version:        0.52
 %endif
 Release:        1%{?dist}
 Summary:        A user interface for Linux servers

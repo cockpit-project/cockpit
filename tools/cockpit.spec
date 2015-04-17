@@ -383,10 +383,10 @@ pulls in some necessary packages via dependencies.
 %{_datadir}/%{name}/playground
 %{_datadir}/cockpit-test-assets
 %{_datadir}/polkit-1/rules.d
-/usr/lib/systemd/system/cockpit-testing.service
-/usr/lib/systemd/system/cockpit-testing.socket
-/usr/lib/systemd/system/test-server.service
-/usr/lib/systemd/system/test-server.socket
+%{_unitdir}/cockpit-testing.service
+%{_unitdir}/cockpit-testing.socket
+%{_unitdir}/test-server.service
+%{_unitdir}/test-server.socket
 
 %endif
 

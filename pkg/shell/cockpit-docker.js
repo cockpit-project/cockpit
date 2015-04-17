@@ -1825,6 +1825,28 @@ PageContainerDetails.prototype = {
         }
     },
 
+    add_bindings: function(bindings, config) {
+        for (var p in config) {
+            var h = config[p];
+            if (!h)
+                continue;
+            for (var i = 0; i < h.length; i++) {
+                var host_ip = h[i].HostIp;
+                if (host_ip === '')
+                    host_ip = '0.0.0.0';
+                var desc = cockpit.format(_("${hip}:${hport} -> $cport"),
+                                          { hip: host_ip,
+                                           hport: h[i].HostPort,
+                                           cport: p
+                                          });
+                /* make sure we don't push anything we already have */
+                if (bindings.indexOf(desc) === -1)
+                    bindings.push(desc);
+            }
+        }
+        return bindings;
+    },
+
     update: function() {
         $('#container-details-names').text("");
         $('#container-details-id').text("");
@@ -1859,20 +1881,10 @@ PageContainerDetails.prototype = {
         $('#container-details .breadcrumb .active').text(this.name);
 
         var port_bindings = [ ];
-        if (info.NetworkSettings) {
-            for (var p in info.NetworkSettings.Ports) {
-                var h = info.NetworkSettings.Ports[p];
-                if (!h)
-                    continue;
-                for (var i = 0; i < h.length; i++) {
-                    port_bindings.push(cockpit.format(_("${hip}:${hport} -> $cport"),
-                                         { hip: h[i].HostIp,
-                                           hport: h[i].HostPort,
-                                           cport: p
-                                         }));
-                }
-            }
-        }
+        if (info.NetworkSettings)
+            this.add_bindings(port_bindings, info.NetworkSettings.Ports);
+        if (info.HostConfig)
+            this.add_bindings(port_bindings, info.HostConfig.PortBindings);
 
         $('#container-details-id').text(info.ID);
         $('#container-details-names').text(render_container_name(info.Name));

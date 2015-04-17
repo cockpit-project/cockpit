@@ -28,7 +28,23 @@ class TestDocker(MachineCase):
         b = self.browser
         b.wait_popup("confirmation-dialog")
         b.click("#confirmation-dialog-confirm")
-        b.wait_popdown("confirmation-dialog")
+        # popdown should be really quick
+        with b.wait_timeout(5):
+            b.wait_popdown("confirmation-dialog")
+
+    def del_container_from_details(self, container_name):
+        b = self.browser
+        b.click("#container-details-delete")
+        with b.wait_timeout(20):
+            try:
+                self.confirm()
+                b.enter_page("containers")
+                b.wait_not_in_text("#containers-containers", container_name)
+            except:
+                # we may have to confirm again for forced deletion
+                self.confirm()
+                b.enter_page("containers")
+                b.wait_not_in_text("#containers-containers", container_name)
 
     def testBasic(self):
         b = self.browser
@@ -69,11 +85,7 @@ class TestDocker(MachineCase):
         b.wait_in_text("#container-terminal", message)
         b.wait_in_text("#container-details-state", "Exited")
 
-        # Delete container
-        b.click("#container-details-delete")
-        self.confirm()
-        b.enter_page("containers")
-        b.wait_not_in_text("#containers-containers", "PROBE")
+        self.del_container_from_details("PROBE")
 
         # Run it without TTY
         b.click('#containers-images tr:contains("busybox") button.btn-play')
@@ -120,7 +132,12 @@ class TestDocker(MachineCase):
         b.wait_visible("#containers-containers tbody tr:first button.btn-delete")
         b.wait_not_present("#containers-containers tbody tr:first button.btn-delete.disabled")
         b.click("#containers-containers tbody tr:first button.btn-delete")
-        b.wait_not_in_text('#containers-containers tbody tr:first', "PROBE2")
+        with b.wait_timeout(20):
+            try:
+                b.wait_not_in_text('#containers-containers tbody tr:first', "PROBE2")
+            except:
+                self.confirm()
+                b.wait_not_in_text('#containers-containers tbody tr:first', "PROBE2")
 
         # Check output of PROBE
         b.click('#containers-containers tr:contains("PROBE")')
@@ -135,11 +152,7 @@ class TestDocker(MachineCase):
         b.call_js_func("ph_count_check", ".logs",  1)
         b.wait_in_text("#container-details-state", "Exited")
 
-        # Delete container
-        b.click("#container-details-delete")
-        self.confirm()
-        b.enter_page("containers")
-        b.wait_not_in_text("#containers-containers", "PROBE")
+        self.del_container_from_details("PROBE")
 
         # Delete image
         b.click('#containers-images tr:contains("busybox")')
@@ -209,12 +222,7 @@ CMD ["/bin/sh", "-c", "echo '%s' | nc -l -p %d; echo '%s'"]
         # Wait for exit
         b.wait_in_text("#container-details-state", "Exited")
 
-        # Delete container
-        b.click("#container-details-delete")
-        self.confirm()
-        b.enter_page("containers")
-        b.wait_not_in_text("#containers-containers", "PROBE2")
-
+        self.del_container_from_details("PROBE2")
         nport = port + 1;
         # Run it again, but expose additional port
         b.click("#containers-images tr:contains(\"%s\") button.btn-play" % (image_name))
@@ -254,11 +262,7 @@ CMD ["/bin/sh", "-c", "echo '%s' | nc -l -p %d; echo '%s'"]
         # Wait for exit
         b.wait_in_text("#container-details-state", "Exited")
 
-        # Delete container
-        b.click("#container-details-delete")
-        self.confirm()
-        b.enter_page("containers")
-        b.wait_not_in_text("#containers-containers", "PROBE")
+        self.del_container_from_details("PROBE")
 
     def testFailure(self):
         b = self.browser

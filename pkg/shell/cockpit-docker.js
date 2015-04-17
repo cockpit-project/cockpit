@@ -1834,7 +1834,6 @@ PageContainerDetails.prototype = {
         $('#container-details-start').prop('disabled', info.State.Running);
         $('#container-details-stop').prop('disabled', !info.State.Running);
         $('#container-details-restart').prop('disabled', !info.State.Running);
-        $('#container-details-delete').prop('disabled', info.State.Running);
         $('#container-details-commit').prop('disabled', !!info.State.Running);
         $('#container-details-memory-row').toggle(!!info.State.Running);
         $('#container-details-cpu-row').toggle(!!info.State.Running);

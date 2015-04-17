@@ -364,9 +364,25 @@ function docker_container_delete(docker_client, container_id, on_success, on_fai
         fail(function(ex) {
             /* if container is still running, ask user to force delete */
             if (ex.message.indexOf('remove a running container') > -1) {
-                shell.confirm(cockpit.format(_("Please confirm forced deletion of $0"), container_id),
-                    _("Container may still be running."),
-                    _("Delete")).
+                var container_info = docker_client.containers[container_id];
+                var msg;
+                if (container_info.State.Running) {
+                    msg = _("Container is currently running.");
+                } else {
+                    msg = _("Container is currently marked as not running, but regular stopping failed.") +
+                      " " + _("Error message from Docker:") +
+                      " '" + ex.message + "'";
+                }
+                var name;
+                if (container_info.Name)
+                    name = container_info.Name;
+                else
+                    name = container_id;
+                if (name.charAt(0) === '/')
+                    name = name.substring(1);
+                shell.confirm(cockpit.format(_("Please confirm forced deletion of $0"), name),
+                    msg,
+                    _("Force Delete")).
                     done(function () {
                         docker_client.rm(container_id, true).
                             fail(function(ex) {

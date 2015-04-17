@@ -196,18 +196,16 @@ function password_quality(password, bar) {
             $(bar + '-message').css("visibility", "visible");
         } else {
             $(bar + '-message').css("visibility", "hidden");
-            if (quality <= 25) {
+            if (quality <= 33) {
                 $(bar).addClass("weak");
-            } else if (quality <= 50) {
+            } else if (quality <= 66) {
                 $(bar).addClass("okay");
-            } else if (quality <= 75) {
+            } else if (quality <= 99) {
                 $(bar).addClass("good");
             } else {
-                if (quality === 100) {
-                    $(bar + '-message').text(_("Excellent password"));
-                    $(bar + '-message').parent().removeClass("has-error");
-                    $(bar + '-message').css("visibility", "visible");
-                }
+                $(bar + '-message').text(_("Excellent password"));
+                $(bar + '-message').parent().removeClass("has-error");
+                $(bar + '-message').css("visibility", "visible");
                 $(bar).addClass("excellent");
             }
         }

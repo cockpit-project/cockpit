@@ -22,6 +22,9 @@
 %define rhel 0
 %endif
 
+# Directory for systemd
+%define systemdsystemunitdir %(pkg-config --variable systemdsystemunitdir systemd)
+
 Name:           cockpit
 %if %{defined gitcommit}
 Version:        %{gitcommit}
@@ -382,10 +385,10 @@ pulls in some necessary packages via dependencies.
 %{_datadir}/%{name}/playground
 %{_datadir}/cockpit-test-assets
 %{_datadir}/polkit-1/rules.d
-/usr/lib/systemd/system/cockpit-testing.service
-/usr/lib/systemd/system/cockpit-testing.socket
-/usr/lib/systemd/system/test-server.service
-/usr/lib/systemd/system/test-server.socket
+%{systemdsystemunitdir}/cockpit-testing.service
+%{systemdsystemunitdir}/cockpit-testing.socket
+%{systemdsystemunitdir}/test-server.service
+%{systemdsystemunitdir}/test-server.socket
 
 %endif
 

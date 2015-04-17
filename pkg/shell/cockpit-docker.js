@@ -384,6 +384,40 @@ function docker_container_delete(docker_client, container_id, on_success, on_fai
         done(on_success);
 }
 
+/* if error message points to leftover scope, try to resolve the issue */
+function handle_scope_start_container(docker_client, container_id, error_message, on_success, on_failure) {
+    var end_phrase = '.scope already exists';
+    var idx_end = error_message.indexOf(end_phrase);
+    /* HACK: workaround for https://github.com/docker/docker/issues/7015 */
+    if (idx_end > -1) {
+        var start_phrase = 'Unit docker-';
+        var idx_start = error_message.indexOf(start_phrase) + start_phrase.length;
+        var docker_container = error_message.substring(idx_start, idx_end);
+        cockpit.spawn([ "systemctl", "stop", "docker-" + docker_container + ".scope" ], { "superuser": true }).
+            done(function () {
+                docker_client.start(container_id).
+                    fail(function(ex) {
+                        if (on_failure)
+                            on_failure();
+                    }).
+                    done(function() {
+                        if (on_success)
+                            on_success();
+                    });
+                return;
+            }).
+            fail(function (error) {
+                shell.show_unexpected_error(cockpit.format(_("Failed to stop Docker scope: $0"), error));
+                if (on_failure)
+                    on_failure();
+            });
+        return;
+    }
+    shell.show_unexpected_error(error_message);
+    if (on_failure)
+        on_failure();
+}
+
 function render_container (client, $panel, filter_button, prefix, id, container, danger_mode) {
     var tr = $("#" + prefix + id);
 
@@ -434,7 +468,7 @@ function render_container (client, $panel, filter_button, prefix, id, container,
                     siblings("div.spinner").show();
                 client.start(id).
                     fail(function(ex) {
-                        shell.show_unexpected_error(ex);
+                        handle_scope_start_container(client, id, ex.message);
                     });
                 return false;
             });
@@ -1859,9 +1893,10 @@ PageContainerDetails.prototype = {
 
     start_container: function () {
         var self = this;
+        var id = this.container_id;
         this.client.start(this.container_id).
                 fail(function(ex) {
-                    shell.show_unexpected_error(ex);
+                    handle_scope_start_container(self.client, id, ex.message, function() { self.maybe_reconnect_terminal(); }, null);
                 }).
                 done(function() {
                     self.maybe_reconnect_terminal();

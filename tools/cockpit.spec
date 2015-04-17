@@ -297,6 +297,7 @@ cat subscriptions.list docker.list >> shell.list
 %files ws
 %doc %{_mandir}/man5/cockpit.conf.5.gz
 %doc %{_mandir}/man8/cockpit-ws.8.gz
+%doc %{_mandir}/man8/remotectl.8.gz
 %config(noreplace) %{_sysconfdir}/%{name}
 %config(noreplace) %{_sysconfdir}/pam.d/cockpit
 %{_unitdir}/cockpit.service

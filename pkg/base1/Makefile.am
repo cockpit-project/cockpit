@@ -123,6 +123,7 @@ update-lib::
 	    $(srcdir)/lib/bootstrap.$(VX).js \
 	    $(srcdir)/lib/bootstrap-select.$(VX).js \
 	    $(srcdir)/lib/bootstrap-datepicker.$(VX).js \
+	    $(srcdir)/lib/bootstrap-combobox.$(VX).js \
 	    $(srcdir)/lib/jquery-flot.$(VX).js \
 	    $(srcdir)/lib/attrchange.js
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/jquery.min.js \
@@ -130,6 +131,7 @@ update-lib::
 	    $(srcdir)/lib/bootstrap.$(VX).min.js \
 	    $(srcdir)/lib/bootstrap-select.$(VX).min.js \
 	    $(srcdir)/lib/bootstrap-datepicker.$(VX).min.js \
+	    $(srcdir)/lib/bootstrap-combobox.$(VX).min.js \
 	    $(srcdir)/lib/jquery-flot.$(VX).min.js \
 	    $(srcdir)/lib/attrchange.min.js
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/require.js \

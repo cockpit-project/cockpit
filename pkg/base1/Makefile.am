@@ -123,6 +123,7 @@ update-lib::
 	    $(srcdir)/lib/bootstrap.$(VX).js \
 	    $(srcdir)/lib/bootstrap-select.$(VX).js \
 	    $(srcdir)/lib/bootstrap-datepicker.$(VX).js \
+	    $(srcdir)/lib/bootstrap-combobox.$(VX).js \
 	    $(srcdir)/lib/jquery-flot.$(VX).js \
 	    $(srcdir)/lib/jquery-flot-selection.$(VX).js \
 	    $(srcdir)/lib/jquery-flot-time.$(VX).js \
@@ -132,6 +133,7 @@ update-lib::
 	    $(srcdir)/lib/bootstrap.$(VX).min.js \
 	    $(srcdir)/lib/bootstrap-select.$(VX).min.js \
 	    $(srcdir)/lib/bootstrap-datepicker.$(VX).min.js \
+	    $(srcdir)/lib/bootstrap-combobox.$(VX).min.js \
 	    $(srcdir)/lib/jquery-flot.$(VX).min.js \
 	    $(srcdir)/lib/jquery-flot-selection.$(VX).min.js \
 	    $(srcdir)/lib/jquery-flot-time.$(VX).min.js \

@@ -359,6 +359,31 @@ function unsetup_for_failure(client) {
     $('#containers-failure-start').off('.failure');
 }
 
+function docker_container_delete(docker_client, container_id, on_success, on_failure) {
+    docker_client.rm(container_id).
+        fail(function(ex) {
+            /* if container is still running, ask user to force delete */
+            if (ex.message.indexOf('remove a running container') > -1) {
+                shell.confirm(cockpit.format(_("Please confirm forced deletion of $0"), container_id),
+                    _("Container may still be running."),
+                    _("Delete")).
+                    done(function () {
+                        docker_client.rm(container_id, true).
+                            fail(function(ex) {
+                                shell.show_unexpected_error(ex);
+                                on_failure();
+                            }).
+                            done(on_success);
+                    }).
+                    fail(on_failure);
+                return;
+            }
+            shell.show_unexpected_error(ex);
+            on_failure();
+        }).
+        done(on_success);
+}
+
 function render_container (client, $panel, filter_button, prefix, id, container, danger_mode) {
     var tr = $("#" + prefix + id);
 
@@ -400,12 +425,7 @@ function render_container (client, $panel, filter_button, prefix, id, container,
                 var self = this;
                 $(self).hide().
                     siblings("div.spinner").show();
-                client.rm(id, true).
-                    fail(function(ex) {
-                        shell.show_unexpected_error(ex);
-                        $(self).show().
-                            siblings("div.spinner").hide();
-                    });
+                docker_container_delete(client, id, function() { }, function () { $(self).show().siblings("div.spinner").hide(); });
                 return false;
             });
         var btn_play = $('<button class="btn btn-default btn-control btn-play">').
@@ -1873,13 +1893,7 @@ PageContainerDetails.prototype = {
                         _("Deleting a container will erase all data in it."),
                         _("Delete")).
             done(function () {
-                self.client.rm(self.container_id).
-                    fail(function(ex) {
-                        shell.show_unexpected_error(ex);
-                    }).
-                    done(function() {
-                        location.go("containers");
-                    });
+                docker_container_delete(self.client, self.container_id, function() { location.go("containers"); }, function () { });
             });
     }
 
@@ -2523,12 +2537,15 @@ function DockerClient() {
             .then(JSON.parse);
     };
 
-    this.rm = function rm(id) {
+    this.rm = function rm(id, forced) {
+        if (forced === undefined)
+            forced = false;
         waiting(id);
         docker_debug("deleting:", id);
         return http.request({
                 method: "DELETE",
                 path: "/v1.10/containers/" + encodeURIComponent(id),
+                params: { "force": forced },
                 body: ""
             })
             .fail(function(ex) {

@@ -154,10 +154,6 @@ class TestDocker(MachineCase):
         m = self.machine
         self.allow_journal_messages('.*denied.*name_connect.*docker.*')
 
-        if m.os == "fedora-22":
-            print "Skipping TestDocker.testExpose on Fedora 22"
-            return
-
         m.execute("systemctl start docker")
 
         self.login_and_go("containers", href="/docker/containers")

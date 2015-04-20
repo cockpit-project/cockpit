@@ -745,7 +745,7 @@ PageContainers.prototype = {
                     avail = value[1];
             });
 
-            if (used && total) {
+            if (used && total && docker) {
 
               var b_used = docker.bytes_from_format(used);
               var b_total = docker.bytes_from_format(total);

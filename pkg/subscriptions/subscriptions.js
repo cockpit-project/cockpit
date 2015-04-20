@@ -369,6 +369,15 @@ define([
             update_timeout = window.setTimeout(status_update_failed, 10000);
         }
 
+        function linkify_message(message) {
+            /* we only consider there to be one link and return escaped html */
+            var r = new RegExp("(https?:\\/\\/)[\\w_/?%:;@&=+$,\\\\\\-\\.!~*'#|]+");
+            var matches = r.exec(message);
+            if (matches)
+                return message.replace(matches[0], '<a href="' + matches[0] + '" target="_blank">' + matches[0] + '</a>');
+            return message;
+        }
+
         function register_system(url, username, password) {
             if (action_in_progress()) {
                 console.log(_('Unable to register at this time because a call to subscription manager ' +
@@ -417,21 +426,25 @@ define([
                     var invalid_username_string = 'Invalid username or password.';
                     var invalid_credentials_string = 'Invalid Credentials';
                     var details = $('#subscriptions-register-password-note-details');
+                    var remainder;
                     if (buffer.indexOf(invalid_username_string) === 0) {
                         $('#subscriptions-register-password-note').show();
                         $('#subscription-register-username').parent().addClass('has-error');
                         $('#subscription-register-password').parent().addClass('has-error');
-                        details.text(buffer.substring(invalid_username_string.length).trim());
-                        details.show();
+                        remainder = buffer.substring(invalid_username_string.length).trim();
+                        if (remainder !== '') {
+                            details.html(linkify_message(remainder));
+                            details.show();
+                        }
                     } else if (buffer.indexOf(invalid_credentials_string) === 0) {
                         $('#subscriptions-register-password-note').show();
                         $('#subscription-register-username').parent().addClass('has-error');
                         $('#subscription-register-password').parent().addClass('has-error');
                         /* if there is more to the message, show that */
-                        var remainder = buffer.substring(invalid_username_string.length).trim();
+                        remainder = buffer.substring(invalid_credentials_string.length).trim();
                         if (remainder !== '') {
-                          details.text(remainder);
-                          details.show();
+                            details.html(linkify_message(remainder));
+                            details.show();
                         }
                     } else if (buffer.indexOf('Unable to reach the server at') === 0) {
                         $('#subscriptions-register-url-note').show();

@@ -2131,7 +2131,6 @@ function full_scope(cockpit, $, po) {
     };
 
     function format_units(number, suffixes, factor, separate) {
-        var divided = false;
         var quotient;
         var suffix = null;
 
@@ -2147,7 +2146,6 @@ function full_scope(cockpit, $, po) {
                     if (factor == suffixes[keys[y]][x]) {
                         number = number / Math.pow(keys[y], x);
                         suffix = factor;
-                        divided = x > 0;
                         break;
                     }
                 }
@@ -2163,33 +2161,37 @@ function full_scope(cockpit, $, po) {
                 if (quotient < factor) {
                     number = quotient;
                     suffix = suffixes[factor][i];
-                    divided = divisor > 1;
                     break;
                 }
                 divisor *= factor;
             }
         }
 
-        var ret;
-
-        if (!suffix) {
-            ret = [number.toString()];
-            if (!separate)
-                ret = ret.join(" ");
-            return ret;
-        }
-
         /* non-zero values should never appear zero */
         if (number > 0 && number < 0.1)
             number = 0.1;
+        else if (number < 0 && number > -0.1)
+            number = -0.1;
+
+        var ret;
 
         /* TODO: Make the decimal separator translatable */
-        if (number === 0 || !divided)
-            ret = [number.toString(), suffix];
+        var string_representation;
+
+        /* only show as integer if we have a natural number */
+        if (number % 1 === 0)
+            string_representation = number.toString();
         else
-            ret = [number.toFixed(1), suffix];
+            string_representation = number.toFixed(1);
+
+        if (suffix)
+            ret = [string_representation, suffix];
+        else
+            ret = [string_representation];
+
         if (!separate)
             ret = ret.join(" ");
+
         return ret;
     }
 

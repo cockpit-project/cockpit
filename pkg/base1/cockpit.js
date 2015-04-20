@@ -2206,19 +2206,23 @@ function full_scope(cockpit, $, po) {
     };
 
     var byte_sec_suffixes = {
-        1024: [ "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ]
+        1024: [ "B/s", "KB/s", "MB/s", "GB/s", "TB/s", "PB/s", "EB/s", "ZB/s" ]
     };
 
-    cockpit.format_bytes_per_sec = function format_bytes_per_sec(number) {
-        return format_units(number, byte_sec_suffixes, 1024, false) + "/s";
+    cockpit.format_bytes_per_sec = function format_bytes_per_sec(number, factor, separate) {
+        if (factor === undefined)
+            factor = 1024;
+        return format_units(number, byte_sec_suffixes, factor, separate);
     };
 
     var bit_suffixes = {
         1000: [ "bps", "Kbps", "Mbps", "Gbps", "Tbps", "Pbps", "Ebps", "Zbps" ]
     };
 
-    cockpit.format_bits_per_sec = function format_bits_per_sec(number) {
-        return format_units(number, bit_suffixes, 1000, false);
+    cockpit.format_bits_per_sec = function format_bits_per_sec(number, factor, separate) {
+        if (factor === undefined)
+            factor = 1000;
+        return format_units(number, bit_suffixes, factor, separate);
     };
 
     cockpit.message = function message(arg) {

@@ -2443,6 +2443,11 @@ function DockerClient() {
             container.CGroup = cgroup;
             var mem = sample[0];
             var limit = sample[1];
+            /* if the limit is extremely high, consider the value to mean unlimited
+             * 1.115e18 is roughly 2^60
+             */
+            if (limit > 1.115e18)
+                limit = undefined;
             var cpu = sample[4];
             var priority = sample[5];
             if (mem != container.MemoryUsage ||

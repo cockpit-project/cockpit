@@ -688,29 +688,4 @@
 
   </interface>
 
-  <interface name="com.redhat.Cockpit.Services">
-    <method name="ListServices">
-      <!-- (name,description,load_state,active_state,sub_state,file_state) -->
-      <arg name="services" type="a(ssssss)" direction="out"/>
-    </method>
-
-    <signal name="ServiceUpdate">
-      <arg name="service" type="(ssssss)" direction="out"/>
-    </signal>
-
-    <signal name="ServiceUpdateAll">
-    </signal>
-
-    <method name="GetServiceInfo">
-      <arg name="name" type="s" direction="in"/>
-      <arg name="info" type="a{sv}" direction="out"/>
-    </method>
-
-    <method name="ServiceAction">
-      <arg name="name" type="s" direction="in"/>
-      <arg name="action" type="s" direction="in"/>
-    </method>
-
-  </interface>
-
 </node>

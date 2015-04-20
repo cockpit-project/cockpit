@@ -324,6 +324,13 @@ PageServer.prototype = {
 
         self.plot_controls.reset([ self.cpu_plot, self.memory_plot, self.network_plot, self.disk_plot ]);
 
+        $(cockpit).on('resize.server', function () {
+            self.cpu_plot.resize();
+            self.memory_plot.resize();
+            self.network_plot.resize();
+            self.disk_plot.resize();
+        });
+
         /*
          * Parses output like:
          *
@@ -415,6 +422,8 @@ PageServer.prototype = {
 
         self.client.close();
         self.client = null;
+
+        $(cockpit).off('.server');
     },
 
     shutdown: function(action_type) {

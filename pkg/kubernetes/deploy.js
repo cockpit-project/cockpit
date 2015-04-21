@@ -36,6 +36,9 @@ define([
     var SERVICE = "Service";
     var RC = "ReplicationController";
     var NS = "Namespace";
+    var valid_manifest = false;
+    var valid_ns = false;
+    var namespacetxt = "";
 
 
     function failure(ex) {
@@ -54,10 +57,6 @@ define([
     function deploy_manager() {
 
         var is_deploying = $('#deploy-app-deploying');
-        var deploy_notification_success = $('#deploy-app-notification-success-template').html();
-        var deploy_notification_failure = $('#deploy-app-notification-failure-template').html();
-        Mustache.parse(deploy_notification_success);
-        Mustache.parse(deploy_notification_failure);
 
         function deploy(namespace, jsonData) {
 
@@ -74,8 +73,8 @@ define([
             var deploying_app_details = $('#deploy-app-deploying-details');
             show_progress_message();
 
-            var btn = $('#deploy-app-start');
-            btn.prop("disabled", true);
+            var deploy_btn = $('#deploy-app-start');
+            deploy_btn.prop("disabled", true);
 
             if (isJsonString(jsonData)) {
                 var jdata = JSON.parse(jsonData);
@@ -126,19 +125,18 @@ define([
                 })
                 .done(function() {
                     /* code gets run when everything is created */
-                    set_deploy_success_buttons();
+                    disable_deploy_button();
                     hide_progress_message();
-                    is_deploying.parent().prepend($(Mustache.render(deploy_notification_success)));
+                     $('#deploy-app-dialog').modal('hide');
 
                 })
                 .fail(function(ex, response) {
                     /* ex containst the failure */
-                    reset_deploy_success_buttons();
+                    enable_deploy_button();
                     var jdata = JSON.parse(response);
                     hide_progress_message();
-                    var context = {};
-                    is_deploying.parent().prepend($(Mustache.render(deploy_notification_failure, $.extend(context, jdata))));
-
+                    $("#deploy-app-general-error-msg").text(jdata.message).parent().show();
+                    console.warn(jdata.message);
                 });
         }
 
@@ -209,75 +207,126 @@ define([
     function deploy_app() {
 
         var jsondata = "";
-        deploy_dialog_remove_errors();
         jsondata = appdeployer.jsondata;
- 
-        var ns = $('#deploy-app-namespace-field').val();
-        if ($('#deploy-app-namespace-field').val() === 'Custom Namespace')
-            ns = $('#deploy-app-namespace-field-custom').val().trim();
+        var ns = get_ns_field_val();
 
-        var has_errors = false;
         if (jsondata === '') {
-            $('#deploy-app-manifest-file-empty').show();
-            $('#deploy-app-manifest-file').parent().addClass('has-error');
-            has_errors = true;
+            $('#deploy-app-manifest-file-empty').addClass('has-error').show();
+            valid_manifest = false;
+            display_deploy_button();
+            return;
         }
-        if (ns.trim() === '' || ns.trim() === 'Enter Namespace Here') {
-            $('#deploy-app-namespace-field-note').show();
-            $('#deploy-app-namespace-field-custom').parent().addClass('has-error');
-            has_errors = true;
+        if (ns.trim() === '' || ns.trim() === 'Custom Namespace' || !/^[a-z0-9]+$/i.test(ns.trim())) {
+            $('#deploy-app-namespace-field-note').addClass('has-error').show();
+            valid_ns = false;
+            display_deploy_button();
+            return;
         }
-        if (!has_errors)
-            appdeployer.manager.deploy(ns, jsondata);
+        
+        appdeployer.manager.deploy(ns, jsondata);
+        
     }
 
-    function deploy_dialog_remove_errors() {
-        $('.deploy-dialog-aids').hide();
-        $('#deploy-app-namespace-field-custom').parent().removeClass('has-error');
-        $('#deploy-app-manifest-file').parent().removeClass('has-error');
+    function display_deploy_button() {
+        var btn1 = $('#deploy-app-start');
+        if(valid_ns && valid_manifest) {
+            enable_deploy_button();
+        } else {
+            disable_deploy_button();
+        }
+    }
 
+    function deploy_dialog_remove_file_errors() {
+        $('.deploy-dialog-file-aids').hide();
+        $('#deploy-app-manifest-file-button').parent().removeClass('has-error');
+    }
+
+    function deploy_dialog_remove_ns_errors() {
+        $('.deploy-dialog-namespace-aids').hide();
+        $('#deploy-app-namespace-field').parent().removeClass('has-error');
     }
 
     function remove_notifications() {
-        $('div.container-fluid.alert').remove();
-        deploy_dialog_remove_errors();
+        $('#deploy-app-general-error').hide();
     }
 
-    function set_deploy_success_buttons(){
-        var btn1 = $('#deploy-app-start');
-        btn1.prop("disabled", true);
-        var btn2 = $('#deploy-app-stop');
-        btn2.removeClass('btn-default');
-        btn2.addClass('btn-primary');
-        btn2.text("OK");
-    }
-
-    function reset_deploy_success_buttons(){
+    function enable_deploy_button(){
         var btn1 = $('#deploy-app-start');
         btn1.prop("disabled", false);
-        var btn2 = $('#deploy-app-stop');
-        btn2.addClass('btn-default');
-        btn2.removeClass('btn-primary');
-        btn2.text("Cancel");
+        btn1.addClass('btn-primary');
+        btn1.removeClass('btn-default');
+    }
+
+    function disable_deploy_button(){
+        var btn1 = $('#deploy-app-start');
+        btn1.prop("disabled", true);
+        btn1.removeClass('btn-primary');
+        btn1.addClass('btn-default');
+    }
+
+    function get_ns_field_val() {
+        var ns_selector = $('#deploy-app-namespace-field');
+        var ns_selector_text = $('#namespace_value input[type=text]');
+
+        if(ns_selector.val() === '') {
+            return ns_selector_text.val();
+        } else {
+            return ns_selector_text.val();
+        }
     }
 
     function pre_init() {
 
         var firstTime = true;
         var dlg = $('#deploy-app-dialog');
-        var btn = $('#deploy-app-start');
+        var deploy_btn = $('#deploy-app-start');
         var manifest_file = $('#deploy-app-manifest-file');
+        var manifest_file_btn = $('#deploy-app-manifest-file-button');
         var manifest_file_note = $('#deploy-app-manifest-file-note');
         var manifest_file_details = $("#deploy-app-manifest-file-note-details");
         var ns_selector = $('#deploy-app-namespace-field');
         appdeployer.jsondata = "";
+        appdeployer.namespacetxt = "";
         var text = "";
 
-        btn.on('click', function() {
+        deploy_btn.on('click', function() {
+            deploy_dialog_remove_file_errors();
+            deploy_dialog_remove_ns_errors();
+            remove_notifications();
             deploy_app();
         });
 
+        manifest_file_btn.on('click', function(){
+            $('#namespace_value input[type=text]').val(appdeployer.namespacetxt);
+            deploy_dialog_remove_file_errors();
+            manifest_file.trigger('click');
+
+        });
+
+        $('#namespace_value').on('input', function() { 
+            deploy_dialog_remove_ns_errors();
+            appdeployer.namespacetxt = $('#namespace_value input[type=text]').val();
+            if (appdeployer.namespacetxt.trim() === '' || appdeployer.namespacetxt.trim() === 'Custom Namespace' ||
+                    !/^[a-z0-9]+$/i.test(appdeployer.namespacetxt.trim())) {
+                $('#deploy-app-namespace-field-note').addClass('has-error').show();
+                valid_ns = false;
+                display_deploy_button();
+                return;
+            } else {
+                valid_ns = true;
+                display_deploy_button();
+            }
+        });
+
         dlg.on('show.bs.modal', function() {
+            appdeployer.namespacetxt = "";
+            valid_ns = false;
+            valid_manifest = false;
+            $('#namespace_value input[type=text]').val(appdeployer.namespacetxt);
+            disable_deploy_button();
+            deploy_dialog_remove_file_errors();
+            deploy_dialog_remove_ns_errors();
+            remove_notifications();
             //avoid recreating the options
             if (firstTime) {
                 var template = $('#deploy-app-ns-template').html();
@@ -286,57 +335,98 @@ define([
                     "namespaces": client.namespaces
                 }));
                 ns_selector.html(text);
-                ns_selector.selectpicker('refresh');
+                ns_selector.combobox();
                 firstTime = false;
             }
-            manifest_file.val("");
-            ns_selector.selectpicker('refresh');
+            manifest_file_btn.text(_("Select Manifest File...")).addClass('manifest_file_default');
+            ns_selector.combobox();
             appdeployer.jsondata = "";
-            deploy_dialog_remove_errors();
-            remove_notifications();
-            reset_deploy_success_buttons();
         });
 
 
         dlg.on('keypress', function(e) {
             if (e.keyCode === 13)
-                btn.trigger('click');
+                deploy_btn.trigger('click');
+        });
+
+        ns_selector.on('change', function() {
+            remove_notifications();
+            deploy_dialog_remove_ns_errors();
+            if(ns_selector.val() === '') {
+                if (appdeployer.namespacetxt.trim() === '' || appdeployer.namespacetxt.trim() === 'Custom Namespace' || 
+                        !/^[a-z0-9]+$/i.test(appdeployer.namespacetxt.trim())) {
+                    $('#deploy-app-namespace-field-note').addClass('has-error').show();
+                    valid_ns = false;
+                    display_deploy_button();
+                    return;
+                } else {
+                    valid_ns = true;
+                    display_deploy_button();
+                }
+            } else {
+                var nsv = ns_selector.val();
+                if (nsv.trim() === '' || nsv.trim() === 'Custom Namespace' || !/^[a-z0-9]+$/i.test(nsv.trim())) {
+                    $('#deploy-app-namespace-field-note').addClass('has-error').show();
+                    valid_ns = false;
+                    display_deploy_button();
+                    return;
+                } else {
+                    valid_ns = true;
+                    display_deploy_button();
+                }
+                appdeployer.namespacetxt = ns_selector.val();
+            }
+            $('#namespace_value input[type=text]').val(appdeployer.namespacetxt);
         });
 
         manifest_file.on('change', function() {
 
+            deploy_dialog_remove_file_errors();
             remove_notifications();
-            reset_deploy_success_buttons();
+            $('#namespace_value input[type=text]').val(appdeployer.namespacetxt);
+
 
             var files, file, reader;
             files = manifest_file[0].files;
             if (files.length != 1) {
                 text = _("No metadata file was selected. Please select a Kubernetes metadata file. ");
-                manifest_file_note.show();
+                disable_deploy_button();
                 manifest_file_details.show().text(text);
-                manifest_file.parent().addClass('has-error');
-                btn.prop("disabled", true);
+                manifest_file_note.addClass('has-error').show();
+                valid_manifest = false;
+                display_deploy_button();
+
+                manifest_file_btn.text(_("Select Manifest File..."));
                 return;
             }
             file = files[0];
             if (!file.type.match("json.*")) {
-                text = _("The selected file is not a Kubernetes metadata file. Please select a Kubernetes metadata file. ");
-                manifest_file_note.show();
+                text = _("The selected file is not a valid Kubernetes application manifest. ");
+                disable_deploy_button();
                 manifest_file_details.show().text(text);
-                manifest_file.parent().addClass('has-error');
-                btn.prop("disabled", true);
+                manifest_file_note.addClass('has-error').show();
+
+                valid_manifest = false;
+                display_deploy_button();
+                manifest_file_btn.text(file.name).removeClass('manifest_file_default').addClass('manifest_file');
                 return;
             }
             reader = new window.FileReader();
             reader.onerror = function(event) {
                 text = _("Unable to read the metadata file.Code " + event.target.error.code + "");
-                manifest_file_note.show();
+                disable_deploy_button();
                 manifest_file_details.show().text(text);
-                manifest_file.parent().addClass('has-error');
-                btn.prop("disabled", true);
+                manifest_file_note.addClass('has-error').show();
+
+                valid_manifest = false;
+                display_deploy_button();
+                manifest_file_btn.text(file.name).removeClass('manifest_file_default').addClass('manifest_file');
                 return;
             };
             reader.onload = function() {
+                valid_manifest = true;
+                display_deploy_button();
+                manifest_file_btn.text(file.name).removeClass('manifest_file_default').addClass('manifest_file');
                 appdeployer.jsondata = reader.result;
             };
             reader.readAsText(file);
@@ -345,32 +435,13 @@ define([
 
     }
 
-
     pre_init();
 
     appdeployer.init = function() {
-
-        var custom_ns = $('#deploy-app-namespace-field-custom');
-        var ns_selector = $('#deploy-app-namespace-field');
         var note = $('#deploy-app-namespace-note');
+        var manifest_file_btn = $('#deploy-app-manifest-file-button');
 
-        custom_ns.hide();
-        ns_selector.on('change', function() {
-            remove_notifications();
-            reset_deploy_success_buttons();
-            if (ns_selector.val() === 'Custom Namespace') {
-                custom_ns.show();
-                custom_ns.focus();
-                custom_ns.select();
-                if (custom_ns.parent().hasClass('has-error'))
-                    note.show();
-            } else {
-                custom_ns.hide();
-                note.hide();
-            }
-        });
-        ns_selector.selectpicker('refresh');
-
+        manifest_file_btn.addClass('manifest_file_default');
         $('#deploy-app').on('click', function() {
             $('#deploy-app-dialog').modal('show');
         });

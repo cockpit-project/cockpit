@@ -453,8 +453,8 @@ function render_container (client, $panel, filter_button, prefix, id, container,
     if (container.State && container.State.Running) {
         cputext = format_cpu_usage(container.CpuUsage);
 
-        memuse = container.MemoryUsage || 0;
-        memlimit = container.MemoryLimit || 0;
+        memuse = container.MemoryUsage;
+        memlimit = container.MemoryLimit;
         memtext = format_memory_and_limit(memuse, memlimit);
 
         membar = true;

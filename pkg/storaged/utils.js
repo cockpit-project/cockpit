@@ -1,0 +1,277 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2015 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+
+define([
+    "jquery",
+    "base1/cockpit",
+    "base1/mustache"
+], function($, cockpit, mustache, client) {
+    var _ = cockpit.gettext;
+    var C_ = cockpit.gettext;
+
+    /* UTILITIES
+     */
+
+    var utils = { };
+
+    var hostnamed = cockpit.dbus("org.freedesktop.hostname1").proxy();
+
+    utils.array_find = function array_find(array, pred) {
+        for (var i = 0; i < array.length; i++)
+            if (pred(array[i]))
+                return array[i];
+        return undefined;
+    };
+
+    utils.flatten = function flatten(array_of_arrays) {
+        if (array_of_arrays.length > 0)
+            return Array.prototype.concat.apply([], array_of_arrays);
+        else
+            return [ ];
+    };
+
+    utils.decode_filename = function decode_filename(encoded) {
+        return cockpit.utf8_decoder().decode(cockpit.base64_decode(encoded).slice(0,-1));
+    };
+
+    utils.encode_filename = function encode_filename(decoded) {
+        return cockpit.base64_encode(cockpit.utf8_encoder().encode(decoded).concat([0]));
+    };
+
+    utils.fmt_size = function fmt_size(bytes) {
+        return cockpit.format_bytes(bytes, 1024);
+    };
+
+    utils.fmt_size_long = function fmt_size_long(bytes) {
+        var with_unit = cockpit.format_bytes(bytes, 1024);
+        /* Translators: Used in "42.5 KB (42399 bytes)" */
+        return with_unit + " (" + bytes + " " + C_("format-bytes", "bytes") + ")";
+    };
+
+    utils.fmt_rate = function fmt_rate(bytes_per_sec) {
+        return cockpit.format_bytes_per_sec(bytes_per_sec, 1024);
+    };
+
+    utils.format_temperature = function format_temperature(kelvin) {
+        var celcius = kelvin - 273.15;
+        var fahrenheit = 9.0 * celcius / 5.0 + 32.0;
+        return celcius.toFixed(1) + "° C / " + fahrenheit.toFixed(1) + "° F";
+    };
+
+    utils.format_fsys_usage = function format_fsys_usage(used, total) {
+        var text = "";
+        var units = 1024;
+        var parts = cockpit.format_bytes(total, units, true);
+        text = " / " + parts.join(" ");
+        units = parts[1];
+
+        parts = cockpit.format_bytes(used, units, true);
+        return parts[0] + text;
+    };
+
+    utils.format_delay = function format_delay(d) {
+        var seconds = Math.round(d/1000);
+        var minutes = Math.floor(seconds / 60);
+        var hours = Math.floor(minutes / 60);
+        seconds = seconds - minutes*60;
+        minutes = minutes - hours*60;
+
+        var s = seconds + " seconds";
+        if (minutes > 0)
+            s = minutes + " minutes, " + s;
+        if (hours > 0)
+            s = hours + " hours, " + s;
+        return s;
+    };
+
+    utils.validate_lvm2_name = function validate_lvm2_name(name) {
+        if (name === "")
+            return _("Name can not be empty.");
+        if (name.length > 127)
+            return _("Name can not be longer than 127 characters.");
+        var m = name.match(/[^a-zA-Z0-9+._-]/);
+        if (m) {
+            if (m[0].search(/\s+/) === -1)
+                return cockpit.format(_("Name can not contain the character '$0'."), m[0]);
+            else
+                    return cockpit.format(_("Name can not contain whitespace."), m[0]);
+        }
+    };
+
+    utils.block_name = function block_name(block) {
+        return utils.decode_filename(block.PreferredDevice);
+    };
+
+    utils.mdraid_name = function mdraid_name(mdraid) {
+        if (!mdraid.Name)
+            return "";
+
+        var parts = mdraid.Name.split(":");
+
+        if (parts.length != 2)
+            return mdraid.Name;
+
+        if (parts[0] == hostnamed.StaticHostname)
+            return parts[1];
+        else
+            return cockpit.format(_("$name (from $host)"),
+                                  { name: parts[1],
+                                    host: parts[0]
+                                  });
+    };
+
+    utils.lvol_name = function lvol_name(lvol) {
+        var type;
+        if (lvol.Type == "pool")
+            type = _("Pool for Thin Logical Volumes");
+        else if (lvol.ThinPool != "/")
+            type =_("Thin Logical Volume");
+        else if (lvol.Origin != "/")
+            type = _("Logical Volume (Snapshot)");
+        else
+            type = _("Logical Volume");
+        return mustache.render('{{Type}} "{{Name}}"', { Type: type, Name: lvol.Name });
+    };
+
+    utils.drive_name = function drive_name(drive) {
+        var name_parts = [ ];
+        if (drive.Vendor)
+            name_parts.push(drive.Vendor);
+        if (drive.Model)
+            name_parts.push(drive.Model);
+
+        var name = name_parts.join(" ");
+        if (drive.Serial)
+            name += " (" + drive.Serial + ")";
+        else if (drive.WWN)
+            name += " (" + drive.WWN + ")";
+
+        return name;
+    };
+
+    utils.get_block_link_target = function get_block_link_target(client, path) {
+        var is_part, is_crypt, is_lvol;
+
+        while (true) {
+            if (client.blocks_part[path] && client.blocks_ptable[client.blocks_part[path].Table]) {
+                is_part = true;
+                path = client.blocks_part[path].Table;
+            } else if (client.blocks_crypto[path] && client.blocks[client.blocks_crypto[path].CryptoBackingDevice]) {
+                is_crypt = true;
+                path = client.blocks_crypto[path].CryptoBackingDevice;
+            } else
+                break;
+        }
+
+        if (client.blocks_lvm2[path] && client.lvols[client.blocks_lvm2[path].LogicalVolume])
+            is_lvol = true;
+
+        function fmt_part(link) {
+            // Partitions of logical volumes are shown as just logical volumes.
+            if (is_lvol && is_crypt)
+                return cockpit.format(_("<span>Encrypted Logical Volume of $0</span>"), link);
+            else if (is_part && is_crypt)
+                return cockpit.format(_("<span>Encrypted Partition of $0</span>"), link);
+            else if (is_lvol)
+                return cockpit.format(_("<span>Logical Volume of $0</span>"), link);
+            else if (is_part)
+                return cockpit.format(_("<span>Partition of $0</span>"), link);
+            else if (is_crypt)
+                return cockpit.format(_("<span>Encrypted $0</span>"), link);
+            else
+                return link;
+        }
+
+        var block = client.blocks[path];
+        if (!block)
+            return;
+
+        var type, target, name;
+        if (client.mdraids[block.MDRaid]) {
+            type = "mdraid";
+            target = client.mdraids[block.MDRaid].UUID;
+            name = cockpit.format(_("RAID Device $0"), utils.mdraid_name(client.mdraids[block.MDRaid]));
+        } else if (client.blocks_lvm2[path] &&
+                   client.lvols[client.blocks_lvm2[path].LogicalVolume] &&
+                   client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup]) {
+            type = "vgroup";
+            target = client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup].Name;
+            name = cockpit.format(_("Volume Group $0"), target);
+        } else {
+            type = "block";
+            target = utils.block_name(block).replace(/^\/dev\//, "");
+            if (client.drives[block.Drive])
+                name = utils.drive_name(client.drives[block.Drive]);
+            else
+                name = utils.block_name(block);
+        }
+
+        return {
+            type: type,
+            target: target,
+            html: fmt_part(mustache.render('<a data-goto-{{type}}="{{target}}">{{name}}</a>',
+                                           { type: type, target: target, name: name }))
+        };
+    };
+
+    utils.get_free_blockdevs = function get_free_blockdevs(client) {
+        function is_free(path) {
+            var block = client.blocks[path];
+            var block_ptable = client.blocks_ptable[path];
+            var block_part = client.blocks_part[path];
+            var block_pvol = client.blocks_pvol[path];
+
+            function has_fs_label() {
+                if (!block.IdUsage)
+                    return false;
+                // Devices with a LVM2_member label need to actually be
+                // associated with a volume group.
+                if (block.IdType == 'LVM2_member' && (!block_pvol || !client.vgroups[block_pvol.VolumeGroup]))
+                    return false;
+                return true;
+            }
+
+            return (!block.HintIgnore &&
+                    block.Size > 0 &&
+                    !has_fs_label() &&
+                    !block_ptable &&
+                    !(block_part && block_part.IsContainer));
+        }
+
+        function cmp(path_a, path_b) {
+            return client.blocks[path_a].DeviceNumber - client.blocks[path_b].DeviceNumber;
+        }
+
+        function make(path) {
+            var block = client.blocks[path];
+            var link = utils.get_block_link_target(client, path);
+            var text = $('<div>').html(link.html).text();
+
+            return {
+                path: path,
+                Name: utils.block_name(block),
+                Description: utils.fmt_size(block.Size) + " " + text
+            };
+        }
+
+        return Object.keys(client.blocks).filter(is_free).sort(cmp).map(make);
+    };
+
+    return utils;
+});

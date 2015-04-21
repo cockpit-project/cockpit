@@ -40,7 +40,7 @@ CLEANFILES += \
 	pkg/systemd/init.min.html \
 	pkg/systemd/log.min.html \
 	pkg/systemd/terminal.min.html \
-	$(systed_BUNDLE) \
+	$(systemd_BUNDLE) \
 	$(NULL)
 
 EXTRA_DIST += \

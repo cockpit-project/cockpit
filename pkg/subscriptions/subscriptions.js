@@ -373,9 +373,16 @@ define([
             /* we only consider there to be one link and return escaped html */
             var r = new RegExp("(https?:\\/\\/)[\\w_/?%:;@&=+$,\\\\\\-\\.!~*'#|]+");
             var matches = r.exec(message);
-            if (matches)
-                return message.replace(matches[0], '<a href="' + matches[0] + '" target="_blank">' + matches[0] + '</a>');
-            return message;
+            if (matches) {
+                var idx = message.indexOf(matches[0]);
+                var parts = {
+                        'pre': message.substring(0, idx),
+                        'link': matches[0],
+                        'post': message.substring(idx+matches[0].length)
+                    };
+                return Mustache.render('{{pre}} <a target="_blank" href="{{{link}}}">{{link}}</a>{{post}}', parts);
+            }
+            return Mustache.render("{{text}}", { 'text': message });
         }
 
         function register_system(url, username, password) {

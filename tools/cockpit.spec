@@ -22,6 +22,8 @@
 %define rhel 0
 %endif
 
+%define _hardened_build 1
+
 Name:           cockpit
 %if %{defined gitcommit}
 Version:        %{gitcommit}

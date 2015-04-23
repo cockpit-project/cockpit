@@ -73,7 +73,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           <tbody>
             <tr ng-repeat="service in services">
               <td>{{service.name}}</td>
-              <td>{{service.address}}</td>
+              <td>{{service.address}}{{service.ports}}</td>
               <td>{{service.containers}}</td>
               <td>{{service.namespace}}</td>
               <td></td>

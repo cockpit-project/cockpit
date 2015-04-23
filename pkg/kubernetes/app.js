@@ -64,18 +64,47 @@ define([
             if (x != y)
                 calculated.containers += " of " + y;
 
+            /* Calculate the port string */
+
+            var parts;
+
+            /* No ports here */
+            if (!spec.ports || !spec.ports.length) {
+                calculated.ports = "";
+
+            /* One single TCP port */
+            } else if (spec.ports.length === 1 && spec.ports[0].protocol === "TCP") {
+                calculated.ports = ":" + spec.ports[0].port;
+
+            /* Multiple ports */
+            } else {
+                parts = [];
+                spec.ports.forEach(function(port) {
+                    if (port.protocol === "TCP")
+                        parts.push(port.port);
+                    else
+                        parts.push(port.port + "/" + port.protocol);
+                });
+                calculated.ports = " " + parts.join(" ");
+            }
+
             return calculated;
         }
 
-        Object.defineProperty(self, "containers", {
-            get: function get() { return calculate().containers; }
+        Object.defineProperties(self, {
+            containers: {
+                get: function get() { return calculate().containers; }
+            },
+            ports: {
+                get: function get() { return calculate().ports; }
+            }
         });
 
         self.apply = function apply(item) {
             var spec = item.spec || { };
             var meta = item.metadata || { };
             self.name = meta.name;
-            self.address = spec.portalIP + ":" + spec.port;
+            self.address = spec.portalIP;
             self.namespace = meta.namespace;
             service = item;
         };

@@ -135,7 +135,7 @@ define([
                     if(jdata.code === 409){
                         err_msg = "Please create another namespace for "+ jdata.details.kind + "\""+ jdata.details.id +"\"";
                     }
-                    console.warn(err_msg);
+                    console.warn(jdata.message);
                     hide_progress_message();
                     $("#deploy-app-general-error-msg").text(err_msg).parent().show();
                     

@@ -281,8 +281,10 @@ define([
                 if (meta.resourceVersion && meta.resourceVersion > self.resourceVersion)
                     self.resourceVersion = meta.resourceVersion;
 
-                items[meta.uid] = item;
-                self.objects[meta.uid] = item;
+                var uid = meta.uid;
+
+                items[uid] = item;
+                self.objects[uid] = item;
 
                 /* Add various bits to index, for quick lookup */
                 var i, keys, length;
@@ -290,20 +292,20 @@ define([
                     keys = [];
                     for (i in meta.labels)
                         keys.push(i + meta.labels[i]);
-                    index.add(keys, meta.uid);
+                    index.add(keys, uid);
                 }
                 var spec = item.spec;
                 if (spec && spec.selector) {
                     keys = [];
                     for (i in spec.selector)
                         keys.push(i + spec.selector[i]);
-                    index.add(keys, meta.uid);
+                    index.add(keys, uid);
                 }
 
                 /* Index the host for quick lookup */
                 var status = item.status;
                 if (status && status.host)
-                    index.add([ status.host ], meta.uid);
+                    index.add([ status.host ], uid);
 
                 trigger();
             }

@@ -328,7 +328,6 @@ function kube_apiserver(req) {
 
     function prepare(key, item) {
         if (resourceVersion) {
-            console.log("resourceVersion", resourceVersion);
             if (!item.metadata || !item.metadata.resourceVersion ||
                 item.metadata.resourceVersion < resourceVersion)
                 return null;
@@ -425,7 +424,6 @@ function etcd_server(req) {
         return;
     }
 
-    console.log(req.path, req);
     return false;
 }
 

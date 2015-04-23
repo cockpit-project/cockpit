@@ -20,14 +20,11 @@
 define([
     "jquery",
     "base1/cockpit",
-    "translated!base1/po",
     "kubernetes/client",
     "base1/mustache"
-], function($, cockpit,po,kubernetes,Mustache) {
+], function($, cockpit, kubernetes, Mustache) {
     "use strict";
 
-    cockpit.locale(po);
-    cockpit.translate();
     var _ = cockpit.gettext;
 
     var appdeployer = {};
@@ -93,7 +90,7 @@ define([
                             }
                         }
                     } else {
-                        text = _("Unable to Read the file.Please check the json file. ");
+                        text = _("Unable to read the Kubernetes application manifest file. ");
                         file_note.show().text(text);
                         return;
                     }
@@ -113,7 +110,7 @@ define([
                     }
                 }
             } else {
-                text = _("Unable to Read the file.Please check the json file. ");
+                text = _("Unable to read the Kubernetes application manifest file. ");
                 file_note.show().text(text);
                 return;
             }
@@ -134,9 +131,14 @@ define([
                     /* ex containst the failure */
                     enable_deploy_button();
                     var jdata = JSON.parse(response);
+                    var err_msg = jdata.message;
+                    if(jdata.code === 409){
+                        err_msg = "Please create another namespace for "+ jdata.details.kind + "\""+ jdata.details.id +"\"";
+                    }
+                    console.warn(err_msg);
                     hide_progress_message();
-                    $("#deploy-app-general-error-msg").text(jdata.message).parent().show();
-                    console.warn(jdata.message);
+                    $("#deploy-app-general-error-msg").text(err_msg).parent().show();
+                    
                 });
         }
 
@@ -176,7 +178,9 @@ define([
                     deferred.notify("created", response, tasks.length - total, total);
                     step();
                 }).fail(function(ex, response) {
-                    if (ex.status == 409) {
+                    var jdata = JSON.parse(response);
+                    //skip for namespace
+                    if (ex.status == 409 && jdata.details.kind === "namespaces") {
                         deferred.notify("skipped", response, tasks.length - total, total);
                         step();
                     } else {
@@ -299,6 +303,7 @@ define([
         manifest_file_btn.on('click', function(){
             $('#namespace_value input[type=text]').val(appdeployer.namespacetxt);
             deploy_dialog_remove_file_errors();
+            manifest_file.val('');
             manifest_file.trigger('click');
 
         });
@@ -306,15 +311,19 @@ define([
         $('#namespace_value').on('input', function() { 
             deploy_dialog_remove_ns_errors();
             appdeployer.namespacetxt = $('#namespace_value input[type=text]').val();
-            if (appdeployer.namespacetxt.trim() === '' || appdeployer.namespacetxt.trim() === 'Custom Namespace' ||
+            window.setTimeout(check_ns, 2000);
+
+            function check_ns() {
+                if (appdeployer.namespacetxt.trim() === '' || appdeployer.namespacetxt.trim() === 'Custom Namespace' ||
                     !/^[a-z0-9]+$/i.test(appdeployer.namespacetxt.trim())) {
-                $('#deploy-app-namespace-field-note').addClass('has-error').show();
-                valid_ns = false;
-                display_deploy_button();
-                return;
-            } else {
-                valid_ns = true;
-                display_deploy_button();
+                    $('#deploy-app-namespace-field-note').addClass('has-error').show();
+                    valid_ns = false;
+                    display_deploy_button();
+                    return;
+                } else {
+                    valid_ns = true;
+                    display_deploy_button();
+                }
             }
         });
 
@@ -322,7 +331,7 @@ define([
             appdeployer.namespacetxt = "";
             valid_ns = false;
             valid_manifest = false;
-            $('#namespace_value input[type=text]').val(appdeployer.namespacetxt);
+            $('#namespace_value input[type=text]').val('');
             disable_deploy_button();
             deploy_dialog_remove_file_errors();
             deploy_dialog_remove_ns_errors();
@@ -349,9 +358,11 @@ define([
                 deploy_btn.trigger('click');
         });
 
+        //focus out also calls change
         ns_selector.on('change', function() {
             remove_notifications();
             deploy_dialog_remove_ns_errors();
+            $('#namespace_value input[type=text]').val(appdeployer.namespacetxt);
             if(ns_selector.val() === '') {
                 if (appdeployer.namespacetxt.trim() === '' || appdeployer.namespacetxt.trim() === 'Custom Namespace' || 
                         !/^[a-z0-9]+$/i.test(appdeployer.namespacetxt.trim())) {
@@ -375,12 +386,11 @@ define([
                     display_deploy_button();
                 }
                 appdeployer.namespacetxt = ns_selector.val();
+                $('#namespace_value input[type=text]').val(appdeployer.namespacetxt);
             }
-            $('#namespace_value input[type=text]').val(appdeployer.namespacetxt);
         });
 
         manifest_file.on('change', function() {
-
             deploy_dialog_remove_file_errors();
             remove_notifications();
             $('#namespace_value input[type=text]').val(appdeployer.namespacetxt);
@@ -413,7 +423,7 @@ define([
             }
             reader = new window.FileReader();
             reader.onerror = function(event) {
-                text = _("Unable to read the metadata file.Code " + event.target.error.code + "");
+                text = _("Unable to read the Kubernetes application manifest file.Code " + event.target.error.code + "");
                 disable_deploy_button();
                 manifest_file_details.show().text(text);
                 manifest_file_note.addClass('has-error').show();

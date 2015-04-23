@@ -172,18 +172,22 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                     </div>
                     <div class="deploy-dialog-namespace-aids" id="deploy-app-namespace-field-note" hidden>
                     <span class="help-block" translatable="yes">
-                      Please Provide Valid Namespace.
+                      Please provide a valid namespace.
                     </span>
                     <span id="deploy-app-namespace-field-note-details" class="deploy-dialog-namespace-aids help-block"></span>
                   </div>
                 </td>
               </tr>
             </table>
-            <div id="deploy-app-general-error" class="deploy-dialog-aids has-error" hidden>
-              <span id="deploy-app-general-error-msg" class="help-block"></span>
-            </div>
+              <div  id="deploy-app-general-error"  class="container-fluid alert alert-danger alert-dismissible deploy-dialog-aids " role="alert" hidden>
+                <span class="pficon-layered">
+                  <span class="pficon pficon-error-octagon"></span>
+                  <span class="pficon pficon-error-exclamation"></span>
+                </span>
+                <span id="deploy-app-general-error-msg" class="help-block"></span>
+              </div>
           </div>
-          <div class="modal-footer">
+          <div class="modal-footer deploy_buttons">
             <div id="deploy-app-deploying" class="pull-left" hidden>
               <div class="spinner spinner-sm pull-left"></div>
               <span translatable="yes"></span>

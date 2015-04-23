@@ -122,6 +122,7 @@ update-lib:: update-bower
 	$(srcdir)/tools/uglifyjs $(BOWER)/jquery-flot/jquery.flot.js > jquery.flot.min.js
 	$(srcdir)/tools/uglifyjs $(BOWER)/jquery-flot/jquery.flot.selection.js > jquery.flot.selection.min.js
 	$(srcdir)/tools/uglifyjs $(BOWER)/jquery-flot/jquery.flot.time.js > jquery.flot.time.min.js
+	$(srcdir)/tools/uglifyjs $(BOWER)/jquery-amend/jquery-amend.js > jquery-amend.min.js
 	sed -f $(srcdir)/tools/patternfly.sed \
 		$(BOWER)/patternfly/dist/css/patternfly.css > patternfly.css
 	$(JSMODULE) -o $(srcdir)/pkg/base1/jquery.js \
@@ -134,6 +135,7 @@ update-lib:: update-bower
 	    $(BOWER)/jquery-flot/jquery.flot.js \
 	    $(BOWER)/jquery-flot/jquery.flot.selection.js \
 	    $(BOWER)/jquery-flot/jquery.flot.time.js \
+	    $(BOWER)/jquery-amend/jquery-amend.js \
 	    $(srcdir)/pkg/base1/jquery-scoped.js \
 	    $(srcdir)/pkg/base1/attrchange.js
 	$(JSMODULE) -o $(srcdir)/pkg/base1/jquery.min.js \
@@ -146,6 +148,7 @@ update-lib:: update-bower
 	    jquery.flot.min.js \
 	    jquery.flot.selection.min.js \
 	    jquery.flot.time.min.js \
+	    jquery-amend.min.js \
 	    $(srcdir)/pkg/base1/jquery-scoped.js \
 	    $(srcdir)/pkg/base1/attrchange.min.js
 	$(srcdir)/tools/uglifyjs $(BOWER)/requirejs/require.js > require.min.js

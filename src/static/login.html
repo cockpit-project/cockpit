@@ -682,6 +682,11 @@ label {
         .inline .container .help-block {
             color: #000;
         }
+        @media (min-width: 768px) {
+      	  .login-button-container {
+      	      float: right;
+          }
+      	}
     </style>
     <link href="/cockpit/static/branding.css" type="text/css" rel="stylesheet">
   </head>
@@ -719,7 +724,7 @@ label {
                 <div class="spinner col-xs-15" id="login-spinner" hidden>
                 </div>
               </div>
-              <div class="col-sm-3">
+              <div class="col-sm-3 login-button-container">
                 <button class="btn btn-primary btn-lg col-xs-12" id="login-button" tabindex="3">
                   Log In
                 </button>

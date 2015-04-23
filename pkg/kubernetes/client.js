@@ -578,13 +578,47 @@ define([
         update();
     }
 
-    kubernetes.k8client = function client() {
-        return new KubernetesClient();
-    };
+    /*
+     * Returns a new instance of Constructor for each
+     * key passed into the returned function. Multiple
+     * callers for the same key will get the same instance.
+     *
+     * Overrides .close() on the instances, to close when
+     * all callers have closed.
+     *
+     * Instances must accept zero or one primitive arguments,
+     * and must have zero arguments in their .close() method.
+     */
+    function singleton(Constructor) {
+        var cached = { };
 
-    kubernetes.etcdclient = function client() {
-        return new EtcdClient();
-    };
+        return function(key) {
+            var str = key + "";
+
+            var item = cached[str];
+            if (item) {
+                item.refs += 1;
+                return item.obj;
+            }
+
+            item = { refs: 1, obj: new Constructor(key) };
+            var close = item.obj.close;
+            item.obj.close = function close_singleton() {
+                item.refs -= 1;
+                if (item.refs === 0) {
+                    delete cached[str];
+                    if (close)
+                        close.apply(item.obj);
+                }
+            };
+
+            cached[str] = item;
+            return item.obj;
+        };
+    }
+
+    kubernetes.k8client = singleton(KubernetesClient);
+    kubernetes.etcdclient = singleton(EtcdClient);
 
     return kubernetes;
 });

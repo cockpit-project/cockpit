@@ -541,6 +541,7 @@ define([
 
         var etcd_api = cockpit.http(7001);
         var first = true;
+        var reqs = [];
         var later;
 
         function receive(data, what ,kind) {
@@ -552,7 +553,6 @@ define([
         }
 
         function update() {
-            var reqs = [];
 
             reqs.push(etcd_api.get("/v2/admin/machines")
                 .fail(failure)
@@ -576,6 +576,14 @@ define([
         }
 
         update();
+
+        self.close = function close() {
+            var r = reqs;
+            reqs = [];
+            r.forEach(function(req) {
+                req.close();
+            });
+        };
     }
 
     /*

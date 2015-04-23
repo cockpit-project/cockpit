@@ -25,7 +25,7 @@ define([
                 calculated.containers = "0";
 
                 if (service.spec && service.spec.selector) {
-                    var pods = client.select(service.spec.selector);
+                    var pods = client.select(service.spec.selector, service.metadata.namespace);
 
                     /* calculate "x of y" containers, where x is the current
                        number and y is the expected number. If x==y then only

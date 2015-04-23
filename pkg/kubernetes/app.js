@@ -16,50 +16,54 @@ define([
            values as a formatted string.
         */
         function calculate() {
+            if (version === client.resourceVersion)
+                return calculated;
+
+            var spec = service.spec || { };
+
+            version = client.resourceVersion;
+
+            /* Calculate number of containers */
+
             var x = 0;
             var y = 0;
-            if (version !== client.resourceVersion) {
-                //client.metadata.name != "kubernetes") {
-                version = client.resourceVersion;
+            calculated.containers = "0";
 
-                calculated.containers = "0";
-
-                if (service.spec && service.spec.selector) {
-                    var pods = client.select(service.spec.selector, service.metadata.namespace);
-
-                    /* calculate "x of y" containers, where x is the current
-                       number and y is the expected number. If x==y then only
-                       show x. The calculation is based on the statuses of the
-                       containers within the pod.  Pod states: Pending,
-                       Running, Succeeded, Failed, and Unknown. 
-                    */
-                    angular.forEach(pods, function(pod) {
-			if (!pod.status || !pod.status.phase)
-                           return;
-                        switch (pod.status.phase) {
-                        case "Failed":
-                            y++;
-                            break;
-                        case "Pending":
-                            y++;
-                            break;
-                        case "Running":
-                            x++; y++;
-                            break;
-                        case "Succeeded": // don't increment either counter
-                            break;
-                        case "Unknown":
-                            y++;
-                            break;
-                        default: // assume Failed
-                            y++;
-                        }
-                    });
-                    calculated.containers = "" + x;
-                    if (x != y)
-                        calculated.containers += " of " + y;
+            /*
+             * Calculate "x of y" containers, where x is the current
+             * number and y is the expected number. If x==y then only
+             * show x. The calculation is based on the statuses of the
+             * containers within the pod.  Pod states: Pending,
+             * Running, Succeeded, Failed, and Unknown.
+             */
+            client.select(service.spec.selector || { },
+                          service.metadata.namespace, "Pod").forEach(function(pod) {
+                if (!pod.status || !pod.status.phase)
+                    return;
+                switch (pod.status.phase) {
+                case "Failed":
+                    y++;
+                    break;
+                case "Pending":
+                    y++;
+                    break;
+                case "Running":
+                    x++; y++;
+                    break;
+                case "Succeeded": // don't increment either counter
+                    break;
+                case "Unknown":
+                    y++;
+                    break;
+                default: // assume Failed
+                    y++;
                 }
-            }
+            });
+
+            calculated.containers = "" + x;
+            if (x != y)
+                calculated.containers += " of " + y;
+
             return calculated;
         }
 

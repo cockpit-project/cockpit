@@ -462,6 +462,26 @@ require([
         }
     });
 
+    test("singleton", function() {
+        var client = kubernetes.k8client();
+        var client2 = kubernetes.k8client();
+
+        strictEqual(client, client2, "singleton returned same object");
+
+        client2.close();
+
+        var client3 = kubernetes.k8client();
+        strictEqual(client, client3, "singleton returned same object after one closed");
+
+        client.close();
+        client3.close();
+
+        var client4 = kubernetes.k8client();
+
+        notStrictEqual(client, client4, "different object after all closed");
+        client4.close();
+    });
+
     asyncTest("list nodes", function() {
         expect(3);
 

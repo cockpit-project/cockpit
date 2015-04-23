@@ -19,18 +19,19 @@
 
 #include "config.h"
 
+#include "cockpitmountsamples.h"
+
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <math.h>
 #include <fts.h>
 #include <ctype.h>
 #include <sys/statvfs.h>
 
-gboolean
-cockpit_mount_samples_fetch (CockpitSamples *samples)
+void
+cockpit_mount_samples (CockpitSamples *samples)
 {
-  CockpitMountSamples *self = COCKPIT_MOUNT_SAMPLES (samples);
-
   gchar *contents = NULL;
   GError *error = NULL;
   gchar **lines = NULL;
@@ -46,7 +47,6 @@ cockpit_mount_samples_fetch (CockpitSamples *samples)
       g_message ("error loading contents /proc/mounts: %s", error->message);
       g_error_free (error);
       goto out;
-      xxxx;
     }
 
   lines = g_strsplit (contents, "\n", -1);
@@ -76,8 +76,8 @@ cockpit_mount_samples_fetch (CockpitSamples *samples)
       if (statvfs (dir, &buf) >= 0)
         {
           total = buf.f_frsize * buf.f_blocks;
-          cockpit_samples_sample (samples, "mount.total", "bytes", dir, total);
-          cockpit_samples_sample (samples, "mount.used", "bytes", dir, total - buf.f_frsize * buf.f_bfree);
+          cockpit_samples_sample (samples, "mount.total", dir, total);
+          cockpit_samples_sample (samples, "mount.used", dir, total - buf.f_frsize * buf.f_bfree);
         }
 
       g_free (dir);

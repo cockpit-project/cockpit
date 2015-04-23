@@ -279,10 +279,12 @@ define([
                     console.warn("kubernetes item without uid");
                     return;
                 }
+
                 if (meta.resourceVersion && meta.resourceVersion > self.resourceVersion)
                     self.resourceVersion = meta.resourceVersion;
 
                 var uid = meta.uid;
+                var namespace = meta.namespace;
 
                 items[uid] = item;
                 self.objects[uid] = item;
@@ -292,14 +294,14 @@ define([
                 if (meta.labels) {
                     keys = [];
                     for (i in meta.labels)
-                        keys.push(i + meta.labels[i]);
+                        keys.push(namespace + i + meta.labels[i]);
                     index.add(keys, uid);
                 }
                 var spec = item.spec;
                 if (spec && spec.selector) {
                     keys = [];
                     for (i in spec.selector)
-                        keys.push(i + spec.selector[i]);
+                        keys.push(namespace + i + spec.selector[i]);
                     index.add(keys, uid);
                 }
 
@@ -364,36 +366,40 @@ define([
         /**
          * client.select()
          * @selector: plain javascript object, JSON label selector
+         * @namespace: the namespace to act in
          * @type: optional kind string (eg: 'Pod')
          *
          * Select objects that match the given labels.
          *
          * Returns: an array of objects
          */
-        this.select = function select(selector, kind) {
+        this.select = function select(selector, namespace, kind) {
             var i, keys;
             var possible, match, results = [];
             if (selector) {
                 keys = [];
                 for (i in selector)
-                    keys.push(i + selector[i]);
+                    keys.push(namespace + i + selector[i]);
                 possible = index.select(keys);
             } else {
                 possible = Object.keys(self.objects);
             }
-            var obj, uid, j, length = possible.length;
+            var meta, obj, uid, j, length = possible.length;
             for (j = 0; j < length; j++) {
                 uid = possible[j];
                 obj = self.objects[uid];
                 if (!obj || !obj.metadata)
                     continue;
-                if (selector && !obj.metadata.labels)
+                meta = obj.metadata;
+                if (meta.namespace !== namespace)
+                    continue;
+                if (selector && !meta.labels)
                     continue;
                 if (kind && obj.kind !== kind)
                     continue;
                 match = true;
                 for (i in selector) {
-                    if (obj.metadata.labels[i] !== selector[i]) {
+                    if (meta.labels[i] !== selector[i]) {
                         match = false;
                         break;
                     }
@@ -407,18 +413,19 @@ define([
         /**
          * client.infer()
          * @labels: plain javascript object, JSON labels
+         * @namespace: the namespace to act in
          * @kind: optional kind string
          *
          * Infer which objects that have selectors would have
          * matched the given labels.
          */
-        this.infer = function infer(labels, kind) {
+        this.infer = function infer(labels, namespace, kind) {
             var i, keys;
             var possible, match, results = [];
             if (labels) {
                 keys = [];
                 for (i in labels)
-                    keys.push(i + labels[i]);
+                    keys.push(namespace + i + labels[i]);
                 possible = index.select(keys);
             } else {
                 possible = Object.keys(self.objects);
@@ -427,7 +434,9 @@ define([
             for (j = 0; j < length; j++) {
                 uid = possible[j];
                 obj = self.objects[uid];
-                if (!obj || !obj.spec || !obj.spec.selector)
+                if (!obj || !obj.metadata || !obj.spec || !obj.spec.selector)
+                    continue;
+                if (obj.metadata.namespace !== namespace)
                     continue;
                 if (kind && obj.kind !== kind)
                     continue;

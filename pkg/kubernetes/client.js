@@ -113,6 +113,7 @@ define([
         var stopping = false;
         var requested = false;
         var req = null;
+        var wait = null;
 
         /*
          * Each change is sent as an individual line from Kubernetes
@@ -194,9 +195,9 @@ define([
              * to complete. Otherwise we could be in a tight loop here.
              * eg: if the API of Kubernetes changes unpredictably.
              */
-            var waited = false;
+            var blocked = false;
             window.setTimeout(function() {
-                waited = true;
+                blocked = true;
             }, 1000);
 
             if (req) {
@@ -208,17 +209,21 @@ define([
                 .stream(handle_watch)
                 .fail(function(ex) {
                     req = null;
-                    if (!stopping)
+                    if (!stopping) {
                         console.warn("watching kubernetes " + type + " failed: " + ex);
+                        wait = window.setTimeout(function() { wait = null; start_watch(); }, 5000);
+                    }
                 })
                 .done(function(data) {
                     var cancelled = req && req.cancelled;
                     req = null;
                     if (!stopping && !cancelled) {
-                        if (!waited)
+                        if (!blocked) {
                             console.warn("watching kubernetes " + type + " didn't block");
-                        else
+                            wait = window.setTimeout(function() { wait = null; start_watch(); }, 5000);
+                        } else {
                             start_watch();
+                        }
                     }
                 });
             requested = true;
@@ -230,6 +235,8 @@ define([
             stopping = true;
             if (req)
                 req.close();
+            window.clearTimeout(wait);
+            wait = null;
         };
     }
 

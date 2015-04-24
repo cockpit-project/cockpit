@@ -30,14 +30,24 @@ var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 
 function update_accounts_privileged() {
-    controls.update_privileged_ui(
-        shell.default_permission, ".accounts-privileged",
-        cockpit.format(
-            _("The user <b>$0</b> is not permitted to modify accounts"),
-            cockpit.user.name)
-    );
-    $(".accounts-privileged").children("input")
-        .attr('disabled', shell.default_permission.allowed === false);
+    if ($('#account-user-name').text() === 'root' && shell.default_permission.allowed) {
+        controls.update_privileged_ui({allowed: false},
+                                      "#account-delete",
+                                      _("Unable to delete root account"));
+        controls.update_privileged_ui({allowed: false},
+                                      "#account-change-roles",
+                                      _("Unable to change roles for root account"));
+    } else {
+        controls.update_privileged_ui(
+            shell.default_permission, ".accounts-privileged",
+            cockpit.format(
+                _("The user <b>$0</b> is not permitted to modify accounts"),
+                cockpit.user.name)
+        );
+        $(".accounts-privileged").children("input")
+            .attr('disabled', shell.default_permission.allowed === false ||
+                              $('#account-user-name').text() === 'root');
+    }
 }
 
 function passwd_self(old_pass, new_pass) {
@@ -245,7 +255,8 @@ PageAccounts.prototype = {
 
         list.empty();
         for (var i = 0; i < this.accounts.length; i++) {
-            if (this.accounts[i]["uid"] < 1000 || this.accounts[i]["shell"] == "/sbin/nologin")
+            if ((this.accounts[i]["uid"] < 1000 && this.accounts[i]["uid"] !== 0) ||
+                  this.accounts[i]["shell"] == "/sbin/nologin")
                 continue;
             var img =
                 $('<img/>', { 'class': "cockpit-account-pic",
@@ -564,7 +575,7 @@ PageAccount.prototype = {
 
             var name = $("#account-real-name");
 
-            name.attr('disabled', !can_change);
+            name.attr('disabled', !can_change || this.account["uid"] === 0);
             $('#account-logout').attr('disabled', !this.logged);
 
             if (!name.attr("data-dirty"))
@@ -579,23 +590,28 @@ PageAccount.prototype = {
             else
                 $('#account-last-login').text(this.lastLogin.toLocaleString());
 
-            if (typeof this.locked != 'undefined') {
+            if (typeof this.locked != 'undefined' && this.account["uid"] !== 0) {
                 $('#account-locked').prop('checked', this.locked);
                 $('#account-locked').parents('tr').show();
             } else {
                 $('#account-locked').parents('tr').hide();
             }
 
-            var roles = "";
-            for (var i = 0; this.roles && i < this.roles.length; i++) {
-                if (! this.roles[i]["member"])
-                    continue;
-                if (roles !== "")
-                    roles += "<br/>";
+            if (this.account["uid"] !== 0) {
+                var roles = "";
+                for (var i = 0; this.roles && i < this.roles.length; i++) {
+                    if (! this.roles[i]["member"])
+                        continue;
+                    if (roles !== "")
+                        roles += "<br/>";
 
-                roles += shell.esc(this.roles[i]["desc"]);
+                    roles += shell.esc(this.roles[i]["desc"]);
+                }
+                $('#account-roles').html(roles);
+                $('#account-roles').parents('tr').show();
+            } else {
+                $('#account-roles').parents('tr').hide();
             }
-            $('#account-roles').html(roles);
             $('#account .breadcrumb .active').text(this.account["gecos"]);
         } else {
             $('#account-real-name').val("");

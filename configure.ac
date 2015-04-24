@@ -16,7 +16,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 AC_INIT([Cockpit],
-        [0.53],
+        [0.54],
         [devel@lists.cockpit-project.org],
         [cockpit],
         [http://www.cockpit-project.org/])

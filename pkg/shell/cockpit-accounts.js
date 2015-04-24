@@ -151,8 +151,8 @@ function parse_passwd_content(content, tag, error) {
         ret[i] = [];
         ret[i]["name"] = column[0];
         ret[i]["password"] = column[1];
-        ret[i]["uid"] = column[2];
-        ret[i]["gid"] = column[3];
+        ret[i]["uid"] = parseInt(column[2], 10);
+        ret[i]["gid"] = parseInt(column[3], 10);
         ret[i]["gecos"] = column[4];
         ret[i]["home"] = column[5];
         ret[i]["shell"] = column[6];
@@ -178,7 +178,7 @@ function parse_group_content(content, tag, error) {
         ret[i] = [];
         ret[i]["name"] = column[0];
         ret[i]["password"] = column[1];
-        ret[i]["gid"] = column[2];
+        ret[i]["gid"] = parseInt(column[2], 10);
         ret[i]["userlist"] = column[3].split(',');
     }
 

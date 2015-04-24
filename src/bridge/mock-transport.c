@@ -194,3 +194,28 @@ mock_transport_count_sent (MockTransport *mock)
 {
   return mock->count;
 }
+
+GBytes *
+mock_transport_combine_output (MockTransport *transport,
+                               const gchar *channel_id,
+                               guint *count)
+{
+  GByteArray *combined;
+  GBytes *block;
+
+  if (count)
+    *count = 0;
+
+  combined = g_byte_array_new ();
+  for (;;)
+    {
+      block = mock_transport_pop_channel (transport, channel_id);
+      if (!block)
+        break;
+
+      g_byte_array_append (combined, g_bytes_get_data (block, NULL), g_bytes_get_size (block));
+      if (count)
+        (*count)++;
+    }
+  return g_byte_array_free_to_bytes (combined);
+}

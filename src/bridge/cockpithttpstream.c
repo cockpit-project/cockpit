@@ -427,7 +427,12 @@ relay_chunked (CockpitHttpStream *self,
 
   beg = (pos + 2) - data;
   size = g_ascii_strtoull (data, &end, 16);
-  if (pos[1] != '\n' || end != pos)
+  if (length < beg)
+    {
+      // have to have a least the ending chars
+      return FALSE; /* want more data */
+    }
+  else if (pos[1] != '\n' || end != pos)
     {
       g_message ("%s: received invalid HTTP chunk", self->name);
       cockpit_channel_close (channel, "protocol-error");

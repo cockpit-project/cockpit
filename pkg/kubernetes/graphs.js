@@ -183,7 +183,7 @@ define([
         return grid;
     }
 
-    function service_graph(selector, grid) {
+    function service_graph(selector, grid, lines) {
         var margins = {
             top: 6,
             right: 10,
@@ -249,7 +249,7 @@ define([
             /* Indicate the time range that the X axis is using */
             x.domain([new Date(beg * interval), new Date(end * interval)]).range([0, w]);
 
-            grid.adjust(beg, end);
+            grid.move(beg, end);
 
             /*
              * Make x-axis ticks into grid of right height

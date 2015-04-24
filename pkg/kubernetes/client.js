@@ -763,7 +763,7 @@ define([
                 }
             }
 
-            self.sink.input(base, items, mapping);
+            self.series.input(base, items, mapping);
         }
 
         function request() {
@@ -816,7 +816,7 @@ define([
         };
 
         var cache = "cadv1-" + (host || null);
-        self.sink = cockpit.sink(interval, cache, self.fetch);
+        self.series = cockpit.series(interval, cache, self.fetch);
     }
 
     kubernetes.cadvisor = singleton(CAdvisor);

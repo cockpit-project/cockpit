@@ -216,7 +216,7 @@ define([
                     req = null;
                     if (!stopping && !cancelled) {
                         if (!waited)
-                            console.warn("watching kubernetes " + type + " didn't block");
+                            console.warn("watching kubernetes " + type + " didn't block", data);
                         else
                             start_watch();
                     }
@@ -638,6 +638,188 @@ define([
 
     kubernetes.k8client = singleton(KubernetesClient);
     kubernetes.etcdclient = singleton(EtcdClient);
+
+    function CAdvisor(host) {
+        var self = this;
+
+        /* cAdvisor has second intervals */
+        var interval = 1000;
+
+        var api = cockpit.http(4194, { host: host });
+
+        var last = null;
+
+        var unique = 0;
+
+        var requests = { };
+
+        /* Holds the container specs */
+        self.specs = { };
+
+        function feed(containers) {
+            var x, y, ylen, i, len;
+            var item, offset, timestamp, container, stat;
+
+            /*
+             * The cAdvisor data doesn't seem to have inherent guarantees of
+             * continuity or regularity. In theory each stats object can have
+             * it's own arbitrary timestamp ... although in practice they do
+             * generally follow the interval to within a few milliseconds.
+             *
+             * So we first look for the lowest timestamp, treat that as our
+             * base index, and then batch the data based on that.
+             */
+
+            var first = null;
+
+            for (x in containers) {
+                container = containers[x];
+                len = container.stats.length;
+                for (i = 0; i < len; i++) {
+                    timestamp = container.stats[i].timestamp;
+                    if (timestamp) {
+                        if (first === null || timestamp < first)
+                            first = timestamp;
+                    }
+                }
+            }
+
+            if (first === null)
+                return;
+
+            var base = Math.floor(new Date(first).getTime() / interval);
+
+            var items = [];
+            var name, mapping = { };
+            var signal, id;
+            var names = { };
+
+            for (x in containers) {
+                container = containers[x];
+
+                /*
+                 * This builds the correct type of object graph for the
+                 * paths seen in grid.add() to operate on
+                 */
+                name = container.name;
+                if (!name)
+                    continue;
+
+                mapping[name] = { "": name };
+                id = name;
+
+                if (container.aliases) {
+                    ylen = container.aliases.length;
+                    for (y = 0; y < ylen; y++) {
+                        mapping[container.aliases[y]] = { "": name };
+
+                        /* Try to use the real docker container id as our id */
+                        if (container.aliases[y].length === 64)
+                            id = container.aliases[y];
+                    }
+                }
+
+                if (id && container.spec) {
+                    signal = !(id in self.specs);
+                    self.specs[id] = container.spec;
+                    if (signal) {
+                        $(self).triggerHandler("container", [ id ]);
+                    }
+                }
+
+                len = container.stats.length;
+                for (i = 0; i < len; i++) {
+                    stat = container.stats[i];
+                    if (!stat.timestamp)
+                        continue;
+
+                    /* Convert the timestamp into an index */
+                    offset = Math.floor(new Date(stat.timestamp).getTime() / interval);
+
+                    item = items[offset - base];
+                    if (!item)
+                        item = items[offset - base] = { };
+                    item[name] = stat;
+                    names[name] = name;
+                }
+            }
+
+            /* Make sure each offset has something */
+            len = items.length;
+            for (i = 0; i < len; i++) {
+                if (items[i] === undefined)
+                    items[i] = { };
+            }
+
+            /* Now for each offset, if it's a duplicate, put in a copy */
+            for(name in names) {
+                len = items.length;
+                last = undefined;
+                for (i = 0; i < len; i++) {
+                    if (items[i][name] === undefined)
+                        items[i][name] = last;
+                    else
+                        last = items[i][name];
+                }
+            }
+
+            self.sink.input(base, items, mapping);
+        }
+
+        function request() {
+            var query = { };
+            /*
+            if (start)
+                query[start] = xxx;
+            if (end)
+                query[end] = xxxx;
+            */
+
+            var body = JSON.stringify(query);
+
+            /* Only one request active at a time for any given body */
+            if (body in requests)
+                return;
+
+            var req = api.get("/api/v1.2/docker", JSON.stringify(query), { "Content-Type": "application/json" })
+                .done(function(data) {
+                    var msg = JSON.parse(data);
+                    feed(msg);
+                })
+                .fail(function(ex) {
+                    console.warn(ex);
+                })
+                .always(function() {
+                    delete requests[body];
+                });
+
+            requests[body] = req;
+        }
+
+        self.fetch = function fetch(beg, end) {
+            /* TODO: use beg and end */
+            request();
+        };
+
+        self.follow = function follow() {
+            /*
+            if (last)
+                
+
+            if (latest
+            */
+        };
+
+        self.close = function close() {
+            for (var body in requests)
+                requests[body].close();
+        };
+
+        var cache = "cadv1-" + (host || null);
+        self.sink = cockpit.sink(interval, cache, self.fetch);
+    }
+
+    kubernetes.cadvisor = singleton(CAdvisor);
 
     return kubernetes;
 });

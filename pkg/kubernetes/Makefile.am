@@ -18,6 +18,7 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/cluster.html \
 	pkg/kubernetes/d3.js \
 	pkg/kubernetes/dashboard.js \
+	pkg/kubernetes/graphs.js \
 	pkg/kubernetes/kubernetes.js \
 	pkg/kubernetes/tool.html \
 	pkg/kubernetes/deploy.js \
@@ -28,11 +29,9 @@ kubernetes_BUNDLE = \
 	pkg/kubernetes/app.min.js \
 	pkg/kubernetes/client.min.js \
 	pkg/kubernetes/dashboard.min.js \
-<<<<<<< HEAD
 	pkg/kubernetes/deploy.min.js \
-=======
 	pkg/kubernetes/d3.min.js \
->>>>>>> b07678b... kubernetes: Add D3 dependency
+	pkg/kubernetes/graphs.min.js \
 	$(NULL)
 
 pkg/kubernetes/kubernetes.min.js: $(kubernetes_BUNDLE)

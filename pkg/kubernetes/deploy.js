@@ -133,7 +133,7 @@ define([
                     var jdata = JSON.parse(response);
                     var err_msg = jdata.message;
                     if(jdata.code === 409){
-                        err_msg = "Please create another namespace for "+ jdata.details.kind + "\""+ jdata.details.id +"\"";
+                        err_msg = cockpit.format(_("Please create another namespace for $0 \"$1\""), jdata.details.kind, jdata.details.id);
                     }
                     console.warn(jdata.message);
                     hide_progress_message();
@@ -220,15 +220,27 @@ define([
             display_deploy_button();
             return;
         }
-        if (ns.trim() === '' || ns.trim() === 'Custom Namespace' || !/^[a-z0-9]+$/i.test(ns.trim())) {
-            $('#deploy-app-namespace-field-note').addClass('has-error').show();
-            valid_ns = false;
-            display_deploy_button();
+
+        if(!check_for_valid_ns(ns)) {
             return;
         }
         
         appdeployer.manager.deploy(ns, jsondata);
         
+    }
+    
+    function check_for_valid_ns (nspace) {
+        if (nspace.trim() === '' || !/^[a-z0-9]+$/i.test(nspace.trim())) {
+            $('#deploy-app-namespace-field-note').addClass('has-error').show();
+            valid_ns = false;
+            display_deploy_button();
+            return false;
+        } else {
+            valid_ns = true;
+            display_deploy_button();
+            return true;
+        }
+        return false;
     }
 
     function display_deploy_button() {
@@ -275,7 +287,7 @@ define([
         if(ns_selector.val() === '') {
             return ns_selector_text.val();
         } else {
-            return ns_selector_text.val();
+            return ns_selector.val();
         }
     }
 
@@ -311,20 +323,8 @@ define([
         $('#namespace_value').on('input', function() { 
             deploy_dialog_remove_ns_errors();
             appdeployer.namespacetxt = $('#namespace_value input[type=text]').val();
-            window.setTimeout(check_ns, 2000);
+            window.setTimeout(check_for_valid_ns(appdeployer.namespacetxt), 2000);
 
-            function check_ns() {
-                if (appdeployer.namespacetxt.trim() === '' || appdeployer.namespacetxt.trim() === 'Custom Namespace' ||
-                    !/^[a-z0-9]+$/i.test(appdeployer.namespacetxt.trim())) {
-                    $('#deploy-app-namespace-field-note').addClass('has-error').show();
-                    valid_ns = false;
-                    display_deploy_button();
-                    return;
-                } else {
-                    valid_ns = true;
-                    display_deploy_button();
-                }
-            }
         });
 
         dlg.on('show.bs.modal', function() {
@@ -348,6 +348,7 @@ define([
                 firstTime = false;
             }
             manifest_file_btn.text(_("Select Manifest File...")).addClass('manifest_file_default');
+            ns_selector.val('');
             ns_selector.combobox();
             appdeployer.jsondata = "";
         });
@@ -364,26 +365,13 @@ define([
             deploy_dialog_remove_ns_errors();
             $('#namespace_value input[type=text]').val(appdeployer.namespacetxt);
             if(ns_selector.val() === '') {
-                if (appdeployer.namespacetxt.trim() === '' || appdeployer.namespacetxt.trim() === 'Custom Namespace' || 
-                        !/^[a-z0-9]+$/i.test(appdeployer.namespacetxt.trim())) {
-                    $('#deploy-app-namespace-field-note').addClass('has-error').show();
-                    valid_ns = false;
-                    display_deploy_button();
+                if(!check_for_valid_ns(appdeployer.namespacetxt)) {
                     return;
-                } else {
-                    valid_ns = true;
-                    display_deploy_button();
                 }
             } else {
                 var nsv = ns_selector.val();
-                if (nsv.trim() === '' || nsv.trim() === 'Custom Namespace' || !/^[a-z0-9]+$/i.test(nsv.trim())) {
-                    $('#deploy-app-namespace-field-note').addClass('has-error').show();
-                    valid_ns = false;
-                    display_deploy_button();
+                if(!check_for_valid_ns(nsv)) {
                     return;
-                } else {
-                    valid_ns = true;
-                    display_deploy_button();
                 }
                 appdeployer.namespacetxt = ns_selector.val();
                 $('#namespace_value input[type=text]').val(appdeployer.namespacetxt);
@@ -423,7 +411,7 @@ define([
             }
             reader = new window.FileReader();
             reader.onerror = function(event) {
-                text = _("Unable to read the Kubernetes application manifest file.Code " + event.target.error.code + "");
+                text = cockpit.format(_("Unable to read the Kubernetes application manifest file. Code $0 ."), event.target.error.code);
                 disable_deploy_button();
                 manifest_file_details.show().text(text);
                 manifest_file_note.addClass('has-error').show();

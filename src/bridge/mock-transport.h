@@ -49,4 +49,8 @@ JsonObject *         mock_transport_pop_control   (MockTransport *mock);
 GBytes *             mock_transport_pop_channel   (MockTransport *mock,
                                                    const gchar *channel);
 
+GBytes *             mock_transport_combine_output (MockTransport *transport,
+                                                    const gchar *channel_id,
+                                                    guint *count);
+
 #endif /* MOCK_TRANSPORT_H */

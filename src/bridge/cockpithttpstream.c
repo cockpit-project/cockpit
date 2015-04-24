@@ -426,6 +426,12 @@ relay_chunked (CockpitHttpStream *self,
     return FALSE; /* want more data */
 
   beg = (pos + 2) - data;
+  if (length < beg)
+    {
+      /* have to have a least the ending chars */
+      return FALSE; /* want more data */
+    }
+
   size = g_ascii_strtoull (data, &end, 16);
   if (pos[1] != '\n' || end != pos)
     {

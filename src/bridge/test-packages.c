@@ -146,30 +146,6 @@ teardown (TestCase *tc,
   cockpit_bridge_data_dirs = NULL;
 }
 
-static GBytes *
-combine_output (TestCase *tc,
-                guint *count)
-{
-  GByteArray *combined;
-  GBytes *block;
-
-  if (count)
-    *count = 0;
-
-  combined = g_byte_array_new ();
-  for (;;)
-    {
-      block = mock_transport_pop_channel (tc->transport, "444");
-      if (!block)
-        break;
-
-      g_byte_array_append (combined, g_bytes_get_data (block, NULL), g_bytes_get_size (block));
-      if (count)
-        (*count)++;
-    }
-  return g_byte_array_free_to_bytes (combined);
-}
-
 static const Fixture fixture_simple = {
   .path = "/test/sub/file.ext",
 };
@@ -187,7 +163,7 @@ test_simple (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
   g_assert_cmpstr (tc->problem, ==, NULL);
 
-  data = combine_output (tc, &count);
+  data = mock_transport_combine_output (tc->transport, "444", &count);
   cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{}}"
                            "These are the contents of file.ext\nOh marmalaaade\n", -1);
   g_assert_cmpuint (count, ==, 2);
@@ -220,7 +196,7 @@ test_large (TestCase *tc,
                        &contents, &length, &error);
   g_assert_no_error (error);
 
-  data = combine_output (tc, &count);
+  data = mock_transport_combine_output (tc->transport, "444", &count);
 
   /* Should not have been sent as one block */
   g_assert_cmpuint (count, ==, 8);
@@ -442,7 +418,7 @@ test_list_bad_name (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
   g_assert_cmpstr (tc->problem, ==, NULL);
 
-  data = combine_output (tc, &count);
+  data = mock_transport_combine_output (tc->transport, "444", &count);
   cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":"
                                      "{\"Content-Type\":\"application/json\"}}"
                                  "{\"ok\":{}}", -1);

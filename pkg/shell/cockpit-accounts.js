@@ -20,14 +20,16 @@
 define([
     "jquery",
     "base1/cockpit",
+    "base1/patterns",
     "shell/controls",
     "shell/shell",
     "shell/cockpit-main"
-], function($, cockpit, controls, shell) {
+], function(jQuery, cockpit, patterns, controls, shell) {
 "use strict";
 
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
+var $ = jQuery.scoped("body", patterns);
 
 function update_accounts_privileged() {
     if ($('#account-user-name').text() === 'root' && shell.default_permission.allowed) {
@@ -122,23 +124,53 @@ function passwd_change(user, new_pass) {
     var buffer = "";
     cockpit.spawn(["/usr/bin/passwd", "--stdin", user ], {superuser: true, err: "out" })
         .input(new_pass)
-        .stream(function(data) {
-            buffer += data;
-        })
         .done(function() {
             dfd.resolve();
         })
-        .fail(function(ex) {
+        .fail(function(ex, response) {
             if (ex.constructor.name == "ProcessError") {
                 console.log(ex);
-                if (buffer)
-                    ex = new Error(buffer);
+                if (response)
+                    ex = new Error(response);
                 else
                     ex = new Error(_("Failed to change password"));
             }
             dfd.reject(ex);
         });
 
+    return dfd.promise();
+}
+
+/*
+ * Similar to $.when() but serializes, and accepts functions
+ * that return promises
+ */
+function chain(functions) {
+    var dfd = $.Deferred();
+    var i = 0;
+
+    /* Either an array or functions passed */
+    if (typeof functions == "function")
+        functions = arguments;
+
+    function step() {
+        if (i == functions.length) {
+            dfd.resolve();
+            return;
+        }
+
+        (functions[i])()
+            .done(function() {
+                step();
+            })
+            .fail(function(ex) {
+                dfd.reject(ex);
+            });
+
+        i += 1;
+    }
+
+    step();
     return dfd.promise();
 }
 
@@ -195,43 +227,30 @@ function parse_group_content(content, tag, error) {
     return ret;
 }
 
-function password_quality(password, bar) {
-    function adjust_progress_bar(quality, bar) {
-
-        $(bar).removeClass("weak okay good excellent");
-
-        if (quality === 0) {
-            $(bar + '-message').text(_("Password is too weak"));
-            $(bar + '-message').parent().addClass("has-error");
-            $(bar + '-message').css("visibility", "visible");
-        } else {
-            $(bar + '-message').css("visibility", "hidden");
-            if (quality <= 33) {
-                $(bar).addClass("weak");
-            } else if (quality <= 66) {
-                $(bar).addClass("okay");
-            } else if (quality <= 99) {
-                $(bar).addClass("good");
-            } else {
-                $(bar + '-message').text(_("Excellent password"));
-                $(bar + '-message').parent().removeClass("has-error");
-                $(bar + '-message').css("visibility", "visible");
-                $(bar).addClass("excellent");
-            }
-        }
-    }
+function password_quality(password) {
+    var dfd = $.Deferred();
 
     cockpit.spawn('/usr/bin/pwscore', { "environ": ["LC_ALL=C"] })
        .input(password)
-       .done(function(content) { adjust_progress_bar(parseInt(content, 10), bar); })
-       .fail(function() { adjust_progress_bar(0, bar); });
-}
+       .done(function(content) {
+           var quality = parseInt(content, 10);
+           if (quality === 0) {
+               dfd.reject(new Error(_("Password is too weak")));
+           } else if (quality <= 33) {
+               dfd.resolve("weak");
+           } else if (quality <= 66) {
+               dfd.resolve("okay");
+           } else if (quality <= 99) {
+               dfd.resolve("good");
+           } else {
+               dfd.resolve("excellent");
+           }
+       })
+       .fail(function() {
+           dfd.reject(new Error(_("Password is not acceptable")));
+       });
 
-function password_quality_ok(bar) {
-    return $(bar).hasClass("weak") ||
-           $(bar).hasClass("okay") ||
-           $(bar).hasClass("good") ||
-           $(bar).hasClass("excellent");
+    return dfd.promise();
 }
 
 function is_user_in_group(user, group) {
@@ -335,10 +354,7 @@ PageAccountsCreate.prototype = {
     setup: function() {
         $('#accounts-create-cancel').on('click', $.proxy(this, "cancel"));
         $('#accounts-create-create').on('click', $.proxy(this, "create"));
-        $('#accounts-create-dialog .check-passwords').on('keydown', $.proxy(this, "update", "keydown"));
-        $('#accounts-create-pw1').on('input', $.proxy(this, "update", "input-pw1"));
-        $('#accounts-create-pw2').on('input', $.proxy(this, "update", "input-pw2"));
-        $('#accounts-create-dialog input').on('focusout change', $.proxy(this, "update", "changeFocus"));
+        $('#accounts-create-dialog .check-passwords').on('keydown', $.proxy(this, "validate"));
     },
 
     enter: function() {
@@ -348,65 +364,57 @@ PageAccountsCreate.prototype = {
         $('#accounts-create-pw2').val("");
         $('#accounts-create-locked').prop('checked', false);
         $('#accounts-create-password-meter').removeClass("weak okay good excellent");
-        $('#accounts-create-password-meter-message').css("visibility", "hidden");
-        $("#account-set-password-dialog .check-passwords").removeClass("has-error");
-        this.update ();
+        $("#accounts-create-dialog").dialog("failure", null);
     },
 
     leave: function() {
     },
 
-    update: function(behavior) {
-        function check_params () {
-            return (password_quality_ok('#accounts-create-password-meter') &&
-                    $('#accounts-create-user-name').val() !== "" &&
-                    $('#accounts-create-real-name').val() !== "" &&
-                    $('#accounts-create-pw1').val() !== "" &&
-                    $('#accounts-create-pw2').val() == $('#accounts-create-pw1').val());
+    validate: function() {
+        var ex, fails = [];
+        var pw = $('#accounts-create-pw1').val();
+        if ($('#accounts-create-pw2').val() != pw) {
+            ex = new Error(_("The passwords do not match"));
+            ex.target = "#accounts-create-pw2";
+            fails.push(ex);
+        }
+        if (!$('#accounts-create-user-name').val()) {
+            ex = new Error(_("No user name specified"));
+            ex.target = '#accounts-create-user-name';
+            fails.push(ex);
+        }
+        if (!$('#accounts-create-real-name').val()) {
+            ex = new Error(_("No real name specified"));
+            ex.target = '#accounts-create-real-name';
+            fails.push(ex);
         }
 
-        function highlight_error() {
-            if (!password_quality_ok('#accounts-create-password-meter'))
-                return;
-            $("#accounts-create-dialog .check-passwords").addClass("has-error");
-            $('#accounts-create-password-meter-message').parent().addClass("has-error");
-            $('#accounts-create-password-meter-message').text(_("The passwords do not match"));
-            $('#accounts-create-password-meter-message').css("visibility", "visible");
-        }
+        /* The first check is immediately complete */
+        var dfd = $.Deferred();
+        if (fails.length)
+            dfd.reject(fails);
+        else
+            dfd.resolve();
 
-        function hide_error() {
-            if (!password_quality_ok('#accounts-create-password-meter'))
-                return;
-            $("#accounts-create-dialog .check-passwords").removeClass("has-error");
-            $('#accounts-create-password-meter-message').css("visibility", "hidden");
-        }
+        var promise = password_quality(pw)
+            .fail(function(ex) {
+                ex.target = "#accounts-create-pw2";
+            })
+            .always(function(arg) {
+                var strength = this.state() == "resolved" ? arg : "weak";
+                var meter = $("#accounts-create-password-meter")
+                    .removeClass("weak okay good excellent");
+                if (pw)
+                    meter.addClass(strength);
+                var message = $("#accounts-create-password-meter-message");
+                if (strength == "excellent") {
+                    message.text(_("Excellent password"));
+                } else {
+                    message.text("");
+                }
+            });
 
-        function check_password_match() {
-            if ($('#accounts-create-pw2').val() !== "" &&
-                $('#accounts-create-pw1').val() !== $('#accounts-create-pw2').val())
-                highlight_error();
-            else
-                hide_error();
-        }
-
-        if (behavior == "changeFocus") {
-            if ($('#accounts-create-pw2').val() !== "" &&
-                $('#accounts-create-pw1').val() !== $('#accounts-create-pw2').val())
-                highlight_error();
-            else
-                hide_error();
-        } else if (behavior == "input-pw1") {
-                password_quality($('#accounts-create-pw1').val(), '#accounts-create-password-meter');
-        } else if (behavior == "input-pw2") {
-            if ($('#accounts-create-pw2').val() !== "" &&
-                $('#accounts-create-pw1').val().indexOf($('#accounts-create-pw2').val()) !== 0) {
-                highlight_error();
-            } else {
-                hide_error();
-            }
-        }
-
-        $('#accounts-create-create').prop('disabled', !check_params());
+        return $.when(dfd, promise);
     },
 
     cancel: function() {
@@ -414,42 +422,46 @@ PageAccountsCreate.prototype = {
     },
 
     create: function() {
-        var prog = ["/usr/sbin/useradd"];
-
-        function adjust_locked() {
-            if ($('#accounts-create-locked').prop('checked')) {
-                cockpit.spawn(["/usr/sbin/usermod",
-                              $('#accounts-create-user-name').val(),
-                              "--lock"], { "superuser": true})
-                       .done(function() {$('#accounts-create-dialog').modal('hide');})
-                       .fail(shell.show_unexpected_error);
-            } else {
-                $('#accounts-create-dialog').modal('hide');
+        var tasks = [
+            function create_user() {
+                var prog = ["/usr/sbin/useradd"];
+                if ($('#accounts-create-real-name').val()) {
+                    prog.push('-c');
+                    prog.push($('#accounts-create-real-name').val());
+                }
+                prog.push($('#accounts-create-user-name').val());
+                return cockpit.spawn(prog, { "superuser": true });
             }
+        ];
+
+        if ($('#accounts-create-locked').prop('checked')) {
+            tasks.push(function adjust_locked() {
+                return cockpit.spawn([
+                    "/usr/sbin/usermod",
+                    $('#accounts-create-user-name').val(),
+                    "--lock"
+                ], { superuser: true });
+            });
         }
 
-        if ($('#accounts-create-real-name').val()) {
-            prog.push('-c');
-            prog.push($('#accounts-create-real-name').val());
-        }
+        tasks.push(function change_passwd() {
+            return passwd_change($('#accounts-create-user-name').val(), $('#accounts-create-pw1').val());
+        });
 
-        prog.push($('#accounts-create-user-name').val());
-
-        cockpit.spawn(prog, { "superuser": true })
-           .done(function () {
-                if ($('#accounts-create-pw1').val()) {
-                    passwd_change($('#accounts-create-user-name').val(), $('#accounts-create-pw1').val())
-                        .done(function() {
-                            adjust_locked();
-                        })
-                        .fail(function(ex) {
-                            shell.show_unexpected_error(ex);
-                        });
-               } else {
-                   adjust_locked();
-               }
-           })
-           .fail(shell.show_unexpected_error);
+        this.validate()
+            .fail(function(ex) {
+                $("#accounts-create-password-meter-message").hide();
+                $("#accounts-create-dialog").dialog("failure", ex);
+            })
+            .done(function() {
+                chain(tasks)
+                    .done(function() {
+                        $('#accounts-create-dialog').modal('hide');
+                    })
+                    .fail(function(ex) {
+                        $("#accounts-create-dialog").dialog("failure", ex);
+                    });
+            });
     }
 };
 
@@ -882,10 +894,7 @@ PageAccountSetPassword.prototype = {
 
     setup: function() {
         $('#account-set-password-apply').on('click', $.proxy(this, "apply"));
-        $('#account-set-password-dialog .check-passwords').on('keydown', $.proxy(this, "update", "keydown"));
-        $('#account-set-password-pw1').on('input', $.proxy(this, "update", "input-pw1"));
-        $('#account-set-password-pw2').on('input', $.proxy(this, "update", "input-pw2"));
-        $('#account-set-password-dialog input').on('focusout change', $.proxy(this, "update", "changeFocus"));
+        $('#account-set-password-dialog .check-passwords').on('keydown', $.proxy(this, "validate"));
     },
 
     enter: function() {
@@ -893,81 +902,70 @@ PageAccountSetPassword.prototype = {
         $('#account-set-password-pw1').val("");
         $('#account-set-password-pw2').val("");
         $('#account-set-password-meter').removeClass("weak okay good excellent");
-        $('#account-set-password-meter-message').css("visibility", "hidden");
-        $("#account-set-password-dialog .check-passwords").removeClass("has-error");
-        this.update ();
+        $("#account-set-password-dialog").dialog("failure", null);
     },
 
     leave: function() {
     },
 
-    update: function(behavior) {
-        function check_params () {
-            return (password_quality_ok('#account-set-password-meter') &&
-                    $('#account-set-password-pw1').val() !== "" &&
-                    $('#account-set-password-pw2').val() == $('#account-set-password-pw1').val());
+    validate: function() {
+        var ex;
+        var pw = $('#account-set-password-pw1').val();
+        if ($('#account-set-password-pw2').val() != pw) {
+            ex = new Error(_("The passwords do not match"));
+            ex.target = "#account-set-password-pw2";
         }
 
-        function highlight_error() {
-            if (!password_quality_ok('#account-set-password-meter'))
-                return;
-            $("#account-set-password-dialog .check-passwords").addClass("has-error");
-            $('#account-set-password-meter-message').text(_("The passwords do not match"));
-            $('#account-set-password-meter-message').parent().addClass("has-error");
-            $('#account-set-password-meter-message').css("visibility", "visible");
-        }
+        var dfd = $.Deferred();
+        if (ex)
+            dfd.reject(ex);
+        else
+            dfd.resolve();
 
-        function hide_error() {
-            if (!password_quality_ok('#account-set-password-meter'))
-                return;
-            $("#account-set-password-dialog .check-passwords").removeClass("has-error");
-            $('#account-set-password-meter-message').css("visibility", "hidden");
-        }
+        var promise = password_quality(pw)
+            .fail(function(ex) {
+                ex.target = "#account-set-password-pw2";
+            })
+            .always(function(arg) {
+                var strength = (this.state() == "resolved") ? arg : "weak";
+                var meter = $("#account-set-password-meter")
+                    .removeClass("weak okay good excellent");
+                if (pw)
+                    meter.addClass(strength);
+                var message = $("#account-set-password-meter-message");
+                if (strength == "excellent") {
+                    message.text(_("Excellent password"));
+                } else {
+                    message.text("");
+                }
+            });
 
-        function check_password_match() {
-            if ($('#account-set-password-pw2').val() !== "" &&
-                $('#account-set-password-pw1').val() !== $('#account-set-password-pw2').val())
-                highlight_error();
-            else
-                hide_error();
-        }
-
-        if (behavior == "changeFocus") {
-            if ($('#account-set-password-pw2').val() !== "" &&
-                $('#account-set-password-pw1').val() !== $('#account-set-password-pw2').val())
-                highlight_error();
-            else
-                hide_error();
-        } else if (behavior == "input-pw1") {
-                password_quality($('#account-set-password-pw1').val(), '#account-set-password-meter');
-        } else if (behavior == "input-pw2") {
-            if ($('#account-set-password-pw2').val() !== "" &&
-                $('#account-set-password-pw1').val().indexOf($('#account-set-password-pw2').val()) !== 0) {
-                highlight_error();
-            } else {
-                hide_error();
-            }
-        }
-
-        $('#account-set-password-apply').prop('disabled', !check_params());
+        return $.when(dfd, promise);
     },
 
     apply: function() {
-        var promise;
-        var user = PageAccountSetPassword.user_name;
-        var password = $('#account-set-password-pw1').val();
-
-        if (cockpit.user["user"] === user)
-            promise = passwd_self($('#account-set-password-old').val(), password);
-        else
-            promise = passwd_change(user, password);
-
-        promise
+        this.validate()
             .done(function() {
-                $('#account-set-password-dialog').modal('hide');
+                var user = PageAccountSetPassword.user_name;
+                var password = $('#account-set-password-pw1').val();
+
+                var promise;
+                if (cockpit.user["user"] === user)
+                    promise = passwd_self($('#account-set-password-old').val(), password);
+                else
+                    promise = passwd_change(user, password);
+
+                promise
+                    .done(function() {
+                        $('#account-set-password-dialog').modal('hide');
+                    })
+                    .fail(function(ex) {
+                        $("#account-set-password-dialog").dialog("failure", ex);
+                    });
             })
             .fail(function(ex) {
-                shell.show_unexpected_error(ex);
+                $("#account-set-password-meter-message").hide();
+                $("#account-set-password-dialog").dialog("failure", ex);
             });
     }
 };

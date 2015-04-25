@@ -64,10 +64,10 @@ PageCpuStatus.prototype = {
 
         this.plot = shell.setup_complicated_plot("#cpu_status_graph",
                                                    resmon,
-                                                   [{color: "rgb(200,200,200)"},
-                                                    {color: "rgb(150,150,150)"},
-                                                    {color: "rgb(100,100,100)"},
-                                                    {color: "rgb( 50, 50, 50)"}
+                                                   [{color: "#4daf4a"},
+                                                    {color: "#377eb8"},
+                                                    {color: "#ff7f00"},
+                                                    {color: "#e41a1c"}
                                                    ],
                                                    options);
 

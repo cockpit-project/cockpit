@@ -27,19 +27,11 @@ define([
 
     var module = { };
 
-    function service_grid() {
+    function service_graph() {
+        var kube = client.k8client();
 
         /* Start off with an empty grid */
         var grid = cockpit.grid(1000, 0, 0);
-
-        /* The various service rows */
-        grid.services = { };
-
-        /* Host to cadvisor mapping */
-        var cadvisors = { };
-
-        /* Service to container mapping */
-        var service_to_containers = { };
 
         /* Container to row mappings */
         var cpu = { };
@@ -47,25 +39,44 @@ define([
         var netrx = { };
         var nettx = { };
 
+        /* Host to cadvisor mapping */
+        var cadvisors = [ ];
+
         function connect_cadvisor(ip) {
-            var host = ip;
-            if (host === "127.0.0.1")
-                host = null;
-            cadvisors[ip] = client.cadvisor(host);
-            $(cadvisors[ip]).on("container", function(ev, id) {
-                cpu[id] = grid.add(this, [ id, "cpu", "usage", "total" ]);
-                memory[id] = grid.add(this, [ id, "memory", "usage" ]);
-                netrx[id] = grid.add(this, [ id, "network", "rx_bytes" ]);
-                nettx[id] = grid.add(this, [ id, "network", "tx_bytes" ]);
-            });
-
-            /* In order to even know which containers we have, ask cadvisor to fetch */
-            cadvisors[ip].fetch();
-
-            /* TODO: Handle cadvisor failure somehow */
         }
 
-        var kube = client.k8client();
+        /* The various service rows */
+        var services = { };
+        var service_map = client.service_map(kube);
+
+        $(service_map)
+            .on("host", function(ev, ip) {
+                var host = ip;
+                if (host === "127.0.0.1")
+                    host = null;
+                var cadvisor = client.cadvisor(host);
+                $(cadvisor).on("container", function(ev, id) {
+                    cpu[id] = grid.add(this, [ id, "cpu", "usage", "total" ]);
+                    memory[id] = grid.add(this, [ id, "memory", "usage" ]);
+                    netrx[id] = grid.add(this, [ id, "network", "rx_bytes" ]);
+                    nettx[id] = grid.add(this, [ id, "network", "tx_bytes" ]);
+                });
+
+                /* In order to even know which containers we have, ask cadvisor to fetch */
+                cadvisor.fetch();
+
+                /* TODO: Handle cadvisor failure somehow */
+            })
+            .on("service", function(ev, uid) {
+                services[uid] = grid.add(function(r, x, n) {
+                    calculate_service(uid, r, x, n);
+                });
+                grid.notify(grid.beg, grid.end);
+            })
+            .on("changed", function(ev) {
+                $(grid).triggerHandler("added-service", [ uid ]);
+                changed = true;
+            });
 
         /* Called to summarize all data for a given container */
         function calculate_service(uid, row, x, n) {
@@ -85,9 +96,11 @@ define([
             var v, value;
             length = rows.length;
 
-            var last;
+            var last, res;
             if (x > 0)
                 last = row[x - 1];
+
+            var max = row.maximum || 0;
 
             /* Calculate the sum of the rows */
             for (i = 0; i < n; i++) {
@@ -102,10 +115,17 @@ define([
                     }
                 }
 
-                if (last === undefined)
-                    row[x + i] = undefined;
-                else
-                    row[x + i] = (value - last) / (1000 * 1000 * 1000);
+                if (last === undefined || value === undefined) {
+                    res = undefined;
+                } else {
+                    res = (value - last) / (1000 * 1000 * 1000);
+                    if (res > max) {
+                        max = res;
+                        row.maximum = max;
+                    }
+                }
+
+                row[x + i] = res;
                 last = value;
             }
         }
@@ -215,8 +235,7 @@ define([
         var line = d3.svg.line()
             .defined(function(d) { return d !== undefined; })
             .x(function(d, i) { return x(new Date((grid.beg + i) * grid.interval)); })
-            .y(function(d, i) { return y(d); })
-            .interpolate("spline");
+            .y(function(d, i) { return y(d); });
 
         /* Initial display: 1024 px is 5 minutes of data */
         var factor = 300000 / 1024;
@@ -248,6 +267,7 @@ define([
 
             /* Indicate the time range that the X axis is using */
             x.domain([new Date(beg * interval), new Date(end * interval)]).range([0, w]);
+            y.range([h, 0]);
 
             grid.move(beg, end);
 
@@ -276,8 +296,6 @@ define([
 
             /* Turn the Y axis ticks into a grid */
             y_axis.tickSize(-w, -w);
-
-            y.domain([0, 2]).range([h, 0]);
 
             y_group
                 .call(y_axis)

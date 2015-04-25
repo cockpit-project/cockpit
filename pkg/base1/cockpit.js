@@ -2725,7 +2725,7 @@ function full_scope(cockpit, $, po) {
             }
 
             var at = search(index, beg);
-
+// console.log("search", beg, at);
             var entry;
             var b, e, eb, i, len = index.length;
             var last = beg;
@@ -2737,9 +2737,11 @@ function full_scope(cockpit, $, po) {
                 b = Math.max(eb, beg);
                 e = Math.min(eb + entry.items.length, end);
 
+// console.log("check", i, b, e);
                 if (b < e) {
                     if (b > last)
                         fetch(last, b);
+// console.log("process", i, b, b - eb, e - eb);
                     process(b, entry.items.slice(b - eb, e - eb), entry.mapping);
                     last = e;
                 } else if (i >= at) {
@@ -2761,13 +2763,12 @@ function full_scope(cockpit, $, po) {
             var remove = [ ];
             var entry;
 
-            var b, e, eb, ee, i, len = index.length;
+            var b, e, eb, i, len = index.length;
             for (i = at > 0 ? at - 1 : at; i < len; i++) {
                 entry = index[i];
                 eb = entry.beg;
-                ee = eb + entry.items.length;
                 b = Math.max(eb, beg);
-                e = Math.min(ee, end);
+                e = Math.min(eb + entry.items.length, end);
 
                 /*
                  * We truncate blocks that intersect with this one
@@ -2790,13 +2791,15 @@ function full_scope(cockpit, $, po) {
             index.splice(at, 0, { beg: beg, items: items, mapping: mapping });
 
             /* Remove any items with zero length */
-            for (at--; at != i; at++) {
-                if (at > 0 && !index[at].items.length) {
-                    index.splice(at, 0);
+            for (at--; at <= i; at++) {
+                entry = index[at];
+                if (entry && !entry.items.length) {
+                    index.splice(at, 1);
                     at--;
                 }
             }
 
+            console.log(index);
         }
 
         /*

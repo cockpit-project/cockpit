@@ -639,6 +639,66 @@ define([
     kubernetes.k8client = singleton(KubernetesClient);
     kubernetes.etcdclient = singleton(EtcdClient);
 
+    function KubernetesServiceMap(kube) {
+        var self = this;
+
+        self.hosts = { };
+        self.containers = { };
+
+        function update() {
+            var changed = false;
+
+            /* Lookup all the services */
+            kube.services.forEach(function(service) {
+                var spec = service.spec;
+                var meta = service.metadata;
+                var name = meta.name;
+
+                if (!spec || !spec.selector || name === "kubernetes" || name === "kubernetes-ro")
+                    return;
+
+                var uid = meta.uid;
+
+                /* Lookup all the pods for each service */
+                kube.select(spec.selector, meta.namespace, "Pod").forEach(function(pod) {
+                    var status = pod.status || { };
+                    var ip = status.hostIP;
+                    var containers = status.containerStatuses || [];
+
+                    if (ip && !hosts[ip]) {
+                        hosts[ip] = ip;
+                        $(self).triggerHandler("host", ip);
+                    }
+
+                    /* Note all the containers for that pod */
+                    containers.forEach(function(container) {
+                        var id = container.containerID;
+                        if (id.indexOf("docker://") === 0) {
+                            id = id.substring(9);
+                            var mapped = self.containers[uid];
+                            if (!mapped) {
+                                mapped = self.containers[uid] = { };
+                                $(self).triggerHandler("service", uid);
+                            }
+                            if (!mapped[id]) {
+                                mapped[id] = id;
+                                changed = true;
+                            }
+                        }
+                    });
+                });
+            });
+
+            /* Notify for all rows */
+            if (changed)
+                $(self).triggerHandler("changed");
+        }
+    }
+
+    kubernetes.service_map = function service_map(client) {
+        return new KubernetesServiceMap(client);
+    };
+    
     function CAdvisor(host) {
         var self = this;
 

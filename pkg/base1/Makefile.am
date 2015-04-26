@@ -104,6 +104,7 @@ EXTRA_DIST += \
 	pkg/base1/require.min.js \
 	pkg/base1/mustache.min.js \
 	pkg/base1/term.min.js \
+	pkg/base1/term-config.js \
 	$(base_BUNDLE) \
 	$(base_DATA) \
 	$(basedebug_DATA) \
@@ -112,9 +113,6 @@ EXTRA_DIST += \
 	$(basefontsdebug_DATA) \
 	$(base_TESTS) \
 	$(NULL)
-
-BASE_LN = cd $(srcdir)/pkg/base1; ln -sf
-VX = v*[0-9]
 
 update-lib:: update-bower
 	$(srcdir)/tools/uglifyjs \
@@ -161,7 +159,9 @@ update-lib:: update-bower
 		$(BOWER)/mustache/mustache.js
 	$(srcdir)/tools/uglifyjs $(BOWER)/mustache/mustache.js > \
 		$(srcdir)/pkg/base1/mustache.min.js
-	$(BASE_LN) ../../lib/term.$(VX).js term.js
+	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/term.js \
+	    $(BOWER)/term.js/src/term.js \
+	    $(srcdir)/pkg/base1/term-config.js
 	cp $(BOWER)/patternfly/dist/fonts/PatternFlyIcons-webfont.woff \
 		$(srcdir)/pkg/base1/fonts/patternfly.woff
 	cp $(BOWER)/patternfly/components/bootstrap/fonts/glyphicons-halflings-regular.woff \

@@ -17437,7 +17437,7 @@ Licensed under the MIT license.
 
 })(jQuery);
 
-//# sourceURL=lib/jquery-flot.v0.8.3.js
+//# sourceURL=jquery-flot/jquery.flot.js
 
 /* Flot plugin for selecting regions of a plot.
 
@@ -17800,7 +17800,7 @@ The plugin allso adds the following methods to the plot object:
     });
 })(jQuery);
 
-//# sourceURL=lib/jquery-flot-selection.v0.8.3.js
+//# sourceURL=jquery-flot/jquery.flot.selection.js
 
 /* Pretty handling of time axes.
 
@@ -18235,7 +18235,7 @@ API.txt for details.
 
 })(jQuery);
 
-//# sourceURL=lib/jquery-flot-time.v0.8.3.js
+//# sourceURL=jquery-flot/jquery.flot.time.js
 
 /*
 A simple jQuery function that can add listeners on attribute change.

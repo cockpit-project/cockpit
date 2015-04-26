@@ -120,6 +120,9 @@ update-lib:: update-bower
 	$(srcdir)/tools/uglifyjs \
 		$(BOWER)/patternfly/components/bootstrap-combobox/js/bootstrap-combobox.js \
 			> bootstrap-combobox.min.js
+	$(srcdir)/tools/uglifyjs $(BOWER)/jquery-flot/jquery.flot.js > jquery.flot.min.js
+	$(srcdir)/tools/uglifyjs $(BOWER)/jquery-flot/jquery.flot.selection.js > jquery.flot.selection.min.js
+	$(srcdir)/tools/uglifyjs $(BOWER)/jquery-flot/jquery.flot.time.js > jquery.flot.time.min.js
 	sed -f $(srcdir)/tools/patternfly.sed \
 		$(BOWER)/patternfly/dist/css/patternfly.css > patternfly.css
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/jquery.js \
@@ -128,9 +131,9 @@ update-lib:: update-bower
 	    $(BOWER)/patternfly/components/bootstrap-select/bootstrap-select.js \
 	    $(BOWER)/bootstrap-datepicker/dist/js/bootstrap-datepicker.js \
 	    $(BOWER)/patternfly/components/bootstrap-combobox/js/bootstrap-combobox.js \
-	    $(srcdir)/lib/jquery-flot.$(VX).js \
-	    $(srcdir)/lib/jquery-flot-selection.$(VX).js \
-	    $(srcdir)/lib/jquery-flot-time.$(VX).js \
+	    $(BOWER)/jquery-flot/jquery.flot.js \
+	    $(BOWER)/jquery-flot/jquery.flot.selection.js \
+	    $(BOWER)/jquery-flot/jquery.flot.time.js \
 	    $(srcdir)/lib/attrchange.js
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/jquery.min.js \
 	    $(BOWER)/jquery/dist/jquery.min.js \
@@ -138,9 +141,9 @@ update-lib:: update-bower
 	    $(BOWER)/patternfly/components/bootstrap-select/bootstrap-select.min.js \
 	    $(BOWER)/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js \
 	    bootstrap-combobox.min.js \
-	    $(srcdir)/lib/jquery-flot.$(VX).min.js \
-	    $(srcdir)/lib/jquery-flot-selection.$(VX).min.js \
-	    $(srcdir)/lib/jquery-flot-time.$(VX).min.js \
+	    jquery.flot.min.js \
+	    jquery.flot.selection.min.js \
+	    jquery.flot.time.min.js \
 	    $(srcdir)/lib/attrchange.min.js
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/require.js \
 	    $(srcdir)/lib/requirejs.$(VX).js \

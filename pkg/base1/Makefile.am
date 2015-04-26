@@ -145,12 +145,13 @@ update-lib:: update-bower
 	    jquery.flot.selection.min.js \
 	    jquery.flot.time.min.js \
 	    $(srcdir)/lib/attrchange.min.js
+	$(srcdir)/tools/uglifyjs $(BOWER)/requirejs/require.js > require.min.js
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/require.js \
-	    $(srcdir)/lib/requirejs.$(VX).js \
+	    $(BOWER)/requirejs/require.js \
 	    $(srcdir)/pkg/base1/require-config.js \
 	    $(srcdir)/pkg/base1/require-loaders.js
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/require.min.js \
-	    $(srcdir)/lib/requirejs.$(VX).min.js \
+	    require.min.js \
 	    $(srcdir)/pkg/base1/require-config.js \
 	    $(srcdir)/pkg/base1/require-loaders.js
 	$(srcdir)/tools/cssbundle -o $(srcdir)/pkg/base1/patternfly.css \

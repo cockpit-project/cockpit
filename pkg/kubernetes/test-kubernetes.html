@@ -21,11 +21,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 <head>
     <meta charset="utf-8">
     <title>Kubernetes tests</title>
-    <link rel="stylesheet" href="../../lib/qunit-1.14.0.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="../../lib/jquery.v2.1.0.js"></script>
-    <script type="text/javascript" src="../../lib/qunit-1.14.0.js"></script>
-    <script type="text/javascript" src="../../lib/qunit-tap.js"></script>
-    <script type="text/javascript" src="../../tools/qunit-config.js"></script>
+    <link rel="stylesheet" href="../../tools/qunit.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="../../tools/qunit.js"></script>
     <script type="text/javascript" src="../base1/require.js"></script>
 </head>
 <body>
@@ -328,7 +325,6 @@ function kube_apiserver(req) {
 
     function prepare(key, item) {
         if (resourceVersion) {
-            console.log("resourceVersion", resourceVersion);
             if (!item.metadata || !item.metadata.resourceVersion ||
                 item.metadata.resourceVersion < resourceVersion)
                 return null;
@@ -425,7 +421,6 @@ function etcd_server(req) {
         return;
     }
 
-    console.log(req.path, req);
     return false;
 }
 
@@ -460,6 +455,26 @@ require([
         setup: function() {
             kube_data = $.extend(true, { }, mock_basic);
         }
+    });
+
+    test("singleton", function() {
+        var client = kubernetes.k8client();
+        var client2 = kubernetes.k8client();
+
+        strictEqual(client, client2, "singleton returned same object");
+
+        client2.close();
+
+        var client3 = kubernetes.k8client();
+        strictEqual(client, client3, "singleton returned same object after one closed");
+
+        client.close();
+        client3.close();
+
+        var client4 = kubernetes.k8client();
+
+        notStrictEqual(client, client4, "different object after all closed");
+        client4.close();
     });
 
     asyncTest("list nodes", function() {
@@ -648,38 +663,50 @@ require([
         $(client).on("pods", function(ev) {
 
             /* Select everything odd, 500 pods */
-            var results = client.select({ "type": "odd" });
+            var results = client.select({ "type": "odd" }, "default");
             equal(results.length, 500, "correct amount");
             ok(has_unique_uids(results), "unique objects");
 
+            /* Select everything odd, but wrong namespace, no pods */
+            var results = client.select({ "type": "odd" }, "other");
+            equal(results.length, 0, "other namespace no pods");
+
             /* The same ones selected even when a second (present) label */
-            results = client.select({ "type": "odd", "tag": "silly"  });
+            results = client.select({ "type": "odd", "tag": "silly"  }, "default");
             equal(results.length, 500, "with additional label");
             ok(has_unique_uids(results), "unique objects with additional label");
 
             /* Nothing selected when additional invalid field */
-            results = client.select({ "type": "odd", "tag": "billy"  });
+            results = client.select({ "type": "odd", "tag": "billy"  }, "default");
             equal(results.length, 0, "no objects");
 
             /* Limit by kind */
-            var results = client.select({ "type": "odd" }, "Pod");
+            var results = client.select({ "type": "odd" }, "default", "Pod");
             equal(results.length, 500, "by kind");
             ok(has_unique_uids(results), "unique objects by kind");
 
             /* Limit by invalid kind */
-            var results = client.select({ "type": "odd" }, "Ood");
+            var results = client.select({ "type": "odd" }, "default", "Ood");
             equal(results.length, 0, "nothing for invalid kind");
 
             /* Everything selected when no selector */
-            results = client.select(null);
-            equal(results.length, 1007, "all objects");
+            results = client.select(null, "default");
+            equal(results.length, 1006, "all objects");
 
             /* Everything selected when no selector */
-            results = client.select(null, "Pod");
+            results = client.select(null, "default", "Pod");
             equal(results.length, 1002, "all pods");
 
+            /* Nothing selected when bad namespace */
+            results = client.select(null, "other");
+            equal(results.length, 0, "other namespace no objects");
+
+            /* Get the node when a null namespace */
+            results = client.select(null, undefined);
+            equal(results.length, 1, "without namespace");
+
             /* Nothing selected when empty selector */
-            results = client.select({ });
+            results = client.select({ }, "default");
             equal(results.length, 0, "no objects");
 
             $(client).off("pods");
@@ -693,31 +720,39 @@ require([
         $(client).on("pods", function(ev) {
 
             /* Start simple, exactly the labels selector matches */
-            var results = client.infer({ "tag": "silly", "type": "odd" });
+            var results = client.infer({ "tag": "silly", "type": "odd" }, "default");
             equal(results.length, 1, "selected replication controller");
             equal(results[0].metadata.name, "oddcontroller", "got oddcontroller");
 
+            /* Other namespace, no match */
+            var results = client.infer({ "tag": "silly", "type": "odd" }, "other");
+            equal(results.length, 0, "selected no controller");
+
             /* Now with extra labels, as you'd usually see it */
-            results = client.infer({ "tag": "silly", "type": "odd", "another": "value" });
+            results = client.infer({ "tag": "silly", "type": "odd", "another": "value" }, "default");
             equal(results.length, 1, "selected controller with extra labels");
             equal(results[0].metadata.name, "oddcontroller", "got oddcontroller with extra labels");
 
             /* Make two replication controllers match */
-            results = client.infer({ "tag": "silly", "type": "odd", "another": "value", "factor3": "yes" });
+            results = client.infer({ "tag":"silly", "type":"odd", "another":"value", "factor3":"yes" }, "default");
             equal(results.length, 2, "two replication controllers");
             equal(results[0].metadata.name, "oddcontroller", "got oddcontroller in set");
             equal(results[1].metadata.name, "3controller", "got 3controller in set");
 
             /* Everything inferred when no labels */
-            results = client.infer(null);
+            results = client.infer(null, "default");
             equal(results.length, 4, "all objects with selectors");
 
             /* Everything inferred when no labels */
-            results = client.infer(null, "ReplicationController");
+            results = client.infer(null, "default", "ReplicationController");
             equal(results.length, 2, "all replication controllers with selectors");
 
+            /* Nothing when wrong label */
+            results = client.infer(null, "other");
+            equal(results.length, 0, "no objects with other namespace");
+
             /* Nothing inferred when empty label */
-            results = client.infer({ });
+            results = client.infer({ }, "default");
             equal(results.length, 0, "no objects");
 
             $(client).off("pods");

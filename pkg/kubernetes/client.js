@@ -216,7 +216,7 @@ define([
                     req = null;
                     if (!stopping && !cancelled) {
                         if (!waited)
-                            console.warn("watching kubernetes " + type + " didn't block");
+                            console.warn("watching kubernetes " + type + " didn't block", data);
                         else
                             start_watch();
                     }
@@ -278,32 +278,36 @@ define([
                     console.warn("kubernetes item without uid");
                     return;
                 }
+
                 if (meta.resourceVersion && meta.resourceVersion > self.resourceVersion)
                     self.resourceVersion = meta.resourceVersion;
 
-                items[meta.uid] = item;
-                self.objects[meta.uid] = item;
+                var uid = meta.uid;
+                var namespace = meta.namespace;
+
+                items[uid] = item;
+                self.objects[uid] = item;
 
                 /* Add various bits to index, for quick lookup */
                 var i, keys, length;
                 if (meta.labels) {
                     keys = [];
                     for (i in meta.labels)
-                        keys.push(i + meta.labels[i]);
-                    index.add(keys, meta.uid);
+                        keys.push(namespace + i + meta.labels[i]);
+                    index.add(keys, uid);
                 }
                 var spec = item.spec;
                 if (spec && spec.selector) {
                     keys = [];
                     for (i in spec.selector)
-                        keys.push(i + spec.selector[i]);
-                    index.add(keys, meta.uid);
+                        keys.push(namespace + i + spec.selector[i]);
+                    index.add(keys, uid);
                 }
 
                 /* Index the host for quick lookup */
                 var status = item.status;
                 if (status && status.host)
-                    index.add([ status.host ], meta.uid);
+                    index.add([ status.host ], uid);
 
                 trigger();
             }
@@ -362,36 +366,40 @@ define([
         /**
          * client.select()
          * @selector: plain javascript object, JSON label selector
+         * @namespace: the namespace to act in
          * @type: optional kind string (eg: 'Pod')
          *
          * Select objects that match the given labels.
          *
          * Returns: an array of objects
          */
-        this.select = function select(selector, kind) {
+        this.select = function select(selector, namespace, kind) {
             var i, keys;
             var possible, match, results = [];
             if (selector) {
                 keys = [];
                 for (i in selector)
-                    keys.push(i + selector[i]);
+                    keys.push(namespace + i + selector[i]);
                 possible = index.select(keys);
             } else {
                 possible = Object.keys(self.objects);
             }
-            var obj, uid, j, length = possible.length;
+            var meta, obj, uid, j, length = possible.length;
             for (j = 0; j < length; j++) {
                 uid = possible[j];
                 obj = self.objects[uid];
                 if (!obj || !obj.metadata)
                     continue;
-                if (selector && !obj.metadata.labels)
+                meta = obj.metadata;
+                if (meta.namespace !== namespace)
+                    continue;
+                if (selector && !meta.labels)
                     continue;
                 if (kind && obj.kind !== kind)
                     continue;
                 match = true;
                 for (i in selector) {
-                    if (obj.metadata.labels[i] !== selector[i]) {
+                    if (meta.labels[i] !== selector[i]) {
                         match = false;
                         break;
                     }
@@ -405,18 +413,19 @@ define([
         /**
          * client.infer()
          * @labels: plain javascript object, JSON labels
+         * @namespace: the namespace to act in
          * @kind: optional kind string
          *
          * Infer which objects that have selectors would have
          * matched the given labels.
          */
-        this.infer = function infer(labels, kind) {
+        this.infer = function infer(labels, namespace, kind) {
             var i, keys;
             var possible, match, results = [];
             if (labels) {
                 keys = [];
                 for (i in labels)
-                    keys.push(i + labels[i]);
+                    keys.push(namespace + i + labels[i]);
                 possible = index.select(keys);
             } else {
                 possible = Object.keys(self.objects);
@@ -425,7 +434,9 @@ define([
             for (j = 0; j < length; j++) {
                 uid = possible[j];
                 obj = self.objects[uid];
-                if (!obj || !obj.spec || !obj.spec.selector)
+                if (!obj || !obj.metadata || !obj.spec || !obj.spec.selector)
+                    continue;
+                if (obj.metadata.namespace !== namespace)
                     continue;
                 if (kind && obj.kind !== kind)
                     continue;
@@ -541,6 +552,7 @@ define([
 
         var etcd_api = cockpit.http(7001);
         var first = true;
+        var reqs = [];
         var later;
 
         function receive(data, what ,kind) {
@@ -552,7 +564,6 @@ define([
         }
 
         function update() {
-            var reqs = [];
 
             reqs.push(etcd_api.get("/v2/admin/machines")
                 .fail(failure)
@@ -576,15 +587,299 @@ define([
         }
 
         update();
+
+        self.close = function close() {
+            var r = reqs;
+            reqs = [];
+            r.forEach(function(req) {
+                req.close();
+            });
+        };
     }
 
-    kubernetes.k8client = function client() {
-        return new KubernetesClient();
-    };
+    /*
+     * Returns a new instance of Constructor for each
+     * key passed into the returned function. Multiple
+     * callers for the same key will get the same instance.
+     *
+     * Overrides .close() on the instances, to close when
+     * all callers have closed.
+     *
+     * Instances must accept zero or one primitive arguments,
+     * and must have zero arguments in their .close() method.
+     */
+    function singleton(Constructor) {
+        var cached = { };
 
-    kubernetes.etcdclient = function client() {
-        return new EtcdClient();
+        return function(key) {
+            var str = key + "";
+
+            var item = cached[str];
+            if (item) {
+                item.refs += 1;
+                return item.obj;
+            }
+
+            item = { refs: 1, obj: new Constructor(key) };
+            var close = item.obj.close;
+            item.obj.close = function close_singleton() {
+                item.refs -= 1;
+                if (item.refs === 0) {
+                    delete cached[str];
+                    if (close)
+                        close.apply(item.obj);
+                }
+            };
+
+            cached[str] = item;
+            return item.obj;
+        };
+    }
+
+    kubernetes.k8client = singleton(KubernetesClient);
+    kubernetes.etcdclient = singleton(EtcdClient);
+
+    function KubernetesServiceMap(kube) {
+        var self = this;
+
+        self.hosts = { };
+        self.containers = { };
+
+        function update() {
+            var changed = false;
+
+            /* Lookup all the services */
+            kube.services.forEach(function(service) {
+                var spec = service.spec;
+                var meta = service.metadata;
+                var name = meta.name;
+
+                if (!spec || !spec.selector || name === "kubernetes" || name === "kubernetes-ro")
+                    return;
+
+                var uid = meta.uid;
+
+                /* Lookup all the pods for each service */
+                kube.select(spec.selector, meta.namespace, "Pod").forEach(function(pod) {
+                    var status = pod.status || { };
+                    var ip = status.hostIP;
+                    var containers = status.containerStatuses || [];
+
+                    if (ip && !hosts[ip]) {
+                        hosts[ip] = ip;
+                        $(self).triggerHandler("host", ip);
+                    }
+
+                    /* Note all the containers for that pod */
+                    containers.forEach(function(container) {
+                        var id = container.containerID;
+                        if (id.indexOf("docker://") === 0) {
+                            id = id.substring(9);
+                            var mapped = self.containers[uid];
+                            if (!mapped) {
+                                mapped = self.containers[uid] = { };
+                                $(self).triggerHandler("service", uid);
+                            }
+                            if (!mapped[id]) {
+                                mapped[id] = id;
+                                changed = true;
+                            }
+                        }
+                    });
+                });
+            });
+
+            /* Notify for all rows */
+            if (changed)
+                $(self).triggerHandler("changed");
+        }
+    }
+
+    kubernetes.service_map = function service_map(client) {
+        return new KubernetesServiceMap(client);
     };
+    
+    function CAdvisor(host) {
+        var self = this;
+
+        /* cAdvisor has second intervals */
+        var interval = 1000;
+
+        var api = cockpit.http(4194, { host: host });
+
+        var last = null;
+
+        var unique = 0;
+
+        var requests = { };
+
+        /* Holds the container specs */
+        self.specs = { };
+
+        function feed(containers) {
+            var x, y, ylen, i, len;
+            var item, offset, timestamp, container, stat;
+
+            /*
+             * The cAdvisor data doesn't seem to have inherent guarantees of
+             * continuity or regularity. In theory each stats object can have
+             * it's own arbitrary timestamp ... although in practice they do
+             * generally follow the interval to within a few milliseconds.
+             *
+             * So we first look for the lowest timestamp, treat that as our
+             * base index, and then batch the data based on that.
+             */
+
+            var first = null;
+
+            for (x in containers) {
+                container = containers[x];
+                len = container.stats.length;
+                for (i = 0; i < len; i++) {
+                    timestamp = container.stats[i].timestamp;
+                    if (timestamp) {
+                        if (first === null || timestamp < first)
+                            first = timestamp;
+                    }
+                }
+            }
+
+            if (first === null)
+                return;
+
+            var base = Math.floor(new Date(first).getTime() / interval);
+
+            var items = [];
+            var name, mapping = { };
+            var signal, id;
+            var names = { };
+
+            for (x in containers) {
+                container = containers[x];
+
+                /*
+                 * This builds the correct type of object graph for the
+                 * paths seen in grid.add() to operate on
+                 */
+                name = container.name;
+                if (!name)
+                    continue;
+
+                mapping[name] = { "": name };
+                id = name;
+
+                if (container.aliases) {
+                    ylen = container.aliases.length;
+                    for (y = 0; y < ylen; y++) {
+                        mapping[container.aliases[y]] = { "": name };
+
+                        /* Try to use the real docker container id as our id */
+                        if (container.aliases[y].length === 64)
+                            id = container.aliases[y];
+                    }
+                }
+
+                if (id && container.spec) {
+                    signal = !(id in self.specs);
+                    self.specs[id] = container.spec;
+                    if (signal) {
+                        $(self).triggerHandler("container", [ id ]);
+                    }
+                }
+
+                len = container.stats.length;
+                for (i = 0; i < len; i++) {
+                    stat = container.stats[i];
+                    if (!stat.timestamp)
+                        continue;
+
+                    /* Convert the timestamp into an index */
+                    offset = Math.floor(new Date(stat.timestamp).getTime() / interval);
+
+                    item = items[offset - base];
+                    if (!item)
+                        item = items[offset - base] = { };
+                    item[name] = stat;
+                    names[name] = name;
+                }
+            }
+
+            /* Make sure each offset has something */
+            len = items.length;
+            for (i = 0; i < len; i++) {
+                if (items[i] === undefined)
+                    items[i] = { };
+            }
+
+            /* Now for each offset, if it's a duplicate, put in a copy */
+            for(name in names) {
+                len = items.length;
+                last = undefined;
+                for (i = 0; i < len; i++) {
+                    if (items[i][name] === undefined)
+                        items[i][name] = last;
+                    else
+                        last = items[i][name];
+                }
+            }
+
+            self.series.input(base, items, mapping);
+        }
+
+        function request() {
+            var query = { };
+            /*
+            if (start)
+                query[start] = xxx;
+            if (end)
+                query[end] = xxxx;
+            */
+
+            var body = JSON.stringify(query);
+
+            /* Only one request active at a time for any given body */
+            if (body in requests)
+                return;
+
+            var req = api.get("/api/v1.2/docker", JSON.stringify(query), { "Content-Type": "application/json" })
+                .done(function(data) {
+                    var msg = JSON.parse(data);
+                    feed(msg);
+                })
+                .fail(function(ex) {
+                    console.warn(ex);
+                })
+                .always(function() {
+                    delete requests[body];
+                });
+
+            requests[body] = req;
+        }
+
+        self.fetch = function fetch(beg, end) {
+            /* TODO: use beg and end */
+            request();
+        };
+
+        self.follow = function follow() {
+            /*
+            if (last)
+                
+
+            if (latest
+            */
+        };
+
+        self.close = function close() {
+            for (var body in requests)
+                requests[body].close();
+        };
+
+        var cache = "cadv1-" + (host || null);
+        self.series = cockpit.series(interval, cache, self.fetch);
+    }
+
+    kubernetes.cadvisor = singleton(CAdvisor);
 
     return kubernetes;
 });

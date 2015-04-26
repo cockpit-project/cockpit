@@ -25,25 +25,12 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="../base1/cockpit.css">
   <link rel="stylesheet" href="app.css">
-  <style>
-      #graphs {
-          margin: 15px 0;
-          height: 280px;
-          background-color: #e6e6e6;
-          font-size: 80px;
-          color: #c3c3c3;
-          font-family: Open Sans;
-          text-align: center;
-          padding: 60px;
-      }
-  </style>
 </head>
 <body>
   <div id="content" class="container-fluid">
 
     <!-- TODO -->
     <div id="graphs">
-      TODO: Graphs
     </div>
 
     <div class="row" ng-view></div>
@@ -214,14 +201,16 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           "translated!base1/po",
           "kubernetes/angular",
           "kubernetes/deploy",
+          "kubernetes/graphs",
           "kubernetes/app",
           "kubernetes/dashboard"
-      ], function(cockpit, po, angular, deploy) {
+      ], function(cockpit, po, angular, deploy, graphs) {
           "use strict";
           cockpit.locale(po);
           cockpit.translate();
           angular.bootstrap(document, ["kubernetes"]);
           deploy.init();
+          graphs.services("#graphs");
       });
   </script>
 </body>

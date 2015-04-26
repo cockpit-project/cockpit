@@ -221,7 +221,11 @@ upload-pot:
 download-po:
 	zanata-cli pull --project-config "$(srcdir)/tools/zanata.xml" -s "$(builddir)/po" -t "$(srcdir)/po"
 
-include lib/Makefile.am
+BOWER = $(srcdir)/tools/bower_components
+
+update-bower:
+	( cd $(srcdir)/tools && ./bower update )
+
 include pkg/base1/Makefile.am
 include pkg/dashboard/Makefile.am
 include pkg/docker/Makefile.am

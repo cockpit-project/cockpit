@@ -9111,7 +9111,7 @@ return jQuery;
 
 }));
 
-//# sourceURL=lib/jquery.v2.1.0.js
+//# sourceURL=dist/jquery.js
 
 /*!
  * Bootstrap v3.1.1 (http://getbootstrap.com)
@@ -11065,7 +11065,7 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
 
 }(jQuery);
 
-//# sourceURL=lib/bootstrap.v3.1.1.js
+//# sourceURL=js/bootstrap.js
 
 /*!
  * bootstrap-select v1.5.4
@@ -12040,7 +12040,7 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
 
 }(window.jQuery);
 
-//# sourceURL=lib/bootstrap-select.v1.5.4.js
+//# sourceURL=bootstrap-select/bootstrap-select.js
 
 /*!
  * Datepicker for Bootstrap v1.4.0 (https://github.com/eternicode/bootstrap-datepicker)
@@ -13825,7 +13825,7 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
 
 }(window.jQuery));
 
-//# sourceURL=lib/bootstrap-datepicker.v1.4.0.js
+//# sourceURL=js/bootstrap-datepicker.js
 
 /* =============================================================
  * bootstrap-combobox.js v1.1.6
@@ -14266,7 +14266,7 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
 
 }( window.jQuery );
 
-//# sourceURL=lib/bootstrap-combobox.v1.1.6.js
+//# sourceURL=js/bootstrap-combobox.js
 
 /* Javascript plotting library for jQuery, version 0.8.3.
 
@@ -17437,7 +17437,7 @@ Licensed under the MIT license.
 
 })(jQuery);
 
-//# sourceURL=lib/jquery-flot.v0.8.3.js
+//# sourceURL=jquery-flot/jquery.flot.js
 
 /* Flot plugin for selecting regions of a plot.
 
@@ -17800,7 +17800,7 @@ The plugin allso adds the following methods to the plot object:
     });
 })(jQuery);
 
-//# sourceURL=lib/jquery-flot-selection.v0.8.3.js
+//# sourceURL=jquery-flot/jquery.flot.selection.js
 
 /* Pretty handling of time axes.
 
@@ -18235,7 +18235,7 @@ API.txt for details.
 
 })(jQuery);
 
-//# sourceURL=lib/jquery-flot-time.v0.8.3.js
+//# sourceURL=jquery-flot/jquery.flot.time.js
 
 /*
 A simple jQuery function that can add listeners on attribute change.

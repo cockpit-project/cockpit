@@ -2083,7 +2083,7 @@ var requirejs, require, define;
     req(cfg);
 }(this));
 
-//# sourceURL=lib/requirejs.v2.1.16.js
+//# sourceURL=requirejs/require.js
 
 (function(require) {
     require.config({

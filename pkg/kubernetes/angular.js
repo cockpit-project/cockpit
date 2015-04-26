@@ -26180,7 +26180,7 @@ var minlengthDirective = function() {
 })(window, document);
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}</style>');
-//# sourceURL=lib/angular.v1.3.14.js
+//# sourceURL=angular/angular.js
 
 /**
  * @license AngularJS v1.3.14
@@ -27172,7 +27172,7 @@ function ngViewFillContentFactory($compile, $controller, $route) {
 
 })(window, window.angular);
 
-//# sourceURL=lib/angular-route.v1.3.14.js
+//# sourceURL=angular-route/angular-route.js
 
 (function () {
     if (typeof define === "function" && define.amd) {

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2014 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+<head>
+    <title>Series Tests</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../../lib/qunit-1.14.0.css" type="text/css" media="screen" />
+    <script src="../../lib/jquery.v2.1.0.js"></script>
+    <script src="../../lib/qunit-1.14.0.js"></script>
+    <script src="../../lib/qunit-tap.js"></script>
+    <script src="../../tools/qunit-config.js"></script>
+
+    <script src="cockpit.js"></script>
+</head>
+<body>
+    <h1 id="qunit-header">Series Tests</h1>
+    <h2 id="qunit-banner"></h2><div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2><ol id="qunit-tests"></ol>
+    <div id="qunit-fixture">test markup, will be hidden</div>
+    <div id="done-flag" style="display:none">Done</div>
+</body>
+<script>
+
+test("public api", function() {
+    equal(typeof cockpit.grid, "function", "cockpit.grid is a function");
+    equal(typeof cockpit.series, "function", "cockpit.series is a function");
+
+    var grid = cockpit.grid(555, 3, 8);
+    strictEqual(grid.interval, 555, "grid.interval");
+    strictEqual(grid.beg, 3, "grid.beg");
+    strictEqual(grid.end, 8, "grid.end");
+    deepEqual(grid.rows, [], "grid.rows");
+    equal(typeof grid.add, "function", "grid.add()");
+    equal(typeof grid.remove, "function", "grid.remove()");
+    equal(typeof grid.close, "function", "grid.close()");
+    equal(typeof grid.notify, "function", "grid.notify()");
+    equal(typeof grid.move, "function", "grid.move()");
+    equal(typeof grid.sync, "function", "grid.sync()");
+
+    grid = cockpit.grid(555, 3);
+    strictEqual(grid.beg, 3, "not-null grid.beg");
+    strictEqual(grid.end, 3, "same grid.end");
+
+    grid = cockpit.grid(555, 0);
+    strictEqual(grid.end, 0, "zero grid.end");
+
+    var sink = cockpit.series(888);
+    strictEqual(sink.interval, 888, "series.interval");
+    equal(typeof sink.input, "function", "series.input()");
+    equal(typeof sink.load, "function", "series.load()");
+});
+
+test("empty row", function() {
+    var grid = cockpit.grid(1000, 3, 8);
+    var row = grid.add();
+
+    equal(grid.rows.length, 1, "rows length");
+    strictEqual(grid.rows[0], row, "returned correct row");
+});
+
+test("calculated row", function() {
+    var grid = cockpit.grid(1000, 3, 8);
+    var calculated = grid.add(function(row, x, n) {
+        for (var i = 0; i < n; i++)
+             row[i + x] = i;
+    });
+
+    equal(grid.rows.length, 1, "rows length");
+    strictEqual(grid.rows[0], calculated, "returned correct row");
+
+    grid.notify(1, 4);
+    deepEqual(calculated, [ undefined, 0, 1, 2, 3 ], "array contents");
+});
+
+test("calculated order", function() {
+    var grid = cockpit.grid(1000, 3, 8);
+
+    var calculated = grid.add(function(row, x, n) {
+        for (var i = 0; i < n; i++)
+             row[i + x] = i;
+    });
+
+    /* Callbacks must be called in the right order for this to work */
+    var dependant = grid.add(function(row, x, n) {
+        for (var i = 0; i < n; i++)
+             row[i + x] = calculated[i + x] + 10;
+    });
+
+    equal(grid.rows.length, 2, "rows length");
+    strictEqual(grid.rows[0], calculated, "returned correct row");
+    strictEqual(grid.rows[1], dependant, "returned correct second");
+
+    grid.notify(1, 4);
+    deepEqual(dependant, [ undefined, 10, 11, 12, 13 ], "dependant array contents");
+});
+
+test("notify limit", function() {
+    var grid = cockpit.grid(1000, 5, 15);
+
+    var called = -1;
+    grid.add(function(row, x, n) {
+        called = n;
+    });
+
+    grid.notify(10, 8);
+    strictEqual(called, -1, "not called out of bounds");
+
+    grid.notify(1, 0);
+    strictEqual(called, -1, "not called zero length");
+
+    grid.notify(1, 20);
+    strictEqual(called, 9, "truncated to right limit");
+});
+
+test("sink row", function() {
+    var grid = cockpit.grid(1000, 5, 15);
+    var sink = cockpit.series(1000);
+
+    var row1 = grid.add(sink, "one.sub.2");
+    var row2 = grid.add(sink, ["one", "sub", 2]);
+    var calc = grid.add(function(row, x, n) {
+        for (var i = 0; i < n; i++)
+            row[x + i] = row1[x + i] + row2[x + i];
+    });
+
+    var notified = null;
+    $(grid).on("notify", function(ev, n, x) {
+        notified = [ n, x ];
+    });
+
+    var items = [
+        {
+            "one": { "sub": [ 200, 201, 202 ], "another": [ 20, 21, 22 ] },
+            "two": { "sub": [ 2000, 2001, 2002 ], "marmalade": [ 0, 1, 2 ] }
+        },
+        {
+            "one": { "sub": [ 300, 301, 302 ], "another": [ 30, 31, 32 ] },
+            "two": { "sub": [ 3000, 3001, 3002 ], "marmalade": [ 0, 1, 2 ] }
+        },
+        {
+            "one": { "sub": [ 400, 401, 402 ], "another": [ 40, 41, 42 ] },
+            "two": { "sub": [ 4000, 4001, 4002 ], "marmalade": [ 0, 1, 2 ] }
+        }
+    ];
+
+    sink.input(7, items);
+
+    deepEqual(notified, [ 2, 3 ]);
+
+    deepEqual(row1, [undefined, undefined, 202, 302, 402], "row with string path");
+    deepEqual(row2, [undefined, undefined, 202, 302, 402], "row with array path");
+    deepEqual(calc, [undefined, undefined, 404, 604, 804], "row with calculated");
+
+    grid.close();
+});
+
+test("sink no path", function() {
+    var grid = cockpit.grid(1000, 5, 15);
+    var sink = cockpit.series(1000);
+
+    var row = grid.add(sink);
+
+    var items = [ 567, 768, { "hello": "scruffy" } ];
+
+    sink.input(8, items);
+
+    deepEqual(row, [undefined, undefined, undefined,  567, 768, { "hello": "scruffy" }], "row without a path");
+});
+
+test("sink after close", function() {
+    var grid = cockpit.grid(1000, 5, 15);
+    var sink = cockpit.series(1000);
+
+    var row = grid.add(sink);
+
+    var items = [ 1, 2, 3 ];
+
+    sink.input(5, items);
+    deepEqual(row, [1, 2, 3], "row got values");
+
+    sink.input(8, items);
+    deepEqual(row, [1, 2, 3, 1, 2, 3], "row got more values");
+
+    grid.close();
+
+    sink.input(11, items);
+    deepEqual(row, [1, 2, 3, 1, 2, 3], "row got no more values");
+});
+
+test("sink mapping", function() {
+    var grid = cockpit.grid(1000, 5, 15);
+    var sink = cockpit.series(1000);
+
+    var row1 = grid.add(sink, "two.sub.1");
+    var row2 = grid.add(sink, "one.sub");
+    var row3 = grid.add(sink, "invalid");
+
+    var mapping = {
+        "one": { "": 0, "sub": { "": 0 }, "another": { "": 1 } },
+        "two": { "": 1, "sub": { "": 0 }, "marmalade": { "": 1 } }
+    };
+
+    var items = [
+        [
+            [ [ 200, 201, 202 ], [ 20, 21, 22 ] ],
+            [ [ 2000, 2001, 2002 ], [ 0, 1, 2 ] ]
+        ],
+        [
+            [ [ 300, 301, 302 ], [ 30, 31, 32 ] ],
+            [ [ 3000, 3001, 3002 ], [ 0, 1, 2 ] ]
+        ],
+        [
+            [ [ 400, 401, 402 ], [ 40, 41, 42 ] ],
+            [ [ 4000, 4001, 4002 ], [ 0, 1, 2 ] ]
+        ]
+    ];
+
+    sink.input(5, items, mapping);
+
+    deepEqual(row1, [2001, 3001, 4001], "mapped with trailing");
+    deepEqual(row2, [[ 200, 201, 202 ], [ 300, 301, 302 ], [ 400, 401, 402 ]], "mapped simply");
+    deepEqual(row3, [undefined, undefined, undefined], "mapped undefined");
+
+    grid.close();
+});
+
+test("cache simple", function() {
+    var fetched = [];
+    function fetch(beg, end) {
+        fetched.push([ beg, end ]);
+    }
+
+    var sink = cockpit.series(1000, "cache", fetch);
+
+    sink.input(7, [
+        {
+            "one": { "sub": [ 200, 201, 202 ], "another": [ 20, 21, 22 ] },
+            "two": { "sub": [ 2000, 2001, 2002 ], "marmalade": [ 0, 1, 2 ] }
+        },
+        {
+            "one": { "sub": [ 300, 301, 302 ], "another": [ 30, 31, 32 ] },
+            "two": { "sub": [ 3000, 3001, 3002 ], "marmalade": [ 0, 1, 2 ] }
+        },
+        {
+            "one": { "sub": [ 400, 401, 402 ], "another": [ 40, 41, 42 ] },
+            "two": { "sub": [ 4000, 4001, 4002 ], "marmalade": [ 0, 1, 2 ] }
+        }
+    ]);
+
+    var grid = cockpit.grid(1000, 5, 15);
+
+    var notified = null;
+    $(grid).on("notify", function(ev, n, x) {
+        notified = [ n, x ];
+    });
+
+    var row1 = grid.add(sink, "one.sub.2");
+    var row2 = grid.add(sink, ["one", "sub", 2]);
+    var calc = grid.add(function(row, x, n) {
+        for (var i = 0; i < n; i++)
+            row[x + i] = (row1[x + i] + row2[x + i]) || undefined;
+    });
+
+    grid.sync();
+
+    deepEqual(fetched, [[5, 7], [ 10, 15 ]], "fetched right data");
+    deepEqual(notified, [ 0, 10 ], "notified about right indexes");
+
+    deepEqual(row1, [undefined, undefined, 202, 302, 402], "row with string path");
+    deepEqual(row2, [undefined, undefined, 202, 302, 402], "row with array path");
+    deepEqual(calc, [undefined, undefined, 404, 604, 804, undefined,
+                     undefined, undefined, undefined, undefined ], "row with calculated");
+
+    grid.close();
+});
+
+test("cache multiple", function() {
+    var fetched = [];
+    function fetch(beg, end) {
+        fetched.push([ beg, end ]);
+    }
+
+    var sink = cockpit.series(1000, "cache", fetch);
+
+    sink.input(7, [{
+        "one": { "sub": [ 200, 201, 202 ], "another": [ 20, 21, 22 ] },
+        "two": { "sub": [ 2000, 2001, 2002 ], "marmalade": [ 0, 1, 2 ] }
+    }]);
+
+    sink.input(8, [{
+        "one": { "sub": [ 300, 301, 302 ], "another": [ 30, 31, 32 ] },
+        "two": { "sub": [ 3000, 3001, 3002 ], "marmalade": [ 0, 1, 2 ] }
+    }]);
+
+    sink.input(9, [{
+        "one": { "sub": [ 400, 401, 402 ], "another": [ 40, 41, 42 ] },
+        "two": { "sub": [ 4000, 4001, 4002 ], "marmalade": [ 0, 1, 2 ] }
+    }]);
+
+    var grid = cockpit.grid(1000, 5, 15);
+
+    var notified = null;
+    $(grid).on("notify", function(ev, n, x) {
+        notified = [ n, x ];
+    });
+
+    var row1 = grid.add(sink, "one.sub.2");
+    var row2 = grid.add(sink, ["one", "sub", 2]);
+    var calc = grid.add(function(row, x, n) {
+        for (var i = 0; i < n; i++)
+            row[x + i] = (row1[x + i] + row2[x + i]) || undefined;
+    });
+
+    grid.sync();
+
+    deepEqual(fetched, [[5, 7], [ 10, 15 ]], "fetched right data");
+    deepEqual(notified, [ 0, 10 ], "notified about right indexes");
+
+    deepEqual(row1, [undefined, undefined, 202, 302, 402], "row with string path");
+    deepEqual(row2, [undefined, undefined, 202, 302, 402], "row with array path");
+    deepEqual(calc, [undefined, undefined, 404, 604, 804, undefined,
+                     undefined, undefined, undefined, undefined ], "row with calculated");
+
+    grid.close();
+});
+
+test("cache overlap", function() {
+    var fetched = [];
+    function fetch(beg, end) {
+        fetched.push([ beg, end ]);
+    }
+
+    var sink = cockpit.series(1000, "cache", fetch);
+    var grid = cockpit.grid(1000, 5, 15);
+    var row1 = grid.add(sink, "one.sub.2");
+
+    /* Initial state of the cache */
+    sink.input(6, [{
+        "one": { "sub": [ 200, 201, 202 ], "another": [ 20, 21, 22 ] },
+        "two": { "sub": [ 2000, 2001, 2002 ], "marmalade": [ 0, 1, 2 ] }
+    }, {
+        "one": { "sub": [ 200, 201, 202 ], "another": [ 20, 21, 22 ] },
+        "two": { "sub": [ 2000, 2001, 2002 ], "marmalade": [ 0, 1, 2 ] }
+    }]);
+
+    sink.input(8, [{
+        "one": { "sub": [ 300, 301, 302 ], "another": [ 30, 31, 32 ] },
+        "two": { "sub": [ 3000, 3001, 3002 ], "marmalade": [ 0, 1, 2 ] }
+    },{
+        "one": { "sub": [ 300, 301, 302 ], "another": [ 30, 31, 32 ] },
+        "two": { "sub": [ 3000, 3001, 3002 ], "marmalade": [ 0, 1, 2 ] }
+    }]);
+    sink.input(10, [{
+        "one": { "sub": [ 900, 901, 902 ], "another": [ 90, 91, 92 ] },
+        "two": { "sub": [ 9000, 9001, 9002 ], "marmalade": [ 0, 1, 2 ] }
+    }]);
+
+
+    deepEqual(row1, [undefined, 202, 202, 302, 302, 902], "row with with initial data");
+
+    /* Overlaying the data currently throws overlapping stuff out of the cache */
+    sink.input(7, [{
+        "one": { "sub": [ 400, 401, 402 ], "another": [ 40, 41, 42 ] },
+        "two": { "sub": [ 4000, 4001, 4002 ], "marmalade": [ 0, 1, 2 ] }
+    }, {
+        "one": { "sub": [ 400, 401, 402 ], "another": [ 40, 41, 42 ] },
+        "two": { "sub": [ 4000, 4001, 4002 ], "marmalade": [ 0, 1, 2 ] }
+    }]);
+
+    var row2 = grid.add(sink, "one.sub.2");
+    grid.sync();
+
+    deepEqual(row1, [undefined, 202, 402, 402, 302, 902], "row with with filled data");
+    deepEqual(row2, [undefined, 202, 402, 402, 302, 902], "row with with overlapping data");
+
+    grid.close();
+
+});
+
+test("move", function() {
+    var fetched = [];
+    function fetch(beg, end) {
+        fetched.push([ beg, end ]);
+    }
+
+    var sink = cockpit.series(1000, "cache", fetch);
+    var grid = cockpit.grid(1000, 20, 25);
+
+    var row1 = grid.add(sink, "one.sub.2");
+    var row2 = grid.add(sink, ["one", "sub", 2]);
+    var calc = grid.add(function(row, x, n) {
+        for (var i = 0; i < n; i++)
+            row[x + i] = (row1[x + i] + row2[x + i]) || undefined;
+    });
+
+    var notified = null;
+    $(grid).on("notify", function(ev, n, x) {
+        notified = [ n, x ];
+    });
+
+    sink.input(7, [{
+        "one": { "sub": [ 200, 201, 202 ], "another": [ 20, 21, 22 ] },
+        "two": { "sub": [ 2000, 2001, 2002 ], "marmalade": [ 0, 1, 2 ] }
+    },
+    {
+        "one": { "sub": [ 300, 301, 302 ], "another": [ 30, 31, 32 ] },
+        "two": { "sub": [ 3000, 3001, 3002 ], "marmalade": [ 0, 1, 2 ] }
+    },
+    {
+        "one": { "sub": [ 400, 401, 402 ], "another": [ 40, 41, 42 ] },
+        "two": { "sub": [ 4000, 4001, 4002 ], "marmalade": [ 0, 1, 2 ] }
+    }]);
+
+    deepEqual(fetched, [], "fetched no data");
+    strictEqual(notified, null, "not notified");
+
+    deepEqual(row1, [], "row1 empty");
+    deepEqual(row2, [], "row2 empty");
+    deepEqual(calc, [], "calc empty");
+
+    grid.move(5, 15);
+
+    deepEqual(fetched, [[5, 7], [ 10, 15 ]], "fetched right data");
+    deepEqual(notified, [0, 10], "not notified");
+
+    deepEqual(row1, [undefined, undefined, 202, 302, 402], "row1 with data");
+    deepEqual(row2, [undefined, undefined, 202, 302, 402], "row2 with data");
+    deepEqual(calc, [undefined, undefined, 404, 604, 804, undefined,
+                     undefined, undefined, undefined, undefined ], "row with calculated");
+
+    grid.close();
+});
+
+
+QUnit.start();
+
+</script>
+</html>

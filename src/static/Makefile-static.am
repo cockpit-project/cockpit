@@ -1,4 +1,17 @@
 
+OPENSANS_FONTS = \
+	OpenSans-Bold-webfont.woff \
+	OpenSans-BoldItalic-webfont.woff \
+	OpenSans-ExtraBold-webfont.woff  \
+	OpenSans-ExtraBoldItalic-webfont.woff \
+	OpenSans-Italic-webfont.woff \
+	OpenSans-Light-webfont.woff \
+	OpenSans-LightItalic-webfont.woff \
+	OpenSans-Regular-webfont.woff \
+	OpenSans-Semibold-webfont.woff \
+	OpenSans-SemiboldItalic-webfont.woff \
+	$(NULL)
+
 if WITH_COCKPIT_WS
 
 staticdir = $(datadir)/cockpit/static
@@ -14,17 +27,7 @@ static_DATA = \
 	$(NULL)
 
 staticfontsdir = $(staticdir)/fonts
-staticfonts_DATA = \
-	lib/opensans/OpenSans-Bold-webfont.woff \
-	lib/opensans/OpenSans-BoldItalic-webfont.woff \
-	lib/opensans/OpenSans-ExtraBold-webfont.woff  \
-	lib/opensans/OpenSans-ExtraBoldItalic-webfont.woff \
-	lib/opensans/OpenSans-Italic-webfont.woff \
-	lib/opensans/OpenSans-Light-webfont.woff \
-	lib/opensans/OpenSans-LightItalic-webfont.woff \
-	lib/opensans/OpenSans-Regular-webfont.woff \
-	lib/opensans/OpenSans-Semibold-webfont.woff \
-	lib/opensans/OpenSans-SemiboldItalic-webfont.woff \
+staticfonts_DATA = $(addprefix src/static/fonts/, $(OPENSANS_FONTS))
 	$(NULL)
 
 EXTRA_DIST += \
@@ -33,3 +36,8 @@ EXTRA_DIST += \
 	$(NULL)
 
 endif
+
+update-lib:: update-bower
+	rm -f $(srcdir)/src/static/fonts/*.woff
+	cp $(BOWER)/patternfly/dist/fonts/OpenSans-*.woff $(srcdir)/src/static/fonts/
+

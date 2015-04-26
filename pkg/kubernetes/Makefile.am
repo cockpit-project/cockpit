@@ -16,7 +16,9 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/app.js \
 	pkg/kubernetes/client.js \
 	pkg/kubernetes/cluster.html \
+	pkg/kubernetes/d3.js \
 	pkg/kubernetes/dashboard.js \
+	pkg/kubernetes/graphs.js \
 	pkg/kubernetes/kubernetes.js \
 	pkg/kubernetes/tool.html \
 	pkg/kubernetes/deploy.js \
@@ -28,6 +30,8 @@ kubernetes_BUNDLE = \
 	pkg/kubernetes/client.min.js \
 	pkg/kubernetes/dashboard.min.js \
 	pkg/kubernetes/deploy.min.js \
+	pkg/kubernetes/d3.min.js \
+	pkg/kubernetes/graphs.min.js \
 	$(NULL)
 
 pkg/kubernetes/kubernetes.min.js: $(kubernetes_BUNDLE)
@@ -59,18 +63,23 @@ EXTRA_DIST += \
 	pkg/kubernetes/mock-large.js \
 	pkg/kubernetes/angular.min.js \
 	pkg/kubernetes/angular-config.js \
+	pkg/kubernetes/d3.min.js \
 	$(NULL)
 
-update-lib::
+update-lib:: update-bower
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/kubernetes/angular.js \
-	    $(srcdir)/lib/angular.$(VX).js \
-	    $(srcdir)/lib/angular-route.$(VX).js \
+	    $(BOWER)/angular/angular.js \
+	    $(BOWER)/angular-route/angular-route.js \
 	    $(srcdir)/pkg/kubernetes/angular-config.js
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/kubernetes/angular.min.js \
-	    $(srcdir)/lib/angular.$(VX).min.js \
-	    $(srcdir)/lib/angular-route.$(VX).min.js \
+	    $(BOWER)/angular/angular.min.js \
+	    $(BOWER)/angular-route/angular-route.min.js \
 	    $(srcdir)/pkg/kubernetes/angular-config.js
+	cp $(BOWER)/d3/d3.js $(srcdir)/pkg/kubernetes/d3.js
+	cp $(BOWER)/d3/d3.min.js $(srcdir)/pkg/kubernetes/d3.min.js
 
 # Never recreate these files
 pkg/kubernetes/angular.min.js:
+	@true
+pkg/kubernetes/d3.min.js:
 	@true

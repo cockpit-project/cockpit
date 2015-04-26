@@ -9111,7 +9111,7 @@ return jQuery;
 
 }));
 
-//# sourceURL=lib/jquery.v2.1.0.js
+//# sourceURL=dist/jquery.js
 
 /*!
  * Bootstrap v3.1.1 (http://getbootstrap.com)

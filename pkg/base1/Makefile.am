@@ -117,9 +117,9 @@ BASE_LN = cd $(srcdir)/pkg/base1; ln -sf
 FONTS_LN = cd $(srcdir)/pkg/base1/fonts; ln -sf
 VX = v*[0-9]
 
-update-lib::
+update-lib:: update-bower
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/jquery.js \
-	    $(srcdir)/lib/jquery.$(VX).js \
+	    $(BOWER)/jquery/dist/jquery.js \
 	    $(srcdir)/lib/bootstrap.$(VX).js \
 	    $(srcdir)/lib/bootstrap-select.$(VX).js \
 	    $(srcdir)/lib/bootstrap-datepicker.$(VX).js \
@@ -129,7 +129,7 @@ update-lib::
 	    $(srcdir)/lib/jquery-flot-time.$(VX).js \
 	    $(srcdir)/lib/attrchange.js
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/jquery.min.js \
-	    $(srcdir)/lib/jquery.$(VX).min.js \
+	    $(BOWER)/jquery/dist/jquery.min.js \
 	    $(srcdir)/lib/bootstrap.$(VX).min.js \
 	    $(srcdir)/lib/bootstrap-select.$(VX).min.js \
 	    $(srcdir)/lib/bootstrap-datepicker.$(VX).min.js \

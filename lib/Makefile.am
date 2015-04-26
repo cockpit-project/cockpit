@@ -1,7 +1,5 @@
 
 lib_FILES = \
-	lib/jquery.v2.1.0.js \
-	lib/jquery.v2.1.0.min.js \
 	lib/jquery-flot.v0.8.3.js \
 	lib/jquery-flot.v0.8.3.min.js \
 	lib/jquery-flot-time.v0.8.3.js \

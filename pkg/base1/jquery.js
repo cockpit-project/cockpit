@@ -11065,7 +11065,7 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
 
 }(jQuery);
 
-//# sourceURL=lib/bootstrap.v3.1.1.js
+//# sourceURL=js/bootstrap.js
 
 /*!
  * bootstrap-select v1.5.4
@@ -12040,7 +12040,7 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
 
 }(window.jQuery);
 
-//# sourceURL=lib/bootstrap-select.v1.5.4.js
+//# sourceURL=bootstrap-select/bootstrap-select.js
 
 /*!
  * Datepicker for Bootstrap v1.4.0 (https://github.com/eternicode/bootstrap-datepicker)
@@ -13825,7 +13825,7 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
 
 }(window.jQuery));
 
-//# sourceURL=lib/bootstrap-datepicker.v1.4.0.js
+//# sourceURL=js/bootstrap-datepicker.js
 
 /* =============================================================
  * bootstrap-combobox.js v1.1.6
@@ -14266,7 +14266,7 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
 
 }( window.jQuery );
 
-//# sourceURL=lib/bootstrap-combobox.v1.1.6.js
+//# sourceURL=js/bootstrap-combobox.js
 
 /* Javascript plotting library for jQuery, version 0.8.3.
 

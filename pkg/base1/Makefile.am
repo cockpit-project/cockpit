@@ -114,26 +114,30 @@ EXTRA_DIST += \
 	$(NULL)
 
 BASE_LN = cd $(srcdir)/pkg/base1; ln -sf
-FONTS_LN = cd $(srcdir)/pkg/base1/fonts; ln -sf
 VX = v*[0-9]
 
 update-lib:: update-bower
+	$(srcdir)/tools/uglifyjs \
+		$(BOWER)/patternfly/components/bootstrap-combobox/js/bootstrap-combobox.js \
+			> bootstrap-combobox.min.js
+	sed -f $(srcdir)/tools/patternfly.sed \
+		$(BOWER)/patternfly/dist/css/patternfly.css > patternfly.css
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/jquery.js \
 	    $(BOWER)/jquery/dist/jquery.js \
-	    $(srcdir)/lib/bootstrap.$(VX).js \
-	    $(srcdir)/lib/bootstrap-select.$(VX).js \
-	    $(srcdir)/lib/bootstrap-datepicker.$(VX).js \
-	    $(srcdir)/lib/bootstrap-combobox.$(VX).js \
+	    $(BOWER)/patternfly/components/bootstrap/dist/js/bootstrap.js \
+	    $(BOWER)/patternfly/components/bootstrap-select/bootstrap-select.js \
+	    $(BOWER)/bootstrap-datepicker/dist/js/bootstrap-datepicker.js \
+	    $(BOWER)/patternfly/components/bootstrap-combobox/js/bootstrap-combobox.js \
 	    $(srcdir)/lib/jquery-flot.$(VX).js \
 	    $(srcdir)/lib/jquery-flot-selection.$(VX).js \
 	    $(srcdir)/lib/jquery-flot-time.$(VX).js \
 	    $(srcdir)/lib/attrchange.js
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/jquery.min.js \
 	    $(BOWER)/jquery/dist/jquery.min.js \
-	    $(srcdir)/lib/bootstrap.$(VX).min.js \
-	    $(srcdir)/lib/bootstrap-select.$(VX).min.js \
-	    $(srcdir)/lib/bootstrap-datepicker.$(VX).min.js \
-	    $(srcdir)/lib/bootstrap-combobox.$(VX).min.js \
+	    $(BOWER)/patternfly/components/bootstrap/dist/js/bootstrap.min.js \
+	    $(BOWER)/patternfly/components/bootstrap-select/bootstrap-select.min.js \
+	    $(BOWER)/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js \
+	    bootstrap-combobox.min.js \
 	    $(srcdir)/lib/jquery-flot.$(VX).min.js \
 	    $(srcdir)/lib/jquery-flot-selection.$(VX).min.js \
 	    $(srcdir)/lib/jquery-flot-time.$(VX).min.js \
@@ -147,14 +151,17 @@ update-lib:: update-bower
 	    $(srcdir)/pkg/base1/require-config.js \
 	    $(srcdir)/pkg/base1/require-loaders.js
 	$(srcdir)/tools/cssbundle -o $(srcdir)/pkg/base1/patternfly.css \
-	    $(srcdir)/lib/patternfly.$(VX).css \
-	    $(srcdir)/lib/bootstrap-datepicker.$(VX).css
+	    patternfly.css \
+	    $(BOWER)/bootstrap-datepicker/dist/css/bootstrap-datepicker.css
 	$(BASE_LN) ../../lib/mustache.$(VX).js mustache.js
 	$(BASE_LN) ../../lib/mustache.$(VX).min.js mustache.min.js
 	$(BASE_LN) ../../lib/term.$(VX).js term.js
-	$(FONTS_LN) ../../../lib/fontawesome.$(VX).woff fontawesome.woff
-	$(FONTS_LN) ../../../lib/patternfly.$(VX).woff patternfly.woff
-	$(FONTS_LN) ../../../lib/glyphicons-halflings.$(VX).woff glyphicons.woff
+	cp $(BOWER)/patternfly/dist/fonts/PatternFlyIcons-webfont.woff \
+		$(srcdir)/pkg/base1/fonts/patternfly.woff
+	cp $(BOWER)/patternfly/components/bootstrap/fonts/glyphicons-halflings-regular.woff \
+		$(srcdir)/pkg/base1/fonts/glyphicons.woff
+	cp $(BOWER)/patternfly/components/font-awesome/fonts/fontawesome-webfont.woff \
+		$(srcdir)/pkg/base1/fonts/fontawesome.woff
 
 # Never recreate these files
 pkg/base1/jquery.min.js:

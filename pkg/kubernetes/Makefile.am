@@ -61,14 +61,14 @@ EXTRA_DIST += \
 	pkg/kubernetes/angular-config.js \
 	$(NULL)
 
-update-lib::
+update-lib:: update-bower
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/kubernetes/angular.js \
-	    $(srcdir)/lib/angular.$(VX).js \
-	    $(srcdir)/lib/angular-route.$(VX).js \
+	    $(BOWER)/angular/angular.js \
+	    $(BOWER)/angular-route/angular-route.js \
 	    $(srcdir)/pkg/kubernetes/angular-config.js
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/kubernetes/angular.min.js \
-	    $(srcdir)/lib/angular.$(VX).min.js \
-	    $(srcdir)/lib/angular-route.$(VX).min.js \
+	    $(BOWER)/angular/angular.min.js \
+	    $(BOWER)/angular-route/angular-route.min.js \
 	    $(srcdir)/pkg/kubernetes/angular-config.js
 
 # Never recreate these files

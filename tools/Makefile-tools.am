@@ -29,6 +29,7 @@ update-lib:: update-bower
 	    $(BOWER)/qunit-tap/lib/qunit-tap.js \
 	    $(srcdir)/tools/qunit-config.js
 	cp $(BOWER)/qunit/qunit/qunit.css $(srcdir)/tools/qunit.css
+	cp $(BOWER)/sizzle/dist/sizzle.js $(srcdir)/test/sizzle.js
 
 if WITH_COVERAGE
 coverage:

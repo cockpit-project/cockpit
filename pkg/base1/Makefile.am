@@ -155,8 +155,7 @@ update-lib:: update-bower
 	$(srcdir)/tools/cssbundle -o $(srcdir)/pkg/base1/patternfly.css \
 	    patternfly.css \
 	    $(BOWER)/bootstrap-datepicker/dist/css/bootstrap-datepicker.css
-	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/mustache.js \
-		$(BOWER)/mustache/mustache.js
+	cp $(BOWER)/mustache/mustache.js $(srcdir)/pkg/base1/mustache.js
 	$(srcdir)/tools/uglifyjs $(BOWER)/mustache/mustache.js > \
 		$(srcdir)/pkg/base1/mustache.min.js
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/term.js \

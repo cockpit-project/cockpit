@@ -1,4 +1,3 @@
-
 /*!
  * mustache.js - Logic-less {{mustache}} templates with JavaScript
  * http://github.com/janl/mustache.js
@@ -13,7 +12,7 @@
     var mustache = {};
     factory(mustache);
     if (typeof define === "function" && define.amd) {
-      define("mustache/mustache", mustache); // AMD
+      define(mustache); // AMD
     } else {
       root.Mustache = mustache; // <script>
     }
@@ -569,5 +568,3 @@
   mustache.Writer = Writer;
 
 }));
-
-//# sourceURL=mustache/mustache.js

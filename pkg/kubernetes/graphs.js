@@ -25,30 +25,65 @@ define([
 ], function($, cockpit, d3, client) {
     "use strict";
 
+    var _ = cockpit.gettext;
     var module = { };
 
-    function service_graph() {
+    var colors = [
+        "#0099d3",
+        "#67d300",
+        "#d39e00",
+        "#d3007c",
+        "#00d39f",
+        "#00d1d3",
+        "#00618a",
+        "#4c8a00",
+        "#8a6600",
+        "#9b005b",
+        "#008a55",
+        "#008a8a",
+        "#00b9ff",
+        "#7dff00",
+        "#ffbe00",
+        "#ff0096",
+        "#00ffc0",
+        "#00fdff",
+        "#023448",
+        "#264802",
+        "#483602",
+        "#590034",
+        "#024830",
+        "#024848"
+    ];
+
+    function service_grid() {
+        var self = cockpit.grid(1000, 0, 0);
+
+        /* The various rows being shown, override */
+        self.rows = [ ];
+        self.events = [ ];
+
         var kube = client.k8client();
 
-        /* Start off with an empty grid */
-        var grid = cockpit.grid(1000, 0, 0);
+        var change_queued = false;
+        var current_metric = null;
 
-        /* Container to row mappings */
-        var cpu = { };
-        var memory = { };
-        var netrx = { };
-        var nettx = { };
+        var services = [ ];
+        var rows = {
+            cpu: { },
+            memory: { },
+            network: { }
+        };
 
-        /* Host to cadvisor mapping */
+        var container_cpu = { };
+        var container_mem = { };
+        var container_rx = { };
+        var container_tx = { };
+
+        /* All the cadvisors that have been opened */
         var cadvisors = [ ];
 
-        function connect_cadvisor(ip) {
-        }
-
-        /* The various service rows */
-        var services = { };
+        /* Gives us events when kube does something */
         var service_map = client.service_map(kube);
-
         $(service_map)
             .on("host", function(ev, ip) {
                 var host = ip;
@@ -56,57 +91,79 @@ define([
                     host = null;
                 var cadvisor = client.cadvisor(host);
                 $(cadvisor).on("container", function(ev, id) {
-                    cpu[id] = grid.add(this, [ id, "cpu", "usage", "total" ]);
-                    memory[id] = grid.add(this, [ id, "memory", "usage" ]);
-                    netrx[id] = grid.add(this, [ id, "network", "rx_bytes" ]);
-                    nettx[id] = grid.add(this, [ id, "network", "tx_bytes" ]);
+                    var cpu = self.add(this, [ id, "cpu", "usage", "total" ]);
+                    container_cpu[id] = self.add(function(row, x, n) {
+                        row_delta(cpu, row, x, n);
+                    }, true);
+
+                    container_mem[id] = self.add(this, [ id, "memory", "usage" ]);
+
+                    var rx = self.add(this, [ id, "network", "rx_bytes" ]);
+                    container_rx[id] = self.add(function(row, x, n) {
+                        row_delta(rx, row, x, n);
+                    }, true);
+
+                    var tx = self.add(this, [ id, "network", "tx_bytes" ]);
+                    container_tx[id] = self.add(function(row, x, n) {
+                        row_delta(tx, row, x, n);
+                    }, true);
+
+                    self.sync();
                 });
 
                 /* In order to even know which containers we have, ask cadvisor to fetch */
-                cadvisor.fetch();
+                cadvisor.fetch(self.beg, self.end);
 
                 /* TODO: Handle cadvisor failure somehow */
+
+                cadvisors.push(cadvisor);
             })
             .on("service", function(ev, uid) {
-                services[uid] = grid.add(function(r, x, n) {
-                    calculate_service(uid, r, x, n);
+                services.push(uid);
+
+                /* CPU needs summing of containers, and then delta between them */
+                rows.cpu[uid] = self.add(function(row, x, n) {
+                    containers_sum(uid, container_cpu, row, x, n);
                 });
-                grid.notify(grid.beg, grid.end);
+
+                /* Memory row is pretty simple, just sum containers */
+                rows.memory[uid] = self.add(function(row, x, n) {
+                    containers_sum(uid, container_mem, row, x, n);
+                });
+
+                /* Network sums containers, then sum tx and rx, and then delta */
+                var tx = self.add(function(row, x, n) {
+                    containers_sum(uid, container_tx, row, x, n);
+                });
+                var rx = self.add(function(row, x, n) {
+                    containers_sum(uid, container_rx, row, x, n);
+                });
+                rows.network[uid] = self.add(function(row, x, n) {
+                    rows_sum([tx, rx], row, x, n);
+                });
+
+                change_queued = true;
             })
             .on("changed", function(ev) {
-                $(grid).triggerHandler("added-service", [ uid ]);
-                changed = true;
+                self.sync();
             });
 
-        /* Called to summarize all data for a given container */
-        function calculate_service(uid, row, x, n) {
-            var i, j, length;
-
-            /* Gather all rows to calculate from */
-            var id, r, rows = [];
-            var mapped = service_to_containers[uid];
-            if (mapped) {
-                for(id in mapped) {
-                    r = cpu[id];
-                    if (r)
-                        rows.push(r);
-                }
+        $(self).on("notify", function() {
+            if (change_queued) {
+                change_queued = false;
+                self.metric(current_metric);
             }
+        });
 
-            var v, value;
-            length = rows.length;
-
-            var last, res;
-            if (x > 0)
-                last = row[x - 1];
-
+        function rows_sum(input, row, x, n) {
             var max = row.maximum || 0;
+            var value, i, v, j, len = input.length;
 
             /* Calculate the sum of the rows */
             for (i = 0; i < n; i++) {
                 value = undefined;
-                for (j = 0; j < length; j++) {
-                    v = rows[j][x + i];
+                for (j = 0; j < len; j++) {
+                    v = input[j][x + i];
                     if (v !== undefined) {
                         if (value === undefined)
                             value = v;
@@ -115,100 +172,137 @@ define([
                     }
                 }
 
+                if (value !== undefined && value > max) {
+                    row.maximum = max = value;
+                    change_queued = true;
+                }
+
+                row[x + i] = value;
+            }
+        }
+
+        function row_delta(input, row, x, n) {
+            var i, last, res, value;
+            if (x > 0)
+                last = input[x - 1];
+
+            var max = row.maximum || 1;
+            for (i = 0; i < n; i++) {
+                value = input[x + i];
                 if (last === undefined || value === undefined) {
                     res = undefined;
                 } else {
-                    res = (value - last) / (1000 * 1000 * 1000);
+                    res = (value - last);
                     if (res > max) {
-                        max = res;
-                        row.maximum = max;
+                        row.maximum = max = res;
+                        change_queued = true;
                     }
                 }
-
                 row[x + i] = res;
                 last = value;
             }
         }
 
-        function update_services() {
-            var changed = false;
-
-            /* Lookup all the services */
-            kube.services.forEach(function(service) {
-                if (!service.spec || !service.spec.selector)
-                    return;
-
-                var name = service.metadata.name;
-                if (name === "kubernetes" || name === "kubernetes-ro")
-                    return;
-
-                var uid = service.metadata.uid;
-
-                /* Lookup all the pods for each service */
-                kube.select(service.spec.selector, service.metadata.namespace, "Pod").forEach(function(pod) {
-                    var status = pod.status || { };
-                    var ip = status.hostIP;
-                    var containers = status.containerStatuses || [];
-
-                    if (ip && !cadvisors[ip]) {
-                        connect_cadvisor(ip);
-                        changed = true;
-                    }
-
-                    /* Note all the containers for that pod */
-                    containers.forEach(function(container) {
-                        var id = container.containerID;
-                        if (id.indexOf("docker://") !== 0)
-                            return;
-                        id = id.substring(9);
-                        var mapped = service_to_containers[uid];
-                        if (!mapped)
-                            mapped = service_to_containers[uid] = { };
-                        if (!mapped[id]) {
-                            mapped[id] = id;
-                            changed = true;
-                        }
-                    });
-                });
-
-                if (!grid.services[uid]) {
-                    grid.services[uid] = grid.add(function(r, x, n) {
-                        calculate_service(uid, r, x, n);
-                    });
-                    $(grid).triggerHandler("added-service", [ uid ]);
-                    changed = true;
+        function containers_sum(service, input, row, x, n) {
+            var id, rowc, subset = [];
+            var mapped = service_map.containers[service];
+            if (mapped) {
+                for(id in mapped) {
+                    rowc = input[id];
+                    if (rowc)
+                        subset.push(rowc);
                 }
-            });
-
-            /* Notify for all rows */
-            if (changed)
-                grid.notify(0, grid.end, grid.beg);
+            }
+            rows_sum(subset, row, x, n);
         }
 
-        $(kube).on("services pods", update_services);
-        update_services();
+        self.metric = function metric(type) {
+            if (type === undefined)
+                return current_metric;
+            if (rows[type] === undefined)
+                throw "unsupported metric type";
 
-        var base_close = grid.close;
-        grid.close = function close() {
-            $.each(cadvisors, function(cadvisor) {
+            self.rows = [];
+            current_metric = type;
+
+            var row, i, len = services.length;
+            for (i = 0; i < len; i++) {
+                row = rows[type][services[i]];
+                if (row !== undefined)
+                    self.rows.push(row);
+            }
+
+            $(self).triggerHandler("changed");
+        };
+
+        var base_close = self.close;
+        self.close = function close() {
+            cadvisors.forEach(function(cadvisor) {
                 cadvisor.close();
             });
 
-            $(kube).off("services", update_services);
+            service_map.close();
             kube.close();
-
-            base_close.apply(grid);
+            base_close.apply(self);
         };
 
-        return grid;
+        return self;
     }
 
-    function service_graph(selector, grid, lines) {
+    function service_graph(selector) {
+        var grid = service_grid();
+
+        var outer = d3.select(selector);
+
+        /* Various tabs */
+
+        var tabs = {
+            cpu: {
+                label: _("CPU"),
+                step: 1000 * 1000 * 1000,
+                formatter: function(v) { return (v / (10 * 1000 * 1000)) + "%"; }
+            },
+            memory: {
+                label: _("Memory"),
+                step: 1024 * 1024 * 64,
+                formatter: function(v) { return cockpit.format_bytes(v); }
+            },
+            network: {
+                label: _("Network"),
+                step: 1000 * 1000,
+                formatter: function(v) { return cockpit.format_bits_per_sec(v, "Mbps"); }
+            }
+        };
+
+        outer.append("ul")
+            .attr("class", "nav nav-tabs")
+            .selectAll("li")
+                .data(Object.keys(tabs))
+              .enter().append("li")
+                .attr("data-metric", function(d) { return d; })
+              .append("a")
+                .text(function(d) { return tabs[d].label; });
+
+        function metric_tab(tab) {
+            outer.selectAll("ul li")
+                .attr("class", function(d) { return tab === d ? "active": null; });
+            grid.metric(tab);
+        }
+
+        outer.selectAll("ul li")
+            .on("click", function() {
+                metric_tab(d3.select(this).attr("data-metric"));
+            });
+
+        metric_tab("cpu");
+
+        /* The main svg graph stars here */
+
         var margins = {
-            top: 6,
+            top: 12,
             right: 10,
             bottom: 40,
-            left: 40
+            left: 60
         };
 
         var element = d3.select(selector).append("svg");
@@ -248,6 +342,13 @@ define([
             adjust();
         }, 1);
 
+        function ceil(value, step) {
+            var d = value % step;
+            if (value === 0 || d !== 0)
+                value += (step - d);
+            return value;
+        }
+
         function adjust() {
             if (!rendered)
                 return;
@@ -259,15 +360,31 @@ define([
             var w = (width - margins.right) - margins.left;
             var h = (height - margins.top) - margins.bottom;
 
+            var metric = grid.metric();
             var interval = grid.interval;
+
+            /* Calculate our maximum value, hopefully rows are tracking this for us */
+            var rows = grid.rows, maximum = 0;
+            var i, max, len = rows.length;
+            for (i = 0; i < len; i++) {
+                if (rows[i].maximum !== undefined)
+                    max = rows[i].maximum;
+                else
+                    max = d3.max(rows[i]);
+                if (max > maximum)
+                    maximum = Math.ceil(max);
+            }
+
+            y.domain([0, ceil(maximum, tabs[metric].step)])
+                .range([h, 0]);
 
             /* TODO: This doesn't yet work for an arbitary ponit in time */
             var end = Math.floor($.now() / interval);
             var beg = end - Math.floor((factor * w) / interval);
 
             /* Indicate the time range that the X axis is using */
-            x.domain([new Date(beg * interval), new Date(end * interval)]).range([0, w]);
-            y.range([h, 0]);
+            x.range([0, w])
+                .domain([new Date(beg * interval), new Date(end * interval)]);
 
             grid.move(beg, end);
 
@@ -295,7 +412,9 @@ define([
                 .attr("y", "10px");
 
             /* Turn the Y axis ticks into a grid */
-            y_axis.tickSize(-w, -w);
+            y_axis
+                .tickSize(-w, -w)
+                .tickFormat(tabs[metric].formatter);
 
             y_group
                 .call(y_axis)
@@ -304,17 +423,21 @@ define([
         }
 
         function notified(ev, x, n) {
-            var series = stage.selectAll("path")
-                .data(Object.keys(grid.services), function (d) { return d; });
+            var rows = grid.rows;
+
+            var series = stage.selectAll("path.line")
+                .data(rows, function(d, i) { return i; });
 
             series
-                .attr("d", function(d) { return line(grid.services[d]); });
+                .attr("d", function(d) { return line(d); })
+                .style("stroke", function(d, i) { return colors[i % colors.length]; });
             series.enter().append("path")
                 .attr("class", "line");
             series.exit().remove();
         }
 
-        $(grid).on("notify", notified);
+        $(grid).on("changed", adjust);
+        $(grid).on("notify changed", notified);
 
         function resized() {
             width = $(selector).innerWidth();
@@ -328,8 +451,7 @@ define([
     }
 
     module.services = function services(selector) {
-        var grid = service_grid();
-        return service_graph(selector, grid);
+        return service_graph(selector);
     };
 
     return module;

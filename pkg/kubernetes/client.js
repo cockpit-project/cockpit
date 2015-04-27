@@ -362,6 +362,13 @@ define([
         bind("services");
         bind("replicationcontrollers");
         bind("namespaces");
+/*
+        bind("events");
+
+        self.series = cockpit.series(1000, null, function fetch_events(beg, end) {
+            
+        });
+*/
 
         /**
          * client.select()
@@ -665,8 +672,8 @@ define([
                     var ip = status.hostIP;
                     var containers = status.containerStatuses || [];
 
-                    if (ip && !hosts[ip]) {
-                        hosts[ip] = ip;
+                    if (ip && !self.hosts[ip]) {
+                        self.hosts[ip] = ip;
                         $(self).triggerHandler("host", ip);
                     }
 
@@ -693,12 +700,18 @@ define([
             if (changed)
                 $(self).triggerHandler("changed");
         }
+
+        $(kube).on("services pods", update);
+
+        self.close = function close() {
+            $(kube).off("services pods", update);
+        };
     }
 
     kubernetes.service_map = function service_map(client) {
         return new KubernetesServiceMap(client);
     };
-    
+
     function CAdvisor(host) {
         var self = this;
 
@@ -734,12 +747,14 @@ define([
 
             for (x in containers) {
                 container = containers[x];
-                len = container.stats.length;
-                for (i = 0; i < len; i++) {
-                    timestamp = container.stats[i].timestamp;
-                    if (timestamp) {
-                        if (first === null || timestamp < first)
-                            first = timestamp;
+                if (container.stats) {
+                    len = container.stats.length;
+                    for (i = 0; i < len; i++) {
+                        timestamp = container.stats[i].timestamp;
+                        if (timestamp) {
+                            if (first === null || timestamp < first)
+                                first = timestamp;
+                        }
                     }
                 }
             }
@@ -787,20 +802,22 @@ define([
                     }
                 }
 
-                len = container.stats.length;
-                for (i = 0; i < len; i++) {
-                    stat = container.stats[i];
-                    if (!stat.timestamp)
-                        continue;
+                if (container.stats) {
+                    len = container.stats.length;
+                    for (i = 0; i < len; i++) {
+                        stat = container.stats[i];
+                        if (!stat.timestamp)
+                            continue;
 
-                    /* Convert the timestamp into an index */
-                    offset = Math.floor(new Date(stat.timestamp).getTime() / interval);
+                        /* Convert the timestamp into an index */
+                        offset = Math.floor(new Date(stat.timestamp).getTime() / interval);
 
-                    item = items[offset - base];
-                    if (!item)
-                        item = items[offset - base] = { };
-                    item[name] = stat;
-                    names[name] = name;
+                        item = items[offset - base];
+                        if (!item)
+                            item = items[offset - base] = { };
+                        item[name] = stat;
+                        names[name] = name;
+                    }
                 }
             }
 
@@ -826,22 +843,14 @@ define([
             self.series.input(base, items, mapping);
         }
 
-        function request() {
-            var query = { };
-            /*
-            if (start)
-                query[start] = xxx;
-            if (end)
-                query[end] = xxxx;
-            */
-
+        function request(query) {
             var body = JSON.stringify(query);
 
             /* Only one request active at a time for any given body */
             if (body in requests)
                 return;
 
-            var req = api.get("/api/v1.2/docker", JSON.stringify(query), { "Content-Type": "application/json" })
+            var req = api.post("/api/v1.2/docker", JSON.stringify(query), { "Content-Type": "application/json" })
                 .done(function(data) {
                     var msg = JSON.parse(data);
                     feed(msg);
@@ -857,8 +866,16 @@ define([
         }
 
         self.fetch = function fetch(beg, end) {
-            /* TODO: use beg and end */
-            request();
+            var query;
+            if (beg === undefined && end === undefined) {
+                query = { num_stats: 60 };
+            } else {
+                query = {
+                    start: new Date(beg * interval).toISOString(),
+                    end: new Date(end * interval).toISOString()
+                };
+            }
+            request(query);
         };
 
         self.follow = function follow() {

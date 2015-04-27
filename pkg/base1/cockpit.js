@@ -2799,7 +2799,7 @@ function full_scope(cockpit, $, po) {
                 }
             }
 
-            console.log(index);
+            // console.log(index);
         }
 
         /*
@@ -2943,7 +2943,7 @@ function full_scope(cockpit, $, po) {
             var row = [];
             rows.push(row);
 
-            var registered, sink, path, links;
+            var registered, sink, path, links, cb;
 
             /* Called as add(sink, path) */
             if (typeof (arguments[0]) === "object") {
@@ -2964,7 +2964,11 @@ function full_scope(cockpit, $, po) {
 
             /* Called as add(callback) */
             } else if (typeof (arguments[0]) === "function") {
-                callbacks.push([ arguments[0], row ]);
+                cb = [ arguments[0], row ];
+                if (arguments[1] === true)
+                    callbacks.unshift(cb);
+                else
+                    callbacks.push(cb);
 
             /* Not called as add() */
             } else if (arguments.length !== 0) {

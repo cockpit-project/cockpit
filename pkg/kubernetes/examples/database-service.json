@@ -9,12 +9,15 @@
       }
   },
   "spec": {
-      "port": 5432,
-      "protocol": "TCP",
+      "ports": [{
+          "name": "",
+          "port": 5432,
+          "protocol": "TCP",
+          "targetPort": 3306
+      }],
       "selector": {
           "name": "database"
       },
-      "containerPort": 3306,
       "sessionAffinity": "None"
   }
 }

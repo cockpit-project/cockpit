@@ -3,16 +3,18 @@
   "apiVersion": "v1beta3",
   "metadata": {
     "name": "frontend",
-    "namespace": "default",
-    "labels": {},
+    "labels": {}
   },
   "spec": {
-    "port": 80,
-    "protocol": "TCP",
+    "ports": [{
+      "name": "",
+      "port": 80,
+      "protocol": "TCP",
+      "targetPort": 80
+    }],
     "selector": {
       "name": "frontend"
     },
-    "containerPort": 80,
     "sessionAffinity": "None"
   }
 }

@@ -349,6 +349,29 @@ define([
             return value;
         }
 
+        function jump() {
+console.log("jump");
+            var interval = grid.interval;
+            var w = (width - margins.right) - margins.left;
+
+            /* TODO: This doesn't yet work for an arbitary ponit in time */
+            var end = Math.floor($.now() / interval);
+            var beg = end - Math.floor((factor * w) / interval);
+
+            /* Indicate the time range that the X axis is using */
+            x.domain([new Date(beg * interval), new Date(end * interval)]);
+
+            /* Re-render the X axis. Note that we also
+             * bump down the labels a bit. */
+            x_group
+                .transition()
+                .call(x_axis)
+              .selectAll("text")
+                .attr("y", "10px");
+
+            grid.move(beg, end);
+        }
+
         function adjust() {
             if (!rendered)
                 return;
@@ -375,18 +398,9 @@ define([
                     maximum = Math.ceil(max);
             }
 
-            y.domain([0, ceil(maximum, tabs[metric].step)])
-                .range([h, 0]);
+            y.domain([0, ceil(maximum, tabs[metric].step)]).range([h, 0]);
 
-            /* TODO: This doesn't yet work for an arbitary ponit in time */
-            var end = Math.floor($.now() / interval);
-            var beg = end - Math.floor((factor * w) / interval);
-
-            /* Indicate the time range that the X axis is using */
-            x.range([0, w])
-                .domain([new Date(beg * interval), new Date(end * interval)]);
-
-            grid.move(beg, end);
+            x.range([0, w]);
 
             /*
              * Make x-axis ticks into grid of right height
@@ -406,10 +420,7 @@ define([
             /* Re-render the X axis. Note that we also
              * bump down the labels a bit. */
             x_group
-                .attr("transform", "translate(0," + h + ")")
-                .call(x_axis)
-              .selectAll("text")
-                .attr("y", "10px");
+                .attr("transform", "translate(0," + h + ")");
 
             /* Turn the Y axis ticks into a grid */
             y_axis
@@ -420,6 +431,8 @@ define([
                 .call(y_axis)
               .selectAll("text")
                 .attr("x", "-10px");
+
+            jump();
         }
 
         function notified(ev, x, n) {
@@ -429,8 +442,8 @@ define([
                 .data(rows, function(d, i) { return i; });
 
             series
-                .attr("d", function(d) { return line(d); })
-                .style("stroke", function(d, i) { return colors[i % colors.length]; });
+                .style("stroke", function(d, i) { return colors[i % colors.length]; })
+                .transition().attr("d", function(d) { return line(d); });
             series.enter().append("path")
                 .attr("class", "line");
             series.exit().remove();
@@ -446,6 +459,8 @@ define([
 
         $(window).on('resize', resized);
         resized();
+
+        window.setInterval(jump, grid.interval);
 
         return element;
     }

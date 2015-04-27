@@ -130,9 +130,12 @@
             }
          },
          "spec":{
-            "port":5434,
-            "containerPort":3306,
-            "protocol":"TCP",
+             "ports": [{
+                 "name": "",
+                 "protocol": "TCP",
+                 "port": 5434,
+                 "targetPort": 3306
+             }],
             "selector":{
                "name":"database"
             }
@@ -149,9 +152,12 @@
             }
          },
          "spec":{
-            "port":5432,
-            "containerPort":8080,
-            "protocol":"TCP",
+             "ports": [{
+                 "name": "",
+                 "protocol": "TCP",
+                 "port": 5432,
+                 "targetPort": 8080
+             }],
             "selector":{
                "name":"frontend"
             }

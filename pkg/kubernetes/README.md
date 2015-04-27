@@ -10,7 +10,7 @@ This sets up a single machine kubernetes master and minion:
     $ sudo yum install kubernetes
 
 Now in order to support the latest v1beta3 API, we need to build kubernetes
-from source or use a version later than v0.13.0:
+from source or use a version later than v0.14.0:
 
     $ sudo yum install kubernetes
     $ sudo yum install etcd docker

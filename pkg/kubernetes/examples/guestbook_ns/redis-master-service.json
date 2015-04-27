@@ -3,15 +3,17 @@
     "apiVersion": "v1beta3",
     "metadata": {
         "name": "redis-master",
-        "namespace": "default",
         "labels": {
             "name": "redis-master"
         }
     },
     "spec": {
-        "port": 6379,
-        "containerPort": 6379,
-        "protocol": "TCP",
+        "ports": [{
+            "name": "",
+            "port": 6379,
+            "protocol": "TCP",
+            "targetPort": 6379
+        }],
         "selector": {
             "name": "redis-master"
         },

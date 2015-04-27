@@ -3,15 +3,17 @@
     "apiVersion": "v1beta3",
     "metadata": {
         "name": "redisslave",
-        "namespace": "default",
         "labels": {
             "name": "redisslave"
         }
     },
     "spec": {
-        "port": 6379,
-        "containerPort": 6379,
-        "protocol": "TCP",
+        "ports": [{
+            "name": "",
+            "port": 6379,
+            "protocol": "TCP",
+            "targetPort": 6379
+        }],
         "selector": {
             "name": "redisslave"
         },

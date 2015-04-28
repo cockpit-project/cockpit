@@ -54,9 +54,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
       <div id="content" class="row">
 
-        <!-- TODO -->
         <div id="graphs">
-          TODO: Graphs
         </div>
 
         <div class="row" ng-view></div>
@@ -284,16 +282,18 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           "base1/cockpit",
           "translated!base1/po",
           "kubernetes/angular",
+          "kubernetes/graphs",
           "kubernetes/deploy",
           "kubernetes/adjust",
           "kubernetes/node",
           "kubernetes/app",
           "kubernetes/dashboard"
-      ], function(cockpit, po, angular) {
+      ], function(cockpit, po, angular, graphs) {
           "use strict";
           cockpit.locale(po);
           cockpit.translate();
           angular.bootstrap(document, ["kubernetes"]);
+          graphs.services("#graphs");
       });
   </script>
 </body>

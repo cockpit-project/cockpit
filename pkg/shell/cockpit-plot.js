@@ -338,52 +338,9 @@ function setup_plot_x(graph_id, resmon, data, user_options, store_samples) {
 }
 
 shell.setup_complicated_plot = function setup_complicated_plot(graph_id, grid, data, options) {
-    var i;
-    var plot = null;
-    var resmon = grid; /* maybe */
-    var my_options = $.extend ({ legend: { show: true } },
-                               options);
-
-    /* TODO: Remove this old logic */
-    function store_samples (samples, index)
-    {
-        var value, series;
-        var n, i, floor;
-        for (n = 0; n < data.length; n++) {
-            series = data[n].data;
-            value = samples[n];
-
-            if (options.x_rh_stack_graphs) {
-                floor = 0;
-                for (i = n + 1; i < samples.length; i++) {
-                    floor += samples[i];
-                }
-                series[index][1] = value + floor;
-                series[index][2] = floor;
-            } else {
-                series[index][1] = value;
-            }
-        }
-    }
-
-    /* TODO: Remove this old logic */
-    function setup_legends()
-    {
-        for (i = 0; i < data.length; i++)
-            data[i].label = resmon.Legends[i];
-        if (plot)
-            plot.resize();
-    }
-
-    /* TODO: Remove this old logic */
-    if (resmon.Legends)
-        setup_legends();
-    else
-        $(resmon).on('notify:Legends', setup_legends);
-
     function basic_flot_row(grid, input) {
         return grid.add(function(row, x, n) {
-            for (i = 0; i < n; i++)
+            for (var i = 0; i < n; i++)
                 row[x + i] = [i, input[x + i] || 0];
         });
     }
@@ -404,21 +361,15 @@ shell.setup_complicated_plot = function setup_complicated_plot(graph_id, grid, d
     }
 
     /* All the data row setup happens now */
-    var row, last;
-    if (grid.interval) {
-        last = null;
-        data.forEach(function(series, i) {
-            if (options.x_rh_stack_graphs)
-                row = stacked_flot_row(grid, grid.rows[i], last);
-            else
-                row = basic_flot_row(grid, grid.rows[i]);
-            series.data = last = row;
-        });
-        plot = setup_plot(graph_id, grid, data, my_options);
-    } else {
-        plot = setup_plot_x(graph_id, grid, data, my_options, store_samples);
-    }
-    return plot;
+    var row, last = null;
+    data.forEach(function(series, i) {
+        if (options.x_rh_stack_graphs)
+            row = stacked_flot_row(grid, grid.rows[i], last);
+        else
+            row = basic_flot_row(grid, grid.rows[i]);
+        series.data = last = row;
+    });
+    return setup_plot(graph_id, grid, data, options);
 };
 
 // ----------------------------------------------------------------------------------------------------

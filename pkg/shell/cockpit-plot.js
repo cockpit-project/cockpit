@@ -24,7 +24,128 @@ define([
     "shell/cockpit-main"
 ], function($, cockpit, shell) {
 
-function setup_plot(graph_id, resmon, data, user_options, store_samples) {
+function setup_plot(graph_id, grid, data, user_options) {
+    var options = {
+        colors: [ "#0099d3" ],
+        legend: { show: false },
+        series: { shadowSize: 0,
+                  lines: { lineWidth: 0.0,
+                           fill: 1.0
+                         }
+                },
+        xaxis: { tickFormatter: function() { return ""; } },
+        yaxis: { tickFormatter: function() { return ""; } },
+        // The point radius influences
+        // the margin around the grid
+        // even if no points are plotted.
+        // We don't want any margin, so
+        // we set the radius to zero.
+        points: { radius: 0 },
+        grid: { borderWidth: 1,
+                aboveData: true,
+                color: "black",
+                borderColor: $.color.parse("black").scale('a', 0.22).toString(),
+                labelMargin: 0
+              }
+    };
+
+    var num_series = grid.rows.length;
+    var num_points = 300;
+    var plot;
+    var running = false;
+    var self;
+
+    $.extend(true, options, user_options);
+
+    // We put the plot inside its own div so that we can give that div
+    // a fixed size which only changes when we can also immediately
+    // call plot.resize().  Otherwise, the labels and legends briefly
+    // get out of sync during resizing.
+
+    var outer_div = $(graph_id);
+    var inner_div = $('<div/>');
+    outer_div.empty();
+    outer_div.append(inner_div);
+
+    function sync_divs ()
+    {
+        inner_div.width(outer_div.width());
+        inner_div.height(outer_div.height());
+    }
+
+    // Updating flot options is tricky and somewhat implementation
+    // defined.  Different options needs different approaches.  So we
+    // just have very specific functions for changing specific options
+    // until a pattern emerges.
+
+    function set_yaxis_max (max) {
+        if (plot) {
+            plot.getAxes().yaxis.options.max = max;
+            refresh ();
+        } else {
+            options.yaxis.max = max;
+        }
+    }
+
+    function start ()
+    {
+        running = true;
+        maybe_start();
+    }
+
+    function maybe_start() {
+        if (running && outer_div.width() !== 0 && outer_div.height() !== 0) {
+            if (!plot) {
+                sync_divs ();
+                plot = $.plot(inner_div, data, options);
+            } else
+                resize();
+        }
+    }
+
+    function stop ()
+    {
+        running = false;
+    }
+
+    function refresh() {
+        if (plot && running) {
+            plot.setData(data);
+            if (user_options.setup_hook)
+                user_options.setup_hook(plot);
+            plot.setupGrid();
+            plot.draw();
+        }
+    }
+
+    function resize() {
+        if (plot && running) {
+            sync_divs ();
+            plot.resize();
+            refresh();
+        }
+    }
+
+    function destroy () {
+        $(self).trigger('destroyed');
+        $(window).off('resize', resize);
+        $(outer_div).empty();
+        plot = null;
+    }
+
+    $(grid).on('notify', refresh);
+    $(window).on('resize', resize);
+    maybe_start();
+
+    self = { start: start, stop: stop,
+             resize: resize, element: inner_div[0],
+             set_yaxis_max: set_yaxis_max,
+             destroy: destroy
+           };
+    return self;
+}
+
+function setup_plot_x(graph_id, resmon, data, user_options, store_samples) {
     var options = {
         colors: [ "#0099d3" ],
         legend: { show: false },
@@ -216,12 +337,14 @@ function setup_plot(graph_id, resmon, data, user_options, store_samples) {
     return self;
 }
 
-shell.setup_complicated_plot = function setup_complicated_plot(graph_id, resmon, data, options) {
+shell.setup_complicated_plot = function setup_complicated_plot(graph_id, grid, data, options) {
     var i;
     var plot = null;
+    var resmon = grid; /* maybe */
     var my_options = $.extend ({ legend: { show: true } },
                                options);
 
+    /* TODO: Remove this old logic */
     function store_samples (samples, index)
     {
         var value, series;
@@ -243,6 +366,7 @@ shell.setup_complicated_plot = function setup_complicated_plot(graph_id, resmon,
         }
     }
 
+    /* TODO: Remove this old logic */
     function setup_legends()
     {
         for (i = 0; i < data.length; i++)
@@ -251,12 +375,49 @@ shell.setup_complicated_plot = function setup_complicated_plot(graph_id, resmon,
             plot.resize();
     }
 
+    /* TODO: Remove this old logic */
     if (resmon.Legends)
         setup_legends();
     else
         $(resmon).on('notify:Legends', setup_legends);
 
-    plot = setup_plot(graph_id, resmon, data, my_options, store_samples);
+    function basic_flot_row(grid, input) {
+        return grid.add(function(row, x, n) {
+            for (i = 0; i < n; i++)
+                row[x + i] = [i, input[x + i] || 0];
+        });
+    }
+
+    function stacked_flot_row(grid, input, last) {
+        return grid.add(function(row, x, n) {
+            var i, l, floor, val;
+            for (i = 0; i < n; i++) {
+                floor = 0;
+                if (last) {
+                    l = last[x + i];
+                    floor = l ? l[1] : 0;
+                }
+                val = (input[x + i] || 0);
+                row[x + i] = [i, val + floor, floor];
+            }
+        });
+    }
+
+    /* All the data row setup happens now */
+    var row, last;
+    if (grid.interval) {
+        last = null;
+        data.forEach(function(series, i) {
+            if (options.x_rh_stack_graphs)
+                row = stacked_flot_row(grid, grid.rows[i], last);
+            else
+                row = basic_flot_row(grid, grid.rows[i]);
+            series.data = last = row;
+        });
+        plot = setup_plot(graph_id, grid, data, my_options);
+    } else {
+        plot = setup_plot_x(graph_id, grid, data, my_options, store_samples);
+    }
     return plot;
 };
 
@@ -274,7 +435,7 @@ shell.setup_simple_plot = function setup_simple_plot(plot_id, text_id, resmon, o
             $(text_id).html(series_text_func(samples));
     }
 
-    return setup_plot(plot_id, resmon, data, options, store_samples);
+    return setup_plot_x(plot_id, resmon, data, options, store_samples);
 };
 
 // ----------------------------------------------------------------------------------------------------
@@ -333,7 +494,7 @@ shell.setup_multi_plot = function setup_multi_plot(element, monitor, sample_inde
             $(plot).trigger('update-total', [ total ]);
     }
 
-    plot = setup_plot(element, monitor, data,
+    plot = setup_plot_x(element, monitor, data,
                                { colors: colors,
                                  grid: { hoverable: true,
                                          autoHighlight: false

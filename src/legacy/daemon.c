@@ -22,7 +22,6 @@
 #include <string.h>
 
 #include "daemon.h"
-#include "cpumonitor.h"
 #include "memorymonitor.h"
 #include "networkmonitor.h"
 #include "diskiomonitor.h"
@@ -197,16 +196,6 @@ daemon_constructed (GObject *_object)
   g_debug ("creating object manager");
 
   daemon->object_manager = g_dbus_object_manager_server_new ("/com/redhat/Cockpit");
-
-  /* /com/redhat/Cockpit/CpuMonitor */
-  monitor = cpu_monitor_new (daemon);
-  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/CpuMonitor");
-  cockpit_object_skeleton_set_resource_monitor (object, monitor);
-  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
-  g_object_unref (monitor);
-  g_object_unref (object);
-
-  g_debug ("exported cpu monitor");
 
   /* /com/redhat/Cockpit/MemoryMonitor */
   monitor = memory_monitor_new (daemon);

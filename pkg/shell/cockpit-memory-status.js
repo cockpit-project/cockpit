@@ -38,10 +38,8 @@ PageMemoryStatus.prototype = {
     },
 
     enter: function() {
-        /* TODO: This code needs to be migrated away from old dbus */
-        this.client = shell.dbus(null);
+        var self = this;
 
-        var resmon = this.client.get("/com/redhat/Cockpit/MemoryMonitor", "com.redhat.Cockpit.ResourceMonitor");
         var options = {
             series: {shadowSize: 0, // drawing is faster without shadows
                      lines: {lineWidth: 0.0, fill: true}
@@ -58,17 +56,39 @@ PageMemoryStatus.prototype = {
                             [2.0*60, "3 min"],
                             [3.0*60, "2 min"],
                             [4.0*60, "1 min"]]},
+            legend: { show: true },
             x_rh_stack_graphs: true
         };
 
-        this.plot = shell.setup_complicated_plot("#memory_status_graph",
-                                                   resmon,
-                                                   [{color: "#4daf4a"},
-                                                    {color: "#377eb8"},
-                                                    {color: "#ff7f00"},
-                                                    {color: "#e41a1c"}
-                                                   ],
-                                                   options);
+        var metrics = [
+            { name: "memory.swap-used" },
+            { name: "memory.cached" },
+            { name: "memory.used" },
+            { name: "memory.free" },
+        ];
+
+        self.channel = cockpit.metrics(1000, {
+            source: "internal",
+            metrics: metrics,
+            cache: "memory-status"
+        });
+
+        /* The grid shows us the last five minutes */
+        self.grid = cockpit.grid(1000, -300, -0);
+        metrics.forEach(function(metric) {
+            self.grid.add(self.channel, [ metric.name ]);
+        });
+
+        /* Start pulling data, and make the grid follow the data */
+        self.channel.follow();
+        self.grid.walk();
+
+        this.plot = shell.setup_complicated_plot("#memory_status_graph", self.grid, [
+            { color: "#e41a1c", label: _("Swap Used") },
+            { color: "#ff7f00", label: _("Cached") },
+            { color: "#377eb8", label: _("Used") },
+            { color: "#4daf4a", label: _("Free") },
+        ], options);
     },
 
     show: function() {
@@ -77,8 +97,8 @@ PageMemoryStatus.prototype = {
 
     leave: function() {
         this.plot.destroy();
-        this.client.release();
-        this.client = null;
+        this.channel.close();
+        this.channel = null;
     }
 };
 

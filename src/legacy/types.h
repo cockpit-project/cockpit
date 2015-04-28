@@ -52,9 +52,6 @@ typedef struct _Network Network;
 struct _Netinterface;
 typedef struct _Netinterface Netinterface;
 
-struct _MemoryMonitor;
-typedef struct _MemoryMonitor MemoryMonitor;
-
 struct _NetworkMonitor;
 typedef struct _NetworkMonitor NetworkMonitor;
 

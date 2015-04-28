@@ -55,8 +55,6 @@ libcockpit_legacy_a_SOURCES = \
 	src/legacy/daemon.c \
 	src/legacy/utils.h \
 	src/legacy/utils.c \
-	src/legacy/cpumonitor.h \
-	src/legacy/cpumonitor.c \
 	src/legacy/memorymonitor.h \
 	src/legacy/memorymonitor.c \
 	src/legacy/networkmonitor.h \

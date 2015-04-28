@@ -46,9 +46,6 @@ typedef struct _Machines Machines;
 struct _Machine;
 typedef struct _Machine Machine;
 
-struct _CpuMonitor;
-typedef struct _CpuMonitor CpuMonitor;
-
 struct _Network;
 typedef struct _Network Network;
 

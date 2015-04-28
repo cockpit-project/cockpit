@@ -40,10 +40,6 @@ PageCpuStatus.prototype = {
     enter: function() {
         var self = this;
 
-        /* TODO: This code needs to be migrated away from old dbus */
-        this.client = shell.dbus(null);
-
-        var resmon = this.client.get("/com/redhat/Cockpit/CpuMonitor", "com.redhat.Cockpit.ResourceMonitor");
         var options = {
             series: {shadowSize: 0,
                      lines: {lineWidth: 0, fill: true}
@@ -52,28 +48,50 @@ PageCpuStatus.prototype = {
                     max: 100,
                     show: true,
                     ticks: 5,
-                    tickFormatter: function(v) { return v + "%"; }},
+                    tickFormatter: function(v) { return (v / 10) + "%"; }},
             xaxis: {show: true,
                     ticks: [[0.0*60, "5 min"],
                             [1.0*60, "4 min"],
                             [2.0*60, "3 min"],
                             [3.0*60, "2 min"],
                             [4.0*60, "1 min"]]},
+            legend: { show: true },
             x_rh_stack_graphs: true
         };
 
-        this.plot = shell.setup_complicated_plot("#cpu_status_graph",
-                                                   resmon,
-                                                   [{color: "#4daf4a"},
-                                                    {color: "#377eb8"},
-                                                    {color: "#ff7f00"},
-                                                    {color: "#e41a1c"}
-                                                   ],
-                                                   options);
+        var metrics = [
+            { name: "cpu.basic.iowait", derive: "rate" },
+            { name: "cpu.basic.system", derive: "rate" },
+            { name: "cpu.basic.user", derive: "rate" },
+            { name: "cpu.basic.nice", derive: "rate" },
+        ];
+
+        self.channel = cockpit.metrics(1000, {
+            source: "internal",
+            metrics: metrics,
+            cache: "cpu-status-rate"
+        });
+
+        /* The grid shows us the last five minutes */
+        self.grid = cockpit.grid(1000, -300, -0);
+        metrics.forEach(function(metric) {
+            self.grid.add(self.channel, [ metric.name ]);
+        });
+
+        /* Start pulling data, and make the grid follow the data */
+        self.channel.follow();
+        self.grid.walk();
+
+        this.plot = shell.setup_complicated_plot("#cpu_status_graph", self.grid, [
+            { color: "#e41a1c", label: _("I/O Wait") },
+            { color: "#ff7f00", label: _("Kernel") },
+            { color: "#377eb8", label: _("User") },
+            { color: "#4daf4a", label: _("Nice") },
+        ], options);
 
         shell.util.machine_info().
             done(function (info) {
-                self.plot.set_yaxis_max(info.cpus * 100);
+                self.plot.set_yaxis_max(info.cpus * 1000);
             });
     },
 
@@ -83,8 +101,8 @@ PageCpuStatus.prototype = {
 
     leave: function() {
         this.plot.destroy();
-        this.client.release();
-        this.client = null;
+        this.channel.close();
+        this.channel = null;
     }
 };
 

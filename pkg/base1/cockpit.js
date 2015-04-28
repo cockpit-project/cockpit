@@ -2539,7 +2539,31 @@ function full_scope(cockpit, $, po) {
         return new Permission(arg);
     };
 
-    /*
+    /* ---------------------------------------------------------------------
+     * Shared data cache.
+     *
+     * We cannot use sessionStorage when keeping lots of data in memory and
+     * sharing it between frames. It has a rather paltry limit on the amount
+     * of data it can hold ... so we use window properties instead.
+     */
+
+    function lookup_storage(win) {
+        var storage;
+        if (win.parent && win.parent !== win)
+            storage = lookup_storage(win.parent);
+        if (!storage) {
+            try {
+                storage = win["cv1-storage"];
+                if (!storage)
+                    win["cv1-storage"] = storage = { };
+            } catch(ex) { }
+        }
+        return storage;
+    }
+
+    /* ---------------------------------------------------------------------
+     * Ooops handling.
+     *
      * If we're embedded, send oops to parent frame. Since everything
      * could be broken at this point, just do it manually, without
      * involving cockpit.transport or any of that logic.

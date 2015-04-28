@@ -403,12 +403,10 @@ PageSetupServer.prototype = {
                         $('<div>',  { 'class': "cockpit-setup-task-spinner spinner",
                                       'style': "display:none"
                                     }),
-                        $('<img/>', { 'class': "cockpit-setup-task-error",
-                                      'src': "images/dialog-error.png",
+                        $('<div>', { 'class': "cockpit-setup-task-error fa fa-exclamation-triangle",
                                       'style': "display:none"
                                     }),
-                        $('<img/>', { 'class': "cockpit-setup-task-done",
-                                      'src': "images/face-smile.png",
+                        $('<div>', { 'class': "cockpit-setup-task-done pficon pficon-ok",
                                       'style': "display:none"
                                     })))));
 

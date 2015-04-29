@@ -23,13 +23,15 @@ define([
     "jquery",
     "base1/cockpit",
     "translated!base1/po",
-    "base1/mustache"
-], function($, cockpit, po, Mustache) {
+    "base1/mustache",
+    "base1/patterns"
+], function(jQuery, cockpit, po, Mustache, patterns) {
     "use strict";
 
     cockpit.locale(po);
     cockpit.translate();
     var _ = cockpit.gettext;
+    var $ = jQuery.scoped("body", patterns);
 
     function debug() {
         if (window.debugging == "all" || window.debugging == "subscriptions")
@@ -40,36 +42,24 @@ define([
 
     function register_system() {
         var url = null;
-        register_dialog_remove_errors();
+        var ex, errors = [];
         if ($('#subscription-register-url').val() === 'Custom URL')
           url = $('#subscription-register-url-custom').val().trim();
         var username = $('#subscription-register-username').val();
-        var has_errors = false;
         if (username === '') {
-            $('#subscriptions-register-username-empty').show();
-            $('#subscription-register-username').parent().addClass('has-error');
-            has_errors = true;
+            ex = new Error(_("Login cannot be empty"));
+            ex.target = "#subscription-register-username";
+            errors.push(ex);
         }
         var password = $('#subscription-register-password').val();
         if (password === '') {
-            $('#subscriptions-register-password-empty').show();
-            $('#subscription-register-password').parent().addClass('has-error');
-            has_errors = true;
+            ex = new Error(_("Password cannot be empty"));
+            ex.target = "#subscription-register-password";
+            errors.push(ex);
         }
-        if (!has_errors)
+        $("#subscriptions-register-dialog").dialog("failure", errors);
+        if (!errors.length)
           subscriptions.manager.register_system(url, username, password);
-    }
-
-    function register_dialog_remove_errors() {
-        $('#subscriptions-register-password-note').hide();
-        $('#subscriptions-register-password-note-details').hide();
-        $('#subscriptions-register-username-empty').hide();
-        $('#subscriptions-register-password-empty').hide();
-        $('#subscription-register-username').parent().removeClass('has-error');
-        $('#subscription-register-password').parent().removeClass('has-error');
-        $('#subscriptions-register-url-note').hide();
-        $('#subscription-register-url-custom').parent().removeClass('has-error');
-        $('#subscriptions-register-general-error').parent().hide();
     }
 
     function register_dialog_initialize() {
@@ -79,12 +69,14 @@ define([
             register_system();
         });
 
+        dlg.dialog("failure", null);
+
         /* only clear password on show, everything else might be necessary again
          * if an earlier call to register the system failed
          */
         dlg.on('show.bs.modal', function() {
             $('#subscription-register-password').val("");
-            register_dialog_remove_errors();
+            $('#subscriptions-register-password-note-details').hide();
         });
         dlg.on('shown.bs.modal', function() {
             $('#subscription-register-username').focus();
@@ -128,6 +120,9 @@ define([
          * if we don't get a timely reply, consider subscription-manager failure
          */
         var update_timeout;
+
+        /* The promise for the last operation */
+        var last_promise;
 
         function status_update_failed() {
             if (update_timeout !== null)
@@ -215,7 +210,7 @@ define([
 
         /* since we only call subscription_manager, we only need to check the update message visibility */
         function action_in_progress() {
-            return (is_updating.is(':visible') || $('#subscriptions-registering').is(':visible'));
+            return (is_updating.is(':visible') || (last_promise && last_promise.state() == "pending"));
         }
 
         /* get subscription details using 'subscription-manager list' */
@@ -269,7 +264,6 @@ define([
 
         function remove_notifications() {
             $('div.container-fluid.alert').remove();
-            register_dialog_remove_errors();
         }
 
         function process_status_output(text, exit_details) {
@@ -409,9 +403,14 @@ define([
                 err: "out"
             });
 
+            var promise;
             var buffer = '';
             process
                 .input('')
+                .always(function() {
+                    if (last_promise === promise)
+                        last_promise = null;
+                })
                 .stream(function(text) {
                     buffer += text;
                 })
@@ -419,6 +418,11 @@ define([
                     deferred.resolve();
                 })
                 .fail(function(ex) {
+                    if (ex.problem === "cancelled") {
+                        deferred.reject(ex);
+                        return;
+                    }
+
                     /* detect error types we recognize, fall back is generic error */
                     var invalid_username_string = 'Invalid username or password.';
                     var invalid_credentials_string = 'Invalid Credentials';
@@ -454,11 +458,12 @@ define([
                     deferred.reject(error);
                 });
 
-            var promise = deferred.promise();
+            promise = deferred.promise();
             promise.cancel = function cancel() {
                 process.close("cancelled");
             };
 
+            last_promise = promise;
             return promise;
         }
 
@@ -468,46 +473,41 @@ define([
                   'is already in progress. Please try again.'));
                 return;
             }
-            /* remove old errors */
-            remove_notifications();
 
             system_unregistered.hide();
-            var registering_system = $('#subscriptions-registering');
-            registering_system.show();
-            var btn = $('#account-register-start');
-            btn.prop("disabled", true);
+            $('#subscriptions-register-password-note-details').hide();
 
-            perform_register(url, username, password)
-                .always(function() {
-                    registering_system.hide();
-                    btn.prop("disabled", false);
-                })
+            var promise = perform_register(url, username, password);
+            $("#subscriptions-register-dialog").dialog("wait", promise);
+
+            promise
                 .done(function() {
                     $('#subscriptions-register-dialog').modal('hide');
                     /* trigger update just in case */
                     update_subscriptions();
                 })
                 .fail(function(ex) {
-                    var details = $('#subscriptions-register-password-note-details');
+                    if (ex.problem == "cancelled")
+                        return;
                     switch(ex.reason) {
                     case "credentials":
-                        $('#subscriptions-register-password-note').show();
-                        $('#subscription-register-username').parent().addClass('has-error');
-                        $('#subscription-register-password').parent().addClass('has-error');
+                        var ex1 = new Error("");
+                        ex1.target = "#subscription-register-username";
+                        var ex2 = new Error(_("Invalid login or password."));
+                        ex2.target = "#subscription-register-password";
+                        $("#subscriptions-register-dialog").dialog("failure", ex1, ex2);
                         if (ex.message) {
-                            details.html(linkify_message(ex.message));
-                            details.show();
+                            $('#subscriptions-register-password-note-details')
+                                .html(linkify_message(ex.message))
+                                .show();
                         }
                         break;
                     case "server":
-                        $('#subscriptions-register-url-note').show();
-                        $('#subscription-register-url-custom').parent().addClass('has-error');
-                        $('#subscriptions-register-url-message').text(ex.message);
+                        ex.target = "#subscription-register-url-area";
+                        $("#subscriptions-register-dialog").dialog("failure", ex);
                         break;
                     default:
-                        var note = $('#subscriptions-register-general-error');
-                        note.text(ex.message);
-                        note.parent().show();
+                        $("#subscriptions-register-dialog").dialog("failure", ex);
                         break;
                     }
                     system_unregistered.show();
@@ -578,18 +578,14 @@ define([
 
         var custom_url = $('#subscription-register-url-custom');
         var url_selector = $('#subscription-register-url');
-        var note = $('#subscriptions-register-url-message');
         custom_url.hide();
         url_selector.on('change', function() {
             if (url_selector.val() === 'Default') {
                 custom_url.hide();
-                note.hide();
             } else {
                 custom_url.show();
                 custom_url.focus();
                 custom_url.select();
-                if (custom_url.parent().hasClass('has-error'))
-                  note.show();
             }
         });
         url_selector.selectpicker('refresh');

@@ -68,8 +68,6 @@ pkg/shell/shell.min.js: $(shell_SHELL)
 
 shellimagesdir = $(pkgdatadir)/shell/images
 shellimages_DATA = \
-	pkg/shell/images/avatar-default-48.png \
-	pkg/shell/images/avatar-default-128.png \
 	pkg/shell/images/server-large.png \
 	pkg/shell/images/server-small.png \
 	pkg/shell/images/server-error.png \

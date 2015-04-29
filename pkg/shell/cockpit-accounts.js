@@ -259,10 +259,7 @@ PageAccounts.prototype = {
                   this.accounts[i]["shell"] == "/sbin/nologin")
                 continue;
             var img =
-                $('<img/>', { 'class': "cockpit-account-pic",
-                              'width': "48",
-                              'height': "48",
-                              'src': "images/avatar-default-48.png" });
+                $('<div/>', { 'class': "cockpit-account-pic pficon pficon-user" });
             var div =
                 $('<div/>', { 'class': "cockpit-account" }).append(
                     img,

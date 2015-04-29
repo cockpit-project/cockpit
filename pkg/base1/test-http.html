@@ -57,7 +57,14 @@ asyncTest("simple request", function() {
 
     cockpit.http({ "internal": "test-server" }).get("/pkg/playground/manifest.json")
         .done(function(data) {
-            deepEqual(JSON.parse(data), { version: 0 }, "returned right data");
+            deepEqual(JSON.parse(data), {
+                version: 0,
+                tools: {
+                    patterns: {
+                        label: "Design Patterns"
+                    }
+                }
+            }, "returned right data");
         })
         .always(function() {
             equal(this.state(), "resolved", "didn't fail");

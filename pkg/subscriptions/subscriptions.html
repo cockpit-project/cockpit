@@ -127,20 +127,16 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                     URL
                   </label>
                 </td>
-                <td id="registration-url-field">
-                  <select id="subscription-register-url" class="form-control selectpicker">
-                    <option translatable="yes" value="Default">Default</option>
-                    <option translatable="yes" value="Custom URL">Custom URL</option>
-                  </select>
-                  <div>
+                <td id="registration-url-field" class="dialog-wrapper">
+                  <div id="subscription-register-url-area">
+                    <select id="subscription-register-url" class="form-control selectpicker">
+                      <option translatable="yes" value="Default">Default</option>
+                      <option translatable="yes" value="Custom URL">Custom URL</option>
+                    </select>
                     <input id="subscription-register-url-custom" class="form-control" type="text"
                            value="subscription.rhn.redhat.com">
-                    <div id="subscriptions-register-url-note" hidden>
-                      <span class="help-block" id="subscriptions-register-url-message" translatable="yes">
-                        Unable to reach the server.
-                      </span>
-                    </div>
                   </div>
+                </div>
                 </td>
               </tr>
               <tr>
@@ -151,11 +147,6 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 </td>
                 <td>
                   <input id="subscription-register-username" class="form-control" type="text">
-                  <div id="subscriptions-register-username-empty" hidden>
-                    <span class="help-block" translatable="yes">
-                      Login cannot be empty.
-                    </span>
-                  </div>
                 </td>
               </tr>
               <tr>
@@ -166,39 +157,18 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 </td>
                 <td>
                   <input id="subscription-register-password" class="form-control" type="password">
-                  <div id="subscriptions-register-password-note" hidden>
-                    <span class="help-block" translatable="yes">
-                      Invalid login or password.
-                    </span>
-                    <span id="subscriptions-register-password-note-details"></span>
-                  </div>
-                  <div id="subscriptions-register-password-empty" hidden>
-                    <span class="help-block" translatable="yes">
-                      Password cannot be empty.
-                    </span>
-                  </div>
+                  <span id="subscriptions-register-password-note-details"></span>
                 </td>
               </tr>
             </table>
-            <div class="has-error" hidden>
-              <span id="subscriptions-register-general-error" class="help-block" translatable="yes">
-                Generic error.
-              </span>
-            </div>
           </div>
           <div class="modal-footer">
-            <div id="subscriptions-registering" class="pull-left" hidden>
-              <div class="spinner spinner-sm pull-left"></div>
-              <span translatable="yes">Registering system.</span>
-            </div>
-            <div>
             <button class="btn btn-default" translatable="yes" data-dismiss="modal">
               Cancel
             </button>
             <button class="btn btn-primary" id="account-register-start" translatable="yes">
               Register
             </button>
-              </div>
           </div>
         </div>
       </div>

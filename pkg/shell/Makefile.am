@@ -73,7 +73,6 @@ shellimages_DATA = \
 	pkg/shell/images/server-error.png \
 	pkg/shell/images/dialog-error.png \
 	pkg/shell/images/storage-disk.png \
-	pkg/shell/images/switcher.png \
 	$(NULL)
 
 pmlogconfdir = $(localstatedir)/lib/pcp/config/pmlogconf/tools

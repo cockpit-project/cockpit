@@ -6,6 +6,8 @@ playground_DATA = \
 	pkg/playground/speed.min.html \
 	pkg/playground/metrics.html \
 	pkg/playground/metrics.min.html \
+	pkg/playground/patterns.html \
+	pkg/playground/patterns.min.html \
 	pkg/playground/manifest.json \
 	pkg/playground/hammer.gif \
 	pkg/playground/po.de.js \

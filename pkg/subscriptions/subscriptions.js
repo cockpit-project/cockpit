@@ -385,6 +385,83 @@ define([
             return Mustache.render("{{text}}", { 'text': message });
         }
 
+        function perform_register(url, username, password) {
+            var deferred = $.Deferred();
+
+            var args = ['subscription-manager', 'register', '--auto-attach'];
+            if (url !== null)
+                args.push('--serverurl=' + url);
+            /* if username or password are empty, subscription-manager will prompt for them
+             * so we always need to pass them
+             */
+            args.push('--username=' + username);
+            args.push('--password=' + password);
+
+            deferred.notify(_("Registering system..."));
+
+            /* TODO DBus API doesn't deliver what we need, so we call subscription manager
+             * without translations and parse the output
+             */
+            var process = cockpit.spawn(args, {
+                directory: '/',
+                superuser: true,
+                environ: ['LC_ALL=C'],
+                err: "out"
+            });
+
+            var buffer = '';
+            process
+                .input('')
+                .stream(function(text) {
+                    buffer += text;
+                })
+                .done(function(output) {
+                    deferred.resolve();
+                })
+                .fail(function(ex) {
+                    /* detect error types we recognize, fall back is generic error */
+                    var invalid_username_string = 'Invalid username or password.';
+                    var invalid_credentials_string = 'Invalid Credentials';
+                    var message;
+                    var reason;
+                    if (buffer.indexOf(invalid_username_string) === 0) {
+                        reason = "credentials";
+                        message = buffer.substring(invalid_username_string.length).trim();
+                    } else if (buffer.indexOf(invalid_credentials_string) === 0) {
+                        reason = "credentials";
+                        message = buffer.substring(invalid_credentials_string.length).trim();
+                    } else if (buffer.indexOf('Unable to reach the server at') === 0) {
+                        reason = "server";
+                        message = buffer.trim();
+                    } else if (buffer.indexOf('The system has been registered') === 0) {
+                        /*
+                         * Currently we don't separate registration & subscription
+                         * our auto-attach may have failed, but message tells us that
+                         * registration was successful close the dialog and update status.
+                         */
+                        deferred.resolve();
+                        return;
+                    } else {
+                        message = buffer.trim();
+                    }
+
+                    if (!message) {
+                        message = _("Failed to register the system");
+                        console.warn(ex.message);
+                    }
+                    var error = new Error(message);
+                    error.reason = reason;
+                    deferred.reject(error);
+                });
+
+            var promise = deferred.promise();
+            promise.cancel = function cancel() {
+                process.close("cancelled");
+            };
+
+            return promise;
+        }
+
         function register_system(url, username, password) {
             if (action_in_progress()) {
                 console.log(_('Unable to register at this time because a call to subscription manager ' +
@@ -400,85 +477,41 @@ define([
             var btn = $('#account-register-start');
             btn.prop("disabled", true);
 
-            var args = ['subscription-manager', 'register', '--auto-attach'];
-            if (url !== null)
-                args.push('--serverurl=' + url);
-            /* if username or password are empty, subscription-manager will prompt for them
-             * so we always need to pass them
-             */
-            args.push('--username=' + username);
-            args.push('--password=' + password);
-
-            /* TODO DBus API doesn't deliver what we need, so we call subscription manager
-             * without translations and parse the output
-             */
-            var buffer = '';
-            var process = cockpit.spawn(args, { directory: '/', superuser: true, environ: ['LC_ALL=C'], err: "out" })
-                .stream(function(text) {
-                    buffer += text;
-                    return text.length;
-                }).done(function(output) {
+            perform_register(url, username, password)
+                .always(function() {
                     registering_system.hide();
                     btn.prop("disabled", false);
-
+                })
+                .done(function() {
                     $('#subscriptions-register-dialog').modal('hide');
                     /* trigger update just in case */
                     update_subscriptions();
                 })
                 .fail(function(ex) {
-                    registering_system.hide();
-                    btn.prop("disabled", false);
-
-                    /* detect error types we recognize, fall back is generic error */
-                    var invalid_username_string = 'Invalid username or password.';
-                    var invalid_credentials_string = 'Invalid Credentials';
                     var details = $('#subscriptions-register-password-note-details');
-                    var remainder;
-                    if (buffer.indexOf(invalid_username_string) === 0) {
+                    switch(ex.reason) {
+                    case "credentials":
                         $('#subscriptions-register-password-note').show();
                         $('#subscription-register-username').parent().addClass('has-error');
                         $('#subscription-register-password').parent().addClass('has-error');
-                        remainder = buffer.substring(invalid_username_string.length).trim();
-                        if (remainder !== '') {
-                            details.html(linkify_message(remainder));
+                        if (ex.message) {
+                            details.html(linkify_message(ex.message));
                             details.show();
                         }
-                    } else if (buffer.indexOf(invalid_credentials_string) === 0) {
-                        $('#subscriptions-register-password-note').show();
-                        $('#subscription-register-username').parent().addClass('has-error');
-                        $('#subscription-register-password').parent().addClass('has-error');
-                        /* if there is more to the message, show that */
-                        remainder = buffer.substring(invalid_credentials_string.length).trim();
-                        if (remainder !== '') {
-                            details.html(linkify_message(remainder));
-                            details.show();
-                        }
-                    } else if (buffer.indexOf('Unable to reach the server at') === 0) {
+                        break;
+                    case "server":
                         $('#subscriptions-register-url-note').show();
                         $('#subscription-register-url-custom').parent().addClass('has-error');
-                        $('#subscriptions-register-url-message').text(buffer.trim());
-                    } else if (buffer.indexOf('The system has been registered') === 0) {
-                        /* currently we don't separate registration & subscription
-                         * our auto-attach may have failed, but message tells us that registration was successful
-                         * close the dialog and update status!
-                         */
-                        registering_system.hide();
-                        btn.prop("disabled", false);
-
-                        $('#subscriptions-register-dialog').modal('hide');
-                        /* trigger update just in case */
-                        update_subscriptions();
-                    } else {
+                        $('#subscriptions-register-url-message').text(ex.message);
+                        break;
+                    default:
                         var note = $('#subscriptions-register-general-error');
-                        note.text(buffer.trim());
+                        note.text(ex.message);
                         note.parent().show();
+                        break;
                     }
-
                     system_unregistered.show();
                 });
-
-            /* make sure it doesn't ask us for input */
-            process.input('');
         }
 
         /* we want to get notified if subscription status of the system changes */

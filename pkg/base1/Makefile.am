@@ -132,6 +132,7 @@ update-lib:: update-bower
 	    $(BOWER)/jquery-flot/jquery.flot.js \
 	    $(BOWER)/jquery-flot/jquery.flot.selection.js \
 	    $(BOWER)/jquery-flot/jquery.flot.time.js \
+	    $(srcdir)/pkg/base1/jquery-scoped.js \
 	    $(srcdir)/pkg/base1/attrchange.js
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/jquery.min.js \
 	    $(BOWER)/jquery/dist/jquery.min.js \
@@ -142,6 +143,7 @@ update-lib:: update-bower
 	    jquery.flot.min.js \
 	    jquery.flot.selection.min.js \
 	    jquery.flot.time.min.js \
+	    $(srcdir)/pkg/base1/jquery-scoped.js \
 	    $(srcdir)/pkg/base1/attrchange.min.js
 	$(srcdir)/tools/uglifyjs $(BOWER)/requirejs/require.js > require.min.js
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/require.js \

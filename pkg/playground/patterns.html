@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Cockpit Pattern Usage</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
+    <script src="../base1/require.js"></script>
+</head>
+<body hidden>
+
+<div class="modal" id="test-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" translatable="yes">Example Dialog</h4>
+            </div>
+            <div class="modal-body">
+                <table class="cockpit-form-table">
+                    <tr>
+                        <td class="top">
+                            <label class="control-label" for="control-1" translatable="yes">
+                                Label
+                            </label>
+                        </td>
+                        <td>
+                            <input id="control-1" class="form-control" type="text">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="top">
+                            <label class="control-label" for="control-2" translatable="yes">
+                                Select
+                            </label>
+                        </td>
+                        <td>
+                            <select id="control-2" class="form-control selectpicker">
+                                <option translatable="yes" value="one">One</option>
+                                <option translatable="yes" value="two">Two</option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+                    Cancel
+                </button>
+                <button class="btn btn-primary" id="clear-button" translatable="yes">
+                    Clear
+                </button>
+                <button class="btn btn-primary" id="fields-button" translatable="yes">
+                    Invalid
+                </button>
+                <button class="btn btn-primary" id="error-button" translatable="yes">
+                    Error
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <button class="btn btn-default" data-target="#test-dialog" data-toggle="modal" translatable="yes">
+        Show Dialog
+    </button>
+    <hr>
+</div>
+
+<script>
+require([
+    'jquery',
+    'base1/patterns'
+], function(jQuery, patterns) {
+    "use strict";
+
+    /*
+     * An example of using a scoped jQuery object. This allows you to
+     * only select sub-elements of the selector *and* also allows you to
+     * pull in additional plugins such as the patterns we use here.
+     */
+    var $ = jQuery.scoped("body", patterns);
+
+    /*
+     * When this dialog button is clicked, we show a global failure message
+     * that is displayed in the dialog itself.
+     */
+    $("#error-button").on("click", function() {
+        $("#test-dialog").dialog('failure', new Error("This is a global failure message"));
+    });
+
+    /*
+     * These are failures targetted at specific fields. Note that we set
+     * selectors on the target property of the exception. Also note how
+     * the .dialog('failure') accepts multiple exceptions as arguments.
+     */
+    $("#fields-button").on("click", function() {
+        var ex1 = new Error("This field is invalid");
+        ex1.target = "#control-1";
+        var ex2 = new Error("Another problem with this field");
+        ex2.target = "#control-2";
+        $("#test-dialog").dialog('failure', ex1, ex2);
+    });
+
+    /*
+     * Clearing the failures in the dialog is done by passing a null
+     * exception or no exceptions at all.
+     */
+    $("#clear-button").on("click", function() {
+        $("#test-dialog").dialog('failure', null);
+    });
+});
+</script>
+
+
+<script>
+require([
+    'jquery'
+], function($) {
+    "use strict";
+
+    $(document).ready(function() {
+        $('.selectpicker').selectpicker();
+        $("body").show();
+    });
+});
+</script>
+</body>
+</html>

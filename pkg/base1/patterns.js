@@ -90,9 +90,98 @@ define([
         });
     }
 
+    function DialogWait(promise) {
+        this.promise = promise;
+        this.disabled = [];
+    }
+
+    function clear_wait(sel) {
+        var data = sel.data("dialog-wait");
+        sel.data("dialog-wait", null);
+
+        sel.find(".dialog-wait").remove();
+        sel.find(".btn").off(".dialog-wait");
+        sel.off(".dialog-wait");
+
+        if (data) {
+            data.disabled.forEach(function(ctl) {
+                ctl.removeAttr("disabled");
+            });
+        }
+    }
+
+    function display_wait(sel, promise) {
+        clear_wait(sel);
+
+        if (!promise)
+            return;
+
+        var wait = $("<div class='dialog-wait pull-left'>");
+        $("<div class='spinner spinner-sm'>").appendTo(wait);
+        var message = $("<span>").appendTo(wait);
+
+        sel.find(".modal-footer").prepend(wait);
+
+        var data = new DialogWait(promise);
+        sel.data("dialog-wait", data);
+
+        var cancellation = promise.cancel || promise.close;
+
+        /* Disable everything and stash previous disabled state */
+        var controls = sel.find(".form-control").add(".btn", sel);
+        if (cancellation)
+            controls = controls.not("[data-dismiss]");
+        controls.each(function() {
+            var ctl = $(this);
+            if (!ctl.attr("disabled")) {
+                data.disabled.push(ctl);
+                ctl.attr("disabled", "disabled");
+            }
+        });
+
+        sel.find(".btn[data-dismiss]").on("click.dialog-wait", function() {
+            console.log("cancel action");
+            if (cancellation)
+                cancellation.apply(promise);
+            return false;
+        });
+
+        /* When dialog is shown again, remove all mods */
+        sel.on("show.bs.modal.dialog-wait", function() {
+            clear_wait(sel);
+        });
+
+        /*
+         * There is no way to remove a callback from a promise
+         * so we have to be careful to only react if still
+         * processing the same promise.
+         */
+        function restore() {
+            var data = sel.data("dialog-wait");
+            if (data && data.promise === promise)
+                clear_wait(sel);
+        }
+
+        function update(arg) {
+            var data = sel.data("dialog-wait");
+            if (data && data.promise === promise) {
+                if (typeof arg !== "string")
+                    arg = "";
+                message.text(arg);
+            }
+        }
+
+        promise
+            .done(restore)
+            .fail(restore)
+            .progress(update);
+    }
+
     plugins.dialog = function dialog(action /* ... */) {
         if (action === "failure")
             display_errors(this, Array.prototype.slice.call(arguments, 1));
+        else if (action === "wait")
+            display_wait(this, arguments[1]);
         else
             console.warn("unknown dialog action: " + action);
     };

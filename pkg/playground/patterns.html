@@ -55,6 +55,9 @@
                 <button class="btn btn-primary" id="error-button" translatable="yes">
                     Error
                 </button>
+                <button class="btn btn-primary" id="wait-button" translatable="yes">
+                    Wait
+                </button>
             </div>
         </div>
     </div>
@@ -109,6 +112,40 @@ require([
     $("#clear-button").on("click", function() {
         $("#test-dialog").dialog('failure', null);
     });
+
+    /*
+     * This is an example of a dialog waiting for a promise to complete.
+     *
+     * If the promise has a .cancel() or .close() method then the Cancel
+     * button in the dialog can be used to cancel the operation.
+     *
+     * In addition if the promise produces progress string information that
+     * info will be shown next to the spinner.
+     */
+    $("#wait-button").on("click", function() {
+        $("#test-dialog").dialog('wait', operation());
+    });
+
+    /* A mock operation, cancellable with progress */
+    function operation() {
+        var deferred = $.Deferred();
+        var interval, count = 0;
+        window.setInterval(function() {
+            count += 1;
+            deferred.notify("Step " + count);
+        }, 500);
+        window.setTimeout(function() {
+            window.clearTimeout(interval);
+            deferred.resolve();
+        }, 5000);
+        var promise = deferred.promise();
+        promise.cancel = function() {
+            window.clearTimeout(interval);
+            deferred.reject();
+        };
+        return promise;
+    }
+
 });
 </script>
 

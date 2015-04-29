@@ -49,13 +49,6 @@ install-data-local::
 	$(MKDIR_P) $(DESTDIR)$(basedebugdir)
 	$(LN_S) -f require.js $(DESTDIR)$(basedebugdir)/bundle.js
 
-baseimagesdir = $(pkgdatadir)/base1/images
-baseimages_DATA = \
-	pkg/base1/images/play.png \
-	pkg/base1/images/eject.png \
-	pkg/base1/images/stop.png \
-	$(NULL)
-
 basefontsdir = $(pkgdatadir)/base1/fonts
 basefonts_DATA = \
 	pkg/base1/fonts/fontawesome.woff.gz \

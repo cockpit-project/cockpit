@@ -478,7 +478,7 @@ function render_container (client, $panel, filter_button, prefix, id, container,
                 docker_container_delete(client, id, function() { }, function () { $(self).show().siblings("div.spinner").hide(); });
                 return false;
             });
-        var btn_play = $('<button class="btn btn-default btn-control btn-play">').
+        var btn_play = $('<button class="btn btn-default btn-control fa fa-play">').
             on("click", function() {
                 $(this).hide().
                     siblings("div.spinner").show();
@@ -488,7 +488,7 @@ function render_container (client, $panel, filter_button, prefix, id, container,
                     });
                 return false;
             });
-        var btn_stop = $('<button class="btn btn-default btn-control btn-stop">').
+        var btn_stop = $('<button class="btn btn-default btn-control fa fa-stop">').
             on("click", function() {
                 $(this).hide().
                     siblings("div.spinner").show();
@@ -793,7 +793,7 @@ PageContainers.prototype = {
 
         var added = false;
         if (!tr.length) {
-            var button = $('<button class="btn btn-default btn-control btn-play">').
+            var button = $('<button class="btn btn-default btn-control fa fa-play">').
                 on("click", function() {
                     PageRunImage.display(self.client, id);
                     return false;

@@ -137,7 +137,7 @@ class Browser:
         self.init_after_load()
 
     def expect_reload(self):
-        self.phantom.expect_reload()
+        self.phantom.expect_reload(self.phantom_wait_timeout)
         self.init_after_load()
 
     def switch_to_frame(self, name):
@@ -551,8 +551,8 @@ class Phantom:
         if status != "success":
             raise Error(status)
 
-    def expect_reload(self):
-        status = self.run({'cmd': 'expect-reload'})
+    def expect_reload(self, timeout):
+        status = self.run({'cmd': 'expect-reload', 'timeout': timeout*1000})
         if status != "success":
             raise Error(status)
 

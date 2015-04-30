@@ -72,6 +72,8 @@ function step ()
 
         function on_load_finished(status)
         {
+            clearTimeout(page.timer);
+            page.timer = null;
             page.onResourceError = null;
             page.onLoadFinished = null;
             if (status != "success" && page.failure)
@@ -99,6 +101,9 @@ function step ()
             page.failure = null;
             page.onResourceError = on_resource_error;
             page.onLoadFinished = on_load_finished;
+            page.timer = setTimeout(function() {
+                on_load_finished("timeout");
+            }, cmd.timeout || 10000);
         } else if (cmd.cmd == "inject") {
             var ret = page.injectJs(cmd.file);
             sys.stdout.writeLine(JSON.stringify({result: ret}));
@@ -111,7 +116,7 @@ function step ()
             step();
         } else if (cmd.cmd == "switch_top") {
             page.switchToMainFrame();
-	    sys.stdout.writeLine(JSON.stringify({result: true}));
+            sys.stdout.writeLine(JSON.stringify({result: true}));
             step();
         } else if (cmd.cmd == "switch_parent") {
             if (page.switchToParentFrame())

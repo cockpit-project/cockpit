@@ -540,8 +540,8 @@ function render_container (client, $panel, filter_button, prefix, id, container,
 
 
     $(row[7]).children("div.spinner").toggle(waiting);
-    $(row[7]).children("button.btn-play").toggle(!waiting && !container.State.Running);
-    $(row[7]).children("button.btn-stop").toggle(!waiting && container.State.Running);
+    $(row[7]).children("button.fa-play").toggle(!waiting && !container.State.Running);
+    $(row[7]).children("button.fa-stop").toggle(!waiting && container.State.Running);
 
     $(row[6]).toggle(danger_mode);
     $(row[7]).toggle(!danger_mode);

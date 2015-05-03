@@ -35,5 +35,5 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -n "$output" ]; then
-    mv $output.tmp $output
+    mv -f $output.tmp $output
 fi

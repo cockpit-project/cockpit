@@ -32,5 +32,5 @@ if [ -n "$generate_c_code" ]; then
 #undef GLIB_VERSION_MAX_ALLOWED\
 #endif' \
 		"$generate_c_code.c" > "$generate_c_code.$$"
-	mv "$generate_c_code.$$" "$generate_c_code.c"
+	mv -f "$generate_c_code.$$" "$generate_c_code.c"
 fi

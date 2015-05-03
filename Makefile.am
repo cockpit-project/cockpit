@@ -28,13 +28,15 @@ V_GZIP = $(V_GZIP_$(V))
 V_GZIP_ = $(V_GZIP_$(AM_DEFAULT_VERBOSITY))
 V_GZIP_0 = @echo "  GZIP    " $@;
 
+MV = mv -f
+
 .css.min.css:
 	@$(MKDIR_P) $(dir $@)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/r.js -o cssIn=$< optimizeCss=standard logLevel=3 out=$@
 .js.min.js:
 	@$(MKDIR_P) $(dir $@)
 	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $<
-	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $< --mangle > $@.tmp && mv $@.tmp $@
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $< --mangle > $@.tmp && $(MV) $@.tmp $@
 .html.min.html:
 	@$(MKDIR_P) $(dir $@)
 	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint --extract=always $<
@@ -42,19 +44,19 @@ V_GZIP_0 = @echo "  GZIP    " $@;
 
 .min.css.min.css.gz:
 	@$(MKDIR_P) $(dir $@)
-	$(V_GZIP) gzip -c $< > $@.tmp && mv $@.tmp $@
+	$(V_GZIP) gzip -c $< > $@.tmp && $(MV) $@.tmp $@
 .min.html.min.html.gz:
 	@$(MKDIR_P) $(dir $@)
-	$(V_GZIP) gzip -c $< > $@.tmp && mv $@.tmp $@
+	$(V_GZIP) gzip -c $< > $@.tmp && $(MV) $@.tmp $@
 .js.js.gz:
 	@$(MKDIR_P) $(dir $@)
-	$(V_GZIP) gzip -c $< > $@.tmp && mv $@.tmp $@
+	$(V_GZIP) gzip -c $< > $@.tmp && $(MV) $@.tmp $@
 .min.js.min.js.gz:
 	@$(MKDIR_P) $(dir $@)
-	$(V_GZIP) gzip -c $< > $@.tmp && mv $@.tmp $@
+	$(V_GZIP) gzip -c $< > $@.tmp && $(MV) $@.tmp $@
 .woff.woff.gz:
 	@$(MKDIR_P) $(dir $@)
-	$(V_GZIP) gzip -c $< > $@.tmp && mv $@.tmp $@
+	$(V_GZIP) gzip -c $< > $@.tmp && $(MV) $@.tmp $@
 
 po/po.%.js: po/%.po
 	@$(MKDIR_P) $(dir $@)

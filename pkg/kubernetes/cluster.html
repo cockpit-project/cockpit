@@ -73,9 +73,10 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     <div class="col-md-8">
       <div id="service-list" class="panel panel-default">
         <div class="panel-heading">
-          <span style="float: right;">
+          <div style="float: right;">
+            <button class="btn btn-default fa fa-check" id="services-enable-change" title="Change"></button>
             <button class="btn btn-primary" id="deploy-app" translatable="yes">Deploy</button>
-          </span>
+          </div>
           <span translatable="yes">Kubernetes Services</span>
         </div>
         <table class="table table-hover">
@@ -85,7 +86,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
               <th translatable="yes">Address</th>
               <th translatable="yes">Containers</th>
 	      <th translatable="yes">Namespace</th>
-              <th></th>
+              <th class="status"></th>
             </tr>
           </thead>
           <tbody>
@@ -94,7 +95,9 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
               <td>{{service.address}}{{service.ports}}</td>
               <td>{{service.containers}}</td>
               <td>{{service.namespace}}</td>
-              <td></td>
+              <td class="status">
+                <button title="Adjust" class="btn btn-default adjust-service pficon pficon-edit"></button>
+              </td>
             </tr>
           </tbody>
         </table>

@@ -5,6 +5,12 @@ define([
 ], function($, angular) {
     'use strict';
 
+    /* TODO: Migrate this to angular */
+    $("#content").on("click", "#services-enable-change", function() {
+        $("#service-list").toggleClass("editable");
+        $("#services-enable-change").toggleClass("active");
+    });
+
     return angular.module('kubernetes.dashboard', ['ngRoute'])
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.when('/', {

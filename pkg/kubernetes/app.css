@@ -72,6 +72,29 @@
     padding: 60px;
 }
 
+/* When panel is editable, then buttons are visible */
+#service-list td button {
+    display: none;
+}
+
+#service-list.editable td button {
+    display: block;
+}
+
+#service-list.editable tr:hover td {
+    background-color: #FFF;
+    cursor: auto;
+}
+
+#service-list td.status {
+    padding: 4px 10px 4px;
+    text-align: right;
+    white-space: nowrap;
+    width: 1%;
+}
+
+/* App deploy dialog */
+
 #deploy-app-deploying > span {
     margin-left: 7px;
 }

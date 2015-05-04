@@ -90,13 +90,14 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="service in services">
+            <tr ng-repeat="service in services" data-uid="{{service.uid}}">
               <td>{{service.name}}</td>
               <td>{{service.address}}{{service.ports}}</td>
               <td>{{service.containers}}</td>
               <td>{{service.namespace}}</td>
               <td class="status">
-                <button title="Adjust" class="btn btn-default adjust-service pficon pficon-edit"></button>
+                <button title="Adjust" class="btn btn-default adjust-service pficon pficon-edit"
+                    data-toggle="modal" data-target="#adjust-dialog" data-uid="{{service.uid}}"></button>
               </td>
             </tr>
           </tbody>
@@ -222,12 +223,52 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
       </div>
     </div>
 
+    <div class="modal" id="adjust-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" translatable="yes">Adjust Service</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td><label class="control-label" for="adjust-name" translatable="yes">Name</label></td>
+                <td><input id="adjust-name" type="text" class="form-control"></td>
+              </tr>
+              <tr class="adjust-replicas-header">
+                <td colspan="2" class="header">Replicas</td>
+              </tr>
+              <script id="adjust-template" type="x-template/mustache">
+                {{#replicas}}
+                  <tr class="adjust-replicas">
+                    <td class="top">
+                      <label class="control-label" for="{{ uid }}">{{ name }}</label>
+                    </td>
+                    <td class="top">
+                      <input class="form-control adjust-replica" type="text" id="{{ uid }}"
+                          value="{{ count }}" data-link="{{ link }}">
+                    </td>
+                  </tr>
+                {{/replicas}}
+              </script>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
+            <button class="btn btn-primary" translatable="yes">Adjust</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
       require([
           "base1/cockpit",
           "translated!base1/po",
           "kubernetes/angular",
           "kubernetes/deploy",
+          "kubernetes/adjust",
           "kubernetes/app",
           "kubernetes/dashboard"
       ], function(cockpit, po, angular, deploy) {

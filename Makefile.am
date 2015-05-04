@@ -224,7 +224,7 @@ download-po:
 BOWER = $(srcdir)/tools/bower_components
 
 update-bower:
-	( cd $(srcdir)/tools && ./bower update )
+	( cd $(srcdir)/tools && ./bower --config.interactive=false update )
 
 include pkg/base1/Makefile.am
 include pkg/dashboard/Makefile.am

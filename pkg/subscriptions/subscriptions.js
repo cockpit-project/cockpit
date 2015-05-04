@@ -121,6 +121,9 @@ define([
          */
         var update_timeout;
 
+        /* The promise for the last operation */
+        var last_promise;
+
         function status_update_failed() {
             if (update_timeout !== null)
                 $('#subscription-manager-not-found').show();
@@ -207,7 +210,7 @@ define([
 
         /* since we only call subscription_manager, we only need to check the update message visibility */
         function action_in_progress() {
-            return (is_updating.is(':visible') || $('#subscriptions-registering').is(':visible'));
+            return (is_updating.is(':visible') || (last_promise && last_promise.state() == "pending"));
         }
 
         /* get subscription details using 'subscription-manager list' */
@@ -400,9 +403,14 @@ define([
                 err: "out"
             });
 
+            var promise;
             var buffer = '';
             process
                 .input('')
+                .always(function() {
+                    if (last_promise === promise)
+                        last_promise = null;
+                })
                 .stream(function(text) {
                     buffer += text;
                 })
@@ -450,11 +458,12 @@ define([
                     deferred.reject(error);
                 });
 
-            var promise = deferred.promise();
+            promise = deferred.promise();
             promise.cancel = function cancel() {
                 process.close("cancelled");
             };
 
+            last_promise = promise;
             return promise;
         }
 

@@ -50,11 +50,6 @@ __all__ = (
 
     'sit',
 
-    'check',
-    'check_eq',
-    'check_not_eq',
-    'check_in',
-    'check_not_in',
     'wait',
     'RepeatThis',
 
@@ -670,24 +665,6 @@ def wait(func, msg=None, delay=1, tries=60):
         t = t + 1
         sleep(delay)
     raise Error(msg or "Condition did not become true.")
-
-def check(cond, msg=None):
-    if not cond:
-        raise Error(msg or "Condition is not true")
-    else:
-        return True
-
-def check_eq(val, expected, source = "Value"):
-    return check (val == expected, "%s is '%s', not '%s' as expected" % ( source, val, expected ))
-
-def check_not_eq(val, expected, source = "Value"):
-    return check (val != expected, "%s is '%s', not something else as expected" % ( source, val ))
-
-def check_in(val, expected, source = "Value"):
-    return check (expected in val, "%s is '%s', which doesn't include '%s' as expected" % ( source, val, expected ))
-
-def check_not_in(val, expected, source = "Value"):
-    return check (expected not in val, "%s is '%s', which includes '%s', but that isn't expected" % ( source, val, expected ))
 
 def sit():
     """

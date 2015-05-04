@@ -220,7 +220,7 @@ CMD ["/bin/sh", "-c", "echo '%s' | nc -l -p %d; echo '%s'"]
 
         # Check connection on port
         data = m.execute("exec 3<>/dev/tcp/localhost/%d; cat <&3" % (port)).rstrip()
-        check_eq(data, message)
+        self.assertEqual(data, message)
 
         # Check output of the probe
         b.click('#containers-containers tr:contains("PROBE2")')
@@ -260,13 +260,13 @@ CMD ["/bin/sh", "-c", "echo '%s' | nc -l -p %d; echo '%s'"]
 
         # Check connection on first port, remove trailing whitespace
         data = m.execute("exec 3<>/dev/tcp/localhost/%d; cat <&3" % (port)).rstrip()
-        check_eq(data, message)
+        self.assertEqual(data, message)
 
         self.wait_for_message(second_message)
 
         # Check connection on second port, remove trailing whitespace
         data = m.execute("exec 3<>/dev/tcp/localhost/%d; cat <&3" % (nport)).rstrip()
-        check_eq(data, second_message)
+        self.assertEqual(data, second_message)
 
         # Wait for exit
         b.wait_in_text("#container-details-state", "Exited")

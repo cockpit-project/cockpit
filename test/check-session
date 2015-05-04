@@ -34,8 +34,7 @@ class TestSession(MachineCase):
 
         def wait_session(should_exist):
             def cond():
-                check = check_in if should_exist else check_not_in
-                return check(m.execute("loginctl list-sessions"), "admin")
+                return should_exist == ("admin" in m.execute("loginctl list-sessions"))
             if should_exist:
                 wait(cond)
             else:

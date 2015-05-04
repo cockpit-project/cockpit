@@ -46,6 +46,15 @@ class TestDocker(MachineCase):
                 b.enter_page("containers")
                 b.wait_not_in_text("#containers-containers", container_name)
 
+    def wait_for_message(self, message):
+        b = self.browser
+        # HACK - sometimes container output is missing from the logs
+        #        https://github.com/docker/docker/issues/10617
+        try:
+            b.wait_in_text("#container-terminal", message)
+        except:
+            raise RepeatThis("https://github.com/docker/docker/issues/10617")
+
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -82,7 +91,7 @@ class TestDocker(MachineCase):
         b.click('#containers-containers tr:contains("PROBE")')
         b.enter_page("container-details")
         # The terminal uses NO-BREAK SPACE so we check for that here
-        b.wait_in_text("#container-terminal", message)
+        self.wait_for_message(message)
         b.wait_in_text("#container-details-state", "Exited")
 
         self.del_container_from_details("PROBE")
@@ -142,13 +151,13 @@ class TestDocker(MachineCase):
         # Check output of PROBE
         b.click('#containers-containers tr:contains("PROBE")')
         b.enter_page("container-details")
-        b.wait_in_text("#container-terminal", message)
+        self.wait_for_message(message)
         b.call_js_func("ph_count_check", ".logs",  1)
         b.wait_in_text("#container-details-state", "Exited")
 
         # Make sure after restart we only have one
         b.click("#container-details-start")
-        b.wait_in_text("#container-terminal", "%s\n%s" % (message, message))
+        self.wait_for_message("%s\n%s" % (message, message))
         b.call_js_func("ph_count_check", ".logs",  1)
         b.wait_in_text("#container-details-state", "Exited")
 
@@ -216,7 +225,7 @@ CMD ["/bin/sh", "-c", "echo '%s' | nc -l -p %d; echo '%s'"]
         # Check output of the probe
         b.click('#containers-containers tr:contains("PROBE2")')
         b.enter_page("container-details")
-        b.wait_in_text("#container-terminal", message)
+        self.wait_for_message(message)
         b.wait_in_text("#container-details-ports", "0.0.0.0:%d -> %d/tcp" % (port, port))
 
         # Wait for exit
@@ -247,13 +256,13 @@ CMD ["/bin/sh", "-c", "echo '%s' | nc -l -p %d; echo '%s'"]
         b.enter_page("container-details")
         b.wait_in_text("#container-details-ports", ":%d -> %d/tcp" % (port, port))
         b.wait_in_text("#container-details-ports", ":%d -> %d/tcp" % (nport, nport))
-        b.wait_in_text("#container-terminal", message)
+        self.wait_for_message(message)
 
         # Check connection on first port, remove trailing whitespace
         data = m.execute("exec 3<>/dev/tcp/localhost/%d; cat <&3" % (port)).rstrip()
         check_eq(data, message)
 
-        b.wait_in_text("#container-terminal", second_message)
+        self.wait_for_message(second_message)
 
         # Check connection on second port, remove trailing whitespace
         data = m.execute("exec 3<>/dev/tcp/localhost/%d; cat <&3" % (nport)).rstrip()

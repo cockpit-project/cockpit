@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "cockpitstream.h"
+#include "cockpitpipechannel.h"
 
 #include "common/cockpitpipe.h"
 #include "common/cockpitjson.h"
@@ -32,7 +32,7 @@
 #include <string.h>
 
 /**
- * CockpitStream:
+ * CockpitPipeChannel:
  *
  * A #CockpitChannel that sends messages from a regular socket
  * or file descriptor. Any data is read in whatever chunks it
@@ -44,7 +44,7 @@
  * The payload type for this channel is 'stream'.
  */
 
-#define COCKPIT_STREAM(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_STREAM, CockpitStream))
+#define COCKPIT_PIPE_CHANNEL(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_PIPE_CHANNEL, CockpitPipeChannel))
 
 typedef struct {
   CockpitChannel parent;
@@ -58,24 +58,24 @@ typedef struct {
   gint64 batch;
   gint64 latency;
   guint timeout;
-} CockpitStream;
+} CockpitPipeChannel;
 
 typedef struct {
   CockpitChannelClass parent_class;
-} CockpitStreamClass;
+} CockpitPipeChannelClass;
 
-G_DEFINE_TYPE (CockpitStream, cockpit_stream, COCKPIT_TYPE_CHANNEL);
+G_DEFINE_TYPE (CockpitPipeChannel, cockpit_pipe_channel, COCKPIT_TYPE_CHANNEL);
 
 static void
-cockpit_stream_recv (CockpitChannel *channel,
-                     GBytes *message)
+cockpit_pipe_channel_recv (CockpitChannel *channel,
+                           GBytes *message)
 {
-  CockpitStream *self = COCKPIT_STREAM (channel);
+  CockpitPipeChannel *self = COCKPIT_PIPE_CHANNEL (channel);
   cockpit_pipe_write (self->pipe, message);
 }
 
 static void
-process_pipe_buffer (CockpitStream *self,
+process_pipe_buffer (CockpitPipeChannel *self,
                      GByteArray *data)
 {
   CockpitChannel *channel = (CockpitChannel *)self;
@@ -104,9 +104,9 @@ process_pipe_buffer (CockpitStream *self,
 }
 
 static void
-cockpit_stream_done (CockpitChannel *channel)
+cockpit_pipe_channel_done (CockpitChannel *channel)
 {
-  CockpitStream *self = COCKPIT_STREAM (channel);
+  CockpitPipeChannel *self = COCKPIT_PIPE_CHANNEL (channel);
 
   self->closing = TRUE;
   process_pipe_buffer (self, NULL);
@@ -120,10 +120,10 @@ cockpit_stream_done (CockpitChannel *channel)
 }
 
 static void
-cockpit_stream_options (CockpitChannel *channel,
-                        JsonObject *options)
+cockpit_pipe_channel_options (CockpitChannel *channel,
+                              JsonObject *options)
 {
-  CockpitStream *self = COCKPIT_STREAM (channel);
+  CockpitPipeChannel *self = COCKPIT_PIPE_CHANNEL (channel);
   const gchar *problem = "protocol-error";
 
   if (!cockpit_json_get_int (options, "batch", self->batch, &self->batch))
@@ -148,10 +148,10 @@ out:
 }
 
 static void
-cockpit_stream_close (CockpitChannel *channel,
-                      const gchar *problem)
+cockpit_pipe_channel_close (CockpitChannel *channel,
+                            const gchar *problem)
 {
-  CockpitStream *self = COCKPIT_STREAM (channel);
+  CockpitPipeChannel *self = COCKPIT_PIPE_CHANNEL (channel);
 
   self->closing = TRUE;
   process_pipe_buffer (self, NULL);
@@ -163,13 +163,13 @@ cockpit_stream_close (CockpitChannel *channel,
   if (self->open)
     cockpit_pipe_close (self->pipe, problem);
   else
-    COCKPIT_CHANNEL_CLASS (cockpit_stream_parent_class)->close (channel, problem);
+    COCKPIT_CHANNEL_CLASS (cockpit_pipe_channel_parent_class)->close (channel, problem);
 }
 
 static gboolean
 on_batch_timeout (gpointer user_data)
 {
-  CockpitStream *self = user_data;
+  CockpitPipeChannel *self = user_data;
   self->timeout = 0;
   process_pipe_buffer (self, NULL);
   return FALSE;
@@ -181,7 +181,7 @@ on_pipe_read (CockpitPipe *pipe,
               gboolean end_of_data,
               gpointer user_data)
 {
-  CockpitStream *self = user_data;
+  CockpitPipeChannel *self = user_data;
 
   if (!end_of_data && self->batch > 0 && data->len < self->batch)
     {
@@ -207,7 +207,7 @@ on_pipe_close (CockpitPipe *pipe,
                const gchar *problem,
                gpointer user_data)
 {
-  CockpitStream *self = user_data;
+  CockpitPipeChannel *self = user_data;
   CockpitChannel *channel = user_data;
   JsonObject *options;
   gint status;
@@ -248,7 +248,7 @@ on_pipe_close (CockpitPipe *pipe,
 }
 
 static void
-cockpit_stream_init (CockpitStream *self)
+cockpit_pipe_channel_init (CockpitPipeChannel *self)
 {
   /* Has no effect until batch is set */
   self->latency = 75;
@@ -316,9 +316,9 @@ parse_environ (JsonObject *options)
 }
 
 static void
-cockpit_stream_prepare (CockpitChannel *channel)
+cockpit_pipe_channel_prepare (CockpitChannel *channel)
 {
-  CockpitStream *self = COCKPIT_STREAM (channel);
+  CockpitPipeChannel *self = COCKPIT_PIPE_CHANNEL (channel);
   const gchar *problem = "protocol-error";
   GSocketAddress *address;
   CockpitPipeFlags flags;
@@ -329,7 +329,7 @@ cockpit_stream_prepare (CockpitChannel *channel)
   const gchar *dir;
   const gchar *error;
 
-  COCKPIT_CHANNEL_CLASS (cockpit_stream_parent_class)->prepare (channel);
+  COCKPIT_CHANNEL_CLASS (cockpit_pipe_channel_parent_class)->prepare (channel);
 
   options = cockpit_channel_get_options (channel);
 
@@ -340,7 +340,7 @@ cockpit_stream_prepare (CockpitChannel *channel)
     }
 
   /* Support our options in the open message too */
-  cockpit_stream_options (channel, options);
+  cockpit_pipe_channel_options (channel, options);
   if (self->closing)
     goto out;
 
@@ -401,9 +401,9 @@ out:
 }
 
 static void
-cockpit_stream_dispose (GObject *object)
+cockpit_pipe_channel_dispose (GObject *object)
 {
-  CockpitStream *self = COCKPIT_STREAM (object);
+  CockpitPipeChannel *self = COCKPIT_PIPE_CHANNEL (object);
 
   if (self->pipe)
     {
@@ -416,52 +416,52 @@ cockpit_stream_dispose (GObject *object)
       self->sig_read = self->sig_close = 0;
     }
 
-  G_OBJECT_CLASS (cockpit_stream_parent_class)->dispose (object);
+  G_OBJECT_CLASS (cockpit_pipe_channel_parent_class)->dispose (object);
 }
 
 static void
-cockpit_stream_finalize (GObject *object)
+cockpit_pipe_channel_finalize (GObject *object)
 {
-  CockpitStream *self = COCKPIT_STREAM (object);
+  CockpitPipeChannel *self = COCKPIT_PIPE_CHANNEL (object);
 
   g_clear_object (&self->sock);
   g_clear_object (&self->pipe);
   g_free (self->name);
 
-  G_OBJECT_CLASS (cockpit_stream_parent_class)->finalize (object);
+  G_OBJECT_CLASS (cockpit_pipe_channel_parent_class)->finalize (object);
 }
 
 static void
-cockpit_stream_class_init (CockpitStreamClass *klass)
+cockpit_pipe_channel_class_init (CockpitPipeChannelClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
-  gobject_class->dispose = cockpit_stream_dispose;
-  gobject_class->finalize = cockpit_stream_finalize;
+  gobject_class->dispose = cockpit_pipe_channel_dispose;
+  gobject_class->finalize = cockpit_pipe_channel_finalize;
 
-  channel_class->prepare = cockpit_stream_prepare;
-  channel_class->options = cockpit_stream_options;
-  channel_class->done = cockpit_stream_done;
-  channel_class->recv = cockpit_stream_recv;
-  channel_class->close = cockpit_stream_close;
+  channel_class->prepare = cockpit_pipe_channel_prepare;
+  channel_class->options = cockpit_pipe_channel_options;
+  channel_class->done = cockpit_pipe_channel_done;
+  channel_class->recv = cockpit_pipe_channel_recv;
+  channel_class->close = cockpit_pipe_channel_close;
 }
 
 /**
- * cockpit_stream_open:
+ * cockpit_pipe_channel_open:
  * @transport: the transport to send/receive messages on
  * @channel_id: the channel id
  * @unix_path: the UNIX socket path to communicate with
  *
  * This function is mainly used by tests. The usual way
- * to get a #CockpitStream is via cockpit_channel_open()
+ * to get a #CockpitPipeChannel is via cockpit_channel_open()
  *
  * Returns: (transfer full): the new channel
  */
 CockpitChannel *
-cockpit_stream_open (CockpitTransport *transport,
-                     const gchar *channel_id,
-                     const gchar *unix_path)
+cockpit_pipe_channel_open (CockpitTransport *transport,
+                           const gchar *channel_id,
+                           const gchar *unix_path)
 {
   CockpitChannel *channel;
   JsonObject *options;
@@ -472,7 +472,7 @@ cockpit_stream_open (CockpitTransport *transport,
   json_object_set_string_member (options, "unix", unix_path);
   json_object_set_string_member (options, "payload", "stream");
 
-  channel = g_object_new (COCKPIT_TYPE_STREAM,
+  channel = g_object_new (COCKPIT_TYPE_PIPE_CHANNEL,
                           "transport", transport,
                           "id", channel_id,
                           "options", options,

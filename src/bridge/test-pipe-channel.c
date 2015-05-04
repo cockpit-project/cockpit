@@ -20,7 +20,7 @@
 
 #include "config.h"
 
-#include "cockpitstream.h"
+#include "cockpitpipechannel.h"
 
 #include "mock-transport.h"
 
@@ -150,7 +150,7 @@ setup_channel (TestCase *tc,
                gconstpointer data)
 {
   setup (tc, data);
-  tc->channel = cockpit_stream_open (COCKPIT_TRANSPORT (tc->transport), "548", tc->unix_path);
+  tc->channel = cockpit_pipe_channel_open (COCKPIT_TRANSPORT (tc->transport), "548", tc->unix_path);
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_closed_get_problem), &tc->channel_problem);
 }
 
@@ -353,7 +353,7 @@ test_spawn_simple (void)
   json_object_set_array_member (options, "spawn", array);
   json_object_set_string_member (options, "payload", "stream");
 
-  channel = g_object_new (COCKPIT_TYPE_STREAM,
+  channel = g_object_new (COCKPIT_TYPE_PIPE_CHANNEL,
                           "options", options,
                           "id", "548",
                           "transport", transport,
@@ -410,7 +410,7 @@ test_spawn_environ (void)
 
   json_object_set_string_member (options, "payload", "stream");
 
-  channel = g_object_new (COCKPIT_TYPE_STREAM,
+  channel = g_object_new (COCKPIT_TYPE_PIPE_CHANNEL,
                           "options", options,
                           "id", "548",
                           "transport", transport,
@@ -462,7 +462,7 @@ test_spawn_status (void)
 
   json_object_set_string_member (options, "payload", "stream");
 
-  channel = g_object_new (COCKPIT_TYPE_STREAM,
+  channel = g_object_new (COCKPIT_TYPE_PIPE_CHANNEL,
                           "options", options,
                           "id", "548",
                           "transport", transport,
@@ -508,7 +508,7 @@ test_spawn_signal (void)
 
   json_object_set_string_member (options, "payload", "stream");
 
-  channel = g_object_new (COCKPIT_TYPE_STREAM,
+  channel = g_object_new (COCKPIT_TYPE_PIPE_CHANNEL,
                           "options", options,
                           "id", "548",
                           "transport", transport,
@@ -555,7 +555,7 @@ test_spawn_pty (void)
   json_object_set_string_member (options, "payload", "stream");
   json_object_set_boolean_member (options, "pty", TRUE);
 
-  channel = g_object_new (COCKPIT_TYPE_STREAM,
+  channel = g_object_new (COCKPIT_TYPE_PIPE_CHANNEL,
                           "options", options,
                           "id", "548",
                           "transport", transport,
@@ -640,7 +640,7 @@ test_fail_not_found (void)
   cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "*couldn't connect*");
 
   transport = g_object_new (mock_transport_get_type (), NULL);
-  channel = cockpit_stream_open (transport, "1", "/non-existent");
+  channel = cockpit_pipe_channel_open (transport, "1", "/non-existent");
   g_assert (channel != NULL);
 
   /* Even through failure is on open, should not have closed yet */
@@ -682,7 +682,7 @@ test_fail_access_denied (void)
   g_assert_cmpint (fchmod (fd, 0000), ==, 0);
 
   transport = g_object_new (mock_transport_get_type (), NULL);
-  channel = cockpit_stream_open (transport, "1", unix_path);
+  channel = cockpit_pipe_channel_open (transport, "1", unix_path);
   g_assert (channel != NULL);
 
   /* Even through failure is on open, should not have closed yet */
@@ -707,27 +707,27 @@ main (int argc,
 {
   cockpit_test_init (&argc, &argv);
 
-  g_test_add ("/stream/echo", TestCase, NULL,
+  g_test_add ("/pipe-channel/echo", TestCase, NULL,
               setup_channel, test_echo, teardown);
-  g_test_add ("/stream/shutdown", TestCase, NULL,
+  g_test_add ("/pipe-channel/shutdown", TestCase, NULL,
               setup_channel, test_shutdown, teardown);
-  g_test_add ("/stream/close-normal", TestCase, NULL,
+  g_test_add ("/pipe-channel/close-normal", TestCase, NULL,
               setup_channel, test_close_normal, teardown);
-  g_test_add ("/stream/close-problem", TestCase, NULL,
+  g_test_add ("/pipe-channel/close-problem", TestCase, NULL,
               setup_channel, test_close_problem, teardown);
-  g_test_add ("/stream/invalid-send", TestCase, NULL,
+  g_test_add ("/pipe-channel/invalid-send", TestCase, NULL,
               setup_channel, test_send_invalid, teardown);
-  g_test_add ("/stream/invalid-recv", TestCase, NULL,
+  g_test_add ("/pipe-channel/invalid-recv", TestCase, NULL,
               setup_channel, test_recv_invalid, teardown);
 
-  g_test_add_func ("/stream/spawn/signal", test_spawn_signal);
-  g_test_add_func ("/stream/spawn/simple", test_spawn_simple);
-  g_test_add_func ("/stream/spawn/status", test_spawn_status);
-  g_test_add_func ("/stream/spawn/environ", test_spawn_environ);
-  g_test_add_func ("/stream/spawn/pty", test_spawn_pty);
+  g_test_add_func ("/pipe-channel/spawn/signal", test_spawn_signal);
+  g_test_add_func ("/pipe-channel/spawn/simple", test_spawn_simple);
+  g_test_add_func ("/pipe-channel/spawn/status", test_spawn_status);
+  g_test_add_func ("/pipe-channel/spawn/environ", test_spawn_environ);
+  g_test_add_func ("/pipe-channel/spawn/pty", test_spawn_pty);
 
-  g_test_add_func ("/test-stream/fail/not-found", test_fail_not_found);
-  g_test_add_func ("/test-stream/fail/access-denied", test_fail_access_denied);
+  g_test_add_func ("/pipe-channel/fail/not-found", test_fail_not_found);
+  g_test_add_func ("/pipe-channel/fail/access-denied", test_fail_access_denied);
 
   return g_test_run ();
 }

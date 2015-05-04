@@ -448,20 +448,23 @@ PageAccountsCreate.prototype = {
             return passwd_change($('#accounts-create-user-name').val(), $('#accounts-create-pw1').val());
         });
 
-        this.validate()
+        var promise = this.validate()
             .fail(function(ex) {
                 $("#accounts-create-password-meter-message").hide();
                 $("#accounts-create-dialog").dialog("failure", ex);
             })
             .done(function() {
-                chain(tasks)
+                promise = chain(tasks)
                     .done(function() {
                         $('#accounts-create-dialog').modal('hide');
                     })
                     .fail(function(ex) {
                         $("#accounts-create-dialog").dialog("failure", ex);
                     });
+                $("#accounts-create-dialog").dialog("wait", promise);
             });
+
+        $("#accounts-create-dialog").dialog("wait", promise);
     }
 };
 
@@ -944,12 +947,11 @@ PageAccountSetPassword.prototype = {
     },
 
     apply: function() {
-        this.validate()
+        var promise = this.validate()
             .done(function() {
                 var user = PageAccountSetPassword.user_name;
                 var password = $('#account-set-password-pw1').val();
 
-                var promise;
                 if (cockpit.user["user"] === user)
                     promise = passwd_self($('#account-set-password-old').val(), password);
                 else
@@ -962,11 +964,13 @@ PageAccountSetPassword.prototype = {
                     .fail(function(ex) {
                         $("#account-set-password-dialog").dialog("failure", ex);
                     });
+                $("#account-set-password-dialog").dialog("wait", promise);
             })
             .fail(function(ex) {
                 $("#account-set-password-meter-message").hide();
                 $("#account-set-password-dialog").dialog("failure", ex);
             });
+        $("#account-set-password-dialog").dialog("wait", promise);
     }
 };
 

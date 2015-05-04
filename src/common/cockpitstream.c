@@ -37,6 +37,7 @@ enum {
 struct _CockpitStreamPrivate {
   gchar *name;
   GMainContext *context;
+  CockpitStreamOptions *options;
 
   gboolean closed;
   gboolean closing;
@@ -344,11 +345,10 @@ start_output (CockpitStream *self)
 
   g_assert (self->priv->out_source == NULL);
 
-  if (!self->priv->io)
-    {
-      g_warn_if_fail (self->priv->connecting || self->priv->closed);
-      return;
-    }
+  if (self->priv->connecting || self->priv->out_closed || self->priv->closed)
+    return;
+
+  g_assert (self->priv->io);
 
   os = g_io_stream_get_output_stream (self->priv->io);
   self->priv->out_source = g_pollable_output_stream_create_source (G_POLLABLE_OUTPUT_STREAM (os), NULL);
@@ -362,6 +362,8 @@ initialize_io (CockpitStream *self)
 {
   GInputStream *is;
   GOutputStream *os;
+
+  g_return_if_fail (self->priv->in_source == NULL);
 
   is = g_io_stream_get_input_stream (self->priv->io);
   os = g_io_stream_get_output_stream (self->priv->io);
@@ -459,6 +461,10 @@ cockpit_stream_dispose (GObject *object)
 
   while (self->priv->out_queue->head)
     g_bytes_unref (g_queue_pop_head (self->priv->out_queue));
+
+  if (self->priv->options)
+    cockpit_stream_options_unref (self->priv->options);
+  self->priv->options = NULL;
 
   G_OBJECT_CLASS (cockpit_stream_parent_class)->dispose (object);
 }
@@ -661,20 +667,39 @@ on_socket_connected (GObject *object,
 
   g_socket_connection_connect_finish (G_SOCKET_CONNECTION (object), result, &error);
 
+  if (!error && !self->priv->closed)
+    {
+      g_debug ("%s: connected", self->priv->name);
+
+      if (self->priv->options && self->priv->options->tls_client)
+        {
+          self->priv->io = g_tls_client_connection_new (G_IO_STREAM (object), NULL, &error);
+          if (self->priv->io)
+            {
+              g_debug ("%s: tls handshake", self->priv->name);
+
+              g_tls_client_connection_set_validation_flags (G_TLS_CLIENT_CONNECTION (self->priv->io),
+                                                            self->priv->options->tls_client_flags);
+            }
+        }
+      else
+        {
+          self->priv->io = g_object_ref (object);
+        }
+    }
+
   if (error)
     {
       set_problem_from_error (self, "couldn't connect", error);
       g_error_free (error);
       close_immediately (self, NULL);
     }
-
-  if (!self->priv->closed)
+  else
     {
-      g_debug ("%s: connected", self->priv->name);
-      self->priv->io = G_IO_STREAM (object);
       initialize_io (self);
     }
 
+  g_object_unref (object);
   g_object_unref (self);
 }
 
@@ -694,7 +719,8 @@ on_socket_connected (GObject *object,
  */
 CockpitStream *
 cockpit_stream_connect (const gchar *name,
-                        GSocketAddress *address)
+                        GSocketAddress *address,
+                        CockpitStreamOptions *options)
 {
   GSocketConnection *connection;
   CockpitStream *stream;
@@ -709,6 +735,9 @@ cockpit_stream_connect (const gchar *name,
                          NULL);
 
   stream->priv->connecting = TRUE;
+
+  if (options)
+    stream->priv->options = cockpit_stream_options_ref (options);
 
   sock = g_socket_new (g_socket_address_get_family (address), G_SOCKET_TYPE_STREAM, 0, &error);
   if (sock)
@@ -785,4 +814,25 @@ cockpit_stream_new (const gchar *name,
                        "name", name,
                        "io-stream", io_stream,
                        NULL);
+}
+
+CockpitStreamOptions *
+cockpit_stream_options_ref (CockpitStreamOptions *options)
+{
+  g_return_val_if_fail (options != NULL, NULL);
+  options->refs++;
+  return options;
+}
+
+void
+cockpit_stream_options_unref (gpointer data)
+{
+  CockpitStreamOptions *options = data;
+
+  g_return_if_fail (options != NULL);
+
+  if (--(options->refs) <= 0)
+    {
+      g_free (options);
+    }
 }

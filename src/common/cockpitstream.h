@@ -24,6 +24,16 @@
 
 G_BEGIN_DECLS
 
+typedef struct {
+  gint refs;
+  gboolean tls_client;
+  GTlsCertificateFlags tls_client_flags;
+} CockpitStreamOptions;
+
+CockpitStreamOptions *  cockpit_stream_options_ref    (CockpitStreamOptions *options);
+
+void                    cockpit_stream_options_unref  (gpointer data);
+
 #define COCKPIT_TYPE_STREAM         (cockpit_stream_get_type ())
 #define COCKPIT_STREAM(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_STREAM, CockpitStream))
 #define COCKPIT_IS_STREAM(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_STREAM))
@@ -58,7 +68,8 @@ CockpitStream *    cockpit_stream_new          (const gchar *name,
                                                 GIOStream *stream);
 
 CockpitStream *    cockpit_stream_connect      (const gchar *name,
-                                                GSocketAddress *address);
+                                                GSocketAddress *address,
+                                                CockpitStreamOptions *options);
 
 void               cockpit_stream_write        (CockpitStream *self,
                                                 GBytes *data);

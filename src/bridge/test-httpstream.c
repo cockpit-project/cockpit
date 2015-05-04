@@ -207,6 +207,116 @@ test_parse_keep_alive (void)
   json_object_unref (options);
 }
 
+typedef struct {
+  GTlsCertificate *certificate;
+  CockpitWebServer *web_server;
+  guint port;
+  MockTransport *transport;
+} TestTls;
+
+static gboolean
+handle_test (CockpitWebServer *server,
+             const gchar *path,
+             GHashTable *headers,
+             CockpitWebResponse *response,
+             gpointer user_data)
+{
+  const gchar *data = "Oh Marmalaade!";
+  GBytes *bytes;
+
+  bytes = g_bytes_new_static (data, strlen (data));
+  cockpit_web_response_content (response, NULL, bytes, NULL);
+  g_bytes_unref (bytes);
+  return TRUE;
+}
+
+static void
+setup_tls (TestTls *test,
+           gconstpointer data)
+{
+  GError *error = NULL;
+
+  test->certificate = g_tls_certificate_new_from_files (SRCDIR "/src/bridge/mock-client.crt",
+                                                        SRCDIR "/src/bridge/mock-client.key", &error);
+  g_assert_no_error (error);
+
+  test->web_server = cockpit_web_server_new (0, test->certificate, NULL, NULL, &error);
+  g_assert_no_error (error);
+
+  test->port = cockpit_web_server_get_port (test->web_server);
+  g_signal_connect (test->web_server, "handle-resource::/test", G_CALLBACK (handle_test), NULL);
+
+  test->transport = mock_transport_new ();
+  g_signal_connect (test->transport, "closed", G_CALLBACK (on_transport_closed), NULL);
+
+}
+
+static void
+teardown_tls (TestTls *test,
+              gconstpointer data)
+{
+  g_object_unref (test->certificate);
+  g_object_unref (test->web_server);
+  g_object_unref (test->transport);
+}
+
+static void
+on_closed_set_flag (CockpitChannel *channel,
+                    const gchar *problem,
+                    gpointer user_data)
+{
+  gboolean *flag = user_data;
+  g_assert (*flag == FALSE);
+  *flag = TRUE;
+}
+
+static void
+test_tls_client (TestTls *test,
+                 gconstpointer unused)
+{
+  gboolean closed = FALSE;
+  CockpitChannel *channel;
+  JsonObject *options;
+  const gchar *control;
+  GBytes *bytes;
+  GBytes *data;
+
+  options = json_object_new ();
+  json_object_set_int_member (options, "port", test->port);
+  json_object_set_string_member (options, "payload", "http-stream1");
+  json_object_set_string_member (options, "method", "GET");
+  json_object_set_string_member (options, "path", "/test");
+  json_object_set_object_member (options, "tls", json_object_new ());
+
+  channel = g_object_new (COCKPIT_TYPE_HTTP_STREAM,
+                          "transport", test->transport,
+                          "id", "444",
+                          "options", options,
+                          NULL);
+
+  json_object_unref (options);
+
+  /* Tell HTTP we have no more data to send */
+  control = "{\"command\": \"done\", \"channel\": \"444\"}";
+  bytes = g_bytes_new_static (control, strlen (control));
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (test->transport), NULL, bytes);
+  g_bytes_unref (bytes);
+
+  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_set_flag), &closed);
+
+  while (closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+
+  data = mock_transport_combine_output (test->transport, "444", NULL);
+  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{}}Oh Marmalaade!", -1);
+
+  g_bytes_unref (data);
+
+  g_object_add_weak_pointer (G_OBJECT (channel), (gpointer *)&channel);
+  g_object_unref (channel);
+  g_assert (channel == NULL);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -214,6 +324,9 @@ main (int argc,
   cockpit_test_init (&argc, &argv);
   g_test_add_func  ("/http-stream/parse_keepalive", test_parse_keep_alive);
   g_test_add_func  ("/http-stream/http_chunked", test_http_chunked);
+
+  g_test_add ("/http-stream/tls/client", TestTls, NULL,
+              setup_tls, test_tls_client, teardown_tls);
 
   return g_test_run ();
 }

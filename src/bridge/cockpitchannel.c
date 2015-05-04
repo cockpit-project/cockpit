@@ -948,3 +948,36 @@ out:
     }
   return address;
 }
+
+CockpitStreamOptions *
+cockpit_channel_parse_stream (CockpitChannel *self)
+{
+  const gchar *problem = "protocol-error";
+  CockpitStreamOptions *ret;
+  gboolean use_tls = FALSE;
+  JsonNode *node;
+
+  node = json_object_get_member (self->priv->open_options, "tls");
+  if (node && !JSON_NODE_HOLDS_OBJECT (node))
+    {
+      g_warning ("invalid \"tls\" option for channel");
+      goto out;
+    }
+
+  use_tls = node != NULL;
+  problem = NULL;
+
+out:
+  if (problem)
+    {
+      cockpit_channel_close (self, problem);
+      return NULL;
+    }
+
+  ret = g_new0 (CockpitStreamOptions, 1);
+  ret->refs = 1;
+  ret->tls_client = use_tls;
+  ret->tls_client_flags = 0; /* No validation for local servers */
+
+  return ret;
+}

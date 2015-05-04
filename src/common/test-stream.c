@@ -510,6 +510,7 @@ test_properties (void)
   g_free (name);
   g_assert (io == x);
 
+  g_object_unref (x);
   g_object_unref (io);
 
   g_object_unref (tstream);
@@ -637,7 +638,7 @@ test_connect_and_read (TestConnect *tc,
   GError *error = NULL;
   GByteArray *buffer;
 
-  stream = cockpit_stream_connect ("broooo", tc->address);
+  stream = cockpit_stream_connect ("broooo", tc->address, NULL);
   g_assert (stream != NULL);
 
   while (tc->conn_sock == NULL)
@@ -667,7 +668,7 @@ test_connect_and_write (TestConnect *tc,
   GBytes *sent;
   gssize ret;
 
-  stream = cockpit_stream_connect ("broooo", tc->address);
+  stream = cockpit_stream_connect ("broooo", tc->address, NULL);
   g_assert (stream != NULL);
 
   /* Sending on the stream before actually connected */
@@ -710,7 +711,7 @@ test_fail_not_found (void)
   cockpit_expect_message ("*No such file or directory");
 
   address = g_unix_socket_address_new ("/non-existent");
-  stream = cockpit_stream_connect ("bad", address);
+  stream = cockpit_stream_connect ("bad", address, NULL);
   g_object_unref (address);
 
   /* Should not have closed at this point */
@@ -753,7 +754,7 @@ test_fail_access_denied (void)
   cockpit_expect_message ("*Permission denied");
 
   address = g_unix_socket_address_new (unix_path);
-  stream = cockpit_stream_connect ("bad", address);
+  stream = cockpit_stream_connect ("bad", address, NULL);
   g_object_unref (address);
 
   /* Should not have closed at this point */

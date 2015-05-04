@@ -38,6 +38,8 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitinternalmetrics.h \
 	src/bridge/cockpitpaths.c \
 	src/bridge/cockpitpaths.h \
+	src/bridge/cockpitpipechannel.c \
+	src/bridge/cockpitpipechannel.h \
 	src/bridge/cockpitpolkitagent.c \
 	src/bridge/cockpitpolkitagent.h \
 	src/bridge/cockpitportal.c \
@@ -54,8 +56,6 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitnullchannel.h \
 	src/bridge/cockpitsamples.c \
 	src/bridge/cockpitsamples.h \
-	src/bridge/cockpitstream.c \
-	src/bridge/cockpitstream.h \
 	src/bridge/cockpitfsread.c \
 	src/bridge/cockpitfsread.h \
 	src/bridge/cockpitfsreplace.c \
@@ -146,7 +146,7 @@ BRIDGE_CHECKS = \
 	test-rules \
 	test-channel \
 	test-dbusjson \
-	test-stream \
+	test-pipe-channel \
 	test-packages \
 	test-fs \
 	test-metrics \
@@ -196,11 +196,11 @@ test_setup_SOURCES = src/bridge/test-setup.c
 test_setup_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_setup_LDADD = $(libcockpit_bridge_LIBS)
 
-test_stream_SOURCES = \
-	src/bridge/test-stream.c \
+test_pipe_channel_SOURCES = \
+	src/bridge/test-pipe-channel.c \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
-test_stream_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_stream_LDADD = $(libcockpit_bridge_LIBS)
+test_pipe_channel_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_pipe_channel_LDADD = $(libcockpit_bridge_LIBS)
 
 test_fs_SOURCES = \
 	src/bridge/test-fs.c \

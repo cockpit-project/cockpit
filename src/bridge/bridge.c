@@ -30,10 +30,10 @@
 #include "cockpitinteracttransport.h"
 #include "cockpitnullchannel.h"
 #include "cockpitpackages.h"
+#include "cockpitpipechannel.h"
 #include "cockpitinternalmetrics.h"
 #include "cockpitpolkitagent.h"
 #include "cockpitportal.h"
-#include "cockpitstream.h"
 
 #include "deprecated/cockpitdbusjson1.h"
 
@@ -99,7 +99,7 @@ static struct {
   { "dbus-json1", cockpit_dbus_json1_get_type },
   { "dbus-json3", cockpit_dbus_json_get_type },
   { "http-stream1", cockpit_http_stream_get_type },
-  { "stream", cockpit_stream_get_type },
+  { "stream", cockpit_pipe_channel_get_type },
   { "fsread1", cockpit_fsread_get_type },
   { "fsreplace1", cockpit_fsreplace_get_type },
   { "fswatch1", cockpit_fswatch_get_type },

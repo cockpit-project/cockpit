@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_STREAM_H__
-#define COCKPIT_STREAM_H__
+#ifndef COCKPIT_PIPE_CHANNEL_H__
+#define COCKPIT_PIPE_CHANNEL_H__
 
 #include <gio/gio.h>
 
@@ -26,12 +26,12 @@
 
 G_BEGIN_DECLS
 
-#define COCKPIT_TYPE_STREAM         (cockpit_stream_get_type ())
+#define COCKPIT_TYPE_PIPE_CHANNEL         (cockpit_pipe_channel_get_type ())
 
-GType              cockpit_stream_get_type     (void) G_GNUC_CONST;
+GType              cockpit_pipe_channel_get_type   (void) G_GNUC_CONST;
 
-CockpitChannel *   cockpit_stream_open         (CockpitTransport *transport,
-                                                const gchar *channel_id,
-                                                const gchar *unix_path);
+CockpitChannel *   cockpit_pipe_channel_open       (CockpitTransport *transport,
+                                                    const gchar *channel_id,
+                                                    const gchar *unix_path);
 
-#endif /* COCKPIT_STREAM_H__ */
+#endif /* COCKPIT_PIPE_CHANNEL_H__ */

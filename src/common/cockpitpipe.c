@@ -255,6 +255,8 @@ dispatch_input (gint fd,
         }
     }
 
+  g_byte_array_set_size (self->priv->in_buffer, len + ret);
+
   if (ret == 0)
     {
       g_debug ("%s: end of input", self->priv->name);
@@ -262,8 +264,6 @@ dispatch_input (gint fd,
     }
 
   g_object_ref (self);
-
-  g_byte_array_set_size (self->priv->in_buffer, len + ret);
 
   eof = (self->priv->in_source == NULL);
   g_signal_emit (self, cockpit_pipe_sig_read, 0, self->priv->in_buffer, eof);

@@ -643,12 +643,39 @@ define([
             return api.post("/api/v1beta3/namespaces/" + ns + "/services", service_json);
         };
 
-        this.update_replicationcontroller = function update_replicationcontroller(ns, rc_json, rc_name) {
-            api.request({
-                "method": "PUT",
-                "body": rc_json,
-                "path": "/api/v1beta3/namespaces/" + ns + "/replicationcontrollers/" + encodeURIComponent(rc_name)
-            }).fail(failure);
+        this.modify = function modify(link, callback) {
+            var dfd = $.Deferred();
+
+            if (link.metadata)
+                link = link.metadata.selfLink;
+
+            var req = api.get(link)
+                .fail(function(ex) {
+                    dfd.reject(ex);
+                })
+                .done(function(data) {
+                    var item = JSON.parse(data);
+
+                    if (callback(item) === false) {
+                        dfd.resolve();
+                        return;
+                    }
+
+                    req = api.request({ method: "PUT", body: JSON.stringify(item), path: link })
+                        .fail(function(ex) {
+                            dfd.reject(ex);
+                        })
+                        .done(function() {
+                            dfd.resolve();
+                        });
+                });
+
+            var promise = dfd.promise();
+            dfd.cancel = function cancel() {
+                req.close("cancelled");
+            };
+
+            return promise;
         };
 
         self.close = function close() {

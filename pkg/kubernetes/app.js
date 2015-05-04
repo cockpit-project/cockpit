@@ -104,6 +104,7 @@ define([
         self.apply = function apply(item) {
             var spec = item.spec || { };
             var meta = item.metadata || { };
+            self.uid = meta.uid;
             self.name = meta.name;
             self.address = spec.portalIP;
             self.namespace = meta.namespace;

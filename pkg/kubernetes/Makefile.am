@@ -11,6 +11,7 @@ kubernetes_DATA = \
 
 kubernetesdebugdir = $(DBGDIR)$(kubernetesdir)
 kubernetesdebug_DATA = \
+	pkg/kubernetes/adjust.js \
 	pkg/kubernetes/angular.js \
 	pkg/kubernetes/app.css \
 	pkg/kubernetes/app.js \
@@ -23,6 +24,7 @@ kubernetesdebug_DATA = \
 	$(NULL)
 
 kubernetes_BUNDLE = \
+	pkg/kubernetes/adjust.min.js \
 	pkg/kubernetes/angular.min.js \
 	pkg/kubernetes/app.min.js \
 	pkg/kubernetes/client.min.js \

@@ -936,11 +936,13 @@
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr>
-                <td>Pretty Host Name</td>
+                <td><label class="control-label" for="sich-pretty-hostname"
+                        translatable="yes">Pretty Host Name</label></td>
                 <td><input id="sich-pretty-hostname" class="form-control"></td>
               </tr>
               <tr>
-                <td>Real Host Name</td>
+                <td><label class="control-label" for="sich-hostname"
+                        translatable="yes">Real Host Name</label></td>
                 <td><div id=sich-hostname-error>
                     <input id="sich-hostname" class="form-control">
                 </div></td>
@@ -1047,13 +1049,15 @@
               <p>Log in to <span id="dashboard_setup_login_address"></span>.</p>
               <table class="cockpit-form-table">
                 <tr>
-                  <td>User Name</td>
+                  <td><label class="control-label" for="dashboard_setup_login_user"
+                          translatable="yes">User Name</label></td>
                   <td id="login_user_cell">
                     <input type="text" class="form-control" id="dashboard_setup_login_user"/>
                   </td>
                 </tr>
                 <tr>
-                  <td>Password</td>
+                  <td><label class="control-label" for="dashboard_setup_login_password"
+                          translatable="yes">Password</label></td>
                   <td>
                     <input type="password" class="form-control" id="dashboard_setup_login_password"/>
                   </td>
@@ -1110,17 +1114,20 @@
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr>
-                <td translatable="yes">Full Name</td>
+                <td><label class="control-label" for="accounts-create-real-name"
+                           translatable="yes">Full Name</label></td>
                 <td><input class="form-control" type="text"
                            id="accounts-create-real-name" value=""/></td>
               </tr>
               <tr>
-                <td translatable="yes">User Name</td>
+                <td><label class="control-label" for="accounts-create-user-name"
+                           translatable="yes">User Name</td>
                 <td><input class="form-control" type="text"
                            id="accounts-create-user-name" value=""/></td>
               </tr>
               <tr>
-                <td translatable="yes">Password</td>
+                <td><label class="control-label" for="accounts-create-pw1"
+                           translatable="yes">Password</label></td>
                 <td>
                   <div class="check-passwords">
                     <input class="form-control" type="password"
@@ -1129,7 +1136,10 @@
                 </td>
               </tr>
               <tr>
-                <td translatable="yes" class="top">Confirm</td>
+                <td class="top">
+                    <label class="control-label" for="accounts-create-pw2"
+                           translatable="yes">Confirm</label>
+                </td>
                 <td>
                   <div class="check-passwords dialog-wrapper">
                     <input class="form-control" type="password"
@@ -1182,7 +1192,8 @@
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr>
-                <td translatable="yes">Old Password</td>
+                <td><label class="control-label" for="account-set-password-old"
+                           translatable="yes">Old Password</label></td>
                 <td>
                   <div class="check-passwords">
                     <input class="form-control" type="password"
@@ -1191,7 +1202,8 @@
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">New Password</td>
+                <td><label class="control-label" for="account-set-password-pw1"
+                           translatable="yes">New Password</label></td>
                 <td>
                   <div class="check-passwords">
                     <input class="form-control" type="password"
@@ -1200,7 +1212,10 @@
                 </td>
               </tr>
               <tr>
-                <td translatable="yes" class="top">Confirm New Password</td>
+                <td class="top">
+                    <label class="control-label" for="account-set-password-pw2"
+                           translatable="yes">Confirm New Password</label>
+                </td>
                 <td>
                   <div class="check-passwords dialog-wrapper">
                     <input class="form-control" type="password"
@@ -1316,13 +1331,13 @@
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr>
-                <td translatable="yes">Name</td>
+                  <td><label class="control-label" for="create-raid-name" translatable="yes">Name</label></td>
                 <td>
                   <input class="form-control" id="create-raid-name" type="text">
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">RAID Level</td>
+                <td><label class="control-label" for="create-raid-level" translatable="yes">RAID Level</label></td>
                 <td>
                   <select class="form-control selectpicker" id="create-raid-level">
                     <option translatable="yes" value="raid0">RAID 0 (Stripe)</option>
@@ -1335,7 +1350,8 @@
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Chunk Size</td>
+                <td><label class="control-label" for="create-raid-chunk"
+                           translatable="yes">Chunk Size</label></td>
                 <td>
                   <select class="form-control selectpicker" id="create-raid-chunk">
                     <option translatable="yes" value="4">4 KB</option>
@@ -1351,17 +1367,19 @@
                 </td>
               </tr>
               <tr>
-                <td class="top" translatable="yes">Disks</td>
+                <td class="top">
+                    <label class="control-label" translatable="yes">Disks</label>
+                </td>
                 <td id="create-raid-drives">
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Number of Disks</td>
+                <td><label class="control-label" translatable="yes">Number of Disks</label></td>
                 <td id="create-raid-summary-drives">
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Usable Size</td>
+                <td><label class="control-label" translatable="yes">Usable Size</label></td>
                 <td id="create-raid-summary-size">
                 </td>
               </tr>
@@ -1398,13 +1416,15 @@
             </div>
             <table class="cockpit-form-table">
               <tr>
-                <td translatable="yes">Name</td>
+                <td><label class="control-label" for="create-vg-name" translatable="yes">Name</label></td>
                 <td id="creat-vg-name-cell">
                   <input class="form-control" id="create-vg-name" type="text">
                 </td>
               </tr>
               <tr>
-                <td class="top" translatable="yes">Disks</td>
+                <td class="top">
+                  <label class="control-label" translatable="yes">Disks</label>
+                </td>
                 <td id="create-vg-drives">
                 </td>
               </tr>
@@ -1439,7 +1459,7 @@
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr>
-                <td translatable="yes">Erase</td>
+                <td><label class="control-label" for="format-disk-erase" translatable="yes">Erase</label></td>
                 <td>
                   <select class="form-control selectpicker" id="format-disk-erase">
                     <option translatable="yes" value="no">Don't
@@ -1451,7 +1471,8 @@
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Partitioning</td>
+                <td><label class="control-label" for="format-disk-type"
+                           translatable="yes">Partitioning</label></td>
                 <td>
                   <select class="form-control selectpicker" id="format-disk-type">
                     <option translatable="yes"
@@ -1491,13 +1512,13 @@
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr id="format-size-row">
-                <td translatable="yes">Size (MB)</td>
+                <td><label class="control-label" for="format-size" translatable="yes">Size (MB)</label></td>
                 <td>
                   <input class="form-control" type="text" id="format-size">
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Erase</td>
+                <td><label class="control-label" for="format-erase" translatable="yes">Erase</label></td>
                 <td>
                   <select class="form-control selectpicker" id="format-erase">
                     <option translatable="yes" value="no">Don't
@@ -1509,7 +1530,7 @@
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Type</td>
+                <td><label class="control-label" for="format-type" translatable="yes">Type</label></td>
                 <td>
                   <select class="form-control selectpicker" id="format-type">
                     <option translatable="yes" value="xfs">XFS - Red
@@ -1533,25 +1554,26 @@
                 </td>
               </tr>
               <tr id="format-name-row">
-                <td translatable="yes">Name</td>
+                <td><label class="control-label" for="format-name" translatable="yes">Name</label></td>
                 <td>
                   <input class="form-control" type="text" id="format-name">
                 </td>
               </tr>
               <tr id="format-custom-row">
-                <td translatable="yes">Filesystem</td>
+                <td><label class="control-label" for="format-custom" translatable="yes">Filesystem</label></td>
                 <td>
                   <input class="form-control" type="text" id="format-custom">
                 </td>
               </tr>
               <tr id="format-passphrase-row">
-                <td translatable="yes">Passphrase</td>
+                <td><label class="control-label" for="format-passphrase" translatable="yes">Passphrase</label></td>
                 <td>
                   <input class="form-control" type="password" id="format-passphrase">
                 </td>
               </tr>
               <tr id="format-passphrase-row-2">
-                <td translatable="yes">Confirm Passphrase</td>
+                <td><label class="control-label" for="format-passphrase-2"
+                           translatable="yes">Confirm Passphrase</label></td>
                 <td>
                   <input class="form-control" type="password" id="format-passphrase-2">
                 </td>
@@ -1568,13 +1590,15 @@
                 </td>
               </tr>
               <tr id="format-crypto-options-row">
-                <td translatable="yes">Encryption Options</td>
+                <td><label class="control-label" for="format-crypto-options"
+                           translatable="yes">Encryption Options</label></td>
                 <td>
                   <input class="form-control" type="text" id="format-crypto-options">
                 </td>
               </tr>
               <tr id="format-mounting-row">
-                <td>Mounting</td>
+                <td><label class="control-label" for="format-mounting"
+                           translatable="yes">Mounting</label></td>
                 <td>
                   <select class="form-control selectpicker" id="format-mounting">
                     <option translatable="yes" value="default">Default</option>
@@ -1583,13 +1607,15 @@
                 </td>
               </tr>
               <tr id="format-mount-point-row">
-                <td translatable="yes">Mount Point</td>
+                <td><label class="control-label" for="format-mount-point"
+                           translatable="yes">Mount Point</label></td>
                 <td>
                   <input class="form-control" type="text" id="format-mount-point">
                 </td>
               </tr>
               <tr id="format-mount-options-row">
-                <td translatable="yes">Mount Options</td>
+                <td><label class="control-label" for="format-mount-options"
+                           translatable="yes">Mount Options</label></td>
                 <td>
                   <input class="form-control" type="text" id="format-mount-options">
                 </td>
@@ -1620,13 +1646,15 @@
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr>
-                <td translatable="yes">Name</td>
+                <td><label class="control-label" for="fsysopts-name"
+                           translatable="yes">Name</label></td>
                 <td>
                   <input class="form-control" type="text" id="fsysopts-name">
                 </td>
               </tr>
               <tr>
-                <td>Mounting</td>
+                <td><label class="control-label" for="fsysopts-mounting"
+                           translatable="yes">Mounting</label></td>
                 <td>
                   <select class="form-control selectpicker" id="fsysopts-mounting">
                     <option translatable="yes" value="default">Default</option>
@@ -1635,13 +1663,15 @@
                 </td>
               </tr>
               <tr id="fsysopts-mount-point-row">
-                <td translatable="yes">Mount Point</td>
+                <td><label class="control-label" for="fsysopts-mount-point"
+                        translatable="yes">Mount Point</label></td>
                 <td>
                   <input class="form-control" type="text" id="fsysopts-mount-point">
                 </td>
               </tr>
               <tr id="fsysopts-mount-options-row">
-                <td translatable="yes">Mount Options</td>
+                <td><label class="control-label" for="fsysopts-mount-options"
+                        translatable="yes">Mount Options</label></td>
                 <td>
                   <input class="form-control" type="text" id="fsysopts-mount-options">
                 </td>
@@ -1703,13 +1733,15 @@
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr>
-                <td translatable="yes">Name</td>
+                <td><label class="control-label" for="create-pvol-name"
+                        translatable="yes">Name</label></td>
                 <td>
                   <input class="form-control" type="text" id="create-pvol-name"/>
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Size (MB)</td>
+                <td><label class="control-label" for="create-pvol-size"
+                        translatable="yes">Size (MB)</label></td>
                 <td>
                   <input class="form-control" type="text" id="create-pvol-size"/>
                 </td>
@@ -1739,13 +1771,15 @@
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr>
-                <td translatable="yes">Name</td>
+                <td><label class="control-label" for="create-tpool-name"
+                        translatable="yes">Name</label></td>
                 <td>
                   <input class="form-control" type="text" id="create-tpool-name"/>
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Size (MB)</td>
+                <td><label class="control-label" for="create-tpool-size"
+                        translatable="yes">Size (MB)</label></td>
                 <td>
                   <input class="form-control" type="text" id="create-tpool-size"/>
                 </td>
@@ -1775,13 +1809,15 @@
           <div class="modal-body">
             <table style="width:100%" class="cockpit-form-table">
               <tr>
-                <td translatable="yes">Name</td>
+                <td><label class="control-label" for="create-tvol-name"
+                        translatable="yes">Name</label></td>
                 <td>
                   <input class="form-control" type="text" id="create-tvol-name"/>
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Size (MB)</td>
+                <td><label class="control-label" for="create-tvol-size"
+                        translatable="yes">Size (MB)</label></td>
                 <td>
                   <input class="form-control" type="text" id="create-tvol-size"/>
                 </td>
@@ -1811,13 +1847,15 @@
           <div class="modal-body">
             <table style="width:100%" class="cockpit-form-table">
               <tr>
-                <td translatable="yes">Name</td>
+                <td><label class="control-label" for="create-svol-name"
+                        translatable="yes">Name</label></td>
                 <td>
                   <input class="form-control" type="text" id="create-svol-name"/>
                 </td>
               </tr>
               <tr id="create-svol-size-row">
-                <td translatable="yes">Size (MB)</td>
+                <td><label class="control-label" for="create-svol-size"
+                        translatable="yes">Size (MB)</label></td>
                 <td>
                   <input class="form-control" type="text" id="create-svol-size"/>
                 </td>
@@ -1847,13 +1885,15 @@
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr>
-                <td translatable="yes">New Size (MB)</td>
+                <td><label class="control-label" for="resize-lvol-size"
+                        translatable="yes">New Size (MB)</label></td>
                 <td>
                   <input class="form-control" type="text" id="resize-lvol-size"/>
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Options</td>
+                <td><label class="control-label" for="resize-lvol-resize-fsys"
+                        translatable="yes">Options</label></td>
                 <td>
                   <label>
                     <input type="checkbox" id="resize-lvol-resize-fsys"/>
@@ -1886,7 +1926,8 @@
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr>
-                <td translatable="yes">New Name</td>
+                <td><label class="control-label" for="rename-lvol-name"
+                        translatable="yes">New Name</label></td>
                 <td>
                   <input class="form-control" type="text" id="rename-lvol-name"/>
                 </td>
@@ -1916,7 +1957,8 @@
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr>
-                <td translatable="yes">New Name</td>
+                <td><label class="control-label" for="rename-vg-name"
+                        translatable="yes">New Name</label></td>
                 <td>
                   <input class="form-control" type="text" id="rename-vg-name"/>
                 </td>
@@ -1946,13 +1988,15 @@
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr>
-                <td translatable="yes">Stored Passphrase</td>
+                <td><label class="control-label" for="crypto-options-passphrase"
+                        translatable="yes">Stored Passphrase</label></td>
                 <td>
                   <input class="form-control" type="password" id="crypto-options-passphrase">
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Options</td>
+                <td><label class="control-label" for="crypto-options-options"
+                        translatable="yes">Options</label></td>
                 <td>
                   <input class="form-control" type="text" id="crypto-options-options">
                 </td>
@@ -1982,7 +2026,8 @@
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr>
-                <td translatable="yes">Passphrase</td>
+                <td><label class="control-label" for="unlock-passphrase"
+                        translatable="yes">Passphrase</label></td>
                 <td>
                   <input class="form-control" type="password" id="unlock-passphrase">
                 </td>
@@ -2085,19 +2130,22 @@
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr>
-                <td translatable="yes">Image</td>
+                <td><label class="control-label"
+                        translatable="yes">Image</label></td>
                 <td colspan="3">
                   <span id="containers-run-image"/>
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Container Name</td>
+                <td><label class="control-label" for="containers-run-image-name"
+                        translatable="yes">Container Name</label></td>
                 <td colspan="3">
                   <input class="form-control" type="text" id="containers-run-image-name"/>
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Command</td>
+                <td><label class="control-label" for="containers-run-image-command"
+                        translatable="yes">Command</label></td>
                 <td colspan="3">
                   <input class="form-control" type="text" id="containers-run-image-command"/>
                   <div id="containers-run-image-command-note" hidden>
@@ -2108,7 +2156,7 @@
                 </td>
               </tr>
               <tr id="containers-run-image-memory">
-                <td translatable="yes">Memory limit</td>
+                <td><label class="control-label" translatable="yes">Memory limit</label></td>
                 <td class="shrink">
                   <input type="checkbox" />
                 </td>
@@ -2124,7 +2172,7 @@
                 </td>
               </tr>
               <tr id="containers-run-image-cpu">
-                <td translatable="yes">CPU priority</td>
+                <td><label class="control-label" translatable="yes">CPU priority</label></td>
                 <td class="shrink">
                   <input type="checkbox" />
                 </td>
@@ -2140,13 +2188,15 @@
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">With terminal</td>
+                <td><label class="control-label" for="containers-run-image-with-terminal"
+                        translatable="yes">With terminal</label></td>
                 <td class="shrink">
                   <input type="checkbox" id="containers-run-image-with-terminal" checked />
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Links</td>
+                <td><label class="control-label" for="link-containers"
+                        translatable="yes">Links</td>
                 <td colspan="3">
                   <input type="checkbox" name="link-containers" id="link-containers" checked="false"/><label for="link-containers">Link to another container</label>
                   <div id="select-linked-containers" class="containers-run-inline">
@@ -2154,7 +2204,8 @@
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Ports</td>
+                <td><label class="control-label" for="expose-ports"
+                        translatable="yes">Ports</label></td>
                 <td colspan="3">
                   <input type="checkbox" name="expose-ports" id="expose-ports" checked="false"/><label for="expose-ports">Expose container ports</label>
                   <div id="select-exposed-ports" class="containers-run-portmapping containers-run-inline">
@@ -2223,13 +2274,13 @@
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr>
-                <td translatable="yes">Container Name</td>
+                <td><label class="control-label" translatable="yes">Container Name</label></td>
                 <td colspan="3">
                   <span class="container-name"></span>
                 </td>
               </tr>
               <tr class="memory-slider">
-                <td translatable="yes">Memory limit</td>
+                <td><label class="control-label" translatable="yes">Memory limit</label></td>
                 <td class="shrink">
                   <input type="checkbox" />
                 </td>
@@ -2245,7 +2296,7 @@
                 </td>
               </tr>
               <tr class="cpu-slider">
-                <td translatable="yes">CPU priority</td>
+                <td><label class="control-label" translatable="yes">CPU priority</label></td>
                 <td class="shrink">
                   <input type="checkbox" />
                 </td>
@@ -2285,31 +2336,31 @@
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr>
-                <td translatable="yes">Container Name</td>
+                <td><label class="control-label" translatable="yes">Container Name</label></td>
                 <td colspan="3">
                   <span class="container-name"/>
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Repository</td>
+                  <td><label class="control-label" translatable="yes">Repository</label></td>
                 <td colspan="3">
                   <input class="form-control container-repository" type="text"/>
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Tag</td>
+                <td><label class="control-label" translatable="yes">Tag</label></td>
                 <td colspan="3">
                   <input class="form-control container-tag" type="text"/>
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Author</td>
+                <td><label class="control-label" translatable="yes">Author</label></td>
                 <td colspan="3">
                   <input class="form-control container-author" type="text"/>
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Command</td>
+                <td><label class="control-label" translatable="yes">Command</label></td>
                 <td colspan="3">
                   <input class="form-control container-command" type="text"/>
                 </td>

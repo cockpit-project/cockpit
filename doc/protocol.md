@@ -524,6 +524,7 @@ payload type:
 
  * "unix": Open a channel with the given unix socket.
  * "port": Open a channel with the given TCP port on localhost.
+ * "tls": Set to a (currently empty) object to use an https connection.
 
 You may also specify these options:
 

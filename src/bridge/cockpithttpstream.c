@@ -168,6 +168,7 @@ typedef struct _CockpitHttpStream {
 
   /* The nickname for debugging and logging */
   gchar *name;
+  const gchar *connection;
 
   /* The connection */
   CockpitStream *stream;
@@ -861,11 +862,11 @@ cockpit_http_stream_close (CockpitChannel *channel,
       cockpit_channel_done (channel);
 
       /* Save this for another round? */
-      if (self->keep_alive)
+      if (self->keep_alive && self->connection)
         {
-          cockpit_http_connection_checkin (self->name, self->stream);
           g_signal_handler_disconnect (self->stream, self->sig_read);
           g_signal_handler_disconnect (self->stream, self->sig_close);
+          cockpit_http_connection_checkin (self->connection, self->stream);
           g_object_unref (self->stream);
           self->stream = NULL;
         }
@@ -893,42 +894,57 @@ static void
 cockpit_http_stream_prepare (CockpitChannel *channel)
 {
   CockpitHttpStream *self = COCKPIT_HTTP_STREAM (channel);
+  CockpitStreamOptions *stream_options = NULL;
+  GSocketAddress *address = NULL;
   const gchar *connection;
-  GSocketAddress *address;
   JsonObject *options;
 
   COCKPIT_CHANNEL_CLASS (cockpit_http_stream_parent_class)->prepare (channel);
 
   if (self->failed)
-    return;
+    goto out;
 
   options = cockpit_channel_get_options (channel);
   if (!cockpit_json_get_string (options, "connection", NULL, &connection))
     {
       g_warning ("%s: bad \"connection\" field in HTTP stream request", self->name);
       cockpit_channel_close (channel, "protocol-error");
-      return;
+      goto out;
     }
 
   if (connection)
-    self->name = g_strdup (connection);
+    {
+      self->name = g_strdup (connection);
+      self->connection = self->name;
+    }
 
-  address = cockpit_channel_parse_address (channel, self->name ? NULL : &self->name);
-  if (!address)
-    return;
+  self->stream = cockpit_http_connection_checkout (self->connection);
+  if (!self->stream)
+    {
+      stream_options = cockpit_channel_parse_stream (channel);
+      if (!stream_options)
+        goto out;
+
+      address = cockpit_channel_parse_address (channel, self->name ? NULL : &self->name);
+      if (!address)
+        goto out;
+
+      self->stream = cockpit_stream_connect (self->name, address, stream_options);
+    }
 
   /* Parsed elsewhere */
   self->binary = json_object_has_member (options, "binary");
 
-  self->stream = cockpit_http_connection_checkout (self->name);
-  if (!self->stream)
-    self->stream = cockpit_stream_connect (self->name, address);
-
   self->sig_read = g_signal_connect (self->stream, "read", G_CALLBACK (on_stream_read), self);
   self->sig_close = g_signal_connect (self->stream, "close", G_CALLBACK (on_stream_close), self);
-  g_object_unref (address);
 
   cockpit_channel_ready (channel);
+
+out:
+  if (address)
+    g_object_unref (address);
+  if (stream_options)
+    cockpit_stream_options_unref (stream_options);
 }
 
 static void

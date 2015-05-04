@@ -472,3 +472,12 @@
    ...
    fun:g_signal_handlers_disconnect_matched
 }
+{
+   g_tls_connection_gnutls_init_priorities
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:g_malloc
+   fun:g_strdup
+   fun:g_tls_connection_gnutls_init_priorities
+}

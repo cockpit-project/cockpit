@@ -240,4 +240,6 @@ EXTRA_DIST += \
 	src/bridge/mock-setup \
 	src/bridge/mock-pmda.c \
 	src/bridge/mock-pmns \
+	src/bridge/mock-client.crt \
+	src/bridge/mock-client.key \
 	$(NULL)

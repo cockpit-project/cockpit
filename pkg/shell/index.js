@@ -128,7 +128,6 @@ define([
 
     $(cockpit.info).on("changed", function() {
         $("#about-version").text(cockpit.info.version);
-        $("#about-build-info").text(cockpit.info.build);
         phantom_checkpoint();
     });
 

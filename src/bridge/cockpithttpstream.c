@@ -23,6 +23,7 @@
 
 #include "common/cockpitjson.h"
 #include "common/cockpitpipe.h"
+#include "common/cockpitstream.h"
 
 #include "websocket/websocket.h"
 
@@ -39,7 +40,7 @@
 
 typedef struct {
   gchar *name;
-  CockpitPipe *pipe;
+  CockpitStream *stream;
   gulong sig_close;
   guint timeout;
 } CockpitHttpConnection;
@@ -52,11 +53,11 @@ cockpit_http_connection_free (gpointer data)
   CockpitHttpConnection *connection = data;
   if (connection->timeout)
     g_source_remove (connection->timeout);
-  if (connection->pipe)
+  if (connection->stream)
     {
-      g_signal_handler_disconnect (connection->pipe, connection->sig_close);
-      cockpit_pipe_close (connection->pipe, NULL);
-      g_object_unref (connection->pipe);
+      g_signal_handler_disconnect (connection->stream, connection->sig_close);
+      cockpit_stream_close (connection->stream, NULL);
+      g_object_unref (connection->stream);
     }
   g_free (connection->name);
   g_slice_free (CockpitHttpConnection, connection);
@@ -77,7 +78,7 @@ cockpit_http_connection_remove (const gchar *name)
 }
 
 static void
-on_connection_close (CockpitPipe *pipe,
+on_connection_close (CockpitStream *stream,
                      const gchar *problem,
                      gpointer data)
 {
@@ -97,14 +98,14 @@ on_connection_timeout (gpointer data)
 
 static void
 cockpit_http_connection_checkin (const gchar *name,
-                                 CockpitPipe *pipe)
+                                 CockpitStream *stream)
 {
   CockpitHttpConnection *connection;
 
   connection = g_slice_new0 (CockpitHttpConnection);
   connection->name = g_strdup (name);
-  connection->pipe = g_object_ref (pipe);
-  connection->sig_close = g_signal_connect (pipe, "close", G_CALLBACK (on_connection_close), connection);
+  connection->stream = g_object_ref (stream);
+  connection->sig_close = g_signal_connect (stream, "close", G_CALLBACK (on_connection_close), connection);
   connection->timeout = g_timeout_add_seconds (10, on_connection_timeout, connection);
 
   if (!connection_pool)
@@ -114,11 +115,11 @@ cockpit_http_connection_checkin (const gchar *name,
   g_hash_table_replace (connection_pool, connection->name, connection);
 }
 
-static CockpitPipe *
+static CockpitStream *
 cockpit_http_connection_checkout (const gchar *name)
 {
   CockpitHttpConnection *connection;
-  CockpitPipe *pipe;
+  CockpitStream *stream;
 
   if (!connection_pool)
     return NULL;
@@ -129,12 +130,12 @@ cockpit_http_connection_checkout (const gchar *name)
 
   g_debug ("%s: reusing pooled connection", connection->name);
 
-  pipe = connection->pipe;
-  g_signal_handler_disconnect (connection->pipe, connection->sig_close);
-  connection->pipe = NULL;
+  stream = connection->stream;
+  g_signal_handler_disconnect (connection->stream, connection->sig_close);
+  connection->stream = NULL;
 
   cockpit_http_connection_remove (name);
-  return pipe;
+  return stream;
 }
 
 /**
@@ -169,7 +170,7 @@ typedef struct _CockpitHttpStream {
   gchar *name;
 
   /* The connection */
-  CockpitPipe *pipe;
+  CockpitStream *stream;
   gulong sig_read;
   gulong sig_close;
 
@@ -527,10 +528,10 @@ relay_all (CockpitHttpStream *self,
 }
 
 static void
-on_pipe_read (CockpitPipe *pipe,
-              GByteArray *buffer,
-              gboolean end_of_data,
-              gpointer user_data)
+on_stream_read (CockpitStream *stream,
+                GByteArray *buffer,
+                gboolean end_of_data,
+                gpointer user_data)
 {
   CockpitHttpStream *self = user_data;
   CockpitChannel *channel = user_data;
@@ -575,9 +576,9 @@ on_pipe_read (CockpitPipe *pipe,
 }
 
 static void
-on_pipe_close (CockpitPipe *pipe,
-               const gchar *problem,
-               gpointer user_data)
+on_stream_close (CockpitStream *stream,
+                 const gchar *problem,
+                 gpointer user_data)
 {
   CockpitHttpStream *self = user_data;
   CockpitChannel *channel = user_data;
@@ -806,12 +807,12 @@ send_http_request (CockpitHttpStream *self)
   bytes = g_string_free_to_bytes (string);
   string = NULL;
 
-  cockpit_pipe_write (self->pipe, bytes);
+  cockpit_stream_write (self->stream, bytes);
   g_bytes_unref (bytes);
 
   /* Now send all the data */
   for (l = request; l != NULL; l = g_list_next (l))
-    cockpit_pipe_write (self->pipe, l->data);
+    cockpit_stream_write (self->stream, l->data);
 
 out:
   g_list_free (names);
@@ -862,11 +863,11 @@ cockpit_http_stream_close (CockpitChannel *channel,
       /* Save this for another round? */
       if (self->keep_alive)
         {
-          cockpit_http_connection_checkin (self->name, self->pipe);
-          g_signal_handler_disconnect (self->pipe, self->sig_read);
-          g_signal_handler_disconnect (self->pipe, self->sig_close);
-          g_object_unref (self->pipe);
-          self->pipe = NULL;
+          cockpit_http_connection_checkin (self->name, self->stream);
+          g_signal_handler_disconnect (self->stream, self->sig_read);
+          g_signal_handler_disconnect (self->stream, self->sig_close);
+          g_object_unref (self->stream);
+          self->stream = NULL;
         }
 
       COCKPIT_CHANNEL_CLASS (cockpit_http_stream_parent_class)->close (channel, NULL);
@@ -919,12 +920,12 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
   /* Parsed elsewhere */
   self->binary = json_object_has_member (options, "binary");
 
-  self->pipe = cockpit_http_connection_checkout (self->name);
-  if (!self->pipe)
-    self->pipe = cockpit_pipe_connect (self->name, address);
+  self->stream = cockpit_http_connection_checkout (self->name);
+  if (!self->stream)
+    self->stream = cockpit_stream_connect (self->name, address);
 
-  self->sig_read = g_signal_connect (self->pipe, "read", G_CALLBACK (on_pipe_read), self);
-  self->sig_close = g_signal_connect (self->pipe, "close", G_CALLBACK (on_pipe_close), self);
+  self->sig_read = g_signal_connect (self->stream, "read", G_CALLBACK (on_stream_read), self);
+  self->sig_close = g_signal_connect (self->stream, "close", G_CALLBACK (on_stream_close), self);
   g_object_unref (address);
 
   cockpit_channel_ready (channel);
@@ -935,12 +936,12 @@ cockpit_http_stream_dispose (GObject *object)
 {
   CockpitHttpStream *self = COCKPIT_HTTP_STREAM (object);
 
-  if (self->pipe)
+  if (self->stream)
     {
-      g_signal_handler_disconnect (self->pipe, self->sig_read);
-      g_signal_handler_disconnect (self->pipe, self->sig_close);
-      cockpit_pipe_close (self->pipe, NULL);
-      g_object_unref (self->pipe);
+      g_signal_handler_disconnect (self->stream, self->sig_read);
+      g_signal_handler_disconnect (self->stream, self->sig_close);
+      cockpit_stream_close (self->stream, NULL);
+      g_object_unref (self->stream);
     }
 
   g_list_free_full (self->request, (GDestroyNotify)g_bytes_unref);

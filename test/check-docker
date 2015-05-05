@@ -70,7 +70,7 @@ class TestDocker(MachineCase):
         message = "HelloMessage."
 
         # Run it
-        b.click('#containers-images tr:contains("busybox") button.btn-play')
+        b.click('#containers-images tr:contains("busybox") button.fa-play')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE")
         b.set_val("#containers-run-image-command", "/bin/echo '%s'" % (message))
@@ -88,7 +88,7 @@ class TestDocker(MachineCase):
         self.del_container_from_details("PROBE")
 
         # Run it without TTY
-        b.click('#containers-images tr:contains("busybox") button.btn-play')
+        b.click('#containers-images tr:contains("busybox") button.fa-play')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE")
         b.set_val("#containers-run-image-command", "/bin/echo '%s'" % (message))
@@ -102,7 +102,7 @@ class TestDocker(MachineCase):
         self.assertEqual(info[0]["HostConfig"]["Links"], None)
 
         # Create another container linked to old one
-        b.click('#containers-images tr:contains("busybox") button.btn-play')
+        b.click('#containers-images tr:contains("busybox") button.fa-play')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE2")
         b.set_val("#containers-run-image-command", "/bin/echo '%s'" % (message))
@@ -201,7 +201,7 @@ CMD ["/bin/sh", "-c", "echo '%s' | nc -l -p %d; echo '%s'"]
         b.wait_in_text("#containers-images", image_name)
 
         # Run it
-        b.click("#containers-images tr:contains(\"%s\") button.btn-play" % (image_name))
+        b.click("#containers-images tr:contains(\"%s\") button.fa-play" % (image_name))
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE2")
         b.set_val(".containers-run-portmapping form:eq(0) input:eq(1)", port)
@@ -225,7 +225,7 @@ CMD ["/bin/sh", "-c", "echo '%s' | nc -l -p %d; echo '%s'"]
         self.del_container_from_details("PROBE2")
         nport = port + 1;
         # Run it again, but expose additional port
-        b.click("#containers-images tr:contains(\"%s\") button.btn-play" % (image_name))
+        b.click("#containers-images tr:contains(\"%s\") button.fa-play" % (image_name))
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE2")
         # Tell our probe to listen on both ports

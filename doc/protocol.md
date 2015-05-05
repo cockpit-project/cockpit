@@ -532,13 +532,15 @@ payload type:
 
  * "unix": Open a channel with the given unix socket.
  * "port": Open a channel with the given TCP port on localhost.
- * "tls": Set to a (currently empty) object to use an https connection.
 
 You may also specify these options:
 
- * "connection": A connection identifier. Subsequent channel requests
-   with the same identifier will try to use the same connection if it
-   is still open.
+ * "connection": A stable connection identifier.
+ * "tls": Set to a (currently empty) object to use an https connection.
+
+If a stable "connection" identifier is open. Then subsequent channels with
+the same connection identifier will try to share the same client connections
+(if still open) and channel options (if not specified again).
 
 Any data to be sent should be sent via the channel, and then the channel
 should be closed without a problem.

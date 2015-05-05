@@ -238,6 +238,31 @@ asyncTest("http connection different", function() {
         });
 });
 
+asyncTest("http connection without address ", function() {
+    expect(3);
+
+    /*
+     * Able to reuse connection client info and not specify address again.
+     */
+
+    var first;
+    cockpit.http({ "internal": "test-server", "connection": "one" }).get("/mock/connection")
+        .always(function() {
+            equal(this.state(), "resolved", "response didn't fail");
+        })
+        .done(function(data) {
+            first = data;
+            cockpit.http({ "connection": "one" }).get("/mock/connection")
+                .done(function(data) {
+                    equal(first, data, "different connection");
+                })
+                .always(function() {
+                    equal(this.state(), "resolved", "response didn't fail");
+                    start();
+                });
+        });
+});
+
 QUnit.start();
 </script>
 

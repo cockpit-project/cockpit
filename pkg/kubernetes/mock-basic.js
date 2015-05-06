@@ -2,7 +2,7 @@ define({
     "nodes/127.0.0.1": {
         "kind": "Node",
         "metadata": {
-            "id": "127.0.0.1",
+            "name": "127.0.0.1",
             "uid": "f530580d-a169-11e4-8651-10c37bdb8410",
             "creationTimestamp": "2015-01-21T13:35:18+01:00",
             "resourceVersion": 1,
@@ -54,7 +54,8 @@ define({
             "restartPolicy": {
                 "always": {}
             },
-            "dnsPolicy": "ClusterFirst"
+            "dnsPolicy": "ClusterFirst",
+            "host": "127.0.0.1"
         },
         "status": {
             "phase": "Running",
@@ -64,7 +65,6 @@ define({
                     "status": "Full"
                 }
             ],
-            "host": "127.0.0.1",
             "hostIP": "127.0.0.1",
             "podIP": "172.17.4.173",
             "info": {

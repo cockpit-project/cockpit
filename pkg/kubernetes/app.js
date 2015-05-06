@@ -119,34 +119,42 @@ define([
         var node = { };
 
         function calculate() {
-            var x = 0;
-            var y = 0;
-
             if (calculated)
                 return calculated;
 
             calculated = {
                 containers: "0",
+                address: ""
             };
 
-            /* TODO: Calculate number of containers */
-            if (node.metadata && node.metadata.name) {
-                var pods = client.hosting(node.metadata.name);
-                calculated.containers = "" + pods.length;
-            }
+            var meta = node.metadata || { };
+            var spec = node.spec || { };
+            var pods = [];
+
+            if (spec.externalID)
+                calculated.address = spec.externalID;
+            pods = client.hosting(meta.name, "Pod");
+
+            /* TODO: Calculate number of containers instead of pods */
+            calculated.containers = "" + pods.length;
 
             return calculated;
         }
 
-        Object.defineProperty(self, "containers", {
-            get: function get() { return calculate().containers; }
+        Object.defineProperties(self, {
+            containers: {
+                enumerable: true,
+                get: function() { return calculate().containers; }
+            },
+            address: {
+                enumerable: true,
+                get: function() { return calculate().address; }
+            }
         });
 
         self.apply = function apply(item) {
-            var status = item.status || { };
             var meta = item.metadata || { };
             self.name = meta.name;
-            self.address = status.hostIP;
             calculated = null;
             node = item;
         };

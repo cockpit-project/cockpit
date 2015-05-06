@@ -484,7 +484,7 @@ require([
         $(client).on("nodes", function(ev) {
             var node = client.nodes[0];
             equal(client.nodes.length, 1, "number of nodes");
-            equal(node.metadata.id, "127.0.0.1", "localhost node");
+            equal(node.metadata.name, "127.0.0.1", "localhost node");
             equal(typeof node.spec.capacity, "object", "node has resources");
 
             $(client).off("nodes");
@@ -766,7 +766,7 @@ require([
         $(client).on("pods", function(ev) {
 
             /* Find out which pods this node is hosting */
-            var results = client.hosting("127.0.0.1");
+            var results = client.hosting("127.0.0.1", "Pod");
             equal(results.length, 1, "selected hosted pods");
             equal(results[0].metadata.name, "wordpress", "got wordpress pod");
 

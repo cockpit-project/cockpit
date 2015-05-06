@@ -318,8 +318,8 @@ define([
 
             /* Index the host for quick lookup */
             var status = item.status;
-            if (status && status.host)
-                index.add([ status.host ], uid);
+            if (spec && spec.host)
+                index.add([ spec.host ], uid);
 
             trigger(type, item.kind);
         }
@@ -552,6 +552,7 @@ define([
         /**
          * client.hosting()
          * @host: the node host name, required
+         * @kind: limit to this kind of object
          *
          * Find out which objects are being hosted at the given node. These
          * have a obj.status.host property equal to the @host name passed into
@@ -559,14 +560,17 @@ define([
          *
          * Returns: an array of kubernetes objects
          */
-        this.hosting = function hosting(host) {
+        this.hosting = function hosting(host, kind) {
             var possible = index.select([ host ]);
             var obj, j, length = possible.length;
             var results = [];
             for (j = 0; j < length; j++) {
                 obj = self.objects[possible[j]];
-                if (obj && obj.status && obj.status.host === host)
-                    results.push(obj);
+                if (!obj || !obj.spec || obj.spec.host != host)
+                    continue;
+                if (kind && obj.kind !== kind)
+                    continue;
+                results.push(obj);
             }
             return results;
         };

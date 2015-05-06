@@ -195,6 +195,45 @@ function parse_group_content(content, tag, error) {
     return ret;
 }
 
+function password_quality(password, bar) {
+    function adjust_progress_bar(quality, bar) {
+
+        $(bar).removeClass("weak okay good excellent");
+
+        if (quality === 0) {
+            $(bar + '-message').text(_("Password is too weak"));
+            $(bar + '-message').parent().addClass("has-error");
+            $(bar + '-message').css("visibility", "visible");
+        } else {
+            $(bar + '-message').css("visibility", "hidden");
+            if (quality <= 33) {
+                $(bar).addClass("weak");
+            } else if (quality <= 66) {
+                $(bar).addClass("okay");
+            } else if (quality <= 99) {
+                $(bar).addClass("good");
+            } else {
+                $(bar + '-message').text(_("Excellent password"));
+                $(bar + '-message').parent().removeClass("has-error");
+                $(bar + '-message').css("visibility", "visible");
+                $(bar).addClass("excellent");
+            }
+        }
+    }
+
+    cockpit.spawn('/usr/bin/pwscore', { "environ": ["LC_ALL=C"] })
+       .input(password)
+       .done(function(content) { adjust_progress_bar(parseInt(content, 10), bar); })
+       .fail(function() { adjust_progress_bar(0, bar); });
+}
+
+function password_quality_ok(bar) {
+    return $(bar).hasClass("weak") ||
+           $(bar).hasClass("okay") ||
+           $(bar).hasClass("good") ||
+           $(bar).hasClass("excellent");
+}
+
 function is_user_in_group(user, group) {
     for (var i = 0; group["userlist"] && i < group["userlist"].length; i++) {
         if (group["userlist"][i] === user)
@@ -287,7 +326,6 @@ shell.pages.push(new PageAccounts());
 
 PageAccountsCreate.prototype = {
     _init: function() {
-        this.error_timeout = null;
         this.id = "accounts-create-dialog";
     },
 
@@ -298,7 +336,8 @@ PageAccountsCreate.prototype = {
         $('#accounts-create-cancel').on('click', $.proxy(this, "cancel"));
         $('#accounts-create-create').on('click', $.proxy(this, "create"));
         $('#accounts-create-dialog .check-passwords').on('keydown', $.proxy(this, "update", "keydown"));
-        $('#accounts-create-dialog .check-passwords').on('input', $.proxy(this, "update", "input"));
+        $('#accounts-create-pw1').on('input', $.proxy(this, "update", "input-pw1"));
+        $('#accounts-create-pw2').on('input', $.proxy(this, "update", "input-pw2"));
         $('#accounts-create-dialog input').on('focusout change', $.proxy(this, "update", "changeFocus"));
     },
 
@@ -308,7 +347,8 @@ PageAccountsCreate.prototype = {
         $('#accounts-create-pw1').val("");
         $('#accounts-create-pw2').val("");
         $('#accounts-create-locked').prop('checked', false);
-        $('#accounts-create-message-password-mismatch').css("visibility", "hidden");
+        $('#accounts-create-password-meter').removeClass("weak okay good excellent");
+        $('#accounts-create-password-meter-message').css("visibility", "hidden");
         $("#account-set-password-dialog .check-passwords").removeClass("has-error");
         this.update ();
     },
@@ -317,22 +357,28 @@ PageAccountsCreate.prototype = {
     },
 
     update: function(behavior) {
-        function check_params ()
-        {
-            return ($('#accounts-create-user-name').val() !== "" &&
+        function check_params () {
+            return (password_quality_ok('#accounts-create-password-meter') &&
+                    $('#accounts-create-user-name').val() !== "" &&
                     $('#accounts-create-real-name').val() !== "" &&
                     $('#accounts-create-pw1').val() !== "" &&
                     $('#accounts-create-pw2').val() == $('#accounts-create-pw1').val());
         }
 
         function highlight_error() {
+            if (!password_quality_ok('#accounts-create-password-meter'))
+                return;
             $("#accounts-create-dialog .check-passwords").addClass("has-error");
-            $('#accounts-create-message-password-mismatch').css("visibility", "visible");
+            $('#accounts-create-password-meter-message').parent().addClass("has-error");
+            $('#accounts-create-password-meter-message').text(_("The passwords do not match"));
+            $('#accounts-create-password-meter-message').css("visibility", "visible");
         }
 
         function hide_error() {
+            if (!password_quality_ok('#accounts-create-password-meter'))
+                return;
             $("#accounts-create-dialog .check-passwords").removeClass("has-error");
-            $('#accounts-create-message-password-mismatch').css("visibility", "hidden");
+            $('#accounts-create-password-meter-message').css("visibility", "hidden");
         }
 
         function check_password_match() {
@@ -343,24 +389,21 @@ PageAccountsCreate.prototype = {
                 hide_error();
         }
 
-        window.clearTimeout(this.error_timeout);
-        this.error_timeout = null;
-
         if (behavior == "changeFocus") {
             if ($('#accounts-create-pw2').val() !== "" &&
                 $('#accounts-create-pw1').val() !== $('#accounts-create-pw2').val())
                 highlight_error();
             else
                 hide_error();
-        } else if (behavior == "input") {
+        } else if (behavior == "input-pw1") {
+                password_quality($('#accounts-create-pw1').val(), '#accounts-create-password-meter');
+        } else if (behavior == "input-pw2") {
             if ($('#accounts-create-pw2').val() !== "" &&
-                $('#accounts-create-pw1').val().indexOf($('#accounts-create-pw2').val()) !== 0)
+                $('#accounts-create-pw1').val().indexOf($('#accounts-create-pw2').val()) !== 0) {
                 highlight_error();
-            else
+            } else {
                 hide_error();
-
-            this.error_timeout = window.setTimeout(check_password_match, 2000);
-            this.setTimeout = null;
+            }
         }
 
         $('#accounts-create-create').prop('disabled', !check_params());
@@ -824,7 +867,6 @@ shell.dialogs.push(new PageAccountConfirmDelete());
 
 PageAccountSetPassword.prototype = {
     _init: function() {
-        this.error_timeout = null;
         this.id = "account-set-password-dialog";
     },
 
@@ -841,7 +883,8 @@ PageAccountSetPassword.prototype = {
     setup: function() {
         $('#account-set-password-apply').on('click', $.proxy(this, "apply"));
         $('#account-set-password-dialog .check-passwords').on('keydown', $.proxy(this, "update", "keydown"));
-        $('#account-set-password-dialog .check-passwords').on('input', $.proxy(this, "update", "input"));
+        $('#account-set-password-pw1').on('input', $.proxy(this, "update", "input-pw1"));
+        $('#account-set-password-pw2').on('input', $.proxy(this, "update", "input-pw2"));
         $('#account-set-password-dialog input').on('focusout change', $.proxy(this, "update", "changeFocus"));
     },
 
@@ -849,7 +892,8 @@ PageAccountSetPassword.prototype = {
         $('#account-set-password-old').val("");
         $('#account-set-password-pw1').val("");
         $('#account-set-password-pw2').val("");
-        $('#account-set-password-message-password-mismatch').css("visibility", "hidden");
+        $('#account-set-password-meter').removeClass("weak okay good excellent");
+        $('#account-set-password-meter-message').css("visibility", "hidden");
         $("#account-set-password-dialog .check-passwords").removeClass("has-error");
         this.update ();
     },
@@ -858,20 +902,26 @@ PageAccountSetPassword.prototype = {
     },
 
     update: function(behavior) {
-        function check_params ()
-        {
-            return ($('#account-set-password-pw1').val() !== "" &&
+        function check_params () {
+            return (password_quality_ok('#account-set-password-meter') &&
+                    $('#account-set-password-pw1').val() !== "" &&
                     $('#account-set-password-pw2').val() == $('#account-set-password-pw1').val());
         }
 
         function highlight_error() {
+            if (!password_quality_ok('#account-set-password-meter'))
+                return;
             $("#account-set-password-dialog .check-passwords").addClass("has-error");
-            $('#account-set-password-message-password-mismatch').css("visibility", "visible");
+            $('#account-set-password-meter-message').text(_("The passwords do not match"));
+            $('#account-set-password-meter-message').parent().addClass("has-error");
+            $('#account-set-password-meter-message').css("visibility", "visible");
         }
 
         function hide_error() {
+            if (!password_quality_ok('#account-set-password-meter'))
+                return;
             $("#account-set-password-dialog .check-passwords").removeClass("has-error");
-            $('#account-set-password-message-password-mismatch').css("visibility", "hidden");
+            $('#account-set-password-meter-message').css("visibility", "hidden");
         }
 
         function check_password_match() {
@@ -882,24 +932,21 @@ PageAccountSetPassword.prototype = {
                 hide_error();
         }
 
-        window.clearTimeout(this.error_timeout);
-        this.error_timeout = null;
-
         if (behavior == "changeFocus") {
             if ($('#account-set-password-pw2').val() !== "" &&
                 $('#account-set-password-pw1').val() !== $('#account-set-password-pw2').val())
                 highlight_error();
             else
                 hide_error();
-        } else if (behavior == "input") {
+        } else if (behavior == "input-pw1") {
+                password_quality($('#account-set-password-pw1').val(), '#account-set-password-meter');
+        } else if (behavior == "input-pw2") {
             if ($('#account-set-password-pw2').val() !== "" &&
-                $('#account-set-password-pw1').val().indexOf($('#account-set-password-pw2').val()) !== 0)
+                $('#account-set-password-pw1').val().indexOf($('#account-set-password-pw2').val()) !== 0) {
                 highlight_error();
-            else
+            } else {
                 hide_error();
-
-            this.error_timeout = window.setTimeout(check_password_match, 2000);
-            this.setTimeout = null;
+            }
         }
 
         $('#account-set-password-apply').prop('disabled', !check_params());

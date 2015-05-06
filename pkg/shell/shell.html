@@ -1129,19 +1129,25 @@
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Confirm</td>
+                <td translatable="yes" class="top">Confirm</td>
                 <td>
                   <div class="check-passwords">
                     <input class="form-control" type="password"
                            id="accounts-create-pw2" value=""/>
+                    <div id="accounts-create-password-meter" class="progress password-strength-meter">
+                      <div class="progress-bar"></div>
+                      <div class="progress-bar"></div>
+                      <div class="progress-bar"></div>
+                      <div class="progress-bar"></div>
+                    </div>
                   </div>
                 </td>
               </tr>
               <tr>
                 <td></td>
                 <td>
-                  <div id="accounts-create-message-password-mismatch" class="has-error">
-                    <span class="help-block">The passwords do not match</span>
+                  <div class="has-error">
+                    <span id="accounts-create-password-meter-message" translatable="yes" class="help-block">The passwords do not match</span>
                   </div>
                 </td>
               </tr>
@@ -1199,18 +1205,26 @@
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Confirm New Password</td>
+                <td translatable="yes" class="top">Confirm New Password</td>
                 <td>
                   <div class="check-passwords">
                     <input class="form-control" type="password"
                            id="account-set-password-pw2" value=""/>
+                    <div id="account-set-password-meter" class="progress password-strength-meter">
+                      <div class="progress-bar"></div>
+                      <div class="progress-bar"></div>
+                      <div class="progress-bar"></div>
+                      <div class="progress-bar"></div>
+                    </div>
                   </div>
                 </td>
               </tr>
               <tr>
                 <td></td>
-                <td><div id="account-set-password-message-password-mismatch" class="has-error">
-                    <span class="help-block">The passwords do not match</span>
+                <td><div class="has-error">
+                    <span id="account-set-password-meter-message" translatable="yes" class="help-block">
+                      Password is too weak
+                    </span>
                 </div></td>
               </tr>
             </table>

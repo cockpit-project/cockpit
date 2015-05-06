@@ -124,6 +124,7 @@ update-lib:: update-bower
 	    $(BOWER)/patternfly/components/bootstrap-select/bootstrap-select.js \
 	    $(BOWER)/bootstrap-datepicker/dist/js/bootstrap-datepicker.js \
 	    $(BOWER)/patternfly/components/bootstrap-combobox/js/bootstrap-combobox.js \
+	    $(BOWER)/patternfly/dist/js/patternfly.js \
 	    $(BOWER)/jquery-flot/jquery.flot.js \
 	    $(BOWER)/jquery-flot/jquery.flot.selection.js \
 	    $(BOWER)/jquery-flot/jquery.flot.time.js \
@@ -135,6 +136,7 @@ update-lib:: update-bower
 	    $(BOWER)/patternfly/components/bootstrap-select/bootstrap-select.min.js \
 	    $(BOWER)/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js \
 	    bootstrap-combobox.min.js \
+	    $(BOWER)/patternfly/dist/js/patternfly.min.js \
 	    jquery.flot.min.js \
 	    jquery.flot.selection.min.js \
 	    jquery.flot.time.min.js \

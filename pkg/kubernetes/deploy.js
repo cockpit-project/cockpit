@@ -65,13 +65,10 @@ define([
             var namespaces = [];
             var has_errors = false;
             var text = "";
-            var file_note = $('#deploy-app-manifest-file-note');
-            var file_note_details = $('#deploy-app-manifest-file-note-details');
+            var manifest_file_note = $('#deploy-app-manifest-file-note');
+            var manifest_file_details = $("#deploy-app-manifest-file-note-details");
             var deploying_app_details = $('#deploy-app-deploying-details');
-            show_progress_message();
-
             var deploy_btn = $('#deploy-app-start');
-            deploy_btn.prop("disabled", true);
 
             if (isJsonString(jsonData)) {
                 var jdata = JSON.parse(jsonData);
@@ -91,7 +88,8 @@ define([
                         }
                     } else {
                         text = _("Unable to read the Kubernetes application manifest file. ");
-                        file_note.show().text(text);
+                        manifest_file_details.show().text(text);
+                        manifest_file_note.addClass('has-error').show();
                         return;
                     }
                 } else {
@@ -105,39 +103,55 @@ define([
                         namespaces.push(jdata);
                     } else {
                         text = _("Unsupported Entity. ");
-                        file_note.show().text(text);
+                        manifest_file_details.show().text(text);
+                        manifest_file_note.addClass('has-error').show();
                         return;
                     }
                 }
             } else {
                 text = _("Unable to read the Kubernetes application manifest file. ");
-                file_note.show().text(text);
+                manifest_file_details.show().text(text);
+                manifest_file_note.addClass('has-error').show();
                 return;
             }
 
-            create_everything(namespace, services, rcs, pods)
-                .progress(function(code, response, n, total) {
-                    //TODO Progress bar
+            show_progress_message();
+            deploy_btn.prop("disabled", true);
 
-                })
-                .done(function() {
-                    /* code gets run when everything is created */
-                    disable_deploy_button();
-                    hide_progress_message();
-                     $('#deploy-app-dialog').modal('hide');
+            client.get_services()
+                .done(function(){
+                    create_everything(namespace, services, rcs, pods)
+                        .progress(function(code, response, n, total) {
+                            //TODO Progress bar
 
+                        })
+                        .done(function() {
+                            /* code gets run when everything is created */
+                            disable_deploy_button();
+                            hide_progress_message();
+                             $('#deploy-app-dialog').modal('hide');
+
+                        })
+                        .fail(function(ex, response) {
+                            /* ex containst the failure */
+                            enable_deploy_button();
+                            var jdata = JSON.parse(response);
+                            var err_msg = jdata.message;
+                            if(jdata.code === 409){
+                                err_msg = cockpit.format(_("Please create another namespace for $0 \"$1\""), jdata.details.kind, jdata.details.id);
+                            }
+                            console.warn(jdata.message);
+                            hide_progress_message();
+                            $("#deploy-app-general-error-msg").text(err_msg).parent().show();
+                        });
                 })
                 .fail(function(ex, response) {
-                    /* ex containst the failure */
-                    enable_deploy_button();
-                    var jdata = JSON.parse(response);
-                    var err_msg = jdata.message;
-                    if(jdata.code === 409){
-                        err_msg = cockpit.format(_("Please create another namespace for $0 \"$1\""), jdata.details.kind, jdata.details.id);
-                    }
-                    console.warn(jdata.message);
-                    hide_progress_message();
-                    $("#deploy-app-general-error-msg").text(err_msg).parent().show();
+                            /* Unable to interact with k8 API */
+                            enable_deploy_button();
+                            var err_msg = ex.message;
+                            console.warn(err_msg);
+                            hide_progress_message();
+                            $("#deploy-app-general-error-msg").text(err_msg).parent().show();
                 });
         }
 

@@ -545,6 +545,10 @@ define([
             }).fail(failure);
         };
 
+        this.get_services = function get_services() {
+            return api.get("/api/v1beta3/services");
+        };
+
         self.close = function close() {
             var w = watches;
             watches = [ ];

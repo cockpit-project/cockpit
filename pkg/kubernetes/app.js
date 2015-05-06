@@ -147,7 +147,7 @@ define([
         };
     }
 
-    function builder(type, client, Constructor) {
+    function builder(type, events, client, Constructor) {
         var objects = { };
 
         function build() {
@@ -173,7 +173,7 @@ define([
             });
             $(objects).triggerHandler("changed");
         }
-        $(client).on(type, build);
+        $(client).on(events, build);
         build();
 
         return objects;
@@ -190,9 +190,9 @@ define([
             return kubernetes.k8client();
         })
         .factory('kubernetesServices', ['kubernetesClient', function(client) {
-            return builder('services', client, KubernetesService);
+            return builder('services', 'services pods', client, KubernetesService);
         }])
         .factory('kubernetesNodes', ['kubernetesClient', function(client) {
-            return builder('nodes', client, KubernetesNode);
+            return builder('nodes', 'nodes pods', client, KubernetesNode);
         }]);
 });

@@ -111,7 +111,6 @@ define([
 
         var lastResource;
         var stopping = false;
-        var requested = false;
         var req = null;
         var wait = null;
         var objects = { };
@@ -329,16 +328,83 @@ define([
             trigger(type, item.kind);
         }
 
+        var pulls = { };
+        var pull_timeout;
+
+        function pull_later(involved) {
+            pulls[involved.uid] = involved;
+
+            if (!pull_timeout) {
+                pull_timeout = window.setTimeout(function() {
+                    var items = Object.keys(pulls).map(function(uid) {
+                        return pulls[uid];
+                    });
+
+                    pulls = { };
+                    pull_timeout = null;
+
+                    items.forEach(function(item) {
+                        pull_involved(item);
+                    });
+                }, 500);
+            }
+        }
+
+        function pull_involved(involved) {
+            var item = self.objects[involved.uid];
+
+            if (item && involved.resourceVersion < item.metadata.resourceVersion)
+                return;
+
+            var uri = "/api/v1beta3";
+
+            if (involved.namespace)
+                uri += "/namespaces/" + encodeURIComponent(involved.namespace);
+
+            var type = involved.kind.toLowerCase() + "s";
+            uri += "/" + type + "/" + involved.name;
+
+            api.get(uri)
+                .fail(function(ex) {
+                    if (ex.status == 404) {
+                        item = self.objects[involved.uid];
+                        if (item) {
+                            handle_removed(item, type);
+                        }
+                    } else {
+                        console.warn("couldn't get involved object", uri, involved.name, ex);
+                    }
+                })
+                .done(function(data) {
+                    var item = JSON.parse(data);
+                    if (item && item.metadata && item.metadata.uid == involved.uid) {
+                        handle_updated(item, type);
+                    }
+                });
+        }
+
+        function handle_event(item, type) {
+            var involved = item.involvedObject;
+            if (involved)
+                pull_later(involved);
+            handle_updated(item, type);
+        }
+
         var watches = [
             new KubernetesWatch(api, "nodes", handle_updated, handle_removed),
             new KubernetesWatch(api, "pods", handle_updated, handle_removed),
             new KubernetesWatch(api, "services", handle_updated, handle_removed),
             new KubernetesWatch(api, "replicationcontrollers", handle_updated, handle_removed),
             new KubernetesWatch(api, "namespaces", handle_updated, handle_removed),
+            new KubernetesWatch(api, "events", handle_event, handle_removed),
         ];
 
         function name_compare(a1, a2) {
             return (a1.metadata.name || "").localeCompare(a2.metadata.name || "");
+        }
+
+        function timestamp_compare(a1, a2) {
+            return (a1.firstTimestamp || "").localeCompare(a2.firstTimestamp || "");
         }
 
         function basic_items_getter(kind, compare) {
@@ -380,6 +446,10 @@ define([
                 enumerable: true,
                 get: function() { return basic_items_getter("Namespace", name_compare); }
             },
+            events: {
+                enumerable: true,
+                get: function() { return basic_items_getter("Event", timestamp_compare); }
+            }
         });
 
         /**

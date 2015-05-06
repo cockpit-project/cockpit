@@ -114,6 +114,7 @@ define([
         var requested = false;
         var req = null;
         var wait = null;
+        var objects = { };
 
         /*
          * Each change is sent as an individual line from Kubernetes
@@ -149,17 +150,23 @@ define([
                     continue;
                 }
 
-                if (object.metadata)
-                    lastResource = object.metadata.resourceVersion;
-                else
-                    lastResource = null;
+                var meta = object.metadata;
+                if (!meta || !meta.uid || object.apiVersion != "v1beta3" || !object.kind) {
+                    console.warn("invalid kubernetes object: ", Object.keys(object).join(", "));
+                    continue;
+                }
+
+                lastResource = meta.resourceVersion;
 
                 if (action.type == "ADDED") {
-                    update(object);
+                    objects[meta.uid] = object;
+                    update(object, type);
                 } else if (action.type == "MODIFIED") {
-                    update(object);
+                    objects[meta.uid] = object;
+                    update(object, type);
                 } else if (action.type == "DELETED") {
-                    remove(object);
+                    delete objects[meta.uid];
+                    remove(object, type);
 
                 /* The watch failed, likely due to invalid resourceVersion */
                 } else if (action.type == "ERROR") {
@@ -177,18 +184,23 @@ define([
 
         function start_watch() {
             var uri = "/api/v1beta3/watch/" + type;
+            var all, uid;
 
             /*
              * If we have a last resource we can guarantee that we don't miss
              * any objects or changes to objects. If we don't have one, then we
              * have to list everything again. Still watch at the same time though.
              */
-            if (requested && lastResource)
+            if (lastResource) {
                 uri += "?resourceVersion=" + encodeURIComponent(lastResource);
 
-            /* Tell caller to remove all sources */
-            else if (!requested)
-                remove(null);
+            /* Tell caller to remove all objects */
+            } else {
+                all = objects;
+                objects = { };
+                for (uid in all)
+                    remove(all[uid], type);
+            }
 
             /*
              * As a precaution, watch must take at least 1 second
@@ -226,7 +238,6 @@ define([
                         }
                     }
                 });
-            requested = true;
         }
 
         start_watch();
@@ -252,123 +263,124 @@ define([
         var self = this;
 
         var api = cockpit.http(8080);
-        var watches = [ ];
         self.objects = { };
 
         /* TODO: Derive this value from cluster size */
         var index = new HashIndex(262139);
         self.resourceVersion = null;
 
-        /*
-         * Here we create KubernetesWatch object, and a property
-         * definition for each type of object and hook them together.
-         */
-        function bind(type) {
-            var flat = null;
-            var items = { };
-            var timeout;
+        /* Flattened properties by type, see getters below */
+        var flats = { };
 
-            /* Always delay the update event a bit */
-            function trigger() {
-                flat = null;
-                if (!timeout) {
-                    timeout = window.setTimeout(function() {
-                        timeout = null;
-                        $(self).triggerHandler(type);
-                    }, 100);
-                }
+        /* Event timeouts, for collapsing events */
+        var timeouts = { };
+
+        function trigger(type, kind) {
+            delete flats[kind];
+            if (!(type in timeouts)) {
+                timeouts[type] = window.setTimeout(function() {
+                    delete timeouts[type];
+                    $(self).triggerHandler(type);
+                }, 100);
             }
-
-            function updated(item) {
-                var meta = item.metadata;
-                if (!meta || !meta.uid) {
-                    console.warn("kubernetes item without uid");
-                    return;
-                }
-
-                if (meta.resourceVersion && meta.resourceVersion > self.resourceVersion)
-                    self.resourceVersion = meta.resourceVersion;
-
-                var uid = meta.uid;
-                var namespace = meta.namespace;
-
-                items[uid] = item;
-                self.objects[uid] = item;
-
-                /* Add various bits to index, for quick lookup */
-                var i, keys, length;
-                if (meta.labels) {
-                    keys = [];
-                    for (i in meta.labels)
-                        keys.push(namespace + i + meta.labels[i]);
-                    index.add(keys, uid);
-                }
-                var spec = item.spec;
-                if (spec && spec.selector) {
-                    keys = [];
-                    for (i in spec.selector)
-                        keys.push(namespace + i + spec.selector[i]);
-                    index.add(keys, uid);
-                }
-
-                /* Index the host for quick lookup */
-                var status = item.status;
-                if (status && status.host)
-                    index.add([ status.host ], uid);
-
-                trigger();
-            }
-
-            function removed(item) {
-                var key;
-                if (!item) {
-                    for (key in items) {
-                        delete items[key];
-                        delete self.objects[key];
-                    }
-                } else {
-                    key = item.metadata ? item.metadata.uid : null;
-                    if (!key) {
-                        console.warn("kubernetes item without uid");
-                        return;
-                    }
-                    delete items[key];
-                    delete self.objects[key];
-                }
-                trigger();
-            }
-
-            Object.defineProperty(self, type, {
-                enumerable: true,
-                get: function get() {
-                    if (!flat) {
-                        flat = [];
-                        for (var key in items)
-                            flat.push(items[key]);
-                        flat.sort(function(a1, a2) {
-                            return (a1.metadata.name || "").localeCompare(a2.metadata.name || "");
-                        });
-                    }
-                    return flat;
-                }
-            });
-
-            var wc = new KubernetesWatch(api, type, updated, removed);
-            watches.push(wc);
         }
 
-        /*
-         * Define and bind various properties which are arrays of objects
-         *
-         * TODO: Decide whether we need these as exposed properties, or
-         * whether callers can just use the .select() method.
-         */
+        function handle_updated(item, type) {
+            var meta = item.metadata;
 
-        bind("nodes");
-        bind("pods");
-        bind("services");
-        bind("replicationcontrollers");
-        bind("namespaces");
+            if (meta.resourceVersion && meta.resourceVersion > self.resourceVersion)
+                self.resourceVersion = meta.resourceVersion;
+
+            var uid = meta.uid;
+            var namespace = meta.namespace;
+
+            self.objects[uid] = item;
+
+            /* Add various bits to index, for quick lookup */
+            var i, keys, length;
+            if (meta.labels) {
+                keys = [];
+                for (i in meta.labels)
+                    keys.push(namespace + i + meta.labels[i]);
+                index.add(keys, uid);
+            }
+            var spec = item.spec;
+            if (spec && spec.selector) {
+                keys = [];
+                for (i in spec.selector)
+                    keys.push(namespace + i + spec.selector[i]);
+                index.add(keys, uid);
+            }
+
+            /* Add the type for quick lookup */
+            index.add( [ item.kind ], uid);
+
+            /* Index the host for quick lookup */
+            var status = item.status;
+            if (status && status.host)
+                index.add([ status.host ], uid);
+
+            trigger(type, item.kind);
+        }
+
+        function handle_removed(item, type) {
+            var key = item.metadata.uid;
+            delete self.objects[key];
+            trigger(type, item.kind);
+        }
+
+        var watches = [
+            new KubernetesWatch(api, "nodes", handle_updated, handle_removed),
+            new KubernetesWatch(api, "pods", handle_updated, handle_removed),
+            new KubernetesWatch(api, "services", handle_updated, handle_removed),
+            new KubernetesWatch(api, "replicationcontrollers", handle_updated, handle_removed),
+            new KubernetesWatch(api, "namespaces", handle_updated, handle_removed),
+        ];
+
+        function name_compare(a1, a2) {
+            return (a1.metadata.name || "").localeCompare(a2.metadata.name || "");
+        }
+
+        function basic_items_getter(kind, compare) {
+            var possible, item, i, len;
+            var flat = flats[kind];
+            if (!flat) {
+                flat = [];
+                possible = index.select([kind]);
+                len = possible.length;
+                for (i = 0; i < len; i++) {
+                    item = self.objects[possible[i]];
+                    if (item && item.kind == kind)
+                        flat.push(item);
+                }
+                flat.sort(compare);
+                flats[kind] = flat;
+            }
+            return flat;
+        }
+
+        Object.defineProperties(self, {
+            nodes: {
+                enumerable: true,
+                get: function() { return basic_items_getter("Node", name_compare); }
+            },
+            pods: {
+                enumerable: true,
+                get: function() { return basic_items_getter("Pod", name_compare); }
+            },
+            services: {
+                enumerable: true,
+                get: function() { return basic_items_getter("Service", name_compare); }
+            },
+            replicationcontrollers: {
+                enumerable: true,
+                get: function() { return basic_items_getter("ReplicationController", name_compare); }
+            },
+            namespaces: {
+                enumerable: true,
+                get: function() { return basic_items_getter("Namespace", name_compare); }
+            },
+        });
 
         /**
          * client.select()

@@ -43,7 +43,6 @@ test("public api", function() {
     strictEqual(grid.interval, 555, "grid.interval");
     strictEqual(grid.beg, 3, "grid.beg");
     strictEqual(grid.end, 8, "grid.end");
-    deepEqual(grid.rows, [], "grid.rows");
     equal(typeof grid.add, "function", "grid.add()");
     equal(typeof grid.remove, "function", "grid.remove()");
     equal(typeof grid.close, "function", "grid.close()");
@@ -64,50 +63,12 @@ test("public api", function() {
     equal(typeof sink.load, "function", "series.load()");
 });
 
-test("empty row", function() {
-    var grid = cockpit.grid(1000, 3, 8);
-    var row = grid.add();
-
-    equal(grid.rows.length, 1, "rows length");
-    strictEqual(grid.rows[0], row, "returned correct row");
-});
-
-test("remove row", function() {
-    var grid = cockpit.grid(1000, 3, 8);
-    var row1 = grid.add();
-    var row2 = grid.add();
-    var row3 = grid.add();
-
-    equal(grid.rows.length, 3, "rows added");
-
-    grid.remove(row2);
-    equal(grid.rows.length, 2, "row removed");
-
-    strictEqual(grid.rows[0], row1, "removed correct");
-    strictEqual(grid.rows[1], row3, "removed correctly");
-});
-
-test("rows replacable", function() {
-    var grid = cockpit.grid(1000, 3, 8);
-    var orig = grid.rows;
-    var replace = [];
-    grid.rows = replace;
-
-    grid.add();
-
-    equal(orig.length, 1, "added to original rows");
-    equal(replace.length, 0, "doesn't affect current rows");
-});
-
 test("calculated row", function() {
     var grid = cockpit.grid(1000, 3, 8);
     var calculated = grid.add(function(row, x, n) {
         for (var i = 0; i < n; i++)
              row[i + x] = i;
     });
-
-    equal(grid.rows.length, 1, "rows length");
-    strictEqual(grid.rows[0], calculated, "returned correct row");
 
     grid.notify(1, 4);
     deepEqual(calculated, [ undefined, 0, 1, 2, 3 ], "array contents");
@@ -126,10 +87,6 @@ test("calculated order", function() {
         for (var i = 0; i < n; i++)
              row[i + x] = calculated[i + x] + 10;
     });
-
-    equal(grid.rows.length, 2, "rows length");
-    strictEqual(grid.rows[0], calculated, "returned correct row");
-    strictEqual(grid.rows[1], dependant, "returned correct second");
 
     grid.notify(1, 4);
     deepEqual(dependant, [ undefined, 10, 11, 12, 13 ], "dependant array contents");
@@ -151,10 +108,6 @@ test("calculated early", function() {
         for (var i = 0; i < n; i++)
              row[i + x] = i;
     }, true);
-
-    equal(grid.rows.length, 2, "rows length");
-    strictEqual(grid.rows[1], calculated, "returned correct row");
-    strictEqual(grid.rows[0], dependant, "returned correct second");
 
     grid.notify(1, 4);
     deepEqual(dependant, [ undefined, 10, 11, 12, 13 ], "dependant array contents");

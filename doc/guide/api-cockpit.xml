@@ -2009,8 +2009,7 @@ handle = file.watch(callback);
         <code>early</code> argument is set to <code>true</code>, in which case the callback is called earlier
         than callbacks without the <code>early</code> argument set.</para>
 
-      <para>The returned <code>row</code> will be added to the
-        <link linkend="cockpit-grid-rows"><code>grid.rows</code></link> array property. To remove the row use the
+      <para>To remove the row use the
         <link linkend="cockpit-grid-remove"><code>grid.remove()</code> method.</link>
       </para>
 
@@ -2027,8 +2026,7 @@ handle = file.watch(callback);
 </programlisting>
 
       <para>Remove a previously added <code>row</code> from the grid. The row will no longer be updated
-        with series data, and it will be removed from the
-        <link linkend="cockpit-grid-rows"><code>grid.rows</code></link> property.</para>
+        with series data.</para>
     </refsection>
 
     <refsection id="cockpit-grid-sync">
@@ -2112,14 +2110,6 @@ handle = file.watch(callback);
 </programlisting>
 
       <para>Close the grid, and stop updating the rows.</para>
-    </refsection>
-
-    <refsection id="cockpit-grid-rows">
-      <title>grid.rows</title>
-
-      <para>An array that contains all the rows which have been added to this grid. You should not modify
-        this array directly. However it is permissible, and often appropriate, to replace this property
-        with your own new array tracking the rows that are relevant to the consumer of the grid.</para>
     </refsection>
 
     <refsection id="cockpit-grid-interval">

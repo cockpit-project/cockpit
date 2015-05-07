@@ -2990,7 +2990,6 @@ function full_scope(cockpit, $, po) {
         self.interval = interval;
         self.beg = 0;
         self.end = 0;
-        self.rows = rows;
 
         /*
          * Used to populate table data, the values are:

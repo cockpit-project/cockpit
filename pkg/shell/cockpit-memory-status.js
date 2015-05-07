@@ -67,6 +67,13 @@ PageMemoryStatus.prototype = {
             { name: "memory.free" },
         ];
 
+        var series = [
+            { color: "#e41a1c", label: _("Swap Used") },
+            { color: "#ff7f00", label: _("Cached") },
+            { color: "#377eb8", label: _("Used") },
+            { color: "#4daf4a", label: _("Free") },
+        ];
+
         self.channel = cockpit.metrics(1000, {
             source: "internal",
             metrics: metrics,
@@ -75,20 +82,17 @@ PageMemoryStatus.prototype = {
 
         /* The grid shows us the last five minutes */
         self.grid = cockpit.grid(1000, -300, -0);
-        metrics.forEach(function(metric) {
-            self.grid.add(self.channel, [ metric.name ]);
-        });
+
+        var i;
+        for(i = 0; i < series.length; i++) {
+            series[i].row = self.grid.add(self.channel, [ metrics[i].name ]);
+        }
 
         /* Start pulling data, and make the grid follow the data */
         self.channel.follow();
         self.grid.walk();
 
-        this.plot = shell.setup_complicated_plot("#memory_status_graph", self.grid, [
-            { color: "#e41a1c", label: _("Swap Used") },
-            { color: "#ff7f00", label: _("Cached") },
-            { color: "#377eb8", label: _("Used") },
-            { color: "#4daf4a", label: _("Free") },
-        ], options);
+        this.plot = shell.setup_complicated_plot("#memory_status_graph", self.grid, series, options);
     },
 
     show: function() {

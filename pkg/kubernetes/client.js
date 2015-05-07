@@ -287,6 +287,8 @@ define([
         function handle_updated(item, type) {
             var meta = item.metadata;
 
+            debug("item", item);
+
             if (meta.resourceVersion && meta.resourceVersion > self.resourceVersion)
                 self.resourceVersion = meta.resourceVersion;
 
@@ -324,6 +326,7 @@ define([
 
         function handle_removed(item, type) {
             var key = item.metadata.uid;
+            debug("remove", item);
             delete self.objects[key];
             trigger(type, item.kind);
         }
@@ -363,6 +366,8 @@ define([
 
             var type = involved.kind.toLowerCase() + "s";
             uri += "/" + type + "/" + involved.name;
+
+            debug("pulling", uri);
 
             api.get(uri)
                 .fail(function(ex) {

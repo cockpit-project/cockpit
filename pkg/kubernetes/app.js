@@ -43,24 +43,29 @@ define([
                           service.metadata.namespace, "Pod").forEach(function(pod) {
                 if (!pod.status || !pod.status.phase)
                     return;
+                var spec = pod.spec || { };
+                var n = 1;
+                if (spec.containers)
+                    n = spec.containers.length;
                 switch (pod.status.phase) {
                 case "Pending":
                     if (!state)
                         state = "wait";
-                    y++;
+                    y += n;
                     break;
                 case "Running":
-                    x++; y++;
+                    x += n;
+                    y += n;
                     break;
                 case "Succeeded": // don't increment either counter
                     break;
                 case "Unknown":
-                    y++;
+                    y += n;
                     break;
                 case "Failed":
                     /* falls through */
                 default: /* assume failed */
-                    y++;
+                    y += n;
                     state = "fail";
                     break;
                 }
@@ -114,14 +119,21 @@ define([
             var meta = node.metadata || { };
             var spec = node.spec || { };
             var status = node.status || { };
-            var pods = [];
 
             if (spec.externalID)
                 calculated.address = spec.externalID;
-            pods = client.hosting(meta.name, "Pod");
+
+            var count = 0;
+            client.hosting(meta.name, "Pod").forEach(function(pod) {
+                var spec = pod.spec || { };
+                var n = 1;
+                if (spec.containers)
+                    n = spec.containers.length;
+                count += n;
+            });
 
             /* TODO: Calculate number of containers instead of pods */
-            calculated.containers = "" + pods.length;
+            calculated.containers = "" + count;
 
             var state = "";
 

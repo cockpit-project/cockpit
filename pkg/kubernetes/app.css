@@ -73,26 +73,46 @@
 }
 
 /* When panel is editable, then buttons are visible */
-#service-list td button {
+.dashboard-list td button {
     display: none;
 }
 
-#service-list.editable td button {
+.dashboard-list.editable td button {
     display: block;
 }
 
-#service-list.editable tr:hover td {
+.dashboard-list.editable td.status > span {
+    display: none;
+}
+
+.dashboard-list.editable tr:hover td {
     background-color: #FFF;
     cursor: auto;
 }
 
-#service-list td.status {
-    padding: 4px 10px 4px;
+.dashboard-list td.status {
+    padding: 4px 10px 4px !important;
     text-align: right;
     white-space: nowrap;
+    vertical-align: middle;
     width: 1%;
     min-width: 50px;
 }
+
+.dashboard-list span.fa {
+  font-size: 24px;
+  color: black;
+  display: inline-block;
+}
+
+.dashboard-list span.spinner {
+  display: inline-block;
+}
+
+.dashboard-list span.fa-failed {
+  color: #af151a;
+}
+
 
 /* App deploy dialog */
 

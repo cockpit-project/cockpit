@@ -4,7 +4,6 @@
     "id": "redis-master",
     "metadata": {
         "name": "redis-master",
-        "namespace": "default",
         "labels": {
             "name": "redis-master"
         }
@@ -15,7 +14,7 @@
         "containers": [
             {
                 "name": "master",
-                "image": "dockerfile/redis",
+                "image": "redis",
                 "ports": [
                     {
                         "containerPort": 6379,
@@ -24,10 +23,7 @@
                     }
                 ]
             }
-        ],
-        "restartPolicy": {
-            "always": {}
-        }
+        ]
     }
 }
 

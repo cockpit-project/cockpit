@@ -1,0 +1,189 @@
+{
+    "kind": "List",
+    "apiVersion": "v1beta3",
+    "items": [
+        {
+            "kind": "ReplicationController",
+            "apiVersion": "v1beta3",
+            "metadata": {
+                "name": "frontend-controller",
+                "labels": {
+                    "name": "frontend",
+                    "template": "frontend"
+                }
+            },
+            "spec": {
+                "replicas": 2,
+                "selector": {
+                    "name": "frontend"
+                },
+                "template": {
+                    "metadata": {
+                        "name": "frontend-controller",
+                        "labels": {
+                            "name": "frontend",
+                            "template": "frontend"
+                        }
+                    },
+                    "spec": {
+                        "volumes": null,
+                        "containers": [
+                            {
+                                "name": "php-redis",
+                                "image": "kubernetes/example-guestbook-php-redis",
+                                "ports": [
+                                    {
+                                        "containerPort": 80,
+                                        "hostPort": 8000
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst"
+                    }
+                }
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1beta3",
+            "metadata": {
+                "name": "frontend",
+                "labels": {}
+            },
+            "spec": {
+                "ports": [
+                    {
+                        "name": "",
+                        "port": 80,
+                        "protocol": "TCP",
+                        "targetPort": 80
+                    }
+                ],
+                "selector": {
+                    "name": "frontend"
+                },
+                "sessionAffinity": "None"
+            }
+        },
+        {
+            "apiVersion": "v1beta3",
+            "kind": "Pod",
+            "id": "redis-master",
+            "metadata": {
+                "name": "redis-master",
+                "labels": {
+                    "name": "redis-master"
+                }
+            },
+            "spec": {
+                "volumes": null,
+                "resources": {},
+                "containers": [
+                    {
+                        "name": "master",
+                        "image": "redis",
+                        "ports": [
+                            {
+                                "containerPort": 6379,
+                                "hostPort": 6379,
+                                "protocol": "TCP"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1beta3",
+            "metadata": {
+                "name": "redis-master",
+                "labels": {
+                    "name": "redis-master"
+                }
+            },
+            "spec": {
+                "ports": [
+                    {
+                        "name": "",
+                        "port": 6379,
+                        "protocol": "TCP",
+                        "targetPort": 6379
+                    }
+                ],
+                "selector": {
+                    "name": "redis-master"
+                },
+                "sessionAffinity": "None"
+            }
+        },
+        {
+            "kind": "ReplicationController",
+            "apiVersion": "v1beta3",
+            "metadata": {
+                "name": "redis-slave-controller",
+                "labels": {
+                    "name": "redisslave",
+                    "template": "redisslave"
+                }
+            },
+            "spec": {
+                "replicas": 2,
+                "selector": {
+                    "name": "redisslave"
+                },
+                "template": {
+                    "metadata": {
+                        "name": "redis-slave-controller",
+                        "labels": {
+                            "name": "redisslave",
+                            "template": "redisslave",
+                            "uses": "redis-master"
+                        }
+                    },
+                    "spec": {
+                        "volumes": null,
+                        "containers": [
+                            {
+                                "name": "slave",
+                                "image": "brendanburns/redis-slave",
+                                "ports": [
+                                    {
+                                        "containerPort": 6379,
+                                        "hostPort": 6380
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst"
+                    }
+                }
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1beta3",
+            "metadata": {
+                "name": "redisslave",
+                "labels": {
+                    "name": "redisslave"
+                }
+            },
+            "spec": {
+                "ports": [
+                    {
+                        "name": "",
+                        "port": 6379,
+                        "protocol": "TCP",
+                        "targetPort": 6379
+                    }
+                ],
+                "selector": {
+                    "name": "redisslave"
+                },
+                "sessionAffinity": "None"
+            }
+        }
+    ]
+}

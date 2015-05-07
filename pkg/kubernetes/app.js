@@ -21,6 +21,7 @@ define([
             calculated = {
                 containers: "0",
                 ports: "",
+                status: "",
             };
 
             var spec = service.spec || { };
@@ -29,6 +30,7 @@ define([
 
             var x = 0;
             var y = 0;
+            var state = "";
 
             /*
              * Calculate "x of y" containers, where x is the current
@@ -42,10 +44,9 @@ define([
                 if (!pod.status || !pod.status.phase)
                     return;
                 switch (pod.status.phase) {
-                case "Failed":
-                    y++;
-                    break;
                 case "Pending":
+                    if (!state)
+                        state = "wait";
                     y++;
                     break;
                 case "Running":
@@ -56,14 +57,19 @@ define([
                 case "Unknown":
                     y++;
                     break;
-                default: // assume Failed
+                case "Failed":
+                    /* falls through */
+                default: /* assume failed */
                     y++;
+                    state = "fail";
+                    break;
                 }
             });
 
             calculated.containers = "" + x;
             if (x != y)
                 calculated.containers += " of " + y;
+            calculated.status = state;
 
             /* Calculate the port string */
 
@@ -98,6 +104,9 @@ define([
             },
             ports: {
                 get: function get() { return calculate().ports; }
+            },
+            status: {
+                get: function get() { return calculate().status; }
             }
         });
 
@@ -130,6 +139,7 @@ define([
 
             var meta = node.metadata || { };
             var spec = node.spec || { };
+            var status = node.status || { };
             var pods = [];
 
             if (spec.externalID)
@@ -138,6 +148,24 @@ define([
 
             /* TODO: Calculate number of containers instead of pods */
             calculated.containers = "" + pods.length;
+
+            var state = "";
+
+            var conditions = status.conditions;
+
+            /* If no status.conditions then it hasn't even started */
+            if (!conditions) {
+                state = "wait";
+            } else {
+                conditions.forEach(function(condition) {
+                    if (condition.type == "Ready") {
+                        if (condition.status != "True")
+                            state = "fail";
+                    }
+                });
+            }
+
+            calculated.status = state;
 
             return calculated;
         }
@@ -150,6 +178,10 @@ define([
             address: {
                 enumerable: true,
                 get: function() { return calculate().address; }
+            },
+            status: {
+                enumerable: true,
+                get: function() { return calculate().status; }
             }
         });
 
@@ -158,6 +190,18 @@ define([
             self.name = meta.name;
             calculated = null;
             node = item;
+        };
+    }
+
+    function KubernetesPod(client) {
+        var self = this;
+
+        var pod = { };
+
+        self.apply = function apply(item) {
+            var meta = item.metadata || { };
+            self.name = meta.name;
+            pod = item;
         };
     }
 
@@ -208,5 +252,20 @@ define([
         }])
         .factory('kubernetesNodes', ['kubernetesClient', function(client) {
             return builder('nodes', 'nodes pods', client, KubernetesNode);
-        }]);
+        }])
+        .factory('kubernetesPods', ['kubernetesClient', function(client) {
+            return builder('pods', 'pods', client, KubernetesPod);
+        }])
+        .directive('kubernetesStatusIcon', function() {
+            return {
+                restrict: 'A',
+                link: function($scope, element, attributes) {
+                    $scope.$watch("item.status", function(status) {
+                        element
+                            .toggleClass("spinner spinner-sm", status == "wait")
+                            .toggleClass("fa fa-exclamation-triangle fa-failed", status == "fail");
+                    });
+                }
+            };
+        });
 });

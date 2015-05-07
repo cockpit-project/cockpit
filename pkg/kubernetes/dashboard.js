@@ -22,10 +22,12 @@ define([
                 '$scope',
                 'kubernetesServices',
                 'kubernetesNodes',
-                function($scope, services, nodes) {
+                'kubernetesPods',
+                function($scope, services, nodes, pods) {
             $scope.services = services;
             $scope.nodes = nodes;
-            $([services, nodes]).on("changed", function() {
+            $scope.pods = pods;
+            $([services, nodes, pods]).on("changed", function() {
                 $scope.$digest();
             });
         }]);

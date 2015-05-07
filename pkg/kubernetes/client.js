@@ -284,6 +284,16 @@ define([
             }
         }
 
+        function index_labels(uid, labels, namespace) {
+            var keys, i;
+            if (labels) {
+                keys = [];
+                for (i in labels)
+                    keys.push(namespace + i + labels[i]);
+                index.add(keys, uid);
+            }
+        }
+
         function handle_updated(item, type) {
             var meta = item.metadata;
 
@@ -298,19 +308,13 @@ define([
             self.objects[uid] = item;
 
             /* Add various bits to index, for quick lookup */
-            var i, keys, length;
-            if (meta.labels) {
-                keys = [];
-                for (i in meta.labels)
-                    keys.push(namespace + i + meta.labels[i]);
-                index.add(keys, uid);
-            }
+            index_labels(uid, meta.labels, namespace);
+
             var spec = item.spec;
-            if (spec && spec.selector) {
-                keys = [];
-                for (i in spec.selector)
-                    keys.push(namespace + i + spec.selector[i]);
-                index.add(keys, uid);
+            if (spec) {
+                index_labels(uid, spec.selector, namespace);
+                if (spec.template && spec.template.metadata)
+                    index_labels(uid, spec.template.metadata.labels, namespace);
             }
 
             /* Add the type for quick lookup */
@@ -462,12 +466,13 @@ define([
          * @selector: plain javascript object, JSON label selector
          * @namespace: the namespace to act in
          * @type: optional kind string (eg: 'Pod')
+         * @template: Match the spec.template instead of labels directly
          *
          * Select objects that match the given labels.
          *
          * Returns: an array of objects
          */
-        this.select = function select(selector, namespace, kind) {
+        this.select = function select(selector, namespace, kind, template) {
             var i, keys;
             var possible, match, results = [];
             if (selector) {
@@ -478,7 +483,7 @@ define([
             } else {
                 possible = Object.keys(self.objects);
             }
-            var meta, obj, uid, j, length = possible.length;
+            var meta, spec, labels, obj, uid, j, length = possible.length;
             for (j = 0; j < length; j++) {
                 uid = possible[j];
                 obj = self.objects[uid];
@@ -487,13 +492,23 @@ define([
                 meta = obj.metadata;
                 if (meta.namespace !== namespace)
                     continue;
-                if (selector && !meta.labels)
+
+                labels = null;
+                if (template) {
+                    spec = obj.spec;
+                    if (spec && spec.template && spec.template.metadata)
+                        labels = spec.template.metadata.labels;
+                } else {
+                    labels = meta.labels;
+                }
+
+                if (selector && !labels)
                     continue;
                 if (kind && obj.kind !== kind)
                     continue;
                 match = true;
                 for (i in selector) {
-                    if (meta.labels[i] !== selector[i]) {
+                    if (labels[i] !== selector[i]) {
                         match = false;
                         break;
                     }

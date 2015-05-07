@@ -88,7 +88,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           <tbody>
             <tr ng-repeat="service in services" data-uid="{{service.uid}}">
               <td>{{service.name}}</td>
-              <td>{{service.address}}{{service.ports}}</td>
+              <td><kubernetes-address ng-init="item = service"></td>
               <td>{{service.containers}}</td>
               <td>{{service.namespace}}</td>
               <td class="status" ng-init="item = service">

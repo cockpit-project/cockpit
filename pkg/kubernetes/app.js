@@ -20,7 +20,6 @@ define([
 
             calculated = {
                 containers: "0",
-                ports: "",
                 status: "",
             };
 
@@ -71,39 +70,12 @@ define([
                 calculated.containers += " of " + y;
             calculated.status = state;
 
-            /* Calculate the port string */
-
-            var parts;
-
-            /* No ports here */
-            if (!spec.ports || !spec.ports.length) {
-                calculated.ports = "";
-
-            /* One single TCP port */
-            } else if (spec.ports.length === 1 && spec.ports[0].protocol === "TCP") {
-                calculated.ports = ":" + spec.ports[0].port;
-
-            /* Multiple ports */
-            } else {
-                parts = [];
-                spec.ports.forEach(function(port) {
-                    if (port.protocol === "TCP")
-                        parts.push(port.port);
-                    else
-                        parts.push(port.port + "/" + port.protocol);
-                });
-                calculated.ports = " " + parts.join(" ");
-            }
-
             return calculated;
         }
 
         Object.defineProperties(self, {
             containers: {
                 get: function get() { return calculate().containers; }
-            },
-            ports: {
-                get: function get() { return calculate().ports; }
             },
             status: {
                 get: function get() { return calculate().status; }
@@ -116,6 +88,7 @@ define([
             self.uid = meta.uid;
             self.name = meta.name;
             self.address = spec.portalIP;
+            self.ports = spec.ports;
             self.namespace = meta.namespace;
             service = item;
             calculated = null;
@@ -264,6 +237,49 @@ define([
                         element
                             .toggleClass("spinner spinner-sm", status == "wait")
                             .toggleClass("fa fa-exclamation-triangle fa-failed", status == "fail");
+                    });
+                }
+            };
+        })
+        .directive('kubernetesAddress', function() {
+            return {
+                restrict: 'E',
+                link: function($scope, element, attributes) {
+                    $scope.$watchGroup(["item.address", "item.ports"], function(values) {
+                        var address = values[0];
+                        var ports = values[1];
+                        var href = null;
+                        var text = null;
+
+                        /* No ports */
+                        if (!ports || !ports.length) {
+                            text = address;
+
+                        /* One single HTTP or HTTPS port */
+                        } else if (ports.length == 1 && ports[0].protocol === "TCP") {
+                            if (ports[0].port === 80)
+                                href = "http://" + encodeURIComponent(address);
+                            else if (ports[0].port === 443)
+                                href = "https://" + encodeURIComponent(address);
+                            text = address + ":" + ports[0].port;
+                        } else {
+                            text = " " + ports.map(function(p) {
+                                if (p.protocol === "TCP")
+                                    return p.port;
+                                else
+                                    return p.port + "/" + p.protocol;
+                            }).join(" ");
+                        }
+
+                        var el;
+                        element.empty();
+                        if (href) {
+                            el = angular.element("<a>").attr("href", href).attr("target", "_blank");
+                            element.append(el);
+                        } else {
+                            el = element;
+                        }
+                        el.text(text);
                     });
                 }
             };

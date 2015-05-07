@@ -49,7 +49,6 @@ function setup_plot(graph_id, grid, data, user_options) {
               }
     };
 
-    var num_series = grid.rows.length;
     var num_points = 300;
     var plot;
     var running = false;
@@ -337,7 +336,7 @@ function setup_plot_x(graph_id, resmon, data, user_options, store_samples) {
     return self;
 }
 
-shell.setup_complicated_plot = function setup_complicated_plot(graph_id, grid, data, options) {
+shell.setup_complicated_plot = function setup_complicated_plot(graph_id, grid, series, options) {
     function basic_flot_row(grid, input) {
         return grid.add(function(row, x, n) {
             for (var i = 0; i < n; i++)
@@ -361,15 +360,15 @@ shell.setup_complicated_plot = function setup_complicated_plot(graph_id, grid, d
     }
 
     /* All the data row setup happens now */
-    var row, last = null;
-    data.forEach(function(series, i) {
+    var last = null;
+    series.forEach(function(ser, i) {
         if (options.x_rh_stack_graphs)
-            row = stacked_flot_row(grid, grid.rows[i], last);
+            ser.data = stacked_flot_row(grid, ser.row, last);
         else
-            row = basic_flot_row(grid, grid.rows[i]);
-        series.data = last = row;
+            ser.data = basic_flot_row(grid, ser.row);
+        last = ser.data;
     });
-    return setup_plot(graph_id, grid, data, options);
+    return setup_plot(graph_id, grid, series, options);
 };
 
 // ----------------------------------------------------------------------------------------------------

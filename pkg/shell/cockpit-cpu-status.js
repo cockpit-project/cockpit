@@ -66,6 +66,13 @@ PageCpuStatus.prototype = {
             { name: "cpu.basic.nice", derive: "rate" },
         ];
 
+        var series = [
+            { color: "#e41a1c", label: _("I/O Wait") },
+            { color: "#ff7f00", label: _("Kernel") },
+            { color: "#377eb8", label: _("User") },
+            { color: "#4daf4a", label: _("Nice") },
+        ];
+
         self.channel = cockpit.metrics(1000, {
             source: "internal",
             metrics: metrics,
@@ -74,20 +81,17 @@ PageCpuStatus.prototype = {
 
         /* The grid shows us the last five minutes */
         self.grid = cockpit.grid(1000, -300, -0);
-        metrics.forEach(function(metric) {
-            self.grid.add(self.channel, [ metric.name ]);
-        });
+
+        var i;
+        for(i = 0; i < series.length; i++) {
+            series[i].row = self.grid.add(self.channel, [ metrics[i].name ]);
+        }
 
         /* Start pulling data, and make the grid follow the data */
         self.channel.follow();
         self.grid.walk();
 
-        this.plot = shell.setup_complicated_plot("#cpu_status_graph", self.grid, [
-            { color: "#e41a1c", label: _("I/O Wait") },
-            { color: "#ff7f00", label: _("Kernel") },
-            { color: "#377eb8", label: _("User") },
-            { color: "#4daf4a", label: _("Nice") },
-        ], options);
+        this.plot = shell.setup_complicated_plot("#cpu_status_graph", self.grid, series, options);
 
         shell.util.machine_info().
             done(function (info) {

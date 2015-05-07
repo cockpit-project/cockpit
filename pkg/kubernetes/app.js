@@ -8,26 +8,27 @@ define([
     function KubernetesService(client) {
         var self = this;
 
-        var version;
         var service = { };
-        var calculated = { };
+        var calculated;
 
         /* compute current and expected number of containers and return these
            values as a formatted string.
         */
         function calculate() {
-            if (version === client.resourceVersion)
+            if (calculated)
                 return calculated;
 
-            var spec = service.spec || { };
+            calculated = {
+                containers: "0",
+                ports: "",
+            };
 
-            version = client.resourceVersion;
+            var spec = service.spec || { };
 
             /* Calculate number of containers */
 
             var x = 0;
             var y = 0;
-            calculated.containers = "0";
 
             /*
              * Calculate "x of y" containers, where x is the current
@@ -107,30 +108,33 @@ define([
             self.address = spec.portalIP;
             self.namespace = meta.namespace;
             service = item;
+            calculated = null;
         };
     }
 
     function KubernetesNode(client) {
         var self = this;
 
-        var version;
-        var calculated = { };
+        var calculated;
         var node = { };
 
         function calculate() {
             var x = 0;
             var y = 0;
-            if (version !== client.resourceVersion) {
-                version = client.resourceVersion;
 
-                calculated.containers = "0";
+            if (calculated)
+                return calculated;
 
-                /* TODO: Calculate number of containers */
-                if (node.metadata && node.metadata.name) {
-                    var pods = client.hosting(node.metadata.name);
-                    calculated.containers = "" + pods.length;
-                }
+            calculated = {
+                containers: "0",
+            };
+
+            /* TODO: Calculate number of containers */
+            if (node.metadata && node.metadata.name) {
+                var pods = client.hosting(node.metadata.name);
+                calculated.containers = "" + pods.length;
             }
+
             return calculated;
         }
 
@@ -143,6 +147,7 @@ define([
             var meta = item.metadata || { };
             self.name = meta.name;
             self.address = status.hostIP;
+            calculated = null;
             node = item;
         };
     }

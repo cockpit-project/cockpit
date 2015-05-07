@@ -3,7 +3,6 @@
     "apiVersion": "v1beta3",
     "metadata": {
         "name": "frontend-controller",
-        "namespace": "default",
         "labels": {
             "name": "frontend",
             "template": "frontend"
@@ -17,10 +16,8 @@
         "template": {
             "metadata": {
                 "name": "frontend-controller",
-                "namespace": "default",
                 "labels": {
                     "name": "frontend",
-                    "uses": "redisslave,redis-master",
                     "template": "frontend"
                 }
             },
@@ -38,9 +35,6 @@
                         ]
                     }
                 ],
-                "restartPolicy": {
-                    "always": {}
-                },
                 "dnsPolicy": "ClusterFirst"
             }
         }

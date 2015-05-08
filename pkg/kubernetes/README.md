@@ -10,7 +10,7 @@ This sets up a single machine kubernetes master and minion:
     $ sudo yum install kubernetes
 
 Now in order to support the latest v1beta3 API, we need to build kubernetes
-from source or use a version later than v0.14.0:
+from source or use a version later than v0.15.0:
 
     $ sudo yum install kubernetes
     $ sudo yum install etcd docker
@@ -39,13 +39,24 @@ You should find a 'Kubernetes Master' item on the 'Tools' menu in Cockpit.
 
 Now put some objects into kubernetes:
 
-    $ cd /path/to/cockpit/pkg/kubernetes/examples/guestbook_ns
-    $ kubectl create -f redis-master.json
-    $ kubectl create -f redis-master-service.json
-    $ kubectl create -f redis-slave-service.json
-    $ kubectl create -f redis-slave-controller.json
-    $ kubectl create -f frontend-service.json
-    $ kubectl create -f frontend-controller.json
+    $ cd /path/to/cockpit/pkg/kubernetes/examples
+    $ kubectl create -f k8s-sample-app.json
 
 More information on these example objects, and what you can get running
 with them here: https://github.com/GoogleCloudPlatform/kubernetes/tree/master/examples/guestbook
+
+
+Openshift
+---------
+
+Openshift is really Kubernetes underneath. To run with Openshift, you currently have
+to disable Openshift authorization. Run the following commands to do that. If you're
+running openshift in a container then run the first command:
+
+    $ sudo docker exec -it openshift-origin bash
+    # osadm policy add-role-to-user cluster-admin system:anonymous
+    # osadm policy add-role-to-user cluster-admin system:anonymous --namespace=master
+    # osadm policy add-cluster-role-to-user cluster-admin system:anonymous
+
+Different versions of Openshift require different commands, hence the scattersho
+running all three.

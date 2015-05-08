@@ -376,7 +376,7 @@ test_read_error (void)
   io = mock_io_stream_for_fds (fds[1], out);
 
   echo_stream = g_object_new (mock_echo_stream_get_type (),
-                            "name", "test",
+                            "name", "read-error",
                             "io-stream", io,
                             NULL);
 
@@ -415,7 +415,7 @@ test_write_error (void)
 
   /* Pass in a bad write descriptor */
   echo_stream = g_object_new (mock_echo_stream_get_type (),
-                              "name", "test",
+                              "name", "write-error",
                               "io-stream", io,
                               NULL);
 
@@ -459,7 +459,7 @@ test_read_combined (void)
 
   /* Pass in a read end of the pipe */
   echo_stream = g_object_new (mock_echo_stream_get_type (),
-                              "name", "test",
+                              "name", "read-combined",
                               "io-stream", io,
                               NULL);
 
@@ -638,7 +638,7 @@ test_connect_and_read (TestConnect *tc,
   GError *error = NULL;
   GByteArray *buffer;
 
-  stream = cockpit_stream_connect ("broooo", tc->address, NULL);
+  stream = cockpit_stream_connect ("connect-and-read", tc->address, NULL);
   g_assert (stream != NULL);
 
   while (tc->conn_sock == NULL)
@@ -668,7 +668,7 @@ test_connect_and_write (TestConnect *tc,
   GBytes *sent;
   gssize ret;
 
-  stream = cockpit_stream_connect ("broooo", tc->address, NULL);
+  stream = cockpit_stream_connect ("connect-and-write", tc->address, NULL);
   g_assert (stream != NULL);
 
   /* Sending on the stream before actually connected */

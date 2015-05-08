@@ -78,12 +78,13 @@ define([
                 /* Lookup all the pods for each service */
                 kube.select(spec.selector, meta.namespace, "Pod").forEach(function(pod) {
                     var status = pod.status || { };
-                    var ip = status.hostIP;
+                    var spec = pod.spec || { };
+                    var host = spec.host;
                     var containers = status.containerStatuses || [];
 
-                    if (ip && !self.hosts[ip]) {
-                        self.hosts[ip] = ip;
-                        $(self).triggerHandler("host", ip);
+                    if (host && !self.hosts[host]) {
+                        self.hosts[host] = host;
+                        $(self).triggerHandler("host", host);
                     }
 
                     /* Note all the containers for that pod */
@@ -149,8 +150,6 @@ define([
         $(service_map)
             .on("host", function(ev, ip) {
                 var host = ip;
-                if (host === "127.0.0.1")
-                    host = null;
                 var cadvisor = client.cadvisor(host);
                 $(cadvisor).on("container", function(ev, id) {
                     var cpu = self.add(this, [ id, "cpu", "usage", "total" ]);

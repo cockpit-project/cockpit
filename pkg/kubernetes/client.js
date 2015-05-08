@@ -1109,13 +1109,13 @@ define([
     kubernetes.k8client = singleton(KubernetesClient);
     kubernetes.etcdclient = singleton(EtcdClient);
 
-    function CAdvisor(host) {
+    function CAdvisor(node) {
         var self = this;
 
         /* cAdvisor has second intervals */
         var interval = 1000;
 
-        var api = cockpit.http(4194, { host: host });
+        var kube = kubernetes.k8client();
 
         var last = null;
 
@@ -1247,19 +1247,23 @@ define([
             if (body in requests)
                 return;
 
-            var req = api.post("/api/v1.2/docker", JSON.stringify(query), { "Content-Type": "application/json" })
-                .done(function(data) {
-                    var msg = JSON.parse(data);
-                    feed(msg);
-                })
-                .fail(function(ex) {
-                    console.warn(ex);
-                })
-                .always(function() {
-                    delete requests[body];
-                });
+            var req = kube.request({
+                method: "POST",
+                path: "/api/v1beta3/proxy/nodes/" + encodeURIComponent(node) + ":4194/api/v1.2/docker",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(query)
+            });
 
             requests[body] = req;
+            req.always(function() {
+                delete requests[body];
+            })
+            .done(function(data) {
+                feed(JSON.parse(data));
+            })
+            .fail(function(ex) {
+                console.warn(ex);
+            });
         }
 
         self.fetch = function fetch(beg, end) {
@@ -1278,9 +1282,11 @@ define([
         self.close = function close() {
             for (var body in requests)
                 requests[body].close();
+            kube.close();
+            kube = null;
         };
 
-        var cache = "cadv1-" + (host || null);
+        var cache = "cadv1-" + (node || null);
         self.series = cockpit.series(interval, cache, self.fetch);
     }
 

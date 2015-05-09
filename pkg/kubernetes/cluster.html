@@ -29,14 +29,9 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   <script src="../kubernetes/kubernetes.js"></script>
 </head>
 <body>
-  <!-- HACK: https://github.com/patternfly/patternfly/issues/66 -->
-  <div class="navbar-pf" hidden><div class="navbar-toggle" hidden></div></div>
-
   <div class="container-fluid">
-    <div class="row">
-
-      <div class="col-md-1 sidebar-pf sidebar-pf-left">
-        <div class="sidebar-content">
+      <div class="kube-sidebar">
+        <div>
           <ul class="affix" data-spy="affix" data-offset-top="0">
             <li class="active">
               <a>
@@ -57,7 +52,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         </div>
       </div>
 
-      <div id="content" class="row col-md-11">
+      <div id="content" class="row">
 
         <!-- TODO -->
         <div id="graphs">
@@ -259,7 +254,6 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           </div>
         </div>
       </div>
-    </div>
   </div>
 
   <script>

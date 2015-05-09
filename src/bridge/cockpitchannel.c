@@ -22,6 +22,7 @@
 #include "cockpitchannel.h"
 
 #include "common/cockpitjson.h"
+#include "common/cockpitloopback.h"
 
 #include <json-glib/json-glib.h>
 
@@ -30,7 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-const gchar * cockpit_bridge_local_address = "localhost";
+const gchar * cockpit_bridge_local_address = NULL;
 
 /**
  * CockpitChannel:
@@ -844,18 +845,17 @@ cockpit_channel_internal_address (const gchar *name,
   g_hash_table_replace (internal_addresses, g_strdup (name), g_object_ref (address));
 }
 
-GSocketAddress *
-cockpit_channel_parse_address (CockpitChannel *self,
-                               gchar **possible_name)
+GSocketConnectable *
+cockpit_channel_parse_connectable (CockpitChannel *self,
+                                   gchar **possible_name)
 {
-  GSocketAddressEnumerator *enumerator;
   const gchar *problem = "protocol-error";
-  GSocketConnectable *connectable;
-  GSocketAddress *address = NULL;
+  GSocketConnectable *connectable = NULL;
   const gchar *unix_path;
   const gchar *internal;
   JsonObject *options;
   GError *error = NULL;
+  const gchar *host;
   gint64 port;
 
   options = self->priv->open_options;
@@ -882,43 +882,45 @@ cockpit_channel_parse_address (CockpitChannel *self,
     }
   else if (port != G_MAXINT64)
     {
-      connectable = g_network_address_parse (cockpit_bridge_local_address, port, &error);
+      if (port <= 0 || port > 65535)
+        {
+          g_warning ("received invalid \"port\" option");
+          goto out;
+        }
+
+      if (cockpit_bridge_local_address)
+        {
+          connectable = g_network_address_parse (cockpit_bridge_local_address, port, &error);
+          host = cockpit_bridge_local_address;
+        }
+      else
+        {
+          connectable = cockpit_loopback_new (port);
+          host = "localhost";
+        }
       if (error != NULL)
         {
-          g_warning ("received invalid \"port\" option: %s", error->message);
+          g_warning ("couldn't parse local address: %s: %s", host, error->message);
+          problem = "internal-error";
           goto out;
         }
       else
         {
-          enumerator = g_socket_connectable_enumerate (connectable);
-          g_object_unref (connectable);
-
-          address = g_socket_address_enumerator_next (enumerator, NULL, &error);
-          g_object_unref (enumerator);
-
-          if (error != NULL)
-            {
-              g_warning ("couldn't find address for %s:%d: %s", cockpit_bridge_local_address,
-                         (gint)port, error->message);
-              problem = "not-found";
-              goto out;
-            }
-
           if (possible_name)
-            *possible_name = g_strdup_printf ("%s:%d", cockpit_bridge_local_address, (gint)port);
+            *possible_name = g_strdup_printf ("%s:%d", host, (gint)port);
         }
     }
   else if (unix_path)
     {
       if (possible_name)
         *possible_name = g_strdup (unix_path);
-      address = g_unix_socket_address_new (unix_path);
+      connectable = G_SOCKET_CONNECTABLE (g_unix_socket_address_new (unix_path));
     }
   else if (internal)
     {
       if (internal_addresses)
-        address = g_hash_table_lookup (internal_addresses, internal);
-      if (!address)
+        connectable = g_hash_table_lookup (internal_addresses, internal);
+      if (!connectable)
         {
           g_warning ("couldn't find internal address: %s", internal);
           problem = "not-found";
@@ -927,7 +929,7 @@ cockpit_channel_parse_address (CockpitChannel *self,
 
       if (possible_name)
         *possible_name = g_strdup (internal);
-      address = g_object_ref (address);
+      connectable = g_object_ref (connectable);
     }
   else
     {
@@ -942,10 +944,48 @@ out:
   if (problem)
     {
       cockpit_channel_close (self, problem);
-      if (address)
-        g_object_unref (address);
-      address = NULL;
+      if (connectable)
+        g_object_unref (connectable);
+      connectable = NULL;
     }
+  return connectable;
+}
+
+GSocketAddress *
+cockpit_channel_parse_address (CockpitChannel *self,
+                               gchar **possible_name)
+{
+  GSocketConnectable *connectable;
+  GSocketAddressEnumerator *enumerator;
+  GSocketAddress *address;
+  GError *error = NULL;
+  gchar *name = NULL;
+
+  connectable = cockpit_channel_parse_connectable (self, &name);
+  if (!connectable)
+    return NULL;
+
+  /* This is sync, but realistically, it doesn't matter for current use cases */
+  enumerator = g_socket_connectable_enumerate (connectable);
+  g_object_unref (connectable);
+
+  address = g_socket_address_enumerator_next (enumerator, NULL, &error);
+  g_object_unref (enumerator);
+
+  if (error != NULL)
+    {
+      g_warning ("couldn't find address: %s: %s", name, error->message);
+      cockpit_channel_close (self, "not-found");
+      g_error_free (error);
+      g_free (name);
+      return NULL;
+    }
+
+  if (possible_name)
+    *possible_name = name;
+  else
+    g_free (name);
+
   return address;
 }
 

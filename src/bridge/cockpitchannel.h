@@ -98,6 +98,9 @@ GSocketAddress *    cockpit_channel_parse_address     (CockpitChannel *self,
 void                cockpit_channel_internal_address  (const gchar *name,
                                                        GSocketAddress *address);
 
+GSocketConnectable * cockpit_channel_parse_connectable (CockpitChannel *self,
+                                                       gchar **possible_name);
+
 CockpitStreamOptions * cockpit_channel_parse_stream   (CockpitChannel *self);
 
 G_END_DECLS

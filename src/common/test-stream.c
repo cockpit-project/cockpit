@@ -20,6 +20,8 @@
 #include "config.h"
 
 #include "cockpitstream.h"
+
+#include "cockpitloopback.h"
 #include "cockpittest.h"
 #include "mock-io-stream.h"
 
@@ -532,6 +534,7 @@ typedef struct {
   GSocket *conn_sock;
   GSource *conn_source;
   GSocketAddress *address;
+  guint16 port;
 } TestConnect;
 
 static gboolean
@@ -587,12 +590,16 @@ setup_connect (TestConnect *tc,
   GError *error = NULL;
   GInetAddress *inet;
   GSocketAddress *address;
+  GSocketFamily family = GPOINTER_TO_INT (data);
 
-  inet = g_inet_address_new_loopback (G_SOCKET_FAMILY_IPV4);
+  if (family == G_SOCKET_FAMILY_INVALID)
+    family = G_SOCKET_FAMILY_IPV4;
+
+  inet = g_inet_address_new_loopback (family);
   address = g_inet_socket_address_new (inet, 0);
   g_object_unref (inet);
 
-  tc->listen_sock = g_socket_new (G_SOCKET_FAMILY_IPV4, G_SOCKET_TYPE_STREAM,
+  tc->listen_sock = g_socket_new (family, G_SOCKET_TYPE_STREAM,
                                   G_SOCKET_PROTOCOL_DEFAULT, &error);
   g_assert_no_error (error);
 
@@ -602,6 +609,8 @@ setup_connect (TestConnect *tc,
 
   tc->address = g_socket_get_local_address (tc->listen_sock, &error);
   g_assert_no_error (error);
+
+  tc->port = g_inet_socket_address_get_port (G_INET_SOCKET_ADDRESS (tc->address));
 
   g_socket_listen (tc->listen_sock, &error);
   g_assert_no_error (error);
@@ -638,7 +647,38 @@ test_connect_and_read (TestConnect *tc,
   GError *error = NULL;
   GByteArray *buffer;
 
-  stream = cockpit_stream_connect ("connect-and-read", tc->address, NULL);
+  stream = cockpit_stream_connect ("connect-and-read", G_SOCKET_CONNECTABLE (tc->address), NULL);
+  g_assert (stream != NULL);
+
+  while (tc->conn_sock == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* Send the null terminator */
+  g_assert_cmpint (g_socket_send (tc->conn_sock, "eier", 5, NULL, &error), ==, 5);
+  g_assert_no_error (error);
+
+  buffer = cockpit_stream_get_buffer (stream);
+  while (buffer->len == 0)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpuint (buffer->len, ==, 5);
+  g_assert_cmpstr ((gchar *)buffer->data, ==, "eier");
+
+  g_object_unref (stream);
+}
+
+static void
+test_connect_loopback (TestConnect *tc,
+                       gconstpointer user_data)
+{
+  GSocketConnectable *connectable;
+  CockpitStream *stream;
+  GError *error = NULL;
+  GByteArray *buffer;
+
+  connectable = cockpit_loopback_new (tc->port);
+  stream = cockpit_stream_connect ("loopback", connectable, NULL);
+  g_object_unref (connectable);
   g_assert (stream != NULL);
 
   while (tc->conn_sock == NULL)
@@ -668,7 +708,7 @@ test_connect_and_write (TestConnect *tc,
   GBytes *sent;
   gssize ret;
 
-  stream = cockpit_stream_connect ("connect-and-write", tc->address, NULL);
+  stream = cockpit_stream_connect ("connect-and-write", G_SOCKET_CONNECTABLE (tc->address), NULL);
   g_assert (stream != NULL);
 
   /* Sending on the stream before actually connected */
@@ -711,7 +751,7 @@ test_fail_not_found (void)
   cockpit_expect_message ("*No such file or directory");
 
   address = g_unix_socket_address_new ("/non-existent");
-  stream = cockpit_stream_connect ("bad", address, NULL);
+  stream = cockpit_stream_connect ("bad", G_SOCKET_CONNECTABLE (address), NULL);
   g_object_unref (address);
 
   /* Should not have closed at this point */
@@ -754,7 +794,7 @@ test_fail_access_denied (void)
   cockpit_expect_message ("*Permission denied");
 
   address = g_unix_socket_address_new (unix_path);
-  stream = cockpit_stream_connect ("bad", address, NULL);
+  stream = cockpit_stream_connect ("bad", G_SOCKET_CONNECTABLE (address), NULL);
   g_object_unref (address);
 
   /* Should not have closed at this point */
@@ -839,6 +879,10 @@ main (int argc,
               setup_connect, test_connect_and_read, teardown_connect);
   g_test_add ("/stream/connect/and-write", TestConnect, NULL,
               setup_connect, test_connect_and_write, teardown_connect);
+  g_test_add ("/stream/connect/loopback-ipv4", TestConnect, GINT_TO_POINTER (G_SOCKET_FAMILY_IPV4),
+              setup_connect, test_connect_loopback, teardown_connect);
+  g_test_add ("/stream/connect/loopback-ipv6", TestConnect, GINT_TO_POINTER (G_SOCKET_FAMILY_IPV6),
+              setup_connect, test_connect_loopback, teardown_connect);
 
   g_test_add_func ("/stream/problem-later", test_problem_later);
 

@@ -68,7 +68,7 @@ CockpitStream *    cockpit_stream_new          (const gchar *name,
                                                 GIOStream *stream);
 
 CockpitStream *    cockpit_stream_connect      (const gchar *name,
-                                                GSocketAddress *address,
+                                                GSocketConnectable *connectable,
                                                 CockpitStreamOptions *options);
 
 void               cockpit_stream_write        (CockpitStream *self,

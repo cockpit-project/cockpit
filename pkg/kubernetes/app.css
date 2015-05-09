@@ -3,27 +3,30 @@
 
 .container-fluid {
     margin-top: 0px;
+    padding-left: 0px;
 }
 
-.sidebar-pf-left {
-    padding: 0;
-    max-width: 100px;
+.kube-sidebar {
+    float: left;
+    width: 100px;
 }
 
-.sidebar-pf-left ul {
+.kube-sidebar ul {
     margin: 0;
     padding: 0;
     list-style: none;
-    max-width: 98px;
+    width: 98px;
+    border-right: 1px solid #dadada;
+    height: 100%;
 }
 
-.sidebar-pf-left ul li {
+.kube-sidebar ul li {
     border-bottom: 1px solid #dadada;
     display: block;
     font-size: 15px;
 }
 
-.sidebar-pf-left ul li a {
+.kube-sidebar ul li a {
     border-bottom: 0;
     background-color: #fff;
     padding: 20px 15px;
@@ -34,17 +37,17 @@
     position: relative;
 }
 
-.sidebar-pf-left ul li a .fa {
+.kube-sidebar ul li a .fa {
     display: inline;
     font-size: 20px;
     color: #b3b3b3;
 }
 
-.sidebar-pf-left ul li.active a .fa {
+.kube-sidebar ul li.active a .fa {
     color: #0099d3;
 }
 
-.sidebar-pf-left ul li.active a:after {
+.kube-sidebar ul li.active a:after {
     content: '';
     width: 4px;
     height: 100%;
@@ -58,7 +61,8 @@
 /* Dashboard */
 
 #content {
-    margin-left: 0px;
+    margin-left: 120px;
+    margin-right: 0px;
 }
 
 #graphs {

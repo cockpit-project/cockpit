@@ -281,7 +281,7 @@ class Browser:
             if host:
                 frame = host + id
             else:
-                frame = id[1:]
+                frame = "localhost" + id
         else:
             if host:
                 frame = host + "/shell/shell"

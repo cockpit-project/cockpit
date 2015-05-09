@@ -43,7 +43,6 @@ if [ -z "$create_images" ]; then
 fi
 
 skip="cockpit-doc-
-cockpit-kubernetes-
 cockpit-debuginfo"
 
 rpms=$(../tools/make-rpms $make_rpms_opts | grep -vF "$skip")

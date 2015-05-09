@@ -187,13 +187,13 @@ require([
                 return;
             }
             if (entityType == "pod") {
-                client.create_pod(jsondata);
+                client.create(jsondata);
             } else if (entityType == "node") {
-                client.create_nodes(jsondata);
+                client.create(jsondata);
             } else if (entityType == "replicationcontroller") {
-                client.create_replicationcontroller(jsondata);
+                client.create(jsondata);
             } else if (entityType == "service") {
-               client.create_service(jsondata);
+               client.create(jsondata);
             }
             $("#add-dialog").modal('hide');
             $("#add-dialog-apply").off('click');

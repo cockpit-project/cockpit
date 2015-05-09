@@ -24,6 +24,7 @@ define([
     "use strict";
 
     var kubernetes = { };
+    var _ = cockpit.gettext;
 
     function debug() {
         if (window.debugging == "all" || window.debugging == "kubernetes")
@@ -622,25 +623,164 @@ define([
             }).fail(failure);
         };
 
-        this.create_ns = function create_ns(ns_json) {
-            return api.post("/api/v1beta3/namespaces", ns_json);
-        };
+        function DataError(message, ex) {
+            this.problem = "invalid-data";
+            this.message = message;
+            this.cause = ex;
+        }
 
-        this.create_replicationcontroller = function create_replicationcontroller(ns, replicationcontroller_json) {
-            return api.post("/api/v1beta3/namespaces/" + ns + "/replicationcontrollers", replicationcontroller_json);
-        };
+        function kind_is_namespaced(kind) {
+            return kind != "Node" && kind != "Namespace";
+        }
 
-        this.create_node = function create_node(ns, node_json) {
-            api.post("/api/v1beta3/namespaces/" + ns + "/nodes", node_json)
-                .fail(failure);
-        };
+        /**
+         * create:
+         * @items: A JSON string, array of kubernetes items, or one kubernetes item.
+         * @namespace: Optional namespace, defaults to 'default'
+         *
+         * Create the @items in kubernetes.
+         *
+         * If the items are namespaced then the @namespace is used to place
+         * them in. The @namespace defaults to the 'default' namespace. If
+         * @namespace doesn't exist, then it is created first.
+         *
+         * Returns a Promise. The promise is done when all items are created.
+         * If a failure occurs when creating the items, then the promise will
+         * fail with the exception for the failed item, and item creation stops.
+         *
+         * The Promise progress is triggered with a descriptive string, and the
+         * item being created.
+         */
+        this.create = function create(items, namespace) {
+            var dfd = $.Deferred();
+            var request = null;
 
-        this.create_pod = function create_pod(ns, pod_json) {
-            return api.post("/api/v1beta3/namespaces/" + ns + "/pods", pod_json);
-        };
+            var promise = dfd.promise();
 
-        this.create_service = function create_service(ns, service_json) {
-            return api.post("/api/v1beta3/namespaces/" + ns + "/services", service_json);
+            if (typeof items == "string") {
+                try {
+                    items = JSON.parse(items);
+                } catch(ex) {
+                    console.warn(ex);
+                    dfd.reject(new DataError(_("Invalid kubernetes application manifest"), ex));
+                    return promise;
+                }
+            }
+
+            if (!$.isArray(items)) {
+                if (items.kind == "List")
+                    items = items.items;
+                else
+                    items = [ items ];
+            }
+
+            var valid = true;
+            var need_ns = false;
+            var have_ns = false;
+
+            if (!namespace)
+                namespace = "default";
+
+            /* Find the namespace in the items */
+            items.forEach(function(item) {
+                if (valid) {
+                    /* The remainder of the errors are handled by kubernetes itself */
+                    if (!item.kind || !item.metadata ||
+                        item.apiVersion != "v1beta3" ||
+                        typeof item.kind !== "string") {
+                        dfd.reject(new DataError(_("Unsupported kubernetes object in data")));
+                        valid = false;
+                    }
+                }
+                if (item.metadata)
+                    delete item.metadata.namespace;
+                if (kind_is_namespaced (item.kind))
+                    need_ns = true;
+                if (item.kind == "Namespace" && item.metadata && item.metadata.name == namespace)
+                    have_ns = true;
+            });
+
+            if (!valid)
+                return promise;
+
+            /* Shallow copy of the array, we modify it below */
+            items = items.slice();
+
+            /* Create the namespace if it exists */
+            if (!have_ns && need_ns) {
+                items.unshift({
+                    "apiVersion" : "v1beta3",
+                    "kind" : "Namespace",
+                    "metadata" : {
+                        "name": namespace
+                    }
+                });
+            }
+
+            function step() {
+                var item = items.shift();
+                if (!item) {
+                    dfd.resolve();
+                    return;
+                }
+
+                var kind = item.kind;
+                var name = item.metadata.name || "";
+                dfd.notify(kind + " " + name, item);
+
+                /* Sad but true */
+                var type = kind.toLowerCase() + "s";
+                var url = "/api/v1beta3";
+                if (kind_is_namespaced (kind))
+                    url += "/namespaces/" + encodeURIComponent(namespace);
+                url += "/" + type;
+
+                debug("create item:", url, item);
+
+                request = api.post(url, JSON.stringify(item))
+                    .done(function(data) {
+                        request = null;
+                        var item;
+
+                        try {
+                            item = JSON.parse(data);
+                        } catch(ex) {
+                            console.log("received invalid JSON response from kubernetes", ex);
+                            return;
+                        }
+
+                        handle_updated(item, type);
+                        step();
+                    })
+                    .fail(function(ex, data) {
+                        var response = null;
+                        request = null;
+
+                        if (data) {
+                            try {
+                                response = JSON.parse(data);
+                            } catch(e) { }
+                        }
+
+                        /* Ignore failures to create the namespace if it already exists */
+                        if (kind == "Namespace" && response && response.code === 409) {
+                            debug("skipping namespace creation");
+                            step();
+                        } else {
+                            debug("create failed:", url, ex, response);
+                            if (ex.problem == "not-found") {
+                                if (ex.status == 404)
+                                    ex.message = _("Unsupported or incompatible kubernetes API server.");
+                                else
+                                    ex.message = _("Could not connect to kubernetes API server.");
+                            }
+                            dfd.reject(ex, response);
+                        }
+                    });
+            }
+
+            step();
+            return promise;
         };
 
         this.modify = function modify(link, callback) {

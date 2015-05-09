@@ -73,49 +73,13 @@ define([
             var deploy_btn = $('#deploy-app-start');
             deploy_btn.prop("disabled", true);
 
-            if (isJsonString(jsonData)) {
-                var jdata = JSON.parse(jsonData);
-                if(jdata.kind === "List") {
-                    if (jdata.items) {
-                        for (var i = 0; i < jdata.items.length; i++) {
-                            var ent_json = jdata.items[i];
-                            if (ent_json.kind === SERVICE) {
-                                services.push(ent_json);
-                            } else if (ent_json.kind === POD) {
-                                pods.push(ent_json);
-                            } else if (ent_json.kind === RC) {
-                                rcs.push(ent_json);
-                            } else if (ent_json.kind === NS) {
-                                namespaces.push(ent_json);
-                            }
-                        }
-                    } else {
-                        text = _("Unable to read the Kubernetes application manifest file. ");
-                        file_note.show().text(text);
-                        return;
-                    }
-                } else {
-                    if (jdata.kind === SERVICE) {
-                        services.push(jdata);
-                    } else if (jdata.kind === POD) {
-                        pods.push(jdata);
-                    } else if (jdata.kind === RC) {
-                        rcs.push(jdata);
-                    } else if (jdata.kind === NS) {
-                        namespaces.push(jdata);
-                    } else {
-                        text = _("Unsupported Entity. ");
-                        file_note.show().text(text);
-                        return;
-                    }
-                }
-            } else {
+            if (!isJsonString(jsonData)) {
                 text = _("Unable to read the Kubernetes application manifest file. ");
                 file_note.show().text(text);
                 return;
             }
 
-            create_everything(namespace, services, rcs, pods)
+            client.create(jsonData, namespace)
                 .progress(function(code, response, n, total) {
                     //TODO Progress bar
 
@@ -127,10 +91,11 @@ define([
                      $('#deploy-app-dialog').modal('hide');
 
                 })
-                .fail(function(ex, response) {
+                .fail(function(ex, jdata) {
                     /* ex containst the failure */
                     enable_deploy_button();
-                    var jdata = JSON.parse(response);
+                    if (!jdata)
+                        jdata = ex;
                     var err_msg = jdata.message;
                     if(jdata.code === 409){
                         err_msg = cockpit.format(_("Please create another namespace for $0 \"$1\""), jdata.details.kind, jdata.details.id);
@@ -139,58 +104,6 @@ define([
                     hide_progress_message();
                     $("#deploy-app-general-error-msg").text(err_msg).parent().show();
                 });
-        }
-
-        function create_everything(namespace, services, rcs, pods) {
-            var ns_json = {"apiVersion":"v1beta3","kind":"Namespace","metadata":{"name": "" }};
-            ns_json.metadata.name = namespace;
-            var tasks = [];
-
-            tasks.push([namespace, [JSON.stringify(ns_json)], client.create_ns]);
-
-            for (var serv in services) {
-                tasks.push([services[serv].metadata.name, [namespace, JSON.stringify(services[serv])], client.create_service]);
-            }
-
-            for (var rc in rcs) {
-                tasks.push([rcs[rc].metadata.name, [namespace, JSON.stringify(rcs[rc])], client.create_replicationcontroller]);
-            }
-
-            for (var p in pods) {
-                tasks.push([pods[p].metadata.name, [namespace, JSON.stringify(pods[p])], client.create_pod]);
-            }
-
-            var deferred = $.Deferred();
-            var total = tasks.length;
-
-            function step() {
-                var e = tasks.shift();
-                if (!e) {
-                    deferred.resolve();
-                    return;
-                }
-                var task_name = e[0];
-                var args = e[1];
-                var task = e[2];
-
-                task.apply(null, args).done(function(response) {
-                    deferred.notify("created", response, tasks.length - total, total);
-                    step();
-                }).fail(function(ex, response) {
-                    var jdata = JSON.parse(response);
-                    //skip for namespace
-                    if (ex.status == 409 && jdata.details.kind === "namespaces") {
-                        deferred.notify("skipped", response, tasks.length - total, total);
-                        step();
-                    } else {
-                        deferred.reject(ex, response);
-                    }
-                });
-            }
-
-            step();
-
-            return deferred.promise();
         }
 
         function show_progress_message() {

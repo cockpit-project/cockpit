@@ -895,7 +895,7 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
 {
   CockpitHttpStream *self = COCKPIT_HTTP_STREAM (channel);
   CockpitStreamOptions *stream_options = NULL;
-  GSocketAddress *address = NULL;
+  GSocketConnectable *connectable = NULL;
   const gchar *connection;
   JsonObject *options;
 
@@ -925,11 +925,11 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
       if (!stream_options)
         goto out;
 
-      address = cockpit_channel_parse_address (channel, self->name ? NULL : &self->name);
-      if (!address)
+      connectable = cockpit_channel_parse_connectable (channel, self->name ? NULL : &self->name);
+      if (!connectable)
         goto out;
 
-      self->stream = cockpit_stream_connect (self->name, address, stream_options);
+      self->stream = cockpit_stream_connect (self->name, connectable, stream_options);
     }
 
   /* Parsed elsewhere */
@@ -941,8 +941,8 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
   cockpit_channel_ready (channel);
 
 out:
-  if (address)
-    g_object_unref (address);
+  if (connectable)
+    g_object_unref (connectable);
   if (stream_options)
     cockpit_stream_options_unref (stream_options);
 }

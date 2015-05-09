@@ -41,7 +41,8 @@ struct _CockpitStreamPrivate {
 
   gboolean closed;
   gboolean closing;
-  gboolean connecting;
+  GSocketAddressEnumerator *connecting;
+  GError *connect_error;
   gchar *problem;
 
   GIOStream *io;
@@ -103,7 +104,13 @@ close_immediately (CockpitStream *self,
       self->priv->problem = g_strdup (problem);
     }
 
-  self->priv->connecting = FALSE;
+  if (self->priv->connecting)
+    {
+      g_object_unref (self->priv->connecting);
+      self->priv->connecting = NULL;
+    }
+
+  g_clear_error (&self->priv->connect_error);
   self->priv->closed = TRUE;
 
   g_debug ("%s: closing stream%s%s", self->priv->name,
@@ -378,7 +385,11 @@ initialize_io (CockpitStream *self)
       return;
     }
 
-  self->priv->connecting = FALSE;
+  if (self->priv->connecting)
+    {
+      g_object_unref (self->priv->connecting);
+      self->priv->connecting = NULL;
+    }
 
   self->priv->in_source = g_pollable_input_stream_create_source (G_POLLABLE_INPUT_STREAM (is), NULL);
   g_source_set_name (self->priv->in_source, "stream-input");
@@ -658,9 +669,14 @@ cockpit_close_later (CockpitStream *self)
 }
 
 static void
-on_socket_connected (GObject *object,
-                     GAsyncResult *result,
-                     gpointer user_data)
+on_address_next (GObject *object,
+                 GAsyncResult *result,
+                 gpointer user_data);
+
+static void
+on_socket_connect (GObject *object,
+                   GAsyncResult *result,
+                   gpointer user_data)
 {
   CockpitStream *self = user_data;
   GError *error = NULL;
@@ -690,9 +706,12 @@ on_socket_connected (GObject *object,
 
   if (error)
     {
-      set_problem_from_error (self, "couldn't connect", error);
-      g_error_free (error);
-      close_immediately (self, NULL);
+      g_debug ("%s: couldn't connect: %s", self->priv->name, error->message);
+      g_clear_error (&self->priv->connect_error);
+      self->priv->connect_error = error;
+
+      g_socket_address_enumerator_next_async (self->priv->connecting, NULL,
+                                              on_address_next, g_object_ref (self));
     }
   else
     {
@@ -700,6 +719,65 @@ on_socket_connected (GObject *object,
     }
 
   g_object_unref (object);
+  g_object_unref (self);
+}
+
+static void
+on_address_next (GObject *object,
+                 GAsyncResult *result,
+                 gpointer user_data)
+{
+  CockpitStream *self = user_data;
+  GSocketConnection *connection;
+  GSocketAddress *address;
+  GError *error = NULL;
+  GSocket *sock;
+
+  address = g_socket_address_enumerator_next_finish (G_SOCKET_ADDRESS_ENUMERATOR (object),
+                                                     result, &error);
+
+  if (error)
+    {
+      set_problem_from_error (self, "couldn't resolve", error);
+      g_error_free (error);
+      close_immediately (self, NULL);
+    }
+  else if (address)
+    {
+      sock = g_socket_new (g_socket_address_get_family (address), G_SOCKET_TYPE_STREAM, 0, &error);
+      if (sock)
+        {
+          g_socket_set_blocking (sock, FALSE);
+
+          connection = g_socket_connection_factory_create_connection (sock);
+          g_object_unref (sock);
+
+          g_socket_connection_connect_async (connection, address, NULL,
+                                             on_socket_connect, g_object_ref (self));
+        }
+
+      if (error)
+        {
+          g_debug ("%s: couldn't open socket: %s", self->priv->name, error->message);
+          g_clear_error (&self->priv->connect_error);
+          self->priv->connect_error = error;
+        }
+      g_object_unref (address);
+    }
+  else
+    {
+      if (self->priv->connect_error)
+        {
+          set_problem_from_error (self, "couldn't connect", self->priv->connect_error);
+          close_immediately (self, NULL);
+        }
+      else
+        {
+          g_message ("%s: no addresses found", self->priv->name);
+          close_immediately (self, "not-found");
+        }
+    }
+
   g_object_unref (self);
 }
 
@@ -719,45 +797,24 @@ on_socket_connected (GObject *object,
  */
 CockpitStream *
 cockpit_stream_connect (const gchar *name,
-                        GSocketAddress *address,
+                        GSocketConnectable *connectable,
                         CockpitStreamOptions *options)
 {
-  GSocketConnection *connection;
   CockpitStream *stream;
-  GError *error = NULL;
-  GSocket *sock;
 
-  g_return_val_if_fail (G_IS_SOCKET_ADDRESS (address), NULL);
+  g_return_val_if_fail (G_IS_SOCKET_CONNECTABLE (connectable), NULL);
 
   stream = g_object_new (COCKPIT_TYPE_STREAM,
                          "io-stream", NULL,
                          "name", name,
                          NULL);
 
-  stream->priv->connecting = TRUE;
-
   if (options)
     stream->priv->options = cockpit_stream_options_ref (options);
 
-  sock = g_socket_new (g_socket_address_get_family (address), G_SOCKET_TYPE_STREAM, 0, &error);
-  if (sock)
-    {
-      g_socket_set_blocking (sock, FALSE);
-
-      connection = g_socket_connection_factory_create_connection (sock);
-      g_object_unref (sock);
-
-      g_socket_connection_connect_async (connection, address, NULL,
-                                         on_socket_connected, g_object_ref (stream));
-    }
-
-  if (error)
-    {
-      set_problem_from_error (stream, "couldn't open socket", error);
-      g_error_free (error);
-
-      cockpit_close_later (stream);
-    }
+  stream->priv->connecting = g_socket_connectable_enumerate (connectable);
+  g_socket_address_enumerator_next_async (stream->priv->connecting, NULL,
+                                          on_address_next, g_object_ref (stream));
 
   return stream;
 }

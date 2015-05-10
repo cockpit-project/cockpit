@@ -251,6 +251,85 @@ define([
         };
     }
 
+    /*
+     * A helper function that returns a Promise which tries to
+     * connect to a kube-apiserver in various ways in turn.
+     *
+     * In the future this will also handle retrieving auth info
+     * like certificates from the user's home directory.
+     */
+    function connect_api_server() {
+        var dfd = $.Deferred();
+        var req;
+
+        var schemes = [
+            { port: 8080 },
+            { port: 8443, tls: { } },
+            { port: 6443, tls: { } }
+        ];
+
+        function step() {
+            var scheme = schemes.shift();
+
+            /* No further ports to try? */
+            if (!scheme) {
+                var ex = new Error(_("Couldn't find running kube-apiserver"));
+                ex.problem = "not-found";
+                dfd.reject(ex);
+                return;
+            }
+
+            var http = cockpit.http(scheme.port, scheme);
+            req = http.get("/api")
+                .done(function(data) {
+                    req = null;
+
+                    /*
+                     * We expect a response that looks something like:
+                     * { "versions": [ "v1beta1", "v1beta2", "v1beta3" ] }
+                     */
+                    var response;
+                    try {
+                        response = JSON.parse(data);
+                    } catch(ex) {
+                        debug("not an api endpoint without JSON data on:", scheme);
+                        step();
+                        return;
+                    }
+                    if (response && response.versions) {
+                        debug("found kube-apiserver endpoint on:", scheme);
+                        dfd.resolve(http, response);
+                    } else {
+                        debug("not a kube-apiserver endpoint on:", scheme);
+                        step();
+                    }
+                })
+                .fail(function(ex) {
+                    req = null;
+
+                    if (ex.problem === "not-found") {
+                        debug("api endpoint not found on:", scheme);
+                        step();
+                    } else {
+                        if (ex.problem !== "cancelled")
+                            debug("connecting to endpoint failed:", scheme, ex);
+                        dfd.reject(ex);
+                    }
+                });
+        }
+
+        step();
+
+        var promise = dfd.promise();
+        promise.cancel = function cancel() {
+            if (req)
+                req.close("cancelled");
+            return promise;
+        };
+        return promise;
+    }
+
+
     /**
      * KubernetesClient
      *
@@ -262,8 +341,110 @@ define([
     function KubernetesClient() {
         var self = this;
 
-        var api = cockpit.http(8080);
         self.objects = { };
+
+        /* Holds the connect api promise */
+        var connected;
+
+        /* The API info returned from /api */
+        var apis;
+
+        /*
+         * connect:
+         *
+         * Starts connecting to the kube-apiserver if not connected.
+         * This means figuring out which port kube-apiserver is
+         * listening on, and retrieving API information.
+         *
+         * Returns a Promise.
+         *
+         * If already connected, the promise will already be
+         * complete, and any done callbacks will happen
+         * immediately.
+         */
+        self.connect = function connect() {
+            if (connected)
+                return connected;
+
+            connected = connect_api_server();
+            return connected
+                .done(function(http, response) {
+                    watches.push(new KubernetesWatch(http, "nodes", handle_updated, handle_removed));
+                    watches.push(new KubernetesWatch(http, "pods", handle_updated, handle_removed));
+                    watches.push(new KubernetesWatch(http, "services", handle_updated, handle_removed));
+                    watches.push(new KubernetesWatch(http, "replicationcontrollers",
+                                                     handle_updated, handle_removed));
+                    watches.push(new KubernetesWatch(http, "namespaces", handle_updated, handle_removed));
+                    watches.push(new KubernetesWatch(http, "events", handle_event, handle_removed));
+                })
+                .fail(function(ex) {
+                    console.warn("Couldn't connect to kubernetes:", ex);
+                });
+        };
+
+        /*
+         * request:
+         * @req: Object contaning cockpit.http().request() parameter
+         *
+         * Makes a request to kube-apiserver after connecting to it.
+         * This API only supports req/resp style REST calls. For
+         * others use the connect() method directly. In particular there
+         * is no support for streaming.
+         *
+         * The promise returned will resolve when the request is done
+         * with the full response data. Or fail when either connecting
+         * to kubernetes fails, or the request itself fails.
+         *
+         * The returned Promise has a cancel() method.
+         */
+        self.request = function request(options) {
+            var dfd = $.Deferred();
+            var req;
+
+            self.connect()
+                .done(function(http) {
+                    req = http.request(options)
+                        .done(function() {
+                            dfd.resolve.apply(dfd, arguments);
+                        })
+                        .fail(function() {
+                            dfd.reject.apply(dfd, arguments);
+                        });
+                })
+                .fail(function() {
+                    dfd.reject.apply(dfd, arguments);
+                });
+
+            var promise = dfd.promise();
+            promise.cancel = function cancel() {
+                if (req)
+                    req.close("cancelled");
+                return promise;
+            };
+
+            return promise;
+        };
+
+        /*
+         * close:
+         *
+         * Close the connection to kubernetes, cancel any watches.
+         * You can use connect() to connect again.
+         */
+        self.close = function close() {
+            var w = watches;
+            watches = [ ];
+            $.each(w, function(i, wc) {
+                wc.stop();
+            });
+            if (connected) {
+                connected.cancel();
+                connected = null;
+            }
+        };
+
+        /* The watch objects we have open */
+        var watches = [];
 
         /* TODO: Derive this value from cluster size */
         var index = new HashIndex(262139);
@@ -374,7 +555,7 @@ define([
 
             debug("pulling", uri);
 
-            api.get(uri)
+            self.request({ method: "GET", body: "", path: uri })
                 .fail(function(ex) {
                     if (ex.status == 404) {
                         item = self.objects[involved.uid];
@@ -399,15 +580,6 @@ define([
                 pull_later(involved);
             handle_updated(item, type);
         }
-
-        var watches = [
-            new KubernetesWatch(api, "nodes", handle_updated, handle_removed),
-            new KubernetesWatch(api, "pods", handle_updated, handle_removed),
-            new KubernetesWatch(api, "services", handle_updated, handle_removed),
-            new KubernetesWatch(api, "replicationcontrollers", handle_updated, handle_removed),
-            new KubernetesWatch(api, "namespaces", handle_updated, handle_removed),
-            new KubernetesWatch(api, "events", handle_event, handle_removed),
-        ];
 
         function name_compare(a1, a2) {
             return (a1.metadata.name || "").localeCompare(a2.metadata.name || "");
@@ -592,7 +764,7 @@ define([
         };
 
         this.delete_pod = function delete_pod(ns, pod_name) {
-            api.request({
+            self.request({
                 "method": "DELETE",
                 "body": "",
                 "path": "/api/v1beta3/namespaces/" + ns + "/pods/" + encodeURIComponent(pod_name)
@@ -600,7 +772,7 @@ define([
         };
 
         this.delete_node = function delete_node(ns, nodes_name) {
-            api.request({
+            self.request({
                 "method": "DELETE",
                 "body": "",
                 "path": "/api/v1beta3/namespaces/" + ns + "/nodes/" + encodeURIComponent(nodes_name)
@@ -608,7 +780,7 @@ define([
         };
 
         this.delete_replicationcontroller = function delete_replicationcontroller(ns, rc_name) {
-            api.request({
+            self.request({
                 "method": "DELETE",
                 "body": "",
                 "path": "/api/v1beta3/namespaces/" + ns + "/replicationcontrollers/" + encodeURIComponent(rc_name)
@@ -616,7 +788,7 @@ define([
         };
 
         this.delete_service = function delete_service(ns, service_name) {
-            api.request({
+            self.request({
                 "method": "DELETE",
                 "body": "",
                 "path": "/api/v1beta3/namespaces/" + ns + "/services/" + encodeURIComponent(service_name)
@@ -737,7 +909,7 @@ define([
 
                 debug("create item:", url, item);
 
-                request = api.post(url, JSON.stringify(item))
+                request = self.request({ method: "POST", path: url, body: JSON.stringify(item) })
                     .done(function(data) {
                         request = null;
                         var item;
@@ -789,7 +961,7 @@ define([
             if (link.metadata)
                 link = link.metadata.selfLink;
 
-            var req = api.get(link)
+            var req = self.request({ method: "GET", path: link, body: "" })
                 .fail(function(ex) {
                     dfd.reject(ex);
                 })
@@ -801,7 +973,7 @@ define([
                         return;
                     }
 
-                    req = api.request({ method: "PUT", body: JSON.stringify(item), path: link })
+                    req = self.request({ method: "PUT", body: JSON.stringify(item), path: link })
                         .fail(function(ex) {
                             dfd.reject(ex);
                         })
@@ -812,19 +984,13 @@ define([
 
             var promise = dfd.promise();
             dfd.cancel = function cancel() {
-                req.close("cancelled");
+                req.cancel();
             };
 
             return promise;
         };
 
-        self.close = function close() {
-            var w = watches;
-            watches = [ ];
-            $.each(w, function(i, wc) {
-                wc.stop();
-            });
-        };
+        self.connect();
     }
 
     function EtcdClient() {

@@ -307,6 +307,15 @@ function kube_apiserver(req) {
     }
 
     var parts = path.substring(1).split("/");
+
+    /* The API check */
+    if (parts.length == 1 && parts[0] == "api") {
+        req.mock_respond(200, "OK", { }, JSON.stringify({
+            versions: [ "v1beta3" ]
+        }));
+        return true;
+    }
+
     if (parts[0] != "api" && parts[1] != "v1beta3")
         return false;
 

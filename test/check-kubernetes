@@ -73,4 +73,21 @@ class TestKubernetes(MachineCase):
         b.dialog_complete("#node-dialog", result="fail")
         b.dialog_cancel("#node-dialog")
 
+class TestSsl(MachineCase):
+    def testConnect(self):
+        m = self.machine
+        b = self.browser
+
+        # Start a kube-apiserver with a 'wrong' http port, forcing use of https
+        m.execute("echo 'KUBE_API_PORT=\"--port=1111\"' >> /etc/kubernetes/apiserver")
+        m.execute("sed -i s/8080/1111/g /etc/kubernetes/*")
+        m.execute("systemctl start etcd kube-apiserver kube-controller-manager docker kube-proxy kubelet")
+
+        self.login_and_go("/kubernetes/cluster", host=None)
+        b.wait_in_text("#node-list", "127.0.0.1")
+
+        # Check that this failed as a double check
+        output = m.execute("curl -sS http://localhost:8080/api 2>&1 || true")
+        self.assertIn("Connection refused", output)
+
 test_main()

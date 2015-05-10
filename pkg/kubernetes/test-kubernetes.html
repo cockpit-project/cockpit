@@ -379,6 +379,9 @@ function kube_api_get(req, parts, query) {
     } else if (what == "replicationcontrollers") {
         regexp = /namespaces\/.+\/replicationcontrollers\//;
         kind = "ReplicationControllerList";
+    } else if (what == "events") {
+        regexp = /namespaces\/.+\/events\//;
+        kind = "EventList";
 
     /* Nothing found */
     } else {

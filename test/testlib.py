@@ -150,6 +150,9 @@ class Browser:
     def switch_to_top(self):
         self.phantom.switch_to_top()
 
+    def upload_file(self, selector, file):
+        self.phantom.upload_file(selector, file)
+
     def eval_js(self, code):
         return self.phantom.do(code)
 
@@ -540,6 +543,9 @@ class Phantom:
 
     def switch_to_top(self):
         return self.run({'cmd': 'switch_top'})
+
+    def upload_file(self, selector, file):
+        return self.run({'cmd': 'upload', 'file': file, 'selector': selector})
 
     def do(self, code):
         return self.run({'cmd': 'do', 'code': code})

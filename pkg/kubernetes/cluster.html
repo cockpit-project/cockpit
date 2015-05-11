@@ -70,7 +70,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         <div class="panel-heading">
           <div style="float: right;">
             <button class="btn btn-default fa fa-check" id="services-enable-change" title="Change"></button>
-            <button class="btn btn-primary" id="deploy-app" translatable="yes">Deploy</button>
+            <button class="btn btn-primary" id="deploy-app" data-toggle="modal"
+                    data-target="#deploy-app-dialog" translatable="yes">Deploy</button>
           </div>
           <span translatable="yes">Kubernetes Services</span>
         </div>
@@ -133,15 +134,6 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     </div>
     </script>
 
-    <script id="deploy-app-ns-template" type="x-template/mustache">
-      {{#namespaces}}
-        {{#metadata}}
-          <option translatable="yes" value="{{name}}">{{name}}</option>
-        {{/metadata}}
-      {{/namespaces}}
-      <option value="" selected="selected" translatable="yes">Custom Namespace</option>
-    </script>
-
     <div class="modal" id="deploy-app-dialog" tabindex="-1" role="dialog" data-backdrop="static">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -157,16 +149,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                   </label>
                 </td>
                 <input id="deploy-app-manifest-file" type="file">
-                <td>
+                <td class="dialog-wrapper">
                   <button id="deploy-app-manifest-file-button" class="btn btn-default form-control" type="button">Select Manifest File...</button>
-                  <div class="deploy-dialog-file-aids" id="deploy-app-manifest-file-empty" hidden>
-                    <span class="help-block" translatable="yes">
-                    No metadata file was selected. Please select a Kubernetes metadata file.
-                    </span>
-                  </div>
-                  <div class="deploy-dialog-file-aids" id="deploy-app-manifest-file-note" hidden>
-                    <span id="deploy-app-manifest-file-note-details" class="deploy-dialog-file-aids help-block"></span>
-                  </div>
                 </td>
               </tr>
               <tr>
@@ -175,41 +159,23 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                   Namespace
                   </label>
                 </td>
-                <td>
-                  <div id="namespace_value">
-                    <select id="deploy-app-namespace-field" class="combobox form-control ">
-                    </select>
-                  </div>
-                    <div class="deploy-dialog-namespace-aids" id="deploy-app-namespace-field-custom-empty" hidden>
-                      <span class="help-block" translatable="yes">
-                      Namespace cannot be empty.
-                      </span>
-                    </div>
-                    <div class="deploy-dialog-namespace-aids" id="deploy-app-namespace-field-note" hidden>
-                    <span class="help-block" translatable="yes">
-                      Please provide a valid namespace.
+                <td class="dialog-wrapper">
+                  <div class="input-group" id="deploy-app-namespace-group">
+                    <input id="deploy-app-namespace" class="form-control" type="text"
+                        placeholder="eg: myapplication">
+                    <span class="input-group-btn" style="position: relative;">
+                      <button class="btn btn-default dropdown-toggle" type="button"
+                          data-toggle="dropdown"><span class="caret"></span></button>
+                      <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                        <li><a>Action</a></li>
+                      </ul>
                     </span>
-                    <span id="deploy-app-namespace-field-note-details" class="deploy-dialog-namespace-aids help-block"></span>
                   </div>
                 </td>
               </tr>
             </table>
-              <div  id="deploy-app-general-error"  class="container-fluid alert alert-danger alert-dismissible deploy-dialog-aids " role="alert" hidden>
-                <span class="pficon-layered">
-                  <span class="pficon pficon-error-octagon"></span>
-                  <span class="pficon pficon-error-exclamation"></span>
-                </span>
-                <span id="deploy-app-general-error-msg" class="help-block"></span>
-              </div>
           </div>
-          <div class="modal-footer deploy_buttons">
-            <div id="deploy-app-deploying" class="pull-left" hidden>
-              <div class="spinner spinner-sm pull-left"></div>
-              <span translatable="yes"></span>
-              <div>
-                <span id="deploy-app-deploying-details" class="help-block"></span>
-              </div>
-            </div>
+          <div class="modal-footer">
             <div>
               <button class="btn btn-default" id="deploy-app-stop" translatable="yes" data-dismiss="modal">
               Cancel
@@ -270,12 +236,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           "kubernetes/adjust",
           "kubernetes/app",
           "kubernetes/dashboard"
-      ], function(cockpit, po, angular, deploy) {
+      ], function(cockpit, po, angular) {
           "use strict";
           cockpit.locale(po);
           cockpit.translate();
           angular.bootstrap(document, ["kubernetes"]);
-          deploy.init();
       });
   </script>
 </body>

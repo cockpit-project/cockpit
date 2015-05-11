@@ -346,15 +346,19 @@ shell.pages.push(new PageAccounts());
 PageAccountsCreate.prototype = {
     _init: function() {
         this.id = "accounts-create-dialog";
+        this.username_dirty = false;
     },
 
     show: function() {
     },
 
     setup: function() {
+        var self = this;
         $('#accounts-create-cancel').on('click', $.proxy(this, "cancel"));
         $('#accounts-create-create').on('click', $.proxy(this, "create"));
         $('#accounts-create-dialog .check-passwords').on('keydown', $.proxy(this, "validate"));
+        $('#accounts-create-real-name').on('input', $.proxy(this, "suggest_username"));
+        $('#accounts-create-user-name').on('input', function() { self.username_dirty = true; });
     },
 
     enter: function() {
@@ -396,7 +400,7 @@ PageAccountsCreate.prototype = {
         else
             dfd.resolve();
 
-        var promise = password_quality(pw)
+        var promise_password = password_quality(pw)
             .fail(function(ex) {
                 ex.target = "#accounts-create-pw2";
             })
@@ -414,7 +418,12 @@ PageAccountsCreate.prototype = {
                 }
             });
 
-        return $.when(dfd, promise);
+        var promise_username = this.check_username()
+            .fail(function(ex) {
+                ex.target = "#accounts-create-user-name";
+            });
+
+        return $.when(dfd, promise_password, promise_username);
     },
 
     cancel: function() {
@@ -465,7 +474,90 @@ PageAccountsCreate.prototype = {
             });
 
         $("#accounts-create-dialog").dialog("wait", promise);
+    },
+
+    is_valid_char_username: function(c) {
+        return (c >= 'a' && c <= 'z') ||
+               (c >= 'A' && c <= 'Z') ||
+               (c >= '0' && c <= '9');
+    },
+
+    check_username: function() {
+        var dfd = $.Deferred();
+        var username = $('#accounts-create-user-name').val();
+
+        for (var i = 0; i < username.length; i++) {
+            if (! this.is_valid_char_username(username[i])) {
+                dfd.reject(new Error(_("User name should consist of letters without diacritics")));
+                return dfd.promise();
+            }
+        }
+
+        cockpit.spawn(['/usr/bin/grep', '-q', "^" + username + ":", '/etc/passwd'])
+           .fail(function(ex, response) {
+              dfd.resolve();
+           })
+           .done(function() {
+              dfd.reject(new Error(_("This user name already exists")));
+           });
+
+        return dfd.promise();
+    },
+
+    suggest_username: function() {
+        var self = this;
+
+        function remove_diacritics(str) {
+            var translate_table = {
+               'a' :  '[àáâãäå]',
+               'ae':  'æ',
+               'c' :  'čç',
+               'd' :  'ď',
+               'e' :  '[èéêë]',
+               'i' :  '[íìïî]',
+               'l' :  '[ĺľ]',
+               'n' :  '[ňñ]',
+               'o' :  '[òóôõö]',
+               'oe':  'œ',
+               'r' :  '[ŕř]',
+               's' :  'š',
+               't' :  'ť',
+               'u' :  '[ùúůûűü]',
+               'y' :  '[ýÿ]',
+               'z' :  'ž',
+            };
+            for (var i in translate_table)
+                str = str.replace(new RegExp(translate_table[i], 'g'), i);
+
+            for (var k = 0; k < str.length; ) {
+                if (! self.is_valid_char_username(str[k]))
+                    str = str.substr(0, k) + str.substr(k + 1);
+                else
+                   k++;
+            }
+
+            return str;
+        }
+
+        function make_username(realname) {
+            var result = "";
+            var name = realname.split(' ');
+
+            if (name.length === 1)
+                result = name[0].toLowerCase();
+            else if (name.length > 1)
+                result = name[0][0].toLowerCase() + name[name.length - 1].toLowerCase();
+
+            return remove_diacritics(result);
+        }
+
+        if (this.username_dirty)
+           return;
+
+        var username = make_username($('#accounts-create-real-name').val());
+        $('#accounts-create-user-name').val(username);
     }
+
 };
 
 function PageAccountsCreate() {

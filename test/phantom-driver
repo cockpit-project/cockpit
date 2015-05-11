@@ -187,6 +187,10 @@ function step ()
             }
             sys.stdout.writeLine(JSON.stringify({result: true}));
             step ();
+        } else if (cmd.cmd == "upload") {
+            page.uploadFile(cmd.selector, cmd.file);
+            sys.stdout.writeLine(JSON.stringify({result: true}));
+            step();
         } else {
             sys.stdout.writeLine(JSON.stringify({error: "?"}));
             step ();

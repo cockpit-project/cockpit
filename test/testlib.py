@@ -271,6 +271,27 @@ class Browser:
         """
         self.wait_not_visible('#' + id)
 
+    def dialog_complete(self, sel, button=".btn-primary", result="hide"):
+        self.click(sel + " " + button)
+        self.wait_not_present(sel + " .dialog-wait")
+
+        dialog_visible = self.call_js_func('ph_is_visible', sel)
+        if result == "hide":
+            if dialog_visible:
+                raise AssertionError(sel + " dialog did not complete and close")
+        elif result == "fail":
+            if not dialog_visible:
+                raise AssertionError(sel + " dialog is closed no failures present")
+            dialog_error = self.call_js_func('ph_is_present', sel + " .dialog-error")
+            if not dialog_error:
+                raise AssertionError(sel + " dialog has no errors")
+        else:
+            raise Error("invalid dialog result argument: " + result)
+
+    def dialog_cancel(self, sel, button=".btn[data-dismiss='modal']"):
+        self.click(sel + " " + button)
+        self.wait_not_visible(sel)
+
     def enter_page(self, id, host="localhost"):
         """Wait for a page to become current.
 

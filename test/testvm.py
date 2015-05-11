@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import contextlib
 import errno
 import fcntl
 import guestfs
@@ -39,6 +40,27 @@ DEFAULT_ARCH = "x86_64"
 MEMORY_MB = 1024
 
 SSH_WARNING = re.compile(r'Warning: Permanently added .* to the list of known hosts.*\n')
+
+# based on http://stackoverflow.com/a/17753573
+# we use this to quieten down calls
+@contextlib.contextmanager
+def stdchannel_redirected(stdchannel, dest_filename):
+    """
+    A context manager to temporarily redirect stdout or stderr
+    e.g.:
+    with stdchannel_redirected(sys.stderr, os.devnull):
+        noisy_function()
+    """
+    try:
+        oldstdchannel = os.dup(stdchannel.fileno())
+        dest_file = open(dest_filename, 'w')
+        os.dup2(dest_file.fileno(), stdchannel.fileno())
+        yield
+    finally:
+        if oldstdchannel is not None:
+            os.dup2(oldstdchannel, stdchannel.fileno())
+        if dest_file is not None:
+            dest_file.close()
 
 class Failure(Exception):
     def __init__(self, msg):
@@ -128,7 +150,8 @@ chpasswd:
                user_name,
                meta_name
               ]
-        subprocess.check_call(cmd)
+        with self.verbose or stdchannel_redirected(sys.stderr, os.devnull):
+            subprocess.check_call(cmd)
 
     def getconf(self, key):
         return key in self.conf and self.conf[key]
@@ -224,7 +247,8 @@ chpasswd:
                 "TEST_FLAVOR": self.flavor,
                 "TEST_SETUP_ARGS": " ".join(args),
             }
-            self.execute(script="/var/tmp/SETUP", environment=env)
+            self.message("run setup script on guest")
+            self.execute(script="/var/tmp/SETUP", environment=env, quiet=True)
             self.execute(command="rm /var/tmp/SETUP")
             self.post_setup()
         finally:
@@ -246,6 +270,9 @@ chpasswd:
         for rpm in rpms:
             if not os.path.exists(rpm):
                 raise Failure("file does not exist: %s" % rpm)
+
+        if not rpms:
+            raise Failure("Please specify packages to install")
 
         self.start(maintain=True)
         try:
@@ -274,7 +301,7 @@ chpasswd:
         finally:
             self.stop()
 
-    def execute(self, command=None, script=None, input=None, environment={}):
+    def execute(self, command=None, script=None, input=None, environment={}, quiet=False):
         """Execute a shell command in the test machine and return its output.
 
         Either specify @command or @script
@@ -340,7 +367,8 @@ chpasswd:
                         proc.stderr.close()
                     else:
                         data = SSH_WARNING.sub("", data)
-                        sys.stderr.write(data)
+                        if not quiet or self.verbose:
+                            sys.stderr.write(data)
             for fd in ret[1]:
                 if fd == stdin_fd:
                     if input:
@@ -374,7 +402,8 @@ chpasswd:
 
         self.message("Uploading", " ,".join(sources))
         self.message(" ".join(cmd))
-        subprocess.check_call(cmd)
+        with self.verbose or stdchannel_redirected(sys.stderr, os.devnull):
+            subprocess.check_call(cmd)
 
     def download(self, source, dest):
         """Download a file from the test machine.

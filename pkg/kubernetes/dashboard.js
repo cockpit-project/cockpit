@@ -5,6 +5,8 @@ define([
 ], function($, angular) {
     'use strict';
 
+    var phantom_checkpoint = phantom_checkpoint || function () { };
+
     /* TODO: Migrate this to angular */
     $("#content").on("click", "#services-enable-change", function() {
         $("#service-list").toggleClass("editable");
@@ -29,6 +31,7 @@ define([
             $scope.pods = pods;
             $([services, nodes, pods]).on("changed", function() {
                 $scope.$digest();
+                phantom_checkpoint();
             });
         }]);
 });

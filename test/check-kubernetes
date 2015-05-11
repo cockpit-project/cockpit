@@ -40,4 +40,20 @@ class TestKubernetes(MachineCase):
         m.execute("kubectl create -f /tmp/mock-k8s-tiny-app.json")
         b.wait_in_text("#service-list", "mock")
 
+        # Successfully deploy via dialog
+        b.click("#deploy-app")
+        b.wait_popup("deploy-app-dialog")
+        b.upload_file("#deploy-app-manifest-file", "mock-k8s-tiny-app.json")
+        b.set_val("#deploy-app-namespace", "mynamespace")
+        b.dialog_complete("#deploy-app-dialog")
+        b.wait_in_text("#service-list", "mynamespace")
+
+        # Fail deploy via dialog
+        b.click("#deploy-app")
+        b.wait_popup("deploy-app-dialog")
+        b.upload_file("#deploy-app-manifest-file", "mock-k8s-tiny-app.json")
+        b.set_val("#deploy-app-namespace", "!!!!")
+        b.dialog_complete("#deploy-app-dialog", result="fail")
+        b.dialog_cancel("#deploy-app-dialog")
+
 test_main()

@@ -45,7 +45,8 @@ class TestConnection(MachineCase):
         # take cockpit-ws down on the server page
         m.execute("systemctl stop cockpit-testing.socket")
         b.switch_to_top()
-        b.wait_popup("disconnected-dialog")
+        with b.wait_timeout(120):
+            b.wait_popup("disconnected-dialog")
         m.execute("systemctl start cockpit-testing.socket")
         b.click('#disconnected-reconnect')
         b.expect_reload()
@@ -66,7 +67,7 @@ class TestConnection(MachineCase):
         # severe the connection on the server page
 	m.execute("iptables -I INPUT 1 -p tcp --dport 9090 -j REJECT")
         b.switch_to_top()
-        with b.wait_timeout(60):
+        with b.wait_timeout(120):
             b.wait_popup("disconnected-dialog")
         b.wait_in_text('#disconnected-error', "Connection has timed out.")
         m.execute("iptables -D INPUT 1")

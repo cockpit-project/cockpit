@@ -448,16 +448,15 @@ test_read_combined (void)
   MockEchoStream *echo_stream;
   struct iovec iov[4];
   GIOStream *io;
-  gint fds[2];
-  int out;
+  gint fds_a[2];
+  gint fds_b[2];
 
-  if (pipe(fds) < 0)
+  if (pipe(fds_a) < 0)
+    g_assert_not_reached ();
+  if (pipe(fds_b) < 0)
     g_assert_not_reached ();
 
-  out = dup (2);
-  g_assert (out >= 0);
-
-  io = mock_io_stream_for_fds (fds[0], out);
+  io = mock_io_stream_for_fds (fds_a[0], fds_b[1]);
 
   /* Pass in a read end of the pipe */
   echo_stream = g_object_new (mock_echo_stream_get_type (),
@@ -476,7 +475,7 @@ test_read_combined (void)
   iov[2].iov_len = 5;
   iov[3].iov_base = "\0";
   iov[3].iov_len = 1;
-  g_assert_cmpint (writev (fds[1], iov, 4), ==, 12);
+  g_assert_cmpint (writev (fds_a[1], iov, 4), ==, 12);
 
   while (echo_stream->received->len < 12)
     g_main_context_iteration (NULL, TRUE);
@@ -484,7 +483,8 @@ test_read_combined (void)
   g_assert_cmpint (echo_stream->received->len, ==, 12);
   g_assert_cmpstr ((gchar *)echo_stream->received->data, ==, "onetwothree");
 
-  close (fds[1]);
+  close (fds_a[1]);
+  close (fds_b[0]);
   g_object_unref (echo_stream);
 }
 

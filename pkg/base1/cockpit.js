@@ -3187,15 +3187,20 @@ function full_scope(cockpit, $, po) {
      * involving cockpit.transport or any of that logic.
      */
 
+    cockpit.oops = function oops() {
+        if (window.parent !== window &&
+            window.parent.options && window.parent.options.sink &&
+            window.parent.options.protocol == "cockpit1") {
+            window.parent.postMessage("\n{ \"command\": \"oops\" }", origin);
+        }
+    };
+
     var old_onerror;
 
-    if (window.navigator.userAgent.indexOf("PhantomJS") == -1 &&
-        window.parent !== window &&
-        window.parent.options && window.parent.options.sink &&
-        window.parent.options.protocol == "cockpit1") {
+    if (window.navigator.userAgent.indexOf("PhantomJS") == -1) {
         old_onerror = window.onerror;
         window.onerror = function(msg, url, line) {
-            window.parent.postMessage("\n{ \"command\": \"oops\" }", origin);
+            cockpit.oops();
             if (old_onerror)
                 return old_onerror(msg, url, line);
             return false;

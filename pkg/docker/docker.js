@@ -24,12 +24,83 @@ define([
 ], function($, cockpit, Terminal) {
     "use strict";
 
+    /*
+     * TODO: Only part of the docker code is present in this file. The
+     * remainder is in shell/cockpit-docker.js and will be migrated out
+     * of there at some point.
+     */
+
     var docker = { };
 
     function docker_debug() {
         if (window.debugging == "all" || window.debugging == "docker")
             console.debug.apply(console, arguments);
     }
+
+    /* This doesn't create a channel until a request */
+    var http = cockpit.http("/var/run/docker.sock", { superuser: true });
+
+    /**
+     * pull:
+     * @repo: the image repository
+     * @tag: the tag to pull
+     *
+     * Pull an image from the registry. If no @tag is specified
+     * then the "latest" tag will be used.
+     *
+     * A Promise is returned. It completes when the image has
+     * been downloaded, or fails with an error. The progress callbacks
+     * on the download are called with status updates from docker.
+     */
+    docker.pull = function pull(repo, tag) {
+        var dfd = $.Deferred();
+
+        docker_debug("pulling: " + repo + ", tag: " + tag);
+
+        var options = {
+            method: "POST",
+            path: "/v1.10/images/create",
+            body: "",
+            params: {
+                fromImage: repo,
+                tag: tag || "latest",
+            }
+        };
+
+        var error;
+
+        var buffer = "";
+        var req = http.request(options)
+            .stream(function(data) {
+                buffer += data;
+                var next = docker.json_skip(buffer, 0);
+                if (next === 0)
+                    return; /* not enough data yet */
+                var progress = JSON.parse(buffer.substring(0, next));
+                buffer = buffer.substring(next);
+                if (progress.error)
+                    error = progress.error;
+                else if (progress.status)
+                    dfd.notify(progress.status, progress);
+            })
+            .fail(function(ex) {
+                dfd.reject(ex);
+            })
+            .done(function() {
+                if (error)
+                    dfd.reject(new Error(error));
+                else
+                    dfd.resolve();
+            });
+
+        var promise = dfd.promise();
+        promise.cancel = function cancel() {
+            req.close("cancelled");
+            return promise;
+        };
+
+        return promise;
+    };
 
     function DockerTerminal(parent, channel) {
         var self = this;

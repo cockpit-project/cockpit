@@ -1545,51 +1545,36 @@ PageSearchImage.prototype = {
 
         var failed = false;
         var layers = {};
-        var buffer = "";
 
-        function fail(message) {
-            failed = true;
-            created.text(_('Error downloading'));
-            size.text(message).attr('title', message);
-            tr.on('click', function() {
-                // Make the row be gone when clicking it
-                tr.remove();
-            });
-        }
-
-        this.client.pull(repo, tag).
-            stream(function(data) {
-                buffer += data;
-                var next = docker.json_skip(buffer, 0);
-                if (next === 0)
-                    return; /* not enough data yet */
-                var progress = JSON.parse(buffer.substring(0, next));
-                buffer = buffer.substring(next);
-                if ("error" in progress) {
-                    fail(progress['errorDetail']['message']);
-                } else if("status" in progress) {
-                    if("id" in progress) {
-                        var new_string = progress['status'];
-                        if(progress['status'] == 'Downloading') {
-                            new_string += ': ' + progress['progressDetail']['current'] + '/' + progress['progressDetail']['total'];
-                        }
-                        layers[progress['id']] = new_string;
-                        if(progress['status'] == 'Download complete') {
-                            // We probably don't care anymore about completed layers
-                            // This also keeps the size of the row to a minimum
-                            delete layers[progress['id']];
-                        }
+        docker.pull(repo, tag).
+            progress(function(message, progress) {
+                if("id" in progress) {
+                    var new_string = progress['status'];
+                    if(progress['status'] == 'Downloading') {
+                        new_string += ': ' + progress['progressDetail']['current'] + '/' + progress['progressDetail']['total'];
                     }
-                    var full_status = '';
-                    for(var layer in layers) {
-                        full_status += layer + ': ' + layers[layer] + '&nbsp;&nbsp;&nbsp;&nbsp;';
+                    layers[progress['id']] = new_string;
+                    if(progress['status'] == 'Download complete') {
+                        // We probably don't care anymore about completed layers
+                        // This also keeps the size of the row to a minimum
+                        delete layers[progress['id']];
                     }
-                    size.html(full_status);
                 }
+                var full_status = '';
+                for(var layer in layers) {
+                    full_status += layer + ': ' + layers[layer] + '&nbsp;&nbsp;&nbsp;&nbsp;';
+                }
+                size.html(full_status);
             }).
             fail(function(ex) {
                 console.warn("pull failed:", ex);
-                fail(ex.message);
+                failed = true;
+                created.text(_('Error downloading'));
+                size.text(ex.message).attr('title', ex.message);
+                tr.on('click', function() {
+                    // Make the row be gone when clicking it
+                    tr.remove();
+                });
             }).
             always(function() {
                 // According to Docker, download was finished.
@@ -2412,23 +2397,6 @@ function DockerClient() {
             return containers_by_name[match[1]];
         return null;
     }
-
-    /* Pull an image from the central registry
-     */
-    this.pull = function pull(repo, tag) {
-        docker_debug("pulling: " + repo + ", tag: " + tag);
-
-        var params = { "fromImage": repo };
-        if (tag)
-            params["tag"] = tag;
-
-        return http.request({
-            method: "POST",
-            path: "/v1.10/images/create",
-            params: params,
-            body: ""
-        });
-    };
 
     /* We listen to the resource monitor and include the measurements
      * in the container objects.

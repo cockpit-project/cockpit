@@ -450,6 +450,7 @@ test_read_combined (void)
   GIOStream *io;
   gint fds_a[2];
   gint fds_b[2];
+  gint ret;
 
   if (pipe(fds_a) < 0)
     g_assert_not_reached ();
@@ -475,7 +476,14 @@ test_read_combined (void)
   iov[2].iov_len = 5;
   iov[3].iov_base = "\0";
   iov[3].iov_len = 1;
-  g_assert_cmpint (writev (fds_a[1], iov, 4), ==, 12);
+  do
+    {
+      ret = writev (fds_a[1], iov, 4);
+      if (ret < 0 && (errno == EAGAIN || errno == EINTR))
+        continue;
+      g_assert_cmpint (ret, ==, 12);
+    }
+  while (0);
 
   while (echo_stream->received->len < 12)
     g_main_context_iteration (NULL, TRUE);
@@ -483,9 +491,13 @@ test_read_combined (void)
   g_assert_cmpint (echo_stream->received->len, ==, 12);
   g_assert_cmpstr ((gchar *)echo_stream->received->data, ==, "onetwothree");
 
+  g_object_add_weak_pointer (G_OBJECT (echo_stream),
+                             (gpointer *)&echo_stream);
+  g_object_unref (echo_stream);
+  g_assert (echo_stream == NULL);
+
   close (fds_a[1]);
   close (fds_b[0]);
-  g_object_unref (echo_stream);
 }
 
 static void

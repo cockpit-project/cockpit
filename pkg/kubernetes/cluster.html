@@ -106,7 +106,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
       <div id="node-list" class="panel panel-default dashboard-list">
         <div class="panel-heading">
           <span style="float: right;">
-            <button title="Add Kubernetes Node" class="btn btn-primary fa fa-plus"></button>
+            <button title="Add Kubernetes Node" id="add-node" class="btn btn-primary fa fa-plus"
+                data-toggle="modal" data-target="#node-dialog"></button>
           </span>
           <span translatable="yes">Kubernetes Nodes</span>
         </div>
@@ -225,6 +226,57 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="modal" id="node-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+      <div class="modal-dialog modal-md">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" translatable="yes">Add Cluster Node </h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td class="top"><label class="control-label" for="node-name" translatable="yes"
+                        placeholder="eg: 198.51.10.25">Address</label></td>
+                <td class="top"><input id="node-address" type="text" class="form-control"></td>
+              </tr>
+              <tr>
+                <td class="top"><label class="control-label" for="node-name" translatable="yes"
+                        placeholder="eg: node-1">Name</label></td>
+                <td class="top"><input id="node-name" type="text" class="form-control"></td>
+              </tr>
+              <tr class="node-configure-header">
+                <td colspan="2" class="header">Configuration</td>
+              </tr>
+              <tr class="configure-option">
+                <td></td>
+                <td>
+                  <label>
+                    <input type="checkbox">
+                    <span translatable="yes">Configure Kubelet and Proxy</span>
+                  </label>
+                </td>
+              </tr>
+              <tr class="configure-option">
+                <td></td>
+                <td>
+                  <label>
+                    <input type="checkbox">
+                    <span translatable="yes">Configure Flannel networking</span>
+                  </label>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
+            <button class="btn btn-primary" translatable="yes">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script>
@@ -234,6 +286,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           "kubernetes/angular",
           "kubernetes/deploy",
           "kubernetes/adjust",
+          "kubernetes/node",
           "kubernetes/app",
           "kubernetes/dashboard"
       ], function(cockpit, po, angular) {

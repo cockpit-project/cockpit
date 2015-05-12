@@ -20,9 +20,10 @@
 define([
     "jquery",
     "base1/cockpit",
+    "kubernetes/angular",
     "kubernetes/d3",
     "kubernetes/client",
-], function($, cockpit, d3, client) {
+], function($, cockpit, angular, d3, client) {
     "use strict";
 
     var _ = cockpit.gettext;
@@ -527,9 +528,13 @@ define([
         return element;
     }
 
-    module.services = function services(selector) {
-        return service_graph(selector);
-    };
-
-    return module;
+    return angular.module('kubernetes.graph', [ 'ngRoute' ])
+        .directive('kubernetesServiceGraph', function() {
+            return {
+                restrict: 'E',
+                link: function($scope, element, attributes) {
+                    service_graph(element[0]);
+                }
+            };
+        });
 });

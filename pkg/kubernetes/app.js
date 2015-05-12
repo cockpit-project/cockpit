@@ -225,7 +225,8 @@ define([
 
     return angular.module('kubernetes', [
             'ngRoute',
-            'kubernetes.dashboard'
+            'kubernetes.dashboard',
+            'kubernetes.graph'
         ])
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.otherwise({ redirectTo: '/' });

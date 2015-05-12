@@ -52,10 +52,22 @@ define([
      * been downloaded, or fails with an error. The progress callbacks
      * on the download are called with status updates from docker.
      */
-    docker.pull = function pull(repo, tag) {
+    docker.pull = function pull(repo, tag, registry) {
         var dfd = $.Deferred();
 
-        docker_debug("pulling: " + repo + ", tag: " + tag);
+        if (!tag)
+            tag = "latest";
+
+        /*
+         * Although in theory the docker images/create API has
+         * a registry parameter, when you use it the resulting
+         * image is labeled completely wrong.
+         */
+
+        if (registry)
+            repo = registry + "/" + repo;
+
+        console.log("pulling: " + repo + ":" + tag);
 
         var options = {
             method: "POST",
@@ -63,7 +75,7 @@ define([
             body: "",
             params: {
                 fromImage: repo,
-                tag: tag || "latest",
+                tag: tag
             }
         };
 

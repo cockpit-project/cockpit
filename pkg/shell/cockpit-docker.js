@@ -1523,6 +1523,7 @@ PageSearchImage.prototype = {
 
     start_download: function(event) {
         var repo = $('#containers-search-download').data('repo');
+        var registry = $('#containers-search-download').data('registry') || undefined;
         var tag = $('#containers-search-tag').val();
 
         $('#containers-search-tag').prop('disabled', true);
@@ -1546,7 +1547,7 @@ PageSearchImage.prototype = {
         var failed = false;
         var layers = {};
 
-        docker.pull(repo, tag).
+        docker.pull(repo, tag, registry).
             progress(function(message, progress) {
                 if("id" in progress) {
                     var new_string = progress['status'];
@@ -1613,6 +1614,7 @@ PageSearchImage.prototype = {
                           $('#containers-search-tag').val('latest');
                           $('#containers-search-tag').prop('disabled', false);
                           $('#containers-search-download').data('repo', entry.name);
+                          $('#containers-search-download').data('registry', entry.registry_name);
                           $('#containers-search-download').prop('disabled', false);
                       });
                       row.data('entry', entry);

@@ -1547,6 +1547,16 @@ PageSearchImage.prototype = {
         var layers = {};
         var buffer = "";
 
+        function fail(message) {
+            failed = true;
+            created.text(_('Error downloading'));
+            size.text(message).attr('title', message);
+            tr.on('click', function() {
+                // Make the row be gone when clicking it
+                tr.remove();
+            });
+        }
+
         this.client.pull(repo, tag).
             stream(function(data) {
                 buffer += data;
@@ -1556,15 +1566,8 @@ PageSearchImage.prototype = {
                 var progress = JSON.parse(buffer.substring(0, next));
                 buffer = buffer.substring(next);
                 if ("error" in progress) {
-                    failed = true;
-                    created.text = 'Error downloading';
-                    size.text('Error downloading: ' + progress['errorDetail']['message']);
-                    tr.on('click', function() {
-                        // Make the row be gone when clicking it
-                        tr.remove();
-                    });
-                }
-                else if("status" in progress) {
+                    fail(progress['errorDetail']['message']);
+                } else if("status" in progress) {
                     if("id" in progress) {
                         var new_string = progress['status'];
                         if(progress['status'] == 'Downloading') {
@@ -1584,11 +1587,14 @@ PageSearchImage.prototype = {
                     size.html(full_status);
                 }
             }).
-            done(function() {
+            fail(function(ex) {
+                console.warn("pull failed:", ex);
+                fail(ex.message);
+            }).
+            always(function() {
                 // According to Docker, download was finished.
-                if(!failed) {
+                if(!failed)
                     tr.remove();
-                }
             });
 
         $("#containers-search-image-dialog").modal('hide');

@@ -1,8 +1,9 @@
 define([
     "jquery",
+    "base1/cockpit",
     "kubernetes/angular",
     "kubernetes/client"
-], function($, angular, kubernetes) {
+], function($, cockpit, angular, kubernetes) {
     'use strict';
 
     function KubernetesService(client) {
@@ -244,6 +245,19 @@ define([
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.otherwise({ redirectTo: '/' });
         }])
+
+        /* Override the default angularjs exception handler */
+        .factory('$exceptionHandler', ['$log', function($log) {
+            return function(exception, cause) {
+
+                /* Displays an oops if we're running in cockpit */
+                cockpit.oops();
+
+                /* And log with the default implementation */
+                $log.error.apply($log, arguments);
+            };
+        }])
+
         .factory('kubernetesClient', function() {
             return kubernetes.k8client();
         })

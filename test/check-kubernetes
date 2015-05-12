@@ -56,4 +56,21 @@ class TestKubernetes(MachineCase):
         b.dialog_complete("#deploy-app-dialog", result="fail")
         b.dialog_cancel("#deploy-app-dialog")
 
+        # Successfully add node via dialog
+        b.click("#add-node")
+        b.wait_popup("node-dialog")
+        b.set_val("#node-name", "mynode")
+        b.set_val("#node-address", "myaddress")
+        b.dialog_complete("#node-dialog")
+        b.wait_in_text("#node-list", "mynode")
+        b.wait_in_text("#node-list", "myaddress")
+
+        # Fail add node via dialog
+        b.click("#add-node")
+        b.wait_popup("node-dialog")
+        b.set_val("#node-name", "!!!!")
+        b.set_val("#node-address", "!!!!")
+        b.dialog_complete("#node-dialog", result="fail")
+        b.dialog_cancel("#node-dialog")
+
 test_main()

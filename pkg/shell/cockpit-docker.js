@@ -1540,8 +1540,8 @@ PageSearchImage.prototype = {
 
         insert_table_sorted($('#containers-images table'), tr);
 
-        var created = tr.children('td').eq(1);
-        var size = tr.children('td').eq(2);
+        var created = tr.children('td.container-col-created');
+        var size = tr.children('td.image-col-size-text');
 
         var failed = false;
         var layers = {};

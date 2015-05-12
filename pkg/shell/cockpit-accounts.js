@@ -329,6 +329,7 @@ PageAccounts.prototype = {
     },
 
     create: function () {
+        PageAccountsCreate.accounts = this.accounts;
         $('#accounts-create-dialog').modal('show');
     },
 
@@ -489,17 +490,16 @@ PageAccountsCreate.prototype = {
         for (var i = 0; i < username.length; i++) {
             if (! this.is_valid_char_username(username[i])) {
                 dfd.reject(new Error(_("User name should consist of letters without diacritics")));
-                return dfd.promise();
+                break;
             }
         }
 
-        cockpit.spawn(['/usr/bin/grep', '-q', "^" + username + ":", '/etc/passwd'])
-           .fail(function(ex, response) {
-              dfd.resolve();
-           })
-           .done(function() {
-              dfd.reject(new Error(_("This user name already exists")));
-           });
+        for (var k = 0; k < PageAccountsCreate.accounts.length; k++) {
+            if (PageAccountsCreate.accounts[k]['name'] == username) {
+                dfd.reject(new Error(_("This user name already exists")));
+                break;
+            }
+        }
 
         return dfd.promise();
     },

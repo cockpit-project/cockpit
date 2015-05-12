@@ -150,9 +150,18 @@ define([
                     continue;
                 }
 
+                /* The watch failed, likely due to invalid resourceVersion */
+                if (action.type == "ERROR") {
+                    if (lastResource) {
+                        lastResource = null;
+                        start_watch();
+                    }
+                    continue;
+                }
+
                 var meta = object.metadata;
                 if (!meta || !meta.uid || object.apiVersion != "v1beta3" || !object.kind) {
-                    console.warn("invalid kubernetes object: ", Object.keys(object).join(", "));
+                    console.warn("invalid kubernetes object: ", object);
                     continue;
                 }
 
@@ -167,17 +176,8 @@ define([
                 } else if (action.type == "DELETED") {
                     delete objects[meta.uid];
                     remove(object, type);
-
-                /* The watch failed, likely due to invalid resourceVersion */
-                } else if (action.type == "ERROR") {
-                    if (lastResource) {
-                        lastResource = null;
-                        start_watch();
-                    }
-
                 } else {
                     console.warn("invalid watch action type: " + action.type);
-                    continue;
                 }
             }
         }

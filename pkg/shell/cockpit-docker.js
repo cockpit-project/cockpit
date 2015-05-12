@@ -1540,55 +1540,46 @@ PageSearchImage.prototype = {
 
         insert_table_sorted($('#containers-images table'), tr);
 
-        var created = tr.children('td').eq(1);
-        var size = tr.children('td').eq(2);
+        var created = tr.children('td.container-col-created');
+        var size = tr.children('td.image-col-size-text');
 
         var failed = false;
         var layers = {};
-        var buffer = "";
 
-        this.client.pull(repo, tag).
-            stream(function(data) {
-                buffer += data;
-                var next = docker.json_skip(buffer, 0);
-                if (next === 0)
-                    return; /* not enough data yet */
-                var progress = JSON.parse(buffer.substring(0, next));
-                buffer = buffer.substring(next);
-                if ("error" in progress) {
-                    failed = true;
-                    created.text = 'Error downloading';
-                    size.text('Error downloading: ' + progress['errorDetail']['message']);
-                    tr.on('click', function() {
-                        // Make the row be gone when clicking it
-                        tr.remove();
-                    });
-                }
-                else if("status" in progress) {
-                    if("id" in progress) {
-                        var new_string = progress['status'];
-                        if(progress['status'] == 'Downloading') {
-                            new_string += ': ' + progress['progressDetail']['current'] + '/' + progress['progressDetail']['total'];
-                        }
-                        layers[progress['id']] = new_string;
-                        if(progress['status'] == 'Download complete') {
-                            // We probably don't care anymore about completed layers
-                            // This also keeps the size of the row to a minimum
-                            delete layers[progress['id']];
-                        }
+        docker.pull(repo, tag).
+            progress(function(message, progress) {
+                if("id" in progress) {
+                    var new_string = progress['status'];
+                    if(progress['status'] == 'Downloading') {
+                        new_string += ': ' + progress['progressDetail']['current'] + '/' + progress['progressDetail']['total'];
                     }
-                    var full_status = '';
-                    for(var layer in layers) {
-                        full_status += layer + ': ' + layers[layer] + '&nbsp;&nbsp;&nbsp;&nbsp;';
+                    layers[progress['id']] = new_string;
+                    if(progress['status'] == 'Download complete') {
+                        // We probably don't care anymore about completed layers
+                        // This also keeps the size of the row to a minimum
+                        delete layers[progress['id']];
                     }
-                    size.html(full_status);
                 }
+                var full_status = '';
+                for(var layer in layers) {
+                    full_status += layer + ': ' + layers[layer] + '&nbsp;&nbsp;&nbsp;&nbsp;';
+                }
+                size.html(full_status);
             }).
-            done(function() {
-                // According to Docker, download was finished.
-                if(!failed) {
+            fail(function(ex) {
+                console.warn("pull failed:", ex);
+                failed = true;
+                created.text(_('Error downloading'));
+                size.text(ex.message).attr('title', ex.message);
+                tr.on('click', function() {
+                    // Make the row be gone when clicking it
                     tr.remove();
-                }
+                });
+            }).
+            always(function() {
+                // According to Docker, download was finished.
+                if(!failed)
+                    tr.remove();
             });
 
         $("#containers-search-image-dialog").modal('hide');
@@ -2406,23 +2397,6 @@ function DockerClient() {
             return containers_by_name[match[1]];
         return null;
     }
-
-    /* Pull an image from the central registry
-     */
-    this.pull = function pull(repo, tag) {
-        docker_debug("pulling: " + repo + ", tag: " + tag);
-
-        var params = { "fromImage": repo };
-        if (tag)
-            params["tag"] = tag;
-
-        return http.request({
-            method: "POST",
-            path: "/v1.10/images/create",
-            params: params,
-            body: ""
-        });
-    };
 
     /* We listen to the resource monitor and include the measurements
      * in the container objects.

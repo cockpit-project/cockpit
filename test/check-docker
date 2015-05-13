@@ -69,12 +69,7 @@ class TestDocker(MachineCase):
         m.execute("systemctl start docker")
 
         self.login_and_go("containers", href="/docker/containers")
-
-        # make sure we have busybox
-        m.execute("docker pull busybox")
-
         b.wait_in_text("#containers-images", "busybox")
-        b.wait_not_in_text("#containers-images", "Downloading")
 
         message = "HelloMessage."
 
@@ -183,15 +178,9 @@ class TestDocker(MachineCase):
         m.execute("systemctl start docker")
 
         self.login_and_go("containers", href="/docker/containers")
+        b.wait_in_text("#containers-images", "busybox")
 
         port = 3380;
-
-        # Pull busybox image
-        m.execute("docker pull busybox")
-
-        b.wait_in_text("#containers-images", "busybox")
-        b.wait_not_in_text("#containers-images", "Downloading")
-
         message = "HelloMessage."
 
         # Create an updated image, expose a port

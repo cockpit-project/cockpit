@@ -36,8 +36,6 @@ verbose = os.getenv('VERBOSE', False)
 if verbose is '0':
     verbose = False
 
-verbose = True
-
 def echo_colored(msg, always_show = False, color = 0):
     if verbose or always_show:
         print "[%s] \x1b[%dm%s\x1b[0m" % (datetime.datetime.now().isoformat(), color, msg);
@@ -426,6 +424,12 @@ def guest_snapshot_create(dom, name):
 def sys_setup():
     ###############################################################################
     # create/start pool if necessary
+    pool=None
+    try:
+        with stdchannel_redirected(sys.stderr, os.devnull):
+            pool = conn.storagePoolLookupByName(pool_name)
+    except:
+        pass
     if not pool:
         pool = create_pool(conn)
 
@@ -434,6 +438,12 @@ def sys_setup():
 
     ###############################################################################
     # create/start network if necessary
+    net = None
+    try:
+        with stdchannel_redirected(sys.stderr, os.devnull):
+            net = conn.networkLookupByName(network_name)
+    except:
+        pass
     if not net:
         net = create_network(conn)
     
@@ -451,7 +461,7 @@ def spawn_guest(local_guest_name,distro=guest_os):
             guest.destroy()
 #        try:
         echo_log("creating new guest")
-        create_guest(conn,local_guest_name)
+        create_guest(conn,local_guest_name,distro)
         guest = refresh_guest(local_guest_name)
 #        except ex:
 #        echo_error(str(ex), always_show = True)
@@ -487,11 +497,9 @@ def spawn_guest(local_guest_name,distro=guest_os):
 
     echo_log("create initial snapshot")
 
-def snap_guest(local_guest_name):
-    guest = refresh_guest(local_guest_name)
-    guest_snapshot_create(guest, snapshot_name_initialized)
-    snapshot_initial = None
-    snapshot_initial = guest.snapshotLookupByName(snapshot_name_initialized)
+def snap_guest(dom):
+    guest_snapshot_create(dom, snapshot_name_initialized)
+    return dom.snapshotLookupByName(snapshot_name_initialized)
 
 def guest_run_command(dom, command):
     """
@@ -506,11 +514,12 @@ def guest_run_command(dom, command):
     with stdchannel_redirected(sys.stderr, os.devnull):
         return subprocess.check_output(args)
 
-def test_func(dom):
+def test_func(local_guest_name):
     """
     Create a file on the target machine and read that back
     then revert machine and ensure it's gone
     """
+    dom=refresh_guest(local_guest_name)
     test_filename = '~/testfile'
     guest_run_command(dom, "echo 'foobar' > %s" % test_filename)
     output = guest_run_command(dom, "cat %s" % test_filename)
@@ -518,7 +527,7 @@ def test_func(dom):
         echo_error("unable to read test file on guest", always_show = True)
         exit(1)
     # now revert
-    dom.revertToSnapshot(snapshot_initial)
+    dom.revertToSnapshot(snap_guest(dom))
     # try to read again
     try:
         output = guest_run_command(dom, "cat %s" % test_filename)
@@ -527,7 +536,6 @@ def test_func(dom):
         pass
     if 'foobar' in output:
         echo_error("revert failed", always_show = True)
-        exit(1)
 
 #echo_log("testing")
 #test_func(guest)

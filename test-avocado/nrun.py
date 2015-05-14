@@ -36,6 +36,8 @@ verbose = os.getenv('VERBOSE', False)
 if verbose is '0':
     verbose = False
 
+verbose = True
+
 def echo_colored(msg, always_show = False, color = 0):
     if verbose or always_show:
         print "[%s] \x1b[%dm%s\x1b[0m" % (datetime.datetime.now().isoformat(), color, msg);
@@ -75,7 +77,13 @@ guest_name = "%s-%s-%s" % (machine_name, guest_os, guest_arch)
 
 snapshot_name_initialized = "initialized"
 
-state_initialized_filename = os.path.join(pool_path, "%s_%s" % (guest_name, snapshot_name_initialized))
+def state_initialized_filename(gst = guest_name,snapinit=snapshot_name_initialized):
+    actfile=[foo for foo in os.listdir(pool_path) if gst in foo and snapinit in foo]
+    if actfile:
+        ret=os.path.join(pool_path, actfile[0])
+    else:
+        ret = os.path.join(pool_path, "%s_%s" % (gst, snapinit))
+    return ret
 
 machine_root_pass = os.getenv('GUEST_PASS', 'testvm')
 
@@ -103,12 +111,14 @@ if clean:
 clean_pool = os.getenv('CLEAN_POOL', False)
 
 # identify the package manager to use in guest
-guest_package_manager = 'yum'
-if guest_os is 'fedora-22':
-    guest_package_manager = 'dnf'
-elif 'debian' in guest_os:
-    echo_log('Debian currently not supported')
+def guest_pkg_mngr(guest_os):
+    guest_package_manager = 'yum'
+    if guest_os is 'fedora-22':
+        guest_package_manager = 'dnf'
+    elif 'debian' in guest_os:
+        echo_log('Debian currently not supported')
     raise
+    return guest_package_manager
 
 # based on http://stackoverflow.com/a/17753573
 # we use this to quieten down libvirt calls
@@ -296,25 +306,35 @@ def install_keys(dom):
     subprocess.check_call(args)
     upload(ip, hostkey + '.pub', '/etc/ssh/ssh_host_rsa_key.pub')
 
-def refresh_guest():
+def refresh_guest(gst=guest_name):
     g = None
     try:
         with stdchannel_redirected(sys.stderr, os.devnull):
-            g = conn.lookupByName(guest_name)
+            g = conn.lookupByName(gst)
     except libvirt.libvirtError:
         pass
+    if  g is None:
+        try:
+            for dom in conn.listAllDomains():
+                if gst in dom.name():
+                    g=dom
+                    break
+        except libvirt.libvirtError:
+            pass
+    
     return g
 
-def create_guest(conn):
+def create_guest(conn,local_guest_name=guest_name,local_guest_os_version=guest_os):
     # make sure old volume doesn't exist
     vol = None
     try:
         with stdchannel_redirected(sys.stderr, os.devnull):
-            vol = pool.storageVolLookupByName("%s.qcow2" % guest_name)
+            localvol=state_initialized_filename(local_guest_name,".qcow2")
+            vol = pool.storageVolLookupByName(localvol)
     except libvirt.libvirtError as ex:
         # This could be an issue if a domain was undefined and we have a leftover file
         if ex.message.startswith('Storage volume not found'):
-            vol_file = os.path.join(pool_path, "%s.qcow2" % guest_name)
+            vol_file = state_initialized_filename(local_guest_name,".qcow2")
             if os.path.isfile(vol_file):
                 os.remove(vol_file)
                 echo_warning("Workaround: deleted file '%s'" % (vol_file), always_show = True)
@@ -334,8 +354,8 @@ def create_guest(conn):
     try:
         with stdchannel_redirected(sys.stdout, os.devnull):
             instance = virt.instance_create(
-                machine_name,
-                guest_os,
+                local_guest_name,
+                local_guest_os_version,
                 arch = guest_arch,
                 network = network_name,
                 pool = pool_name,
@@ -344,11 +364,10 @@ def create_guest(conn):
     except ex:
         echo_warning(ex, always_show = True)
 
-    if (instance['name'] != guest_name):
-        echo_error("Expected guest name to be '%s', but got: '%s'" % (guest_name, instance['name']), always_show = True)
-        sys.exit(1)
+    if (local_guest_name in instance['name']):
+        echo_log("Expected guest name to be '%s', got: '%s'" % (local_guest_name, instance['name']), always_show = True)
 
-    dom = conn.lookupByName(guest_name)
+    dom = conn.lookupByName(instance['name'])
     if not dom.isActive():
         dom.create()
 
@@ -373,16 +392,15 @@ def create_guest(conn):
     if not wait_ssh(ip):
         echo_error("Timed out waiting for machine %s to start" % dom.name(), always_show = True)
         exit(1)
-
+    
     echo_log("save to disk")
-    dom.save(state_initialized_filename)
+    dom.save(state_initialized_filename(local_guest_name))
 
 def delete_guest(guest):
     if not guest:
         return
     virt.instance_delete(guest_name)
 
-guest = refresh_guest()
 
 def guest_snapshot_create(dom, name):
     # save snapshot
@@ -398,77 +416,82 @@ def guest_snapshot_create(dom, name):
 ###############################################################################
 # if cleaning, remove everything and quit
 
-if clean:
-    delete_guest(guest)
-    delete_network(net)
-    if clean_pool:
-        delete_pool(pool)
-    sys.exit(0)
+#if clean:
+#    delete_guest(guest)
+#    delete_network(net)
+#    if clean_pool:
+#        delete_pool(pool)
+#    sys.exit(0)
 
-###############################################################################
-# create/start pool if necessary
-if not pool:
-    pool = create_pool(conn)
+def sys_setup():
+    ###############################################################################
+    # create/start pool if necessary
+    if not pool:
+        pool = create_pool(conn)
 
-if not pool.isActive():
-    pool.create()
+    if not pool.isActive():
+        pool.create()
 
-###############################################################################
-# create/start network if necessary
-if not net:
-    net = create_network(conn)
-
-if not net.isActive():
-    net.create()
+    ###############################################################################
+    # create/start network if necessary
+    if not net:
+        net = create_network(conn)
+    
+    if not net.isActive():
+        net.create()
 
 ###############################################################################
 # create/start guest if necessary
 
 # if we don't have a saved state, then recreate
-if not guest or not os.path.isfile(state_initialized_filename):
-    if guest and guest.isActive():
-        guest.destroy()
-    try:
+def spawn_guest(local_guest_name,distro=guest_os):
+    guest = refresh_guest(local_guest_name)
+    if not guest or not os.path.isfile(state_initialized_filename(local_guest_name)):
+        if guest and guest.isActive():
+            guest.destroy()
+#        try:
         echo_log("creating new guest")
-        create_guest(conn)
-        guest = refresh_guest()
-    except:
-        echo_error("Creating guest machine failed. Try cleaning (CLEAN=1) first.", always_show = True)
+        create_guest(conn,local_guest_name)
+        guest = refresh_guest(local_guest_name)
+#        except ex:
+#        echo_error(str(ex), always_show = True)
+#        echo_error("Creating guest machine failed. Try cleaning (CLEAN=1) first.", always_show = True)
+#        exit(1)
+        echo_success("created guest", always_show = True)
+
+    # make sure we aren't running in the beginning
+    if guest.isActive():
+        guest.destroy()
+
+    # make sure we have no snapshots
+    for snap in guest.listAllSnapshots():
+        snap.delete()
+
+    echo_log("restoring initial state")
+    if conn.restore(state_initialized_filename(local_guest_name)) != 0:
+        echo_log("unable to restore machine from '%s'" % state_initialized_filename(local_guest_name))
+        raise Exception("unable to restore machine from '%s'" % state_initialized_filename(local_guest_name))
+    guest = refresh_guest(local_guest_name)
+    if not guest:
+        echo_log("unable to restore machine from '%s'" % state_initialized_filename(local_guest_name))
+        raise Exception("unable to restore machine from '%s'" % state_initialized_filename(local_guest_name))
+    #guest.resume()
+
+    echo_log("reboot")
+    guest.reset()
+    time.sleep(1)
+
+    if not wait_ssh(get_ip(guest)):
+        echo_error("Timed out waiting for machine %s to start" % guest.name(), always_show = True)
         exit(1)
-    echo_success("created guest", always_show = True)
 
-# make sure we aren't running in the beginning
-if guest.isActive():
-    guest.destroy()
+    echo_log("create initial snapshot")
 
-# make sure we have no snapshots
-for snap in guest.listAllSnapshots():
-    snap.delete()
-
-echo_log("restoring initial state")
-if conn.restore(state_initialized_filename) != 0:
-    echo_log("unable to restore machine from '%s'" % state_initialized_filename)
-    raise
-guest = refresh_guest()
-if not guest:
-    echo_log("unable to restore machine from '%s'" % state_initialized_filename)
-    raise
-#guest.resume()
-
-echo_log("reboot")
-guest.reset()
-time.sleep(1)
-
-if not wait_ssh(get_ip(guest)):
-    echo_error("Timed out waiting for machine %s to start" % guest.name(), always_show = True)
-    exit(1)
-
-echo_log("create initial snapshot")
-
-guest_snapshot_create(guest, snapshot_name_initialized)
-
-snapshot_initial = None
-snapshot_initial = guest.snapshotLookupByName(snapshot_name_initialized)
+def snap_guest(local_guest_name):
+    guest = refresh_guest(local_guest_name)
+    guest_snapshot_create(guest, snapshot_name_initialized)
+    snapshot_initial = None
+    snapshot_initial = guest.snapshotLookupByName(snapshot_name_initialized)
 
 def guest_run_command(dom, command):
     """
@@ -506,10 +529,10 @@ def test_func(dom):
         echo_error("revert failed", always_show = True)
         exit(1)
 
-echo_log("testing")
-test_func(guest)
+#echo_log("testing")
+#test_func(guest)
 
-echo_success("success", always_show = True)
+#echo_success("success", always_show = True)
 
 # make sure that system isn't running anymore
-guest.destroy()
+#guest.destroy()

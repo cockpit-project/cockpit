@@ -19,8 +19,9 @@
 
 define([
     "jquery",
-    "base1/cockpit"
-], function($, cockpit) {
+    "base1/cockpit",
+    "kubernetes/config"
+], function($, cockpit, config) {
     "use strict";
 
     var kubernetes = { };
@@ -259,9 +260,6 @@ define([
     /*
      * A helper function that returns a Promise which tries to
      * connect to a kube-apiserver in various ways in turn.
-     *
-     * In the future this will also handle retrieving auth info
-     * like certificates from the user's home directory.
      */
     function connect_api_server() {
         var dfd = $.Deferred();
@@ -323,7 +321,20 @@ define([
                 });
         }
 
-        step();
+        /* Load the kube config, and then try to start connecting */
+        cockpit.spawn(["/usr/bin/kubectl", "config", "view", "--output=json", "--raw"])
+            .fail(function(ex, output) {
+                if (output)
+                    console.warn(output);
+                else
+                    console.warn(ex);
+            })
+            .done(function(data) {
+                var scheme = config.parse_scheme(data);
+                debug("kube config scheme:", scheme);
+                schemes.unshift(scheme);
+            })
+            .always(step);
 
         var promise = dfd.promise();
         promise.cancel = function cancel() {

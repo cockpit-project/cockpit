@@ -1808,17 +1808,31 @@ cockpit_dbus_json_init (CockpitDBusJson *self)
 }
 
 static void
+send_owned (CockpitDBusJson *self,
+            gboolean has_owner)
+{
+  JsonObject *object;
+  object = json_object_new ();
+  json_object_set_boolean_member (object, "owned", has_owner);
+  send_json_object (self, object);
+  json_object_unref (object);
+}
+
+static void
 on_name_appeared (GDBusConnection *connection,
                   const gchar *name,
                   const gchar *name_owner,
                   gpointer user_data)
 {
   CockpitDBusJson *self = COCKPIT_DBUS_JSON (user_data);
-
   if (!self->name_appeared)
     {
       self->name_appeared = TRUE;
       cockpit_channel_ready (COCKPIT_CHANNEL (self));
+    }
+  else
+    {
+      send_owned (self, TRUE);
     }
 }
 
@@ -1829,6 +1843,8 @@ on_name_vanished (GDBusConnection *connection,
 {
   CockpitDBusJson *self = COCKPIT_DBUS_JSON (user_data);
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
+
+  send_owned (self, FALSE);
 
   if (!G_IS_DBUS_CONNECTION (connection) || g_dbus_connection_is_closed (connection))
     cockpit_channel_close (channel, "disconnected");

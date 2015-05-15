@@ -70,8 +70,6 @@ class Machine:
         self.test_data = os.environ.get("TEST_DATA") or self.test_dir
         self.vm_username = "root"
         self.vm_password = "foobar"
-        self.install_packages_script = None
-        self.target_install_script = None
         self.address = address
         self.mac = None
         self.label = label or "UNKNOWN"
@@ -209,13 +207,7 @@ class Machine:
                 "TEST_PACKAGES": " ".join(uploaded),
                 "TEST_VERBOSE": self.verbose
             }
-            if self.install_packages_script:
-                self.upload([self.install_packages_script], self.target_install_script)
-                script_to_run = INSTALL_SCRIPT_ATOMIC % (self.target_install_script)
-            else:
-                script_to_run = INSTALL_SCRIPT
-
-            self.execute(script=script_to_run, environment=env)
+            self.execute(script=INSTALL_SCRIPT, environment=env)
         finally:
             self.stop()
 
@@ -443,6 +435,7 @@ class QemuMachine(Machine):
         Machine.__init__(self, **args)
         self.run_dir = os.path.join(self.test_dir, "run")
         self._image_image = os.path.join(self.run_dir, "%s.qcow2" % (self.image))
+        self._image_original = os.path.join(self.test_data, "images/%s.qcow2" % (self.image))
         self._image_root = os.path.join(self.run_dir, "%s-root" % (self.image, ))
         self._image_kernel = os.path.join(self.run_dir, "%s-kernel" % (self.image, ))
         self._image_initrd = os.path.join(self.run_dir, "%s-initrd" % (self.image, ))
@@ -519,6 +512,7 @@ class QemuMachine(Machine):
 
         image = "%s-%s" % (self.os, self.arch)
         image_file = os.path.join(self.test_data, "%s.qcow2" % (image, ))
+        tarball = os.path.join(self.test_data, "%s.tar.gz" % (image, ))
         if os.path.isfile(image_file):
             """ We have a real image file, use that """
             self.message("Creating disk copy:", self._image_image)
@@ -550,10 +544,9 @@ class QemuMachine(Machine):
                     modify_func(gf)
                 finally:
                     gf.close()
-        else:
-            tarball = os.path.join(self.test_data, "%s.tar.gz" % (image, ))
-            if not os.path.exists(tarball):
-               raise Failure("Unsupported configuration %s: %s not found." % (image, tarball))
+
+        elif os.path.exists(tarball):
+            """We have an old-style magic base tarball."""
 
             gf = guestfs.GuestFS(python_return_dict=True)
             if self.verbose:
@@ -588,6 +581,8 @@ class QemuMachine(Machine):
 
             finally:
                 gf.close()
+        else:
+            raise Failure("Unsupported configuration %s: neither %s nor %s found." % (image, image_file, tarball))
 
     def post_setup(self):
         if not self._image_image:
@@ -713,6 +708,12 @@ class QemuMachine(Machine):
 
         drive_to_start = self._image_root
         if os.path.exists(self._image_image):
+            drive_to_start = self._image_image
+        elif os.path.exists(self._image_original):
+            subprocess.check_call([ "qemu-img", "create", "-q",
+                                    "-f", "qcow2",
+                                    "-o", "backing_file=%s" % self._image_original,
+                                    self._image_image ])
             drive_to_start = self._image_image
         else:
             if (not os.path.exists(self._image_root)

@@ -35,6 +35,9 @@
 
 #include <systemd/sd-daemon.h>
 
+/* Used during testing */
+gboolean cockpit_webserver_want_certificate = FALSE;
+
 guint cockpit_webserver_request_timeout = 30;
 gsize cockpit_webserver_request_maximum = 4096;
 
@@ -1076,6 +1079,17 @@ start_request_input (CockpitRequest *request)
 }
 
 static gboolean
+on_accept_certificate (GTlsConnection *conn,
+                       GTlsCertificate *peer_cert,
+                       GTlsCertificateFlags errors,
+                       gpointer user_data)
+{
+  /* Only used during testing */
+  g_assert (cockpit_webserver_want_certificate == TRUE);
+  return TRUE;
+}
+
+static gboolean
 on_socket_input (GSocket *socket,
                  GIOCondition condition,
                  gpointer user_data)
@@ -1149,6 +1163,12 @@ on_socket_input (GSocket *socket,
           cockpit_request_finish (request);
           g_error_free (error);
           return FALSE;
+        }
+
+      if (cockpit_webserver_want_certificate)
+        {
+          g_object_set (tls_stream, "authentication-mode", G_TLS_AUTHENTICATION_REQUESTED, NULL);
+          g_signal_connect (tls_stream, "accept-certificate", G_CALLBACK (on_accept_certificate), NULL);
         }
 
       g_object_unref (request->io);

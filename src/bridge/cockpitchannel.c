@@ -28,6 +28,9 @@
 
 #include <gio/gunixsocketaddress.h>
 
+#include <glib/gstdio.h>
+
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -989,12 +992,206 @@ cockpit_channel_parse_address (CockpitChannel *self,
   return address;
 }
 
+static const gchar *
+parse_option_file_or_data (JsonObject *options,
+                           const gchar *option,
+                           const gchar **file,
+                           const gchar **data)
+{
+  JsonObject *object;
+  JsonNode *node;
+
+  g_assert (file != NULL);
+  g_assert (data != NULL);
+
+  node = json_object_get_member (options, option);
+  if (!node)
+    {
+      *file = NULL;
+      *data = NULL;
+      return NULL;
+    }
+
+  if (!JSON_NODE_HOLDS_OBJECT (node))
+    {
+      g_warning ("invalid \"%s\" tls option for channel", option);
+      return "protocol-error";
+    }
+
+  object = json_node_get_object (node);
+
+  if (!cockpit_json_get_string (object, "file", NULL, file))
+    {
+      g_warning ("invalid \"file\" %s option for channel", option);
+      return "protocol-error";
+    }
+  else if (!cockpit_json_get_string (object, "data", NULL, data))
+    {
+      g_warning ("invalid \"data\" %s option for channel", option);
+      return "protocol-error";
+    }
+  else if (!*file && !*data)
+    {
+      g_warning ("missing or unsupported \"%s\" option for channel", option);
+      return "not-supported";
+    }
+  else if (*file && *data)
+    {
+      g_warning ("cannot specify both \"file\" and \"data\" in \"%s\" option for channel", option);
+      return "protocol-error";
+    }
+
+  return NULL;
+}
+
+static const gchar *
+load_pem_contents (const gchar *filename,
+                   const gchar *option,
+                   GString *pem)
+{
+  const gchar *ret = NULL;
+  GError *error = NULL;
+  gchar *contents = NULL;
+  gsize len;
+
+  if (!g_file_get_contents (filename, &contents, &len, &error))
+    {
+      g_warning ("couldn't load \"%s\" file: %s: %s", option, filename, error->message);
+      ret = "internal-error";
+      g_clear_error (&error);
+    }
+  else
+    {
+      g_string_append_len (pem, contents, len);
+      g_string_append_c (pem, '\n');
+      g_free (contents);
+    }
+
+  return ret;
+}
+
+static gchar *
+expand_filename (const gchar *filename)
+{
+  if (!g_path_is_absolute (filename))
+    return g_build_filename (g_get_home_dir (), filename, NULL);
+  else
+    return g_strdup (filename);
+}
+
+static const gchar *
+parse_cert_option_as_pem (JsonObject *options,
+                          const gchar *option,
+                          GString *pem)
+{
+  const gchar *problem = NULL;
+  const gchar *file;
+  const gchar *data;
+  gchar *path;
+
+  problem = parse_option_file_or_data (options, option, &file, &data);
+  if (problem)
+    return problem;
+
+  if (file)
+    {
+      path = expand_filename (file);
+
+      /* For now we assume file contents are PEM */
+      problem = load_pem_contents (path, option, pem);
+
+      g_free (path);
+    }
+  else if (data)
+    {
+      /* Format this as PEM of the given type */
+      g_string_append (pem, data);
+      g_string_append_c (pem, '\n');
+    }
+
+  return problem;
+}
+
+static const gchar *
+parse_cert_option_as_database (JsonObject *options,
+                               const gchar *option,
+                               GTlsDatabase **database)
+{
+  gboolean temporary = FALSE;
+  GError *error = NULL;
+  const gchar *problem;
+  const gchar *file;
+  const gchar *data;
+  gchar *path;
+  gint fd;
+
+  problem = parse_option_file_or_data (options, option, &file, &data);
+  if (problem)
+    return problem;
+
+  if (file)
+    {
+      path = expand_filename (file);
+      problem = NULL;
+    }
+  else if (data)
+    {
+      path = g_build_filename (g_get_user_runtime_dir (), "cockpit-bridge-cert-authority.XXXXXX", NULL);
+      fd = g_mkstemp (path);
+      if (fd < 0)
+        {
+          g_warning ("couldn't create temporary directory: %s: %s", path, g_strerror (errno));
+          problem = "internal-error";
+        }
+      else
+        {
+          close (fd);
+          if (!g_file_set_contents (path, data, -1, &error))
+            {
+              g_warning ("couldn't write temporary data to: %s: %s", path, error->message);
+              problem = "internal-error";
+              g_clear_error (&error);
+            }
+        }
+    }
+  else
+    {
+      /* Not specified */
+      *database = NULL;
+      return NULL;
+    }
+
+  if (problem == NULL)
+    {
+      *database = g_tls_file_database_new (path, &error);
+      if (error)
+        {
+          g_warning ("couldn't load certificate data: %s: %s", path, error->message);
+          problem = "internal-error";
+          g_clear_error (&error);
+        }
+    }
+
+  /* Leave around when problem, for debugging */
+  if (temporary && problem == NULL)
+    g_unlink (path);
+
+  g_free (path);
+
+  return problem;
+}
+
 CockpitStreamOptions *
 cockpit_channel_parse_stream (CockpitChannel *self)
 {
   const gchar *problem = "protocol-error";
+  GTlsCertificate *cert = NULL;
+  GTlsDatabase *database = NULL;
   CockpitStreamOptions *ret;
   gboolean use_tls = FALSE;
+  GError *error = NULL;
+  GString *pem = NULL;
+  JsonObject *options;
   JsonNode *node;
 
   node = json_object_get_member (self->priv->open_options, "tls");
@@ -1003,21 +1200,82 @@ cockpit_channel_parse_stream (CockpitChannel *self)
       g_warning ("invalid \"tls\" option for channel");
       goto out;
     }
+  else if (node)
+    {
+      options = json_node_get_object (node);
+      use_tls = TRUE;
 
-  use_tls = node != NULL;
+      /*
+       * The only function in GLib to parse private keys takes
+       * them in PEM concatenated form. This is a limitation of GLib,
+       * rather than concatenated form being a decent standard for
+       * certificates and keys. So build a combined PEM as expected by
+       * GLib here.
+       */
+
+      pem = g_string_sized_new (8192);
+
+      problem = parse_cert_option_as_pem (options, "certificate", pem);
+      if (problem)
+        goto out;
+
+      if (pem->len)
+        {
+          problem = parse_cert_option_as_pem (options, "key", pem);
+          if (problem)
+            goto out;
+
+          cert = g_tls_certificate_new_from_pem (pem->str, pem->len, &error);
+          if (error != NULL)
+            {
+              g_warning ("invalid \"certificate\" or \"key\" content: %s", error->message);
+              g_error_free (error);
+              problem = "internal-error";
+              goto out;
+            }
+        }
+
+      problem = parse_cert_option_as_database (options, "authority", &database);
+      if (problem)
+        goto out;
+    }
+
   problem = NULL;
 
 out:
   if (problem)
     {
       cockpit_channel_close (self, problem);
-      return NULL;
+      ret = NULL;
+    }
+  else
+    {
+      ret = g_new0 (CockpitStreamOptions, 1);
+      ret->refs = 1;
+      ret->tls_client = use_tls;
+      ret->tls_cert = cert;
+      cert = NULL;
+
+      if (database)
+        {
+          ret->tls_database = database;
+          ret->tls_client_flags = G_TLS_CERTIFICATE_VALIDATE_ALL &
+              ~(G_TLS_CERTIFICATE_INSECURE | G_TLS_CERTIFICATE_BAD_IDENTITY);
+          database = NULL;
+        }
+      else
+        {
+          /* No validation for local servers by default */
+          ret->tls_client_flags = G_TLS_CERTIFICATE_GENERIC_ERROR;
+        }
     }
 
-  ret = g_new0 (CockpitStreamOptions, 1);
-  ret->refs = 1;
-  ret->tls_client = use_tls;
-  ret->tls_client_flags = 0; /* No validation for local servers */
+  if (pem)
+    g_string_free (pem, TRUE);
+  if (cert)
+    g_object_unref (cert);
+  if (database)
+    g_object_unref (database);
 
   return ret;
 }

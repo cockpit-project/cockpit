@@ -750,14 +750,13 @@ class QemuMachine(Machine):
             self._locate_qemu_kvm(),
             "-m", str(MEMORY_MB),
             "-drive", "if=virtio,file=%s,index=0,serial=ROOT,snapshot=%s" % (drive_to_start, snapshot),
-            "-nographic",
             "-net", "nic,model=virtio,macaddr=%s" % self.macaddr,
             "-net", "bridge,vlan=0,br=cockpit0",
             "-device", "virtio-scsi-pci,id=hot"
         ]
         if drive_to_start == self._image_root:
             cmd += [
-            "-append", "root=/dev/vda console=ttyS0 quiet %s" % (selinux, ),
+            "-append", "root=/dev/vda quiet %s" % (selinux, ),
             "-kernel", self._image_kernel,
             "-initrd", self._image_initrd
         ]
@@ -765,12 +764,12 @@ class QemuMachine(Machine):
         if monitor:
             cmd += "-monitor", monitor
 
+        if not tty:
+            cmd += "-display", "none"
+
         self.message(*cmd)
 
-        if tty:
-            # Used by the qemu maintenance console
-            return subprocess.Popen(cmd)
-        elif self.verbose:
+        if self.verbose:
             return subprocess.Popen(cmd, stdin=open("/dev/null"))
         else:
             return subprocess.Popen(cmd, stdout=open("run/qemu-%s-%s.log" % (self.label, self.macaddr), "w"), stdin=open("/dev/null"))

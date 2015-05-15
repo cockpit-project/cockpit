@@ -188,12 +188,72 @@ close_output (CockpitStream *self)
 #define G_IO_ERROR_CONNECTION_CLOSED G_IO_ERROR_BROKEN_PIPE
 #endif
 
+static gchar *
+describe_certificate_errors (CockpitStream *self)
+{
+  GTlsCertificateFlags flags;
+  GString *str;
+
+  if (!G_IS_TLS_CONNECTION (self->priv->io))
+    return NULL;
+
+  flags = g_tls_connection_get_peer_certificate_errors (G_TLS_CONNECTION (self->priv->io));
+  if (flags == 0)
+    return NULL;
+
+  str = g_string_new ("");
+
+  if (flags & G_TLS_CERTIFICATE_UNKNOWN_CA)
+    {
+      g_string_append (str, "untrusted-issuer ");
+      flags &= ~G_TLS_CERTIFICATE_UNKNOWN_CA;
+    }
+  if (flags & G_TLS_CERTIFICATE_BAD_IDENTITY)
+    {
+      g_string_append (str, "bad-server-identity ");
+      flags &= ~G_TLS_CERTIFICATE_BAD_IDENTITY;
+    }
+  if (flags & G_TLS_CERTIFICATE_NOT_ACTIVATED)
+    {
+      g_string_append (str, "not-yet-valid ");
+      flags &= ~G_TLS_CERTIFICATE_NOT_ACTIVATED;
+    }
+  if (flags & G_TLS_CERTIFICATE_EXPIRED)
+    {
+      g_string_append (str, "expired ");
+      flags &= ~G_TLS_CERTIFICATE_EXPIRED;
+    }
+  if (flags & G_TLS_CERTIFICATE_REVOKED)
+    {
+      g_string_append (str, "revoked ");
+      flags &= ~G_TLS_CERTIFICATE_REVOKED;
+    }
+  if (flags & G_TLS_CERTIFICATE_INSECURE)
+    {
+      g_string_append (str, "insecure ");
+      flags &= ~G_TLS_CERTIFICATE_INSECURE;
+    }
+  if (flags & G_TLS_CERTIFICATE_GENERIC_ERROR)
+    {
+      g_string_append (str, "generic-error ");
+      flags &= ~G_TLS_CERTIFICATE_GENERIC_ERROR;
+    }
+
+  if (flags != 0)
+    {
+      g_string_append (str, "...");
+    }
+
+  return g_string_free (str, FALSE);
+}
+
 static void
 set_problem_from_error (CockpitStream *self,
                         const gchar *summary,
                         GError *error)
 {
   const gchar *problem = NULL;
+  gchar *details = NULL;
 
   if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
     problem = "access-denied";
@@ -208,12 +268,18 @@ set_problem_from_error (CockpitStream *self,
     problem = "disconnected";
   else if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_TIMED_OUT))
     problem = "timeout";
+  else if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_BAD_CERTIFICATE))
+    {
+      problem = "unknown-hostkey";
+      details = describe_certificate_errors (self);
+    }
 
   g_free (self->priv->problem);
 
   if (problem)
     {
-      g_message ("%s: %s: %s", self->priv->name, summary, error->message);
+      g_message ("%s: %s: %s%s%s", self->priv->name, summary, error->message,
+                 details ? ": " : "", details ? details : "");
       self->priv->problem = g_strdup (problem);
     }
   else
@@ -221,6 +287,8 @@ set_problem_from_error (CockpitStream *self,
       g_warning ("%s: %s: %s", self->priv->name, summary, error->message);
       self->priv->problem = g_strdup ("internal-error");
     }
+
+  g_free (details);
 }
 
 static gboolean
@@ -703,6 +771,17 @@ on_socket_connect (GObject *object,
 
               g_tls_client_connection_set_validation_flags (G_TLS_CLIENT_CONNECTION (self->priv->io),
                                                             self->priv->options->tls_client_flags);
+
+              if (self->priv->options->tls_cert)
+                {
+                  g_tls_connection_set_certificate (G_TLS_CONNECTION (self->priv->io),
+                                                    self->priv->options->tls_cert);
+                }
+              if (self->priv->options->tls_database)
+                {
+                  g_tls_connection_set_database (G_TLS_CONNECTION (self->priv->io),
+                                                 self->priv->options->tls_database);
+                }
             }
         }
       else
@@ -897,6 +976,10 @@ cockpit_stream_options_unref (gpointer data)
 
   if (--(options->refs) <= 0)
     {
+      if (options->tls_cert)
+        g_object_unref (options->tls_cert);
+      if (options->tls_database)
+        g_object_unref (options->tls_database);
       g_free (options);
     }
 }

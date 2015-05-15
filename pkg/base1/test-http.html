@@ -168,6 +168,27 @@ asyncTest("headers", function() {
         });
 });
 
+asyncTest("connection headers", function() {
+    expect(3);
+
+    cockpit.http({ "internal": "test-server", "headers": { "Header1": "booo", "Header2": "not this" }})
+        .get("/mock/headers", null, { "Header2": "yay value", "Header0": "extra" })
+        .response(function(status, headers) {
+            equal(status, 201, "status code");
+            deepEqual(headers, {
+                    "Header0": "extra",
+                    "Header1": "booo",
+                    "Header2": "yay value",
+                    "Header3": "three",
+                    "Header4": "marmalade"
+            }, "got back combined headers");
+        })
+        .always(function() {
+            equal(this.state(), "resolved", "split response didn't fail");
+            start();
+        });
+});
+
 test("http promise recursive", function() {
     expect(7);
 

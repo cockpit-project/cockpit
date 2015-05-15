@@ -2329,10 +2329,19 @@ function full_scope(cockpit, $, po) {
             var input = req.body;
             delete req.body;
 
-            if (!req.headers)
-                delete req.headers;
+            var headers = req.headers;
+            delete req.headers;
 
             $.extend(req, options);
+
+            /* Combine the headers */
+            if (options.headers && headers)
+                req.headers = $.extend({ }, options.headers, headers);
+            else if (options.headers)
+                req.headers = options.headers;
+            else
+                req.headers = headers;
+
             http_debug("http request:", JSON.stringify(req));
 
             /* We need a channel for the request */

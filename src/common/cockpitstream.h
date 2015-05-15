@@ -26,8 +26,12 @@ G_BEGIN_DECLS
 
 typedef struct {
   gint refs;
+
+  /* TLS flags */
   gboolean tls_client;
   GTlsCertificateFlags tls_client_flags;
+  GTlsCertificate *tls_cert;
+  GTlsDatabase *tls_database;
 } CockpitStreamOptions;
 
 CockpitStreamOptions *  cockpit_stream_options_ref    (CockpitStreamOptions *options);

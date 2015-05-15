@@ -528,11 +528,20 @@ payload type:
 You may also specify these options:
 
  * "connection": A stable connection identifier.
- * "tls": Set to a (currently empty) object to use an https connection.
+ * "tls": Set to a object to use an https connection.
 
-If a stable "connection" identifier is open. Then subsequent channels with
-the same connection identifier will try to share the same client connections
-(if still open) and channel options (if not specified again).
+The TLS object can have the following options:
+
+ * "certificate": The client certificate to use, represented as an
+   object described below.
+ * "key": The client key to use, described below.
+ * "authority": Certificate authority(s) to use. Turns on validation.
+
+The "certificate", "key" and "authority" are objects with either of
+the following fields:
+
+ * "file": String with a file name
+ * "data": String with PEM encoded data
 
 Any data to be sent should be sent via the channel, and then the channel
 should be closed without a problem.

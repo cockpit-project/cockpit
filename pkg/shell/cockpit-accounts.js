@@ -480,7 +480,8 @@ PageAccountsCreate.prototype = {
     is_valid_char_username: function(c) {
         return (c >= 'a' && c <= 'z') ||
                (c >= 'A' && c <= 'Z') ||
-               (c >= '0' && c <= '9');
+               (c >= '0' && c <= '9') ||
+               c == '.' || c == '_' || c == '-';
     },
 
     check_username: function() {
@@ -489,7 +490,8 @@ PageAccountsCreate.prototype = {
 
         for (var i = 0; i < username.length; i++) {
             if (! this.is_valid_char_username(username[i])) {
-                dfd.reject(new Error(_("User name should consist of letters without diacritics")));
+                dfd.reject(new Error(_("The user name can only consist of letters" +
+                            "from a-z, digits, dots, dashes and underscores.")));
                 break;
             }
         }

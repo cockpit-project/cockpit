@@ -28,17 +28,18 @@ class KubernetesCase(MachineCase):
     # HACK: https://github.com/GoogleCloudPlatform/kubernetes/issues/8311
     # Work around for the fact that kube-apiserver doesn't notify about startup
     # We wait until available or timeout.
-    def wait_api_server(self, port=8080, timeout=60):
+    def wait_api_server(self, port=8080, timeout=60, scheme='http'):
         waiter = """
         port=%d
         timeout=%d
+        scheme=%s
         for a in $(seq 0 $timeout); do
-            if curl -o /dev/null -s http://localhost:$port; then
+            if curl -o /dev/null -k -s $scheme://localhost:$port; then
                 break
             fi
             sleep 0.5
         done
-        """ % (port, timeout * 2)
+        """ % (port, timeout * 2, scheme)
         self.machine.execute(script=waiter)
 
 class TestKubernetes(KubernetesCase):
@@ -101,7 +102,7 @@ class TestSsl(KubernetesCase):
         m.execute("echo 'KUBE_API_PORT=\"--port=1111\"' >> /etc/kubernetes/apiserver")
         m.execute("sed -i s/8080/1111/g /etc/kubernetes/*")
         m.execute("systemctl start etcd kube-apiserver kube-controller-manager docker kube-proxy kubelet")
-        self.wait_api_server(port=1111)
+        self.wait_api_server(port=6443, scheme='https')
 
         self.login_and_go("/kubernetes/cluster", host=None)
         b.wait_in_text("#node-list", "127.0.0.1")

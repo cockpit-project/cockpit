@@ -308,20 +308,13 @@ function Transport() {
             }
         }
 
-        /* HACK - we allow for one minute of silence since some
-         *        versions of NetworkManager seem to cause a total
-         *        network blackout of 30 seconds or so when making
-         *        configuration changes.
-         *
-         * https://bugzilla.redhat.com/show_bug.cgi?id=1211287
-         */
         check_health_timer = window.setInterval(function () {
             if (!got_message) {
                 console.log("health check failed");
                 self.close({ "problem": "timeout" });
             }
             got_message = false;
-        }, 60000);
+        }, 10000);
     }
 
     if (!ws) {

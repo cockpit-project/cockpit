@@ -308,6 +308,11 @@ define([
                         call = realm.Deconfigure(options);
                     }
 
+                    if (!call) {
+                        sub.remove();
+                        return;
+                    }
+
                     call
                         .fail(function(ex) {
                             busy(null);

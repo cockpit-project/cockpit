@@ -511,7 +511,7 @@ Util.getEventPosition = function (e, obj, scale) {
     if (evt.pageX || evt.pageY) {
         docX = evt.pageX;
         docY = evt.pageY;
-    } else if (evt.clientX || evt.clientY) {
+    } else {
         docX = evt.clientX + document.body.scrollLeft +
             document.documentElement.scrollLeft;
         docY = evt.clientY + document.body.scrollTop +

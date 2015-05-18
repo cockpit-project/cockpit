@@ -229,50 +229,57 @@ dispatch_input (GPollableInputStream *is,
 {
   CockpitStream *self = (CockpitStream *)user_data;
   GError *error = NULL;
+  gboolean read = FALSE;
   gssize ret = 0;
   gsize len;
   gboolean eof;
 
-  g_return_val_if_fail (self->priv->in_source, FALSE);
-  len = self->priv->in_buffer->len;
-
-  g_byte_array_set_size (self->priv->in_buffer, len + 1024);
-  ret = g_pollable_input_stream_read_nonblocking (is, self->priv->in_buffer->data + len,
-                                                  1024, NULL, &error);
-
-  if (ret < 0)
+  for (;;)
     {
-      g_byte_array_set_size (self->priv->in_buffer, len);
-      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_WOULD_BLOCK))
+      g_return_val_if_fail (self->priv->in_source, FALSE);
+      len = self->priv->in_buffer->len;
+
+      g_byte_array_set_size (self->priv->in_buffer, len + 1024);
+      ret = g_pollable_input_stream_read_nonblocking (is, self->priv->in_buffer->data + len,
+                                                      1024, NULL, &error);
+
+      if (ret < 0)
         {
-          g_error_free (error);
-          return TRUE;
+          g_byte_array_set_size (self->priv->in_buffer, len);
+          if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_WOULD_BLOCK))
+            {
+              g_error_free (error);
+              break;
+            }
+          else
+            {
+              set_problem_from_error (self, "couldn't read", error);
+              g_error_free (error);
+              close_immediately (self, NULL);
+              return FALSE;
+            }
         }
-      else
+
+      g_byte_array_set_size (self->priv->in_buffer, len + ret);
+
+      if (ret == 0)
         {
-          set_problem_from_error (self, "couldn't read", error);
-          g_error_free (error);
-          close_immediately (self, NULL);
-          return FALSE;
+          g_debug ("%s: end of input", self->priv->name);
+          stop_input (self);
+          break;
         }
-    }
-
-  g_byte_array_set_size (self->priv->in_buffer, len + ret);
-
-  if (ret == 0)
-    {
-      g_debug ("%s: end of input", self->priv->name);
-      stop_input (self);
-    }
-  else if (ret > 0)
-    {
-      g_debug ("%s: read %d bytes", self->priv->name, (int)ret);
+      else if (ret > 0)
+        {
+          g_debug ("%s: read %d bytes", self->priv->name, (int)ret);
+          read = TRUE;
+        }
     }
 
   g_object_ref (self);
 
   eof = (self->priv->in_source == NULL);
-  g_signal_emit (self, cockpit_stream_sig_read, 0, self->priv->in_buffer, eof);
+  if (eof || read)
+    g_signal_emit (self, cockpit_stream_sig_read, 0, self->priv->in_buffer, eof);
 
   if (eof)
     close_maybe (self);

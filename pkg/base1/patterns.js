@@ -126,6 +126,7 @@ define([
         sel.data("dialog-wait", data);
 
         var cancellation = promise.cancel || promise.close;
+        var cancelled = false;
 
         /* Disable everything and stash previous disabled state */
         var controls = sel.find(".form-control").add(".btn", sel);
@@ -140,7 +141,7 @@ define([
         });
 
         sel.find(".btn[data-dismiss]").on("click.dialog-wait", function() {
-            console.log("cancel action");
+            cancelled = true;
             if (cancellation)
                 cancellation.apply(promise);
             return false;
@@ -160,6 +161,8 @@ define([
             var data = sel.data("dialog-wait");
             if (data && data.promise === promise)
                 clear_wait(sel);
+            if (cancelled)
+                sel.modal('hide');
         }
 
         function update(arg) {
@@ -172,8 +175,7 @@ define([
         }
 
         promise
-            .done(restore)
-            .fail(restore)
+            .always(restore)
             .progress(update);
     }
 

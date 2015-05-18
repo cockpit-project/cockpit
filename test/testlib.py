@@ -704,10 +704,7 @@ def sit():
     The current test case is suspended so that the user can inspect
     the browser.
     """
-    sys.stdout.write("Press Ctrl-C to continue... ")
-    sys.stdout.flush()
-    while True:
-        sleep(60)
+    raw_input ("Press RET to continue... ")
 
 def merge(*args):
     return dict(reduce(lambda x,y: x + y, map(lambda d: d.items(), args), [ ]))

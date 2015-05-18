@@ -683,9 +683,43 @@ PageSystemInformationChangeSystime.prototype = {
         $('#change_systime').selectpicker('refresh');
         $('#systime-parse-error').css('visibility', 'hidden');
         $('#systime-apply-button').prop('disabled', false);
+        $('#systime-timezones').prop('disabled', 'disabled');
 
         this.update();
         this.update_minutes();
+        this.get_timezones();
+    },
+
+    get_timezones: function() {
+        var self = this;
+
+        function parse_timezones(content) {
+            var timezones = [];
+            var lines = content.split('\n');
+            var curr_timezone = PageSystemInformationChangeSystime.server_time.timedate.Timezone;
+
+            for (var i = 0; i < lines.length; i++) {
+                if (lines[i].indexOf('#') === 0)
+                    continue;
+                timezones.push(lines[i].split('\t')[2]);
+            }
+
+            timezones.sort();
+            $('#systime-timezones').prop('disabled', false);
+
+            for (var j = 0; j < timezones.length; j++) {
+                $('#systime-timezones').append($('<option>', {
+                    value: timezones[j],
+                    text: timezones[j],
+                    selected: timezones[j] == curr_timezone
+                }));
+            }
+
+            $('#systime-timezones').selectpicker('refresh');
+        }
+
+        cockpit.file("/usr/share/zoneinfo/zone.tab").read()
+           .done(parse_timezones);
     },
 
     show: function() {
@@ -707,6 +741,13 @@ PageSystemInformationChangeSystime.prototype = {
                 $("#system_information_change_systime").modal('hide');
             })
             .done(function() {
+                if (! $('#systime-timezones').prop('disabled')) {
+                    server_time.timedate.SetTimezone($('#systime-timezones').val(), true)
+                        .fail(function(err) {
+                            shell.show_unexpected_error(err);
+                        });
+                }
+
                 if (!manual_time) {
                     $("#system_information_change_systime").modal('hide');
                     return;

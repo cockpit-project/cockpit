@@ -927,6 +927,8 @@ define([
                             return;
                         }
 
+                        debug("created item:", url, item);
+
                         handle_updated(item, type);
                         step();
                     })

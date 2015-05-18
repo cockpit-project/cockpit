@@ -2355,7 +2355,7 @@ function DockerClient() {
 
         http.get("/v1.10/info").done(function(data) {
             var info = data && JSON.parse(data);
-            watch = cockpit.channel({ payload: "fslist1", path: info["DockerRootDir"]});
+            watch = cockpit.channel({ payload: "fslist1", path: info["DockerRootDir"], superuser: true });
             $(watch).on("message", function(event, data) {
                 trigger_event();
             });

@@ -176,10 +176,11 @@ class TestNetworking(MachineCase):
 
 if 'TEST_OS' in os.environ and os.environ['TEST_OS'] == "rhel-7":
 
-    # HACK - Some details in the NM behavior are different on RHEL 7,
-    #        and we haven't worked through that yet.
+    # HACK - We lose all connectivity to the VM for about 30 seconds
+    #        after changing the config of the additional network
+    #        interfaces.
     #
-    # https://github.com/cockpit-project/cockpit/issues/2270
+    # https://bugzilla.redhat.com/show_bug.cgi?id=1211287
     #
     print "Skipping check-networking on RHEL 7"
 else:

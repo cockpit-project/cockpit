@@ -120,7 +120,7 @@ define([
         $("<div class='spinner spinner-sm'>").appendTo(wait);
         var message = $("<span>").appendTo(wait);
 
-        sel.find(".modal-footer").prepend(wait);
+        sel.find(".modal-footer button").first().before(wait);
 
         var data = new DialogWait(promise);
         sel.data("dialog-wait", data);

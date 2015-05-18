@@ -408,6 +408,10 @@ class MachineCase(unittest.TestCase):
             self.snapshot("FAIL")
             self.copy_journal("FAIL")
             if arg_sit_on_failure:
+                for f in self.runner.failures:
+                    print >> sys.stderr, f[1]
+                for e in self.runner.errors:
+                    print >> sys.stderr, e[1]
                 print >> sys.stderr, "ADDRESS: %s" % self.machine.address
                 sit()
         elif self.machine.address:

@@ -481,6 +481,8 @@ test_read_combined (void)
       ret = writev (fds_a[1], iov, 4);
       if (ret < 0 && (errno == EAGAIN || errno == EINTR))
         continue;
+      if (ret < 0)
+        g_message ("writev failed with %d: %s", ret, g_strerror (errno));
       g_assert_cmpint (ret, ==, 12);
     }
   while (0);

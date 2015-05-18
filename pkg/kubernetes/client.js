@@ -220,9 +220,14 @@ define([
             req = api.get(uri)
                 .stream(handle_watch)
                 .fail(function(ex) {
+                    var msg;
                     req = null;
                     if (!stopping) {
-                        console.warn("watching kubernetes " + type + " failed: " + ex);
+                        msg = "watching kubernetes " + type + " failed: " + ex;
+                        if (ex.problem !== "disconnected")
+                            console.warn(msg);
+                        else
+                            debug(msg);
                         wait = window.setTimeout(function() { wait = null; start_watch(); }, 5000);
                     }
                 })

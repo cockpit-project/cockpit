@@ -54,6 +54,7 @@ struct _CockpitStreamPrivate {
 
   GSource *in_source;
   GByteArray *in_buffer;
+  gboolean received;
 };
 
 static guint cockpit_stream_sig_read;
@@ -264,7 +265,9 @@ set_problem_from_error (CockpitStream *self,
            g_error_matches (error, G_IO_ERROR, G_IO_ERROR_HOST_NOT_FOUND))
     problem = "not-found";
   else if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_BROKEN_PIPE) ||
-           g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CONNECTION_CLOSED))
+           g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CONNECTION_CLOSED) ||
+           g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_EOF) ||
+           (self->priv->received && g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_MISC)))
     problem = "disconnected";
   else if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_TIMED_OUT))
     problem = "timeout";
@@ -339,6 +342,7 @@ dispatch_input (GPollableInputStream *is,
       else if (ret > 0)
         {
           g_debug ("%s: read %d bytes", self->priv->name, (int)ret);
+          self->priv->received = TRUE;
           read = TRUE;
         }
     }
@@ -782,6 +786,9 @@ on_socket_connect (GObject *object,
                   g_tls_connection_set_database (G_TLS_CONNECTION (self->priv->io),
                                                  self->priv->options->tls_database);
                 }
+
+              /* We track data end the same way we do for HTTP */
+              g_tls_connection_set_require_close_notify (G_TLS_CONNECTION (self->priv->io), FALSE);
             }
         }
       else

@@ -399,25 +399,26 @@ define([
          */
         self.request = function request(options) {
             var dfd = $.Deferred();
-            var req;
 
-            self.connect()
-                .done(function(http) {
-                    req = http.request(options)
-                        .done(function() {
-                            dfd.resolve.apply(dfd, arguments);
-                        })
-                        .fail(function() {
-                            dfd.reject.apply(dfd, arguments);
-                        });
-                })
+            var req = self.connect();
+            req.done(function(http) {
+                req = http.request(options)
+                    .done(function() {
+                        dfd.resolve.apply(dfd, arguments);
+                    })
                 .fail(function() {
                     dfd.reject.apply(dfd, arguments);
                 });
+            })
+            .fail(function() {
+                dfd.reject.apply(dfd, arguments);
+            });
 
             var promise = dfd.promise();
             promise.cancel = function cancel() {
-                if (req)
+                if (req.cancel)
+                    req.cancel();
+                else
                     req.close("cancelled");
                 return promise;
             };
@@ -952,6 +953,11 @@ define([
             }
 
             step();
+
+            promise.cancel = function cancel() {
+                if (request)
+                    request.cancel();
+            };
             return promise;
         };
 
@@ -983,7 +989,7 @@ define([
                 });
 
             var promise = dfd.promise();
-            dfd.cancel = function cancel() {
+            promise.cancel = function cancel() {
                 req.cancel();
             };
 

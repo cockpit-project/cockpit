@@ -40,6 +40,7 @@ define([
                 $("#deploy-app-dialog").dialog("failure", exs);
             })
             .done(function(fields) {
+                $("#deploy-app-dialog").dialog("failure", null);
                 promise = client.create(fields.manifest, fields.namespace)
                     .done(function() {
                         /* code gets run when everything is created */

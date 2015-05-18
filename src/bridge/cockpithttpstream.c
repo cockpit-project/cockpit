@@ -363,6 +363,11 @@ relay_headers (CockpitHttpStream *self,
       goto out;
     }
 
+  g_debug ("%s: response: %u %s", self->name, status, reason);
+  g_hash_table_iter_init (&iter, headers);
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    g_debug ("%s: header: %s %s", self->name, (gchar *)key, (gchar *)value);
+
   if (!parse_transfer_encoding (self, headers) ||
       !parse_content_length (self, status, headers) ||
       !parse_keep_alive (self, version, headers))
@@ -383,15 +388,11 @@ relay_headers (CockpitHttpStream *self,
   object = json_object_new ();
   json_object_set_int_member (object, "status", status);
   json_object_set_string_member (object, "reason", reason);
-  g_debug ("%s: response: %u %s", self->name, status, reason);
 
   heads = json_object_new();
   g_hash_table_iter_init (&iter, headers);
   while (g_hash_table_iter_next (&iter, &key, &value))
-    {
-      g_debug ("%s: header: %s %s", self->name, (gchar *)key, (gchar *)value);
-      json_object_set_string_member (heads, key, value);
-    }
+    json_object_set_string_member (heads, key, value);
 
   json_object_set_object_member (object, "headers", heads);
   message = cockpit_json_write_bytes (object);
@@ -762,6 +763,8 @@ send_http_request (CockpitHttpStream *self)
       goto out;
     }
 
+  g_debug ("%s: sending %s request", self->name, method);
+
   string = g_string_sized_new (128);
   g_string_printf (string, "%s %s HTTP/1.1\r\n", method, path);
 
@@ -868,7 +871,6 @@ cockpit_http_stream_done (CockpitChannel *channel)
   CockpitHttpStream *self = COCKPIT_HTTP_STREAM (channel);
 
   g_return_if_fail (self->state == BUFFER_REQUEST);
-  g_debug ("%s: sending request", self->name);
   self->state = RELAY_REQUEST;
   send_http_request (self);
 }
@@ -928,6 +930,8 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
   CockpitStreamOptions *opts = NULL;
   const gchar *connection;
   JsonObject *options;
+  const gchar *path;
+  gchar *full;
 
   COCKPIT_CHANNEL_CLASS (cockpit_http_stream_parent_class)->prepare (channel);
 
@@ -979,6 +983,13 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
         g_object_unref (self->client->options);
       self->client->options = opts;
       opts = NULL;
+    }
+
+  if (cockpit_json_get_string (options, "path", NULL, &path) && path)
+    {
+      full = g_strdup_printf ("%s://%s%s", self->client->options->tls_client ? "https" : "http", self->name, path);
+      g_free (self->name);
+      self->name = full;
     }
 
   self->stream = cockpit_http_client_checkout (self->client);

@@ -73,7 +73,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             <button class="btn btn-primary" id="deploy-app" data-toggle="modal"
                     data-target="#deploy-app-dialog" translatable="yes">Deploy</button>
           </div>
-          <span translatable="yes">Kubernetes Services</span>
+          <span translatable="yes" ng-if="client.flavor == 'openshift'">Openshift Services</span>
+          <span translatable="yes" ng-if="client.flavor != 'openshift'">Kubernetes Services</span>
         </div>
         <table class="table table-hover">
           <thead>
@@ -81,7 +82,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
               <th translatable="yes">Name</th>
               <th translatable="yes">Address</th>
               <th translatable="yes">Containers</th>
-	      <th translatable="yes">Namespace</th>
+	      <th translatable="yes" ng-if="client.flavor == 'openshift'">Project</th>
+	      <th translatable="yes" ng-if="client.flavor != 'openshift'">Namespace</th>
               <th class="status"></th>
             </tr>
           </thead>
@@ -109,7 +111,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             <button title="Add Kubernetes Node" id="add-node" class="btn btn-primary fa fa-plus"
                 data-toggle="modal" data-target="#node-dialog"></button>
           </span>
-          <span translatable="yes">Kubernetes Nodes</span>
+          <span translatable="yes" ng-if="client.flavor == 'openshift'">Openshift Nodes</span>
+          <span translatable="yes" ng-if="client.flavor != 'openshift'">Kubernetes Nodes</span>
         </div>
         <table class="table table-hover">
           <thead>

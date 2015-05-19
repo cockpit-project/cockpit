@@ -737,6 +737,9 @@ PageSystemInformationChangeSystime.prototype = {
            time_error = true;
         }
 
+        if ($("#systime-date-input").val().length === 0) // prevent empty input
+            $("#systime-date-input").val(PageSystemInformationChangeSystime.server_time.format());
+
         new_date = new Date($("#systime-date-input").val());
 
         if (isNaN(new_date.getTime()) || new_date.getTime() < 0)

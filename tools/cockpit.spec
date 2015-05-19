@@ -213,6 +213,9 @@ find %{buildroot}%{_datadir}/%{name}/system -type f >> shell.list
 echo '%dir %{_datadir}/%{name}/subscriptions' > subscriptions.list
 find %{buildroot}%{_datadir}/%{name}/subscriptions -type f >> subscriptions.list
 
+echo '%dir %{_datadir}/%{name}/storage' > storaged.list
+find %{buildroot}%{_datadir}/%{name}/storage -type f >> storaged.list
+
 %ifarch x86_64
 echo '%dir %{_datadir}/%{name}/docker' > docker.list
 find %{buildroot}%{_datadir}/%{name}/docker -type f >> docker.list
@@ -360,6 +363,15 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 %files kubernetes -f kubernetes.list
 
 %endif
+
+%package storaged
+Summary: Cockpit user interface for storage, using Storaged
+Requires: storaged >= 2.1.1
+
+%description storaged
+The Cockpit component for managing storage.  This package uses Storaged.
+
+%files storaged -f storaged.list
 
 %if %{defined gitcommit}
 

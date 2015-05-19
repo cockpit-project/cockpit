@@ -983,19 +983,26 @@ asyncTest("no track name", function() {
 });
 
 asyncTest("owned messages", function() {
-    expect(7);
+    expect(9);
 
     var name = "yo.x" + new Date().getTime();
     var times_changed = 0;
 
     var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     var other = null;
-
-    function on_owned (event, has_owner) {
+    var org_owner = null;
+    function on_owner (event, owner) {
         if (times_changed === 0) {
-            strictEqual(has_owner, false, "no owner");
+            strictEqual(typeof owner, "string", "intial owner string");
+            ok(owner.length > 1, "intial owner not empty");
+            org_owner = owner;
         } else if (times_changed === 1) {
-            strictEqual(has_owner, true, "has owner again");
+            strictEqual(owner, null, "no owner");
+            console.log(owner)
+        } else if (times_changed === 2) {
+            // owner is the same because the server
+            // dbus connection is too.
+            strictEqual(owner, org_owner, "has owner again");
         }
         times_changed++;
     }
@@ -1007,10 +1014,10 @@ asyncTest("owned messages", function() {
                 equal(this.state(), "resolved", "name claimed");
                 if (!other) {
                     other = cockpit.dbus(name, { "bus": "session" });
-                    $(other).on("owned", on_owned);
+                    $(other).on("owner", on_owner);
                     release_name();
                 } else {
-                    strictEqual(times_changed, 2, "owner changed twice");
+                    strictEqual(times_changed, 3, "owner changed three times");
                     start();
                 }
             });

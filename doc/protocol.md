@@ -466,6 +466,14 @@ will be defined here, but this is it for now.
         }
     }
 
+When the owner of the DBus name changes an "owner" message is sent.
+The owner value will be the id of the owner or null if the name is unowned.
+
+    {
+        "owner": "1:"
+    }
+
+
 DBus types are encoded in various places in these messages, such as the
 arguments. These types are encoded as follows:
 

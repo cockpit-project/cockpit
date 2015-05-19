@@ -1596,8 +1596,8 @@ function full_scope(cockpit, $, po) {
             } else if (msg.meta) {
                 ensure_cache();
                 $.extend(cache.meta, msg.meta);
-            } else if (msg.owned !== "undefined") {
-                $(self).triggerHandler("owned", [ msg.owned ]);
+            } else if (msg.owner !== undefined) {
+                $(self).triggerHandler("owner", [ msg.owner ]);
             } else {
                 console.warn("received unexpected dbus json message:", payload);
                 channel.close({"problem": "protocol-error"});

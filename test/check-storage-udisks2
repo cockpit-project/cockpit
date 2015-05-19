@@ -70,7 +70,7 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage", href="/storage/devices")
+        self.login_and_go("storage", href="/udisks2/devices")
         b.wait_in_text("#storage_drives", "VirtIO")
 
         # Add a disk, partition it, format it, and finally remove it.
@@ -99,7 +99,7 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage", href="/storage/devices")
+        self.login_and_go("storage", href="/udisks2/devices")
 
         # Add a disk
         self.add_disk("50M", serial="MYDISK")
@@ -200,7 +200,7 @@ class TestStorage(MachineCase):
         # don't do that for now.  A workaround would be to reboot the
         # machine.
 
-        self.login_and_go("storage", href="/storage/devices")
+        self.login_and_go("storage", href="/udisks2/devices")
 
         # Add a disk
         self.add_disk("50M", serial="MYDISK")
@@ -263,7 +263,7 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage", href="/storage/devices")
+        self.login_and_go("storage", href="/udisks2/devices")
 
         # Add a disk and partition it
         self.add_disk("50M", serial="MYDISK")
@@ -381,7 +381,7 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage", href="/storage/devices")
+        self.login_and_go("storage", href="/udisks2/devices")
         b.wait_in_text("#storage_drives", "VirtIO")
 
         # Add four disks and make a RAID out of three of them
@@ -521,7 +521,7 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage", href="/storage/devices")
+        self.login_and_go("storage", href="/udisks2/devices")
         b.wait_in_text("#storage_drives", "VirtIO")
 
         # Add a slow disk and format it
@@ -556,7 +556,7 @@ class TestStorage(MachineCase):
         if m.os == "rhel-7":
             return
 
-        self.login_and_go("storage", href="/storage/devices")
+        self.login_and_go("storage", href="/udisks2/devices")
         b.wait_in_text("#storage_drives", "VirtIO")
 
         self.add_disk("50M", serial="DISK1")
@@ -740,7 +740,7 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage", href="/storage/devices")
+        self.login_and_go("storage", href="/udisks2/devices")
         b.wait_in_text("#storage_drives", "VirtIO")
         self.add_disk("500M", serial="DISK1")
 
@@ -782,7 +782,7 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage", href="/storage/devices")
+        self.login_and_go("storage", href="/udisks2/devices")
         b.wait_in_text("#storage_drives", "VirtIO")
 
         self.add_disk("50M", serial="DISK1")
@@ -843,7 +843,7 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage", href="/storage/devices")
+        self.login_and_go("storage", href="/udisks2/devices")
 
         self.add_disk("50M", serial="DISK1")
         b.wait_in_text("#storage_drives", "DISK1")
@@ -880,7 +880,7 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage", href="/storage/devices")
+        self.login_and_go("storage", href="/udisks2/devices")
         b.wait_in_text("#storage_drives", "VirtIO")
 
         # The following block devices should not be offered for creating a
@@ -924,7 +924,7 @@ mkpart logical ext2 24 48"""
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage", href="/storage/devices")
+        self.login_and_go("storage", href="/udisks2/devices")
         b.wait_in_text("#storage_drives", "VirtIO")
 
         self.add_disk("50M", "DISK1")

@@ -22,14 +22,16 @@ define([
         }])
         .controller('DashboardCtrl', [
                 '$scope',
+                'kubernetesClient',
                 'kubernetesServices',
                 'kubernetesNodes',
                 'kubernetesPods',
-                function($scope, services, nodes, pods) {
+                function($scope, client, services, nodes, pods) {
             $scope.services = services;
             $scope.nodes = nodes;
             $scope.pods = pods;
-            $([services, nodes, pods]).on("changed", function() {
+            $scope.client = client;
+            $([client, services, nodes, pods]).on("changed", function() {
                 $scope.$digest();
                 phantom_checkpoint();
             });

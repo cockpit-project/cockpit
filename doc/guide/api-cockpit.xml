@@ -641,16 +641,14 @@
     </refsection>
 
     <refsection id="cockpit-dbus-onowned">
-      <title>client.onowned</title>
+      <title>client.onowner</title>
 <programlisting>
- $(client).on("owned", function(event, has_owner) { ... })
+ $(client).on("owner", function(event, owner) { ... })
 </programlisting>
-      <para>An event triggered when the owner of the DBus name changes. The has_owner
-        value will be true or false to indicate if the name is owned. This is meant to
-        be used with clients where the <code>"track"</code> option is set to
-        <code>false</code> indicating that the service is able to continue to comunicate
-        across restarts. As such the absence of an owner should not be treated as
-        disconnection. However this makes it possible to take some action based on the
+      <para>An event triggered when the owner of the DBus name changes. The owner
+        value will be the id of the name owner on the bus or null if the name
+        is unowned. The absence of an owner should not be treated as a disconnection.
+        However this makes it possible to take some action based on the
         actual status of the service, for example disconecting a pending signal handler.</para>
     </refsection>
 

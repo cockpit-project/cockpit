@@ -370,6 +370,7 @@ PageAccountsCreate.prototype = {
         $('#accounts-create-locked').prop('checked', false);
         $('#accounts-create-password-meter').removeClass("weak okay good excellent");
         $("#accounts-create-dialog").dialog("failure", null);
+        this.username_dirty = false;
     },
 
     leave: function() {

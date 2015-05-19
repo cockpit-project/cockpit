@@ -699,26 +699,18 @@ PageSystemInformationChangeSystime.prototype = {
             var curr_timezone = PageSystemInformationChangeSystime.server_time.timedate.Timezone;
 
             for (var i = 0; i < lines.length; i++) {
-                if (lines[i].indexOf('#') === 0)
-                    continue;
-                timezones.push(lines[i].split('\t')[2]);
-            }
-
-            timezones.sort();
-            $('#systime-timezones').prop('disabled', false);
-
-            for (var j = 0; j < timezones.length; j++) {
                 $('#systime-timezones').append($('<option>', {
-                    value: timezones[j],
-                    text: timezones[j],
-                    selected: timezones[j] == curr_timezone
+                    value: lines[i],
+                    text: lines[i],
+                    selected: lines[i] == curr_timezone
                 }));
             }
 
+            $('#systime-timezones').prop('disabled', false);
             $('#systime-timezones').selectpicker('refresh');
         }
 
-        cockpit.file("/usr/share/zoneinfo/zone.tab").read()
+        cockpit.spawn(["/usr/bin/timedatectl", "list-timezones"])
            .done(parse_timezones);
     },
 

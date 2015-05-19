@@ -4,12 +4,16 @@ set -x
 
 echo foobar | passwd --stdin root
 
+# We want the storaged 2.0 pre-relases
+#
+dnf -y copr enable phatina/storaged
+
 # We install all dependencies of the cockpit packages since we want
 # them to not spontaneously change from one test run to the next when
 # the distribution repository is updated.
 #
 
-COCKPIT_DEPS="udisks2 json-glib realmd lvm2 mdadm glib-networking libssh selinux-policy-targeted docker pcp-libs pcp kubernetes etcd subscription-manager"
+COCKPIT_DEPS="udisks2 json-glib realmd lvm2 mdadm glib-networking libssh selinux-policy-targeted docker pcp-libs pcp kubernetes etcd subscription-manager storaged"
 
 # We also install the packages necessary to join a FreeIPA domain so
 # that we don't have to go to the network during a test run.

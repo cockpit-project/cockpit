@@ -97,6 +97,9 @@ Requires: %{name}-docker = %{version}-%{release}
 %if 0%{?rhel}
 Requires: %{name}-subscriptions = %{version}-%{release}
 %endif
+%if 0%{?rhel} == 0
+Requires: %{name}-udisks2
+%endif
 
 %description
 Cockpit runs in a browser and can manage your network of GNU/Linux
@@ -136,11 +139,7 @@ Requires: shadow-utils
 Requires: grep
 Requires: libpwquality
 Requires: /usr/bin/date
-Requires: mdadm
-Requires: lvm2
-%if 0%{?rhel} == 0
-Requires: udisks2 >= 2.1.0
-%else
+%if 0%{?rhel}
 Provides: %{name}-subscriptions = %{version}-%{release}
 Requires: subscription-manager >= 1.13
 %ifarch x86_64 armv7hl
@@ -223,6 +222,9 @@ find %{buildroot}%{_datadir}/%{name}/system -type f >> shell.list
 
 echo '%dir %{_datadir}/%{name}/subscriptions' > subscriptions.list
 find %{buildroot}%{_datadir}/%{name}/subscriptions -type f >> subscriptions.list
+
+echo '%dir %{_datadir}/%{name}/udisks2' > udisks2.list
+find %{buildroot}%{_datadir}/%{name}/udisks2 -type f >> udisks2.list
 
 %ifarch x86_64 armv7hl
 echo '%dir %{_datadir}/%{name}/docker' > docker.list
@@ -376,6 +378,19 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 %files kubernetes -f kubernetes.list
 
 %endif
+
+%package udisks2
+Summary: Cockpit user interface for storage, using UDisks2
+Requires: %{name}-shell
+Requires: mdadm
+Requires: lvm2
+Requires: udisks2 >= 2.1.0
+
+%description udisks2
+The Cockpit component for managing storage.  This package uses UDisks2.
+
+%files udisks2 -f udisks2.list
+
 
 %if %{defined gitcommit}
 

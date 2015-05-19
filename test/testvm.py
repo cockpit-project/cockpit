@@ -594,10 +594,7 @@ class QemuMachine(Machine):
 
     def save(self):
         assert not self._process
-        if self._image_image:
-            if not os.path.exists(self._image_image):
-                raise Failure("Nothing to save.")
-
+        if os.path.exists(self._image_image):
             images_dir = os.path.join(self.test_data, "images")
             checksum_file = os.path.join(images_dir, "%s-checksum" % (self.image, ))
             if not os.path.exists(images_dir):
@@ -608,16 +605,12 @@ class QemuMachine(Machine):
                                         os.path.basename(self._image_image) ],
                                       cwd=images_dir,
                                       stdout=f)
-        else:
-            if (not os.path.exists(self._image_kernel)
-                or not os.path.exists(self._image_initrd)
-                or not os.path.exists(self._image_root)):
-                raise Failure("Nothing to save.")
-
+        elif (os.path.exists(self._image_kernel)
+              and os.path.exists(self._image_initrd)
+              and os.path.exists(self._image_root)):
             if (os.path.islink(self._image_kernel)
                 or os.path.islink(self._image_initrd)):
                 raise Failure("Can not save now, only right after vm-create.")
-
             images_dir = os.path.join(self.test_data, "images")
             checksum_file = os.path.join(images_dir, "%s-checksum" % (self.image, ))
             if not os.path.exists(images_dir):
@@ -632,6 +625,8 @@ class QemuMachine(Machine):
                                         os.path.basename(self._image_initrd) ],
                                       cwd=images_dir,
                                       stdout=f)
+        else:
+            raise Failure("Nothing to save.")
 
     def build(self, args):
         def modify(gf):

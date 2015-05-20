@@ -171,10 +171,6 @@ class TestDocker(MachineCase):
         m = self.machine
         self.allow_journal_messages('.*denied.*name_connect.*docker.*')
 
-        if m.os == "fedora-22":
-            print "Skipping TestDocker.testExpose on Fedora 22"
-            return
-
         m.execute("systemctl start docker")
 
         self.login_and_go("containers", href="/docker/containers")
@@ -189,8 +185,8 @@ class TestDocker(MachineCase):
 FROM busybox
 MAINTAINER cockpit
 EXPOSE %d
-CMD ["/bin/sh", "-c", "echo '%s' | nc -l -p %d; echo '%s'"]
-' > /var/tmp/container-probe/Dockerfile""" % (port, message, port, message))
+CMD ["/bin/sh", "-c", "echo '%s' | tee /dev/fd/2 | nc -l -p %d"]
+' > /var/tmp/container-probe/Dockerfile""" % (port, message, port))
         image_name = "test/container-probe"
         m.execute("docker build -t %s /var/tmp/container-probe" % (image_name))
         m.execute("rm -rf /var/tmp/container-probe")
@@ -207,15 +203,15 @@ CMD ["/bin/sh", "-c", "echo '%s' | nc -l -p %d; echo '%s'"]
         b.wait_popdown("containers_run_image_dialog")
         b.wait_in_text("#containers-containers", "PROBE2")
 
-        # Check connection on port
-        data = m.execute("exec 3<>/dev/tcp/localhost/%d; cat <&3" % (port)).rstrip()
-        self.assertEqual(data, message)
-
         # Check output of the probe
         b.click('#containers-containers tr:contains("PROBE2")')
         b.enter_page("container-details")
         self.wait_for_message(message)
         b.wait_in_text("#container-details-ports", "0.0.0.0:%d -> %d/tcp" % (port, port))
+
+        # Check connection on port, this also causes container to exit
+        data = m.execute("exec 3<>/dev/tcp/localhost/%d; cat <&3" % (port)).rstrip()
+        self.assertEqual(data, message)
 
         # Wait for exit
         b.wait_in_text("#container-details-state", "Exited")

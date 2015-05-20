@@ -539,7 +539,11 @@ class QemuMachine(Machine):
                             if filesystems[fs] == "swap":
                                 continue
                             gf.mount(fs, "/")
-                            break
+                            if gf.exists("/etc"):
+                                break
+                            gf.umount("/")
+                        if not gf.exists("/etc"):
+                            raise Failure("Can't find root partition")
 
                     modify_func(gf)
                 finally:

@@ -493,17 +493,18 @@ PageAccountsCreate.prototype = {
             if (! this.is_valid_char_username(username[i])) {
                 dfd.reject(new Error(_("The user name can only consist of letters" +
                             "from a-z, digits, dots, dashes and underscores.")));
-                break;
+                return dfd.promise();
             }
         }
 
         for (var k = 0; k < PageAccountsCreate.accounts.length; k++) {
             if (PageAccountsCreate.accounts[k]['name'] == username) {
                 dfd.reject(new Error(_("This user name already exists")));
-                break;
+                return dfd.promise();
             }
         }
 
+        dfd.resolve();
         return dfd.promise();
     },
 

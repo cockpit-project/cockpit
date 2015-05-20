@@ -585,7 +585,7 @@ class QemuMachine(Machine):
             raise Failure("Unsupported configuration %s: neither %s nor %s found." % (image, image_file, tarball))
 
     def post_setup(self):
-        if not self._image_image:
+        if not os.path.exists(self._image_image):
             kernel = highest_version(self.execute(command="ls -1 /boot/vmlinuz-*").split("\n"), self.os)
             initrd = highest_version(self.execute(command="ls -1 /boot/initramfs-*").split("\n"), self.os)
             self.message("Extracting:", kernel, initrd)

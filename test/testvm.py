@@ -546,6 +546,7 @@ class QemuMachine(Machine):
                             raise Failure("Can't find root partition")
 
                     modify_func(gf)
+                    gf.touch("/.autorelabel")
                 finally:
                     gf.close()
 

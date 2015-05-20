@@ -260,8 +260,10 @@ PageServer.prototype = {
         // from hostname1 here. Once we require system > 211
         // we should change this.
         function parse_pretty_name(data, tag, ex) {
-            if (ex)
+            if (ex) {
                 console.warn("couldn't load os data: " + ex);
+                data = "";
+            }
 
             var lines = data.split("\n");
             for (var i = 0; i < lines.length; i++) {

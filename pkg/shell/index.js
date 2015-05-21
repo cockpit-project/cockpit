@@ -63,6 +63,27 @@ define([
         };
     }
 
+    /* Branding */
+
+    function brand(id) {
+        var os_release = JSON.parse(window.sessionStorage['os-release'] || "{}");
+
+        var elt = $(id)[0];
+        if (!elt)
+            return;
+
+        var content = window.getComputedStyle(elt).content;
+        if (content != "none") {
+            if (content[0] == '"')
+                content = content.substr(1);
+            if (content.length > 0 && content[content.length - 1] == '"')
+                content = content.substr(0, content.length - 1);
+            elt.innerHTML = cockpit.format(content, os_release);
+        }
+    }
+
+    brand('#index-brand');
+
     /* Basic menu items */
 
     $("#deauthorize-item").on("click", function(ev) {

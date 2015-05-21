@@ -14,6 +14,13 @@
             /* Filled in by cockpit-ws handler */
             var initial_environment = @@environment@@;
 
+            function unquote(str) {
+                str = str.trim();
+                if (str[0] == '"')
+                    str = str.substr(1, str.length - 2);
+                return str;
+            }
+
             if (!console)
                 console = function() { };
 
@@ -36,6 +43,27 @@
                 var el = id("login-fatal-message");
                 el.innerHTML = "";
                 el.appendChild(document.createTextNode(msg));
+            }
+
+            var fmt_re = /\$\{([^}]+)\}|\$([a-zA-Z0-9_]+)/g;
+            function format(fmt, args) {
+                return fmt.replace(fmt_re, function(m, x, y) { return args[x || y] || ""; });
+            }
+
+            function brand(_id) {
+                var elt = id(_id);
+                if (!elt)
+                    return;
+
+                var content = window.getComputedStyle(elt).content;
+                if (content != "none") {
+                    if (content[0] == '"')
+                        content = content.substr(1);
+                    if (content.length > 0 && content[content.length - 1] == '"')
+                        content = content.substr(0, content.length - 1);
+
+                    elt.innerHTML = format(content, initial_environment["os-release"]);
+                }
             }
 
             function requisites() {
@@ -61,8 +89,13 @@
             function boot() {
                 window.onload = null;
 
+                brand("badge");
+                brand("brand");
+
                 if (!requisites())
                     return;
+
+                sessionStorage.setItem('os-release', JSON.stringify(initial_environment["os-release"]));
 
                 /* Try automatic/kerberos authentication? */
                 if (sessionStorage.getItem("logout-intent") == "explicit") {

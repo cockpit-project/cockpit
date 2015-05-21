@@ -35,7 +35,7 @@ import time
 verbose = os.getenv('VERBOSE', False)
 if verbose is '0':
     verbose = False
-
+verbose = True
 def echo_colored(msg, always_show = False, color = 0):
     if verbose or always_show:
         print "[%s] \x1b[%dm%s\x1b[0m" % (datetime.datetime.now().isoformat(), color, msg);
@@ -93,7 +93,7 @@ os.chmod(userkey, 0600)
 
 ssh_options = ['-o', 'UserKnownHostsFile=/dev/null',
                '-o', 'StrictHostKeyChecking=no',
-               '-o', 'ConnectTimeout=10'
+               '-o', 'ConnectTimeout=30'
               ]
 
 virt = virtdeploy.get_driver('libvirt')
@@ -180,15 +180,42 @@ def upload(address, sources, dest):
     """
     assert sources and dest
     assert address
-
+    try:
+        realaddr = get_ip(refresh_guest(address))
+    except:
+        realaddr = address
+        pass
     if isinstance(sources, basestring):
         sources = [sources]
     cmd = [
         "scp",
         "-i", userkey
-    ] + ssh_options + sources + [ "root@%s:%s" % (address, dest), ]
+    ] + ssh_options + sources + [ "root@%s:%s" % (realaddr, dest), ]
 
     subprocess.check_call(cmd)
+
+def download(address, source, dest):
+    """Download a files from the test machine
+
+    Arguments:
+        sources: path or file to upload
+        dest: the file path in the machine to upload to
+    """
+    assert sources and dest
+    assert address
+    try:
+        realaddr = get_ip(address)
+    except:
+        realaddr = address
+        pass
+    cmd = [
+        "scp",
+        "-r",
+        "-i", userkey
+    ] + ssh_options  + [ "root@%s:%s" % (realaddr, source), dest]
+
+    subprocess.check_call(cmd)
+
 
 ###############################################################################
 # make sure we can connect to libvirt
@@ -291,7 +318,6 @@ def install_keys(dom):
     # install ssh key first
     env = os.environ.copy()
     env['SSHPASS'] = machine_root_pass
-
     args = ['sshpass', '-e', 'ssh'] + ssh_options + ["%s@%s" % ('root', ip)] + ['mkdir', '-p', '-m', '0700', '/root/.ssh']
     subprocess.check_call(args, env = env)
 
@@ -501,7 +527,7 @@ def snap_guest(dom):
     guest_snapshot_create(dom, snapshot_name_initialized)
     return dom.snapshotLookupByName(snapshot_name_initialized)
 
-def guest_run_command(dom, command):
+def guest_run_command(dom, command, errors=False):
     """
     Execute a command in the shell via ssh
     """
@@ -511,8 +537,11 @@ def guest_run_command(dom, command):
         exit(1)
 
     args = ['ssh', '-i', userkey] + ssh_options + ["%s@%s" % ('root', ip), command]
-    with stdchannel_redirected(sys.stderr, os.devnull):
+    if errors:
         return subprocess.check_output(args)
+    else:
+        with stdchannel_redirected(sys.stderr, os.devnull):
+            return subprocess.check_output(args)
 
 def test_func(local_guest_name):
     """
@@ -537,10 +566,35 @@ def test_func(local_guest_name):
     if 'foobar' in output:
         echo_error("revert failed", always_show = True)
 
-#echo_log("testing")
-#test_func(guest)
+def guest_favour(local_guest_name,flavor_script_path,varfile=""):
+    dom=refresh_guest(local_guest_name)
+    flavorname=os.path.basename(flavor_script_path)
+    ip = get_ip(dom)
+    if not wait_ssh(ip):
+        echo_log("Timed out waiting for machine %s to start" % dom.name())
+        raise
 
-#echo_success("success", always_show = True)
+    upload(ip, flavor_script_path, '/var/tmp/%s' % flavorname)
+    guest_run_command(dom, 'chmod a+x /var/tmp/%s' % flavorname, True)
+    guest_run_command(dom, '/var/tmp/%s "%s"' % (flavorname, varfile), True)
 
-# make sure that system isn't running anymore
-#guest.destroy()
+avocado="avocado run -xunit"
+
+def avocado_run(local_guest_name,test_name_paths,multiplex_file=None):
+    dom=refresh_guest(local_guest_name)
+    ip = get_ip(dom)
+    if not wait_ssh(ip):
+        echo_log("Timed out waiting for machine %s to start" % dom.name())
+        raise
+    tests = test_name_paths
+    if isinstance(test_name_paths, list):
+         tests = ' '.join(test_name_paths)
+    guest_run_command(dom, 'mkdir -p /var/tmp/avocado')
+    upload(ip, test_name_paths, '/var/tmp/avocado/')
+    guest_run_command(dom, 'chmod a+x /var/tmp/avocado/*')
+    if multiplex_file:
+        guest_run_command(dom, '%s -multiplex %s /var/tmp/avocado/%s' % (avocado, multiplex_file, tests))
+    else:
+        guest_run_command(dom, '%s /var/tmp/avocado/%s' % (avocado, tests))
+    download(ip,'/root/avocado', './')
+    

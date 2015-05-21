@@ -22,9 +22,12 @@ RUN mkdir -p /container && ln -s /host/proc/1 /container/target-namespace
 ADD atomic-* /container/
 RUN chmod -v +x /container/atomic-*
 
+# This gets in the way of our mounts below
+RUN rm -rf /usr/lib/os-release
+
 LABEL INSTALL /usr/bin/docker run -ti --rm --privileged -v /:/host IMAGE /container/atomic-install
 LABEL UNINSTALL /usr/bin/docker run -ti --rm --privileged -v /:/host IMAGE /cockpit/atomic-uninstall
-LABEL RUN /usr/bin/docker run -d --privileged --pid=host -v /:/host IMAGE /container/atomic-run --local-ssh
+LABEL RUN /usr/bin/docker run -d --privileged --pid=host -v /:/host -v /etc:/etc -v /usr/lib/os-release:/usr/lib/os-release:ro -v /usr/share/pixmaps:/usr/share/pixmaps:ro IMAGE /container/atomic-run --local-ssh
 
 # Look ma, no EXPOSE
 

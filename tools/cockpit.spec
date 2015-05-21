@@ -2,18 +2,16 @@
 #  * gitcommit xxxx
 #  * selinux 1
 
-%define branding default
+%define branding auto
 
 # Our SELinux policy gets built in tests and f21 and lower
 %if %{defined gitcommit}
 %define extra_flags CFLAGS='-O2 -Wall -Werror -fPIC'
 %define selinux 1
+%define branding default
 %endif
 %if 0%{?fedora} > 0 && 0%{?fedora} <= 21
 %define selinux 1
-%endif
-%if 0%{?fedora} > 0 && 0%{?fedora} <= 23
-%define branding fedora
 %endif
 %if 0%{?rhel}
 %define selinux 1
@@ -316,6 +314,7 @@ cat subscriptions.list docker.list >> shell.list
 %attr(4750, root, cockpit-ws) %{_libexecdir}/cockpit-session
 %attr(775, -, wheel) %{_sharedstatedir}/%{name}
 %{_datadir}/%{name}/static
+%{_datadir}/%{name}/branding
 
 %pre ws
 getent group cockpit-ws >/dev/null || groupadd -r cockpit-ws

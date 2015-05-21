@@ -1520,8 +1520,16 @@ function full_scope(cockpit, $, po) {
     function DBusClient(name, options) {
         var self = this;
         var args = { };
-        if (options)
+        var track = false;
+        var owner = null;
+
+        if (options) {
+            if (options.track)
+                track = true;
+
+            delete options['track'];
             $.extend(args, options);
+        }
         args.payload = "dbus-json3";
         args.name = name;
         self.options = options;
@@ -1598,6 +1606,14 @@ function full_scope(cockpit, $, po) {
                 $.extend(cache.meta, msg.meta);
             } else if (msg.owner !== undefined) {
                 $(self).triggerHandler("owner", [ msg.owner ]);
+
+                // We won't get this signal with the same
+                // owner twice so if we've seen an owner
+                // before that means it has changed.
+                if (track && owner)
+                    self.close();
+
+                owner = msg.owner;
             } else {
                 console.warn("received unexpected dbus json message:", payload);
                 channel.close({"problem": "protocol-error"});

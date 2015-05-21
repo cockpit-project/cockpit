@@ -53,7 +53,6 @@ typedef struct {
   guint name_watch;
   gboolean name_watched;
   gboolean name_appeared;
-  gboolean name_track;
 
   /* Call related */
   GCancellable *cancellable;
@@ -1848,8 +1847,6 @@ on_name_vanished (GDBusConnection *connection,
     cockpit_channel_close (channel, "disconnected");
   else if (!self->name_appeared)
     cockpit_channel_close (channel, "not-found");
-  else if (self->name_track)
-    cockpit_channel_close (channel, NULL);
 }
 
 static void
@@ -1932,11 +1929,6 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
   if (!cockpit_json_get_string (options, "bus", NULL, &bus))
     {
       g_warning ("invalid \"bus\" option in dbus channel");
-      goto out;
-    }
-  if (!cockpit_json_get_bool (options, "track", FALSE, &self->name_track))
-    {
-      g_warning ("invalid \"track\" option in dbus channel");
       goto out;
     }
 

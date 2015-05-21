@@ -294,15 +294,10 @@ type:
    channel will communicate with the internal bridge DBus connection.
  * "name": A service name of the DBus service to communicate with. Set to
    null if "bus" is "internal".
- * "track": Only talk with the first name DBus owner of the service
-   name, and close the channel when it goes away.
 
 The DBus bus name is started on the bus if it is not already running. If it
 could not be started the channel is closed with a "not-found". If the DBus
 connection closes, the channel closes with "disconnected".
-
-If "track" is set to true, then the channel will also close without a
-problem, if the bus name goes away (ie: the service exits).
 
 DBus messages are encoded as JSON objects. If an unrecognized JSON object
 is received, then the channel is closed with a "protocol-error".

@@ -125,7 +125,9 @@ main (int argc,
       g_info ("Using certificate: %s", cert_path);
     }
 
-  roots = cockpit_web_server_resolve_roots (DATADIR "/cockpit/static", NULL);
+  roots = cockpit_web_server_resolve_roots (DATADIR "/cockpit/static",
+                                            DATADIR "/cockpit/branding/" BRAND,
+                                            NULL);
   loop = g_main_loop_new (NULL, FALSE);
 
   data.auth = cockpit_auth_new (opt_local_ssh);

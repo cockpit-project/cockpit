@@ -33,6 +33,7 @@
 #include "common/cockpitconf.h"
 #include "common/cockpitlog.h"
 #include "common/cockpitmemory.h"
+#include "common/cockpitsystem.h"
 
 #include <libssh/libssh.h>
 #include <libssh/callbacks.h>
@@ -60,6 +61,47 @@ print_version (void)
   g_print ("Version: %s\n", PACKAGE_VERSION);
   g_print ("Protocol: 1\n");
   g_print ("Authorization: crypt1\n");
+}
+
+static gchar **
+calculate_static_roots (GHashTable *os_release)
+{
+  const gchar *os_id = NULL;
+  const gchar *os_variant_id = NULL;
+  gchar *branding_dirs[3] = { NULL, };
+  gchar **roots;
+  gint i = 0;
+
+#ifdef PACKAGE_BRAND
+  os_id = PACKAGE_BRAND;
+#else
+  if (os_release)
+    {
+      os_id = g_hash_table_lookup (os_release, "ID");
+      os_variant_id = g_hash_table_lookup (os_release, "VARIANT_ID");
+    }
+#endif
+
+  if (os_id)
+    {
+      if (os_variant_id)
+          branding_dirs[i++] = g_strdup_printf (DATADIR "/cockpit/branding/%s-%s", os_id, os_variant_id);
+      branding_dirs[i++] = g_strdup_printf (DATADIR "/cockpit/branding/%s", os_id);
+    }
+  branding_dirs[i++] = g_strdup (DATADIR "/cockpit/branding/default");
+  g_assert (i <= 3);
+
+  roots = cockpit_web_server_resolve_roots (DATADIR "/cockpit/static",
+                                            branding_dirs[0],
+                                            branding_dirs[1],
+                                            branding_dirs[2],
+                                            NULL);
+
+  g_free (branding_dirs[0]);
+  g_free (branding_dirs[1]);
+  g_free (branding_dirs[2]);
+
+  return roots;
 }
 
 int
@@ -125,12 +167,11 @@ main (int argc,
       g_info ("Using certificate: %s", cert_path);
     }
 
-  roots = cockpit_web_server_resolve_roots (DATADIR "/cockpit/static",
-                                            DATADIR "/cockpit/branding/" BRAND,
-                                            NULL);
   loop = g_main_loop_new (NULL, FALSE);
 
+  data.os_release = cockpit_system_load_os_release ();
   data.auth = cockpit_auth_new (opt_local_ssh);
+  roots = calculate_static_roots (data.os_release);
   data.static_roots = (const gchar **)roots;
 
   server = cockpit_web_server_new (opt_port,
@@ -188,6 +229,8 @@ out:
     }
   g_clear_object (&server);
   g_clear_object (&data.auth);
+  if (data.os_release)
+    g_hash_table_unref (data.os_release);
   g_clear_object (&certificate);
   g_free (cert_path);
   g_strfreev (roots);

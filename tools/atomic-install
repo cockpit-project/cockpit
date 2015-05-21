@@ -8,7 +8,7 @@
 cd /
 PATH="/bin:/sbin"
 
-if [ ! -f /host/usr/lib/os-release -o ! -d /host/var/run ]; then
+if [ ! -d /host/etc -o ! -d /host/proc -o ! -d /host/var/run ]; then
     echo "cockpit-run: host file system is not mounted at /host" >&2
     exit 1
 fi
@@ -31,9 +31,7 @@ set -x
 # on the host with host PAM modules, and the host files, such as /etc/shadow
 # However we must ensure that it doesn't have selinux stuff ... because well,
 # containers and SELinux don't mix (yet?)
-if [ ! -f /host/etc/pam.d/cockpit ]; then
-    sed -e '/pam_selinux/d' -e '/pam_sepermit/d' /etc/pam.d/cockpit > /host/etc/pam.d/cockpit
-fi
+sed -e '/pam_selinux/d' -e '/pam_sepermit/d' /etc/pam.d/cockpit > /host/etc/pam.d/cockpit
 
 # Make sure that we have required directories in the host
 mkdir -p /host/etc/cockpit/ws-certs.d

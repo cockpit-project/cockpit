@@ -79,9 +79,13 @@ static GBytes *
 substitute_environment (const gchar *variable,
                         gpointer user_data)
 {
+  GHashTable *os_release = user_data;
+  GHashTableIter iter;
   GBytes *ret = NULL;
   JsonObject *object;
   gchar *hostname;
+  gpointer key, value;
+  JsonObject *osr;
 
   if (g_str_equal (variable, "environment"))
     {
@@ -91,6 +95,15 @@ substitute_environment (const gchar *variable,
       hostname[HOST_NAME_MAX] = '\0';
       json_object_set_string_member (object, "hostname", hostname);
       g_free (hostname);
+
+      if (os_release)
+        {
+          osr = json_object_new ();
+          g_hash_table_iter_init (&iter, os_release);
+          while (g_hash_table_iter_next (&iter, &key, &value))
+            json_object_set_string_member (osr, key, value);
+          json_object_set_object_member (object, "os-release", osr);
+        }
 
       ret = cockpit_json_write_bytes (object);
       json_object_unref (object);
@@ -122,7 +135,7 @@ send_login_html (CockpitWebResponse *response,
     }
 
   body = g_mapped_file_get_bytes (file);
-  output = cockpit_template_expand (body, substitute_environment, NULL);
+  output = cockpit_template_expand (body, substitute_environment, ws->os_release);
 
   length = 0;
   for (l = output; l != NULL; l = g_list_next (l))

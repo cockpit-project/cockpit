@@ -366,7 +366,7 @@ This package is not yet complete.
 
 %package kubernetes
 Summary: Cockpit user interface for Kubernetes cluster
-Requires: kubernetes
+Requires: kubernetes >= 0.16.2
 
 %description kubernetes
 The Cockpit components for visualizing and configuring a Kubernetes

@@ -34,6 +34,12 @@
 #include <string.h>
 
 /**
+ * Certain processes may want to allow symlinks to certain
+ * directory, like branding
+ */
+const gchar *cockpit_web_exception_escape_root = NULL;
+
+/**
  * CockpitWebResponse:
  *
  * A response sent back to an HTTP client. You can use the high level one
@@ -979,7 +985,10 @@ static gboolean
 path_has_prefix (const gchar *path,
                  const gchar *prefix)
 {
-  gsize len = strlen (prefix);
+  gsize len;
+  if (prefix == NULL)
+    return FALSE;
+  len = strlen (prefix);
   if (len == 0)
     return FALSE;
   if (!g_str_has_prefix (path, prefix))
@@ -1058,7 +1067,8 @@ again:
   g_return_if_fail (!g_str_has_suffix (path, "/.."));
 
   /* Someone is trying to escape the root directory */
-  if (!path_has_prefix (path, root))
+  if (!path_has_prefix (path, root) &&
+      !path_has_prefix (path, cockpit_web_exception_escape_root))
     {
       g_debug ("%s: request tried to escape the root directory: %s: %s", escaped, root, path);
       cockpit_web_response_error (response, 404, NULL, "Not Found");

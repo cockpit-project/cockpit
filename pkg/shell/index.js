@@ -63,6 +63,38 @@ define([
         };
     }
 
+    /* Branding */
+
+    function brand(id) {
+        var os_release = JSON.parse(window.localStorage.getItem('os-release') || "{}");
+        console.log(os_release);
+
+        var elt = $(id)[0];
+        if (!elt)
+            return;
+
+        var content = window.getComputedStyle(elt).content;
+        if (content != "none") {
+            if (content[0] == '"')
+                content = content.substr(1);
+            if (content.length > 0 && content[content.length - 1] == '"')
+                content = content.substr(0, content.length - 1);
+
+            content = content.replace(/\$\{([^}]+)\}/g,
+                                      function (m, v) {
+                                          var vars = v.split("|");
+                                          for (var i = 0; i < vars.length; i++) {
+                                              if (os_release[vars[i]])
+                                                  return os_release[vars[i]];
+                                          }
+                                          return "";
+                                      });
+            elt.innerHTML = content;
+        }
+    }
+
+    brand('#index-brand');
+
     /* Basic menu items */
 
     $("#deauthorize-item").on("click", function(ev) {

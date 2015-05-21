@@ -101,6 +101,9 @@ calculate_static_roots (GHashTable *os_release)
   g_free (branding_dirs[1]);
   g_free (branding_dirs[2]);
 
+  /* Allow branding symlinks to escape these roots into /usr/share/pixmaps */
+  cockpit_web_exception_escape_root = "/usr/share/pixmaps";
+
   return roots;
 }
 

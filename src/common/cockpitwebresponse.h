@@ -36,6 +36,8 @@ typedef enum {
 
 typedef struct _CockpitWebResponse        CockpitWebResponse;
 
+extern const gchar *  cockpit_web_exception_escape_root;
+
 GType                 cockpit_web_response_get_type      (void) G_GNUC_CONST;
 
 CockpitWebResponse *  cockpit_web_response_new           (GIOStream *io,

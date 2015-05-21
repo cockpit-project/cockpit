@@ -82,6 +82,7 @@ substitute_environment (const gchar *variable,
   GBytes *ret = NULL;
   JsonObject *object;
   gchar *hostname;
+  gchar *contents;
 
   if (g_str_equal (variable, "environment"))
     {
@@ -91,6 +92,12 @@ substitute_environment (const gchar *variable,
       hostname[HOST_NAME_MAX] = '\0';
       json_object_set_string_member (object, "hostname", hostname);
       g_free (hostname);
+
+      if (g_file_get_contents ("/etc/os-release", &contents, NULL, NULL))
+        {
+          json_object_set_string_member (object, "os-release", contents);
+          g_free (contents);
+        }
 
       ret = cockpit_json_write_bytes (object);
       json_object_unref (object);

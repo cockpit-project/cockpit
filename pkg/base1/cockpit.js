@@ -1162,7 +1162,7 @@ function full_scope(cockpit, $, po) {
         else
             path = "" + path;
         var options = { command: "jump", location: path };
-        if (host)
+        if (host !== undefined)
             options.host = host;
         cockpit.transport.inject("\n" + JSON.stringify(options));
     };

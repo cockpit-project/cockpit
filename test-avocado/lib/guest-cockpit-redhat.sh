@@ -10,7 +10,7 @@ function echolog() {
 }
 
 BASE_PCKGS="avocado avocado-plugins-output-html nodejs npm bind-utils freeipa-client sssd"
-COCKPIT_DEPS=`cat $spec | egrep '^Requires: [^%]' | sed -r 's/Requires: ([^ ]*).*/\1/'`
+COCKPIT_DEPS=`cat "$spec" | egrep '^Requires: [^%]' | sed -r 's/Requires: ([^ ]*).*/\1/'`
 TEST_DEPS="ntpdate"
 
 if ! rpm -q $BASE_PCKGS >& /dev/null; then

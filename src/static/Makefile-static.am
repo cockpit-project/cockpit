@@ -17,13 +17,6 @@ if WITH_COCKPIT_WS
 staticdir = $(datadir)/cockpit/static
 static_DATA = \
 	src/static/login.html \
-	$(BRAND)/branding.css \
-	$(BRAND)/bg-login.jpg \
-	$(BRAND)/brand-large.png \
-	$(BRAND)/brand.png \
-	$(BRAND)/logo.png \
-	$(BRAND)/apple-touch-icon.png \
-	$(BRAND)/favicon.ico \
 	$(NULL)
 
 staticfontsdir = $(staticdir)/fonts
@@ -40,4 +33,3 @@ endif
 update-lib:: update-bower
 	rm -f $(srcdir)/src/static/fonts/*.woff
 	cp $(BOWER)/patternfly/dist/fonts/OpenSans-*.woff $(srcdir)/src/static/fonts/
-

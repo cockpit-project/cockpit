@@ -5,13 +5,13 @@ kubernetes_DATA = \
 	pkg/kubernetes/cluster.min.html.gz \
 	pkg/kubernetes/kubernetes.min.js.gz \
 	pkg/kubernetes/manifest.json \
-	pkg/kubernetes/deploy.min.js.gz \
 	$(NULL)
 
 kubernetesdebugdir = $(DBGDIR)$(kubernetesdir)
 kubernetesdebug_DATA = \
 	pkg/kubernetes/adjust.js \
 	pkg/kubernetes/angular.js \
+	pkg/kubernetes/angular-bootstrap.js \
 	pkg/kubernetes/app.css \
 	pkg/kubernetes/app.js \
 	pkg/kubernetes/client.js \
@@ -28,6 +28,7 @@ kubernetesdebug_DATA = \
 kubernetes_BUNDLE = \
 	pkg/kubernetes/adjust.min.js \
 	pkg/kubernetes/angular.min.js \
+	pkg/kubernetes/angular-bootstrap.min.js \
 	pkg/kubernetes/app.min.js \
 	pkg/kubernetes/client.min.js \
 	pkg/kubernetes/config.min.js \
@@ -74,6 +75,10 @@ update-lib:: update-bower
 	$(JSMODULE) -m -a window.angular -o $(srcdir)/pkg/kubernetes/angular.min.js \
 	    $(BOWER)/angular/angular.min.js \
 	    $(BOWER)/angular-route/angular-route.min.js
+	$(JSMODULE) -m -o $(srcdir)/pkg/kubernetes/angular-bootstrap.js \
+	    $(BOWER)/angular-bootstrap/ui-bootstrap.js
+	$(JSMODULE) -m -o $(srcdir)/pkg/kubernetes/angular-bootstrap.min.js \
+	    $(BOWER)/angular-bootstrap/ui-bootstrap.min.js
 	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/d3.js \
 		$(BOWER)/d3/d3.js
 	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/d3.min.js \
@@ -81,6 +86,8 @@ update-lib:: update-bower
 
 # Never recreate these files
 pkg/kubernetes/angular.min.js:
+	@true
+pkg/kubernetes/angular-bootstrap.min.js:
 	@true
 pkg/kubernetes/d3.min.js:
 	@true

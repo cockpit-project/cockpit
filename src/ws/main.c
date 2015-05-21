@@ -62,6 +62,50 @@ print_version (void)
   g_print ("Authorization: crypt1\n");
 }
 
+#ifndef BRAND
+static void
+parse_os_release (gchar **id,
+                  gchar **variant_id)
+{
+  GError *error = NULL;
+  gchar *contents = NULL;
+  gsize len;
+  gchar **lines = NULL;
+  guint n;
+  gchar *line, *val;
+
+  *id = NULL;
+  *variant_id = NULL;
+
+  if (!g_file_get_contents ("/etc/os-release", &contents, &len, &error))
+    {
+      g_message ("error loading contents of /etc/os-release: %s", error->message);
+      g_error_free (error);
+      goto out;
+    }
+
+  lines = g_strsplit (contents, "\n", -1);
+  for (n = 0; lines != NULL && lines[n] != NULL; n++)
+    {
+      line = lines[n];
+      val = strchr (line, '=');
+
+      if (val)
+        {
+          val += 1;
+          if (g_str_has_prefix (line, "ID="))
+            *id = g_strdup (val);
+          else if (g_str_has_prefix (line, "VARIANT_ID="))
+            *variant_id = g_strdup (val);
+        }
+    }
+
+ out:
+  g_strfreev (lines);
+  g_free (contents);
+}
+#endif
+
 int
 main (int argc,
       char *argv[])
@@ -73,6 +117,9 @@ main (int argc,
   GTlsCertificate *certificate = NULL;
   GError *local_error = NULL;
   GError **error = &local_error;
+  gchar *os_id = NULL, *os_variant_id = NULL;
+  gchar *branding_dirs[3];
+  int i;
   gchar **roots = NULL;
   gchar *cert_path = NULL;
   GMainLoop *loop = NULL;
@@ -125,9 +172,30 @@ main (int argc,
       g_info ("Using certificate: %s", cert_path);
     }
 
+#ifdef BRAND
   roots = cockpit_web_server_resolve_roots (DATADIR "/cockpit/static",
                                             DATADIR "/cockpit/branding/" BRAND,
                                             NULL);
+#else
+  parse_os_release (&os_id, &os_variant_id);
+  branding_dirs[0] = branding_dirs[1] = branding_dirs[2] = NULL;
+  i = 0;
+  if (os_id)
+    {
+      if (os_variant_id)
+          branding_dirs[i++] = g_strdup_printf (DATADIR "/cockpit/branding/%s-%s", os_id, os_variant_id);
+      branding_dirs[i++] = g_strdup_printf (DATADIR "/cockpit/branding/%s", os_id);
+    }
+  branding_dirs[i++] = g_strdup (DATADIR "/cockpit/branding/default");
+  g_assert (i <= 3);
+
+  roots = cockpit_web_server_resolve_roots (DATADIR "/cockpit/static",
+                                            branding_dirs[0],
+                                            branding_dirs[1],
+                                            branding_dirs[2],
+                                            NULL);
+#endif
+
   loop = g_main_loop_new (NULL, FALSE);
 
   data.auth = cockpit_auth_new (opt_local_ssh);
@@ -191,6 +259,11 @@ out:
   g_clear_object (&certificate);
   g_free (cert_path);
   g_strfreev (roots);
+  g_free (os_id);
+  g_free (os_variant_id);
+  g_free (branding_dirs[0]);
+  g_free (branding_dirs[1]);
+  g_free (branding_dirs[2]);
   cockpit_conf_cleanup ();
   return ret;
 }

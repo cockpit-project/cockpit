@@ -18,16 +18,12 @@ RUN cd /tmp && \
   yum clean all && rm -f /tmp/*.rpm
 
 # And the stuff that starts the container
-RUN mkdir -p /container && ln -s /host/proc/1 /container/target-namespace
 ADD atomic-* /container/
-RUN chmod -v +x /container/atomic-*
-
-# This gets in the way of our mounts below
-RUN rm -rf /usr/lib/os-release
+RUN chmod -v +x /container/atomic-* && rm -f /etc/os-release /usr/lib/os-release && ln -sv /host/etc/os-release /etc/os-release && ln -sv /host/usr/lib/os-release /usr/lib/os-release && ln -sv /host/proc/1 /container/target-namespace
 
 LABEL INSTALL /usr/bin/docker run -ti --rm --privileged -v /:/host IMAGE /container/atomic-install
 LABEL UNINSTALL /usr/bin/docker run -ti --rm --privileged -v /:/host IMAGE /cockpit/atomic-uninstall
-LABEL RUN /usr/bin/docker run -d --privileged --pid=host -v /:/host -v /etc:/etc -v /usr/lib/os-release:/usr/lib/os-release:ro -v /usr/share/pixmaps:/usr/share/pixmaps:ro IMAGE /container/atomic-run --local-ssh
+LABEL RUN /usr/bin/docker run -d --privileged --pid=host -v /:/host IMAGE /container/atomic-run --local-ssh
 
 # Look ma, no EXPOSE
 

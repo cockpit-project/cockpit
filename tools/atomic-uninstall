@@ -7,7 +7,7 @@
 cd /
 PATH="/bin:/sbin"
 
-if [ ! -f /host/etc/os-release -o ! -d /host/var/run ]; then
+if [ ! -d /host/etc -o ! -d /host/proc -o ! -d /host/var/run ]; then
     echo "host file system is not mounted at /host" >&2
     exit 1
 fi

@@ -316,8 +316,6 @@ test_failover (TestCase *tc,
   CockpitPortal *portal;
   GBytes *sent;
 
-  cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "*failed to execute bridge: not found*");
-
   portal = mock_portal_failover_new (tc->transport, mock_filter_lower, "--lower");
 
   /* The filter should ignore this */
@@ -344,8 +342,6 @@ test_fail (TestCase *tc,
   CockpitPortal *portal;
   JsonObject *sent;
 
-  cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "*failed to execute bridge: not found*");
-
   portal = mock_portal_fail_new (tc->transport, mock_filter_lower);
 
   emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"lower\"}");
@@ -368,8 +364,6 @@ test_fallback (TestCase *tc,
 {
   CockpitPortal *portal;
   GBytes *sent;
-
-  cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "*failed to execute bridge: not found*");
 
   portal = mock_portal_fail_new (tc->transport, mock_filter_upper_fallback);
 

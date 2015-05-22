@@ -30,6 +30,8 @@ define([
 
     /* The kubernetes client: valid while dialog is open */
     var client;
+    /* The Nulecule client: valid while dialog is open */
+    var nulecule_client;
 
     function deploy_app() {
         var promise = validate()
@@ -73,6 +75,37 @@ define([
         $("#deploy-app-dialog").dialog("wait", promise);
     }
 
+    function deploy_nulecule() {
+        console.log("deploy_nulecule");
+        var promise = validate()
+            .fail(function(exs) {
+                console.log("validated failed");
+                $("#deploy-app-dialog").dialog("failure", exs);
+            })
+            .done(function(fields) {
+                console.log("validated");
+                promise = nulecule_client.install(fields.nulecule_image)
+                    .done(function() {
+                        /* code gets run when everything is created */
+                        //$('#deploy-app-dialog').modal('hide');
+                        console.log("done");
+                    })
+                    .fail(function(ex, response) {
+                        console.log("fail");
+                        var target;
+                        var msg;
+
+                        /* Display the error appropriately in the dialog */
+                        $("#deploy-app-dialog").dialog("failure", ex);
+                    });
+                    console.log("wait");
+                    /* Display a spinner while this is happening */
+                    $("#deploy-app-dialog").dialog("wait", promise);
+            });
+
+        /* Display a spinner while this is happening */
+        $("#deploy-app-dialog").dialog("wait", promise);
+    }
     /*
      * Validates the dialog asynchronously and returns a Promise either
      * failing with errors, or returning the clean data.
@@ -81,6 +114,7 @@ define([
         var dfd = $.Deferred();
         var ex, fails = [];
         var fields = { };
+        var type_selector = $('#deploy-app-type');
 
         var ns = $("#deploy-app-namespace").val();
         if (!ns)
@@ -95,36 +129,49 @@ define([
             fields.namespace = ns;
         }
 
-        var files = $('#deploy-app-manifest-file')[0].files;
+        if (type_selector.val().trim() === _("Kubernetes Manifest")) {
+            var files = $('#deploy-app-manifest-file')[0].files;
 
-        if (files.length != 1)
-            ex = new Error(_("No metadata file was selected. Please select a Kubernetes metadata file."));
-        else if (files[0].type && !files[0].type.match("json.*"))
-            ex = new Error(_("The selected file is not a valid Kubernetes application manifest."));
-        if (ex) {
-            ex.target = "#deploy-app-manifest-file-button";
-            fails.push(ex);
-        }
+            if (files.length != 1)
+                ex = new Error(_("No metadata file was selected. Please select a Kubernetes metadata file."));
+            else if (files[0].type && !files[0].type.match("json.*"))
+                ex = new Error(_("The selected file is not a valid Kubernetes application manifest."));
+            if (ex) {
+                ex.target = "#deploy-app-manifest-file-button";
+                fails.push(ex);
+            }
 
-        var reader;
+            var reader;
 
-        if (fails.length) {
-            dfd.reject(fails);
+            if (fails.length) {
+                dfd.reject(fails);
+
+            } else {
+                reader = new window.FileReader();
+                reader.onerror = function(event) {
+                    ex = new Error(cockpit.format(_("Unable to read the Kubernetes application manifest. Code $0."),
+                                   event.target.error.code));
+                    ex.target = "#deploy-app-manifest-file-button";
+                    dfd.reject(ex);
+                };
+                reader.onload = function() {
+                    fields.manifest = reader.result;
+                    dfd.resolve(fields);
+                };
+                reader.readAsText(files[0]);
+            }
 
         } else {
-            reader = new window.FileReader();
-            reader.onerror = function(event) {
-                ex = new Error(cockpit.format(_("Unable to read the Kubernetes application manifest. Code $0."),
-                               event.target.error.code));
-                ex.target = "#deploy-app-manifest-file-button";
-                dfd.reject(ex);
-            };
-            reader.onload = function() {
-                fields.manifest = reader.result;
+                //TODO
+                //validate image
+                var nulecule_image = $("#deploy-app-nulecule-image");
+                fields.nulecule_image = nulecule_image.val().trim();
+                console.log(fields.nulecule_image);
                 dfd.resolve(fields);
-            };
-            reader.readAsText(files[0]);
         }
+        console.log("validate method returns");
+
+
 
         return dfd.promise();
     }
@@ -134,22 +181,55 @@ define([
         var deploy_btn = $('#deploy-app-start');
         var manifest_file = $('#deploy-app-manifest-file');
         var manifest_file_btn = $('#deploy-app-manifest-file-button');
+        var manifest_type = $("#deploy-app-type-label");
+        var nulecule_image = $("#deploy-app-nulecule-image");
+        var type_selector = $('#deploy-app-type');
+  
 
         deploy_btn.on('click', function() {
-            deploy_app();
+            if (type_selector.val().trim() === _("Kubernetes Manifest")) {
+                deploy_app();
+            } else {
+                console.log("deploy_nulecule");
+                deploy_nulecule();
+            }
         });
 
         manifest_file_btn.on('click', function() {
             manifest_file.val('');
             manifest_file.trigger('click');
             manifest_file_btn.triggerHandler('change');
+      });
+
+        type_selector.on('change', function() {
+            if (type_selector.val().trim() === _("Kubernetes Manifest")) {
+                $("#deploy-app-nulecule-image").hide();
+                $('label[for="deploy-app-nulecule"]').hide();
+                $('#deploy-app-manifest-file-button').show();
+                $('label[for="deploy-app-manifest"]').show();
+
+            } else {
+                $("#deploy-app-nulecule-image").show();
+                $('label[for="deploy-app-nulecule"]').show();
+                $('#deploy-app-manifest-file-button').hide()
+                $('label[for="deploy-app-manifest"]').hide();
+            }
         });
+        type_selector.selectpicker('refresh');
 
         dlg.on('show.bs.modal', function() {
             manifest_file_btn.text(_("Select Manifest File...")).addClass('manifest_file_default');
 
             $("#deploy-app-namespace").val('');
+            nulecule_image.val('');
+            manifest_type.text( _("Kubernetes Manifest"));
+
+            $("#deploy-app-nulecule-image").hide();
+            $('label[for="deploy-app-nulecule"]').hide();
+            $('#deploy-app-manifest-file-button').show();
+            $('label[for="deploy-app-manifest"]').show();
             client = kubernetes.k8client();
+            nulecule_client = kubernetes.nuleculeclient();
             $(client).on("namespaces", namespaces_changed);
             namespaces_changed();
         });
@@ -159,6 +239,10 @@ define([
                 client.close();
                 $(client).off("namespaces", namespaces_changed);
                 client = null;
+            }
+            if (nulecule_client) {
+                nulecule_client.close();
+                nulecule_client = null;
             }
         });
 

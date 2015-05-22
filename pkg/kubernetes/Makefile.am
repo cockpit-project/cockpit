@@ -5,6 +5,9 @@ kubernetes_DATA = \
 	pkg/kubernetes/cluster.min.html.gz \
 	pkg/kubernetes/kubernetes.min.js.gz \
 	pkg/kubernetes/manifest.json \
+	pkg/kubernetes/tool.min.html.gz \
+	pkg/kubernetes/deploy.min.js.gz \
+	pkg/kubernetes/nulecule.min.js.gz \
 	$(NULL)
 
 kubernetesdebugdir = $(DBGDIR)$(kubernetesdir)
@@ -24,10 +27,9 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/graphs.js \
 	pkg/kubernetes/kubernetes.js \
 	pkg/kubernetes/node.js \
-	pkg/kubernetes/object-describer.js \
+	pkg/kubernetes/tool.html \
 	pkg/kubernetes/deploy.js \
-	pkg/kubernetes/topology.css \
-	pkg/kubernetes/topology.js \
+	pkg/kubernetes/nulecule.js \
 	$(NULL)
 
 kubernetes_BUNDLE = \
@@ -42,6 +44,7 @@ kubernetes_BUNDLE = \
 	pkg/kubernetes/details.min.js \
 	pkg/kubernetes/d3.min.js \
 	pkg/kubernetes/graphs.min.js \
+        pkg/kubernetes/nulecule.min.js \
 	pkg/kubernetes/node.min.js \
 	pkg/kubernetes/object-describer.min.js \
 	pkg/kubernetes/topology.min.js \
@@ -60,12 +63,14 @@ CLEANFILES += \
 	pkg/kubernetes/app.min.css \
 	pkg/kubernetes/cluster.min.html \
 	pkg/kubernetes/kubernetes.min.js \
+	pkg/kubernetes/tool.min.html \
 	$(kubernetes_BUNDLE) \
 	$(NULL)
 
 EXTRA_DIST += \
 	pkg/kubernetes/cluster.min.html \
 	pkg/kubernetes/kubernetes.min.js \
+	pkg/kubernetes/tool.min.html \
 	$(kubernetes_BUNDLE) \
 	$(kubernetes_DATA) \
 	$(kubernetesdebug_DATA) \
@@ -73,6 +78,7 @@ EXTRA_DIST += \
 	pkg/kubernetes/mock-basic.js \
 	pkg/kubernetes/mock-large.js \
 	pkg/kubernetes/angular.min.js \
+	pkg/kubernetes/angular-config.js \
 	pkg/kubernetes/d3.min.js \
 	$(NULL)
 

@@ -21,12 +21,16 @@ define([
     "jquery",
     "base1/cockpit",
     "kubernetes/client",
+    "kubernetes/nulecule",
     "base1/mustache",
     "base1/patterns"
-], function($, cockpit, kubernetes, Mustache) {
+], function(jQuery, cockpit, kubernetes, nulecule, Mustache, patterns) {
     "use strict";
 
     var _ = cockpit.gettext;
+
+    /* A jQuery scoped to just the deploy dlg, with the button thrown in */
+    var $ = jQuery.scoped("body", patterns);
 
     /* The kubernetes client: valid while dialog is open */
     var client;
@@ -211,7 +215,7 @@ define([
             } else {
                 $("#deploy-app-nulecule-image").show();
                 $('label[for="deploy-app-nulecule"]').show();
-                $('#deploy-app-manifest-file-button').hide()
+                $('#deploy-app-manifest-file-button').hide();
                 $('label[for="deploy-app-manifest"]').hide();
             }
         });
@@ -229,7 +233,7 @@ define([
             $('#deploy-app-manifest-file-button').show();
             $('label[for="deploy-app-manifest"]').show();
             client = kubernetes.k8client();
-            nulecule_client = kubernetes.nuleculeclient();
+            nulecule_client = nulecule.nuleculeclient();
             $(client).on("namespaces", namespaces_changed);
             namespaces_changed();
         });

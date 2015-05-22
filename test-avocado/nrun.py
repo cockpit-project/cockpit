@@ -93,7 +93,7 @@ os.chmod(userkey, 0600)
 
 ssh_options = ['-o', 'UserKnownHostsFile=/dev/null',
                '-o', 'StrictHostKeyChecking=no',
-               '-o', 'ConnectTimeout=30'
+               '-o', 'ConnectTimeout=300'
               ]
 
 virt = virtdeploy.get_driver('libvirt')
@@ -185,14 +185,26 @@ def upload(address, sources, dest):
     except:
         realaddr = address
         pass
+    normalized_sources = []
     if isinstance(sources, basestring):
-        sources = [sources]
+        normalized_sources = [os.path.abspath(sources)]
+    else:
+        for foo in sources:
+            normalized_sources.append(os.path.abspath(foo))
     cmd = [
         "scp",
+        "-r",
         "-i", userkey
-    ] + ssh_options + sources + [ "root@%s:%s" % (realaddr, dest), ]
-
-    subprocess.check_call(cmd)
+    ] + ssh_options + normalized_sources + [ "root@%s:%s" % (realaddr, dest), ]
+    try:
+        with stdchannel_redirected(sys.stdout, os.devnull):
+            with stdchannel_redirected(sys.stderr, os.devnull):
+                subprocess.check_call(cmd)
+    except Exception as inst:
+        echo_warning(str(inst))
+        pass
+    echo_log("files uploaded: "+ str(normalized_sources) + " -> root@%s:%s" % (realaddr, dest), always_show = True)
+        
 
 def download(address, source, dest):
     """Download a files from the test machine
@@ -201,7 +213,7 @@ def download(address, source, dest):
         sources: path or file to upload
         dest: the file path in the machine to upload to
     """
-    assert sources and dest
+    assert source and dest
     assert address
     try:
         realaddr = get_ip(address)
@@ -213,8 +225,10 @@ def download(address, source, dest):
         "-r",
         "-i", userkey
     ] + ssh_options  + [ "root@%s:%s" % (realaddr, source), dest]
-
-    subprocess.check_call(cmd)
+    with stdchannel_redirected(sys.stdout, os.devnull):
+        with stdchannel_redirected(sys.stderr, os.devnull):
+            subprocess.check_call(cmd)
+    echo_log("files downloaded: " + "root@%s:%s -> %s" % (realaddr, source, dest), always_show = True)
 
 
 ###############################################################################
@@ -575,26 +589,40 @@ def guest_favour(local_guest_name,flavor_script_path,varfile=""):
         raise
 
     upload(ip, flavor_script_path, '/var/tmp/%s' % flavorname)
-    guest_run_command(dom, 'chmod a+x /var/tmp/%s' % flavorname, True)
-    guest_run_command(dom, '/var/tmp/%s "%s"' % (flavorname, varfile), True)
+    guest_run_command(dom, 'chmod a+x /var/tmp/%s' % flavorname, errors=False)
+    guest_run_command(dom, '/var/tmp/%s "%s"' % (flavorname, varfile), errors=False)
 
-avocado="avocado run -xunit"
+avocado="avocado run "
 
-def avocado_run(local_guest_name,test_name_paths,multiplex_file=None):
+def avocado_run(local_guest_name,test_name,multiplex_file=None):
     dom=refresh_guest(local_guest_name)
     ip = get_ip(dom)
     if not wait_ssh(ip):
         echo_log("Timed out waiting for machine %s to start" % dom.name())
         raise
-    tests = test_name_paths
-    if isinstance(test_name_paths, list):
-         tests = ' '.join(test_name_paths)
+    test_name
+#    if isinstance(test_name_paths, list):
+#         tests = ' '.join(test_name_paths)
+    dirscp = os.path.dirname(os.path.abspath(test_name))
+    basenameoftest = os.path.basename(os.path.abspath(test_name))
+    dirscp_path = os.path.basename(dirscp)
     guest_run_command(dom, 'mkdir -p /var/tmp/avocado')
-    upload(ip, test_name_paths, '/var/tmp/avocado/')
-    guest_run_command(dom, 'chmod a+x /var/tmp/avocado/*')
-    if multiplex_file:
-        guest_run_command(dom, '%s -multiplex %s /var/tmp/avocado/%s' % (avocado, multiplex_file, tests))
-    else:
-        guest_run_command(dom, '%s /var/tmp/avocado/%s' % (avocado, tests))
-    download(ip,'/root/avocado', './')
-    
+    upload(ip, dirscp, '/var/tmp/avocado/')
+#    guest_run_command(dom, 'chmod a+x /var/tmp/avocado/*')
+    try:
+        if multiplex_file:
+            guest_run_command(dom, '%s -multiplex %s /var/tmp/avocado/%s/%s' % (avocado, multiplex_file, dirscp_path, basenameoftest), errors=False)
+        else:
+            guest_run_command(dom, '%s /var/tmp/avocado/%s/%s' % (avocado, dirscp_path, basenameoftest), errors=False)
+        echo_success("TEST PASSED: %s" % basenameoftest)
+    except Exception as inst:
+        print inst
+        echo_warning("TEST FAILED: %s" % basenameoftest)
+        pass
+    try:
+        download(ip,'/root/avocado', './')
+    except Exception as inst:
+        print inst
+        echo_error("UNABLE TO DOWNLOAD results  to ./avocado dir")
+        
+

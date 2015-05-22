@@ -306,7 +306,9 @@ on_other_closed (CockpitTransport *transport,
       g_debug ("other bridge failed: %s", problem);
 
       if (self->argvs[self->argvi + 1] != NULL &&
-          (g_str_equal (problem, "no-cockpit") || g_str_equal (problem, "access-denied")))
+          (g_str_equal (problem, "no-cockpit") ||
+           g_str_equal (problem, "not-found") ||
+           g_str_equal (problem, "access-denied")))
         {
           self->argvi += 1;
           disconnect_portal_bridge (self);
@@ -314,7 +316,8 @@ on_other_closed (CockpitTransport *transport,
           return;
         }
 
-      if (g_str_equal (problem, "no-cockpit"))
+      if (g_str_equal (problem, "no-cockpit") ||
+          g_str_equal (problem, "not-found"))
         problem = "not-supported";
 
     }

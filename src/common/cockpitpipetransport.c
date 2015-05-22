@@ -143,33 +143,47 @@ on_pipe_close (CockpitPipe *pipe,
                gpointer user_data)
 {
   CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (user_data);
+  gboolean is_cockpit;
   GError *error = NULL;
   gint status;
 
   /* This function is called by the base class when it is closed */
   if (cockpit_pipe_get_pid (pipe, NULL))
     {
+      is_cockpit = g_str_equal (self->name, "cockpit-bridge") ||
+                   g_str_equal (self->name, "cockpit-session");
+
       if (problem == NULL ||
           g_str_equal (problem, "internal-error"))
         {
           status = cockpit_pipe_exit_status (pipe);
           if (WIFSIGNALED (status) && WTERMSIG (status) == SIGTERM)
             problem = "terminated";
-          else if (WIFEXITED (status) && WEXITSTATUS (status) == 127)
+          else if (is_cockpit && WIFEXITED (status) && WEXITSTATUS (status) == 127)
             problem = "no-cockpit";      // cockpit-bridge not installed
           else if (WIFEXITED (status) && WEXITSTATUS (status) == 255)
             problem = "terminated";      // failed or got a signal, etc.
           else if (!g_spawn_check_exit_status (status, &error))
             {
               problem = "internal-error";
-              g_warning ("%s: bridge program failed: %s", self->name, error->message);
+              if (is_cockpit)
+                g_warning ("%s: bridge program failed: %s", self->name, error->message);
+              else
+                g_debug ("%s: process failed: %s", self->name, error->message);
               g_error_free (error);
             }
         }
       else if (g_str_equal (problem, "not-found"))
         {
-          g_message ("%s: failed to execute bridge: not found", self->name);
-          problem = "no-cockpit";
+          if (is_cockpit)
+            {
+              g_message ("%s: failed to execute bridge: not found", self->name);
+              problem = "no-cockpit";
+            }
+          else
+            {
+              g_debug ("%s: failed to run: not found", self->name);
+            }
         }
     }
 

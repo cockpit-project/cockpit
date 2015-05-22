@@ -757,7 +757,7 @@ cockpit_portal_new_superuser (CockpitTransport *transport)
 
   static const gchar *sudo_argv[] = {
     PATH_SUDO,
-    "--non-interactive",
+    "-n", /* non-interactive */
     "cockpit-bridge",
     NULL
   };

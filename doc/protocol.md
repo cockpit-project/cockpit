@@ -101,7 +101,7 @@ The following fields are defined:
  * "payload": A payload type, see below
  * "host": The destination host for the channel, defaults to "localhost"
  * "user": Optional alternate user for authenticating with host
- * "superuser": When true, try to run this channel as root.
+ * "superuser": Optional. Use "require" to run as root, or "try" to attempt to run as root.
  * "group": A group that can later be used with the "kill" command.
  * "capabilities": Optional, array of capability strings required from the bridge
 

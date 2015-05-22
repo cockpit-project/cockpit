@@ -262,9 +262,8 @@ CMD ["/bin/sh", "-c", "echo '%s' | tee /dev/fd/2 | nc -l -p %d"]
         b = self.browser
         m = self.machine
 
-        # Make sure Docker isn't running and go to the containers page
-        # as "admin" without the "wheel" group.
-        m.execute("systemctl stop docker")
+        # Try to access docker without wheel group
+        m.execute("systemctl start docker")
         m.execute("usermod -G '' admin")
         self.allow_journal_messages("Can't write /var/lib/cockpit/machines: Failed to create file '/var/lib/cockpit/machines\\..*': Permission denied")
 
@@ -277,6 +276,7 @@ CMD ["/bin/sh", "-c", "echo '%s' | tee /dev/fd/2 | nc -l -p %d"]
 
         # Give "admin" access via the wheel group and login again
         m.execute("usermod -G wheel admin")
+        m.execute("systemctl stop docker")
         b.relogin("containers")
         self.allow_restart_journal_messages()
 

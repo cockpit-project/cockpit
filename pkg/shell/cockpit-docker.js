@@ -335,7 +335,7 @@ function setup_for_failure(page, client) {
         $("#containers-failure-start").hide();
         $("#containers-failure-message").text(_("Starting docker"));
         $("#containers-failure-waiting").show();
-        cockpit.spawn([ "systemctl", "start", "docker" ], { "superuser": true }).
+        cockpit.spawn([ "systemctl", "start", "docker" ], { "superuser": "try" }).
             done(function () {
                 client.close();
                 client.connect().
@@ -409,7 +409,7 @@ function handle_scope_start_container(docker_client, container_id, error_message
         var start_phrase = 'Unit docker-';
         var idx_start = error_message.indexOf(start_phrase) + start_phrase.length;
         var docker_container = error_message.substring(idx_start, idx_end);
-        cockpit.spawn([ "systemctl", "stop", "docker-" + docker_container + ".scope" ], { "superuser": true }).
+        cockpit.spawn([ "systemctl", "stop", "docker-" + docker_container + ".scope" ], { "superuser": "try" }).
             done(function () {
                 docker_client.start(container_id).
                     fail(function(ex) {
@@ -2346,7 +2346,7 @@ function DockerClient() {
     function perform_connect() {
         got_failure = false;
         connected = $.Deferred();
-        http = cockpit.http("/var/run/docker.sock", { superuser: true });
+        http = cockpit.http("/var/run/docker.sock", { superuser: "try" });
 
         connect_events();
 
@@ -2355,7 +2355,7 @@ function DockerClient() {
 
         http.get("/v1.10/info").done(function(data) {
             var info = data && JSON.parse(data);
-            watch = cockpit.channel({ payload: "fslist1", path: info["DockerRootDir"], superuser: true });
+            watch = cockpit.channel({ payload: "fslist1", path: info["DockerRootDir"], superuser: "try" });
             $(watch).on("message", function(event, data) {
                 trigger_event();
             });

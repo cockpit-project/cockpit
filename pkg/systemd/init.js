@@ -120,7 +120,7 @@ define([
             return name_esc(str);
     }
 
-    var systemd_client = cockpit.dbus("org.freedesktop.systemd1", { superuser: true });
+    var systemd_client = cockpit.dbus("org.freedesktop.systemd1", { superuser: "try" });
     var systemd_manager = systemd_client.proxy("org.freedesktop.systemd1.Manager",
                                                "/org/freedesktop/systemd1");
 

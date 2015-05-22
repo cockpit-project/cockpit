@@ -187,7 +187,7 @@ PageServer.prototype = {
 
         self.plot_controls = shell.setup_plot_controls($('#server'), $('#server-graph-toolbar'));
 
-        var systemd_client = cockpit.dbus("org.freedesktop.systemd1", { superuser: true });
+        var systemd_client = cockpit.dbus("org.freedesktop.systemd1", { superuser: "try" });
         var systemd_manager = systemd_client.proxy("org.freedesktop.systemd1.Manager",
                                                    "/org/freedesktop/systemd1");
 
@@ -427,7 +427,7 @@ PageServer.prototype = {
             });
 
         cockpit.spawn(["grep", "\\w", "product_serial", "chassis_serial"],
-                      { directory: "/sys/devices/virtual/dmi/id", superuser: true, err: "ignore" })
+                      { directory: "/sys/devices/virtual/dmi/id", superuser: "try", err: "ignore" })
             .done(function(output) {
                 var fields = parse_lines(output);
                 $("#system_information_asset_tag_text").text(fields.product_serial ||
@@ -862,7 +862,7 @@ PageShutdownDialog.prototype = {
             when = "+" + delay;
 
         var arg = (op == "shutdown") ? "--poweroff" : "--reboot";
-        cockpit.spawn(["shutdown", arg, when, message], { superuser: true })
+        cockpit.spawn(["shutdown", arg, when, message], { superuser: "try" })
             .fail(function(ex) {
                 $('#shutdown-dialog').modal('hide');
                 shell.show_unexpected_error(ex);

@@ -1,3 +1,5 @@
+BOGUS CHANGE
+
 [![travis CI build status](https://travis-ci.org/cockpit-project/cockpit.svg?branch=master)](https://travis-ci.org/cockpit-project/cockpit)
 [![Fedora 22 build status](http://files.cockpit-project.org/hubbot/status-f22-x86_64.svg?master)](http://files.cockpit-project.org/hubbot/)
 [![RHEL 7 build status](http://files.cockpit-project.org/hubbot/status-r7-x86_64.svg?master)](http://files.cockpit-project.org/hubbot/)

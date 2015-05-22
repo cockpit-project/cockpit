@@ -199,30 +199,32 @@ PageServer.prototype = {
 
         function change_pmlogger_state(val) {
             function fail(error) {
-                console.warn("Enabling/disabling pmlogger failed", error.toString());
+                console.warn("Enabling/disabling pmlogger failed", error);
                 refresh_pmlogger_state();
             }
 
             systemd_manager.wait(function () {
-                if (val) {
+                if (!systemd_manager.valid) {
+                    fail();
+                } else if (val) {
                     /* The "pmcd" needs to be enabled and started
                      * explicitly as well since the "pmlogger" service
                      * does not formally require it.
                      */
-                    systemd_manager.EnableUnitFiles(["pmcd.service", "pmlogger.service"], false, false).
-                        done(function () {
+                    systemd_manager.EnableUnitFiles(["pmcd.service", "pmlogger.service"], false, false)
+                        .done(function () {
                             $.when(systemd_manager.StartUnit("pmcd.service", "fail"),
-                                   systemd_manager.StartUnit("pmlogger.service", "fail")).
-                                fail(fail);
-                        }).
-                        fail(fail);
+                                   systemd_manager.StartUnit("pmlogger.service", "fail"))
+                                .fail(fail);
+                        })
+                        .fail(fail);
                 } else {
-                    systemd_manager.StopUnit("pmlogger.service", "fail").
-                        done(function () {
-                            systemd_manager.DisableUnitFiles(["pmlogger.service"], false).
-                                fail(fail);
-                        }).
-                        fail(fail);
+                    systemd_manager.StopUnit("pmlogger.service", "fail")
+                        .done(function () {
+                            systemd_manager.DisableUnitFiles(["pmlogger.service"], false)
+                                .fail(fail);
+                        })
+                        .fail(fail);
                 }
             });
         }

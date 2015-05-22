@@ -46,6 +46,9 @@ class TestKubernetes(KubernetesCase):
     def setUp(self):
         MachineCase.setUp(self)
         m = self.machine
+
+	# HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1222416
+	m.execute("echo 'ETCD_ADVERTISE_CLIENT_URLS=\"http://localhost:4001\"' >> /etc/etcd/etcd.conf")
         m.execute("systemctl start etcd kube-apiserver kube-controller-manager docker kube-proxy kubelet")
         m.upload(["mock-k8s-tiny-app.json"], "/tmp")
         self.wait_api_server()
@@ -97,6 +100,9 @@ class TestSsl(KubernetesCase):
     def testConnect(self):
         m = self.machine
         b = self.browser
+
+	# HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1222416
+	m.execute("echo 'ETCD_ADVERTISE_CLIENT_URLS=\"http://localhost:4001\"' >> /etc/etcd/etcd.conf")
 
         # Start a kube-apiserver with a 'wrong' http port, forcing use of https
         m.execute("echo 'KUBE_API_PORT=\"--port=1111\"' >> /etc/kubernetes/apiserver")

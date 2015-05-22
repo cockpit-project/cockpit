@@ -1,11 +1,16 @@
 
 /* When showing our own brand, be humble. */
-.login-unstable {
-    display: block;
+.login-note {
+    color: transparent;
+    position: relative;
 }
 
-.login-stable {
-    display: none;
+.login-note:after {
+    content: "Not ready for use on production servers.";
+    color: white;
+    position: absolute;
+    top: 0px;
+    left: 0px;
 }
 
 body.login-pf {

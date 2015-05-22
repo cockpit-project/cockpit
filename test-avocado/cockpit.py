@@ -29,7 +29,8 @@ class Test(test.Test):
     def __init__(self, **args):
         test.Test.__init__(self, **args)
         self.cleanup_funcs = [ ]
-        self.environment = imp.load_source("", os.path.dirname(__file__) + "/lib/var.env")
+#        self.environment = imp.load_source("", os.path.dirname(__file__) + "/lib/var.env")
+        self.environment = self.params
 
     def atcleanup(self, func):
         self.cleanup_funcs.append(func)
@@ -46,19 +47,20 @@ class Test(test.Test):
         self.atcleanup(restore)
         with open(file, 'w') as f: f.write(content)
 
-    def setup(self):
+    def setUp(self):
         state = self.get_state()
         self.label = re.sub('.py$', '', os.path.basename(state['name']))
         self.browser = Browser("localhost", self.label)
         self.journal_start = re.sub('.*cursor: ', '',
                                     subprocess.check_output("journalctl --show-cursor -n0 -o cat || true", shell=True))
 
-    def action(self):
-        process.run("systemctl start cockpit-testing.socket", shell=True)
-        self.test()
+    def runTest(self):
+        process.run("systemctl start cockpit.socket", shell=True)
+        process.run("sleep 5", shell=True)
+        self.phase()
         self.check_journal_messages()
 
-    def cleanup(self):
+    def tearDown(self):
         state = self.get_state()
 
         # Make a final screenshot and save the journal for the test run.
@@ -84,7 +86,7 @@ class Test(test.Test):
 
         for f in self.cleanup_funcs: f()
 
-        process.run("systemctl stop cockpit-testing.socket cockpit-testing.service", shell=True)
+        process.run("systemctl stop cockpit.socket cockpit.service", shell=True)
 
     allowed_messages = [
         # This is a failed login, which happens every time
@@ -110,8 +112,8 @@ class Test(test.Test):
         "Failed to load '.*': Key file does not have group 'Unit'",
 
         # https://github.com/cockpit-project/cockpit/issues/115
-        "cockpit-testing\\.service: main process exited, code=exited, status=1/FAILURE",
-        "Unit cockpit-testing\\.service entered failed state\\.",
+        "cockpit\\.service: main process exited, code=exited, status=1/FAILURE",
+        "Unit cockpit\\.service entered failed state\\.",
 
         # https://bugs.freedesktop.org/show_bug.cgi?id=71092
         "logind\\.KillUser failed \\(Input/output error\\), trying systemd\\.KillUnit",

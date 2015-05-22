@@ -30,6 +30,13 @@ echo 'NETWORKING=yes' > /etc/sysconfig/network
 useradd -u 1000 -c Administrator -G wheel admin
 echo foobar | passwd --stdin admin
 
+# Let's not use dynamic mirrors since we might pretty much randomly
+# get different sets of packages.
+#
+# Once Fedora 22 is released, this needs to be reviewed and adapted.
+#
+sed -i -e 's/#baseurl/baseurl/' -e 's/metalink/#metalink/' -e 's,http://download,http://dl,' -e 's/releases/development/' -e 's,Everything/,,' /etc/yum.repos.d/*.repo
+
 # Let's upgrade dnf first and then use the new dnf to upgrade
 # the rest. This helps avoid things like:
 #

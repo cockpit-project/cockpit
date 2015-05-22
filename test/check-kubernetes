@@ -111,4 +111,8 @@ class TestSsl(KubernetesCase):
         output = m.execute("curl -sS http://localhost:8080/api 2>&1 || true")
         self.assertIn("Connection refused", output)
 
-test_main()
+if os.environ.get("TEST_OS") == "rhel-7":
+    print "Skipping check-kubernetes on rhel-7."
+    pass
+else:
+    test_main()

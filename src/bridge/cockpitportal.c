@@ -241,6 +241,7 @@ on_transport_control (CockpitTransport *transport,
                       gpointer user_data)
 {
   CockpitPortal *self = user_data;
+  gboolean relay = FALSE;
 
   if (g_str_equal (command, "init"))
     {
@@ -255,12 +256,25 @@ on_transport_control (CockpitTransport *transport,
        if (self->channels && g_hash_table_lookup (self->channels, channel))
          {
            cockpit_transport_send (self->other, NULL, payload);
-           return TRUE;
+           relay = TRUE;
          }
      }
 
-  g_assert (self->filter_func);
-  return self->filter_func (self, command, channel, options, payload);
+   if (!relay)
+     {
+       g_assert (self->filter_func);
+       relay = self->filter_func (self, command, channel, options, payload);
+     }
+
+   if (relay)
+     {
+       open_portal (self);
+       g_hash_table_add (self->channels, g_strdup (channel));
+       cockpit_transport_send (self->other, NULL, payload);
+       return TRUE;
+     }
+
+   return FALSE;
 }
 
 static gboolean
@@ -404,7 +418,7 @@ superuser_filter (CockpitPortal *self,
     {
       g_debug ("got logout at super proxy");
       close_portal (self);
-      return TRUE;
+      return FALSE;
     }
 
   if (g_str_equal (command, "open") && channel)
@@ -419,11 +433,7 @@ superuser_filter (CockpitPortal *self,
       if (!privileged)
         return FALSE;
 
-      open_portal (self);
-      g_debug ("super channel open: %s", channel);
-
-      g_hash_table_add (self->channels, g_strdup (channel));
-      cockpit_transport_send (self->other, NULL, payload);
+      g_debug ("superuser channel open: %s", channel);
       return TRUE;
     }
 
@@ -478,11 +488,7 @@ pcp_filter (CockpitPortal *self,
           return FALSE;
         }
 
-      open_portal (self);
       g_debug ("pcp portal channel: %s", channel);
-
-      g_hash_table_add (self->channels, g_strdup (channel));
-      cockpit_transport_send (self->other, NULL, payload);
       return TRUE;
     }
 

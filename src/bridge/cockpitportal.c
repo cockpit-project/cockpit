@@ -139,6 +139,15 @@ intern_string (CockpitPortal *self,
   return ret;
 }
 
+static const gchar **
+current_argv (CockpitPortal *self)
+{
+  const gchar **argv = (const gchar **)(self->argvs[self->argvi]);
+  g_assert (argv != NULL);
+  g_assert (argv[0] != NULL);
+  return argv;
+}
+
 static gboolean
 on_other_recv (CockpitTransport *transport,
                const gchar *channel,
@@ -233,14 +242,15 @@ disconnect_portal_bridge (CockpitPortal *self)
 }
 
 static void
-spawn_portal_bridge (CockpitPortal *self,
-                     const gchar **argv)
+spawn_portal_bridge (CockpitPortal *self)
 {
   CockpitPipe *pipe;
   const gchar *data;
+  const gchar **argv;
 
   g_assert (self->other == NULL);
 
+  argv = current_argv (self);
   g_debug ("launching portal bridge: %s", argv[0]);
 
   pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
@@ -266,6 +276,7 @@ on_other_closed (CockpitTransport *transport,
                  gpointer user_data)
 {
   CockpitPortal *self = user_data;
+  const gchar **argv;
   CockpitPipe *pipe;
   gint status;
 
@@ -279,10 +290,15 @@ on_other_closed (CockpitTransport *transport,
 
       if (status != -1)
         {
+          argv = current_argv (self);
+
           /* These are the problem codes from pkexec. */
           if (WIFEXITED (status))
             {
-              if (WEXITSTATUS (status) == 127 || WEXITSTATUS (status) == 126)
+              if (g_str_equal (argv[0], PATH_PKEXEC) &&
+                  (WEXITSTATUS (status) == 127 || WEXITSTATUS (status) == 126))
+                problem = "access-denied";
+              else if (g_str_equal (argv[0], PATH_SUDO) && WEXITSTATUS (status) == 1)
                 problem = "access-denied";
             }
         }
@@ -294,7 +310,7 @@ on_other_closed (CockpitTransport *transport,
         {
           self->argvi += 1;
           disconnect_portal_bridge (self);
-          spawn_portal_bridge (self, (const gchar **)self->argvs[self->argvi]);
+          spawn_portal_bridge (self);
           return;
         }
 
@@ -406,7 +422,7 @@ transition_opening (CockpitPortal *self)
   self->channels = g_hash_table_new (g_str_hash, g_str_equal);
 
   self->state = PORTAL_OPENING;
-  spawn_portal_bridge (self, (const gchar **)self->argvs[self->argvi]);
+  spawn_portal_bridge (self);
 }
 
 static void

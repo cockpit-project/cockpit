@@ -26,19 +26,34 @@
 
 G_BEGIN_DECLS
 
+typedef enum {
+  COCKPIT_PORTAL_NORMAL = 0,
+  COCKPIT_PORTAL_FALLBACK = 1 << 0
+} CockpitPortalFlags;
+
 #define COCKPIT_TYPE_PORTAL         (cockpit_portal_get_type ())
 #define COCKPIT_PORTAL(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_PORTAL, CockpitPortal))
+#define COCKPIT_IS_PORTAL(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_PORTAL))
 #define COCKPIT_PORTAL_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), COCKPIT_TYPE_PORTAL, CockpitPortal))
 #define COCKPIT_IS_PORTAL_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), COCKPIT_TYPE_PORTAL))
 
 typedef struct _CockpitPortal        CockpitPortal;
 typedef struct _CockpitPortalClass   CockpitPortalClass;
 
-GType                   cockpit_portal_get_type   (void) G_GNUC_CONST;
+typedef gboolean     (* CockpitPortalFilter)             (CockpitPortal *portal,
+                                                          const gchar *command,
+                                                          const gchar *channel,
+                                                          JsonObject *options);
+
+GType                   cockpit_portal_get_type           (void) G_GNUC_CONST;
 
 CockpitPortal *         cockpit_portal_new_superuser      (CockpitTransport *transport);
 
 CockpitPortal *         cockpit_portal_new_pcp            (CockpitTransport *transport);
+
+void                    cockpit_portal_add_channel        (CockpitPortal *self,
+                                                           const gchar *channel,
+                                                           CockpitPortalFlags flags);
 
 G_END_DECLS
 

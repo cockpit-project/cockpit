@@ -252,6 +252,10 @@ AC_DEFINE_UNQUOTED([PATH_USERMOD],["$USERMOD"],[Location of usermod binary])
 AC_PATH_PROG([PKEXEC], [pkexec], [/usr/sbin/pkexec], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
 AC_DEFINE_UNQUOTED([PATH_PKEXEC], ["$PKEXEC"], [Location of pkexec binary])
 
+# sudo
+AC_PATH_PROG([SUDO], [sudo], [/usr/bin/sudo], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
+AC_DEFINE_UNQUOTED([PATH_SUDO], ["$SUDO"], [Location of sudo binary])
+
 # Config
 
 AC_DEFINE_UNQUOTED([COCKPIT_CONFIG_FILE],["$sysconfdir/cockpit/cockpit.conf"],[Configuration file])

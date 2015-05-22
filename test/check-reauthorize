@@ -102,6 +102,10 @@ class TestReauthorize(MachineCase):
         self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
 
         m.execute("echo 'user ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/user-override")
+
+	# RHEL used to require this
+	m.execute("sed -i /requiretty/d /etc/sudoers")
+
         b.logout()
 
         self.login_and_go("/playground/test")

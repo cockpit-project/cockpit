@@ -98,13 +98,38 @@ class TestMultiOS(MachineCase):
         dev_dashboard_addresses = [ "localhost" ]
         wait_dashboard_addresses (dev_b, dev_dashboard_addresses)
 
+        def stock_login_and_go(browser, page, href=None, host=None):
+            if user is None:
+                user = browser.default_user
+            browser.open(page, href=href, host=host)
+            browser.wait_visible("#login")
+            browser.set_val('#login-user-input', user)
+            browser.set_val('#login-password-input', "foobar")
+            browser.click('#login-button')
+            browser.expect_reload()
+            browser.wait_present('#content')
+            browser.wait_visible('#content')
+            if page:
+                stock_enter_page(browser, page, host=host)
+
+        def stock_enter_page(self, id, host="localhost"):
+            if host:
+                frame = host + "/shell/shell"
+            else:
+                frame = "localhost/shell/shell"
+            browser.switch_to_top()
+            browser.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
+            browser.wait_visible("iframe.container-frame[name='%s']" % frame)
+            browser.switch_to_frame(frame)
+            browser.wait_visible('#' + id)
+
         def test_stock(system):
             stock_m = self.new_machine(flavor='stock', system=system)
             stock_m.start()
             stock_m.wait_boot()
             stock_b = self.new_browser(stock_m.address)
 
-            stock_b.login_and_go("dashboard", href="/dashboard/list", host=None)
+            stock_login_and_go(stock_b, "dashboard", href="/dashboard/list", host=None)
             inject_extras(stock_b)
             wait_dashboard_addresses (stock_b, [ "localhost" ])
 

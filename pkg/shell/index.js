@@ -235,50 +235,6 @@ define([
             update_machines();
         });
 
-    $(frames)
-        .on("added", function(ev, frame, address) {
-            router.register(frame.contentWindow, address);
-
-            /*
-             * Setting the "data-loaded" attribute helps the testsuite
-             * to know when it can switch into the frame and inject
-             * its own additions.
-             */
-            $(frame).on("load", function() {
-                /*
-                 * if the frame is reloaded directly
-                 * unregister and reregister to ensure
-                 * fresh channels
-                 */
-                $(this.contentWindow).on("unload", function () {
-                    router.unregister(frame.contentWindow);
-                    router.register(frame.contentWindow, address);
-                });
-                $(this).attr('data-loaded', true);
-                phantom_checkpoint();
-                $(this.contentWindow).on('hashchange', function () {
-                    if (current_frame && current_frame.contentWindow === this) {
-                        var hash = this.location.href.split('#')[1] || '';
-                        if (hash && hash[0] !== '/')
-                            hash = '/' + hash;
-                        if (hash !== current_hash) {
-                            window.location.hash = "#" + current_location + hash;
-                            current_hash = hash;
-                        }
-                    }
-                });
-
-                /* Update the user interface */
-                navigate();
-            });
-        })
-        .on("removed", function(ev, frame) {
-            router.unregister(frame.contentWindow);
-            $(frame.contentWindow).off();
-            $(frame).off();
-            phantom_checkpoint();
-        });
-
     /* This works around issues with <base> tag and hash links */
     $(document).on("click", "a[href]", function(ev) {
         var href = $(ev.target).attr("href");
@@ -582,7 +538,6 @@ define([
                 delete iframes[address];
                 $.each(list, function(i, frame) {
                     $(frame.contentWindow).off();
-                    $(self).triggerHandler("removed", frame);
                     $(frame).remove();
                 });
             }
@@ -629,7 +584,6 @@ define([
 
                 $("#content").append(frame);
                 list[component] = frame;
-                $(self).triggerHandler("added", [ frame, address ]);
             }
 
             return frame;
@@ -641,29 +595,28 @@ define([
 
         var unique_id = 0;
         var origin = cockpit.transport.origin;
-        var frame_peers_by_seed = { };
-        var frame_peers_by_name = { };
+        var source_by_seed = { };
+        var source_by_name = { };
 
         cockpit.transport.filter(function(message, channel, control) {
+            var seed, source, pos;
 
             /* Only control messages with a channel are forwardable */
             if (control) {
                 if (control.channel !== undefined) {
-                    $.each(frame_peers_by_seed, function(seed, peer) {
-                        if (peer.initialized)
-                            peer.window.postMessage(message, origin);
-                    });
+                    for (seed in source_by_seed)
+                        source_by_seed[seed].window.postMessage(message, origin);
                 }
                 return true; /* still deliver locally */
 
             /* Forward message to relevant frame */
             } else if (channel) {
-                var pos = channel.indexOf('!');
+                pos = channel.indexOf('!');
                 if (pos !== -1) {
-                    var seed = channel.substring(0, pos + 1);
-                    var peer = frame_peers_by_seed[seed];
-                    if (peer && peer.initialized) {
-                        peer.window.postMessage(message, origin);
+                    seed = channel.substring(0, pos + 1);
+                    source = source_by_seed[seed];
+                    if (source) {
+                        source.window.postMessage(message, origin);
                         return false; /* Stop delivery */
                     }
                 }
@@ -672,7 +625,9 @@ define([
             }
         });
 
-        function perform_jump(control) {
+        function perform_jump(child, control) {
+            if (!current_frame || current_frame.contentWindow != child)
+                return;
             var address = control.host;
             if (address === undefined)
                 address = current_address || "localhost";
@@ -688,6 +643,90 @@ define([
             cockpit.location.go(path);
         }
 
+        function perform_track(child) {
+            if (!current_frame || current_frame.contentWindow != child)
+                return;
+            var hash;
+            /* Ignore tracknig for old shell code */
+            if (child.name.indexOf("/shell/shell") === -1) {
+                hash = child.location.href.split('#')[1] || '';
+                if (hash && hash[0] !== '/')
+                    hash = '/' + hash;
+                if (hash !== current_hash) {
+                    current_hash = hash;
+                    window.location.hash = "#" + current_location + hash;
+                }
+            }
+        }
+
+        function on_unload(ev) {
+            var source = source_by_name[ev.target.defaultView.name];
+            if (source)
+                unregister(source);
+        }
+
+        function on_hashchange(ev) {
+            var source = source_by_name[ev.target.name];
+            if (source)
+                perform_track(source.window);
+        }
+
+        function on_load(ev) {
+            var source = source_by_name[ev.target.contentWindow.name];
+            if (source)
+                perform_track(source.window);
+            navigate();
+        }
+
+        function unregister(source) {
+            var child = source.window;
+            cockpit.kill(null, child.name);
+            var frame = child.frameElement;
+            frame.removeEventListener("load", on_load);
+            frame.removeAttribute('data-loaded');
+            child.removeEventListener("unload", on_unload);
+            child.removeEventListener("hashchange", on_hashchange);
+            delete source_by_seed[source.channel_seed];
+            delete source_by_name[source.name];
+        }
+
+        function register(child) {
+            var name = child.name;
+            var address = (name || "").split("/")[0];
+            if (!name || !address) {
+                console.warn("invalid child window name", child, name);
+                return;
+            }
+
+            unique_id += 1;
+            var seed = (cockpit.transport.options["channel-seed"] || "undefined:") + unique_id + "!";
+            var source = {
+                name: name,
+                window: child,
+                channel_seed: seed,
+                default_host: address
+            };
+            source_by_seed[seed] = source;
+            source_by_name[name] = source;
+
+            var frame = child.frameElement;
+            frame.addEventListener("load", on_load);
+            child.addEventListener("unload", on_unload);
+            child.addEventListener("hashchange", on_hashchange);
+
+            /*
+             * Setting the "data-loaded" attribute helps the testsuite
+             * know when it can switch into the frame and inject its
+             * own additions.
+             */
+            frame.setAttribute('data-loaded', '1');
+
+            perform_track(child);
+            phantom_checkpoint();
+
+            return source;
+        }
+
         window.addEventListener("message", function(event) {
             if (event.origin !== origin)
                 return;
@@ -696,14 +735,13 @@ define([
             if (typeof data !== "string")
                 return;
 
-            var frame = event.source;
-            var peer = frame_peers_by_name[frame.name];
-            if (!peer || peer.window != frame)
-                return;
+            var child = event.source;
+            var source = source_by_name[child.name];
 
             /* Closing the transport */
             if (data.length === 0) {
-                peer.initialized = false;
+                if (source)
+                    unregister(source);
                 return;
             }
 
@@ -711,23 +749,23 @@ define([
             if (data[0] == '\n') {
                 var control = JSON.parse(data.substring(1));
                 if (control.command === "init") {
-                    peer.initialized = true;
+                    if (source)
+                        unregister(source);
+                    source = register(child);
                     var reply = $.extend({ }, cockpit.transport.options,
-                        { "host": peer.default_host, "channel-seed": peer.channel_seed }
+                        { "host": source.default_host, "channel-seed": source.channel_seed }
                     );
-                    frame.postMessage("\n" + JSON.stringify(reply), origin);
+                    child.postMessage("\n" + JSON.stringify(reply), origin);
 
                 } else if (control.command === "jump") {
-                    if (current_frame && current_frame.contentWindow == peer.window)
-                        perform_jump(control);
+                    perform_jump(child, control);
                     return;
 
                 } else if (control.command === "hint") {
                     /* watchdog handles current host for now */
                     if (control.hint == "restart" && control.host != cockpit.transport.host) {
                         loader.expect_restart(control.host);
-                        if (current_frame && current_frame.contentWindow == peer.window)
-                            perform_jump({ location: "/", host: null });
+                        perform_jump({ location: "/", host: null });
                     }
                     return;
                 } else if (control.command == "oops") {
@@ -739,15 +777,15 @@ define([
                 } else if (control.channel === undefined) {
                     return;
 
-                /* Add the frame's group to all open channel messages */
+                /* Add the child's group to all open channel messages */
                 } else if (control.command == "open") {
-                    control.group = frame.name;
+                    control.group = child.name;
                     data = "\n" + JSON.stringify(control);
                 }
             }
 
-            if (!peer.initialized) {
-                console.warn("child frame " + frame.name + " sending data without init");
+            if (!source) {
+                console.warn("child frame " + child.name + " sending data without init");
                 return;
             }
 
@@ -759,37 +797,6 @@ define([
         if (!window.options)
             window.options = { };
         $.extend(window.options, { sink: true, protocol: "cockpit1" });
-
-        self.register = function register(child, address) {
-            if (!child.name) {
-                console.warn("invalid child window", child);
-                return;
-            }
-
-            unique_id += 1;
-            var seed = (cockpit.transport.options["channel-seed"] || "undefined:") + unique_id + "!";
-            var peer = {
-                window: child,
-                channel_seed: seed,
-                default_host: address,
-                initialized: false
-            };
-            frame_peers_by_seed[seed] = peer;
-            frame_peers_by_name[child.name] = peer;
-        };
-
-        self.unregister = function unregister(child) {
-            var peer = frame_peers_by_name[child.name];
-            if (!peer) {
-                console.warn("invalid child window", child);
-                return;
-            }
-
-            /* Close all channels for this frame */
-            cockpit.kill(null, child.name);
-            delete frame_peers_by_seed[peer.channel_seed];
-            delete frame_peers_by_name[child.name];
-        };
     }
 
     function components(manifests, section) {

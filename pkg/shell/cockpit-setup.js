@@ -499,7 +499,7 @@ PageSetupServer.prototype = {
             })
             .done(function(machine) {
                 self.run_tasks(function() {
-                    machine.change({ visible: true })
+                    self.machines.change(machine.key, { visible: true })
                         .fail(function(ex) {
                             shell.show_unexpected_error(ex);
                         });

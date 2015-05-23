@@ -148,19 +148,20 @@ $(function () {
         });
 });
 
-function show_problem_dialog(machine) {
+function show_problem_dialog(machine_manager, machine) {
     $('#reconnect-dialog-summary').text(
-        cockpit.format(_("Couldn't establish connection to $0."), machine.display_name));
+        cockpit.format(_("Couldn't establish connection to $0."), machine.label));
     $('#reconnect-dialog-problem').text(cockpit.message(machine.problem));
     $('#reconnect-dialog-reconnect').off('click');
     $('#reconnect-dialog-reconnect').on('click', function () {
         $('#reconnect-dialog').modal('hide');
-        machine.connect();
+        machine_manager.connect(machine.key);
     });
     $('#reconnect-dialog').modal('show');
 }
 
-function host_edit_dialog(machine) {
+function host_edit_dialog(machine_manager, host) {
+    var machine = machine_manager.lookup(host);
     if (!machine)
         return;
 
@@ -177,7 +178,7 @@ function host_edit_dialog(machine) {
             color: $('#host-edit-color').css('background-color'),
             label: $('#host-edit-name').val()
         };
-        var promise = machine.change(values);
+        var promise = machine_manager.change(machine.key, values);
         promise
             .done(function() {
                 dlg.modal('hide');
@@ -237,7 +238,7 @@ PageDashboard.prototype = {
     setup: function() {
         var self = this;
 
-        this.machines = machines.instance();
+        self.machines = machines.instance();
 
         function make_color_div(c) {
             return $('<div class="color-cell">').
@@ -269,10 +270,7 @@ PageDashboard.prototype = {
         });
 
         var renderer = host_renderer($("#dashboard-hosts .list-group"));
-        $(self.machines).on("added.dashboard", function(ev, machine) {
-            machine.connect();
-            renderer();
-        });
+        $(self.machines).on("added.dashboard", renderer);
         $(self.machines).on("removed.dashboard", renderer);
         $(self.machines).on("changed.dashboard", renderer);
 
@@ -300,7 +298,7 @@ PageDashboard.prototype = {
                 var addr = $(this).attr("data-address");
                 var machine = self.machines.lookup(addr);
                 if (machine.state == "failed") {
-                    show_problem_dialog(machine);
+                    show_problem_dialog(self.machines, machine);
                     return false;
                 }
             })
@@ -309,15 +307,16 @@ PageDashboard.prototype = {
                 self.toggle_edit(false);
                 var machine = self.machines.lookup(item.attr("data-address"));
                 if (machine) {
-                    machine.change({ visible: false });
-                    machine.close();
+                    self.machines.change(machine.key, { visible: false });
+                    self.machines.disconnect(machine.key);
                 }
                 return false;
             })
             .on("click", "button.pficon-edit", function() {
                 var item = $(this).parent(".list-group-item");
+                var host = item.attr("data-address");
                 self.toggle_edit(false);
-                host_edit_dialog(self.machines.lookup(item.attr("data-address")));
+                host_edit_dialog(self.machines, host);
                 return false;
             })
             .on("mouseenter", "a.list-group-item", function() {

@@ -26,6 +26,9 @@ define([
     'translated!base1/po',
     "manifests"
 ], function($, cockpit, machis, po, local_manifests) {
+    "use strict";
+
+    var module = { };
 
     cockpit.locale(po);
     var _ = cockpit.gettext;
@@ -205,7 +208,7 @@ define([
     var machines = machis.instance();
     var loader = machis.loader(machines);
     var frames = new Frames();
-    var router = new Router();
+    module.router = new Router();
 
     /* When the machine list is ready we start processing navigation */
     $(machines)
@@ -456,7 +459,7 @@ define([
                 return;
         } else {
             $(".curtains").hide();
-            $("#machine-spinner").toggle(current_frame && !$(current_frame).attr("data-loaded"));
+            $("#machine-spinner").toggle(current_frame && !$(current_frame).attr("data-ready"));
         }
 
         if (hash == "/")
@@ -466,9 +469,9 @@ define([
 
         var frame = frames.lookup(machine, component, hash);
         if (frame != current_frame) {
-            $(current_frame).hide();
+            $(current_frame).css('display', 'none');
             current_frame = frame;
-            $(frame).show();
+            $(frame).css('display', 'block');
         }
 
         phantom_checkpoint();
@@ -543,6 +546,29 @@ define([
             }
         };
 
+        function frame_ready(frame, count) {
+            var ready = false;
+
+            try {
+                ready = $("body", frame.contentWindow.document).is(":visible");
+            } catch(ex) {
+                ready = true;
+            }
+
+            count += 1;
+            if (count > 50)
+                ready = true;
+
+            if (ready) {
+                frame.setAttribute('data-ready', '1');
+                navigate();
+            } else {
+                window.setTimeout(function() {
+                    frame_ready(frame, count + 1);
+                }, 100);
+            }
+        }
+
         self.lookup = function lookup(machine, component, hash) {
             var address;
             if (machine)
@@ -554,17 +580,22 @@ define([
             if (!list)
                 iframes[address] = list = { };
 
-            var url;
-
+            var name = "cockpit1:" + address + "/" + component;
             var frame = list[component];
-            if (frame) {
-                var src_attr = frame.url + "#" + hash;
-                if (frame.getAttribute('src') != src_attr)
-                    frame.setAttribute('src', src_attr);
-            } else {
+            var wind = window.frames[name];
+
+            /* A preloaded frame */
+            if (!frame && wind) {
+                frame = wind.frameElement;
+                frame.url = frame.getAttribute('src').split("#")[0];
+                list[component] = frame;
+                frame_ready(frame, 0);
+
+            /* Need to create a new frame */
+            } else if (!frame) {
                 frame = document.createElement("iframe");
                 frame.setAttribute("class", "container-frame");
-                frame.setAttribute("name", "cockpit1:" + address + "/" + component);
+                frame.setAttribute("name", name);
                 frame.style.display = "none";
 
                 var parts = component.split("/");
@@ -580,11 +611,14 @@ define([
                     base = "../../@" + address;
 
                 frame.url = base + "/" + component + ".html";
-                frame.setAttribute('src', frame.url + "#" + hash);
-
                 $("#content").append(frame);
                 list[component] = frame;
+                frame_ready(frame, 0);
             }
+
+            var src = frame.url + "#" + hash;
+            if (frame.getAttribute('src') != src)
+                frame.setAttribute('src', src);
 
             return frame;
         };
@@ -675,7 +709,6 @@ define([
             var source = source_by_name[ev.target.contentWindow.name];
             if (source)
                 perform_track(source.window);
-            navigate();
         }
 
         function unregister(source) {
@@ -683,7 +716,6 @@ define([
             cockpit.kill(null, child.name);
             var frame = child.frameElement;
             frame.removeEventListener("load", on_load);
-            frame.removeAttribute('data-loaded');
             child.removeEventListener("unload", on_unload);
             child.removeEventListener("hashchange", on_hashchange);
             delete source_by_seed[source.channel_seed];
@@ -691,8 +723,9 @@ define([
         }
 
         function register(child) {
-            var name = child.name;
-            var address = (name || "").split("/")[0];
+            var address, name = child.name || "";
+            if (name.indexOf("cockpit1:") === 0)
+                address = name.substring(9).split("/")[0];
             if (!name || !address) {
                 console.warn("invalid child window name", child, name);
                 return;
@@ -724,10 +757,11 @@ define([
             perform_track(child);
             phantom_checkpoint();
 
+            navigate();
             return source;
         }
 
-        window.addEventListener("message", function(event) {
+        function message_handler(event) {
             if (event.origin !== origin)
                 return;
 
@@ -753,7 +787,7 @@ define([
                         unregister(source);
                     source = register(child);
                     var reply = $.extend({ }, cockpit.transport.options,
-                        { "host": source.default_host, "channel-seed": source.channel_seed }
+                        { command: "init", "host": source.default_host, "channel-seed": source.channel_seed }
                     );
                     child.postMessage("\n" + JSON.stringify(reply), origin);
 
@@ -791,12 +825,14 @@ define([
 
             /* Everything else gets forwarded */
             cockpit.transport.inject(data);
-        }, false);
+        }
 
-        /* This tells child frames we are a parent wants to accept messages */
-        if (!window.options)
-            window.options = { };
-        $.extend(window.options, { sink: true, protocol: "cockpit1" });
+
+        self.start = function start(messages) {
+            window.addEventListener("message", message_handler, false);
+            for (var i = 0, len = messages.length; i < len; i++)
+                message_handler(messages[i]);
+        };
     }
 
     function components(manifests, section) {
@@ -823,4 +859,6 @@ define([
         list.sort(function(a, b) { return a.order - b.order; });
         return list;
     }
+
+    return module;
 });

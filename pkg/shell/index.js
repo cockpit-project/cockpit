@@ -200,7 +200,7 @@ define([
     var current_location;
     var current_address;
 
-    var machines = new machis.instance();
+    var machines = machis.instance();
     var frames = new Frames();
     var router = new Router();
     var packages = new Packages();
@@ -225,10 +225,9 @@ define([
             maybe_ready();
         })
         .on("added changed", function(ev, machine) {
-            if (machine.visible)
-                machine.connect();
-            else
+            if (!machine.visible)
                 frames.remove(machine);
+
             update_machines();
             if (machines.loaded)
                 navigate();

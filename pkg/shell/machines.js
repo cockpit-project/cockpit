@@ -4,106 +4,193 @@ define([
 ], function($, cockpit) {
     var module = { };
 
-    function Machine(key, modify, machines) {
+    function MachineData(results, old_map) {
         var self = this;
-        var hostnamed = null;
-        var channel = null;
-        var json_label = null;
 
-        self.key = key;
-        self.state = null;
-        self.problem = null;
-        self.os = null;
+        /* echo channels to each machine */
+        var channels = { };
 
-        function change_state(value, problem) {
-            self.state = value;
-            self.problem = problem;
-            $(machines).triggerHandler("changed", self);
+        /* hostnamed proxies to each machine, if hostnamed available */
+        var proxies = { };
+
+        var defaults = "{ \"localhost\": { \"visible\": true } }";
+
+        /* parsed machine data */
+        var machines = { };
+
+        /* populate with previous data if any */
+        function fill_machines(old_map) {
+            var k;
+            for (k in old_map)
+                machines[k] = old_map[k];
         }
 
-        function disconnect() {
-            $(channel).off();
-            channel.close();
-            channel = null;
+        if (old_map)
+            fill_machines(old_map);
 
-            if (hostnamed) {
-                $(hostnamed).off();
-                hostnamed.client.close();
-                hostnamed = null;
+        /* machines.json and file content */
+        var waits = $.Callbacks("once memory");
+        self.file = cockpit.file("/var/lib/cockpit/machines.json", { syntax: JSON });
+        self.content = { };
+        self.tag = null;
+
+        self.file.watch(function(data, tag, ex) {
+            if (ex)
+                console.warn("couldn't load machines data: " + ex);
+
+            self.content = data || JSON.parse(defaults);
+            self.tag = tag;
+
+            var host;
+            for (host in self.content)
+                update(host);
+
+            /* Remove any lost hosts */
+            for (host in machines) {
+                if (!(host in self.content))
+                    remove(host);
+            }
+
+            waits.fire();
+            old_map = null;
+        });
+
+        function notify(host, action) {
+            results({
+                machines: machines,     /* map of all machines */
+                hint: action,           /* this notification hint */
+                host: host              /* machine which the hint is about */
+            });
+        }
+
+        function state(host, value, problem) {
+            var machine = machines[host];
+            if (machine) {
+                machine.state = value;
+                machine.problem = problem;
+                notify(host, "changed");
             }
         }
 
-        self.connect = function connect(force) {
+        self.connect = function connect(host, force) {
+            var channel = channels[host];
             if (channel && force)
-                disconnect();
+                self.disconnect(host);
             if (channel)
                 return;
 
-            if (!self.address) {
-                change_state("failed", "no-host");
-                return;
-            }
-
-            channel = cockpit.channel({ host: self.address, payload: "echo" });
-            $(channel)
-                .on("message", function() {
-                    change_state("connected", null);
-                })
-                .on("close", function(options) {
-                    var problem = options.problem || "disconnected";
-                    change_state("failed", problem);
-                    disconnect();
-                });
+            channel = cockpit.channel({ host: host, payload: "echo" });
+            channels[host] = channel;
 
             /* So we get back a message once connected */
             channel.send("x");
 
-            hostnamed = cockpit.dbus("org.freedesktop.hostname1", { host: self.address }).proxy();
-            $(hostnamed).on("changed", function() {
-                if (calculate_label())
-                    $(machines).triggerHandler("changed", self);
-            });
+            $(channel)
+                .on("message", function() {
+                    state(host, "connected", null);
+                })
+                .on("close", function(options) {
+                    var problem = options.problem || "disconnected";
+                    state(host, "failed", problem);
+                    self.disconnect(host);
+                });
 
-            change_state("connecting", null);
+            state(host, "connecting", null);
+
+            var proxy = cockpit.dbus("org.freedesktop.hostname1", { host: host }).proxy();
+            proxy.wait(function() {
+                proxies[host] = proxy;
+                $(proxy).on("changed", function() {
+                     update(host);
+                });
+                update(host);
+            });
         };
 
-        function calculate_label() {
-            var label = json_label || self.address;
-            if (hostnamed) {
-                label = hostnamed.PrettyHostname || hostnamed.StaticHostname || label;
-                self.os = hostnamed.OperatingSystemPrettyName;
+        self.disconnect = function disconnect(host) {
+            var channel = channels[host];
+            delete channels[host];
+            if (channel) {
+                $(channel).off();
+                channel.close();
             }
+
+            var proxy = proxies[host];
+            delete proxies[host];
+            if (proxy) {
+                $(proxy).off();
+                proxy.client.close();
+            }
+        };
+
+        function update(host) {
+            var action = "changed";
+            var machine = machines[host];
+
+            if (!machine) {
+                machine = machines[host] = { key: host };
+                action = "added";
+            }
+
+            var item = self.content[host] || { };
+            var props = proxies[host] || { };
+
+            machine.address = item.address || host;
+            machine.color = item.color;
+            machine.avatar = item.avatar || "images/server-small.png";
+            machine.visible = item.visible;
+
+            var label = props.PrettyHostname || props.StaticHostname || item.label || machine.address;
+            machine.os = props.OperatingSystemPrettyName;
 
             if (!label || label == "localhost" || label == "localhost.localdomain")
                 label = window.location.hostname;
-            if (self.label === label)
-                return false;
-            self.label = label;
-            return true;
+
+            machine.label = label;
+            notify(host, action);
+
+            /* Don't automatically reconnect failed machines */
+            if (machine.visible && !machine.problem)
+                self.connect(host);
+            else
+                self.disconnect(host);
         }
 
-        self.update = function update(item) {
-            self.address = item.address || key;
-            json_label = item.label;
-            self.color = item.color;
-            self.avatar = item.avatar || "images/server-small.png";
-            self.visible = item.visible;
-            calculate_label();
-        };
-
-        self.change = function change(values) {
-            if (values.label && hostnamed && hostnamed.valid) {
-                hostnamed.SetPrettyHostname(values.label, true)
-                    .fail(function(ex) {
-                        console.warn("couldn't set pretty host name: " + ex);
-                    });
+        function remove(host) {
+            var machine = machines[host];
+            if (machine) {
+                delete machines[host];
+                self.disconnect(host);
+                notify(host, "removed");
             }
-            return modify(key, values);
-        };
+        }
 
         self.close = function close() {
-            if (channel)
-                disconnect();
+            if (self.file) {
+                self.file.close();
+                self.file = null;
+            }
+
+            var hosts = Object.keys(channels);
+            hosts.forEach(self.disconnect);
+        };
+
+        self.modify_when_ready = function modify_when_ready(mutate) {
+            var dfd = $.Deferred();
+            waits.add(function() {
+                if (self.file) {
+                    self.file.modify(mutate, self.content, self.tag)
+                        .done(function (c, t) {
+                            dfd.resolve(c, t);
+                        }).
+                        fail(function (e) {
+                            dfd.reject(e);
+                        });
+                } else {
+                    dfd.reject("file closed");
+                }
+            });
+            return dfd.promise();
         };
     }
 
@@ -112,18 +199,58 @@ define([
         var flat = null;
         var map = { };
         var ready = false;
+        var data = null;
 
-        var content = null;
-        var tag = null;
+        /* Invoked by cockpit.cache() to get new data */
+        function provider(result) {
+            data = new MachineData(result, map);
+            return data;
+        }
 
-        var defaults = "{ \"localhost\": { \"visible\": true } }";
+        /* Invoked by cockpit.cache() when data is available, changes */
+        function consumer(data, storage_key) {
+            flat = null;
 
-        var file = cockpit.file("/var/lib/cockpit/machines.json", { syntax: JSON });
-        file.watch(function(data, tag, ex) {
-            if (ex)
-                console.warn("couldn't load machines data: " + ex);
-            update(data, tag);
-        });
+            var key;
+            if (!ready) {
+                map = data.machines;
+                ready = true;
+                for (key in map)
+                    ensure_machine_color(map[key]);
+                for (key in map)
+                    $(self).triggerHandler("added", map[key]);
+                $(self).triggerHandler('ready');
+                return;
+            }
+
+            var machine;
+            switch(data.hint) {
+            case "added":
+            case "changed":
+                machine = ensure(data.host, data.machines[data.host]);
+                break;
+            case "removed":
+                machine = map[data.host];
+                delete map[data.host];
+                if (machine)
+                    $(self).triggerHandler(data.hint, machine);
+                break;
+            }
+        }
+
+        var cache = cockpit.cache("v1-machines.json", provider, consumer);
+
+        function ensure(key, item) {
+            var created = !map[key];
+            map[key] = item;
+
+            if (ready) {
+                ensure_machine_color(item);
+                $(self).triggerHandler(created ? "added" : "changed", item);
+            }
+
+            return item;
+        }
 
         function color_in_use(color) {
             var key, machine, norm = $.color.parse(color).toString();
@@ -149,60 +276,10 @@ define([
             }
 
             machine.color = color;
-            machine.change({ color: color })
+            self.change(machine.key, { color: color })
                 .fail(function(ex) {
                     console.warn("couldn't set machine color: " + ex);
                 });
-        }
-
-        function ensure(key, item) {
-            var machine = map[key];
-            var created = !machine;
-            flat = null;
-            if (!machine)
-                machine = new Machine(key, modify, self);
-            machine.update(item);
-            map[key] = machine;
-
-            if (ready) {
-                ensure_machine_color(machine);
-                $(self).triggerHandler(created ? "added" : "changed", machine);
-            }
-
-            return machine;
-        }
-
-        function update(data, new_tag) {
-            content = data || JSON.parse(defaults);
-            tag = new_tag;
-            flat = null;
-
-            var key;
-            var seen = { };
-            for (key in map)
-                seen[key] = key;
-
-            for (key in content) {
-                ensure(key, content[key]);
-                delete seen[key];
-            }
-
-            var machine;
-            for (key in seen) {
-                machine = map[key];
-                delete map[key];
-                machine.close();
-                $(self).triggerHandler("removed", machine);
-            }
-
-            if (!ready) {
-                ready = true;
-                for (key in map)
-                    ensure_machine_color(map[key]);
-                for (key in map)
-                    $(self).triggerHandler("added", map[key]);
-                $(self).triggerHandler('ready');
-            }
         }
 
         function modify(key, values) {
@@ -214,7 +291,10 @@ define([
                     item[i] = values[i];
                 return data;
             }
-            return file.modify(mutate, content, tag);
+
+            /* Make us authorititative data source */
+            cache.claim();
+            return data.modify_when_ready(mutate);
         }
 
         Object.defineProperty(self, "list", {
@@ -263,6 +343,7 @@ define([
 
             $.when(json, append)
                 .done(function() {
+                    item['key'] = address;
                     dfd.resolve(ensure(address, item));
                 })
                 .fail(function(ex) {
@@ -272,8 +353,37 @@ define([
             return dfd.promise();
         };
 
+        self.change = function change(key, values) {
+            var mod, hostnamed, call;
+            if (values.label) {
+                hostnamed = cockpit.dbus("org.freedesktop.hostname1", { host: key });
+                call = hostnamed.call("/org/freedesktop/hostname1", "org.freedesktop.hostname1",
+                               "SetPrettyHostname", [ values.label, true ])
+                    .always(function() {
+                        hostnamed.close();
+                    })
+                    .fail(function(ex) {
+                        console.warn("couldn't set pretty host name: " + ex);
+                    });
+            }
+            mod = modify(key, values);
+            if (call)
+                return $.when(call, mod);
+            return mod;
+        };
+
+        self.connect = function connect(key) {
+            cache.claim();
+            data.connect(key);
+        };
+
+        self.disconnect = function disconnect(key) {
+            cache.claim();
+            data.disconnect(key);
+        };
+
         self.close = function close() {
-            file.close();
+            cache.close();
         };
     }
 

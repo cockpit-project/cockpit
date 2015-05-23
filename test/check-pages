@@ -68,7 +68,7 @@ WantedBy=default.target
 
     def testFrameReload(self):
         b = self.browser
-        frame = "localhost/playground/test"
+        frame = "cockpit:localhost/playground/test"
 
         self.login_and_go(None)
         b.go("/@localhost/playground/test")
@@ -84,6 +84,7 @@ WantedBy=default.target
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "data-loaded", null)' % frame)
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "src", "../playground/test.html?i=1#/")' % frame)
         b.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
+        b.wait_present("iframe.container-frame[name='%s'][data-ready]" % frame)
 
         b.enter_page("/playground/test")
 

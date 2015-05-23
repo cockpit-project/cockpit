@@ -313,27 +313,19 @@ class Browser:
             id: The identifier the page.  This is a string starting with "/"
                 For old cockpit this may be an old style page identifier.
         """
-        if id.startswith("/"):
-            if host:
-                frame = host + id
-            else:
-                frame = "localhost" + id
+        assert id.startswith("/"):
+        if host:
+            frame = host + id
         else:
-            if host:
-                frame = host + "/shell/shell"
-            else:
-                frame = "localhost/shell/shell"
+        frame = "cockpit1:" + frame
 
         self.switch_to_top()
         self.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
         self.wait_visible("iframe.container-frame[name='%s']" % frame)
         self.switch_to_frame(frame)
 
-        if id.startswith("/"):
-            self.wait_present("body")
-            self.wait_visible("body")
-        else:
-            self.wait_visible('#' + id)
+        self.wait_present("body")
+        self.wait_visible("body")
 
     def leave_page(self):
         self.switch_to_top()

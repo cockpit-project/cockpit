@@ -202,15 +202,39 @@
       </div>
     </div>
 
-    <div id="content">
-    </div>
-
     <script>
+        /* Indicates to child frames that we are a cockpit1 router frame */
+        window.name = "cockpit1";
+
+        /* The same thing as above, but compatibility with old cockpit */
+        window.options = { sink: true, protocol: "cockpit1" };
+
+        /* While the index is initializing, snag any messages we receive from frames */
+        var messages = [ ];
+        function message_queue(event) {
+            messages.push(event);
+        }
+        window.addEventListener("message", message_queue, false);
+
         require([
+            "base1/cockpit",
             "shell/index"
-        ], function(index) {
-            /* index starts automatically when required */
+        ], function(cockpit, index) {
+            /* Drain any initial messages we receive into the router */
+            cockpit.transport.wait(function() {
+                window.removeEventListener("message", message_queue, false);
+                index.router.start(messages);
+                messages = null;
+            });
         });
     </script>
+
+    <div id="content">
+      <!-- Initially populate these frames -->
+      <iframe class="container-frame"
+          name="cockpit1:localhost/dashboard/list" src="../dashboard/list.html"></iframe>
+      <iframe class="container-frame"
+          name="cockpit1:localhost/system/host" src="../system/host.html"></iframe>
+    </div>
   </body>
 </html>

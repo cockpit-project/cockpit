@@ -32,10 +32,6 @@ define([
             console.debug.apply(console, arguments);
     }
 
-    function failure(ex) {
-        console.warn(ex);
-    }
-
     function hash(str) {
         var h, i, chr, len;
         if (str.length === 0)
@@ -140,7 +136,7 @@ define([
                 try {
                     action = JSON.parse(lines[i]);
                 } catch (ex) {
-                    failure(ex);
+                    console.warn(ex);
                     req.close();
                     continue;
                 }

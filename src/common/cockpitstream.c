@@ -96,6 +96,9 @@ static void
 close_immediately (CockpitStream *self,
                    const gchar *problem)
 {
+  GError *error = NULL;
+  GIOStream *io;
+
   if (self->priv->closed)
     return;
 
@@ -125,9 +128,16 @@ close_immediately (CockpitStream *self,
 
   if (self->priv->io)
     {
-      g_io_stream_close_async (self->priv->io, G_PRIORITY_DEFAULT, NULL, NULL, NULL);
-      g_object_unref (self->priv->io);
+      io = self->priv->io;
       self->priv->io = NULL;
+
+      g_io_stream_close (io, NULL, &error);
+      if (error)
+        {
+          g_message ("%s: close failed: %s", self->priv->name, error->message);
+          g_clear_error (&error);
+        }
+      g_object_unref (io);
     }
 
   g_debug ("%s: closed", self->priv->name);

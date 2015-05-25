@@ -797,38 +797,6 @@ define([
             return results;
         };
 
-        this.delete_pod = function delete_pod(ns, pod_name) {
-            self.request({
-                "method": "DELETE",
-                "body": "",
-                "path": "/api/v1beta3/namespaces/" + ns + "/pods/" + encodeURIComponent(pod_name)
-            }).fail(failure);
-        };
-
-        this.delete_node = function delete_node(ns, nodes_name) {
-            self.request({
-                "method": "DELETE",
-                "body": "",
-                "path": "/api/v1beta3/namespaces/" + ns + "/nodes/" + encodeURIComponent(nodes_name)
-            }).fail(failure);
-        };
-
-        this.delete_replicationcontroller = function delete_replicationcontroller(ns, rc_name) {
-            self.request({
-                "method": "DELETE",
-                "body": "",
-                "path": "/api/v1beta3/namespaces/" + ns + "/replicationcontrollers/" + encodeURIComponent(rc_name)
-            }).fail(failure);
-        };
-
-        this.delete_service = function delete_service(ns, service_name) {
-            self.request({
-                "method": "DELETE",
-                "body": "",
-                "path": "/api/v1beta3/namespaces/" + ns + "/services/" + encodeURIComponent(service_name)
-            }).fail(failure);
-        };
-
         function DataError(message, ex) {
             this.problem = "invalid-data";
             this.message = message;
@@ -1029,6 +997,24 @@ define([
             };
 
             return promise;
+        };
+
+        /**
+         * remove:
+         * @link: a kubernetes item, or selfLink path
+         *
+         * Remove the item from Kubernetes.
+         *
+         * Returns a promise.
+         */
+        self.remove = function remove(link) {
+            if (link.metadata)
+                link = link.metadata.selfLink;
+            return self.request({
+                method: "DELETE",
+                path: link,
+                body: ""
+            });
         };
 
         self.connect();

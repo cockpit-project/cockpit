@@ -20,16 +20,15 @@
 define([
     "jquery",
     "base1/cockpit",
-    "base1/patterns",
     "shell/controls",
     "shell/shell",
-    "shell/cockpit-main"
-], function(jQuery, cockpit, patterns, controls, shell) {
+    "shell/cockpit-main",
+    "base1/patterns",
+], function($, cockpit, controls, shell) {
 "use strict";
 
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
-var $ = jQuery.scoped("body", patterns);
 
 function update_accounts_privileged() {
     if ($('#account-user-name').text() === 'root' && shell.default_permission.allowed) {

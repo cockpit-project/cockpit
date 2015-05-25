@@ -74,15 +74,8 @@
 require([
     'jquery',
     'base1/patterns'
-], function(jQuery, patterns) {
+], function($) {
     "use strict";
-
-    /*
-     * An example of using a scoped jQuery object. This allows you to
-     * only select sub-elements of the selector *and* also allows you to
-     * pull in additional plugins such as the patterns we use here.
-     */
-    var $ = jQuery.scoped("body", patterns);
 
     /*
      * When this dialog button is clicked, we show a global failure message

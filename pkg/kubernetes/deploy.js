@@ -23,13 +23,10 @@ define([
     "kubernetes/client",
     "base1/mustache",
     "base1/patterns"
-], function(jQuery, cockpit, kubernetes, Mustache, patterns) {
+], function($, cockpit, kubernetes, Mustache) {
     "use strict";
 
     var _ = cockpit.gettext;
-
-    /* A jQuery scoped to just the deploy dlg, with the button thrown in */
-    var $ = jQuery.scoped("body", patterns);
 
     /* The kubernetes client: valid while dialog is open */
     var client;

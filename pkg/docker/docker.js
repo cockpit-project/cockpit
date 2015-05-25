@@ -133,14 +133,10 @@ define([
 
         /* Shows and hides the cursor */
         self.typeable = function typeable(yes) {
-            if (yes) {
-                term.cursorHidden = false;
+            term.cursorHidden = !yes;
+            if (yes)
                 term.showCursor();
-            } else {
-                /* There's no term.hideCursor() function */
-                term.cursorHidden = true;
-                term.refresh(term.y, term.y);
-            }
+            term.refresh(term.y, term.y);
             enable_input = yes;
         };
 
@@ -297,6 +293,7 @@ define([
     docker.console = function console_(container_id, command, options) {
         var self = $("<div>").addClass("console");
         var want_typeable = false;
+        var focused = false;
         var channel = null;
         var view = null;
         var exec;
@@ -472,10 +469,24 @@ define([
             prepare();
         };
 
-        self.typeable = function typeable(yes) {
+        function update_typeable() {
             if (view && view.typeable)
-                view.typeable(yes);
+                view.typeable(want_typeable && focused);
+        }
+
+        $(self)
+            .on("focusin", function() {
+                focused = true;
+                update_typeable();
+            })
+            .on("focusout", function() {
+                focused = false;
+                update_typeable();
+            });
+
+        self.typeable = function typeable(yes) {
             want_typeable = yes;
+            update_typeable();
         };
 
         return self;

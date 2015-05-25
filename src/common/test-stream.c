@@ -437,8 +437,6 @@ test_write_error (void)
 
   g_assert_cmpstr (echo_stream->problem, ==, "internal-error");
 
-  close (fds[1]);
-
   g_object_unref (echo_stream);
 }
 

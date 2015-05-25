@@ -489,6 +489,10 @@ class QemuMachine(Machine):
         gf.mkdir_p("/etc/systemd/system/sockets.target.wants/")
         gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
 
+    def _setup_fedora_rawhide (self, gf):
+        self._setup_ssh_keys(gf)
+        self._setup_fedora_network(gf)
+
     def _setup_rhel_7 (self, gf):
         self._setup_ssh_keys(gf)
         self._setup_fedora_network(gf)
@@ -649,6 +653,8 @@ class QemuMachine(Machine):
                 self._setup_fedora_21(gf)
             elif self.os == "fedora-22":
                 self._setup_fedora_22(gf)
+            elif self.os == "fedora-rawhide":
+                self._setup_fedora_rawhide(gf)
             elif self.os == "rhel-7":
                 credential_path = os.path.expanduser("~/.rhel/")
                 if (not os.path.isfile(credential_path + "login")) or (not os.path.isfile(credential_path + "pass")):

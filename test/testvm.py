@@ -504,6 +504,37 @@ class QemuMachine(Machine):
         gf.upload(os.path.expanduser("~/.rhel/login"), "/root/.rhel/login")
         gf.upload(os.path.expanduser("~/.rhel/pass"), "/root/.rhel/pass")
 
+    def run_modify_func(self, modify_func):
+        gf = guestfs.GuestFS(python_return_dict=True)
+        if self.verbose:
+            gf.set_trace(1)
+        try:
+            gf.add_drive_opts(self._image_image, readonly=False)
+            gf.launch()
+            # try to mount device directly
+            devices = gf.list_devices()
+            assert len(devices) == 1
+            try:
+                gf.mount(devices[0], "/")
+            except:
+                # if this fails, we may have to perform more intricate mounting
+                # get the first one that isn't swap and mount it as root
+                filesystems = gf.list_filesystems()
+                for fs in filesystems:
+                    if filesystems[fs] == "swap":
+                        continue
+                    gf.mount(fs, "/")
+                    if gf.exists("/etc"):
+                        break
+                    gf.umount("/")
+                if not gf.exists("/etc"):
+                    raise Failure("Can't find root partition")
+
+            modify_func(gf)
+            gf.touch("/.autorelabel")
+        finally:
+            gf.close()
+
     def unpack_base(self, modify_func=None):
         assert not self._process
 
@@ -511,44 +542,23 @@ class QemuMachine(Machine):
             os.makedirs(self.run_dir, 0750)
 
         image = "%s-%s" % (self.os, self.arch)
+        bootstrap_script = "./%s.bootstrap" % (self.os, )
         image_file = os.path.join(self.test_data, "%s.qcow2" % (image, ))
         tarball = os.path.join(self.test_data, "%s.tar.gz" % (image, ))
-        if os.path.isfile(image_file):
+
+        if os.path.isfile(bootstrap_script):
+            subprocess.check_call([ bootstrap_script, self._image_image, self.arch ])
+            if modify_func:
+                self.run_modify_func(modify_func)
+
+        elif os.path.isfile(image_file):
             """ We have a real image file, use that """
             self.message("Creating disk copy:", self._image_image)
             shutil.copyfile(image_file, self._image_image)
             self._image_kernel = None
             self._image_initrd = None
             if modify_func:
-                gf = guestfs.GuestFS(python_return_dict=True)
-                if self.verbose:
-                    gf.set_trace(1)
-                try:
-                    gf.add_drive_opts(self._image_image, readonly=False)
-                    gf.launch()
-                    # try to mount device directly
-                    devices = gf.list_devices()
-                    assert len(devices) == 1
-                    try:
-                        gf.mount(devices[0], "/")
-                    except:
-                        # if this fails, we may have to perform more intricate mounting
-                        # get the first one that isn't swap and mount it as root
-                        filesystems = gf.list_filesystems()
-                        for fs in filesystems:
-                            if filesystems[fs] == "swap":
-                                continue
-                            gf.mount(fs, "/")
-                            if gf.exists("/etc"):
-                                break
-                            gf.umount("/")
-                        if not gf.exists("/etc"):
-                            raise Failure("Can't find root partition")
-
-                    modify_func(gf)
-                    gf.touch("/.autorelabel")
-                finally:
-                    gf.close()
+                self.run_modify_func(modify_func)
 
         elif os.path.exists(tarball):
             """We have an old-style magic base tarball."""
@@ -587,7 +597,7 @@ class QemuMachine(Machine):
             finally:
                 gf.close()
         else:
-            raise Failure("Unsupported configuration %s: neither %s nor %s found." % (image, image_file, tarball))
+            raise Failure("Unsupported configuration %s: neither %s, %s nor %s found." % (image, bootstrap_script, image_file, tarball))
 
     def post_setup(self):
         if not os.path.exists(self._image_image):

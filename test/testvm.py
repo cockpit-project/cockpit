@@ -415,18 +415,11 @@ class Machine:
 def highest_version(names, os):
     # XXX - maybe use the "rpm" module.
 
-    if os == "fedora-21":
-        # HACK - Our fedora-21 image can only boot with the rescue
-        # kernel/initrd sine the real one has the wrong root disk hard
-        # coded into it, probably because I made the magic base
-        # tarball wrong.
-        return filter(lambda n: "rescue" in n, names)[0]
-    else:
-        names = filter(lambda n: not "rescue" in n, names)
-        sorted = subprocess.check_output("echo '%s' | rpmdev-sort" % "\n".join(names),
-                                         shell=True).split("\n")
-        sorted = filter(lambda n: not n == "", sorted)
-        return sorted[len(sorted)-1]
+    names = filter(lambda n: not "rescue" in n, names)
+    sorted = subprocess.check_output("echo '%s' | rpmdev-sort" % "\n".join(names),
+                                     shell=True).split("\n")
+    sorted = filter(lambda n: not n == "", sorted)
+    return sorted[len(sorted)-1]
 
 class QemuMachine(Machine):
     macaddr_prefix = "52:54:00:9e:00"
@@ -436,9 +429,6 @@ class QemuMachine(Machine):
         self.run_dir = os.path.join(self.test_dir, "run")
         self._image_image = os.path.join(self.run_dir, "%s.qcow2" % (self.image))
         self._image_original = os.path.join(self.test_data, "images/%s.qcow2" % (self.image))
-        self._image_root = os.path.join(self.run_dir, "%s-root" % (self.image, ))
-        self._image_kernel = os.path.join(self.run_dir, "%s-kernel" % (self.image, ))
-        self._image_initrd = os.path.join(self.run_dir, "%s-initrd" % (self.image, ))
         self._process = None
         self._monitor = None
         self._disks = { }
@@ -466,17 +456,6 @@ class QemuMachine(Machine):
     def _setup_fedora_network(self,gf):
         ifcfg_eth0 = 'BOOTPROTO="dhcp"\nDEVICE="eth0"\nONBOOT="yes"\n'
         gf.write("/etc/sysconfig/network-scripts/ifcfg-eth0", ifcfg_eth0)
-
-    def _setup_fedora_21 (self, gf):
-        self._setup_fstab(gf)
-        self._setup_ssh_keys(gf)
-        self._setup_fedora_network(gf)
-
-        # systemctl disable sshd.service
-        gf.rm_f("/etc/systemd/system/multi-user.target.wants/sshd.service")
-        # systemctl enable sshd.socket
-        gf.mkdir_p("/etc/systemd/system/sockets.target.wants/")
-        gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
 
     def _setup_fedora_22 (self, gf):
         self._setup_ssh_keys(gf)
@@ -563,52 +542,8 @@ class QemuMachine(Machine):
             if modify_func:
                 self.run_modify_func(modify_func)
 
-        elif os.path.exists(tarball):
-            """We have an old-style magic base tarball."""
-
-            gf = guestfs.GuestFS(python_return_dict=True)
-            if self.verbose:
-                gf.set_trace(1)
-
-            try:
-                # Create a qcow2-format disk image
-                self.message("Building disk:", self._image_root)
-                subprocess.check_call([ "qemu-img", "create", "-q", "-f", "qcow2", self._image_root, "4G" ])
-
-                # Attach the disk image to libguestfs.
-                gf.add_drive_opts(self._image_root, format = "qcow2", readonly = 0)
-                gf.launch()
-
-                devices = gf.list_devices()
-                assert len(devices) == 1
-
-                gf.mkfs("ext2", devices[0])
-                gf.mount(devices[0], "/")
-
-                self.message("Unpacking %s into %s" % (tarball, self._image_root))
-                gf.tgz_in(tarball, "/")
-
-                kernel = highest_version(gf.glob_expand("/boot/vmlinuz-*"), self.os)
-                initrd = highest_version(gf.glob_expand("/boot/initramfs-*"), self.os)
-                self.message("Extracting:", kernel, initrd)
-                gf.download(kernel, self._image_kernel)
-                gf.download(initrd, self._image_initrd)
-
-                if modify_func:
-                    modify_func(gf)
-
-            finally:
-                gf.close()
         else:
-            raise Failure("Unsupported configuration %s: neither %s, %s nor %s found." % (image, bootstrap_script, image_file, tarball))
-
-    def post_setup(self):
-        if not os.path.exists(self._image_image):
-            kernel = highest_version(self.execute(command="ls -1 /boot/vmlinuz-*").split("\n"), self.os)
-            initrd = highest_version(self.execute(command="ls -1 /boot/initramfs-*").split("\n"), self.os)
-            self.message("Extracting:", kernel, initrd)
-            self.download(kernel, self._image_kernel)
-            self.download(initrd, self._image_initrd)
+            raise Failure("Unsupported configuration %s: neither %s nor %s found." % (image, bootstrap_script, image_file))
 
     def save(self):
         assert not self._process
@@ -623,34 +558,12 @@ class QemuMachine(Machine):
                                         os.path.basename(self._image_image) ],
                                       cwd=images_dir,
                                       stdout=f)
-        elif (os.path.exists(self._image_kernel)
-              and os.path.exists(self._image_initrd)
-              and os.path.exists(self._image_root)):
-            if (os.path.islink(self._image_kernel)
-                or os.path.islink(self._image_initrd)):
-                raise Failure("Can not save now, only right after vm-create.")
-            images_dir = os.path.join(self.test_data, "images")
-            checksum_file = os.path.join(images_dir, "%s-checksum" % (self.image, ))
-            if not os.path.exists(images_dir):
-                os.makedirs(images_dir, 0750)
-            shutil.copy(self._image_root, images_dir)
-            shutil.copy(self._image_kernel, images_dir)
-            shutil.copy(self._image_initrd, images_dir)
-            with open(checksum_file, "w") as f:
-                subprocess.check_call([ "sha256sum",
-                                        os.path.basename(self._image_root),
-                                        os.path.basename(self._image_kernel),
-                                        os.path.basename(self._image_initrd) ],
-                                      cwd=images_dir,
-                                      stdout=f)
         else:
             raise Failure("Nothing to save.")
 
     def build(self, args):
         def modify(gf):
-            if self.os == "fedora-21":
-                self._setup_fedora_21(gf)
-            elif self.os == "fedora-22":
+            if self.os == "fedora-22":
                 self._setup_fedora_22(gf)
             elif self.os == "fedora-rawhide":
                 self._setup_fedora_rawhide(gf)
@@ -721,38 +634,13 @@ class QemuMachine(Machine):
         if not os.path.exists(self.run_dir):
             os.makedirs(self.run_dir, 0750)
 
-        drive_to_start = self._image_root
-        if os.path.exists(self._image_image):
-            drive_to_start = self._image_image
-        elif os.path.exists(self._image_original):
+        if not os.path.exists(self._image_image):
             subprocess.check_call([ "qemu-img", "create", "-q",
                                     "-f", "qcow2",
                                     "-o", "backing_file=%s" % self._image_original,
                                     self._image_image ])
-            drive_to_start = self._image_image
-        else:
-            if (not os.path.exists(self._image_root)
-                or not os.path.exists(self._image_kernel)
-                or not os.path.exists(self._image_initrd)):
 
-                backing_file = os.path.join(self.test_data, "images", os.path.basename(self._image_root))
-                kernel_file = os.path.join(self.test_data, "images", os.path.basename(self._image_kernel))
-                initrd_file = os.path.join(self.test_data, "images", os.path.basename(self._image_initrd))
-                if not os.path.exists(backing_file):
-                    raise Failure("Image not found: %s" % backing_file)
-                if not os.path.exists(kernel_file):
-                    raise Failure("Kernel not found: %s" % backing_file)
-                if not os.path.exists(initrd_file):
-                    raise Failure("Initrd not found: %s" % backing_file)
-                subprocess.check_call([ "qemu-img", "create", "-q",
-                                        "-f", "qcow2",
-                                        "-o", "backing_file=%s" % backing_file,
-                                        self._image_root ])
-                subprocess.check_call([ "ln", "-sf", kernel_file, self._image_kernel ])
-                subprocess.check_call([ "ln", "-sf", initrd_file, self._image_initrd ])
-
-
-        if not self._lock_resource(drive_to_start, exclusive=maintain):
+        if not self._lock_resource(self._image_image, exclusive=maintain):
             raise Failure("Already running this image: %s" % self.image)
 
         if maintain:
@@ -765,16 +653,10 @@ class QemuMachine(Machine):
         cmd = [
             self._locate_qemu_kvm(),
             "-m", str(MEMORY_MB),
-            "-drive", "if=virtio,file=%s,index=0,serial=ROOT,snapshot=%s" % (drive_to_start, snapshot),
+            "-drive", "if=virtio,file=%s,index=0,serial=ROOT,snapshot=%s" % (self._image_image, snapshot),
             "-net", "nic,model=virtio,macaddr=%s" % self.macaddr,
             "-net", "bridge,vlan=0,br=cockpit0",
             "-device", "virtio-scsi-pci,id=hot"
-        ]
-        if drive_to_start == self._image_root:
-            cmd += [
-            "-append", "root=/dev/vda quiet %s" % (selinux, ),
-            "-kernel", self._image_kernel,
-            "-initrd", self._image_initrd
         ]
 
         if monitor:

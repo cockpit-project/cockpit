@@ -44,9 +44,9 @@ check-*,             for running selected tests.
 
 You can set these environment variables to configure the test suite:
 
-  TEST_OS    The OS to run the tests in.  Currently, "fedora-21",
-             "fedora-22", "fedora-rawhide", and "rhel-7" are
-             supported, with "fedora-22" as the default.
+  TEST_OS    The OS to run the tests in.  Currently, "fedora-22",
+             "fedora-rawhide", and "rhel-7" are supported, with
+             "fedora-22" as the default.
 
              Note on "rhel-7": The installation routine expects subscription
              credentials to be present on the host:
@@ -101,20 +101,6 @@ with a clean state.
 A test machine image is created with vm-create, like so:
 
   $ ./vm-create -v -f cockpit
-
-Depending on TEST_OS, this might need a magic base tarball or magic
-base qcow2, or creates an image completey from scratch.  It makes some
-modifications to the image, brings it up-to-date with respect to the
-upstream package repositories, and sets it up for the indicated
-flavor.
-
-The magic base tarball/qcow2 is looked for in $TEST_DATA, is currently
-lovingly made by hand, and changes almost never.  We will stop using
-them eventually.
-
-You can find some magic base tarballs/qcow2s here:
-
-    http://files.cockpit-project.org/testdata
 
 The image will be created in the "./run" directory.
 

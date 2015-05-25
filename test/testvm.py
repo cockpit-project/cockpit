@@ -479,7 +479,6 @@ class QemuMachine(Machine):
         gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
 
     def _setup_fedora_22 (self, gf):
-        self._setup_fstab(gf)
         self._setup_ssh_keys(gf)
         self._setup_fedora_network(gf)
 

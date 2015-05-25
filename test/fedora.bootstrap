@@ -1,0 +1,109 @@
+#!/bin/bash
+#
+# Copyright (C) 2015 Red Hat Inc.
+# Author: <kashyap@redhat.com>
+# Further contributions: <pjp@fedoraproject.org>
+# Adapted: <marius.vollmer@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+# Adapted from create-guest-qcow2.  We don't use that script as is
+# since it is, to quote Mr Parker, "2% code and 98% config stuff".
+
+set -e
+
+if [ "$#" != 3 ]; then
+    echo >&2 "Usage: fedora.bootstrap IMAGE ARCH URL"
+    exit 1
+fi
+
+out=$1
+arch=$2
+url=$3
+
+ks=fedora.ks
+cat <<EOF >$ks
+install
+text
+shutdown
+lang en_US.UTF-8
+keyboard us
+network --bootproto dhcp
+rootpw foobar
+firewall --enabled --ssh
+selinux --enforcing
+timezone --utc America/New_York
+bootloader --location=mbr --append="console=ttyS0,115200 rd_NO_PLYMOUTH"
+zerombr
+clearpart --all --initlabel
+autopart
+
+%packages
+@core
+%end
+EOF
+
+qemu-img create -f qcow2 "$out" 4G
+
+connect="--connect=qemu:///session"
+name=fedora-builder
+
+if virsh $connect list --state-running --name | grep -q $name; then
+    virsh $connect shutdown $name
+fi
+
+if virsh $connect list --all --name | grep -q $name; then
+    virsh $connect undefine $name
+fi
+
+# This script needs to work without a controlling tty, and thus we
+# can't let virt-install use "virsh console" to show the output during
+# VM creation (because that would fail since "virsh console" needs a
+# controlling tty).
+#
+# Instead, we let virt-install write the console output to a file and
+# 'tail' it in the background.  We kill that 'tail' on exit, but only
+# after giving it some time to catch up.
+#
+# The alternative would be to use a fifo that we could simply 'cat' to
+# our stdout, but that leads to garbled output for some unknown
+# reason.
+#
+# Another alternative is to use a simple 'expect' script to give a
+# controlling tty to virt-install.  That is also quite clean, but it's
+# also good to not depend on 'expect'.
+#
+# Why can't we have any nice things?
+
+console=$PWD/$name.console
+echo -n >$console
+tail -f $console &
+trap "sleep 5; kill $!" 0
+
+virt-install $connect \
+             --initrd-inject=$ks \
+             --extra-args="ks=file:/$ks console=ttyS0,115200" \
+             --name=$name \
+             --disk "path=$out,format=qcow2" \
+             --ram 2048 \
+             --vcpus=1 \
+             --os-type linux \
+             --os-variant fedora21 \
+             --location="$url" \
+             --nographics \
+             --noreboot \
+             --noautoconsole \
+             --wait -1 \
+             --serial file,path=$console

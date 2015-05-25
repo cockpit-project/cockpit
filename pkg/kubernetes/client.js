@@ -108,7 +108,7 @@ define([
      * @remove callback with a null argument to indicate we are
      * starting over.
      */
-    function KubernetesWatch(api, type, update, remove) {
+    function KubernetesWatch(api, prefix, type, update, remove) {
         var self = this;
 
         var lastResource;
@@ -184,7 +184,7 @@ define([
         }
 
         function start_watch() {
-            var uri = "/api/v1beta3/watch/" + type;
+            var uri = "/" + prefix + "/v1beta3/watch/" + type;
             var all, uid;
 
             /*
@@ -283,6 +283,10 @@ define([
             }
 
             var http = cockpit.http(scheme.port, scheme);
+
+            /* The openshift request is done in parallel */
+            var openshift = http.get("/osapi");
+
             req = http.get("/api")
                 .done(function(data) {
                     req = null;
@@ -301,7 +305,13 @@ define([
                     }
                     if (response && response.versions) {
                         debug("found kube-apiserver endpoint on:", scheme);
-                        dfd.resolve(http, response);
+                        openshift.always(function() {
+                            if (this.state() === "resolved")
+                                response.flavor = "openshift";
+                            else
+                                response.flavor = "kubernetes";
+                            dfd.resolve(http, response);
+                        });
                     } else {
                         debug("not a kube-apiserver endpoint on:", scheme);
                         step();
@@ -357,6 +367,7 @@ define([
     function KubernetesClient() {
         var self = this;
 
+        self.flavor = null;
         self.objects = { };
 
         /* Holds the connect api promise */
@@ -385,13 +396,19 @@ define([
             connected = connect_api_server();
             return connected
                 .done(function(http, response) {
-                    watches.push(new KubernetesWatch(http, "nodes", handle_updated, handle_removed));
-                    watches.push(new KubernetesWatch(http, "pods", handle_updated, handle_removed));
-                    watches.push(new KubernetesWatch(http, "services", handle_updated, handle_removed));
-                    watches.push(new KubernetesWatch(http, "replicationcontrollers",
+                    self.flavor = response.flavor;
+                    watches.push(new KubernetesWatch(http, "api", "nodes",
                                                      handle_updated, handle_removed));
-                    watches.push(new KubernetesWatch(http, "namespaces", handle_updated, handle_removed));
-                    watches.push(new KubernetesWatch(http, "events", handle_event, handle_removed));
+                    watches.push(new KubernetesWatch(http, "api", "pods",
+                                                     handle_updated, handle_removed));
+                    watches.push(new KubernetesWatch(http, "api", "services",
+                                                     handle_updated, handle_removed));
+                    watches.push(new KubernetesWatch(http, "api", "replicationcontrollers",
+                                                     handle_updated, handle_removed));
+                    watches.push(new KubernetesWatch(http, "api", "namespaces",
+                                                     handle_updated, handle_removed));
+                    watches.push(new KubernetesWatch(http, "api", "events",
+                                                     handle_event, handle_removed));
                 })
                 .fail(function(ex) {
                     console.warn("Couldn't connect to kubernetes:", ex);

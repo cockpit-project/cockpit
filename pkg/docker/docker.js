@@ -131,6 +131,31 @@ define([
         parent.empty();
         term.open(parent[0]);
 
+        /* Shows and hides the cursor */
+        self.typeable = function typeable(yes) {
+            if (yes) {
+                term.cursorHidden = false;
+                term.showCursor();
+            } else {
+                /* There's no term.hideCursor() function */
+                term.cursorHidden = true;
+                term.refresh(term.y, term.y);
+            }
+            enable_input = yes;
+        };
+
+        /* Allows caller to cleanup nicely */
+        self.close = function close() {
+            term.destroy();
+        };
+
+        if (typeof channel == "string") {
+            term.write('\x1b[31m' + channel + '\x1b[m\r\n');
+            self.close = function() { };
+            self.typeable(false);
+            return self;
+        }
+
         $(channel).
             on("close", function(ev, options) {
                 self.connected = false;
@@ -152,28 +177,10 @@ define([
                 channel.send(encoder.encode(data));
         });
 
-        /* Shows and hides the cursor */
-        self.typeable = function typeable(yes) {
-            if (yes) {
-                term.cursorHidden = false;
-                term.showCursor();
-            } else {
-                /* There's no term.hideCursor() function */
-                term.cursorHidden = true;
-                term.refresh(term.y, term.y);
-            }
-            enable_input = yes;
-        };
-
-        /* Allows caller to cleanup nicely */
-        self.close = function close() {
-            term.destroy();
-        };
-
         return self;
     }
 
-    function DockerLogs(parent, channel, failure) {
+    function DockerLogs(parent, channel) {
         var self = this;
 
         var pre = $("<pre>").addClass("logs");
@@ -197,14 +204,14 @@ define([
             }
         }
 
-        channel.control({ batch: 16384, latency: 50 });
-
         /* Just display the failure */
-        if (failure) {
-            write(failure);
+        if (typeof channel == "string") {
+            write(channel);
             self.close = function() { };
             return self;
         }
+
+        channel.control({ batch: 16384, latency: 50 });
 
         var decoder = cockpit.utf8_decoder(false);
 
@@ -265,11 +272,102 @@ define([
         return -1;
     }
 
-    docker.console = function console_(container_id, tty) {
+    /**
+     * docker.console(container_id, options)
+     * docker.console(container_id, command, options):
+     *
+     * @container_id: full docker container id
+     * @command: optional array of command argv to exec
+     * @options: other options, including 'tty' true/false
+     *
+     * Creates a docker console/logs element and returns it. If options.tty is true
+     * then creates a full term.js terminal. Otherwise creates a logs output
+     * area. If options.tty is null/undefined autodetect whether to use tty or not.
+     *
+     * The returned element needs to have its .connect() method called to start the
+     * connection process.
+     *
+     * The returned value is an HTMLElement with the following extra methods/properties:
+     *
+     * cons.connected: true/false if connected or not
+     * cons.connect(): connect or reconnect
+     * cons.typeable(true/false): set typeable state or not, only applies to console
+     * cons.close(): disconnect and close
+     */
+    docker.console = function console_(container_id, command, options) {
         var self = $("<div>").addClass("console");
         var want_typeable = false;
         var channel = null;
         var view = null;
+        var exec;
+        var tty;
+
+        /* If there's a command, then we have to exec it in the container */
+        if (Array.isArray(command)) {
+            if (!options)
+                options = { };
+
+            /* When executing default to having a tty */
+            tty = options.tty;
+            if (tty === undefined || tty === null)
+                tty = true;
+
+            exec = {
+                method: "POST",
+                path: "/v1.15/containers/" + encodeURIComponent(container_id) + "/exec",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    "AttachStdin": tty,
+                    "AttachStdout": true,
+                    "AttachStderr": true,
+                    "Tty": tty,
+                    "Cmd": command
+                })
+            };
+
+        /* Just connect to the main container console */
+        } else {
+            options = command || { };
+            tty = options.tty;
+        }
+
+        delete options.tty;
+
+        /* A promise being prepared */
+        var prep = null;
+
+        function failure(message) {
+            self.connected = false;
+            if (tty)
+                view = new DockerTerminal(self, message);
+            else
+                view = new DockerLogs(self, message);
+        }
+
+        function prepare() {
+            /* Nothing to prepare? Connect diretly to container? */
+            if (!exec) {
+                return attach("POST /v1.15/containers/" + encodeURIComponent(container_id) +
+                              "/attach?logs=1&stream=1&stdin=1&stdout=1&stderr=1 HTTP/1.0\r\n" +
+                              "Content-Length: 0\r\n\r\n");
+            }
+
+            /* Prepare the command to be executed */
+            var prep = http.request(exec)
+                .always(function() {
+                    prep = null;
+                })
+                .done(function(data) {
+                    var resp = JSON.parse(data);
+                    var body = JSON.stringify({ Detach: false, Tty: tty });
+                    return attach("POST /v1.15/exec/" + encodeURIComponent(resp.Id) +
+                                  "/start HTTP/1.0\r\n" +
+                                  "Content-Length: " + body.length +"\r\n\r\n" + body);
+                })
+                .fail(function(ex) {
+                    failure(ex.message);
+                });
+        }
 
         /*
          * A raw channel over which we speak Docker's strange /attach
@@ -278,25 +376,24 @@ define([
          *
          * See: http://docs.docker.io/en/latest/reference/api/docker_remote_api_v1.8/#attach-to-a-container
          */
-        function attach() {
+        function attach(request) {
             self.connected = true;
 
             if (view)
                 view.close();
             view = null;
 
-            channel = cockpit.channel({
+            var opts = $.extend({ }, options, {
                 "payload": "stream",
                 "unix": "/var/run/docker.sock",
                 "superuser": "try",
                 "binary": true
             });
 
-            var req = "POST /v1.10/containers/" + encodeURIComponent(container_id) +
-                      "/attach?logs=1&stream=1&stdin=1&stdout=1&stderr=1 HTTP/1.0\r\n" +
-                      "Content-Length: 0\r\n\r\n";
-            docker_debug(req);
-            channel.send(req);
+            channel = cockpit.channel(opts);
+
+            docker_debug(request);
+            channel.send(request);
 
             $(channel).
                 on("close.attach", function(ev, options) {
@@ -326,9 +423,8 @@ define([
 
                     parts = headers.split("\r\n", 1)[0].split(" ");
                     if (parts[1] != "200") {
-                        view = new DockerLogs(self, channel, parts.slice(2).join(" "));
+                        failure(parts.slice(2).join(" "));
                         buffer.callback = null;
-                        self.connected = false;
                         return;
                     } else if (data.subarray) {
                         data = data.subarray(pos + 4);
@@ -338,7 +434,7 @@ define([
                 }
 
                 /* We need at least two bytes to determine stream type */
-                if (tty === undefined) {
+                if (tty === undefined || tty === null) {
                     if (data.length < 2)
                         return pos + 4;
                     tty = !((data[0] === 0 || data[0] === 1 || data[0] === 2) && data[1] === 0);
@@ -357,10 +453,10 @@ define([
             };
         }
 
-        attach();
-
         /* Allows caller to cleanup nicely */
         self.close = function close(problem) {
+            if (prep)
+                prep.close(problem);
             if (self.connected)
                 channel.close(problem);
             if (view) {
@@ -373,7 +469,7 @@ define([
         /* Allows the curser to restart the attach request */
         self.connect = function connect() {
             self.close("disconnected");
-            attach();
+            prepare();
         };
 
         self.typeable = function typeable(yes) {

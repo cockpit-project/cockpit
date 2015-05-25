@@ -1803,11 +1803,11 @@ PageContainerDetails.prototype = {
 
     maybe_show_terminal: function(info) {
         if (!this.terminal) {
-            this.terminal = docker.console(this.container_id, info.Config.Tty);
+            this.terminal = docker.console(this.container_id, { tty: info.Config.Tty });
             $("#container-terminal").empty().append(this.terminal);
+            this.terminal.connect();
         }
-        if (this.terminal.connected)
-            this.terminal.typeable(info.State.Running);
+        this.terminal.typeable(info.State.Running);
         $("#container-terminal").show();
     },
 

@@ -143,7 +143,7 @@ Provides: %{name}-subscriptions = %{version}-%{release}
 Requires: subscription-manager >= 1.13
 %ifarch x86_64 armv7hl
 Provides: %{name}-docker = %{version}-%{release}
-Requires: docker
+Requires: docker >= 1.3.0
 %endif
 %endif
 Provides: %{name}-assets
@@ -350,7 +350,7 @@ subscription management.
 
 %package docker
 Summary: Cockpit user interface for Docker containers
-Requires: docker
+Requires: docker >= 1.3.0
 
 %description docker
 The Cockpit components for interacting with Docker and user interface.

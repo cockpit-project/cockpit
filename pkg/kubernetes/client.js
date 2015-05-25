@@ -1020,56 +1020,6 @@ define([
         self.connect();
     }
 
-    function EtcdClient() {
-        var self = this;
-
-        var etcd_api = cockpit.http(7001);
-        var first = true;
-        var reqs = [];
-        var later;
-
-        function receive(data, what ,kind) {
-            var resp = JSON.parse(data);
-            self[what] = resp;
-
-            if (!first)
-                $(self).triggerHandler(what, [ self[what] ]);
-        }
-
-        function update() {
-
-            reqs.push(etcd_api.get("/v2/admin/machines")
-                .fail(failure)
-                .done(function(data) {
-                    receive(data, "etcdHosts");
-                }));
-
-            reqs.push(etcd_api.get("/v2/keys/coreos.com/network/config")
-                .fail(failure)
-                .done(function(data) {
-                    receive(data, "flannelConfig");
-                }));
-
-            if (first) {
-                $.when.apply($, reqs)
-                    .always(function() {
-                        first = false;
-                        $(self).triggerHandler("etcdHosts", [ self.etcdHosts ]);
-                    });
-            }
-        }
-
-        update();
-
-        self.close = function close() {
-            var r = reqs;
-            reqs = [];
-            r.forEach(function(req) {
-                req.close();
-            });
-        };
-    }
-
     /*
      * Returns a new instance of Constructor for each
      * key passed into the returned function. Multiple
@@ -1110,7 +1060,6 @@ define([
     }
 
     kubernetes.k8client = singleton(KubernetesClient);
-    kubernetes.etcdclient = singleton(EtcdClient);
 
     function CAdvisor(node) {
         var self = this;

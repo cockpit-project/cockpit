@@ -105,11 +105,6 @@ enabled=1
 EOF
 fi
 
-# HACK: Signatures can be unreliable in Fedora
-if [ "$os" == fedora-* ]; then
-    sed -i -e 's/gpgcheck=1/gpgcheck=0/' $base/mock/$os-$arch-cockpit.cfg
-fi
-
 touch -r /etc/mock/$os-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
 
 if LANG=C /usr/bin/mock --quiet $mock_opts $mock_clean_opts --configdir=$base/mock/ \

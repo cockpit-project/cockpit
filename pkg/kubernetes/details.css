@@ -1,0 +1,192 @@
+
+.kube-details .kube-pod {
+    border-color: #D0D0D0;
+    background-color: #F0F0F0;
+    border-width: 1px;
+    border-radius: 4px;
+    padding: 0 20px 10px 10px;
+    margin-top: 10px;
+    margin-bottom: 25px;
+    clear: both;
+    position: relative;
+}
+
+.kube-details h3 {
+    margin-top: 10px;
+    position: absolute;
+}
+
+.kube-details .kube-content {
+    padding-top: 3.5em;
+}
+
+.kube-details {
+    margin: 20px 10px;
+    max-width: 900px;
+}
+
+.kube-details .kube-container {
+    background-color: white;
+    border-radius: 4px;
+    padding: 0 20px 10px 10px;
+    margin-top: 10px;
+    margin-right: 10px;
+    margin-bottom: 0px;
+    position: relative;
+}
+
+.kube-details .kube-pod .kube-status,
+.kube-details .kube-container .nav {
+    float: right;
+    margin-top: 0px;
+}
+
+.kube-details .kube-container .nav:after {
+    clear: right;
+}
+
+.kube-pod .kube-status {
+    padding: 10px 10px 0 0;
+}
+
+.kube-status {
+    font-size: 14px;
+    line-height: 1.1;
+}
+
+.kube-status span {
+    font-weight: bold;
+}
+/* Right align the pills */
+.nav-tabs-clean > li:first-child > a {
+    padding-left: 15px;
+}
+
+.nav-tabs-clean > li:first-child > a:before {
+    left: 15px !important;
+}
+
+.kube-details dl {
+    margin-bottom: 0px;
+    clear: both;
+}
+
+.kube-details dt {
+    clear: left;
+    float: left;
+    width: 25%;
+    min-width: 100px;
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: right;
+    padding-right: 10px;
+    color: #888;
+    font-weight: normal;
+}
+
+.kube-details dt.full {
+    text-align: left;
+    min-width: none;
+    max-width: none;
+    float: none;
+}
+
+.kube-details dt.header {
+    padding-top: 10px;
+    font-weight: bold;
+}
+
+.kube-details dt.header:first-child {
+    padding-top: 0px;
+}
+
+.kube-details dd {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+div.kube-ports {
+    float: right;
+    margin-top: 25px;
+    width: 70px;
+    display: none;
+}
+
+div.kube-ports .kube-port {
+    border-top: 1px solid #888;
+    text-align: center;
+    position: relative;
+    margin-top: 15px;
+    z-index: 5;
+}
+
+div.kube-ports .kube-port:after,
+div.kube-ports .kube-port:before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border: 1px solid #888;
+    background-color: #F0F0F0;
+    border-radius: 3px;
+    position: absolute;
+    top: -3px;
+    display: inline-block;
+}
+
+div.kube-ports .kube-port:before {
+    left: -4px;
+}
+
+div.kube-ports .kube-port:after {
+    right: -4px;
+}
+
+.kube-id {
+    font-family: monospace;
+}
+
+.kube-pod .kube-icon {
+    font-size: 24px;
+    float: right;
+    line-height: 100%;
+    margin-right: 10px;
+    color: #333;
+}
+
+.kube-failed {
+    color: #AF151A;
+}
+
+.kube-details .console {
+    margin: 50px 0 10px 0;
+    min-height: 310px;
+}
+
+@media(min-width: 768px) {
+    .kube-details .kube-pod {
+	 padding-right: 0px;
+    }
+    .kube-details dl {
+	 margin-bottom: 10px;
+    }
+    .kube-details .kube-container {
+	 padding: 0px 20px;
+    }
+    .kube-details .kube-pod > .row {
+         margin-left: -10px;
+	 /* TODO: Should be dependent on ports */
+	 margin-right: 60px;
+    }
+    div.kube-ports {
+	 display: block;
+    }
+    div.kube-ports + .kube-container {
+    	margin-right: 70px;
+    }
+    dt.kube-ports,
+    dd.kube-ports {
+	display: none;
+    }
+}

@@ -2,7 +2,8 @@ define([
     "jquery",
     "base1/cockpit",
     "kubernetes/angular",
-    "kubernetes/client"
+    "kubernetes/client",
+    "kubernetes/angular-bootstrap"
 ], function($, cockpit, angular, kubernetes) {
     'use strict';
 
@@ -101,6 +102,7 @@ define([
             self.address = spec.portalIP;
             self.ports = spec.ports;
             self.namespace = meta.namespace;
+            self.item = item;
             service = item;
             calculated = null;
         };
@@ -245,8 +247,10 @@ define([
 
     return angular.module('kubernetes', [
             'ngRoute',
+            'ui.bootstrap',
             'kubernetes.dashboard',
-            'kubernetes.graph'
+            'kubernetes.graph',
+            'kubernetes.details'
         ])
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.otherwise({ redirectTo: '/' });

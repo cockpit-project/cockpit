@@ -19,6 +19,8 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/config.js \
 	pkg/kubernetes/d3.js \
 	pkg/kubernetes/dashboard.js \
+	pkg/kubernetes/details.css \
+	pkg/kubernetes/details.js \
 	pkg/kubernetes/graphs.js \
 	pkg/kubernetes/kubernetes.js \
 	pkg/kubernetes/node.js \
@@ -34,6 +36,7 @@ kubernetes_BUNDLE = \
 	pkg/kubernetes/config.min.js \
 	pkg/kubernetes/dashboard.min.js \
 	pkg/kubernetes/deploy.min.js \
+	pkg/kubernetes/details.min.js \
 	pkg/kubernetes/d3.min.js \
 	pkg/kubernetes/graphs.min.js \
 	pkg/kubernetes/node.min.js \

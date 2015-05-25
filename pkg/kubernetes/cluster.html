@@ -82,7 +82,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="service in services" data-uid="{{service.uid}}">
+            <tr ng-repeat="service in services" data-uid="{{service.uid}}"
+                ng-click="jumpService($event, service.item)">
               <td>{{service.name}}</td>
               <td><kubernetes-address ng-init="item = service"></td>
               <td>{{service.containers}}</td>
@@ -132,6 +133,125 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     </div>
   </div>
   </script>
+
+  <!-- Container details page -->
+
+  <script type="text/ng-template" id="details.html">
+    <div class="kube-details">
+      <div ng-repeat="item in selection" ng-if="item.kind == 'Pod'">
+        <kube-pod ng-init="pod = item">
+          <kube-container ng-repeat="container in client.containers(pod)"></kube-container>
+        </kube-pod>
+      </div>
+    </div>
+  </script>
+
+  <script type="text/ng-template" id="pod.html">
+    <div class="kube-pod panel">
+      <!-- TODO: exclamation triangle -->
+      <div class="kube-status">
+        on <span>{{pod.spec.host}}</span>
+      </div>
+      <h3 class="panel-title">{{pod.metadata.name}}</h3>
+      <div class="row kube-content">
+        <div class="col-sm-6 kube-info">
+          <dl>
+            <dt>Node Adddress</dt>
+            <dd>{{pod.status.hostIP}}</dd>
+            <dt>Pod Address</dt>
+            <dd>{{pod.status.podIP}}</dd>
+            <dt translatable="yes">Namespace</dt>
+            <dd>{{pod.metadata.namespace}}</dd>
+            <dt>Status</dt>
+            <dd>{{pod.status.phase}}</dd>
+            <dt>Restart Policy</dt>
+            <dd>{{pod.spec.restartPolicy}}</dd>
+          </dl>
+        </div>
+        <div class="col-sm-6 kube-more">
+          <dl>
+            <dt class="header full" translatable="yes">Labels</dt>
+            <dd class="full" ng-repeat="(key, value) in pod.metadata.labels">{{key}}: {{value}}</dd>
+          </dl>
+        </div>
+      </div>
+      <div ng-transclude></div>
+    </div>
+  </script>
+
+  <!-- TODO: Move templates into separate files while debugging -->
+  <script type="text/ng-template" id="template/tabs/tabset.html">
+    <div>
+      <ul class="nav nav-{{type || 'tabs'}} nav-tabs-pf nav-tabs-clean"
+          ng-class="{'nav-stacked': vertical, 'nav-justified': justified}" ng-transclude></ul>
+      <div class="tab-content">
+        <div class="tab-pane clearfix" ng-repeat="tab in tabs" ng-class="{active: tab.active}" tab-content-transclude="tab">
+        </div>
+      </div>
+    </div>
+  </script>
+
+  <script type="text/ng-template" id="template/tabs/tab.html">
+    <li ng-class="{active: active, disabled: disabled}">
+      <a href ng-click="select()" tab-heading-transclude>{{heading}}</a>
+    </li>
+  </script>
+
+  <script type="text/ng-template" id="container.html">
+    <!-- container = { spec: pod.spec.containers[n], status: pod.status.containersStatus[n] } -->
+
+    <div class="kube-ports" ng-if="container.spec.ports.length">
+      <div class="kube-port" ng-repeat="port in container.spec.ports">
+        {{port.containerPort}}/{{port.protocol}}
+      </div>
+    </div>
+
+    <div class="kube-container panel">
+      <h3 class="panel-title"><span class="fa fa-cube"></span> {{container.spec.name}}</h3>
+      <tabset type="pills" class="">
+        <tab heading="Status">
+          <div class="row kube-content">
+            <div class="col-sm-6 kube-info">
+              <dl>
+                <dt>Image</dt>
+                <dd>{{container.spec.image}}</dd>
+                <dt>Image ID</dt>
+                <dd class="kube-id">{{container.status.imageID | kubeIdentifier }}</dd>
+                <dt>Container ID</dt>
+                <dd class="kube-id">{{container.status.containerID | kubeIdentifier }}</dd>
+                <dt class="kube-ports">Ports</dt>
+                <dd class="kube-ports">
+                  <span ng-repeat="port in container.spec.ports">{{port.containerPort}}/{{port.protocol}}</span>
+                </dd>
+                <dt ng-repeat-start="(state, args) in container.status.state">State</dt>
+                <dd>{{state}}</dd>
+                <dt>Since</dt>
+                <dd ng-repeat-end>{{args.startedAt}}</dd>
+                <dt>Restart Count</dt>
+                <dd>{{container.status.restartCount}}</dd>
+              </dl>
+            </div>
+            <div class="col-sm-6 kube-more">
+              <dl>
+                <dt class="header full" ng-if="container.spec.env.length">Environment</dt>
+                <dd class="kube-id full" ng-repeat="env in container.spec.env">{{env.name}}={{env.value}}</dd>
+              </dl>
+            </div>
+          </div>
+        </tab>
+        <tab heading="Console" select="connect()">
+          <kube-console host="{{pod.spec.host}}" id="{{container.status.containerID}}">
+          </kube-console>
+        </tab>
+        <tab heading="Shell" select="connect()">
+          <kube-console host="{{pod.spec.host}}" id="{{container.status.containerID}}" shell="true">
+          </kube-console>
+        </tab>
+      </tabset>
+    </div>
+  </script>
+
+  <!-- Dialogs -->
 
     <div class="modal" id="deploy-app-dialog" tabindex="-1" role="dialog" data-backdrop="static">
       <div class="modal-dialog">
@@ -287,7 +407,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           "kubernetes/adjust",
           "kubernetes/node",
           "kubernetes/app",
-          "kubernetes/dashboard"
+          "kubernetes/dashboard",
+          "kubernetes/details",
       ], function(cockpit, po, angular) {
           "use strict";
           cockpit.locale(po);

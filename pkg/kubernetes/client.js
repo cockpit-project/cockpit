@@ -1002,6 +1002,38 @@ define([
         };
 
         /**
+         * client.containers()
+         * @pod: The pod javascript to build container objects for.
+         *
+         * Build fake container objects with a spec/status for the various
+         * containers in the pod. The resulting objects are not real kubernetes
+         * objects, but are useful when dealing with information about a
+         * container.
+         *
+         * They look like this:
+         *   { spec: pod.spec.containers[n], status: pod.status.containerStatuses[n] }
+         *
+         * The returned array will not change once created for a given pod item.
+         */
+        this.containers = function containers(pod) {
+            var results = pod.containers;
+
+            var specs, statuses;
+            if (!results) {
+                specs = (pod.spec || []).containers || [];
+                statuses = (pod.status || []).containerStatuses || [];
+                results = specs.map(function(spec, i) {
+                    return { spec: spec, status: statuses[i] };
+                });
+
+                /* Note that the returned value has to be stable, so stash it on the pod */
+                Object.defineProperty(pod, "containers", { enumerable: false, value: results });
+            }
+
+            return results;
+        };
+
+        /**
          * client.track(items)
          * client.track(items, false)
          * @items: a set of items returned by client.select() or friends

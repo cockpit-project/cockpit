@@ -8,7 +8,7 @@ define([
     var phantom_checkpoint = phantom_checkpoint || function () { };
 
     /* TODO: Migrate this to angular */
-    $("#content").on("click", "#services-enable-change", function() {
+    $("body").on("click", "#services-enable-change", function() {
         $("#service-list").toggleClass("editable");
         $("#services-enable-change").toggleClass("active");
     });

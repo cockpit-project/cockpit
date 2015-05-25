@@ -5,7 +5,6 @@ kubernetes_DATA = \
 	pkg/kubernetes/cluster.min.html.gz \
 	pkg/kubernetes/kubernetes.min.js.gz \
 	pkg/kubernetes/manifest.json \
-	pkg/kubernetes/tool.min.html.gz \
 	pkg/kubernetes/deploy.min.js.gz \
 	$(NULL)
 
@@ -23,7 +22,6 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/graphs.js \
 	pkg/kubernetes/kubernetes.js \
 	pkg/kubernetes/node.js \
-	pkg/kubernetes/tool.html \
 	pkg/kubernetes/deploy.js \
 	$(NULL)
 
@@ -53,14 +51,12 @@ CLEANFILES += \
 	pkg/kubernetes/app.min.css \
 	pkg/kubernetes/cluster.min.html \
 	pkg/kubernetes/kubernetes.min.js \
-	pkg/kubernetes/tool.min.html \
 	$(kubernetes_BUNDLE) \
 	$(NULL)
 
 EXTRA_DIST += \
 	pkg/kubernetes/cluster.min.html \
 	pkg/kubernetes/kubernetes.min.js \
-	pkg/kubernetes/tool.min.html \
 	$(kubernetes_BUNDLE) \
 	$(kubernetes_DATA) \
 	$(kubernetesdebug_DATA) \

@@ -20,14 +20,14 @@
 define([
     "jquery",
     "base1/cockpit",
-    "base1/patterns",
     "base1/mustache",
-    "kubernetes/client"
-], function(jQuery, cockpit, patterns, Mustache, kubernetes) {
+    "kubernetes/client",
+    "base1/patterns"
+], function(jQuery, cockpit, Mustache, kubernetes) {
     "use strict";
 
     var _ = cockpit.gettext;
-    var $ = jQuery.scoped("#node-dialog", patterns);
+    var $ = jQuery.scoped("#node-dialog");
 
     var kube = null;
 

@@ -179,7 +179,7 @@ define([
             .progress(update);
     }
 
-    plugins.dialog = function dialog(action /* ... */) {
+    $.fn.dialog = function dialog(action /* ... */) {
         if (action === "failure")
             display_errors(this, Array.prototype.slice.call(arguments, 1));
         else if (action === "wait")
@@ -187,6 +187,4 @@ define([
         else
             console.warn("unknown dialog action: " + action);
     };
-
-    return plugins;
 });

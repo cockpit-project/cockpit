@@ -25,13 +25,12 @@ define([
     "translated!base1/po",
     "base1/mustache",
     "base1/patterns"
-], function(jQuery, cockpit, po, Mustache, patterns) {
+], function($, cockpit, po, Mustache) {
     "use strict";
 
     cockpit.locale(po);
     cockpit.translate();
     var _ = cockpit.gettext;
-    var $ = jQuery.scoped("body", patterns);
 
     function debug() {
         if (window.debugging == "all" || window.debugging == "subscriptions")

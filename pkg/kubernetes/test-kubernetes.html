@@ -374,7 +374,7 @@ function kube_api_get(req, parts, query) {
 
     /* Various lists */
     if (what == "namespaces") {
-        regexp = /namespaces\//;
+        regexp = /namespaces\/[a-zA-Z0-9-_]+$/;
         kind = "NamespaceList";
     } else if (what == "nodes") {
         regexp = /nodes\//;
@@ -563,13 +563,13 @@ require([
         expect(3);
 
         var client = kubernetes.k8client();
-        $(client).on("nodes", function(ev) {
-            var node = client.nodes[0];
-            equal(client.nodes.length, 1, "number of nodes");
+        client.wait(function() {
+            var nodes = client.select("Node");
+            ok("f530580d-a169-11e4-8651-10c37bdb8410" in nodes, "found node");
+            var node = nodes["f530580d-a169-11e4-8651-10c37bdb8410"];
             equal(node.metadata.name, "127.0.0.1", "localhost node");
             equal(typeof node.spec.capacity, "object", "node has resources");
 
-            $(client).off("nodes");
             client.close();
             start();
         });
@@ -579,124 +579,158 @@ require([
         expect(3);
 
         var client = kubernetes.k8client();
-        $(client).on("pods", function(ev) {
-            var pod = client.pods[0];
-            equal(client.pods.length, 2, "number of pods");
-            equal(pod.metadata.uid, "11768037-ab8a-11e4-9a7c-080027300d85", "pod id");
+        client.wait(function() {
+            var pods = client.select("Pod");
+            equal(pods.items.length, 2, "number of pods");
+            var pod = pods["11768037-ab8a-11e4-9a7c-080027300d85"];
+            equal(typeof pod, "object", "found pod")
             equal(pod.metadata.labels.name, "apache", "pod has label");
 
-            $(client).off("pods");
             client.close();
             start();
         });
     });
 
     asyncTest("add pod", function() {
-        expect(4);
+        expect(7);
 
-        var updated = false;
+        var ready = false;
+        var changed = false;
 
         var client = kubernetes.k8client();
-        $(client).on("pods", function(ev) {
+        var pods = client.select("Pod");
+        client.track(pods);
 
-            /* Run on first invocation */
-            if (!updated) {
-                equal(client.pods.length, 2, "number of pods");
-                equal(client.pods[0].metadata.labels.name, "apache", "pod has label");
+        client.wait(function() {
+            ready = true;
 
-                updated = true;
-                kube_update("namespaces/default/pods/aardvark", {
-                    "kind": "Pod",
-                    "metadata": {
-                        "name": "aardvark",
-                        "uid": "22768037-ab8a-11e4-9a7c-080027300d85",
-                        "namespace": "default",
-                        "labels": {
-                            "name": "aardvark"
-                        },
+            equal(pods.items.length, 2, "number of pods");
+            equal(pods["11768037-ab8a-11e4-9a7c-080027300d85"].metadata.labels.name, "apache", "pod has label");
+
+            kube_update("namespaces/default/pods/aardvark", {
+                "kind": "Pod",
+                "metadata": {
+                    "name": "aardvark",
+                    "uid": "22768037-ab8a-11e4-9a7c-080027300d85",
+                    "namespace": "default",
+                    "labels": {
+                        "name": "aardvark"
                     },
-                    "spec": {
-                        "volumes": null,
-                        "containers": [ ],
-                        "imagePullPolicy": "IfNotPresent"
-                    }
-                });
+                },
+                "spec": {
+                    "volumes": null,
+                    "containers": [ ],
+                    "imagePullPolicy": "IfNotPresent"
+                }
+            });
+        });
 
-            /* Run on second invocation */
-            } else {
-                equal(client.pods.length, 3, "added a pod");
-                equal(client.pods[0].metadata.labels.name, "aardvark", "new pod sorted correctly");
+        $(pods).on("added", function(ev, item) {
+            if (!ready)
+                return;
 
-                $(client).off("pods");
-                client.close();
-                start();
-            }
+            equal(pods.items.length, 3, "added a pod");
+            equal(pods["22768037-ab8a-11e4-9a7c-080027300d85"].metadata.labels.name,
+                  "aardvark", "new pod present in items");
+            ok(item === pods["22768037-ab8a-11e4-9a7c-080027300d85"], "passed right argument");
+            equal(changed, false, "changed not yet");
+        });
+
+        $(pods).on("changed", function() {
+            if (!ready)
+                return;
+            changed = true;
+            ok(true, "changed also fired");
+            client.close();
+            start();
         });
     });
 
     asyncTest("update pod", function() {
-        expect(4);
+        expect(7);
 
-        var updated = false;
+        var ready = false;
+        var changed = false;
 
         var client = kubernetes.k8client();
-        $(client).on("pods", function(ev) {
+        var pods = client.select("Pod");
+        client.track(pods);
 
-            /* Run on first invocation */
-            if (!updated) {
-                equal(client.pods.length, 2, "number of pods");
-                equal(client.pods[0].metadata.labels.name, "apache", "pod has label");
+        client.wait(function() {
+            ready = true;
 
-                updated = true;
-                kube_update("namespaces/default/pods/apache", {
-                    "kind": "Pod",
-                    "metadata": {
-                        "name": "apache",
-                        "uid": "11768037-ab8a-11e4-9a7c-080027300d85",
-                        "namespace": "default",
-                        "labels": {
-                            "name": "apachepooo"
-                        },
-                    }
-                });
+            equal(pods.items.length, 2, "number of pods");
+            equal(pods.items[1].metadata.labels.name, "apache", "pod has label");
 
-            /* Run on second invocation */
-            } else {
-                equal(client.pods.length, 2, "updated, didn't add a pod");
-                equal(client.pods[0].metadata.labels.name, "apachepooo", "pod name updated");
+            kube_update("namespaces/default/pods/apache", {
+                "kind": "Pod",
+                "metadata": {
+                    "name": "apache",
+                    "uid": "11768037-ab8a-11e4-9a7c-080027300d85",
+                    "namespace": "default",
+                    "labels": {
+                        "name": "apachepooo"
+                    },
+                }
+            });
+        });
 
-                $(client).off("pods");
-                client.close();
-                start();
-            }
+        $(pods).on("updated", function(ev, item) {
+            if (!ready)
+                return;
+
+            equal(pods.items.length, 2, "updated, didn't add a pod");
+            equal(pods.items[1].metadata.labels.name, "apachepooo", "pod name updated");
+            ok(item === pods.items[1], "passed right argument");
+            equal(changed, false, "changed not yet");
+        });
+
+        $(pods).on("changed", function() {
+            if (!ready)
+                return;
+            changed = true;
+            ok(true, "changed also fired");
+            client.close();
+            start();
         });
     });
 
     asyncTest("remove pod", function() {
-        expect(4);
+        expect(7);
 
-        var updated = false;
+        var ready = false;
+        var changed = false;
 
         var client = kubernetes.k8client();
-        $(client).on("pods", function(ev) {
+        var pods = client.select("Pod");
+        client.track(pods);
 
-            /* Run on first invocation */
-            if (!updated) {
-                equal(client.pods.length, 2, "number of pods");
-                equal(client.pods[0].metadata.labels.name, "apache", "pod has label");
+        client.wait(function() {
+            ready = true;
 
-                updated = true;
-                kube_update("namespaces/default/pods/apache", null);
+            equal(pods.items.length, 2, "number of pods");
+            equal(pods.items[1].metadata.labels.name, "apache", "pod has label");
 
-            /* Run on second invocation */
-            } else {
-                equal(client.pods.length, 1, "removed a pod");
-                equal(client.pods[0].metadata.labels.name, "wordpressreplica", "right pod got removed");
+            kube_update("namespaces/default/pods/apache", null);
+        });
 
-                $(client).off("pods");
-                client.close();
-                start();
-            }
+        $(pods).on("removed", function(ev, item) {
+            if (!ready)
+                return;
+
+            equal(pods.items.length, 1, "removed a pod");
+            equal(pods.items[0].metadata.labels.name, "wordpressreplica", "right pod got removed");
+            equal(item.metadata.labels.name, "apache", "passed right argument");
+            equal(changed, false, "changed not yet");
+        });
+
+        $(pods).on("changed", function(ev, item) {
+            if (!ready)
+                return;
+            changed = true;
+            ok(true, "changed also fired");
+            client.close();
+            start();
         });
     });
 
@@ -704,13 +738,14 @@ require([
         expect(3);
 
         var client = kubernetes.k8client();
-        $(client).on("services", function(ev) {
-            var svc = client.services[0];
-            equal(client.services.length, 2, "number of services");
+
+        client.wait(function() {
+            var services = client.select("Service");
+            var svc = services.items[0];
+            equal(services.items.length, 2, "number of services");
             equal(svc.metadata.name, "kubernetes", "service id");
             equal(svc.spec.selector.component, "apiserver", "service has label");
 
-            $(client).off("services");
             client.close();
             start();
         });
@@ -718,7 +753,7 @@ require([
 
     test("close immediate", function() {
         var client = kubernetes.k8client();
-        equal(client.nodes.length, 0, "no nodes yet");
+        deepEqual(client.objects, { }, "no objects yet");
 
         /* No error should be thrown on immediate close*/
         client.close();
@@ -775,7 +810,6 @@ require([
             })
             .always(function() {
                 equal(this.state(), "resolved", "succeeded");
-                $(client).off();
                 client.close();
                 start();
             });
@@ -811,7 +845,6 @@ require([
                         .always(function() {
                             equal(this.state(), "resolved", "succeeded");
 
-                            $(client).off();
                             client.close();
                             start();
                         });
@@ -834,7 +867,6 @@ require([
             .always(function() {
                 equal(this.state(), "resolved", "succeeded");
 
-                $(client).off();
                 client.close();
                 start();
             });
@@ -856,7 +888,6 @@ require([
             .always(function() {
                 equal(this.state(), "rejected", "failed");
 
-                $(client).off();
                 client.close();
                 start();
             });
@@ -870,66 +901,65 @@ require([
 
     function has_unique_uids(items) {
         var i, seen = { };
-        for (i = 0; i < items.length; i++) {
-            if (seen[items[i].metadata.uid])
+        for (i = 0; i < items.items.length; i++) {
+            if (seen[items.items[i].metadata.uid])
                 return false;
-            seen[items[i].metadata.uid] = items[i];
+            seen[items.items[i].metadata.uid] = items[i];
         }
         return true;
     }
 
     asyncTest("select", function() {
         var client = kubernetes.k8client();
-        $(client).on("pods", function(ev) {
+        client.wait(function() {
 
             /* Select everything odd, 500 pods */
-            var results = client.select({ "type": "odd" }, "default");
-            equal(results.length, 500, "correct amount");
+            var results = client.select(null, "default", { "type": "odd" });
+            equal(results.items.length, 500, "correct amount");
             ok(has_unique_uids(results), "unique objects");
 
             /* Select everything odd, but wrong namespace, no pods */
-            var results = client.select({ "type": "odd" }, "other");
-            equal(results.length, 0, "other namespace no pods");
+            var results = client.select(null, "other", { "type": "odd" });
+            equal(results.items.length, 0, "other namespace no pods");
 
             /* The same ones selected even when a second (present) label */
-            results = client.select({ "type": "odd", "tag": "silly"  }, "default");
-            equal(results.length, 500, "with additional label");
+            results = client.select(null, "default", { "type": "odd", "tag": "silly"  });
+            equal(results.items.length, 500, "with additional label");
             ok(has_unique_uids(results), "unique objects with additional label");
 
             /* Nothing selected when additional invalid field */
-            results = client.select({ "type": "odd", "tag": "billy"  }, "default");
-            equal(results.length, 0, "no objects");
+            results = client.select(null, "default", { "type": "odd", "tag": "billy"  });
+            equal(results.items.length, 0, "no objects");
 
             /* Limit by kind */
-            var results = client.select({ "type": "odd" }, "default", "Pod");
-            equal(results.length, 500, "by kind");
+            var results = client.select("Pod", "default", { "type": "odd" });
+            equal(results.items.length, 500, "by kind");
             ok(has_unique_uids(results), "unique objects by kind");
 
             /* Limit by invalid kind */
-            var results = client.select({ "type": "odd" }, "default", "Ood");
-            equal(results.length, 0, "nothing for invalid kind");
+            var results = client.select("Ood", "default", { "type": "odd" });
+            equal(results.items.length, 0, "nothing for invalid kind");
 
             /* Everything selected when no selector */
             results = client.select(null, "default");
-            equal(results.length, 1006, "all objects");
+            equal(results.items.length, 1006, "all objects");
 
             /* Everything selected when no selector */
-            results = client.select(null, "default", "Pod");
-            equal(results.length, 1002, "all pods");
+            results = client.select("Pod", "default", null);
+            equal(results.items.length, 1002, "all pods");
 
             /* Nothing selected when bad namespace */
             results = client.select(null, "other");
-            equal(results.length, 0, "other namespace no objects");
+            equal(results.items.length, 0, "other namespace no objects");
 
             /* Get the node when a null namespace */
-            results = client.select(null, undefined);
-            equal(results.length, 1, "without namespace");
+            results = client.select(null, null);
+            equal(results.items.length, 1007, "without namespace");
 
-            /* Nothing selected when empty selector */
-            results = client.select({ }, "default");
-            equal(results.length, 0, "no objects");
+            /* All selected when empty selector */
+            results = client.select(null, "default", { });
+            equal(results.items.length, 1004, "namespace objects");
 
-            $(client).off("pods");
             client.close();
             start();
         });
@@ -937,45 +967,44 @@ require([
 
     asyncTest("infer", function() {
         var client = kubernetes.k8client();
-        $(client).on("pods", function(ev) {
+        client.wait(function() {
 
             /* Start simple, exactly the labels selector matches */
-            var results = client.infer({ "tag": "silly", "type": "odd" }, "default");
-            equal(results.length, 1, "selected replication controller");
-            equal(results[0].metadata.name, "oddcontroller", "got oddcontroller");
+            var results = client.infer(null, "default", { "tag": "silly", "type": "odd" });
+            equal(results.items.length, 1, "selected replication controller");
+            equal(results.items[0].metadata.name, "oddcontroller", "got oddcontroller");
 
             /* Other namespace, no match */
-            var results = client.infer({ "tag": "silly", "type": "odd" }, "other");
-            equal(results.length, 0, "selected no controller");
+            var results = client.infer(null, "other", { "tag": "silly", "type": "odd" });
+            equal(results.items.length, 0, "selected no controller");
 
             /* Now with extra labels, as you'd usually see it */
-            results = client.infer({ "tag": "silly", "type": "odd", "another": "value" }, "default");
-            equal(results.length, 1, "selected controller with extra labels");
-            equal(results[0].metadata.name, "oddcontroller", "got oddcontroller with extra labels");
+            results = client.infer(null, "default", { "tag": "silly", "type": "odd", "another": "value" });
+            equal(results.items.length, 1, "selected controller with extra labels");
+            equal(results.items[0].metadata.name, "oddcontroller", "got oddcontroller with extra labels");
 
             /* Make two replication controllers match */
-            results = client.infer({ "tag":"silly", "type":"odd", "another":"value", "factor3":"yes" }, "default");
-            equal(results.length, 2, "two replication controllers");
-            equal(results[0].metadata.name, "oddcontroller", "got oddcontroller in set");
-            equal(results[1].metadata.name, "3controller", "got 3controller in set");
+            results = client.infer(null, "default", { "tag":"silly", "type":"odd", "another":"value", "factor3":"yes" });
+            equal(results.items.length, 2, "two replication controllers");
+            equal(results.items[0].metadata.name, "oddcontroller", "got oddcontroller in set");
+            equal(results.items[1].metadata.name, "3controller", "got 3controller in set");
 
             /* Everything inferred when no labels */
-            results = client.infer(null, "default");
-            equal(results.length, 4, "all objects with selectors");
+            results = client.infer(null, "default", null);
+            equal(results.items.length, 4, "all objects with selectors");
 
             /* Everything inferred when no labels */
-            results = client.infer(null, "default", "ReplicationController");
-            equal(results.length, 2, "all replication controllers with selectors");
+            results = client.infer("ReplicationController", "default");
+            equal(results.items.length, 2, "all replication controllers with selectors");
 
-            /* Nothing when wrong label */
+            /* Nothing when wrong namespace */
             results = client.infer(null, "other");
-            equal(results.length, 0, "no objects with other namespace");
+            equal(results.items.length, 0, "no objects with other namespace");
 
             /* Nothing inferred when empty label */
-            results = client.infer({ }, "default");
-            equal(results.length, 0, "no objects");
+            results = client.infer(null, "default", { });
+            equal(results.items.length, 0, "no objects");
 
-            $(client).off("pods");
             client.close();
             start();
         });
@@ -983,14 +1012,13 @@ require([
 
     asyncTest("hosting", function() {
         var client = kubernetes.k8client();
-        $(client).on("pods", function(ev) {
+        client.wait(function() {
 
             /* Find out which pods this node is hosting */
-            var results = client.hosting("127.0.0.1", "Pod");
-            equal(results.length, 1, "selected hosted pods");
-            equal(results[0].metadata.name, "wordpress", "got wordpress pod");
+            var results = client.hosting("Pod", "127.0.0.1");
+            equal(results.items.length, 1, "selected hosted pods");
+            equal(results.items[0].metadata.name, "wordpress", "got wordpress pod");
 
-            $(client).off("pods");
             client.close();
             start();
         });

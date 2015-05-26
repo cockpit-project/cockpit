@@ -1285,7 +1285,7 @@ define([
 
         self.fetch = function fetch(beg, end) {
             var query;
-            if (beg === undefined && end === undefined) {
+            if (!beg || !end) {
                 query = { num_stats: 60 };
             } else {
                 query = {

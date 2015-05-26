@@ -412,7 +412,8 @@ transition_none (CockpitPortal *self)
 
   self->argvi = 0;
 
-  g_hash_table_unref (interned);
+  if (interned)
+    g_hash_table_unref (interned);
   g_free (problem);
 }
 

@@ -63,4 +63,27 @@ WantedBy=default.target
         b.switch_to_top()
         b.wait_js_cond("window.location.hash == '#/@localhost/playground/test/0/1?length=1'")
 
+    def testFrameReload(self):
+            b = self.browser
+            frame = "localhost/playground/test"
+
+            self.login_and_go(None)
+            b.go("/@localhost/playground/test")
+            b.wait_present("iframe[name='%s']" % frame)
+
+            b.switch_to_frame(frame)
+            b.wait_present('#file-content')
+            b.wait_text('#file-content', "0")
+            b.click("#modify-file")
+            b.wait_text('#file-content', "1")
+
+            b.switch_to_top()
+            b.eval_js('ph_set_attr("iframe[name=\'%s\']", "data-loaded", null)' % frame)
+            b.eval_js('ph_set_attr("iframe[name=\'%s\']", "src", "../playground/test.html?i=1#/")' % frame)
+            b.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
+
+            b.switch_to_frame(frame)
+            b.wait_present('#file-content')
+            b.wait_text('#file-content', "1")
+
 test_main()

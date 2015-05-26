@@ -182,6 +182,8 @@ define([
     $.fn.dialog = function dialog(action /* ... */) {
         if (action === "failure")
             display_errors(this, Array.prototype.slice.call(arguments, 1));
+        else if (action === "failures")
+            display_errors(this, arguments[1]);
         else if (action === "wait")
             display_wait(this, arguments[1]);
         else

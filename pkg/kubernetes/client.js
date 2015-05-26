@@ -311,10 +311,10 @@ define([
             load_poke();
         }
 
-        /* Waiting to do the next http request */
-        var wait = null;
-
         function start_watch() {
+            if (req)
+                return;
+
             var uri = "/" + prefix + "/v1beta3/watch/" + type;
             var full = true;
 
@@ -338,11 +338,6 @@ define([
                 blocked = true;
             }, 1000);
 
-            if (req) {
-                req.cancelled = true;
-                req.close();
-            }
-
             req = api.get(uri)
                 .stream(handle_watch)
                 .response(function() {
@@ -353,30 +348,38 @@ define([
                     load_ready();
                 })
                 .fail(function(ex) {
-                    var msg;
-                    if (!stopping) {
-                        msg = "watching kubernetes " + type + " failed: " + ex;
-                        if (ex.problem !== "disconnected")
-                            console.warn(msg);
-                        else
-                            debug(msg);
-                        wait = window.setTimeout(function() { wait = null; start_watch(); }, 5000);
-                    }
+                    if (stopping)
+                        return;
+                    var msg = "watching kubernetes " + type + " failed: " + ex;
+                    if (ex.problem !== "disconnected")
+                        console.warn(msg);
+                    else
+                        debug(msg);
+                    start_watch_later();
                 })
                 .done(function(data) {
-                    var cancelled = req && req.cancelled;
-                    if (!stopping && !cancelled) {
-                        if (!blocked) {
-                            console.warn("watching kubernetes " + type + " didn't block");
-                            wait = window.setTimeout(function() { wait = null; start_watch(); }, 5000);
-                        } else {
-                            start_watch();
-                        }
+                    if (stopping)
+                        return;
+                    if (!blocked) {
+                        console.warn("watching kubernetes " + type + " didn't block");
+                        start_watch_later();
+                    } else {
+                        start_watch();
                     }
                 });
         }
 
-        start_watch();
+        /* Waiting to do the next http request */
+        var wait = null;
+
+        function start_watch_later() {
+            if (!wait) {
+                wait = window.setTimeout(function() {
+                    wait = null;
+                    start_watch();
+                }, 5000);
+            }
+        }
 
         self.stop = function stop() {
             stopping = true;
@@ -385,6 +388,8 @@ define([
             window.clearTimeout(wait);
             wait = null;
         };
+
+        start_watch();
     }
 
     /*

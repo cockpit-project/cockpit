@@ -151,6 +151,7 @@ define([
      * @type: a string like 'pods' or 'nodes'
      * @update: invoked when ADDED or MODIFIED happens
      * @remove: invoked when DELETED happens
+     * @loading: invoked when watch thinks it has loaded all items
      *
      * Generates callbacks based on a Kubernetes watch.
      *
@@ -162,14 +163,83 @@ define([
      * @remove callback with a null argument to indicate we are
      * starting over.
      */
-    function KubernetesWatch(api, prefix, type, update, remove) {
+    function KubernetesWatch(api, prefix, type, update, remove, loaded) {
         var self = this;
 
+        /* Used to track the last resource for restarting query */
         var lastResource;
+
+        /* Whether close has been called */
         var stopping = false;
+
+        /* The current HTTP request */
         var req = null;
-        var wait = null;
+
+        /*
+         * Loading logic.
+         *
+         * For performance, we only use watches here. So we have
+         * to guess when loading is finished and when updates begin.
+         * There are several heuristics:
+         *
+         *  1) Receiving a MODIFY or DELETE means loading has finished.
+         *  2) A timeout after last ADDED
+         *  3) Error or connection closed.
+         *
+         * Remember that a watch object can restart its request for a number
+         * of reasons, and so the loading/loaded state may go back and forth.
+         *
+         * When transitioning from a loading to a loaded state, we have to:
+         *  a) Notify the caller if not already done
+         *  b) See if any objects present before load need to be removed.
+         */
+
         var objects = { };
+        var previous;
+        var loading;
+
+        function load_begin(full) {
+            if (full) {
+                previous = objects;
+                objects = { };
+            } else {
+                previous = null;
+            }
+            load_poke(true);
+        }
+
+        function load_poke(force) {
+            if (force || loading !== undefined) {
+                window.clearTimeout(loading);
+                loading = window.setTimeout(load_ready, 150);
+            }
+        }
+
+        function load_ready() {
+            var key, prev;
+
+            if (loading !== undefined) {
+                window.clearTimeout(loading);
+                loading = undefined;
+
+                /* Notify caller about objects gone after reload */
+                prev = previous;
+                previous = null;
+                if (prev) {
+                    for (key in prev) {
+                        if (!(key in objects)) {
+                            remove(prev[key], type);
+                        }
+                    }
+                }
+            }
+
+            /* Invoke caller watch if present */
+            if (loaded) {
+                loaded(type);
+                loaded = null;
+            }
+        }
 
         /*
          * Each change is sent as an individual line from Kubernetes
@@ -226,20 +296,27 @@ define([
                     objects[meta.uid] = object;
                     update(object, type);
                 } else if (action.type == "MODIFIED") {
+                    load_ready();
                     objects[meta.uid] = object;
                     update(object, type);
                 } else if (action.type == "DELETED") {
+                    load_ready();
                     delete objects[meta.uid];
                     remove(object, type);
                 } else {
                     console.warn("invalid watch action type: " + action.type);
                 }
             }
+
+            load_poke();
         }
+
+        /* Waiting to do the next http request */
+        var wait = null;
 
         function start_watch() {
             var uri = "/" + prefix + "/v1beta3/watch/" + type;
-            var all, uid;
+            var full = true;
 
             /*
              * If we have a last resource we can guarantee that we don't miss
@@ -248,13 +325,7 @@ define([
              */
             if (lastResource) {
                 uri += "?resourceVersion=" + encodeURIComponent(lastResource);
-
-            /* Tell caller to remove all objects */
-            } else {
-                all = objects;
-                objects = { };
-                for (uid in all)
-                    remove(all[uid], type);
+                full = false;
             }
 
             /*
@@ -274,9 +345,15 @@ define([
 
             req = api.get(uri)
                 .stream(handle_watch)
+                .response(function() {
+                    load_begin(full);
+                })
+                .always(function() {
+                    req = null;
+                    load_ready();
+                })
                 .fail(function(ex) {
                     var msg;
-                    req = null;
                     if (!stopping) {
                         msg = "watching kubernetes " + type + " failed: " + ex;
                         if (ex.problem !== "disconnected")
@@ -288,7 +365,6 @@ define([
                 })
                 .done(function(data) {
                     var cancelled = req && req.cancelled;
-                    req = null;
                     if (!stopping && !cancelled) {
                         if (!blocked) {
                             console.warn("watching kubernetes " + type + " didn't block");
@@ -523,9 +599,14 @@ define([
 
         self.flavor = null;
         self.objects = { };
+        self.resourceVersion = null;
 
         /* Holds the connect api promise */
         var connected;
+
+        /* Holds the loaded api promise */
+        var loaded = $.Deferred();
+        var loading = { };
 
         /* The API info returned from /api */
         var apis;
@@ -543,30 +624,46 @@ define([
          * complete, and any done callbacks will happen
          * immediately.
          */
-        self.connect = function connect() {
-            if (connected)
-                return connected;
+        self.connect = function connect(wait) {
+            if (!connected) {
+                connected = connect_api_server()
+                    .done(function(http, response) {
+                        self.flavor = response.flavor;
 
-            connected = connect_api_server();
-            return connected
-                .done(function(http, response) {
-                    self.flavor = response.flavor;
-                    watches.push(new KubernetesWatch(http, "api", "nodes",
-                                                     handle_updated, handle_removed));
-                    watches.push(new KubernetesWatch(http, "api", "pods",
-                                                     handle_updated, handle_removed));
-                    watches.push(new KubernetesWatch(http, "api", "services",
-                                                     handle_updated, handle_removed));
-                    watches.push(new KubernetesWatch(http, "api", "replicationcontrollers",
-                                                     handle_updated, handle_removed));
-                    watches.push(new KubernetesWatch(http, "api", "namespaces",
-                                                     handle_updated, handle_removed));
-                    watches.push(new KubernetesWatch(http, "api", "events",
-                                                     handle_event, handle_removed));
-                })
-                .fail(function(ex) {
-                    console.warn("Couldn't connect to kubernetes:", ex);
-                });
+                        [ "nodes", "pods", "services", "replicationcontrollers",
+                          "namespaces" ].forEach(function(type) {
+                            loading[type] = true;
+                            watches.push(new KubernetesWatch(http, "api", type,
+                                                             handle_updated,
+                                                             handle_removed,
+                                                             handle_loaded));
+                        });
+
+                        watches.push(new KubernetesWatch(http, "api", "events",
+                                                         handle_event,
+                                                         handle_removed,
+                                                         null));
+                    })
+                    .fail(function(ex) {
+                        console.warn("Couldn't connect to kubernetes:", ex);
+                        loaded.reject(ex);
+                    });
+            }
+
+            return connected;
+        };
+
+        /**
+         * wait(callback)
+         * @callback: a callback function
+         *
+         * Add a callback to be invoked when the KubernetesClient
+         * becomes ready or fails.
+         *
+         * May be invoked immediately if already.
+         */
+        self.wait = function wait(callback) {
+            loaded.done(callback);
         };
 
         /*
@@ -622,9 +719,11 @@ define([
         self.close = function close() {
             var w = watches;
             watches = [ ];
-            $.each(w, function(i, wc) {
+            w.forEach(function(wc) {
                 wc.stop();
             });
+            loaded = $.Deferred();
+            loading = { };
             tracked = [ ];
             if (connected) {
                 connected.cancel();
@@ -640,18 +739,17 @@ define([
 
         /* TODO: Derive this value from cluster size */
         var index = new HashIndex(262139);
-        self.resourceVersion = null;
 
-        function index_labels(uid, labels, namespace) {
-            var keys, i;
-            if (labels) {
-                keys = [];
-                for (i in labels)
-                    keys.push(namespace + i + labels[i]);
-                index.add(keys, uid);
-            }
+        /* Invoked when a watch thinks it has loaded all items */
+        function handle_loaded(type) {
+            delete loading[type];
+            for (var i in loading)
+                return;
+            if (loaded.state() == "pending")
+                loaded.resolve();
         }
 
+        /* Invoked when a an item is added or changed */
         function handle_updated(item, type) {
             var meta = item.metadata;
 

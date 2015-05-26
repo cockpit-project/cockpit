@@ -755,10 +755,15 @@ define([
 
             debug("item", item);
 
-            if (meta.resourceVersion && meta.resourceVersion > self.resourceVersion)
-                self.resourceVersion = meta.resourceVersion;
-
             var uid = meta.uid;
+
+            var prev = self.objects[uid];
+            if (prev && prev.metadata.resourceVersion === version)
+                return;
+
+            var version = meta.resourceVersion;
+            if (version && version > self.resourceVersion)
+                self.resourceVersion = version;
 
             self.objects[uid] = item;
 

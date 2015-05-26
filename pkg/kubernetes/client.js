@@ -44,6 +44,24 @@ define([
         return Math.abs(h);
     }
 
+    function search(arr, val) {
+        var low = 0;
+        var high = arr.length - 1;
+        var mid, v;
+
+        while (low <= high) {
+            mid = (low + high) / 2 | 0;
+            v = arr[mid];
+            if (v < val)
+                low = mid + 1;
+            else if (v > val)
+                high = mid - 1;
+            else
+                return mid; /* key found */
+        }
+        return low;
+    }
+
     /**
      * HashIndex
      * @size: the number of slots for hashing into
@@ -58,17 +76,57 @@ define([
         var array = [];
 
         self.add = function add(keys, value) {
-            var i, j, p, length = keys.length;
+            var i, j, p, x, length = keys.length;
             for (j = 0; j < length; j++) {
                 i = hash("" + keys[j]) % size;
                 p = array[i];
                 if (p === undefined)
                     p = array[i] = [];
-                p.push(value);
+                x = search(p, value);
+                if (p[x] != value)
+                    p.splice(x, 0, value);
             }
         };
 
-        self.select = function select(keys) {
+        self.all = function all(keys) {
+            var i, j, p, result, n;
+            var rl, rv, pv, ri, px;
+
+            for (j = 0, n = keys.length; j < n; j++) {
+                i = hash("" + keys[j]) % size;
+                p = array[i];
+
+                /* No match for this key, short cut out */
+                if (!p) {
+                    result = [];
+                    break;
+                }
+
+                /* First key */
+                if (!result) {
+                    result = p.slice();
+
+                /* Calculate intersection */
+                } else {
+                    for (ri = 0, px = 0, rl = result.length; ri < rl; ) {
+                        rv = result[ri];
+                        pv = p[ri + px];
+                        if (pv < rv) {
+                            px += 1;
+                        } else if (rv !== pv) {
+                            result.splice(ri, 1);
+                            rl -= 1;
+                        } else {
+                            ri += 1;
+                        }
+                    }
+                }
+            }
+
+            return result || [];
+        };
+
+        self.any = function any(keys) {
             var i, j, interim = [], length = keys.length;
             for (j = 0; j < length; j++) {
                 i = hash("" + keys[j]) % size;
@@ -351,6 +409,106 @@ define([
         return promise;
     }
 
+    /**
+     * KubeList
+     *
+     * An object that contains and optionally tracks a list of
+     * of kubernetes items. The items are indexed by uid
+     * directly on the KubeList. In addition there is a .items
+     * array which presents the objects in a stable array.
+     *
+     * This is returned from client.select() and friends.
+     *
+     * Use with client.track() to subscribe to changes.
+     *
+     * The implementation should make all properties other
+     * than uids be non-enumerable, so you can enumerate the
+     * properties on this object and only get uids/items.
+     */
+    function KubeList(matcher, client, possible) {
+        Object.defineProperty(this, "data", {
+            enumerable: false,
+            writable: false,
+            value: { }
+        });
+
+        /* Predefine the jQuery expando as non-enumerable */
+        Object.defineProperty(this, $.expando, {
+            enumerable: false,
+            writable: false,
+            value: this.data
+        });
+
+        this.data.matcher = matcher;
+
+        var i, len, item, key;
+        for (i = 0, len = possible.length; i < len; i++) {
+            key = possible[i];
+            item = client.objects[key];
+            if (matcher(item))
+                this[key] = item;
+        }
+    }
+
+    Object.defineProperties(KubeList.prototype, {
+        remove: {
+            enumerable: false,
+            writable: false,
+            value: function remove(key, item) {
+                if (key in this) {
+                    delete this[key];
+                    this.trigger("removed", item);
+                }
+            }
+        },
+        update: {
+            enumerable: false,
+            writable: false,
+            value: function update(key, item) {
+                var matched = this.data.matcher(item);
+                var have = (key in this);
+                if (!have && matched) {
+                    this[key] = item;
+                    this.trigger("added", item);
+                } else if (have && !matched) {
+                    delete this[key];
+                    this.trigger("removed", item);
+                } else if (have && matched) {
+                    this[key] = item;
+                    this.trigger("updated", item);
+                }
+            }
+        },
+        trigger: {
+            enumerable: false,
+            writable: false,
+            value: function(name, data) {
+                var self = this;
+                self.data.flat = null;
+                var $self = $(self);
+                $self.triggerHandler(name, data);
+                if (!self.data.timer) {
+                    self.data.timer = window.setTimeout(function() {
+                        self.data.timer = null;
+                        $self.triggerHandler("changed");
+                    }, 100);
+                }
+            }
+        },
+        items: {
+            enumerable: false,
+            get: function items() {
+                var i, l, keys, flat = this.data.flat;
+                if (!flat) {
+                    keys = Object.keys(this).sort();
+                    for (i = 0, l = keys.length, flat = []; i < l; i++)
+                        flat.push(this[keys[i]]);
+                    this.data.flat = flat;
+                }
+                return flat;
+            }
+        }
+    });
 
     /**
      * KubernetesClient
@@ -467,6 +625,7 @@ define([
             $.each(w, function(i, wc) {
                 wc.stop();
             });
+            tracked = [ ];
             if (connected) {
                 connected.cancel();
                 connected = null;
@@ -476,25 +635,12 @@ define([
         /* The watch objects we have open */
         var watches = [];
 
+        /* The tracked objects */
+        var tracked = [];
+
         /* TODO: Derive this value from cluster size */
         var index = new HashIndex(262139);
         self.resourceVersion = null;
-
-        /* Flattened properties by type, see getters below */
-        var flats = { };
-
-        /* Event timeouts, for collapsing events */
-        var timeouts = { };
-
-        function trigger(type, kind) {
-            delete flats[kind];
-            if (!(type in timeouts)) {
-                timeouts[type] = window.setTimeout(function() {
-                    delete timeouts[type];
-                    $(self).triggerHandler(type);
-                }, 100);
-            }
-        }
 
         function index_labels(uid, labels, namespace) {
             var keys, i;
@@ -515,36 +661,53 @@ define([
                 self.resourceVersion = meta.resourceVersion;
 
             var uid = meta.uid;
-            var namespace = meta.namespace;
 
             self.objects[uid] = item;
 
             /* Add various bits to index, for quick lookup */
-            index_labels(uid, meta.labels, namespace);
+            var keys = [ item.kind, meta.namespace ];
+            var labels, i;
+
+            if (meta.labels) {
+                labels = meta.labels;
+                for (i in labels)
+                    keys.push(i + labels[i]);
+            }
 
             var spec = item.spec;
             if (spec) {
-                index_labels(uid, spec.selector, namespace);
-                if (spec.template && spec.template.metadata)
-                    index_labels(uid, spec.template.metadata.labels, namespace);
+                if (spec.selector) {
+                    labels = spec.selector;
+                    for (i in labels)
+                        keys.push(i + labels[i]);
+                }
+                if (spec.template && spec.template.metadata && spec.template.metadata.labels) {
+                    labels = spec.template.metadata.labels;
+                    for (i in labels)
+                        keys.push(i + labels[i]);
+                }
             }
 
-            /* Add the type for quick lookup */
-            index.add( [ item.kind ], uid);
-
-            /* Index the host for quick lookup */
             var status = item.status;
             if (spec && spec.host)
-                index.add([ spec.host ], uid);
+                keys.push(spec.host);
 
-            trigger(type, item.kind);
+            index.add(keys, uid);
+
+            /* Fire off any tracked */
+            var len;
+            for (i = 0, len = tracked.length; i < len; i++)
+                tracked[i].update(uid, item);
         }
 
         function handle_removed(item, type) {
-            var key = item.metadata.uid;
+            var uid = item.metadata.uid;
             debug("remove", item);
-            delete self.objects[key];
-            trigger(type, item.kind);
+            delete self.objects[uid];
+
+            var i, len = tracked.length;
+            for (i = 0; i < len; i++)
+                tracked[i].remove(uid, item);
         }
 
         var pulls = { };
@@ -611,160 +774,98 @@ define([
             handle_updated(item, type);
         }
 
-        function name_compare(a1, a2) {
-            return (a1.metadata.name || "").localeCompare(a2.metadata.name || "");
-        }
-
-        function timestamp_compare(a1, a2) {
-            return (a1.firstTimestamp || "").localeCompare(a2.firstTimestamp || "");
-        }
-
-        function basic_items_getter(kind, compare) {
-            var possible, item, i, len;
-            var flat = flats[kind];
-            if (!flat) {
-                flat = [];
-                possible = index.select([kind]);
-                len = possible.length;
-                for (i = 0; i < len; i++) {
-                    item = self.objects[possible[i]];
-                    if (item && item.kind == kind)
-                        flat.push(item);
-                }
-                flat.sort(compare);
-                flats[kind] = flat;
-            }
-            return flat;
-        }
-
-        Object.defineProperties(self, {
-            nodes: {
-                enumerable: true,
-                get: function() { return basic_items_getter("Node", name_compare); }
-            },
-            pods: {
-                enumerable: true,
-                get: function() { return basic_items_getter("Pod", name_compare); }
-            },
-            services: {
-                enumerable: true,
-                get: function() { return basic_items_getter("Service", name_compare); }
-            },
-            replicationcontrollers: {
-                enumerable: true,
-                get: function() { return basic_items_getter("ReplicationController", name_compare); }
-            },
-            namespaces: {
-                enumerable: true,
-                get: function() { return basic_items_getter("Namespace", name_compare); }
-            },
-            events: {
-                enumerable: true,
-                get: function() { return basic_items_getter("Event", timestamp_compare); }
-            }
-        });
-
         /**
          * client.select()
-         * @selector: plain javascript object, JSON label selector
-         * @namespace: the namespace to act in
-         * @type: optional kind string (eg: 'Pod')
+         * @kind: optional kind string (eg: 'Pod')
+         * @namespace: optional namespace to select from
+         * @selector: optional plain javascript object, JSON label selector
          * @template: Match the spec.template instead of labels directly
          *
          * Select objects that match the given labels.
          *
-         * Returns: an array of objects
+         * Returns: kubernetes items
          */
-        this.select = function select(selector, namespace, kind, template) {
-            var i, keys;
-            var possible, match, results = [];
+        this.select = function select(kind, namespace, selector, template) {
+            var i, possible, keys = [];
             if (selector) {
-                keys = [];
                 for (i in selector)
-                    keys.push(namespace + i + selector[i]);
-                possible = index.select(keys);
-            } else {
-                possible = Object.keys(self.objects);
+                    keys.push(i + selector[i]);
             }
-            var meta, spec, labels, obj, uid, j, length = possible.length;
-            for (j = 0; j < length; j++) {
-                uid = possible[j];
-                obj = self.objects[uid];
-                if (!obj || !obj.metadata)
-                    continue;
-                meta = obj.metadata;
-                if (meta.namespace !== namespace)
-                    continue;
+            if (kind)
+                keys.push(kind);
+            if (namespace)
+                keys.push(namespace);
+            if (keys.length)
+                possible = index.all(keys);
+            else
+                possible = Object.keys(self.objects);
 
-                labels = null;
+            function match_select(item) {
+                if (!item || !item.metadata)
+                    return false;
+                if (kind && item.kind !== kind)
+                    return false;
+                var meta = item.metadata;
+                if (namespace && meta.namespace !== namespace)
+                    return false;
+                var labels, spec;
                 if (template) {
-                    spec = obj.spec;
+                    spec = item.spec;
                     if (spec && spec.template && spec.template.metadata)
                         labels = spec.template.metadata.labels;
                 } else {
                     labels = meta.labels;
                 }
-
                 if (selector && !labels)
-                    continue;
-                if (kind && obj.kind !== kind)
-                    continue;
-                match = true;
-                for (i in selector) {
-                    if (labels[i] !== selector[i]) {
-                        match = false;
-                        break;
-                    }
+                    return false;
+                for (var i in selector) {
+                    if (labels[i] !== selector[i])
+                        return false;
                 }
-                if (match)
-                    results.push(obj);
+                return true;
             }
-            return results;
+
+            return new KubeList(match_select, self, possible);
         };
 
         /**
          * client.infer()
-         * @labels: plain javascript object, JSON labels
-         * @namespace: the namespace to act in
          * @kind: optional kind string
+         * @namespace: the namespace to act in
+         * @labels: plain javascript object, JSON labels
          *
          * Infer which objects that have selectors would have
          * matched the given labels.
          */
-        this.infer = function infer(labels, namespace, kind) {
-            var i, keys;
-            var possible, match, results = [];
+        this.infer = function infer(kind, namespace, labels) {
+            var i, possible, keys = [];
             if (labels) {
-                keys = [];
                 for (i in labels)
-                    keys.push(namespace + i + labels[i]);
-                possible = index.select(keys);
-            } else {
-                possible = Object.keys(self.objects);
+                    keys.push(i + labels[i]);
             }
-            var obj, uid, j, length = possible.length;
-            for (j = 0; j < length; j++) {
-                uid = possible[j];
-                obj = self.objects[uid];
-                if (!obj || !obj.metadata || !obj.spec || !obj.spec.selector)
-                    continue;
-                if (obj.metadata.namespace !== namespace)
-                    continue;
-                if (kind && obj.kind !== kind)
-                    continue;
-                match = true;
+            if (keys.length)
+                possible = index.any(keys);
+            else
+                possible = Object.keys(self.objects);
+
+            function match_infer(item) {
+                if (!item || !item.metadata || !item.spec || !item.spec.selector)
+                    return false;
+                if (namespace && item.metadata.namespace !== namespace)
+                    return false;
+                if (kind && item.kind !== kind)
+                    return false;
+                var i;
                 if (labels) {
-                    for (i in obj.spec.selector) {
-                        if (labels[i] !== obj.spec.selector[i]) {
-                            match = false;
-                            break;
-                        }
+                    for (i in item.spec.selector) {
+                        if (labels[i] !== item.spec.selector[i])
+                            return false;
                     }
                 }
-                if (match)
-                    results.push(obj);
+                return true;
             }
-            return results;
+
+            return new KubeList(match_infer, self, possible);
         };
 
         /**
@@ -776,21 +877,39 @@ define([
          * have a obj.status.host property equal to the @host name passed into
          * this function.
          *
-         * Returns: an array of kubernetes objects
+         * Returns: kubernetes items
          */
-        this.hosting = function hosting(host, kind) {
-            var possible = index.select([ host ]);
-            var obj, j, length = possible.length;
-            var results = [];
-            for (j = 0; j < length; j++) {
-                obj = self.objects[possible[j]];
-                if (!obj || !obj.spec || obj.spec.host != host)
-                    continue;
-                if (kind && obj.kind !== kind)
-                    continue;
-                results.push(obj);
+        this.hosting = function hosting(kind, host) {
+            var possible = index.all([ host ]);
+
+            function match_hosting(item) {
+                if (!item || !item.spec || item.spec.host != host)
+                    return false;
+                if (kind && item.kind !== kind)
+                    return false;
+                return true;
             }
-            return results;
+
+            return new KubeList(match_hosting, self, possible);
+        };
+
+        /**
+         * client.track(items)
+         * client.track(items, false)
+         * @items: a set of items returned by client.select() or friends
+         * @add: whether to add or remove subscription, default add
+         *
+         * Updates the set of items when stuff that they match changes.
+         */
+        self.track = function track(items, add) {
+            if (add === false) {
+                tracked = tracked.filter(function(l) {
+                    return items !== l;
+                });
+                return null;
+            } else {
+                tracked.push(items);
+            }
         };
 
         function DataError(message, ex) {
@@ -1014,6 +1133,50 @@ define([
         };
 
         self.connect();
+
+
+        /*
+         * TODO: Remove this old compatibility stuff
+         */
+        var services = self.select("Service");
+        self.track(services);
+        self.services = services.items;
+        $(services).on("changed", function() {
+            self.services = services.items;
+            $(self).triggerHandler("services");
+        });
+
+        var pods = self.select("Pod");
+        self.track(pods);
+        self.pods = pods.items;
+        $(pods).on("changed", function() {
+            self.pods = pods.items;
+            $(self).triggerHandler("pods");
+        });
+
+        var namespaces = self.select("Namespace");
+        self.track(namespaces);
+        self.namespaces = namespaces.items;
+        $(namespaces).on("changed", function() {
+            self.namespaces = namespaces.items;
+            $(self).triggerHandler("namespaces");
+        });
+
+        var nodes = self.select("Node");
+        self.track(nodes);
+        self.nodes = nodes.items;
+        $(nodes).on("changed", function() {
+            self.nodes = nodes.items;
+            $(self).triggerHandler("nodes");
+        });
+
+        var replicationcontrollers = self.select("Node");
+        self.track(replicationcontrollers);
+        self.replicationcontrollers = replicationcontrollers.items;
+        $(replicationcontrollers).on("changed", function() {
+            self.replicationcontrollers = replicationcontrollers.items;
+            $(self).triggerHandler("replicationcontrollers");
+        });
     }
 
     /*

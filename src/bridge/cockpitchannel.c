@@ -1136,6 +1136,7 @@ parse_cert_option_as_database (JsonObject *options,
     }
   else if (data)
     {
+      temporary = TRUE;
       path = g_build_filename (g_get_user_runtime_dir (), "cockpit-bridge-cert-authority.XXXXXX", NULL);
       fd = g_mkstemp (path);
       if (fd < 0)

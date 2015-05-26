@@ -980,9 +980,8 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
   if (opts)
     {
       if (self->client->options)
-        g_object_unref (self->client->options);
-      self->client->options = opts;
-      opts = NULL;
+        cockpit_stream_options_unref (self->client->options);
+      self->client->options = cockpit_stream_options_ref (opts);
     }
 
   if (cockpit_json_get_string (options, "path", NULL, &path) && path)

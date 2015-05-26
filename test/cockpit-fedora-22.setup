@@ -37,6 +37,10 @@ echo foobar | passwd --stdin admin
 #
 sed -i -e 's/#baseurl/baseurl/' -e 's/metalink/#metalink/' -e 's,http://download,http://dl,' -e 's/releases/development/' -e 's,Everything/,,' /etc/yum.repos.d/*.repo
 
+# Let's enable updates-testing.
+#
+dnf config-manager --set-enabled updates-testing
+
 # Let's upgrade dnf first and then use the new dnf to upgrade
 # the rest. This helps avoid things like:
 #

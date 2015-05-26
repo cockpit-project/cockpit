@@ -50,7 +50,7 @@ define([
                 var uid = meta.uid;
 
                 /* Lookup all the pods for each service */
-                kube.select(spec.selector, meta.namespace, "Pod").forEach(function(pod) {
+                kube.select("Pod", meta.namespace, spec.selector).items.forEach(function(pod) {
                     var status = pod.status || { };
                     var spec = pod.spec || { };
                     var host = spec.host;

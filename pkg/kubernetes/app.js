@@ -6,6 +6,11 @@ define([
 ], function($, cockpit, angular, kubernetes) {
     'use strict';
 
+    /*
+     * TODO: This code should be broken out into directives and filters
+     * and work better with the way angularjs is done.
+     */
+
     function KubernetesService(client) {
         var self = this;
 
@@ -39,8 +44,8 @@ define([
              * containers within the pod.  Pod states: Pending,
              * Running, Succeeded, Failed, and Unknown.
              */
-            client.select(service.spec.selector || { },
-                          service.metadata.namespace, "Pod").forEach(function(pod) {
+            client.select("Pod", service.metadata.namespace,
+                          service.spec.selector || { }).items.forEach(function(pod) {
                 if (!pod.status || !pod.status.phase)
                     return;
                 var spec = pod.spec || { };
@@ -101,6 +106,11 @@ define([
         };
     }
 
+    /*
+     * TODO: This code should be broken out into directives and filters
+     * and work better with the way angularjs is done.
+     */
+
     function KubernetesNode(client) {
         var self = this;
 
@@ -124,7 +134,7 @@ define([
                 calculated.address = spec.externalID;
 
             var count = 0;
-            client.hosting(meta.name, "Pod").forEach(function(pod) {
+            client.hosting("Pod", meta.name).items.forEach(function(pod) {
                 var spec = pod.spec || { };
                 var n = 1;
                 if (spec.containers)
@@ -179,6 +189,11 @@ define([
         };
     }
 
+    /*
+     * TODO: This code should be broken out into directives and filters
+     * and work better with the way angularjs is done.
+     */
+
     function KubernetesPod(client) {
         var self = this;
 
@@ -190,6 +205,11 @@ define([
             pod = item;
         };
     }
+
+    /*
+     * TODO: This code should be broken out into directives and filters
+     * and work better with the way angularjs is done.
+     */
 
     function builder(type, events, client, Constructor) {
         var objects = { };

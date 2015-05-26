@@ -55,10 +55,10 @@ define([
                 .attr("disabled", "disabled");
 
             /* Generate table rows for each replication controller this service matches */
-            var rcs = kube.select(spec.selector || { }, meta.namespace,
-                                  "ReplicationController", true);
+            var rcs = kube.select("ReplicationController", meta.namespace,
+                                  spec.selector || { }, true);
 
-            var replicas = rcs.map(function(item) {
+            var replicas = rcs.items.map(function(item) {
                 var meta = item.metadata || { };
                 var spec = item.spec || { };
                 return {

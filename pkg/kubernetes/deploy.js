@@ -95,16 +95,15 @@ define([
                         console.log("done");
                     })
                     .fail(function(ex, response) {
-                        console.log("fail");
                         var target;
                         var msg;
 
                         /* Display the error appropriately in the dialog */
                         $("#deploy-app-dialog").dialog("failure", ex);
                     });
-                    console.log("wait");
-                    /* Display a spinner while this is happening */
-                    $("#deploy-app-dialog").dialog("wait", promise);
+
+                $("#deploy-app-dialog").dialog("wait", promise);
+
             });
 
         /* Display a spinner while this is happening */
@@ -226,7 +225,8 @@ define([
 
             $("#deploy-app-namespace").val('');
             nulecule_image.val('');
-            manifest_type.text( _("Kubernetes Manifest"));
+            type_selector.val( _("Kubernetes Manifest"));
+            type_selector.selectpicker('refresh');
 
             $("#deploy-app-nulecule-image").hide();
             $('label[for="deploy-app-nulecule"]').hide();

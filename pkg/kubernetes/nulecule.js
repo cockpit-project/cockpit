@@ -42,55 +42,71 @@ define([
      */
     function NuleculeClient() {
         var self = this;
+        var http = cockpit.http(5000);
 
-        self.install = function install(image) {
+        self.get_status = function get_status() {
+            var req = http.get("/atomicapp-run/api/v1.0/status")
+                        .done(function(data) {
+                            req = null;
+
+                            var response;
+                            try {
+                                response = JSON.parse(data);
+                                status = response.items[response.items.length-1];
+                                console.log("status = " + JSON.stringify(status));
+                                return JSON.stringify(status);
+                            } catch(ex) {
+                                debug("not an api endpoint without JSON data on:");
+                                return "ERROR: not an api endpoint without JSON data on";
+                            }
+
+                        })
+                        .fail(function(ex) {
+                            req = null;
+                            return "ERROR: request failed";
+                        });
+        };
+
+        self.create_tmp = function create_tmp() {
+            var dfd = $.Deferred();
+            var promise;
+            var process = cockpit.spawn(['/bin/sh', '-s']).input("mktemp -p $XDG_RUNTIME_DIR -d APP_ENTITY.XXXXXX")
+            process.done(function(data){
+                    dfd.resolve(data);
+                })
+                .fail(function(ex){
+                    dfd.reject(ex);
+                });
+            promise = dfd.promise();
+            return promise;
+        };
+
+
+        self.install = function install(tmp_dir, image) {
             var deferred = $.Deferred();
             var status = '';
-            var timer = window.setInterval(function() { 
-                var http = cockpit.http(5000);
-                var req = http.get("/atomicapp-run/api/v1.0/status")
-                    .done(function(data) {
-                        req = null;
-
-                        var response;
-                        try {
-                            response = JSON.parse(data);
-                            status = response.items[response.items.length-1];
-                            console.log("status = " + JSON.stringify(status));
-                            deferred.notify(JSON.stringify(status));
-                        } catch(ex) {
-                            debug("not an api endpoint without JSON data on:");
-                            return;
-                        }
-
-                    })
-                    .fail(function(ex) {
-                        req = null;
-                        
-                    });                   
-
-                }, 1000);
-
-            var args = ['atomicapp', '-d', 'install', image];
-
-            deferred.notify(_("Installing Application..."));
-
-            var process = cockpit.spawn(args);
-
             var promise;
             var buffer = '';
+            var cmd = "/usr/bin/atomicapp -d install --destination " + tmp_dir + " " +image;
+            console.log(cmd);
+            //var process = cockpit.spawn(['/bin/sh', '-s']).input(cmd);
+            var process = cockpit.spawn(["/usr/bin/atomicapp", "-d", "install", "--destination", tmp_dir, image]);
+
+            console.log("installing image: " + image + " in folder "+tmp_dir)
+            deferred.notify(_("Installing Application..."));
+
             process.always(function() {
                     console.log("....always.....");
-                    window.clearInterval(timer);
+                    //window.clearInterval(timer);
                 })
                 .stream(function(text) {
                     buffer += text;
                     console.log("buf = "+buffer);
+                    deferred.notify(buffer);                   
                 })
                 .done(function(output) {
                     console.log("....done.....");
                     deferred.resolve();
-                    
                 })
                 .fail(function(ex) {
                     console.log("....fail.....");
@@ -111,7 +127,7 @@ define([
             promise = deferred.promise();
             promise.cancel = function cancel() {
                 console.log("....cancelled.....");
-                window.clearInterval(timer);
+                //window.clearInterval(timer);
                 process.close("cancelled");
             };
 

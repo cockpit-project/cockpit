@@ -245,8 +245,16 @@ define([
              * to know when it can switch into the frame and inject
              * its own additions.
              */
-
             $(frame).on("load", function() {
+                /*
+                 * if the frame is reloaded directly
+                 * unregister and reregister to ensure
+                 * fresh channels
+                 */
+                $(this.contentWindow).on("unload", function () {
+                    router.unregister(frame.contentWindow, address);
+                    router.register(frame.contentWindow);
+                });
                 $(this).attr('data-loaded', true);
                 phantom_checkpoint();
                 $(this.contentWindow).on('hashchange', function () {

@@ -370,8 +370,6 @@ define([
         var stage = element.append("g")
             .attr("transform", "translate(" + margins.left + "," + margins.top + ")");
 
-        var minutes = d3.time.format("%H:%M");
-
         var y = d3.scale.linear();
         var y_axis = d3.svg.axis()
             .scale(y)
@@ -380,16 +378,18 @@ define([
         var y_group = stage.append("g")
             .attr("class", "y axis");
 
-        var x = d3.time.scale();
+        var x = d3.scale.linear();
         var x_axis = d3.svg.axis()
             .scale(x)
             .orient("bottom");
         var x_group = stage.append("g")
             .attr("class", "x axis");
 
+        var offset = 0;
+
         var line = d3.svg.line()
             .defined(function(d) { return d !== undefined; })
-            .x(function(d, i) { return x(new Date((grid.beg + i) * grid.interval)); })
+            .x(function(d, i) { return x((grid.beg + i) - offset); })
             .y(function(d, i) { return y(d); });
 
         /* Initial display: 1024 px is 5 minutes of data */
@@ -419,18 +419,7 @@ define([
             /* This doesn't yet work for an arbitary ponit in time */
             var end = Math.floor($.now() / interval);
             var beg = end - Math.floor((factor * w) / interval);
-
-            /* Indicate the time range that the X axis is using */
-            x.domain([new Date(beg * interval), new Date(end * interval)]);
-
-            /* Re-render the X axis. Note that we also
-             * bump down the labels a bit. */
-            x_group
-                .transition()
-                .call(x_axis)
-              .selectAll("text")
-                .attr("y", "10px");
-
+            offset = beg;
             grid.move(beg, end);
         }
 
@@ -460,29 +449,35 @@ define([
                     maximum = Math.ceil(max);
             }
 
+            /* This doesn't yet work for an arbitary ponit in time */
+            var end = Math.floor((factor * w) / interval);
+            x.domain([0, end]).range([0, w]);
             y.domain([0, ceil(maximum, tabs[metric].step)]).range([h, 0]);
 
-            x.range([0, w]);
+            /* The ticks are inverted backwards */
+            var tsc = d3.scale.linear().domain([0, end]).range([end, 0]);
 
-            /*
-             * Make x-axis ticks into grid of right height
-             *
-             * TODO: We should calculate number of ticks based on width
-             * In addition the tick formatter needs to change based on end - start
-             */
+            /* Calculate ticks every 60 seconds in past */
+            var ticks = [];
+            for (i = 60; i < end; i += 60)
+                ticks.push(Math.round(tsc(i)));
+
+            /* Make x-axis ticks into grid of right width */
             x_axis
-                .ticks(6)
+                .tickValues(ticks)
                 .tickSize(-h, -h)
                 .tickFormat(function(d) {
-                    if (d.getSeconds() === 0)
-                        return minutes(d);
-                    return "";
+                    d = Math.round(tsc.invert(d));
+                    return (d / 60) + " min";
                 });
 
             /* Re-render the X axis. Note that we also
              * bump down the labels a bit. */
             x_group
-                .attr("transform", "translate(0," + h + ")");
+                .attr("transform", "translate(0," + h + ")")
+                .call(x_axis)
+              .selectAll("text")
+                .attr("y", "10px");
 
             /* Turn the Y axis ticks into a grid */
             y_axis

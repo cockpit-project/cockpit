@@ -38,8 +38,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 <span class="fa fa-dashboard fa-fw"></span> Overview
               </a>
             </li>
-            <li>
-              <a>
+            <li ng-class="{ active: main.is_active('topology.html')}">
+              <a ng-href="#/topology">
                 <span class="fa fa-sitemap fa-fw"></span> Topology
               </a>
             </li>
@@ -248,6 +248,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     </div>
   </script>
 
+  <!-- Container topology -->
+
+  <script type="text/ng-template" id="topology.html">
+    <kube-topology></kube-topology>
+  </script>
   <!-- Dialogs -->
 
     <div class="modal" id="deploy-app-dialog" tabindex="-1" role="dialog" data-backdrop="static">
@@ -406,6 +411,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           "kubernetes/app",
           "kubernetes/dashboard",
           "kubernetes/details",
+          "kubernetes/topology"
       ], function(cockpit, po, angular) {
           "use strict";
           cockpit.locale(po);

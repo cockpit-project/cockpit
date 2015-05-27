@@ -363,7 +363,7 @@ define([
 
         var margins = {
             top: 12,
-            right: 10,
+            right: 15,
             bottom: 40,
             left: 60
         };

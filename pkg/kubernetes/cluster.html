@@ -29,12 +29,12 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   <script src="../kubernetes/kubernetes.js"></script>
 </head>
 <body>
-  <div class="container-fluid">
+  <div class="container-fluid" ng-controller="MainCtrl as main">
       <div class="kube-sidebar">
         <div>
           <ul class="affix" data-spy="affix" data-offset-top="0">
-            <li class="active">
-              <a>
+            <li ng-class="{ active: main.is_active('dashboard.html')}">
+              <a ng-href="#/">
                 <span class="fa fa-dashboard fa-fw"></span> Overview
               </a>
             </li>
@@ -43,9 +43,9 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 <span class="fa fa-sitemap fa-fw"></span> Topology
               </a>
             </li>
-            <li>
-              <a>
-                <span class="fa fa-sliders fa-fw"></span> Browse
+            <li ng-class="{ active: main.is_active('details.html')}">
+              <a ng-href="#/pods">
+                <span class="fa fa-cubes fa-fw"></span> Containers
               </a>
             </li>
           </ul>

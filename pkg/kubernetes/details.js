@@ -8,7 +8,7 @@ define([
 
     return angular.module('kubernetes.details', ['ngRoute'])
         .config(['$routeProvider', function($routeProvider) {
-            $routeProvider.when('/pods/:namespace', {
+            $routeProvider.when('/pods/:namespace?', {
                 templateUrl: 'details.html',
                 controller: 'DetailsCtrl'
             });

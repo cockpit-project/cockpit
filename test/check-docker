@@ -265,7 +265,12 @@ CMD ["/bin/sh", "-c", "echo '%s' | tee /dev/fd/2 | nc -l -p %d"]
         # Try to access docker without wheel group
         m.execute("systemctl start docker")
         m.execute("usermod -G '' admin")
-        self.allow_journal_messages("Can't write /var/lib/cockpit/machines: Failed to create file '/var/lib/cockpit/machines\\..*': Permission denied")
+
+        # HACK: Logging in without "wheel" will try to write to
+        # /var/lib/cockpit/, but this will fail.
+        # https://github.com/cockpit-project/cockpit/issues/1248
+        #
+        self.allow_journal_messages(".*Failed to create file '/var/lib/cockpit/.*': Permission denied")
 
         self.login_and_go("containers", href="/docker/containers")
 

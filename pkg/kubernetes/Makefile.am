@@ -25,6 +25,8 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/kubernetes.js \
 	pkg/kubernetes/node.js \
 	pkg/kubernetes/deploy.js \
+	pkg/kubernetes/topology.css \
+	pkg/kubernetes/topology.js \
 	$(NULL)
 
 kubernetes_BUNDLE = \
@@ -40,6 +42,7 @@ kubernetes_BUNDLE = \
 	pkg/kubernetes/d3.min.js \
 	pkg/kubernetes/graphs.min.js \
 	pkg/kubernetes/node.min.js \
+	pkg/kubernetes/topology.min.js \
 	$(NULL)
 
 pkg/kubernetes/kubernetes.min.js: $(kubernetes_BUNDLE)

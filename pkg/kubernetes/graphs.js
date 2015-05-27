@@ -29,33 +29,6 @@ define([
     var _ = cockpit.gettext;
     var module = { };
 
-    var colors = [
-        "#0099d3",
-        "#67d300",
-        "#d39e00",
-        "#d3007c",
-        "#00d39f",
-        "#00d1d3",
-        "#00618a",
-        "#4c8a00",
-        "#8a6600",
-        "#9b005b",
-        "#008a55",
-        "#008a8a",
-        "#00b9ff",
-        "#7dff00",
-        "#ffbe00",
-        "#ff0096",
-        "#00ffc0",
-        "#00fdff",
-        "#023448",
-        "#264802",
-        "#483602",
-        "#590034",
-        "#024830",
-        "#024848"
-    ];
-
     function ServiceMap(kube) {
         var self = this;
 
@@ -368,6 +341,8 @@ define([
             left: 60
         };
 
+        var colors = d3.scale.category20();
+
         var element = d3.select(selector).append("svg");
         var stage = element.append("g")
             .attr("transform", "translate(" + margins.left + "," + margins.top + ")");
@@ -501,7 +476,7 @@ define([
                 .data(rows, function(d, i) { return i; });
 
             var trans = series
-                .style("stroke", function(d, i) { return colors[i % colors.length]; })
+                .style("stroke", function(d, i) { return colors(i); })
                 .attr("d", function(d) { return line(d); });
 
             series.enter().append("path")

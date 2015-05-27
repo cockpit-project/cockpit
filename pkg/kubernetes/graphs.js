@@ -254,7 +254,9 @@ define([
                     res = undefined;
                 } else {
                     res = (value - last);
-                    if (res > max) {
+                    if (res < 0) {
+                        res = undefined;
+                    } else if (res > max) {
                         row.maximum = max = res;
                         change_queued = true;
                     }

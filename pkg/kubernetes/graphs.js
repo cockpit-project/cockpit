@@ -523,17 +523,26 @@ define([
         $(window).on('resize', resized);
         resized();
 
-        window.setInterval(jump, grid.interval);
+        var timer = window.setInterval(jump, grid.interval);
 
-        return element;
+        return {
+            close: function close() {
+                $(window).off('resize', resized);
+                window.clearInterval(timer);
+                grid.close();
+            }
+        };
     }
 
-    return angular.module('kubernetes.graph', [ 'ngRoute' ])
+    return angular.module('kubernetes.graph', [])
         .directive('kubernetesServiceGraph', function() {
             return {
                 restrict: 'E',
                 link: function($scope, element, attributes) {
-                    service_graph(element[0]);
+                    var graph = service_graph(element[0]);
+                    element.on('$destroy', function() {
+                        graph.close();
+                    });
                 }
             };
         });

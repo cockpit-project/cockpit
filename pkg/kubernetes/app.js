@@ -256,6 +256,22 @@ define([
             $routeProvider.otherwise({ redirectTo: '/' });
         }])
 
+        .controller('MainCtrl', [
+            '$route',
+            '$routeParams',
+            '$location',
+            function($route, $routeParams, $location) {
+                this.$route = $route;
+                this.$location = $location;
+                this.$routeParams = $routeParams;
+
+                /* Used to set detect which route is active */
+                this.is_active = function is_active(template) {
+                    var current = this.$route.current;
+                    return current && current.loadedTemplateUrl === template;
+                };
+        }])
+
         /* Override the default angularjs exception handler */
         .factory('$exceptionHandler', ['$log', function($log) {
             return function(exception, cause) {

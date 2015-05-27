@@ -502,7 +502,7 @@ define([
 
             var trans = series
                 .style("stroke", function(d, i) { return colors[i % colors.length]; })
-                .interrupt().transition().attr("d", function(d) { return line(d); });
+                .attr("d", function(d) { return line(d); });
 
             series.enter().append("path")
                 .attr("class", "line");

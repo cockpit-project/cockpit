@@ -1134,7 +1134,7 @@ define([
 
         var kube = kubernetes.k8client();
 
-        var last = null;
+        var last = { };
 
         var unique = 0;
 
@@ -1194,6 +1194,7 @@ define([
                 if (!name)
                     continue;
 
+                names[name] = name;
                 mapping[name] = { "": name };
                 id = name;
 
@@ -1230,7 +1231,6 @@ define([
                         if (!item)
                             item = items[offset - base] = { };
                         item[name] = stat;
-                        names[name] = name;
                     }
                 }
             }
@@ -1245,12 +1245,11 @@ define([
             /* Now for each offset, if it's a duplicate, put in a copy */
             for(name in names) {
                 len = items.length;
-                last = undefined;
                 for (i = 0; i < len; i++) {
                     if (items[i][name] === undefined)
-                        items[i][name] = last;
+                        items[i][name] = last[name];
                     else
-                        last = items[i][name];
+                        last[name] = items[i][name];
                 }
             }
 

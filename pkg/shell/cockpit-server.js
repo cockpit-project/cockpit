@@ -657,20 +657,29 @@ shell.dialogs.push(new PageSystemInformationChangeHostname());
 PageSystemInformationChangeSystime.prototype = {
     _init: function() {
         this.id = "system_information_change_systime";
+        this.date = "";
     },
 
     setup: function() {
+        function enable_apply_button() {
+            $('#systime-apply-button').prop('disabled', false);
+        }
+
         $("#systime-apply-button").on("click", $.proxy(this._on_apply_button, this));
         $('#change_systime').on('change', $.proxy(this, "update"));
         $('#systime-time-minutes').on('focusout', $.proxy(this, "update_minutes"));
-        $('#systime-time-minutes').on('change', $.proxy(this, "check_input"));
-        $('#systime-time-hours').on('change', $.proxy(this, "check_input"));
-        $('#systime-date-input').on('change', $.proxy(this, "check_input"));
         $('#systime-date-input').datepicker({
             autoclose: true,
             todayHighlight: true,
             format: 'yyyy-mm-dd'
         });
+        $('#systime-timezones').css('max-height', '10em');
+        $('#systime-timezones').combobox();
+
+        $('#systime-time-minutes').on('input', enable_apply_button);
+        $('#systime-time-hours').on('input', enable_apply_button);
+        $('#systime-date-input').on('input', enable_apply_button);
+        $('#systime-timezones').on('change', enable_apply_button);
     },
 
     enter: function() {
@@ -681,7 +690,8 @@ PageSystemInformationChangeSystime.prototype = {
         $('#systime-time-hours').val(server_time.now.getUTCHours());
         $('#change_systime').val(server_time.timedate.NTP ? 'ntp_time' : 'manual_time');
         $('#change_systime').selectpicker('refresh');
-        $('#systime-parse-error').css('visibility', 'hidden');
+        $('#systime-parse-error').parents('tr').hide();
+        $('#systime-timezone-error').parents('tr').hide();
         $('#systime-apply-button').prop('disabled', false);
         $('#systime-timezones').prop('disabled', 'disabled');
 
@@ -701,13 +711,13 @@ PageSystemInformationChangeSystime.prototype = {
             for (var i = 0; i < lines.length; i++) {
                 $('#systime-timezones').append($('<option>', {
                     value: lines[i],
-                    text: lines[i],
+                    text: lines[i].replace(/_/g, " "),
                     selected: lines[i] == curr_timezone
                 }));
             }
 
             $('#systime-timezones').prop('disabled', false);
-            $('#systime-timezones').selectpicker('refresh');
+            $('#systime-timezones').combobox('refresh');
         }
 
         cockpit.spawn(["/usr/bin/timedatectl", "list-timezones"])
@@ -723,9 +733,10 @@ PageSystemInformationChangeSystime.prototype = {
     _on_apply_button: function(event) {
         var server_time = PageSystemInformationChangeSystime.server_time;
 
-        var manual_time = $('#change_systime').val() == 'manual_time';
-        if (manual_time && !this.check_input())
+        if (! this.check_input())
             return;
+
+        var manual_time = $('#change_systime').val() == 'manual_time';
 
         server_time.timedate.SetNTP($('#change_systime').val() == 'ntp_time', true)
             .fail(function(err) {
@@ -760,6 +771,7 @@ PageSystemInformationChangeSystime.prototype = {
     check_input: function() {
         var time_error = false;
         var date_error = false;
+        var timezone_error = false;
         var new_date;
 
         var hours = parseInt($('#systime-time-hours').val(), 10);
@@ -781,15 +793,26 @@ PageSystemInformationChangeSystime.prototype = {
            $('#systime-parse-error').text(_("Invalid time format"));
         else if (date_error)
            $('#systime-parse-error').text(_("Invalid date format"));
-        else
-           $('#systime-parse-error').css('visibility', 'hidden');
 
-        if (time_error || date_error) {
-            $('#systime-parse-error').css('visibility', 'visible');
+        if ($('#systime-timezones').val() === "") {
+           timezone_error = true;
+           $('#systime-timezone-error').css('visibility', 'visible');
+        } else {
+           $('#systime-timezone-error').css('visibility', 'hidden');
+        }
+
+        $('#systime-timezones').toggleClass("has-error", ! timezone_error);
+        $('#systime-time-hours').toggleClass("has-error", ! time_error);
+        $('#systime-time-minutes').toggleClass("has-error", ! time_error);
+        $('#systime-date-input').toggleClass("has-error", ! date_error);
+
+        $('#systime-parse-error').parents('tr').toggle(time_error || date_error);
+        $('#systime-timezone-error').parents('tr').toggle(timezone_error);
+
+        if (time_error || date_error || timezone_error) {
             $('#systime-apply-button').prop('disabled', true);
             return false;
         } else {
-            $('#systime-parse-error').css('visibility', 'hidden');
             $('#systime-apply-button').prop('disabled', false);
             return true;
         }
@@ -806,7 +829,7 @@ PageSystemInformationChangeSystime.prototype = {
         var val = parseInt($('#systime-time-minutes').val(), 10);
         if (val < 10)
             $('#systime-time-minutes').val("0" + val);
-    }
+    },
 };
 
 function PageSystemInformationChangeSystime() {

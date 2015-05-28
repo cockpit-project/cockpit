@@ -977,51 +977,70 @@
     <div class="modal" id="system_information_change_systime"
          tabindex="-1" role="dialog"
          data-backdrop="static">
-      <div class="modal-dialog modal-sm">
+      <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h4 class="modal-title">Change System Time</h4>
           </div>
           <div class="modal-body">
-            <div class="form-group row">
-              <div class="col-md-12">
-                <select class="form-control selectpicker" id="change_systime">
-                  <option value="manual_time">Manually set the time</option>
-                  <option value="ntp_time">Set time automatically using NTP</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group row nomargin-sides">
-                <div class="col-md-7 nopadding">
-                  <input type='text' class="form-control" id="systime-date-input"/>
-                </div>
-                <div class="col-md-5 row nomargin nopadding">
-                    <div class="col-md-offset-1 col-md-5 nopadding">
-                      <input type='text' class="form-control" id="systime-time-hours"/>
+            <table class="cockpit-form-table">
+              <tr>
+                <td><label class="control-label" for="change_systime" translatable="yes">Set time</label></td>
+                <td>
+                  <select class="form-control selectpicker" id="change_systime">
+                    <option value="manual_time">Manually set the time</option>
+                    <option value="ntp_time">Set time automatically using NTP</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>
+                  <div class="form-group row nomargin">
+                    <div class="col-md-7 nopadding">
+                      <input type='text' class="form-control" id="systime-date-input"/>
                     </div>
-                    <div class="col-md-1 text-center nopadding">:</div>
-                    <div class="col-md-5 nopadding">
-                      <input type='text' class="form-control" id="systime-time-minutes"/>
+                    <div class="col-md-5 row nomargin nopadding">
+                      <div class="col-md-offset-1 col-md-5 nopadding">
+                        <input type='text' class="form-control" id="systime-time-hours"/>
+                      </div>
+                      <div class="col-md-1 text-center nopadding">:</div>
+                      <div class="col-md-5 nopadding">
+                        <input type='text' class="form-control" id="systime-time-minutes"/>
+                      </div>
                     </div>
-                </div>
+                  </div>
+                </td>
+              </tr>
+              </tr>
+                <td></td>
+                <td class="has-error">
+                  <span id="systime-parse-error" class="help-block"></span>
+                </td>
+              <tr>
+              <tr>
+                <td><label class="control-label" translatable="yes">Time Zone</label></td>
+                <td>
+                  <select class="form-control" id="systime-timezones">
+                  </select>
+                </td>
+              </tr>
+                <td></td>
+                <td class="has-error">
+                  <span id="systime-timezone-error" class="help-block" translatable="yes">
+                     Invalid time zone
+                  </span>
+                </td>
+              <tr>
+            </table>
+            <div class="modal-footer">
+              <button class="btn btn-default" data-dismiss="modal">
+                Cancel
+              </button>
+              <button class="btn btn-primary" id="systime-apply-button">
+                Change
+              </button>
             </div>
-            <div class="form-group row">
-              <div class="col-md-12">
-                <select class="form-control selectpicker" id="systime-timezones">
-                </select>
-              </div>
-            </div>
-            <div class="has-error">
-              <span id="systime-parse-error" class="help-block"></span>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-default" data-dismiss="modal">
-              Cancel
-            </button>
-            <button class="btn btn-primary" id="systime-apply-button">
-              Change
-            </button>
           </div>
         </div>
       </div>

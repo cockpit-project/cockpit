@@ -48,20 +48,16 @@ kube-topology {
 .kube-topology line {
     stroke: #999;
     stroke-opacity: .6;
+    stroke-width: 1;
 }
 
 .kube-topology line.ReplicationController {
     stroke-linecap: round;
     stroke-dasharray: 1, 3;
-    stroke-width: 1;
 }
 
 .kube-topology line.Node {
-    stroke-width: 1;
-}
-
-.kube-topology line.Service {
-    stroke-width: 2;
+    stroke-opacity: .4;
 }
 
 .kube-pane {

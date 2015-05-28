@@ -45,6 +45,7 @@ define([
         var all = { };
         var nodes = [];
         var links = [];
+        var lookup = { };
 
         var force = d3.layout.force()
             .charge(-400)
@@ -128,31 +129,46 @@ define([
         }
 
         function digest() {
+            var pnodes = nodes;
+            var plookup = lookup;
 
             /* The actual data for the graph */
             nodes = [];
             links = [];
-
-            /* Lookup of key to node index */
-            var lookup = { };
+            lookup = { };
 
             /* Items we're going to use for links */
             var leaves = { "Service": [], "Node": [], "ReplicationController": [] };
 
-            var i, len, item, key, leaf, kind, pods;
+            var i, len, item, key, leaf, kind, pods, old;
             var items = all.items;
             for (i = 0, len = items.length; i < len; i++) {
                 item = items[i];
 
+                key = item.metadata.uid;
                 kind = item.kind;
                 leaf = leaves[kind];
 
-                if (leaf)
-                    leaf.push(item);
-                else if (kind !== "Pod")
-                    continue;
+                if (leaf) {
 
-                lookup[item.metadata.uid] = nodes.length;
+                    /* Prevents flicker */
+                    old = pnodes[plookup[key]];
+                    if (old) {
+                        item.x = old.x;
+                        item.y = old.y;
+                        item.px = old.px;
+                        item.py = old.py;
+                        item.fixed = old.fixed;
+                        item.weight = old.weight;
+                    }
+
+                    leaf.push(item);
+
+                } else if (kind !== "Pod") {
+                    continue;
+                }
+
+                lookup[key] = nodes.length;
                 nodes.push(item);
             }
 

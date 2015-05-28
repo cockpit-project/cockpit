@@ -101,7 +101,8 @@ define([
             link.attr("class", function(d) { return d.kind; });
 
             node = svg.selectAll("g")
-                .data(nodes, function(d) { return d.metadata.uid; });
+                .data(nodes, function(d) { return d.metadata.uid; })
+                .classed("weak", is_weak);
 
             node.exit().remove();
 
@@ -186,7 +187,7 @@ define([
                     for (key in pods) {
 
                         /* Don't link pods that aren't running to services */
-                        if (isservice && pods[key].status.phase !== "Running")
+                        if (isservice && is_weak(pods[key]))
                             continue;
 
                         links.push({
@@ -199,6 +200,12 @@ define([
             }
 
             update();
+        }
+
+        function is_weak(d) {
+            if (d.status && d.status.phase && d.status.phase !== "Running")
+                return true;
+            return false;
         }
 
         function resized() {

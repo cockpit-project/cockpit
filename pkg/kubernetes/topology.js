@@ -73,17 +73,34 @@ define([
                 svg.selectAll("g").classed("selected", false);
                 d3.select(this).classed("selected", true);
 
+                if (d.fixed !== true)
+                    d.floatpoint = [ d.x, d.y ];
                 d.fixed = true;
                 d3.select(this).classed("fixed", true);
             })
             .on("dragend", function(d) {
-                d.fixed = (d.x > 3 && d.x < (width - 3) && d.y >= 3 && d.y < (height - 3));
+                var moved = true;
+                if (d.floatpoint) {
+                    moved = (d.x < d.floatpoint[0] - 5 || d.x > d.floatpoint[0] + 5) ||
+                            (d.y < d.floatpoint[1] - 5 || d.y > d.floatpoint[1] + 5);
+                    delete d.floatpoint;
+                }
+                d.fixed = moved && d.x > 3 && d.x < (width - 3) && d.y >= 3 && d.y < (height - 3);
                 d3.select(this).classed("fixed", d.fixed);
             });
 
-        function dblclick(d) {
-            d3.select(this).classed("fixed", d.fixed = false); /* jshint ignore:line */
-        }
+        svg
+            .on("dblclick", function() {
+                svg.selectAll("g")
+                    .classed("fixed", false)
+                    .each(function(d) { d.fixed = false; });
+            })
+            .on("click", function(ev) {
+                if (!d3.select(d3.event.target).datum()) {
+                    notify(null);
+                    svg.selectAll("g").classed("selected", false);
+                }
+            });
 
         function adjust() {
             force.size([width, height]);
@@ -108,7 +125,6 @@ define([
 
             var group = node.enter().append("g")
                 .attr("class", function(d) { return d.kind; })
-                .on("dblclick", dblclick)
                 .call(drag);
 
             group.append("circle")

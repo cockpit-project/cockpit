@@ -618,7 +618,7 @@ define([
          * complete, and any done callbacks will happen
          * immediately.
          */
-        self.connect = function connect(wait) {
+        self.connect = function connect() {
             if (!connected) {
                 connected = connect_api_server()
                     .done(function(http, response) {

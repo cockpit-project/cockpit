@@ -680,6 +680,8 @@ PageSystemInformationChangeSystime.prototype = {
         $('#systime-time-hours').on('input', enable_apply_button);
         $('#systime-date-input').on('input', enable_apply_button);
         $('#systime-timezones').on('change', enable_apply_button);
+        $('#systime-date-input').on('focusin', $.proxy(this, "store_date"));
+        $('#systime-date-input').on('focusout', $.proxy(this, "restore_date"));
     },
 
     enter: function() {
@@ -830,6 +832,15 @@ PageSystemInformationChangeSystime.prototype = {
         if (val < 10)
             $('#systime-time-minutes').val("0" + val);
     },
+
+    store_date: function() {
+        this.date = $("#systime-date-input").val();
+    },
+
+    restore_date: function() {
+        if ($("#systime-date-input").val().length === 0)
+            $("#systime-date-input").val(this.date);
+    }
 };
 
 function PageSystemInformationChangeSystime() {

@@ -251,6 +251,12 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   <!-- Container topology -->
 
   <script type="text/ng-template" id="topology.html">
+    <div class="kube-pane">
+        <div class="sidebar-pf sidebar-pf-right">
+            <kubernetes-object-describer ng-if="selected" resource="selected" kind="{{ selected.kind }}"
+                more-details-link="optional/path/to/more/details.html"></kubernetes-object-describer>
+        </div>
+    </div>
     <kube-topology></kube-topology>
   </script>
   <!-- Dialogs -->

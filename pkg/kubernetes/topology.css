@@ -1,5 +1,6 @@
 kube-topology {
     display: block;
+    margin-right: 25%;
 }
 
 kube-topology .node {
@@ -18,3 +19,33 @@ kube-topology .link {
     stroke: #999;
     stroke-opacity: .6;
 }
+
+.kube-pane {
+    float: right;
+    width: 25%;
+}
+
+.kube-pane .sidebar-pf {
+    position: fixed;
+    width: 25%;
+    height: 100%;
+    padding: 10px;
+    overflow: hidden;
+}
+
+.kube-pane .dl-horizontal {
+}
+
+.kube-pane .dl-horizontal dt {
+    text-align: left;
+    width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.kube-pane .dl-horizontal dd {
+    margin-left: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+

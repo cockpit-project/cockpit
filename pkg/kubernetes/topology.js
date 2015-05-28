@@ -22,6 +22,7 @@ define([
     "base1/cockpit",
     "kubernetes/angular",
     "kubernetes/d3",
+    "kubernetes/object-describer"
 ], function($, cockpit, angular, d3) {
     "use strict";
 
@@ -47,7 +48,7 @@ define([
         Service: '\uf0ec', /* fa-exchange */
     };
 
-    function topology_graph(selector, client) {
+    function topology_graph(selector, client, notify) {
 
         var outer = d3.select(selector);
 
@@ -61,8 +62,10 @@ define([
         var color = d3.scale.category10();
 
         var force = d3.layout.force()
-            .charge(-120)
-            .linkDistance(50);
+            .charge(-400)
+            .linkDistance(40);
+
+        var drag = force.drag();
 
         var svg = outer.append("svg");
 
@@ -76,6 +79,10 @@ define([
                 .attr("y2", function(d) { return d.target.y; });
 
             node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+        });
+
+        drag.on("dragstart", function(d) {
+            notify(d);
         });
 
         function adjust() {
@@ -101,7 +108,7 @@ define([
             var group = node.enter().append("g")
                 .attr("class", "node")
                 .style("fill", function(d) { return colors[d.kind]; })
-                .call(force.drag);
+                .call(drag);
 
             group.append("circle")
                 .attr("r", 15);
@@ -201,7 +208,7 @@ define([
         };
     }
 
-    return angular.module('kubernetes.topology', [ 'ngRoute' ])
+    return angular.module('kubernetes.topology', [ 'ngRoute', 'kubernetesUI' ])
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.when('/topology', {
                 templateUrl: 'topology.html',
@@ -212,7 +219,8 @@ define([
                 '$scope',
                 'kubernetesClient',
                 function($scope, client) {
-            this.client = client;
+            $scope.client = client;
+            $scope.selected = null;
         }])
         .directive('kubeTopology', [
             'kubernetesClient',
@@ -220,7 +228,12 @@ define([
                 return {
                     restrict: 'E',
                     link: function($scope, element, attributes) {
-                        var graph = topology_graph(element[0], client);
+                        function notify(item) {
+                            $scope.selected = item;
+                            $scope.$digest();
+                        }
+
+                        var graph = topology_graph(element[0], client, notify);
                         element.on("$destroy", function() {
                             graph.close();
                         });

@@ -48,8 +48,8 @@ define([
         var lookup = { };
 
         var force = d3.layout.force()
-            .charge(-400)
-            .linkDistance(40);
+            .charge(-800)
+            .linkDistance(80);
 
         var drag = force.drag();
 
@@ -96,7 +96,7 @@ define([
                 .data(links);
 
             link.exit().remove();
-            link.enter().append("line");
+            link.enter().insert("line", ":first-child");
 
             link.attr("class", function(d) { return d.kind; });
 

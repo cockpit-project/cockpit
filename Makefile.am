@@ -30,6 +30,8 @@ V_GZIP_0 = @echo "  GZIP    " $@;
 
 MV = mv -f
 
+JSMODULE = $(srcdir)/tools/missing $(srcdir)/tools/jsmodule
+
 .css.min.css:
 	@$(MKDIR_P) $(dir $@)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/r.js -o cssIn=$< optimizeCss=standard logLevel=3 out=$@

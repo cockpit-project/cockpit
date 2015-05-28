@@ -100,7 +100,6 @@ EXTRA_DIST += \
 	pkg/base1/require.min.js \
 	pkg/base1/mustache.min.js \
 	pkg/base1/term.min.js \
-	pkg/base1/term-config.js \
 	$(base_BUNDLE) \
 	$(base_DATA) \
 	$(basedebug_DATA) \
@@ -119,7 +118,7 @@ update-lib:: update-bower
 	$(srcdir)/tools/uglifyjs $(BOWER)/jquery-flot/jquery.flot.time.js > jquery.flot.time.min.js
 	sed -f $(srcdir)/tools/patternfly.sed \
 		$(BOWER)/patternfly/dist/css/patternfly.css > patternfly.css
-	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/jquery.js \
+	$(JSMODULE) -o $(srcdir)/pkg/base1/jquery.js \
 	    $(BOWER)/jquery/dist/jquery.js \
 	    $(BOWER)/patternfly/components/bootstrap/dist/js/bootstrap.js \
 	    $(BOWER)/patternfly/components/bootstrap-select/bootstrap-select.js \
@@ -131,7 +130,7 @@ update-lib:: update-bower
 	    $(BOWER)/jquery-flot/jquery.flot.time.js \
 	    $(srcdir)/pkg/base1/jquery-scoped.js \
 	    $(srcdir)/pkg/base1/attrchange.js
-	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/jquery.min.js \
+	$(JSMODULE) -o $(srcdir)/pkg/base1/jquery.min.js \
 	    $(BOWER)/jquery/dist/jquery.min.js \
 	    $(BOWER)/patternfly/components/bootstrap/dist/js/bootstrap.min.js \
 	    $(BOWER)/patternfly/components/bootstrap-select/bootstrap-select.min.js \
@@ -144,23 +143,23 @@ update-lib:: update-bower
 	    $(srcdir)/pkg/base1/jquery-scoped.js \
 	    $(srcdir)/pkg/base1/attrchange.min.js
 	$(srcdir)/tools/uglifyjs $(BOWER)/requirejs/require.js > require.min.js
-	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/require.js \
+	$(JSMODULE) -o $(srcdir)/pkg/base1/require.js \
 	    $(BOWER)/requirejs/require.js \
 	    $(srcdir)/pkg/base1/require-config.js \
 	    $(srcdir)/pkg/base1/require-loaders.js
-	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/require.min.js \
+	$(JSMODULE) -o $(srcdir)/pkg/base1/require.min.js \
 	    require.min.js \
 	    $(srcdir)/pkg/base1/require-config.js \
 	    $(srcdir)/pkg/base1/require-loaders.js
 	$(srcdir)/tools/cssbundle -o $(srcdir)/pkg/base1/patternfly.css \
 	    patternfly.css \
 	    $(BOWER)/bootstrap-datepicker/dist/css/bootstrap-datepicker.css
-	cp $(BOWER)/mustache/mustache.js $(srcdir)/pkg/base1/mustache.js
+	$(JSMODULE) -o $(srcdir)/pkg/base1/mustache.js \
+		$(BOWER)/mustache/mustache.js
 	$(srcdir)/tools/uglifyjs $(BOWER)/mustache/mustache.js > \
 		$(srcdir)/pkg/base1/mustache.min.js
-	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/term.js \
-	    $(BOWER)/term.js/src/term.js \
-	    $(srcdir)/pkg/base1/term-config.js
+	$(JSMODULE) -m -a window.Terminal -o $(srcdir)/pkg/base1/term.js \
+	    $(BOWER)/term.js/src/term.js
 	cp $(BOWER)/patternfly/dist/fonts/PatternFlyIcons-webfont.woff \
 		$(srcdir)/pkg/base1/fonts/patternfly.woff
 	cp $(BOWER)/patternfly/components/bootstrap/fonts/glyphicons-halflings-regular.woff \

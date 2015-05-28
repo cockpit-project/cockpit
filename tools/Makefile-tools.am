@@ -7,6 +7,7 @@ EXTRA_DIST += \
 	tools/html-minifier \
 	tools/htmlmin.conf \
 	tools/jsbundle \
+	tools/jsmodule \
 	tools/cssbundle \
 	tools/po2json \
 	tools/jshint \
@@ -23,7 +24,7 @@ EXTRA_DIST += \
 	$(NULL)
 
 update-lib:: update-bower
-	$(srcdir)/tools/jsbundle $(srcdir)/tools/qunit.js \
+	$(srcdir)/tools/jsmodule -o $(srcdir)/tools/qunit.js \
 	    $(BOWER)/jquery/dist/jquery.js \
 	    $(BOWER)/qunit/qunit/qunit.js \
 	    $(BOWER)/qunit-tap/lib/qunit-tap.js \

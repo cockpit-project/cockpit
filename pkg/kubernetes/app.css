@@ -1,19 +1,16 @@
 @import url('details.css');
 
 #graphs {
-    margin: 15px 0 30px 0;
-    font-family: Overpass;
-    display: inline-block;
-    position: relative;
-    width: 100%;
-    vertical-align: top;
-    overflow: hidden;
+    display: block;
 }
 
 #graphs svg {
     font-size: 10px;
-    display: inline-block;
-    width: 100%;
+}
+
+#graphs ul {
+    padding-top: 15px;
+    margin-right: 10px;
 }
 
 .axis path, .axis line {
@@ -48,7 +45,6 @@ path.line {
 }
 
 .kube-sidebar {
-    float: left;
     width: 100px;
 }
 
@@ -59,6 +55,9 @@ path.line {
     width: 90px;
     border-right: 1px solid #dadada;
     height: 100%;
+    position: fixed;
+    background-color: #fafafa;
+    top: 0px;
 }
 
 .kube-sidebar ul li {
@@ -111,6 +110,10 @@ path.line {
 
 #content {
     margin-left: 110px;
+    margin-right: 0px;
+}
+
+#content > .row {
     margin-right: 0px;
 }
 

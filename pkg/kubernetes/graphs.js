@@ -488,7 +488,7 @@ define([
         $(grid).on("notify changed", notified);
 
         function resized() {
-            width = $(selector).innerWidth();
+            width = $(selector).outerWidth() - 10;
             adjust();
         }
 

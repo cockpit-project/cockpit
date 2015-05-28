@@ -35,12 +35,6 @@ define([
         ReplicationController: '#3182bd'
     };
 
-    var strengths = {
-        Node: 5,
-        Service: 3,
-        ReplicationController: 1
-    };
-
     var icons = {
         Pod: '\uf1b3', /* fa-cubes */
         ReplicationController: '\uf1b8', /* fa-cog */
@@ -92,13 +86,13 @@ define([
         }
 
         function update() {
-            link = svg.selectAll(".link")
+            link = svg.selectAll("line")
                 .data(links);
 
             link.exit().remove();
-            link.enter().append("line")
-                .attr("class", "link")
-                .style("stroke-width", function(d) { return Math.sqrt(strengths[d.kind]); });
+            link.enter().append("line");
+
+            link.attr("class", function(d) { return d.kind });
 
             node = svg.selectAll(".node")
                 .data(nodes, function(d) { return d.metadata.uid; });

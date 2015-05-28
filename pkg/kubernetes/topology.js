@@ -28,13 +28,6 @@ define([
 
     var _ = cockpit.gettext;
 
-    var colors = {
-        Node: '#636363',
-        Pod: '#e6550d',
-        Service: '#31a354',
-        ReplicationController: '#3182bd'
-    };
-
     var icons = {
         Pod: '\uf1b3', /* fa-cubes */
         ReplicationController: '\uf1b8', /* fa-cog */
@@ -53,15 +46,13 @@ define([
         var nodes = [];
         var links = [];
 
-        var color = d3.scale.category10();
-
         var force = d3.layout.force()
             .charge(-400)
             .linkDistance(40);
 
         var drag = force.drag();
 
-        var svg = outer.append("svg");
+        var svg = outer.append("svg").attr("class", "kube-topology");
 
         var node = d3.select();
         var link = d3.select();
@@ -75,9 +66,23 @@ define([
             node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
         });
 
-        drag.on("dragstart", function(d) {
-            notify(d);
-        });
+        drag
+            .on("dragstart", function(d) {
+                notify(d);
+                svg.selectAll("g").classed("selected", false);
+                d3.select(this).classed("selected", true);
+
+                d.fixed = true;
+                d3.select(this).classed("fixed", true);
+            })
+            .on("dragend", function(d) {
+                d.fixed = (d.x > 3 && d.x < (width - 3) && d.y >= 3 && d.y < (height - 3));
+                d3.select(this).classed("fixed", d.fixed);
+            });
+
+        function dblclick(d) {
+            d3.select(this).classed("fixed", d.fixed = false); /* jshint ignore:line */
+        }
 
         function adjust() {
             force.size([width, height]);
@@ -92,25 +97,29 @@ define([
             link.exit().remove();
             link.enter().append("line");
 
-            link.attr("class", function(d) { return d.kind });
+            link.attr("class", function(d) { return d.kind; });
 
-            node = svg.selectAll(".node")
+            node = svg.selectAll("g")
                 .data(nodes, function(d) { return d.metadata.uid; });
 
             node.exit().remove();
 
             var group = node.enter().append("g")
-                .attr("class", "node")
-                .style("fill", function(d) { return colors[d.kind]; })
+                .attr("class", function(d) { return d.kind; })
+                .on("dblclick", dblclick)
                 .call(drag);
 
             group.append("circle")
                 .attr("r", 15);
             group.append("text")
-                .attr("y", 7)
+                .attr("y", 6)
                 .text(function(d) { return icons[d.kind]; });
             group.append("title")
                 .text(function(d) { return d.metadata.name; });
+
+            /* HACK: around broken fonts */
+            group.selectAll("g.ReplicationController > text")
+                .attr("dy", "1");
 
             force
                 .nodes(nodes)

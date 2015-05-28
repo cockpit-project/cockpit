@@ -1530,8 +1530,12 @@ define([
         };
 
         self.close = function close() {
-            for (var body in requests)
-                requests[body].close();
+            var req, body;
+            for (body in requests) {
+                req = requests[body];
+                if (req && req.close)
+                    req.close();
+            }
             kube.close();
             kube = null;
         };

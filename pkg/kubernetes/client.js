@@ -163,7 +163,7 @@ define([
      * @remove callback with a null argument to indicate we are
      * starting over.
      */
-    function KubernetesWatch(api, prefix, type, update, remove, loaded) {
+    function KubernetesWatch(api, type, update, remove, loaded) {
         var self = this;
 
         /* Used to track the last resource for restarting query */
@@ -315,7 +315,7 @@ define([
             if (req)
                 return;
 
-            var uri = "/" + prefix + "/v1beta3/watch/" + type;
+            var uri = "/api/v1beta3/watch/" + type;
             var full = true;
 
             /*
@@ -418,10 +418,6 @@ define([
             }
 
             var http = cockpit.http(scheme.port, scheme);
-
-            /* The openshift request is done in parallel */
-            var openshift = http.get("/osapi");
-
             req = http.get("/api")
                 .done(function(data) {
                     req = null;
@@ -440,13 +436,7 @@ define([
                     }
                     if (response && response.versions) {
                         debug("found kube-apiserver endpoint on:", scheme);
-                        openshift.always(function() {
-                            if (this.state() === "resolved")
-                                response.flavor = "openshift";
-                            else
-                                response.flavor = "kubernetes";
-                            dfd.resolve(http, response);
-                        });
+                        dfd.resolve(http, response);
                     } else {
                         debug("not a kube-apiserver endpoint on:", scheme);
                         step();
@@ -602,7 +592,6 @@ define([
     function KubernetesClient() {
         var self = this;
 
-        self.flavor = null;
         self.objects = { };
         self.resourceVersion = null;
 
@@ -638,13 +627,13 @@ define([
                         [ "nodes", "pods", "services", "replicationcontrollers",
                           "namespaces" ].forEach(function(type) {
                             loading[type] = true;
-                            watches.push(new KubernetesWatch(http, "api", type,
+                            watches.push(new KubernetesWatch(http, type,
                                                              handle_updated,
                                                              handle_removed,
                                                              handle_loaded));
                         });
 
-                        watches.push(new KubernetesWatch(http, "api", "events",
+                        watches.push(new KubernetesWatch(http, "events",
                                                          handle_event,
                                                          handle_removed,
                                                          null));

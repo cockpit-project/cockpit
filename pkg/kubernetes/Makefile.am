@@ -24,6 +24,7 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/graphs.js \
 	pkg/kubernetes/kubernetes.js \
 	pkg/kubernetes/node.js \
+	pkg/kubernetes/object-describer.js \
 	pkg/kubernetes/deploy.js \
 	pkg/kubernetes/topology.css \
 	pkg/kubernetes/topology.js \
@@ -42,6 +43,7 @@ kubernetes_BUNDLE = \
 	pkg/kubernetes/d3.min.js \
 	pkg/kubernetes/graphs.min.js \
 	pkg/kubernetes/node.min.js \
+	pkg/kubernetes/object-describer.min.js \
 	pkg/kubernetes/topology.min.js \
 	$(NULL)
 
@@ -85,6 +87,8 @@ update-lib:: update-bower
 	    $(BOWER)/angular-bootstrap/ui-bootstrap.js
 	$(JSMODULE) -m -o $(srcdir)/pkg/kubernetes/angular-bootstrap.min.js \
 	    $(BOWER)/angular-bootstrap/ui-bootstrap.min.js
+	$(JSMODULE) -m -o $(srcdir)/pkg/kubernetes/object-describer.js \
+	    $(BOWER)/kubernetes-object-describer/dist/object-describer.js
 	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/d3.js \
 		$(BOWER)/d3/d3.js
 	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/d3.min.js \

@@ -1,4 +1,5 @@
-
+/* DO NOT EDIT. Automatically generated file */
+/* jshint ignore:start */
 /*!
  * jQuery JavaScript Library v2.1.0
  * http://jquery.com/
@@ -9111,8 +9112,6 @@ return jQuery;
 
 }));
 
-//# sourceURL=dist/jquery.js
-
 /*!
  * QUnit 1.14.0
  * http://qunitjs.com/
@@ -11402,8 +11401,6 @@ if ( typeof module !== "undefined" && module.exports ) {
 	return this;
 })() ));
 
-//# sourceURL=qunit/qunit.js
-
 /**
  * QUnit-TAP - A TAP Output Producer Plugin for QUnit
  *
@@ -11425,7 +11422,7 @@ if ( typeof module !== "undefined" && module.exports ) {
 
     // using returnExports UMD pattern
     if (typeof define === 'function' && define.amd) {
-        define("lib/qunit-tap", factory);
+        define(factory);
     } else if (typeof exports === 'object') {
         module.exports = factory();
     } else {
@@ -11721,8 +11718,6 @@ if ( typeof module !== "undefined" && module.exports ) {
     return qunitTap;
 }));
 
-//# sourceURL=lib/qunit-tap.js
-
 /*
  * This file is part of Cockpit.
  *
@@ -11822,4 +11817,4 @@ window.setTimeout(function() {
 
 var tests_included = true;
 
-//# sourceURL=tools/qunit-config.js
+/* jshint ignore:end */

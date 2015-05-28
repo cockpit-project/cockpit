@@ -1,4 +1,5 @@
-
+/* DO NOT EDIT. Automatically generated file */
+/* jshint ignore:start */
 /** vim: et:ts=4:sw=4:sts=4
  * @license RequireJS 2.1.16 Copyright (c) 2010-2015, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
@@ -2083,8 +2084,6 @@ var requirejs, require, define;
     req(cfg);
 }(this));
 
-//# sourceURL=requirejs/require.js
-
 (function(require) {
     require.config({
         baseUrl: "../",
@@ -2094,8 +2093,6 @@ var requirejs, require, define;
     });
 })(require);
 
-
-//# sourceURL=base1/require-config.js
 
 define('translated', function() {
     var module = { };
@@ -2146,4 +2143,4 @@ define('data', function() {
     return module;
 });
 
-//# sourceURL=base1/require-loaders.js
+/* jshint ignore:end */

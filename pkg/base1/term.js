@@ -1,4 +1,6 @@
-
+/* DO NOT EDIT. Automatically generated file */
+/* jshint ignore:start */
+define([], function() {
 /**
  * term.js - an xterm emulator
  * Copyright (c) 2012-2013, Christopher Jeffrey (MIT License)
@@ -5726,12 +5728,6 @@ if (typeof module !== 'undefined') {
   return this || (typeof window !== 'undefined' ? window : global);
 }());
 
-//# sourceURL=src/term.js
+return window.Terminal; });
 
-(function () {
-    if (typeof define === 'function' && define.amd) {
-        define("base1/term", [], function() { return window.Terminal });
-    }
-}());
-
-//# sourceURL=base1/term-config.js
+/* jshint ignore:end */

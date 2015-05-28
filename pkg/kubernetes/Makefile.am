@@ -68,21 +68,20 @@ EXTRA_DIST += \
 	pkg/kubernetes/mock-basic.js \
 	pkg/kubernetes/mock-large.js \
 	pkg/kubernetes/angular.min.js \
-	pkg/kubernetes/angular-config.js \
 	pkg/kubernetes/d3.min.js \
 	$(NULL)
 
 update-lib:: update-bower
-	$(srcdir)/tools/jsbundle $(srcdir)/pkg/kubernetes/angular.js \
+	$(JSMODULE) -m -a window.angular -o $(srcdir)/pkg/kubernetes/angular.js \
 	    $(BOWER)/angular/angular.js \
-	    $(BOWER)/angular-route/angular-route.js \
-	    $(srcdir)/pkg/kubernetes/angular-config.js
-	$(srcdir)/tools/jsbundle $(srcdir)/pkg/kubernetes/angular.min.js \
+	    $(BOWER)/angular-route/angular-route.js
+	$(JSMODULE) -m -a window.angular -o $(srcdir)/pkg/kubernetes/angular.min.js \
 	    $(BOWER)/angular/angular.min.js \
-	    $(BOWER)/angular-route/angular-route.min.js \
-	    $(srcdir)/pkg/kubernetes/angular-config.js
-	cp $(BOWER)/d3/d3.js $(srcdir)/pkg/kubernetes/d3.js
-	cp $(BOWER)/d3/d3.min.js $(srcdir)/pkg/kubernetes/d3.min.js
+	    $(BOWER)/angular-route/angular-route.min.js
+	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/d3.js \
+		$(BOWER)/d3/d3.js
+	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/d3.min.js \
+		$(BOWER)/d3/d3.min.js
 
 # Never recreate these files
 pkg/kubernetes/angular.min.js:

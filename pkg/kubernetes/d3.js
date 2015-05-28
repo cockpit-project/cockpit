@@ -1,3 +1,5 @@
+/* DO NOT EDIT. Automatically generated file */
+/* jshint ignore:start */
 !function() {
   var d3 = {
     version: "3.5.5"
@@ -9502,3 +9504,4 @@
   if (typeof define === "function" && define.amd) define(d3); else if (typeof module === "object" && module.exports) module.exports = d3;
   this.d3 = d3;
 }();
+/* jshint ignore:end */

@@ -1,4 +1,5 @@
-
+/* DO NOT EDIT. Automatically generated file */
+/* jshint ignore:start */
 /*!
  * jQuery JavaScript Library v2.1.0
  * http://jquery.com/
@@ -9111,8 +9112,6 @@ return jQuery;
 
 }));
 
-//# sourceURL=dist/jquery.js
-
 /*!
  * Bootstrap v3.1.1 (http://getbootstrap.com)
  * Copyright 2011-2014 Twitter, Inc.
@@ -11065,8 +11064,6 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
 
 }(jQuery);
 
-//# sourceURL=js/bootstrap.js
-
 /*!
  * bootstrap-select v1.5.4
  * http://silviomoreto.github.io/bootstrap-select/
@@ -12039,8 +12036,6 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
         .on('focusin.modal', '.bootstrap-select [data-toggle=dropdown], .bootstrap-select [role=menu], .bootstrap-select-searchbox input', function (e) { e.stopPropagation(); });
 
 }(window.jQuery);
-
-//# sourceURL=bootstrap-select/bootstrap-select.js
 
 /*!
  * Datepicker for Bootstrap v1.4.0 (https://github.com/eternicode/bootstrap-datepicker)
@@ -13825,8 +13820,6 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
 
 }(window.jQuery));
 
-//# sourceURL=js/bootstrap-datepicker.js
-
 /* =============================================================
  * bootstrap-combobox.js v1.1.6
  * =============================================================
@@ -14266,8 +14259,6 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
 
 }( window.jQuery );
 
-//# sourceURL=js/bootstrap-combobox.js
-
 // PatternFly Namespace
 var PatternFly = PatternFly || {};
 
@@ -14480,8 +14471,6 @@ var PatternFly = PatternFly || {};
     });
   }
 })(jQuery);
-
-//# sourceURL=js/patternfly.js
 
 /* Javascript plotting library for jQuery, version 0.8.3.
 
@@ -17652,8 +17641,6 @@ Licensed under the MIT license.
 
 })(jQuery);
 
-//# sourceURL=jquery-flot/jquery.flot.js
-
 /* Flot plugin for selecting regions of a plot.
 
 Copyright (c) 2007-2014 IOLA and Ole Laursen.
@@ -18014,8 +18001,6 @@ The plugin allso adds the following methods to the plot object:
         version: '1.1'
     });
 })(jQuery);
-
-//# sourceURL=jquery-flot/jquery.flot.selection.js
 
 /* Pretty handling of time axes.
 
@@ -18450,8 +18435,6 @@ API.txt for details.
 
 })(jQuery);
 
-//# sourceURL=jquery-flot/jquery.flot.time.js
-
 (function(jq) {
     "use strict";
     jq.scoped = function scoped(/* ... */) {
@@ -18479,8 +18462,6 @@ API.txt for details.
         return jQueryScoped;
     };
 }(jQuery));
-
-//# sourceURL=base1/jquery-scoped.js
 
 /*
 A simple jQuery function that can add listeners on attribute change.
@@ -18612,4 +18593,4 @@ https://github.com/meetselva/attrchange/blob/master/MIT-License.txt
     };
 })(jQuery);
 
-//# sourceURL=base1/attrchange.js
+/* jshint ignore:end */

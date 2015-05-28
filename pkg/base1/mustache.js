@@ -1,3 +1,5 @@
+/* DO NOT EDIT. Automatically generated file */
+/* jshint ignore:start */
 /*!
  * mustache.js - Logic-less {{mustache}} templates with JavaScript
  * http://github.com/janl/mustache.js
@@ -568,3 +570,5 @@
   mustache.Writer = Writer;
 
 }));
+
+/* jshint ignore:end */

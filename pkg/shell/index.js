@@ -66,7 +66,7 @@ define([
     /* Branding */
 
     function brand(id) {
-        var os_release = JSON.parse(window.sessionStorage['os-release'] || "{}");
+        var os_release = JSON.parse(window.localStorage['os-release'] || "{}");
 
         var elt = $(id)[0];
         if (!elt)

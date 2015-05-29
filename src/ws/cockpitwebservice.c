@@ -771,7 +771,14 @@ process_kill (CockpitWebService *self,
       /* Send a close message to both parties */
       payload = build_control ("command", "close", "channel", (gchar *)channel, "problem", "terminated", NULL);
       g_warn_if_fail (process_and_relay_close (self, socket, channel, payload));
-      web_socket_connection_send (socket->connection, WEB_SOCKET_DATA_TEXT, self->control_prefix, payload);
+      if (web_socket_connection_get_ready_state (socket->connection) == WEB_SOCKET_STATE_OPEN)
+        {
+              web_socket_connection_send (socket->connection,
+                                          WEB_SOCKET_DATA_TEXT,
+                                          self->control_prefix,
+                                          payload);
+        }
+
       g_bytes_unref (payload);
 
       g_free (channel);

@@ -78,7 +78,7 @@ define([
             if ((content[0] === '"' || content[0] === '\'') &&
                 len > 2 && content[len - 1] === content[0])
                 content = content.substr(1, len - 2);
-            elt.innerHTML = cockpit.format(content, os_release);
+            elt.innerHTML = cockpit.format(content, os_release) || "Cockpit";
         }
     }
 

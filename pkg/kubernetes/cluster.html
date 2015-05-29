@@ -236,11 +236,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             </div>
           </div>
         </tab>
-        <tab heading="Console" select="connect()">
+        <tab heading="Console" select="connect('console')">
           <kube-console host="{{pod.spec.host}}" id="{{container.status.containerID}}">
           </kube-console>
         </tab>
-        <tab heading="Shell" select="connect()">
+        <tab heading="Shell" select="connect('shell')">
           <kube-console host="{{pod.spec.host}}" id="{{container.status.containerID}}" shell="true">
           </kube-console>
         </tab>

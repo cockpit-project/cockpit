@@ -87,8 +87,8 @@ define([
                 scope: true,
                 templateUrl: 'container.html',
                 link: function(scope, element, attrs) {
-                    scope.connect = function connect() {
-                        scope.$broadcast("connect");
+                    scope.connect = function connect(what) {
+                        scope.$broadcast("connect", what);
                     };
                 }
             };
@@ -117,7 +117,8 @@ define([
                         id = id.substring(9);
 
                     var cons;
-                    if (scope.$eval(attrs.shell || "false"))
+                    var shell = scope.$eval(attrs.shell || "false");
+                    if (shell)
                         cons = docker.console(id, ["/bin/sh", "-i"], options);
                     else
                         cons = docker.console(id, options);
@@ -125,10 +126,12 @@ define([
                     element.append(cons);
 
                     /* Don't connect immediately, wait for event */
-                    scope.$on("connect", function() {
-                        if (!cons.connected) {
-                            cons.typeable(true);
-                            cons.connect();
+                    scope.$on("connect", function(ev, what) {
+                        if (what === (shell ? "shell" : "console")) {
+                            if (!cons.connected) {
+                                cons.typeable(true);
+                                cons.connect();
+                            }
                         }
                     });
                 }

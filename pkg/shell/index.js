@@ -72,12 +72,12 @@ define([
         if (!elt)
             return;
 
-        var content = window.getComputedStyle(elt).content;
+        var len, content = window.getComputedStyle(elt).content;
         if (content != "none") {
-            if (content[0] == '"')
-                content = content.substr(1);
-            if (content.length > 0 && content[content.length - 1] == '"')
-                content = content.substr(0, content.length - 1);
+            len = content.length;
+            if ((content[0] === '"' || content[0] === '\'') &&
+                len > 2 && content[len - 1] === content[0])
+                content = content.substr(1, len - 2);
             elt.innerHTML = cockpit.format(content, os_release);
         }
     }

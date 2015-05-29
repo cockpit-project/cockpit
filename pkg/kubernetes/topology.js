@@ -49,6 +49,7 @@ define([
 
         var force = d3.layout.force()
             .charge(-800)
+            .gravity(0.2)
             .linkDistance(80);
 
         var drag = force.drag();

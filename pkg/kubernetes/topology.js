@@ -126,6 +126,7 @@ define([
 
             var group = node.enter().append("g")
                 .attr("class", function(d) { return d.kind; })
+                .classed("weak", is_weak)
                 .call(drag);
 
             group.append("circle")

@@ -512,12 +512,14 @@ define([
 
         this.data.matcher = matcher;
 
-        var i, len, item, key;
-        for (i = 0, len = possible.length; i < len; i++) {
-            key = possible[i];
-            item = client.objects[key];
-            if (matcher(item))
-                this[key] = item;
+        if (possible) {
+            var i, len, item, key;
+            for (i = 0, len = possible.length; i < len; i++) {
+                key = possible[i];
+                item = client.objects[key];
+                if (matcher(item))
+                    this[key] = item;
+            }
         }
     }
 
@@ -871,6 +873,14 @@ define([
             handle_updated(item, type);
         }
 
+        function match_nothing(item) {
+            return false;
+        }
+
+        function match_everything(item) {
+            return true;
+        }
+
         /**
          * client.select()
          * @kind: optional kind string (eg: 'Pod')
@@ -887,6 +897,10 @@ define([
             if (selector) {
                 for (i in selector)
                     keys.push(i + selector[i]);
+
+                /* Empty selectors should never match anything */
+                if (i === undefined)
+                    return new KubeList(match_nothing, self);
             }
             if (kind)
                 keys.push(kind);

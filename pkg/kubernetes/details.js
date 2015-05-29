@@ -24,8 +24,12 @@ define([
             'kubernetesClient',
             function($scope, $routeParams, $location, client) {
 
+            var selector = $location.search();
+            if ($.isEmptyObject(selector))
+                selector = null;
+
             /* Setup a persistent search for this object */
-            var list = client.select("Pod", $routeParams.namespace, $location.search());
+            var list = client.select("Pod", $routeParams.namespace, selector);
             client.track(list);
 
             angular.extend($scope, {

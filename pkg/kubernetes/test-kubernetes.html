@@ -956,9 +956,9 @@ require([
             results = client.select(null, null);
             equal(results.items.length, 1007, "without namespace");
 
-            /* All selected when empty selector */
+            /* Nothing selected when empty selector */
             results = client.select(null, "default", { });
-            equal(results.items.length, 1004, "namespace objects");
+            equal(results.items.length, 0, "namespace objects");
 
             client.close();
             start();

@@ -33,7 +33,7 @@ define([
         var self = this;
 
         self.hosts = { };
-        self.containers = { };
+        self.services = { };
 
         function update() {
             var changed = false;
@@ -66,9 +66,9 @@ define([
                         var id = container.containerID;
                         if (id && id.indexOf("docker://") === 0) {
                             id = id.substring(9);
-                            var mapped = self.containers[uid];
+                            var mapped = self.services[uid];
                             if (!mapped) {
-                                mapped = self.containers[uid] = { };
+                                mapped = self.services[uid] = { };
                                 $(self).triggerHandler("service", uid);
                             }
                             if (!mapped[id]) {
@@ -86,6 +86,7 @@ define([
         }
 
         $(kube).on("services pods", update);
+        update();
 
         self.close = function close() {
             $(kube).off("services pods", update);
@@ -122,61 +123,11 @@ define([
         /* Gives us events when kube does something */
         var service_map = new ServiceMap(kube);
         $(service_map)
-            .on("host", function(ev, ip) {
-                var host = ip;
-                var cadvisor = client.cadvisor(host);
-                $(cadvisor).on("container", function(ev, id) {
-                    var cpu = self.add(this, [ id, "cpu", "usage", "total" ]);
-                    container_cpu[id] = self.add(function(row, x, n) {
-                        row_delta(cpu, row, x, n);
-                    }, true);
-
-                    container_mem[id] = self.add(this, [ id, "memory", "usage" ]);
-
-                    var rx = self.add(this, [ id, "network", "rx_bytes" ]);
-                    container_rx[id] = self.add(function(row, x, n) {
-                        row_delta(rx, row, x, n);
-                    }, true);
-
-                    var tx = self.add(this, [ id, "network", "tx_bytes" ]);
-                    container_tx[id] = self.add(function(row, x, n) {
-                        row_delta(tx, row, x, n);
-                    }, true);
-
-                    self.sync();
-                });
-
-                /* In order to even know which containers we have, ask cadvisor to fetch */
-                cadvisor.fetch(self.beg, self.end);
-
-                /* TODO: Handle cadvisor failure somehow */
-                cadvisors.push(cadvisor);
+            .on("host", function(ev, host) {
+                add_cadvisor(host);
             })
             .on("service", function(ev, uid) {
-                services.push(uid);
-
-                /* CPU needs summing of containers, and then delta between them */
-                rows.cpu[uid] = self.add(function(row, x, n) {
-                    containers_sum(uid, container_cpu, row, x, n);
-                });
-
-                /* Memory row is pretty simple, just sum containers */
-                rows.memory[uid] = self.add(function(row, x, n) {
-                    containers_sum(uid, container_mem, row, x, n);
-                });
-
-                /* Network sums containers, then sum tx and rx, and then delta */
-                var tx = self.add(function(row, x, n) {
-                    containers_sum(uid, container_tx, row, x, n);
-                });
-                var rx = self.add(function(row, x, n) {
-                    containers_sum(uid, container_rx, row, x, n);
-                });
-                rows.network[uid] = self.add(function(row, x, n) {
-                    rows_sum([tx, rx], row, x, n);
-                });
-
-                change_queued = true;
+                add_service(uid);
             })
             .on("changed", function(ev) {
                 self.sync();
@@ -188,6 +139,80 @@ define([
                 self.metric(current_metric);
             }
         });
+
+        function add_container(cadvisor, id) {
+            var cpu = self.add(cadvisor, [ id, "cpu", "usage", "total" ]);
+            container_cpu[id] = self.add(function(row, x, n) {
+                row_delta(cpu, row, x, n);
+            }, true);
+
+            container_mem[id] = self.add(cadvisor, [ id, "memory", "usage" ]);
+
+            var rx = self.add(cadvisor, [ id, "network", "rx_bytes" ]);
+            container_rx[id] = self.add(function(row, x, n) {
+                row_delta(rx, row, x, n);
+            }, true);
+
+            var tx = self.add(cadvisor, [ id, "network", "tx_bytes" ]);
+            container_tx[id] = self.add(function(row, x, n) {
+                row_delta(tx, row, x, n);
+            }, true);
+
+            self.sync();
+        }
+
+        function add_cadvisor(host) {
+            var cadvisor = client.cadvisor(host);
+            $(cadvisor).on("container", function(ev, id) {
+                add_container(this, id);
+            });
+
+            var id;
+            for (id in cadvisor.specs)
+                add_container(cadvisor, id);
+
+            /* In order to even know which containers we have, ask cadvisor to fetch */
+            cadvisor.fetch(self.beg, self.end);
+
+            /* TODO: Handle cadvisor failure somehow */
+            cadvisors.push(cadvisor);
+        }
+
+        function add_service(uid) {
+            services.push(uid);
+
+            /* CPU needs summing of containers, and then delta between them */
+            rows.cpu[uid] = self.add(function(row, x, n) {
+                containers_sum(uid, container_cpu, row, x, n);
+            });
+
+            /* Memory row is pretty simple, just sum containers */
+            rows.memory[uid] = self.add(function(row, x, n) {
+                containers_sum(uid, container_mem, row, x, n);
+            });
+
+            /* Network sums containers, then sum tx and rx, and then delta */
+            var tx = self.add(function(row, x, n) {
+                containers_sum(uid, container_tx, row, x, n);
+            });
+            var rx = self.add(function(row, x, n) {
+                containers_sum(uid, container_rx, row, x, n);
+            });
+            rows.network[uid] = self.add(function(row, x, n) {
+                rows_sum([tx, rx], row, x, n);
+            });
+
+            change_queued = true;
+        }
+
+        function setup() {
+            var host, uid;
+
+            for (host in service_map.hosts)
+                add_cadvisor(host);
+            for (uid in service_map.services)
+                add_service(uid);
+        }
 
         function rows_sum(input, row, x, n) {
             var max = row.maximum || 0;
@@ -241,7 +266,7 @@ define([
 
         function containers_sum(service, input, row, x, n) {
             var id, rowc, subset = [];
-            var mapped = service_map.containers[service];
+            var mapped = service_map.services[service];
             if (mapped) {
                 for(id in mapped) {
                     rowc = input[id];
@@ -282,6 +307,7 @@ define([
             base_close.apply(self);
         };
 
+        setup();
         return self;
     }
 

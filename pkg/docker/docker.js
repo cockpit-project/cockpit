@@ -403,6 +403,7 @@ define([
             var headers = null;
             var buffer = channel.buffer();
             buffer.callback = function(data) {
+                var ret = 0;
                 var pos = 0;
                 var parts;
 
@@ -410,7 +411,7 @@ define([
                 if (headers === null) {
                     pos = sequence_find(data, [ 13, 10, 13, 10 ]);
                     if (pos == -1)
-                        return 0;
+                        return ret;
 
                     if (data.subarray)
                         headers = cockpit.utf8_decoder().decode(data.subarray(0, pos));
@@ -425,15 +426,19 @@ define([
                         return;
                     } else if (data.subarray) {
                         data = data.subarray(pos + 4);
+                        ret += pos + 4;
                     } else {
                         data = data.slice(pos + 4);
+                        ret += pos + 4;
                     }
                 }
 
                 /* We need at least two bytes to determine stream type */
                 if (tty === undefined || tty === null) {
-                    if (data.length < 2)
-                        return pos + 4;
+                    if (data.length < 2) {
+console.log("missing data", data, pos + 4);
+                        return ret;
+}
                     tty = !((data[0] === 0 || data[0] === 1 || data[0] === 2) && data[1] === 0);
                     docker_debug(container_id + ": mode tty: " + tty);
                 }
@@ -446,7 +451,7 @@ define([
 
                 buffer.callback = view.process;
                 var consumed = view.process(data);
-                return pos + 4 + consumed;
+                return ret + consumed;
             };
         }
 

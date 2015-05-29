@@ -30,6 +30,8 @@ define([
     cockpit.locale(po);
     var _ = cockpit.gettext;
 
+    var default_title = "Cockpit";
+
     /* The oops bar */
 
     var oops = null;
@@ -78,7 +80,8 @@ define([
             if ((content[0] === '"' || content[0] === '\'') &&
                 len > 2 && content[len - 1] === content[0])
                 content = content.substr(1, len - 2);
-            elt.innerHTML = cockpit.format(content, os_release) || "Cockpit";
+            elt.innerHTML = cockpit.format(content, os_release) || default_title;
+            default_title = $(elt).text();
         }
     }
 
@@ -392,14 +395,17 @@ define([
         $("#machine-avatar").attr("src", machine ? encodeURI(machine.avatar) : "images/server-small.png");
         $("#machine-dropdown").toggleClass("active", !!machine);
 
-        var label;
-        if (machine)
+        var label, title;
+        if (machine) {
             label = machine.label;
-        else if (machines.list.length == 1)
+            title = machine.label;
+        } else if (machines.list.length == 1) {
             label = machines.list[0].label;
-        else
+        } else {
             label = _("Machines");
+        }
         $("#machine-link span").text(label);
+        $("title").text(title || default_title);
 
         var color;
         if (machines.list.length == 1 || !machine)

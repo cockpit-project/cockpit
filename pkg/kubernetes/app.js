@@ -341,7 +341,10 @@ define([
                         var el;
                         element.empty();
                         if (href) {
-                            el = angular.element("<a>").attr("href", href).attr("target", "_blank");
+                            el = $("<a>")
+                                .attr("href", href)
+                                .attr("target", "_blank")
+                                .on("click", function(ev) { ev.stopPropagation(); });
                             element.append(el);
                         } else {
                             el = element;

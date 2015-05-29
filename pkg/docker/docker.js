@@ -322,8 +322,11 @@ define([
                 })
             };
 
+            docker_debug("preparing to exec:", command);
+
         /* Just connect to the main container console */
         } else {
+            docker_debug("preparing to attach");
             options = command || { };
             tty = options.tty;
         }

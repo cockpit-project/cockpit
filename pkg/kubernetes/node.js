@@ -31,7 +31,7 @@ define([
 
     var kube = null;
 
-    var regex = /^[a-z0-9.]+$/i;
+    var regex = /^[a-z0-9.-]+$/i;
     var dialog = $("#node-dialog", document);
 
     dialog

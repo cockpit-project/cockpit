@@ -94,7 +94,7 @@
                 if (!requisites())
                     return;
 
-                sessionStorage.setItem('os-release', JSON.stringify(initial_environment["os-release"]));
+                localStorage.setItem('os-release', JSON.stringify(initial_environment["os-release"]));
 
                 /* Try automatic/kerberos authentication? */
                 if (sessionStorage.getItem("logout-intent") == "explicit") {

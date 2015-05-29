@@ -199,7 +199,7 @@ define([
                     if (isnode)
                         pods = client.hosting("Pod", item.metadata.name);
                     else
-                        pods = client.select("Pod", item.metadata.namespace, item.spec.selector);
+                        pods = client.select("Pod", item.metadata.namespace, item.spec.selector || { });
                     for (key in pods) {
 
                         /* Don't link pods that aren't running to services */

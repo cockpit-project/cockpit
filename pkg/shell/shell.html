@@ -110,6 +110,7 @@
             <button class="btn btn-danger edit-button servers-privileged pficon btn-delete pficon-delete delete-{{address}}"></button>
             <button class="btn btn-default edit-button servers-privileged pficon pficon-edit"></button>
             <img class="host-avatar" src="{{render_avatar}}">
+            <div class="os">{{os}}</div>
             <span>{{label}}</span>
           </a>
         {{/machines}}
@@ -2240,7 +2241,7 @@
               <input type="search" class="form-control" id="containers-search-image-search"/>
               <span class="fa fa-search form-control-feedback containers-search-image-search-icon"></span>
             </div>
-            
+
             <div id="containers-search-image-waiting"></div>
             <div id="containers-search-image-results">
               <table class="table table-hover">

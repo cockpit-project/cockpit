@@ -13,6 +13,7 @@ define([
         self.key = key;
         self.state = null;
         self.problem = null;
+        self.os = null;
 
         function change_state(value, problem) {
             self.state = value;
@@ -68,8 +69,11 @@ define([
 
         function calculate_label() {
             var label = json_label || self.address;
-            if (hostnamed)
+            if (hostnamed) {
                 label = hostnamed.PrettyHostname || hostnamed.StaticHostname || label;
+                self.os = hostnamed.OperatingSystemPrettyName;
+            }
+
             if (!label || label == "localhost" || label == "localhost.localdomain")
                 label = window.location.hostname;
             if (self.label === label)

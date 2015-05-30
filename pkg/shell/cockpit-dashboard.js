@@ -221,6 +221,7 @@ PageDashboard.prototype = {
         var self = this;
         self.edit_enabled = val;
         $('#dashboard-enable-edit').toggleClass('active', self.edit_enabled);
+        $('.os').toggleClass('hidden', self.edit_enabled);
         $('#dashboard-hosts').toggleClass('editable', self.edit_enabled);
     },
 

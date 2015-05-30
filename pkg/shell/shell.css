@@ -103,6 +103,24 @@ html, body {
     white-space: nowrap;
 }
 
+#dashboard-hosts .list-group-item div.os {
+    padding-top: 6px;
+    padding-bottom: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: right;
+    color: #888;
+    float: right;
+}
+
+@media (max-width: 400px) {
+    #dashboard-hosts .list-group-item div.os {
+        display: none;
+    }
+}
+
+
 .zoom-controls {
     display: none;
 }

@@ -43,9 +43,135 @@ define([
     function NuleculeClient() {
         var self = this;
         var http = cockpit.http(5000);
+        var version = '0.1.1';
+        var status = "";
+        var answers = {};
 
-        self.get_status = function get_status() {
-            var req = http.get("/atomicapp-run/api/v1.0/status")
+        self.create_tmp = function create_tmp() {
+            var process = cockpit.spawn(['/bin/sh', '-s']).input("mktemp -p $XDG_RUNTIME_DIR -d APP_ENTITY.XXXXXX");
+            return process;
+        };
+
+        self.get_version = function get_version() {
+            return version;
+        };
+
+        self.loadAnswersfile = function loadAnswersfile(statusl) {
+            statusl.forEach(function(item) {
+                if (item.status_message.indexOf("answers.conf") > -1)
+                    self.answers = item.status_data;
+                    console.log("self.answers " + String(self.answers));
+            });
+            return self.answers;
+        };
+
+        self.convertAnswersfile = function convertAnswersfile(ans) {
+            console.log("sconvertAnswersfile")
+            //var answers = JSON.parse(ans);
+            var answers = ans
+            console.log(answers)
+            var applist = [];
+            
+            for(var key in ans) {
+                var tmp = { "app_name" : "", "app_params" : []};
+
+                if (key === "general")
+                    continue;
+                    
+                tmp.app_name = key
+                for(var x in ans[key]) {
+                    var tmpKV = { "key" : "", "value": ""};
+                    tmpKV.key = x;
+                    tmpKV.value = ans[key][x]
+                    console.log(tmpKV)
+                    tmp["app_params"].push(tmpKV)
+                }
+                console.log(tmp)
+                applist.push(tmp)
+
+            }
+            console.log(applist)
+            return applist;
+        };
+
+        self.get_statuslist = function get_statuslist() {
+            var dfd = $.Deferred();
+            var response;
+            var req = http.get("/atomicapp-run/api/v" + version + "/status")
+                    .done(function(data) {
+                        req = null;
+                        try {
+                            response = JSON.parse(data);
+                            console.log("..get_statuslist..resolved")
+                            dfd.resolve(response);
+                        } catch(ex) {
+                            dfd.reject(ex);
+                        }
+                    })
+                    .fail(function(ex) {
+                        req = null;
+                        dfd.reject(ex);
+                    });
+            var promise = dfd.promise();
+            promise.cancel = function cancel() {
+                req.cancel();
+            };
+
+            return promise;
+        };
+
+        self.kill_atomicapp = function kill_atomicapp() {
+            var preq = http.post("/atomicapp-run/api/v" + version + "/quit")
+                .done(function(data){
+                    preq = null;
+                    console.log(data);
+                })
+                .fail(function(ex) {
+                    preq = null;
+                    console.log(ex);
+                });
+        };
+
+
+        self.run = function run(tmp_dir, image) {
+            var deferred = $.Deferred();
+            var status = '';
+            var promise;
+            var buffer = '';
+            
+
+            var process = cockpit.spawn(["/usr/bin/atomicapp", "-d", "run", tmp_dir],{ err: "out" });
+        };
+
+        self.install = function install(tmp_dir, image) {
+            var deferred = $.Deferred();
+            var status = '';
+            var promise;
+            var buffer = '';
+            
+
+            var process = cockpit.spawn(["/usr/bin/atomicapp", "-d", "install", "--destination", tmp_dir, image],{ err: "out" });
+
+
+            function check_status(statuss) {
+                if(statuss.status === "ERROR") {
+                    var error = new Error(statuss.status_message);
+                    deferred.reject(error);
+                    window.clearInterval(timer);
+                    process.close();
+                } else if(statuss.status === "PENDING") {
+                    deferred.notify(statuss.status_message);      
+                } else {
+                    deferred.resolve(statuss.status_message);
+                    window.clearInterval(timer);
+                    process.close();
+                }
+            };
+
+
+            var timer = window.setInterval(function() { 
+
+                var req = http.get("/atomicapp-run/api/v" + version + "/status")
                         .done(function(data) {
                             req = null;
 
@@ -54,7 +180,7 @@ define([
                                 response = JSON.parse(data);
                                 status = response.items[response.items.length-1];
                                 console.log("status = " + JSON.stringify(status));
-                                return JSON.stringify(status);
+                                check_status(status);
                             } catch(ex) {
                                 debug("not an api endpoint without JSON data on:");
                                 return "ERROR: not an api endpoint without JSON data on";
@@ -67,45 +193,24 @@ define([
                         });
         };
 
-        self.create_tmp = function create_tmp() {
-            var dfd = $.Deferred();
-            var promise;
-            var process = cockpit.spawn(['/bin/sh', '-s']).input("mktemp -p $XDG_RUNTIME_DIR -d APP_ENTITY.XXXXXX")
-            process.done(function(data){
-                    dfd.resolve(data);
-                })
-                .fail(function(ex){
-                    dfd.reject(ex);
-                });
-            promise = dfd.promise();
-            return promise;
-        };
+                    }, 1000);
 
-
-        self.install = function install(tmp_dir, image) {
-            var deferred = $.Deferred();
-            var status = '';
-            var promise;
-            var buffer = '';
-            var cmd = "/usr/bin/atomicapp -d install --destination " + tmp_dir + " " +image;
-            console.log(cmd);
-            //var process = cockpit.spawn(['/bin/sh', '-s']).input(cmd);
-            var process = cockpit.spawn(["/usr/bin/atomicapp", "-d", "install", "--destination", tmp_dir, image]);
-
-            console.log("installing image: " + image + " in folder "+tmp_dir)
+            console.log("installing image: " + image + " in folder "+tmp_dir);
             deferred.notify(_("Installing Application..."));
 
             process.always(function() {
                     console.log("....always.....");
-                    //window.clearInterval(timer);
+                    window.clearInterval(timer);
+
                 })
                 .stream(function(text) {
                     buffer += text;
-                    console.log("buf = "+buffer);
-                    deferred.notify(buffer);                   
+                    //console.log("buf = "+buffer);
+                    //deferred.notify(buffer);                   
                 })
                 .done(function(output) {
                     console.log("....done.....");
+                    window.clearInterval(timer);
                     deferred.resolve();
                 })
                 .fail(function(ex) {
@@ -127,7 +232,7 @@ define([
             promise = deferred.promise();
             promise.cancel = function cancel() {
                 console.log("....cancelled.....");
-                //window.clearInterval(timer);
+                window.clearInterval(timer);
                 process.close("cancelled");
             };
 

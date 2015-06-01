@@ -37,6 +37,8 @@ define([
     /* The Nulecule client: valid while dialog is open */
     var nulecule_client;
 
+    var run_stage = false;
+
     function deploy_app() {
         var promise = validate()
             .fail(function(exs) {
@@ -87,12 +89,54 @@ define([
                 $("#deploy-app-dialog").dialog("failure", exs);
             })
             .done(function(fields) {
-                console.log("validated");
-                promise = nulecule_client.install(fields.nulecule_image)
-                    .done(function() {
-                        /* code gets run when everything is created */
-                        //$('#deploy-app-dialog').modal('hide');
-                        console.log("done");
+                var promise1 = nulecule_client.create_tmp().done(function(tmp){
+                        console.log(tmp +" created");
+                        var promise2 = nulecule_client.install(tmp, fields.nulecule_image).done(function(data) {
+                                /* code gets run when everything is created */
+                                //$('#deploy-app-dialog').modal('hide');
+                                console.log(">"+String(data));
+                                var promise3 = nulecule_client.get_statuslist().done(function(data){
+
+                                    console.log("data..." +String(data))
+                                    var aa = nulecule_client.loadAnswersfile(data.items);
+                                    console.log(aa)
+
+                                    var ans_KV = nulecule_client.convertAnswersfile(aa);
+                                    console.log(ans_KV)
+
+                                    var template = $('#deploy-app-appentity-template').html();
+                                    Mustache.parse(template);
+                                    var text = Mustache.render(template, $.extend({
+                                        "apps": ans_KV
+                                    }));
+                                    $('.cockpit-form-table').append(text);
+                                    console.log(text);
+                                    nulecule_client.kill_atomicapp();
+
+                                    run_stage = true;
+
+                                })
+                                .fail(function(ex, response) {
+                                    console.log("get status failed");
+                                    var target;
+                                    var msg;
+
+                                    /* Display the error appropriately in the dialog */
+                                    $("#deploy-app-dialog").dialog("failure", ex);
+                                });
+                            })
+                            .fail(function(ex, response) {
+                                console.log("install failed");
+                                var target;
+                                var msg;
+                                
+                                /* Display the error appropriately in the dialog */
+                                $("#deploy-app-dialog").dialog("failure", ex);
+                            });
+
+
+                        /* Display a spinner while install is happening */
+                        $("#deploy-app-dialog").dialog("wait", promise2);
                     })
                     .fail(function(ex, response) {
                         var target;
@@ -102,11 +146,12 @@ define([
                         $("#deploy-app-dialog").dialog("failure", ex);
                     });
 
-                $("#deploy-app-dialog").dialog("wait", promise);
+                /* Display a spinner while tmp folder is happening */
+                $("#deploy-app-dialog").dialog("wait", promise1);
 
             });
 
-        /* Display a spinner while this is happening */
+        /* Display a spinner while vaidation is happening */
         $("#deploy-app-dialog").dialog("wait", promise);
     }
     /*
@@ -193,8 +238,10 @@ define([
             if (type_selector.val().trim() === _("Kubernetes Manifest")) {
                 deploy_app();
             } else {
-                console.log("deploy_nulecule");
-                deploy_nulecule();
+                if(run_stage)
+                    run_nulecule();
+                else
+                    install_nulecule();
             }
         });
 
@@ -224,6 +271,7 @@ define([
             manifest_file_btn.text(_("Select Manifest File...")).addClass('manifest_file_default');
 
             $("#deploy-app-namespace").val('');
+            $(".appentity").remove();
             nulecule_image.val('');
             type_selector.val( _("Kubernetes Manifest"));
             type_selector.selectpicker('refresh');

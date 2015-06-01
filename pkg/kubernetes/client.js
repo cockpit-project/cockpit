@@ -1065,6 +1065,40 @@ define([
             return kind != "Node" && kind != "Namespace";
         }
 
+        function create_preference(kind) {
+            switch(kind) {
+
+            /*
+             * Namespaces should be created first, as they must
+             * exist before objects in them are created.
+             */
+            case "Namespace":
+                return 0;
+
+            /*
+             * Services should be created before pods (or replication controllers
+             * that make pods. This is because of the environment variables that
+             * pods get when they want to access a service.
+             */
+            case "Service":
+                return 1;
+
+            /*
+             * Create these before replication controllers ... corner case, but
+             * keeps things sane.
+             */
+            case "Pod":
+                return 2;
+
+            default:
+                return 5;
+            }
+        }
+
+        function create_compare(a, b) {
+            return create_preference(a.kind) - create_preference(b.kind);
+        }
+
         /**
          * create:
          * @items: A JSON string, array of kubernetes items, or one kubernetes item.
@@ -1148,6 +1182,9 @@ define([
                     }
                 });
             }
+
+            /* Now sort the array with create preference */
+            items.sort(create_compare);
 
             function step() {
                 var item = items.shift();

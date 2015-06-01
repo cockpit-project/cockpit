@@ -893,6 +893,61 @@ require([
             });
     });
 
+    var create_mixed = [
+        {
+            "kind": "Node", "apiVersion": "v1beta3",
+            "metadata": { "name": "node1", "uid": "f072fb85-f70e-11e4-b829-10c37bdb8410" },
+            "spec": { "test": "test" }
+        }, {
+            "kind": "Service", "apiVersion": "v1beta3",
+            "metadata": { "name": "service2", "uid": "eeeefb85-f70e-11e4-b829-10c37bdb8410" },
+            "spec": { "test2": "test2" }
+        }, {
+            "kind": "ReplicationController", "apiVersion": "v1beta3",
+            "metadata": { "name": "replicooo", "uid": "1111fb85-f70e-11e4-b829-10c37bdb8410" },
+            "spec": { "test": "test" }
+        }, {
+            "kind": "Pod", "apiVersion": "v1beta3",
+            "metadata": { "name": "pod1", "uid": "d072fb85-f70e-11e4-b829-10c37bdb8410" },
+            "spec": { "blah": "blah" }
+        },{
+            "kind": "Service", "apiVersion": "v1beta3",
+            "metadata": { "name": "service1", "uid": "e072fb85-f70e-11e4-b829-10c37bdb8410" },
+            "spec": { "test": "test" }
+        }
+    ];
+
+    asyncTest("create sort", function() {
+        expect(2);
+
+        var client = kubernetes.k8client();
+
+        client.wait(function() {
+            var items = client.select();
+            client.track(items);
+
+            var added = [];
+            var count = 0;
+
+            $(items).on("added", function(ev, item) {
+                added.push(item.kind);
+
+                count += 1;
+                if (count == 4) {
+                    deepEqual(added, [ "Namespace", "Service", "Service", "Pod" ], "added right order");
+                } else if (count == 6) {
+                    client.close();
+                    start();
+                }
+            });
+
+            client.create(create_mixed, "namespace1")
+                .always(function() {
+                    equal(this.state(), "resolved", "succeeded");
+                });
+        });
+    });
+
     QUnit.module("large", {
         setup: function() {
             kube_data = $.extend(true, { }, mock_basic, mock_large);

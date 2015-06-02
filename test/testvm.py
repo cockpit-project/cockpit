@@ -95,9 +95,9 @@ class Machine:
         self.init_image = None
         self.install_packages_script = None
         self.target_install_script = None
-        if "atomic" in self.os
+        if "atomic" in self.os:
             self.init_path = os.path.join(self.test_data, "%s-%s_cloud-init" % (self.os, self.arch))
-            self.init_image = os.path.join(self.init_path, "%s.iso" % (self.os))
+            self.init_image = os.path.join(self.init_path, "cloud-init.iso")
             self.install_packages_script = os.path.join(self.test_dir, "guest/atomic_install_packages.py")
             self.target_install_script = "~/install_packages.py"
         self.address = address
@@ -944,6 +944,11 @@ class QemuMachine(Machine):
             mac = self.macaddr_prefix + ":" + mac
         self._monitor_qemu("device_add e1000,vlan=%s,mac=%s" % (vlan,mac));
         return mac
+
+    def needs_writable_usr(self):
+        # On atomic systems, we need a hack to change files in /usr/lib/systemd
+        if "atomic" in self.os:
+            self.execute(command="mount -o remount,rw /usr")
 
 TestMachine = QemuMachine
 

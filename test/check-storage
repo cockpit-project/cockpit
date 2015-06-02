@@ -23,9 +23,7 @@ from testlib import *
 class TestStorage(MachineCase):
     def setUp(self):
         MachineCase.setUp(self)
-        # On atomic systems, we need a hack to change files in /usr/lib/udev
-        if 'atomic' in self.machine.os:
-            self.machine.execute(command="mount -o remount,rw /usr")
+        self.machine.needs_writable_usr()
         # Install a udev rule to work around the fact that serials from
         # VirtIO devices don't seem to appear early enough for udev to
         # pick them up reliably.  We just wait a bit.

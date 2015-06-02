@@ -26,9 +26,7 @@ class TestJournal(MachineCase):
         b = self.browser
         m = self.machine
 
-        # On atomic systems, we need a hack to change files in /usr/lib/systemd
-        if 'atomic' in m.os:
-            m.execute(command="mount -o remount,rw /usr")
+        m.needs_writable_usr()
 
         def inject_extras():
             b.eval_js("""

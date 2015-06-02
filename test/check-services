@@ -25,9 +25,7 @@ class TestServices(MachineCase):
         m = self.machine
         b = self.browser
 
-        # On atomic systems, we need a hack to change files in /usr/lib/systemd
-        if 'atomic' in m.os:
-            m.execute(command="mount -o remount,rw /usr")
+        m.needs_writable_usr()
         m.write("/usr/lib/systemd/system/test.service",
 """
 [Unit]

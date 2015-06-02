@@ -1,0 +1,52 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+from testlib import *
+from storagelib import *
+
+class TestStorage(StorageCase):
+    def testJobs(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage/devices")
+        b.wait_in_text("#drives", "VirtIO")
+
+        # Add a slow disk and format it
+        m.add_disk("10M", serial="SLOW", speed=800)
+        b.wait_in_text("#drives", "SLOW")
+
+        b.click('tr:contains("SLOW")')
+        b.wait_visible("#storage-detail")
+
+        # Format it
+        self.content_default_action(1, "Format")
+        self.dialog({ "erase": "zero",
+                      "type": "ext4",
+                      "name": "FILESYSTEM",
+                      "mounting": "custom",
+                      "mount_point": "/run/foo" })
+
+        with b.wait_timeout(120):
+            b.wait_in_text("#jobs", "Erasing")
+            b.wait_not_in_text("#jobs", "Erasing")
+            b.wait_in_text("#content", "FILESYSTEM")
+
+test_main()

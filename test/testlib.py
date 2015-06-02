@@ -222,6 +222,9 @@ class Browser:
     def wait_js_func(self, func, *args):
         return self.phantom.wait("%s(%s)" % (func, ','.join(map(jsquote, args))), timeout=self.phantom_wait_timeout)
 
+    def is_present(self, selector):
+        return self.call_js_func('ph_is_present', selector)
+
     def wait_present(self, selector):
         return self.wait_js_func('ph_is_present', selector)
 

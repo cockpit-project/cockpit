@@ -973,7 +973,7 @@ class QemuMachine(Machine):
             os.unlink(disk["path"])
         if "socket" in disk and disk["socket"] and os.path.exists(disk["socket"]):
             os.unlink(disk["socket"])
-        if "proc" in disk and disk["proc"] and disk["proc"].poll() is not None:
+        if "proc" in disk and disk["proc"] and disk["proc"].poll() == None:
             disk["proc"].terminate()
 
     def add_netiface(self, mac, vlan=0):

@@ -1534,7 +1534,7 @@ define([
             var body = JSON.stringify(query);
 
             /* Only one request active at a time for any given body */
-            if (body in requests)
+            if (!kube || body in requests)
                 return;
 
             var req = kube.request({

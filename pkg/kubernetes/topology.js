@@ -47,6 +47,9 @@ define([
         var links = [];
         var lookup = { };
 
+        /* Kinds of objects to show */
+        var kinds = null;
+
         var force = d3.layout.force()
             .charge(-800)
             .gravity(0.2)
@@ -160,12 +163,17 @@ define([
             var leaves = { "Service": [], "Node": [], "ReplicationController": [] };
 
             var i, len, item, key, leaf, kind, pods, old;
-            var items = all.items;
+            var items = all.items || [];
             for (i = 0, len = items.length; i < len; i++) {
                 item = items[i];
 
                 key = item.metadata.uid;
                 kind = item.kind;
+
+                /* Requesting to only show certain kinds */
+                if (kinds && kinds.indexOf(kind) === -1)
+                    continue;
+
                 leaf = leaves[kind];
 
                 if (leaf) {
@@ -191,7 +199,7 @@ define([
                 nodes.push(item);
             }
 
-            var isnode, isservice;
+            var isnode, isservice, s, t;
             for (kind in leaves) {
                 leaf = leaves[kind];
                 for (i = 0, len = leaf.length; i < len; i++) {
@@ -203,16 +211,16 @@ define([
                     else
                         pods = client.select("Pod", item.metadata.namespace, item.spec.selector || { });
                     for (key in pods) {
+                        s = lookup[item.metadata.uid];
+                        t = lookup[key];
+                        if (s === undefined || t === undefined)
+                            continue;
 
                         /* Don't link pods that aren't running to services */
                         if (isservice && is_weak(pods[key]))
                             continue;
 
-                        links.push({
-                            source: lookup[item.metadata.uid],
-                            target: lookup[key],
-                            kind: kind,
-                        });
+                        links.push({ source: s, target: t, kind: kind, });
                     }
                 }
             }
@@ -244,6 +252,10 @@ define([
 
 
         return {
+            kinds: function(value) {
+                kinds = value;
+                digest();
+            },
             close: function() {
                 $(window).off('resize', resized);
                 client.track(all, false);
@@ -259,13 +271,17 @@ define([
                 controller: 'TopologyCtrl'
             });
         }])
+
         .controller('TopologyCtrl', [
                 '$scope',
                 'kubernetesClient',
                 function($scope, client) {
             $scope.client = client;
             $scope.selected = null;
+
+            $scope.kinds = [ "Service", "Pod", "ReplicationController", "Node" ];
         }])
+
         .directive('kubeTopology', [
             'kubernetesClient',
             function(client) {
@@ -278,11 +294,57 @@ define([
                         }
 
                         var graph = topology_graph(element[0], client, notify);
+                        graph.kinds($scope.kinds);
+
+                        $scope.$watchCollection("kinds", function(value) {
+                            graph.kinds(value);
+                        });
+
                         element.on("$destroy", function() {
                             graph.close();
                         });
                     }
                 };
             }
-        ]);
+        ])
+
+        .directive('kubeTopologyKind',
+            function() {
+                return {
+                    restrict: 'E',
+                    link: function($scope, element, attrs) {
+                        var kind = attrs.kind;
+
+                        var svg = d3.select(element[0]).append("svg")
+                            .attr("width", "32")
+                            .attr("height", "32")
+                            .attr("class", "kube-topology");
+
+                        var g = svg.append("g")
+                            .attr("class", kind)
+                            .attr("transform", "translate(16, 16)");
+
+                        g.append("circle").attr("r", "15");
+
+                        /* HACK around broken font, will be fixed when we use real icons */
+                        var offset = kind == "ReplicationController" ? "7.5": "6";
+                        g.append("text").attr("y", offset).text(icons[kind]);
+
+                        $scope.$watchCollection("kinds", function() {
+                            var have = $scope.kinds.indexOf(kind) !== -1;
+                            svg.classed("active", have);
+                        });
+
+                        svg.on("click", function() {
+                            var pos = $scope.kinds.indexOf(kind);
+                            if (pos === -1)
+                                $scope.kinds.push(kind);
+                            else
+                                $scope.kinds.splice(pos, 1);
+                            $scope.$parent.$digest();
+                        });
+                    }
+                };
+            }
+        );
 });

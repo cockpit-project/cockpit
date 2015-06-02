@@ -265,7 +265,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             <div class="col-sm-6 kube-more">
               <dl>
                 <dt class="header full" ng-if="container.spec.env.length">Environment</dt>
-                <dd class="kube-id full" ng-repeat="env in container.spec.env">{{env.name}}={{env.value}}</dd>
+                <dd class="kube-id full" revealable-text ng-repeat="env in container.spec.env">{{env.name}}=<span ng-class="{masked: should_mask(env.name)}">{{env.value}}</span></dd>
               </dl>
             </div>
           </div>

@@ -26,6 +26,7 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/node.js \
 	pkg/kubernetes/object-describer.js \
 	pkg/kubernetes/deploy.js \
+	pkg/kubernetes/revealable.css \
 	pkg/kubernetes/topology.css \
 	pkg/kubernetes/topology.js \
 	pkg/kubernetes/topology-graph.css \

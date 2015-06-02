@@ -256,42 +256,22 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             <div class="sidebar-help" ng-if="!selected">
                 <p translatable="yes">Select an object to see more details.</p>
 
-                <svg class="kube-topology" width="32" height="32">
-                    <g class="Pod" transform="translate(16, 16)">
-                        <circle r="15"></circle>
-                        <text y="6">&#xf1b3;</text>
-                    </g>
-                </svg>
+                <kube-topology-kind kind="Pod"></kube-topology-kind>
                 <h3 translatable="yes">Pod</h3>
                 <p translatable="yes">Pods contain one or more containers that run
                     together on a node, containing your application code.</p>
 
-                <svg class="kube-topology" width="32" height="32">
-                    <g class="Service" transform="translate(16, 16)">
-                        <circle r="15"></circle>
-                        <text y="6">&#xf0ec;</text>
-                    </g>
-                </svg>
+                <kube-topology-kind kind="Service"></kube-topology-kind>
                 <h3 translatable="yes">Service</h3>
                 <p translatable="yes">Services group pods and provide a common DNS
                     name and an optional, load-balanced IP address to access them.</p>
 
-                <svg class="kube-topology" width="32" height="32">
-                    <g class="ReplicationController" transform="translate(16, 16)">
-                        <circle r="15"></circle>
-                        <text y="6">&#xf1b8;</text>
-                    </g>
-                </svg>
+                <kube-topology-kind kind="ReplicationController"></kube-topology-kind>
                 <h3 translatable="yes">Replication Controller</h3>
                 <p translatable="yes">Replication controllers dynamically create instances of
                     pods from templates, and remove pods when necessary.</p>
 
-                <svg class="kube-topology" width="32" height="32">
-                    <g class="Node" transform="translate(16, 16)">
-                        <circle r="15"></circle>
-                        <text y="5">&#xf1c0;</text>
-                    </g>
-                </svg>
+                <kube-topology-kind kind="Node"></kube-topology-kind>
                 <h3 translatable="yes">Node</h3>
                 <p translatable="yes">Nodes are the machines that run your containers.</p>
             </div>

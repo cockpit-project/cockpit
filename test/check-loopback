@@ -20,7 +20,10 @@
 
 from testlib import *
 import time
+import os
+import unittest
 
+@unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "unnecessary on atomic, container is started this way")
 class TestLoopback(MachineCase):
     def testBasic(self):
         b = self.browser

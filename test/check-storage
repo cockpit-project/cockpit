@@ -19,11 +19,13 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 from testlib import *
-import time
 
 class TestStorage(MachineCase):
     def setUp(self):
         MachineCase.setUp(self)
+        # On atomic systems, we need a hack to change files in /usr/lib/udev
+        if 'atomic' in self.machine.os:
+            self.machine.execute(command="mount -o remount,rw /usr")
         # Install a udev rule to work around the fact that serials from
         # VirtIO devices don't seem to appear early enough for udev to
         # pick them up reliably.  We just wait a bit.
@@ -113,14 +115,15 @@ class TestStorage(MachineCase):
         b.set_val("#format-type", "ext4")
         b.set_val("#format-name", "FILESYSTEM")
         b.set_val("#format-mounting", "custom")
-        b.set_val("#format-mount-point", "/foo")
+        mount_point_foo = "/run/foo"
+        b.set_val("#format-mount-point", mount_point_foo)
         b.click("#format-format")
         b.wait_popdown("storage_format_dialog")
         b.wait_in_text("#storage_detail_partition_list", "FILESYSTEM")
-        path = b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/foo")
+        path = b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", mount_point_foo)
 
         self.content_default_action(1, "Mount");
-        b.wait_in_text("#storage_detail_partition_list", "mounted on /foo")
+        b.wait_in_text("#storage_detail_partition_list", "mounted on %s" % (mount_point_foo))
 
         self.content_default_action(1, "Unmount");
         b.wait_in_text("#storage_detail_partition_list", "not mounted")
@@ -128,14 +131,15 @@ class TestStorage(MachineCase):
         self.content_action(1, "Filesystem Options");
         b.wait_popup("filesystem_options_dialog")
         b.wait_val("#fsysopts-name", "FILESYSTEM")
-        b.wait_val("#fsysopts-mount-point", "/foo")
-        b.set_val("#fsysopts-mount-point", "/bar");
+        b.wait_val("#fsysopts-mount-point", mount_point_foo)
+        mount_point_bar = "/run/bar"
+        b.set_val("#fsysopts-mount-point", mount_point_bar);
         b.click("#fsysopts-apply")
         b.wait_popdown("filesystem_options_dialog")
-        b.wait_dbus_object_prop(path, "com.redhat.Cockpit.Storage.Block", "MountPoint", "/bar")
+        b.wait_dbus_object_prop(path, "com.redhat.Cockpit.Storage.Block", "MountPoint", mount_point_bar)
 
         self.content_default_action(1, "Mount");
-        b.wait_in_text("#storage_detail_partition_list", "mounted on /bar")
+        b.wait_in_text("#storage_detail_partition_list", "mounted on %s" % (mount_point_bar))
 
         # Go to overview page and check that the filesystem usage is
         # displayed correctly.
@@ -151,14 +155,14 @@ class TestStorage(MachineCase):
             })""", sel, low, high)
 
         b.go("storage")
-        b.wait_in_text("#storage_mounts", "/bar")
-        wait_ratio_in_range('#storage_mounts tr:contains("/bar") td:nth-child(4)', 0.0, 0.1)
-        m.execute("dd if=/dev/zero of=/bar/zero bs=1M count=30 status=none")
-        wait_ratio_in_range('#storage_mounts tr:contains("/bar") td:nth-child(4)', 0.5, 1.0)
-        m.execute("rm /bar/zero")
-        wait_ratio_in_range('#storage_mounts tr:contains("/bar") td:nth-child(4)', 0.0, 0.1)
-        m.execute("umount /bar")
-        b.wait_not_in_text("#storage_mounts", "/bar")
+        b.wait_in_text("#storage_mounts", mount_point_bar)
+        wait_ratio_in_range('#storage_mounts tr:contains("%s") td:nth-child(4)' % (mount_point_bar), 0.0, 0.1)
+        m.execute("dd if=/dev/zero of=%s/zero bs=1M count=30 status=none" % (mount_point_bar))
+        wait_ratio_in_range('#storage_mounts tr:contains("%s") td:nth-child(4)' % (mount_point_bar), 0.5, 1.0)
+        m.execute("rm %s/zero" % (mount_point_bar))
+        wait_ratio_in_range('#storage_mounts tr:contains("%s") td:nth-child(4)' % (mount_point_bar), 0.0, 0.1)
+        m.execute("umount %s" % (mount_point_bar))
+        b.wait_not_in_text("#storage_mounts", mount_point_bar)
         b.click('#storage_mounts tr:contains("FILESYSTEM")')
         b.enter_page("storage-detail")
         b.wait_text("#disk_detail_serial_number", "MYDISK")
@@ -289,7 +293,8 @@ class TestStorage(MachineCase):
         b.set_val("#format-passphrase-2", "maisa-artu-keke-tellu")
         b.set_checked("#format-store-passphrase", True)
         b.set_val("#format-mounting", "custom")
-        b.set_val("#format-mount-point", "/secret")
+        mount_point_secret = "/run/secret"
+        b.set_val("#format-mount-point", mount_point_secret)
         b.click("#format-format")
         b.wait_popdown("storage_format_dialog")
         with b.wait_timeout(20):
@@ -297,9 +302,9 @@ class TestStorage(MachineCase):
             b.wait_in_text("#storage_detail_partition_list", "unlocked")
             b.wait_in_text("#storage_detail_partition_list", "ENCRYPTED")
 
-        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/secret")
+        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", mount_point_secret)
         assert m.execute("grep 'UUID=' /etc/crypttab") != ""
-        assert m.execute("grep /secret /etc/fstab") != ""
+        assert m.execute("grep %s /etc/fstab" % (mount_point_secret)) != ""
         assert m.execute("cat /etc/luks-keys/*") == "maisa-artu-keke-tellu"
 
         # Lock it
@@ -338,7 +343,7 @@ class TestStorage(MachineCase):
         b.wait_not_in_text("#storage_detail_partition_list", "ENCRYPTED")
 
         assert m.execute("cat /etc/crypttab") == ""
-        assert m.execute("grep /secret /etc/fstab || true") == ""
+        assert m.execute("grep %s /etc/fstab || true" % (mount_point_secret)) == ""
 
     def select_disk(self, container, name):
         self.browser.set_checked('#%s .checkbox:contains("%s") input' % (container, name), True)
@@ -538,7 +543,7 @@ class TestStorage(MachineCase):
         b.set_val("#format-type", "ext4")
         b.set_val("#format-name", "FILESYSTEM");
         b.set_val("#format-mounting", "custom")
-        b.set_val("#format-mount-point", "/foo");
+        b.set_val("#format-mount-point", "/run/foo");
         b.click("#format-format")
         b.wait_popdown("storage_format_dialog")
 
@@ -661,13 +666,14 @@ class TestStorage(MachineCase):
         b.wait_popup('storage_format_dialog')
         b.set_val('#format-type', "ext4")
         b.set_val("#format-mounting", "custom")
-        b.set_val('#format-mount-point', "/one");
+        mount_point_one = "/run/one"
+        b.set_val('#format-mount-point', mount_point_one);
         b.click('#format-format')
         b.wait_popdown('storage_format_dialog')
         b.wait_in_text("#storage_detail_content", "(ext4 File System)")
-        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/one")
+        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", mount_point_one)
         self.content_default_action(1, "Mount")
-        b.wait_in_text("#storage_detail_content", "mounted on /one")
+        b.wait_in_text("#storage_detail_content", "mounted on %s" % (mount_point_one))
 
         # unmount it
         self.content_default_action(1, "Unmount")
@@ -677,7 +683,7 @@ class TestStorage(MachineCase):
         self.content_action(1, "Delete")
         self.confirm()
         b.wait_not_in_text("#storage_detail_content", "Logical Volume \"one\"")
-        self.assertEqual(m.execute("grep /one /etc/fstab || true"), "")
+        self.assertEqual(m.execute("grep %s /etc/fstab || true" % (mount_point_one)), "")
 
         # remove disk
         m.execute("pvmove /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2 || true")
@@ -708,7 +714,8 @@ class TestStorage(MachineCase):
         b.set_val('#format-erase', "zero")
         b.set_val('#format-type', "ext4")
         b.set_val("#format-mounting", "custom")
-        b.set_val('#format-mount-point', "/thin");
+        mount_point_thin = "/run/thin"
+        b.set_val('#format-mount-point', mount_point_thin);
         b.click('#format-format')
         with b.wait_timeout(20):
             b.wait_in_text('#storage_detail_content', "100% full")
@@ -728,13 +735,13 @@ class TestStorage(MachineCase):
         b.wait_popdown('storage_resize_volume_dialog')
         with b.wait_timeout(40):
             b.wait_in_text("#storage_detail_content", "(ext4 File System)")
-        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/thin")
+        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", mount_point_thin)
 
         # remove volume group
         b.click_action_btn('#vg_action_btn', "Delete")
         self.confirm()
         b.enter_page("storage")
-        self.assertEqual(m.execute("grep /thin /etc/fstab || true"), "")
+        self.assertEqual(m.execute("grep %s /etc/fstab || true" % (mount_point_thin)), "")
 
     def testResize(self):
         m = self.machine

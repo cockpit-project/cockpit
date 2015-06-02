@@ -18,10 +18,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+from testlib import *
+import os
 import unittest
 
-from testlib import *
-
+@unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "cockpit-testing dependencies")
 class TestDbus(MachineCase):
     def testBasic(self):
         m = self.machine

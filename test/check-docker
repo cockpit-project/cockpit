@@ -22,6 +22,7 @@ from testlib import *
 import json
 import os
 import sys
+import unittest
 
 class TestDocker(MachineCase):
     def confirm(self):
@@ -258,6 +259,7 @@ CMD ["/bin/sh", "-c", "echo '%s' | tee /dev/fd/2 | nc -l -p %d"]
 
         self.del_container_from_details("PROBE")
 
+    @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "we can't use cockpit on atomic if docker is stopped")
     def testFailure(self):
         b = self.browser
         m = self.machine

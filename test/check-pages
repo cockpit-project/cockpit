@@ -24,7 +24,9 @@ class TestPages(MachineCase):
     def testBasic(self):
         m = self.machine
         b = self.browser
-
+        # On atomic systems, we need a hack to change files in /usr/lib/systemd
+        if 'atomic' in m.os:
+            m.execute(command="mount -o remount,rw /usr")
         m.write("/usr/lib/systemd/system/test.service",
 """
 [Unit]
@@ -49,7 +51,6 @@ WantedBy=default.target
         b.enter_page("/system/init")
         b.wait_text("#service-unit .panel-heading", "Test Service")
 
-        # check that the login dance preserves parameters
         m.execute("systemctl restart cockpit-testing.service")
         b.relogin("/system/init")
         b.wait_text("#service-unit .panel-heading", "Test Service")
@@ -69,6 +70,7 @@ WantedBy=default.target
 
         self.login_and_go(None)
         b.go("/@localhost/playground/test")
+
         b.enter_page("/playground/test")
 
         b.wait_present('#file-content')
@@ -82,6 +84,7 @@ WantedBy=default.target
         b.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
 
         b.enter_page("/playground/test")
+
         b.wait_present('#file-content')
         b.wait_text('#file-content', "1")
 

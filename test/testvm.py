@@ -116,6 +116,10 @@ local-hostname: %(os)s.cockpit.lan
             meta_data.close()
         with open("%s.pub" % (self._calc_identity()), 'r') as key_file:
             key = key_file.read().strip()
+        with open(os.path.join(self.test_dir, "host_key"), 'r') as key_file:
+            host_key = key_file.read().strip()
+        with open(os.path.join(self.test_dir, "host_key.pub"), 'r') as key_file:
+            host_key_public = key_file.read().strip()
         with open(user_name, "w") as user_data:
             user_data.write("""#cloud-config
 users:
@@ -136,9 +140,17 @@ chpasswd:
     %(user)s:%(pass)s
     admin:%(pass)s
   expire: False
+ssh_keys:
+  rsa_private: |
+    %(host_key_private)s
+
+  rsa_public: %(host_key_public)s
+
 """ %       {'user': self.vm_username,
              'pass': self.vm_password,
-             'key': key
+             'key': key,
+             'host_key_private': host_key.replace('\n', '\n    '),
+             'host_key_public': host_key_public
             })
             user_data.close()
         cmd = ["genisoimage",
@@ -150,8 +162,11 @@ chpasswd:
                user_name,
                meta_name
               ]
-        with self.verbose or stdchannel_redirected(sys.stderr, os.devnull):
+        if self.verbose:
             subprocess.check_call(cmd)
+        else:
+            with stdchannel_redirected(sys.stderr, os.devnull):
+                subprocess.check_call(cmd)
 
     def getconf(self, key):
         return key in self.conf and self.conf[key]
@@ -248,7 +263,7 @@ chpasswd:
                 "TEST_SETUP_ARGS": " ".join(args),
             }
             self.message("run setup script on guest")
-            self.execute(script="/var/tmp/SETUP", environment=env, quiet=True)
+            self.execute(script="/var/tmp/SETUP", environment=env, quiet=not self.verbose)
             self.execute(command="rm /var/tmp/SETUP")
             self.post_setup()
         finally:
@@ -402,8 +417,11 @@ chpasswd:
 
         self.message("Uploading", " ,".join(sources))
         self.message(" ".join(cmd))
-        with self.verbose or stdchannel_redirected(sys.stderr, os.devnull):
+        if self.verbose:
             subprocess.check_call(cmd)
+        else:
+            with stdchannel_redirected(sys.stderr, os.devnull):
+                subprocess.check_call(cmd)
 
     def download(self, source, dest):
         """Download a file from the test machine.
@@ -520,7 +538,18 @@ class QemuMachine(Machine):
         Machine.__init__(self, **args)
         self.run_dir = os.path.join(self.test_dir, "run")
         self._image_image = os.path.join(self.run_dir, "%s.qcow2" % (self.image))
-        self._image_original = os.path.join(self.test_data, "images/%s.qcow2" % (self.image))
+
+        self._image_additional_iso = os.path.join(self.run_dir, "%s.iso" % (self.image))
+
+        self._images_dir = os.path.join(self.test_data, "images")
+        self._image_original = os.path.join(self._images_dir, "%s.qcow2" % (self.image))
+        self._iso_original = os.path.join(self._images_dir, "%s.iso" % (self.image))
+        if not os.path.exists(self._images_dir):
+            os.makedirs(self._images_dir, 0750)
+        self._image_prepared = os.path.join(self._images_dir, "%s.qcow2" % (self.image))
+        self._image_prepared_checksum = os.path.join(self._images_dir, "%s-checksum" % (self.image))
+        self._image_iso_checksum = os.path.join(self._images_dir, "%s_iso-checksum" % (self.image))
+
         self._process = None
         self._monitor = None
         self._disks = { }
@@ -619,6 +648,12 @@ class QemuMachine(Machine):
         bootstrap_script = "./%s.bootstrap" % (self.os, )
         image_file = os.path.join(self.test_data, "%s.qcow2" % (image, ))
         tarball = os.path.join(self.test_data, "%s.tar.gz" % (image, ))
+
+        # this image will be created on top of the new base image
+        if os.path.exists(self._image_image):
+            os.unlink(self._image_image)
+        if os.path.exists(self._image_additional_iso):
+            os.unlink(self._image_additional_iso)
 
         if os.path.isfile(bootstrap_script):
             subprocess.check_call([ bootstrap_script, self._image_image, self.arch ])
@@ -735,6 +770,9 @@ class QemuMachine(Machine):
                                     "-f", "qcow2",
                                     "-o", "backing_file=%s" % self._image_original,
                                     self._image_image ])
+
+            if os.path.exists(self._iso_original) and not os.path.exists(self._image_additional_iso):
+                shutil.copy(self._iso_original, self._image_additional_iso)
 
         if not self._lock_resource(self._image_image, exclusive=maintain):
             raise Failure("Already running this image: %s" % self.image)

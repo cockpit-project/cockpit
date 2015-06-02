@@ -25,6 +25,7 @@ import sys
 class AtomicCockpitInstaller:
     root_home = "/root"
     packages_force_install = ["cockpit-test-assets"]
+    #packages_force_install = [ ]
 
     def __init__(self, rpms=None, verbose=False):
         self.verbose = verbose

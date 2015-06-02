@@ -34,7 +34,10 @@ define([
 
             angular.extend($scope, {
                 client: client,
-                selection: list
+                selection: list,
+                should_mask: function(name) {
+                    return name.toLowerCase().indexOf("password") !== -1;
+                }
             });
 
             /*

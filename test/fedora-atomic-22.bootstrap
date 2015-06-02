@@ -1,0 +1,90 @@
+#! /bin/bash
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+set -e
+
+out=$1
+arch=$2
+
+# download the newest base image
+base="http://download.fedoraproject.org/pub/fedora/linux/releases/22/Cloud/$arch/Images"
+pattern="Fedora-Cloud-Atomic-22-[0-9\.]+.$arch.qcow2"
+
+newest=`wget -q -O- $base | egrep -o $pattern | sort -V | tail -1`
+
+# we link to the file so wget can properly detect if we have already downloaded it
+# note that due to mirroring, timestamp comparison can result in unnecessary downloading
+out_base=`dirname $out`
+intermediate="$out_base/$newest"
+wget --no-clobber --directory-prefix=$out_base $base/$newest
+
+if [ "$intermediate" != "$out" ]; then
+    ln -sf $newest $out
+fi
+
+# create the cloud-init iso
+init_dir="${out%.*}_cloud-init"
+meta_data="$init_dir/meta-data"
+user_data="$init_dir/user-data"
+iso_image="$init_dir/cloud-init.iso"
+
+vm_user="root"
+vm_pass="foobar"
+key_pub=`cat identity.pub`
+host_key=`cat host_key`
+host_key_pub=`cat host_key.pub`
+
+mkdir -p $init_dir
+
+cat >$meta_data <<EOF
+instance-id: id-fedora-atomic-22-01
+local-hostname: fedora-atomic-22.cockpit.lan
+EOF
+
+
+cat >$user_data <<EOF
+#cloud-config
+users:
+  - default
+  - name: ${vm_user}
+    groups: users,wheel
+    ssh_authorized_keys:
+      - ${key_pub}
+  - name: admin
+    gecos: Administrator
+    groups: users,wheel
+    ssh_authorized_keys:
+      - ${key_pub}
+ssh_pwauth: True
+chpasswd:
+  list: |
+    fedora:${vm_pass}
+    ${vm_user}:${vm_pass}
+    admin:${vm_pass}
+  expire: False
+ssh_keys:
+  rsa_private: |
+    ${host_key}
+
+  rsa_public: ${host_key_pub}
+EOF
+
+genisoimage -input-charset utf-8 -output $iso_image -volid cidata -joliet -rock $user_data $meta_data
+

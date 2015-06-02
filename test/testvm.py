@@ -95,78 +95,14 @@ class Machine:
         self.init_image = None
         self.install_packages_script = None
         self.target_install_script = None
-        if self.os == "fedora-atomic-22":
-            self.init_path = os.path.join(self.test_data, "%s-init" % (self.os))
-            if not os.path.exists(self.init_path):
-                os.makedirs(self.init_path, 0750)
+        if "atomic" in self.os
+            self.init_path = os.path.join(self.test_data, "%s-%s_cloud-init" % (self.os, self.arch))
             self.init_image = os.path.join(self.init_path, "%s.iso" % (self.os))
             self.install_packages_script = os.path.join(self.test_dir, "guest/atomic_install_packages.py")
-            self.target_install_script = "/%s/install_packages.py" % (self.vm_username)
+            self.target_install_script = "~/install_packages.py"
         self.address = address
         self.mac = None
         self.label = label or "UNKNOWN"
-
-    def generate_init_image(self):
-        meta_name = os.path.join(self.init_path, "meta-data")
-        user_name = os.path.join(self.init_path, "user-data")
-        with open(meta_name, "w") as meta_data:
-            meta_data.write("""instance-id: id-%(os)s-01
-local-hostname: %(os)s.cockpit.lan
-""" % { 'os': self.os })
-            meta_data.close()
-        with open("%s.pub" % (self._calc_identity()), 'r') as key_file:
-            key = key_file.read().strip()
-        with open(os.path.join(self.test_dir, "host_key"), 'r') as key_file:
-            host_key = key_file.read().strip()
-        with open(os.path.join(self.test_dir, "host_key.pub"), 'r') as key_file:
-            host_key_public = key_file.read().strip()
-        with open(user_name, "w") as user_data:
-            user_data.write("""#cloud-config
-users:
-  - default
-  - name: %(user)s
-    groups: users,wheel
-    ssh_authorized_keys:
-      - %(key)s
-  - name: admin
-    gecos: Administrator
-    groups: users,wheel
-    ssh_authorized_keys:
-      - %(key)s
-ssh_pwauth: True
-chpasswd:
-  list: |
-    fedora:%(pass)s
-    %(user)s:%(pass)s
-    admin:%(pass)s
-  expire: False
-ssh_keys:
-  rsa_private: |
-    %(host_key_private)s
-
-  rsa_public: %(host_key_public)s
-
-""" %       {'user': self.vm_username,
-             'pass': self.vm_password,
-             'key': key,
-             'host_key_private': host_key.replace('\n', '\n    '),
-             'host_key_public': host_key_public
-            })
-            user_data.close()
-        cmd = ["genisoimage",
-               "-input-charset", "utf-8",
-               "-output", "%s" % (self.init_image),
-               "-volid", "cidata",
-               "-joliet",
-               "-rock",
-               user_name,
-               meta_name
-              ]
-        if self.verbose:
-            subprocess.check_call(cmd)
-        else:
-            with stdchannel_redirected(sys.stderr, os.devnull):
-                subprocess.check_call(cmd)
 
     def getconf(self, key):
         return key in self.conf and self.conf[key]
@@ -711,8 +647,6 @@ class QemuMachine(Machine):
             else:
                 raise Failure("Unsupported OS %s" % self.os)
 
-        if "atomic" in self.os:
-            self.generate_init_image()
         script = "%s-%s.setup" % (self.flavor, self.os)
         if not os.path.exists(script):
             script_alternative = "%s-%s-setup.sh" % (self.flavor, self.os)

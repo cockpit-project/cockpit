@@ -131,6 +131,28 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   </div>
   </script>
 
+<!-- App Entity Params -->
+
+  <script id="deploy-app-appentity-template" type="x-template/mustache">
+    {{#apps}}
+      <tr class="appentity">
+        <td >
+          <label class="app-name" for="{{app_name}}-label" translatable="yes">{{app_name}}</label>
+        </td>
+      </tr>
+    {{#app_params}}
+      <tr class="appentity">
+        <td class="top">
+          <label class="control-label" for="{{app_name}}-{{param_key}}-label" translatable="yes">{{param_key}}</label>
+        </td>
+        <td>
+          <input id="{{app_name}}-{{param_key}}-text" class="form-control" type="text" value={{param_value}}></input>
+        </td>
+      </tr>
+    {{/app_params}}
+    {{/apps}}
+  </script>
+
   <!-- Container details page -->
 
   <script type="text/ng-template" id="details.html">

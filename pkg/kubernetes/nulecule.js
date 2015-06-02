@@ -46,52 +46,40 @@ define([
         var version = '0.1.1';
         var status = "";
         var answers = {};
+        var install_dir = "";
 
         self.create_tmp = function create_tmp() {
-            var process = cockpit.spawn(['/bin/sh', '-s']).input("mktemp -p $XDG_RUNTIME_DIR -d APP_ENTITY.XXXXXX");
+            var process = cockpit.spawn(['/bin/sh', '-s']).input("mktemp -p /tmp -d APP_ENTITY.XXXX");
             return process;
+        };
+
+        self.writeAnswerfile = function writeAnswerfile(install_dir, data) {
+            return cockpit.file(install_dir + "/answers.conf").replace(JSON.stringify(data));
         };
 
         self.get_version = function get_version() {
             return version;
         };
 
+        self.get_answers = function get_answers() {
+            return answers;
+        };
+
+        self.set_answers = function set_answers(ans) {
+            answers = ans;
+        };
+
+        self.get_install_dir = function get_install_dir() {
+            return install_dir;
+        };
+
         self.loadAnswersfile = function loadAnswersfile(statusl) {
             statusl.forEach(function(item) {
                 if (item.status_message.indexOf("answers.conf") > -1)
-                    self.answers = item.status_data;
-                    console.log("self.answers " + String(self.answers));
+                    answers = item.status_data;
+                    debug("answer file contents : " + String(answers));
             });
-            return self.answers;
-        };
-
-        self.convertAnswersfile = function convertAnswersfile(ans) {
-            console.log("sconvertAnswersfile")
-            //var answers = JSON.parse(ans);
-            var answers = ans
-            console.log(answers)
-            var applist = [];
-            
-            for(var key in ans) {
-                var tmp = { "app_name" : "", "app_params" : []};
-
-                if (key === "general")
-                    continue;
-                    
-                tmp.app_name = key
-                for(var x in ans[key]) {
-                    var tmpKV = { "key" : "", "value": ""};
-                    tmpKV.key = x;
-                    tmpKV.value = ans[key][x]
-                    console.log(tmpKV)
-                    tmp["app_params"].push(tmpKV)
-                }
-                console.log(tmp)
-                applist.push(tmp)
-
-            }
-            console.log(applist)
-            return applist;
+            return answers;
         };
 
         self.get_statuslist = function get_statuslist() {
@@ -102,13 +90,14 @@ define([
                         req = null;
                         try {
                             response = JSON.parse(data);
-                            console.log("..get_statuslist..resolved")
-                            dfd.resolve(response);
+                            dfd.resolve(response.items);
                         } catch(ex) {
+                            failure(ex);
                             dfd.reject(ex);
                         }
                     })
                     .fail(function(ex) {
+                        failure(ex);
                         req = null;
                         dfd.reject(ex);
                     });
@@ -124,53 +113,60 @@ define([
             var preq = http.post("/atomicapp-run/api/v" + version + "/quit")
                 .done(function(data){
                     preq = null;
-                    console.log(data);
+                    debug(data);
                 })
                 .fail(function(ex) {
                     preq = null;
-                    console.log(ex);
+                    debug(ex);
                 });
         };
 
-
-        self.run = function run(tmp_dir, image) {
-            var deferred = $.Deferred();
-            var status = '';
-            var promise;
-            var buffer = '';
-            
-
-            var process = cockpit.spawn(["/usr/bin/atomicapp", "-d", "run", tmp_dir],{ err: "out" });
+        self.close = function close() {
+            self.kill_atomicapp();
+            return;
         };
 
-        self.install = function install(tmp_dir, image) {
+        self.installrun = function installrun(ptype, tmp_dir, image) {
             var deferred = $.Deferred();
             var status = '';
             var promise;
             var buffer = '';
+            var process ;
             
-
-            var process = cockpit.spawn(["/usr/bin/atomicapp", "-d", "install", "--destination", tmp_dir, image],{ err: "out" });
-
-
+            if(ptype === "install") {
+                process = cockpit.spawn(["/usr/bin/atomicapp", "-d", "install", "--destination", tmp_dir, image],{ err: "out" });
+                debug("installing image: " + image + " in folder " + tmp_dir);
+            } else {
+                process = cockpit.spawn(['/bin/sh', '-s'],{ err: "out" }).input("cd " + tmp_dir + " && /usr/bin/atomicapp -d -v run .");
+                debug("Running from folder " + tmp_dir);
+            }
+            
             function check_status(statuss) {
-                if(statuss.status === "ERROR") {
-                    var error = new Error(statuss.status_message);
+                var error = "";
+                if(statuss && statuss.status === "ERROR") {
+                    error = statuss.status_message;
+                    var msgl =error.split('Exception raised: Error:');
+                    if(msgl.length > 1)
+                        error = msgl[1];
+                    error = new Error(statuss.status_message);
                     deferred.reject(error);
                     window.clearInterval(timer);
-                    process.close();
-                } else if(statuss.status === "PENDING") {
+                    process.close();                    
+                } else if(statuss && statuss.status === "PENDING") {
                     deferred.notify(statuss.status_message);      
-                } else {
+                } else if(statuss && statuss.status === "COMPLETED") {
                     deferred.resolve(statuss.status_message);
                     window.clearInterval(timer);
                     process.close();
+                } else {
+                    error = new Error(_("No Status Message found."));
+                    deferred.reject(error);
+                    window.clearInterval(timer);
+                    process.close();
                 }
-            };
-
+            }
 
             var timer = window.setInterval(function() { 
-
                 var req = http.get("/atomicapp-run/api/v" + version + "/status")
                         .done(function(data) {
                             req = null;
@@ -179,42 +175,32 @@ define([
                             try {
                                 response = JSON.parse(data);
                                 status = response.items[response.items.length-1];
-                                console.log("status = " + JSON.stringify(status));
+                                debug("status response = " + JSON.stringify(status));
                                 check_status(status);
                             } catch(ex) {
+                                failure(ex);
                                 debug("not an api endpoint without JSON data on:");
-                                return "ERROR: not an api endpoint without JSON data on";
                             }
 
                         })
                         .fail(function(ex) {
                             req = null;
-                            return "ERROR: request failed";
                         });
-        };
 
-                    }, 1000);
+                    }, 500);
 
-            console.log("installing image: " + image + " in folder "+tmp_dir);
-            deferred.notify(_("Installing Application..."));
+            
 
             process.always(function() {
-                    console.log("....always.....");
                     window.clearInterval(timer);
-
                 })
                 .stream(function(text) {
-                    buffer += text;
-                    //console.log("buf = "+buffer);
-                    //deferred.notify(buffer);                   
+                    //buffer += text;                 
                 })
                 .done(function(output) {
-                    console.log("....done.....");
-                    window.clearInterval(timer);
                     deferred.resolve();
                 })
                 .fail(function(ex) {
-                    console.log("....fail.....");
                     var message;
                     if (ex.problem === "cancelled") {
                         deferred.reject(ex);
@@ -222,16 +208,37 @@ define([
                     }
 
                     if (!message) {
-                        message = _("Image failed to Install");
+                        message = _("Image failed to " + ptype);
                         console.warn(ex.message);
                     }
                     var error = new Error(message);
-                    deferred.reject(error);
+
+                    //Get the last Error status
+                    self.get_statuslist()
+                        .done(function(data){
+
+                            if(data) {
+                                data = data[data.length-1];
+                                message = data.status_message;
+                                var msgl = message.split('Exception raised: Error:');
+                                if(msgl.length > 1)
+                                    message = msgl[1];
+
+                            }
+                            var err = new Error(message);
+                            deferred.reject(err);
+                        })
+                        .fail(function(data){
+                            var msgg = _("Image failed to " + ptype);
+                            message = msgg;
+                            console.warn(ex.message);
+                            deferred.reject(error);
+                        });
+
                 });
 
             promise = deferred.promise();
             promise.cancel = function cancel() {
-                console.log("....cancelled.....");
                 window.clearInterval(timer);
                 process.close("cancelled");
             };
@@ -241,47 +248,9 @@ define([
     }
 
     
-    /*
-     * Returns a new instance of Constructor for each
-     * key passed into the returned function. Multiple
-     * callers for the same key will get the same instance.
-     *
-     * Overrides .close() on the instances, to close when
-     * all callers have closed.
-     *
-     * Instances must accept zero or one primitive arguments,
-     * and must have zero arguments in their .close() method.
-     */
-     //TODO move it 
-    function singleton(Constructor) {
-        var cached = { };
-
-        return function(key) {
-            var str = key + "";
-
-            var item = cached[str];
-            if (item) {
-                item.refs += 1;
-                return item.obj;
-            }
-
-            item = { refs: 1, obj: new Constructor(key) };
-            var close = item.obj.close;
-            item.obj.close = function close_singleton() {
-                item.refs -= 1;
-                if (item.refs === 0) {
-                    delete cached[str];
-                    if (close)
-                        close.apply(item.obj);
-                }
-            };
-
-            cached[str] = item;
-            return item.obj;
-        };
-    }
-
-    nulecule.nuleculeclient = singleton(NuleculeClient);
+    nulecule.nuleculeclient =  function client() {
+        return new NuleculeClient();
+    };
 
     return nulecule;
 });

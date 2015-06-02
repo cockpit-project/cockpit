@@ -22,15 +22,11 @@ define([
     "base1/cockpit",
     "kubernetes/client",
     "kubernetes/nulecule",
-    "base1/mustache",
-    "base1/patterns"
-], function(jQuery, cockpit, kubernetes, nulecule, Mustache, patterns) {
+    "base1/mustache"
+], function($, cockpit, kubernetes, nulecule, Mustache) {
     "use strict";
 
     var _ = cockpit.gettext;
-
-    /* A jQuery scoped to just the deploy dlg, with the button thrown in */
-    var $ = jQuery.scoped("body", patterns);
 
     /* The kubernetes client: valid while dialog is open */
     var client;
@@ -38,6 +34,9 @@ define([
     var nulecule_client;
 
     var run_stage = false;
+    var answerfile = {};
+    var install_dir = "";
+
 
     function deploy_app() {
         var promise = validate()
@@ -81,55 +80,82 @@ define([
         $("#deploy-app-dialog").dialog("wait", promise);
     }
 
-    function deploy_nulecule() {
-        console.log("deploy_nulecule");
-        var promise = validate()
+
+    function run_nulecule() {
+        $("#deploy-app-dialog").dialog("failure", null);
+        var promise = validate_app_fields()
             .fail(function(exs) {
-                console.log("validated failed");
                 $("#deploy-app-dialog").dialog("failure", exs);
             })
             .done(function(fields) {
-                var promise1 = nulecule_client.create_tmp().done(function(tmp){
-                        console.log(tmp +" created");
-                        var promise2 = nulecule_client.install(tmp, fields.nulecule_image).done(function(data) {
-                                /* code gets run when everything is created */
-                                //$('#deploy-app-dialog').modal('hide');
-                                console.log(">"+String(data));
-                                var promise3 = nulecule_client.get_statuslist().done(function(data){
 
-                                    console.log("data..." +String(data))
-                                    var aa = nulecule_client.loadAnswersfile(data.items);
-                                    console.log(aa)
+                nulecule_client.kill_atomicapp();
+                var promise1 = nulecule_client.writeAnswerfile(install_dir, nulecule_client.get_answers())
+                    .done(function(data){
 
-                                    var ans_KV = nulecule_client.convertAnswersfile(aa);
-                                    console.log(ans_KV)
-
-                                    var template = $('#deploy-app-appentity-template').html();
-                                    Mustache.parse(template);
-                                    var text = Mustache.render(template, $.extend({
-                                        "apps": ans_KV
-                                    }));
-                                    $('.cockpit-form-table').append(text);
-                                    console.log(text);
-                                    nulecule_client.kill_atomicapp();
-
-                                    run_stage = true;
-
-                                })
-                                .fail(function(ex, response) {
-                                    console.log("get status failed");
-                                    var target;
-                                    var msg;
-
-                                    /* Display the error appropriately in the dialog */
-                                    $("#deploy-app-dialog").dialog("failure", ex);
-                                });
+                        var promise2 = nulecule_client.installrun("run", install_dir, "")
+                            .done(function(data) {
+                                $('#deploy-app-dialog').modal('hide');
                             })
-                            .fail(function(ex, response) {
-                                console.log("install failed");
-                                var target;
-                                var msg;
-                                
+                            .fail(function(ex, response) {                        
+                                /* Display the error appropriately in the dialog */
+                                $("#deploy-app-dialog").dialog("failure", ex);
+                            });
+
+                        /* Display a spinner while run is happening */
+                        $("#deploy-app-dialog").dialog("wait", promise2);
+                    })
+                    .fail(function(ex, response) {
+                        /* Display the error appropriately in the dialog */
+                        $("#deploy-app-dialog").dialog("failure", ex);
+                    });
+
+                 $("#deploy-app-dialog").dialog("wait", promise1);
+
+            });
+
+        /* Display a spinner while vaidation is happening */
+        $("#deploy-app-dialog").dialog("wait", promise);
+    }
+
+
+    function install_nulecule() {
+        var promise = validate()
+            .fail(function(exs) {
+                $("#deploy-app-dialog").dialog("failure", exs);
+            })
+            .done(function(fields) {
+
+                var promise1 = nulecule_client.create_tmp()
+                    .done(function(tmp){
+                        nulecule_client.kill_atomicapp();
+                        install_dir = tmp.trim();
+
+                        var promise2 = nulecule_client.installrun("install", install_dir, fields.nulecule_image)
+                            .done(function() {
+
+                                var promise3 = nulecule_client.get_statuslist()
+                                    .done(function(ans_json){
+                                        answerfile = nulecule_client.loadAnswersfile(ans_json);
+
+                                        //Show App Params in the dialog
+                                        var template = $('#deploy-app-appentity-template').html();
+                                        Mustache.parse(template);
+                                        var text = Mustache.render(template, $.extend({
+                                            "apps": convertToKV(answerfile)
+                                        }));
+                                        $('.cockpit-form-table').append(text);
+                                        
+                                        run_stage = true;
+                                        return;
+
+                                    })
+                                    .fail(function(ex, response) {
+                                        /* Display the error appropriately in the dialog */
+                                        $("#deploy-app-dialog").dialog("failure", ex);
+                                    });
+                            })
+                            .fail(function(ex, response) {                               
                                 /* Display the error appropriately in the dialog */
                                 $("#deploy-app-dialog").dialog("failure", ex);
                             });
@@ -139,21 +165,135 @@ define([
                         $("#deploy-app-dialog").dialog("wait", promise2);
                     })
                     .fail(function(ex, response) {
-                        var target;
-                        var msg;
-
                         /* Display the error appropriately in the dialog */
                         $("#deploy-app-dialog").dialog("failure", ex);
                     });
 
-                /* Display a spinner while tmp folder is happening */
-                $("#deploy-app-dialog").dialog("wait", promise1);
+                    /* Display a spinner while tmp folder is happening */
+                    $("#deploy-app-dialog").dialog("wait", promise1);
 
             });
 
         /* Display a spinner while vaidation is happening */
         $("#deploy-app-dialog").dialog("wait", promise);
     }
+
+
+    function validate_app_fields() {
+        var dfd = $.Deferred();
+        var ex, fails = [];
+        var label_input = get_fields(convertToKV(answerfile));
+        var fields = { };
+        var tmp = nulecule_client.get_answers();
+
+        for(var x in label_input) {
+            var li = label_input[x];
+            var input_id = "#" + li.input_val;
+            var label_id = li.label_val;
+            var app_data = get_app_from_label(label_id);
+            var input_value = $(input_id).val();
+
+            tmp[app_data.app_name][app_data.key] = input_value;
+
+            var label_value = $('#deploy-app-dialog').find('label[for="' + label_id + '"]').text().trim();
+            if (!input_value)
+                ex = new Error(label_value + " cannot be empty.");
+
+            if (ex) {
+                ex.target = input_id;
+                fails.push(ex);
+                ex = null;
+            } 
+        }
+
+        var ns = $("#deploy-app-namespace").val();
+        if (!ns)
+            ex = new Error(_("Namespace cannot be empty."));
+        else if (!/^[a-z0-9]+$/i.test(ns))
+            ex = new Error(_("Please provide a valid namespace."));
+        if (ex) {
+            ex.target = "#deploy-app-namespace-group";
+            fails.push(ex);
+            ex = null;
+        } else {
+            tmp.general.namespace = ns;
+        }
+
+        if (fails.length) {
+            dfd.reject(fails);
+        } else { 
+            dfd.resolve();
+        }
+
+        nulecule_client.set_answers(tmp);
+        return dfd.promise();
+    }
+
+
+    function get_fields(applist) {
+        var labels = [];
+        for(var x in applist) {
+            var app = applist[x];
+            var prefix = app.app_name;
+            var lsuffix = "label";
+            var isuffix = "text";
+
+            for(var y in app.app_params) {
+                var param = app.app_params[y];
+                var label = prefix + "-" + param.param_key + "-" + lsuffix;
+                var input = prefix + "-" + param.param_key + "-" + isuffix;
+                var tmp = { "label_val" : label, "input_val" : input };
+                labels.push(tmp);
+            }
+        }
+        return labels;
+    }
+
+
+    /*
+     * Get app_name and KEY from label
+     */
+    function get_app_from_label(label) {
+        var app_name = "";
+        var key = "";
+        key = label.split("-label")[0].split("-");
+        key = key[key.length-1];
+        app_name = label.split("-label")[0].split("-" + key)[0];
+        var tmp = { "app_name" : app_name, "key" : key };
+        return tmp;
+    }
+
+    /*
+     * Convert default ini file to Key-Value format
+     * to be used in creating the form
+     */
+    function convertToKV(ans) {
+        var applist = [];
+            
+        for(var key in ans) {
+            var tmp = { "app_name" : "", "app_params" : []};
+            // Ignore general
+            if (key === "general")
+                continue;
+                    
+            tmp.app_name = key;
+            for(var x in ans[key]) {
+                var tmpKV = { "param_key" : "", "param_value": ""};
+                tmpKV.param_key = x;
+
+                if(ans[key][x])
+                    tmpKV.param_value = ans[key][x];
+                else
+                    tmpKV.param_value = "";
+
+                tmp.app_params.push(tmpKV);
+            }
+            applist.push(tmp);
+
+        }
+        return applist;
+    }
+
     /*
      * Validates the dialog asynchronously and returns a Promise either
      * failing with errors, or returning the clean data.
@@ -210,17 +350,10 @@ define([
             }
 
         } else {
-                //TODO
-                //validate image
                 var nulecule_image = $("#deploy-app-nulecule-image");
                 fields.nulecule_image = nulecule_image.val().trim();
-                console.log(fields.nulecule_image);
                 dfd.resolve(fields);
         }
-        console.log("validate method returns");
-
-
-
         return dfd.promise();
     }
 
@@ -282,11 +415,13 @@ define([
             $('label[for="deploy-app-manifest"]').show();
             client = kubernetes.k8client();
             nulecule_client = nulecule.nuleculeclient();
+
             $(client).on("namespaces", namespaces_changed);
             namespaces_changed();
         });
 
         dlg.on('hide.bs.modal', function() {
+            run_stage = false;
             if (client) {
                 client.close();
                 $(client).off("namespaces", namespaces_changed);

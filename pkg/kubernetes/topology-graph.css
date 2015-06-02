@@ -1,0 +1,59 @@
+kubernetes-topology-graph {
+    display: block;
+}
+
+.kube-topology g {
+    font-family: FontAwesome;
+    font-size: 18px;
+    text-anchor: middle;
+    cursor: pointer;
+}
+
+.kube-topology g.weak text {
+    opacity: .5;
+}
+
+.kube-topology g.Pod text {
+    fill: #e6550d;
+}
+
+.kube-topology g.Node text {
+    fill: #636363;
+}
+
+.kube-topology g.Service text {
+    fill: #31a354;
+}
+
+.kube-topology g.ReplicationController text {
+    fill: #3182bd;
+}
+
+.kube-topology g circle {
+    stroke: #bbb;
+    fill: #fff;
+}
+
+.kube-topology g.fixed circle {
+    stroke: #4d5258;
+}
+
+.kube-topology g.selected circle {
+    stroke-width: 3px;
+    stroke: #4d5258;
+}
+
+.kube-topology line {
+    stroke: #999;
+    stroke-opacity: .6;
+    stroke-width: 1;
+}
+
+.kube-topology line.ReplicationControllerPod {
+    stroke-linecap: round;
+    stroke-dasharray: 1, 3;
+}
+
+.kube-topology line.Node {
+    stroke-opacity: .4;
+}

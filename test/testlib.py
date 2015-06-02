@@ -427,7 +427,7 @@ class MachineCase(unittest.TestCase):
         elif self.machine.address:
             self.check_journal_messages()
 
-    def start_cockpit(self):
+    def start_cockpit(self, atomic_wait_for_host="localhost"):
         """Start Cockpit.
 
         Cockpit is not running when the test virtual machine starts up, to
@@ -442,17 +442,22 @@ class MachineCase(unittest.TestCase):
             RUN_COCKPIT_CONTAINER = """#!/bin/sh
 systemctl start docker
 /usr/bin/docker run -d --privileged --pid=host -v /:/host cockpit/ws /container/atomic-run --local-ssh --no-tls
-until curl -s --connect-timeout 1 http://localhost:9090 >/dev/null; do
+"""
+            if atomic_wait_for_host:
+                WAIT_COCKPIT_RUNNING = """
+until curl -s --connect-timeout 1 http://%s:9090 >/dev/null; do
     sleep 0.5;
 done;
-"""
-            #with Timeout(seconds=20, error_message="Timeout while waiting for cockpit/ws to start"):
-            self.machine.execute(script=RUN_COCKPIT_CONTAINER)
+""" % (atomic_wait_for_host)
+            else:
+                WAIT_COCKPIT_RUNNING = "";
+            with Timeout(seconds=30, error_message="Timeout while waiting for cockpit/ws to start"):
+                self.machine.execute(script=RUN_COCKPIT_CONTAINER + WAIT_COCKPIT_RUNNING)
         else:
             self.machine.execute("systemctl start cockpit-testing.socket")
 
     def login_and_go(self, page, href=None, user=None, host="localhost"):
-        self.start_cockpit()
+        self.start_cockpit(host)
         self.browser.login_and_go(page, href=href, user=user, host=host)
 
     allowed_messages = [

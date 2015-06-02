@@ -19,9 +19,11 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 from testlib import *
-
+import os
 import subprocess
+import unittest
 
+@unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "cockpit-testing dependencies")
 class TestConnection(MachineCase):
     def testBasic(self):
         b = self.browser
@@ -53,7 +55,7 @@ class TestConnection(MachineCase):
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
 
-        # severe the connection on the login page
+        # sever the connection on the login page
         m.execute("iptables -I INPUT 1 -p tcp --dport 9090 -j REJECT")
         b.click('#login-button')
         with b.wait_timeout(20):
@@ -63,8 +65,8 @@ class TestConnection(MachineCase):
         b.expect_reload()
         b.enter_page("server")
 
-        # severe the connection on the server page
-	m.execute("iptables -I INPUT 1 -p tcp --dport 9090 -j REJECT")
+        # sever the connection on the server page
+        m.execute("iptables -I INPUT 1 -p tcp --dport 9090 -j REJECT")
         b.switch_to_top()
         with b.wait_timeout(60):
             b.wait_popup("disconnected-dialog")

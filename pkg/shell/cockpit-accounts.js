@@ -651,7 +651,6 @@ PageAccount.prototype = {
 
     get_last_login: function() {
         var self = this;
-
         function parse_last_login(data) {
            data = data.split('\n')[1]; // throw away header
            if (data.length === 0) return null;
@@ -666,7 +665,7 @@ PageAccount.prototype = {
         cockpit.spawn(["/usr/bin/lastlog", "-u", shell.get_page_param('id')],
                       { "environ": ["LC_ALL=C"] })
            .done(function (data) { self.lastLogin = parse_last_login(data); self.update(); })
-           .fail(shell.show_unexpected_error);
+           .fail(function() { self.lastLogin = null; self.account = null; self.update(); });
     },
 
     get_locked: function() {
@@ -684,6 +683,11 @@ PageAccount.prototype = {
 
     get_logged: function() {
         var self = this;
+        if (!shell.get_page_param('id')) {
+            self.logged = false;
+            self.update();
+            return;
+        }
 
         function parse_logged(content) {
             self.logged = content.length > 0;
@@ -717,10 +721,14 @@ PageAccount.prototype = {
            this.handle_groups.close();
            this.handle_groups = null;
         }
+
+        $('#account-failure').hide();
     },
 
     update: function() {
         if (this.account) {
+            $('#account').show();
+            $('#account-failure').hide();
             var can_change = this.check_role_for_self_mod();
 
             var name = $("#account-real-name");
@@ -764,6 +772,8 @@ PageAccount.prototype = {
             }
             $('#account .breadcrumb .active').text(this.account["gecos"]);
         } else {
+            $('#account').hide();
+            $('#account-failure').show();
             $('#account-real-name').val("");
             $('#account-user-name').text("");
             $('#account-last-login').text("");

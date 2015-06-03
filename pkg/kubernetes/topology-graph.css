@@ -4,30 +4,39 @@ kubernetes-topology-graph {
 }
 
 .kube-topology g {
-    font-family: FontAwesome;
+    font-family: PatternFlyIcons-webfont;
     font-size: 18px;
     text-anchor: middle;
     cursor: pointer;
 }
 
-.kube-topology g.weak text {
-    opacity: .5;
+.kube-topology g text {
+    stroke: none;
+    stroke-width: 0px;
+}
+
+.kube-topology g.weak use {
+    opacity: .6;
 }
 
 .kube-topology g.Pod text {
-    fill: #e6550d;
+    font-family: FontAwesome;
+    fill: #1186C1;
 }
 
 .kube-topology g.Node text {
     fill: #636363;
+    font-size: 22px;
 }
 
 .kube-topology g.Service text {
-    fill: #31a354;
+    fill: #ff7f0e;
+    font-size: 24px;
 }
 
 .kube-topology g.ReplicationController text {
-    fill: #3182bd;
+    font-family: FontAwesome;
+    fill: #9467bd;
 }
 
 .kube-topology g circle {
@@ -35,28 +44,22 @@ kubernetes-topology-graph {
     fill: #fff;
 }
 
-.kube-topology g.fixed circle {
-    stroke: #4d5258;
+.kube-topology g.fixed use {
+    stroke-width: 2px;
 }
 
-.kube-topology g.selected circle {
-    stroke-width: 3px;
-    stroke: #4d5258;
+.kube-topology g.selected use {
+    stroke-width: 4px;
 }
 
 .kube-topology line {
-    stroke: #999;
-    stroke-opacity: .6;
+    stroke: #bbb;
     stroke-width: 1;
 }
 
 .kube-topology line.ReplicationControllerPod {
     stroke-linecap: round;
-    stroke-dasharray: 1, 3;
-}
-
-.kube-topology line.Node {
-    stroke-opacity: .4;
+    stroke-dasharray: 1, 2;
 }
 
 kubernetes-topology-icon {
@@ -73,14 +76,14 @@ kubernetes-topology-icon svg {
     display: block;
 }
 
-kubernetes-topology-icon text {
-    opacity: 0.2;
+kubernetes-topology-icon use {
+    opacity: 0.4;
 }
 
-kubernetes-topology-icon.active text {
+kubernetes-topology-icon.active use {
     opacity: 1;
 }
 
-kubernetes-topology-icon:hover text {
+kubernetes-topology-icon:hover use {
     opacity: 0.7;
 }

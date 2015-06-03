@@ -113,7 +113,7 @@ define([
                 }
 
                 $scope.selected = null;
-                $scope.$on("selected", function(ev, item) {
+                $scope.$on("select", function(ev, item) {
                     $scope.selected = item;
                     $scope.$digest();
                 });

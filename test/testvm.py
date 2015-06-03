@@ -798,7 +798,7 @@ class QemuMachine(Machine):
             if not os.path.exists(self.run_dir):
                 os.makedirs(self.run_dir, 0750)
 
-            (unused, self._monitor) = tempfile.mkstemp(suffix='.mon', prefix="machine-", dir=self.run_dir)
+            (unused, self._monitor) = tempfile.mkstemp(suffix='.mon', prefix="", dir=self.run_dir)
             self._process = self._start_qemu(maintain=maintain, tty=False,
                                              monitor="unix:path=%s,server,nowait" % self._monitor,
                                              original=original

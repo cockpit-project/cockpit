@@ -26,10 +26,10 @@ define([
     "use strict";
 
     var icons = {
-        Pod: '\uf1b3', /* fa-cubes */
-        ReplicationController: '\uf1b8', /* fa-cog */
-        Node: '\uf1c0', /* fa-database */
-        Service: '\uf0ec', /* fa-exchange */
+        Pod: '#vertex-Pod',
+        ReplicationController: '#vertex-ReplicationController',
+        Node: '#vertex-Node',
+        Service: '#vertex-Service',
     };
 
     return angular.module('kubernetes.topology', [ 'ngRoute', 'kubernetesUI' ])
@@ -137,43 +137,5 @@ define([
 
                 ready = true;
             }
-        ])
-
-        .directive('kubeTopologyKind',
-            function() {
-                return {
-                    restrict: 'E',
-                    link: function($scope, element, attrs) {
-                        var kind = attrs.kind;
-
-                        var svg = d3.select(element[0]).append("svg")
-                            .attr("width", "32")
-                            .attr("height", "32")
-                            .attr("class", "kube-topology");
-
-                        var g = svg.append("g")
-                            .attr("class", kind)
-                            .attr("transform", "translate(16, 16)");
-
-                        g.append("circle").attr("r", "15");
-
-                        /* HACK around broken font, will be fixed when we use real icons */
-                        var offset = kind == "ReplicationController" ? "7.5": "6";
-                        g.append("text").attr("y", offset).text(icons[kind]);
-
-                        $scope.$watchCollection("kinds", function() {
-                            svg.classed("active", kind in $scope.kinds);
-                        });
-
-                        svg.on("click", function() {
-                            if (kind in $scope.kinds)
-                                delete $scope.kinds[kind];
-                            else
-                                $scope.kinds[kind] = icons[kind];
-                            $scope.$parent.$digest();
-                        });
-                    }
-                };
-            }
-        );
+        ]);
 });

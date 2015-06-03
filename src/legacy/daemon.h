@@ -38,8 +38,6 @@ GDBusConnection *          daemon_get_connection       (Daemon *daemon);
 
 GDBusObjectManagerServer * daemon_get_object_manager   (Daemon *daemon);
 
-StorageProvider           *daemon_get_storage_provider (Daemon *daemon);
-
 G_END_DECLS
 
 #endif /* COCKPIT_DAEMON_H__ */

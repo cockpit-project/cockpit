@@ -28,8 +28,6 @@
 #include "netdevmonitor.h"
 #include "blockdevmonitor.h"
 #include "mountmonitor.h"
-#include "storageprovider.h"
-#include "storagemanager.h"
 
 /**
  * SECTION:daemon
@@ -55,7 +53,6 @@ struct _Daemon
   GDBusObjectManagerServer *object_manager;
 
   Machines *machines;
-  StorageProvider *storage_provider;
 
   guint tick_timeout_id;
   gint64 last_tick;
@@ -91,7 +88,6 @@ daemon_finalize (GObject *object)
 {
   Daemon *daemon = DAEMON (object);
 
-  g_object_unref (daemon->storage_provider);
   g_object_unref (daemon->object_manager);
   g_object_unref (daemon->connection);
   g_object_unref (daemon->system_bus_proxy);
@@ -178,7 +174,6 @@ daemon_constructed (GObject *_object)
   Daemon *daemon = DAEMON (_object);
   CockpitResourceMonitor *monitor;
   CockpitMultiResourceMonitor *multi_monitor;
-  CockpitStorageManager *storage_manager;
   CockpitObjectSkeleton *object = NULL;
 
   g_assert (_daemon_instance == NULL);
@@ -255,18 +250,6 @@ daemon_constructed (GObject *_object)
   g_object_unref (object);
 
   g_debug ("exported mount monitor");
-
-  /* /com/redhat/Cockpit/Storage/Manager */
-  storage_manager = storage_manager_new (daemon);
-  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/Storage/Manager");
-  cockpit_object_skeleton_set_storage_manager (object, storage_manager);
-  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
-  g_object_unref (storage_manager);
-  g_object_unref (object);
-
-  g_debug ("exported storage manager");
-
-  daemon->storage_provider = storage_provider_new (daemon);
 
   /* Export the ObjectManager */
   g_dbus_object_manager_server_set_connection (daemon->object_manager, daemon->connection);
@@ -401,10 +384,4 @@ daemon_get_object_manager (Daemon *daemon)
 {
   g_return_val_if_fail (IS_DAEMON (daemon), NULL);
   return daemon->object_manager;
-}
-
-StorageProvider *
-daemon_get_storage_provider (Daemon *daemon)
-{
-  return daemon->storage_provider;
 }

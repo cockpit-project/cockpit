@@ -29,7 +29,6 @@
 #include "common/cockpitlog.h"
 
 #include "cockpit-generated.h"
-#include "com.redhat.lvm2.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -69,33 +68,6 @@ typedef struct _BlockdevMonitor BlockdevMonitor;
 
 struct _MountMonitor;
 typedef struct _MountMonitor MountMonitor;
-
-struct _StorageManager;
-typedef struct _StorageManager StorageManager;
-
-struct _StorageProvider;
-typedef struct _StorageProvider StorageProvider;
-
-struct _StorageObject;
-typedef struct _StorageObject StorageObject;
-
-struct _StorageBlock;
-typedef struct _StorageBlock StorageBlock;
-
-struct _StorageDrive;
-typedef struct _StorageDrive StorageDrive;
-
-struct _StorageMDRaid;
-typedef struct _StorageMDRaid StorageMDRaid;
-
-struct _StorageVolumeGroup;
-typedef struct _StorageVolumeGroup StorageVolumeGroup;
-
-struct _StorageLogicalVolume;
-typedef struct _StorageLogicalVolume StorageLogicalVolume;
-
-struct _StorageJob;
-typedef struct _StorageJob StorageJob;
 
 struct _Accounts;
 typedef struct _Accounts Accounts;

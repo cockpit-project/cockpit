@@ -28,6 +28,7 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/deploy.js \
 	pkg/kubernetes/topology.css \
 	pkg/kubernetes/topology.js \
+	pkg/kubernetes/topology-graph.css \
 	pkg/kubernetes/topology-graph.js \
 	$(NULL)
 
@@ -93,6 +94,8 @@ update-lib:: update-bower
 	    $(BOWER)/kubernetes-object-describer/dist/object-describer.js
 	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/topology-graph.js \
 		$(BOWER)/kubernetes-topology-graph/dist/topology-graph.js
+	$(CSSBUNDLE) -o $(srcdir)/pkg/kubernetes/topology-graph.css \
+		$(BOWER)/kubernetes-topology-graph/dist/topology-graph.css
 	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/d3.js \
 		$(BOWER)/d3/d3.js
 	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/d3.min.js \

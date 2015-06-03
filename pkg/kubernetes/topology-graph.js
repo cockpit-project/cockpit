@@ -27,6 +27,9 @@
 }(this, function(angular, d3) {
     "use strict";
 
+    /* A cache to prevent jumping when rapidly toggling views */
+    var cache = { };
+
     function topology_graph(selector, notify) {
         var outer = d3.select(selector);
 
@@ -37,13 +40,14 @@
         var items = { };
         var relations = [ ];
 
-        /* Cached information */
+        /* Graph information */
         var width;
         var height;
         var timeout;
         var nodes = [];
         var links = [];
         var lookup = { };
+        var selection = null;
 
         var force = d3.layout.force()
             .charge(-800)
@@ -52,7 +56,10 @@
 
         var drag = force.drag();
 
-        var svg = outer.append("svg").attr("class", "kube-topology");
+        var svg = outer.append("svg")
+            .attr("viewBox", "0 0 1600 1200")
+            .attr("preserveAspectRatio", "xMidYMid meet")
+            .attr("class", "kube-topology");
 
         var vertices = d3.select();
         var edges = d3.select();
@@ -69,8 +76,6 @@
         drag
             .on("dragstart", function(d) {
                 notify(d.item);
-                svg.selectAll("g").classed("selected", false);
-                d3.select(this).classed("selected", true);
 
                 if (d.fixed !== true)
                     d.floatpoint = [ d.x, d.y ];
@@ -93,13 +98,19 @@
                 svg.selectAll("g")
                     .classed("fixed", false)
                     .each(function(d) { d.fixed = false; });
+                force.start();
             })
             .on("click", function(ev) {
                 if (!d3.select(d3.event.target).datum()) {
-                    notify(null);
-                    svg.selectAll("g").classed("selected", false);
+	            notify(null);
                 }
             });
+
+        function select(item) {
+	    selection = item;
+            svg.selectAll("g")
+                .classed("selected", function(d) { return d.item === item; });
+        }
 
         function icon(d) {
 	    var text;
@@ -121,7 +132,7 @@
             height = outer.node().clientHeight;
 
             force.size([width, height]);
-            svg.attr("width", width).attr("height", height);
+            svg.attr("viewBox", "0 0 " + width + " " + height);
             update();
         }
 
@@ -150,6 +161,8 @@
             group.append("title")
                 .text(function(d) { return d.item.metadata.name; });
 
+            select(selection);
+
             force
                 .nodes(nodes)
                 .links(links)
@@ -175,8 +188,13 @@
 
                 /* Prevents flicker */
                 node = pnodes[plookup[id]];
-                if (!node)
-	            node = { y: height / 2, x: width / 2, py: height / 2, px: width / 2 };
+                if (!node) {
+                    node = cache[id];
+                    delete cache[id];
+                    if (!node)
+                        node = { };
+                }
+
                 node.id = id;
                 node.item = item;
 
@@ -196,18 +214,22 @@
                 links.push({ source: s, target: t, kinds: nodes[s].item.kind + nodes[t].item.kind });
             }
 
-            update();
+            if (width && height)
+                update();
         }
 
         function resized() {
-            if (!timeout)
-                timeout = window.setTimeout(adjust, 50);
+	    window.clearTimeout(timeout);
+	    timeout = window.setTimeout(adjust, 150);
         }
 
         window.addEventListener('resize', resized);
+
+        adjust();
         resized();
 
         return {
+            select: select,
             kinds: function(value) {
                 if (arguments.length === 0)
                     return kinds;
@@ -224,6 +246,21 @@
             close: function() {
 	        window.removeEventListener('resize', resized);
                 window.clearTimeout(timeout);
+
+                /*
+                 * Keep the positions of these items cached,
+                 * in case we are asked to make the same graph again.
+                 */
+                var id, node;
+                cache = { };
+                for (id in lookup) {
+                  node = nodes[lookup[id]];
+                  delete node.item;
+                  cache[id] = node;
+                }
+
+                nodes = [ ];
+                lookup = { };
             }
         };
     }
@@ -239,13 +276,16 @@
                     scope: {
                         items: '=',
                         relations: '=',
-                        kinds: '='
+                        kinds: '=',
+                        selection: '='
                     },
                     link: function($scope, element, attributes) {
                         element.css("display", "block");
 
                         function notify(item) {
-                            $scope.$emit("selected", item);
+                            $scope.$emit("select", item);
+                            if (!("selection" in attributes))
+	                        graph.select(item);
                         }
 
                         var graph = topology_graph(element[0], notify);
@@ -258,6 +298,11 @@
 
                         $scope.$watchGroup(["items", "relations"], function(values) {
                             graph.data(values[0], values[1]);
+                        });
+
+                        /* Watch the selection for changes */
+                        $scope.$watch("selection", function(item) {
+                            graph.select(item);
                         });
 
                         element.on("$destroy", function() {

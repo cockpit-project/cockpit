@@ -31,6 +31,7 @@ V_GZIP_0 = @echo "  GZIP    " $@;
 MV = mv -f
 
 JSMODULE = $(srcdir)/tools/missing $(srcdir)/tools/jsmodule
+CSSBUNDLE = $(srcdir)/tools/missing $(srcdir)/tools/cssbundle
 
 .css.min.css:
 	@$(MKDIR_P) $(dir $@)

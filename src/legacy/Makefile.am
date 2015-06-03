@@ -16,39 +16,8 @@ cockpit-generated.c: Makefile.am $(top_srcdir)/src/legacy/com.redhat.Cockpit.xml
 BUILT_SOURCES += $(dbus_built_sources)
 CLEANFILES += cockpit-generated*
 
-udisks_built_sources = org.freedesktop.UDisks2.h org.freedesktop.UDisks2.c
-
-org.freedesktop.UDisks2.h: org.freedesktop.UDisks2.c
-org.freedesktop.UDisks2.c: Makefile.am $(top_srcdir)/src/legacy/org.freedesktop.UDisks2.xml
-	$(AM_V_GEN) $(GDBUS_CODEGEN) \
-                --interface-prefix org.freedesktop.UDisks2. \
-                --c-namespace UDisks \
-                --c-generate-object-manager \
-                --generate-c-code org.freedesktop.UDisks2 \
-                $(top_srcdir)/src/legacy/org.freedesktop.UDisks2.xml \
-                $(NULL)
-
-BUILT_SOURCES += $(udisks_built_sources)
-CLEANFILES += $(udisks_built_sources)
-
-lvm_dbus_built_sources = com.redhat.lvm2.h com.redhat.lvm2.c
-
-com.redhat.lvm2.h : com.redhat.lvm2.c
-com.redhat.lvm2.c : Makefile.am src/legacy/com.redhat.lvm2.xml
-	$(AM_V_GEN) $(GDBUS_CODEGEN)  \
-		--interface-prefix com.redhat.lvm2 	\
-		--c-namespace Lvm 			\
-		--c-generate-object-manager 		\
-		--generate-c-code com.redhat.lvm2 	\
-		$(srcdir)/src/legacy/com.redhat.lvm2.xml \
-		$(NULL)
-
-BUILT_SOURCES += $(lvm_dbus_built_sources)
-CLEANFILES += $(lvm_dbus_built_sources)
-
 noinst_LIBRARIES += libcockpit-legacy.a
 
-nodist_libcockpit_legacy_a_SOURCES = $(lvm_dbus_built_sources) $(udisks_built_sources)
 libcockpit_legacy_a_SOURCES = \
 	src/legacy/types.h \
 	src/legacy/daemon.h \
@@ -67,28 +36,6 @@ libcockpit_legacy_a_SOURCES = \
 	src/legacy/blockdevmonitor.c \
 	src/legacy/mountmonitor.h \
 	src/legacy/mountmonitor.c \
-	src/legacy/storagemanager.h \
-	src/legacy/storagemanager.c \
-	src/legacy/storageprovider.h \
-	src/legacy/storageprovider.c \
-	src/legacy/storageobject.h \
-	src/legacy/storageobject.c \
-	src/legacy/storageblock.h \
-	src/legacy/storageblock.c \
-	src/legacy/storagedrive.h \
-	src/legacy/storagedrive.c \
-	src/legacy/storagemdraid.h \
-	src/legacy/storagemdraid.c \
-	src/legacy/storagevolumegroup.h \
-	src/legacy/storagevolumegroup.c \
-	src/legacy/storagelogicalvolume.h \
-	src/legacy/storagelogicalvolume.c \
-	src/legacy/storagejob.h \
-	src/legacy/storagejob.c \
-	src/legacy/lvmutil.h \
-	src/legacy/lvmutil.c \
-	src/legacy/udisksclient.h \
-	src/legacy/udisksclient.c \
 	$(NULL)
 
 libcockpit_legacy_a_CFLAGS = \
@@ -121,8 +68,6 @@ com.redhat.Cockpit.service: src/legacy/com.redhat.Cockpit.service.in Makefile.am
 EXTRA_DIST += \
 	src/legacy/com.redhat.Cockpit.xml \
 	src/legacy/com.redhat.Cockpit.service.in \
-	src/legacy/com.redhat.lvm2.xml \
-	src/legacy/org.freedesktop.UDisks2.xml \
 	$(NULL)
 
 CLEANFILES += \

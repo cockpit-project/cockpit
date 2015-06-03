@@ -2046,11 +2046,11 @@ if ( !assert(function( div ) {
 }
 
 // EXPOSE
-if ( typeof define === "function" && define.amd ) {
+if ( typeof define === "function" && define.amd_disabled ) {
 	define(function() { return Sizzle; });
 // Sizzle requires that there be a global window in Common-JS like environments
-} else if ( typeof module !== "undefined" && module.exports ) {
-	module.exports = Sizzle;
+} else if ( typeof module !== "undefined" && module.exports_disabled ) {
+	module.exports_disabled = Sizzle;
 } else {
 	window.Sizzle = Sizzle;
 }

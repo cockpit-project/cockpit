@@ -148,18 +148,6 @@ $(function () {
         });
 });
 
-function show_problem_dialog(machine_manager, machine) {
-    $('#reconnect-dialog-summary').text(
-        cockpit.format(_("Couldn't establish connection to $0."), machine.label));
-    $('#reconnect-dialog-problem').text(cockpit.message(machine.problem));
-    $('#reconnect-dialog-reconnect').off('click');
-    $('#reconnect-dialog-reconnect').on('click', function () {
-        $('#reconnect-dialog').modal('hide');
-        machine_manager.connect(machine.key);
-    });
-    $('#reconnect-dialog').modal('show');
-}
-
 function host_edit_dialog(machine_manager, host) {
     var machine = machine_manager.lookup(host);
     if (!machine)
@@ -295,12 +283,6 @@ PageDashboard.prototype = {
             .on("click", "a.list-group-item", function() {
                 if (self.edit_enabled)
                     return false;
-                var addr = $(this).attr("data-address");
-                var machine = self.machines.lookup(addr);
-                if (machine.state == "failed") {
-                    show_problem_dialog(self.machines, machine);
-                    return false;
-                }
             })
             .on("click", "button.pficon-delete", function() {
                 var item = $(this).parent(".list-group-item");

@@ -38,7 +38,7 @@ define([
     }
 
     /* This doesn't create a channel until a request */
-    var http = cockpit.http("/var/run/docker.sock", { superuser: "try" });
+    var http = cockpit.http("/var/run/docker.sock", { superuser: true });
 
     /**
      * pull:
@@ -386,7 +386,7 @@ define([
             var opts = $.extend({ }, options, {
                 "payload": "stream",
                 "unix": "/var/run/docker.sock",
-                "superuser": "try",
+                "superuser": true,
                 "binary": true
             });
 

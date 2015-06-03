@@ -119,7 +119,7 @@ main (int argc,
       goto out;
     }
 
-  opt_context = g_option_context_new ("cockpit storage daemon");
+  opt_context = g_option_context_new ("cockpit wrapper daemon");
   g_option_context_add_main_entries (opt_context, opt_entries, NULL);
   error = NULL;
   if (!g_option_context_parse (opt_context, &argc, &argv, &error))

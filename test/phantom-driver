@@ -100,8 +100,8 @@ function step ()
             page.onResourceError = on_resource_error;
             page.onLoadFinished = on_load_finished;
         } else if (cmd.cmd == "inject") {
-            page.injectJs(cmd.file);
-            sys.stdout.writeLine(JSON.stringify({result: true}));
+            var ret = page.injectJs(cmd.file);
+            sys.stdout.writeLine(JSON.stringify({result: ret}));
             step();
         } else if (cmd.cmd == "switch") {
             if (page.switchToFrame(cmd.name))

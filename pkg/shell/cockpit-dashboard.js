@@ -24,6 +24,7 @@ define([
     "shell/controls",
     "shell/shell",
     "shell/machines",
+    "base1/patterns",
     "shell/cockpit-main"
 ], function($, cockpit, Mustache, controls, shell, machines) {
 "use strict";
@@ -163,20 +164,28 @@ function host_edit_dialog(machine) {
     if (!machine)
         return;
 
+    var dlg = $("#host-edit-dialog");
     $('#host-edit-fail').text("").hide();
     $('#host-edit-name').val(machine.label);
     $('#host-edit-name').prop('disabled', machine.state == "failed");
     $('#host-edit-color').css('background-color', machine.color);
     $('#host-edit-apply').off('click');
     $('#host-edit-apply').on('click', function () {
-        $('#host-edit-dialog').modal('hide');
+        dlg.dialog('failure', null);
         var values = {
             avatar: avatar_editor.changed ? avatar_editor.get_data(128, 128, "image/png") : null,
             color: $('#host-edit-color').css('background-color'),
             label: $('#host-edit-name').val()
         };
-        machine.change(values)
-            .fail(shell.show_unexpected_error);
+        var promise = machine.change(values);
+        promise
+            .done(function() {
+                dlg.modal('hide');
+            })
+            .fail(function(ex) {
+                dlg.dialog('failure', ex);
+            });
+        dlg.dialog('wait', promise);
     });
     $('#host-edit-avatar').off('click');
     $('#host-edit-avatar').on('click', function () {
@@ -188,7 +197,7 @@ function host_edit_dialog(machine) {
                 avatar_editor.start_cropping();
             });
     });
-    $('#host-edit-dialog').modal('show');
+    dlg.modal('show');
 
     avatar_editor.stop_cropping();
     avatar_editor.load_data(machine.avatar || "images/server-large.png").

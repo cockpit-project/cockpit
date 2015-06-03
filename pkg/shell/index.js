@@ -367,12 +367,12 @@ define([
             }
         }
 
-        current_location = "/" + path.slice(0, at).join("/");
+        current_location = cockpit.location.encode(path.slice(0, at));
         current_address = address;
 
         update_navbar(machine, component);
         update_sidebar(machine, component);
-        update_frame(machine, component, "/" + path.slice(at).join("/"), options);
+        update_frame(machine, component, cockpit.location.encode(path.slice(at)), options);
 
         recalculate_layout();
     }

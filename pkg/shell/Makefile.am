@@ -30,7 +30,6 @@ shelldebug_DATA = \
 	pkg/shell/cockpit-cpu-status.js \
 	pkg/shell/cockpit-memory-status.js \
 	pkg/shell/cockpit-networking.js \
-	pkg/shell/cockpit-storage.js \
 	pkg/shell/cockpit-accounts.js \
 	pkg/shell/cockpit-docker.js \
 	$(NULL)
@@ -58,7 +57,6 @@ shell_SHELL = \
 	pkg/shell/cockpit-cpu-status.min.js \
 	pkg/shell/cockpit-memory-status.min.js \
 	pkg/shell/cockpit-networking.min.js \
-	pkg/shell/cockpit-storage.min.js \
 	pkg/shell/cockpit-accounts.min.js \
 	pkg/shell/cockpit-docker.min.js \
 	$(NULL)
@@ -72,7 +70,6 @@ shellimages_DATA = \
 	pkg/shell/images/server-small.png \
 	pkg/shell/images/server-error.png \
 	pkg/shell/images/dialog-error.png \
-	pkg/shell/images/storage-disk.png \
 	$(NULL)
 
 pmlogconfdir = $(localstatedir)/lib/pcp/config/pmlogconf/tools

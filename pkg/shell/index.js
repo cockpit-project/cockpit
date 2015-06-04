@@ -219,18 +219,28 @@ define([
     $(machines)
         .on("ready", function(ev) {
             machines.loaded = true;
-            $(cockpit).on("locationchanged", navigate);
+            $(cockpit).on("locationchanged", function () {
+                navigate(true);
+            });
             build_navbar();
-            navigate();
+            navigate(false);
             maybe_ready();
         })
         .on("added changed", function(ev, machine) {
             if (!machine.visible)
                 frames.remove(machine);
 
+            if (machine.problem) {
+                /* these will need to be reloaded on a reconnect */
+                machine.components = null;
+                machine.checksum = null;
+
+                frames.remove(machine);
+            }
+
             update_machines();
             if (machines.loaded)
-                navigate();
+                navigate(false);
             maybe_ready();
         })
         .on("removed", function(ev, machine) {
@@ -309,13 +319,22 @@ define([
         }
     });
 
-    function navigate() {
+    function show_connecting() {
+        $("#sidebar").hide();
+        $("#connecting").show();
+    }
+
+    function navigate(reconnect) {
         var path = cockpit.location.path;
         var options = cockpit.location.options;
 
         var address = null;
         var component = null;
         var machine = null;
+
+        /* If this is a watchdog problem let the dialog handle it */
+        if (watchdog_problem)
+            return;
 
         /* Main dashboard listing */
         var listing = manifests["dashboard"];
@@ -336,14 +355,18 @@ define([
         }
 
         if (address) {
+            machine = machines.lookup(address);
 
             /* If the machine is not available, then redirect to dashboard */
-            machine = machines.lookup(address);
-            if (!machine) {
-                if (listing)
+            if (!machine || machine.problem) {
+                if (machine && reconnect && machine.problem) {
+                    machines.connect(machine.address);
+                    show_connecting();
+                } else if (listing) {
                     cockpit.location.go("/dashboard/list");
-                else
+                } else {
                     cockpit.location.go("/");
+                }
                 return;
             }
 
@@ -369,6 +392,7 @@ define([
         current_location = cockpit.location.encode(path.slice(0, at));
         current_address = address;
 
+        $("#connecting").hide();
         update_navbar(machine, component);
         update_sidebar(machine, component);
         update_frame(machine, component, cockpit.location.encode(path.slice(at)), options);
@@ -430,8 +454,15 @@ define([
             return;
         }
 
-        /* TODO: We need to fix races here with quick navigation in succession */
+        /*
+         * This will be called again when the
+         * state is either connected or failed
+         * better to wait till then
+         */
+        if (machine.state == "connecting")
+            return;
 
+        /* TODO: We need to fix races here with quick navigation in succession */
         function links(component) {
             var href = "#";
             if (machine.address != "localhost" || component.path) {
@@ -447,15 +478,19 @@ define([
         }
 
         packages.lookup(machine, function(components) {
-            packages.loaded = true;
             var menu = components.menu.map(links);
-            $("#sidebar-menu").empty().append(menu);
             var tools = components.tools.map(links);
-            $("#sidebar-tools").empty().append(tools);
 
-            maybe_ready();
-            sidebar.show();
-            recalculate_layout();
+            packages.loaded = true;
+            /* only update if we are still on the same address */
+            if (machine.address == current_address) {
+                $("#sidebar-menu").empty().append(menu);
+                $("#sidebar-tools").empty().append(tools);
+
+                maybe_ready();
+                sidebar.show();
+                recalculate_layout();
+            }
         });
     }
 

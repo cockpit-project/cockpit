@@ -7,6 +7,8 @@ define([
     function MachineData(results, old_map) {
         var self = this;
 
+        var ready = false;
+
         /* echo channels to each machine */
         var channels = { };
 
@@ -21,8 +23,10 @@ define([
         /* populate with previous data if any */
         function fill_machines(old_map) {
             var k;
-            for (k in old_map)
+            for (k in old_map) {
                 machines[k] = old_map[k];
+                ready = true;
+            }
         }
 
         if (old_map)
@@ -51,15 +55,25 @@ define([
                     remove(host);
             }
 
+            ready = true;
+            notify();
+
             waits.fire();
             old_map = null;
         });
 
-        function notify(host, action) {
+        function notify(host) {
+            if (!ready)
+                return;
+
+            if (host) {
+                var machine = machines[host];
+                if (machine)
+                    machine.version++;
+            }
+
             results({
                 machines: machines,     /* map of all machines */
-                hint: action,           /* this notification hint */
-                host: host              /* machine which the hint is about */
             });
         }
 
@@ -71,7 +85,7 @@ define([
 
                 machine.state = value;
                 machine.problem = problem;
-                notify(host, "changed");
+                notify(host);
             }
         }
 
@@ -134,12 +148,10 @@ define([
         };
 
         function update(host) {
-            var action = "changed";
             var machine = machines[host];
 
             if (!machine) {
-                machine = machines[host] = { key: host };
-                action = "added";
+                machine = machines[host] = { key: host, version: 0 };
             }
 
             var item = self.content[host] || { };
@@ -157,7 +169,7 @@ define([
                 label = window.location.hostname;
 
             machine.label = label;
-            notify(host, action);
+            notify(host);
 
             /* Don't automatically reconnect failed machines */
             if (machine.visible && (!machine.problem || machine.restarting))
@@ -171,7 +183,7 @@ define([
             if (machine) {
                 delete machines[host];
                 self.disconnect(host);
-                notify(host, "removed");
+                notify(host);
             }
         }
 
@@ -229,6 +241,7 @@ define([
         var map = { };
         var ready = false;
         var data = null;
+        var versions = {};
 
         /* Invoked by cockpit.cache() to get new data */
         function provider(result) {
@@ -252,26 +265,30 @@ define([
                 return;
             }
 
-            var machine;
-            switch(data.hint) {
-            case "added":
-            case "changed":
-                machine = ensure(data.host, data.machines[data.host]);
-                break;
-            case "removed":
-                machine = map[data.host];
-                delete map[data.host];
-                if (machine)
-                    $(self).triggerHandler(data.hint, machine);
-                break;
+            var host;
+            for (host in data.machines) {
+                var machine = data.machines[host];
+                var old = versions[host];
+
+                if (!old || machine.version != old) {
+                    ensure(host, machine);
+                }
+            }
+
+            for (host in versions) {
+                if (!data.machines[host]) {
+                    delete versions[host];
+                    $(self).triggerHandler("removed", host);
+                }
             }
         }
 
         var cache = cockpit.cache("v1-machines.json", provider, consumer);
 
         function ensure(key, item) {
-            var created = !map[key];
+            var created = !versions[key];
             map[key] = item;
+            versions[key] = item.version;
 
             if (ready) {
                 ensure_machine_color(item);

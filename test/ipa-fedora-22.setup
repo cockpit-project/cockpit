@@ -2,11 +2,8 @@
 
 set -eufx
 
-yes | yum update --enablerepo=updates-testing -y --skip-broken
-yum remove abrt
-echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
-
-yes | yum --enablerepo=updates-testing install -y freeipa-server bind bind-dyndb-ldap
+dnf -y --enablerepo=updates-testing update
+dnf -y --enablerepo=updates-testing install freeipa-server bind bind-dyndb-ldap
 
 hostnamectl set-hostname f0.cockpit.lan
 

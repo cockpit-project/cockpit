@@ -205,6 +205,8 @@ define([
     var router = new Router();
     var packages = new Packages();
 
+    var checksums = {};
+
     function maybe_ready() {
         if (ready)
             return;
@@ -231,11 +233,8 @@ define([
                 frames.remove(machine);
 
             if (machine.problem) {
-                /* these will need to be reloaded on a reconnect */
-                machine.components = null;
-                machine.checksum = null;
-
                 frames.remove(machine);
+                packages.remove(machine);
             }
 
             update_machines();
@@ -645,12 +644,13 @@ define([
                 var parts = component.split("/");
 
                 var base;
+                var checksum = checksums[address];
                 if (address == "localhost")
                     base = "..";
-                else if (machine.checksum)
-                    base = "../../" + machine.checksum;
+                else if (checksum)
+                    base = "../../" + checksum;
                 else
-                    base = "../../@" + machine.address;
+                    base = "../../@" + address;
 
                 frame.url = base + "/" + component + ".html";
                 frame.setAttribute('src', frame.url + "#" + hash);
@@ -815,6 +815,7 @@ define([
     function Packages() {
         var self = this;
         var requests = [ ];
+        var machine_components = {};
 
         function Components(manis) {
             this.menu = [ ];
@@ -853,35 +854,45 @@ define([
             return new Components(manis);
         };
 
-        self.lookup = function lookup(machine, callback) {
-            if (!machine.components && machine.address == "localhost")
-                machine.components = self.build(manifests);
+        self.remove = function build(machine) {
+            delete checksums[machine.address];
+            delete machine_components[machine.address];
+        };
 
-            if (machine.components) {
-                callback(machine.components);
+        self.lookup = function lookup(machine, callback) {
+            var components = machine_components[machine.address];
+            if (!components && machine.address == "localhost") {
+                components = self.build(manifests);
+                machine_components[machine.address] = components;
+            }
+
+            if (components) {
+                callback(components);
                 return;
             }
 
             var url;
+            var checksum = checksums[machine.address];
             if (machine.checksum)
-                url = "../../" + machine.checksum + "/manifests.json";
+                url = "../../" + checksum + "/manifests.json";
             else
                 url = "../../@" + machine.address + "/manifests.json";
 
             var req = $.ajax({ url: url, dataType: "json", cache: true})
                 .done(function(manis) {
-                    machine.components = self.build(manis);
+                    components = self.build(manis);
                     var etag = req.getResponseHeader("ETag");
                     if (etag) /* and remove quotes */
-                        machine.checksum = etag.replace(/^"(.+)"$/, '$1');
+                        checksums[machine.address] = etag.replace(/^"(.+)"$/, '$1');
                 })
                 .fail(function(ex) {
                     console.warn("failed to load manifests from " + machine.address + ": " + ex);
-                    machine.components = self.build({ });
+                    components = self.build({ });
                 })
                 .always(function() {
                     req.pending = false;
-                    callback(machine.components);
+                    machine_components[machine.address] = components;
+                    callback(components);
                 });
 
             req.pending = true;

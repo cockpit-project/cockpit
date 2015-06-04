@@ -81,6 +81,17 @@ html, body {
     cursor: auto;
 }
 
+#dashboard-hosts .spinner {
+    float: left;
+    margin: 6px 13px 4px 3px;
+}
+
+#dashboard-hosts .list-group-item span.reconnecting {
+    color: #888;
+    display: inline;
+    padding-left: 20px;
+}
+
 .host-avatar {
     border-radius: 3px;
     margin-right: 10px;
@@ -116,6 +127,9 @@ html, body {
 
 @media (max-width: 400px) {
     #dashboard-hosts .list-group-item div.os {
+        display: none;
+    }
+    #dashboard-hosts .list-group-item span.reconnecting {
         display: none;
     }
 }

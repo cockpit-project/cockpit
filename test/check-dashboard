@@ -174,7 +174,7 @@ class TestDashboard(MachineCase):
         b.click('#host-edit-apply')
         b.wait_popdown('host-edit-dialog')
 
-        b.wait_text('#dashboard-hosts a:first-child span', "Horst")
+        b.wait_in_text('#dashboard-hosts a:first-child span.host-label', "Horst")
         b.wait_not_attr("#dashboard-hosts .list-group-item[data-address='localhost']", "style", old_style)
 
         self.assertEqual(m.execute("hostnamectl --pretty"), "Horst\n")

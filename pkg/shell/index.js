@@ -750,6 +750,12 @@ define([
                         perform_jump(control);
                     return;
 
+                } else if (control.command === "hint") {
+                    /* watchdog handles current host for now */
+                    if (control.hint == "restart" && control.host != cockpit.transport.host)
+                        machines.expect_restart(control.host);
+                    return;
+
                 } else if (control.command == "oops") {
                     if (setup_oops())
                         oops.show();

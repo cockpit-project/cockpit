@@ -378,10 +378,26 @@ PageDashboard.prototype = {
                     return "images/server-small.png";
             }
 
+            function avatar_display() {
+                if (this.restarting)
+                    return "hidden";
+                else
+                    return "";
+            }
+
+            function connecting_display() {
+                if (this.restarting)
+                    return "";
+                else
+                    return "hidden";
+            }
+
             function render() {
                 var text = Mustache.render(template, {
                     machines: self.machines.list,
-                    render_avatar: render_avatar
+                    render_avatar: render_avatar,
+                    avatar_display: avatar_display,
+                    connecting_display: connecting_display
                 });
 
                 target.html(text);

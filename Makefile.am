@@ -239,6 +239,7 @@ include pkg/realmd/Makefile.am
 include pkg/shell/Makefile.am
 include pkg/subscriptions/Makefile.am
 include pkg/systemd/Makefile.am
+include pkg/udisks2/Makefile.am
 include src/bridge/Makefile.am
 include src/common/Makefile-common.am
 include src/legacy/Makefile.am

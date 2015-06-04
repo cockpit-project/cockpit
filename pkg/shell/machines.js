@@ -342,9 +342,8 @@ define([
             });
 
             $.when(json, append)
-                .done(function() {
-                    item['key'] = address;
-                    dfd.resolve(ensure(address, item));
+                .done(function(e, t) {
+                    dfd.resolve(address);
                 })
                 .fail(function(ex) {
                     dfd.reject(ex);

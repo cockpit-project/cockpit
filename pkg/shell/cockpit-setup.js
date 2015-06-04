@@ -497,12 +497,8 @@ PageSetupServer.prototype = {
                 self.highlight_error_message('#dashboard_setup_address_error', ex.toString());
                 self.show_tab('address');
             })
-            .done(function(machine) {
+            .done(function() {
                 self.run_tasks(function() {
-                    self.machines.change(machine.key, { visible: true })
-                        .fail(function(ex) {
-                            shell.show_unexpected_error(ex);
-                        });
                     self.show_tab('close');
                 });
             });

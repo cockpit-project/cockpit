@@ -64,6 +64,10 @@ def add_machine(b, address):
     b.click('#dashboard_setup_next')
     b.wait_popdown('dashboard_setup_server_dialog')
 
+def kill_user_admin(machine):
+    # logind from systemd 208 is buggy, so we use systemd directly if it fails
+    # https://bugs.freedesktop.org/show_bug.cgi?id=71092
+    machine.execute("loginctl kill-user admin || systemctl kill user-1000.slice")
 
 class TestMultiMachine(MachineCase):
     def setUp(self):
@@ -87,11 +91,6 @@ class TestMultiMachine(MachineCase):
         m1 = self.machine
         m2 = self.machine2
         m3 = self.machine3
-
-        def kill_user_admin(machine):
-            # logind from systemd 208 is buggy, so we use systemd directly if it fails
-            # https://bugs.freedesktop.org/show_bug.cgi?id=71092
-            machine.execute("loginctl kill-user admin || systemctl kill user-1000.slice")
 
         self.login_and_go("dashboard", href="dashboard/list", host=None)
         inject_extras(b)
@@ -172,5 +171,79 @@ class TestMultiMachine(MachineCase):
         b.enter_page("/system/terminal")
         b.wait_present("body")
         b.wait_in_text("body", "magic-m1-token")
+
+    def testFrameNavigation(self):
+        b = self.browser
+        m1 = self.machine
+        m2 = self.machine2
+
+        m2_path = "/@%s/playground/test"% m2.address
+        dashboard_path = "/dashboard/list"
+
+        # Add a machine
+        self.login_and_go(None)
+        b.go(dashboard_path)
+        b.enter_page("dashboard")
+        inject_extras(b)
+        add_machine(b, m2.address)
+        wait_dashboard_addresses (b, [ "localhost", m2.address ])
+
+        wm = get_webapp_machines(b)
+        m1_index = wm["localhost"]+1
+        m2_index = wm[m2.address]+1
+
+        # Check the server image
+        b.wait_attr('#dashboard-hosts a:nth-child(%d) img' % m2_index, 'src', 'images/server-small.png')
+        b.switch_to_top()
+
+        # Go to the path, remove the image
+        inject_extras(b)
+        wait_machine_dropdown_addresses(b, [ "localhost", m2.address ])
+        b.go(m2_path)
+        b.enter_page("/playground/test", m2.address)
+        b.wait_present("img[src='hammer.gif']");
+        b.click("img[src='hammer.gif']");
+        b.switch_to_top()
+
+        # kill admin, lock account
+        # kicked to dashboard, server down
+        m2.execute('passwd -l admin')
+        kill_user_admin(m2)
+
+        b.wait_js_cond("window.location.hash == '#%s'" % dashboard_path)
+        b.switch_to_frame("localhost/shell/shell")
+        b.wait_attr('#dashboard-hosts a:nth-child(%d) img' % m2_index, 'src', 'images/server-error.png')
+        b.switch_to_top()
+
+        # navigating there again will fail
+        b.go(m2_path)
+        b.wait_js_cond("window.location.hash == '#%s'" % dashboard_path)
+
+        # renable admin, path should load
+        m2.execute('passwd -u admin')
+        b.go(m2_path)
+        b.enter_page("/playground/test", m2.address)
+        # image is back because it page was reloaded after disconnection
+        b.wait_present("img[src='hammer.gif']");
+        b.switch_to_top()
+
+        # Dashboard shows it as up
+        b.go(dashboard_path)
+        b.enter_page("dashboard")
+        b.wait_attr('#dashboard-hosts a:nth-child(%d) img' % m2_index, 'src', 'images/server-small.png')
+        b.switch_to_top()
+
+        # Bad host also bounces
+        b.go("/@10.0.0.0/playground/test")
+        b.wait_js_cond("window.location.hash == '#%s'" % dashboard_path)
+
+        self.allow_restart_journal_messages()
+        self.allow_journal_messages(".*: .* host key for server is not known: .*",
+                                    # Might happen when killing the bridge.
+                                    "localhost: dropping message while waiting for child to exit",
+                                    "Received message for unknown channel: .*",
+                                    ".*: error reading from ssh",
+                                    ".*: bridge program failed: Child process exited with code .*",
+                                    "/playground/test.html: failed to retrieve resource: authentication-failed")
 
 test_main()

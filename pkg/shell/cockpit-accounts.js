@@ -261,6 +261,10 @@ function is_user_in_group(user, group) {
     return false;
 }
 
+function log_unexpected_error(error) {
+    console.warn("Unexpected error", error);
+}
+
 PageAccounts.prototype = {
     _init: function() {
         this.id = "accounts";
@@ -289,7 +293,7 @@ PageAccounts.prototype = {
 
         this.handle_passwd.read()
            .done(parse_accounts)
-           .fail(shell.show_unexpected_error);
+           .fail(log_unexpected_error);
 
         this.handle_passwd.watch(parse_accounts);
     },
@@ -611,7 +615,7 @@ PageAccount.prototype = {
 
         this.handle_passwd.read()
            .done(parse_user)
-           .fail(shell.show_unexpected_error);
+           .fail(log_unexpected_error);
 
         this.handle_passwd.watch(parse_user);
     },
@@ -644,7 +648,7 @@ PageAccount.prototype = {
 
         this.handle_groups.read()
            .done(parse_groups)
-           .fail(shell.show_unexpected_error);
+           .fail(log_unexpected_error);
 
         this.handle_groups.watch(parse_groups);
     },
@@ -666,7 +670,7 @@ PageAccount.prototype = {
         cockpit.spawn(["/usr/bin/lastlog", "-u", shell.get_page_param('id')],
                       { "environ": ["LC_ALL=C"] })
            .done(function (data) { self.lastLogin = parse_last_login(data); self.update(); })
-           .fail(shell.show_unexpected_error);
+           .fail(log_unexpected_error);
     },
 
     get_locked: function() {
@@ -679,7 +683,8 @@ PageAccount.prototype = {
 
         cockpit.spawn(["/usr/bin/passwd", "-S", shell.get_page_param('id')],
                       { "environ": [ "LC_ALL=C" ], "superuser": "require" })
-           .done(parse_locked);
+           .done(parse_locked)
+           .fail(log_unexpected_error);
     },
 
     get_logged: function() {
@@ -695,7 +700,7 @@ PageAccount.prototype = {
 
         cockpit.spawn(["/usr/bin/w", "-sh", shell.get_page_param('id')])
            .done(parse_logged)
-           .fail(shell.show_unexpected_error);
+           .fail(log_unexpected_error);
     },
 
     enter: function() {

@@ -392,7 +392,11 @@ define([
         current_location = cockpit.location.encode(path.slice(0, at));
         current_address = address;
 
-        $("#connecting").hide();
+        if (machine && machine.state == "connecting")
+            show_connecting();
+        else
+           $("#connecting").hide();
+
         update_navbar(machine, component);
         update_sidebar(machine, component);
         update_frame(machine, component, cockpit.location.encode(path.slice(at)), options);

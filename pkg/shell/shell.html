@@ -109,9 +109,10 @@
               style="border-left-color: {{ color }};" target="_parent" href="/#/@{{address}}/system/host">
             <button class="btn btn-danger edit-button servers-privileged pficon btn-delete pficon-delete delete-{{address}}"></button>
             <button class="btn btn-default edit-button servers-privileged pficon pficon-edit"></button>
-            <img class="host-avatar" src="{{render_avatar}}">
+            <img class="host-avatar {{avatar_display}}" src="{{render_avatar}}">
+            <div class="spinner {{connecting_display}}"></div>
             <div class="os">{{os}}</div>
-            <span>{{label}}</span>
+            <span class="host-label">{{label}} <span class="reconnecting {{connecting_display}}" translatable="yes">Lost connection. Trying to reconnect</span></span>
           </a>
         {{/machines}}
       </script>

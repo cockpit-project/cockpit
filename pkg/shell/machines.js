@@ -66,6 +66,9 @@ define([
         function state(host, value, problem) {
             var machine = machines[host];
             if (machine) {
+                if (value == "connected")
+                    machine.restarting = false;
+
                 machine.state = value;
                 machine.problem = problem;
                 notify(host, "changed");
@@ -91,7 +94,14 @@ define([
                 })
                 .on("close", function(options) {
                     var problem = options.problem || "disconnected";
+                    var machine = machines[host];
                     state(host, "failed", problem);
+                    if (machine && machine.restarting) {
+                        var timer = window.setTimeout(function() {
+                            self.connect(host);
+                        }, 15000);
+                    }
+
                     self.disconnect(host);
                 });
 
@@ -150,7 +160,7 @@ define([
             notify(host, action);
 
             /* Don't automatically reconnect failed machines */
-            if (machine.visible && !machine.problem)
+            if (machine.visible && (!machine.problem || machine.restarting))
                 self.connect(host);
             else
                 self.disconnect(host);
@@ -164,6 +174,25 @@ define([
                 notify(host, "removed");
             }
         }
+
+        self.expect_restart = function expect_restart(host) {
+            function reconnect () {
+                machine.restarting = true;
+                var timer = window.setTimeout(function() {
+                    self.connect(host);
+                }, 1000);
+            }
+
+            var machine = machines[host];
+            if (machine) {
+
+                var channel = channels[host];
+                if (channel)
+                    $(channel).on("close", reconnect);
+                else
+                    reconnect ();
+            }
+        };
 
         self.close = function close() {
             if (self.file) {
@@ -383,6 +412,11 @@ define([
 
         self.close = function close() {
             cache.close();
+        };
+
+        self.expect_restart = function (host) {
+            cache.claim();
+            data.expect_restart(host);
         };
     }
 

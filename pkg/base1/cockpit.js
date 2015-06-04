@@ -926,6 +926,20 @@ function basic_scope(cockpit) {
         });
     };
 
+    /* Not public API ... yet? */
+    cockpit.hint = function hint(name, host) {
+        if (!host)
+            host = default_host;
+
+        var options = { "command": "hint",
+                        "hint": name,
+                        "host": host };
+
+        ensure_transport(function(transport) {
+            transport.send_control(options);
+        });
+    };
+
     cockpit.transport = {
         inject: function inject(message) {
             if (!default_transport)

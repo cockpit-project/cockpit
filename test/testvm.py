@@ -92,14 +92,10 @@ class Machine:
         self.test_data = os.environ.get("TEST_DATA") or self.test_dir
         self.vm_username = "root"
         self.vm_password = "foobar"
-        self.init_image = None
-        self.install_packages_script = None
-        self.target_install_script = None
-        if "atomic" in self.os:
-            self.init_path = os.path.join(self.test_data, "%s-%s_cloud-init" % (self.os, self.arch))
-            self.init_image = os.path.join(self.init_path, "cloud-init.iso")
-            self.install_packages_script = os.path.join(self.test_dir, "guest/atomic_install_packages.py")
-            self.target_install_script = "~/install_packages.py"
+        self.target_install_script = "~/install_packages.py"
+        self.install_packages_script = os.path.join(self.test_dir, "guest/%s-%s-install_packages" % (self.os, self.arch))
+        if not os.path.exists(self.install_packages_script):
+            self.install_packages_script = os.path.join(self.test_dir, "guest/default-install_packages")
         self.address = address
         self.mac = None
         self.label = label or "UNKNOWN"
@@ -188,8 +184,7 @@ class Machine:
 
     def run_setup_script(self, script, args):
         """Prepare a test image further by running some commands in it."""
-        # run this on the original image, not the one in the run directory
-        self.start(maintain=True, original=True)
+        self.start(maintain=True)
         try:
             self.wait_boot()
             self.upload([script], "/var/tmp/SETUP")
@@ -243,12 +238,8 @@ class Machine:
                 "TEST_VERBOSE": self.verbose
             }
             self.needs_writable_usr()
-            if self.install_packages_script:
-                self.upload([self.install_packages_script], self.target_install_script)
-                script_to_run = INSTALL_SCRIPT_ATOMIC % (self.target_install_script)
-            else:
-                script_to_run = INSTALL_SCRIPT
-
+            self.upload([self.install_packages_script], self.target_install_script)
+            script_to_run = INSTALL_SCRIPT % (self.target_install_script)
             self.execute(script=script_to_run, environment=env)
         finally:
             self.stop()
@@ -474,13 +465,14 @@ class QemuMachine(Machine):
     def __init__(self, **args):
         Machine.__init__(self, **args)
         self.run_dir = os.path.join(self.test_dir, "run")
-        self._image_image = os.path.join(self.run_dir, "%s.qcow2" % (self.image))
 
+        self._image_image = os.path.join(self.run_dir, "%s.qcow2" % (self.image))
         self._image_additional_iso = os.path.join(self.run_dir, "%s.iso" % (self.image))
 
         self._images_dir = os.path.join(self.test_data, "images")
         self._image_original = os.path.join(self._images_dir, "%s.qcow2" % (self.image))
         self._iso_original = os.path.join(self._images_dir, "%s.iso" % (self.image))
+
         if not os.path.exists(self._images_dir):
             os.makedirs(self._images_dir, 0750)
         self._image_prepared = os.path.join(self._images_dir, "%s.qcow2" % (self.image))
@@ -549,7 +541,7 @@ class QemuMachine(Machine):
         if self.verbose:
             gf.set_trace(1)
         try:
-            gf.add_drive_opts(self._image_original, readonly=False)
+            gf.add_drive_opts(self._image_image, readonly=False)
             gf.launch()
             # try to mount device directly
             devices = gf.list_devices()
@@ -596,7 +588,7 @@ class QemuMachine(Machine):
             # this image will be created on top of the new base image
             if os.path.exists(self._image_image):
                 os.unlink(self._image_image)
-            subprocess.check_call([ bootstrap_script, self._image_original, self.arch ])
+            subprocess.check_call([ bootstrap_script, self._image_image, self.arch ])
             if modify_func:
                 self.run_modify_func(modify_func)
 
@@ -605,8 +597,8 @@ class QemuMachine(Machine):
             # this image will be created on top of the new base image
             if os.path.exists(self._image_image):
                 os.unlink(self._image_image)
-            self.message("Creating disk copy:", self._image_original)
-            shutil.copyfile(image_file, self._image_original)
+            self.message("Creating disk copy:", self._image_image)
+            shutil.copyfile(image_file, self._image_image)
             self._image_kernel = None
             self._image_initrd = None
             if modify_func:
@@ -618,16 +610,20 @@ class QemuMachine(Machine):
     def save(self):
         assert not self._process
         if os.path.exists(self._image_image):
-            images_dir = os.path.join(self.test_data, "images")
-            checksum_file = os.path.join(images_dir, "%s-checksum" % (self.image, ))
-            if not os.path.exists(images_dir):
-                os.makedirs(images_dir, 0750)
-            shutil.copy(self._image_image, images_dir)
+            checksum_file = self._image_prepared_checksum
+            shutil.copy(self._image_image, self._images_dir)
             with open(checksum_file, "w") as f:
                 subprocess.check_call([ "sha256sum",
                                         os.path.basename(self._image_image) ],
-                                      cwd=images_dir,
+                                      cwd=self._images_dir,
                                       stdout=f)
+            if os.path.exists(self._image_additional_iso):
+                shutil.copy(self._image_additional_iso, self._images_dir)
+                with open(self._image_iso_checksum, "w") as f:
+                    subprocess.check_call([ "sha256sum",
+                                            os.path.basename(self._image_additional_iso) ],
+                                          cwd=self._images_dir,
+                                          stdout=f)
         else:
             raise Failure("Nothing to save.")
 
@@ -637,8 +633,6 @@ class QemuMachine(Machine):
                 self._setup_fedora_22(gf)
             elif self.os == "fedora-rawhide":
                 self._setup_fedora_rawhide(gf)
-            elif self.os == "fedora-atomic-22":
-                pass
             elif self.os == "rhel-7":
                 credential_path = os.path.expanduser("~/.rhel/")
                 if (not os.path.isfile(credential_path + "login")) or (not os.path.isfile(credential_path + "pass")):
@@ -647,15 +641,14 @@ class QemuMachine(Machine):
             else:
                 raise Failure("Unsupported OS %s" % self.os)
 
-        script = "%s-%s.setup" % (self.flavor, self.os)
+        script = os.path.join(self.test_dir, "guest/%s-%s.setup" % (self.flavor, self.os))
         if not os.path.exists(script):
-            script_alternative = "%s-%s-setup.sh" % (self.flavor, self.os)
-            if not os.path.exists(script_alternative):
-                raise Failure("Unsupported flavor %s: %s not found." % (self.flavor, script))
-            else:
-                script = script_alternative
+            raise Failure("Unsupported flavor %s: %s not found." % (self.flavor, script))
 
-        self.unpack_base(modify)
+        if "atomic" in self.os:
+            self.unpack_base(modify_func=None)
+        else:
+            self.unpack_base(modify_func=modify)
         self.message("Running setup script %s" % (script))
         self.run_setup_script(script, args)
         self.run_selinux_relabel()
@@ -702,11 +695,12 @@ class QemuMachine(Machine):
         # Assume it's in $PATH
         return 'qemu-kvm'
 
-    def _start_qemu(self, maintain=False, tty=False, monitor=None, original=False):
+    def _start_qemu(self, maintain=False, tty=False, monitor=None):
         if not os.path.exists(self.run_dir):
             os.makedirs(self.run_dir, 0750)
 
         if not os.path.exists(self._image_image):
+            self.message("create image from backing file")
             subprocess.check_call([ "qemu-img", "create", "-q",
                                     "-f", "qcow2",
                                     "-o", "backing_file=%s" % self._image_original,
@@ -729,20 +723,22 @@ class QemuMachine(Machine):
             self._locate_qemu_kvm(),
             "-m", str(MEMORY_MB),
             "-drive", "if=virtio,file=%s,index=0,serial=ROOT,snapshot=%s" % (self._image_image, snapshot),
-            "-nographic",
             "-net", "nic,model=virtio,macaddr=%s" % self.macaddr,
             "-net", "bridge,vlan=0,br=cockpit0",
-            "-device", "virtio-scsi-pci,id=hot"
+            "-device", "virtio-scsi-pci,id=hot",
+            "-nographic"
         ]
 
-        if self.init_image:
-            cmd += ["-cdrom", self.init_image]
+        if os.path.exists(self._image_additional_iso):
+            """ load an iso image if one exists with the same basename as the image
+            """
+            cmd += ["-cdrom", self._image_additional_iso]
 
         if monitor:
-            cmd += "-monitor", monitor
+            cmd += ["-monitor", monitor]
 
         if not tty:
-            cmd += "-display", "none"
+            cmd += ["-display", "none"]
 
         self.message(*cmd)
 
@@ -786,13 +782,13 @@ class QemuMachine(Machine):
     # This is a special QEMU specific maintenance console
     def qemu_console(self, snapshot=False):
         try:
-            proc = self._start_qemu(maintain=not snapshot, tty=True)
+            proc = self._start_qemu(maintain=not snapshot, tty=(not os.environ.get("DISPLAY", None) is None))
         except:
             self._cleanup()
             raise
         proc.wait()
 
-    def start(self, maintain=False, original=False):
+    def start(self, maintain=False):
         assert not self._process
         try:
             if not os.path.exists(self.run_dir):
@@ -800,8 +796,7 @@ class QemuMachine(Machine):
 
             (unused, self._monitor) = tempfile.mkstemp(suffix='.mon', prefix="", dir=self.run_dir)
             self._process = self._start_qemu(maintain=maintain, tty=False,
-                                             monitor="unix:path=%s,server,nowait" % self._monitor,
-                                             original=original
+                                             monitor="unix:path=%s,server,nowait" % self._monitor
                                             )
             self._maintaining = maintain
         except:
@@ -953,17 +948,6 @@ class QemuMachine(Machine):
 TestMachine = QemuMachine
 
 INSTALL_SCRIPT = """#!/bin/sh
-set -eu
-
-rpm -U --force $TEST_PACKAGES
-
-firewall-cmd --add-service=cockpit --permanent
-
-rm -rf /var/log/journal/*
-rm -rf /var/lib/NetworkManager/dhclient-*.lease
-"""
-
-INSTALL_SCRIPT_ATOMIC = """#!/bin/sh
 export TEST_PACKAGES
 export TEST_VERBOSE
-python %s"""
+%s"""

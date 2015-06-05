@@ -33,3 +33,4 @@ systemctl start docker
 rpm -qa | grep cockpit > /root/cockpit_packages
 rpm -ql `rpm -qa | grep cockpit` | sort > /root/cockpit_files
 
+docker pull busybox

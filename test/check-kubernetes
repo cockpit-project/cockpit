@@ -22,7 +22,9 @@ from testlib import *
 import json
 import os
 import sys
+import unittest
 
+@unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-kubernetes on rhel-7.")
 class KubernetesCase(MachineCase):
 
     # HACK: https://github.com/GoogleCloudPlatform/kubernetes/issues/8311
@@ -42,13 +44,14 @@ class KubernetesCase(MachineCase):
         """ % (port, timeout * 2, scheme)
         self.machine.execute(script=waiter)
 
+@unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-kubernetes on rhel-7.")
 class TestKubernetes(KubernetesCase):
     def setUp(self):
         MachineCase.setUp(self)
         m = self.machine
 
-	# HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1222416
-	m.execute("echo 'ETCD_ADVERTISE_CLIENT_URLS=\"http://localhost:4001\"' >> /etc/etcd/etcd.conf")
+        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1222416
+        m.execute("echo 'ETCD_ADVERTISE_CLIENT_URLS=\"http://localhost:4001\"' >> /etc/etcd/etcd.conf")
         m.execute("systemctl start etcd kube-apiserver kube-controller-manager docker kube-proxy kubelet")
         m.upload(["mock-k8s-tiny-app.json"], "/tmp")
         self.wait_api_server()
@@ -96,13 +99,14 @@ class TestKubernetes(KubernetesCase):
         b.dialog_complete("#node-dialog", result="fail")
         b.dialog_cancel("#node-dialog")
 
+@unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-kubernetes on rhel-7.")
 class TestSsl(KubernetesCase):
     def testConnect(self):
         m = self.machine
         b = self.browser
 
-	# HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1222416
-	m.execute("echo 'ETCD_ADVERTISE_CLIENT_URLS=\"http://localhost:4001\"' >> /etc/etcd/etcd.conf")
+        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1222416
+        m.execute("echo 'ETCD_ADVERTISE_CLIENT_URLS=\"http://localhost:4001\"' >> /etc/etcd/etcd.conf")
 
         # Start a kube-apiserver with a 'wrong' http port, forcing use of https
         m.execute("echo 'KUBE_API_PORT=\"--port=1111\"' >> /etc/kubernetes/apiserver")
@@ -117,8 +121,4 @@ class TestSsl(KubernetesCase):
         output = m.execute("curl -sS http://localhost:8080/api 2>&1 || true")
         self.assertIn("Connection refused", output)
 
-if os.environ.get("TEST_OS") == "rhel-7":
-    print "Skipping check-kubernetes on rhel-7."
-    pass
-else:
-    test_main()
+test_main()

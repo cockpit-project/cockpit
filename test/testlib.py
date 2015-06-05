@@ -427,6 +427,22 @@ class MachineCase(unittest.TestCase):
         elif self.machine.address:
             self.check_journal_messages()
 
+    def wait_for_cockpit_running(self, atomic_wait_for_host="localhost"):
+        """Wait until cockpit is running.
+
+        We only need to do this on atomic systems.
+        On other systems, systemctl blocks until the service is actually running.
+        """
+        if not "atomic" in self.machine.os or not atomic_wait_for_host:
+            return
+        WAIT_COCKPIT_RUNNING = """#!/bin/sh
+until curl -s --connect-timeout 1 http://%s:9090 >/dev/null; do
+    sleep 0.5;
+done;
+""" % (atomic_wait_for_host)
+        with Timeout(seconds=30, error_message="Timeout while waiting for cockpit/ws to start"):
+            self.machine.execute(script=WAIT_COCKPIT_RUNNING)
+
     def start_cockpit(self, atomic_wait_for_host="localhost"):
         """Start Cockpit.
 
@@ -443,18 +459,21 @@ class MachineCase(unittest.TestCase):
 systemctl start docker
 /usr/bin/docker run -d --privileged --pid=host -v /:/host cockpit/ws /container/atomic-run --local-ssh --no-tls
 """
-            if atomic_wait_for_host:
-                WAIT_COCKPIT_RUNNING = """
-until curl -s --connect-timeout 1 http://%s:9090 >/dev/null; do
-    sleep 0.5;
-done;
-""" % (atomic_wait_for_host)
-            else:
-                WAIT_COCKPIT_RUNNING = "";
             with Timeout(seconds=30, error_message="Timeout while waiting for cockpit/ws to start"):
-                self.machine.execute(script=RUN_COCKPIT_CONTAINER + WAIT_COCKPIT_RUNNING)
+                self.machine.execute(script=RUN_COCKPIT_CONTAINER)
+                self.wait_for_cockpit_running(atomic_wait_for_host)
         else:
             self.machine.execute("systemctl start cockpit-testing.socket")
+
+    def restart_cockpit(self):
+        """Restart Cockpit.
+        """
+        if "atomic" in self.machine.os:
+            with Timeout(seconds=30, error_message="Timeout while waiting for cockpit/ws to restart"):
+                self.machine.execute("docker restart `docker ps | grep cockpit/ws | awk '{print $1;}'`")
+                self.wait_for_cockpit_running()
+        else:
+            self.machine.execute("systemctl restart cockpit-testing.socket")
 
     def login_and_go(self, page, href=None, user=None, host="localhost"):
         self.start_cockpit(host)

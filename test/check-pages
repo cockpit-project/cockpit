@@ -49,7 +49,7 @@ WantedBy=default.target
         b.enter_page("/system/init")
         b.wait_text("#service-unit .panel-heading", "Test Service")
 
-        m.execute("systemctl restart cockpit-testing.service")
+        self.restart_cockpit()
         b.relogin("/system/init")
         b.wait_text("#service-unit .panel-heading", "Test Service")
 

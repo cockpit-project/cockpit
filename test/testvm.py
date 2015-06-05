@@ -252,7 +252,8 @@ ssh_keys:
 
     def run_setup_script(self, script, args):
         """Prepare a test image further by running some commands in it."""
-        self.start(maintain=True)
+        # run this on the original image, not the one in the run directory
+        self.start(maintain=True, original=True)
         try:
             self.wait_boot()
             self.upload([script], "/var/tmp/SETUP")
@@ -612,7 +613,7 @@ class QemuMachine(Machine):
         if self.verbose:
             gf.set_trace(1)
         try:
-            gf.add_drive_opts(self._image_image, readonly=False)
+            gf.add_drive_opts(self._image_original, readonly=False)
             gf.launch()
             # try to mount device directly
             devices = gf.list_devices()
@@ -656,14 +657,20 @@ class QemuMachine(Machine):
             os.unlink(self._image_additional_iso)
 
         if os.path.isfile(bootstrap_script):
-            subprocess.check_call([ bootstrap_script, self._image_image, self.arch ])
+            # this image will be created on top of the new base image
+            if os.path.exists(self._image_image):
+                os.unlink(self._image_image)
+            subprocess.check_call([ bootstrap_script, self._image_original, self.arch ])
             if modify_func:
                 self.run_modify_func(modify_func)
 
         elif os.path.isfile(image_file):
             """ We have a real image file, use that """
-            self.message("Creating disk copy:", self._image_image)
-            shutil.copyfile(image_file, self._image_image)
+            # this image will be created on top of the new base image
+            if os.path.exists(self._image_image):
+                os.unlink(self._image_image)
+            self.message("Creating disk copy:", self._image_original)
+            shutil.copyfile(image_file, self._image_original)
             self._image_kernel = None
             self._image_initrd = None
             if modify_func:
@@ -761,7 +768,7 @@ class QemuMachine(Machine):
         # Assume it's in $PATH
         return 'qemu-kvm'
 
-    def _start_qemu(self, maintain=False, tty=False, monitor=None):
+    def _start_qemu(self, maintain=False, tty=False, monitor=None, original=False):
         if not os.path.exists(self.run_dir):
             os.makedirs(self.run_dir, 0750)
 
@@ -851,7 +858,7 @@ class QemuMachine(Machine):
             raise
         proc.wait()
 
-    def start(self, maintain=False):
+    def start(self, maintain=False, original=False):
         assert not self._process
         try:
             if not os.path.exists(self.run_dir):
@@ -859,7 +866,9 @@ class QemuMachine(Machine):
 
             (unused, self._monitor) = tempfile.mkstemp(suffix='.mon', prefix="machine-", dir=self.run_dir)
             self._process = self._start_qemu(maintain=maintain, tty=False,
-                                             monitor="unix:path=%s,server,nowait" % self._monitor)
+                                             monitor="unix:path=%s,server,nowait" % self._monitor,
+                                             original=original
+                                            )
             self._maintaining = maintain
         except:
             self._cleanup()

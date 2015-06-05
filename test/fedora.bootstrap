@@ -55,7 +55,7 @@ autopart
 %end
 EOF
 
-qemu-img create -f qcow2 "$out" 4G
+qemu-img create -f qcow2 "$out" 8G
 
 connect="--connect=qemu:///session"
 name=fedora-builder

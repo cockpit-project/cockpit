@@ -24,27 +24,8 @@ import time
 
 from testlib import *
 
-admins_only_pam = """
-#%PAM-1.0
-auth	   required	pam_sepermit.so
-auth       substack     password-auth
-auth       include      postlogin
-auth       optional     pam_reauthorize.so prepare
-account    required     pam_nologin.so
-account    sufficient   pam_succeed_if.so uid = 0
-account    required     pam_succeed_if.so user ingroup wheel
-account    include      password-auth
-password   include      password-auth
-# pam_selinux.so close should be the first session rule
-session    required     pam_selinux.so close
-session    required     pam_loginuid.so
-# pam_selinux.so open should only be followed by sessions to be executed in the user context
-session    required     pam_selinux.so open env_params
-session    optional     pam_keyinit.so force revoke
-session    optional     pam_reauthorize.so prepare
-session    include      password-auth
-session    include      postlogin
-"""
+admins_only_pam = """account    sufficient   pam_succeed_if.so uid = 0\\
+account    required     pam_succeed_if.so user ingroup wheel"""
 
 class TestLogin(MachineCase):
     def testBasic(self):
@@ -56,7 +37,11 @@ class TestLogin(MachineCase):
         m.execute("echo abcdefg | passwd --stdin user")
 
         # Setup a special PAM config that disallows non-wheel users
-        m.write("/etc/pam.d/cockpit", admins_only_pam)
+        def deny_non_root(remote_filename):
+            m.execute("""sed -i '/nologin/a %s' %s || true""" % (admins_only_pam, remote_filename))
+
+        deny_non_root("/etc/pam.d/cockpit")
+        deny_non_root("/etc/pam.d/sshd")
 
         self.start_cockpit()
         b.open("system/host")
@@ -77,11 +62,15 @@ class TestLogin(MachineCase):
 
         # Try to login as user with correct password
         login ("user", "abcdefg")
-        b.wait_text("#login-error-message", "Permission denied")
+        if 'atomic' in m.os:
+            b.wait_in_text("body", "connect or authenticate: terminated")
+        else:
+            b.wait_text("#login-error-message", "Permission denied")
 
         # Login as admin
         login("admin", "foobar")
-        b.expect_reload()
+        with b.wait_timeout(10) as r:
+            b.expect_reload()
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'Administrator')
 

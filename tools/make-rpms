@@ -68,6 +68,12 @@ fi
 make_srpm=$base/tools/make-srpm
 
 os=${TEST_OS:-}
+# if we're building for atomic, generate regular fedora packages
+if [[ "$os" =~ "fedora-atomic" ]]; then
+    os=${os/-atomic/}
+else
+    os=$os
+fi
 arch=${TEST_ARCH:-}
 
 srpm=$("$make_srpm" "$@")

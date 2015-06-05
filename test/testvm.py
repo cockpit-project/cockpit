@@ -70,9 +70,65 @@ class Machine:
         self.test_data = os.environ.get("TEST_DATA") or self.test_dir
         self.vm_username = "root"
         self.vm_password = "foobar"
+        self.init_image = None
+        self.install_packages_script = None
+        self.target_install_script = None
+        if self.os == "fedora-atomic-22":
+            self.init_path = os.path.join(self.test_data, "%s-init" % (self.os))
+            if not os.path.exists(self.init_path):
+                os.makedirs(self.init_path, 0750)
+            self.init_image = os.path.join(self.init_path, "%s.iso" % (self.os))
+            self.install_packages_script = os.path.join(self.test_dir, "guest/atomic_install_packages.py")
+            self.target_install_script = "/%s/install_packages.py" % (self.vm_username)
         self.address = address
         self.mac = None
         self.label = label or "UNKNOWN"
+
+    def generate_init_image(self):
+        meta_name = os.path.join(self.init_path, "meta-data")
+        user_name = os.path.join(self.init_path, "user-data")
+        with open(meta_name, "w") as meta_data:
+            meta_data.write("""instance-id: id-%(os)s-01
+local-hostname: %(os)s.cockpit.lan
+""" % { 'os': self.os })
+            meta_data.close()
+        with open("%s.pub" % (self._calc_identity()), 'r') as key_file:
+            key = key_file.read().strip()
+        with open(user_name, "w") as user_data:
+            user_data.write("""#cloud-config
+users:
+  - default
+  - name: %(user)s
+    groups: users,wheel
+    ssh_authorized_keys:
+      - %(key)s
+  - name: admin
+    gecos: Administrator
+    groups: users,wheel
+    ssh_authorized_keys:
+      - %(key)s
+ssh_pwauth: True
+chpasswd:
+  list: |
+    fedora:%(pass)s
+    %(user)s:%(pass)s
+    admin:%(pass)s
+  expire: False
+""" %       {'user': self.vm_username,
+             'pass': self.vm_password,
+             'key': key
+            })
+            user_data.close()
+        cmd = ["genisoimage",
+               "-input-charset", "utf-8",
+               "-output", "%s" % (self.init_image),
+               "-volid", "cidata",
+               "-joliet",
+               "-rock",
+               user_name,
+               meta_name
+              ]
+        subprocess.check_call(cmd)
 
     def getconf(self, key):
         return key in self.conf and self.conf[key]
@@ -207,7 +263,14 @@ class Machine:
                 "TEST_PACKAGES": " ".join(uploaded),
                 "TEST_VERBOSE": self.verbose
             }
-            self.execute(script=INSTALL_SCRIPT, environment=env)
+            self.needs_writable_usr()
+            if self.install_packages_script:
+                self.upload([self.install_packages_script], self.target_install_script)
+                script_to_run = INSTALL_SCRIPT_ATOMIC % (self.target_install_script)
+            else:
+                script_to_run = INSTALL_SCRIPT
+
+            self.execute(script=script_to_run, environment=env)
         finally:
             self.stop()
 
@@ -567,6 +630,8 @@ class QemuMachine(Machine):
                 self._setup_fedora_22(gf)
             elif self.os == "fedora-rawhide":
                 self._setup_fedora_rawhide(gf)
+            elif self.os == "fedora-atomic-22":
+                pass
             elif self.os == "rhel-7":
                 credential_path = os.path.expanduser("~/.rhel/")
                 if (not os.path.isfile(credential_path + "login")) or (not os.path.isfile(credential_path + "pass")):
@@ -575,6 +640,8 @@ class QemuMachine(Machine):
             else:
                 raise Failure("Unsupported OS %s" % self.os)
 
+        if "atomic" in self.os:
+            self.generate_init_image()
         script = "%s-%s.setup" % (self.flavor, self.os)
         if not os.path.exists(script):
             script_alternative = "%s-%s-setup.sh" % (self.flavor, self.os)
@@ -654,10 +721,14 @@ class QemuMachine(Machine):
             self._locate_qemu_kvm(),
             "-m", str(MEMORY_MB),
             "-drive", "if=virtio,file=%s,index=0,serial=ROOT,snapshot=%s" % (self._image_image, snapshot),
+            "-nographic",
             "-net", "nic,model=virtio,macaddr=%s" % self.macaddr,
             "-net", "bridge,vlan=0,br=cockpit0",
             "-device", "virtio-scsi-pci,id=hot"
         ]
+
+        if self.init_image:
+            cmd += ["-cdrom", self.init_image]
 
         if monitor:
             cmd += "-monitor", monitor
@@ -791,7 +862,7 @@ class QemuMachine(Machine):
     def shutdown(self):
         assert self._process
         try:
-            if self._process.poll() is None:
+            if not self._process.poll():
                 self._monitor_qemu("system_powerdown")
                 self.wait_poweroff()
         except:
@@ -876,3 +947,8 @@ firewall-cmd --add-service=cockpit --permanent
 rm -rf /var/log/journal/*
 rm -rf /var/lib/NetworkManager/dhclient-*.lease
 """
+
+INSTALL_SCRIPT_ATOMIC = """#!/bin/sh
+export TEST_PACKAGES
+export TEST_VERBOSE
+python %s"""

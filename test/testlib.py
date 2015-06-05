@@ -35,12 +35,25 @@ import traceback
 import exceptions
 import re
 import json
+import signal
 import unittest
 try:
     import testvm
 except ImportError:
     print "Unable to import testvm, probably new test struture?"
     pass
+
+class Timeout:
+    def __init__(self, seconds=1, error_message='Timeout'):
+        self.seconds = seconds
+        self.error_message = error_message
+    def handle_timeout(self, signum, frame):
+        raise Exception(self.error_message)
+    def __enter__(self):
+        signal.signal(signal.SIGALRM, self.handle_timeout)
+        signal.alarm(self.seconds)
+    def __exit__(self, type, value, traceback):
+        signal.alarm(0)
 
 __all__ = (
     # Test definitions
@@ -420,7 +433,23 @@ class MachineCase(unittest.TestCase):
         Cockpit is not running when the test virtual machine starts up, to
         allow you to make modifications before it starts.
         """
-        self.machine.execute("systemctl start cockpit-testing.socket")
+        if "atomic" in self.machine.os:
+            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1228776
+            # we want to run:
+            # self.machine.execute("atomic run cockpit/ws --no-tls")
+            # but atomic doesn't forward the parameter, so we use the resulting command
+            # also we need to wait for cockpit to be up and running
+            RUN_COCKPIT_CONTAINER = """#!/bin/sh
+systemctl start docker
+/usr/bin/docker run -d --privileged --pid=host -v /:/host cockpit/ws /container/atomic-run --local-ssh --no-tls
+until curl -s --connect-timeout 1 http://localhost:9090 >/dev/null; do
+    sleep 0.5;
+done;
+"""
+            #with Timeout(seconds=20, error_message="Timeout while waiting for cockpit/ws to start"):
+            self.machine.execute(script=RUN_COCKPIT_CONTAINER)
+        else:
+            self.machine.execute("systemctl start cockpit-testing.socket")
 
     def login_and_go(self, page, href=None, user=None, host="localhost"):
         self.start_cockpit()

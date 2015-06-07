@@ -65,11 +65,6 @@ BuildRequires: systemd
 BuildRequires: polkit
 BuildRequires: pcp-libs-devel
 
-# For cockpit-lvm
-BuildRequires:  libgudev1-devel
-BuildRequires:  lvm2-devel
-BuildRequires:  polkit-devel
-
 %if %{defined gitcommit}
 BuildRequires: npm
 BuildRequires: nodejs
@@ -134,11 +129,7 @@ Requires: shadow-utils
 Requires: grep
 Requires: libpwquality
 Requires: /usr/bin/date
-Requires: mdadm
-Requires: lvm2
-%if 0%{?rhel} == 0
-Requires: udisks2 >= 2.1.0
-%else
+%if 0%{?rhel}
 Provides: %{name}-subscriptions = %{version}-%{release}
 Requires: subscription-manager >= 1.13
 %ifarch x86_64 armv7hl
@@ -271,14 +262,8 @@ cat subscriptions.list docker.list >> shell.list
 %{_bindir}/cockpit-bridge
 %attr(4755, -, -) %{_libexecdir}/cockpit-polkit
 %{_libexecdir}/cockpit-wrapper
-%{_libexecdir}/cockpit-lvm
-%{_libexecdir}/cockpit-lvm-helper
 %{_libdir}/security/pam_reauthorize.so
 %{_datadir}/dbus-1/services/com.redhat.Cockpit.service
-%{_sysconfdir}/dbus-1/system.d/com.redhat.Cockpit.LVM.conf
-%{_datadir}/dbus-1/system-services/com.redhat.Cockpit.LVM.service
-%{_datadir}/polkit-1/actions/com.redhat.Cockpit.LVM.policy
-%{_datadir}/cockpit/lvm-nolocking/lvm.conf
 
 %files doc
 %exclude %{_docdir}/%{name}/AUTHORS

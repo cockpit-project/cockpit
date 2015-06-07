@@ -476,9 +476,6 @@ define([
             } else if (component == "network/interfaces") {
                 component = "shell/shell";
                 hash = "/networking" + hash;
-            } else if (component == "storage/devices") {
-                component = "shell/shell";
-                hash = "/storage" + hash;
             } else if (component == "users/local") {
                 component = "shell/shell";
                 if (options && options.id)

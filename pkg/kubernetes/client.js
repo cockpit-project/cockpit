@@ -1562,7 +1562,7 @@ define([
                 query = { num_stats: 60 };
             } else {
                 query = {
-                    start: new Date(beg * interval).toISOString(),
+                    start: new Date((beg - 1) * interval).toISOString(),
                     end: new Date(end * interval).toISOString()
                 };
             }

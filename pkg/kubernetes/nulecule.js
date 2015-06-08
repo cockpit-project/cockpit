@@ -134,21 +134,22 @@ define([
             var process ;
             
             if(ptype === "install") {
-                process = cockpit.spawn(["/usr/bin/atomicapp", "-d", "install", "--destination", tmp_dir, image],{ err: "out" });
+                process = cockpit.spawn(["/usr/bin/atomicapp", "-d", "install", "--destination", tmp_dir, image], { err: "out", superuser: "require" });
                 debug("installing image: " + image + " in folder " + tmp_dir);
             } else {
-                process = cockpit.spawn(['/bin/sh', '-s'],{ err: "out" }).input("cd " + tmp_dir + " && /usr/bin/atomicapp -d -v run .");
+                process = cockpit.spawn(['/bin/sh', '-s'],{ err: "out", superuser: "require" }).input("cd " + tmp_dir + " && /usr/bin/atomicapp -d -v run .");
                 debug("Running from folder " + tmp_dir);
             }
             
             function check_status(statuss) {
-                var error = "";
+                var error ;
+                var errmsg = "";
                 if(statuss && statuss.status === "ERROR") {
-                    error = statuss.status_message;
-                    var msgl =error.split('Exception raised: Error:');
+                    errmsg = statuss.status_message;
+                    var msgl = errmsg.split('Exception raised:');
                     if(msgl.length > 1)
-                        error = msgl[1];
-                    error = new Error(statuss.status_message);
+                        errmsg = msgl[1];
+                    error = new Error(errmsg);
                     deferred.reject(error);
                     window.clearInterval(timer);
                     process.close();                    
@@ -220,7 +221,7 @@ define([
                             if(data) {
                                 data = data[data.length-1];
                                 message = data.status_message;
-                                var msgl = message.split('Exception raised: Error:');
+                                var msgl = message.split('Exception raised:');
                                 if(msgl.length > 1)
                                     message = msgl[1];
 

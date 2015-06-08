@@ -42,12 +42,12 @@ define([
 
         .controller('TopologyCtrl', [
             '$scope',
-            'kubernetesClient',
-            function($scope, client) {
-                $scope.client = client;
+            function($scope) {
                 $scope.items = { };
                 $scope.relations = [ ];
+                $scope.selected = null;
 
+                var client = $scope.client;
                 var ready = false;
                 var all = { };
 

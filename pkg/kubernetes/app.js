@@ -258,19 +258,24 @@ define([
         }])
 
         .controller('MainCtrl', [
+            '$scope',
             '$route',
             '$routeParams',
             '$location',
-            function($route, $routeParams, $location) {
-                this.$route = $route;
-                this.$location = $location;
-                this.$routeParams = $routeParams;
+            'kubernetesClient',
+            function($scope, $route, $routeParams, $location, client) {
+                $scope.$route = $route;
+                $scope.$location = $location;
+                $scope.$routeParams = $routeParams;
 
                 /* Used to set detect which route is active */
-                this.is_active = function is_active(template) {
-                    var current = this.$route.current;
+                $scope.is_active = function is_active(template) {
+                    var current = $scope.$route.current;
                     return current && current.loadedTemplateUrl === template;
                 };
+
+                /* Used by child scopes */
+                $scope.client = client;
         }])
 
         /* Override the default angularjs exception handler */

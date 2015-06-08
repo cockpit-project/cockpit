@@ -35,6 +35,8 @@ define([
                 'kubernetesNodes',
                 'kubernetesPods',
                 function($scope, $location, services, nodes, pods) {
+            var ready = false;
+
             $scope.services = services;
             $scope.nodes = nodes;
             $scope.pods = pods;
@@ -60,9 +62,33 @@ define([
                 $scope.$broadcast("highlight", uid);
             };
 
+            function services_state() {
+                if ($scope.failure)
+                    return 'failed';
+                var service;
+                for (service in services)
+                    break;
+                return service ? 'ready' : 'empty';
+            }
+
+            /* Track the loading/failure state of the services area */
+            $scope.state = 'loading';
+            $scope.client.watches.services.wait()
+                .fail(function(ex) {
+                    $scope.failure = ex;
+                })
+                .always(function() {
+                    $scope.state = services_state();
+                    if (ready)
+                        $scope.$digest();
+                });
+
             $([services, nodes, pods]).on("changed", function() {
+                $scope.state = services_state();
                 $scope.$digest();
                 phantom_checkpoint();
             });
+
+            ready = true;
         }]);
 });

@@ -135,6 +135,11 @@ define([
                     $(all).off();
                 });
 
+                all = client.select();
+                client.track(all);
+                $(all).on("changed", digest);
+                digest();
+
                 ready = true;
             }
         ]);

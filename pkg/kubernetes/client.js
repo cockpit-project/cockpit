@@ -145,13 +145,26 @@ define([
         };
     }
 
+    function update_error_message(ex, response) {
+        if (!response)
+            return;
+
+        var obj;
+        try {
+            obj = JSON.parse(response);
+        } catch(e) {
+            return;
+        }
+
+        if (obj && obj.message)
+            ex.message = obj.message;
+    }
+
     /*
      * KubernetesWatch:
-     * @api: a cockpit.http() object for the api server
      * @type: a string like 'pods' or 'nodes'
      * @update: invoked when ADDED or MODIFIED happens
      * @remove: invoked when DELETED happens
-     * @loading: invoked when watch thinks it has loaded all items
      *
      * Generates callbacks based on a Kubernetes watch.
      *
@@ -163,7 +176,7 @@ define([
      * @remove callback with a null argument to indicate we are
      * starting over.
      */
-    function KubernetesWatch(api, type, update, remove, loaded) {
+    function KubernetesWatch(type, update, remove) {
         var self = this;
 
         /* Used to track the last resource for restarting query */
@@ -174,6 +187,9 @@ define([
 
         /* The current HTTP request */
         var req = null;
+
+        /* The API that we make HTTP requests to */
+        var api = null;
 
         /*
          * Loading logic.
@@ -194,6 +210,7 @@ define([
          *  b) See if any objects present before load need to be removed.
          */
 
+        var loaded = $.Deferred();
         var objects = { };
         var previous;
         var loading;
@@ -234,10 +251,10 @@ define([
                 }
             }
 
-            /* Invoke caller watch if present */
-            if (loaded) {
-                loaded(type);
-                loaded = null;
+            if (!loaded.called) {
+                loaded.called = true;
+                if (loaded.state() == 'pending')
+                    loaded.resolve();
             }
         }
 
@@ -345,16 +362,18 @@ define([
                 })
                 .always(function() {
                     req = null;
-                    load_ready();
                 })
-                .fail(function(ex) {
+                .fail(function(ex, response) {
                     if (stopping)
                         return;
+                    update_error_message(ex, response);
                     var msg = "watching kubernetes " + type + " failed: " + ex;
                     if (ex.problem !== "disconnected")
                         console.warn(msg);
                     else
                         debug(msg);
+                    if (loaded.state() == 'pending')
+                        loaded.reject(ex);
                     start_watch_later();
                 })
                 .done(function(data) {
@@ -381,15 +400,32 @@ define([
             }
         }
 
-        self.stop = function stop() {
+        self.start = function start(http) {
+            stopping = false;
+            if (loaded.state() != 'pending')
+                loaded = $.Deferred();
+            api = http;
+            start_watch();
+        };
+
+        self.wait = function wait() {
+            return loaded.promise();
+        };
+
+        self.stop = function stop(ex) {
             stopping = true;
-            if (req)
-                req.close();
+            var problem;
+            if (req) {
+                if (ex)
+                    problem = ex.problem;
+                req.close(problem || "disconnected");
+                req = null;
+            }
+            if (loaded.state() == 'pending')
+                loaded.reject(ex);
             window.clearTimeout(wait);
             wait = null;
         };
-
-        start_watch();
     }
 
     /*
@@ -442,7 +478,7 @@ define([
                         step();
                     }
                 })
-                .fail(function(ex) {
+                .fail(function(ex, response) {
                     req = null;
 
                     if (ex.problem === "not-found") {
@@ -451,7 +487,7 @@ define([
                     } else {
                         if (ex.problem !== "cancelled")
                             debug("connecting to endpoint failed:", scheme, ex);
-                        dfd.reject(ex);
+                        dfd.reject(ex, response);
                     }
                 });
         }
@@ -600,10 +636,6 @@ define([
         /* Holds the connect api promise */
         var connected;
 
-        /* Holds the loaded api promise */
-        var loaded = $.Deferred();
-        var loading = { };
-
         /* The API info returned from /api */
         var apis;
 
@@ -626,42 +658,26 @@ define([
                 connected = connect_api_server()
                     .done(function(http, response) {
                         self.flavor = response.flavor;
-
-                        [ "nodes", "pods", "services", "replicationcontrollers",
-                          "namespaces" ].forEach(function(type) {
-                            loading[type] = true;
-                            watches.push(new KubernetesWatch(http, type,
-                                                             handle_updated,
-                                                             handle_removed,
-                                                             handle_loaded));
-                        });
-
-                        watches.push(new KubernetesWatch(http, "events",
-                                                         handle_event,
-                                                         handle_removed,
-                                                         null));
+                        for (var type in self.watches)
+                            self.watches[type].start(http);
                     })
-                    .fail(function(ex) {
+                    .fail(function(ex, response) {
+                        update_error_message(ex, response);
                         console.warn("Couldn't connect to kubernetes:", ex);
-                        loaded.reject(ex);
+                        for (var type in self.watches)
+                            self.watches[type].stop(ex);
                     });
             }
 
             return connected;
         };
 
-        /**
-         * wait(callback)
-         * @callback: a callback function
-         *
-         * Add a callback to be invoked when the KubernetesClient
-         * becomes ready or fails.
-         *
-         * May be invoked immediately if already.
-         */
-        self.wait = function wait(callback) {
-            loaded.always(callback);
-        };
+        /* The watch objects we have open */
+        self.watches = { "events": new KubernetesWatch("events", handle_event, handle_removed) };
+        [ "nodes", "pods", "services", "replicationcontrollers",
+          "namespaces" ].forEach(function(type) {
+            self.watches[type] = new KubernetesWatch(type, handle_updated, handle_removed);
+        });
 
         /*
          * request:
@@ -714,13 +730,8 @@ define([
          * You can use connect() to connect again.
          */
         self.close = function close() {
-            var w = watches;
-            watches = [ ];
-            w.forEach(function(wc) {
-                wc.stop();
-            });
-            loaded = $.Deferred();
-            loading = { };
+            for (var type in self.watches)
+                self.watches[type].stop();
             tracked = [ ];
             if (connected) {
                 connected.cancel();
@@ -728,23 +739,11 @@ define([
             }
         };
 
-        /* The watch objects we have open */
-        var watches = [];
-
         /* The tracked objects */
         var tracked = [];
 
         /* TODO: Derive this value from cluster size */
         var index = new HashIndex(262139);
-
-        /* Invoked when a watch thinks it has loaded all items */
-        function handle_loaded(type) {
-            delete loading[type];
-            for (var i in loading)
-                return;
-            if (loaded.state() == "pending")
-                loaded.resolve();
-        }
 
         /* Invoked when a an item is added or changed */
         function handle_updated(item, type) {

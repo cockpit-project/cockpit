@@ -54,6 +54,14 @@ define([
                     $location.path("/pods/" + encodeURIComponent(meta.namespace)).search(spec.selector);
             };
 
+            $scope.highlighted = null;
+            $scope.$on("highlight", function(ev, uid) {
+                $scope.highlighted = uid;
+            });
+            $scope.highlight = function highlight(uid) {
+                $scope.$broadcast("highlight", uid);
+            };
+
             $([client, services, nodes, pods]).on("changed", function() {
                 $scope.$digest();
                 phantom_checkpoint();

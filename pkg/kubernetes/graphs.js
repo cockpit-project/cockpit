@@ -289,8 +289,10 @@ define([
             var row, i, len = services.length;
             for (i = 0; i < len; i++) {
                 row = rows[type][services[i]];
-                if (row !== undefined)
+                if (row !== undefined) {
                     self.rows.push(row);
+                    row.uid = services[i];
+                }
             }
 
             $(self).triggerHandler("changed");
@@ -311,10 +313,12 @@ define([
         return self;
     }
 
-    function service_graph(selector) {
+    function service_graph(selector, highlighter) {
         var grid = service_grid();
 
         var outer = d3.select(selector);
+
+        var highlighted = null;
 
         /* Various tabs */
 
@@ -495,7 +499,7 @@ define([
             jump();
         }
 
-        function notified(ev, x, n) {
+        function notified() {
             var rows = grid.rows;
 
             var series = stage.selectAll("path.line")
@@ -503,10 +507,17 @@ define([
 
             var trans = series
                 .style("stroke", function(d, i) { return colors(i); })
-                .attr("d", function(d) { return line(d); });
+                .attr("d", function(d) { return line(d); })
+                .classed("highlight", function(d) { return d.uid === highlighted; });
 
             series.enter().append("path")
-                .attr("class", "line");
+                .attr("class", "line")
+                .on("mouseover", function() {
+                    highlighter(d3.select(this).datum().uid);
+                })
+                .on("mouseout", function() {
+                    highlighter(null);
+                });
             series.exit().remove();
         }
 
@@ -524,6 +535,10 @@ define([
         var timer = window.setInterval(jump, grid.interval);
 
         return {
+            highlight: function highlight(uid) {
+                highlighted = uid;
+                notified();
+            },
             close: function close() {
                 $(window).off('resize', resized);
                 window.clearInterval(timer);
@@ -537,7 +552,13 @@ define([
             return {
                 restrict: 'E',
                 link: function($scope, element, attributes) {
-                    var graph = service_graph(element[0]);
+                    var graph = service_graph(element[0], function(uid) {
+                        $scope.$broadcast('highlight', uid);
+                        $scope.$digest();
+                    });
+                    $scope.$on("highlight", function(ev, uid) {
+                        graph.highlight(uid);
+                    });
                     element.on('$destroy', function() {
                         graph.close();
                     });

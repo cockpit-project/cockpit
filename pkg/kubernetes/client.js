@@ -609,6 +609,7 @@ define([
 
         /*
          * connect:
+         * @force: Force a new connection
          *
          * Starts connecting to the kube-apiserver if not connected.
          * This means figuring out which port kube-apiserver is
@@ -620,8 +621,8 @@ define([
          * complete, and any done callbacks will happen
          * immediately.
          */
-        self.connect = function connect() {
-            if (!connected) {
+        self.connect = function connect(force) {
+            if (force || !connected) {
                 connected = connect_api_server()
                     .done(function(http, response) {
                         self.flavor = response.flavor;
@@ -659,7 +660,7 @@ define([
          * May be invoked immediately if already.
          */
         self.wait = function wait(callback) {
-            loaded.done(callback);
+            loaded.always(callback);
         };
 
         /*

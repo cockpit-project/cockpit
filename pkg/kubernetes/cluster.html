@@ -81,7 +81,9 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           </thead>
           <tbody>
             <tr ng-repeat="service in services" data-uid="{{service.uid}}"
-                ng-click="jumpService($event, service.item)">
+                ng-class="{highlight: service.uid == highlighted}"
+                ng-click="jumpService($event, service.item)"
+                ng-mouseover="highlight(service.uid)" ng-mouseout="highlight(null)">
               <td>{{service.name}}</td>
               <td><kubernetes-address ng-init="item = service"></td>
               <td>{{service.containers}}</td>

@@ -44,6 +44,12 @@ path.line.highlight {
 
 /* Page global stuff */
 
+.curtains {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+}
+
 .container-fluid {
     margin-top: 0px;
     padding-left: 0px;
@@ -209,4 +215,19 @@ input.adjust-replica {
 
 #adjust-dialog .modal-dialog {
     width: 400px;
+}
+
+/* HACK: https://github.com/patternfly/patternfly/issues/75 */
+.blank-slate-pf .fa {
+    color: #999999;
+}
+
+.blank-slate-pf .spinner-lg {
+    height: 58px;
+    width: 58px;
+}
+
+/* Used to hide angular elements until they are ready */
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+    display: none !important;
 }

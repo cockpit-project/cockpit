@@ -276,6 +276,38 @@ define([
 
                 /* Used by child scopes */
                 $scope.client = client;
+
+                /* When set then we hide the application */
+                $scope.curtains = { state: 'silent' };
+
+                var timeout = window.setTimeout(function() {
+                    $scope.curtains = { state: 'connecting' };
+                    $scope.$digest();
+                    timeout = null;
+                }, 1000);
+
+                function handle(promise) {
+                    promise
+                        .always(function() {
+                            window.clearTimeout(timeout);
+                            timeout = null;
+                        })
+                        .done(function() {
+                            $scope.curtains = null;
+                            $scope.$digest();
+                        })
+                        .fail(function(ex) {
+                            $scope.curtains = { state: 'failed', failure: ex };
+                            $scope.$digest();
+                        });
+                }
+
+                handle(client.connect());
+
+                $scope.reconnect = function reconnect() {
+                    $scope.curtains = { state: 'connecting' };
+                    handle(client.connect(true));
+                };
         }])
 
         /* Override the default angularjs exception handler */

@@ -526,6 +526,8 @@ define([
 
         function resized() {
             width = $(selector).outerWidth() - 10;
+            if (width < 0)
+                width = 0;
             adjust();
         }
 

@@ -50,7 +50,7 @@
                 return fmt.replace(fmt_re, function(m, x, y) { return args[x || y] || ""; });
             }
 
-            function brand(_id) {
+            function brand(_id, def) {
                 var elt = id(_id);
                 if (!elt)
                     return;
@@ -61,7 +61,7 @@
                     if ((content[0] === '"' || content[0] === '\'') &&
                         len > 2 && content[len - 1] === content[0])
                         content = content.substr(1, len - 2);
-                    elt.innerHTML = format(content, initial_environment["os-release"]) || "Cockpit";
+                    elt.innerHTML = format(content, initial_environment["os-release"]) || def;
                 }
             }
 
@@ -88,8 +88,8 @@
             function boot() {
                 window.onload = null;
 
-                brand("badge");
-                brand("brand");
+                brand("badge", "");
+                brand("brand", "Cockpit");
 
                 if (!requisites())
                     return;

@@ -31,15 +31,13 @@ define([
         .controller('DashboardCtrl', [
                 '$scope',
                 '$location',
-                'kubernetesClient',
                 'kubernetesServices',
                 'kubernetesNodes',
                 'kubernetesPods',
-                function($scope, $location, client, services, nodes, pods) {
+                function($scope, $location, services, nodes, pods) {
             $scope.services = services;
             $scope.nodes = nodes;
             $scope.pods = pods;
-            $scope.client = client;
 
             $scope.jumpService = function jumpService(ev, service) {
                 var target = $(ev.target);
@@ -62,7 +60,7 @@ define([
                 $scope.$broadcast("highlight", uid);
             };
 
-            $([client, services, nodes, pods]).on("changed", function() {
+            $([services, nodes, pods]).on("changed", function() {
                 $scope.$digest();
                 phantom_checkpoint();
             });

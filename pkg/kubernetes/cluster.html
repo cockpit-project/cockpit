@@ -86,7 +86,22 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           </div>
           <span translatable="yes">Kubernetes Services</span>
         </div>
-        <table class="table table-hover">
+        <div class="well blank-slate-pf spacious" ng-if="state == 'failed'">
+          <div class="blank-slate-pf-icon">
+            <i ng-if="failure.status == 403" class="fa fa-lock"></i>
+            <i ng-if="failure.status != 403" class="fa fa-exclamation-circle"></i>
+          </div>
+          <h3 translatable="yes">Couldn't list services</h3>
+          <p>{{failure.message}}</p>
+        </div>
+        <div class="well blank-slate-pf spacious" ng-if="state == 'empty'">
+          <div class="blank-slate-pf-icon">
+            <i class="fa fa-rocket"></i>
+          </div>
+          <h3>No services present</h3>
+          <p translatable="yes">You can deploy an application to your cluster.</p>
+        </div>
+        <table class="table table-hover" ng-if="state == 'ready'">
           <thead>
             <tr>
               <th translatable="yes">Name</th>

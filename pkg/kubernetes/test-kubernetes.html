@@ -563,7 +563,7 @@ require([
         expect(3);
 
         var client = kubernetes.k8client();
-        client.wait(function() {
+        client.watches.nodes.wait().always(function() {
             var nodes = client.select("Node");
             ok("f530580d-a169-11e4-8651-10c37bdb8410" in nodes, "found node");
             var node = nodes["f530580d-a169-11e4-8651-10c37bdb8410"];
@@ -579,7 +579,7 @@ require([
         expect(3);
 
         var client = kubernetes.k8client();
-        client.wait(function() {
+        client.watches.pods.wait().always(function() {
             var pods = client.select("Pod");
             equal(pods.items.length, 2, "number of pods");
             var pod = pods["11768037-ab8a-11e4-9a7c-080027300d85"];
@@ -601,7 +601,7 @@ require([
         var pods = client.select("Pod");
         client.track(pods);
 
-        client.wait(function() {
+        client.watches.pods.wait().always(function() {
             ready = true;
 
             equal(pods.items.length, 2, "number of pods");
@@ -656,7 +656,7 @@ require([
         var pods = client.select("Pod");
         client.track(pods);
 
-        client.wait(function() {
+        client.watches.pods.wait().always(function() {
             ready = true;
 
             equal(pods.items.length, 2, "number of pods");
@@ -705,7 +705,7 @@ require([
         var pods = client.select("Pod");
         client.track(pods);
 
-        client.wait(function() {
+        client.watches.pods.wait().always(function() {
             ready = true;
 
             equal(pods.items.length, 2, "number of pods");
@@ -739,7 +739,7 @@ require([
 
         var client = kubernetes.k8client();
 
-        client.wait(function() {
+        client.watches.services.wait().always(function() {
             var services = client.select("Service");
             var svc = services.items[0];
             equal(services.items.length, 2, "number of services");
@@ -922,7 +922,7 @@ require([
 
         var client = kubernetes.k8client();
 
-        client.wait(function() {
+        client.watches.pods.wait().always(function() {
             var items = client.select();
             client.track(items);
 
@@ -966,7 +966,7 @@ require([
 
     asyncTest("select", function() {
         var client = kubernetes.k8client();
-        client.wait(function() {
+        client.watches.pods.wait().always(function() {
 
             /* Select everything odd, 500 pods */
             var results = client.select(null, "default", { "type": "odd" });
@@ -1022,7 +1022,7 @@ require([
 
     asyncTest("infer", function() {
         var client = kubernetes.k8client();
-        client.wait(function() {
+        client.watches.pods.wait().always(function() {
 
             /* Start simple, exactly the labels selector matches */
             var results = client.infer(null, "default", { "tag": "silly", "type": "odd" });
@@ -1067,7 +1067,7 @@ require([
 
     asyncTest("hosting", function() {
         var client = kubernetes.k8client();
-        client.wait(function() {
+        client.watches.pods.wait().always(function() {
 
             /* Find out which pods this node is hosting */
             var results = client.hosting("Pod", "127.0.0.1");

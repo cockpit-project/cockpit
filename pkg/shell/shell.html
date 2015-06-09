@@ -2236,19 +2236,23 @@
                 </td>
               </tr>
               <tr>
-                <td><label class="control-label" for="link-containers"
-                        translatable="yes">Links</td>
+                <td><label class="control-label" for="link-containers" translatable="yes">Links</label></td>
                 <td colspan="3">
-                  <input type="checkbox" name="link-containers" id="link-containers" checked="false"/><label for="link-containers">Link to another container</label>
+                  <label>
+                    <input type="checkbox" name="link-containers" id="link-containers" checked="false"/>
+                    Link to another container
+                  </label>
                   <div id="select-linked-containers" class="containers-run-inline">
                   </div>
                 </td>
               </tr>
               <tr>
-                <td><label class="control-label" for="expose-ports"
-                        translatable="yes">Ports</label></td>
+                <td><label class="control-label" for="expose-ports" translatable="yes">Ports</label></td>
                 <td colspan="3">
-                  <input type="checkbox" name="expose-ports" id="expose-ports" checked="false"/><label for="expose-ports">Expose container ports</label>
+                  <label>
+                    <input type="checkbox" name="expose-ports" id="expose-ports" checked="false"/>
+                    Expose container ports
+                  </label>
                   <div id="select-exposed-ports" class="containers-run-portmapping containers-run-inline">
                   </div>
                 </td>

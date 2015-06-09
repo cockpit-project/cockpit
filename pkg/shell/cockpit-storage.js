@@ -20,11 +20,12 @@
 define([
     "jquery",
     "base1/cockpit",
+    "base1/mustache",
     "shell/controls",
     "shell/shell",
     "system/server",
     "shell/cockpit-main"
-], function($, cockpit, controls, shell, server) {
+], function($, cockpit, Mustache, controls, shell, server) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -2546,6 +2547,9 @@ function PageCreateRaid() {
 
 shell.dialogs.push(new PageCreateRaid());
 
+var device_entry_template = $("#storage-device-entry-tmpl").html();
+Mustache.parse(device_entry_template);
+
 function fill_free_devices_list(client, id, filter)
 {
     var blocks;
@@ -2567,19 +2571,11 @@ function fill_free_devices_list(client, id, filter)
                      });
         var id_n = id + '-' + n;
 
-        list.append(
-            $('<li>', { 'class': 'list-group-item' }).append(
-                $('<div>', { 'class': 'checkbox',
-                             'style': 'margin:0px'
-                           }).append(
-                    $('<label>').append(
-                    $('<input/>', { type: "checkbox",
-                                    name: id_n,
-                                    id: id_n,
-                                    'data-index': n
-                                  }),
-                    $('<label/>', { "for": id_n }).text(
-                        desc)))));
+        list.append($(Mustache.render(device_entry_template, {
+                    id: id_n,
+                    index: n,
+                    desc: desc
+                })));
     }
 
     element.html(list);

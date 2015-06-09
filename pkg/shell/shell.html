@@ -1489,6 +1489,17 @@
       </div>
     </div>
 
+    <script id="storage-device-entry-tmpl" type="x-template/mustache">
+      <li class="list-group-item">
+        <div class="checkbox" style="margin:0px">
+          <label>
+            <input type="checkbox" name="{{id}}" id="{{id}}" data-index="{{index}}"/>
+            {{desc}}
+          </label>
+        </div>
+      </li>
+    </script>
+
     <div class="modal" id="storage_format_disk_dialog"
          tabindex="-1" role="dialog"
          data-backdrop="static">

@@ -1327,6 +1327,18 @@
       </div>
     </div>
 
+    <script id="role-entry-tmpl" type="x-template/mustache">
+      <li class="list-group-item">
+        <div class="checkbox" style="margin:0px">
+          <label>
+            <input type="checkbox" name="account-role-checkbox-{{id}}"
+                   id="account-role-checkbox-{{id}}" {{#member}}checked{{/member}}/>
+            {{desc}}
+          </label>
+        </div>
+      </li>
+    </script>
+
     <div class="modal" id="shutdown-confirm"
          tabindex="-1" role="dialog"
          data-backdrop="static">

@@ -20,11 +20,12 @@
 define([
     "jquery",
     "base1/cockpit",
+    "base1/mustache",
     "shell/controls",
     "shell/shell",
     "shell/cockpit-main",
     "base1/patterns",
-], function($, cockpit, controls, shell) {
+], function($, cockpit, Mustache, controls, shell) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -858,6 +859,8 @@ var crop_handle_width = 20;
 PageAccountChangeRoles.prototype = {
     _init: function() {
         this.id = "account-change-roles-dialog";
+        this.entry_template = $("#role-entry-tmpl").html();
+        Mustache.parse(this.entry_template);
     },
 
     show: function() {
@@ -868,6 +871,7 @@ PageAccountChangeRoles.prototype = {
     },
 
     enter: function() {
+        var self = this;
         function update() {
             var r, u;
             var roles = $('#account-change-roles-roles');
@@ -878,18 +882,11 @@ PageAccountChangeRoles.prototype = {
 
             for (var i = 0; i < PageAccountChangeRoles.page.roles.length; i++) {
                 r = PageAccountChangeRoles.page.roles[i];
-                roles.append(
-                      $('<li>', { 'class': 'list-group-item' }).append(
-                          $('<div>', { 'class': 'checkbox',
-                                       'style': 'margin:0px'
-                                     }).append(
-                              $('<input/>', { type: "checkbox",
-                                              name: "account-role-checkbox-" + r["id"],
-                                              id: "account-role-checkbox-" + r["id"],
-                                              checked: r["member"]
-                                            }),
-                              $('<label/>', { "for": "account-role-checkbox-" + r["id"] }).text(
-                                  r["desc"]))));
+                roles.append($(Mustache.render(self.entry_template, {
+                    id: r["id"],
+                    member: r["member"],
+                    desc: r["desc"]
+                })));
             }
         }
 

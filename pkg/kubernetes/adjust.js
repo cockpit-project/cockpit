@@ -73,7 +73,7 @@ define([
             $("table.cockpit-form-table").append(Mustache.render(template, { replicas: replicas }));
 
             /* Only show header if any replicas */
-            $(".adjust-replicas-header").toggle(rcs.length > 0);
+            $(".adjust-replicas-header").toggle(replicas.length > 0);
         })
         .on("hide.bs.modal", function(ev) {
             $("tr.adjust-replicas").remove();

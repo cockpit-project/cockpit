@@ -324,14 +324,18 @@ define([
                             text = address;
 
                         /* One single HTTP or HTTPS port */
-                        } else if (ports.length == 1 && ports[0].protocol === "TCP") {
-                            if (ports[0].port === 80)
-                                href = "http://" + encodeURIComponent(address);
-                            else if (ports[0].port === 443)
-                                href = "https://" + encodeURIComponent(address);
+                        } else if (ports.length == 1) {
                             text = address + ":" + ports[0].port;
+                            if (ports[0].protocol === "TCP") {
+                                if (ports[0].port === 80)
+                                    href = "http://" + encodeURIComponent(address);
+                                else if (ports[0].port === 443)
+                                    href = "https://" + encodeURIComponent(address);
+                            } else {
+                                text += "/" + ports[0].protocol;
+                            }
                         } else {
-                            text = " " + ports.map(function(p) {
+                            text = " " + address + " " + ports.map(function(p) {
                                 if (p.protocol === "TCP")
                                     return p.port;
                                 else

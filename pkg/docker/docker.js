@@ -67,7 +67,7 @@ define([
         if (registry)
             repo = registry + "/" + repo;
 
-        console.log("pulling: " + repo + ":" + tag);
+        docker_debug("pulling: " + repo + ":" + tag);
 
         var options = {
             method: "POST",
@@ -438,10 +438,8 @@ define([
 
                 /* We need at least two bytes to determine stream type */
                 if (tty === undefined || tty === null) {
-                    if (data.length < 2) {
-console.log("missing data", data, pos + 4);
+                    if (data.length < 2)
                         return ret;
-}
                     tty = !((data[0] === 0 || data[0] === 1 || data[0] === 2) && data[1] === 0);
                     docker_debug(container_id + ": mode tty: " + tty);
                 }

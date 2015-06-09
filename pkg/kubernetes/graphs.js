@@ -171,8 +171,8 @@ define([
             for (id in cadvisor.specs)
                 add_container(cadvisor, id);
 
-            /* In order to even know which containers we have, ask cadvisor to fetch */
-            cadvisor.fetch(self.beg, self.end);
+            /* A dummy row to force fetching data from the cadvisor */
+            self.add(cadvisor, [ "unused-dummy" ]);
 
             /* TODO: Handle cadvisor failure somehow */
             cadvisors.push(cadvisor);

@@ -67,7 +67,13 @@
 
             function requisites() {
                 function req(name, obj) {
-                    var ret = (obj[name]);
+                    var ret;
+                    try {
+                        ret = (obj[name]);
+                    } catch(ex) {
+                        fatal("The web browser configuration prevents Cockpit from running (inaccessible " + name + ")");
+                        throw ex;
+                    }
                     if (!ret)
                         fatal("This web browser is too old to run Cockpit (missing " + name + ")");
                     return ret;

@@ -2572,13 +2572,14 @@ function fill_free_devices_list(client, id, filter)
                 $('<div>', { 'class': 'checkbox',
                              'style': 'margin:0px'
                            }).append(
+                    $('<label>').append(
                     $('<input/>', { type: "checkbox",
                                     name: id_n,
                                     id: id_n,
                                     'data-index': n
                                   }),
                     $('<label/>', { "for": id_n }).text(
-                        desc))));
+                        desc)))));
     }
 
     element.html(list);

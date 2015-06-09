@@ -868,7 +868,8 @@ PageShutdownDialog.prototype = {
                 shell.show_unexpected_error(ex);
             })
             .done(function(ex) {
-                cockpit.hint("restart");
+                if (op == "restart")
+                    cockpit.hint("restart");
                 $('#shutdown-dialog').modal('hide');
             });
     },

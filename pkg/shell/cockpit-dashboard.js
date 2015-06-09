@@ -410,7 +410,24 @@ PageDashboard.prototype = {
                 update_series();
             }
 
-            return render;
+            function throttled_render() {
+                var timer = null;
+                var needs_render = false;
+                return function () {
+                    if (timer) {
+                        needs_render = true;
+                    } else {
+                        render();
+                        timer = window.setTimeout(function () {
+                            if (needs_render)
+                                render();
+                            needs_render = false;
+                            timer = null;
+                        }, 500);
+                    }
+                };
+            }
+            return throttled_render();
         }
 
         function plot_refresh() {

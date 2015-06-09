@@ -710,6 +710,8 @@ PageSystemInformationChangeSystime.prototype = {
             var lines = content.split('\n');
             var curr_timezone = PageSystemInformationChangeSystime.server_time.timedate.Timezone;
 
+            $('#systime-timezones').empty();
+
             for (var i = 0; i < lines.length; i++) {
                 $('#systime-timezones').append($('<option>', {
                     value: lines[i],

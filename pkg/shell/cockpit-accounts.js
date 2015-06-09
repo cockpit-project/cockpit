@@ -45,7 +45,7 @@ function update_accounts_privileged() {
                 _("The user <b>$0</b> is not permitted to modify accounts"),
                 cockpit.user.name)
         );
-        $(".accounts-privileged").children("input")
+        $(".accounts-privileged").find("input")
             .attr('disabled', shell.default_permission.allowed === false ||
                               $('#account-user-name').text() === 'root');
     }

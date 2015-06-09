@@ -410,7 +410,22 @@ PageDashboard.prototype = {
                 update_series();
             }
 
-            return render;
+            /* delay and throttle rendering
+               events shouldn't fire continuously anyway,
+               so in case of a burst it's better to wait a bit before we start rendering
+             */
+            function throttled_render() {
+                var timer = null;
+                return function() {
+                    if (timer === null) {
+                        timer = window.setTimeout(function () {
+                            timer = null;
+                            render();
+                        }, 500);
+                    }
+                };
+            }
+            return throttled_render();
         }
 
         function plot_refresh() {

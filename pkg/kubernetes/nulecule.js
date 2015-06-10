@@ -134,10 +134,10 @@ define([
             var process ;
             
             if(ptype === "install") {
-                process = cockpit.spawn(["/usr/bin/atomicapp", "-d", "install", "--destination", tmp_dir, image], { err: "out", superuser: "require" });
+                process = cockpit.spawn(["/usr/bin/atomicapp", "-d", "install", "--destination", tmp_dir, image],{ err: "out", superuser: true });
                 debug("installing image: " + image + " in folder " + tmp_dir);
             } else {
-                process = cockpit.spawn(['/bin/sh', '-s'],{ err: "out", superuser: "require" }).input("cd " + tmp_dir + " && /usr/bin/atomicapp -d -v run .");
+                process = cockpit.spawn(['/bin/sh', '-s'],{ err: "out", superuser: true }).input("cd " + tmp_dir + " && /usr/bin/atomicapp -d -v run .");
                 debug("Running from folder " + tmp_dir);
             }
             

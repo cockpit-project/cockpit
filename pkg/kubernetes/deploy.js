@@ -144,7 +144,7 @@ define([
                                         var text = Mustache.render(template, $.extend({
                                             "apps": convertToKV(answerfile)
                                         }));
-                                        $('.cockpit-form-table').append(text);
+                                        $('#deploy-app-dialog').find('.cockpit-form-table').append(text);
                                         
                                         run_stage = true;
                                         return;

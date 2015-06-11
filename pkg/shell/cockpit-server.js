@@ -72,6 +72,13 @@ function ServerTime() {
         }
     });
 
+    Object.defineProperty(self, 'raw_now', {
+        enumerable: true,
+        get: function get() {
+            return new Date(time_offset + (new Date()).valueOf());
+        }
+    });
+
     self.format = function format(and_time) {
         var string = self.now.toISOString();
         if (!and_time)
@@ -493,6 +500,7 @@ PageServer.prototype = {
 
     shutdown: function(action_type) {
         PageShutdownDialog.type = action_type;
+        PageShutdownDialog.server_time = this.server_time;
         $('#shutdown-dialog').modal('show');
     },
 };
@@ -789,6 +797,7 @@ shell.dialogs.push(new PageSystemInformationChangeSystime());
 PageShutdownDialog.prototype = {
     _init: function() {
         this.id = "shutdown-dialog";
+        this.date = null;
     },
 
     setup: function() {
@@ -804,6 +813,16 @@ PageShutdownDialog.prototype = {
                                                 ]).
                 css("display", "inline"));
 
+        $('#shutdown-date-input').datepicker({
+            autoclose: true,
+            todayHighlight: true,
+            format: 'yyyy-mm-dd',
+            startDate: "today",
+        });
+
+        $('#shutdown-time-minutes').on('focusout', $.proxy(this, "update_minutes"));
+        $('#shutdown-date-input').on('focusin', $.proxy(this, "store_date"));
+        $('#shutdown-date-input').on('focusout', $.proxy(this, "restore_date"));
         $("#shutdown-time input").change($.proxy(this, "update"));
     },
 
@@ -813,7 +832,13 @@ PageShutdownDialog.prototype = {
             attr("placeholder", _("Message to logged in users")).
             attr("rows", 5);
 
+        var server_time = PageShutdownDialog.server_time;
+        $('#shutdown-date-input').val(server_time.format());
+        $('#shutdown-time-hours').val(server_time.now.getUTCHours());
+        $('#shutdown-time-minutes').val(server_time.now.getUTCMinutes());
+
         shell.select_btn_select(this.delay_btn, "1");
+        this.show_errors(false);
 
         if (PageShutdownDialog.type == 'shutdown') {
           $('#shutdown-dialog .modal-title').text(_("Shutdown"));
@@ -824,7 +849,15 @@ PageShutdownDialog.prototype = {
           $("#shutdown-action").click($.proxy(this, "restart"));
           $("#shutdown-action").text(_("Restart"));
         }
+
+        this.update_minutes();
         this.update();
+    },
+
+    show_errors: function(show) {
+        $('#shutdown-parse-error').css('visibility', show ? 'visible' : 'hidden');
+        $('#shutdown-action').prop('disabled', show);
+        $("#shutdown-time").toggleClass("has-error", show);
     },
 
     show: function(e) {
@@ -833,45 +866,103 @@ PageShutdownDialog.prototype = {
     leave: function() {
     },
 
-    update: function() {
-        var disabled = false;
-
+    validate: function() {
+        var valid = true;
         var delay = shell.select_btn_selected(this.delay_btn);
-        $("#shutdown-time").toggle(delay == "x");
+
         if (delay == "x") {
-            var h = parseInt($("#shutdown-time input:nth-child(1)").val(), 10);
-            var m = parseInt($("#shutdown-time input:nth-child(3)").val(), 10);
-            var valid = (h >= 0 && h < 24) && (m >= 0 && m < 60);
-            $("#shutdown-time").toggleClass("has-error", !valid);
-            if (!valid)
-                disabled = true;
+            var time_error = false;
+            var date_error = false;
+
+            var h = parseInt($("#shutdown-time-hours").val(), 10);
+            var m = parseInt($("#shutdown-time-minutes").val(), 10);
+
+            if (isNaN(h) || h < 0 || h > 23  ||
+                isNaN(m) || m < 0 || m > 59) {
+               time_error = true;
+            }
+
+            var date = new Date($("#shutdown-date-input").val());
+
+            if (isNaN(date.getTime()) || date.getTime() < 0)
+                date_error = true;
+
+            if (time_error && date_error) {
+                $('#shutdown-parse-error').text(_("Invalid date format and invalid time format"));
+            } else if (time_error) {
+                $('#shutdown-parse-error').text(_("Invalid time format"));
+            } else if (date_error) {
+                $('#shutdown-parse-error').text(_("Invalid date format"));
+            } else {
+                this.show_errors(false);
+            }
+
+            valid = ! time_error && ! date_error;
         }
 
-        $("#shutdown-action").prop('disabled', disabled);
+        this.show_errors(! valid);
+        return valid;
+    },
+
+    update: function() {
+        var delay = shell.select_btn_selected(this.delay_btn);
+        $("#shutdown-time").toggle(delay == "x");
+
+        this.show_errors(false);
     },
 
     do_action: function(op) {
+        var self = this;
+        var dfd = $.Deferred();
         var delay = shell.select_btn_selected(this.delay_btn);
-        var message = $("#shutdown-message").val();
-        var when;
 
-        if (delay == "x")
-            when = ($("#shutdown-time input:nth-child(1)").val() + ":" +
-                    $("#shutdown-time input:nth-child(3)").val());
-        else
-            when = "+" + delay;
+        function get_server_date() {
+            if (delay == "x") {
+                var datestr = $("#shutdown-date-input").val();
+                var hourstr = $("#shutdown-time-hours").val();
+                var minstr = $("#shutdown-time-minutes").val();
 
-        var arg = (op == "shutdown") ? "--poweroff" : "--reboot";
-        cockpit.spawn(["shutdown", arg, when, message], { superuser: "try" })
-            .fail(function(ex) {
-                $('#shutdown-dialog').modal('hide');
-                shell.show_unexpected_error(ex);
-            })
-            .done(function(ex) {
-                if (op == "restart")
-                    cockpit.hint("restart");
-                $('#shutdown-dialog').modal('hide');
-            });
+                cockpit.spawn(["/usr/bin/date", "--date=" + datestr + " " + hourstr + ":" + minstr, "+%s"])
+                    .fail(function(ex) {
+                        dfd.reject(ex);
+                    })
+                    .done(function(data) {
+                        var input_timestamp = parseInt(data, 10);
+                        var server_timestamp = parseInt(PageShutdownDialog.server_time.raw_now.getTime() / 1000, 10);
+                        var when = Math.ceil((input_timestamp - server_timestamp) / 60);
+
+                        dfd.resolve(when);
+                    });
+            } else {
+                dfd.resolve(delay);
+            }
+
+            return dfd.promise();
+        }
+
+        if (! this.validate())
+            return;
+
+        $.when(get_server_date()).done(function(when) {
+
+            if (when < 0) {
+                $('#shutdown-parse-error').text(_("Cannot schedule event in the past"));
+                self.show_errors(true);
+            } else {
+                when = "+" + when;
+            }
+
+            var arg = (op == "shutdown") ? "--poweroff" : "--reboot";
+            var message = $("#shutdown-message").val();
+            cockpit.spawn(["shutdown", arg, when, message], { superuser: true })
+                .fail(function(ex) {
+                    $('#shutdown-dialog').modal('hide');
+                    shell.show_unexpected_error(ex);
+                })
+                .done(function(ex) {
+                    $('#shutdown-dialog').modal('hide');
+                });
+        });
     },
 
     restart: function() {
@@ -880,6 +971,21 @@ PageShutdownDialog.prototype = {
 
     shutdown: function() {
         this.do_action('shutdown');
+    },
+
+    update_minutes: function() {
+        var val = parseInt($('#shutdown-time-minutes').val(), 10);
+        if (val < 10)
+            $('#shutdown-time-minutes').val("0" + val);
+    },
+
+    store_date: function() {
+        this.date = $("#shutdown-date-input").val();
+    },
+
+    restore_date: function() {
+        if ($("#shutdown-date-input").val().length === 0)
+            $("#shutdown-date-input").val(this.date);
     }
 };
 

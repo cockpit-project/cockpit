@@ -27,7 +27,7 @@
 #include <unistd.h>
 
 const gchar *cockpit_cgroup_memory_root = "/sys/fs/cgroup/memory";
-const gchar *cockpit_cgroup_cpuacct_root = "sys/fs/cgroup/cpuacct";
+const gchar *cockpit_cgroup_cpuacct_root = "/sys/fs/cgroup/cpuacct";
 
 static double
 read_double (const gchar *prefix,
@@ -102,9 +102,8 @@ collect_cpu (CockpitSamples *samples,
       cpuacct_usage = read_double (path, "cpuacct.usage");
       cpu_shares = read_double (path, "cpu.shares");
 
-      cockpit_samples_sample (samples, "cgroup.cpu.usage", cgroup, cpuacct_usage);
+      cockpit_samples_sample (samples, "cgroup.cpu.usage", cgroup, cpuacct_usage/1000000);
       cockpit_samples_sample (samples, "cgroup.cpu.shares", cgroup, cpu_shares);
-      cockpit_samples_sample (samples, "cgroup.cpu.usage", cgroup, cpuacct_usage);
     }
 }
 

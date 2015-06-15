@@ -61,7 +61,7 @@ connect="--connect=qemu:///session"
 name=fedora-builder
 
 if virsh $connect list --state-running --name | grep -q $name; then
-    virsh $connect shutdown $name
+    virsh $connect destroy $name
 fi
 
 if virsh $connect list --all --name | grep -q $name; then

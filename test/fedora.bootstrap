@@ -61,7 +61,7 @@ connect="--connect=qemu:///session"
 name=fedora-builder
 
 if virsh $connect list --state-running --name | grep -q $name; then
-    virsh $connect shutdown $name
+    virsh $connect destroy $name
 fi
 
 if virsh $connect list --all --name | grep -q $name; then
@@ -97,7 +97,7 @@ virt-install $connect \
              --extra-args="ks=file:/$ks console=ttyS0,115200" \
              --name=$name \
              --disk "path=$out,format=qcow2" \
-             --ram 2048 \
+             --ram 4096 \
              --vcpus=1 \
              --os-type linux \
              --os-variant fedora21 \

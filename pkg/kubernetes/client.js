@@ -1004,6 +1004,20 @@ define([
             return new KubeList(match_hosting, self, possible);
         };
 
+        /*
+         * Maps an array of objects with a name property to a
+         * map with the name as the key.
+         */
+        function map_named_array(array) {
+            var result = { };
+            var i, len;
+            if (array) {
+                for (i = 0, len = array.length; i < len; i++)
+                    result[array[i].name] = array[i];
+            }
+            return result;
+        }
+
         /**
          * client.containers()
          * @pod: The pod javascript to build container objects for.
@@ -1023,10 +1037,16 @@ define([
 
             var specs, statuses;
             if (!results) {
-                specs = (pod.spec || []).containers || [];
-                statuses = (pod.status || []).containerStatuses || [];
-                results = specs.map(function(spec, i) {
-                    return { spec: spec, status: statuses[i] };
+                if (pod.spec)
+                    specs = map_named_array(pod.spec.containers);
+                else
+                    specs = { };
+                if (pod.status)
+                    statuses = map_named_array(pod.status.containerStatuses);
+                else
+                    statuses = { };
+                results = Object.keys(specs).map(function(name) {
+                    return { spec: specs[name], status: statuses[name] };
                 });
 
                 /* Note that the returned value has to be stable, so stash it on the pod */

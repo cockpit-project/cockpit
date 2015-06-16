@@ -56,7 +56,10 @@ esac
 os=$(python -c "print eval(open('$flavor.conf', 'r').read())['os']" 2>/dev/null || true)
 os=${os:-$TEST_OS}
 
-TEST_IMAGE=$flavor-$os-$TEST_ARCH
+tag=$(python -c "print eval(open('$flavor.conf', 'r').read())['tag']" 2>/dev/null || true)
+tag=${tag:-0}
+
+TEST_IMAGE=$flavor-$os-$TEST_ARCH-$tag
 
 checksum_file=$TEST_IMAGE-checksum
 

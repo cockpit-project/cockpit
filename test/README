@@ -22,9 +22,7 @@ vm-prep,     for creating the test network etc.
 
 For managing test machines:
 
-vm-create,   for creating test machine images from scratch.
-vm-save,     for saving a known good test machine image for fast reuse.
-vm-download, for downloading test machine images.
+vm-create,   for creating (or downloading) test machine images.
 vm-reset,    for starting over from a clean slate.
 vm-install,  for installing RPMs into a test machine image.
 
@@ -57,7 +55,7 @@ You can set these environment variables to configure the test suite:
   TEST_ARCH  The machine architecture to use.  Currently, the default
              and only supported value is "x86_64".
 
-  TEST_DATA  Where to find the archived test machine images.  The
+  TEST_DATA  Where to find and store test machine images.  The
              default is the same directory that this README file is in.
 
   TEST_JOBS  How many tests to run in parallel.  The default is 1.
@@ -102,7 +100,13 @@ A test machine image is created with vm-create, like so:
 
   $ ./vm-create -v -f cockpit
 
-The image will be created in the "./run" directory.
+The image will be created in $TEST_DATA/images/.  The vm-create
+command will not overwrite existing test machine images and simply
+report success in that case.  Use the "--force" option to create a new
+image no matter what.
+
+The vm-create command will try to download an existing image from
+file.cockpit-project.org instead of creating a new image.
 
 There can be more than one test machine image.  For example, you might
 want to test a scenario where Cockpit on one machine talks to FreeIPA
@@ -141,41 +145,20 @@ option, a default prefix will be used.  The suffices "F0", "F1", "F2",
 to 10.111.111.104.  DNS will resolve "f0.cockpit.lan",
 "f1.cockpit.lan", etc to these addresses.
 
-A test machine image can be saved for later use with vm-save:
-
-  $ ./vm-save [-f FLAVOR]
-
-This will simply copy the image to $TEST_DATA/images/.
-
-To use saved images effectively, you need to understand what happens
-when a test machine is started: If there is a suitable image in
-"./run", it will be used.  Otherwise, a new image is created by using
-an image in $TEST_DATA/images as the 'backing file'.
-
-The ./vm-reset program will remove the ./run directory.
-
-The idea is that creating a fresh image with a backing file is _much_
-faster than vm-create.  One typically uses vm-create not more often
-than once a day, but each test suite run should start from clean test
-machine images.
-
-Also, a saved image serves as a point of reference since using it will
-isolate you from changes in the package repositories that are used by
-vm-create.
-
 A test machine image created by vm-create doesn't contain any Cockpit
 code in it yet.  You can build and install the currently checked out
 working copy of Cockpit like this:
 
   $ ./vm-install $(../tools/make-rpms)
 
-This will modify the test machine image in ./run, but will not modify
-the saved version in $TEST_DATA/images.
+This will modify the test machine image that is used for the next run,
+but will not modify the saved version in $TEST_DATA/images.  Use
+vm-reset to revert the test machine images for the next run to the
+versions in $TEST_DATA/images.
 
 A typical sequence of steps would thus be the following:
 
-  $ ./vm-create ...       # Create a fresh image in ./run
-  $ ./vm-save             # Save it for future use
+  $ ./vm-create ...       # Create a fresh image
 
   $ ./vm-reset            # Start over
   $ ./vm-install ...      # Install code to test
@@ -186,6 +169,17 @@ A typical sequence of steps would thus be the following:
   $ ./check-...           # Run some tests
 
   etc.
+
+To update a test machine image for a given flavor (after making
+changes to the setup scripts, for example, or simply to install new
+versions of distribution packages), you should increase its 'tag'.
+
+The tag is stored in FLAVOR.conf.
+
+Changing the tag will cause testsuite-prepare to create new images for
+that tag.  You can have images for multiple tags in $TEST_DATA/images
+and switching between branches that use different tags works as
+expected.
 
 ## Running tests
 

@@ -87,7 +87,12 @@ class Machine:
 
         self.os = system or self.getconf('os') or os.environ.get("TEST_OS") or DEFAULT_OS
         self.arch = arch or os.environ.get("TEST_ARCH") or DEFAULT_ARCH
-        self.tag = self.getconf('tag') or "0"
+
+        self.tag = "0"
+        tags = self.getconf('tags')
+        if tags and self.os in tags:
+            self.tag = tags[self.os]
+
         self.image = "%s-%s-%s-%s" % (self.flavor, self.os, self.arch, self.tag)
         self.test_dir = os.path.abspath(os.path.dirname(__file__))
         self.test_data = os.environ.get("TEST_DATA") or self.test_dir

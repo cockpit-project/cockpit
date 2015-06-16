@@ -174,7 +174,7 @@ To update a test machine image for a given flavor (after making
 changes to the setup scripts, for example, or simply to install new
 versions of distribution packages), you should increase its 'tag'.
 
-The tag is stored in FLAVOR.conf.
+The tags are stored in FLAVOR.conf, one per OS.
 
 Changing the tag will cause testsuite-prepare to create new images for
 that tag.  You can have images for multiple tags in $TEST_DATA/images

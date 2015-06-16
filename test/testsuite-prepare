@@ -2,13 +2,11 @@
 
 set -e
 
-create_images=
 make_rpms_opts=
 
 while [ $# -gt 0 ]; do
     case $1 in
 	--clean)
-	    create_images=t
             make_rpms_opts="--clean"
 	    ;;
     esac
@@ -37,11 +35,6 @@ if ! silent $IP address show dev cockpit0; then
   sudo ./vm-prep
 fi
 
-if [ -z "$create_images" ]; then
-    ./vm-download -f cockpit
-    ./vm-download -f ipa
-fi
-
 skip="cockpit-doc-
 cockpit-debuginfo"
 
@@ -55,12 +48,9 @@ if [ -z "$rpms" ]; then
   exit 1
 fi
 
-if [ -n "$create_images" ]; then
-    ./vm-reset
-    ./vm-create -v -f cockpit
-    unset TEST_DATA
-    ./vm-save -f cockpit
-fi
+./vm-reset
+./vm-create -v -f cockpit
+./vm-create -v -f ipa
 
 ./vm-reset
 ./vm-install -f cockpit $rpms

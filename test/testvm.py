@@ -87,7 +87,8 @@ class Machine:
 
         self.os = system or self.getconf('os') or os.environ.get("TEST_OS") or DEFAULT_OS
         self.arch = arch or os.environ.get("TEST_ARCH") or DEFAULT_ARCH
-        self.image = "%s-%s-%s" % (self.flavor, self.os, self.arch)
+        self.tag = self.getconf('tag') or "0"
+        self.image = "%s-%s-%s-%s" % (self.flavor, self.os, self.arch, self.tag)
         self.test_dir = os.path.abspath(os.path.dirname(__file__))
         self.test_data = os.environ.get("TEST_DATA") or self.test_dir
         self.vm_username = "root"
@@ -173,6 +174,9 @@ class Machine:
     def shutdown(self):
         """Overridden by machine classes to gracefully shutdown the running machine"""
         assert False, "Cannot shutdown a machine we didn't start"
+
+    def needs_build(self):
+        return False
 
     def build(self, args):
         """Build a machine image for running tests.
@@ -603,6 +607,9 @@ class QemuMachine(Machine):
                                       stdout=f)
         else:
             raise Failure("Nothing to save.")
+
+    def needs_build(self):
+        return not os.path.exists(self._image_original)
 
     def build(self, args):
         def modify(gf):

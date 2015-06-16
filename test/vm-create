@@ -25,6 +25,7 @@
 # vm-run and testlib.py.
 
 import argparse
+import subprocess
 import sys
 
 import testvm
@@ -32,12 +33,23 @@ import testvm
 parser = argparse.ArgumentParser(description='Create a virtual machine image')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
 parser.add_argument('-f', '--flavor', action='store', help='The flavor to create')
+parser.add_argument('-F', '--force', action='store_true', help='Overwrite existing images')
 parser.add_argument('args', nargs='*', help='Arguments to the flavor setup script')
 args = parser.parse_args()
 
+def download_image(flavor):
+    try:
+        subprocess.check_call([ "./vm-download", "--flavor", flavor ])
+        return True
+    except:
+        return False
+
 try:
     machine = testvm.QemuMachine(verbose=args.verbose, flavor=args.flavor)
-    machine.build(args.args)
+    if args.force or machine.needs_build():
+        if args.force or not download_image(args.flavor):
+            machine.build(args.args)
+            machine.save()
 except testvm.Failure, ex:
     print >> sys.stderr, "vm-create:", ex
     sys.exit(1)

@@ -573,39 +573,24 @@ class QemuMachine(Machine):
         if not os.path.exists(self.run_dir):
             os.makedirs(self.run_dir, 0750)
 
-        image = "%s-%s" % (self.os, self.arch)
         bootstrap_script = "./%s.bootstrap" % (self.os, )
-        image_file = os.path.join(self.test_data, "%s.qcow2" % (image, ))
-        tarball = os.path.join(self.test_data, "%s.tar.gz" % (image, ))
+        magic_base_image = os.path.join(self.test_data, "%s-%s.qcow2" % (self.os, self.arch))
 
-        # this image will be created on top of the new base image
         if os.path.exists(self._image_image):
             os.unlink(self._image_image)
         if os.path.exists(self._image_additional_iso):
             os.unlink(self._image_additional_iso)
 
         if os.path.isfile(bootstrap_script):
-            # this image will be created on top of the new base image
-            if os.path.exists(self._image_image):
-                os.unlink(self._image_image)
             subprocess.check_call([ bootstrap_script, self._image_image, self.arch ])
-            if modify_func:
-                self.run_modify_func(modify_func)
-
-        elif os.path.isfile(image_file):
-            """ We have a real image file, use that """
-            # this image will be created on top of the new base image
-            if os.path.exists(self._image_image):
-                os.unlink(self._image_image)
+        elif os.path.isfile(magic_base_image):
             self.message("Creating disk copy:", self._image_image)
-            shutil.copyfile(image_file, self._image_image)
-            self._image_kernel = None
-            self._image_initrd = None
-            if modify_func:
-                self.run_modify_func(modify_func)
-
+            shutil.copyfile(magic_base_image, self._image_image)
         else:
             raise Failure("Unsupported configuration %s: neither %s nor %s found." % (image, bootstrap_script, image_file))
+
+        if modify_func:
+            self.run_modify_func(modify_func)
 
     def save(self):
         assert not self._process

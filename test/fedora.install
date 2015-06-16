@@ -60,50 +60,48 @@ qemu-img create -f qcow2 "$out" 8G
 connect="--connect=qemu:///session"
 name=fedora-builder
 
-if virsh $connect list --state-running --name | grep -q $name; then
-    virsh $connect destroy $name
-fi
+cleanup_builder_vm () {
+  if virsh $connect list --state-running --name | grep -q $name; then
+      virsh $connect destroy $name
+  fi
+  if virsh $connect list --all --name | grep -q $name; then
+      virsh $connect undefine $name
+  fi
+}
 
-if virsh $connect list --all --name | grep -q $name; then
-    virsh $connect undefine $name
-fi
+# Using virt-install is fundamentally an interactive process.  We
+# expect the installation to finish unattended, but it might drop into
+# an emergency shell upon unexpected errors, for example.  Thus, we
+# run it under 'expect' and catch a few known scenarios that require
+# special handling.
+#
+# (Also, virt-install works best when it has a tty.)
 
-# This script needs to work without a controlling tty, and thus we
-# can't let virt-install use "virsh console" to show the output during
-# VM creation (because that would fail since "virsh console" needs a
-# controlling tty).
-#
-# Instead, we let virt-install write the console output to a file and
-# 'tail' it in the background.  We kill that 'tail' on exit, but only
-# after giving it some time to catch up.
-#
-# The alternative would be to use a fifo that we could simply 'cat' to
-# our stdout, but that leads to garbled output for some unknown
-# reason.
-#
-# Another alternative is to use a simple 'expect' script to give a
-# controlling tty to virt-install.  That is also quite clean, but it's
-# also good to not depend on 'expect'.
-#
-# Why can't we have any nice things?
+supervised_virt_install () {
+expect -- - virt-install "$@" <<'EOF'
+eval spawn $argv
+set timeout -1
+expect {
+  "emergency mode" { send_user "ABORT\n"
+                     exit 1
+                   }
+}
+EOF
+}
 
-console=$PWD/$name.console
-echo -n >$console
-tail -f $console &
-trap "sleep 5; kill $!" 0
+cleanup_builder_vm
 
-virt-install $connect \
-             --initrd-inject=$ks \
-             --extra-args="ks=file:/$ks console=ttyS0,115200" \
-             --name=$name \
-             --disk "path=$out,format=qcow2" \
-             --ram 4096 \
-             --vcpus=1 \
-             --os-type linux \
-             --os-variant fedora21 \
-             --location="$url" \
-             --nographics \
-             --noreboot \
-             --noautoconsole \
-             --wait -1 \
-             --serial file,path=$console
+supervised_virt_install $connect \
+                        --initrd-inject=$ks \
+                        --extra-args="ks=file:/$ks console=ttyS0,115200" \
+                        --name=$name \
+                        --disk "path=$out,format=qcow2" \
+                        --ram 4096 \
+                        --vcpus=1 \
+                        --os-type linux \
+                        --os-variant fedora21 \
+                        --location="$url" \
+                        --nographics \
+                        --noreboot
+
+cleanup_builder_vm

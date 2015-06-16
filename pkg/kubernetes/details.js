@@ -109,7 +109,7 @@ define([
                 restrict: 'E',
                 link: function(scope, element, attrs) {
                     var options = { };
-                    if (attrs.host && attrs.host != "localhost")
+                    if (attrs.host && attrs.host != "localhost" && attrs.host != "127.0.0.1")
                         options.host = attrs.host;
 
                     var id = attrs.id || "";

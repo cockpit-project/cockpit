@@ -472,12 +472,7 @@ class QemuMachine(Machine):
         self._images_dir = os.path.join(self.test_data, "images")
         self._image_original = os.path.join(self._images_dir, "%s.qcow2" % (self.image))
         self._iso_original = os.path.join(self._images_dir, "%s.iso" % (self.image))
-
-        if not os.path.exists(self._images_dir):
-            os.makedirs(self._images_dir, 0750)
-        self._image_prepared = os.path.join(self._images_dir, "%s.qcow2" % (self.image))
-        self._image_prepared_checksum = os.path.join(self._images_dir, "%s-checksum" % (self.image))
-        self._image_iso_checksum = os.path.join(self._images_dir, "%s_iso-checksum" % (self.image))
+        self._checksum_original = os.path.join(self._images_dir, "%s-checksum" % (self.image))
 
         self._process = None
         self._monitor = None
@@ -594,21 +589,18 @@ class QemuMachine(Machine):
 
     def save(self):
         assert not self._process
+        if not os.path.exists(self._images_dir):
+            os.makedirs(self._images_dir, 0750)
         if os.path.exists(self._image_image):
-            checksum_file = self._image_prepared_checksum
-            shutil.copy(self._image_image, self._images_dir)
-            with open(checksum_file, "w") as f:
-                subprocess.check_call([ "sha256sum",
-                                        os.path.basename(self._image_image) ],
+            files = [ self._image_image ]
+            if os.path.exists(self._image_additional_iso):
+                files.append(self._image_additional_iso)
+            for f in files:
+                shutil.copy(f, self._images_dir)
+            with open(self._checksum_original, "w") as f:
+                subprocess.check_call([ "sha256sum" ] + map(os.path.basename, files),
                                       cwd=self._images_dir,
                                       stdout=f)
-            if os.path.exists(self._image_additional_iso):
-                shutil.copy(self._image_additional_iso, self._images_dir)
-                with open(self._image_iso_checksum, "w") as f:
-                    subprocess.check_call([ "sha256sum",
-                                            os.path.basename(self._image_additional_iso) ],
-                                          cwd=self._images_dir,
-                                          stdout=f)
         else:
             raise Failure("Nothing to save.")
 

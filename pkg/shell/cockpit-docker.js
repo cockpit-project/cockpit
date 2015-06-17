@@ -948,8 +948,8 @@ PageRunImage.prototype = {
         $("#link-containers").prop("checked", false);
 
         /* Memory slider defaults */
-        if (info.container_config.Memory) {
-            this.memory_slider.value = info.config_container.Memory;
+        if (info.ContainerConfig.Memory) {
+            this.memory_slider.value = info.ContainerConfig.Memory;
         } else {
             /* First call sets the position of slider */
             this.memory_slider.value = 512*1024*1024;
@@ -957,8 +957,8 @@ PageRunImage.prototype = {
         }
 
         /* CPU slider defaults */
-        if (info.container_config.CpuShares) {
-            this.cpu_slider.value = info.container_config.CpuShares;
+        if (info.ContainerConfig.CpuShares) {
+            this.cpu_slider.value = info.ContainerConfig.CpuShares;
         } else {
             this.cpu_slider.value = 1024;
             this.cpu_slider.value = undefined;
@@ -980,7 +980,7 @@ PageRunImage.prototype = {
         $("#containers-run-image").text(PageRunImage.image_info.RepoTags[0]);
         $("#containers-run-image-name").val(make_name());
         var command_input = $("#containers-run-image-command");
-        command_input.val(quote_cmdline(PageRunImage.image_info.config.Cmd));
+        command_input.val(quote_cmdline(PageRunImage.image_info.Config.Cmd));
 
         /* delete any old port mapping entries */
         var portmapping = $('#select-exposed-ports');
@@ -988,7 +988,7 @@ PageRunImage.prototype = {
 
         /* show ports exposed by container image */
         var port_renderer = this.port_renderer();
-        for (var p in PageRunImage.image_info.config.ExposedPorts)
+        for (var p in PageRunImage.image_info.Config.ExposedPorts)
             port_renderer(parseInt(p), p.slice(-3), false);
 
         if (portmapping.children().length > 0) {
@@ -1424,7 +1424,7 @@ PageRunImage.prototype = {
         var tty = $("#containers-run-image-with-terminal").prop('checked');
         var options = {
             "Cmd": unquote_cmdline(cmd),
-            "Image": PageRunImage.image_info.id,
+            "Image": PageRunImage.image_info.Id,
             "Memory": this.memory_slider.value || 0,
             "MemorySwap": (this.memory_slider.value * 2) || 0,
             "CpuShares": this.cpu_slider.value || 0,
@@ -1626,9 +1626,9 @@ PageSearchImage.prototype = {
                               return -1;
                           if (!row1.data('entry').is_official && row2.data('entry').is_official)
                               return 1;
-                          if (row1.data('entry').is_trusted && !row2.data('entry').is_trusted)
+                          if (row1.data('entry').is_automated && !row2.data('entry').is_automated)
                               return -1;
-                          if (!row1.data('entry').is_trusted && row2.data('entry').is_trusted)
+                          if (!row1.data('entry').is_automated && row2.data('entry').is_automated)
                               return 1;
                           if (row1.data('entry').star_count != row2.data('entry').star_count)
                               return row2.data('entry').star_count - row1.data('entry').star_count;
@@ -1879,7 +1879,7 @@ PageContainerDetails.prototype = {
         if (info.HostConfig)
             this.add_bindings(port_bindings, info.HostConfig.PortBindings);
 
-        $('#container-details-id').text(info.ID);
+        $('#container-details-id').text(info.Id);
         $('#container-details-names').text(render_container_name(info.Name));
         $('#container-details-created').text(info.Created);
         $('#container-details-image').text(info.Image);
@@ -2061,12 +2061,12 @@ PageImageDetails.prototype = {
 
         $('#image-details .breadcrumb .active').text(this.name);
 
-        $('#image-details-id').text(info.id);
+        $('#image-details-id').text(info.Id);
         $('#image-details-tags').html(multi_line(info.RepoTags));
-        $('#image-details-created').text(info.created);
-        $('#image-details-author').text(info.author);
+        $('#image-details-created').text(info.Created);
+        $('#image-details-author').text(info.Author);
 
-        var config = info.config;
+        var config = info.Config;
         if (config) {
             var ports = [ ];
             for (var p in config.ExposedPorts) {
@@ -2122,14 +2122,6 @@ function DockerClient() {
     var got_failure;
     var alive = true;
 
-    /* We use the Docker API v1.10 as documented here:
-
-       https://docs.docker.com/reference/api/docker_remote_api/
-
-       TODO: We should update eventually.  Later versions have
-       incompatible changes, but they are also nicer.
-     */
-
     var later;
     function trigger_event() {
         if (!later) {
@@ -2144,7 +2136,7 @@ function DockerClient() {
     function connect_events() {
 
         /* Trigger the event signal when JSON from /events */
-        events = http.get("/v1.10/events");
+        events = http.get("/v1.12/events");
         events.stream(function(resp) {
             docker_debug("event:", resp);
             if (connected.state() == "pending")
@@ -2221,18 +2213,12 @@ function DockerClient() {
          * /events for notification when something changes as well as some
          * file monitoring.
          */
-        http.get("/v1.10/containers/json", { all: 1 }).
+        http.get("/v1.12/containers/json", { all: 1 }).
             done(function(data) {
                 var containers = JSON.parse(data);
                 if (connected.state() == "pending")
                     connected.resolve();
                 alive = true;
-
-                /*
-                 * The output we get from /containers/json is mostly useless
-                 * conflicting with the information that we get about specific
-                 * containers. So just use it to get a list of containers.
-                 */
 
                 var seen = {};
                 $(containers).each(function(i, item) {
@@ -2242,7 +2228,7 @@ function DockerClient() {
 
                     seen[id] = id;
                     containers_meta[id] = item;
-                    http.get("/v1.10/containers/" + encodeURIComponent(id) + "/json").
+                    http.get("/v1.12/containers/" + encodeURIComponent(id) + "/json").
                         done(function(data) {
                             var container = JSON.parse(data);
                             populate_container(id, container);
@@ -2270,11 +2256,11 @@ function DockerClient() {
     }
 
     function populate_image(id, image) {
-        if (image.config === undefined) {
-            if (image.container_config)
-                image.config = image.container_config;
+        if (image.Config === undefined) {
+            if (image.ContainerConfig)
+                image.Config = image.ContainerConfig;
             else
-                image.config = { };
+                image.Config = { };
         }
         $.extend(image, images_meta[id]);
 
@@ -2292,11 +2278,9 @@ function DockerClient() {
 
     function fetch_images() {
         /*
-         * Gets a list of images and keeps it up to date. Again, the /images/json and
-         * /images/xxxx/json have completely inconsistent keys. So using the former
-         * is pretty useless here :S
+         * Gets a list of images and keeps it up to date.
          */
-        http.get("/v1.10/images/json").
+        http.get("/v1.12/images/json").
             done(function(data) {
                 var images = JSON.parse(data);
                 if (connected.state() == "pending")
@@ -2311,7 +2295,7 @@ function DockerClient() {
 
                     seen[id] = id;
                     images_meta[id] = item;
-                    http.get("/v1.10/images/" + encodeURIComponent(id) + "/json").
+                    http.get("/v1.12/images/" + encodeURIComponent(id) + "/json").
                         done(function(data) {
                             var image = JSON.parse(data);
                             populate_image(id, image);
@@ -2353,7 +2337,7 @@ function DockerClient() {
         if (watch && watch.valid)
             watch.close();
 
-        http.get("/v1.10/info").done(function(data) {
+        http.get("/v1.12/info").done(function(data) {
             var info = data && JSON.parse(data);
             watch = cockpit.channel({ payload: "fslist1", path: info["DockerRootDir"], superuser: "try" });
             $(watch).on("message", function(event, data) {
@@ -2471,7 +2455,7 @@ function DockerClient() {
         docker_debug("starting:", id);
         return http.request({
                 method: "POST",
-                path: "/v1.10/containers/" + encodeURIComponent(id) + "/start",
+                path: "/v1.12/containers/" + encodeURIComponent(id) + "/start",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(options || { })
             })
@@ -2493,7 +2477,7 @@ function DockerClient() {
         docker_debug("stopping:", id, timeout);
         return http.request({
                 method: "POST",
-                path: "/v1.10/containers/" + encodeURIComponent(id) + "/stop",
+                path: "/v1.12/containers/" + encodeURIComponent(id) + "/stop",
                 params: { 't': timeout },
                 body: ""
             })
@@ -2511,7 +2495,7 @@ function DockerClient() {
     this.restart = function restart(id) {
         waiting(id);
         docker_debug("restarting:", id);
-        return http.post("/v1.10/containers/" + encodeURIComponent(id) + "/restart")
+        return http.post("/v1.12/containers/" + encodeURIComponent(id) + "/restart")
             .fail(function(ex) {
                 docker_debug("restart failed:", id, ex);
             })
@@ -2527,7 +2511,7 @@ function DockerClient() {
         docker_debug("creating:", name);
         return http.request({
                 method: "POST",
-                path: "/v1.10/containers/create",
+                path: "/v1.12/containers/create",
                 params: { "name": name },
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(options || { })
@@ -2543,7 +2527,7 @@ function DockerClient() {
 
     this.search = function search(term) {
         docker_debug("searching:", term);
-        return http.get("/v1.10/images/search", { "term": term })
+        return http.get("/v1.12/images/search", { "term": term })
             .fail(function(ex) {
                 docker_debug("search failed:", term, ex);
             })
@@ -2563,7 +2547,7 @@ function DockerClient() {
         docker_debug("committing:", id, repotag, options, run_config);
         return http.request({
                 method: "POST",
-                path: "/v1.10/commit",
+                path: "/v1.12/commit",
                 params: args,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(run_config || { })
@@ -2587,7 +2571,7 @@ function DockerClient() {
         docker_debug("deleting:", id);
         return http.request({
                 method: "DELETE",
-                path: "/v1.10/containers/" + encodeURIComponent(id),
+                path: "/v1.12/containers/" + encodeURIComponent(id),
                 params: { "force": forced },
                 body: ""
             })
@@ -2608,7 +2592,7 @@ function DockerClient() {
         docker_debug("deleting:", id);
         return http.request({
                 method: "DELETE",
-                path: "/v1.10/images/" + encodeURIComponent(id),
+                path: "/v1.12/images/" + encodeURIComponent(id),
                 body: ""
             })
             .fail(function(ex) {
@@ -2671,7 +2655,7 @@ function DockerClient() {
     };
 
     this.info = function info() {
-        return http.get("/v1.10/info")
+        return http.get("/v1.12/info")
             .fail(function(ex) {
                 docker_debug("info failed:", ex);
             })

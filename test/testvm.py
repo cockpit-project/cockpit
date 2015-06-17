@@ -601,11 +601,14 @@ class QemuMachine(Machine):
         if not os.path.exists(self._images_dir):
             os.makedirs(self._images_dir, 0750)
         if os.path.exists(self._image_image):
-            files = [ self._image_image ]
+            files = [ ]
+            # Copy image via convert, to make it sparse again
+            files.append(self._image_image)
+            subprocess.check_call([ "qemu-img", "convert", "-O", "qcow2", self._image_image, self._image_original ])
+            # Copy additional ISO as well when it exists
             if os.path.exists(self._image_additional_iso):
                 files.append(self._image_additional_iso)
-            for f in files:
-                shutil.copy(f, self._images_dir)
+                shutil.copy(self._image_additional_iso, self._images_dir)
             with open(self._checksum_original, "w") as f:
                 subprocess.check_call([ "sha256sum" ] + map(os.path.basename, files),
                                       cwd=self._images_dir,

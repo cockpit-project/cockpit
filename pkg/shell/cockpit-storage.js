@@ -1845,44 +1845,39 @@ PageStorageDetail.prototype = {
 
         is_running = !!block;
 
+        state = is_running? _("Running") : _("Not running");
+
         if (raid.Degraded > 0) {
-            degraded = ('<span style="color:red">' + _("ARRAY IS DEGRADED") + '</span> -- ' +
+            state = ('<span style="color:red">' + _("ARRAY IS DEGRADED") + '</span> -- ' +
                         cockpit.format(_("%0 disks are missing"), raid.Degraded));
-        }
-        if (!raid.SyncAction) {
-            if (block) {
-                state = _("Running");
-            } else {
-                state = _("Not running");
-            }
+        } else if (is_running) {
+            state = _("Running");
         } else {
-            if (degraded)
-                state = degraded;
-            else
-                state = _("Running");
-            action = { "idle" : "",
-                       "check" : _("Data Scrubbing"),
-                       "repair" : _("Data Scrubbing and Repair"),
-                       "resync" : _("Resyncing"),
-                       "recover" : _("Recovering "),
-                       "frozen" : _("Frozen")
-                     }[raid.SyncAction] || raid.SyncAction;
-            if (action && action != "idle") {
-                percent = Math.round(raid.SyncCompleted * 100).toString();
-                if (raid.SyncRate > 0) {
-                    action_state = cockpit.format(_("$action, ${percent}% complete at $rate"),
-                                    { action: action, percent: percent,
-                                      rate: fmt_size(raid.SyncRate) + "/s" });
-                } else {
-                    action_state = cockpit.format(_("$action, ${percent}% complete"),
-                                    { action: action, percent: percent });
-                }
-                state = state + "<br/>" + action_state;
-                if (raid.SyncRemainingTime > 0) {
-                    remaining = cockpit.format(_("$0 remaining"),
-                                               shell.format_delay(raid.SyncRemainingTime / 1000));
-                    state = state + "<br/>" + remaining;
-                }
+            state = _("Not running");
+        }
+
+        action = { "idle" : "",
+                   "check" : _("Data Scrubbing"),
+                   "repair" : _("Data Scrubbing and Repair"),
+                   "resync" : _("Resyncing"),
+                   "recover" : _("Recovering "),
+                   "frozen" : _("Frozen")
+                 }[raid.SyncAction] || raid.SyncAction;
+        if (action && action != "idle") {
+            percent = Math.round(raid.SyncCompleted * 100).toString();
+            if (raid.SyncRate > 0) {
+                action_state = cockpit.format(_("$action, ${percent}% complete at $rate"),
+                                              { action: action, percent: percent,
+                                                rate: fmt_size(raid.SyncRate) + "/s" });
+            } else {
+                action_state = cockpit.format(_("$action, ${percent}% complete"),
+                                              { action: action, percent: percent });
+            }
+            state = state + "<br/>" + action_state;
+            if (raid.SyncRemainingTime > 0) {
+                remaining = cockpit.format(_("$0 remaining"),
+                                           shell.format_delay(raid.SyncRemainingTime / 1000));
+                state = state + "<br/>" + remaining;
             }
         }
         $("#raid_detail_state").html(state);

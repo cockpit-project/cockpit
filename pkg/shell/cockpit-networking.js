@@ -20,11 +20,12 @@
 define([
     "jquery",
     "base1/cockpit",
+    "base1/mustache",
     "shell/controls",
     "shell/shell",
     "system/server",
     "shell/cockpit-main"
-], function($, cockpit, controls, shell, server) {
+], function($, cockpit, Mustache, controls, shell, server) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -2620,6 +2621,8 @@ function apply_master_slave(choices, model, master_connection, master_settings, 
 PageNetworkBondSettings.prototype = {
     _init: function () {
         this.id = "network-bond-settings-dialog";
+        this.bond_settings_template = $("#network-bond-settings-template").html();
+        Mustache.parse(this.bond_settings_template);
     },
 
     setup: function () {
@@ -2700,61 +2703,37 @@ PageNetworkBondSettings.prototype = {
             }
         }
 
-        /* TODO: Migrate away from jQuery spaghetti */
-        var body =
-            $('<table class="cockpit-form-table">').append(
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("Name"))),
-                    $('<td>').append(
-                        $('<input class="form-control">').
-                            val(settings.bond.interface_name).
-                            change(function (event) {
-                                var val = $(event.target).val();
-                                settings.bond.interface_name = val;
-                                settings.connection.interface_name = val;
-                            }))),
-                $('<tr>').append(
-                    $('<td class="top">').append($('<label class="control-label">').text(_("Members"))),
-                    $('<td>').append(
-                        slaves_element = render_slave_interface_choices(model, master).
-                            change(change_slaves))).
-                    toggle(!master),
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("Mode"))),
-                    $('<td>').append(
-                        mode_btn = shell.select_btn(change_mode, bond_mode_choices))),
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("Primary"))),
-                    $('<td>').append(
-                        primary_btn = slave_chooser_btn(change_mode, slaves_element))),
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("Link Monitoring"))),
-                    $('<td>').append(
-                        monitoring_btn = shell.select_btn(change_monitoring, bond_monitoring_choices))),
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("Monitoring Interval"))),
-                    $('<td>').append(
-                        interval_input = $('<input class="form-control network-number-field" type="text" maxlength="4">').
-                            val(options.miimon || options.arp_interval || "100").
-                            change(change_monitoring))),
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("Monitoring Targets"))),
-                    $('<td>').append(
-                        targets_input = $('<input class="form-control">').
-                            val(options.arp_ip_targets).
-                            change(change_monitoring))),
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("Link up delay"))),
-                    $('<td>').append(
-                        updelay_input = $('<input class="form-control network-number-field" type="text" maxlength="4">').
-                            val(options.updelay || "0").
-                            change(change_monitoring))),
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("Link down delay"))),
-                    $('<td>').append(
-                        downdelay_input = $('<input class="form-control network-number-field" type="text" maxlength="4">').
-                            val(options.downdelay || "0").
-                            change(change_monitoring))));
+        var body = $(Mustache.render(self.bond_settings_template, {
+                       interface_name: settings.bond.interface_name,
+                       monitoring_interval: options.miimon || options.arp_interval || "100",
+                       monitoring_targets: options.arp_ip_targets,
+                       link_up_delay: options.updelay || "0",
+                       link_down_delay: options.downdelay || "0"
+                   }));
+        body.find('#network-bond-settings-interface-name-input').
+                    change(function (event) {
+                        var val = $(event.target).val();
+                        settings.bond.interface_name = val;
+                        settings.connection.interface_name = val;
+                    });
+        body.find('#network-bond-settings-members').
+                      append(slaves_element = render_slave_interface_choices(model, master).
+                             change(change_slaves));
+        body.find('#network-bond-settings-mode-select').
+                      append(mode_btn = shell.select_btn(change_mode, bond_mode_choices));
+        body.find('#network-bond-settings-primary-select').
+                      append(primary_btn = slave_chooser_btn(change_mode, slaves_element));
+        body.find('#network-bond-settings-link-monitoring-select').
+                      append(monitoring_btn = shell.select_btn(change_monitoring, bond_monitoring_choices));
+
+        interval_input = body.find('#network-bond-settings-monitoring-interval-input');
+        interval_input.change(change_monitoring);
+        targets_input = body.find('#network-bond-settings-monitoring-targets-input');
+        targets_input.change(change_monitoring);
+        updelay_input = body.find('#network-bond-settings-link-up-delay-input');
+        updelay_input.change(change_monitoring);
+        downdelay_input = body.find('#network-bond-settings-link-down-delay-input');
+        downdelay_input.change(change_monitoring);
 
         shell.select_btn_select(mode_btn, options.mode);
         shell.select_btn_select(monitoring_btn, (options.miimon !== 0)? "mii" : "arp");
@@ -2798,6 +2777,8 @@ shell.dialogs.push(new PageNetworkBondSettings());
 PageNetworkBridgeSettings.prototype = {
     _init: function () {
         this.id = "network-bridge-settings-dialog";
+        this.bridge_settings_template = $("#network-bridge-settings-template").html();
+        Mustache.parse(this.bridge_settings_template);
     },
 
     setup: function () {
@@ -2849,54 +2830,33 @@ PageNetworkBridgeSettings.prototype = {
             max_age_input.parents("tr").toggle(options.stp);
         }
 
-        /* TODO: Migrate away from jQuery spaghetti */
-        var body =
-            $('<table class="cockpit-form-table">').append(
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("Name"))),
-                    $('<td>').append(
-                        $('<input class="form-control">').
-                            val(options.interface_name).
-                            change(function (event) {
+        var body = $(Mustache.render(self.bridge_settings_template, {
+                       bridge_name: options.interface_name,
+                       stp_checked: options.stp,
+                       stp_priority: options.priority,
+                       stp_forward_delay: options.forward_delay,
+                       stp_hello_time: options.hello_time,
+                       stp_max_age: options.max_age
+                   }));
+        body.find('#network-bridge-settings-name-input').
+                      change(function (event) {
                                 var val = $(event.target).val();
                                 options.interface_name = val;
                                 settings.connection.interface_name = val;
-                            }))),
-                $('<tr>').append(
-                    $('<td class="top">').append($('<label class="control-label">').text(_("Ports"))),
-                    $('<td>').append(render_slave_interface_choices(model,
-                                                                    PageNetworkBridgeSettings.connection))).
-                    toggle(!PageNetworkBridgeSettings.connection),
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("Spanning Tree Protocol (STP)"))),
-                    $('<td>').append(
-                        stp_input = $('<input type="checkbox">').
-                            prop('checked', options.stp).
-                            change(change_stp))),
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("STP Priority"))),
-                    $('<td>').append(
-                        priority_input = $('<input class="form-control" type="text">').
-                            val(options.priority).
-                            change(change_stp))),
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("STP Forward delay"))),
-                    $('<td>').append(
-                        forward_delay_input = $('<input class="form-control" type="text">').
-                            val(options.forward_delay).
-                            change(change_stp))),
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("STP Hello time"))),
-                    $('<td>').append(
-                        hello_time_input = $('<input class="form-control" type="text">').
-                            val(options.hello_time).
-                            change(change_stp))),
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("STP Maximum message age"))),
-                    $('<td>').append(
-                        max_age_input = $('<input class="form-control" type="text">').
-                            val(options.max_age).
-                            change(change_stp))));
+                            });
+        body.find('#network-bridge-settings-slave-interfaces').
+                      append(render_slave_interface_choices(model, PageNetworkBridgeSettings.connection)).
+                      parent().toggle(!PageNetworkBridgeSettings.connection);
+        stp_input = body.find('#network-bridge-settings-stp-enabled-input');
+        stp_input.change(change_stp);
+        priority_input = body.find('#network-bridge-settings-stp-priority-input');
+        priority_input.change(change_stp);
+        forward_delay_input = body.find('#network-bridge-settings-stp-forward-delay-input');
+        forward_delay_input.change(change_stp);
+        hello_time_input = body.find('#network-bridge-settings-stp-hello-time-input');
+        hello_time_input.change(change_stp);
+        max_age_input = body.find('#network-bridge-settings-stp-max-age-input');
+        max_age_input.change(change_stp);
 
         change_stp();
         $('#network-bridge-settings-body').html(body);
@@ -2935,6 +2895,8 @@ shell.dialogs.push(new PageNetworkBridgeSettings());
 PageNetworkBridgePortSettings.prototype = {
     _init: function () {
         this.id = "network-bridgeport-settings-dialog";
+        this.bridge_port_settings_template = $("#network-bridge-port-settings-template").html();
+        Mustache.parse(this.bridge_port_settings_template);
     },
 
     setup: function () {
@@ -2970,28 +2932,17 @@ PageNetworkBridgePortSettings.prototype = {
             options.hairpin_mode = hairpin_mode_input.prop('checked');
         }
 
-        /* TODO: Migrate away from jQuery spaghetti code */
-        var body =
-            $('<table class="cockpit-form-table">').append(
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("Priority"))),
-                    $('<td>').append(
-                        priority_input = $('<input class="form-control network-number-field" type="text">').
-                            val(options.priority).
-                            change(change))),
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("Path cost"))),
-                    $('<td>').append(
-                        path_cost_input = $('<input class="form-control network-number-field" type="text">').
-                            val(options.path_cost).
-                            change(change))),
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("Hair Pin mode"))),
-                    $('<td>').append(
-                        hairpin_mode_input = $('<input type="checkbox">').
-                            prop('checked', options.hairpin_mode).
-                            change(change))));
-
+        var body = $(Mustache.render(self.bridge_port_settings_template, {
+                       priority: options.priority,
+                       path_cost: options.path_cost,
+                       hairpin_mode_checked: options.hairpin_mode
+                   }));
+        priority_input = body.find('#network-bridge-port-settings-priority-input');
+        priority_input.change(change);
+        path_cost_input = body.find('#network-bridge-port-settings-path-cost-input');
+        path_cost_input.change(change);
+        hairpin_mode_input = body.find('#network-bridge-port-settings-hairpin-mode-input');
+        hairpin_mode_input.change(change);
 
         $('#network-bridgeport-settings-body').html(body);
     },
@@ -3039,6 +2990,8 @@ shell.dialogs.push(new PageNetworkBridgePortSettings());
 PageNetworkVlanSettings.prototype = {
     _init: function () {
         this.id = "network-vlan-settings-dialog";
+        this.vlan_settings_template = $("#network-vlan-settings-template").html();
+        Mustache.parse(this.vlan_settings_template);
     },
 
     setup: function () {
@@ -3094,27 +3047,19 @@ PageNetworkVlanSettings.prototype = {
                 parent_choices.push({ title: i.Name, choice: i.Name });
         });
 
-        /* TODO: Migrate away from jQuery spaghetti */
-        var body =
-            $('<table class="cockpit-form-table">').append(
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("Parent"))),
-                    $('<td>').append(
-                        parent_btn = shell.select_btn(change, parent_choices))),
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("VLAN Id"))),
-                    $('<td>').append(
-                        id_input = $('<input class="form-control" type="text">').
-                            val(options.id || "1").
-                            change(change).
-                            on('input', change))),
-                $('<tr>').append(
-                    $('<td>').append($('<label class="control-label">').text(_("Name"))),
-                    $('<td>').append(
-                        name_input = $('<input class="form-control" type="text">').
-                            val(options.interface_name).
-                            change(change_name).
-                            on('input', change_name))));
+
+        var body = $(Mustache.render(self.vlan_settings_template, {
+                       vlan_id: options.id || "1",
+                       interface_name: options.interface_name
+                   }));
+        parent_btn = shell.select_btn(change, parent_choices);
+        body.find('#network-vlan-settings-parent-select').html(parent_btn);
+        id_input = body.find('#network-vlan-settings-vlan-id-input').
+                       change(change).
+                       on('input', change);
+        name_input = body.find('#network-vlan-settings-interface-name-input').
+                       change(change_name).
+                       on('input', change_name);
 
         shell.select_btn_select(parent_btn, (options.parent ||
                                                (parent_choices[0] ?

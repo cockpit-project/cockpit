@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<!--
+This file is part of Cockpit.
+
+Copyright (C) 2015 Red Hat, Inc.
+
+Cockpit is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or
+(at your option) any later version.
+
+Cockpit is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+
+<head>
+  <title>Journal</title>
+  <meta charset="utf-8">
+  <link href="../base1/cockpit.css" rel="stylesheet">
+  <link href="journal.css" rel="stylesheet">
+  <script type="text/javascript" src="../base1/bundle.js"></script>
+  <script type="text/javascript" src="bundle.js"></script>
+</head>
+
+<script>
+    require([
+    "jquery",
+    "system/journal"
+    ], function($, journal) {
+        $(journal);
+    });
+</script>
+
+<body>
+  <div id="journal">
+    <div class="content-header-extra">
+      <div class="btn-group" id="journal-current-day-menu">
+        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="padding-left:10px">
+          <span id="journal-current-day"></span>
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+          <li><a data-op="recent" translatable="yes">Recent</a></li>
+          <li><a data-op="boot" translatable="yes">Current boot</a></li>
+          <li><a data-op="last-24h" translatable="yes">Last 24 hours</a></li>
+          <li><a data-op="last-week" translatable="yes">Last 7 days</a></li>
+        </ul>
+      </div>
+      <div id="journal-prio" class="btn-group">
+        <button class="btn btn-default" data-prio="3" translatable="yes">Errors</button>
+        <button class="btn btn-default" data-prio="4" translatable="yes">Warnings</button>
+        <button class="btn btn-default" data-prio="5" translatable="yes">Notices</button>
+        <button class="btn btn-default" data-prio="*" translatable="yes">All</button>
+      </div>
+    </div>
+
+    <div id="journal-box" class="container-fluid" style="margin-top: 5em;"></div>
+  </div>
+
+  <div id="journal-entry" class="container-fluid" hidden>
+    <ol class="breadcrumb">
+      <li><a id="journal-navigate-home" translatable="yes">Journal</a></li>
+      <li class="active" translatable="yes">Entry</li>
+    </ol>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <span id="journal-entry-id"></span>
+        <span id="journal-entry-date" style="float:right"></span>
+      </div>
+      <div id="journal-entry-message" style="margin:10px"></div>
+      <table class="cockpit-info-table" style="margin-bottom:10px" id="journal-entry-fields">
+      </table>
+    </div>
+  </div>
+</body>
+
+</html>
+

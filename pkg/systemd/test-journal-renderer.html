@@ -34,7 +34,7 @@
   <ol id="qunit-tests"></ol>
   <div id="qunit-fixture">test markup, will be hidden</div>
   <div id="done-flag" style="display:none">Done</div>
-</body>
+
 <script type="text/javascript">
 
 var debug = false;
@@ -170,12 +170,11 @@ var month_names = [         'January',
                           ];
 
 require([
-  'system/server'
-], function(server) {
-
+    "system/renderer"
+], function(journal_renderer) {
     QUnit.testStart(function() {
         output = [ ];
-        renderer = server.journal_renderer(funcs);
+        renderer = journal_renderer.journal_renderer(funcs);
         var d = new Date(time);
         expected_day = month_names[d.getMonth()] + ' ' + d.getDate().toFixed() + ', ' + d.getFullYear().toFixed();
     });
@@ -197,7 +196,7 @@ require([
     });
 
     test('prepend', function() {
-            prepend('foo');
+        prepend('foo');
         prepend('foo');
         prepend_flush();
         jexpect('two repeated lines',
@@ -349,4 +348,5 @@ require([
     QUnit.start();
 });
 </script>
+</body>
 </html>

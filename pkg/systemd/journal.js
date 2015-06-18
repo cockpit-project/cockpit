@@ -1,9 +1,34 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2015 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* global jQuery   */
+
 define([
     "jquery",
     "base1/cockpit",
-    "system/server",
-    "translated!base1/po"
-], function($, cockpit, server, po) {
+    "translated!base1/po",
+    "base1/mustache",
+    "system/journalctl",
+    "system/renderer"
+], function($, cockpit, po, Mustache, journalctl, journal_renderer) {
+    "use strict";
+
     cockpit.locale(po);
     cockpit.translate();
     var _ = cockpit.gettext;
@@ -42,8 +67,7 @@ define([
         if (query_start == 'recent')
             $(window).scrollTop($(document).height());
 
-        filler = server.journalbox(query_start, match, $('#journal-current-day'));
-        $("#journal-box").empty().append(filler);
+        journal_renderer.journalbox($("#journal-box"), query_start, match, $('#journal-current-day'));
     }
 
     function update_entry() {
@@ -87,7 +111,7 @@ define([
                         text(error)));
         }
 
-        server.journal({ cursor: cursor, count: 1, follow: false }).
+        journalctl({ cursor: cursor, count: 1, follow: false }).
             done(function (entries) {
                 if (entries.length >= 1 && entries[0]["__CURSOR"] == cursor)
                     show_entry(entries[0]);

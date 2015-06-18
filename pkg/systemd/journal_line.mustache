@@ -1,0 +1,16 @@
+<div class="cockpit-logline" data-cursor="{{cursor}}">
+  <div class="cockpit-log-warning">{{#warning}}
+    <i class="fa fa-exclamation-triangle"></i>
+  {{/warning}}</div>
+  <div class="cockpit-log-time">{{time}}</div>
+  <span class="cockpit-log-message">{{message}}</span>
+  {{! if we have count (repeated messages), show service name and badge - otherwise just the service }}
+  {{#count}}
+  <div class="cockpit-log-service-container">
+    <div class="cockpit-log-service-reduced">{{service}}</div>
+    <span class="badge">{{count}}&#160;<i class="fa fa-caret-right"></i></span>
+  </div>
+  {{/count}}{{^count}}
+  <div class="cockpit-log-service">{{service}}</div>
+  {{/count}}
+</div>

@@ -31,24 +31,30 @@ class TestJournal(MachineCase):
         def inject_extras():
             b.eval_js("""
             ph_get_log_lines = function () {
-              var lines = [ ], i;
-              lines.push($('.journal-end').text());
-              $('.journal-lines').children().each(function (i, e) {
-                var $e = $(e);
-                if ($e.is('.panel-heading'))
-                  lines.push ($e.text());
-                else {
-                  var c = $e.children();
-                  var cc = $(c[1]).children();
-                  var ident = $(c[0]).text();
-                  var msg = $(cc[0]).text();
-                  var count = $e.find('.badge').text();
-                  lines.push ([ ident, msg, count ]);
-                }
-              });
-              lines.push($('.journal-start').text());
-              // console.log(JSON.stringify(lines));
-              return lines;
+                var lines = [ ], i;
+                $('.cockpit-log-panel').children().each(function (i, e) {
+                    var $e = $(e);
+                    if ($e.is('.panel-heading')) {
+                        lines.push ($e.text());
+                    } else {
+                        var msg = $e.find('.cockpit-log-message').text();
+                        var ident = '';
+                        var count = '';
+                        if ($e.find('.cockpit-log-service-container').length > 0) {
+                            ident = $e.find('.cockpit-log-service-reduced').text();
+                            // we need to slice the whitespace
+                            count = $e.find('.badge').text().slice(0, -1);
+                        } else {
+                            ident = $e.find('.cockpit-log-service').text();
+                        }
+                        lines.push ([ ident, msg, count ]);
+                    }
+                });
+                var journal_start_text = $('.journal-start').text();
+                if (journal_start_text !== "")
+                    lines.push(journal_start_text);
+                // console.log(JSON.stringify(lines));
+                return lines;
             }
             """)
 
@@ -78,7 +84,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         m.execute("systemctl stop chronyd; systemctl disable chronyd; date 010112002050; hwclock -w")
 
-        self.login_and_go("/system/log")
+        self.login_and_go("/system/journal")
         inject_extras()
 
         def wait_log_lines(expected):
@@ -93,9 +99,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         })""", expected)
 
         def wait_journal_empty():
-            wait_log_lines([ "-- End of Journal, waiting for more --",
-                         "-- Start of Journal --"
-                       ])
+            wait_log_lines([ ])
 
         b.go("/?prio=*&service=log123.service")
         wait_journal_empty()
@@ -104,19 +108,13 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
             b.wait_js_func ("""(function () {
           var lines = ph_get_log_lines();
 
-          if (lines[0] != "-- End of Journal, waiting for more --")
-            return false;
-
-          if (lines[1] != "January 1, 2050")
-            return false;
-
-          if (lines[lines.length-1] != "-- Start of Journal --")
+          if (lines[0] != "January 1, 2050")
             return false;
 
           var seq = 123;
           var seen_day = false;
 
-          for (i = 2; i < lines.length-1; i++) {
+          for (i = 1; i < lines.length; i++) {
             l = lines[i];
             if (l[2] != "") {
               // console.log("repeat", l[2], "?");
@@ -125,7 +123,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
             if (l[0] == "systemd: ") {
               // console.log(l[1], "?");
               return false;
-            } else if (l[0] == "sh: ") {
+            } else if (l[0] == "sh") {
               if (l[1] != seq.toString()) {
                 // console.log(l[1], "?");
                 return false;
@@ -162,10 +160,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         wait_journal_empty()
 
         def wait_slow10():
-            wait_log_lines([ "-- End of Journal, waiting for more --",
-                         "January 1, 2050",
-                         [ "sh: ", "SLOW", "10" ],
-                         "-- Start of Journal --"
+            wait_log_lines([ "January 1, 2050", [ "sh", "SLOW", "10" ]
                        ])
 
         m.execute("systemctl start slow10")
@@ -189,32 +184,27 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         self.start_cockpit()
         b.switch_to_top()
-        b.relogin('/system/log')
+        b.relogin('/system/journal')
         inject_extras()
 
         b.go("/?tag=check-journal")
-        wait_log_lines([ "-- End of Journal, waiting for more --",
-                         "January 1, 2050",
-                         [ "check-journal: ", "AFTER BOOT", "" ],
-                         [ "Reboot", "", "" ],
-                         [ "check-journal: ", "BEFORE BOOT", "" ],
-                         "-- Start of Journal --"
+        wait_log_lines([ "January 1, 2050",
+                         [ "check-journal", "AFTER BOOT", "" ],
+                         [ "", "Reboot", "" ],
+                         [ "check-journal", "BEFORE BOOT", "" ]
                      ])
 
         b.go("/?start=boot&tag=check-journal")
-        wait_log_lines([ "-- End of Journal, waiting for more --",
-                         "January 1, 2050",
-                         [ "check-journal: ", "AFTER BOOT", "" ],
+        wait_log_lines([ "January 1, 2050",
+                         [ "check-journal", "AFTER BOOT", "" ],
                          "Load earlier entries",
                      ])
 
         b.click('#journal-load-earlier')
-        wait_log_lines([ "-- End of Journal, waiting for more --",
-                         "January 1, 2050",
-                         [ "check-journal: ", "AFTER BOOT", "2" ],
-                         [ "Reboot", "", "" ],
-                         [ "check-journal: ", "BEFORE BOOT", "" ],
-                         "-- Start of Journal --"
+        wait_log_lines([ "January 1, 2050",
+                         [ "check-journal", "AFTER BOOT", "2" ],
+                         [ "", "Reboot", "" ],
+                         [ "check-journal", "BEFORE BOOT", "" ]
                      ])
 
         self.allow_restart_journal_messages()

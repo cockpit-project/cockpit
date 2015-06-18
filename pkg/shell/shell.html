@@ -530,6 +530,218 @@
         </div>
       </div>
 
+      <script id="network-vlan-settings-template" type="x-template/mustache">
+        <table class="cockpit-form-table">
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">Parent</label>
+            </td>
+            <td id="network-vlan-settings-parent-select">
+                {{! the rather complex dropdown-select will be created dynamically via jquery }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">VLAN Id</label>
+            </td>
+            <td>
+              <input id="network-vlan-settings-vlan-id-input" class="form-control" type="text"
+                     value="{{vlan_id}}"></input>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">Name</label>
+            </td>
+            <td>
+              <input id="network-vlan-settings-interface-name-input" class="form-control" type="text"
+                     value="{{interface_name}}"></input>
+            </td>
+          </tr>
+        </table>
+      </script>
+
+      <script id="network-bridge-settings-template" type="x-template/mustache">
+        <table class="cockpit-form-table">
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">Name</label>
+            </td>
+            <td>
+              <input id="network-bridge-settings-name-input" class="form-control" type="text"
+                     value="{{bridge_name}}"></input>
+            </td>
+          </tr>
+          <tr>
+            <td class="top">
+              <label class="control-label" translatable="yes">Ports</label>
+            </td>
+            <td id="network-bridge-settings-slave-interfaces">
+                {{! slave interfaces will be rendered into here as a list of checkboxes }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">Spanning Tree Protocol (STP)</label>
+            </td>
+            <td>
+              <input id="network-bridge-settings-stp-enabled-input" type="checkbox"
+                     {{#stp_checked}}checked{{/stp_checked}}></input>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">STP Priority</label>
+            </td>
+            <td>
+              <input id="network-bridge-settings-stp-priority-input" class="form-control" type="text"
+                     value="{{stp_priority}}"></input>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">STP Forward delay</label>
+            </td>
+            <td>
+              <input id="network-bridge-settings-stp-forward-delay-input" class="form-control" type="text"
+                     value="{{stp_forward_delay}}"></input>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">STP Hello time</label>
+            </td>
+            <td>
+              <input id="network-bridge-settings-stp-hello-time-input" class="form-control" type="text"
+                     value="{{stp_hello_time}}"></input>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">STP Maximum message age</label>
+            </td>
+            <td>
+              <input id="network-bridge-settings-stp-max-age-input" class="form-control" type="text"
+                     value="{{stp_max_age}}"></input>
+            </td>
+          </tr>
+        </table>
+      </script>
+
+      <script id="network-bridge-port-settings-template" type="x-template/mustache">
+        <table class="cockpit-form-table">
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">Priority</label>
+            </td>
+            <td>
+              <input id="network-bridge-port-settings-priority-input" class="form-control network-number-field" type="text"
+                     value="{{priority}}"></input>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">Path cost</label>
+            </td>
+            <td>
+              <input id="network-bridge-port-settings-path-cost-input" class="form-control network-number-field" type="text"
+                     value="{{path_cost}}"></input>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">Hair Pin mode</label>
+            </td>
+            <td>
+              <input id="network-bridge-settings-hairpin-mode-input" type="checkbox"
+                     {{#hairpin_mode_checked}}checked{{/hairpin_mode_checked}}></input>
+            </td>
+          </tr>
+        </table>
+      </script>
+
+      <script id="network-bond-settings-template" type="x-template/mustache">
+        <table class="cockpit-form-table">
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">Name</label>
+            </td>
+            <td>
+              <input id="network-bond-settings-interface-name-input" class="form-control"
+                     value="{{interface_name}}"></input>
+            </td>
+          </tr>
+          <tr>
+            <td class="top">
+              <label class="control-label" translatable="yes">Members</label>
+            </td>
+            <td id="network-bond-settings-members">
+              {{! member interfaces will be rendered into here as a list of checkboxes }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">Mode</label>
+            </td>
+            <td id="network-bond-settings-mode-select">
+              {{! the rather complex dropdown-select will be created dynamically via jquery }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">Primary</label>
+            </td>
+            <td id="network-bond-settings-primary-select">
+              {{! the rather complex dropdown-select will be created dynamically via jquery }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">Link Monitoring</label>
+            </td>
+            <td id="network-bond-settings-link-monitoring-select">
+              {{! the rather complex dropdown-select will be created dynamically via jquery }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">Monitoring Interval</label>
+            </td>
+            <td>
+              <input id="network-bond-settings-monitoring-interval-input" class="form-control network-number-field"
+                     type="text" maxlength="4" value="{{monitoring_interval}}"></input>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">Monitoring Targets</label>
+            </td>
+            <td>
+              <input id="network-bond-settings-monitoring-targets-input" class="form-control"
+                     type="text" value="{{monitoring_targets}}"></input>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">Link up delay</label>
+            </td>
+            <td>
+              <input id="network-bond-settings-link-up-delay-input" class="form-control network-number-field"
+                     type="text" maxlength="4" value="{{link_up_delay}}"></input>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label class="control-label" translatable="yes">Link down delay</label>
+            </td>
+            <td>
+              <input id="network-bond-settings-link-down-delay-input" class="form-control network-number-field"
+                     type="text" maxlength="4" value="{{link_down_delay}}"></input>
+            </td>
+          </tr>
+        </table>
+      </script>
+
       <div id="network-interface" class="container-fluid" hidden>
         <ol class="breadcrumb">
           <li><a onclick="cockpit.location.go('networking')">Networking</a></li>

@@ -75,7 +75,7 @@ define([
             return;
 
         var len, content = window.getComputedStyle(elt).content;
-        if (content != "none") {
+        if (content && content != "none") {
             len = content.length;
             if ((content[0] === '"' || content[0] === '\'') &&
                 len > 2 && content[len - 1] === content[0])

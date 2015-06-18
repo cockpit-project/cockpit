@@ -171,53 +171,6 @@ a {
     vertical-align: super;
 }
 
-.journal-lines .panel-heading {
-    border-top: 1px solid #ddd;
-    border-bottom: 0;
-}
-
-.journal-lines .panel-heading:first-child {
-    border-top: 0;
-}
-
-.cockpit-logline {
-    border-top: 1px solid #ddd;
-    border-bottom: 1px transparent none;
-    padding: 10px;
-}
-
-.cockpit-logident {
-    display: inline-block;
-    vertical-align: top;
-    width: 10%;
-    box-sizing:border-box;
-    -moz-box-sizing:border-box;
-    -webkit-box-sizing:border-box;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.cockpit-logmsg {
-    display: inline-block;
-    width: 90%;
-    box-sizing:border-box;
-    -moz-box-sizing:border-box;
-    -webkit-box-sizing:border-box;
-    padding-right: 10px;
-}
-
-.cockpit-logtime {
-    float: right;
-}
-
-.cockpit-logtime .badge {
-    margin-right: 10px;
-}
-
-.cockpit-logmsg-reboot {
-    font-style: italic;
-}
-
 .cockpit-graph {
     position: relative;
     height: 70px;
@@ -246,48 +199,6 @@ a {
  */
 .filter-unimportant .unimportant {
     display: none;
-}
-
-/* Styling of logs embedded in pages outside the journal */
-
-.cockpit-log-panel {
-    border: 0;
-}
-
-.cockpit-log-panel .panel-heading {
-    background-color: #333;
-    border-color: #333;
-    color: #fff;
-    padding-left: 10px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    height: auto;
-}
-
-.cockpit-log-panel .panel-body {
-    padding: 0;
-    border-bottom: 1px #ddd solid;
-}
-
-.cockpit-log-panel .panel-body .panel-heading {
-    border-left: 1px #ddd solid;
-    border-right: 1px #ddd solid;
-    border-top: 1px #ddd solid;
-    border-bottom: 0;
-    background-color: #f5f5f5;
-    font-weight: bold;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    width: auto;
-    color: #333;
-}
-
-.cockpit-log-panel .cockpit-logline {
-    border-left: 1px #ddd solid;
-    border-right: 1px #ddd solid;
-    background-color: #f5f5f5;
-    padding-top: 2px;
-    padding-bottom: 2px;
 }
 
 /*
@@ -340,8 +251,7 @@ a {
     cursor: pointer;
 }
 .table-hover > tbody > tr:hover > td,
-.table-hover > tbody > tr:hover > th,
-.cockpit-logline:hover {
+.table-hover > tbody > tr:hover > th {
     background-color: #d4edfa;
 }
 
@@ -503,10 +413,6 @@ a {
 }
 
 /* Server stuff, not enough for own CSS yet */
-
-.journal-lines .cockpit-logline:hover {
-    cursor: pointer;
-}
 
 /* HACK: Need to update patternfly to work with latest bootstrap-select */
 .bootstrap-select.btn-group .dropdown-menu li a span.check-mark {

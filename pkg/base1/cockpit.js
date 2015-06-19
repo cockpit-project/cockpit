@@ -1631,8 +1631,7 @@ function full_scope(cockpit, $, po) {
 
                 owner = msg.owner;
             } else {
-                console.warn("received unexpected dbus json message:", payload);
-                channel.close({"problem": "protocol-error"});
+                dbus_debug("received unexpected dbus json message:", payload);
             }
         });
 

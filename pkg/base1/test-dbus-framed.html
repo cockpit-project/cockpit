@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2014 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+<head>
+    <title>Cockpit Frame: Communicate via Parent</title>
+    <meta charset="utf-8">
+    <script src="../../tools/simple-tap.js"></script>
+    <script src="jquery.js"></script>
+    <script src="cockpit.js"></script>
+</head>
+<body>
+    <h2 id="title"></h2>
+    <pre id="output"></pre>
+    <script>
+        /* This is *NOT* a development guide, we take lots of shortcuts here */
+
+        var parent_tests = 1;
+        var frame_tests = 2;
+
+        /* Top level window */
+        function parent_window() {
+            $("#title").text("Cockpit Parent Frame");
+            window.options = { sink: true, protocol: "cockpit1" };
+            var initialized = false;
+            var frame;
+
+            cockpit.transport.filter(function(message, channel, control) {
+                if (initialized) {
+                    /* Inject an unknown message that gets sent
+                     * before the reply
+                     */
+                    var pos = message.indexOf('\n');
+                    if (pos > -1) {
+                        var json = JSON.parse(message.substring(pos));
+                        if (json.reply) {
+                            frame.postMessage(message.substring(0, pos)+'\n{"unknown":"unknown"}',
+                                              cockpit.transport.origin);
+                        }
+                    }
+                    frame.postMessage(message, cockpit.transport.origin);
+                }
+            });
+
+            window.addEventListener("message", function(event) {
+                var message = event.data;
+                if (message.length === 0) {
+                    test.done(parent_tests + frame_tests);
+                } else if (message.indexOf('"init"') !== -1) {
+                    initialized = true;
+                    frame.postMessage('\n{ "command": "init", "version": 1, \
+                                           "a": "b", "host" : "localhost"  }',
+                                      cockpit.transport.origin);
+                } else {
+                    ret = cockpit.transport.inject(message);
+                    if (!ret) console.error("inject failed");
+                }
+            }, false);
+
+            /* This keeps coming up in tests ... how to open the transport */
+            var chan = cockpit.channel({ "payload": "resource2" });
+            $(chan).on("close", function() {
+                 test.equal(cockpit.transport.host, "localhost",
+                            "parent cockpit.transport.host");
+                 $(document.body).append($("<iframe>").attr("name", "blah").
+                         attr("src", window.location.href + "?sub"));
+                 frame = window.frames["blah"];
+            });
+        }
+
+        function child_frame() {
+            var spawn_done = false;
+            var binary_done = false;
+
+            test.start_from(parent_tests);
+
+            $("#title").text("Cockpit Child Frame");
+            var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+            dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+                      "HelloWorld", [ "Browser-side JS" ]).
+                done(function(reply) {
+                    test.equal(reply[0], "Word! You said `Browser-side JS'. I'm Skeleton, btw!", "reply");
+                    dbus.close();
+                }).
+                always(function() {
+                    test.equal(this.state(), "resolved", "finished successfuly");
+                });
+            $(dbus).on("close", function(ev, options) {
+                test.assert(!options.problem, "close cleanly");
+                test.done();
+                cockpit.transport.close();
+            });
+        }
+
+        if (window.parent === window)
+            parent_window();
+        else
+            child_frame();
+    </script>
+</body>
+</html>

@@ -74,6 +74,7 @@ base_TESTS = \
 	pkg/base1/test-spawn-proc.html \
 	pkg/base1/test-http.html \
 	pkg/base1/test-dbus.html \
+	pkg/base1/test-dbus-framed.html \
 	pkg/base1/test-location.html \
 	pkg/base1/test-framed.html \
 	pkg/base1/test-locale.html \

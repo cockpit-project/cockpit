@@ -332,6 +332,92 @@ test_properties (void)
   g_object_unref (channel);
 }
 
+static void
+test_close_not_capable (void)
+{
+  JsonObject *options;
+  JsonObject *sent;
+  JsonArray *capabilities;
+  MockTransport *transport;
+  CockpitChannel *channel;
+  CockpitChannel *channel2;
+  const gchar *cap[] = { "supported", NULL };
+
+  options = json_object_new ();
+  capabilities = json_array_new ();
+  json_array_add_string_element (capabilities, "unsupported1");
+  json_array_add_string_element (capabilities, "unsupported2");
+  json_object_set_array_member (options, "capabilities", capabilities);
+  transport = g_object_new (mock_transport_get_type (), NULL);
+
+  channel = g_object_new (mock_echo_channel_get_type (),
+                          "transport", transport,
+                          "id", "55",
+                          "options", options,
+                          NULL);
+
+  while (g_main_context_iteration (NULL, FALSE));
+
+  sent = mock_transport_pop_control (transport);
+  g_assert (sent != NULL);
+
+  cockpit_assert_json_eq (sent,
+                  "{ \"command\": \"close\", \"channel\": \"55\", \"problem\": \"not-supported\", \"capabilities\":[]}");
+  g_object_unref (channel);
+
+  channel2 = g_object_new (mock_echo_channel_get_type (),
+                           "transport", transport,
+                           "id", "55",
+                           "options", options,
+                           "capabilities", cap,
+                           NULL);
+  json_object_unref (options);
+
+  while (g_main_context_iteration (NULL, FALSE));
+
+  sent = mock_transport_pop_control (transport);
+  g_assert (sent != NULL);
+
+  cockpit_assert_json_eq (sent,
+                  "{ \"command\": \"close\", \"channel\": \"55\", \"problem\": \"not-supported\", \"capabilities\":[\"supported\"]}");
+
+  g_object_unref (channel2);
+  g_object_unref (transport);
+}
+
+static void
+test_capable (void)
+{
+  JsonObject *options;
+  JsonObject *sent;
+  JsonArray *capabilities;
+  MockTransport *transport;
+  CockpitChannel *channel;
+  const gchar *cap[] = { "supported", NULL };
+
+  options = json_object_new ();
+  capabilities = json_array_new ();
+  json_array_add_string_element (capabilities, "supported");
+  json_object_set_array_member (options, "capabilities", capabilities);
+  transport = g_object_new (mock_transport_get_type (), NULL);
+
+  channel = g_object_new (mock_echo_channel_get_type (),
+                          "transport", transport,
+                          "id", "55",
+                          "options", options,
+                          "capabilities", cap,
+                          NULL);
+  json_object_unref (options);
+
+  while (g_main_context_iteration (NULL, FALSE));
+
+  sent = mock_transport_pop_control (transport);
+  g_assert (sent == NULL);
+
+  g_object_unref (channel);
+  g_object_unref (transport);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -340,7 +426,10 @@ main (int argc,
 
   g_test_add_func ("/channel/get-option", test_get_option);
   g_test_add_func ("/channel/properties", test_properties);
-
+  g_test_add_func ("/channel/test_close_not_capable",
+                   test_close_not_capable);
+  g_test_add_func ("/channel/test_capable",
+                   test_capable);
   g_test_add ("/channel/recv-send", TestCase, NULL,
               setup, test_recv_and_send, teardown);
   g_test_add ("/channel/recv-queue", TestCase, NULL,

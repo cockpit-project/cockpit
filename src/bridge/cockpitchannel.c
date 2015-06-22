@@ -62,6 +62,7 @@ struct _CockpitChannelPrivate {
     CockpitTransport *transport;
     gchar *id;
     JsonObject *open_options;
+    gchar **capabilities;
 
     /* Queued messages before channel is ready */
     gboolean ready;
@@ -96,6 +97,7 @@ enum {
     PROP_TRANSPORT,
     PROP_ID,
     PROP_OPTIONS,
+    PROP_CAPABILITIES,
 };
 
 static guint cockpit_channel_sig_closed;
@@ -284,12 +286,87 @@ cockpit_channel_constructed (GObject *object)
 
   g_return_if_fail (self->priv->id != NULL);
 
+  self->priv->capabilities = NULL;
   self->priv->recv_sig = g_signal_connect (self->priv->transport, "recv",
                                            G_CALLBACK (on_transport_recv), self);
   self->priv->control_sig = g_signal_connect (self->priv->transport, "control",
                                               G_CALLBACK (on_transport_control), self);
   self->priv->close_sig = g_signal_connect (self->priv->transport, "closed",
                                             G_CALLBACK (on_transport_closed), self);
+}
+
+
+static gboolean
+strv_contains (gchar **strv,
+               gchar *str)
+{
+  g_return_val_if_fail (strv != NULL, FALSE);
+  g_return_val_if_fail (str != NULL, FALSE);
+
+  for (; *strv != NULL; strv++)
+    {
+      if (g_str_equal (str, *strv))
+        return TRUE;
+    }
+  return FALSE;
+}
+
+static gboolean
+cockpit_channel_ensure_capable (CockpitChannel *channel,
+                                JsonObject *options)
+{
+  gchar **capabilities = NULL;
+  JsonObject *close_options = NULL; // owned by channel
+  gboolean missing = FALSE;
+  gboolean ret = FALSE;
+  gint len;
+  gint i;
+
+  if (!cockpit_json_get_strv (options, "capabilities", NULL, &capabilities))
+    {
+      g_message ("got invalid capabilities field in open message");
+      cockpit_channel_close (channel, "protocol-error");
+      goto out;
+    }
+
+  if (!capabilities)
+    {
+      ret = TRUE;
+      goto out;
+    }
+
+  len = g_strv_length (capabilities);
+  for (i = 0; i < len; i++)
+    {
+      if (channel->priv->capabilities == NULL ||
+          !strv_contains(channel->priv->capabilities, capabilities[i]))
+        {
+          g_message ("unsupported capability required: %s", capabilities[i]);
+          missing = TRUE;
+        }
+    }
+
+  if (missing)
+    {
+      JsonArray *arr = json_array_new (); // owned by closed options
+
+      if (channel->priv->capabilities != NULL)
+        {
+          len = g_strv_length (channel->priv->capabilities);
+          for (i = 0; i < len; i++)
+            json_array_add_string_element (arr, channel->priv->capabilities[i]);
+        }
+
+      close_options = cockpit_channel_close_options (channel);
+      json_object_set_array_member (close_options, "capabilities", arr);
+      cockpit_channel_close (channel, "not-supported");
+    }
+
+  ret = !missing;
+
+out:
+  g_free (capabilities);
+  return ret;
 }
 
 static void
@@ -301,6 +378,9 @@ cockpit_channel_real_prepare (CockpitChannel *channel)
   const gchar *payload;
 
   options = cockpit_channel_get_options (self);
+
+  if (!cockpit_channel_ensure_capable (self, options))
+    return;
 
   if (G_OBJECT_TYPE (channel) == COCKPIT_TYPE_CHANNEL)
     {
@@ -381,6 +461,10 @@ cockpit_channel_set_property (GObject *object,
     case PROP_OPTIONS:
       self->priv->open_options = g_value_dup_boxed (value);
       break;
+    case PROP_CAPABILITIES:
+      g_return_if_fail (self->priv->capabilities == NULL);
+      self->priv->capabilities = g_value_dup_boxed (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -434,6 +518,8 @@ cockpit_channel_finalize (GObject *object)
     json_object_unref (self->priv->open_options);
   if (self->priv->close_options)
     json_object_unref (self->priv->close_options);
+
+  g_strfreev (self->priv->capabilities);
   g_free (self->priv->id);
 
   G_OBJECT_CLASS (cockpit_channel_parent_class)->finalize (object);
@@ -525,6 +611,18 @@ cockpit_channel_class_init (CockpitChannelClass *klass)
                                    g_param_spec_boxed ("options", "options", "options", JSON_TYPE_OBJECT,
                                                        G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
+                                                         /**
+   * CockpitChannel:capabilities:
+   *
+   * The capabilties that this channel supports.
+   */
+  g_object_class_install_property (gobject_class, PROP_CAPABILITIES,
+                                   g_param_spec_boxed ("capabilities",
+                                                       "Capabilities",
+                                                       "Channel Capabilities",
+                                                       G_TYPE_STRV,
+                                                       G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
+
   /**
    * CockpitChannel::closed:
    *
@@ -538,6 +636,7 @@ cockpit_channel_class_init (CockpitChannelClass *klass)
                                              NULL, NULL, NULL, G_TYPE_NONE, 1, G_TYPE_STRING);
 
   g_type_class_add_private (klass, sizeof (CockpitChannelPrivate));
+
 
   /*
    * If we're running under a test server, register that server's HTTP address

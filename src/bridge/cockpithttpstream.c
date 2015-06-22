@@ -1042,6 +1042,16 @@ cockpit_http_stream_finalize (GObject *object)
 }
 
 static void
+cockpit_http_stream_constructed (GObject *object)
+{
+  const gchar *caps[] = { "tls-certificates", NULL };
+
+  G_OBJECT_CLASS (cockpit_http_stream_parent_class)->constructed (object);
+
+  g_object_set (object, "capabilities", &caps, NULL);
+}
+
+static void
 cockpit_http_stream_class_init (CockpitHttpStreamClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
@@ -1049,6 +1059,7 @@ cockpit_http_stream_class_init (CockpitHttpStreamClass *klass)
 
   gobject_class->dispose = cockpit_http_stream_dispose;
   gobject_class->finalize = cockpit_http_stream_finalize;
+  gobject_class->constructed = cockpit_http_stream_constructed;
 
   channel_class->prepare = cockpit_http_stream_prepare;
   channel_class->recv = cockpit_http_stream_recv;

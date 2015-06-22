@@ -25,6 +25,19 @@ class TestAccounts(MachineCase):
         b = self.browser
         m = self.machine
 
+        # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1225957
+        #
+        # We compensate for the GFileMonitor bug by periodically
+        # triggering them forcefully in the background.
+        #
+        # XXX - This is terrible and we should try hard to fix the
+        # bug before merge.
+        #
+        # XXX - there is a race because of the two copies
+        #
+        if self.machine.os == "fedora-rawhide":
+            self.machine.spawn("while true; do sleep 2; cp /etc/passwd /tmp/xxx && cp /tmp/xxx /etc/passwd; done", "passwd-trigger.log")
+
         self.login_and_go("accounts", href="/users/local")
 
         # Add a user externally

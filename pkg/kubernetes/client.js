@@ -402,8 +402,8 @@ define([
 
         var schemes = [
             { port: 8080 },
-            { port: 8443, tls: { } },
-            { port: 6443, tls: { } }
+            { port: 8443, tls: { }, capabilities: ['tls-certificates'] },
+            { port: 6443, tls: { }, capabilities: ['tls-certificates'] }
         ];
 
         function step() {

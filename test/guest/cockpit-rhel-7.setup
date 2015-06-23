@@ -13,6 +13,9 @@ cd /etc/yum.repos.d
 # we need the cockpit-preview copr for updated glib2
 wget -T 15 -t 4 https://copr.fedoraproject.org/coprs/sgallagh/cockpit-preview/repo/epel-7/sgallagh-cockpit-preview-epel-7.repo
 
+# we need storaged 2
+wget -T 15 -t 4 https://copr.fedoraproject.org/coprs/phatina/storaged/repo/epel-7/phatina-storaged-epel-7.repo
+
 yum-config-manager --enable rhel-7-server-optional-rpms
 yum-config-manager --enable rhel-7-server-extras-rpms
 
@@ -38,14 +41,13 @@ glib-networking \
 json-glib \
 kubernetes \
 libssh \
-lvm2 \
-mdadm \
 pcp-libs \
 pcp \
 realmd \
 selinux-policy-targeted \
 subscription-manager \
-udisks2 \
+storaged \
+storaged-lvm2 \
 "
 # We also install the packages necessary to join a FreeIPA domain so
 # that we don't have to go to the network during a test run.

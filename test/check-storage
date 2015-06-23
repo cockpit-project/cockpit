@@ -19,6 +19,8 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 from testlib import *
+import unittest
+import os
 
 class TestStorage(MachineCase):
     def setUp(self):
@@ -380,6 +382,8 @@ class TestStorage(MachineCase):
         self.browser.wait_action_btn ("#raid_action_btn", action)
         self.browser.click_action_btn ("#raid_action_btn")
 
+    # HACK - https://bugs.freedesktop.org/show_bug.cgi?id=91011 and others
+    @unittest.skipIf("fedora-22" in os.environ.get("TEST_OS", ""), "f22: udisks2 mdraid is broken")
     def testRaid(self):
         m = self.machine
         b = self.browser

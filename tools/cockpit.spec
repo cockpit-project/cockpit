@@ -288,10 +288,6 @@ cat subscriptions.list docker.list >> shell.list
 %post pcp
 # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1185749
 ( cd /var/lib/pcp/pmns && ./Rebuild -du )
-# HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1185764
-# We can't use "systemctl reload-or-try-restart" since systemctl might
-# be out of sync with reality.
-/usr/share/pcp/lib/pmlogger reload
 
 %files shell -f shell.list
 

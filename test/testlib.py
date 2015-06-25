@@ -396,9 +396,9 @@ class MachineCase(unittest.TestCase):
     machine = None
     machines = [ ]
 
-    def new_machine(self, flavor=None):
+    def new_machine(self, flavor=None, system=None):
         (unused, sep, label) = self.id().rpartition(".")
-        m = self.machine_class(verbose=arg_trace, flavor=flavor, label="%s-%s" % (program_name, label))
+        m = self.machine_class(verbose=arg_trace, flavor=flavor, system=system, label="%s-%s" % (program_name, label))
         self.addCleanup(lambda: m.kill())
         self.machines.append(m)
         return m

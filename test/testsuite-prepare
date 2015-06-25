@@ -3,11 +3,15 @@
 set -e
 
 make_rpms_opts=
+cockpit_create_ops=
+install_selinux=yes
 
 while [ $# -gt 0 ]; do
     case $1 in
 	--clean)
             make_rpms_opts="--clean"
+            cockpit_create_opts="--force --no-save"
+            install_selinux=no
 	    ;;
     esac
     shift
@@ -43,13 +47,18 @@ if [ "$TEST_OS" == "rhel-7" ]; then
 cockpit-kubernetes"
 fi
 
+if [ "$install_selinux" == "no" ]; then
+    skip="$skip
+cockpit-selinux"
+fi
+
 rpms=$(../tools/make-rpms $make_rpms_opts | grep -vF "$skip")
 if [ -z "$rpms" ]; then
   exit 1
 fi
 
 ./vm-reset
-./vm-create -v -f cockpit
+./vm-create -v -f cockpit $cockpit_create_opts
 ./vm-create -v -f ipa
 
 ./vm-reset

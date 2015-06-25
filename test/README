@@ -116,8 +116,13 @@ This is handled by passing the "--flavor" / "-f" option to vm-create
 and other scripts that work with test machine images.  Currently, two
 flavors are available:
 
-  "cockpit" -- The basic image for running Cockpit.  This is the
-               default.
+  "cockpit" -- The basic image for running the development version of Cockpit.
+               This is the default.
+
+  "stock" --   A stock installation of the given OS, including the stock
+               version of Cockpit.  This is used to test compatibility
+               between released versions of Cockpit and the
+               development version.
 
   "ipa"     -- A FreeIPA server.
 

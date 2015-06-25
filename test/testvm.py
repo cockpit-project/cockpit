@@ -511,7 +511,7 @@ class QemuMachine(Machine):
         ifcfg_eth0 = 'BOOTPROTO="dhcp"\nDEVICE="eth0"\nONBOOT="yes"\n'
         gf.write("/etc/sysconfig/network-scripts/ifcfg-eth0", ifcfg_eth0)
 
-    def _setup_fedora_22 (self, gf):
+    def _setup_fedora_like (self, gf):
         self._setup_ssh_keys(gf)
         self._setup_fedora_network(gf)
 
@@ -621,8 +621,8 @@ class QemuMachine(Machine):
 
     def build(self, args):
         def modify(gf):
-            if self.os == "fedora-22" or self.os == "fedora-22-testing":
-                self._setup_fedora_22(gf)
+            if self.os in [ "fedora-22", "fedora-22-testing", "centos-7" ]:
+                self._setup_fedora_like(gf)
             elif self.os == "fedora-rawhide":
                 self._setup_fedora_rawhide(gf)
             elif self.os == "rhel-7":

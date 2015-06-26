@@ -29,9 +29,6 @@ class TestSession(MachineCase):
         # Might happen when killing the bridge.
         self.allow_journal_messages("localhost: dropping message while waiting for child to exit")
 
-        # TODO: Make this work with non-root
-        b.default_user = "root"
-
         def wait_session(should_exist):
             def cond():
                 return should_exist == ("admin" in m.execute("loginctl list-sessions"))
@@ -46,15 +43,10 @@ class TestSession(MachineCase):
                 except:
                     raise RepeatThis("https://bugs.freedesktop.org/show_bug.cgi?id=89024")
 
-        def kill_user_admin():
-            # logind from systemd 208 is buggy, so we use systemd directly if it fails
-            # https://bugs.freedesktop.org/show_bug.cgi?id=71092
-            m.execute("loginctl kill-user admin || systemctl kill user-1000.slice")
-
         wait_session(False)
 
         # Login
-        self.login_and_go("server", user="admin", href="/system/host")
+        self.login_and_go("server", href="/system/host")
         wait_session(True)
 
         # Logout
@@ -71,19 +63,18 @@ class TestSession(MachineCase):
         wait_session(True)
 
         # Kill session from the outside
-        kill_user_admin()
+        m.execute("loginctl kill-user admin")
         wait_session(False)
 
         b.relogin("server", "admin")
         wait_session(True)
 
-        # TODO: This doesn't work as non-root
         # Kill session from the inside
-        # b.click('#content-user-name')
-        # b.click('a[onclick*="cockpit.go_login_account"]')
-        # b.enter_page("account")
-        # b.wait_text("#account-user-name", "admin")
-        # b.click("#account-logout")
-        # wait_session(False)
+        b.click('#content-user-name')
+        b.click('a[onclick*="cockpit.go_login_account"]')
+        b.enter_page("account")
+        b.wait_text("#account-user-name", "admin")
+        b.click("#account-logout")
+        wait_session(False)
 
 test_main ()

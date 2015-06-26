@@ -591,7 +591,7 @@ class QemuMachine(Machine):
             self.message("Creating disk copy:", self._image_image)
             shutil.copyfile(magic_base_image, self._image_image)
         else:
-            raise Failure("Unsupported configuration %s: neither %s nor %s found." % (image, bootstrap_script, image_file))
+            raise Failure("Unsupported OS %s: neither %s nor %s found." % (self.os, bootstrap_script, magic_base_image))
 
         if modify_func:
             self.run_modify_func(modify_func)

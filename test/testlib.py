@@ -494,21 +494,6 @@ systemctl start docker
         # Will go away with glib 2.43.2
         ".*: couldn't write web output: Error sending data: Connection reset by peer",
 
-        ## Bugs
-
-        # https://bugs.freedesktop.org/show_bug.cgi?id=70540
-        ".*ActUserManager: user .* has no username.*",
-
-        # https://github.com/cockpit-project/cockpit/issues/48
-        "Failed to load '.*': Key file does not have group 'Unit'",
-
-        # https://github.com/cockpit-project/cockpit/issues/115
-        "cockpit-testing\\.service: main process exited, code=exited, status=1/FAILURE",
-        "Unit cockpit-testing\\.service entered failed state\\.",
-
-        # https://bugs.freedesktop.org/show_bug.cgi?id=71092
-        "logind\\.KillUser failed \\(Input/output error\\), trying systemd\\.KillUnit",
-
         # SELinux messages to ignore
         "(audit: )?type=1403 audit.*",
         "(audit: )?type=1404 audit.*",

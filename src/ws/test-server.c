@@ -422,8 +422,6 @@ main (int argc,
   };
 
   signal (SIGPIPE, SIG_IGN);
-  /* avoid gvfs (http://bugzilla.gnome.org/show_bug.cgi?id=526454) */
-  g_setenv ("GIO_USE_VFS", "local", TRUE);
 
   g_setenv ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
   g_setenv ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);

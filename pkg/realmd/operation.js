@@ -380,6 +380,7 @@ define([
             element
                 .addClass("disabled")
                 .attr('title', message)
+                .tooltip({ container: 'body'})
                 .tooltip('fixTitle');
             realmd = null;
         });

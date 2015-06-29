@@ -54,25 +54,32 @@ class TestMultiOS(MachineCase):
         dev_m = self.machine
         dev_b = self.browser
 
-        c7_m = self.new_machine(flavor='stock', system='centos-7')
-        c7_m.start()
-        c7_m.wait_boot()
-        c7_b = self.new_browser(c7_m.address)
-
         self.allow_journal_messages(".*: .* host key for server is not known: .*")
-
-        c7_b.login_and_go("dashboard", href="/dashboard/list", host=None)
-        inject_extras(c7_b)
-        wait_dashboard_addresses (c7_b, [ "localhost" ])
-
-        add_machine(c7_b, dev_m.address)
-        wait_dashboard_addresses (c7_b, [ "localhost", dev_m.address ])
 
         self.login_and_go("dashboard", href="dashboard/list", host=None)
         inject_extras(dev_b)
-        wait_dashboard_addresses (dev_b, [ "localhost" ])
 
-        add_machine(dev_b, c7_m.address)
-        wait_dashboard_addresses (dev_b, [ "localhost", c7_m.address ])
+        dev_dashboard_addresses = [ "localhost" ]
+        wait_dashboard_addresses (dev_b, dev_dashboard_addresses)
+
+        def test_stock(system):
+            stock_m = self.new_machine(flavor='stock', system=system)
+            stock_m.start()
+            stock_m.wait_boot()
+            stock_b = self.new_browser(stock_m.address)
+
+            stock_b.login_and_go("dashboard", href="/dashboard/list", host=None)
+            inject_extras(stock_b)
+            wait_dashboard_addresses (stock_b, [ "localhost" ])
+
+            add_machine(stock_b, dev_m.address)
+            wait_dashboard_addresses (stock_b, [ "localhost", dev_m.address ])
+
+            add_machine(dev_b, stock_m.address)
+            dev_dashboard_addresses.append(stock_m.address)
+            wait_dashboard_addresses (dev_b, dev_dashboard_addresses)
+
+        test_stock('fedora-22')
+        test_stock('centos-7')
 
 test_main()

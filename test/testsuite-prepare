@@ -61,7 +61,8 @@ fi
 ./vm-create -v -f cockpit $cockpit_create_opts
 ./vm-create -v -f ipa
 
-TEST_OS=centos-7 ./vm-create -v -f stock
+TEST_OS=fedora-22 ./vm-create -v -f stock
+TEST_OS=centos-7  ./vm-create -v -f stock
 
 ./vm-reset
 ./vm-install -f cockpit $rpms

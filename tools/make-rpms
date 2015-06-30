@@ -74,6 +74,10 @@ if [[ "$os" =~ "fedora-atomic" ]]; then
 else
     os=$os
 fi
+
+# drop a "-testing" suffix
+os=${os/%-testing/}
+
 arch=${TEST_ARCH:-}
 
 srpm=$("$make_srpm" "$@")

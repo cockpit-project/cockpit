@@ -622,6 +622,7 @@ class Phantom:
         self.run({'cmd': 'keys', 'type': type, 'keys': keys })
 
     def quit(self):
+        self.run({'cmd': 'ping'})
         self.driver.stdin.close()
         self.driver.wait()
 

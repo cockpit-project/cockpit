@@ -53,6 +53,14 @@ var waitTimeout;
 
 page.viewportSize = { width: 800, height: 480 };
 
+function result(out) {
+    if (lastError) {
+        out = { error: lastError };
+        lastError = null;
+    }
+    sys.stdout.writeLine(JSON.stringify(out));
+}
+
 function step ()
 {
     setTimeout(function () {
@@ -79,7 +87,7 @@ function step ()
             if (status != "success" && page.failure)
                 status = page.failure;
             page.failure = null;
-            sys.stdout.writeLine(JSON.stringify({result: status}));
+            result({ result: status });
             step ();
         }
 
@@ -106,49 +114,46 @@ function step ()
             }, cmd.timeout || 10000);
         } else if (cmd.cmd == "inject") {
             var ret = page.injectJs(cmd.file);
-            sys.stdout.writeLine(JSON.stringify({result: ret}));
+            result({ result: ret });
             step();
         } else if (cmd.cmd == "switch") {
             if (page.switchToFrame(cmd.name))
-                sys.stdout.writeLine(JSON.stringify({result: true}));
+                result({ result: true });
             else
-                sys.stdout.writeLine(JSON.stringify({error: "Can't switch to frame"}));
+                result({ error: "Can't switch to frame" });
             step();
         } else if (cmd.cmd == "switch_top") {
             page.switchToMainFrame();
-            sys.stdout.writeLine(JSON.stringify({result: true}));
+            result({ result: true });
             step();
         } else if (cmd.cmd == "switch_parent") {
             if (page.switchToParentFrame())
-                sys.stdout.writeLine(JSON.stringify({result: true}));
+                result({ result: true });
             else
-                sys.stdout.writeLine(JSON.stringify({error: "Can't switch to parent frame"}));
+                result({ error: "Can't switch to parent frame" });
             step();
         } else if (cmd.cmd == "show") {
             page.render(cmd.file || "page.png");
-            sys.stdout.writeLine(JSON.stringify({result: true}));
+            result({ result: true });
             step();
         } else if (cmd.cmd == "quit") {
-            sys.stdout.writeLine(JSON.stringify({result: true}));
+            result({ result: true });
             phantom.exit(0);
         } else if (cmd.cmd == "sit") {
-            sys.stdout.writeLine(JSON.stringify({result: true}));
+            result({ result: true });
             // fall through to the phantom event loop
         } else if (cmd.cmd == "do") {
             lastError = null;
             var func = "function () { " + cmd.code + "}";
             var val = page.evaluate (func);
-            if (lastError)
-                sys.stdout.writeLine(JSON.stringify({error: lastError}));
-            else
-                sys.stdout.writeLine(JSON.stringify({result: val}));
+            result({ result: val });
             step ();
         } else if (cmd.cmd == "wait") {
             var func = "function () { return " + cmd.cond + "}";
 
             function respond(val)
             {
-                sys.stdout.writeLine(JSON.stringify(val));
+                result(val);
                 clearTimeout(waitTimeout);
                 onCheckpoint = null;
                 waitTimeout = null;
@@ -157,7 +162,6 @@ function step ()
 
             function check(is_timeout)
             {
-                lastError = null;
                 var val = page.evaluate (func);
                 if (lastError)
                     respond ({error: lastError});
@@ -190,14 +194,17 @@ function step ()
                     page.sendEvent (cmd.type, k, null, null, cmd.modifier || 0);
                 }
             }
-            sys.stdout.writeLine(JSON.stringify({result: true}));
+            result({ result: true });
             step ();
         } else if (cmd.cmd == "upload") {
             page.uploadFile(cmd.selector, cmd.file);
-            sys.stdout.writeLine(JSON.stringify({result: true}));
+            result({ result: true });
+            step();
+        } else if (cmd.cmd == "ping") {
+            result({ result: "pong" });
             step();
         } else {
-            sys.stdout.writeLine(JSON.stringify({error: "?"}));
+            result({ error: "?" });
             step ();
         }
 

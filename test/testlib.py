@@ -561,7 +561,7 @@ class Phantom:
         if lang:
             environ["LC_ALL"] = lang
         self.driver = subprocess.Popen([ "%s/phantom-driver" % topdir ], env=environ,
-                                       stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+                                       stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True)
         self.frame = None
 
     def run(self, args):

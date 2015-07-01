@@ -120,7 +120,8 @@ function setup_plot(graph_id, grid, data, user_options) {
     function resize() {
         if (plot && running) {
             sync_divs ();
-            plot.resize();
+            if (inner_div.width() > 0 && inner_div.height() > 0)
+                plot.resize();
             refresh();
         }
     }
@@ -276,7 +277,8 @@ function setup_plot_x(graph_id, resmon, data, user_options, store_samples) {
     {
         if (plot && running) {
             sync_divs ();
-            plot.resize();
+            if (inner_div.width() > 0 && inner_div.height() > 0)
+                plot.resize();
             refresh();
         }
     }

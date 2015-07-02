@@ -438,6 +438,9 @@ PageServer.prototype = {
             });
 
         function hostname_text() {
+            if (!self.hostname_proxy)
+                return;
+
             var pretty_hostname = self.hostname_proxy.PrettyHostname;
             var static_hostname = self.hostname_proxy.StaticHostname;
 

@@ -507,6 +507,44 @@ function etcd_server(req) {
 }
 
 /* -------------------------------------------------------------------------
+ * Mock process
+ */
+
+function mock_spawn(data) {
+    var dfd = $.Deferred();
+    var streamer;
+
+    var jpromise = dfd.promise;
+    dfd.promise = function mypromise() {
+        return $.extend(jpromise.apply(this, arguments), {
+            stream: function(callback) {
+                streamer = callback;
+                return this;
+            },
+            input: function() {
+                /* ignore */
+                return this;
+            },
+            close: function() {
+                /* ignore */
+                return this;
+            },
+            promise: this.promise
+        });
+    };
+
+    window.setTimeout(function() {
+        if (streamer) {
+            streamer(data);
+            data = "";
+        }
+        dfd.resolve(data);
+    });
+
+    return dfd.promise();
+}
+
+/* -------------------------------------------------------------------------
  * The actual tests
  */
 
@@ -517,8 +555,10 @@ require([
     "kubernetes/mock-basic",
     "kubernetes/mock-large"
 ], function($, cockpit, kubernetes, mock_basic, mock_large) {
-    var cockpit_http = cockpit.http;
     cockpit.http = function(endpoint) {
+        if (typeof(endpoint) === "object")
+            endpoint = endpoint.port;
+
         /* Our mock kubernetes apiserver */
         if (endpoint == 8080 || endpoint == 8443)
             return new MockHttp(kube_apiserver);
@@ -530,6 +570,15 @@ require([
         /* Catch any other requests, fail test */
         else
             throw "Unexpected mock http endpoint " + endpoint;
+    };
+
+    cockpit.spawn = function(args, options) {
+        / * The code is trying to spawn kubectl, just return some data */
+        if (args.length == 2 && args[0] == '/bin/sh' && args[1] == '-s')
+            return mock_spawn("{ \"port\": 8080 }\f{ }\fListening\n");
+
+        else
+            throw "Unexpected mock spawn request";
     };
 
     /* A fresh set of kube_data for each test */

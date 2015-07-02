@@ -19,9 +19,8 @@
 
 define([
     "jquery",
-    "base1/cockpit",
-    "kubernetes/config"
-], function($, cockpit, config) {
+    "base1/cockpit"
+], function($, cockpit) {
     "use strict";
 
     var kubernetes = { };
@@ -428,89 +427,62 @@ define([
         };
     }
 
-    /*
-     * A helper function that returns a Promise which tries to
-     * connect to a kube-apiserver in various ways in turn.
-     */
-    function connect_api_server() {
+    function spawn_kubectl_proxy() {
         var dfd = $.Deferred();
-        var req;
 
-        var schemes = [
-            { port: 8080 },
-            { port: 8443, tls: { }, capabilities: ['tls-certificates'] },
-            { port: 6443, tls: { }, capabilities: ['tls-certificates'] }
+        /*
+         * Create a temporary directory and run kubectl proxy with a
+         * socket in it.
+         *
+         * Produce 3 parts of output separated by form-feed characters.
+         *  1. The cockpit.http connection information
+         *  2. The kubectl config JSON
+         *  3. A line that tells us when the proxy starts
+         */
+        var script = [
+            'set -xeu',
+            'DIR=$(mktemp -p $PWD -d cockpit-kube.XXXXXXXX)',
+            'echo -n "{ \\"unix\\": \\"$DIR/kube\\" }\f"',
+            'kubectl config view --output=json --raw',
+            'echo -n "\f"',
+            'exec kubectl proxy --unix-socket=$DIR/kube --disable-filter --api-prefix=/'
         ];
 
-        function step() {
-            var scheme = schemes.shift();
+        var buffer = "";
+        var proc = cockpit.spawn(["/bin/sh", "-s"])
+            .input(script.join("\n"))
+            .stream(function(data) {
+                buffer += data;
 
-            /* No further ports to try? */
-            if (!scheme) {
-                var ex = new Error(_("Couldn't find running kube-apiserver"));
-                ex.problem = "not-found";
+                /* See above for explanation on what the output contains */
+                var parts = buffer.split("\f");
+                if (parts.length < 3 || parts[2].length === 0)
+                    return; /* not enough data */
+
+                dfd.resolve(proc, JSON.parse(parts[0]), JSON.parse(parts[1]));
+            })
+            .fail(function(ex) {
+                proc = null;
+                if (ex.exit_status == 127)
+                    debug("kubectl not found");
+                else if (ex.problem !== "cancelled")
+                    debug("running kubectl failed:", ex);
                 dfd.reject(ex);
-                return;
-            }
-
-            var http = cockpit.http(scheme.port, scheme);
-            req = http.get("/api")
-                .done(function(data) {
-                    req = null;
-
-                    /*
-                     * We expect a response that looks something like:
-                     * { "versions": [ "v1beta1", "v1beta2", "v1" ] }
-                     */
-                    var response;
-                    try {
-                        response = JSON.parse(data);
-                    } catch(ex) {
-                        debug("not an api endpoint without JSON data on:", scheme);
-                        step();
-                        return;
-                    }
-                    if (response && response.versions) {
-                        debug("found kube-apiserver endpoint on:", scheme);
-                        dfd.resolve(http, response);
-                    } else {
-                        debug("not a kube-apiserver endpoint on:", scheme);
-                        step();
-                    }
-                })
-                .fail(function(ex, response) {
-                    req = null;
-
-                    if (ex.problem === "not-found") {
-                        debug("api endpoint not found on:", scheme);
-                        step();
-                    } else {
-                        if (ex.problem !== "cancelled")
-                            debug("connecting to endpoint failed:", scheme, ex);
-                        dfd.reject(ex, response);
-                    }
-                });
-        }
-
-        /* Load the kube config, and then try to start connecting */
-        cockpit.spawn(["/usr/bin/kubectl", "config", "view", "--output=json", "--raw"])
-            .fail(function(ex, output) {
-                if (output)
-                    console.warn(output);
-                else
-                    console.warn(ex);
             })
-            .done(function(data) {
-                var scheme = config.parse_scheme(data);
-                debug("kube config scheme:", scheme);
-                schemes.unshift(scheme);
-            })
-            .always(step);
+            .done(function() {
+                proc = null;
+                if (dfd.state() == "pending") {
+                    console.warn("kubectl did not print out a response:", buffer);
+                    dfd.reject(new Error("Kubernetes connection via kubectl failed"));
+                }
+            });
 
         var promise = dfd.promise();
         promise.cancel = function cancel() {
-            if (req)
-                req.close("cancelled");
+            if (dfd.state() == "pending" && proc) {
+                proc.close("cancelled");
+                proc = null;
+            }
             return promise;
         };
         return promise;
@@ -636,12 +608,14 @@ define([
         /* Holds the connect api promise */
         var connected;
 
+        /* Holds process if we're connected via proxy */
+        var proxy;
+
         /* The API info returned from /api */
         var apis;
 
         /*
          * connect:
-         * @force: Force a new connection
          *
          * Starts connecting to the kube-apiserver if not connected.
          * This means figuring out which port kube-apiserver is
@@ -653,21 +627,70 @@ define([
          * complete, and any done callbacks will happen
          * immediately.
          */
-        self.connect = function connect(force) {
-            if (force || !connected) {
-                connected = connect_api_server()
-                    .done(function(http, response) {
-                        self.flavor = response.flavor;
-                        for (var type in self.watches)
-                            self.watches[type].start(http);
+        self.connect = function connect() {
+            if (connected)
+                return connected;
+
+            var dfd = $.Deferred();
+            var req;
+
+            function api_connect(options) {
+                var http = cockpit.http(options);
+                req = http.get("/api")
+                    .done(function(data) {
+                        var response;
+                        try {
+                            response = JSON.parse(data);
+                        } catch(ex) {
+                            debug("didn't get a JSON response from kube-apiserver");
+                        }
+                        if (response && response.versions) {
+                            debug("found kube-apiserver endpoint");
+                            dfd.resolve(http);
+                        } else {
+                            dfd.reject(new Error(_("Not a Kubernetes API server")));
+                        }
                     })
                     .fail(function(ex, response) {
                         update_error_message(ex, response);
-                        console.warn("Couldn't connect to kubernetes:", ex);
-                        for (var type in self.watches)
-                            self.watches[type].stop(ex);
+                        dfd.reject(ex);
                     });
             }
+
+            /* Try to spawn kubectl and fall through to 8080 if fails */
+            var spawn = spawn_kubectl_proxy()
+                .fail(function(ex) {
+                    console.warn("Couldn't connect via kubectl:", ex);
+                    dfd.reject(ex);
+                })
+                .done(function(proc, options, config) {
+                    proxy = proc;
+                    api_connect(options);
+                });
+
+            connected = dfd.promise();
+            connected.cancel = function() {
+                if (req) {
+                    req.close("cancelled");
+                    req = null;
+                }
+                if (spawn) {
+                    spawn.cancel();
+                    spawn = null;
+                }
+            };
+
+            /* Some default handlers */
+            connected
+                .fail(function(ex) {
+                    console.warn("Couldn't connect to kubernetes:", ex);
+                    for (var type in self.watches)
+                        self.watches[type].stop(ex);
+                })
+                .done(function(http) {
+                    for (var type in self.watches)
+                        self.watches[type].start(http);
+                });
 
             return connected;
         };
@@ -736,6 +759,10 @@ define([
             if (connected) {
                 connected.cancel();
                 connected = null;
+            }
+            if (proxy) {
+                proxy.close("cancelled");
+                proxy = null;
             }
         };
 

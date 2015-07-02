@@ -67,7 +67,8 @@ define([
 
                 $scope.reconnect = function reconnect() {
                     $scope.curtains = { state: 'connecting' };
-                    handle(client.connect(true));
+                    client.close();
+                    handle(client.connect());
                 };
         }])
 

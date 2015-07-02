@@ -49,14 +49,11 @@ define([
 
                 var client = $scope.client;
                 var ready = false;
-                var all = { };
 
-                client.wait(function() {
-                    all = client.select();
-                    client.track(all);
-                    $(all).on("changed", digest);
-                    digest();
-                });
+                var all = client.select();
+                client.track(all);
+                $(all).on("changed", digest);
+                digest();
 
                 /* TODO: This should be made unnecessary by parsing endpoints */
                 function weak(item) {

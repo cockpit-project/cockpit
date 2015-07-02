@@ -50,6 +50,7 @@
 #include <pwd.h>
 
 #include <glib-unix.h>
+#include <glib/gstdio.h>
 
 
 /* This program is run on each managed server, with the credentials
@@ -399,6 +400,7 @@ run_bridge (const gchar *interactive)
   CockpitPortal *super = NULL;
   CockpitPortal *pcp = NULL;
   gpointer polkit_agent = NULL;
+  const gchar *directory;
   struct passwd *pwd;
   GPid daemon_pid = 0;
   guint sig_term;
@@ -407,6 +409,16 @@ run_bridge (const gchar *interactive)
   uid_t uid;
 
   cockpit_set_journal_logging (G_LOG_DOMAIN, !isatty (2));
+
+  /*
+   * The bridge always runs from within $XDG_RUNTIME_DIR
+   * This makes it easy to create user sockets and/or files.
+   */
+  directory = g_get_user_runtime_dir ();
+  if (g_mkdir_with_parents (directory, 0700) < 0)
+    g_warning ("couldn't create runtime dir: %s: %s", directory, g_strerror (errno));
+  else if (g_chdir (directory) < 0)
+    g_warning ("couldn't change to runtime dir: %s: %s", directory, g_strerror (errno));
 
   /* Always set environment variables early */
   uid = geteuid();

@@ -27,7 +27,6 @@
 #include "common/cockpitpipetransport.h"
 #include "common/cockpitunixfd.h"
 
-#include <sys/prctl.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>

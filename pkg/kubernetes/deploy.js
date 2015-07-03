@@ -31,6 +31,9 @@ define([
     /* The kubernetes client: valid while dialog is open */
     var client;
 
+    /* A list of namespaces */
+    var namespaces;
+
     function deploy_app() {
         var promise = validate()
             .fail(function(exs) {
@@ -150,14 +153,20 @@ define([
 
             $("#deploy-app-namespace").val('');
             client = kubernetes.k8client();
-            $(client).on("namespaces", namespaces_changed);
-            namespaces_changed();
+
+            namespaces = client.select("Namespace");
+            client.track(namespaces);
+            $(namespaces).on("changed", namespaces_changed);
         });
 
         dlg.on('hide.bs.modal', function() {
+            if (namespaces) {
+                $(namespaces).off("changed", namespaces_changed);
+                client.track(namespaces, false);
+                namespaces = null;
+            }
             if (client) {
                 client.close();
-                $(client).off("namespaces", namespaces_changed);
                 client = null;
             }
         });
@@ -191,7 +200,7 @@ define([
 
         function namespaces_changed() {
             var ul = $("ul", group).empty();
-            client.namespaces.forEach(function(namespace) {
+            namespaces.items.forEach(function(namespace) {
                 ul.append($("<li>").append($("<a>").text(namespace.metadata.name)));
             });
         }

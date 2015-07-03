@@ -207,15 +207,16 @@ define([
         };
     }
 
-    function builder(type, events, client, Constructor) {
+    function builder(kind, client, Constructor) {
         var objects = { };
+        var list;
 
         function build() {
             var seen = { };
             angular.forEach(objects, function(value, key) {
                 seen[key] = true;
             });
-            angular.forEach(client[type], function(item) {
+            angular.forEach(list.items, function(item) {
                 if (item.metadata.name == "kubernetes" ||
                     item.metadata.name == "kubernetes-ro")
                     return; // skip special pods created for k8 internal usage
@@ -233,7 +234,9 @@ define([
             });
             $(objects).triggerHandler("changed");
         }
-        $(client).on(events, build);
+        list = client.select(kind);
+        client.track(list);
+        $(list).on("changed", build);
         build();
 
         return objects;
@@ -253,9 +256,9 @@ define([
                 function($scope, $location, client) {
             var ready = false;
 
-            $scope.services = builder('services', 'services pods', client, KubernetesService);
-            $scope.nodes = builder('nodes', 'nodes pods', client, KubernetesNode);
-            $scope.pods = builder('pods', 'pods', client, KubernetesPod);
+            $scope.services = builder('Service', client, KubernetesService);
+            $scope.nodes = builder('Node', client, KubernetesNode);
+            $scope.pods = builder('Pod', client, KubernetesPod);
 
             $scope.jumpService = function jumpService(ev, service) {
                 var target = $(ev.target);

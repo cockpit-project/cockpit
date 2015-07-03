@@ -527,7 +527,7 @@ systemctl start docker
     def check_journal_messages(self, machine=None):
         """Check for unexpected journal entries."""
         machine = machine or self.machine
-        syslog_ids = [ "cockpit-wrapper", "cockpit-ws" ]
+        syslog_ids = [ "cockpit-ws", "cockpit-bridge" ]
         messages = machine.journal_messages(syslog_ids, 5)
         messages += machine.audit_messages("14") # 14xx is selinux
         all_found = True

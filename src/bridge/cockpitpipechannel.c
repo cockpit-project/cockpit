@@ -352,7 +352,7 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
           goto out;
         }
 
-      flags = COCKPIT_PIPE_STDERR_TO_LOG;
+      flags = COCKPIT_PIPE_FLAGS_NONE;
       if (g_strcmp0 (error, "out") == 0)
         flags = COCKPIT_PIPE_STDERR_TO_STDOUT;
       else if (g_strcmp0 (error, "ignore") == 0)

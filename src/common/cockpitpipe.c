@@ -36,6 +36,10 @@
 #include <string.h>
 #include <unistd.h>
 
+#ifdef __linux
+#include <sys/prctl.h>
+#endif
+
 /**
  * CockpitPipe:
  *
@@ -935,6 +939,12 @@ static void
 spawn_setup (gpointer data)
 {
   CockpitPipeFlags flags = GPOINTER_TO_INT (data);
+
+  /* Send this signal to all direct child processes, when bridge dies */
+#ifdef __linux
+  prctl (PR_SET_PDEATHSIG, SIGHUP);
+#endif
+
   if (flags & COCKPIT_PIPE_STDERR_TO_STDOUT)
     dup2 (1, 2);
 }

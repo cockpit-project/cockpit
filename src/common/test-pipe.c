@@ -736,60 +736,6 @@ test_spawn_and_fail (void)
   g_object_unref (pipe);
 }
 
-static GPtrArray *printed = NULL;
-
-static void
-on_printerr_handler (const gchar *string)
-{
-  g_ptr_array_add (printed, g_strdup (string));
-}
-
-static void
-test_spawn_printerr (void)
-{
-  gboolean closed = FALSE;
-  const gchar **actual;
-  CockpitPipe *pipe;
-  GPrintFunc func;
-  gint i;
-
-  const gchar *argv[] = { SRCDIR "/src/common/mock-stderr", NULL };
-
-  const gchar *expected[] = {
-    "line one\n",
-    "line two\n",
-    "line three\n",
-    "line four\n",
-    "line five\n",
-    "line six\n",
-    NULL
-  };
-
-  func = g_set_printerr_handler (on_printerr_handler);
-  printed = g_ptr_array_new_with_free_func (g_free);
-
-  pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_STDERR_TO_LOG);
-  g_assert (pipe != NULL);
-  g_signal_connect (pipe, "close", G_CALLBACK (on_close_get_flag), &closed);
-
-  while (!closed)
-    g_main_context_iteration (NULL, TRUE);
-
-  while (g_main_context_iteration (NULL, FALSE));
-
-  g_set_printerr_handler (func);
-
-  g_ptr_array_add (printed, NULL);
-  actual = (const gchar **)printed->pdata;
-
-  for (i = 0; expected[i] != NULL; i++)
-    g_assert_cmpstr (expected[i], ==, actual[i]);
-  g_assert_cmpint (printed->len, ==, i + 1);
-
-  g_ptr_array_free (printed, TRUE);
-  g_object_unref (pipe);
-}
-
 static void
 test_spawn_close_terminate (TestCase *tc,
                             gconstpointer unused)
@@ -1184,7 +1130,6 @@ main (int argc,
   g_test_add_func ("/pipe/spawn/and-read", test_spawn_and_read);
   g_test_add_func ("/pipe/spawn/and-write", test_spawn_and_write);
   g_test_add_func ("/pipe/spawn/and-fail", test_spawn_and_fail);
-  g_test_add_func ("/pipe/spawn/printerr", test_spawn_printerr);
 
   g_test_add ("/pipe/spawn/close-clean", TestCase, NULL,
               setup_timeout, test_spawn_close_clean, teardown);

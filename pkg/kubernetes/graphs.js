@@ -35,11 +35,17 @@ define([
         self.hosts = { };
         self.services = { };
 
+        var services = kube.select("Service");
+        kube.track(services);
+        var pods = kube.select("Pod");
+        kube.track(pods);
+        $([services, pods]).on("changed", update);
+
         function update() {
             var changed = false;
 
             /* Lookup all the services */
-            kube.services.forEach(function(service) {
+            angular.forEach(services, function(service) {
                 var spec = service.spec;
                 var meta = service.metadata;
                 var name = meta.name;
@@ -85,11 +91,11 @@ define([
                 $(self).triggerHandler("changed");
         }
 
-        $(kube).on("services pods", update);
         update();
 
         self.close = function close() {
-            $(kube).off("services pods", update);
+            kube.track(services, false);
+            kube.track(pods, false);
         };
     }
 

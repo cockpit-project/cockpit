@@ -1333,50 +1333,6 @@ define([
         };
 
         self.connect();
-
-
-        /*
-         * TODO: Remove this old compatibility stuff
-         */
-        var services = self.select("Service");
-        self.track(services);
-        self.services = services.items;
-        $(services).on("changed", function() {
-            self.services = services.items;
-            $(self).triggerHandler("services");
-        });
-
-        var pods = self.select("Pod");
-        self.track(pods);
-        self.pods = pods.items;
-        $(pods).on("changed", function() {
-            self.pods = pods.items;
-            $(self).triggerHandler("pods");
-        });
-
-        var namespaces = self.select("Namespace");
-        self.track(namespaces);
-        self.namespaces = namespaces.items;
-        $(namespaces).on("changed", function() {
-            self.namespaces = namespaces.items;
-            $(self).triggerHandler("namespaces");
-        });
-
-        var nodes = self.select("Node");
-        self.track(nodes);
-        self.nodes = nodes.items;
-        $(nodes).on("changed", function() {
-            self.nodes = nodes.items;
-            $(self).triggerHandler("nodes");
-        });
-
-        var replicationcontrollers = self.select("Node");
-        self.track(replicationcontrollers);
-        self.replicationcontrollers = replicationcontrollers.items;
-        $(replicationcontrollers).on("changed", function() {
-            self.replicationcontrollers = replicationcontrollers.items;
-            $(self).triggerHandler("replicationcontrollers");
-        });
     }
 
     /*

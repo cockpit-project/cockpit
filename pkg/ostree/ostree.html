@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<!--
+This file is part of Cockpit.
+
+Copyright (C) 2015 Red Hat, Inc.
+
+Cockpit is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or
+(at your option) any later version.
+
+Cockpit is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+
+<head>
+  <title>Software Updates</title>
+  <meta charset="utf-8">
+  <link href="../base1/cockpit.css" rel="stylesheet">
+  <link href="../ostree/ostree.css" rel="stylesheet">
+  <script type="text/javascript" src="../base1/bundle.js"></script>
+  <script type="text/javascript" src="../base1/jquery.js"></script>
+  <script type="text/javascript" src="../ostree/ostree.js"></script>
+  <script type="text/x-handlebars">
+      <div id="action-dialog" data-keyboard="false" class="modal" tabindex="-1" role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+          {{outlet 'modal'}}
+        </div>
+      </div>
+      <div class="container-fluid">
+        {{outlet}}
+      </div>
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="error">
+        {{notifications-list action="reload"}}
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="loading">
+    <div class="center-spinner"><div class="spinner spinner-lg"></div></div>
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="components/notifications-list">
+    {{#each notification in content}}
+        {{notifications-list-item item=notification action="closed"}}
+    {{/each}}
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="components/notifications-list-item">
+    {{#if isError}}
+      <span class="pficon-layered">
+        <span class="pficon pficon-error-octagon"></span>
+        <span class="pficon pficon-error-exclamation"></span>
+      </span>
+    {{/if}}
+    {{#if isWarning}}
+      <span class="pficon-layered">
+        <span class="pficon pficon-warning-triangle"></span>
+        <span class="pficon pficon-warning-exclamation"></span>
+      </span>
+    {{/if}}
+    {{#if isSuccess}}
+      <span class="pficon pficon-ok"></span>
+    {{/if}}
+    <strong>{{item.message}}</strong>
+
+  {{#if alertDismissible}}
+    <button type="button" class="{{item.dismissClass}} float-right" data-dismiss="alert" aria-hidden="true" {{action "clear"}}>
+      {{#if item.dismissText}}
+        {{item.dismissText}}
+      {{else}}
+      <span class="pficon pficon-close"></span>
+      {{/if}}
+    </button>
+  {{/if}}
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="components/diff-table">
+    <p>{{diffSummary}}</p>
+    <div id="rpm-diff">
+    <table class="table table-hover">
+    <tbody>
+      {{#each package in diffs}}
+      <tr>
+        <td>{{package.prettyType}}</td><td>{{package.name}}</td><td class="version">{{package.version}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+    </table>
+    </div>
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="components/action-modal">
+    <div class="modal-header">
+      <div class="modal-title">
+       <h4 class="modal-title">{{title}}</h4>
+      </div>
+    </div>
+    <div class="modal-body">
+      {{yield}}
+    </div>
+    <div class="modal-footer">
+    {{#if actionPending}}
+      <div class="dialog-wait pull-left ostree-wait"><div class="spinner spinner-sm"></div><span>{{progressMessage}}</span>
+      </div>
+    {{/if}}
+      <button disabled="{{actionsDisabled}}" class="btn btn-default" {{action 'cancel' }}  translatable="yes">Cancel</button>
+      <button disabled="{{actionsDisabled}}" id="ostree-submit" class="btn btn-danger submit" {{action 'submit'}} translatable="yes">{{submitTitle}}</button>
+    </div>
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="upgrade">
+    {{#action-modal show="checkForUpdates" submit="upgrade" submitTitle=submitTitle title=title actionsDisabled=actionsDisabled actionPending=actionPending progressMessage=progressMessage cancel="cancel"}}
+        {{#if diffsChecked}}
+          {{diff-table diffs=diffs}}
+        {{else}}
+          <div class="center-spinner"><div class="spinner spinner-lg"></div></div>
+        {{/if}}
+    {{/action-modal}}
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="rollback">
+    {{#action-modal show="ensureDiffs" submit="rollback" submitTitle=submitTitle title=title actionsDisabled=actionsDisabled actionPending=actionsDisabled progressMessage=progressMessage cancel="cancel"}}
+      {{#if diffsChecked}}
+        {{diff-table diffs=diffs}}
+      {{else}}
+        <div class="center-spinner"><div class="spinner spinner-lg"></div></div>
+      {{/if}}
+    {{/action-modal}}
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="index">
+    {{notifications-list}}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        {{#if model.rollbackTarget }}
+          <div style="float:left">
+            <button class="btn btn-default {{actionsDisabled}}" {{action 'openModal' 'rollback' model }} translatable="yes">Roll Back</button>
+          </div>
+        {{/if}}
+
+        <div style="float:right">
+          {{#if showSpinner}}
+            <span translatable="yes"><span class="spinner spinner-xs spinner-inline"></span>
+                {{#if checkingForUpdates}}Checking for updates{{else}}Updating system{{/if}}</span>
+          {{else}}
+              {{#if model.upgradeTarget}}
+                {{#if hasUpdates}}
+                <button translatable="yes" {{action 'openModal' 'upgrade' model}} class="btn btn-primary">Update available</button>
+                {{else}}
+                <button translatable="yes" {{action 'checkForUpdates'}} class="btn btn-default">Check for updates</button>
+                {{/if}}
+              {{/if}}
+          {{/if}}
+        </div>
+        <div class="ostree-block-center"> {{model.bootedTarget.releaseName}}{{#if isDirty }} (<span translatable="yes">After reboot:</span> {{model.defaultTarget.releaseName}}){{/if}}</div>
+      </div>
+     {{#if packagesChecked}}
+        <table class="table table-hover">
+          <tbody>
+            {{#each package in sortedPackages}}
+              <tr>
+                <td>{{package.name}}</td><td class="version">{{package.version}}</td>
+              </tr>
+            {{/each}}
+            </tbody>
+        </table>
+      {{else}}
+            <div class="center-spinner"><div class="spinner spinner-lg"></div></div>
+      {{/if}}
+    </div>
+  </script>
+</head>
+
+<body>
+    <script>
+        require(["base1/cockpit",
+        "translated!base1/po",
+        "jquery",
+        "ostree/app"], function (cockpit, po, $, App) {
+              cockpit.locale(po);
+              cockpit.translate();
+
+              $("#preloader").hide();
+              App.advanceReadiness();
+        });
+    </script>
+    <div id="preloader" class="container-fluid">
+        <div class="center-spinner"><div class="spinner spinner-lg"></div></div>
+    </div>
+    <div id="ostree-software-update"></div>
+</body>
+
+</html>

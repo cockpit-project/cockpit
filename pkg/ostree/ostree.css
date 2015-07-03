@@ -1,0 +1,74 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2013 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* ---------------------------------------------------------------------------------------------------- */
+
+.ostree-block-center {
+    display: block;
+    text-align: center;
+}
+
+.float-right {
+  float: right;
+}
+
+.center-spinner {
+    width: 100%;
+    height: 100%;
+    text-align:center;
+    position: relative;
+    padding: 5px;
+}
+
+.center-spinner .spinner {
+  top: 50%
+}
+
+/* Dialog patterns */
+
+.ostree-wait {
+    margin-top: 3px;
+    width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+}
+
+#rpm-diff {
+    height: 250px;
+    overflow-y: auto;
+    overflow-x: none;
+    display: block;
+    border: 1px solid #BABABA;
+}
+
+.version {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+  padding-right: 15px;
+  word-break: keep-all;
+}
+
+#action-dialog div.modal-body {
+    padding-top: 10px;
+    height: 310px;
+}

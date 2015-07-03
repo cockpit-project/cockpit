@@ -222,6 +222,9 @@ find %{buildroot}%{_datadir}/%{name}/system -type f >> shell.list
 echo '%dir %{_datadir}/%{name}/subscriptions' > subscriptions.list
 find %{buildroot}%{_datadir}/%{name}/subscriptions -type f >> subscriptions.list
 
+echo '%dir %{_datadir}/%{name}/ostree' > ostree.list
+find %{buildroot}%{_datadir}/%{name}/ostree -type f >> ostree.list
+
 %ifarch x86_64 armv7hl
 echo '%dir %{_datadir}/%{name}/docker' > docker.list
 find %{buildroot}%{_datadir}/%{name}/docker -type f >> docker.list
@@ -361,6 +364,17 @@ This package is not yet complete.
 %endif
 
 %endif
+
+%package ostree
+Summary: Cockpit rpm-ostree user interface
+Requires: rpm-ostree >= 2015.5
+BuildArch: noarch
+
+%description ostree
+This package contains the Cockpit user interface integration with
+rpm-ostree
+
+%files ostree -f ostree.list
 
 %ifarch x86_64
 

@@ -495,6 +495,11 @@ systemctl start docker
         # This is a failed login, which happens every time
         "Returning error-response 401 with reason `Sorry'",
 
+        # Reauth stuff
+        'Reauthorizing unix-user:.*',
+        'cockpit-polkit: user .* was reauthorized',
+        'cockpit-polkit helper exited with status: 0',
+
         # Reboots are ok
         "-- Reboot --",
 

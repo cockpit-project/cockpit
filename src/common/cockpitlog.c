@@ -147,7 +147,7 @@ cockpit_set_journal_logging (const gchar *stderr_domain,
         }
       else
         {
-          if (dup2 (2, fd) < 0)
+          if (dup2 (fd, 2) < 0)
             {
               g_warning ("couldn't replace journal stream for stderr: %s", g_strerror (errno));
               close (fd);

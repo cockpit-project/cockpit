@@ -570,6 +570,9 @@ this payload type:
  * "spawn": Spawn a process and connect standard input and standard output
    to the channel. Should be an array of strings which is the process
    file path and arguments.
+ * "internal": Open an internally defined stream.
+   * "packages": A http-stream for serving package resources to cockpit-ws
+   * "ssh-agent": A connection to the session user's ssh-agent, if one is available.
 
 You can't specify both "unix" and "spawn" together. When "spawn" is set the
 following options can be specified:

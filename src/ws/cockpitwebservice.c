@@ -37,6 +37,7 @@
 #include "cockpitauth.h"
 #include "cockpitws.h"
 
+#include "cockpitsshagent.h"
 #include "cockpitsshtransport.h"
 
 #include "websocket/websocket.h"
@@ -1125,6 +1126,7 @@ lookup_or_open_session_for_host (CockpitWebService *self,
                                  gboolean private)
 {
   CockpitSession *session = NULL;
+  CockpitSshAgent *agent = NULL;
   CockpitTransport *transport;
   const gchar *hostname;
 
@@ -1142,6 +1144,17 @@ lookup_or_open_session_for_host (CockpitWebService *self,
           if (cockpit_ws_specific_ssh_port != 0)
             hostname = "127.0.0.1";
         }
+      else
+        {
+          CockpitSession *local = cockpit_session_by_host (&self->sessions,
+                                                           "localhost");
+          if (local->transport)
+            {
+                agent = cockpit_ssh_agent_new (local->transport,
+                                               hostname,
+                                               NULL);
+            }
+        }
 
       transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
                                 "host", hostname,
@@ -1150,6 +1163,7 @@ lookup_or_open_session_for_host (CockpitWebService *self,
                                 "creds", creds,
                                 "known-hosts", cockpit_ws_known_hosts,
                                 "host-key", host_key,
+                                "agent", agent,
                                 NULL);
 
       session = cockpit_session_track (&self->sessions, host, private, creds, transport);
@@ -1157,6 +1171,9 @@ lookup_or_open_session_for_host (CockpitWebService *self,
       session->recv_sig = g_signal_connect_after (transport, "recv", G_CALLBACK (on_session_recv), self);
       session->closed_sig = g_signal_connect_after (transport, "closed", G_CALLBACK (on_session_closed), self);
       g_object_unref (transport);
+
+      if (agent)
+        g_object_unref (agent);
     }
 
   return session;

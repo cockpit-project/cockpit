@@ -4,7 +4,10 @@ useradd -u 1000 -c Administrator -G wheel admin
 echo foobar | passwd --stdin admin
 
 dnf -y update
+
 dnf -y install fedora-release-server
+dnf -y upgrade --enablerepo=updates-testing libssh
+
 firewall-cmd --permanent --add-service cockpit
 
 # Phantom can't use TLS..

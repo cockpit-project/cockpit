@@ -38,7 +38,7 @@
 
 #define BUFSIZE          (8 * 1024)
 
-static gint auth_methods = SSH_AUTH_METHOD_PASSWORD;
+static gint auth_methods = SSH_AUTH_METHOD_PASSWORD | SSH_AUTH_METHOD_PUBLICKEY;
 
 struct {
   int bind_fd;
@@ -49,6 +49,7 @@ struct {
   int childpid;
   const gchar *user;
   const gchar *password;
+  ssh_key pkey;
   GByteArray *buffer;
   gboolean buffer_eof;
 } state;
@@ -59,6 +60,22 @@ auth_password (const gchar *user,
 {
   return g_str_equal (user, state.user) &&
          g_str_equal (password, state.password);
+}
+
+static int
+auth_publickey (ssh_message message)
+{
+  int ret = -1;
+  int auth_state = ssh_message_auth_publickey_state (message);
+  gboolean have = ssh_key_cmp (state.pkey,
+                               ssh_message_auth_pubkey (message),
+                               SSH_KEY_CMP_PUBLIC) == 0;
+  if (have && auth_state == SSH_PUBLICKEY_STATE_VALID)
+    ret = 1;
+  else if (have && auth_state == SSH_PUBLICKEY_STATE_NONE)
+    ret = 0;
+
+  return ret;
 }
 
 static int
@@ -399,6 +416,23 @@ authenticate_callback (ssh_session session,
           ssh_message_auth_set_methods (message, auth_methods);
           goto deny;
 
+        case SSH_AUTH_METHOD_PUBLICKEY:
+          if (auth_methods & SSH_AUTH_METHOD_PUBLICKEY)
+            {
+              int result = auth_publickey (message);
+              if (result == 1)
+                {
+                  goto accept;
+                }
+              else if (result == 0)
+                {
+                  ssh_message_auth_reply_pk_ok_simple (message);
+                  return 0;
+                }
+            }
+          ssh_message_auth_set_methods (message, auth_methods);
+          goto deny;
+
         case SSH_AUTH_METHOD_NONE:
         default:
           ssh_message_auth_set_methods (message, auth_methods);
@@ -456,6 +490,8 @@ mock_ssh_server (const gchar *server_addr,
   state.bind_fd = ssh_bind_get_fd (sshbind);
   state.user = user;
   state.password = password;
+  ssh_pki_import_pubkey_file (SRCDIR "/src/ws/test_rsa.pub",
+                              &state.pkey);
   state.buffer = g_byte_array_new ();
 
   /* Print out the port */
@@ -513,6 +549,7 @@ mock_ssh_server (const gchar *server_addr,
   ssh_event_remove_session (state.event, state.session);
   ssh_event_free (state.event);
   ssh_free (state.session);
+  ssh_key_free (state.pkey);
   g_byte_array_free (state.buffer, TRUE);
   ssh_bind_free (sshbind);
 
@@ -569,7 +606,7 @@ main (int argc,
   else
     {
       if (broken_auth)
-        auth_methods = SSH_AUTH_METHOD_HOSTBASED | SSH_AUTH_METHOD_PUBLICKEY;
+        auth_methods = SSH_AUTH_METHOD_HOSTBASED;
       if (verbose)
         ssh_set_log_level (SSH_LOG_PROTOCOL);
       ret = mock_ssh_server (bind, port, user, password);

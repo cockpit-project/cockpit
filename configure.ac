@@ -213,6 +213,12 @@ AC_CHECK_LIB(gssapi_krb5, gss_import_cred,
 AC_CHECK_LIB(ssh, ssh_gssapi_set_creds,
   [AC_DEFINE_UNQUOTED(HAVE_SSH_GSSAPI_SET_CREDS, 1, Whether ssh_gssapi_set_creds is available)])
 
+# key auth
+AC_CHECK_LIB(ssh, ssh_set_agent_socket,
+  [AC_DEFINE_UNQUOTED(HAVE_SSH_SET_AGENT_SOCKET, 1, Whether ssh_set_agent_socket is available)
+  key_auth="yes"],
+  [key_auth="no"])
+
 # systemd
 AC_MSG_CHECKING(for systemd unit dir)
 if test "$enable_prefix_only" = "yes"; then
@@ -471,4 +477,5 @@ echo "
         With coverage:              ${enable_coverage}
         With address sanitizer:     ${asan_status}
 	Branding:                   ${BRAND}
+        Supports key auth:          ${key_auth}
 "

@@ -51,6 +51,7 @@
 
 #include <glib-unix.h>
 #include <glib/gstdio.h>
+#include <gio/gunixsocketaddress.h>
 
 
 /* This program is run on each managed server, with the credentials
@@ -407,6 +408,8 @@ run_bridge (const gchar *interactive)
   guint sig_int;
   int outfd;
   uid_t uid;
+  const gchar *ssh_auth_sock;
+  GSocketAddress *auth_address = NULL;
 
   cockpit_set_journal_logging (G_LOG_DOMAIN, !isatty (2));
 
@@ -478,6 +481,14 @@ run_bridge (const gchar *interactive)
       super = cockpit_portal_new_superuser (transport);
     }
 
+  ssh_auth_sock = g_getenv ("SSH_AUTH_SOCK");
+  if (ssh_auth_sock != NULL && ssh_auth_sock[0] != '\0')
+    {
+      auth_address = g_unix_socket_address_new (ssh_auth_sock);
+      cockpit_channel_internal_address ("ssh-agent", auth_address);
+      g_object_unref (auth_address);
+    }
+
   pcp = cockpit_portal_new_pcp (transport);
 
   cockpit_dbus_time_startup ();
@@ -501,6 +512,7 @@ run_bridge (const gchar *interactive)
     cockpit_polkit_agent_unregister (polkit_agent);
   if (super)
     g_object_unref (super);
+
   g_object_unref (pcp);
   g_object_unref (transport);
   g_hash_table_destroy (channels);

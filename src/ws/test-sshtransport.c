@@ -23,14 +23,18 @@
 #include "config.h"
 
 #include "cockpitsshtransport.h"
+#include "cockpitsshagent.h"
 
 #include "common/cockpittest.h"
+#include "common/cockpitpipe.h"
+#include "common/cockpitpipetransport.h"
 
 #include <libssh/libssh.h>
 
 #include <sys/wait.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <string.h>
 
 /*
  * You can sorta cobble together things and run some of the following
@@ -47,6 +51,11 @@
 typedef struct {
   CockpitTransport *transport;
 
+  /* setup_agent_transport */
+  CockpitTransport *agent_transport;
+  gboolean agent_closed;
+  gboolean agent_started;
+
   /* setup_mock_sshd */
   GPid mock_sshd;
   guint16 ssh_port;
@@ -59,6 +68,8 @@ typedef struct {
     const char *known_hosts;
     const char *client_password;
     const char *expect_key;
+    const gchar *mock_agent_arg;
+
     gboolean ignore_key;
     int ssh_log_level;
 } TestFixture;
@@ -145,10 +156,11 @@ setup_transport (TestCase *tc,
                  gconstpointer data)
 {
   const TestFixture *fixture = data;
-  g_assert(fixture != NULL);
+  g_assert (fixture != NULL);
 
   const gchar *password = fixture->client_password ? fixture->client_password : PASSWORD;
   CockpitCreds *creds;
+  CockpitSshAgent *agent = NULL;
   const gchar *known_hosts;
   const gchar *command;
   gchar *expect_knownhosts = NULL;
@@ -181,10 +193,14 @@ setup_transport (TestCase *tc,
       expect_knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)tc->ssh_port, fixture->expect_key);
     ignore_key = fixture->ignore_key;
 
+  if (tc->agent_transport != NULL)
+    agent = cockpit_ssh_agent_new (tc->agent_transport, "ssh-tests", NULL);
+
   tc->transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
                                 "host", "127.0.0.1",
 #if WITH_MOCK
                                 "port", (guint)tc->ssh_port,
+                                "agent", agent,
 #else
                                 "port", 22,
 #endif
@@ -197,11 +213,14 @@ setup_transport (TestCase *tc,
 
   cockpit_creds_unref (creds);
   g_free (expect_knownhosts);
+
+  if (agent)
+    g_object_unref (agent);
 }
 
 static void
 teardown (TestCase *tc,
-                    gconstpointer data)
+          gconstpointer data)
 {
   if (tc->mock_sshd)
     {
@@ -717,6 +736,97 @@ test_close_while_connecting (TestCase *tc,
   g_free (problem);
 }
 
+#ifdef HAVE_SSH_SET_AGENT_SOCKET
+
+
+static gboolean
+on_bridge_control (CockpitTransport *transport,
+                   const char *command,
+                   const gchar *channel_id,
+                   JsonObject *options,
+                   GBytes *message,
+                   gpointer user_data)
+{
+  TestCase *tc = user_data;
+  tc->agent_started = TRUE;
+  if (channel_id && strstr (channel_id, "ssh-agent") &&
+      g_strcmp0 (command, "close") == 0)
+    {
+      tc->agent_closed = TRUE;
+    }
+  return FALSE;
+}
+
+static void
+setup_key_transport (TestCase *tc,
+                     gconstpointer data)
+{
+  const TestFixture *fixture = data;
+  CockpitPipe *pipe;
+  const gchar *json;
+  GBytes *bytes = NULL;
+  const gchar *argv[] = {
+      BUILDDIR "/mock-agent-bridge",
+      fixture->mock_agent_arg,
+      NULL
+  };
+
+  pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
+  tc->agent_transport = cockpit_pipe_transport_new (pipe);
+  json = "{\"command\":\"init\",\"version\":1}";
+  bytes = g_bytes_new_static (json, strlen (json));
+  cockpit_transport_send (tc->agent_transport, NULL, bytes);
+  g_bytes_unref (bytes);
+  g_object_unref (pipe);
+
+  g_signal_connect (tc->agent_transport, "control",
+                    G_CALLBACK (on_bridge_control), tc);
+  while (!tc->agent_started)
+    g_main_context_iteration (NULL, TRUE);
+
+  setup_transport (tc, data);
+}
+
+static void
+key_teardown (TestCase *tc,
+          gconstpointer data)
+{
+  g_assert_true (tc->agent_closed);
+  g_assert_true (tc->agent_started);
+  if (tc->agent_transport)
+    {
+      g_object_add_weak_pointer (G_OBJECT (tc->agent_transport), (gpointer*)&tc->agent_transport);
+      g_object_unref (tc->agent_transport);
+      g_assert (tc->agent_transport != NULL);
+    }
+
+  teardown (tc, data);
+  g_assert (tc->agent_transport == NULL);
+}
+
+static const TestFixture fixture_valid_key_auth = {
+  .ssh_command = BUILDDIR "/mock-echo",
+  .client_password = "bad password",
+  .mock_agent_arg = SRCDIR "/src/ws/test_rsa"
+};
+
+static const TestFixture fixture_invalid_key_auth = {
+  .ssh_command = BUILDDIR "/mock-echo",
+  .client_password = "bad password",
+  .mock_agent_arg = NULL
+};
+
+static void
+test_key_auth_failed (TestCase *tc,
+                  gconstpointer data)
+{
+
+  test_auth_failed (tc, data);
+  while (!tc->agent_closed)
+    g_main_context_iteration (NULL, TRUE);
+}
+
+#endif
 
 int
 main (int argc,
@@ -740,8 +850,13 @@ main (int argc,
               setup_transport, test_terminate_problem, teardown);
   g_test_add ("/ssh-transport/unsupported-auth", TestCase, &fixture_unsupported_auth,
               setup_transport, test_unsupported_auth, teardown);
-  g_test_add ("/ssh-transport/auth-failed", TestCase, &fixture_auth_failed,
-              setup_transport, test_auth_failed, teardown);
+  g_test_add ("/ssh-transport/auth-failed", TestCase,
+              &fixture_auth_failed, setup_transport,
+              test_auth_failed, teardown);
+#ifdef HAVE_SSH_SET_AGENT_SOCKET
+  g_test_add ("/ssh-transport/key-auth-message", TestCase, &fixture_valid_key_auth, setup_key_transport, test_echo_and_close, key_teardown);
+  g_test_add ("/ssh-transport/key-auth-failed", TestCase, &fixture_invalid_key_auth, setup_key_transport, test_key_auth_failed, key_teardown);
+#endif
 #endif
   g_test_add ("/ssh-transport/bad-command", TestCase, &fixture_bad_command,
               setup_transport, test_bad_command, teardown);

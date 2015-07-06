@@ -26,6 +26,7 @@
 #define G_LOG_DOMAIN "cockpit-protocol"
 
 #include "cockpitsshtransport.h"
+#include "cockpitsshagent.h"
 
 #include "common/cockpitpipe.h"
 
@@ -320,6 +321,39 @@ cockpit_ssh_authenticate (CockpitSshData *data)
     }
 
   methods = ssh_userauth_list (data->session, NULL);
+  if (methods & SSH_AUTH_METHOD_PUBLICKEY)
+    {
+      tried = TRUE;
+      rc = ssh_userauth_publickey_auto (data->session, NULL, NULL);
+      switch (rc)
+        {
+        case SSH_AUTH_SUCCESS:
+          g_debug ("%s: key auth succeeded", data->logname);
+          problem = NULL;
+          goto out;
+        case SSH_AUTH_DENIED:
+          g_debug ("%s: key auth failed", data->logname);
+          break;
+        case SSH_AUTH_PARTIAL:
+          g_message ("%s: key auth worked, but server wants more authentication",
+                     data->logname);
+          break;
+        case SSH_AUTH_AGAIN:
+          g_message ("%s: key auth failed: server asked for retry",
+                     data->logname);
+          break;
+        default:
+          msg = ssh_get_error (data->session);
+          if (g_atomic_int_get (data->connecting))
+            g_message ("%s: couldn't key authenticate: %s", data->logname, msg);
+          if (ssh_msg_is_disconnected (msg))
+            problem = "terminated";
+          else
+            problem = "internal-error";
+          goto out;
+        }
+    }
+
   if (methods & SSH_AUTH_METHOD_PASSWORD)
     {
       password = cockpit_creds_get_password (data->creds);
@@ -513,6 +547,7 @@ cockpit_ssh_data_free (CockpitSshData *data)
   g_free (data);
 }
 
+
 /* ----------------------------------------------------------------------------
  * CockpitSshTransport implementation
  */
@@ -528,6 +563,7 @@ enum {
   PROP_HOST_FINGERPRINT,
   PROP_KNOWN_HOSTS,
   PROP_IGNORE_KEY,
+  PROP_AGENT,
 };
 
 struct _CockpitSshTransport {
@@ -544,6 +580,9 @@ struct _CockpitSshTransport {
 
   /* Data shared with connect thread*/
   CockpitSshData *data;
+
+  /* Transport for ssh agent */
+  CockpitSshAgent *agent;
 
   GSource *io;
   gboolean closing;
@@ -809,6 +848,9 @@ close_immediately (CockpitSshTransport *self,
 
   g_assert (self->data != NULL);
 
+  if (self->agent)
+      cockpit_ssh_agent_close (self->agent);
+
   if (problem == NULL)
     problem = self->problem;
 
@@ -1069,6 +1111,9 @@ cockpit_ssh_source_prepare (GSource *source,
       self->data = g_thread_join (thread);
       g_assert (self->data != NULL);
 
+      if (self->agent)
+        cockpit_ssh_agent_close (self->agent);
+
       if (!self->result_emitted)
         {
           self->result_emitted = TRUE;
@@ -1249,6 +1294,15 @@ cockpit_ssh_transport_constructed (GObject *object)
   g_warn_if_fail (ssh_options_set (self->data->session, SSH_OPTIONS_USER,
                                    cockpit_creds_get_user (self->data->creds)) == 0);
 
+#ifdef HAVE_SSH_SET_AGENT_SOCKET
+  if (self->agent)
+    {
+      int agent_fd = cockpit_ssh_agent_claim_fd (self->agent);
+      if (agent_fd > 0)
+        ssh_set_agent_socket (self->data->session, agent_fd);
+    }
+#endif
+
   self->io = g_source_new (&source_funcs, sizeof (CockpitSshSource));
   ((CockpitSshSource *)self->io)->transport = self;
   g_source_attach (self->io, self->data->context);
@@ -1299,6 +1353,9 @@ cockpit_ssh_transport_set_property (GObject *obj,
       break;
     case PROP_CREDS:
       self->data->creds = g_value_dup_boxed (value);
+      break;
+    case PROP_AGENT:
+      self->agent = g_value_dup_object (value);
       break;
     case PROP_COMMAND:
       string = g_value_get_string (value);
@@ -1363,6 +1420,10 @@ cockpit_ssh_transport_finalize (GObject *object)
   ssh_event_free (self->event);
 
   cockpit_ssh_data_free (self->data);
+
+  if (self->agent)
+    g_object_unref (self->agent);
+
   g_free (self->logname);
 
   g_queue_free_full (self->queue, (GDestroyNotify)g_bytes_unref);
@@ -1462,6 +1523,10 @@ cockpit_ssh_transport_class_init (CockpitSshTransportClass *klass)
 
   g_object_class_install_property (object_class, PROP_CREDS,
          g_param_spec_boxed ("creds", NULL, NULL, COCKPIT_TYPE_CREDS,
+                             G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (object_class, PROP_AGENT,
+         g_param_spec_object ("agent", NULL, NULL, COCKPIT_TYPE_SSH_AGENT,
                              G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   g_signal_new ("result", COCKPIT_TYPE_SSH_TRANSPORT, G_SIGNAL_RUN_FIRST, 0, NULL, NULL,

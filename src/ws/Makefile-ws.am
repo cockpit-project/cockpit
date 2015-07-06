@@ -13,6 +13,8 @@ libcockpit_ws_a_SOURCES = \
 	src/ws/cockpitwebservice.c \
 	src/ws/cockpitsshtransport.h \
 	src/ws/cockpitsshtransport.c \
+	src/ws/cockpitsshagent.h \
+	src/ws/cockpitsshagent.c \
 	$(NULL)
 
 libcockpit_ws_a_CFLAGS = \
@@ -167,6 +169,7 @@ WS_CHECKS = \
 	test-creds \
 	test-auth \
 	test-sshtransport \
+	test-sshagent \
 	test-webservice \
 	test-handlers \
 	test-kerberos \
@@ -215,6 +218,13 @@ test_sshtransport_LDADD = \
 	$(NULL)
 
 
+test_sshagent_CFLAGS = $(cockpit_ws_CFLAGS)
+test_sshagent_SOURCES = src/ws/test-sshagent.c
+
+test_sshagent_LDADD = \
+	libcockpit-ws.a \
+	$(cockpit_ws_LDADD)
+
 test_webservice_SOURCES = \
 	src/ws/test-webservice.c \
 	src/ws/mock-auth.c src/ws/mock-auth.h \
@@ -233,6 +243,19 @@ test_kerberos_SOURCES = src/ws/test-kerberos.c
 test_kerberos_LDADD = libcockpit-ws.a $(cockpit_ws_LDADD)
 test_kerberos_CFLAGS = $(cockpit_ws_CFLAGS)
 
+mock_agent_bridge_SOURCES = src/ws/mock-agent-bridge.c \
+	src/bridge/cockpitchannel.c src/bridge/cockpitchannel.h \
+	src/bridge/cockpitpipechannel.c src/bridge/cockpitpipechannel.h \
+    $(NULL)
+
+mock_agent_bridge_CFLAGS = \
+	-DG_LOG_DOMAIN=\"mock-agent-bridge\" \
+    $(COCKPIT_WS_CFLAGS) \
+	$(NULL)
+mock_agent_bridge_LDADD = libcockpit-ws.a \
+	$(cockpit_ws_LDADD) \
+	$(NULL)
+
 mock_sshd_SOURCES = src/ws/mock-sshd.c
 mock_sshd_CFLAGS =  $(COCKPIT_WS_CFLAGS)
 mock_sshd_LDADD = $(COCKPIT_WS_LIBS) -lutil
@@ -245,6 +268,7 @@ noinst_PROGRAMS += \
 	$(WS_CHECKS) \
 	mock-sshd \
 	mock-echo \
+	mock-agent-bridge \
 	$(NULL)
 
 noinst_SCRIPTS += \

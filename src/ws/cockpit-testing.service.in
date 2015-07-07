@@ -5,7 +5,7 @@ Requires=cockpit-testing.socket
 Conflicts=cockpit.service
 
 [Service]
-Environment=G_MESSAGES_DEBUG=cockpit-ws
+Environment=G_MESSAGES_DEBUG=cockpit-ws G_DEBUG=fatal-criticals
 ExecStart=@libexecdir@/cockpit-ws --no-tls
 User=@user@
 Group=@group@

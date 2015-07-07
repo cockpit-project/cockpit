@@ -245,6 +245,7 @@ send_init_command (CockpitTransport *transport)
 static void
 setup_dbus_daemon (gpointer addrfd)
 {
+  g_unsetenv ("G_DEBUG");
   cockpit_unix_fd_close_all (3, GPOINTER_TO_INT (addrfd));
 }
 

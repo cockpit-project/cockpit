@@ -58,7 +58,6 @@
 static struct passwd *pwd;
 const char *rhost;
 static pid_t child;
-static char **env;
 static int want_session = 1;
 static FILE *authf;
 
@@ -783,7 +782,20 @@ fdwalk (int (*cb)(void *data, int fd),
 #endif /* HAVE_FDWALK */
 
 static int
-fork_session (int (*func) (void))
+session (char **env)
+{
+  char *argv[] = { PACKAGE_BIN_DIR "/cockpit-bridge", NULL };
+  debug ("executing bridge: %s", argv[0]);
+  if (env)
+    execve (argv[0], argv, env);
+  else
+    execv (argv[0], argv);
+  warn ("can't exec %s", argv[0]);
+  return 127;
+}
+
+static int
+fork_session (char **env)
 {
   int status;
   int from;
@@ -828,26 +840,13 @@ fork_session (int (*func) (void))
           _exit (42);
         }
 
-      _exit (func ());
+      _exit (session (env));
     }
 
   close (0);
   close (1);
   waitpid (child, &status, 0);
   return status;
-}
-
-static int
-session (void)
-{
-  char *argv[] = { PACKAGE_BIN_DIR "/cockpit-bridge", NULL };
-  debug ("executing bridge: %s", argv[0]);
-  if (env)
-    execve (argv[0], argv, env);
-  else
-    execv (argv[0], argv);
-  warn ("can't exec %s", argv[0]);
-  return 127;
 }
 
 static void
@@ -918,30 +917,33 @@ pass_to_child (int signo)
   kill (child, signo);
 }
 
-static void
-transfer_pam_env (pam_handle_t *pamh,
-                  ...)
-{
-  const char *name;
-  const char *value;
-  char *nameval;
-  va_list va;
+/* Environment variables to transfer */
+static const char *env_names[] = {
+  "G_DEBUG",
+  "G_MESSAGES_DEBUG",
+  NULL
+};
 
-  va_start (va, pamh);
-  for (;;)
+/* Holds environment values to set in pam context */
+static char *env_saved[sizeof (env_names) / sizeof (env_names)[0]] = { NULL, };
+
+static void
+save_environment (void)
+{
+  const char *value;
+  int i, j;
+
+  for (i = 0, j = 0; env_names[i] != NULL; i++)
     {
-      name = va_arg (va, const char *);
-      if (!name)
-        break;
-      value = getenv (name);
+      value = getenv (env_names[i]);
       if (value)
         {
-          if (asprintf (&nameval, "%s=%s", name, value) < 0)
+          if (asprintf (env_saved + (j++), "%s=%s", env_names[i], value) < 0)
             errx (42, "couldn't allocate environment");
-          pam_putenv (pamh, nameval);
         }
     }
-  va_end (va);
+
+  env_saved[j] = NULL;
 }
 
 int
@@ -950,15 +952,19 @@ main (int argc,
 {
   pam_handle_t *pamh = NULL;
   const char *auth;
+  char **env;
   int status;
   int flags;
   int res;
+  int i;
 
   if (isatty (0))
     errx (2, "this command is not meant to be run from the console");
 
   if (argc != 3)
     errx (2, "invalid arguments to cockpit-session");
+
+  save_environment ();
 
   /* When setuid root, make sure our group is also root */
   if (geteuid () == 0)
@@ -1001,15 +1007,15 @@ main (int argc,
   else
     errx (2, "unrecognized authentication method: %s", auth);
 
+  for (i = 0; env_saved[i] != NULL; i++)
+    pam_putenv (pamh, env_saved[i]);
+
+  env = pam_getenvlist (pamh);
+  if (env == NULL)
+    errx (EX, "get pam environment failed");
+
   if (want_session)
     {
-      /* Let the G_MESSAGES_DEBUG leak through from parent as a default */
-      transfer_pam_env (pamh, "G_DEBUG", "G_MESSAGES_DEBUG", "PATH", NULL);
-
-      env = pam_getenvlist (pamh);
-      if (env == NULL)
-        errx (EX, "get pam environment failed");
-
       assert (pwd != NULL);
 
       if (initgroups (pwd->pw_name, pwd->pw_gid) < 0)
@@ -1021,7 +1027,7 @@ main (int argc,
 
       utmp_log (1);
 
-      status = fork_session (session);
+      status = fork_session (env);
 
       utmp_log (0);
 
@@ -1038,7 +1044,7 @@ main (int argc,
     }
   else
     {
-      status = session ();
+      status = session (env);
     }
 
   pam_end (pamh, PAM_SUCCESS);

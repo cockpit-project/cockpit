@@ -84,6 +84,7 @@ struct _CockpitPortal {
   /* Transport talking back to web service */
   CockpitTransport *transport;
   gulong transport_recv_sig;
+  gulong transport_closed_sig;
   gulong transport_control_sig;
   GBytes *last_init;
 
@@ -158,7 +159,8 @@ on_other_recv (CockpitTransport *transport,
 
   if (channel)
     {
-      cockpit_transport_send (self->transport, channel, payload);
+      if (self->transport)
+        cockpit_transport_send (self->transport, channel, payload);
       return TRUE;
     }
 
@@ -189,7 +191,8 @@ on_other_control (CockpitTransport *transport,
 
       g_debug ("portal channel closed: %s", channel);
 
-      cockpit_transport_send (self->transport, NULL, payload);
+      if (self->transport)
+        cockpit_transport_send (self->transport, NULL, payload);
     }
 
   return TRUE;
@@ -213,7 +216,8 @@ send_close_channel (CockpitPortal *self,
   bytes = cockpit_json_write_bytes (object);
   json_object_unref (object);
 
-  cockpit_transport_send (self->transport, NULL, bytes);
+  if (self->transport)
+    cockpit_transport_send (self->transport, NULL, bytes);
   g_bytes_unref (bytes);
 }
 
@@ -447,7 +451,8 @@ flush_queue (CockpitPortal *self)
           if (!message)
             break;
           g_assert (self->state != PORTAL_OPENING);
-          cockpit_transport_emit_recv (self->transport, message->channel, message->payload);
+          if (self->transport)
+            cockpit_transport_emit_recv (self->transport, message->channel, message->payload);
           cockpit_portal_message_free (message);
         }
 
@@ -551,6 +556,30 @@ on_transport_recv (CockpitTransport *transport,
 }
 
 static void
+disconnect_transport (CockpitPortal *self)
+{
+  if (self->transport)
+    {
+      g_signal_handler_disconnect (self->transport, self->transport_recv_sig);
+      g_signal_handler_disconnect (self->transport, self->transport_control_sig);
+      g_signal_handler_disconnect (self->transport, self->transport_closed_sig);
+      g_object_unref (self->transport);
+      self->transport = NULL;
+    }
+
+  transition_none (self);
+}
+
+static void
+on_transport_closed (CockpitTransport *transport,
+                     const gchar *problem,
+                     gpointer user_data)
+{
+  CockpitPortal *self = user_data;
+  disconnect_transport (self);
+}
+
+static void
 cockpit_portal_constructed (GObject *object)
 {
   CockpitPortal *self = COCKPIT_PORTAL (object);
@@ -565,6 +594,7 @@ cockpit_portal_constructed (GObject *object)
 
   self->transport_recv_sig = g_signal_connect (self->transport, "recv", G_CALLBACK (on_transport_recv), self);
   self->transport_control_sig = g_signal_connect (self->transport, "control", G_CALLBACK (on_transport_control), self);
+  self->transport_closed_sig = g_signal_connect (self->transport, "closed", G_CALLBACK (on_transport_closed), self);
 }
 
 static void
@@ -623,18 +653,12 @@ cockpit_portal_finalize (GObject *object)
   CockpitPortal *self = COCKPIT_PORTAL (object);
 
   transition_none (self);
+  disconnect_transport (self);
 
   g_assert (self->channels == NULL);
   g_assert (self->interned == NULL);
   g_assert (self->queue == NULL);
   g_assert (self->other == NULL);
-
-  if (self->transport)
-    {
-      g_signal_handler_disconnect (self->transport, self->transport_recv_sig);
-      g_signal_handler_disconnect (self->transport, self->transport_control_sig);
-      g_object_unref (self->transport);
-    }
 
   if (self->last_init)
     g_bytes_unref (self->last_init);

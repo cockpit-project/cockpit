@@ -143,6 +143,8 @@ class TestSsl(KubernetesCase):
         output = m.execute("curl -sS http://localhost:8080/api 2>&1 || true")
         self.assertIn("Connection refused", output)
 
+        self.allow_journal_messages(".*: couldn't connect: Connection refused")
+
 @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-kubernetes on rhel-7.")
 class TestAuth(KubernetesCase):
     def testConfig(self):

@@ -89,7 +89,7 @@ BuildRequires: xmlto
 Requires: %{name}-bridge = %{version}-%{release}
 Requires: %{name}-ws = %{version}-%{release}
 Requires: %{name}-shell = %{version}-%{release}
-%ifarch x86_64 armv7hl
+%ifarch x86_64
 Requires: %{name}-docker = %{version}-%{release}
 %endif
 %if 0%{?rhel}
@@ -141,7 +141,7 @@ Requires: udisks2 >= 2.1.0
 %else
 Provides: %{name}-subscriptions = %{version}-%{release}
 Requires: subscription-manager >= 1.13
-%ifarch x86_64 armv7hl
+%ifarch x86_64
 Provides: %{name}-docker = %{version}-%{release}
 Requires: docker >= 1.3.0
 %endif
@@ -222,7 +222,7 @@ find %{buildroot}%{_datadir}/%{name}/system -type f >> shell.list
 echo '%dir %{_datadir}/%{name}/subscriptions' > subscriptions.list
 find %{buildroot}%{_datadir}/%{name}/subscriptions -type f >> subscriptions.list
 
-%ifarch x86_64 armv7hl
+%ifarch x86_64
 echo '%dir %{_datadir}/%{name}/docker' > docker.list
 find %{buildroot}%{_datadir}/%{name}/docker -type f >> docker.list
 %else
@@ -346,7 +346,7 @@ subscription management.
 
 %files subscriptions -f subscriptions.list
 
-%ifarch x86_64 armv7hl
+%ifarch x86_64
 
 %package docker
 Summary: Cockpit user interface for Docker containers
@@ -432,6 +432,53 @@ fi
 %endif
 
 %changelog
+* Wed Jul 08 2015 Peter <petervo@redhat.com> - 0.64-1
+- Update to 0.64 release
+
+* Wed Jul 01 2015 Peter <petervo@redhat.com> - 0.63-1
+- Update to 0.63 release
+- Remove cockpit-docker for armv7hl while docker
+  packages are being fixed
+
+* Thu Jun 25 2015 Peter <petervo@redhat.com> - 0.62-1
+- Update to 0.62 release
+
+* Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.61-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
+* Wed Jun 10 2015 Peter <petervo@redhat.com> - 0.61-1
+- Update to 0.61 release
+
+* Mon Jun 01 2015 Stef Walter <stefw@redhat.com> - 0.60-1
+- Update to 0.60 release
+
+* Wed May 27 2015 Peter <petervo@redhat.com> - 0.59-1
+- Update to 0.59 release
+
+* Fri May 22 2015 Peter <petervo@redhat.com> - 0.58-1
+- Update to 0.58 release
+
+* Wed May 20 2015 Peter <petervo@redhat.com> - 0.57-1
+- Update to 0.57 release
+
+* Wed May 13 2015 Peter <petervo@redhat.com> - 0.56-1
+- Update to 0.56 release
+
+* Wed May 06 2015 Stef Walter <stefw@redhat.com> - 0.55-1
+- Update to 0.55 release
+
+* Fri Apr 24 2015 Peter <petervo@redhat.com> - 0.54-1
+- Update to 0.54 release
+
+* Tue Apr 21 2015 Peter <petervo@redhat.com> - 0.53-1
+- Update to 0.53 release
+
+* Thu Apr 16 2015 Stef Walter <stefw@redhat.com> - 0.52-1
+- Update to 0.52 release
+
+* Tue Apr 14 2015 Peter <petervo@redhat.com> - 0.51-1
+- Update to 0.51 release
+
 * Tue Apr 07 2015 Stef Walter <stefw@redhat.com> - 0.50-1
 - Update to 0.50 release
 

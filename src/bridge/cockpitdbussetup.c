@@ -486,10 +486,10 @@ perform_usermod (CommitAdmin1 *context)
       g_debug ("adding user '%s' to groups: %s", argv[1], argv[4]);
 
       pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
+      g_hash_table_iter_remove (&iter);
+
       g_signal_connect (pipe, "close", G_CALLBACK (on_usermod_close), context);
       cockpit_pipe_close (pipe, NULL);
-
-      g_hash_table_iter_remove (&iter);
     }
   else
     {

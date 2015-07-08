@@ -496,8 +496,8 @@ systemctl start docker
         "Returning error-response 401 with reason `Sorry'",
 
         # Reauth stuff
-        'Reauthorizing unix-user:.*',
-        'cockpit-polkit: user .* was reauthorized',
+        '.*Reauthorizing unix-user:.*',
+        '.*user .* was reauthorized',
         'cockpit-polkit helper exited with status: 0',
 
         # Reboots are ok
@@ -512,7 +512,7 @@ systemctl start docker
         ".*: couldn't write web output: Error sending data: Connection reset by peer",
 
         # pam_lastlog outdated complaints
-        "/var/log/lastlog: No such file or directory",
+        ".*/var/log/lastlog: No such file or directory",
 
         # SELinux messages to ignore
         "(audit: )?type=1403 audit.*",

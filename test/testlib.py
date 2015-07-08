@@ -511,6 +511,9 @@ systemctl start docker
         # Will go away with glib 2.43.2
         ".*: couldn't write web output: Error sending data: Connection reset by peer",
 
+        # pam_lastlog outdated complaints
+        "/var/log/lastlog: No such file or directory",
+
         # SELinux messages to ignore
         "(audit: )?type=1403 audit.*",
         "(audit: )?type=1404 audit.*",

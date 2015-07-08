@@ -87,6 +87,67 @@ function result(out) {
 
 function step ()
 {
+    function wait_reload(callback, timeout) {
+        var failure = null;
+        var result = null;
+        var timer = null;
+
+        function finish() {
+            page.onResourceError = null;
+            page.onLoadFinished = null;
+            clearTimeout(wait);
+            clearTimeout(timer);
+            callback(result);
+        }
+
+        timer = setTimeout(function() {
+            timer = null;
+            result = "timeout";
+            finish();
+        }, timeout || 10000);
+
+        page.onResourceError = function(ex) {
+            failure = ex.errorString + " " + ex.url;
+        };
+
+	/*
+	 * HACK: phantomjs fires the page.onLoadFinished() handler
+	 * for each iframe, sometimes with the iframe triggering the
+         * event first. This leads to race conditions.
+         *
+         * The only work around is to use a timeout.
+         *
+         * https://code.google.com/p/phantomjs/issues/detail?id=504
+         */
+        var wait = null;
+        page.onLoadFinished = function(status) {
+            if (status != "success" && failure)
+                status = failure;
+            failure = null;
+            if (!result || result != "success")
+                result = status;
+	    clearTimeout(wait);
+	    wait = setTimeout(function() {
+                wait = null;
+                finish();
+            }, 200);
+        };
+    }
+
+    function wait_open(callback) {
+        var failure = null;
+
+        page.onResourceError = function(ex) {
+            failure = ex.errorString + " " + ex.url;
+        };
+
+        page.onLoadFinished = function(status) {
+            if (status != "success" && failure)
+                status = failure;
+            callback(status);
+        };
+    }
+
     setTimeout(function () {
         if (onCheckpoint)
             throw "nope";
@@ -102,40 +163,19 @@ function step ()
 
         var cmd = JSON.parse(cmdline);
 
-        function on_load_finished(status)
-        {
-            clearTimeout(page.timer);
-            page.timer = null;
-            page.onResourceError = null;
-            page.onLoadFinished = null;
-            if (status != "success" && page.failure)
-                status = page.failure;
-            page.failure = null;
-            result({ result: status });
-            step ();
+        function on_load(status) {
+            sys.stdout.writeLine(JSON.stringify({ result: status }));
+            step();
         }
 
-        function on_resource_error(ex) {
-            page.failure = ex.errorString + " " + ex.url;
-        };
-
         if (cmd.cmd == "open") {
-            page.failure = null;
-            page.onResourceError = on_resource_error;
-            page.onLoadFinished = on_load_finished;
+            wait_open(on_load);
             page.open(cmd.url);
         } else if (cmd.cmd == "reload") {
-            page.failure = null;
-            page.onResourceError = on_resource_error;
-            page.onLoadFinished = on_load_finished;
+            wait_reload(on_load);
             page.reload();
         } else if (cmd.cmd == "expect-reload") {
-            page.failure = null;
-            page.onResourceError = on_resource_error;
-            page.onLoadFinished = on_load_finished;
-            page.timer = setTimeout(function() {
-                on_load_finished("timeout");
-            }, cmd.timeout || 10000);
+            wait_reload(on_load);
         } else if (cmd.cmd == "inject") {
             var ret = page.injectJs(cmd.file);
             result({ result: ret });

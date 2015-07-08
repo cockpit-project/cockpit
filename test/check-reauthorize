@@ -116,4 +116,10 @@ class TestReauthorize(MachineCase):
 
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
+        self.allow_journal_messages("cannot reauthorize identity.*: unix-user:admin.*")
+        self.allow_journal_messages("Error executing command as another user: Not authorized")
+        self.allow_journal_messages("This incident has been reported.")
+        self.allow_journal_messages("sudo: a password is required")
+        self.allow_journal_messages("user user was reauthorized")
+
 test_main()

@@ -288,4 +288,9 @@ CMD ["/bin/sh", "-c", "echo '%s' | tee /dev/fd/2 | nc -l -p %d"]
         b.click("#containers-failure-start")
         b.wait_visible("#containers-containers")
 
+        self.allow_journal_messages("cannot reauthorize identity.*: unix-user:root.*")
+        self.allow_journal_messages("Error executing command as another user: Not authorized")
+        self.allow_journal_messages("This incident has been reported.")
+        self.allow_journal_messages("sudo: a password is required")
+
 test_main()

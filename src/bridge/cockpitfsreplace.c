@@ -202,7 +202,7 @@ cockpit_fsreplace_close (CockpitChannel *channel,
   if (problem)
     {
       if (self->tmp_path)
-        if (unlink (self->tmp_path) < 0)
+        if (unlink (self->tmp_path) < 0 && errno != ENOENT)
           g_message ("%s: couldn't remove temp file: %s", self->tmp_path, g_strerror (errno));
     }
 

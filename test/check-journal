@@ -28,6 +28,9 @@ class TestJournal(MachineCase):
 
         m.needs_writable_usr()
 
+        self.allow_restart_journal_messages()
+        self.allow_journal_messages(".*Failed to get realtime timestamp: Cannot assign requested address.*")
+
         def inject_extras():
             b.eval_js("""
             ph_get_log_lines = function () {
@@ -206,7 +209,5 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                          [ "", "Reboot", "" ],
                          [ "check-journal", "BEFORE BOOT", "" ]
                      ])
-
-        self.allow_restart_journal_messages()
 
 test_main()

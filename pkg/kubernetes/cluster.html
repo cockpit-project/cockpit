@@ -166,6 +166,28 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   </div>
   </script>
 
+<!-- App Entity Params -->
+
+  <script id="deploy-app-appentity-template" type="x-template/mustache">
+    {{#apps}}
+      <tr class="appentity">
+        <td >
+          <label class="app-name" for="{{app_name}}-label" >{{app_name}}</label>
+        </td>
+      </tr>
+    {{#app_params}}
+      <tr class="appentity">
+        <td class="top">
+          <label class="control-label" for="{{app_name}}-{{param_key}}-label" >{{param_key}}</label>
+        </td>
+        <td>
+          <input id="{{app_name}}-{{param_key}}-text" class="form-control" type="text" value={{param_value}}></input>
+        </td>
+      </tr>
+    {{/app_params}}
+    {{/apps}}
+  </script>
+
   <!-- Container details page -->
 
   <script type="text/ng-template" id="details.html">
@@ -367,13 +389,32 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             <table class="cockpit-form-table">
               <tr>
                 <td class="top">
+                  <label class="control-label" for="deploy-app-type-label" translatable="yes">
+                  Type
+                  </label>
+                </td>
+                <td id="deploy-app-type-field" class="dialog-wrapper">
+                  <div id="deploy-app-type-area">
+                    <select id="deploy-app-type" class="btn btn-default form-control selectpicker deploy-app-type-text">
+                      <option translatable="yes" class="deploy-app-type-text" value="manifest">Kubernetes Manifest</option>
+                      <option translatable="yes" class="deploy-app-type-text" value="nulecule">Nulecule Application</option>
+                    </select>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="top">
                   <label class="control-label" for="deploy-app-manifest" translatable="yes">
                   Manifest
+                  </label>
+                  <label class="control-label" for="deploy-app-nulecule" translatable="yes" >
+                  Nulecule
                   </label>
                 </td>
                 <input id="deploy-app-manifest-file" type="file">
                 <td class="dialog-wrapper">
                   <button id="deploy-app-manifest-file-button" class="btn btn-default form-control" type="button">Select Manifest File...</button>
+                  <input id="deploy-app-nulecule-image" class="form-control" type="text" placeholder="eg: docker/image">
                 </td>
               </tr>
               <tr>

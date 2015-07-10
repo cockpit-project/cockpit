@@ -324,7 +324,7 @@ cockpit_ssh_authenticate (CockpitSshData *data)
   if (methods & SSH_AUTH_METHOD_PUBLICKEY)
     {
       tried = TRUE;
-      rc = ssh_userauth_publickey_auto (data->session, NULL, NULL);
+      rc = ssh_userauth_agent (data->session, NULL);
       switch (rc)
         {
         case SSH_AUTH_SUCCESS:
@@ -344,13 +344,22 @@ cockpit_ssh_authenticate (CockpitSshData *data)
           break;
         default:
           msg = ssh_get_error (data->session);
-          if (g_atomic_int_get (data->connecting))
-            g_message ("%s: couldn't key authenticate: %s", data->logname, msg);
-          if (ssh_msg_is_disconnected (msg))
-            problem = "terminated";
-          else
-            problem = "internal-error";
-          goto out;
+          /*
+            HACK: https://red.libssh.org/issues/201
+            libssh returns error instead of denied
+            when agent has no keys. For now treat as
+            denied.
+           */
+          if (!strstr (msg, "Access denied"))
+            {
+              if (g_atomic_int_get (data->connecting))
+                g_message ("%s: couldn't key authenticate: %s", data->logname, msg);
+              if (ssh_msg_is_disconnected (msg))
+                problem = "terminated";
+              else
+                problem = "internal-error";
+              goto out;
+            }
         }
     }
 

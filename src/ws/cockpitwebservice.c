@@ -658,6 +658,12 @@ build_control (const gchar *name,
   return message;
 }
 
+static gchar *
+generate_channel_id (CockpitWebService *self)
+{
+  return g_strdup_printf ("0:%d", self->next_internal_id++);
+}
+
 static void
 caller_begin (CockpitWebService *self)
 {
@@ -1150,9 +1156,14 @@ lookup_or_open_session_for_host (CockpitWebService *self,
                                                            "localhost");
           if (local->transport)
             {
+                gchar *next_id = generate_channel_id (self);
+                gchar *channel_id = g_strdup_printf ("ssh-agent%s",
+                                                     next_id);
                 agent = cockpit_ssh_agent_new (local->transport,
                                                hostname,
-                                               NULL);
+                                               channel_id);
+                g_free (channel_id);
+                g_free (next_id);
             }
         }
 
@@ -1855,12 +1866,6 @@ cockpit_web_service_noauth (GIOStream *io_stream,
 
   /* Unreferences connection when it closes */
   g_signal_connect (connection, "close", G_CALLBACK (g_object_unref), NULL);
-}
-
-static gchar *
-generate_channel_id (CockpitWebService *self)
-{
-  return g_strdup_printf ("0:%d", self->next_internal_id++);
 }
 
 static void

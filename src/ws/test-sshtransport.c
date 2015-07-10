@@ -194,7 +194,7 @@ setup_transport (TestCase *tc,
     ignore_key = fixture->ignore_key;
 
   if (tc->agent_transport != NULL)
-    agent = cockpit_ssh_agent_new (tc->agent_transport, "ssh-tests", NULL);
+    agent = cockpit_ssh_agent_new (tc->agent_transport, "ssh-tests", "ssh-agent");
 
   tc->transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
                                 "host", "127.0.0.1",

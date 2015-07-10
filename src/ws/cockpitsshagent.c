@@ -191,9 +191,6 @@ cockpit_ssh_agent_constructed (GObject *object)
   JsonObject *options = NULL;
   GBytes *message = NULL;
 
-  if (!self->channel_id)
-    self->channel_id = g_strdup_printf ("ssh-agent%p", self);
-
   if (socketpair (AF_UNIX, SOCK_STREAM, 0, pair) < 0)
     {
       g_error ("Couldn't create socket pair: %s",
@@ -323,6 +320,7 @@ cockpit_ssh_agent_new (CockpitTransport *transport,
 {
   g_return_val_if_fail (logname != NULL, NULL);
   g_return_val_if_fail (transport != NULL, NULL);
+  g_return_val_if_fail (channel_id != NULL, NULL);
 
   return g_object_new (COCKPIT_TYPE_SSH_AGENT,
                        "transport", transport,

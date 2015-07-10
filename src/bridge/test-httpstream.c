@@ -29,8 +29,108 @@
 #include "mock-transport.h"
 #include <json-glib/json-glib.h>
 
-/* Declared in cockpitwebserver.c */
-extern gboolean cockpit_webserver_want_certificate;
+static void
+on_closed_set_flag (CockpitChannel *channel,
+                    const gchar *problem,
+                    gpointer user_data)
+{
+  gboolean *flag = user_data;
+  g_assert (flag != NULL);
+  g_assert (*flag != TRUE);
+  *flag = TRUE;
+}
+
+typedef struct {
+  CockpitWebServer *web_server;
+  guint port;
+  MockTransport *transport;
+} TestGeneral;
+
+static void
+setup_general (TestGeneral *tt,
+               gconstpointer unused)
+{
+  tt->web_server = cockpit_web_server_new (0, NULL, NULL, NULL, NULL);
+  tt->port = cockpit_web_server_get_port (tt->web_server);
+  tt->transport = mock_transport_new ();
+}
+
+static void
+teardown_general (TestGeneral *tt,
+                  gconstpointer unused)
+{
+  g_object_unref (tt->web_server);
+  g_object_unref (tt->transport);
+}
+
+static gboolean
+handle_host_header (CockpitWebServer *server,
+                    const gchar *path,
+                    GHashTable *headers,
+                    CockpitWebResponse *response,
+                    gpointer user_data)
+{
+  TestGeneral *tt = user_data;
+  const gchar *data = "Da Da Da";
+  gchar *expected;
+  GBytes *bytes;
+
+  expected = g_strdup_printf ("localhost:%d", tt->port);
+  g_assert_cmpstr (g_hash_table_lookup (headers, "Host"), ==, expected);
+  g_free (expected);
+
+  bytes = g_bytes_new_static (data, strlen (data));
+  cockpit_web_response_content (response, NULL, bytes, NULL);
+  g_bytes_unref (bytes);
+
+  return TRUE;
+}
+
+static void
+test_host_header (TestGeneral *tt,
+                  gconstpointer unused)
+{
+  CockpitChannel *channel;
+  GBytes *bytes;
+  JsonObject *options;
+  const gchar *control;
+  gboolean closed;
+  GBytes *data;
+  guint count;
+
+  g_signal_connect (tt->web_server, "handle-resource::/", G_CALLBACK (handle_host_header), tt);
+
+  options = json_object_new ();
+  json_object_set_int_member (options, "port", tt->port);
+  json_object_set_string_member (options, "payload", "http-stream1");
+  json_object_set_string_member (options, "method", "GET");
+  json_object_set_string_member (options, "path", "/");
+
+  channel = g_object_new (COCKPIT_TYPE_HTTP_STREAM,
+                          "transport", tt->transport,
+                          "id", "444",
+                          "options", options,
+                          NULL);
+
+  json_object_unref (options);
+
+  /* Tell HTTP we have no more data to send */
+  control = "{\"command\": \"done\", \"channel\": \"444\"}";
+  bytes = g_bytes_new_static (control, strlen (control));
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tt->transport), NULL, bytes);
+  g_bytes_unref (bytes);
+
+  closed = FALSE;
+  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_set_flag), &closed);
+  while (!closed)
+    g_main_context_iteration (NULL, TRUE);
+
+  data = mock_transport_combine_output (tt->transport, "444", &count);
+  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{}}Da Da Da", -1);
+  g_assert_cmpuint (count, ==, 2);
+  g_bytes_unref (data);
+}
+
 
 /* -----------------------------------------------------------------------------
  * Test
@@ -272,16 +372,6 @@ teardown_tls (TestTls *test,
   g_object_unref (test->web_server);
   g_object_unref (test->transport);
   g_clear_object (&test->peer);
-}
-
-static void
-on_closed_set_flag (CockpitChannel *channel,
-                    const gchar *problem,
-                    gpointer user_data)
-{
-  gboolean *flag = user_data;
-  g_assert (*flag == FALSE);
-  *flag = TRUE;
 }
 
 static void
@@ -624,6 +714,8 @@ test_tls_authority_bad (TestTls *test,
   g_assert (channel == NULL);
 }
 
+/* Declared in cockpitwebserver.c */
+extern gboolean cockpit_webserver_want_certificate;
 
 int
 main (int argc,
@@ -632,6 +724,10 @@ main (int argc,
   cockpit_webserver_want_certificate = TRUE;
 
   cockpit_test_init (&argc, &argv);
+
+  g_test_add ("/http-stream/host-header", TestGeneral, NULL,
+              setup_general, test_host_header, teardown_general);
+
   g_test_add_func  ("/http-stream/parse_keepalive", test_parse_keep_alive);
   g_test_add_func  ("/http-stream/http_chunked", test_http_chunked);
 

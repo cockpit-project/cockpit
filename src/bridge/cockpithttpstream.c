@@ -43,6 +43,7 @@
 typedef struct {
   gint refs;
   gchar *name;
+  gchar *host;
   GSocketConnectable *connectable;
   CockpitStreamOptions *options;
   CockpitStream *stream;
@@ -80,6 +81,7 @@ cockpit_http_client_unref (gpointer data)
       if (client->options)
         cockpit_stream_options_unref (client->options);
       g_free (client->name);
+      g_free (client->host);
       g_slice_free (CockpitHttpClient, client);
     }
 }
@@ -818,7 +820,7 @@ send_http_request (CockpitHttpStream *self)
     }
 
   if (!had_host)
-    g_string_append_printf (string, "Host: %s\r\n", self->name);
+    g_string_append_printf (string, "Host: %s\r\n", self->client->host);
   if (!had_encoding)
     g_string_append (string, "Accept-Encoding: identity\r\n");
 
@@ -931,7 +933,7 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
   const gchar *connection;
   JsonObject *options;
   const gchar *path;
-  gchar *full;
+  gchar *host = NULL;
 
   COCKPIT_CHANNEL_CLASS (cockpit_http_stream_parent_class)->prepare (channel);
 
@@ -941,22 +943,27 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
   options = cockpit_channel_get_options (channel);
   if (!cockpit_json_get_string (options, "connection", NULL, &connection))
     {
-      g_warning ("%s: bad \"connection\" field in HTTP stream request", self->name);
+      g_warning ("bad \"connection\" field in HTTP stream request");
+      cockpit_channel_close (channel, "protocol-error");
+      goto out;
+    }
+
+  if (!cockpit_json_get_string (options, "path", "/", &path))
+    {
+      g_warning ("bad \"path\" field in HTTP stream request");
       cockpit_channel_close (channel, "protocol-error");
       goto out;
     }
 
   self->client = cockpit_http_client_ensure (connection);
 
-  if (connection)
-    self->name = g_strdup (connection);
-
   if (!self->client->connectable ||
       json_object_has_member (options, "unix") ||
       json_object_has_member (options, "port") ||
       json_object_has_member (options, "internal"))
     {
-      connectable = cockpit_channel_parse_connectable (channel, self->name ? NULL : &self->name);
+      g_free (self->client->host);
+      connectable = cockpit_channel_parse_connectable (channel, &host);
       if (!connectable)
         goto out;
     }
@@ -977,6 +984,13 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
       connectable = NULL;
     }
 
+  if (host)
+    {
+      g_free (self->client->host);
+      self->client->host = host;
+      host = NULL;
+    }
+
   if (opts)
     {
       if (self->client->options)
@@ -984,12 +998,8 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
       self->client->options = cockpit_stream_options_ref (opts);
     }
 
-  if (cockpit_json_get_string (options, "path", NULL, &path) && path)
-    {
-      full = g_strdup_printf ("%s://%s%s", self->client->options->tls_client ? "https" : "http", self->name, path);
-      g_free (self->name);
-      self->name = full;
-    }
+  self->name = g_strdup_printf ("%s://%s%s", self->client->options->tls_client ? "https" : "http",
+                                self->client->host, path);
 
   self->stream = cockpit_http_client_checkout (self->client);
   if (!self->stream)

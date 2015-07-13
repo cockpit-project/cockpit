@@ -418,6 +418,56 @@ test_capable (void)
   g_object_unref (transport);
 }
 
+static void
+test_invalid_internal (void)
+{
+  JsonObject *options;
+  MockTransport *transport;
+  CockpitChannel *channel;
+  JsonObject *sent;
+  GSocketConnectable *connectable;
+
+  options = json_object_new ();
+  json_object_set_string_member (options, "internal", "test");
+  transport = g_object_new (mock_transport_get_type (), NULL);
+
+  channel = g_object_new (mock_echo_channel_get_type (),
+                          "transport", transport,
+                          "id", "55",
+                          "options", options,
+                          NULL);
+  json_object_unref (options);
+  connectable = cockpit_channel_parse_connectable (channel, NULL);
+  g_assert (connectable == NULL);
+  while (g_main_context_iteration (NULL, FALSE));
+
+  sent = mock_transport_pop_control (transport);
+  g_assert (sent != NULL);
+
+  cockpit_assert_json_eq (sent,
+                  "{ \"command\": \"close\", \"channel\": \"55\", \"problem\": \"not-found\"}");
+  g_object_unref (channel);
+  g_object_unref (transport);
+  cockpit_assert_expected ();
+}
+
+static void
+test_internal_not_registered (void)
+{
+  cockpit_expect_warning ("couldn't find internal address: test");
+  cockpit_channel_internal_address ("other", NULL);
+  test_invalid_internal ();
+  cockpit_channel_remove_internal_address ("other");
+}
+
+static void
+test_internal_null_registered (void)
+{
+  cockpit_channel_internal_address ("test", NULL);
+  test_invalid_internal ();
+  cockpit_channel_remove_internal_address ("test");
+}
+
 int
 main (int argc,
       char *argv[])
@@ -430,6 +480,10 @@ main (int argc,
                    test_close_not_capable);
   g_test_add_func ("/channel/test_capable",
                    test_capable);
+  g_test_add_func ("/channel/internal-null-registered",
+                   test_internal_null_registered);
+  g_test_add_func ("/channel/internal-not-registered",
+                   test_internal_not_registered);
   g_test_add ("/channel/recv-send", TestCase, NULL,
               setup, test_recv_and_send, teardown);
   g_test_add ("/channel/recv-queue", TestCase, NULL,

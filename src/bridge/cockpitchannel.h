@@ -98,6 +98,8 @@ GSocketAddress *    cockpit_channel_parse_address     (CockpitChannel *self,
 void                cockpit_channel_internal_address  (const gchar *name,
                                                        GSocketAddress *address);
 
+gboolean            cockpit_channel_remove_internal_address (const gchar *name);
+
 GSocketConnectable * cockpit_channel_parse_connectable (CockpitChannel *self,
                                                        gchar **possible_name);
 

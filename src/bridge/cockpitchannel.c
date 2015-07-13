@@ -934,6 +934,14 @@ cockpit_channel_done (CockpitChannel *self)
 
 static GHashTable *internal_addresses;
 
+static void
+safe_unref (gpointer data)
+{
+  GObject *object = data;
+  if (object != NULL)
+    g_object_unref (object);
+}
+
 void
 cockpit_channel_internal_address (const gchar *name,
                                   GSocketAddress *address)
@@ -941,10 +949,22 @@ cockpit_channel_internal_address (const gchar *name,
   if (!internal_addresses)
     {
       internal_addresses = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                                  g_free, g_object_unref);
+                                                  g_free, safe_unref);
     }
 
-  g_hash_table_replace (internal_addresses, g_strdup (name), g_object_ref (address));
+  if (address)
+    address = g_object_ref (address);
+
+  g_hash_table_replace (internal_addresses, g_strdup (name), address);
+}
+
+gboolean
+cockpit_channel_remove_internal_address (const gchar *name)
+{
+  gboolean ret = FALSE;
+  if (internal_addresses)
+      ret = g_hash_table_remove (internal_addresses, name);
+  return ret;
 }
 
 GSocketConnectable *
@@ -1020,11 +1040,20 @@ cockpit_channel_parse_connectable (CockpitChannel *self,
     }
   else if (internal)
     {
+      gboolean reg = FALSE;
       if (internal_addresses)
-        connectable = g_hash_table_lookup (internal_addresses, internal);
+        {
+          reg = g_hash_table_lookup_extended(internal_addresses,
+                                             internal,
+                                             NULL,
+                                             (gpointer *)&connectable);
+        }
+
       if (!connectable)
         {
-          g_warning ("couldn't find internal address: %s", internal);
+          if (!reg)
+            g_warning ("couldn't find internal address: %s", internal);
+
           problem = "not-found";
           goto out;
         }

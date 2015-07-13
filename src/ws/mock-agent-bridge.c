@@ -213,13 +213,6 @@ main (int argc,
   g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
   g_setenv ("GIO_USE_VFS", "local", TRUE);
 
-  if (error)
-    {
-      g_printerr ("mock-agent-bridge: %s\n", error->message);
-      ret = 1;
-      goto out;
-    }
-
   outfd = dup (1);
   if (outfd < 0 || dup2 (2, 1) < 1)
     {
@@ -249,7 +242,8 @@ main (int argc,
   pid_line = strstr(agent_output, "SSH_AGENT_PID=");
   if (pid_line)
     {
-      sscanf (pid_line, "SSH_AGENT_PID=%d;", &agent);
+      if (sscanf (pid_line, "SSH_AGENT_PID=%d;", &agent) != 1)
+        g_warning ("couldn't find pid in %s", pid_line);
     }
 
   if (agent < 1)

@@ -55,11 +55,33 @@ define([
                 $(all).on("changed", digest);
                 digest();
 
-                /* TODO: This should be made unnecessary by parsing endpoints */
-                function weak(item) {
-                    if (item.status && item.status.phase && item.status.phase !== "Running")
-                        return true;
-                    return false;
+                function pods_for_item(item) {
+                    var pods = { };
+                    var endpoints, subsets;
+
+                    /* Lookup which node this pod is scheduled on */
+                    if (item.kind === "Node") {
+                        pods = client.hosting("Pod", item.metadata.name);
+
+                    /* Kubernetes tells us about endpoints, which are service to pod mappings */
+                    } else if (item.kind === "Service") {
+                        endpoints = client.lookup("Endpoints", item.metadata.name,
+                                                     item.metadata.namespace) || { };
+                        subsets = endpoints.subsets || [ ];
+                        subsets.forEach(function(subset) {
+                            var addresses = subset.addresses || [ ];
+                            addresses.forEach(function(address) {
+                                if (address.targetRef && address.targetRef.kind == "Pod")
+                                    pods[address.targetRef.uid] = { };
+                            });
+                        });
+
+                    /* For ReplicationControllers we just do the selection ourselves */
+                    } else if (item.kind === "ReplicationController") {
+                        pods = client.select("Pod", item.metadata.namespace, item.spec.selector || { });
+                    }
+
+                    return pods;
                 }
 
                 function digest() {
@@ -69,7 +91,7 @@ define([
                     /* Items we're going to use for links */
                     var leaves = { "Service": { }, "Node": { }, "ReplicationController": { } };
 
-                    var item, key, leaf, kind, pods;
+                    var item, key, leaf, kind;
                     for (key in all) {
                         item = all[key];
                         kind = item.kind;
@@ -83,22 +105,14 @@ define([
                         items[key] = item;
                     }
 
-                    var isnode, isservice, pkey;
+                    var pods, pkey;
                     for (kind in leaves) {
                         leaf = leaves[kind];
-                        isnode = kind === "Node";
-                        isservice = kind === "Service";
                         for (key in leaf) {
                             item = leaf[key];
-                            if (isnode)
-                                pods = client.hosting("Pod", item.metadata.name);
-                            else
-                                pods = client.select("Pod", item.metadata.namespace, item.spec.selector || { });
-                            for (pkey in pods) {
-                                if (isservice && weak(pods[pkey]))
-                                    continue;
+                            pods = pods_for_item(item);
+                            for (pkey in pods)
                                 relations.push({ source: key, target: pkey });
-                            }
                         }
                     }
 

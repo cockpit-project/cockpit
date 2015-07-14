@@ -675,7 +675,7 @@ define([
         /* The watch objects we have open */
         self.watches = { "events": new KubernetesWatch("events", handle_event, handle_removed) };
         [ "nodes", "pods", "services", "replicationcontrollers",
-          "namespaces" ].forEach(function(type) {
+          "namespaces", "endpoints" ].forEach(function(type) {
             self.watches[type] = new KubernetesWatch(type, handle_updated, handle_removed);
         });
 

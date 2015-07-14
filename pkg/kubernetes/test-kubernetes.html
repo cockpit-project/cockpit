@@ -964,6 +964,49 @@ require([
         return true;
     }
 
+    asyncTest("lookup", function() {
+        var expected = {
+            "apiVersion": "v1beta3",
+            "kind": "ReplicationController",
+            "metadata": { "labels": { "example": "mock", "name": "3controller" },
+                "name": "3controller",
+                "resourceVersion": 10000,
+                "uid": "11768037-ab8a-11e4-9a7c-100001001",
+                "namespace": "default"
+            },
+            "selfLink": "/api/v1beta3/namespaces/default/replicationcontrollers/3controller",
+            "spec": { "replicas": 1, "selector": { "factor3": "yes" } }
+        };
+
+        var client = kubernetes.k8client();
+        client.watches.pods.wait().always(function() {
+
+            /* Get the item */
+            var item = client.lookup("ReplicationController", "3controller", "default");
+            deepEqual(item, expected, "correct item");
+
+            /* The same item, without namespace */
+            item = client.lookup("ReplicationController", "3controller");
+            deepEqual(item, expected, "selected without namespace");
+
+            /* Any replication controller */
+            item = client.lookup("ReplicationController");
+            equal(item.kind, "ReplicationController", "any replication controller");
+
+            /* Shouldn't match */
+            item = client.lookup("BadKind", "3controller", "default");
+            strictEqual(item, null, "mismatch kind");
+            item = client.lookup("ReplicationController", "badcontroller", "default");
+            strictEqual(item, null, "mismatch name");
+            item = client.lookup("ReplicationController", "3controller", "baddefault");
+            strictEqual(item, null, "mismatch namespace");
+
+            client.close();
+            start();
+        });
+    });
+
+
     asyncTest("select", function() {
         var client = kubernetes.k8client();
         client.watches.pods.wait().always(function() {

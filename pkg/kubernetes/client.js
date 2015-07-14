@@ -764,7 +764,7 @@ define([
             self.objects[uid] = item;
 
             /* Add various bits to index, for quick lookup */
-            var keys = [ item.kind, meta.namespace ];
+            var keys = [ item.kind, meta.name, meta.namespace ];
             var labels, i;
 
             if (meta.labels) {
@@ -880,6 +880,34 @@ define([
         function match_everything(item) {
             return true;
         }
+
+        /**
+         * client.lookup()
+         * @kind: kind of object
+         * @name: name of the object
+         * @namespace: the namespace of the object
+         */
+        this.lookup = function lookup(kind, name, namespace) {
+            var keys = [];
+            if (kind !== undefined)
+                keys.push(kind);
+            if (name !== undefined)
+                keys.push(name);
+            if (namespace !== undefined)
+                keys.push(namespace);
+            var possible = index.all(keys);
+            var item, len = possible.length;
+            for (var i = 0; i < len; i++) {
+                item = self.objects[possible[i]];
+                if (item && item.metadata &&
+                    (kind === undefined || kind === item.kind) &&
+                    (name === undefined || name === item.metadata.name) &&
+                    (namespace === undefined || namespace === item.metadata.namespace)) {
+                    return item;
+                }
+            }
+            return null;
+        };
 
         /**
          * client.select()

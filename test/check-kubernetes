@@ -103,9 +103,6 @@ class TestSsl(KubernetesCase):
         m = self.machine
         b = self.browser
 
-        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1222416
-        m.execute("echo 'ETCD_ADVERTISE_CLIENT_URLS=\"http://localhost:4001\"' >> /etc/etcd/etcd.conf")
-
         # Start a kube-apiserver with a 'wrong' http port, forcing use of https
         m.execute("echo 'KUBE_API_PORT=\"--port=1111\"' >> /etc/kubernetes/apiserver")
         m.execute("sed -i s/8080/1111/g /etc/kubernetes/*")
@@ -118,5 +115,34 @@ class TestSsl(KubernetesCase):
         # Check that this failed as a double check
         output = m.execute("curl -sS http://localhost:8080/api 2>&1 || true")
         self.assertIn("Connection refused", output)
+
+@unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-kubernetes on rhel-7.")
+class TestAuth(KubernetesCase):
+    def testConfig(self):
+        m = self.machine
+        b = self.browser
+
+        # Start a kube-apiserver with a 'wrong' http port, forcing use of https
+        m.execute("echo 'KUBE_API_PORT=\"--port=1111\"' >> /etc/kubernetes/apiserver")
+        m.execute("sed -i s/8080/1111/g /etc/kubernetes/*")
+
+        # Require authentication from kube
+        m.execute("echo 'KUBE_API_ARGS=\"--basic_auth_file=/etc/kubernetes/passwd --authorization_mode=ABAC --authorization_policy_file=/etc/kubernetes/authorization\"' >> /etc/kubernetes/apiserver")
+        m.execute("echo '{\"user\":\"admin\"}' > /etc/kubernetes/authorization")
+        m.execute("echo 'fubar,admin,10101' > /etc/kubernetes/passwd")
+
+        # Setup the kube stuff in the right place
+        m.upload(["mock-kube-config-basic.json"], "/tmp")
+        m.execute("mkdir -p /home/admin/.kube/ && mv /tmp/mock-kube-config-basic.json /home/admin/.kube/config")
+
+        m.execute("systemctl start etcd kube-apiserver")
+        self.wait_api_server(port=6443, scheme='https')
+
+        self.login_and_go("/kubernetes/cluster", host=None)
+        b.wait_in_text("#service-list", "You can deploy an application to your cluster.")
+
+        # Check that this failed as a double check
+        output = m.execute("curl -k -sS https://localhost:6443/api 2>&1 || true")
+        self.assertIn("Unauthorized", output)
 
 test_main()

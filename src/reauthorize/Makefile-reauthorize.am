@@ -11,7 +11,7 @@ libreauthorize_a_LIBS = \
 
 pam_reauthorize_FILES = src/reauthorize/pam_reauthorize.c src/reauthorize/reauthorize.c
 pam_reauthorize.so: $(pam_reauthorize_FILES)
-	$(AM_V_CCLD) $(CC) -fPIC -shared $(CFLAGS) -I$(builddir) -o $@ $^ $(REAUTHORIZE_LIBS)
+	$(AM_V_CCLD) $(CC) -fPIC -shared $(CFLAGS) -I$(builddir) -o $@ $^ $(REAUTHORIZE_LIBS) $(LDFLAGS)
 
 pam_MODULES = pam_reauthorize.so
 

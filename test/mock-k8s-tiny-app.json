@@ -24,8 +24,9 @@
                },
                "spec":{
                   "containers":[{
-                    "name":"mock-container",
-                    "image":"busybox",
+                    "name": "mock-container",
+                    "image": "busybox",
+                    "command": [ "/bin/sleep", "1000" ],
                     "ports":[{
                         "containerPort":9949,
                         "protocol":"TCP"

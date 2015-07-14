@@ -86,7 +86,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           </div>
           <span translatable="yes">Kubernetes Services</span>
         </div>
-        <div class="well blank-slate-pf spacious" ng-if="state == 'failed'">
+        <div class="well blank-slate-pf spacious" ng-if="servicesState() == 'failed'">
           <div class="blank-slate-pf-icon">
             <i ng-if="failure.status == 403" class="fa fa-lock"></i>
             <i ng-if="failure.status != 403" class="fa fa-exclamation-circle"></i>
@@ -94,14 +94,14 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           <h3 translatable="yes">Couldn't list services</h3>
           <p>{{failure.message}}</p>
         </div>
-        <div class="well blank-slate-pf spacious" ng-if="state == 'empty'">
+        <div class="well blank-slate-pf spacious" ng-if="servicesState() == 'empty'">
           <div class="blank-slate-pf-icon">
             <i class="fa fa-rocket"></i>
           </div>
           <h3>No services present</h3>
           <p translatable="yes">You can deploy an application to your cluster.</p>
         </div>
-        <table class="table table-hover" ng-if="state == 'ready'">
+        <table class="table table-hover" ng-if="servicesState() == 'ready'">
           <thead>
             <tr>
               <th translatable="yes">Name</th>
@@ -112,18 +112,18 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="service in services" data-uid="{{service.uid}}"
-                ng-class="{highlight: service.uid == highlighted}"
+            <tr ng-repeat="service in services" data-uid="{{service.metadata.uid}}"
+                ng-class="{highlight: service.metadata.uid == highlighted}"
                 ng-click="jumpService($event, service.item)"
-                ng-mouseover="highlight(service.uid)" ng-mouseout="highlight(null)">
-              <td>{{service.name}}</td>
+                ng-mouseover="highlight(service.metadata.uid)" ng-mouseout="highlight(null)">
+              <td>{{service.metadata.name}}</td>
               <td><kubernetes-address ng-init="item = service"></td>
-              <td>{{service.containers}}</td>
-              <td>{{service.namespace}}</td>
+              <td>{{serviceContainers(service)}}</td>
+              <td>{{service.metadata.namespace}}</td>
               <td class="status" ng-init="item = service">
                 <button title="Adjust" class="btn btn-default adjust-service pficon pficon-edit"
-                    data-toggle="modal" data-target="#adjust-dialog" data-uid="{{service.uid}}"></button>
-                <span kubernetes-status-icon></span>
+                    data-toggle="modal" data-target="#adjust-dialog" data-uid="{{service.metadata.uid}}"></button>
+                <span kubernetes-status-icon status="serviceStatus(service)"></span>
               </td>
             </tr>
           </tbody>
@@ -151,11 +151,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           </thead>
           <tbody>
             <tr ng-repeat="node in nodes">
-              <td>{{node.name}}</td>
-              <td>{{node.address}}</td>
-              <td>{{node.containers}}</td>
-              <td class="status" ng-init="item = node">
-                <span kubernetes-status-icon></span>
+              <td>{{node.metadata.name}}</td>
+              <td>{{node.spec.externalID}}</td>
+              <td>{{nodeContainers(node)}}</td>
+              <td class="status">
+                <span kubernetes-status-icon status="nodeStatus(node)"></span>
               </td>
             </tr>
           </tbody>

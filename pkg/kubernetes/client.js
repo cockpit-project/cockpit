@@ -578,24 +578,24 @@ define([
                 var have = (key in this);
                 if (!have && matched) {
                     this[key] = item;
-                    this.trigger("added", item);
+                    this.trigger("added", item, key);
                 } else if (have && !matched) {
                     delete this[key];
-                    this.trigger("removed", item);
+                    this.trigger("removed", item, key);
                 } else if (have && matched) {
                     this[key] = item;
-                    this.trigger("updated", item);
+                    this.trigger("updated", item, key);
                 }
             }
         },
         trigger: {
             enumerable: false,
             writable: false,
-            value: function(name, data) {
+            value: function(name, item, key) {
                 var self = this;
                 self.data.flat = null;
                 var $self = $(self);
-                $self.triggerHandler(name, data);
+                $self.triggerHandler(name, [item, key]);
                 if (!self.data.timer) {
                     self.data.timer = window.setTimeout(function() {
                         self.data.timer = null;

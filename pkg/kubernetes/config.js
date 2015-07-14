@@ -44,7 +44,7 @@ define([
         if (file !== undefined)
             return { file: file };
 
-        return null;
+        return undefined;
     }
 
     function basic_token(user, pass) {

@@ -1,9 +1,8 @@
 define([
     "jquery",
     "base1/cockpit",
-    "kubernetes/angular",
-    "kubernetes/client",
-    "kubernetes/angular-bootstrap"
+    "base1/angular",
+    "kubernetes/client"
 ], function($, cockpit, angular, kubernetes) {
     'use strict';
 

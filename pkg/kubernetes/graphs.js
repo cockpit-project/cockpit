@@ -20,7 +20,7 @@
 define([
     "jquery",
     "base1/cockpit",
-    "kubernetes/angular",
+    "base1/angular",
     "kubernetes/d3",
     "kubernetes/client",
 ], function($, cockpit, angular, d3, client) {

@@ -105,9 +105,9 @@ define([
         /* Currently only certificate auth is supported */
         if (user) {
             if (user.token)
-                scheme.headers["Authentication"] = "Bearer " + user.token;
+                scheme.headers["Authorization"] = "Bearer " + user.token;
             if (user.username)
-                scheme.headers["Authentication"] = "Basic " + basic_token(user.username, user.password || "");
+                scheme.headers["Authorization"] = "Basic " + basic_token(user.username, user.password || "");
             if (scheme.tls) {
                 scheme.tls.certificate = parse_cert_option(user, "client-certificate");
                 scheme.tls.key = parse_cert_option(user, "client-key");

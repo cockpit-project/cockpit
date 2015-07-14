@@ -5,6 +5,7 @@ base_GEN = \
 	$(addprefix po/po.,$(addsuffix .js,$(LINGUAS))) \
 	$(NULL)
 base_DATA = \
+	pkg/base1/angular.min.js.gz \
 	pkg/base1/cockpit.min.css.gz \
 	pkg/base1/manifest.json \
 	pkg/base1/po.js.gz \
@@ -19,6 +20,7 @@ base_DATA = \
 
 basedebugdir = $(DBGDIR)$(basedir)
 basedebug_DATA = \
+	pkg/base1/angular.js \
 	pkg/base1/cockpit.css \
 	pkg/base1/patternfly.css \
 	pkg/base1/po.js \
@@ -98,6 +100,7 @@ CLEANFILES += \
 	$(NULL)
 
 EXTRA_DIST += \
+	pkg/base1/angular.min.js \
 	pkg/base1/bundle.min.js \
 	pkg/base1/jquery.min.js \
 	pkg/base1/require.min.js \
@@ -169,8 +172,18 @@ update-lib:: update-bower
 		$(srcdir)/pkg/base1/fonts/glyphicons.woff
 	cp $(BOWER)/patternfly/components/font-awesome/fonts/fontawesome-webfont.woff \
 		$(srcdir)/pkg/base1/fonts/fontawesome.woff
+	$(JSMODULE) -m -a window.angular -o $(srcdir)/pkg/base1/angular.js \
+	    $(BOWER)/angular/angular.js \
+	    $(BOWER)/angular-route/angular-route.js \
+	    $(BOWER)/angular-bootstrap/ui-bootstrap.js
+	$(JSMODULE) -m -a window.angular -o $(srcdir)/pkg/base1/angular.min.js \
+	    $(BOWER)/angular/angular.min.js \
+	    $(BOWER)/angular-route/angular-route.min.js \
+	    $(BOWER)/angular-bootstrap/ui-bootstrap.min.js
 
 # Never recreate these files
+pkg/base1/angular.min.js:
+	@true
 pkg/base1/jquery.min.js:
 	@true
 pkg/base1/mustache.min.js:

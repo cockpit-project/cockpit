@@ -1,7 +1,7 @@
 define([
     "jquery",
     "docker/docker",
-    "kubernetes/angular",
+    "base1/angular",
     "kubernetes/app"
 ], function($, docker, angular) {
     'use strict';

@@ -1,6 +1,6 @@
 /* DO NOT EDIT. Automatically generated file */
 /* jshint ignore:start */
-define(["./angular"], function() {
+define(["base1/angular"], function() {
 'use strict';
 
 try { angular.module("kubernetesUI") } catch(e) { angular.module("kubernetesUI", []) }

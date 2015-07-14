@@ -10,8 +10,6 @@ kubernetes_DATA = \
 kubernetesdebugdir = $(DBGDIR)$(kubernetesdir)
 kubernetesdebug_DATA = \
 	pkg/kubernetes/adjust.js \
-	pkg/kubernetes/angular.js \
-	pkg/kubernetes/angular-bootstrap.js \
 	pkg/kubernetes/app.css \
 	pkg/kubernetes/app.js \
 	pkg/kubernetes/client.js \
@@ -35,8 +33,6 @@ kubernetesdebug_DATA = \
 
 kubernetes_BUNDLE = \
 	pkg/kubernetes/adjust.min.js \
-	pkg/kubernetes/angular.min.js \
-	pkg/kubernetes/angular-bootstrap.min.js \
 	pkg/kubernetes/app.min.js \
 	pkg/kubernetes/client.min.js \
 	pkg/kubernetes/config.min.js \
@@ -76,22 +72,11 @@ EXTRA_DIST += \
 	$(kubernetes_TESTS) \
 	pkg/kubernetes/mock-basic.js \
 	pkg/kubernetes/mock-large.js \
-	pkg/kubernetes/angular.min.js \
 	pkg/kubernetes/d3.min.js \
 	$(NULL)
 
 update-lib:: update-bower
-	$(JSMODULE) -m -a window.angular -o $(srcdir)/pkg/kubernetes/angular.js \
-	    $(BOWER)/angular/angular.js \
-	    $(BOWER)/angular-route/angular-route.js
-	$(JSMODULE) -m -a window.angular -o $(srcdir)/pkg/kubernetes/angular.min.js \
-	    $(BOWER)/angular/angular.min.js \
-	    $(BOWER)/angular-route/angular-route.min.js
-	$(JSMODULE) -m -o $(srcdir)/pkg/kubernetes/angular-bootstrap.js \
-	    $(BOWER)/angular-bootstrap/ui-bootstrap.js
-	$(JSMODULE) -m -o $(srcdir)/pkg/kubernetes/angular-bootstrap.min.js \
-	    $(BOWER)/angular-bootstrap/ui-bootstrap.min.js
-	$(JSMODULE) -m -d ./angular -o $(srcdir)/pkg/kubernetes/object-describer.js \
+	$(JSMODULE) -m -d base1/angular -o $(srcdir)/pkg/kubernetes/object-describer.js \
 	    $(BOWER)/kubernetes-object-describer/dist/object-describer.js
 	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/topology-graph.js \
 		$(BOWER)/kubernetes-topology-graph/dist/topology-graph.js
@@ -103,9 +88,5 @@ update-lib:: update-bower
 		$(BOWER)/d3/d3.min.js
 
 # Never recreate these files
-pkg/kubernetes/angular.min.js:
-	@true
-pkg/kubernetes/angular-bootstrap.min.js:
-	@true
 pkg/kubernetes/d3.min.js:
 	@true

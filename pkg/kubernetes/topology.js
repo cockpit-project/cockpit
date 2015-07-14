@@ -19,7 +19,7 @@
 
 define([
     "jquery",
-    "kubernetes/angular",
+    "base1/angular",
     "kubernetes/d3",
     "kubernetes/topology-graph"
 ], function($, angular, d3) {

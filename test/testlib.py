@@ -281,6 +281,15 @@ class Browser:
         """
         self.wait_not_visible('#' + id)
 
+    def arm_timeout(self):
+        return self.phantom.arm_timeout(timeout=self.phantom_wait_timeout)
+
+    def disarm_timeout(self):
+        return self.phantom.disarm_timeout()
+
+    def wait_checkpoint(self):
+        return self.phantom.wait_checkpoint()
+
     def dialog_complete(self, sel, button=".btn-primary", result="hide"):
         self.click(sel + " " + button)
         self.wait_not_present(sel + " .dialog-wait")
@@ -612,6 +621,15 @@ class Phantom:
 
     def wait(self, cond, timeout):
         return self.run({'cmd': 'wait', 'cond': cond, 'timeout': timeout*1000})
+
+    def arm_timeout(self, timeout):
+        return self.run({'cmd': 'armtimeout', 'timeout': timeout*1000 })
+
+    def disarm_timeout(self):
+        return self.run({'cmd': 'disarmtimeout' })
+
+    def wait_checkpoint(self):
+        return self.run({'cmd': 'waitcheckpoint' })
 
     def show(self, file="page.png"):
         if not self.run({'cmd': 'show', 'file': file}):

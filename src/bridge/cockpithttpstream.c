@@ -963,6 +963,7 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
       json_object_has_member (options, "internal"))
     {
       g_free (self->client->host);
+      self->client->host = NULL;
       connectable = cockpit_channel_parse_connectable (channel, &host);
       if (!connectable)
         goto out;

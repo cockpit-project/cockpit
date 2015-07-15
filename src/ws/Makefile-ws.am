@@ -33,9 +33,19 @@ libcockpit_ws_LIBS = \
 	$(REAUTHORIZE_LIBS) \
 	$(NULL)
 
+test_rsa_key: src/ws/test_rsa
+	$(AM_V_GEN) cp $< $@ && chmod 600 $@
+noinst_DATA += test_rsa_key
+
+CLEANFILES += \
+	test_rsa_key \
+	$(NULL)
+
 EXTRA_DIST += \
 	src/ws/mock_rsa_key \
 	src/ws/mock_dsa_key \
+	src/ws/test_rsa \
+	src/ws/test_rsa.pub \
 	src/ws/mock_cert \
 	src/ws/mock_known_hosts \
 	src/ws/mock-pid-cat \

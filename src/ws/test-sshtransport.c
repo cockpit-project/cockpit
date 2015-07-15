@@ -807,7 +807,7 @@ key_teardown (TestCase *tc,
 static const TestFixture fixture_valid_key_auth = {
   .ssh_command = BUILDDIR "/mock-echo",
   .client_password = "bad password",
-  .mock_agent_arg = SRCDIR "/src/ws/test_rsa"
+  .mock_agent_arg = BUILDDIR "/test_rsa_key"
 };
 
 static const TestFixture fixture_invalid_key_auth = {

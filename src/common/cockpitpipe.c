@@ -36,6 +36,10 @@
 #include <string.h>
 #include <unistd.h>
 
+#ifdef __linux
+#include <sys/prctl.h>
+#endif
+
 /**
  * CockpitPipe:
  *
@@ -932,72 +936,17 @@ calculate_spawn_flags (const gchar **env,
 }
 
 static void
-print_err_lines (GString *buffer)
+spawn_setup (gpointer data)
 {
-  const gchar *at = buffer->str;
-  gsize length = buffer->len;
-  const gchar *line;
+  CockpitPipeFlags flags = GPOINTER_TO_INT (data);
 
-  /* Print all stderr lines as messages */
-  while ((line = memchr (at, '\n', length)) != NULL)
-    {
-      g_printerr ("%.*s\n", (int)(line - at), at);
-      length -= (line - at) + 1;
-      at = line + 1;
-    }
+  /* Send this signal to all direct child processes, when bridge dies */
+#ifdef __linux
+  prctl (PR_SET_PDEATHSIG, SIGHUP);
+#endif
 
-  if (length > 0)
-    g_string_erase (buffer, 0, buffer->len - length);
-  else
-    g_string_set_size (buffer, 0);
-}
-
-static gboolean
-on_pipe_stderr (gint fd,
-                GIOCondition cond,
-                gpointer user_data)
-{
-  GString *buffer = user_data;
-  gboolean keep = FALSE;
-  gsize len;
-  int ret;
-
-  if (cond & G_IO_IN)
-    {
-      len = buffer->len;
-      g_string_set_size (buffer, len + 1024);
-      ret = read (fd, buffer->str + len, 1024);
-      g_string_set_size (buffer, len + MAX (ret, 0));
-
-      if (ret < 0)
-        {
-          g_warning ("couldn't read from process stderr: %m");
-        }
-      else if (ret > 0)
-        {
-          keep = TRUE;
-        }
-    }
-
-  print_err_lines (buffer);
-  if (!keep)
-    {
-      if (buffer->len)
-        {
-          g_string_append_c (buffer, '\n');
-          print_err_lines (buffer);
-        }
-      close (fd);
-      g_string_free (buffer, TRUE);
-    }
-
-  return keep;
-}
-
-static void
-stderr_to_stdout (gpointer data)
-{
-  dup2 (1, 2);
+  if (flags & COCKPIT_PIPE_STDERR_TO_STDOUT)
+    dup2 (1, 2);
 }
 
 /**
@@ -1008,9 +957,8 @@ stderr_to_stdout (gpointer data)
  * @flags: flags pertaining to stderr
  *
  * Launch a child process and create a CockpitPipe for it. Standard
- * in and standard out are connected to the pipe. If flags includes
- * COCKPIT_PIPE_STDERR_TO_LOG then standard error
- * goes to the g_printerr handler, sually to the journal.
+ * in and standard out are connected to the pipe. The default location
+ * for standard error usually goes to the journal.
  *
  * If the spawn fails, a pipe is still returned. It will
  * close once the main loop is run with an appropriate problem.
@@ -1030,7 +978,6 @@ cockpit_pipe_spawn (const gchar **argv,
   CockpitPipe *pipe = NULL;
   int session_stdin = -1;
   int session_stdout = -1;
-  int session_stderr = -1;
   GError *error = NULL;
   const gchar *problem = NULL;
   gchar *name;
@@ -1038,9 +985,8 @@ cockpit_pipe_spawn (const gchar **argv,
 
   g_spawn_async_with_pipes (directory, (gchar **)argv, (gchar **)env,
                             calculate_spawn_flags (env, flags),
-                            (flags & COCKPIT_PIPE_STDERR_TO_STDOUT) ? stderr_to_stdout : NULL, NULL,
-                            &pid, &session_stdin, &session_stdout,
-                            (flags & COCKPIT_PIPE_STDERR_TO_LOG) ? &session_stderr : NULL, &error);
+                            spawn_setup, GINT_TO_POINTER (flags),
+                            &pid, &session_stdin, &session_stdout, NULL, &error);
 
   name = g_path_get_basename (argv[0]);
   if (name == NULL)
@@ -1080,12 +1026,6 @@ cockpit_pipe_spawn (const gchar **argv,
   else
     {
       g_debug ("%s: spawned: %s", name, argv[0]);
-    }
-
-  if (session_stderr >= 0)
-    {
-      cockpit_unix_fd_add (session_stderr, G_IO_IN | G_IO_HUP,
-                           on_pipe_stderr, g_string_new (""));
     }
 
   g_free (name);

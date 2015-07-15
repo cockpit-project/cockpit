@@ -486,6 +486,9 @@ systemctl start docker
         # Reboots are ok
         "-- Reboot --",
 
+        # From g_log?
+        "\\*\\*",
+
         # Sometimes D-Bus goes away before us during shutdown
         "Lost the name com.redhat.Cockpit on the session message bus",
         "GLib-GIO:ERROR:gdbusobjectmanagerserver\\.c:.*:g_dbus_object_manager_server_emit_interfaces_.*: assertion failed \\(error == NULL\\): The connection is closed \\(g-io-error-quark, 18\\)",

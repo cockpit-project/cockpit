@@ -26,7 +26,7 @@ Name:           cockpit
 %if %{defined gitcommit}
 Version:        %{gitcommit}
 %else
-Version:        0.64
+Version:        0.65
 %endif
 Release:        1%{?dist}
 Summary:        A user interface for Linux servers
@@ -432,6 +432,9 @@ fi
 %endif
 
 %changelog
+* Wed Jul 15 2015 Peter <petervo@redhat.com> - 0.65-1
+- Update to 0.65 release
+
 * Wed Jul 08 2015 Peter <petervo@redhat.com> - 0.64-1
 - Update to 0.64 release
 

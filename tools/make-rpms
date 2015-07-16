@@ -67,16 +67,18 @@ fi
 
 make_srpm=$base/tools/make-srpm
 
+# $os is the TEST_OS value that we are building for, without changes.
+# $mockos the mock configuration we are using as the basis for it.
+
 os=${TEST_OS:-}
+
+mockos=$os
 # if we're building for atomic, generate regular fedora packages
 if [[ "$os" =~ "fedora-atomic" ]]; then
-    os=${os/-atomic/}
-else
-    os=$os
+    mockos=${os/-atomic/}
 fi
-
 # drop a "-testing" suffix
-os=${os/%-testing/}
+mockos=${mockos/%-testing/}
 
 arch=${TEST_ARCH:-}
 
@@ -89,11 +91,11 @@ cp --preserve=timestamps /etc/mock/site-defaults.cfg $base/mock/
 cp --preserve=timestamps /etc/mock/logging.ini $base/mock/
 
 if [ "$os" == "rhel-7" ]; then
-    os="epel-7"
+    mockos="epel-7"
     # get epel packages instead, they don't require a subscription
-    cp --preserve=timestamps /etc/mock/$os-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
+    cp --preserve=timestamps /etc/mock/$mockos-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
     cat >>$base/mock/$os-$arch-cockpit.cfg <<EOF
-config_opts['root'] = "epel-7-$arch-cockpit"
+config_opts['root'] = "$os-$arch-cockpit"
 config_opts['yum.conf'] += """
 [sgallagh-cockpit-preview]
 name=Copr repo for cockpit-preview owned by sgallagh
@@ -105,17 +107,21 @@ enabled=1
 """
 EOF
 else
-    cp --preserve=timestamps /etc/mock/$os-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
+    cp --preserve=timestamps /etc/mock/$mockos-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
     cat >>$base/mock/$os-$arch-cockpit.cfg <<EOF
 config_opts['root'] = "$os-$arch-cockpit"
+EOF
+    if [[ "$os" =~ "-testing" ]]; then
+        cat >>$base/mock/$os-$arch-cockpit.cfg <<EOF
 config_opts['yum.conf'] += """
 [updates-testing]
 enabled=1
 """
 EOF
+    fi
 fi
 
-touch -r /etc/mock/$os-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
+touch -r /etc/mock/$mockos-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
 
 if LANG=C /usr/bin/mock --quiet $mock_opts $mock_clean_opts --configdir=$base/mock/ \
 	--resultdir $base/mock -r $os-$arch-cockpit $srpm; then

@@ -18,6 +18,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import time
+
 from testlib import *
 from storagelib import *
 
@@ -35,10 +37,9 @@ class TestStorage(StorageCase):
         b.wait_in_text("#mounts", "TEST")
 
         # Hide it via a udev rule
-
         m.write("/etc/udev/rules.d/99-ignore.rules",
                 'SUBSYSTEM=="block", ENV{ID_SERIAL_SHORT}=="DISK1", ENV{UDISKS_IGNORE}="1"\n')
-        m.execute("udevadm trigger")
+        m.execute("udevadm control --reload; udevadm trigger")
         b.wait_not_in_text("#mounts", "TEST")
 
 test_main()

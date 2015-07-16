@@ -3,7 +3,7 @@
 set -e
 
 make_rpms_opts=
-cockpit_create_ops=
+cockpit_create_opts=
 install_selinux=yes
 
 while [ $# -gt 0 ]; do
@@ -64,5 +64,4 @@ fi
 TEST_OS=fedora-22 ./vm-create -v -f stock
 TEST_OS=centos-7  ./vm-create -v -f stock
 
-./vm-reset
 ./vm-install -f cockpit $rpms

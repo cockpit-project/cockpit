@@ -29,7 +29,7 @@ class StorageCase(MachineCase):
         #
         self.machine.write("/usr/lib/udev/rules.d/59-fixup-serial.rules",
              'SUBSYSTEM=="block" KERNEL=="vd*" IMPORT{program}="/bin/sh -c \'sleep 0.5; s=$(cat /sys/block/$(basename $tempnode)/serial); echo ID_SERIAL=$s\'"')
-        self.machine.execute("udevadm trigger");
+        self.machine.execute("udevadm control --reload; udevadm trigger")
 
         # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1225905
         # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1225957

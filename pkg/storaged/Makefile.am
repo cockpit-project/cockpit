@@ -38,6 +38,7 @@ pkg/storaged/bundle.min.js: $(storaged_BUNDLE)
 storagedimagesdir = $(pkgdatadir)/storage/images
 storagedimages_DATA = \
 	pkg/storaged/images/storage-disk.png \
+	pkg/storaged/images/storage-array.png \
 	$(NULL)
 
 storaged_TESTS = \

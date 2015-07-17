@@ -50,13 +50,16 @@
         {{#MDRaids}}
         <tr data-goto-mdraid={{UUID}}>
           <td style="width: 48px">
-            <div class="spinner spinner-sm" data-job-object="{{path}}"
-                 style="visibility:hidden;margin-top:5px"></div>
+            <div><img  src="images/storage-array.png"></div>
           </td>
           <td class="row">
             <span class="col-md-12">{{Name}}</span>
             <br>
             <span class="col-md-12 col-lg-5 storage-disk-size">{{Size}}</span>
+          </td>
+          <td style="width: 48px">
+            <div class="spinner spinner-sm" data-job-object="{{path}}"
+                 style="visibility:hidden;margin-top:5px"></div>
           </td>
         </tr>
         {{/MDRaids}}
@@ -73,13 +76,16 @@
         {{#VGroups}}
         <tr data-goto-vgroup={{Name}}>
           <td style="width: 48px">
-            <div class="spinner spinner-sm" data-job-object="{{path}}"
-                 style="visibility:hidden;margin-top:5px"></div>
+            <div><img  src="images/storage-array.png"></div>
           </td>
           <td class="row">
             <span class="col-md-12">{{Name}}</span>
             <br>
             <span class="col-md-12 col-lg-5 storage-disk-size">{{Size}}</span>
+          </td>
+          <td style="width: 48px">
+            <div class="spinner spinner-sm" data-job-object="{{path}}"
+                 style="visibility:hidden;margin-top:5px"></div>
           </td>
         </tr>
         {{/VGroups}}
@@ -97,8 +103,6 @@
         <tr data-goto-block={{dev}}>
           <td style="width: 48px">
             <div><img  src="images/storage-disk.png"></div>
-            <div class="spinner spinner-sm" data-job-object="{{path}}"
-                 style="visibility:hidden;margin-top:5px"></div>
           </td>
           <td class="row">
             <span class="col-md-12">{{Name}}</span>
@@ -109,6 +113,10 @@
               <span style="display:inline-block;width:1em"></span>
               <span>W: {{WriteRate}}</span>
             </span>
+          </td>
+          <td style="width: 48px">
+            <div class="spinner spinner-sm" data-job-object="{{path}}"
+                 style="visibility:hidden;margin-top:5px"></div>
           </td>
         </tr>
         {{/Drives}}

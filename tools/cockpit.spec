@@ -65,11 +65,6 @@ BuildRequires: systemd
 BuildRequires: polkit
 BuildRequires: pcp-libs-devel
 
-# For cockpit-lvm
-BuildRequires:  libgudev1-devel
-BuildRequires:  lvm2-devel
-BuildRequires:  polkit-devel
-
 %if %{defined gitcommit}
 BuildRequires: npm
 BuildRequires: nodejs
@@ -134,11 +129,7 @@ Requires: shadow-utils
 Requires: grep
 Requires: libpwquality
 Requires: /usr/bin/date
-Requires: mdadm
-Requires: lvm2
-%if 0%{?rhel} == 0
-Requires: udisks2 >= 2.1.0
-%else
+%if 0%{?rhel}
 Provides: %{name}-subscriptions = %{version}-%{release}
 Requires: subscription-manager >= 1.13
 %ifarch x86_64
@@ -222,6 +213,9 @@ find %{buildroot}%{_datadir}/%{name}/system -type f >> shell.list
 echo '%dir %{_datadir}/%{name}/subscriptions' > subscriptions.list
 find %{buildroot}%{_datadir}/%{name}/subscriptions -type f >> subscriptions.list
 
+echo '%dir %{_datadir}/%{name}/storage' > storaged.list
+find %{buildroot}%{_datadir}/%{name}/storage -type f >> storaged.list
+
 %ifarch x86_64
 echo '%dir %{_datadir}/%{name}/docker' > docker.list
 find %{buildroot}%{_datadir}/%{name}/docker -type f >> docker.list
@@ -271,14 +265,8 @@ cat subscriptions.list docker.list >> shell.list
 %{_bindir}/cockpit-bridge
 %attr(4755, -, -) %{_libexecdir}/cockpit-polkit
 %{_libexecdir}/cockpit-wrapper
-%{_libexecdir}/cockpit-lvm
-%{_libexecdir}/cockpit-lvm-helper
 %{_libdir}/security/pam_reauthorize.so
 %{_datadir}/dbus-1/services/com.redhat.Cockpit.service
-%{_sysconfdir}/dbus-1/system.d/com.redhat.Cockpit.LVM.conf
-%{_datadir}/dbus-1/system-services/com.redhat.Cockpit.LVM.service
-%{_datadir}/polkit-1/actions/com.redhat.Cockpit.LVM.policy
-%{_datadir}/cockpit/lvm-nolocking/lvm.conf
 
 %files doc
 %exclude %{_docdir}/%{name}/AUTHORS
@@ -375,6 +363,15 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 %files kubernetes -f kubernetes.list
 
 %endif
+
+%package storaged
+Summary: Cockpit user interface for storage, using Storaged
+Requires: storaged >= 2.1.1
+
+%description storaged
+The Cockpit component for managing storage.  This package uses Storaged.
+
+%files storaged -f storaged.list
 
 %if %{defined gitcommit}
 

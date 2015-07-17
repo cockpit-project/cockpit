@@ -51,6 +51,30 @@ var onCheckpoint;
 var lastError;
 var waitTimeout;
 
+function arm_timeout(timeout) {
+    if (waitTimeout)
+        return false;
+
+    didTimeout = false;
+    waitTimeout = setTimeout (function () {
+        waitTimeout = null;
+        didTimeout = true;
+        if (onCheckpoint)
+            onCheckpoint();
+    }, timeout || 5000);
+    return true;
+}
+
+function disarm_timeout() {
+    if (!waitTimeout)
+        return false;
+
+    clearTimeout(waitTimeout);
+    waitTimeout = null;
+    didTimeout = false;
+    return true;
+}
+
 page.viewportSize = { width: 800, height: 480 };
 
 function result(out) {
@@ -150,38 +174,53 @@ function step ()
             step ();
         } else if (cmd.cmd == "wait") {
             var func = "function () { return " + cmd.cond + "}";
+            var local_timeout;
 
             function respond(val)
             {
                 result(val);
-                clearTimeout(waitTimeout);
                 onCheckpoint = null;
-                waitTimeout = null;
+                if (local_timeout)
+                    disarm_timeout();
                 step ();
             }
 
-            function check(is_timeout)
+            function check()
             {
                 var val = page.evaluate (func);
-                if (lastError)
-                    respond ({error: lastError});
-                else if (val) {
-                    if (is_timeout)
+                if (val) {
+                    if (didTimeout)
                         sys.stderr.writeLine("WARNING: condition '" + cmd.cond + "' was true after timeout, add some more checkpoints");
                     respond ({result: val});
-                } else if (is_timeout)
+                } else if (didTimeout)
                     respond ({timeout: true});
             }
 
+            onCheckpoint = check;
+
+            local_timeout = arm_timeout(cmd.timeout);
+            check ();
+        } else if (cmd.cmd == "armtimeout") {
+            if (arm_timeout(cmd.timeout))
+                result({ result: true });
+            else
+                result({ error: "timeout already armed" });
+            step();
+        } else if (cmd.cmd == "disarmtimeout") {
+            if (disarm_timeout(cmd.timeout))
+                result({ result: true });
+            else
+                result({ error: "no timeout armed" });
+            step();
+        } else if (cmd.cmd == "waitcheckpoint") {
             onCheckpoint = function () {
-                check (false);
+                onCheckpoint = null;
+                if (didTimeout)
+                    result({ timeout: true });
+                else
+                    result({ result: true });
+                step();
             }
-
-            waitTimeout = setTimeout (function () {
-                check (true);
-            }, cmd.timeout || 5000);
-
-            check (false);
         } else if (cmd.cmd == "keys") {
             var i;
             if (typeof cmd.keys == "string")

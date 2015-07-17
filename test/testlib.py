@@ -222,6 +222,9 @@ class Browser:
     def wait_js_func(self, func, *args):
         return self.phantom.wait("%s(%s)" % (func, ','.join(map(jsquote, args))), timeout=self.phantom_wait_timeout)
 
+    def is_present(self, selector):
+        return self.call_js_func('ph_is_present', selector)
+
     def wait_present(self, selector):
         return self.wait_js_func('ph_is_present', selector)
 
@@ -280,6 +283,15 @@ class Browser:
             id: The 'id' attribute of the popup.
         """
         self.wait_not_visible('#' + id)
+
+    def arm_timeout(self):
+        return self.phantom.arm_timeout(timeout=self.phantom_wait_timeout)
+
+    def disarm_timeout(self):
+        return self.phantom.disarm_timeout()
+
+    def wait_checkpoint(self):
+        return self.phantom.wait_checkpoint()
 
     def dialog_complete(self, sel, button=".btn-primary", result="hide"):
         self.click(sel + " " + button)
@@ -612,6 +624,15 @@ class Phantom:
 
     def wait(self, cond, timeout):
         return self.run({'cmd': 'wait', 'cond': cond, 'timeout': timeout*1000})
+
+    def arm_timeout(self, timeout):
+        return self.run({'cmd': 'armtimeout', 'timeout': timeout*1000 })
+
+    def disarm_timeout(self):
+        return self.run({'cmd': 'disarmtimeout' })
+
+    def wait_checkpoint(self):
+        return self.run({'cmd': 'waitcheckpoint' })
 
     def show(self, file="page.png"):
         if not self.run({'cmd': 'show', 'file': file}):

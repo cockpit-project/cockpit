@@ -240,10 +240,10 @@ include pkg/realmd/Makefile.am
 include pkg/shell/Makefile.am
 include pkg/subscriptions/Makefile.am
 include pkg/systemd/Makefile.am
+include pkg/storaged/Makefile.am
 include src/bridge/Makefile.am
 include src/common/Makefile-common.am
 include src/legacy/Makefile.am
-include src/legacy/lvm/Makefile.am
 include src/websocket/Makefile-websocket.am
 include tools/Makefile-tools.am
 include src/ws/Makefile-ws.am

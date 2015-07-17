@@ -1,0 +1,148 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2015 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#storage {
+    padding-top: 20px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+#storage .storage-mounts .table {
+    table-layout: fixed;
+}
+
+#storage .storage-mounts .table th,
+#storage .storage-mounts .table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (min-width: 992px) {
+    .storage-mounts .mount-name {
+        width: 25%;
+    }
+    .storage-mounts .mount-point {
+        width: 25%;
+    }
+    .storage-mounts .mount-size-graph {
+        width: 25%;
+    }
+    .storage-mounts .mount-size-number {
+        width: 25%;
+    }
+}
+
+@media (min-width: 1200px) {
+    .storage-mounts .mount-name {
+        width: 20%;
+    }
+    .storage-mounts .mount-point {
+        width: 20%;
+    }
+    .storage-mounts .mount-size-graph {
+        width: 45%;
+    }
+    .storage-mounts .mount-size-number {
+        width: 15%;
+    }
+}
+
+@media (max-width: 1814px) {
+    #storage .storage-disk-size {
+        width: 100%;
+    }
+}
+
+#storage .create-storage {
+    margin-bottom: 10px;
+}
+
+@media (max-width: 1560px) {
+    #storage .create-storage .col-lg-6 {
+        width: 100%;
+    }
+}
+
+#storage .create-storage button {
+    margin-bottom: 5px;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#storage .storage-sidebar .table {
+    table-layout:fixed;
+}
+
+#storage .storage-sidebar .table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#storage_raids .row span,
+#storage_vgs .row span,
+#storage_drives .row span {
+    padding: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#storage_raids .row span.raid-size,
+#storage_vgs .row span.vg-size {
+    text-align: right;
+}
+
+#storage .storage-sidebar .storage-disk-size {
+    padding-right: 5px;
+}
+
+.available-disks-group
+{
+    margin-bottom: 0px;
+}
+
+.available-disks-group input[type='checkbox']
+{
+    margin: 4px 4px 4px -20px;
+}
+
+.available-disks-group > .list-group-item
+{
+    border: none;
+    padding: 0px;
+}
+
+.flot-y-axis .flot-tick-label {
+    margin-right: 5px;
+}
+
+.zoom-controls {
+    display: none;
+}
+
+.show-zoom-controls .zoom-controls {
+    display: block;
+}
+
+.show-zoom-cursor .zoomable-plot {
+    cursor: ew-resize;
+}

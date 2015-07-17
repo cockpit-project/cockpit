@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2013 Red Hat, Inc.
+ * Copyright (C) 2015 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -17,27 +17,16 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_DAEMON_H__
-#define COCKPIT_DAEMON_H__
+#ifndef COCKPIT_MOUNT_SAMPLES_H__
+#define COCKPIT_MOUNT_SAMPLES_H__
 
-#include "types.h"
+#include "cockpitsamples.h"
 
 G_BEGIN_DECLS
 
-#define TYPE_DAEMON   (daemon_get_type ())
-#define DAEMON(o)     (G_TYPE_CHECK_INSTANCE_CAST ((o), TYPE_DAEMON, Daemon))
-#define IS_DAEMON(o)  (G_TYPE_CHECK_INSTANCE_TYPE ((o), TYPE_DAEMON))
+void            cockpit_mount_samples         (CockpitSamples *samples);
 
-GType                      daemon_get_type             (void) G_GNUC_CONST;
-
-Daemon *                   daemon_new                  (GDBusConnection *connection);
-
-Daemon *                   daemon_get                  (void);
-
-GDBusConnection *          daemon_get_connection       (Daemon *daemon);
-
-GDBusObjectManagerServer * daemon_get_object_manager   (Daemon *daemon);
 
 G_END_DECLS
 
-#endif /* COCKPIT_DAEMON_H__ */
+#endif /* COCKPIT_MOUNT_SAMPLES_H__ */

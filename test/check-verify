@@ -46,18 +46,18 @@ $RUNNER <<EOF
 ./check-services
 ./check-networking
 ./check-pages
-./check-storage TestStorage.testBasic
-./check-storage TestStorage.testMounting
-./check-storage TestStorage.testDosParts
-./check-storage TestStorage.testLuks
-./check-storage TestStorage.testRaid
-./check-storage TestStorage.testJobs
-./check-storage TestStorage.testLvm
-./check-storage TestStorage.testUsed
-./check-storage TestStorage.testHidden
-./check-storage TestStorage.testUnused
-./check-storage TestStorage.testResize
-./check-storage TestStorage.testIgnored
+./check-storage-basic
+./check-storage-mounting
+./check-storage-msdos
+./check-storage-luks
+./check-storage-mdraid
+./check-storage-jobs
+./check-storage-lvm2
+./check-storage-used
+./check-storage-hidden
+./check-storage-unused
+./check-storage-resize
+./check-storage-ignored
 ./check-journal
 ./check-terminal
 ./check-accounts

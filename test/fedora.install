@@ -88,9 +88,12 @@ expect -- - virt-install "$@" <<'EOF'
 eval spawn $argv
 set timeout -1
 expect {
-  "emergency mode" { send_user "ABORT\n"
+  "emergency mode" { send_user "\n\n\n\nABORT - emergency shell\n"
                      exit 1
                    }
+  "Please make your choice" { send_user "\n\n\n\nABORT - Anaconda stopped\n"
+                              exit 1
+                            }
 }
 EOF
 }

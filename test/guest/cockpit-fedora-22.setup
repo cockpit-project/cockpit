@@ -36,9 +36,9 @@ echo foobar | passwd --stdin admin
 #     https://bugzilla.redhat.com/show_bug.cgi?id=1211547
 #
 dnf -y upgrade dnf
+
 dnf -y upgrade
 dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
-dnf -y upgrade --enablerepo=updates-testing libssh
 
 rm -rf /var/log/journal/*
 

@@ -578,24 +578,24 @@ define([
                 var have = (key in this);
                 if (!have && matched) {
                     this[key] = item;
-                    this.trigger("added", item);
+                    this.trigger("added", item, key);
                 } else if (have && !matched) {
                     delete this[key];
-                    this.trigger("removed", item);
+                    this.trigger("removed", item, key);
                 } else if (have && matched) {
                     this[key] = item;
-                    this.trigger("updated", item);
+                    this.trigger("updated", item, key);
                 }
             }
         },
         trigger: {
             enumerable: false,
             writable: false,
-            value: function(name, data) {
+            value: function(name, item, key) {
                 var self = this;
                 self.data.flat = null;
                 var $self = $(self);
-                $self.triggerHandler(name, data);
+                $self.triggerHandler(name, [item, key]);
                 if (!self.data.timer) {
                     self.data.timer = window.setTimeout(function() {
                         self.data.timer = null;
@@ -675,7 +675,7 @@ define([
         /* The watch objects we have open */
         self.watches = { "events": new KubernetesWatch("events", handle_event, handle_removed) };
         [ "nodes", "pods", "services", "replicationcontrollers",
-          "namespaces" ].forEach(function(type) {
+          "namespaces", "endpoints" ].forEach(function(type) {
             self.watches[type] = new KubernetesWatch(type, handle_updated, handle_removed);
         });
 
@@ -764,7 +764,7 @@ define([
             self.objects[uid] = item;
 
             /* Add various bits to index, for quick lookup */
-            var keys = [ item.kind, meta.namespace ];
+            var keys = [ item.kind, meta.name, meta.namespace ];
             var labels, i;
 
             if (meta.labels) {
@@ -880,6 +880,34 @@ define([
         function match_everything(item) {
             return true;
         }
+
+        /**
+         * client.lookup()
+         * @kind: kind of object
+         * @name: name of the object
+         * @namespace: the namespace of the object
+         */
+        this.lookup = function lookup(kind, name, namespace) {
+            var keys = [];
+            if (kind !== undefined)
+                keys.push(kind);
+            if (name !== undefined)
+                keys.push(name);
+            if (namespace !== undefined)
+                keys.push(namespace);
+            var possible = index.all(keys);
+            var item, len = possible.length;
+            for (var i = 0; i < len; i++) {
+                item = self.objects[possible[i]];
+                if (item && item.metadata &&
+                    (kind === undefined || kind === item.kind) &&
+                    (name === undefined || name === item.metadata.name) &&
+                    (namespace === undefined || namespace === item.metadata.namespace)) {
+                    return item;
+                }
+            }
+            return null;
+        };
 
         /**
          * client.select()

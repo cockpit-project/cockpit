@@ -50,7 +50,7 @@ class TestKubernetes(KubernetesCase):
         MachineCase.setUp(self)
         m = self.machine
 
-        m.execute("systemctl start etcd kube-apiserver kube-controller-manager docker kube-proxy kubelet")
+        m.execute("systemctl start etcd kube-apiserver kube-controller-manager kube-scheduler docker kube-proxy kubelet")
         m.upload(["mock-k8s-tiny-app.json"], "/tmp")
         self.wait_api_server()
 
@@ -96,6 +96,25 @@ class TestKubernetes(KubernetesCase):
         b.set_val("#node-address", "!!!!")
         b.dialog_complete("#node-dialog", result="fail")
         b.dialog_cancel("#node-dialog")
+
+    def testTopology(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("kubectl create -f /tmp/mock-k8s-tiny-app.json")
+
+        # The service has loaded and containers instantiated
+        self.login_and_go("/kubernetes/cluster", host=None)
+        b.wait_present("#service-list tr[data-name='mock'] td.containers")
+        with b.wait_timeout(120):
+            b.wait_text("#service-list tr[data-name='mock'] td.containers", "1")
+
+        # Switch to topology view
+        b.click("a[href='#/topology']")
+
+        # Assert that at least one link between Service and Pod has loaded
+        b.wait_present("svg line.ServicePod")
+
 
 @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-kubernetes on rhel-7.")
 class TestSsl(KubernetesCase):

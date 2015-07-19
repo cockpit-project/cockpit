@@ -252,4 +252,49 @@ class TestMultiMachine(MachineCase):
                                     ".*: bridge program failed: Child process exited with code .*",
                                     "/playground/test.html: failed to retrieve resource: authentication-failed")
 
+    def testFrameReload(self):
+        b = self.browser
+        m1 = self.machine
+        m2 = self.machine2
+
+        frame = "%s/playground/test" % m2.address
+        m2_path = "/@%s/playground/test" % m2.address
+
+        # Add a machine
+        self.login_and_go(None)
+        b.go("/dashboard/list")
+        b.enter_page("dashboard")
+        inject_extras(b)
+        add_machine(b, m2.address)
+        wait_dashboard_addresses (b, [ "localhost", m2.address ])
+
+        b.switch_to_top()
+        b.go(m2_path)
+        b.enter_page("/playground/test", m2.address)
+
+        b.wait_present('#file-content')
+        b.wait_text('#file-content', "0")
+        b.click("#modify-file")
+        b.wait_text('#file-content', "1")
+
+
+        # load the same page on m2
+        b.switch_to_top()
+        b.go("/@localhost/playground/test")
+        b.enter_page("/playground/test")
+        b.wait_present('#file-content')
+        b.wait_text('#file-content', "0")
+
+        # go back to m2 and reload frame.
+        b.switch_to_top()
+        b.go(m2_path)
+        b.eval_js('ph_set_attr("iframe[name=\'%s\']", "data-loaded", null)' % frame)
+        b.eval_js('ph_set_attr("iframe[name=\'%s\']", "src", "../playground/test.html?i=1#/")' % frame)
+        b.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
+
+        b.enter_page("/playground/test", m2.address)
+
+        b.wait_present('#file-content')
+        b.wait_text('#file-content', "1")
+
 test_main()

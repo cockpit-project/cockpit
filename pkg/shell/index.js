@@ -263,8 +263,8 @@ define([
                  * fresh channels
                  */
                 $(this.contentWindow).on("unload", function () {
-                    router.unregister(frame.contentWindow, address);
-                    router.register(frame.contentWindow);
+                    router.unregister(frame.contentWindow);
+                    router.register(frame.contentWindow, address);
                 });
                 $(this).attr('data-loaded', true);
                 phantom_checkpoint();

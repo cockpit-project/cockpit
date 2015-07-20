@@ -86,7 +86,7 @@ define([
 
         var item = {
             "kind": "Node",
-            "apiVersion": "v1beta3",
+            "apiVersion": "v1",
             "metadata": {
                 "name": name
             },

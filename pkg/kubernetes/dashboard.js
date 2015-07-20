@@ -241,7 +241,7 @@ define([
             return {
                 restrict: 'E',
                 link: function($scope, element, attributes) {
-                    $scope.$watchGroup(["item.spec.portalIP", "item.spec.ports"], function(values) {
+                    $scope.$watchGroup(["item.spec.clusterIP", "item.spec.ports"], function(values) {
                         var address = values[0];
                         var ports = values[1];
                         var href = null;

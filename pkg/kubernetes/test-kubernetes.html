@@ -311,12 +311,12 @@ function kube_apiserver(req) {
     /* The API check */
     if (parts.length == 1 && parts[0] == "api") {
         req.mock_respond(200, "OK", { }, JSON.stringify({
-            versions: [ "v1beta3" ]
+            versions: [ "v1" ]
         }));
         return true;
     }
 
-    if (parts[0] != "api" && parts[1] != "v1beta3")
+    if (parts[0] != "api" && parts[1] != "v1")
         return false;
 
     parts = parts.slice(2);
@@ -367,8 +367,8 @@ function kube_api_get(req, parts, query) {
         }
 
         var copy = $.extend(true, { }, item);
-        copy.selfLink = "/api/v1beta3/" + key;
-        copy.apiVersion = "v1beta3";
+        copy.selfLink = "/api/v1/" + key;
+        copy.apiVersion = "v1";
         return copy;
     }
 
@@ -762,7 +762,7 @@ require([
     var create_items = [
         {
             "kind": "Pod",
-            "apiVersion": "v1beta3",
+            "apiVersion": "v1",
             "metadata": {
                 "name": "pod1",
                 "uid": "d072fb85-f70e-11e4-b829-10c37bdb8410",
@@ -778,11 +778,11 @@ require([
                     "image": "mysql",
                     "ports": [{ "containerPort": 3306, "protocol": "TCP" }],
                 }],
-                "host": "127.0.0.1"
+                "nodeName": "127.0.0.1"
             }
         },{
             "kind": "Node",
-            "apiVersion": "v1beta3",
+            "apiVersion": "v1",
             "metadata": {
                 "name": "node1",
                 "uid": "6e51438e-d161-11e4-acbc-10c37bdb8410",
@@ -821,7 +821,7 @@ require([
         var client = kubernetes.k8client();
 
         var namespace_item = {
-            "apiVersion" : "v1beta3",
+            "apiVersion" : "v1",
             "kind" : "Namespace",
             "metadata" : { "name": "namespace1" }
         };
@@ -895,23 +895,23 @@ require([
 
     var create_mixed = [
         {
-            "kind": "Node", "apiVersion": "v1beta3",
+            "kind": "Node", "apiVersion": "v1",
             "metadata": { "name": "node1", "uid": "f072fb85-f70e-11e4-b829-10c37bdb8410" },
             "spec": { "test": "test" }
         }, {
-            "kind": "Service", "apiVersion": "v1beta3",
+            "kind": "Service", "apiVersion": "v1",
             "metadata": { "name": "service2", "uid": "eeeefb85-f70e-11e4-b829-10c37bdb8410" },
             "spec": { "test2": "test2" }
         }, {
-            "kind": "ReplicationController", "apiVersion": "v1beta3",
+            "kind": "ReplicationController", "apiVersion": "v1",
             "metadata": { "name": "replicooo", "uid": "1111fb85-f70e-11e4-b829-10c37bdb8410" },
             "spec": { "test": "test" }
         }, {
-            "kind": "Pod", "apiVersion": "v1beta3",
+            "kind": "Pod", "apiVersion": "v1",
             "metadata": { "name": "pod1", "uid": "d072fb85-f70e-11e4-b829-10c37bdb8410" },
             "spec": { "blah": "blah" }
         },{
-            "kind": "Service", "apiVersion": "v1beta3",
+            "kind": "Service", "apiVersion": "v1",
             "metadata": { "name": "service1", "uid": "e072fb85-f70e-11e4-b829-10c37bdb8410" },
             "spec": { "test": "test" }
         }
@@ -966,7 +966,7 @@ require([
 
     asyncTest("lookup", function() {
         var expected = {
-            "apiVersion": "v1beta3",
+            "apiVersion": "v1",
             "kind": "ReplicationController",
             "metadata": { "labels": { "example": "mock", "name": "3controller" },
                 "name": "3controller",
@@ -974,7 +974,7 @@ require([
                 "uid": "11768037-ab8a-11e4-9a7c-100001001",
                 "namespace": "default"
             },
-            "selfLink": "/api/v1beta3/namespaces/default/replicationcontrollers/3controller",
+            "selfLink": "/api/v1/namespaces/default/replicationcontrollers/3controller",
             "spec": { "replicas": 1, "selector": { "factor3": "yes" } }
         };
 

@@ -21,227 +21,6 @@ define([
         }
     });
 
-    function KubernetesService(client) {
-        var self = this;
-
-        var service = { };
-        var calculated;
-
-        /* compute current and expected number of containers and return these
-           values as a formatted string.
-        */
-        function calculate() {
-            if (calculated)
-                return calculated;
-
-            calculated = {
-                containers: "0",
-                status: "",
-            };
-
-            var spec = service.spec || { };
-
-            /* Calculate number of containers */
-
-            var x = 0;
-            var y = 0;
-            var state = "";
-
-            /*
-             * Calculate "x of y" containers, where x is the current
-             * number and y is the expected number. If x==y then only
-             * show x. The calculation is based on the statuses of the
-             * containers within the pod.  Pod states: Pending,
-             * Running, Succeeded, Failed, and Unknown.
-             */
-            client.select("Pod", service.metadata.namespace,
-                          service.spec.selector || { }).items.forEach(function(pod) {
-                if (!pod.status || !pod.status.phase)
-                    return;
-                var spec = pod.spec || { };
-                var n = 1;
-                if (spec.containers)
-                    n = spec.containers.length;
-                switch (pod.status.phase) {
-                case "Pending":
-                    if (!state)
-                        state = "wait";
-                    y += n;
-                    break;
-                case "Running":
-                    x += n;
-                    y += n;
-                    break;
-                case "Succeeded": // don't increment either counter
-                    break;
-                case "Unknown":
-                    y += n;
-                    break;
-                case "Failed":
-                    /* falls through */
-                default: /* assume failed */
-                    y += n;
-                    state = "fail";
-                    break;
-                }
-            });
-
-            calculated.containers = "" + x;
-            if (x != y)
-                calculated.containers += " of " + y;
-            calculated.status = state;
-
-            return calculated;
-        }
-
-        Object.defineProperties(self, {
-            containers: {
-                get: function get() { return calculate().containers; }
-            },
-            status: {
-                get: function get() { return calculate().status; }
-            }
-        });
-
-        self.apply = function apply(item) {
-            var spec = item.spec || { };
-            var meta = item.metadata || { };
-            self.uid = meta.uid;
-            self.name = meta.name;
-            self.address = spec.portalIP;
-            self.ports = spec.ports;
-            self.namespace = meta.namespace;
-            self.item = item;
-            service = item;
-            calculated = null;
-        };
-    }
-
-    function KubernetesNode(client) {
-        var self = this;
-
-        var calculated;
-        var node = { };
-
-        function calculate() {
-            if (calculated)
-                return calculated;
-
-            calculated = {
-                containers: "0",
-                address: ""
-            };
-
-            var meta = node.metadata || { };
-            var spec = node.spec || { };
-            var status = node.status || { };
-
-            if (spec.externalID)
-                calculated.address = spec.externalID;
-
-            var count = 0;
-            client.hosting("Pod", meta.name).items.forEach(function(pod) {
-                var spec = pod.spec || { };
-                var n = 1;
-                if (spec.containers)
-                    n = spec.containers.length;
-                count += n;
-            });
-
-            /* TODO: Calculate number of containers instead of pods */
-            calculated.containers = "" + count;
-
-            var state = "";
-
-            var conditions = status.conditions;
-
-            /* If no status.conditions then it hasn't even started */
-            if (!conditions) {
-                state = "wait";
-            } else {
-                conditions.forEach(function(condition) {
-                    if (condition.type == "Ready") {
-                        if (condition.status != "True")
-                            state = "fail";
-                    }
-                });
-            }
-
-            calculated.status = state;
-
-            return calculated;
-        }
-
-        Object.defineProperties(self, {
-            containers: {
-                enumerable: true,
-                get: function() { return calculate().containers; }
-            },
-            address: {
-                enumerable: true,
-                get: function() { return calculate().address; }
-            },
-            status: {
-                enumerable: true,
-                get: function() { return calculate().status; }
-            }
-        });
-
-        self.apply = function apply(item) {
-            var meta = item.metadata || { };
-            self.name = meta.name;
-            calculated = null;
-            node = item;
-        };
-    }
-
-    function KubernetesPod(client) {
-        var self = this;
-
-        var pod = { };
-
-        self.apply = function apply(item) {
-            var meta = item.metadata || { };
-            self.name = meta.name;
-            pod = item;
-        };
-    }
-
-    function builder(kind, client, Constructor) {
-        var objects = { };
-        var list;
-
-        function build() {
-            var seen = { };
-            angular.forEach(objects, function(value, key) {
-                seen[key] = true;
-            });
-            angular.forEach(list.items, function(item) {
-                if (item.metadata.name == "kubernetes" ||
-                    item.metadata.name == "kubernetes-ro")
-                    return; // skip special pods created for k8 internal usage
-                var key = item.metadata ? item.metadata.uid : null;
-                if (!key)
-                    return;
-                delete seen[key];
-                var obj = objects[key];
-                if (obj === undefined)
-                    objects[key] = obj = new Constructor(client, item);
-                obj.apply(item);
-            });
-            angular.forEach(seen, function(value, key) {
-                delete objects[key];
-            });
-            $(objects).triggerHandler("changed");
-        }
-        list = client.select(kind);
-        client.track(list);
-        $(list).on("changed", build);
-        build();
-
-        return objects;
-    }
-
     return angular.module('kubernetes.dashboard', ['ngRoute'])
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.when('/', {
@@ -254,11 +33,136 @@ define([
                 '$location',
                 'kubernetesClient',
                 function($scope, $location, client) {
-            var ready = false;
 
-            $scope.services = builder('Service', client, KubernetesService);
-            $scope.nodes = builder('Node', client, KubernetesNode);
-            $scope.pods = builder('Pod', client, KubernetesPod);
+            /* Service Listing */
+            $scope.services = client.select("Service");
+            client.track($scope.services);
+            $($scope.services)
+                .on("changed", digest)
+                .on("added", function(ev, item, key) {
+                    /* Don't include the kubernetes service */
+                    if (item.metadata.name === "kubernetes" &&
+                        item.metadata.namespace === "default") {
+                        delete $scope.services[key];
+                    }
+                });
+
+            $scope.serviceContainers = function serviceContainers(service) {
+                var spec = service.spec || { };
+
+                /* Calculate number of containers */
+                var x = 0;
+                var y = 0;
+
+                /*
+                 * Calculate "x of y" containers, where x is the current
+                 * number and y is the expected number. If x==y then only
+                 * show x. The calculation is based on the statuses of the
+                 * containers within the pod.  Pod states: Pending,
+                 * Running, Succeeded, Failed, and Unknown.
+                 */
+                client.select("Pod", service.metadata.namespace,
+                              service.spec.selector || { }).items.forEach(function(pod) {
+                    if (!pod.status || !pod.status.phase)
+                        return;
+                    var spec = pod.spec || { };
+                    var n = 1;
+                    if (spec.containers)
+                        n = spec.containers.length;
+                    switch (pod.status.phase) {
+                    case "Pending":
+                        y += n;
+                        break;
+                    case "Running":
+                        x += n;
+                        y += n;
+                        break;
+                    case "Succeeded": // don't increment either counter
+                        break;
+                    case "Unknown":
+                        y += n;
+                        break;
+                    case "Failed":
+                        /* falls through */
+                    default: /* assume failed */
+                        y += n;
+                        break;
+                    }
+                });
+
+                if (x != y)
+                    return x + " of " + y;
+                else
+                    return "" + x;
+            };
+
+            $scope.serviceStatus = function serviceStatus(service) {
+                var spec = service.spec || { };
+                var state = "";
+
+                client.select("Pod", service.metadata.namespace,
+                              service.spec.selector || { }).items.forEach(function(pod) {
+                    if (!pod.status || !pod.status.phase)
+                        return;
+                    switch (pod.status.phase) {
+                    case "Pending":
+                        if (!state)
+                            state = "wait";
+                        break;
+                    case "Running":
+                        break;
+                    case "Succeeded": // don't increment either counter
+                        break;
+                    case "Unknown":
+                        break;
+                    case "Failed":
+                        /* falls through */
+                    default: /* assume failed */
+                        state = "fail";
+                        break;
+                    }
+                });
+
+                return state;
+            };
+
+            /* Node listing */
+
+            $scope.nodes = client.select("Node");
+            client.track($scope.nodes);
+            $($scope.nodes).on("changed", digest);
+
+            $scope.nodeContainers = function nodeContainers(node) {
+                var count = 0;
+                var meta = node.metadata || { };
+                client.hosting("Pod", meta.name).items.forEach(function(pod) {
+                    var spec = pod.spec || { };
+                    var n = 1;
+                    if (spec.containers)
+                        n = spec.containers.length;
+                    count += n;
+                });
+                return count;
+            };
+
+            $scope.nodeStatus = function nodeStatus(node) {
+                var status = node.status || { };
+                var conditions = status.conditions;
+                var state = "";
+
+                /* If no status.conditions then it hasn't even started */
+                if (!conditions) {
+                    state = "wait";
+                } else {
+                    conditions.forEach(function(condition) {
+                        if (condition.type == "Ready") {
+                            if (condition.status != "True")
+                                state = "fail";
+                        }
+                    });
+                }
+                return state;
+            };
 
             $scope.jumpService = function jumpService(ev, service) {
                 var target = $(ev.target);
@@ -273,6 +177,14 @@ define([
                     $location.path("/pods/" + encodeURIComponent(meta.namespace)).search(spec.selector);
             };
 
+            /* Pod listing */
+
+            var pods = client.select("Pod");
+            client.track(pods);
+            $(pods).on("changed", digest);
+
+            /* Highlighting */
+
             $scope.highlighted = null;
             $scope.$on("highlight", function(ev, uid) {
                 $scope.highlighted = uid;
@@ -281,14 +193,14 @@ define([
                 $scope.$broadcast("highlight", uid);
             };
 
-            function services_state() {
+            $scope.servicesState = function services_state() {
                 if ($scope.failure)
                     return 'failed';
                 var service;
                 for (service in $scope.services)
                     break;
                 return service ? 'ready' : 'empty';
-            }
+            };
 
             /* Track the loading/failure state of the services area */
             $scope.state = 'loading';
@@ -296,18 +208,83 @@ define([
                 .fail(function(ex) {
                     $scope.failure = ex;
                 })
-                .always(function() {
-                    $scope.state = services_state();
-                    if (ready)
+                .always(digest);
+
+            $([$scope.services]).on("changed", digest);
+
+            var timeout = null;
+            function digest() {
+                if (timeout === null) {
+                    timeout = window.setTimeout(function() {
+                        timeout = null;
                         $scope.$digest();
-                });
+                        phantom_checkpoint();
+                    });
+                }
+            }
+        }])
 
-            $([$scope.services, $scope.nodes, $scope.pods]).on("changed", function() {
-                $scope.state = services_state();
-                $scope.$digest();
-                phantom_checkpoint();
-            });
+        .directive('kubernetesStatusIcon', function() {
+            return {
+                restrict: 'A',
+                link: function($scope, element, attributes) {
+                    $scope.$watch(attributes["status"], function(status) {
+                        element
+                            .toggleClass("spinner spinner-sm", status == "wait")
+                            .toggleClass("fa fa-exclamation-triangle fa-failed", status == "fail");
+                    });
+                }
+            };
+        })
 
-            ready = true;
-        }]);
+        .directive('kubernetesAddress', function() {
+            return {
+                restrict: 'E',
+                link: function($scope, element, attributes) {
+                    $scope.$watchGroup(["item.spec.portalIP", "item.spec.ports"], function(values) {
+                        var address = values[0];
+                        var ports = values[1];
+                        var href = null;
+                        var text = null;
+
+                        /* No ports */
+                        if (!ports || !ports.length) {
+                            text = address;
+
+                        /* One single HTTP or HTTPS port */
+                        } else if (ports.length == 1) {
+                            text = address + ":" + ports[0].port;
+                            if (ports[0].protocol === "TCP") {
+                                if (ports[0].port === 80)
+                                    href = "http://" + encodeURIComponent(address);
+                                else if (ports[0].port === 443)
+                                    href = "https://" + encodeURIComponent(address);
+                            } else {
+                                text += "/" + ports[0].protocol;
+                            }
+                        } else {
+                            text = " " + address + " " + ports.map(function(p) {
+                                if (p.protocol === "TCP")
+                                    return p.port;
+                                else
+                                    return p.port + "/" + p.protocol;
+                            }).join(" ");
+                        }
+
+                        var el;
+                        element.empty();
+                        if (href) {
+                            el = $("<a>")
+                                .attr("href", href)
+                                .attr("target", "_blank")
+                                .on("click", function(ev) { ev.stopPropagation(); });
+                            element.append(el);
+                        } else {
+                            el = element;
+                        }
+                        el.text(text);
+                    });
+                }
+            };
+        });
 });

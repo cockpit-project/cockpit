@@ -59,7 +59,7 @@ define([
                 kube.select("Pod", meta.namespace, spec.selector).items.forEach(function(pod) {
                     var status = pod.status || { };
                     var spec = pod.spec || { };
-                    var host = spec.host;
+                    var host = spec.nodeName;
                     var containers = status.containerStatuses || [];
 
                     if (host && !self.hosts[host]) {

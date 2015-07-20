@@ -91,7 +91,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             <i ng-if="failure.status == 403" class="fa fa-lock"></i>
             <i ng-if="failure.status != 403" class="fa fa-exclamation-circle"></i>
           </div>
-          <h3 translatable="yes">Couldn't list services</h3>
+          <h3 translatable="yes">Could not list services</h3>
           <p>{{failure.message}}</p>
         </div>
         <div class="well blank-slate-pf spacious" ng-if="servicesState() == 'empty'">
@@ -182,7 +182,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     <div class="kube-pod panel">
       <!-- TODO: exclamation triangle -->
       <div class="kube-status">
-        on <span>{{pod.spec.host}}</span>
+        on <span>{{pod.spec.nodeName}}</span>
       </div>
       <h3 class="panel-title">{{pod.metadata.name}}</h3>
       <div class="row kube-content">
@@ -272,11 +272,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           </div>
         </tab>
         <tab heading="Console" select="connect('console')">
-          <kube-console host="{{pod.spec.host}}" id="{{container.status.containerID}}">
+          <kube-console host="{{pod.spec.nodeName}}" id="{{container.status.containerID}}">
           </kube-console>
         </tab>
         <tab heading="Shell" select="connect('shell')">
-          <kube-console host="{{pod.spec.host}}" id="{{container.status.containerID}}" shell="true">
+          <kube-console host="{{pod.spec.nodeName}}" id="{{container.status.containerID}}" shell="true">
           </kube-console>
         </tab>
       </tabset>

@@ -169,7 +169,7 @@ define([
      * Generates callbacks based on a Kubernetes watch.
      *
      * Each KubernetesWatch object watches a single type of object
-     * in Kubernetes. The URI watched is /api/v1beta3/watch/<type>
+     * in Kubernetes. The URI watched is /api/v1/watch/<type>
      *
      * In addition to the above noted invocations of the callbacks,
      * if there is an ERROR, we restart the watch and invoke the
@@ -302,7 +302,7 @@ define([
                 }
 
                 var meta = object.metadata;
-                if (!meta || !meta.uid || object.apiVersion != "v1beta3" || !object.kind) {
+                if (!meta || !meta.uid || object.apiVersion != "v1" || !object.kind) {
                     console.warn("invalid kubernetes object: ", object);
                     continue;
                 }
@@ -332,7 +332,7 @@ define([
             if (req)
                 return;
 
-            var uri = "/api/v1beta3/watch/" + type;
+            var uri = "/api/v1/watch/" + type;
             var full = true;
 
             /*
@@ -460,7 +460,7 @@ define([
 
                     /*
                      * We expect a response that looks something like:
-                     * { "versions": [ "v1beta1", "v1beta2", "v1beta3" ] }
+                     * { "versions": [ "v1beta1", "v1beta2", "v1" ] }
                      */
                     var response;
                     try {
@@ -788,8 +788,8 @@ define([
             }
 
             var status = item.status;
-            if (spec && spec.host)
-                keys.push(spec.host);
+            if (spec && spec.nodeName)
+                keys.push(spec.nodeName);
 
             index.add(keys, uid);
 
@@ -837,7 +837,7 @@ define([
             if (item && involved.resourceVersion < item.metadata.resourceVersion)
                 return;
 
-            var uri = "/api/v1beta3";
+            var uri = "/api/v1";
 
             if (involved.namespace)
                 uri += "/namespaces/" + encodeURIComponent(involved.namespace);
@@ -1022,7 +1022,7 @@ define([
             var possible = index.all([ host ]);
 
             function match_hosting(item) {
-                if (!item || !item.spec || item.spec.host != host)
+                if (!item || !item.spec || item.spec.nodeName != host)
                     return false;
                 if (kind && item.kind !== kind)
                     return false;
@@ -1200,7 +1200,7 @@ define([
                 if (valid) {
                     /* The remainder of the errors are handled by kubernetes itself */
                     if (!item.kind || !item.metadata ||
-                        item.apiVersion != "v1beta3" ||
+                        item.apiVersion != "v1" ||
                         typeof item.kind !== "string") {
                         dfd.reject(new DataError(_("Unsupported kubernetes object in data")));
                         valid = false;
@@ -1223,7 +1223,7 @@ define([
             /* Create the namespace if it exists */
             if (!have_ns && need_ns) {
                 items.unshift({
-                    "apiVersion" : "v1beta3",
+                    "apiVersion" : "v1",
                     "kind" : "Namespace",
                     "metadata" : {
                         "name": namespace
@@ -1247,7 +1247,7 @@ define([
 
                 /* Sad but true */
                 var type = kind.toLowerCase() + "s";
-                var url = "/api/v1beta3";
+                var url = "/api/v1";
                 if (kind_is_namespaced (kind))
                     url += "/namespaces/" + encodeURIComponent(namespace);
                 url += "/" + type;
@@ -1543,7 +1543,7 @@ define([
 
             var req = kube.request({
                 method: "POST",
-                path: "/api/v1beta3/proxy/nodes/" + encodeURIComponent(node) + ":4194/api/v1.2/docker",
+                path: "/api/v1/proxy/nodes/" + encodeURIComponent(node) + ":4194/api/v1.2/docker",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(query)
             });

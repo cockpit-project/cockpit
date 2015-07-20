@@ -351,8 +351,8 @@ angular.module('kubernetesUI').run(['$templateCache', function($templateCache) {
     "    <dt>Phase</dt>\n" +
     "    <dd>{{resource.status.phase}}</dd>\n" +
     "    <dt>Node</dt>\n" +
-    "    <dd>{{resource.spec.host || 'unknown'}}\n" +
-    "      <span ng-if=\"resource.status.hostIP && resource.spec.host != resource.status.hostIP\">({{resource.status.hostIP}})</dd>\n" +
+    "    <dd>{{resource.spec.nodeName || 'unknown'}}\n" +
+    "      <span ng-if=\"resource.status.hostIP && resource.spec.nodeName != resource.status.hostIP\">({{resource.status.hostIP}})</dd>\n" +
     "    <dt>IP on node</dt>\n" +
     "    <dd>{{resource.status.podIP}}</dd>    \n" +
     "  </dl>\n" +
@@ -406,7 +406,7 @@ angular.module('kubernetesUI').run(['$templateCache', function($templateCache) {
     "    <dt>Created</dt>\n" +
     "    <dd>{{resource.metadata.creationTimestamp | date:'medium'}}</dd>\n" +
     "    <dt>IP</dt>\n" +
-    "    <dd>{{resource.spec.portalIP}}</dd>\n" +
+    "    <dd>{{resource.spec.clusterIP}}</dd>\n" +
     "    <dt>Ports</dt>\n" +
     "    <dd>\n" +
     "      <div ng-if=\"!resource.spec.ports.length\">None</div>\n" +

@@ -55,11 +55,11 @@ define({
                 "always": {}
             },
             "dnsPolicy": "ClusterFirst",
-            "host": "127.0.0.1"
+            "nodeName": "127.0.0.1"
         },
         "status": {
             "phase": "Running",
-            "Condition": [
+            "conditions": [
                 {
                     "kind": "Ready",
                     "status": "Full"
@@ -144,7 +144,7 @@ define({
                 "component": "apiserver",
                 "provider": "kubernetes"
             },
-            "portalIP": "10.254.224.238",
+            "clusterIP": "10.254.224.238",
             "containerPort": 0,
             "sessionAffinity": "None"
         },
@@ -152,11 +152,11 @@ define({
     },
     "namespaces/default/services/kubernetes-ro": {
         "kind": "Service",
-        "apiVersion": "v1beta3",
+        "apiVersion": "v1",
         "metadata": {
             "name": "kubernetes-ro",
             "namespace": "default",
-            "selfLink": "/api/v1beta3/namespaces/default/services/kubernetes-ro",
+            "selfLink": "/api/v1/namespaces/default/services/kubernetes-ro",
             "uid": "97504104-7fa4-11e4-91e3-10c37bdb8410",
             "resourceVersion": "16",
         },
@@ -167,7 +167,7 @@ define({
                 "component": "apiserver",
                 "provider": "kubernetes"
             },
-            "portalIP": "10.254.117.100",
+            "clusterIP": "10.254.117.100",
             "containerPort": 0,
             "sessionAffinity": "None"
         },

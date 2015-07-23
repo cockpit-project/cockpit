@@ -794,7 +794,7 @@
       </div>
 
       <div id="accounts" class="container-fluid" hidden>
-        <button class="btn btn-default accounts-privileged" id="accounts-create" translatable="yes">Create New Account</button>
+        <button class="btn btn-default accounts-privileged" id="accounts-create" translatable="yes" data-container="body">Create New Account</button>
         <div id="accounts-list">
         </div>
       </div>
@@ -804,42 +804,57 @@
           <li><a onclick="cockpit.location.go('accounts')">Accounts</a></li>
           <li class="active"></li>
         </ol>
-        <center>
-          <table>
-            <tr>
-              <td translatable="yes">Full Name</td>
-              <td style="vertical-align:bottom"><input id="account-real-name" class="form-control accounts-privileged"></td>
-            </tr>
-            <tr>
-              <td translatable="yes">User Name</td>
-              <td id="account-user-name"></td>
-            </tr>
-            <tr>
-              <td translatable="yes">Last Login</td>
-              <td id="account-last-login"></td>
-            </tr>
-            <tr>
-              <td translatable="yes"
-                  style="vertical-align:top">Roles</td>
-              <td id="account-roles"></td>
-            </tr>
-            <tr>
-              <td translatable="yes">Access</td>
-              <td>
-                <div class="checkbox accounts-privileged">
-                  <label>
-                    <input type="checkbox" id="account-locked"> Lock Account
-                  </label>
-                </div>
-              </td>
-            </tr>
-          </table>
-          <button class="btn btn-default accounts-privileged" id="account-set-password">Set Password</button>
-          <button class="btn btn-default accounts-privileged" id="account-delete">Delete</button>
-          <button class="btn btn-default accounts-privileged" id="account-logout">Terminate Session</button>
-          <button class="btn btn-default accounts-privileged" id="account-change-roles">Change Roles</button>
-        </center>
 
+        <div class="panel panel-default" id="account-details">
+            <div class="panel-heading">
+                <div style="float:right">
+                  <button class="btn btn-default accounts-privileged" id="account-logout">Terminate Session</button>
+                  <button class="btn btn-danger accounts-privileged" id="account-delete">Delete</button>
+                </div>
+              <span translatable="yes" id="account-title"></span>
+            </div>
+            <div class="panel-body">
+              <table class="cockpit-info-table col-sm-3">
+              <tr>
+                <td translatable="yes">Full Name</td>
+                <td style="vertical-align:bottom"><input id="account-real-name" class="form-control accounts-privileged" data-container="body"></td>
+              </tr>
+              <tr>
+                <td translatable="yes">User Name</td>
+                <td id="account-user-name"></td>
+              </tr>
+              <tr>
+                <td translatable="yes"
+                    style="vertical-align:top">Roles</td>
+                <td id="account-roles">
+                    <div id="account-change-roles-roles">
+                    </div>
+                </td>
+              <tr>
+                <td translatable="yes">Last Login</td>
+                <td id="account-last-login">
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Access</td>
+                <td>
+                  <div class="checkbox accounts-privileged" data-container="body">
+                    <label>
+                      <input type="checkbox" id="account-locked"> Lock Account
+                    </label>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Password</td>
+                <td>
+                   <button class="btn btn-default accounts-privileged" translatable="yes" id="account-set-password" data-container="body">Set Password</button>
+                </td>
+              </tr>
+
+            </table>
+          </div>
+        </div>
       </div>
 
       <!-- this will be moved into a page when it is shown. -->
@@ -1515,40 +1530,17 @@
       </div>
     </div>
 
-    <div class="modal" id="account-change-roles-dialog"
-         tabindex="-1" role="dialog"
-         data-backdrop="static">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Change Roles</h4>
-          </div>
-          <div class="modal-body">
-            <div id="account-change-roles-roles">
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
-              Cancel
-            </button>
-            <button class="btn btn-primary" id="account-change-roles-apply" translatable="yes">
-              Change
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <script id="role-entry-tmpl" type="x-template/mustache">
-      <li class="list-group-item">
-        <div class="checkbox" style="margin:0px">
+      {{#roles}}
+        <div class="checkbox accounts-privileged" data-container="body">
           <label>
             <input type="checkbox" name="account-role-checkbox-{{id}}"
+                   data-gid="{{id}}" data-name="{{name}}"
                    id="account-role-checkbox-{{id}}" {{#member}}checked{{/member}}/>
             {{desc}}
           </label>
         </div>
-      </li>
+      {{/roles}}
     </script>
 
     <div class="modal" id="shutdown-confirm"

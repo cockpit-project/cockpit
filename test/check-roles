@@ -41,7 +41,8 @@ class TestRoles(MachineCase):
         b.wait_visible("#login")
         login("user", "foobar")
         b.expect_reload()
-        b.wait_present("#content")
+        b.enter_page("server")
+        b.switch_to_top()
         b.wait_text('#content-user-name', 'User')
 
         # HACK: Logging in as "user" will try to write to
@@ -54,14 +55,15 @@ class TestRoles(MachineCase):
         b.click('#content-user-name')
         b.click('#go-account')
         b.enter_page("account")
+
         b.wait_text("#account-user-name", "user")
         b.wait_present("#account-real-name:not([disabled])")
         b.wait_present("#account-locked[disabled]")
         b.wait_present("#account-set-password.disabled")
         b.wait_present("#account-delete.disabled")
         b.wait_present("#account-logout.disabled")
-        b.wait_present("#account-change-roles.disabled")
-        b.wait_present("#account-change-roles.disabled")
+        b.wait_present("#account-role-checkbox-10[disabled]")
+        b.wait_present("#account-role-checkbox-10:not(:checked)")
         b.wait_present('#account-real-name.disabled')
 
         # Try to change admins name
@@ -73,8 +75,8 @@ class TestRoles(MachineCase):
         b.wait_present("#account-set-password.disabled")
         b.wait_present("#account-delete.disabled")
         b.wait_present("#account-logout.disabled")
-        b.wait_present("#account-change-roles.disabled")
-        b.wait_present("#account-change-roles.disabled")
+        b.wait_present("#account-role-checkbox-10[disabled]")
+        b.wait_present("#account-role-checkbox-10:checked")
 
         # Add role from the outside (and wait for it to stick)
         b.go("account?id=user")
@@ -82,7 +84,7 @@ class TestRoles(MachineCase):
         b.wait_text("#account-user-name", "user")
 
         m.execute("usermod -a -G wheel user")
-        b.wait_text("#account-roles", "Server Administrator")
+        b.wait_present("#account-role-checkbox-10:checked")
 
         b.relogin("account", "user")
         b.wait_text("#account-user-name", "user")
@@ -96,8 +98,8 @@ class TestRoles(MachineCase):
         b.wait_present("#account-set-password:not(.disabled)")
         b.wait_present("#account-delete:not(.disabled)")
         b.wait_present("#account-logout:not(.disabled)")
-        b.wait_present("#account-change-roles:not(.disabled)")
-        b.wait_present("#account-change-roles:not(.disabled)")
+        b.wait_present("#account-role-checkbox-10:not([disabled])")
+        b.wait_present("#account-role-checkbox-10:checked")
 
         b.set_val('#account-real-name', "Administratorrrr")
 
@@ -115,20 +117,11 @@ class TestRoles(MachineCase):
         self.login_and_go("accounts", href="/users/local")
         b.go("account?id=admin")
 
-        b.click("#account-change-roles")
-        b.wait_popup("account-change-roles-dialog")
         b.wait_in_text("#account-change-roles-roles", "Container Administrator")
-        b.click("#account-change-roles-dialog button:contains('Cancel')")
-        b.wait_popdown("account-change-roles-dialog")
-
-        b.click("#account-change-roles")
-        b.wait_popup("account-change-roles-dialog")
+        b.wait_in_text("#account-change-roles-roles", "Container Administrator")
 
         # The roles dialog is live, removes entries even when open
         m.execute("groupdel docker")
         b.wait_not_in_text("#account-change-roles-roles", "Container Administrator")
-
-        b.click("#account-change-roles-dialog button:contains('Cancel')")
-        b.wait_popdown("account-change-roles-dialog")
 
 test_main()

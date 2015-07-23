@@ -36,9 +36,6 @@ function update_accounts_privileged() {
         controls.update_privileged_ui({allowed: false},
                                       "#account-delete",
                                       _("Unable to delete root account"));
-        controls.update_privileged_ui({allowed: false},
-                                      "#account-change-roles",
-                                      _("Unable to change roles for root account"));
     } else {
         controls.update_privileged_ui(
             shell.default_permission, ".accounts-privileged",
@@ -579,6 +576,8 @@ PageAccount.prototype = {
         this.id = "account";
         this.section_id = "accounts";
         this.roles = [];
+        this.role_template = $("#role-entry-tmpl").html();
+        Mustache.parse(this.role_template);
     },
 
     getTitle: function() {
@@ -594,7 +593,6 @@ PageAccount.prototype = {
         $('#account-set-password').on('click', $.proxy (this, "set_password"));
         $('#account-delete').on('click', $.proxy (this, "delete_account"));
         $('#account-logout').on('click', $.proxy (this, "logout_account"));
-        $('#account-change-roles').on('click', $.proxy (this, "change_roles"));
         $('#account-locked').on('change', $.proxy (this, "change_locked"));
     },
 
@@ -731,9 +729,14 @@ PageAccount.prototype = {
 
             var name = $("#account-real-name");
 
+            var title_name = this.account["gecos"];
+            if (!title_name)
+                title_name = this.account["name"];
+
             name.attr('disabled', !can_change || this.account["uid"] === 0);
             $('#account-logout').attr('disabled', !this.logged);
 
+            $("#account-title").text(title_name);
             if (!name.attr("data-dirty"))
                 $('#account-real-name').val(this.account["gecos"]);
 
@@ -754,21 +757,16 @@ PageAccount.prototype = {
             }
 
             if (this.account["uid"] !== 0) {
-                var roles = "";
-                for (var i = 0; this.roles && i < this.roles.length; i++) {
-                    if (! this.roles[i]["member"])
-                        continue;
-                    if (roles !== "")
-                        roles += "<br/>";
-
-                    roles += shell.esc(this.roles[i]["desc"]);
-                }
-                $('#account-roles').html(roles);
+                var html = Mustache.render(this.role_template,
+                                           { "roles": this.roles});
+                $('#account-change-roles-roles').html(html);
                 $('#account-roles').parents('tr').show();
+                $("#account-change-roles-roles :input")
+                    .on("change", $.proxy (this, "change_role"));
             } else {
                 $('#account-roles').parents('tr').hide();
             }
-            $('#account .breadcrumb .active').text(this.account["gecos"]);
+            $('#account .breadcrumb .active').text(title_name);
         } else {
             $('#account-real-name').val("");
             $('#account-user-name').text("");
@@ -778,6 +776,23 @@ PageAccount.prototype = {
             $('#account .breadcrumb .active').text("?");
         }
         update_accounts_privileged();
+    },
+
+    change_role: function(ev) {
+        var name = $(ev.target).data("name");
+        var id = $(ev.target).data("gid");
+        if (!name || !id || !this.account["name"])
+            return;
+
+        if ($(ev.target).prop('checked')) {
+            cockpit.spawn(["/usr/sbin/usermod", this.account["name"],
+                           "-G", id, "-a"], { "superuser": "require" })
+               .fail(shell.show_unexpected_error);
+        } else {
+            cockpit.spawn(["/usr/bin/gpasswd", "-d", this.account["name"],
+                           name], { "superuser": "require" })
+                   .fail(shell.show_unexpected_error);
+        }
     },
 
     real_name_edited: function() {
@@ -840,12 +855,6 @@ PageAccount.prototype = {
            .fail(shell.show_unexpected_error);
 
     },
-
-    change_roles: function() {
-        PageAccountChangeRoles.page = this;
-        $('#account-change-roles-dialog').modal('show');
-    }
-
 };
 
 function PageAccount() {
@@ -855,84 +864,6 @@ function PageAccount() {
 shell.pages.push(new PageAccount());
 
 var crop_handle_width = 20;
-
-PageAccountChangeRoles.prototype = {
-    _init: function() {
-        this.id = "account-change-roles-dialog";
-        this.entry_template = $("#role-entry-tmpl").html();
-        Mustache.parse(this.entry_template);
-    },
-
-    show: function() {
-    },
-
-    setup: function() {
-        $('#account-change-roles-apply').on('click', $.proxy(this, "apply"));
-    },
-
-    enter: function() {
-        var self = this;
-        function update() {
-            var r, u;
-            var roles = $('#account-change-roles-roles');
-
-            roles.empty();
-
-            u = PageAccountChangeRoles.page.account;
-
-            for (var i = 0; i < PageAccountChangeRoles.page.roles.length; i++) {
-                r = PageAccountChangeRoles.page.roles[i];
-                roles.append($(Mustache.render(self.entry_template, {
-                    id: r["id"],
-                    member: r["member"],
-                    desc: r["desc"]
-                })));
-            }
-        }
-
-        $(PageAccountChangeRoles.page).on("roles", update);
-        update();
-    },
-
-    leave: function() {
-        $(PageAccountChangeRoles.page).off("roles");
-    },
-
-    apply: function() {
-        var checked, r;
-        var new_roles = [ ];
-        var del_roles = [ ];
-
-        for (var i = 0; i < PageAccountChangeRoles.page.roles.length; i++) {
-            r = PageAccountChangeRoles.page.roles[i];
-            if ($('#account-role-checkbox-' + r["id"]).prop('checked') && ! r["member"])
-                new_roles.push(r["id"]);
-
-            if (! $('#account-role-checkbox-' + r["id"]).prop('checked') && r["member"])
-               del_roles.push(r["name"]);
-        }
-
-        if (new_roles.length > 0) {
-            cockpit.spawn(["/usr/sbin/usermod", PageAccountChangeRoles.page.account["name"],
-                           "-G", new_roles.toString(), "-a"], { "superuser": "require" })
-               .fail(shell.show_unexpected_error);
-        }
-
-        for (var j = 0; j < del_roles.length; j++) {
-            cockpit.spawn(["/usr/bin/gpasswd", "-d", PageAccountChangeRoles.page.account["name"],
-                           del_roles[j]], { "superuser": "require" })
-                   .fail(shell.show_unexpected_error);
-        }
-
-        $('#account-change-roles-dialog').modal('hide');
-    }
-};
-
-function PageAccountChangeRoles() {
-    this._init();
-}
-
-shell.dialogs.push(new PageAccountChangeRoles());
 
 PageAccountConfirmDelete.prototype = {
     _init: function() {

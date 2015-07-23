@@ -22,6 +22,11 @@
 
 %define _hardened_build 1
 
+%define libssh_version 0.6.0
+%if 0%{?fedora} > 0 && 0%{?fedora} >= 22
+%define libssh_version 0.7.1
+%endif
+
 Name:           cockpit
 %if %{defined gitcommit}
 Version:        %{gitcommit}
@@ -49,7 +54,7 @@ BuildRequires: pam-devel
 
 BuildRequires: autoconf automake
 BuildRequires: intltool
-BuildRequires: libssh-devel >= 0.6.0
+BuildRequires: libssh-devel >= %{libssh_version}
 BuildRequires: openssl-devel
 BuildRequires: zlib-devel
 BuildRequires: krb5-devel
@@ -89,7 +94,7 @@ BuildRequires: xmlto
 Requires: %{name}-bridge = %{version}-%{release}
 Requires: %{name}-ws = %{version}-%{release}
 Requires: %{name}-shell = %{version}-%{release}
-%ifarch x86_64
+%ifarch x86_64 armv7hl
 Requires: %{name}-docker = %{version}-%{release}
 %endif
 %if 0%{?rhel}
@@ -141,7 +146,7 @@ Requires: udisks2 >= 2.1.0
 %else
 Provides: %{name}-subscriptions = %{version}-%{release}
 Requires: subscription-manager >= 1.13
-%ifarch x86_64
+%ifarch x86_64 armv7hl
 Provides: %{name}-docker = %{version}-%{release}
 Requires: docker >= 1.3.0
 %endif
@@ -158,6 +163,7 @@ Summary: Cockpit Web Service
 Requires: glib-networking
 Requires: openssl
 Requires: glib2 >= 2.37.4
+Requires: libssh >= %{libssh_version}
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
@@ -222,7 +228,7 @@ find %{buildroot}%{_datadir}/%{name}/system -type f >> shell.list
 echo '%dir %{_datadir}/%{name}/subscriptions' > subscriptions.list
 find %{buildroot}%{_datadir}/%{name}/subscriptions -type f >> subscriptions.list
 
-%ifarch x86_64
+%ifarch x86_64 armv7hl
 echo '%dir %{_datadir}/%{name}/docker' > docker.list
 find %{buildroot}%{_datadir}/%{name}/docker -type f >> docker.list
 %else
@@ -346,7 +352,7 @@ subscription management.
 
 %files subscriptions -f subscriptions.list
 
-%ifarch x86_64
+%ifarch x86_64 armv7hl
 
 %package docker
 Summary: Cockpit user interface for Docker containers
@@ -432,6 +438,12 @@ fi
 %endif
 
 %changelog
+* Thu Jul 23 2015 Peter <petervo@redhat.com> - 0.66-1
+- Update to 0.66 release
+
+* Fri Jul 17 2015 Peter <petervo@redhat.com> - 0.65-2
+- Require libssh 0.7.1 on fedora >= 22 systems
+
 * Wed Jul 15 2015 Peter <petervo@redhat.com> - 0.65-1
 - Update to 0.65 release
 

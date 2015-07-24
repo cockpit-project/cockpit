@@ -5,6 +5,7 @@ systemd_DATA = \
 	pkg/systemd/manifest.json \
 	pkg/systemd/terminal.min.html.gz \
 	pkg/systemd/journal.min.html.gz \
+	pkg/systemd/journal.min.css.gz \
 	$(NULL)
 
 systemddebugdir = $(DBGDIR)$(systemddir)

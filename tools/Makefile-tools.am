@@ -23,6 +23,11 @@ EXTRA_DIST += \
 	tools/gdbus-unbreak-codegen \
 	$(NULL)
 
+DISTCLEANFILES += \
+	tools/node_modules \
+	tools/bower_components \
+	$(NULL)
+
 update-lib:: update-bower
 	$(srcdir)/tools/jsmodule -o $(srcdir)/tools/qunit.js \
 	    $(BOWER)/jquery/dist/jquery.js \

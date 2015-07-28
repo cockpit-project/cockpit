@@ -6,7 +6,7 @@ storaged_DATA = \
 	pkg/storaged/storage.min.css.gz \
 	$(NULL)
 
-storageddebugdir = $(DBGDIR)$(storageddir)
+storageddebugdir = $(debugdir)$(storageddir)
 storageddebug_DATA = \
 	pkg/storaged/bundle.js \
 	pkg/storaged/details.js \

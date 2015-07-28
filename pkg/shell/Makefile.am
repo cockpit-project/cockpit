@@ -8,7 +8,7 @@ shell_DATA = \
 	pkg/shell/manifest.json \
 	$(NULL)
 
-shelldebugdir = $(DBGDIR)$(shelldir)
+shelldebugdir = $(debugdir)$(shelldir)
 shelldebug_DATA = \
 	pkg/shell/shell.js \
 	pkg/shell/bundle.js \

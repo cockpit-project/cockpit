@@ -7,7 +7,7 @@ kubernetes_DATA = \
 	pkg/kubernetes/manifest.json \
 	$(NULL)
 
-kubernetesdebugdir = $(DBGDIR)$(kubernetesdir)
+kubernetesdebugdir = $(debugdir)$(kubernetesdir)
 kubernetesdebug_DATA = \
 	pkg/kubernetes/adjust.js \
 	pkg/kubernetes/app.css \

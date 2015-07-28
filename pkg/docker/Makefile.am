@@ -6,7 +6,7 @@ docker_DATA = \
 	pkg/docker/manifest.json \
 	$(NULL)
 
-dockerdebugdir = $(DBGDIR)$(dockerdir)
+dockerdebugdir = $(debugdir)$(dockerdir)
 dockerdebug_DATA = \
 	pkg/docker/docker.js \
 	pkg/docker/console.html \

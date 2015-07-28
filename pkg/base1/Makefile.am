@@ -18,7 +18,7 @@ base_DATA = \
 	$(base_GEN:.js=.js.gz) \
 	$(NULL)
 
-basedebugdir = $(DBGDIR)$(basedir)
+basedebugdir = $(debugdir)$(basedir)
 basedebug_DATA = \
 	pkg/base1/angular.js \
 	pkg/base1/cockpit.css \
@@ -58,7 +58,7 @@ basefonts_DATA = \
 	pkg/base1/fonts/glyphicons.woff.gz \
 	$(NULL)
 
-basefontsdebugdir = $(DBGDIR)$(basefontsdir)
+basefontsdebugdir = $(debugdir)$(basefontsdir)
 basefontsdebug_DATA = \
 	pkg/base1/fonts/fontawesome.woff \
 	pkg/base1/fonts/patternfly.woff \

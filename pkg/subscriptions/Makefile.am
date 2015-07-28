@@ -7,7 +7,7 @@ subscriptions_DATA = \
 	pkg/subscriptions/manifest.json \
 	$(NULL)
 
-subscriptionsdebugdir = $(DBGDIR)$(subscriptionsdir)
+subscriptionsdebugdir = $(debugdir)$(subscriptionsdir)
 subscriptionsdebug_DATA = \
 	pkg/subscriptions/subscriptions.html \
 	pkg/subscriptions/subscriptions.js \

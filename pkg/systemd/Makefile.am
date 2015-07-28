@@ -8,7 +8,7 @@ systemd_DATA = \
 	pkg/systemd/journal.min.css.gz \
 	$(NULL)
 
-systemddebugdir = $(DBGDIR)$(systemddir)
+systemddebugdir = $(debugdir)$(systemddir)
 systemddebug_DATA = \
 	pkg/systemd/bundle.js \
 	pkg/systemd/init.js \

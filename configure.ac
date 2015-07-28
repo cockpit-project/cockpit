@@ -380,8 +380,10 @@ if test "$enable_debug" != "no"; then
   AC_DEFINE_UNQUOTED(_DEBUG, 1, [In debug mode])
   CFLAGS="$CFLAGS -g"
 fi
+debugdir=${prefix}/src/debug
 if test "$enable_debug" = "yes"; then
   debug_status="yes"
+  debugdir=
   CFLAGS="$CFLAGS -O0"
 elif test "$enable_debug" = "no"; then
   debug_status="no"
@@ -391,6 +393,7 @@ else
 fi
 AM_CONDITIONAL(WITH_DEBUG, test "$enable_debug" = "yes")
 AC_MSG_RESULT($debug_status)
+AC_SUBST(debugdir)
 
 # Coverage
 

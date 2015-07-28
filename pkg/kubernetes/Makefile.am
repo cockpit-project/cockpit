@@ -10,7 +10,7 @@ kubernetes_DATA = \
 	$(kubernetes_GZ) \
 	$(NULL)
 
-kubernetesdebugdir = $(DBGDIR)$(kubernetesdir)
+kubernetesdebugdir = $(debugdir)$(kubernetesdir)
 kubernetesdebug_DATA = \
 	pkg/kubernetes/adjust.js \
 	pkg/kubernetes/app.css \

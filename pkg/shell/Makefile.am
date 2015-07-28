@@ -16,7 +16,7 @@ shell_SCRIPTS = \
 	pkg/shell/ssh-list-public-keys.sh \
 	$(NULL)
 
-shelldebugdir = $(DBGDIR)$(shelldir)
+shelldebugdir = $(debugdir)$(shelldir)
 shelldebug_DATA = \
 	pkg/shell/shell.js \
 	pkg/shell/bundle.js \

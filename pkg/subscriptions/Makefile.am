@@ -10,7 +10,7 @@ subscriptions_DATA = \
 	$(subscriptions_GZ) \
 	$(NULL)
 
-subscriptionsdebugdir = $(DBGDIR)$(subscriptionsdir)
+subscriptionsdebugdir = $(debugdir)$(subscriptionsdir)
 subscriptionsdebug_DATA = \
 	pkg/subscriptions/subscriptions.html \
 	pkg/subscriptions/subscriptions.js \

@@ -32,20 +32,33 @@ var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 
 function update_accounts_privileged() {
+    $(".accounts-self-privileged").addClass("accounts-privileged");
+
+    controls.update_privileged_ui(
+        shell.default_permission,
+        ".accounts-privileged:not('.accounts-current-account')",
+        cockpit.format(
+            _("The user <b>$0</b> is not permitted to modify accounts"),
+            cockpit.user.name)
+    );
+    $(".accounts-privileged").find("input")
+        .attr('disabled', shell.default_permission.allowed === false ||
+                          $('#account-user-name').text() === 'root');
+
+    // enable fields for current account.
+    controls.update_privileged_ui(
+        {allowed: true}, ".accounts-current-account", ""
+    );
+    $(".accounts-current-account").find("input")
+        .attr('disabled', false);
+
     if ($('#account-user-name').text() === 'root' && shell.default_permission.allowed) {
         controls.update_privileged_ui({allowed: false},
                                       "#account-delete",
                                       _("Unable to delete root account"));
-    } else {
-        controls.update_privileged_ui(
-            shell.default_permission, ".accounts-privileged",
-            cockpit.format(
-                _("The user <b>$0</b> is not permitted to modify accounts"),
-                cockpit.user.name)
-        );
-        $(".accounts-privileged").find("input")
-            .attr('disabled', shell.default_permission.allowed === false ||
-                              $('#account-user-name').text() === 'root');
+        controls.update_privileged_ui({allowed: false},
+                                      "#account-real-name-wrapper",
+                                      _("Unable to rename root account"));
     }
 }
 
@@ -724,16 +737,14 @@ PageAccount.prototype = {
     },
 
     update: function() {
-        if (this.account) {
-            var can_change = this.check_role_for_self_mod();
 
+        if (this.account) {
             var name = $("#account-real-name");
 
             var title_name = this.account["gecos"];
             if (!title_name)
                 title_name = this.account["name"];
 
-            name.attr('disabled', !can_change || this.account["uid"] === 0);
             $('#account-logout').attr('disabled', !this.logged);
 
             $("#account-title").text(title_name);
@@ -767,6 +778,13 @@ PageAccount.prototype = {
                 $('#account-roles').parents('tr').hide();
             }
             $('#account .breadcrumb .active').text(title_name);
+
+            // if use accounts-privileged if account is
+            // not current logged in account
+            $(".accounts-self-privileged").
+                toggleClass("accounts-current-account",
+                            cockpit.user.id == this.account["uid"]);
+
         } else {
             $('#account-real-name').val("");
             $('#account-user-name').text("");

@@ -89,6 +89,7 @@ BuildRequires: xmlto
 Requires: %{name}-bridge = %{version}-%{release}
 Requires: %{name}-ws = %{version}-%{release}
 Requires: %{name}-shell = %{version}-%{release}
+Requires: %{name}-storaged = %{version}-%{release}
 %ifarch x86_64 armv7hl
 Requires: %{name}-docker = %{version}-%{release}
 %endif
@@ -435,6 +436,9 @@ fi
 %endif
 
 %changelog
+* Wed Jul 29 2015 Peter <petervo@redhat.com> - 0.68-1
+- Update to 0.68 release.
+
 * Thu Jul 23 2015 Peter <petervo@redhat.com> - 0.66-1
 - Update to 0.66 release
 

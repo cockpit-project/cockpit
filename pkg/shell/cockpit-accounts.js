@@ -23,9 +23,10 @@ define([
     "base1/mustache",
     "shell/controls",
     "shell/shell",
+    "shell/authorized-keys",
     "shell/cockpit-main",
     "base1/patterns",
-], function($, cockpit, Mustache, controls, shell) {
+], function($, cockpit, Mustache, controls, shell, authorized_keys) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -591,6 +592,10 @@ PageAccount.prototype = {
         this.roles = [];
         this.role_template = $("#role-entry-tmpl").html();
         Mustache.parse(this.role_template);
+
+        this.keys_template = $("#authorized-keys-tmpl").html();
+        Mustache.parse(this.keys_template);
+        this.authorized_keys = null;
     },
 
     getTitle: function() {
@@ -607,6 +612,49 @@ PageAccount.prototype = {
         $('#account-delete').on('click', $.proxy (this, "delete_account"));
         $('#account-logout').on('click', $.proxy (this, "logout_account"));
         $('#account-locked').on('change', $.proxy (this, "change_locked"));
+        $('#add-authorized-key').on('click', $.proxy (this, "add_key"));
+        $('#add-authorized-key-dialog').on('hidden.bs.modal', function () {
+            $("#authorized-keys-text").val("");
+        });
+    },
+
+    setup_keys: function (user_name, home_dir) {
+        var self = this;
+        if (!self.authorized_keys) {
+            self.authorized_keys = authorized_keys.instance(user_name, home_dir);
+            $(self.authorized_keys).on("changed", function () {
+                self.update();
+            });
+        }
+    },
+
+    remove_key: function (ev) {
+        if (!this.authorized_keys)
+            return;
+
+        var key = $(ev.target).data("raw");
+        $(".account-remove-key").prop('disabled', true);
+        this.authorized_keys.remove_key(key)
+            .fail(shell.show_unexpected_error)
+            .always(function () {
+                $(".account-remove-key").prop('disabled', false);
+            });
+    },
+
+    add_key: function () {
+        if (!this.authorized_keys)
+            $("#add-authorized-key-dialog").modal('hide');
+
+        var key = $("#authorized-keys-text").val();
+        var promise = this.authorized_keys.add_key(key);
+        $("#add-authorized-key-dialog").dialog("wait", promise);
+        promise
+            .done(function() {
+                $("#add-authorized-key-dialog").modal('hide');
+            })
+            .fail(function(ex) {
+                $("#add-authorized-key-dialog").dialog("failure", ex);
+            });
     },
 
     get_user: function() {
@@ -619,6 +667,7 @@ PageAccount.prototype = {
                   continue;
 
                self.account = accounts[i];
+               self.setup_keys(self.account.name, self.account.home);
                self.update();
             }
         }
@@ -734,6 +783,12 @@ PageAccount.prototype = {
            this.handle_groups.close();
            this.handle_groups = null;
         }
+
+        if (this.authorized_keys) {
+           $(this.authorized_keys).off();
+           this.authorized_keys.close();
+           this.authorized_keys = null;
+        }
     },
 
     update: function() {
@@ -765,6 +820,23 @@ PageAccount.prototype = {
                 $('#account-locked').parents('tr').show();
             } else {
                 $('#account-locked').parents('tr').hide();
+            }
+
+            if (this.authorized_keys) {
+                var keys = this.authorized_keys.keys;
+                var state = this.authorized_keys.state;
+                var keys_html = Mustache.render(this.keys_template, {
+                    "keys": keys,
+                    "empty": keys.length === 0 && state == "ready",
+                    "denied": state == "access-denied",
+                    "failed": state == "failed",
+                });
+                $('#account-authorized-keys-list').html(keys_html);
+                $(".account-remove-key")
+                    .on("click", $.proxy (this, "remove_key"));
+                $('#account-authorized-keys').show();
+            } else {
+                $('#account-authorized-keys').hide();
             }
 
             if (this.account["uid"] !== 0) {

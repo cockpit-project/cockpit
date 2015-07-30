@@ -34,6 +34,7 @@ shelldebug_DATA = \
 	pkg/shell/cockpit-memory-status.js \
 	pkg/shell/cockpit-networking.js \
 	pkg/shell/cockpit-accounts.js \
+	pkg/shell/authorized-keys.js \
 	pkg/shell/cockpit-docker.js \
 	$(NULL)
 
@@ -60,6 +61,7 @@ shell_MINFILES = \
 	pkg/shell/cockpit-memory-status.min.js \
 	pkg/shell/cockpit-networking.min.js \
 	pkg/shell/cockpit-accounts.min.js \
+	pkg/shell/authorized-keys.min.js \
 	pkg/shell/cockpit-docker.min.js \
 	$(NULL)
 

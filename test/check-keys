@@ -1,0 +1,156 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+from testlib import *
+
+FP_MD5 = "93:40:9e:67:82:78:a8:99:89:39:d5:ba:e0:50:70:e1"
+FP_SHA256 = "SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw"
+KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDG4iipTovcMg0xn+089QLNKVGpP2Pgq2duxHgAXre2XgA3dZL+kooioGFwBQSEjbWssKy82hKIN/W82/lQtL6krf7JQWnT3LZwD5DPsvHFKhOLghbiFzSI0uEL4NFFcZOMo5tGLrM5LsZsaIkkv5QkAE0tHIyeYinK6dQ2d8ZsfmgqxHDUQUWnz1T75X9fWQsUugSWI+8xAe0cfa4qZRz/IC+K7DEB3x4Ot5pl8FBuydJj/gb+Lwo2Vs27/d87W/0KHCqOHNwaVC8RBb1WcmXRDDetLGH1A9m5x7Ip/KU/cyvWWxw8S4VKZkTIcrGUhFYJDnjtE3Axz+D7agtps41t test-name"
+
+class TestKeys(MachineCase):
+    def testAuthorizedKeys(self):
+        m = self.machine
+        b = self.browser
+
+
+        # HACK: Logging in as "user" will try to write to
+        # /var/lib/cockpit/, but this will fail.
+        # https://github.com/cockpit-project/cockpit/issues/1248
+        #
+        self.allow_journal_messages(".*Failed to create file '/var/lib/cockpit/.*': Permission denied")
+
+        # Create a user without any role
+        m.execute("useradd user -c 'User' || true")
+        m.execute("echo foobar | passwd --stdin user")
+
+        self.start_cockpit()
+
+        def login(user, password, user_name):
+            b.open("server", href="/system/host")
+            b.wait_visible("#login")
+            b.set_val("#login-user-input", user)
+            b.set_val("#login-password-input", password)
+            b.click('#login-button')
+            b.expect_reload()
+            b.enter_page("server")
+            b.switch_to_top()
+            b.wait_text('#content-user-name', user_name)
+
+            b.click('#content-user-name')
+            b.click('#go-account')
+            b.enter_page("account")
+            b.wait_text("#account-user-name", user);
+
+        def add_key(key, fp_md5, fp_sh256, comment):
+            b.click('#authorized-key-add')
+            b.wait_popup("add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_val("#authorized-keys-text", key)
+            b.click("#add-authorized-key")
+            b.wait_popdown("add-authorized-key-dialog")
+            b.wait_in_text("#account-authorized-keys-list", "2048")
+
+            text = b.text("#account-authorized-keys-list")
+            if ("SHA256" in text):
+                self.assertIn(fp_sh256, text)
+            else:
+                self.assertIn(fp_md5, text)
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+        # no keys
+        login("user", "foobar", "User")
+        b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "no authorized public keys")
+        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  1);
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_popup("add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_val("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key")
+        b.wait_present(".dialog-error")
+        b.click("#cancel-authorized-key")
+
+        # add good
+        add_key(KEY, FP_MD5, FP_SHA256, "test-name")
+
+        # Try see admin
+        b.go("account?id=admin")
+        b.enter_page("account")
+
+        # Not allowed
+        b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "You do not have permission")
+        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  1);
+        b.wait_text("#account-user-name", "admin")
+
+        b.logout()
+
+        # delete whole ssh to start fresh
+        m.execute("rm -rf /home/user/.ssh")
+        self.assertNotIn(".ssh", m.execute("ls /home/user"))
+
+        # Log in as admin
+        login("admin", "foobar", "Administrator")
+        b.go("account?id=user")
+        b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "no authorized public keys")
+        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  1);
+
+        # Adding keys sets permissions properly
+        add_key(KEY, FP_MD5, FP_SHA256, "test-name")
+        perms = m.execute("getfacl -a /home/user/.ssh")
+        self.assertIn("owner: user", perms)
+        self.assertIn("group: user", perms)
+
+        perms = m.execute("getfacl -a /home/user/.ssh/authorized_keys")
+        self.assertIn("owner: user", perms)
+        self.assertIn("group: user", perms)
+        self.assertIn("user::rw-", perms)
+        self.assertIn("group::---", perms)
+        self.assertIn("other::---", perms)
+
+        # Add invalid key directly
+        m.execute("(echo '' && echo 'bad') >> /home/user/.ssh/authorized_keys")
+        b.wait_in_text("#account-authorized-keys-list div.list-group-item:last-child", "Invalid key")
+        b.call_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  2)
+
+        # Adding the same line there is still only one invalid
+        m.execute("(echo '' && echo 'bad') >> /home/user/.ssh/authorized_keys")
+        b.call_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  2)
+
+        # Removing it removes both
+        b.click("#account-authorized-keys-list div.list-group-item:last-child button");
+        b.wait_not_in_text("#account-authorized-keys-list div.list-group-item:last-child", "Invalid key")
+        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  1);
+        data = m.execute("cat /home/user/.ssh/authorized_keys")
+        self.assertEqual(data, KEY+'\n')
+        b.logout()
+
+        # User can see still their keys
+        login("user", "foobar", "User")
+        b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "2048")
+
+        b.click("#account-authorized-keys-list div.list-group-item:first-child button");
+        b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "no authorized public keys")
+        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  1);
+
+        self.allow_restart_journal_messages()
+
+test_main()

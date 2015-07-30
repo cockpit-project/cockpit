@@ -1,0 +1,34 @@
+---
+specversion: 0.0.2
+id: redis-atomicapp
+
+metadata:
+  name: Redis App
+  appversion: 0.0.1
+  description: Redis atomic app
+graph:
+  - name: redismaster-app
+    params:
+      - name: image
+        description: The redis master part
+        default: stefwalter/redis:latest
+      - name: hostport
+        description: The host TCP port as the external endpoint
+        default: 6379
+    artifacts:
+      kubernetes:
+        - file://artifacts/k8s/redis-master-controller.json
+        - file://artifacts/k8s/redis-master-service.json
+  - name: redisslave-app
+    params:
+      - name: image
+        description: The redis slave part
+        default: stefwalter/redis-slave:v2
+      - name: hostport
+        description: The host TCP port as the external endpoint
+        default: 6379
+    artifacts:
+      kubernetes:
+        - file://artifacts/k8s/redis-slave-controller.json
+        - file://artifacts/k8s/redis-slave-service.json
+

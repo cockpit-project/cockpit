@@ -2,7 +2,7 @@ NULL =
 man_MANS =
 BUILT_SOURCES =
 EXTRA_DIST = README.md branding
-CLEANFILES = *.js *.min.js *.ok */*.ok */*/*.ok *.html *.css
+CLEANFILES = $(man_MANS)
 DISTCLEANFILES =
 bin_PROGRAMS =
 check_SCRIPTS =
@@ -165,7 +165,6 @@ install-test-assets: $(testassets_programs) $(testassets_data) $(testassets_syst
 clean-local:
 	find $(builddir) -name '*.gc??' -delete
 	find $(srcdir) -name '*.pyc' -delete
-	find $(builddir) -name '*.gz' -delete
 	rm -rf mock-archives
 
 uninstall-local:: uninstall-doc-local

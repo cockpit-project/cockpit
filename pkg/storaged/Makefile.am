@@ -1,9 +1,12 @@
 storageddir = $(pkgdatadir)/storage
-storaged_DATA = \
+storaged_GZ = \
 	pkg/storaged/bundle.min.js.gz \
 	pkg/storaged/devices.min.html.gz \
-	pkg/storaged/manifest.json \
 	pkg/storaged/storage.min.css.gz \
+	$(NULL)
+storaged_DATA = \
+	pkg/storaged/manifest.json \
+	$(storaged_GZ) \
 	$(NULL)
 
 storageddebugdir = $(DBGDIR)$(storageddir)
@@ -50,6 +53,7 @@ CLEANFILES += \
 	pkg/storaged/bundle.min.js \
 	pkg/storaged/devices.min.html \
 	$(storaged_BUNDLE) \
+	$(storaged_GZ) \
 	$(NULL)
 
 EXTRA_DIST += \

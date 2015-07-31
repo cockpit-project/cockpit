@@ -1,11 +1,14 @@
 shelldir = $(pkgdatadir)/shell
-shell_DATA = \
+shell_GZ = \
 	pkg/shell/shell.min.js.gz \
 	pkg/shell/bundle.min.js.gz \
-	pkg/shell/index.min.html \
 	pkg/shell/shell.min.css.gz \
 	pkg/shell/shell.min.html.gz \
+	$(NULL)
+shell_DATA = \
+	pkg/shell/index.min.html \
 	pkg/shell/manifest.json \
+	$(shell_GZ) \
 	$(NULL)
 
 shelldebugdir = $(DBGDIR)$(shelldir)
@@ -94,6 +97,7 @@ CLEANFILES += \
 	pkg/shell/index.min.html \
 	pkg/shell/shell.min.html \
 	$(shell_BUNDLE) \
+	$(shell_GZ) \
 	$(NULL)
 
 EXTRA_DIST += \

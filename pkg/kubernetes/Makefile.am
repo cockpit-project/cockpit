@@ -1,10 +1,13 @@
 
 kubernetesdir = $(pkgdatadir)/kubernetes
-kubernetes_DATA = \
+kubernetes_GZ = \
 	pkg/kubernetes/app.min.css.gz \
 	pkg/kubernetes/cluster.min.html.gz \
 	pkg/kubernetes/kubernetes.min.js.gz \
+	$(NULL)
+kubernetes_DATA = \
 	pkg/kubernetes/manifest.json \
+	$(kubernetes_GZ) \
 	$(NULL)
 
 kubernetesdebugdir = $(DBGDIR)$(kubernetesdir)
@@ -31,7 +34,7 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/topology-graph.js \
 	$(NULL)
 
-kubernetes_BUNDLE = \
+kubernetes_MIN = \
 	pkg/kubernetes/adjust.min.js \
 	pkg/kubernetes/app.min.js \
 	pkg/kubernetes/client.min.js \
@@ -39,12 +42,15 @@ kubernetes_BUNDLE = \
 	pkg/kubernetes/dashboard.min.js \
 	pkg/kubernetes/deploy.min.js \
 	pkg/kubernetes/details.min.js \
-	pkg/kubernetes/d3.min.js \
 	pkg/kubernetes/graphs.min.js \
 	pkg/kubernetes/node.min.js \
 	pkg/kubernetes/object-describer.min.js \
 	pkg/kubernetes/topology.min.js \
 	pkg/kubernetes/topology-graph.min.js \
+	$(NULL)
+kubernetes_BUNDLE = \
+	pkg/kubernetes/d3.min.js \
+	$(kubernetes_MIN) \
 	$(NULL)
 
 pkg/kubernetes/kubernetes.min.js: $(kubernetes_BUNDLE)
@@ -60,7 +66,8 @@ CLEANFILES += \
 	pkg/kubernetes/app.min.css \
 	pkg/kubernetes/cluster.min.html \
 	pkg/kubernetes/kubernetes.min.js \
-	$(kubernetes_BUNDLE) \
+	$(kubernetes_MIN) \
+	$(kubernetes_GZ) \
 	$(NULL)
 
 EXTRA_DIST += \

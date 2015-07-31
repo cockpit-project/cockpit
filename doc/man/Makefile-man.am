@@ -31,6 +31,3 @@ MAN_PROC = $(MKDIR_P) doc/man/ && $(XSLTPROC) -nonet --param man.output.quietly 
 	$(AM_V_GEN) $(MAN_PROC)
 .xml.5:
 	$(AM_V_GEN) $(MAN_PROC)
-
-CLEANFILES += \
-	$(man_MANS)

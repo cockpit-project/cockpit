@@ -4,10 +4,9 @@ basedir = $(pkgdatadir)/base1
 base_GEN = \
 	$(addprefix po/po.,$(addsuffix .js,$(LINGUAS))) \
 	$(NULL)
-base_DATA = \
+base_GZ = \
 	pkg/base1/angular.min.js.gz \
 	pkg/base1/cockpit.min.css.gz \
-	pkg/base1/manifest.json \
 	pkg/base1/po.js.gz \
 	pkg/base1/require.min.js.gz \
 	pkg/base1/term.min.js.gz \
@@ -16,6 +15,10 @@ base_DATA = \
 	pkg/base1/cockpit.min.js.gz \
 	pkg/base1/bundle.min.js.gz \
 	$(base_GEN:.js=.js.gz) \
+	$(NULL)
+base_DATA = \
+	pkg/base1/manifest.json \
+	$(base_GZ) \
 	$(NULL)
 
 basedebugdir = $(DBGDIR)$(basedir)
@@ -95,8 +98,10 @@ TESTS += $(base_TESTS)
 CLEANFILES += \
 	pkg/base1/bundle.min.js \
 	pkg/base1/term.min.js \
-	$(base_BUNDLE) \
+	pkg/base1/cockpit.min.js \
+	pkg/base1/patterns.min.js \
 	$(base_GEN) \
+	$(base_GZ) \
 	$(NULL)
 
 EXTRA_DIST += \

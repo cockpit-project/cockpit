@@ -20,6 +20,9 @@
 
 from testlib import *
 
+def content_action_btn(index):
+    return "#content .list-group li:nth-child(%d) .btn-group" % index
+
 class StorageCase(MachineCase):
     def setUp(self):
         MachineCase.setUp(self)
@@ -53,14 +56,11 @@ class StorageCase(MachineCase):
 
     # Action buttons
 
-    def content_action_btn(self, index):
-        return "#content .list-group li:nth-child(%d) .btn-group" % index
-
     def content_action(self, index, action):
-        self.browser.click_action_btn (self.content_action_btn(index), action)
+        self.browser.click_action_btn(content_action_btn(index), action)
 
     def content_default_action(self, index, action):
-        btn = self.content_action_btn(index)
+        btn = content_action_btn(index)
         self.browser.wait_action_btn (btn, action)
         self.browser.click_action_btn (btn)
 

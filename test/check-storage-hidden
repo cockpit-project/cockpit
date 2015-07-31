@@ -22,7 +22,7 @@ from testlib import *
 from storagelib import *
 
 class TestStorage(StorageCase):
-    def testHidden(self):
+    def testHiddenLuks(self):
         m = self.machine
         b = self.browser
 
@@ -75,6 +75,20 @@ class TestStorage(StorageCase):
         self.confirm()
         b.wait_visible("#storage")
         self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_1), "")
+
+    def testHiddenRaid(self):
+        m = self.machine
+        b = self.browser
+
+        mount_point_1 = "/run/mount1"
+        mount_point_2 = "/run/mount2"
+
+        self.login_and_go("/storage/devices")
+
+        m.add_disk("50M", serial="DISK1")
+        m.add_disk("50M", serial="DISK2")
+        b.wait_in_text("#drives", "DISK1")
+        b.wait_in_text("#drives", "DISK2")
 
         # Now do the same with a MDRAID
 

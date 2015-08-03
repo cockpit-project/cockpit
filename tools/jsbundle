@@ -6,10 +6,11 @@ var maps = {
     "realmd": "domain",
 };
 
-var fs, esprima;
+var fs, esprima, path;
 
 try {
     fs = require('fs');
+    path = require('path');
     esprima = require('esprima');
 } catch(ex) {
     fatal(ex.message, 127); /* missing looks for this */
@@ -34,10 +35,16 @@ step();
 
 function step() {
     if (files.length === 0) {
-        fs.writeFile(output, result, function(err) {
-            if (err)
+        mkdirp(path.dirname(output), function(err) {
+            if (err) {
                 fatal(err.message);
-            process.exit(0);
+            } else {
+	        fs.writeFile(output, result, function(err) {
+                    if (err)
+                        fatal(err.message);
+                    process.exit(0);
+                });
+            }
         });
         return;
     }
@@ -135,4 +142,30 @@ function redefine(data, name) {
 
 function ends_with(string, suffix) {
     return string.indexOf(suffix, string.length - suffix.length) !== -1;
+}
+
+
+function mkdirp(fp, callback) {
+    var mode = parseInt('0777', 8) & (~process.umask());
+    fp = path.resolve(fp);
+    fs.mkdir(fp, mode, function(error) {
+        if (!error)
+            return callback(null);
+        switch (error.code) {
+        case 'ENOENT':
+            mkdirp(path.dirname(fp), function(error) {
+                if (error)
+                    callback(error);
+                else
+                    mkdirp(fp, callback);
+            });
+            break;
+        case 'EEXIST':
+            callback(null);
+            break;
+        default:
+            callback(error);
+            break;
+        }
+    });
 }

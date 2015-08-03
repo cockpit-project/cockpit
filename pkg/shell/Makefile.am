@@ -11,6 +11,11 @@ shell_DATA = \
 	$(shell_GZ) \
 	$(NULL)
 
+shell_SCRIPTS = \
+	pkg/shell/ssh-add-public-key.sh \
+	pkg/shell/ssh-list-public-keys.sh \
+	$(NULL)
+
 shelldebugdir = $(DBGDIR)$(shelldir)
 shelldebug_DATA = \
 	pkg/shell/shell.js \
@@ -36,11 +41,13 @@ shelldebug_DATA = \
 	pkg/shell/cockpit-accounts.js \
 	pkg/shell/authorized-keys.js \
 	pkg/shell/cockpit-docker.js \
+	$(shell_SCRIPTS) \
 	$(NULL)
 
 shell_BUNDLE = \
 	pkg/shell/index.min.js \
 	pkg/shell/machines.min.js \
+	$(shell_SCRIPTS) \
 	$(NULL)
 
 pkg/shell/bundle.min.js: $(shell_BUNDLE)
@@ -86,14 +93,15 @@ pmlogconf_DATA = pkg/shell/pmlogconf/cockpit
 
 # -----------------------------------------------------------------------------
 
-CHECK_HTML = \
+shell_TESTS = \
 	pkg/shell/test-dummy.html \
 	pkg/shell/test-util.html \
 	pkg/shell/test-dbusx.html \
 	pkg/shell/test-controls.html \
+	pkg/shell/test-list-public-keys.sh \
 	$(NULL)
 
-TESTS += $(CHECK_HTML)
+TESTS += $(shell_TESTS)
 
 # ----------------------------------------------------------------------------------------------------
 
@@ -117,6 +125,6 @@ EXTRA_DIST += \
 	$(shell_SHELL) \
 	$(shelldebug_DATA) \
 	$(shellimages_DATA) \
-	$(CHECK_HTML) \
+	$(shell_TESTS) \
 	pkg/shell/pmlogconf/cockpit \
 	$(NULL)

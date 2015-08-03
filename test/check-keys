@@ -129,11 +129,7 @@ class TestKeys(MachineCase):
         b.wait_in_text("#account-authorized-keys-list div.list-group-item:last-child", "Invalid key")
         b.call_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  2)
 
-        # Adding the same line there is still only one invalid
-        m.execute("(echo '' && echo 'bad') >> /home/user/.ssh/authorized_keys")
-        b.call_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  2)
-
-        # Removing it removes both
+        # Removing the key
         b.click("#account-authorized-keys-list div.list-group-item:last-child button");
         b.wait_not_in_text("#account-authorized-keys-list div.list-group-item:last-child", "Invalid key")
         b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  1);

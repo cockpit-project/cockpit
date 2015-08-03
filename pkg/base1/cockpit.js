@@ -1277,6 +1277,17 @@ function full_scope(cockpit, $, po) {
         return dfd.promise();
     };
 
+    /* public */
+    cockpit.script = function(script, args, options) {
+        if (!options && $.isPlainObject(args)) {
+            options = args;
+            args = [];
+        }
+        var command = [ "/bin/sh", "-c", script, "--" ];
+        command.push.apply(command, args);
+        return cockpit.spawn(command, options);
+    };
+
     function dbus_debug() {
         if (window.debugging == "all" || window.debugging == "dbus")
             console.debug.apply(console, arguments);

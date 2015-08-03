@@ -30,9 +30,9 @@ define([
         }
 
         function fix_permissions() {
-            // fix permissions, incase we created
-            // the file as root.
-            cockpit.spawn(["chown", "-R", user_name+":"+user_name, dir],
+            // fix permissions, in case we created the file as root
+            // we can ignore the group, since permissions are set to 600
+            cockpit.spawn(["chown", "-R", user_name, dir],
                            {'superuser': 'try'})
                 .fail(function (ex) {
                     console.warn("Error setting authorized keys owner: " + ex);
@@ -85,7 +85,7 @@ define([
             return df;
         }
 
-        function parse_keys (content, tag, ex) {
+        function parse_keys(content, tag, ex) {
             var processed = 0;
             var previous = { };
             var seen = { };

@@ -143,7 +143,7 @@ class TestKeys(MachineCase):
         self.assertEqual(data, KEY+'\n')
         b.logout()
 
-        # User can see still their keys
+        # User can still see their keys
         login("user", "foobar", "User")
         b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "2048")
 

@@ -117,11 +117,9 @@ class TestKeys(MachineCase):
         add_key(KEY, FP_MD5, FP_SHA256, "test-name")
         perms = m.execute("getfacl -a /home/user/.ssh")
         self.assertIn("owner: user", perms)
-        self.assertIn("group: user", perms)
 
         perms = m.execute("getfacl -a /home/user/.ssh/authorized_keys")
         self.assertIn("owner: user", perms)
-        self.assertIn("group: user", perms)
         self.assertIn("user::rw-", perms)
         self.assertIn("group::---", perms)
         self.assertIn("other::---", perms)

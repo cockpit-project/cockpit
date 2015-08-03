@@ -319,6 +319,7 @@ asyncTest("watching", function() {
             cockpit.spawn([ "bash", "-c", "rm " + dir + "/foobar" ]);
         } else if (n == 3) {
             equal(content, null, "finally non-existent");
+            watch.remove();
             start ();
         }
     }
@@ -342,6 +343,7 @@ asyncTest("syntax watching", function() {
             cockpit.spawn([ "bash", "-c", "echo 'hi-there-this-is-not-json'  > " + dir + "/foobar.json" ]);
         } else if (n == 3) {
             ok(err instanceof SyntaxError, "got SyntaxError error");
+            watch.remove();
             start ();
         } else
             ok(false, "not reached");
@@ -357,8 +359,10 @@ asyncTest("closing", function() {
     var n = 0;
     function start_after_two() {
         n += 1;
-        if (n == 2)
+        if (n == 2) {
+            watch.remove();
             start();
+        }
     }
 
     file.read()

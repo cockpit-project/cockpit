@@ -1277,14 +1277,16 @@
     <script id="authorized-keys-tmpl" type="x-template/mustache">
       {{#keys}}
         <div class="list-group-item">
+          <div class="comment">
             {{#comment}}
-              <div class="comment">{{comment}}</div>
+              {{comment}}
             {{/comment}}{{^comment}}
-              <div class="nocomment" translatable="yes">Unnamed</div>
+              <em translatable="yes">Unnamed</em>
             {{/comment}}
+          </div>
             <div class="fingerprint">
                {{#valid}}
-                 {{size}} {{fp}}
+                 {{fp}}
                {{/valid}}{{^valid}}
                  <span translatable="yes">Invalid key</span>
               {{/valid}}

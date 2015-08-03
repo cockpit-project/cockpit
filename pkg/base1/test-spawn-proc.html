@@ -228,6 +228,66 @@ asyncTest("stream partial binary", function() {
     proc.input("1234");
 });
 
+asyncTest("script with input", function() {
+    expect(2);
+
+    var script = "#!/bin/sh\n\n# Test\n/usr/bin/sort\necho $2\necho $1";
+
+    var proc = cockpit.script(script, [ "5", "4" ]);
+
+    proc.done(function(resp) {
+        equal(resp, "1\n2\n3\n4\n5\n", "output matched");
+    });
+
+    proc.always(function() {
+        equal(this.state(), "resolved", "didn't fail");
+        start();
+    });
+
+    proc.input("2\n", true);
+    proc.input("3\n1\n");
+});
+
+asyncTest("script with options", function() {
+    expect(2);
+
+    var script = "#!/bin/sh\n\n# Test\n/usr/bin/sort\necho $2\necho $1 >&2";
+
+    var proc = cockpit.script(script, [ "5", "4" ], { err: "out" });
+
+    proc.done(function(resp) {
+        equal(resp, "1\n2\n3\n4\n5\n", "output matched");
+    });
+
+    proc.always(function() {
+        equal(this.state(), "resolved", "didn't fail");
+        start();
+    });
+
+    proc.input("2\n", true);
+    proc.input("3\n1\n");
+});
+
+asyncTest("script without args", function() {
+    expect(2);
+
+    var script = "#!/bin/sh\n\n# Test\n/usr/bin/sort >&2";
+
+    var proc = cockpit.script(script, { err: "out" });
+
+    proc.done(function(resp) {
+        equal(resp, "1\n2\n3\n", "output matched");
+    });
+
+    proc.always(function() {
+        equal(this.state(), "resolved", "didn't fail");
+        start();
+    });
+
+    proc.input("2\n", true);
+    proc.input("3\n1\n");
+});
+
 QUnit.start();
 
 </script>

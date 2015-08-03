@@ -65,15 +65,13 @@ class TestKeys(MachineCase):
             b.set_val("#authorized-keys-text", key)
             b.click("#add-authorized-key")
             b.wait_popdown("add-authorized-key-dialog")
-            b.wait_in_text("#account-authorized-keys-list", "2048")
+            b.wait_in_text("#account-authorized-keys-list", comment)
 
             text = b.text("#account-authorized-keys-list")
             if ("SHA256" in text):
                 self.assertIn(fp_sh256, text)
             else:
                 self.assertIn(fp_md5, text)
-
-            b.wait_in_text("#account-authorized-keys-list", comment)
 
         # no keys
         login("user", "foobar", "User")
@@ -139,7 +137,7 @@ class TestKeys(MachineCase):
 
         # User can still see their keys
         login("user", "foobar", "User")
-        b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "2048")
+        b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "test-name")
 
         b.click("#account-authorized-keys-list div.list-group-item:first-child button");
         b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "no authorized public keys")

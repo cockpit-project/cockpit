@@ -95,7 +95,8 @@ AM_CPPFLAGS = \
 LOG_DRIVER = $(top_srcdir)/tools/tap-driver
 LOG_COMPILER = $(top_srcdir)/tools/tap-gtester
 
-TEST_EXTENSIONS = .html
+TEST_EXTENSIONS = .html .sh
+SH_LOG_DRIVER = $(top_srcdir)/tools/tap-driver
 HTML_LOG_DRIVER = $(top_srcdir)/tools/tap-driver
 if WITH_PHANTOMJS
 HTML_LOG_COMPILER = $(top_srcdir)/tools/tap-phantom $(builddir)/test-server $(top_srcdir)/

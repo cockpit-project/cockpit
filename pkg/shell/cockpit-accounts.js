@@ -851,8 +851,7 @@ PageAccount.prototype = {
             }
             $('#account .breadcrumb .active').text(title_name);
 
-            // if use accounts-privileged if account is
-            // not current logged in account
+            // check accounts-self-privileged whether account is the same as currently logged in user
             $(".accounts-self-privileged").
                 toggleClass("accounts-current-account",
                             cockpit.user.id == this.account["uid"]);

@@ -351,10 +351,30 @@ ul.available-interfaces-group {
     cursor: pointer;
 }
 
+#account-authorized-keys-list div.comment {
+    width: 250px;
+    font-weight: bold;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+
+#account-authorized-keys-list div.nocomment {
+    width: 250px;
+    font-style: italic;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+
 #account-authorized-keys-list div.fingerprint {
-    width: -moz-calc(100% - 30px);
-    width: -webkit-calc(100% - 30px);
-    width: calc(100% - 30px);
+    width: -moz-calc(100% - 30px - 260px);
+    width: -webkit-calc(100% - 30px - 260px);
+    width: calc(100% - 30px - 260px);
 
     white-space: nowrap;
     overflow: hidden;

@@ -1277,11 +1277,17 @@
     <script id="authorized-keys-tmpl" type="x-template/mustache">
       {{#keys}}
         <div class="list-group-item">
+            {{#comment}}
+              <div class="comment">{{comment}}</div>
+            {{/comment}}{{^comment}}
+              <div class="nocomment" translatable="yes">Unnamed</div>
+            {{/comment}}
             <div class="fingerprint">
                {{#valid}}
-                {{size}} {{fp}} <b>{{comment}}</b>
-               {{/valid}}
-               {{^valid}}<span translatable="yes">Invalid key</span>{{/valid}}
+                 {{size}} {{fp}}
+               {{/valid}}{{^valid}}
+                 <span translatable="yes">Invalid key</span>
+              {{/valid}}
             </div>
             <div class="action"><button data-raw="{{raw}}" class="btn btn-default btn-control accounts-self-privileged account-remove-key">-</button></div>
         </div>

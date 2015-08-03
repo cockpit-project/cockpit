@@ -548,7 +548,7 @@
               <table class="cockpit-info-table col-sm-3">
               <tr>
                 <td translatable="yes">Full Name</td>
-                <td style="vertical-align:bottom"><input id="account-real-name" class="form-control accounts-privileged" data-container="body"></td>
+                <td style="vertical-align:bottom" class="accounts-privileged" id="account-real-name-wrapper"><input id="account-real-name" class="form-control" data-container="body"></td>
               </tr>
               <tr>
                 <td translatable="yes">User Name</td>
@@ -579,13 +579,26 @@
               <tr>
                 <td translatable="yes">Password</td>
                 <td>
-                   <button class="btn btn-default accounts-privileged" translatable="yes" id="account-set-password" data-container="body">Set Password</button>
+                   <button class="btn btn-default accounts-self-privileged" translatable="yes" id="account-set-password" data-container="body">Set Password</button>
                 </td>
               </tr>
 
             </table>
           </div>
         </div>
+
+        <div class="panel panel-default" id="account-authorized-keys">
+            <div class="panel-heading">
+                <div style="float:right">
+                    <button data-toggle="modal" data-target="#add-authorized-key-dialog" data-original-title="Add Public Key" class="btn btn-primary accounts-self-privileged fa fa-plus" id="authorized-key-add" title=""></button>
+                </div>
+              <span translatable="yes">Authorized Public SSH Keys</span>
+            </div>
+            <div class="list-group" id="account-authorized-keys-list">
+            </div>
+          </div>
+      </div>
+
       </div>
 
       <!-- this will be moved into a page when it is shown. -->
@@ -1255,6 +1268,58 @@
             </button>
             <button class="btn btn-danger" id="account-confirm-delete-apply" translatable="yes">
               Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script id="authorized-keys-tmpl" type="x-template/mustache">
+      {{#keys}}
+        <div class="list-group-item">
+            <div class="fingerprint">
+               {{#valid}}
+                {{size}} {{fp}} <b>{{comment}}</b>
+               {{/valid}}
+               {{^valid}}<span translatable="yes">Invalid key</span>{{/valid}}
+            </div>
+            <div class="action"><button data-raw="{{raw}}" class="btn btn-default accounts-self-privileged account-remove-key">-</button></div>
+        </div>
+      {{/keys}}
+      {{^keys}}
+        <div class="list-group-item">
+            <div class="fingerprint">
+            {{#empty}}
+                <span translatable="yes">There are no authorized public keys for this account.</span>
+            {{/empty}}
+            {{#denied}}
+                <span translatable="yes">You do not have permission to view the authorized public keys for this account.</span>
+            {{/denied}}
+            {{#failed}}
+                <span translatable="yes">Failed to load authorized keys.</span>
+            {{/failed}}
+            </div>
+        </div>
+      {{/keys}}
+    </script>
+
+    <div class="modal" id="add-authorized-key-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" translatable="yes">Add public key</h4>
+          </div>
+          <div class="modal-body">
+            <textarea id="authorized-keys-text" class="form-control" style="resize:none;margin-bottom:10px"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" id="cancel-authorized-key" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" translatable="yes" id="add-authorized-key">
+              Add key
             </button>
           </div>
         </div>

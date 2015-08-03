@@ -23,29 +23,43 @@ define([
     "base1/mustache",
     "shell/controls",
     "shell/shell",
+    "shell/authorized-keys",
     "shell/cockpit-main",
     "base1/patterns",
-], function($, cockpit, Mustache, controls, shell) {
+], function($, cockpit, Mustache, controls, shell, authorized_keys) {
 "use strict";
 
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 
 function update_accounts_privileged() {
+    $(".accounts-self-privileged").addClass("accounts-privileged");
+
+    controls.update_privileged_ui(
+        shell.default_permission,
+        ".accounts-privileged:not('.accounts-current-account')",
+        cockpit.format(
+            _("The user <b>$0</b> is not permitted to modify accounts"),
+            cockpit.user.name)
+    );
+    $(".accounts-privileged").find("input")
+        .attr('disabled', shell.default_permission.allowed === false ||
+                          $('#account-user-name').text() === 'root');
+
+    // enable fields for current account.
+    controls.update_privileged_ui(
+        {allowed: true}, ".accounts-current-account", ""
+    );
+    $(".accounts-current-account").find("input")
+        .attr('disabled', false);
+
     if ($('#account-user-name').text() === 'root' && shell.default_permission.allowed) {
         controls.update_privileged_ui({allowed: false},
                                       "#account-delete",
                                       _("Unable to delete root account"));
-    } else {
-        controls.update_privileged_ui(
-            shell.default_permission, ".accounts-privileged",
-            cockpit.format(
-                _("The user <b>$0</b> is not permitted to modify accounts"),
-                cockpit.user.name)
-        );
-        $(".accounts-privileged").find("input")
-            .attr('disabled', shell.default_permission.allowed === false ||
-                              $('#account-user-name').text() === 'root');
+        controls.update_privileged_ui({allowed: false},
+                                      "#account-real-name-wrapper",
+                                      _("Unable to rename root account"));
     }
 }
 
@@ -578,6 +592,10 @@ PageAccount.prototype = {
         this.roles = [];
         this.role_template = $("#role-entry-tmpl").html();
         Mustache.parse(this.role_template);
+
+        this.keys_template = $("#authorized-keys-tmpl").html();
+        Mustache.parse(this.keys_template);
+        this.authorized_keys = null;
     },
 
     getTitle: function() {
@@ -594,6 +612,49 @@ PageAccount.prototype = {
         $('#account-delete').on('click', $.proxy (this, "delete_account"));
         $('#account-logout').on('click', $.proxy (this, "logout_account"));
         $('#account-locked').on('change', $.proxy (this, "change_locked"));
+        $('#add-authorized-key').on('click', $.proxy (this, "add_key"));
+        $('#add-authorized-key-dialog').on('hidden.bs.modal', function () {
+            $("#authorized-keys-text").val("");
+        });
+    },
+
+    setup_keys: function (user_name, home_dir) {
+        var self = this;
+        if (!self.authorized_keys) {
+            self.authorized_keys = authorized_keys.instance(user_name, home_dir);
+            $(self.authorized_keys).on("changed", function () {
+                self.update();
+            });
+        }
+    },
+
+    remove_key: function (ev) {
+        if (!this.authorized_keys)
+            return;
+
+        var key = $(ev.target).data("raw");
+        $(".account-remove-key").prop('disabled', true);
+        this.authorized_keys.remove_key(key)
+            .fail(shell.show_unexpected_error)
+            .always(function () {
+                $(".account-remove-key").prop('disabled', false);
+            });
+    },
+
+    add_key: function () {
+        if (!this.authorized_keys)
+            $("#add-authorized-key-dialog").modal('hide');
+
+        var key = $("#authorized-keys-text").val();
+        var promise = this.authorized_keys.add_key(key);
+        $("#add-authorized-key-dialog").dialog("wait", promise);
+        promise
+            .done(function() {
+                $("#add-authorized-key-dialog").modal('hide');
+            })
+            .fail(function(ex) {
+                $("#add-authorized-key-dialog").dialog("failure", ex);
+            });
     },
 
     get_user: function() {
@@ -606,6 +667,7 @@ PageAccount.prototype = {
                   continue;
 
                self.account = accounts[i];
+               self.setup_keys(self.account.name, self.account.home);
                self.update();
             }
         }
@@ -721,19 +783,23 @@ PageAccount.prototype = {
            this.handle_groups.close();
            this.handle_groups = null;
         }
+
+        if (this.authorized_keys) {
+           $(this.authorized_keys).off();
+           this.authorized_keys.close();
+           this.authorized_keys = null;
+        }
     },
 
     update: function() {
-        if (this.account) {
-            var can_change = this.check_role_for_self_mod();
 
+        if (this.account) {
             var name = $("#account-real-name");
 
             var title_name = this.account["gecos"];
             if (!title_name)
                 title_name = this.account["name"];
 
-            name.attr('disabled', !can_change || this.account["uid"] === 0);
             $('#account-logout').attr('disabled', !this.logged);
 
             $("#account-title").text(title_name);
@@ -756,6 +822,23 @@ PageAccount.prototype = {
                 $('#account-locked').parents('tr').hide();
             }
 
+            if (this.authorized_keys) {
+                var keys = this.authorized_keys.keys;
+                var state = this.authorized_keys.state;
+                var keys_html = Mustache.render(this.keys_template, {
+                    "keys": keys,
+                    "empty": keys.length === 0 && state == "ready",
+                    "denied": state == "access-denied",
+                    "failed": state == "failed",
+                });
+                $('#account-authorized-keys-list').html(keys_html);
+                $(".account-remove-key")
+                    .on("click", $.proxy (this, "remove_key"));
+                $('#account-authorized-keys').show();
+            } else {
+                $('#account-authorized-keys').hide();
+            }
+
             if (this.account["uid"] !== 0) {
                 var html = Mustache.render(this.role_template,
                                            { "roles": this.roles});
@@ -767,6 +850,13 @@ PageAccount.prototype = {
                 $('#account-roles').parents('tr').hide();
             }
             $('#account .breadcrumb .active').text(title_name);
+
+            // if use accounts-privileged if account is
+            // not current logged in account
+            $(".accounts-self-privileged").
+                toggleClass("accounts-current-account",
+                            cockpit.user.id == this.account["uid"]);
+
         } else {
             $('#account-real-name').val("");
             $('#account-user-name').text("");

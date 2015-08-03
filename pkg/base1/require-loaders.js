@@ -41,6 +41,7 @@ define('data', function() {
                 onload.error(new Error(xhr.status + " error"));
             }
         };
+        xhr.overrideMimeType("text/plain");
         xhr.send();
     };
 

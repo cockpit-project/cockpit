@@ -21,7 +21,7 @@ define([
         /* if we don't have user information yet, retry soon
          * abort wait and just use default shell if we exceed time limit
          */
-        if (!current_user && ((new Date()) - shell_update_started < 1000)) {
+        if (current_user.shell === undefined && ((new Date()) - shell_update_started < 1000)) {
             terminal_timer = window.setTimeout(start_terminal, 50);
             return;
         }
@@ -48,6 +48,7 @@ define([
                 "TERM=xterm-256color",
                 "PATH=/sbin:/bin:/usr/sbin:/usr/bin"
             ],
+            "directory": current_user.home || "/",
             "pty": true
         });
 

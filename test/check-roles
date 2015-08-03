@@ -112,6 +112,7 @@ class TestRoles(MachineCase):
         self.allow_journal_messages("This incident has been reported.")
         self.allow_journal_messages("sudo: a password is required")
         self.allow_journal_messages("user user was reauthorized")
+        self.allow_journal_messages("sudo: sorry, you must have a tty to run sudo")
 
     def testDynamic(self):
         m = self.machine

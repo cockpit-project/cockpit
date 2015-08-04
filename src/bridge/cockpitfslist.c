@@ -237,7 +237,7 @@ cockpit_fslist_prepare (CockpitChannel *channel)
 
   file = g_file_new_for_path (self->path);
   g_file_enumerate_children_async (file,
-                                   G_FILE_ATTRIBUTE_STANDARD_NAME,
+                                   G_FILE_ATTRIBUTE_STANDARD_NAME "," G_FILE_ATTRIBUTE_STANDARD_TYPE,
                                    G_FILE_QUERY_INFO_NONE,
                                    G_PRIORITY_DEFAULT,
                                    self->cancellable,

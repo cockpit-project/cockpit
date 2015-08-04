@@ -609,7 +609,7 @@ class QemuMachine(Machine):
 
     def build(self, args):
         def modify(gf):
-            if self.os in [ "fedora-22", "fedora-22-testing", "centos-7" ]:
+            if self.os in [ "fedora-22", "fedora-22-testing", "fedora-23", "centos-7" ]:
                 self._setup_fedora_like(gf)
             elif self.os == "fedora-rawhide":
                 self._setup_fedora_rawhide(gf)

@@ -12,7 +12,7 @@ function process() {
         ;;
     *)
         echo "$1" > authorized_keys
-        ssh-keygen -l -f authorized_keys || echo ""
+        echo "$(ssh-keygen -l -f authorized_keys)"
         echo "$1"
         ;;
     esac

@@ -68,7 +68,9 @@ class TestStorage(StorageCase):
         # Now doubly hide the clear text block device by locking the
         # crypto backing device and deactivating /dev/TEST/lvol
         self.content_action(1, "Lock")
+        b.wait_not_in_text("#content", "FS")
         self.content_action(1, "Deactivate")
+        b.wait_in_text("#content", "(inactive)")
 
         # Deleting the volume group should still remove the fstab entry
         b.click_action_btn('.panel-heading:contains("Volume Group") .btn-group', "Delete")

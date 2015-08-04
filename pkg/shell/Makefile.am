@@ -45,8 +45,7 @@ shell_BUNDLE = \
 pkg/shell/bundle.min.js: $(shell_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
-shell_SHELL = \
-	pkg/shell/shell.js \
+shell_MINFILES = \
 	pkg/shell/dbus.min.js \
 	pkg/shell/controls.min.js \
 	pkg/shell/plot.min.js \
@@ -62,6 +61,11 @@ shell_SHELL = \
 	pkg/shell/cockpit-networking.min.js \
 	pkg/shell/cockpit-accounts.min.js \
 	pkg/shell/cockpit-docker.min.js \
+	$(NULL)
+
+shell_SHELL = \
+	pkg/shell/shell.js \
+	$(shell_MINFILES) \
 	$(NULL)
 
 pkg/shell/shell.min.js: $(shell_SHELL)
@@ -98,6 +102,7 @@ CLEANFILES += \
 	pkg/shell/shell.min.html \
 	$(shell_BUNDLE) \
 	$(shell_GZ) \
+	$(shell_MINFILES) \
 	$(NULL)
 
 EXTRA_DIST += \

@@ -74,6 +74,18 @@ class TestStorage(StorageCase):
         self.content_action(1, "Deactivate")
         b.wait_in_text("#content", "(inactive)")
 
+        # HACK - https://github.com/storaged-project/storaged/issues/17
+        #
+        # Calling wait_in_storaged_configuration above should be
+        # enough to ensure that storaged has picked up the changed
+        # fstab and that all ChildConfiguration properties are
+        # up-to-date.  However, this doesn't happen for LogicalVolume
+        # interfaces.  They only pick up the changes somewhere along
+        # the Lock/Deactivate activities, so we explicitly wait for
+        # that to have happened.
+        #
+        wait(lambda: "my-crypto-tag" in m.execute("storagedctl dump | grep ChildConfiguration"))
+
         # Deleting the volume group should still remove the fstab entry
         b.click_action_btn('.panel-heading:contains("Volume Group") .btn-group', "Delete")
         self.confirm()

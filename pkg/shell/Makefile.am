@@ -116,6 +116,7 @@ CLEANFILES += \
 	$(NULL)
 
 EXTRA_DIST += \
+	pkg/shell/mock \
 	pkg/shell/shell.min.js \
 	pkg/shell/bundle.min.js \
 	pkg/shell/index.min.html \

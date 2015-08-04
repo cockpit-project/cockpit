@@ -44,9 +44,14 @@ shelldebug_DATA = \
 	$(shell_SCRIPTS) \
 	$(NULL)
 
-shell_BUNDLE = \
+# shell_BUNDLEFILES are included in files to be cleaned
+shell_BUNDLEFILES = \
 	pkg/shell/index.min.js \
 	pkg/shell/machines.min.js \
+	$(NULL)
+
+shell_BUNDLE = \
+	$(shell_BUNDLEFILES) \
 	$(shell_SCRIPTS) \
 	$(NULL)
 
@@ -110,7 +115,7 @@ CLEANFILES += \
 	pkg/shell/bundle.min.js \
 	pkg/shell/index.min.html \
 	pkg/shell/shell.min.html \
-	$(shell_BUNDLE) \
+	$(shell_BUNDLEFILES) \
 	$(shell_GZ) \
 	$(shell_MINFILES) \
 	$(NULL)

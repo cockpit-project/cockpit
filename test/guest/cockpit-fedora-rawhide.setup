@@ -1,6 +1,6 @@
 #! /bin/bash
 
-set -x
+set -ex
 
 echo foobar | passwd --stdin root
 
@@ -37,6 +37,10 @@ echo 'NETWORKING=yes' > /etc/sysconfig/network
 useradd -u 1000 -c Administrator -G wheel admin
 echo foobar | passwd --stdin admin
 
+# We need storaged 2.
+#
+dnf -y copr enable phatina/storaged
+
 # Let's upgrade dnf first and then use the new dnf to upgrade
 # the rest. This helps avoid things like:
 #
@@ -46,6 +50,12 @@ dnf -y upgrade dnf
 
 dnf -y upgrade
 dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+
+# Enable Rawhide repositores and update
+#
+dnf -y install fedora-repos-rawhide
+sed -i 's/enabled=0/enabled=1/' /etc/yum.repos.d/fedora-rawhide.repo
+dnf -y upgrade
 
 rm -rf /var/log/journal/*
 echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf

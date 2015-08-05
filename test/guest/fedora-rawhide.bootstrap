@@ -1,3 +1,9 @@
 #! /bin/bash
 
-./fedora.install "$1" "$2" "http://dl.fedoraproject.org/pub/fedora/linux/development/rawhide/$2/os"
+# Rawhide starts out as Fedora 22.  The setup script will update it as
+# far as possible towards Rawhide.
+#
+# (Once Fedora 23 is released, we should switch to that as the basis.)
+
+BASE=$(dirname $0)
+$BASE/fedora.build "$1" fedora-22 "$2"

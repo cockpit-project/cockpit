@@ -33,6 +33,8 @@
 #include <errno.h>
 #include <sys/stat.h>
 
+#define TIMEOUT 30
+
 typedef struct {
   MockTransport *transport;
   CockpitChannel *channel;
@@ -67,6 +69,8 @@ static void
 setup (TestCase *tc,
        gconstpointer data)
 {
+  alarm (TIMEOUT);
+
   tc->transport = mock_transport_new ();
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_transport_closed), NULL);
   tc->channel = NULL;
@@ -203,6 +207,8 @@ teardown (TestCase *tc,
   g_free (tc->test_dir);
 
   g_free (tc->problem);
+
+  alarm (0);
 }
 
 static GBytes *

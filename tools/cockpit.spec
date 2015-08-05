@@ -179,7 +179,7 @@ The Cockpit Web Service listens on the network, and authenticates users.
 env NOCONFIGURE=1 ./autogen.sh
 %endif
 %configure --disable-static --disable-silent-rules --with-cockpit-user=cockpit-ws --with-branding=%{branding}
-make -j1 %{?extra_flags} all
+make -j %{?extra_flags} all
 %if 0%{?selinux}
 make selinux
 %endif

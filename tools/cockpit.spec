@@ -4,11 +4,15 @@
 
 %define branding auto
 
-# Our SELinux policy gets built in tests and f21 and lower
 %if %{defined gitcommit}
 %define extra_flags CFLAGS='-O2 -Wall -Werror -fPIC'
-%define selinux 1
 %define branding default
+%endif
+
+#Defaults for our SELinux policy toggle
+%if %{undefined selinux}
+%if %{defined gitcommit}
+%define selinux 1
 %endif
 %if 0%{?fedora} > 0 && 0%{?fedora} <= 21
 %define selinux 1
@@ -18,6 +22,7 @@
 %endif
 %if 0%{?centos}
 %define rhel 0
+%endif
 %endif
 
 %define _hardened_build 1
@@ -76,7 +81,7 @@ BuildRequires: nodejs
 %endif
 
 # For selinux
-%if %{defined selinux}
+%if 0%{?selinux}
 BuildRequires: selinux-policy-devel
 BuildRequires: checkpolicy
 BuildRequires: selinux-policy-doc
@@ -175,7 +180,7 @@ env NOCONFIGURE=1 ./autogen.sh
 %endif
 %configure --disable-static --disable-silent-rules --with-cockpit-user=cockpit-ws --with-branding=%{branding}
 make -j1 %{?extra_flags} all
-%if %{defined selinux}
+%if 0%{?selinux}
 make selinux
 %endif
 
@@ -196,7 +201,7 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -p -m 644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/%{name}/
-%if %{defined selinux}
+%if 0%{?selinux}
 install -d %{buildroot}%{_datadir}/selinux/targeted
 install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 %endif
@@ -401,7 +406,7 @@ pulls in some necessary packages via dependencies.
 
 %endif
 
-%if %{defined selinux}
+%if 0%{?selinux}
 
 %package selinux-policy
 Summary: SELinux policy for Cockpit testing

@@ -495,6 +495,11 @@ systemctl start docker
         # This is a failed login, which happens every time
         "Returning error-response 401 with reason `Sorry'",
 
+        # Reauth stuff
+        '.*Reauthorizing unix-user:.*',
+        '.*user .* was reauthorized',
+        'cockpit-polkit helper exited with status: 0',
+
         # Reboots are ok
         "-- Reboot --",
 
@@ -505,6 +510,9 @@ systemctl start docker
 
         # Will go away with glib 2.43.2
         ".*: couldn't write web output: Error sending data: Connection reset by peer",
+
+        # pam_lastlog outdated complaints
+        ".*/var/log/lastlog: No such file or directory",
 
         # SELinux messages to ignore
         "(audit: )?type=1403 audit.*",
@@ -522,12 +530,15 @@ systemctl start docker
                                     "g_dbus_connection_real_closed: Remote peer vanished with error: Underlying GIOStream returned 0 bytes on an async read \\(g-io-error-quark, 0\\). Exiting.",
                                     # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1141137
                                     "localhost: bridge program failed: Child process killed by signal 9",
-                                    "request timed out, closing")
+                                    "request timed out, closing",
+                                    "PolicyKit daemon disconnected from the bus.",
+                                    "We are no longer a registered authentication agent."
+                                    )
 
     def check_journal_messages(self, machine=None):
         """Check for unexpected journal entries."""
         machine = machine or self.machine
-        syslog_ids = [ "cockpit-wrapper", "cockpit-ws" ]
+        syslog_ids = [ "cockpit-ws", "cockpit-bridge" ]
         messages = machine.journal_messages(syslog_ids, 5)
         messages += machine.audit_messages("14") # 14xx is selinux
         all_found = True

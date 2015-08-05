@@ -41,6 +41,7 @@ class TestShutdownRestart(MachineCase):
         b.relogin("server")
 
         self.allow_restart_journal_messages()
+        self.allow_journal_messages("Shutdown scheduled for .*")
         self.check_journal_messages()
 
         # Poweroff

@@ -8,6 +8,8 @@
 function ph_init ()
 {
     localStorage.clear();
+    if (!window.Sizzle)
+        throw "Sizzle was not properly loaded"
     phantom_checkpoint = function() {
         console.log ("-*-CHECKPOINT-*-");
     }

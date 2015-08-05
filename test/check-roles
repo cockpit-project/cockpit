@@ -105,7 +105,14 @@ class TestRoles(MachineCase):
         b.go("account?id=admin")
         b.enter_page("account")
         b.wait_val("#account-real-name", "Administratorrrr")
+
         self.allow_restart_journal_messages()
+        self.allow_journal_messages("cannot reauthorize identity.*: unix-user:admin.*")
+        self.allow_journal_messages("Error executing command as another user: Not authorized")
+        self.allow_journal_messages("This incident has been reported.")
+        self.allow_journal_messages("sudo: a password is required")
+        self.allow_journal_messages("user user was reauthorized")
+        self.allow_journal_messages("sudo: sorry, you must have a tty to run sudo")
 
     def testDynamic(self):
         m = self.machine

@@ -11,7 +11,7 @@ systemd_DATA = \
 	$(systemd_GZ) \
 	$(NULL)
 
-systemddebugdir = $(DBGDIR)$(systemddir)
+systemddebugdir = $(debugdir)$(systemddir)
 systemddebug_DATA = \
 	pkg/systemd/bundle.js \
 	pkg/systemd/init.js \

@@ -184,7 +184,7 @@ make selinux
 # make check
 
 %install
-make install DESTDIR=%{buildroot} DBGDIR=/debug
+make install DESTDIR=%{buildroot}
 %if %{defined gitcommit}
 make install-test-assets DESTDIR=%{buildroot}
 mkdir -p %{buildroot}/%{_datadir}/polkit-1/rules.d
@@ -242,10 +242,10 @@ touch kubernetes.list
 sed -i "s|%{buildroot}||" *.list
 
 # Build the package lists for debug package, and move debug files to installed locations
-find %{buildroot}/debug%{_datadir}/%{name} -type f -o -type l > debug.list
-sed -i "s|%{buildroot}/debug||" debug.list
-tar -C %{buildroot}/debug -cf - . | tar -C %{buildroot} -xf -
-rm -rf %{buildroot}/debug
+find %{buildroot}/usr/src/debug%{_datadir}/%{name} -type f -o -type l > debug.list
+sed -i "s|%{buildroot}/usr/src/debug||" debug.list
+tar -C %{buildroot}/usr/src/debug -cf - . | tar -C %{buildroot} -xf -
+rm -rf %{buildroot}/usr/src/debug
 
 # On RHEL subscriptions and docker are part of the shell package
 %if 0%{?rhel}

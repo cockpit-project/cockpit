@@ -9,7 +9,7 @@ storaged_DATA = \
 	$(storaged_GZ) \
 	$(NULL)
 
-storageddebugdir = $(DBGDIR)$(storageddir)
+storageddebugdir = $(debugdir)$(storageddir)
 storageddebug_DATA = \
 	pkg/storaged/bundle.js \
 	pkg/storaged/details.js \

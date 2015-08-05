@@ -185,8 +185,7 @@ make selinux
 %endif
 
 %check
-# The check doesnt run on koji as it requires network
-# make check
+make -j check
 
 %install
 make install DESTDIR=%{buildroot}

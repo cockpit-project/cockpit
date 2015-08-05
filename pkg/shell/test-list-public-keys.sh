@@ -3,15 +3,15 @@
 set -euf
 cd $(dirname $0)
 
-echo "1..3"
+echo "1..4"
 
-function normalize()
+normalize()
 {
-	sed -e 's/\([0-9]\+ \)[A-Za-z0-9:]\+ \+/\1FINGERPRINT /' \
+    sed -e 's/\([0-9]\+ \)[A-Za-z0-9:]\+ \+/\1FINGERPRINT /' \
         -e 's/authorized_keys is not a public key file.//'
 }
 
-function test_compare()
+test_compare()
 {
     input="mock/ssh/$1-input"
     if /bin/sh ./ssh-list-public-keys.sh < $input | normalize | diff -U3 mock/ssh/$1-output - >&2; then

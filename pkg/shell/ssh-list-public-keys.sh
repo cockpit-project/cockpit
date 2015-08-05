@@ -3,7 +3,8 @@
 dir=$(mktemp -d)
 cd "$dir"
 
-function process() {
+process()
+{
     if [ -z "$1" ]; then
         return
     fi

@@ -29,6 +29,19 @@ class TestRoles(MachineCase):
         m.execute("useradd user -c 'User' || true")
         m.execute("echo foobar | passwd --stdin user")
 
+        # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1225957
+        #
+        # We compensate for the GFileMonitor bug by periodically
+        # triggering them forcefully in the background.
+        #
+        # XXX - This is terrible and we should try hard to fix the
+        # bug before merge.
+        #
+        # XXX - there is a race because of the two copies
+        #
+        if self.machine.os == "fedora-rawhide":
+            self.machine.spawn("while true; do sleep 2; cp /etc/group /tmp/xxx && cp /tmp/xxx /etc/group; done", "passwd-trigger.log")
+
         self.start_cockpit()
 
         def login(user, password):
@@ -119,6 +132,19 @@ class TestRoles(MachineCase):
         b = self.browser
 
         m.execute("groupadd docker")
+
+        # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1225957
+        #
+        # We compensate for the GFileMonitor bug by periodically
+        # triggering them forcefully in the background.
+        #
+        # XXX - This is terrible and we should try hard to fix the
+        # bug before merge.
+        #
+        # XXX - there is a race because of the two copies
+        #
+        if self.machine.os == "fedora-rawhide":
+            self.machine.spawn("while true; do sleep 2; cp /etc/group /tmp/xxx && cp /tmp/xxx /etc/group; done", "passwd-trigger.log")
 
         self.login_and_go("accounts", href="/users/local")
         b.go("account?id=admin")

@@ -79,6 +79,11 @@ class TestSystemInfo(MachineCase):
         m = self.machine
         b = self.browser
 
+        if m.os == "fedora-rawhide":
+            ntp_prefix = "Network time on: "
+        else:
+            ntp_prefix = "NTP enabled: "
+
         # make sure system is on expected timezone EEST
         m.execute("LC_ALL=C timedatectl set-timezone Europe/Helsinki")
 
@@ -97,7 +102,7 @@ class TestSystemInfo(MachineCase):
         b.click("#systime-apply-button")
         b.wait_popdown("system_information_change_systime")
 
-        self.assertIn("NTP enabled: no", m.execute("LC_ALL=C timedatectl"))
+        self.assertIn(ntp_prefix + "no", m.execute("LC_ALL=C timedatectl"))
         self.assertIn("Fri Jan 24 08:03:", m.execute("LC_ALL=C date"))
         self.assertIn("EET 2020\n", m.execute("LC_ALL=C date"))
 
@@ -110,7 +115,7 @@ class TestSystemInfo(MachineCase):
         b.click("#systime-apply-button")
         b.wait_popdown("system_information_change_systime")
 
-        self.assertIn("NTP enabled: yes", m.execute("LC_ALL=C timedatectl"))
+        self.assertIn(ntp_prefix + "yes", m.execute("LC_ALL=C timedatectl"))
 
         # HACK: Work around for SELinux bug in Fedora 21
         # https://bugzilla.redhat.com/show_bug.cgi?id=1014315
@@ -126,7 +131,7 @@ class TestSystemInfo(MachineCase):
         b.click("#systime-apply-button")
         b.wait_popdown("system_information_change_systime")
 
-        self.assertIn("NTP enabled: no", m.execute("LC_ALL=C timedatectl"))
+        self.assertIn(ntp_prefix + "no", m.execute("LC_ALL=C timedatectl"))
         self.assertIn("Mon Jun  4 06:34:", m.execute("LC_ALL=C date"))
         self.assertIn("EEST 2018\n", m.execute("LC_ALL=C date"))
 

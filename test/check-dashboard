@@ -88,6 +88,17 @@ class TestDashboard(MachineCase):
         m3.start()
         m3.wait_boot()
 
+        # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1225957
+        #
+        # We compensate for the GFileMonitor bug by periodically
+        # triggering them forcefully in the background.
+        #
+        # XXX - This is terrible and we should try hard to fix the
+        # bug before merge.
+        #
+        if m.os == "fedora-rawhide":
+            m.spawn("while true; do sleep 2; echo >>/var/lib/cockpit/machines.json; done", "machines-trigger.log")
+
         self.login_and_go("dashboard", href="/dashboard/list", host=None)
         self.inject_extras(b)
 

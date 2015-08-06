@@ -72,11 +72,13 @@ class TestLogin(MachineCase):
         with b.wait_timeout(10) as r:
             b.expect_reload()
         b.wait_present("#content")
+        b.wait_visible("#content")
         b.wait_text('#content-user-name', 'Administrator')
 
         # reload, which should log us in with the cookie
         b.reload()
         b.wait_present("#content")
+        b.wait_visible("#content")
         b.wait_text('#content-user-name', 'Administrator')
 
         b.click('#go-account')

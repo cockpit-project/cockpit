@@ -28,6 +28,9 @@ class TestShutdownRestart(MachineCase):
         m = self.machine
         b = self.browser
 
+        # HACK - XXX
+        self.allow_journal_messages('.*comm="systemd-logind".*')
+
         self.login_and_go("server", href="/system/host")
 
         # Reboot

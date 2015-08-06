@@ -4,6 +4,8 @@
 [![Fedora 22 Cloud Atomic Host build status](http://files.cockpit-project.org/hubbot/status-f22-atomic-x86_64.svg?master)](http://files.cockpit-project.org/hubbot/)
 [![Fedora 22 Testing build status](http://files.cockpit-project.org/hubbot/status-f22-t-x86_64.svg?master)](http://files.cockpit-project.org/hubbot/)
 
+[![Fedora 23 build status](http://files.cockpit-project.org/hubbot/status-f23-x86_64.svg?master)](http://files.cockpit-project.org/hubbot/)
+
 [![Fedora Rawhide build status](http://files.cockpit-project.org/hubbot/status-fraw-x86_64.svg?master)](http://files.cockpit-project.org/hubbot/)
 
 [![RHEL 7 build status](http://files.cockpit-project.org/hubbot/status-r7-x86_64.svg?master)](http://files.cockpit-project.org/hubbot/)

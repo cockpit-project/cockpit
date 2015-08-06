@@ -40,23 +40,6 @@ class StorageCase(MachineCase):
              'SUBSYSTEM=="block" KERNEL=="vd*" IMPORT{program}="/bin/sh -c \'sleep 0.5; s=$(cat /sys/block/$(basename $tempnode)/serial); echo ID_SERIAL=$s\'"')
         self.machine.execute("udevadm control --reload; udevadm trigger")
 
-        # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1225905
-        # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1225957
-        #
-        # We compensate for the missing udev events and notifications
-        # by periodically triggering them forcefully in the
-        # background.
-        #
-        # We can't easily insert these triggers only when they are
-        # needed because they are necessary in the middle of a complex
-        # Format operation, for example.
-        #
-        # XXX - This is terrible and we should try hard to fix the
-        # bugs before merge.
-        #
-        if self.machine.os == "fedora-rawhide":
-            self.machine.spawn("while true; do sleep 2; udevadm trigger -s block; echo >>/etc/fstab; echo >>/etc/crypttab; done", "udev-trigger.log")
-
     def inode(self, f):
         return self.machine.execute("stat -L '%s' -c %%i" % f)
 

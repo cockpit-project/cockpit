@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<!--
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2015 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<html>
+<head>
+    <title translatable="yes">Containers</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
+    <link href="docker.css" type="text/css" rel="stylesheet">
+    <script src="../base1/bundle.js"></script>
+    <script src="../shell/shell.js"></script>
+    <script src="bundle.js"></script>
+<script>
+    require([
+        "jquery",
+        "docker/containers"
+    ], function($, containers) {
+        $(containers);
+    });
+</script>
+</head>
+<body hidden>
+
+  <!-- CURTAIN -->
+
+  <script id="curtain-tmpl" type="x-template/mustache">
+    <div class="curtains blank-slate-pf">
+      <div class="blank-slate-pf-icon">
+        {{#connecting}}
+        <div class="spinner spinner-lg"></div>
+        {{/connecting}}
+        {{#denied}}
+        <div class="fa fa-lock"></div>
+        {{/denied}}
+        {{#notfound}}
+        <div class="fa fa-exclamation-circle"></div>
+        {{/notfound}}
+        {{#other}}
+        <div class="fa fa-exclamation-circle"></div>
+        {{/other}}
+      </div>
+      {{#connecting}}
+      <h1 translatable="yes">Connecting to Docker</h1>
+      {{/connecting}}
+      {{#denied}}
+      <h1 translatable="yes">Not authorized to access Docker on this system</h1>
+      {{/denied}}
+      {{#notfound}}
+      <h1 translatable="yes">Docker is not installed or activated on the system</h1>
+      {{/notfound}}
+      {{#other}}
+      <h1 translatable="yes">Can't connect to Docker</h1>
+      <p>{{.}}</p>
+      {{/other}}
+      <div class="blank-slate-pf-main-action">
+        {{#notfound}}
+        <button class="btn btn-primary btn-lg" translatable="yes" data-action="docker-start">Start Docker</button>
+        {{/notfound}}
+        {{#denied}}
+        <button class="btn btn-primary btn-lg" translatable="yes" data-action="docker-connect">Try again</button>
+        {{/denied}}
+        {{#other}}
+        <button class="btn btn-primary btn-lg" translatable="yes" data-action="docker-connect">Try again</button>
+        {{/other}}
+      </div>
+    </div>
+  </script>
+
+  <div id="curtain" hidden></div>
+
+  <!-- hidden bar-row to help set a minimum limit for container memory and image space-->
+  <div class="bar-row hidden" graph="containers-containers" value="0/100000000"></div>
+  <div class="bar-row hidden" graph="containers-images" value="0/100000000"></div>
+
+  <!-- OVERVIEW -->
+
+  <div id="containers" class="container-fluid" hidden>
+    <div class="col-md-12 col-lg-8">
+      <div class="row">
+        <div class="col-sm-6">
+          <div>Combined CPU usage<span style="float:right" id="containers-cpu-text"></span></div>
+          <div style="height:120px" id="containers-cpu-graph"></div>
+        </div>
+        <div class="col-sm-6">
+          <div>Combined memory usage<span style="float:right" id="containers-mem-text"></span></div>
+          <div style="height:120px" id="containers-mem-graph"></div>
+        </div>
+      </div>
+      <br/>
+      <div class="panel panel-default" id="containers-containers">
+        <div class="panel-heading">
+          <span style="float:right">
+            <select class="selectpicker form-control" id="containers-containers-filter">
+              <option value="all" selected="true" translatable="yes">All</option>
+              <option value="running" translatable="yes">Running</option>
+            </select>
+          </span>
+          Containers
+        </div>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th class="container-col-name">Name</th>
+              <th class="container-col-image">Image</th>
+              <th class="container-col-command">Command</th>
+              <th class="container-col-cpu">CPU</th>
+              <th class="container-col-memory-graph">Memory</th>
+              <th class="container-col-memory-text"></th>
+              <th class="container-col-actions cell-buttons"></th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="col-md-12 col-lg-4">
+      <div class="panel panel-default" id="containers-storage">
+        <div class="storage-label">Storage space</div>
+        <div class="bar-group">
+          <div class="data"></div>
+          <div class="bar"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-12 col-lg-4">
+      <div class="panel panel-default" id="containers-images">
+        <div class="panel-heading">
+          <span style="float:right">
+            <button class="btn btn-primary" id="containers-images-search" translatable="yes">
+              Get new image
+            </button>
+          </span>
+          Images
+        </div>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th class="image-col-tags">Tags</th>
+              <th class="image-col-created">Created</th>
+              <th class="image-col-size-text">Size</th>
+              <th class="cell-buttons"><!-- Action --></th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTAINER DETAILS -->
+
+  <div id="container-details" class="container-fluid" hidden>
+    <ol class="breadcrumb">
+      <li><a translatable="yes">Containers</a></li>
+      <li class="active"></li>
+    </ol>
+    <div class="panel-default panel">
+      <div class="panel-heading" style="height:44px">
+        <div class="col-sm-12">
+          Container:
+          <span id="container-details-names"></span>
+          <div class="pull-right" style="height:25px">
+            <button class="btn btn-default" id="container-details-start">Start</button>
+            <button class="btn btn-default" id="container-details-stop">Stop</button>
+            <button class="btn btn-default" id="container-details-restart">Restart</button>
+            <button class="btn btn-danger" id="container-details-delete">Delete</button>
+            <button class="btn btn-default" id="container-details-commit"
+                    data-toggle="modal" data-target="#container-commit-dialog">
+              Commit
+            </button>
+            <div class="spinner" style="display: none;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <table class="cockpit-info-table col-sm-5">
+          <tr>
+            <td>Id:</td>
+            <td colspan="2" id="container-details-id"></td>
+          </tr>
+          <tr>
+            <td>Created:</td>
+            <td colspan="2" id="container-details-created"></td>
+          </tr>
+          <tr>
+            <td>Image:</td>
+            <td colspan="2" id="container-details-image"></td>
+          </tr>
+          <tr>
+            <td>Command:</td>
+            <td colspan="2" id="container-details-command"></td>
+          </tr>
+          <tr>
+            <td>State:</td>
+            <td colspan="2" id="container-details-state"></td>
+          </tr>
+          <tr id="container-details-ports-row" style="display: none;">
+            <td>Ports:</td>
+            <td colspan="2" id="container-details-ports"></td>
+          </tr>
+          <tr id="container-details-links-row" style="display: none;">
+            <td>Links:</td>
+            <td colspan="2" id="container-details-links"></td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td>
+              <!-- hidden bar-row to help set a minimum limit for memory -->
+              <div class="bar-row hidden" graph="container-details" value="0/100000000"></div>
+            </td>
+          </tr>
+          <tr id="container-details-memory-row" class="interactive" style="display: none;">
+            <td>Memory usage:</td>
+            <td colspan="2" id="container-details-memory">
+              <div class="bar-row" graph="container-details"></div>
+            </td>
+            <td class="shrink" id="container-details-memory-text" style="min-width: 8em; text-align: right;"></td>
+          </tr>
+          <tr id="container-details-cpu-row" class="interactive" style="display: none;">
+            <td>CPU usage:</td>
+            <td colspan="2">
+              <span class="cpu-usage"></span>
+            </td>
+            <td class="shrink" style="min-width: 8em; text-align: right;">
+              <span class="cpu-shares"></span>
+            </td>
+          </tr>
+          <tr id="container-details-resource-row" style="display: none;">
+            <td></td>
+            <td>
+              <button class="btn btn-default resource-button" data-toggle="modal"
+                      data-target="#container-resources-dialog">
+                Change resource limits
+              </button>
+            </td>
+          </tr>
+        </table>
+        <div id="container-terminal" style="display: none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMAGE DETAILS -->
+
+  <div id="image-details" class="container-fluid" hidden>
+    <ol class="breadcrumb">
+      <li><a translatable="yes">Containers</a></li>
+      <li class="active"></li>
+    </ol>
+    <div class="panel-default panel">
+      <div class="panel-heading" style="height:44px">
+        <div class="col-sm-12">
+          Image: <span id="image-details-tags"></span>
+          <div class="pull-right" style="height:25px" id="image-details-buttons">
+            <button class="btn btn-default" id="image-details-run">Run</button>
+            <button class="btn btn-danger" id="image-details-delete">Delete</button>
+            <div class="spinner" style="display: none;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <table class="cockpit-info-table">
+	  <tr>
+            <td>Id:</td>
+            <td id="image-details-id"></td>
+          </tr>
+	  <tr>
+            <td>Entrypoint:</td>
+            <td id="image-details-entrypoint"></td>
+          </tr>
+	  <tr>
+            <td>Command:</td>
+            <td id="image-details-command"></td>
+          </tr>
+	  <tr>
+            <td>Created:</td>
+            <td id="image-details-created"></td>
+          </tr>
+	  <tr>
+            <td>Author:</td>
+            <td id="image-details-author"></td>
+          </tr>
+	  <tr>
+            <td>Ports:</td>
+            <td id="image-details-ports"></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel panel-default" id="image-details-containers">
+      <div class="panel-heading">
+        Containers
+      </div>
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th class="container-col-name">Name</th>
+            <th class="container-col-image">Image</th>
+            <th class="container-col-command">Command</th>
+            <th class="container-col-cpu">CPU</th>
+            <th class="container-col-memory-graph">Memory</th>
+            <th class="container-col-memory-text"></th>
+            <th class="container-col-actions cell-buttons"></th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- RUN DIALOG -->
+
+  <script id="port-expose-tmpl" type="x-template/mustache">
+    <form class="form-inline">
+      <button type="button" class="btn btn-default fa fa-plus"/>
+      <button type="button" class="btn btn-default pficon-close"/>
+      <div class="form-group">
+        <input type="text" name="container" class="form-control" placeholder="{{placeholder}}">
+      </div>
+      <div class="form-group">
+        <select class="form-control selectpicker" name="protocol" data-width="60px">
+          <option>TCP</option>
+          <option>UDP</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label translatable="yes">{{host_port_label}}</label>
+        <input type="text" name="host" class="form-control" placeholder="{{placeholder}}">
+      </div>
+      <div hidden>
+        <span class="help-block"/>
+      </div>
+      <div hidden>
+        <span class="help-block"/>
+      </div>
+    </form>
+  </script>
+
+  <script id="container-link-tmpl" type="x-template/mustache">
+    <form class="form-inline">
+      <button type="button" class="btn btn-default fa fa-plus"/>
+      <button type="button" class="btn btn-default pficon-close"/>
+      <div class="form-group">
+        <select class="form-control selectpicker" name="container">
+          <option value="">select container</option>
+          {{#containers}}<option>{{.}}</option>{{/containers}}
+        </select>
+      </div>
+      <div class="form-group">
+        <label translatable="yes">{{alias_label}}</label>
+        <input type="text" name="alias" class="form-control" placeholder="{{placeholder}}">
+      </div>
+      <div hidden>
+        <span class="help-block"/>
+      </div>
+      <div hidden>
+        <span class="help-block"/>
+      </div>
+    </form>
+  </script>
+
+  <div class="modal" id="containers_run_image_dialog"
+       tabindex="-1" role="dialog"
+       data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Run Image</h4>
+        </div>
+        <div class="modal-body">
+          <table class="cockpit-form-table">
+            <tr>
+              <td><label class="control-label"
+                         translatable="yes">Image</label></td>
+              <td colspan="3">
+                <span id="containers-run-image"/>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="control-label" for="containers-run-image-name"
+                         translatable="yes">Container Name</label></td>
+              <td colspan="3">
+                <input class="form-control" type="text" id="containers-run-image-name"/>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="control-label" for="containers-run-image-command"
+                         translatable="yes">Command</label></td>
+              <td colspan="3">
+                <input class="form-control" type="text" id="containers-run-image-command"/>
+                <div id="containers-run-image-command-note" hidden>
+                  <span class="help-block">
+                    Command can't be empty
+                  </span>
+                </div>
+              </td>
+            </tr>
+            <tr id="containers-run-image-memory">
+              <td><label class="control-label" translatable="yes">Memory limit</label></td>
+              <td class="shrink">
+                <input type="checkbox" />
+              </td>
+              <td>
+                <div class="slider" disabled='true' value="0.2">
+                  <div class="slider-bar">
+                    <div class="slider-thumb"></div>
+                  </div>
+                </div>
+              </td>
+              <td class="shrink" style="min-width: 8em; text-align: right;">
+                <span>unlimited</span>
+              </td>
+            </tr>
+            <tr id="containers-run-image-cpu">
+              <td><label class="control-label" translatable="yes">CPU priority</label></td>
+              <td class="shrink">
+                <input type="checkbox" />
+              </td>
+              <td>
+                <div class="slider" disabled='true' value="0.2">
+                  <div class="slider-bar">
+                    <div class="slider-thumb"></div>
+                  </div>
+                </div>
+              </td>
+              <td class="shrink" style="min-width: 8em; text-align: right;">
+                <span>default</span>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="control-label" for="containers-run-image-with-terminal"
+                         translatable="yes">With terminal</label></td>
+              <td class="shrink">
+                <input type="checkbox" id="containers-run-image-with-terminal" checked />
+              </td>
+            </tr>
+            <tr>
+              <td><label class="control-label" for="link-containers" translatable="yes">Links</label></td>
+              <td colspan="3">
+                <label>
+                  <input type="checkbox" name="link-containers" id="link-containers" checked="false"/>
+                  Link to another container
+                </label>
+                <div id="select-linked-containers" class="containers-run-inline">
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="control-label" for="expose-ports" translatable="yes">Ports</label></td>
+              <td colspan="3">
+                <label>
+                  <input type="checkbox" name="expose-ports" id="expose-ports" checked="false"/>
+                  Expose container ports
+                </label>
+                <div id="select-exposed-ports" class="containers-run-portmapping containers-run-inline">
+                </div>
+              </td>
+            </tr>
+
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+            Cancel
+          </button>
+          <button class="btn btn-primary" id="containers-run-image-run" translatable="yes">
+            Run
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEARCH DIALOG -->
+
+  <div class="modal" id="containers-search-image-dialog"
+       tabindex="-1" role="dialog"
+       data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Image Search</h4>
+        </div>
+        <div class="modal-body">
+          <div class="form-group has-feedback">
+            <input type="search" class="form-control" id="containers-search-image-search"/>
+            <span class="fa fa-search form-control-feedback containers-search-image-search-icon"></span>
+          </div>
+
+          <div id="containers-search-image-waiting"></div>
+          <div id="containers-search-image-results">
+            <table class="table table-hover">
+              <tbody></tbody>
+            </table>
+          </div>
+          <div id="containers-search-image-no-results">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <input type="text" id="containers-search-tag" class="form-control" disabled="disabled" placeholder="Tag" />
+          <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+            Cancel
+          </button>
+          <button class="btn btn-default" translatable="yes" disabled="disabled" id="containers-search-download">
+            Download
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESOURCE DIALOG -->
+
+  <div class="modal" id="container-resources-dialog"
+       tabindex="-1" role="dialog"
+       data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Change resources limits</h4>
+        </div>
+        <div class="modal-body">
+          <table class="cockpit-form-table">
+            <tr>
+              <td><label class="control-label" translatable="yes">Container Name</label></td>
+              <td colspan="3">
+                <span class="container-name"></span>
+              </td>
+            </tr>
+            <tr class="memory-slider">
+              <td><label class="control-label" translatable="yes">Memory limit</label></td>
+              <td class="shrink">
+                <input type="checkbox" />
+              </td>
+              <td>
+                <div class="slider" disabled='true' value="0.2">
+                  <div class="slider-bar">
+                    <div class="slider-thumb"></div>
+                  </div>
+                </div>
+              </td>
+              <td class="shrink" style="min-width: 8em; text-align: right;">
+                <span>unlimited</span>
+              </td>
+            </tr>
+            <tr class="cpu-slider">
+              <td><label class="control-label" translatable="yes">CPU priority</label></td>
+              <td class="shrink">
+                <input type="checkbox" />
+              </td>
+              <td>
+                <div class="slider" disabled='true' value="0.2">
+                  <div class="slider-bar">
+                    <div class="slider-thumb"></div>
+                  </div>
+                </div>
+              </td>
+              <td class="shrink" style="min-width: 8em; text-align: right;">
+                <span>default</span>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+            Cancel
+          </button>
+          <button class="btn btn-primary" translatable="yes" data-dismiss="modal">
+            Change
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMIT DIALOG -->
+
+  <div class="modal" id="container-commit-dialog"
+       tabindex="-1" role="dialog"
+       data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Commit Image</h4>
+        </div>
+        <div class="modal-body">
+          <table class="cockpit-form-table">
+            <tr>
+              <td><label class="control-label" translatable="yes">Container Name</label></td>
+              <td colspan="3">
+                <span class="container-name"/>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="control-label" translatable="yes">Repository</label></td>
+              <td colspan="3">
+                <input class="form-control container-repository" type="text"/>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="control-label" translatable="yes">Tag</label></td>
+              <td colspan="3">
+                <input class="form-control container-tag" type="text"/>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="control-label" translatable="yes">Author</label></td>
+              <td colspan="3">
+                <input class="form-control container-author" type="text"/>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="control-label" translatable="yes">Command</label></td>
+              <td colspan="3">
+                <input class="form-control container-command" type="text"/>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+            Cancel
+          </button>
+          <button class="btn btn-primary" translatable="yes" data-dismiss="modal">
+            Commit
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UNEXPTECTED ERROR DIALOG -->
+
+  <div class="modal" id="error-popup"
+       tabindex="-1" role="dialog"
+       data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" translatable="yes">Unexpected error</h4>
+        </div>
+        <div class="modal-body">
+          <p id="error-popup-message"></p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" data-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRMATION DIALOG -->
+
+  <div class="modal" id="confirmation-dialog"
+       tabindex="-1" role="dialog"
+       data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="confirmation-dialog-title"></h4>
+        </div>
+        <div class="modal-body" id="confirmation-dialog-body">
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-default" translatable="yes" id="confirmation-dialog-cancel">
+            Cancel
+          </button>
+          <button class="btn btn-danger" id="confirmation-dialog-confirm">
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>

@@ -1,0 +1,320 @@
+/* Align with the top of the graphs
+  only when not wrapped
+*/
+@media (min-width: 1200px) {
+  #containers-storage {
+    margin-top: 19px;
+  }
+}
+
+#containers-storage {
+    padding: 8px 15px 8px 15px;
+    overflow: hidden;
+}
+
+#containers-storage .bar-row {
+    min-width: 50px;
+    vertical-align: middle;
+}
+
+#containers-storage .bar-group {
+    min-width: 150px;
+    overflow: hidden;
+}
+
+#containers-storage .bar {
+    overflow: hidden;
+    vertical-align: bottom;
+}
+
+#containers-storage .data {
+    float: right;
+    max-height: 4em;
+    vertical-align: bottom;
+    padding-left: 8px;
+}
+
+#containers-storage .storage-label {
+    max-height: 4em;
+    float: left;
+    padding-right: 8px;
+}
+
+.container-col-name {
+    width: 20%;
+}
+
+.container-col-image {
+    width: 20%;
+}
+
+.container-col-command {
+    width: 15%;
+}
+
+.container-col-cpu {
+    width: 10%;
+    text-align: right;
+}
+
+.container-col-memory-graph {
+    width: 15%;
+}
+
+.container-col-memory-text {
+    width: 10%;
+}
+
+#image-details-containers .container-col-actions,
+#containers .container-col-actions {
+    vertical-align: top;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+#image-details-containers .cell-buttons,
+#image-details-containers .table > tbody > tr > .cell-buttons,
+#containers .cell-buttons,
+#containers .table > tbody > tr > .cell-buttons {
+    width: auto;
+}
+
+#image-details-containers .cell-buttons button,
+#image-details-containers .table > tbody > tr > .cell-buttons button,
+#containers .cell-buttons button,
+#containers .table > tbody > tr > .cell-buttons button {
+    position: absolute;
+    right: 30px;
+    width: 28px;
+    height: 28px;
+}
+
+#container-details .console {
+    margin-top: 0;
+    float: right;
+}
+
+#containers-search-image-dialog .modal-body {
+    height: 340px;
+}
+
+#containers-search-image-results {
+    height: 300px;
+    overflow-y: scroll;
+    border: 1px solid #BABABA;
+    margin-top: 10px;
+}
+
+#containers-search-image-results tr.active td {
+    background-color: #f5f9fc;
+}
+
+#containers-search-image-search {
+    padding-left: 25px;
+}
+
+#containers-search-image-dialog .containers-search-image-search-icon {
+    left: 0;
+    top: 6px;
+}
+
+#containers-search-image-waiting.spinner {
+    margin: auto;
+    margin-top: 150px;
+}
+
+#containers-search-image-no-results {
+    margin: auto;
+    margin-top: 100px;
+    text-align: center;
+}
+
+#containers-search-tag {
+    width: 200px;
+    float: left;
+}
+
+#containers #containers-containers .table,
+#containers #containers-images .table {
+    table-layout: fixed;
+}
+
+#containers #containers-containers .table th,
+#containers #containers-containers .table td,
+#containers #containers-images .table th,
+#containers #containers-images .table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.image-col-tags {
+    width: 40%;
+}
+
+.image-col-created {
+    width: 30%;
+}
+
+.image-col-size-text {
+    width: 15%;
+}
+
+#containers_run_image_dialog td {
+    vertical-align: top;
+}
+
+.containers-run-inline {
+    margin-left: 8px;
+}
+
+.containers-run-inline form .pficon-close,
+.containers-run-inline form .fa-plus {
+    height: 26px;
+    width: 26px;
+    padding: 4px;
+    float: right;
+    margin-left: 5px;
+}
+
+.containers-run-inline .form-inline {
+    background: #f4f4f4;
+    border-width: 0 1px 1px 1px;
+    border-style: solid;
+    border-color: #bababa;
+    padding: 4px;
+}
+
+.containers-run-inline .form-inline:first-of-type {
+    border-top: 1px solid #bababa;
+}
+
+.containers-run-inline .form-control {
+  margin: 0 4px;
+}
+
+.containers-run-inline .form-group:first-of-type .form-control {
+  margin: 0 4px 0 0;
+}
+
+.containers-run-portmapping input {
+    max-width: 5em;
+}
+
+#select-linked-containers .form-group {
+    width: 80%;
+}
+
+#select-linked-containers label {
+    padding-right: 4px;
+    padding-left: 4px;
+}
+
+@media (min-width: 768px) {
+  #select-linked-containers .form-group {
+      width: 40%;
+  }
+  #select-linked-containers input {
+      max-width: 73%;
+  }
+}
+
+/* Hack to remove size column */
+.image-col-size-graph {
+    display: none !important;
+}
+
+/* workaround: make text red for select if contained in has-error, not in patternfly */
+.has-error > .bootstrap-select > button > span {
+    color: #A94442;
+}
+
+/*
+ * Styling of bar graphs. See controls.js for more details
+ */
+.bar-row {
+    min-width: 100px;
+    margin-top: 2px;
+    margin-bottom: 0px;
+    height: 15px;
+}
+
+.bar-row div.progress-bar {
+    background-color: #0099d3;
+}
+
+.bar-row-danger div.progress-bar {
+    background-color: #af151a;
+}
+
+.bar-row div.progress-no-limit {
+    /* used when no limit */
+    background-color: transparent;
+}
+
+.bar-row div.progress,
+.bar-row div.progress div.progress-bar {
+    /* minimum width of each bar */
+    min-width: 5px;
+}
+
+.slider {
+    margin: 10px 10px;
+    height: 5px;
+    white-space: nowrap;
+    font-size: 0px;
+    background-color: #e7e7e7;
+    cursor: pointer;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+}
+
+.slider-warning {
+    background-color: #d4a096;
+}
+
+.slider-bar {
+    position: relative;
+    height: 5px;
+}
+
+.slider > .slider-bar > .slider-bar {
+    border-right: 3px solid white;
+    height: 5px;
+    position: relative;
+}
+
+.slider > .slider-bar > .slider-bar {
+    display: inline-block;
+}
+
+.slider > div:first-child {
+    float: left;
+    background-color: #0099d3;
+}
+
+.slider-disabled > div:first-child {
+    cursor: auto;
+    background-color: #e7e7e7;
+}
+
+.slider-thumb {
+    position: absolute;
+    border-radius: 9px;
+    background-color: #0099d3;
+    width: 18px;
+    height: 18px;
+    top: -6px;
+    right: -9px;
+    content: '.';
+    cursor: pointer;
+    border: 1px solid #267da1;
+    z-index: 1;
+}
+
+.slider-disabled .slider-thumb {
+    background-color: #e7e7e7;
+    border: 1px solid #d7d7d7;
+    cursor: auto;
+}

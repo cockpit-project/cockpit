@@ -40,7 +40,6 @@ shelldebug_DATA = \
 	pkg/shell/cockpit-networking.js \
 	pkg/shell/cockpit-accounts.js \
 	pkg/shell/authorized-keys.js \
-	pkg/shell/cockpit-docker.js \
 	$(shell_SCRIPTS) \
 	$(NULL)
 
@@ -74,7 +73,6 @@ shell_MINFILES = \
 	pkg/shell/cockpit-networking.min.js \
 	pkg/shell/cockpit-accounts.min.js \
 	pkg/shell/authorized-keys.min.js \
-	pkg/shell/cockpit-docker.min.js \
 	$(NULL)
 
 shell_SHELL = \

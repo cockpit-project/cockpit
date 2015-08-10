@@ -508,9 +508,6 @@ define([
             if (component == "system/host") {
                 component = "shell/shell";
                 hash = "/server" + hash;
-            } else if (component == "docker/containers") {
-                component = "shell/shell";
-                hash = "/containers" + hash;
             } else if (component == "network/interfaces") {
                 component = "shell/shell";
                 hash = "/networking" + hash;

@@ -39,12 +39,12 @@ class TestDocker(MachineCase):
         with b.wait_timeout(20):
             try:
                 self.confirm()
-                b.enter_page("containers")
+                b.wait_visible("#containers")
                 b.wait_not_in_text("#containers-containers", container_name)
             except:
                 # we may have to confirm again for forced deletion
                 self.confirm()
-                b.enter_page("containers")
+                b.wait_visible("#containers")
                 b.wait_not_in_text("#containers-containers", container_name)
 
     def wait_for_message(self, message):
@@ -62,7 +62,7 @@ class TestDocker(MachineCase):
 
         m.execute("systemctl start docker")
 
-        self.login_and_go("containers", href="/docker/containers")
+        self.login_and_go("/docker/containers")
         b.wait_in_text("#containers-images", "busybox")
 
         message = "HelloMessage."
@@ -78,18 +78,19 @@ class TestDocker(MachineCase):
 
         # Check output of the probe
         b.click('#containers-containers tr:contains("PROBE")')
-        b.enter_page("container-details")
+        b.wait_visible('#container-details')
         # The terminal uses NO-BREAK SPACE so we check for that here
         self.wait_for_message(message)
         b.wait_in_text("#container-details-state", "Exited")
 
         self.del_container_from_details("PROBE")
 
-        # Run it without TTY
+        # Run it without TTY and make sure it keeps running so that we
+        # can link to it.
         b.click('#containers-images tr:contains("busybox") button.fa-play')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE")
-        b.set_val("#containers-run-image-command", "/bin/echo '%s'" % (message))
+        b.set_val("#containers-run-image-command", "/bin/sh -c 'echo \"%s\"; sleep 10000'" % (message))
         b.click("#containers-run-image-with-terminal");
         b.click("#containers-run-image-run");
         b.wait_popdown("containers_run_image_dialog")
@@ -117,11 +118,10 @@ class TestDocker(MachineCase):
         b.wait_popdown("containers_run_image_dialog")
         b.wait_in_text("#containers-containers", "PROBE2")
 
-        # Check links, v1.10 of the API doesn't return links
-        # so our visual won't work.
+        # Check links
         info = json.loads(m.execute('docker inspect PROBE2'))
         self.assertEqual(set(info[0]["HostConfig"]["Links"]),
-            set(["/PROBE:/PROBE2/alias1", "/PROBE:/PROBE2/alias2"]))
+                         set(["/PROBE:/PROBE2/alias1", "/PROBE:/PROBE2/alias2"]))
 
         # delete PROBE2
         b.wait_in_text('#containers-containers tbody tr:first', "PROBE2")
@@ -139,25 +139,27 @@ class TestDocker(MachineCase):
 
         # Check output of PROBE
         b.click('#containers-containers tr:contains("PROBE")')
-        b.enter_page("container-details")
+        b.wait_visible("#container-details")
         self.wait_for_message(message)
         b.call_js_func("ph_count_check", ".logs",  1)
+        b.click("#container-details-stop")
         b.wait_in_text("#container-details-state", "Exited")
 
         # Make sure after restart we only have one
         b.click("#container-details-start")
         self.wait_for_message("%s\n%s" % (message, message))
         b.call_js_func("ph_count_check", ".logs",  1)
+        b.click("#container-details-stop")
         b.wait_in_text("#container-details-state", "Exited")
 
         self.del_container_from_details("PROBE")
 
         # Delete image
         b.click('#containers-images tr:contains("busybox")')
-        b.enter_page("image-details")
+        b.wait_visible("#image-details")
         b.click("#image-details-delete")
         self.confirm()
-        b.enter_page("containers")
+        b.wait_visible("#containers")
         b.wait_not_in_text('#containers-images', 'busybox')
 
     def testExpose(self):
@@ -167,7 +169,7 @@ class TestDocker(MachineCase):
 
         m.execute("systemctl start docker")
 
-        self.login_and_go("containers", href="/docker/containers")
+        self.login_and_go("/docker/containers")
         b.wait_in_text("#containers-images", "busybox")
 
         port = 3380;
@@ -199,7 +201,7 @@ CMD ["/bin/sh", "-c", "echo '%s' | tee /dev/fd/2 | nc -l -p %d"]
 
         # Check output of the probe
         b.click('#containers-containers tr:contains("PROBE2")')
-        b.enter_page("container-details")
+        b.wait_visible("#container-details")
         self.wait_for_message(message)
         b.wait_in_text("#container-details-ports", "0.0.0.0:%d -> %d/tcp" % (port, port))
 
@@ -232,7 +234,7 @@ CMD ["/bin/sh", "-c", "echo '%s' | tee /dev/fd/2 | nc -l -p %d"]
 
         # Check output of the probe
         b.click('#containers-containers tr:contains("PROBE2")')
-        b.enter_page("container-details")
+        b.wait_visible("#container-details")
         b.wait_in_text("#container-details-ports", ":%d -> %d/tcp" % (port, port))
         b.wait_in_text("#container-details-ports", ":%d -> %d/tcp" % (nport, nport))
         self.wait_for_message(message)
@@ -268,24 +270,23 @@ CMD ["/bin/sh", "-c", "echo '%s' | tee /dev/fd/2 | nc -l -p %d"]
         self.allow_journal_messages(".*Failed to create file '/var/lib/cockpit/.*': Permission denied")
         self.allow_journal_messages("http:///var/run/docker.sock/.*: couldn't connect: .*")
 
-        self.login_and_go("containers", href="/docker/containers")
+        self.login_and_go("/docker/containers")
 
         # We can not become root, so we can't access docker.
-        b.wait_visible("#containers-failure")
-        b.wait_text("#containers-failure-message", "Not authorized to access Docker on this system")
-        b.wait_visible("#containers-failure-retry")
+        b.wait_visible("#curtain")
+        b.wait_text("#curtain h1", "Not authorized to access Docker on this system")
+        b.wait_visible("#curtain button[data-action='docker-connect']")
 
         # Give "admin" access via the wheel group and login again
         m.execute("usermod -G wheel admin")
         m.execute("systemctl stop docker")
-        b.relogin("containers")
+        b.relogin("/docker/containers")
         self.allow_restart_journal_messages()
 
         # Now we can become root and start docker
-        b.wait_visible("#containers-failure")
-        b.wait_text("#containers-failure-message", "Docker is not installed or activated on the system")
-        b.wait_visible("#containers-failure-start")
-        b.click("#containers-failure-start")
+        b.wait_visible("#curtain")
+        b.wait_text("#curtain h1", "Docker is not installed or activated on the system")
+        b.click("#curtain button[data-action='docker-start']")
         b.wait_visible("#containers-containers")
 
         self.allow_journal_messages("cannot reauthorize identity.*: unix-user:root.*")

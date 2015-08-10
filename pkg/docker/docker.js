@@ -24,12 +24,6 @@ define([
 ], function($, cockpit, Terminal) {
     "use strict";
 
-    /*
-     * TODO: Only part of the docker code is present in this file. The
-     * remainder is in shell/cockpit-docker.js and will be migrated out
-     * of there at some point.
-     */
-
     var docker = { };
 
     function docker_debug() {

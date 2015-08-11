@@ -2624,7 +2624,6 @@ function full_scope(cockpit, $, po) {
         var storage = lookup_storage(window);
 
         var claimed = false;
-        var emitting = 0;
         var source;
 
         function callback() {
@@ -2641,21 +2640,18 @@ function full_scope(cockpit, $, po) {
             if (!claimed)
                 return;
 
-            var version = (last || 0) + 1;
+            // use a random number to avoid races by separate instances
+            var version = Math.floor(Math.random() * 10000000) + 1;
 
             /* Event for the local window */
             var ev = document.createEvent("StorageEvent");
-            ev.initStorageEvent("storage", false, false, key, version,
+            ev.initStorageEvent("storage", false, false, key, null,
                                 version, window.location, trigger);
 
             storage[key] = value;
             trigger.setItem(key, version);
-            try {
-                emitting += 1;
-                window.dispatchEvent(ev);
-            } finally {
-                emitting -= 1;
-            }
+            ev.self = self;
+            window.dispatchEvent(ev);
         }
 
         self.claim = function claim() {
@@ -2679,19 +2675,15 @@ function full_scope(cockpit, $, po) {
             else
                 current_value = null;
 
-            if (!claimed && (last === current_value)) {
+            if (last && last === current_value) {
                 var ev = document.createEvent("StorageEvent");
                 var version = trigger[key];
                 ev.initStorageEvent("storage", false, false, key, version,
                                     null, window.location, trigger);
                 delete storage[key];
                 trigger.removeItem(key);
-                try {
-                    emitting += 1;
-                    window.dispatchEvent(ev);
-                } finally {
-                    emitting -= 1;
-                }
+                ev.self = self;
+                window.dispatchEvent(ev);
             }
         }
 
@@ -2699,13 +2691,20 @@ function full_scope(cockpit, $, po) {
             if (event.key !== key)
                 return;
 
-            if (!emitting) {
-                if (!event.newValue) {
+            /* check where the event came from
+               - it came from someone else:
+                   if it notifies their unclaim (new value null) and we haven't already claimed, do so
+               - it came from ourselves:
+                   if the new value doesn't match the actual value in the cache, and
+                   we tried to claim (from null to a number), cancel our claim
+             */
+            if (event.self !== self) {
+                if (!event.newValue && !claimed) {
                     self.claim();
                     return;
-                } else if (claimed) {
-                    unclaim();
                 }
+            } else if (claimed && !event.oldValue && (event.newValue !== trigger.getItem(key))) {
+                unclaim();
             }
 
             var new_value = null;

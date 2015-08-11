@@ -32,6 +32,7 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/topology.js \
 	pkg/kubernetes/topology-graph.css \
 	pkg/kubernetes/topology-graph.js \
+	pkg/kubernetes/nulecule.js \
 	$(NULL)
 
 kubernetes_MIN = \
@@ -43,6 +44,7 @@ kubernetes_MIN = \
 	pkg/kubernetes/deploy.min.js \
 	pkg/kubernetes/details.min.js \
 	pkg/kubernetes/graphs.min.js \
+	pkg/kubernetes/nulecule.min.js \
 	pkg/kubernetes/node.min.js \
 	pkg/kubernetes/object-describer.min.js \
 	pkg/kubernetes/topology.min.js \

@@ -72,6 +72,8 @@ libcockpit_common_a_SOURCES = \
 	src/common/cockpittest.h \
 	src/common/cockpittransport.c \
 	src/common/cockpittransport.h \
+	src/common/cockpitunicode.c \
+	src/common/cockpitunicode.h \
 	src/common/cockpitunixfd.c \
 	src/common/cockpitunixfd.h \
 	src/common/cockpitunixsignal.c \
@@ -110,6 +112,7 @@ COCKPIT_CHECKS = \
 	test-webresponse \
 	test-webserver \
 	test-config \
+	test-unicode \
 	$(NULL)
 
 test_hex_CFLAGS = $(libcockpit_common_a_CFLAGS)
@@ -136,6 +139,10 @@ test_template_LDADD = $(libcockpit_common_a_LIBS)
 test_transport_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_transport_SOURCES = src/common/test-transport.c
 test_transport_LDADD = $(libcockpit_common_a_LIBS)
+
+test_unicode_CFLAGS = $(libcockpit_common_a_CFLAGS)
+test_unicode_SOURCES = src/common/test-unicode.c
+test_unicode_LDADD = $(libcockpit_common_a_LIBS)
 
 test_unixsignal_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_unixsignal_SOURCES = src/common/test-unixsignal.c

@@ -71,7 +71,7 @@ define([
 
         var options = {
             method: "POST",
-            path: "/v1.10/images/create",
+            path: "/v1.12/images/create",
             body: "",
             params: {
                 fromImage: repo,

@@ -2672,7 +2672,14 @@ function full_scope(cockpit, $, po) {
                 return;
 
             claimed = false;
-            if (!claimed && last == trigger.getItem(key)) {
+
+            var current_value = trigger.getItem(key);
+            if (current_value)
+                current_value = parseInt(current_value, 10);
+            else
+                current_value = null;
+
+            if (!claimed && (last === current_value)) {
                 var ev = document.createEvent("StorageEvent");
                 var version = trigger[key];
                 ev.initStorageEvent("storage", false, false, key, version,
@@ -2701,11 +2708,11 @@ function full_scope(cockpit, $, po) {
                 }
             }
 
-            if (last !== event.newValue) {
-                if (event.newValue)
-                    last = parseInt(event.newValue);
-                else
-                    last = 0;
+            var new_value = null;
+            if (event.newValue)
+                new_value = parseInt(event.newValue, 10);
+            if (last !== new_value) {
+                last = new_value;
                 callback();
             }
         }

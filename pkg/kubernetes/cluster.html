@@ -294,12 +294,12 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           </div>
         </tab>
         <tab heading="Console" select="connect('console')">
-          <kube-console host="{{pod.spec.nodeName}}" id="{{container.status.containerID}}">
-          </kube-console>
+          <kube-console namespace="{{pod.metadata.namespace}}" pod="{{pod.metadata.name}}"
+            container="{{container.spec.name}}"></kube-console>
         </tab>
         <tab heading="Shell" select="connect('shell')">
-          <kube-console host="{{pod.spec.nodeName}}" id="{{container.status.containerID}}" shell="true">
-          </kube-console>
+          <kube-shell namespace="{{pod.metadata.namespace}}" pod="{{pod.metadata.name}}"
+            container="{{container.spec.name}}"></kube-console>
         </tab>
       </tabset>
     </div>

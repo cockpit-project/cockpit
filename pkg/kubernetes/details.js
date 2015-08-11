@@ -1,9 +1,10 @@
 define([
     "jquery",
-    "docker/docker",
+    "base1/cockpit",
     "base1/angular",
+    "base1/term",
     "kubernetes/app"
-], function($, docker, angular) {
+], function($, cockpit, angular, Terminal) {
     'use strict';
 
     return angular.module('kubernetes.details', ['ngRoute'])
@@ -100,42 +101,174 @@ define([
         /*
          * Displays a container console.
          *
-         * <kube-console id="abcdef" host="127.0.0.1" shell="true"></kube-console>
-         *
-         * Arguments:
-         * id: the full container identifier
-         * host: the host the container is running on
-         * shell: whether to run a shell, or attach to container
+         * <kube-console namespace="ns" pod="name" container="name"></kube-console>
          */
         .directive('kubeConsole', function() {
             return {
                 restrict: 'E',
                 link: function(scope, element, attrs) {
-                    var options = { };
-                    if (attrs.host && attrs.host != "localhost" && attrs.host != "127.0.0.1")
-                        options.host = attrs.host;
+                    var cmd = [
+                        "kubectl",
+                        "logs",
+                        "--namespace=" + attrs.namespace,
+                        "--container=" + attrs.container,
+                        "--follow",
+                        attrs.pod
+                    ];
 
-                    var id = attrs.id || "";
-                    if (id.indexOf("docker://") === 0)
-                        id = id.substring(9);
+                    var outer = $("<div>").addClass("console");
+                    element.append(outer);
+                    var pre = $("<pre>").addClass("logs");
+                    outer.append(pre);
+                    var channel = null;
+                    var wait = null;
 
-                    var cons;
-                    var shell = scope.$eval(attrs.shell || "false");
-                    if (shell)
-                        cons = docker.console(id, ["/bin/sh", "-i"], options);
-                    else
-                        cons = docker.console(id, options);
+                    function connect() {
+                        pre.empty();
 
-                    element.append(cons);
+                        channel = cockpit.channel({
+                            payload: "stream",
+                            spawn: cmd,
+                            err: "out",
+                        });
 
-                    /* Don't connect immediately, wait for event */
-                    scope.$on("connect", function(ev, what) {
-                        if (what === (shell ? "shell" : "console")) {
-                            if (!cons.connected) {
-                                cons.typeable(true);
-                                cons.connect();
-                            }
+                        var writing = [];
+
+                        function drain() {
+                            wait = null;
+                            var at_bottom = pre[0].scrollHeight - pre.scrollTop() <= pre.outerHeight();
+                            var span = $("<span>").text(writing.join(""));
+                            writing.length = 0;
+                            pre.append(span);
+                            if (at_bottom)
+                                pre.scrollTop(pre.prop("scrollHeight"));
                         }
+
+                        $(channel)
+                            .on("close", function(ev, options) {
+                                if (options.problem)
+                                    writing.push(options.problem);
+                                drain();
+                                disconnect();
+                            })
+                            .on("message", function(ev, data) {
+                                writing.push(data);
+                                if (wait === null)
+                                    wait = window.setTimeout(drain, 50);
+                            });
+                    }
+
+                    function disconnect() {
+                        if (channel) {
+                            channel.close("terminated");
+                            $(channel).off();
+                        }
+                        channel = null;
+                        window.clearTimeout(wait);
+                        wait = null;
+                    }
+
+                    scope.$on("connect", function(ev, what) {
+                        if (what == "console") {
+                            if (!channel)
+                                connect();
+                        }
+                    });
+
+                    scope.$on("$destroy", disconnect);
+                }
+            };
+        })
+
+        /*
+         * Displays a container shell
+         *
+         * <kube-console namespace="ns" pod="name" container="name"></kube-console>
+         */
+        .directive('kubeShell', function() {
+            return {
+                restrict: 'E',
+                link: function(scope, element, attrs) {
+                    var cmd = [
+                        "kubectl",
+                        "exec",
+                        "--namespace=" + attrs.namespace,
+                        "--container=" + attrs.container,
+                        "--tty",
+                        "--stdin",
+                        attrs.pod,
+                        "--",
+                        "/bin/sh",
+                        "-i"
+                    ];
+
+                    /* term.js wants the parent element to build its terminal inside of */
+                    var outer = $("<div>").addClass("console");
+                    element.append(outer);
+
+                    var term = null;
+                    var channel = null;
+
+                    function connect() {
+                        outer.empty();
+                        if (term)
+                            term.destroy();
+
+                        term = new Terminal({
+                            cols: 80,
+                            rows: 24,
+                            screenKeys: true
+                        });
+
+                        term.open(outer[0]);
+
+                        channel = cockpit.channel({
+                            payload: "stream",
+                            spawn: cmd,
+                            pty: true
+                        });
+
+                        $(channel)
+                            .on("close", function(ev, options) {
+                                var problem = options.problem || "disconnected";
+                                term.write('\x1b[31m' + problem + '\x1b[m\r\n');
+                                disconnect();
+                            })
+                            .on("message", function(ev, payload) {
+                                /* Output from pty to terminal */
+                                term.write(payload);
+                            });
+
+                        term.on('data', function(data) {
+                            if (channel.valid)
+                                channel.send(data);
+                        });
+                    }
+
+                    function disconnect() {
+                        /* There's no term.hideCursor() function */
+                        if (term) {
+                            term.cursorHidden = true;
+                            term.refresh(term.y, term.y);
+                        }
+                        if (channel) {
+                            $(channel).off();
+                            channel.close("terminated");
+                        }
+                        channel = null;
+                    }
+
+                    scope.$on("connect", function(ev, what) {
+                        if (what == "shell") {
+                            if (!channel)
+                                connect();
+                        }
+                    });
+
+                    scope.$on("$destroy", function() {
+                        if (term)
+                            term.destroy();
+                        disconnect();
                     });
                 }
             };

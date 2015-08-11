@@ -45,8 +45,11 @@ class KubernetesCase(MachineCase):
         self.machine.execute(script=waiter)
 
     # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1243827
+    #
+    # HACK - The default install of kubernetes does not let you start pods due to
+    # ServiceAccount admission control. So remove that.
     def fix_apiserver_config(self):
-        self.machine.execute("sed -i /etc/kubernetes/apiserver -e 's/4001/2379/'")
+        self.machine.execute("sed -i /etc/kubernetes/apiserver -e 's/4001/2379/' -e 's/,ServiceAccount//'")
 
 
 @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-kubernetes on rhel-7.")

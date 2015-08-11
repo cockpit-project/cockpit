@@ -2679,7 +2679,7 @@ function full_scope(cockpit, $, po) {
             else
                 current_value = null;
 
-            if (!claimed && (last === current_value)) {
+            if (last === current_value) {
                 var ev = document.createEvent("StorageEvent");
                 var version = trigger[key];
                 ev.initStorageEvent("storage", false, false, key, version,

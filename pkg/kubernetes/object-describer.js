@@ -200,7 +200,7 @@ angular.module('kubernetesUI').run(['$templateCache', function($templateCache) {
     "  <dl class=\"dl-horizontal\" ng-if=\"resource.metadata.annotations\">\n" +
     "    <dt ng-repeat-start=\"(annotationKey, annotationValue) in resource.metadata.annotations\" title=\"{{annotationKey}}\">{{annotationKey}}</dt>\n" +
     "    <dd ng-repeat-end revealable-text>{{annotationValue}}</dd>\n" +
-    "  </dl>"
+    "  </dl>\n"
   );
 
 
@@ -216,7 +216,7 @@ angular.module('kubernetesUI').run(['$templateCache', function($templateCache) {
     "      Running\n" +
     "      <span ng-if=\"stateDescription.startedAt\">since {{stateDescription.startedAt | date:'medium'}}</span>\n" +
     "    </span>\n" +
-    "    <span ng-switch-when=\"termination\">\n" +
+    "    <span ng-switch-when=\"terminated\">\n" +
     "      Terminated\n" +
     "      <span ng-if=\"stateDescription.finishedAt\">at {{stateDescription.finishedAt | date:'medium'}}</span>\n" +
     "      <span ng-if=\"stateDescription.exitCode\">with exit code {{stateDescription.exitCode}}</span>\n" +
@@ -255,7 +255,8 @@ angular.module('kubernetesUI').run(['$templateCache', function($templateCache) {
     "<dt>Name</dt>\n" +
     "<dd revealable-text>{{container.name}}</dd>\n" +
     "<dt>Image</dt>\n" +
-    "<dd revealable-text>{{container.image}}</dd>\n" +
+    "<dd revealable-text ng-if=\"container.image\">{{container.image}}</dd>\n" +
+    "<dd ng-if=\"!container.image\"><em>none</em></dd>\n" +
     "<dt>Ports</dt>\n" +
     "<dd>\n" +
     "  <div ng-if=\"!container.ports.length\"><em>none</em></div>\n" +
@@ -325,11 +326,13 @@ angular.module('kubernetesUI').run(['$templateCache', function($templateCache) {
     "  <dd>{{template.restartPolicy}}</dd>\n" +
     "  <dt>DNS policy</dt>\n" +
     "  <dd>{{template.dnsPolicy}}</dd>\n" +
+    "  <dt ng-if=\"template.serviceAccountName\">Service account</dt>\n" +
+    "  <dd ng-if=\"template.serviceAccountName\">{{template.serviceAccountName}}</dd>\n" +
     "</dl>  \n" +
     "<h4>Containers</h4>\n" +
     "<kubernetes-object-describe-containers containers=\"template.containers\"></kubernetes-object-describe-containers>\n" +
     "<h4>Volumes</h4>\n" +
-    "<kubernetes-object-describe-volumes volumes=\"template.volumes\"></kubernetes-object-describe-volumes> "
+    "<kubernetes-object-describe-volumes volumes=\"template.volumes\"></kubernetes-object-describe-volumes> \n"
   );
 
 
@@ -344,7 +347,9 @@ angular.module('kubernetesUI').run(['$templateCache', function($templateCache) {
     "    <dt>Created</dt>\n" +
     "    <dd>{{resource.metadata.creationTimestamp | date:'medium'}}</dd>\n" +
     "    <dt>Restart policy</dt>\n" +
-    "    <dd>{{resource.spec.restartPolicy}}</dd>    \n" +
+    "    <dd>{{resource.spec.restartPolicy || 'Always'}}</dd>\n" +
+    "    <dt ng-if=\"resource.spec.serviceAccountName\">Service account</dt>\n" +
+    "    <dd ng-if=\"resource.spec.serviceAccountName\">{{resource.spec.serviceAccountName}}</dd>\n" +
     "  </dl>\n" +
     "  <h3>Status</h3>\n" +
     "  <dl class=\"dl-horizontal\">\n" +
@@ -352,14 +357,17 @@ angular.module('kubernetesUI').run(['$templateCache', function($templateCache) {
     "    <dd>{{resource.status.phase}}</dd>\n" +
     "    <dt>Node</dt>\n" +
     "    <dd>{{resource.spec.nodeName || 'unknown'}}\n" +
-    "      <span ng-if=\"resource.status.hostIP && resource.spec.nodeName != resource.status.hostIP\">({{resource.status.hostIP}})</dd>\n" +
+    "      <span ng-if=\"resource.status.hostIP && resource.spec.nodeName != resource.status.hostIP\">({{resource.status.hostIP}})</span></dd>\n" +
     "    <dt>IP on node</dt>\n" +
-    "    <dd>{{resource.status.podIP}}</dd>    \n" +
+    "    <dd>\n" +
+    "      {{resource.status.podIP}}\n" +
+    "      <span ng-if=\"!resource.status.podIP\"><em>none</em></span>\n" +
+    "    </dd>\n" +
     "  </dl>\n" +
     "  <h3>Container Statuses</h3>\n" +
     "  <kubernetes-object-describe-container-statuses container-statuses=\"resource.status.containerStatuses\"></kubernetes-object-describe-container-statuses>\n" +
     "  <h3>Containers</h3>\n" +
-    "  <kubernetes-object-describe-containers containers=\"resource.spec.containers\"></kubernetes-object-describe-containers>  \n" +
+    "  <kubernetes-object-describe-containers containers=\"resource.spec.containers\"></kubernetes-object-describe-containers>\n" +
     "  <h3>Volumes</h3>\n" +
     "  <kubernetes-object-describe-volumes volumes=\"resource.spec.volumes\"></kubernetes-object-describe-volumes>\n" +
     "  <kubernetes-object-describe-labels resource=\"resource\"></kubernetes-object-describe-labels>\n" +
@@ -380,7 +388,7 @@ angular.module('kubernetesUI').run(['$templateCache', function($templateCache) {
     "    <dt>Created</dt>\n" +
     "    <dd>{{resource.metadata.creationTimestamp | date:'medium'}}</dd>\n" +
     "    <dt>Replicas</dt>\n" +
-    "    <dd>{{resource.spec.replicas}}</dd>\n" +
+    "    <dd>{{(resource.spec.replicas === undefined) ? 1 : resource.spec.replicas}}</dd>\n" +
     "  </dl>\n" +
     "  <h3>Selector</h3>\n" +
     "  <dl class=\"dl-horizontal\">\n" +
@@ -405,6 +413,8 @@ angular.module('kubernetesUI').run(['$templateCache', function($templateCache) {
     "    <dd>{{resource.metadata.namespace}}</dd>\n" +
     "    <dt>Created</dt>\n" +
     "    <dd>{{resource.metadata.creationTimestamp | date:'medium'}}</dd>\n" +
+    "    <dt>Type</dt>\n" +
+    "    <dd>{{resource.spec.type}}</dd>\n" +
     "    <dt>IP</dt>\n" +
     "    <dd>{{resource.spec.clusterIP}}</dd>\n" +
     "    <dt>Ports</dt>\n" +
@@ -416,6 +426,11 @@ angular.module('kubernetesUI').run(['$templateCache', function($templateCache) {
     "    </dd>\n" +
     "    <dt>Session affinity</dt>\n" +
     "    <dd>{{resource.spec.sessionAffinity}}</dd>    \n" +
+    "    <dt ng-if=\"resource.status.loadBalancer.ingress.length\">Ingress points</dt>\n" +
+    "    <dd ng-if=\"resource.status.loadBalancer.ingress.length\">\n" +
+    "      <span ng-repeat=\"ingress in resource.status.loadBalancer.ingress\"\n" +
+    "        >{{ingress.ip}}<span ng-if=\"!$last\">, </span></span>\n" +
+    "    </dd>\n" +
     "  </dl>\n" +
     "  <h3>Selector</h3>\n" +
     "  <dl class=\"dl-horizontal\">\n" +

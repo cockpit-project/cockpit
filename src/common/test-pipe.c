@@ -686,6 +686,10 @@ test_spawn_and_read (void)
   g_byte_array_append (buffer, (const guint8 *)"\0", 1);
 
   cockpit_assert_strmatch ((gchar *)buffer->data, "*ENVIRON*Marmalaaade*");
+
+  buffer = cockpit_pipe_get_stderr (pipe);
+  g_assert (buffer == NULL);
+
   g_object_unref (pipe);
 }
 
@@ -784,6 +788,37 @@ test_spawn_close_clean (TestCase *tc,
   status = cockpit_pipe_exit_status (pipe);
   g_assert (!WIFSIGNALED (status));
   g_assert_cmpint (WEXITSTATUS (status), ==, 0);
+
+  g_object_unref (pipe);
+}
+
+static void
+test_spawn_and_buffer_stderr (void)
+{
+  gboolean closed = FALSE;
+  GByteArray *buffer;
+  CockpitPipe *pipe;
+
+  const gchar *argv[] = { "/bin/sh", "-c", "echo error >&2; echo output; echo error2 >&2", NULL };
+
+  pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_STDERR_TO_MEMORY);
+  g_assert (pipe != NULL);
+  g_signal_connect (pipe, "close", G_CALLBACK (on_close_get_flag), &closed);
+
+  while (closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+
+  buffer = cockpit_pipe_get_buffer (pipe);
+  g_assert (buffer != NULL);
+
+  g_byte_array_append (buffer, (const guint8 *)"\0", 1);
+  g_assert_cmpstr ((gchar *)buffer->data, ==, "output\n");
+
+  buffer = cockpit_pipe_get_stderr (pipe);
+  g_assert (buffer != NULL);
+
+  g_byte_array_append (buffer, (const guint8 *)"\0", 1);
+  g_assert_cmpstr ((gchar *)buffer->data, ==, "error\nerror2\n");
 
   g_object_unref (pipe);
 }
@@ -1130,6 +1165,7 @@ main (int argc,
   g_test_add_func ("/pipe/spawn/and-read", test_spawn_and_read);
   g_test_add_func ("/pipe/spawn/and-write", test_spawn_and_write);
   g_test_add_func ("/pipe/spawn/and-fail", test_spawn_and_fail);
+  g_test_add_func ("/pipe/spawn/buffer-stderr", test_spawn_and_buffer_stderr);
 
   g_test_add ("/pipe/spawn/close-clean", TestCase, NULL,
               setup_timeout, test_spawn_close_clean, teardown);

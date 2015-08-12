@@ -28,6 +28,7 @@ typedef enum {
   COCKPIT_PIPE_FLAGS_NONE = 0,
   COCKPIT_PIPE_STDERR_TO_STDOUT = 1 << 1,
   COCKPIT_PIPE_STDERR_TO_NULL = 1 << 2,
+  COCKPIT_PIPE_STDERR_TO_MEMORY = 1 << 3,
 } CockpitPipeFlags;
 
 #define COCKPIT_TYPE_PIPE         (cockpit_pipe_get_type ())
@@ -87,6 +88,8 @@ gint               cockpit_pipe_exit_status  (CockpitPipe *self);
 const gchar *      cockpit_pipe_get_name     (CockpitPipe *self);
 
 GByteArray *       cockpit_pipe_get_buffer   (CockpitPipe *self);
+
+GByteArray *       cockpit_pipe_get_stderr   (CockpitPipe *self);
 
 gboolean           cockpit_pipe_get_pid      (CockpitPipe *self,
                                               GPid *pid);

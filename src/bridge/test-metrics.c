@@ -81,6 +81,12 @@ setup (TestCase *tc,
                               "id", "1234",
                               NULL);
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_channel_close), tc);
+
+  /* Switch off compression by default.  Compression is done by
+   * comparing two floating point values for exact equality, and we
+   * can't guarantee that we get the same behavior everywhere.
+   */
+  cockpit_metrics_set_compress (tc->channel, FALSE);
 }
 
 static GBytes *
@@ -206,6 +212,8 @@ static void
 test_compression (TestCase *tc,
                   gconstpointer unused)
 {
+  cockpit_metrics_set_compress (tc->channel, TRUE);
+
   JsonObject *meta = json_obj ("{ 'metrics': [ { 'name': 'foo' },"
                                "               { 'name': 'bar' }"
                                "             ],"
@@ -234,6 +242,8 @@ static void
 test_compression_reset (TestCase *tc,
                         gconstpointer unused)
 {
+  cockpit_metrics_set_compress (tc->channel, TRUE);
+
   JsonObject *meta = json_obj ("{ 'metrics': [ { 'name': 'foo' },"
                                "               { 'name': 'bar' }"
                                "             ],"
@@ -276,7 +286,7 @@ test_derive_delta (TestCase *tc,
   send_sample (tc,  100, 1, 10.0);
   assert_sample (tc, "[[10]]");
   send_sample (tc,  200, 1, 20.0);
-  assert_sample (tc, "[[]]");
+  assert_sample (tc, "[[10]]");
   send_sample (tc,  300, 1, 40.0);
   assert_sample (tc, "[[20]]");
   send_sample (tc,  400, 1, 30.0);
@@ -284,9 +294,9 @@ test_derive_delta (TestCase *tc,
   send_sample (tc,  500, 1, 30.0);
   assert_sample (tc, "[[0]]");
   send_sample (tc,  600, 1, 30.0);
-  assert_sample (tc, "[[]]");
+  assert_sample (tc, "[[0]]");
   send_sample (tc,  700, 1, 30.0);
-  assert_sample (tc, "[[]]");
+  assert_sample (tc, "[[0]]");
 
   cockpit_metrics_send_meta (tc->channel, meta, TRUE);
   json_object_unref (recv_object (tc));
@@ -296,7 +306,7 @@ test_derive_delta (TestCase *tc,
   send_sample (tc,  900, 1, 30.0);
   assert_sample (tc, "[[0]]");
   send_sample (tc, 1000, 1, 30.0);
-  assert_sample (tc, "[[]]");
+  assert_sample (tc, "[[0]]");
   send_sample (tc, 1100, 1, 40.0);
   assert_sample (tc, "[[10]]");
   send_sample (tc, 1200, 1, 40.0);
@@ -325,7 +335,7 @@ test_derive_rate_no_interpolate (TestCase *tc,
   send_sample (tc,  100, 1, 10.0);
   assert_sample (tc, "[[100]]");
   send_sample (tc,  200, 1, 20.0);
-  assert_sample (tc, "[[]]");
+  assert_sample (tc, "[[100]]");
   send_sample (tc,  300, 1, 40.0);
   assert_sample (tc, "[[200]]");
   send_sample (tc,  400, 1, 30.0);
@@ -333,9 +343,9 @@ test_derive_rate_no_interpolate (TestCase *tc,
   send_sample (tc,  500, 1, 30.0);
   assert_sample (tc, "[[0]]");
   send_sample (tc,  600, 1, 30.0);
-  assert_sample (tc, "[[]]");
+  assert_sample (tc, "[[0]]");
   send_sample (tc,  700, 1, 30.0);
-  assert_sample (tc, "[[]]");
+  assert_sample (tc, "[[0]]");
 
   cockpit_metrics_send_meta (tc->channel, meta, TRUE);
   json_object_unref (recv_object (tc));
@@ -345,7 +355,7 @@ test_derive_rate_no_interpolate (TestCase *tc,
   send_sample (tc,  900, 1, 30.0);
   assert_sample (tc, "[[0]]");
   send_sample (tc, 1000, 1, 30.0);
-  assert_sample (tc, "[[]]");
+  assert_sample (tc, "[[0]]");
   send_sample (tc, 1200, 1, 40.0);  // double interval -> half rate
   assert_sample (tc, "[[50]]");
   send_sample (tc, 1200, 1, 40.0);
@@ -379,13 +389,13 @@ test_interpolate (TestCase *tc,
   send_sample (tc,  100, 2, 10.0, 10.0);
   assert_sample (tc, "[[10,100]]");
   send_sample (tc,  250, 2, 25.0, 25.0);
-  assert_sample (tc, "[[20]]");
+  assert_sample (tc, "[[20,100]]");
   send_sample (tc,  300, 2, 30.0, 30.0);
-  assert_sample (tc, "[[30]]");
+  assert_sample (tc, "[[30,100]]");
   send_sample (tc,  500, 2, 50.0, 50.0);
-  assert_sample (tc, "[[40]]");
+  assert_sample (tc, "[[40,100]]");
   send_sample (tc,  500, 2, 50.0, 50.0);
-  assert_sample (tc, "[[50]]");
+  assert_sample (tc, "[[50,100]]");
 
   json_object_unref (meta);
 }
@@ -406,15 +416,15 @@ test_instances (TestCase *tc,
   send_instance_sample (tc,    0, 2, 0.0, 0.0);
   assert_sample (tc, "[[[0,0]]]");
   send_instance_sample (tc, 1000, 2, 0.0, 0.0);
-  assert_sample (tc, "[[[]]]");
+  assert_sample (tc, "[[[0,0]]]");
   send_instance_sample (tc, 2000, 2, 0.0, 0.0);
-  assert_sample (tc, "[[[]]]");
+  assert_sample (tc, "[[[0,0]]]");
 
   send_instance_sample (tc, 3000, 2, 0.0, 1.0);
-  assert_sample (tc, "[[[null, 1]]]");
+  assert_sample (tc, "[[[0, 1]]]");
 
   send_instance_sample (tc, 4000, 2, 1.0, 1.0);
-  assert_sample (tc, "[[[1]]]");
+  assert_sample (tc, "[[[1, 1]]]");
 
   json_object_unref (meta);
 }
@@ -438,7 +448,7 @@ test_dynamic_instances (TestCase *tc,
   send_instance_sample (tc,  100, 1, 10.0);
   assert_sample (tc, "[[[10]]]");
   send_instance_sample (tc,  200, 1, 20.0);
-  assert_sample (tc, "[[[]]]");
+  assert_sample (tc, "[[[10]]]");
 
   json_object_unref (meta);
   meta = json_obj ("{ 'metrics': [ { 'name': 'foo',"
@@ -462,9 +472,9 @@ test_dynamic_instances (TestCase *tc,
   send_instance_sample (tc,  500, 2, 10.0, 40.0);
   assert_sample (tc, "[[[0,20]]]");
   send_instance_sample (tc,  600, 2, 10.0, 50.0);
-  assert_sample (tc, "[[[null,10]]]");
+  assert_sample (tc, "[[[0,10]]]");
   send_instance_sample (tc,  700, 2, 10.0, 60.0);
-  assert_sample (tc, "[[[]]]");
+  assert_sample (tc, "[[[0,10]]]");
 
   json_object_unref (meta);
 }

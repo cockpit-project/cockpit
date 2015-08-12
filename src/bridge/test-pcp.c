@@ -129,6 +129,12 @@ setup_metrics_channel_json (TestCase *tc, JsonObject *options)
      interpolation to change any of our sample values.
   */
   cockpit_metrics_set_interpolate (COCKPIT_METRICS (tc->channel), FALSE);
+
+  /* Switch off compression by default.  Compression is done by
+   * comparing two floating point values for exact equality, and we
+   * can't guarantee that we get the same behavior everywhere.
+   */
+  cockpit_metrics_set_compress (COCKPIT_METRICS (tc->channel), FALSE);
 }
 
 static GBytes *
@@ -229,6 +235,7 @@ test_metrics_compression (TestCase *tc,
                                  "}");
 
   setup_metrics_channel_json (tc, options);
+  cockpit_metrics_set_compress (COCKPIT_METRICS (tc->channel), TRUE);
 
   JsonObject *meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
@@ -363,12 +370,12 @@ test_metrics_simple_instances (TestCase *tc,
 
   assert_sample (tc, "[[[0, 0, 0]]]");
   mock_pmda_control ("set-value", 1, 1);
-  assert_sample (tc, "[[[1]]]");
+  assert_sample (tc, "[[[1, 0, 0]]]");
   mock_pmda_control ("set-value", 2, 1);
-  assert_sample (tc, "[[[null, 1]]]");
+  assert_sample (tc, "[[[1, 1, 0]]]");
   mock_pmda_control ("set-value", 3, 1);
-  assert_sample (tc, "[[[null, null, 1]]]");
-  assert_sample (tc, "[[[]]]");
+  assert_sample (tc, "[[[1, 1, 1]]]");
+  assert_sample (tc, "[[[1, 1, 1]]]");
 
   json_object_unref (options);
 }
@@ -393,7 +400,7 @@ test_metrics_instance_filter_include (TestCase *tc,
 
   assert_sample (tc, "[[[0, 0]]]");
   mock_pmda_control ("set-value", 3, 1);
-  assert_sample (tc, "[[[null, 1]]]");
+  assert_sample (tc, "[[[0, 1]]]");
 
   json_object_unref (options);
 }
@@ -418,7 +425,7 @@ test_metrics_instance_filter_omit (TestCase *tc,
 
   assert_sample (tc, "[[[0, 0]]]");
   mock_pmda_control ("set-value", 3, 1);
-  assert_sample (tc, "[[[null, 1]]]");
+  assert_sample (tc, "[[[0, 1]]]");
 
   json_object_unref (options);
 }
@@ -452,7 +459,7 @@ test_metrics_instance_dynamic (TestCase *tc,
                           "    'instances': [ 'bananas', 'milk' ] "
                           "  } ]");
   assert_sample (tc, "[[[ 5, 3 ]]]");
-  assert_sample (tc, "[[[]]]");
+  assert_sample (tc, "[[[ 5, 3 ]]]");
 
   mock_pmda_control ("del-instance", "bananas");
 
@@ -487,7 +494,7 @@ test_metrics_counter (TestCase *tc,
 
   assert_sample (tc, "[[false]]");
   assert_sample (tc, "[[0]]");
-  assert_sample (tc, "[[]]");
+  assert_sample (tc, "[[0]]");
   mock_pmda_control ("inc-counter", 5);
   assert_sample (tc, "[[5]]");
   assert_sample (tc, "[[0]]");
@@ -512,7 +519,7 @@ test_metrics_counter64 (TestCase *tc,
 
   assert_sample (tc, "[[false]]");
   assert_sample (tc, "[[0]]");
-  assert_sample (tc, "[[]]");
+  assert_sample (tc, "[[0]]");
   mock_pmda_control ("inc-counter64", 5);
   assert_sample (tc, "[[5]]");
   assert_sample (tc, "[[0]]");

@@ -26,6 +26,8 @@
 
 G_BEGIN_DECLS
 
+#define  COCKPIT_TEST_CHARS                 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
 void     cockpit_test_init                  (int *argc,
                                              char ***argv);
 

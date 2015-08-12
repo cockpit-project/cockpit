@@ -300,6 +300,7 @@ define([
             if (ex) {
                 ex.target = "#deploy-app-manifest-file-button";
                 fails.push(ex);
+                ex = null;
             }
 
             var reader;
@@ -313,7 +314,9 @@ define([
                     ex = new Error(cockpit.format(_("Unable to read the Kubernetes application manifest. Code $0."),
                                    event.target.error.code));
                     ex.target = "#deploy-app-manifest-file-button";
-                    dfd.reject(ex);
+                    fails.push(ex);
+                    ex = null;
+                    dfd.reject(fails);
                 };
                 reader.onload = function() {
                     fields.manifest = reader.result;
@@ -323,9 +326,22 @@ define([
             }
 
         } else {
-                var nulecule_image = $("#deploy-app-nulecule-image");
-                fields.nulecule_image = nulecule_image.val().trim();
-                dfd.resolve(fields);
+                var nulecule_image = $("#deploy-app-nulecule-image").val();
+                if (!nulecule_image)
+                    ex = new Error(_("Nulecule field cannot be empty."));
+                if (ex) {
+                    ex.target = "#deploy-app-nulecule-image";
+                    fails.push(ex);
+                    ex = null;
+                } else {
+                    fields.nulecule_image = nulecule_image.trim();
+                }
+
+                if (fails.length) {
+                    dfd.reject(fails);
+                } else {
+                    dfd.resolve(fields);
+                }
         }
 
         return dfd.promise();

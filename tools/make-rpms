@@ -25,12 +25,15 @@ base=$(cd $(dirname $0)/../; pwd -P)
 
 usage()
 {
-	echo "usage: make-rpms [--clean] [--verbose]"
+	echo "usage: make-rpms [--clean] [--quick] [--verbose]"
 }
 
 mock_opts=""
 mock_clean_opts="--no-clean --no-cleanup-after"
-args=$(getopt -o "h,v,c" -l "help,verbose,clean" -- "$@")
+mock_define="unused"
+mock_value="0"
+
+args=$(getopt -o "h,v,c,q" -l "help,verbose,clean,quick" -- "$@")
 eval set -- "$args"
 while [ $# -gt 0 ]; do
 	case $1 in
@@ -43,6 +46,10 @@ while [ $# -gt 0 ]; do
 	-v|--verbose)
 		mock_opts="$mock_opts --verbose"
 		;;
+    -q|--quick)
+        mock_define="selinux" mock_value="0"
+        mock_opts="$mock_opts --offline --nocheck"
+        ;;
 	-h|--help)
 		usage
 		exit 0
@@ -124,7 +131,7 @@ fi
 touch -r /etc/mock/$mockos-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
 
 if LANG=C /usr/bin/mock --quiet $mock_opts $mock_clean_opts --configdir=$base/mock/ \
-	--resultdir $base/mock -r $os-$arch-cockpit $srpm; then
+	--resultdir $base/mock -r $os-$arch-cockpit --define="$mock_define $mock_value" $srpm; then
     grep "^Wrote: .*\.\($arch\|noarch\)\.rpm$" $base/mock/build.log | while read l; do
         p=$(basename "$l") # knocks off the "Wrote:" part as well...
         echo $p

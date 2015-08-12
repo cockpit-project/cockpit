@@ -5,14 +5,37 @@ set -e
 make_rpms_opts=
 cockpit_create_opts=
 install_selinux=yes
+install_opts=
 
+usage()
+{
+    echo "usage: testsuite-prepare [--clean] [--quick] [--verbose]"
+}
+
+
+args=$(getopt -o "h,v,c,q" -l "help,verbose,clean,quick" -- "$@")
+eval set -- "$args"
 while [ $# -gt 0 ]; do
     case $1 in
-	--clean)
-            make_rpms_opts="--clean"
-            cockpit_create_opts="--force --no-save"
-            install_selinux=no
-	    ;;
+    -c|--clean)
+        mock_rpms_opts="$mock_rpms_opts --clean"
+        cockpit_create_opts="--force --no-save"
+        install_selinux=no
+        ;;
+    -q|--quick)
+        mock_rpm_opts="$mock_rpm_opts --quick"
+        ;;
+    -v|--verbose)
+        install_opts="$install_opts -v"
+        ;;
+    -h|--help)
+        usage
+        exit 0
+        ;;
+    --)
+        shift
+        break
+        ;;
     esac
     shift
 done
@@ -64,4 +87,4 @@ fi
 TEST_OS=fedora-22 ./vm-create -v -f stock
 TEST_OS=centos-7  ./vm-create -v -f stock
 
-./vm-install -f cockpit $rpms
+./vm-install $install_opts -f cockpit $rpms

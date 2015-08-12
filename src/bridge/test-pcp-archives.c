@@ -137,6 +137,12 @@ setup_metrics_channel_json (TestCase *tc, JsonObject *options)
   tc->channel_closed = FALSE;
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_channel_close), tc);
   cockpit_channel_prepare (tc->channel);
+
+  /* Switch off compression by default.  Compression is done by
+   * comparing two floating point values for exact equality, and we
+   * can't guarantee that we get the same behavior everywhere.
+   */
+  cockpit_metrics_set_compress (COCKPIT_METRICS (tc->channel), FALSE);
 }
 
 static GBytes *

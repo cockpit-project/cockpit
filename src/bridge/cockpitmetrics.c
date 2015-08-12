@@ -40,6 +40,7 @@ typedef struct {
 
 struct _CockpitMetricsPrivate {
   gboolean interpolate;
+  gboolean compress;
 
   guint timeout;
   gint64 next;
@@ -71,6 +72,7 @@ cockpit_metrics_init (CockpitMetrics *self)
                                             CockpitMetricsPrivate);
 
   self->priv->interpolate = TRUE;
+  self->priv->compress = TRUE;
 }
 
 static void
@@ -433,7 +435,8 @@ compute_and_maybe_push_value (CockpitMetrics *self,
         val = NAN;
     }
 
-  if (next_instance != last_instance
+  if (self->priv->compress == FALSE
+      || next_instance != last_instance
       || !self->priv->derived_valid
       || val != self->priv->derived[metric][next_instance])
     {
@@ -598,4 +601,11 @@ cockpit_metrics_set_interpolate (CockpitMetrics *self,
                                  gboolean interpolate)
 {
   self->priv->interpolate = interpolate;
+}
+
+void
+cockpit_metrics_set_compress (CockpitMetrics *self,
+                              gboolean compress)
+{
+  self->priv->compress = compress;
 }

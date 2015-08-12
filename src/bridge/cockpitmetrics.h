@@ -59,6 +59,9 @@ GType              cockpit_metrics_get_type     (void) G_GNUC_CONST;
 void               cockpit_metrics_set_interpolate (CockpitMetrics *self,
                                                     gboolean interpolate);
 
+void               cockpit_metrics_set_compress    (CockpitMetrics *self,
+                                                    gboolean compress);
+
 void               cockpit_metrics_metronome    (CockpitMetrics *self,
                                                  gint64 interval);
 

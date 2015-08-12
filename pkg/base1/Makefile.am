@@ -29,6 +29,7 @@ basedebug_DATA = \
 	pkg/base1/bootstrap-combobox.js \
 	pkg/base1/cockpit.css \
 	pkg/base1/patternfly.css \
+	pkg/base1/patternfly-additions.css \
 	pkg/base1/po.js \
 	pkg/base1/require.js \
 	pkg/base1/patterns.js \
@@ -136,7 +137,9 @@ update-lib:: update-bower
 	$(srcdir)/tools/uglifyjs $(BOWER)/jquery-flot/jquery.flot.time.js > jquery.flot.time.min.js
 	$(srcdir)/tools/uglifyjs $(BOWER)/jquery-amend/jquery-amend.js > jquery-amend.min.js
 	sed -f $(srcdir)/tools/patternfly.sed \
-		$(BOWER)/patternfly/dist/css/patternfly.css > patternfly.css
+		$(BOWER)/patternfly/dist/css/patternfly.css > $(srcdir)/pkg/base1/patternfly.css
+	sed -f $(srcdir)/tools/patternfly.sed \
+		$(BOWER)/patternfly/dist/css/patternfly-additions.css > $(srcdir)/pkg/base1/patternfly-additions.css
 	$(JSMODULE) -o $(srcdir)/pkg/base1/jquery.js \
 	    $(BOWER)/jquery/dist/jquery.js \
 	    $(BOWER)/patternfly/components/bootstrap/dist/js/bootstrap.js \
@@ -157,14 +160,14 @@ update-lib:: update-bower
 	    jquery-amend.min.js \
 	    $(srcdir)/pkg/base1/jquery-scoped.js \
 	    $(srcdir)/pkg/base1/attrchange.min.js
-	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-select.js \
-	    $(BOWER)/patternfly/components/bootstrap-select/bootstrap-select.js
-	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-select.min.js \
-	    $(BOWER)/patternfly/components/bootstrap-select/bootstrap-select.min.js
+	$(JSMODULE) -o $(srcdir)/pkg/base1/bootstrap-select.js \
+	    $(BOWER)/patternfly/components/bootstrap-select/dist/js/bootstrap-select.js
+	$(JSMODULE) -o $(srcdir)/pkg/base1/bootstrap-select.min.js \
+	    $(BOWER)/patternfly/components/bootstrap-select/dist/js/bootstrap-select.min.js
 	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-datepicker.js \
-	    $(BOWER)/bootstrap-datepicker/dist/js/bootstrap-datepicker.js
+	    $(BOWER)/patternfly/components/bootstrap-datepicker/dist/js/bootstrap-datepicker.js
 	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-datepicker.min.js \
-	    $(BOWER)/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js
+	    $(BOWER)/patternfly/components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js
 	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-combobox.js \
 	    $(BOWER)/patternfly/components/bootstrap-combobox/js/bootstrap-combobox.js
 	$(srcdir)/tools/uglifyjs $(BOWER)/requirejs/require.js > require.min.js
@@ -176,9 +179,6 @@ update-lib:: update-bower
 	    require.min.js \
 	    $(srcdir)/pkg/base1/require-config.js \
 	    $(srcdir)/pkg/base1/require-loaders.js
-	$(srcdir)/tools/cssbundle -o $(srcdir)/pkg/base1/patternfly.css \
-	    patternfly.css \
-	    $(BOWER)/bootstrap-datepicker/dist/css/bootstrap-datepicker.css
 	$(JSMODULE) -o $(srcdir)/pkg/base1/mustache.js \
 		$(BOWER)/mustache/mustache.js
 	$(srcdir)/tools/uglifyjs $(BOWER)/mustache/mustache.js > \
@@ -192,9 +192,6 @@ update-lib:: update-bower
 	    require.min.js \
 	    $(srcdir)/pkg/base1/require-config.js \
 	    $(srcdir)/pkg/base1/require-loaders.js
-	$(srcdir)/tools/cssbundle -o $(srcdir)/pkg/base1/patternfly.css \
-	    patternfly.css \
-	    $(BOWER)/bootstrap-datepicker/dist/css/bootstrap-datepicker.css
 	$(JSMODULE) -o $(srcdir)/pkg/base1/mustache.js \
 		$(BOWER)/mustache/mustache.js
 	$(srcdir)/tools/uglifyjs $(BOWER)/mustache/mustache.js > \

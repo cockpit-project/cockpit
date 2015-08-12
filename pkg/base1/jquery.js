@@ -9113,9 +9113,9 @@ return jQuery;
 }));
 
 /*!
- * Bootstrap v3.3.4 (http://getbootstrap.com)
+ * Bootstrap v3.3.5 (http://getbootstrap.com)
  * Copyright 2011-2015 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * Licensed under the MIT license
  */
 
 if (typeof jQuery === 'undefined') {
@@ -9131,7 +9131,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: transition.js v3.3.4
+ * Bootstrap: transition.js v3.3.5
  * http://getbootstrap.com/javascript/#transitions
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -9191,7 +9191,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: alert.js v3.3.4
+ * Bootstrap: alert.js v3.3.5
  * http://getbootstrap.com/javascript/#alerts
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -9210,7 +9210,7 @@ if (typeof jQuery === 'undefined') {
     $(el).on('click', dismiss, this.close)
   }
 
-  Alert.VERSION = '3.3.4'
+  Alert.VERSION = '3.3.5'
 
   Alert.TRANSITION_DURATION = 150
 
@@ -9286,7 +9286,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: button.js v3.3.4
+ * Bootstrap: button.js v3.3.5
  * http://getbootstrap.com/javascript/#buttons
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -9306,7 +9306,7 @@ if (typeof jQuery === 'undefined') {
     this.isLoading = false
   }
 
-  Button.VERSION  = '3.3.4'
+  Button.VERSION  = '3.3.5'
 
   Button.DEFAULTS = {
     loadingText: 'loading...'
@@ -9318,7 +9318,7 @@ if (typeof jQuery === 'undefined') {
     var val  = $el.is('input') ? 'val' : 'html'
     var data = $el.data()
 
-    state = state + 'Text'
+    state += 'Text'
 
     if (data.resetText == null) $el.data('resetText', $el[val]())
 
@@ -9343,15 +9343,19 @@ if (typeof jQuery === 'undefined') {
     if ($parent.length) {
       var $input = this.$element.find('input')
       if ($input.prop('type') == 'radio') {
-        if ($input.prop('checked') && this.$element.hasClass('active')) changed = false
-        else $parent.find('.active').removeClass('active')
+        if ($input.prop('checked')) changed = false
+        $parent.find('.active').removeClass('active')
+        this.$element.addClass('active')
+      } else if ($input.prop('type') == 'checkbox') {
+        if (($input.prop('checked')) !== this.$element.hasClass('active')) changed = false
+        this.$element.toggleClass('active')
       }
-      if (changed) $input.prop('checked', !this.$element.hasClass('active')).trigger('change')
+      $input.prop('checked', this.$element.hasClass('active'))
+      if (changed) $input.trigger('change')
     } else {
       this.$element.attr('aria-pressed', !this.$element.hasClass('active'))
+      this.$element.toggleClass('active')
     }
-
-    if (changed) this.$element.toggleClass('active')
   }
 
 
@@ -9394,7 +9398,7 @@ if (typeof jQuery === 'undefined') {
       var $btn = $(e.target)
       if (!$btn.hasClass('btn')) $btn = $btn.closest('.btn')
       Plugin.call($btn, 'toggle')
-      e.preventDefault()
+      if (!($(e.target).is('input[type="radio"]') || $(e.target).is('input[type="checkbox"]'))) e.preventDefault()
     })
     .on('focus.bs.button.data-api blur.bs.button.data-api', '[data-toggle^="button"]', function (e) {
       $(e.target).closest('.btn').toggleClass('focus', /^focus(in)?$/.test(e.type))
@@ -9403,7 +9407,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: carousel.js v3.3.4
+ * Bootstrap: carousel.js v3.3.5
  * http://getbootstrap.com/javascript/#carousel
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -9434,7 +9438,7 @@ if (typeof jQuery === 'undefined') {
       .on('mouseleave.bs.carousel', $.proxy(this.cycle, this))
   }
 
-  Carousel.VERSION  = '3.3.4'
+  Carousel.VERSION  = '3.3.5'
 
   Carousel.TRANSITION_DURATION = 600
 
@@ -9641,7 +9645,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: collapse.js v3.3.4
+ * Bootstrap: collapse.js v3.3.5
  * http://getbootstrap.com/javascript/#collapse
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -9671,7 +9675,7 @@ if (typeof jQuery === 'undefined') {
     if (this.options.toggle) this.toggle()
   }
 
-  Collapse.VERSION  = '3.3.4'
+  Collapse.VERSION  = '3.3.5'
 
   Collapse.TRANSITION_DURATION = 350
 
@@ -9853,7 +9857,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: dropdown.js v3.3.4
+ * Bootstrap: dropdown.js v3.3.5
  * http://getbootstrap.com/javascript/#dropdowns
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -9873,7 +9877,41 @@ if (typeof jQuery === 'undefined') {
     $(element).on('click.bs.dropdown', this.toggle)
   }
 
-  Dropdown.VERSION = '3.3.4'
+  Dropdown.VERSION = '3.3.5'
+
+  function getParent($this) {
+    var selector = $this.attr('data-target')
+
+    if (!selector) {
+      selector = $this.attr('href')
+      selector = selector && /#[A-Za-z]/.test(selector) && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
+    }
+
+    var $parent = selector && $(selector)
+
+    return $parent && $parent.length ? $parent : $this.parent()
+  }
+
+  function clearMenus(e) {
+    if (e && e.which === 3) return
+    $(backdrop).remove()
+    $(toggle).each(function () {
+      var $this         = $(this)
+      var $parent       = getParent($this)
+      var relatedTarget = { relatedTarget: this }
+
+      if (!$parent.hasClass('open')) return
+
+      if (e && e.type == 'click' && /input|textarea/i.test(e.target.tagName) && $.contains($parent[0], e.target)) return
+
+      $parent.trigger(e = $.Event('hide.bs.dropdown', relatedTarget))
+
+      if (e.isDefaultPrevented()) return
+
+      $this.attr('aria-expanded', 'false')
+      $parent.removeClass('open').trigger('hidden.bs.dropdown', relatedTarget)
+    })
+  }
 
   Dropdown.prototype.toggle = function (e) {
     var $this = $(this)
@@ -9888,7 +9926,10 @@ if (typeof jQuery === 'undefined') {
     if (!isActive) {
       if ('ontouchstart' in document.documentElement && !$parent.closest('.navbar-nav').length) {
         // if mobile we use a backdrop because click events don't delegate
-        $('<div class="dropdown-backdrop"/>').insertAfter($(this)).on('click', clearMenus)
+        $(document.createElement('div'))
+          .addClass('dropdown-backdrop')
+          .insertAfter($(this))
+          .on('click', clearMenus)
       }
 
       var relatedTarget = { relatedTarget: this }
@@ -9921,55 +9962,23 @@ if (typeof jQuery === 'undefined') {
     var $parent  = getParent($this)
     var isActive = $parent.hasClass('open')
 
-    if ((!isActive && e.which != 27) || (isActive && e.which == 27)) {
+    if (!isActive && e.which != 27 || isActive && e.which == 27) {
       if (e.which == 27) $parent.find(toggle).trigger('focus')
       return $this.trigger('click')
     }
 
     var desc = ' li:not(.disabled):visible a'
-    var $items = $parent.find('[role="menu"]' + desc + ', [role="listbox"]' + desc)
+    var $items = $parent.find('.dropdown-menu' + desc)
 
     if (!$items.length) return
 
     var index = $items.index(e.target)
 
-    if (e.which == 38 && index > 0)                 index--                        // up
-    if (e.which == 40 && index < $items.length - 1) index++                        // down
-    if (!~index)                                      index = 0
+    if (e.which == 38 && index > 0)                 index--         // up
+    if (e.which == 40 && index < $items.length - 1) index++         // down
+    if (!~index)                                    index = 0
 
     $items.eq(index).trigger('focus')
-  }
-
-  function clearMenus(e) {
-    if (e && e.which === 3) return
-    $(backdrop).remove()
-    $(toggle).each(function () {
-      var $this         = $(this)
-      var $parent       = getParent($this)
-      var relatedTarget = { relatedTarget: this }
-
-      if (!$parent.hasClass('open')) return
-
-      $parent.trigger(e = $.Event('hide.bs.dropdown', relatedTarget))
-
-      if (e.isDefaultPrevented()) return
-
-      $this.attr('aria-expanded', 'false')
-      $parent.removeClass('open').trigger('hidden.bs.dropdown', relatedTarget)
-    })
-  }
-
-  function getParent($this) {
-    var selector = $this.attr('data-target')
-
-    if (!selector) {
-      selector = $this.attr('href')
-      selector = selector && /#[A-Za-z]/.test(selector) && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
-    }
-
-    var $parent = selector && $(selector)
-
-    return $parent && $parent.length ? $parent : $this.parent()
   }
 
 
@@ -10009,13 +10018,12 @@ if (typeof jQuery === 'undefined') {
     .on('click.bs.dropdown.data-api', '.dropdown form', function (e) { e.stopPropagation() })
     .on('click.bs.dropdown.data-api', toggle, Dropdown.prototype.toggle)
     .on('keydown.bs.dropdown.data-api', toggle, Dropdown.prototype.keydown)
-    .on('keydown.bs.dropdown.data-api', '[role="menu"]', Dropdown.prototype.keydown)
-    .on('keydown.bs.dropdown.data-api', '[role="listbox"]', Dropdown.prototype.keydown)
+    .on('keydown.bs.dropdown.data-api', '.dropdown-menu', Dropdown.prototype.keydown)
 
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: modal.js v3.3.4
+ * Bootstrap: modal.js v3.3.5
  * http://getbootstrap.com/javascript/#modals
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -10049,7 +10057,7 @@ if (typeof jQuery === 'undefined') {
     }
   }
 
-  Modal.VERSION  = '3.3.4'
+  Modal.VERSION  = '3.3.5'
 
   Modal.TRANSITION_DURATION = 300
   Modal.BACKDROP_TRANSITION_DURATION = 150
@@ -10106,9 +10114,7 @@ if (typeof jQuery === 'undefined') {
         that.$element[0].offsetWidth // force reflow
       }
 
-      that.$element
-        .addClass('in')
-        .attr('aria-hidden', false)
+      that.$element.addClass('in')
 
       that.enforceFocus()
 
@@ -10142,7 +10148,6 @@ if (typeof jQuery === 'undefined') {
 
     this.$element
       .removeClass('in')
-      .attr('aria-hidden', true)
       .off('click.dismiss.bs.modal')
       .off('mouseup.dismiss.bs.modal')
 
@@ -10206,7 +10211,8 @@ if (typeof jQuery === 'undefined') {
     if (this.isShown && this.options.backdrop) {
       var doAnimate = $.support.transition && animate
 
-      this.$backdrop = $('<div class="modal-backdrop ' + animate + '" />')
+      this.$backdrop = $(document.createElement('div'))
+        .addClass('modal-backdrop ' + animate)
         .appendTo(this.$body)
 
       this.$element.on('click.dismiss.bs.modal', $.proxy(function (e) {
@@ -10355,7 +10361,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: tooltip.js v3.3.4
+ * Bootstrap: tooltip.js v3.3.5
  * http://getbootstrap.com/javascript/#tooltip
  * Inspired by the original jQuery.tipsy by Jason Frame
  * ========================================================================
@@ -10377,11 +10383,12 @@ if (typeof jQuery === 'undefined') {
     this.timeout    = null
     this.hoverState = null
     this.$element   = null
+    this.inState    = null
 
     this.init('tooltip', element, options)
   }
 
-  Tooltip.VERSION  = '3.3.4'
+  Tooltip.VERSION  = '3.3.5'
 
   Tooltip.TRANSITION_DURATION = 150
 
@@ -10406,7 +10413,8 @@ if (typeof jQuery === 'undefined') {
     this.type      = type
     this.$element  = $(element)
     this.options   = this.getOptions(options)
-    this.$viewport = this.options.viewport && $(this.options.viewport.selector || this.options.viewport)
+    this.$viewport = this.options.viewport && $($.isFunction(this.options.viewport) ? this.options.viewport.call(this, this.$element) : (this.options.viewport.selector || this.options.viewport))
+    this.inState   = { click: false, hover: false, focus: false }
 
     if (this.$element[0] instanceof document.constructor && !this.options.selector) {
       throw new Error('`selector` option must be specified when initializing ' + this.type + ' on the window.document object!')
@@ -10465,14 +10473,18 @@ if (typeof jQuery === 'undefined') {
     var self = obj instanceof this.constructor ?
       obj : $(obj.currentTarget).data('bs.' + this.type)
 
-    if (self && self.$tip && self.$tip.is(':visible')) {
-      self.hoverState = 'in'
-      return
-    }
-
     if (!self) {
       self = new this.constructor(obj.currentTarget, this.getDelegateOptions())
       $(obj.currentTarget).data('bs.' + this.type, self)
+    }
+
+    if (obj instanceof $.Event) {
+      self.inState[obj.type == 'focusin' ? 'focus' : 'hover'] = true
+    }
+
+    if (self.tip().hasClass('in') || self.hoverState == 'in') {
+      self.hoverState = 'in'
+      return
     }
 
     clearTimeout(self.timeout)
@@ -10486,6 +10498,14 @@ if (typeof jQuery === 'undefined') {
     }, self.options.delay.show)
   }
 
+  Tooltip.prototype.isInStateTrue = function () {
+    for (var key in this.inState) {
+      if (this.inState[key]) return true
+    }
+
+    return false
+  }
+
   Tooltip.prototype.leave = function (obj) {
     var self = obj instanceof this.constructor ?
       obj : $(obj.currentTarget).data('bs.' + this.type)
@@ -10494,6 +10514,12 @@ if (typeof jQuery === 'undefined') {
       self = new this.constructor(obj.currentTarget, this.getDelegateOptions())
       $(obj.currentTarget).data('bs.' + this.type, self)
     }
+
+    if (obj instanceof $.Event) {
+      self.inState[obj.type == 'focusout' ? 'focus' : 'hover'] = false
+    }
+
+    if (self.isInStateTrue()) return
 
     clearTimeout(self.timeout)
 
@@ -10541,6 +10567,7 @@ if (typeof jQuery === 'undefined') {
         .data('bs.' + this.type, this)
 
       this.options.container ? $tip.appendTo(this.options.container) : $tip.insertAfter(this.$element)
+      this.$element.trigger('inserted.bs.' + this.type)
 
       var pos          = this.getPosition()
       var actualWidth  = $tip[0].offsetWidth
@@ -10548,13 +10575,12 @@ if (typeof jQuery === 'undefined') {
 
       if (autoPlace) {
         var orgPlacement = placement
-        var $container   = this.options.container ? $(this.options.container) : this.$element.parent()
-        var containerDim = this.getPosition($container)
+        var viewportDim = this.getPosition(this.$viewport)
 
-        placement = placement == 'bottom' && pos.bottom + actualHeight > containerDim.bottom ? 'top'    :
-                    placement == 'top'    && pos.top    - actualHeight < containerDim.top    ? 'bottom' :
-                    placement == 'right'  && pos.right  + actualWidth  > containerDim.width  ? 'left'   :
-                    placement == 'left'   && pos.left   - actualWidth  < containerDim.left   ? 'right'  :
+        placement = placement == 'bottom' && pos.bottom + actualHeight > viewportDim.bottom ? 'top'    :
+                    placement == 'top'    && pos.top    - actualHeight < viewportDim.top    ? 'bottom' :
+                    placement == 'right'  && pos.right  + actualWidth  > viewportDim.width  ? 'left'   :
+                    placement == 'left'   && pos.left   - actualWidth  < viewportDim.left   ? 'right'  :
                     placement
 
         $tip
@@ -10595,8 +10621,8 @@ if (typeof jQuery === 'undefined') {
     if (isNaN(marginTop))  marginTop  = 0
     if (isNaN(marginLeft)) marginLeft = 0
 
-    offset.top  = offset.top  + marginTop
-    offset.left = offset.left + marginLeft
+    offset.top  += marginTop
+    offset.left += marginLeft
 
     // $.fn.offset doesn't round pixel values
     // so we use setOffset directly with our own function B-0
@@ -10678,7 +10704,7 @@ if (typeof jQuery === 'undefined') {
 
   Tooltip.prototype.fixTitle = function () {
     var $e = this.$element
-    if ($e.attr('title') || typeof ($e.attr('data-original-title')) != 'string') {
+    if ($e.attr('title') || typeof $e.attr('data-original-title') != 'string') {
       $e.attr('data-original-title', $e.attr('title') || '').attr('title', '')
     }
   }
@@ -10733,7 +10759,7 @@ if (typeof jQuery === 'undefined') {
       var rightEdgeOffset = pos.left + viewportPadding + actualWidth
       if (leftEdgeOffset < viewportDimensions.left) { // left overflow
         delta.left = viewportDimensions.left - leftEdgeOffset
-      } else if (rightEdgeOffset > viewportDimensions.width) { // right overflow
+      } else if (rightEdgeOffset > viewportDimensions.right) { // right overflow
         delta.left = viewportDimensions.left + viewportDimensions.width - rightEdgeOffset
       }
     }
@@ -10759,7 +10785,13 @@ if (typeof jQuery === 'undefined') {
   }
 
   Tooltip.prototype.tip = function () {
-    return (this.$tip = this.$tip || $(this.options.template))
+    if (!this.$tip) {
+      this.$tip = $(this.options.template)
+      if (this.$tip.length != 1) {
+        throw new Error(this.type + ' `template` option must consist of exactly 1 top-level element!')
+      }
+    }
+    return this.$tip
   }
 
   Tooltip.prototype.arrow = function () {
@@ -10788,7 +10820,13 @@ if (typeof jQuery === 'undefined') {
       }
     }
 
-    self.tip().hasClass('in') ? self.leave(self) : self.enter(self)
+    if (e) {
+      self.inState.click = !self.inState.click
+      if (self.isInStateTrue()) self.enter(self)
+      else self.leave(self)
+    } else {
+      self.tip().hasClass('in') ? self.leave(self) : self.enter(self)
+    }
   }
 
   Tooltip.prototype.destroy = function () {
@@ -10796,6 +10834,12 @@ if (typeof jQuery === 'undefined') {
     clearTimeout(this.timeout)
     this.hide(function () {
       that.$element.off('.' + that.type).removeData('bs.' + that.type)
+      if (that.$tip) {
+        that.$tip.detach()
+      }
+      that.$tip = null
+      that.$arrow = null
+      that.$viewport = null
     })
   }
 
@@ -10832,7 +10876,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: popover.js v3.3.4
+ * Bootstrap: popover.js v3.3.5
  * http://getbootstrap.com/javascript/#popovers
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -10852,7 +10896,7 @@ if (typeof jQuery === 'undefined') {
 
   if (!$.fn.tooltip) throw new Error('Popover requires tooltip.js')
 
-  Popover.VERSION  = '3.3.4'
+  Popover.VERSION  = '3.3.5'
 
   Popover.DEFAULTS = $.extend({}, $.fn.tooltip.Constructor.DEFAULTS, {
     placement: 'right',
@@ -10941,7 +10985,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: scrollspy.js v3.3.4
+ * Bootstrap: scrollspy.js v3.3.5
  * http://getbootstrap.com/javascript/#scrollspy
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -10970,7 +11014,7 @@ if (typeof jQuery === 'undefined') {
     this.process()
   }
 
-  ScrollSpy.VERSION  = '3.3.4'
+  ScrollSpy.VERSION  = '3.3.5'
 
   ScrollSpy.DEFAULTS = {
     offset: 10
@@ -11114,7 +11158,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: tab.js v3.3.4
+ * Bootstrap: tab.js v3.3.5
  * http://getbootstrap.com/javascript/#tabs
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -11129,10 +11173,12 @@ if (typeof jQuery === 'undefined') {
   // ====================
 
   var Tab = function (element) {
+    // jscs:disable requireDollarBeforejQueryAssignment
     this.element = $(element)
+    // jscs:enable requireDollarBeforejQueryAssignment
   }
 
-  Tab.VERSION = '3.3.4'
+  Tab.VERSION = '3.3.5'
 
   Tab.TRANSITION_DURATION = 150
 
@@ -11180,7 +11226,7 @@ if (typeof jQuery === 'undefined') {
     var $active    = container.find('> .active')
     var transition = callback
       && $.support.transition
-      && (($active.length && $active.hasClass('fade')) || !!container.find('> .fade').length)
+      && ($active.length && $active.hasClass('fade') || !!container.find('> .fade').length)
 
     function next() {
       $active
@@ -11268,7 +11314,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: affix.js v3.3.4
+ * Bootstrap: affix.js v3.3.5
  * http://getbootstrap.com/javascript/#affix
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -11297,7 +11343,7 @@ if (typeof jQuery === 'undefined') {
     this.checkPosition()
   }
 
-  Affix.VERSION  = '3.3.4'
+  Affix.VERSION  = '3.3.5'
 
   Affix.RESET    = 'affix affix-top affix-bottom'
 
@@ -11347,7 +11393,7 @@ if (typeof jQuery === 'undefined') {
     var offset       = this.options.offset
     var offsetTop    = offset.top
     var offsetBottom = offset.bottom
-    var scrollHeight = $(document.body).height()
+    var scrollHeight = Math.max($(document).height(), $(document.body).height())
 
     if (typeof offset != 'object')         offsetBottom = offsetTop = offset
     if (typeof offsetTop == 'function')    offsetTop    = offset.top(this.$element)
@@ -11430,93 +11476,97 @@ if (typeof jQuery === 'undefined') {
 
 }(jQuery);
 
-// PatternFly Namespace
-var PatternFly = PatternFly || {};
-
 // Util: PatternFly Sidebar 
 // Set height of sidebar-pf to height of document minus height of navbar-pf if not mobile
-(function($) {
-  sidebar = function() {
-    var documentHeight = 0;
-    var navbarpfHeight = 0;
-    var colHeight = 0;
-    if ( $('.navbar-pf .navbar-toggle').is(':hidden') ) {
+(function ($) {
+  'use strict';
+  $.fn.sidebar = function () {
+    var documentHeight = 0,
+      navbarpfHeight = 0,
+      colHeight = 0;
+
+    if ($('.navbar-pf .navbar-toggle').is(':hidden')) {
       documentHeight = $(document).height();
       navbarpfHeight = $('.navbar-pf').outerHeight();
       colHeight = documentHeight - navbarpfHeight;
     }
-    $('.sidebar-pf').parent('.row').children('[class*="col-"]').css({ "min-height":colHeight});
-  }
-  $(document).ready(function() {
+    $('.sidebar-pf').parent('.row').children('[class*="col-"]').css({"min-height" : colHeight});
+  };
+
+  $(document).ready(function () {
     // Call sidebar() on ready if .sidebar-pf exists and .datatable does not exist
-    if ($('.sidebar-pf').length > 0 && $('.datatable').length == 0) {
-      sidebar();
+    if ($('.sidebar-pf').length > 0 && $('.datatable').length === 0) {
+      $.fn.sidebar();
     }
   });
-  $(window).resize(function() {
+
+  $(window).resize(function () {
     // Call sidebar() on resize if .sidebar-pf exists
     if ($('.sidebar-pf').length > 0) {
-      sidebar();
+      $.fn.sidebar();
     }
   });
-})(jQuery);
+}(jQuery));
 
 // Util: PatternFly Popovers
 // Add data-close="true" to insert close X icon
-(function($) {
-  PatternFly.popovers = function( selector ) {
-    var allpopovers = $(selector);
-    
+(function ($) {
+  'use strict';
+
+  $.fn.popovers = function () {
     // Initialize
-    allpopovers.popover();
-    
+    this.popover();
+
     // Add close icons
-    allpopovers.filter('[data-close=true]').each(function(index, element) {
+    this.filter('[data-close=true]').each(function (index, element) {
       var $this = $(element),
         title = $this.attr('data-original-title') + '<button type="button" class="close" aria-hidden="true"><span class="pficon pficon-close"></span></button>';
 
       $this.attr('data-original-title', title);
     });
-    
+
     // Bind Close Icon to Toggle Display
-    allpopovers.on('click', function(e) {
-      var $this = $(this);
+    this.on('click', function (e) {
+      var $this = $(this),
         $title = $this.next('.popover').find('.popover-title');
-      
+
       // Only if data-close is true add class "x" to title for right padding
       $title.find('.close').parent('.popover-title').addClass('closable');
-      
+
       // Bind x icon to close popover
-      $title.find('.close').on('click', function() {
-        $this.popover('toggle');
+      $title.find('.close').on('click', function () {
+        $this.popover('hide');
       });
-      
+
       // Prevent href="#" page scroll to top
       e.preventDefault();
     });
+
+    return this;
   };
-})(jQuery);
+}(jQuery));
 
 
 // Util: DataTables Settings
-(function($) {
+(function ($) {
+  'use strict';
   if ($.fn.dataTableExt) {
     /* Set the defaults for DataTables initialisation */
-    $.extend( true, $.fn.dataTable.defaults, {
+    $.extend(true, $.fn.dataTable.defaults, {
       "bDestroy": true,
       "bAutoWidth": false,
       "iDisplayLength": 20,
-      "sDom": 
-        "<'dataTables_header' f i r >" + 
-        "<'table-responsive'  t >" + 
+      "sDom":
+        "<'dataTables_header' f i r >" +
+        "<'table-responsive'  t >" +
         "<'dataTables_footer' p >",
       "oLanguage": {
         "sInfo": "Showing <b>_START_</b> to <b>_END_</b> of <b>_TOTAL_</b> Items",
         "sInfoFiltered" : "(of <b>_MAX_</b>)",
         "sInfoEmpty" : "Showing <b>0</b> Results",
-        "sZeroRecords": 
-          "<p>Suggestions</p>" + 
-          "<ul>" + 
+        "sZeroRecords":
+          "<p>Suggestions</p>" +
+          "<ul>" +
             "<li>Check the syntax of the search term.</li>" +
             "<li>Check that the correct menu option is chosen (token ID vs. user ID).</li>" +
             "<li>Use wildcards (* to match zero or more characters or ? to match a single character).</li>" +
@@ -11528,100 +11578,98 @@ var PatternFly = PatternFly || {};
     });
 
     /* Default class modification */
-    $.extend( $.fn.dataTableExt.oStdClasses, {
+    $.extend($.fn.dataTableExt.oStdClasses, {
       "sWrapper": "dataTables_wrapper"
     });
 
     /* API method to get paging information */
-    $.fn.dataTableExt.oApi.fnPagingInfo = function ( oSettings ) {
+    $.fn.dataTableExt.oApi.fnPagingInfo = function (oSettings) {
       return {
         "iStart":         oSettings._iDisplayStart,
         "iEnd":           oSettings.fnDisplayEnd(),
         "iLength":        oSettings._iDisplayLength,
         "iTotal":         oSettings.fnRecordsTotal(),
         "iFilteredTotal": oSettings.fnRecordsDisplay(),
-        "iPage":          oSettings._iDisplayLength === -1 ?
-          0 : Math.ceil( oSettings._iDisplayStart / oSettings._iDisplayLength ),
-        "iTotalPages":    oSettings._iDisplayLength === -1 ?
-          0 : Math.ceil( oSettings.fnRecordsDisplay() / oSettings._iDisplayLength )
+        "iPage":          oSettings._iDisplayLength === -1 ? 0 : Math.ceil(oSettings._iDisplayStart / oSettings._iDisplayLength),
+        "iTotalPages":    oSettings._iDisplayLength === -1 ? 0 : Math.ceil(oSettings.fnRecordsDisplay() / oSettings._iDisplayLength)
       };
     };
 
     /* Combination of Bootstrap + Input Text style pagination control */
-    $.extend( $.fn.dataTableExt.oPagination, {
+    $.extend($.fn.dataTableExt.oPagination, {
       "bootstrap_input": {
-        "fnInit": function( oSettings, nPaging, fnDraw ) {
-          var oLang = oSettings.oLanguage.oPaginate;
-          var fnClickHandler = function ( e ) {
-            e.preventDefault();
-            if ( oSettings.oApi._fnPageChange(oSettings, e.data.action) ) {
-              fnDraw( oSettings );
-            }
-          };
+        "fnInit": function (oSettings, nPaging, fnDraw) {
+          var fnClickHandler = function (e) {
+              e.preventDefault();
+              if (oSettings.oApi._fnPageChange(oSettings, e.data.action)) {
+                fnDraw(oSettings);
+              }
+            },
+            els,
+            nInput;
 
           $(nPaging).append(
-            '<ul class="pagination">'+
-              '<li class="first disabled"><span class="i fa fa-angle-double-left"></span></li>' +
-              '<li class="prev disabled"><span class="i fa fa-angle-left"></span></li>' +
-            '</ul>' + 
-            '<div class="pagination-input">' + 
-              '<input type="text" class="paginate_input">' + 
-              '<span class="paginate_of">of <b>3</b></span>' + 
-            '</div>' + 
-            '<ul class="pagination">'+
-              '<li class="next disabled"><span class="i fa fa-angle-right"></span></li>' +
-              '<li class="last disabled"><span class="i fa fa-angle-double-right"></span></li>' +
-            '</ul>'
+            '<ul class="pagination">' +
+              '  <li class="first disabled"><span class="i fa fa-angle-double-left"></span></li>' +
+              '  <li class="prev disabled"><span class="i fa fa-angle-left"></span></li>' +
+              '</ul>' +
+              '<div class="pagination-input">' +
+              '  <input type="text" class="paginate_input">' +
+              '  <span class="paginate_of">of <b>3</b></span>' +
+              '</div>' +
+              '<ul class="pagination">' +
+              '  <li class="next disabled"><span class="i fa fa-angle-right"></span></li>' +
+              '  <li class="last disabled"><span class="i fa fa-angle-double-right"></span></li>' +
+              '</ul>'
           );
-          
-          var els = $('li', nPaging);
-          $(els[0]).bind( 'click.DT', { action: "first" }, fnClickHandler );
-          $(els[1]).bind( 'click.DT', { action: "previous" }, fnClickHandler );
-          $(els[2]).bind( 'click.DT', { action: "next" }, fnClickHandler );
-          $(els[3]).bind( 'click.DT', { action: "last" }, fnClickHandler );
-          
-          var nInput = $('input', nPaging);
-          $(nInput).keyup( function (e) {
-              if ( e.which == 38 || e.which == 39 ) {
-                this.value++;
-              }
-              else if ( (e.which == 37 || e.which == 40) && this.value > 1 ) {
-                this.value--;
-              }
-                
-              if ( this.value == "" || this.value.match(/[^0-9]/) ) {
-                /* Nothing entered or non-numeric character */
-                return;
-              }
-                
-              var iNewStart = oSettings._iDisplayLength * (this.value - 1);
-              if ( iNewStart > oSettings.fnRecordsDisplay() ) {
-                /* Display overrun */
-                oSettings._iDisplayStart = (Math.ceil((oSettings.fnRecordsDisplay()-1) /
-                  oSettings._iDisplayLength)-1) * oSettings._iDisplayLength;
-                fnDraw( oSettings );
-                return;
-              }
-                
-              oSettings._iDisplayStart = iNewStart;
-              fnDraw( oSettings );
+
+          els = $('li', nPaging);
+          $(els[0]).bind('click.DT', { action: "first" }, fnClickHandler);
+          $(els[1]).bind('click.DT', { action: "previous" }, fnClickHandler);
+          $(els[2]).bind('click.DT', { action: "next" }, fnClickHandler);
+          $(els[3]).bind('click.DT', { action: "last" }, fnClickHandler);
+
+          nInput = $('input', nPaging);
+          $(nInput).keyup(function (e) {
+            if (e.which === 38 || e.which === 39) {
+              this.value += 1;
+            } else if ((e.which === 37 || e.which === 40) && this.value > 1) {
+              this.value -= 1;
+            }
+
+            if (this.value === "" || !this.value.match(/[0-9]/)) {
+              /* Nothing entered or non-numeric character */
+              return;
+            }
+
+            var iNewStart = oSettings._iDisplayLength * (this.value - 1);
+            if (iNewStart > oSettings.fnRecordsDisplay()) {
+              /* Display overrun */
+              oSettings._iDisplayStart = (Math.ceil((oSettings.fnRecordsDisplay() - 1) /
+                oSettings._iDisplayLength) - 1) * oSettings._iDisplayLength;
+              fnDraw(oSettings);
+              return;
+            }
+
+            oSettings._iDisplayStart = iNewStart;
+            fnDraw(oSettings);
           });
         },
 
-        "fnUpdate": function ( oSettings, fnDraw ) {
+        "fnUpdate": function (oSettings, fnDraw) {
           var oPaging = oSettings.oInstance.fnPagingInfo(),
             an = oSettings.aanFeatures.p,
-            i,
-            ien,
+            ien = an.length,
             iPages = Math.ceil((oSettings.fnRecordsDisplay()) / oSettings._iDisplayLength),
-            iCurrentPage = Math.ceil(oSettings._iDisplayStart / oSettings._iDisplayLength) + 1;
+            iCurrentPage = Math.ceil(oSettings._iDisplayStart / oSettings._iDisplayLength) + 1,
+            i;
 
-          for ( i=0, ien=an.length ; i<ien ; i++ ) {
+          for (i = 0; i < ien; i += 1) {
             $('.paginate_input').val(iCurrentPage);
             $('.paginate_of b').html(iPages);
-            
+
             // Add / remove disabled classes from the static elements
-            if ( oPaging.iPage === 0 ) {
+            if (oPaging.iPage === 0) {
               $('li.first', an[i]).addClass('disabled');
               $('li.prev', an[i]).addClass('disabled');
             } else {
@@ -11629,7 +11677,7 @@ var PatternFly = PatternFly || {};
               $('li.prev', an[i]).removeClass('disabled');
             }
 
-            if ( oPaging.iPage === oPaging.iTotalPages-1 || oPaging.iTotalPages === 0 ) {
+            if (oPaging.iPage === oPaging.iTotalPages - 1 || oPaging.iTotalPages === 0) {
               $('li.next', an[i]).addClass('disabled');
               $('li.last', an[i]).addClass('disabled');
             } else {
@@ -11641,7 +11689,127 @@ var PatternFly = PatternFly || {};
       }
     });
   }
-})(jQuery);
+}(jQuery));
+
+// Util: PatternFly Collapsible Left Hand Navigation
+// Must have navbar-toggle in navbar-pf-alt for expand/collapse
+(function ($) {
+
+  'use strict';
+
+  $.fn.navigation = function () {
+
+    var navElement = $('.layout-pf-alt-fixed .nav-pf-vertical-alt'),
+      bodyContentElement = $('.container-pf-alt-nav-pf-vertical-alt'),
+      toggleNavBarButton = $('.navbar-toggle'),
+      explicitCollapse = false,
+      breakpoints = {
+        'tablet': 768,
+        'desktop': 1024
+      },
+      checkNavState = function () {
+        var width = $(window).width();
+
+        //Always remove the hidden & peek class
+        navElement.removeClass('hidden show-mobile-nav collapsed');
+
+        //Set the body class back to the default 
+        bodyContentElement.removeClass('collapsed-nav hidden-nav');
+
+        // Check to see if the nav needs to collapse
+        if (width < breakpoints.desktop || explicitCollapse) {
+          navElement.addClass('collapsed');
+          bodyContentElement.addClass('collapsed-nav');
+        }
+
+        // Check to see if we need to move down to the mobile state
+        if (width < breakpoints.tablet) {
+          //Set the nav to being hidden
+          navElement.addClass('hidden');
+
+          //Make sure this is expanded
+          navElement.removeClass('collapsed');
+
+          //Set the body class to the correct state
+          bodyContentElement.removeClass('collapsed-nav');
+          bodyContentElement.addClass('hidden-nav');
+        }
+      },
+      collapseMenu = function () {
+        //Make sure this is expanded
+        navElement.addClass('collapsed');
+        //Set the body class to the correct state
+        bodyContentElement.addClass('collapsed-nav');
+
+        explicitCollapse = true;
+      },
+      enableTransitions = function () {
+        // enable transitions only when toggleNavBarButton is clicked or window is resized
+        $('html').addClass('transitions');
+      },
+      expandMenu = function () {
+        //Make sure this is expanded
+        navElement.removeClass('collapsed');
+        //Set the body class to the correct state
+        bodyContentElement.removeClass('collapsed-nav');
+
+        explicitCollapse = false;
+      },
+      bindMenuBehavior = function () {
+        toggleNavBarButton.on('click', function (e) {
+          enableTransitions();
+          var inMobileState = bodyContentElement.hasClass('hidden-nav');
+
+          if (inMobileState && navElement.hasClass('show-mobile-nav')) {
+            //In mobile state just need to hide the nav
+            navElement.removeClass('show-mobile-nav');
+          } else if (inMobileState) {
+            navElement.addClass('show-mobile-nav');
+          } else if (navElement.hasClass('collapsed')) {
+            expandMenu();
+          } else {
+            collapseMenu();
+          }
+        });
+      },
+      setTooltips = function () {
+        $('.nav-pf-vertical-alt [data-toggle="tooltip"]').tooltip({'container': 'body', 'delay': { 'show': '500', 'hide': '200' }});
+
+        $(".nav-pf-vertical-alt").on("show.bs.tooltip", function (e) {
+          if (!$(this).hasClass("collapsed")) {
+            return false;
+          }
+        });
+
+      },
+      init = function () {
+        //Set correct state on load
+        checkNavState();
+
+        // Bind Top level hamburger menu with menu behavior;
+        bindMenuBehavior();
+
+        //Set tooltips
+        setTooltips();
+      };
+
+    //Listen for the window resize event and collapse/hide as needed
+    $(window).on('resize', function () {
+      checkNavState();
+      enableTransitions();
+    });
+
+    init();
+
+  };
+
+  $(document).ready(function () {
+    if ($('.nav-pf-vertical-alt').length > 0) {
+      $.fn.navigation();
+    }
+  });
+
+}(jQuery));
 
 /* Javascript plotting library for jQuery, version 0.8.3.
 

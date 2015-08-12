@@ -56,6 +56,7 @@ enum {
   PROP_NAME,
   PROP_IN_FD,
   PROP_OUT_FD,
+  PROP_ERR_FD,
   PROP_PID,
   PROP_PROBLEM
 };
@@ -77,13 +78,17 @@ struct _CockpitPipePrivate {
   gboolean is_process;
 
   int out_fd;
-  GSource *in_source;
+  GSource *out_source;
   GQueue *out_queue;
   gsize out_partial;
 
   int in_fd;
-  GSource *out_source;
+  GSource *in_source;
   GByteArray *in_buffer;
+
+  int err_fd;
+  GSource *err_source;
+  GByteArray *err_buffer;
 };
 
 typedef struct {
@@ -106,6 +111,7 @@ cockpit_pipe_init (CockpitPipe *self)
   self->priv->in_fd = -1;
   self->priv->out_queue = g_queue_new ();
   self->priv->out_fd = -1;
+  self->priv->err_fd = -1;
   self->priv->status = -1;
 
   self->priv->context = g_main_context_ref_thread_default ();
@@ -127,6 +133,15 @@ stop_input (CockpitPipe *self)
   g_source_destroy (self->priv->in_source);
   g_source_unref (self->priv->in_source);
   self->priv->in_source = NULL;
+}
+
+static void
+stop_error (CockpitPipe *self)
+{
+  g_assert (self->priv->err_source != NULL);
+  g_source_destroy (self->priv->err_source);
+  g_source_unref (self->priv->err_source);
+  self->priv->err_source = NULL;
 }
 
 static void
@@ -163,6 +178,12 @@ close_immediately (CockpitPipe *self,
       close (self->priv->out_fd);
       self->priv->out_fd = -1;
     }
+  if (self->priv->err_fd != -1)
+    {
+      close (self->priv->err_fd);
+      self->priv->err_fd = -1;
+    }
+
 
   if (problem && self->priv->pid && !self->priv->exited)
     {
@@ -183,7 +204,7 @@ close_maybe (CockpitPipe *self)
 {
   if (!self->priv->closed)
     {
-      if (!self->priv->in_source && !self->priv->out_source)
+      if (!self->priv->in_source && !self->priv->out_source && !self->priv->err_source)
         {
           g_debug ("%s: input and output done", self->priv->name);
           close_immediately (self, NULL);
@@ -271,6 +292,62 @@ dispatch_input (gint fd,
 
   eof = (self->priv->in_source == NULL);
   g_signal_emit (self, cockpit_pipe_sig_read, 0, self->priv->in_buffer, eof);
+
+  if (eof)
+    close_maybe (self);
+
+  g_object_unref (self);
+  return TRUE;
+}
+
+static gboolean
+dispatch_error (gint fd,
+                GIOCondition cond,
+                gpointer user_data)
+{
+  CockpitPipe *self = (CockpitPipe *)user_data;
+  gssize ret = 0;
+  gsize len;
+  gboolean eof;
+
+  g_return_val_if_fail (self->priv->err_source, FALSE);
+  len = self->priv->err_buffer->len;
+
+  /*
+   * Enable clean shutdown by not reading when we just get
+   * G_IO_HUP. Note that when we get G_IO_ERR we do want to read
+   * just so we can get the appropriate detailed error message.
+   */
+  if (cond != G_IO_HUP)
+    {
+      g_debug ("%s: reading error", self->priv->name);
+
+      g_byte_array_set_size (self->priv->err_buffer, len + 1024);
+      ret = read (self->priv->err_fd, self->priv->err_buffer->data + len, 1024);
+      if (ret < 0)
+        {
+          g_byte_array_set_size (self->priv->err_buffer, len);
+          if (errno != EAGAIN && errno != EINTR)
+            {
+              g_warning ("%s: couldn't read error: %s", self->priv->name, g_strerror (errno));
+              close_immediately (self, "internal-error");
+              return FALSE;
+            }
+          return TRUE;
+        }
+    }
+
+  g_byte_array_set_size (self->priv->err_buffer, len + ret);
+
+  if (ret == 0)
+    {
+      g_debug ("%s: end of error", self->priv->name);
+      stop_error (self);
+    }
+
+  g_object_ref (self);
+
+  eof = (self->priv->err_source == NULL);
 
   if (eof)
     close_maybe (self);
@@ -506,6 +583,22 @@ cockpit_pipe_constructed (GObject *object)
       start_output (self);
     }
 
+  if (self->priv->err_fd >= 0)
+    {
+      if (!g_unix_set_fd_nonblocking (self->priv->err_fd, TRUE, &error))
+        {
+          g_warning ("%s: couldn't set file descriptor to non-blocking: %s",
+                     self->priv->name, error->message);
+          g_clear_error (&error);
+        }
+
+      self->priv->err_buffer = g_byte_array_new ();
+      self->priv->err_source = cockpit_unix_fd_source_new (self->priv->err_fd, G_IO_IN);
+      g_source_set_name (self->priv->err_source, "pipe-error");
+      g_source_set_callback (self->priv->err_source, (GSourceFunc)dispatch_error, self, NULL);
+      g_source_attach (self->priv->err_source, self->priv->context);
+    }
+
   if (self->priv->pid)
     {
       self->priv->is_process = TRUE;
@@ -540,6 +633,9 @@ cockpit_pipe_set_property (GObject *obj,
       case PROP_OUT_FD:
         self->priv->out_fd = g_value_get_int (value);
         break;
+      case PROP_ERR_FD:
+        self->priv->err_fd = g_value_get_int (value);
+        break;
       case PROP_PID:
         self->priv->pid = g_value_get_int (value);
         break;
@@ -572,6 +668,9 @@ cockpit_pipe_get_property (GObject *obj,
       break;
     case PROP_OUT_FD:
       g_value_set_int (value, self->priv->out_fd);
+      break;
+    case PROP_ERR_FD:
+      g_value_set_int (value, self->priv->err_fd);
       break;
     case PROP_PID:
       g_value_set_int (value, self->priv->pid);
@@ -626,6 +725,8 @@ cockpit_pipe_finalize (GObject *object)
     *(self->priv->watch_arg) = NULL;
 
   g_byte_array_unref (self->priv->in_buffer);
+  if (self->priv->err_buffer)
+    g_byte_array_unref (self->priv->err_buffer);
   g_queue_free (self->priv->out_queue);
   g_free (self->priv->problem);
   g_free (self->priv->name);
@@ -665,6 +766,16 @@ cockpit_pipe_class_init (CockpitPipeClass *klass)
    */
   g_object_class_install_property (gobject_class, PROP_OUT_FD,
                 g_param_spec_int ("out-fd", "out-fd", "out-fd", -1, G_MAXINT, -1,
+                                  G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+
+  /**
+   * CockpitPipe:err-fd:
+   *
+   * The file descriptor the pipe reads error output from. The pipe owns the
+   * file descriptor and will close it.
+   */
+  g_object_class_install_property (gobject_class, PROP_ERR_FD,
+                g_param_spec_int ("err-fd", "err-fd", "err-fd", -1, G_MAXINT, -1,
                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   /**
@@ -978,15 +1089,20 @@ cockpit_pipe_spawn (const gchar **argv,
   CockpitPipe *pipe = NULL;
   int session_stdin = -1;
   int session_stdout = -1;
+  int session_stderr = -1;
   GError *error = NULL;
   const gchar *problem = NULL;
+  int *with_stderr = NULL;
   gchar *name;
   GPid pid = 0;
+
+  if (flags & COCKPIT_PIPE_STDERR_TO_MEMORY)
+    with_stderr = &session_stderr;
 
   g_spawn_async_with_pipes (directory, (gchar **)argv, (gchar **)env,
                             calculate_spawn_flags (env, flags),
                             spawn_setup, GINT_TO_POINTER (flags),
-                            &pid, &session_stdin, &session_stdout, NULL, &error);
+                            &pid, &session_stdin, &session_stdout, with_stderr, &error);
 
   name = g_path_get_basename (argv[0]);
   if (name == NULL)
@@ -996,6 +1112,7 @@ cockpit_pipe_spawn (const gchar **argv,
                        "name", name,
                        "in-fd", session_stdout,
                        "out-fd", session_stdin,
+                       "err-fd", session_stderr,
                        "pid", pid,
                        NULL);
 
@@ -1163,6 +1280,13 @@ cockpit_pipe_get_buffer (CockpitPipe *self)
 {
   g_return_val_if_fail (COCKPIT_IS_PIPE (self), NULL);
   return self->priv->in_buffer;
+}
+
+GByteArray *
+cockpit_pipe_get_stderr (CockpitPipe *self)
+{
+  g_return_val_if_fail (COCKPIT_IS_PIPE (self), NULL);
+  return self->priv->err_buffer;
 }
 
 /**

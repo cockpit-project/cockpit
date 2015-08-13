@@ -398,6 +398,7 @@ class Machine:
         self.message(" ".join(cmd))
         subprocess.check_call([ "rm", "-rf", dest ])
         subprocess.check_call(cmd)
+        subprocess.check_call([ "find", dest, "-type", "f", "-exec", "chmod", "0644", "{}", ";" ])
 
     def write(self, dest, content):
         """Write a file into the test machine

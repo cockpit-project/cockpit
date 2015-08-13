@@ -99,6 +99,8 @@ void     _cockpit_assert_bytes_eq_msg       (const char *domain,
 
 void     cockpit_test_skip                  (const gchar *reason);
 
+void     cockpit_test_signal_backtrace      (int sig);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_TEST_H__ */

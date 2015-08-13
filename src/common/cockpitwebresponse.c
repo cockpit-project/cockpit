@@ -232,6 +232,7 @@ cockpit_web_response_new (GIOStream *io,
 const gchar *
 cockpit_web_response_get_path (CockpitWebResponse *self)
 {
+  g_return_val_if_fail (COCKPIT_IS_WEB_RESPONSE (self), NULL);
   return self->path;
 }
 
@@ -244,6 +245,7 @@ cockpit_web_response_get_path (CockpitWebResponse *self)
 const gchar *
 cockpit_web_response_get_query (CockpitWebResponse *self)
 {
+  g_return_val_if_fail (COCKPIT_IS_WEB_RESPONSE (self), NULL);
   return self->query;
 }
 
@@ -256,6 +258,7 @@ cockpit_web_response_get_query (CockpitWebResponse *self)
 GIOStream *
 cockpit_web_response_get_stream  (CockpitWebResponse *self)
 {
+  g_return_val_if_fail (COCKPIT_IS_WEB_RESPONSE (self), NULL);
   return self->io;
 }
 
@@ -425,6 +428,7 @@ cockpit_web_response_queue (CockpitWebResponse *self,
   GBytes *bytes;
   gsize length;
 
+  g_return_val_if_fail (COCKPIT_IS_WEB_RESPONSE (self), FALSE);
   g_return_val_if_fail (block != NULL, FALSE);
   g_return_val_if_fail (self->complete == FALSE, FALSE);
 
@@ -482,6 +486,7 @@ cockpit_web_response_complete (CockpitWebResponse *self)
 {
   GBytes *bytes;
 
+  g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (self));
   g_return_if_fail (self->complete == FALSE);
 
   if (self->failed)
@@ -522,6 +527,7 @@ cockpit_web_response_complete (CockpitWebResponse *self)
 void
 cockpit_web_response_abort (CockpitWebResponse *self)
 {
+  g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (self));
   g_return_if_fail (self->complete == FALSE);
 
   if (self->failed)
@@ -556,6 +562,8 @@ cockpit_web_response_abort (CockpitWebResponse *self)
 CockpitWebResponding
 cockpit_web_response_get_state (CockpitWebResponse *self)
 {
+  g_return_val_if_fail (COCKPIT_IS_WEB_RESPONSE (self), 0);
+
   if (self->done)
     return COCKPIT_WEB_RESPONSE_SENT;
   else if (self->complete)
@@ -743,6 +751,8 @@ cockpit_web_response_headers (CockpitWebResponse *self,
   GBytes *block;
   va_list va;
 
+  g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (self));
+
   if (self->count > 0)
     {
       g_critical ("Headers should be sent first. This is a programmer error.");
@@ -788,6 +798,8 @@ cockpit_web_response_headers_full  (CockpitWebResponse *self,
   GString *string;
   GBytes *block;
 
+  g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (self));
+
   if (self->count > 0)
     {
       g_critical ("Headers should be sent first. This is a programmer error.");
@@ -832,6 +844,8 @@ cockpit_web_response_content (CockpitWebResponse *self,
   gsize length = 0;
   va_list va;
   va_list va2;
+
+  g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (self));
 
   first = block;
   va_start (va, block);
@@ -884,6 +898,8 @@ cockpit_web_response_error (CockpitWebResponse *self,
   const gchar *message;
   GBytes *content;
   gsize length;
+
+  g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (self));
 
   if (format)
     {
@@ -963,6 +979,8 @@ cockpit_web_response_gerror (CockpitWebResponse *self,
 {
   int code;
 
+  g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (self));
+
   if (g_error_matches (error,
                        COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED))
     code = 401;
@@ -1021,6 +1039,8 @@ cockpit_web_response_file (CockpitWebResponse *response,
   GMappedFile *file = NULL;
   const gchar *root;
   GBytes *body;
+
+  g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (response));
 
   if (!escaped)
     escaped = cockpit_web_response_get_path (response);
@@ -1133,6 +1153,8 @@ cockpit_web_response_pop_path (CockpitWebResponse *self)
 
   const gchar *beg = NULL;
   const gchar *path;
+
+  g_return_val_if_fail (COCKPIT_IS_WEB_RESPONSE (self), NULL);
 
   path = self->path;
 

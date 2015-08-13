@@ -26,6 +26,7 @@ G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_WEB_RESPONSE         (cockpit_web_response_get_type ())
 #define COCKPIT_WEB_RESPONSE(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_WEB_RESPONSE, CockpitWebResponse))
+#define COCKPIT_IS_WEB_RESPONSE(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_WEB_RESPONSE))
 
 typedef enum {
   COCKPIT_WEB_RESPONSE_READY = 1,

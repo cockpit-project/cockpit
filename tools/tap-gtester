@@ -30,8 +30,18 @@
 import argparse
 import os
 import select
+import signal
 import subprocess
 import sys
+
+# Yes, it's dumb, but strsignal is not exposed in python
+# In addition signal numbers varify heavily from arch to arch
+def strsignal(sig):
+    for name in dir(signal):
+        if name.startswith("SIG") and sig == getattr(signal, name):
+            return name
+    return str(sig)
+
 
 class NullCompiler:
     def __init__(self, command):
@@ -116,6 +126,9 @@ class GTestCompiler(NullCompiler):
         result = self.process(proc)
         if result == 0:
             return 0
+
+        if result < 0:
+            print >> sys.stderr, "%s terminated with %s" % (self.command[0], strsignal(-result))
 
         # Now pick up any stragglers due to failures
         while True:

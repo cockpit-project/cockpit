@@ -287,11 +287,11 @@ cat subscriptions.list docker.list >> shell.list
 
 %files pcp
 %{_libexecdir}/cockpit-pcp
-/var/lib/pcp/config/pmlogconf/tools/cockpit
+%{_localstatedir}/lib/pcp/config/pmlogconf/tools/cockpit
 
 %post pcp
 # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1185749
-( cd /var/lib/pcp/pmns && ./Rebuild -du )
+( cd %{_localstatedir}/lib/pcp/pmns && ./Rebuild -du )
 # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1185764
 # We can't use "systemctl reload-or-try-restart" since systemctl might
 # be out of sync with reality.
@@ -311,7 +311,7 @@ cat subscriptions.list docker.list >> shell.list
 %{_sbindir}/remotectl
 %{_libexecdir}/cockpit-ws
 %attr(4750, root, cockpit-ws) %{_libexecdir}/cockpit-session
-%attr(775, -, wheel) %{_sharedstatedir}/%{name}
+%attr(775, -, wheel) %{_localstatedir}/lib/%{name}
 %{_datadir}/%{name}/static
 %{_datadir}/%{name}/branding
 
@@ -427,14 +427,14 @@ SELinux policy for Cockpit testing.
 /usr/sbin/semodule -s targeted -i %{_datadir}/selinux/targeted/cockpit.pp
 /sbin/fixfiles -R cockpit restore || :
 /sbin/fixfiles -R cockpit-test-assets restore || :
-/sbin/restorecon -R %{_sharedstatedir}/%{name}
+/sbin/restorecon -R %{_localstatedir}/lib/%{name}
 
 %postun selinux-policy
 if [ $1 -eq 0 ] ; then
   /usr/sbin/semodule -s targeted -r cockpit &> /dev/null || :
   /sbin/fixfiles -R cockpit-selinux-policy restore || :
-  [ -d %{_sharedstatedir}/%{name} ]  && \
-    /sbin/restorecon -R %{_sharedstatedir}/%{name} &> /dev/null || :
+  [ -d %{_localstatedir}/lib/%{name} ]  && \
+    /sbin/restorecon -R %{_localstatedir}/lib/%{name} &> /dev/null || :
 fi
 
 %endif

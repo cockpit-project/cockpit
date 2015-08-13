@@ -245,6 +245,7 @@ include pkg/shell/Makefile.am
 include pkg/subscriptions/Makefile.am
 include pkg/systemd/Makefile.am
 include pkg/storaged/Makefile.am
+include pkg/users/Makefile.am
 include src/bridge/Makefile.am
 include src/common/Makefile-common.am
 include src/legacy/Makefile.am

@@ -55,7 +55,7 @@ class TestKeys(MachineCase):
 
             b.click('#content-user-name')
             b.click('#go-account')
-            b.enter_page("account")
+            b.enter_page("/users/local")
             b.wait_text("#account-user-name", user);
 
         def add_key(key, fp_md5, fp_sh256, comment):
@@ -91,13 +91,13 @@ class TestKeys(MachineCase):
         add_key(KEY, FP_MD5, FP_SHA256, "test-name")
 
         # Try see admin
-        b.go("account?id=admin")
-        b.enter_page("account")
+        b.go("/admin")
+        b.wait_visible("#account")
+        b.wait_text("#account-user-name", "admin")
 
         # Not allowed
         b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "You do not have permission")
         b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  1);
-        b.wait_text("#account-user-name", "admin")
 
         b.logout()
 
@@ -107,7 +107,7 @@ class TestKeys(MachineCase):
 
         # Log in as admin
         login("admin", "foobar", "Administrator")
-        b.go("account?id=user")
+        b.go("/user")
         b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "no authorized public keys")
         b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  1);
 

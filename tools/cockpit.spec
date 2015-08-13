@@ -201,6 +201,9 @@ find %{buildroot}%{_datadir}/%{name}/shell -type f >> shell.list
 echo '%dir %{_datadir}/%{name}/system' >> shell.list
 find %{buildroot}%{_datadir}/%{name}/system -type f >> shell.list
 
+echo '%dir %{_datadir}/%{name}/users' >> shell.list
+find %{buildroot}%{_datadir}/%{name}/users -type f >> shell.list
+
 echo '%dir %{_datadir}/%{name}/subscriptions' > subscriptions.list
 find %{buildroot}%{_datadir}/%{name}/subscriptions -type f >> subscriptions.list
 

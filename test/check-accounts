@@ -25,7 +25,7 @@ class TestAccounts(MachineCase):
         b = self.browser
         m = self.machine
 
-        self.login_and_go("accounts", href="/users/local")
+        self.login_and_go("/users/local")
 
         # Add a user externally
         m.execute("useradd anton")
@@ -33,8 +33,8 @@ class TestAccounts(MachineCase):
         b.wait_in_text('#accounts-list', "anton")
 
         # Set a real name
-        b.go("account?id=anton")
-        b.enter_page("account")
+        b.go("/anton")
+        b.wait_visible("#account")
         b.wait_text("#account-user-name", "anton")
         b.set_val('#account-real-name', "Anton Arbitrary")
         b.wait_not_attr('#account-real-name', 'data-dirty', 'true')
@@ -45,7 +45,7 @@ class TestAccounts(MachineCase):
         b.wait_popup('account-confirm-delete-dialog')
         b.click('#account-confirm-delete-apply')
         b.wait_popdown('account-confirm-delete-dialog')
-        b.enter_page("accounts")
+        b.wait_visible("#accounts")
         b.wait_not_in_text('#accounts-list', "Anton Arbitrary")
 
         # Create a user from the UI
@@ -76,8 +76,8 @@ class TestAccounts(MachineCase):
         b.wait_in_text('#accounts-list', "Jussi Junior")
 
         # Unlock it and make it an admin
-        b.go("account?id=jussi")
-        b.enter_page("account")
+        b.go("/jussi")
+        b.wait_visible("#account")
         b.wait_text("#account-user-name", "jussi")
         b.set_val('#accounts-create-locked', "no")
         b.wait_present("#account-role-checkbox-10:not(:checked)")
@@ -91,8 +91,8 @@ class TestAccounts(MachineCase):
         b.wait_present("#account-role-checkbox-10:checked")
 
         # Change the password of this account
-        b.go("account?id=jussi")
-        b.enter_page("account")
+        b.go("/jussi")
+        b.wait_visible("#account")
         b.wait_text("#account-user-name", "jussi")
         b.click('#account-set-password')
         b.wait_popup('account-set-password-dialog')
@@ -113,7 +113,7 @@ class TestAccounts(MachineCase):
         # Logout and login with the new password
         b.logout()
         self.allow_restart_journal_messages()
-        b.open("accounts", href="/users/local")
+        b.open("/users/local")
         b.wait_visible("#login")
         b.set_val("#login-user-input", "jussi")
         b.set_val("#login-password-input", 'ö5 foobar')

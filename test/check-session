@@ -75,7 +75,7 @@ class TestSession(MachineCase):
         b.wait_visible("#content")
         b.wait_text('#content-user-name', 'Administrator')
         b.click('#go-account')
-        b.enter_page("account")
+        b.enter_page("/users/local")
         b.wait_text ("#account-user-name", "admin")
         b.wait_text("#account-user-name", "admin")
         b.click("#account-logout")

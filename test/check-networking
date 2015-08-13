@@ -66,7 +66,7 @@ class TestNetworking(MachineCase):
         # the connection with nmcli so that NetworkManager settles
         # down.
 
-        self.login_and_go("networking", href="/network/interfaces")
+        self.login_and_go("/network/interfaces")
         b.wait_in_text("#networking-interfaces", m.address)
 
         # Add interface, wait for it to be recognized and activated by
@@ -81,7 +81,7 @@ class TestNetworking(MachineCase):
         b.wait_in_text("#networking-interfaces", iface)
         b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface, "bps")
         b.click("#networking-interfaces tr:contains('%s')" % iface)
-        b.enter_page("network-interface")
+        b.wait_visible("#network-interface")
 
         # Configure a manual IP address
         #
@@ -119,7 +119,7 @@ class TestNetworking(MachineCase):
 
         self.switch_off_rp_filter(m)
 
-        self.login_and_go("networking", href="/network/interfaces")
+        self.login_and_go("/network/interfaces")
         b.wait_in_text("#networking-interfaces", m.address)
 
         # Add interfaces and wait for them to be active or not (as
@@ -157,12 +157,12 @@ class TestNetworking(MachineCase):
 
         # Wait for the bond to be active
         b.click("#networking-interfaces td:first-child:contains('tbond')")
-        b.enter_page("network-interface")
+        b.wait_visible("#network-interface")
         b.wait_in_text("tr:contains('Status')", "10.111.111")
 
         # Delete the bond
         b.click("#network-interface button:contains('Delete')")
-        b.enter_page("networking")
+        b.wait_visible("#networking")
         b.wait_not_in_text("#networking-interfaces", "tbond")
 
     def testBridge(self):
@@ -171,7 +171,7 @@ class TestNetworking(MachineCase):
 
         self.switch_off_rp_filter(m)
 
-        self.login_and_go("networking", href="/network/interfaces")
+        self.login_and_go("/network/interfaces")
         b.wait_in_text("#networking-interfaces", m.address)
 
         # Add interfaces and wait for them to be active or not (as
@@ -206,12 +206,12 @@ class TestNetworking(MachineCase):
 
         # Wait for the bridge to be active.
         b.click("#networking-interfaces td:first-child:contains('tbridge')")
-        b.enter_page("network-interface")
+        b.wait_visible("#network-interface")
         b.wait_in_text("tr:contains('Status')", "10.111.111")
 
         # Delete the bridge
         b.click("#network-interface button:contains('Delete')")
-        b.enter_page("networking")
+        b.wait_visible("#networking")
         b.wait_not_in_text("#networking-interfaces", "tbridge")
 
 test_main()

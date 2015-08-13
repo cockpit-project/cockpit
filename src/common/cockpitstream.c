@@ -281,6 +281,9 @@ set_problem_from_error (CockpitStream *self,
     problem = "disconnected";
   else if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_TIMED_OUT))
     problem = "timeout";
+  else if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_NOT_TLS) ||
+           (!self->priv->received && g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_MISC)))
+    problem = "protocol-error";
   else if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_BAD_CERTIFICATE))
     {
       problem = "unknown-hostkey";

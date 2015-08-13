@@ -24,7 +24,10 @@ define([
     "shell/controls",
     "shell/shell",
     "system/server",
-    "shell/cockpit-main"
+    "shell/cockpit-main",
+    "shell/cockpit-plot",
+    "shell/cockpit-util",
+    "shell/dbus"
 ], function($, cockpit, Mustache, controls, shell, server) {
 "use strict";
 
@@ -41,6 +44,12 @@ function generate_uuid() {
         var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
         return v.toString(16);
     });
+}
+
+function show_unexpected_error(error) {
+    $("#error-popup-message").text(error.message || error || "???");
+    $('.modal[role="dialog"]').modal('hide');
+    $('#error-popup').modal('show');
 }
 
 /* NetworkManagerModel
@@ -1144,17 +1153,11 @@ function NetworkManagerModel() {
     return self;
 }
 
-var nm_models = shell.util.make_resource_cache();
-
-function get_nm_model() {
-    return nm_models.get("default", function () { return new NetworkManagerModel(); });
-}
-
 function render_interface_link(iface) {
     return $('<a>').
                text(iface).
                click(function () {
-                   cockpit.location.go("network-interface", { dev: iface });
+                   cockpit.location.go([ iface ]);
                });
 }
 
@@ -1174,7 +1177,7 @@ function render_connection_link(con) {
                     return $('<a>').
                         text(iface.Name).
                         click(function () {
-                            cockpit.location.go("network-interface", { dev: iface.Name });
+                            cockpit.location.go([ iface.Name ]);
                         });
                 }),
                 ", "));
@@ -1249,8 +1252,9 @@ function update_network_privileged() {
 $(shell.default_permission).on("changed", update_network_privileged);
 
 PageNetworking.prototype = {
-    _init: function () {
+    _init: function (model) {
         this.id = "networking";
+        this.model = model;
     },
 
     getTitle: function() {
@@ -1266,8 +1270,6 @@ PageNetworking.prototype = {
 
     enter: function () {
         var self = this;
-
-        this.model = get_nm_model();
 
         this.ifaces = { };
 
@@ -1343,8 +1345,6 @@ PageNetworking.prototype = {
             this.log_box.stop();
 
         $(this.model).off(".networking");
-        this.model.release();
-        this.model = null;
 
         $(this.monitor).off(".networking");
         this.cockpitd.release();
@@ -1395,7 +1395,7 @@ PageNetworking.prototype = {
                                  [ $('<td>').text(""), $('<td>').text("") ] :
                                  $('<td colspan="2">').text(device_state_text(dev)))).
                          click(function () {
-                             cockpit.location.go('network-interface', { dev: iface.Name });
+                             cockpit.location.go([ iface.Name ]);
                          }));
         });
 
@@ -1509,11 +1509,9 @@ PageNetworking.prototype = {
 
 };
 
-function PageNetworking() {
-    this._init();
+function PageNetworking(model) {
+    this._init(model);
 }
-
-shell.pages.push(new PageNetworking());
 
 var ipv4_method_choices =
     [
@@ -1559,9 +1557,9 @@ function choice_title(choices, choice, def) {
 }
 
 PageNetworkInterface.prototype = {
-    _init: function () {
+    _init: function (model) {
         this.id = "network-interface";
-        this.section_id = "networking";
+        this.model = model;
     },
 
     getTitle: function() {
@@ -1570,6 +1568,11 @@ PageNetworkInterface.prototype = {
 
     setup: function () {
         var self = this;
+
+        $('#network-interface .breadcrumb a').on("click", function() {
+            cockpit.location.go('/');
+        });
+
         $('#network-interface-delete').click($.proxy(this, "delete_connections"));
         $('#network-interface-delete').parent().append(
             this.device_onoff = controls.OnOff(false,
@@ -1579,13 +1582,12 @@ PageNetworkInterface.prototype = {
                                             "network-privileged"));
     },
 
-    enter: function () {
+    enter: function (dev_name) {
         var self = this;
 
-        self.model = get_nm_model();
         $(self.model).on('changed.network-interface', $.proxy(self, "update"));
 
-        self.dev_name = shell.get_page_param('dev');
+        self.dev_name = dev_name;
 
         $('#network-interface .breadcrumb .active').text(self.dev_name);
 
@@ -1660,8 +1662,6 @@ PageNetworkInterface.prototype = {
         this.tx_plot.destroy();
 
         $(this.model).off(".network-interface");
-        this.model.release();
-        this.model = null;
         this.dev = null;
 
         this.cockpitd.release();
@@ -1693,9 +1693,9 @@ PageNetworkInterface.prototype = {
             var location = cockpit.location;
             delete_iface_connections(this.iface).
                 done(function () {
-                    location.go("networking");
+                    location.go("/");
                 }).
-                fail(shell.show_unexpected_error);
+                fail(show_unexpected_error);
         }
     },
 
@@ -1704,7 +1704,7 @@ PageNetworkInterface.prototype = {
         var settings_manager = self.model.get_settings();
 
         function fail(error) {
-            shell.show_unexpected_error(error);
+            show_unexpected_error(error);
             self.update();
         }
 
@@ -1732,7 +1732,7 @@ PageNetworkInterface.prototype = {
         }
 
         self.dev.disconnect().fail(function (error) {
-            shell.show_unexpected_error(error);
+            show_unexpected_error(error);
             self.update();
         });
     },
@@ -1819,17 +1819,17 @@ PageNetworkInterface.prototype = {
 
             function apply() {
                 if (con)
-                    con.apply().fail(shell.show_unexpected_error);
+                    con.apply().fail(show_unexpected_error);
                 else {
                     var settings_manager = self.model.get_settings();
-                    settings_manager.add_connection(settings).fail(shell.show_unexpected_error);
+                    settings_manager.add_connection(settings).fail(show_unexpected_error);
                 }
             }
 
             function reactivate_connection() {
                 if (con && dev && dev.ActiveConnection && dev.ActiveConnection.Connection === con) {
                     con.activate(dev, null).
-                        fail(shell.show_unexpected_error);
+                        fail(show_unexpected_error);
                 }
             }
 
@@ -2141,12 +2141,12 @@ PageNetworkInterface.prototype = {
                                        controls.OnOff(is_active,
                                                      function () {
                                                          slave_con.activate(iface.Device).
-                                                             fail(shell.show_unexpected_error);
+                                                             fail(show_unexpected_error);
                                                      },
                                                      function () {
                                                          if (dev) {
                                                              dev.disconnect().
-                                                                 fail(shell.show_unexpected_error);
+                                                                 fail(show_unexpected_error);
                                                          }
                                                      }, null, "network-privileged")),
                                    $('<td width="28px">').append(
@@ -2154,11 +2154,11 @@ PageNetworkInterface.prototype = {
                                            text("-").
                                            click(function () {
                                                slave_con.delete_().
-                                                   fail(shell.show_unexpected_error);
+                                                   fail(show_unexpected_error);
                                                return false;
                                            }))).
                         click(function () {
-                            cockpit.location.go('network-interface', { dev: iface.Name });
+                            cockpit.location.go([ iface.Name ]);
                         });
                 });
             });
@@ -2189,7 +2189,7 @@ PageNetworkInterface.prototype = {
                                                 set_slave(self.model, con, con.Settings,
                                                           con.Settings.connection.type, iface.Name,
                                                           true).
-                                                    fail(shell.show_unexpected_error);
+                                                    fail(show_unexpected_error);
                                             }));
                                 }
                                 return null;
@@ -2207,11 +2207,9 @@ PageNetworkInterface.prototype = {
 
 };
 
-function PageNetworkInterface() {
-    this._init();
+function PageNetworkInterface(model) {
+    this._init(model);
 }
-
-shell.pages.push(new PageNetworkInterface());
 
 PageNetworkIpSettings.prototype = {
     _init: function () {
@@ -2448,8 +2446,6 @@ PageNetworkIpSettings.prototype = {
 function PageNetworkIpSettings() {
     this._init();
 }
-
-shell.dialogs.push(new PageNetworkIpSettings());
 
 function is_interface_connection(iface, connection) {
     return connection && connection.Interfaces.indexOf(iface) != -1;
@@ -2772,8 +2768,6 @@ function PageNetworkBondSettings() {
     this._init();
 }
 
-shell.dialogs.push(new PageNetworkBondSettings());
-
 PageNetworkBridgeSettings.prototype = {
     _init: function () {
         this.id = "network-bridge-settings-dialog";
@@ -2890,8 +2884,6 @@ function PageNetworkBridgeSettings() {
     this._init();
 }
 
-shell.dialogs.push(new PageNetworkBridgeSettings());
-
 PageNetworkBridgePortSettings.prototype = {
     _init: function () {
         this.id = "network-bridgeport-settings-dialog";
@@ -2984,8 +2976,6 @@ PageNetworkBridgePortSettings.prototype = {
 function PageNetworkBridgePortSettings() {
     this._init();
 }
-
-shell.dialogs.push(new PageNetworkBridgePortSettings());
 
 PageNetworkVlanSettings.prototype = {
     _init: function () {
@@ -3107,6 +3097,83 @@ function PageNetworkVlanSettings() {
     this._init();
 }
 
-shell.dialogs.push(new PageNetworkVlanSettings());
+/* INITIALIZATION AND NAVIGATION
+ *
+ * The code above still uses the legacy 'Page' abstraction for both
+ * pages and dialogs, and expects page.setup, page.enter, page.show,
+ * and page.leave to be called at the right times.
+ *
+ * We cater to this with a little compatability shim consisting of
+ * 'dialog_setup', 'page_show', and 'page_hide'.
+ */
+
+function dialog_setup(d) {
+    d.setup();
+    $('#' + d.id).
+        on('show.bs.modal', function () { d.enter(); }).
+        on('shown.bs.modal', function () { d.show(); }).
+        on('hidden.bs.modal', function () { d.leave(); });
+}
+
+function page_show(p, arg) {
+    if (p._entered_)
+        p.leave();
+    p.enter(arg);
+    p._entered_ = true;
+    $('#' + p.id).show();
+    p.show();
+}
+
+function page_hide(p) {
+    $('#' + p.id).hide();
+    if (p._entered_) {
+        p.leave();
+        p._entered_ = false;
+    }
+}
+
+function init() {
+    var model;
+    var overview_page;
+    var interface_page;
+
+    function navigate() {
+        var path = cockpit.location.path;
+
+        if (path.length === 0) {
+            page_hide(interface_page);
+            page_show (overview_page);
+        } else if (path.length === 1) {
+            page_hide(overview_page);
+            page_show(interface_page, path[0]);
+        } else { /* redirect */
+            console.warn("not a networking location: " + path);
+            cockpit.location = '';
+        }
+
+        $("body").show();
+    }
+
+    cockpit.translate();
+
+    model = new NetworkManagerModel();
+
+    overview_page = new PageNetworking(model);
+    overview_page.setup();
+
+    interface_page = new PageNetworkInterface(model);
+    interface_page.setup();
+
+    dialog_setup(new PageNetworkIpSettings());
+    dialog_setup(new PageNetworkBondSettings());
+    dialog_setup(new PageNetworkBridgeSettings());
+    dialog_setup(new PageNetworkBridgePortSettings());
+    dialog_setup(new PageNetworkVlanSettings());
+
+    $(cockpit).on("locationchanged", navigate);
+    navigate();
+}
+
+return init;
 
 });

@@ -270,21 +270,6 @@ html, body {
     margin-right: 5px;
 }
 
-.available-disks-group input[type='checkbox'],
-.available-interfaces-group input[type='checkbox'] {
-    margin: 4px 4px 4px -20px;
-}
-
-.available-disks-group > .list-group-item,
-.available-interfaces-group > .list-group-item {
-    border: none;
-    padding: 0px;
-}
-
-ul.available-interfaces-group {
-    margin-bottom: 0px;
-}
-
 .cockpit-account {
     width: 250px;
     height: 70px;
@@ -484,17 +469,6 @@ ul.available-interfaces-group {
     cursor: auto;
 }
 
-.ipv4-address {
-  display: inline;
-}
-
-.ipv4-address input {
-  width: 2em;
-  background: none;
-  border: none;
-  text-align: center;
-}
-
 /* server overview dashboard */
 #server .cockpit-info-table button {
   max-width: 300px;
@@ -538,22 +512,6 @@ ul.available-interfaces-group {
 /* workaround: make text red for select if contained in has-error, not in patternfly */
 .has-error > .bootstrap-select > button > span {
     color: #A94442;
-}
-
-/* networking */
-
-.network-number-field {
-    width: 4em;
-}
-
-.network-ip-settings-row {
-    border-bottom: 1px solid lightgray;
-    padding-bottom: 10px;
-}
-
-.network-ip-settings-row:last-of-type {
-    border-bottom: none;
-    padding-bottom: 0;
 }
 
 /* System information */

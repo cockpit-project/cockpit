@@ -94,6 +94,7 @@ BuildRequires: sed
 BuildRequires: xmlto
 
 Requires: %{name}-bridge = %{version}-%{release}
+Requires: %{name}-networkmanager = %{version}-%{release}
 Requires: %{name}-ws = %{version}-%{release}
 Requires: %{name}-shell = %{version}-%{release}
 Requires: %{name}-storaged = %{version}-%{release}
@@ -137,7 +138,6 @@ Cockpit support for reading PCP metrics and loading PCP archives.
 %package shell
 Summary: Cockpit Shell user interface package
 Requires: %{name}-bridge = %{version}-%{release}
-Requires: NetworkManager
 Requires: shadow-utils
 Requires: grep
 Requires: libpwquality
@@ -228,6 +228,9 @@ find %{buildroot}%{_datadir}/%{name}/subscriptions -type f >> subscriptions.list
 
 echo '%dir %{_datadir}/%{name}/storage' > storaged.list
 find %{buildroot}%{_datadir}/%{name}/storage -type f >> storaged.list
+
+echo '%dir %{_datadir}/%{name}/network' > networkmanager.list
+find %{buildroot}%{_datadir}/%{name}/network -type f >> networkmanager.list
 
 %ifarch x86_64 armv7hl
 echo '%dir %{_datadir}/%{name}/docker' > docker.list
@@ -394,6 +397,15 @@ Requires: storaged >= 2.1.1
 The Cockpit component for managing storage.  This package uses Storaged.
 
 %files storaged -f storaged.list
+
+%package networkmanager
+Summary: Cockpit user interface for networking, using NetworkManager
+Requires: NetworkManager
+
+%description networkmanager
+The Cockpit component for managing networking.  This package uses NetworkManager.
+
+%files networkmanager -f networkmanager.list
 
 %if %{defined gitcommit}
 

@@ -102,7 +102,7 @@ define([
         cockpit.logout();
     });
     $("#go-account").on("click", function() {
-        cockpit.location.go([ "@localhost", "users", "local" ], { id: cockpit.user["user"] });
+        cockpit.location.go([ "@localhost", "users", "local", cockpit.user["user"] ]);
     });
 
     /* User name and menu */
@@ -508,12 +508,6 @@ define([
             if (component == "system/host") {
                 component = "shell/shell";
                 hash = "/server" + hash;
-            } else if (component == "users/local") {
-                component = "shell/shell";
-                if (options && options.id)
-                    hash = "/account";
-                else
-                    hash = "/accounts";
             }
         } else {
             dashboard = true;

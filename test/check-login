@@ -80,7 +80,7 @@ class TestLogin(MachineCase):
         b.wait_text('#content-user-name', 'Administrator')
 
         b.click('#go-account')
-        b.enter_page("account")
+        b.enter_page("/users/local")
         b.wait_text ("#account-user-name", "admin")
 
         self.allow_journal_messages ("Returning error-response ... with reason .*",

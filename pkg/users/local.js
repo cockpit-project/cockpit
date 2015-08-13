@@ -349,15 +349,13 @@ PageAccounts.prototype = {
     },
 
     go: function (user) {
-        cockpit.location.go('account', { id: user });
+        cockpit.location.go([ user ]);
     }
 };
 
 function PageAccounts() {
     this._init();
 }
-
-shell.pages.push(new PageAccounts());
 
 PageAccountsCreate.prototype = {
     _init: function() {
@@ -583,8 +581,6 @@ function PageAccountsCreate() {
     this._init();
 }
 
-shell.dialogs.push(new PageAccountsCreate());
-
 PageAccount.prototype = {
     _init: function() {
         this.id = "account";
@@ -606,6 +602,10 @@ PageAccount.prototype = {
     },
 
     setup: function() {
+        $('#account .breadcrumb a').on("click", function() {
+            cockpit.location.go('/');
+        });
+
         $('#account-real-name').on('change', $.proxy (this, "change_real_name"));
         $('#account-real-name').on('keydown', $.proxy (this, "real_name_edited"));
         $('#account-set-password').on('click', $.proxy (this, "set_password"));
@@ -663,7 +663,7 @@ PageAccount.prototype = {
             var accounts = parse_passwd_content(content);
 
             for (var i = 0; i < accounts.length; i++) {
-               if (accounts[i]["name"] !== shell.get_page_param('id'))
+               if (accounts[i]["name"] !== self.account_id)
                   continue;
 
                self.account = accounts[i];
@@ -697,7 +697,7 @@ PageAccount.prototype = {
                                            _("Server Administrator") :
                                            _("Container Administrator");
                    self.roles[j]["id"] = self.groups[i]["gid"];
-                   self.roles[j]["member"] = is_user_in_group(shell.get_page_param('id'), self.groups[i]);
+                   self.roles[j]["member"] = is_user_in_group(self.account_id, self.groups[i]);
                    j++;
                 }
             }
@@ -728,7 +728,7 @@ PageAccount.prototype = {
                return new Date(data[data.length - 1]);
         }
 
-        cockpit.spawn(["/usr/bin/lastlog", "-u", shell.get_page_param('id')],
+        cockpit.spawn(["/usr/bin/lastlog", "-u", self.account_id],
                       { "environ": ["LC_ALL=C"] })
            .done(function (data) { self.lastLogin = parse_last_login(data); self.update(); })
            .fail(log_unexpected_error);
@@ -742,7 +742,7 @@ PageAccount.prototype = {
             self.update();
         }
 
-        cockpit.spawn(["/usr/bin/passwd", "-S", shell.get_page_param('id')],
+        cockpit.spawn(["/usr/bin/passwd", "-S", self.account_id],
                       { "environ": [ "LC_ALL=C" ], "superuser": "require" })
            .done(parse_locked)
            .fail(log_unexpected_error);
@@ -759,12 +759,14 @@ PageAccount.prototype = {
                self.update();
         }
 
-        cockpit.spawn(["/usr/bin/w", "-sh", shell.get_page_param('id')])
+        cockpit.spawn(["/usr/bin/w", "-sh", self.account_id])
            .done(parse_logged)
            .fail(log_unexpected_error);
     },
 
-    enter: function() {
+    enter: function(account_id) {
+        this.account_id = account_id;
+
         $("#account-real-name").removeAttr("data-dirty");
 
         this.get_user();
@@ -950,8 +952,6 @@ function PageAccount() {
     this._init();
 }
 
-shell.pages.push(new PageAccount());
-
 var crop_handle_width = 20;
 
 PageAccountConfirmDelete.prototype = {
@@ -985,7 +985,7 @@ PageAccountConfirmDelete.prototype = {
         cockpit.spawn(prog, { "superuser": "require" })
            .done(function () {
               $('#account-confirm-delete-dialog').modal('hide');
-              cockpit.location = "accounts";
+               cockpit.location.go("/");
            })
            .fail(shell.show_unexpected_error);
     }
@@ -994,8 +994,6 @@ PageAccountConfirmDelete.prototype = {
 function PageAccountConfirmDelete() {
     this._init();
 }
-
-shell.dialogs.push(new PageAccountConfirmDelete());
 
 PageAccountSetPassword.prototype = {
     _init: function() {
@@ -1095,11 +1093,78 @@ function PageAccountSetPassword() {
     this._init();
 }
 
-shell.dialogs.push(new PageAccountSetPassword());
+/* INITIALIZATION AND NAVIGATION
+ *
+ * The code above still uses the legacy 'Page' abstraction for both
+ * pages and dialogs, and expects page.setup, page.enter, page.show,
+ * and page.leave to be called at the right times.
+ *
+ * We cater to this with a little compatability shim consisting of
+ * 'dialog_setup', 'page_show', and 'page_hide'.
+ */
 
-shell.change_password = function change_password() {
-    PageAccountSetPassword.user_name = cockpit.user["user"];
-    $('#account-set-password-dialog').modal('show');
-};
+function dialog_setup(d) {
+    d.setup();
+    $('#' + d.id).
+        on('show.bs.modal', function () { d.enter(); }).
+        on('shown.bs.modal', function () { d.show(); }).
+        on('hidden.bs.modal', function () { d.leave(); });
+}
+
+function page_show(p, arg) {
+    if (p._entered_)
+        p.leave();
+    p.enter(arg);
+    p._entered_ = true;
+    $('#' + p.id).show();
+    p.show();
+}
+
+function page_hide(p) {
+    $('#' + p.id).hide();
+    if (p._entered_) {
+        p.leave();
+        p._entered_ = false;
+    }
+}
+
+function init() {
+    var overview_page;
+    var account_page;
+
+    function navigate() {
+        var path = cockpit.location.path;
+
+        if (path.length === 0) {
+            page_hide(account_page);
+            page_show(overview_page);
+        } else if (path.length === 1) {
+            page_hide(overview_page);
+            page_show(account_page, path[0]);
+        } else { /* redirect */
+            console.warn("not a users location: " + path);
+            cockpit.location = '';
+        }
+
+        $("body").show();
+    }
+
+    cockpit.translate();
+
+    overview_page = new PageAccounts();
+    overview_page.setup();
+
+    account_page = new PageAccount();
+    account_page.setup();
+
+    dialog_setup(new PageAccountsCreate());
+    dialog_setup(new PageAccountConfirmDelete());
+    dialog_setup(new PageAccountSetPassword());
+
+    $(cockpit).on("locationchanged", navigate);
+    navigate();
+}
+
+return init;
 
 });

@@ -1,0 +1,99 @@
+.cockpit-account {
+    width: 250px;
+    height: 70px;
+    background: #FFF;
+    margin-top: 15px;
+    margin-right: 15px;
+    border: 1px solid #ddd;
+    display: inline-block;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.cockpit-account:hover {
+    background-color: #d4edfa;
+    cursor: pointer;
+}
+
+.cockpit-account > .cockpit-account-pic {
+    width: 48px;
+    height: 48px;
+    font-size: 48px;
+    color: #bebebe;
+    margin: 10px;
+    float: left;
+}
+
+.cockpit-account > .cockpit-account-real-name {
+    padding-top: 10px;
+    font-weight: bold;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    min-height: 30px;
+}
+
+.cockpit-account > .cockpit-account-user-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#account-details td:first-child {
+    text-align: right;
+    color: #888;
+}
+
+#account-details td {
+     padding: 7px;
+}
+
+#account-details div.checkbox:first-child {
+	margin-top: 0px;
+}
+
+#account-details div.checkbox:last-child {
+	margin-bottom: 0px;
+}
+
+#dashboard_setup_address_discovered li:hover {
+    background-color: #d4edfa;
+}
+
+#account-pic {
+    background: #d3d7cf;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#account-authorized-keys-list div.comment {
+    width: 250px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+
+#account-authorized-keys-list div.fingerprint {
+    width: -moz-calc(100% - 30px - 260px);
+    width: -webkit-calc(100% - 30px - 260px);
+    width: calc(100% - 30px - 260px);
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+
+#account-authorized-keys-list div.action {
+    float: right;
+    width: 28px;
+}
+
+#authorized-key-add {
+    min-width: 28px;
+    min-height: 28px;
+}
+
+#authorized-keys-text {
+    height: 200px;
+}

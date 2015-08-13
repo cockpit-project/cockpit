@@ -51,10 +51,10 @@ class TestRoles(MachineCase):
         #
         self.allow_journal_messages(".*Failed to create file '/var/lib/cockpit/.*': Permission denied")
 
-        # Try to change its own name
+        # Check permissions for own account
         b.click('#content-user-name')
         b.click('#go-account')
-        b.enter_page("account")
+        b.enter_page("/users/local")
 
         b.wait_text("#account-user-name", "user")
         b.wait_present('#account-real-name-wrapper.disabled')
@@ -65,9 +65,9 @@ class TestRoles(MachineCase):
         b.wait_present("#account-role-checkbox-10[disabled]")
         b.wait_present("#account-role-checkbox-10:not(:checked)")
 
-        # Try to change admins name
-        b.go("account?id=admin")
-        b.enter_page("account")
+        # Check permissions for admin account
+        b.go("/admin")
+        b.wait_visible("#account")
         b.wait_text("#account-user-name", "admin")
         b.wait_present('#account-real-name-wrapper.disabled')
         b.wait_present("#account-locked[disabled]")
@@ -77,20 +77,21 @@ class TestRoles(MachineCase):
         b.wait_present("#account-role-checkbox-10[disabled]")
         b.wait_present("#account-role-checkbox-10:checked")
 
-        # Add role from the outside (and wait for it to stick)
-        b.go("account?id=user")
-        b.enter_page("account")
+        # Add "wheel" role from the outside (and wait for it to stick)
+        b.go("/user")
+        b.wait_visible("#account")
         b.wait_text("#account-user-name", "user")
 
+        b.wait_present("#account-role-checkbox-10:not(:checked)")
         m.execute("usermod -a -G wheel user")
         b.wait_present("#account-role-checkbox-10:checked")
 
-        b.relogin("account", "user")
+        b.relogin("/users/local", "user")
         b.wait_text("#account-user-name", "user")
 
-        # Try to change admins name again
-        b.enter_page("account")
-        b.go("account?id=admin")
+        # Check permissions for admin again
+        b.go("/admin")
+        b.wait_visible("#account")
         b.wait_text("#account-user-name", "admin")
         b.wait_present("#account-real-name-wrapper:not(.disabled)")
         b.wait_present("#account-locked:not([disabled])")
@@ -99,12 +100,6 @@ class TestRoles(MachineCase):
         b.wait_present("#account-logout:not(.disabled)")
         b.wait_present("#account-role-checkbox-10:not([disabled])")
         b.wait_present("#account-role-checkbox-10:checked")
-
-        b.set_val('#account-real-name', "Administratorrrr")
-
-        b.go("account?id=admin")
-        b.enter_page("account")
-        b.wait_val("#account-real-name", "Administratorrrr")
 
         self.allow_restart_journal_messages()
         self.allow_authorize_journal_messages()
@@ -115,13 +110,11 @@ class TestRoles(MachineCase):
 
         m.execute("groupadd docker")
 
-        self.login_and_go("accounts", href="/users/local")
-        b.go("account?id=admin")
+        self.login_and_go("/users/local")
+        b.go("/admin")
 
         b.wait_in_text("#account-change-roles-roles", "Container Administrator")
-        b.wait_in_text("#account-change-roles-roles", "Container Administrator")
 
-        # The roles dialog is live, removes entries even when open
         m.execute("groupdel docker")
         b.wait_not_in_text("#account-change-roles-roles", "Container Administrator")
 

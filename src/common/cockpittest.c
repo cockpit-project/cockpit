@@ -27,7 +27,12 @@
 
 #include <glib-object.h>
 
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <execinfo.h>
+#include <unistd.h>
 
 /*
  * HACK: We can't yet use g_test_expect_message() and friends.
@@ -454,4 +459,21 @@ _cockpit_assert_bytes_eq_msg (const char *domain,
                                g_bytes_get_data (data, NULL),
                                g_bytes_get_size (data),
                                expect, exp_len);
+}
+
+void
+cockpit_test_signal_backtrace (int sig)
+{
+  void *array[16];
+  size_t size;
+
+  // get void*'s for all entries on the stack
+  size = backtrace (array, G_N_ELEMENTS (array));
+
+  // print out all the frames to stderr
+  fprintf (stderr, "Error: signal %s:\n", strsignal (sig));
+  backtrace_symbols_fd (array, size, STDERR_FILENO);
+
+  signal (sig, SIG_DFL);
+  raise (sig);
 }

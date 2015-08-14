@@ -447,7 +447,8 @@ class Machine:
 
         cmd = "journalctl 2>&1 -o cat -p %d %s || true" % (log_level, matches)
         messages = self.execute(cmd).splitlines()
-        if len(messages) == 1 and "Cannot assign requested address" in messages[0]:
+        if len(messages) == 1 and ("Cannot assign requested address" in messages[0]
+                                   or "-- No entries --" in messages[0]):
             # No messages
             return [ ]
         else:

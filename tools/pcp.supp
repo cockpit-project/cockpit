@@ -18,3 +18,12 @@
    fun:__pmLogFetch
    ...
 }
+{
+   pm_connect_local_string_leak
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:strdup
+   ...
+   fun:__pmConnectLocal
+}

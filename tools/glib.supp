@@ -481,3 +481,13 @@
    fun:g_strdup
    fun:g_tls_connection_gnutls_init_priorities
 }
+{
+   g_tls_connection_gnutls_heisenbug_likely_same_as_above
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:g_malloc
+   fun:g_strdup
+   ...
+   fun:g_tls_client_connection_new
+}

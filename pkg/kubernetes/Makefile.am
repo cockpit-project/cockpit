@@ -24,6 +24,8 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/details.js \
 	pkg/kubernetes/graphs.js \
 	pkg/kubernetes/kubernetes.js \
+	pkg/kubernetes/listing.css \
+	pkg/kubernetes/listing.js \
 	pkg/kubernetes/node.js \
 	pkg/kubernetes/object-describer.js \
 	pkg/kubernetes/deploy.js \
@@ -44,6 +46,7 @@ kubernetes_MIN = \
 	pkg/kubernetes/deploy.min.js \
 	pkg/kubernetes/details.min.js \
 	pkg/kubernetes/graphs.min.js \
+	pkg/kubernetes/listing.min.js \
 	pkg/kubernetes/nulecule.min.js \
 	pkg/kubernetes/node.min.js \
 	pkg/kubernetes/object-describer.min.js \

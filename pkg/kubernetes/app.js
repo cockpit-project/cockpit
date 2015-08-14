@@ -12,7 +12,8 @@ define([
             'kubernetes.dashboard',
             'kubernetes.graph',
             'kubernetes.details',
-            'kubernetes.topology'
+            'kubernetes.topology',
+            'kubernetes.listing'
         ])
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.otherwise({ redirectTo: '/' });

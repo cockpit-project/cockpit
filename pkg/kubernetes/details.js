@@ -240,7 +240,7 @@ define([
                             });
 
                         term.on('data', function(data) {
-                            if (channel.valid)
+                            if (channel && channel.valid)
                                 channel.send(data);
                         });
                     }

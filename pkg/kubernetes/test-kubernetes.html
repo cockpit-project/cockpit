@@ -520,7 +520,7 @@ require([
     var cockpit_http = cockpit.http;
     cockpit.http = function(endpoint) {
         /* Our mock kubernetes apiserver */
-        if (endpoint == 8080 || endpoint == 8443)
+        if (endpoint == 8080 || endpoint == 8443 || endpoint == 6443)
             return new MockHttp(kube_apiserver);
 
         /* For now etcd just returns not-found */

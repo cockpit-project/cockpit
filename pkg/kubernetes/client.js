@@ -27,10 +27,8 @@ define([
     var kubernetes = { };
     var _ = cockpit.gettext;
 
-    var API_BASE_URIS = {
-        "kube" : "/api/v1",
-        "origin" : "/oapi/v1",
-    };
+    var API_KUBE = "/api";
+    var API_OPENSHIFT = "/oapi";
 
     var TYPE_APIS = {
         "images" : "origin",
@@ -187,7 +185,7 @@ define([
      * @remove callback with a null argument to indicate we are
      * starting over.
      */
-    function KubernetesWatch(type, api_type, update, remove) {
+    function KubernetesWatch(type, endpoint, update, remove) {
         var self = this;
 
         /* Used to track the last resource for restarting query */
@@ -345,7 +343,7 @@ define([
                 return;
 
             var full = true;
-            var uri = API_BASE_URIS[api_type] + "/watch/" + type;
+            var uri = endpoint + "/v1/watch/" + type;
             var params = {};
 
             /*
@@ -451,6 +449,7 @@ define([
     function connect_api_server() {
         var dfd = $.Deferred();
         var req;
+        var aux;
 
         var schemes = [
             { port: 8080 },
@@ -470,7 +469,16 @@ define([
             }
 
             var http = cockpit.http(scheme.port, scheme);
-            req = http.get("/api")
+            var openshift = null;
+
+            /* A supplementary request to check if openshift */
+            aux = http.get(API_OPENSHIFT)
+                .always(function() {
+                    openshift = (this.state() == "resolved");
+                });
+
+            /* The main /api request */
+            req = http.get(API_KUBE)
                 .done(function(data) {
                     req = null;
 
@@ -487,8 +495,11 @@ define([
                         return;
                     }
                     if (response && response.versions) {
-                        debug("found kube-apiserver endpoint on:", scheme);
-                        dfd.resolve(http, response);
+                        aux.always(function() {
+                            response.flavor = openshift ? "openshift" : "kubernetes";
+                            dfd.resolve(http, response);
+                        });
+
                     } else {
                         debug("not a kube-apiserver endpoint on:", scheme);
                         step();
@@ -642,12 +653,14 @@ define([
      *  * objects: a dict of all the loaded kubernetes objects,
      *             with unique keys
      *  * resourceVersion: latest resourceVersion seen
+     *  * flavor: either 'kubernetes' or 'openshift'
      */
     function KubernetesClient() {
         var self = this;
 
         self.objects = { };
         self.resourceVersion = null;
+        self.flavor = null;
 
         /* Holds the connect api promise */
         var connected;
@@ -694,12 +707,10 @@ define([
          *
          * Adds a watcher for a given type.
          */
-        self.include = function include (type) {
-
-            var api_type = TYPE_APIS[type] || "kube";
-
+        self.include = function include(type) {
+            var endpoint = TYPE_APIS[type] || API_KUBE;
             if (!self.watches[type]) {
-                self.watches[type] = new KubernetesWatch(type, api_type,
+                self.watches[type] = new KubernetesWatch(type, endpoint,
                                                          handle_updated,
                                                          handle_removed);
                 if (connected) {
@@ -711,7 +722,7 @@ define([
         };
 
         /* The watch objects we have open */
-        self.watches = { "events": new KubernetesWatch("events", "kube", handle_event, handle_removed) };
+        self.watches = { "events": new KubernetesWatch("events", API_KUBE, handle_event, handle_removed) };
         [ "nodes", "pods", "services", "replicationcontrollers",
           "namespaces", "endpoints" ].forEach(self.include);
 

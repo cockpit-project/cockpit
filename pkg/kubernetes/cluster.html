@@ -33,17 +33,17 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
       <div class="kube-sidebar" ng-if="!curtains">
         <div>
           <ul>
-            <li ng-class="{ active: main.is_active('dashboard.html')}">
+            <li ng-class="{ active: is_active('dashboard.html')}">
               <a ng-href="#/">
                 <span class="fa fa-dashboard fa-fw"></span> Overview
               </a>
             </li>
-            <li ng-class="{ active: main.is_active('topology.html')}">
+            <li ng-class="{ active: is_active('topology.html')}">
               <a ng-href="#/topology">
                 <span class="fa fa-sitemap fa-fw"></span> Topology
               </a>
             </li>
-            <li ng-class="{ active: main.is_active('details.html')}">
+            <li ng-class="{ active: is_active('details.html')}">
               <a ng-href="#/pods">
                 <span class="fa fa-cubes fa-fw"></span> Containers
               </a>

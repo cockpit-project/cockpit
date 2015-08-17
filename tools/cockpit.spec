@@ -53,7 +53,6 @@ Source1:        cockpit.pam
 
 BuildRequires: pkgconfig(gio-unix-2.0)
 BuildRequires: pkgconfig(json-glib-1.0)
-BuildRequires: pkgconfig(libsystemd-daemon)
 BuildRequires: pkgconfig(polkit-agent-1) >= 0.105
 BuildRequires: pam-devel
 
@@ -71,7 +70,7 @@ BuildRequires: glib-networking
 BuildRequires: sed
 
 BuildRequires: glib2-devel >= 2.37.4
-BuildRequires: systemd
+BuildRequires: systemd-devel
 BuildRequires: polkit
 BuildRequires: pcp-libs-devel
 
@@ -365,7 +364,7 @@ This package is not yet complete.
 
 %package kubernetes
 Summary: Cockpit user interface for Kubernetes cluster
-Requires: kubernetes-client >= 0.20.0
+Requires: /usr/bin/kubectl
 
 %description kubernetes
 The Cockpit components for visualizing and configuring a Kubernetes

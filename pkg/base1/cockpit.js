@@ -2675,7 +2675,7 @@ function full_scope(cockpit, $, po) {
             else
                 current_value = null;
 
-            if (last === current_value) {
+            if (last && last === current_value) {
                 var ev = document.createEvent("StorageEvent");
                 var version = trigger[key];
                 ev.initStorageEvent("storage", false, false, key, version,

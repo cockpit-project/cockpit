@@ -39,6 +39,8 @@ define([
     function NuleculeClient() {
         var self = this;
         self.answers = {};
+        var MINIMUM_SUPPORTED_ATOMIC_VERSION = 1.1;
+        var MINIMUM_SUPPORTED_ATOMICAPP_VERSION = "0.1.3";
         var install_dir = null;
 
         function create_tmp() {
@@ -82,6 +84,121 @@ define([
                 file.close();
             };
 
+            return promise;
+        }
+
+
+        function get_version(data) {
+            var atm_versions = {};
+            var msgl;
+            var datal = data.split("\n");
+            for (var i = datal.length - 1; i >= 0; i--) {
+                if(datal[i].indexOf("io.projectatomic.nulecule.atomicappversion:") > -1) {
+                    msgl = datal[i].split('io.projectatomic.nulecule.atomicappversion:');
+                    if(msgl.length > 1)
+                        atm_versions.atomicappversion = msgl[1];
+                } else if (datal[i].indexOf("io.projectatomic.nulecule.specversion:") > -1) {
+                    msgl = datal[i].split('io.projectatomic.nulecule.specversion:');
+                    if(msgl.length > 1)
+                        atm_versions.specversion = msgl[1];
+                } else if(datal[i].indexOf("io.projectatomic.nulecule.providers:") > -1) {
+                    msgl = datal[i].split('io.projectatomic.nulecule.providers:');
+                    if(msgl.length > 1)
+                        atm_versions.providers = msgl[1];
+                }
+            }
+            return atm_versions;
+        }
+
+        function check_nulecule_version(image) {
+            var dfd = $.Deferred();
+            var versions = {};
+            debug("checking nulecule specversion");
+            var process = cockpit.spawn(["/usr/bin/atomic", "info", image])
+                .fail(function(ex) {
+                    console.warn(ex);
+                    var message = _("Unable to fetch LABELs from image.Please check if image is correct. ");
+                    var err = new Error(message);
+                    dfd.reject(err);
+                })
+                .done(function(data) {
+                    versions = get_version(data);
+                    debug(versions);
+                    if (Object.keys(versions).length == 3) {
+                        dfd.resolve(versions);
+                    } else {
+                        var message = "This image is not a supported Nulecule image";
+                        if (!versions.providers)
+                           console.warn("This image does not contain io.projectatomic.nulecule.providers .");
+                        else if (!versions.specversion)
+                            console.warn("This image does not contain io.projectatomic.nulecule.specversion.");
+                        else if (!versions.atomicappversion)
+                            console.warn("This image does not contain io.projectatomic.nulecule.atomicappversion.");
+                        var err = new Error(message);
+                        dfd.reject(err);
+                    }
+                })
+                .always(function(){
+                    process.close();
+                });
+
+            var promise = dfd.promise();
+            promise.cancel = function cancel() {
+                process.close();
+            };
+
+            return promise;
+        }
+
+        function check_atomic_version() {
+            var dfd = $.Deferred();
+            debug("checking atomic version");
+            var process = cockpit.spawn(["/usr/bin/atomic", "--version"],{ err: "out", superuser: true , pty: true })
+                .fail(function(ex) {
+                    console.warn(ex);
+                    var message = _("The 'atomic' command is not installed on the system.");
+                    var err = new Error(message);
+                    dfd.reject(err);
+                })
+                .done(function(data) {
+                    var atomic_version = parseFloat(data);
+                    debug("atomic version is " + atomic_version);
+                    if (parseFloat(data) >= MINIMUM_SUPPORTED_ATOMIC_VERSION) {
+                        dfd.resolve(data);
+                    } else {
+                        var message = cockpit.format(_("atomic version $0 is not supported."), atomic_version);
+                        var err = new Error(message);
+                        dfd.reject(err);
+                    }
+                })
+                .always(function(){
+                    process.close();
+                });
+
+            var promise = dfd.promise();
+            promise.cancel = function cancel() {
+                process.close();
+            };
+
+            return promise;
+        }
+
+        function check_versions(image) {
+            var deferred = $.Deferred();
+            check_atomic_version()
+                .done(function() {
+                    check_nulecule_version(image)
+                        .done(function(version_info) {
+                            deferred.resolve(version_info);
+                        })
+                        .fail(function(err) {
+                            deferred.reject(err);
+                        });
+                })
+                .fail(function(err) {
+                    deferred.reject(err);
+                });
+            var promise = deferred.promise();
             return promise;
         }
 
@@ -172,48 +289,63 @@ define([
             if (install_dir)
                 delete_tmp();
 
-            create = create_tmp()
-                .done(function(dir){
-                    install_dir = dir.trim();
-                    debug("created directory :"+ install_dir);
-                    runner = installrun("install", image)
-                        .progress(function(msg) {
-                            deferred.notify(msg);
-                        })
-                        .done(function() {
-                            debug("reading " + install_dir + "/answers.conf.sample");
-                            var file = cockpit.file(install_dir + "/answers.conf.sample");
-                            file.read()
-                                .done(function(content){
-                                    if(content) {
-                                        var jdata = JSON.parse(content);
-                                        debug(jdata);
-                                        self.answers = jdata;
-                                        deferred.resolve(jdata);
-                                    } else {
-                                        var message = _("Unable to read answer.conf.sample file.");
+            check_versions(image)
+                .done(function(version_info) {
+                    var atomicapp_version = version_info.atomicappversion.trim();
+                    if ( atomicapp_version == MINIMUM_SUPPORTED_ATOMICAPP_VERSION ) {
+                        create = create_tmp()
+                            .done(function(dir){
+                                install_dir = dir.trim();
+                                debug("created directory :"+ install_dir);
+                                runner = installrun("install", image)
+                                    .progress(function(msg) {
+                                        deferred.notify(msg);
+                                    })
+                                    .done(function() {
+                                        debug("reading " + install_dir + "/answers.conf.sample");
+                                        var file = cockpit.file(install_dir + "/answers.conf.sample");
+                                        file.read()
+                                            .done(function(content){
+                                                if(content) {
+                                                    var jdata = JSON.parse(content);
+                                                    debug(jdata);
+                                                    self.answers = jdata;
+                                                    deferred.resolve(jdata);
+                                                } else {
+                                                    var message = _("Unable to read answer.conf.sample file.");
+                                                    var err = new Error(message);
+                                                    deferred.reject(err);
+                                                }
+                                                file.close();
+                                            })
+                                            .fail(function(ex){
+                                                console.warn(ex);
+                                                deferred.reject(ex);
+                                                file.close();
+                                            });
+                                    })
+                                    .fail(function(ex){
+                                        var message = _("Image failed to install.");
+                                        console.warn(ex.message);
                                         var err = new Error(message);
                                         deferred.reject(err);
-                                    }
-                                    file.close();
-                                })
-                                .fail(function(ex){
-                                    console.warn(ex);
-                                    deferred.reject(ex);
-                                    file.close();
-                                });
-                        })
-                        .fail(function(ex){
-                            var message = _("Image failed to install.");
-                            console.warn(ex.message);
-                            var err = new Error(message);
-                            deferred.reject(err);
-                        });
+                                    });
+                            })
+                            .fail(function(ex){
+                                var message = _("Temporary folder was not created");
+                                console.warn(ex.message);
+                                var err = new Error(message);
+                                deferred.reject(err);
+                            });
+
+                    } else {
+                        var message = cockpit.format(_("atomicapp version $0 is not supported."), atomicapp_version);
+                        console.warn(message);
+                        var err = new Error(message);
+                        deferred.reject(err);
+                    }
                 })
-                .fail(function(ex){
-                    var message = _("Temporary folder was not created");
-                    console.warn(ex.message);
-                    var err = new Error(message);
+                .fail(function(err){
                     deferred.reject(err);
                 });
 
@@ -221,7 +353,7 @@ define([
             promise.cancel = function cancel() {
                 if (runner)
                     runner.cancel();
-                else
+                if (create)
                     create.cancel();
             };
 
@@ -261,7 +393,7 @@ define([
             promise.cancel = function cancel() {
                 if (runner)
                     runner.cancel();
-                else
+                if (writer)
                     writer.cancel();
             };
 

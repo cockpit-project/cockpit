@@ -234,6 +234,8 @@ send_init_command (CockpitTransport *transport)
   json_object_set_int_member (object, "version", 1);
 
   bytes = cockpit_json_write_bytes (object);
+  json_object_unref (object);
+
   cockpit_transport_send (transport, NULL, bytes);
   g_bytes_unref (bytes);
 }

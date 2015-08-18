@@ -126,10 +126,18 @@ define([
                 var drive = client.drives[path];
                 var block = client.drives_block[path];
 
+                if (!block) {
+                    // A drive without a primary block device might be
+                    // a unconfigured multipath device.  Try to hobble
+                    // along here by arbitrarily picking one of the
+                    // multipath devices.
+                    block = client.drives_multipath_blocks[path][0];
+                }
+
                 if (!block)
                     return;
 
-                var dev = utils.decode_filename(block.Device).replace(/^\/dev\//, "");
+                var dev = utils.decode_filename(block.PreferredDevice).replace(/^\/dev\//, "");
                 var io = client.blockdev_io.data[dev];
 
                 var name = utils.drive_name(drive);
@@ -227,7 +235,7 @@ define([
             function is_mount(path) {
                 var block = client.blocks[path];
                 var fsys = client.blocks_fsys[path];
-                return fsys && block.IdUsage == "filesystem"  && !block.HintIgnore;
+                return fsys && block.IdUsage == "filesystem" && block.IdType != "mpath_member" && !block.HintIgnore;
             }
 
             function cmp_mount(path_a, path_b) {

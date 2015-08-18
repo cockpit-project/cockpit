@@ -343,12 +343,22 @@
   <script id="block-detail-tmpl" type="x-template/mustache">
     <div class="panel panel-default">
       <div class="panel-heading">
-        {{#Drive}}<span translatable="yes">Drive</span>{{/Drive}}
-        {{^Drive}}<span translatable="yes">Block Device</span>{{/Drive}}
+        {{#Drive}}
+        <span translatable="yes">Drive</span>
+        {{#block_dbus}}
+        <button class="btn btn-default storage-privileged" style="float:right" translatable="yes"
+                data-action="format_disk" data-arg="{{path}}">
+          Format
+        </button>
+        {{/block_dbus}}
+        {{/Drive}}
+        {{^Drive}}
+        <span translatable="yes">Block Device</span>
         <button class="btn btn-default storage-privileged" style="float:right" translatable="yes"
                 data-action="format_disk" data-arg="{{Block.dbus.path}}">
           Format
         </button>
+        {{/Drive}}
       </div>
       <div class="panel-body">
         <table class="cockpit-info-table">
@@ -398,12 +408,22 @@
             </td>
           </tr>
           {{/Assessment}}
+          <tr>
+            <td translatable="yes" context="storage">Device File</td>
+            <td>{{#Device}}{{.}}{{/Device}}{{^Device}}-{{/Device}}</td>
+          </tr>
+          {{#Multipath}}
+          <tr>
+            <td translatable="yes" context="storage">Multipath Devices</td>
+            <td>{{#Devices}}{{.}} {{/Devices}}</td>
+          </tr>
+          {{/Multipath}}
           {{/Drive}}
+          {{^Drive}}
           <tr>
             <td translatable="yes" context="storage">Device File</td>
             <td>{{Block.Name}}</td>
           </tr>
-          {{^Drive}}
           <tr>
             <td translatable="yes" context="storage">Capacity</td>
             <td>{{Block.Size}}</td>

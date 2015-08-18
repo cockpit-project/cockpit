@@ -904,8 +904,28 @@ class QemuMachine(Machine):
 
         self._disks[index] = {
             "path": path,
+            "serial": serial,
             "socket": nbd,
             "proc": proc,
+        }
+
+        return index
+
+    def add_disk_path(self, main_index):
+        index = 1
+        while index in self._disks:
+            index += 1
+
+        file = self._disks[main_index]["path"]
+        serial = self._disks[main_index]["serial"]
+
+        cmd = "drive_add auto file=%s,if=none,serial=%s,id=drive%d,format=raw" % (file, serial, index)
+        output = self._monitor_qemu(cmd)
+
+        cmd = "device_add scsi-disk,bus=hot.0,drive=drive%d,id=device%d" % (index, index)
+        output = self._monitor_qemu(cmd)
+
+        self._disks[index] = {
         }
 
         return index

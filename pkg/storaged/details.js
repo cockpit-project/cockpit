@@ -1302,21 +1302,38 @@ define([
             }
 
             var drive_model = null;
+            var content_block = block;
             if (drive) {
+                var drive_block = client.drives_block[drive.path];
+                var multipath_blocks = client.drives_multipath_blocks[drive.path];
+
+                var multipath_model = null;
+                if (multipath_blocks.length > 0) {
+                    multipath_model = {
+                        Devices: multipath_blocks.map(utils.block_name)
+                    };
+                }
+
                 drive_model = {
                     dbus: drive,
+                    block_dbus: drive_block,
                     Size: drive.Size > 0 && utils.fmt_size_long(drive.Size),
-                    Assessment: assessment
+                    Assessment: assessment,
+                    Device: drive_block && utils.block_name(drive_block),
+                    Multipath: multipath_model
                 };
+
+                content_block = drive_block;
             }
 
             return mustache.render(block_detail_tmpl,
                                    { Block: block_model,
                                      Drive: drive_model,
-                                     Content: mustache.render(content_tmpl,
-                                                              { Title: _("Content"),
-                                                                Entries: block_content_entries(block)
-                                                              })
+                                     Content: (content_block &&
+                                               mustache.render(content_tmpl,
+                                                               { Title: _("Content"),
+                                                                 Entries: block_content_entries(content_block)
+                                                               }))
                                    });
         }
 

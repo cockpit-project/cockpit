@@ -247,9 +247,20 @@ define([
                 return true;
             }
 
+            function is_mpath_member() {
+                // A configured multipath member has
+                // IdType="mpath_member", but unconfigured ones look
+                // like normal block devices.  We can check their
+                // drive to find out whether it has been properly set
+                // up.
+                return (block.IdType == "mpath_member" ||
+                        client.drives[block.Drive] && !client.drives_block[block.Drive]);
+            }
+
             return (!block.HintIgnore &&
                     block.Size > 0 &&
                     !has_fs_label() &&
+                    !is_mpath_member() &&
                     !block_ptable &&
                     !(block_part && block_part.IsContainer));
         }

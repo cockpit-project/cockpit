@@ -153,13 +153,42 @@ define([
      */
 
     function update_indices() {
-        var path, block, dev, mdraid, vgroup, pvol, lvol, part;
+        var path, block, dev, mdraid, vgroup, pvol, lvol, part, i;
 
+        client.drives_multipath_blocks = { };
         client.drives_block = { };
+        for (path in client.drives) {
+            client.drives_multipath_blocks[path] = [ ];
+        }
         for (path in client.blocks) {
             block = client.blocks[path];
-            if (block.Drive != "/")
-                client.drives_block[block.Drive] = block;
+            if (!client.blocks_part[path] && client.drives_multipath_blocks[block.Drive] !== undefined)
+                client.drives_multipath_blocks[block.Drive].push(block);
+        }
+        for (path in client.drives_multipath_blocks) {
+            var all_blocks = client.drives_multipath_blocks[path];
+            var mpath_members = [ ];
+            var non_mpath_members = [ ];
+
+            all_blocks.sort(function (a, b) { return a.DeviceNumber - b.DeviceNumber; });
+            for (i = 0; i < all_blocks.length; i++) {
+                if (all_blocks[i].IdType == "mpath_member")
+                    mpath_members.push(all_blocks[i]);
+                else
+                    non_mpath_members.push(all_blocks[i]);
+            }
+
+            /* A valid multipath drive has exactly one block device
+             * that is not a "mpath_member".
+             */
+
+            if (non_mpath_members.length === 1) {
+                client.drives_block[path] = non_mpath_members[0];
+                client.drives_multipath_blocks[path] = mpath_members;
+            } else {
+                client.drives_block[path] = null;
+                client.drives_multipath_blocks[path] = all_blocks;
+            }
         }
 
         client.mdraids_block = { };
@@ -190,7 +219,7 @@ define([
             block = client.blocks[path];
             enter_slashdev(block, block.Device);
             enter_slashdev(block, block.PreferredDevice);
-            for (var i = 0; i < block.Symlinks.length; i++)
+            for (i = 0; i < block.Symlinks.length; i++)
                 enter_slashdev(block, block.Symlinks[i]);
         }
 

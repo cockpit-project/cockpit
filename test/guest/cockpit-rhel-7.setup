@@ -35,6 +35,7 @@ echo foobar | passwd --stdin root
 # them to not spontaneously change from one test run to the next when
 # the distribution repository is updated.
 COCKPIT_DEPS="\
+device-mapper-multipath \
 docker \
 etcd \
 glib-networking \

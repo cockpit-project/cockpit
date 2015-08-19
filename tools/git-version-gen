@@ -1,0 +1,19 @@
+#!/bin/sh -euf
+
+set -euf
+
+if [ $# -ne 1 ]; then
+	echo "usage: git-version-get fallback-file" >&2
+	exit 2
+fi
+
+generate() {
+	if [ -d .git ]; then
+		git describe | sed 's/-[0-9]\+-g/-git/'
+	else
+		cat $1
+	fi
+}
+
+# Omit the trailing new line, so this can be used directly
+generate $1 | tr -d "\n\r"

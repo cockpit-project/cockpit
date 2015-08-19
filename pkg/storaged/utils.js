@@ -265,10 +265,6 @@ define([
                     !(block_part && block_part.IsContainer));
         }
 
-        function cmp(path_a, path_b) {
-            return client.blocks[path_a].DeviceNumber - client.blocks[path_b].DeviceNumber;
-        }
-
         function make(path) {
             var block = client.blocks[path];
             var link = utils.get_block_link_target(client, path);
@@ -281,7 +277,29 @@ define([
             };
         }
 
-        return Object.keys(client.blocks).filter(is_free).sort(cmp).map(make);
+        return Object.keys(client.blocks).filter(is_free).sort(utils.make_block_path_cmp(client)).map(make);
+    };
+
+    /* Comparison function for sorting lists of block devices.
+
+       We sort by major:minor numbers to get the expected order when
+       there are more than 10 devices of a kind.  For example, if you
+       have 20 loopback devices named loop0 to loop19, sorting them
+       alphabetically would put them in the wrong order
+
+           loop0, loop1, loop10, loop11, ..., loop2, ...
+
+       Sorting by major:minor is an easy way to do the right thing.
+    */
+
+    utils.block_cmp = function block_cmp(a, b) {
+        return a.DeviceNumber - b.DeviceNumber;
+    };
+
+    utils.make_block_path_cmp = function(client) {
+        return function(path_a, path_b) {
+            return utils.block_cmp(client.blocks[path_a], client.blocks[path_b]);
+        };
     };
 
     return utils;

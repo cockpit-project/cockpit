@@ -202,10 +202,6 @@ define([
                         !block.HintIgnore);
             }
 
-            function cmp_other(path_a, path_b) {
-                return client.blocks[path_a].DeviceNumber - client.blocks[path_b].DeviceNumber;
-            }
-
             function make_other(path) {
                 var block = client.blocks[path];
                 var name = utils.block_name(block);
@@ -218,7 +214,7 @@ define([
                 };
             }
 
-            var o = Object.keys(client.blocks).filter(is_other).sort(cmp_other).map(make_other);
+            var o = Object.keys(client.blocks).filter(is_other).sort(utils.make_block_path_cmp(client)).map(make_other);
             $('#others').amend(mustache.render(others_tmpl,
                                                { Others: o,
                                                  HasOthers: o.length > 0

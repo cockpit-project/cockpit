@@ -170,7 +170,7 @@ define([
             var mpath_members = [ ];
             var non_mpath_members = [ ];
 
-            all_blocks.sort(function (a, b) { return a.DeviceNumber - b.DeviceNumber; });
+            all_blocks.sort(utils.block_cmp);
             for (i = 0; i < all_blocks.length; i++) {
                 if (all_blocks[i].IdType == "mpath_member")
                     mpath_members.push(all_blocks[i]);
@@ -208,7 +208,7 @@ define([
                 client.mdraids_members[block.MDRaidMember].push(block);
         }
         for (path in client.mdraids_members) {
-            client.mdraids_members[path].sort(function (a, b) { return a.DeviceNumber - b.DeviceNumber; });
+            client.mdraids_members[path].sort(utils.block_cmp);
         }
 
         client.slashdevs_block = { };
@@ -245,7 +245,7 @@ define([
                 client.vgroups_pvols[pvol.VolumeGroup].push(pvol);
         }
         function cmp_pvols(a, b) {
-            return client.blocks[a.path].DeviceNumber - client.blocks[b.path].DeviceNumber;
+            return utils.block_cmp(client.blocks[a.path], client.blocks[b.path]);
         }
         for (path in client.vgroups_pvols) {
             client.vgroups_pvols[path].sort(cmp_pvols);

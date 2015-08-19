@@ -216,6 +216,7 @@ install-data-local:: install-doc-local
 	@true
 
 dist-hook: dist-doc-hook
+	echo $(VERSION) > $(distdir)/.tarball
 	ln -s systemd $(distdir)/pkg/system
 
 distcheck-hook: dist-doc-hook

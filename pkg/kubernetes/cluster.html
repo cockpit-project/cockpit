@@ -397,7 +397,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     </div>
 
     <div class="kube-listing">
-      <div ng-if="nodes">
+      <div ng-if="nodes" data-kind="Node">
         <h2 translatable="yes">Nodes</h2>
         <div class="panel panel-default">
           <table class="table">
@@ -409,7 +409,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 <th translatable="yes">System Info</th>
               </tr>
             </thead>
-            <tbody ng-repeat="node in nodes" ng-click="select(node, $event)"
+            <tbody ng-repeat="node in nodes | orderBy: 'metadata.name'" ng-click="select(node, $event)"
                    ng-click="select(node, $event)"
                    ng-class="{selected: selected && selected.metadata.uid == node.metadata.uid}">
               <tr>
@@ -425,7 +425,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         </div>
       </div>
 
-      <div ng-if="services">
+      <div ng-if="services" data-kind="Service">
         <h2 translatable="yes">Services</h2>
         <div class="panel panel-default">
           <table class="table">
@@ -437,7 +437,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 <th class="kube-col-address" translatable="yes">Addresses</th>
               </tr>
             </thead>
-            <tbody ng-repeat="service in services"
+            <tbody ng-repeat="service in services | orderBy: 'metadata.name'"
                    ng-click="select(service, $event)"
                    ng-class="{selected: selected.metadata.uid && selected.metadata.uid == service.metadata.uid}">
               <tr>
@@ -459,7 +459,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         </div>
       </div>
 
-      <div ng-if="replicationcontrollers">
+      <div ng-if="replicationcontrollers" data-kind="ReplicationController">
         <h2 translatable="yes">Replication Controllers</h2>
         <div class="panel panel-default">
           <table class="table">
@@ -471,7 +471,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 <th></th>
               </tr>
             </thead>
-            <tbody ng-repeat="replicationcontroller in replicationcontrollers"
+            <tbody ng-repeat="replicationcontroller in replicationcontrollers | orderBy: 'metadata.name'"
                    ng-click="select(replicationcontroller, $event)"
                    ng-class="{selected: selected.metadata.uid && selected.metadata.uid == replicationcontroller.metadata.uid}">
               <tr>
@@ -487,7 +487,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         </div>
       </div>
 
-      <div ng-if="pods">
+      <div ng-if="pods" data-kind="Pod">
         <h2 translatable="yes">Pods</h2>
         <div class="panel panel-default">
           <table class="table">

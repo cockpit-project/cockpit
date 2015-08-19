@@ -116,6 +116,12 @@ class TestKubernetes(KubernetesCase):
         b.wait_present("#content .kube-details .kube-container")
         self.assertEqual(b.text("#content .kube-details .kube-container h3.panel-title"), " mock-container")
 
+        # Check that service shows up on listing view
+        b.click("a[href='#/list']")
+        b.wait_present("#content .kube-listing")
+        self.assertEqual(b.text(".kube-listing div[data-kind=Service] tbody:last-child .kube-col-name"), "mock")
+        self.assertEqual(b.text(".kube-listing div[data-kind=ReplicationController] tbody:last-child td.kube-col-name"), "mock")
+        self.assertEqual(b.text(".kube-listing div[data-kind=Pod] tbody:last-child tr.kube-row-container td.kube-col-name"), "mock-container")
 
     def testTopology(self):
         m = self.machine

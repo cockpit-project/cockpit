@@ -167,6 +167,7 @@ define([
     function update_indices() {
         var path, block, dev, mdraid, vgroup, pvol, lvol, part, i;
 
+        client.broken_multipath_present = false;
         client.drives_multipath_blocks = { };
         client.drives_block = { };
         for (path in client.drives) {
@@ -186,11 +187,15 @@ define([
              * member, then this is actually a normal singlepath
              * device.
              */
+
             if (!client.drives_block[path] && client.drives_multipath_blocks[path].length == 1) {
                 client.drives_block[path] = client.drives_multipath_blocks[path][0];
                 client.drives_multipath_blocks[path] = [ ];
-            } else
+            } else {
                 client.drives_multipath_blocks[path].sort(utils.block_cmp);
+                if (!client.drives_block[path])
+                    client.broken_multipath_present = true;
+            }
         }
 
         client.mdraids_block = { };

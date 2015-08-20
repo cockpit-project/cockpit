@@ -24,8 +24,9 @@ define([
     "storage/jobs",
     "storage/overview",
     "storage/details",
+    "storage/utils",
     "translated!base1/po",
-], function($, cockpit, client, jobs, overview, details, po) {
+], function($, cockpit, client, jobs, overview, details, utils, po) {
     cockpit.locale(po);
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
@@ -84,6 +85,29 @@ define([
                 $(cockpit).on("locationchanged", navigate);
                 navigate();
             }
+        });
+
+        // Watching multipath for brokeness
+
+        var multipathd_service = utils.get_multipathd_service();
+
+        function update_multipath_broken() {
+            $('#multipath-broken').toggle(client.broken_multipath_present && multipathd_service.state !== "running");
+        }
+
+        $(multipathd_service).on('changed', update_multipath_broken);
+        $(client).on('changed', update_multipath_broken);
+        update_multipath_broken();
+
+        $('#activate-multipath').on('click', function () {
+            cockpit.spawn([ "mpathconf", "--enable", "--with_multipathd", "y" ],
+                          { superuser: "try"
+                          }).
+                fail(function (error) {
+                    $('#error-popup-title').text(_("Error"));
+                    $('#error-popup-message').text(error.toString());
+                    $('#error-popup').modal('show');
+                });
         });
     }
 

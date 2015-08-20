@@ -36,6 +36,8 @@ define([
     function init_details(client, jobs) {
         var type, name;
 
+        var multipathd_service = utils.get_multipathd_service();
+
         function get_children(path) {
             var children = [ ];
 
@@ -1129,7 +1131,7 @@ define([
         mustache.parse(content_tmpl);
 
         /* Content entry creation.
-           XXX - make this more functional, without gloabl state
+           XXX - make this more functional, without global state
         */
 
         var entries = [ ];
@@ -1320,7 +1322,8 @@ define([
                     Size: drive.Size > 0 && utils.fmt_size_long(drive.Size),
                     Assessment: assessment,
                     Device: drive_block && utils.block_name(drive_block),
-                    Multipath: multipath_model
+                    Multipath: multipath_model,
+                    MultipathActive: multipathd_service.state == "running"
                 };
 
                 content_block = drive_block;
@@ -1651,6 +1654,7 @@ define([
             permissions.update();
         }
 
+        $(multipathd_service).on('changed', render);
         $(client).on('changed', render);
 
         $('#storage-detail-log').append(

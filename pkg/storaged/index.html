@@ -42,6 +42,32 @@
 </head>
 <body hidden>
 
+  <!-- CURTAIN -->
+
+  <div id="unsupported" hidden>
+    <div class="blank-slate-pf">
+      <h1 translatable="yes">The "storaged" API is not available on this system.</h1>
+    </div>
+  </div>
+
+  <!-- ALERT FOR BROKEN MULTIPATH -->
+
+  <div id="multipath-broken" class="container-fluid" hidden>
+    <div class="alert alert-danger">
+      <span class="pficon-layered">
+        <span class="pficon pficon-error-octagon"></span>
+        <span class="pficon pficon-error-exclamation"></span>
+      </span>
+      <button id="activate-multipath" translatable="yes"
+              class="btn btn-default" style="float:right">Activate</button>
+      <span class="alert-message" translatable="yes">
+        There are unmanaged multipath devices on this system and the
+        multipath subsystem is not running.  Activating it might
+        resolve the situation.
+      </span>
+    </div>
+  </div>
+
   <!-- OVERVIEW -->
 
   <script id="mdraids-tmpl" type="x-template/mustache">
@@ -226,12 +252,6 @@
     {{/HasJobs}}
   </script>
 
-  <div id="unsupported" hidden>
-    <div class="blank-slate-pf">
-      <h1 translatable="yes">The "storaged" API is not available on this system.</h1>
-    </div>
-  </div>
-
   <div id="storage" hidden>
     <div class="col-md-8 col-lg-9">
       <div id="storage-graph-toolbar" class="zoom-controls" style="text-align:right;margin-bottom:10px">
@@ -409,11 +429,48 @@
             </td>
           </tr>
           {{/Assessment}}
+          {{^Multipath}}
           <tr>
             <td translatable="yes" context="storage">Device File</td>
-            <td>{{#Device}}{{.}}{{/Device}}{{^Device}}-{{/Device}}</td>
+            <td>{{Device}}</td>
           </tr>
+          {{/Multipath}}
           {{#Multipath}}
+          <tr>
+            <td translatable="yes" context="storage">Device File</td>
+            <td>
+              <!-- There are three interesting cases here for a
+                   multipath device:
+
+                   a) Everything is setup as expected and there is a
+                      master device which we can show.
+
+                   b) The multipathd service isn't running and there
+                      is no master device.  In this case, there is a
+                      big alert at the top of the page that tells the
+                      user about multipathd not running, so we just
+                      show a "-" as the device.
+
+                   c) The multipathd service _is_ running but there
+                      _still_ is no master device.  Something is
+                      wrong, but we have no idea what and can't offer
+                      any good advise or help with fixing it.  Thus,
+                      we also show "-" in this case.  In the future,
+                      with a richer multipath API, we can hopefully
+                      offer better explanations and useful knobs for
+                      fixing things.
+
+                   Although case b) and c) show the same thing, we
+                   keep them separate in the markup so that it is easy
+                   to change our minds.
+                -->
+              {{#Device}}{{.}}{{/Device}}                <!-- a) -->
+              {{^Device}}
+              {{^MultipathActive}}-{{/MultipathActive}}  <!-- b) -->
+              {{#MultipathActive}}-{{/MultipathActive}}  <!-- c) -->
+              {{/Device}}
+            </td>
+          </tr>
           <tr>
             <td translatable="yes" context="storage">Multipath Devices</td>
             <td>{{#Devices}}{{.}} {{/Devices}}</td>

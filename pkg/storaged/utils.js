@@ -20,8 +20,9 @@
 define([
     "jquery",
     "base1/cockpit",
-    "base1/mustache"
-], function($, cockpit, mustache, client) {
+    "base1/mustache",
+    "system/service"
+], function($, cockpit, mustache, service) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 
@@ -300,6 +301,14 @@ define([
         return function(path_a, path_b) {
             return utils.block_cmp(client.blocks[path_a], client.blocks[path_b]);
         };
+    };
+
+    var multipathd_service;
+
+    utils.get_multipathd_service = function() {
+        if (!multipathd_service)
+            multipathd_service = service.proxy("multipathd");
+        return multipathd_service;
     };
 
     return utils;

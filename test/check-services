@@ -134,4 +134,41 @@ ExecStart=/usr/bin/test-service %I
 
         self.allow_journal_messages("Failed to get realtime timestamp: Cannot assign requested address")
 
+    def testApi(self):
+        m = self.machine
+        b = self.browser
+
+        m.needs_writable_usr()
+        m.write("/usr/lib/systemd/system/test.service",
+"""
+[Unit]
+Description=Test Service
+
+[Service]
+ExecStart=/bin/sh -c "while true; do sleep 5; done"
+
+[Install]
+WantedBy=default.target
+""")
+
+        self.login_and_go("/playground/service", href="/playground/service/test")
+
+        b.wait_text('#exists', 'true')
+        b.wait_text('#state', '"stopped"')
+        b.wait_text('#enabled', 'false')
+
+        b.click('#start')
+        b.wait_text('#state', '"running"')
+        b.click('#stop')
+        b.wait_text('#state', '"stopped"')
+
+        b.click('#enable')
+        b.wait_text('#enabled', 'true')
+        b.click('#disable')
+        b.wait_text('#enabled', 'false')
+
+        b.go('foo')
+        b.wait_text('#exists', 'false')
+
+
 test_main()

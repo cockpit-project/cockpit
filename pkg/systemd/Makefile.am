@@ -5,6 +5,7 @@ systemd_GZ = \
 	pkg/systemd/terminal.min.html.gz \
 	pkg/systemd/journal.min.html.gz \
 	pkg/systemd/journal.min.css.gz \
+	pkg/systemd/service.min.js.gz \
 	$(NULL)
 systemd_DATA = \
 	pkg/systemd/manifest.json \
@@ -17,6 +18,7 @@ systemddebug_DATA = \
 	pkg/systemd/init.js \
 	pkg/systemd/init.html \
 	pkg/systemd/server.js \
+	pkg/systemd/service.js \
 	pkg/systemd/terminal.js \
 	pkg/systemd/terminal.html \
 	pkg/systemd/journal.html \

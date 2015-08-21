@@ -527,6 +527,11 @@ payload type:
 
  * "unix": Open a channel with the given unix socket.
  * "port": Open a channel with the given TCP port on localhost.
+ * "address": Open a channel that communicates with the given
+   address instead of localhost. This can be an IP address or a valid
+   host name. To use this option you must also specify a port.
+   This option should be used to communicate with external
+   apis and not as a synonym for the host parameter.
 
 You may also specify these options:
 

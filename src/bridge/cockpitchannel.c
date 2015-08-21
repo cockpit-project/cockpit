@@ -975,6 +975,7 @@ cockpit_channel_parse_connectable (CockpitChannel *self,
   GSocketConnectable *connectable = NULL;
   const gchar *unix_path;
   const gchar *internal;
+  const gchar *address;
   JsonObject *options;
   GError *error = NULL;
   const gchar *host;
@@ -996,6 +997,11 @@ cockpit_channel_parse_connectable (CockpitChannel *self,
       g_warning ("invalid \"internal\" option in channel");
       goto out;
     }
+  if (!cockpit_json_get_string (options, "address", NULL, &address))
+    {
+      g_warning ("invalid \"address\" option in channel");
+      goto out;
+    }
 
   if (port != G_MAXINT64 && unix_path)
     {
@@ -1010,7 +1016,12 @@ cockpit_channel_parse_connectable (CockpitChannel *self,
           goto out;
         }
 
-      if (cockpit_bridge_local_address)
+      if (address)
+        {
+          connectable = g_network_address_new (address, port);
+          host = address;
+        }
+      else if (cockpit_bridge_local_address)
         {
           connectable = g_network_address_parse (cockpit_bridge_local_address, port, &error);
           host = cockpit_bridge_local_address;
@@ -1020,6 +1031,7 @@ cockpit_channel_parse_connectable (CockpitChannel *self,
           connectable = cockpit_loopback_new (port);
           host = "localhost";
         }
+
       if (error != NULL)
         {
           g_warning ("couldn't parse local address: %s: %s", host, error->message);

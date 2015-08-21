@@ -284,6 +284,37 @@ asyncTest("http connection without address ", function() {
         });
 });
 
+asyncTest("no dns address", function() {
+    expect(2);
+
+    cockpit.http({ "port": 8080,
+                   "address": "the-other-host.example.com" })
+        .get("/")
+        .fail(function(ex, data) {
+            strictEqual(ex.problem, "not-found", "can't resolve is not found");
+        })
+        .always(function() {
+            equal(this.state(), "rejected", "should fail");
+            start();
+        });
+});
+
+asyncTest("address with params", function() {
+    // use our window's host and port to request external
+    expect(2);
+
+    cockpit.http({ port: parseInt(window.location.port),
+                   address: window.location.hostname })
+        .get("/mock/qs", { "key": "value", "name": "Scruffy the Janitor" })
+        .done(function(resp) {
+            equal(resp, "key=value&name=Scruffy+the+Janitor", "right query string");
+        })
+        .always(function() {
+            equal(this.state(), "resolved", "didn't fail");
+            start();
+        });
+});
+
 QUnit.start();
 </script>
 

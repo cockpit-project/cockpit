@@ -2353,6 +2353,12 @@ function full_scope(cockpit, $, po) {
             }
         }
 
+        if (options.address) {
+            if (!options.capabilities)
+                options.capabilities = [];
+            options.capabilities.push("address");
+        }
+
         self.request = function request(req) {
             var dfd = new $.Deferred();
 

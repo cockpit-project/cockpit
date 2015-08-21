@@ -960,7 +960,8 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
   if (!self->client->connectable ||
       json_object_has_member (options, "unix") ||
       json_object_has_member (options, "port") ||
-      json_object_has_member (options, "internal"))
+      json_object_has_member (options, "internal") ||
+      json_object_has_member (options, "address"))
     {
       g_free (self->client->host);
       self->client->host = NULL;
@@ -1055,7 +1056,9 @@ cockpit_http_stream_finalize (GObject *object)
 static void
 cockpit_http_stream_constructed (GObject *object)
 {
-  const gchar *caps[] = { "tls-certificates", NULL };
+  const gchar *caps[] = { "tls-certificates",
+                          "address",
+                          NULL };
 
   G_OBJECT_CLASS (cockpit_http_stream_parent_class)->constructed (object);
 

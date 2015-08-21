@@ -44,15 +44,33 @@ typedef struct {
   CockpitWebServer *web_server;
   guint port;
   MockTransport *transport;
+  const char *host;
 } TestGeneral;
+
+
+static gchar *
+non_local_ip (void)
+{
+  GInetAddress *inet;
+  gchar *str = NULL;
+  inet = cockpit_test_find_non_loopback_address ();
+  if (inet)
+    {
+      str = g_inet_address_to_string (inet);
+      g_object_unref (inet);
+    }
+
+  return str;
+}
 
 static void
 setup_general (TestGeneral *tt,
-               gconstpointer unused)
+               gconstpointer host_fixture)
 {
   tt->web_server = cockpit_web_server_new (0, NULL, NULL, NULL, NULL);
   tt->port = cockpit_web_server_get_port (tt->web_server);
   tt->transport = mock_transport_new ();
+  tt->host = host_fixture;
 }
 
 static void
@@ -75,7 +93,7 @@ handle_host_header (CockpitWebServer *server,
   gchar *expected;
   GBytes *bytes;
 
-  expected = g_strdup_printf ("localhost:%d", tt->port);
+  expected = g_strdup_printf ("%s:%d", tt->host, tt->port);
   g_assert_cmpstr (g_hash_table_lookup (headers, "Host"), ==, expected);
   g_free (expected);
 
@@ -98,6 +116,12 @@ test_host_header (TestGeneral *tt,
   GBytes *data;
   guint count;
 
+  if (tt->host == NULL)
+    {
+      cockpit_test_skip ("Couldn't determine non local ip");
+      return;
+    }
+
   g_signal_connect (tt->web_server, "handle-resource::/", G_CALLBACK (handle_host_header), tt);
 
   options = json_object_new ();
@@ -105,6 +129,9 @@ test_host_header (TestGeneral *tt,
   json_object_set_string_member (options, "payload", "http-stream1");
   json_object_set_string_member (options, "method", "GET");
   json_object_set_string_member (options, "path", "/");
+
+  if (g_strcmp0 (tt->host, "localhost") != 0)
+    json_object_set_string_member (options, "address", tt->host);
 
   channel = g_object_new (COCKPIT_TYPE_HTTP_STREAM,
                           "transport", tt->transport,
@@ -721,11 +748,16 @@ int
 main (int argc,
       char *argv[])
 {
+  char *ip = non_local_ip ();
+  int result;
+
   cockpit_webserver_want_certificate = TRUE;
 
   cockpit_test_init (&argc, &argv);
 
-  g_test_add ("/http-stream/host-header", TestGeneral, NULL,
+  g_test_add ("/http-stream/host-header", TestGeneral, "localhost",
+              setup_general, test_host_header, teardown_general);
+  g_test_add ("/http-stream/address-host-header", TestGeneral, ip,
               setup_general, test_host_header, teardown_general);
 
   g_test_add_func  ("/http-stream/parse_keepalive", test_parse_keep_alive);
@@ -746,5 +778,7 @@ main (int argc,
   g_test_add ("/http-stream/tls/authority-bad", TestTls, fixture_tls_authority_bad,
               setup_tls, test_tls_authority_bad, teardown_tls);
 
-  return g_test_run ();
+  result = g_test_run ();
+  g_free (ip);
+  return result;
 }

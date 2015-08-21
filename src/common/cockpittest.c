@@ -33,6 +33,11 @@
 #include <string.h>
 #include <execinfo.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <net/if.h>
+#include <netinet/in.h>
+#include <netinet/ip6.h>
+#include <ifaddrs.h>
 
 /*
  * HACK: We can't yet use g_test_expect_message() and friends.
@@ -476,4 +481,41 @@ cockpit_test_signal_backtrace (int sig)
 
   signal (sig, SIG_DFL);
   raise (sig);
+}
+
+GInetAddress *
+cockpit_test_find_non_loopback_address (void)
+{
+  GInetAddress *inet = NULL;
+  struct ifaddrs *ifas, *ifa;
+  gpointer bytes;
+
+  g_assert_cmpint (getifaddrs (&ifas), ==, 0);
+  for (ifa = ifas; ifa != NULL; ifa = ifa->ifa_next)
+    {
+      if (!(ifa->ifa_flags & IFF_UP))
+        continue;
+      if (ifa->ifa_addr == NULL)
+        continue;
+      if (ifa->ifa_addr->sa_family == AF_INET)
+        {
+          bytes = &(((struct sockaddr_in *)ifa->ifa_addr)->sin_addr);
+          inet = g_inet_address_new_from_bytes (bytes, G_SOCKET_FAMILY_IPV4);
+        }
+      else if (ifa->ifa_addr->sa_family == AF_INET6)
+        {
+          bytes = &(((struct sockaddr_in6 *)ifa->ifa_addr)->sin6_addr);
+          inet = g_inet_address_new_from_bytes (bytes, G_SOCKET_FAMILY_IPV6);
+        }
+      if (inet)
+        {
+          if (!g_inet_address_get_is_loopback (inet))
+            break;
+          g_object_unref (inet);
+          inet = NULL;
+        }
+    }
+
+  freeifaddrs (ifas);
+  return inet;
 }

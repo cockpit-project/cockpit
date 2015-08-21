@@ -1364,10 +1364,15 @@
 </programlisting>
 
       <para>Create a new HTTP client. The <code>endpoint</code> can be a file path starting with
-        <code>/</code> to connect to a unix socket, or it can be a port number to connect to on
-        <code>localhost</code>.</para>
+        <code>/</code> to connect to a unix socket, or it can be a port number to connect to.</para>
 
       <variablelist>
+        <varlistentry>
+          <term><code>"address"</code></term>
+          <listitem><para>Connect to an address other than localhost. Must be a valid host name or IP address.
+            To use this option you also must provide a port number.</para></listitem>
+        </varlistentry>
+
         <varlistentry>
           <term><code>"connection"</code></term>
           <listitem><para>A connection identifier. Subsequent channel requests with the same
@@ -1919,7 +1924,7 @@ handle = file.watch(callback);
     <para>Metrics about the system can be retrieved from several sources using
       <link linkend="cockpit-metrics"><code>cockpit.metrics()</code></link> metrics channels.
       The metrics are made available as series data, and can be used with the
-      <link linkend="cockpit-series"><code>cockpit.series()</code></link> and 
+      <link linkend="cockpit-series"><code>cockpit.series()</code></link> and
       <link linkend="cockpit-grid"><code>cockpit.grid()</code></link> facilities.</para>
 
     <refsection id="cockpit-metrics">

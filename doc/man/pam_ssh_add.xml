@@ -1,0 +1,91 @@
+<refentry id="pam_ssh_add.8">
+
+  <!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2015 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+  <refentryinfo>
+    <title>pam_ssh_add</title>
+    <productname>pam_ssh_add</productname>
+  </refentryinfo>
+
+  <refmeta>
+    <refentrytitle>pam_ssh_add</refentrytitle>
+    <manvolnum>8</manvolnum>
+  </refmeta>
+
+  <refnamediv>
+    <refname>pam_ssh_add</refname>
+    <refpurpose>PAM module to auto load ssh keys into an agent</refpurpose>
+  </refnamediv>
+
+  <refsect1><title>DESCRIPTION</title>
+  <para>
+    pam_ssh_add provides authentication and session modules that
+    allow users to start their session with a running ssh-agent with as
+    many ssh keys loaded as possible.
+  </para>
+  <para>
+    If used, the authentication module simply stores the authentication
+    token for later use by the session module. Because this module performs
+    no actual authentication it returns PAM_CRED_INSUFFICIENT on success and
+    should always be accompanied by an actual authentication module in your
+    pam configuration.
+  </para>
+  <para>
+    By default the session module will start a new ssh-agent and run
+    ssh-add, loading any keys that exist in the default path for the
+    newly logged in user. If any keys prompt for a password, and a authenication
+    token was successfully stored, that token will be provided as the password.
+  </para>
+
+  </refsect1>
+
+  <refsect1 id="options">
+    <title>Options</title>
+    <variablelist>
+      <varlistentry id="debug">
+        <term><option>debug</option></term>
+          <listitem>
+            <para>This option will turn on debug logging to syslog.</para>
+          </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1>
+    <title>Examples</title>
+    <informalexample>
+      <programlisting>
+        auth     required  pam_unix.so
+        auth     optional  pam_ssh_add.so
+        session  optional  pam_ssh_add.so
+      </programlisting>
+    </informalexample>
+
+  </refsect1>
+
+  <refsect1>
+    <title>BUGS</title>
+    <para>
+      Please send bug reports to either the distribution bug tracker or the
+      <ulink url="https://github.com/cockpit-project/cockpit/issues/new">upstream bug tracker</ulink>.
+    </para>
+  </refsect1>
+
+</refentry>

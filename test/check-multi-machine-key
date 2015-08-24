@@ -1,0 +1,196 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+from testlib import *
+
+import socket
+import time
+import unittest
+import os
+import subprocess
+
+def inject_extras(browser):
+    browser.eval_js("""
+    dashboard_addresses = function () {
+       var addresses = $('#dashboard-hosts .list-group-item').map(function(i,e) { return $(e).data("address"); }).get();
+       return addresses;
+    }
+    """)
+
+def get_webapp_machines(browser):
+    wm = { }
+    cockpit = browser.eval_js("return dashboard_addresses();")
+    for i in range (0, len(cockpit)):
+        wm[cockpit[i]] = i;
+    return wm
+
+def wait_dashboard_addresses(b, expected):
+    b.wait_js_func(
+        """(function (expected) {
+        return expected.sort().toString() == dashboard_addresses().sort().toString();
+        })""", expected)
+
+def add_machine(b, address):
+    b.click('#dashboard-add')
+    b.wait_popup('dashboard_setup_server_dialog')
+    b.set_val('#dashboard_setup_address', address)
+    b.wait_text('#dashboard_setup_next', "Next")
+    b.click('#dashboard_setup_next')
+    b.wait_text('#dashboard_setup_next', "Add host")
+    b.click('#dashboard_setup_next')
+    b.wait_text('#dashboard_setup_next', "Close")
+    b.click('#dashboard_setup_next')
+    b.wait_popdown('dashboard_setup_server_dialog')
+
+def kill_user_admin(machine):
+    # logind from systemd 208 is buggy, so we use systemd directly if it fails
+    # https://bugs.freedesktop.org/show_bug.cgi?id=71092
+    machine.execute("loginctl kill-user admin || systemctl kill user-1000.slice")
+
+LOAD_KEYS = [
+    "id_rsa", # password: foobar
+    "identity",  # no password
+    "id_dsa", # password: badbad
+    "id_ed25519", # password: foobar
+]
+
+KEY_IDS = [
+
+]
+def test_keys(b, keys):
+    b.call_js_func("""(function () {
+      window.test_result = null;
+      cockpit.spawn([ "ssh-add", "-l" ]).
+        done(function (data) {
+          window.test_result = data;
+        }).
+        fail(function (error) {
+          console.log(error);
+        });
+    })""",)
+
+    b.wait_js_func("(function (expected) { return window.test_result == expected; })", "\n".join(keys) + "\n")
+
+@unittest.skipIf("atomic" in os.environ.get("TEST_OS", "") or "rhel" in os.environ.get("TEST_OS", ""), "key auth: not supported")
+class TestMultiMachineKeyAuth(MachineCase):
+
+    def setUp(self):
+        MachineCase.setUp(self)
+        self.machine2 = self.new_machine()
+        self.machine2.start()
+        self.machine2.wait_boot()
+
+    def tearDown(self):
+        if self.runner and self.runner.wasSuccessful():
+            self.check_journal_messages(self.machine2)
+        MachineCase.tearDown(self)
+
+    def testBasic(self):
+        b = self.browser
+        m1 = self.machine
+        m2 = self.machine2
+
+        self.login_and_go("dashboard", href="dashboard/list", host=None)
+        inject_extras(b)
+        wait_dashboard_addresses (b, [ "localhost" ])
+
+        add_machine(b, m2.address)
+        wait_dashboard_addresses (b, [ "localhost", m2.address ])
+
+        wm = get_webapp_machines(b)
+        m1_index = wm["localhost"]+1
+        m2_index = wm[m2.address]+1
+
+        # Logout
+        b.logout()
+        b.wait_visible("#login")
+
+        # Change the admin password on m2 so password login
+        # no longer works
+        m2.execute("echo abcdefg | passwd --stdin admin")
+        m1.execute("mkdir -p /home/admin/.ssh")
+
+        m1.upload(["ssh/{0}".format(k) for k in LOAD_KEYS],
+                   "/home/admin/.ssh/")
+        m1.upload(["ssh/{0}.pub".format(k) for k in LOAD_KEYS],
+                   "/home/admin/.ssh/")
+        m1.execute("chmod 400 /home/admin/.ssh/*")
+        m1.execute("chown -R admin:admin /home/admin/.ssh")
+
+        # Server is marked as down.
+        b.login_and_go("dashboard", href="dashboard/list", host=None)
+        inject_extras(b)
+        wait_dashboard_addresses (b, [ "localhost", m2.address ])
+        b.wait_attr('#dashboard-hosts a:nth-child(%d) img' % m2_index, 'src', 'images/server-error.png')
+
+        try:
+            m1.execute("ps xa | grep ssh-agent | grep -v grep")
+        except subprocess.CalledProcessError:
+            assert False, "No running ssh-agent found"
+
+        # Check our keys were loaded.
+        test_keys(b, [
+            "2048 SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw /home/admin/.ssh/id_rsa (RSA)",
+            "256 SHA256:Uht4NX54Gjz62cNA8+LrHo63HiFW/i5aWg/cl/A3X+c /home/admin/.ssh/id_ed25519 (ED25519)",
+            "2048 SHA256:gwSyNJuAvsZXlsv+zQNten2XaCe4cw6Gbqw2tmFTBRA /home/admin/.ssh/identity (RSA)",
+        ])
+
+        # add key
+        m2.execute("mkdir -p /home/admin/.ssh")
+        m2.upload(["ssh/id_rsa.pub"], "/home/admin/.ssh/authorized_keys")
+        m2.execute("chown -R admin:admin /home/admin/.ssh/")
+        m2.execute("chmod 600 /home/admin/.ssh/authorized_keys")
+        m2.execute("chmod 700 /home/admin/.ssh")
+
+        # Server is up.
+        b.click('#dashboard-hosts a:nth-child(%d)' % m2_index)
+        b.switch_to_top()
+        b.wait_js_cond('window.location.hash != "#/dashboard/list"')
+        b.enter_page("server", m2.address)
+        b.wait_text_not("#system_information_hostname_button", "")
+        b.switch_to_top()
+        b.go("/dashboard/list")
+        b.enter_page("dashboard")
+        b.wait_attr('#dashboard-hosts a:nth-child(%d) img' % m2_index, 'src', 'images/server-small.png')
+
+        # Logout
+        b.logout()
+        b.wait_visible("#login")
+        try:
+            m1.execute("ps xa | grep ssh-agent | grep -v grep")
+            assert False, "Logout did not stop ssh agent."
+        except subprocess.CalledProcessError:
+            pass
+
+        self.allow_restart_journal_messages()
+        self.allow_journal_messages(".*: .* host key for server is not known: .*",
+                                    # Might happen when killing the bridge.
+                                    "localhost: dropping message while waiting for child to exit",
+                                    "Received message for unknown channel: .*",
+                                    ".*: error reading from ssh",
+                                    ".*: bridge program failed: Child process exited with code .*",
+                                    # Since there is not password,
+                                    # reauthorize doesn't work on m2
+                                    ".*: user admin reauthorization failed",
+                                    "Error executing command as another user: Not authorized",
+                                    "This incident has been reported.",
+                                    "sudo: a password is required")
+
+test_main()

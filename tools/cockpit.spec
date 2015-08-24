@@ -284,10 +284,12 @@ cat subscriptions.list docker.list >> shell.list
 
 %files bridge
 %doc %{_mandir}/man1/cockpit-bridge.1.gz
+%doc %{_mandir}/man8/pam_ssh_add.8.gz
 %{_bindir}/cockpit-bridge
 %attr(4755, -, -) %{_libexecdir}/cockpit-polkit
 %{_libexecdir}/cockpit-wrapper
 %{_libdir}/security/pam_reauthorize.so
+%{_libdir}/security/pam_ssh_add.so
 %{_datadir}/dbus-1/services/com.redhat.Cockpit.service
 
 %files doc

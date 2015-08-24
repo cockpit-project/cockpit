@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="authentication">
+  <title>Cockpit Authentication</title>
+
+  <para>Cockpit allows you to monitor and administer several servers at the same time.
+    While you will need to connect to the primary server with a password
+    or kerberos ticket, cockpit does support accessing secondary machines via
+    public key based authentication.</para>
+
+  <para>Once a user is successfully logged in, an ssh-agent is started.
+    The following keys are then preloaded into the ssh-agent provided
+    they are supported by your ssh version, present, with the correct
+    permission, and either unencrypted or encrypted with the same
+    password that was used to login.</para>
+
+  <programlisting>
+  ~/.ssh/identity
+  ~/.ssh/id_rsa
+  ~/.ssh/id_dsa
+  ~/.ssh/id_ed25519
+  ~/.ssh/id_ecdsa
+  </programlisting>
+
+  <para>Cockpit will provide an interface for loading other keys into the agent
+    that could not be automatically loaded.</para>
+
+  <para>Note that when a user is authenticated in this way the authentication
+    happens without a password, as such the standard cockpit reauthorization
+    mechanisms do not work. The user will only be able to obtain additional
+    priviledges if they do not require a password.</para>
+
+</chapter>

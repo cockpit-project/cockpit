@@ -159,9 +159,10 @@ AC_CHECK_HEADER([security/pam_appl.h], ,
 AC_CHECK_LIB(pam, pam_open_session, [ true ],
   [AC_MSG_ERROR([Couldn't find PAM library. Try installing pam-devel])]
 )
-COCKPIT_SESSION_LIBS="$COCKPIT_SESSION_LIBS -lpam"
-COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS -lpam"
-REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS -lpam"
+PAM_LIBS="-lpam"
+COCKPIT_SESSION_LIBS="$COCKPIT_SESSION_LIBS $PAM_LIBS"
+COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS $PAM_LIBS"
+REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS $PAM_LIBS"
 
 # pam module directory
 AC_ARG_WITH([pamdir],
@@ -433,6 +434,7 @@ AC_MSG_RESULT($enable_strict)
 #
 
 AC_SUBST(REAUTHORIZE_LIBS)
+AC_SUBST(PAM_LIBS)
 
 AC_OUTPUT([
 Makefile

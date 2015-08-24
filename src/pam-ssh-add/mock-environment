@@ -1,0 +1,12 @@
+#!/bin/sh
+for key in XDG_RUNTIME_DIR HOME PATH LC_ALL OTHER SSH_AUTH_SOCK
+do
+    value=$(/usr/bin/printenv "$key")
+    result=$?
+    if [ $result -eq 0 ]; then
+        echo "$key=$value" 1>&2
+    else
+        echo "NO $key" 1>&2
+    fi
+done
+exit 1;

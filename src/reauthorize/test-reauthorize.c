@@ -34,7 +34,7 @@
 
 #define _GNU_SOURCE
 
-#include "retest.h"
+#include "retest/retest.h"
 
 #include "reauthorize.h"
 

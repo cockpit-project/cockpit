@@ -84,6 +84,10 @@ BuildRequires: npm
 BuildRequires: nodejs
 %endif
 
+# For phantomjs during "make check"
+BuildRequires: freetype
+BuildRequires: fontconfig
+
 # For selinux
 %if 0%{?selinux}
 BuildRequires: selinux-policy-devel
@@ -182,6 +186,10 @@ The Cockpit Web Service listens on the network, and authenticates users.
 %if %{defined gitcommit}
 env NOCONFIGURE=1 ./autogen.sh
 %endif
+if ! type phantomjs >/dev/null 2>/dev/null; then
+    npm install phantomjs
+    export PATH=$PATH:$PWD/node_modules/.bin
+fi
 %configure --disable-static --disable-silent-rules --with-cockpit-user=cockpit-ws --with-branding=%{branding}
 make -j %{?extra_flags} all
 %if 0%{?selinux}
@@ -189,6 +197,7 @@ make selinux
 %endif
 
 %check
+export PATH=$PATH:$PWD/node_modules/.bin
 make -j check
 
 %install

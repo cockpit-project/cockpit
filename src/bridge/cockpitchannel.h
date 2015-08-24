@@ -101,9 +101,11 @@ void                cockpit_channel_internal_address  (const gchar *name,
 gboolean            cockpit_channel_remove_internal_address (const gchar *name);
 
 GSocketConnectable * cockpit_channel_parse_connectable (CockpitChannel *self,
-                                                       gchar **possible_name);
+                                                       gchar **possible_name,
+                                                       gboolean *local_address);
 
-CockpitStreamOptions * cockpit_channel_parse_stream   (CockpitChannel *self);
+CockpitStreamOptions * cockpit_channel_parse_stream   (CockpitChannel *self,
+                                                       gboolean local_address);
 
 G_END_DECLS
 

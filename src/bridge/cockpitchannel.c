@@ -969,7 +969,8 @@ cockpit_channel_remove_internal_address (const gchar *name)
 
 GSocketConnectable *
 cockpit_channel_parse_connectable (CockpitChannel *self,
-                                   gchar **possible_name)
+                                   gchar **possible_name,
+                                   gboolean *local_address)
 {
   const gchar *problem = "protocol-error";
   GSocketConnectable *connectable = NULL;
@@ -977,6 +978,7 @@ cockpit_channel_parse_connectable (CockpitChannel *self,
   const gchar *internal;
   const gchar *address;
   JsonObject *options;
+  gboolean local = FALSE;
   GError *error = NULL;
   const gchar *host;
   gint64 port;
@@ -1020,16 +1022,21 @@ cockpit_channel_parse_connectable (CockpitChannel *self,
         {
           connectable = g_network_address_new (address, port);
           host = address;
+
+          /* This isn't perfect, but matches the use case. Specify address => non-local */
+          local = FALSE;
         }
       else if (cockpit_bridge_local_address)
         {
           connectable = g_network_address_parse (cockpit_bridge_local_address, port, &error);
           host = cockpit_bridge_local_address;
+          local = TRUE;
         }
       else
         {
           connectable = cockpit_loopback_new (port);
           host = "localhost";
+          local = TRUE;
         }
 
       if (error != NULL)
@@ -1049,6 +1056,7 @@ cockpit_channel_parse_connectable (CockpitChannel *self,
       if (possible_name)
         *possible_name = g_strdup (unix_path);
       connectable = G_SOCKET_CONNECTABLE (g_unix_socket_address_new (unix_path));
+      local = FALSE;
     }
   else if (internal)
     {
@@ -1073,6 +1081,7 @@ cockpit_channel_parse_connectable (CockpitChannel *self,
       if (possible_name)
         *possible_name = g_strdup (internal);
       connectable = g_object_ref (connectable);
+      local = FALSE;
     }
   else
     {
@@ -1091,6 +1100,11 @@ out:
         g_object_unref (connectable);
       connectable = NULL;
     }
+  else
+    {
+      if (local_address)
+        *local_address = local;
+    }
   return connectable;
 }
 
@@ -1104,7 +1118,7 @@ cockpit_channel_parse_address (CockpitChannel *self,
   GError *error = NULL;
   gchar *name = NULL;
 
-  connectable = cockpit_channel_parse_connectable (self, &name);
+  connectable = cockpit_channel_parse_connectable (self, &name, NULL);
   if (!connectable)
     return NULL;
 
@@ -1323,7 +1337,8 @@ parse_cert_option_as_database (JsonObject *options,
 }
 
 CockpitStreamOptions *
-cockpit_channel_parse_stream (CockpitChannel *self)
+cockpit_channel_parse_stream (CockpitChannel *self,
+                              gboolean local_address)
 {
   const gchar *problem = "protocol-error";
   GTlsCertificate *cert = NULL;
@@ -1334,6 +1349,9 @@ cockpit_channel_parse_stream (CockpitChannel *self)
   GString *pem = NULL;
   JsonObject *options;
   JsonNode *node;
+
+  /* No validation for local servers by default */
+  gboolean validate = !local_address;
 
   node = json_object_get_member (self->priv->open_options, "tls");
   if (node && !JSON_NODE_HOLDS_OBJECT (node))
@@ -1379,6 +1397,13 @@ cockpit_channel_parse_stream (CockpitChannel *self)
       problem = parse_cert_option_as_database (options, "authority", &database);
       if (problem)
         goto out;
+
+      if (!cockpit_json_get_bool (options, "validate", validate, &validate))
+        {
+          g_warning ("invalid \"validate\" option");
+          problem = "protocol-error";
+          goto out;
+        }
     }
 
   problem = NULL;
@@ -1400,14 +1425,17 @@ out:
       if (database)
         {
           ret->tls_database = database;
-          ret->tls_client_flags = G_TLS_CERTIFICATE_VALIDATE_ALL &
-              ~(G_TLS_CERTIFICATE_INSECURE | G_TLS_CERTIFICATE_BAD_IDENTITY);
+          ret->tls_client_flags = G_TLS_CERTIFICATE_VALIDATE_ALL;
+          if (!validate)
+              ret->tls_client_flags &= ~(G_TLS_CERTIFICATE_INSECURE | G_TLS_CERTIFICATE_BAD_IDENTITY);
           database = NULL;
         }
       else
         {
-          /* No validation for local servers by default */
-          ret->tls_client_flags = G_TLS_CERTIFICATE_GENERIC_ERROR;
+          if (validate)
+            ret->tls_client_flags = G_TLS_CERTIFICATE_VALIDATE_ALL;
+          else
+            ret->tls_client_flags = G_TLS_CERTIFICATE_GENERIC_ERROR;
         }
     }
 

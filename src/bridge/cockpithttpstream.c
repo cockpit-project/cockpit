@@ -934,6 +934,7 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
   JsonObject *options;
   const gchar *path;
   gchar *host = NULL;
+  gboolean local = FALSE;
 
   COCKPIT_CHANNEL_CLASS (cockpit_http_stream_parent_class)->prepare (channel);
 
@@ -965,7 +966,7 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
     {
       g_free (self->client->host);
       self->client->host = NULL;
-      connectable = cockpit_channel_parse_connectable (channel, &host);
+      connectable = cockpit_channel_parse_connectable (channel, &host, &local);
       if (!connectable)
         goto out;
     }
@@ -973,7 +974,7 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
   if (!self->client->options ||
       json_object_has_member (options, "tls"))
     {
-      opts = cockpit_channel_parse_stream (channel);
+      opts = cockpit_channel_parse_stream (channel, local);
       if (!opts)
         goto out;
     }

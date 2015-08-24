@@ -38,7 +38,7 @@ const gchar *cockpit_bridge_path_shadow = "/etc/shadow";
 
 const gchar *cockpit_bridge_path_newusers = "/usr/sbin/newusers";
 const gchar *cockpit_bridge_path_chpasswd = "/usr/sbin/chpasswd";
-const gchar *cockpit_bridge_path_usermod = "/usr/sbin/usermod";
+const gchar *cockpit_bridge_path_usermod = PATH_USERMOD;
 
 static GVariant *
 setup_get_property (GDBusConnection *connection,

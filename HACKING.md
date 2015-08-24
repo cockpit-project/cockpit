@@ -331,17 +331,9 @@ with the domain user:
 If you thought that was nasty and tiresome, it's because it is at present :S
 
 
-## Experimental Privileged Container
+## Cockpit Web Service Privileged Container
 
-It is possible, although not recommended, to run Cockpit in a privileged container.
-There is experimental support for this in tools/Dockerfile
+It is possible, to run Cockpit in a privileged container. The Dockerfile for
+this is here:
 
-To build the privileged container:
-
-	$ cd tools/
-	$ rm -f *.rpm
-	$ ./make-rpms # optional
-	$ docker build .
-
-By running make-rpms first, the latest Cockpit from git HEAD will be built instead
-of downloading the latest release into the privileged container.
+https://github.com/cockpit-project/cockpit-container

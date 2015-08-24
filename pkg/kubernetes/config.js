@@ -84,20 +84,20 @@ define([
 
         var blob, parser, scheme = { port: 8080, headers: { } };
 
-        /* We still only connect to the local machine. At least for now */
         if (cluster) {
             if (cluster.server) {
                 parser = document.createElement('a');
                 parser.href = cluster.server;
+                if (parser.hostname)
+                    scheme.address = parser.hostname;
                 if (parser.port)
                     scheme.port = parser.port;
                 if (parser.protocol == 'https:') {
                     scheme.port = parser.port || 6443;
                     scheme.tls = { };
 
-                    /* If no authority specified, no verification */
-                    if (!cluster["insecure-skip-tls-verify"])
-                        scheme.tls.authority = parse_cert_option(cluster, "certificate-authority");
+                    scheme.tls.authority = parse_cert_option(cluster, "certificate-authority");
+                    scheme.tls.validate = !cluster["insecure-skip-tls-verify"];
                 }
             }
         }

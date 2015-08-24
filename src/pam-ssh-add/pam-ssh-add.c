@@ -144,13 +144,9 @@ message_handler (int level,
   res = vasprintf (&data, format, va);
   va_end (va);
 
-  if (res < 0)
-    {
-      pam_ssh_add_log_handler (LOG_ERR, "out of memory printing message");
-      return;
-    }
+  if (res > 0)
+    pam_ssh_add_log_handler (level, data);
 
-  pam_ssh_add_log_handler (level, data);
   free (data);
 }
 #endif

@@ -47,10 +47,10 @@
 #include "pam-ssh-add.h"
 
 /* programs that can be overwidden in tests */
-const char *pam_ssh_agent_program = "/usr/bin/ssh-agent";
+const char *pam_ssh_agent_program = PATH_SSH_AGENT;
 const char *pam_ssh_agent_arg = NULL;
 
-const char *pam_ssh_add_program = "/usr/bin/ssh-add";
+const char *pam_ssh_add_program = PATH_SSH_ADD;
 const char *pam_ssh_add_arg = NULL;
 
 /* Environment */

@@ -47,12 +47,6 @@ REAUTHORIZE_CHECKS = \
 	test-reauthorize \
 	$(NULL)
 
-noinst_LIBRARIES += libretest.a
-libretest_a_SOURCES = \
-	src/reauthorize/retest.c \
-	src/reauthorize/retest.h \
-	$(NULL)
-
 test_reauthorize_CFLAGS = $(libreauthorize_a_CFLAGS)
 test_reauthorize_SOURCES = src/reauthorize/test-reauthorize.c
 test_reauthorize_LDADD = libretest.a $(libreauthorize_a_LIBS)

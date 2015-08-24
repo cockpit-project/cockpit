@@ -476,4 +476,8 @@ echo "
         With address sanitizer:     ${asan_status}
 	Branding:                   ${BRAND}
         Supports key auth:          ${key_auth}
+
+        pkexec:                     ${PKEXEC}
+        sudo:                       ${SUDO}
+        usermod:                    ${USERMOD}
 "

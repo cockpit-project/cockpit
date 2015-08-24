@@ -73,7 +73,6 @@ SUBDIRS = . po
 DISTCHECK_CONFIGURE_FLAGS=						        \
 	--disable-debug \
 	--disable-coverage \
-	--disable-silent-rules \
 	--enable-prefix-only \
 	$(NULL)
 

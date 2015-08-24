@@ -29,6 +29,8 @@
 
 #include <gio/gio.h>
 
+extern const gchar *cockpit_bridge_local_address;
+
 /* ----------------------------------------------------------------------------
  * Mock
  */
@@ -437,7 +439,7 @@ test_invalid_internal (void)
                           "options", options,
                           NULL);
   json_object_unref (options);
-  connectable = cockpit_channel_parse_connectable (channel, NULL);
+  connectable = cockpit_channel_parse_connectable (channel, NULL, NULL);
   g_assert (connectable == NULL);
   while (g_main_context_iteration (NULL, FALSE));
 
@@ -468,9 +470,8 @@ test_internal_null_registered (void)
   cockpit_channel_remove_internal_address ("test");
 }
 
-
 static void
-test_address (void)
+test_parse_port (void)
 {
   JsonObject *options;
   MockTransport *transport;
@@ -480,6 +481,52 @@ test_address (void)
   GInetAddress *expected_ip;
   GInetAddress *got_ip; // owned by address
   gchar *name = NULL;
+  gboolean local = -1; /* yup */
+
+  expected_ip = g_inet_address_new_from_string (cockpit_bridge_local_address);
+
+  options = json_object_new ();
+  json_object_set_int_member (options, "port", 8090);
+  transport = g_object_new (mock_transport_get_type (), NULL);
+
+  channel = g_object_new (mock_echo_channel_get_type (),
+                          "transport", transport,
+                          "id", "55",
+                          "options", options,
+                          NULL);
+  json_object_unref (options);
+  connectable = cockpit_channel_parse_connectable (channel, NULL, &local);
+  address = cockpit_channel_parse_address (channel, &name);
+
+  g_assert (g_socket_address_get_family (address) == G_SOCKET_FAMILY_IPV4);
+  g_assert_cmpint (g_inet_socket_address_get_port ((GInetSocketAddress *)address),
+                   ==, 8090);
+  got_ip = g_inet_socket_address_get_address ((GInetSocketAddress *)address);
+  g_assert (g_inet_address_equal (got_ip, expected_ip));
+
+  g_assert_cmpint (local, ==, TRUE);
+
+  g_object_unref (channel);
+  g_object_unref (connectable);
+  g_object_unref (transport);
+  g_object_unref (address);
+  g_object_unref (expected_ip);
+  g_free (name);
+  cockpit_assert_expected ();
+}
+
+static void
+test_parse_address (void)
+{
+  JsonObject *options;
+  MockTransport *transport;
+  CockpitChannel *channel;
+  GSocketConnectable *connectable;
+  GSocketAddress *address;
+  GInetAddress *expected_ip;
+  GInetAddress *got_ip; // owned by address
+  gchar *name = NULL;
+  gboolean local = -1; /* yup */
 
   expected_ip = g_inet_address_new_from_string ("10.1.1.1");
 
@@ -494,7 +541,7 @@ test_address (void)
                           "options", options,
                           NULL);
   json_object_unref (options);
-  connectable = cockpit_channel_parse_connectable (channel, NULL);
+  connectable = cockpit_channel_parse_connectable (channel, NULL, &local);
   address = cockpit_channel_parse_address (channel, &name);
 
   g_assert (g_socket_address_get_family (address) == G_SOCKET_FAMILY_IPV4);
@@ -502,6 +549,8 @@ test_address (void)
                    ==, 8090);
   got_ip = g_inet_socket_address_get_address ((GInetSocketAddress *)address);
   g_assert (g_inet_address_equal (got_ip, expected_ip));
+
+  g_assert_cmpint (local, ==, FALSE);
 
   g_object_unref (channel);
   g_object_unref (connectable);
@@ -516,6 +565,8 @@ int
 main (int argc,
       char *argv[])
 {
+  cockpit_bridge_local_address = "127.0.0.1";
+
   cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/channel/get-option", test_get_option);
@@ -528,7 +579,10 @@ main (int argc,
                    test_internal_null_registered);
   g_test_add_func ("/channel/internal-not-registered",
                    test_internal_not_registered);
-  g_test_add_func ("/channel/address", test_address);
+
+  g_test_add_func ("/channel/parse-port", test_parse_port);
+  g_test_add_func ("/channel/parse-address", test_parse_address);
+
   g_test_add ("/channel/recv-send", TestCase, NULL,
               setup, test_recv_and_send, teardown);
   g_test_add ("/channel/recv-queue", TestCase, NULL,

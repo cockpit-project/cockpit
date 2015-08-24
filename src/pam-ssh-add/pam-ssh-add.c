@@ -466,7 +466,7 @@ setup_child (const char **args,
   /* Now actually execute the process */
   execve (args[0], (char **) args, env);
   error ("couldn't run %s: %m", args[0]);
-  exit (EXIT_FAILURE);
+  _exit (EXIT_FAILURE);
 }
 
 static void

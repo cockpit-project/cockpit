@@ -193,13 +193,30 @@ COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS -lcrypt"
 REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS -lcrypt"
 
 # pcp
-AC_CHECK_HEADER([pcp/pmapi.h], ,
-  [AC_MSG_ERROR([Couldn't find pcp headers. Try installing pcp-libs-devel])]
-)
-AC_CHECK_LIB(pcp, pmNewContext, [ true ],
-  [AC_MSG_ERROR([Couldn't find pcp library. Try installing pcp-libs-devel])]
-)
-COCKPIT_PCP_LIBS="$COCKPIT_PCP_LIBS -lpcp -lm"
+AC_MSG_CHECKING([whether to build with PCP])
+AC_ARG_ENABLE(pcp, AC_HELP_STRING([--disable-pcp], [Disable usage of PCP]))
+
+if test "$enable_pcp" = "no"; then
+  AC_MSG_RESULT($enable_pcp)
+
+else
+  if test "$enable_pcp" = ""; then
+    disable_msg="(perhaps --disable-pcp)"
+  fi
+
+  enable_pcp="yes"
+  AC_MSG_RESULT($enable_pcp)
+
+  AC_CHECK_HEADER([pcp/pmapi.h], ,
+    [AC_MSG_ERROR([Couldn't find pcp headers $disable_msg])]
+  )
+  AC_CHECK_LIB(pcp, pmNewContext, [ true ],
+    [AC_MSG_ERROR([Couldn't find pcp library $disable_msg])]
+  )
+  COCKPIT_PCP_LIBS="$COCKPIT_PCP_LIBS -lpcp -lm"
+fi
+
+AM_CONDITIONAL([ENABLE_PCP], [test "$enable_pcp" = "yes"])
 
 # gssapi
 AC_CHECK_LIB(gssapi_krb5, gss_import_cred,
@@ -481,6 +498,7 @@ echo "
         Debug mode:                 ${debug_status}
         With coverage:              ${enable_coverage}
         With address sanitizer:     ${asan_status}
+        With PCP:                   ${enable_pcp}
 	Branding:                   ${BRAND}
         Supports key auth:          ${key_auth}
 

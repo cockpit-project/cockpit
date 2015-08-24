@@ -1,7 +1,6 @@
 
 noinst_LIBRARIES += \
 	libcockpit-bridge.a \
-	libcockpit-pcp.a \
 	$(NULL)
 
 libcockpit_bridge_a_SOURCES = \
@@ -83,31 +82,10 @@ libcockpit_bridge_LIBS = \
 	$(COCKPIT_BRIDGE_LIBS) \
 	$(NULL)
 
-libcockpit_pcp_a_SOURCES = \
-	src/bridge/cockpitchannel.c \
-	src/bridge/cockpitchannel.h \
-	src/bridge/cockpitmetrics.c \
-	src/bridge/cockpitmetrics.h \
-	src/bridge/cockpitpcpmetrics.c \
-	src/bridge/cockpitpcpmetrics.h \
-	$(NULL)
-
-libcockpit_pcp_a_CFLAGS = \
-	-I$(srcdir)/src/bridge \
-	-DG_LOG_DOMAIN=\"cockpit-pcp\" \
-	$(COCKPIT_PCP_CFLAGS) \
-	$(NULL)
-
-libcockpit_pcp_LIBS = \
-	libcockpit-pcp.a \
-	libcockpit-common.a \
-	$(COCKPIT_PCP_LIBS) \
-	$(NULL)
-
 # -----------------------------------------------------------------------------
 
 bin_PROGRAMS += cockpit-bridge
-libexec_PROGRAMS += cockpit-polkit cockpit-pcp
+libexec_PROGRAMS += cockpit-polkit
 
 cockpit_bridge_SOURCES = src/bridge/bridge.c
 cockpit_bridge_CFLAGS = \
@@ -116,13 +94,6 @@ cockpit_bridge_CFLAGS = \
 	$(COCKPIT_BRIDGE_CFLAGS) \
 	$(NULL)
 cockpit_bridge_LDADD = $(libcockpit_bridge_LIBS)
-
-cockpit_pcp_SOURCES = src/bridge/cockpitpcp.c
-cockpit_pcp_CFLAGS = \
-	-DG_LOG_DOMAIN=\"cockpit-pcp\" \
-	$(COCKPIT_PCP_CFLAGS) \
-	$(NULL)
-cockpit_pcp_LDADD = $(libcockpit_pcp_LIBS)
 
 cockpit_polkit_SOURCES = src/bridge/cockpitpolkithelper.c
 cockpit_polkit_CFLAGS = $(COCKPIT_POLKIT_CFLAGS)
@@ -153,23 +124,9 @@ BRIDGE_CHECKS = \
 	test-packages \
 	test-fs \
 	test-metrics \
-	test-pcp \
-	test-pcp-archives \
 	test-httpstream \
 	test-setup \
 	$(NULL)
-
-noinst_DATA += mock-pmda.so
-
-CLEANFILES += mock-pmda.so
-
-# This is non-portable, but I don't feel like dragging in libtool just
-# for this.
-#
-mock-pmda.so: src/bridge/mock-pmda.c
-	$(AM_V_CCLD) $(CC) -fPIC -shared \
-		-DSRCDIR=\"$(abs_srcdir)\" \
-		-o mock-pmda.so $(srcdir)/src/bridge/mock-pmda.c -lpcp_pmda -lpcp
 
 mock_bridge_SOURCES = src/bridge/mock-bridge.c
 mock_bridge_CFLAGS = \
@@ -229,18 +186,6 @@ test_metrics_SOURCES = \
 test_metrics_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_metrics_LDADD = $(libcockpit_bridge_LIBS)
 
-test_pcp_SOURCES = \
-	src/bridge/test-pcp.c \
-	src/bridge/mock-transport.c src/bridge/mock-transport.h
-test_pcp_CFLAGS = $(libcockpit_pcp_a_CFLAGS)
-test_pcp_LDADD = $(libcockpit_pcp_LIBS) -ldl
-
-test_pcp_archives_SOURCES = \
-	src/bridge/test-pcp-archives.c \
-	src/bridge/mock-transport.c src/bridge/mock-transport.h
-test_pcp_archives_CFLAGS = $(libcockpit_pcp_a_CFLAGS)
-test_pcp_archives_LDADD = $(libcockpit_pcp_LIBS) -ldl -lpcp_import
-
 test_httpstream_SOURCES = \
 	src/bridge/test-httpstream.c \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
@@ -260,3 +205,71 @@ EXTRA_DIST += \
 	src/bridge/mock-server.crt \
 	src/bridge/mock-server.key \
 	$(NULL)
+
+# -----------------------------------------------------------------------------
+# PCP
+
+if ENABLE_PCP
+
+libexec_PROGRAMS += cockpit-pcp
+
+noinst_LIBRARIES += libcockpit-pcp.a
+
+libcockpit_pcp_a_SOURCES = \
+	src/bridge/cockpitchannel.c \
+	src/bridge/cockpitchannel.h \
+	src/bridge/cockpitmetrics.c \
+	src/bridge/cockpitmetrics.h \
+	src/bridge/cockpitpcpmetrics.c \
+	src/bridge/cockpitpcpmetrics.h \
+	$(NULL)
+
+libcockpit_pcp_a_CFLAGS = \
+	-I$(srcdir)/src/bridge \
+	-DG_LOG_DOMAIN=\"cockpit-pcp\" \
+	$(COCKPIT_PCP_CFLAGS) \
+	$(NULL)
+
+libcockpit_pcp_LIBS = \
+	libcockpit-pcp.a \
+	libcockpit-common.a \
+	$(COCKPIT_PCP_LIBS) \
+	$(NULL)
+
+cockpit_pcp_SOURCES = src/bridge/cockpitpcp.c
+cockpit_pcp_CFLAGS = \
+	-DG_LOG_DOMAIN=\"cockpit-pcp\" \
+	$(COCKPIT_PCP_CFLAGS) \
+	$(NULL)
+cockpit_pcp_LDADD = $(libcockpit_pcp_LIBS)
+
+BRIDGE_CHECKS += \
+	test-pcp \
+	test-pcp-archives \
+	$(NULL)
+
+noinst_DATA += mock-pmda.so
+
+CLEANFILES += mock-pmda.so
+
+# This is non-portable, but I don't feel like dragging in libtool just
+# for this.
+#
+mock-pmda.so: src/bridge/mock-pmda.c
+	$(AM_V_CCLD) $(CC) -fPIC -shared \
+		-DSRCDIR=\"$(abs_srcdir)\" \
+		-o mock-pmda.so $(srcdir)/src/bridge/mock-pmda.c -lpcp_pmda -lpcp
+
+test_pcp_SOURCES = \
+	src/bridge/test-pcp.c \
+	src/bridge/mock-transport.c src/bridge/mock-transport.h
+test_pcp_CFLAGS = $(libcockpit_pcp_a_CFLAGS)
+test_pcp_LDADD = $(libcockpit_pcp_LIBS) -ldl
+
+test_pcp_archives_SOURCES = \
+	src/bridge/test-pcp-archives.c \
+	src/bridge/mock-transport.c src/bridge/mock-transport.h
+test_pcp_archives_CFLAGS = $(libcockpit_pcp_a_CFLAGS)
+test_pcp_archives_LDADD = $(libcockpit_pcp_LIBS) -ldl -lpcp_import
+
+endif

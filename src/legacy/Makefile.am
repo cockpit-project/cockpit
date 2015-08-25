@@ -24,18 +24,10 @@ libcockpit_legacy_a_SOURCES = \
 	src/legacy/daemon.c \
 	src/legacy/utils.h \
 	src/legacy/utils.c \
-	src/legacy/networkmonitor.h \
-	src/legacy/networkmonitor.c \
-	src/legacy/diskiomonitor.h \
-	src/legacy/diskiomonitor.c \
 	src/legacy/cgroupmonitor.h \
 	src/legacy/cgroupmonitor.c \
 	src/legacy/netdevmonitor.h \
 	src/legacy/netdevmonitor.c \
-	src/legacy/blockdevmonitor.h \
-	src/legacy/blockdevmonitor.c \
-	src/legacy/mountmonitor.h \
-	src/legacy/mountmonitor.c \
 	$(NULL)
 
 libcockpit_legacy_a_CFLAGS = \

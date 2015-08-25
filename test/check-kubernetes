@@ -80,6 +80,7 @@ class TestKubernetes(KubernetesCase):
         b.wait_popup("deploy-app-dialog")
         b.upload_file("#deploy-app-manifest-file", "mock-k8s-tiny-app.json")
         b.set_val("#deploy-app-namespace", "mynamespace")
+        self.assertEqual(b.text("#deploy-app-namespace-group ul"), "default")
         b.dialog_complete("#deploy-app-dialog")
         b.wait_in_text("#service-list", "mynamespace")
 

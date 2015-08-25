@@ -409,6 +409,7 @@ define([
             namespaces = client.select("Namespace");
             client.track(namespaces);
             $(namespaces).on("changed", namespaces_changed);
+            namespaces_changed();
         });
 
         dlg.on('hide.bs.modal', function() {

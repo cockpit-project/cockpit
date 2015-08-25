@@ -142,12 +142,12 @@ define([
      */
 
     client.fsys_sizes = instance_sampler([ { name: "mount.used" },
-                                        { name: "mount.total" }
-                                      ]);
+                                           { name: "mount.total" }
+                                         ]);
 
     client.blockdev_io = instance_sampler([ { name: "block.device.read", derive: "rate" },
-                                         { name: "block.device.written", derive: "rate" }
-                                       ]);
+                                            { name: "block.device.written", derive: "rate" }
+                                          ]);
 
     /* Derived indices.
      */

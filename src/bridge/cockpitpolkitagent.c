@@ -515,6 +515,13 @@ out:
 void
 cockpit_polkit_agent_unregister (gpointer handle)
 {
+  guint handler = 0;
+
+  /* Everything is shutting down at this point, prevent polkit from complaining */
+  handler = g_log_set_handler (NULL, G_LOG_LEVEL_WARNING, cockpit_null_log_handler, NULL);
+
   if (handle)
     polkit_agent_listener_unregister (handle);
+
+  g_log_remove_handler (NULL, handler);
 }

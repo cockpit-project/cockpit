@@ -84,6 +84,26 @@ define([
             };
         }])
 
+        /* The default orderBy filter doesn't work on objects */
+        .filter('orderObjectBy', function() {
+            return function(items, field, reverse) {
+                var i, sorted = [];
+                for (i in items)
+                    sorted.push(items[i]);
+                function value(obj, i) { return obj[i]; }
+                sorted.sort(function (a, b) {
+                    var ra = field.split('.').reduce(value, a);
+                    var rb = field.split('.').reduce(value, b);
+                    if (ra === rb)
+                        return 0;
+                    return (ra > rb ? 1 : -1);
+                });
+                if (reverse)
+                    sorted.reverse();
+                return sorted;
+            };
+        })
+
         .factory('kubernetesClient', function() {
             return kubernetes.k8client();
         });

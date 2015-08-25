@@ -24,8 +24,9 @@ define([
     "shell/controls",
     "shell/shell",
     "shell/cockpit-main",
-    "system/server"
-], function($, cockpit, domain, controls, shell, main, server) {
+    "system/server",
+    "system/service"
+], function($, cockpit, domain, controls, shell, main, server, service) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -187,9 +188,8 @@ PageServer.prototype = {
 
         self.plot_controls = shell.setup_plot_controls($('#server'), $('#server-graph-toolbar'));
 
-        var systemd_client = cockpit.dbus("org.freedesktop.systemd1", { superuser: "try" });
-        var systemd_manager = systemd_client.proxy("org.freedesktop.systemd1.Manager",
-                                                   "/org/freedesktop/systemd1");
+        var pmcd_service = service.proxy("pmcd");
+        var pmlogger_service = service.proxy("pmlogger");
 
         self.pmlogger_onoff = controls.OnOff(false,
                                              change_pmlogger_state,
@@ -198,56 +198,38 @@ PageServer.prototype = {
                                              null);
 
         function change_pmlogger_state(val) {
-            function fail(error) {
-                console.warn("Enabling/disabling pmlogger failed", error);
-                refresh_pmlogger_state();
-            }
-
-            systemd_manager.wait(function () {
-                if (!systemd_manager.valid) {
-                    fail();
-                } else if (val) {
-                    /* The "pmcd" needs to be enabled and started
-                     * explicitly as well since the "pmlogger" service
-                     * does not formally require it.
-                     */
-                    systemd_manager.EnableUnitFiles(["pmcd.service", "pmlogger.service"], false, false)
-                        .done(function () {
-                            $.when(systemd_manager.StartUnit("pmcd.service", "fail"),
-                                   systemd_manager.StartUnit("pmlogger.service", "fail"))
-                                .fail(fail);
-                        })
-                        .fail(fail);
+            if (pmlogger_service.exists) {
+                if (val) {
+                    $.when(pmcd_service.enable(),
+                           pmcd_service.start(),
+                           pmlogger_service.enable(),
+                           pmlogger_service.start()).
+                        fail(function (error) {
+                            console.warn("Enabling pmlogger failed", error);
+                        });
                 } else {
-                    systemd_manager.StopUnit("pmlogger.service", "fail")
-                        .done(function () {
-                            systemd_manager.DisableUnitFiles(["pmlogger.service"], false)
-                                .fail(fail);
-                        })
-                        .fail(fail);
+                    $.when(pmlogger_service.disable(),
+                           pmlogger_service.stop()).
+                        fail(function (error) {
+                            console.warn("Disabling pmlogger failed", error);
+                        });
                 }
-            });
+            }
         }
 
         function refresh_pmlogger_state() {
-            systemd_manager.wait(function () {
-                systemd_manager.GetUnitFileState("pmlogger.service").
-                    done(function (state) {
-                        self.pmlogger_onoff.set(state.indexOf("enabled") === 0);
-                        $('#server-pmlogger-onoff-row').show();
-                    }).
-                    fail(function (error) {
-                        console.log(error);
-                        console.warn(error.toString());
-                        $('#server-pmlogger-onoff-row').hide();
-                    });
-            });
+            if (!pmlogger_service.exists)
+                $('#server-pmlogger-onoff-row').hide();
+            else {
+                self.pmlogger_onoff.set(pmlogger_service.enabled);
+                $('#server-pmlogger-onoff-row').show();
+            }
         }
 
-        $(systemd_manager).on("UnitFilesChanged", refresh_pmlogger_state);
-        refresh_pmlogger_state();
-
         $('#server-pmlogger-onoff').empty().append(self.pmlogger_onoff);
+
+        $(pmlogger_service).on('changed', refresh_pmlogger_state);
+        refresh_pmlogger_state();
     },
 
     enter: function() {

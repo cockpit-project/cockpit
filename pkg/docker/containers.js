@@ -25,8 +25,9 @@ define([
     "docker/overview",
     "docker/details",
     "docker/image",
+    "system/service",
     "translated!base1/po",
-], function($, cockpit, Mustache, client, overview, container_details, image_details, po) {
+], function($, cockpit, Mustache, client, overview, container_details, image_details, service, po) {
     cockpit.locale(po);
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
@@ -35,6 +36,7 @@ define([
      */
 
     var curtain_tmpl;
+    var docker_service = service.proxy("docker");
 
     function init_curtain(client, navigate) {
         curtain_tmpl = $("#curtain-tmpl").html();
@@ -46,7 +48,7 @@ define([
 
         $('#curtain').on('click', '[data-action=docker-start]', function () {
             show_curtain(null);
-            cockpit.spawn([ "systemctl", "start", "docker" ], { "superuser": "try" }).
+            docker_service.start().
                 done(function () {
                     client.close();
                     client.connect().done(navigate);

@@ -104,7 +104,6 @@ var C_ = cockpit.gettext;
  *   units:           The common units string for all metrics.
  *   instances:       A optional list of instances to include.
  *   omit_instances:  A optional list of instances to omit.
- *   interval:        The interval between samples.
  *   factor:          A factor to apply to the final sum of all samples.
  *
  * - series.options

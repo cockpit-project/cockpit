@@ -7,7 +7,7 @@
 %define rel 1
 
 %if %{defined gitcommit}
-%define extra_flags CFLAGS='-O2 -Wall -Werror -fPIC'
+%define extra_flags CFLAGS='-O2 -Wall -Werror -fPIC -g'
 %define branding default
 %endif
 
@@ -260,9 +260,16 @@ rm -rf %{buildroot}/usr/src/debug
 cat subscriptions.list docker.list >> shell.list
 %endif
 
+# Only strip out debug info in non wip builds
+%if %{defined gitcommit}
+%define find_debug_info %{nil}
+%else
+%define find_debug_info %{_rpmconfigdir}/find-debuginfo.sh %{?_missing_build_ids_terminate_build:--strict-build-id} %{?_include_minidebuginfo:-m} %{?_find_debuginfo_dwz_opts} %{?_find_debuginfo_opts} "%{_builddir}/%{?buildsubdir}"
+%endif
+
 # Redefine how debug info is built to slip in our extra debug files
 %define __debug_install_post   \
-   %{_rpmconfigdir}/find-debuginfo.sh %{?_missing_build_ids_terminate_build:--strict-build-id} %{?_include_minidebuginfo:-m} %{?_find_debuginfo_dwz_opts} %{?_find_debuginfo_opts} "%{_builddir}/%{?buildsubdir}" \
+   %{find_debug_info} \
    cat debug.list >> %{_builddir}/%{?buildsubdir}/debugfiles.list \
 %{nil}
 

@@ -130,12 +130,13 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
     var options = { };
     var data = [ ];
     var flot = null;
-    var walk_timer;
     var result = { };
 
-    var now, x_range, x_offset, interval;
+    var interval;
 
-    function refresh() {
+    var grid;
+
+    function refresh_now() {
         if (flot === null) {
             if (element.height() === 0 || element.width() === 0)
                 return;
@@ -145,8 +146,13 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
         flot.setData(data);
         var axes = flot.getAxes();
 
-        axes.xaxis.options.min = now - x_range - x_offset;
-        axes.xaxis.options.max = now - x_offset;
+        /* Walking and fetching samples are not synchronized, which
+         * means that a walk step might reveal a sample that hasn't
+         * been fetched yet.  To reduce flicker, we cut off one extra
+         * sample at the end.
+         */
+        axes.xaxis.options.min = grid.beg * interval;
+        axes.xaxis.options.max = (grid.end - 2) * interval;
         if (options.setup_hook)
             options.setup_hook(flot);
 
@@ -162,55 +168,73 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
         flot.draw();
     }
 
-    function start_walking() {
-        /* Don't overflow 32 signed bits with the interval.  This
-         * means that plots that would make about one step every month
-         * don't walk at all, but I guess that is ok.
-         */
-        if (interval > 2000000000)
-            return;
+    var refresh_pending = false;
 
-        if (!walk_timer)
-            walk_timer = window.setInterval(function () {
-                now += interval;
-                for (var i = 0; i < data.length; i++)
-                    data[i].walk();
-                refresh();
-            }, interval);
+    function refresh() {
+        if (!refresh_pending) {
+            refresh_pending = true;
+            window.setTimeout(function () {
+                refresh_pending = false;
+                refresh_now();
+            }, 0);
+        }
+    }
+
+    function start_walking() {
+        grid.walk();
     }
 
     function stop_walking() {
-        if (walk_timer)
-            window.clearInterval(walk_timer);
-        walk_timer = null;
+        grid.move(grid.beg, grid.end);
     }
+
+    var sync_suppressed = 0;
 
     function reset(x_range_seconds, x_stop_seconds) {
         if (flot)
             flot.clearSelection(true);
 
-        now = (new Date()).getTime();
+        // Fill the plot with about 1000 samples, but don't sample
+        // faster than once per second.
+        //
+        // TODO - do this based on the actual size of the plot.
 
+        interval = Math.ceil(x_range_seconds / 1000) * 1000;
+
+        var x_offset;
         if (x_stop_seconds !== undefined)
-            x_offset = now - x_stop_seconds*1000;
+            x_offset = (new Date().getTime()) - x_stop_seconds * 1000;
         else
             x_offset = 0;
 
-        // Fill the plot with about 1000 samples.
-        //
-        // TODO - do this based on the actual size of the plot.
-        //
-        if (x_range_seconds !== undefined) {
-            x_range = x_range_seconds * 1000;
-            interval = Math.ceil(x_range_seconds / 1000) * 1000;
-        }
+        var beg = -Math.ceil((x_range_seconds * 1000 + x_offset) / interval);
+        var end = -Math.floor(x_offset / interval);
 
-        for (var i = 0; i < data.length; i++)
-            data[i].reset();
+        if (grid && grid.interval == interval) {
+            grid.move(beg, end);
+        } else {
+            if (grid)
+                grid.close();
+            grid = cockpit.grid(interval, beg, end);
+            sync_suppressed++;
+            for (var i = 0; i < data.length; i++)
+                data[i].reset();
+            sync_suppressed--;
+            sync();
+
+            $(grid).on('notify', function (event, index, count) {
+                refresh();
+            });
+        }
+    }
+
+    function sync() {
+        if (sync_suppressed === 0)
+            grid.sync();
     }
 
     function destroy() {
-        stop_walking();
+        grid.close();
         for (var i = 0; i < data.length; i++)
             data[i].stop();
 
@@ -239,20 +263,7 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
 
     function add_metrics_sum_series(desc, opts) {
         var series = opts;
-        var series_data = null;
-        var old_series_data = null;
-        var timestamp;
-        var archive_channel, real_time_channel;
-        var cur_samples;
-        var stopped = false;
-        var refresh_on_samples = true;
-
-        var real_time_samples = [];
-        var max_real_time_samples = 1000;
-        var n_real_time_samples = 0;
-        var real_time_samples_pos = -1;
-        var real_time_samples_timestamp = null;
-        var real_time_samples_interval = 2000;
+        var channel = null;
 
         var self = {
             options: series,
@@ -263,30 +274,17 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
         series.stop = stop;
         series.reset = reset_series;
         series.hover = hover;
-        series.walk = walk;
 
         function stop() {
-            stopped = true;
-            if (archive_channel)
-                archive_channel.close();
-            if (real_time_channel)
-                real_time_channel.close();
+            if (channel)
+                channel.close();
         }
 
         function hover(val) {
             $(self).triggerHandler('hover', [ val ]);
         }
 
-        function walk() {
-            if (archive_channel === null)
-                trim_series();
-            var val = sample_real_time(now-interval, now);
-            if (!isNaN(val))
-                series_data[series_data.length] = [ now, val ];
-        }
-
         function add_series() {
-            series.data = series_data;
             data.push(series);
         }
 
@@ -310,266 +308,73 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
             refresh();
         }
 
-        function trim_series() {
-            for (var i = 0; i < series_data.length; i++) {
-                if (series_data[i] && series_data[i][0] >= now - x_range - x_offset) {
-                    series_data.splice(0, i);
-                    return;
-                }
-            }
-        }
-
-        var metrics;
-
-        function channel_sampler(options, callback) {
-            var instances;
-            var timestamp;
-            var factor;
-
-            factor = desc.factor || 1;
-
-            function on_new_samples(msg) {
-
-                function compute_sample(samples) {
-                    var i, j, sum = 0;
-
-                    function count_sample(index, cur, samples) {
-                        if (samples[index] || samples[index] === 0)
-                            cur[index] = samples[index];
-                        sum += cur[index];
-                    }
-
-                    for (i = 0; i < metrics.length; i++) {
-                        if (instances[i] !== undefined) {
-                            for (j = 0; j < instances[i].length; j++)
-                                count_sample(j, cur_samples[i], samples[i]);
-                        } else
-                            count_sample(i, cur_samples, samples);
-                    }
-
-                    return sum*factor;
-                }
-
-                var res = [ ];
-                var last = null;
-                for (var i = 0; i < msg.length; i++) {
-                    last = compute_sample(msg[i]);
-                    res[i] = [ timestamp, last ];
-                    timestamp += options.interval;
-                }
-
-                callback (res);
-
-                if (last !== null)
-                    $(self).triggerHandler("value", [ last ]);
-            }
-
-            function handle_message(event, message) {
-                if (stopped)
-                    return;
-
-                var msg = JSON.parse(message);
-                var i, t;
-                if (msg.length) {
-                    on_new_samples(msg);
-                } else {
-                    instances = msg.metrics.map(function (m) { return m.instances; });
-                    cur_samples = [];
-                    for (i = 0; i < metrics.length; i++) {
-                        if (instances[i] !== null)
-                            cur_samples[i] = [];
-                    }
-
-                    timestamp = new Date().getTime() + (msg.timestamp - msg.now);
-                }
-            }
-
-            var channel = cockpit.channel(options);
-            $(channel).on("message", handle_message);
-            return channel;
-        }
-
         function build_metric(n) {
             return { name: n, units: desc.units, derive: desc.derive };
         }
 
-        metrics = desc.direct.map(build_metric);
-        var fallback = null;
+        var chanopts_list = [ ];
 
-        if (desc.internal)
-            fallback = desc.internal.map(build_metric);
+        if (desc.direct) {
+            chanopts_list.push({ source: "direct",
+                                 archive_source: "pcp-archive",
+                                 metrics: desc.direct.map(build_metric),
+                                 instances: desc.instances,
+                                 "omit-instances": desc['omit-instances'],
+                                 host: desc.host
+                               });
+        }
 
-        var chanopts = {
-            payload: "metrics1",
-            metrics: metrics,
-            instances: desc.instances,
-            "omit-instances": desc['omit-instances'],
-            host: desc.host
-        };
+        if (desc.internal) {
+            chanopts_list.push({ source: "internal",
+                                 metrics: desc.internal.map(build_metric),
+                                 instances: desc.instances,
+                                 "omit-instances": desc['omit-instances'],
+                                 host: desc.host
+                               });
+        }
+
+        function flat_sum(val) {
+            var i, sum;
+
+            if (!val)
+                return 0;
+            if (val.length !== undefined) {
+                sum = 0;
+                for (i = 0; i < val.length; i++)
+                    sum += flat_sum(val[i]);
+                return sum;
+            }
+            return val;
+        }
 
         function reset_series() {
-            if (archive_channel) {
-                archive_channel.close();
-                archive_channel = null;
+            if (channel)
+                channel.close();
+
+            channel = cockpit.metrics(interval, chanopts_list);
+
+            var metrics_row = grid.add(channel, [ ]);
+            var factor = desc.factor || 1;
+            series.data = grid.add(function(row, x, n) {
+                for (var i = 0; i < n; i++)
+                    row[x + i] = [(grid.beg + x + i)*interval, flat_sum(metrics_row[x + i]) * factor];
+            });
+
+            function check_archives() {
+                if (channel.archives && !result.archives) {
+                    result.archives = true;
+                    $(result).triggerHandler("changed");
+                }
             }
 
-            series_data = [ ];
-            series.data = series_data;
+            $(channel).on('changed', check_archives);
+            check_archives();
 
-            var plot_start = now - x_range - x_offset;
-            var plot_end = now - x_offset;
-            var real_time_start;
-            var archive_start, archive_end, archive_limit, archive_index;
-            var min_gap;
-
-            if (real_time_samples_timestamp)
-                real_time_start = real_time_samples_timestamp - (n_real_time_samples-1) * real_time_samples_interval;
-            else
-                real_time_start = now;
-
-            if (plot_start > real_time_start)
-                real_time_start = plot_start;
-
-            archive_start = plot_start;
-            archive_end = Math.min(real_time_start, plot_end);
-            archive_limit = Math.ceil((archive_end - archive_start) / interval);
-
-            min_gap = Math.max(2*60*1000, 2*interval);
-
-            if (archive_limit > 0) {
-                archive_index = 0;
-
-                archive_channel = channel_sampler($.extend({ source: "pcp-archive",
-                                                             interval: interval,
-                                                             timestamp: -x_range - x_offset,
-                                                             limit: archive_limit
-                                                           }, chanopts),
-                                                  function (vals) {
-                                                      var i, gap, del;
-
-                                                      if (!result.archives) {
-                                                          result.archives = true;
-                                                          $(result).triggerHandler("changed");
-                                                      }
-
-                                                      for (i = 0; i < vals.length; i++) {
-                                                          if (vals[i][0] > archive_end) {
-                                                              vals.length = i;
-                                                              break;
-                                                          }
-                                                      }
-                                                      if (vals.length > 0) {
-                                                          del = 0;
-                                                          if (archive_index > 0) {
-                                                              gap = vals[0][0] - series_data[archive_index-1][0];
-                                                              if (gap < min_gap)
-                                                                  del = 1;
-                                                          }
-                                                          Array.prototype.splice.apply(series_data, [archive_index-del, del].concat(vals));
-                                                          archive_index += vals.length - del;
-                                                          gap = real_time_start - vals[vals.length-1][0];
-                                                          if (gap > min_gap) {
-                                                              series_data.splice(archive_index, 0, [ vals[vals.length-1][0], null ]);
-                                                              archive_index += 1;
-                                                          } else if (archive_index == series_data.length) {
-                                                              series_data.splice(archive_index, 0, [ real_time_start, vals[vals.length-1][1] ]);
-                                                              archive_index += 1;
-                                                          }
-                                                          refresh();
-                                                      }
-                                                  });
-                $(archive_channel).on("close", function (event, message) {
-                    archive_channel = null;
-                    trim_series();
-                    refresh();
-
-                    /* If no archived data was available within the time frame, check for presence of any */
-                    if (!result.archives) {
-                        var lookup = cockpit.channel($.extend({ source: "pcp-archive", limit: 1 }, chanopts));
-                        $(lookup)
-                            .on("message", function() {
-                                result.archives = true;
-                                lookup.close();
-                            })
-                            .on("close", function() {
-                                $(result).triggerHandler("changed");
-                            });
-                    }
-                });
-            }
-
-            for (var t = real_time_start; t <= plot_end; t += interval) {
-                var val = sample_real_time(t - interval, t);
-                if (val !== null)
-                    series_data[series_data.length] = [ t, val ];
-            }
+            sync();
         }
 
         reset_series();
         add_series();
-
-        function process_samples(vals) {
-            real_time_samples_pos += 1;
-            if (real_time_samples_pos >= max_real_time_samples)
-                real_time_samples_pos = 0;
-            else
-                n_real_time_samples += 1;
-            real_time_samples[real_time_samples_pos] = vals[0][1];
-            real_time_samples_timestamp = vals[0][0];
-        }
-
-        function channel_closed(ev, options, desc) {
-            real_time_channel = null;
-            if (options.problem &&
-                options.problem != "terminated" &&
-                options.problem != "disconnected" &&
-                options.problem != "authentication-failed") {
-                console.log("problem retrieving " + desc + " metrics data: " + options.problem);
-            }
-        }
-
-        real_time_channel = channel_sampler($.extend({ }, chanopts, {
-            source: "direct",
-            interval: real_time_samples_interval
-        }), process_samples);
-        $(real_time_channel).on("close", function (event, options) {
-
-            /* Go for the fallback internal metrics if these metrics are not supported */
-            if ((options.problem == "not-supported" || options.problem == "not-found") && fallback) {
-                real_time_channel = channel_sampler($.extend({ }, chanopts, {
-                    source: "internal",
-                    interval: real_time_samples_interval,
-                    metrics: fallback
-                }), process_samples);
-                $(real_time_channel).on("close", function(event, options) {
-                    channel_closed(event, options, "internal");
-                });
-
-            /* Otherwise it could be just a normal failure */
-            } else {
-                channel_closed(event, options, "real time");
-            }
-        });
-
-        function sample_real_time(t1, t2) {
-            var p1 = Math.min(Math.floor((t1 - real_time_samples_timestamp) / real_time_samples_interval), 0);
-            var p2 = Math.min(Math.ceil((t2 - real_time_samples_timestamp) / real_time_samples_interval), 0);
-
-            if (-p1 >= n_real_time_samples)
-                p1 = -n_real_time_samples + 1;
-
-            if (p1 > p2)
-                return null;
-
-            var sum = 0;
-            for (var i = p1; i <= p2; i++) {
-                var p = real_time_samples_pos+i;
-                if (p > max_real_time_samples)
-                    p -= max_real_time_samples;
-                sum += real_time_samples[p];
-            }
-            return sum / (p2-p1+1);
-        }
 
         return self;
     }
@@ -893,12 +698,15 @@ shell.setup_plot_controls = function setup_plot_controls(container, element, plo
             if (plot_x_stop === undefined)
                 p.start_walking();
 
-            $(p).on("changed", function() {
+            function check_archives() {
                 if (p.archives) {
                     container.addClass('show-zoom-controls');
                     update_selection_zooming();
                 }
-            });
+            }
+
+            $(p).on("changed", check_archives);
+            check_archives();
         });
 
         update_plot_buttons();

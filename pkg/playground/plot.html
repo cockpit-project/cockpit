@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Cockpit Plots</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
+    <script src="../base1/require.js"></script>
+</head>
+<body hidden>
+  <div class="container-fluid">
+    <h1>Plots</h1>
+
+    <div id="toolbar" class="zoom-controls">
+      <div class="dropdown" style="display:inline-block">
+        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+          <span style="width:6em;text-align:left;padding-left:5px;display:inline-block"></span>
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+          <li role="presentation"><a role="menuitem" tabindex="-1" data-action="goto-now">Go to now</a></li>
+          <li role="presentation" class="divider"></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1" data-range="300">5 minutes</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1" data-range="3600">1 hour</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1" data-range="21600">6 hours</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1" data-range="86400">1 day</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1" data-range="604800">1 week</a></li>
+        </ul>
+      </div>
+      <button class="btn btn-default" data-action="zoom-out">
+        <span class="glyphicon glyphicon-zoom-out"></span>
+      </button>
+      <div class="btn-group">
+        <button class="btn btn-default fa fa-angle-left" data-action="scroll-left"></button>
+        <button class="btn btn-default fa fa-angle-right" data-action="scroll-right"></button>
+      </div>
+    </div>
+
+    <div id="plot"    class="zoomable-plot" style="height:200px"></div>
+  </div>
+  <script>
+require([
+    'jquery',
+    'base1/cockpit',
+    'shell/shell',
+    'shell/plot'
+], function($, cockpit, shell) {
+
+    var plot = shell.plot($('#plot'), 300);
+    plot.set_options(shell.plot_simple_template());
+    plot.add_metrics_sum_series({ direct: [ "mem.util.used" ]
+                                }, { });
+    $(function () {
+        $("body").show();
+        plot.resize();
+
+        var plot_controls = shell.setup_plot_controls($('body'), $('#toolbar'));
+        plot_controls.reset([ plot ]);
+    });
+
+});
+  </script>
+</body>
+</html>

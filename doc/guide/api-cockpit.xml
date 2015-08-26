@@ -1940,7 +1940,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-metrics">
       <title>cockpit.metrics()</title>
 <programlisting>
-  metrics = cockpit.metrics(interval, options)
+  metrics = cockpit.metrics(interval, options, cache)
 </programlisting>
 
       <para>Opens a new metrics channel. The data retrieved will be available in the
@@ -1950,30 +1950,52 @@ handle = file.watch(callback);
       <para>The <code>interval</code> is in milliseconds, and is the granularity of the series data
         retrieved. Any grids consuming the data must have the same interval.</para>
 
-      <para>The options argument is a javascript plain object with the following fields.
-        The <code>"source"</code> and <code>"metrics"</code> options are required.</para>
+      <para>The <code>cache</code> argument is a cache identifier. If
+      specified, then this metrics channel will share data with other
+      metrics channels of the same identifier. Make sure to use a
+      globally unique string.</para>
+
+      <para>The <code>options</code> argument is either a javascript
+      plain object, or an array of those.  Each object can have the
+      following fields.</para>
 
       <variablelist>
         <varlistentry>
-          <term><code>"cache"</code></term>
-          <listitem><para>A cache identifier. If set, then this metrics channel will share data
-            with other metrics channels of the same identifier. Make sure to use a globally
-            unique string.</para></listitem>
-        </varlistentry>
-        <varlistentry>
           <term><code>"metrics"</code></term>
-          <listitem><para>An array of metrics names to retrieve. Or an array of full metric
-            descriptions, as javascript objects. The specifics of these, and how to determine
-            which ones to use, are unfortunately not yet documented.</para></listitem>
+          <listitem><para>An array of full metric descriptions, as
+          javascript objects. The specifics of these, and how to
+          determine which ones to use, can unfortunately only be found
+          in the low-level protocol documentation. This option is
+          required.</para></listitem>
         </varlistentry>
         <varlistentry>
           <term><code>"source"</code></term>
-          <listitem><para>Set to <code>"internal"</code> to retrieve internal metrics read
-            by the bridge. If set to <code>"direct"</code> or <code>"pmcd"</code> then data
-            will be retrieved from <ulink url="http://pcp.io">PCP</ulink>if it is
-            available.</para></listitem>
+          <listitem><para>The source to use for real-time data.  This
+          is used by the <code>follow</code> method, see below.  Set
+          to <code>"internal"</code> to retrieve internal metrics read
+          by the bridge. If set to <code>"direct"</code> or
+          <code>"pmcd"</code> then data will be retrieved from <ulink
+          url="http://pcp.io">PCP</ulink>if it is available. The
+          default is <code>"internal"</code>.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>"archive_source"</code></term>
+          <listitem><para>The source to use for retrieving historical
+          data.  This is used by the <code>fetch</code> method, see
+          below.  Set to <code>"pcp-archive"</code> to retrieve data
+          from PCP archives.  The default is not to try to retrieve
+          historical data.</para></listitem>
         </varlistentry>
       </variablelist>
+
+      <para>When the <code>options</code> argument is an array of
+      javascrip objects, then the metrics channel tries to use them in
+      order until one succeeds.  This way, you can prefer PCP as the
+      source but fall back to internal metrics when PCP is not
+      available, for example.  The channel gives no indication which
+      of the options has been used, and <code>fetch</code> and
+      <code>follow</code> might use different entries from the
+      list.</para>
     </refsection>
 
     <refsection id="cockpit-metrics-fetch">

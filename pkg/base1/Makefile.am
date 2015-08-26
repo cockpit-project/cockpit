@@ -85,6 +85,7 @@ base_TESTS = \
 	pkg/base1/test-locale.html \
 	pkg/base1/test-format.html \
 	pkg/base1/test-file.html \
+	pkg/base1/test-metrics.html \
 	pkg/base1/test-user.html \
 	pkg/base1/test-time.html \
 	pkg/base1/test-permissions.html \

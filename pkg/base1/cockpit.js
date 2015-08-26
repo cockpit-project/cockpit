@@ -3339,6 +3339,24 @@ function full_scope(cockpit, $, po) {
         };
 
         self.walk = function walk() {
+            /* Don't overflow 32 signed bits with the interval since
+             * many browsers will mishandle it.  This means that plots
+             * that would make about one step every month don't walk
+             * at all, but I guess that is ok.
+             *
+             * For example,
+             * https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setTimeout
+             * says:
+             *
+             *    Browsers including Internet Explorer, Chrome,
+             *    Safari, and Firefox store the delay as a 32-bit
+             *    signed Integer internally. This causes an Integer
+             *    overflow when using delays larger than 2147483647,
+             *    resulting in the timeout being executed immediately.
+             */
+            if (self.interval > 2000000000)
+                return;
+
             stop_walking();
             offset = $.now() - self.beg * self.interval;
             walking = window.setInterval(function() {

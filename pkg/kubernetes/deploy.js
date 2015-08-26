@@ -396,6 +396,7 @@ define([
             $("#deploy-app-namespace").val('');
             $(".appentity").remove();
             nulecule_image.val('');
+            type_selector.prop('disabled',false);
             type_selector.val("manifest");
             type_selector.selectpicker('refresh');
 

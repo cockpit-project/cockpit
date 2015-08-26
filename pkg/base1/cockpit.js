@@ -2821,9 +2821,9 @@ function full_scope(cockpit, $, po) {
                             if (last) {
                                 data_len = data.length;
                                 last_len = last.length;
-                                for (j = 0; j < data_len; j++) {
+                                for (j = 0; j < last_len; j++) {
                                     dataj = data[j];
-                                    if (dataj === null) {
+                                    if (dataj === null || dataj === undefined) {
                                         data[j] = last[j];
                                     } else {
                                         dataj_len = dataj.length;

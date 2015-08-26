@@ -44,8 +44,7 @@ define([
         var install_dir = null;
 
         function create_tmp() {
-            var process = cockpit.spawn(['/bin/sh', '-s']).input("mktemp -p /tmp -d APP_ENTITY.XXXX");
-            return process;
+            return cockpit.spawn(['mktemp', '-p', '/tmp', '-d', 'APP_ENTITY.XXXX']);
         }
 
         function delete_tmp() {
@@ -117,9 +116,7 @@ define([
             var process = cockpit.spawn(["/usr/bin/atomic", "info", image])
                 .fail(function(ex) {
                     console.warn(ex);
-                    var message = _("The image is not a correctly labeled Nulecule image.");
-                    var err = new Error(message);
-                    dfd.reject(err);
+                    dfd.reject(new Error(_("The image is not a correctly labeled Nulecule image.")));
                 })
                 .done(function(data) {
                     versions = get_version(data);
@@ -127,15 +124,13 @@ define([
                     if (Object.keys(versions).length == 3) {
                         dfd.resolve(versions);
                     } else {
-                        var message = "This image is not a supported Nulecule image";
                         if (!versions.providers)
                            console.warn("This image does not contain io.projectatomic.nulecule.providers .");
                         else if (!versions.specversion)
                             console.warn("This image does not contain io.projectatomic.nulecule.specversion.");
                         else if (!versions.atomicappversion)
                             console.warn("This image does not contain io.projectatomic.nulecule.atomicappversion.");
-                        var err = new Error(message);
-                        dfd.reject(err);
+                        dfd.reject(new Error(_("This image is not a supported Nulecule image")));
                     }
                 })
                 .always(function(){

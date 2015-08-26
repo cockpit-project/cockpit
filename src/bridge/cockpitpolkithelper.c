@@ -29,6 +29,7 @@
 
 #include <sys/types.h>
 #include <err.h>
+#include <errno.h>
 #include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -92,6 +93,7 @@ main (int argc, char *argv[])
   size_t len;
   uid_t uid;
   int res;
+  int errn;
 
   signal (SIGPIPE, SIG_IGN);
 
@@ -138,13 +140,25 @@ main (int argc, char *argv[])
         break;
 
       fputs (challenge, stdout);
-      fputc ('\n', stdout);
-      fflush (stdout);
+      errn = errno;
       free (challenge);
+
+      if (!ferror (stdout))
+        {
+          fputc ('\n', stdout);
+          errn = errno;
+
+          if (!ferror (stdout))
+            {
+              fflush (stdout);
+              errn = errno;
+            }
+        }
 
       if (ferror (stdout))
         {
-          warnx ("couldn't write to stdout");
+          if (errn != EPIPE)
+            warnx ("couldn't write to stdout: %s", strerror (errn));
           res = -1;
           break;
         }

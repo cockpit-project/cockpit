@@ -2812,12 +2812,18 @@ function full_scope(cockpit, $, po) {
             var beg;
 
             $(channel)
-                .on("close", function(ev, options) {
-                    if (options.problem &&
-                        options.problem != "terminated" &&
-                        options.problem != "disconnected" &&
-                        options.problem != "authentication-failed") {
-                        console.warn("metrics channel failed: " + options.problem);
+                .on("close", function(ev, close_options) {
+                    if (close_options.problem) {
+                        if (close_options.problem != "terminated" &&
+                            close_options.problem != "disconnected" &&
+                            close_options.problem != "authentication-failed") {
+                            console.warn("metrics channel failed: " + close_options.problem);
+                        }
+                    } else if (options.source == "pcp-archive") {
+                        if (!self.archives) {
+                            self.archives = true;
+                            $(self).triggerHandler('changed');
+                        }
                     }
                 })
                 .on("message", function(ev, payload) {

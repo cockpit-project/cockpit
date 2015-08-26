@@ -113,7 +113,7 @@ define([
             var dfd = $.Deferred();
             var versions = {};
             debug("checking nulecule specversion");
-            var process = cockpit.spawn(["/usr/bin/atomic", "info", image])
+            var process = cockpit.spawn(["/usr/bin/atomic", "info", image], { superuser: true })
                 .fail(function(ex) {
                     console.warn(ex);
                     dfd.reject(new Error(_("The image is not a correctly labeled Nulecule image.")));

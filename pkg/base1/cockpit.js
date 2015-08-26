@@ -2781,18 +2781,13 @@ function full_scope(cockpit, $, po) {
             throw "invalid date or offset";
     }
 
-    function MetricsChannel(interval, options) {
+    function MetricsChannel(interval, options_list, cache) {
         var self = this;
 
-        options = $.extend({
-            payload: "metrics1",
-            interval: interval,
-            source: "internal"
-        }, options);
+        if (options_list.length === undefined)
+            options_list = [ options_list ];
 
-        self.options = options;
         var channels = [ ];
-        var host = options.host || "";
 
         /*
          * TODO: Provide a fetch function to the series. This should be
@@ -2800,10 +2795,20 @@ function full_scope(cockpit, $, po) {
          * via follow().
          */
 
-        self.series = cockpit.series(interval, options.cache);
-        delete options.cache;
+        self.series = cockpit.series(interval, cache);
 
-        function transfer(options, callback) {
+        function transfer(options_list, callback, is_archive) {
+            if (options_list.length === 0)
+                return;
+
+            var options = $.extend({
+                payload: "metrics1",
+                interval: interval,
+                source: "internal"
+            }, options_list[0]);
+
+            delete options.archive_source;
+
             var channel = cockpit.channel(options);
             channels.push(channel);
 
@@ -2813,13 +2818,16 @@ function full_scope(cockpit, $, po) {
 
             $(channel)
                 .on("close", function(ev, close_options) {
-                    if (close_options.problem) {
+                    if (options_list.length > 1 &&
+                        (close_options.problem == "not-supported" || close_options.problem == "not-found")) {
+                        transfer(options_list.slice(1), callback);
+                    } else if (close_options.problem) {
                         if (close_options.problem != "terminated" &&
                             close_options.problem != "disconnected" &&
                             close_options.problem != "authentication-failed") {
                             console.warn("metrics channel failed: " + close_options.problem);
                         }
-                    } else if (options.source == "pcp-archive") {
+                    } else if (is_archive) {
                         if (!self.archives) {
                             self.archives = true;
                             $(self).triggerHandler('changed');
@@ -2905,19 +2913,25 @@ function full_scope(cockpit, $, po) {
         }
 
         self.fetch = function fetch(beg, end) {
-            var opts = $.extend({ }, self.options, {
-                timestamp: timestamp(beg, interval),
-                limit: end - beg
-            });
-            if (opts.source == "direct")
-                opts.source = "pcp-archive";
-            transfer(opts, drain);
+            var ts = timestamp(beg, interval);
+            var limit = end - beg;
+
+            var archive_options_list = [ ];
+            for (var i = 0; i < options_list.length; i++) {
+                if (options_list[i].archive_source) {
+                    archive_options_list.push($.extend({}, options_list[i],
+                                                       { "source": options_list[i].archive_source,
+                                                         timestamp: ts,
+                                                         limit: limit
+                                                       }));
+                }
+            }
+
+            transfer(archive_options_list, drain, true);
         };
 
         self.follow = function follow() {
-            var opts = $.extend({ }, self.options);
-            delete opts.limit;
-            transfer(opts, drain);
+            transfer(options_list, drain);
         };
 
         self.close = function close(options) {

@@ -28,6 +28,16 @@
 
 #define DEBUG_BATCHES 1
 
+/* While debugging a problem, disable the GSlice memory allocator */
+#undef g_slice_new
+#define g_slice_new(type) (g_malloc (sizeof (type)))
+
+#undef g_slice_new0
+#define g_slice_new0(type) (g_malloc0 (sizeof (type)))
+
+#undef g_slice_free
+#define g_slice_free(type, x) (g_free (x))
+
 /*
  * This is a cache of properties which tracks updates. The best way to do
  * this is via ObjectManager. But it also does introspection and uses that

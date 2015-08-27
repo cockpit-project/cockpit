@@ -29,12 +29,9 @@
 
 %define _hardened_build 1
 
+%define libssh_version 0.7.1
+%if 0%{?fedora} > 0 && 0%{?fedora} < 22
 %define libssh_version 0.6.0
-%if 0%{?fedora} > 0 && 0%{?fedora} >= 22
-%define libssh_version 0.7.1
-%endif
-%if 0%{?rhel}
-%define libssh_version 0.7.1
 %endif
 
 Name:           cockpit

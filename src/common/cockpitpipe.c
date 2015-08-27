@@ -1065,14 +1065,14 @@ cockpit_pipe_pty (const gchar **argv,
     {
       if (cockpit_unix_fd_close_all (3, -1) < 0)
         {
-          g_printerr ("couldn't close file descriptors");
+          g_printerr ("couldn't close file descriptors\n");
           _exit (127);
         }
       if (directory)
         {
           if (chdir (directory) < 0)
             {
-              g_printerr ("couldn't change to directory: %s", g_strerror (errno));
+              g_printerr ("couldn't change to directory: %s\n", g_strerror (errno));
               _exit (127);
             }
         }
@@ -1083,7 +1083,7 @@ cockpit_pipe_pty (const gchar **argv,
         execvpe (argv[0], (char *const *)argv, (char *const *)env);
       else
         execvp (argv[0], (char *const *)argv);
-      g_printerr ("couldn't execute: %s: %s", argv[0], g_strerror (errno));
+      g_printerr ("couldn't execute: %s: %s\n", argv[0], g_strerror (errno));
       _exit (127);
     }
   else if (pid == 0)

@@ -279,9 +279,11 @@ environ_find (gchar **env,
 }
 
 static gchar **
-parse_environ (JsonObject *options)
+parse_environ (JsonObject *options,
+               const gchar *directory)
 {
   gchar **envset = NULL;
+  gboolean had_pwd = FALSE;
   gsize length;
   gchar **env;
   gint i, x;
@@ -297,6 +299,8 @@ parse_environ (JsonObject *options)
 
   for (i = 0; envset && envset[i] != NULL; i++)
     {
+      if (g_str_equal (envset[i], "PWD"))
+        had_pwd = TRUE;
       x = environ_find (env, envset[i]);
       if (x != -1)
         {
@@ -311,6 +315,14 @@ parse_environ (JsonObject *options)
           length++;
         }
     }
+
+  /*
+   * The kernel only knows about the inode of the current directory.
+   * So when we spawn a shell, it won't know the directory it's
+   * meant to display. Pass it the path we care about in $PWD
+   */
+  if (!had_pwd && directory)
+    env = g_environ_setenv (env, "PWD", directory, TRUE);
 
   g_free (envset);
   return env;
@@ -370,7 +382,7 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
           g_warning ("invalid \"pty\" option for stream channel");
           goto out;
         }
-      env = parse_environ (options);
+      env = parse_environ (options, dir);
       if (!env)
         goto out;
       if (pty)

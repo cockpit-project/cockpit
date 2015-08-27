@@ -535,6 +535,16 @@ systemctl start docker
                                     "We are no longer a registered authentication agent."
                                     )
 
+    def allow_authorize_journal_messages(self):
+        self.allow_journal_messages("cannot reauthorize identity.*:.*unix-user:admin.*",
+                                    "Error executing command as another user: Not authorized",
+                                    "This incident has been reported.",
+                                    ".*: a password is required",
+                                    "user user was reauthorized"
+                                    ".*: sorry, you must have a tty to run sudo"
+                                    )
+
+
     def check_journal_messages(self, machine=None):
         """Check for unexpected journal entries."""
         machine = machine or self.machine

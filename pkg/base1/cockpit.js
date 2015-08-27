@@ -2848,7 +2848,6 @@ function full_scope(cockpit, $, po) {
                     var message_len = message.length;
                     if (message_len === undefined) {
                         meta = message;
-                        last = null;
                         beg = Math.floor((meta.timestamp || 0) / interval);
                         callback(beg, meta, null);
 

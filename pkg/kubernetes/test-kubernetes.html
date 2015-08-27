@@ -227,7 +227,8 @@ function deparam(query) {
       var pair = vars[i].split("=");
       var k = decodeURIComponent(pair[0]);
       var v = decodeURIComponent(pair[1]);
-      if (typeof parsed[k] === "undefined") {
+      if (typeof parsed[k] === "undefined" ||
+          typeof parsed[k] === "function") {
           if (k.substr(k.length - 2) != '[]')
               parsed[k] = v;
           else
@@ -309,29 +310,30 @@ function kube_apiserver(req) {
     var parts = path.substring(1).split("/");
 
     /* The API check */
-    if (parts.length == 1 && parts[0] == "api") {
+    if (parts.length == 1 && (parts[0] == "api" || parts[0] != "oapi")) {
         req.mock_respond(200, "OK", { }, JSON.stringify({
             versions: [ "v1" ]
         }));
         return true;
     }
 
-    if (parts[0] != "api" && parts[1] != "v1")
+    if (parts[0] != "api" && parts[0] != "oapi" && parts[1] != "v1")
         return false;
 
+    base_uri = "/" + parts.slice(0, 2).join("/");
     parts = parts.slice(2);
 
     if (req.method === "POST") {
-        return kube_api_post(req, parts, query);
+        return kube_api_post(req, parts, query, base_uri);
     } else if (req.method === "GET") {
-        return kube_api_get(req, parts, query);
+        return kube_api_get(req, parts, query, base_uri);
     } else {
         req.mock_respond(405, "Unsupported method");
         return true;
     }
 }
 
-function kube_api_get(req, parts, query) {
+function kube_api_get(req, parts, query, base_uri) {
     var resourceVersion = null;
 
     /* Figure out if this is a watch */
@@ -367,7 +369,7 @@ function kube_api_get(req, parts, query) {
         }
 
         var copy = $.extend(true, { }, item);
-        copy.selfLink = "/api/v1/" + key;
+        copy.selfLink = base_uri + "/" + key;
         copy.apiVersion = "v1";
         return copy;
     }
@@ -391,7 +393,12 @@ function kube_api_get(req, parts, query) {
     } else if (what == "events") {
         regexp = /namespaces\/.+\/events\//;
         kind = "EventList";
-
+    } else if (what == "images") {
+        req.mock_respond(404, "OK", { "Content-Type": "text/plain; charset=utf-8" });
+        return;
+    } else if (what == "imagestreams") {
+        regexp = /namespaces\/.+\/imagestreams\//;
+        kind = "ImageStreamList";
     /* Nothing found */
     } else {
         return false;
@@ -443,7 +450,7 @@ function kube_api_get(req, parts, query) {
         respond_get();
 }
 
-function kube_api_post(req, parts, query) {
+function kube_api_post(req, parts, query, base_uri) {
     var namespace;
     var section;
 
@@ -1117,6 +1124,39 @@ require([
             equal(results.items.length, 1, "selected hosted pods");
             equal(results.items[0].metadata.name, "wordpress", "got wordpress pod");
 
+            client.close();
+            start();
+        });
+    });
+
+
+
+    asyncTest("list images", function() {
+        expect(3);
+
+        var client = kubernetes.k8client();
+        equal(client.watches.images, undefined, "no image watcher");
+        client.include("images");
+        notEqual(client.watches.images, undefined, "watcher created");
+        client.watches.images.wait().always(function() {
+            var images = client.select("Image");
+            equal(images.items.length, 0, "number of images");
+            client.close();
+            start();
+        });
+    });
+
+    asyncTest("list imagestreams", function() {
+        expect(3);
+
+        var client = kubernetes.k8client();
+        client.include("imagestreams");
+        client.watches.imagestreams.wait().always(function() {
+            var streams = client.select("ImageStream");
+            equal(streams.items.length, 1, "number of imagestreams");
+            var stream = streams["c216455b-4cc5-11e5-8a7f-0e5582eacc27"];
+            equal(typeof stream, "object", "found imagestream")
+            equal(stream.metadata.name, "mock-image-stream", "imagestream name");
             client.close();
             start();
         });

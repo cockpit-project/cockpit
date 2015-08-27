@@ -26,6 +26,8 @@
 
 #include <string.h>
 
+#define DEBUG_BATCHES 1
+
 /*
  * This is a cache of properties which tracks updates. The best way to do
  * this is via ObjectManager. But it also does introspection and uses that
@@ -135,6 +137,9 @@ typedef struct {
 typedef struct {
   gint refs;
   guint number;
+#if DEBUG_BATCHES
+  GSList *debug;
+#endif
 } BatchData;
 
 static void
@@ -179,6 +184,19 @@ barrier_flush (CockpitDBusCache *self)
     }
 }
 
+#if DEBUG_BATCHES
+static void
+batch_dump (BatchData *batch)
+{
+  GSList *l;
+  g_printerr ("BATCH %u (refs %d)\n", batch->number, batch->refs);
+  batch->debug = g_slist_reverse (batch->debug);
+  for (l = batch->debug; l != NULL; l = g_slist_next (l))
+    g_printerr (" * %s\n", (gchar *)l->data);
+  batch->debug = g_slist_reverse (batch->debug);
+}
+#endif /* DEBUG_BATCHES */
+
 static void
 batch_progress (CockpitDBusCache *self)
 {
@@ -208,6 +226,9 @@ batch_progress (CockpitDBusCache *self)
           g_hash_table_unref (update);
         }
 
+#if DEBUG_BATCHES
+      g_slist_foreach (batch->debug, (GFunc)g_free, NULL);
+#endif
       g_slice_free (BatchData, batch);
       barrier_progress (self);
     }
@@ -239,23 +260,45 @@ batch_create (CockpitDBusCache *self)
 }
 
 static BatchData *
-batch_ref (BatchData *batch)
+_batch_ref (BatchData *batch,
+            const gchar *function,
+            gint line)
 {
   g_assert (batch != NULL);
   batch->refs++;
+#if DEBUG_BATCHES
+  batch->debug = g_slist_prepend (batch->debug, g_strdup_printf (" * ref -> %d %s:%d",
+                                                                 batch->refs, function, line));
+#endif
   return batch;
 }
 
+#define batch_ref(batch) \
+  (_batch_ref((batch), G_STRFUNC, __LINE__))
+
 static void
-batch_unref (CockpitDBusCache *self,
-             BatchData *batch)
+_batch_unref (CockpitDBusCache *self,
+              BatchData *batch,
+              const gchar *function,
+              gint line)
 {
   g_assert (batch != NULL);
+#if DEBUG_BATCHES
+  if (!(batch->refs > 0))
+      batch_dump (batch);
+#endif
   g_assert (batch->refs > 0);
   batch->refs--;
+#if DEBUG_BATCHES
+  batch->debug = g_slist_prepend (batch->debug, g_strdup_printf (" * unref -> %d %s:%d",
+                                                                 batch->refs, function, line));
+#endif
 
   batch_progress (self);
 }
+
+#define batch_unref(self, batch) \
+  (_batch_unref((self), (batch), G_STRFUNC, __LINE__))
 
 static void
 cockpit_dbus_cache_init (CockpitDBusCache *self)

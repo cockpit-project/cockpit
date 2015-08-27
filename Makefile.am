@@ -124,11 +124,11 @@ valgrind-suppressions: $(VALGRIND_SUPPRESSIONS)
 
 check-memory: valgrind-suppressions
 	$(MAKE) LOG_FLAGS="-- valgrind $(VALGRIND_ARGS)" \
-		HTML_LOG_DRIVER_FLAGS="--missing=no-phantom-valgrind" \
+	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS) cockpit-bridge" \
 		$(AM_MAKEFLAGS) check
 recheck-memory: valgrind-suppressions
 	$(MAKE) LOG_FLAGS="-- valgrind $(VALGRIND_ARGS)" \
-		HTML_LOG_DRIVER_FLAGS="--missing=no-phantom-valgrind" \
+	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS) cockpit-bridge" \
 		$(AM_MAKEFLAGS) recheck
 
 SED_SUBST = sed \

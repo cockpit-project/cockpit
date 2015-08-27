@@ -241,6 +241,7 @@ batch_create (CockpitDBusCache *self)
 static BatchData *
 batch_ref (BatchData *batch)
 {
+  g_assert (batch != NULL);
   batch->refs++;
   return batch;
 }
@@ -1248,7 +1249,6 @@ process_get_all (CockpitDBusCache *self,
 
 static void
 process_removed_path (CockpitDBusCache *self,
-                      BatchData *batch,
                       const gchar *path)
 {
   GHashTable *interfaces;
@@ -1331,7 +1331,7 @@ process_get_managed_objects (CockpitDBusCache *self,
 
   g_hash_table_iter_init (&iter, snapshot);
   while (g_hash_table_iter_next (&iter, &path, NULL))
-    process_removed_path (self, batch, path);
+    process_removed_path (self, path);
   g_hash_table_unref (snapshot);
 }
 
@@ -1401,7 +1401,7 @@ process_introspect_children (CockpitDBusCache *self,
   /* Anything remaining in snapshot stays */
   g_hash_table_iter_init (&iter, snapshot);
   while (g_hash_table_iter_next (&iter, &path, NULL))
-    process_removed_path (self, batch, path);
+    process_removed_path (self, path);
   g_hash_table_unref (snapshot);
 }
 

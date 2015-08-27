@@ -86,7 +86,8 @@ cockpit_pcp_metrics_init (CockpitPcpMetrics *self)
 }
 
 static gboolean
-result_meta_equal (pmResult *r1,
+result_meta_equal (CockpitPcpMetrics *self,
+                   pmResult *r1,
                    pmResult *r2)
 {
   pmValueSet *vs1;
@@ -96,13 +97,17 @@ result_meta_equal (pmResult *r1,
   /* PCP guarantees that the result ids are same as requested */
   for (i = 0; i < r1->numpmid; i++)
     {
+      /* We only care about instanced metrics.
+       */
+      if (self->metrics[i].desc.indom == PM_INDOM_NULL)
+        continue;
+
       vs1 = r1->vset[i];
       vs2 = r2->vset[i];
 
       g_assert (vs1 && vs2);
 
-      if (vs1->numval != vs2->numval ||
-          vs1->valfmt != vs2->valfmt)
+      if (vs1->numval != vs2->numval)
         return FALSE;
 
       for (j = 0; j < vs1->numval; j++)
@@ -242,7 +247,7 @@ build_meta_if_necessary (CockpitPcpMetrics *self,
        * another when the set of instances in the results change.
        */
 
-      if (result_meta_equal (self->last, result))
+      if (result_meta_equal (self, self->last, result))
         return NULL;
     }
 

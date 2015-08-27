@@ -36,6 +36,7 @@
 static GMainLoop *loop = NULL;
 static int exit_code = 0;
 static gint server_port = 0;
+static gchar **bridge_argv;
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -232,11 +233,6 @@ on_handle_stream_socket (CockpitWebServer *server,
   gchar *value;
   gchar **env;
 
-  const gchar *argv[] = {
-    "cockpit-bridge",
-    NULL,
-  };
-
   if (!g_str_has_prefix (path, "/socket"))
     return FALSE;
 
@@ -255,7 +251,7 @@ on_handle_stream_socket (CockpitWebServer *server,
       env = g_environ_setenv (g_get_environ (), "COCKPIT_TEST_SERVER_PORT", value, TRUE);
 
       creds = cockpit_creds_new (g_get_user_name (), NULL);
-      pipe = cockpit_pipe_spawn (argv, (const gchar **)env, NULL, FALSE);
+      pipe = cockpit_pipe_spawn ((const gchar **)bridge_argv, (const gchar **)env, NULL, FALSE);
       transport = cockpit_pipe_transport_new (pipe);
       service = cockpit_web_service_new (creds, transport);
       cockpit_creds_unref (creds);
@@ -416,9 +412,15 @@ main (int argc,
   GOptionContext *context;
   guint sig_term;
   guint sig_int;
+  int i;
 
   GOptionEntry entries[] = {
     { NULL }
+  };
+
+  char *default_argv[] = {
+    "cockpit-bridge",
+    NULL
   };
 
   signal (SIGPIPE, SIG_IGN);
@@ -453,6 +455,21 @@ main (int argc,
       exit (2);
     }
 
+  /* Skip the program name */
+  argc--;
+  argv++;
+
+  if (argc == 0)
+    {
+      argc = 1;
+      argv = default_argv;
+    }
+
+  /* Null terminate the bridge command line */
+  bridge_argv = g_new0 (char *, argc + 1);
+  for (i = 0; i < argc; i++)
+    bridge_argv[i] = argv[i];
+
   loop = g_main_loop_new (NULL, FALSE);
 
   g_bus_own_name (G_BUS_TYPE_SESSION,
@@ -484,6 +501,7 @@ main (int argc,
 
   g_test_dbus_down (bus);
   g_object_unref (bus);
+  g_free (bridge_argv);
 
   return exit_code;
 }

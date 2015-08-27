@@ -144,16 +144,9 @@ class TestKeys(MachineCase):
         b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  1);
 
         self.allow_restart_journal_messages()
-        self.allow_journal_messages('cannot reauthorize identity(s): unix-user:admin ')
-        self.allow_journal_messages('Error executing command as another user: Not authorized')
-        self.allow_journal_messages('This incident has been reported.')
+        self.allow_authorize_journal_messages()
         self.allow_journal_messages('authorized_keys is not a public key file.')
         self.allow_journal_messages('Missing callback called fullpath = /home/user/.ssh/authorized_keys')
         self.allow_journal_messages('')
-        self.allow_journal_messages('cannot reauthorize identity\\(s\\): unix-user:admin ')
-        self.allow_journal_messages('Error executing command as another user: Not authorized')
-        self.allow_journal_messages('This incident has been reported.')
-        self.allow_journal_messages('sudo: a password is required')
-        self.allow_journal_messages('sudo: sorry, you must have a tty to run sudo')
 
 test_main()

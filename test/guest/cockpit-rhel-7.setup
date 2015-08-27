@@ -62,6 +62,8 @@ sssd \
 
 TEST_PACKAGES="\
 systemtap-runtime-virtguest \
+valgrind
+gdb
 "
 
 yum install --nogpgcheck -y $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES

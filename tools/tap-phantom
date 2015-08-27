@@ -26,30 +26,63 @@ var fs = require('fs');
 var child = require("child_process");
 
 var url = null;
-var server = null;
+var server = [];
 
-if (phantom.args.length == 1) {
-    url = sys.args[1];
-} else if (phantom.args.length == 2) {
-    server = sys.args[1];
-    url = sys.args[2];
-} else if (phantom.args.length == 3) {
-    /* strip prefix from url
-     * We need this to compensate for automake test generation behavior:
-     * The tests are called with the path (relative to the build directory) of the testfile,
-     * but from the build directory. Some tests make assumptions regarding the structure of the
-     * filename. In order to make sure that they receive the same name, regardless of actual
-     * build directory location, we need to strip that prefix (path from build to source directory)
-     * from the filename
-     */
-    server = sys.args[1];
-    prefix = sys.args[2];
-    url = sys.args[3];
-    if (url.indexOf(prefix) == 0)
-        url = url.slice(prefix.length);
-} else {
-    console.log('usage: tap-phantom [server [prefix]] file');
-    phantom.exit(2);
+/*
+ * Strip prefix from url
+ * We need this to compensate for automake test generation behavior:
+ * The tests are called with the path (relative to the build directory) of the testfile,
+ * but from the build directory. Some tests make assumptions regarding the structure of the
+ * filename. In order to make sure that they receive the same name, regardless of actual
+ * build directory location, we need to strip that prefix (path from build to source directory)
+ * from the filename
+ */
+var strip = "";
+
+var failed = false;
+
+var args = sys.args.slice(1);
+var arg, optmode = true;
+
+while (args.length > 0) {
+   arg = args.shift();
+   if (optmode) {
+       if (arg === "--") {
+           optmode = false;
+           continue;
+       } else if (arg.indexOf("-") !== 0) {
+           optmode = false;
+       } else if (arg.indexOf("--strip=") === 0) {
+           strip = arg.substring(9);
+       } else if (arg === "--strip") {
+           strip = args.shift();
+       } else {
+           sys.stderr.write("tap-phantom: invalid option: " + arg + "\n");
+           failed = true;
+           usage();
+       }
+   }
+   if (!optmode) {
+       if (args.length > 0) {
+           server.push(arg);
+       } else {
+           url = arg;
+           if (url.indexOf(strip) == 0)
+               url = url.slice(strip.length);
+       }
+   }
+}
+
+if (!failed) {
+    if (server.length > 0)
+        launch();
+    else
+        run(url);
+}
+
+function usage(code) {
+    sys.stderr.write('usage: tap-phantom [--strip=../] -- [server ...] file\n');
+    phantom.exit(code === undefined ? 2 : code);
 }
 
 function calc_srcdir()
@@ -127,29 +160,31 @@ function run(url) {
     });
 }
 
-if (server !== null) {
-    var prefix = "";
+function launch() {
     var running = false;
+    var buffer = "";
 
-    var proc = child.spawn(server, []);
+    var proc = child.spawn(server[0], server.slice(1));
+    if (proc.pid === 0) {
+       console.log("tap-phantom: couldn't spawn: " + server[0]);
+       phantom.exit(127);
+       return;
+    }
     proc.stdout.on("data", function(data) {
         if (running)
             return;
-        prefix = prefix + data;
-        var pos = prefix.indexOf('\n');
+        buffer = buffer + data;
+        var pos = buffer.indexOf('\n');
         if (pos >= 0) {
             running = true;
-            run(prefix.substring(0, pos) + "/" + url);
+            run(buffer.substring(0, pos) + "/" + url);
         }
     });
     proc.stderr.on("data", function(data) {
         sys.stderr.write(data);
     });
     proc.on("exit", function(code) {
-        console.log(server + " exited unsuccessfully");
+        console.log(server[0] + " exited unsuccessfully");
         phantom.exit(code);
     });
-
-} else {
-    run(url);
 }

@@ -921,6 +921,7 @@ pass_to_child (int signo)
 static const char *env_names[] = {
   "G_DEBUG",
   "G_MESSAGES_DEBUG",
+  "G_SLICE",
   NULL
 };
 

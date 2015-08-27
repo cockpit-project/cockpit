@@ -39,6 +39,10 @@
 #include <netinet/ip6.h>
 #include <ifaddrs.h>
 
+#include <sys/select.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+
 /*
  * HACK: We can't yet use g_test_expect_message() and friends.
  * They were pretty broken until GLib 2.40 if you have any debug
@@ -466,20 +470,165 @@ _cockpit_assert_bytes_eq_msg (const char *domain,
                                expect, exp_len);
 }
 
+/*
+ * This gdb code only works if /proc/sys/kernel/yama/ptrace_scope is set to zero
+ * See: https://wiki.ubuntu.com/SecurityTeam/Roadmap/KernelHardening#ptrace%20Protection
+ */
+
+static gboolean stack_trace_done = FALSE;
+
+static void
+stack_trace_sigchld (int signum)
+{
+  stack_trace_done = TRUE;
+}
+
+static void
+stack_trace (char **args)
+{
+  pid_t pid;
+  int in_fd[2];
+  int out_fd[2];
+  fd_set fdset;
+  fd_set readset;
+  struct timeval tv;
+  int sel, idx, state;
+  char buffer[256];
+  char c;
+
+  stack_trace_done = FALSE;
+  signal (SIGCHLD, stack_trace_sigchld);
+
+  if ((pipe (in_fd) == -1) || (pipe (out_fd) == -1))
+    {
+      perror ("unable to open pipe");
+      _exit (0);
+    }
+
+  pid = fork ();
+  if (pid == 0)
+    {
+      /* Save stderr for printing failure below */
+      int old_err = dup (2);
+      fcntl (old_err, F_SETFD, fcntl (old_err, F_GETFD) | FD_CLOEXEC);
+
+      close (0); dup (in_fd[0]);   /* set the stdin to the in pipe */
+      close (1); dup (out_fd[1]);  /* set the stdout to the out pipe */
+
+      execvp (args[0], args);      /* exec gdb */
+
+      /* Print failure to original stderr */
+      perror ("exec gdb failed");
+      _exit (0);
+    }
+  else if (pid == (pid_t) -1)
+    {
+      perror ("unable to fork");
+      _exit (0);
+    }
+
+  FD_ZERO (&fdset);
+  FD_SET (out_fd[0], &fdset);
+
+  write (in_fd[1], "backtrace\n", 10);
+  write (in_fd[1], "quit\n", 5);
+
+  idx = 0;
+  state = 0;
+
+  while (1)
+    {
+      readset = fdset;
+      tv.tv_sec = 1;
+      tv.tv_usec = 0;
+
+      sel = select (FD_SETSIZE, &readset, NULL, NULL, &tv);
+      if (sel == -1)
+        break;
+
+      if ((sel > 0) && (FD_ISSET (out_fd[0], &readset)))
+        {
+          if (read (out_fd[0], &c, 1))
+            {
+              switch (state)
+                {
+                case 0:
+                  if (c == '#')
+                    {
+                      state = 1;
+                      idx = 0;
+                      buffer[idx++] = c;
+                    }
+                  break;
+                case 1:
+                  buffer[idx++] = c;
+                  if ((c == '\n') || (c == '\r'))
+                    {
+                      buffer[idx] = 0;
+                      fprintf (stderr, "%s", buffer);
+                      state = 0;
+                      idx = 0;
+                    }
+                  break;
+                default:
+                  break;
+                }
+            }
+        }
+      else if (stack_trace_done)
+        break;
+    }
+
+  close (in_fd[0]);
+  close (in_fd[1]);
+  close (out_fd[0]);
+  close (out_fd[1]);
+  _exit (0);
+}
+
+static void
+gdb_stack_trace (void)
+{
+  pid_t pid;
+  gchar buf[16];
+  gchar *args[4] = { "gdb", "-p", buf, NULL };
+  int status;
+
+  sprintf (buf, "%u", (guint) getpid ());
+
+  pid = fork ();
+  if (pid == 0)
+    {
+      stack_trace (args);
+      _exit (0);
+    }
+  else if (pid == (pid_t) -1)
+    {
+      perror ("unable to fork gdb");
+      return;
+    }
+
+  waitpid (pid, &status, 0);
+}
+
 void
 cockpit_test_signal_backtrace (int sig)
 {
   void *array[16];
   size_t size;
 
-  // get void*'s for all entries on the stack
+  signal (sig, SIG_DFL);
+
+  /* Try to trace with gdb first */
+  gdb_stack_trace ();
+
+  /* In case above didn't work, print raw stack trace */
   size = backtrace (array, G_N_ELEMENTS (array));
 
-  // print out all the frames to stderr
+  /* print out all the frames to stderr */
   fprintf (stderr, "Error: signal %s:\n", strsignal (sig));
   backtrace_symbols_fd (array, size, STDERR_FILENO);
 
-  signal (sig, SIG_DFL);
   raise (sig);
 }
 

@@ -27,6 +27,16 @@ define([
     var kubernetes = { };
     var _ = cockpit.gettext;
 
+    var API_BASE_URIS = {
+        "kube" : "/api/v1",
+        "origin" : "/oapi/v1",
+    };
+
+    var TYPE_APIS = {
+        "images" : "origin",
+        "imagestreams" : "origin"
+    };
+
     function debug() {
         if (window.debugging == "all" || window.debugging == "kubernetes")
             console.debug.apply(console, arguments);
@@ -162,21 +172,22 @@ define([
 
     /*
      * KubernetesWatch:
-     * @type: a string like 'pods' or 'nodes'
+     * @kind: a string like 'Pod' or 'Node'
+     * @api_type: 'kube' or 'origin'
      * @update: invoked when ADDED or MODIFIED happens
      * @remove: invoked when DELETED happens
      *
      * Generates callbacks based on a Kubernetes watch.
      *
-     * Each KubernetesWatch object watches a single type of object
-     * in Kubernetes. The URI watched is /api/v1/watch/<type>
+     * Each KubernetesWatch object watches a single kind of object
+     * in Kubernetes.
      *
      * In addition to the above noted invocations of the callbacks,
      * if there is an ERROR, we restart the watch and invoke the
      * @remove callback with a null argument to indicate we are
      * starting over.
      */
-    function KubernetesWatch(type, update, remove) {
+    function KubernetesWatch(type, api_type, update, remove) {
         var self = this;
 
         /* Used to track the last resource for restarting query */
@@ -332,8 +343,9 @@ define([
             if (req)
                 return;
 
-            var uri = "/api/v1/watch/" + type;
             var full = true;
+            var uri = API_BASE_URIS[api_type] + "/watch/" + type;
+            var params = {};
 
             /*
              * If we have a last resource we can guarantee that we don't miss
@@ -341,7 +353,7 @@ define([
              * have to list everything again. Still watch at the same time though.
              */
             if (lastResource) {
-                uri += "?resourceVersion=" + encodeURIComponent(lastResource);
+                params["resourceVersion"] = lastResource;
                 full = false;
             }
 
@@ -355,7 +367,7 @@ define([
                 blocked = true;
             }, 1000);
 
-            req = api.get(uri)
+            req = api.get(uri, params)
                 .stream(handle_watch)
                 .response(function() {
                     load_begin(full);
@@ -366,6 +378,7 @@ define([
                 .fail(function(ex, response) {
                     if (stopping)
                         return;
+
                     update_error_message(ex, response);
                     var msg = "watching kubernetes " + type + " failed: " + ex;
                     if (ex.problem !== "disconnected")
@@ -374,7 +387,9 @@ define([
                         debug(msg);
                     if (loaded.state() == 'pending')
                         loaded.reject(ex);
-                    start_watch_later();
+
+                    if (ex.status != 404)
+                        start_watch_later();
                 })
                 .done(function(data) {
                     if (stopping)
@@ -672,12 +687,32 @@ define([
             return connected;
         };
 
+        /*
+         * include:
+         * @type: The type of watch to add
+         *
+         * Adds a watcher for a given type.
+         */
+        self.include = function include (type) {
+
+            var api_type = TYPE_APIS[type] || "kube";
+
+            if (!self.watches[type]) {
+                self.watches[type] = new KubernetesWatch(type, api_type,
+                                                         handle_updated,
+                                                         handle_removed);
+                if (connected) {
+                    connected.done(function(http) {
+                        self.watches[type].start(http);
+                    });
+                }
+            }
+        };
+
         /* The watch objects we have open */
-        self.watches = { "events": new KubernetesWatch("events", handle_event, handle_removed) };
+        self.watches = { "events": new KubernetesWatch("events", "kube", handle_event, handle_removed) };
         [ "nodes", "pods", "services", "replicationcontrollers",
-          "namespaces", "endpoints" ].forEach(function(type) {
-            self.watches[type] = new KubernetesWatch(type, handle_updated, handle_removed);
-        });
+          "namespaces", "endpoints" ].forEach(self.include);
 
         /*
          * request:

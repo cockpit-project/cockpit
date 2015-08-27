@@ -512,13 +512,15 @@ stack_trace (char **args)
       int old_err = dup (2);
       fcntl (old_err, F_SETFD, fcntl (old_err, F_GETFD) | FD_CLOEXEC);
 
-      close (0); dup (in_fd[0]);   /* set the stdin to the in pipe */
-      close (1); dup (out_fd[1]);  /* set the stdout to the out pipe */
-
-      execvp (args[0], args);      /* exec gdb */
-
-      /* Print failure to original stderr */
-      perror ("exec gdb failed");
+      if (dup2 (in_fd[0], 0) < 0 || dup2 (out_fd[1], 1) < 0)
+        {
+          perror ("dup fds failed");
+        }
+      else
+        {
+          execvp (args[0], args);
+          perror ("exec gdb failed");
+        }
       _exit (0);
     }
   else if (pid == (pid_t) -1)
@@ -530,8 +532,12 @@ stack_trace (char **args)
   FD_ZERO (&fdset);
   FD_SET (out_fd[0], &fdset);
 
-  write (in_fd[1], "backtrace\n", 10);
-  write (in_fd[1], "quit\n", 5);
+  if (write (in_fd[1], "backtrace\n", 10) != 10 ||
+      write (in_fd[1], "quit\n", 5) != 5)
+    {
+      perror ("unable to send commands to gdb");
+      _exit (0);
+    }
 
   idx = 0;
   state = 0;

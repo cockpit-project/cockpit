@@ -78,6 +78,7 @@ BuildRequires: glib2-devel >= 2.37.4
 BuildRequires: systemd-devel
 BuildRequires: polkit
 BuildRequires: pcp-libs-devel
+BuildRequires: gdb
 
 %if %{defined gitcommit}
 BuildRequires: npm

@@ -344,6 +344,8 @@ cockpit_metrics_send_meta (CockpitMetrics *self,
                            JsonObject *meta,
                            gboolean reset)
 {
+  cockpit_metrics_flush_data (self);
+
   if (self->priv->next_meta)
     json_object_unref (self->priv->next_meta);
   self->priv->next_meta = json_object_ref (meta);

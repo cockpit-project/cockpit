@@ -64,6 +64,7 @@ function step(result) {
 }
 
 function finish(result) {
+    input = null;
     if (ops.amd) {
         if (ops.api)
             result += "\nreturn " + ops.api + "; ";
@@ -78,7 +79,6 @@ function finish(result) {
         process.exit(0);
     } else {
         fs.writeFile(ops.output, result, function(err) {
-            input = null;
             if (err)
                 fatal(err.message);
             process.exit(0);

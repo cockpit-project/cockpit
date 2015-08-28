@@ -572,8 +572,8 @@ require([
         var client = kubernetes.k8client();
         client.watches.nodes.wait().always(function() {
             var nodes = client.select("Node");
-            ok("f530580d-a169-11e4-8651-10c37bdb8410" in nodes, "found node");
-            var node = nodes["f530580d-a169-11e4-8651-10c37bdb8410"];
+            ok("Node:f530580d-a169-11e4-8651-10c37bdb8410" in nodes, "found node");
+            var node = nodes["Node:f530580d-a169-11e4-8651-10c37bdb8410"];
             equal(node.metadata.name, "127.0.0.1", "localhost node");
             equal(typeof node.spec.capacity, "object", "node has resources");
 
@@ -589,7 +589,7 @@ require([
         client.watches.pods.wait().always(function() {
             var pods = client.select("Pod");
             equal(pods.items.length, 2, "number of pods");
-            var pod = pods["11768037-ab8a-11e4-9a7c-080027300d85"];
+            var pod = pods["Pod:11768037-ab8a-11e4-9a7c-080027300d85"];
             equal(typeof pod, "object", "found pod")
             equal(pod.metadata.labels.name, "apache", "pod has label");
 
@@ -612,7 +612,7 @@ require([
             ready = true;
 
             equal(pods.items.length, 2, "number of pods");
-            equal(pods["11768037-ab8a-11e4-9a7c-080027300d85"].metadata.labels.name, "apache", "pod has label");
+            equal(pods["Pod:11768037-ab8a-11e4-9a7c-080027300d85"].metadata.labels.name, "apache", "pod has label");
 
             kube_update("namespaces/default/pods/aardvark", {
                 "kind": "Pod",
@@ -637,9 +637,9 @@ require([
                 return;
 
             equal(pods.items.length, 3, "added a pod");
-            equal(pods["22768037-ab8a-11e4-9a7c-080027300d85"].metadata.labels.name,
+            equal(pods["Pod:22768037-ab8a-11e4-9a7c-080027300d85"].metadata.labels.name,
                   "aardvark", "new pod present in items");
-            ok(item === pods["22768037-ab8a-11e4-9a7c-080027300d85"], "passed right argument");
+            ok(item === pods["Pod:22768037-ab8a-11e4-9a7c-080027300d85"], "passed right argument");
             equal(changed, false, "changed not yet");
         });
 
@@ -812,8 +812,10 @@ require([
                 equal(kube_data["nodes/node1"].metadata.name, "node1", "node created");
                 equal(kube_data["namespaces/namespace1"].metadata.name, "namespace1", "namespace created");
 
-                equal(client.objects["d072fb85-f70e-11e4-b829-10c37bdb8410"].metadata.name, "pod1", "pod object");
-                equal(client.objects["6e51438e-d161-11e4-acbc-10c37bdb8410"].metadata.name, "node1", "node object");
+                equal(client.objects["Pod:d072fb85-f70e-11e4-b829-10c37bdb8410"].metadata.name,
+                      "pod1", "pod object");
+                equal(client.objects["Node:6e51438e-d161-11e4-acbc-10c37bdb8410"].metadata.name,
+                      "node1", "node object");
             })
             .always(function() {
                 equal(this.state(), "resolved", "succeeded");
@@ -844,9 +846,9 @@ require([
                                   "pod created");
                             equal(kube_data["nodes/node1"].metadata.name, "node1", "node created");
 
-                            equal(client.objects["d072fb85-f70e-11e4-b829-10c37bdb8410"].metadata.name,
+                            equal(client.objects["Pod:d072fb85-f70e-11e4-b829-10c37bdb8410"].metadata.name,
                                   "pod1", "pod object");
-                            equal(client.objects["6e51438e-d161-11e4-acbc-10c37bdb8410"].metadata.name,
+                            equal(client.objects["Node:6e51438e-d161-11e4-acbc-10c37bdb8410"].metadata.name,
                                   "node1", "node object");
                         })
                         .always(function() {
@@ -868,8 +870,10 @@ require([
                 equal(kube_data["namespaces/default/pods/pod1"].metadata.name, "pod1", "pod created");
                 equal(kube_data["nodes/node1"].metadata.name, "node1", "node created");
 
-                equal(client.objects["d072fb85-f70e-11e4-b829-10c37bdb8410"].metadata.name, "pod1", "pod object");
-                equal(client.objects["6e51438e-d161-11e4-acbc-10c37bdb8410"].metadata.name, "node1", "node object");
+                equal(client.objects["Pod:d072fb85-f70e-11e4-b829-10c37bdb8410"].metadata.name,
+                      "pod1", "pod object");
+                equal(client.objects["Node:6e51438e-d161-11e4-acbc-10c37bdb8410"].metadata.name,
+                      "node1", "node object");
             })
             .always(function() {
                 equal(this.state(), "resolved", "succeeded");
@@ -1154,7 +1158,7 @@ require([
         client.watches.imagestreams.wait().always(function() {
             var streams = client.select("ImageStream");
             equal(streams.items.length, 1, "number of imagestreams");
-            var stream = streams["c216455b-4cc5-11e5-8a7f-0e5582eacc27"];
+            var stream = streams["ImageStream:c216455b-4cc5-11e5-8a7f-0e5582eacc27"];
             equal(typeof stream, "object", "found imagestream")
             equal(stream.metadata.name, "mock-image-stream", "imagestream name");
             client.close();

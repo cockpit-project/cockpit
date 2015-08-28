@@ -72,7 +72,7 @@ define([
                             var addresses = subset.addresses || [ ];
                             addresses.forEach(function(address) {
                                 if (address.targetRef && address.targetRef.kind == "Pod")
-                                    pods[address.targetRef.uid] = { };
+                                    pods["Pod:" + address.targetRef.uid] = { };
                             });
                         });
 

@@ -149,6 +149,7 @@ class TestDocker(MachineCase):
         b.click("#container-details-start")
         self.wait_for_message("%s\n%s" % (message, message))
         b.call_js_func("ph_count_check", ".logs",  1)
+        b.wait_present("#container-details-stop:not([disabled])")
         b.click("#container-details-stop")
         b.wait_in_text("#container-details-state", "Exited")
 

@@ -28,6 +28,16 @@
 
 #define DEBUG_BATCHES 1
 
+/* While debugging a problem, disable the GSlice memory allocator */
+#undef g_slice_new
+#define g_slice_new(type) (g_malloc (sizeof (type)))
+
+#undef g_slice_new0
+#define g_slice_new0(type) (g_malloc0 (sizeof (type)))
+
+#undef g_slice_free
+#define g_slice_free(type, x) (g_free (x))
+
 /*
  * This is a cache of properties which tracks updates. The best way to do
  * this is via ObjectManager. But it also does introspection and uses that
@@ -137,6 +147,7 @@ typedef struct {
 typedef struct {
   gint refs;
   guint number;
+  gboolean orphan;
 #if DEBUG_BATCHES
   GSList *debug;
 #endif
@@ -198,6 +209,15 @@ batch_dump (BatchData *batch)
 #endif /* DEBUG_BATCHES */
 
 static void
+batch_free (BatchData *batch)
+{
+#if DEBUG_BATCHES
+  g_slist_foreach (batch->debug, (GFunc)g_free, NULL);
+#endif
+  g_slice_free (BatchData, batch);
+}
+
+static void
 batch_progress (CockpitDBusCache *self)
 {
   BatchData *batch;
@@ -226,10 +246,7 @@ batch_progress (CockpitDBusCache *self)
           g_hash_table_unref (update);
         }
 
-#if DEBUG_BATCHES
-      g_slist_foreach (batch->debug, (GFunc)g_free, NULL);
-#endif
-      g_slice_free (BatchData, batch);
+      batch_free (batch);
       barrier_progress (self);
     }
 }
@@ -244,7 +261,10 @@ batch_flush (CockpitDBusCache *self)
       batch = g_queue_pop_head (self->batches);
       if (!batch)
         return;
-      g_slice_free (BatchData, batch);
+      if (batch->refs == 0)
+        batch_free (batch);
+      else
+        batch->orphan = TRUE;
     }
 }
 
@@ -294,7 +314,10 @@ _batch_unref (CockpitDBusCache *self,
                                                                  batch->refs, function, line));
 #endif
 
-  batch_progress (self);
+  if (batch->refs == 0 && batch->orphan)
+    batch_free (batch);
+  else
+    batch_progress (self);
 }
 
 #define batch_unref(self, batch) \

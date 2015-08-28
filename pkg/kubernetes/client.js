@@ -320,16 +320,17 @@ define([
 
                 lastResource = meta.resourceVersion;
 
+                var uid = meta.uid;
                 if (action.type == "ADDED") {
-                    objects[meta.uid] = object;
+                    objects[uid] = object;
                     update(object, type);
                 } else if (action.type == "MODIFIED") {
                     load_ready();
-                    objects[meta.uid] = object;
+                    objects[uid] = object;
                     update(object, type);
                 } else if (action.type == "DELETED") {
                     load_ready();
-                    delete objects[meta.uid];
+                    delete objects[uid];
                     remove(object, type);
                 } else {
                     console.warn("invalid watch action type: " + action.type);
@@ -535,7 +536,7 @@ define([
      * KubeList
      *
      * An object that contains and optionally tracks a list of
-     * of kubernetes items. The items are indexed by uid
+     * of kubernetes items. The items are indexed by a key
      * directly on the KubeList. In addition there is a .items
      * array which presents the objects in a stable array.
      *
@@ -544,8 +545,8 @@ define([
      * Use with client.track() to subscribe to changes.
      *
      * The implementation should make all properties other
-     * than uids be non-enumerable, so you can enumerate the
-     * properties on this object and only get uids/items.
+     * than item keys be non-enumerable, so you can enumerate the
+     * properties on this object and only get keys/items.
      */
     function KubeList(matcher, client, possible) {
         Object.defineProperty(this, "data", {
@@ -639,7 +640,7 @@ define([
      *
      * Properties:
      *  * objects: a dict of all the loaded kubernetes objects,
-     *             with the 'uid' as the key
+     *             with unique keys
      *  * resourceVersion: latest resourceVersion seen
      */
     function KubernetesClient() {
@@ -784,11 +785,10 @@ define([
         function handle_updated(item, type) {
             var meta = item.metadata;
 
-            debug("item", item);
+            var key = item.kind + ":" + meta.uid;
+            debug("item", key, item);
 
-            var uid = meta.uid;
-
-            var prev = self.objects[uid];
+            var prev = self.objects[key];
             if (prev && prev.metadata.resourceVersion === version)
                 return;
 
@@ -796,7 +796,7 @@ define([
             if (version && version > self.resourceVersion)
                 self.resourceVersion = version;
 
-            self.objects[uid] = item;
+            self.objects[key] = item;
 
             /* Add various bits to index, for quick lookup */
             var keys = [ item.kind, meta.name, meta.namespace ];
@@ -826,34 +826,37 @@ define([
             if (spec && spec.nodeName)
                 keys.push(spec.nodeName);
 
-            index.add(keys, uid);
+            index.add(keys, key);
 
             /* Fire off any tracked */
             var len;
             for (i = 0, len = tracked.length; i < len; i++)
-                tracked[i].update(uid, item);
+                tracked[i].update(key, item);
         }
 
         function handle_removed(item, type) {
-            var uid = item.metadata.uid;
-            debug("remove", item);
-            delete self.objects[uid];
+            var meta = item.metadata;
+            var key = item.kind + ":" + meta.uid;
+
+            debug("remove", key, item);
+            delete self.objects[key];
 
             var i, len = tracked.length;
             for (i = 0; i < len; i++)
-                tracked[i].remove(uid, item);
+                tracked[i].remove(key, item);
         }
 
         var pulls = { };
         var pull_timeout;
 
         function pull_later(involved) {
-            pulls[involved.uid] = involved;
+            var ikey = involved.kind + ":" + involved.uid;
+            pulls[ikey] = involved;
 
             if (!pull_timeout) {
                 pull_timeout = window.setTimeout(function() {
-                    var items = Object.keys(pulls).map(function(uid) {
-                        return pulls[uid];
+                    var items = Object.keys(pulls).map(function(key) {
+                        return pulls[ikey];
                     });
 
                     pulls = { };
@@ -867,7 +870,8 @@ define([
         }
 
         function pull_involved(involved) {
-            var item = self.objects[involved.uid];
+            var ikey = involved.kind + ":" + involved.uid;
+            var item = self.objects[ikey];
 
             if (item && involved.resourceVersion < item.metadata.resourceVersion)
                 return;
@@ -885,7 +889,7 @@ define([
             self.request({ method: "GET", body: "", path: uri })
                 .fail(function(ex) {
                     if (ex.status == 404) {
-                        item = self.objects[involved.uid];
+                        item = self.objects[ikey];
                         if (item) {
                             handle_removed(item, type);
                         }
@@ -894,9 +898,23 @@ define([
                     }
                 })
                 .done(function(data) {
-                    var item = JSON.parse(data);
-                    if (item && item.metadata && item.metadata.uid == involved.uid) {
-                        handle_updated(item, type);
+                    var meta, key, item;
+                    try {
+                        item = JSON.parse(data);
+                    } catch(ex) {
+                        item = null;
+                    }
+                    if (!item || typeof (item) !== "object") {
+                        console.log("got invalid JSON response from kubernetes");
+                        return;
+                    }
+                    if (item) {
+                        meta = item.metadata;
+                        if (meta) {
+                            key = item.kind + ":" + meta.uid;
+                            if (key == ikey)
+                                handle_updated(item, type);
+                        }
                     }
                 });
         }

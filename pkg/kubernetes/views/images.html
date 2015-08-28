@@ -7,10 +7,12 @@
         </tr>
     </thead>
     <tbody>
-        <tr ng-repeat="repository in repositories" ng-click="console.log(repository)">
+        <tr ng-repeat="repository in repositories"
+            ng-click="console.log(repository)"
+            ng-init="latest = repository.latest()">
             <th>{{repository.name}}</th>
             <td>{{repository.tags() | imagesTags }}</td>
-            <td>??? ago</td>
+            <td title="{{ latest }}">{{latest | timeAgo }}</td>
         </tr>
         <tr class="listing-empty">
             <td colspan="3" translatable="yes">No image repositories are present.</td>

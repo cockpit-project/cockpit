@@ -450,26 +450,36 @@ define([
     function connect_api_server() {
         var dfd = $.Deferred();
         var req;
+        var oapi_available = false;
 
         var schemes = [
             { port: 8080 },
             { port: 8443, tls: { }, capabilities: ['tls-certificates'] },
             { port: 6443, tls: { }, capabilities: ['tls-certificates'] }
         ];
+        var schemes_tmp = [];
 
-        function step() {
+        function step(vendpoint) {
             var scheme = schemes.shift();
+            if ( vendpoint == "/oapi" && scheme)
+                schemes_tmp.push(scheme);
 
             /* No further ports to try? */
             if (!scheme) {
-                var ex = new Error(_("Couldn't find running kube-apiserver"));
-                ex.problem = "not-found";
-                dfd.reject(ex);
-                return;
+                if ( vendpoint == "/oapi" ) {
+                    schemes = $.merge(schemes, schemes_tmp);
+                    step("/api");
+                    return;
+                } else {
+                    var ex = new Error(_("Couldn't find running kube-apiserver"));
+                    ex.problem = "not-found";
+                    dfd.reject(ex);
+                    return;
+                }
             }
 
             var http = cockpit.http(scheme.port, scheme);
-            req = http.get("/api")
+            req = http.get(vendpoint)
                 .done(function(data) {
                     req = null;
 
@@ -480,17 +490,27 @@ define([
                     var response;
                     try {
                         response = JSON.parse(data);
+                        debug(response);
                     } catch(ex) {
                         debug("not an api endpoint without JSON data on:", scheme);
-                        step();
+                        step(vendpoint);
                         return;
                     }
                     if (response && response.versions) {
                         debug("found kube-apiserver endpoint on:", scheme);
-                        dfd.resolve(http, response);
+                        if (vendpoint == "/oapi") {
+                            //set flag here
+                            oapi_available = true;
+                            //no point to continue for openshift jump to kube
+                            schemes = $.merge(schemes, schemes_tmp);
+                            step("/api");
+                        } else {
+                            dfd.resolve(http, response, oapi_available);
+                        }
+
                     } else {
                         debug("not a kube-apiserver endpoint on:", scheme);
-                        step();
+                        step(vendpoint);
                     }
                 })
                 .fail(function(ex, response) {
@@ -498,11 +518,14 @@ define([
 
                     if (ex.problem === "not-found") {
                         debug("api endpoint not found on:", scheme);
-                        step();
+                        step(vendpoint);
                     } else {
                         if (ex.problem !== "cancelled")
                             debug("connecting to endpoint failed:", scheme, ex);
-                        dfd.reject(ex, response);
+                        if (vendpoint == "/oapi")
+                            step(vendpoint);
+                        else
+                            dfd.reject(ex, response);
                     }
                 });
         }
@@ -520,7 +543,7 @@ define([
                 debug("kube config scheme:", scheme);
                 schemes.unshift(scheme);
             })
-            .always(step);
+            .always(step("/oapi"));
 
         var promise = dfd.promise();
         promise.cancel = function cancel() {
@@ -654,6 +677,8 @@ define([
         /* The API info returned from /api */
         var apis;
 
+        self.oapi_available = false;
+
         /*
          * connect:
          * @force: Force a new connection
@@ -671,8 +696,9 @@ define([
         self.connect = function connect(force) {
             if (force || !connected) {
                 connected = connect_api_server()
-                    .done(function(http, response) {
+                    .done(function(http, response, oapi_avail) {
                         self.flavor = response.flavor;
+                        self.oapi_available = oapi_avail;
                         for (var type in self.watches)
                             self.watches[type].start(http);
                     })

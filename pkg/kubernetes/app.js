@@ -40,6 +40,9 @@ define([
                 /* Used by child scopes */
                 $scope.client = client;
 
+                /* Used while debugging */
+                $scope.console = console;
+
                 /* When set then we hide the application */
                 $scope.curtains = { state: 'silent' };
 

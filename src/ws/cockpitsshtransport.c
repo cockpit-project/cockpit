@@ -739,9 +739,9 @@ on_channel_exit_signal (ssh_session session,
   else
     {
       if (errmsg)
-        g_warning ("%s: session program killed: %s", self->logname, errmsg);
+        g_warning ("%s: bridge killed: %s", self->logname, errmsg);
       else
-        g_warning ("%s: session program killed by %s signal", self->logname, signal);
+        g_warning ("%s: bridge killed by %s signal", self->logname, signal);
       problem = "internal-error";
     }
 
@@ -784,7 +784,7 @@ on_channel_exit_status (ssh_session session,
     }
   else if (exit_status)
     {
-      g_warning ("%s: session program exited with %d status", self->logname, exit_status);
+      g_warning ("%s: bridge exited with %d status", self->logname, exit_status);
       problem = "internal-error";
     }
   if (!self->problem)

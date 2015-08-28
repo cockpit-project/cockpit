@@ -71,7 +71,8 @@ cockpit_pipe_channel_recv (CockpitChannel *channel,
                            GBytes *message)
 {
   CockpitPipeChannel *self = COCKPIT_PIPE_CHANNEL (channel);
-  cockpit_pipe_write (self->pipe, message);
+  if (self->open)
+    cockpit_pipe_write (self->pipe, message);
 }
 
 static void

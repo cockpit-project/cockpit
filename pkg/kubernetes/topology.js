@@ -35,7 +35,7 @@ define([
     return angular.module('kubernetes.topology', [ 'ngRoute', 'kubernetesUI' ])
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.when('/topology', {
-                templateUrl: 'topology.html',
+                templateUrl: 'views/topology.html',
                 controller: 'TopologyCtrl'
             });
         }])

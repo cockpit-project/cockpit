@@ -10,6 +10,10 @@ kubernetes_DATA = \
 	$(kubernetes_GZ) \
 	$(NULL)
 
+kubernetes_VIEWS = \
+	pkg/kubernetes/views/topology.html \
+	$(NULL)
+
 kubernetesdebugdir = $(debugdir)$(kubernetesdir)
 kubernetesdebug_DATA = \
 	pkg/kubernetes/adjust.js \
@@ -36,6 +40,10 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/topology-graph.js \
 	pkg/kubernetes/nulecule.js \
 	$(NULL)
+kubernetesviewsdebugdir = $(debugdir)$(kubernetesdir)/views
+kubernetesviewsdebug_DATA = \
+	$(kubernetes_VIEWS) \
+	$(NULL)
 
 kubernetes_MIN = \
 	pkg/kubernetes/adjust.min.js \
@@ -58,7 +66,12 @@ kubernetes_BUNDLE = \
 	$(kubernetes_MIN) \
 	$(NULL)
 
-pkg/kubernetes/kubernetes.min.js: $(kubernetes_BUNDLE)
+# Bundles all the view templates into a $templateCache loadable
+pkg/kubernetes/templates.min.js: $(kubernetes_VIEWS)
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/ngbundle -d kubernetes/app -o $@ $^
+
+# Everything else into a nice big bundle
+pkg/kubernetes/kubernetes.min.js: $(kubernetes_BUNDLE) pkg/kubernetes/templates.min.js
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
 kubernetes_TESTS = \
@@ -71,6 +84,7 @@ CLEANFILES += \
 	pkg/kubernetes/app.min.css \
 	pkg/kubernetes/cluster.min.html \
 	pkg/kubernetes/kubernetes.min.js \
+	pkg/kubernetes/templates.min.js \
 	$(kubernetes_MIN) \
 	$(kubernetes_GZ) \
 	$(NULL)
@@ -78,10 +92,12 @@ CLEANFILES += \
 EXTRA_DIST += \
 	pkg/kubernetes/cluster.min.html \
 	pkg/kubernetes/kubernetes.min.js \
+	pkg/kubernetes/templates.min.js \
 	$(kubernetes_BUNDLE) \
 	$(kubernetes_DATA) \
 	$(kubernetesdebug_DATA) \
 	$(kubernetes_TESTS) \
+	$(kubernetes_VIEWS) \
 	pkg/kubernetes/mock-basic.js \
 	pkg/kubernetes/mock-large.js \
 	pkg/kubernetes/d3.min.js \

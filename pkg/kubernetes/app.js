@@ -2,8 +2,9 @@ define([
     "jquery",
     "base1/cockpit",
     "base1/angular",
-    "kubernetes/client"
-], function($, cockpit, angular, kubernetes) {
+    "kubernetes/client",
+    "kubernetes/moment",
+], function($, cockpit, angular, kubernetes, moment) {
     'use strict';
 
     return angular.module('kubernetes', [
@@ -105,6 +106,14 @@ define([
                 if (reverse)
                     sorted.reverse();
                 return sorted;
+            };
+        })
+
+        .filter("timeAgo", function() {
+            return function(when) {
+                if (when)
+                    return moment(when).fromNow();
+                return "";
             };
         })
 

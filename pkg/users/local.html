@@ -54,10 +54,10 @@
     <div class="panel panel-default" id="account-details">
       <div class="panel-heading">
         <div style="float:right">
-          <button class="btn btn-default accounts-privileged" id="account-logout">Terminate Session</button>
-          <button class="btn btn-danger accounts-privileged" id="account-delete">Delete</button>
+          <button translatable="yes" class="btn btn-default accounts-privileged" id="account-logout">Terminate Session</button>
+          <button translatable="yes" class="btn btn-danger accounts-privileged" id="account-delete">Delete</button>
         </div>
-        <span translatable="yes" id="account-title"></span>
+        <span id="account-title"></span>
       </div>
       <div class="panel-body">
         <table class="cockpit-info-table col-sm-3">
@@ -86,7 +86,7 @@
             <td>
               <div class="checkbox accounts-privileged" data-container="body">
                 <label>
-                  <input type="checkbox" id="account-locked"> Lock Account
+                  <input type="checkbox" id="account-locked"><span translatable="yes">Lock Account</span>
                 </label>
               </div>
             </td>
@@ -120,7 +120,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">Change Picture</h4>
+          <h4 class="modal-title" translatable="yes">Change Picture</h4>
         </div>
         <div class="modal-body">
           <center>
@@ -132,10 +132,10 @@
           </center>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" data-dismiss="modal">
+          <button translatable="yes" class="btn btn-default" data-dismiss="modal">
             Cancel
           </button>
-          <button class="btn btn-primary" id="account-change-avatar-apply">
+          <button translatable="yes" class="btn btn-primary" id="account-change-avatar-apply">
             Change
           </button>
         </div>
@@ -149,7 +149,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">Create New Account</h4>
+          <h4 class="modal-title" translatable="yes">Create New Account</h4>
         </div>
         <div class="modal-body">
           <table class="cockpit-form-table">
@@ -227,7 +227,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">Set Password</h4>
+          <h4 class="modal-title" translatable="yes">Set Password</h4>
         </div>
         <div class="modal-body">
           <table class="cockpit-form-table">

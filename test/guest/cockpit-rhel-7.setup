@@ -1,13 +1,20 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 # register system
 subscription-manager register --auto-attach --username=`cat ~/.rhel/login` --password=`cat ~/.rhel/pass`
 # remove credentials from test machine
 rm -rf ~/.rhel
 
-yum -y install wget yum-utils
+# These are in the magic base image but seem to have become
+# unavailable for some reason.
+#
+yum -y --disablerepo=rhel-7-server-rt-beta-rpms --disablerepo=rhel-sap-hana-for-rhel-7-server-rpms install yum-utils
+yum-config-manager --disable rhel-7-server-rt-beta-rpms
+yum-config-manager --disable rhel-sap-hana-for-rhel-7-server-rpms
+
+yum -y install wget
 cd /etc/yum.repos.d
 
 # we need the cockpit-preview copr for updated glib2

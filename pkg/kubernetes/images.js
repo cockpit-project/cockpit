@@ -64,6 +64,17 @@ define([
 
                         return result;
                     };
+
+                    self.latest = function latest() {
+                        var result = null;
+                        angular.forEach(self.images, function(image) {
+                            var meta = image.dockerImageMetadata || { };
+                            var created = meta.Created || null;
+                            if (created && (!result || created > result))
+                                result = created;
+                        });
+                        return result;
+                    };
                 }
 
                 /*

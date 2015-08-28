@@ -137,6 +137,7 @@ typedef struct {
 typedef struct {
   gint refs;
   guint number;
+  gboolean orphan;
 #if DEBUG_BATCHES
   GSList *debug;
 #endif
@@ -198,6 +199,15 @@ batch_dump (BatchData *batch)
 #endif /* DEBUG_BATCHES */
 
 static void
+batch_free (BatchData *batch)
+{
+#if DEBUG_BATCHES
+  g_slist_foreach (batch->debug, (GFunc)g_free, NULL);
+#endif
+  g_slice_free (BatchData, batch);
+}
+
+static void
 batch_progress (CockpitDBusCache *self)
 {
   BatchData *batch;
@@ -226,10 +236,7 @@ batch_progress (CockpitDBusCache *self)
           g_hash_table_unref (update);
         }
 
-#if DEBUG_BATCHES
-      g_slist_foreach (batch->debug, (GFunc)g_free, NULL);
-#endif
-      g_slice_free (BatchData, batch);
+      batch_free (batch);
       barrier_progress (self);
     }
 }
@@ -244,7 +251,10 @@ batch_flush (CockpitDBusCache *self)
       batch = g_queue_pop_head (self->batches);
       if (!batch)
         return;
-      g_slice_free (BatchData, batch);
+      if (batch->refs == 0)
+        batch_free (batch);
+      else
+        batch->orphan = TRUE;
     }
 }
 
@@ -294,7 +304,10 @@ _batch_unref (CockpitDBusCache *self,
                                                                  batch->refs, function, line));
 #endif
 
-  batch_progress (self);
+  if (batch->refs == 0 && batch->orphan)
+    batch_free (batch);
+  else
+    batch_progress (self);
 }
 
 #define batch_unref(self, batch) \

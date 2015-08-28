@@ -53,6 +53,12 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 <i class="fa fa-list fa-fw"></i><br>Details
               </a>
             </li>
+            <li ng-class="{ active: is_active('views/images.html')}">
+              <a ng-href="#/images">
+                <!-- This icon needs manual tweaking to look the same size as others -->
+                <i class="pficon pficon-image fa-fw" style="font-size: 24px; line-height: 20px"></i><br>Images
+              </a>
+            </li>
           </ul>
         </div>
       </div>
@@ -292,6 +298,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           "kubernetes/app",
           "kubernetes/dashboard",
           "kubernetes/details",
+          "kubernetes/images",
           "kubernetes/topology",
           "kubernetes/listing",
           "kubernetes/object-describer"

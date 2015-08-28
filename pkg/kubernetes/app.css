@@ -248,3 +248,66 @@ input.adjust-replica {
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
     display: none !important;
 }
+
+/* listing pattern -- once solid, move to cockpit.css */
+
+table.listing {
+    margin-top: 15px;
+    min-width: 55%;
+}
+
+table.listing tbody {
+    cursor: pointer;
+}
+
+table.listing thead th {
+    font-weight: normal;
+    color: #888;
+}
+
+table.listing tbody th {
+    font-weight: bold;
+}
+
+table.listing th,
+table.listing td {
+    padding: 10px;
+}
+
+table.listing th:first-child,
+table.listing td:first-child {
+    padding-left: 20px;
+}
+
+table.listing th + th:last-child,
+table.listing td + td:last-child {
+    text-align: right;
+    padding-right: 20px;
+}
+
+table.listing tbody tr,
+table.listing tfoot {
+    border-top: 1px solid #EEE;
+}
+
+table.listing tbody {
+    border-bottom: 1px solid #EEE;
+}
+
+table.listing tbody tr:hover {
+    background-color: #d4edfa;
+}
+
+table.listing .listing-empty {
+    color: #888;
+    text-align: center;
+}
+
+table.listing tbody tr + tr.listing-empty {
+    display: none;
+}
+
+/* HACK: https://bugzilla.mozilla.org/show_bug.cgi?id=409254 */
+tbody:empty {
+    display: none;
+}

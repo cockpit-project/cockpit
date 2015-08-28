@@ -14,6 +14,7 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/container-panel.html \
 	pkg/kubernetes/views/dashboard.html \
 	pkg/kubernetes/views/details.html \
+	pkg/kubernetes/views/images.html \
 	pkg/kubernetes/views/listing.html \
 	pkg/kubernetes/views/pod-panel.html \
 	pkg/kubernetes/views/topology.html \
@@ -32,6 +33,7 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/details.css \
 	pkg/kubernetes/details.js \
 	pkg/kubernetes/graphs.js \
+	pkg/kubernetes/images.js \
 	pkg/kubernetes/kubernetes.js \
 	pkg/kubernetes/listing.css \
 	pkg/kubernetes/listing.js \
@@ -59,6 +61,7 @@ kubernetes_MIN = \
 	pkg/kubernetes/deploy.min.js \
 	pkg/kubernetes/details.min.js \
 	pkg/kubernetes/graphs.min.js \
+	pkg/kubernetes/images.min.js \
 	pkg/kubernetes/listing.min.js \
 	pkg/kubernetes/nulecule.min.js \
 	pkg/kubernetes/node.min.js \

@@ -12,6 +12,7 @@ define([
             'kubernetes.dashboard',
             'kubernetes.graph',
             'kubernetes.details',
+            'kubernetes.images',
             'kubernetes.topology',
             'kubernetes.listing'
         ])

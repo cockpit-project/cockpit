@@ -10,7 +10,7 @@ define([
     return angular.module('kubernetes.details', ['ngRoute'])
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.when('/pods/:namespace?', {
-                templateUrl: 'details.html',
+                templateUrl: 'views/details.html',
                 controller: 'DetailsCtrl'
             });
         }])
@@ -67,7 +67,7 @@ define([
             return {
                 restrict: 'E',
                 transclude: true,
-                templateUrl: 'pod.html'
+                templateUrl: 'views/pod-panel.html'
             };
         })
 
@@ -89,7 +89,7 @@ define([
             return {
                 restrict: 'E',
                 scope: true,
-                templateUrl: 'container.html',
+                templateUrl: 'views/container-panel.html',
                 link: function(scope, element, attrs) {
                     scope.connect = function connect(what) {
                         scope.$broadcast("connect", what);

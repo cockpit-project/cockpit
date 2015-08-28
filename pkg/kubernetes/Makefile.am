@@ -11,6 +11,11 @@ kubernetes_DATA = \
 	$(NULL)
 
 kubernetes_VIEWS = \
+	pkg/kubernetes/views/container-panel.html \
+	pkg/kubernetes/views/dashboard.html \
+	pkg/kubernetes/views/details.html \
+	pkg/kubernetes/views/listing.html \
+	pkg/kubernetes/views/pod-panel.html \
 	pkg/kubernetes/views/topology.html \
 	$(NULL)
 

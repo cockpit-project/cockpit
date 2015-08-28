@@ -1,0 +1,53 @@
+<!-- container = { spec: pod.spec.containers[n], status: pod.status.containersStatus[n] } -->
+
+<div class="kube-ports" ng-if="container.spec.ports.length">
+    <div class="kube-port" ng-repeat="port in container.spec.ports">
+        {{port.containerPort}}/{{port.protocol}}
+    </div>
+</div>
+
+<div class="kube-container panel">
+    <h3 class="panel-title"><span class="fa fa-cube"></span> {{container.spec.name}}</h3>
+    <tabset type="pills" class="">
+        <tab heading="Status">
+            <div class="row kube-content">
+                <div class="col-sm-6 kube-info">
+                    <dl>
+                        <dt>Image</dt>
+                        <dd>{{container.spec.image}}</dd>
+                        <dt>Image ID</dt>
+                        <dd class="kube-id">{{container.status.imageID | kubeIdentifier }}</dd>
+                        <dt>Container ID</dt>
+                        <dd class="kube-id">{{container.status.containerID | kubeIdentifier }}</dd>
+                        <dt class="kube-ports">Ports</dt>
+                        <dd class="kube-ports">
+                        <span ng-repeat="port in container.spec.ports">{{port.containerPort}}/{{port.protocol}}</span>
+                        </dd>
+                        <dt ng-repeat-start="(state, args) in container.status.state">State</dt>
+                        <dd>{{state}}</dd>
+                        <dt>Since</dt>
+                        <dd ng-repeat-end>{{args.startedAt}}</dd>
+                        <dt>Restart Count</dt>
+                        <dd>{{container.status.restartCount}}</dd>
+                    </dl>
+                </div>
+                <div class="col-sm-6 kube-more">
+                    <dl>
+                        <dt class="header full" ng-if="container.spec.env.length">Environment</dt>
+                        <dd class="kube-id full" revealable-text
+                        ng-repeat="env in container.spec.env">{{env.name}}=<span
+                            ng-class="{masked: should_mask(env.name)}">{{env.value}}</span></dd>
+                    </dl>
+                </div>
+            </div>
+        </tab>
+        <tab heading="Console" select="connect('console')">
+            <kube-console namespace="{{pod.metadata.namespace}}" pod="{{pod.metadata.name}}"
+                container="{{container.spec.name}}"></kube-console>
+        </tab>
+        <tab heading="Shell" select="connect('shell')">
+            <kube-shell namespace="{{pod.metadata.namespace}}" pod="{{pod.metadata.name}}"
+                container="{{container.spec.name}}"></kube-console>
+        </tab>
+    </tabset>
+</div>

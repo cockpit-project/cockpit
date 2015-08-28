@@ -1,0 +1,30 @@
+<div class="kube-pod panel">
+    <!-- TODO: exclamation triangle -->
+    <div class="kube-status">
+        on <span>{{pod.spec.nodeName}}</span>
+    </div>
+    <h3 class="panel-title">{{pod.metadata.name}}</h3>
+    <div class="row kube-content">
+        <div class="col-sm-6 kube-info">
+            <dl>
+                <dt>Node Adddress</dt>
+                <dd>{{pod.status.hostIP}}</dd>
+                <dt>Pod Address</dt>
+                <dd>{{pod.status.podIP}}</dd>
+                <dt translatable="yes">Namespace</dt>
+                <dd>{{pod.metadata.namespace}}</dd>
+                <dt>Status</dt>
+                <dd>{{pod.status.phase}}</dd>
+                <dt>Restart Policy</dt>
+                <dd>{{pod.spec.restartPolicy}}</dd>
+            </dl>
+        </div>
+        <div class="col-sm-6 kube-more">
+            <dl>
+                <dt class="header full" translatable="yes">Labels</dt>
+                <dd class="full" ng-repeat="(key, value) in pod.metadata.labels">{{key}}: {{value}}</dd>
+            </dl>
+        </div>
+    </div>
+    <div ng-transclude></div>
+</div>

@@ -33,12 +33,12 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
       <div class="kube-sidebar" ng-if="!curtains">
         <div>
           <ul>
-            <li ng-class="{ active: is_active('dashboard.html')}">
+            <li ng-class="{ active: is_active('views/dashboard.html')}">
               <a ng-href="#/">
                 <span class="fa fa-dashboard fa-fw"></span><br>Overview
               </a>
             </li>
-            <li ng-class="{ active: is_active('details.html')}">
+            <li ng-class="{ active: is_active('views/details.html')}">
               <a ng-href="#/pods">
                 <span class="fa fa-cubes fa-fw"></span><br>Containers
               </a>
@@ -48,7 +48,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 <span class="fa fa-sitemap fa-fw"></span><br>Topology
               </a>
             </li>
-            <li ng-class="{ active: is_active('listing.html')}">
+            <li ng-class="{ active: is_active('views/listing.html')}">
               <a ng-href="#/list">
                 <span class="fa fa-list fa-fw"></span><br>Details
               </a>
@@ -77,100 +77,6 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
       </div>
     </div>
 
-  <script type="text/ng-template" id="dashboard.html">
-  <kubernetes-service-graph id="graphs"></kubernetes-service-graph>
-
-  <div class="row">
-    <div class="col-md-8">
-      <div id="service-list" class="panel panel-default dashboard-list">
-        <div class="panel-heading">
-          <div style="float: right;">
-            <button class="btn btn-default fa fa-check" id="services-enable-change" title="Change"></button>
-            <button class="btn btn-primary" id="deploy-app" data-toggle="modal"
-                    data-target="#deploy-app-dialog" translatable="yes">Deploy</button>
-          </div>
-          <span translatable="yes">Kubernetes Services</span>
-        </div>
-        <div class="well blank-slate-pf spacious" ng-if="servicesState() == 'failed'">
-          <div class="blank-slate-pf-icon">
-            <i ng-if="failure.status == 403" class="fa fa-lock"></i>
-            <i ng-if="failure.status != 403" class="fa fa-exclamation-circle"></i>
-          </div>
-          <h3 translatable="yes">Could not list services</h3>
-          <p>{{failure.message}}</p>
-        </div>
-        <div class="well blank-slate-pf spacious" ng-if="servicesState() == 'empty'">
-          <div class="blank-slate-pf-icon">
-            <i class="fa fa-rocket"></i>
-          </div>
-          <h3>No services present</h3>
-          <p translatable="yes">You can deploy an application to your cluster.</p>
-        </div>
-        <table class="table table-hover" ng-if="servicesState() == 'ready'">
-          <thead>
-            <tr>
-              <th translatable="yes">Name</th>
-              <th translatable="yes">Address</th>
-              <th translatable="yes">Containers</th>
-	      <th translatable="yes">Namespace</th>
-              <th class="status"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="service in services"
-                data-uid="{{service.metadata.uid}}" data-name="{{service.metadata.name}}"
-                ng-class="{highlight: service.metadata.uid == highlighted}"
-                ng-click="jumpService($event, service)"
-                ng-mouseover="highlight(service.metadata.uid)" ng-mouseout="highlight(null)">
-              <td>{{service.metadata.name}}</td>
-              <td><kubernetes-address ng-init="item = service"></td>
-              <td class="containers">{{serviceContainers(service)}}</td>
-              <td>{{service.metadata.namespace}}</td>
-              <td class="status" ng-init="item = service">
-                <button title="Adjust" class="btn btn-default adjust-service pficon pficon-edit"
-                    data-toggle="modal" data-target="#adjust-dialog" data-uid="{{service.metadata.uid}}"></button>
-                <span kubernetes-status-icon status="serviceStatus(service)"></span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div id="node-list" class="panel panel-default dashboard-list">
-        <div class="panel-heading">
-          <span style="float: right;">
-            <button title="Add Kubernetes Node" id="add-node" class="btn btn-primary fa fa-plus"
-                data-toggle="modal" data-target="#node-dialog"></button>
-          </span>
-          <span translatable="yes">Kubernetes Nodes</span>
-        </div>
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th translatable="yes">Machines</th>
-              <th translatable="yes">Address</th>
-              <th translatable="yes">Containers</th>
-              <th class="status"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="node in nodes">
-              <td>{{node.metadata.name}}</td>
-              <td>{{node.spec.externalID}}</td>
-              <td class="containers">{{nodeContainers(node)}}</td>
-              <td class="status">
-                <span kubernetes-status-icon status="nodeStatus(node)"></span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  </script>
-
 <!-- App Entity Params -->
 
   <script id="deploy-app-appentity-template" type="x-template/mustache">
@@ -193,51 +99,6 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     {{/apps}}
   </script>
 
-  <!-- Container details page -->
-
-  <script type="text/ng-template" id="details.html">
-    <div class="kube-details">
-      <div ng-repeat="item in selection" ng-if="item.kind == 'Pod'">
-        <kube-pod ng-init="pod = item">
-          <kube-container ng-repeat="container in client.containers(pod)"></kube-container>
-        </kube-pod>
-      </div>
-    </div>
-  </script>
-
-  <script type="text/ng-template" id="pod.html">
-    <div class="kube-pod panel">
-      <!-- TODO: exclamation triangle -->
-      <div class="kube-status">
-        on <span>{{pod.spec.nodeName}}</span>
-      </div>
-      <h3 class="panel-title">{{pod.metadata.name}}</h3>
-      <div class="row kube-content">
-        <div class="col-sm-6 kube-info">
-          <dl>
-            <dt>Node Adddress</dt>
-            <dd>{{pod.status.hostIP}}</dd>
-            <dt>Pod Address</dt>
-            <dd>{{pod.status.podIP}}</dd>
-            <dt translatable="yes">Namespace</dt>
-            <dd>{{pod.metadata.namespace}}</dd>
-            <dt>Status</dt>
-            <dd>{{pod.status.phase}}</dd>
-            <dt>Restart Policy</dt>
-            <dd>{{pod.spec.restartPolicy}}</dd>
-          </dl>
-        </div>
-        <div class="col-sm-6 kube-more">
-          <dl>
-            <dt class="header full" translatable="yes">Labels</dt>
-            <dd class="full" ng-repeat="(key, value) in pod.metadata.labels">{{key}}: {{value}}</dd>
-          </dl>
-        </div>
-      </div>
-      <div ng-transclude></div>
-    </div>
-  </script>
-
   <!-- TODO: Move templates into separate files while debugging -->
   <script type="text/ng-template" id="template/tabs/tabset.html">
     <div>
@@ -254,208 +115,6 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     <li ng-class="{active: active, disabled: disabled}">
       <a href ng-click="select()" tab-heading-transclude>{{heading}}</a>
     </li>
-  </script>
-
-  <script type="text/ng-template" id="container.html">
-    <!-- container = { spec: pod.spec.containers[n], status: pod.status.containersStatus[n] } -->
-
-    <div class="kube-ports" ng-if="container.spec.ports.length">
-      <div class="kube-port" ng-repeat="port in container.spec.ports">
-        {{port.containerPort}}/{{port.protocol}}
-      </div>
-    </div>
-
-    <div class="kube-container panel">
-      <h3 class="panel-title"><span class="fa fa-cube"></span> {{container.spec.name}}</h3>
-      <tabset type="pills" class="">
-        <tab heading="Status">
-          <div class="row kube-content">
-            <div class="col-sm-6 kube-info">
-              <dl>
-                <dt>Image</dt>
-                <dd>{{container.spec.image}}</dd>
-                <dt>Image ID</dt>
-                <dd class="kube-id">{{container.status.imageID | kubeIdentifier }}</dd>
-                <dt>Container ID</dt>
-                <dd class="kube-id">{{container.status.containerID | kubeIdentifier }}</dd>
-                <dt class="kube-ports">Ports</dt>
-                <dd class="kube-ports">
-                  <span ng-repeat="port in container.spec.ports">{{port.containerPort}}/{{port.protocol}}</span>
-                </dd>
-                <dt ng-repeat-start="(state, args) in container.status.state">State</dt>
-                <dd>{{state}}</dd>
-                <dt>Since</dt>
-                <dd ng-repeat-end>{{args.startedAt}}</dd>
-                <dt>Restart Count</dt>
-                <dd>{{container.status.restartCount}}</dd>
-              </dl>
-            </div>
-            <div class="col-sm-6 kube-more">
-              <dl>
-                <dt class="header full" ng-if="container.spec.env.length">Environment</dt>
-                <dd class="kube-id full" revealable-text ng-repeat="env in container.spec.env">{{env.name}}=<span ng-class="{masked: should_mask(env.name)}">{{env.value}}</span></dd>
-              </dl>
-            </div>
-          </div>
-        </tab>
-        <tab heading="Console" select="connect('console')">
-          <kube-console namespace="{{pod.metadata.namespace}}" pod="{{pod.metadata.name}}"
-            container="{{container.spec.name}}"></kube-console>
-        </tab>
-        <tab heading="Shell" select="connect('shell')">
-          <kube-shell namespace="{{pod.metadata.namespace}}" pod="{{pod.metadata.name}}"
-            container="{{container.spec.name}}"></kube-console>
-        </tab>
-      </tabset>
-    </div>
-  </script>
-
-  <!-- Container topology -->
-
-  <script type="text/ng-template" id="listing.html">
-    <div class="kube-pane">
-        <div class="sidebar-pf sidebar-pf-right">
-            <div class="sidebar-help" ng-if="!selected">
-                <p translatable="yes">Select an object to see more details.</p>
-            </div>
-            <kubernetes-object-describer ng-if="selected" resource="selected" kind="{{ selected.kind }}"
-                ></kubernetes-object-describer>
-        </div>
-    </div>
-
-    <div class="kube-listing">
-      <div ng-if="nodes" data-kind="Node">
-        <h2 translatable="yes">Nodes</h2>
-        <div class="panel panel-default">
-          <table class="table">
-            <thead>
-              <tr>
-                <th class="kube-col-name" translatable="yes">Name</th>
-                <th class="kube-col-status" translatable="yes">Status</th>
-                <th class="kube-col-address" translatable="yes">Address</th>
-                <th translatable="yes">System Info</th>
-              </tr>
-            </thead>
-            <tbody ng-repeat="node in nodes | orderObjectBy: 'metadata.name'" ng-click="select(node, $event)"
-                   ng-click="select(node, $event)"
-                   ng-class="{selected: selected && selected.metadata.uid == node.metadata.uid}">
-              <tr>
-                <td class="kube-col-name">{{node.metadata.name}}</td>
-                <td class="kube-col-status">{{node.status.conditions | nodeStatus}}</td>
-                <td class="kube-col-address">{{node.spec.externalID}}</td>
-                <td class="kube-col-info">
-                <div ng-if="node.status.capacity"><kubernetes-node-capacity ng-init="item = node"></div>
-                <div ng-if="node.status.nodeInfo.osImage">{{node.status.nodeInfo.osImage}}</div></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div ng-if="services" data-kind="Service">
-        <h2 translatable="yes">Services</h2>
-        <div class="panel panel-default">
-          <table class="table">
-            <thead>
-              <tr>
-                <th class="kube-col-name" translatable="yes">Name</th>
-                <th class="kube-col-ns" translatable="yes">Namespace</th>
-                <th class="kube-col-status" translatable="yes">Status</th>
-                <th class="kube-col-address" translatable="yes">Addresses</th>
-              </tr>
-            </thead>
-            <tbody ng-repeat="service in services | orderObjectBy: 'metadata.name'"
-                   ng-click="select(service, $event)"
-                   ng-class="{selected: selected.metadata.uid && selected.metadata.uid == service.metadata.uid}">
-              <tr>
-                <td class="kube-col-name">{{service.metadata.name}}</td>
-                <td class="kube-col-ns">{{service.metadata.namespace}}</td>
-                <td class="kube-col-status" ng-init="endpoint = serviceEndpoint(service)">
-                    <span ng-if="endpoint.subsets.length !== 0" translatable="yes">Ready</span>
-                    <span ng-if="endpoint.subsets.length === 0" translatable="yes">Not Ready</span>
-                </td>
-                <td class="kube-col-address">
-                    <div><kubernetes-service-cluster ng-init="item = service"></div>
-                    <div ng-repeat="subset in serviceEndpoint(service).subsets">
-                        <kubernetes-service-endpoint ng-init="item = subset">
-                    </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div ng-if="replicationcontrollers" data-kind="ReplicationController">
-        <h2 translatable="yes">Replication Controllers</h2>
-        <div class="panel panel-default">
-          <table class="table">
-            <thead>
-              <tr>
-                <th class="kube-col-name" translatable="yes">Name</th>
-                <th class="kube-col-ns" translatable="yes">Namespace</th>
-                <th class="kube-col-status" translatable="yes">Replicas</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody ng-repeat="replicationcontroller in replicationcontrollers | orderObjectBy: 'metadata.name'"
-                   ng-click="select(replicationcontroller, $event)"
-                   ng-class="{selected: selected.metadata.uid && selected.metadata.uid == replicationcontroller.metadata.uid}">
-              <tr>
-                <td class="kube-col-name">{{replicationcontroller.metadata.name}}</td>
-                <td class="kube-col-ns">{{replicationcontroller.metadata.namespace}}</td>
-                <td class="kube-col-status">
-                    <kubernetes-replication-controller-status ng-init="item = replicationcontroller">
-                </td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div ng-if="pods" data-kind="Pod">
-        <h2 translatable="yes">Pods</h2>
-        <div class="panel panel-default">
-          <table class="table">
-            <thead>
-              <tr>
-                <th class="kube-col-name" translatable="yes">Name</th>
-                <th class="kube-col-ns" translatable="yes">Namespace</th>
-                <th class="kube-col-status" translatable="yes">Status</th>
-                <th class="kube-col-address" translatable="yes">Address</th>
-                <th class="kube-col-image" translatable="yes">Image</th>
-              </tr>
-            </thead>
-            <tbody ng-repeat="pod in pods"
-                   ng-click="select(pod, $event)"
-                   ng-class="{selected: selected.metadata.uid && selected.metadata.uid == pod.metadata.uid}">
-              <tr>
-                <td class="kube-col-name">{{pod.metadata.name}}</td>
-                <td class="kube-col-ns">{{pod.metadata.namespace}}</td>
-                <td class="kube-col-status">{{pod.status.phase}}</span>
-                </td>
-                <td class="kube-col-address">{{pod.status.podIP}}</td>
-                <td class="kube-col-image"></td>
-              </tr>
-              <tr ng-repeat="container in client.containers(pod)" class="kube-row-container">
-                <td class="kube-col-name">{{container.spec.name}}</td>
-                <td class="kube-col-ns"></td>
-                <td class="kube-col-status">{{container.status.restartCount}} restarts</td>
-                <td class="kube-col-address">
-                    <div ng-repeat="port in container.spec.ports">
-                        {{port.containerPort}}/{{port.protocol}}
-                    </div>
-                </td>
-                <td class="kube-col-image">{{container.spec.image}}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
-
   </script>
 
   <!-- Dialogs -->

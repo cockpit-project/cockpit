@@ -1,0 +1,92 @@
+<kubernetes-service-graph id="graphs"></kubernetes-service-graph>
+
+<div class="row">
+    <div class="col-md-8">
+        <div id="service-list" class="panel panel-default dashboard-list">
+            <div class="panel-heading">
+                <div style="float: right;">
+                    <button class="btn btn-default fa fa-check" id="services-enable-change" title="Change"></button>
+                    <button class="btn btn-primary" id="deploy-app" data-toggle="modal"
+                        data-target="#deploy-app-dialog" translatable="yes">Deploy</button>
+                </div>
+                <span translatable="yes">Kubernetes Services</span>
+            </div>
+            <div class="well blank-slate-pf spacious" ng-if="servicesState() == 'failed'">
+                <div class="blank-slate-pf-icon">
+                    <i ng-if="failure.status == 403" class="fa fa-lock"></i>
+                    <i ng-if="failure.status != 403" class="fa fa-exclamation-circle"></i>
+                </div>
+                <h3 translatable="yes">Could not list services</h3>
+                <p>{{failure.message}}</p>
+            </div>
+            <div class="well blank-slate-pf spacious" ng-if="servicesState() == 'empty'">
+                <div class="blank-slate-pf-icon">
+                    <i class="fa fa-rocket"></i>
+                </div>
+                <h3>No services present</h3>
+                <p translatable="yes">You can deploy an application to your cluster.</p>
+            </div>
+            <table class="table table-hover" ng-if="servicesState() == 'ready'">
+                <thead>
+                    <tr>
+                        <th translatable="yes">Name</th>
+                        <th translatable="yes">Address</th>
+                        <th translatable="yes">Containers</th>
+                        <th translatable="yes">Namespace</th>
+                        <th class="status"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="service in services"
+                            data-uid="{{service.metadata.uid}}" data-name="{{service.metadata.name}}"
+                            ng-class="{highlight: service.metadata.uid == highlighted}"
+                            ng-click="jumpService($event, service)"
+                            ng-mouseover="highlight(service.metadata.uid)" ng-mouseout="highlight(null)">
+                        <td>{{service.metadata.name}}</td>
+                        <td><kubernetes-address ng-init="item = service"></td>
+                        <td class="containers">{{serviceContainers(service)}}</td>
+                        <td>{{service.metadata.namespace}}</td>
+                        <td class="status" ng-init="item = service">
+                            <button title="Adjust" class="btn btn-default adjust-service pficon pficon-edit"
+                                data-toggle="modal" data-target="#adjust-dialog"
+                                data-uid="{{service.metadata.uid}}"></button>
+                            <span kubernetes-status-icon status="serviceStatus(service)"></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div id="node-list" class="panel panel-default dashboard-list">
+            <div class="panel-heading">
+                <span style="float: right;">
+                    <button title="Add Kubernetes Node" id="add-node" class="btn btn-primary fa fa-plus"
+                        data-toggle="modal" data-target="#node-dialog"></button>
+                </span>
+                <span translatable="yes">Kubernetes Nodes</span>
+            </div>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th translatable="yes">Machines</th>
+                        <th translatable="yes">Address</th>
+                        <th translatable="yes">Containers</th>
+                        <th class="status"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="node in nodes">
+                        <td>{{node.metadata.name}}</td>
+                        <td>{{node.spec.externalID}}</td>
+                        <td class="containers">{{nodeContainers(node)}}</td>
+                        <td class="status">
+                            <span kubernetes-status-icon status="nodeStatus(node)"></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

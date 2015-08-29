@@ -24,7 +24,7 @@ import sys
 
 class AtomicCockpitInstaller:
     root_home = "/root"
-    packages_force_install = ["cockpit-test-assets", "cockpit-kubernetes"]
+    packages_force_install = ["cockpit-test-assets", "cockpit-kubernetes", "cockpit-networkmanager"]
 
     def __init__(self, rpms=None, verbose=False):
         self.verbose = verbose

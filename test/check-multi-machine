@@ -225,8 +225,14 @@ class TestMultiMachine(MachineCase):
         b.go(m2_path)
         b.wait_js_cond("window.location.hash == '#%s'" % dashboard_path)
 
-        # renable admin, path should load
+        # renable admin
         m2.execute('passwd -u admin')
+        # wait for dashboard to load
+        b.enter_page("dashboard")
+        b.wait_attr('#dashboard-hosts a:nth-child(%d) img' % m2_index, 'src', 'images/server-error.png')
+        b.switch_to_top()
+
+        # path should load
         b.go(m2_path)
         b.enter_page("/playground/test", m2.address)
         # image is back because it page was reloaded after disconnection
@@ -278,7 +284,7 @@ class TestMultiMachine(MachineCase):
         b.wait_text('#file-content', "1")
 
 
-        # load the same page on m2
+        # load the same page on m1
         b.switch_to_top()
         b.go("/@localhost/playground/test")
         b.enter_page("/playground/test")
@@ -288,6 +294,10 @@ class TestMultiMachine(MachineCase):
         # go back to m2 and reload frame.
         b.switch_to_top()
         b.go(m2_path)
+        b.enter_page("/playground/test", m2.address)
+        b.wait_text('#file-content', "1")
+        b.switch_to_top()
+
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "data-loaded", null)' % frame)
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "src", "../playground/test.html?i=1#/")' % frame)
         b.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)

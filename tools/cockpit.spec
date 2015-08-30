@@ -145,6 +145,8 @@ Requires: /usr/bin/date
 %if 0%{?rhel}
 Provides: %{name}-subscriptions = %{version}-%{release}
 Requires: subscription-manager >= 1.13
+Provides: %{name}-networkmanager = %{version}-%{release}
+Requires: NetworkManager
 %ifarch x86_64 armv7hl
 Provides: %{name}-docker = %{version}-%{release}
 Requires: docker >= 1.3.0
@@ -256,9 +258,9 @@ sed -i "s|%{buildroot}/usr/src/debug||" debug.list
 tar -C %{buildroot}/usr/src/debug -cf - . | tar -C %{buildroot} -xf -
 rm -rf %{buildroot}/usr/src/debug
 
-# On RHEL subscriptions and docker are part of the shell package
+# On RHEL subscriptions, networkmanager, and docker are part of the shell package
 %if 0%{?rhel}
-cat subscriptions.list docker.list >> shell.list
+cat subscriptions.list docker.list networkmanager.list >> shell.list
 %endif
 
 # Only strip out debug info in non wip builds
@@ -359,6 +361,15 @@ subscription management.
 
 %files subscriptions -f subscriptions.list
 
+%package networkmanager
+Summary: Cockpit user interface for networking, using NetworkManager
+Requires: NetworkManager
+
+%description networkmanager
+The Cockpit component for managing networking.  This package uses NetworkManager.
+
+%files networkmanager -f networkmanager.list
+
 %ifarch x86_64 armv7hl
 
 %package docker
@@ -397,15 +408,6 @@ Requires: storaged >= 2.1.1
 The Cockpit component for managing storage.  This package uses Storaged.
 
 %files storaged -f storaged.list
-
-%package networkmanager
-Summary: Cockpit user interface for networking, using NetworkManager
-Requires: NetworkManager
-
-%description networkmanager
-The Cockpit component for managing networking.  This package uses NetworkManager.
-
-%files networkmanager -f networkmanager.list
 
 %if %{defined gitcommit}
 

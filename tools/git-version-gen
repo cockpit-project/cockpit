@@ -9,7 +9,7 @@ fi
 
 generate() {
 	if [ -d .git ]; then
-		git describe | sed 's/-[0-9]\+-g/-git/'
+		git describe | sed 's/-[0-9]\+-g.*/.x/'
 	else
 		cat $1
 	fi

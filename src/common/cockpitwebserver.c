@@ -751,7 +751,6 @@ typedef struct {
   gint delayed_reply;
   CockpitWebServer *web_server;
   gboolean eof_okay;
-  gint num;
   GSource *source;
   GSource *timeout;
 } CockpitRequest;
@@ -1191,9 +1190,9 @@ on_request_timeout (gpointer data)
 {
   CockpitRequest *request = data;
   if (request->eof_okay)
-    g_debug ("request %d timed out, closing", request->num);
+    g_debug ("request timed out, closing");
   else
-    g_message ("request %d timed out, closing", request->num);
+    g_message ("request timed out, closing");
   cockpit_request_finish (request);
   return FALSE;
 }
@@ -1213,9 +1212,8 @@ cockpit_request_start (CockpitWebServer *self,
   request->io = g_object_ref (io);
   request->buffer = g_byte_array_new ();
 
-  /* Right before a successive request, EOF is not unexpected */
-  request->eof_okay = !first;
-  request->num++;
+  /* Right before a request, EOF is not unexpected */
+  request->eof_okay = TRUE;
 
   request->timeout = g_timeout_source_new_seconds (cockpit_webserver_request_timeout);
   g_source_set_callback (request->timeout, on_request_timeout, request, NULL);

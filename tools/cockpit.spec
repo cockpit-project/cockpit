@@ -364,6 +364,7 @@ subscription management.
 %package networkmanager
 Summary: Cockpit user interface for networking, using NetworkManager
 Requires: NetworkManager
+BuildArch: noarch
 
 %description networkmanager
 The Cockpit component for managing networking.  This package uses NetworkManager.
@@ -403,6 +404,7 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 %package storaged
 Summary: Cockpit user interface for storage, using Storaged
 Requires: storaged >= 2.1.1
+BuildArch: noarch
 
 %description storaged
 The Cockpit component for managing storage.  This package uses Storaged.

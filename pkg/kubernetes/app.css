@@ -256,7 +256,7 @@ table.listing {
     min-width: 55%;
 }
 
-table.listing tbody {
+table.listing > tbody {
     cursor: pointer;
 }
 
@@ -265,7 +265,15 @@ table.listing thead th {
     color: #888;
 }
 
-table.listing tbody th {
+table.listing thead.selected {
+    cursor: pointer;
+}
+
+table.listing thead.selected tr:hover {
+    background-color: #d4edfa;
+}
+
+table.listing tbody > th {
     font-weight: bold;
 }
 
@@ -294,8 +302,12 @@ table.listing tbody {
     border-bottom: 1px solid #EEE;
 }
 
-table.listing tbody tr:hover {
+table.listing > tbody > tr:hover {
     background-color: #d4edfa;
+}
+
+table.listing > tbody > tr.selected {
+    display: none;
 }
 
 table.listing .listing-empty {
@@ -305,6 +317,112 @@ table.listing .listing-empty {
 
 table.listing tbody tr + tr.listing-empty {
     display: none;
+}
+
+table.listing tr.listing-panel {
+    border-top: none;
+    border-bottom: none;
+    cursor: auto;
+}
+
+table.listing tr.listing-panel + tr {
+    border-top: none;
+}
+
+table.listing tr.listing-panel > td {
+    padding: 0;
+}
+
+table.listing tr.listing-panel + tr.listing-panel > td {
+    padding-top: 5px;
+}
+
+table.listing tr.listing-panel td > * {
+    margin: 0;
+}
+
+tr.listing-panel div.panel {
+    background-color: #F0F0F0;
+    border-color: #CCC;
+    border-top: 3px solid #0099D3;
+    -webkit-box-shadow: 1px 1px 1px 1px #F0F0F0;
+    box-shadow: 1px 1px 1px 1px #F0F0F0;
+}
+
+tr.listing-panel div.panel-heading {
+    background: none;
+    border-color: #CCC;
+    padding: 10px;
+    height: auto;
+}
+
+tr.listing-panel div.panel-heading h3 {
+    font-size: 15px;
+    margin-left: 25px;
+}
+
+tr.listing-panel div.panel-heading p {
+    margin-left: 25px;
+    margin-bottom: 0px;
+}
+
+tr.listing-panel button.listing-star {
+    font-size: 18px;
+    line-height: 1;
+    opacity: 0.4;
+    float: left;
+    border: 0px none;
+    background: transparent;
+    padding: 0px;
+    margin-bottom: 15px;
+}
+
+tr.listing-panel button.listing-star:hover,
+tr.listing-panel button.listing-star:focus {
+    opacity: 0.9;
+}
+
+tr.listing-panel button.listing-star.active {
+    opacity: 1;
+    color: #0099D3;
+}
+
+button.listing-star.fa:before {
+    content: "\f006";
+}
+
+button.listing-star.active.fa:before {
+    content: "\f005";
+}
+
+tr.listing-panel .listing-actions {
+    float: right;
+}
+
+tr.listing-panel .panel-heading dl {
+    display: inline;
+    height: 1.6em;
+    margin-bottom: none;
+    white-space: nowrap;
+    margin-right: 55px;
+    margin-left: 9px;
+}
+
+tr.listing-panel .panel-heading dt {
+    font-weight: normal;
+    display: inline;
+    margin-right: 0.5em;
+    color: #888;
+}
+
+tr.listing-panel .panel-heading dd {
+    display: inline;
+    color: black;
+}
+
+table.listing div.panel table tbody tr {
+    border-top: 1px solid #CCC;
+    border-bottom: none;
 }
 
 /* HACK: https://bugzilla.mozilla.org/show_bug.cgi?id=409254 */

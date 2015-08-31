@@ -13,6 +13,7 @@ kubernetes_DATA = \
 kubernetes_VIEWS = \
 	pkg/kubernetes/views/container-panel.html \
 	pkg/kubernetes/views/dashboard.html \
+	pkg/kubernetes/views/default-panel.html \
 	pkg/kubernetes/views/details.html \
 	pkg/kubernetes/views/images.html \
 	pkg/kubernetes/views/listing.html \

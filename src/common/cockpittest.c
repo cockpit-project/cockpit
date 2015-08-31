@@ -510,16 +510,27 @@ stack_trace (char **args)
     {
       /* Save stderr for printing failure below */
       int old_err = dup (2);
-      fcntl (old_err, F_SETFD, fcntl (old_err, F_GETFD) | FD_CLOEXEC);
 
-      if (dup2 (in_fd[0], 0) < 0 || dup2 (out_fd[1], 1) < 0)
+      int res = fcntl (old_err, F_GETFD);
+      if (res == -1)
         {
-          perror ("dup fds failed");
+          perror ("getfd failed");
+        }
+      else if (fcntl (old_err, F_SETFD,  res | FD_CLOEXEC) == -1)
+        {
+          perror ("setfd failed");
         }
       else
         {
-          execvp (args[0], args);
-          perror ("exec gdb failed");
+          if (dup2 (in_fd[0], 0) < 0 || dup2 (out_fd[1], 1) < 0)
+            {
+              perror ("dup fds failed");
+            }
+          else
+            {
+              execvp (args[0], args);
+              perror ("exec gdb failed");
+            }
         }
       _exit (0);
     }

@@ -280,14 +280,25 @@ read_string (int fd,
 {
   /* We only accept a max of 8K */
   #define MAX_LENGTH 8192
+  #define BLOCK 256
 
-  char buf[256];
   char *ret = NULL;
   int r, len = 0;
 
   for (;;)
     {
-      r = read (fd, buf, sizeof (buf));
+      char *n = realloc (ret, len + BLOCK);
+      if (!n)
+        {
+          free (ret);
+          errno = ENOMEM;
+          return NULL;
+        }
+
+      memset (n + len, 0, BLOCK);
+      ret = n;
+
+      r = read (fd, ret + len, BLOCK-1);
       if (r < 0)
         {
           if (errno == EAGAIN || errno == EINTR)
@@ -298,18 +309,7 @@ read_string (int fd,
         }
       else
         {
-          char *n = realloc (ret, len + r + 1);
-          if (!n)
-            {
-              free (ret);
-              errno = ENOMEM;
-              return NULL;
-            }
-
-          memset (n + len, 0, r + 1);
-          ret = n;
           len = len + r;
-          strncat (ret, buf, r);
         }
 
       if (r == 0 || len > MAX_LENGTH || consume == 0)

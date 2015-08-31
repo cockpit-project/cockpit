@@ -128,22 +128,23 @@ var C_ = cockpit.gettext;
 
 shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
     var options = { };
-    var data = [ ];
-    var flot = null;
     var result = { };
 
-    var interval;
+    var series = [ ];
+    var flot_data = [ ];
+    var flot = null;
 
+    var interval;
     var grid;
 
     function refresh_now() {
         if (flot === null) {
             if (element.height() === 0 || element.width() === 0)
                 return;
-            flot = $.plot(element, data, options);
+            flot = $.plot(element, flot_data, options);
         }
 
-        flot.setData(data);
+        flot.setData(flot_data);
         var axes = flot.getAxes();
 
         /* Walking and fetching samples are not synchronized, which
@@ -217,8 +218,8 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
                 grid.close();
             grid = cockpit.grid(interval, beg, end);
             sync_suppressed++;
-            for (var i = 0; i < data.length; i++)
-                data[i].reset();
+            for (var i = 0; i < series.length; i++)
+                series[i].reset();
             sync_suppressed--;
             sync();
 
@@ -235,11 +236,12 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
 
     function destroy() {
         grid.close();
-        for (var i = 0; i < data.length; i++)
-            data[i].stop();
+        for (var i = 0; i < series.length; i++)
+            series[i].stop();
 
         options = { };
-        data = [ ];
+        series = [ ];
+        flot_data = [ ];
         flot = null;
         $(element).empty();
     }
@@ -262,43 +264,41 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
     }
 
     function add_metrics_sum_series(desc, opts) {
-        var series = opts;
         var channel = null;
 
         var self = {
-            options: series,
+            options: opts,
             move_to_front: move_to_front,
             remove: remove
         };
 
-        series.stop = stop;
-        series.reset = reset_series;
-        series.hover = hover;
+        series.push({
+            stop: stop,
+            reset: reset_series,
+            hover_hit: hover_hit,
+            hover: hover
+        });
 
         function stop() {
             if (channel)
                 channel.close();
         }
 
-        function hover(val) {
-            $(self).triggerHandler('hover', [ val ]);
-        }
-
         function add_series() {
-            data.push(series);
+            flot_data.push(opts);
         }
 
         function remove_series() {
-            var pos = data.indexOf(series);
+            var pos = flot_data.indexOf(opts);
             if (pos >= 0)
-                data.splice(pos, 1);
+                flot_data.splice(pos, 1);
         }
 
         function move_to_front() {
-            var pos = data.indexOf(series);
+            var pos = flot_data.indexOf(opts);
             if (pos >= 0) {
-                data.splice(pos, 1);
-                data.push(series);
+                flot_data.splice(pos, 1);
+                flot_data.push(opts);
             }
         }
 
@@ -355,7 +355,7 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
 
             var metrics_row = grid.add(channel, [ ]);
             var factor = desc.factor || 1;
-            series.data = grid.add(function(row, x, n) {
+            opts.data = grid.add(function(row, x, n) {
                 for (var i = 0; i < n; i++)
                     row[x + i] = [(grid.beg + x + i)*interval, flat_sum(metrics_row[x + i]) * factor];
             });
@@ -373,30 +373,197 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
             sync();
         }
 
+        function hover_hit(pos, item) {
+            return !!(item && (item.series.data == opts.data));
+        }
+
+        function hover(val) {
+            $(self).triggerHandler('hover', [ val ]);
+        }
+
         reset_series();
         add_series();
 
         return self;
     }
 
-    var cur_hover = null;
+    function add_metrics_stacked_instances_series(desc, opts, colors) {
+        var channel = null;
 
-    function hover(series) {
-        if (series !== cur_hover) {
-            if (cur_hover && cur_hover.hover)
-                cur_hover.hover(false);
-            cur_hover = series;
-            if (cur_hover && cur_hover.hover)
-                cur_hover.hover(true);
+        var self = {
+            add_instance:    add_instance,
+            clear_instances: clear_instances
+        };
+
+        series.push({
+            stop: stop,
+            reset: reset_series,
+            hover_hit: hover_hit,
+            hover: hover
+        });
+
+        function stop() {
+            if (channel)
+                channel.close();
+        }
+
+        function build_metric(n) {
+            return { name: n, units: desc.units, derive: desc.derive };
+        }
+
+        var chanopts_list = [ ];
+
+        if (desc.direct) {
+            chanopts_list.push({ source: "direct",
+                                 archive_source: "pcp-archive",
+                                 metrics: [ build_metric(desc.direct) ],
+                                 metrics_path_names: [ "a" ],
+                                 instances: desc.instances,
+                                 "omit-instances": desc['omit-instances'],
+                                 host: desc.host
+                               });
+        }
+
+        if (desc.internal) {
+            chanopts_list.push({ source: "internal",
+                                 metrics: [ build_metric(desc.internal) ],
+                                 metrics_path_names: [ "a" ],
+                                 instances: desc.instances,
+                                 "omit-instances": desc['omit-instances'],
+                                 host: desc.host
+                               });
+        }
+
+        function reset_series() {
+            if (channel)
+                channel.close();
+
+            channel = cockpit.metrics(interval, chanopts_list);
+
+            function check_archives() {
+                if (channel.archives && !result.archives) {
+                    result.archives = true;
+                    $(result).triggerHandler("changed");
+                }
+            }
+
+            $(channel).on('changed', check_archives);
+            check_archives();
+
+            sync_suppressed++;
+            for (var name in instances)
+                instances[name].reset();
+            sync_suppressed--;
+            sync();
+        }
+
+        var instances = { };
+        var last_instance = null;
+
+        function add_instance(name) {
+            if (instances[name])
+                return;
+
+            var instance_data = $.extend({}, opts);
+            var factor = desc.factor || 1;
+            var last = last_instance;
+            var metrics_row;
+
+            function reset() {
+                metrics_row = grid.add(channel, [ "a", name ]);
+                instance_data.data = grid.add(function(row, x, n) {
+                    for (var i = 0; i < n; i++) {
+                        var floor = last? last.data[x + i][2] : 0;
+                        row[x + i] = [(grid.beg + x + i)*interval, floor, floor + (metrics_row[x + i] || 0)*factor];
+                    }
+                });
+                sync();
+            }
+
+            function remove() {
+                grid.remove(metrics_row);
+                grid.remove(instance_data.data);
+                var pos = flot_data.indexOf(instance_data);
+                if (pos >= 0)
+                    flot_data.splice(pos, 1);
+            }
+
+            last_instance = instance_data;
+            instances[name] = instance_data;
+            instance_data.reset = reset;
+            instance_data.remove = remove;
+
+            reset();
+            flot_data.push(instance_data);
+        }
+
+        function clear_instances() {
+            for (var i in instances)
+                instances[i].remove();
+            instances = { };
+            last_instance = null;
+        }
+
+        function hover_hit(pos, item) {
+            var name, index;
+
+            if (!grid)
+                return false;
+
+            index = Math.round(pos.x/interval) - grid.beg;
+            if (index < 0)
+                index = 0;
+
+            for (name in instances) {
+                var d = instances[name].data;
+                if (d[index] && d[index][1] <= pos.y && pos.y <= d[index][2])
+                    return name;
+            }
+            return false;
+        }
+
+        function hover(val) {
+            $(self).triggerHandler('hover', [ val ]);
+        }
+
+        reset_series();
+        return self;
+    }
+
+    var cur_hover_series = null;
+    var cur_hover_val = false;
+
+    function hover(next_hover_series, next_hover_val) {
+        if (cur_hover_series != next_hover_series) {
+            if (cur_hover_series)
+                cur_hover_series.hover(false);
+            cur_hover_series = next_hover_series;
+            cur_hover_val = next_hover_val;
+            if (cur_hover_series)
+                cur_hover_series.hover(cur_hover_val);
+        } else if (cur_hover_val != next_hover_val) {
+            cur_hover_val = next_hover_val;
+            if (cur_hover_series)
+                cur_hover_series.hover(cur_hover_val);
         }
     }
 
     function hover_on(event, pos, item) {
-        hover(item && item.series);
+        var next_hover_series = null;
+        var next_hover_val = false;
+        for (var i = 0; i < series.length; i++) {
+            next_hover_val = series[i].hover_hit(pos, item);
+            if (next_hover_val) {
+                next_hover_series = series[i];
+                break;
+            }
+        }
+
+        hover(next_hover_series, next_hover_val);
     }
 
     function hover_off(event) {
-        hover(null);
+        hover(null, false);
     }
 
     function selecting(event, ranges) {
@@ -426,7 +593,8 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
         resize: resize,
         set_options: set_options,
         get_options: get_options,
-        add_metrics_sum_series: add_metrics_sum_series
+        add_metrics_sum_series: add_metrics_sum_series,
+        add_metrics_stacked_instances_series: add_metrics_stacked_instances_series
     });
 
     return result;
@@ -464,6 +632,32 @@ shell.plot_simple_template = function simple() {
             borderColor: $.color.parse("black").scale('a', 0.22).toString(),
             labelMargin: 0
         }
+    };
+};
+
+shell.plot_simple_stacked_template = function simple_stacked() {
+    return {
+        colors: [ "#0099d3" ],
+        legend: { show: false },
+        series: { shadowSize: 0,
+                  lines: { lineWidth: 0.0,
+                           fill: 1.0
+                         }
+                },
+        xaxis: { tickFormatter: function() { return ""; } },
+        yaxis: { tickFormatter: function() { return ""; } },
+        // The point radius influences
+        // the margin around the grid
+        // even if no points are plotted.
+        // We don't want any margin, so
+        // we set the radius to zero.
+        points: { radius: 0 },
+        grid: { borderWidth: 1,
+                aboveData: true,
+                color: "black",
+                borderColor: $.color.parse("black").scale('a', 0.22).toString(),
+                labelMargin: 0
+              }
     };
 };
 

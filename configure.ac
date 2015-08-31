@@ -50,11 +50,6 @@ AC_MSG_RESULT($enable_prefix_only)
 # Initialization
 #
 
-AC_PATH_PROG([XSLTPROC], [xsltproc])
-if test -z "$XSLTPROC"; then
-  AC_MSG_ERROR([xsltproc is needed])
-fi
-
 GLIB_VERSION="2.34"
 LIBSSH_VERSION="0.6.0"
 

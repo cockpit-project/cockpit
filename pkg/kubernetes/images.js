@@ -31,9 +31,19 @@ define([
 
                 function ImageRepository(repo) {
                     var self = this;
-                    self.name = repo;
+                    self.repo = repo;
                     self.images = { };
                     self.imagestreams = { };
+
+                    /* Split out repository name and source */
+                    var parts = repo.split("/");
+                    if (parts.length == 3) {
+                        self.name = parts.slice(1).join("/");
+                        self.source = parts[1];
+                    } else {
+                        self.name = repo;
+                        self.source = null;
+                    }
 
                     /*
                      * ImageRepository.tags:
@@ -103,7 +113,7 @@ define([
 
                 function image_repo(image) {
                     var ref = image.dockerImageReference || "";
-                    return repo_qualify(ref.split('@')[0]);
+                    return repo_qualify(ref.split(':')[0].split('@')[0]);
                 }
 
                 function image_added(ev, image, key) {

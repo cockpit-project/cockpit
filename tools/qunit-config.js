@@ -91,7 +91,7 @@ window.setTimeout(function() {
         console.log("QUnit not started by test");
         console.log("phantom-tap-error");
     }
-}, 5000);
+}, 20000);
 
 }(QUnit, qunitTap));
 

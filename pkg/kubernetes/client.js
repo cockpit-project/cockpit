@@ -31,8 +31,8 @@ define([
     var API_OPENSHIFT = "/oapi";
 
     var TYPE_APIS = {
-        "images" : "origin",
-        "imagestreams" : "origin"
+        "images" : API_OPENSHIFT,
+        "imagestreams" : API_OPENSHIFT,
     };
 
     function debug() {
@@ -171,7 +171,7 @@ define([
     /*
      * KubernetesWatch:
      * @kind: a string like 'Pod' or 'Node'
-     * @api_type: 'kube' or 'origin'
+     * @endpoint: either /api or /oapi
      * @update: invoked when ADDED or MODIFIED happens
      * @remove: invoked when DELETED happens
      *

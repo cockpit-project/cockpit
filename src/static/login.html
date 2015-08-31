@@ -199,7 +199,12 @@
                     } else if (xhr.status == 401) {
                         if (window.console)
                             console.log(xhr.statusText);
-                        login_failure("Wrong user name or password");
+                        if (xhr.statusText.indexOf("not-supported") > -1) {
+                            var user = trim(id("login-user-input").value);
+                            fatal("The server refused to authenticate '" + user + "' using password authentication, and no other supported authentication methods are available.");
+                        } else {
+                            login_failure("Wrong user name or password");
+                        }
                     } else if (xhr.status == 403) {
                         if (window.console)
                             console.log(xhr.statusText);

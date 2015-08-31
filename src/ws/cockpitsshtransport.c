@@ -452,7 +452,7 @@ cockpit_ssh_authenticate (CockpitSshData *data)
       g_message ("%s: server offered unsupported authentication methods: %s",
                  data->logname, description);
       g_free (description);
-      problem = "authentication-failed";
+      problem = "not-supported";
     }
   else if (!password && gsscreds == GSS_C_NO_CREDENTIAL)
     {

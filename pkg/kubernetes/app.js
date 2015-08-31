@@ -118,6 +118,14 @@ define([
             };
         })
 
+        .filter("formatBytes", function() {
+            return function(num) {
+                if (typeof num == "number")
+                    return cockpit.format_bytes(num);
+                return num;
+            };
+        })
+
         .factory('kubernetesClient', function() {
             return kubernetes.k8client();
         })

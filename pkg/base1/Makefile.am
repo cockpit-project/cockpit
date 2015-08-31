@@ -181,11 +181,11 @@ update-lib:: update-bower
 		$(srcdir)/pkg/base1/fonts/glyphicons.woff
 	cp $(BOWER)/patternfly/components/font-awesome/fonts/fontawesome-webfont.woff \
 		$(srcdir)/pkg/base1/fonts/fontawesome.woff
-	$(JSMODULE) -m -a window.angular -o $(srcdir)/pkg/base1/angular.js \
+	$(JSMODULE) -m -a window.angular -d jquery -o $(srcdir)/pkg/base1/angular.js \
 	    $(BOWER)/angular/angular.js \
 	    $(BOWER)/angular-route/angular-route.js \
 	    $(BOWER)/angular-bootstrap/ui-bootstrap.js
-	$(JSMODULE) -m -a window.angular -o $(srcdir)/pkg/base1/angular.min.js \
+	$(JSMODULE) -m -a window.angular -d jquery -o $(srcdir)/pkg/base1/angular.min.js \
 	    $(BOWER)/angular/angular.min.js \
 	    $(BOWER)/angular-route/angular-route.min.js \
 	    $(BOWER)/angular-bootstrap/ui-bootstrap.min.js

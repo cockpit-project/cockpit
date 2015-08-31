@@ -1,6 +1,6 @@
 /* DO NOT EDIT. Automatically generated file */
 /* jshint ignore:start */
-define([], function() {
+define(["jquery"], function() {
 /**
  * @license AngularJS v1.3.14
  * (c) 2010-2014 Google, Inc. http://angularjs.org

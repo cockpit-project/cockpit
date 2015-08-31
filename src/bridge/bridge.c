@@ -37,10 +37,12 @@
 
 #include "deprecated/cockpitdbusjson1.h"
 
+#include "common/cockpitassets.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitlog.h"
 #include "common/cockpitpipetransport.h"
 #include "common/cockpitunixfd.h"
+#include "common/cockpitwebresponse.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -486,6 +488,9 @@ run_bridge (const gchar *interactive)
   ssh_auth_sock = g_getenv ("SSH_AUTH_SOCK");
   if (ssh_auth_sock != NULL && ssh_auth_sock[0] != '\0')
       auth_address = g_unix_socket_address_new (ssh_auth_sock);
+
+  g_resources_register (cockpitassets_get_resource ());
+  cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
 
   cockpit_channel_internal_address ("ssh-agent", auth_address);
 

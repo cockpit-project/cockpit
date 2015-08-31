@@ -168,7 +168,16 @@ test_return_error (TestCase *tc,
 
   resp = output_as_string (tc);
   g_assert_cmpstr (resp, ==,
-    "HTTP/1.1 500 Reason here: booyah\r\nContent-Length: 96\r\n\r\n<html><head><title>500 Reason here: booyah</title></head><body>Reason here: booyah</body></html>");
+    "HTTP/1.1 500 Reason here: booyah\r\n"
+    "Content-Type: text/html; charset=utf8\r\n"
+    "Transfer-Encoding: chunked\r\n"
+    "\r\n"
+    "13\r\n<html><head><title>\r\n"
+    "13\r\nReason here: booyah\r\n"
+    "15\r\n</title></head><body>\r\n"
+    "13\r\nReason here: booyah\r\n"
+    "f\r\n</body></html>\n\r\n"
+    "0\r\n\r\n");
 }
 
 static void
@@ -180,16 +189,17 @@ test_return_error_headers (TestCase *tc,
 
   cockpit_expect_message ("Returning error-response 500*");
 
-  headers = g_hash_table_new (g_str_hash, g_str_equal);
-  g_hash_table_insert (headers, "Header1", "value1");
+  headers = cockpit_web_server_new_table ();
+  g_hash_table_insert (headers, g_strdup ("Header1"), g_strdup ("value1"));
 
   cockpit_web_response_error (tc->response, 500, headers, "Reason here: %s", "booyah");
 
   g_hash_table_destroy (headers);
 
   resp = output_as_string (tc);
-  g_assert_cmpstr (resp, ==,
-    "HTTP/1.1 500 Reason here: booyah\r\nHeader1: value1\r\nContent-Length: 96\r\n\r\n<html><head><title>500 Reason here: booyah</title></head><body>Reason here: booyah</body></html>");
+  cockpit_assert_strmatch(resp,"HTTP/1.1 500 Reason here: booyah\r*\n"
+    "Header1: value1\r*\n"
+    "\r\n");
 }
 
 static void
@@ -202,8 +212,8 @@ test_return_gerror_headers (TestCase *tc,
 
   cockpit_expect_message ("Returning error-response 500*");
 
-  headers = g_hash_table_new (g_str_hash, g_str_equal);
-  g_hash_table_insert (headers, "Header1", "value1");
+  headers = cockpit_web_server_new_table ();
+  g_hash_table_insert (headers, g_strdup ("Header1"), g_strdup ("value1"));
 
   error = g_error_new (G_IO_ERROR, G_IO_ERROR_FAILED, "Reason here: %s", "booyah");
   cockpit_web_response_gerror (tc->response, headers, error);
@@ -212,8 +222,20 @@ test_return_gerror_headers (TestCase *tc,
   g_hash_table_destroy (headers);
 
   resp = output_as_string (tc);
-  g_assert_cmpstr (resp, ==,
-    "HTTP/1.1 500 Reason here: booyah\r\nHeader1: value1\r\nContent-Length: 96\r\n\r\n<html><head><title>500 Reason here: booyah</title></head><body>Reason here: booyah</body></html>");
+  cockpit_assert_strmatch(resp,"HTTP/1.1 500 Reason here: booyah\r*\n"
+    "Header1: value1\r*\n"
+    "\r\n");
+}
+
+static void
+test_return_error_resource (TestCase *tc,
+                            gconstpointer user_data)
+{
+  const gchar *roots[] = { srcdir, NULL };
+  cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
+  cockpit_web_response_file (tc->response, "/non-existant", FALSE, roots);
+  cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 404 Not Found*<img*Not Found*");
+  cockpit_web_failure_resource = NULL;
 }
 
 static void
@@ -811,6 +833,8 @@ main (int argc,
               setup, test_return_error_headers, teardown);
   g_test_add ("/web-response/return-gerror-headers", TestCase, NULL,
               setup, test_return_gerror_headers, teardown);
+  g_test_add ("/web-response/return-error-resource", TestCase, NULL,
+              setup, test_return_error_resource, teardown);
   g_test_add ("/web-response/file/not-found", TestCase, NULL,
               setup, test_file_not_found, teardown);
   g_test_add ("/web-response/file/directory-denied", TestCase, NULL,

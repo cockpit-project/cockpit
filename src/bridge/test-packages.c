@@ -270,7 +270,7 @@ test_not_found (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   data = mock_transport_pop_channel (tc->transport, "444");
-  cockpit_assert_bytes_eq (data, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{}}", -1);
+  cockpit_assert_bytes_eq (data, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"Content-Type\":\"text/html; charset=utf8\"}}", -1);
 }
 
 static const Fixture fixture_unknown_package = {
@@ -289,7 +289,7 @@ test_unknown_package (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   data = mock_transport_pop_channel (tc->transport, "444");
-  cockpit_assert_bytes_eq (data, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{}}", -1);
+  cockpit_assert_bytes_eq (data, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"Content-Type\":\"text/html; charset=utf8\"}}", -1);
 }
 
 static const Fixture fixture_no_path = {
@@ -308,7 +308,7 @@ test_no_path (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   data = mock_transport_pop_channel (tc->transport, "444");
-  cockpit_assert_bytes_eq (data, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{}}", -1);
+  cockpit_assert_bytes_eq (data, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"Content-Type\":\"text/html; charset=utf8\"}}", -1);
 }
 
 static const Fixture fixture_bad_path = {
@@ -327,7 +327,7 @@ test_bad_path (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   data = mock_transport_pop_channel (tc->transport, "444");
-  cockpit_assert_bytes_eq (data, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{}}", -1);
+  cockpit_assert_bytes_eq (data, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"Content-Type\":\"text/html; charset=utf8\"}}", -1);
 }
 
 static const Fixture fixture_no_package = {
@@ -346,7 +346,7 @@ test_no_package (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   data = mock_transport_pop_channel (tc->transport, "444");
-  cockpit_assert_bytes_eq (data, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{}}", -1);
+  cockpit_assert_bytes_eq (data, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"Content-Type\":\"text/html; charset=utf8\"}}", -1);
 }
 
 static const Fixture fixture_bad_package = {
@@ -367,7 +367,7 @@ test_bad_package (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   data = mock_transport_pop_channel (tc->transport, "444");
-  cockpit_assert_bytes_eq (data, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{}}", -1);
+  cockpit_assert_bytes_eq (data, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"Content-Type\":\"text/html; charset=utf8\"}}", -1);
 }
 
 static void

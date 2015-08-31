@@ -110,7 +110,8 @@ class TestKubernetes(KubernetesCase):
         b.dialog_cancel("#node-dialog")
 
         # Make sure pod has started
-        b.wait_text("#service-list tr[data-name='mock']:first-of-type td.containers", "1")
+        with b.wait_timeout(120):
+            b.wait_text("#service-list tr[data-name='mock']:first-of-type td.containers", "1")
         b.click("#service-list tr[data-name='mock']:first-of-type")
 
         # Check that clicking on service goes to containers

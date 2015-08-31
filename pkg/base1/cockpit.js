@@ -2910,6 +2910,8 @@ function full_scope(cockpit, $, po) {
                     mapping[metric.name] = map;
                     if (metric.instances) {
                         metric.instances.forEach(function(instance, i) {
+                            if (instance === "")
+                                instance = "/";
                             map[instance] = { "": i };
                         });
                     }

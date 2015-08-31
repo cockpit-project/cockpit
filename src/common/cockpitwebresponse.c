@@ -28,6 +28,7 @@
 #include "cockpitwebresponse.h"
 
 #include "common/cockpiterror.h"
+#include "common/cockpittemplate.h"
 
 #include <errno.h>
 #include <stdlib.h>
@@ -38,6 +39,14 @@
  * directory, like branding
  */
 const gchar *cockpit_web_exception_escape_root = NULL;
+
+/**
+ * Certain processes may want to have a non-default error page.
+ */
+const gchar *cockpit_web_failure_resource = NULL;
+
+static const gchar default_failure_template[] =
+  "<html><head><title>@@message@@</title></head><body>@@message@@</body></html>\n";
 
 /**
  * CockpitWebResponse:
@@ -875,6 +884,16 @@ cockpit_web_response_content (CockpitWebResponse *self,
   va_end (va2);
 }
 
+static GBytes *
+substitute_message (const gchar *variable,
+                    gpointer user_data)
+{
+  const gchar *message = user_data;
+  if (g_str_equal (variable, "message"))
+    return g_bytes_new (message, strlen (message));
+  return NULL;
+}
+
 /**
  * cockpit_web_response_error:
  * @self: the response
@@ -892,12 +911,12 @@ cockpit_web_response_error (CockpitWebResponse *self,
                             const gchar *format,
                             ...)
 {
-  gchar *body = NULL;
   va_list var_args;
   gchar *reason = NULL;
   const gchar *message;
-  GBytes *content;
-  gsize length;
+  GBytes *input = NULL;
+  GList *output, *l;
+  GError *error = NULL;
 
   g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (self));
 
@@ -947,18 +966,43 @@ cockpit_web_response_error (CockpitWebResponse *self,
         }
     }
 
-  body = g_strdup_printf ("<html><head><title>%u %s</title></head>"
-                          "<body>%s</body></html>",
-                          code, message, message);
-
   g_debug ("%s: returning error: %u %s", self->logname, code, message);
 
-  length = strlen (body);
-  content = g_bytes_new_take (body, length);
-  cockpit_web_response_headers_full (self, code, message, length, headers);
-  if (cockpit_web_response_queue (self, content))
+  if (cockpit_web_failure_resource)
+    {
+      input = g_resources_lookup_data (cockpit_web_failure_resource, G_RESOURCE_LOOKUP_FLAGS_NONE, &error);
+      if (input == NULL)
+        {
+          g_critical ("couldn't load: %s: %s", cockpit_web_failure_resource, error->message);
+          g_error_free (error);
+        }
+    }
+
+  if (!input)
+    input = g_bytes_new_static (default_failure_template, strlen (default_failure_template));
+
+  if (headers)
+    {
+      if (!g_hash_table_lookup (headers, "Content-Type"))
+        g_hash_table_replace (headers, g_strdup ("Content-Type"), g_strdup ("text/html; charset=utf8"));
+      cockpit_web_response_headers_full (self, code, message, -1, headers);
+    }
+  else
+    {
+      cockpit_web_response_headers (self, code, message, -1, "Content-Type", "text/html; charset=utf8", NULL);
+    }
+
+  output = cockpit_template_expand (input, substitute_message, (gpointer)message);
+  g_bytes_unref (input);
+
+  for (l = output; l != NULL; l = g_list_next (l))
+    {
+      if (!cockpit_web_response_queue (self, l->data))
+        break;
+    }
+  if (l == NULL)
     cockpit_web_response_complete (self);
-  g_bytes_unref (content);
+  g_list_free_full (output, (GDestroyNotify)g_bytes_unref);
 
   g_free (reason);
 }

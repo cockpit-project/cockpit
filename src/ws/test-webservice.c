@@ -1617,9 +1617,14 @@ test_resource_not_found (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 404 Not Found\r\n"
-                           "Content-Length: 76\r\n"
-                           "\r\n"
-                           "<html><head><title>404 Not Found</title></head><body>Not Found</body></html>", -1);
+                           "Content-Type: text/html; charset=utf8\r\n"
+                           "Transfer-Encoding: chunked\r\n"
+                           "\r\n13\r\n"
+                           "<html><head><title>\r\n9\r\n"
+                           "Not Found\r\n15\r\n"
+                           "</title></head><body>\r\n9\r\n"
+                           "Not Found\r\nf\r\n"
+                           "</body></html>\n\r\n0\r\n\r\n", -1);
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -1646,9 +1651,14 @@ test_resource_no_path (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 404 Not Found\r\n"
-                           "Content-Length: 76\r\n"
-                           "\r\n"
-                           "<html><head><title>404 Not Found</title></head><body>Not Found</body></html>", -1);
+                           "Content-Type: text/html; charset=utf8\r\n"
+                           "Transfer-Encoding: chunked\r\n"
+                           "\r\n13\r\n"
+                           "<html><head><title>\r\n9\r\n"
+                           "Not Found\r\n15\r\n"
+                           "</title></head><body>\r\n9\r\n"
+                           "Not Found\r\nf\r\n"
+                           "</body></html>\n\r\n0\r\n\r\n", -1);
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -1683,9 +1693,14 @@ test_resource_failure (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 500 Internal Server Error\r\n"
-                           "Content-Length: 100\r\n"
-                           "\r\n"
-                           "<html><head><title>500 Internal Server Error</title></head><body>Internal Server Error</body></html>", -1);
+                           "Content-Type: text/html; charset=utf8\r\n"
+                           "Transfer-Encoding: chunked\r\n"
+                           "\r\n13\r\n"
+                           "<html><head><title>\r\n15\r\n"
+                           "Internal Server Error\r\n15\r\n"
+                           "</title></head><body>\r\n15\r\n"
+                           "Internal Server Error\r\nf\r\n"
+                           "</body></html>\n\r\n0\r\n\r\n", -1);
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -1862,9 +1877,14 @@ test_resource_no_checksum (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 404 Not Found\r\n"
-                           "Content-Length: 76\r\n"
-                           "\r\n"
-                           "<html><head><title>404 Not Found</title></head><body>Not Found</body></html>", -1);
+                           "Content-Type: text/html; charset=utf8\r\n"
+                           "Transfer-Encoding: chunked\r\n"
+                           "\r\n13\r\n"
+                           "<html><head><title>\r\n9\r\n"
+                           "Not Found\r\n15\r\n"
+                           "</title></head><body>\r\n9\r\n"
+                           "Not Found\r\nf\r\n"
+                           "</body></html>\n\r\n0\r\n\r\n", -1);
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -1891,9 +1911,14 @@ test_resource_bad_checksum (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 404 Not Found\r\n"
-                           "Content-Length: 76\r\n"
-                           "\r\n"
-                           "<html><head><title>404 Not Found</title></head><body>Not Found</body></html>", -1);
+                           "Content-Type: text/html; charset=utf8\r\n"
+                           "Transfer-Encoding: chunked\r\n"
+                           "\r\n13\r\n"
+                           "<html><head><title>\r\n9\r\n"
+                           "Not Found\r\n15\r\n"
+                           "</title></head><body>\r\n9\r\n"
+                           "Not Found\r\nf\r\n"
+                           "</body></html>\n\r\n0\r\n\r\n", -1);
   g_bytes_unref (bytes);
   g_object_unref (response);
 }

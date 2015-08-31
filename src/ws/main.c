@@ -29,6 +29,7 @@
 #include "cockpitws.h"
 #include "cockpithandlers.h"
 
+#include "common/cockpitassets.h"
 #include "common/cockpitcertificate.h"
 #include "common/cockpitconf.h"
 #include "common/cockpitlog.h"
@@ -103,6 +104,10 @@ calculate_static_roots (GHashTable *os_release)
 
   /* Allow branding symlinks to escape these roots into /usr/share/pixmaps */
   cockpit_web_exception_escape_root = "/usr/share/pixmaps";
+
+  /* Load the fail template */
+  g_resources_register (cockpitassets_get_resource ());
+  cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
 
   return roots;
 }

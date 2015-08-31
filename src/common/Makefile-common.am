@@ -10,18 +10,32 @@ test-dbus-generated.c: Makefile.am $(srcdir)/src/common/com.redhat.Cockpit.DBusT
 		$(srcdir)/src/common/com.redhat.Cockpit.DBusTests.xml \
 		$(NULL)
 
+src/common/cockpitassets.h: src/common/cockpitassets.gresource.xml
+	@$(MKDIR_P) $(dir $@)
+	$(AM_V_GEN) glib-compile-resources --target=$@ --generate-header --sourcedir=$(dir $<) $<
+src/common/cockpitassets.c: src/common/cockpitassets.gresource.xml src/common/fail.html
+	@$(MKDIR_P) $(dir $@)
+	$(AM_V_GEN) glib-compile-resources --target=$@ --generate-source --sourcedir=$(dir $<) $<
+
 test_built_sources = $(test_dbus_generated)
 mock_dbus_sources = \
 	src/common/mock-service.c \
 	src/common/mock-service.h \
 	$(NULL)
 
-BUILT_SOURCES += $(test_built_sources)
-CLEANFILES += $(test_built_sources)
+COCKPIT_ASSETS = \
+       src/common/cockpitassets.h \
+       src/common/cockpitassets.c \
+       $(NULL)
+
+BUILT_SOURCES += $(test_built_sources) $(COCKPIT_ASSETS)
+CLEANFILES += $(test_built_sources) $(COCKPIT_ASSETS)
 
 EXTRA_DIST += \
 	src/common/mock-content \
 	src/common/com.redhat.Cockpit.DBusTests.xml \
+	src/common/cockpitassets.gresource.xml \
+	src/common/fail.html \
 	$(NULL)
 
 noinst_LIBRARIES += libcockpit-common.a
@@ -68,6 +82,7 @@ libcockpit_common_a_SOURCES = \
 	src/common/cockpitwebserver.c \
 	src/common/cockpitconf.h \
 	src/common/cockpitconf.c \
+	$(COCKPIT_ASSETS)
 	$(NULL)
 
 libcockpit_common_a_CFLAGS = \
@@ -129,6 +144,7 @@ test_unixsignal_LDADD = $(libcockpit_common_a_LIBS)
 test_webresponse_SOURCES = \
 	src/common/test-webresponse.c \
 	src/common/mock-io-stream.c src/common/mock-io-stream.h \
+	$(COCKPIT_ASSETS) \
 	$(NULL)
 test_webresponse_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_webresponse_LDADD = $(libcockpit_common_a_LIBS)

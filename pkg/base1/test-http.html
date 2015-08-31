@@ -98,7 +98,7 @@ asyncTest("not found", function() {
             strictEqual(ex.problem, null, "mapped to cockpit code");
             strictEqual(ex.status, 404, "has status code");
             equal(ex.message, "Not Found", "has reason");
-            equal(data, "<html><head><title>404 Not Found</title></head><body>Not Found</body></html>", "got body");
+            equal(data, "<html><head><title>Not Found</title></head><body>Not Found</body></html>\n", "got body");
         })
         .always(function() {
             equal(this.state(), "rejected", "should fail");

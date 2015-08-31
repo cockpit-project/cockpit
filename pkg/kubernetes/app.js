@@ -120,5 +120,64 @@ define([
 
         .factory('kubernetesClient', function() {
             return kubernetes.k8client();
-        });
+        })
+
+        .directive('cockpitListing', [
+            function() {
+                return {
+                    restrict: 'A',
+                    link: function($scope, element, attrs) {
+                        var selection = { };
+                        var sticky = { };
+
+                        $scope.selection = selection;
+
+                        $scope.selected = function selected(id) {
+                            if (id === undefined) {
+                                for (id in selection)
+                                    return true;
+                                return false;
+                            } else {
+                                return id in selection;
+                            }
+                        };
+
+                        $scope.select = function select(id, stick) {
+                            if (stick === undefined) {
+                                Object.keys(selection).forEach(function(old) {
+                                    if (!(old in sticky))
+                                        delete selection[old];
+                                });
+                                if (id !== undefined)
+                                    selection[id] = true;
+                            } else {
+                                if (stick)
+                                    sticky[id] = true;
+                                else
+                                    delete sticky[id];
+                            }
+                        };
+                    }
+                };
+            }
+        ])
+
+        .directive('cockpitListingPanel', [
+            function() {
+                return {
+                    restrict: 'A',
+                    scope: true,
+                    link: function(scope, element, attrs) {
+                        scope.star = false;
+                        scope.$watch("star", function(value) {
+                            scope.select(scope.id, value);
+                        });
+                    },
+                    templateUrl: function(element, attrs) {
+                        var kind = attrs.kind || "default";
+                        return "views/" + kind.toLowerCase() + "-panel.html";
+                    }
+                };
+            }
+        ]);
 });

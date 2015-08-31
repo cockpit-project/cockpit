@@ -135,30 +135,6 @@ Requires: pcp
 %description pcp
 Cockpit support for reading PCP metrics and loading PCP archives.
 
-%package shell
-Summary: Cockpit Shell user interface package
-Requires: %{name}-bridge = %{version}-%{release}
-Requires: shadow-utils
-Requires: grep
-Requires: libpwquality
-Requires: /usr/bin/date
-%if 0%{?rhel}
-Provides: %{name}-subscriptions = %{version}-%{release}
-Requires: subscription-manager >= 1.13
-Provides: %{name}-networkmanager = %{version}-%{release}
-Requires: NetworkManager
-%ifarch x86_64 armv7hl
-Provides: %{name}-docker = %{version}-%{release}
-Requires: docker >= 1.3.0
-%endif
-%endif
-Provides: %{name}-assets
-Obsoletes: %{name}-assets < 0.32
-BuildArch: noarch
-
-%description shell
-This package contains the Cockpit shell UI assets.
-
 %package ws
 Summary: Cockpit Web Service
 Requires: glib-networking
@@ -313,8 +289,6 @@ cat subscriptions.list docker.list networkmanager.list >> shell.list
 # be out of sync with reality.
 /usr/share/pcp/lib/pmlogger reload
 
-%files shell -f shell.list
-
 %files ws
 %doc %{_mandir}/man5/cockpit.conf.5.gz
 %doc %{_mandir}/man8/cockpit-ws.8.gz
@@ -345,6 +319,42 @@ test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 
 %postun ws
 %systemd_postun_with_restart cockpit.socket
+
+%package shell
+Summary: Cockpit Shell user interface package
+Requires: %{name}-bridge = %{version}-%{release}
+Requires: shadow-utils
+Requires: grep
+Requires: libpwquality
+Requires: /usr/bin/date
+%if 0%{?rhel}
+Provides: %{name}-subscriptions = %{version}-%{release}
+Requires: subscription-manager >= 1.13
+Provides: %{name}-networkmanager = %{version}-%{release}
+Requires: NetworkManager
+%ifarch x86_64 armv7hl
+Provides: %{name}-docker = %{version}-%{release}
+Requires: docker >= 1.3.0
+%endif
+%endif
+Provides: %{name}-assets
+Obsoletes: %{name}-assets < 0.32
+BuildArch: noarch
+
+%description shell
+This package contains the Cockpit shell UI assets.
+
+%files shell -f shell.list
+
+%package storaged
+Summary: Cockpit user interface for storage, using Storaged
+Requires: storaged >= 2.1.1
+BuildArch: noarch
+
+%description storaged
+The Cockpit component for managing storage.  This package uses Storaged.
+
+%files storaged -f storaged.list
 
 # Conditionally built packages below
 
@@ -400,16 +410,6 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 %files kubernetes -f kubernetes.list
 
 %endif
-
-%package storaged
-Summary: Cockpit user interface for storage, using Storaged
-Requires: storaged >= 2.1.1
-BuildArch: noarch
-
-%description storaged
-The Cockpit component for managing storage.  This package uses Storaged.
-
-%files storaged -f storaged.list
 
 %if %{defined gitcommit}
 

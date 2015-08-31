@@ -8,6 +8,7 @@ define([
     'use strict';
 
     return angular.module('kubernetes', [
+            'ngAnimate',
             'ngRoute',
             'ui.bootstrap',
             'kubernetes.dashboard',

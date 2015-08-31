@@ -184,9 +184,11 @@ update-lib:: update-bower
 	$(JSMODULE) -m -a window.angular -d jquery -o $(srcdir)/pkg/base1/angular.js \
 	    $(BOWER)/angular/angular.js \
 	    $(BOWER)/angular-route/angular-route.js \
+	    $(BOWER)/angular-animate/angular-animate.js \
 	    $(BOWER)/angular-bootstrap/ui-bootstrap.js
 	$(JSMODULE) -m -a window.angular -d jquery -o $(srcdir)/pkg/base1/angular.min.js \
 	    $(BOWER)/angular/angular.min.js \
+	    $(BOWER)/angular-animate/angular-animate.min.js \
 	    $(BOWER)/angular-route/angular-route.min.js \
 	    $(BOWER)/angular-bootstrap/ui-bootstrap.min.js
 

@@ -6,6 +6,7 @@ define([
 ], function($, cockpit, angular) {
     'use strict';
 
+    var phantom_checkpoint = phantom_checkpoint || function () { };
     var _ = cockpit.gettext;
 
     return angular.module('kubernetes.images', ['ngRoute'])
@@ -39,25 +40,30 @@ define([
                     var parts = repo.split("/");
                     if (parts.length == 3) {
                         self.name = parts.slice(1).join("/");
-                        self.source = parts[1];
+                        self.source = parts[0];
                     } else {
                         self.name = repo;
-                        self.source = null;
+                        self.source = "registry.hub.docker.com";
                     }
 
                     /*
                      * ImageRepository.tags:
+                     * @image: an optional image
                      *
                      * Returns a map of image -> tag. Tag value will be null
                      * for any image that is not tagged.
                      */
-                    self.tags = function tags() {
+                    self.tags = function tags(image) {
                         var result = { };
 
                         /* Account for any untagged images */
-                        angular.forEach(self.images, function(image) {
+                        if (image) {
                             result[image.metadata.name] = null;
-                        });
+                        } else {
+                            angular.forEach(self.images, function(image) {
+                                result[image.metadata.name] = null;
+                            });
+                        }
 
                         /* The only source of tags we have is currently from ImageStream items */
                         angular.forEach(self.imagestreams, function(imagestream) {
@@ -65,7 +71,8 @@ define([
                                 imagestream.status.tags.forEach(function(tag) {
                                     if (tag.items) {
                                         tag.items.forEach(function(item) {
-                                            result[item.image] = tag.tag;
+                                            if (item.image in result)
+                                                result[item.image] = tag.tag;
                                         });
                                     }
                                 });
@@ -116,7 +123,7 @@ define([
                     return repo_qualify(ref.split(':')[0].split('@')[0]);
                 }
 
-                function image_added(ev, image, key) {
+                function image_added(unused, image, key) {
                     var repo = image_repo(image);
                     if (repo) {
                         var repository = repositories[repo];
@@ -127,7 +134,7 @@ define([
                     trigger();
                 }
 
-                function image_removed(ev, image, key) {
+                function image_removed(unused, image, key) {
                     var repo = image_repo(image);
                     if (repo) {
                         var repository = repositories[repo];
@@ -145,7 +152,7 @@ define([
                     return repo_qualify(spec.dockerImageRepository || "");
                 }
 
-                function imagestream_added(ev, imagestream, key) {
+                function imagestream_added(unused, imagestream, key) {
                     var repo = imagestream_repo(imagestream);
                     if (repo) {
                         var repository = repositories[repo];
@@ -156,7 +163,7 @@ define([
                     trigger();
                 }
 
-                function imagestream_removed(ev, imagestream, key) {
+                function imagestream_removed(unused, imagestream, key) {
                     var repo = imagestream_repo(imagestream);
                     if (repo) {
                         var repository = repositories[key];
@@ -199,7 +206,7 @@ define([
                         $(images).on("removed", image_removed);
                         $(images).on("updated", trigger);
                         for (key in images)
-                            image_added(images[key], key);
+                            image_added(null, images[key], key);
 
                         imagestreams = client.select("ImageStream");
                         client.track(imagestreams);
@@ -207,7 +214,7 @@ define([
                         $(imagestreams).on("removed", imagestream_removed);
                         $(imagestreams).on("updated", trigger);
                         for (key in imagestreams)
-                            imagestream_added(imagestreams[key], key);
+                            imagestream_added(null, imagestreams[key], key);
                     }
 
                     var id = unique++;
@@ -259,11 +266,36 @@ define([
 
         .controller('ImagesCtrl', [
             '$scope',
+            '$timeout',
             'kubernetesClient',
             'ImageRegistry',
-            function($scope, kubernetesClient, ImageRegistry) {
+            function($scope, $timeout, kubernetesClient, ImageRegistry) {
                 $scope.registry = new ImageRegistry($scope);
-                $scope.repositories = $scope.registry.repositories;
+                $scope.items = $scope.registry.repositories;
+
+                $scope.failure = null;
+                $scope.state = null;
+
+                $scope.client.watches.images.wait()
+                    .fail(function(ex) {
+                        $scope.failure = ex.message;
+                        $scope.state = 'fail';
+                    })
+                    .done(function(ex) {
+                        $scope.state = 'ready';
+                    })
+                    .always(digest);
+
+                var timeout = null;
+                function digest() {
+                    if (timeout === null) {
+                        timeout = window.setTimeout(function() {
+                            timeout = null;
+                            $scope.$digest();
+                            phantom_checkpoint();
+                        });
+                    }
+                }
             }
         ])
 
@@ -272,7 +304,7 @@ define([
          * ImageRepository.tags()
          */
         .filter('imagesTags', function() {
-            return function(tags) {
+            return function(tags, only) {
                 var extra = 0;
                 var names = [];
                 var image, tag;
@@ -290,9 +322,10 @@ define([
                     names = names.slice(0, 5);
                 }
 
-                var format;
                 var ret = names.join(", ");
-                if (extra) {
+                var format;
+
+                if (!only && extra) {
                     if (ret)
                         format = cockpit.ngettext("more images", _(" + $0 more"), _(" + $0 more"), extra);
                     else
@@ -300,6 +333,18 @@ define([
                     ret += cockpit.format(format, extra);
                 }
                 return ret;
+            };
+        })
+
+        .filter("imagesNamespaces", function() {
+            return function(val) {
+                var result = [ ];
+                angular.forEach(val, function(x) {
+                    var meta = x.metadata || { };
+                    if (meta.namespace)
+                        result.push(meta.namespace);
+                });
+                return result.join(", ");
             };
         });
 });

@@ -4,31 +4,85 @@
 <chapter id="authentication">
   <title>Cockpit Authentication</title>
 
-  <para>Cockpit allows you to monitor and administer several servers at the same time.
-    While you will need to connect to the primary server with a password
-    or kerberos ticket, cockpit does support accessing secondary machines via
-    public key based authentication.</para>
+  <section id="initial-auth">
+    <title>Primary server authentication</title>
 
-  <para>Once a user is successfully logged in, an ssh-agent is started.
-    The following keys are then preloaded into the ssh-agent provided
-    they are supported by your ssh version, present, with the correct
-    permission, and either unencrypted or encrypted with the same
-    password that was used to login.</para>
+    <para>While cockpit allows you to monitor and administer several servers at the
+      same time, there is always a primary server your browser connects to
+      that runs the Cockpit web service (cockpit-ws) through which connections to
+      additional servers are established.
+      See <ulink url="https://raw.githubusercontent.com/cockpit-project/cockpit/master/doc/cockpit-transport.png">this diagram</ulink> for how it works.</para>
 
-  <programlisting>
-  ~/.ssh/identity
-  ~/.ssh/id_rsa
-  ~/.ssh/id_dsa
-  ~/.ssh/id_ed25519
-  ~/.ssh/id_ecdsa
-  </programlisting>
+    <para>By default the cockpit web service is installed on the base system and
+      <link linkend="listen">socket activated by systemd</link>. In this setup
+      access is controlled by by a cockpit specific pam stack, generally located
+      at <filename>/etc/pam.d/cockpit</filename>. By default this is configured
+      to allow you to login with the username and password of any local account on the
+      system or you can setup a <link linkend="sso">Kerberos based SSO
+      solution</link>.</para>
 
-  <para>Cockpit will provide an interface for loading other keys into the agent
-    that could not be automatically loaded.</para>
+    <para>The web server can also be run from the <filename>cockpit/ws</filename> docker
+      container. If you are running cockpit on an <ulink url="http://www.projectatomic.io/">
+      Atomic Host</ulink> this will be the default. In this setup, cockpit estabilshes an
+      SSH connection from the container to the underlying host, meaning that it is up to
+      your SSH server to grant access. To login with a local account, <filename>sshd
+      </filename> will need to be configured to allow password based authentication.
+      Alternatively you can setup a <link linkend="sso">Kerberos based SSO
+      solution</link>.</para>
+  </section>
 
-  <para>Note that when a user is authenticated in this way the authentication
-    happens without a password, as such the standard cockpit reauthorization
-    mechanisms do not work. The user will only be able to obtain additional
-    priviledges if they do not require a password.</para>
+  <section id="secondary-auth">
+    <title>Secondary server authentication</title>
 
+    <para>Once you are able to login to the primary server you will be able to connect to
+      addtional servers. These servers will need to be running an SSH server on port 22
+      and be configured to support one of the following authentication methods.</para>
+
+    <section id="password">
+      <title>Password</title>
+      <para>The target server will need to have password based authentication
+        enabled in <filename>sshd</filename>. When this is setup for the first time,
+        Cockpit will ensure that the user connected to primary server has the
+        same password on the secondary server.</para>
+    </section>
+
+    <section id="kerberos">
+      <title>Kerberos</title>
+      <para>The target server will need to be a member of the same domain as the
+        primary server and your domain must be whitelisted in your browser.
+        See the <link linkend="sso">SSO documentation</link> for how to set
+        this up.</para>
+    </section>
+
+    <section id="public-key">
+      <title>Public key</title>
+
+    <para>When you successfully log into the primary server, an <filename>ssh-agent
+      </filename> is started. The following keys are then preloaded into the
+      <filename>ssh-agent</filename> provided they are supported by your SSH
+      version, present, with the correct permissions, and either unencrypted
+      or encrypted with the same password that was used to login.</para>
+
+    <programlisting>
+      ~/.ssh/identity
+      ~/.ssh/id_rsa
+      ~/.ssh/id_dsa
+      ~/.ssh/id_ed25519
+      ~/.ssh/id_ecdsa
+    </programlisting>
+
+    <para>Cockpit will provide an interface for loading other keys into the agent
+      that could not be automatically loaded.</para>
+
+    <para>The target server will need to have public key authentication enabled in
+      <filename>sshd</filename>, and the public key you wish to use must be present in
+      <filename>~/.ssh/authorized_keys</filename>.</para>
+
+    <para>Note that when a user is authenticated in this way the authentication
+      happens without a password, as such the standard cockpit reauthorization
+      mechanisms do not work. The user will only be able to obtain additional
+      priviledges if they do not require a password.</para>
+
+    </section>
+  </section>
 </chapter>

@@ -90,8 +90,10 @@ define([
 
         var images_meta = { };
 
-        var dbus_client;
-        var monitor;
+        /* Resource usage sampling */
+        var usage_metrics_channel;
+        var usage_grid;
+        var usage_samples = { };
 
         function container_to_name(container) {
             if (!container.Name)
@@ -111,6 +113,8 @@ define([
             var name = container_to_name(container);
             if (name)
                 containers_by_name[name] = id;
+            if (!container.CGroup)
+                container.CGroup = cgroup_from_container(id);
         }
 
         function remove_container(id) {
@@ -150,6 +154,15 @@ define([
                                 var container = JSON.parse(data);
                                 populate_container(id, container);
                                 me.containers[id] = container;
+                                usage_samples[id] = [ usage_grid.add(usage_metrics_channel,
+                                                                     [ "cgroup.memory.usage", container.CGroup ]),
+                                                      usage_grid.add(usage_metrics_channel,
+                                                                     [ "cgroup.cpu.usage", container.CGroup ]),
+                                                      usage_grid.add(usage_metrics_channel,
+                                                                     [ "cgroup.memory.limit", container.CGroup ]),
+                                                      usage_grid.add(usage_metrics_channel,
+                                                                     [ "cgroup.cpu.shares", container.CGroup ])
+                                                    ];
                                 $(me).trigger("container", [id, container]);
                             });
                     });
@@ -170,6 +183,34 @@ define([
                     got_failure = true;
                     $(me).trigger("failure", [ex]);
                 });
+        }
+
+        function handle_usage_samples() {
+            for (var id in usage_samples) {
+                var container = me.containers[id];
+                if (!container)
+                    continue;
+                var samples = usage_samples[id];
+                var mem = samples[0][0];
+                var limit = samples[2][0];
+                /* if the limit is extremely high, consider the value to mean unlimited
+                 * 1.115e18 is roughly 2^60
+                 */
+                if (limit > 1.115e18)
+                    limit = undefined;
+                var cpu = samples[1][0]/10;
+                var priority = samples[3][0];
+                if (mem != container.MemoryUsage ||
+                    limit != container.MemoryLimit ||
+                    cpu != container.CpuUsage ||
+                    priority != container.CpuPriority) {
+                    container.MemoryUsage = mem;
+                    container.MemoryLimit = limit;
+                    container.CpuUsage = cpu;
+                    container.CpuPriority = priority;
+                    $(me).trigger("container", [id, container]);
+                }
+            }
         }
 
         function populate_image(id, image) {
@@ -272,11 +313,29 @@ define([
                 $(me).triggerHandler("event");
             });
 
-            /* TODO: This code needs to be migrated away from cockpit-wrapper */
-            dbus_client = dbusx(null);
-            monitor = dbus_client.get("/com/redhat/Cockpit/LxcMonitor",
-                                      "com.redhat.Cockpit.MultiResourceMonitor");
-            $(monitor).on('NewSample', handle_new_samples);
+            usage_metrics_channel = cockpit.metrics(1000,
+                                                    { source: "internal",
+                                                      metrics: [ { name: "cgroup.memory.usage",
+                                                                   units: "bytes"
+                                                                 },
+                                                                 { name: "cgroup.cpu.usage",
+                                                                   units: "millisec",
+                                                                   derive: "rate"
+                                                                 },
+                                                                 { name: "cgroup.memory.limit",
+                                                                   units: "bytes"
+                                                                 },
+                                                                 { name: "cgroup.cpu.shares",
+                                                                   units: "count"
+                                                                 }
+                                                               ]
+                                                    });
+            usage_grid = cockpit.grid(1000, -1, -0);
+            usage_grid.walk();
+
+            $(usage_grid).on('notify', function (event, index, count) {
+                handle_usage_samples();
+            });
         }
 
         var regex_docker_cgroup = /docker-([A-Fa-f0-9]{64})\.scope/;
@@ -301,43 +360,9 @@ define([
             return null;
         }
 
-        /* We listen to the resource monitor and include the measurements
-         * in the container objects.
-         *
-         * TODO: Call GetSamples for quicker initialization.
-         */
-
-        function handle_new_samples (event, timestampUsec, samples) {
-            util.resource_debug("samples", timestampUsec, samples);
-            for (var cgroup in samples) {
-                var id = container_from_cgroup(cgroup);
-                if (!id)
-                    continue;
-                var container = me.containers[id];
-                if (!container)
-                    continue;
-                var sample = samples[cgroup];
-                container.CGroup = cgroup;
-                var mem = sample[0];
-                var limit = sample[1];
-                /* if the limit is extremely high, consider the value to mean unlimited
-                 * 1.115e18 is roughly 2^60
-                 */
-                if (limit > 1.115e18)
-                    limit = undefined;
-                var cpu = sample[4];
-                var priority = sample[5];
-                if (mem != container.MemoryUsage ||
-                    limit != container.MemoryLimit ||
-                    cpu != container.CpuUsage ||
-                    priority != container.CpuPriority) {
-                    container.MemoryUsage = mem;
-                    container.MemoryLimit = limit;
-                    container.CpuUsage = cpu;
-                    container.CpuPriority = priority;
-                    $(me).trigger("container", [id, container]);
-                }
-            }
+        this.cgroup_from_container = cgroup_from_container;
+        function cgroup_from_container(id) {
+            return "system.slice/docker-" + id + ".scope";
         }
 
         function trigger_id(id) {
@@ -558,15 +583,6 @@ define([
             return change_cgroup("cpuacct", this.containers[id].CGroup, "cpu.shares", value);
         };
 
-        this.setup_cgroups_plot = function setup_cgroups_plot(element, sample_index, colors) {
-            function is_container(cgroup) {
-                return !!container_from_cgroup(cgroup);
-            }
-
-            return shell.setup_multi_plot(element, monitor, sample_index, colors,
-                                          is_container);
-        };
-
         this.machine_info = function machine_info() {
             return shell.util.machine_info();
         };
@@ -582,11 +598,10 @@ define([
         };
 
         this.close = function close() {
-            $(monitor).off('NewSample', handle_new_samples);
-            monitor = null;
-            if (dbus_client)
-                dbus_client.release();
-            dbus_client = null;
+            if (usage_metrics_channel) {
+                usage_metrics_channel.close();
+                usage_grid.close();
+            }
             connected = null;
         };
 

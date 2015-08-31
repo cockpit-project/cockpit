@@ -26,8 +26,10 @@ define([
     "docker/search",
     "docker/docker",
     "shell/controls",
+    "shell/shell",
+    "shell/plot",
     "base1/bootstrap-select",
-], function($, cockpit, Mustache, util, run_image, search_image, docker, controls) {
+], function($, cockpit, Mustache, util, run_image, search_image, docker, controls, shell) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 
@@ -88,19 +90,78 @@ define([
             $('#' + id).addClass('highlight');
         }
 
-        var cpu_plot = client.setup_cgroups_plot ('#containers-cpu-graph', 4, blues.concat(blues));
-        $(cpu_plot).on('update-total', function (event, total) {
-            $('#containers-cpu-text').text(util.format_cpu_usage(total));
-        });
-        $(cpu_plot).on('highlight', highlight_container_row);
+        var cpu_data = {
+            internal: "cgroup.cpu.usage",
+            units: "millisec",
+            derive: "rate",
+            factor: 0.1  // millisec / sec -> percent
+        };
 
-        var mem_plot = client.setup_cgroups_plot ('#containers-mem-graph', 0, blues.concat(blues));
-        $(mem_plot).on('update-total', function (event, total) {
-            $('#containers-mem-text').text(cockpit.format_bytes(total, 1024));
+        var cpu_options = shell.plot_simple_template();
+        $.extend(cpu_options.yaxis, { tickFormatter: function(v) { return v.toFixed(0) + "%"; },
+                                      labelWidth: 60
+                                    });
+        cpu_options.colors = blues;
+        $.extend(cpu_options.grid,  { hoverable: true,
+                                      autoHighlight: false
+                                    });
+        cpu_options.setup_hook = function (flot) {
+            var axes = flot.getAxes();
+
+            if (axes.yaxis.datamax)
+                axes.yaxis.options.max = Math.ceil(axes.yaxis.datamax / 100) * 100;
+            else
+                axes.yaxis.options.max = 100;
+
+            axes.yaxis.options.min = 0;
+        };
+
+        var cpu_plot = shell.plot($("#containers-cpu-graph"), 300);
+        cpu_plot.set_options(cpu_options);
+        var cpu_series = cpu_plot.add_metrics_stacked_instances_series(cpu_data, { });
+        $(cpu_series).on("value", function(ev, value) {
+            $('#containers-cpu-text').text(util.format_cpu_usage(value));
         });
-        $(mem_plot).on('highlight', highlight_container_row);
+        cpu_plot.start_walking();
+        $(cpu_series).on('hover', highlight_container_row);
+
+        var mem_data = {
+            internal: "cgroup.memory.usage",
+            units: "bytes"
+        };
+
+        var mem_options = shell.plot_simple_template();
+        $.extend(mem_options.yaxis, { ticks: shell.memory_ticks,
+                                      tickFormatter: shell.format_bytes_tick,
+                                      labelWidth: 60
+                                    });
+        mem_options.colors = blues;
+        $.extend(mem_options.grid,  { hoverable: true,
+                                      autoHighlight: false
+                                    });
+        mem_options.setup_hook = function (flot) {
+            var axes = flot.getAxes();
+            if (axes.yaxis.datamax < 1.5*1024*1024)
+                axes.yaxis.options.max = 1.5*1024*1024;
+            else
+                axes.yaxis.options.max = null;
+            axes.yaxis.options.min = 0;
+        };
+
+        var mem_plot = shell.plot($("#containers-mem-graph"), 300);
+        mem_plot.set_options(mem_options);
+        var mem_series = mem_plot.add_metrics_stacked_instances_series(mem_data, { });
+        $(mem_series).on("value", function(ev, value) {
+            $('#containers-mem-text').text(cockpit.format_bytes(value, 1024));
+        });
+        mem_plot.start_walking();
+        $(mem_series).on('hover', highlight_container_row);
 
         function render_container(id, container) {
+            if (container && container.CGroup) {
+                cpu_series.add_instance(container.CGroup);
+                mem_series.add_instance(container.CGroup);
+            }
             util.render_container(client, $('#containers-containers'),
                                   "", id, container, danger_enabled);
         }
@@ -271,8 +332,8 @@ define([
 
         function show() {
             $('#containers').show();
-            cpu_plot.start();
-            mem_plot.start();
+            cpu_plot.resize();
+            mem_plot.resize();
         }
 
         return {

@@ -21,9 +21,7 @@
 from testlib import *
 
 import os
-import shutil
 import subprocess
-import tempfile
 import unittest
 
 @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "atomic: missing bind-utils")
@@ -165,7 +163,6 @@ class TestKerberos(MachineCase):
         MachineCase.setUp(self)
 
         # Setup a place for kerberos caches
-        self.tmpdir = tempfile.mkdtemp()
         self.ccache = "%s/krb5cc" % self.tmpdir
         os.environ['KRB5CCNAME'] = self.ccache
         self.config = "%s/krb5.conf" % self.tmpdir
@@ -187,8 +184,6 @@ class TestKerberos(MachineCase):
         self.assertEqual(proc.wait(), 0)
 
     def tearDown(self):
-        shutil.rmtree(self.tmpdir)
-
         del os.environ['KRB5CCNAME']
         del os.environ['KRB5_CONFIG']
 

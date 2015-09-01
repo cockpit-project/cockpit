@@ -83,6 +83,7 @@ fi
 ./vm-reset
 ./vm-create -v -f cockpit $cockpit_create_opts
 ./vm-create -v -f ipa
+./vm-create -v -f openshift
 
 TEST_OS=fedora-22 ./vm-create -v -f stock
 TEST_OS=centos-7  ./vm-create -v -f stock

@@ -1,0 +1,52 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+from testlib import *
+
+import os
+import unittest
+
+@unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-openshift on rhel-7.")
+class TestOpenshift(MachineCase):
+    def setUp(self):
+        self.openshift = self.new_machine(flavor="openshift")
+        self.openshift.start()
+        self.openshift.wait_boot()
+
+        MachineCase.setUp(self)
+
+        tmpfile = os.path.join(self.tmpdir, "config")
+        self.openshift.download("/root/.kube/config", tmpfile)
+
+        m = self.machine
+        with open(tmpfile, "r") as f:
+            m.execute("mkdir -p /home/admin/.kube && cat > /home/admin/.kube/config", input=f.read())
+
+    def tearDown(self):
+        MachineCase.tearDown(self)
+
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/kubernetes/cluster", host=None)
+        b.wait_in_text("#service-list", "registry")
+
+test_main()

@@ -50,4 +50,21 @@ class TestOpenshift(MachineCase):
         b.wait_present("#service-list")
         b.wait_in_text("#service-list", "registry")
 
+        # Switch to images view
+        b.click("a[href='#/images']")
+        b.wait_present(".images-listing tr[data-id='library/busybox']")
+        self.assertEqual(b.text(".images-listing tr[data-id='library/busybox'] th"), "library/busybox")
+        b.click(".images-listing tr[data-id='library/busybox']")
+
+        self.assertEqual(b.text(".images-listing tr[data-id='library/busybox'] h3"), "library/busybox")
+
+        header = b.text(".images-listing tr[data-id='library/busybox'] div.panel-heading")
+        self.assertIn("registry.hub.docker.com", header)
+
+        self.assertEqual(b.text(".images-listing tr[data-id='library/busybox'] h3"), "library/busybox")
+        panel = b.text(".images-listing tr[data-id='library/busybox'] div.panel-body")
+        self.assertIn("latest", panel)
+        self.assertIn("amd64", panel)
+        self.assertIn("library/busybox@sha", panel)
+
 test_main()

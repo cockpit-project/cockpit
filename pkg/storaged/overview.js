@@ -106,6 +106,8 @@ define([
         var drives_tmpl = $("#drives-tmpl").html();
         mustache.parse(drives_tmpl);
 
+        var cur_highlight;
+
         function render_drives() {
             function cmp_drive(path_a, path_b) {
                 return client.drives[path_a].SortKey.localeCompare(client.drives[path_b].SortKey);
@@ -137,7 +139,7 @@ define([
                 if (!block)
                     return;
 
-                var dev = utils.decode_filename(block.PreferredDevice).replace(/^\/dev\//, "");
+                var dev = utils.decode_filename(block.Device).replace(/^\/dev\//, "");
                 var io = client.blockdev_io.data[dev];
 
                 var name = utils.drive_name(drive);
@@ -170,6 +172,7 @@ define([
                     Description: desc,
                     ReadRate: io && cockpit.format_bytes_per_sec(io[0]),
                     WriteRate: io && cockpit.format_bytes_per_sec(io[1]),
+                    Highlight: dev == cur_highlight
                 };
             }
 
@@ -180,6 +183,11 @@ define([
                                                }));
             permissions.update();
             jobs.update('#drives');
+
+            for (var p in d) {
+                read_series.add_instance(d[p].dev);
+                write_series.add_instance(d[p].dev);
+            }
         }
 
         $(client).on('changed', render_drives);
@@ -277,16 +285,33 @@ define([
 
         $(client).on('changed', render_jobs);
 
-        render_mdraids();
-        render_vgroups();
-        render_drives();
-        render_others();
-        render_mounts();
-        render_jobs();
+        function plot_setup(flot) {
+            var axes = flot.getAxes();
+            if (axes.yaxis.datamax < 100000)
+                axes.yaxis.options.max = 100000;
+            else
+                axes.yaxis.options.max = null;
+            axes.yaxis.options.min = 0;
+        }
+
+        function highlight_drive(event, dev) {
+            cur_highlight = dev;
+            render_drives();
+        }
+
+        var blues = [ "#006bb4",
+                      "#008ff0",
+                      "#2daaff",
+                      "#69c2ff",
+                      "#a5daff",
+                      "#e1f3ff",
+                      "#00243c",
+                      "#004778"
+                    ];
 
         var read_plot_data = {
-            direct: [ "disk.dev.read_bytes" ],
-            internal: [ "block.device.read" ],
+            direct: "disk.dev.read_bytes",
+            internal: "block.device.read",
             units: "bytes",
             derive: "rate"
         };
@@ -296,18 +321,20 @@ define([
                                             tickFormatter: shell.format_bytes_per_sec_tick,
                                             labelWidth: 60
                                           });
+        $.extend(read_plot_options.grid,  { hoverable: true,
+                                            autoHighlight: false
+                                          });
+        read_plot_options.colors = blues;
+        read_plot_options.setup_hook = plot_setup;
         var read_plot = shell.plot($("#storage-reading-graph"), 300);
         read_plot.set_options(read_plot_options);
-        var read_series = read_plot.add_metrics_sum_series(read_plot_data, { });
-        $(read_series).on("value", function(ev, value) {
-            $("#storage-reading-text").text(cockpit.format_bytes_per_sec(value));
-        });
-
+        var read_series = read_plot.add_metrics_stacked_instances_series(read_plot_data, { });
         read_plot.start_walking();
+        $(read_series).on('hover', highlight_drive);
 
         var write_plot_data = {
-            direct: [ "disk.dev.write_bytes" ],
-            internal: [ "block.device.write" ],
+            direct: "disk.dev.write_bytes",
+            internal: "block.device.write",
             units: "bytes",
             derive: "rate"
         };
@@ -317,15 +344,16 @@ define([
                                              tickFormatter: shell.format_bytes_per_sec_tick,
                                              labelWidth: 60
                                            });
+        $.extend(write_plot_options.grid,  { hoverable: true,
+                                             autoHighlight: false
+                                           });
+        write_plot_options.colors = blues;
+        write_plot_options.setup_hook = plot_setup;
         var write_plot = shell.plot($("#storage-writing-graph"), 300);
         write_plot.set_options(write_plot_options);
-        var write_series = write_plot.add_metrics_sum_series(write_plot_data, { });
-        $(write_series).on("value", function(ev, value) {
-            $("#storage-writing-text").text(cockpit.format_bytes_per_sec(value));
-        });
-
-        read_plot.start_walking();
+        var write_series = write_plot.add_metrics_stacked_instances_series(write_plot_data, { });
         write_plot.start_walking();
+        $(write_series).on('hover', highlight_drive);
 
         $(window).on('resize', function () {
             read_plot.resize();
@@ -334,6 +362,13 @@ define([
 
         var plot_controls = shell.setup_plot_controls($('#storage'), $('#storage-graph-toolbar'));
         plot_controls.reset([ read_plot, write_plot ]);
+
+        render_mdraids();
+        render_vgroups();
+        render_drives();
+        render_others();
+        render_mounts();
+        render_jobs();
 
         $('#storage-log').append(
             server.logbox([ "_SYSTEMD_UNIT=storaged.service", "+",

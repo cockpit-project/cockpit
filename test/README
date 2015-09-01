@@ -126,6 +126,8 @@ flavors are available:
 
   "ipa"     -- A FreeIPA server.
 
+  "openshift" -- An Openshift Origin server.
+
 To define a new flavor, create a script called "FLAVOR.setup" in this
 directory.  Then, calling "vm-create -f FLAVOR ARGS..." will run
 "FLAVOR.setup ARGS..." inside the virtual machine.

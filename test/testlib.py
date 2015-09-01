@@ -36,6 +36,7 @@ import exceptions
 import re
 import json
 import signal
+import tempfile
 import unittest
 try:
     import testvm
@@ -424,6 +425,7 @@ class MachineCase(unittest.TestCase):
         self.machine.start()
         self.machine.wait_boot()
         self.browser = self.new_browser()
+        self.tmpdir = tempfile.mkdtemp()
 
     def tearDown(self):
         if self.runner and not self.runner.wasSuccessful():
@@ -438,6 +440,7 @@ class MachineCase(unittest.TestCase):
                 sit()
         elif self.machine.address:
             self.check_journal_messages()
+        shutil.rmtree(self.tmpdir)
 
     def wait_for_cockpit_running(self, atomic_wait_for_host="localhost"):
         """Wait until cockpit is running.

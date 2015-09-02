@@ -257,7 +257,7 @@ asyncTest("with problem", function() {
         fail(function(ex) {
             equal(ex.problem, "not-found", "got problem");
             strictEqual(ex.exit_signal, null, "got no signal");
-            ok(isNaN(ex.exit_status), "got no status");
+            strictEqual(ex.exit_status, null, "got no status");
         }).
         always(function() {
             equal(this.state(), "rejected", "should fail");
@@ -277,7 +277,7 @@ asyncTest("with status", function() {
     cockpit.spawn("/unused").
         fail(function(ex, data) {
             strictEqual(ex.problem, null, "got null problem");
-            ok(isNaN(ex.exit_signal), "got no signal");
+            strictEqual(ex.exit_signal, null, "got no signal");
             strictEqual(ex.exit_status, 5, "got status");
             equal(data, "the data", "got data even with exit status");
         }).
@@ -300,7 +300,7 @@ asyncTest("with signal", function() {
         fail(function(ex, data) {
             strictEqual(ex.problem, null, "got null problem");
             strictEqual(ex.exit_signal, "TERM", "got signal");
-            ok(isNaN(ex.exit_status), "got no status");
+            strictEqual(ex.exit_status, null, "got no status");
             equal(data, "signal data here", "got data even with signal");
         }).
         always(function() {

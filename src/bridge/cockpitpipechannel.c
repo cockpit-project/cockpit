@@ -23,7 +23,7 @@
 
 #include "common/cockpitpipe.h"
 #include "common/cockpitjson.h"
-
+#include "common/cockpitunicode.h"
 #include "common/cockpitunixsignal.h"
 
 #include <gio/gunixsocketaddress.h>
@@ -204,6 +204,39 @@ on_pipe_read (CockpitPipe *pipe,
 }
 
 static void
+return_stderr_message (CockpitChannel *channel,
+                       CockpitPipe *pipe)
+{
+  JsonObject *options;
+  GByteArray *buffer;
+  GBytes *bytes;
+  GBytes *clean;
+  gchar *data;
+  gsize length;
+
+  buffer = cockpit_pipe_get_stderr (pipe);
+  if (!buffer)
+    return;
+
+  /* A little more complicated to avoid big copies */
+  g_byte_array_ref (buffer);
+  g_byte_array_append (buffer, (guint8 *)"x", 1); /* place holder for null terminate */
+  bytes = g_byte_array_free_to_bytes (buffer);
+  clean = cockpit_unicode_force_utf8 (bytes);
+  g_bytes_unref (bytes);
+
+  data = g_bytes_unref_to_data (clean, &length);
+
+  /* Fill in null terminate, for x above */
+  g_assert (length > 0);
+  data[length - 1] = '\0';
+
+  options = cockpit_channel_close_options (channel);
+  json_object_set_string_member (options, "message", data);
+  g_free (data);
+}
+
+static void
 on_pipe_close (CockpitPipe *pipe,
                const gchar *problem,
                gpointer user_data)
@@ -237,6 +270,8 @@ on_pipe_close (CockpitPipe *pipe,
           json_object_set_int_member (options, "exit-status", -1);
         }
     }
+
+  return_stderr_message (channel, pipe);
 
   /*
    * In theory we should plumb done handling all the way through to CockpitPipe.
@@ -370,6 +405,8 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
         flags = COCKPIT_PIPE_STDERR_TO_STDOUT;
       else if (g_strcmp0 (error, "ignore") == 0)
         flags = COCKPIT_PIPE_STDERR_TO_NULL;
+      else if (g_strcmp0 (error, "message") == 0)
+        flags = COCKPIT_PIPE_STDERR_TO_MEMORY;
 
       self->name = g_strdup (argv[0]);
       if (!cockpit_json_get_string (options, "directory", NULL, &dir))

@@ -586,7 +586,8 @@ following options can be specified:
  * "directory": The directory to spawn the process in.
  * "err": If "spawn" is set, and "err" is set to "out", then stderr
    is included in the payload data. If "err" is set to "ignore" then, the
-   stderr output will be discarded. If "pty" is set then stderr is always
+   stderr output will be discarded. If "err" is set to "message" then it will
+   be included in the close message. If "pty" is set then stderr is always
    included.
  * "environ": This is a list of additional environment variables for the new
    spawned process. The variables are in the form of "NAME=VALUE". The default

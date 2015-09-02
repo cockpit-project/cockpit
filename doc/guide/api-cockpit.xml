@@ -274,6 +274,7 @@
           <listitem><para>Controls where the standard error is sent. By default it is logged
             to the journal. If set to <code>"out"</code> it is included in with the
             output data. If set to <code>"ignore"</code> then the error output is discarded.
+            If set to <code>"message"</code>, then it will be returned as the error message.
             When the <code>"pty"</code> field is set, this field has no effect.</para></listitem>
         </varlistentry>
         <varlistentry>
@@ -360,7 +361,7 @@
     <refsection id="cockpit-spawn-done">
       <title>process.done()</title>
 <programlisting>
- process.done(function(data) { ... })
+ process.done(function(data[, message]) { ... })
 </programlisting>
       <para>This is a standard
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
@@ -371,6 +372,9 @@
         <code><link linkend="cockpit-spawn-stream">process.stream()</link></code>
         handler is set up, then any standard output data consumed by the handler will not
         be included in the <code>data</code> argument.</para>
+      <para>If the process was spawned with the <code>"err"</code> option set to
+        <code>"message"</code> then the second argument will contain the standard error
+        output of the process.</para>
     </refsection>
 
     <refsection id="cockpit-spawn-fail">
@@ -386,6 +390,12 @@
         following fields:</para>
 
       <variablelist>
+        <varlistentry>
+          <term><code>message</code></term>
+          <listitem><para>A message describing the exception. If the process was spawned with
+              the <code>"err"</code> option set to <code>"message"</code> then the second argument
+              will contain the standard error output of the process.</para></listitem>
+        </varlistentry>
         <varlistentry>
           <term><code>problem</code></term>
           <listitem><para>A <link linkend="cockpit-problems">problem code</link> string when

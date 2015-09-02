@@ -11,10 +11,10 @@ kubernetes_DATA = \
 	$(NULL)
 
 kubernetes_VIEWS = \
+	pkg/kubernetes/views/containers.html \
 	pkg/kubernetes/views/container-panel.html \
 	pkg/kubernetes/views/dashboard.html \
 	pkg/kubernetes/views/default-panel.html \
-	pkg/kubernetes/views/details.html \
 	pkg/kubernetes/views/images.html \
 	pkg/kubernetes/views/imagerepository-panel.html \
 	pkg/kubernetes/views/listing.html \
@@ -30,10 +30,10 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/client.js \
 	pkg/kubernetes/cluster.html \
 	pkg/kubernetes/config.js \
+	pkg/kubernetes/containers.css \
+	pkg/kubernetes/containers.js \
 	pkg/kubernetes/d3.js \
 	pkg/kubernetes/dashboard.js \
-	pkg/kubernetes/details.css \
-	pkg/kubernetes/details.js \
 	pkg/kubernetes/graphs.js \
 	pkg/kubernetes/images.css \
 	pkg/kubernetes/images.js \
@@ -61,9 +61,9 @@ kubernetes_MIN = \
 	pkg/kubernetes/app.min.js \
 	pkg/kubernetes/client.min.js \
 	pkg/kubernetes/config.min.js \
+	pkg/kubernetes/containers.min.js \
 	pkg/kubernetes/dashboard.min.js \
 	pkg/kubernetes/deploy.min.js \
-	pkg/kubernetes/details.min.js \
 	pkg/kubernetes/graphs.min.js \
 	pkg/kubernetes/images.min.js \
 	pkg/kubernetes/listing.min.js \

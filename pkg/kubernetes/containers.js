@@ -7,18 +7,18 @@ define([
 ], function($, cockpit, angular, Terminal) {
     'use strict';
 
-    return angular.module('kubernetes.details', ['ngRoute'])
+    return angular.module('kubernetes.containers', ['ngRoute'])
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.when('/pods/:namespace?', {
-                templateUrl: 'views/details.html',
-                controller: 'DetailsCtrl'
+                templateUrl: 'views/containers.html',
+                controller: 'ContainersCtrl'
             });
         }])
 
         /*
-         * The controller for the details view.
+         * The controller for the containers view.
          */
-        .controller('DetailsCtrl', [
+        .controller('ContainersCtrl', [
             '$scope',
             '$routeParams',
             '$location',

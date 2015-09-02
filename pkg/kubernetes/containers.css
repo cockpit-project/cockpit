@@ -1,5 +1,5 @@
 
-.kube-details .kube-pod {
+.kube-containers .kube-pod {
     border-color: #D0D0D0;
     background-color: #F0F0F0;
     border-width: 1px;
@@ -11,21 +11,21 @@
     position: relative;
 }
 
-.kube-details h3 {
+.kube-containers h3 {
     margin-top: 10px;
     position: absolute;
 }
 
-.kube-details .kube-content {
+.kube-containers .kube-content {
     padding-top: 3.5em;
 }
 
-.kube-details {
+.kube-containers {
     margin: 20px 10px;
     max-width: 900px;
 }
 
-.kube-details .kube-container {
+.kube-containers .kube-container {
     background-color: white;
     border-radius: 4px;
     padding: 0 20px 10px 10px;
@@ -35,13 +35,13 @@
     position: relative;
 }
 
-.kube-details .kube-pod .kube-status,
-.kube-details .kube-container .nav {
+.kube-containers .kube-pod .kube-status,
+.kube-containers .kube-container .nav {
     float: right;
     margin-top: 0px;
 }
 
-.kube-details .kube-container .nav:after {
+.kube-containers .kube-container .nav:after {
     clear: right;
 }
 
@@ -66,12 +66,12 @@
     left: 15px !important;
 }
 
-.kube-details dl {
+.kube-containers dl {
     margin-bottom: 0px;
     clear: both;
 }
 
-.kube-details dt {
+.kube-containers dt {
     clear: left;
     float: left;
     width: 25%;
@@ -86,23 +86,23 @@
     font-weight: normal;
 }
 
-.kube-details dt.full {
+.kube-containers dt.full {
     text-align: left;
     min-width: none;
     max-width: none;
     float: none;
 }
 
-.kube-details dt.header {
+.kube-containers dt.header {
     padding-top: 10px;
     font-weight: bold;
 }
 
-.kube-details dt.header:first-child {
+.kube-containers dt.header:first-child {
     padding-top: 0px;
 }
 
-.kube-details dd {
+.kube-containers dd {
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -159,22 +159,22 @@ div.kube-ports .kube-port:after {
     color: #AF151A;
 }
 
-.kube-details .console {
+.kube-containers .console {
     margin: 50px 0 10px 0;
     min-height: 310px;
 }
 
 @media(min-width: 768px) {
-    .kube-details .kube-pod {
+    .kube-containers .kube-pod {
 	 padding-right: 0px;
     }
-    .kube-details dl {
+    .kube-containers dl {
 	 margin-bottom: 10px;
     }
-    .kube-details .kube-container {
+    .kube-containers .kube-container {
 	 padding: 0px 20px;
     }
-    .kube-details .kube-pod > .row {
+    .kube-containers .kube-pod > .row {
          margin-left: -10px;
 	 /* TODO: Should be dependent on ports */
 	 margin-right: 60px;

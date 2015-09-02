@@ -1,4 +1,4 @@
-<div class="kube-details">
+<div class="kube-containers">
     <div ng-repeat="item in selection" ng-if="item.kind == 'Pod'">
         <kube-pod ng-init="pod = item">
             <kube-container ng-repeat="container in client.containers(pod)"></kube-container>

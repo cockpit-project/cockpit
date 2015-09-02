@@ -38,7 +38,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 <i class="fa fa-dashboard fa-fw"></i><br>Overview
               </a>
             </li>
-            <li ng-class="{ active: is_active('views/details.html')}">
+            <li ng-class="{ active: is_active('views/containers.html')}">
               <a ng-href="#/pods">
                 <i class="fa fa-cubes fa-fw"></i><br>Containers
               </a>
@@ -296,8 +296,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           "kubernetes/adjust",
           "kubernetes/node",
           "kubernetes/app",
+          "kubernetes/containers",
           "kubernetes/dashboard",
-          "kubernetes/details",
           "kubernetes/images",
           "kubernetes/topology",
           "kubernetes/listing",

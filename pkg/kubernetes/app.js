@@ -11,9 +11,9 @@ define([
             'ngAnimate',
             'ngRoute',
             'ui.bootstrap',
+            'kubernetes.containers',
             'kubernetes.dashboard',
             'kubernetes.graph',
-            'kubernetes.details',
             'kubernetes.images',
             'kubernetes.topology',
             'kubernetes.listing'

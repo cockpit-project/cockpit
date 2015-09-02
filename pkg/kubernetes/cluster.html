@@ -63,12 +63,12 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
       <div class="curtains blank-slate-pf" ng-if="curtains && curtains.state != 'silent'">
         <div class="blank-slate-pf-icon">
           <div class="spinner spinner-lg" ng-class="{hidden: curtains.state != 'connecting'}"></div>
-          <i class="fa fa-exclamation-circle" ng-if="curtains.failure && curtains.failure.status != 403"></i>
+          <i class="fa fa-exclamation-circle" ng-if="curtains.state == 'failed' && curtains.failure.status != 403"></i>
           <i class="fa fa-lock" ng-if="curtains.failure.status == 403"></i>
         </div>
         <h1 ng-if="curtains.state == 'connecting'" translatable="yes">Connecting to Kubernetes</h1>
         <h1 ng-if="curtains.state == 'failed'" translatable="yes">Couldn't connect to Kubernetes server</h1>
-        <p ng-if="curtains.message">{{curtains.failure.message}}</p>
+        <p ng-if="curtains.failure.message">{{curtains.failure.message}}</p>
         <div class="blank-slate-pf-main-action" ng-if="curtains.state == 'failed'">
           <button class="btn btn-primary btn-lg" translatable="yes" ng-click="reconnect()">
             Reconnect

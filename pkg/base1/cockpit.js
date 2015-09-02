@@ -1189,22 +1189,29 @@ function full_scope(cockpit, $, po) {
      * Public: https://files.cockpit-project.org/guide/api-cockpit.html
      */
 
-    function ProcessError(arg0, signal) {
-        var status = parseInt(arg0, 10);
-        if (arg0 !== undefined && isNaN(status)) {
-            this.problem = arg0;
-            this.exit_status = NaN;
+    function ProcessError(options, name) {
+        this.problem = options.problem || null;
+        this.exit_status = options["exit-status"];
+        if (this.exit_status === undefined)
+            this.exit_status = null;
+        this.exit_signal = options["exit-signal"];
+        if (this.exit_signal === undefined)
             this.exit_signal = null;
-            this.message = cockpit.message(arg0);
-        } else {
-            this.exit_status = status;
-            this.exit_signal = signal;
-            this.problem = null;
-            if (this.exit_signal)
-                this.message = "Process killed with signal " + this.exit_signal;
+        this.message = options.message;
+
+        if (this.message === undefined) {
+            if (this.problem)
+                this.message = cockpit.message(options.problem);
+            else if (this.exit_signal !== null)
+                this.message = cockpit.format(_("$0 killed with signal $1"), name, this.exit_signal);
+            else if (this.exit_status !== undefined)
+                this.message = cockpit.format(_("$0 exited with code $1"), name, this.exit_status);
             else
-                this.message = "Process exited with code " + this.exit_status;
+                this.message = cockpit.format(_("$0 failed"), name);
+        } else {
+            this.message = $.trim(this.message);
         }
+
         this.toString = function() {
             return this.message;
         };
@@ -1229,6 +1236,7 @@ function full_scope(cockpit, $, po) {
         if (options !== undefined)
             $.extend(args, options);
 
+        var name = args["spawn"][0] || "process";
         var channel = cockpit.channel(args);
 
         /* Callback that wants a stream response, see below */
@@ -1238,14 +1246,19 @@ function full_scope(cockpit, $, po) {
             on("close", function(event, options) {
                 var data = buffer.squash();
                 spawn_debug("process closed:", JSON.stringify(options));
-                if (options.problem) {
-                    dfd.reject(new ProcessError(options.problem));
-                } else if (options["exit-status"] || options["exit-signal"]) {
-                    dfd.reject(new ProcessError(options["exit-status"], options["exit-signal"]), data);
-                } else {
+                if (data)
                     spawn_debug("process output:", data);
+                if (options.message !== undefined)
+                    spawn_debug("process error:", options.message);
+
+                if (options.problem)
+                    dfd.reject(new ProcessError(options, name));
+                else if (options["exit-status"] || options["exit-signal"])
+                    dfd.reject(new ProcessError(options, name), data);
+                else if (options.message !== undefined)
+                    dfd.resolve(data, options.message);
+                else
                     dfd.resolve(data);
-                }
             });
 
         var jpromise = dfd.promise;

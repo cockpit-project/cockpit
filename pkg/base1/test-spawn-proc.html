@@ -92,6 +92,32 @@ asyncTest("error output", function() {
         });
 });
 
+asyncTest("error message", function() {
+    expect(3);
+    cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"], { err: "message" }).
+        done(function(resp, message) {
+            equal(resp, "hi\n", "produced output");
+            equal(message, "yo\n", "produced message");
+        }).
+        always(function() {
+            equal(this.state(), "resolved", "didn't fail");
+            start();
+        });
+});
+
+asyncTest("error message fail", function() {
+    expect(3);
+    cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2; exit 2"], { err: "message" }).
+        fail(function(ex, resp) {
+            equal(resp, "hi\n", "produced output");
+            equal(ex.message, "yo", "produced message");
+        }).
+        always(function() {
+            equal(this.state(), "rejected", "didn't fail");
+            start();
+        });
+});
+
 asyncTest("write eof read", function() {
     expect(2);
 

@@ -560,20 +560,22 @@ define([
      * properties on this object and only get keys/items.
      */
     function KubeList(matcher, client, possible) {
-        Object.defineProperty(this, "data", {
+        var self = this;
+
+        Object.defineProperty(self, "data", {
             enumerable: false,
             writable: false,
             value: { }
         });
 
         /* Predefine the jQuery expando as non-enumerable */
-        Object.defineProperty(this, $.expando, {
+        Object.defineProperty(self, $.expando, {
             enumerable: false,
             writable: false,
-            value: this.data
+            value: self.data
         });
 
-        this.data.matcher = matcher;
+        self.data.matcher = matcher;
 
         if (possible) {
             var i, len, item, key;
@@ -581,71 +583,65 @@ define([
                 key = possible[i];
                 item = client.objects[key];
                 if (matcher(item))
-                    this[key] = item;
+                    self[key] = item;
             }
         }
     }
 
+    /* Public functions */
     Object.defineProperties(KubeList.prototype, {
-        remove: {
-            enumerable: false,
-            writable: false,
-            value: function remove(key, item) {
-                var last = this[key];
-                if (last) {
-                    delete this[key];
-                    this.trigger("removed", last, key);
-                }
-            }
-        },
-        update: {
-            enumerable: false,
-            writable: false,
-            value: function update(key, item) {
-                var matched = this.data.matcher(item);
-                var last = this[key];
-                if (!last && matched) {
-                    this[key] = item;
-                    this.trigger("added", item, key);
-                } else if (last && !matched) {
-                    delete this[key];
-                    this.trigger("removed", last, key);
-                } else if (last && matched) {
-                    this[key] = item;
-                    this.trigger("updated", item, key, last);
-                }
-            }
-        },
-        trigger: {
-            enumerable: false,
-            writable: false,
-            value: function(name, item, key) {
-                var self = this;
-                self.data.flat = null;
-                var $self = $(self);
-                $self.triggerHandler(name, [item, key]);
-                if (!self.data.timer) {
-                    self.data.timer = window.setTimeout(function() {
-                        self.data.timer = null;
-                        $self.triggerHandler("changed");
-                    }, 100);
-                }
-            }
-        },
         items: {
             enumerable: false,
             get: function items() {
-                var i, l, keys, flat = this.data.flat;
+                var self = this;
+                var i, l, keys, flat = self.data.flat;
                 if (!flat) {
-                    keys = Object.keys(this).sort();
+                    keys = Object.keys(self).sort();
                     for (i = 0, l = keys.length, flat = []; i < l; i++)
-                        flat.push(this[keys[i]]);
-                    this.data.flat = flat;
+                        flat.push(self[keys[i]]);
+                    self.data.flat = flat;
                 }
                 return flat;
             }
         }
     });
+
+    /* Hidden functions */
+    function kubelist_remove(self, key, item) {
+        var last = self[key];
+        if (last) {
+            delete self[key];
+            kubelist_trigger(self, "removed", [last, key]);
+        }
+    }
+
+    function kubelist_update(self, key, item) {
+        var matched = self.data.matcher(item);
+        var last = self[key];
+        if (!last && matched) {
+            self[key] = item;
+            kubelist_trigger(self, "added", [item, key]);
+        } else if (last && !matched) {
+            delete self[key];
+            kubelist_trigger(self, "removed", [last, key]);
+        } else if (last && matched) {
+            self[key] = item;
+            kubelist_trigger(self, "updated", [item, key, last]);
+        }
+    }
+
+    function kubelist_trigger(self, name, args) {
+        self.data.flat = null;
+        var $self = $(self);
+        $self.triggerHandler(name, args);
+        if (!self.data.timer) {
+            self.data.timer = window.setTimeout(function() {
+                self.data.timer = null;
+                $self.triggerHandler("changed");
+            }, 100);
+        }
+    }
+
 
     /**
      * KubernetesClient
@@ -843,7 +839,7 @@ define([
             /* Fire off any tracked */
             var len;
             for (i = 0, len = tracked.length; i < len; i++)
-                tracked[i].update(key, item);
+                kubelist_update(tracked[i], key, item);
         }
 
         function handle_removed(item, type) {
@@ -855,7 +851,7 @@ define([
 
             var i, len = tracked.length;
             for (i = 0; i < len; i++)
-                tracked[i].remove(key, item);
+                kubelist_remove(tracked[i], key, item);
         }
 
         var pulls = { };

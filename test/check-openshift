@@ -47,6 +47,7 @@ class TestOpenshift(MachineCase):
         b = self.browser
 
         self.login_and_go("/kubernetes/cluster", host=None)
+        b.wait_present("#service-list")
         b.wait_in_text("#service-list", "registry")
 
 test_main()

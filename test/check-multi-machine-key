@@ -127,9 +127,9 @@ class TestMultiMachineKeyAuth(MachineCase):
         m2.execute("echo abcdefg | passwd --stdin admin")
         m1.execute("mkdir -p /home/admin/.ssh")
 
-        m1.upload(["ssh/{0}".format(k) for k in LOAD_KEYS],
+        m1.upload(["files/ssh/{0}".format(k) for k in LOAD_KEYS],
                    "/home/admin/.ssh/")
-        m1.upload(["ssh/{0}.pub".format(k) for k in LOAD_KEYS],
+        m1.upload(["files/ssh/{0}.pub".format(k) for k in LOAD_KEYS],
                    "/home/admin/.ssh/")
         m1.execute("chmod 400 /home/admin/.ssh/*")
         m1.execute("chown -R admin:admin /home/admin/.ssh")
@@ -154,7 +154,7 @@ class TestMultiMachineKeyAuth(MachineCase):
 
         # add key
         m2.execute("mkdir -p /home/admin/.ssh")
-        m2.upload(["ssh/id_rsa.pub"], "/home/admin/.ssh/authorized_keys")
+        m2.upload(["files/ssh/id_rsa.pub"], "/home/admin/.ssh/authorized_keys")
         m2.execute("chown -R admin:admin /home/admin/.ssh/")
         m2.execute("chmod 600 /home/admin/.ssh/authorized_keys")
         m2.execute("chmod 700 /home/admin/.ssh")

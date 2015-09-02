@@ -38,3 +38,5 @@ echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" 
 printf "[Coredump]\nStorage=journal\n" > /etc/systemd/coredump.conf
 
 docker pull busybox
+docker pull submod/helloapache
+docker pull submod/atomicapp

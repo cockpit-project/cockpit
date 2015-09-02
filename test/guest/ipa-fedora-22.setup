@@ -2,6 +2,11 @@
 
 set -eufx
 
+echo foobar | passwd --stdin root
+
+dnf -y remove firewalld
+iptables -F
+
 dnf -y --enablerepo=updates-testing update
 dnf -y --enablerepo=updates-testing install freeipa-server bind bind-dyndb-ldap
 
@@ -13,15 +18,10 @@ hostnamectl set-hostname f0.cockpit.lan
 rm /dev/random
 ln -s /dev/urandom /dev/random
 
-ipa-server-install -U -p foobarfoo -r foobarfoo -a foobarfoo -n cockpit.lan -r COCKPIT.LAN --setup-dns --no-forwarders
-firewall-cmd --permanent \
-             --add-service http \
-             --add-service https \
-             --add-service ldap \
-             --add-service ldaps \
-             --add-service kerberos \
-             --add-service dns \
-             --add-service ntp
+ipa-server-install -U -p foobarfoo -a foobarfoo -n cockpit.lan -r COCKPIT.LAN --setup-dns --no-forwarders
+
+# Make sure any initial password change is overridden
+printf 'foobarfoo\nfoobarfoo\nfoobarfoo\n' | kinit admin@COCKPIT.LAN
 
 ln -sf ../selinux/config /etc/sysconfig/selinux
 echo 'SELINUX=permissive' > /etc/selinux/config

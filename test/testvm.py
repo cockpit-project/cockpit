@@ -794,7 +794,7 @@ class QemuMachine(Machine):
             raise
 
     def _ip_from_mac(self, mac):
-        tree = etree.parse(open("./network-cockpit.xml"))
+        tree = etree.parse(open("./guest/network-cockpit.xml"))
         for h in tree.find(".//dhcp"):
             if h.get("mac") == mac:
                 return h.get("ip")

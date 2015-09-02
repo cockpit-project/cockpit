@@ -43,7 +43,7 @@ DEVICE=cockpit0
 NM_CONTROLLED=no
 EOF
 
-	$VIRSH net-define ./network-cockpit.xml
+	$VIRSH net-define ./guest/network-cockpit.xml
 
 	$VIRSH net-autostart cockpit
 	$VIRSH net-start cockpit

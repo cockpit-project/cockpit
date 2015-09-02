@@ -1,7 +1,7 @@
 NULL =
 man_MANS =
 BUILT_SOURCES =
-EXTRA_DIST = README.md branding
+EXTRA_DIST = README.md branding .tarball
 CLEANFILES = $(man_MANS)
 DISTCLEANFILES =
 bin_PROGRAMS =

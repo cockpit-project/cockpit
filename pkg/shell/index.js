@@ -186,8 +186,8 @@ define([
 
     var watchdog = cockpit.channel({ "payload": "null" });
     $(watchdog).on("close", function(event, options) {
-        console.warn("transport closed: " + options.problem);
-        watchdog_problem = options.problem;
+        watchdog_problem = options.problem || "disconnected";
+        console.warn("transport closed: " + watchdog_problem);
         $('.modal[role="dialog"]').modal('hide');
         $('#disconnected-dialog').modal('show');
         phantom_checkpoint();

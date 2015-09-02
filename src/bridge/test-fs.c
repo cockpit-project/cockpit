@@ -664,6 +664,18 @@ test_watch_simple (TestCase *tc,
   tag = cockpit_get_file_tag (tc->test_path);
 
   event = recv_json (tc);
+  g_assert (event != NULL);
+
+  /*
+   * HACK: Account for different behavior by different glib2 versions
+   * https://bugzilla.redhat.com/show_bug.cgi?id=1225957
+   */
+  if (g_str_equal (json_object_get_string_member (event, "event"), "deleted"))
+    {
+      json_object_unref (event);
+      event = recv_json (tc);
+    }
+
   g_assert_cmpstr (json_object_get_string_member (event, "event"), ==, "created");
   g_assert_cmpstr (json_object_get_string_member (event, "path"), ==, tc->test_path);
   g_assert_cmpstr (json_object_get_string_member (event, "tag"), ==, tag);

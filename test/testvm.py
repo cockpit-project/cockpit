@@ -426,7 +426,7 @@ class Machine:
         return int(self.execute("{ (%s) >/var/log/%s 2>&1 & }; echo $!" % (shell_cmd, log_id)))
 
     def _calc_identity(self):
-        identity = os.path.join(self.test_dir, "identity")
+        identity = os.path.join(self.test_dir, "guest/identity")
         os.chmod(identity, 0600)
         return identity
 
@@ -507,7 +507,7 @@ class QemuMachine(Machine):
 
         if not gf.exists("/root/.ssh"):
             gf.mkdir_mode("/root/.ssh", 0700)
-        copy("identity.pub", "/root/.ssh/authorized_keys")
+        copy("guest/identity.pub", "/root/.ssh/authorized_keys")
 
     def _setup_fedora_network(self,gf):
         ifcfg_eth0 = 'BOOTPROTO="dhcp"\nDEVICE="eth0"\nONBOOT="yes"\n'

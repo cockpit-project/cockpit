@@ -78,7 +78,7 @@ class Machine:
         self.verbose = verbose
         self.flavor = flavor or DEFAULT_FLAVOR
 
-        conf_file = "%s.conf" % self.flavor
+        conf_file = "guest/%s.conf" % self.flavor
         if os.path.exists(conf_file):
             with open(conf_file, "r") as f:
                 self.conf = eval(f.read())

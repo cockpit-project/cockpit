@@ -22,7 +22,7 @@ from testlib import *
 import os
 
 b = Browser(None, "b")
-b.open(url="file://%s/test-iframe-outer.html" % os.getcwd())
+b.open(url="file://%s/files/test-iframe-outer.html" % os.getcwd())
 
 print b.text("#test")
 

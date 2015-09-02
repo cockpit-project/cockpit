@@ -131,7 +131,7 @@ function ph_set_checked (sel, val)
 function ph_is_visible (sel)
 {
     var el = ph_find(sel);
-    return !(el.offsetWidth <= 0 || el.offsetHeight <= 0);
+    return (el.offsetWidth > 0 || el.offsetHeight > 0);
 }
 
 function ph_is_present(sel)

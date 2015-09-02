@@ -145,10 +145,17 @@ class TestKubernetes(KubernetesCase):
 
 
 @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-kubernetes on rhel-7.")
-class TestSsl(KubernetesCase):
+class TestConnection(KubernetesCase):
     def testConnect(self):
         m = self.machine
         b = self.browser
+
+        # Connect without starting a kube server
+        self.login_and_go("/kubernetes/cluster", host=None)
+        b.wait_present(".curtains")
+        b.wait_in_text(".curtains", "Couldn't connect to Kubernetes server")
+        b.wait_in_text(".curtains", "Couldn't find running kube-apiserver")
+        self.assertIn("Reconnect", b.text(".blank-slate-pf-main-action button"))
 
         # Start a kube-apiserver with a 'wrong' http port, forcing use of https
         m.execute("echo 'KUBE_API_PORT=\"--port=1111\"' >> /etc/kubernetes/apiserver")
@@ -157,7 +164,8 @@ class TestSsl(KubernetesCase):
         m.execute("systemctl start etcd kube-apiserver kube-controller-manager docker kube-proxy kubelet")
         self.wait_api_server(port=6443, scheme='https')
 
-        self.login_and_go("/kubernetes/cluster", host=None)
+        # Click the Reconnect button
+        b.click(".blank-slate-pf-main-action button")
         b.wait_in_text("#node-list", "127.0.0.1")
 
         # Check that this failed as a double check
@@ -166,9 +174,7 @@ class TestSsl(KubernetesCase):
 
         self.allow_journal_messages(".*: couldn't connect: Connection refused")
 
-@unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-kubernetes on rhel-7.")
-class TestAuth(KubernetesCase):
-    def testConfig(self):
+    def testAuthConfig(self):
         m = self.machine
         b = self.browser
 

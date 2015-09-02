@@ -62,7 +62,7 @@ class TestKubernetes(KubernetesCase):
         self.fix_apiserver_config()
         m.execute("systemctl start etcd kube-apiserver kube-controller-manager kube-scheduler docker kube-proxy kubelet")
 
-        m.upload(["mock-k8s-tiny-app.json"], "/tmp")
+        m.upload(["files/mock-k8s-tiny-app.json"], "/tmp")
         self.wait_api_server()
 
     def testDashboard(self):
@@ -79,7 +79,7 @@ class TestKubernetes(KubernetesCase):
         # Successfully deploy via dialog
         b.click("#deploy-app")
         b.wait_popup("deploy-app-dialog")
-        b.upload_file("#deploy-app-manifest-file", "mock-k8s-tiny-app.json")
+        b.upload_file("#deploy-app-manifest-file", "files/mock-k8s-tiny-app.json")
         b.set_val("#deploy-app-namespace", "mynamespace")
         self.assertEqual(b.text("#deploy-app-namespace-group ul"), "default")
         b.dialog_complete("#deploy-app-dialog")
@@ -88,7 +88,7 @@ class TestKubernetes(KubernetesCase):
         # Fail deploy via dialog
         b.click("#deploy-app")
         b.wait_popup("deploy-app-dialog")
-        b.upload_file("#deploy-app-manifest-file", "mock-k8s-tiny-app.json")
+        b.upload_file("#deploy-app-manifest-file", "files/mock-k8s-tiny-app.json")
         b.set_val("#deploy-app-namespace", "!!!!")
         b.dialog_complete("#deploy-app-dialog", result="fail")
         b.dialog_cancel("#deploy-app-dialog")
@@ -190,7 +190,7 @@ class TestConnection(KubernetesCase):
         m.execute("echo 'fubar,admin,10101' > /etc/kubernetes/passwd")
 
         # Setup the kube stuff in the right place
-        m.upload(["mock-kube-config-basic.json"], "/tmp")
+        m.upload(["files/mock-kube-config-basic.json"], "/tmp")
         m.execute("mkdir -p /home/admin/.kube/ && mv /tmp/mock-kube-config-basic.json /home/admin/.kube/config")
 
         self.fix_apiserver_config()

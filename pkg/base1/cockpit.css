@@ -309,6 +309,12 @@ a {
 
 /* Well and Blankslate */
 
+.curtains {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+}
+
 .panel .well {
     margin-bottom: 0px;
     border: none;
@@ -319,6 +325,16 @@ a {
 .well.blank-slate-pf {
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.05) inset;
     padding-top: 40px;
+}
+
+/* HACK: https://github.com/patternfly/patternfly/issues/75 */
+.blank-slate-pf .fa {
+    color: #999999;
+}
+
+.blank-slate-pf .spinner-lg {
+    height: 58px;
+    width: 58px;
 }
 
 /* Alert fixups */

@@ -47,10 +47,12 @@ WantedBy=default.target
         b.enter_page("/system/init")
         b.reload()
         b.enter_page("/system/init")
+        b.wait_present("#service-unit .panel-heading")
         b.wait_text("#service-unit .panel-heading", "Test Service")
 
         self.restart_cockpit()
         b.relogin("/system/init")
+        b.wait_present("#service-unit .panel-heading")
         b.wait_text("#service-unit .panel-heading", "Test Service")
 
         # Navigate inside an iframe

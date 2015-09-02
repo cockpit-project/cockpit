@@ -70,6 +70,7 @@ class TestKubernetes(KubernetesCase):
         m = self.machine
 
         self.login_and_go("/kubernetes/cluster", host=None)
+        b.wait_present("#node-list")
         b.wait_in_text("#node-list", "127.0.0.1")
 
         m.execute("kubectl create -f /tmp/mock-k8s-tiny-app.json")
@@ -158,6 +159,7 @@ class TestSsl(KubernetesCase):
         self.wait_api_server(port=6443, scheme='https')
 
         self.login_and_go("/kubernetes/cluster", host=None)
+        b.wait_present("#node-list")
         b.wait_in_text("#node-list", "127.0.0.1")
 
         # Check that this failed as a double check
@@ -190,6 +192,7 @@ class TestAuth(KubernetesCase):
         self.wait_api_server(port=6443, scheme='https')
 
         self.login_and_go("/kubernetes/cluster", host=None)
+        b.wait_present("#service-list")
         b.wait_in_text("#service-list", "You can deploy an application to your cluster.")
 
         # Check that this failed as a double check

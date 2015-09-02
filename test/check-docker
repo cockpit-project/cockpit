@@ -106,9 +106,9 @@ class TestDocker(MachineCase):
         b.set_val("#containers-run-image-name", "PROBE2")
         b.set_val("#containers-run-image-command", "/bin/echo '%s'" % (message))
         b.click("#containers-run-image-with-terminal");
-        b.wait_not_visible("#select-linked-containers");
+        b.wait_visible("#select-linked-containers:empty");
         b.click("#link-containers");
-        b.wait_visible("#select-linked-containers");
+        b.wait_visible("#select-linked-containers:parent");
         b.set_val("#select-linked-containers form:last-child select.selectpicker", "PROBE")
         b.set_val("#select-linked-containers form:last-child  input[name='alias']", "alias1")
         b.click("#select-linked-containers form:last-child  button.fa-plus");

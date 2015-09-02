@@ -501,9 +501,9 @@ class QemuMachine(Machine):
         # We use a fixed host key for all test machines since things
         # get too annoying when it changes from run to run.
         #
-        copy("host_key", "/etc/ssh/ssh_host_rsa_key")
+        copy("guest/host_key", "/etc/ssh/ssh_host_rsa_key")
         gf.chmod(0600, "/etc/ssh/ssh_host_rsa_key")
-        copy("host_key.pub", "/etc/ssh/ssh_host_rsa_key.pub")
+        copy("guest/host_key.pub", "/etc/ssh/ssh_host_rsa_key.pub")
 
         if not gf.exists("/root/.ssh"):
             gf.mkdir_mode("/root/.ssh", 0700)

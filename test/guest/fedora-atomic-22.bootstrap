@@ -52,8 +52,8 @@ iso_image="${out%.*}.iso"
 vm_user="root"
 vm_pass="foobar"
 key_pub=`cat identity.pub`
-host_key=`sed  's/^/    /' host_key`
-host_key_pub=`cat host_key.pub`
+host_key=`sed  's/^/    /' guest/host_key`
+host_key_pub=`cat guest/host_key.pub`
 
 mkdir -p $init_dir
 

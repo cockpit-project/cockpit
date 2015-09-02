@@ -579,7 +579,7 @@ class QemuMachine(Machine):
         if not os.path.exists(self.run_dir):
             os.makedirs(self.run_dir, 0750)
 
-        bootstrap_script = "./%s.bootstrap" % (self.os, )
+        bootstrap_script = "./guest/%s.bootstrap" % (self.os, )
 
         if os.path.exists(self._image_image):
             os.unlink(self._image_image)

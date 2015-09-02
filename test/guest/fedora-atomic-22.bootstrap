@@ -51,7 +51,7 @@ iso_image="${out%.*}.iso"
 
 vm_user="root"
 vm_pass="foobar"
-key_pub=`cat identity.pub`
+key_pub=`cat guest/identity.pub`
 host_key=`sed  's/^/    /' guest/host_key`
 host_key_pub=`cat guest/host_key.pub`
 

@@ -81,6 +81,8 @@ on_pipe_read (CockpitPipe *pipe,
   guint32 i, size;
   gchar *data;
 
+  g_object_ref (self);
+
   for (;;)
     {
       size = 0;
@@ -135,6 +137,8 @@ on_pipe_read (CockpitPipe *pipe,
           cockpit_pipe_close (pipe, "internal-error");
         }
     }
+
+  g_object_unref (self);
 }
 
 static void

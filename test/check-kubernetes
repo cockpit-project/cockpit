@@ -116,8 +116,8 @@ class TestKubernetes(KubernetesCase):
         b.click("#service-list tr[data-name='mock']:first-of-type")
 
         # Check that clicking on service goes to containers
-        b.wait_present("#content .kube-details .kube-container")
-        self.assertEqual(b.text("#content .kube-details .kube-container h3.panel-title"), " mock-container")
+        b.wait_present("#content .kube-containers .kube-container")
+        self.assertEqual(b.text("#content .kube-containers .kube-container h3.panel-title"), " mock-container")
 
         # Check that service shows up on listing view
         b.click("a[href='#/list']")

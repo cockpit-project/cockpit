@@ -205,4 +205,61 @@ class TestConnection(KubernetesCase):
         output = m.execute("curl -k -sS https://localhost:6443/api 2>&1 || true")
         self.assertIn("Unauthorized", output)
 
+
+@unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-nulecule on rhel-7.")
+class TestNulecule(KubernetesCase):
+    def setUp(self):
+        MachineCase.setUp(self)
+        m = self.machine
+
+        self.fix_apiserver_config()
+        m.execute("systemctl start etcd kube-apiserver kube-controller-manager kube-scheduler docker kube-proxy kubelet")
+
+        self.wait_api_server()
+
+    def testDeployDialog(self):
+        b = self.browser
+        m = self.machine
+        b.wait_timeout(120)
+
+        self.login_and_go("/kubernetes/cluster", host=None)
+        b.wait_present("#node-list")
+        b.wait_in_text("#node-list", "127.0.0.1")
+
+        # 1)check atomic version
+        output = m.execute("atomic -v")
+        self.assertTrue(output>=1.1)
+
+        # 2) fail  invalid image
+        b.click("#deploy-app")
+        b.wait_popup("deploy-app-dialog")
+        b.set_val("#deploy-app-type", "nulecule")
+        b.set_val("#deploy-app-nulecule-image", "submod/helloapache1")
+        b.set_val("#deploy-app-namespace", "mynamespace")
+        b.click("#deploy-app-start")
+        b.dialog_complete("#deploy-app-dialog", result="fail")
+        b.dialog_cancel("#deploy-app-dialog")
+
+        # 3) pass when valid image 
+        b.click("#deploy-app")
+        b.wait_popup("deploy-app-dialog")
+        b.set_val("#deploy-app-type", "nulecule")
+        b.set_val("#deploy-app-nulecule-image", "submod/helloapache")
+        b.set_val("#deploy-app-namespace", "mynamespace")
+        b.click("#deploy-app-start")
+        self.allow_journal_messages('Could not find any image matching "submod/helloapache".')
+        b.wait_not_attr("#deploy-app-start", "disabled", "disabled")
+        b.dialog_cancel("#deploy-app-dialog")
+
+        # 4) fail when atomic is not installed
+        m.execute("dnf remove atomic -y || true")
+        b.click("#deploy-app")
+        b.wait_popup("deploy-app-dialog")
+        b.set_val("#deploy-app-type", "nulecule")
+        b.set_val("#deploy-app-nulecule-image", "submod/helloapache")
+        b.set_val("#deploy-app-namespace", "mynamespace")
+        b.click("#deploy-app-start")
+        b.dialog_complete("#deploy-app-dialog", result="fail")
+        b.dialog_cancel("#deploy-app-dialog")
+
 test_main()

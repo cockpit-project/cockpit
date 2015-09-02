@@ -108,6 +108,27 @@ define([
         return promise;
     };
 
+    docker.inspect_image = function inspect_image(image) {
+        var dfd = $.Deferred();
+        /*
+        * Gets image info locally
+        */
+        http.get("/v1.12/images/" + encodeURIComponent(image) + "/json")
+            .done(function(data) {
+                var image = JSON.parse(data);
+                dfd.resolve(image);
+            })
+            .fail(function(ex) {
+                dfd.reject(ex);
+            });
+        var promise = dfd.promise();
+        promise.cancel = function cancel() {
+            return promise;
+        };
+
+        return promise;
+    };
+
     function DockerTerminal(parent, channel) {
         var self = this;
 

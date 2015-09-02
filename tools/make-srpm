@@ -40,7 +40,7 @@ rpm_tmpdir=$(mktemp -d -t rpmbuild.XXXXXX)
     fi
 
     gzip $rpm_tmpdir/cockpit-wip.tar
-    cp test/cockpit.pam $rpm_tmpdir
+    cp test/guest/cockpit.pam $rpm_tmpdir
     sed '1i\
 %define gitcommit wip' tools/cockpit.spec > $rpm_tmpdir/cockpit.spec
 )

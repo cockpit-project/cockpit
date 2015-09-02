@@ -43,6 +43,30 @@
 
   <div id="networking" class="container-fluid" hidden>
     <div class="row">
+      <div id="networking-graph-toolbar" class="zoom-controls" style="text-align:right;margin-bottom:10px">
+        <div class="dropdown" style="display:inline-block">
+          <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <span style="width:6em;text-align:left;padding-left:5px;display:inline-block"></span>
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li role="presentation"><a role="menuitem" tabindex="-1" data-action="goto-now" translatable="yes">Go to now</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" data-range="300" translatable="yes">5 minutes</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" data-range="3600" translatable="yes">1 hour</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" data-range="21600" translatable="yes">6 hours</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" data-range="86400" translatable="yes">1 day</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" data-range="604800" translatable="yes">1 week</a></li>
+          </ul>
+        </div>
+        <button class="btn btn-default" data-action="zoom-out">
+          <span class="glyphicon glyphicon-zoom-out"></span>
+        </button>
+        <div class="btn-group">
+          <button class="btn btn-default fa fa-angle-left" data-action="scroll-left"></button>
+          <button class="btn btn-default fa fa-angle-right" data-action="scroll-right"></button>
+        </div>
+      </div>
       <div class="col-sm-6">
         <div><span translatable="yes">Sending</span><span style="float:right" id="networking-tx-text"></span></div>
         <div style="height:120px" id="networking-tx-graph"></div>
@@ -300,6 +324,30 @@
       <li class="active"></li>
     </ol>
     <div class="row">
+      <div id="network-interface-graph-toolbar" class="zoom-controls" style="text-align:right;margin-bottom:10px">
+        <div class="dropdown" style="display:inline-block">
+          <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <span style="width:6em;text-align:left;padding-left:5px;display:inline-block"></span>
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li role="presentation"><a role="menuitem" tabindex="-1" data-action="goto-now" translatable="yes">Go to now</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" data-range="300" translatable="yes">5 minutes</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" data-range="3600" translatable="yes">1 hour</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" data-range="21600" translatable="yes">6 hours</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" data-range="86400" translatable="yes">1 day</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" data-range="604800" translatable="yes">1 week</a></li>
+          </ul>
+        </div>
+        <button class="btn btn-default" data-action="zoom-out">
+          <span class="glyphicon glyphicon-zoom-out"></span>
+        </button>
+        <div class="btn-group">
+          <button class="btn btn-default fa fa-angle-left" data-action="scroll-left"></button>
+          <button class="btn btn-default fa fa-angle-right" data-action="scroll-right"></button>
+        </div>
+      </div>
       <div class="col-sm-6">
         <div><span translatable="yes">Sending</span><span style="float:right" id="network-interface-tx-text"></span></div>
         <div style="height:120px" id="network-interface-tx-graph"></div>

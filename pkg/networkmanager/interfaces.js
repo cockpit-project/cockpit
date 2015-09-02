@@ -27,7 +27,9 @@ define([
     "shell/dbus",
     "shell/cockpit-plot",
     "shell/cockpit-util",
-], function($, cockpit, Mustache, controls, shell, server, dbusx) {
+    "shell/dbus",
+    "shell/plot"
+], function($, cockpit, Mustache, controls, shell, server) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -1253,6 +1255,55 @@ function update_network_privileged() {
     );
 }
 
+/* Resource usage monitoring
+*/
+
+var usage_metrics_channel;
+var usage_samples;
+var usage_grid;
+
+function ensure_usage_monitor() {
+    if (usage_metrics_channel)
+        return;
+
+    usage_samples = { };
+    usage_metrics_channel = cockpit.metrics(1000,
+                                            [ { source: "direct",
+                                                metrics: [ { name: "network.interface.in.bytes",
+                                                             units: "bytes",
+                                                             derive: "rate"
+                                                           },
+                                                           { name: "network.interface.out.bytes",
+                                                             units: "bytes",
+                                                             derive: "rate"
+                                                           },
+                                                         ],
+                                                metrics_path_names: [ "rx", "tx" ]
+                                              },
+                                              { source: "internal",
+                                                metrics: [ { name: "network.all.rx",
+                                                             units: "bytes",
+                                                             derive: "rate"
+                                                           },
+                                                           { name: "network.all.tx",
+                                                             units: "bytes",
+                                                             derive: "rate"
+                                                           },
+                                                         ],
+                                                metrics_path_names: [ "rx", "tx" ]
+                                              }
+                                            ]);
+    usage_grid = cockpit.grid(1000, -1, -0);
+    usage_metrics_channel.follow();
+    usage_grid.walk();
+}
+
+function add_usage_monitor(iface) {
+    usage_samples[iface] = [ usage_grid.add(usage_metrics_channel, [ "rx", iface ]),
+                             usage_grid.add(usage_metrics_channel, [ "tx", iface ]),
+                           ];
+}
+
 PageNetworking.prototype = {
     _init: function (model) {
         this.id = "networking";
@@ -1264,16 +1315,12 @@ PageNetworking.prototype = {
     },
 
     setup: function () {
+        var self = this;
+
         update_network_privileged();
         $("#networking-add-bond").click($.proxy(this, "add_bond"));
         $("#networking-add-bridge").click($.proxy(this, "add_bridge"));
         $("#networking-add-vlan").click($.proxy(this, "add_vlan"));
-    },
-
-    enter: function () {
-        var self = this;
-
-        this.ifaces = { };
 
         var blues = [ "#006bb4",
                       "#008ff0",
@@ -1285,10 +1332,6 @@ PageNetworking.prototype = {
                       "#004778"
                     ];
 
-        function is_interesting_netdev(netdev) {
-            return netdev && self.ifaces[netdev];
-        }
-
         function highlight_netdev_row(event, id) {
             $('#networking-interfaces tr').removeClass('highlight');
             if (id) {
@@ -1296,36 +1339,79 @@ PageNetworking.prototype = {
             }
         }
 
-        function render_samples(event, timestamp, samples) {
-            for (var id in samples) {
-                var row = $('#networking-interfaces tr[data-sample-id="' + shell.esc(id) + '"]');
-                if (row.length > 0) {
-                    row.find('td:nth-child(3)').text(cockpit.format_bits_per_sec(samples[id][1] * 8));
-                    row.find('td:nth-child(4)').text(cockpit.format_bits_per_sec(samples[id][0] * 8));
+        var rx_plot_data = {
+            direct: "network.interface.in.bytes",
+            internal: "network.all.rx",
+            units: "bytes",
+            derive: "rate"
+        };
+
+        var rx_plot_options = shell.plot_simple_template();
+        $.extend(rx_plot_options.yaxis, { tickFormatter: shell.format_bytes_per_sec_tick,
+                                          labelWidth: 60
+                                        });
+        $.extend(rx_plot_options.grid,  { hoverable: true,
+                                          autoHighlight: false
+                                        });
+        rx_plot_options.colors = blues;
+        rx_plot_options.setup_hook = network_plot_setup_hook;
+        this.rx_plot = shell.plot($("#networking-rx-graph"), 300);
+        this.rx_plot.set_options(rx_plot_options);
+        this.rx_series = this.rx_plot.add_metrics_stacked_instances_series(rx_plot_data, { });
+        this.rx_plot.start_walking();
+        $(this.rx_series).on('hover', highlight_netdev_row);
+
+        var tx_plot_data = {
+            direct: "network.interface.out.bytes",
+            internal: "network.all.tx",
+            units: "bytes",
+            derive: "rate"
+        };
+
+        var tx_plot_options = shell.plot_simple_template();
+        $.extend(tx_plot_options.yaxis, { tickFormatter: shell.format_bytes_per_sec_tick,
+                                          labelWidth: 60
+                                        });
+        $.extend(tx_plot_options.grid,  { hoverable: true,
+                                          autoHighlight: false
+                                        });
+        tx_plot_options.colors = blues;
+        tx_plot_options.setup_hook = network_plot_setup_hook;
+        this.tx_plot = shell.plot($("#networking-tx-graph"), 300);
+        this.tx_plot.set_options(tx_plot_options);
+        this.tx_series = this.tx_plot.add_metrics_stacked_instances_series(tx_plot_data, { });
+        this.tx_plot.start_walking();
+        $(this.tx_series).on('hover', highlight_netdev_row);
+
+        $(cockpit).on('resize', function () {
+            self.rx_plot.resize();
+            self.tx_plot.resize();
+        });
+
+        var plot_controls = shell.setup_plot_controls($('#networking'), $('#networking-graph-toolbar'));
+        plot_controls.reset([ this.rx_plot, this.tx_plot ]);
+
+        ensure_usage_monitor();
+        $(usage_grid).on('notify', function (event, index, count) {
+            handle_usage_samples();
+        });
+
+        function handle_usage_samples() {
+            for (var iface in usage_samples) {
+                var samples = usage_samples[iface];
+                var rx = samples[0][0];
+                var tx = samples[1][0];
+                var row = $('#networking-interfaces tr[data-sample-id="' + shell.esc(iface) + '"]');
+                if (rx !== undefined && tx !== undefined && row.length > 0) {
+                    row.find('td:nth-child(3)').text(cockpit.format_bits_per_sec(tx * 8));
+                    row.find('td:nth-child(4)').text(cockpit.format_bits_per_sec(rx * 8));
                 }
             }
         }
+    },
 
-        /* TODO: This code needs to be migrated away from old dbus */
-        this.cockpitd = dbusx(null);
-        this.monitor = this.cockpitd.get("/com/redhat/Cockpit/NetdevMonitor",
-                                         "com.redhat.Cockpit.MultiResourceMonitor");
-
-        $(this.monitor).on('NewSample.networking', render_samples);
-
-        this.rx_plot = shell.setup_multi_plot('#networking-rx-graph', this.monitor, 0, blues.concat(blues),
-                                                is_interesting_netdev, network_plot_setup_hook);
-        $(this.rx_plot).on('update-total', function (event, total) {
-            $('#networking-rx-text').text(cockpit.format_bits_per_sec(total * 8));
-        });
-        $(this.rx_plot).on('highlight', highlight_netdev_row);
-
-        this.tx_plot = shell.setup_multi_plot('#networking-tx-graph', this.monitor, 1, blues.concat(blues),
-                                                is_interesting_netdev, network_plot_setup_hook);
-        $(this.tx_plot).on('update-total', function (event, total) {
-            $('#networking-tx-text').text(cockpit.format_bits_per_sec(total * 8));
-        });
-        $(this.tx_plot).on('highlight', highlight_netdev_row);
+    enter: function () {
+        var self = this;
 
         this.log_box = server.logbox([ "_SYSTEMD_UNIT=NetworkManager.service",
                                        "_SYSTEMD_UNIT=firewalld.service" ], 10);
@@ -1336,28 +1422,20 @@ PageNetworking.prototype = {
     },
 
     show: function() {
-        this.rx_plot.start();
-        this.tx_plot.start();
+        this.rx_plot.resize();
+        this.tx_plot.resize();
     },
 
     leave: function() {
-        this.rx_plot.destroy();
-        this.tx_plot.destroy();
         if (this.log_box)
             this.log_box.stop();
 
         $(this.model).off(".networking");
-
-        $(this.monitor).off(".networking");
-        this.cockpitd.release();
-        this.cockpitd = null;
     },
 
     update_devices: function() {
         var self = this;
         var tbody;
-        var new_ifaces = { };
-        var ifaces_changed = false;
 
         tbody = $('#networking-interfaces tbody');
         tbody.empty();
@@ -1384,9 +1462,9 @@ PageNetworking.prototype = {
             var dev = iface.Device;
             var is_active = (dev && dev.State == 100 && dev.Carrier === true);
 
-            new_ifaces[iface.Name] = true;
-            if (!self.ifaces[iface.Name])
-                ifaces_changed = true;
+            self.rx_series.add_instance(iface.Name);
+            self.tx_series.add_instance(iface.Name);
+            add_usage_monitor(iface.Name);
 
             tbody.append($('<tr>', { "data-interface": iface.Name,
                                      "data-sample-id": is_active? iface.Name : null
@@ -1400,18 +1478,6 @@ PageNetworking.prototype = {
                              cockpit.location.go([ iface.Name ]);
                          }));
         });
-
-        if (!ifaces_changed) {
-            for (var name in self.ifaces) {
-                if (!new_ifaces[name])
-                    ifaces_changed = true;
-            }
-        }
-
-        if (ifaces_changed) {
-            self.ifaces = new_ifaces;
-            $(self.monitor).trigger('notify:Consumers');
-        }
     },
 
     add_bond: function () {
@@ -1582,16 +1648,6 @@ PageNetworkInterface.prototype = {
                                             $.proxy(this, "disconnect"),
                                             null,
                                             "network-privileged"));
-    },
-
-    enter: function (dev_name) {
-        var self = this;
-
-        $(self.model).on('changed.network-interface', $.proxy(self, "update"));
-
-        self.dev_name = dev_name;
-
-        $('#network-interface .breadcrumb .active').text(self.dev_name);
 
         var blues = [ "#006bb4",
                       "#008ff0",
@@ -1603,12 +1659,6 @@ PageNetworkInterface.prototype = {
                       "#004778"
                     ];
 
-        self.graph_ifaces = { };
-
-        function is_interesting_netdev(netdev) {
-            return netdev && self.graph_ifaces[netdev];
-        }
-
         function highlight_netdev_row(event, id) {
             $('#network-interface-slaves tr').removeClass('highlight');
             if (id) {
@@ -1616,38 +1666,89 @@ PageNetworkInterface.prototype = {
             }
         }
 
-        function render_samples(event, timestamp, samples) {
-            for (var id in samples) {
-                var row = $('#network-interface-slaves tr[data-sample-id="' + shell.esc(id) + '"]');
+        var rx_plot_data = {
+            direct: "network.interface.in.bytes",
+            internal: "network.all.rx",
+            units: "bytes",
+            derive: "rate"
+        };
+
+        var rx_plot_options = shell.plot_simple_template();
+        $.extend(rx_plot_options.yaxis, { tickFormatter: shell.format_bytes_per_sec_tick,
+                                          labelWidth: 60
+                                        });
+        $.extend(rx_plot_options.grid,  { hoverable: true,
+                                          autoHighlight: false
+                                        });
+        rx_plot_options.colors = blues;
+        rx_plot_options.setup_hook = network_plot_setup_hook;
+        this.rx_plot = shell.plot($("#network-interface-rx-graph"), 300);
+        this.rx_plot.set_options(rx_plot_options);
+        this.rx_series = this.rx_plot.add_metrics_stacked_instances_series(rx_plot_data, { });
+        this.rx_plot.start_walking();
+        $(this.rx_series).on('hover', highlight_netdev_row);
+
+        var tx_plot_data = {
+            direct: "network.interface.out.bytes",
+            internal: "network.all.tx",
+            units: "bytes",
+            derive: "rate"
+        };
+
+        var tx_plot_options = shell.plot_simple_template();
+        $.extend(tx_plot_options.yaxis, { tickFormatter: shell.format_bytes_per_sec_tick,
+                                          labelWidth: 60
+                                        });
+        $.extend(tx_plot_options.grid,  { hoverable: true,
+                                          autoHighlight: false
+                                        });
+        tx_plot_options.colors = blues;
+        tx_plot_options.setup_hook = network_plot_setup_hook;
+        this.tx_plot = shell.plot($("#network-interface-tx-graph"), 300);
+        this.tx_plot.set_options(tx_plot_options);
+        this.tx_series = this.tx_plot.add_metrics_stacked_instances_series(tx_plot_data, { });
+        this.tx_plot.start_walking();
+        $(this.tx_series).on('hover', highlight_netdev_row);
+
+        $(cockpit).on('resize', function () {
+            self.rx_plot.resize();
+            self.tx_plot.resize();
+        });
+
+        var plot_controls = shell.setup_plot_controls($('#network-interface'), $('#network-interface-graph-toolbar'));
+        plot_controls.reset([ this.rx_plot, this.tx_plot ]);
+
+        ensure_usage_monitor();
+        $(usage_grid).on('notify', function (event, index, count) {
+            handle_usage_samples();
+        });
+
+        function handle_usage_samples() {
+            for (var iface in usage_samples) {
+                var samples = usage_samples[iface];
+                var rx = samples[0][0];
+                var tx = samples[1][0];
+                var row = $('#network-interface-slaves tr[data-sample-id="' + shell.esc(iface) + '"]');
                 if (row.length > 0) {
-                    row.find('td:nth-child(2)').text(cockpit.format_bits_per_sec(samples[id][1] * 8));
-                    row.find('td:nth-child(3)').text(cockpit.format_bits_per_sec(samples[id][0] * 8));
+                    row.find('td:nth-child(2)').text(cockpit.format_bits_per_sec(tx * 8));
+                    row.find('td:nth-child(3)').text(cockpit.format_bits_per_sec(rx * 8));
                 }
             }
         }
 
-        /* TODO: This code needs to be migrated away from old dbus */
-        this.cockpitd = dbusx(null);
-        this.monitor = this.cockpitd.get("/com/redhat/Cockpit/NetdevMonitor",
-                                         "com.redhat.Cockpit.MultiResourceMonitor");
+    },
 
-        $(this.monitor).on('NewSample.networking', render_samples);
+    enter: function (dev_name) {
+        var self = this;
 
-        this.rx_plot = shell.setup_multi_plot('#network-interface-rx-graph', this.monitor, 0,
-                                                blues.concat(blues), is_interesting_netdev,
-                                                network_plot_setup_hook);
-        $(this.rx_plot).on('update-total', function (event, total) {
-            $('#network-interface-rx-text').text(cockpit.format_bits_per_sec(total * 8));
-        });
-        $(this.rx_plot).on('highlight', highlight_netdev_row);
+        $(self.model).on('changed.network-interface', $.proxy(self, "update"));
 
-        this.tx_plot = shell.setup_multi_plot('#network-interface-tx-graph', this.monitor, 1,
-                                                blues.concat(blues), is_interesting_netdev,
-                                                network_plot_setup_hook);
-        $(this.tx_plot).on('update-total', function (event, total) {
-            $('#network-interface-tx-text').text(cockpit.format_bits_per_sec(total * 8));
-        });
-        $(this.tx_plot).on('highlight', highlight_netdev_row);
+        self.dev_name = dev_name;
+
+        $('#network-interface .breadcrumb .active').text(self.dev_name);
+
+        self.rx_series.clear_instances();
+        self.tx_series.clear_instances();
 
         $('#network-interface-delete').hide();
         self.dev = null;
@@ -1655,19 +1756,13 @@ PageNetworkInterface.prototype = {
     },
 
     show: function() {
-        this.rx_plot.start();
-        this.tx_plot.start();
+        this.rx_plot.resize();
+        this.tx_plot.resize();
     },
 
     leave: function() {
-        this.rx_plot.destroy();
-        this.tx_plot.destroy();
-
         $(this.model).off(".network-interface");
         this.dev = null;
-
-        this.cockpitd.release();
-        this.cockpitd = null;
     },
 
     delete_connections: function() {
@@ -2109,14 +2204,14 @@ PageNetworkInterface.prototype = {
         function update_connection_slaves(con) {
             var tbody = $('#network-interface-slaves tbody');
             var rows = { };
+            var slave_ifaces = { };
 
-            self.graph_ifaces = { };
             tbody.empty();
 
             if (!con || (con.Settings.connection.type != "bond" &&
                          con.Settings.connection.type != "bridge")) {
-                self.graph_ifaces[self.dev_name] = true;
-                $(self.monitor).trigger('notify:Consumers');
+                self.rx_series.add_instance(self.dev_name);
+                self.tx_series.add_instance(self.dev_name);
                 $('#network-interface-slaves').hide();
                 return;
             }
@@ -2129,7 +2224,9 @@ PageNetworkInterface.prototype = {
                     var dev = iface.Device;
                     var is_active = (dev && dev.State == 100 && dev.Carrier === true);
 
-                    self.graph_ifaces[iface.Name] = true;
+                    self.rx_series.add_instance(iface.Name);
+                    self.tx_series.add_instance(iface.Name);
+                    slave_ifaces[iface.Name] = true;
 
                     rows[iface.Name] =
                         $('<tr>', { "data-interface": iface.Name,
@@ -2182,7 +2279,7 @@ PageNetworkInterface.prototype = {
                         append(
                             self.model.list_interfaces().map(function (iface) {
                                 if (is_interesting_interface(iface) &&
-                                    !self.graph_ifaces[iface.Name] &&
+                                    !slave_ifaces[iface.Name] &&
                                     iface != self.iface) {
                                     return $('<li role="presentation">').append(
                                         $('<a role="menuitem" class="network-privileged">').
@@ -2199,7 +2296,6 @@ PageNetworkInterface.prototype = {
 
             $('#network-interface-slaves thead th:nth-child(5)').html(add_btn);
 
-            $(self.monitor).trigger('notify:Consumers');
             $('#network-interface-slaves').show();
             update_network_privileged();
         }

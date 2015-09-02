@@ -147,6 +147,11 @@ define([
                     trigger();
                 }
 
+                function image_updated(ev, image, key, last) {
+                    image_removed(ev, last, key);
+                    image_added(ev, image, key);
+                }
+
                 function imagestream_repo(imagestream) {
                     var spec = imagestream.spec || { };
                     return repo_qualify(spec.dockerImageRepository || "");
@@ -174,6 +179,11 @@ define([
                         }
                     }
                     trigger();
+                }
+
+                function imagestream_updated(ev, imagestream, key, last) {
+                    imagestream_removed(ev, last, key);
+                    imagestream_added(ev, imagestream, key);
                 }
 
                 function repository_empty(repository) {
@@ -204,7 +214,7 @@ define([
                         client.track(images);
                         $(images).on("added", image_added);
                         $(images).on("removed", image_removed);
-                        $(images).on("updated", trigger);
+                        $(images).on("updated", image_updated);
                         for (key in images)
                             image_added(null, images[key], key);
 
@@ -212,7 +222,7 @@ define([
                         client.track(imagestreams);
                         $(imagestreams).on("added", imagestream_added);
                         $(imagestreams).on("removed", imagestream_removed);
-                        $(imagestreams).on("updated", trigger);
+                        $(imagestreams).on("updated", imagestream_updated);
                         for (key in imagestreams)
                             imagestream_added(null, imagestreams[key], key);
                     }

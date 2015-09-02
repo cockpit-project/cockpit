@@ -591,9 +591,10 @@ define([
             enumerable: false,
             writable: false,
             value: function remove(key, item) {
-                if (key in this) {
+                var last = this[key];
+                if (last) {
                     delete this[key];
-                    this.trigger("removed", item);
+                    this.trigger("removed", last, key);
                 }
             }
         },
@@ -602,16 +603,16 @@ define([
             writable: false,
             value: function update(key, item) {
                 var matched = this.data.matcher(item);
-                var have = (key in this);
-                if (!have && matched) {
+                var last = this[key];
+                if (!last && matched) {
                     this[key] = item;
                     this.trigger("added", item, key);
-                } else if (have && !matched) {
+                } else if (last && !matched) {
                     delete this[key];
-                    this.trigger("removed", item, key);
-                } else if (have && matched) {
+                    this.trigger("removed", last, key);
+                } else if (last && matched) {
                     this[key] = item;
-                    this.trigger("updated", item, key);
+                    this.trigger("updated", item, key, last);
                 }
             }
         },

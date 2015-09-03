@@ -186,17 +186,14 @@ include doc/Makefile-doc.am
 include doc/guide/Makefile-guide.am
 include doc/man/Makefile-man.am
 
-nodist_noinst_DATA += guide/index.html
+noinst_DATA += doc/guide/html/index.html
 
-install-doc-local: guide/index.html
+install-doc-local: doc/guide/html/index.html
 	$(MKDIR_P) $(DESTDIR)$(htmldir)
 	$(INSTALL_DATA) `dirname $<`/* $(DESTDIR)$(htmldir)
 
 uninstall-doc-local:
 	rm -rf $(DESTDIR)$(htmldir)
-
-upload-doc: guide/index.html
-	rsync -Hvax guide/./ files.cockpit-project.org:/srv/guide/$(LATEST)./
 
 dist-doc-hook:
 	@true
@@ -209,8 +206,6 @@ uninstall-doc-local:
 	@true
 dist-doc-hook:
 	@echo "*** doc must be enabled (ie: --enable-doc) in order to make dist or distcheck"
-upload-doc:
-	@echo "*** doc must be enabled (ie: --enable-doc) in order to make upload-doc"
 
 endif
 

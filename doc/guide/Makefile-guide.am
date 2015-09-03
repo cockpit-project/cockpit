@@ -29,19 +29,18 @@ EXTRA_DIST += \
 	$(GUIDE_INCLUDES) \
 	$(GUIDE_XSLT) \
 	doc/guide/static \
+	doc/guide/html \
+	doc/guide/version.in \
 	$(NULL)
 
 CLEANFILES += \
-	guide/*.html \
-	guide/*.css \
-	guide/*.png \
-	guide/*.sgml \
-	guide/*.proc \
+	doc/guide/html/* \
 	*.tmp \
 	$(NULL)
 
-guide/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(man_MANS) $(GUIDE_STATIC) $(GUIDE_XSLT)
-	$(AM_V_GEN) mkdir -p guide/ && rm -rf guide/* && cp $(srcdir)/doc/guide/static/* guide/ && \
-		$(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o guide/ \
-			--searchpath $(abs_builddir):$(abs_srcdir):$(abs_builddir)/doc \
+doc/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(man_MANS) $(GUIDE_STATIC) $(GUIDE_XSLT)
+	$(AM_V_GEN) mkdir -p doc/guide/html/ && rm -rf doc/guide/html/* && \
+		cp $(srcdir)/doc/guide/static/* doc/guide/html/ && \
+		$(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o doc/guide/html/ \
+			--searchpath $(abs_builddir):$(abs_srcdir):$(abs_builddir)/doc/guide \
 			$(srcdir)/$(GUIDE_DOCBOOK)

@@ -457,7 +457,7 @@ AC_SUBST(PAM_LIBS)
 
 AC_OUTPUT([
 Makefile
-doc/version
+doc/guide/version
 po/Makefile.in
 ])
 

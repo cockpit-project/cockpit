@@ -25,15 +25,16 @@ base=$(cd $(dirname $0)/../; pwd -P)
 
 usage()
 {
-	echo "usage: make-rpms [--clean] [--quick] [--verbose]"
+	echo "usage: make-rpms [--clean] [--quick] [--verbose] [--revision R]"
 }
 
 mock_opts=""
 mock_clean_opts="--no-clean --no-cleanup-after"
 mock_define="unused"
 mock_value="0"
+rev="none"
 
-args=$(getopt -o "h,v,c,q" -l "help,verbose,clean,quick" -- "$@")
+args=$(getopt -o "h,v,c,q,r:" -l "help,verbose,clean,quick,revision:" -- "$@")
 eval set -- "$args"
 while [ $# -gt 0 ]; do
 	case $1 in
@@ -50,6 +51,10 @@ while [ $# -gt 0 ]; do
 		mock_define="selinux" mock_value="0"
 		mock_opts="$mock_opts --offline --nocheck"
 		;;
+        -r|--revision)
+                shift
+                rev="$1"
+                ;;
 	-h|--help)
 		usage
 		exit 0
@@ -102,7 +107,7 @@ if [ "$os" == "rhel-7" ]; then
     # get epel packages instead, they don't require a subscription
     cp --preserve=timestamps /etc/mock/$mockos-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
     cat >>$base/mock/$os-$arch-cockpit.cfg <<EOF
-config_opts['root'] = "$os-$arch-cockpit"
+config_opts['root'] = "$os-$arch-cockpit-$rev"
 config_opts['yum.conf'] += """
 [sgallagh-cockpit-preview]
 name=Copr repo for cockpit-preview owned by sgallagh
@@ -116,7 +121,7 @@ EOF
 else
     cp --preserve=timestamps /etc/mock/$mockos-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
     cat >>$base/mock/$os-$arch-cockpit.cfg <<EOF
-config_opts['root'] = "$os-$arch-cockpit"
+config_opts['root'] = "$os-$arch-cockpit-$rev"
 EOF
     if [[ "$os" =~ "-testing" ]]; then
         cat >>$base/mock/$os-$arch-cockpit.cfg <<EOF

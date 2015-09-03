@@ -205,4 +205,107 @@ class TestConnection(KubernetesCase):
         output = m.execute("curl -k -sS https://localhost:6443/api 2>&1 || true")
         self.assertIn("Unauthorized", output)
 
+
+@unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-nulecule on rhel-7.")
+class TestNuleculeFail(KubernetesCase):
+    def setUp(self):
+        MachineCase.setUp(self)
+        m = self.machine
+
+        self.fix_apiserver_config()
+        m.execute("systemctl start etcd kube-apiserver kube-controller-manager kube-scheduler docker kube-proxy kubelet")
+
+        self.wait_api_server()
+
+    def testNuleculeAppFail(self):
+        b = self.browser
+        m = self.machine
+        b.wait_timeout(120)
+
+        self.login_and_go("/kubernetes/cluster", host=None)
+        b.wait_in_text("#node-list", "127.0.0.1")
+
+        # fail when atomic is not installed
+        m.execute("dnf remove atomic -y || true")
+        b.click("#deploy-app")
+        b.wait_popup("deploy-app-dialog")
+        b.set_val("#deploy-app-type", "nulecule")
+        b.set_val("#deploy-app-nulecule-image", "submod/helloapache")
+        b.set_val("#deploy-app-namespace", "mynamespace")
+        b.click("#deploy-app-start")
+        b.dialog_complete("#deploy-app-dialog", result="fail")
+        # b.snapshot("check-kubernetes-testNuleculeApp-image12")
+        b.dialog_cancel("#deploy-app-dialog")
+
+        # Pass when atomic > 1.1
+        m.execute("dnf install atomic -y")
+        output = m.execute("atomic -v")
+        print output
+
+        b.click("#deploy-app")
+        b.wait_popup("deploy-app-dialog")
+        b.set_val("#deploy-app-type", "nulecule")
+        b.set_val("#deploy-app-nulecule-image", "submod/helloapache")
+        b.set_val("#deploy-app-namespace", "mynamespace")
+
+        # b.snapshot("check-kubernetes-testNuleculeApp-image21")
+
+        b.click("#deploy-app-start")
+        #b.wait_popup("deploy-app-dialog")
+        # b.snapshot("check-kubernetes-testNuleculeApp-image22")
+
+        # b.wait_present("#helloapache-app-image-text") #...timesout
+        # b.wait_not_attr("#deploy-app-start", "disabled", "disabled")
+        
+        b.dialog_complete("#deploy-app-dialog", result="fail")
+        # b.snapshot("check-kubernetes-testNuleculeApp-image23")
+        b.dialog_cancel("#deploy-app-dialog")
+
+
+    def testNuleculeAppSuccess(self):
+
+        # Start second browser and check that it is in sync
+        #b = self.new_browser()
+        b = self.browser
+        #b.default_user = "root"
+        b.wait_timeout(120)
+        m = self.machine
+        # Give "admin" access via the wheel group and login again
+        # m.execute("usermod -G wheel admin")
+        # m.execute("systemctl restart docker")
+        m.execute("dnf install atomic -y")
+        m.execute("docker pull submod/helloapache")
+        # self.allow_restart_journal_messages()
+
+        # b.logout()
+        # b.snapshot("check-kubernetes-testNuleculeApp-image032")
+        
+        # b.relogin(user="root")
+        
+        self.login_and_go("/kubernetes/cluster", host=None)
+        b.snapshot("check-kubernetes-testNuleculeApp-image0032")
+        b.wait_in_text("#node-list", "127.0.0.1")
+        #b.allow_journal_messages("*")
+        # Give "admin" access via the wheel group and login again
+        # m.execute("usermod -G wheel admin")
+        # m.execute("systemctl restart docker")
+        # m.execute("dnf install atomic -y")
+
+        
+        b.click("#deploy-app")
+        b.wait_popup("deploy-app-dialog")
+        b.set_val("#deploy-app-type", "nulecule")
+        b.set_val("#deploy-app-nulecule-image", "submod/helloapache")
+        b.set_val("#deploy-app-namespace", "mynamespace")
+
+        b.snapshot("check-kubernetes-testNuleculeApp-image31")
+
+        b.click("#deploy-app-start")
+        #b.wait_popup("deploy-app-dialog")
+        b.snapshot("check-kubernetes-testNuleculeApp-image32")
+        self.allow_journal_messages('Could not find any image matching "submod/helloapache".')
+        # b.wait_present("#helloapache-app-image-text") #...timesout
+        b.wait_not_attr("#deploy-app-start", "disabled", "disabled")
+        b.snapshot("check-kubernetes-testNuleculeApp-image33")
+
 test_main()

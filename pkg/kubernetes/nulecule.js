@@ -19,17 +19,18 @@
 
 define([
     "jquery",
-    "base1/cockpit"
-], function($, cockpit) {
+    "base1/cockpit",
+    "docker/docker"
+], function($, cockpit, docker) {
     "use strict";
 
     var nulecule = { };
     var _ = cockpit.gettext;
 
     function debug(args) {
-        if (window.debugging == "all" || window.debugging == "nulecule")
-            console.debug.apply(console, arguments);
-
+/*        if (window.debugging == "all" || window.debugging == "nulecule")
+            console.debug.apply(console, arguments);*/
+        console.log(args);
     }
 
     /**
@@ -180,11 +181,22 @@ define([
 
         function check_versions(image) {
             var deferred = $.Deferred();
-            check_atomic_version()
-                .done(function() {
-                    check_nulecule_version(image)
-                        .done(function(version_info) {
-                            deferred.resolve(version_info);
+            var tag = "latest";
+            var tagl = image.split(":"); 
+            if(tagl.length > 1)
+                tag = tag[1];
+
+            docker.pull(image, tag)
+                .done(function(){
+                    check_atomic_version()
+                        .done(function() {
+                            check_nulecule_version(image)
+                                .done(function(version_info) {
+                                    deferred.resolve(version_info);
+                                })
+                                .fail(function(err) {
+                                    deferred.reject(err);
+                                });
                         })
                         .fail(function(err) {
                             deferred.reject(err);
@@ -193,6 +205,7 @@ define([
                 .fail(function(err) {
                     deferred.reject(err);
                 });
+            
             var promise = deferred.promise();
             return promise;
         }

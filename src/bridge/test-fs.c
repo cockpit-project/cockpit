@@ -667,8 +667,8 @@ test_watch_simple (TestCase *tc,
   g_assert (event != NULL);
 
   /*
-   * HACK: Account for different behavior by different glib2 versions
-   * https://bugzilla.redhat.com/show_bug.cgi?id=1225957
+   * HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1259594
+   * Some versions of glib2 erroneously emit spurios "delete" events.
    */
   if (g_str_equal (json_object_get_string_member (event, "event"), "deleted"))
     {

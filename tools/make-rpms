@@ -97,16 +97,19 @@ arch=${TEST_ARCH:-}
 srpm=$("$make_srpm" "$@")
 rm -rf $base/mock/*
 
+mockcfgdir=${TEST_DATA:-$base}/mock
+
 # Create our custom config
-mkdir -p $base/mock
-cp --preserve=timestamps /etc/mock/site-defaults.cfg $base/mock/
-cp --preserve=timestamps /etc/mock/logging.ini $base/mock/
+mkdir -p $base/mock $mockcfgdir
+cp --preserve=timestamps /etc/mock/site-defaults.cfg $mockcfgdir
+cp --preserve=timestamps /etc/mock/logging.ini $mockcfgdir
+mockcfg=$mockcfgdir/$os-$arch-cockpit-$rev.cfg
 
 if [ "$os" == "rhel-7" ]; then
     mockos="epel-7"
     # get epel packages instead, they don't require a subscription
-    cp --preserve=timestamps /etc/mock/$mockos-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
-    cat >>$base/mock/$os-$arch-cockpit.cfg <<EOF
+    cp --preserve=timestamps /etc/mock/$mockos-$arch.cfg $mockcfg
+    cat >>$mockcfg <<EOF
 config_opts['root'] = "$os-$arch-cockpit-$rev"
 config_opts['yum.conf'] += """
 [sgallagh-cockpit-preview]
@@ -119,12 +122,12 @@ enabled=1
 """
 EOF
 else
-    cp --preserve=timestamps /etc/mock/$mockos-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
-    cat >>$base/mock/$os-$arch-cockpit.cfg <<EOF
+    cp --preserve=timestamps /etc/mock/$mockos-$arch.cfg $mockcfg
+    cat >>$mockcfg <<EOF
 config_opts['root'] = "$os-$arch-cockpit-$rev"
 EOF
     if [[ "$os" =~ "-testing" ]]; then
-        cat >>$base/mock/$os-$arch-cockpit.cfg <<EOF
+        cat >>$mockcfg <<EOF
 config_opts['yum.conf'] += """
 [updates-testing]
 enabled=1
@@ -133,10 +136,10 @@ EOF
     fi
 fi
 
-touch -r /etc/mock/$mockos-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
+touch -r /etc/mock/$mockos-$arch.cfg $mockcfg
 
-if LANG=C /usr/bin/mock --quiet $mock_opts $mock_clean_opts --configdir=$base/mock/ \
-	--resultdir $base/mock -r $os-$arch-cockpit --define="$mock_define $mock_value" $srpm; then
+if LANG=C /usr/bin/mock --quiet $mock_opts $mock_clean_opts --configdir=$mockcfgdir \
+	--resultdir $base/mock -r $os-$arch-cockpit-$rev --define="$mock_define $mock_value" $srpm; then
     grep "^Wrote: .*\.\($arch\|noarch\)\.rpm$" $base/mock/build.log | while read l; do
         p=$(basename "$l") # knocks off the "Wrote:" part as well...
         echo $p

@@ -580,7 +580,6 @@ class QemuMachine(Machine):
             os.makedirs(self.run_dir, 0750)
 
         bootstrap_script = "./%s.bootstrap" % (self.os, )
-        magic_base_image = os.path.join(self.test_data, "%s-%s.qcow2" % (self.os, self.arch))
 
         if os.path.exists(self._image_image):
             os.unlink(self._image_image)
@@ -589,11 +588,8 @@ class QemuMachine(Machine):
 
         if os.path.isfile(bootstrap_script):
             subprocess.check_call([ bootstrap_script, self._image_image, self.arch ])
-        elif os.path.isfile(magic_base_image):
-            self.message("Creating disk copy:", self._image_image)
-            shutil.copyfile(magic_base_image, self._image_image)
         else:
-            raise Failure("Unsupported OS %s: neither %s nor %s found." % (self.os, bootstrap_script, magic_base_image))
+            raise Failure("Unsupported OS %s: %s not found." % (self.os, bootstrap_script))
 
         if modify_func:
             self.run_modify_func(modify_func)

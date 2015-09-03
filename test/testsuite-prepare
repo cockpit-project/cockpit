@@ -2,10 +2,14 @@
 
 set -e
 
+SELF=testsuite-prepare
+. ./testlib.sh
+
 make_rpms_opts=
 cockpit_create_opts=
 install_selinux=yes
 install_opts=
+use_make_rpms_rev=yes
 
 usage()
 {
@@ -21,6 +25,7 @@ while [ $# -gt 0 ]; do
         make_rpms_opts="$make_rpms_opts --clean"
         cockpit_create_opts="--force --no-save"
         install_selinux=no
+        use_make_rpms_rev=no
         ;;
     -q|--quick)
         make_rpms_opts="$make_rpms_opts --quick"
@@ -40,13 +45,13 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-IP=/sbin/ip
+if [ "$use_make_rpms_rev" == "yes" ]; then
+    rev=$(python -c "print eval(open('cockpit.conf', 'r').read())['tags']['$TEST_OS']" 2>/dev/null || true)
+    rev=${rev:-0}
+    make_rpms_opts="$make_rpms_opts --revision $rev"
+fi
 
-silent()
-{
-  "$@" > /dev/null 2> /dev/null
-  return $?
-}
+IP=/sbin/ip
 
 # Prerequisites
 require_binary() {

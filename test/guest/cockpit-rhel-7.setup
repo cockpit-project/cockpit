@@ -2,6 +2,9 @@
 
 set -e
 
+# Remove any internal files
+rm /etc/yum.repos.d/download.devel.redhat.com.repo
+
 # register system
 subscription-manager register --auto-attach --username=`cat ~/.rhel/login` --password=`cat ~/.rhel/pass`
 # remove credentials from test machine

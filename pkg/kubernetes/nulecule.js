@@ -19,8 +19,9 @@
 
 define([
     "jquery",
-    "base1/cockpit"
-], function($, cockpit) {
+    "base1/cockpit",
+    "docker/docker"
+], function($, cockpit, docker) {
     "use strict";
 
     var nulecule = { };
@@ -178,20 +179,57 @@ define([
             return promise;
         }
 
+
+        function ensure_image_exists(image) {
+            var deferred = $.Deferred();
+            docker.inspect_image(image)
+                .done(function(data) {
+                    deferred.resolve();
+                })
+                .fail(function(ex) {
+                    var tag = "latest";
+                    var tagl = image.split(":");
+                    if(tagl.length > 1)
+                        tag = tag[1];
+
+                    docker.pull(image, tag)
+                        .progress(function(msg) {
+                            deferred.notify(msg);
+                        })
+                        .done(function(d) {
+                            deferred.resolve();
+                        })
+                        .fail(function(ex) {
+                            deferred.reject(ex);
+                        });
+                });
+            return deferred.promise();
+        }
+
         function check_versions(image) {
             var deferred = $.Deferred();
+
             check_atomic_version()
                 .done(function() {
-                    check_nulecule_version(image)
-                        .done(function(version_info) {
-                            deferred.resolve(version_info);
+                    ensure_image_exists(image)
+                        .progress(function(msg) {
+                            deferred.notify(msg);
+                        })
+                        .done(function() {
+                            check_nulecule_version(image)
+                                .done(function(version_info) {
+                                    deferred.resolve(version_info);
+                                })
+                                .fail(function(err) {
+                                    deferred.reject(err);
+                                });
                         })
                         .fail(function(err) {
                             deferred.reject(err);
                         });
                 })
                 .fail(function(err) {
-                    deferred.reject(err);
+                    deferred.reject(new Error(_("Unable to pull Nulecule app image.")));
                 });
             var promise = deferred.promise();
             return promise;
@@ -285,6 +323,9 @@ define([
                 delete_tmp();
 
             check_versions(image)
+                .progress(function(msg){
+                    deferred.notify(msg);
+                })
                 .done(function(version_info) {
                     var atomicapp_version = version_info.atomicappversion.trim();
                     if ( atomicapp_version == MINIMUM_SUPPORTED_ATOMICAPP_VERSION ) {

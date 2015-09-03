@@ -18,12 +18,12 @@ eval set -- "$args"
 while [ $# -gt 0 ]; do
     case $1 in
     -c|--clean)
-        mock_rpms_opts="$mock_rpms_opts --clean"
+        make_rpms_opts="$make_rpms_opts --clean"
         cockpit_create_opts="--force --no-save"
         install_selinux=no
         ;;
     -q|--quick)
-        mock_rpm_opts="$mock_rpm_opts --quick"
+        make_rpms_opts="$make_rpms_opts --quick"
         ;;
     -v|--verbose)
         install_opts="$install_opts -v"

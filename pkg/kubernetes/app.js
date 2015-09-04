@@ -175,13 +175,7 @@ define([
                         $scope.selection = selection;
 
                         $scope.selected = function selected(id) {
-                            if (id === undefined) {
-                                for (id in selection)
-                                    return true;
-                                return false;
-                            } else {
-                                return id in selection;
-                            }
+                            return id in selection;
                         };
 
                         $scope.select = function select(id, stick) {
@@ -210,8 +204,8 @@ define([
                     restrict: 'A',
                     scope: true,
                     link: function(scope, element, attrs) {
-                        scope.star = false;
-                        scope.$watch("star", function(value) {
+                        scope.pinned = false;
+                        scope.$watch("pinned", function(value) {
                             scope.select(scope.id, value);
                         });
                     },

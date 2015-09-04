@@ -68,47 +68,42 @@ define([
             'kubernetesClient',
             function($scope, client) {
 
-            var lists = {
-                Pod: null,
-                ReplicationController: null,
-                Service: null,
-                Node: null,
-                Endpoints: null,
-            };
+                var lists = {
+                    Pod: null,
+                    ReplicationController: null,
+                    Service: null,
+                    Node: null,
+                    Endpoints: null,
+                };
 
-            Object.keys(lists).forEach(function(kind) {
-                lists[kind] = client.select(kind);
-                client.track(lists[kind]);
-                $(lists[kind]).on("changed", function() {
-                    $scope.$digest();
+                Object.keys(lists).forEach(function(kind) {
+                    lists[kind] = client.select(kind);
+                    client.track(lists[kind]);
+                    $(lists[kind]).on("changed", function() {
+                        $scope.$digest();
+                    });
                 });
-            });
 
-            function select(item, event) {
-                $scope.selected = item;
+                angular.extend($scope, {
+                    pods: lists.Pod,
+                    services: lists.Service,
+                    nodes: lists.Node,
+                    replicationcontrollers: lists.ReplicationController
+                });
+
+                $scope.$on("$destroy", function() {
+                    angular.forEach(lists, function(list) {
+                        client.track(list, false);
+                    });
+                });
+
+                $scope.serviceEndpoint = function service_endpoint(service) {
+                    return client.lookup("Endpoints",
+                                         service.metadata.name,
+                                         service.metadata.namespace);
+                };
             }
-
-            angular.extend($scope, {
-                pods: lists.Pod,
-                services: lists.Service,
-                nodes: lists.Node,
-                replicationcontrollers: lists.ReplicationController,
-                select: select,
-                selected: null
-            });
-
-            $scope.$on("$destroy", function() {
-                angular.forEach(lists, function(list) {
-                    client.track(list, false);
-                });
-            });
-
-            $scope.serviceEndpoint = function service_endpoint(service) {
-                return client.lookup("Endpoints",
-                                     service.metadata.name,
-                                     service.metadata.namespace);
-            };
-        }])
+        ])
 
         .filter('nodeStatus', function() {
             return function(conditions) {
@@ -176,27 +171,6 @@ define([
                                         "item.spec.ports"], function(values) {
                         var text = format_addresses_with_ports([values[0]],
                                                                values[1]);
-                        element.text(cockpit.format(_("Cluster: $0"), text));
-                    });
-                }
-            };
-        })
-
-        .directive('kubernetesServiceEndpoint', function() {
-            return {
-                restrict: 'E',
-                link: function($scope, element, attributes) {
-                    $scope.$watchGroup(["item.addresses",
-                                        "item.ports"], function(values) {
-                        var addresses = values[0] ? values[0] : [];
-                        addresses = addresses.map(function(a) {
-                            return a.ip;
-                        });
-
-                        var text = format_addresses_with_ports(addresses,
-                                                               values[1]);
-                        if (text)
-                            text = cockpit.format(_("Endpoint: $0"), text);
                         element.text(text);
                     });
                 }

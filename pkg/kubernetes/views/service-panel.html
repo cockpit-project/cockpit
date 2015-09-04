@@ -4,10 +4,6 @@
     <div class="panel-heading">
         <div class="listing-icons">
             <i class="pficon pficon-service"></i>
-            <button type="button" class="listing-pin fa-thumb-tack"
-                ng-click="pinned = !pinned"
-                ng-class="{ active: pinned }">
-            </button>
         </div>
         <div class="listing-actions">
             <button class="btn btn-danger btn-delete pficon pficon-delete"></button>
@@ -16,7 +12,7 @@
             <span ng-if="endpoint.subsets.length !== 0" translatable="yes">Ready</span>
             <span ng-if="endpoint.subsets.length === 0" translatable="yes">Not Ready</span>
         </div>
-        <h3 class="listing-title" ng-click="select(null)">{{ item.metadata.name }}</h3>
+        <h3 class="listing-title" ng-click="select(id)">{{ item.metadata.name }}</h3>
     </div>
     <tabset class="">
         <tab heading="Service">

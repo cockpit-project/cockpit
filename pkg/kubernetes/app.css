@@ -411,7 +411,10 @@ table.listing tr.listing-panel td > * {
     display: block;
     float: left;
     font-size: 20px;
-    margin: 7px 5px 0px 7px;
+    margin: 0px 5px 0px 7px;
+    pointer-events: none;
+    position: relative;
+    top: 7px;
 }
 
 .listing-panel div.listing-icons * {
@@ -428,13 +431,19 @@ table.listing tr.listing-panel td > * {
     margin: 10px 20px 0px 10px;
 }
 
+.listing-panel .listing-actions + .listing-status {
+    margin: 5px 10px 0px 10px;
+}
+
+
 .listing-panel .listing-actions {
     float: right;
-    margin: 10px 20px 0px 10px;
+    margin: 10px 10px 0px 10px;
 }
 
 .listing-panel .listing-title {
     margin: 0;
+    font-weight: bold;
     padding: 10px 10px 8px 10px;
 }
 
@@ -460,6 +469,10 @@ table.listing tr.listing-panel td > * {
 .listing-panel div.panel-tabbed ul.nav-tabs {
     margin-top: 2px;
     font-size: 13px;
+}
+
+.listing-panel div.panel-tabbed ul.nav-tabs li:first-child {
+    margin-left: 20px;
 }
 
 .listing-panel div.panel-tabbed ul.nav-tabs a {
@@ -497,8 +510,8 @@ table.listing tr.listing-panel td > * {
     height: 1.6em;
     margin-bottom: none;
     white-space: nowrap;
-    margin-right: 55px;
-    margin-left: 9px;
+    margin-right: 25px;
+    margin-left: 32px;
 }
 
 .listing-panel .panel-heading dt {

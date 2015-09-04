@@ -1,16 +1,14 @@
 <div class="panel panel-default">
     <div class="panel-heading">
-        <div class="listing-actions">
-            <button class="btn btn-danger btn-delete pficon pficon-delete" disabled>
-            </button>
+        <div class="listing-icons">
+            <i class="pficon pficon-image"></i>
         </div>
-        <button type="button" class="listing-star fa"
-            ng-click="star = !star"
-            ng-class="{ active: star }">
-        </button>
-        <h3 class="panel-title">{{ item.name }}</h3>
+        <div class="listing-actions">
+            <button class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
+        </div>
+        <h3 class="listing-title" ng-click="select(id)">{{ item.name }}</h3>
         <dl><dt translatable="yes">From:</dt><dd>{{ item.source }}</dd></dl>
-        <dl><dt translatable="yes">Used by:</dt><dd>{{ item.imagestreams | imagesNamespaces }}</dd></dl>
+        <dl><dt translatable="yes">Projects:</dt><dd>{{ item.imagestreams | imagesNamespaces }}</dd></dl>
     </div>
     <div class="panel-body">
         <table>

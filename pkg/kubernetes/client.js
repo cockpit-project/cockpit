@@ -652,6 +652,13 @@ define([
                 }
                 return flat;
             }
+        },
+        count: {
+            enumerable: false,
+            get: function length() {
+                var self = this;
+                return Object.keys(self).length;
+            }
         }
     });
 

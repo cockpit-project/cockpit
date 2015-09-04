@@ -19,6 +19,7 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/imagerepository-panel.html \
 	pkg/kubernetes/views/listing-page.html \
 	pkg/kubernetes/views/pod-panel.html \
+	pkg/kubernetes/views/service-panel.html \
 	pkg/kubernetes/views/topology-page.html \
 	$(NULL)
 

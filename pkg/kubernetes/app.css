@@ -390,65 +390,103 @@ table.listing tr.listing-panel td > * {
     margin: 0;
 }
 
-tr.listing-panel div.panel {
-    background-color: #F0F0F0;
-    border-color: #CCC;
+.listing-panel div.panel {
+    background-color: #f5f5f5;
     border-top: 3px solid #0099D3;
-    -webkit-box-shadow: 1px 1px 1px 1px #F0F0F0;
-    box-shadow: 1px 1px 1px 1px #F0F0F0;
+    -webkit-box-shadow: 1px 1px 1px 1px #f5f5f5;
+    box-shadow: 1px 1px 1px 1px #f5f5f5;
 }
 
-tr.listing-panel div.panel-heading {
+.listing-panel div.panel-heading {
     background: none;
-    border-color: #CCC;
-    padding: 10px;
     height: auto;
+    padding: 0;
 }
 
-tr.listing-panel div.panel-heading h3 {
+.listing-panel div.panel-heading h3 {
     font-size: 15px;
-    margin-left: 25px;
 }
 
-tr.listing-panel div.panel-heading p {
+.listing-panel div.listing-icons {
+    display: block;
+    float: left;
+    font-size: 30px;
+    margin: 7px 5px 0px 7px;
+}
+
+.listing-panel div.listing-icons * {
+    display: block;
+}
+
+.listing-panel div.listing-status {
+    float: right;
+    margin: 10px 20px 5px 10px;
+}
+
+.listing-panel .listing-title {
+    margin: 0;
+    padding: 10px 10px 8px 10px;
+}
+
+.listing-panel .listing-title:hover {
+    background-color: #d4edfa;
+    cursor: pointer;
+}
+
+.listing-panel .pinned .listing-title:hover {
+    background-color: transparent;
+    cursor: auto;
+}
+
+.listing-panel div.panel-heading p {
     margin-left: 25px;
     margin-bottom: 0px;
 }
 
-tr.listing-panel button.listing-star {
+.listing-panel div.panel-tabbed div.panel-heading {
+    border-bottom: none;
+}
+
+.listing-panel div.panel-tabbed ul.nav-tabs {
+    margin-top: 2px;
+    font-size: 13px;
+}
+
+.listing-panel div.panel-tabbed ul.nav-tabs a {
+    padding: 3px 10px;
+}
+
+.listing-panel div.panel-tabbed ul.nav-tabs li.active a {
+    background-color: #f5f5f5 !important;
+}
+
+.listing-panel button.listing-pin {
     font-size: 18px;
     line-height: 1;
     opacity: 0.4;
-    float: left;
     border: 0px none;
     background: transparent;
     padding: 0px;
-    margin-bottom: 15px;
+    position: relative;
+    left: 7px;
+    top: 3px;
 }
 
-tr.listing-panel button.listing-star:hover,
-tr.listing-panel button.listing-star:focus {
-    opacity: 0.9;
-}
-
-tr.listing-panel button.listing-star.active {
+.listing-panel button.listing-pin.active {
     opacity: 1;
     color: #0099D3;
 }
 
-button.listing-star.fa:before {
-    content: "\f006";
+.listing-panel button.listing-pin:hover {
+    opacity: 0.9;
+    color: inherit;
 }
 
-button.listing-star.active.fa:before {
-    content: "\f005";
-}
-
-tr.listing-panel .listing-actions {
+.listing-panel .listing-actions {
     float: right;
 }
 
-tr.listing-panel .panel-heading dl {
+.listing-panel .panel-heading dl {
     display: inline;
     height: 1.6em;
     margin-bottom: none;
@@ -457,21 +495,74 @@ tr.listing-panel .panel-heading dl {
     margin-left: 9px;
 }
 
-tr.listing-panel .panel-heading dt {
+.listing-panel .panel-heading dt {
     font-weight: normal;
     display: inline;
     margin-right: 0.5em;
     color: #888;
 }
 
-tr.listing-panel .panel-heading dd {
+.listing-panel .panel-heading dd {
     display: inline;
     color: black;
 }
 
+.listing-panel .panel-body {
+    padding: 15px 20px;
+    font-size: 13px;
+    min-height: 50px;
+}
+
+.listing-panel .panel-body dl {
+    margin: 0;
+}
+
+.listing-panel .panel-body dt {
+    clear: left;
+    float: left;
+    width: 25%;
+    min-width: 100px;
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: right;
+    padding-right: 10px;
+    color: #888;
+    font-weight: normal;
+}
+
+.listing-panel dt.full {
+    text-align: left;
+    min-width: none;
+    max-width: none;
+    float: none;
+    width: auto;
+}
+
+.listing-panel dt.header {
+    padding-top: 10px;
+}
+
+.listing-panel dt.header:first-child {
+    padding-top: 0px;
+}
+
+.listing-panel dd {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
 table.listing div.panel table tbody tr {
     border-top: 1px solid #CCC;
     border-bottom: none;
+}
+
+table.listing thead tr.listing-title td {
+    border-bottom: 1px solid #EEE;
+    font-size: 22px;
+    padding: 10px 0 5px 0;
 }
 
 /* HACK: https://bugzilla.mozilla.org/show_bug.cgi?id=409254 */

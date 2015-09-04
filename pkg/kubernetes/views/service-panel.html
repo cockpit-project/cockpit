@@ -1,0 +1,72 @@
+<div class="panel panel-default panel-tabbed"
+    ng-init="endpoint = serviceEndpoint(item)"
+    ng-class="{ pinned: pinned }">
+    <div class="panel-heading">
+        <div class="listing-icons">
+            <i class="pficon pficon-service"></i>
+            <button type="button" class="listing-pin fa-thumb-tack"
+                ng-click="pinned = !pinned"
+                ng-class="{ active: pinned }">
+            </button>
+        </div>
+        <div class="listing-status">
+            <span ng-if="endpoint.subsets.length !== 0" translatable="yes">Ready</span>
+            <span ng-if="endpoint.subsets.length === 0" translatable="yes">Not Ready</span>
+        </div>
+        <h3 class="listing-title" ng-click="select(null)">{{ item.metadata.name }}</h3>
+    </div>
+    <tabset class="">
+        <tab heading="Service">
+            <div class="panel-body row">
+                <div class="col-sm-6">
+                    <dl>
+                        <dt>Namespace</dt>
+                        <dd>{{ item.metadata.namespace }}</dd>
+                        <dt>Created</dt>
+                        <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | timeAgo }}</dd>
+                        <dt>IP</dt>
+                        <dd>{{ item.spec.clusterIP }}</dd>
+                        <dt>Type</dt>
+                        <dd>{{ item.spec.type }}</dd>
+                        <dt>Ports</dt>
+                        <dd>
+                            <div ng-if="!item.spec.ports.length">None</div>
+                            <div ng-repeat="portMapping in item.spec.ports | orderBy:'port'">
+                                {{portMapping.port}} &#8594; {{portMapping.targetPort}}
+                                ({{portMapping.protocol}})</div>
+                        </dd>
+                        <dt>Session Affinity<dt>
+                        <dd>{{ item.spec.sessionAffinity }}</dd>
+                    </dl>
+                </div>
+                <div class="col-sm-6">
+                    <dl>
+                        <dt class="header full" translatable="yes">Labels</dt>
+                        <dd class="full" ng-repeat="(key, value) in item.metadata.labels">{{key}}={{value}}</dd>
+                    </dl>
+                </div>
+            </div>
+        </tab>
+        <tab heading="Endpoints">
+            <div class="panel-body row">
+                <div class="col-sm-6">
+                    <dl ng-repeat="subset in endpoint.subsets">
+                        <dt class="header full" translatable="yes">Pod Endpoints</dt>
+                        <dd class="full" ng-repeat="address in subset.addresses">
+                            {{ address.ip }} &#8594; {{ address.targetRef.name }}</dd>
+                    </dl>
+                    <dl ng-if="!endpoint.subsets.length">
+                        <dt class="header full" translatable="yes">Pod Endpoints</dt>
+                        <dd class="full" translatable="yes">No pods selected</dd>
+                    </dl>
+                </div>
+                <div class="col-sm-6">
+                    <dl>
+                        <dt class="header full" translatable="yes">Pod Selector</dt>
+                        <dd class="full" ng-repeat="(key, value) in item.spec.selector">{{key}}={{value}}</dd>
+                    </dl>
+                </div>
+            </div>
+        </tab>
+      </tabset>
+</div>

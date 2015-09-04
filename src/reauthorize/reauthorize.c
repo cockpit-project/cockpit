@@ -570,8 +570,8 @@ lookup_reauthorize_secret (const char *user,
   key = keyctl_search (KEY_SPEC_SESSION_KEYRING, "user", name, 0);
   if (key < 0)
     {
-      /* missing key is not an error */
-      if (errno == ENOKEY)
+      /* missing key or revoked key is not an error */
+      if (errno == ENOKEY || errno == EKEYREVOKED)
         {
           ret = 0;
           *secret = NULL;

@@ -102,6 +102,12 @@ define([
                                          service.metadata.name,
                                          service.metadata.namespace);
                 };
+
+                $scope.replicationcontrollerPods = function replicationcontroller_pods(item) {
+                    return client.select("Pod",
+                                         item.metadata.namespace,
+                                         item.spec.selector);
+                };
             }
         ])
 
@@ -137,27 +143,6 @@ define([
                                                   cockpit.format_bytes(bytes, 1000));
                         }
                         element.text(line);
-                    });
-                }
-            };
-        })
-
-        .directive('kubernetesReplicationControllerStatus', function() {
-            return {
-                restrict: 'E',
-                link: function($scope, element, attributes) {
-                $scope.$watchGroup(["item.spec.replicas",
-                                    "item.status.replicas"], function(values) {
-                        var expected = values[0];
-                        var has = values[1];
-
-                        if (expected == has) {
-                            element.text(has);
-                        } else {
-                            element.text(cockpit.format(_("$0 of $1"),
-                                                        has,
-                                                        expected));
-                        }
                     });
                 }
             };

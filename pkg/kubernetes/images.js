@@ -14,7 +14,7 @@ define([
             '$routeProvider',
             function($routeProvider) {
                 $routeProvider.when('/images', {
-                    templateUrl: 'views/images.html',
+                    templateUrl: 'views/images-page.html',
                     controller: 'ImagesCtrl'
                 });
             }

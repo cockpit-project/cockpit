@@ -10,7 +10,7 @@ define([
     return angular.module('kubernetes.containers', ['ngRoute'])
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.when('/pods/:namespace?', {
-                templateUrl: 'views/containers.html',
+                templateUrl: 'views/containers-page.html',
                 controller: 'ContainersCtrl'
             });
         }])

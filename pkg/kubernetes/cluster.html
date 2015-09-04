@@ -33,27 +33,27 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
       <div class="kube-sidebar" ng-if="!curtains">
         <div>
           <ul>
-            <li ng-class="{ active: is_active('views/dashboard.html')}">
+            <li ng-class="{ active: is_active('views/dashboard-page.html')}">
               <a ng-href="#/">
                 <i class="fa fa-dashboard fa-fw"></i><br>Overview
               </a>
             </li>
-            <li ng-class="{ active: is_active('views/containers.html')}">
+            <li ng-class="{ active: is_active('views/containers-page.html')}">
               <a ng-href="#/pods">
                 <i class="fa fa-cubes fa-fw"></i><br>Containers
               </a>
             </li>
-            <li ng-class="{ active: is_active('views/topology.html')}">
+            <li ng-class="{ active: is_active('views/topology-page.html')}">
               <a ng-href="#/topology">
                 <i class="fa fa-sitemap fa-fw"></i><br>Topology
               </a>
             </li>
-            <li ng-class="{ active: is_active('views/listing.html')}">
+            <li ng-class="{ active: is_active('views/listing-page.html')}">
               <a ng-href="#/list">
                 <i class="fa fa-list fa-fw"></i><br>Details
               </a>
             </li>
-            <li ng-class="{ active: is_active('views/images.html')}">
+            <li ng-class="{ active: is_active('views/images-page.html')}">
               <a ng-href="#/images">
                 <!-- This icon needs manual tweaking to look the same size as others -->
                 <i class="pficon pficon-image fa-fw" style="font-size: 24px; line-height: 20px"></i><br>Images

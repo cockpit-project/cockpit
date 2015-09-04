@@ -24,7 +24,7 @@ define([
     return angular.module('kubernetes.dashboard', ['ngRoute'])
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.when('/', {
-                templateUrl: 'views/dashboard.html',
+                templateUrl: 'views/dashboard-page.html',
                 controller: 'DashboardCtrl'
             });
         }])

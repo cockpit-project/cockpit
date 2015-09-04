@@ -520,8 +520,12 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
 
         function channel_closed(ev, options, desc) {
             real_time_channel = null;
-            if (options.problem && options.problem != "terminated" && options.problem != "disconnected")
+            if (options.problem &&
+                options.problem != "terminated" &&
+                options.problem != "disconnected" &&
+                options.problem != "authentication-failed") {
                 console.log("problem retrieving " + desc + " metrics data: " + options.problem);
+            }
         }
 
         real_time_channel = channel_sampler($.extend({ }, chanopts, {

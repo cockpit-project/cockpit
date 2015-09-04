@@ -126,20 +126,29 @@ define([
 
         /* The default orderBy filter doesn't work on objects */
         .filter('orderObjectBy', function() {
-            return function(items, field, reverse) {
+            return function(items, field) {
                 var i, sorted = [];
                 for (i in items)
                     sorted.push(items[i]);
-                function value(obj, i) { return obj[i]; }
-                sorted.sort(function (a, b) {
-                    var ra = field.split('.').reduce(value, a);
-                    var rb = field.split('.').reduce(value, b);
-                    if (ra === rb)
-                        return 0;
-                    return (ra > rb ? 1 : -1);
+                if (!angular.isArray(field))
+                    field = [ String(criteria) ];
+                var criteria = field.map(function(v) {
+                    return v.split('.');
                 });
-                if (reverse)
-                    sorted.reverse();
+                function value(obj, x) {
+                    return obj[x];
+                }
+                sorted.sort(function(a, b) {
+                    var ra, rb, i, len = criteria.length;
+                    for (i = 0; i < len; i++) {
+                        ra = criteria[i].reduce(value, a);
+                        rb = criteria[i].reduce(value, b);
+                        if (ra === rb)
+                            continue;
+                        return (ra > rb ? 1 : -1);
+                    }
+                    return 0;
+                });
                 return sorted;
             };
         })

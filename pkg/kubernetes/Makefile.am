@@ -11,15 +11,15 @@ kubernetes_DATA = \
 	$(NULL)
 
 kubernetes_VIEWS = \
-	pkg/kubernetes/views/containers.html \
+	pkg/kubernetes/views/containers-page.html \
 	pkg/kubernetes/views/container-panel.html \
-	pkg/kubernetes/views/dashboard.html \
+	pkg/kubernetes/views/dashboard-page.html \
 	pkg/kubernetes/views/default-panel.html \
-	pkg/kubernetes/views/images.html \
+	pkg/kubernetes/views/images-page.html \
 	pkg/kubernetes/views/imagerepository-panel.html \
-	pkg/kubernetes/views/listing.html \
+	pkg/kubernetes/views/listing-page.html \
 	pkg/kubernetes/views/pod-panel.html \
-	pkg/kubernetes/views/topology.html \
+	pkg/kubernetes/views/topology-page.html \
 	$(NULL)
 
 kubernetesdebugdir = $(debugdir)$(kubernetesdir)

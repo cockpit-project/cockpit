@@ -55,7 +55,7 @@ define([
     return angular.module('kubernetes.listing', ['ngRoute'])
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.when('/list', {
-                templateUrl: 'views/listing.html',
+                templateUrl: 'views/listing-page.html',
                 controller: 'ListingCtrl'
             });
         }])

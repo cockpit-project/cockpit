@@ -173,6 +173,13 @@ class TestKubernetes(KubernetesCase):
         b.wait_present("#content .containers-listing tbody tr th")
         self.assertEqual(b.text("#content .containers-listing tbody:first-of-type tr th"), "mock-container")
 
+        # Check that container log output shows up
+        b.click("#content .containers-listing tbody:first-of-type tr th")
+        b.click("#content .listing-panel li a:contains('Logs')")
+        b.wait_present(".listing-panel pre.logs")
+        b.wait_visible(".listing-panel pre.logs")
+        b.wait_in_text(".listing-panel pre.logs", "HelloMessage.")
+
         # Check that service shows up on listing view
         b.click("a[href='#/list']")
         b.wait_present("#content .details-listing")

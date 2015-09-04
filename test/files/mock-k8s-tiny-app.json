@@ -26,7 +26,7 @@
                   "containers":[{
                     "name": "mock-container",
                     "image": "busybox:buildroot-2014.02",
-                    "command": [ "/bin/sleep", "1000" ],
+                    "command": [ "/bin/sh", "-c", "for x in $(seq 1 1000); do echo 'HelloMessage.' >&2; sleep 1; done" ],
                     "ports":[{
                         "containerPort":9949,
                         "protocol":"TCP"

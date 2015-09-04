@@ -7,6 +7,8 @@ define([
 ], function($, cockpit, angular, Terminal) {
     'use strict';
 
+    var phantom_checkpoint = phantom_checkpoint || function () { };
+
     return angular.module('kubernetes.containers', ['ngRoute'])
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.when('/pods/:namespace?', {
@@ -94,6 +96,7 @@ define([
             return {
                 restrict: 'E',
                 link: function(scope, element, attrs) {
+                    var limit = 64 * 1024;
                     var cmd = [
                         "kubectl",
                         "logs",
@@ -120,15 +123,36 @@ define([
                         });
 
                         var writing = [];
+                        var count = 0;
 
                         function drain() {
                             wait = null;
                             var at_bottom = pre[0].scrollHeight - pre.scrollTop() <= pre.outerHeight();
-                            var span = $("<span>").text(writing.join(""));
+                            var text = writing.join("");
+
+                            /*
+                             * Stay under the limit. I wish we could use some other mechanism
+                             * for limiting the log output, such as:
+                             *
+                             * https://github.com/kubernetes/kubernetes/issues/12447
+                             */
+                            count += text.length;
+                            var first;
+                            while (count > limit) {
+                                first = pre.children().first();
+                                if (!first[0])
+                                    break;
+                                count -= first.remove().text().length;
+                            }
+
+                            /* And add our text */
+                            var span = $("<span>").text(text);
                             writing.length = 0;
                             pre.append(span);
                             if (at_bottom)
                                 pre.scrollTop(pre.prop("scrollHeight"));
+
+                            phantom_checkpoint();
                         }
 
                         $(channel)

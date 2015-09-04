@@ -9,6 +9,9 @@
                 ng-class="{ active: pinned }">
             </button>
         </div>
+        <div class="listing-actions">
+            <button class="btn btn-danger btn-delete pficon pficon-delete"></button>
+        </div>
         <div class="listing-status">
             <span ng-if="endpoint.subsets.length !== 0" translatable="yes">Ready</span>
             <span ng-if="endpoint.subsets.length === 0" translatable="yes">Not Ready</span>

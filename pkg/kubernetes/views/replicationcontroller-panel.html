@@ -8,6 +8,10 @@
                 ng-class="{ active: pinned }">
             </button>
         </div>
+        <div class="listing-actions">
+            <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete"></button>
+            <button title="Adjust" class="btn btn-default pficon pficon-edit"></button>
+        </div>
         <div class="listing-status">
             <span ng-if="item.spec.replicas === item.status.replicas">{{ item.spec.replicas }}</span>
             <span ng-if="item.spec.replicas !== item.status.replicas">{{ item.status.replicas }} of {{ item.spec.replicas }}</span>

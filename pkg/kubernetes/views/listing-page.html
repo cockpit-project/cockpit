@@ -1,13 +1,3 @@
-<div class="kube-pane">
-    <div class="sidebar-pf sidebar-pf-right">
-        <div class="sidebar-help" ng-if="!selected">
-            <p translatable="yes">Select an object to see more details.</p>
-        </div>
-        <kubernetes-object-describer ng-if="selected" resource="selected" kind="{{ selected.kind }}"
-            ></kubernetes-object-describer>
-    </div>
-</div>
-
 <div cockpit-listing>
     <table class="listing details-listing">
         <thead>

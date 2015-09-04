@@ -21,7 +21,7 @@
                 <th translatable="yes">State</th>
             </tr>
         </thead>
-        <tbody ng-repeat="item in services | orderObjectBy: 'metadata.name'"
+        <tbody ng-repeat="item in services | orderObjectBy:['metadata.namespace', 'metadata.name']"
             ng-init="id = item.metadata.uid">
             <tr ng-click="select(id)" ng-if="!selected(id)">
                 <th>{{item.metadata.name}}</th>
@@ -49,7 +49,7 @@
                 <th translatable="yes">Replicas</th>
             </tr>
         </thead>
-        <tbody ng-repeat="item in replicationcontrollers | orderObjectBy: 'metadata.name'"
+        <tbody ng-repeat="item in replicationcontrollers | orderObjectBy:['metadata.namespace', 'metadata.name']"
             ng-init="id = item.metadata.uid">
             <tr ng-click="select(id)" ng-if="!selected(id)">
                 <th>{{item.metadata.name}}</th>

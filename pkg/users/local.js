@@ -739,7 +739,6 @@ PageAccount.prototype = {
            })
            .fail(function() {
                self.lastLogin = null;
-               self.account = null;
                self.update();
            });
     },

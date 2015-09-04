@@ -179,7 +179,6 @@ define([
                     restrict: 'A',
                     link: function($scope, element, attrs) {
                         var selection = { };
-                        var sticky = { };
 
                         $scope.selection = selection;
 
@@ -187,19 +186,18 @@ define([
                             return id in selection;
                         };
 
-                        $scope.select = function select(id, stick) {
-                            if (stick === undefined) {
+                        $scope.select = function select(id, value) {
+                            if (!id) {
                                 Object.keys(selection).forEach(function(old) {
-                                    if (!(old in sticky))
-                                        delete selection[old];
+                                    delete selection[old];
                                 });
-                                if (id !== undefined)
-                                    selection[id] = true;
                             } else {
-                                if (stick)
-                                    sticky[id] = true;
+                                if (value === undefined)
+                                    value = !(id in selection);
+                                if (value)
+                                    selection[id] = true;
                                 else
-                                    delete sticky[id];
+                                    delete selection[id];
                             }
                         };
                     }
@@ -213,10 +211,7 @@ define([
                     restrict: 'A',
                     scope: true,
                     link: function(scope, element, attrs) {
-                        scope.pinned = false;
-                        scope.$watch("pinned", function(value) {
-                            scope.select(scope.id, value);
-                        });
+
                     },
                     templateUrl: function(element, attrs) {
                         var kind = attrs.kind || "default";

@@ -3,10 +3,6 @@
     <div class="panel-heading">
         <div class="listing-icons">
             <i class="fa fa-recycle"></i>
-            <button type="button" class="listing-pin fa-thumb-tack"
-                ng-click="pinned = !pinned"
-                ng-class="{ active: pinned }">
-            </button>
         </div>
         <div class="listing-actions">
             <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete"></button>
@@ -16,7 +12,7 @@
             <span ng-if="item.spec.replicas === item.status.replicas">{{ item.spec.replicas }}</span>
             <span ng-if="item.spec.replicas !== item.status.replicas">{{ item.status.replicas }} of {{ item.spec.replicas }}</span>
         </div>
-        <h3 class="listing-title" ng-click="select(null)">{{ item.metadata.name }}</h3>
+        <h3 class="listing-title" ng-click="select(id)">{{ item.metadata.name }}</h3>
     </div>
     <tabset class="">
         <tab heading="Replication Controller">

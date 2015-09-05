@@ -171,7 +171,7 @@ define([
                 function imagestream_removed(unused, imagestream, key) {
                     var repo = imagestream_repo(imagestream);
                     if (repo) {
-                        var repository = repositories[key];
+                        var repository = repositories[repo];
                         if (repository) {
                             delete repository.imagestreams[key];
                             if (repository_empty(repository))
@@ -285,6 +285,16 @@ define([
 
                 $scope.failure = null;
                 $scope.state = null;
+
+                $scope.is_visible = function(item) {
+                    if (!$scope.filter.namespace())
+                        return true;
+
+                    for (var key in item.imagestreams)
+                        return true;
+
+                    return false;
+                };
 
                 $scope.client.watches.images.wait()
                     .fail(function(ex) {

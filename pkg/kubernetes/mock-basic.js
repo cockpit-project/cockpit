@@ -129,6 +129,39 @@ define({
             "dnsPolicy": "ClusterFirst"
         },
     },
+    "namespaces/other/pods/apache": {
+        "kind": "Pod",
+        "metadata": {
+            "name": "apache",
+            "uid": "9f1a316f-4db6-11e5-971a-525400e58104",
+            "resourceVersion": 5,
+            "namespace": "other",
+            "labels": {
+                "name": "apache"
+            },
+        },
+        "spec": {
+            "volumes": null,
+            "containers": [
+                {
+                    "name": "slave",
+                    "image": "fedora/apache",
+                    "ports": [
+                        {
+                            "hostPort": 8084,
+                            "containerPort": 80,
+                            "protocol": "TCP"
+                        }
+                    ],
+                    "imagePullPolicy": "IfNotPresent"
+                }
+            ],
+            "restartPolicy": {
+                "always": {}
+            },
+            "dnsPolicy": "ClusterFirst"
+        },
+    },
     "namespaces/default/services/kubernetes": {
         "kind": "Service",
         "metadata": {

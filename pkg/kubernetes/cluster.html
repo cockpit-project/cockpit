@@ -30,6 +30,13 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 </head>
 <body>
     <div ng-controller="MainCtrl as main" ng-cloak>
+       <div id="content-filter" ng-if="!curtains">
+          <select class="selectpicker namespace-filter" ng-class="{'openshift-namespace-filter': client.flavor == 'openshift', 'kube-namespace-filter': client.flavor != 'openshift' }" title="" data-style="btn-default namespace-filter" ng-model="filter.namespace" ng-model-options="{ getterSetter: true }">
+            <option translatable="yes" value="" title=""></option>
+            <option data-select-watcher ng-repeat="namespace in namespaces">{{ namespace.metadata.name }}</option>
+          </select>
+      </div>
+
       <div class="kube-sidebar" ng-if="!curtains">
         <div>
           <ul>

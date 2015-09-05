@@ -25,7 +25,13 @@ define([
             'kubernetesClient',
             function($scope, $routeParams, $location, client) {
 
-            var selector = $location.search();
+            var selector = {};
+            var qs = $location.search();
+            for (var key in qs) {
+                if (key !== "namespace")
+                    selector[key] = qs[key];
+            }
+
             if ($.isEmptyObject(selector))
                 selector = null;
 

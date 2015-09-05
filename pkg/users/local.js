@@ -645,8 +645,10 @@ PageAccount.prototype = {
     },
 
     add_key: function () {
-        if (!this.authorized_keys)
+        if (!this.authorized_keys) {
             $("#add-authorized-key-dialog").modal('hide');
+            return;
+        }
 
         var key = $("#authorized-keys-text").val();
         var promise = this.authorized_keys.add_key(key);

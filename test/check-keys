@@ -112,6 +112,7 @@ class TestKeys(MachineCase):
         b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  1);
 
         # Adding keys sets permissions properly
+        b.wait_text("#account-user-name", "user")
         add_key(KEY, FP_MD5, FP_SHA256, "test-name")
         perms = m.execute("getfacl -a /home/user/.ssh")
         self.assertIn("owner: user", perms)

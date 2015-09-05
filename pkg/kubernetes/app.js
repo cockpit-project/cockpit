@@ -28,10 +28,21 @@ define([
             '$routeParams',
             '$location',
             'kubernetesClient',
-            function($scope, $route, $routeParams, $location, client) {
+            'kubernetesFilter',
+            function($scope, $route, $routeParams, $location, client, filter) {
                 $scope.$route = $route;
                 $scope.$location = $location;
                 $scope.$routeParams = $routeParams;
+                $scope.filter = filter;
+
+                $scope.namespaces = client.select("Namespace");
+                client.track($scope.namespaces);
+                $($scope.namespaces).on("changed", function () {
+                    $scope.$digest();
+                });
+                $scope.$on("$destroy", function() {
+                    client.track($scope.namespaces, false);
+                });
 
                 /* Used to set detect which route is active */
                 $scope.is_active = function is_active(template) {
@@ -77,6 +88,29 @@ define([
                     handle(client.connect(true));
                 };
         }])
+
+        /* Call selectpicker after last value rendered */
+        .directive('selectWatcher', [
+            "$timeout",
+            function ($timeout) {
+                return {
+                    restrict: 'A',
+                    link: function (scope, element, attr) {
+                        function rebuild(sel) {
+                            $timeout(function () {
+                                sel.selectpicker('refresh');
+                            });
+                        }
+
+                        var parent = $(element).parent();
+                        rebuild(parent);
+                        scope.$on('$destroy', function () {
+                            rebuild(parent);
+                        });
+                    }
+                };
+            }
+        ])
 
         /* Override the default angularjs exception handler */
         .factory('$exceptionHandler', ['$log', function($log) {
@@ -186,6 +220,46 @@ define([
                         return "views/" + kind.toLowerCase() + "-panel.html";
                     }
                 };
+            }
+        ])
+
+        .factory('kubernetesFilter', [
+            'kubernetesClient',
+            "$location",
+            "$rootScope",
+            function(client, $location, $rootScope) {
+                var selected_namespace = null;
+                var module = {};
+
+                function set_namespace(namespace) {
+                    var request_namespace = $location.search().namespace;
+                    request_namespace = request_namespace ? request_namespace : null;
+                    selected_namespace = namespace ? namespace : null;
+
+                    if (request_namespace !== selected_namespace)
+                        $location.search({namespace: selected_namespace});
+                    else
+                        client.namespace(selected_namespace);
+                }
+
+                $rootScope.$on("$routeChangeSuccess", function (event, current, prev) {
+                    set_namespace($location.search().namespace);
+                });
+
+                $rootScope.$on('$routeChangeStart', function(next, current) {
+                    var params = $location.search();
+                    if (selected_namespace && !params.namespace)
+                        $location.search({namespace: selected_namespace});
+                 });
+
+                /* Angular style getter/setter */
+                module.namespace = function(namespace) {
+                    if (angular.isDefined(namespace))
+                        set_namespace(namespace);
+                    else
+                        return selected_namespace ? selected_namespace : "";
+                };
+                return module;
             }
         ]);
 });

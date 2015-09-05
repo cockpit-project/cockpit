@@ -66,6 +66,7 @@ path.line.highlight {
     position: fixed;
     background-color: #fafafa;
     top: 0px;
+    z-index: 1;
 }
 
 .kube-sidebar ul li {
@@ -114,12 +115,75 @@ path.line.highlight {
     background-color: #0099d3;
 }
 
+#content-filter {
+    background-color: #eeeeec;
+    padding: 10px 16px 10px 10px;
+    border-bottom: 1px #d4d4d3 solid;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    margin-left: 90px;
+    z-index: 1;
+}
+
+/* HACK: Bold the selected label value
+   and add a prefix that doesn't appear
+   in the dropdown text.
+
+   Can't use title attr because tags
+   aren't stripped properly when used
+   for the title/tooltip on the select
+   button.
+
+   When we update patternfly we may
+   be able to rework this.
+
+   TODO: Needs translations
+   Could be done with CSSStyleSheet.insertRule
+   or a style-sheet per language.
+*/
+
+.namespace-filter span.filter-option {
+    width: auto;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.kube-namespace-filter span.filter-option:not(:empty):before {
+    content: "Namespace: ";
+}
+
+.kube-namespace-filter span.filter-option:empty:before,
+.kube-namespace-filter div.dropdown-menu li a span.text:empty:before {
+    content: "All Namespaces";
+}
+
+.openshift-namespace-filter span.filter-option:not(:empty):before {
+    content: "Project: ";
+}
+
+.openshift-namespace-filter span.filter-option:empty:before,
+.openshift-namespace-filter div.dropdown-menu li a span.text:empty:before {
+    content: "All Projects";
+}
+
+.namespace-filter span.filter-option:empty:before,
+.namespace-filter div.dropdown-menu li a span.text:empty:before {
+    font-weight: normal;
+}
+
+.namespace-filter span.filter-option:not(:empty):before {
+    font-weight: normal;
+}
+
+
 /* Dashboard */
 
 #content {
     margin-left: 110px;
     margin-right: 0px;
     min-height: 100%;
+    margin-top: 47px;
 }
 
 #content > .row {

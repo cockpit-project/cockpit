@@ -12,7 +12,7 @@
             <tr ng-repeat-start="(id, item) in items"
                 ng-init="latest = item.latest()"
                 ng-click="select(item.repo)"
-                ng-if="!selected(item.repo)"
+                ng-if="!selected(item.repo) && is_visible(item)"
                 data-id="{{ id }}">
                 <th>{{item.name}}</th>
                 <td>{{item.tags() | imagesTags }}</td>

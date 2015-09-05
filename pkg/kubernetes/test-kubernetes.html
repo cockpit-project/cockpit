@@ -335,6 +335,7 @@ function kube_apiserver(req) {
 
 function kube_api_get(req, parts, query, base_uri) {
     var resourceVersion = null;
+    var namespace_re = ".+";
 
     /* Figure out if this is a watch */
     var watch = false;
@@ -347,6 +348,12 @@ function kube_api_get(req, parts, query, base_uri) {
             if (isNaN(resourceVersion))
                 throw "invalid resourceVersion";
         }
+    }
+
+    /* Figure out if namespace api was used */
+    if (what == "namespaces" && parts.length > 1) {
+        namespace_re = parts.shift();
+        what = parts.shift();
     }
 
     var specific = parts.join("/");
@@ -382,22 +389,22 @@ function kube_api_get(req, parts, query, base_uri) {
         regexp = /nodes\//;
         kind = "NodeList";
     } else if (what == "pods") {
-        regexp = /namespaces\/.+\/pods\//;
+        regexp = RegExp("namespaces/"+ namespace_re +"/pods/");
         kind = "PodList";
     } else if (what == "services") {
-        regexp = /namespaces\/.+\/services\//;
+        regexp = RegExp("namespaces/"+ namespace_re +"/services/");
         kind = "ServiceList";
     } else if (what == "replicationcontrollers") {
-        regexp = /namespaces\/.+\/replicationcontrollers\//;
+        regexp = RegExp("namespaces/"+ namespace_re +"/replicationcontrollers/");
         kind = "ReplicationControllerList";
     } else if (what == "events") {
-        regexp = /namespaces\/.+\/events\//;
+        regexp = RegExp("namespaces/"+ namespace_re +"/events/");
         kind = "EventList";
     } else if (what == "images") {
         req.mock_respond(404, "OK", { "Content-Type": "text/plain; charset=utf-8" });
         return;
     } else if (what == "imagestreams") {
-        regexp = /namespaces\/.+\/imagestreams\//;
+        regexp = RegExp("namespaces/"+ namespace_re +"/imagestreams/");
         kind = "ImageStreamList";
     /* Nothing found */
     } else {
@@ -588,13 +595,47 @@ require([
         var client = kubernetes.k8client();
         client.watches.pods.wait().always(function() {
             var pods = client.select("Pod");
-            equal(pods.items.length, 2, "number of pods");
+            equal(pods.items.length, 3, "number of pods");
             var pod = pods["Pod:11768037-ab8a-11e4-9a7c-080027300d85"];
             equal(typeof pod, "object", "found pod")
             equal(pod.metadata.labels.name, "apache", "pod has label");
 
             client.close();
             start();
+        });
+    });
+
+    asyncTest("set namespace", function() {
+        expect(4);
+        var added = 0;
+        var removed = 0;
+
+        var client = kubernetes.k8client();
+        client.watches.pods.wait().always(function() {
+            var pods = client.select("Pod");
+            client.track(pods);
+            equal(pods.items.length, 3, "number of pods");
+            $(pods).on("removed", function(ev, item) {
+                removed++;
+                if (removed == 2) {
+                    equal(pods.items.length, 1, "number of other pods");
+                    var pod = pods["Pod:9f1a316f-4db6-11e5-971a-525400e58104"];
+                    equal(typeof pod, "object", "found pod");
+                    client.namespace(null);
+                }
+            });
+
+            $(pods).on("added", function(ev, item) {
+                if (removed == 2)
+                    added++;
+
+                if (added == 2) {
+                    equal(pods.items.length, 3, "all pods back");
+                    client.close();
+                    start();
+                }
+            });
+            client.namespace("other");
         });
     });
 
@@ -611,7 +652,7 @@ require([
         client.watches.pods.wait().always(function() {
             ready = true;
 
-            equal(pods.items.length, 2, "number of pods");
+            equal(pods.items.length, 3, "number of pods");
             equal(pods["Pod:11768037-ab8a-11e4-9a7c-080027300d85"].metadata.labels.name, "apache", "pod has label");
 
             kube_update("namespaces/default/pods/aardvark", {
@@ -636,7 +677,7 @@ require([
             if (!ready)
                 return;
 
-            equal(pods.items.length, 3, "added a pod");
+            equal(pods.items.length, 4, "added a pod");
             equal(pods["Pod:22768037-ab8a-11e4-9a7c-080027300d85"].metadata.labels.name,
                   "aardvark", "new pod present in items");
             ok(item === pods["Pod:22768037-ab8a-11e4-9a7c-080027300d85"], "passed right argument");
@@ -666,7 +707,7 @@ require([
         client.watches.pods.wait().always(function() {
             ready = true;
 
-            equal(pods.items.length, 2, "number of pods");
+            equal(pods.items.length, 3, "number of pods");
             equal(pods.items[1].metadata.labels.name, "apache", "pod has label");
 
             kube_update("namespaces/default/pods/apache", {
@@ -686,7 +727,7 @@ require([
             if (!ready)
                 return;
 
-            equal(pods.items.length, 2, "updated, didn't add a pod");
+            equal(pods.items.length, 3, "updated, didn't add a pod");
             equal(pods.items[1].metadata.labels.name, "apachepooo", "pod name updated");
             ok(item === pods.items[1], "passed right argument");
             equal(changed, false, "changed not yet");
@@ -715,7 +756,7 @@ require([
         client.watches.pods.wait().always(function() {
             ready = true;
 
-            equal(pods.items.length, 2, "number of pods");
+            equal(pods.items.length, 3, "number of pods");
             equal(pods.items[1].metadata.labels.name, "apache", "pod has label");
 
             kube_update("namespaces/default/pods/apache", null);
@@ -725,7 +766,7 @@ require([
             if (!ready)
                 return;
 
-            equal(pods.items.length, 1, "removed a pod");
+            equal(pods.items.length, 2, "removed a pod");
             equal(pods.items[0].metadata.labels.name, "wordpressreplica", "right pod got removed");
             equal(item.metadata.labels.name, "apache", "passed right argument");
             equal(changed, false, "changed not yet");
@@ -1058,12 +1099,16 @@ require([
             equal(results.items.length, 1002, "all pods");
 
             /* Nothing selected when bad namespace */
-            results = client.select(null, "other");
-            equal(results.items.length, 0, "other namespace no objects");
+            results = client.select(null, "bad");
+            equal(results.items.length, 0, "bad namespace no objects");
 
             /* Get the node when a null namespace */
             results = client.select(null, null);
-            equal(results.items.length, 1007, "without namespace");
+            equal(results.items.length, 1008, "without namespace");
+
+            /* Get the node when a null namespace */
+            results = client.select(null, null);
+            equal(results.items.length, 1008, "without namespace");
 
             /* Nothing selected when empty selector */
             results = client.select(null, "default", { });

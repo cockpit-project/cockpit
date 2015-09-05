@@ -31,9 +31,28 @@ define([
     var API_OPENSHIFT = "/oapi";
 
     var TYPE_APIS = {
-        "images" : API_OPENSHIFT,
-        "imagestreams" : API_OPENSHIFT,
+        "nodes" : {
+            is_namespaced: false
+         },
+        "namespaces" : {
+            is_namespaced: false
+         },
+        "images" : {
+            endpoint: API_OPENSHIFT,
+            is_namespaced: false
+         },
+        "imagestreams" : {
+            endpoint: API_OPENSHIFT
+         },
     };
+
+    function type_option(type, option, default_value) {
+        var type_info = TYPE_APIS[type] || {};
+        var ret = type_info[option];
+        if (ret === undefined)
+            ret = default_value;
+        return ret;
+    }
 
     function debug() {
         if (window.debugging == "all" || window.debugging == "kubernetes")
@@ -171,7 +190,6 @@ define([
     /*
      * KubernetesWatch:
      * @kind: a string like 'Pod' or 'Node'
-     * @endpoint: either /api or /oapi
      * @update: invoked when ADDED or MODIFIED happens
      * @remove: invoked when DELETED happens
      *
@@ -185,7 +203,7 @@ define([
      * @remove callback with a null argument to indicate we are
      * starting over.
      */
-    function KubernetesWatch(type, endpoint, update, remove) {
+    function KubernetesWatch(type, update, remove) {
         var self = this;
 
         /* Used to track the last resource for restarting query */
@@ -199,6 +217,12 @@ define([
 
         /* The API that we make HTTP requests to */
         var api = null;
+
+        /* The namespace to restrict watches to */
+        var namespace = null;
+
+        /* The base api endpoint */
+        var endpoint = type_option(type, "endpoint", API_KUBE);
 
         /*
          * Loading logic.
@@ -343,8 +367,13 @@ define([
                 return;
 
             var full = true;
-            var uri = endpoint + "/v1/watch/" + type;
+            var uri = endpoint + "/v1/watch";
             var params = {};
+
+            if (namespace)
+                uri += "/namespaces/" + namespace;
+
+            uri += "/" + type;
 
             /*
              * If we have a last resource we can guarantee that we don't miss
@@ -422,6 +451,25 @@ define([
             start_watch();
         };
 
+        self.change_namespace = function change_namespace(new_namespace) {
+            if (new_namespace === namespace)
+                return;
+
+            stopping = true;
+            if (req) {
+                req.close("disconnected");
+                req = null;
+            }
+            namespace = new_namespace;
+            lastResource = null;
+
+            window.clearTimeout(wait);
+            wait = null;
+
+            if (api !== null)
+                self.start(api);
+        };
+
         self.wait = function wait() {
             return loaded.promise();
         };
@@ -439,6 +487,7 @@ define([
                 loaded.reject(ex);
             window.clearTimeout(wait);
             wait = null;
+            api = null;
         };
     }
 
@@ -665,6 +714,9 @@ define([
         /* The API info returned from /api */
         var apis;
 
+        /* The namespace to operate in */
+        var selected_namespace = null;
+
         /*
          * connect:
          * @force: Force a new connection
@@ -698,6 +750,31 @@ define([
             return connected;
         };
 
+        /**
+         * namespace:
+         * @namespace: a kubernetes namespace string
+         *
+         * If called with an namespace argument changes
+         * the currently selected namespace for all
+         * watches.
+         *
+         * Returns the current selected namespace.
+         */
+        self.namespace = function namespace(new_namespace) {
+            if (new_namespace !== undefined) {
+                if (!new_namespace)
+                    new_namespace = null;
+
+                selected_namespace = new_namespace;
+                for (var type in self.watches) {
+                    if (type_is_namespaced(type))
+                        self.watches[type].change_namespace(selected_namespace);
+                }
+            }
+
+            return selected_namespace;
+        };
+
         /*
          * include:
          * @type: The type of watch to add
@@ -705,11 +782,11 @@ define([
          * Adds a watcher for a given type.
          */
         self.include = function include(type) {
-            var endpoint = TYPE_APIS[type] || API_KUBE;
             if (!self.watches[type]) {
-                self.watches[type] = new KubernetesWatch(type, endpoint,
-                                                         handle_updated,
-                                                         handle_removed);
+                self.watches[type] = new KubernetesWatch(type, handle_updated, handle_removed);
+                if (selected_namespace && type_is_namespaced(type))
+                    self.watches[type].change_namespace(selected_namespace);
+
                 if (connected) {
                     connected.done(function(http) {
                         self.watches[type].start(http);
@@ -719,7 +796,7 @@ define([
         };
 
         /* The watch objects we have open */
-        self.watches = { "events": new KubernetesWatch("events", API_KUBE, handle_event, handle_removed) };
+        self.watches = { "events": new KubernetesWatch("events", handle_event, handle_removed) };
         [ "nodes", "pods", "services", "replicationcontrollers",
           "namespaces", "endpoints" ].forEach(self.include);
 
@@ -884,12 +961,13 @@ define([
             if (item && involved.resourceVersion < item.metadata.resourceVersion)
                 return;
 
-            var uri = "/api/v1";
+            var type = involved.kind.toLowerCase() + "s";
+            var endpoint = type_option(type, "endpoint", API_KUBE);
+            var uri = endpoint + "/v1";
 
             if (involved.namespace)
                 uri += "/namespaces/" + encodeURIComponent(involved.namespace);
 
-            var type = involved.kind.toLowerCase() + "s";
             uri += "/" + type + "/" + involved.name;
 
             debug("pulling", uri);
@@ -1172,6 +1250,10 @@ define([
 
         function kind_is_namespaced(kind) {
             return kind != "Node" && kind != "Namespace";
+        }
+
+        function type_is_namespaced(type) {
+            return type_option(type, "is_namespaced", true);
         }
 
         function create_preference(kind) {

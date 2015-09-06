@@ -655,19 +655,20 @@ class QemuMachine(Machine):
             return True
 
     def _choose_macaddr(self):
-        if 'mac' in self.conf and self.conf['mac']:
-            macaddr = self.conf['mac']
-            if len(macaddr) == 2:
-                macaddr = self.macaddr_prefix + ":" + macaddr
+        macaddrs = []
+        tree = etree.parse(open("./network-cockpit.xml"))
+        for h in tree.find(".//dhcp"):
+            macaddr = h.get("mac")
+            flavor = h.get("{urn:cockpit-project.org:cockpit}flavor")
+            if flavor == self.flavor:
+                macaddrs = [ macaddr ]
+                break
+            elif not flavor:
+                macaddrs.append(macaddr)
+        for macaddr in macaddrs:
             if self._lock_resource(macaddr):
                 return macaddr
-            raise Failure("Mac address %s is in use" % macaddr)
-        else:
-            for i in range(0, 0x0F):
-                macaddr = "%s:%02x" % (self.macaddr_prefix, i)
-                if self._lock_resource(macaddr):
-                    return macaddr
-            raise Failure("Couldn't find unused mac address in directory: %s" % resources)
+        raise Failure("Couldn't find unused mac address for '%s': %s" % self.flavor, resources)
 
     def _locate_qemu_kvm(self):
         rhel_qemu_kvm_path = '/usr/libexec/qemu-kvm'

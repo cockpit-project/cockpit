@@ -138,19 +138,16 @@ IP address.  This means that you can launch multiple test machines
 from a single image, maybe to use multiple machines inside a single
 test case, or to run multiple test cases in parallel.
 
-If you want a fixed MAC for a given flavor, you can create the
-"guest/FLAVOR.conf" file in this directory with a content like this:
+If you want a fixed MAC for a given flavor, you can set a cockpit:flavor
+attribute in the guest/network-cockpit.xml file, like this:
 
-    { 'mac': "F0" }
+	<host mac='52:54:00:9e:00:F0'
+		ip='10.111.111.100'
+		name='f0.cockpit.lan'
+		cockpit:flavor="ipa"/>
 
 Whenever a test machine of the flavor is launched, it will receive
 this MAC, and you can thus only run one of them at any given time.
-
-If you specify only two hex-digits with the "mac" configuration
-option, a default prefix will be used.  The suffices "F0", "F1", "F2",
-"F3", and "F4" will be assigned the fixed IP addresses 10.111.111.100
-to 10.111.111.104.  DNS will resolve "f0.cockpit.lan",
-"f1.cockpit.lan", etc to these addresses.
 
 A test machine image created by vm-create doesn't contain any Cockpit
 code in it yet.  You can build and install the currently checked out

@@ -1,24 +1,25 @@
-<!-- container = { spec: pod.spec.containers[n], status: pod.status.containersStatus[n] } -->
-
-<div class="kube-ports" ng-if="container.spec.ports.length">
-    <div class="kube-port" ng-repeat="port in container.spec.ports">
-        {{port.containerPort}}/{{port.protocol}}
+<div class="panel panel-default panel-tabbed"
+    ng-class="{ pinned: pinned }">
+    <div class="panel-heading">
+        <div class="listing-icons">
+            <i class="fa fa-cube"></i>
+        </div>
+        <div class="listing-status">
+            {{item.status.phase}}
+        </div>
     </div>
-</div>
-
-<div class="kube-container panel">
-    <h3 class="panel-title"><span class="fa fa-cube"></span> {{container.spec.name}}</h3>
-    <tabset type="pills" class="">
-        <tab heading="Status">
-            <div class="row kube-content">
-                <div class="col-sm-6 kube-info">
+    <h3 class="listing-title" ng-click="select(id)">{{container.spec.name}}</h3>
+    <tabset class="">
+        <tab heading="Container">
+            <div class="panel-body row">
+                <div class="col-sm-6">
                     <dl>
                         <dt>Image</dt>
                         <dd>{{container.spec.image}}</dd>
                         <dt>Image ID</dt>
-                        <dd class="kube-id">{{container.status.imageID | kubeIdentifier }}</dd>
+                        <dd><tt>{{container.status.imageID | kubeIdentifier }}</tt></dd>
                         <dt>Container ID</dt>
-                        <dd class="kube-id">{{container.status.containerID | kubeIdentifier }}</dd>
+                        <dd><tt>{{container.status.containerID | kubeIdentifier }}</tt></dd>
                         <dt class="kube-ports">Ports</dt>
                         <dd class="kube-ports">
                         <span ng-repeat="port in container.spec.ports">{{port.containerPort}}/{{port.protocol}}</span>
@@ -31,23 +32,31 @@
                         <dd>{{container.status.restartCount}}</dd>
                     </dl>
                 </div>
-                <div class="col-sm-6 kube-more">
+                <div class="col-sm-6">
                     <dl>
                         <dt class="header full" ng-if="container.spec.env.length">Environment</dt>
-                        <dd class="kube-id full" revealable-text
-                        ng-repeat="env in container.spec.env">{{env.name}}=<span
-                            ng-class="{masked: should_mask(env.name)}">{{env.value}}</span></dd>
+                        <dd class="full" revealable-text
+                            ng-repeat="env in container.spec.env"><tt>{{env.name}}=<span
+                            ng-class="{masked: should_mask(env.name)}">{{env.value}}</span></tt></dd>
                     </dl>
                 </div>
             </div>
         </tab>
         <tab heading="Console" select="connect('console')">
-            <kube-console namespace="{{pod.metadata.namespace}}" pod="{{pod.metadata.name}}"
-                container="{{container.spec.name}}"></kube-console>
+            <div class="panel-body">
+                <kube-console namespace="{{item.metadata.namespace}}"
+                    pod="{{item.metadata.name}}"
+                    container="{{container.spec.name}}">
+                </kube-console>
+            </div>
         </tab>
         <tab heading="Shell" select="connect('shell')">
-            <kube-shell namespace="{{pod.metadata.namespace}}" pod="{{pod.metadata.name}}"
-                container="{{container.spec.name}}"></kube-console>
+            <div class="panel-body">
+                <kube-shell namespace="{{item.metadata.namespace}}"
+                    pod="{{item.metadata.name}}"
+                    container="{{container.spec.name}}">
+                </kube-console>
+            </div>
         </tab>
     </tabset>
 </div>

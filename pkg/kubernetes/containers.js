@@ -22,44 +22,54 @@ define([
             '$scope',
             '$routeParams',
             '$location',
-            'kubernetesClient',
-            function($scope, $routeParams, $location, client) {
+            function($scope, $routeParams, $location) {
+                var client = $scope.client;
 
-            var selector = {};
-            var qs = $location.search();
-            for (var key in qs) {
-                if (key !== "namespace")
-                    selector[key] = qs[key];
-            }
-
-            if ($.isEmptyObject(selector))
-                selector = null;
-
-            /* Setup a persistent search for this object */
-            var list = client.select("Pod", $routeParams.namespace, selector);
-            client.track(list);
-
-            angular.extend($scope, {
-                client: client,
-                selection: list,
-                should_mask: function(name) {
-                    return name.toLowerCase().indexOf("password") !== -1;
+                var selector = {};
+                var qs = $location.search();
+                for (var key in qs) {
+                    if (key !== "namespace")
+                        selector[key] = qs[key];
                 }
-            });
 
-            /*
-             * TODO: The selection will be a dynamic object dependent on what
-             * sorta selection is made, not just pods. We'll list:
-             */
+                if ($.isEmptyObject(selector))
+                    selector = null;
 
-            $(list).on("changed", function() {
-                $scope.$digest();
-            });
+                /* Setup a persistent search for this object */
+                var list = client.select("Pod", $routeParams.namespace, selector);
+                client.track(list);
 
-            $scope.$on("$destroy", function() {
-                client.track(list, false);
-            });
-        }])
+                $scope.pods = list;
+
+                $(list).on("changed", function() {
+                    $scope.$digest();
+                });
+
+                $scope.$on("$destroy", function() {
+                    client.track(list, false);
+                    $(list).off();
+                });
+
+                $scope.should_mask = function(name) {
+                    return name.toLowerCase().indexOf("password") !== -1;
+                };
+
+                $scope.connect = function connect(what) {
+                    $scope.$broadcast("connect", what);
+                };
+
+                $scope.containers = function containers(pod) {
+                    var items = client.containers(pod);
+                    var id, container, result = { };
+                    for (var key in items) {
+                        container = items[key];
+                        id = pod.metadata.namespace + "/pod/" + pod.metadata.name + "/" + container.spec.name;
+                        result[id] = container;
+                    }
+                    return result;
+                };
+            }
+        ])
 
         /*
          * Displays a kubernetes pod.

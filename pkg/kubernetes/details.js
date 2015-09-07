@@ -97,6 +97,12 @@ define([
                     });
                 });
 
+                $scope.itemIdentifier = function item_identifier(item) {
+                    var meta = item.metadata || { };
+                    var type = item.kind.toLowerCase();
+                    return type + "s/" + meta.namespace + "/" + meta.name;
+                };
+
                 $scope.serviceEndpoint = function service_endpoint(service) {
                     return client.lookup("Endpoints",
                                          service.metadata.name,

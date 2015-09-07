@@ -116,15 +116,14 @@ class TestKubernetes(KubernetesCase):
         b.click("#service-list tr[data-name='mock']:first-of-type")
 
         # Check that clicking on service goes to containers
-        b.wait_present("#content .kube-containers .kube-container")
-        self.assertEqual(b.text("#content .kube-containers .kube-container h3.panel-title"), " mock-container")
+        b.wait_present("#content .containers-listing tbody tr th")
+        self.assertEqual(b.text("#content .containers-listing tbody tr th"), "mock-container")
 
         # Check that service shows up on listing view
         b.click("a[href='#/list']")
-        b.wait_present("#content .kube-listing")
-        self.assertEqual(b.text(".kube-listing div[data-kind=Service] tbody:last-child .kube-col-name"), "mock")
-        self.assertEqual(b.text(".kube-listing div[data-kind=ReplicationController] tbody:last-child td.kube-col-name"), "mock")
-        self.assertEqual(b.text(".kube-listing div[data-kind=Pod] tbody:last-child tr.kube-row-container td.kube-col-name"), "mock-container")
+        b.wait_present("#content .details-listing")
+        self.assertEqual(b.text(".details-listing tr[data-id='services/default/mock'] th"), "mock")
+        self.assertEqual(b.text(".details-listing tr[data-id='replicationcontrollers/default/mock'] th"), "mock")
 
     def testTopology(self):
         m = self.machine

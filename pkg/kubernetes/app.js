@@ -200,6 +200,10 @@ define([
                                     delete selection[id];
                             }
                         };
+
+                        $scope.connect = function connect(what) {
+                            $scope.$broadcast("connect", what);
+                        };
                     }
                 };
             }

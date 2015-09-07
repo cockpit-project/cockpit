@@ -54,10 +54,6 @@ define([
                     return name.toLowerCase().indexOf("password") !== -1;
                 };
 
-                $scope.connect = function connect(what) {
-                    $scope.$broadcast("connect", what);
-                };
-
                 $scope.containers = function containers(pod) {
                     var items = client.containers(pod);
                     var id, container, result = { };
@@ -71,54 +67,20 @@ define([
             }
         ])
 
-        /*
-         * Displays a kubernetes pod.
-         *
-         * <kube-pod> ... </kube-pod>
-         *
-         * Expected in scope:
-         * pod: raw pod JSON
-         */
-        .directive('kubePod', function() {
-            return {
-                restrict: 'E',
-                transclude: true,
-                templateUrl: 'views/pod-panel.html'
-            };
-        })
-
-        /*
-         * Displays an interactive container.
-         *
-         * <kube-container></kube-container>
-         *
-         * Expected in scope:
-         * container: raw pod JSON
-         *
-         * Exported into scope:
-         * connect(): causes interactive elements to connect.
-         *
-         * Events in scope:
-         * connect: causes interactive elements to connect.
-         */
-        .directive('kubeContainer', function() {
-            return {
-                restrict: 'E',
-                scope: true,
-                templateUrl: 'views/container-panel.html',
-                link: function(scope, element, attrs) {
-                    scope.connect = function connect(what) {
-                        scope.$broadcast("connect", what);
-                    };
-                }
-            };
-        })
-
         .directive('kubeContainerBody',
             function() {
                 return {
                     restrict: 'E',
                     templateUrl: 'views/container-body.html'
+                };
+            }
+        )
+
+        .directive('kubePodBody',
+            function() {
+                return {
+                    restrict: 'E',
+                    templateUrl: 'views/pod-body.html'
                 };
             }
         )

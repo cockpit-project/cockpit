@@ -1,30 +1,38 @@
-<div class="kube-pod panel">
-    <!-- TODO: exclamation triangle -->
-    <div class="kube-status">
-        on <span>{{pod.spec.nodeName}}</span>
-    </div>
-    <h3 class="panel-title">{{pod.metadata.name}}</h3>
-    <div class="row kube-content">
-        <div class="col-sm-6 kube-info">
-            <dl>
-                <dt>Node Adddress</dt>
-                <dd>{{pod.status.hostIP}}</dd>
-                <dt>Pod Address</dt>
-                <dd>{{pod.status.podIP}}</dd>
-                <dt translatable="yes">Namespace</dt>
-                <dd>{{pod.metadata.namespace}}</dd>
-                <dt>Status</dt>
-                <dd>{{pod.status.phase}}</dd>
-                <dt>Restart Policy</dt>
-                <dd>{{pod.spec.restartPolicy}}</dd>
-            </dl>
+<div class="panel panel-default panel-tabbed" ng-class="{ pinned: pinned }">
+    <div class="panel-heading">
+        <div class="listing-icons">
+            <i class="fa fa-cubes"></i>
         </div>
-        <div class="col-sm-6 kube-more">
-            <dl>
-                <dt class="header full" translatable="yes">Labels</dt>
-                <dd class="full" ng-repeat="(key, value) in pod.metadata.labels">{{key}}: {{value}}</dd>
-            </dl>
+        <div class="listing-actions">
+            <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete"></button>
         </div>
+        <div class="listing-status">
+            <span>{{item.status.phase}}</span>
+        </div>
+        <h3 class="listing-title" ng-click="select(id)">{{ item.metadata.name }}</h3>
     </div>
-    <div ng-transclude></div>
+    <tabset class="" ng-init="containers = client.containers(item)">
+        <tab heading="Pod">
+            <kube-pod-body ng-init="pod = item">
+            </kube-pod-body>
+        </tab>
+        <tab heading="Containers">
+            <kube-container-body ng-repeat="container in containers">
+            </kube-container-body>
+        </tab>
+        <tab heading="Logs" select="connect('console')">
+            <div class="panel-body" ng-repeat="container in containers">
+                <kube-console namespace="{{item.metadata.namespace}}"
+                    pod="{{item.metadata.name}}" container="{{container.spec.name}}">
+                </kube-console>
+            </div>
+        </tab>
+        <tab heading="Shell" select="connect('shell')">
+            <div class="panel-body" ng-repeat="container in containers">
+                <kube-shell namespace="{{item.metadata.namespace}}"
+                    pod="{{item.metadata.name}}" container="{{container.spec.name}}">
+                </kube-shell>
+            </div>
+        </tab>
+    </tabset>
 </div>

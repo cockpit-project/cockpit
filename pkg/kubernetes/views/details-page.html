@@ -12,8 +12,8 @@
             </tr>
         </thead>
         <tbody ng-repeat="item in services | orderObjectBy:['metadata.namespace', 'metadata.name']"
-            ng-init="id = item.metadata.uid">
-            <tr ng-click="select(id)" ng-if="!selected(id)">
+            ng-init="id = itemIdentifier(item)">
+            <tr ng-click="select(id)" ng-if="!selected(id)" data-kind="{{item.kind}}" data-id="{{id}}">
                 <th>{{item.metadata.name}}</th>
                 <td>{{item.metadata.namespace}}</td>
                 <td><kubernetes-service-cluster></td>
@@ -40,8 +40,8 @@
             </tr>
         </thead>
         <tbody ng-repeat="item in replicationcontrollers | orderObjectBy:['metadata.namespace', 'metadata.name']"
-            ng-init="id = item.metadata.uid">
-            <tr ng-click="select(id)" ng-if="!selected(id)">
+            ng-init="id = itemIdentifier(item)">
+            <tr ng-click="select(id)" ng-if="!selected(id)" data-kind="{{item.kind}}" data-id="{{id}}">
                 <th>{{item.metadata.name}}</th>
                 <td>{{item.metadata.namespace}}</td>
                 <td></td>
@@ -53,76 +53,30 @@
                 </td>
             </tr>
         </tbody>
+
+        <thead>
+            <tr class="listing-title">
+                <td colspan="4" translatable="yes">Pods</td>
+            </tr>
+            <tr>
+                <th translatable="yes">Name</th>
+                <th translatable="yes">Namespace</th>
+                <th translatable="yes">Address</th>
+                <th translatable="yes">State</th>
+            </tr>
+        </thead>
+        <tbody ng-repeat="item in pods | orderObjectBy:['metadata.namespace', 'metadata.name']"
+            ng-init="id = itemIdentifier(item)">
+            <tr ng-click="select(id)" ng-if="!selected(id)" data-kind="{{item.kind}}" data-id="{{id}}">
+                <th>{{item.metadata.name}}</th>
+                <td>{{item.metadata.namespace}}</td>
+                <td>{{item.status.podIP}}</td>
+                <td>{{item.status.phase}}</td>
+            </tr>
+            <tr class="listing-panel" ng-if="selected(id)">
+                <td cockpit-listing-panel kind="Pod" colspan="4">
+                </td>
+            </tr>
+        </tbody>
     </table>
-</div>
-
-<div class="kube-listing">
-  <div ng-if="nodes" data-kind="Node">
-    <h2 translatable="yes">Nodes</h2>
-    <div class="panel panel-default">
-      <table class="table">
-        <thead>
-          <tr>
-            <th class="kube-col-name" translatable="yes">Name</th>
-            <th class="kube-col-status" translatable="yes">Status</th>
-            <th class="kube-col-address" translatable="yes">Address</th>
-            <th translatable="yes">System Info</th>
-          </tr>
-        </thead>
-        <tbody ng-repeat="node in nodes | orderObjectBy: 'metadata.name'" ng-click="select(node, $event)"
-               ng-click="select(node, $event)"
-               ng-class="{selected: selected && selected.metadata.uid == node.metadata.uid}">
-          <tr>
-            <td class="kube-col-name">{{node.metadata.name}}</td>
-            <td class="kube-col-status">{{node.status.conditions | nodeStatus}}</td>
-            <td class="kube-col-address">{{node.spec.externalID}}</td>
-            <td class="kube-col-info">
-            <div ng-if="node.status.capacity"><kubernetes-node-capacity ng-init="item = node"></div>
-            <div ng-if="node.status.nodeInfo.osImage">{{node.status.nodeInfo.osImage}}</div></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div ng-if="pods" data-kind="Pod">
-    <h2 translatable="yes">Pods</h2>
-    <div class="panel panel-default">
-      <table class="table">
-        <thead>
-          <tr>
-            <th class="kube-col-name" translatable="yes">Name</th>
-            <th class="kube-col-ns" translatable="yes">Namespace</th>
-            <th class="kube-col-status" translatable="yes">Status</th>
-            <th class="kube-col-address" translatable="yes">Address</th>
-            <th class="kube-col-image" translatable="yes">Image</th>
-          </tr>
-        </thead>
-        <tbody ng-repeat="pod in pods"
-               ng-click="select(pod, $event)"
-               ng-class="{selected: selected.metadata.uid && selected.metadata.uid == pod.metadata.uid}">
-          <tr>
-            <td class="kube-col-name">{{pod.metadata.name}}</td>
-            <td class="kube-col-ns">{{pod.metadata.namespace}}</td>
-            <td class="kube-col-status">{{pod.status.phase}}</span>
-            </td>
-            <td class="kube-col-address">{{pod.status.podIP}}</td>
-            <td class="kube-col-image"></td>
-          </tr>
-          <tr ng-repeat="container in client.containers(pod)" class="kube-row-container">
-            <td class="kube-col-name">{{container.spec.name}}</td>
-            <td class="kube-col-ns"></td>
-            <td class="kube-col-status">{{container.status.restartCount}} restarts</td>
-            <td class="kube-col-address">
-                <div ng-repeat="port in container.spec.ports">
-                    {{port.containerPort}}/{{port.protocol}}
-                </div>
-            </td>
-            <td class="kube-col-image">{{container.spec.image}}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
 </div>

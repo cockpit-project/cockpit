@@ -1,7 +1,28 @@
-<div class="kube-containers">
-    <div ng-repeat="item in selection" ng-if="item.kind == 'Pod'">
-        <kube-pod ng-init="pod = item">
-            <kube-container ng-repeat="container in client.containers(pod)"></kube-container>
-        </kube-pod>
-    </div>
+<div cockpit-listing>
+    <table class="listing containers-listing">
+        <thead>
+            <tr>
+                <th translatable="yes">Name</th>
+                <th translatable="yes">Pod</th>
+                <th translatable="yes" ng-if="client.flavor == 'openshift'">Project</th>
+                <th translatable="yes" ng-if="client.flavor != 'openshift'">Namespace</th>
+                <th translatable="yes">Node</th>
+                <th translatable="yes">Status</th>
+            </tr>
+        </thead>
+        <tbody ng-repeat="item in pods | orderObjectBy:['metedata.namespace', 'metadata.name']">
+            <tr ng-repeat-start="(id, container) in containers(item)"
+                ng-click="select(id)" ng-if="!selected(id)">
+                <th>{{container.spec.name}}</th>
+                <td>{{item.metadata.name}}</td>
+                <td>{{item.metadata.namespace}}</td>
+                <td>{{item.spec.nodeName}}</td>
+                <td>{{item.status.phase}}</td>
+            </tr>
+            <tr ng-repeat-end class="listing-panel" ng-if="selected(id)">
+                <td cockpit-listing-panel kind="Container" colspan="5">
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </div>

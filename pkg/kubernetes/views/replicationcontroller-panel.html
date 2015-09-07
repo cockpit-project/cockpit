@@ -53,31 +53,9 @@
                 </div>
             </div>
         </tab>
-        <tab heading="Template"
-            ng-if="item.spec.template"
-            ng-init="template = item.spec.template">
-            <div class="panel-body row">
-                <div class="col-sm-6">
-                    <dl>
-                        <dt>Restart Policy</dt>
-                        <dd>{{ template.spec.restartPolicy }}</dd>
-                    </dl>
-                    <dl>
-                        <dt>Service Account</dt>
-                        <dd>{{ template.spec.serviceAccountName }}</dd>
-                    </dl>
-                    <dl>
-                        <dt>DNS Policy</dt>
-                        <dd>{{ template.spec.dnsPolicy }}</dd>
-                    </dl>
-                </div>
-                <div class="col-sm-6">
-                    <dl>
-                        <dt class="header full" translatable="yes">Labels</dt>
-                        <dd class="full" ng-repeat="(key, value) in template.metadata.labels">{{key}}={{value}}</dd>
-                    </dl>
-                </div>
-            </div>
+        <tab heading="Template" ng-if="item.spec.template">
+            <kube-pod-body ng-init="pod = item.spec.template">
+            </kube-pod-body>
             <kube-container-body ng-repeat="container in client.containers(item.spec.template)">
             </kube-container-body>
         </tab>

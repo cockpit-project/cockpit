@@ -13,7 +13,7 @@
         <tab heading="Container">
             <kube-container-body></kube-container-body>
         </tab>
-        <tab heading="Console" select="connect('console')">
+        <tab heading="Logs" select="connect('console')">
             <div class="panel-body">
                 <kube-console namespace="{{item.metadata.namespace}}"
                     pod="{{item.metadata.name}}"
@@ -26,7 +26,7 @@
                 <kube-shell namespace="{{item.metadata.namespace}}"
                     pod="{{item.metadata.name}}"
                     container="{{container.spec.name}}">
-                </kube-console>
+                </kube-shell>
             </div>
         </tab>
     </tabset>

@@ -9,9 +9,9 @@
             <dd ng-if="container.status.imageID"><tt>{{container.status.imageID | kubeIdentifier }}</tt></dd>
             <dt ng-if="container.status.containerID">Container ID</dt>
             <dd ng-if="container.status.containerID"><tt>{{container.status.containerID | kubeIdentifier }}</tt></dd>
-            <dt class="kube-ports">Ports</dt>
-            <dd class="kube-ports">
-            <span ng-repeat="port in container.spec.ports">{{port.containerPort}}/{{port.protocol}}</span>
+            <dt>Ports</dt>
+            <dd>
+                <span ng-repeat="port in container.spec.ports">{{port.containerPort}}/{{port.protocol}}</span>
             </dd>
             <dt ng-repeat-start="(state, args) in container.status.state">State</dt>
             <dd>{{state}}</dd>

@@ -38,6 +38,18 @@
             <h3 translatable="yes">Node</h3>
             <p translatable="yes">Nodes are the machines that run your containers.</p>
         </div>
+        <div ng-if='selected && !(selected.kind === "Node")'>
+          <div ng-if='selected.kind === "Pod"'>
+            <button id="delete-pod" title="Delete" class="btn btn-danger btn-delete pficon pficon-delete delete-entity " data-toggle="modal" data-target="#delete-pod-dialog" data-link="{{ selected.metadata.selfLink }}" ></button>
+          </div>
+          <div ng-if='selected.kind === "ReplicationController"'>
+            <button id="delete-entity" title="Delete" class="btn btn-danger btn-delete pficon pficon-delete delete-entity" data-toggle="modal" data-target="#delete-entity-dialog" data-id="{{id}}" data-key="{{selected.key}}"></button> 
+            <button id="adjust-entity-btn" title="Adjust"  class="btn btn-default pficon pficon-edit adjust-entity"  data-toggle="modal" data-target="#adjust-entity-dialog"  data-id="{{id}}" data-key="{{selected.key}}"></button>
+          </div>
+          <div ng-if='selected.kind === "Service"'>
+            <button id="delete-entity" title="Delete" class="btn btn-danger btn-delete pficon pficon-delete delete-entity" data-toggle="modal" data-target="#delete-entity-dialog" data-id="{{id}}" data-key="{{selected.key}}"></button> 
+          </div>  
+        </div>
         <kubernetes-object-describer ng-if="selected" resource="selected" kind="{{ selected.kind }}"
             more-details-link="optional/path/to/more/details.html"></kubernetes-object-describer>
     </div>

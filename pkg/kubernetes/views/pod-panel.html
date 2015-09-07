@@ -4,7 +4,7 @@
             <i class="fa fa-cubes"></i>
         </div>
         <div class="listing-actions">
-            <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
+            <button id="delete-pod" title="Delete" class="btn btn-danger btn-delete pficon pficon-delete " data-toggle="modal" data-target="#delete-pod-dialog" data-link="{{ item.metadata.selfLink }}" ></button>
         </div>
         <div class="listing-status">
             <span>{{item.status.phase}}</span>

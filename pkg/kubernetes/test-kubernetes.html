@@ -327,7 +327,9 @@ function kube_apiserver(req) {
         return kube_api_post(req, parts, query, base_uri);
     } else if (req.method === "GET") {
         return kube_api_get(req, parts, query, base_uri);
-    } else {
+    } else if (req.method === "DELETE") {
+        return kube_api_delete(req, parts, query, base_uri);
+    }  else {
         req.mock_respond(405, "Unsupported method");
         return true;
     }
@@ -505,6 +507,30 @@ function kube_api_post(req, parts, query, base_uri) {
 
     kube_update(key, item);
     req.mock_respond(200, "OK", { "Content-Type": "application/json" }, JSON.stringify(item));
+    return true;
+}
+
+function kube_api_delete(req, parts, query, base_uri) {
+    var namespace;
+    var kind;
+    var name;
+
+    if (parts.length === 4) {
+        if (parts[0] != "namespaces")
+            return false;
+        namespace = parts[1];
+        kind = parts[2];
+        name = parts[3];
+    } else if (parts.length === 2) {
+        namespace = parts[1];
+    } else {
+        return false;
+    }
+
+    var key = parts.join("/");
+
+    var resp = kube_update(key, null);
+    req.mock_respond(200, "OK", { "Content-Type": "application/json" }, JSON.stringify(resp));
     return true;
 }
 
@@ -1007,6 +1033,44 @@ require([
                 });
         });
     });
+
+    asyncTest("delete pod", function() {
+        expect(7);
+
+        var client = kubernetes.k8client();
+        var pods = client.select("Pod");
+        client.track(pods);
+
+        client.create(create_items, "namespace2")
+            .done(function() {
+                equal(kube_data["namespaces/namespace2/pods/pod1"].metadata.name, "pod1", "pod created");
+                equal(kube_data["nodes/node1"].metadata.name, "node1", "node created");
+                equal(kube_data["namespaces/namespace2"].metadata.name, "namespace2", "namespace created");
+
+                equal(client.objects["Pod:d072fb85-f70e-11e4-b829-10c37bdb8410"].metadata.name,
+                      "pod1", "pod object");
+                equal(client.objects["Node:6e51438e-d161-11e4-acbc-10c37bdb8410"].metadata.name,
+                      "node1", "node object");
+
+                client.remove("/api/v1/namespaces/namespace2/pods/pod1")
+                    .done(function(){
+                        client.watches.pods.wait().always(function() {
+                            for (var i = pods.items.length - 1; i >= 0; i--) {
+                                if(pods.items[i].metadata.labels.name === "pod1") {
+                                    equal(pods.items[i].metadata.labels.name, "pod1", "right pod got removed");
+                                    return;
+                                }
+                            };
+                        });
+                    });
+            })
+            .always(function() {
+                equal(this.state(), "resolved", "succeeded");
+                client.close();
+                start();
+            });
+    });
+
 
     QUnit.module("large", {
         setup: function() {

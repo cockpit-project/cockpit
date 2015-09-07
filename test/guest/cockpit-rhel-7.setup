@@ -106,6 +106,7 @@ rm -rf /var/log/audit/
 
 # docker image that we need for integration testing
 systemctl start docker
-docker pull busybox
+docker pull busybox:latest
+docker pull busybox:buildroot-2014.02
 docker pull submod/helloapache
 docker pull submod/atomicapp

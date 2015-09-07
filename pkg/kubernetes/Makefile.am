@@ -15,9 +15,9 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/container-panel.html \
 	pkg/kubernetes/views/dashboard-page.html \
 	pkg/kubernetes/views/default-panel.html \
+	pkg/kubernetes/views/details-page.html \
 	pkg/kubernetes/views/images-page.html \
 	pkg/kubernetes/views/imagerepository-panel.html \
-	pkg/kubernetes/views/listing-page.html \
 	pkg/kubernetes/views/pod-panel.html \
 	pkg/kubernetes/views/replicationcontroller-panel.html \
 	pkg/kubernetes/views/service-panel.html \
@@ -36,12 +36,12 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/containers.js \
 	pkg/kubernetes/d3.js \
 	pkg/kubernetes/dashboard.js \
+	pkg/kubernetes/details.css \
+	pkg/kubernetes/details.js \
 	pkg/kubernetes/graphs.js \
 	pkg/kubernetes/images.css \
 	pkg/kubernetes/images.js \
 	pkg/kubernetes/kubernetes.js \
-	pkg/kubernetes/listing.css \
-	pkg/kubernetes/listing.js \
 	pkg/kubernetes/node.js \
 	pkg/kubernetes/moment.js \
 	pkg/kubernetes/object-describer.js \
@@ -66,9 +66,9 @@ kubernetes_MIN = \
 	pkg/kubernetes/containers.min.js \
 	pkg/kubernetes/dashboard.min.js \
 	pkg/kubernetes/deploy.min.js \
+	pkg/kubernetes/details.min.js \
 	pkg/kubernetes/graphs.min.js \
 	pkg/kubernetes/images.min.js \
-	pkg/kubernetes/listing.min.js \
 	pkg/kubernetes/moment.min.js \
 	pkg/kubernetes/nulecule.min.js \
 	pkg/kubernetes/node.min.js \

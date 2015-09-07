@@ -55,7 +55,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 <i class="fa fa-sitemap fa-fw"></i><br>Topology
               </a>
             </li>
-            <li ng-class="{ active: is_active('views/listing-page.html')}">
+            <li ng-class="{ active: is_active('views/details-page.html')}">
               <a ng-href="#/list">
                 <i class="fa fa-list fa-fw"></i><br>Details
               </a>
@@ -288,9 +288,9 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           "kubernetes/app",
           "kubernetes/containers",
           "kubernetes/dashboard",
+          "kubernetes/details",
           "kubernetes/images",
           "kubernetes/topology",
-          "kubernetes/listing",
           "kubernetes/object-describer"
       ], function(cockpit, po, angular) {
           "use strict";

@@ -13,10 +13,10 @@ define([
             'ui.bootstrap',
             'kubernetes.containers',
             'kubernetes.dashboard',
+            'kubernetes.details',
             'kubernetes.graph',
             'kubernetes.images',
-            'kubernetes.topology',
-            'kubernetes.listing'
+            'kubernetes.topology'
         ])
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.otherwise({ redirectTo: '/' });

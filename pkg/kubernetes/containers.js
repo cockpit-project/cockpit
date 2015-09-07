@@ -114,6 +114,15 @@ define([
             };
         })
 
+        .directive('kubeContainerBody',
+            function() {
+                return {
+                    restrict: 'E',
+                    templateUrl: 'views/container-body.html'
+                };
+            }
+        )
+
         /*
          * Displays a container console.
          *

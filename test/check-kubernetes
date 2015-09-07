@@ -65,6 +65,48 @@ class TestKubernetes(KubernetesCase):
         m.upload(["files/mock-k8s-tiny-app.json"], "/tmp")
         self.wait_api_server()
 
+    def testDelete(self):
+        b = self.browser
+        m = self.machine
+        b.wait_timeout(120)
+
+        self.login_and_go("/kubernetes/cluster", host=None)
+        b.wait_present("#node-list")
+        b.wait_in_text("#node-list", "127.0.0.1")
+
+        m.execute("kubectl create -f /tmp/mock-k8s-tiny-app.json")
+        b.wait_in_text("#service-list", "mock")
+
+        pods = m.execute('kubectl get pods --output=template -t="{{ range .items }}{{.metadata.name}}|{{ end }}"')
+        podl = pods.split("|")
+        print podl[0]
+        b.click("a[href='#/list']")
+        b.wait_present("#content .details-listing")
+        self.assertEqual(b.text(".details-listing tbody[data-id='services/default/mock'] th"), "mock")
+        self.assertEqual(b.text(".details-listing tbody[data-id='replicationcontrollers/default/mock'] th"), "mock")
+        self.assertEqual(b.text(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] th"), podl[0])
+
+        b.click(".details-listing tbody[data-id='services/default/mock'] th")
+        b.click("#delete-entity")
+        b.wait_popup("delete-entity-dialog")
+        b.click("#delete-entity-button")
+        b.wait_popdown("delete-entity-dialog")
+
+        b.click(".details-listing tbody[data-id='replicationcontrollers/default/mock'] th")
+        b.click("#delete-entity")
+        b.wait_popup("delete-entity-dialog")
+        b.click("#delete-entity-button")
+        b.wait_popdown("delete-entity-dialog")
+
+        b.click(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] th")
+        b.click("#delete-pod")
+        b.wait_popup("delete-pod-dialog")
+        b.click("#delete-pod-button")
+        b.wait_popdown("delete-pod-dialog")
+        self.assertEqual(b.is_present(".details-listing tbody[data-id='services/default/mock'] th"), False)
+        self.assertEqual(b.is_present(".details-listing tbody[data-id='replicationcontrollers/default/mock'] th"), False)
+        self.assertEqual(b.is_present(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] th"), False)
+
     def testDashboard(self):
         b = self.browser
         m = self.machine

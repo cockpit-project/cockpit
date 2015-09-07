@@ -218,6 +218,63 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
       </div>
     </div>
 
+    <div class="modal" id="adjust-entity-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" translatable="yes">Adjust Replication Controller</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr class="adjust-replicas-header">
+                <td colspan="2" class="header" translatable="yes">Replicas</td>
+                <td>
+                    <input class="form-control adjust-replica" type="text" id="replica-count" value="">
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
+            <button class="btn btn-primary" translatable="yes" id="adjust-entity-button">Adjust</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="delete-pod-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" translatable="yes">Please Confirm Deletion</h4>
+          </div>
+          <div class="modal-body" translatable="yes">
+            Deleting a Pod will kill all associated containers. Pods may be automatically created again in some cases.
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
+            <button class="btn btn-primary" translatable="yes" id="delete-pod-button">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="delete-entity-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" translatable="yes">Please Confirm Deletion</h4>
+          </div>
+          <div class="modal-body" translatable="yes">
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
+            <button class="btn btn-primary" translatable="yes" id="delete-entity-button">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="modal" id="node-dialog" tabindex="-1" role="dialog" data-backdrop="static">
       <div class="modal-dialog modal-md">
         <div class="modal-content">

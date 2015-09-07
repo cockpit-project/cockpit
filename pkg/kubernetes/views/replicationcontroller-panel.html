@@ -5,8 +5,8 @@
             <i class="fa pficon-replicator"></i>
         </div>
         <div class="listing-actions">
-            <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
-            <button title="Adjust" class="btn btn-default pficon pficon-edit" disabled></button>
+            <button id="adjust-entity-btn" title="Adjust"  class="btn btn-default pficon pficon-edit"  data-toggle="modal" data-target="#adjust-entity-dialog"  data-id="{{id}}" data-key="{{item.key}}"></button>
+            <button id="delete-entity" title="Delete" class="btn btn-danger btn-delete pficon pficon-delete" data-toggle="modal" data-target="#delete-entity-dialog" data-id="{{id}}" data-key="{{item.key}}"></button>
         </div>
         <div class="listing-status">
             <span ng-if="item.spec.replicas === item.status.replicas">{{ item.spec.replicas }}</span>

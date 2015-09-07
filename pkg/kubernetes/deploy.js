@@ -376,16 +376,17 @@ define([
 
         type_selector.on('change', function() {
             if (type_selector.val().trim() === "manifest") {
-                $("#deploy-app-nulecule-image").hide();
+                nulecule_image.hide();
                 $('label[for="deploy-app-nulecule"]').hide();
-                $('#deploy-app-manifest-file-button').show();
+                manifest_file_btn.show();
                 $('label[for="deploy-app-manifest"]').show();
 
             } else {
-                $("#deploy-app-nulecule-image").show();
+                nulecule_image.show();
                 $('label[for="deploy-app-nulecule"]').show();
-                $('#deploy-app-manifest-file-button').hide();
+                manifest_file_btn.hide();
                 $('label[for="deploy-app-manifest"]').hide();
+                nulecule_image.prop("disabled", false);
             }
         });
         type_selector.selectpicker('refresh');
@@ -395,14 +396,15 @@ define([
 
             $("#deploy-app-namespace").val('');
             $(".appentity").remove();
+            nulecule_image.prop("disabled", false);
             nulecule_image.val('');
             type_selector.prop('disabled',false);
             type_selector.val("manifest");
             type_selector.selectpicker('refresh');
 
-            $("#deploy-app-nulecule-image").hide();
+            nulecule_image.hide();
             $('label[for="deploy-app-nulecule"]').hide();
-            $('#deploy-app-manifest-file-button').show();
+            manifest_file_btn.show();
             $('label[for="deploy-app-manifest"]').show();
             client = kubernetes.k8client();
             nulecule_client = nulecule.nuleculeclient();

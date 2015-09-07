@@ -136,7 +136,7 @@ define([
                     return v.split('.');
                 });
                 function value(obj, x) {
-                    return obj[x];
+                    return obj ? obj[x] : undefined;
                 }
                 sorted.sort(function(a, b) {
                     var ra, rb, i, len = criteria.length;

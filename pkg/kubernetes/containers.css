@@ -16,7 +16,7 @@
     position: absolute;
 }
 
-.kube-containers .kube-content {
+.kube-containers .kube-pod > .kube-content {
     padding-top: 3.5em;
 }
 
@@ -57,13 +57,9 @@
 .kube-status span {
     font-weight: bold;
 }
-/* Right align the pills */
-.nav-tabs-clean > li:first-child > a {
-    padding-left: 15px;
-}
 
-.nav-tabs-clean > li:first-child > a:before {
-    left: 15px !important;
+.kube-containers .tab-content {
+    clear: both;
 }
 
 .kube-containers dl {

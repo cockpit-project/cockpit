@@ -52,18 +52,18 @@ define([
         return text;
     }
 
-    return angular.module('kubernetes.listing', ['ngRoute'])
+    return angular.module('kubernetes.details', ['ngRoute'])
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.when('/list', {
-                templateUrl: 'views/listing-page.html',
-                controller: 'ListingCtrl'
+                templateUrl: 'views/details-page.html',
+                controller: 'DetailsCtrl'
             });
         }])
 
         /*
-         * The controller for the listing view.
+         * The controller for the details view.
          */
-        .controller('ListingCtrl', [
+        .controller('DetailsCtrl', [
             '$scope',
             'kubernetesClient',
             function($scope, client) {

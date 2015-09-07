@@ -462,8 +462,6 @@ class Machine:
         return messages
 
 class QemuMachine(Machine):
-    macaddr_prefix = "52:54:00:9e:00"
-
     def __init__(self, **args):
         Machine.__init__(self, **args)
         self.run_dir = os.path.join(self.test_dir, "run")
@@ -938,7 +936,12 @@ class QemuMachine(Machine):
 
     def add_netiface(self, mac, vlan=0):
         if len(mac) == 2:
-            mac = self.macaddr_prefix + ":" + mac
+            tree = etree.parse(open("./network-cockpit.xml"))
+            for h in tree.find(".//dhcp"):
+                macaddr = h.get("mac")
+                if macaddr:
+                    mac = macaddr[:-2] + mac
+                    break
         self._monitor_qemu("device_add e1000,vlan=%s,mac=%s" % (vlan,mac));
         return mac
 

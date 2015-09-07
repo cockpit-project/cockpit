@@ -461,15 +461,6 @@ class Machine:
             messages = [ ]
         return messages
 
-def highest_version(names, os):
-    # XXX - maybe use the "rpm" module.
-
-    names = filter(lambda n: not "rescue" in n, names)
-    sorted = subprocess.check_output("echo '%s' | rpmdev-sort" % "\n".join(names),
-                                     shell=True).split("\n")
-    sorted = filter(lambda n: not n == "", sorted)
-    return sorted[len(sorted)-1]
-
 class QemuMachine(Machine):
     macaddr_prefix = "52:54:00:9e:00"
 

@@ -64,7 +64,7 @@ path.line.highlight {
     border-right: 1px solid #dadada;
     height: 100%;
     position: fixed;
-    background-color: #fafafa;
+    background-color: #eeeeec;
     top: 0px;
     z-index: 1;
 }
@@ -143,9 +143,21 @@ path.line.highlight {
    or a style-sheet per language.
 */
 
+.namespace-filter .btn,
+.namespace-filter .dropdown-menu {
+    font-size: 13px;
+}
+
+.namespace-filter .btn-group.open .dropdown-toggle {
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.125) inset;
+}
+
 .namespace-filter span.filter-option {
     width: auto;
-    font-size: 13px;
+    font-weight: bold;
+}
+
+.namespace-filter .namespace-value {
     font-weight: bold;
 }
 

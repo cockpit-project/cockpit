@@ -28,21 +28,10 @@ define([
             '$routeParams',
             '$location',
             'kubernetesClient',
-            'kubernetesFilter',
-            function($scope, $route, $routeParams, $location, client, filter) {
+            function($scope, $route, $routeParams, $location, client) {
                 $scope.$route = $route;
                 $scope.$location = $location;
                 $scope.$routeParams = $routeParams;
-                $scope.filter = filter;
-
-                $scope.namespaces = client.select("Namespace");
-                client.track($scope.namespaces);
-                $($scope.namespaces).on("changed", function () {
-                    $scope.$digest();
-                });
-                $scope.$on("$destroy", function() {
-                    client.track($scope.namespaces, false);
-                });
 
                 /* Used to set detect which route is active */
                 $scope.is_active = function is_active(template) {
@@ -88,29 +77,6 @@ define([
                     handle(client.connect(true));
                 };
         }])
-
-        /* Call selectpicker after last value rendered */
-        .directive('selectWatcher', [
-            "$timeout",
-            function ($timeout) {
-                return {
-                    restrict: 'A',
-                    link: function (scope, element, attr) {
-                        function rebuild(sel) {
-                            $timeout(function () {
-                                sel.selectpicker('refresh');
-                            });
-                        }
-
-                        var parent = $(element).parent();
-                        rebuild(parent);
-                        scope.$on('$destroy', function () {
-                            rebuild(parent);
-                        });
-                    }
-                };
-            }
-        ])
 
         /* Override the default angularjs exception handler */
         .factory('$exceptionHandler', ['$log', function($log) {
@@ -225,23 +191,49 @@ define([
             }
         ])
 
-        .factory('kubernetesFilter', [
+        .directive('kubernetesFilterBar', [
             'kubernetesClient',
+            'kubernetesFilter',
+            function(client, filter) {
+                return {
+                    restrict: 'E',
+                    scope: true,
+                    link: function(scope, element, attrs) {
+                        scope.filter = filter;
+
+                        scope.namespaces = client.select("Namespace");
+                        client.track(scope.namespaces);
+                        $(scope.namespaces).on("changed", function () {
+                            scope.$digest();
+                        });
+                        scope.$on("$destroy", function() {
+                            client.track(scope.namespaces, false);
+                        });
+                    },
+                    templateUrl: 'views/filter-bar.html'
+                };
+            }
+        ])
+
+        .factory('kubernetesFilter', [
+            "kubernetesClient",
             "$location",
             "$rootScope",
             function(client, $location, $rootScope) {
-                var selected_namespace = null;
-                var module = {};
+                var module = {
+                    namespace: "",
+                    set_namespace: set_namespace
+                };
 
                 function set_namespace(namespace) {
                     var request_namespace = $location.search().namespace;
                     request_namespace = request_namespace ? request_namespace : null;
-                    selected_namespace = namespace ? namespace : null;
+                    module.namespace = namespace ? namespace : null;
 
-                    if (request_namespace !== selected_namespace)
-                        $location.search({namespace: selected_namespace});
+                    if (request_namespace !== module.namespace)
+                        $location.search({namespace: module.namespace});
                     else
-                        client.namespace(selected_namespace);
+                        client.namespace(module.namespace);
                 }
 
                 $rootScope.$on("$routeChangeSuccess", function (event, current, prev) {
@@ -250,17 +242,10 @@ define([
 
                 $rootScope.$on('$routeChangeStart', function(next, current) {
                     var params = $location.search();
-                    if (selected_namespace && !params.namespace)
-                        $location.search({namespace: selected_namespace});
-                 });
+                    if (module.namespace && !params.namespace)
+                        $location.search({namespace: module.namespace});
+                });
 
-                /* Angular style getter/setter */
-                module.namespace = function(namespace) {
-                    if (angular.isDefined(namespace))
-                        set_namespace(namespace);
-                    else
-                        return selected_namespace ? selected_namespace : "";
-                };
                 return module;
             }
         ]);

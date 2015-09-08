@@ -1713,7 +1713,8 @@ define([
                 feed(JSON.parse(data));
             })
             .fail(function(ex) {
-                console.warn(ex);
+                if (ex.status != 503)
+                    console.warn(ex);
             });
         }
 

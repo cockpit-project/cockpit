@@ -114,6 +114,23 @@ define([
                                          item.metadata.namespace,
                                          item.spec.selector);
                 };
+
+                $scope.nodePods = function node_pods(item) {
+                    return client.hosting("Pod", item.metadata.name);
+                };
+
+                $scope.nodeReadyCondition = function node_read_condition(conditions) {
+                    var ret = {};
+                    if (conditions) {
+                        conditions.forEach(function(condition) {
+                            if (condition.type == "Ready") {
+                                ret = condition;
+                                return false;
+                            }
+                        });
+                    }
+                    return ret;
+                };
             }
         ])
 
@@ -134,23 +151,44 @@ define([
             };
         })
 
-        .directive('kubernetesNodeCapacity', function() {
-            return {
-                restrict: 'E',
-                link: function($scope, element, attributes) {
-                    $scope.$watch("item.status.capacity", function(capacity) {
-                        var line = "";
-                        var memory = capacity.memory;
-                        var cpu = capacity.cpu;
-                        if (cpu && memory) {
-                            var bytes = number_with_suffix_to_bytes(memory);
-                            line = cockpit.format(_("$0 CPU $1 RAM"),
-                                                  cpu,
-                                                  cockpit.format_bytes(bytes, 1000));
+        .filter('nodeExternalIP', function() {
+            return function(addresses) {
+                var address = null;
+
+                /* If no status.conditions then it hasn't even started */
+                if (addresses) {
+                    addresses.forEach(function(a) {
+                        if (a.type == "LegacyHostIP" || address.type == "ExternalIP") {
+                            address = a.address;
+                            return false;
                         }
-                        element.text(line);
                     });
                 }
+                return address ? address : _("Unknown");
+            };
+        })
+
+        .filter('formatCapacityName', function() {
+            return function(key) {
+                var data;
+                if (key == "cpu") {
+                    data = "CPUs";
+                } else {
+                    key = key.replace(/-/g, " ");
+                    data = key.charAt(0).toUpperCase() + key.substr(1);
+                }
+                return data;
+            };
+        })
+
+        .filter('formatCapacityValue', function() {
+            return function(value, key) {
+                var data;
+                if (key == "memory") {
+                    var raw = number_with_suffix_to_bytes(value);
+                    value = cockpit.format_bytes(raw);
+                }
+                return value;
             };
         })
 

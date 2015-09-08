@@ -178,12 +178,14 @@ class TestDocker(MachineCase):
 
         # Create an updated image, expose a port
         m.execute("mkdir /var/tmp/container-probe")
+        m.upload(["files/listen-on-port.sh"], "/var/tmp/container-probe")
         m.execute("""echo -e '
 FROM busybox
 MAINTAINER cockpit
-EXPOSE %d
-CMD ["/bin/sh", "-c", "echo '%s' | tee /dev/fd/2 | nc -l -p %d"]
-' > /var/tmp/container-probe/Dockerfile""" % (port, message, port))
+EXPOSE %(port)d
+ADD listen-on-port.sh /listen-on-port.sh
+CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
+' > /var/tmp/container-probe/Dockerfile""" % {'message': message, 'port': port})
         image_name = "test/container-probe"
         m.execute("docker build -t %s /var/tmp/container-probe" % (image_name))
         m.execute("rm -rf /var/tmp/container-probe")
@@ -222,8 +224,12 @@ CMD ["/bin/sh", "-c", "echo '%s' | tee /dev/fd/2 | nc -l -p %d"]
         # Tell our probe to listen on both ports
         second_message = "%s" % (message);
         b.set_val("#containers-run-image-command",
-                  "/bin/sh -c \"echo '%s'; echo '%s' | nc -l -p %d; echo '%s'; echo '%s' | nc -l -p %d\""
-                    % (message, message, port, second_message, second_message, nport))
+                  ("/bin/sh -c \"/listen-on-port.sh %(port)d %(message)s; " +
+                               "/listen-on-port.sh %(second_port)d %(second_message)s\"")
+                    % {'port': port,
+                       'message': message,
+                       'second_port': nport,
+                       'second_message': second_message})
         b.set_val(".containers-run-portmapping form:eq(0) input:eq(1)", port)
         b.click(".containers-run-portmapping form:eq(0) .fa-plus")
         b.set_val(".containers-run-portmapping form:eq(1) input:eq(0)", nport)

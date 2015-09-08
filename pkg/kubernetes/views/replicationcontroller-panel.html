@@ -19,11 +19,11 @@
             <div class="panel-body row">
                 <div class="col-sm-6">
                     <dl>
-                        <dt>Namespace</dt>
+                        <dt translatable="yes">Namespace</dt>
                         <dd>{{ item.metadata.namespace }}</dd>
-                        <dt>Created</dt>
+                        <dt translatable="yes">Created</dt>
                         <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | timeAgo }}</dd>
-                        <dt>Replicas</dt>
+                        <dt translatable="yes">Replicas</dt>
                         <dd>{{ item.spec.replicas }}</dd>
                     </dl>
                 </div>
@@ -42,7 +42,7 @@
                         <dt class="header full" translatable="yes">Pod Replicated</dt>
                         <dd class="full" ng-repeat="pod in pods">
                             {{ pod.metadata.name }}</dd>
-                        <dd ng-if="!pods.count">No pods replicated</dd>
+                        <dd ng-if="!pods.count" translatable="yes">No pods replicated</dd>
                     </dl>
                 </div>
                 <div class="col-sm-6">

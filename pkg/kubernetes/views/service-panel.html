@@ -19,22 +19,22 @@
             <div class="panel-body row">
                 <div class="col-sm-6">
                     <dl>
-                        <dt>Namespace</dt>
+                        <dt translatable="yes">Namespace</dt>
                         <dd>{{ item.metadata.namespace }}</dd>
-                        <dt>Created</dt>
+                        <dt translatable="yes">Created</dt>
                         <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | timeAgo }}</dd>
-                        <dt>IP</dt>
+                        <dt translatable="yes">IP</dt>
                         <dd>{{ item.spec.clusterIP }}</dd>
-                        <dt>Type</dt>
+                        <dt translatable="yes">Type</dt>
                         <dd>{{ item.spec.type }}</dd>
-                        <dt>Ports</dt>
+                        <dt translatable="yes">Ports</dt>
                         <dd>
-                            <div ng-if="!item.spec.ports.length">None</div>
+                            <div ng-if="!item.spec.ports.length" translatable="yes">None</div>
                             <div ng-repeat="portMapping in item.spec.ports | orderBy:'port'">
                                 {{portMapping.port}} &#8594; {{portMapping.targetPort}}
                                 ({{portMapping.protocol}})</div>
                         </dd>
-                        <dt>Session Affinity<dt>
+                        <dt translatable="yes">Session Affinity<dt>
                         <dd>{{ item.spec.sessionAffinity }}</dd>
                     </dl>
                 </div>

@@ -38,6 +38,7 @@ class TestAccounts(MachineCase):
         b.wait_text("#account-user-name", "anton")
         b.set_val('#account-real-name', "Anton Arbitrary")
         b.wait_not_attr('#account-real-name', 'data-dirty', 'true')
+        # don't wait for /etc/passwd to be current - this should hold true once the 'data-dirty' was removed
         self.assertIn("Anton Arbitrary", m.execute("grep anton /etc/passwd"))
 
         # Delete it
@@ -83,10 +84,10 @@ class TestAccounts(MachineCase):
         b.wait_present("#account-role-checkbox-10:not(:checked)")
         b.set_checked("#account-role-checkbox-10", True)
         b.wait_present("#account-role-checkbox-10:checked")
-        self.assertIn("jussi", m.execute("grep wheel /etc/group"))
+        wait(lambda: "jussi" in m.execute("grep wheel /etc/group"), delay=1, tries=10)
         b.set_checked("#account-role-checkbox-10", False)
-        self.assertNotIn("jussi", m.execute("grep wheel /etc/group"))
         b.wait_present("#account-role-checkbox-10:not(:checked)")
+        wait(lambda: "jussi" not in m.execute("grep wheel /etc/group"), delay=1, tries=10)
         m.execute("/usr/sbin/usermod jussi -G 10 -a")
         b.wait_present("#account-role-checkbox-10:checked")
 

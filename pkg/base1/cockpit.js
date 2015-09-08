@@ -2808,8 +2808,12 @@ function full_scope(cockpit, $, po) {
 
             $(channel)
                 .on("close", function(ev, options) {
-                    if (options.problem)
+                    if (options.problem &&
+                        options.problem != "terminated" &&
+                        options.problem != "disconnected" &&
+                        options.problem != "authentication-failed") {
                         console.warn("metrics channel failed: " + options.problem);
+                    }
                 })
                 .on("message", function(ev, payload) {
                     var message = JSON.parse(payload);

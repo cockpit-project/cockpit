@@ -1,6 +1,6 @@
 <div cockpit-listing ng-if="state">
     <table class="listing images-listing">
-        <thead ng-class="{selected: selected()}">
+        <thead ng-class="{selected: selected()}" ng-if="!quiet">
             <tr class="listing-title">
                 <td colspan="4" translatable="yes">Image Repositories</td>
             </tr>
@@ -14,7 +14,7 @@
             <tr ng-repeat-start="(id, item) in items"
                 ng-init="latest = item.latest()"
                 ng-click="select(item.repo)"
-                ng-if="!selected(item.repo) && is_visible(item)"
+                ng-if="!quiet && !selected(item.repo) && is_visible(item)"
                 data-id="{{ id }}">
                 <th>{{item.name}}</th>
                 <td>{{item.tags() | imagesTags }}</td>
@@ -24,7 +24,7 @@
                 <td cockpit-listing-panel kind="ImageRepository" colspan="3">
                 </td>
             </tr>
-            <tr class="listing-empty">
+            <tr class="listing-empty" ng-if="!quiet">
                 <td colspan="3" ng-if="!failure" translatable="yes">No image repositories are present.</td>
                 <td colspan="3" ng-if="failure" translatable="yes">{{failure}}</td>
             </tr>

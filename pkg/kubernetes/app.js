@@ -140,23 +140,34 @@ define([
         })
 
         .directive('cockpitListing', [
-            function() {
+            'kubernetesFilter',
+            function(filter) {
                 return {
                     restrict: 'A',
-                    link: function($scope, element, attrs) {
+                    link: function(scope, element, attrs) {
                         var selection = { };
 
-                        $scope.selection = selection;
+                        /* Only view selected items? */
+                        scope.quiet = false;
 
-                        $scope.selected = function selected(id) {
-                            return id in selection;
+                        scope.selection = selection;
+
+                        scope.selected = function selected(id) {
+                            if (angular.isUndefined(id)) {
+                                for (id in selection)
+                                    return true;
+                                return false;
+                            } else {
+                                return id in selection;
+                            }
                         };
 
-                        $scope.select = function select(id, value) {
+                        scope.select = function select(id, value) {
                             if (!id) {
                                 Object.keys(selection).forEach(function(old) {
                                     delete selection[old];
                                 });
+                                scope.quiet = false;
                             } else {
                                 if (value === undefined)
                                     value = !(id in selection);
@@ -167,9 +178,11 @@ define([
                             }
                         };
 
-                        $scope.connect = function connect(what) {
-                            $scope.$broadcast("connect", what);
+                        scope.connect = function connect(what) {
+                            scope.$broadcast("connect", what);
                         };
+
+                        filter.register_listing(scope);
                     }
                 };
             }
@@ -209,6 +222,20 @@ define([
                         scope.$on("$destroy", function() {
                             client.track(scope.namespaces, false);
                         });
+
+                        scope.filter_click = function filter_click(ev) {
+                            if (!filter.listing)
+                                return;
+
+                            var value = !filter.listing.quiet;
+
+                            /* If cannot set to true then open the menu */
+                            if (value && !filter.listing.selected()) {
+                                ev.stopPropagation();
+                                element.children().first().addClass("open");
+                            } else
+                                filter.listing.quiet = value;
+                        };
                     },
                     templateUrl: 'views/filter-bar.html'
                 };
@@ -222,7 +249,9 @@ define([
             function(client, $location, $rootScope) {
                 var module = {
                     namespace: "",
-                    set_namespace: set_namespace
+                    listing: null,
+                    set_namespace: set_namespace,
+                    register_listing: register_listing
                 };
 
                 function set_namespace(namespace) {
@@ -245,6 +274,25 @@ define([
                     if (module.namespace && !params.namespace)
                         $location.search({namespace: module.namespace});
                 });
+
+                var registered = null;
+
+                function register_listing(scope) {
+                    if (registered) {
+                        registered();
+                        registered = null;
+                    }
+
+                    module.listing = scope;
+                    if (scope) {
+                        registered = scope.$on("$destroy", function() {
+                            if (module.listing === scope) {
+                                registered = null;
+                                module.listing = null;
+                            }
+                        });
+                    }
+                }
 
                 return module;
             }

@@ -278,8 +278,9 @@ define([
             '$scope',
             '$timeout',
             'kubernetesClient',
+            'kubernetesFilter',
             'ImageRegistry',
-            function($scope, $timeout, kubernetesClient, ImageRegistry) {
+            function($scope, $timeout, kubernetesClient, filter, ImageRegistry) {
                 $scope.registry = new ImageRegistry($scope);
                 $scope.items = $scope.registry.repositories;
 
@@ -287,7 +288,7 @@ define([
                 $scope.state = null;
 
                 $scope.is_visible = function(item) {
-                    if (!$scope.filter.namespace())
+                    if (!filter.namespace)
                         return true;
 
                     for (var key in item.imagestreams)

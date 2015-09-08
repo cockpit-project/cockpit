@@ -1,0 +1,26 @@
+<div class="btn-group bootstrap-select namespace-filter">
+    <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">
+        <span ng-if="client.flavor == 'openshift'" class="pull-left">
+            <span ng-if="!filter.namespace" translatable="yes">All Projects</span>
+            <span ng-if="filter.namespace" translatable="yes">Project:
+                <span class="namespace-value">{{filter.namespace}}</span></span>
+        </span>
+        <span ng-if="client.flavor != 'openshift'" class="pull-left">
+            <span ng-if="!filter.namespace" translatable="yes">All Namespaces</span>
+            <span ng-if="filter.namespace" translatable="yes">Namespace:
+                <span class="namespace-value">{{filter.namespace}}</span></span>
+        </span>
+        <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+        <li ng-if="client.flavor == 'openshift'" translatable="yes">
+            <a ng-click="filter.set_namespace('')">All Projects</a>
+        </li>
+        <li ng-if="client.flavor != 'openshift'" translatable="yes">
+            <a ng-click="filter.set_namespace('')">All Namespaces</a>
+         </li>
+        <li ng-repeat="namespace in namespaces">
+            <a ng-init="ns = namespace.metadata.name" ng-click="filter.set_namespace(ns)">{{ns}}</a>
+        </li>
+    </ul>
+</div>

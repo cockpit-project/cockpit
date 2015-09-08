@@ -25,7 +25,9 @@ define([
     "shell/shell",
     "shell/cockpit-main",
     "system/server",
-    "system/service"
+    "system/service",
+    "base1/bootstrap-datepicker",
+    "base1/bootstrap-combobox",
 ], function($, cockpit, domain, controls, shell, main, server, service) {
 "use strict";
 

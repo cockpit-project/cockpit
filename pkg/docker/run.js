@@ -21,7 +21,8 @@ define([
     "jquery",
     "base1/cockpit",
     "base1/mustache",
-    "docker/util"
+    "docker/util",
+    "base1/bootstrap-select",
 ], function($, cockpit, Mustache, util) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;

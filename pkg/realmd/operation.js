@@ -2,7 +2,8 @@ define([
     "jquery",
     "base1/cockpit",
     "shell/controls",
-    "data!./operation.html"
+    "data!./operation.html",
+    "base1/bootstrap-select"
 ], function(jQuery, cockpit, controls, html) {
     var module = { };
 

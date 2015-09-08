@@ -22,7 +22,7 @@ define([
     "base1/cockpit",
     "kubernetes/client",
     "kubernetes/nulecule",
-    "base1/mustache"
+    "base1/mustache",
 ], function($, cockpit, kubernetes, nulecule, Mustache) {
     "use strict";
 

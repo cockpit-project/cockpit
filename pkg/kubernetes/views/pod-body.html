@@ -1,22 +1,22 @@
 <div class="panel-body row">
     <div class="col-sm-6">
         <dl>
-            <dt ng-if="item === pod">Namespace</dt>
+            <dt ng-if="item === pod" translatable="yes">Namespace</dt>
             <dd ng-if="item === pod">{{ pod.metadata.namespace }}</dd>
-            <dt ng-if="pod.metadata.creationTimestamp">Created</dt>
+            <dt ng-if="pod.metadata.creationTimestamp" translatable="yes">Created</dt>
             <dd ng-if="pod.metadata.creationTimestamp"
                 title="{{ pod.metadata.creationTimestamp }}">{{ pod.metadata.creationTimestamp | timeAgo }}</dd>
-            <dt>Restart Policy</dt>
+            <dt translatable="yes">Restart Policy</dt>
             <dd>{{ pod.spec.restartPolicy }}</dd>
-            <dt>Service Account</dt>
+            <dt translatable="yes">Service Account</dt>
             <dd>{{ pod.spec.serviceAccountName }}</dd>
-            <dt>DNS Policy</dt>
+            <dt translatable="yes">DNS Policy</dt>
             <dd>{{ pod.spec.dnsPolicy }}</dd>
-            <dt ng-if="pod.status">Phase</dt>
+            <dt ng-if="pod.status" translatable="yes">Phase</dt>
             <dd ng-if="pod.status">{{pod.status.phase}}</dd>
-            <dt ng-if="pod.spec.host">Node</dt>
+            <dt ng-if="pod.spec.host" translatable="yes">Node</dt>
             <dd ng-if="pod.spec.host">{{pod.spec.host}}</dd>
-            <dt ng-if="pod.status">Pod Address</dt>
+            <dt ng-if="pod.status" translatable="yes">Pod Address</dt>
             <dd ng-if="pod.status">{{pod.status.podIP}}</dd>
         </dl>
     </div>

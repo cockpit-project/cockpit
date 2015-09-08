@@ -4,7 +4,7 @@
             <tr class="listing-title">
                 <td colspan="5" translatable="yes">Containers</td>
             </tr>
-            <tr>
+            <tr ng-if="!quiet">
                 <th translatable="yes">Name</th>
                 <th translatable="yes">Pod</th>
                 <th translatable="yes" ng-if="client.flavor == 'openshift'">Project</th>
@@ -15,7 +15,7 @@
         </thead>
         <tbody ng-repeat="item in pods | orderObjectBy:['metedata.namespace', 'metadata.name']">
             <tr ng-repeat-start="(id, container) in containers(item)"
-                ng-click="select(id)" ng-if="!selected(id)">
+                ng-click="select(id)" ng-if="!quiet && !selected(id)">
                 <th>{{container.spec.name}}</th>
                 <td>{{item.metadata.name}}</td>
                 <td>{{item.metadata.namespace}}</td>

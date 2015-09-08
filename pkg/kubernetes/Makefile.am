@@ -17,6 +17,7 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/dashboard-page.html \
 	pkg/kubernetes/views/default-panel.html \
 	pkg/kubernetes/views/details-page.html \
+	pkg/kubernetes/views/filter-bar.html \
 	pkg/kubernetes/views/images-page.html \
 	pkg/kubernetes/views/imagerepository-panel.html \
 	pkg/kubernetes/views/pod-body.html \

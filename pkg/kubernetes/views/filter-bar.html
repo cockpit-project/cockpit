@@ -1,3 +1,23 @@
+<div class="btn-group filter-menu pull-right" ng-class="{ hidden: !filter.listing }">
+    <button class="btn btn-default fa fa-filter" ng-class="{ active: filter.listing.quiet }"
+        ng-click="filter_click($event)"></button>
+    <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+        <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+        <li ng-class="{active: !filter.listing.quiet}">
+            <a ng-click="filter.listing.quiet = false">View all items</a>
+        </li>
+        <li ng-class="{active: filter.listing.quiet, disabled: !filter.listing.selected()}">
+            <a ng-click="filter.listing.quiet = true">Only selected items</a>
+        </li>
+        <li role="separator" class="divider"></li>
+        <li>
+            <a ng-click="filter.listing.select()">Clear selection</a>
+        </li>
+    </ul>
+</div>
+
 <div class="btn-group bootstrap-select namespace-filter">
     <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">
         <span ng-if="client.flavor == 'openshift'" class="pull-left">

@@ -5,8 +5,8 @@
             <i class="fa fa-recycle"></i>
         </div>
         <div class="listing-actions">
-            <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete"></button>
-            <button title="Adjust" class="btn btn-default pficon pficon-edit"></button>
+            <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
+            <button title="Adjust" class="btn btn-default pficon pficon-edit" disabled></button>
         </div>
         <div class="listing-status">
             <span ng-if="item.spec.replicas === item.status.replicas">{{ item.spec.replicas }}</span>

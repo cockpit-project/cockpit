@@ -23,7 +23,7 @@ define([
              */
 
             next = target.next();
-            if (next.is(".bootstrap-select")) {
+            if (next.is(".bootstrap-select") && next.selectpicker) {
                 next.remove();
                 refresh = next.selectpicker;
             }

@@ -24,6 +24,9 @@ base_DATA = \
 basedebugdir = $(debugdir)$(basedir)
 basedebug_DATA = \
 	pkg/base1/angular.js \
+	pkg/base1/bootstrap-datepicker.js \
+	pkg/base1/bootstrap-select.js \
+	pkg/base1/bootstrap-combobox.js \
 	pkg/base1/cockpit.css \
 	pkg/base1/patternfly.css \
 	pkg/base1/po.js \
@@ -40,6 +43,9 @@ base_BUNDLE = \
 	pkg/base1/require.min.js \
 	pkg/base1/cockpit.min.js \
 	pkg/base1/jquery.min.js \
+	pkg/base1/bootstrap-datepicker.min.js \
+	pkg/base1/bootstrap-select.min.js \
+	pkg/base1/bootstrap-combobox.min.js \
 	pkg/base1/mustache.min.js \
 	pkg/base1/patterns.min.js \
 	$(NULL)
@@ -107,6 +113,9 @@ CLEANFILES += \
 
 EXTRA_DIST += \
 	pkg/base1/angular.min.js \
+	pkg/base1/bootstrap-select.min.js \
+	pkg/base1/bootstrap-datepicker.min.js \
+	pkg/base1/bootstrap-combobox.min.js \
 	pkg/base1/bundle.min.js \
 	pkg/base1/jquery.min.js \
 	pkg/base1/require.min.js \
@@ -122,9 +131,6 @@ EXTRA_DIST += \
 	$(NULL)
 
 update-lib:: update-bower
-	$(srcdir)/tools/uglifyjs \
-		$(BOWER)/patternfly/components/bootstrap-combobox/js/bootstrap-combobox.js \
-			> bootstrap-combobox.min.js
 	$(srcdir)/tools/uglifyjs $(BOWER)/jquery-flot/jquery.flot.js > jquery.flot.min.js
 	$(srcdir)/tools/uglifyjs $(BOWER)/jquery-flot/jquery.flot.selection.js > jquery.flot.selection.min.js
 	$(srcdir)/tools/uglifyjs $(BOWER)/jquery-flot/jquery.flot.time.js > jquery.flot.time.min.js
@@ -134,9 +140,6 @@ update-lib:: update-bower
 	$(JSMODULE) -o $(srcdir)/pkg/base1/jquery.js \
 	    $(BOWER)/jquery/dist/jquery.js \
 	    $(BOWER)/patternfly/components/bootstrap/dist/js/bootstrap.js \
-	    $(BOWER)/patternfly/components/bootstrap-select/bootstrap-select.js \
-	    $(BOWER)/bootstrap-datepicker/dist/js/bootstrap-datepicker.js \
-	    $(BOWER)/patternfly/components/bootstrap-combobox/js/bootstrap-combobox.js \
 	    $(BOWER)/patternfly/dist/js/patternfly.js \
 	    $(BOWER)/jquery-flot/jquery.flot.js \
 	    $(BOWER)/jquery-flot/jquery.flot.selection.js \
@@ -147,9 +150,6 @@ update-lib:: update-bower
 	$(JSMODULE) -o $(srcdir)/pkg/base1/jquery.min.js \
 	    $(BOWER)/jquery/dist/jquery.min.js \
 	    $(BOWER)/patternfly/components/bootstrap/dist/js/bootstrap.min.js \
-	    $(BOWER)/patternfly/components/bootstrap-select/bootstrap-select.min.js \
-	    $(BOWER)/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js \
-	    bootstrap-combobox.min.js \
 	    $(BOWER)/patternfly/dist/js/patternfly.min.js \
 	    jquery.flot.min.js \
 	    jquery.flot.selection.min.js \
@@ -157,6 +157,32 @@ update-lib:: update-bower
 	    jquery-amend.min.js \
 	    $(srcdir)/pkg/base1/jquery-scoped.js \
 	    $(srcdir)/pkg/base1/attrchange.min.js
+	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-select.js \
+	    $(BOWER)/patternfly/components/bootstrap-select/bootstrap-select.js
+	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-select.min.js \
+	    $(BOWER)/patternfly/components/bootstrap-select/bootstrap-select.min.js
+	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-datepicker.js \
+	    $(BOWER)/bootstrap-datepicker/dist/js/bootstrap-datepicker.js
+	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-datepicker.min.js \
+	    $(BOWER)/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js
+	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-combobox.js \
+	    $(BOWER)/patternfly/components/bootstrap-combobox/js/bootstrap-combobox.js
+	$(srcdir)/tools/uglifyjs $(BOWER)/requirejs/require.js > require.min.js
+	$(JSMODULE) -o $(srcdir)/pkg/base1/require.js \
+	    $(BOWER)/requirejs/require.js \
+	    $(srcdir)/pkg/base1/require-config.js \
+	    $(srcdir)/pkg/base1/require-loaders.js
+	$(JSMODULE) -o $(srcdir)/pkg/base1/require.min.js \
+	    require.min.js \
+	    $(srcdir)/pkg/base1/require-config.js \
+	    $(srcdir)/pkg/base1/require-loaders.js
+	$(srcdir)/tools/cssbundle -o $(srcdir)/pkg/base1/patternfly.css \
+	    patternfly.css \
+	    $(BOWER)/bootstrap-datepicker/dist/css/bootstrap-datepicker.css
+	$(JSMODULE) -o $(srcdir)/pkg/base1/mustache.js \
+		$(BOWER)/mustache/mustache.js
+	$(srcdir)/tools/uglifyjs $(BOWER)/mustache/mustache.js > \
+		$(srcdir)/pkg/base1/mustache.min.js
 	$(srcdir)/tools/uglifyjs $(BOWER)/requirejs/require.js > require.min.js
 	$(JSMODULE) -o $(srcdir)/pkg/base1/require.js \
 	    $(BOWER)/requirejs/require.js \
@@ -202,4 +228,8 @@ pkg/base1/jquery.min.js:
 pkg/base1/mustache.min.js:
 	@true
 pkg/base1/require.min.js:
+	@true
+pkg/base1/bootstrap-select.min.js:
+	@true
+pkg/base1/bootstrap-datepicker.min.js:
 	@true

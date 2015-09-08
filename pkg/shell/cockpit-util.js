@@ -20,7 +20,8 @@
 define([
     "jquery",
     "base1/cockpit",
-    "shell/shell"
+    "shell/shell",
+    "base1/bootstrap-select",
 ], function($, cockpit, shell) {
 
 // Used for escaping things in HTML elements and attributes

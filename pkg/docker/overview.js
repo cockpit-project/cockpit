@@ -25,7 +25,8 @@ define([
     "docker/run",
     "docker/search",
     "docker/docker",
-    "shell/controls"
+    "shell/controls",
+    "base1/bootstrap-select",
 ], function($, cockpit, Mustache, util, run_image, search_image, docker, controls) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;

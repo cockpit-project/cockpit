@@ -936,7 +936,7 @@ class QemuMachine(Machine):
 
     def add_netiface(self, mac, vlan=0):
         if len(mac) == 2:
-            tree = etree.parse(open("./network-cockpit.xml"))
+            tree = etree.parse(open("./guest/network-cockpit.xml"))
             for h in tree.find(".//dhcp"):
                 macaddr = h.get("mac")
                 if macaddr:

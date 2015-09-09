@@ -122,8 +122,9 @@ class TestKubernetes(KubernetesCase):
         # Check that service shows up on listing view
         b.click("a[href='#/list']")
         b.wait_present("#content .details-listing")
-        self.assertEqual(b.text(".details-listing tr[data-id='services/default/mock'] th"), "mock")
-        self.assertEqual(b.text(".details-listing tr[data-id='replicationcontrollers/default/mock'] th"), "mock")
+        self.assertEqual(b.text(".details-listing tbody[data-id='services/default/mock'] th"), "mock")
+        self.assertIn("Service:", b.attr(".details-listing tbody[data-id='services/default/mock']", "data-key"))
+        self.assertEqual(b.text(".details-listing tbody[data-id='replicationcontrollers/default/mock'] th"), "mock")
 
     def testTopology(self):
         m = self.machine

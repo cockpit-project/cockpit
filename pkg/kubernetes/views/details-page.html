@@ -12,8 +12,9 @@
             </tr>
         </thead>
         <tbody ng-repeat="item in nodes"
-            ng-init="id = itemIdentifier(item)">
-            <tr ng-click="select(id)" ng-if="!selected(id)" data-kind="{{item.kind}}" data-id="{{id}}">
+            ng-init="id = itemIdentifier(item)"
+            data-id="{{id}}" data-key="{{item.key}}">
+            <tr ng-click="select(id)" ng-if="!selected(id)">
                 <th>{{item.metadata.name}}</th>
                 <td>
                     <div ng-if="item.status.nodeInfo.osImage">{{item.status.nodeInfo.osImage}}</div>
@@ -39,8 +40,9 @@
             </tr>
         </thead>
         <tbody ng-repeat="item in services | orderObjectBy:['metadata.namespace', 'metadata.name']"
-            ng-init="id = itemIdentifier(item)">
-            <tr ng-click="select(id)" ng-if="!selected(id)" data-kind="{{item.kind}}" data-id="{{id}}">
+            ng-init="id = itemIdentifier(item)"
+            data-id="{{id}}" data-key="{{item.key}}">
+            <tr ng-click="select(id)" ng-if="!selected(id)">
                 <th>{{item.metadata.name}}</th>
                 <td>{{item.metadata.namespace}}</td>
                 <td><kubernetes-service-cluster></td>
@@ -67,8 +69,9 @@
             </tr>
         </thead>
         <tbody ng-repeat="item in replicationcontrollers | orderObjectBy:['metadata.namespace', 'metadata.name']"
-            ng-init="id = itemIdentifier(item)">
-            <tr ng-click="select(id)" ng-if="!selected(id)" data-kind="{{item.kind}}" data-id="{{id}}">
+            ng-init="id = itemIdentifier(item)"
+            data-id="{{id}}" data-key="{{item.key}}">
+            <tr ng-click="select(id)" ng-if="!selected(id)">
                 <th>{{item.metadata.name}}</th>
                 <td>{{item.metadata.namespace}}</td>
                 <td></td>
@@ -93,8 +96,9 @@
             </tr>
         </thead>
         <tbody ng-repeat="item in pods | orderObjectBy:['metadata.namespace', 'metadata.name']"
-            ng-init="id = itemIdentifier(item)">
-            <tr ng-click="select(id)" ng-if="!selected(id)" data-kind="{{item.kind}}" data-id="{{id}}">
+            ng-init="id = itemIdentifier(item)"
+            data-id="{{id}}" data-key="{{item.key}}">
+            <tr ng-click="select(id)" ng-if="!selected(id)">
                 <th>{{item.metadata.name}}</th>
                 <td>{{item.metadata.namespace}}</td>
                 <td>{{item.status.podIP}}</td>

@@ -884,6 +884,13 @@ define([
             if (prev && prev.metadata.resourceVersion === version)
                 return;
 
+            /* Place this on the item as a hidden property */
+            Object.defineProperty(item, 'key', {
+                enumerable: false,
+                configurable: false,
+                value: key
+            });
+
             var version = meta.resourceVersion;
             if (version && version > self.resourceVersion)
                 self.resourceVersion = version;

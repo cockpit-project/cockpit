@@ -574,7 +574,7 @@ require([
     });
 
     asyncTest("list nodes", function() {
-        expect(3);
+        expect(6);
 
         var client = kubernetes.k8client();
         client.watches.nodes.wait().always(function() {
@@ -583,6 +583,14 @@ require([
             var node = nodes["Node:f530580d-a169-11e4-8651-10c37bdb8410"];
             equal(node.metadata.name, "127.0.0.1", "localhost node");
             equal(typeof node.spec.capacity, "object", "node has resources");
+
+            /* Check basic key behavior */
+            equal(node.key, "Node:f530580d-a169-11e4-8651-10c37bdb8410", "key is set correctly");
+
+            /* Key should not be encoded as JSON */
+            var parsed = JSON.parse(JSON.stringify(node));
+            ok(!("key" in parsed), "key should not be serialized")
+            strictEqual(parsed.key, undefined, "key not be undefined after serialize");
 
             client.close();
             start();

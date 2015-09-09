@@ -32,7 +32,8 @@
                         <th translatable="yes">Name</th>
                         <th translatable="yes">Address</th>
                         <th translatable="yes">Containers</th>
-                        <th translatable="yes">Namespace</th>
+                        <th translatable="yes" ng-if="client.flavor == 'openshift'">Project</th>
+                        <th translatable="yes" ng-if="client.flavor != 'openshift'">Namespace</th>
                         <th class="status"></th>
                     </tr>
                 </thead>

@@ -34,7 +34,8 @@
             </tr>
             <tr>
                 <th translatable="yes">Name</th>
-                <th translatable="yes">Namespace</th>
+                <th translatable="yes" ng-if="client.flavor == 'openshift'">Project</th>
+                <th translatable="yes" ng-if="client.flavor != 'openshift'">Namespace</th>
                 <th translatable="yes">Addresses</th>
                 <th translatable="yes">State</th>
             </tr>
@@ -63,7 +64,8 @@
             </tr>
             <tr>
                 <th translatable="yes">Name</th>
-                <th translatable="yes">Namespace</th>
+                <th translatable="yes" ng-if="client.flavor == 'openshift'">Project</th>
+                <th translatable="yes" ng-if="client.flavor != 'openshift'">Namespace</th>
                 <th translatable="yes"></th>
                 <th translatable="yes">Replicas</th>
             </tr>
@@ -90,7 +92,8 @@
             </tr>
             <tr>
                 <th translatable="yes">Name</th>
-                <th translatable="yes">Namespace</th>
+                <th translatable="yes" ng-if="client.flavor == 'openshift'">Project</th>
+                <th translatable="yes" ng-if="client.flavor != 'openshift'">Namespace</th>
                 <th translatable="yes">Address</th>
                 <th translatable="yes">State</th>
             </tr>

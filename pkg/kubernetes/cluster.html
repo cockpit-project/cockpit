@@ -150,9 +150,10 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
               </tr>
               <tr>
                 <td class="top">
-                  <label class="control-label top" for="deploy-app-namespace" translatable="yes">
-                  Namespace
-                  </label>
+                  <label class="control-label top" for="deploy-app-namespace"
+                      ng-if="client.flavor == 'openshift'" translatable="yes">Project</label>
+                  <label class="control-label top" for="deploy-app-namespace"
+                      ng-if="client.flavor != 'openshift'" translatable="yes">Namespace</label>
                 </td>
                 <td class="dialog-wrapper">
                   <div class="input-group" id="deploy-app-namespace-group">

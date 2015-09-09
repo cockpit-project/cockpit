@@ -21,6 +21,7 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/imagerepository-panel.html \
 	pkg/kubernetes/views/pod-body.html \
 	pkg/kubernetes/views/pod-panel.html \
+	pkg/kubernetes/views/node-panel.html \
 	pkg/kubernetes/views/replicationcontroller-panel.html \
 	pkg/kubernetes/views/service-panel.html \
 	pkg/kubernetes/views/topology-page.html \

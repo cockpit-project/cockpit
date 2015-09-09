@@ -21,7 +21,7 @@
                 </kube-console>
             </div>
         </tab>
-        <tab heading="Shell" select="connect('shell')">
+        <tab heading="Shell" select="connect('shell')" ng-if="container.status.state.running">
             <div class="panel-body">
                 <kube-shell namespace="{{item.metadata.namespace}}"
                     pod="{{item.metadata.name}}"

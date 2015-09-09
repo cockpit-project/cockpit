@@ -181,47 +181,6 @@ class Machine:
         """Overridden by machine classes to gracefully shutdown the running machine"""
         assert False, "Cannot shutdown a machine we didn't start"
 
-    def needs_build(self):
-        return False
-
-    def build(self, args):
-        """Build a machine image for running tests.
-
-        This is usually overridden by derived classes. This should be
-        called before running a machine.
-        """
-        pass
-
-    def run_setup_script(self, script, args):
-        """Prepare a test image further by running some commands in it."""
-        self.start(maintain=True)
-        try:
-            self.wait_boot()
-            self.upload([script], "/var/tmp/SETUP")
-            env = {
-                "TEST_OS": self.os,
-                "TEST_ARCH": self.arch,
-                "TEST_FLAVOR": self.flavor,
-                "TEST_SETUP_ARGS": " ".join(args),
-            }
-            self.message("run setup script on guest")
-            self.execute(script="/var/tmp/SETUP", environment=env, quiet=not self.verbose)
-            self.execute(command="rm /var/tmp/SETUP")
-            self.post_setup()
-        finally:
-            self.stop()
-
-    def post_setup(self):
-        pass
-
-    def run_selinux_relabel(self):
-        """Boot an image the first time which allows relabeling"""
-        self.start(maintain=True)
-        try:
-            self.wait_boot()
-        finally:
-            self.stop()
-
     def install(self, rpms):
         """Install rpms in the pre-built test image"""
         for rpm in rpms:
@@ -480,110 +439,6 @@ class QemuMachine(Machine):
         self._disks = { }
         self._locks = [ ]
 
-    def _setup_fstab(self,gf):
-        gf.write("/etc/fstab", "/dev/vda / ext4 defaults\n")
-
-    def _setup_ssh_keys(self, gf):
-        def copy(fr, to):
-            with open(os.path.join(self.test_dir, fr), "r") as f:
-                gf.write(to, f.read())
-
-        # We use a fixed host key for all test machines since things
-        # get too annoying when it changes from run to run.
-        #
-        copy("guest/host_key", "/etc/ssh/ssh_host_rsa_key")
-        gf.chmod(0600, "/etc/ssh/ssh_host_rsa_key")
-        copy("guest/host_key.pub", "/etc/ssh/ssh_host_rsa_key.pub")
-
-        if not gf.exists("/root/.ssh"):
-            gf.mkdir_mode("/root/.ssh", 0700)
-        copy("guest/identity.pub", "/root/.ssh/authorized_keys")
-
-    def _setup_fedora_network(self,gf):
-        ifcfg_eth0 = 'BOOTPROTO="dhcp"\nDEVICE="eth0"\nONBOOT="yes"\n'
-        gf.write("/etc/sysconfig/network-scripts/ifcfg-eth0", ifcfg_eth0)
-
-    def _setup_fedora_like (self, gf):
-        self._setup_ssh_keys(gf)
-        self._setup_fedora_network(gf)
-
-        # systemctl disable sshd.service
-        gf.rm_f("/etc/systemd/system/multi-user.target.wants/sshd.service")
-        # systemctl enable sshd.socket
-        gf.mkdir_p("/etc/systemd/system/sockets.target.wants/")
-        gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
-
-    def _setup_fedora_rawhide (self, gf):
-        self._setup_ssh_keys(gf)
-        self._setup_fedora_network(gf)
-
-    def _setup_rhel_7 (self, gf):
-        self._setup_ssh_keys(gf)
-        self._setup_fedora_network(gf)
-
-        # systemctl disable sshd.service
-        gf.rm_f("/etc/systemd/system/multi-user.target.wants/sshd.service")
-        # systemctl enable sshd.socket
-        gf.mkdir_p("/etc/systemd/system/sockets.target.wants/")
-        gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
-
-        # upload subscription information
-        gf.mkdir_p("/root/.rhel")
-        gf.upload(os.path.expanduser("~/.rhel/login"), "/root/.rhel/login")
-        gf.upload(os.path.expanduser("~/.rhel/pass"), "/root/.rhel/pass")
-
-    def run_modify_func(self, modify_func):
-        gf = guestfs.GuestFS(python_return_dict=True)
-        if self.verbose:
-            gf.set_trace(1)
-        try:
-            gf.add_drive_opts(self._image_image, readonly=False)
-            gf.launch()
-            # try to mount device directly
-            devices = gf.list_devices()
-            assert len(devices) == 1
-            try:
-                gf.mount(devices[0], "/")
-            except:
-                # if this fails, we may have to perform more intricate mounting
-                # get the first one that isn't swap and mount it as root
-                filesystems = gf.list_filesystems()
-                for fs in filesystems:
-                    if filesystems[fs] == "swap":
-                        continue
-                    gf.mount(fs, "/")
-                    if gf.exists("/etc"):
-                        break
-                    gf.umount("/")
-                if not gf.exists("/etc"):
-                    raise Failure("Can't find root partition")
-
-            modify_func(gf)
-            gf.touch("/.autorelabel")
-        finally:
-            gf.close()
-
-    def unpack_base(self, modify_func=None):
-        assert not self._process
-
-        if not os.path.exists(self.run_dir):
-            os.makedirs(self.run_dir, 0750)
-
-        bootstrap_script = "./guest/%s.bootstrap" % (self.os, )
-
-        if os.path.exists(self._image_image):
-            os.unlink(self._image_image)
-        if os.path.exists(self._image_additional_iso):
-            os.unlink(self._image_additional_iso)
-
-        if os.path.isfile(bootstrap_script):
-            subprocess.check_call([ bootstrap_script, self._image_image, self.arch ])
-        else:
-            raise Failure("Unsupported OS %s: %s not found." % (self.os, bootstrap_script))
-
-        if modify_func:
-            self.run_modify_func(modify_func)
-
     def save(self):
         assert not self._process
         if not os.path.exists(self._images_dir):
@@ -606,32 +461,6 @@ class QemuMachine(Machine):
 
     def needs_build(self):
         return not os.path.exists(self._image_original)
-
-    def build(self, args):
-        def modify(gf):
-            if self.os in [ "fedora-22", "fedora-22-testing", "fedora-23", "centos-7" ]:
-                self._setup_fedora_like(gf)
-            elif self.os == "fedora-rawhide":
-                self._setup_fedora_rawhide(gf)
-            elif self.os == "rhel-7":
-                credential_path = os.path.expanduser("~/.rhel/")
-                if (not os.path.isfile(credential_path + "login")) or (not os.path.isfile(credential_path + "pass")):
-                    raise Failure("Subscription credentials expected in '~/.rhel/login', '~/.rhel/pass'.")
-                self._setup_rhel_7(gf)
-            else:
-                raise Failure("Unsupported OS %s" % self.os)
-
-        script = os.path.join(self.test_dir, "guest/%s-%s.setup" % (self.flavor, self.os))
-        if not os.path.exists(script):
-            raise Failure("Unsupported flavor %s: %s not found." % (self.flavor, script))
-
-        if "atomic" in self.os:
-            self.unpack_base(modify_func=None)
-        else:
-            self.unpack_base(modify_func=modify)
-        self.message("Running setup script %s" % (script))
-        self.run_setup_script(script, args)
-        self.run_selinux_relabel()
 
     def _lock_resource(self, resource, exclusive=True):
         resources = os.path.join(tempfile.gettempdir(), ".cockpit-test-resources")

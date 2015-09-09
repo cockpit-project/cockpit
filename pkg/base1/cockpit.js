@@ -3416,6 +3416,7 @@ function full_scope(cockpit, $, po) {
         };
 
         self.close = function close() {
+            stop_walking();
             while (sinks.length)
                 (sinks.pop()).links.remove();
         };

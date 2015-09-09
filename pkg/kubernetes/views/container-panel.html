@@ -5,7 +5,7 @@
             <i class="fa fa-cube"></i>
         </div>
         <div class="listing-status">
-            {{item.status.phase}}
+            <span ng-repeat="(state, value) in container.status.state">{{state}}</span>
         </div>
     </div>
     <h3 class="listing-title" ng-click="select(id)">{{container.spec.name}}</h3>

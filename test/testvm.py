@@ -99,10 +99,6 @@ class Machine:
         self.test_data = os.environ.get("TEST_DATA") or self.test_dir
         self.vm_username = "root"
         self.vm_password = "foobar"
-        self.target_install_script = "~/install_packages.py"
-        self.install_packages_script = os.path.join(self.test_dir, "guest/%s-%s-install_packages" % (self.os, self.arch))
-        if not os.path.exists(self.install_packages_script):
-            self.install_packages_script = os.path.join(self.test_dir, "guest/default-install_packages")
         self.address = address
         self.mac = None
         self.label = label or "UNKNOWN"
@@ -180,38 +176,6 @@ class Machine:
     def shutdown(self):
         """Overridden by machine classes to gracefully shutdown the running machine"""
         assert False, "Cannot shutdown a machine we didn't start"
-
-    def install(self, rpms):
-        """Install rpms in the pre-built test image"""
-        for rpm in rpms:
-            if not os.path.exists(rpm):
-                raise Failure("file does not exist: %s" % rpm)
-
-        if not rpms:
-            raise Failure("Please specify packages to install")
-
-        self.start(maintain=True)
-        try:
-            self.wait_boot()
-            self.upload(rpms, "/var/tmp")
-            uploaded = []
-            for rpm in rpms:
-                base = os.path.basename(rpm)
-                dest = os.path.join("/var/tmp", base)
-                uploaded.append(dest)
-            env = {
-                "TEST_OS": self.os,
-                "TEST_ARCH": self.arch,
-                "TEST_FLAVOR": self.flavor,
-                "TEST_PACKAGES": " ".join(uploaded),
-                "TEST_VERBOSE": self.verbose
-            }
-            self.needs_writable_usr()
-            self.upload([self.install_packages_script], self.target_install_script)
-            script_to_run = INSTALL_SCRIPT % (self.target_install_script)
-            self.execute(script=script_to_run, environment=env)
-        finally:
-            self.stop()
 
     def execute(self, command=None, script=None, input=None, environment={}, quiet=False):
         """Execute a shell command in the test machine and return its output.
@@ -781,8 +745,3 @@ class QemuMachine(Machine):
             self.execute(command="mount -o remount,rw /usr")
 
 TestMachine = QemuMachine
-
-INSTALL_SCRIPT = """#!/bin/sh
-export TEST_PACKAGES
-export TEST_VERBOSE
-%s"""

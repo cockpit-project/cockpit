@@ -2843,12 +2843,16 @@ function full_scope(cockpit, $, po) {
 
                     var data, data_len, last_len, dataj, dataj_len, lastj, lastj_len;
                     var i, j, k;
+                    var timestamp;
 
                     /* A meta message? */
                     var message_len = message.length;
                     if (message_len === undefined) {
                         meta = message;
-                        beg = Math.floor((meta.timestamp || 0) / interval);
+                        timestamp = 0;
+                        if (meta.now && meta.timestamp)
+                            timestamp = meta.timestamp + ($.now() - meta.now);
+                        beg = Math.floor(timestamp / interval);
                         callback(beg, meta, null);
 
                     /* A data message */
@@ -2916,7 +2920,7 @@ function full_scope(cockpit, $, po) {
         }
 
         self.fetch = function fetch(beg, end) {
-            var ts = timestamp(beg, interval);
+            var timestamp = beg * interval - $.now();
             var limit = end - beg;
 
             var archive_options_list = [ ];
@@ -2924,7 +2928,7 @@ function full_scope(cockpit, $, po) {
                 if (options_list[i].archive_source) {
                     archive_options_list.push($.extend({}, options_list[i],
                                                        { "source": options_list[i].archive_source,
-                                                         timestamp: ts,
+                                                         timestamp: timestamp,
                                                          limit: limit
                                                        }));
                 }

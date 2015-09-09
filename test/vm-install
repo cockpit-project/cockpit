@@ -17,6 +17,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import os
 import sys
 
 import testvm
@@ -27,9 +28,53 @@ parser.add_argument('-f', '--flavor', action='store', help='The image to modify'
 parser.add_argument('rpms', metavar='RPM', nargs='*', help='RPMS to install')
 args = parser.parse_args()
 
+INSTALL_SCRIPT = """#!/bin/sh
+export TEST_PACKAGES
+export TEST_VERBOSE
+%s"""
+
+def install(machine, rpms):
+    """Install rpms in the pre-built test image"""
+    for rpm in rpms:
+        if not os.path.exists(rpm):
+            raise testvm.Failure("file does not exist: %s" % rpm)
+
+    if not rpms:
+        raise testvm.Failure("Please specify packages to install")
+
+    # see if there is an os-specific install script to use, otherwise use generic
+    install_packages_script = os.path.join(machine.test_dir, "guest/%s-%s-install_packages" % (machine.os, machine.arch))
+    if not os.path.exists(install_packages_script):
+        install_packages_script = os.path.join(machine.test_dir, "guest/default-install_packages")
+
+    target_install_script_path = "~/install_packages.py"
+
+    machine.start(maintain=True)
+    try:
+        machine.wait_boot()
+        machine.upload(rpms, "/var/tmp")
+        uploaded = []
+        for rpm in rpms:
+            base = os.path.basename(rpm)
+            dest = os.path.join("/var/tmp", base)
+            uploaded.append(dest)
+        env = {
+            "TEST_OS": machine.os,
+            "TEST_ARCH": machine.arch,
+            "TEST_FLAVOR": machine.flavor,
+            "TEST_PACKAGES": " ".join(uploaded),
+            "TEST_VERBOSE": machine.verbose
+        }
+        machine.needs_writable_usr()
+        machine.upload([install_packages_script], target_install_script_path)
+        script_to_run = INSTALL_SCRIPT % (target_install_script_path)
+        machine.execute(script=script_to_run, environment=env)
+    finally:
+        machine.stop()
+
 try:
     machine = testvm.QemuMachine(verbose=args.verbose, flavor=args.flavor, label="install")
-    machine.install(args.rpms)
+    install(machine, args.rpms)
 except testvm.Failure, ex:
     print >> sys.stderr, "vm-install:", ex
     sys.exit(1)

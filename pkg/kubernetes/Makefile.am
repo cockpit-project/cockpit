@@ -16,6 +16,7 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/container-panel.html \
 	pkg/kubernetes/views/dashboard-page.html \
 	pkg/kubernetes/views/default-panel.html \
+	pkg/kubernetes/views/deploymentconfig-panel.html \
 	pkg/kubernetes/views/details-page.html \
 	pkg/kubernetes/views/filter-bar.html \
 	pkg/kubernetes/views/images-page.html \
@@ -24,6 +25,7 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/pod-panel.html \
 	pkg/kubernetes/views/node-panel.html \
 	pkg/kubernetes/views/replicationcontroller-panel.html \
+	pkg/kubernetes/views/route-panel.html \
 	pkg/kubernetes/views/service-panel.html \
 	pkg/kubernetes/views/topology-page.html \
 	$(NULL)

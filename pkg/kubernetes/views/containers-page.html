@@ -20,7 +20,7 @@
                 <td>{{item.metadata.name}}</td>
                 <td>{{item.metadata.namespace}}</td>
                 <td>{{item.spec.nodeName}}</td>
-                <td>{{item.status.phase}}</td>
+                <td><span ng-repeat="(name, value) in container.status.state">{{name}}</span></td>
             </tr>
             <tr ng-repeat-end class="listing-panel" ng-if="selected(id)">
                 <td cockpit-listing-panel kind="Container" colspan="5">

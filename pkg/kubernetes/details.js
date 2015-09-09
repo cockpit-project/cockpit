@@ -68,12 +68,14 @@ define([
             'kubernetesClient',
             function($scope, client) {
 
+                client.include("deploymentconfigs");
                 var lists = {
                     Pod: null,
                     ReplicationController: null,
                     Service: null,
                     Node: null,
                     Endpoints: null,
+                    DeploymentConfig: null
                 };
 
                 Object.keys(lists).forEach(function(kind) {
@@ -88,7 +90,8 @@ define([
                     pods: lists.Pod,
                     services: lists.Service,
                     nodes: lists.Node,
-                    replicationcontrollers: lists.ReplicationController
+                    replicationcontrollers: lists.ReplicationController,
+                    deploymentconfigs: lists.DeploymentConfig
                 });
 
                 $scope.$on("$destroy", function() {

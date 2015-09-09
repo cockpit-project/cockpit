@@ -30,6 +30,7 @@ define([
         ReplicationController: '#vertex-ReplicationController',
         Node: '#vertex-Node',
         Service: '#vertex-Service',
+        DeploymentConfig: "#vertex-DeploymentConfig"
     };
 
     return angular.module('kubernetes.topology', [ 'ngRoute', 'kubernetesUI' ])
@@ -50,18 +51,19 @@ define([
                 var client = $scope.client;
                 var ready = false;
 
+                client.include("deploymentconfigs");
                 var all = client.select();
                 client.track(all);
                 $(all).on("changed", digest);
                 digest();
 
-                function pods_for_item(item) {
-                    var pods = { };
+                function rels_for_item(item) {
+                    var rels = { };
                     var endpoints, subsets;
 
                     /* Lookup which node this pod is scheduled on */
                     if (item.kind === "Node") {
-                        pods = client.hosting("Pod", item.metadata.name);
+                        rels = client.hosting("Pod", item.metadata.name);
 
                     /* Kubernetes tells us about endpoints, which are service to pod mappings */
                     } else if (item.kind === "Service") {
@@ -72,16 +74,19 @@ define([
                             var addresses = subset.addresses || [ ];
                             addresses.forEach(function(address) {
                                 if (address.targetRef && address.targetRef.kind == "Pod")
-                                    pods["Pod:" + address.targetRef.uid] = { };
+                                    rels["Pod:" + address.targetRef.uid] = { };
                             });
                         });
 
                     /* For ReplicationControllers we just do the selection ourselves */
                     } else if (item.kind === "ReplicationController") {
-                        pods = client.select("Pod", item.metadata.namespace, item.spec.selector || { });
-                    }
+                        rels = client.select("Pod", item.metadata.namespace, item.spec.selector || { });
 
-                    return pods;
+                    } else if (item.kind === "DeploymentConfig") {
+                        rels = client.select("ReplicationController", item.metadata.namespace,
+                                             {"openshift.io/deployment-config.name" : item.metadata.name});
+                    }
+                    return rels;
                 }
 
                 function digest() {
@@ -89,7 +94,12 @@ define([
                     var relations = [ ];
 
                     /* Items we're going to use for links */
-                    var leaves = { "Service": { }, "Node": { }, "ReplicationController": { } };
+                    var leaves = {
+                        "Service": { },
+                        "Node": { },
+                        "ReplicationController": { },
+                        "DeploymentConfig": { }
+                    };
 
                     var item, key, leaf, kind;
                     for (key in all) {
@@ -105,13 +115,13 @@ define([
                         items[key] = item;
                     }
 
-                    var pods, pkey;
+                    var rels, pkey;
                     for (kind in leaves) {
                         leaf = leaves[kind];
                         for (key in leaf) {
                             item = leaf[key];
-                            pods = pods_for_item(item);
-                            for (pkey in pods)
+                            rels = rels_for_item(item);
+                            for (pkey in rels)
                                 relations.push({ source: key, target: pkey });
                         }
                     }

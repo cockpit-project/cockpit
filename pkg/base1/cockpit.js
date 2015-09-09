@@ -2789,13 +2789,14 @@ function full_scope(cockpit, $, po) {
 
         var channels = [ ];
 
-        /*
-         * TODO: Provide a fetch function to the series. This should be
-         * intelligent so it doesn't try to fetch data that is arriving
-         * via follow().
-         */
+        self.series = cockpit.series(interval, cache, fetch_for_series);
 
-        self.series = cockpit.series(interval, cache);
+        function fetch_for_series(beg, end, for_walking) {
+            if (!for_walking)
+                self.fetch(beg, end);
+            else
+                self.follow();
+        }
 
         function transfer(options_list, callback, is_archive) {
             if (options_list.length === 0)
@@ -2818,6 +2819,9 @@ function full_scope(cockpit, $, po) {
 
             $(channel)
                 .on("close", function(ev, close_options) {
+                    if (!is_archive)
+                        following = false;
+
                     if (options_list.length > 1 &&
                         (close_options.problem == "not-supported" || close_options.problem == "not-found")) {
                         transfer(options_list.slice(1), callback);
@@ -2930,8 +2934,13 @@ function full_scope(cockpit, $, po) {
             transfer(archive_options_list, drain, true);
         };
 
+        var following = false;
+
         self.follow = function follow() {
-            transfer(options_list, drain);
+            if (!following) {
+                following = true;
+                transfer(options_list, drain);
+            }
         };
 
         self.close = function close(options) {
@@ -3002,7 +3011,7 @@ function full_scope(cockpit, $, po) {
             return low;
         }
 
-        self.load = function load(beg, end) {
+        self.load = function load(beg, end, for_walking) {
             if (end <= beg)
                 return;
 
@@ -3025,7 +3034,7 @@ function full_scope(cockpit, $, po) {
 
                 if (b < e) {
                     if (b > last)
-                        fetch(last, b);
+                        fetch(last, b, for_walking);
                     process(b, entry.items.slice(b - eb, e - eb), entry.mapping);
                     last = e;
                 } else if (i >= at) {
@@ -3034,7 +3043,7 @@ function full_scope(cockpit, $, po) {
             }
 
             if (last != end)
-                fetch(last, end);
+                fetch(last, end, for_walking);
         };
 
         function stash(beg, items, mapping) {
@@ -3318,7 +3327,7 @@ function full_scope(cockpit, $, po) {
             }
         };
 
-        self.sync = function sync() {
+        self.sync = function sync(for_walking) {
             /* Suppress notifications */
             suppress++;
 
@@ -3326,7 +3335,7 @@ function full_scope(cockpit, $, po) {
             var sink, i, len = sinks.length;
             for (i = 0; i < len; i++) {
                 sink = sinks[i].sink;
-                sink.load(self.beg, self.end);
+                sink.load(self.beg, self.end, for_walking);
             }
 
             suppress--;
@@ -3340,7 +3349,7 @@ function full_scope(cockpit, $, po) {
             return ((n = +n) || 1 / n) < 0;
         }
 
-        function move_internal(beg, end) {
+        function move_internal(beg, end, for_walking) {
             if (end === undefined)
                 end = beg + (self.end - self.beg);
 
@@ -3357,7 +3366,7 @@ function full_scope(cockpit, $, po) {
                 row.length = 0;
             });
 
-            self.sync();
+            self.sync(for_walking);
         }
 
         function stop_walking() {
@@ -3377,7 +3386,7 @@ function full_scope(cockpit, $, po) {
             if (end !== undefined && is_negative(end))
                 end = Math.floor($.now() / self.interval) + end;
 
-            move_internal(beg, end);
+            move_internal(beg, end, false);
         };
 
         self.walk = function walk() {
@@ -3402,7 +3411,7 @@ function full_scope(cockpit, $, po) {
             stop_walking();
             offset = $.now() - self.beg * self.interval;
             walking = window.setInterval(function() {
-                move_internal(Math.floor(($.now() - offset) / self.interval));
+                move_internal(Math.floor(($.now() - offset) / self.interval), undefined, true);
             }, self.interval);
         };
 

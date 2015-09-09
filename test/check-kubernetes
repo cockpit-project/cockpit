@@ -126,6 +126,32 @@ class TestKubernetes(KubernetesCase):
         self.assertIn("Service:", b.attr(".details-listing tbody[data-id='services/default/mock']", "data-key"))
         self.assertEqual(b.text(".details-listing tbody[data-id='replicationcontrollers/default/mock'] th"), "mock")
 
+        # Click on the service to expand into a panel
+        b.click(".details-listing tbody[data-id='services/default/mock'] th")
+        b.wait_present(".details-listing tr.listing-panel")
+        self.assertFalse(b.is_present(".details-listing tbody[data-id='services/default/mock'] th"))
+        self.assertEqual(b.text("tr.listing-panel h3"), "mock")
+
+        # Now the header and other services should still be present, check filter menu state
+        self.assertTrue(b.is_present(".details-listing thead th"))
+        self.assertTrue(b.is_present(".details-listing tbody tr.listing-item"))
+        self.assertEqual(b.text(".filter-menu li.active"), " View all items ")
+
+        # Click the filter button to make only selected
+        b.click(".filter-menu .btn:first-child")
+        self.assertEqual(b.text(".filter-menu li.active"), " Only selected items ")
+        self.assertFalse(b.is_present(".details-listing thead th"))
+        self.assertFalse(b.is_present(".details-listing tbody tr.listing-item"))
+        self.assertTrue(b.is_present(".details-listing tr.listing-panel"))
+
+        # Clear the selection via the menu
+        b.click(".filter-menu .btn.dropdown-toggle")
+        b.click(".filter-menu li:last-child a")
+        self.assertTrue(b.is_present(".details-listing thead th"))
+        self.assertTrue(b.is_present(".details-listing tbody tr.listing-item"))
+        self.assertFalse(b.is_present(".details-listing tr.listing-panel"))
+        self.assertEqual(b.text(".filter-menu li.active"), " View all items ")
+
     def testTopology(self):
         m = self.machine
         b = self.browser

@@ -11,7 +11,7 @@
                 <th translatable="yes">Status</th>
             </tr>
         </thead>
-        <tbody ng-repeat="item in nodes"
+        <tbody ng-repeat="item in nodes track by item.key"
             ng-init="id = itemIdentifier(item)"
             data-id="{{id}}" data-key="{{item.key}}">
             <tr ng-click="select(id)" ng-if="!quiet && !selected(id)" class="listing-item">
@@ -40,7 +40,7 @@
                 <th translatable="yes">State</th>
             </tr>
         </thead>
-        <tbody ng-repeat="item in services | orderObjectBy:['metadata.namespace', 'metadata.name']"
+        <tbody ng-repeat="item in services | orderObjectBy:['metadata.namespace', 'metadata.name'] as filtered_result track by item.key"
             ng-init="id = itemIdentifier(item)"
             data-id="{{id}}" data-key="{{item.key}}">
             <tr ng-click="select(id)" ng-if="!quiet && !selected(id)" class="listing-item">
@@ -70,7 +70,7 @@
                 <th translatable="yes">Replicas</th>
             </tr>
         </thead>
-        <tbody ng-repeat="item in replicationcontrollers | orderObjectBy:['metadata.namespace', 'metadata.name']"
+        <tbody ng-repeat="item in replicationcontrollers | orderObjectBy:['metadata.namespace', 'metadata.name'] as filtered_result track by item.key"
             ng-init="id = itemIdentifier(item)"
             data-id="{{id}}" data-key="{{item.key}}">
             <tr ng-click="select(id)" ng-if="!quiet && !selected(id)" class="listing-item">
@@ -98,7 +98,7 @@
                 <th translatable="yes">State</th>
             </tr>
         </thead>
-        <tbody ng-repeat="item in pods | orderObjectBy:['metadata.namespace', 'metadata.name']"
+        <tbody ng-repeat="item in pods | orderObjectBy:['metadata.namespace', 'metadata.name'] as filtered_result track by item.key"
             ng-init="id = itemIdentifier(item)"
             data-id="{{id}}" data-key="{{item.key}}">
             <tr ng-click="select(id)" ng-if="!quiet && !selected(id)" class="listing-item">
@@ -113,3 +113,4 @@
             </tr>
         </tbody>
     </table>
+</div>

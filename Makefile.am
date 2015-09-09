@@ -186,7 +186,7 @@ include doc/Makefile-doc.am
 include doc/guide/Makefile-guide.am
 include doc/man/Makefile-man.am
 
-noinst_DATA += doc/guide/html/index.html
+noinst_DATA += doc/guide/html
 
 install-doc-local: doc/guide/html/index.html
 	$(MKDIR_P) $(DESTDIR)$(htmldir)

@@ -60,8 +60,9 @@ def terminal_width():
             fcntl.ioctl(1, termios.TIOCGWINSZ,
             struct.pack('HHHH', 0, 0, 0, 0)))
         return w
-    except:
-        print >> sys.stderr, sys.exc_info()
+    except IOError, (errno, strerror):
+        if errno != 25: # ENOTTY
+            print >> sys.stderr, errno, strerror, sys.exc_info()
         return sys.maxint;
 
 class Driver:

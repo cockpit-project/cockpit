@@ -53,10 +53,10 @@ case ${1:-} in
 	;;
 esac
 
-os=$(python -c "print eval(open('$flavor.conf', 'r').read())['os']" 2>/dev/null || true)
+os=$(python -c "print eval(open('guest/$flavor.conf', 'r').read())['os']" 2>/dev/null || true)
 os=${os:-$TEST_OS}
 
-tag=$(python -c "print eval(open('$flavor.conf', 'r').read())['tags']['$os']" 2>/dev/null || true)
+tag=$(python -c "print eval(open('guest/$flavor.conf', 'r').read())['tags']['$os']" 2>/dev/null || true)
 tag=${tag:-0}
 
 TEST_IMAGE=$flavor-$os-$TEST_ARCH-$tag

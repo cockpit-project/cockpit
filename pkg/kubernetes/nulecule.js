@@ -259,6 +259,20 @@ define([
                 deferred.notify(_("Running ..."));
             }
 
+            function get_message(text, key) {
+                var final_msg = null;
+                var msgg = null;
+                var msgl = text.split(key);
+                if (msgl.length > 1) {
+                    final_msg = msgl[1];
+                    msgg = final_msg.split("\n");
+                    if (msgg.length > 1) {
+                        final_msg = msgg[0];
+                    }
+                }
+                return final_msg;
+            }
+
             process.always(function() {
                     process.close();
                 })
@@ -267,15 +281,13 @@ define([
                     debug("buffer="+text);
                     var msgl;
                     if(text.indexOf("atomicapp.status.info.message") > -1) {
-                        msgl = text.split('atomicapp.status.info.message=');
-                        if(msgl.length > 1)
-                            deferred.notify(msgl[1]);
-
+                        msgl = get_message(text, "atomicapp.status.info.message=");
+                        if (msgl)
+                            deferred.notify(msgl);
                     } else if(text.indexOf("atomicapp.status.error.message") > -1) {
-                        msgl = text.split('atomicapp.status.error.message=');
-                        if(msgl.length > 1) {
-                            var error = new Error(msgl[1]);
-                            deferred.reject(error);
+                        msgl = get_message(text, "atomicapp.status.error.message=");
+                        if (msgl) {
+                            deferred.reject(new Error(msgl));
                         }
                     }
                 })

@@ -39,6 +39,10 @@ rpm_tmpdir=$(mktemp -d -t rpmbuild.XXXXXX)
         tar -cf $rpm_tmpdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' .
     fi
 
+    # Make sure to include the .tarball in our tarball
+    echo "wip" > $rpm_tmpdir/.tarball
+    tar -rf $rpm_tmpdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' -C $rpm_tmpdir .tarball
+
     gzip $rpm_tmpdir/cockpit-wip.tar
     cp test/guest/cockpit.pam $rpm_tmpdir
     sed '1i\

@@ -2855,7 +2855,7 @@ function full_scope(cockpit, $, po) {
                         if (meta.now && meta.timestamp)
                             timestamp = meta.timestamp + ($.now() - meta.now);
                         beg = Math.floor(timestamp / interval);
-                        callback(beg, meta, null);
+                        callback(beg, meta, null, options_list[0]);
 
                     /* A data message */
                     } else if (meta) {
@@ -2889,7 +2889,7 @@ function full_scope(cockpit, $, po) {
                         }
 
                         /* Return the data */
-                        callback(beg, meta, message);
+                        callback(beg, meta, message, options_list[0]);
 
                         /* Bump timestamp for the next message */
                         beg += message_len;
@@ -2898,8 +2898,8 @@ function full_scope(cockpit, $, po) {
                 });
         }
 
-        function drain(beg, meta, message) {
-            var mapping, map;
+        function drain(beg, meta, message, options) {
+            var mapping, map, name;
 
             /* Generate a mapping object if necessary */
             mapping = meta.mapping;
@@ -2907,7 +2907,11 @@ function full_scope(cockpit, $, po) {
                 mapping = { };
                 meta.metrics.forEach(function(metric, i) {
                     map = { "": i };
-                    mapping[metric.name] = map;
+                    if (options.metrics_path_names)
+                        name = options.metrics_path_names[i];
+                    else
+                        name = metric.name;
+                    mapping[name] = map;
                     if (metric.instances) {
                         metric.instances.forEach(function(instance, i) {
                             if (instance === "")

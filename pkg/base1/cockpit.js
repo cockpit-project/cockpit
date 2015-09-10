@@ -2957,13 +2957,11 @@ function full_scope(cockpit, $, po) {
         return new MetricsChannel(interval, options);
     };
 
-    function SeriesSink(interval, identifier, fetch) {
+    function SeriesSink(interval, identifier, fetch_callback) {
         var self = this;
 
         self.interval = interval;
         self.limit = identifier ? 64 * 1024 : 1024;
-
-        fetch = fetch || function() { };
 
         /*
          * The cache sits on a window, either our own or a parent
@@ -3014,6 +3012,19 @@ function full_scope(cockpit, $, po) {
             return low;
         }
 
+        function fetch(beg, end, for_walking) {
+            if (fetch_callback) {
+                if (!for_walking) {
+                    /* Stash some fake data synchronously so that we don't ask
+                     * again for the same range while they are still fetching
+                     * it asynchronously.
+                     */
+                    stash(beg, new Array(end-beg), { });
+                }
+                fetch_callback(beg, end, for_walking);
+            }
+        }
+
         self.load = function load(beg, end, for_walking) {
             if (end <= beg)
                 return;
@@ -3023,6 +3034,17 @@ function full_scope(cockpit, $, po) {
             var entry;
             var b, e, eb, en, i, len = index.length;
             var last = beg;
+
+            /* We do this in two phases: First, we walk the index to
+             * process what we already have and at the same time make
+             * notes about what we need to fetch.  Then we go over the
+             * notes and actually fetch what we need.  That way, the
+             * fetch callbacks in the second phase can modify the
+             * index data structure without disturbing the walk in the
+             * first phase.
+             */
+
+            var fetches = [ ];
 
             /* Data relevant to this range can be at the found index, or earlier */
             for (i = at > 0 ? at - 1 : at; i < len; i++) {
@@ -3037,13 +3059,16 @@ function full_scope(cockpit, $, po) {
 
                 if (b < e) {
                     if (b > last)
-                        fetch(last, b, for_walking);
+                        fetches.push([ last, b ]);
                     process(b, entry.items.slice(b - eb, e - eb), entry.mapping);
                     last = e;
                 } else if (i >= at) {
                     break; /* no further intersections */
                 }
             }
+
+            for (i = 0; i < fetches.length; i++)
+                fetch(fetches[i][0], fetches[i][1], for_walking);
 
             if (last != end)
                 fetch(last, end, for_walking);

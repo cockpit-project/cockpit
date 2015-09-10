@@ -69,13 +69,16 @@ define([
             function($scope, client) {
 
                 client.include("deploymentconfigs");
+                client.include("routes");
+
                 var lists = {
                     Pod: null,
                     ReplicationController: null,
                     Service: null,
                     Node: null,
                     Endpoints: null,
-                    DeploymentConfig: null
+                    DeploymentConfig: null,
+                    Route: null
                 };
 
                 Object.keys(lists).forEach(function(kind) {
@@ -91,7 +94,8 @@ define([
                     services: lists.Service,
                     nodes: lists.Node,
                     replicationcontrollers: lists.ReplicationController,
-                    deploymentconfigs: lists.DeploymentConfig
+                    deploymentconfigs: lists.DeploymentConfig,
+                    routes: lists.Route
                 });
 
                 $scope.$on("$destroy", function() {

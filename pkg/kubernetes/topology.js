@@ -30,7 +30,8 @@ define([
         ReplicationController: '#vertex-ReplicationController',
         Node: '#vertex-Node',
         Service: '#vertex-Service',
-        DeploymentConfig: "#vertex-DeploymentConfig"
+        DeploymentConfig: "#vertex-DeploymentConfig",
+        Route: "#vertex-Route"
     };
 
     return angular.module('kubernetes.topology', [ 'ngRoute', 'kubernetesUI' ])
@@ -52,6 +53,7 @@ define([
                 var ready = false;
 
                 client.include("deploymentconfigs");
+                client.include("routes");
                 var all = client.select();
                 client.track(all);
                 $(all).on("changed", digest);
@@ -85,6 +87,13 @@ define([
                     } else if (item.kind === "DeploymentConfig") {
                         rels = client.select("ReplicationController", item.metadata.namespace,
                                              {"openshift.io/deployment-config.name" : item.metadata.name});
+                    /* For Routes just build it out */
+                    } else if (item.kind === "Route" && item.spec.to) {
+                        var rel = client.lookup(item.spec.to.kind,
+                                                item.spec.to.name,
+                                                item.metadata.namespace);
+                        if (rel)
+                            rels[item.key] = rel;
                     }
                     return rels;
                 }
@@ -98,7 +107,8 @@ define([
                         "Service": { },
                         "Node": { },
                         "ReplicationController": { },
-                        "DeploymentConfig": { }
+                        "DeploymentConfig": { },
+                        "Route": { },
                     };
 
                     var item, key, leaf, kind;

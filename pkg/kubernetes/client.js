@@ -47,6 +47,9 @@ define([
         "deploymentconfigs" : {
             endpoint: API_OPENSHIFT
          },
+        "routes" : {
+            endpoint: API_OPENSHIFT,
+         },
     };
 
     function type_option(type, option, default_value) {

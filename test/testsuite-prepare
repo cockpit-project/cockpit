@@ -46,7 +46,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ "$use_make_rpms_rev" == "yes" ]; then
-    rev=$(python -c "print eval(open('cockpit.conf', 'r').read())['tags']['$TEST_OS']" 2>/dev/null || true)
+    rev=$(python -c "import json; print json.load(open('guest/cockpit.conf', 'r'))['tags']['$TEST_OS']" 2>/dev/null || true)
     rev=${rev:-0}
     make_rpms_opts="$make_rpms_opts --revision $rev"
 fi

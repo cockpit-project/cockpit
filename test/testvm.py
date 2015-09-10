@@ -30,6 +30,7 @@ import tempfile
 import time
 import sys
 import shutil
+import json
 from lxml import etree
 from threading import Timer
 
@@ -81,7 +82,7 @@ class Machine:
         conf_file = "guest/%s.conf" % self.flavor
         if os.path.exists(conf_file):
             with open(conf_file, "r") as f:
-                self.conf = eval(f.read())
+                self.conf = json.load(f)
         else:
             self.conf = { }
 

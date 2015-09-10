@@ -244,7 +244,6 @@ include pkg/storaged/Makefile.am
 include pkg/users/Makefile.am
 include src/bridge/Makefile.am
 include src/common/Makefile-common.am
-include src/legacy/Makefile.am
 include src/websocket/Makefile-websocket.am
 include tools/Makefile-tools.am
 include src/ws/Makefile-ws.am

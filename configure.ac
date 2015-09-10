@@ -106,11 +106,6 @@ COCKPIT_POLKIT_LIBS="$GIO_LIBS $POLKIT_LIBS"
 AC_SUBST(COCKPIT_POLKIT_CFLAGS)
 AC_SUBST(COCKPIT_POLKIT_LIBS)
 
-COCKPIT_WRAPPER_CFLAGS="$COCKPIT_CFLAGS"
-COCKPIT_WRAPPER_LIBS="$COCKPIT_LIBS"
-AC_SUBST(COCKPIT_WRAPPER_CFLAGS)
-AC_SUBST(COCKPIT_WRAPPER_LIBS)
-
 # whether to build cockpit-ws
 AC_ARG_ENABLE(ws, AC_HELP_STRING([--disable-ws], [Disable cockpit-ws build]))
 
@@ -130,22 +125,6 @@ else
 fi
 
 AM_CONDITIONAL(WITH_COCKPIT_WS, test "$enable_ws" = "yes")
-
-# dbus session dir
-AC_MSG_CHECKING(for dbus service directories)
-if test "$enable_prefix_only" = "yes"; then
-  dbusservicedir='${datadir}/dbus-1/services'
-  dbussystemdir='${datadir}/dbus-1/system-services'
-else
-  dbusservicedir=$($PKG_CONFIG dbus-1 --variable=session_bus_services_dir)
-  dbussystemdir=$($PKG_CONFIG dbus-1 --variable=system_bus_services_dir)
-  if test "$dbusservicedir" = "" -o "$dbussystemdir" = ""; then
-    AC_MSG_ERROR(Couldn't find dbus services directories. Try installing dbus-devel)
-  fi
-fi
-AC_SUBST(dbusservicedir)
-AC_SUBST(dbussystemdir)
-AC_MSG_RESULT($dbusservicedir $dbussystemdir)
 
 # pam
 AC_CHECK_HEADER([security/pam_appl.h], ,

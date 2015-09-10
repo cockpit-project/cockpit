@@ -420,7 +420,7 @@ main (int argc,
   for (i = 0; i < G_N_ELEMENTS (string_fixtures); i++)
     {
       escaped = g_strcanon (g_strdup (string_fixtures[i].str), COCKPIT_TEST_CHARS, '_');
-      name = g_strdup_printf ("/json/string/%s", escaped);
+      name = g_strdup_printf ("/json/string/%s%d", escaped, i);
       g_test_add_data_func (name, string_fixtures + i, test_string_encode);
       g_free (escaped);
       g_free (name);

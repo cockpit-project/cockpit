@@ -27,9 +27,9 @@ export TEST_OS
 export TEST_ARCH
 
 if which "parallel" >/dev/null 2>/dev/null; then
-  RUNNER="parallel --gnu -j ${TEST_JOBS:-1}"
+  RUNNER="parallel --gnu -j ${TEST_JOBS:-1} -v"
 else
-  RUNNER="sh -e"
+  RUNNER="sh -ex"
 fi
 
 $RUNNER <<EOF

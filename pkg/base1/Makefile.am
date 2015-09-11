@@ -107,6 +107,7 @@ CLEANFILES += \
 	pkg/base1/term.min.js \
 	pkg/base1/cockpit.min.js \
 	pkg/base1/patterns.min.js \
+	pkg/base1/bootstrap-combobox.min.js \
 	$(base_GEN) \
 	$(base_GZ) \
 	$(NULL)

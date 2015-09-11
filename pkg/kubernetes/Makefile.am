@@ -73,7 +73,6 @@ kubernetes_MIN = \
 	pkg/kubernetes/details.min.js \
 	pkg/kubernetes/graphs.min.js \
 	pkg/kubernetes/images.min.js \
-	pkg/kubernetes/moment.min.js \
 	pkg/kubernetes/nulecule.min.js \
 	pkg/kubernetes/node.min.js \
 	pkg/kubernetes/object-describer.min.js \
@@ -82,6 +81,7 @@ kubernetes_MIN = \
 	$(NULL)
 kubernetes_BUNDLE = \
 	pkg/kubernetes/d3.min.js \
+	pkg/kubernetes/moment.min.js \
 	$(kubernetes_MIN) \
 	$(NULL)
 

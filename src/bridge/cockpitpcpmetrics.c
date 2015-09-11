@@ -705,7 +705,7 @@ prepare_archives (CockpitPcpMetrics *self,
                   const gchar *name,
                   gint64 timestamp)
 {
-  const gchar *problem = "internal-error";
+  const gchar *problem = NULL;
   const gchar *ret = NULL;
   GDir *dir;
   int count;
@@ -740,12 +740,16 @@ prepare_archives (CockpitPcpMetrics *self,
   else
     {
       g_message ("%s: %s", name, error->message);
+      problem = "internal-error";
     }
 
   g_clear_error (&error);
 
-  if (self->archives == NULL)
+  if (self->archives == NULL) {
+    if (problem == NULL)
+      problem = "not-found";
     return problem;
+  }
 
   self->archives = g_list_sort (self->archives, cmp_archive_start);
 

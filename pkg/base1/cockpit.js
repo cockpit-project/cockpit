@@ -2828,7 +2828,9 @@ function full_scope(cockpit, $, po) {
                     } else if (close_options.problem) {
                         if (close_options.problem != "terminated" &&
                             close_options.problem != "disconnected" &&
-                            close_options.problem != "authentication-failed") {
+                            close_options.problem != "authentication-failed" &&
+                            (close_options.problem != "not-found" || !is_archive) &&
+                            (close_options.problem != "not-supported" || !is_archive)) {
                             console.warn("metrics channel failed: " + close_options.problem);
                         }
                     } else if (is_archive) {

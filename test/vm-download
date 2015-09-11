@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -18,78 +18,50 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-SELF=vm-download
-. ./testlib.sh
+import argparse
+import json
+import os
+import subprocess
+import sys
 
-URL=http://files.cockpit-project.org/testdata/images
+parser = argparse.ArgumentParser(description='Get a virtual machine image')
+parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose details')
+parser.add_argument('-f', '--flavor', action='store', default='cockpit', help='The flavor to download')
+parser.add_argument('-F', '--force', action='store_true', help='Always create image from scratch')
+args = parser.parse_args()
 
-TEST_DATA=${TEST_DATA:-$PWD}
+topdir = os.path.normpath(os.path.dirname(__file__))
+arch = os.getenv("TEST_ARCH", "x86_64")
+system = os.getenv("TEST_OS", "fedora-22")
+images = os.path.join(os.getenv("TEST_DATA", topdir), "images")
 
-set -euf
+with open(os.path.join(topdir, "guest", args.flavor + ".conf")) as fp:
+    config = json.load(fp)
+    revision = config.get('tags', { }).get(system, '0')
+    key = args.flavor + "-" + system + "-" + revision
+    image = os.path.join(images, args.flavor + "-" + system + "-" + arch + "-" + revision)
 
-usage()
-{
-    echo >&2 "usage: $SELF [-f FLAVOR]"
-}
+if not args.force and os.path.exists(image):
+    if args.verbose:
+        sys.stderr.write("vm-download: image already present: " + image + "\n")
+    sys.exit(0)
 
-flavor=cockpit
+if not os.path.exists(images):
+    os.makedirs(images)
 
-case ${1:-} in
--f|--flavor)
-	if [ $# -lt 2 ]; then
-		usage
-		exit 2
-	fi
-	flavor=$2
-	shift 2
-	;;
---flavor=*)
-	flavor=${1#--machine=}
-	shift
-	;;
---help|-h)
-	usage
-	exit 0
-	;;
-esac
+cmd = [
+    "virt-builder",
+    "--no-cache",
+    "--no-check-signature", # Unfortunately, not ready for this yet
+    "--arch", arch,
+    "--format=qcow2",
+    "--output", image,
+    "--root-password=password:foobar",
+    "--source", "http://files.cockpit-project.org/testdata/images/index",
+    key
+]
 
-os=$(python -c "import json; print json.load(open('guest/$flavor.conf', 'r'))['os']" 2>/dev/null || true)
-os=${os:-$TEST_OS}
+if args.verbose:
+    cmd += [ "--verbose" ]
 
-tag=$(python -c "import json; print json.load(open('guest/$flavor.conf', 'r'))['tags']['$os']" 2>/dev/null || true)
-tag=${tag:-0}
-
-TEST_IMAGE=$flavor-$os-$TEST_ARCH-$tag
-
-checksum_file=$TEST_IMAGE-checksum
-
-if [ ! -e "$TEST_DATA/images" ]; then
-    mkdir "$TEST_DATA/images"
-fi
-
-cd "$TEST_DATA/images"
-
-if ! curl -f -s "$URL/$checksum_file" -o "$checksum_file.remote"; then
-    if [ ! -f "$checksum_file" ]; then
-        echo Downloading $URL/$checksum_file failed.
-        exit 1
-    else
-        echo Downloading $URL/$checksum_file failed, using existing image.
-        exit 0
-    fi
-fi
-
-if [ -f "$checksum_file" ] && cmp "$checksum_file.remote" "$checksum_file"; then
-    rm -f "$checksum_file.remote"
-    exit 0
-fi
-
-cat "$checksum_file.remote" | while read sum file; do
-  if [ ! -f "$file" ] || ! echo $sum "$file" | sha256sum --status --check; then
-      echo Downloading $file
-      curl "$URL/$file.xz" | xz -d >"$file.partial" && mv "$file.partial" "$file"
-  fi
-done
-
-sha256sum --strict --quiet --check "$checksum_file.remote"
-mv "$checksum_file.remote" "$checksum_file"
+os.execvp(cmd[0], cmd)

@@ -15,6 +15,8 @@ import urlparse
 TOKEN = "~/.config/github-token"
 WHITELIST = "~/.config/github-whitelist"
 
+IMAGE_UPLOAD = "fedorapeople.org:/project/cockpitteam/"
+
 OS = os.environ.get("TEST_OS", "fedora-22")
 ARCH = os.environ.get("TEST_ARCH", "x86_64")
 TESTING = "Testing in progress"

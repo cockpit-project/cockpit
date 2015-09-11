@@ -83,22 +83,10 @@ class Machine:
         self.verbose = verbose
         self.flavor = flavor or DEFAULT_FLAVOR
 
-        conf_file = "guest/%s.conf" % self.flavor
-        if os.path.exists(conf_file):
-            with open(conf_file, "r") as f:
-                self.conf = json.load(f)
-        else:
-            self.conf = { }
-
-        self.os = system or self.getconf('os') or testinfra.OS
+        self.os = system or testinfra.OS
         self.arch = arch or testinfra.ARCH
 
-        self.tag = "0"
-        tags = self.getconf('tags')
-        if tags and self.os in tags:
-            self.tag = tags[self.os]
-
-        self.image = "%s-%s-%s-%s" % (self.flavor, self.os, self.arch, self.tag)
+        self.image = "%s-%s-%s" % (self.flavor, self.os, self.arch)
         self.test_dir = os.path.abspath(os.path.dirname(__file__))
         self.test_data = os.environ.get("TEST_DATA") or self.test_dir
         self.vm_username = "root"
@@ -106,9 +94,6 @@ class Machine:
         self.address = address
         self.mac = None
         self.label = label or "UNKNOWN"
-
-    def getconf(self, key):
-        return key in self.conf and self.conf[key]
 
     def message(self, *args):
         """Prints args if in verbose mode"""
@@ -621,8 +606,7 @@ class VirtMachine(Machine):
 
         self._image_image = os.path.join(self.run_dir, "%s.qcow2" % (self.image))
         self._images_dir = os.path.join(self.test_data, "images")
-        self._image_original = os.path.join(self._images_dir, "%s.qcow2" % (self.image))
-        self._checksum_original = os.path.join(self._images_dir, "%s-checksum" % (self.image))
+        self._image_ref = os.path.join(self.test_dir, "images", self.image)
 
         self._network_description = etree.parse(open("./guest/network-cockpit.xml"))
 
@@ -674,21 +658,26 @@ class VirtMachine(Machine):
         assert not self._domain
         if not os.path.exists(self._images_dir):
             os.makedirs(self._images_dir, 0750)
+
         if os.path.exists(self._image_image):
-            files = [ ]
+            partial = os.path.join(self._images_dir, self.image + ".partial")
+
             # Copy image via convert, to make it sparse again
-            files.append(self._image_image)
-            subprocess.check_call([ "qemu-img", "convert", "-O", "qcow2", self._image_image, self._image_original ])
-            # Copy additional ISO as well when it exists
-            with open(self._checksum_original, "w") as f:
-                subprocess.check_call([ "sha256sum" ] + map(os.path.basename, files),
-                                      cwd=self._images_dir,
-                                      stdout=f)
+            subprocess.check_call([ "qemu-img", "convert", "-O", "qcow2", self._image_image, partial ])
+
+            # Hash the image here
+            (sha, x1, x2) = subprocess.check_output([ "sha1sum", partial ]).partition(" ")
+            if not sha:
+                raise Failure("sha1sum returned invalid output")
+
+            name = self.image + "-" + sha + ".qcow2"
+            shutil.move(partial, os.path.join(self._images_dir, name))
+            if os.path.islink(self._image_ref):
+                os.unlink(self._image_ref)
+            os.symlink(name, self._image_ref)
+
         else:
             raise Failure("Nothing to save.")
-
-    def needs_build(self):
-        return not os.path.exists(self._image_original)
 
     def _resource_lockfile_path(self, resource):
         resources = os.path.join(tempfile.gettempdir(), ".cockpit-test-resources")
@@ -747,16 +736,17 @@ class VirtMachine(Machine):
 
         image_to_use = self._image_image
         if not os.path.exists(self._image_image):
+            target = os.path.join(self._images_dir, os.readlink(self._image_ref))
             if maintain:
                 # never write back to the original image
                 self.message("create image from backing file")
                 subprocess.check_call([ "qemu-img", "create", "-q",
                                         "-f", "qcow2",
-                                        "-o", "backing_file=%s,backing_fmt=qcow2" % self._image_original,
+                                        "-o", "backing_file=%s,backing_fmt=qcow2" % target,
                                         self._image_image ])
             else:
                 # we don't have a "local" override image and we're throwing away the changes anyway
-                image_to_use = self._image_original
+                image_to_use = target
 
         if not maintain:
             # create an additional qcow2 image with the original as a backing file

@@ -47,8 +47,7 @@ done
 
 if [ "$use_make_rpms_rev" == "yes" ]; then
     rev=$(python -c "import json; print json.load(open('guest/cockpit.conf', 'r'))['tags']['$TEST_OS']" 2>/dev/null || true)
-    rev=${rev:-0}
-    make_rpms_opts="$make_rpms_opts --revision $rev"
+    make_rpms_opts="$make_rpms_opts"
 fi
 
 IP=/sbin/ip
@@ -85,11 +84,11 @@ if [ -z "$rpms" ]; then
 fi
 
 ./vm-reset
-./vm-create -v -f cockpit $cockpit_create_opts
-./vm-create -v -f ipa
-./vm-create -v -f openshift
-
-TEST_OS=fedora-22 ./vm-create -v -f stock
-TEST_OS=centos-7  ./vm-create -v -f stock
+./vm-download \
+    cockpit-$TEST_OS-$TEST_ARCH \
+    ipa-fedora-22-x86_64 \
+    openshift-fedora-22-x86_64 \
+    stock-centos-7-x86_64 \
+    stock-fedora-22-x86_64
 
 ./vm-install $install_opts -f cockpit $rpms

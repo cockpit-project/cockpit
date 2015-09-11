@@ -35,17 +35,9 @@ import testvm
 parser = argparse.ArgumentParser(description='Create a virtual machine image')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
 parser.add_argument('-f', '--flavor', action='store', help='The flavor to create')
-parser.add_argument('-F', '--force', action='store_true', help='Always create image from scratch')
 parser.add_argument('-n', '--no-save', action='store_true', help='Don\'t save the new image')
 parser.add_argument('args', nargs='*', help='Arguments to the flavor setup script')
 args = parser.parse_args()
-
-def download_image(flavor):
-    try:
-        subprocess.check_call([ "./vm-download", "--flavor", flavor ])
-        return True
-    except:
-        return False
 
 class MachineBuilder:
     def __init__(self, machine):
@@ -161,7 +153,6 @@ class MachineBuilder:
             self.machine.upload([script], "/var/tmp/SETUP")
             env = {
                 "TEST_OS": self.machine.os,
-                "TEST_ARCH": self.machine.arch,
                 "TEST_FLAVOR": self.machine.flavor,
                 "TEST_SETUP_ARGS": " ".join(args),
             }
@@ -230,13 +221,10 @@ class MachineBuilder:
 
 try:
     machine = testvm.VirtMachine(verbose=args.verbose, flavor=args.flavor)
-    if args.force or machine.needs_build():
-        if args.force or not download_image(args.flavor):
-            #machine.build(args.args)
-            builder = MachineBuilder(machine)
-            builder.build(args.args)
-            if not args.no_save:
-                machine.save()
+    builder = MachineBuilder(machine)
+    builder.build(args.args)
+    if not args.no_save:
+        machine.save()
 except testvm.Failure, ex:
     print >> sys.stderr, "vm-create:", ex
     sys.exit(1)

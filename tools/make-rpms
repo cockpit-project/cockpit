@@ -25,16 +25,15 @@ base=$(cd $(dirname $0)/../; pwd -P)
 
 usage()
 {
-	echo "usage: make-rpms [--clean] [--quick] [--verbose] [--revision R]"
+	echo "usage: make-rpms [--clean] [--quick] [--verbose]"
 }
 
 mock_opts=""
 mock_clean_opts="--no-clean --no-cleanup-after"
 mock_define="unused"
 mock_value="0"
-rev="none"
 
-args=$(getopt -o "h,v,c,q,r:" -l "help,verbose,clean,quick,revision:" -- "$@")
+args=$(getopt -o "h,v,c,q,r:" -l "help,verbose,clean,quick" -- "$@")
 eval set -- "$args"
 while [ $# -gt 0 ]; do
 	case $1 in
@@ -51,10 +50,6 @@ while [ $# -gt 0 ]; do
 		mock_define="selinux" mock_value="0"
 		mock_opts="$mock_opts --offline --nocheck"
 		;;
-        -r|--revision)
-                shift
-                rev="$1"
-                ;;
 	-h|--help)
 		usage
 		exit 0
@@ -103,14 +98,14 @@ mockcfgdir=${TEST_DATA:-$base}/mock
 mkdir -p $base/mock $mockcfgdir
 cp --preserve=timestamps /etc/mock/site-defaults.cfg $mockcfgdir
 cp --preserve=timestamps /etc/mock/logging.ini $mockcfgdir
-mockcfg=$mockcfgdir/$os-$arch-cockpit-$rev.cfg
+mockcfg=$mockcfgdir/$os-$arch-cockpit.cfg
 
 if [ "$os" == "rhel-7" ]; then
     mockos="epel-7"
     # get epel packages instead, they don't require a subscription
     cp --preserve=timestamps /etc/mock/$mockos-$arch.cfg $mockcfg
     cat >>$mockcfg <<EOF
-config_opts['root'] = "$os-$arch-cockpit-$rev"
+config_opts['root'] = "$os-$arch-cockpit"
 config_opts['yum.conf'] += """
 [sgallagh-cockpit-preview]
 name=Copr repo for cockpit-preview owned by sgallagh
@@ -124,7 +119,7 @@ EOF
 else
     cp --preserve=timestamps /etc/mock/$mockos-$arch.cfg $mockcfg
     cat >>$mockcfg <<EOF
-config_opts['root'] = "$os-$arch-cockpit-$rev"
+config_opts['root'] = "$os-$arch-cockpit"
 EOF
     if [[ "$os" =~ "-testing" ]]; then
         cat >>$mockcfg <<EOF
@@ -139,7 +134,7 @@ fi
 touch -r /etc/mock/$mockos-$arch.cfg $mockcfg
 
 if LANG=C /usr/bin/mock --quiet $mock_opts $mock_clean_opts --configdir=$mockcfgdir \
-	--resultdir $base/mock -r $os-$arch-cockpit-$rev --define="$mock_define $mock_value" $srpm; then
+	--resultdir $base/mock -r $os-$arch-cockpit --define="$mock_define $mock_value" $srpm; then
     grep "^Wrote: .*\.\($arch\|noarch\)\.rpm$" $base/mock/build.log | while read l; do
         p=$(basename "$l") # knocks off the "Wrote:" part as well...
         echo $p

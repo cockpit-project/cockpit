@@ -93,7 +93,7 @@ define([
                                                 item.spec.to.name,
                                                 item.metadata.namespace);
                         if (rel)
-                            rels[item.key] = rel;
+                            rels[rel.key] = rel;
                     }
                     return rels;
                 }

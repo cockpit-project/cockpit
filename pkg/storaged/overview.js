@@ -185,8 +185,10 @@ define([
             jobs.update('#drives');
 
             for (var p in d) {
-                read_series.add_instance(d[p].dev);
-                write_series.add_instance(d[p].dev);
+                if (d[p] && d[p].dev) {
+                    read_series.add_instance(d[p].dev);
+                    write_series.add_instance(d[p].dev);
+                }
             }
         }
 

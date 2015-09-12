@@ -39,7 +39,7 @@
         <li ng-if="client.flavor != 'openshift'" translatable="yes">
             <a ng-click="filter.set_namespace('')">All Namespaces</a>
          </li>
-        <li ng-repeat="namespace in namespaces">
+        <li ng-repeat="namespace in namespaces | orderObjectBy:['metadata.name'] as filtered_result track by namespace.key">
             <a ng-init="ns = namespace.metadata.name" ng-click="filter.set_namespace(ns)">{{ns}}</a>
         </li>
     </ul>

@@ -80,10 +80,12 @@ class TestKubernetes(KubernetesCase):
         b.click("#deploy-app")
         b.wait_popup("deploy-app-dialog")
         b.upload_file("#deploy-app-manifest-file", "files/mock-k8s-tiny-app.json")
-        b.set_val("#deploy-app-namespace", "mynamespace")
+        b.wait_val("#deploy-app-namespace", "")
+        b.set_val("#deploy-app-namespace", "mynamespace1")
         self.assertEqual(b.text("#deploy-app-namespace-group ul"), "default")
         b.dialog_complete("#deploy-app-dialog")
-        b.wait_in_text("#service-list", "mynamespace")
+        b.wait_in_text("#service-list", "mynamespace1")
+        b.wait_in_text("#service-list", "default")
 
         # Fail deploy via dialog
         b.click("#deploy-app")
@@ -151,6 +153,33 @@ class TestKubernetes(KubernetesCase):
         self.assertTrue(b.is_present(".details-listing tbody tr.listing-item"))
         self.assertFalse(b.is_present(".details-listing tr.listing-panel"))
         self.assertEqual(b.text(".filter-menu li.active"), " View all items ")
+
+        # Back to dashboard
+        b.click("a[href='#/']")
+        b.wait_in_text("#service-list", "mock")
+
+        # Switch to filtered view
+        b.click(".namespace-filter .btn.dropdown-toggle")
+        b.click(".namespace-filter li:last-child a")
+        b.wait_in_text("#service-list", "mynamespace1")
+        b.wait_not_in_text("#service-list", "default")
+
+        # Deploy app in a namespace that isn't selected
+        b.click("#deploy-app")
+        b.wait_popup("deploy-app-dialog")
+        b.upload_file("#deploy-app-manifest-file", "files/mock-k8s-tiny-app.json")
+        b.wait_val("#deploy-app-namespace", "mynamespace1")
+        b.set_val("#deploy-app-namespace", "mynamespace2")
+        self.assertEqual(b.text("#deploy-app-namespace-group ul li:first-child"), "default")
+        self.assertEqual(b.text("#deploy-app-namespace-group ul li:last-child"), "mynamespace1")
+        b.dialog_complete("#deploy-app-dialog")
+
+        # mynamespace2 is now selected
+        b.wait_in_text("#service-list", "mynamespace2")
+        b.wait_not_in_text("#service-list", "default")
+        b.wait_not_in_text("#service-list", "mynamespace1")
+        b.wait_js_cond('window.location.hash == "#/?namespace=mynamespace2"')
+        b.wait_in_text(".namespace-filter button", "mynamespace2")
 
     def testTopology(self):
         m = self.machine

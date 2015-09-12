@@ -246,7 +246,8 @@ define([
             "kubernetesClient",
             "$location",
             "$rootScope",
-            function(client, $location, $rootScope) {
+            "$timeout",
+            function(client, $location, $rootScope, $timeout) {
                 var module = {
                     namespace: "",
                     listing: null,
@@ -259,11 +260,19 @@ define([
                     request_namespace = request_namespace ? request_namespace : null;
                     module.namespace = namespace ? namespace : null;
 
-                    if (request_namespace !== module.namespace)
-                        $location.search({namespace: module.namespace});
-                    else
+                    if (request_namespace !== module.namespace) {
+                        $timeout(function () {
+                            $location.search({namespace: module.namespace});
+                        }, 0);
+                    } else {
                         client.namespace(module.namespace);
+                    }
                 }
+
+                $(client).on("namespace", function (event, new_namespace) {
+                    if (new_namespace != module.namespace)
+                        set_namespace(new_namespace);
+                });
 
                 $rootScope.$on("$routeChangeSuccess", function (event, current, prev) {
                     set_namespace($location.search().namespace);

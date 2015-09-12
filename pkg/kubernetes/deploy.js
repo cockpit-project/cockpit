@@ -38,6 +38,15 @@ define([
 
     var run_stage = false;
 
+    function finish_success() {
+        var current_namespace = client.namespace();
+        var added_namespace = $("#deploy-app-namespace").val();
+        if (current_namespace && current_namespace != added_namespace)
+            client.namespace(added_namespace);
+
+        $('#deploy-app-dialog').modal('hide');
+    }
+
     function deploy_app() {
         var promise = validate()
             .fail(function(exs) {
@@ -48,7 +57,7 @@ define([
                 promise = client.create(fields.manifest, fields.namespace)
                     .done(function() {
                         /* code gets run when everything is created */
-                        $('#deploy-app-dialog').modal('hide');
+                        finish_success();
                     })
                     .fail(function(ex, response) {
                         var target;
@@ -100,7 +109,7 @@ define([
                     })
                     .done(function() {
                         deferred.resolve();
-                        $('#deploy-app-dialog').modal('hide');
+                        finish_success();
                     })
                     .fail(function(ex) {
                         deferred.reject(ex);
@@ -392,9 +401,13 @@ define([
         type_selector.selectpicker('refresh');
 
         dlg.on('show.bs.modal', function() {
+            var label = _("Namespace");
+            if ($("#content").data('flavor') == 'openshift')
+                label = _("Project");
+            $("#deploy-app-namespace-label").text(label);
+
             manifest_file_btn.text(_("Select Manifest File...")).addClass('manifest_file_default');
 
-            $("#deploy-app-namespace").val('');
             $(".appentity").remove();
             nulecule_image.prop("disabled", false);
             nulecule_image.val('');
@@ -408,6 +421,9 @@ define([
             $('label[for="deploy-app-manifest"]').show();
             client = kubernetes.k8client();
             nulecule_client = nulecule.nuleculeclient();
+
+            var selected = client.namespace();
+            $("#deploy-app-namespace").val(selected);
 
             namespaces = client.select("Namespace");
             client.track(namespaces);

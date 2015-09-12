@@ -783,6 +783,7 @@ define([
                     if (type_is_namespaced(type))
                         self.watches[type].change_namespace(selected_namespace);
                 }
+                $(self).triggerHandler("namespace", [ new_namespace ]);
             }
 
             return selected_namespace;

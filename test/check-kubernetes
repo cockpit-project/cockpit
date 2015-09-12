@@ -125,6 +125,8 @@ class TestKubernetes(KubernetesCase):
         self.assertEqual(b.text(".details-listing tbody[data-id='services/default/mock'] th"), "mock")
         self.assertIn("Service:", b.attr(".details-listing tbody[data-id='services/default/mock']", "data-key"))
         self.assertEqual(b.text(".details-listing tbody[data-id='replicationcontrollers/default/mock'] th"), "mock")
+        b.wait_not_present("#routes")
+        b.wait_not_present("#deployment-configs")
 
         # Click on the service to expand into a panel
         b.click(".details-listing tbody[data-id='services/default/mock'] th")

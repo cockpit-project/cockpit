@@ -64,12 +64,13 @@
             </tr>
             <tr>
                 <th translatable="yes">Name</th>
-                <th translatable="yes">Namespace</th>
+                <th translatable="yes" ng-if="client.flavor == 'openshift'">Project</th>
+                <th translatable="yes" ng-if="client.flavor != 'openshift'">Namespace</th>
                 <th translatable="yes">Host</th>
                 <th translatable="yes"></th>
             </tr>
         </thead>
-        <tbody ng-repeat="item in routes | orderObjectBy:['metadata.namespace', 'metadata.name']"
+        <tbody ng-repeat="item in routes | orderObjectBy:['metadata.namespace', 'metadata.name']  as filtered_result track by item.key"
             ng-init="id = itemIdentifier(item)"
             data-id="{{id}}" data-key="{{item.key}}">
             <tr ng-click="select(id)" ng-if="!quiet && !selected(id)">
@@ -90,12 +91,13 @@
             </tr>
             <tr>
                 <th translatable="yes">Name</th>
-                <th translatable="yes">Namespace</th>
+                <th translatable="yes" ng-if="client.flavor == 'openshift'">Project</th>
+                <th translatable="yes" ng-if="client.flavor != 'openshift'">Namespace</th>
                 <th translatable="yes"></th>
                 <th translatable="yes">Latest Version</th>
             </tr>
         </thead>
-        <tbody ng-repeat="item in deploymentconfigs | orderObjectBy:['metadata.namespace', 'metadata.name']"
+        <tbody ng-repeat="item in deploymentconfigs | orderObjectBy:['metadata.namespace', 'metadata.name'] as filtered_result track by item.key"
             ng-init="id = itemIdentifier(item)"
             data-id="{{id}}" data-key="{{item.key}}">
             <tr ng-click="select(id)" ng-if="!quiet && !selected(id)">

@@ -14,7 +14,8 @@
             <div class="panel-body row">
                 <div class="col-sm-6">
                     <dl>
-                        <dt translatable="yes">Namespace</dt>
+                        <dt ng-if="client.flavor == 'openshift'" translatable="yes">Project</dt>
+                        <dt ng-if="client.flavor != 'openshift'" translatable="yes">Namespace</dt>
                         <dd>{{ item.metadata.namespace }}</dd>
                         <dt translatable="yes">Created</dt>
                         <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | timeAgo }}</dd>

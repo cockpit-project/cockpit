@@ -58,7 +58,7 @@
             </tr>
         </tbody>
 
-        <thead ng-if="!quiet && routes">
+        <thead id="routes" ng-if="!quiet && client.flavor == 'openshift'">
             <tr class="listing-title">
                 <td colspan="4" translatable="yes">Routes</td>
             </tr>
@@ -70,8 +70,9 @@
             </tr>
         </thead>
         <tbody ng-repeat="item in routes | orderObjectBy:['metadata.namespace', 'metadata.name']"
-            ng-init="id = itemIdentifier(item)">
-            <tr ng-click="select(id)" ng-if="!quiet && !selected(id)" data-kind="{{item.kind}}" data-id="{{id}}">
+            ng-init="id = itemIdentifier(item)"
+            data-id="{{id}}" data-key="{{item.key}}">
+            <tr ng-click="select(id)" ng-if="!quiet && !selected(id)">
                 <th>{{item.metadata.name}}</th>
                 <td>{{item.metadata.namespace}}</td>
                 <td>{{item.spec.host}}</td>
@@ -83,7 +84,7 @@
             </tr>
         </tbody>
 
-        <thead ng-if="!quiet && deploymentconfigs">
+        <thead id="deployment-configs" ng-if="!quiet && client.flavor == 'openshift'">
             <tr class="listing-title">
                 <td colspan="4" translatable="yes">Deployment Configs</td>
             </tr>
@@ -95,8 +96,9 @@
             </tr>
         </thead>
         <tbody ng-repeat="item in deploymentconfigs | orderObjectBy:['metadata.namespace', 'metadata.name']"
-            ng-init="id = itemIdentifier(item)">
-            <tr ng-click="select(id)" ng-if="!quiet && !selected(id)" data-kind="{{item.kind}}" data-id="{{id}}">
+            ng-init="id = itemIdentifier(item)"
+            data-id="{{id}}" data-key="{{item.key}}">
+            <tr ng-click="select(id)" ng-if="!quiet && !selected(id)">
                 <th>{{item.metadata.name}}</th>
                 <td>{{item.metadata.namespace}}</td>
                 <td></td>

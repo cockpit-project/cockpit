@@ -1143,7 +1143,7 @@ on_socket_input (GSocket *socket,
     {
       is_tls = FALSE;
       redirect_tls = TRUE;
-      addr = g_socket_connection_get_remote_address (G_SOCKET_CONNECTION (request->io), NULL);
+      addr = g_socket_connection_get_local_address (G_SOCKET_CONNECTION (request->io), NULL);
       if (G_IS_INET_SOCKET_ADDRESS (addr))
         {
           inet = g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (addr));

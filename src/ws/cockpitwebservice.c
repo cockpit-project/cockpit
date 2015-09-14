@@ -2119,6 +2119,14 @@ resource_response_done (ResourceResponse *rr,
           g_debug ("%s: resource not found", rr->logname);
           cockpit_web_response_error (rr->response, 404, NULL, NULL);
         }
+      else if (g_str_equal (problem, "no-host") ||
+               g_str_equal (problem, "no-forwarding") ||
+               g_str_equal (problem, "unknown-hostkey") ||
+               g_str_equal (problem, "authentication-failed"))
+        {
+          g_debug ("%s: remote server unavailable: %s", rr->logname, problem);
+          cockpit_web_response_error (rr->response, 502, NULL, NULL);
+        }
       else
         {
           g_message ("%s: failed to retrieve resource: %s", rr->logname, problem);

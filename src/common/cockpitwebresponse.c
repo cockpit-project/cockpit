@@ -949,6 +949,9 @@ cockpit_web_response_error (CockpitWebResponse *self,
         case 413:
           message = "Request Entity Too Large";
           break;
+        case 502:
+          message = "Remote Page is Unavailable";
+          break;
         case 500:
           message = "Internal Server Error";
           break;

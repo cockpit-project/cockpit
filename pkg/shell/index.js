@@ -201,6 +201,7 @@ define([
     var current_address;
 
     var machines = machis.instance();
+    var loader = machis.loader(machines);
     var frames = new Frames();
     var router = new Router();
     var packages = new Packages();
@@ -228,7 +229,7 @@ define([
             navigate(false);
             maybe_ready();
         })
-        .on("added changed", function(ev, machine) {
+        .on("added updated", function(ev, machine) {
             if (!machine.visible)
                 frames.remove(machine);
 
@@ -361,7 +362,7 @@ define([
             /* If the machine is not available, then redirect to dashboard */
             if (!machine || machine.problem) {
                 if (machine && reconnect && machine.problem) {
-                    machines.connect(machine.address);
+                    loader.connect(machine.address);
                     show_connecting();
                 } else if (listing) {
                     cockpit.location.go("/dashboard/list");
@@ -497,8 +498,6 @@ define([
     }
 
     function update_frame(machine, component, hash, options) {
-        var dashboard = false;
-
         if (hash == "/")
             hash = "";
 
@@ -720,7 +719,7 @@ define([
                 } else if (control.command === "hint") {
                     /* watchdog handles current host for now */
                     if (control.hint == "restart" && control.host != cockpit.transport.host)
-                        machines.expect_restart(control.host);
+                        loader.expect_restart(control.host);
                     return;
 
                 } else if (control.command == "oops") {

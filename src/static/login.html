@@ -103,12 +103,6 @@
                 var os_release = JSON.stringify(initial_environment["os-release"]);
                 localStorage.setItem('os-release', os_release);
 
-                /*
-                 * HACK: For compatibility with older cockpit-shell
-                 * Remove this after 0.62 release
-                 */
-                sessionStorage.setItem('os-release', os_release);
-
                 /* Try automatic/kerberos authentication? */
                 if (sessionStorage.getItem("logout-intent") == "explicit") {
                     sessionStorage.removeItem("logout-intent");
@@ -222,6 +216,7 @@
             }
 
             function run(response) {
+                sessionStorage.clear();
                 window.location.reload(true);
             }
 

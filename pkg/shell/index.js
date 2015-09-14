@@ -543,7 +543,6 @@ define([
     function recalculate_layout() {
         var topnav = $('#topnav');
         var sidebar = $('#sidebar');
-        var body = $(document.body);
 
         var window_height = $(window).height();
         var window_width = $(window).width();

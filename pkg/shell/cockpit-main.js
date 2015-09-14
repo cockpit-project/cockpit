@@ -142,11 +142,6 @@ shell.content_refresh = function content_refresh() {
 };
 
 function recalculate_layout() {
-    var $extra = $('#shell-header-extra');
-    var $body = $('body');
-
-    $body.css('padding-top', $extra.height());
-
     // This is mostly for the plots.
     $(cockpit).trigger('resize');
 }
@@ -232,7 +227,6 @@ function display_params(params) {
     if (old_legacy_page)
         old_legacy_page.leave();
 
-    $('#shell-header-extra').empty();
     current_params = params;
     current_page_element = element;
     current_legacy_page = legacy_page;

@@ -66,10 +66,12 @@ class TestMultiMachine(MachineCase):
         self.machine2 = self.new_machine()
         self.machine2.start()
         self.machine2.wait_boot()
+        self.machine2.execute("hostnamectl set-hostname machine2")
 
         self.machine3 = self.new_machine()
         self.machine3.start()
         self.machine3.wait_boot()
+        self.machine3.execute("hostnamectl set-hostname machine3")
 
     def tearDown(self):
         if self.runner and self.runner.wasSuccessful():
@@ -118,6 +120,7 @@ class TestMultiMachine(MachineCase):
         b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-small.png')
 
         b.click("#dashboard-hosts a[data-address='%s']" % m3.address)
+        b.switch_to_top()
         b.wait_js_cond('window.location.hash != "#/dashboard/list"')
         b.enter_page("/system/host", host=m3.address)
         b.wait_text_not("#system_information_hostname_button", "")
@@ -200,24 +203,36 @@ class TestMultiMachine(MachineCase):
         m2.execute('passwd -l admin')
         kill_user_admin(m2)
 
-        b.wait_js_cond("window.location.hash == '#%s'" % dashboard_path)
-        b.switch_to_frame("localhost/dashboard/list")
+        b.wait_present(".curtains");
+        b.wait_text(".curtains h1", "Couldn't connect to the machine")
+        self.assertEqual(b.text(".curtains button"), "Reconnect")
+
+        b.go(dashboard_path)
+        b.enter_page("/dashboard/list")
         b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-error.png')
         b.switch_to_top()
 
         # navigating there again will fail
         b.go(m2_path)
-        b.wait_js_cond("window.location.hash == '#%s'" % dashboard_path)
+        b.wait_present(".curtains");
+        b.wait_text(".curtains h1", "Couldn't connect to the machine")
+        self.assertEqual(b.text(".curtains button"), "Reconnect")
+        self.assertTrue(b.is_present(".curtains button:not(.disabled)"))
 
         # renable admin
         m2.execute('passwd -u admin')
+
         # wait for dashboard to load
+        b.go(dashboard_path)
         b.enter_page("/dashboard/list")
         b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-error.png')
         b.switch_to_top()
 
-        # path should load
+        # path should load or allow clicking
         b.go(m2_path)
+        b.wait_not_present(".curtains button.disabled")
+        if b.is_present(".curtains"):
+            b.click(".curtains button")
         b.enter_page("/playground/test", m2.address)
         # image is back because it page was reloaded after disconnection
         b.wait_present("img[src='hammer.gif']");
@@ -231,7 +246,9 @@ class TestMultiMachine(MachineCase):
 
         # Bad host also bounces
         b.go("/@10.0.0.0/playground/test")
-        b.wait_js_cond("window.location.hash == '#%s'" % dashboard_path)
+        b.wait_present(".curtains");
+        self.assertEqual(b.text(".curtains h1"), "Couldn't connect to the machine")
+        self.assertEqual(b.text(".curtains p"), "Cannot connect to an unknown machine")
 
         self.allow_restart_journal_messages()
         self.allow_journal_messages(".*: .* host key for server is not known: .*",

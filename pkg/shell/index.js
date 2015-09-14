@@ -176,6 +176,7 @@ define([
          * where the user was right away. Otherwise this sends the user back
          * to the login screen.
          */
+        window.sessionStorage.clear();
         window.location.reload(false);
     });
 
@@ -197,8 +198,10 @@ define([
 
     var current_frame = null;
     var current_location;
+    var current_hash;
     var current_address;
 
+    var ready = false;
     var machines = machis.instance();
     var loader = machis.loader(machines);
     var frames = new Frames();
@@ -207,13 +210,13 @@ define([
     /* When the machine list is ready we start processing navigation */
     $(machines)
         .on("ready", function(ev) {
-            machines.loaded = true;
+            ready = true;
             $(cockpit).on("locationchanged", function () {
                 navigate(true);
             });
             build_navbar();
             navigate(false);
-            $("nav").show();
+            $("body").show();
             phantom_checkpoint();
         })
         .on("added updated", function(ev, machine) {
@@ -224,7 +227,7 @@ define([
                 frames.remove(machine);
 
             update_machines();
-            if (machines.loaded)
+            if (ready)
                 navigate(false);
         })
         .on("removed", function(ev, machine) {
@@ -258,9 +261,15 @@ define([
                         var hash = this.location.href.split('#')[1] || '';
                         if (hash && hash[0] !== '/')
                             hash = '/' + hash;
-                        window.location.hash = "#" + current_location + hash;
+                        if (hash !== current_hash) {
+                            window.location.hash = "#" + current_location + hash;
+                            current_hash = hash;
+                        }
                     }
                 });
+
+                /* Update the user interface */
+                navigate();
             });
         })
         .on("removed", function(ev, frame) {
@@ -305,13 +314,13 @@ define([
         }
     });
 
-    function show_connecting() {
-        $("#sidebar").hide();
-        $("#connecting").show();
-    }
+    /* Reconnect button */
+    $(".curtains button").on("click", function(ev) {
+        loader.connect(current_address);
+    });
 
     function navigate(reconnect) {
-        var path = cockpit.location.path;
+        var path = cockpit.location.path.slice();
         var options = cockpit.location.options;
 
         var address = null;
@@ -335,25 +344,23 @@ define([
                 path.push("@localhost");
         }
 
-        if (path[at][0] == '@') {
+        if (path[at] && path[at][0] == '@') {
             address = path[at].substring(1);
             at++;
         }
 
         if (address) {
             machine = machines.lookup(address);
-
-            /* If the machine is not available, then redirect to dashboard */
-            if (!machine || machine.problem) {
-                if (machine && reconnect && machine.problem) {
-                    loader.connect(machine.address);
-                    show_connecting();
-                } else if (listing) {
-                    cockpit.location.go("/dashboard/list");
-                } else {
-                    cockpit.location.go("/");
-                }
-                return;
+            if (!machine) {
+                machine = {
+                    key: address,
+                    address: address,
+                    label: address,
+                    state: "failed",
+                    problem: "not-found"
+                };
+            } else if (reconnect && machine.problem) {
+                loader.connect(address);
             }
 
             /* The default is to show the server */
@@ -373,16 +380,12 @@ define([
         at += 2;
 
         current_location = cockpit.location.encode(path.slice(0, at));
+        current_hash = cockpit.location.encode(path.slice(at));
         current_address = address;
-
-        if (machine && machine.state == "connecting")
-            show_connecting();
-        else
-           $("#connecting").hide();
 
         update_navbar(machine, component);
         update_sidebar(machine, component);
-        update_frame(machine, component, cockpit.location.encode(path.slice(at)), options);
+        update_frame(machine, component, current_hash, options);
 
         recalculate_layout();
     }
@@ -432,19 +435,11 @@ define([
     function update_sidebar(machine, current) {
         var sidebar = $("#sidebar");
 
-        if (!machine || !machine.manifests) {
+        if (!machine || machine.state != "connected" || !machine.manifests) {
             sidebar.hide();
             recalculate_layout();
             return;
         }
-
-        /*
-         * This will be called again when the
-         * state is either connected or failed
-         * better to wait till then
-         */
-        if (machine.state == "connecting")
-            return;
 
         /* TODO: We need to fix races here with quick navigation in succession */
         function links(component) {
@@ -472,6 +467,42 @@ define([
     }
 
     function update_frame(machine, component, hash, options) {
+        var title, message, connecting;
+
+        if (machine && machine.state != "connected") {
+            $(current_frame).hide();
+            current_frame = null;
+
+            connecting = (machine.state == "connecting");
+            if (machine.restarting) {
+                title = _("The machine is restarting");
+                message = "";
+            } else if (connecting) {
+                title = _("Connecting to the machine");
+                message = "";
+            } else {
+                title = _("Couldn't connect to the machine");
+                if (machine.problem == "not-found")
+                    message = _("Cannot connect to an unknown machine");
+                else
+                    message = cockpit.message(machine.problem || machine.state);
+            }
+            $(".curtains").show();
+            $(".curtains .spinner").toggle(connecting || machine.restarting);
+            $(".curtains button").toggle(!connecting);
+            $(".curtains i").toggle(!connecting && !machine.restarting);
+            $(".curtains h1").text(title);
+            $(".curtains p").text(message);
+            $("#machine-spinner").hide();
+
+            /* Fall through when connecting, and allow frame to load at same time*/
+            if (!connecting)
+                return;
+        } else {
+            $(".curtains").hide();
+            $("#machine-spinner").toggle(current_frame && !$(current_frame).attr("data-loaded"));
+        }
+
         if (hash == "/")
             hash = "";
 
@@ -546,7 +577,7 @@ define([
             var address = machine.address;
             if (!address)
                 address = "localhost";
-            var list = iframes[machine.address];
+            var list = iframes[address];
             if (list) {
                 delete iframes[address];
                 $.each(list, function(i, frame) {
@@ -693,10 +724,12 @@ define([
 
                 } else if (control.command === "hint") {
                     /* watchdog handles current host for now */
-                    if (control.hint == "restart" && control.host != cockpit.transport.host)
+                    if (control.hint == "restart" && control.host != cockpit.transport.host) {
                         loader.expect_restart(control.host);
+                        if (current_frame && current_frame.contentWindow == peer.window)
+                            perform_jump({ location: "/", host: null });
+                    }
                     return;
-
                 } else if (control.command == "oops") {
                     if (setup_oops())
                         oops.show();

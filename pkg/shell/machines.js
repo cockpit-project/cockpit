@@ -422,7 +422,7 @@ define([
                     if (machine && machine.restarting) {
                         window.setTimeout(function() {
                             self.connect(host);
-                        }, 15000);
+                        }, 10000);
                     }
                     self.disconnect(host);
                 });
@@ -461,21 +461,7 @@ define([
         };
 
         self.expect_restart = function expect_restart(host) {
-            function reconnect() {
-                machines.overlay(host, { restarting: true });
-                window.setTimeout(function() {
-                    self.connect(host);
-                }, 1000);
-            }
-
-            var machine = machines[host];
-            if (machine) {
-                var channel = channels[host];
-                if (channel)
-                    $(channel).on("close", reconnect);
-                else
-                    reconnect();
-            }
+            machines.overlay(host, { restarting: true });
         };
 
         self.close = function close() {

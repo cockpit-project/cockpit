@@ -264,7 +264,7 @@ PageDashboard.prototype = {
         var renderer = host_renderer($("#dashboard-hosts .list-group"));
         $(self.machines).on("added.dashboard", renderer);
         $(self.machines).on("removed.dashboard", renderer);
-        $(self.machines).on("changed.dashboard", renderer);
+        $(self.machines).on("updated.dashboard", renderer);
 
         $('#dashboard .nav-tabs li').click(function () {
             set_monitor(parseInt($(this).data('monitor-id'), 10));
@@ -292,10 +292,8 @@ PageDashboard.prototype = {
                 var item = $(this).parent(".list-group-item");
                 self.toggle_edit(false);
                 var machine = self.machines.lookup(item.attr("data-address"));
-                if (machine) {
+                if (machine)
                     self.machines.change(machine.key, { visible: false });
-                    self.machines.disconnect(machine.key);
-                }
                 return false;
             })
             .on("click", "button.pficon-edit", function() {

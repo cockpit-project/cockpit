@@ -106,8 +106,10 @@ define([
 
                 $scope.itemIdentifier = function item_identifier(item) {
                     var meta = item.metadata || { };
-                    var type = item.kind.toLowerCase();
-                    return type + "s/" + meta.namespace + "/" + meta.name;
+                    var id = item.kind.toLowerCase() + "s/";
+                    if (meta.namespace)
+                        id = id + meta.namespace + "/";
+                    return id + meta.name;
                 };
 
                 $scope.serviceEndpoint = function service_endpoint(service) {

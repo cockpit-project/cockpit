@@ -44,8 +44,11 @@
                 <div class="col-sm-6">
                     <dl ng-init="ready = nodeReadyCondition(item.status.conditions)">
                         <dt translatable="yes">Status</dt>
-                        <dd ng-if="ready.status">Ready</dd>
-                        <dd ng-if="!ready.status">Not Ready</dd>
+                        <dd class="status" ng-switch="ready.status">
+                            <span ng-switch-when="True" translatable="yes">Ready</span>
+                            <span ng-switch-when="False" translatable="yes">Not Ready</span>
+                            <span ng-switch-default translatable="yes">Unknown</span>
+                        </dd>
                         <dt translatable="yes" ng-if="ready.reason">Reason</dt>
                         <dd ng-if="ready.reason">{{ready.reason }}</dd>
                         <dt translatable="yes" ng-if="ready.message">Message</dt>

@@ -1106,7 +1106,7 @@ function NetworkManagerModel() {
         ]
     };
 
-    /* Now create the cycle declarations.
+    /* Now create the cyclic declarations.
      */
     type_ActiveConnection.props.Master = { conv: conv_Object(type_Device) };
     type_Device.props.Slaves = { conv: conv_Array(conv_Object(type_Device)), def: [] };
@@ -1141,6 +1141,7 @@ function NetworkManagerModel() {
      */
 
     set_object_types([ type_Manager,
+                       type_Settings,
                        type_Device,
                        type_Ipv4Config,
                        type_Ipv6Config,

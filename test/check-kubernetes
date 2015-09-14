@@ -128,11 +128,24 @@ class TestKubernetes(KubernetesCase):
         b.wait_not_present("#routes")
         b.wait_not_present("#deployment-configs")
 
+        # Click nodes
+        b.click(".details-listing tbody[data-id='nodes/127.0.0.1'] th")
+        b.wait_present(".details-listing tbody[data-id='nodes/127.0.0.1'] tr.listing-panel")
+        self.assertEqual(b.text("tbody[data-id='nodes/127.0.0.1'] tr.listing-panel h3"), "127.0.0.1")
+        self.assertFalse(b.is_present(".details-listing tbody[data-id='nodes/127.0.0.1'] th"))
+        self.assertEqual(b.text("tbody[data-id='nodes/127.0.0.1'] tr.listing-panel .status").strip(), "Ready")
+
+        b.click(".details-listing tbody[data-id='nodes/mynode'] th")
+        b.wait_present(".details-listing tbody[data-id='nodes/mynode'] tr.listing-panel")
+        self.assertEqual(b.text("tbody[data-id='nodes/mynode'] tr.listing-panel h3"), "mynode")
+        self.assertFalse(b.is_present(".details-listing tbody[data-id='nodes/mynode'] th"))
+        self.assertEqual(b.text("tbody[data-id='nodes/mynode'] tr.listing-panel .status").strip(), "Unknown")
+
         # Click on the service to expand into a panel
         b.click(".details-listing tbody[data-id='services/default/mock'] th")
-        b.wait_present(".details-listing tr.listing-panel")
+        b.wait_present(".details-listing tbody[data-id='services/default/mock'] tr.listing-panel")
         self.assertFalse(b.is_present(".details-listing tbody[data-id='services/default/mock'] th"))
-        self.assertEqual(b.text("tr.listing-panel h3"), "mock")
+        self.assertEqual(b.text("tbody[data-id='services/default/mock'] tr.listing-panel h3"), "mock")
 
         # Now the header and other services should still be present, check filter menu state
         self.assertTrue(b.is_present(".details-listing thead th"))

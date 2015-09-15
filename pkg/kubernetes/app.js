@@ -264,9 +264,10 @@ define([
                         $timeout(function () {
                             $location.search({namespace: module.namespace});
                         }, 0);
-                    } else {
-                        client.namespace(module.namespace);
                     }
+
+                    if (client.namespace() !==  module.namespace)
+                        client.namespace(module.namespace);
                 }
 
                 $(client).on("namespace", function (event, new_namespace) {

@@ -57,6 +57,15 @@ dnf -y install fedora-repos-rawhide
 sed -i 's/enabled=0/enabled=1/' /etc/yum.repos.d/fedora-rawhide.repo
 dnf -y upgrade
 
+# docker images that we need for integration testing
+systemctl start docker
+docker pull busybox:latest
+docker pull busybox:buildroot-2014.02
+docker pull submod/helloapache
+docker pull submod/atomicapp
+
+# Final tweaks
+
 rm -rf /var/log/journal/*
 echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
 printf "[Coredump]\nStorage=journal\n" > /etc/systemd/coredump.conf
@@ -64,10 +73,3 @@ printf "[Coredump]\nStorage=journal\n" > /etc/systemd/coredump.conf
 # Audit events to the journal
 rm -f '/etc/systemd/system/multi-user.target.wants/auditd.service'
 rm -rf /var/log/audit/
-
-# docker image that we need for integration testing
-systemctl start docker
-docker pull busybox:latest
-docker pull busybox:buildroot-2014.02
-docker pull submod/helloapache
-docker pull submod/atomicapp

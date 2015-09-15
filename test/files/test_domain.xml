@@ -1,0 +1,30 @@
+<domain type='kvm'>
+  <name>%(name)s</name>
+  <os>
+    <type arch='%(arch)s'>hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <memory unit='MiB'>%(memory_in_mib)d</memory>
+  <currentMemory unit='MiB'>%(memory_in_mib)d</currentMemory>
+  <features>
+    <acpi/>
+  </features>
+  <devices>
+    <disk type='file' snapshot='external'>
+      <driver name='qemu' type='qcow2'/>
+      <source file='%(drive)s'/>
+      <target dev='vda' bus='virtio'/>
+      <serial>%(disk_serial)s</serial>
+    </disk>
+    <controller type='scsi' model='virtio-scsi' index='0' id='hot'/>
+    <interface type='bridge'>
+      <source bridge='cockpit1'/>
+      %(mac)s
+    </interface>
+    <console type='pty'>
+      <target type='serial' port='0'/>
+    </console>
+    %(additional_devices)s
+  </devices>
+</domain>
+

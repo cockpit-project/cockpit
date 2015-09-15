@@ -44,24 +44,9 @@ dnf -y upgrade dnf
 dnf -y upgrade
 dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
-# docker images that we need for integration testing
-systemctl start docker
-docker pull busybox:latest
-docker pull busybox:buildroot-2014.02
-docker pull submod/helloapache
-docker pull submod/atomicapp
+dnf clean all
 
-# Final tweaks
-
-rm -rf /var/log/journal/*
-echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
-printf "[Coredump]\nStorage=journal\n" > /etc/systemd/coredump.conf
-
-ln -sf ../selinux/config /etc/sysconfig/selinux
-echo 'SELINUX=enforcing' > /etc/selinux/config
-
-touch /.autorelabel
-
-# Audit events to the journal
-rm -f '/etc/systemd/system/multi-user.target.wants/auditd.service'
-rm -rf /var/log/audit/
+# bug in selinux-policy-targeted-3.13.1-128.13.fc22
+# HACK https://bugzilla.redhat.com/show_bug.cgi?id=1224211
+# we need to restart systemctl and then reboot the system
+systemctl daemon-reexec

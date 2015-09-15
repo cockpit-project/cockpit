@@ -73,7 +73,7 @@ def install(machine, rpms):
         machine.stop()
 
 try:
-    machine = testvm.QemuMachine(verbose=args.verbose, flavor=args.flavor, label="install")
+    machine = testvm.VirtMachine(verbose=args.verbose, flavor=args.flavor, label="install")
     install(machine, args.rpms)
 except testvm.Failure, ex:
     print >> sys.stderr, "vm-install:", ex

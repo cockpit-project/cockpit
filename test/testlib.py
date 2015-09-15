@@ -400,7 +400,7 @@ class Browser:
 
 class MachineCase(unittest.TestCase):
     runner = None
-    machine_class = testvm.QemuMachine
+    machine_class = testvm.VirtMachine
     machine = None
     machines = [ ]
 
@@ -417,9 +417,11 @@ class MachineCase(unittest.TestCase):
         self.addCleanup(lambda: browser.kill())
         return browser
 
-    def setUp(self):
+    def setUp(self, macaddr=None):
         self.machine = self.new_machine()
-        self.machine.start()
+        self.machine.start(macaddr=macaddr)
+        if arg_trace:
+            print "starting machine %s" % (self.machine.address)
         self.machine.wait_boot()
         self.browser = self.new_browser()
         self.tmpdir = tempfile.mkdtemp()

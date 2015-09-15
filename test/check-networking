@@ -22,6 +22,9 @@ from testlib import *
 import os
 
 class TestNetworking(MachineCase):
+    def setUp(self):
+        # we need a static ip for this test
+        MachineCase.setUp(self, macaddr='52:54:00:9e:00:F2')
 
     def get_iface(self, m, mac):
         def getit():
@@ -72,7 +75,7 @@ class TestNetworking(MachineCase):
         # Add interface, wait for it to be recognized and activated by
         # Network Manager, and switch to its page
 
-        mac = "52:54:00:9e:00:f1"
+        mac = "52:54:00:9e:00:F5"
         label = "test"
         m.execute("echo -e 'TYPE=Ethernet\nHWADDR=%s\nBOOTPROTO=dhcp\n' >/etc/sysconfig/network-scripts/ifcfg-%s" % (mac, label))
         m.execute("nmcli c reload")
@@ -112,7 +115,7 @@ class TestNetworking(MachineCase):
         m.execute("nmcli c m '%s' ipv4.addresses ''" % id)
         b.wait_in_text("tr:contains('IPv4')", "Automatic (DHCP)")
         m.execute("nmcli c up '%s'" % id)
-        b.wait_in_text("tr:contains('Status')", "10.111.111")
+        b.wait_in_text("tr:contains('Status')", "10.111.112")
 
     def testBond(self):
         b = self.browser
@@ -134,8 +137,9 @@ class TestNetworking(MachineCase):
         # Switching off rp_filter doesn't seem to be enough in the
         # case of bonds.
 
-        iface1 = self.get_iface(m, m.add_netiface('f1'));
-        iface2 = self.get_iface(m, m.add_netiface('f2', vlan=1));
+        mac = "52:54:00:9e:00:F5"
+        iface1 = self.get_iface(m, m.add_netiface(mac=mac));
+        iface2 = self.get_iface(m, m.add_netiface(secondary_network=True));
         b.wait_in_text("#networking-interfaces", iface1)
         b.wait_in_text("#networking-interfaces", iface2)
         if m.os == "rhel-7":
@@ -159,7 +163,7 @@ class TestNetworking(MachineCase):
         # Wait for the bond to be active
         b.click("#networking-interfaces td:first-child:contains('tbond')")
         b.wait_visible("#network-interface")
-        b.wait_in_text("tr:contains('Status')", "10.111.111")
+        b.wait_in_text("tr:contains('Status')", "10.111.112")
         b.wait_present("tr[data-interface='%s']" % iface1)
         b.wait_present("tr[data-interface='%s']" % iface2)
 
@@ -198,11 +202,11 @@ class TestNetworking(MachineCase):
 
         # The second interface is connected to a different outside
         # network than the first to avoid a cycle between the
-        # "cockpit0" bridge that all VMs are connected to, and the
+        # "cockpit1" bridge that all VMs are connected to, and the
         # bridge we are creating here.
 
-        iface1 = self.get_iface(m, m.add_netiface('f1'));
-        iface2 = self.get_iface(m, m.add_netiface('f2', vlan=1));
+        iface1 = self.get_iface(m, m.add_netiface());
+        iface2 = self.get_iface(m, m.add_netiface(secondary_network=True));
         b.wait_in_text("#networking-interfaces", iface1)
         b.wait_in_text("#networking-interfaces", iface2)
         if m.os == "rhel-7":
@@ -226,7 +230,7 @@ class TestNetworking(MachineCase):
         # Wait for the bridge to be active.
         b.click("#networking-interfaces td:first-child:contains('tbridge')")
         b.wait_visible("#network-interface")
-        b.wait_in_text("tr:contains('Status')", "10.111.111")
+        b.wait_in_text("tr:contains('Status')", "10.111.112")
 
         # Delete the bridge
         b.click("#network-interface button:contains('Delete')")

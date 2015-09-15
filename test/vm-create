@@ -71,8 +71,8 @@ class MachineBuilder:
         copy("guest/identity.pub", "/root/.ssh/authorized_keys")
 
     def _setup_fedora_network(self,gf):
-        ifcfg_eth0 = 'BOOTPROTO="dhcp"\nDEVICE="eth0"\nONBOOT="yes"\n'
-        gf.write("/etc/sysconfig/network-scripts/ifcfg-eth0", ifcfg_eth0)
+        ifcfg_ens2 = 'BOOTPROTO="dhcp"\nDEVICE="ens2"\nONBOOT="yes"\n'
+        gf.write("/etc/sysconfig/network-scripts/ifcfg-ens2", ifcfg_ens2)
 
     def _setup_fedora_like (self, gf):
         self._setup_ssh_keys(gf)
@@ -135,7 +135,7 @@ class MachineBuilder:
             gf.close()
 
     def unpack_base(self, modify_func=None):
-        assert not self.machine._process
+        assert not self.machine._domain
 
         if not os.path.exists(self.machine.run_dir):
             os.makedirs(self.machine.run_dir, 0750)
@@ -159,7 +159,7 @@ class MachineBuilder:
         """Prepare a test image further by running some commands in it."""
         self.machine.start(maintain=True)
         try:
-            self.machine.wait_boot()
+            self.machine.wait_boot(wait_for_running_timeout=120)
             self.machine.upload([script], "/var/tmp/SETUP")
             env = {
                 "TEST_OS": self.machine.os,
@@ -170,8 +170,9 @@ class MachineBuilder:
             self.machine.message("run setup script on guest")
             self.machine.execute(script="/var/tmp/SETUP", environment=env, quiet=not self.machine.verbose)
             self.machine.execute(command="rm /var/tmp/SETUP")
+            self.machine.execute(command="shutdown --poweroff now &")
         finally:
-            self.machine.stop()
+            self.machine.stop(timeout_sec=60)
 
     def run_selinux_relabel(self):
         """Boot an image the first time which allows relabeling"""
@@ -195,9 +196,21 @@ class MachineBuilder:
             else:
                 raise Failure("Unsupported OS %s" % self.machine.os)
 
-        script = os.path.join(self.machine.test_dir, "guest/%s-%s.setup" % (self.machine.flavor, self.machine.os))
+        def format_guest_setup_path(script_id=None):
+            if script_id:
+                return os.path.join(self.machine.test_dir, "guest/%s-%s.%d.setup" % (self.machine.flavor, self.machine.os, next_script))
+            else:
+                return os.path.join(self.machine.test_dir, "guest/%s-%s.setup" % (self.machine.flavor, self.machine.os))
+
+        # gather the scripts, separated by reboots
+        script = format_guest_setup_path()
         if not os.path.exists(script):
             raise Failure("Unsupported flavor %s: %s not found." % (self.machine.flavor, script))
+        next_script = 1
+        additional_scripts = [ ]
+        while os.path.exists(format_guest_setup_path(next_script)):
+            additional_scripts += [ format_guest_setup_path(next_script) ]
+            next_script += 1
 
         if "atomic" in self.machine.os:
             self.unpack_base(modify_func=None)
@@ -205,10 +218,14 @@ class MachineBuilder:
             self.unpack_base(modify_func=modify)
         self.machine.message("Running setup script %s" % (script))
         self.run_setup_script(script, args)
+        for additional_script in additional_scripts:
+            self.machine.message("Running additional setup script %s" % (additional_script))
+            self.run_setup_script(additional_script, args)
+
         self.run_selinux_relabel()
 
 try:
-    machine = testvm.QemuMachine(verbose=args.verbose, flavor=args.flavor)
+    machine = testvm.VirtMachine(verbose=args.verbose, flavor=args.flavor)
     if args.force or machine.needs_build():
         if args.force or not download_image(args.flavor):
             #machine.build(args.args)

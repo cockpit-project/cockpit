@@ -57,7 +57,21 @@ define([
                 var all = client.select();
                 client.track(all);
                 $(all).on("changed", digest);
+                $(all).on("updated", entity_updated);
+                $(all).on("removed", entity_removed);
                 digest();
+
+                function entity_updated(ev, entity, key, last) {
+                    if($scope.selected && $scope.selected.kind === last.kind && $scope.selected.key === last.key) {
+                        $scope.selected = entity;
+                    }
+                }
+
+                function entity_removed(ev, entity, key) {
+                    if($scope.selected === entity) {
+                        $scope.selected = null;
+                    }
+                }
 
                 function rels_for_item(item) {
                     var rels = { };

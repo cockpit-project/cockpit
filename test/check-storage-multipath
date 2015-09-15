@@ -86,7 +86,7 @@ class TestStorage(StorageCase):
         b.wait_visible('#storage-detail')
 
         # Switch on multipathd.  A primary device should appear.
-        m.execute("mpathconf --enable && systemctl restart multipathd")
+        m.execute("mpathconf --enable --with_multipathd y")
         # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1254583
         m.execute("udevadm trigger")
         b.wait_text(detail_row_value(5), "/dev/mapper/mpatha")

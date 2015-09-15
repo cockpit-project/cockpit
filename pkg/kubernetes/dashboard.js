@@ -38,15 +38,7 @@ define([
             /* Service Listing */
             $scope.services = client.select("Service");
             client.track($scope.services);
-            $($scope.services)
-                .on("changed", digest)
-                .on("added", function(ev, item, key) {
-                    /* Don't include the kubernetes service */
-                    if (item.metadata.name === "kubernetes" &&
-                        item.metadata.namespace === "default") {
-                        delete $scope.services[key];
-                    }
-                });
+            $($scope.services).on("changed", digest);
 
             $scope.serviceContainers = function serviceContainers(service) {
                 var spec = service.spec || { };

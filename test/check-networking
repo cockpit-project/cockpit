@@ -159,6 +159,21 @@ class TestNetworking(MachineCase):
         b.click("#networking-interfaces td:first-child:contains('tbond')")
         b.wait_visible("#network-interface")
         b.wait_in_text("tr:contains('Status')", "10.111.111")
+        b.wait_present("tr[data-interface='%s']" % iface1)
+        b.wait_present("tr[data-interface='%s']" % iface2)
+
+        # Deactivate the bond and make sure it is still there after a
+        # reload.
+        b.click(".panel-heading:contains('tbond') button:contains('Off')")
+        b.wait_in_text("tr:contains('Status')", "Inactive")
+        b.reload()
+        b.enter_page("/network/interfaces")
+        b.wait_present("#network-interface-name")
+        b.wait_text("#network-interface-name", "tbond")
+        b.wait_text("#network-interface-hw", "Bond")
+        b.wait_in_text("tr:contains('Status')", "Inactive")
+        b.wait_present("tr[data-interface='%s']" % iface1)
+        b.wait_present("tr[data-interface='%s']" % iface2)
 
         # Delete the bond
         b.click("#network-interface button:contains('Delete')")

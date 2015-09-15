@@ -42,7 +42,8 @@
                             data-uid="{{service.metadata.uid}}" data-name="{{service.metadata.name}}"
                             ng-class="{highlight: service.metadata.uid == highlighted}"
                             ng-click="jumpService($event, service)"
-                            ng-mouseover="highlight(service.metadata.uid)" ng-mouseout="highlight(null)">
+                            ng-mouseover="highlight(service.metadata.uid)" ng-mouseout="highlight(null)"
+                            ng-if="!(service.metadata.namespace == 'default' && service.metadata.name == 'kubernetes')">
                         <td>{{service.metadata.name}}</td>
                         <td><kubernetes-address ng-init="item = service"></td>
                         <td class="containers">{{serviceContainers(service)}}</td>

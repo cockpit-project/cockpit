@@ -152,6 +152,18 @@ define([
     /* Derived indices.
      */
 
+    function is_multipath_master(block) {
+        // The master has "mpath" in its device mapper UUID.  In the
+        // future, storaged will hopefully provide this information
+        // directly.
+        if (block.Symlinks && block.Symlinks.length) {
+            for (var i = 0; i < block.Symlinks.length; i++)
+                if (utils.decode_filename(block.Symlinks[i]).indexOf("/dev/disk/by-id/dm-uuid-mpath-") === 0)
+                    return true;
+        }
+        return false;
+    }
+
     function update_indices() {
         var path, block, dev, mdraid, vgroup, pvol, lvol, part, i;
 
@@ -162,33 +174,23 @@ define([
         }
         for (path in client.blocks) {
             block = client.blocks[path];
-            if (!client.blocks_part[path] && client.drives_multipath_blocks[block.Drive] !== undefined)
-                client.drives_multipath_blocks[block.Drive].push(block);
+            if (!client.blocks_part[path] && client.drives_multipath_blocks[block.Drive] !== undefined) {
+                if (is_multipath_master(block))
+                    client.drives_block[block.Drive] = block;
+                else
+                    client.drives_multipath_blocks[block.Drive].push(block);
+            }
         }
         for (path in client.drives_multipath_blocks) {
-            var all_blocks = client.drives_multipath_blocks[path];
-            var mpath_members = [ ];
-            var non_mpath_members = [ ];
-
-            all_blocks.sort(utils.block_cmp);
-            for (i = 0; i < all_blocks.length; i++) {
-                if (all_blocks[i].IdType == "mpath_member")
-                    mpath_members.push(all_blocks[i]);
-                else
-                    non_mpath_members.push(all_blocks[i]);
-            }
-
-            /* A valid multipath drive has exactly one block device
-             * that is not a "mpath_member".
+            /* If there is no multipath master and only a single
+             * member, then this is actually a normal singlepath
+             * device.
              */
-
-            if (non_mpath_members.length === 1) {
-                client.drives_block[path] = non_mpath_members[0];
-                client.drives_multipath_blocks[path] = mpath_members;
-            } else {
-                client.drives_block[path] = null;
-                client.drives_multipath_blocks[path] = all_blocks;
-            }
+            if (!client.drives_block[path] && client.drives_multipath_blocks[path].length == 1) {
+                client.drives_block[path] = client.drives_multipath_blocks[path][0];
+                client.drives_multipath_blocks[path] = [ ];
+            } else
+                client.drives_multipath_blocks[path].sort(utils.block_cmp);
         }
 
         client.mdraids_block = { };

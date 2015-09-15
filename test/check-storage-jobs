@@ -20,7 +20,10 @@
 
 from testlib import *
 from storagelib import *
+import unittest
 
+# This test could be rewritten to not rely on slowing the disk speed
+# alternative: mock storaged D-Bus API
 class TestStorage(StorageCase):
     def testJobs(self):
         m = self.machine
@@ -30,8 +33,9 @@ class TestStorage(StorageCase):
         b.wait_in_text("#drives", "VirtIO")
 
         # Add a slow disk and format it
-        m.add_disk("10M", serial="SLOW", speed=800)
+        disk = m.add_disk("10M", serial="SLOW")
         b.wait_in_text("#drives", "SLOW")
+        m.set_disk_io_speed(disk_index = disk, speed_in_bytes=(512*1024))
 
         b.click('tr:contains("SLOW")')
         b.wait_visible("#storage-detail")
@@ -46,6 +50,8 @@ class TestStorage(StorageCase):
 
         with b.wait_timeout(120):
             b.wait_in_text("#jobs", "Erasing")
+            # speed disk up again
+            m.set_disk_io_speed(disk_index = disk)
             b.wait_not_in_text("#jobs", "Erasing")
             b.wait_in_text("#content", "FILESYSTEM")
 

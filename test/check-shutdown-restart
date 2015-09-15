@@ -24,6 +24,10 @@ import re
 import ast
 
 class TestShutdownRestart(MachineCase):
+    def setUp(self):
+        # we need a static ip for this test
+        MachineCase.setUp(self, macaddr='52:54:00:9e:00:F3')
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -31,13 +35,14 @@ class TestShutdownRestart(MachineCase):
         self.login_and_go("/system")
 
         # Reboot
+        m.reset_reboot_flag()
         b.click("#shutdown-group button.btn-danger")
         b.wait_popup("shutdown-dialog")
         b.wait_in_text("#shutdown-action", 'Restart')
         b.click("#shutdown-delay button")
         b.click("a.opt span:contains('No Delay')")
         b.click("#shutdown-action")
-        m.wait_boot()
+        m.wait_reboot()
         self.start_cockpit()
         b.relogin("/system")
 

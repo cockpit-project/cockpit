@@ -28,7 +28,7 @@ parser.add_argument('-s', '--snapshot', action='store_true', help='Changes are n
 args = parser.parse_args()
 
 try:
-    machine = testvm.QemuMachine(verbose=args.verbose, flavor=args.flavor)
+    machine = testvm.VirtMachine(verbose=args.verbose, flavor=args.flavor)
     machine.qemu_console(args.snapshot)
 except testvm.Failure, ex:
     print >> sys.stderr, "vm-run:", ex

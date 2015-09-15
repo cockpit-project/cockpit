@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 set -e
 
@@ -63,7 +63,7 @@ require_binary() {
 }
 require_binary trickle
 
-if ! silent $IP address show dev cockpit0; then
+if ! silent $IP address show dev cockpit1 || ! silent $IP address show dev cockpit2; then
   sudo ./vm-prep
 fi
 

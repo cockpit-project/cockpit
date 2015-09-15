@@ -1,0 +1,25 @@
+#! /bin/bash
+
+set -x
+
+# docker images that we need for integration testing
+systemctl start docker
+docker pull busybox:latest
+docker pull busybox:buildroot-2014.02
+docker pull submod/helloapache
+docker pull submod/atomicapp
+
+# Final tweaks
+
+rm -rf /var/log/journal/*
+echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
+printf "[Coredump]\nStorage=journal\n" > /etc/systemd/coredump.conf
+
+ln -sf ../selinux/config /etc/sysconfig/selinux
+printf "SELINUX=enforcing\nSELINUXTYPE=targeted\n" > /etc/selinux/config
+
+touch /.autorelabel
+
+# Audit events to the journal
+rm -f '/etc/systemd/system/multi-user.target.wants/auditd.service'
+rm -rf /var/log/audit/

@@ -31,22 +31,26 @@ usage()
 
 prepare()
 {
-	if silent $VIRSH net-info cockpit; then
-		$VIRSH net-destroy cockpit
-		$VIRSH net-undefine cockpit
+	if silent $VIRSH net-info $NETWORK_NAME; then
+		$VIRSH net-destroy $NETWORK_NAME || true
+		$VIRSH net-undefine $NETWORK_NAME
 	fi
 
 	# HACK: NetworkManager races with dnsmasq-dhcp on bridge
 	# https://bugzilla.redhat.com/show_bug.cgi?id=1205081
-	cat > /etc/sysconfig/network-scripts/ifcfg-cockpit0 << EOF
-DEVICE=cockpit0
+	cat > /etc/sysconfig/network-scripts/ifcfg-$NETWORK_NAME << EOF
+DEVICE=$NETWORK_NAME
 NM_CONTROLLED=no
 EOF
 
-	$VIRSH net-define ./guest/network-cockpit.xml
+  if [ "$NETWORK_NAME" == "cockpit1" ]; then
+	  $VIRSH net-define ./guest/network-cockpit.xml
+  else
+    $VIRSH net-define ./guest/network-cockpit_secondary.xml
+  fi
 
-	$VIRSH net-autostart cockpit
-	$VIRSH net-start cockpit
+	$VIRSH net-autostart $NETWORK_NAME
+	$VIRSH net-start $NETWORK_NAME
 
 	if [ ! -u $QEMU_BRIDGE_HELPER ]; then
 		chmod -v u+s $QEMU_BRIDGE_HELPER
@@ -63,21 +67,21 @@ EOF
 	    exit 1
 	fi
 
-	rule="allow cockpit0"
-	if ! silent grep -F cockpit0 ${qemu_config_dir}/bridge.conf; then
+	rule="allow $NETWORK_NAME"
+	if ! silent grep -F $NETWORK_NAME ${qemu_config_dir}/bridge.conf; then
 		echo "$rule" >> ${qemu_config_dir}/bridge.conf
 	fi
 }
 
 unprepare()
 {
-	if ! silent virsh net-info cockpit; then
-		warning "the cockpit network has not been configured"
+	if ! silent virsh net-info $NETWORK_NAME; then
+		warning "the $NETWORK_NAME network has not been configured"
 		exit 1
 	fi
 
-	$VIRSH net-destroy cockpit
-	$VIRSH net-undefine cockpit
+	$VIRSH net-destroy $NETWORK_NAME
+	$VIRSH net-undefine $NETWORK_NAME
 }
 
 operation=prepare
@@ -111,4 +115,7 @@ if [ "$uid" != "0" ]; then
 	exit 1
 fi
 
+NETWORK_NAME=cockpit1
+$operation
+NETWORK_NAME=cockpit2
 $operation

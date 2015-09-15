@@ -25,7 +25,8 @@ define([
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider.when('/', {
                 templateUrl: 'views/dashboard-page.html',
-                controller: 'DashboardCtrl'
+                controller: 'DashboardCtrl',
+                reloadOnSearch: false,
             });
         }])
         .controller('DashboardCtrl', [

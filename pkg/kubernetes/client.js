@@ -267,7 +267,7 @@ define([
         function load_poke(force) {
             if (force || loading !== undefined) {
                 window.clearTimeout(loading);
-                loading = window.setTimeout(load_ready, 150);
+                loading = window.setTimeout(load_ready, 100);
             }
         }
 

@@ -327,7 +327,7 @@ define([
         read_plot.start_walking();
         write_plot.start_walking();
 
-        $(cockpit).on('resize', function () {
+        $(window).on('resize', function () {
             read_plot.resize();
             write_plot.resize();
         });

@@ -198,6 +198,7 @@ function host_edit_dialog(machine_manager, host) {
 }
 
 var permission = cockpit.permission({ group: "wheel" });
+$(permission).on("changed", update_servers_privileged);
 
 function update_servers_privileged() {
     controls.update_privileged_ui(
@@ -207,7 +208,6 @@ function update_servers_privileged() {
             cockpit.user.name)
     );
 }
-$(shell.default_permission).on("changed", update_servers_privileged);
 
 PageDashboard.prototype = {
     _init: function() {
@@ -499,7 +499,7 @@ PageDashboard.prototype = {
             update_series();
         }
 
-        $(cockpit).on('resize.dashboard', function () {
+        $(window).on('resize.dashboard', function () {
             self.plots.forEach(function (p) { p.resize(); });
         });
 

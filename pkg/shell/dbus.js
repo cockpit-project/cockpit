@@ -705,8 +705,77 @@ DBusClient.prototype = {
     }
 };
 
-shell.dbus_client = function dbus_client(target, options) {
+function cache_debug() {
+    if (window.debugging == "all" || window.debugging == "dbus")
+        console.debug.apply(console, arguments);
+}
+
+/* - cache = shell.util.make_resource_cache()
+ * - resource = cache.get(key, create)
+ * - resource.release()
+ *
+ * Create a cache for objects that are expensive to create.  Calling
+ * 'get' will either return an existing object that matches 'key' or
+ * execute 'create()' to create a new one.
+ *
+ * You need to call 'release' on the returned object once you are done
+ * with it.  After the last user has released an object, 'close' will
+ * be called on that object after a delay.
+ */
+function make_resource_cache() {
+    var resources = { };
+
+    function get(key, create) {
+        var handle;
+
+        handle = resources[key];
+
+        if (!handle) {
+            cache_debug("Creating %s", key);
+            handle = { refcount: 1, resource: create() };
+            resources[key] = handle;
+
+            handle.resource.release = function() {
+                cache_debug("Releasing %s", key);
+                // Only really release it after a delay
+                window.setTimeout(function () {
+                    if (!handle.refcount) {
+                        console.warn("Releasing unreffed resource");
+                    } else {
+                        handle.refcount -= 1;
+                        if (handle.refcount === 0) {
+                            delete resources[key];
+                            cache_debug("Closing %s", key);
+                            handle.resource.close("unused");
+                        }
+                    }
+                }, 10000);
+            };
+        } else {
+            cache_debug("Getting %s", key);
+            handle.refcount += 1;
+        }
+
+        return handle.resource;
+    }
+
+    return { get: get };
+}
+
+var dbus_clients = make_resource_cache();
+
+function make_dict_key(dict) {
+    function stringify_elt(k) { return JSON.stringify(k) + ':' + JSON.stringify(dict[k]); }
+    return Object.keys(dict).sort().map(stringify_elt).join(";");
+}
+
+function dbus_client(target, options) {
     return new DBusClient(target, options);
+}
+
+return function dbus(address, options) {
+    return dbus_clients.get(make_dict_key($.extend({host: address}, options)),
+                            function () { return dbus_client(address, options); });
 };
 
 });

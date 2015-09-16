@@ -24,7 +24,6 @@ define([
     "shell/controls",
     "shell/shell",
     "shell/authorized-keys",
-    "shell/cockpit-main",
     "base1/patterns",
 ], function($, cockpit, Mustache, controls, shell, authorized_keys) {
 "use strict";
@@ -32,18 +31,21 @@ define([
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 
+var permission = cockpit.permission({ group: "wheel" });
+$(permission).on("changed", update_accounts_privileged);
+
 function update_accounts_privileged() {
     $(".accounts-self-privileged").addClass("accounts-privileged");
 
     controls.update_privileged_ui(
-        shell.default_permission,
+        permission,
         ".accounts-privileged:not('.accounts-current-account')",
         cockpit.format(
             _("The user <b>$0</b> is not permitted to modify accounts"),
             cockpit.user.name)
     );
     $(".accounts-privileged").find("input")
-        .attr('disabled', shell.default_permission.allowed === false ||
+        .attr('disabled', permission.allowed === false ||
                           $('#account-user-name').text() === 'root');
 
     // enable fields for current account.
@@ -53,7 +55,7 @@ function update_accounts_privileged() {
     $(".accounts-current-account").find("input")
         .attr('disabled', false);
 
-    if ($('#account-user-name').text() === 'root' && shell.default_permission.allowed) {
+    if ($('#account-user-name').text() === 'root' && permission.allowed) {
         controls.update_privileged_ui({allowed: false},
                                       "#account-delete",
                                       _("Unable to delete root account"));
@@ -184,8 +186,6 @@ function chain(functions) {
     step();
     return dfd.promise();
 }
-
-$(shell.default_permission).on("changed", update_accounts_privileged);
 
 function parse_passwd_content(content, tag, error) {
     if (content === null) {
@@ -638,7 +638,7 @@ PageAccount.prototype = {
         var key = $(ev.target).data("raw");
         $(".account-remove-key").prop('disabled', true);
         this.authorized_keys.remove_key(key)
-            .fail(shell.show_unexpected_error)
+            .fail(show_unexpected_error)
             .always(function () {
                 $(".account-remove-key").prop('disabled', false);
             });
@@ -900,11 +900,11 @@ PageAccount.prototype = {
         if ($(ev.target).prop('checked')) {
             cockpit.spawn(["/usr/sbin/usermod", this.account["name"],
                            "-G", id, "-a"], { "superuser": "require" })
-               .fail(shell.show_unexpected_error);
+               .fail(show_unexpected_error);
         } else {
             cockpit.spawn(["/usr/bin/gpasswd", "-d", this.account["name"],
                            name], { "superuser": "require" })
-                   .fail(shell.show_unexpected_error);
+                   .fail(show_unexpected_error);
         }
     },
 
@@ -914,7 +914,7 @@ PageAccount.prototype = {
 
     check_role_for_self_mod: function () {
         return (this.account["name"] == cockpit.user["user"] ||
-                shell.default_permission.allowed !== false);
+                permission.allowed !== false);
     },
 
     change_real_name: function() {
@@ -938,7 +938,7 @@ PageAccount.prototype = {
                self.update();
                name.removeAttr("data-dirty");
            })
-           .fail(shell.show_unexpected_error);
+           .fail(show_unexpected_error);
     },
 
     change_locked: function() {
@@ -946,7 +946,7 @@ PageAccount.prototype = {
                        this.account["name"],
                        $('#account-locked').prop('checked') ? "--lock" : "--unlock"], { "superuser": "require"})
            .done($.proxy (this, "get_locked"))
-           .fail(shell.show_unexpected_error);
+           .fail(show_unexpected_error);
     },
 
     set_password: function() {
@@ -965,7 +965,7 @@ PageAccount.prototype = {
     logout_account: function() {
         cockpit.spawn(["/usr/bin/loginctl", "kill-user", this.account["name"]], { "superuser": "try"})
            .done($.proxy (this, "get_logged"))
-           .fail(shell.show_unexpected_error);
+           .fail(show_unexpected_error);
 
     },
 };
@@ -1009,7 +1009,7 @@ PageAccountConfirmDelete.prototype = {
               $('#account-confirm-delete-dialog').modal('hide');
                cockpit.location.go("/");
            })
-           .fail(shell.show_unexpected_error);
+           .fail(show_unexpected_error);
     }
 };
 
@@ -1124,6 +1124,23 @@ function PageAccountSetPassword() {
  * We cater to this with a little compatability shim consisting of
  * 'dialog_setup', 'page_show', and 'page_hide'.
  */
+
+function show_error_dialog(title, message) {
+    if (message) {
+        $("#error-popup-title").text(title);
+        $("#error-popup-message").text(message);
+    } else {
+        $("#error-popup-title").text(_("Error"));
+        $("#error-popup-message").text(title);
+    }
+
+    $('.modal[role="dialog"]').modal('hide');
+    $('#error-popup').modal('show');
+}
+
+function show_unexpected_error(error) {
+    show_error_dialog(_("Unexpected error"), error.message || error);
+}
 
 function dialog_setup(d) {
     d.setup();

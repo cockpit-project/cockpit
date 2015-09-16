@@ -336,7 +336,7 @@ server_ready (void)
       g_print ("**********************************************************************\n"
            "Please connect a supported web browser to\n"
            "\n"
-           " %s/pkg/shell/test-dbusx.html\n"
+           " %s/pkg/base1/test-dbus.html\n"
            "\n"
            "and check that the test suite passes. Press Ctrl+C to exit.\n"
            "**********************************************************************\n"

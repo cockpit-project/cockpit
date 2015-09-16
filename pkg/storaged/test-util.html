@@ -38,9 +38,8 @@
 <script type="text/javascript">
 
 require([
-    "shell/shell",
-    "shell/cockpit-util"
-], function(shell) {
+    "storaged/utils"
+], function(utils) {
 
 test("format_delay", function() {
     var checks = [
@@ -49,7 +48,7 @@ test("format_delay", function() {
 
     expect(checks.length);
     for (var i = 0; i < checks.length; i++) {
-        strictEqual(shell.format_delay(checks[i][0]), checks[i][1],
+        strictEqual(utils.format_delay(checks[i][0]), checks[i][1],
                     "format_delay(" + checks[i][0] + ") = " + checks[i][1]);
     }
 });

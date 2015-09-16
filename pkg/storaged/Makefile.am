@@ -45,6 +45,7 @@ storagedimages_DATA = \
 	$(NULL)
 
 storaged_TESTS = \
+	pkg/storaged/test-util.html \
 	$(NULL)
 
 TESTS += $(storaged_TESTS)

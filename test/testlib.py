@@ -102,7 +102,7 @@ class Browser:
         Load a page into the browser.
 
         Arguments:
-          href: The id of the Cockpit page to load, such as "dashboard".
+          page: The id of the Cockpit page to load, such as "/dashboard/list".
           url: The full URL to load.
 
         Either PAGE or URL needs to be given.
@@ -259,16 +259,6 @@ class Browser:
     def wait_text_not(self, selector, text):
         return self.wait_js_func('!ph_text_is', selector, text)
 
-    # TODO: This code needs to be migrated away from dbus-json1
-    def wait_dbus_ready(self, client_address = "localhost", client_options = { }):
-        return self.wait_js_func('ph_dbus_ready', client_address, client_options)
-
-    def wait_dbus_prop(self, iface, prop, text, client_address = "localhost", client_options = { }):
-        return self.wait_js_func('ph_dbus_prop', client_address, client_options, iface, prop, text)
-
-    def wait_dbus_object_prop(self, path, iface, prop, text, client_address = "localhost", client_options = { }):
-        return self.wait_js_func('ph_dbus_object_prop', client_address, client_options, path, iface, prop, text)
-
     def wait_popup(self, id):
         """Wait for a popup to open.
 
@@ -320,9 +310,8 @@ class Browser:
 
         Arguments:
 
-            id: The identifier the page.  This is either a the id
-                attribute for legacy pages, or a string starting with
-                "/" for modern pages.
+            id: The identifier the page.  This is a string starting with "/"
+                For old cockpit this may be an old style page identifier.
         """
         if id.startswith("/"):
             if host:
@@ -345,7 +334,6 @@ class Browser:
             self.wait_visible("body")
         else:
             self.wait_visible('#' + id)
-            self.wait_dbus_ready()
 
     def leave_page(self):
         self.switch_to_top()

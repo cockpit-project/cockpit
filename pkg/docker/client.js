@@ -22,10 +22,10 @@ define([
     "base1/cockpit",
     "docker/util",
     "shell/shell",
+    "shell/dbus",
     "shell/cockpit-plot",
     "shell/cockpit-util",
-    "shell/dbus",
-], function($, cockpit, util, shell) {
+], function($, cockpit, util, shell, dbusx) {
 
     /* DOCKER CLIENT
      */
@@ -273,7 +273,7 @@ define([
             });
 
             /* TODO: This code needs to be migrated away from cockpit-wrapper */
-            dbus_client = shell.dbus(null);
+            dbus_client = dbusx(null);
             monitor = dbus_client.get("/com/redhat/Cockpit/LxcMonitor",
                                       "com.redhat.Cockpit.MultiResourceMonitor");
             $(monitor).on('NewSample', handle_new_samples);

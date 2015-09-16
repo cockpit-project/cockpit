@@ -24,11 +24,10 @@ define([
     "shell/controls",
     "shell/shell",
     "system/server",
-    "shell/cockpit-main",
+    "shell/dbus",
     "shell/cockpit-plot",
     "shell/cockpit-util",
-    "shell/dbus"
-], function($, cockpit, Mustache, controls, shell, server) {
+], function($, cockpit, Mustache, controls, shell, server, dbusx) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -1242,15 +1241,17 @@ function network_plot_setup_hook(plot) {
     axes.yaxis.options.min = 0;
 }
 
+var permission = cockpit.permission({ group: "wheel" });
+$(permission).on("changed", update_network_privileged);
+
 function update_network_privileged() {
     controls.update_privileged_ui(
-        shell.default_permission, ".network-privileged",
+        permission, ".network-privileged",
         cockpit.format(
             _("The user <b>$0</b> is not permitted to modify network settings"),
             cockpit.user.name)
     );
 }
-$(shell.default_permission).on("changed", update_network_privileged);
 
 PageNetworking.prototype = {
     _init: function (model) {
@@ -1306,7 +1307,7 @@ PageNetworking.prototype = {
         }
 
         /* TODO: This code needs to be migrated away from old dbus */
-        this.cockpitd = shell.dbus(null);
+        this.cockpitd = dbusx(null);
         this.monitor = this.cockpitd.get("/com/redhat/Cockpit/NetdevMonitor",
                                          "com.redhat.Cockpit.MultiResourceMonitor");
 
@@ -1626,7 +1627,7 @@ PageNetworkInterface.prototype = {
         }
 
         /* TODO: This code needs to be migrated away from old dbus */
-        this.cockpitd = shell.dbus(null);
+        this.cockpitd = dbusx(null);
         this.monitor = this.cockpitd.get("/com/redhat/Cockpit/NetdevMonitor",
                                          "com.redhat.Cockpit.MultiResourceMonitor");
 

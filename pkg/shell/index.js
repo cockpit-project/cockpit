@@ -269,7 +269,7 @@ define([
                 $(this).attr('data-loaded', true);
                 phantom_checkpoint();
                 $(this.contentWindow).on('hashchange', function () {
-                    if (current_frame && !frame.no_hash_tracking && current_frame.contentWindow === this) {
+                    if (current_frame && current_frame.contentWindow === this) {
                         var hash = this.location.href.split('#')[1] || '';
                         if (hash && hash[0] !== '/')
                             hash = '/' + hash;
@@ -499,15 +499,12 @@ define([
     function update_frame(machine, component, hash, options) {
         var dashboard = false;
 
-        /* TODO: Move away from legacy pages */
         if (hash == "/")
             hash = "";
 
         hash = cockpit.location.encode(hash, options);
 
         var frame = frames.lookup(machine, component, hash);
-        if (component == "shell/shell")
-            frame.no_hash_tracking = true;
         if (frame != current_frame) {
             $(current_frame).hide();
             current_frame = frame;

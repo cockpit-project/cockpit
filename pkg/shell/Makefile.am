@@ -70,9 +70,6 @@ shellimages_DATA = \
 	pkg/shell/images/server-error.png \
 	$(NULL)
 
-pmlogconfdir = $(localstatedir)/lib/pcp/config/pmlogconf/tools
-pmlogconf_DATA = pkg/shell/pmlogconf/cockpit
-
 # -----------------------------------------------------------------------------
 
 shell_TESTS = \
@@ -105,5 +102,4 @@ EXTRA_DIST += \
 	$(shelldebug_DATA) \
 	$(shellimages_DATA) \
 	$(shell_TESTS) \
-	pkg/shell/pmlogconf/cockpit \
 	$(NULL)

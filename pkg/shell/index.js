@@ -503,13 +503,6 @@ define([
         if (hash == "/")
             hash = "";
 
-        if (machine) {
-            if (component == "system/host") {
-                component = "shell/shell";
-                hash = "/server" + hash;
-            }
-        }
-
         hash = cockpit.location.encode(hash, options);
 
         var frame = frames.lookup(machine, component, hash);

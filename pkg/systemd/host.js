@@ -26,6 +26,9 @@ define([
     "shell/cockpit-main",
     "system/server",
     "system/service",
+    "shell/plot",
+    "shell/cockpit-plot",
+    "shell/cockpit-util",
     "base1/bootstrap-datepicker",
     "base1/bootstrap-combobox",
 ], function($, cockpit, domain, controls, shell, main, server, service) {
@@ -34,9 +37,12 @@ define([
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 
+var permission = cockpit.permission({ group: "wheel" });
+$(permission).on("changed", update_hostname_privileged);
+
 function update_hostname_privileged() {
     controls.update_privileged_ui(
-        shell.default_permission, ".hostname-privileged",
+        permission, ".hostname-privileged",
         cockpit.format(
             _("The user <b>$0</b> is not permitted to modify hostnames"),
             cockpit.user.name)
@@ -47,8 +53,6 @@ function debug() {
     if (window.debugging == "all" || window.debugging == "system")
         console.debug.apply(console, arguments);
 }
-
-$(shell.default_permission).on("changed", update_hostname_privileged);
 
 function ServerTime() {
     var self = this;
@@ -488,8 +492,6 @@ function PageServer() {
     this._init();
 }
 
-shell.pages.push(new PageServer());
-
 PageSystemInformationChangeHostname.prototype = {
     _init: function() {
         this.id = "system_information_change_hostname";
@@ -642,8 +644,6 @@ PageSystemInformationChangeHostname.prototype = {
 function PageSystemInformationChangeHostname() {
     this._init();
 }
-
-shell.dialogs.push(new PageSystemInformationChangeHostname());
 
 PageSystemInformationChangeSystime.prototype = {
     _init: function() {
@@ -840,8 +840,6 @@ function PageSystemInformationChangeSystime() {
     this._init();
 }
 
-shell.dialogs.push(new PageSystemInformationChangeSystime());
-
 PageShutdownDialog.prototype = {
     _init: function() {
         this.id = "shutdown-dialog";
@@ -943,6 +941,275 @@ function PageShutdownDialog() {
     this._init();
 }
 
-shell.dialogs.push(new PageShutdownDialog());
+PageCpuStatus.prototype = {
+    _init: function() {
+        this.id = "cpu_status";
+    },
+
+    getTitle: function() {
+        return C_("page-title", "CPU Status");
+    },
+
+    enter: function() {
+        var self = this;
+
+        var options = {
+            series: {shadowSize: 0,
+                     lines: {lineWidth: 0, fill: true}
+                    },
+            yaxis: {min: 0,
+                    max: 100,
+                    show: true,
+                    ticks: 5,
+                    tickFormatter: function(v) { return (v / 10) + "%"; }},
+            xaxis: {show: true,
+                    ticks: [[0.0*60, "5 min"],
+                            [1.0*60, "4 min"],
+                            [2.0*60, "3 min"],
+                            [3.0*60, "2 min"],
+                            [4.0*60, "1 min"]]},
+            legend: { show: true },
+            x_rh_stack_graphs: true
+        };
+
+        var metrics = [
+            { name: "cpu.basic.iowait", derive: "rate" },
+            { name: "cpu.basic.system", derive: "rate" },
+            { name: "cpu.basic.user", derive: "rate" },
+            { name: "cpu.basic.nice", derive: "rate" },
+        ];
+
+        var series = [
+            { color: "#e41a1c", label: _("I/O Wait") },
+            { color: "#ff7f00", label: _("Kernel") },
+            { color: "#377eb8", label: _("User") },
+            { color: "#4daf4a", label: _("Nice") },
+        ];
+
+        self.channel = cockpit.metrics(1000, {
+            source: "internal",
+            metrics: metrics,
+            cache: "cpu-status-rate"
+        });
+
+        /* The grid shows us the last five minutes */
+        self.grid = cockpit.grid(1000, -300, -0);
+
+        var i;
+        for(i = 0; i < series.length; i++) {
+            series[i].row = self.grid.add(self.channel, [ metrics[i].name ]);
+        }
+
+        /* Start pulling data, and make the grid follow the data */
+        self.channel.follow();
+        self.grid.walk();
+
+        this.plot = shell.setup_complicated_plot("#cpu_status_graph", self.grid, series, options);
+
+        shell.util.machine_info().
+            done(function (info) {
+                self.plot.set_yaxis_max(info.cpus * 1000);
+            });
+    },
+
+    show: function() {
+        this.plot.start();
+    },
+
+    leave: function() {
+        this.plot.destroy();
+        this.channel.close();
+        this.channel = null;
+    }
+};
+
+function PageCpuStatus() {
+    this._init();
+}
+
+PageMemoryStatus.prototype = {
+    _init: function() {
+        this.id = "memory_status";
+    },
+
+    getTitle: function() {
+        return C_("page-title", "Memory");
+    },
+
+    enter: function() {
+        var self = this;
+
+        var options = {
+            series: {shadowSize: 0, // drawing is faster without shadows
+                     lines: {lineWidth: 0.0, fill: true}
+                    },
+            yaxis: {min: 0,
+                    ticks: 5,
+                    tickFormatter: function (v) {
+                        return cockpit.format_bytes(v);
+                    }
+                   },
+            xaxis: {show: true,
+                    ticks: [[0.0*60, "5 min"],
+                            [1.0*60, "4 min"],
+                            [2.0*60, "3 min"],
+                            [3.0*60, "2 min"],
+                            [4.0*60, "1 min"]]},
+            legend: { show: true },
+            x_rh_stack_graphs: true
+        };
+
+        var metrics = [
+            { name: "memory.swap-used" },
+            { name: "memory.cached" },
+            { name: "memory.used" },
+            { name: "memory.free" },
+        ];
+
+        var series = [
+            { color: "#e41a1c", label: _("Swap Used") },
+            { color: "#ff7f00", label: _("Cached") },
+            { color: "#377eb8", label: _("Used") },
+            { color: "#4daf4a", label: _("Free") },
+        ];
+
+        self.channel = cockpit.metrics(1000, {
+            source: "internal",
+            metrics: metrics,
+            cache: "memory-status"
+        });
+
+        /* The grid shows us the last five minutes */
+        self.grid = cockpit.grid(1000, -300, -0);
+
+        var i;
+        for(i = 0; i < series.length; i++) {
+            series[i].row = self.grid.add(self.channel, [ metrics[i].name ]);
+        }
+
+        /* Start pulling data, and make the grid follow the data */
+        self.channel.follow();
+        self.grid.walk();
+
+        this.plot = shell.setup_complicated_plot("#memory_status_graph", self.grid, series, options);
+    },
+
+    show: function() {
+        this.plot.start();
+    },
+
+    leave: function() {
+        this.plot.destroy();
+        this.channel.close();
+        this.channel = null;
+    }
+};
+
+function PageMemoryStatus() {
+    this._init();
+}
+
+$("#link-cpu").on("click", function() {
+    cockpit.location.go([ "cpu" ]);
+    return false;
+});
+
+$("#link-memory").on("click", function() {
+    cockpit.location.go([ "memory" ]);
+    return false;
+});
+
+$("#link-network").on("click", function() {
+    cockpit.jump("/network/interfaces");
+    return false;
+});
+
+$("#link-disk").on("click", function() {
+    cockpit.jump("/storage/devices");
+    return false;
+});
+
+
+/*
+ * INITIALIZATION AND NAVIGATION
+ *
+ * The code above still uses the legacy 'Page' abstraction for both
+ * pages and dialogs, and expects page.setup, page.enter, page.show,
+ * and page.leave to be called at the right times.
+ *
+ * We cater to this with a little compatability shim consisting of
+ * 'dialog_setup', 'page_show', and 'page_hide'.
+ */
+
+function dialog_setup(d) {
+    d.setup();
+    $('#' + d.id).
+        on('show.bs.modal', function () { d.enter(); }).
+        on('shown.bs.modal', function () { d.show(); }).
+        on('hidden.bs.modal', function () { d.leave(); });
+}
+
+function page_show(p, arg) {
+    if (p._entered_)
+        p.leave();
+    p.enter(arg);
+    p._entered_ = true;
+    $('#' + p.id).show();
+    p.show();
+}
+
+function page_hide(p) {
+    $('#' + p.id).hide();
+    if (p._entered_) {
+        p.leave();
+        p._entered_ = false;
+    }
+}
+
+function init() {
+    var server_page;
+    var memory_page;
+    var cpu_page;
+
+    function navigate() {
+        var path = cockpit.location.path;
+
+        if (path.length === 0) {
+            page_hide(cpu_page);
+            page_hide(memory_page);
+            page_show(server_page);
+        } else if (path.length === 1 && path[0] == 'cpu') {
+            page_hide(server_page);
+            page_hide(memory_page);
+            page_show(cpu_page);
+        } else if (path.length === 1 && path[0] == 'memory') {
+            page_hide(server_page);
+            page_hide(cpu_page);
+            page_show(memory_page);
+        } else { /* redirect */
+            console.warn("not a system location: " + path);
+            cockpit.location = '';
+        }
+
+        $("body").show();
+    }
+
+    cockpit.translate();
+
+    server_page = new PageServer();
+    server_page.setup();
+
+    cpu_page = new PageCpuStatus();
+    memory_page = new PageMemoryStatus();
+
+    dialog_setup(new PageSystemInformationChangeHostname());
+    dialog_setup(new PageSystemInformationChangeSystime());
+    dialog_setup(new PageShutdownDialog());
+
+    $(cockpit).on("locationchanged", navigate);
+    navigate();
+}
+
+return init;
 
 });

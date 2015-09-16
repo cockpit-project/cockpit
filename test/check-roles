@@ -37,11 +37,11 @@ class TestRoles(MachineCase):
             b.click('#login-button')
 
         # login
-        b.open("server", href="/system/host")
+        b.open("/system/host")
         b.wait_visible("#login")
         login("user", "foobar")
         b.expect_reload()
-        b.enter_page("server")
+        b.enter_page("/system/host")
         b.switch_to_top()
         b.wait_text('#content-user-name', 'User')
 

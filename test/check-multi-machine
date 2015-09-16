@@ -122,7 +122,7 @@ class TestMultiMachine(MachineCase):
         b.click("#dashboard-hosts a[data-address='%s']" % m2.address)
         b.switch_to_top()
         b.wait_js_cond('window.location.hash != "#/dashboard/list"')
-        b.enter_page("server", m2.address)
+        b.enter_page("/system/host", host=m2.address)
         b.wait_text_not("#system_information_hostname_button", "")
         b.switch_to_top()
         b.go("/dashboard/list")
@@ -131,7 +131,7 @@ class TestMultiMachine(MachineCase):
 
         b.click('#dashboard-hosts a:nth-child(%d)' % m3_index)
         b.wait_js_cond('window.location.hash != "#/dashboard/list"')
-        b.enter_page("server", m3.address)
+        b.enter_page("/system/host", host=m3.address)
         b.wait_text_not("#system_information_hostname_button", "")
         b.switch_to_top()
         b.go("/dashboard/list")

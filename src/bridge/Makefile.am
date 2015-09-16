@@ -243,6 +243,11 @@ cockpit_pcp_CFLAGS = \
 	$(NULL)
 cockpit_pcp_LDADD = $(libcockpit_pcp_LIBS)
 
+pmlogconfdir = $(localstatedir)/lib/pcp/config/pmlogconf/tools
+pmlogconf_DATA = src/bridge/pmlogconf/cockpit
+
+EXTRA_DIST += $(pmlogconf_DATA)
+
 BRIDGE_CHECKS += \
 	test-pcp \
 	test-pcp-archives \

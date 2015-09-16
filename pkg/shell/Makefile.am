@@ -28,12 +28,9 @@ shelldebug_DATA = \
 	pkg/shell/dbus.js \
 	pkg/shell/controls.js \
 	pkg/shell/plot.js \
-	pkg/shell/canvas.js \
 	pkg/shell/cockpit-util.js \
 	pkg/shell/cockpit-main.js \
 	pkg/shell/cockpit-plot.js \
-	pkg/shell/cockpit-dashboard.js \
-	pkg/shell/cockpit-setup.js \
 	pkg/shell/cockpit-server.js \
 	pkg/shell/cockpit-cpu-status.js \
 	pkg/shell/cockpit-memory-status.js \
@@ -59,12 +56,9 @@ shell_MINFILES = \
 	pkg/shell/dbus.min.js \
 	pkg/shell/controls.min.js \
 	pkg/shell/plot.min.js \
-	pkg/shell/canvas.min.js \
 	pkg/shell/cockpit-util.min.js \
 	pkg/shell/cockpit-main.min.js \
 	pkg/shell/cockpit-plot.min.js \
-	pkg/shell/cockpit-dashboard.min.js \
-	pkg/shell/cockpit-setup.min.js \
 	pkg/shell/cockpit-server.min.js \
 	pkg/shell/cockpit-cpu-status.min.js \
 	pkg/shell/cockpit-memory-status.min.js \
@@ -84,7 +78,6 @@ shellimages_DATA = \
 	pkg/shell/images/server-large.png \
 	pkg/shell/images/server-small.png \
 	pkg/shell/images/server-error.png \
-	pkg/shell/images/dialog-error.png \
 	$(NULL)
 
 pmlogconfdir = $(localstatedir)/lib/pcp/config/pmlogconf/tools

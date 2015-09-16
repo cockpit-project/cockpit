@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<!--
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2015 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+<head>
+<title>Cockpit</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../base1/cockpit.css" rel="stylesheet">
+    <link href="../shell/shell.css" rel="stylesheet">
+    <script src="../base1/bundle.js"></script>
+    <script src="../shell/bundle.js"></script>
+    <script src="../shell/shell.js"></script>
+    <script src="bundle.js"></script>
+    <script>
+        require([
+            "jquery",
+            "dashboard/list"
+        ], function($, list) {
+            $(list);
+        });
+    </script>
+</head>
+<body hidden>
+
+    <div id="dashboard" class="container-fluid" hidden>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="dashboard-toolbar" class="pull-right zoom-controls">
+                    <div class="dropdown" style="display:inline-block">
+                        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                            <span style="width:6em;text-align:left;padding-left:5px;display:inline-block"></span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li role="presentation"><a role="menuitem" tabindex="-1"
+                                data-action="goto-now">Go to now</a></li>
+                            <li role="presentation" class="divider"></li>
+                            <li role="presentation"><a role="menuitem" tabindex="-1"
+                                data-range="300">5 minutes</a></li>
+                            <li role="presentation"><a role="menuitem" tabindex="-1"
+                                data-range="3600">1 hour</a></li>
+                            <li role="presentation"><a role="menuitem" tabindex="-1"
+                                data-range="21600">6 hours</a></li>
+                            <li role="presentation"><a role="menuitem" tabindex="-1"
+                                data-range="86400">1 day</a></li>
+                            <li role="presentation"><a role="menuitem" tabindex="-1"
+                                data-range="604800">1 week</a></li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-default" data-action="zoom-out">
+                        <span class="glyphicon glyphicon-zoom-out"></span>
+                    </button>
+                    <div class="btn-group">
+                        <button class="btn btn-default fa fa-angle-left" data-action="scroll-left"></button>
+                        <button class="btn btn-default fa fa-angle-right" data-action="scroll-right"></button>
+                    </div>
+                </div>
+                <ul class="nav nav-tabs">
+                    <li data-monitor-id="0"><a>CPU</a></li>
+                    <li data-monitor-id="1"><a>Memory</a></li>
+                    <li data-monitor-id="2"><a>Network</a></li>
+                    <li data-monitor-id="3"><a>Disk I/O</a></li>
+                </ul>
+                <br>
+                <div class="dashboard-plot zoomable-plot" id="dashboard-plot-0" style="height:250px"></div>
+                <div class="dashboard-plot zoomable-plot" id="dashboard-plot-1" style="height:250px"></div>
+                <div class="dashboard-plot zoomable-plot" id="dashboard-plot-2" style="height:250px"></div>
+                <div class="dashboard-plot zoomable-plot" id="dashboard-plot-3" style="height:250px"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default" id="dashboard-hosts">
+                    <div class="panel-heading">
+                        <button class="btn btn-primary servers-privileged fa fa-plus"
+                            id="dashboard-add" title="Add Server"></button>
+                        <button class="btn btn-default fa fa-check"
+                            id="dashboard-enable-edit" title="Edit Server"></button>
+                        <span>Servers</span>
+                    </div>
+                    <div class="list-group">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script id="dashboard-hosts-tmpl" type="x-template/mustache">
+        {{#machines}}
+            {{! state can be 'failed' or 'connected' }}
+            <a data-address="{{address}}" class="list-group-item {{state}}"
+                style="border-left-color: {{ color }};" target="_parent"
+                href="/#/@{{address}}/system/host">
+                <button class="btn btn-danger edit-button servers-privileged pficon btn-delete pficon-delete delete-{{address}}"></button>
+                <button class="btn btn-default edit-button servers-privileged pficon pficon-edit"></button>
+                <img class="host-avatar {{avatar_display}}" src="{{render_avatar}}">
+                <div class="spinner {{connecting_display}}"></div>
+                <div class="os">{{os}}</div>
+                <span class="host-label">{{label}}
+                    <span class="reconnecting {{connecting_display}}"
+                        translatable="yes">Lost connection. Trying to reconnect</span></span>
+            </a>
+        {{/machines}}
+    </script>
+
+    <div class="modal" id="error-popup" tabindex="-1" role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="error-popup-title">Unexpected error</h4>
+                </div>
+                <div class="modal-body">
+                    <p id="error-popup-message"></p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="dashboard_setup_server_dialog" tabindex="-1" role="dialog"
+        data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                        aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Add Host</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="cockpit-setup-tab" id="dashboard_setup_address_tab">
+                        <input type="search" class="form-control" id="dashboard_setup_address"/>
+                        <label>
+                            <input type="checkbox" id="dashboard_setup_address_reuse_creds"/>
+                            Log in with my current credentials.
+                        </label>
+                        <div id="dashboard_setup_address_error" class="help-block"
+                            style="visibility: hidden;">Placeholder</div>
+                        <ul class="list-group" id="dashboard_setup_address_discovered">
+                        </ul>
+                    </div>
+                    <div class="cockpit-setup-tab" id="dashboard_setup_login_tab">
+                        <p>Log in to <span id="dashboard_setup_login_address"></span>.</p>
+                        <table class="cockpit-form-table">
+                            <tr>
+                                <td>
+                                    <label class="control-label" for="dashboard_setup_login_user"
+                                        translatable="yes">User Name</label>
+                                </td>
+                                <td id="login_user_cell">
+                                    <input type="text" class="form-control"
+                                        id="dashboard_setup_login_user"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label class="control-label" for="dashboard_setup_login_password"
+                                        translatable="yes">Password</label>
+                                </td>
+                                <td>
+                                    <input type="password" class="form-control"
+                                        id="dashboard_setup_login_password"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td class="has-error">
+                                    <div id="dashboard_setup_login_error" class="help-block"
+                                        style="visibility: hidden;">Placeholder</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="cockpit-setup-tab" id="dashboard_setup_action_tab">
+                        <p>Will add server to dashboard:</p>
+                        <table>
+                            <tr>
+                                <td>Address:</td>
+                                <td id="dashboard_setup_action_address"></td>
+                            </tr>
+                            <tr>
+                                <td>Fingerprint:</td>
+                                <td id="dashboard_setup_action_fingerprint"></td>
+                            </tr>
+                        </table>
+                        <ul class="list-group" id="dashboard_setup_action_tasks">
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="spinner spinner-sm pull-left" id="dashboard_setup_spinner" hidden></div>
+                    <button class="btn btn-default" id="dashboard_setup_prev">Previous</button>
+                    <button class="btn btn-primary" id="dashboard_setup_next">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="host-edit-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Change Server Appearance</h4>
+                </div>
+                <div class="modal-body">
+                    <input data-role="none" type="file" id="host-edit-file-input"
+                        style="display:none"/>
+                    <center>
+                        <div>
+                            <input class="form-control" id="host-edit-name"/>
+                        </div>
+                        <div id="host-edit-avatar" style="margin-top:10px"></div>
+                        <div>
+                            <div id="host-edit-color" data-toggle="dropdown"
+                                style="width:256px;height:32px;margin-top:10px">
+                            </div>
+                            <div id="host-edit-color-popover" class="popover top in" tabindex="-1">
+                                <div class="arrow"></div>
+                                <div class="popover-content"></div>
+                            </div>
+                        </div>
+                    </center>
+                    <div id="host-edit-fail"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" id="host-edit-apply">Set</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

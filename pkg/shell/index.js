@@ -417,7 +417,7 @@ define([
     }
 
     function update_navbar(machine, component) {
-        $("#machine-avatar").attr("src", machine ? encodeURI(machine.avatar) : "images/server-small.png");
+        $("#machine-avatar").attr("src", machine && machine.avatar ? encodeURI(machine.avatar) : "../shell/images/server-small.png");
         $("#machine-dropdown").toggleClass("active", !!machine);
 
         var label, title;
@@ -507,12 +507,6 @@ define([
             if (component == "system/host") {
                 component = "shell/shell";
                 hash = "/server" + hash;
-            }
-        } else {
-            dashboard = true;
-            if (component == "dashboard/list") {
-                component = "shell/shell";
-                hash = "/";
             }
         }
 

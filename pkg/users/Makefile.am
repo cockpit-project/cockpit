@@ -9,22 +9,36 @@ users_DATA = \
 	$(users_GZ) \
 	$(NULL)
 
+users_SCRIPTS = \
+	pkg/users/ssh-add-public-key.sh \
+	pkg/users/ssh-list-public-keys.sh \
+	$(NULL)
+
 usersdebugdir = $(debugdir)$(usersdir)
 usersdebug_DATA = \
+	pkg/users/authorized-keys.js \
 	pkg/users/bundle.js \
 	pkg/users/local.html \
 	pkg/users/local.js \
 	pkg/users/users.css \
+	$(users_SCRIPTS) \
+	$(NULL)
+
+users_BUNDLEFILES = \
+	pkg/users/authorized-keys.min.js \
+	pkg/users/local.min.js \
 	$(NULL)
 
 users_BUNDLE = \
-	pkg/users/local.min.js \
+	$(users_BUNDLEFILES) \
+	$(users_SCRIPTS) \
 	$(NULL)
 
 pkg/users/bundle.min.js: $(users_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
 users_TESTS = \
+	pkg/users/test-list-public-keys.sh \
 	$(NULL)
 
 TESTS += $(users_TESTS)
@@ -32,11 +46,12 @@ TESTS += $(users_TESTS)
 CLEANFILES += \
 	pkg/users/bundle.min.js \
 	pkg/users/local.min.html \
-	$(users_BUNDLE) \
+	$(users_BUNDLEFILES) \
 	$(users_GZ) \
 	$(NULL)
 
 EXTRA_DIST += \
+	pkg/users/mock \
 	pkg/users/bundle.min.js \
 	pkg/users/local.min.html \
 	$(users_DATA) \

@@ -10,11 +10,6 @@ shell_DATA = \
 	$(shell_GZ) \
 	$(NULL)
 
-shell_SCRIPTS = \
-	pkg/shell/ssh-add-public-key.sh \
-	pkg/shell/ssh-list-public-keys.sh \
-	$(NULL)
-
 shelldebugdir = $(debugdir)$(shelldir)
 shelldebug_DATA = \
 	pkg/shell/shell.js \
@@ -28,19 +23,11 @@ shelldebug_DATA = \
 	pkg/shell/plot.js \
 	pkg/shell/cockpit-util.js \
 	pkg/shell/cockpit-plot.js \
-	pkg/shell/authorized-keys.js \
-	$(shell_SCRIPTS) \
-	$(NULL)
-
-# shell_BUNDLEFILES are included in files to be cleaned
-shell_BUNDLEFILES = \
-	pkg/shell/index.min.js \
-	pkg/shell/machines.min.js \
 	$(NULL)
 
 shell_BUNDLE = \
-	$(shell_BUNDLEFILES) \
-	$(shell_SCRIPTS) \
+	pkg/shell/index.min.js \
+	pkg/shell/machines.min.js \
 	$(NULL)
 
 pkg/shell/bundle.min.js: $(shell_BUNDLE)
@@ -52,7 +39,6 @@ shell_MINFILES = \
 	pkg/shell/plot.min.js \
 	pkg/shell/cockpit-util.min.js \
 	pkg/shell/cockpit-plot.min.js \
-	pkg/shell/authorized-keys.min.js \
 	$(NULL)
 
 shell_SHELL = \
@@ -75,7 +61,6 @@ shellimages_DATA = \
 shell_TESTS = \
 	pkg/shell/test-dummy.html \
 	pkg/shell/test-controls.html \
-	pkg/shell/test-list-public-keys.sh \
 	$(NULL)
 
 TESTS += $(shell_TESTS)
@@ -86,13 +71,12 @@ CLEANFILES += \
 	pkg/shell/shell.min.js \
 	pkg/shell/bundle.min.js \
 	pkg/shell/index.min.html \
-	$(shell_BUNDLEFILES) \
+	$(shell_BUNDLE) \
 	$(shell_GZ) \
 	$(shell_MINFILES) \
 	$(NULL)
 
 EXTRA_DIST += \
-	pkg/shell/mock \
 	pkg/shell/shell.min.js \
 	pkg/shell/bundle.min.js \
 	pkg/shell/index.min.html \

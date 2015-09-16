@@ -23,7 +23,7 @@ define([
     "base1/mustache",
     "shell/controls",
     "shell/shell",
-    "shell/authorized-keys",
+    "users/authorized-keys",
     "base1/patterns",
 ], function($, cockpit, Mustache, controls, shell, authorized_keys) {
 "use strict";

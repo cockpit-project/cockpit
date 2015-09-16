@@ -76,13 +76,15 @@ KEY_IDS = [
 ]
 def test_keys(b, keys):
     b.call_js_func("""(function () {
-      window.test_result = null;
-      cockpit.spawn([ "ssh-add", "-l" ]).
-        done(function (data) {
-          window.test_result = data;
-        }).
-        fail(function (error) {
-          console.log(error);
+        require(["base1/cockpit"], function(cockpit) {
+            window.test_result = null;
+            cockpit.spawn([ "ssh-add", "-l" ]).
+                done(function (data) {
+                    window.test_result = data;
+                }).
+                fail(function (error) {
+                    console.log(error);
+                });
         });
     })""",)
 

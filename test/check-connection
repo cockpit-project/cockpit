@@ -42,7 +42,7 @@ class TestConnection(MachineCase):
         m.execute("systemctl start cockpit-testing.socket")
         b.click('#login-button')
         b.expect_reload()
-        b.enter_page("server")
+        b.enter_page("/system/host")
 
         # take cockpit-ws down on the server page
         m.execute("systemctl stop cockpit-testing.socket")
@@ -63,7 +63,7 @@ class TestConnection(MachineCase):
         m.execute("iptables -D INPUT 1")
         b.click('#login-button')
         b.expect_reload()
-        b.enter_page("server")
+        b.enter_page("/system/host")
 
         # sever the connection on the server page
         m.execute("iptables -I INPUT 1 -p tcp --dport 9090 -j REJECT")
@@ -74,7 +74,7 @@ class TestConnection(MachineCase):
         m.execute("iptables -D INPUT 1")
         b.click('#disconnected-reconnect')
         b.expect_reload()
-        b.enter_page("server")
+        b.enter_page("/system/host")
 
         self.allow_restart_journal_messages()
 

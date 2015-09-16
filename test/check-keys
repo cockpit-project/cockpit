@@ -43,13 +43,13 @@ class TestKeys(MachineCase):
         self.start_cockpit()
 
         def login(user, password, user_name):
-            b.open("server", href="/system/host")
+            b.open("/system/host")
             b.wait_visible("#login")
             b.set_val("#login-user-input", user)
             b.set_val("#login-password-input", password)
             b.click('#login-button')
             b.expect_reload()
-            b.enter_page("server")
+            b.enter_page("/system/host")
             b.switch_to_top()
             b.wait_text('#content-user-name', user_name)
 

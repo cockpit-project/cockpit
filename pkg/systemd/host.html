@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cockpit</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../base1/cockpit.css" rel="stylesheet">
+    <link href="../shell/shell.css" rel="stylesheet">
+    <script src="../base1/bundle.js"></script>
+    <script src="../shell/bundle.js"></script>
+    <script src="../shell/shell.js"></script>
+    <script src="../system/bundle.js"></script>
+    <script src="../domain/bundle.js"></script>
+    <script>
+        require([
+            "jquery",
+            "system/host",
+        ], function($, host) {
+            $(host);
+        });
+    </script>
+</head>
+<body>
+
+    <div id="server" class="container-fluid" hidden>
+        <div class="col-md-4 col-lg-3 cockpit-info-table-container">
+            <table class="cockpit-info-table">
+                <tr>
+                    <td>Hardware</td>
+                    <td id="system_information_hardware_text"></td>
+                </tr>
+                <tr>
+                    <td>Asset Tag</td>
+                    <td id="system_information_asset_tag_text"></td>
+                </tr>
+                <tr>
+                    <td>BIOS</td>
+                    <td id="system_information_bios_text"></td>
+                </tr>
+                <tr>
+                    <td>Operating System</td>
+                    <td id="system_information_os_text"></td>
+                </tr>
+                <tr>
+                    <td>Host Name</td>
+                    <td><button class="btn btn-default hostname-privileged"
+                            id="system_information_hostname_button"></button></td>
+                </tr>
+                <tr id="system-info-realms">
+                    <td>Domain</td>
+                    <td class="button-location">
+                    </td>
+                </tr>
+                <tr>
+                    <td>System Time</td>
+                    <td><button class="btn btn-default systime-privileged"
+                            id="system_information_systime_button"></button></td>
+                </tr>
+                <tr>
+                    <td translatable="yes">Power Options</td>
+                    <td id="shutdown-group"></td>
+                </tr>
+                <tr id="server-pmlogger-onoff-row" hidden>
+                    <td translatable="yes">Store performance data</td>
+                    <td id="server-pmlogger-onoff"></td>
+                </tr>
+            </table>
+        </div>
+        <div id="server-graph-columns" class="col-md-8 col-lg-9">
+            <div id="server-graph-toolbar" class="pull-right zoom-controls">
+                <div class="dropdown" style="display:inline-block">
+                    <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        <span style="width:6em;text-align:left;padding-left:5px;display:inline-block"></span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li role="presentation"><a role="menuitem" tabindex="-1"
+                            data-action="goto-now">Go to now</a></li>
+                        <li role="presentation" class="divider"></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1"
+                            data-range="300">5 minutes</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1"
+                            data-range="3600">1 hour</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1"
+                            data-range="21600">6 hours</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1"
+                            data-range="86400">1 day</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1"
+                            data-range="604800">1 week</a></li>
+                    </ul>
+                </div>
+                <button class="btn btn-default" data-action="zoom-out">
+                    <span class="glyphicon glyphicon-zoom-out"></span>
+                </button>
+                <div class="btn-group">
+                    <button class="btn btn-default fa fa-angle-left" data-action="scroll-left"></button>
+                    <button class="btn btn-default fa fa-angle-right" data-action="scroll-right"></button>
+                </div>
+            </div>
+            <br/>
+            <br/>
+            <div style="color:black">
+                <a id="link-cpu">CPU</a>
+                <span style="float:right" id="server_cpu_text"></span>
+            </div>
+            <div style="height:120px" id="server_cpu_graph" class="server-graph zoomable-plot"></div>
+            <br/>
+            <div style="color:black">
+                <a id="link-memory">Memory</a>
+                <span style="float:right" id="server_memory_text"></span>
+            </div>
+            <div style="height:120px" id="server_memory_graph" class="server-graph zoomable-plot"></div>
+            <br/>
+            <div style="color:black">
+                <a id="link-network">Network Traffic</a>
+                <span style="float:right" id="server_network_traffic_text"></span>
+            </div>
+            <div style="height:120px" id="server_network_traffic_graph" class="server-graph zoomable-plot"></div>
+            <br/>
+            <div style="color:black">
+                <a id="link-disk">Disk I/O</a>
+                <span style="float:right" id="server_disk_io_text"></span>
+            </div>
+            <div style="height:120px" id="server_disk_io_graph" class="server-graph zoomable-plot"></div>
+        </div>
+    </div>
+
+    <div id="cpu_status" hidden>
+        <div id="cpu_status_graph" style="height:400px;padding:20px"></div>
+    </div>
+
+    <div id="memory_status" hidden>
+        <div id="memory_status_graph" style="height:400px;padding:20px"></div>
+    </div>
+
+    <div class="modal" id="error-popup" tabindex="-1" role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="error-popup-title">Unexpected error</h4>
+                </div>
+                <div class="modal-body">
+                    <p id="error-popup-message"></p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="system_information_change_hostname" tabindex="-1"
+        role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Change Host Name</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="cockpit-form-table">
+                        <tr>
+                            <td>
+                                <label class="control-label" for="sich-pretty-hostname"
+                                    translatable="yes">Pretty Host Name</label>
+                            </td>
+                            <td>
+                                <input id="sich-pretty-hostname" class="form-control">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="control-label" for="sich-hostname"
+                                    translatable="yes">Real Host Name</label>
+                            </td>
+                            <td>
+                                <div id=sich-hostname-error>
+                                    <input id="sich-hostname" class="form-control">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <div class="has-error">
+                                    <span id="sich-note-1" class="help-block" style="margin: 0"></span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <div class="has-error">
+                                    <span id="sich-note-2" class="help-block" style="margin: 0"></span>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" id="sich-apply-button">Change</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="system_information_change_systime" tabindex="-1"
+        role="dialog" data-backdrop="static">
+        <div class="modal-dialog cockpit-modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Change System Time</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="cockpit-form-table">
+                        <tr>
+                            <td><label class="control-label" for="change_systime"
+                                    translatable="yes">Set time</label></td>
+                            <td>
+                                <select class="form-control selectpicker" id="change_systime">
+                                    <option value="manual_time">Manually set the time</option>
+                                    <option value="ntp_time">Set time automatically using NTP</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <div class="form-group row nomargin">
+                                    <div class="col-md-8 nopadding">
+                                        <input type='text' class="form-control" id="systime-date-input"/>
+                                    </div>
+                                    <div class="col-md-4 row nomargin nopadding">
+                                        <div class="col-md-offset-1 col-md-5 nopadding">
+                                            <input type='text' class="form-control" id="systime-time-hours"/>
+                                        </div>
+                                        <div class="col-md-1 text-center nopadding">:</div>
+                                        <div class="col-md-5 nopadding">
+                                            <input type='text' class="form-control" id="systime-time-minutes"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                            </td>
+                            <td class="has-error">
+                                <span id="systime-parse-error" class="help-block"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="control-label" translatable="yes">Time Zone</label>
+                            </td>
+                            <td>
+                                <select class="form-control" id="systime-timezones">
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td class="has-error">
+                                <span id="systime-timezone-error" class="help-block" translatable="yes">
+                                    Invalid time zone
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" id="systime-apply-button">Change</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="shutdown-confirm" tabindex="-1" role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="shutdown-confirm-title"></h4>
+                </div>
+                <div class="modal-body">
+                    <center id="shutdown-confirm-body"></center>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button class="btn btn-primary" id="shutdown-confirm-apply" translatable="yes">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="shutdown-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body">
+                    <textarea class="form-control"
+                        style="resize:none;margin-bottom:10px" id="shutdown-message">
+                    </textarea>
+                    <table>
+                        <tr>
+                            <td translatable="yes">Delay</td>
+                            <td id="shutdown-delay"></td>
+                            <td>
+                                <div id="shutdown-time">
+                                    <input class="form-control" style="width:3em;display:inline" value="18"/>
+                                    <span style="font-weight:bold">:</span>
+                                    <input class="form-control" style="width:3em;display:inline" value="00"/>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default btn-danger" translatable="yes" data-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button class="btn btn-danger" id="shutdown-action">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="confirmation-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="confirmation-dialog-title"></h4>
+                </div>
+                <div class="modal-body" id="confirmation-dialog-body">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" translatable="yes" id="confirmation-dialog-cancel">
+                        Cancel
+                    </button>
+                    <button class="btn btn-danger" id="confirmation-dialog-confirm">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

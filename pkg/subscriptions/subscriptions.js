@@ -24,7 +24,8 @@ define([
     "base1/cockpit",
     "translated!base1/po",
     "base1/mustache",
-    "base1/patterns"
+    "base1/patterns",
+    "base1/bootstrap-select"
 ], function($, cockpit, po, Mustache) {
     "use strict";
 

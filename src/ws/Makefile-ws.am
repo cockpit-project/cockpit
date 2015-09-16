@@ -141,15 +141,6 @@ noinst_PROGRAMS += test-server
 check_PROGRAMS += test-server
 
 testassets_programs += test-server
-testassets_data += pkg/shell/test-dbusx.html \
-                   pkg/shell/dbus.js  \
-                   pkg/shell/shell.js \
-                   pkg/base1/require.js \
-                   pkg/base1/cockpit.js \
-                   pkg/base1/jquery.js \
-                   tools/qunit.css \
-                   tools/qunit.js \
-                   $(NULL)
 
 test_server_SOURCES = src/ws/test-server.c $(mock_dbus_sources)
 nodist_test_server_SOURCES = $(test_built_sources)

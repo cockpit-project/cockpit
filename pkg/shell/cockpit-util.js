@@ -34,36 +34,6 @@ shell.esc = function esc(str) {
     return pre.innerHTML.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 };
 
-/*
- * shell.format_delay(ms)
- * @ms: number of milli-seconds
- *
- * Format soconds into a string of "hours, minutes, seconds".
- */
-
-shell.format_delay = function format_delay(d) {
-    var seconds = Math.round(d/1000);
-    var minutes = Math.floor(seconds / 60);
-    var hours = Math.floor(minutes / 60);
-    seconds = seconds - minutes*60;
-    minutes = minutes - hours*60;
-
-    var s = seconds + " seconds";
-    if (minutes > 0)
-        s = minutes + " minutes, " + s;
-    if (hours > 0)
-        s = hours + " hours, " + s;
-    return s;
-};
-
-shell.find_in_array = function find_in_array(array, elt) {
-    for (var i = 0; i < array.length; i++) {
-        if (array[i] == elt)
-            return true;
-    }
-    return false;
-};
-
 shell.action_btn = function action_btn(func, spec, btn_classes) {
     var direct_btn, indirect_btns, btn;
     var direct_action, disabled;
@@ -196,65 +166,8 @@ shell.select_btn_selected = function select_btn_selected(btn) {
     return $.data(btn[0], 'cockpit-select-btn-funcs').selected();
 };
 
-shell.util = shell.util || { };
-
-function cache_debug() {
-    if (window.debugging == "all" || window.debugging == "dbus")
-        console.debug.apply(console, arguments);
-}
-
-/* - cache = shell.util.make_resource_cache()
- * - resource = cache.get(key, create)
- * - resource.release()
- *
- * Create a cache for objects that are expensive to create.  Calling
- * 'get' will either return an existing object that matches 'key' or
- * execute 'create()' to create a new one.
- *
- * You need to call 'release' on the returned object once you are done
- * with it.  After the last user has released an object, 'close' will
- * be called on that object after a delay.
- */
-shell.util.make_resource_cache = make_resource_cache;
-function make_resource_cache() {
-    var resources = { };
-
-    function get(key, create) {
-        var handle;
-
-        handle = resources[key];
-
-        if (!handle) {
-            cache_debug("Creating %s", key);
-            handle = { refcount: 1, resource: create() };
-            resources[key] = handle;
-
-            handle.resource.release = function() {
-                cache_debug("Releasing %s", key);
-                // Only really release it after a delay
-                window.setTimeout(function () {
-                    if (!handle.refcount) {
-                        console.warn("Releasing unreffed resource");
-                    } else {
-                        handle.refcount -= 1;
-                        if (handle.refcount === 0) {
-                            delete resources[key];
-                            cache_debug("Closing %s", key);
-                            handle.resource.close("unused");
-                        }
-                    }
-                }, 10000);
-            };
-        } else {
-            cache_debug("Getting %s", key);
-            handle.refcount += 1;
-        }
-
-        return handle.resource;
-    }
-
-    return { get: get };
-}
+if (!shell.util)
+    shell.util = { };
 
 /* - shell.util.machine_info(address).done(function (info) { })
  *
@@ -293,29 +206,6 @@ function machine_info(address) {
             });
     }
     return pr;
-}
-
-/* - name = shell.util.hostname_for_display(interface)
- *
- * Return the name of the machine that INTERFACE is connected to.
- * INTERFACE should be a DBusInterface with PrettyHostname and
- * StaticHostname properties.
- */
-
-shell.util.hostname_for_display = hostname_for_display;
-function hostname_for_display(iface) {
-    if (iface.PrettyHostname)
-        return iface.PrettyHostname;
-    else if (iface.StaticHostname &&
-        iface.StaticHostname != "localhost" &&
-        iface.StaticHostname != "localhost.localdomain")
-        return iface.StaticHostname;
-    else if (iface._client && iface._client.target != "localhost")
-        return iface._client.target;
-    else if (iface.client && iface.client.options.host && iface.client.options.host != "localhost")
-        return iface.client.options.host;
-    else
-        return window.location.hostname;
 }
 
 });

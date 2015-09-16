@@ -27,7 +27,6 @@ shelldebug_DATA = \
 	pkg/shell/controls.js \
 	pkg/shell/plot.js \
 	pkg/shell/cockpit-util.js \
-	pkg/shell/cockpit-main.js \
 	pkg/shell/cockpit-plot.js \
 	pkg/shell/authorized-keys.js \
 	$(shell_SCRIPTS) \
@@ -52,7 +51,6 @@ shell_MINFILES = \
 	pkg/shell/controls.min.js \
 	pkg/shell/plot.min.js \
 	pkg/shell/cockpit-util.min.js \
-	pkg/shell/cockpit-main.min.js \
 	pkg/shell/cockpit-plot.min.js \
 	pkg/shell/authorized-keys.min.js \
 	$(NULL)
@@ -79,8 +77,6 @@ pmlogconf_DATA = pkg/shell/pmlogconf/cockpit
 
 shell_TESTS = \
 	pkg/shell/test-dummy.html \
-	pkg/shell/test-util.html \
-	pkg/shell/test-dbusx.html \
 	pkg/shell/test-controls.html \
 	pkg/shell/test-list-public-keys.sh \
 	$(NULL)

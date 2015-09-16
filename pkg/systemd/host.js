@@ -23,7 +23,6 @@ define([
     "domain/operation",
     "shell/controls",
     "shell/shell",
-    "shell/cockpit-main",
     "system/server",
     "system/service",
     "shell/plot",
@@ -31,7 +30,7 @@ define([
     "shell/cockpit-util",
     "base1/bootstrap-datepicker",
     "base1/bootstrap-combobox",
-], function($, cockpit, domain, controls, shell, main, server, service) {
+], function($, cockpit, domain, controls, shell, server, service) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -377,7 +376,7 @@ PageServer.prototype = {
 
         self.plot_controls.reset([ self.cpu_plot, self.memory_plot, self.network_plot, self.disk_plot ]);
 
-        $(cockpit).on('resize.server', function () {
+        $(window).on('resize.server', function () {
             self.cpu_plot.resize();
             self.memory_plot.resize();
             self.network_plot.resize();
@@ -536,7 +535,7 @@ PageSystemInformationChangeHostname.prototype = {
         }
         function on_fail(error) {
             $("#system_information_change_hostname").modal('hide');
-            shell.show_unexpected_error(error);
+            show_unexpected_error(error);
         }
         self.hostname_proxy.call("SetStaticHostname", [new_name, true])
                      .done(on_done).fail(on_fail);
@@ -735,14 +734,14 @@ PageSystemInformationChangeSystime.prototype = {
 
         server_time.timedate.SetNTP($('#change_systime').val() == 'ntp_time', true)
             .fail(function(err) {
-                shell.show_unexpected_error(err);
+                show_unexpected_error(err);
                 $("#system_information_change_systime").modal('hide');
             })
             .done(function() {
                 if (! $('#systime-timezones').prop('disabled')) {
                     server_time.timedate.SetTimezone($('#systime-timezones').val(), true)
                         .fail(function(err) {
-                            shell.show_unexpected_error(err);
+                            show_unexpected_error(err);
                         });
                 }
 
@@ -755,7 +754,7 @@ PageSystemInformationChangeSystime.prototype = {
                                         $('#systime-time-hours').val(),
                                         $('#systime-time-minutes').val())
                     .fail(function(err) {
-                        shell.show_unexpected_error(err);
+                        show_unexpected_error(err);
                     })
                     .always(function() {
                         $("#system_information_change_systime").modal('hide');
@@ -919,7 +918,7 @@ PageShutdownDialog.prototype = {
         cockpit.spawn(["shutdown", arg, when, message], { superuser: "try" })
             .fail(function(ex) {
                 $('#shutdown-dialog').modal('hide');
-                shell.show_unexpected_error(ex);
+                show_unexpected_error(ex);
             })
             .done(function(ex) {
                 if (op == "restart")
@@ -1140,6 +1139,23 @@ $("#link-disk").on("click", function() {
  * We cater to this with a little compatability shim consisting of
  * 'dialog_setup', 'page_show', and 'page_hide'.
  */
+
+function show_error_dialog(title, message) {
+    if (message) {
+        $("#error-popup-title").text(title);
+        $("#error-popup-message").text(message);
+    } else {
+        $("#error-popup-title").text(_("Error"));
+        $("#error-popup-message").text(title);
+    }
+
+    $('.modal[role="dialog"]').modal('hide');
+    $('#error-popup').modal('show');
+}
+
+function show_unexpected_error(error) {
+    show_error_dialog(_("Unexpected error"), error.message || error);
+}
 
 function dialog_setup(d) {
     d.setup();

@@ -20,8 +20,7 @@
 define([
     "jquery",
     "base1/cockpit",
-    "shell/shell",
-    "shell/cockpit-main"
+    "shell/shell"
 ], function($, cockpit, shell) {
 
 function setup_plot(graph_id, grid, data, user_options) {
@@ -213,7 +212,7 @@ function setup_plot_x(graph_id, resmon, data, user_options, store_samples) {
                             }
                         });
 
-            $(cockpit).on('resize', resize);
+            $(window).on('resize', resize);
 
             ready = true;
             maybe_start();

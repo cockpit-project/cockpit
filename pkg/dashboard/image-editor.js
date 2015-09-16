@@ -19,14 +19,12 @@
 
 define([
     "jquery",
-    "base1/cockpit",
-    "shell/shell"
-], function($, cockpit, shell) {
+], function($) {
 
 /* Construct a simple image editor inside 'element'.  It can only crop
  * an image to a square region.
  *
- * - editor = shell.image_editor(element, width, height)
+ * - editor = image_editor(element, width, height)
  *
  * - editor.load_data(data).done(...).fail(...)
  *
@@ -39,7 +37,7 @@ define([
  * - editor.start_crop()
  */
 
-shell.image_editor = function image_editor(element, width, height) {
+function image_editor(element, width, height) {
     var self = {
         load_data: load_data,
         get_data: get_data,
@@ -301,6 +299,8 @@ shell.image_editor = function image_editor(element, width, height) {
     setup();
 
     return self;
-};
+}
+
+return image_editor;
 
 });

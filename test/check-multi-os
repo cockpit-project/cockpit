@@ -87,7 +87,7 @@ class TestMultiOS(MachineCase):
 
         self.allow_journal_messages(".*: .* host key for server is not known: .*")
 
-        self.login_and_go("dashboard", href="dashboard/list", host=None)
+        self.login_and_go("/dashboard/list", host=None)
         inject_extras(dev_b)
 
         dev_dashboard_addresses = [ "localhost" ]

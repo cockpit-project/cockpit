@@ -159,7 +159,7 @@ define([
 
             machine.address = item.address || host;
             machine.color = item.color;
-            machine.avatar = item.avatar || "images/server-small.png";
+            machine.avatar = item.avatar || "../shell/images/server-small.png";
             machine.visible = item.visible;
 
             var label = props.PrettyHostname || props.StaticHostname || item.label || machine.address;

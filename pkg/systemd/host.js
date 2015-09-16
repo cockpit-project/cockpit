@@ -126,7 +126,7 @@ function ServerTime() {
             })
             .done(function(data) {
                 var seconds = parseInt(data.trim(), 10);
-                timedate.SetTime(seconds * 1000 * 1000, false, true)
+                timedate.call('SetTime', [seconds * 1000 * 1000, false, true])
                     .fail(function(ex) {
                         dfd.reject(ex);
                     })
@@ -732,14 +732,14 @@ PageSystemInformationChangeSystime.prototype = {
 
         var manual_time = $('#change_systime').val() == 'manual_time';
 
-        server_time.timedate.SetNTP($('#change_systime').val() == 'ntp_time', true)
+        server_time.timedate.call('SetNTP', [$('#change_systime').val() == 'ntp_time', true])
             .fail(function(err) {
                 show_unexpected_error(err);
                 $("#system_information_change_systime").modal('hide');
             })
             .done(function() {
                 if (! $('#systime-timezones').prop('disabled')) {
-                    server_time.timedate.SetTimezone($('#systime-timezones').val(), true)
+                    server_time.timedate.call('SetTimezone', [$('#systime-timezones').val(), true])
                         .fail(function(err) {
                             show_unexpected_error(err);
                         });

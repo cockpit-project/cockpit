@@ -34,13 +34,6 @@ def inject_extras(browser):
     }
     """)
 
-def get_webapp_machines(browser):
-    wm = { }
-    cockpit = browser.eval_js("return dashboard_addresses();")
-    for i in range (0, len(cockpit)):
-        wm[cockpit[i]] = i;
-    return wm
-
 def wait_dashboard_addresses(b, expected):
     b.wait_js_func(
         """(function (expected) {
@@ -116,10 +109,6 @@ class TestMultiMachineKeyAuth(MachineCase):
         add_machine(b, m2.address)
         wait_dashboard_addresses (b, [ "localhost", m2.address ])
 
-        wm = get_webapp_machines(b)
-        m1_index = wm["localhost"]+1
-        m2_index = wm[m2.address]+1
-
         # Logout
         b.logout()
         b.wait_visible("#login")
@@ -140,7 +129,7 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.login_and_go("/dashboard/list", host=None)
         inject_extras(b)
         wait_dashboard_addresses (b, [ "localhost", m2.address ])
-        b.wait_attr('#dashboard-hosts a:nth-child(%d) img' % m2_index, 'src', '../shell/images/server-error.png')
+        b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-error.png')
 
         try:
             m1.execute("ps xa | grep ssh-agent | grep -v grep")
@@ -162,15 +151,15 @@ class TestMultiMachineKeyAuth(MachineCase):
         m2.execute("chmod 700 /home/admin/.ssh")
 
         # Server is up.
-        b.click('#dashboard-hosts a:nth-child(%d)' % m2_index)
+        b.click("#dashboard-hosts a[data-address='%s']" % m2.address)
         b.switch_to_top()
         b.wait_js_cond('window.location.hash != "#/dashboard/list"')
-        b.enter_page("server", m2.address)
+        b.enter_page("/system/host", host=m2.address)
         b.wait_text_not("#system_information_hostname_button", "")
         b.switch_to_top()
         b.go("/dashboard/list")
         b.enter_page("/dashboard/list")
-        b.wait_attr('#dashboard-hosts a:nth-child(%d) img' % m2_index, 'src', '../shell/images/server-small.png')
+        b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-small.png')
 
         # Logout
         b.logout()

@@ -49,16 +49,9 @@ class TestDashboard(MachineCase):
             return expected.sort().toString() == actual.sort().toString();
             })""", expected)
 
-    def get_address_map(self, b):
-        map = { }
-        dash = b.eval_js("return dashboard_addresses();")
-        for i in range (0, len(dash)):
-            map[dash[i]] = i;
-        return map
 
     def machine_remove(self, b, address):
-        map = self.get_address_map(b)
-        b.click('#dashboard-hosts a:nth-child(%d) button.pficon-delete' % (map[address]+1))
+        b.click("#dashboard-hosts a[data-address='%s'] button.pficon-delete" % address)
 
     def add_machine(self, b, address):
         b.click('#dashboard-add')
@@ -99,7 +92,7 @@ class TestDashboard(MachineCase):
         b2.login_and_go("/dashboard/list", host=None)
         self.inject_extras(b2)
         self.wait_dashboard_addresses (b2, [ "localhost" ])
-        b.wait_present("#dashboard-hosts a:nth-child(1) button.pficon-delete.disabled")
+        b.wait_present("#dashboard-hosts a[data-address='localhost'] button.pficon-delete.disabled")
 
         self.add_machine (b, m2.address)
         self.wait_dashboard_addresses (b, [ "localhost", m2.address ])

@@ -945,6 +945,7 @@ function basic_scope(cockpit) {
     };
 
     cockpit.transport = {
+        wait: ensure_transport,
         inject: function inject(message) {
             if (!default_transport)
                 return false;

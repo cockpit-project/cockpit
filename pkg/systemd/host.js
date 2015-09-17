@@ -1166,9 +1166,8 @@ function dialog_setup(d) {
 }
 
 function page_show(p, arg) {
-    if (p._entered_)
-        p.leave();
-    p.enter(arg);
+    if (!p._entered_)
+        p.enter(arg);
     p._entered_ = true;
     $('#' + p.id).show();
     p.show();
@@ -1176,10 +1175,6 @@ function page_show(p, arg) {
 
 function page_hide(p) {
     $('#' + p.id).hide();
-    if (p._entered_) {
-        p.leave();
-        p._entered_ = false;
-    }
 }
 
 function init() {

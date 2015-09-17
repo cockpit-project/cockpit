@@ -2607,6 +2607,17 @@ handle = file.watch(callback);
         will be empty until connection is properly established.</para>
     </refsection>
 
+    <refsection id="cockpit-transport-wait">
+      <title>cockpit.transport.wait()</title>
+<programlisting>
+  cockpit.transport.wait(callback)
+</programlisting>
+      <para>Call the <code>callback</code> function once the underlying channel transport is initialized.
+        This will start the initialization if not already in progress or completed. If the
+        channel transport is already initialized, then <code>callback</code> will be called
+        immediately.</para>
+    </refsection>
+
     <refsection id="cockpit-transport-close">
       <title>cockpit.transport.close()</title>
 <programlisting>

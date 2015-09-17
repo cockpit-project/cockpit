@@ -68,7 +68,7 @@ WantedBy=default.target
 
     def testFrameReload(self):
         b = self.browser
-        frame = "cockpit:localhost/playground/test"
+        frame = "cockpit1:localhost/playground/test"
 
         self.login_and_go(None)
         b.go("/@localhost/playground/test")

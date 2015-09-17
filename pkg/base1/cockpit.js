@@ -291,16 +291,9 @@ function Transport() {
     var check_health_timer;
     var got_message = false;
 
-    try {
-	    /* See if we should communicate via parent */
-	    if (window.parent !== window &&
-                window.parent.options && window.parent.options.sink &&
-                window.parent.options.protocol == "cockpit1") {
-               ws = new ParentWebSocket(window.parent);
-            }
-    } catch (ex) {
-	/* permission access errors */
-    }
+    /* See if we should communicate via parent */
+    if (window.parent !== window && window.name.indexOf("cockpit1:") === 0)
+        ws = new ParentWebSocket(window.parent);
 
     if (!ws) {
         var ws_loc = calculate_url();
@@ -3413,11 +3406,8 @@ function full_scope(cockpit, $, po) {
      */
 
     cockpit.oops = function oops() {
-        if (window.parent !== window &&
-            window.parent.options && window.parent.options.sink &&
-            window.parent.options.protocol == "cockpit1") {
+        if (window.parent !== window && window.name.indexOf("cockpit1:") === 0)
             window.parent.postMessage("\n{ \"command\": \"oops\" }", origin);
-        }
     };
 
     var old_onerror;

@@ -264,7 +264,7 @@ class TestMultiMachine(MachineCase):
         m1 = self.machine
         m2 = self.machine2
 
-        frame = "%s/playground/test" % m2.address
+        frame = "cockpit1:%s/playground/test" % m2.address
         m2_path = "/@%s/playground/test" % m2.address
 
         # Add a machine
@@ -307,5 +307,7 @@ class TestMultiMachine(MachineCase):
 
         b.wait_present('#file-content')
         b.wait_text('#file-content', "1")
+
+        self.allow_journal_messages(".*: .* host key for server is not known: .*")
 
 test_main()

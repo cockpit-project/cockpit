@@ -98,7 +98,7 @@ class TestMultiOS(MachineCase):
         dev_dashboard_addresses = [ "localhost" ]
         wait_dashboard_addresses (dev_b, dev_dashboard_addresses)
 
-        def stock_login_and_go(browser, page, href=None, host=None):
+        def stock_login_and_go(browser, page, href=None, user=None, host="localhost"):
             if user is None:
                 user = browser.default_user
             browser.open(page, href=href, host=host)
@@ -112,7 +112,7 @@ class TestMultiOS(MachineCase):
             if page:
                 stock_enter_page(browser, page, host=host)
 
-        def stock_enter_page(self, id, host="localhost"):
+        def stock_enter_page(browser, id, host="localhost"):
             if host:
                 frame = host + "/shell/shell"
             else:

@@ -313,10 +313,11 @@ class Browser:
             id: The identifier the page.  This is a string starting with "/"
                 For old cockpit this may be an old style page identifier.
         """
-        assert id.startswith("/"):
+        assert id.startswith("/")
         if host:
             frame = host + id
         else:
+            frame = "localhost" + id
         frame = "cockpit1:" + frame
 
         self.switch_to_top()

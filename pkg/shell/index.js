@@ -564,7 +564,7 @@ define([
             } else {
                 frame = document.createElement("iframe");
                 frame.setAttribute("class", "container-frame");
-                frame.setAttribute("name", address + "/" + component);
+                frame.setAttribute("name", "cockpit1:" + address + "/" + component);
                 frame.style.display = "none";
 
                 var parts = component.split("/");

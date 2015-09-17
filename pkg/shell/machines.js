@@ -1,7 +1,8 @@
 define([
     "jquery",
-    "base1/cockpit"
-], function($, cockpit) {
+    "base1/cockpit",
+    "manifests",
+], function($, cockpit, local_manifests) {
     var module = { };
 
     /* machines.json path */
@@ -38,7 +39,8 @@ define([
             tag: null,
             overlay: {
                 localhost: {
-                    visible: true
+                    visible: true,
+                    manifests: local_manifests
                 }
             }
         };
@@ -304,6 +306,8 @@ define([
             var values = { state: value, problem: problem };
             if (value == "connected")
                 values.restarting = false;
+            else if (problem)
+                values.manifests = null;
             machines.overlay(host, values);
         }
 
@@ -318,7 +322,10 @@ define([
                     return;
             }
 
-            var props = proxies[host] || { };
+            var props = proxies[host];
+            if (!props || !props.valid)
+                props = { };
+
             var overlay = { };
 
             if (!machine.color)
@@ -358,17 +365,60 @@ define([
             channel = cockpit.channel({ host: host, payload: "echo" });
             channels[host] = channel;
 
-            /* So we get back a message once connected */
-            channel.send("x");
+            var local = host === "localhost";
 
-            $(channel)
-                .on("message", function() {
+            /* Request is null, and message is true when connected */
+            var request = null;
+            var open = local;
+
+            function whirl() {
+                if (!request && open)
                     state(host, "connected", null);
-                })
+                else
+                    state(host, "connecting", null);
+            }
+
+            var url;
+
+            /* Here we load the machine manifests, and expect them before going to "connected" */
+            if (!machine.manifests) {
+                if (machine.checksum)
+                    url = "../../" + machine.checksum + "/manifests.json";
+                else
+                    url = "../../@" + machine.address + "/manifests.json";
+                request = $.ajax({ url: url, dataType: "json", cache: true})
+                    .done(function(manifests) {
+                        var overlay = { manifests: manifests };
+                        var etag = request.getResponseHeader("ETag");
+                        if (etag) /* and remove quotes */
+                            overlay.checksum = etag.replace(/^"(.+)"$/, '$1');
+                        machines.overlay(host, overlay);
+                    })
+                    .fail(function(ex) {
+                        console.warn("failed to load manifests from " + machine.address + ": " + ex);
+                        if (!machines.manifests)
+                            machines.overlay(host, { manifests: { } });
+                    })
+                    .always(function() {
+                        request = null;
+                        whirl();
+                    });
+            }
+
+            /* Send a message to the server and get back a message once connected */
+            if (!local) {
+                channel.send("x");
+
+                $(channel)
+                    .on("message", function() {
+                        open = true;
+                        whirl();
+                    })
                 .on("close", function(ev, options) {
                     var problem = options.problem || "disconnected";
-                    var machine = machines[host];
+                    open = false;
                     state(host, "failed", problem);
+                    var machine = machines[host];
                     if (machine && machine.restarting) {
                         window.setTimeout(function() {
                             self.connect(host);
@@ -376,20 +426,25 @@ define([
                     }
                     self.disconnect(host);
                 });
-
-            state(host, "connecting", null);
+            }
 
             var proxy = cockpit.dbus("org.freedesktop.hostname1", { host: host }).proxy();
+            proxies[host] = proxy;
             proxy.wait(function() {
-                proxies[host] = proxy;
                 $(proxy).on("changed", function() {
                     updated(null, null, host);
                 });
                 updated(null, null, host);
             });
+
+            /* In case already ready, for example when local */
+            whirl();
         };
 
         self.disconnect = function disconnect(host) {
+            if (host === "localhost")
+                return;
+
             var channel = channels[host];
             delete channels[host];
             if (channel) {

@@ -323,7 +323,7 @@ PageDashboard.prototype = {
                 var item = $(this);
                 var addr = item.attr("data-address");
                 var machine = self.machines.lookup(addr);
-                if (!machine || machine.state == "failed")
+                if (!machine || machine.state != "connected")
                     return;
                 delete seen[addr];
                 if (!series[addr]) {
@@ -436,7 +436,7 @@ PageDashboard.prototype = {
         function plot_add(addr) {
             var machine = self.machines.lookup(addr);
 
-            if (!machine || machine.state == "failed")
+            if (!machine || machine.state != "connected")
                 return null;
 
             var series = [ ];

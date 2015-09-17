@@ -25,7 +25,7 @@ define([
     "shell/machines",
     'translated!base1/po',
     "manifests"
-], function($, cockpit, machis, po, manifests) {
+], function($, cockpit, machis, po, local_manifests) {
 
     cockpit.locale(po);
     var _ = cockpit.gettext;
@@ -128,7 +128,7 @@ define([
      * to produce this list. Perhaps we would include it somewhere in a
      * separate automatically generated file. Need to see.
      */
-    var manifest = manifests["shell"] || { };
+    var manifest = local_manifests["shell"] || { };
     $.each(manifest.linguas, function(code, name) {
         var el = $("<option>").text(name).val(code);
         if (code == cockpit.language)
@@ -195,7 +195,6 @@ define([
 
     /* Navigation */
 
-    var ready = false;
     var current_frame = null;
     var current_location;
     var current_address;
@@ -204,19 +203,6 @@ define([
     var loader = machis.loader(machines);
     var frames = new Frames();
     var router = new Router();
-    var packages = new Packages();
-
-    var checksums = {};
-
-    function maybe_ready() {
-        if (ready)
-            return;
-        if (!machines.loaded || !packages.loaded)
-            return;
-        ready = true;
-        $("nav").show();
-        phantom_checkpoint();
-    }
 
     /* When the machine list is ready we start processing navigation */
     $(machines)
@@ -227,21 +213,19 @@ define([
             });
             build_navbar();
             navigate(false);
-            maybe_ready();
+            $("nav").show();
+            phantom_checkpoint();
         })
         .on("added updated", function(ev, machine) {
             if (!machine.visible)
                 frames.remove(machine);
 
-            if (machine.problem) {
+            if (machine.problem)
                 frames.remove(machine);
-                packages.remove(machine);
-            }
 
             update_machines();
             if (machines.loaded)
                 navigate(false);
-            maybe_ready();
         })
         .on("removed", function(ev, machine) {
             frames.remove(machine);
@@ -338,7 +322,7 @@ define([
             return;
 
         /* Main dashboard listing */
-        var listing = manifests["dashboard"];
+        var listing = local_manifests["dashboard"];
 
         var at = 0;
         if (path.length === at) {
@@ -412,8 +396,7 @@ define([
                 .append($("<a>").attr("href", "#/" + comp.path).text(comp.label));
         }
 
-        var components = packages.build(manifests);
-        var dashboard = components.dashboard.map(links);
+        var dashboard = components(local_manifests, "dashboard").map(links);
         $("#content-navbar").append(dashboard);
     }
 
@@ -449,10 +432,8 @@ define([
     function update_sidebar(machine, current) {
         var sidebar = $("#sidebar");
 
-        if (!machine) {
+        if (!machine || !machine.manifests) {
             sidebar.hide();
-            packages.loaded = true;
-            maybe_ready();
             recalculate_layout();
             return;
         }
@@ -480,21 +461,14 @@ define([
                     .text(cockpit.gettext(component.label)));
         }
 
-        packages.lookup(machine, function(components) {
-            var menu = components.menu.map(links);
-            var tools = components.tools.map(links);
+        var menu = components(machine.manifests, "menu").map(links);
+        $("#sidebar-menu").empty().append(menu);
 
-            packages.loaded = true;
-            /* only update if we are still on the same address */
-            if (machine.address == current_address) {
-                $("#sidebar-menu").empty().append(menu);
-                $("#sidebar-tools").empty().append(tools);
+        var tools = components(machine.manifests, "tools").map(links);
+        $("#sidebar-tools").empty().append(tools);
 
-                maybe_ready();
-                sidebar.show();
-                recalculate_layout();
-            }
-        });
+        sidebar.show();
+        recalculate_layout();
     }
 
     function update_frame(machine, component, hash, options) {
@@ -609,8 +583,9 @@ define([
 
                 var parts = component.split("/");
 
-                var base;
-                var checksum = checksums[address];
+                var base, checksum;
+                if (machine)
+                    checksum = machine.checksum;
                 if (address == "localhost")
                     base = "..";
                 else if (checksum)
@@ -784,99 +759,28 @@ define([
         };
     }
 
-    function Packages() {
-        var self = this;
-        var requests = [ ];
-        var machine_components = {};
-
-        function Components(manis) {
-            this.menu = [ ];
-            this.tools = [ ];
-            this.dashboard = [ ];
-
-            function build(section, list) {
-                $.each(manis, function(name, manifest) {
-                    $.each(manifest[section] || { }, function(ident, info) {
-                        var path;
-                        if (info.path) {
-                            path = info.path.replace(/\.html$/, "");
-                            if (path.indexOf("/") === -1)
-                                path = name + "/" + path;
-                        } else {
-                            path = name + "/" + ident;
-                        }
-                        list.push({
-                            path: path,
-                            label: cockpit.gettext(info.label),
-                            order: info.order === undefined ? 1000 : info.order
-                        });
-                    });
+    function components(manifests, section) {
+        var list = [];
+        $.each(manifests, function(name, manifest) {
+            $.each(manifest[section] || { }, function(ident, info) {
+                var path;
+                if (info.path) {
+                    path = info.path.replace(/\.html$/, "");
+                    if (path.indexOf("/") === -1)
+                        path = name + "/" + path;
+                } else {
+                    path = name + "/" + ident;
+                }
+                list.push({
+                    path: path,
+                    label: cockpit.gettext(info.label),
+                    order: info.order === undefined ? 1000 : info.order
                 });
-
-                /* Everything gets sorted by order */
-                list.sort(function(a, b) { return a.order - b.order; });
-            }
-
-            build("dashboard", this.dashboard);
-            build("menu", this.menu);
-            build("tools", this.tools);
-        }
-
-        self.build = function build(manis) {
-            return new Components(manis);
-        };
-
-        self.remove = function build(machine) {
-            delete checksums[machine.address];
-            delete machine_components[machine.address];
-        };
-
-        self.lookup = function lookup(machine, callback) {
-            var components = machine_components[machine.address];
-            if (!components && machine.address == "localhost") {
-                components = self.build(manifests);
-                machine_components[machine.address] = components;
-            }
-
-            if (components) {
-                callback(components);
-                return;
-            }
-
-            var url;
-            var checksum = checksums[machine.address];
-            if (machine.checksum)
-                url = "../../" + checksum + "/manifests.json";
-            else
-                url = "../../@" + machine.address + "/manifests.json";
-
-            var req = $.ajax({ url: url, dataType: "json", cache: true})
-                .done(function(manis) {
-                    components = self.build(manis);
-                    var etag = req.getResponseHeader("ETag");
-                    if (etag) /* and remove quotes */
-                        checksums[machine.address] = etag.replace(/^"(.+)"$/, '$1');
-                })
-                .fail(function(ex) {
-                    console.warn("failed to load manifests from " + machine.address + ": " + ex);
-                    components = self.build({ });
-                })
-                .always(function() {
-                    req.pending = false;
-                    machine_components[machine.address] = components;
-                    callback(components);
-                });
-
-            req.pending = true;
-            requests.push(req);
-        };
-
-        self.close = function close() {
-            $.each(requests, function(i, req) {
-                if (req.pending)
-                    req.abort();
-                req.pending = false;
             });
-        };
+        });
+
+        /* Everything gets sorted by order */
+        list.sort(function(a, b) { return a.order - b.order; });
+        return list;
     }
 });

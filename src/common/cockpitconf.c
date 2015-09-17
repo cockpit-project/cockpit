@@ -23,7 +23,7 @@
 
 static GHashTable *cockpit_conf = NULL;
 static GHashTable *cached_strvs = NULL;
-const gchar *cockpit_config_file = COCKPIT_CONFIG_FILE;
+const gchar *cockpit_config_file = PACKAGE_SYSCONF_DIR "/cockpit/cockpit.conf";
 
 static gboolean
 load_key_file (const gchar *file_path,

@@ -1267,13 +1267,16 @@ process_removed_path (CockpitDBusCache *self,
   GHashTable *interfaces;
   GHashTableIter iter;
   gpointer interface;
+  GHashTable *snapshot;
 
   interfaces = g_hash_table_lookup (self->cache, path);
   if (interfaces)
     {
-      g_hash_table_iter_init (&iter, interfaces);
+      snapshot = snapshot_string_keys (interfaces);
+      g_hash_table_iter_init (&iter, snapshot);
       while (g_hash_table_iter_next (&iter, &interface, NULL))
         process_removed (self, path, interface);
+      g_hash_table_destroy (snapshot);
     }
 }
 
@@ -1307,6 +1310,7 @@ process_paths (CockpitDBusCache *self,
           g_hash_table_iter_init (&hter, snap);
           while (g_hash_table_iter_next (&hter, &key, NULL))
             process_removed (self, path, key);
+          g_hash_table_destroy (snap);
         }
     }
 }

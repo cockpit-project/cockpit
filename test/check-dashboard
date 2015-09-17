@@ -133,11 +133,11 @@ class TestDashboard(MachineCase):
         # Test switching
         b.leave_page()
         b.wait_js_cond('$("#machine-dropdown ul li").length == 3')
-        b.click('#machine-dropdown ul li:nth-child(1) a')
+        b.click("#machine-dropdown ul a[data-address='localhost']")
         b.wait_js_cond('window.location.hash == "#/@localhost"')
-        b.click('#machine-dropdown ul li:nth-child(2) a')
+        b.click("#machine-dropdown ul a[data-address='%s']" % m2.address)
         b.wait_js_cond('window.location.hash == "#/@%s"' % m2.address)
-        b.click('#machine-dropdown ul li:nth-child(3) a')
+        b.click("#machine-dropdown ul a[data-address='%s']" % m3.address)
         b.wait_js_cond('window.location.hash == "#/@%s"' % m3.address)
 
         self.allow_journal_messages('.*: .* host key for server is not known: .*')

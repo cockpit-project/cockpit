@@ -391,6 +391,11 @@ class Browser:
         if self.phantom:
             self.phantom.show(file="%s-%s-%s.png" % (program_name, label or self.label, title))
 
+    def kill(self):
+        if self.phantom:
+            self.phantom.kill()
+        self.phantom = None
+
 class MachineCase(unittest.TestCase):
     runner = None
     machine_class = testvm.QemuMachine
@@ -406,7 +411,9 @@ class MachineCase(unittest.TestCase):
 
     def new_browser(self, address=None):
         (unused, sep, label) = self.id().rpartition(".")
-        return Browser(address = address or self.machine.address, label=label)
+        browser = Browser(address = address or self.machine.address, label=label)
+        self.addCleanup(lambda: browser.kill())
+        return browser
 
     def setUp(self):
         self.machine = self.new_machine()

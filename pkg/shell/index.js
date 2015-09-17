@@ -271,6 +271,8 @@ define([
                 $(this.contentWindow).on('hashchange', function () {
                     if (current_frame && !frame.no_hash_tracking && current_frame.contentWindow === this) {
                         var hash = this.location.href.split('#')[1] || '';
+                        if (hash && hash[0] !== '/')
+                            hash = '/' + hash;
                         window.location.hash = "#" + current_location + hash;
                     }
                 });
@@ -328,7 +330,6 @@ define([
         var options = cockpit.location.options;
 
         var address = null;
-        var component = null;
         var machine = null;
 
         /* If this is a watchdog problem let the dialog handle it */
@@ -346,9 +347,10 @@ define([
              * otherwise we show the server
              */
             if (!listing || machines.list.length <= 1)
-                address = "localhost";
+                path.push("@localhost");
+        }
 
-        } else if (path[at][0] == '@') {
+        if (path[at][0] == '@') {
             address = path[at].substring(1);
             at++;
         }
@@ -371,22 +373,19 @@ define([
 
             /* The default is to show the server */
             if (path.length === at)
-                component = "system/host";
+                path.push.apply(path, ["system", "host"]);
         } else {
 
             /* The default is to show main dashboard */
             if (path.length === at)
-                component = "dashboard/list";
+                path.push.apply(path, ["dashboard", "list"]);
         }
 
-        if (!component) {
-            if (path.length == at + 1) {
-                component = "invalid/invalid";
-            } else {
-                component = path[at] + "/" + path[at + 1];
-                at += 2;
-            }
-        }
+        if (path.length == at + 1)
+            path.push("index");
+
+        var component = path[at] + "/" + path[at + 1];
+        at += 2;
 
         current_location = cockpit.location.encode(path.slice(0, at));
         current_address = address;

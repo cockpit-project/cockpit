@@ -242,6 +242,7 @@ function join_data(buffers, binary) {
  */
 function ParentWebSocket(parent) {
     var self = this;
+    self.readyState = 0;
 
     window.addEventListener("message", function receive(event) {
         if (event.origin !== origin || event.source !== parent)
@@ -249,10 +250,12 @@ function ParentWebSocket(parent) {
         var data = event.data;
         if (data === undefined || data.length === undefined)
             return;
-        if (data.length === 0)
+        if (data.length === 0) {
+            self.readyState = 3;
             self.onclose();
-        else
+        } else {
             self.onmessage(event);
+        }
     }, false);
 
     self.send = function send(message) {
@@ -260,10 +263,15 @@ function ParentWebSocket(parent) {
     };
 
     self.close = function close() {
+        self.readyState = 3;
         parent.postMessage("", origin);
+        self.onclose();
     };
 
-    window.setTimeout(function() { self.onopen(); }, 0);
+    window.setTimeout(function() {
+        self.readyState = 1;
+        self.onopen();
+    }, 0);
 }
 
 /* Private Transport class */
@@ -521,10 +529,13 @@ function Transport() {
     self.send_data = function send_data(data) {
         if (!ws) {
             console.log("transport closed, dropped message: ", data);
-            return false;
+        } else if (ws.readyState != 1) {
+            console.log("transport not ready (" + ws.readyState + "), dropped message: ", data);
+        } else {
+            ws.send(data);
+            return true;
         }
-        ws.send(data);
-        return true;
+        return false;
     };
 
     self.send_message = function send_message(channel, payload) {

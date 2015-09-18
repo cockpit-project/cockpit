@@ -438,8 +438,6 @@ function Transport() {
     };
 
     self.close = function close(options) {
-        if (self === default_transport)
-            default_transport = null;
         if (!options)
             options = { "problem": "disconnected" };
         options.command = "close";
@@ -529,13 +527,11 @@ function Transport() {
     self.send_data = function send_data(data) {
         if (!ws) {
             console.log("transport closed, dropped message: ", data);
-        } else if (ws.readyState != 1) {
-            console.log("transport not ready (" + ws.readyState + "), dropped message: ", data);
+            return false;
         } else {
             ws.send(data);
             return true;
         }
-        return false;
     };
 
     self.send_message = function send_message(channel, payload) {
@@ -970,6 +966,8 @@ function basic_scope(cockpit) {
             if (problem)
                 options = {"problem": problem };
             default_transport.close(options);
+            default_transport = null;
+            this.options = { };
         },
         origin: origin,
         options: { },

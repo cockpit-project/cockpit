@@ -56,15 +56,13 @@ function MockPeer() {
     this.close = function(options) { throw "not reached"; };
 }
 
-window.mock = { url: "ws://url", last_transport: true };
+window.mock = { url: "ws://url" };
 var force_default_host = null;
 var mock_peer = new MockPeer();
 
 QUnit.testDone(function() {
     mock_peer = new MockPeer();
-    if (window.mock.last_transport)
-        window.mock.last_transport.close();
-    window.mock.last_transport = null;
+    cockpit.transport.close();
 });
 
 /* Mock WebSocket */

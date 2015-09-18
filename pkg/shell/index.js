@@ -164,7 +164,7 @@ define([
 
     $("#disconnected-dialog").on("show.bs.modal", function() {
         /* Try to reconnect right away ... so that reconnect button has a chance */
-        cockpit.channel({ payload: "null" });
+        new window.WebSocket(cockpit.transport.uri(), "cockpit1");
         $('#disconnected-error').text(cockpit.message(watchdog_problem));
         phantom_checkpoint();
     });

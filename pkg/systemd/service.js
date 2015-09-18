@@ -70,12 +70,19 @@ define([
     var systemd_client;
     var systemd_manager;
 
+    function wait_valid(proxy, callback) {
+        proxy.wait(function() {
+            if (proxy.valid)
+                callback();
+        });
+    }
+
     function with_systemd_manager(done) {
         if (!systemd_manager) {
             systemd_client = cockpit.dbus("org.freedesktop.systemd1", { superuser: "try" });
             systemd_manager = systemd_client.proxy("org.freedesktop.systemd1.Manager",
                                                    "/org/freedesktop/systemd1");
-            systemd_manager.wait(function () {
+            wait_valid(system_manager, function() {
                 systemd_manager.Subscribe().
                     fail(function (error) {
                         if (error.name != "org.freedesktop.systemd1.AlreadySubscribed")
@@ -83,7 +90,7 @@ define([
                     });
             });
         }
-        systemd_manager.wait(done);
+        wait_valid(systemd_manager, done);
     }
 
     function proxy(name) {
@@ -135,7 +142,7 @@ define([
                 done(function (path) {
                     unit = systemd_client.proxy('org.freedesktop.systemd1.Unit', path);
                     $(unit).on('changed', update_from_unit);
-                    unit.wait(update_from_unit);
+                    wait_valid(unit, update_from_unit);
                 }).
                 fail(function (error) {
                     self.exists = false;

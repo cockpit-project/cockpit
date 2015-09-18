@@ -1027,6 +1027,10 @@ function full_scope(cockpit, $, po) {
         }
     });
 
+    /* ------------------------------------------------------------------------
+     * Override for broken browser behavior
+     */
+
     document.addEventListener("click", function(ev) {
         if ($(ev.target).hasClass('disabled'))
           ev.stopPropagation();

@@ -23,6 +23,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/cockpit.css" rel="stylesheet">
+    <link href="../../static/branding.css" rel="stylesheet">
     <link href="../shell/shell.css" rel="stylesheet">
     <script src="../base1/bundle.js"></script>
     <script src="../shell/bundle.js"></script>
@@ -206,7 +207,12 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <div class="spinner spinner-sm pull-left" id="dashboard_setup_spinner" hidden></div>
+                    <div class="alert alert-warning dialog-error dashboard-machine-warning">
+                        <span class="pficon pficon-warning-triangle-o"></span>
+                        Connecting simultaneously to more than
+                        <span class="dashboard-machine-limit"><span>20</span></span>
+                        machines is unsupported.
+                    </div>
                     <button class="btn btn-default" id="dashboard_setup_prev">Previous</button>
                     <button class="btn btn-primary" id="dashboard_setup_next">Next</button>
                 </div>

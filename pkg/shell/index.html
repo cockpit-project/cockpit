@@ -11,8 +11,8 @@
     <script src="../base1/bundle.js"></script>
     <script src="bundle.js"></script>
   </head>
-  <body style="overflow: hidden;">
-    <nav id="topnav" class="navbar navbar-default navbar-pf" role="navigation" hidden>
+  <body style="overflow: hidden;" hidden>
+    <nav id="topnav" class="navbar navbar-default navbar-pf" role="navigation">
       <div class="navbar-header">
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
           <span class="sr-only" translatable="yes">Toggle navigation</span>
@@ -56,6 +56,10 @@
           </li>
         </ul>
         <ul class="nav navbar-nav navbar-primary" id="content-navbar">
+          <li id="machine-spinner" hidden>
+            <div class="spinner spinner-md spinner-white">
+            </div>
+          </li>
           <li class="dropdown" id="machine-dropdown">
             <a id="machine-color"></a>
             <a id="machine-link" class="dropdown-toggle" data-toggle="dropdown"
@@ -186,21 +190,51 @@
       </div>
     </div>
 
-    <div id="connecting" style="display: none;">
-        <div class="spinner spinner-lg"></div>
-        <br/>
-        <p translatable="yes">Trying to reconnect to the system</p>
-    </div>
-
-    <div id="content">
+    <div class="curtains blank-slate-pf" hidden>
+      <div class="blank-slate-pf-icon">
+        <div class="spinner spinner-lg" hidden></div>
+        <i class="fa fa-exclamation-circle"></i>
+      </div>
+      <h1 translatable="yes"></h1>
+      <p></p>
+      <div class="blank-slate-pf-main-action">
+        <button class="btn btn-primary btn-lg" translatable="yes">Reconnect</button>
+      </div>
     </div>
 
     <script>
+        /* Indicates to child frames that we are a cockpit1 router frame */
+        window.name = "cockpit1";
+
+        /* The same thing as above, but compatibility with old cockpit */
+        window.options = { sink: true, protocol: "cockpit1" };
+
+        /* While the index is initializing, snag any messages we receive from frames */
+        var messages = [ ];
+        function message_queue(event) {
+            messages.push(event);
+        }
+        window.addEventListener("message", message_queue, false);
+
         require([
+            "base1/cockpit",
             "shell/index"
-        ], function(index) {
-            /* index starts automatically when required */
+        ], function(cockpit, index) {
+            /* Drain any initial messages we receive into the router */
+            cockpit.transport.wait(function() {
+                window.removeEventListener("message", message_queue, false);
+                index.router.start(messages);
+                messages = null;
+            });
         });
     </script>
+
+    <div id="content">
+      <!-- Initially populate these frames -->
+      <iframe class="container-frame"
+          name="cockpit1:localhost/dashboard/list" src="../dashboard/list.html"></iframe>
+      <iframe class="container-frame"
+          name="cockpit1:localhost/system/host" src="../system/host.html"></iframe>
+    </div>
   </body>
 </html>

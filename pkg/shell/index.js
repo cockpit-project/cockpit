@@ -25,7 +25,10 @@ define([
     "shell/machines",
     'translated!base1/po',
     "manifests"
-], function($, cockpit, machis, po, manifests) {
+], function($, cockpit, machis, po, local_manifests) {
+    "use strict";
+
+    var module = { };
 
     cockpit.locale(po);
     var _ = cockpit.gettext;
@@ -128,7 +131,7 @@ define([
      * to produce this list. Perhaps we would include it somewhere in a
      * separate automatically generated file. Need to see.
      */
-    var manifest = manifests["shell"] || { };
+    var manifest = local_manifests["shell"] || { };
     $.each(manifest.linguas, function(code, name) {
         var el = $("<option>").text(name).val(code);
         if (code == cockpit.language)
@@ -176,6 +179,7 @@ define([
          * where the user was right away. Otherwise this sends the user back
          * to the login screen.
          */
+        window.sessionStorage.clear();
         window.location.reload(false);
     });
 
@@ -195,94 +199,45 @@ define([
 
     /* Navigation */
 
-    var ready = false;
     var current_frame = null;
     var current_location;
+    var current_hash;
     var current_address;
 
+    var ready = false;
     var machines = machis.instance();
+    var loader = machis.loader(machines);
     var frames = new Frames();
-    var router = new Router();
-    var packages = new Packages();
-
-    var checksums = {};
-
-    function maybe_ready() {
-        if (ready)
-            return;
-        if (!machines.loaded || !packages.loaded)
-            return;
-        ready = true;
-        $("nav").show();
-        phantom_checkpoint();
-    }
+    module.router = new Router();
 
     /* When the machine list is ready we start processing navigation */
     $(machines)
         .on("ready", function(ev) {
-            machines.loaded = true;
+            ready = true;
             $(cockpit).on("locationchanged", function () {
                 navigate(true);
             });
             build_navbar();
             navigate(false);
-            maybe_ready();
+            $("body").show();
+            phantom_checkpoint();
         })
-        .on("added changed", function(ev, machine) {
+        .on("added updated", function(ev, machine) {
             if (!machine.visible)
                 frames.remove(machine);
 
-            if (machine.problem) {
+            if (machine.problem)
                 frames.remove(machine);
-                packages.remove(machine);
-            }
+
+            machine.compat = compatibility(machine);
 
             update_machines();
-            if (machines.loaded)
+            if (ready)
                 navigate(false);
-            maybe_ready();
         })
         .on("removed", function(ev, machine) {
             frames.remove(machine);
             update_machines();
-        });
-
-    $(frames)
-        .on("added", function(ev, frame, address) {
-            router.register(frame.contentWindow, address);
-
-            /*
-             * Setting the "data-loaded" attribute helps the testsuite
-             * to know when it can switch into the frame and inject
-             * its own additions.
-             */
-            $(frame).on("load", function() {
-                /*
-                 * if the frame is reloaded directly
-                 * unregister and reregister to ensure
-                 * fresh channels
-                 */
-                $(this.contentWindow).on("unload", function () {
-                    router.unregister(frame.contentWindow);
-                    router.register(frame.contentWindow, address);
-                });
-                $(this).attr('data-loaded', true);
-                phantom_checkpoint();
-                $(this.contentWindow).on('hashchange', function () {
-                    if (current_frame && current_frame.contentWindow === this) {
-                        var hash = this.location.href.split('#')[1] || '';
-                        if (hash && hash[0] !== '/')
-                            hash = '/' + hash;
-                        window.location.hash = "#" + current_location + hash;
-                    }
-                });
-            });
-        })
-        .on("removed", function(ev, frame) {
-            router.unregister(frame.contentWindow);
-            $(frame.contentWindow).off();
-            $(frame).off();
-            phantom_checkpoint();
         });
 
     /* This works around issues with <base> tag and hash links */
@@ -320,13 +275,13 @@ define([
         }
     });
 
-    function show_connecting() {
-        $("#sidebar").hide();
-        $("#connecting").show();
-    }
+    /* Reconnect button */
+    $(".curtains button").on("click", function(ev) {
+        loader.connect(current_address);
+    });
 
     function navigate(reconnect) {
-        var path = cockpit.location.path;
+        var path = cockpit.location.path.slice();
         var options = cockpit.location.options;
 
         var address = null;
@@ -337,7 +292,7 @@ define([
             return;
 
         /* Main dashboard listing */
-        var listing = manifests["dashboard"];
+        var listing = local_manifests["dashboard"];
 
         var at = 0;
         if (path.length === at) {
@@ -350,25 +305,23 @@ define([
                 path.push("@localhost");
         }
 
-        if (path[at][0] == '@') {
+        if (path[at] && path[at][0] == '@') {
             address = path[at].substring(1);
             at++;
         }
 
         if (address) {
             machine = machines.lookup(address);
-
-            /* If the machine is not available, then redirect to dashboard */
-            if (!machine || machine.problem) {
-                if (machine && reconnect && machine.problem) {
-                    machines.connect(machine.address);
-                    show_connecting();
-                } else if (listing) {
-                    cockpit.location.go("/dashboard/list");
-                } else {
-                    cockpit.location.go("/");
-                }
-                return;
+            if (!machine) {
+                machine = {
+                    key: address,
+                    address: address,
+                    label: address,
+                    state: "failed",
+                    problem: "not-found"
+                };
+            } else if (reconnect && machine.problem) {
+                loader.connect(address);
             }
 
             /* The default is to show the server */
@@ -388,16 +341,12 @@ define([
         at += 2;
 
         current_location = cockpit.location.encode(path.slice(0, at));
+        current_hash = cockpit.location.encode(path.slice(at));
         current_address = address;
-
-        if (machine && machine.state == "connecting")
-            show_connecting();
-        else
-           $("#connecting").hide();
 
         update_navbar(machine, component);
         update_sidebar(machine, component);
-        update_frame(machine, component, cockpit.location.encode(path.slice(at)), options);
+        update_frame(machine, component, current_hash, options);
 
         recalculate_layout();
     }
@@ -411,8 +360,7 @@ define([
                 .append($("<a>").attr("href", "#/" + comp.path).text(comp.label));
         }
 
-        var components = packages.build(manifests);
-        var dashboard = components.dashboard.map(links);
+        var dashboard = components(local_manifests, "dashboard").map(links);
         $("#content-navbar").append(dashboard);
     }
 
@@ -448,21 +396,11 @@ define([
     function update_sidebar(machine, current) {
         var sidebar = $("#sidebar");
 
-        if (!machine) {
+        if (!machine || machine.state != "connected" || !machine.manifests) {
             sidebar.hide();
-            packages.loaded = true;
-            maybe_ready();
             recalculate_layout();
             return;
         }
-
-        /*
-         * This will be called again when the
-         * state is either connected or failed
-         * better to wait till then
-         */
-        if (machine.state == "connecting")
-            return;
 
         /* TODO: We need to fix races here with quick navigation in succession */
         function links(component) {
@@ -479,36 +417,73 @@ define([
                     .text(cockpit.gettext(component.label)));
         }
 
-        packages.lookup(machine, function(components) {
-            var menu = components.menu.map(links);
-            var tools = components.tools.map(links);
+        var menu = components(machine.manifests, "menu").map(links);
+        $("#sidebar-menu").empty().append(menu);
 
-            packages.loaded = true;
-            /* only update if we are still on the same address */
-            if (machine.address == current_address) {
-                $("#sidebar-menu").empty().append(menu);
-                $("#sidebar-tools").empty().append(tools);
+        var tools = components(machine.manifests, "tools").map(links);
+        $("#sidebar-tools").empty().append(tools);
 
-                maybe_ready();
-                sidebar.show();
-                recalculate_layout();
-            }
-        });
+        sidebar.show();
+        recalculate_layout();
     }
 
     function update_frame(machine, component, hash, options) {
-        var dashboard = false;
+        var title, message, connecting;
+
+        if (machine && machine.state != "connected") {
+            $(current_frame).hide();
+            current_frame = null;
+
+            connecting = (machine.state == "connecting");
+            if (machine.restarting) {
+                title = _("The machine is restarting");
+                message = "";
+            } else if (connecting) {
+                title = _("Connecting to the machine");
+                message = "";
+            } else {
+                title = _("Couldn't connect to the machine");
+                if (machine.problem == "not-found")
+                    message = _("Cannot connect to an unknown machine");
+                else
+                    message = cockpit.message(machine.problem || machine.state);
+            }
+            $(".curtains").show();
+            $(".curtains .spinner").toggle(connecting || machine.restarting);
+            $(".curtains button").toggle(!connecting);
+            $(".curtains i").toggle(!connecting && !machine.restarting);
+            $(".curtains h1").text(title);
+            $(".curtains p").text(message);
+            $("#machine-spinner").hide();
+
+            /* Fall through when connecting, and allow frame to load at same time*/
+            if (!connecting)
+                return;
+        } else {
+            $(".curtains").hide();
+            $("#machine-spinner").toggle(current_frame && !$(current_frame).attr("data-ready"));
+        }
 
         if (hash == "/")
             hash = "";
+
+        /* Old cockpit packages, used to be in shell/shell.html */
+        var compat;
+        if (machine && machine.compat) {
+            compat = machine.compat[component];
+            if (compat) {
+                component = "shell/shell";
+                hash = compat;
+            }
+        }
 
         hash = cockpit.location.encode(hash, options);
 
         var frame = frames.lookup(machine, component, hash);
         if (frame != current_frame) {
-            $(current_frame).hide();
+            $(current_frame).css('display', 'none');
             current_frame = frame;
-            $(frame).show();
+            $(frame).css('display', 'block');
         }
 
         phantom_checkpoint();
@@ -543,7 +518,6 @@ define([
     function recalculate_layout() {
         var topnav = $('#topnav');
         var sidebar = $('#sidebar');
-        var body = $(document.body);
 
         var window_height = $(window).height();
         var window_width = $(window).width();
@@ -574,16 +548,38 @@ define([
             var address = machine.address;
             if (!address)
                 address = "localhost";
-            var list = iframes[machine.address];
+            var list = iframes[address];
             if (list) {
                 delete iframes[address];
                 $.each(list, function(i, frame) {
                     $(frame.contentWindow).off();
-                    $(self).triggerHandler("removed", frame);
                     $(frame).remove();
                 });
             }
         };
+
+        function frame_ready(frame, count) {
+            var ready = false;
+
+            try {
+                ready = $("body", frame.contentWindow.document).is(":visible");
+            } catch(ex) {
+                ready = true;
+            }
+
+            count += 1;
+            if (count > 50)
+                ready = true;
+
+            if (ready) {
+                frame.setAttribute('data-ready', '1');
+                navigate();
+            } else {
+                window.setTimeout(function() {
+                    frame_ready(frame, count + 1);
+                }, 100);
+            }
+        }
 
         self.lookup = function lookup(machine, component, hash) {
             var address;
@@ -596,23 +592,29 @@ define([
             if (!list)
                 iframes[address] = list = { };
 
-            var url;
-
+            var name = "cockpit1:" + address + "/" + component;
             var frame = list[component];
-            if (frame) {
-                var src_attr = frame.url + "#" + hash;
-                if (frame.getAttribute('src') != src_attr)
-                    frame.setAttribute('src', src_attr);
-            } else {
+            var wind = window.frames[name];
+
+            /* A preloaded frame */
+            if (!frame && wind) {
+                frame = wind.frameElement;
+                frame.url = frame.getAttribute('src').split("#")[0];
+                list[component] = frame;
+                frame_ready(frame, 0);
+
+            /* Need to create a new frame */
+            } else if (!frame) {
                 frame = document.createElement("iframe");
                 frame.setAttribute("class", "container-frame");
-                frame.setAttribute("name", address + "/" + component);
+                frame.setAttribute("name", name);
                 frame.style.display = "none";
 
                 var parts = component.split("/");
 
-                var base;
-                var checksum = checksums[address];
+                var base, checksum;
+                if (machine)
+                    checksum = machine.checksum;
                 if (address == "localhost")
                     base = "..";
                 else if (checksum)
@@ -621,12 +623,14 @@ define([
                     base = "../../@" + address;
 
                 frame.url = base + "/" + component + ".html";
-                frame.setAttribute('src', frame.url + "#" + hash);
-
                 $("#content").append(frame);
                 list[component] = frame;
-                $(self).triggerHandler("added", [ frame, address ]);
+                frame_ready(frame, 0);
             }
+
+            var src = frame.url + "#" + hash;
+            if (frame.getAttribute('src') != src)
+                frame.setAttribute('src', src);
 
             return frame;
         };
@@ -637,29 +641,28 @@ define([
 
         var unique_id = 0;
         var origin = cockpit.transport.origin;
-        var frame_peers_by_seed = { };
-        var frame_peers_by_name = { };
+        var source_by_seed = { };
+        var source_by_name = { };
 
         cockpit.transport.filter(function(message, channel, control) {
+            var seed, source, pos;
 
             /* Only control messages with a channel are forwardable */
             if (control) {
                 if (control.channel !== undefined) {
-                    $.each(frame_peers_by_seed, function(seed, peer) {
-                        if (peer.initialized)
-                            peer.window.postMessage(message, origin);
-                    });
+                    for (seed in source_by_seed)
+                        source_by_seed[seed].window.postMessage(message, origin);
                 }
                 return true; /* still deliver locally */
 
             /* Forward message to relevant frame */
             } else if (channel) {
-                var pos = channel.indexOf('!');
+                pos = channel.indexOf('!');
                 if (pos !== -1) {
-                    var seed = channel.substring(0, pos + 1);
-                    var peer = frame_peers_by_seed[seed];
-                    if (peer && peer.initialized) {
-                        peer.window.postMessage(message, origin);
+                    seed = channel.substring(0, pos + 1);
+                    source = source_by_seed[seed];
+                    if (source) {
+                        source.window.postMessage(message, origin);
                         return false; /* Stop delivery */
                     }
                 }
@@ -668,7 +671,9 @@ define([
             }
         });
 
-        function perform_jump(control) {
+        function perform_jump(child, control) {
+            if (!current_frame || current_frame.contentWindow != child)
+                return;
             var address = control.host;
             if (address === undefined)
                 address = current_address || "localhost";
@@ -684,7 +689,91 @@ define([
             cockpit.location.go(path);
         }
 
-        window.addEventListener("message", function(event) {
+        function perform_track(child) {
+            if (!current_frame || current_frame.contentWindow != child)
+                return;
+            var hash;
+            /* Ignore tracknig for old shell code */
+            if (child.name.indexOf("/shell/shell") === -1) {
+                hash = child.location.href.split('#')[1] || '';
+                if (hash && hash[0] !== '/')
+                    hash = '/' + hash;
+                if (hash !== current_hash) {
+                    current_hash = hash;
+                    window.location.hash = "#" + current_location + hash;
+                }
+            }
+        }
+
+        function on_unload(ev) {
+            var source = source_by_name[ev.target.defaultView.name];
+            if (source)
+                unregister(source);
+        }
+
+        function on_hashchange(ev) {
+            var source = source_by_name[ev.target.name];
+            if (source)
+                perform_track(source.window);
+        }
+
+        function on_load(ev) {
+            var source = source_by_name[ev.target.contentWindow.name];
+            if (source)
+                perform_track(source.window);
+        }
+
+        function unregister(source) {
+            var child = source.window;
+            cockpit.kill(null, child.name);
+            var frame = child.frameElement;
+            frame.removeEventListener("load", on_load);
+            child.removeEventListener("unload", on_unload);
+            child.removeEventListener("hashchange", on_hashchange);
+            delete source_by_seed[source.channel_seed];
+            delete source_by_name[source.name];
+        }
+
+        function register(child) {
+            var address, name = child.name || "";
+            if (name.indexOf("cockpit1:") === 0)
+                address = name.substring(9).split("/")[0];
+            if (!name || !address) {
+                console.warn("invalid child window name", child, name);
+                return;
+            }
+
+            unique_id += 1;
+            var seed = (cockpit.transport.options["channel-seed"] || "undefined:") + unique_id + "!";
+            var source = {
+                name: name,
+                window: child,
+                channel_seed: seed,
+                default_host: address
+            };
+            source_by_seed[seed] = source;
+            source_by_name[name] = source;
+
+            var frame = child.frameElement;
+            frame.addEventListener("load", on_load);
+            child.addEventListener("unload", on_unload);
+            child.addEventListener("hashchange", on_hashchange);
+
+            /*
+             * Setting the "data-loaded" attribute helps the testsuite
+             * know when it can switch into the frame and inject its
+             * own additions.
+             */
+            frame.setAttribute('data-loaded', '1');
+
+            perform_track(child);
+            phantom_checkpoint();
+
+            navigate();
+            return source;
+        }
+
+        function message_handler(event) {
             if (event.origin !== origin)
                 return;
 
@@ -692,14 +781,13 @@ define([
             if (typeof data !== "string")
                 return;
 
-            var frame = event.source;
-            var peer = frame_peers_by_name[frame.name];
-            if (!peer || peer.window != frame)
-                return;
+            var child = event.source;
+            var source = source_by_name[child.name];
 
             /* Closing the transport */
             if (data.length === 0) {
-                peer.initialized = false;
+                if (source)
+                    unregister(source);
                 return;
             }
 
@@ -707,23 +795,25 @@ define([
             if (data[0] == '\n') {
                 var control = JSON.parse(data.substring(1));
                 if (control.command === "init") {
-                    peer.initialized = true;
+                    if (source)
+                        unregister(source);
+                    source = register(child);
                     var reply = $.extend({ }, cockpit.transport.options,
-                        { "host": peer.default_host, "channel-seed": peer.channel_seed }
+                        { command: "init", "host": source.default_host, "channel-seed": source.channel_seed }
                     );
-                    frame.postMessage("\n" + JSON.stringify(reply), origin);
+                    child.postMessage("\n" + JSON.stringify(reply), origin);
 
                 } else if (control.command === "jump") {
-                    if (current_frame && current_frame.contentWindow == peer.window)
-                        perform_jump(control);
+                    perform_jump(child, control);
                     return;
 
                 } else if (control.command === "hint") {
                     /* watchdog handles current host for now */
-                    if (control.hint == "restart" && control.host != cockpit.transport.host)
-                        machines.expect_restart(control.host);
+                    if (control.hint == "restart" && control.host != cockpit.transport.host) {
+                        loader.expect_restart(control.host);
+                        perform_jump({ location: "/", host: null });
+                    }
                     return;
-
                 } else if (control.command == "oops") {
                     if (setup_oops())
                         oops.show();
@@ -733,152 +823,83 @@ define([
                 } else if (control.channel === undefined) {
                     return;
 
-                /* Add the frame's group to all open channel messages */
+                /* Add the child's group to all open channel messages */
                 } else if (control.command == "open") {
-                    control.group = frame.name;
+                    control.group = child.name;
                     data = "\n" + JSON.stringify(control);
                 }
             }
 
-            if (!peer.initialized) {
-                console.warn("child frame " + frame.name + " sending data without init");
+            if (!source) {
+                console.warn("child frame " + child.name + " sending data without init");
                 return;
             }
 
             /* Everything else gets forwarded */
             cockpit.transport.inject(data);
-        }, false);
-
-        /* This tells child frames we are a parent wants to accept messages */
-        if (!window.options)
-            window.options = { };
-        $.extend(window.options, { sink: true, protocol: "cockpit1" });
-
-        self.register = function register(child, address) {
-            if (!child.name) {
-                console.warn("invalid child window", child);
-                return;
-            }
-
-            unique_id += 1;
-            var seed = (cockpit.transport.options["channel-seed"] || "undefined:") + unique_id + "!";
-            var peer = {
-                window: child,
-                channel_seed: seed,
-                default_host: address,
-                initialized: false
-            };
-            frame_peers_by_seed[seed] = peer;
-            frame_peers_by_name[child.name] = peer;
-        };
-
-        self.unregister = function unregister(child) {
-            var peer = frame_peers_by_name[child.name];
-            if (!peer) {
-                console.warn("invalid child window", child);
-                return;
-            }
-
-            /* Close all channels for this frame */
-            cockpit.kill(null, child.name);
-            delete frame_peers_by_seed[peer.channel_seed];
-            delete frame_peers_by_name[child.name];
-        };
-    }
-
-    function Packages() {
-        var self = this;
-        var requests = [ ];
-        var machine_components = {};
-
-        function Components(manis) {
-            this.menu = [ ];
-            this.tools = [ ];
-            this.dashboard = [ ];
-
-            function build(section, list) {
-                $.each(manis, function(name, manifest) {
-                    $.each(manifest[section] || { }, function(ident, info) {
-                        var path;
-                        if (info.path) {
-                            path = info.path.replace(/\.html$/, "");
-                            if (path.indexOf("/") === -1)
-                                path = name + "/" + path;
-                        } else {
-                            path = name + "/" + ident;
-                        }
-                        list.push({
-                            path: path,
-                            label: cockpit.gettext(info.label),
-                            order: info.order === undefined ? 1000 : info.order
-                        });
-                    });
-                });
-
-                /* Everything gets sorted by order */
-                list.sort(function(a, b) { return a.order - b.order; });
-            }
-
-            build("dashboard", this.dashboard);
-            build("menu", this.menu);
-            build("tools", this.tools);
         }
 
-        self.build = function build(manis) {
-            return new Components(manis);
-        };
 
-        self.remove = function build(machine) {
-            delete checksums[machine.address];
-            delete machine_components[machine.address];
-        };
-
-        self.lookup = function lookup(machine, callback) {
-            var components = machine_components[machine.address];
-            if (!components && machine.address == "localhost") {
-                components = self.build(manifests);
-                machine_components[machine.address] = components;
-            }
-
-            if (components) {
-                callback(components);
-                return;
-            }
-
-            var url;
-            var checksum = checksums[machine.address];
-            if (machine.checksum)
-                url = "../../" + checksum + "/manifests.json";
-            else
-                url = "../../@" + machine.address + "/manifests.json";
-
-            var req = $.ajax({ url: url, dataType: "json", cache: true})
-                .done(function(manis) {
-                    components = self.build(manis);
-                    var etag = req.getResponseHeader("ETag");
-                    if (etag) /* and remove quotes */
-                        checksums[machine.address] = etag.replace(/^"(.+)"$/, '$1');
-                })
-                .fail(function(ex) {
-                    console.warn("failed to load manifests from " + machine.address + ": " + ex);
-                    components = self.build({ });
-                })
-                .always(function() {
-                    req.pending = false;
-                    machine_components[machine.address] = components;
-                    callback(components);
-                });
-
-            req.pending = true;
-            requests.push(req);
-        };
-
-        self.close = function close() {
-            $.each(requests, function(i, req) {
-                if (req.pending)
-                    req.abort();
-                req.pending = false;
-            });
+        self.start = function start(messages) {
+            window.addEventListener("message", message_handler, false);
+            for (var i = 0, len = messages.length; i < len; i++)
+                message_handler(messages[i]);
         };
     }
+
+    function components(manifests, section) {
+        var list = [];
+        $.each(manifests, function(name, manifest) {
+            $.each(manifest[section] || { }, function(ident, info) {
+                var path;
+                if (info.path) {
+                    path = info.path.replace(/\.html$/, "");
+                    if (path.indexOf("/") === -1)
+                        path = name + "/" + path;
+                } else {
+                    path = name + "/" + ident;
+                }
+                list.push({
+                    path: path,
+                    label: cockpit.gettext(info.label),
+                    order: info.order === undefined ? 1000 : info.order
+                });
+            });
+        });
+
+        /* Everything gets sorted by order */
+        list.sort(function(a, b) { return a.order - b.order; });
+        return list;
+    }
+
+    function compatibility(machine) {
+        if (!machine || !machine.manifests || machine.address === "localhost")
+            return null;
+
+        var shell = machine.manifests["shell"] || { };
+        var menu = shell["menu"] || { };
+        var tools = shell["tools"] || { };
+
+        var mapping = { };
+
+        /* The following were included in shell/shell.html in old versions */
+        if ("_host_" in menu)
+            mapping["system/host"] = "/server";
+        if ("_init_" in menu)
+            mapping["system/init"] = "/services";
+        if ("_network_" in menu)
+            mapping["network/interfaces"] = "/networking";
+        if ("_storage_" in menu)
+            mapping["storage/devices"] = "/storage";
+        if ("_users_" in tools)
+            mapping["users/local"] = "/accounts";
+
+        /* For Docker we have to guess ... some heuristics */
+        if ("_storage_" in menu || "_init_" in menu)
+            mapping["docker/containers"] = "/containers";
+
+        return mapping;
+    }
+
+    return module;
 });

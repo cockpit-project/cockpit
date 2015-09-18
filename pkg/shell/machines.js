@@ -1,382 +1,146 @@
 define([
     "jquery",
-    "base1/cockpit"
-], function($, cockpit) {
+    "base1/cockpit",
+    "manifests",
+], function($, cockpit, local_manifests) {
     var module = { };
 
-    function MachineData(results, old_map) {
+    /* machines.json path */
+    var path = "/var/lib/cockpit/machines.json";
+
+    /*
+     * We share the Machines state between multiple frames. Only
+     * one frame has the job of loading the state, usually index.js
+     * The Loader code below does all the loading.
+     *
+     * The data is stored in sessionStorage in a JSON object, like this
+     * {
+     *    content: parsed contents of machines.json
+     *    tag: the cockpit.file() tag
+     *    overlay: extra data to augment and override on top of content
+     * }
+     *
+     * This is the sessionStorage key at which the data is placed.
+     */
+    var key = "v2-machines.json";
+
+    function Machines() {
         var self = this;
 
+        var flat = null;
         var ready = false;
-
-        /* echo channels to each machine */
-        var channels = { };
-
-        /* hostnamed proxies to each machine, if hostnamed available */
-        var proxies = { };
-
-        var defaults = "{ \"localhost\": { \"visible\": true } }";
 
         /* parsed machine data */
         var machines = { };
 
-        /* populate with previous data if any */
-        function fill_machines(old_map) {
-            var k;
-            for (k in old_map) {
-                machines[k] = old_map[k];
-                ready = true;
+        /* Data shared between Machines() instances */
+        var last = {
+            content: null,
+            tag: null,
+            overlay: {
+                localhost: {
+                    visible: true,
+                    manifests: local_manifests
+                }
             }
+        };
+
+        function storage(ev) {
+            if (ev.key === key && ev.storageArea === window.sessionStorage)
+                refresh(JSON.parse(ev.newValue));
         }
 
-        if (old_map)
-            fill_machines(old_map);
+        window.addEventListener("storage", storage);
 
-        /* machines.json and file content */
-        var waits = $.Callbacks("once memory");
-        self.file = cockpit.file("/var/lib/cockpit/machines.json", { syntax: JSON });
-        self.content = { };
-        self.tag = null;
+        window.setTimeout(function() {
+            var value = window.sessionStorage.getItem(key);
+            if (!ready && value)
+                refresh(JSON.parse(value));
+        });
 
-        self.file.watch(function(data, tag, ex) {
-            if (ex)
-                console.warn("couldn't load machines data: " + ex);
+        var timeout = null;
 
-            self.content = data || JSON.parse(defaults);
-            self.tag = tag;
+        function sync(machine, values, overlay) {
+            var desired = $.extend({ }, values || { }, overlay || { });
+            var prop, value;
+            for (prop in desired) {
+                if (machine[prop] !== desired[prop])
+                    machine[prop] = desired[prop];
+            }
+            for (prop in machine) {
+                if (machine[prop] !== desired[prop])
+                    delete machine[prop];
+            }
+            return machine;
+        }
 
-            var host;
-            for (host in self.content)
-                update(host);
+        function refresh(shared, push) {
+            var emit_ready = !ready;
+
+            ready = true;
+            last = shared;
+            flat = null;
+
+            if (push && !timeout) {
+                timeout = window.setTimeout(function() {
+                    timeout = null;
+                    window.sessionStorage.setItem(key, JSON.stringify(last));
+                }, 10);
+            }
+
+            var host, hosts = { };
+            var content = shared.content || { };
+            var overlay = shared.overlay || { };
+            for (host in content)
+                hosts[host] = true;
+            for (host in overlay)
+                hosts[host] = true;
+
+            var events = [];
+
+            var machine;
+            for (host in hosts) {
+                machine = sync(machines[host] || { }, content[host], overlay[host]);
+
+                /* Fill in defaults */
+                machine.key = host;
+                if (!machine.address)
+                    machine.address = host;
+                if (!machine.label) {
+                    if (host == "localhost" || host == "localhost.localdomain")
+                        machine.label = window.location.hostname;
+                    else
+                        machine.label = host;
+                }
+                if (!machine.avatar)
+                    machine.avatar = "../shell/images/server-small.png";
+
+                events.push([host in machines ? "updated" : "added", [machine, host]]);
+                machines[host] = machine;
+            }
 
             /* Remove any lost hosts */
             for (host in machines) {
-                if (!(host in self.content))
-                    remove(host);
-            }
-
-            ready = true;
-            notify();
-
-            waits.fire();
-            old_map = null;
-        });
-
-        function notify(host) {
-            if (!ready)
-                return;
-
-            if (host) {
-                var machine = machines[host];
-                if (machine)
-                    machine.version++;
-            }
-
-            results({
-                machines: machines,     /* map of all machines */
-            });
-        }
-
-        function state(host, value, problem) {
-            var machine = machines[host];
-            if (machine) {
-                if (value == "connected")
-                    machine.restarting = false;
-
-                machine.state = value;
-                machine.problem = problem;
-                notify(host);
-            }
-        }
-
-        self.connect = function connect(host, force) {
-            var channel = channels[host];
-            if (channel && force)
-                self.disconnect(host);
-            if (channel)
-                return;
-
-            channel = cockpit.channel({ host: host, payload: "echo" });
-            channels[host] = channel;
-
-            /* So we get back a message once connected */
-            channel.send("x");
-
-            $(channel)
-                .on("message", function() {
-                    state(host, "connected", null);
-                })
-                .on("close", function(options) {
-                    var problem = options.problem || "disconnected";
-                    var machine = machines[host];
-                    state(host, "failed", problem);
-                    if (machine && machine.restarting) {
-                        var timer = window.setTimeout(function() {
-                            self.connect(host);
-                        }, 15000);
-                    }
-
-                    self.disconnect(host);
-                });
-
-            state(host, "connecting", null);
-
-            var proxy = cockpit.dbus("org.freedesktop.hostname1", { host: host }).proxy();
-            proxy.wait(function() {
-                proxies[host] = proxy;
-                $(proxy).on("changed", function() {
-                     update(host);
-                });
-                update(host);
-            });
-        };
-
-        self.disconnect = function disconnect(host) {
-            var channel = channels[host];
-            delete channels[host];
-            if (channel) {
-                $(channel).off();
-                channel.close();
-            }
-
-            var proxy = proxies[host];
-            delete proxies[host];
-            if (proxy) {
-                $(proxy).off();
-                proxy.client.close();
-            }
-        };
-
-        function update(host) {
-            var machine = machines[host];
-
-            if (!machine) {
-                machine = machines[host] = { key: host, version: 0 };
-            }
-
-            var item = self.content[host] || { };
-            var props = proxies[host] || { };
-
-            machine.address = item.address || host;
-            machine.color = item.color;
-            machine.avatar = item.avatar || "../shell/images/server-small.png";
-            machine.visible = item.visible;
-
-            var label = props.PrettyHostname || props.StaticHostname || item.label || machine.address;
-            machine.os = props.OperatingSystemPrettyName;
-
-            if (!label || label == "localhost" || label == "localhost.localdomain")
-                label = window.location.hostname;
-
-            machine.label = label;
-            notify(host);
-
-            /* Don't automatically reconnect failed machines */
-            if (machine.visible && (!machine.problem || machine.restarting))
-                self.connect(host);
-            else
-                self.disconnect(host);
-        }
-
-        function remove(host) {
-            var machine = machines[host];
-            if (machine) {
-                delete machines[host];
-                self.disconnect(host);
-                notify(host);
-            }
-        }
-
-        self.expect_restart = function expect_restart(host) {
-            function reconnect () {
-                machine.restarting = true;
-                var timer = window.setTimeout(function() {
-                    self.connect(host);
-                }, 1000);
-            }
-
-            var machine = machines[host];
-            if (machine) {
-
-                var channel = channels[host];
-                if (channel)
-                    $(channel).on("close", reconnect);
-                else
-                    reconnect ();
-            }
-        };
-
-        self.close = function close() {
-            if (self.file) {
-                self.file.close();
-                self.file = null;
-            }
-
-            var hosts = Object.keys(channels);
-            hosts.forEach(self.disconnect);
-        };
-
-        self.modify_when_ready = function modify_when_ready(mutate) {
-            var dfd = $.Deferred();
-            waits.add(function() {
-                if (self.file) {
-                    self.file.modify(mutate, self.content, self.tag)
-                        .done(function (c, t) {
-                            dfd.resolve(c, t);
-                        }).
-                        fail(function (e) {
-                            dfd.reject(e);
-                        });
-                } else {
-                    dfd.reject("file closed");
-                }
-            });
-            return dfd.promise();
-        };
-    }
-
-    function Machines() {
-        var self = this;
-        var flat = null;
-        var map = { };
-        var ready = false;
-        var data = null;
-        var versions = {};
-
-        /* Invoked by cockpit.cache() to get new data */
-        function provider(result) {
-            data = new MachineData(result, map);
-            return data;
-        }
-
-        /* Invoked by cockpit.cache() when data is available, changes */
-        function consumer(data, storage_key) {
-            flat = null;
-
-            var key;
-            if (!ready) {
-                map = data.machines;
-                ready = true;
-                for (key in map)
-                    ensure_machine_color(map[key]);
-                for (key in map)
-                    $(self).triggerHandler("added", map[key]);
-                $(self).triggerHandler('ready');
-                return;
-            }
-
-            var host;
-            for (host in data.machines) {
-                var machine = data.machines[host];
-                var old = versions[host];
-
-                if (!old || machine.version != old) {
-                    ensure(host, machine);
+                if (!(host in hosts)) {
+                    machine = machines[host];
+                    delete machines[host];
+                    events.push(["removed", [machine, host]]);
                 }
             }
 
-            for (host in versions) {
-                if (!data.machines[host]) {
-                    delete versions[host];
-                    $(self).triggerHandler("removed", host);
-                }
-            }
+            /* Fire off all events */
+            var i, sel = $(self), len = events.length;
+            for (i = 0; i < len; i++)
+                sel.triggerHandler(events[i][0], events[i][1]);
+            if (emit_ready)
+                $(self).triggerHandler("ready");
         }
-
-        var cache = cockpit.cache("v1-machines.json", provider, consumer);
-
-        function ensure(key, item) {
-            var created = !versions[key];
-            map[key] = item;
-            versions[key] = item.version;
-
-            if (ready) {
-                ensure_machine_color(item);
-                $(self).triggerHandler(created ? "added" : "changed", item);
-            }
-
-            return item;
-        }
-
-        function color_in_use(color) {
-            var key, machine, norm = $.color.parse(color).toString();
-            for (key in map) {
-                machine = map[key];
-                if (machine.color && $.color.parse(machine.color).toString() == norm)
-                    return true;
-            }
-            return false;
-        }
-
-        function ensure_machine_color(machine) {
-            if (machine.color)
-                return;
-
-            var color = "gray";
-            var i, length = module.colors.length;
-            for (i = 0; i < length; i++) {
-                if (!color_in_use(module.colors[i])) {
-                    color = module.colors[i];
-                    break;
-                }
-            }
-
-            machine.color = color;
-            self.change(machine.key, { color: color })
-                .fail(function(ex) {
-                    console.warn("couldn't set machine color: " + ex);
-                });
-        }
-
-        function modify(key, values) {
-            function mutate(data) {
-                var item = data[key];
-                if (!item)
-                    item = data[key] = { };
-                for (var i in values)
-                    item[i] = values[i];
-                return data;
-            }
-
-            /* Make us authorititative data source */
-            cache.claim();
-            return data.modify_when_ready(mutate);
-        }
-
-        Object.defineProperty(self, "list", {
-            enumerable: true,
-            get: function get() {
-                var key;
-                if (!flat) {
-                    flat = [];
-                    for (key in map) {
-                        if (map[key].visible)
-                            flat.push(map[key]);
-                    }
-                    flat.sort(function(m1, m2) {
-                        return m2.label.localeCompare(m2.label);
-                    });
-                }
-                return flat;
-            }
-        });
-
-        Object.defineProperty(self, "addresses", {
-            enumerable: true,
-            get: function get() {
-                return Object.keys(map);
-            }
-        });
-
-        self.lookup = function lookup(address) {
-            return map[address || "localhost"] || null;
-        };
 
         self.add = function add(address, host_key) {
             var dfd = $.Deferred();
 
-            var item = { address: address, visible: true };
-            var json = modify(address, item);
+            var values = { address: address, visible: true, color: self.unused_color() };
+            var json = self.change(address, values);
 
             var known_hosts = cockpit.file("/var/lib/cockpit/known_hosts");
             var append = known_hosts.modify(function(data) {
@@ -398,12 +162,40 @@ define([
             return dfd.promise();
         };
 
-        self.change = function change(key, values) {
-            var mod, hostnamed, call;
+        self.unused_color = function unused_color() {
+            var i, len = module.colors.length;
+            for (i = 0; i < len; i++) {
+                if (!color_in_use(module.colors[i]))
+                    return module.colors[i];
+            }
+            return "gray";
+        };
+
+        function color_in_use(color) {
+            var key, machine, norm = $.color.parse(color).toString();
+            for (key in machines) {
+                machine = machines[key];
+                if (machine.color && $.color.parse(machine.color).toString() == norm)
+                    return true;
+            }
+            return false;
+        }
+
+        function merge(item, values) {
+            for (var prop in values) {
+                if (values[prop] === null)
+                    delete item[prop];
+                else
+                    item[prop] = values[prop];
+            }
+        }
+
+        self.change = function change(host, values) {
+            var hostnamed, call;
             if (values.label) {
-                hostnamed = cockpit.dbus("org.freedesktop.hostname1", { host: key });
+                hostnamed = cockpit.dbus("org.freedesktop.hostname1", { host: host });
                 call = hostnamed.call("/org/freedesktop/hostname1", "org.freedesktop.hostname1",
-                               "SetPrettyHostname", [ values.label, true ])
+                                      "SetPrettyHostname", [ values.label, true ])
                     .always(function() {
                         hostnamed.close();
                     })
@@ -411,34 +203,288 @@ define([
                         console.warn("couldn't set pretty host name: " + ex);
                     });
             }
-            mod = modify(key, values);
+
+            function mutate(data) {
+                if (!data)
+                    data = { };
+                var item = data[host];
+                if (!item)
+                    item = data[host] = { };
+                merge(item, values);
+                return data;
+            }
+
+            /* Update the JSON file */
+            var local = cockpit.file(path, { syntax: JSON });
+            var mod = local.modify(mutate, last.content, last.tag)
+                .done(function(data, tag) {
+                    var prop, over = { };
+                    for (prop in values)
+                        over[prop] = null;
+                    self.data(data, tag); /* an optimization */
+                    self.overlay(host, over);
+                })
+                .always(function() {
+                    local.close();
+                });
+
             if (call)
                 return $.when(call, mod);
+
             return mod;
         };
 
-        self.connect = function connect(key) {
-            cache.claim();
-            data.connect(key);
+        self.data = function data(content, tag) {
+            refresh({ content: content, tag: tag, overlay: last.overlay }, true);
         };
 
-        self.disconnect = function disconnect(key) {
-            cache.claim();
-            data.disconnect(key);
+        self.overlay = function overlay(host, values) {
+            var changes = { };
+            changes[host] = $.extend({ }, last.overlay[host] || { });
+            merge(changes[host], values);
+            refresh({
+                content: last.content,
+                tag: last.tag,
+                overlay: $.extend({ }, last.overlay, changes)
+            }, true);
+        };
+
+        Object.defineProperty(self, "list", {
+            enumerable: true,
+            get: function get() {
+                var key;
+                if (!flat) {
+                    flat = [];
+                    for (key in machines) {
+                        if (machines[key].visible)
+                            flat.push(machines[key]);
+                    }
+                    flat.sort(function(m1, m2) {
+                        return m1.label.localeCompare(m2.label);
+                    });
+                }
+                return flat;
+            }
+        });
+
+        Object.defineProperty(self, "addresses", {
+            enumerable: true,
+            get: function get() {
+                return Object.keys(machines);
+            }
+        });
+
+        self.lookup = function lookup(address) {
+            return machines[address || "localhost"] || null;
         };
 
         self.close = function close() {
-            cache.close();
-        };
-
-        self.expect_restart = function (host) {
-            cache.claim();
-            data.expect_restart(host);
+            window.removeEventListener("storage", storage);
         };
     }
 
-    module.instance = function instance() {
+    function Loader(machines) {
+        var self = this;
+
+        /* File we are watching */
+        var file;
+
+        /* echo channels to each machine */
+        var channels = { };
+
+        /* hostnamed proxies to each machine, if hostnamed available */
+        var proxies = { };
+
+        file = cockpit.file(path, { syntax: JSON });
+        file.watch(function(data, tag, ex) {
+            if (ex)
+                console.warn("couldn't load machines data: " + ex);
+            machines.data(data, tag);
+        });
+
+        function state(host, value, problem) {
+            var values = { state: value, problem: problem };
+            if (value == "connected")
+                values.restarting = false;
+            else if (problem)
+                values.manifests = null;
+            machines.overlay(host, values);
+        }
+
+        $(machines).on("added", updated);
+        $(machines).on("updated", updated);
+        $(machines).on("removed", removed);
+
+        function updated(ev, machine, host) {
+            if (!machine) {
+                machine = machines.lookup(host);
+                if (!machine)
+                    return;
+            }
+
+            var props = proxies[host];
+            if (!props || !props.valid)
+                props = { };
+
+            var overlay = { };
+
+            if (!machine.color)
+                overlay.color = machines.unused_color();
+
+            var label = props.PrettyHostname || props.StaticHostname;
+            if (label && label !== machine.label)
+                overlay.label = label;
+
+            var os = props.OperatingSystemPrettyName;
+            if (os && os != machine.os)
+                overlay.os = props.OperatingSystemPrettyName;
+
+            if (!$.isEmptyObject(overlay))
+                machines.overlay(host, overlay);
+
+            /* Don't automatically reconnect failed machines */
+            if (machine.visible && (!machine.problem || machine.restarting))
+                self.connect(host);
+            else if (!machine.visible)
+                self.disconnect(host);
+        }
+
+        function removed(ev, machine, host) {
+            self.disconnect(host);
+        }
+
+        self.connect = function connect(host) {
+            var machine = machines.lookup(host);
+            if (!machine)
+                return;
+
+            var channel = channels[host];
+            if (channel)
+                return;
+
+            channel = cockpit.channel({ host: host, payload: "echo" });
+            channels[host] = channel;
+
+            var local = host === "localhost";
+
+            /* Request is null, and message is true when connected */
+            var request = null;
+            var open = local;
+
+            function whirl() {
+                if (!request && open)
+                    state(host, "connected", null);
+                else
+                    state(host, "connecting", null);
+            }
+
+            var url;
+
+            /* Here we load the machine manifests, and expect them before going to "connected" */
+            if (!machine.manifests) {
+                if (machine.checksum)
+                    url = "../../" + machine.checksum + "/manifests.json";
+                else
+                    url = "../../@" + machine.address + "/manifests.json";
+                request = $.ajax({ url: url, dataType: "json", cache: true})
+                    .done(function(manifests) {
+                        var overlay = { manifests: manifests };
+                        var etag = request.getResponseHeader("ETag");
+                        if (etag) /* and remove quotes */
+                            overlay.checksum = etag.replace(/^"(.+)"$/, '$1');
+                        machines.overlay(host, overlay);
+                    })
+                    .fail(function(ex) {
+                        console.warn("failed to load manifests from " + machine.address + ": " + ex);
+                        if (!machines.manifests)
+                            machines.overlay(host, { manifests: { } });
+                    })
+                    .always(function() {
+                        request = null;
+                        whirl();
+                    });
+            }
+
+            /* Send a message to the server and get back a message once connected */
+            if (!local) {
+                channel.send("x");
+
+                $(channel)
+                    .on("message", function() {
+                        open = true;
+                        whirl();
+                    })
+                .on("close", function(ev, options) {
+                    var problem = options.problem || "disconnected";
+                    open = false;
+                    state(host, "failed", problem);
+                    var machine = machines[host];
+                    if (machine && machine.restarting) {
+                        window.setTimeout(function() {
+                            self.connect(host);
+                        }, 10000);
+                    }
+                    self.disconnect(host);
+                });
+            }
+
+            var proxy = cockpit.dbus("org.freedesktop.hostname1", { host: host }).proxy();
+            proxies[host] = proxy;
+            proxy.wait(function() {
+                $(proxy).on("changed", function() {
+                    updated(null, null, host);
+                });
+                updated(null, null, host);
+            });
+
+            /* In case already ready, for example when local */
+            whirl();
+        };
+
+        self.disconnect = function disconnect(host) {
+            if (host === "localhost")
+                return;
+
+            var channel = channels[host];
+            delete channels[host];
+            if (channel) {
+                channel.close();
+                $(channel).off();
+            }
+
+            var proxy = proxies[host];
+            delete proxies[host];
+            if (proxy) {
+                proxy.client.close();
+                $(proxy).off();
+            }
+        };
+
+        self.expect_restart = function expect_restart(host) {
+            machines.overlay(host, { restarting: true });
+        };
+
+        self.close = function close() {
+            $(machines).off("added", updated);
+            $(machines).off("changed", updated);
+            $(machines).off("removed", removed);
+            machines = null;
+
+            if (file)
+                file.close();
+            file = null;
+
+            var hosts = Object.keys(channels);
+            hosts.forEach(self.disconnect);
+        };
+    }
+
+    module.instance = function instance(loader) {
         return new Machines();
+    };
+
+    module.loader = function loader(machines) {
+        return new Loader(machines);
     };
 
     module.colors = [

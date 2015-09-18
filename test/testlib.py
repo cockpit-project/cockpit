@@ -313,27 +313,20 @@ class Browser:
             id: The identifier the page.  This is a string starting with "/"
                 For old cockpit this may be an old style page identifier.
         """
-        if id.startswith("/"):
-            if host:
-                frame = host + id
-            else:
-                frame = "localhost" + id
+        assert id.startswith("/")
+        if host:
+            frame = host + id
         else:
-            if host:
-                frame = host + "/shell/shell"
-            else:
-                frame = "localhost/shell/shell"
+            frame = "localhost" + id
+        frame = "cockpit1:" + frame
 
         self.switch_to_top()
         self.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
         self.wait_visible("iframe.container-frame[name='%s']" % frame)
         self.switch_to_frame(frame)
 
-        if id.startswith("/"):
-            self.wait_present("body")
-            self.wait_visible("body")
-        else:
-            self.wait_visible('#' + id)
+        self.wait_present("body")
+        self.wait_visible("body")
 
     def leave_page(self):
         self.switch_to_top()
@@ -391,6 +384,11 @@ class Browser:
         if self.phantom:
             self.phantom.show(file="%s-%s-%s.png" % (program_name, label or self.label, title))
 
+    def kill(self):
+        if self.phantom:
+            self.phantom.kill()
+        self.phantom = None
+
 class MachineCase(unittest.TestCase):
     runner = None
     machine_class = testvm.QemuMachine
@@ -406,7 +404,9 @@ class MachineCase(unittest.TestCase):
 
     def new_browser(self, address=None):
         (unused, sep, label) = self.id().rpartition(".")
-        return Browser(address = address or self.machine.address, label=label)
+        browser = Browser(address = address or self.machine.address, label=label)
+        self.addCleanup(lambda: browser.kill())
+        return browser
 
     def setUp(self):
         self.machine = self.new_machine()

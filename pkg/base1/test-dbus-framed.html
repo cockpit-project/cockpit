@@ -37,7 +37,7 @@
         /* Top level window */
         function parent_window() {
             $("#title").text("Cockpit Parent Frame");
-            window.options = { sink: true, protocol: "cockpit1" };
+            window.name = "cockpit1";
             var initialized = false;
             var frame;
 
@@ -78,9 +78,9 @@
             $(chan).on("close", function() {
                  test.equal(cockpit.transport.host, "localhost",
                             "parent cockpit.transport.host");
-                 $(document.body).append($("<iframe>").attr("name", "blah").
+                 $(document.body).append($("<iframe>").attr("name", "cockpit1:blah").
                          attr("src", window.location.href + "?sub"));
-                 frame = window.frames["blah"];
+                 frame = window.frames["cockpit1:blah"];
             });
         }
 

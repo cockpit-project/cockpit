@@ -242,6 +242,7 @@ function join_data(buffers, binary) {
  */
 function ParentWebSocket(parent) {
     var self = this;
+    self.readyState = 0;
 
     window.addEventListener("message", function receive(event) {
         if (event.origin !== origin || event.source !== parent)
@@ -249,10 +250,12 @@ function ParentWebSocket(parent) {
         var data = event.data;
         if (data === undefined || data.length === undefined)
             return;
-        if (data.length === 0)
+        if (data.length === 0) {
+            self.readyState = 3;
             self.onclose();
-        else
+        } else {
             self.onmessage(event);
+        }
     }, false);
 
     self.send = function send(message) {
@@ -260,10 +263,15 @@ function ParentWebSocket(parent) {
     };
 
     self.close = function close() {
+        self.readyState = 3;
         parent.postMessage("", origin);
+        self.onclose();
     };
 
-    window.setTimeout(function() { self.onopen(); }, 0);
+    window.setTimeout(function() {
+        self.readyState = 1;
+        self.onopen();
+    }, 0);
 }
 
 /* Private Transport class */
@@ -283,16 +291,9 @@ function Transport() {
     var check_health_timer;
     var got_message = false;
 
-    try {
-	    /* See if we should communicate via parent */
-	    if (window.parent !== window &&
-                window.parent.options && window.parent.options.sink &&
-                window.parent.options.protocol == "cockpit1") {
-               ws = new ParentWebSocket(window.parent);
-            }
-    } catch (ex) {
-	/* permission access errors */
-    }
+    /* See if we should communicate via parent */
+    if (window.parent !== window && window.name.indexOf("cockpit1:") === 0)
+        ws = new ParentWebSocket(window.parent);
 
     if (!ws) {
         var ws_loc = calculate_url();
@@ -521,10 +522,13 @@ function Transport() {
     self.send_data = function send_data(data) {
         if (!ws) {
             console.log("transport closed, dropped message: ", data);
-            return false;
+        } else if (ws.readyState != 1) {
+            console.log("transport not ready (" + ws.readyState + "), dropped message: ", data);
+        } else {
+            ws.send(data);
+            return true;
         }
-        ws.send(data);
-        return true;
+        return false;
     };
 
     self.send_message = function send_message(channel, payload) {
@@ -941,6 +945,7 @@ function basic_scope(cockpit) {
     };
 
     cockpit.transport = {
+        wait: ensure_transport,
         inject: function inject(message) {
             if (!default_transport)
                 return false;
@@ -3402,11 +3407,8 @@ function full_scope(cockpit, $, po) {
      */
 
     cockpit.oops = function oops() {
-        if (window.parent !== window &&
-            window.parent.options && window.parent.options.sink &&
-            window.parent.options.protocol == "cockpit1") {
+        if (window.parent !== window && window.name.indexOf("cockpit1:") === 0)
             window.parent.postMessage("\n{ \"command\": \"oops\" }", origin);
-        }
     };
 
     var old_onerror;

@@ -86,7 +86,7 @@ def test_dbus(b, address):
 
 
 class TestMultiOS(MachineCase):
-    def testBasic(self):
+    def checkStock(self, system):
         dev_m = self.machine
         dev_b = self.browser
 
@@ -123,50 +123,52 @@ class TestMultiOS(MachineCase):
             browser.switch_to_frame(frame)
             browser.wait_visible('#' + id)
 
-        def test_stock(system):
-            stock_m = self.new_machine(flavor='stock', system=system)
-            stock_m.start()
-            stock_m.wait_boot()
-            stock_b = self.new_browser(stock_m.address)
+        stock_m = self.new_machine(flavor='stock', system=system)
+        stock_m.start()
+        stock_m.wait_boot()
+        stock_b = self.new_browser(stock_m.address)
 
-            stock_login_and_go(stock_b, "dashboard", href="/dashboard/list", host=None)
-            inject_extras(stock_b)
-            wait_dashboard_addresses (stock_b, [ "localhost" ])
+        stock_login_and_go(stock_b, "dashboard", href="/dashboard/list", host=None)
+        inject_extras(stock_b)
+        wait_dashboard_addresses (stock_b, [ "localhost" ])
 
-            add_machine(stock_b, dev_m.address)
-            wait_dashboard_addresses (stock_b, [ "localhost", dev_m.address ])
+        add_machine(stock_b, dev_m.address)
+        wait_dashboard_addresses (stock_b, [ "localhost", dev_m.address ])
 
-            dev_b.switch_to_top()
-            dev_b.switch_to_frame("cockpit1:localhost/dashboard/list")
+        dev_b.switch_to_top()
+        dev_b.switch_to_frame("cockpit1:localhost/dashboard/list")
 
-            add_machine(dev_b, stock_m.address)
-            dev_dashboard_addresses.append(stock_m.address)
-            wait_dashboard_addresses (dev_b, dev_dashboard_addresses)
+        add_machine(dev_b, stock_m.address)
+        dev_dashboard_addresses.append(stock_m.address)
+        wait_dashboard_addresses (dev_b, dev_dashboard_addresses)
 
-            test_dbus(stock_b, dev_m.address)
-            test_dbus(dev_b, stock_m.address)
+        test_dbus(stock_b, dev_m.address)
+        test_dbus(dev_b, stock_m.address)
 
-            test_spawn(stock_b, dev_m.address)
-            test_spawn(dev_b, stock_m.address)
+        test_spawn(stock_b, dev_m.address)
+        test_spawn(dev_b, stock_m.address)
 
-            dev_b.switch_to_top()
-            dev_b.go("/@%s/network/interfaces" % stock_m.address)
-            dev_b.wait_present("iframe.container-frame[name='cockpit1:%s/shell/shell'][src$='#/networking']" % stock_m.address)
+        dev_b.switch_to_top()
+        dev_b.go("/@%s/network/interfaces" % stock_m.address)
+        dev_b.wait_present("iframe.container-frame[name='cockpit1:%s/shell/shell'][src$='#/networking']" % stock_m.address)
 
-            dev_b.switch_to_top()
-            dev_b.go("/@%s/storage/devices" % stock_m.address)
-            dev_b.wait_present("iframe.container-frame[name='cockpit1:%s/shell/shell'][src$='#/storage']" % stock_m.address)
+        dev_b.switch_to_top()
+        dev_b.go("/@%s/storage/devices" % stock_m.address)
+        dev_b.wait_present("iframe.container-frame[name='cockpit1:%s/shell/shell'][src$='#/storage']" % stock_m.address)
 
-            dev_b.switch_to_top()
-            dev_b.go("/@%s/users/local" % stock_m.address)
-            dev_b.wait_present("iframe.container-frame[name='cockpit1:%s/shell/shell'][src$='#/accounts']" % stock_m.address)
-
-        test_stock('fedora-22')
-        test_stock('centos-7')
+        dev_b.switch_to_top()
+        dev_b.go("/@%s/users/local" % stock_m.address)
+        dev_b.wait_present("iframe.container-frame[name='cockpit1:%s/shell/shell'][src$='#/accounts']" % stock_m.address)
 
         # Messages from previous versions of cockpit
         self.allow_journal_messages("g_hash_table_iter_next: assertion 'ri->version == ri->hash_table->version' failed")
         self.allow_journal_messages("couldn't run usermod command: Child process exited with code 6")
         self.allow_journal_messages("usermod: user 'postfix' does not exist")
+
+    def testFedora22(self):
+        self.checkStock('fedora-22')
+
+    def testCentos7(self):
+        self.checkStock('centos-7')
 
 test_main()

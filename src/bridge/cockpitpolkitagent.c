@@ -93,15 +93,6 @@ caller_free (gpointer data)
 }
 
 static void
-caller_close (ReauthorizeCaller *caller)
-{
-  g_debug ("closing agent authentication");
-
-  /* Closes the caller socket and cleans up */
-  g_hash_table_remove (caller->self->callers, caller->cookie);
-}
-
-static void
 cockpit_polkit_agent_init (CockpitPolkitAgent *self)
 {
   self->callers = g_hash_table_new_full (g_str_hash, g_str_equal,
@@ -260,6 +251,8 @@ on_helper_close (CockpitPipe *pipe,
   gint status;
   int res;
 
+  g_warn_if_fail (g_hash_table_steal (caller->self->callers, caller->cookie));
+
   if (caller->result)
     {
       result = caller->result;
@@ -299,7 +292,8 @@ on_helper_close (CockpitPipe *pipe,
       g_object_unref (result);
     }
 
-  caller_close (caller);
+  g_debug ("closing agent authentication");
+  caller_free (caller);
 }
 
 static void
@@ -307,7 +301,8 @@ on_cancelled (GCancellable *cancellable,
               gpointer      user_data)
 {
   ReauthorizeCaller *caller = user_data;
-  caller_close (caller);
+  g_debug ("cancelled agent authentication");
+  g_hash_table_remove (caller->self->callers, caller->cookie);
 }
 
 static void

@@ -3,11 +3,136 @@ define([
     "base1/cockpit",
     "base1/angular",
     "base1/term",
+    "kubernetes/client",
     "kubernetes/app"
-], function($, cockpit, angular, Terminal) {
+], function($, cockpit, angular, Terminal, kubernetes) {
     'use strict';
 
     var _ = cockpit.gettext;
+
+    var k8client =  kubernetes.k8client();
+    var adjust_btn = $('#adjust-entity-button'); 
+    var adjust_entity_dlg = $('#adjust-entity-dialog');
+    var delete_btn = $('#delete-entity-button'); 
+    var delete_entity_dlg = $('#delete-entity-dialog');
+    var delete_pod_dlg = $('#delete-pod-dialog');
+    var delete_pod_btn = $('#delete-pod-button');
+
+    delete_entity_dlg.on('show.bs.modal', function(e) {
+        var key = $(e.relatedTarget).attr("data-key");
+        var entity = k8client.objects[key];
+        delete_entity_dlg.find('.modal-body').text(cockpit.format(_("Delete $0 $1?"), entity.kind, entity.metadata.name));
+
+        delete_btn.on('click', function() {
+            var deferred = $.Deferred();
+            delete_entity_dlg.dialog("wait", deferred.promise());
+            delete_entity_dlg.dialog("failure", null);
+
+            k8client.remove(entity.metadata.selfLink)
+                .fail(function(ex) {
+                    delete_entity_dlg.dialog("failure", ex);
+                })
+                .done(function() {
+                    delete_entity_dlg.modal("hide");
+                });
+        });
+    });
+
+    adjust_entity_dlg.on('show.bs.modal', function(e) {
+        var key = $(e.relatedTarget).attr("data-key");
+        var entity = k8client.objects[key];
+        adjust_entity_dlg.find('#replica-count').val(entity.spec.replicas);
+
+        adjust_btn.on('click', function() {
+            function resize(item, value) {
+                var spec = item.spec;
+                if (!spec) {
+                    console.warn("replicationcontroller without spec");
+                    return false;
+                }
+
+                /* Already set at same value */
+                if (spec.replicas === value)
+                    return false;
+
+                spec.replicas = value;
+                return true;
+            }
+
+            function update_replica(rc) {
+                var failures = [];
+                var dfd = $.Deferred();
+                var req;
+                var ex;
+
+                var input = adjust_entity_dlg.find('#replica-count').val();
+                var value = Number($.trim(input));
+                if (isNaN(value) || value < 0)
+                    ex = new Error(_("Not a valid number of replicas"));
+                else if (value > 128)
+                    ex = new Error(_("The maximum number of replicas is 128"));
+
+                if (ex) {
+                    ex.target = "#replica-count";
+                    failures.push(ex);
+                }
+
+                if (failures.length) {
+                    adjust_entity_dlg.dialog("failure", failures);
+                    dfd.reject(ex);
+                }
+
+                dfd.notify(cockpit.format(_("Updating $0..."), rc.metadata.name) || null);
+
+                req = k8client.modify(rc.metadata.selfLink, function(item) {
+                        return resize(item, value);
+                    })
+                    .done(function() {
+                        dfd.resolve();
+                    })
+                    .fail(function(ex) {
+                        dfd.reject(ex);
+                    });
+                var promise = dfd.promise();
+                promise.cancel = function cancel() {
+                    if (req && req.cancel)
+                        req.cancel();
+                };
+
+                return promise;
+            }
+
+            var promise = update_replica(entity);
+            adjust_entity_dlg.dialog("wait", promise);
+
+            promise
+                .fail(function(ex) {
+                    adjust_entity_dlg.dialog("failure", ex);
+                })
+                .done(function() {
+                    adjust_entity_dlg.modal("hide");
+                });
+        });
+
+    });
+
+    delete_pod_dlg.on('show.bs.modal', function(e) {
+        var pod = $(e.relatedTarget).attr('data-link');
+
+        delete_pod_btn.on('click', function() {
+            var deferred = $.Deferred();
+            delete_pod_dlg.dialog("wait", deferred.promise());
+            delete_pod_dlg.dialog("failure", null);
+
+            k8client.remove(pod)
+                .fail(function(ex) {
+                    delete_pod_dlg.dialog("failure", ex);
+                })
+                .done(function() {
+                    delete_pod_dlg.modal("hide");
+                });
+        });
+    });
 
     function number_with_suffix_to_bytes (byte_string) {
         var valid_suffixes = {

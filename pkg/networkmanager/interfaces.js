@@ -24,10 +24,7 @@ define([
     "shell/controls",
     "shell/shell",
     "system/server",
-    "shell/dbus",
-    "shell/cockpit-plot",
     "shell/cockpit-util",
-    "shell/dbus",
     "shell/plot"
 ], function($, cockpit, Mustache, controls, shell, server) {
 "use strict";

@@ -136,6 +136,9 @@ class TestMultiOS(MachineCase):
             add_machine(stock_b, dev_m.address)
             wait_dashboard_addresses (stock_b, [ "localhost", dev_m.address ])
 
+            dev_b.switch_to_top()
+            dev_b.switch_to_frame("cockpit1:localhost/dashboard/list")
+
             add_machine(dev_b, stock_m.address)
             dev_dashboard_addresses.append(stock_m.address)
             wait_dashboard_addresses (dev_b, dev_dashboard_addresses)
@@ -145,6 +148,18 @@ class TestMultiOS(MachineCase):
 
             test_spawn(stock_b, dev_m.address)
             test_spawn(dev_b, stock_m.address)
+
+            dev_b.switch_to_top()
+            dev_b.go("/@%s/network/interfaces" % stock_m.address)
+            dev_b.wait_present("iframe.container-frame[name='cockpit1:%s/shell/shell'][src$='#/networking']" % stock_m.address)
+
+            dev_b.switch_to_top()
+            dev_b.go("/@%s/storage/devices" % stock_m.address)
+            dev_b.wait_present("iframe.container-frame[name='cockpit1:%s/shell/shell'][src$='#/storage']" % stock_m.address)
+
+            dev_b.switch_to_top()
+            dev_b.go("/@%s/users/local" % stock_m.address)
+            dev_b.wait_present("iframe.container-frame[name='cockpit1:%s/shell/shell'][src$='#/accounts']" % stock_m.address)
 
         test_stock('fedora-22')
         test_stock('centos-7')

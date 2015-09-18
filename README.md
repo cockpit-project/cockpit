@@ -21,7 +21,7 @@ Cockpit is perfect for new sysadmins, allowing them to easily perform simple tas
 Jumping between the terminal and the web tool is no problem. A service started via Cockpit can be stopped via the terminal. Likewise, if an error occurs in the terminal, it can be seen in the Cockpit journal interface.
 
 #### Multi-server
-You can monitor and administer several servers at the same time. Just add them with a single click and your machines will look after its buddies.
+You can monitor and administer several servers at the same time. Just add them with a single click and your machine will look after its buddies.
 
 ### Development
 

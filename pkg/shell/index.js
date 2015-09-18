@@ -229,6 +229,8 @@ define([
             if (machine.problem)
                 frames.remove(machine);
 
+            machine.compat = compatibility(machine);
+
             update_machines();
             if (ready)
                 navigate(false);
@@ -464,6 +466,16 @@ define([
 
         if (hash == "/")
             hash = "";
+
+        /* Old cockpit packages, used to be in shell/shell.html */
+        var compat;
+        if (machine && machine.compat) {
+            compat = machine.compat[component];
+            if (compat) {
+                component = "shell/shell";
+                hash = compat;
+            }
+        }
 
         hash = cockpit.location.encode(hash, options);
 
@@ -858,6 +870,35 @@ define([
         /* Everything gets sorted by order */
         list.sort(function(a, b) { return a.order - b.order; });
         return list;
+    }
+
+    function compatibility(machine) {
+        if (!machine || !machine.manifests || machine.address === "localhost")
+            return null;
+
+        var shell = machine.manifests["shell"] || { };
+        var menu = shell["menu"] || { };
+        var tools = shell["tools"] || { };
+
+        var mapping = { };
+
+        /* The following were included in shell/shell.html in old versions */
+        if ("_host_" in menu)
+            mapping["system/host"] = "/server";
+        if ("_init_" in menu)
+            mapping["system/init"] = "/services";
+        if ("_network_" in menu)
+            mapping["network/interfaces"] = "/networking";
+        if ("_storage_" in menu)
+            mapping["storage/devices"] = "/storage";
+        if ("_users_" in tools)
+            mapping["users/local"] = "/accounts";
+
+        /* For Docker we have to guess ... some heuristics */
+        if ("_storage_" in menu || "_init_" in menu)
+            mapping["docker/containers"] = "/containers";
+
+        return mapping;
     }
 
     return module;

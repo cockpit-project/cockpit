@@ -61,7 +61,6 @@ require_binary() {
     exit 1
   fi
 }
-require_binary trickle
 
 if ! silent $IP address show dev cockpit1 || ! silent $IP address show dev cockpit2; then
   sudo ./vm-prep

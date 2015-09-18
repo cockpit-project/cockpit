@@ -641,8 +641,8 @@ define([
                 if (cur_unit_id == unit_id) {
                     var unit = systemd_client.proxy('org.freedesktop.systemd1.Unit', path);
                     cur_unit = unit;
-                    unit.wait(function () {
-                        if (cur_unit == unit) {
+                    unit.wait(function() {
+                        if (unit.valid && cur_unit == unit) {
                             render();
                             $(cur_unit).on('changed', render);
                             $("#service-valid").show();

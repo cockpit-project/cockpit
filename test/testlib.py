@@ -523,7 +523,8 @@ systemctl start docker
                                     "localhost: bridge program failed: Child process killed by signal 9",
                                     "request timed out, closing",
                                     "PolicyKit daemon disconnected from the bus.",
-                                    "We are no longer a registered authentication agent."
+                                    "We are no longer a registered authentication agent.",
+                                    ".*: failed to retrieve resource: terminated"
                                     )
 
     def allow_authorize_journal_messages(self):

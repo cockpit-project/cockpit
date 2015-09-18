@@ -1009,6 +1009,8 @@ function PageSetupServer() {
 
 function host_setup(machines) {
     PageSetupServer.machines = machines;
+    var limit = parseInt($(".dashboard-machine-limit").text(), 10);
+    $('.dashboard-machine-warning').toggle(limit * 0.75 <= machines.list.length);
     $('#dashboard_setup_server_dialog').modal('show');
 }
 

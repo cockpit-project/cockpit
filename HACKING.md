@@ -160,7 +160,7 @@ allow you to simply refresh your browser and see any changes you've made
 to code in the pkg/ subdirectory.
 
 Run this command from your top level Cockpit checkout directory, and make
-sure to run it as the user that you will using to log into Cockpit.
+sure to run it as the user that you will be using to log into Cockpit.
 
     $ mkdir -p ~/.local/share/cockpit
     $ ln -s $(pwd)/pkg/* ~/.local/share/cockpit

@@ -324,7 +324,7 @@ test_authenticate (TestCase *test,
   build_authorization_header (in_headers, &output);
   gss_release_buffer (&minor, &output);
 
-  cockpit_auth_login_async (test->auth, in_headers, NULL, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, "/cockpit+test", in_headers, NULL, on_ready_get_result, &result);
   g_hash_table_unref (in_headers);
 
   while (result == NULL)
@@ -337,6 +337,7 @@ test_authenticate (TestCase *test,
 
   creds = cockpit_web_service_get_creds (service);
   g_assert_cmpstr (g_get_user_name (), ==, cockpit_creds_get_user (creds));
+  g_assert_cmpstr ("cockpit+test", ==, cockpit_creds_get_application (creds));
   g_assert_cmpstr (NULL, ==, cockpit_creds_get_password (creds));
 
   g_object_unref (service);
@@ -359,7 +360,7 @@ test_authenticate (TestCase *test,
 
   include_cookie_as_if_client (out_headers, out_headers);
 
-  service = cockpit_auth_check_cookie (test->auth, out_headers);
+  service = cockpit_auth_check_cookie (test->auth, "cockpit", out_headers);
   g_assert (service != NULL);
 
   creds = cockpit_web_service_get_creds (service);

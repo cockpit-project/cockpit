@@ -333,6 +333,7 @@ typedef struct {
   GBytes *authorization;
   gchar *remote_peer;
   gchar *auth_type;
+  gchar *application;
 } SessionLoginData;
 
 static void
@@ -346,6 +347,7 @@ session_login_data_free (gpointer data)
   if (sl->authorization)
     g_bytes_unref (sl->authorization);
   g_free (sl->auth_type);
+  g_free (sl->application);
   g_free (sl->remote_peer);
   g_free (sl);
 }
@@ -410,8 +412,40 @@ build_gssapi_output_header (GHashTable *headers,
   g_debug ("gssapi: WWW-Authenticate: %s", value);
 }
 
+static const gchar *
+auth_parse_application (const gchar *path,
+                        gchar **memory)
+{
+  const gchar *pos;
+
+  g_return_val_if_fail (path != NULL, NULL);
+  g_return_val_if_fail (path[0] == '/', NULL);
+
+  path += 1;
+
+  /* We are being embedded as a specific application */
+  if (g_str_has_prefix (path, "cockpit+") && path[8] != '\0')
+    {
+      pos = strchr (path, '/');
+      if (pos)
+        {
+          *memory = g_strndup (path, pos - path);
+          return *memory;
+        }
+      else
+        {
+          return path;
+        }
+    }
+  else
+    {
+      return "cockpit";
+    }
+}
+
 static void
 cockpit_auth_session_login_async (CockpitAuth *self,
+                                  const gchar *path,
                                   GHashTable *headers,
                                   const gchar *remote_peer,
                                   GAsyncReadyCallback callback,
@@ -420,19 +454,24 @@ cockpit_auth_session_login_async (CockpitAuth *self,
   GSimpleAsyncResult *result;
   SessionLoginData *sl;
   GBytes *input;
+  gchar *application;
   gchar *type = NULL;
 
   result = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
                                       cockpit_auth_session_login_async);
 
+  application = cockpit_auth_parse_application (path);
   input = cockpit_auth_parse_authorization (headers, &type);
 
-  if (input)
+  if (input && application)
     {
       sl = g_new0 (SessionLoginData, 1);
       sl->remote_peer = g_strdup (remote_peer);
       sl->auth_type = type;
-      sl->authorization = input;
+      sl->authorization = g_bytes_ref (input);
+      sl->application = application;
+      application = NULL;
+
       g_simple_async_result_set_op_res_gpointer (result, sl, session_login_data_free);
 
       sl->session_pipe = spawn_session_process (type, input, remote_peer, &sl->auth_pipe);
@@ -457,6 +496,8 @@ cockpit_auth_session_login_async (CockpitAuth *self,
       g_simple_async_result_complete_in_idle (result);
     }
 
+  g_bytes_unref (input);
+  g_free (application);
   g_object_unref (result);
 }
 
@@ -491,6 +532,7 @@ create_creds_for_authenticated (const char *user,
 
   /* TODO: Try to avoid copying password */
   return cockpit_creds_new (user,
+                            sl->application,
                             COCKPIT_CRED_FULLNAME, fullname,
                             COCKPIT_CRED_PASSWORD, password,
                             COCKPIT_CRED_RHOST, sl->remote_peer,
@@ -663,6 +705,7 @@ on_remote_login_done (CockpitSshTransport *transport,
 
 static void
 cockpit_auth_remote_login_async (CockpitAuth *self,
+                                 const gchar *path,
                                  GHashTable *headers,
                                  const gchar *remote_peer,
                                  GAsyncReadyCallback callback,
@@ -671,7 +714,9 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
   GSimpleAsyncResult *task;
   CockpitCreds *creds = NULL;
   RemoteLoginData *rl;
+  const gchar *application;
   const gchar *password;
+  gchar *memory = NULL;
   GBytes *input;
   gchar *type = NULL;
   gchar *user = NULL;
@@ -679,14 +724,16 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
   task = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
                                     cockpit_auth_remote_login_async);
 
+  application = auth_parse_application (path, &memory);
   input = cockpit_auth_parse_authorization (headers, &type);
 
-  if (type && input && g_str_equal (type, "basic"))
+  if (application && type && input && g_str_equal (type, "basic"))
     {
       password = parse_basic_auth_password (input, &user);
       if (password && user)
         {
           creds = cockpit_creds_new (user,
+                                     application,
                                      COCKPIT_CRED_PASSWORD, password,
                                      COCKPIT_CRED_RHOST, remote_peer,
                                      NULL);
@@ -717,6 +764,7 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
     }
 
   g_free (type);
+  g_free (memory);
   g_object_unref (task);
 }
 
@@ -748,15 +796,16 @@ cockpit_auth_remote_login_finish (CockpitAuth *self,
 
 static void
 cockpit_auth_choose_login_async (CockpitAuth *self,
+                                 const gchar *path,
                                  GHashTable *headers,
                                  const gchar *remote_peer,
                                  GAsyncReadyCallback callback,
                                  gpointer user_data)
 {
   if (self->login_loopback)
-    cockpit_auth_remote_login_async (self, headers, remote_peer, callback, user_data);
+    cockpit_auth_remote_login_async (self, path, headers, remote_peer, callback, user_data);
   else
-    cockpit_auth_session_login_async (self, headers, remote_peer, callback, user_data);
+    cockpit_auth_session_login_async (self, path, headers, remote_peer, callback, user_data);
 }
 
 static CockpitCreds *
@@ -801,17 +850,24 @@ base64_decode_string (const char *enc)
 
 static CockpitAuthenticated *
 authenticated_for_headers (CockpitAuth *self,
+                           const gchar *path,
                            GHashTable *in_headers)
 {
   gchar *cookie = NULL;
   gchar *raw = NULL;
   const char *prefix = "v=2;k=";
   CockpitAuthenticated *ret = NULL;
+  const gchar *application;
+  gchar *memory = NULL;
 
   g_return_val_if_fail (self != NULL, FALSE);
   g_return_val_if_fail (in_headers != NULL, FALSE);
 
-  raw = cockpit_web_server_parse_cookie (in_headers, "cockpit");
+  application = auth_parse_application (path, &memory);
+  if (!application)
+    return NULL;
+
+  raw = cockpit_web_server_parse_cookie (in_headers, application);
   if (raw)
     {
       cookie = base64_decode_string (raw);
@@ -826,20 +882,22 @@ authenticated_for_headers (CockpitAuth *self,
       g_free (raw);
     }
 
+  g_free (memory);
   return ret;
 }
 
 CockpitWebService *
 cockpit_auth_check_cookie (CockpitAuth *self,
+                           const gchar *path,
                            GHashTable *in_headers)
 {
   CockpitAuthenticated *authenticated;
 
-  authenticated = authenticated_for_headers (self, in_headers);
-
+  authenticated = authenticated_for_headers (self, path, in_headers);
   if (authenticated)
     {
-      g_debug ("received credential cookie for user '%s'",
+      g_debug ("received %s credential cookie for user '%s'",
+               cockpit_creds_get_application (authenticated->creds),
                cockpit_creds_get_user (authenticated->creds));
       return g_object_ref (authenticated->service);
     }
@@ -852,6 +910,7 @@ cockpit_auth_check_cookie (CockpitAuth *self,
 
 void
 cockpit_auth_login_async (CockpitAuth *self,
+                          const gchar *path,
                           GHashTable *headers,
                           const gchar *remote_peer,
                           GAsyncReadyCallback callback,
@@ -859,7 +918,7 @@ cockpit_auth_login_async (CockpitAuth *self,
 {
   CockpitAuthClass *klass = COCKPIT_AUTH_GET_CLASS (self);
   g_return_if_fail (klass->login_async != NULL);
-  klass->login_async (self, headers, remote_peer, callback, user_data);
+  klass->login_async (self, path, headers, remote_peer, callback, user_data);
 }
 
 static gboolean
@@ -965,7 +1024,8 @@ cockpit_auth_login_finish (CockpitAuth *self,
 
   g_hash_table_insert (self->authenticated, authenticated->cookie, authenticated);
 
-  g_debug ("sending credential id '%s' for user '%s'", id,
+  g_debug ("sending %s credential id '%s' for user '%s'", id,
+           cockpit_creds_get_application (creds),
            cockpit_creds_get_user (creds));
 
   g_free (id);
@@ -974,7 +1034,8 @@ cockpit_auth_login_finish (CockpitAuth *self,
     {
       gboolean force_secure = !(flags & COCKPIT_AUTH_COOKIE_INSECURE);
       cookie_b64 = g_base64_encode ((guint8 *)authenticated->cookie, strlen (authenticated->cookie));
-      header = g_strdup_printf ("cockpit=%s; Path=/; %s HttpOnly",
+      header = g_strdup_printf ("%s=%s; Path=/; %s HttpOnly",
+                                cockpit_creds_get_application (creds),
                                 cookie_b64, force_secure ? " Secure;" : "");
       g_free (cookie_b64);
       g_hash_table_insert (out_headers, g_strdup ("Set-Cookie"), header);
@@ -990,4 +1051,16 @@ cockpit_auth_new (gboolean login_loopback)
   CockpitAuth *self = g_object_new (COCKPIT_TYPE_AUTH, NULL);
   self->login_loopback = login_loopback;
   return self;
+}
+
+gchar *
+cockpit_auth_parse_application (const gchar *path)
+{
+  const gchar *application;
+  gchar *memory = NULL;
+
+  application = auth_parse_application (path, &memory);
+  if (!memory)
+    memory = g_strdup (application);
+  return memory;
 }

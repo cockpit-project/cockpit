@@ -233,12 +233,12 @@ on_handle_stream_socket (CockpitWebServer *server,
   gchar *value;
   gchar **env;
 
-  if (!g_str_has_prefix (path, "/socket"))
+  if (!g_str_has_prefix (path, "/cockpit/socket"))
     return FALSE;
 
-  if (path[7] == '?')
-    query = path + 8;
-  else if (path[7] != '\0')
+  if (path[15] == '?')
+    query = path + 16;
+  else if (path[15] != '\0')
     return FALSE;
 
   if (service)
@@ -250,7 +250,7 @@ on_handle_stream_socket (CockpitWebServer *server,
       value = g_strdup_printf ("%d", server_port);
       env = g_environ_setenv (g_get_environ (), "COCKPIT_TEST_SERVER_PORT", value, TRUE);
 
-      creds = cockpit_creds_new (g_get_user_name (), NULL);
+      creds = cockpit_creds_new (g_get_user_name (), "test", NULL);
       pipe = cockpit_pipe_spawn ((const gchar **)bridge_argv, (const gchar **)env, NULL, FALSE);
       transport = cockpit_pipe_transport_new (pipe);
       service = cockpit_web_service_new (creds, transport);
@@ -266,9 +266,9 @@ on_handle_stream_socket (CockpitWebServer *server,
     }
 
   if (query)
-    cockpit_web_service_sideband (service, query, io_stream, headers, input);
+    cockpit_web_service_sideband (service, "/cockpit/socket", query, io_stream, headers, input);
   else
-    cockpit_web_service_socket (service, io_stream, headers, input);
+    cockpit_web_service_socket (service, "/cockpit/socket", io_stream, headers, input);
 
   /* Keeps ref on itself until it closes */
   g_object_unref (service);

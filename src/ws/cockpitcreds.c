@@ -34,6 +34,7 @@ struct _CockpitCreds {
   gint refs;
   gint poisoned;
   gchar *user;
+  gchar *application;
   gchar *fullname;
   gchar *password;
   gchar *rhost;
@@ -51,6 +52,7 @@ cockpit_creds_free (gpointer data)
   CockpitCreds *creds = data;
 
   g_free (creds->user);
+  g_free (creds->application);
   g_free (creds->fullname);
   cockpit_secclear (creds->password, -1);
   g_free (creds->password);
@@ -72,6 +74,7 @@ cockpit_creds_free (gpointer data)
 /**
  * cockpit_creds_new:
  * @user: the user name the creds are for
+ * @application: the application the creds are for
  * @...: multiple credentials, followed by NULL
  *
  * Create a new set of credentials for a user. Each vararg should be
@@ -82,6 +85,7 @@ cockpit_creds_free (gpointer data)
  */
 CockpitCreds *
 cockpit_creds_new (const gchar *user,
+                   const gchar *application,
                    ...)
 {
   krb5_error_code code;
@@ -91,11 +95,14 @@ cockpit_creds_new (const gchar *user,
 
   g_return_val_if_fail (user != NULL, NULL);
   g_return_val_if_fail (!g_str_equal (user, ""), NULL);
+  g_return_val_if_fail (application != NULL, NULL);
+  g_return_val_if_fail (!g_str_equal (application, ""), NULL);
 
   creds = g_new0 (CockpitCreds, 1);
   creds->user = g_strdup (user);
+  creds->application = g_strdup (application);
 
-  va_start (va, user);
+  va_start (va, application);
   for (;;)
     {
       type = va_arg (va, const char *);
@@ -175,6 +182,13 @@ cockpit_creds_get_user (CockpitCreds *creds)
 {
   g_return_val_if_fail (creds != NULL, NULL);
   return creds->user;
+}
+
+const gchar *
+cockpit_creds_get_application (CockpitCreds *creds)
+{
+  g_return_val_if_fail (creds != NULL, NULL);
+  return creds->application;
 }
 
 const gchar *
@@ -355,6 +369,7 @@ cockpit_creds_equal (gconstpointer v1,
   c2 = v2;
 
   return g_strcmp0 (c1->user, c2->user) == 0 &&
+         g_strcmp0 (c1->application, c2->application) == 0 &&
          g_strcmp0 (c1->rhost, c2->rhost) == 0;
 }
 
@@ -368,6 +383,8 @@ cockpit_creds_hash (gconstpointer v)
       c = v;
       if (c->user)
         hash ^= g_str_hash (c->user);
+      if (c->application)
+        hash ^= g_str_hash (c->application);
       if (c->rhost)
         hash ^= g_str_hash (c->rhost);
     }

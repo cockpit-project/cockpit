@@ -11,6 +11,7 @@
 
         (function(console) {
             var environment = window.environment || { };
+            var login_path;
 
             function unquote(str) {
                 str = str.trim();
@@ -98,6 +99,11 @@
                 if (!requisites())
                     return;
 
+                var path = window.location.pathname || "/";
+                if (path.indexOf("/cockpit") !== 0)
+                    path = "/cockpit";
+                login_path = "/" + path.split("/")[1] + "/login";
+
                 var os_release = JSON.stringify(environment["os-release"]);
                 localStorage.setItem('os-release', os_release);
 
@@ -112,7 +118,7 @@
 
             function auto_login() {
                 var xhr = new XMLHttpRequest();
-                xhr.open("GET", "/login", true);
+                xhr.open("GET", login_path, true);
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState != 4) {
                         return;
@@ -181,7 +187,7 @@
                 id("login-button").setAttribute('disabled', "true");
                 id("login-spinner").style.display = 'block';
                 var xhr = new XMLHttpRequest();
-                xhr.open("GET", "/login", true);
+                xhr.open("GET", login_path, true);
                 xhr.setRequestHeader("Authorization", "Basic " + btoa(utf8(user + ":" + password)));
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState != 4) {

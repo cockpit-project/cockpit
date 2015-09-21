@@ -39,6 +39,7 @@ typedef struct _CockpitCreds       CockpitCreds;
 GType           cockpit_creds_get_type       (void) G_GNUC_CONST;
 
 CockpitCreds *  cockpit_creds_new            (const gchar *user,
+                                              const gchar *application,
                                               ...) G_GNUC_NULL_TERMINATED;
 
 CockpitCreds *  cockpit_creds_ref            (CockpitCreds *creds);
@@ -59,6 +60,8 @@ gboolean        cockpit_creds_equal          (gconstpointer v1,
                                               gconstpointer v2);
 
 guint           cockpit_creds_hash           (gconstpointer v);
+
+const gchar *   cockpit_creds_get_application            (CockpitCreds *creds);
 
 gss_cred_id_t   cockpit_creds_push_thread_default_gssapi (CockpitCreds *creds);
 

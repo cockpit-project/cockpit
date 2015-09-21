@@ -1271,6 +1271,7 @@ process_and_relay_open (CockpitWebService *self,
       if (!cockpit_json_get_string (options, "password", NULL, &password))
         password = NULL;
       creds = cockpit_creds_new (specific_user,
+                                 cockpit_creds_get_application (self->creds),
                                  COCKPIT_CRED_PASSWORD, password,
                                  COCKPIT_CRED_RHOST, cockpit_creds_get_rhost (self->creds),
                                  NULL);
@@ -1728,6 +1729,7 @@ cockpit_web_service_new (CockpitCreds *creds,
 
 static WebSocketConnection *
 create_web_socket_server_for_stream (const gchar **protocols,
+                                     const gchar *path,
                                      const gchar *query,
                                      GIOStream *io_stream,
                                      GHashTable *headers,
@@ -1742,6 +1744,8 @@ create_web_socket_server_for_stream (const gchar **protocols,
   gboolean secure;
   gchar *url;
 
+  g_return_val_if_fail (path != NULL, NULL);
+
   if (headers)
     host = g_hash_table_lookup (headers, "Host");
   if (!host)
@@ -1749,9 +1753,10 @@ create_web_socket_server_for_stream (const gchar **protocols,
 
   secure = G_IS_TLS_CONNECTION (io_stream);
 
-  url = g_strdup_printf ("%s://%s/socket%s%s",
+  url = g_strdup_printf ("%s://%s%s%s%s",
                          secure ? "wss" : "ws",
                          host ? host : "localhost",
+                         path,
                          query ? "?" : "",
                          query ? query : "");
 
@@ -1786,6 +1791,7 @@ create_web_socket_server_for_stream (const gchar **protocols,
  */
 void
 cockpit_web_service_socket (CockpitWebService *self,
+                            const gchar *path,
                             GIOStream *io_stream,
                             GHashTable *headers,
                             GByteArray *input_buffer)
@@ -1793,7 +1799,8 @@ cockpit_web_service_socket (CockpitWebService *self,
   const gchar *protocols[] = { "cockpit1", NULL };
   WebSocketConnection *connection;
 
-  connection = create_web_socket_server_for_stream (protocols, NULL, io_stream, headers, input_buffer);
+  connection = create_web_socket_server_for_stream (protocols, path,
+                                                    NULL, io_stream, headers, input_buffer);
 
   g_signal_connect (connection, "open", G_CALLBACK (on_web_socket_open), self);
   g_signal_connect (connection, "closing", G_CALLBACK (on_web_socket_closing), self);
@@ -1855,12 +1862,17 @@ on_web_socket_noauth (WebSocketConnection *connection,
 
 void
 cockpit_web_service_noauth (GIOStream *io_stream,
+                            const gchar *path,
                             GHashTable *headers,
                             GByteArray *input_buffer)
 {
   WebSocketConnection *connection;
+  gchar *application;
 
-  connection = create_web_socket_server_for_stream (NULL, NULL, io_stream, headers, input_buffer);
+  application = cockpit_auth_parse_application (path);
+  connection = create_web_socket_server_for_stream (NULL, application, NULL, io_stream,
+                                                    headers, input_buffer);
+  g_free (application);
 
   g_signal_connect (connection, "open", G_CALLBACK (on_web_socket_noauth), NULL);
   g_signal_connect (connection, "error", G_CALLBACK (on_web_socket_error), NULL);
@@ -1947,6 +1959,7 @@ on_sideband_invalid (WebSocketConnection *connection,
 
 void
 cockpit_web_service_sideband (CockpitWebService *self,
+                              const gchar *path,
                               const gchar *escaped,
                               GIOStream *io_stream,
                               GHashTable *headers,
@@ -2007,7 +2020,8 @@ cockpit_web_service_sideband (CockpitWebService *self,
   channel = generated = generate_channel_id (self);
   json_object_set_string_member (options, "channel", generated);
 
-  connection = create_web_socket_server_for_stream (protocols, escaped, io_stream, headers, input_buffer);
+  connection = create_web_socket_server_for_stream (protocols, path, escaped,
+                                                    io_stream, headers, input_buffer);
 
   sideband = cockpit_sideband_track (&self->sidebands, channel, connection);
   sideband->options = json_object_ref (options);
@@ -2029,7 +2043,8 @@ out:
 
   if (!sideband)
     {
-      connection = create_web_socket_server_for_stream (NULL, escaped, io_stream, headers, input_buffer);
+      connection = create_web_socket_server_for_stream (NULL, path, escaped, io_stream,
+                                                        headers, input_buffer);
       g_signal_connect (connection, "open", G_CALLBACK (on_sideband_invalid), "protocol-error");
       g_signal_connect (connection, "error", G_CALLBACK (on_web_socket_error), NULL);
       g_signal_connect (connection, "close", G_CALLBACK (g_object_unref), NULL);
@@ -2054,7 +2069,9 @@ redirect_to_checksum_path (CockpitWebService *self,
   gboolean ret;
   gsize length;
 
-  location = g_strdup_printf ("/cockpit/$%s%s", checksum, cockpit_web_response_get_path (response));
+  location = g_strdup_printf ("/%s/$%s%s",
+                              cockpit_creds_get_application (self->creds),
+                              checksum, cockpit_web_response_get_path (response));
 
   body = "<html><head><title>Temporary redirect</title></head>"
          "<body>Access via checksum</body></html>";
@@ -2241,11 +2258,15 @@ resource_inject (ResourceResponse *rr)
   str = g_string_new ("");
   if (session->checksum)
     {
-      g_string_printf (str, "\n    <base href=\"/cockpit/$%s%s\">", session->checksum, rr->base_path);
+      g_string_printf (str, "\n    <base href=\"/%s/$%s%s\">",
+                       cockpit_creds_get_application (self->creds),
+                       session->checksum, rr->base_path);
     }
   else
     {
-      g_string_printf (str, "\n    <base href=\"/cockpit/@%s%s\">", session->host, rr->base_path);
+      g_string_printf (str, "\n    <base href=\"/%s/@%s%s\">",
+                       cockpit_creds_get_application (self->creds),
+                       session->host, rr->base_path);
     }
 
   tag = g_string_free_to_bytes (str);
@@ -2546,14 +2567,12 @@ cockpit_web_service_resource (CockpitWebService *self,
 
   path = cockpit_web_response_get_path (response);
 
-  if (g_str_equal (path, "/"))
+  if (!path || g_str_equal (path, "/"))
     {
       handled = resource_respond (self, headers, response, "@localhost", "/shell/index.html");
     }
-  else if (g_str_has_prefix (path, "/cockpit/"))
+  else
     {
-      cockpit_web_response_skip_path (response);
-
       where = cockpit_web_response_pop_path (response);
       if (!where)
         {

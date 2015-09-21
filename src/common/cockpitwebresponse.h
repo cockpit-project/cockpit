@@ -22,6 +22,8 @@
 
 #include <gio/gio.h>
 
+#include "cockpitwebfilter.h"
+
 G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_WEB_RESPONSE         (cockpit_web_response_get_type ())
@@ -57,6 +59,9 @@ GIOStream *           cockpit_web_response_get_stream    (CockpitWebResponse *se
 CockpitWebResponding  cockpit_web_response_get_state     (CockpitWebResponse *self);
 
 gchar *               cockpit_web_response_pop_path      (CockpitWebResponse *self);
+
+void                  cockpit_web_response_add_filter    (CockpitWebResponse *self,
+                                                          CockpitWebFilter *filter);
 
 void                  cockpit_web_response_headers       (CockpitWebResponse *self,
                                                           guint status,

@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include "cockpitwebresponse.h"
+#include "cockpitwebfilter.h"
 
 #include "common/cockpiterror.h"
 #include "common/cockpittemplate.h"
@@ -81,6 +82,8 @@ struct _CockpitWebResponse {
   gboolean done;
   gboolean chunked;
   gboolean keep_alive;
+
+  GList *filters;
 };
 
 typedef struct {
@@ -141,6 +144,8 @@ cockpit_web_response_dispose (GObject *object)
 
   if (!self->done)
     cockpit_web_response_done (self);
+  g_list_free_full (self->filters, g_object_unref);
+  self->filters = NULL;
 
   G_OBJECT_CLASS (cockpit_web_response_parent_class)->dispose (object);
 }
@@ -409,6 +414,69 @@ queue_bytes (CockpitWebResponse *self,
     }
 }
 
+static void
+queue_block (CockpitWebResponse *self,
+             GBytes *block)
+{
+  gsize length = g_bytes_get_size (block);
+  GBytes *bytes;
+  gchar *data;
+
+  /*
+   * We cannot queue chunks of length zero. Besides being silly, this
+   * messes with chunked encoding. The 0 length block means end of
+   * response.
+   */
+  if (length == 0)
+    return;
+
+  g_debug ("%s: queued %d bytes", self->logname, (int)length);
+
+  if (!self->chunked)
+    {
+      queue_bytes (self, block);
+    }
+  else
+    {
+      /* Required for chunked transfer encoding. */
+      data = g_strdup_printf ("%x\r\n", (unsigned int)length);
+      bytes = g_bytes_new_take (data, strlen (data));
+      queue_bytes (self, bytes);
+      g_bytes_unref (bytes);
+
+      queue_bytes (self, block);
+
+      bytes = g_bytes_new_static ("\r\n", 2);
+      queue_bytes (self, bytes);
+      g_bytes_unref (bytes);
+    }
+}
+
+typedef struct {
+  CockpitWebResponse *response;
+  GList *filters;
+} QueueStep;
+
+static void
+queue_filter (gpointer data,
+              GBytes *bytes)
+{
+  QueueStep *qs = data;
+  QueueStep qn = { .response = qs->response };
+
+  g_return_if_fail (bytes != NULL);
+
+  if (qs->filters)
+    {
+      qn.filters = qs->filters->next;
+      cockpit_web_filter_push (qs->filters->data, bytes, queue_filter, &qn);
+    }
+  else
+    {
+      queue_block (qs->response, bytes);
+    }
+}
+
 /**
  * cockpit_web_response_queue:
  * @self: the response
@@ -433,9 +501,7 @@ gboolean
 cockpit_web_response_queue (CockpitWebResponse *self,
                             GBytes *block)
 {
-  gchar *data;
-  GBytes *bytes;
-  gsize length;
+  QueueStep qn = { .response = self };
 
   g_return_val_if_fail (COCKPIT_IS_WEB_RESPONSE (self), FALSE);
   g_return_val_if_fail (block != NULL, FALSE);
@@ -447,36 +513,8 @@ cockpit_web_response_queue (CockpitWebResponse *self,
       return FALSE;
     }
 
-  length = g_bytes_get_size (block);
-  g_debug ("%s: queued %d bytes", self->logname, (int)length);
-
-  /*
-   * We cannot queue chunks of length zero. Besides being silly, this
-   * messes with chunked encoding. The 0 length block means end of
-   * response.
-   */
-  if (length == 0)
-    return TRUE;
-
-  if (!self->chunked)
-    {
-      queue_bytes (self, block);
-    }
-  else
-    {
-      /* Required for chunked transfer encoding. */
-      data = g_strdup_printf ("%x\r\n", (unsigned int)g_bytes_get_size (block));
-      bytes = g_bytes_new_take (data, strlen (data));
-      queue_bytes (self, bytes);
-      g_bytes_unref (bytes);
-
-      queue_bytes (self, block);
-
-      bytes = g_bytes_new_static ("\r\n", 2);
-      queue_bytes (self, bytes);
-      g_bytes_unref (bytes);
-    }
-
+  qn.filters = self->filters;
+  queue_filter (&qn, block);
   return TRUE;
 }
 
@@ -708,10 +746,10 @@ finish_headers (CockpitWebResponse *self,
 
   if (status != 304)
     {
-      if (length >= 0)
+      if (length >= 0 && !self->filters)
         g_string_append_printf (string, "Content-Length: %" G_GSSIZE_FORMAT "\r\n", length);
 
-      if (length < 0 || seen & HEADER_CONTENT_ENCODING)
+      if (length < 0 || seen & HEADER_CONTENT_ENCODING || self->filters)
         {
           self->chunked = TRUE;
           g_string_append_printf (string, "Transfer-Encoding: chunked\r\n");
@@ -1226,6 +1264,16 @@ cockpit_web_response_pop_path (CockpitWebResponse *self)
     return g_strdup (beg);
   else
     return NULL;
+}
+
+void
+cockpit_web_response_add_filter (CockpitWebResponse *self,
+                                 CockpitWebFilter *filter)
+{
+  g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (self));
+  g_return_if_fail (COCKPIT_IS_WEB_FILTER (filter));
+  g_return_if_fail (self->count == 0);
+  self->filters = g_list_append (self->filters, g_object_ref (filter));
 }
 
 /**

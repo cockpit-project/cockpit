@@ -24,7 +24,7 @@
 #include "cockpitws.h"
 
 #include "common/cockpitjson.h"
-#include "common/cockpittemplate.h"
+#include "common/cockpitwebinject.h"
 
 #include "websocket/websocket.h"
 
@@ -76,93 +76,88 @@ cockpit_handler_socket (CockpitWebServer *server,
 }
 
 static GBytes *
-substitute_environment (const gchar *variable,
-                        gpointer user_data)
+build_environment (GHashTable *os_release)
 {
-  GHashTable *os_release = user_data;
+  static const gchar *prefix = "\n    <script>\nvar environment = ";
+  static const gchar *suffix = ";\n    </script>";
+  GByteArray *buffer;
   GHashTableIter iter;
-  GBytes *ret = NULL;
+  GBytes *bytes;
   JsonObject *object;
   gchar *hostname;
   gpointer key, value;
   JsonObject *osr;
 
-  if (g_str_equal (variable, "environment"))
+  object = json_object_new ();
+  hostname = g_malloc0 (HOST_NAME_MAX + 1);
+  gethostname (hostname, HOST_NAME_MAX);
+  hostname[HOST_NAME_MAX] = '\0';
+  json_object_set_string_member (object, "hostname", hostname);
+  g_free (hostname);
+
+  if (os_release)
     {
-      object = json_object_new ();
-      hostname = g_malloc0 (HOST_NAME_MAX + 1);
-      gethostname (hostname, HOST_NAME_MAX);
-      hostname[HOST_NAME_MAX] = '\0';
-      json_object_set_string_member (object, "hostname", hostname);
-      g_free (hostname);
-
-      if (os_release)
-        {
-          osr = json_object_new ();
-          g_hash_table_iter_init (&iter, os_release);
-          while (g_hash_table_iter_next (&iter, &key, &value))
-            json_object_set_string_member (osr, key, value);
-          json_object_set_object_member (object, "os-release", osr);
-        }
-
-      ret = cockpit_json_write_bytes (object);
-      json_object_unref (object);
+      osr = json_object_new ();
+      g_hash_table_iter_init (&iter, os_release);
+      while (g_hash_table_iter_next (&iter, &key, &value))
+        json_object_set_string_member (osr, key, value);
+      json_object_set_object_member (object, "os-release", osr);
     }
 
-  return ret;
+  bytes = cockpit_json_write_bytes (object);
+  json_object_unref (object);
+
+  buffer = g_bytes_unref_to_array (bytes);
+  g_byte_array_prepend (buffer, (const guint8 *)prefix, strlen (prefix));
+  g_byte_array_append (buffer, (const guint8 *)suffix, strlen (suffix));
+  return g_byte_array_free_to_bytes (buffer);
 }
 
 static void
 send_login_html (CockpitWebResponse *response,
                  CockpitHandlerData *ws)
 {
+  static const gchar *marker = "<head>";
+  CockpitWebFilter *filter;
   GHashTable *headers = NULL;
-  GList *l, *output = NULL;
   gchar *login_html;
   GMappedFile *file;
   GError *error = NULL;
   GBytes *body = NULL;
-  gsize length;
+  GBytes *mark, *environment;
 
   login_html = g_build_filename (ws->static_roots[0], "login.html", NULL);
+
   file = g_mapped_file_new (login_html, FALSE, &error);
   if (file == NULL)
     {
       g_warning ("%s: %s", login_html, error->message);
       cockpit_web_response_error (response, 500, NULL, NULL);
       g_clear_error (&error);
-      goto out;
     }
-
-  body = g_mapped_file_get_bytes (file);
-  output = cockpit_template_expand (body, substitute_environment, ws->os_release);
-
-  length = 0;
-  for (l = output; l != NULL; l = g_list_next (l))
-    length += g_bytes_get_size (l->data);
-
-  headers = cockpit_web_server_new_table ();
-  g_hash_table_insert (headers, g_strdup ("Content-Type"), g_strdup ("text/html; charset=utf8"));
-
-  cockpit_web_response_headers_full (response, 200, "OK", length, headers);
-
-  for (l = output; l != NULL; l = g_list_next (l))
+  else
     {
-      if (!cockpit_web_response_queue (response, l->data))
-        break;
-    }
-  if (l == NULL)
-    cockpit_web_response_complete (response);
+      mark = g_bytes_new_static (marker, strlen (marker));
+      environment = build_environment (ws->os_release);
+      filter = cockpit_web_inject_new (marker, environment);
+      g_bytes_unref (environment);
+      g_bytes_unref (mark);
 
-out:
-  g_list_free_full (output, (GDestroyNotify)g_bytes_unref);
-  if (headers)
-    g_hash_table_unref (headers);
+      cockpit_web_response_add_filter (response, filter);
+      g_object_unref (filter);
+
+      headers = cockpit_web_server_new_table ();
+      g_hash_table_insert (headers, g_strdup ("Content-Type"), g_strdup ("text/html; charset=utf8"));
+
+      body = g_mapped_file_get_bytes (file);
+      cockpit_web_response_content (response, headers, body, NULL);
+
+      g_hash_table_unref (headers);
+      g_bytes_unref (body);
+      g_mapped_file_unref (file);
+    }
+
   g_free (login_html);
-  if (body)
-    g_bytes_unref (body);
-  if (file)
-    g_mapped_file_unref (file);
 }
 
 gboolean

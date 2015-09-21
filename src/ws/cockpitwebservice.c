@@ -31,6 +31,7 @@
 #include "common/cockpitjson.h"
 #include "common/cockpitlog.h"
 #include "common/cockpitpipetransport.h"
+#include "common/cockpitwebinject.h"
 #include "common/cockpitwebresponse.h"
 #include "common/cockpitwebserver.h"
 
@@ -2079,11 +2080,13 @@ typedef struct {
   CockpitWebResponse *response;
   CockpitTransport *transport;
   GHashTable *headers;
+  gchar *base_path;
   gchar *channel;
   gulong recv_sig;
   gulong closed_sig;
   gulong control_sig;
   gboolean done;
+  gpointer service;
 } ResourceResponse;
 
 static void
@@ -2139,9 +2142,13 @@ resource_response_done (ResourceResponse *rr,
       cockpit_web_response_abort (rr->response);
     }
 
+  if (rr->service)
+    g_object_remove_weak_pointer (rr->service, &rr->service);
+
   g_object_unref (rr->response);
   g_object_unref (rr->transport);
   g_hash_table_unref (rr->headers);
+  g_free (rr->base_path);
   g_free (rr->channel);
   g_free (rr);
 }
@@ -2213,6 +2220,42 @@ out:
   return ret;
 }
 
+static void
+resource_inject (ResourceResponse *rr)
+{
+  static const gchar *marker = "<head>";
+  CockpitSession *session;
+  CockpitWebFilter *filter;
+  CockpitWebService *self;
+  GString *str;
+  GBytes *tag;
+
+  if (!rr->base_path || !rr->service)
+    return;
+
+  self = COCKPIT_WEB_SERVICE (rr->service);
+  session = cockpit_session_by_transport (&self->sessions, rr->transport);
+  if (!session)
+    return;
+
+  str = g_string_new ("");
+  if (session->checksum)
+    {
+      g_string_printf (str, "\n    <base href=\"/cockpit/$%s%s\">", session->checksum, rr->base_path);
+    }
+  else
+    {
+      g_string_printf (str, "\n    <base href=\"/cockpit/@%s%s\">", session->host, rr->base_path);
+    }
+
+  tag = g_string_free_to_bytes (str);
+  filter = cockpit_web_inject_new (marker, tag);
+  g_bytes_unref (tag);
+
+  cockpit_web_response_add_filter (rr->response, filter);
+  g_object_unref (filter);
+}
+
 static gboolean
 on_resource_recv_first (CockpitTransport *transport,
                         const gchar *channel,
@@ -2234,6 +2277,7 @@ on_resource_recv_first (CockpitTransport *transport,
 
   if (parse_http_headers (rr, payload, &status, &reason))
     {
+      resource_inject (rr);
       cockpit_web_response_headers_full (rr->response, status, reason, -1, rr->headers);
       g_free (reason);
     }
@@ -2298,7 +2342,8 @@ on_resource_closed (CockpitTransport *transport,
 static ResourceResponse *
 resource_response_new (CockpitWebService *self,
                        CockpitSession *session,
-                       CockpitWebResponse *response)
+                       CockpitWebResponse *response,
+                       const gchar *base_path)
 {
   ResourceResponse *rr;
 
@@ -2308,6 +2353,10 @@ resource_response_new (CockpitWebService *self,
   rr->headers = cockpit_web_server_new_table ();
   rr->channel = generate_channel_id (self);
   rr->logname = cockpit_web_response_get_path (response);
+  rr->base_path = g_strdup (base_path);
+
+  rr->service = self;
+  g_object_add_weak_pointer (rr->service, &rr->service);
 
   rr->recv_sig = g_signal_connect (rr->transport, "recv", G_CALLBACK (on_resource_recv_first), rr);
   rr->closed_sig = g_signal_connect (rr->transport, "closed", G_CALLBACK (on_resource_closed), rr);
@@ -2320,10 +2369,12 @@ static gboolean
 resource_respond (CockpitWebService *self,
                   GHashTable *headers,
                   CockpitWebResponse *response,
-                  const gchar *where)
+                  const gchar *where,
+                  const gchar *base_path)
 {
   ResourceResponse *rr;
   CockpitSession *session = NULL;
+  const gchar *path = NULL;
   const gchar *host = NULL;
   gchar *quoted_etag = NULL;
   gchar *package = NULL;
@@ -2331,7 +2382,6 @@ resource_respond (CockpitWebService *self,
   gboolean ret = FALSE;
   GHashTableIter iter;
   GBytes *command;
-  const gchar *path;
   gchar **parts = NULL;
   JsonObject *object;
   JsonObject *heads;
@@ -2382,20 +2432,27 @@ resource_respond (CockpitWebService *self,
     }
 
   session = lookup_or_open_session_for_host (self, host, NULL, self->creds, FALSE);
-  path = cockpit_web_response_get_path (response);
-
-  /*
-   * Maybe send back a redirect to the checksum url. We only do this if actually
-   * accessing a file, and not a some sort of data like '/checksum', or a root path
-   * like '/'
-   */
-  if (where[0] == '@' && session->checksum && path && strchr (path, '.'))
+  if (base_path == NULL)
     {
-      ret = redirect_to_checksum_path (self, session->checksum, response);
-      goto out;
+      path = cockpit_web_response_get_path (response);
+
+      /*
+       * Maybe send back a redirect to the checksum url. We only do this if actually
+       * accessing a file, and not a some sort of data like '/checksum', or a root path
+       * like '/'
+       */
+      if (where[0] == '@' && session->checksum && path && strchr (path, '.'))
+        {
+          ret = redirect_to_checksum_path (self, session->checksum, response);
+          goto out;
+        }
+    }
+  else
+    {
+      path = base_path;
     }
 
-  rr = resource_response_new (self, session, response);
+  rr = resource_response_new (self, session, response, base_path);
 
   if (quoted_etag)
     {
@@ -2491,7 +2548,7 @@ cockpit_web_service_resource (CockpitWebService *self,
 
   if (g_str_equal (path, "/"))
     {
-      handled = resource_respond (self, headers, response, "@localhost");
+      handled = resource_respond (self, headers, response, "@localhost", "/shell/index.html");
     }
   else if (g_str_has_prefix (path, "/cockpit/"))
     {
@@ -2504,7 +2561,7 @@ cockpit_web_service_resource (CockpitWebService *self,
         }
       else if (where[0] == '@' || where[0] == '$')
         {
-          handled = resource_respond (self, headers, response, where);
+          handled = resource_respond (self, headers, response, where, NULL);
         }
       g_free (where);
     }

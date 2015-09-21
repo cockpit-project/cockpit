@@ -10,9 +10,7 @@
         var phantom_checkpoint = phantom_checkpoint || function () { };
 
         (function(console) {
-
-            /* Filled in by cockpit-ws handler */
-            var initial_environment = @@environment@@;
+            var environment = window.environment || { };
 
             function unquote(str) {
                 str = str.trim();
@@ -61,7 +59,7 @@
                     if ((content[0] === '"' || content[0] === '\'') &&
                         len > 2 && content[len - 1] === content[0])
                         content = content.substr(1, len - 2);
-                    elt.innerHTML = format(content, initial_environment["os-release"]) || def;
+                    elt.innerHTML = format(content, environment["os-release"]) || def;
                 }
             }
 
@@ -100,7 +98,7 @@
                 if (!requisites())
                     return;
 
-                var os_release = JSON.stringify(initial_environment["os-release"]);
+                var os_release = JSON.stringify(environment["os-release"]);
                 localStorage.setItem('os-release', os_release);
 
                 /* Try automatic/kerberos authentication? */
@@ -144,9 +142,9 @@
 
             function show_login() {
                 /* Show the login screen */
-                document.title = initial_environment.hostname;
+                document.title = environment.hostname;
                 var b = document.createElement("b");
-                b.appendChild(document.createTextNode(initial_environment.hostname));
+                b.appendChild(document.createTextNode(environment.hostname));
                 id("server-name").appendChild(b);
                 id("login").style.visibility = 'visible';
                 id("login-user-input").focus();

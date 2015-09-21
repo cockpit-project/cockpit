@@ -197,31 +197,23 @@ main (int argc,
     g_signal_connect_swapped (data.auth, "idling", G_CALLBACK (g_main_loop_quit), loop);
 
   /* Ignores stuff it shouldn't handle */
-  g_signal_connect (server,
-                    "handle-stream",
-                    G_CALLBACK (cockpit_handler_socket),
-                    &data);
-
-  g_signal_connect (server,
-                    "handle-resource::/login",
-                    G_CALLBACK (cockpit_handler_login),
-                    &data);
+  g_signal_connect (server, "handle-stream",
+                    G_CALLBACK (cockpit_handler_socket), &data);
 
   /* Don't redirect to TLS for /ping */
   g_object_set (server, "ssl-exception-prefix", "/ping", NULL);
   g_signal_connect (server, "handle-resource::/ping",
                     G_CALLBACK (cockpit_handler_ping), &data);
 
-  g_signal_connect (server, "handle-resource::/",
-                    G_CALLBACK (cockpit_handler_resource), &data);
-  g_signal_connect (server, "handle-resource::/cockpit/",
-                    G_CALLBACK (cockpit_handler_resource), &data);
-
   /* Files that cannot be cache-forever, because of well known names */
   g_signal_connect (server, "handle-resource::/favicon.ico",
                     G_CALLBACK (cockpit_handler_root), &data);
   g_signal_connect (server, "handle-resource::/apple-touch-icon.png",
                     G_CALLBACK (cockpit_handler_root), &data);
+
+  /* The fallback handler for everything else */
+  g_signal_connect (server, "handle-resource",
+                    G_CALLBACK (cockpit_handler_default), &data);
 
   g_main_loop_run (loop);
 

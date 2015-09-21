@@ -59,6 +59,7 @@ struct _CockpitAuthClass
 
   /* vfunc */
   void           (* login_async)         (CockpitAuth *auth,
+                                          const gchar *path,
                                           GHashTable *headers,
                                           const gchar *remote_peer,
                                           GAsyncReadyCallback callback,
@@ -76,6 +77,7 @@ GType           cockpit_auth_get_type        (void) G_GNUC_CONST;
 CockpitAuth *   cockpit_auth_new             (gboolean login_loopback);
 
 void            cockpit_auth_login_async     (CockpitAuth *self,
+                                              const gchar *path,
                                               GHashTable *headers,
                                               const gchar *remote_peer,
                                               GAsyncReadyCallback callback,
@@ -88,7 +90,10 @@ CockpitWebService *  cockpit_auth_login_finish    (CockpitAuth *self,
                                                    GError **error);
 
 CockpitWebService *  cockpit_auth_check_cookie    (CockpitAuth *self,
+                                                   const gchar *path,
                                                    GHashTable *in_headers);
+
+gchar *         cockpit_auth_parse_application    (const gchar *path);
 
 GBytes *        cockpit_auth_parse_authorization  (GHashTable *headers,
                                                    gchar **type);

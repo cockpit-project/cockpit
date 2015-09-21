@@ -192,7 +192,7 @@ class TestKerberos(MachineCase):
     def testNegotiate(self):
         output = subprocess.check_output(['/usr/bin/curl', '-s', '--negotiate', '-u', ':', "-D", "-",
                                           '--resolve', 'x0.cockpit.lan:9090:%s' % self.machine.address,
-                                          'http://x0.cockpit.lan:9090/login'])
+                                          'http://x0.cockpit.lan:9090/cockpit/login'])
         self.assertIn("HTTP/1.1 200 OK", output)
         self.assertIn('"admin@cockpit.lan"', output)
 

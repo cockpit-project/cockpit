@@ -189,10 +189,14 @@ function calculate_url() {
     if (window.mock && window.mock.url)
         return window.mock.url;
     var window_loc = window.location.toString();
+    var path = window.location.pathname || "/";
+    if (path.indexOf("/cockpit") !== 0)
+        path = "/cockpit";
+    var prefix = path.split("/")[1];
     if (window_loc.indexOf('http:') === 0) {
-        return "ws://" + window.location.host + "/socket";
+        return "ws://" + window.location.host + "/" + prefix + "/socket";
     } else if (window_loc.indexOf('https:') === 0) {
-        return "wss://" + window.location.host + "/socket";
+        return "wss://" + window.location.host + "/" + prefix + "/socket";
     } else {
         transport_debug("Cockpit must be used over http or https");
         return null;

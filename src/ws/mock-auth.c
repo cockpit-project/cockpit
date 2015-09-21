@@ -58,6 +58,7 @@ mock_auth_finalize (GObject *obj)
 
 static void
 mock_auth_login_async (CockpitAuth *auth,
+                       const gchar *path,
                        GHashTable *headers,
                        const gchar *remote_peer,
                        GAsyncReadyCallback callback,
@@ -71,7 +72,9 @@ mock_auth_login_async (CockpitAuth *auth,
   gchar *type = NULL;
 
   result = g_simple_async_result_new (G_OBJECT (auth), callback, user_data, NULL);
-  g_simple_async_result_set_op_res_gpointer (result, g_strdup (remote_peer), g_free);
+
+  g_object_set_data_full (G_OBJECT (result), "remote", g_strdup (remote_peer), g_free);
+  g_object_set_data_full (G_OBJECT (result), "application", cockpit_auth_parse_application (path), g_free);
 
   userpass = cockpit_auth_parse_authorization (headers, &type);
   if (userpass && g_str_equal (type, "basic"))
@@ -118,8 +121,9 @@ mock_auth_login_finish (CockpitAuth *auth,
       return NULL;
 
   creds = cockpit_creds_new (self->expect_user,
+                             g_object_get_data (G_OBJECT (result), "application"),
                              COCKPIT_CRED_PASSWORD, self->expect_password,
-                             COCKPIT_CRED_RHOST, g_simple_async_result_get_op_res_gpointer (result),
+                             COCKPIT_CRED_RHOST, g_object_get_data (G_OBJECT (result), "remote"),
                              NULL);
 
   if (transport)

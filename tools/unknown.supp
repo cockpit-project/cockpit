@@ -417,3 +417,14 @@
    fun:start_thread
    fun:clone
 }
+{
+   gcov_exit
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:gcov_do_dump
+   fun:gcov_exit
+   fun:__run_exit_handlers
+   fun:exit
+   fun:(below main)
+}

@@ -2060,8 +2060,9 @@ cockpit_web_service_get_idling (CockpitWebService *self)
 
 static gboolean
 redirect_to_checksum_path (CockpitWebService *self,
+                           CockpitWebResponse *response,
                            const gchar *checksum,
-                           CockpitWebResponse *response)
+                           const gchar *path)
 {
   gchar *location;
   const gchar *body;
@@ -2071,7 +2072,7 @@ redirect_to_checksum_path (CockpitWebService *self,
 
   location = g_strdup_printf ("/%s/$%s%s",
                               cockpit_creds_get_application (self->creds),
-                              checksum, cockpit_web_response_get_path (response));
+                              checksum, path);
 
   body = "<html><head><title>Temporary redirect</title></head>"
          "<body>Access via checksum</body></html>";
@@ -2386,21 +2387,21 @@ resource_response_new (CockpitWebService *self,
   return rr;
 }
 
-static gboolean
-resource_respond (CockpitWebService *self,
-                  GHashTable *headers,
-                  CockpitWebResponse *response,
-                  const gchar *where,
-                  const gchar *base_path)
+void
+cockpit_web_service_resource (CockpitWebService *self,
+                              GHashTable *headers,
+                              CockpitWebResponse *response,
+                              const gchar *where,
+                              const gchar *path)
 {
   ResourceResponse *rr;
   CockpitSession *session = NULL;
-  const gchar *path = NULL;
+  const gchar *base_path = NULL;
   const gchar *host = NULL;
   gchar *quoted_etag = NULL;
   gchar *package = NULL;
   gchar *val = NULL;
-  gboolean ret = FALSE;
+  gboolean handled = FALSE;
   GHashTableIter iter;
   GBytes *command;
   gchar **parts = NULL;
@@ -2409,7 +2410,16 @@ resource_respond (CockpitWebService *self,
   gpointer key;
   gpointer value;
 
-  if (where[0] == '@')
+  g_return_if_fail (COCKPIT_IS_WEB_SERVICE (self));
+  g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (response));
+  g_return_if_fail (headers != NULL);
+  g_return_if_fail (path != NULL);
+
+  if (where == NULL)
+    {
+      host = "localhost";
+    }
+  else if (where[0] == '@')
     {
       host = where + 1;
     }
@@ -2422,7 +2432,7 @@ resource_respond (CockpitWebService *self,
         {
           cockpit_web_response_headers (response, 304, "Not Modified", 0, "ETag", quoted_etag, NULL);
           cockpit_web_response_complete (response);
-          ret = TRUE;
+          handled = TRUE;
           goto out;
         }
 
@@ -2453,24 +2463,22 @@ resource_respond (CockpitWebService *self,
     }
 
   session = lookup_or_open_session_for_host (self, host, NULL, self->creds, FALSE);
-  if (base_path == NULL)
+  if (where)
     {
-      path = cockpit_web_response_get_path (response);
-
       /*
        * Maybe send back a redirect to the checksum url. We only do this if actually
        * accessing a file, and not a some sort of data like '/checksum', or a root path
        * like '/'
        */
-      if (where[0] == '@' && session->checksum && path && strchr (path, '.'))
+      if (where[0] == '@' && session->checksum && strchr (path, '.'))
         {
-          ret = redirect_to_checksum_path (self, session->checksum, response);
+          handled = redirect_to_checksum_path (self, response, session->checksum, path);
           goto out;
         }
     }
   else
     {
-      path = base_path;
+      base_path = path;
     }
 
   rr = resource_response_new (self, session, response, base_path);
@@ -2525,10 +2533,7 @@ resource_respond (CockpitWebService *self,
       g_free (val);
     }
 
-  if (where[0] != '$')
-    json_object_set_string_member (heads, "Pragma", "no-cache");
   json_object_set_string_member (heads, "Host", session->host);
-
   json_object_set_object_member (object, "headers", heads);
 
   command = cockpit_json_write_bytes (object);
@@ -2547,43 +2552,12 @@ resource_respond (CockpitWebService *self,
   cockpit_transport_send (rr->transport, NULL, command);
   g_bytes_unref (command);
 
-  ret = TRUE;
+  handled = TRUE;
 
 out:
   g_strfreev (parts);
   g_free (quoted_etag);
   g_free (package);
-  return ret;
-}
-
-void
-cockpit_web_service_resource (CockpitWebService *self,
-                              GHashTable *headers,
-                              CockpitWebResponse *response)
-{
-  gboolean handled = FALSE;
-  const gchar *path;
-  gchar *where;
-
-  path = cockpit_web_response_get_path (response);
-
-  if (!path || g_str_equal (path, "/"))
-    {
-      handled = resource_respond (self, headers, response, "@localhost", "/shell/index.html");
-    }
-  else
-    {
-      where = cockpit_web_response_pop_path (response);
-      if (!where)
-        {
-          g_debug ("invalid path: %s", path);
-        }
-      else if (where[0] == '@' || where[0] == '$')
-        {
-          handled = resource_respond (self, headers, response, where, NULL);
-        }
-      g_free (where);
-    }
 
   if (!handled)
     cockpit_web_response_error (response, 404, NULL, NULL);

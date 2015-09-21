@@ -23,6 +23,7 @@
 
 #include "cockpitchannel.h"
 
+#include "common/cockpitenums.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitwebresponse.h"
 #include "common/cockpitwebserver.h"
@@ -91,8 +92,7 @@ cockpit_package_new (const gchar *name)
 static gboolean
 validate_package (const gchar *name)
 {
-  static const gchar *allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
-  gsize len = strspn (name, allowed);
+  gsize len = strspn (name, COCKPIT_RESOURCE_PACKAGE_VALID);
   return len && name[len] == '\0';
 }
 

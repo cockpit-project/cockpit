@@ -25,6 +25,8 @@
 #include "common/cockpitwebserver.h"
 #include "common/cockpitwebresponse.h"
 
+extern const gchar *cockpit_ws_shell_component;
+
 typedef struct {
   CockpitAuth *auth;
   const gchar **static_roots;

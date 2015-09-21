@@ -116,6 +116,8 @@ define([
                            "/org/storaged/Storaged/Manager");
     client.manager_lvm2 = proxy("org.storaged.Storaged.Manager.LVM2",
                                 "/org/storaged/Storaged/Manager");
+    client.manager_iscsi = proxy("org.storaged.Storaged.Manager.ISCSI.Initiator",
+                                 "/org/storaged/Storaged/Manager");
 
     client.mdraids = proxies("org.storaged.Storaged.MDRaid");
     client.vgroups = proxies("org.storaged.Storaged.VolumeGroup");
@@ -129,6 +131,7 @@ define([
     client.blocks_pvol = proxies("org.storaged.Storaged.PhysicalVolume");
     client.blocks_fsys = proxies("org.storaged.Storaged.Filesystem");
     client.blocks_crypto = proxies("org.storaged.Storaged.Encrypted");
+    client.iscsi_sessions = proxies("org.storaged.Storaged.ISCSI.Session");
     client.storaged_jobs = proxies("org.storaged.Storaged.Job");
 
     client.udisks_client = cockpit.dbus("org.freedesktop.UDisks2");
@@ -329,13 +332,22 @@ define([
                          client.features = false;
                          callback();
                      } else {
-                         client.features = { lvm2: client.manager_lvm2.valid };
+                         client.features = { lvm2: client.manager_lvm2.valid,
+                                             iscsi: client.manager_iscsi.valid
+                                           };
 
-                         // The LVM2 manager might appear asynchronously some time
-                         // after the modules are loaded, so we have to watch it and
-                         // react dynamically.
+                         // Additional interfaces like the LVM2
+                         // manager might appear asynchronously some
+                         // time after the modules are loaded, so we
+                         // have to watch them and react dynamically.
+
                          $(client.manager_lvm2).on("changed", function () {
                              client.features.lvm2 = client.manager_lvm2.valid;
+                             $(client.features).triggerHandler("changed");
+                         });
+
+                         $(client.manager_iscsi).on("changed", function () {
+                             client.features.iscsi = client.manager_iscsi.valid;
                              $(client.features).triggerHandler("changed");
                          });
 

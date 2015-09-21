@@ -24,7 +24,6 @@
 #include "cockpitchannel.h"
 
 #include "common/cockpitjson.h"
-#include "common/cockpittemplate.h"
 #include "common/cockpitwebresponse.h"
 #include "common/cockpitwebserver.h"
 
@@ -574,45 +573,6 @@ handle_package_manifests_json (CockpitWebServer *server,
   return TRUE;
 }
 
-static GBytes *
-expand_callback (const gchar *variable,
-                 gpointer user_data)
-{
-  const gchar *base = user_data;
-
-  if (g_str_equal (variable, "base"))
-    return g_bytes_new (base, strlen (base));
-
-  return NULL;
-}
-
-static void
-resource_queue (GBytes *input,
-                const gchar *base,
-                CockpitWebResponse *response)
-{
-  GList *blocks, *l;
-
-  if (base)
-    {
-      /* Expand checksum anywhere */
-      blocks = cockpit_template_expand (input, expand_callback, (gpointer)base);
-    }
-  else
-    {
-      blocks = g_list_append (NULL, g_bytes_ref (input));
-    }
-
-  /* Also break data into blocks */
-  for (l = blocks; l != NULL; l = g_list_next (l))
-    {
-      cockpit_web_response_queue (response, l->data);
-      g_bytes_unref (l->data);
-    }
-
-  g_list_free (blocks);
-}
-
 static gboolean
 handle_packages (CockpitWebServer *server,
                  const gchar *unused,
@@ -627,25 +587,16 @@ handle_packages (CockpitWebServer *server,
   const gchar *path;
   GHashTable *out_headers = NULL;
   GBytes *bytes = NULL;
-  gboolean expand;
-  gboolean gzip;
-  GBytes *converted;
   gchar *chosen = NULL;
-  gchar *base = NULL;
 
   name = cockpit_web_response_pop_path (response);
-  if (name == NULL)
-    {
-      name = g_strdup ("shell");
-      path = "index.html";
-    }
-  else
-    {
-      path = cockpit_web_response_get_path (response);
-    }
+  path = cockpit_web_response_get_path (response);
 
-  expand = g_str_equal (name, "shell") &&
-           (g_str_equal (path, "index.html") || g_str_has_suffix (path, "/index.html"));
+  if (name == NULL || path == NULL)
+    {
+      cockpit_web_response_error (response, 404, NULL, NULL);
+      goto out;
+    }
 
   out_headers = cockpit_web_server_new_table ();
 
@@ -680,44 +631,12 @@ handle_packages (CockpitWebServer *server,
       goto out;
     }
 
-  /* We don't want gzipped files when expanding contents */
-  if (expand)
-    gzip = FALSE;
-  else
-    gzip = cockpit_web_server_parse_encoding (headers, "gzip");
-
   if (g_str_has_suffix (chosen, ".gz"))
-    {
-      if (gzip)
-        {
-          g_hash_table_insert (out_headers, g_strdup ("Content-Encoding"), g_strdup ("gzip"));
-        }
-      else
-        {
-          converted = cockpit_web_response_gunzip (bytes, &error);
-          if (error)
-            {
-              g_message ("couldn't decompress: %s: %s", chosen, error->message);
-              cockpit_web_response_error (response, 500, NULL, NULL);
-              goto out;
-            }
-          g_bytes_unref (bytes);
-          bytes = converted;
-        }
-    }
+    g_hash_table_insert (out_headers, g_strdup ("Content-Encoding"), g_strdup ("gzip"));
 
   cockpit_web_response_headers_full (response, 200, "OK", -1, out_headers);
 
-  /* Expand and queue the data */
-  if (expand)
-    {
-      g_assert (!gzip);
-      if (packages->checksum)
-        base = g_strdup_printf ("$%s", packages->checksum);
-      else
-        base = g_strdup_printf ("@%s", (gchar *)g_hash_table_lookup (headers, "Host"));
-    }
-  resource_queue (bytes, base, response);
+  cockpit_web_response_queue (response, bytes);
   g_bytes_unref (bytes);
 
   cockpit_web_response_complete (response);
@@ -729,7 +648,6 @@ out:
   g_free (chosen);
   g_clear_error (&error);
   g_free (filename);
-  g_free (base);
 
   return TRUE;
 }

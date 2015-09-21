@@ -2552,7 +2552,7 @@ cockpit_web_service_resource (CockpitWebService *self,
     }
   else if (g_str_has_prefix (path, "/cockpit/"))
     {
-      g_free (cockpit_web_response_pop_path (response));
+      cockpit_web_response_skip_path (response);
 
       where = cockpit_web_response_pop_path (response);
       if (!where)

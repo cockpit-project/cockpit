@@ -530,6 +530,9 @@ define([
         }
 
         function render() {
+            if (!cur_unit.valid)
+                return;
+
             var unit_def;
             var active_state = cur_unit.ActiveState;
             if (active_state == 'active' || active_state == 'reloading' ||
@@ -642,7 +645,7 @@ define([
                     var unit = systemd_client.proxy('org.freedesktop.systemd1.Unit', path);
                     cur_unit = unit;
                     unit.wait(function() {
-                        if (unit.valid && cur_unit == unit) {
+                        if (cur_unit == unit) {
                             render();
                             $(cur_unit).on('changed', render);
                             $("#service-valid").show();

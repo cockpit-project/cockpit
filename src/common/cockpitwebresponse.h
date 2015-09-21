@@ -58,6 +58,8 @@ GIOStream *           cockpit_web_response_get_stream    (CockpitWebResponse *se
 
 CockpitWebResponding  cockpit_web_response_get_state     (CockpitWebResponse *self);
 
+gboolean              cockpit_web_response_skip_path     (CockpitWebResponse *self);
+
 gchar *               cockpit_web_response_pop_path      (CockpitWebResponse *self);
 
 void                  cockpit_web_response_add_filter    (CockpitWebResponse *self,

@@ -1224,22 +1224,14 @@ out:
     g_mapped_file_unref (file);
 }
 
-gchar *
-cockpit_web_response_pop_path (CockpitWebResponse *self)
+static gboolean
+response_next_path (CockpitWebResponse *self,
+                    gchar **component)
 {
-  /*
-   * Parses packages in this form:
-   *
-   * /package/path/to/file.ext
-   *
-   * For the above will return 'package', and set remaining_path
-   * to point to /path/to/file.ext
-   */
-
   const gchar *beg = NULL;
   const gchar *path;
 
-  g_return_val_if_fail (COCKPIT_IS_WEB_RESPONSE (self), NULL);
+  g_return_val_if_fail (COCKPIT_IS_WEB_RESPONSE (self), FALSE);
 
   path = self->path;
 
@@ -1254,16 +1246,41 @@ cockpit_web_response_pop_path (CockpitWebResponse *self)
     }
 
   if (!beg || path == beg)
-    return NULL;
+    return FALSE;
 
   self->path = path;
 
-  if (path)
-    return g_strndup (beg, path - beg);
+  if (self->path)
+    {
+      if (component)
+        *component = g_strndup (beg, path - beg);
+    }
   else if (beg && beg[0])
-    return g_strdup (beg);
+    {
+      if (component)
+        *component = g_strdup (beg);
+    }
   else
+    {
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+gboolean
+cockpit_web_response_skip_path (CockpitWebResponse *self)
+{
+  return response_next_path (self, NULL);
+}
+
+gchar *
+cockpit_web_response_pop_path (CockpitWebResponse *self)
+{
+  gchar *component = NULL;
+  if (!response_next_path (self, &component))
     return NULL;
+  return component;
 }
 
 void

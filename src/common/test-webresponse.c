@@ -822,6 +822,50 @@ test_pop_path_root (TestPlain *tc,
 }
 
 static void
+test_skip_path (TestPlain *tc,
+                gconstpointer unused)
+{
+  CockpitWebResponse *response;
+
+  response = cockpit_web_response_new (tc->io, "/cockpit/@localhost/another/test.html", NULL, tc->headers);
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/cockpit/@localhost/another/test.html");
+
+  g_assert (cockpit_web_response_skip_path (response) == TRUE);
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/@localhost/another/test.html");
+
+  g_assert (cockpit_web_response_skip_path (response) == TRUE);
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/another/test.html");
+
+  g_assert (cockpit_web_response_skip_path (response) == TRUE);
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/test.html");
+
+  g_assert (cockpit_web_response_skip_path (response) == TRUE);
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, NULL);
+
+  g_assert (cockpit_web_response_skip_path (response) == FALSE);
+  g_assert (cockpit_web_response_get_path (response) == NULL);
+
+  cockpit_web_response_abort (response);
+  g_object_unref (response);
+}
+
+static void
+test_skip_path_root (TestPlain *tc,
+                     gconstpointer unused)
+{
+  CockpitWebResponse *response;
+
+  response = cockpit_web_response_new (tc->io, "/", NULL, tc->headers);
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/");
+
+  g_assert (cockpit_web_response_skip_path (response) == FALSE);
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, NULL);
+
+  cockpit_web_response_abort (response);
+  g_object_unref (response);
+}
+
+static void
 test_gunzip_small (void)
 {
   GError *error = NULL;
@@ -1057,10 +1101,14 @@ main (int argc,
   g_test_add ("/web-response/filter/split", TestCase, NULL,
               setup, test_web_filter_split, teardown);
 
-  g_test_add ("/web-response/pop-path", TestPlain, NULL,
+  g_test_add ("/web-response/path/pop", TestPlain, NULL,
               setup_plain, test_pop_path, teardown_plain);
-  g_test_add ("/web-response/pop-path-root", TestPlain, NULL,
+  g_test_add ("/web-response/path/pop-root", TestPlain, NULL,
               setup_plain, test_pop_path_root, teardown_plain);
+  g_test_add ("/web-response/path/skip", TestPlain, NULL,
+              setup_plain, test_skip_path, teardown_plain);
+  g_test_add ("/web-response/path/skip-root", TestPlain, NULL,
+              setup_plain, test_skip_path_root, teardown_plain);
 
   g_test_add_func ("/web-response/gunzip/small", test_gunzip_small);
   g_test_add_func ("/web-response/gunzip/large", test_gunzip_large);

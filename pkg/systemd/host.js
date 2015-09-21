@@ -1159,10 +1159,20 @@ function show_unexpected_error(error) {
 
 function dialog_setup(d) {
     d.setup();
+    var already_entered = false;
     $('#' + d.id).
-        on('show.bs.modal', function () { d.enter(); }).
-        on('shown.bs.modal', function () { d.show(); }).
-        on('hidden.bs.modal', function () { d.leave(); });
+        on('show.bs.modal', function (event) {
+            if (event.target.id === d.id)
+                d.enter();
+        }).
+        on('shown.bs.modal', function (event) {
+            if (event.target.id === d.id)
+              d.show();
+        }).
+        on('hidden.bs.modal', function (event) {
+            if (event.target.id === d.id)
+              d.leave();
+        });
 }
 
 function page_show(p, arg) {

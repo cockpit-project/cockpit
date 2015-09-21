@@ -100,6 +100,8 @@ define([
                                                   "/org/storaged/Storaged/Manager");
     client.manager_lvm2 = client.storaged_client.proxy("org.storaged.Storaged.Manager.LVM2",
                                                        "/org/storaged/Storaged/Manager");
+    client.manager_iscsi = client.storaged_client.proxy("org.storaged.Storaged.Manager.ISCSI.Initiator",
+                                                        "/org/storaged/Storaged/Manager");
 
     client.mdraids = client.storaged_client.proxies("org.storaged.Storaged.MDRaid",
                                                     "/org/storaged/Storaged/mdraid");
@@ -130,6 +132,8 @@ define([
                                                         "/org/storaged/Storaged/block_devices");
     client.blocks_crypto = client.storaged_client.proxies("org.storaged.Storaged.Encrypted",
                                                           "/org/storaged/Storaged/block_devices");
+    client.iscsi_sessions = client.storaged_client.proxies("org.storaged.Storaged.ISCSI.Session",
+                                                           "/org/storaged/Storaged/iscsi");
 
     client.storaged_jobs = client.storaged_client.proxies("org.storaged.Storaged.Job",
                                                           "/org/storaged/Storaged/jobs");
@@ -327,13 +331,22 @@ define([
                          client.features = false;
                          callback();
                      } else {
-                         client.features = { lvm2: client.manager_lvm2.valid };
+                         client.features = { lvm2: client.manager_lvm2.valid,
+                                             iscsi: client.manager_iscsi.valid
+                                           };
 
-                         // The LVM2 manager might appear asynchronously some time
-                         // after the modules are loaded, so we have to watch it and
-                         // react dynamically.
+                         // Additional interfaces like the LVM2
+                         // manager might appear asynchronously some
+                         // time after the modules are loaded, so we
+                         // have to watch them and react dynamically.
+
                          $(client.manager_lvm2).on("changed", function () {
                              client.features.lvm2 = client.manager_lvm2.valid;
+                             $(client.features).triggerHandler("changed");
+                         });
+
+                         $(client.manager_iscsi).on("changed", function () {
+                             client.features.iscsi = client.manager_iscsi.valid;
                              $(client.features).triggerHandler("changed");
                          });
 

@@ -53,10 +53,19 @@ define([
             update_visibility();
         }
 
+        function select_row(event) {
+            var tbody = $(this);
+            var row = $(event.target).parent('tr');
+            tbody.find('tr').removeClass('highlight');
+            row.addClass('highlight');
+        }
+
         var $dialog = $(mustache.render(storage_dialog_tmpl, def));
         $('body').append($dialog);
         $dialog.find('.selectpicker').selectpicker();
         $dialog.find('.dialog-arrow').on('click', toggle_arrow);
+        $dialog.find('.dialog-select-row-table tbody').on('click', select_row);
+        $dialog.find('.dialog-select-row-table tbody tr:first-child').addClass('highlight');
 
         var invisible = { };
 
@@ -67,7 +76,8 @@ define([
         }
 
         function get_name(f) {
-            return f.TextInput || f.PassInput || f.SelectOne || f.SelectMany || f.SizeInput || f.CheckBox || f.Arrow;
+            return (f.TextInput || f.PassInput || f.SelectOne || f.SelectMany || f.SizeInput ||
+                    f.CheckBox || f.Arrow || f.SelectRow);
         }
 
         function get_field_values() {
@@ -91,6 +101,11 @@ define([
                     $f.find('input').each(function (i, e) {
                         if (e.checked)
                             vals[n].push(f.Options[i].value);
+                    });
+                } else if (f.SelectRow) {
+                    $f.find('tbody tr').each(function (i, e) {
+                        if ($(e).hasClass('highlight'))
+                            vals[n] = f.Rows[i].value;
                     });
                 } else if (f.Arrow)
                     vals[n] = !$f.hasClass('collapsed');

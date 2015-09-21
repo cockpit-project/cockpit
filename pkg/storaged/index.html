@@ -764,6 +764,24 @@
                   </ul>
                 </td>
                 {{/SelectMany}}
+                {{#SelectRow}}
+                <td colspan="2">
+                  <table data-field={{.}} class="dialog-select-row-table">
+                    <thead>
+                      <tr>
+                        {{#Headers}}<th>{{.}}</th>{{/Headers}}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {{#Rows}}
+                      <tr>
+                        {{#Columns}}<td>{{.}}</td>{{/Columns}}
+                      </tr>
+                      {{/Rows}}
+                    </tbody>
+                  </table>
+                </td>
+                {{/SelectRow}}
                 {{#Arrow}}
                 <td colspan="2">
                   <div data-field={{.}} class="dialog-arrow {{^Value}}collapsed{{/Value}}"

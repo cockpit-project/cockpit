@@ -19,6 +19,7 @@
 
 #include "config.h"
 
+#include "cockpitwebinject.h"
 #include "cockpitwebresponse.h"
 #include "cockpitwebserver.h"
 
@@ -488,6 +489,193 @@ test_chunked_zero_length (TestCase *tc,
                    "37\r\ninspecting journals and starting and stopping services.\r\n0\r\n\r\n");
 }
 
+static GBytes *
+bytes_static (const gchar *data)
+{
+  return g_bytes_new_static (data, strlen (data));
+}
+
+static void
+test_web_filter_simple (TestCase *tc,
+                        gconstpointer data)
+{
+  CockpitWebFilter *filter;
+  const gchar *resp;
+  GBytes *content;
+  GBytes *inject;
+
+  inject = bytes_static ("<meta inject>");
+  filter = cockpit_web_inject_new ("<head>", inject);
+  cockpit_web_response_add_filter (tc->response, filter);
+  g_object_unref (filter);
+  g_bytes_unref (inject);
+
+  content = bytes_static ("<html><head><title>The Title</title></head></html>");
+  cockpit_web_response_content (tc->response, NULL, content, NULL);
+  g_bytes_unref (content);
+
+  while (cockpit_web_response_get_state (tc->response) != COCKPIT_WEB_RESPONSE_COMPLETE)
+    g_main_context_iteration (NULL, TRUE);
+
+  resp = output_as_string (tc);
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
+
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n"
+                   "c\r\n<html><head>\r\n"
+                   "d\r\n<meta inject>\r\n"
+                   "26\r\n<title>The Title</title></head></html>\r\n"
+                   "0\r\n\r\n");
+}
+
+static void
+test_web_filter_multiple (TestCase *tc,
+                          gconstpointer data)
+{
+  CockpitWebFilter *filter;
+  const gchar *resp;
+  GBytes *content;
+  GBytes *inject;
+
+  inject = bytes_static ("<meta inject>");
+  filter = cockpit_web_inject_new ("<head>", inject);
+  cockpit_web_response_add_filter (tc->response, filter);
+  g_object_unref (filter);
+  g_bytes_unref (inject);
+
+  inject = bytes_static ("<body>Body</body>");
+  filter = cockpit_web_inject_new ("</head>", inject);
+  cockpit_web_response_add_filter (tc->response, filter);
+  g_object_unref (filter);
+  g_bytes_unref (inject);
+
+  inject = bytes_static ("Prefix ");
+  filter = cockpit_web_inject_new ("<title>", inject);
+  cockpit_web_response_add_filter (tc->response, filter);
+  g_object_unref (filter);
+  g_bytes_unref (inject);
+
+  content = bytes_static ("<html><head><title>The Title</title></head></html>");
+  cockpit_web_response_content (tc->response, NULL, content, NULL);
+  g_bytes_unref (content);
+
+  while (cockpit_web_response_get_state (tc->response) != COCKPIT_WEB_RESPONSE_COMPLETE)
+    g_main_context_iteration (NULL, TRUE);
+
+  resp = output_as_string (tc);
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
+
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n"
+                   "c\r\n<html><head>\r\n"
+                   "d\r\n<meta inject>\r\n"
+                   "7\r\n<title>\r\n"
+                   "7\r\nPrefix \r\n"
+                   "18\r\nThe Title</title></head>\r\n"
+                   "11\r\n<body>Body</body>\r\n"
+                   "7\r\n</html>\r\n"
+                   "0\r\n\r\n");
+}
+
+static void
+test_web_filter_split (TestCase *tc,
+                       gconstpointer data)
+{
+  CockpitWebFilter *filter;
+  const gchar *string;
+  const gchar *resp;
+  GBytes *inject;
+  GBytes *block;
+  gsize i, x, len;
+
+  inject = bytes_static ("<meta inject>");
+  filter = cockpit_web_inject_new ("<head>", inject);
+  cockpit_web_response_add_filter (tc->response, filter);
+  g_object_unref (filter);
+  g_bytes_unref (inject);
+
+  inject = bytes_static ("<body>Body</body>");
+  filter = cockpit_web_inject_new ("</head>", inject);
+  cockpit_web_response_add_filter (tc->response, filter);
+  g_object_unref (filter);
+  g_bytes_unref (inject);
+
+  inject = bytes_static ("Prefix ");
+  filter = cockpit_web_inject_new ("<title>", inject);
+  cockpit_web_response_add_filter (tc->response, filter);
+  g_object_unref (filter);
+  g_bytes_unref (inject);
+
+  cockpit_web_response_headers (tc->response, 200, "OK", -1, NULL);
+
+  string = "<html><head><title>The Title</title></head></html>";
+  len = strlen (string);
+
+  for (i = 0, x = 1; i < len; i += x, x = 1 + (i % 4))
+    {
+      block = g_bytes_new_static (string + i, MIN (x, strlen (string + i)));
+      g_assert (cockpit_web_response_queue (tc->response, block) == TRUE);
+      g_bytes_unref (block);
+    }
+
+  cockpit_web_response_complete (tc->response);
+
+  while (cockpit_web_response_get_state (tc->response) != COCKPIT_WEB_RESPONSE_COMPLETE)
+    g_main_context_iteration (NULL, TRUE);
+
+  resp = output_as_string (tc);
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
+
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n"
+                   "1\r\n<\r\n"
+                   "2\r\nht\r\n"
+                   "4\r\nml><\r\n"
+                   "4\r\nhead\r\n"
+                   "1\r\n>\r\n"
+                   "d\r\n<meta inject>\r\n"
+                   "3\r\n<ti\r\n"
+                   "4\r\ntle>\r\n"
+                   "7\r\nPrefix \r\n"
+                   "4\r\nThe \r\n"
+                   "4\r\nTitl\r\n"
+                   "4\r\ne</t\r\n"
+                   "4\r\nitle\r\n"
+                   "4\r\n></h\r\n"
+                   "4\r\nead>\r\n"
+                   "11\r\n<body>Body</body>\r\n"
+                   "4\r\n</ht\r\n"
+                   "3\r\nml>\r\n"
+                   "0\r\n\r\n");
+}
+
+static void
+test_web_filter_passthrough (TestCase *tc,
+                             gconstpointer data)
+{
+  CockpitWebFilter *filter;
+  const gchar *resp;
+  GBytes *content;
+  GBytes *inject;
+
+  inject = bytes_static ("<meta inject>");
+  filter = cockpit_web_inject_new ("<unknown>", inject);
+  cockpit_web_response_add_filter (tc->response, filter);
+  g_object_unref (filter);
+  g_bytes_unref (inject);
+
+  content = bytes_static ("<html><head><title>The Title</title></head></html>");
+  cockpit_web_response_content (tc->response, NULL, content, NULL);
+  g_bytes_unref (content);
+
+  while (cockpit_web_response_get_state (tc->response) != COCKPIT_WEB_RESPONSE_COMPLETE)
+    g_main_context_iteration (NULL, TRUE);
+
+  resp = output_as_string (tc);
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
+
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n"
+                   "32\r\n<html><head><title>The Title</title></head></html>\r\n"
+                   "0\r\n\r\n");
+}
+
 static void
 on_response_done_not_resuable (CockpitWebResponse *response,
                                gboolean reusable,
@@ -859,6 +1047,15 @@ main (int argc,
               setup, test_abort, teardown);
   g_test_add ("/web-response/connection-close", TestCase, &fixture_connection_close,
               setup, test_connection_close, teardown);
+
+  g_test_add ("/web-response/filter/simple", TestCase, NULL,
+              setup, test_web_filter_simple, teardown);
+  g_test_add ("/web-response/filter/multiple", TestCase, NULL,
+              setup, test_web_filter_multiple, teardown);
+  g_test_add ("/web-response/filter/passthrough", TestCase, NULL,
+              setup, test_web_filter_passthrough, teardown);
+  g_test_add ("/web-response/filter/split", TestCase, NULL,
+              setup, test_web_filter_split, teardown);
 
   g_test_add ("/web-response/pop-path", TestPlain, NULL,
               setup_plain, test_pop_path, teardown_plain);

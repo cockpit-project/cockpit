@@ -396,8 +396,6 @@ define([
                     })
                     .fail(function(ex) {
                         console.warn("failed to load manifests from " + machine.address + ": " + ex);
-                        if (!machines.manifests)
-                            machines.overlay(host, { manifests: { } });
                     })
                     .always(function() {
                         request = null;

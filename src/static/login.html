@@ -83,7 +83,8 @@
                        req("sessionStorage", window) &&
                        req("JSON", window) &&
                        req("defineProperty", Object) &&
-                       req("console", window);
+                       req("console", window) &&
+                       req("pushState", window.history);
             }
 
             function trim(s) {

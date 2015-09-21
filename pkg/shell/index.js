@@ -35,6 +35,9 @@ define([
 
     var default_title = "Cockpit";
 
+    var shell_outer = window.parent === window;
+    var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
+
     /* The oops bar */
 
     var oops = null;
@@ -105,7 +108,7 @@ define([
         cockpit.logout();
     });
     $("#go-account").on("click", function() {
-        cockpit.location.go([ "@localhost", "users", "local", cockpit.user["user"] ]);
+        jump({ host: "localhost", component: "users/local", hash: "/" + cockpit.user["user"] });
     });
 
     /* User name and menu */
@@ -200,9 +203,6 @@ define([
     /* Navigation */
 
     var current_frame = null;
-    var current_location;
-    var current_hash;
-    var current_address;
 
     var ready = false;
     var machines = machis.instance();
@@ -214,11 +214,11 @@ define([
     $(machines)
         .on("ready", function(ev) {
             ready = true;
-            $(cockpit).on("locationchanged", function () {
-                navigate(true);
+            $(window).on("popstate", function(ev) {
+                navigate(ev.state, true);
             });
             build_navbar();
-            navigate(false);
+            navigate();
             $("body").show();
             phantom_checkpoint();
         })
@@ -229,156 +229,264 @@ define([
             if (machine.problem)
                 frames.remove(machine);
 
-            machine.compat = compatibility(machine);
-
             update_machines();
             if (ready)
-                navigate(false);
+                navigate();
         })
         .on("removed", function(ev, machine) {
             frames.remove(machine);
             update_machines();
         });
 
-    /* This works around issues with <base> tag and hash links */
-    $(document).on("click", "a[href]", function(ev) {
-        var href = $(ev.target).attr("href");
-        if (href && href.indexOf("#") === 0) {
-            cockpit.location = href.substring(1);
-            return false;
-        }
-        return true;
-    });
-
-    /* This works around issues with <base> tag and hash links */
-    $(document).on("click", "#machine-dropdown li a", function(ev) {
-        var address = $(this).attr("data-address");
-        if (!address)
-            return true;
-
-        var path = cockpit.location.path;
-        if (path[0] && path[0][0] == '@') {
-            path[0] = "@" + address;
-            cockpit.location.go(path, cockpit.location.options);
-        } else {
-            cockpit.location = "/@" + address;
-        }
-        phantom_checkpoint();
-        return true;
-    });
-
     /* When only one machine this operates as a link */
     $("#machine-link").on("click", function(ev) {
         if (machines.list.length == 1) {
-            cockpit.location = "/@" + machines.list[0].address;
+            jump({ host: machines.list[0].address, sidebar: true, component: "" });
             return false;
         }
     });
 
     /* Reconnect button */
     $(".curtains button").on("click", function(ev) {
-        loader.connect(current_address);
+        navigate(null, true);
     });
 
-    function navigate(reconnect) {
-        var path = cockpit.location.path.slice();
-        var options = cockpit.location.options;
+    /* Handles an href link as seen below */
+    $(document).on("click", "a[href]", function(ev) {
+        var a = this;
+        if (window.location.host === a.host) {
+            jump(a.getAttribute('href'));
+            ev.preventDefault();
+            phantom_checkpoint();
+        }
+    });
 
-        var address = null;
-        var machine = null;
+    /*
+     * Navigation is driven by state objects, which are used with pushState()
+     * and friends. The state is the canonical navigation location, and not
+     * the URL. Only when no state has been pushed or we are arriving from
+     * a link, do we parse the state from the URL.
+     *
+     * Each state object has:
+     *   host: a machine host
+     *   component: the stripped component to load
+     *   hash: the hash to pass to the component
+     *   sidebar: set to true to hint that we want a component with a sidebar
+     *
+     * If state.sidebar is set, and no component has yet been chosen for the
+     * given state, then we try to find one that would show a sidebar.
+     */
+
+    /* Build an href for use in an <a> */
+    function href(state, sidebar) {
+        var string = encode(state, sidebar);
+        if (shell_embedded)
+            return "#" + string;
+        else
+            return string;
+    }
+
+    /* Encode navigate state into a string */
+    function encode(state, sidebar) {
+        var path = [];
+        if (state.host && (sidebar || state.host !== "localhost"))
+            path.push("@" + state.host);
+        if (state.component)
+            path.push.apply(path, state.component.split("/"));
+        var string = cockpit.location.encode(path);
+        if (state.hash && state.hash !== "/")
+            string += "#" + state.hash;
+        return string;
+    }
+
+    /* Decodes navigate state from a string */
+    function decode(string) {
+        var state = { version: "v1", hash: "" };
+        var pos = string.indexOf("#");
+        if (pos !== -1) {
+            state.hash = string.substring(pos + 1);
+            string = string.substring(0, pos);
+        }
+        if (string[0] != '/')
+            string = "/" + string;
+        var path = cockpit.location.decode(string);
+        if (path[0] && path[0][0] == "@") {
+            state.host = path.shift().substring(1);
+            state.sidebar = true;
+        } else {
+            state.host = "localhost";
+        }
+        if (path.length && path[path.length - 1] == "index")
+            path = path.pop();
+        state.component = path.join("/");
+        return state;
+    }
+
+    function retrieve() {
+        var state = window.history.state;
+        if (!state || state.version !== "v1") {
+            if (shell_embedded)
+                state = decode(window.location.hash);
+            else
+                state = decode(window.location.pathname + window.location.hash);
+        }
+        return state;
+    }
+
+    /* Jumps to a given navigate state */
+    function jump(state, replace) {
+        if (typeof (state) === "string")
+            state = decode(state);
+
+        var current = retrieve();
+
+        /* Make sure we have the data we need */
+        if (!state.host)
+            state.host = current.host || "localhost";
+        if (!("component" in state))
+            state.component = current.component || "";
+
+        var target;
+        var history = window.history;
+
+        if (shell_outer)
+            target = encode(state);
+        else
+            target = window.location;
+        if (replace) {
+            history.replaceState(state, "", target);
+            return false;
+        }
+
+        if (state.host !== current.host ||
+            state.component !== current.component ||
+            state.hash !== current.hash) {
+            history.pushState(state, "", target);
+            navigate(state, true);
+            return true;
+        }
+
+        return false;
+    }
+
+    /* Handles navigation */
+    function navigate(state, reconnect) {
+        var machine;
 
         /* If this is a watchdog problem let the dialog handle it */
         if (watchdog_problem)
             return;
 
-        /* Main dashboard listing */
-        var listing = local_manifests["dashboard"];
+        /* phantomjs has a problem retrieving state, so we allow it to be passed in */
+        if (!state)
+            state = retrieve();
+        machine = machines.lookup(state.host);
 
-        var at = 0;
-        if (path.length === at) {
+        /* No such machine */
+        if (!machine) {
+            machine = {
+                key: state.host,
+                address: state.host,
+                label: state.host,
+                state: "failed",
+                problem: "not-found",
+            };
 
-            /*
-             * When more than one machine, we show dashboard by default
-             * otherwise we show the server
-             */
-            if (!listing || machines.list.length <= 1)
-                path.push("@localhost");
+        /* Asked to reconnect to the machine */
+        } else if (reconnect && machine.state !== "connected") {
+            loader.connect(state.host);
         }
 
-        if (path[at] && path[at][0] == '@') {
-            address = path[at].substring(1);
-            at++;
-        }
+        var compiled = compile(machine);
+        if (machine.manifests && !state.component)
+            state.component = choose_component(state, compiled);
 
-        if (address) {
-            machine = machines.lookup(address);
-            if (!machine) {
-                machine = {
-                    key: address,
-                    address: address,
-                    label: address,
-                    state: "failed",
-                    problem: "not-found"
-                };
-            } else if (reconnect && machine.problem) {
-                loader.connect(address);
-            }
-
-            /* The default is to show the server */
-            if (path.length === at)
-                path.push.apply(path, ["system", "host"]);
-        } else {
-
-            /* The default is to show main dashboard */
-            if (path.length === at)
-                path.push.apply(path, ["dashboard", "list"]);
-        }
-
-        if (path.length == at + 1)
-            path.push("index");
-
-        var component = path[at] + "/" + path[at + 1];
-        at += 2;
-
-        current_location = cockpit.location.encode(path.slice(0, at));
-        current_hash = cockpit.location.encode(path.slice(at));
-        current_address = address;
-
-        update_navbar(machine, component);
-        update_sidebar(machine, component);
-        update_frame(machine, component, current_hash, options);
+        update_navbar(machine, state, compiled);
+        update_sidebar(machine, state, compiled);
+        update_frame(machine, state, compiled);
 
         recalculate_layout();
+
+        /* Just replace the state, and URL */
+        jump(state, true);
+    }
+
+    function choose_component(state, compiled) {
+        var item;
+
+        if (machines.list.length <= 1)
+            state.sidebar = true;
+
+        /* See if we should show a dashboard */
+        if (!state.sidebar) {
+            item = ordered(compiled.items, "dashboard")[0];
+            if (item)
+                return item.path;
+        }
+
+        /* See if we can find something with currently selected label */
+        var label = $("#sidebar li.active a").text();
+        if (label) {
+            item = search(compiled.items, "label", label);
+            if (item)
+                return item.path;
+        }
+
+        /* Go for the first item */
+        item = ordered(compiled.items, "menu")[0];
+        if (item)
+            return item.path;
+
+        return "system/host";
     }
 
     /* Navigation widgets */
 
     function build_navbar() {
-        function links(comp) {
+        var navbar = $("#content-navbar");
+
+        function links(component) {
+            var a = $("<a>")
+                .attr("href", href({ host: "localhost", component: component.path }))
+                .text(component.label);
             return $("<li class='dashboard-link'>")
-                .attr("data-component", comp.path)
-                .append($("<a>").attr("href", "#/" + comp.path).text(comp.label));
+                .attr("data-component", component.path)
+                .append(a);
         }
 
-        var dashboard = components(local_manifests, "dashboard").map(links);
-        $("#content-navbar").append(dashboard);
+        var machine, items = { };
+        if (shell_embedded) {
+            navbar.hide();
+        } else {
+            components(local_manifests, "dashboard", items);
+            navbar.append(ordered(items).map(links));
+        }
     }
 
-    function update_navbar(machine, component) {
-        $("#machine-avatar").attr("src", machine && machine.avatar ? encodeURI(machine.avatar) : "../shell/images/server-small.png");
-        $("#machine-dropdown").toggleClass("active", !!machine);
+    function update_navbar(machine, state, compiled) {
+        $(".dashboard-link").each(function() {
+            var el = $(this);
+            el.toggleClass("active", el.attr("data-component") === state.component);
+        });
 
-        var label, title;
+        var item = compiled.items[state.component];
+        if (item && item.section == "dashboard") {
+            delete state.sidebar;
+            machine = null;
+        }
+
+        $("#machine-avatar").attr("src", machine && machine.avatar ? encodeURI(machine.avatar) :
+                                            "../shell/images/server-small.png");
+
+        var label;
         if (machine) {
             label = machine.label;
-            title = machine.label;
         } else if (machines.list.length == 1) {
             label = machines.list[0].label;
         } else {
             label = _("Machines");
         }
         $("#machine-link span").text(label);
-        $("title").text(title || default_title);
 
         var color;
         if (machines.list.length == 1 || !machine)
@@ -387,50 +495,48 @@ define([
             color = machine.color || "";
         $("#machine-color").css("border-left-color", color);
 
-        $(".dashboard-link").each(function() {
-            var el = $(this);
-            el.toggleClass("active", el.attr("data-component") === component);
-        });
-    }
+        $("#machine-dropdown").toggleClass("active", !!machine);
 
-    function update_sidebar(machine, current) {
+        /* Decide when to show the sidebar */
         var sidebar = $("#sidebar");
 
-        if (!machine || machine.state != "connected" || !machine.manifests) {
+        if (machine && machine.state == "connected")
+            sidebar.show();
+        else
             sidebar.hide();
-            recalculate_layout();
-            return;
-        }
-
-        /* TODO: We need to fix races here with quick navigation in succession */
-        function links(component) {
-            var href = "#";
-            if (machine.address != "localhost" || component.path) {
-                href += "/@" + machine.address;
-                if (component.path)
-                    href += "/" + component.path;
-            }
-            return $("<li>")
-                .toggleClass("active", current === component.path)
-                .append($("<a>")
-                    .attr("href", encodeURI(href))
-                    .text(cockpit.gettext(component.label)));
-        }
-
-        var menu = components(machine.manifests, "menu").map(links);
-        $("#sidebar-menu").empty().append(menu);
-
-        var tools = components(machine.manifests, "tools").map(links);
-        $("#sidebar-tools").empty().append(tools);
-
-        sidebar.show();
-        recalculate_layout();
     }
 
-    function update_frame(machine, component, hash, options) {
+    function update_sidebar(machine, state, compiled) {
+        function links(component) {
+            return $("<li>")
+                .toggleClass("active", state.component === component.path)
+                .append($("<a>")
+                    .attr("href", href({ host: machine.address, component: component.path }))
+                    .text(component.label));
+        }
+
+        var menu = ordered(compiled.items, "menu").map(links);
+        $("#sidebar-menu").empty().append(menu);
+
+        var tools = ordered(compiled.items, "tools").map(links);
+        $("#sidebar-tools").empty().append(tools);
+    }
+
+    function update_title(label, machine) {
+        if (label)
+            label += " - ";
+        else
+            label = "";
+        var suffix = default_title;
+        if (machine && machine.label)
+            suffix = machine.label;
+        document.title = label + suffix;
+    }
+
+    function update_frame(machine, state, compiled) {
         var title, message, connecting;
 
-        if (machine && machine.state != "connected") {
+        if (machine.state != "connected") {
             $(current_frame).hide();
             current_frame = null;
 
@@ -456,34 +562,43 @@ define([
             $(".curtains p").text(message);
             $("#machine-spinner").hide();
 
+            update_title(null, machine);
+
             /* Fall through when connecting, and allow frame to load at same time*/
             if (!connecting)
                 return;
-        } else {
-            $(".curtains").hide();
-            $("#machine-spinner").toggle(current_frame && !$(current_frame).attr("data-ready"));
         }
 
-        if (hash == "/")
+        var hash = state.hash;
+        if (hash == "/" || !hash)
             hash = "";
 
         /* Old cockpit packages, used to be in shell/shell.html */
-        var compat;
-        if (machine && machine.compat) {
-            compat = machine.compat[component];
+        var compat, component = state.component;
+        if (machine && compiled.compat) {
+            compat = compiled.compat[component];
             if (compat) {
                 component = "shell/shell";
                 hash = compat;
             }
         }
 
-        hash = cockpit.location.encode(hash, options);
-
-        var frame = frames.lookup(machine, component, hash);
+        var frame;
+        if (component)
+            frame = frames.lookup(machine, component, hash);
         if (frame != current_frame) {
             $(current_frame).css('display', 'none');
             current_frame = frame;
             $(frame).css('display', 'block');
+        }
+
+        var label, item;
+        if (machine.state == "connected") {
+            $(".curtains").hide();
+            $("#machine-spinner").toggle(frame && !$(frame).attr("data-ready"));
+            item = compiled.items[state.component];
+            label = item ? item.label : "";
+            update_title(label, machine);
         }
 
         phantom_checkpoint();
@@ -510,6 +625,7 @@ define([
                     .attr("role", "menuitem")
                     .attr("tabindex", "-1")
                     .attr("data-address", machine.address)
+                    .attr("href", href({ host: machine.address }, true))
                     .append(avatar, text));
             });
         list.empty().append(links);
@@ -541,16 +657,16 @@ define([
     function Frames() {
         var self = this;
 
-        /* Lists of frames, by address */
+        /* Lists of frames, by host */
         var iframes = { };
 
         self.remove = function remove(machine) {
-            var address = machine.address;
-            if (!address)
-                address = "localhost";
-            var list = iframes[address];
+            var host = machine.address;
+            if (!host)
+                host = "localhost";
+            var list = iframes[host];
             if (list) {
-                delete iframes[address];
+                delete iframes[host];
                 $.each(list, function(i, frame) {
                     $(frame.contentWindow).off();
                     $(frame).remove();
@@ -561,38 +677,46 @@ define([
         function frame_ready(frame, count) {
             var ready = false;
 
+            window.clearTimeout(frame.timer);
+            frame.timer = null;
+
             try {
                 ready = $("body", frame.contentWindow.document).is(":visible");
             } catch(ex) {
                 ready = true;
             }
 
+            if (!count)
+                count = 0;
             count += 1;
             if (count > 50)
                 ready = true;
 
             if (ready) {
-                frame.setAttribute('data-ready', '1');
-                navigate();
+                if (frame.getAttribute("data-ready") != "1") {
+                    frame.setAttribute("data-ready", "1");
+                    if (count > 0)
+                        navigate();
+                }
             } else {
-                window.setTimeout(function() {
+                frame.timer = window.setTimeout(function() {
                     frame_ready(frame, count + 1);
                 }, 100);
             }
         }
 
         self.lookup = function lookup(machine, component, hash) {
-            var address;
+            var host;
             if (machine)
-                address = machine.address;
-            if (!address)
-                address = "localhost";
+                host = machine.address;
+            if (!host)
+                host = "localhost";
 
-            var list = iframes[address];
+            var list = iframes[host];
             if (!list)
-                iframes[address] = list = { };
+                iframes[host] = list = { };
 
-            var name = "cockpit1:" + address + "/" + component;
+            var name = "cockpit1:" + host + "/" + component;
             var frame = list[component];
             var wind = window.frames[name];
 
@@ -601,7 +725,6 @@ define([
                 frame = wind.frameElement;
                 frame.url = frame.getAttribute('src').split("#")[0];
                 list[component] = frame;
-                frame_ready(frame, 0);
 
             /* Need to create a new frame */
             } else if (!frame) {
@@ -615,23 +738,29 @@ define([
                 var base, checksum;
                 if (machine)
                     checksum = machine.checksum;
-                if (address == "localhost")
+                if (host === "localhost")
                     base = "..";
                 else if (checksum)
                     base = "../../" + checksum;
                 else
-                    base = "../../@" + address;
+                    base = "../../@" + host;
 
-                frame.url = base + "/" + component + ".html";
+                frame.url = base + "/" + component;
+                if (component.indexOf("/") === -1)
+                    frame.url += "/index";
+                frame.url += ".html";
+
                 $("#content").append(frame);
                 list[component] = frame;
-                frame_ready(frame, 0);
             }
 
-            var src = frame.url + "#" + hash;
+            var src = frame.url;
+            if (hash)
+                src += "#" + hash;
             if (frame.getAttribute('src') != src)
                 frame.setAttribute('src', src);
 
+            frame_ready(frame);
             return frame;
         };
     }
@@ -672,36 +801,24 @@ define([
         });
 
         function perform_jump(child, control) {
-            if (!current_frame || current_frame.contentWindow != child)
-                return;
-            var address = control.host;
-            if (address === undefined)
-                address = current_address || "localhost";
-            var path = [];
-            if (address)
-                path.push("@" + address);
-            if (control.location) {
-                var str = control.location;
-                if (str.indexOf("/") === 0)
-                    str = str.substring(1);
-                path.push.apply(path, str.split("/"));
+            if (child !== window) {
+                if (!current_frame || current_frame.contentWindow != child)
+                    return;
             }
-            cockpit.location.go(path);
+            var str = control.location || "";
+            if (str[0] != "/")
+                str = "/" + str;
+            if (control.host)
+                str = "/@" + encodeURIComponent(control.host) + str;
+            jump(str);
         }
 
         function perform_track(child) {
             if (!current_frame || current_frame.contentWindow != child)
                 return;
-            var hash;
             /* Ignore tracknig for old shell code */
             if (child.name.indexOf("/shell/shell") === -1) {
-                hash = child.location.href.split('#')[1] || '';
-                if (hash && hash[0] !== '/')
-                    hash = '/' + hash;
-                if (hash !== current_hash) {
-                    current_hash = hash;
-                    window.location.hash = "#" + current_location + hash;
-                }
+                jump({ hash: child.location.href.split('#')[1] || '' });
             }
         }
 
@@ -727,7 +844,8 @@ define([
             var child = source.window;
             cockpit.kill(null, child.name);
             var frame = child.frameElement;
-            frame.removeEventListener("load", on_load);
+            if (frame)
+                frame.removeEventListener("load", on_load);
             child.removeEventListener("unload", on_unload);
             child.removeEventListener("hashchange", on_hashchange);
             delete source_by_seed[source.channel_seed];
@@ -735,10 +853,10 @@ define([
         }
 
         function register(child) {
-            var address, name = child.name || "";
+            var host, name = child.name || "";
             if (name.indexOf("cockpit1:") === 0)
-                address = name.substring(9).split("/")[0];
-            if (!name || !address) {
+                host = name.substring(9).split("/")[0];
+            if (!name || !host) {
                 console.warn("invalid child window name", child, name);
                 return;
             }
@@ -749,7 +867,7 @@ define([
                 name: name,
                 window: child,
                 channel_seed: seed,
-                default_host: address
+                default_host: host
             };
             source_by_seed[seed] = source;
             source_by_name[name] = source;
@@ -811,7 +929,7 @@ define([
                     /* watchdog handles current host for now */
                     if (control.hint == "restart" && control.host != cockpit.transport.host) {
                         loader.expect_restart(control.host);
-                        perform_jump({ location: "/", host: null });
+                        jump({ host: "localhost", component: "" });
                     }
                     return;
                 } else if (control.command == "oops") {
@@ -847,33 +965,29 @@ define([
         };
     }
 
-    function components(manifests, section) {
-        var list = [];
-        $.each(manifests, function(name, manifest) {
-            $.each(manifest[section] || { }, function(ident, info) {
-                var path;
-                if (info.path) {
-                    path = info.path.replace(/\.html$/, "");
-                    if (path.indexOf("/") === -1)
-                        path = name + "/" + path;
-                } else {
-                    path = name + "/" + ident;
-                }
-                list.push({
-                    path: path,
-                    label: cockpit.gettext(info.label),
+    function components(manifests, section, items) {
+        $.each(manifests || { }, function(name, manifest) {
+            $.each(manifest[section] || { }, function(prop, info) {
+                var item = {
+                    section: section,
+                    label: cockpit.gettext(info.label) || prop,
                     order: info.order === undefined ? 1000 : info.order
-                });
+                };
+                if (info.path)
+                    item.path = info.path.replace(/\.html$/, "");
+                else
+                    item.path = name + "/" + prop;
+                if (item.path.indexOf("/") === -1)
+                    item.path = name + "/" + item.path;
+                if (item.path.slice(-6) == "/index")
+                    item.path = item.path.slice(0, -6);
+                items[item.path] = item;
             });
         });
-
-        /* Everything gets sorted by order */
-        list.sort(function(a, b) { return a.order - b.order; });
-        return list;
     }
 
     function compatibility(machine) {
-        if (!machine || !machine.manifests || machine.address === "localhost")
+        if (!machine.manifests || machine.address === "localhost")
             return null;
 
         var shell = machine.manifests["shell"] || { };
@@ -899,6 +1013,37 @@ define([
             mapping["docker/containers"] = "/containers";
 
         return mapping;
+    }
+
+    function compile(machine) {
+        var compiled = {
+            items: { },
+            compat: compatibility(machine)
+        };
+        components(machine.manifests, "tools", compiled.items);
+        components(machine.manifests, "dashboard", compiled.items);
+        components(machine.manifests, "menu", compiled.items);
+        return compiled;
+    }
+
+    function ordered(object, section) {
+        var x, list = [];
+        if (!object)
+            object = { };
+        for (x in object) {
+            if (!section || object[x].section === section)
+                list.push(object[x]);
+        }
+        list.sort(function(a, b) { return a.order - b.order; });
+        return list;
+    }
+
+    function search(object, prop, value) {
+        var x;
+        for (x in object) {
+            if (object[x][prop] === value)
+                return object[x];
+        }
     }
 
     return module;

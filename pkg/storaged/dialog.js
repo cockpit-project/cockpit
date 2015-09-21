@@ -41,9 +41,22 @@ define([
                 f.ValueMB = (f.Value / (1024*1024)).toFixed(0);
         });
 
+        function toggle_arrow(event) {
+            var collapsed = $(this).hasClass('collapsed');
+            if (collapsed) {
+                $(this).removeClass('collapsed');
+                $(this).find('.fa').removeClass('fa-angle-right').addClass('fa-angle-down');
+            } else {
+                $(this).addClass('collapsed');
+                $(this).find('.fa').removeClass('fa-angle-down').addClass('fa-angle-right');
+            }
+            update_visibility();
+        }
+
         var $dialog = $(mustache.render(storage_dialog_tmpl, def));
         $('body').append($dialog);
         $dialog.find('.selectpicker').selectpicker();
+        $dialog.find('.dialog-arrow').on('click', toggle_arrow);
 
         var invisible = { };
 
@@ -54,7 +67,7 @@ define([
         }
 
         function get_name(f) {
-            return f.TextInput || f.PassInput || f.SelectOne || f.SelectMany || f.SizeInput || f.CheckBox;
+            return f.TextInput || f.PassInput || f.SelectOne || f.SelectMany || f.SizeInput || f.CheckBox || f.Arrow;
         }
 
         function get_field_values() {
@@ -79,6 +92,8 @@ define([
                         if (e.checked)
                             vals[n].push(f.Options[i].value);
                     });
+                } else if (f.Arrow) {
+                    vals[n] = !$f.hasClass('collapsed');
                 }
             });
 

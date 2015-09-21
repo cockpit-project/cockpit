@@ -764,6 +764,16 @@
                   </ul>
                 </td>
                 {{/SelectMany}}
+                {{#Arrow}}
+                <td colspan="2">
+                  <div data-field={{.}} class="dialog-arrow {{^Value}}collapsed{{/Value}}"
+                       style="color:black;cursor:pointer">
+                    <span class="fa {{^Value}}fa-angle-right{{/Value}}{{#Value}}fa-angle-down{{/Value}}"
+                          style="width:1em"></span>
+                    <span>{{Title}}</span>
+                  </div>
+                </td>
+                {{/Arrow}}
               </tr>
               {{/Fields}}
             </table>

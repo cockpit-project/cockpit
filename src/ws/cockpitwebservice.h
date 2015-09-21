@@ -56,7 +56,9 @@ void                 cockpit_web_service_sideband    (CockpitWebService *self,
 
 void                 cockpit_web_service_resource    (CockpitWebService *self,
                                                       GHashTable *headers,
-                                                      CockpitWebResponse *response);
+                                                      CockpitWebResponse *response,
+                                                      const gchar *where,
+                                                      const gchar *path);
 
 void                 cockpit_web_service_noauth      (GIOStream *io_stream,
                                                       const gchar *path,

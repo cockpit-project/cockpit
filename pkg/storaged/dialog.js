@@ -34,6 +34,7 @@ define([
     }
 
     function dialog_open(def) {
+        var dfd = $.Deferred();
 
         // Convert initial values for SizeInput fields to MB.
         def.Fields.forEach(function (f) {
@@ -155,10 +156,6 @@ define([
             update_visibility();
         });
 
-        $dialog.on('hidden.bs.modal', function () {
-            $dialog.remove();
-        });
-
         $dialog.find('button[data-action="apply"]').on('click', function () {
             var vals = get_validated_field_values();
             if (vals !== null) {
@@ -166,19 +163,31 @@ define([
                 if (promise) {
                     $dialog.dialog('wait', promise);
                     promise
-                        .done(function () {
+                        .done(function (result) {
                             $dialog.modal('hide');
+                            $dialog.remove();
+                            dfd.resolve(vals, result);
                         })
                         .fail(function (err) {
                             $dialog.dialog('failure', err);
                         });
-                } else
+                } else {
                     $dialog.modal('hide');
+                    $dialog.remove();
+                    dfd.resolve(vals);
+                }
             }
+        });
+
+        $dialog.find('button[data-action="cancel"]').on('click', function () {
+            $dialog.modal('hide');
+            dfd.reject();
         });
 
         update_visibility();
         $dialog.modal('show');
+
+        return dfd.promise();
     }
 
     $(init_dialogs);

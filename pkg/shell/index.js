@@ -76,11 +76,13 @@ define([
     function brand(id) {
         var os_release = JSON.parse(window.localStorage['os-release'] || "{}");
 
-        var elt = $(id)[0];
-        if (!elt)
+        var style, elt = $(id)[0];
+        if (elt)
+            style = window.getComputedStyle(elt);
+        if (!style)
             return;
 
-        var len, content = window.getComputedStyle(elt).content;
+        var len, content = style.content;
         if (content && content != "none") {
             len = content.length;
             if ((content[0] === '"' || content[0] === '\'') &&

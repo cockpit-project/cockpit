@@ -360,7 +360,7 @@ test_authenticate (TestCase *test,
 
   include_cookie_as_if_client (out_headers, out_headers);
 
-  service = cockpit_auth_check_cookie (test->auth, "cockpit", out_headers);
+  service = cockpit_auth_check_cookie (test->auth, "/cockpit", out_headers);
   g_assert (service != NULL);
 
   creds = cockpit_web_service_get_creds (service);

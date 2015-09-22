@@ -79,6 +79,8 @@ BuildRequires: gdb
 %if %{defined gitcommit}
 BuildRequires: npm
 BuildRequires: nodejs
+# For kerberos tests
+BuildRequires: krb5-server
 %endif
 
 # For selinux

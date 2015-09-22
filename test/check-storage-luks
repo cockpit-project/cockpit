@@ -28,7 +28,7 @@ class TestStorage(StorageCase):
 
         mount_point_secret = "/run/secret"
 
-        self.login_and_go("/storage/devices")
+        self.login_and_go("/storage")
 
         # Add a disk and partition it
         m.add_disk("50M", serial="MYDISK")

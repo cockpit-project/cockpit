@@ -48,7 +48,7 @@ class TestStorage(StorageCase):
                     return False
             return True
 
-        self.login_and_go("/storage/devices")
+        self.login_and_go("/storage")
         b.wait_in_text("#drives", "VirtIO")
 
         b.eval_js("""
@@ -74,7 +74,7 @@ class TestStorage(StorageCase):
         b.wait_in_text(detail_row_value(6), "/dev/sdb")
 
         # Check that neither is offered as a free block device
-        b.go("/")
+        b.go("#/")
         b.wait_visible('#create-volume-group')
         b.click('#create-volume-group')
         self.dialog_wait_open()
@@ -82,7 +82,7 @@ class TestStorage(StorageCase):
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        b.go("/sda")
+        b.go("#/sda")
         b.wait_visible('#storage-detail')
 
         # Switch on multipathd.  A primary device should appear.
@@ -90,7 +90,7 @@ class TestStorage(StorageCase):
         b.wait_text(detail_row_value(5), "/dev/mapper/mpatha")
 
         # Check that (exactly) the primary device is offered as free
-        b.go("/")
+        b.go("#/")
         b.wait_visible('#create-volume-group')
         b.click('#create-volume-group')
         self.dialog_wait_open()

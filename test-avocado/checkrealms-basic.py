@@ -37,7 +37,7 @@ class checkrealms_basic(cockpit.Test):
 
         default_user = "admin"
         b = self.browser
-        b.login_and_go("server", user=default_user, href="/system/host")
+        b.login_and_go("/system", user=default_user)
 
         def wait_number_domains(n):
             if n == 0:

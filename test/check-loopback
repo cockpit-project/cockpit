@@ -30,6 +30,6 @@ class TestLoopback(MachineCase):
         m = self.machine
 
         m.spawn("/usr/libexec/cockpit-ws --local-ssh --no-tls", "cockpit-ws");
-        b.login_and_go("/system/host", user="admin")
+        b.login_and_go("/system", user="admin")
 
 test_main()

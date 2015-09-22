@@ -29,7 +29,7 @@ class TestStorage(StorageCase):
         mount_point_1 = "/run/mount1"
         mount_point_2 = "/run/mount2"
 
-        self.login_and_go("/storage/devices")
+        self.login_and_go("/storage")
 
         m.add_disk("50M", serial="DISK1")
         m.add_disk("50M", serial="DISK2")
@@ -100,7 +100,7 @@ class TestStorage(StorageCase):
         mount_point_1 = "/run/mount1"
         mount_point_2 = "/run/mount2"
 
-        self.login_and_go("/storage/devices")
+        self.login_and_go("/storage")
 
         m.add_disk("50M", serial="DISK1")
         m.add_disk("50M", serial="DISK2")

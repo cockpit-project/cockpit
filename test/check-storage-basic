@@ -26,7 +26,7 @@ class TestStorage(StorageCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("/storage/devices")
+        self.login_and_go("/storage")
         b.wait_in_text("#drives", "VirtIO")
 
         # Add a disk, partition it, format it, and finally remove it.
@@ -51,7 +51,7 @@ class TestStorage(StorageCase):
         m.execute('mke2fs -q /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL-part1')
         b.wait_in_text("#content", "File System")
 
-        b.go("/")
+        b.go("#/")
         b.wait_visible('#storage')
         b.wait_in_text("#drives", "MYSERIAL")
         m.execute('udevadm settle')

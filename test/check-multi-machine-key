@@ -102,7 +102,7 @@ class TestMultiMachineKeyAuth(MachineCase):
         m1 = self.machine
         m2 = self.machine2
 
-        self.login_and_go("/dashboard/list", host=None)
+        self.login_and_go("/dashboard")
         inject_extras(b)
         wait_dashboard_addresses (b, [ "localhost" ])
 
@@ -126,7 +126,7 @@ class TestMultiMachineKeyAuth(MachineCase):
         m1.execute("chown -R admin:admin /home/admin/.ssh")
 
         # Server is marked as down.
-        b.login_and_go("/dashboard/list", host=None)
+        b.login_and_go("/dashboard")
         inject_extras(b)
         wait_dashboard_addresses (b, [ "localhost", m2.address ])
         b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-error.png')
@@ -153,12 +153,12 @@ class TestMultiMachineKeyAuth(MachineCase):
         # Server is up.
         b.click("#dashboard-hosts a[data-address='%s']" % m2.address)
         b.switch_to_top()
-        b.wait_js_cond('window.location.hash != "#/dashboard/list"')
-        b.enter_page("/system/host", host=m2.address)
+        b.wait_js_cond('window.location.pathname != "/dashboard"')
+        b.enter_page("/system", host=m2.address)
         b.wait_text_not("#system_information_hostname_button", "")
         b.switch_to_top()
-        b.go("/dashboard/list")
-        b.enter_page("/dashboard/list")
+        b.go("/dashboard")
+        b.enter_page("/dashboard")
         b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-small.png')
 
         # Logout

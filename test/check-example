@@ -25,7 +25,7 @@ class TestExample(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("/system/host")
+        self.login_and_go("/system")
         b.wait_js_cond("$('#settings a').length != 0")
 
 test_main()

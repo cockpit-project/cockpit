@@ -41,7 +41,7 @@ class TestStorage(StorageCase):
         mount_point_foo = "/run/foo"
         mount_point_bar = "/run/bar"
 
-        self.login_and_go("/storage/devices")
+        self.login_and_go("/storage")
 
         # Add a disk
         m.add_disk("50M", serial="MYDISK")
@@ -88,7 +88,7 @@ class TestStorage(StorageCase):
               return low <= ratio && ratio <= high;
             })""", sel, low, high)
 
-        b.go("/")
+        b.go("#/")
         b.wait_in_text("#storage_mounts", mount_point_bar)
         bar_selector = '#storage_mounts tr:contains("%s") td:nth-child(4)' % mount_point_bar
         wait_ratio_in_range(bar_selector, 0.0, 0.1)

@@ -150,9 +150,19 @@ function ph_text_is (sel, text)
     return ph_text(sel) == text;
 }
 
-function ph_go (hash)
-{
-    window.location.hash = hash;
+function ph_go(href) {
+    if (href.indexOf("#") === 0) {
+        window.location.hash = href;
+
+    } else {
+        if (!window.name.indexOf("cockpit1") === 0)
+            throw "ph_go() called in non cockpit window";
+        var control = {
+            command: "jump",
+            location: href
+        };
+        window.parent.postMessage("\n" + JSON.stringify(control), "*");
+    }
 }
 
 function ph_focus(sel)

@@ -24,8 +24,9 @@ class TestMenu(MachineCase):
     def testBasic(self):
         b = self.browser
 
-        self.login_and_go(None)
+        self.login_and_go("/system")
 
+        b.switch_to_top()
         b.click('#content-user-name')
         b.wait_visible('a[data-target="#about"]')
         b.click('a[data-target="#about"]')

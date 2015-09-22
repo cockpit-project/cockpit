@@ -97,12 +97,12 @@ class Browser:
     def title(self):
         return self.phantom.do('return document.title');
 
-    def open(self, page, href=None, url=None, port=9090, host="localhost"):
+    def open(self, href):
         """
         Load a page into the browser.
 
         Arguments:
-          page: The id of the Cockpit page to load, such as "/dashboard/list".
+          page: The path of the Cockpit page to load, such as "/dashboard".
           url: The full URL to load.
 
         Either PAGE or URL needs to be given.
@@ -110,21 +110,15 @@ class Browser:
         Raises:
           Error: When a timeout occurs waiting for the page to load.
         """
-        if not href:
-            href = "/" + (page or "")
-        if host and "@" not in href:
-            href = "/@" + host + href
-        if not url:
-            url = "/#%s" % (href, )
-        if url.startswith("/"):
-            url = "http://%s:%d%s" % (self.address, port, url)
+        if href.startswith("/"):
+            href = "http://%s:9090%s" % (self.address, href)
 
         def tryopen(hard=False):
             try:
                 if self.phantom:
                     self.phantom.kill()
                 self.phantom = Phantom("en_US.utf8")
-                self.phantom.open(url)
+                self.phantom.open(href)
                 return True
             except:
                 if hard:
@@ -305,7 +299,7 @@ class Browser:
         self.click(sel + " " + button)
         self.wait_not_visible(sel)
 
-    def enter_page(self, id, host="localhost"):
+    def enter_page(self, path, host=None):
         """Wait for a page to become current.
 
         Arguments:
@@ -313,11 +307,11 @@ class Browser:
             id: The identifier the page.  This is a string starting with "/"
                 For old cockpit this may be an old style page identifier.
         """
-        assert id.startswith("/")
+        assert path.startswith("/")
         if host:
-            frame = host + id
+            frame = host + path
         else:
-            frame = "localhost" + id
+            frame = "localhost" + path
         frame = "cockpit1:" + frame
 
         self.switch_to_top()
@@ -342,10 +336,15 @@ class Browser:
         else:
             self.click(sel + ' button:first-child');
 
-    def login_and_go(self, page, href=None, user=None, host="localhost"):
+    def login_and_go(self, path=None, user=None, host=None):
         if user is None:
             user = self.default_user
-        self.open(page, href=href, host=host)
+        href = path
+        if not href:
+            href = "/"
+        if host:
+            href = "/@" + host + href
+        self.open(href)
         self.wait_visible("#login")
         self.set_val('#login-user-input', user)
         self.set_val('#login-password-input', "foobar")
@@ -353,15 +352,15 @@ class Browser:
         self.expect_reload()
         self.wait_present('#content')
         self.wait_visible('#content')
-        if page:
-            self.enter_page(page, host=host)
+        if path:
+            self.enter_page(path.split("#")[0], host=host)
 
     def logout(self):
         self.switch_to_top()
         self.click('#go-logout')
         self.expect_reload()
 
-    def relogin(self, page, user=None):
+    def relogin(self, path=None, user=None):
         if user is None:
             user = self.default_user
         self.logout()
@@ -372,8 +371,12 @@ class Browser:
         self.expect_reload()
         self.wait_present('#content')
         self.wait_visible('#content')
-        if page:
-            self.enter_page(page)
+        if path:
+            if path.startswith("/@"):
+                host = path[2:].split("/")[0]
+            else:
+                host = None
+            self.enter_page(path.split("#")[0], host=host)
 
     def snapshot(self, title, label=None):
         """Take a snapshot of the current screen and save it as a PNG.
@@ -478,9 +481,9 @@ systemctl start docker
         else:
             self.machine.execute("systemctl restart cockpit-testing.socket")
 
-    def login_and_go(self, page, href=None, user=None, host="localhost"):
+    def login_and_go(self, path, user=None, host=None):
         self.start_cockpit(host)
-        self.browser.login_and_go(page, href=href, user=user, host=host)
+        self.browser.login_and_go(path, user=user, host=host)
 
     allowed_messages = [
         # This is a failed login, which happens every time

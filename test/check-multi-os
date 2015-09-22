@@ -92,18 +92,19 @@ class TestMultiOS(MachineCase):
 
         self.allow_journal_messages(".*: .* host key for server is not known: .*")
 
-        self.login_and_go("/dashboard/list", host=None)
+        self.login_and_go("/dashboard")
         inject_extras(dev_b)
 
         dev_dashboard_addresses = [ "localhost" ]
         wait_dashboard_addresses (dev_b, dev_dashboard_addresses)
 
-        def stock_login_and_go(browser, page, href=None, user=None, host="localhost"):
-            if user is None:
-                user = browser.default_user
-            browser.open(page, href=href, host=host)
+        def stock_login_and_go(browser, page, href, host="localhost"):
+            if host:
+                browser.open("/#" + "/@" + host + href)
+            else:
+                browser.open("/#" + href)
             browser.wait_visible("#login")
-            browser.set_val('#login-user-input', user)
+            browser.set_val('#login-user-input', browser.default_user)
             browser.set_val('#login-password-input', "foobar")
             browser.click('#login-button')
             browser.expect_reload()
@@ -112,7 +113,7 @@ class TestMultiOS(MachineCase):
             if page:
                 stock_enter_page(browser, page, host=host)
 
-        def stock_enter_page(browser, id, host="localhost"):
+        def stock_enter_page(browser, page, host="localhost"):
             if host:
                 frame = host + "/shell/shell"
             else:
@@ -121,7 +122,7 @@ class TestMultiOS(MachineCase):
             browser.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
             browser.wait_visible("iframe.container-frame[name='%s']" % frame)
             browser.switch_to_frame(frame)
-            browser.wait_visible('#' + id)
+            browser.wait_visible('#' + page)
 
         stock_m = self.new_machine(flavor='stock', system=system)
         stock_m.start()
@@ -136,7 +137,7 @@ class TestMultiOS(MachineCase):
         wait_dashboard_addresses (stock_b, [ "localhost", dev_m.address ])
 
         dev_b.switch_to_top()
-        dev_b.switch_to_frame("cockpit1:localhost/dashboard/list")
+        dev_b.switch_to_frame("cockpit1:localhost/dashboard")
 
         add_machine(dev_b, stock_m.address)
         dev_dashboard_addresses.append(stock_m.address)
@@ -159,6 +160,10 @@ class TestMultiOS(MachineCase):
         dev_b.switch_to_top()
         dev_b.go("/@%s/users/local" % stock_m.address)
         dev_b.wait_present("iframe.container-frame[name='cockpit1:%s/shell/shell'][src$='#/accounts']" % stock_m.address)
+
+        stock_b.switch_to_top()
+        stock_b.go("#/@%s/system/index" % dev_m.address)
+        stock_b.wait_present("iframe.container-frame[name='%s/system/index']" % dev_m.address)
 
         # Messages from previous versions of cockpit
         self.allow_journal_messages("g_hash_table_iter_next: assertion 'ri->version == ri->hash_table->version' failed")

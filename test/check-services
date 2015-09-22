@@ -66,7 +66,7 @@ Description=Test Template for %I
 ExecStart=/usr/bin/test-service %I
 """)
 
-        self.login_and_go("/system/init")
+        self.login_and_go("/system/services")
 
         def svc_sel(service):
             return 'tr[data-goto-unit="%s"]' % service
@@ -107,7 +107,7 @@ ExecStart=/usr/bin/test-service %I
         b.wait_in_text('#service-valid', "disabled")
         b.wait_action_btn(file_action_btn, "Enable")
 
-        b.go("/")
+        b.go("#/")
         b.wait_in_text("#services", "test-fail.service")
         b.click(svc_sel("test-fail.service"))
         b.wait_visible('#service-valid')
@@ -116,7 +116,7 @@ ExecStart=/usr/bin/test-service %I
         b.click_action_btn(unit_action_btn)
         b.wait_in_text('#service-valid', "failed")
 
-        b.go("/")
+        b.go("#/")
         b.wait_in_text("#services", "test-fail.service")
         wait_service_state("test-fail.service", "failed")
 
@@ -151,7 +151,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
 WantedBy=default.target
 """)
 
-        self.login_and_go("/playground/service", href="/playground/service/test")
+        self.login_and_go("/playground/service#/test")
 
         b.wait_text('#exists', 'true')
         b.wait_text('#state', '"stopped"')
@@ -167,7 +167,7 @@ WantedBy=default.target
         b.click('#disable')
         b.wait_text('#enabled', 'false')
 
-        b.go('foo')
+        b.go('#/foo')
         b.wait_text('#exists', 'false')
 
 

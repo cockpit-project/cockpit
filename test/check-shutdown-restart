@@ -28,7 +28,7 @@ class TestShutdownRestart(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("/system/host")
+        self.login_and_go("/system")
 
         # Reboot
         b.click("#shutdown-group button.btn-danger")
@@ -38,7 +38,7 @@ class TestShutdownRestart(MachineCase):
         b.click("#shutdown-action")
         m.wait_boot()
         self.start_cockpit()
-        b.relogin("/system/host")
+        b.relogin("/system")
 
         self.allow_restart_journal_messages()
         self.allow_journal_messages("Shutdown scheduled for .*")

@@ -26,7 +26,7 @@ class TestStorage(StorageCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("/storage/devices")
+        self.login_and_go("/storage")
         b.wait_in_text("#drives", "VirtIO")
 
         # The following block devices should not be offered for creating a

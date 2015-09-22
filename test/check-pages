@@ -40,18 +40,17 @@ WantedBy=default.target
         self.allow_restart_journal_messages()
 
         # login so that we have a cookie.
-        self.login_and_go(None)
+        self.login_and_go("/system/services#/test.service")
 
         # check that reloading a page with parameters works
-        b.go("/@localhost/system/init/test.service")
-        b.enter_page("/system/init")
+        b.enter_page("/system/services")
         b.reload()
-        b.enter_page("/system/init")
+        b.enter_page("/system/services")
         b.wait_present("#service-unit .panel-heading")
         b.wait_text("#service-unit .panel-heading", "Test Service")
 
         self.restart_cockpit()
-        b.relogin("/system/init")
+        b.relogin("/system/services")
         b.wait_present("#service-unit .panel-heading")
         b.wait_text("#service-unit .panel-heading", "Test Service")
 
@@ -62,7 +61,7 @@ WantedBy=default.target
         b.click("button:contains('Go down')")
         b.click("button:contains('Go down')")
         b.switch_to_top()
-        b.wait_js_cond("window.location.hash == '#/@localhost/playground/test/0/1?length=1'")
+        b.wait_js_cond("window.location.hash == '#/0/1?length=1'")
 
         self.allow_journal_messages("Failed to get realtime timestamp: Cannot assign requested address")
 
@@ -70,10 +69,7 @@ WantedBy=default.target
         b = self.browser
         frame = "cockpit1:localhost/playground/test"
 
-        self.login_and_go(None)
-        b.go("/@localhost/playground/test")
-
-        b.enter_page("/playground/test")
+        self.login_and_go("/playground/test")
 
         b.wait_present('#file-content')
         b.wait_text('#file-content', "0")

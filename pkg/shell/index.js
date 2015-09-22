@@ -110,7 +110,7 @@ define([
         cockpit.logout();
     });
     $("#go-account").on("click", function() {
-        jump({ host: "localhost", component: "users/local", hash: "/" + cockpit.user["user"] });
+        jump({ host: "localhost", component: "users", hash: "/" + cockpit.user["user"] });
     });
 
     /* User name and menu */
@@ -439,7 +439,7 @@ define([
         if (item)
             return item.path;
 
-        return "system/host";
+        return "system";
     }
 
     /* Navigation widgets */
@@ -572,11 +572,10 @@ define([
         }
 
         var hash = state.hash;
-        if (hash == "/" || !hash)
-            hash = "";
+        var component = state.component;
 
         /* Old cockpit packages, used to be in shell/shell.html */
-        var compat, component = state.component;
+        var compat;
         if (machine && compiled.compat) {
             compat = compiled.compat[component];
             if (compat) {
@@ -756,9 +755,9 @@ define([
                 list[component] = frame;
             }
 
-            var src = frame.url;
-            if (hash)
-                src += "#" + hash;
+            if (!hash)
+                hash = "/";
+            var src = frame.url + "#" + hash;
             if (frame.getAttribute('src') != src)
                 frame.setAttribute('src', src);
 
@@ -816,11 +815,17 @@ define([
         }
 
         function perform_track(child) {
-            if (!current_frame || current_frame.contentWindow != child)
-                return;
-            /* Ignore tracknig for old shell code */
-            if (child.name.indexOf("/shell/shell") === -1) {
-                jump({ hash: child.location.href.split('#')[1] || '' });
+            var hash;
+
+            /* Note that we ignore tracknig for old shell code */
+            if (current_frame && current_frame.contentWindow === child &&
+                child.name.indexOf("/shell/shell") === -1) {
+                hash = child.location.hash;
+                if (hash.indexOf("#") === 0)
+                    hash = hash.substring(1);
+                if (hash === "/")
+                    hash = "";
+                jump({ hash: hash });
             }
         }
 

@@ -36,7 +36,7 @@ class TestStorage(StorageCase):
         # don't do that for now.  A workaround would be to reboot the
         # machine.
 
-        self.login_and_go("/storage/devices")
+        self.login_and_go("/storage")
 
         # Add a disk
         m.add_disk("50M", serial="MYDISK")

@@ -85,7 +85,7 @@ class TestMultiMachine(MachineCase):
         m2 = self.machine2
         m3 = self.machine3
 
-        self.login_and_go("/dashboard/list", host=None)
+        self.login_and_go("/dashboard")
         inject_extras(b)
         wait_dashboard_addresses (b, [ "localhost" ])
 
@@ -111,22 +111,22 @@ class TestMultiMachine(MachineCase):
         # Navigating reconnects
         b.click("#dashboard-hosts a[data-address='%s']" % m2.address)
         b.switch_to_top()
-        b.wait_js_cond('window.location.hash != "#/dashboard/list"')
-        b.enter_page("/system/host", host=m2.address)
+        b.wait_js_cond('window.location.pathname != "/dashboard"')
+        b.enter_page("/system", host=m2.address)
         b.wait_text_not("#system_information_hostname_button", "")
         b.switch_to_top()
-        b.go("/dashboard/list")
-        b.enter_page("/dashboard/list")
+        b.go("/dashboard")
+        b.enter_page("/dashboard")
         b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-small.png')
 
         b.click("#dashboard-hosts a[data-address='%s']" % m3.address)
         b.switch_to_top()
-        b.wait_js_cond('window.location.hash != "#/dashboard/list"')
-        b.enter_page("/system/host", host=m3.address)
+        b.wait_js_cond('window.location.pathname != "/dashboard"')
+        b.enter_page("/system", host=m3.address)
         b.wait_text_not("#system_information_hostname_button", "")
         b.switch_to_top()
-        b.go("/dashboard/list")
-        b.enter_page("/dashboard/list")
+        b.go("/dashboard")
+        b.enter_page("/dashboard")
         b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m3.address, 'src', '../shell/images/server-small.png')
 
         self.allow_restart_journal_messages()
@@ -148,7 +148,7 @@ class TestMultiMachine(MachineCase):
         m2.needs_writable_usr()
         m2.execute("gunzip -c /usr/share/cockpit/system/terminal.min.html.gz | sed -e 's|</body>|magic-m2-token</body>|' > /usr/share/cockpit/system/terminal.html")
 
-        self.login_and_go("/dashboard/list", host=None)
+        self.login_and_go("/dashboard")
         inject_extras(b)
         add_machine(b, m2.address)
         wait_dashboard_addresses (b, [ "localhost", m2.address ])
@@ -175,12 +175,12 @@ class TestMultiMachine(MachineCase):
         m2 = self.machine2
 
         m2_path = "/@%s/playground/test"% m2.address
-        dashboard_path = "/dashboard/list"
+        dashboard_path = "/dashboard"
 
         # Add a machine
         self.login_and_go(None)
         b.go(dashboard_path)
-        b.enter_page("/dashboard/list")
+        b.enter_page("/dashboard")
         inject_extras(b)
         add_machine(b, m2.address)
         wait_dashboard_addresses (b, [ "localhost", m2.address ])
@@ -208,7 +208,7 @@ class TestMultiMachine(MachineCase):
         self.assertEqual(b.text(".curtains button"), "Reconnect")
 
         b.go(dashboard_path)
-        b.enter_page("/dashboard/list")
+        b.enter_page("/dashboard")
         b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-error.png')
         b.switch_to_top()
 
@@ -224,7 +224,7 @@ class TestMultiMachine(MachineCase):
 
         # wait for dashboard to load
         b.go(dashboard_path)
-        b.enter_page("/dashboard/list")
+        b.enter_page("/dashboard")
         b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-error.png')
         b.switch_to_top()
 
@@ -240,7 +240,7 @@ class TestMultiMachine(MachineCase):
 
         # Dashboard shows it as up
         b.go(dashboard_path)
-        b.enter_page("/dashboard/list")
+        b.enter_page("/dashboard")
         b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-small.png')
         b.switch_to_top()
 
@@ -269,8 +269,8 @@ class TestMultiMachine(MachineCase):
 
         # Add a machine
         self.login_and_go(None)
-        b.go("/dashboard/list")
-        b.enter_page("/dashboard/list")
+        b.go("/dashboard")
+        b.enter_page("/dashboard")
         inject_extras(b)
         add_machine(b, m2.address)
         wait_dashboard_addresses (b, [ "localhost", m2.address ])

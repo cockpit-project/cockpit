@@ -1,7 +1,7 @@
 usersdir = $(pkgdatadir)/users
 users_GZ = \
 	pkg/users/bundle.min.js.gz \
-	pkg/users/local.min.html.gz \
+	pkg/users/index.min.html.gz \
 	pkg/users/users.min.css.gz \
 	$(NULL)
 users_DATA = \
@@ -18,7 +18,7 @@ usersdebugdir = $(debugdir)$(usersdir)
 usersdebug_DATA = \
 	pkg/users/authorized-keys.js \
 	pkg/users/bundle.js \
-	pkg/users/local.html \
+	pkg/users/index.html \
 	pkg/users/local.js \
 	pkg/users/users.css \
 	$(users_SCRIPTS) \
@@ -45,7 +45,7 @@ TESTS += $(users_TESTS)
 
 CLEANFILES += \
 	pkg/users/bundle.min.js \
-	pkg/users/local.min.html \
+	pkg/users/index.min.html \
 	$(users_BUNDLEFILES) \
 	$(users_GZ) \
 	$(NULL)
@@ -53,7 +53,7 @@ CLEANFILES += \
 EXTRA_DIST += \
 	pkg/users/mock \
 	pkg/users/bundle.min.js \
-	pkg/users/local.min.html \
+	pkg/users/index.min.html \
 	$(users_DATA) \
 	$(usersdebug_DATA) \
 	$(users_TESTS) \

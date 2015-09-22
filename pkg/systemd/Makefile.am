@@ -1,12 +1,12 @@
 systemddir = $(pkgdatadir)/system
 systemd_GZ = \
 	pkg/systemd/bundle.min.js.gz \
-	pkg/systemd/host.min.html.gz \
-	pkg/systemd/init.min.html.gz \
-	pkg/systemd/terminal.min.html.gz \
-	pkg/systemd/journal.min.html.gz \
+	pkg/systemd/index.min.html.gz \
 	pkg/systemd/journal.min.css.gz \
+	pkg/systemd/logs.min.html.gz \
 	pkg/systemd/service.min.js.gz \
+	pkg/systemd/services.min.html.gz \
+	pkg/systemd/terminal.min.html.gz \
 	$(NULL)
 systemd_DATA = \
 	pkg/systemd/manifest.json \
@@ -16,15 +16,15 @@ systemd_DATA = \
 systemddebugdir = $(debugdir)$(systemddir)
 systemddebug_DATA = \
 	pkg/systemd/host.js \
-	pkg/systemd/host.html \
+	pkg/systemd/index.html \
 	pkg/systemd/bundle.js \
 	pkg/systemd/init.js \
-	pkg/systemd/init.html \
+	pkg/systemd/services.html \
 	pkg/systemd/server.js \
 	pkg/systemd/service.js \
 	pkg/systemd/terminal.js \
 	pkg/systemd/terminal.html \
-	pkg/systemd/journal.html \
+	pkg/systemd/logs.html \
 	pkg/systemd/journal.js \
 	pkg/systemd/journal.css \
 	pkg/systemd/journalctl.js \
@@ -61,20 +61,20 @@ TESTS += $(systemd_TESTS)
 
 CLEANFILES += \
 	pkg/systemd/bundle.min.js \
-	pkg/systemd/host.min.html \
-	pkg/systemd/init.min.html \
+	pkg/systemd/index.min.html \
+	pkg/systemd/logs.min.html \
+	pkg/systemd/services.min.html \
 	pkg/systemd/terminal.min.html \
-	pkg/systemd/journal.min.html \
 	$(systemd_MIN) \
 	$(systemd_GZ) \
 	$(NULL)
 
 EXTRA_DIST += \
 	pkg/systemd/bundle.min.js \
-	pkg/systemd/host.min.html \
-	pkg/systemd/init.min.html \
+	pkg/systemd/index.min.html \
+	pkg/systemd/logs.min.html \
+	pkg/systemd/services.min.html \
 	pkg/systemd/terminal.min.html \
-	pkg/systemd/journal.min.html \
 	$(systemd_DATA) \
 	$(systemddebug_DATA) \
 	$(systemd_TESTS) \

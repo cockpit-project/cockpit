@@ -1,7 +1,7 @@
 storageddir = $(pkgdatadir)/storage
 storaged_GZ = \
 	pkg/storaged/bundle.min.js.gz \
-	pkg/storaged/devices.min.html.gz \
+	pkg/storaged/index.min.html.gz \
 	pkg/storaged/storage.min.css.gz \
 	$(NULL)
 storaged_DATA = \
@@ -13,10 +13,10 @@ storageddebugdir = $(debugdir)$(storageddir)
 storageddebug_DATA = \
 	pkg/storaged/bundle.js \
 	pkg/storaged/details.js \
-	pkg/storaged/devices.html \
 	pkg/storaged/devices.js \
 	pkg/storaged/dialog.js \
 	pkg/storaged/client.js \
+	pkg/storaged/index.html \
 	pkg/storaged/jobs.js \
 	pkg/storaged/overview.js \
 	pkg/storaged/permissions.js \
@@ -52,14 +52,14 @@ TESTS += $(storaged_TESTS)
 
 CLEANFILES += \
 	pkg/storaged/bundle.min.js \
-	pkg/storaged/devices.min.html \
+	pkg/storaged/index.min.html \
 	$(storaged_BUNDLE) \
 	$(storaged_GZ) \
 	$(NULL)
 
 EXTRA_DIST += \
 	pkg/storaged/bundle.min.js \
-	pkg/storaged/devices.min.html \
+	pkg/storaged/index.min.html \
 	$(storaged_DATA) \
 	$(storageddebug_DATA) \
 	$(storagedimages_DATA) \

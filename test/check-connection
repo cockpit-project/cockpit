@@ -32,7 +32,7 @@ class TestConnection(MachineCase):
         self.start_cockpit()
 
         # take cockpit-ws down on the login page
-        b.open("system/host")
+        b.open("/system")
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
@@ -42,7 +42,7 @@ class TestConnection(MachineCase):
         m.execute("systemctl start cockpit-testing.socket")
         b.click('#login-button')
         b.expect_reload()
-        b.enter_page("/system/host")
+        b.enter_page("/system")
 
         # take cockpit-ws down on the server page
         m.execute("systemctl stop cockpit-testing.socket")
@@ -63,7 +63,7 @@ class TestConnection(MachineCase):
         m.execute("iptables -D INPUT 1")
         b.click('#login-button')
         b.expect_reload()
-        b.enter_page("/system/host")
+        b.enter_page("/system")
 
         # sever the connection on the server page
         m.execute("iptables -I INPUT 1 -p tcp --dport 9090 -j REJECT")
@@ -74,7 +74,7 @@ class TestConnection(MachineCase):
         m.execute("iptables -D INPUT 1")
         b.click('#disconnected-reconnect')
         b.expect_reload()
-        b.enter_page("/system/host")
+        b.enter_page("/system")
 
         self.allow_restart_journal_messages()
 

@@ -37,11 +37,11 @@ class TestRoles(MachineCase):
             b.click('#login-button')
 
         # login
-        b.open("/system/host")
+        b.open("/system")
         b.wait_visible("#login")
         login("user", "foobar")
         b.expect_reload()
-        b.enter_page("/system/host")
+        b.enter_page("/system")
         b.switch_to_top()
         b.wait_text('#content-user-name', 'User')
 
@@ -54,7 +54,7 @@ class TestRoles(MachineCase):
         # Check permissions for own account
         b.click('#content-user-name')
         b.click('#go-account')
-        b.enter_page("/users/local")
+        b.enter_page("/users")
 
         b.wait_text("#account-user-name", "user")
         b.wait_present('#account-real-name-wrapper.disabled')
@@ -66,7 +66,7 @@ class TestRoles(MachineCase):
         b.wait_present("#account-role-checkbox-10:not(:checked)")
 
         # Check permissions for admin account
-        b.go("/admin")
+        b.go("#/admin")
         b.wait_visible("#account")
         b.wait_text("#account-user-name", "admin")
         b.wait_present('#account-real-name-wrapper.disabled')
@@ -78,7 +78,7 @@ class TestRoles(MachineCase):
         b.wait_present("#account-role-checkbox-10:checked")
 
         # Add "wheel" role from the outside (and wait for it to stick)
-        b.go("/user")
+        b.go("#/user")
         b.wait_visible("#account")
         b.wait_text("#account-user-name", "user")
 
@@ -86,11 +86,11 @@ class TestRoles(MachineCase):
         m.execute("usermod -a -G wheel user")
         b.wait_present("#account-role-checkbox-10:checked")
 
-        b.relogin("/users/local", "user")
+        b.relogin("/users", "user")
         b.wait_text("#account-user-name", "user")
 
         # Check permissions for admin again
-        b.go("/admin")
+        b.go("#/admin")
         b.wait_visible("#account")
         b.wait_text("#account-user-name", "admin")
         b.wait_present("#account-real-name-wrapper:not(.disabled)")
@@ -110,8 +110,8 @@ class TestRoles(MachineCase):
 
         m.execute("groupadd docker")
 
-        self.login_and_go("/users/local")
-        b.go("/admin")
+        self.login_and_go("/users")
+        b.go("#/admin")
 
         b.wait_in_text("#account-change-roles-roles", "Container Administrator")
 

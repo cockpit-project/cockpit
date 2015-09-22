@@ -3,9 +3,9 @@ dockerdir = $(pkgdatadir)/docker
 docker_GZ = \
 	pkg/docker/bundle.min.js.gz \
 	pkg/docker/console.min.html.gz \
-	pkg/docker/containers.min.html.gz \
 	pkg/docker/docker.min.css.gz \
 	pkg/docker/docker.min.js.gz \
+	pkg/docker/index.min.html.gz \
 	$(NULL)
 docker_DATA = \
 	pkg/docker/manifest.json \
@@ -20,9 +20,9 @@ dockerdebug_DATA = \
 	pkg/docker/docker.css \
 	pkg/docker/docker.js \
 	pkg/docker/console.html \
-	pkg/docker/containers.html \
 	pkg/docker/containers.js \
 	pkg/docker/image.js \
+	pkg/docker/index.html \
 	pkg/docker/overview.js \
 	pkg/docker/run.js \
 	pkg/docker/search.js \
@@ -59,7 +59,7 @@ CLEANFILES += \
 
 EXTRA_DIST += \
 	pkg/docker/bundle.min.js \
-	pkg/docker/containers.min.html \
+	pkg/docker/index.min.html \
 	$(docker_DATA) \
 	$(dockerdebug_DATA) \
 	$(docker_TESTS) \

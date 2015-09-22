@@ -81,7 +81,7 @@ class TestDashboard(MachineCase):
         m3.start()
         m3.wait_boot()
 
-        self.login_and_go("/dashboard/list", host=None)
+        self.login_and_go("/dashboard")
         self.inject_extras(b)
 
         self.wait_dashboard_addresses (b, [ "localhost" ])
@@ -89,7 +89,7 @@ class TestDashboard(MachineCase):
         # Start second browser and check that it is in sync
         b2 = self.new_browser()
         b2.default_user = "root"
-        b2.login_and_go("/dashboard/list", host=None)
+        b2.login_and_go("/dashboard")
         self.inject_extras(b2)
         self.wait_dashboard_addresses (b2, [ "localhost" ])
         b.wait_present("#dashboard-hosts a[data-address='localhost'] button.pficon-delete.disabled")
@@ -134,11 +134,11 @@ class TestDashboard(MachineCase):
         b.leave_page()
         b.wait_js_cond('$("#machine-dropdown ul li").length == 3')
         b.click("#machine-dropdown ul a[data-address='localhost']")
-        b.wait_js_cond('window.location.hash == "#/@localhost"')
+        b.wait_js_cond('window.location.pathname == "/system"')
         b.click("#machine-dropdown ul a[data-address='%s']" % m2.address)
-        b.wait_js_cond('window.location.hash == "#/@%s"' % m2.address)
+        b.wait_js_cond('window.location.pathname.indexOf("/@%s") === 0' % m2.address)
         b.click("#machine-dropdown ul a[data-address='%s']" % m3.address)
-        b.wait_js_cond('window.location.hash == "#/@%s"' % m3.address)
+        b.wait_js_cond('window.location.pathname.indexOf("/@%s") === 0' % m3.address)
 
         self.allow_journal_messages('.*: .* host key for server is not known: .*')
 
@@ -146,7 +146,7 @@ class TestDashboard(MachineCase):
         b = self.browser
         m = self.machine
 
-        self.login_and_go("/dashboard/list", host=None)
+        self.login_and_go("/dashboard")
         self.inject_extras(b)
         self.wait_dashboard_addresses (b, [ "localhost" ])
         old_style = b.attr("#dashboard-hosts .list-group-item[data-address='localhost']", "style")
@@ -198,7 +198,7 @@ class TestDashboard(MachineCase):
 
         # Sync them via Setup.
 
-        self.login_and_go("/dashboard/list", host=None)
+        self.login_and_go("/dashboard")
         self.inject_extras(b)
 
         self.wait_dashboard_addresses (b, [ "localhost" ])

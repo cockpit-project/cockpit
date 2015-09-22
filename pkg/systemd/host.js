@@ -1119,12 +1119,12 @@ $("#link-memory").on("click", function() {
 });
 
 $("#link-network").on("click", function() {
-    cockpit.jump("/network/interfaces");
+    cockpit.jump("/network");
     return false;
 });
 
 $("#link-disk").on("click", function() {
-    cockpit.jump("/storage/devices");
+    cockpit.jump("/storage");
     return false;
 });
 

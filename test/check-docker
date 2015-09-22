@@ -62,7 +62,7 @@ class TestDocker(MachineCase):
 
         m.execute("systemctl start docker")
 
-        self.login_and_go("/docker/containers")
+        self.login_and_go("/docker")
         b.wait_in_text("#containers-images", "busybox")
 
         message = "HelloMessage."
@@ -170,7 +170,7 @@ class TestDocker(MachineCase):
 
         m.execute("systemctl start docker")
 
-        self.login_and_go("/docker/containers")
+        self.login_and_go("/docker")
         b.wait_in_text("#containers-images", "busybox")
 
         port = 3380;
@@ -277,7 +277,7 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         self.allow_journal_messages(".*Failed to create file '/var/lib/cockpit/.*': Permission denied")
         self.allow_journal_messages("http:///var/run/docker.sock/.*: couldn't connect: .*")
 
-        self.login_and_go("/docker/containers")
+        self.login_and_go("/docker")
 
         # We can not become root, so we can't access docker.
         b.wait_visible("#curtain")
@@ -287,7 +287,7 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         # Give "admin" access via the wheel group and login again
         m.execute("usermod -G wheel admin")
         m.execute("systemctl stop docker")
-        b.relogin("/docker/containers")
+        b.relogin("/docker")
         self.allow_restart_journal_messages()
 
         # Now we can become root and start docker

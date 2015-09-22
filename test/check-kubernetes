@@ -70,7 +70,7 @@ class TestKubernetes(KubernetesCase):
         m = self.machine
         b.wait_timeout(120)
 
-        self.login_and_go("/kubernetes/cluster", host=None)
+        self.login_and_go("/kubernetes")
         b.wait_present("#node-list")
         b.wait_in_text("#node-list", "127.0.0.1")
 
@@ -111,7 +111,7 @@ class TestKubernetes(KubernetesCase):
         b = self.browser
         m = self.machine
 
-        self.login_and_go("/kubernetes/cluster", host=None)
+        self.login_and_go("/kubernetes")
         b.wait_present("#node-list")
         b.wait_in_text("#node-list", "127.0.0.1")
 
@@ -245,7 +245,7 @@ class TestKubernetes(KubernetesCase):
         m.execute("kubectl create -f /tmp/mock-k8s-tiny-app.json")
 
         # The service has loaded and containers instantiated
-        self.login_and_go("/kubernetes/cluster", host=None)
+        self.login_and_go("/kubernetes")
         b.wait_present("#service-list tr[data-name='mock'] td.containers")
         with b.wait_timeout(120):
             b.wait_text("#service-list tr[data-name='mock'] td.containers", "1")
@@ -264,7 +264,7 @@ class TestConnection(KubernetesCase):
         b = self.browser
 
         # Connect without starting a kube server
-        self.login_and_go("/kubernetes/cluster", host=None)
+        self.login_and_go("/kubernetes")
         b.wait_present(".curtains")
         b.wait_in_text(".curtains", "Couldn't connect to Kubernetes server")
         b.wait_in_text(".curtains", "Couldn't find running kube-apiserver")
@@ -309,7 +309,7 @@ class TestConnection(KubernetesCase):
         m.execute("systemctl start etcd kube-apiserver")
         self.wait_api_server(port=6443, scheme='https')
 
-        self.login_and_go("/kubernetes/cluster", host=None)
+        self.login_and_go("/kubernetes")
         b.wait_present("#service-list")
         b.wait_in_text("#service-list", "You can deploy an application to your cluster.")
 
@@ -334,7 +334,7 @@ class TestNulecule(KubernetesCase):
         m = self.machine
         b.wait_timeout(120)
 
-        self.login_and_go("/kubernetes/cluster", host=None)
+        self.login_and_go("/kubernetes")
         b.wait_present("#node-list")
         b.wait_in_text("#node-list", "127.0.0.1")
 

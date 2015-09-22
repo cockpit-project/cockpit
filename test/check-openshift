@@ -49,7 +49,7 @@ class TestOpenshift(MachineCase):
         # populate routes
         self.openshift.execute("oc expose service docker-registry --hostname=test.example.com")
 
-        self.login_and_go("/kubernetes/cluster", host=None)
+        self.login_and_go("/kubernetes")
         b.wait_present("#service-list")
         b.wait_in_text("#service-list", "registry")
 

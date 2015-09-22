@@ -2,7 +2,7 @@
 kubernetesdir = $(pkgdatadir)/kubernetes
 kubernetes_GZ = \
 	pkg/kubernetes/app.min.css.gz \
-	pkg/kubernetes/cluster.min.html.gz \
+	pkg/kubernetes/index.min.html.gz \
 	pkg/kubernetes/kubernetes.min.js.gz \
 	$(NULL)
 kubernetes_DATA = \
@@ -36,7 +36,6 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/app.css \
 	pkg/kubernetes/app.js \
 	pkg/kubernetes/client.js \
-	pkg/kubernetes/cluster.html \
 	pkg/kubernetes/config.js \
 	pkg/kubernetes/containers.css \
 	pkg/kubernetes/containers.js \
@@ -47,6 +46,7 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/graphs.js \
 	pkg/kubernetes/images.css \
 	pkg/kubernetes/images.js \
+	pkg/kubernetes/index.html \
 	pkg/kubernetes/kubernetes.js \
 	pkg/kubernetes/node.js \
 	pkg/kubernetes/moment.js \
@@ -103,7 +103,7 @@ TESTS += $(kubernetes_TESTS)
 
 CLEANFILES += \
 	pkg/kubernetes/app.min.css \
-	pkg/kubernetes/cluster.min.html \
+	pkg/kubernetes/index.min.html \
 	pkg/kubernetes/kubernetes.min.js \
 	pkg/kubernetes/templates.min.js \
 	$(kubernetes_MIN) \
@@ -111,7 +111,7 @@ CLEANFILES += \
 	$(NULL)
 
 EXTRA_DIST += \
-	pkg/kubernetes/cluster.min.html \
+	pkg/kubernetes/index.min.html \
 	pkg/kubernetes/kubernetes.min.js \
 	pkg/kubernetes/templates.min.js \
 	$(kubernetes_BUNDLE) \

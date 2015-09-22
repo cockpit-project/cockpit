@@ -61,7 +61,7 @@ class checklogin_basic(cockpit.Test):
         # Setup a special PAM config that disallows non-wheel users
         self.replace_file("/etc/pam.d/cockpit", admins_only_pam)
 
-        b.open("system/host")
+        b.open("/system")
         b.wait_visible("#login")
 
         def login(user, password):

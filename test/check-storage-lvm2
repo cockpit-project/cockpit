@@ -33,7 +33,7 @@ class TestStorage(StorageCase):
         if m.os == "rhel-7":
             return
 
-        self.login_and_go("/storage/devices")
+        self.login_and_go("/storage")
         b.wait_in_text("#drives", "VirtIO")
 
         m.add_disk("50M", serial="DISK1")
@@ -81,7 +81,7 @@ class TestStorage(StorageCase):
         b.wait_in_text("#content", "1% full")
 
         # remove the volume group
-        b.go("/")
+        b.go("#/")
         b.wait_visible("#storage")
         m.execute("vgremove -f TEST1")
         b.wait_not_in_text("#vgroups", "TEST1")

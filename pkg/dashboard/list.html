@@ -29,18 +29,10 @@
     <script src="../shell/bundle.js"></script>
     <script src="../shell/shell.js"></script>
     <script src="bundle.js"></script>
-    <script>
-        require([
-            "jquery",
-            "dashboard/list"
-        ], function($, list) {
-            $(list);
-        });
-    </script>
 </head>
 <body hidden>
 
-    <div id="dashboard" class="container-fluid" hidden>
+    <div id="dashboard" class="container-fluid">
         <div class="row">
             <div class="col-md-12">
                 <div id="dashboard-toolbar" class="pull-right zoom-controls">
@@ -253,6 +245,13 @@
             </div>
         </div>
     </div>
-
+    <script>
+        require([
+            "jquery",
+            "dashboard/list"
+        ], function($, list) {
+            $(list);
+        });
+    </script>
 </body>
 </html>

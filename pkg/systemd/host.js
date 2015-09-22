@@ -1179,7 +1179,7 @@ function page_show(p, arg) {
     if (!p._entered_)
         p.enter(arg);
     p._entered_ = true;
-    $('#' + p.id).show();
+    $('#' + p.id).show().removeAttr("hidden");
     p.show();
 }
 
@@ -1212,7 +1212,7 @@ function init() {
             cockpit.location = '';
         }
 
-        $("body").show();
+        $("body").removeAttr("hidden");
     }
 
     cockpit.translate();

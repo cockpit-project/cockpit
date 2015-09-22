@@ -1063,7 +1063,7 @@ function init() {
             cockpit.location = '';
         }
 
-        $("body").show();
+        $("body").removeAttr("hidden");
     }
 
     cockpit.translate();

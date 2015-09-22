@@ -535,3 +535,10 @@ a {
     background-color: #888 !important;
     color: white !important;
 }
+
+/* HACK - https://github.com/patternfly/patternfly/issues/122
+ * Make button in alerts fit.
+ */
+.alert .btn-default {
+    margin-top: -3px;
+}

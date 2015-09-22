@@ -536,7 +536,7 @@ define([
     }
 
     function update_frame(machine, state, compiled) {
-        var title, message, connecting;
+        var title, message, connecting, restarting;
 
         if (machine.state != "connected") {
             $(current_frame).hide();
@@ -556,10 +556,12 @@ define([
                 else
                     message = cockpit.message(machine.problem || machine.state);
             }
+
+            restarting = !!machine.restarting;
             $(".curtains").show();
-            $(".curtains .spinner").toggle(connecting || machine.restarting);
+            $(".curtains .spinner").toggle(connecting || restarting);
             $(".curtains button").toggle(!connecting);
-            $(".curtains i").toggle(!connecting && !machine.restarting);
+            $(".curtains i").toggle(!connecting && !restarting);
             $(".curtains h1").text(title);
             $(".curtains p").text(message);
             $("#machine-spinner").hide();

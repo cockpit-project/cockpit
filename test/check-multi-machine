@@ -225,7 +225,7 @@ class TestMultiMachine(MachineCase):
         # wait for dashboard to load
         b.go(dashboard_path)
         b.enter_page("/dashboard")
-        b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-error.png')
+        b.wait_present("#dashboard-hosts a[data-address='%s'] img" % m2.address)
         b.switch_to_top()
 
         # path should load or allow clicking

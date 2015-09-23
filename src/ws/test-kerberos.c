@@ -530,6 +530,9 @@ main (int argc,
 
   cockpit_test_init (&argc, &argv);
 
+  /* Try to debug crashing during tests */
+  signal (SIGABRT, cockpit_test_signal_backtrace);
+
   mock_kdc_start ();
 
   g_test_add ("/kerberos/authenticate", TestCase, NULL,

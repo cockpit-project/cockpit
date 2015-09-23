@@ -86,6 +86,7 @@ base_TESTS = \
 	pkg/base1/test-spawn-proc.html \
 	pkg/base1/test-http.html \
 	pkg/base1/test-dbus.html \
+	pkg/base1/test-dbus-address.html \
 	pkg/base1/test-dbus-framed.html \
 	pkg/base1/test-location.html \
 	pkg/base1/test-framed.html \
@@ -123,6 +124,7 @@ EXTRA_DIST += \
 	pkg/base1/require.min.js \
 	pkg/base1/mustache.min.js \
 	pkg/base1/term.min.js \
+	pkg/base1/test-dbus-common.js \
 	$(base_BUNDLE) \
 	$(base_DATA) \
 	$(basedebug_DATA) \

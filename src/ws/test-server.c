@@ -24,6 +24,7 @@
 #include "common/cockpitpipetransport.h"
 #include "common/mock-service.h"
 #include "common/cockpitwebserver.h"
+#include "common/cockpitwebinject.h"
 
 #include <gio/gio.h>
 #include <glib-unix.h>
@@ -37,11 +38,15 @@ static GMainLoop *loop = NULL;
 static int exit_code = 0;
 static gint server_port = 0;
 static gchar **bridge_argv;
+static const gchar *bus_address;
+static const gchar *direct_address;
 
 /* ---------------------------------------------------------------------------------------------------- */
 
 static GObject *exported = NULL;
 static GObject *exported_b = NULL;
+static GObject *direct = NULL;
+static GObject *direct_b = NULL;
 
 static GDBusMessage *
 on_filter_func (GDBusConnection *connection,
@@ -276,6 +281,30 @@ on_handle_stream_socket (CockpitWebServer *server,
   return TRUE;
 }
 
+static void
+inject_address (CockpitWebResponse *response,
+                const gchar *name,
+                const gchar *value)
+{
+  GBytes *inject = NULL;
+  CockpitWebFilter *filter = NULL;
+  gchar *line = NULL;
+
+  if (value)
+    {
+      line = g_strconcat ("\nvar ", name, " = '", value, "';\n", NULL);
+
+      inject = g_bytes_new (line, strlen (line));
+      filter = cockpit_web_inject_new ("<script id='dbus-tests'>", inject);
+      g_bytes_unref (inject);
+
+      cockpit_web_response_add_filter (response, filter);
+      g_object_unref (filter);
+    }
+
+  g_free (line);
+}
+
 static gboolean
 on_handle_resource (CockpitWebServer *server,
                     const gchar *path,
@@ -284,6 +313,9 @@ on_handle_resource (CockpitWebServer *server,
                     gpointer user_data)
 {
   g_assert (g_str_has_prefix (path, "/pkg"));
+
+  inject_address (response, "bus_address", bus_address);
+  inject_address (response, "direct_address", direct_address);
 
   cockpit_web_response_file (response, path, FALSE,
                              cockpit_web_server_get_document_roots (server));
@@ -377,6 +409,17 @@ on_name_lost (GDBusConnection *connection,
   g_assert_not_reached ();
 }
 
+static gboolean
+on_new_direct_connection (GDBusServer *server,
+                          GDBusConnection *connection,
+                          gpointer unused)
+{
+  direct = mock_service_create_and_export (connection, "/otree");
+  direct_b = mock_service_create_and_export (connection, "/different");
+  g_dbus_connection_add_filter (connection, on_filter_func, NULL, NULL);
+  return TRUE;
+}
+
 /* ---------------------------------------------------------------------------------------------------- */
 
 static void
@@ -413,6 +456,8 @@ main (int argc,
   guint sig_term;
   guint sig_int;
   int i;
+  gchar *guid = NULL;
+  GDBusServer *direct_dbus_server = NULL;
 
   GOptionEntry entries[] = {
     { NULL }
@@ -445,6 +490,7 @@ main (int argc,
   /* This isolates us from affecting other processes during tests */
   bus = g_test_dbus_new (G_TEST_DBUS_NONE);
   g_test_dbus_up (bus);
+  bus_address = g_test_dbus_get_bus_address (bus);
 
   context = g_option_context_new ("- test dbus json server");
   g_option_context_add_main_entries (context, entries, NULL);
@@ -490,6 +536,25 @@ main (int argc,
                          loop,
                          NULL);
 
+  guid = g_dbus_generate_guid ();
+  direct_dbus_server = g_dbus_server_new_sync ("unix:tmpdir=/tmp/dbus-tests",
+                                               G_DBUS_SERVER_FLAGS_NONE,
+                                               guid,
+                                               NULL,
+                                               NULL,
+                                               &error);
+  if (direct_dbus_server == NULL)
+    {
+      g_printerr ("test-server: %s\n", error->message);
+      exit (3);
+    }
+
+  g_signal_connect_object (direct_dbus_server,
+                           "new-connection",
+                           G_CALLBACK (on_new_direct_connection),
+                           NULL, 0);
+  g_dbus_server_start (direct_dbus_server);
+  direct_address = g_dbus_server_get_client_address (direct_dbus_server);
   g_main_loop_run (loop);
 
   g_source_remove (sig_term);
@@ -497,11 +562,15 @@ main (int argc,
 
   g_clear_object (&exported);
   g_clear_object (&exported_b);
+  g_clear_object (&direct_dbus_server);
+  g_clear_object (&direct);
+  g_clear_object (&direct_b);
   g_main_loop_unref (loop);
 
   g_test_dbus_down (bus);
   g_object_unref (bus);
   g_free (bridge_argv);
+  g_free (guid);
 
   return exit_code;
 }

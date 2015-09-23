@@ -1854,7 +1854,7 @@ subscribe_and_cache (CockpitDBusJson *self)
 {
   g_dbus_connection_set_exit_on_close (self->connection, FALSE);
 
-  self->cache = cockpit_dbus_cache_new (self->connection, self->name);
+  self->cache = cockpit_dbus_cache_new (self->connection, self->name, self->logname);
   self->meta_sig = g_signal_connect (self->cache, "meta", G_CALLBACK (on_cache_meta), self);
   self->update_sig = g_signal_connect (self->cache, "update",
                                        G_CALLBACK (on_cache_update), self);
@@ -1871,16 +1871,11 @@ subscribe_and_cache (CockpitDBusJson *self)
 }
 
 static void
-on_bus_ready (GObject *source,
-              GAsyncResult *result,
-              gpointer user_data)
+process_connection (CockpitDBusJson *self,
+                    GError *error)
 {
-  CockpitDBusJson *self = COCKPIT_DBUS_JSON (user_data);
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
   GBusNameWatcherFlags flags;
-  GError *error = NULL;
-
-  self->connection = g_bus_get_finish (result, &error);
   if (!self->connection)
     {
       if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED) ||
@@ -1899,18 +1894,49 @@ on_bus_ready (GObject *source,
     {
       /* Yup, we don't want this */
       g_dbus_connection_set_exit_on_close (self->connection, FALSE);
-
-      flags = G_BUS_NAME_WATCHER_FLAGS_AUTO_START;
-      self->name_watch = g_bus_watch_name_on_connection (self->connection,
-                                                         self->name, flags,
-                                                         on_name_appeared,
-                                                         on_name_vanished,
-                                                         self, NULL);
-      self->name_watched = TRUE;
-
-      subscribe_and_cache (self);
+      if (self->name)
+        {
+          flags = G_BUS_NAME_WATCHER_FLAGS_AUTO_START;
+          self->name_watch = g_bus_watch_name_on_connection (self->connection,
+                                                             self->name, flags,
+                                                             on_name_appeared,
+                                                             on_name_vanished,
+                                                             self, NULL);
+          self->name_watched = TRUE;
+          subscribe_and_cache (self);
+        }
+      else
+        {
+          subscribe_and_cache (self);
+          cockpit_channel_ready (COCKPIT_CHANNEL (self));
+        }
     }
+}
 
+static void
+on_connection_ready (GObject *source,
+                     GAsyncResult *result,
+                     gpointer user_data)
+{
+  CockpitDBusJson *self = COCKPIT_DBUS_JSON (user_data);
+  GError *error = NULL;
+
+  self->connection = g_dbus_connection_new_for_address_finish (result,
+                                                               &error);
+  process_connection (self, error);
+  g_object_unref (self);
+}
+
+static void
+on_bus_ready (GObject *source,
+              GAsyncResult *result,
+              gpointer user_data)
+{
+  CockpitDBusJson *self = COCKPIT_DBUS_JSON (user_data);
+  GError *error = NULL;
+
+  self->connection = g_bus_get_finish (result, &error);
+  process_connection (self, error);
   g_object_unref (self);
 }
 
@@ -1922,6 +1948,8 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
   JsonObject *options;
   GBusType bus_type;
   const gchar *bus;
+  const gchar *address;
+  gboolean internal = FALSE;
 
   COCKPIT_CHANNEL_CLASS (cockpit_dbus_json_parent_class)->prepare (channel);
 
@@ -1931,10 +1959,20 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
       g_warning ("invalid \"bus\" option in dbus channel");
       goto out;
     }
+  if (!cockpit_json_get_string (options, "address", NULL, &address))
+    {
+      g_warning ("invalid \"address\" option in dbus channel");
+      goto out;
+    }
 
   self->logname = self->name;
   if (self->logname == NULL)
-    self->logname = "internal";
+    {
+      if (address)
+        self->logname = address;
+      else
+        self->logname = bus;
+    }
 
   /*
    * The default bus is the "user" bus which doesn't exist in many
@@ -1950,9 +1988,16 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
     {
       bus_type = G_BUS_TYPE_SESSION;
     }
+  else if (g_str_equal (bus, "none"))
+    {
+      bus_type = G_BUS_TYPE_NONE;
+      if (address == NULL || g_str_equal (address, "internal"))
+          internal = TRUE;
+    }
   else if (g_str_equal (bus, "internal"))
     {
       bus_type = G_BUS_TYPE_NONE;
+      internal = TRUE;
     }
   else
     {
@@ -1961,7 +2006,7 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
     }
 
   /* An internal peer to peer connection to cockpit-bridge */
-  if (bus_type == G_BUS_TYPE_NONE)
+  if (internal)
     {
       if (!cockpit_json_get_null (options, "name", NULL))
         {
@@ -1985,22 +2030,49 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
     {
       if (!cockpit_json_get_string (options, "name", NULL, &self->name))
         {
-          g_warning ("invalid \"name\" option in dbus channel");
-          goto out;
+          self->name = NULL;
+          if (!cockpit_json_get_null (options, "name", NULL))
+            {
+              g_warning ("invalid \"name\" option in dbus channel");
+              goto out;
+            }
         }
-      if (self->name == NULL)
+
+      if (self->name == NULL && bus_type != G_BUS_TYPE_NONE)
         {
           g_warning ("missing \"name\" option in dbus channel: %s", self->name);
           goto out;
         }
-      else if (!g_dbus_is_name (self->name))
+      else if (self->name != NULL && !g_dbus_is_name (self->name))
         {
           g_warning ("bad \"name\" option in dbus channel: %s", self->name);
           goto out;
         }
 
+      if (bus_type == G_BUS_TYPE_NONE && !g_dbus_is_address (address))
+        {
+          g_warning ("bad \"address\" option in dbus channel: %s", address);
+          goto out;
+        }
+
       /* Ready when the bus connection is available */
-      g_bus_get (bus_type, self->cancellable, on_bus_ready, g_object_ref (self));
+      if (bus_type == G_BUS_TYPE_NONE)
+        {
+          GDBusConnectionFlags flags = G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_CLIENT;
+          if (self->name)
+            flags = flags | G_DBUS_CONNECTION_FLAGS_MESSAGE_BUS_CONNECTION;
+
+          g_dbus_connection_new_for_address (address,
+                                             flags,
+                                             NULL,
+                                             self->cancellable,
+                                             on_connection_ready,
+                                             g_object_ref (self));
+        }
+      else
+        {
+          g_bus_get (bus_type, self->cancellable, on_bus_ready, g_object_ref (self));
+        }
     }
 
   problem = NULL;
@@ -2061,6 +2133,16 @@ cockpit_dbus_json_finalize (GObject *object)
 }
 
 static void
+cockpit_dbus_json_constructed (GObject *object)
+{
+  const gchar *caps[] = { "address", NULL };
+
+  G_OBJECT_CLASS (cockpit_dbus_json_parent_class)->constructed (object);
+
+  g_object_set (object, "capabilities", &caps, NULL);
+}
+
+static void
 cockpit_dbus_json_class_init (CockpitDBusJsonClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
@@ -2068,6 +2150,7 @@ cockpit_dbus_json_class_init (CockpitDBusJsonClass *klass)
 
   gobject_class->dispose = cockpit_dbus_json_dispose;
   gobject_class->finalize = cockpit_dbus_json_finalize;
+  gobject_class->constructed = cockpit_dbus_json_constructed;
 
   channel_class->prepare = cockpit_dbus_json_prepare;
   channel_class->recv = cockpit_dbus_json_recv;

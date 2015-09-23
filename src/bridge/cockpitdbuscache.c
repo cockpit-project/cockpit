@@ -93,6 +93,7 @@ struct _CockpitDBusCache {
 enum {
   PROP_CONNECTION = 1,
   PROP_NAME,
+  PROP_LOGNAME,
   PROP_NAME_OWNER
 };
 
@@ -1096,10 +1097,6 @@ cockpit_dbus_cache_constructed (GObject *object)
 
   g_return_if_fail (self->connection != NULL);
 
-  self->logname = self->name;
-  if (self->logname == NULL)
-    self->logname = "internal";
-
   self->subscribe_properties = g_dbus_connection_signal_subscribe (self->connection,
                                                                    self->name,
                                                                    "org.freedesktop.DBus.Properties",
@@ -1138,6 +1135,9 @@ cockpit_dbus_cache_set_property (GObject *obj,
         break;
       case PROP_NAME:
         self->name = g_value_dup_string (value);
+        break;
+      case PROP_LOGNAME:
+        self->logname = g_value_dup_string (value);
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (obj, prop_id, pspec);
@@ -1178,6 +1178,7 @@ cockpit_dbus_cache_finalize (GObject *object)
   CockpitDBusCache *self = COCKPIT_DBUS_CACHE (object);
 
   g_free (self->name);
+  g_free (self->logname);
 
   cockpit_dbus_rules_free (self->rules);
   g_tree_destroy (self->managed);
@@ -1222,6 +1223,9 @@ cockpit_dbus_cache_class_init (CockpitDBusCacheClass *klass)
 
   g_object_class_install_property (gobject_class, PROP_NAME,
        g_param_spec_string ("name", "name", "name", NULL,
+                            G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, PROP_LOGNAME,
+       g_param_spec_string ("logname", "logname", "logname", "internal",
                             G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 }
 
@@ -1856,10 +1860,12 @@ cockpit_dbus_cache_poke (CockpitDBusCache *self,
 
 CockpitDBusCache *
 cockpit_dbus_cache_new (GDBusConnection *connection,
-                        const gchar *name)
+                        const gchar *name,
+                        const gchar *logname)
 {
   return g_object_new (COCKPIT_TYPE_DBUS_CACHE,
                        "connection", connection,
                        "name", name,
+                       "logname", logname,
                        NULL);
 }

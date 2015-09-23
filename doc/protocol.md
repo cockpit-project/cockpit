@@ -289,11 +289,14 @@ is no longer supported.
 Additional "open" command options are needed to open a channel of this
 type:
 
- * "bus": The DBus bus to connect to either "session" or "system",
-   defaults to "system" if not present. If set to "internal" then this
-   channel will communicate with the internal bridge DBus connection.
+ * "bus": The DBus bus to connect to either "session", "system" or "none".
+   Defaults to "system" if not present. If set to "none" you must also
+   provide the address parameter.
  * "name": A service name of the DBus service to communicate with. Set to
-   null if "bus" is "internal".
+   null if "bus" is "none".
+ * "address": A dbus supported address to connect to. This option is only
+   used when bus is set to "none". Accepts any valid DBus address or
+   "internal" to communicate with the internal bridge DBus connection.
 
 The DBus bus name is started on the bus if it is not already running. If it
 could not be started the channel is closed with a "not-found". If the DBus

@@ -28,6 +28,7 @@
 #include <polkit/polkit.h>
 
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <err.h>
 #include <errno.h>
 #include <pwd.h>
@@ -102,6 +103,9 @@ main (int argc, char *argv[])
 
   /* set a minimal environment */
   setenv ("PATH", "/usr/sbin:/usr/bin:/sbin:/bin", 1);
+
+  /* Cleanup the umask */
+  umask (077);
 
   /* check that we are setuid root */
   if (geteuid () != 0)

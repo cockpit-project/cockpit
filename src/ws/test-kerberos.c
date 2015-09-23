@@ -397,7 +397,8 @@ static void
 on_kdc_setup (gpointer user_data)
 {
   /* Kill all sub processes when this process exits */
-  prctl (PR_SET_PDEATHSIG, 15);
+  if (prctl (PR_SET_PDEATHSIG, SIGTERM) < 0)
+    g_critical ("prctl failed: %s", g_strerror (errno));
 
   /* Start a new session for this process */
   setsid ();

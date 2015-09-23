@@ -42,13 +42,6 @@ check_require kadmin.local krb5kdc kdb5_util
 
 dir=$(mktemp -d)
 
-cleanup()
-{
-    rm -rf $dir/
-}
-
-trap "cleanup" SIGTERM SIGINT
-
 # Generate the KDC configuration file
 sed -e "s,[@]dir[@],$dir,g" mock-krb5.conf.in > $dir/krb5.conf
 sed -e "s,[@]dir[@],$dir,g" mock-kdc.conf.in > $dir/kdc.conf
@@ -91,4 +84,4 @@ done
 # Run krb5kdc
 LC_ALL=C krb5kdc -n -r COCKPIT.MOCK 2>&1
 
-cleanup
+rm -rf $dir/

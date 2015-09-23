@@ -50,11 +50,13 @@
             }
 
             function brand(_id, def) {
-                var elt = id(_id);
-                if (!elt)
+                var sytle, elt = id(_id);
+                if (elt)
+                    style = window.getComputedStyle(elt);
+                if (!style)
                     return;
 
-                var len, content = window.getComputedStyle(elt).content;
+                var len, content = style.content;
                 if (content && content != "none" && content != "normal") {
                     len = content.length;
                     if ((content[0] === '"' || content[0] === '\'') &&

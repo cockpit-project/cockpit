@@ -35,7 +35,6 @@ define([
 
     var default_title = "Cockpit";
 
-    var shell_outer = window.parent === window;
     var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
 
     /* The oops bar */
@@ -281,11 +280,7 @@ define([
 
     /* Build an href for use in an <a> */
     function href(state, sidebar) {
-        var string = encode(state, sidebar);
-        if (shell_embedded)
-            return "#" + string;
-        else
-            return string;
+        return encode(state, sidebar);
     }
 
     /* Encode navigate state into a string */
@@ -328,7 +323,7 @@ define([
         var state = window.history.state;
         if (!state || state.version !== "v1") {
             if (shell_embedded)
-                state = decode(window.location.hash);
+                state = decode("/" + window.location.hash);
             else
                 state = decode(window.location.pathname + window.location.hash);
         }
@@ -351,10 +346,10 @@ define([
         var target;
         var history = window.history;
 
-        if (shell_outer)
-            target = encode(state);
-        else
+        if (shell_embedded)
             target = window.location;
+        else
+            target = encode(state);
         if (replace) {
             history.replaceState(state, "", target);
             return false;
@@ -416,7 +411,7 @@ define([
     function choose_component(state, compiled) {
         var item;
 
-        if (machines.list.length <= 1)
+        if (machines.list.length <= 1 || shell_embedded)
             state.sidebar = true;
 
         /* See if we should show a dashboard */

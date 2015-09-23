@@ -477,7 +477,7 @@ test_unsupported_auth (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   g_assert_cmpstr (result, ==, problem);
-  g_assert_cmpstr (problem, ==, "not-supported");
+  g_assert_cmpstr (problem, ==, "authentication-not-supported");
   g_free (problem);
   g_free (result);
 }

@@ -32,4 +32,14 @@ class TestLoopback(MachineCase):
         m.spawn("/usr/libexec/cockpit-ws --local-ssh --no-tls", "cockpit-ws");
         b.login_and_go("/system", user="admin")
 
+        m.execute("sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config")
+
+        b.logout()
+        b.wait_visible("#login")
+        b.set_val('#login-user-input', "admin")
+        b.set_val('#login-password-input', "foobar")
+        b.click('#login-button')
+        b.wait_visible('#login-fatal')
+        self.assertIn("The server refused to authenticate 'admin' using password authentication, and no other supported authentication methods are available.", b.text('#login-fatal'));
+
 test_main()

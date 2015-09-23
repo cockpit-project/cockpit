@@ -596,9 +596,10 @@ class Phantom:
         if arg_trace:
             print "->", repr(args)[:200]
         self.driver.stdin.write(json.dumps(args).replace("\n", " ")+ "\n")
-        res = json.loads(self.driver.stdout.readline())
+        line = self.driver.stdout.readline()
         if arg_trace:
-            print "<-", res
+            print "<-", line.strip()
+        res = json.loads(line)
         if 'error' in res:
             raise Error(res['error'])
         if 'timeout' in res:

@@ -851,68 +851,6 @@ fork_session (char **env)
 }
 
 static void
-maybe_nsenter (void)
-{
-  struct {
-    int type;
-    const char *name;
-    int fd;
-  } namespaces[] = {
-    { CLONE_NEWUSER, "ns/user", -1 },
-    { CLONE_NEWIPC, "ns/ipc", -1 },
-    { CLONE_NEWUTS, "ns/uts", -1 },
-    { CLONE_NEWNET, "ns/net", -1 },
-    { CLONE_NEWPID, "ns/pid", -1 },
-    { CLONE_NEWNS, "ns/mnt", -1 },
-    { 0 }
-  };
-
-  const char *baselink = "/container/target-namespace";
-  char base[256];
-  char *filename;
-  ssize_t len;
-  int i;
-
-  len = readlink (baselink, base, sizeof (base));
-  if (len < 0)
-    {
-      /* A missing namespace file is not a bug */
-      if (errno == ENOENT)
-        return;
-
-      err (EX, "couldn't read target namespace link: %s", baselink);
-    }
-  else if (len == sizeof (base))
-    {
-      errx (EX, "target namespace link too long: %s", baselink);
-    }
-
-  for (i = 0; namespaces[i].type != 0; i++)
-    {
-      if (asprintf (&filename, "%s/%s", base, namespaces[i].name) < 0)
-        errx (42, "couldn't allocate namespace name");
-      namespaces[i].fd = open (filename, O_RDONLY);
-      if (namespaces[i].fd < 0)
-        err (EX, "couldn't open namespace file: %s", filename);
-      free (filename);
-    }
-
-  for (i = 0; namespaces[i].type != 0; i++)
-    {
-      if (setns (namespaces[i].fd, namespaces[i].type) < 0)
-        {
-          /* For now we ignore errors resulting from the user namespace not being active */
-          if (namespaces[i].type != CLONE_NEWUSER || errno != EINVAL)
-            err (EX, "couldn't change into %s namespace", namespaces[i].name);
-        }
-      close (namespaces[i].fd);
-    }
-
-  if (chdir ("/") < 0)
-    err (EX, "couldn't change to root directory");
-}
-
-static void
 pass_to_child (int signo)
 {
   kill (child, signo);
@@ -1001,9 +939,6 @@ main (int argc,
   signal (SIGTSTP, SIG_IGN);
   signal (SIGHUP, SIG_IGN);
   signal (SIGPIPE, SIG_IGN);
-
-  /* Switch namespaces if we've been requested to do so */
-  maybe_nsenter ();
 
   if (strcmp (auth, "basic") == 0)
     pamh = perform_basic ();

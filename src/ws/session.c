@@ -30,13 +30,15 @@
 #include <string.h>
 
 #include <security/pam_appl.h>
+
+#include <sys/types.h>
 #include <sys/signal.h>
+#include <sys/stat.h>
 #include <sys/resource.h>
 #include <dirent.h>
 #include <sched.h>
 #include <utmp.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <pwd.h>
 #include <sys/wait.h>
 #include <grp.h>
@@ -963,6 +965,9 @@ main (int argc,
 
   if (argc != 3)
     errx (2, "invalid arguments to cockpit-session");
+
+  /* Cleanup the umask */
+  umask (077);
 
   save_environment ();
 

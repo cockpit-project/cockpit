@@ -24,8 +24,9 @@ define([
     "storage/jobs",
     "storage/overview",
     "storage/details",
+    "storage/utils",
     "translated!base1/po",
-], function($, cockpit, client, jobs, overview, details, po) {
+], function($, cockpit, client, jobs, overview, details, utils, po) {
     cockpit.locale(po);
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
@@ -49,6 +50,8 @@ define([
         $('body').on('click', '[data-goto-vgroup]', function () {
             cockpit.location.go([ 'vg', $(this).attr('data-goto-vgroup') ]);
         });
+
+        utils.init_arming_zones($('body'));
 
         function navigate() {
             var path = cockpit.location.path;

@@ -349,7 +349,6 @@ open_session (pam_handle_t *pamh)
 {
   struct passwd *buf = NULL;
   const char *name;
-  char login[256];
   int res;
 
   name = NULL;
@@ -376,16 +375,16 @@ open_session (pam_handle_t *pamh)
     }
 
   /*
-   * If we're already in the right session, then skip cockpit-session.
-   * This is used when testing, or running as your own user.
-   *
-   * This doesn't apply if this code is running as a service, or otherwise
-   * unassociated from a terminal, we get a non-zero return value from
-   * getlogin_r() in that case.
+   * If we're already running as the right user, and have authenticated
+   * then skip starting a new session. This is used when testing, or
+   * running as your own user.
    */
 
-  want_session = (getlogin_r (login, sizeof (login)) != 0 ||
-                  strcmp (login, pwd->pw_name) != 0);
+  want_session = !(geteuid () != 0 &&
+                   geteuid () == pwd->pw_uid &&
+                   getuid () == pwd->pw_uid &&
+                   getegid () == pwd->pw_gid &&
+                   getgid () == pwd->pw_gid);
 
   if (want_session)
     {

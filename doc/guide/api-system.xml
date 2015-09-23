@@ -4,27 +4,27 @@
 [
   <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
 ]>
-<reference id="api-server">
-  <title>API: server</title>
+<reference id="api-system">
+  <title>API: system</title>
 
   <partintro>
-    <para>This package contains general components for basic control of a server.</para>
+    <para>This package contains general components for basic control of a system.</para>
   </partintro>
 
-  <refentry id="api-log-html">
+  <refentry id="api-logs-html">
     <refmeta>
-      <refentrytitle>log.html</refentrytitle>
+      <refentrytitle>logs.html</refentrytitle>
     </refmeta>
 
     <refnamediv>
-      <refname>log.html</refname>
+      <refname>logs.html</refname>
       <refpurpose>System log component</refpurpose>
     </refnamediv>
 
     <refsection>
       <title>Description</title>
 <programlisting>
- &lt;iframe src="http://server:9090/cockpit/@localhost/server/log.html"
+ &lt;iframe src="http://127.0.0.1:9090/cockpit+app/@localhost/system/logs.html"
      width="600" height="400"&gt;&lt;/iframe&gt;
 </programlisting>
 
@@ -34,7 +34,7 @@
       <variablelist>
         <varlistentry>
           <term>Component URL</term>
-          <listitem><para><code>/cockpit/@localhost/server/log.html</code></para></listitem>
+          <listitem><para><code>/cockpit+app/@localhost/system/logs.html</code></para></listitem>
         </varlistentry>
         <varlistentry>
           <term>Filter by priority</term>
@@ -98,7 +98,7 @@
     <refsection>
       <title>Description</title>
 <programlisting>
- &lt;iframe src="http://server:9090/cockpit/@localhost/server/terminal.html"
+ &lt;iframe src="http://127.0.0.1:9090/cockpit+app/@localhost/system/terminal.html"
      width="600" height="400"&gt;&lt;/iframe&gt;
 </programlisting>
 
@@ -108,7 +108,7 @@
       <variablelist>
         <varlistentry>
           <term>Component URL</term>
-          <listitem><para><code>/cockpit/@localhost/server/terminal.html</code></para></listitem>
+          <listitem><para><code>/cockpit+app/@localhost/system/terminal.html</code></para></listitem>
         </varlistentry>
       </variablelist>
 

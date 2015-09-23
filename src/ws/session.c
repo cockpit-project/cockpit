@@ -783,12 +783,12 @@ fdwalk (int (*cb)(void *data, int fd),
 static int
 session (char **env)
 {
-  char *argv[] = { PACKAGE_BIN_DIR "/cockpit-bridge", NULL };
+  char *argv[] = { "cockpit-bridge", NULL };
   debug ("executing bridge: %s", argv[0]);
   if (env)
-    execve (argv[0], argv, env);
+    execvpe (argv[0], argv, env);
   else
-    execv (argv[0], argv);
+    execvp (argv[0], argv);
   warn ("can't exec %s", argv[0]);
   return 127;
 }

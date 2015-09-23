@@ -134,6 +134,44 @@
     </div>
   </script>
 
+  <script id="iscsi-sessions-tmpl" type="x-template/mustache">
+    <div class="panel panel-default arming-zone">
+      <div class="panel-heading">
+        <span class="pull-right">
+          {{#HasSessions}}
+          <button class="btn btn-default fa fa-check arm-button"></button>
+          {{/HasSessions}}
+          <button data-action="edit-iscsi" class="btn btn-default pficon pficon-edit"></button>
+          <button data-action="add-iscsi-portal" class="btn btn-primary fa fa-plus"></button>
+        </span>
+        <span translatable="yes">iSCSI Targets</span>
+      </div>
+      {{#HasSessions}}
+      <table class="table">
+        {{#Sessions}}
+        <tr>
+          <td style="width: 48px">
+            <div><img  src="images/storage-array.png"></div>
+          </td>
+          <td class="row">
+            <span class="col-md-12">{{Name}}</span>
+            <br>
+            <span class="col-md-12 col-lg-5" translatable="yes">{{Address}}:{{Port}}</span>
+          </td>
+          <td style="width: 48px">
+            <button class="btn btn-danger pficon pficon-delete btn-delete needs-arming"
+                    data-iscsi-session-remove="{{path}}">
+          </td>
+        </tr>
+        {{/Sessions}}
+      </table>
+      {{/HasSessions}}
+      {{^HasSessions}}
+      <div translatable="yes" class="empty-panel-text">No iSCSI targets set up</div>
+      {{/HasSessions}}
+    </div>
+  </script>
+
   <script id="drives-tmpl" type="x-template/mustache">
     <div class="panel panel-default">
       <div class="panel-heading">
@@ -323,6 +361,7 @@
     <div class="col-md-4 col-lg-3 storage-sidebar page">
       <div id="mdraids"></div>
       <div id="vgroups"></div>
+      <div id="iscsi-sessions"></div>
       <div id="drives"></div>
       <div id="others"></div>
       <div id="jobs"></div>

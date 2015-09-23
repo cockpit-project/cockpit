@@ -387,9 +387,15 @@ a {
     font-family: monospace, courier new;
     margin-top: 0;
     margin-bottom: 0;
-    font-size: 12px;
+    font-size: 10px;
     text-align: center;
     line-height: 1;
+}
+
+@media (min-width: 568px) {
+    .console {
+        font-size: 12px;
+    }
 }
 
 .console > .logs {

@@ -162,6 +162,8 @@ function step ()
         page.onLoadFinished = function(status) {
             if (status != "success" && failure)
                 status = failure;
+            page.onLoadFinished = null;
+            page.onResourceError = null;
             callback(status);
         };
     }
@@ -238,8 +240,8 @@ function step ()
 
             function respond(val)
             {
-                result(val);
                 onCheckpoint = null;
+                result(val);
                 if (local_timeout)
                     disarm_timeout();
                 step ();

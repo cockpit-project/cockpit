@@ -50,6 +50,7 @@ var sys = require('system');
 var onCheckpoint;
 var lastError;
 var waitTimeout;
+var didTimeout;
 
 function arm_timeout(timeout) {
     if (waitTimeout)

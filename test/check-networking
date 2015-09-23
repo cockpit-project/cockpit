@@ -180,6 +180,9 @@ class TestNetworking(MachineCase):
         b.wait_visible("#networking")
         b.wait_not_in_text("#networking-interfaces", "tbond")
 
+        # Due to above reload
+        self.allow_journal_messages(".*Connection reset by peer.*")
+
     def testBridge(self):
         b = self.browser
         m = self.machine

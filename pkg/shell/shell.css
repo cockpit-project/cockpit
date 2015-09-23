@@ -191,7 +191,14 @@ html, body {
     font-size: 18px;
 }
 
-/* Style a button group */
+/* navbar styles */
+
+.navbar-pf .navbar-toggle {
+    color: white;
+    font-size: 17px;
+    padding: 3px 10px;
+    line-height: 1;
+}
 
 .navbar-primary .btn-group {
     margin: 5px 0;
@@ -453,7 +460,7 @@ html, body {
     border-left: 7px solid #BABABA;
     border-top: none;
     border-bottom: none;
-    height: 44px;
+    height: 33px;
     padding: 0px;
     float: left;
 }
@@ -501,6 +508,7 @@ html, body {
     width: 24px;
     height: 24px;
     margin-right: 9px;
+    display: none;
 }
 
 #machine-spinner {
@@ -510,8 +518,21 @@ html, body {
 
 #sidebar {
     float: left;
-    width: 210px;
+    width: 120px;
     padding: 0 20px;
+    border-right: 1px solid #D0D0D0;
+    background-color: #FAFAFA;
+}
+
+#sidebar a {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+#sidebar .panel-group .panel-default {
+    margin-left: -20px;
+    margin-right: -20px;
 }
 
 .nopadding {
@@ -567,4 +588,17 @@ iframe.container-frame {
 
 #sidebar-tools > li > a {
   padding-left: 20px;
+}
+
+/* For when displayed normally */
+@media (min-width: 768px) {
+    #sidebar {
+        width: 210px;
+    }
+    .machine-avatar {
+        display: inline;
+    }
+    #machine-color: {
+        height: 44px;
+    }
 }

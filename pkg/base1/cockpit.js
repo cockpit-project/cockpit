@@ -2314,6 +2314,8 @@ function full_scope(cockpit, $, po) {
             return _("Not permitted to perform this action.");
         else if (problem == "authentication-failed")
             return _("Login failed");
+        else if (problem == "authentication-not-supported")
+            return _("The server refused to authenticate using any supported methods.");
         else if (problem == "unknown-hostkey")
             return _("Untrusted host");
         else if (problem == "internal-error")

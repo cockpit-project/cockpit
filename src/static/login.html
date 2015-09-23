@@ -200,7 +200,7 @@
                     } else if (xhr.status == 401) {
                         if (window.console)
                             console.log(xhr.statusText);
-                        if (xhr.statusText.indexOf("not-supported") > -1) {
+                        if (xhr.statusText.indexOf("authentication-not-supported") > -1) {
                             var user = trim(id("login-user-input").value);
                             fatal("The server refused to authenticate '" + user + "' using password authentication, and no other supported authentication methods are available.");
                         } else {

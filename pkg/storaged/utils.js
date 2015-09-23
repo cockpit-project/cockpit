@@ -316,5 +316,20 @@ define([
         return multipathd_service;
     };
 
+    utils.init_arming_zones = function init_arming_zones($top) {
+        $top.on('click', 'button.arm-button', function () {
+            var was_active = $(this).hasClass('active');
+            $(this).toggleClass('active', !was_active);
+            $(this).parents('.arming-zone').toggleClass('armed', !was_active);
+        });
+    };
+
+    utils.reset_arming_zone = function reset_arming_zone($btn) {
+        var $zone = $btn.parents('.arming-zone');
+        var $arm_btn = $zone.find('.arm-button');
+        $arm_btn.removeClass('active');
+        $zone.removeClass('armed');
+    };
+
     return utils;
 });

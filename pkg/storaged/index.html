@@ -96,6 +96,37 @@
     {{/HasVGroups}}
   </script>
 
+  <script id="iscsi-sessions-tmpl" type="x-template/mustache">
+    {{#HasSessions}}
+    <div class="panel panel-default arming-zone">
+      <div class="panel-heading">
+        <div style="float:right">
+          <button class="btn btn-default fa fa-check arm-button">
+        </div>
+        <span translatable="yes">iSCSI Portals</span>
+      </div>
+      <table class="table">
+        {{#Sessions}}
+        <tr>
+          <td style="width: 48px">
+            <div><img  src="images/storage-array.png"></div>
+          </td>
+          <td class="row">
+            <span class="col-md-12">{{Name}}</span>
+            <br>
+            <span class="col-md-12 col-lg-5" translatable="yes">{{Address}}:{{Port}}</span>
+          </td>
+          <td style="width: 48px">
+            <button class="btn btn-danger pficon pficon-delete btn-delete needs-arming"
+                    data-iscsi-session-remove="{{path}}">
+          </td>
+        </tr>
+        {{/Sessions}}
+      </table>
+    </div>
+    {{/HasSessions}}
+  </script>
+
   <script id="drives-tmpl" type="x-template/mustache">
     {{#HasDrives}}
     <div class="panel panel-default">
@@ -286,9 +317,14 @@
           <button id="create-volume-group" class="btn btn-default storage-privileged"
                   translatable="yes">Create Volume Group</button>
         </div>
+        <div class="col-xs-6 col-md-12 col-lg-6">
+          <button id="add-iscsi-portal" class="btn btn-default storage-privileged"
+                  translatable="yes">Add iSCSI Portal</button>
+        </div>
       </div>
       <div id="mdraids"></div>
       <div id="vgroups"></div>
+      <div id="iscsi-sessions"></div>
       <div id="drives"></div>
       <div id="others"></div>
       <div id="jobs"></div>

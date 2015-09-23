@@ -38,6 +38,7 @@ define([
 
         function update_features() {
             $('#create-volume-group').toggle(client.features.lvm2);
+            $('#add-iscsi-portal').toggle(client.features.iscsi);
         }
 
         $(client.features).on("changed", update_features);
@@ -102,6 +103,37 @@ define([
         }
 
         $(client).on('changed', render_vgroups);
+
+        var iscsi_sessions_tmpl = $("#iscsi-sessions-tmpl").html();
+        mustache.parse(iscsi_sessions_tmpl);
+
+        function render_iscsi_sessions() {
+            function cmp_session(path_a, path_b) {
+                var session_a = client.iscsi_sessions[path_a];
+                var session_b = client.iscsi_sessions[path_b];
+                return session_a.target_name.localeCompare(session_b.target_name);
+            }
+
+            function make_session(path) {
+                var session = client.iscsi_sessions[path];
+                return {
+                    path: path,
+                    Name: session.data["target_name"],
+                    Tpgt: session.data["tpgt"],
+                    Address: session.data["persistent_address"],
+                    Port: session.data["persistent_port"]
+                };
+            }
+
+            var s = Object.keys(client.iscsi_sessions).sort(cmp_session).map(make_session);
+            $('#iscsi-sessions').amend(mustache.render(iscsi_sessions_tmpl,
+                                                       { Sessions: s,
+                                                         HasSessions: s.length > 0
+                                                       }));
+            permissions.update();
+        }
+
+        $(client).on('changed', render_iscsi_sessions);
 
         var drives_tmpl = $("#drives-tmpl").html();
         mustache.parse(drives_tmpl);
@@ -367,6 +399,7 @@ define([
 
         render_mdraids();
         render_vgroups();
+        render_iscsi_sessions();
         render_drives();
         render_others();
         render_mounts();
@@ -459,6 +492,85 @@ define([
                               }
                           }
                         });
+        });
+
+        function iscsi_discover() {
+            dialog.open({ Title: _("Add iSCSI Portal"),
+                          Fields: [
+                              { TextInput: "address",
+                                Title: _("Server Address"),
+                                validate: function (val) {
+                                    if (val === "")
+                                        return _("Server address can not be empty.");
+                                }
+                              }
+                          ],
+                          Action: {
+                              Title: _("Next"),
+                              action: function (vals, dialog) {
+                                  return client.manager_iscsi.call('DiscoverSendTargetsNoAuth',
+                                                                   [ vals.address,
+                                                                     0,
+                                                                     { }
+                                                                   ]);
+                              }
+                          }
+                        }).
+                done(function (vals, results) {
+                    iscsi_add(vals, results[0]);
+                });
+        }
+
+        function iscsi_add(discover_options, nodes) {
+            var target_rows = nodes.map(function (n) {
+                return { Columns: [ n[0], n[2], n[3] ],
+                         value: n
+                       };
+            });
+            dialog.open({ Title: cockpit.format(_("Available targets on $0"),
+                                                discover_options.address),
+                          Fields: [
+                              { SelectRow: "target",
+                                Title: _("Targets"),
+                                Headers: [ _("Name"), _("Address"),_("Port") ],
+                                Rows: target_rows
+                              }
+                          ],
+                          Action: {
+                              Title: _("Add"),
+                              action: function (vals) {
+                                  var target = vals.target;
+                                  return client.manager_iscsi.call('Login',
+                                                                   [ target[0],
+                                                                     target[1],
+                                                                     target[2],
+                                                                     target[3],
+                                                                     target[4],
+                                                                     { }
+                                                                   ]);
+                              }
+                          }
+                        });
+        }
+
+        function iscsi_remove(path) {
+            var session = client.iscsi_sessions[path];
+            if (!session)
+                return;
+
+            session.Logout({}).
+                fail(function (error) {
+                    $('#error-popup-title').text(_("Error"));
+                    $('#error-popup-message').text(error.toString());
+                    $('#error-popup').modal('show');
+                });
+        }
+
+        $('#add-iscsi-portal').on('click', iscsi_discover);
+
+        $('#storage').on('click', '[data-iscsi-session-remove]', function () {
+            utils.reset_arming_zone($(this));
+            iscsi_remove($(this).attr('data-iscsi-session-remove'));
         });
 
         function hide() {

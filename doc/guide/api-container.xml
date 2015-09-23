@@ -4,14 +4,11 @@
 [
   <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
 ]>
-<reference id="api-container">
-  <title>API: container</title>
+<reference id="api-docker">
+  <title>API: docker</title>
 
   <partintro>
-    <para>This package contains components for control of containers.</para>
-
-    <para>This is currently implemented using Docker, but when another implementation of
-      this package comes along, it should ideally function similarly.</para>
+    <para>This package contains components for control of Docker containers.</para>
   </partintro>
 
   <refentry id="api-console-html">
@@ -27,7 +24,7 @@
     <refsection>
       <title>Description</title>
 <programlisting>
- &lt;iframe src="http://server:9090/cockpit/@localhost/container/console.html"
+ &lt;iframe src="http://server:9090/cockpit/@localhost/docker/console.html"
      width="600" height="400"&gt;&lt;/iframe&gt;
 </programlisting>
 
@@ -38,7 +35,7 @@
       <variablelist>
         <varlistentry>
           <term>Component URL</term>
-          <listitem><para><code>/cockpit/@localhost/server/terminal.html</code></para></listitem>
+          <listitem><para><code>/cockpit/@localhost/docker/console.html</code></para></listitem>
         </varlistentry>
         <varlistentry>
           <term>Container Identifier</term>

@@ -39,6 +39,7 @@ define([
         function update_features() {
             $('#create-volume-group').toggle(client.features.lvm2);
             $('#add-iscsi-portal').toggle(client.features.iscsi);
+            $('#change-iscsi-iqn').toggle(client.features.iscsi);
         }
 
         $(client.features).on("changed", update_features);
@@ -566,7 +567,32 @@ define([
                 });
         }
 
+        function iscsi_change_iqn() {
+            client.manager_iscsi.call('GetInitiatorName').
+                done(function (results) {
+                    var iqn = results[0];
+                    dialog.open({ Title: _("Change iSCSI Initiator Name"),
+                                  Fields: [
+                                      { TextInput: "iqn",
+                                        Title: _("Name"),
+                                        Value: iqn
+                                      }
+                                  ],
+                                  Action: {
+                                      Title: _("Change"),
+                                      action: function (vals) {
+                                          return client.manager_iscsi.call('SetInitiatorName',
+                                                                           [ vals.iqn,
+                                                                             { }
+                                                                           ]);
+                                      }
+                                  }
+                                });
+                });
+        }
+
         $('#add-iscsi-portal').on('click', iscsi_discover);
+        $('#change-iscsi-iqn').on('click', iscsi_change_iqn);
 
         $('#storage').on('click', '[data-iscsi-session-remove]', function () {
             utils.reset_arming_zone($(this));

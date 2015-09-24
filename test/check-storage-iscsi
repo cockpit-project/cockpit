@@ -29,9 +29,11 @@ class TestStorage(StorageCase):
         # XXX - worry about this later
         self.allow_journal_messages(".*")
 
+        initiator_iqn = "iqn.2015-10.cockpit.lan"
+        target_iqn = "iqn.2015-09.cockpit.lan"
+
         # Setup a iSCSI target without authentication
         #
-        target_iqn = "iqn.2015-09.cockpit.lan"
         m.execute("""
                   targetcli /backstores/ramdisk create test 10M nullio=true
                   targetcli /iscsi create %(iqn)s
@@ -40,6 +42,19 @@ class TestStorage(StorageCase):
                   """ % { "iqn": target_iqn })
 
         self.login_and_go("/storage")
+
+        # Set initiator IQN
+        #
+        orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
+        b.wait_visible('#change-iscsi-iqn')
+        b.click('#change-iscsi-iqn')
+        self.dialog(expect = { "iqn": orig_iqn },
+                    values = { "iqn": initiator_iqn })
+        new_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
+        self.assertEqual(new_iqn, initiator_iqn)
+
+        # Access the target
+
         b.wait_visible('#add-iscsi-portal')
         b.click('#add-iscsi-portal')
 

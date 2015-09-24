@@ -1661,7 +1661,9 @@ define([
             server.logbox([ "_SYSTEMD_UNIT=storaged.service", "+",
                             "_SYSTEMD_UNIT=udisks2.service", "+",
                             "_SYSTEMD_UNIT=dm-event.service", "+",
-                            "_SYSTEMD_UNIT=smartd.service" ],
+                            "_SYSTEMD_UNIT=smartd.service", "+",
+                            "_SYSTEMD_UNIT=multipathd.service"
+                          ],
                           10));
 
         $('#storage-detail .breadcrumb a').on("click", function() {

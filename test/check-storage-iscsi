@@ -1,0 +1,61 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+from testlib import *
+from storagelib import *
+
+class TestStorage(StorageCase):
+    def testISCSI(self):
+        m = self.machine
+        b = self.browser
+
+        # XXX - worry about this later
+        self.allow_journal_messages(".*")
+
+        # Setup a iSCSI target without authentication
+        #
+        target_iqn = "iqn.2015-09.cockpit.lan"
+        m.execute("""
+                  targetcli /backstores/ramdisk create test 10M nullio=true
+                  targetcli /iscsi create %(iqn)s
+                  targetcli /iscsi/%(iqn)s/tpg1/luns create /backstores/ramdisk/test
+                  targetcli /iscsi/%(iqn)s/tpg1 set attribute generate_node_acls=1
+                  """ % { "iqn": target_iqn })
+
+        self.login_and_go("/storage")
+        b.wait_visible('#add-iscsi-portal')
+        b.click('#add-iscsi-portal')
+
+        self.dialog_wait_open()
+        self.dialog_set_val("address", "127.0.0.1")
+        self.dialog_apply()
+        # The dialog closes and a new dialog opens but we can't get
+        # inbetween that, so we just wait for the new fields to
+        # appear.
+        b.wait_present(self.dialog_field("target"))
+        b.wait_in_text(self.dialog_field("target"), target_iqn)
+        self.dialog_apply()
+        self.dialog_wait_close()
+        b.wait_in_text('#drives', "LIO-ORG test")
+
+        # XXX - check that session is listed and that logout works.
+        # This is blocked on https://bugzilla.redhat.com/show_bug.cgi?id=1262279
+
+test_main()

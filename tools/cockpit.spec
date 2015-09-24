@@ -349,6 +349,7 @@ This package contains the Cockpit shell UI assets.
 %package storaged
 Summary: Cockpit user interface for storage, using Storaged
 Requires: storaged >= 2.1.1
+Requires: storaged-lvm2 >= 2.1.1
 BuildArch: noarch
 
 %description storaged

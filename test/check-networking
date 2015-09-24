@@ -101,7 +101,7 @@ class TestNetworking(MachineCase):
 
         # Disconnect
         #
-        b.click(".panel-heading:contains('%s') button:contains('Off')" % iface)
+        b.click(".panel-heading:contains('%s') .btn:contains('Off')" % iface)
         b.wait_in_text("tr:contains('Status')", "Inactive")
 
         # Switch it back to "auto" from the command line and bring it
@@ -165,7 +165,7 @@ class TestNetworking(MachineCase):
 
         # Deactivate the bond and make sure it is still there after a
         # reload.
-        b.click(".panel-heading:contains('tbond') button:contains('Off')")
+        b.click(".panel-heading:contains('tbond') .btn:contains('Off')")
         b.wait_in_text("tr:contains('Status')", "Inactive")
         b.reload()
         b.enter_page("/network")

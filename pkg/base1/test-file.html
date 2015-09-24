@@ -38,8 +38,10 @@
 var dir;
 
 asyncTest("simple read", function() {
-    expect(2);
-    cockpit.file(dir + "/foo").read().
+    expect(3);
+    var file = cockpit.file(dir + "/foo");
+    equal(file.path, dir + "/foo", "file has path");
+    file.read().
         done(function(resp) {
             equal(resp, "1234\n", "correct result");
         }).

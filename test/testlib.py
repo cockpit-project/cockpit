@@ -131,26 +131,16 @@ class Browser:
             sleep(0.1)
             tries = tries + 1
 
-        self.init_after_load()
-
-    def init_after_load(self):
-        self.phantom.inject("%s/sizzle.js" % topdir)
-        self.phantom.inject("%s/phantom-lib.js" % topdir)
-        self.phantom.do("ph_init()")
-
     def reload(self):
         self.switch_to_top()
         self.wait_js_cond("ph_select('iframe.container-frame').every(function (e) { return e.getAttribute('data-loaded'); })")
         self.phantom.reload()
-        self.init_after_load()
 
     def expect_reload(self):
         self.phantom.expect_reload(self.phantom_wait_timeout)
-        self.init_after_load()
 
     def switch_to_frame(self, name):
         self.phantom.switch_to_frame(name)
-        self.init_after_load()
 
     def switch_to_top(self):
         self.phantom.switch_to_top()
@@ -588,7 +578,12 @@ class Phantom:
         environ = os.environ.copy()
         if lang:
             environ["LC_ALL"] = lang
-        self.driver = subprocess.Popen([ "%s/phantom-driver" % topdir ], env=environ,
+        cmd = [
+            "%s/phantom-driver" % topdir,
+            "%s/sizzle.js" % topdir,
+            "%s/phantom-lib.js" % topdir
+        ]
+        self.driver = subprocess.Popen(cmd, env=environ,
                                        stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True)
         self.frame = None
 

@@ -86,6 +86,23 @@ function result(out) {
     sys.stdout.writeLine(JSON.stringify(out));
 }
 
+var canary = "phantom-canary" + -(Date());
+
+function inject_basics() {
+    var i, len;
+    if (!page.evaluate(function(x) { return x in window; }, canary)) {
+        for (i = 1, len = sys.args.length; i < len; i++) {
+            page.injectJs(sys.args[i]);
+            page.evaluate(function(x) {
+                window.phantom_checkpoint = function() {
+                    console.log("-*-CHECKPOINT-*-");
+                };
+                window[x] = x;
+            }, canary);
+        }
+    }
+}
+
 function step ()
 {
     function wait_reload(callback, timeout) {
@@ -178,6 +195,7 @@ function step ()
         } else if (cmd.cmd == "expect-reload") {
             wait_reload(on_load);
         } else if (cmd.cmd == "inject") {
+            inject_basics();
             var ret = page.injectJs(cmd.file);
             result({ result: ret });
             step();
@@ -209,6 +227,7 @@ function step ()
             // fall through to the phantom event loop
         } else if (cmd.cmd == "do") {
             lastError = null;
+            inject_basics();
             var func = "function () { " + cmd.code + "}";
             var val = page.evaluate (func);
             result({ result: val });
@@ -226,8 +245,8 @@ function step ()
                 step ();
             }
 
-            function check()
-            {
+            function check() {
+                inject_basics();
                 var val = page.evaluate (func);
                 if (val) {
                     if (didTimeout)

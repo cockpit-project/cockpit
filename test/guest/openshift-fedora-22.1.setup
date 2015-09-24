@@ -20,7 +20,9 @@ systemctl start docker
 # origin is too rotund to build in a normal sized VM. The linker
 # step runs out of memory. In addition origin has no Fedora packages
 docker pull openshift/origin
+docker pull openshift/origin-deployer
 docker pull openshift/origin-deployer:v1.0.5
+docker pull openshift/origin-docker-registry
 docker pull openshift/origin-docker-registry:v1.0.5
 docker run -d --name "origin" \
     --privileged --net=host --restart=always \

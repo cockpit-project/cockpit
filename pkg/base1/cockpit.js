@@ -1876,6 +1876,7 @@ function full_scope(cockpit, $, po) {
         var binary = options.binary;
 
         var self = {
+            path: path,
             read: read,
             replace: replace,
             modify: modify,

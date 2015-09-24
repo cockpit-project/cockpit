@@ -41,6 +41,7 @@
 #include "common/cockpitjson.h"
 #include "common/cockpitlog.h"
 #include "common/cockpitpipetransport.h"
+#include "common/cockpittest.h"
 #include "common/cockpitunixfd.h"
 #include "common/cockpitwebresponse.h"
 
@@ -443,6 +444,17 @@ run_bridge (const gchar *interactive)
 
   /* Reset the umask, typically this is done in .bashrc for a login shell */
   umask (022);
+
+  /*
+   * Trying to track down assertions in the bridge in various corner cases.
+   * If G_DEBUG is set (as it is during testing) then ask gdb to print
+   * backtraces when SIGABRT happens.
+   *
+   * HACK: This should be removed once we track down the following issue:
+   * cockpit_pipe_write: assertion '!self->priv->closing' failed
+   */
+  if (g_getenv ("G_DEBUG"))
+    signal (SIGABRT, cockpit_test_signal_backtrace);
 
   /*
    * This process talks on stdin/stdout. However lots of stuff wants to write

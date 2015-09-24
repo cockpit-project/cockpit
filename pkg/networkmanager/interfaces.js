@@ -25,7 +25,8 @@ define([
     "shell/shell",
     "system/server",
     "shell/cockpit-util",
-    "shell/plot"
+    "shell/plot",
+    "base1/patterns",
 ], function($, cockpit, Mustache, controls, shell, server) {
 "use strict";
 
@@ -1639,12 +1640,15 @@ PageNetworkInterface.prototype = {
         });
 
         $('#network-interface-delete').click($.proxy(this, "delete_connections"));
-        $('#network-interface-delete').parent().append(
-            this.device_onoff = controls.OnOff(false,
-                                            $.proxy(this, "connect"),
-                                            $.proxy(this, "disconnect"),
-                                            null,
-                                            "network-privileged"));
+
+        this.device_onoff = $("#network-interface-delete-switch")
+            .on("change", function() {
+                var val = $(this).onoff("value");
+                if (val)
+                    self.connect();
+                else
+                    self.disconnect();
+            });
 
         var blues = [ "#006bb4",
                       "#008ff0",
@@ -1867,7 +1871,7 @@ PageNetworkInterface.prototype = {
         $('#network-interface-mac').text(dev? dev.HwAddress : "");
 
         this.device_onoff.prop('disabled', !dev);
-        this.device_onoff.set(!!(dev && dev.ActiveConnection));
+        this.device_onoff.onoff("value", !!(dev && dev.ActiveConnection));
 
         $('#network-interface-disconnect').prop('disabled', !dev || !dev.ActiveConnection);
 
@@ -2234,17 +2238,16 @@ PageNetworkInterface.prototype = {
                                     [ $('<td>').text(""), $('<td>').text("") ] :
                                     $('<td colspan="2">').text(device_state_text(dev))),
                                    $('<td style="text-align:right">').append(
-                                       controls.OnOff(is_active,
-                                                     function () {
-                                                         slave_con.activate(iface.Device).
-                                                             fail(show_unexpected_error);
-                                                     },
-                                                     function () {
-                                                         if (dev) {
-                                                             dev.disconnect().
-                                                                 fail(show_unexpected_error);
-                                                         }
-                                                     }, null, "network-privileged")),
+                                       switchbox(is_active, function(val) {
+    console.log("is_active", val);
+                                           if (val) {
+                                               slave_con.activate(iface.Device).
+                                                   fail(show_unexpected_error);
+                                           } else if (dev) {
+                                               dev.disconnect().
+                                                   fail(show_unexpected_error);
+                                           }
+                                       }, "network-privileged")),
                                    $('<td width="28px">').append(
                                        $('<button class="btn btn-default btn-control network-privileged">').
                                            text("-").
@@ -2306,6 +2309,10 @@ function PageNetworkInterface(model) {
     this._init(model);
 }
 
+function switchbox(val, callback) {
+    return $('<div class="btn-onoff">').onoff();
+}
+
 PageNetworkIpSettings.prototype = {
     _init: function () {
         this.id = "network-ip-settings-dialog";
@@ -2356,12 +2363,12 @@ PageNetworkIpSettings.prototype = {
             var onoff;
             var btn = $('<span>').append(
                 $('<span style="margin-right:10px">').text(title),
-                onoff = controls.OnOff(!params[p], function (val) {
+                onoff = switchbox(!params[p], function(val) {
                     params[p] = !val;
                     self.update();
                 }));
             btn.enable = function enable(val) {
-                onoff.enable(val);
+                onoff.onoff("disabled", !val);
             };
             return btn;
         }

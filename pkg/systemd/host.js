@@ -196,17 +196,13 @@ PageServer.prototype = {
 
         var pmcd_service = service.proxy("pmcd");
         var pmlogger_service = service.proxy("pmlogger");
+        var pmlogger_promise;
 
-        self.pmlogger_onoff = controls.OnOff(false,
-                                             change_pmlogger_state,
-                                             null,
-                                             null,
-                                             null);
-
-        function change_pmlogger_state(val) {
+        $("#server-pmlogger-switch").on("change", function(ev) {
+            var val = $(this).onoff('value');
             if (pmlogger_service.exists) {
                 if (val) {
-                    $.when(pmcd_service.enable(),
+                    pmlogger_promise = $.when(pmcd_service.enable(),
                            pmcd_service.start(),
                            pmlogger_service.enable(),
                            pmlogger_service.start()).
@@ -214,25 +210,27 @@ PageServer.prototype = {
                             console.warn("Enabling pmlogger failed", error);
                         });
                 } else {
-                    $.when(pmlogger_service.disable(),
+                    pmlogger_promise = $.when(pmlogger_service.disable(),
                            pmlogger_service.stop()).
                         fail(function (error) {
                             console.warn("Disabling pmlogger failed", error);
                         });
                 }
+                pmlogger_promise.always(function() {
+                    pmlogger_promise = null;
+                    refresh_pmlogger_state();
+                });
             }
-        }
+        });
 
         function refresh_pmlogger_state() {
             if (!pmlogger_service.exists)
                 $('#server-pmlogger-onoff-row').hide();
-            else {
-                self.pmlogger_onoff.set(pmlogger_service.enabled);
+            else if (!pmlogger_promise) {
+                $("#server-pmlogger-switch").onoff('value', pmlogger_service.enabled);
                 $('#server-pmlogger-onoff-row').show();
             }
         }
-
-        $('#server-pmlogger-onoff').empty().append(self.pmlogger_onoff);
 
         $(pmlogger_service).on('changed', refresh_pmlogger_state);
         refresh_pmlogger_state();

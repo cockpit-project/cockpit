@@ -62,7 +62,18 @@
                 </tr>
                 <tr id="server-pmlogger-onoff-row" hidden>
                     <td translatable="yes">Store performance data</td>
-                    <td id="server-pmlogger-onoff"></td>
+                    <td>
+                        <div class="btn-group btn-onoff" id="server-pmlogger-switch" data-toggle="buttons">
+                            <label class="btn">
+                                <input type="radio" name="pmlogger-switch" autocomplete="off">
+                                <span translatable="yes">On</span>
+                            </label>
+                            <label class="btn active">
+                                <input type="radio" name="pmlogger-switch" autocomplete="off" checked>
+                                <span translatable="yes">Off</span>
+                            </label>
+                        </div>
+                    </td>
                 </tr>
             </table>
         </div>

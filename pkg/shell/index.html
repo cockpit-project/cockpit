@@ -7,6 +7,7 @@
     <link href="../base1/cockpit.css" rel="stylesheet">
     <link href="../../static/branding.css" rel="stylesheet">
     <link href="shell.css" rel="stylesheet">
+    <script src="../base1/require.js"></script>
     <script src="../base1/bundle.js"></script>
     <script src="bundle.js"></script>
   </head>
@@ -43,7 +44,7 @@
                 <a id="go-account" translatable="yes">Account Settings</a>
               </li>
               <li>
-                <a  id="deauthorize-item" translatable="yes">Drop extra privileges</a>
+                  <a data-toggle="modal" data-target="#credentials-dialog" translatable="yes">Authentication</a>
               </li>
               <li>
                 <a id="go-logout" translatable="yes">Log out</a>
@@ -160,6 +161,57 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="modal" id="credentials-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" translatable="yes">Authentication</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="listing credentials-listing">
+                        <thead>
+                            <tr id="credentials-authorize">
+                                <td translatable="yes" colspan="2">Use my password for privileged tasks and to connect to other machines</td>
+                                <td>
+                                    <button class="btn btn-default pficon pficon-close" id="deauthorize-item">
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td translatable="yes" colspan="2">Use the following keys to authenticate against other systems</td>
+                                <td>
+                                    <button class="btn btn-primary fa fa-plus">
+                                    </button>
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="listing-item">
+                                <th></th>
+                                <td></td>
+                                <td>
+                                    <div class="btn-group btn-onoff" data-toggle="buttons">
+                                        <label class="btn">
+                                            <input type="radio" name="credential-key" autocomplete="off">
+                                            <span translatable="yes">On</span>
+                                        </label>
+                                        <label class="btn active">
+                                            <input type="radio" name="credential-key" autocomplete="off" checked>
+                                            <span translatable="yes">Off</span>
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" data-dismiss="modal" translatable="yes">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="sidebar" class="sidebar-pf sidebar-pf-left" hidden>

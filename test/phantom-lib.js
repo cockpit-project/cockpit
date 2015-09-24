@@ -5,19 +5,12 @@
  * for routine operations.
  */
 
-function ph_init ()
-{
-    localStorage.clear();
-    if (!window.Sizzle)
-        throw "Sizzle was not properly loaded"
-    phantom_checkpoint = function() {
-        console.log ("-*-CHECKPOINT-*-");
-    }
-}
+localStorage.clear();
 
-function ph_select(sel)
-{
-    /* Sizzle loaded in testlib.py */
+if (!window.Sizzle)
+    throw "Sizzle was not properly loaded"
+
+function ph_select(sel) {
     return Sizzle(sel);
 }
 

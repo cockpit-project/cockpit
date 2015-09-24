@@ -1,7 +1,18 @@
 define([
-    "jquery"
-], function($) {
-    var plugins = { };
+    "jquery",
+    "base1/cockpit"
+], function($, cockpit) {
+    "use strict";
+
+    var _ = cockpit.gettext;
+
+    var unique_number = 0;
+    function unique() {
+        unique_number += 1;
+        return "unique" + -(new Date()) + -unique_number;
+    }
+
+    /* Dialog Patterns */
 
     function clear_errors(sel) {
         sel.find(".dialog-error").remove();
@@ -202,5 +213,58 @@ define([
             return display_wait(this, arguments[1], true);
         else
             console.warn("unknown dialog action: " + action);
+    };
+
+    /*
+     * OnOff switch pattern
+     */
+
+    function onoff_refresh(sel) {
+        sel = sel.find(".btn-onoff").andSelf().filter(".btn-onoff");
+        sel.each(function(x, el) {
+            var self = $(el)
+                .attr("data-toggle", "buttons")
+                .addClass("btn-group");
+            var value = self.onoff("value");
+            var buttons = self.find(".btn");
+            var name = self.find("input").first().attr("name") || unique();
+            var i, input, text;
+            for (i = buttons.length; i < 2; i++) {
+                input = $('<input type="radio" autocomplete="off">').attr("name", name);
+                text = document.createTextNode(i === 0 ? _("On") : _("Off"));
+                self.append($('<label class="btn">').append(input, text));
+                buttons = null;
+            }
+            buttons = buttons || self.find(".btn");
+            onoff_change(self, !!value);
+        });
+        return sel;
+    }
+
+    function onoff_value(sel) {
+        return sel.find(".btn").first().hasClass("active");
+    }
+
+    function onoff_change(sel, value) {
+        return sel.each(function(i, el) {
+            var buttons = $(el).find(".btn");
+            buttons.first().toggleClass("active", !!value).find("input").prop("checked", !!value);
+            buttons.last().toggleClass("active", !value).find("input").prop("checked", !value);
+        });
+    }
+
+    $.fn.onoff = function onoff(action /* ... */) {
+        if (arguments.length === 0 || action == "refresh") {
+            return onoff_refresh(this);
+        } else if (action === "value") {
+            if (arguments.length === 1)
+                return onoff_value(this);
+            else
+                return onoff_change(this, arguments[1]);
+        } else if (action == "disabled") {
+            return this.find(".btn").toggleClass("disabled", arguments[1]);
+        } else {
+            console.warn("unknown switch action: " + action);
+        }
     };
 });

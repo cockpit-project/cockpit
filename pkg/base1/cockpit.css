@@ -496,3 +496,42 @@ a {
 .navbar-pf .navbar-brand:hover {
     color: #F1F1F1;
 }
+
+/* On/off switch */
+
+.btn-onoff {
+    margin: 1px 0px;
+}
+
+.btn-onoff .btn {
+    border-color: #B7B7B7;
+    padding: 2px 6px 1px 6px;
+    background-color: white;
+}
+
+.btn-onoff .btn:first-child {
+    border-bottom-left-radius: 3px;
+    border-top-left-radius: 3px;
+    border-right: #00435F;
+}
+
+.btn-onoff .btn:last-child {
+    border-bottom-right-radius: 3px;
+    border-top-right-radius: 3px;
+    border-left: #00435F;
+    padding-left: 5px;
+}
+
+.btn-onoff .btn.active {
+    background-color: #0086CF;
+    color: white;
+}
+
+.btn-onoff .btn.disabled {
+    pointer-events: none;
+}
+
+.btn-onoff .btn.active.disabled {
+    background-color: #888 !important;
+    color: white !important;
+}

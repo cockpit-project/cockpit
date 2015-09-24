@@ -14,6 +14,7 @@ shelldebugdir = $(debugdir)$(shelldir)
 shelldebug_DATA = \
 	pkg/shell/shell.js \
 	pkg/shell/bundle.js \
+	pkg/shell/credentials.js \
 	pkg/shell/index.html \
 	pkg/shell/index.js \
 	pkg/shell/machines.js \
@@ -27,6 +28,7 @@ shelldebug_DATA = \
 	$(NULL)
 
 shell_BUNDLE = \
+	pkg/shell/credentials.min.js \
 	pkg/shell/index.min.js \
 	pkg/shell/machines.min.js \
 	$(NULL)

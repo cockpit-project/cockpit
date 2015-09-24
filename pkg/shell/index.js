@@ -23,9 +23,10 @@ define([
     "jquery",
     "base1/cockpit",
     "shell/machines",
+    "shell/credentials",
     'translated!base1/po',
     "manifests"
-], function($, cockpit, machis, po, local_manifests) {
+], function($, cockpit, machis, credentials, po, local_manifests) {
     "use strict";
 
     var module = { };
@@ -96,15 +97,6 @@ define([
 
     /* Basic menu items */
 
-    $("#deauthorize-item").on("click", function(ev) {
-        cockpit.drop_privileges(false);
-        $("#deauthorize-item")
-            .attr("disabled", "disabled")
-            .addClass("disabled")
-            .off("click");
-        ev.preventDefault();
-        phantom_checkpoint();
-    });
     $("#go-logout").on("click", function() {
         cockpit.logout();
     });

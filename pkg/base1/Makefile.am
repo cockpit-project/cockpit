@@ -4,7 +4,7 @@ basedir = $(pkgdatadir)/base1
 base_GEN = \
 	$(addprefix po/po.,$(addsuffix .js,$(LINGUAS))) \
 	$(NULL)
-base_GZ = \
+nodist_base_DATA = \
 	pkg/base1/angular.min.js.gz \
 	pkg/base1/cockpit.min.css.gz \
 	pkg/base1/po.js.gz \
@@ -18,7 +18,6 @@ base_GZ = \
 	$(NULL)
 base_DATA = \
 	pkg/base1/manifest.json \
-	$(base_GZ) \
 	$(NULL)
 
 basedebugdir = $(debugdir)$(basedir)
@@ -27,6 +26,7 @@ basedebug_DATA = \
 	pkg/base1/bootstrap-datepicker.js \
 	pkg/base1/bootstrap-select.js \
 	pkg/base1/bootstrap-combobox.js \
+	pkg/base1/bundle.js \
 	pkg/base1/cockpit.css \
 	pkg/base1/patternfly.css \
 	pkg/base1/patternfly-additions.css \
@@ -63,13 +63,6 @@ install-data-local::
 
 basefontsdir = $(pkgdatadir)/base1/fonts
 basefonts_DATA = \
-	pkg/base1/fonts/fontawesome.woff.gz \
-	pkg/base1/fonts/patternfly.woff.gz \
-	pkg/base1/fonts/glyphicons.woff.gz \
-	$(NULL)
-
-basefontsdebugdir = $(debugdir)$(basefontsdir)
-basefontsdebug_DATA = \
 	pkg/base1/fonts/fontawesome.woff \
 	pkg/base1/fonts/patternfly.woff \
 	pkg/base1/fonts/glyphicons.woff \
@@ -111,7 +104,7 @@ CLEANFILES += \
 	pkg/base1/patterns.min.js \
 	pkg/base1/bootstrap-combobox.min.js \
 	$(base_GEN) \
-	$(base_GZ) \
+	$(nodist_base_DATA) \
 	$(NULL)
 
 EXTRA_DIST += \
@@ -120,6 +113,7 @@ EXTRA_DIST += \
 	pkg/base1/bootstrap-datepicker.min.js \
 	pkg/base1/bootstrap-combobox.min.js \
 	pkg/base1/bundle.min.js \
+	pkg/base1/cockpit.min.css \
 	pkg/base1/jquery.min.js \
 	pkg/base1/require.min.js \
 	pkg/base1/mustache.min.js \

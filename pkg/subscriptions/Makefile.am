@@ -1,13 +1,12 @@
 
 subscriptionsdir = $(pkgdatadir)/subscriptions
-subscriptions_GZ = \
+nodist_subscriptions_DATA = \
 	pkg/subscriptions/index.min.html.gz \
 	pkg/subscriptions/subscriptions.min.css.gz \
 	pkg/subscriptions/subscriptions.min.js.gz \
 	$(NULL)
 subscriptions_DATA = \
 	pkg/subscriptions/manifest.json \
-	$(subscriptions_GZ) \
 	$(NULL)
 
 subscriptionsdebugdir = $(debugdir)$(subscriptionsdir)
@@ -21,7 +20,7 @@ CLEANFILES += \
 	pkg/subscriptions/index.min.html \
 	pkg/subscriptions/subscriptions.min.js \
 	pkg/subscriptions/subscriptions.min.css \
-	$(subscriptions_GZ) \
+	$(nodist_subscriptions_DATA) \
 	$(NULL)
 
 EXTRA_DIST += \

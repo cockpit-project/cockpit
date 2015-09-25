@@ -1,12 +1,11 @@
 
 dashboarddir = $(pkgdatadir)/dashboard
-dashboard_GZ = \
+nodist_dashboard_DATA = \
 	pkg/dashboard/bundle.min.js.gz \
 	pkg/dashboard/index.min.html.gz \
 	$(NULL)
 dashboard_DATA = \
 	pkg/dashboard/manifest.json \
-	$(dashboard_GZ) \
 	$(NULL)
 
 dashboarddebugdir = $(debugdir)$(dashboarddir)
@@ -28,8 +27,8 @@ pkg/dashboard/bundle.min.js: $(dashboard_BUNDLE)
 CLEANFILES += \
 	pkg/dashboard/bundle.min.js \
 	pkg/dashboard/index.min.html \
-	$(networkmanager_BUNDLE) \
-	$(networkmanager_GZ) \
+	$(dashboard_BUNDLE) \
+	$(nodist_dashboard_DATA) \
 	$(NULL)
 
 EXTRA_DIST += \

@@ -1,6 +1,6 @@
 
 dockerdir = $(pkgdatadir)/docker
-docker_GZ = \
+nodist_docker_DATA = \
 	pkg/docker/bundle.min.js.gz \
 	pkg/docker/console.min.html.gz \
 	pkg/docker/docker.min.css.gz \
@@ -9,7 +9,6 @@ docker_GZ = \
 	$(NULL)
 docker_DATA = \
 	pkg/docker/manifest.json \
-	$(docker_GZ) \
 	$(NULL)
 
 dockerdebugdir = $(debugdir)$(dockerdir)
@@ -52,13 +51,14 @@ TESTS += $(docker_TESTS)
 
 CLEANFILES += \
 	pkg/docker/bundle.min.js \
-	pkg/docker/bundle.min.js \
 	$(docker_BUNDLE) \
-	$(docker_GZ) \
+	$(nodist_docker_DATA) \
 	$(NULL)
 
 EXTRA_DIST += \
 	pkg/docker/bundle.min.js \
+	pkg/docker/console.min.html \
+	pkg/docker/docker.min.css \
 	pkg/docker/index.min.html \
 	$(docker_DATA) \
 	$(dockerdebug_DATA) \

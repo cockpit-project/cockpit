@@ -5,18 +5,47 @@
   <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
 ]>
 <reference id="api-base1">
-  <title>API: latest</title>
+  <title>API: base1</title>
 
   <partintro>
     <para>This package contains basic support API available to other packages.</para>
-
-    <warning>
-      <para>The plan is that most of this will become stable API. At that point
-        the package name will change to something like <code>cockpit1</code>. The
-        <code>latest</code> package will always track the latest version of these
-        APIs.</para>
-    </warning>
   </partintro>
+
+  <refentry id="api-cockpit">
+    <refnamediv>
+      <refname>cockpit.js</refname>
+      <refpurpose>Basic cockpit API to interact with the system</refpurpose>
+    </refnamediv>
+
+    <refsection>
+      <title>Loading cockpit.js</title>
+      <para><code>cockpit.js</code> should be loaded via a script tag. In general jQuery should
+        be loaded before <code>cockpit.js</code> as in the example below. If jQuery is not loaded
+        then only the <link linkend="cockpit-channels">raw channel API</link> will be defined.</para>
+
+<programlisting><![CDATA[
+<script src="../base1/jquery.js">
+<script src="../base1/cockpit.js">
+]]></programlisting>
+    </refsection>
+  </refentry>
+
+  <xi:include href="cockpit-dbus.xml"/>
+  <xi:include href="cockpit-file.xml"/>
+  <xi:include href="cockpit-http.xml"/>
+  <xi:include href="cockpit-spawn.xml"/>
+  <xi:include href="cockpit-metrics.xml"/>
+  <xi:include href="cockpit-series.xml"/>
+  <xi:include href="cockpit-channel.xml"/>
+
+  <xi:include href="cockpit-location.xml"/>
+
+  <xi:include href="cockpit-locale.xml"/>
+  <xi:include href="cockpit-error.xml"/>
+  <xi:include href="cockpit-session.xml"/>
+  <xi:include href="cockpit-util.xml"/>
+  <xi:include href="cockpit-cache.xml"/>
+  <xi:include href="cockpit-manifest.xml"/>
 
   <refentry id="api-base1-cockpit-css">
     <refmeta>
@@ -45,8 +74,6 @@
 
     </refsection>
   </refentry>
-
-  <xi:include href="api-cockpit.xml"/>
 
   <refentry id="api-base1-jquery">
     <refmeta>

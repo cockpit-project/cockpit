@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<refentry id="cockpit-cache">
+  <refnamediv>
+    <refname>cockpit.js: Object Cache</refname>
+    <refpurpose>Caching and sharing data</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+  <para>If the same information is displayed by multiple components in Cockpit,
+    <code>cockpit.cache()</code> provides a way to share data between them. The shared
+    data should be simple objects, arrays, and values, and not contain functions or
+    other objects.</para>
+</refsynopsisdiv>
+
+  <refsection>
+    <title>cockpit.cache()</title>
+<programlisting>
+cache = cockpit.cache(key, provider, consumer)
+</programlisting>
+
+    <para>Create a new cache object. The <code>key</code> should be a globally unique string
+      that describes the data being cached. This string must describe the data, across all
+      machines and all versions of cockpit. It is customary to include a version number in
+      the <code>key</code> string.</para>
+
+<programlisting>
+function provider(result, key) {
+    result("myvalue");
+
+    return {
+        close: function() {
+            /* closed */
+        }
+    };
+}
+</programlisting>
+
+    <para>The <code>provider</code> is a function that will be invoked to start retrieving
+      data for the cache. It will be passed a <code>result</code> function as its first
+      argument. The <code>result</code> should be invoked whenever new data is available.
+      The <code>key</code> argument matches the key string the cache was created with.</para>
+
+    <para>The <code>provider</code> can return an object with a <code>close</code> method.
+      This method will be invoked when the cache no longer needs data from the provider.</para>
+
+<programlisting>
+function consumer(value, key) {
+    /* ... */
+}
+</programlisting>
+
+    <para>The <code>consumer</code> is a function that will be passed new values when they
+      are available, whether they come from the <code>provider</code> or a source in a
+      different component/frame.</para>
+
+  </refsection>
+
+  <refsection>
+    <title>cache.close()</title>
+<programlisting>
+cache.close()
+</programlisting>
+
+    <para>Close a cache and stop calling its <code>consumer</code>. If the <code>provider</code>
+      was invoked, then the <code>close()</code> method it returned will be invoked.</para>
+  </refsection>
+
+</refentry>

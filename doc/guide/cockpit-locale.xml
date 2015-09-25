@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<refentry id="cockpit-locale">
+  <refnamediv>
+    <refname>cockpit.js: Localization</refname>
+    <refpurpose>Localization and translations</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+  <para>Cockpit provides a
+    <ulink url="https://www.gnu.org/software/gettext/"><code>gettext()</code></ulink> like
+    API for easy translation of strings.</para>
+  </refsynopsisdiv>
+
+  <refsection id="cockpit-locale-language">
+    <title>cockpit.language</title>
+    <para>The current locale language code. This is set based on the
+      <link linkend="cockpit-locale-locale"><code>cockpit.locale()</code></link> data loaded.</para>
+  </refsection>
+
+  <refsection id="cockpit-locale-locale">
+    <title>cockpit.locale()</title>
+<programlisting>
+cockpit.locale(po)
+</programlisting>
+
+    <para>Load locale information for a given <code>po</code> data. The data should
+      be JSON data in the <ulink url="https://www.npmjs.org/package/po2json">po2json</ulink>
+      format. The data will be loaded globally. If <code>po</code> data has already been
+      loaded, then this will extend that loaded data with additional strings. Any identical
+      translations strings will be replaced with the new strings.</para>
+
+    <para>Various methods such as
+      <link linkend="cockpit-locale-gettext"><code>cockpit.gettext()</code></link> make use
+      of the loaded data.</para>
+  </refsection>
+
+  <refsection id="cockpit-locale-gettext">
+    <title>cockpit.gettext()</title>
+<programlisting>
+translated = cockpit.gettext([context], string)
+var _ = cockpit.gettext
+var C_ = cockpit.gettext
+translated = _("string")
+translated = C_("context", "string")
+</programlisting>
+
+    <para>Lookup <code>string</code> for translation in the loaded locale data. The translated string will
+      be returned, or <code>string</code> will be returned if no such translated string is
+      present. The <code>context</code> argument is an optional string used to qualify the
+      string.</para>
+
+    <para>This function can be assigned to a variable called <code>_</code> (underscore) which
+      will make your code work with the typical <code>_("string")</code> syntax.</para>
+  </refsection>
+
+  <refsection id="cockpit-locale-noop">
+    <title>cockpit.noop()</title>
+<programlisting>
+var N_ = cockpit.noop
+var NC_ = cockpit.noop
+</programlisting>
+
+    <para>A noop function suitable for assigning to <code>N_</code> or <code>NC_</code> so that
+      gettext scanners will be able to find translatable strings. More specifically this function
+      returns its last argument.</para>
+  </refsection>
+
+  <refsection id="cockpit-locale-ngettext">
+    <title>cockpit.ngettext()</title>
+<programlisting>
+translated = cockpit.ngettext([context], string1, stringN, number)
+</programlisting>
+
+    <para>Lookup a string appropriate for a pluralization form of the <code>number</code>.
+      Various languages have complex pluralization forms that go far between the singular
+      and plural forms speakers of English are familiar with. If no such translated
+      string is found then either one of <code>string1</code> or <code>stringN</code> is
+      returned according to simple pluralization rules.</para>
+
+    <para>The <code>context</code> argument is an optional string used to qualify the string.</para>
+  </refsection>
+
+  <refsection id="cockpit-locale-translate">
+    <title>cockpit.translate()</title>
+<programlisting>
+cockpit.translate([sel])
+</programlisting>
+
+    <para>The document will be scanned for translatable tags and they will be translated according
+      to the strings in loaded locale data. If <code>sel</code> is specified, this should be a jQuery
+      selector for the specific part of the document to translate.</para>
+  </refsection>
+
+</refentry>

@@ -39,9 +39,7 @@
 /* For overriding during tests */
 const gchar *cockpit_ws_shell_component = "/shell/index.html";
 
-/* Called by @server when handling HTTP requests to /socket - runs in a separate
- * thread dedicated to the request so it may do blocking I/O
- */
+/* Called by @server when handling HTTP requests to /cockpit/socket */
 gboolean
 cockpit_handler_socket (CockpitWebServer *server,
                         const gchar *path,
@@ -53,17 +51,24 @@ cockpit_handler_socket (CockpitWebServer *server,
 {
   CockpitWebService *service;
   const gchar *query = NULL;
-  const gchar *sub = NULL;
+  const gchar *segment = NULL;
+
+  /*
+   * Socket requests should come in on /cockpit/socket or /cockpit+app/socket.
+   * However older javascript may connect on /socket, so we continue to support that.
+   */
 
   if (path && path[0])
-    sub = strchr (path + 1, '/');
+    segment = strchr (path + 1, '/');
+  if (!segment)
+    segment = path;
 
-  if (!sub || !g_str_has_prefix (sub, "/socket"))
+  if (!segment || !g_str_has_prefix (segment, "/socket"))
     return FALSE;
 
-  if (sub[7] == '?')
-    query = sub + 8;
-  else if (sub[7] != '\0')
+  if (segment[7] == '?')
+    query = segment + 8;
+  else if (segment[7] != '\0')
     return FALSE;
 
   service = cockpit_auth_check_cookie (ws->auth, path, headers);

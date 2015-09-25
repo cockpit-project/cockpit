@@ -24,6 +24,8 @@ define([
 ], function($, cockpit) {
     "use strict";
 
+    var _ = cockpit.gettext;
+
     /* The button to deauthorize cockpit */
     $("#credentials-authorize button").on("click", function(ev) {
         $("#credentials-authorize").remove();
@@ -165,6 +167,113 @@ define([
                     console.log("couldn't list agent keys: " + ex);
                 });
         }
+
+        self.password = function(path, old_pass, new_pass) {
+            var old_exps = [ /.*Enter old passphrase: $/ ];
+            var new_exps = [ /.*Enter new passphrase.*/, /.*Enter same passphrase again: $/ ];
+            var bad_exps = [ /.*failed: passphrase is too short.*/ ];
+
+            var dfd = $.Deferred();
+            var buffer = "";
+            var sent_new = false;
+            var failure = _("No such file or directory");
+            var i;
+
+            var timeout = window.setTimeout(function() {
+                failure = _("Prompting via ssh-keygen timed out");
+                proc.close("terminated");
+            }, 10 * 1000);
+
+            var proc = cockpit.spawn(["ssh-keygen", "-f", path, "-p"],
+                    { pty: true, environ: [ "LC_ALL=C" ], err: "out" })
+                .always(function() {
+                    window.clearInterval(timeout);
+                })
+                .done(function() {
+                    dfd.resolve();
+                })
+                .fail(function(ex) {
+                    if (ex.constructor.name == "ProcessError")
+                        ex = new Error(failure);
+                    dfd.reject(ex);
+                })
+                .stream(function(data) {
+                    buffer += data;
+                    console.log(data);
+                    for (i = 0; i < old_exps.length; i++) {
+                        if (old_exps[i].test(buffer)) {
+                            buffer = "";
+                            failure = _("Old password not accepted");
+                            proc.input(old_pass + "\n", true);
+                            return;
+                        }
+                    }
+
+                    for (i = 0; i < new_exps.length; i++) {
+                        if (new_exps[i].test(buffer)) {
+                            buffer = "";
+                            proc.input(new_pass + "\n", true);
+                            failure = _("Failed to change password");
+                            sent_new = true;
+                            return;
+                        }
+                    }
+
+                    for (i = 0; sent_new && i < bad_exps.length; i++) {
+                        if (bad_exps[i].test(buffer)) {
+                            failure = _("New password was not accepted");
+                            return;
+                        }
+                    }
+                });
+
+            return dfd.promise();
+        };
+
+        self.load = function(path, password) {
+            var ask_exp =  /.*Enter passphrase for .*/;
+            var perm_exp = /.*UNPROTECTED PRIVATE KEY FILE.*/;
+            var bad_exp = /.*Bad passphrase.*/;
+
+            var dfd = $.Deferred();
+            var buffer = "";
+            var failure = _("Not a valid private key");
+
+            var timeout = window.setTimeout(function() {
+                failure = _("Prompting via ssh-add timed out");
+                proc.close("terminated");
+            }, 10 * 1000);
+
+            var proc = cockpit.spawn(["ssh-add", path],
+                    { pty: true, environ: [ "LC_ALL=C" ], err: "out" })
+                .always(function() {
+                    window.clearInterval(timeout);
+                })
+                .done(function() {
+                    dfd.resolve();
+                })
+                .fail(function(ex) {
+                    if (ex.constructor.name == "ProcessError")
+                        ex = new Error(failure);
+                    dfd.reject(ex);
+                })
+                .stream(function(data) {
+                    buffer += data;
+                    if (perm_exp.test(buffer)) {
+                        failure = _("Invalid file permissions");
+                        buffer = "";
+                    } else if (ask_exp.test(buffer)) {
+                        buffer = "";
+                        failure = _("Password not accepted");
+                        proc.input(password + "\n", true);
+                    } else if (bad_exp.test(buffer)) {
+                        buffer = "";
+                        proc.input("\n", true);
+                    }
+                });
+
+            return dfd.promise();
+        };
 
         self.close = function close() {
             watch.close();

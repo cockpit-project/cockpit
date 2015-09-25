@@ -42,7 +42,11 @@ read_double (const gchar *prefix,
   path = g_build_filename (prefix, suffix, NULL);
   if (!g_file_get_contents (path, &file_contents, &len, &error))
     {
-      g_message ("error loading file: %s: %s", path, error->message);
+      if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT) ||
+          g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NODEV))
+        g_debug ("samples file not found: %s", path);
+      else
+        g_message ("error loading file: %s: %s", path, error->message);
       g_error_free (error);
       ret = -1;
     }

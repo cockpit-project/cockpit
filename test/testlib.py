@@ -226,6 +226,9 @@ class Browser:
     def wait_not_present(self, selector):
         return self.wait_js_func('!ph_is_present', selector)
 
+    def is_visible(self, selector):
+        return self.call_js_func('ph_is_visible', selector)
+
     def wait_visible(self, selector):
         return self.wait_js_func('ph_is_visible', selector)
 

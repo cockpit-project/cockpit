@@ -219,20 +219,21 @@ class TestMultiMachine(MachineCase):
         self.assertEqual(b.text(".curtains button"), "Reconnect")
         self.assertTrue(b.is_present(".curtains button:not(.disabled)"))
 
-        # renable admin
-        m2.execute('passwd -u admin')
-
         # wait for dashboard to load
         b.go(dashboard_path)
         b.enter_page("/dashboard")
-        b.wait_present("#dashboard-hosts a[data-address='%s'] img" % m2.address)
+        b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-error.png')
         b.switch_to_top()
 
-        # path should load or allow clicking
+        # renable admin
+        m2.execute('passwd -u admin')
+
+        # path should reconnect at this point
         b.go(m2_path)
-        b.wait_not_present(".curtains button.disabled")
-        if b.is_present(".curtains"):
-            b.click(".curtains button")
+        b.wait_not_visible(".curtains .spinner")
+        if b.is_visible(".curtains"):
+            b.click(".curtains button:not(.disabled)")
+            b.wait_not_visible(".curtains")
         b.enter_page("/playground/test", m2.address)
         # image is back because it page was reloaded after disconnection
         b.wait_present("img[src='hammer.gif']");

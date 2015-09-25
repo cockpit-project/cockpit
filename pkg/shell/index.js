@@ -319,7 +319,7 @@ define([
             state.host = "localhost";
         }
         if (path.length && path[path.length - 1] == "index")
-            path = path.pop();
+            path.pop();
         state.component = path.join("/");
         return state;
     }

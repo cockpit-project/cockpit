@@ -18,8 +18,8 @@
       then only the <link linkend="cockpit-channels">raw channel API</link> will be defined.</para>
 
 <programlisting><![CDATA[
-  <script src="../base1/jquery.js">
-  <script src="../base1/cockpit.js">
+<script src="../base1/jquery.js">
+<script src="../base1/cockpit.js">
 ]]></programlisting>
   </refsection>
 
@@ -29,7 +29,7 @@
     <refsection id="cockpit-logout">
       <title>cockpit.logout()</title>
 <programlisting>
-  cockpit.logout([reload])
+cockpit.logout([reload])
 </programlisting>
       <para>Logout of Cockpit. Unless <code>reload</code> is <code>false</code> this will also
         cause the page to be reloaded, so that the user can see the logged out state.</para>
@@ -38,12 +38,12 @@
     <refsection id="cockpit-user">
       <title>cockpit.user</title>
 <programlisting>
-  cockpit.user["user"]
-  cockpit.user["name"]
-  cockpit.user["groups"]
-  cockpit.user["shell"]
-  cockpit.user["home"]
-  cockpit.user["id"]
+cockpit.user["user"]
+cockpit.user["name"]
+cockpit.user["groups"]
+cockpit.user["shell"]
+cockpit.user["home"]
+cockpit.user["id"]
 </programlisting>
       <para>This object contains information about the user that's currently logged into cockpit.
         The following fields are defined:</para>
@@ -82,7 +82,7 @@
     <refsection id="cockpit-info-changed">
       <title>cockpit.user.onchanged</title>
 <programlisting>
-  $(cockpit.user).on("changed", function() { ... })
+$(cockpit.user).on("changed", function() { ... })
 </programlisting>
       <para>This event is fired when the user info changes or first becomes available.</para>
     </refsection>
@@ -93,8 +93,8 @@
     <title>Page Location</title>
 
 <programlisting>
-  location = cockpit.location
-  cockpit.location = "/path"
+location = cockpit.location
+cockpit.location = "/path"
 </programlisting>
 
     <para>Cockpit components often have different views, without changing the HTML file that is
@@ -106,7 +106,7 @@
       string:</para>
 
 <programlisting>
- /path/sub/page?option=value,option2
+/path/sub/page?option=value,option2
 </programlisting>
 
     <para>The <link linkend="cockpit-location-path"><code>location.path</code></link> and
@@ -143,7 +143,7 @@
     <refsection id="cockpit-location-go">
       <title>location.go()</title>
 <programlisting>
-  location.go(path, [options])
+location.go(path, [options])
 </programlisting>
       <para>Changes the current location to the given <code>path</code> and <code>options</code>.
         If the <code>path</code> argument is a string, it will be parsed into a path. If it is
@@ -164,7 +164,7 @@
     <refsection id="cockpit-location-replace">
       <title>location.replace()</title>
 <programlisting>
-  location.replace(path, [options])
+location.replace(path, [options])
 </programlisting>
       <para>Similar to <link linkend="cockpit-location-go"><code>location.go()</code></link>
         except the location change will not result in a navigation change in the browser's
@@ -174,7 +174,7 @@
     <refsection id="cockpit-location-decode">
       <title>location.decode()</title>
 <programlisting>
-  path = location.decode(href, [options])
+path = location.decode(href, [options])
 </programlisting>
       <para>Decode a cockpit href into its <code>path</code> array. If the <code>options</code>
         argument is specified, then it will be populated with options found in the href.</para>
@@ -186,7 +186,7 @@
     <refsection id="cockpit-location-encode">
       <title>location.encode()</title>
 <programlisting>
-  href = location.encode(path, [options])
+href = location.encode(path, [options])
 </programlisting>
       <para>Encode the given <code>path</code> and <code>options</code> into a cockpit href.
         The <code>path</code> argument may be an array of path segments, or a string path. If
@@ -196,7 +196,7 @@
     <refsection id="cockpit-location-changed">
       <title>cockpit.onlocationchanged</title>
 <programlisting>
- $(cockpit).on("locationchanged", function() { ... })
+$(cockpit).on("locationchanged", function() { ... })
 </programlisting>
       <para>An event emitted when over the <code>cockpit.location</code> changes. Typically a
         component reacts to this event by updating its interface to reflect the new
@@ -212,7 +212,7 @@
     <title>Jumping between components</title>
 
 <programlisting>
-  cockpit.jump("/system/log")
+cockpit.jump("/system/log")
 </programlisting>
 
     <para>In Cockpit in there multiple components shown. In order to tell Cockpit to jump to and show
@@ -223,7 +223,7 @@
     <refsection id="cockpit-jump-jump">
       <title>cockpit.jump()</title>
 <programlisting>
-  cockpit.jump(path, [ host ])
+cockpit.jump(path, [ host ])
 </programlisting>
       <para>Ask Cockpit to jump to another component. The location of the current component will
         not be affected. The <code>path</code> argument can be a string path, starting with <code>/</code>
@@ -247,7 +247,7 @@
     <refsection id="cockpit-spawn-spawn">
       <title>cockpit.spawn()</title>
 <programlisting>
- process = cockpit.spawn(args, [options])
+process = cockpit.spawn(args, [options])
 </programlisting>
 
       <para>Spawns a process on the system.</para>
@@ -331,7 +331,7 @@
     <refsection id="cockpit-spawn-script">
       <title>cockpit.script()</title>
 <programlisting>
- process = cockpit.script(script, [args], [options])
+process = cockpit.script(script, [args], [options])
 </programlisting>
 
       <para>Run a shell script on the system.</para>
@@ -361,7 +361,7 @@
     <refsection id="cockpit-spawn-done">
       <title>process.done()</title>
 <programlisting>
- process.done(function(data[, message]) { ... })
+process.done(function(data[, message]) { ... })
 </programlisting>
       <para>This is a standard
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
@@ -380,7 +380,7 @@
     <refsection id="cockpit-spawn-fail">
       <title>process.fail()</title>
 <programlisting>
- process.fail(function(exception[, data]) { ... })
+process.fail(function(exception[, data]) { ... })
 </programlisting>
       <para>This is a standard
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
@@ -421,7 +421,7 @@
     <refsection id="cockpit-spawn-always">
       <title>process.always()</title>
 <programlisting>
- process.always(function() { ... })
+process.always(function() { ... })
 </programlisting>
       <para>This is a standard
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
@@ -432,7 +432,7 @@
     <refsection id="cockpit-spawn-stream">
       <title>process.stream()</title>
 <programlisting>
- process.stream(function(data) { ... })
+process.stream(function(data) { ... })
 </programlisting>
       <para>This sets up a handler to be called when the process has standard output. The
         handler will be called multiple times. The handler will be called regardless of
@@ -450,7 +450,7 @@
     <refsection id="cockpit-spawn-input">
       <title>process.input()</title>
 <programlisting>
- process.input(data, [stream])
+process.input(data, [stream])
 </programlisting>
       <para>This method writes <code>data</code> to the standard input of the process.
         If <code>data</code> is <code>null</code> or <code>undefined</code> it is not sent.
@@ -464,7 +464,7 @@
     <refsection id="cockpit-spawn-close">
       <title>process.close()</title>
 <programlisting>
- process.close([problem])
+process.close([problem])
 </programlisting>
       <para>Close the process. If <code>problem</code> is specified it should be a
         standard <link linkend="cockpit-problems">problem code</link> string. In this case the
@@ -525,8 +525,8 @@
     <refsection id="cockpit-messages">
       <title>cockpit.message()</title>
 <programlisting>
- message = cockpit.message(problem)
- message = cockpit.message(exception)
+message = cockpit.message(problem)
+message = cockpit.message(exception)
 </programlisting>
       <para>Return a message for the <code>exception</code> or <code>problem</code> code
         passed as an argument. If the argument is an object with a <code>"message"</code> property,
@@ -619,7 +619,7 @@
     <refsection id="cockpit-dbus-dbus">
       <title>cockpit.dbus()</title>
 <programlisting>
- client = cockpit.dbus(name, [options])
+client = cockpit.dbus(name, [options])
 </programlisting>
 
       <para>Create a DBus client for the given bus <code>name</code> (eg: service name). Use the
@@ -668,7 +668,7 @@
     <refsection id="cockpit-dbus-close">
       <title>client.close()</title>
 <programlisting>
- client.close([problem])
+client.close([problem])
 </programlisting>
       <para>Close the DBus client. If <code>problem</code> is specified it should be a
         <link linkend="cockpit-problems">problem code</link> string.</para>
@@ -677,7 +677,7 @@
     <refsection id="cockpit-dbus-onclose">
       <title>client.onclose</title>
 <programlisting>
- $(client).on("close", function(options) { ... })
+$(client).on("close", function(options) { ... })
 </programlisting>
       <para>An event triggered when the DBus client closes. This can happen either because
         <link linkend="cockpit-dbus-close">client.close()</link> function was called,
@@ -690,7 +690,7 @@
     <refsection id="cockpit-dbus-onowned">
       <title>client.onowner</title>
 <programlisting>
- $(client).on("owner", function(event, owner) { ... })
+$(client).on("owner", function(event, owner) { ... })
 </programlisting>
       <para>An event triggered when the owner of the DBus name changes. The owner
         value will be the id of the name owner on the bus or null if the name
@@ -708,7 +708,7 @@
     <refsection id="cockpit-dbus-proxy">
       <title>client.proxy</title>
 <programlisting>
- proxy = client.proxy([interface, path])
+proxy = client.proxy([interface, path])
 </programlisting>
 
       <para>Create proxy javascript object for a DBus <code>interface</code>. At the
@@ -735,8 +735,8 @@
         methods on the proxy are not defined until the proxy becomes valid.</para>
 
 <programlisting>
- value = proxy.Prop1
- proxy.WritableProp = value
+value = proxy.Prop1
+proxy.WritableProp = value
 </programlisting>
 
       <para>All DBus properties on the <code>interface</code> that start with an upper case
@@ -759,13 +759,13 @@
         data for properties that do not start with an upper case letter.</para>
 
 <programlisting>
-  proxy.Method(arg1, arg2)
-     .done(function(retval1, retval2) {
-        ...
-     })
-     .fail(function(ex) {
-        ...
-     });
+proxy.Method(arg1, arg2)
+    .done(function(retval1, retval2) {
+       ...
+    })
+    .fail(function(ex) {
+       ...
+    });
 </programlisting>
       <para>All DBus methods on the <code>interface</code> that start with an upper case
         letter (as is convention) will be automatically defined on this proxy. These
@@ -779,9 +779,9 @@
         the usual <link linkend="cockpit-dbus-proxy-call"><code>proxy.call()</code></link> directly.</para>
 
 <programlisting>
-  $(proxy).on("Signal", function(event, arg1, arg2) {
-      ...
-  }(;
+$(proxy).on("Signal", function(event, arg1, arg2) {
+    ...
+});
 </programlisting>
 
       <para>All DBus signals on the <code>interface</code> that start with an upper case
@@ -837,7 +837,7 @@
     <refsection id="cockpit-dbus-proxy-call">
       <title>proxy.call()</title>
 <programlisting>
- invocation = proxy.call(method, args, [options])
+invocation = proxy.call(method, args, [options])
 </programlisting>
       <para>Make a DBus method call on this proxy.</para>
 
@@ -863,9 +863,9 @@
     <refsection id="cockpit-dbus-proxy-wait">
       <title>proxy.wait()</title>
 <programlisting>
- proxy.wait(function() {
+proxy.wait(function() {
    ...
- });
+});
 </programlisting>
       <para>Wait for a proxy to finish loading, and invoke the callback function when ready.
         If this method is called after a proxy has already loaded, then the callback will
@@ -876,9 +876,9 @@
     <refsection id="cockpit-dbus-proxy-onchanged">
       <title>proxy.onchanged</title>
 <programlisting>
- $(proxy).on("changed", function(data) {
+$(proxy).on("changed", function(data) {
    ...
- });
+});
 </programlisting>
       <para>This event is emitted when the proxy's properties change.</para>
 
@@ -886,19 +886,19 @@
         properties that have changed:</para>
 
 <programlisting>
-  {
-    "Prop1": "value",
-    "Prop2": 5
-  }
+{
+   "Prop1": "value",
+   "Prop2": 5
+}
 </programlisting>
     </refsection>
 
     <refsection id="cockpit-dbus-proxy-signal">
       <title>proxy.onsignal</title>
 <programlisting>
- $(proxy).on("signal", function(event, name, args) {
-   ...
- });
+$(proxy).on("signal", function(event, name, args) {
+    ...
+});
 </programlisting>
       <para>This event is emitted when the proxy's emits an event.</para>
 
@@ -914,7 +914,7 @@
     <refsection id="cockpit-dbus-proxies">
       <title>client.proxies</title>
 <programlisting>
-  proxies = client.proxies([interface], [path_namespace])
+proxies = client.proxies([interface], [path_namespace])
 </programlisting>
 
       <para>Create <link linkend="cockpit-dbus-proxy">proxy javascript objects</link> for
@@ -929,11 +929,11 @@
         instances that have DBus paths which have the namespace path prefix.</para>
 
 <programlisting>
-  proxy1 = proxies["/dbus/path1"];
-  proxy2 = proxies["/dbus/path2"];
-  for (proxy in proxies) {
+proxy1 = proxies["/dbus/path1"];
+proxy2 = proxies["/dbus/path2"];
+for (proxy in proxies) {
     ...
-  }
+}
 </programlisting>
       <para>The returned <code>proxies</code> object will is used as a dictionary,
         and will have values containing proxies for DBus interface instances, with the
@@ -954,9 +954,9 @@
     <refsection id="cockpit-dbus-proxies-wait">
       <title>proxies.wait()</title>
 <programlisting>
- proxies.wait(function() {
-   ...
- });
+proxies.wait(function() {
+    ...
+});
 </programlisting>
       <para>Wait for a <code>proxies</code> object to populate its initial set of proxies.
         If this method is called after the proxies have populated, the callback will be
@@ -982,9 +982,9 @@
     <refsection id="cockpit-dbus-proxies-onadded">
       <title>proxies.onadded</title>
 <programlisting>
- $(proxies).on("added", function(event, proxy) {
-   ...
- })
+$(proxies).on("added", function(event, proxy) {
+    ...
+})
 </programlisting>
       <para>This event is emitted when a proxy is added to the <code>proxies</code> object.
         The proxy will already have loaded.</para>
@@ -993,9 +993,9 @@
     <refsection id="cockpit-dbus-proxies-onchanged">
       <title>proxies.onchanged</title>
 <programlisting>
- $(proxies).on("changed", function(event, proxy) {
-   ...
- })
+$(proxies).on("changed", function(event, proxy) {
+    ...
+})
 </programlisting>
       <para>This event is emitted when one of the proxy in the <code>proxies</code> object
         changes its properties.</para>
@@ -1004,9 +1004,9 @@
     <refsection id="cockpit-dbus-proxies-onremoved">
       <title>proxies.onremoved</title>
 <programlisting>
- $(proxies).on("removed", function(event, proxy) {
-   ...
- })
+$(proxies).on("removed", function(event, proxy) {
+    ...
+})
 </programlisting>
       <para>This event is emitted when a proxy is removed to the <code>proxies</code> object.</para>
     </refsection>
@@ -1014,7 +1014,7 @@
     <refsection id="cockpit-dbus-call">
       <title>client.call()</title>
 <programlisting>
-  invocation = client.call(path, interface, method, args, [options])
+invocation = client.call(path, interface, method, args, [options])
 </programlisting>
 
       <para>Make a DBus method call.</para>
@@ -1051,7 +1051,7 @@
     <refsection id="cockpit-dbus-done">
       <title>invocation.done()</title>
 <programlisting>
- invocation.done(function(args, options) { ... })
+invocation.done(function(args, options) { ... })
 </programlisting>
       <para>This is a standard
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
@@ -1083,7 +1083,7 @@
     <refsection id="cockpit-dbus-fail">
       <title>invocation.fail()</title>
 <programlisting>
- invocation.fail(function(exception) { ... })
+invocation.fail(function(exception) { ... })
 </programlisting>
       <para>This is a standard
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
@@ -1115,7 +1115,7 @@
     <refsection id="cockpit-dbus-always">
       <title>invocation.always()</title>
 <programlisting>
- invocation.always(function() { ... })
+invocation.always(function() { ... })
 </programlisting>
       <para>This is a standard
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
@@ -1126,7 +1126,7 @@
     <refsection id="cockpit-dbus-subscribe">
       <title>client.subscribe()</title>
 <programlisting>
- subscription = client.subscribe(match, function(path, interface, signal, args) { ... })
+subscription = client.subscribe(match, function(path, interface, signal, args) { ... })
 </programlisting>
       <para>Subscribe to signals. The <code>match</code> argument is a javascript plain object which
         defines what signals to subscribe to. Each property in the <code>match</code> argument restricts
@@ -1173,7 +1173,7 @@
     <refsection id="cockpit-dbus-remove">
       <title>subscription.remove()</title>
 <programlisting>
- subscription.remove()
+subscription.remove()
 </programlisting>
 
       <para>Unsubscribe from the DBus signal subscription.</para>
@@ -1182,8 +1182,8 @@
     <refsection id="cockpit-dbus-watch">
       <title>client.watch</title>
 <programlisting>
- watch = client.watch(path)
- watch = client.watch({ "path_namespace": path_namespace, "interface": interface })
+watch = client.watch(path)
+watch = client.watch({ "path_namespace": path_namespace, "interface": interface })
 </programlisting>
       <para>Watch for property and interface changes on the given DBus object
         <code>path</code> DBus <code>path_namespace</code>. If <code>interface</code> is
@@ -1246,7 +1246,7 @@
     <refsection id="cockpit-dbus-watch-done">
       <title>watch.done()</title>
 <programlisting>
- watch.done(function() { ... })
+watch.done(function() { ... })
 </programlisting>
       <para>This is a standard
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
@@ -1257,7 +1257,7 @@
     <refsection id="cockpit-dbus-watch-fail">
       <title>watch.fail()</title>
 <programlisting>
- watch.fail(function() { ... })
+watch.fail(function() { ... })
 </programlisting>
       <para>This is a standard
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
@@ -1270,7 +1270,7 @@
     <refsection id="cockpit-dbus-watch-always">
       <title>watch.always()</title>
 <programlisting>
- watch.always(function() { ... })
+watch.always(function() { ... })
 </programlisting>
       <para>This is a standard
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
@@ -1281,7 +1281,7 @@
     <refsection id="cockpit-dbus-watch-remove">
       <title>watch.remove()</title>
 <programlisting>
- watch.remove()
+watch.remove()
 </programlisting>
       <para>Remove the watch. This may not have any immediate effect if other watches are in
         place. In particular, if identical watches are added more than once, then they must
@@ -1291,7 +1291,7 @@
     <refsection id="cockpit-dbus-onnotify">
       <title>client.onnotify</title>
 <programlisting>
- $(client).on("notify", function(data) { ... })
+$(client).on("notify", function(data) { ... })
 </programlisting>
       <para>An event triggered when
         <link linkend="cockpit-dbus-watch">watched</link> properties or interfaces change.</para>
@@ -1304,15 +1304,15 @@
       <para>The <code>data</code> has the following form:</para>
 
 <programlisting>
-  {
-      "/path1": {
-         "org.Interface1": {
+{
+    "/path1": {
+        "org.Interface1": {
             "Prop1": "value",
             "Prop2": 5
-         },
-         "org.Interface2": null
-      }
-  }
+        },
+        "org.Interface2": null
+    }
+}
 </programlisting>
 
       <para>Multiple paths may be present, each of which may have multiple interfaces, each
@@ -1325,7 +1325,7 @@
     <refsection id="cockpit-dbus-notify">
       <title>client.notify</title>
 <programlisting>
-  client.notify(data)
+client.notify(data)
 </programlisting>
     <para>Emits a synthetic <link
     linkend="cockpit-dbus-onnotify"><code>notify</code></link> event.
@@ -1336,7 +1336,7 @@
     <refsection id="cockpit-dbus-variant">
       <title>cockpit.variant()</title>
 <programlisting>
- variant = cockpit.variant(type, value)
+variant = cockpit.variant(type, value)
 </programlisting>
 
       <para>A DBus variant is represented as a plain javascript object with a
@@ -1349,7 +1349,7 @@
     <refsection id="cockpit-dbus-byte-array">
       <title>cockpit.byte_array()</title>
 <programlisting>
- byte_array = cockpit.byte_array(value)
+byte_array = cockpit.byte_array(value)
 </programlisting>
 
       <para>A DBus byte array is represnted as base64 data encoded in a string. This
@@ -1369,8 +1369,8 @@
     <refsection id="cockpit-http-constructor">
       <title>cockpit.http()</title>
 <programlisting>
- http = cockpit.http(endpoint, [options])
- http = cockpit.http(options)
+http = cockpit.http(endpoint, [options])
+http = cockpit.http(options)
 </programlisting>
 
       <para>Create a new HTTP client. The <code>endpoint</code> can be a file path starting with
@@ -1405,7 +1405,7 @@
     <refsection id="cockpit-http-get">
       <title>http.get()</title>
 <programlisting>
-  request = http.get(path, [params, [headers]])
+request = http.get(path, [params, [headers]])
 </programlisting>
       <para>Perform an HTTP GET request for the given <code>path</code>. If the <code>params</code>
         is specified it should be a plain javascript object, which will be turned into a query string.</para>
@@ -1419,7 +1419,7 @@
     <refsection id="cockpit-http-post">
       <title>http.post()</title>
 <programlisting>
-  request = http.post(path, body, [headers])
+request = http.post(path, body, [headers])
 </programlisting>
       <para>Perform an HTTP POST request for the given <code>path</code>. The <code>body</code>
         can be a string, or a javascript plain object, which will be encoded as JSON data. If
@@ -1435,7 +1435,7 @@
     <refsection id="cockpit-http-request">
       <title>http.request()</title>
 <programlisting>
-  request = http.request(options)
+request = http.request(options)
 </programlisting>
       <para>Perform an HTTP request. The <code>options</code> can contain the following:</para>
 
@@ -1472,7 +1472,7 @@
     <refsection id="cockpit-http-done">
       <title>request.done()</title>
 <programlisting>
- request.done(function(data) { ... })
+request.done(function(data) { ... })
 </programlisting>
       <para>This is a standard
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
@@ -1488,7 +1488,7 @@
     <refsection id="cockpit-http-fail">
       <title>request.fail()</title>
 <programlisting>
- request.fail(function(exception[, data]) { ... })
+request.fail(function(exception[, data]) { ... })
 </programlisting>
       <para>This is a standard
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
@@ -1528,7 +1528,7 @@
     <refsection id="cockpit-http-always">
       <title>request.always()</title>
 <programlisting>
- request.always(function() { ... })
+request.always(function() { ... })
 </programlisting>
       <para>This is a standard
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
@@ -1539,7 +1539,7 @@
     <refsection id="cockpit-http-response">
       <title>request.response()</title>
 <programlisting>
- request.response(function(status, headers) { ... })
+request.response(function(status, headers) { ... })
 </programlisting>
       <para>This sets up a handler to be called when the HTTP request gets the initial response
         from the server. The <code>status</code> argument is the HTTP status integer, and the
@@ -1550,7 +1550,7 @@
     <refsection id="cockpit-http-stream">
       <title>request.stream()</title>
 <programlisting>
- request.stream(function(data) { ... })
+request.stream(function(data) { ... })
 </programlisting>
       <para>This sets up a handler to be called when the request returns output data. The
         handler will be called multiple times.</para>
@@ -1567,7 +1567,7 @@
     <refsection id="cockpit-http-input">
       <title>request.input()</title>
 <programlisting>
- request.input(data, [stream])
+request.input(data, [stream])
 </programlisting>
       <para>This method writes <code>data</code> to the HTTP request body. It is only valid
         if no <code>"body"</code> has been specified in
@@ -1578,7 +1578,7 @@
     <refsection id="cockpit-http-close">
       <title>request.close()</title>
 <programlisting>
- request.close([problem])
+request.close([problem])
 </programlisting>
       <para>Cancel the request. If <code>problem</code> is specified it should be a
         standard <link linkend="cockpit-problems">problem code</link> string.</para>
@@ -1597,7 +1597,7 @@
     <refsection id="cockpit-permission-constructor">
       <title>cockpit.permission()</title>
 <programlisting>
- permission = cockpit.permission([options])
+permission = cockpit.permission([options])
 </programlisting>
 
       <para>Create a new permission object to check if the current user has permission.
@@ -1619,7 +1619,7 @@
     <refsection id="cockpit-permission-changed">
       <title>permission.onchanged</title>
 <programlisting>
-  $(permission).on("changed", function() { ... })
+$(permission).on("changed", function() { ... })
 </programlisting>
       <para>This event is fired when the permission changes. In particular the
         <link linkend="cockpit-permission-allowed">permission.allowed</link> property.</para>
@@ -1628,7 +1628,7 @@
     <refsection id="cockpit-permission-close">
       <title>permission.close()</title>
 <programlisting>
-  permission.close()
+permission.close()
 </programlisting>
       <para>Closes the permission object and tears down any registered callbacks and dbus subscriptions.</para>
     </refsection>
@@ -1651,7 +1651,7 @@
     <refsection id="cockpit-locale-locale">
       <title>cockpit.locale()</title>
 <programlisting>
- cockpit.locale(po)
+cockpit.locale(po)
 </programlisting>
 
       <para>Load locale information for a given <code>po</code> data. The data should
@@ -1668,11 +1668,11 @@
     <refsection id="cockpit-locale-gettext">
       <title>cockpit.gettext()</title>
 <programlisting>
- translated = cockpit.gettext([context], string)
- var _ = cockpit.gettext
- var C_ = cockpit.gettext
- translated = _("string")
- translated = C_("context", "string")
+translated = cockpit.gettext([context], string)
+var _ = cockpit.gettext
+var C_ = cockpit.gettext
+translated = _("string")
+translated = C_("context", "string")
 </programlisting>
 
       <para>Lookup <code>string</code> for translation in the loaded locale data. The translated string will
@@ -1687,8 +1687,8 @@
     <refsection id="cockpit-locale-noop">
       <title>cockpit.noop()</title>
 <programlisting>
-  var N_ = cockpit.noop
-  var NC_ = cockpit.noop
+var N_ = cockpit.noop
+var NC_ = cockpit.noop
 </programlisting>
 
       <para>A noop function suitable for assigning to <code>N_</code> or <code>NC_</code> so that
@@ -1699,7 +1699,7 @@
     <refsection id="cockpit-locale-ngettext">
       <title>cockpit.ngettext()</title>
 <programlisting>
- translated = cockpit.ngettext([context], string1, stringN, number)
+translated = cockpit.ngettext([context], string1, stringN, number)
 </programlisting>
 
       <para>Lookup a string appropriate for a pluralization form of the <code>number</code>.
@@ -1714,7 +1714,7 @@
     <refsection id="cockpit-locale-translate">
       <title>cockpit.translate()</title>
 <programlisting>
- cockpit.translate([sel])
+cockpit.translate([sel])
 </programlisting>
 
       <para>The document will be scanned for translatable tags and they will be translated according
@@ -1869,7 +1869,7 @@ cockpit.file("/path/to/file", { syntax: syntax_object })
         have been made to the file between reading and replacing it.</para>
       <para>The callback is called like this
 <programlisting>
-    new_content = callback (old_content)
+new_content = callback (old_content)
 </programlisting>
         The callback is allowed to mutate <code>old_content</code>, but note
         that this will also mutate the objects that are passed to the watch
@@ -1940,7 +1940,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-metrics">
       <title>cockpit.metrics()</title>
 <programlisting>
-  metrics = cockpit.metrics(interval, options, cache)
+metrics = cockpit.metrics(interval, options, cache)
 </programlisting>
 
       <para>Opens a new metrics channel. The data retrieved will be available in the
@@ -2001,7 +2001,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-metrics-fetch">
       <title>metrics.fetch()</title>
 <programlisting>
-  metrics.fetch(beg, end)
+metrics.fetch(beg, end)
 </programlisting>
 
       <para>Retrieve archived metrics data between <code>beg</code> and <code>end</code>. The
@@ -2012,7 +2012,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-metrics-follow">
       <title>metrics.follow()</title>
 <programlisting>
-  metrics.follow()
+metrics.follow()
 </programlisting>
 
       <para>Start retrieving live metrics data as it become available.</para>
@@ -2021,7 +2021,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-metrics-close">
       <title>metrics.close()</title>
 <programlisting>
-  metrics.close()
+metrics.close()
 </programlisting>
 
       <para>Stop the retrieval of metrics and release resources.</para>
@@ -2044,7 +2044,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-grid">
       <title>cockpit.grid()</title>
 <programlisting>
-  grid = cockpit.grid(interval, [beg, end])
+grid = cockpit.grid(interval, [beg, end])
 </programlisting>
 
       <para>Creates a grid object to contain series data.</para>
@@ -2063,9 +2063,9 @@ handle = file.watch(callback);
     <refsection id="cockpit-grid-add">
       <title>grid.add()</title>
 <programlisting>
-  row = grid.add(series, path)
-  row = grid.add(callback, [early])
-  row = grid.add()
+row = grid.add(series, path)
+row = grid.add(callback, [early])
+row = grid.add()
 </programlisting>
 
       <para>Adds a row to the grid. The returned <code>row</code> is a Javascript array that will contain
@@ -2111,7 +2111,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-grid-remove">
       <title>grid.remove()</title>
 <programlisting>
-  grid.remove(row)
+grid.remove(row)
 </programlisting>
 
       <para>Remove a previously added <code>row</code> from the grid. The row will no longer be updated
@@ -2121,7 +2121,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-grid-sync">
       <title>grid.sync()</title>
 <programlisting>
-  grid.sync()
+grid.sync()
 </programlisting>
 
       <para>Load or reload data from the series into the rows. This does not clear the rows before
@@ -2139,7 +2139,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-grid-move">
       <title>grid.move()</title>
 <programlisting>
-  grid.move(beg[, end])
+grid.move(beg[, end])
 </programlisting>
 
       <para>Move the grid to new <code>beg</code> and <code>end</code> range. Data will be
@@ -2159,7 +2159,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-grid-walk">
       <title>grid.walk()</title>
 <programlisting>
-  grid.walk()
+grid.walk()
 </programlisting>
 
       <para>Move the grid forward every
@@ -2170,7 +2170,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-grid-notify">
       <title>grid.notify()</title>
 <programlisting>
-  grid.notify(index, count)
+grid.notify(index, count)
 </programlisting>
 
       <para>This function is called to have rows with callbacks recalculate their data. It is not
@@ -2183,7 +2183,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-grid-onnotify">
       <title>grid.onnotify</title>
 <programlisting>
-  $(grid).on("notify", function(index, count) { ... });
+$(grid).on("notify", function(index, count) { ... });
 </programlisting>
 
       <para>An event that is triggered when some part of the series data in grid changes. The
@@ -2195,7 +2195,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-grid-close">
       <title>grid.close()</title>
 <programlisting>
-  grid.close()
+grid.close()
 </programlisting>
 
       <para>Close the grid, and stop updating the rows.</para>
@@ -2228,7 +2228,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-series">
       <title>cockpit.series()</title>
 <programlisting>
-  series = cockpit.series(interval, [cache, fetch])
+series = cockpit.series(interval, [cache, fetch])
 </programlisting>
 
       <para>Create a new sink of series data. This is usually done by producers of series data,
@@ -2254,7 +2254,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-series-input">
       <title>series.input()</title>
 <programlisting>
-  series.input(beg, items[, mapping])
+series.input(beg, items[, mapping])
 </programlisting>
 
       <para>Send series data into the series sink. Any grids that have added rows based on this
@@ -2272,7 +2272,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-series-load">
       <title>series.load()</title>
 <programlisting>
-  series.load(beg, end)
+series.load(beg, end)
 </programlisting>
 
       <para>Load data from the series into any grids that have rows based on this series data.
@@ -2311,8 +2311,8 @@ handle = file.watch(callback);
     <refsection id="cockpit-format">
       <title>cockpit.format()</title>
 <programlisting>
- string = cockpit.format(template, args)
- string = cockpit.format(template, [arg, ...])
+string = cockpit.format(template, args)
+string = cockpit.format(template, [arg, ...])
 </programlisting>
 
       <para>Format a string interpolating <code>args</code> into <code>template</code> using
@@ -2328,8 +2328,8 @@ handle = file.watch(callback);
     <refsection id="cockpit-format-bytes">
       <title>cockpit.format_bytes()</title>
 <programlisting>
- string = cockpit.format_bytes(number, [factor])
- array = cockpit.format_bytes(number, [factor, separate])
+string = cockpit.format_bytes(number, [factor])
+array = cockpit.format_bytes(number, [factor, separate])
 </programlisting>
       <para>Formats <code>number</code> into a displayable <code>string</code> with a suffix, such as
         <emphasis>KB</emphasis> or <emphasis>MB</emphasis>. Returns an <code>array</code> of the
@@ -2369,12 +2369,12 @@ handle = file.watch(callback);
       use a special module id to access all the manifests in one shot:</para>
 
 <programlisting>
-  define([
-      'manifests',
-      'other.dep'
-  ], function(manifests, other) {
+define([
+    'manifests',
+    'other.dep'
+], function(manifests, other) {
     var manifest = manifests['package'];
-  });
+});
 </programlisting>
 
   </refsection>
@@ -2390,7 +2390,7 @@ handle = file.watch(callback);
     <refsection>
       <title>cockpit.cache()</title>
 <programlisting>
-  cache = cockpit.cache(key, provider, consumer)
+cache = cockpit.cache(key, provider, consumer)
 </programlisting>
 
       <para>Create a new cache object. The <code>key</code> should be a globally unique string
@@ -2399,15 +2399,15 @@ handle = file.watch(callback);
         the <code>key</code> string.</para>
 
 <programlisting>
-  function provider(result, key) {
-      result("myvalue");
+function provider(result, key) {
+    result("myvalue");
 
-      return {
-          close: function() {
-              /* closed */
-          }
-      };
-  }
+    return {
+        close: function() {
+            /* closed */
+        }
+    };
+}
 </programlisting>
 
       <para>The <code>provider</code> is a function that will be invoked to start retrieving
@@ -2419,9 +2419,9 @@ handle = file.watch(callback);
         This method will be invoked when the cache no longer needs data from the provider.</para>
 
 <programlisting>
-  function consumer(value, key) {
-      /* ... */
-  }
+function consumer(value, key) {
+    /* ... */
+}
 </programlisting>
 
       <para>The <code>consumer</code> is a function that will be passed new values when they
@@ -2433,7 +2433,7 @@ handle = file.watch(callback);
     <refsection>
       <title>cache.close()</title>
 <programlisting>
-  cache.close()
+cache.close()
 </programlisting>
 
       <para>Close a cache and stop calling its <code>consumer</code>. If the <code>provider</code>
@@ -2453,7 +2453,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-channels-channel">
       <title>cockpit.channel()</title>
 <programlisting>
- channel = cockpit.channel(options)
+channel = cockpit.channel(options)
 </programlisting>
 
       <para>This function creates a new channel for communication with the system.
@@ -2525,7 +2525,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-channels-send">
       <title>channel.send()</title>
 <programlisting>
- channel.send(data)
+channel.send(data)
 </programlisting>
       <para>Send a message over the channel. The contents of the message depends on the
         payload type of the channel. If a binary channel, then <code>data</code> is expected
@@ -2536,7 +2536,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-channels-control">
       <title>channel.control()</title>
 <programlisting>
- channel.control(options)
+channel.control(options)
 </programlisting>
       <para>Notify the channel to tune certain parameters on the fly. The <code>options</code>
         is a plain javascript object, and the contents depend on the <code>"payload"</code>
@@ -2548,7 +2548,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-channels-close">
       <title>channel.close()</title>
 <programlisting>
- channel.close([options])
+channel.close([options])
 </programlisting>
       <para>Close the channel.</para>
       <para>If <code>options</code> is present it can be a plain javascript object
@@ -2563,8 +2563,8 @@ handle = file.watch(callback);
     <refsection id="cockpit-channels-message">
       <title>channel.onmessage</title>
 <programlisting>
- $(channel).on("message", function(event, data) { ... })
- channel.addEventListener("message", function(event, data) { ... })
+$(channel).on("message", function(event, data) { ... })
+channel.addEventListener("message", function(event, data) { ... })
 </programlisting>
       <para>An event triggered when the channel receives a message. The message is
         passed as a string to the handler in the <code>data</code>. In the case of binary
@@ -2576,8 +2576,8 @@ handle = file.watch(callback);
     <refsection id="cockpit-channels-oncontrol">
       <title>channel.oncontrol</title>
 <programlisting>
- $(channel).on("control", function(event, options) { ... })
- channel.addEventListener("control", function(event, options) { ... })
+$(channel).on("control", function(event, options) { ... })
+channel.addEventListener("control", function(event, options) { ... })
 </programlisting>
       <para>An event triggered when the channel receives an control message in the
         middle of the flow. One particular use is when the <code>command</code> is set to
@@ -2589,8 +2589,8 @@ handle = file.watch(callback);
     <refsection id="cockpit-channels-close-ev">
       <title>channel.onclose</title>
 <programlisting>
- $(channel).on("close", function(options) { ... })
- channel.addEventListener("close", function(event, options) { ... })
+$(channel).on("close", function(options) { ... })
+channel.addEventListener("close", function(event, options) { ... })
 </programlisting>
       <para>An event triggered when the channel closes. This can happen either because
         <link linkend="cockpit-channels-close">channel.close()</link> function was called,
@@ -2603,7 +2603,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-transport-origin">
       <title>cockpit.transport.origin</title>
 <programlisting>
-  cockpit.transport.origin
+cockpit.transport.origin
 </programlisting>
       <para>The HTTP origin that is being used by the underlying channel transport. This is
         read-only, you should not assign a value. If the browser supports
@@ -2613,7 +2613,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-transport-host">
       <title>cockpit.transport.host</title>
 <programlisting>
-  cockpit.transport.host
+cockpit.transport.host
 </programlisting>
       <para>The host that this transport is going to talk to by default. This is
         read-only, you should not assign a value. If the value is null that means that the
@@ -2623,7 +2623,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-transport-options">
       <title>cockpit.transport.options</title>
 <programlisting>
-  cockpit.transport.options
+cockpit.transport.options
 </programlisting>
       <para>Initialization options received over the underlying channel transport. These
         will be empty until connection is properly established.</para>
@@ -2632,7 +2632,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-transport-wait">
       <title>cockpit.transport.wait()</title>
 <programlisting>
-  cockpit.transport.wait(callback)
+cockpit.transport.wait(callback)
 </programlisting>
       <para>Call the <code>callback</code> function once the underlying channel transport is initialized.
         This will start the initialization if not already in progress or completed. If the
@@ -2643,7 +2643,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-transport-close">
       <title>cockpit.transport.close()</title>
 <programlisting>
-  cockpit.transport.close([problem])
+cockpit.transport.close([problem])
 </programlisting>
       <para>Close the underlying channel transport. All channels open channels will close.
         The <code>problem</code> argument should be a problem code string. If not specified
@@ -2653,7 +2653,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-transport-filter">
       <title>cockpit.transport.filter()</title>
 <programlisting>
-  cockpit.transport.filter(function(message, channel, control) { ... })
+cockpit.transport.filter(function(message, channel, control) { ... })
 </programlisting>
       <para>Add a filter to the underlying channel transport. All incoming messages will be
         passed to each of the filter callbacks that are registered.</para>
@@ -2672,7 +2672,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-transport-inject">
       <title>cockpit.transport.inject()</title>
 <programlisting>
-  cockpit.transport.inject(message)
+cockpit.transport.inject(message)
 </programlisting>
       <para>Inject a message into the underlying channel transport. The <code>message</code>
         should be a <code>string</code> or an array of bytes, and should be valid
@@ -2684,7 +2684,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-base64-encode">
       <title>cockpit.base64_encode()</title>
 <programlisting>
-  string = cockpit.base64_encode(data)
+string = cockpit.base64_encode(data)
 </programlisting>
       <para>Encode binary data into a string using the Base64 encoding. The <code>data</code>
         argument can either be a <code>string</code>, an <code>Array</code>, an <code>ArrayBuffer</code>
@@ -2694,7 +2694,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-base64-decode">
       <title>cockpit.base64_decode()</title>
 <programlisting>
-  data = cockpit.base64_decode(string, [constructor])
+data = cockpit.base64_decode(string, [constructor])
 </programlisting>
       <para>Decode binary data from a Base64 encoded string. The <code>string</code>
         argument should be a javascript string. The returned <code>data</code>> will be an
@@ -2709,7 +2709,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-utf8-encoder">
       <title>cockpit.utf8_encoder()</title>
 <programlisting>
-  encoder = cockpit.utf8_encoder([constructor])
+encoder = cockpit.utf8_encoder([constructor])
 </programlisting>
       <para>Create an encoder for encoding a string into a UTF8 sequence of bytes.</para>
       <para>You can pass <code>Uint8Array</code>, <code>Array</code> or <code>String</code>
@@ -2720,7 +2720,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-utf8-encoder-encode">
       <title>encoder.encode()</title>
 <programlisting>
-  data = encoder.encode(string)
+data = encoder.encode(string)
 </programlisting>
       <para>Encode a <code>string</code> into a UTF8 sequence of bytes.</para>
       <para>The resulting <code>data</code> is an array of bytes, but it's type may be
@@ -2731,7 +2731,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-utf8-decoder">
       <title>cockpit.utf8_decoder()</title>
 <programlisting>
-  decoder = cockpit.utf8_decoder([fatal])
+decoder = cockpit.utf8_decoder([fatal])
 </programlisting>
       <para>Creates a decodker to decode a UTF8 sequence of bytes data into a string.</para>
       <para>If the <code>fatal</code> is set to <code>true</code> then the <code>decoder</code>
@@ -2743,7 +2743,7 @@ handle = file.watch(callback);
     <refsection id="cockpit-utf8-decoder-decode">
       <title>decoder.decode()</title>
 <programlisting>
-  string = decoder.decode(data, [options])
+string = decoder.decode(data, [options])
 </programlisting>
       <para>Decode an array of UTF8 bytes into a <code>string</code>. The <code>data</code>
         argument may be an <code>Array</code>, a <code>Uint8Array</code> or a string containing
@@ -2762,8 +2762,8 @@ handle = file.watch(callback);
     <refsection id="cockpit-info">
       <title>cockpit.info</title>
 <programlisting>
-  cockpit.info["version"]
-  cockpit.info["build"]
+cockpit.info["version"]
+cockpit.info["build"]
 </programlisting>
       <para>This object contains information about cockpit itself. Note that when cockpit is
         running on multiple servers, this only reflects the server that was connected to.

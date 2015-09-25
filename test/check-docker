@@ -64,12 +64,12 @@ class TestDocker(MachineCase):
         m.execute("systemctl start docker")
 
         self.login_and_go("/docker")
-        b.wait_in_text("#containers-images", "busybox")
+        b.wait_in_text("#containers-images", "busybox:latest")
 
         message = "HelloMessage."
 
         # Run it
-        b.click('#containers-images tr:contains("busybox") button.fa-play')
+        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE")
         b.set_val("#containers-run-image-command", "/bin/echo '%s'" % (message))
@@ -88,7 +88,7 @@ class TestDocker(MachineCase):
 
         # Run it without TTY and make sure it keeps running so that we
         # can link to it.
-        b.click('#containers-images tr:contains("busybox") button.fa-play')
+        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE")
         b.set_val("#containers-run-image-command", "/bin/sh -c 'echo \"%s\"; sleep 10000'" % (message))
@@ -102,7 +102,7 @@ class TestDocker(MachineCase):
         self.assertEqual(info[0]["HostConfig"]["Links"], None)
 
         # Create another container linked to old one
-        b.click('#containers-images tr:contains("busybox") button.fa-play')
+        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE2")
         b.set_val("#containers-run-image-command", "/bin/echo '%s'" % (message))
@@ -157,12 +157,12 @@ class TestDocker(MachineCase):
         self.del_container_from_details("PROBE")
 
         # Delete image
-        b.click('#containers-images tr:contains("busybox")')
+        b.click('#containers-images tr:contains("busybox:latest")')
         b.wait_visible("#image-details")
         b.click("#image-details-delete")
         self.confirm()
         b.wait_visible("#containers")
-        b.wait_not_in_text('#containers-images', 'busybox')
+        b.wait_not_in_text('#containers-images', 'busybox:latest')
 
     def testExpose(self):
         b = self.browser
@@ -172,7 +172,7 @@ class TestDocker(MachineCase):
         m.execute("systemctl start docker")
 
         self.login_and_go("/docker")
-        b.wait_in_text("#containers-images", "busybox")
+        b.wait_in_text("#containers-images", "busybox:latest")
 
         port = 3380;
         message = "HelloMessage."

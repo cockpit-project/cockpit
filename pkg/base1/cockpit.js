@@ -299,6 +299,17 @@ function Transport() {
     if (window.parent !== window && window.name.indexOf("cockpit1:") === 0)
         ws = new ParentWebSocket(window.parent);
 
+    /* HACK: Compatibility if we're hosted by older Cockpit versions */
+    try {
+           /* See if we should communicate via parent */
+           if (!ws && window.parent !== window && window.parent.options &&
+                window.parent.options.protocol == "cockpit1") {
+               ws = new ParentWebSocket(window.parent);
+            }
+    } catch (ex) {
+       /* permission access errors */
+    }
+
     if (!ws) {
         var ws_loc = calculate_url();
         transport_debug("connecting to " + ws_loc);

@@ -19,15 +19,16 @@
 
   <!-- change some parameters -->
   <!-- http://docbook.sourceforge.net/release/xsl/current/doc/html/index.html -->
-  <xsl:param name="toc.section.depth">2</xsl:param>
-  <xsl:param name="generate.section.toc.level" select="0"></xsl:param>
+  <xsl:param name="toc.section.depth">4</xsl:param>
+  <xsl:param name="generate.section.toc.level" select="3"></xsl:param>
   <xsl:param name="generate.toc">
     book	toc
     chapter toc
     glossary toc
     index toc
     part	toc
-    reference toc
+    reference toc,title,refsection
+    refentry  toc
   </xsl:param>
 
   <xsl:param name="chunker.output.encoding" select="'UTF-8'"/>

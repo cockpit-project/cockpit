@@ -1,0 +1,232 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<refentry id="cockpit-http">
+  <refnamediv>
+    <refname>cockpit.js: HTTP Client</refname>
+    <refpurpose>HTTP and REST API communication</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <para>Cockpit allows access to local HTTP and REST services via this API.</para>
+  </refsynopsisdiv>
+
+  <refsection id="cockpit-http-constructor">
+    <title>cockpit.http()</title>
+<programlisting>
+http = cockpit.http(endpoint, [options])
+http = cockpit.http(options)
+</programlisting>
+
+    <para>Create a new HTTP client. The <code>endpoint</code> can be a file path starting with
+      <code>/</code> to connect to a unix socket, or it can be a port number to connect to.</para>
+
+    <variablelist>
+      <varlistentry>
+        <term><code>"address"</code></term>
+        <listitem><para>Connect to an address other than localhost. Must be a valid host name or IP address.
+          To use this option you also must provide a port number.</para></listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><code>"connection"</code></term>
+        <listitem><para>A connection identifier. Subsequent channel requests with the same
+          identifier will try to use the same connection if it is still open.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"superuser"</code></term>
+        <listitem><para>Set to <code>"require"</code> to open this channel as root. If the
+          currently logged in user is not permitted to become root (eg: via <code>pkexec</code>)
+          then the <code>channel</code> will immediately be
+          <link linkend="cockpit-channels-close-ev">closed</link> with a <code>"access-denied"</code>
+          problem code.</para>
+        <para>Set to <code>"try"</code> to try to make the request as root, but if that fails,
+          fall back to perform an unprivileged request.</para></listitem>
+      </varlistentry>
+    </variablelist>
+
+  </refsection>
+
+  <refsection id="cockpit-http-get">
+    <title>http.get()</title>
+<programlisting>
+request = http.get(path, [params, [headers]])
+</programlisting>
+    <para>Perform an HTTP GET request for the given <code>path</code>. If the <code>params</code>
+      is specified it should be a plain javascript object, which will be turned into a query string.</para>
+    <para>Optionally a plain javascript object containing headers can be included in the
+      <code>headers</code> argument.</para>
+    <para>The return value is a
+      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      that will complete if the request happens successfully, or fail if there's a problem.</para>
+  </refsection>
+
+  <refsection id="cockpit-http-post">
+    <title>http.post()</title>
+<programlisting>
+request = http.post(path, body, [headers])
+</programlisting>
+    <para>Perform an HTTP POST request for the given <code>path</code>. The <code>body</code>
+      can be a string, or a javascript plain object, which will be encoded as JSON data. If
+      <code>body</code> is <code>undefined</code> or <code>null</code> then an empty HTTP body
+      will be sent.</para>
+    <para>Optionally a plain javascript object containing headers can be included in the
+      <code>headers</code> argument.</para>
+    <para>The return value is a
+      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      that will complete if the request happens successfully, or fail if there's a problem.</para>
+  </refsection>
+
+  <refsection id="cockpit-http-request">
+    <title>http.request()</title>
+<programlisting>
+request = http.request(options)
+</programlisting>
+    <para>Perform an HTTP request. The <code>options</code> can contain the following:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term><code>"body"</code></term>
+        <listitem><para>The HTTP request body. If you do not specify a body, then you must
+          call <link linkend="cockpit-http-input">request.input()</link> to complete the body
+          and allow the request to start.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"headers"</code></term>
+        <listitem><para>A javascript plain object containing HTTP headers.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"method"</code></term>
+        <listitem><para>The HTTP method. Defaults to <code>"GET"</code>.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"params"</code></term>
+        <listitem><para>A javascript plain object containing query string parameters.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"path"</code></term>
+        <listitem><para>The HTTP path. Defaults to <code>/</code>.</para></listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>The return value is a
+      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      that will complete if the request happens successfully, or fail if there's a problem.</para>
+  </refsection>
+
+  <refsection id="cockpit-http-done">
+    <title>request.done()</title>
+<programlisting>
+request.done(function(data) { ... })
+</programlisting>
+    <para>This is a standard
+      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      method. It sets up a handler to be called when the request finishes successfully.</para>
+    <para>The <code>data</code> argument contains the body result of the request.
+      If it a string, unless the process was opened in binary mode, in which case the
+      <code>data</code> is an array of bytes. If a
+      <code><link linkend="cockpit-http-stream">request.stream()</link></code>
+      handler is set up, then any standard output data consumed by the handler will not
+      be included in the <code>data</code> argument.</para>
+  </refsection>
+
+  <refsection id="cockpit-http-fail">
+    <title>request.fail()</title>
+<programlisting>
+request.fail(function(exception[, data]) { ... })
+</programlisting>
+    <para>This is a standard
+      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
+      It sets up a handler to be called when the request fails, or returns an error code.</para>
+
+    <para>The <code>exception</code> object passed to the handler can have the
+      following fields:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term><code>problem</code></term>
+        <listitem><para>A <link linkend="cockpit-problems">problem code</link> string when
+          a problem occurred starting or communicating with the server. This is <code>null</code>
+          if the process exited or was terminated.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>status</code></term>
+        <listitem><para>The numeric status of the response. This is <code>null</code> if
+          no response was received.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>reason</code></term>
+        <listitem><para>A string reason returned in the response. This is <code>null</code> if
+          no response was received.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>message</code></term>
+        <listitem><para>A string message returned in the response. This is <code>null</code> if
+          no response was received.</para></listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>If the request returned a response body, it will be available in
+      the <code>data</code> argument. Otherwise this argument will be <code>undefined</code>.</para>
+  </refsection>
+
+  <refsection id="cockpit-http-always">
+    <title>request.always()</title>
+<programlisting>
+request.always(function() { ... })
+</programlisting>
+    <para>This is a standard
+      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
+      It sets up a handler to be called when when the process completes, whether it exits successfully,
+      fails, terminates, or exits with a failure.</para>
+  </refsection>
+
+  <refsection id="cockpit-http-response">
+    <title>request.response()</title>
+<programlisting>
+request.response(function(status, headers) { ... })
+</programlisting>
+    <para>This sets up a handler to be called when the HTTP request gets the initial response
+      from the server. The <code>status</code> argument is the HTTP status integer, and the
+      <code>headers</code> is a plain javascript object containing the headers of the
+      response.</para>
+  </refsection>
+
+  <refsection id="cockpit-http-stream">
+    <title>request.stream()</title>
+<programlisting>
+request.stream(function(data) { ... })
+</programlisting>
+    <para>This sets up a handler to be called when the request returns output data. The
+      handler will be called multiple times.</para>
+    <para>Only one handler may be registered at a time. Registering an additional handler
+      replaces the previous one. The handler receives either string <code>data</code> or
+      an array of binary bytes as its argument. A stream handler may return a number, which
+      indicates the number of characters or bytes consumed from <code>data</code>. Any data
+      not consumed will be included again the next time the handler is called.</para>
+    <para>If a <code>request.stream()</code> handler is set up, then the
+      <code><link linkend="cockpit-http-done">request.done()</link></code> handlers will
+      only get any remaining data not consumed by the stream handler.</para>
+  </refsection>
+
+  <refsection id="cockpit-http-input">
+    <title>request.input()</title>
+<programlisting>
+request.input(data, [stream])
+</programlisting>
+    <para>This method writes <code>data</code> to the HTTP request body. It is only valid
+      if no <code>"body"</code> has been specified in
+      <link linkend="cockpit-http-request">http.request()</link> options. If <code>stream</code>
+      is <code>true</code> then this function can be called again to provide further data.</para>
+  </refsection>
+
+  <refsection id="cockpit-http-close">
+    <title>request.close()</title>
+<programlisting>
+request.close([problem])
+</programlisting>
+    <para>Cancel the request. If <code>problem</code> is specified it should be a
+      standard <link linkend="cockpit-problems">problem code</link> string.</para>
+  </refsection>
+
+</refentry>

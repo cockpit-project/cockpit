@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<refentry id="cockpit-manifest">
+  <refnamediv>
+    <refname>cockpit.js: Manifests</refname>
+    <refpurpose>Manifest info</refpurpose>
+  </refnamediv>
+
+  <refsection>
+    <title>Loading Manifests</title>
+    <para>You can load manifest info by loading the <code>./manifest.json</code> file in
+      your package. In addition there is a shortcut: if you're using AMD loading you can
+      use a special module id to access all the manifests in one shot:</para>
+
+<programlisting>
+define([
+    'manifests',
+    'other.dep'
+], function(manifests, other) {
+    var manifest = manifests['package'];
+});
+</programlisting>
+  </refsection>
+
+</refentry>

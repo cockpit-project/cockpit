@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<refentry id="cockpit-error">
+  <refnamediv>
+    <refname>cockpit.js: Errors</refname>
+    <refpurpose>Problem codes and messages</refpurpose>
+  </refnamediv>
+
+  <refsection id="cockpit-problems">
+    <title>Problem Codes</title>
+    <para>Cockpit represents problems with standardized problem string codes.</para>
+    <variablelist>
+      <varlistentry>
+        <term><code>"access-denied"</code></term>
+        <listitem><para>The user is not permitted to perform the action in question.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"authentication-failed"</code></term>
+        <listitem><para>User authentication failed.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"internal-error"</code></term>
+        <listitem><para>An unexpected internal error without further info. This should
+          not happen during the normal course of operations.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"no-cockpit"</code></term>
+        <listitem><para>The system does not have a compatible version of Cockpit installed
+          or installed properly.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"no-session"</code></term>
+        <listitem><para>Cockpit is not logged in.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"not-found"</code></term>
+        <listitem><para>Something specifically requested was not found, such as a file,
+          executable etc.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"terminated"</code></term>
+        <listitem><para>Something was terminated forcibly, such as a connection, process
+          session, etc.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"timeout"</code></term>
+        <listitem><para>Something timed out.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"unknown-hostkey"</code></term>
+        <listitem><para>The remote host had an unexpected or unknown key.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"no-forwarding"</code></term>
+        <listitem><para>Could not forward authentication credentials to the remote host.</para></listitem>
+      </varlistentry>
+    </variablelist>
+  </refsection>
+
+  <refsection id="cockpit-messages">
+    <title>cockpit.message()</title>
+<programlisting>
+message = cockpit.message(problem)
+message = cockpit.message(exception)
+</programlisting>
+    <para>Return a message for the <code>exception</code> or <code>problem</code> code
+      passed as an argument. If the argument is an object with a <code>"message"</code> property,
+      as is the case with most exceptions, that will be returned directly. If the argument is
+      an object with a <code>"problem"</code> property, then it will be used as the problem code.
+      An appropriate message will be returned for problem codes.</para>
+  </refsection>
+
+</refentry>

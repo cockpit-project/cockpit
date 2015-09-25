@@ -1,5 +1,5 @@
 systemddir = $(pkgdatadir)/system
-systemd_GZ = \
+nodist_systemd_DATA = \
 	pkg/systemd/bundle.min.js.gz \
 	pkg/systemd/index.min.html.gz \
 	pkg/systemd/journal.min.css.gz \
@@ -10,7 +10,6 @@ systemd_GZ = \
 	$(NULL)
 systemd_DATA = \
 	pkg/systemd/manifest.json \
-	$(systemd_GZ) \
 	$(NULL)
 
 systemddebugdir = $(debugdir)$(systemddir)
@@ -62,17 +61,20 @@ TESTS += $(systemd_TESTS)
 CLEANFILES += \
 	pkg/systemd/bundle.min.js \
 	pkg/systemd/index.min.html \
+	pkg/systemd/journal.min.css \
 	pkg/systemd/logs.min.html \
 	pkg/systemd/services.min.html \
 	pkg/systemd/terminal.min.html \
 	$(systemd_MIN) \
-	$(systemd_GZ) \
+	$(nodist_systemd_DATA) \
 	$(NULL)
 
 EXTRA_DIST += \
 	pkg/systemd/bundle.min.js \
 	pkg/systemd/index.min.html \
+	pkg/systemd/journal.min.css \
 	pkg/systemd/logs.min.html \
+	pkg/systemd/service.min.js \
 	pkg/systemd/services.min.html \
 	pkg/systemd/terminal.min.html \
 	$(systemd_DATA) \

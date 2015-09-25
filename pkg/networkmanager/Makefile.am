@@ -1,12 +1,11 @@
 networkmanagerdir = $(pkgdatadir)/network
-networkmanager_GZ = \
+nodist_networkmanager_DATA = \
 	pkg/networkmanager/bundle.min.js.gz \
 	pkg/networkmanager/index.min.html.gz \
 	pkg/networkmanager/networking.min.css.gz \
 	$(NULL)
 networkmanager_DATA = \
 	pkg/networkmanager/manifest.json \
-	$(networkmanager_GZ) \
 	$(NULL)
 
 networkmanagerdebugdir = $(debugdir)$(networkmanagerdir)
@@ -32,13 +31,15 @@ TESTS += $(networkmanager_TESTS)
 CLEANFILES += \
 	pkg/networkmanager/bundle.min.js \
 	pkg/networkmanager/index.min.html \
+	pkg/networkmanager/networking.min.css \
 	$(networkmanager_BUNDLE) \
-	$(networkmanager_GZ) \
+	$(nodist_networkmanager_DATA) \
 	$(NULL)
 
 EXTRA_DIST += \
 	pkg/networkmanager/bundle.min.js \
 	pkg/networkmanager/index.min.html \
+	pkg/networkmanager/networking.min.css \
 	$(networkmanager_DATA) \
 	$(networkmanagerdebug_DATA) \
 	$(networkmanager_TESTS) \

@@ -1,12 +1,11 @@
 usersdir = $(pkgdatadir)/users
-users_GZ = \
+nodist_users_DATA = \
 	pkg/users/bundle.min.js.gz \
 	pkg/users/index.min.html.gz \
 	pkg/users/users.min.css.gz \
 	$(NULL)
 users_DATA = \
 	pkg/users/manifest.json \
-	$(users_GZ) \
 	$(NULL)
 
 users_SCRIPTS = \
@@ -46,14 +45,16 @@ TESTS += $(users_TESTS)
 CLEANFILES += \
 	pkg/users/bundle.min.js \
 	pkg/users/index.min.html \
+	pkg/users/users.min.css \
 	$(users_BUNDLEFILES) \
-	$(users_GZ) \
+	$(nodist_users_DATA) \
 	$(NULL)
 
 EXTRA_DIST += \
 	pkg/users/mock \
 	pkg/users/bundle.min.js \
 	pkg/users/index.min.html \
+	pkg/users/users.min.css \
 	$(users_DATA) \
 	$(usersdebug_DATA) \
 	$(users_TESTS) \

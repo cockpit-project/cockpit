@@ -1,0 +1,14 @@
+#!/bin/sh -eu
+
+# Check for mistakes in tarball distribution
+
+find $1/pkg -name '*.gz' -print | tee /dev/stderr | sort | while read file; do
+        echo "Refusing to distribute gzip files" >&2
+        exit 1
+done
+
+find $1/pkg -name '*.min.*' -print | sed 's/\.min\././' |
+    xargs -n1 sh -uc 'test -f $0 || echo $0' | tee /dev/stderr | sort | while read file; do
+        echo "Refusing to distribute minified files without original" >&2
+        exit 1
+done

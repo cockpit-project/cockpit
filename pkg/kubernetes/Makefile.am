@@ -1,13 +1,12 @@
 
 kubernetesdir = $(pkgdatadir)/kubernetes
-kubernetes_GZ = \
+nodist_kubernetes_DATA = \
 	pkg/kubernetes/app.min.css.gz \
 	pkg/kubernetes/index.min.html.gz \
 	pkg/kubernetes/kubernetes.min.js.gz \
 	$(NULL)
 kubernetes_DATA = \
 	pkg/kubernetes/manifest.json \
-	$(kubernetes_GZ) \
 	$(NULL)
 
 kubernetes_VIEWS = \
@@ -88,11 +87,11 @@ kubernetes_BUNDLE = \
 	$(NULL)
 
 # Bundles all the view templates into a $templateCache loadable
-pkg/kubernetes/templates.min.js: $(kubernetes_VIEWS)
+pkg/kubernetes/templates.js: $(kubernetes_VIEWS)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/ngbundle -d kubernetes/app -o $@ $^
 
 # Everything else into a nice big bundle
-pkg/kubernetes/kubernetes.min.js: $(kubernetes_BUNDLE) pkg/kubernetes/templates.min.js
+pkg/kubernetes/kubernetes.min.js: $(kubernetes_BUNDLE) pkg/kubernetes/templates.js
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
 kubernetes_TESTS = \
@@ -105,15 +104,16 @@ CLEANFILES += \
 	pkg/kubernetes/app.min.css \
 	pkg/kubernetes/index.min.html \
 	pkg/kubernetes/kubernetes.min.js \
-	pkg/kubernetes/templates.min.js \
+	pkg/kubernetes/templates.js \
 	$(kubernetes_MIN) \
-	$(kubernetes_GZ) \
+	$(nodist_kubernetes_DATA) \
 	$(NULL)
 
 EXTRA_DIST += \
+	pkg/kubernetes/app.min.css \
 	pkg/kubernetes/index.min.html \
 	pkg/kubernetes/kubernetes.min.js \
-	pkg/kubernetes/templates.min.js \
+	pkg/kubernetes/templates.js \
 	$(kubernetes_BUNDLE) \
 	$(kubernetes_DATA) \
 	$(kubernetesdebug_DATA) \

@@ -31,14 +31,6 @@ class StorageCase(MachineCase):
             self.skipTest("No storage on Atomic")
 
         MachineCase.setUp(self)
-        # Install a udev rule to work around the fact that serials from
-        # VirtIO devices don't seem to appear early enough for udev to
-        # pick them up reliably.  We just wait a bit.
-        #
-        self.machine.needs_writable_usr()
-        self.machine.write("/usr/lib/udev/rules.d/59-fixup-serial.rules",
-             'SUBSYSTEM=="block" KERNEL=="vd*" IMPORT{program}="/bin/sh -c \'sleep 0.5; s=$(cat /sys/block/$(basename $tempnode)/serial); echo ID_SERIAL=$s\'"')
-        self.machine.execute("udevadm control --reload; udevadm trigger")
 
     def inode(self, f):
         return self.machine.execute("stat -L '%s' -c %%i" % f)

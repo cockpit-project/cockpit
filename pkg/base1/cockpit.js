@@ -2798,6 +2798,7 @@ function full_scope(cockpit, $, po) {
             options_list = [ options_list ];
 
         var channels = [ ];
+        var following = false;
 
         self.series = cockpit.series(interval, cache, fetch_for_series);
 
@@ -2811,6 +2812,9 @@ function full_scope(cockpit, $, po) {
         function transfer(options_list, callback, is_archive) {
             if (options_list.length === 0)
                 return;
+
+            if (!is_archive)
+                following = true;
 
             var options = $.extend({
                 payload: "metrics1",
@@ -2955,13 +2959,8 @@ function full_scope(cockpit, $, po) {
             transfer(archive_options_list, drain, true);
         };
 
-        var following = false;
-
         self.follow = function follow() {
-            if (!following) {
-                following = true;
-                transfer(options_list, drain);
-            }
+            transfer(options_list, drain);
         };
 
         self.close = function close(options) {

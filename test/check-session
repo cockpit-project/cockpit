@@ -27,7 +27,8 @@ class TestSession(MachineCase):
 
         self.allow_restart_journal_messages()
         # Might happen when killing the bridge.
-        self.allow_journal_messages("localhost: dropping message while waiting for child to exit")
+        self.allow_journal_messages("localhost: dropping message while waiting for child to exit",
+                                    ".*No session for cookie")
 
         def wait_session(should_exist):
             def cond():

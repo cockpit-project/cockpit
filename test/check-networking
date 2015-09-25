@@ -19,6 +19,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 from testlib import *
+import time
 import os
 
 class TestNetworking(MachineCase):
@@ -30,6 +31,22 @@ class TestNetworking(MachineCase):
         def getit():
             return m.execute("for f in /sys/class/net/*; do a=$(cat $f/address); if test \"$a\" == %s; then echo $(basename $f); fi; done" % mac)
         return wait(getit).strip();
+
+    def wait_for_iface(self, iface):
+        self.browser.wait_in_text("#networking-interfaces", iface)
+        start_time = time.time()
+        valid_states = [
+                          "Inactive",
+                          "bps",
+                          "Configuring IP"
+                       ]
+        while (time.time() - start_time) < self.browser.phantom_wait_timeout:
+            element = self.browser.text("#networking-interfaces tr:contains('%s')" % iface)
+            for state in valid_states:
+                if state in element:
+                    return
+            time.sleep(0.5)
+        raise Failure("Interface $s didn't come up" % iface)
 
     def switch_off_rp_filter(self, m):
         #
@@ -81,8 +98,7 @@ class TestNetworking(MachineCase):
         m.execute("nmcli c reload")
         iface = self.get_iface(m, m.add_netiface(mac));
 
-        b.wait_in_text("#networking-interfaces", iface)
-        b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface, "bps")
+        self.wait_for_iface(iface)
         b.click("#networking-interfaces tr:contains('%s')" % iface)
         b.wait_visible("#network-interface")
 
@@ -140,15 +156,8 @@ class TestNetworking(MachineCase):
         mac = "52:54:00:9e:00:F5"
         iface1 = self.get_iface(m, m.add_netiface(mac=mac));
         iface2 = self.get_iface(m, m.add_netiface(secondary_network=True));
-        b.wait_in_text("#networking-interfaces", iface1)
-        b.wait_in_text("#networking-interfaces", iface2)
-        if m.os == "rhel-7":
-            # Interfaces are not auto-activated on RHEL 7.
-            b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface1, "Inactive")
-            b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface2, "Inactive")
-        else:
-            b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface1, "bps")
-            b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface2, "Configuring IP")
+        self.wait_for_iface(iface1)
+        self.wait_for_iface(iface2)
 
         # Bond them
         b.click("button:contains('Add Bond')")
@@ -207,15 +216,8 @@ class TestNetworking(MachineCase):
 
         iface1 = self.get_iface(m, m.add_netiface());
         iface2 = self.get_iface(m, m.add_netiface(secondary_network=True));
-        b.wait_in_text("#networking-interfaces", iface1)
-        b.wait_in_text("#networking-interfaces", iface2)
-        if m.os == "rhel-7":
-            # Interfaces are not auto-activated on RHEL 7.
-            b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface1, "Inactive")
-            b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface2, "Inactive")
-        else:
-            b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface1, "bps")
-            b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface2, "Configuring IP")
+        self.wait_for_iface(iface1)
+        self.wait_for_iface(iface2)
 
         # Bridge them
         b.click("button:contains('Add Bridge')")

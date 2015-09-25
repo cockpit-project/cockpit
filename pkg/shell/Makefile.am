@@ -3,6 +3,7 @@ nodist_shell_DATA = \
 	pkg/shell/shell.min.js.gz \
 	pkg/shell/bundle.min.js.gz \
 	pkg/shell/shell.min.css.gz \
+	pkg/shell/shell.min.html.gz \
 	$(NULL)
 shell_DATA = \
 	pkg/shell/index.min.html \
@@ -17,6 +18,7 @@ shelldebug_DATA = \
 	pkg/shell/index.js \
 	pkg/shell/machines.js \
 	pkg/shell/shell.css \
+	pkg/shell/shell.html \
 	pkg/shell/dbus.js \
 	pkg/shell/controls.js \
 	pkg/shell/plot.js \
@@ -71,6 +73,7 @@ CLEANFILES += \
 	pkg/shell/shell.min.js \
 	pkg/shell/bundle.min.js \
 	pkg/shell/index.min.html \
+	pkg/shell/shell.min.html \
 	$(shell_BUNDLE) \
 	$(nodist_shell_DATA) \
 	$(shell_MINFILES) \
@@ -81,6 +84,7 @@ EXTRA_DIST += \
 	pkg/shell/shell.min.js \
 	pkg/shell/bundle.min.js \
 	pkg/shell/index.min.html \
+	pkg/shell/shell.min.html \
 	$(shell_DATA) \
 	$(shell_BUNDLE) \
 	$(shell_SHELL) \

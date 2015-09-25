@@ -57,8 +57,8 @@
       in the user's home directory.</para>
 
 <programlisting>
- $ cockpit-bridge --packages
- ...
+$ cockpit-bridge --packages
+...
 </programlisting>
 
     <para>To further clarify things, here is an example package called "my-package" and its file layout:</para>
@@ -122,15 +122,15 @@
     <para>An example manifest.json with some optional properties set:</para>
 
 <programlisting>
-  {
-    "version": 0,
-    "tools": {
-       "mytool": {
-          "label": "My Tool",
-          "path": "tool.html"
-       }
-    }
+{
+  "version": 0,
+  "tools": {
+     "mytool": {
+        "label": "My Tool",
+        "path": "tool.html"
+     }
   }
+}
 </programlisting>
 
   </section>
@@ -146,7 +146,7 @@
       from the <code>latest</code> package:</para>
 
 <programlisting>
-  &lt;script src="../base1/cockpit.js"&gt;&lt;/script&gt;
+&lt;script src="../base1/cockpit.js"&gt;&lt;/script&gt;
 </programlisting>
 
     <para>Do not assume you can link to any file in any other package. Refer to the
@@ -170,14 +170,14 @@
       <code>mypackage</code> the following files would be tried in this order:</para>
 
 <programlisting>
-  mypackage/test.de.js
-  mypackage/test.de.min.js
-  mypackage/test.de.js.gz
-  mypackage/test.de.min.js.gz
-  mypackage/test.js
-  mypackage/test.min.js
-  mypackage/test.js.gz
-  mypackage/test.min.js.gz
+mypackage/test.de.js
+mypackage/test.de.min.js
+mypackage/test.de.js.gz
+mypackage/test.de.min.js.gz
+mypackage/test.js
+mypackage/test.min.js
+mypackage/test.js.gz
+mypackage/test.min.js.gz
 </programlisting>
 
     <para>When packages are loaded from a system directory, Cockpit optimizes the file

@@ -159,10 +159,8 @@ define([
 
             $scope.jumpService = function jumpService(ev, service) {
                 var target = $(ev.target);
-                if (target.parents().is(".editable")) {
-                    console.log(target.parents(".editable"));
+                if (target.parents().is(".editable"))
                     return;
-                }
 
                 var meta = service.metadata;
                 var spec = service.spec;

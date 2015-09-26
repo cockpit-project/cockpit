@@ -175,14 +175,7 @@ function host_edit_dialog(machine_manager, host) {
             label: $('#host-edit-name').val()
         };
         var promise = machine_manager.change(machine.key, values);
-        promise
-            .done(function() {
-                dlg.modal('hide');
-            })
-            .fail(function(ex) {
-                dlg.dialog('failure', ex);
-            });
-        dlg.dialog('wait', promise);
+        dlg.dialog('promise', promise);
     });
     $('#host-edit-avatar').off('click');
     $('#host-edit-avatar').on('click', function () {

@@ -478,14 +478,8 @@ PageAccountsCreate.prototype = {
                 $("#accounts-create-dialog").dialog("failure", ex);
             })
             .done(function() {
-                promise = chain(tasks)
-                    .done(function() {
-                        $('#accounts-create-dialog').modal('hide');
-                    })
-                    .fail(function(ex) {
-                        $("#accounts-create-dialog").dialog("failure", ex);
-                    });
-                $("#accounts-create-dialog").dialog("wait", promise);
+                promise = chain(tasks);
+                $("#accounts-create-dialog").dialog("promise", promise);
             });
 
         $("#accounts-create-dialog").dialog("wait", promise);
@@ -652,14 +646,7 @@ PageAccount.prototype = {
 
         var key = $("#authorized-keys-text").val();
         var promise = this.authorized_keys.add_key(key);
-        $("#add-authorized-key-dialog").dialog("wait", promise);
-        promise
-            .done(function() {
-                $("#add-authorized-key-dialog").modal('hide');
-            })
-            .fail(function(ex) {
-                $("#add-authorized-key-dialog").dialog("failure", ex);
-            });
+        $("#add-authorized-key-dialog").dialog("promise", promise);
     },
 
     get_user: function() {
@@ -1094,14 +1081,7 @@ PageAccountSetPassword.prototype = {
                 else
                     promise = passwd_change(user, password);
 
-                promise
-                    .done(function() {
-                        $('#account-set-password-dialog').modal('hide');
-                    })
-                    .fail(function(ex) {
-                        $("#account-set-password-dialog").dialog("failure", ex);
-                    });
-                $("#account-set-password-dialog").dialog("wait", promise);
+                $("#account-set-password-dialog").dialog("promise", promise);
             })
             .fail(function(ex) {
                 $("#account-set-password-meter-message").hide();

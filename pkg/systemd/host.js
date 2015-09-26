@@ -734,8 +734,7 @@ PageSystemInformationChangeSystime.prototype = {
 
         server_time.timedate.call('SetNTP', [$('#change_systime').val() == 'ntp_time', true])
             .fail(function(err) {
-                show_unexpected_error(err);
-                $("#system_information_change_systime").modal('hide');
+                $("#system_information_change_systime").dialog("failure", err);
             })
             .done(function() {
                 if (! $('#systime-timezones').prop('disabled')) {

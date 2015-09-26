@@ -415,7 +415,7 @@ define([
 
                     update_error_message(ex, response);
                     var msg = "watching kubernetes " + type + " failed: " + ex.message;
-                    if (ex.problem !== "disconnected")
+                    if (ex.problem !== "disconnected" && ex.status !== 404)
                         console.warn(msg);
                     else
                         debug(msg);

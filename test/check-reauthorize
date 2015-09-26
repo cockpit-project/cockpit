@@ -37,6 +37,7 @@ class TestReauthorize(MachineCase):
 
 	# Deauthorize
 	b.leave_page()
+	b.click("#content-user-name")
 	b.click("#deauthorize-item")
 	b.wait_attr("#deauthorize-item", "disabled", "disabled")
 
@@ -60,6 +61,7 @@ class TestReauthorize(MachineCase):
 
         # Deauthorize
         b.leave_page()
+        b.click("#content-user-name")
         b.click("#deauthorize-item")
         b.wait_attr("#deauthorize-item", "disabled", "disabled")
 

@@ -159,8 +159,8 @@ class Browser:
         #    hash = "/@" + host + hash
         self.call_js_func('ph_go', hash)
 
-    def click(self, selector):
-        self.call_js_func('ph_click', selector)
+    def click(self, selector, force=False):
+        self.call_js_func('ph_click', selector, force)
 
     def val(self, selector):
         return self.call_js_func('ph_val', selector)
@@ -325,7 +325,7 @@ class Browser:
         # We don't need to open the menu, it's enough to simulate a
         # click on the invisible button.
         if entry:
-            self.click(sel + ' a:contains("%s")' % entry);
+            self.click(sel + ' a:contains("%s")' % entry, True);
         else:
             self.click(sel + ' button:first-child');
 
@@ -350,6 +350,7 @@ class Browser:
 
     def logout(self):
         self.switch_to_top()
+        self.click("#content-user-name")
         self.click('#go-logout')
         self.expect_reload()
 

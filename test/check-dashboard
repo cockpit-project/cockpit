@@ -51,6 +51,7 @@ class TestDashboard(MachineCase):
 
 
     def machine_remove(self, b, address):
+        b.click("#dashboard-enable-edit")
         b.click("#dashboard-hosts a[data-address='%s'] button.pficon-delete" % address)
 
     def add_machine(self, b, address):
@@ -133,10 +134,13 @@ class TestDashboard(MachineCase):
         # Test switching
         b.leave_page()
         b.wait_js_cond('$("#machine-dropdown ul li").length == 3')
+        b.click("#machine-link")
         b.click("#machine-dropdown ul a[data-address='localhost']")
         b.wait_js_cond('window.location.pathname == "/system"')
+        b.click("#machine-link")
         b.click("#machine-dropdown ul a[data-address='%s']" % m2.address)
         b.wait_js_cond('window.location.pathname.indexOf("/@%s") === 0' % m2.address)
+        b.click("#machine-link")
         b.click("#machine-dropdown ul a[data-address='%s']" % m3.address)
         b.wait_js_cond('window.location.pathname.indexOf("/@%s") === 0' % m3.address)
 

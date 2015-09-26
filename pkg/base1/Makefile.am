@@ -24,6 +24,7 @@ base_DATA = \
 basedebugdir = $(debugdir)$(basedir)
 basedebug_DATA = \
 	pkg/base1/angular.js \
+	pkg/base1/angular-patternfly.css \
 	pkg/base1/bootstrap-datepicker.js \
 	pkg/base1/bootstrap-select.js \
 	pkg/base1/bootstrap-combobox.js \
@@ -143,6 +144,8 @@ update-lib:: update-bower
 		$(BOWER)/patternfly/dist/css/patternfly.css > $(srcdir)/pkg/base1/patternfly.css
 	sed -f $(srcdir)/tools/patternfly.sed \
 		$(BOWER)/patternfly/dist/css/patternfly-additions.css > $(srcdir)/pkg/base1/patternfly-additions.css
+	sed -f $(srcdir)/tools/patternfly.sed \
+		$(BOWER)/angular-patternfly/dist/styles/angular-patternfly.css > $(srcdir)/pkg/base1/angular-patternfly.css
 	$(JSMODULE) -o $(srcdir)/pkg/base1/jquery.js \
 	    $(BOWER)/jquery/dist/jquery.js \
 	    $(BOWER)/patternfly/components/bootstrap/dist/js/bootstrap.js \
@@ -212,13 +215,15 @@ update-lib:: update-bower
 	    $(BOWER)/angular-route/angular-route.js \
 	    $(BOWER)/angular-animate/angular-animate.js \
 	    $(BOWER)/angular-bootstrap/ui-bootstrap.js \
-	    $(BOWER)/angular-bootstrap/ui-bootstrap-tpls.js
+	    $(BOWER)/angular-bootstrap/ui-bootstrap-tpls.js \
+	    $(BOWER)/angular-patternfly/dist/angular-patternfly.js
 	$(JSMODULE) -m -a window.angular -d jquery -o $(srcdir)/pkg/base1/angular.min.js \
 	    $(BOWER)/angular/angular.min.js \
 	    $(BOWER)/angular-animate/angular-animate.min.js \
 	    $(BOWER)/angular-route/angular-route.min.js \
 	    $(BOWER)/angular-bootstrap/ui-bootstrap.min.js \
-	    $(BOWER)/angular-bootstrap/ui-bootstrap-tpls.min.js
+	    $(BOWER)/angular-bootstrap/ui-bootstrap-tpls.min.js \
+	    $(BOWER)/angular-patternfly/dist/angular-patternfly.min.js
 
 # Never recreate these files
 pkg/base1/angular.min.js:

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="feature-docker">
+  <title>Docker</title>
+
+  <para>Cockpit can manage containers via <ulink url="https://www.docker.com/">Docker</ulink>.
+    This functionality is present in the Cockpit <emphasis>docker</emphasis> package.</para>
+
+  <para>Cockpit communicates with the Docker daemon via its API via the
+    <filename>/var/run/docker.sock</filename> unix socket. The Docker API
+    is root equivalent, and on a properly configured system, only <code>root</code>
+    can access the Docker API. If the currently logged in user is not <code>root</code>
+    then Cockpit will try to
+    <link linkend="privileges">escalate the user's privileges</link> via Polkit
+    or sudo before connecting to the socket.</para>
+
+  <para>Similar container functionality is available on the command line via the
+    <filename>docker</filename> tool:</para>
+
+<programlisting>
+$ <command>sudo docker run -ti fedora /bin/bash</command>
+[root@57625bc8787e /]#
+</programlisting>
+</chapter>

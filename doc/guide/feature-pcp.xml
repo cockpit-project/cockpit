@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="feature-pcp">
+  <title>PCP</title>
+
+  <para>If available, Cockpit uses the
+    <ulink url="http://www.pcp.io/">Performance Co-Pilot</ulink> framework to
+    gather metrics data about the system. This data is used to display graphs.
+    Cockpit can use the PCP logging feature to display archived data about the
+    system from a different point in time. If PCP is not available, then Cockpit
+    gathers the metrics data itself, but archival features are not available.</para>
+
+  <para>To see similar metrics data from the command line, you can use tools like
+    <ulink url="http://www.pcp.io/books/PCP_UAG/html/LE38515-PARENT.html#LE91266-PARENT"><code>pmstat</code></ulink>
+    or <ulink url="http://www.pcp.io/books/PCP_UAG/html/LE60452-PARENT.html"><code>pminfo</code></ulink>:</para>
+
+<programlisting>
+$ <command>pmstat</command>
+@ Sat Sep 26 15:30:10 2015
+ loadavg                      memory      swap        io    system         cpu
+   1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id
+    4.19      0 20710m 605148  6450m    0    0    0 2548 5688  14K  19   3  76
+...
+</programlisting>
+
+</chapter>

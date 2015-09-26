@@ -35,6 +35,7 @@ class TestDocker(MachineCase):
 
     def del_container_from_details(self, container_name):
         b = self.browser
+        b.wait_visible("#container-details-delete:not([disabled])")
         b.click("#container-details-delete")
         with b.wait_timeout(20):
             try:

@@ -520,7 +520,9 @@ systemctl start docker
                                     "request timed out, closing",
                                     "PolicyKit daemon disconnected from the bus.",
                                     "We are no longer a registered authentication agent.",
-                                    ".*: failed to retrieve resource: terminated"
+                                    ".*: failed to retrieve resource: terminated",
+                                    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1253319
+                                    'audit:.*denied.*2F6D656D66643A73642D73797374656D642D636F726564756D202864656C.*',
                                     )
 
     def allow_authorize_journal_messages(self):

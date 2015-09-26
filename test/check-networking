@@ -88,6 +88,7 @@ class TestNetworking(MachineCase):
         b.wait_in_text("#network-interface", "IPv4")
         b.click("tr:contains('IPv4') button")
         b.wait_popup("network-ip-settings-dialog")
+        b.click("#network-ip-settings-dialog .btn.dropdown-toggle")
         b.click("#network-ip-settings-dialog a:contains('Manual')")
         b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "1.2.3.4")
         b.set_val('#network-ip-settings-dialog input[placeholder*="Netmask"]', "255.255.0.8")

@@ -358,7 +358,6 @@ class TestNulecule(KubernetesCase):
         b.set_val("#deploy-app-type", "nulecule")
         b.set_val("#deploy-app-nulecule-image", "submod/helloapache1")
         b.set_val("#deploy-app-namespace", "mynamespace")
-        b.click("#deploy-app-start")
         b.dialog_complete("#deploy-app-dialog", result="fail")
         b.dialog_cancel("#deploy-app-dialog")
 
@@ -381,7 +380,6 @@ class TestNulecule(KubernetesCase):
         b.set_val("#deploy-app-type", "nulecule")
         b.set_val("#deploy-app-nulecule-image", "submod/helloapache")
         b.set_val("#deploy-app-namespace", "mynamespace")
-        b.click("#deploy-app-start")
         b.dialog_complete("#deploy-app-dialog", result="fail")
         b.dialog_cancel("#deploy-app-dialog")
 

@@ -27,7 +27,7 @@ def content_action_btn(index):
 class StorageCase(MachineCase):
     def setUp(self):
 
-        if "atomic" in os.getenv("TEST_OS"):
+        if "atomic" in os.getenv("TEST_OS", ""):
             self.skipTest("No storage on Atomic")
 
         MachineCase.setUp(self)

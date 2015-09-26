@@ -96,17 +96,38 @@ function ph_has_attr (sel, attr, val)
     return ph_attr(sel, attr) == val;
 }
 
-function ph_click (sel)
-{
+function ph_click(sel, force) {
+    var el = ph_find(sel);
+
+    /* The element has to be visible, and not collapsed */
+    if (!force && (el.offsetWidth <= 0 || el.offsetHeight <= 0))
+        throw sel + " is not visible";
+
     var ev = document.createEvent("MouseEvent");
     ev.initMouseEvent(
-            "click",
-            true /* bubble */, true /* cancelable */,
-            window, null,
-            0, 0, 0, 0, /* coordinates */
-            false, false, false, false, /* modifier keys */
-            0 /*left*/, null);
-    ph_find(sel).dispatchEvent(ev);
+        "click",
+        true /* bubble */, true /* cancelable */,
+        window, null,
+        0, 0, 0, 0, /* coordinates */
+        false, false, false, false, /* modifier keys */
+        0 /*left*/, null);
+
+    /* The click has to actually work */
+    var clicked = false;
+    function click() {
+        clicked = true;
+    }
+
+    el.addEventListener("click", click, true);
+
+    /* Now dispatch the event */
+    el.dispatchEvent(ev);
+
+    el.removeEventListener("click", click, true);
+
+    /* It really had to work */
+    if (!clicked)
+        throw sel + " is disabled or somehow not clickable";
 }
 
 function ph_set_checked (sel, val)

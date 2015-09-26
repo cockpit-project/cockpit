@@ -463,15 +463,22 @@ introspect_next (CockpitDBusCache *self)
   id = g_queue_peek_head (self->introspects);
   if (id && !id->introspecting)
     {
-      g_debug ("%s: calling Introspect() on %s", self->logname, id->path);
+      if (!g_cancellable_is_cancelled (self->cancellable))
+        {
+          g_debug ("%s: calling Introspect() on %s", self->logname, id->path);
 
-      id->introspecting = TRUE;
-      g_dbus_connection_call (self->connection, self->name, id->path,
-                              "org.freedesktop.DBus.Introspectable", "Introspect",
-                              g_variant_new ("()"), G_VARIANT_TYPE ("(s)"),
-                              G_DBUS_CALL_FLAGS_NONE, -1,
-                              self->cancellable, on_introspect_reply,
-                              g_object_ref (self));
+          id->introspecting = TRUE;
+          g_dbus_connection_call (self->connection, self->name, id->path,
+                                  "org.freedesktop.DBus.Introspectable", "Introspect",
+                                  g_variant_new ("()"), G_VARIANT_TYPE ("(s)"),
+                                  G_DBUS_CALL_FLAGS_NONE, -1,
+                                  self->cancellable, on_introspect_reply,
+                                  g_object_ref (self));
+        }
+      else
+        {
+          introspect_complete(self, id);
+        }
     }
 }
 

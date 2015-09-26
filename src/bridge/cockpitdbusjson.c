@@ -1965,15 +1965,6 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
       goto out;
     }
 
-  self->logname = self->name;
-  if (self->logname == NULL)
-    {
-      if (address)
-        self->logname = address;
-      else
-        self->logname = bus;
-    }
-
   /*
    * The default bus is the "user" bus which doesn't exist in many
    * places yet, so use the session bus for now.
@@ -2022,6 +2013,7 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
         }
 
       self->name = cockpit_dbus_internal_name ();
+      self->logname = self->name;
 
       subscribe_and_cache (self);
       cockpit_channel_ready (channel);
@@ -2054,6 +2046,13 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
           g_warning ("bad \"address\" option in dbus channel: %s", address);
           goto out;
         }
+
+      if (self->name != NULL)
+        self->logname = self->name;
+      else if (address != NULL)
+        self->logname = address;
+      else
+        self->logname = bus;
 
       /* Ready when the bus connection is available */
       if (bus_type == G_BUS_TYPE_NONE)

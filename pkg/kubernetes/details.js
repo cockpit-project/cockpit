@@ -24,17 +24,8 @@ define([
         delete_entity_dlg.find('.modal-body').text(cockpit.format(_("Delete $0 $1?"), entity.kind, entity.metadata.name));
 
         delete_btn.on('click', function() {
-            var deferred = $.Deferred();
-            delete_entity_dlg.dialog("wait", deferred.promise());
-            delete_entity_dlg.dialog("failure", null);
-
-            k8client.remove(entity.metadata.selfLink)
-                .fail(function(ex) {
-                    delete_entity_dlg.dialog("failure", ex);
-                })
-                .done(function() {
-                    delete_entity_dlg.modal("hide");
-                });
+            var promise = k8client.remove(entity.metadata.selfLink);
+            delete_entity_dlg.dialog("promise", promise);
         });
     });
 
@@ -103,15 +94,7 @@ define([
             }
 
             var promise = update_replica(entity);
-            adjust_entity_dlg.dialog("wait", promise);
-
-            promise
-                .fail(function(ex) {
-                    adjust_entity_dlg.dialog("failure", ex);
-                })
-                .done(function() {
-                    adjust_entity_dlg.modal("hide");
-                });
+            adjust_entity_dlg.dialog("promise", promise);
         });
 
     });
@@ -120,17 +103,8 @@ define([
         var pod = $(e.relatedTarget).attr('data-link');
 
         delete_pod_btn.on('click', function() {
-            var deferred = $.Deferred();
-            delete_pod_dlg.dialog("wait", deferred.promise());
-            delete_pod_dlg.dialog("failure", null);
-
-            k8client.remove(pod)
-                .fail(function(ex) {
-                    delete_pod_dlg.dialog("failure", ex);
-                })
-                .done(function() {
-                    delete_pod_dlg.modal("hide");
-                });
+            var promise = k8client.remove(pod);
+            delete_pod_dlg.dialog("promise", promise);
         });
     });
 

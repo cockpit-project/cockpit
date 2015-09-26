@@ -173,15 +173,7 @@ define([
             return;
 
         var promise = perform(tasks);
-        dialog.dialog("wait", promise);
-
-        promise
-            .fail(function(ex) {
-                dialog.dialog("failure", ex);
-            })
-            .done(function() {
-                dialog.modal("hide");
-            });
+        dialog.dialog("promise", promise);
     });
 });
 

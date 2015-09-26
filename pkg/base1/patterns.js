@@ -90,9 +90,10 @@ define([
         });
     }
 
-    function DialogWait(promise) {
+    function DialogWait(promise, handle) {
         this.promise = promise;
         this.disabled = [];
+        this.handle = handle;
     }
 
     function clear_wait(sel) {
@@ -110,11 +111,18 @@ define([
         }
     }
 
-    function display_wait(sel, promise) {
+    function display_wait(sel, promise, handle) {
         clear_wait(sel);
 
-        if (!promise)
-            return;
+        if (!promise) {
+            if (handle)
+                sel.modal("hide");
+            return sel;
+        }
+
+        /* Clear all errors in the dialog */
+        if (handle)
+            display_errors(sel, []);
 
         var wait = $("<div class='dialog-wait pull-left'>");
         $("<div class='spinner spinner-sm'>").appendTo(wait);
@@ -122,7 +130,7 @@ define([
 
         sel.find(".modal-footer button").first().before(wait);
 
-        var data = new DialogWait(promise);
+        var data = new DialogWait(promise, handle);
         sel.data("dialog-wait", data);
 
         var cancellation = promise.cancel || promise.close;
@@ -158,11 +166,15 @@ define([
          * processing the same promise.
          */
         function restore() {
-            var data = sel.data("dialog-wait");
-            if (data && data.promise === promise)
+            var state, data = sel.data("dialog-wait");
+            if (data && data.promise === promise) {
                 clear_wait(sel);
-            if (cancelled)
-                sel.modal('hide');
+                state = promise.state();
+                if (cancelled || (state == "resolved" && data.handle))
+                    sel.modal('hide');
+                else if (state == "rejected" && data.handle)
+                    display_errors(sel, [ arguments[0] ]);
+            }
         }
 
         function update(arg) {
@@ -177,13 +189,17 @@ define([
         promise
             .always(restore)
             .progress(update);
+
+        return sel;
     }
 
     $.fn.dialog = function dialog(action /* ... */) {
         if (action === "failure")
-            display_errors(this, Array.prototype.slice.call(arguments, 1));
+            return display_errors(this, Array.prototype.slice.call(arguments, 1));
         else if (action === "wait")
-            display_wait(this, arguments[1]);
+            return display_wait(this, arguments[1]);
+        else if (action === "promise")
+            return display_wait(this, arguments[1], true);
         else
             console.warn("unknown dialog action: " + action);
     };

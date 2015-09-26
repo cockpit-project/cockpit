@@ -134,17 +134,7 @@ define([
             var vals = get_validated_field_values();
             if (vals !== null) {
                 var promise = def.Action.action(vals);
-                if (promise) {
-                    $dialog.dialog('wait', promise);
-                    promise
-                        .done(function () {
-                            $dialog.modal('hide');
-                        })
-                        .fail(function (err) {
-                            $dialog.dialog('failure', err);
-                        });
-                } else
-                    $dialog.modal('hide');
+                $dialog.dialog('promise', promise);
             }
         });
 

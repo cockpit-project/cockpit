@@ -38,8 +38,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="service in services"
-                            data-uid="{{service.metadata.uid}}" data-name="{{service.metadata.name}}"
+                    <tr ng-repeat="(id, service) in services"
+                            data-name="{{service.metadata.name}}"
                             ng-class="{highlight: service.metadata.uid == highlighted}"
                             ng-click="jumpService($event, service)"
                             ng-mouseover="highlight(service.metadata.uid)" ng-mouseout="highlight(null)"
@@ -51,7 +51,7 @@
                         <td class="status" ng-init="item = service">
                             <button title="Adjust" class="btn btn-default adjust-service pficon pficon-edit"
                                 data-toggle="modal" data-target="#adjust-dialog"
-                                data-uid="{{service.metadata.uid}}"></button>
+                                data-id="{{id}}"></button>
                             <span kubernetes-status-icon status="serviceStatus(service)"></span>
                         </td>
                     </tr>

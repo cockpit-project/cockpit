@@ -37,12 +37,11 @@ define([
         .on("show.bs.modal", function(ev) {
             kube = kubernetes.k8client();
 
-            var uid = $(ev.relatedTarget).attr("data-uid");
+            var uid = $(ev.relatedTarget).attr("data-id");
             var service = kube.objects[uid];
 
             if (!service) {
                 console.warn("no such service:", uid);
-                dialog.modal("hide");
                 return;
             }
 

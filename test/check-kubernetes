@@ -157,11 +157,21 @@ class TestKubernetes(KubernetesCase):
         # Make sure pod has started
         with b.wait_timeout(120):
             b.wait_text("#service-list tr[data-name='mock']:first-of-type td.containers", "1")
-        b.click("#service-list tr[data-name='mock']:first-of-type")
+
+        # Adjust the service
+        b.click("#services-enable-change")
+        b.click("#service-list tr[data-name='mock']:first-of-type button")
+        b.wait_popup("adjust-dialog")
+        b.set_val("#adjust-dialog input.adjust-replica", 2)
+        b.click("#adjust-dialog .btn-primary")
+        b.wait_popdown("adjust-dialog")
+        b.click("#services-enable-change")
+        b.wait_in_text("#service-list tr[data-name='mock']:first-of-type td.containers", "2")
 
         # Check that clicking on service goes to containers
+        b.click("#service-list tr[data-name='mock']:first-of-type td.containers")
         b.wait_present("#content .containers-listing tbody tr th")
-        self.assertEqual(b.text("#content .containers-listing tbody tr th"), "mock-container")
+        self.assertEqual(b.text("#content .containers-listing tbody:first-of-type tr th"), "mock-container")
 
         # Check that service shows up on listing view
         b.click("a[href='#/list']")

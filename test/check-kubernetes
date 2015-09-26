@@ -79,11 +79,11 @@ class TestKubernetes(KubernetesCase):
 
         pods = m.execute('kubectl get pods --output=template -t="{{ range .items }}{{.metadata.name}}|{{ end }}"')
         podl = pods.split("|")
-        print podl[0]
         b.click("a[href='#/list']")
         b.wait_present("#content .details-listing")
         self.assertEqual(b.text(".details-listing tbody[data-id='services/default/mock'] th"), "mock")
         self.assertEqual(b.text(".details-listing tbody[data-id='replicationcontrollers/default/mock'] th"), "mock")
+        b.wait_present(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] th")
         self.assertEqual(b.text(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] th"), podl[0])
 
         b.click(".details-listing tbody[data-id='services/default/mock'] th")

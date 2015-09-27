@@ -280,16 +280,25 @@ cockpit_web_response_get_stream  (CockpitWebResponse *self)
 #define G_IO_ERROR_CONNECTION_CLOSED G_IO_ERROR_BROKEN_PIPE
 #endif
 
-static gboolean
-should_suppress_output_error (CockpitWebResponse *self,
-                              GError *error)
+gboolean
+cockpit_web_should_suppress_output_error (const gchar *logname,
+                                          GError *error)
 {
   if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CONNECTION_CLOSED) ||
       g_error_matches (error, G_IO_ERROR, G_IO_ERROR_BROKEN_PIPE))
     {
-      g_debug ("%s: output error: %s", self->logname, error->message);
+      g_debug ("%s: output error: %s", logname, error->message);
       return TRUE;
     }
+
+#if !GLIB_CHECK_VERSION(2,43,2)
+  if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_FAILED) &&
+      strstr (error->message, g_strerror (ECONNRESET)))
+    {
+      g_debug ("%s: output error: %s", logname, error->message);
+      return TRUE;
+    }
+#endif
 
   return FALSE;
 }
@@ -309,7 +318,7 @@ on_output_flushed (GObject *stream,
     }
   else
     {
-      if (!should_suppress_output_error (self, error))
+      if (!cockpit_web_should_suppress_output_error (self->logname, error))
         g_warning ("%s: couldn't flush web output: %s", self->logname, error->message);
       self->failed = TRUE;
       g_error_free (error);
@@ -356,7 +365,7 @@ on_response_output (GObject *pollable,
               return TRUE;
             }
 
-          if (!should_suppress_output_error (self, error))
+          if (!cockpit_web_should_suppress_output_error (self->logname, error))
             g_warning ("%s: couldn't write web output: %s", self->logname, error->message);
 
           self->failed = TRUE;

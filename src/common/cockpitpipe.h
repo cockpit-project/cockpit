@@ -77,8 +77,13 @@ CockpitPipe *      cockpit_pipe_pty          (const gchar **argv,
 CockpitPipe *      cockpit_pipe_connect      (const gchar *name,
                                               GSocketAddress *address);
 
-void               cockpit_pipe_write        (CockpitPipe *self,
-                                              GBytes *data);
+/* HACK: Trying to debug self->priv->closed assertion */
+#define cockpit_pipe_write(s, d) (_cockpit_pipe_write (s, d, G_STRFUNC, __LINE__))
+
+void               _cockpit_pipe_write        (CockpitPipe *self,
+                                              GBytes *data,
+                                              const gchar *caller,
+                                              gint line);
 
 void               cockpit_pipe_close        (CockpitPipe *self,
                                               const gchar *problem);

@@ -21,6 +21,9 @@
 
 #include "cockpitstream.h"
 
+#include <errno.h>
+#include <string.h>
+
 /**
  * CockpitStream:
  *
@@ -280,6 +283,11 @@ set_problem_from_error (CockpitStream *self,
            g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_EOF) ||
            (self->priv->received && g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_MISC)))
     problem = "disconnected";
+#if !GLIB_CHECK_VERSION(2,43,2)
+  else if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_FAILED) &&
+           strstr (error->message, g_strerror (ECONNRESET)))
+    problem = "disconnected";
+#endif
   else if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_TIMED_OUT))
     problem = "timeout";
   else if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_NOT_TLS) ||

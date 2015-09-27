@@ -259,23 +259,6 @@ cockpit_web_server_set_property (GObject *object,
     }
 }
 
-#if !GLIB_CHECK_VERSION(2,43,2)
-#define G_IO_ERROR_CONNECTION_CLOSED G_IO_ERROR_BROKEN_PIPE
-#endif
-
-static gboolean
-should_suppress_output_error (GError *error)
-{
-  if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CONNECTION_CLOSED) ||
-      g_error_matches (error, G_IO_ERROR, G_IO_ERROR_BROKEN_PIPE))
-    {
-      g_debug ("http output error: %s", error->message);
-      return TRUE;
-    }
-
-  return FALSE;
-}
-
 static void
 on_io_closed (GObject *stream,
               GAsyncResult *result,
@@ -285,7 +268,7 @@ on_io_closed (GObject *stream,
 
   if (!g_io_stream_close_finish (G_IO_STREAM (stream), result, &error))
     {
-      if (!should_suppress_output_error (error))
+      if (!cockpit_web_should_suppress_output_error ("http", error))
         g_message ("http close error: %s", error->message);
       g_error_free (error);
     }

@@ -662,7 +662,8 @@ class VirtMachine(Machine):
         resources = os.path.join(tempfile.gettempdir(), ".cockpit-test-resources")
         if not os.path.exists(resources):
             os.mkdir(resources, 0755)
-        fd = os.open(self._resource_lockfile_path(resource), os.O_WRONLY | os.O_CREAT)
+        lockpath = self._resource_lockfile_path(resource)
+        fd = os.open(lockpath, os.O_WRONLY | os.O_CREAT)
         try:
             flags = fcntl.LOCK_NB
             if exclusive:
@@ -674,7 +675,7 @@ class VirtMachine(Machine):
             os.close(fd)
             return False
         else:
-            self._locks.append(fd)
+            self._locks.append({'fd': fd, 'path': lockpath})
             return True
 
     def _get_fixed_mac_flavors(self):
@@ -686,7 +687,7 @@ class VirtMachine(Machine):
                 flavors = flavors + [ flavor ]
         return flavors
 
-    def _choose_macaddr(self, timeout_sec=30):
+    def _choose_macaddr(self):
         # only return a mac address if we have defined some for this flavor in the network definition
         if self.flavor not in self._fixed_mac_flavors:
             return None
@@ -700,13 +701,9 @@ class VirtMachine(Machine):
                 break
             elif not flavor:
                 macaddrs.append(macaddr)
-        start_time = time.time()
-        # wait a bit before we give up
-        while (time.time() - start_time) < timeout_sec:
-            for macaddr in macaddrs:
-                if macaddr and self._lock_resource(macaddr):
-                    return macaddr
-            time.sleep(1)
+        for macaddr in macaddrs:
+            if macaddr and self._lock_resource(macaddr):
+                return macaddr
         raise Failure("Couldn't find unused mac address for '%s'" % (self.flavor))
 
     def _start_qemu(self, maintain=False, macaddr=None):
@@ -904,8 +901,10 @@ class VirtMachine(Machine):
                         self.rem_disk(index)
             self._disks = { }
             if hasattr(self, '_locks'):
-                for fd in self._locks:
-                    os.close(fd)
+                for lock_entry in self._locks:
+                    # explicitly unlink the file so the resource becomes available again
+                    os.unlink(lock_entry['path'])
+                    os.close(lock_entry['fd'])
             self._locks = []
             self._domain = None
             self.address = None

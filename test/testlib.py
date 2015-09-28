@@ -292,7 +292,7 @@ class Browser:
         self.click(sel + " " + button)
         self.wait_not_visible(sel)
 
-    def enter_page(self, path, host=None):
+    def enter_page(self, path, host=None, reconnect=True):
         """Wait for a page to become current.
 
         Arguments:
@@ -308,10 +308,22 @@ class Browser:
         frame = "cockpit1:" + frame
 
         self.switch_to_top()
-        self.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
-        self.wait_visible("iframe.container-frame[name='%s']" % frame)
-        self.switch_to_frame(frame)
 
+        while True:
+            try:
+                self.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
+                self.wait_visible("iframe.container-frame[name='%s']" % frame)
+                break
+            except Error, ex:
+                if reconnect and ex.value == 'timeout':
+                    reconnect = False
+                    if self.is_present(".curtains button"):
+                        self.click(".curtains button", True)
+                        self.wait_not_visible(".curtains")
+                        continue
+                raise exc_info[0], exc_info[1], exc_info[2]
+
+        self.switch_to_frame(frame)
         self.wait_present("body")
         self.wait_visible("body")
 

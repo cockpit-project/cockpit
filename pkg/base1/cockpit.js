@@ -2824,8 +2824,11 @@ function full_scope(cockpit, $, po) {
             if (options_list.length === 0)
                 return;
 
-            if (!is_archive)
+            if (!is_archive) {
+                if (following)
+                    return;
                 following = true;
+            }
 
             var options = $.extend({
                 payload: "metrics1",

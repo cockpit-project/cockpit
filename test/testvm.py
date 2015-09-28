@@ -612,15 +612,15 @@ class VirtMachine(Machine):
         self.virt_connection = libvirt.open("qemu:///session")
         self.event_handler = VirtEventHandler(libvirt_connection=self.virt_connection, verbose=self.verbose)
 
-        # network names are currently hardcoded into network-cockpit.xml and network-cockpit_secondary.xml
+        # network names are currently hardcoded into network-cockpit.xml
         self.network_name = self._read_network_name()
-        self.network_name_secondary = self._read_network_name_secondary()
-        self.message("using networks %s (primary) and %s (secondary)" % (self.network_name, self.network_name_secondary))
-
         self.system_connection = libvirt.openReadOnly("qemu:///system")
         self.dhcp_net = self.system_connection.networkLookupByName(self.network_name)
 
         # we can't see the network itself as non-root, create it using vm-prep as root
+
+        # Unique identifiers for hostnet config
+        self._hostnet = 8
 
         # init variables needed for running a vm
         self._cleanup()
@@ -630,13 +630,6 @@ class VirtMachine(Machine):
         for h in tree.iter("bridge"):
             return h.get("name")
         raise Failure("Couldn't find network name")
-
-    def _read_network_name_secondary(self):
-        tree = etree.parse(open("./guest/network-cockpit_secondary.xml"))
-        for h in tree.iter("bridge"):
-            return h.get("name")
-        raise Failure("Couldn't find network name")
-
 
     def save(self):
         assert not self._domain
@@ -717,16 +710,6 @@ class VirtMachine(Machine):
             time.sleep(1)
         raise Failure("Couldn't find unused mac address for '%s'" % (self.flavor))
 
-    def _domain_mac_addresses(self, dom):
-        xmldesc = etree.fromstring(dom.XMLDesc())
-        netxpath = './devices/interface[@type="bridge"]'
-
-        addresses = [ ]
-        for iface in xmldesc.iterfind(netxpath):
-            mac = iface.find('./mac').get('address')
-            addresses += [ mac ]
-        return addresses
-
     def _start_qemu(self, maintain=False, macaddr=None):
         # make sure we have a clean slate
         self._cleanup()
@@ -756,10 +739,8 @@ class VirtMachine(Machine):
                                     "-o", "backing_file=%s" % self._image_image,
                                     self._transient_image ])
             image_to_use = self._transient_image
-        if macaddr:
-            self.macaddr = macaddr
-        else:
-            self.macaddr = self._choose_macaddr()
+        if not macaddr:
+            macaddr = self._choose_macaddr()
 
         # domain xml
         test_domain_desc_original = ""
@@ -783,8 +764,8 @@ class VirtMachine(Machine):
         dom = None
         tries_left = 10
         mac_desc = ""
-        if self.macaddr:
-            mac_desc = "<mac address='%(mac)s'/>" % {'mac': self.macaddr}
+        if macaddr:
+            mac_desc = "<mac address='%(mac)s'/>" % {'mac': macaddr}
         while not dom_created:
             try:
                 rand_extension = '-' + ''.join(random.choice(string.digits + string.ascii_lowercase) for i in range(4))
@@ -809,14 +790,12 @@ class VirtMachine(Machine):
                     raise
             dom_created = True
 
-        # if we don't use a hardcoded mac due to the flavor,
-        # wait for boot and an active dhcp lease by this machine
-        mac_addresses = self._domain_mac_addresses(dom)
-        if not mac_addresses:
-            raise Failure("no mac address found for created domain")
-        if not self.macaddr:
-            self.macaddr = mac_addresses[0]
-        self.message("system has mac address(es): [" + ", ".join(mac_addresses) + "]")
+        self._domain = dom
+
+        macs = self._qemu_network_macs()
+        if not macs:
+            raise Failure("no mac addresses found for created machine")
+        self.macaddr = macs[0]
         self.address = self._ip_from_mac(self.macaddr)
         return dom
 
@@ -828,7 +807,7 @@ class VirtMachine(Machine):
             elif self.flavor == "openshift":
                 self.macaddr = "52:54:00:9e:00:F1"
         try:
-            self._domain = self._start_qemu(maintain=not snapshot, macaddr=macaddr)
+            self._start_qemu(maintain=not snapshot, macaddr=macaddr)
             self.message("started machine %s with address %s" % (self._domain.name(), self.address))
             print "console, to quit use Ctrl+], Ctrl+5 (depending on locale)"
             proc = subprocess.Popen("virsh console %s" % self._domain.ID(), shell=True)
@@ -845,7 +824,7 @@ class VirtMachine(Machine):
             elif self.flavor == "openshift":
                 self.macaddr = "52:54:00:9e:00:F1"
         try:
-            self._domain = self._start_qemu(maintain=maintain, macaddr=macaddr)
+            self._start_qemu(maintain=maintain, macaddr=macaddr)
             if not self._domain.isActive():
                 self._domain.start()
             self._maintaining = maintain
@@ -1058,27 +1037,37 @@ class VirtMachine(Machine):
         if "proc" in disk and disk["proc"] and disk["proc"].poll() == None:
             disk["proc"].terminate()
 
-    def add_netiface(self, mac=None, secondary_network=False):
-        desc_template = ""
-        with open("./files/test_domain_network.xml", "r") as desc_file:
-            desc_template = desc_file.read()
+    def _qemu_monitor(self, command):
+        cmd = [ "virsh", "--connect", "qemu:///session", "qemu-monitor-command",
+                "--hmp", str(self._domain.name()), command ]
+        self.message("& " + command)
+        output = subprocess.check_output(cmd)
+        self.message(output.strip())
+        return output
 
-        # only specify a mac address if we want to hardcode one
-        mac_desc = ""
+    def _qemu_network_macs(self):
+        macs = []
+        for line in self._qemu_monitor("info network").split("\n"):
+            x, y, mac = line.partition("macaddr=")
+            mac = mac.strip()
+            if mac:
+                macs.append(mac)
+        return macs
+
+    def add_netiface(self, mac=None, vlan=0):
+        cmd = "device_add e1000"
         if mac:
-            mac_desc = "<mac address='%(mac)s'/>" % {'mac': mac}
-        bridge = self.network_name
-        if secondary_network:
-            bridge = self.network_name_secondary
-        net_desc = desc_template % {'mac': mac_desc, 'bridge': bridge}
-
-        # compare mac addresses of the domain before and after adding the device to get the new one
-        old_addresses = self._domain_mac_addresses(self._domain)
-        if self._domain.attachDeviceFlags(net_desc, libvirt.VIR_DOMAIN_AFFECT_LIVE) != 0:
-            raise Failure("Unable to add network adapter to vm")
-        new_addresses = self._domain_mac_addresses(self._domain)
-        for mac in new_addresses:
-            if not mac in old_addresses:
+            cmd += ",mac=%s" % mac
+        macs = self._qemu_network_macs()
+        if vlan == 0:
+            self._qemu_monitor("netdev_add bridge,id=hostnet%d,br=cockpit1"  % self._hostnet)
+            cmd += ",netdev=hostnet%d" % self._hostnet
+            self._hostnet += 1
+        else:
+            cmd += ",vlan=%d" % vlan
+        self._qemu_monitor(cmd)
+        for mac in self._qemu_network_macs():
+            if mac not in macs:
                 return mac
         raise Failure("Unable to find mac address of the new network adapter")
 

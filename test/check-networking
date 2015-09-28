@@ -154,9 +154,8 @@ class TestNetworking(MachineCase):
         # Switching off rp_filter doesn't seem to be enough in the
         # case of bonds.
 
-        mac = "52:54:00:9e:00:F5"
-        iface1 = self.get_iface(m, m.add_netiface(mac=mac));
-        iface2 = self.get_iface(m, m.add_netiface(secondary_network=True));
+        iface1 = self.get_iface(m, m.add_netiface(mac="52:54:00:9e:00:f1"));
+        iface2 = self.get_iface(m, m.add_netiface(mac="52:54:00:9e:00:f5", vlan=1))
         self.wait_for_iface(iface1)
         self.wait_for_iface(iface2)
 
@@ -216,7 +215,7 @@ class TestNetworking(MachineCase):
         # bridge we are creating here.
 
         iface1 = self.get_iface(m, m.add_netiface());
-        iface2 = self.get_iface(m, m.add_netiface(secondary_network=True));
+        iface2 = self.get_iface(m, m.add_netiface(vlan=1));
         self.wait_for_iface(iface1)
         self.wait_for_iface(iface2)
 

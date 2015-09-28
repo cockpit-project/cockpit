@@ -62,7 +62,7 @@ require_binary() {
   fi
 }
 
-if ! silent $IP address show dev cockpit1 || ! silent $IP address show dev cockpit2; then
+if ! silent $IP address show dev cockpit1; then
   sudo ./vm-prep
 fi
 

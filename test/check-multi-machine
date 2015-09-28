@@ -232,7 +232,7 @@ class TestMultiMachine(MachineCase):
         b.go(m2_path)
         b.wait_not_visible(".curtains .spinner")
         if b.is_visible(".curtains"):
-            b.wait_present(".curtains button:not(.disabled)")
+            b.wait_visible(".curtains button:not(.disabled)")
             b.click(".curtains button:not(.disabled)")
             b.wait_not_visible(".curtains")
         b.enter_page("/playground/test", m2.address)

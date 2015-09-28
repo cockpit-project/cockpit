@@ -134,7 +134,7 @@ class Browser:
     def reload(self):
         self.switch_to_top()
         self.wait_js_cond("ph_select('iframe.container-frame').every(function (e) { return e.getAttribute('data-loaded'); })")
-        self.phantom.reload()
+        self.phantom.reload(self.phantom_wait_timeout)
 
     def expect_reload(self):
         self.phantom.expect_reload(self.phantom_wait_timeout)
@@ -614,8 +614,8 @@ class Phantom:
         if status != "success":
             raise Error(status)
 
-    def reload(self):
-        status = self.run({'cmd': 'reload'})
+    def reload(self, timeout):
+        status = self.run({'cmd': 'reload', 'timeout': timeout*1000})
         if status != "success":
             raise Error(status)
 

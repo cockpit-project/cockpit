@@ -10,6 +10,10 @@ shell_DATA = \
 	pkg/shell/manifest.json \
 	$(NULL)
 
+shell_SCRIPTS = \
+	pkg/shell/ssh-list-private-keys.sh \
+	$(NULL)
+
 shelldebugdir = $(debugdir)$(shelldir)
 shelldebug_DATA = \
 	pkg/shell/shell.js \
@@ -25,12 +29,18 @@ shelldebug_DATA = \
 	pkg/shell/plot.js \
 	pkg/shell/cockpit-util.js \
 	pkg/shell/cockpit-plot.js \
+	$(shell_SCRIPTS) \
 	$(NULL)
 
-shell_BUNDLE = \
+shell_MINIFIED = \
 	pkg/shell/credentials.min.js \
 	pkg/shell/index.min.js \
 	pkg/shell/machines.min.js \
+	$(NULL)
+
+shell_BUNDLE = \
+	$(shell_MINIFIED) \
+	$(shell_SCRIPTS) \
 	$(NULL)
 
 pkg/shell/bundle.min.js: $(shell_BUNDLE)
@@ -76,7 +86,7 @@ CLEANFILES += \
 	pkg/shell/bundle.min.js \
 	pkg/shell/index.min.html \
 	pkg/shell/shell.min.html \
-	$(shell_BUNDLE) \
+	$(shell_MINIFIED) \
 	$(nodist_shell_DATA) \
 	$(shell_MINFILES) \
 	$(NULL)

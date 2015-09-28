@@ -20,18 +20,12 @@
 define([
     "jquery",
     "base1/cockpit",
+    "data!shell/ssh-list-private-keys.sh",
     "base1/patterns",
-], function($, cockpit) {
+], function($, cockpit, lister) {
     "use strict";
 
     var _ = cockpit.gettext;
-
-    /* The button to deauthorize cockpit */
-    $("#credentials-authorize button").on("click", function(ev) {
-        $("#credentials-authorize").remove();
-        cockpit.drop_privileges(false);
-        ev.preventDefault();
-    });
 
     function Keys() {
         var self = this;
@@ -39,136 +33,136 @@ define([
         self.path = cockpit.user["home"] + "/.ssh";
         self.items = { };
 
-        var files = { };
-        var watch = cockpit.channel({ payload: "fslist1", path: self.path });
+        var watch = null;
+        var proc = null;
+        var timeout = null;
 
-        var process = null;
-        var wait = null;
-        var timer = null;
+        refresh();
 
-        agent_list();
-
-        function fire_changed() {
-            if (!wait) {
-                wait = window.setTimeout(function() {
-                    wait = null;
-                    $(self).triggerHandler("changed");
-                }, 100);
-            }
-        }
-
-        function key_update(data, file, label) {
-            var parts = data.split(" ");
-            if (parts[0].slice(0, 4) !== "ssh-")
-                return;
-            var id = parts[1];
-            var key = self.items[id];
-            if (!key)
-                key = self.items[id] = { id: id };
-            if (file !== undefined)
-                key.file = file;
-            if (label)
-                key.label = label;
-            if (!key.label) /* use comment as fallback */
-                key.label = parts.slice(3).join(" ");
-            fire_changed();
-            return id;
-        }
-
-        function key_purge(key) {
-            if (key && !key.loaded && !key.file) {
-                delete self.items[key.id];
-                fire_changed();
-            }
-        }
-
-        function file_deleted(name) {
-            var key, file = files[name];
-            if (file) {
-                delete files[name];
-                if (file.id) {
-                    key = self.items[file.id];
-                    if (key) {
-                        key.file = null;
-                        key_purge();
-                    }
-                }
-            }
-        }
-
-        function file_read(name) {
-            var file = files[name];
-            if (file) {
-                file.read()
-                    .done(function(data) {
-                        var key, old = file.id;
-                        file.id = key_update(data, file, name.slice(0, -4));
-                        if (old && old != file.id) {
-                            key = self.items[old];
-                            if (key) {
-                                key.file = null;
-                                key_purge(key);
-                            }
+        function refresh() {
+            if (watch === null) {
+                watch = cockpit.channel({ payload: "fslist1", path: self.path });
+                $(watch)
+                    .on("close", function(ev, data) {
+                        $(watch).off();
+                        if (!data.problem || data.problem == "not-found") {
+                            watch = null; /* Watch again */
+                        } else {
+                            console.warn("couldn't watch " + self.path + ": " + (data.message || data.problem));
+                            watch = false; /* Don't watch again */
                         }
                     })
-                    .fail(function(ex) {
-                        if (ex.problem !== "cancelled")
-                            console.warn("couldn't read ssh key file: " + ex);
+                    .on("message", function(ev, payload) {
+                        var item = JSON.parse(payload);
+                        var name = item.path;
+                        if (name && name.indexOf("/") === -1 && name.slice(-4) === ".pub") {
+                            if (item.event === "present" ||item.event === "created" ||
+                                item.event === "changed" || item.event === "deleted") {
+                                window.clearInterval(timeout);
+                                timeout = window.setTimeout(refresh, 100);
+                            }
+                        }
                     });
             }
-        }
 
-        function file_updated(name) {
-            var file = files[name];
-            if (!file)
-                file = files[name] = cockpit.file(self.path + "/" + name);
-            if (!file.timeout) {
-                file.timeout = window.setTimeout(function() {
-                    file.timeout = null;
-                    file_read(name);
-                }, 20);
-            }
-        }
+            if (proc)
+                return;
 
-        $(watch).on("message", function(ev, payload) {
-            var item = JSON.parse(payload);
-            var name = item.path;
-            if (name && name.indexOf("/") === -1 && name.slice(-4) === ".pub") {
-                if (item.event === "present" ||item.event === "created" || item.event === "changed")
-                    file_updated(name);
-                else if (item.event === "deleted")
-                    file_deleted(name);
-            }
-        });
+            window.clearTimeout(timeout);
+            timeout = null;
 
-        function agent_update(data) {
-            var key, id, seen = { };
-            var lines = data.split("\n");
-            lines.forEach(function(line) {
-                id = key_update(line);
-                if (id)
-                    seen[id] = true;
-            });
-            for (id in self.items) {
-                key = self.items[id];
-                key.loaded = (id in seen);
-                key_purge(key);
-            }
-        }
+            proc = cockpit.script(lister, [ self.path ], { err: "message" })
+                .always(function() {
+                    proc = null;
 
-        function agent_list() {
-            timer = null;
-            process = cockpit.spawn(["ssh-add", "-L"], { err: "message" })
+                    if (!timeout)
+                        timeout = window.setTimeout(refresh, 5000);
+                })
                 .done(function(data) {
-                    agent_update(data);
-                    timer = window.setTimeout(agent_list, 5000);
+                    process(data);
                 })
                 .fail(function(ex) {
-                    console.log("couldn't list agent keys: " + ex);
+                    console.warn("failed to list keys in home directory: " + ex.message);
                 });
         }
 
-        self.password = function(path, old_pass, new_pass) {
+        function process(data) {
+            var blocks = data.split('\v');
+            var key, items = { };
+
+            /* First block is the data from ssh agent */
+            blocks[0].trim().split("\n").forEach(function(line) {
+                key = parse_key(line, items);
+                if (key)
+                    key.loaded = true;
+            });
+
+            /* Next come individual triples of blocks */
+            blocks.slice(1).forEach(function(block, i) {
+                switch(i % 3) {
+                case 0:
+                    key = parse_key(block, items);
+                    break;
+                case 1:
+                    if (key) {
+                        block = block.trim();
+                        if (block.slice(-4) === ".pub")
+                            key.name = block.slice(0, -4);
+                        else
+                            key.name = block;
+                    }
+                    break;
+                case 2:
+                    if (key)
+                        parse_info(block, key);
+                    break;
+                }
+            });
+
+            self.items = items;
+            $(self).triggerHandler("changed");
+        }
+
+        function parse_key(line, items) {
+            var parts = line.trim().split(" ");
+            var id, type, comment;
+
+            /* SSHv1 keys */
+            if (!isNaN(parseInt(parts[0], 10))) {
+                id = parts[2];
+                type = "RSA1";
+                comment = parts.slice(3).join(" ");
+
+            } else if (parts[0].indexOf("ssh-") === 0) {
+                id = parts[1];
+                type = parts[0].substring(4).toUpperCase();
+                comment = parts.slice(2).join(" ");
+
+            } else {
+                return;
+            }
+
+            var key = items[id];
+            if (!key)
+                key = items[id] = { };
+
+            key.type = type;
+            key.comment = comment;
+            key.data = line;
+            return key;
+        }
+
+        function parse_info(line, key) {
+            var parts = line.trim().split(" ");
+
+            key.size = parseInt(parts[0], 10);
+            if (isNaN(key.size))
+                key.size = null;
+
+            key.fingerprint = parts[1];
+        }
+
+        self.change = function change(name, old_pass, new_pass, two_pass) {
             var old_exps = [ /.*Enter old passphrase: $/ ];
             var new_exps = [ /.*Enter new passphrase.*/, /.*Enter same passphrase again: $/ ];
             var bad_exps = [ /.*failed: passphrase is too short.*/ ];
@@ -179,13 +173,18 @@ define([
             var failure = _("No such file or directory");
             var i;
 
+            if (new_pass !== two_pass) {
+                dfd.reject(new Error(_("The passwords do not match.")));
+                return dfd.promise();
+            }
+
             var timeout = window.setTimeout(function() {
                 failure = _("Prompting via ssh-keygen timed out");
                 proc.close("terminated");
             }, 10 * 1000);
 
-            var proc = cockpit.spawn(["ssh-keygen", "-f", path, "-p"],
-                    { pty: true, environ: [ "LC_ALL=C" ], err: "out" })
+            var proc = cockpit.spawn(["ssh-keygen", "-p", "-f", name],
+                    { pty: true, environ: [ "LC_ALL=C" ], err: "out", directory: self.path })
                 .always(function() {
                     window.clearInterval(timeout);
                 })
@@ -229,7 +228,7 @@ define([
             return dfd.promise();
         };
 
-        self.load = function(path, password) {
+        self.load = function(name, password) {
             var ask_exp =  /.*Enter passphrase for .*/;
             var perm_exp = /.*UNPROTECTED PRIVATE KEY FILE.*/;
             var bad_exp = /.*Bad passphrase.*/;
@@ -243,12 +242,13 @@ define([
                 proc.close("terminated");
             }, 10 * 1000);
 
-            var proc = cockpit.spawn(["ssh-add", path],
-                    { pty: true, environ: [ "LC_ALL=C" ], err: "out" })
+            var proc = cockpit.spawn(["ssh-add", name],
+                    { pty: true, environ: [ "LC_ALL=C" ], err: "out", directory: self.path })
                 .always(function() {
                     window.clearInterval(timeout);
                 })
                 .done(function() {
+                    refresh();
                     dfd.resolve();
                 })
                 .fail(function(ex) {
@@ -274,53 +274,214 @@ define([
             return dfd.promise();
         };
 
+        self.unload = function unload(name) {
+            return cockpit.spawn(["ssh-add", "-d", name],
+                    { pty: true, err: "message", directory: self.path })
+                .done(refresh);
+        };
+
         self.close = function close() {
-            watch.close();
-            process.close();
-            window.clearTimeout(timer);
-            timer = null;
-            window.clearTimeout(wait);
-            wait = null;
+            if (watch)
+                watch.close();
+            if (proc)
+                proc.close();
+            window.clearTimeout(timeout);
+            timeout = null;
         };
     }
 
-    $("#credentials-dialog").on("show.bs.modal", function() {
-        var keys = new Keys();
+    var keys;
 
-        $(keys).on("changed", function() {
-            var key, id, row, rows = { };
-            var body = $("#credentials-dialog tbody");
-
-            body.find("tr[data-id]").each(function(i, el) {
-                row = $(el);
-                rows[row.attr("data-id")] = row;
-            });
-
-            for (id in keys.items) {
-                if (!(id in rows)) {
-                    row = rows[id] = $("<tr><th></th><td></td><td><div class='btn-onoff'></div></td></tr>");
-                    row.attr("data-id", id).show().onoff();
-                    body.append(row);
-                }
-            }
-
-            for (id in rows) {
-                row = rows[id];
-                key = keys.items[id];
-                if (key) {
-                    row.find("th").text(key.label);
-                    row.find(".btn-onoff")
-                        .onoff("value", key.loaded)
-                        .onoff("disabled", !key.file);
-                } else {
-                    row.remove();
-                }
-            }
-
-        });
-
-        $(this).on("hide.bs.modal", function() {
-            keys.close();
-        });
+    /* The button to deauthorize cockpit */
+    $("#credential-authorize button").on("click", function(ev) {
+        $("#credential-authorize").remove();
+        cockpit.drop_privileges(false);
+        ev.preventDefault();
     });
+
+    $("#credentials-dialog")
+
+        /* Show and hide panels */
+        .on("click", "tr.listing-item, tr.listing-head", function(ev) {
+            var body, open;
+            if ($(ev.target).parents(".listing-actions, ul").length === 0) {
+                body = $(this).parents("tbody");
+                body.toggleClass("open").removeClass("unlock");
+                body.find(".alert").hide();
+            }
+        })
+
+        /* Highlighting */
+        .on("mouseenter", ".listing-head", function(ev) {
+            $(ev.target).parents("tbody").find(".listing-head").addClass("highlight");
+        })
+        .on("mouseleave", ".listing-head", function(ev) {
+            $(ev.target).parents("tbody").find(".listing-head").removeClass("highlight");
+        })
+
+        /* Load and unload keys */
+        .on("change", ".btn-group", function(ev) {
+            var body = $(this).parents("tbody");
+            var id = body.attr("data-id");
+            var key = keys.items[id];
+            if (!key || !key.name)
+                return;
+
+            var value = $(this).onoff("value");
+
+            /* Key needs to be loaded, show load UI */
+            if (value && !key.loaded) {
+                body.addClass("open").addClass("unlock");
+
+            /* Key needs to be unloaded, do that directly */
+            } else if (!value && key.loaded) {
+                keys.unload(key.name)
+                    .done(function(ex) {
+                        body.removeClass("open");
+                    })
+                    .fail(function(ex) {
+                        body.addClass("open").removeClass("unlock");
+                        body.find(".alert").show().find(".credential-alert").text(ex.message);
+                    });
+            }
+        })
+
+        /* Load key */
+        .on("click", ".credential-unlock button", function(ev) {
+            var body = $(this).parents("tbody");
+            var id = body.attr("data-id");
+            var key = keys.items[id];
+            if (!key || !key.name)
+                return;
+
+            body.find("input button").prop("disabled", true);
+
+            var password = body.find(".credential-password").val();
+            keys.load(key.name, password)
+                .always(function(ex) {
+                    body.find("input button").prop("disabled", false);
+                })
+                .done(function(ex) {
+                    body.find(".credential-password").val("");
+                    body.removeClass("unlock");
+                    body.find(".alert").hide();
+                })
+                .fail(function(ex) {
+                    body.find(".alert").show().find("span").text(ex.message);
+                    console.warn("loading key failed: ", ex.message);
+                });
+        })
+
+        /* Change key */
+        .on("click", ".credential-change", function(ev) {
+            var body = $(this).parents("tbody");
+            var id = body.attr("data-id");
+            var key = keys.items[id];
+            if (!key || !key.name)
+                return;
+
+            body.find("input button").prop("disabled", true);
+
+            var old_pass = body.find(".credential-old").val();
+            var new_pass = body.find(".credential-new").val();
+            var two_pass = body.find(".credential-two").val();
+            if (old_pass === undefined || new_pass === undefined || two_pass === undefined)
+                throw "invalid password fields";
+
+            keys.change(key.name, old_pass, new_pass, two_pass)
+                .always(function(ex) {
+                    body.find("input button").prop("disabled", false);
+                })
+                .done(function() {
+                    body.find(".credential-old").val("");
+                    body.find(".credential-new").val("");
+                    body.find(".credential-two").val("");
+                    body.find("li a").first().click();
+                })
+                .fail(function(ex) {
+                    body.find(".alert").show().find("span").text(ex.message);
+                });
+        })
+
+        .on("change keypress", "input", function(ev) {
+            var dl, body = $(this).parents("tbody");
+            if (ev.type == "keypress" && ev.keyCode == 13)
+                $(this).parents("dl").find(".btn-primary").click();
+            body.find(".alert").hide();
+        })
+
+        /* Change tabs */
+        .on("click", "tr.listing-head ul > li > a", function() {
+            var li = $(this).parent();
+            var index = li.index();
+            li.parent().children().removeClass("active");
+            li.addClass("active");
+            var body = $(this).parents("tbody");
+            body.find(".credential-tab").hide().eq(index).show();
+            body.find(".alert").hide();
+        })
+
+        /* Popover help */
+        .on("click", "[data-toggle='popover']", function() {
+            $(this).popover('toggle');
+        })
+
+        /* Dialog is hidden */
+        .on("hide.bs.modal", function() {
+            if (keys) {
+                $(keys).off();
+                keys.close();
+                keys = null;
+            }
+        })
+
+        /* Dialog is shown */
+        .on("show.bs.modal", function() {
+            keys = new Keys();
+
+            $(keys).on("changed", function() {
+                var key, id, row, rows = { };
+                var table = $("#credentials-dialog table.credential-listing");
+
+                table.find("tbody[data-id]").each(function(i, el) {
+                    row = $(el);
+                    rows[row.attr("data-id")] = row;
+                });
+
+                var body = table.find("tbody").first();
+                for (id in keys.items) {
+                    if (!(id in rows)) {
+                        row = rows[id] = body.clone();
+                        row.attr("data-id", id)
+                            .show()
+                            .onoff();
+                        table.append(row);
+                    }
+                }
+
+                function text(row, field, string) {
+                    var sel = row.find(field);
+                    string = string || "";
+                    if (sel.text() !== string)
+                        sel.text(string);
+                }
+
+                for (id in rows) {
+                    row = rows[id];
+                    key = keys.items[id];
+                    if (key) {
+                        text(row, ".credential-label", key.name);
+                        text(row, ".credential-type", key.type);
+                        text(row, ".credential-fingerprint", key.fingerprint);
+                        text(row, ".credential-comment", key.comment);
+                        text(row, ".credential-data", key.data);
+                        row.find(".btn-onoff")
+                            .onoff("value", key.loaded)
+                            .onoff("disabled", !key.name);
+                    } else {
+                        row.remove();
+                    }
+                }
+            });
+        });
 });

@@ -349,8 +349,8 @@ class TestNulecule(KubernetesCase):
         b.wait_in_text("#node-list", "127.0.0.1")
 
         # 1)check atomic version
-        output = m.execute("atomic -v")
-        self.assertTrue(output >= 1.1)
+        output = m.execute("atomic -v 2>&1")
+        self.assertTrue(float(output) >= 1.1)
 
         # 2) fail  invalid image
         b.click("#deploy-app")

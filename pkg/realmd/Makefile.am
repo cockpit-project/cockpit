@@ -28,7 +28,7 @@ TESTS += $(realmd_TESTS)
 
 CLEANFILES += \
 	pkg/realmd/bundle.min.js \
-	$(realmd_BUNDLE) \
+	pkg/realmd/operation.min.js \
 	$(nodist_realmd_DATA) \
 	$(NULL)
 

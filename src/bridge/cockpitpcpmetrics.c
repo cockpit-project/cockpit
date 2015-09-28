@@ -190,7 +190,7 @@ build_meta (CockpitPcpMetrics *self,
               */
               {
                 JsonNode *string_element = json_node_alloc ();
-                json_node_init_string (string_element, instance);
+                json_node_init_string (string_element, instance? instance : "");
                 json_array_add_element (instances, string_element);
               }
 

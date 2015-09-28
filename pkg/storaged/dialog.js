@@ -34,6 +34,7 @@ define([
     }
 
     function dialog_open(def) {
+        var dfd = $.Deferred();
 
         // Convert initial values for SizeInput fields to MB.
         def.Fields.forEach(function (f) {
@@ -41,9 +42,31 @@ define([
                 f.ValueMB = (f.Value / (1024*1024)).toFixed(0);
         });
 
+        function toggle_arrow(event) {
+            var collapsed = $(this).hasClass('collapsed');
+            if (collapsed) {
+                $(this).removeClass('collapsed');
+                $(this).find('.fa').removeClass('fa-angle-right').addClass('fa-angle-down');
+            } else {
+                $(this).addClass('collapsed');
+                $(this).find('.fa').removeClass('fa-angle-down').addClass('fa-angle-right');
+            }
+            update_visibility();
+        }
+
+        function select_row(event) {
+            var table = $(this);
+            var row = $(event.target).parent('tr');
+            table.find('tr').removeClass('highlight');
+            row.addClass('highlight');
+        }
+
         var $dialog = $(mustache.render(storage_dialog_tmpl, def));
         $('body').append($dialog);
         $dialog.find('.selectpicker').selectpicker();
+        $dialog.find('.dialog-arrow').on('click', toggle_arrow);
+        $dialog.find('.dialog-select-row-table').on('click', select_row);
+        $dialog.find('.dialog-select-row-table tbody tr:first-child').addClass('highlight');
 
         var invisible = { };
 
@@ -54,7 +77,8 @@ define([
         }
 
         function get_name(f) {
-            return f.TextInput || f.PassInput || f.SelectOne || f.SelectMany || f.SizeInput || f.CheckBox;
+            return (f.TextInput || f.PassInput || f.SelectOne || f.SelectMany || f.SizeInput ||
+                    f.CheckBox || f.Arrow || f.SelectRow);
         }
 
         function get_field_values() {
@@ -79,7 +103,13 @@ define([
                         if (e.checked)
                             vals[n].push(f.Options[i].value);
                     });
-                }
+                } else if (f.SelectRow) {
+                    $f.find('tbody tr').each(function (i, e) {
+                        if ($(e).hasClass('highlight'))
+                            vals[n] = f.Rows[i].value;
+                    });
+                } else if (f.Arrow)
+                    vals[n] = !$f.hasClass('collapsed');
             });
 
             return vals;
@@ -126,10 +156,6 @@ define([
             update_visibility();
         });
 
-        $dialog.on('hidden.bs.modal', function () {
-            $dialog.remove();
-        });
-
         $dialog.find('button[data-action="apply"]').on('click', function () {
             var vals = get_validated_field_values();
             if (vals !== null) {
@@ -137,19 +163,31 @@ define([
                 if (promise) {
                     $dialog.dialog('wait', promise);
                     promise
-                        .done(function () {
+                        .done(function (result) {
                             $dialog.modal('hide');
+                            $dialog.remove();
+                            dfd.resolve(vals, result);
                         })
                         .fail(function (err) {
                             $dialog.dialog('failure', err);
                         });
-                } else
+                } else {
                     $dialog.modal('hide');
+                    $dialog.remove();
+                    dfd.resolve(vals);
+                }
             }
+        });
+
+        $dialog.find('button[data-action="cancel"]').on('click', function () {
+            $dialog.modal('hide');
+            dfd.reject();
         });
 
         update_visibility();
         $dialog.modal('show');
+
+        return dfd.promise();
     }
 
     $(init_dialogs);

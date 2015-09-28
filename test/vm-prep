@@ -43,12 +43,7 @@ DEVICE=$NETWORK_NAME
 NM_CONTROLLED=no
 EOF
 
-  if [ "$NETWORK_NAME" == "cockpit1" ]; then
-	  $VIRSH net-define ./guest/network-cockpit.xml
-  else
-    $VIRSH net-define ./guest/network-cockpit_secondary.xml
-  fi
-
+    $VIRSH net-define ./guest/network-cockpit.xml
 	$VIRSH net-autostart $NETWORK_NAME
 	$VIRSH net-start $NETWORK_NAME
 
@@ -116,6 +111,4 @@ if [ "$uid" != "0" ]; then
 fi
 
 NETWORK_NAME=cockpit1
-$operation
-NETWORK_NAME=cockpit2
 $operation

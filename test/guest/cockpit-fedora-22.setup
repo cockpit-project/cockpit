@@ -45,8 +45,3 @@ dnf -y upgrade
 dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 dnf clean all
-
-# bug in selinux-policy-targeted-3.13.1-128.13.fc22
-# HACK https://bugzilla.redhat.com/show_bug.cgi?id=1224211
-# we need to restart systemctl and then reboot the system
-systemctl daemon-reexec

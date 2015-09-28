@@ -77,9 +77,8 @@ WantedBy=default.target
         b.wait_text('#file-content', "1")
 
         b.switch_to_top()
-        b.eval_js('ph_set_attr("iframe[name=\'%s\']", "data-loaded", null)' % frame)
+        b.eval_js('ph_set_attr("iframe[name=\'%s\']", "data-ready", null)' % frame)
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "src", "../playground/test.html?i=1#/")' % frame)
-        b.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
         b.wait_present("iframe.container-frame[name='%s'][data-ready]" % frame)
 
         b.enter_page("/playground/test")

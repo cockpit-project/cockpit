@@ -920,10 +920,12 @@ define([
                     if (source)
                         unregister(source);
                     source = register(child);
-                    var reply = $.extend({ }, cockpit.transport.options,
-                        { command: "init", "host": source.default_host, "channel-seed": source.channel_seed }
-                    );
-                    child.postMessage("\n" + JSON.stringify(reply), origin);
+                    if (source) {
+                        var reply = $.extend({ }, cockpit.transport.options,
+                            { command: "init", "host": source.default_host, "channel-seed": source.channel_seed }
+                        );
+                        child.postMessage("\n" + JSON.stringify(reply), origin);
+                    }
 
                 } else if (control.command === "jump") {
                     perform_jump(child, control);

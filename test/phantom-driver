@@ -192,10 +192,10 @@ function step ()
             wait_open(on_load);
             page.open(cmd.url);
         } else if (cmd.cmd == "reload") {
-            wait_reload(on_load);
+            wait_reload(on_load, cmd.timeout);
             page.reload();
         } else if (cmd.cmd == "expect-reload") {
-            wait_reload(on_load);
+            wait_reload(on_load, cmd.timeout);
         } else if (cmd.cmd == "inject") {
             inject_basics();
             var ret = page.injectJs(cmd.file);

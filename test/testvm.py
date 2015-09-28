@@ -20,7 +20,6 @@
 import contextlib
 import errno
 import fcntl
-import guestfs
 import json
 import libvirt
 from   lxml import etree

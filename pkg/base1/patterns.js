@@ -230,12 +230,13 @@ define([
             var name = self.find("input").first().attr("name") || unique();
             var i, input, text;
             for (i = buttons.length; i < 2; i++) {
-                input = $('<input type="radio" autocomplete="off">').attr("name", name);
+                input = $('<input type="radio" autocomplete="off">');
                 text = document.createTextNode(i === 0 ? _("On") : _("Off"));
                 self.append($('<label class="btn">').append(input, text));
                 buttons = null;
             }
             buttons = buttons || self.find(".btn");
+            buttons.find("input").attr("name", name);
             onoff_change(self, !!value);
         });
         return sel;

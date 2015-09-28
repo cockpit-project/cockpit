@@ -605,15 +605,68 @@ iframe.container-frame {
 
 /* Credentials dialog */
 
-table.credentials-listing {
+#credentials-dialog .modal-body {
+    max-height: 500px;
+}
+
+#credentials-dialog .btn-onoff .btn {
+    padding-top: 1px;
+    padding-bottom: 1px;
+    height: 24px;
+    line-height: 24px;
+}
+
+table.credential-listing {
     margin-top: 0px;
     width: 100%;
 }
 
-.credentials-listing tr.credentials-authorize td {
+.credential-listing thead td {
+    padding-left: 15px;
+    padding-bottom: 15px;
+}
+
+#credential-authorize td {
     padding-bottom: 30px;
 }
 
-.credentials-listing thead td:first-child {
-    padding-left: 5px;
+.credential-data {
+    word-wrap: break-word;
+    word-break: break-all;
+}
+
+.credential-listing dd,
+.credential-listing dt {
+    padding-top: 3px;
+    min-height: 26px;
+}
+
+.credential-listing dt {
+    min-width: 80px;
+    max-width: 100px;
+}
+
+.credential-listing input[type='password'] {
+    width: 300px;
+}
+
+
+.credential-listing textarea {
+    color: #222 !important;
+}
+
+.credential-listing dt label {
+    margin-bottom: 0px;
+}
+
+tbody .credential-unlock {
+    display: none;
+}
+
+tbody.unlock .credential-panel {
+    display: none !important;
+}
+
+tbody.unlock .credential-unlock {
+    display: block;
 }

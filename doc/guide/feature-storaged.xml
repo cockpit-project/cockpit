@@ -23,4 +23,10 @@ $ <command>storagedctl dump</command>
     <code>vgcreate</code>, <code>lvresize</code> and so on. Cockpit will detect such changes
     made at the command line.</para>
 
+  <para>Cockpit recognizes devices with multiple paths and can start
+    the <code>multipathd</code> service in case it is not running.  On
+    the command line, you can control multipath features with the
+    <code>mpathconf</code>, <code>multipathd</code>, and
+    <code>multipath</code> commmands.</para>
+
 </chapter>

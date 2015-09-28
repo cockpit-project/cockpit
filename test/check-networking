@@ -29,8 +29,9 @@ class TestNetworking(MachineCase):
 
     def get_iface(self, m, mac):
         def getit():
-            return m.execute("for f in /sys/class/net/*; do a=$(cat $f/address); if test \"$a\" == %s; then echo $(basename $f); fi; done" % mac)
-        return wait(getit).strip();
+            path = m.execute("grep -li '%s' /sys/class/net/*/address" % mac)
+            return path.split("/")[-2]
+        return wait(getit).strip()
 
     def wait_for_iface(self, iface):
         self.browser.wait_in_text("#networking-interfaces", iface)

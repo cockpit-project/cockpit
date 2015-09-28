@@ -170,6 +170,11 @@ class MachineBuilder:
             self.machine.message("run setup script on guest")
             self.machine.execute(script="/var/tmp/SETUP", environment=env, quiet=not self.machine.verbose)
             self.machine.execute(command="rm /var/tmp/SETUP")
+            # bug in selinux-policy-targeted-3.13.1-128.13.fc22
+            # HACK https://bugzilla.redhat.com/show_bug.cgi?id=1224211
+            # we need to restart systemctl and then reboot the system
+            # run this after every script for now
+            self.machine.execute(command="systemctl daemon-reexec")
             self.machine.execute(command="shutdown --poweroff now &")
         finally:
             self.machine.stop(timeout_sec=60)
@@ -216,6 +221,7 @@ class MachineBuilder:
             self.unpack_base(modify_func=None)
         else:
             self.unpack_base(modify_func=modify)
+
         self.machine.message("Running setup script %s" % (script))
         self.run_setup_script(script, args)
         for additional_script in additional_scripts:

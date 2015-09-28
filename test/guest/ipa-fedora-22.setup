@@ -10,9 +10,4 @@ iptables -F
 dnf -y --enablerepo=updates-testing update
 dnf -y --enablerepo=updates-testing install freeipa-server bind bind-dyndb-ldap
 
-# bug in selinux-policy-targeted-3.13.1-128.13.fc22
-# HACK https://bugzilla.redhat.com/show_bug.cgi?id=1224211
-# we need to restart systemctl and then reboot the system
-systemctl daemon-reexec
-
 dnf clean all

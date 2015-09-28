@@ -123,10 +123,18 @@ class Machine:
         """Overridden by machine classes to stop the machine"""
         self.message("Not shutting down already running machine")
 
-    def wait_ssh(self, timeout_sec = 120):
+    # wait for ssh port 22 to be open in the machine
+    # get_new_address is an optional function to acquire a new ip address for each try
+    #   it is expected to raise an exception on failure and return a valid address otherwise
+    def wait_ssh(self, timeout_sec = 120, get_new_address = None):
         """Try to connect to self.address on port 22"""
         start_time = time.time()
         while (time.time() - start_time) < timeout_sec:
+            if get_new_address:
+                try:
+                    self.address = get_new_address()
+                except:
+                    continue
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(1)
             try:
@@ -136,7 +144,7 @@ class Machine:
                 pass
             finally:
                 sock.close()
-            time.sleep(1)
+            time.sleep(0.5)
         return False
 
     def wait_user_login(self):
@@ -604,6 +612,7 @@ class VirtMachine(Machine):
         self._checksum_original = os.path.join(self._images_dir, "%s-checksum" % (self.image))
 
         self._fixed_mac_flavors = self._get_fixed_mac_flavors()
+        self._network_description = etree.parse(open("./guest/network-cockpit.xml"))
 
         # it is ESSENTIAL to register the default implementation of the event loop before opening a connection
         # otherwise messages may be delayed or lost
@@ -793,15 +802,9 @@ class VirtMachine(Machine):
             raise Failure("no mac addresses found for created machine")
         self.macaddr = macs[0]
         self.address = self._ip_from_mac(self.macaddr)
-        return dom
 
     # start virsh console
     def qemu_console(self, snapshot=False, macaddr=None):
-        if not macaddr:
-            if self.flavor == "ipa":
-                self.macaddr = "52:54:00:9e:00:F0"
-            elif self.flavor == "openshift":
-                self.macaddr = "52:54:00:9e:00:F1"
         try:
             self._start_qemu(maintain=not snapshot, macaddr=macaddr)
             self.message("started machine %s with address %s" % (self._domain.name(), self.address))
@@ -814,11 +817,6 @@ class VirtMachine(Machine):
             self._cleanup()
 
     def start(self, maintain=False, macaddr=None):
-        if not macaddr:
-            if self.flavor == "ipa":
-                self.macaddr = "52:54:00:9e:00:F0"
-            elif self.flavor == "openshift":
-                self.macaddr = "52:54:00:9e:00:F1"
         try:
             self._start_qemu(maintain=maintain, macaddr=macaddr)
             if not self._domain.isActive():
@@ -843,8 +841,7 @@ class VirtMachine(Machine):
 
     def _ip_from_mac(self, mac, timeout_sec = 180):
         # first see if we use a mac address defined in the network description
-        tree = etree.parse(open("./guest/network-cockpit.xml"))
-        for h in tree.find(".//dhcp"):
+        for h in self._network_description.find(".//dhcp"):
             if h.get("mac") == mac:
                 return h.get("ip")
         # we didn't find it in the network description, so get it from the dhcp lease information
@@ -857,26 +854,9 @@ class VirtMachine(Machine):
         if not self.event_handler.wait_for_reboot(self._domain):
             raise Failure("system didn't notify us about a reboot")
         # we may have to check for a new dhcp lease, but the old one can be active for a bit
-        timeout_sec = 60
-        start_time = time.time()
-        while (time.time() - start_time) < timeout_sec:
-            try:
-                self.address = self._ip_from_mac(self.macaddr, timeout_sec=5)
-            except:
-                continue
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(1)
-            try:
-                sock.connect((self.address, 22))
-                self.wait_user_login()
-                return True
-            except:
-                pass
-            finally:
-                sock.close()
-            time.sleep(0.5)
-        raise Failure("system didn't reboot properly")
-
+        if not self.wait_ssh(timeout_sec = 60, get_new_address = lambda: self._ip_from_mac(self.macaddr, timeout_sec=5)):
+            raise Failure("system didn't reboot properly")
+        self.wait_user_login()
 
     def wait_boot(self, wait_for_running_timeout = 60):
         # we should check for selinux relabeling in progress here

@@ -716,7 +716,7 @@ class VirtMachine(Machine):
                 return macaddr
         raise Failure("Couldn't find unused mac address for '%s'" % (self.flavor))
 
-    def _start_qemu(self, maintain=False, macaddr=None):
+    def _start_qemu(self, maintain=False, macaddr=None, wait_for_ip=True):
         # make sure we have a clean slate
         self._cleanup()
 
@@ -802,12 +802,13 @@ class VirtMachine(Machine):
         if not macs:
             raise Failure("no mac addresses found for created machine")
         self.macaddr = macs[0]
-        self.address = self._ip_from_mac(self.macaddr)
+        if wait_for_ip:
+            self.address = self._ip_from_mac(self.macaddr)
 
     # start virsh console
     def qemu_console(self, snapshot=False, macaddr=None):
         try:
-            self._start_qemu(maintain=not snapshot, macaddr=macaddr)
+            self._start_qemu(maintain=not snapshot, macaddr=macaddr, wait_for_ip=False)
             self.message("started machine %s with address %s" % (self._domain.name(), self.address))
             print "console, to quit use Ctrl+], Ctrl+5 (depending on locale)"
             proc = subprocess.Popen("virsh -c qemu:///session console %s" % self._domain.ID(), shell=True)

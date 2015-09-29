@@ -33,8 +33,9 @@ define([
         mustache.parse(storage_dialog_tmpl);
     }
 
-    function dialog_open(def) {
+    var cur_dialog;
 
+    function dialog_open(def) {
         // Convert initial values for SizeInput fields to MB.
         def.Fields.forEach(function (f) {
             if (f.SizeInput && f.Value)
@@ -60,8 +61,17 @@ define([
             row.addClass('highlight');
         }
 
+        if (cur_dialog)
+            cur_dialog.modal('hide');
+
         var $dialog = $(mustache.render(storage_dialog_tmpl, def));
         $('body').append($dialog);
+        cur_dialog = $dialog;
+
+        $dialog.on('hidden.bs.modal', function () {
+            $dialog.remove();
+        });
+
         $dialog.find('.selectpicker').selectpicker();
         $dialog.find('.dialog-arrow').on('click', toggle_arrow);
         $dialog.find('.dialog-select-row-table tbody').on('click', select_row);
@@ -147,10 +157,6 @@ define([
 
         $dialog.on('change input', function () {
             update_visibility();
-        });
-
-        $dialog.on('hidden.bs.modal', function () {
-            $dialog.remove();
         });
 
         function error_field_to_target(err) {

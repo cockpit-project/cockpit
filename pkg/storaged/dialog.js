@@ -159,11 +159,38 @@ define([
             $dialog.remove();
         });
 
+        function error_field_to_target(err) {
+            if (err.field)
+                return { message: err.message,
+                         target: '[data-field="' + err.field + '"]'
+                       };
+            else
+                return err;
+        }
+
         $dialog.find('button[data-action="apply"]').on('click', function () {
             var vals = get_validated_field_values();
             if (vals !== null) {
                 var promise = def.Action.action(vals);
-                $dialog.dialog('promise', promise);
+                if (promise) {
+                    $dialog.dialog('wait', promise);
+                    promise
+                        .done(function (result) {
+                            $dialog.modal('hide');
+                        })
+                        .fail(function (err) {
+                            if (def.Action.failure_filter)
+                                err = def.Action.failure_filter(vals, err);
+                            if (err) {
+                                if (err.length)
+                                    err = err.map(error_field_to_target);
+                                else
+                                    err = error_field_to_target(err);
+                                $dialog.dialog('failure', err);
+                            }
+                        });
+                } else
+                    $dialog.modal('hide');
             }
         });
 

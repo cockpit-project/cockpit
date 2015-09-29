@@ -69,12 +69,6 @@ define([
 
         var invisible = { };
 
-        function clear_errors() {
-            // We leave the actual text in the help-block in order
-            // to avoid a annoying relayout of the dialog.
-            $dialog.dialog('failure', null);
-        }
-
         function get_name(f) {
             return (f.TextInput || f.PassInput || f.SelectOne || f.SelectMany || f.SizeInput ||
                     f.CheckBox || f.Arrow || f.SelectRow);
@@ -152,7 +146,6 @@ define([
         }
 
         $dialog.on('change input', function () {
-            clear_errors();
             update_visibility();
         });
 

@@ -563,6 +563,7 @@ table.listing thead h3 {
 }
 
 div.listing-panel {
+    box-shadow: 1px 1px 1px 1px #f5f5f5;
     border: 1px solid #ccc;
     margin-bottom: 15px;
 }
@@ -571,10 +572,25 @@ div.listing-panel.active {
     border-top: 3px solid #0099d3;
 }
 
+div.listing-maybe {
+    border: 1px dashed #ddd;
+    box-shadow: none;
+}
+
 div.listing-head {
     padding: 10px 10px 0px 10px;
     background-color: #f6f6f6;
     border-bottom: 1px solid #ccc;
+    overflow: hidden;
+}
+
+div.listing-head:last-child {
+    padding-bottom: 10px;
+}
+
+div.listing-maybe div.listing-head {
+    background-color: white;
+    border-bottom: none;
 }
 
 div.listing-head h3 {
@@ -591,6 +607,10 @@ div.listing-head .nav li a {
 
 div.listing-head .nav-tabs {
     border-bottom: none;
+}
+
+div.listing-head .nav-tabs-pf {
+    margin-left: -10px;
 }
 
 div.listing-body {
@@ -632,3 +652,79 @@ div.listing-body dt {
     font-weight: normal;
 }
 
+div.timeline {
+    border-left: 6px solid #ccc;
+    position: relative;
+    margin-left: 25px;
+    padding-left: 30px;
+    min-height: 1px;
+    padding-bottom: 15px;
+}
+
+div.timeline .timeline-point {
+    position: absolute;
+    left: -13.5px;
+    font-size: 21px;
+    text-align: center;
+    width: 20px;
+    height: 27px;
+    display: block;
+    line-height: 21px;
+    background-color: white;
+    padding: 3px 0px;
+    color: #ccc;
+}
+
+div.timeline .timeline-point.active {
+    color: #3f9c35;
+}
+
+div.timeline .timeline-md {
+    font-size: 24px;
+    width: 24px;
+    height: 32px;
+    line-height: 24px;
+    padding: 4px 0px;
+    left: -16px;
+}
+
+div.timeline .timeline-lg {
+    font-size: 40px;
+    width: 40px;
+    height: 44px;
+    line-height: 40px;
+    left: -23.5px;
+    padding: 2px 0px;
+}
+
+div.timeline .fa-caret-up {
+    font-size: 30px;
+    line-height: 20px;
+    height: 24px;
+}
+
+div.timeline div.listing-panel {
+    margin-bottom: 0px;
+}
+
+div.timeline.timeline-end {
+    min-height: 30px;
+}
+
+/* Fix up nav-tabs-pf to work properly */
+.nav-tabs-pf > li:first-child a {
+    margin-left: 0px !important;
+    padding-left: 15px !important;
+}
+
+.nav-tabs-pf > li a:before {
+    right: 0px !important;
+}
+
+.nav-tabs-pf > li > a:active:before,
+.nav-tabs-pf > li > a:focus:before,
+.nav-tabs-pf > li > a:hover:before,
+.nav-tabs-pf > li.active a:before {
+    height: 3px;
+    left: 0px;
+}

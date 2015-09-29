@@ -1,11 +1,32 @@
 @import url("gtk-doc.css");
 
+H1.guides {
+	background-color: #238b49;
+	color: white;
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-size: 30pt;
+	padding: 5px 0px 5px 20px;
+}
+
+DIV.guides {
+	margin-left: 20px;
+	margin-right: 20px;
+	font-family: Open Sans, Verdana, Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
+	font-size: 13px;
+}
+
+DIV.guides + PRE {
+	margin-left: 20px;
+	margin-right: 20px;
+	font-size: 13px;
+	line-height: 200%;
+}
+
 TABLE.navigation {
 	background-color: #238b49 !important;
 	border-width: 0 !important;
 	color: white;
 	font-family: Georgia, "Times New Roman", Times, serif;
-	height: 4em !important;
 }
 
 TABLE.navigation TH {
@@ -16,7 +37,7 @@ TABLE.navigation TH {
 }
 
 TABLE.navigation TH:first-child {
-	padding-left: 40pt;
+	padding: 5px 0px 5px 20px;
 }
 
 .shortcuts {

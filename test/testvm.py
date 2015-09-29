@@ -810,7 +810,7 @@ class VirtMachine(Machine):
             self._start_qemu(maintain=not snapshot, macaddr=macaddr)
             self.message("started machine %s with address %s" % (self._domain.name(), self.address))
             print "console, to quit use Ctrl+], Ctrl+5 (depending on locale)"
-            proc = subprocess.Popen("virsh console %s" % self._domain.ID(), shell=True)
+            proc = subprocess.Popen("virsh -c qemu:///session console %s" % self._domain.ID(), shell=True)
             proc.wait()
         except:
             raise
@@ -963,7 +963,7 @@ class VirtMachine(Machine):
 
     def set_disk_io_speed(self, disk_index, speed_in_bytes=0):
         subprocess.check_call([
-              "virsh", "blkdeviotune", "--current", str(self._domain.ID()), self._disks[disk_index]["dev"],
+              "virsh", "-c", "qemu:///session", "blkdeviotune", "--current", str(self._domain.ID()), self._disks[disk_index]["dev"],
               "--total-bytes-sec", str(speed_in_bytes)
             ])
 

@@ -67,9 +67,14 @@
   <!-- OVERVIEW -->
 
   <script id="mdraids-tmpl" type="x-template/mustache">
-    {{#HasMDRaids}}
     <div class="panel panel-default">
-      <div class="panel-heading" translatable="yes">RAID Devices</div>
+      <div class="panel-heading">
+        <span class="pull-right">
+          <button id="create-mdraid" class="btn btn-primary fa fa-plus"></button>
+        </span>
+        <span translatable="yes">RAID Devices</span>
+      </div>
+      {{#HasMDRaids}}
       <table class="table table-hover">
         {{#MDRaids}}
         <tr data-goto-mdraid={{UUID}}>
@@ -88,14 +93,22 @@
         </tr>
         {{/MDRaids}}
       </table>
+      {{/HasMDRaids}}
+      {{^HasMDRaids}}
+      <div translatable="yes" class="empty-panel-text">No storage set up as RAID</div>
+      {{/HasMDRaids}}
     </div>
-    {{/HasMDRaids}}
   </script>
 
   <script id="vgroups-tmpl" type="x-template/mustache">
-    {{#HasVGroups}}
     <div class="panel panel-default">
-      <div class="panel-heading" translatable="yes">Volume Groups</div>
+      <div class="panel-heading">
+        <span class="pull-right">
+          <button id="create-volume-group" class="btn btn-primary fa fa-plus"></button>
+        </span>
+        <span translatable="yes">Volume Groups</span>
+      </div>
+      {{#HasVGroups}}
       <table class="table table-hover">
         {{#VGroups}}
         <tr data-goto-vgroup={{Name}}>
@@ -114,14 +127,19 @@
         </tr>
         {{/VGroups}}
       </table>
+      {{/HasVGroups}}
+      {{^HasVGroups}}
+      <div translatable="yes" class="empty-panel-text">No volume groups created</div>
+      {{/HasVGroups}}
     </div>
-    {{/HasVGroups}}
   </script>
 
   <script id="drives-tmpl" type="x-template/mustache">
-    {{#HasDrives}}
     <div class="panel panel-default">
-      <div class="panel-heading" translatable="yes">Drives</div>
+      <div class="panel-heading">
+        <span translatable="yes">Drives</span>
+      </div>
+      {{#HasDrives}}
       <table class="table table-hover">
         {{#Drives}}
         <tr data-goto-block={{dev}} {{#Highlight}}class="highlight"{{/Highlight}}>
@@ -145,14 +163,19 @@
         </tr>
         {{/Drives}}
       </table>
+      {{/HasDrives}}
+      {{^HasDrives}}
+      <div translatable="yes" class="empty-panel-text">No drives attached</div>
+      {{/HasDrives}}
     </div>
-    {{/HasDrives}}
   </script>
 
   <script id="others-tmpl" type="x-template/mustache">
     {{#HasOthers}}
     <div class="panel panel-default">
-      <div class="panel-heading" translatable="yes">Other Devices</div>
+      <div class="panel-heading">
+        <span translatable="yes">Other Devices</span>
+      </div>
       <table class="table table-hover">
         {{#Others}}
         <tr data-goto-block={{dev}}>
@@ -298,15 +321,6 @@
     </div>
 
     <div class="col-md-4 col-lg-3 storage-sidebar">
-      <div class="row create-storage">
-        <div class="col-xs-6 col-md-12 col-lg-6">
-          <button id="create-mdraid" class="btn btn-default storage-privileged"
-                  translatable="yes">Create RAID Device</button></div>
-        <div class="col-xs-6 col-md-12 col-lg-6">
-          <button id="create-volume-group" class="btn btn-default storage-privileged"
-                  translatable="yes">Create Volume Group</button>
-        </div>
-      </div>
       <div id="mdraids"></div>
       <div id="vgroups"></div>
       <div id="drives"></div>

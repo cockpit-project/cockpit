@@ -22,6 +22,7 @@ import errno
 import fcntl
 import json
 import libvirt
+import libvirt_qemu
 from   lxml import etree
 from   operator import attrgetter
 import os
@@ -1016,10 +1017,10 @@ class VirtMachine(Machine):
             disk["proc"].terminate()
 
     def _qemu_monitor(self, command):
-        cmd = [ "virsh", "--connect", "qemu:///session", "qemu-monitor-command",
-                "--hmp", str(self._domain.name()), command ]
         self.message("& " + command)
-        output = subprocess.check_output(cmd)
+        # you can run commands manually using virsh:
+        # virsh -c qemu:///session qemu-monitor-command [domain name/id] --hmp [command]
+        output = libvirt_qemu.qemuMonitorCommand(self._domain, command, libvirt_qemu.VIR_DOMAIN_QEMU_MONITOR_COMMAND_HMP)
         self.message(output.strip())
         return output
 
@@ -1038,12 +1039,18 @@ class VirtMachine(Machine):
             cmd += ",mac=%s" % mac
         macs = self._qemu_network_macs()
         if vlan == 0:
-            self._qemu_monitor("netdev_add bridge,id=hostnet%d,br=cockpit1"  % self._hostnet)
+            # selinux can prevent the creation of the bridge
+            # https://bugzilla.redhat.com/show_bug.cgi?id=1267217
+            output = self._qemu_monitor("netdev_add bridge,id=hostnet%d,br=cockpit1" % self._hostnet)
+            if "Device 'bridge' could not be initialized" in output:
+                raise Failure("Unable to add bridge for virtual machine, possibly related to an selinux-denial")
             cmd += ",netdev=hostnet%d" % self._hostnet
             self._hostnet += 1
         else:
             cmd += ",vlan=%d" % vlan
         self._qemu_monitor(cmd)
+        if mac:
+            return mac
         for mac in self._qemu_network_macs():
             if mac not in macs:
                 return mac

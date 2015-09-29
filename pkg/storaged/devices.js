@@ -92,7 +92,9 @@ define([
         var multipathd_service = utils.get_multipathd_service();
 
         function update_multipath_broken() {
-            $('#multipath-broken').toggle(client.broken_multipath_present && multipathd_service.state !== "running");
+            // When in doubt, assume it is running
+            var multipathd_running = !multipathd_service.state || multipathd_service.state === "running";
+            $('#multipath-broken').toggle(client.broken_multipath_present && !multipathd_running);
         }
 
         $(multipathd_service).on('changed', update_multipath_broken);

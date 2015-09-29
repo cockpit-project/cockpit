@@ -37,7 +37,7 @@ define([
     function init_overview(client, jobs) {
 
         function update_features() {
-            $('#create-volume-group').toggle(client.features.lvm2);
+            $('#vgroups').toggle(client.features.lvm2);
         }
 
         $(client.features).on("changed", update_features);

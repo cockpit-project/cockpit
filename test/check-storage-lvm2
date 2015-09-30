@@ -151,6 +151,9 @@ class TestStorage(StorageCase):
                       "mount_point": mount_point_thin })
         b.wait_in_text('#content', "100% full")
 
+        # There should be a stuck job now
+        b.wait_in_text("#jobs", "Erasing")
+
         # add a disk, resize the pool and let the operation finish
         b.click('[data-action="vgroup_add_disk"]')
         self.dialog_wait_open()
@@ -163,6 +166,9 @@ class TestStorage(StorageCase):
         self.dialog({ "size": "80" })
         b.wait_in_text("#content", "(ext4 File System)")
         self.wait_in_storaged_configuration(mount_point_thin)
+
+        # The job should be gone
+        b.wait_not_in_text("#jobs", "Erasing")
 
         # remove volume group
         b.click_action_btn('.panel-heading:contains("Volume Group") .btn-group', "Delete")

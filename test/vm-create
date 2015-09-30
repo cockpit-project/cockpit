@@ -71,8 +71,8 @@ class MachineBuilder:
         copy("guest/identity.pub", "/root/.ssh/authorized_keys")
 
     def _setup_fedora_network(self,gf):
-        ifcfg_ens2 = 'BOOTPROTO="dhcp"\nDEVICE="ens2"\nONBOOT="yes"\n'
-        gf.write("/etc/sysconfig/network-scripts/ifcfg-ens2", ifcfg_ens2)
+        ifcfg_eth0 = 'BOOTPROTO="dhcp"\nDEVICE="eth0"\nONBOOT="yes"\n'
+        gf.write("/etc/sysconfig/network-scripts/ifcfg-eth0", ifcfg_eth0)
 
     def _setup_fedora_like (self, gf):
         self._setup_ssh_keys(gf)

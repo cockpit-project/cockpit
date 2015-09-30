@@ -855,7 +855,7 @@ class QemuMachine(Machine):
             self._cleanup()
             raise
 
-    def add_disk(self, size, speed=None, serial=None):
+    def add_disk(self, size, serial=None):
         index = 1
         while index in self._disks:
             index += 1
@@ -869,21 +869,7 @@ class QemuMachine(Machine):
 
         subprocess.check_call(["qemu-img", "create", "-q", "-f", "raw", path, str(size)])
 
-        if speed:
-            (unused, nbd) = tempfile.mkstemp(suffix='.nbd', prefix="disk-", dir=self.run_dir)
-            cmd = [
-                "trickle", "-s", "-t", "0.1", "-w", "1024", "-l", "1024", "-u", str(speed), "-d", str(speed),
-                "qemu-nbd", "-k", nbd, path
-            ]
-            proc = subprocess.Popen(cmd)
-            file = "nbd+unix://?socket=%s" % nbd
-            time.sleep(2)
-        else:
-            file = path
-            proc = None
-            nbd = None
-
-        cmd = "drive_add auto file=%s,if=none,serial=%s,id=drive%d,format=raw" % (file, serial, index)
+        cmd = "drive_add auto file=%s,if=none,serial=%s,id=drive%d,format=raw" % (path, serial, index)
         output = self._monitor_qemu(cmd)
 
         cmd = "device_add scsi-disk,bus=hot.0,drive=drive%d,id=device%d" % (index, index)
@@ -891,9 +877,7 @@ class QemuMachine(Machine):
 
         self._disks[index] = {
             "path": path,
-            "serial": serial,
-            "socket": nbd,
-            "proc": proc,
+            "serial": serial
         }
 
         return index
@@ -930,10 +914,6 @@ class QemuMachine(Machine):
 
         if "path" in disk and disk["path"] and os.path.exists(disk["path"]):
             os.unlink(disk["path"])
-        if "socket" in disk and disk["socket"] and os.path.exists(disk["socket"]):
-            os.unlink(disk["socket"])
-        if "proc" in disk and disk["proc"] and disk["proc"].poll() == None:
-            disk["proc"].terminate()
 
     def add_netiface(self, mac, vlan=0):
         if len(mac) == 2:

@@ -593,50 +593,50 @@ div.listing-maybe div.listing-head {
     border-bottom: none;
 }
 
-div.listing-head h3 {
+.listing-head h3 {
     font-weight: normal;
     font-size: 18px;
     margin-top: 0px;
     margin-left: 5px;
 }
 
-div.listing-head .nav li a {
+.listing-head .nav li a {
     padding-top: 0px;
     font-size: 13px;
 }
 
-div.listing-head .nav-tabs {
+.listing-head .nav-tabs {
     border-bottom: none;
 }
 
-div.listing-head .nav-tabs-pf {
+.listing-head .nav-tabs-pf {
     margin-left: -10px;
 }
 
-div.listing-body {
+.listing-body {
     padding: 20px 25px;
     font-size: 13px;
 }
 
-div.listing-actions {
+.listing-actions {
     float: right;
     min-height: 26px;
 }
 
-div.listing-status {
+.listing-status {
     float: right;
     clear: right;
 }
 
-div.listing-body tt {
+.listing-body tt {
     font-size: 12px
 }
 
-div.listing-body dl {
+.listing-body dl {
     margin: 0;
 }
 
-div.listing-body dt {
+.listing-body dt {
     clear: left;
     float: left;
     width: 35%;
@@ -651,6 +651,91 @@ div.listing-body dt {
     color: #888;
     font-weight: normal;
 }
+
+/* A listing item is a row in the table */
+tbody tr.listing-item {
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+tr.listing-item:hover {
+    background-color: #d4edfa;
+}
+
+/* Listing items have decent padding ... */
+tr.listing-item td {
+    padding: 10px;
+}
+
+tr.listing-item th {
+    padding: 10px 10px 10px 15px;
+}
+
+/* Listing actions can be used directly as a cell */
+tr.listing-item td.listing-actions {
+    padding: 5px 10px;
+    float: none;
+}
+
+/* The last column of a listing is always rigth aligned */
+tr.listing-item td:last-child {
+    text-align: right;
+}
+
+table.listing tbody.open {
+    border: 1px solid #ccc;
+    box-shadow: 1px 1px 1px 1px #f5f5f5;
+}
+
+/* By default these thincgs are hidden */
+tbody.open tr.listing-item,
+tbody tr.listing-head,
+tbody tr.listing-body {
+    display: none;
+}
+
+/* ... unless they are in the right state */
+tbody tr.listing-item.listing-head,
+tbody.open tr.listing-head,
+tbody.open tr.listing-body {
+    display: table-row;
+}
+
+tbody.open.active tr.listing-item {
+    border-top: 3px solid #0099d3;
+}
+
+tbody.open tr.listing-item {
+    border-bottom: none;
+}
+
+tr.listing-head + tr.listing-head td {
+    padding: 0px 10px 0px 10px;
+}
+
+tr.listing-body td {
+    padding: 20px 25px;
+    font-size: 13px;
+    background-color: #f6f6f6;
+    border: 1px solid #ccc;
+}
+
+.listing-body .alert {
+    border: none;
+    margin: 0px 0px 10px 0px;
+    padding: 0px;
+    background-color: transparent;
+}
+
+.listing-body .alert .fa {
+    position: relative;
+    left: 0px;
+    top: 3px;
+    padding-right: 5px;
+}
+
+/* Timelines */
 
 div.timeline {
     border-left: 6px solid #ccc;
@@ -712,6 +797,7 @@ div.timeline.timeline-end {
 }
 
 /* Fix up nav-tabs-pf to work properly */
+
 .nav-tabs-pf > li:first-child a {
     margin-left: 0px !important;
     padding-left: 15px !important;

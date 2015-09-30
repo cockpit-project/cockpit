@@ -7,6 +7,19 @@
     <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
     <script src="../base1/require.js"></script>
     <script src="../base1/bundle.js"></script>
+    <script>
+    require([
+        'jquery',
+        "base1/bootstrap-select",
+    ], function($) {
+        "use strict";
+
+        $(document).ready(function() {
+            $('.selectpicker').selectpicker();
+            $("body").show();
+        });
+    });
+    </script>
 </head>
 <body hidden>
 
@@ -200,6 +213,58 @@ require([
 
 <div class="container-fluid">
 
+    <table class="listing">
+        <thead>
+            <tr>
+                <td colspan="2">
+                    <h3>Expandable Listing: Panel header is row</h3>
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="listing-item listing-head">
+                <th>id_rsa</th>
+                <td></td>
+                <td class="listing-tight listing-actions">
+                    <div class="btn-group btn-onoff" data-toggle="buttons">
+                        <label class="btn"><input type="radio" autocomplete="off">On</label>
+                        <label class="btn active"><input type="radio" autocomplete="off" checked>Off</label>
+                    </div>
+                </td>
+            </tr>
+            <tr class="listing-body">
+                <td colspan="3">
+                    the body
+                </td>
+            </tr>
+        </tbody>
+        <tbody>
+            <tr class="listing-item listing-head">
+                <th>id_rsa</th>
+                <td></td>
+                <td class="listing-tight listing-actions">
+                    <div class="btn-group btn-onoff" data-toggle="buttons">
+                        <label class="btn"><input type="radio" autocomplete="off">On</label>
+                        <label class="btn active"><input type="radio" autocomplete="off" checked>Off</label>
+                    </div>
+                </td>
+            </tr>
+            <tr class="listing-head">
+                <td colspan="3">
+                    <ul class="nav nav-tabs nav-tabs-pf">
+                        <li><a href="#">Tree</a></li>
+                        <li class="active"><a href="#">Packages</a></li>
+                    </ul>
+                </td>
+            </tr>
+            <tr class="listing-body">
+                <td colspan="3">
+                    The body
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
     <table class="listing listing-timeline">
         <thead>
             <tr>
@@ -343,20 +408,21 @@ require([
             </tr>
         </tbody>
     </table>
+
 </div>
 
 <script>
 require([
-    'jquery',
-    "base1/bootstrap-select",
+    'jquery'
 ], function($) {
     "use strict";
 
-    $(document).ready(function() {
-        $('.selectpicker').selectpicker();
-        $("body").show();
+    $("body").on("click", ".listing-item", function(ev) {
+        if ($(ev.target).parents(".listing-actions").length === 0)
+            $(this).parents("tbody").toggleClass("open").toggleClass("active");
     });
 });
 </script>
+
 </body>
 </html>

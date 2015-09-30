@@ -206,6 +206,9 @@ find %{buildroot}%{_datadir}/%{name}/storage -type f >> storaged.list
 echo '%dir %{_datadir}/%{name}/network' > networkmanager.list
 find %{buildroot}%{_datadir}/%{name}/network -type f >> networkmanager.list
 
+echo '%dir %{_datadir}/%{name}/ostree' > ostree.list
+find %{buildroot}%{_datadir}/%{name}/ostree -type f >> ostree.list
+
 %ifarch x86_64 armv7hl
 echo '%dir %{_datadir}/%{name}/docker' > docker.list
 find %{buildroot}%{_datadir}/%{name}/docker -type f >> docker.list
@@ -419,6 +422,15 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 %files kubernetes -f kubernetes.list
 
 %endif
+
+%package ostree
+Summary: Cockpit user interface for rpm-ostree
+Requires: rpm-ostree >= 2015.10-1
+
+%description ostree
+The Cockpit components for managing software updates for ostree based systems.
+
+%files ostree -f ostree.list
 
 %if %{defined gitcommit}
 

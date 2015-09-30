@@ -35,7 +35,7 @@ class AtomicCockpitInstaller:
     # Support installing random packages if needed.
     external_packages = {}
 
-    packages_force_install = ["cockpit-kubernetes", "cockpit-networkmanager"]
+    packages_force_install = ["cockpit-kubernetes", "cockpit-networkmanager", "cockpit-ostree"]
 
     def __init__(self, rpms=None, verbose=False):
         self.verbose = verbose
@@ -103,7 +103,7 @@ class AtomicCockpitInstaller:
                                "--tree=dir={0}".format(self.checkout_location)])
 
     def install_packages(self, packages, deps=True, replace=False):
-        args = ["rpm", "-i", "--root", self.checkout_location,
+        args = ["rpm", "-U", "--root", self.checkout_location,
                 "--dbpath", self.rpm_location]
 
         if replace:
@@ -193,11 +193,6 @@ class AtomicCockpitInstaller:
             print "packages to install:"
             print packages_to_install
 
-        self.install_packages(packages_to_install)
-        test_assets = [x for x in self.rpms \
-                       if os.path.split(x)[-1].startswith("cockpit-test-assets")]
-        self.install_packages(test_assets, deps=False, replace=True)
-
         if self.external_packages:
             names = self.external_packages.keys()
             if self.verbose:
@@ -212,6 +207,11 @@ class AtomicCockpitInstaller:
 
             for name in names:
                 os.remove(name)
+
+        self.install_packages(packages_to_install)
+        test_assets = [x for x in self.rpms \
+                       if os.path.split(x)[-1].startswith("cockpit-test-assets")]
+        self.install_packages(test_assets, deps=False, replace=True)
 
         self.commit_to_repo()
         self.switch_to_local_tree()

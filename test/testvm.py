@@ -865,7 +865,7 @@ class VirtMachine(Machine):
         if not self.event_handler.wait_for_running(self._domain, timeout_sec=wait_for_running_timeout ):
             raise Failure("Machine %s didn't start." % (self.address))
 
-        if not Machine.wait_ssh(self):
+        if not Machine.wait_ssh(self, get_new_address = lambda: self._ip_from_mac(self.macaddr, timeout_sec=5)):
             raise Failure("Unable to reach machine %s via ssh." % (self.address))
         self.wait_user_login()
 

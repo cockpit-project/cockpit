@@ -132,7 +132,7 @@ class TestNetworking(MachineCase):
         m.execute("nmcli c m '%s' ipv4.addresses ''" % id)
         b.wait_in_text("tr:contains('IPv4')", "Automatic (DHCP)")
         m.execute("nmcli c up '%s'" % id)
-        b.wait_in_text("tr:contains('Status')", "10.111.112")
+        b.wait_in_text("tr:contains('Status')", "10.111.")
 
     def testBond(self):
         b = self.browser
@@ -172,7 +172,7 @@ class TestNetworking(MachineCase):
         # Wait for the bond to be active
         b.click("#networking-interfaces td:first-child:contains('tbond')")
         b.wait_visible("#network-interface")
-        b.wait_in_text("tr:contains('Status')", "10.111.112")
+        b.wait_in_text("tr:contains('Status')", "10.111.")
         b.wait_present("tr[data-interface='%s']" % iface1)
         b.wait_present("tr[data-interface='%s']" % iface2)
 
@@ -232,7 +232,7 @@ class TestNetworking(MachineCase):
         # Wait for the bridge to be active.
         b.click("#networking-interfaces td:first-child:contains('tbridge')")
         b.wait_visible("#network-interface")
-        b.wait_in_text("tr:contains('Status')", "10.111.112")
+        b.wait_in_text("tr:contains('Status')", "10.111.")
 
         # Delete the bridge
         b.click("#network-interface button:contains('Delete')")

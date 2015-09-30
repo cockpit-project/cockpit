@@ -389,18 +389,6 @@ test_bad_receive (TestCase *tc,
   g_assert_cmpstr (tc->problem, ==, "protocol-error");
 }
 
-static const Fixture fixture_list_bad_directory = {
-    .datadirs = { SRCDIR "/src/bridge/mock-resource/bad-directory", NULL },
-    .expect = "package * invalid *name*",
-    .path = "/manifests.json"
-};
-
-static const Fixture fixture_list_bad_file = {
-    .datadirs = { SRCDIR "/src/bridge/mock-resource/bad-file", NULL },
-    .expect = "package * invalid *name*",
-    .path = "/manifests.json"
-};
-
 static const Fixture fixture_list_bad_name = {
     .datadirs = { SRCDIR "/src/bridge/mock-resource/bad-package", NULL },
     .expect = "package * invalid *name*",
@@ -531,10 +519,6 @@ main (int argc,
   g_test_add ("/packages/bad-package", TestCase, &fixture_bad_package,
               setup, test_bad_package, teardown);
 
-  g_test_add ("/packages/listing-bad-directory", TestCase, &fixture_list_bad_directory,
-              setup, test_list_bad_name, teardown);
-  g_test_add ("/packages/listing-bad-file", TestCase, &fixture_list_bad_file,
-              setup, test_list_bad_name, teardown);
   g_test_add ("/packages/listing-bad-name", TestCase, &fixture_list_bad_name,
               setup, test_list_bad_name, teardown);
 

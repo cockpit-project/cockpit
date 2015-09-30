@@ -19,6 +19,7 @@
     <controller type='scsi' model='virtio-scsi' index='0' id='hot'/>
     <interface type='bridge'>
       <source bridge='cockpit1'/>
+      <model type='virtio'/>
       %(mac)s
     </interface>
     <console type='pty'>

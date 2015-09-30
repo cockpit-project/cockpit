@@ -131,9 +131,11 @@ package_walk_file (GChecksum *checksum,
   gboolean ret = FALSE;
   GBytes *bytes;
 
+  /* Skip invalid files: we refuse to serve them (below) */
   if (!validate_path (filename))
     {
-      g_warning ("package has an invalid path name: %s", filename);
+      g_debug ("package has an invalid path name: %s", filename);
+      ret = TRUE;
       goto out;
     }
 

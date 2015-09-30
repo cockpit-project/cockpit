@@ -184,7 +184,7 @@ test_metrics_SOURCES = \
 	src/bridge/test-metrics.c \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
 test_metrics_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_metrics_LDADD = $(libcockpit_bridge_LIBS)
+test_metrics_LDADD = $(libcockpit_bridge_LIBS) -lm
 
 test_httpstream_SOURCES = \
 	src/bridge/test-httpstream.c \

@@ -47,6 +47,40 @@ function common_dbus_tests(channel_options, bus_name)
         }, 100);
     });
 
+    asyncTest("call close", function() {
+        expect(2);
+
+        var dbus = cockpit.dbus(bus_name, channel_options);
+        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+                  "HelloWorld", [ "Browser-side JS" ]).
+            fail(function(ex) {
+                equal(ex.problem, "disconnected", "got right close code");
+            }).
+            always(function() {
+                equal(this.state(), "rejected", "call rejected");
+                start();
+            });
+
+        dbus.close();
+    });
+
+    asyncTest("call closed", function() {
+        expect(2);
+
+        var dbus = cockpit.dbus(bus_name, channel_options);
+        dbus.close("blah-blah");
+
+        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+                  "HelloWorld", [ "Browser-side JS" ]).
+            fail(function(ex) {
+                equal(ex.problem, "blah-blah", "got right close code");
+            }).
+            always(function() {
+                equal(this.state(), "rejected", "call rejected");
+                start();
+            });
+    });
+
     asyncTest("primitive types", function() {
         expect(2);
 

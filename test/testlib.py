@@ -315,7 +315,7 @@ class Browser:
                 self.wait_visible("iframe.container-frame[name='%s']" % frame)
                 break
             except Error, ex:
-                if reconnect and ex.value == 'timeout':
+                if reconnect and ex.msg == 'timeout':
                     reconnect = False
                     if self.is_present(".curtains button"):
                         self.click(".curtains button", True)

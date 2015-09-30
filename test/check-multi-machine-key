@@ -59,7 +59,7 @@ def kill_user_admin(machine):
 
 LOAD_KEYS = [
     "id_rsa", # password: foobar
-    "identity",  # no password
+    "id_ecdsa",  # no password
     "id_dsa", # password: badbad
     "id_ed25519", # password: foobar
 ]
@@ -139,8 +139,8 @@ class TestMultiMachineKeyAuth(MachineCase):
         # Check our keys were loaded.
         test_keys(b, [
             "2048 SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw /home/admin/.ssh/id_rsa (RSA)",
+            "256 SHA256:dyHF4jiKz6RolQqORIATqhbZ4kil5cyiMQWizbQWU8k /home/admin/.ssh/id_ecdsa (ECDSA)",
             "256 SHA256:Uht4NX54Gjz62cNA8+LrHo63HiFW/i5aWg/cl/A3X+c /home/admin/.ssh/id_ed25519 (ED25519)",
-            "2048 SHA256:gwSyNJuAvsZXlsv+zQNten2XaCe4cw6Gbqw2tmFTBRA /home/admin/.ssh/identity (RSA)",
         ])
 
         # add key

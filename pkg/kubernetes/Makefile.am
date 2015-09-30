@@ -48,7 +48,6 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/index.html \
 	pkg/kubernetes/kubernetes.js \
 	pkg/kubernetes/node.js \
-	pkg/kubernetes/moment.js \
 	pkg/kubernetes/object-describer.js \
 	pkg/kubernetes/deploy.js \
 	pkg/kubernetes/revealable.css \
@@ -82,7 +81,6 @@ kubernetes_MIN = \
 	$(NULL)
 kubernetes_BUNDLE = \
 	pkg/kubernetes/d3.min.js \
-	pkg/kubernetes/moment.min.js \
 	$(kubernetes_MIN) \
 	$(NULL)
 
@@ -135,13 +133,7 @@ update-lib:: update-bower
 		$(BOWER)/d3/d3.js
 	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/d3.min.js \
 		$(BOWER)/d3/d3.min.js
-	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/moment.js \
-		$(BOWER)/momentjs/moment.js
-	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/moment.min.js \
-		$(BOWER)/momentjs/min/moment.min.js
 
 # Never recreate these files
 pkg/kubernetes/d3.min.js:
-	@true
-pkg/kubernetes/moment.min.js:
 	@true

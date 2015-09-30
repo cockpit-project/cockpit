@@ -3,7 +3,7 @@ define([
     "base1/cockpit",
     "base1/angular",
     "kubernetes/client",
-    "kubernetes/moment",
+    "base1/moment",
 ], function($, cockpit, angular, kubernetes, moment) {
     'use strict';
 

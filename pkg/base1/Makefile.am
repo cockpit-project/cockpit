@@ -10,6 +10,7 @@ nodist_base_DATA = \
 	pkg/base1/po.js.gz \
 	pkg/base1/require.min.js.gz \
 	pkg/base1/term.min.js.gz \
+	pkg/base1/moment.min.js.gz \
 	pkg/base1/mustache.min.js.gz \
 	pkg/base1/jquery.min.js.gz \
 	pkg/base1/cockpit.min.js.gz \
@@ -35,6 +36,7 @@ basedebug_DATA = \
 	pkg/base1/require.js \
 	pkg/base1/patterns.js \
 	pkg/base1/term.js \
+	pkg/base1/moment.js \
 	pkg/base1/mustache.js \
 	pkg/base1/jquery.js \
 	pkg/base1/cockpit.js \
@@ -118,6 +120,7 @@ EXTRA_DIST += \
 	pkg/base1/jquery.min.js \
 	pkg/base1/require.min.js \
 	pkg/base1/mustache.min.js \
+	pkg/base1/moment.min.js \
 	pkg/base1/term.min.js \
 	pkg/base1/test-dbus-common.js \
 	$(base_BUNDLE) \
@@ -218,6 +221,10 @@ update-lib:: update-bower
 	    $(BOWER)/angular-bootstrap/ui-bootstrap.min.js \
 	    $(BOWER)/angular-bootstrap/ui-bootstrap-tpls.min.js \
 	    $(BOWER)/angular-patternfly/dist/angular-patternfly.min.js
+	$(JSMODULE) -o $(srcdir)/pkg/base1/moment.js \
+		$(BOWER)/momentjs/moment.js
+	$(JSMODULE) -o $(srcdir)/pkg/base1/moment.min.js \
+		$(BOWER)/momentjs/min/moment.min.js
 
 # Never recreate these files
 pkg/base1/angular.min.js:
@@ -231,4 +238,6 @@ pkg/base1/require.min.js:
 pkg/base1/bootstrap-select.min.js:
 	@true
 pkg/base1/bootstrap-datepicker.min.js:
+	@true
+pkg/base1/moment.min.js:
 	@true

@@ -1605,6 +1605,9 @@ function full_scope(cockpit, $, po) {
         var calls = { };
         var cache;
 
+        /* The problem we closed with */
+        var closed;
+
         self.constructors = { "*": DBusProxy };
 
         function ensure_cache() {
@@ -1699,11 +1702,11 @@ function full_scope(cockpit, $, po) {
         this.notify = notify;
 
         function close_perform(options) {
-            var problem = options.problem || "disconnected";
+            closed = options.problem || "disconnected";
             var outstanding = calls;
             calls = { };
             $.each(outstanding, function(id, dfd) {
-                dfd.reject(new DBusError(problem));
+                dfd.reject(new DBusError(closed));
             });
             $(self).triggerHandler("close", [ options ]);
         }
@@ -1745,8 +1748,13 @@ function full_scope(cockpit, $, po) {
 
             var msg = JSON.stringify(method_call);
             dbus_debug("dbus:", msg);
-            channel.send(msg);
-            calls[id] = dfd;
+
+            if (channel) {
+                channel.send(msg);
+                calls[id] = dfd;
+            } else {
+                dfd.reject(new DBusError(closed));
+            }
 
             return dfd.promise();
         };

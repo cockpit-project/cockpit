@@ -1012,10 +1012,6 @@ class VirtMachine(Machine):
         # if this isn't just an additional path, clean up
         if "path" in disk and disk["path"] and os.path.exists(disk["path"]):
             os.unlink(disk["path"])
-        if "socket" in disk and disk["socket"] and os.path.exists(disk["socket"]):
-            os.unlink(disk["socket"])
-        if "proc" in disk and disk["proc"] and disk["proc"].poll() == None:
-            disk["proc"].terminate()
 
     def _qemu_monitor(self, command):
         self.message("& " + command)

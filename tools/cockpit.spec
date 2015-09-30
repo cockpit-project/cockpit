@@ -1,10 +1,20 @@
-# Globals that might be defined elsewhere
+#
+# This file is maintained at the following location:
+# https://github.com/cockpit-project/cockpit/blob/master/tools/cockpit.spec
+#
+# If you are editing this file in another location, changes will likely
+# be clobbered the next time an automated release is done.
+#
+# Check first cockpit-devel@lists.fedorahosted.org
+#
+# Globals that may be defined elsewhere
 #  * gitcommit xxxx
 #  * selinux 1
 #  * tag 0.71
+#
 
 %define branding auto
-%define rel 1
+%define rev 1
 
 %if %{defined gitcommit}
 %define extra_flags CFLAGS='-O2 -Wall -Werror -fPIC -g'
@@ -40,7 +50,7 @@ Version:        %{gitcommit}
 %else
 Version:        %{tag}
 %endif
-Release:        %{rel}%{?dist}
+Release:        %{rev}%{?dist}
 Summary:        A user interface for Linux servers
 
 License:        LGPLv2+

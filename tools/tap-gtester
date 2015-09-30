@@ -90,6 +90,8 @@ class GTestCompiler(NullCompiler):
                        print("ok %d %s" % (self.test_num, self.test_name))
                    if data == "FAIL":
                        print("not ok %d %s" % (self.test_num, self.test_name))
+                   if data == "SKIP":
+                       print("ok %d %s # skip" % (self.test_num, self.test_name))
                self.test_name = None
            elif cmd == "skipping":
                if "/subprocess" not in data:

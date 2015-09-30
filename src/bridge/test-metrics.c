@@ -18,6 +18,7 @@
  */
 
 #include "config.h"
+#include <math.h>
 
 #include "cockpitmetrics.h"
 #include "mock-transport.h"
@@ -366,6 +367,64 @@ test_derive_rate_no_interpolate (TestCase *tc,
   json_object_unref (meta);
 }
 
+/* Very specific functions to be used by test_interpolate for
+   approximate sample assertions.  (The only reason why we don't do
+   this for all tests is that it is not fun to generalize this...)
+*/
+
+static gboolean
+approx_equal (double a, double b)
+{
+  return a == b || (fabs(a-b)/fmax(a, b) < 0.0001);
+}
+
+static void
+assert_2_approx_samples_msg (const char *domain,
+                             const char *file,
+                             int line,
+                             const char *func,
+                             TestCase *tc,
+                             double val1,
+                             double val2)
+{
+  JsonArray *array = recv_array (tc);
+  JsonArray *sub_array;
+
+  if (json_array_get_length (array) != 1)
+    goto fail;
+  sub_array = json_array_get_array_element (array, 0);
+  if (json_array_get_length (sub_array) != 2)
+    goto fail;
+  if (!approx_equal (json_array_get_double_element (sub_array, 0), val1))
+    goto fail;
+  if (!approx_equal (json_array_get_double_element (sub_array, 1), val2))
+    goto fail;
+
+  goto out;
+
+ fail:
+  {
+    JsonNode *node;
+    gchar *escaped;
+    gchar *msg;
+
+    node = json_node_new (JSON_NODE_ARRAY);
+    json_node_set_array (node, array);
+    escaped = cockpit_json_write (node, NULL);
+    msg = g_strdup_printf ("%s does not approximately match [[%g,%g]]", escaped, val1, val2);
+    g_assertion_message (domain, file, line, func, msg);
+    g_free (msg);
+    g_free (escaped);
+    json_node_free (node);
+  }
+
+ out:
+  json_array_unref (array);
+}
+
+#define assert_2_approx_samples(tc, val1, val2)                              \
+  (assert_2_approx_samples_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (tc), (val1), (val2)))
+
 static void
 test_interpolate (TestCase *tc,
                   gconstpointer unused)
@@ -387,15 +446,15 @@ test_interpolate (TestCase *tc,
   send_sample (tc,    0, 2,  0.0,  0.0);
   assert_sample (tc, "[[0,false]]");
   send_sample (tc,  100, 2, 10.0, 10.0);
-  assert_sample (tc, "[[10,100]]");
+  assert_2_approx_samples (tc, 10, 100);
   send_sample (tc,  250, 2, 25.0, 25.0);
-  assert_sample (tc, "[[20,100]]");
+  assert_2_approx_samples (tc, 20, 100);
   send_sample (tc,  300, 2, 30.0, 30.0);
-  assert_sample (tc, "[[30,100]]");
+  assert_2_approx_samples (tc, 30, 100);
   send_sample (tc,  500, 2, 50.0, 50.0);
-  assert_sample (tc, "[[40,100]]");
+  assert_2_approx_samples (tc, 40, 100);
   send_sample (tc,  500, 2, 50.0, 50.0);
-  assert_sample (tc, "[[50,100]]");
+  assert_2_approx_samples (tc, 50, 100);
 
   json_object_unref (meta);
 }

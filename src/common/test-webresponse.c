@@ -306,7 +306,7 @@ test_file_breakout_non_existant (TestCase *tc,
 }
 
 static const TestFixture content_type_fixture = {
-  .path = "/pkg/shell/index.html"
+  .path = "/assets/shell/index.html"
 };
 
 static void

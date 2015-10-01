@@ -56,7 +56,7 @@ function step() {
     input = ops.args.shift();
     var parts = input.split("/");
 
-    /* Expect pkg/component/views/name.html */
+    /* Expect assets/component/views/name.html */
     var name = parts.slice(-2).join("/");
 
     fs.readFile(input, { encoding: "utf-8" }, function(err, data) {

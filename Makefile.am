@@ -229,18 +229,18 @@ BOWER = $(srcdir)/tools/bower_components
 update-bower:
 	( cd $(srcdir)/tools && ./bower update )
 
-include pkg/base1/Makefile.am
-include pkg/dashboard/Makefile.am
-include pkg/docker/Makefile.am
-include pkg/kubernetes/Makefile.am
-include pkg/networkmanager/Makefile.am
-include pkg/playground/Makefile.am
-include pkg/realmd/Makefile.am
-include pkg/shell/Makefile.am
-include pkg/subscriptions/Makefile.am
-include pkg/systemd/Makefile.am
-include pkg/storaged/Makefile.am
-include pkg/users/Makefile.am
+include assets/base1/Makefile.am
+include assets/dashboard/Makefile.am
+include assets/docker/Makefile.am
+include assets/kubernetes/Makefile.am
+include assets/networkmanager/Makefile.am
+include assets/playground/Makefile.am
+include assets/realmd/Makefile.am
+include assets/shell/Makefile.am
+include assets/subscriptions/Makefile.am
+include assets/systemd/Makefile.am
+include assets/storaged/Makefile.am
+include assets/users/Makefile.am
 include src/bridge/Makefile.am
 include src/common/Makefile-common.am
 include src/websocket/Makefile-websocket.am

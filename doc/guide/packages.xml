@@ -92,6 +92,12 @@ $ cockpit-bridge --packages
           property value is a JSON object described below.</para></listitem>
       </varlistentry>
       <varlistentry>
+        <term>name</term>
+        <listitem><para>An optional string that changes the name of the package. Normally
+          packages derive their name from the directory that they are located in. This
+          field overrides that name.</para></listitem>
+      </varlistentry>
+      <varlistentry>
         <term>tools</term>
         <listitem><para>An optional JSON object containing all the tools that this package
           provides. These will be added into the Cockpit user interface under the 'Tools' menu.

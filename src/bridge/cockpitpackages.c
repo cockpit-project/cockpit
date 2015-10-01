@@ -313,6 +313,26 @@ read_package_manifest (const gchar *directory,
   return manifest;
 }
 
+static const gchar *
+read_package_name (JsonObject *manifest,
+                   const gchar *name)
+{
+  const gchar *value;
+
+  if (!cockpit_json_get_string (manifest, "name", name, &value))
+    {
+      g_warning ("%s: invalid \"name\" field in package manifest", name);
+      value = NULL;
+    }
+  else if (!validate_package (value))
+    {
+      g_warning ("%s: invalid package \"name\" field in manifest", name);
+      value = NULL;
+    }
+
+  return value;
+}
+
 static CockpitPackage *
 maybe_add_package (GHashTable *listing,
                    const gchar *parent,
@@ -346,6 +366,11 @@ maybe_add_package (GHashTable *listing,
       if (!package_walk_directory (checksum, paths, path, NULL))
         goto out;
     }
+
+  /* Manifest could specify a different name */
+  name = read_package_name (manifest, name);
+  if (!name)
+    goto out;
 
   package = cockpit_package_new (name);
 

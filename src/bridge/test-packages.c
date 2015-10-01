@@ -242,6 +242,7 @@ test_listing (TestCase *tc,
   cockpit_assert_json_eq (json_node_get_object (node),
                           "{"
                           " \"another\": {"
+                          "  \"name\" : \"another\","
                           "  \"description\" : \"another\""
                           " },"
                           " \"second\": {"

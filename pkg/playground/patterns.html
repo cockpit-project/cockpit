@@ -216,6 +216,144 @@ require([
     <table class="listing">
         <thead>
             <tr>
+                <td colspan="4">
+                    <h3>Listing with Panels</h3>
+                </td>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <th>Project</th>
+                <th>Address</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="listing-item">
+                <th>frontend</th>
+                <td>aoeuaoeu</td>
+                <td>127.30.168.10</td>
+                <td>Running</td>
+            </tr>
+            <tr class="listing-panel">
+                <td colspan="4">
+                    <div class="listing-head">
+                        <div class="listing-actions">
+                            <button title="Adjust" class="btn btn-default pficon pficon-edit"></button>
+                        </div>
+                        <h3>
+                            <i class="fa fa-cubes"></i>
+                            frontend
+                        </h3>
+                        <div class="listing-status">
+                            Running
+                        </div>
+                        <ul class="nav nav-tabs nav-tabs-pf">
+                            <li class="active"><a href="#">Pod</a></li>
+                            <li><a href="#">Containers</a></li>
+                            <li><a href="#">Logs</a></li>
+                            <li><a href="#">Shell</a></li>
+                        </ul>
+                    </div>
+                    <div class="listing-body">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <dl>
+                                    <dt>Project</dt>
+                                    <dd>aoeuaoeu</dd>
+                                    <dt>Created</dt>
+                                    <dd title="2015-09-26 15:33">14 days ago</dd>
+                                    <dt>Restart Policy</dt>
+                                    <dd>Always</dd>
+                                    <dt>Service Account</dt>
+                                    <dd>default</dd>
+                                    <dt>DNS Policy</dt>
+                                    <dd>ClusterFirst</dd>
+                                    <dt>Phase</dt>
+                                    <dd>running</dd>
+                                    <dt>Node</dt>
+                                    <dd>openshiftdev.local</dd>
+                                    <dt>Pod Address</dt>
+                                    <dd>1.2.3.4</dd>
+                                </dl>
+                            </div>
+                            <div class="col-sm-6">
+                                <dl class="full">
+                                    <dt>Labels</dt>
+                                    <dd>name=frontend</dd>
+                                    <dd>template=ruby-hello-world</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+        <tbody>
+            <tr class="listing-item">
+                <th>redis-master</th>
+                <td>aoeuaoeu</td>
+                <td>127.30.173.79:6379</td>
+                <td>Ready</td>
+            </tr>
+            <tr class="listing-panel">
+                <td colspan="4">
+                    <div class="listing-head">
+                        <div class="listing-actions">
+                            <button title="Adjust" class="btn btn-default pficon pficon-edit"></button>
+                        </div>
+                        <h3>
+                            <i class="fa fa-cubes"></i>
+                            redis-master
+                        </h3>
+                        <div class="listing-status">
+                            Running
+                        </div>
+                        <ul class="nav nav-tabs nav-tabs-pf">
+                            <li class="active"><a href="#">Pod</a></li>
+                            <li><a href="#">Containers</a></li>
+                            <li><a href="#">Logs</a></li>
+                            <li><a href="#">Shell</a></li>
+                        </ul>
+                    </div>
+                    <div class="listing-body">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <dl>
+                                    <dt>Project</dt>
+                                    <dd>aoeuaoeu</dd>
+                                    <dt>Created</dt>
+                                    <dd title="2015-09-26 15:33">10 days ago</dd>
+                                    <dt>Restart Policy</dt>
+                                    <dd>Always</dd>
+                                    <dt>Service Account</dt>
+                                    <dd>default</dd>
+                                    <dt>DNS Policy</dt>
+                                    <dd>ClusterFirst</dd>
+                                    <dt>Phase</dt>
+                                    <dd>running</dd>
+                                    <dt>Node</dt>
+                                    <dd>openshiftdev.local</dd>
+                                    <dt>Pod Address</dt>
+                                    <dd>1.2.3.5</dd>
+                                </dl>
+                            </div>
+                            <div class="col-sm-6">
+                                <dl class="full">
+                                    <dt>Labels</dt>
+                                    <dd>name=redis-master</dd>
+                                    <dd>template=ruby-hello-world</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="listing">
+        <thead>
+            <tr>
                 <td colspan="2">
                     <h3>Expandable Listing: Panel header is row</h3>
                 </td>
@@ -265,7 +403,7 @@ require([
         </tbody>
     </table>
 
-    <table class="listing listing-timeline">
+    <table class="listing">
         <thead>
             <tr>
                 <td colspan="2">
@@ -308,26 +446,28 @@ require([
                                     <li class="active"><a href="#">Packages</a></li>
                                 </ul>
                             </div>
-                            <div class="listing-body row">
-                                <div class="col-sm-6">
-                                    <dl>
-                                        <dt>Operating System</dt>
-                                        <dd>fedora-atomic</dd>
-                                        <dt>Revision Number</dt>
-                                        <dd>24.2</dd>
-                                        <dt>Released</dt>
-                                        <dd title="2015-09-26 15:33">3 days ago</dd>
-                                    </dl>
-                                </div>
-                                <div class="col-sm-6">
-                                    <dl>
-                                        <dt>Additions</dt>
-                                        <dd>10 packages</dd>
-                                        <dt>Removals</dt>
-                                        <dd>3 packages</dd>
-                                        <dt>Changes</dt>
-                                        <dd>18 packages</dd>
-                                    </dl>
+                            <div class="listing-body">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <dl>
+                                            <dt>Operating System</dt>
+                                            <dd>fedora-atomic</dd>
+                                            <dt>Revision Number</dt>
+                                            <dd>24.2</dd>
+                                            <dt>Released</dt>
+                                            <dd title="2015-09-26 15:33">3 days ago</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <dl>
+                                            <dt>Additions</dt>
+                                            <dd>10 packages</dd>
+                                            <dt>Removals</dt>
+                                            <dd>3 packages</dd>
+                                            <dt>Changes</dt>
+                                            <dd>18 packages</dd>
+                                        </dl>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -335,12 +475,12 @@ require([
                 </td>
             </tr>
         </tbody>
-        <tbody>
+        <tbody class="active">
             <tr>
                 <td>
                     <div class="timeline">
                         <i class="fa fa-check-circle-o timeline-point timeline-lg active"></i>
-                        <div class="listing-panel active">
+                        <div class="listing-panel">
                             <div class="listing-head">
                                 <div class="listing-actions">
                                 </div>
@@ -353,16 +493,18 @@ require([
                                     <li><a href="#">Packages</a></li>
                                 </ul>
                             </div>
-                            <div class="listing-body row">
-                                <div class="col-sm-6">
-                                    <dl>
-                                        <dt>Operating System</dt>
-                                        <dd>fedora-atomic</dd>
-                                        <dt>Revision Number</dt>
-                                        <dd>24.1</dd>
-                                        <dt>Released</dt>
-                                        <dd title="2015-08-29 15:33">1 month ago</dd>
-                                    </dl>
+                            <div class="listing-body">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <dl>
+                                            <dt>Operating System</dt>
+                                            <dd>fedora-atomic</dd>
+                                            <dt>Revision Number</dt>
+                                            <dd>24.1</dd>
+                                            <dt>Released</dt>
+                                            <dd title="2015-08-29 15:33">1 month ago</dd>
+                                        </dl>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -390,16 +532,18 @@ require([
                                     <li><a href="#">Packages</a></li>
                                 </ul>
                             </div>
-                            <div class="listing-body row">
-                                <div class="col-sm-6">
-                                    <dl>
-                                        <dt>Operating System</dt>
-                                        <dd>fedora-atomic</dd>
-                                        <dt>Revision Number</dt>
-                                        <dd>24.1</dd>
-                                        <dt>Released</dt>
-                                        <dd title="2015-08-29 15:33">1 month ago</dd>
-                                    </dl>
+                            <div class="listing-body">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <dl>
+                                            <dt>Operating System</dt>
+                                            <dd>fedora-atomic</dd>
+                                            <dt>Revision Number</dt>
+                                            <dd>24.1</dd>
+                                            <dt>Released</dt>
+                                            <dd title="2015-08-29 15:33">1 month ago</dd>
+                                        </dl>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -417,10 +561,18 @@ require([
 ], function($) {
     "use strict";
 
-    $("body").on("click", ".listing-item", function(ev) {
-        if ($(ev.target).parents(".listing-actions").length === 0)
-            $(this).parents("tbody").toggleClass("open").toggleClass("active");
-    });
+    $("body")
+        .on("click", ".listing-item, .listing-head", function(ev) {
+            /* Only proceed if a .btn a li or .timeline was not clicked on */
+            if($(ev.target).parents().addBack().filter(".btn, a, li, .timeline").length === 0)
+                $(this).parents("tbody").toggleClass("open");
+        })
+        .on("mouseenter", ".listing-head", function(ev) {
+            $(ev.target).parents("tbody").find(".listing-head").addClass("highlight");
+        })
+        .on("mouseleave", ".listing-head", function(ev) {
+            $(ev.target).parents("tbody").find(".listing-head").removeClass("highlight");
+        });
 });
 </script>
 

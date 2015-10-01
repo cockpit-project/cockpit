@@ -1,10 +1,12 @@
-<div cockpit-listing>
-    <table class="listing containers-listing">
-        <thead>
-            <tr class="listing-title">
-                <td colspan="5" translatable="yes">Containers</td>
+<div>
+    <table listing-table class="listing containers-listing">
+        <thead ng-if="!quiet">
+            <tr>
+                <td colspan="4">
+                    <h3 translatable="yes">Containers</h3>
+                </td>
             </tr>
-            <tr ng-if="!quiet">
+            <tr>
                 <th translatable="yes">Name</th>
                 <th translatable="yes">Pod</th>
                 <th translatable="yes" ng-if="client.flavor == 'openshift'">Project</th>
@@ -13,19 +15,23 @@
                 <th translatable="yes">Status</th>
             </tr>
         </thead>
-        <tbody ng-repeat="item in pods | orderObjectBy:['metedata.namespace', 'metadata.name'] track by item.key">
-            <tr ng-repeat-start="(id, container) in containers(item) track by container.key"
-                ng-click="select(id)" ng-if="!quiet && !selected(id)">
+        <tbody data-ng-rubbish="" ng-if="0"
+            ng-repeat-start="item in pods | orderObjectBy:['metedata.namespace', 'metadata.name'] track by item.key">
+        </tbody>
+        <tbody ng-repeat="(id, container) in containers(item) track by container.key"
+            class="active" ng-class="{open: selected(id)}">
+            <tr class="listing-item" ng-click="select(id)" ng-if="!quiet">
                 <th>{{container.spec.name}}</th>
                 <td>{{item.metadata.name}}</td>
                 <td>{{item.metadata.namespace}}</td>
                 <td>{{item.spec.nodeName}}</td>
                 <td><span ng-repeat="(name, value) in container.status.state">{{name}}</span></td>
             </tr>
-            <tr ng-repeat-end class="listing-panel" ng-if="selected(id)">
-                <td cockpit-listing-panel kind="Container" colspan="5">
-                </td>
+            <tr class="listing-panel" ng-if="selected(id)">
+                <td listing-panel kind="Container" colspan="5"></td>
             </tr>
+        </tbody>
+        <tbody data-ng-rubbish="" ng-if="0" ng-repeat-end>
         </tbody>
     </table>
 </div>

@@ -87,25 +87,28 @@ class TestKubernetes(KubernetesCase):
         self.assertEqual(b.text(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] th"), podl[0])
 
         b.click(".details-listing tbody[data-id='services/default/mock'] th")
-        b.click("#delete-entity")
+        b.wait_visible(".details-listing tbody[data-id='services/default/mock'] .delete-entity")
+        b.click(".details-listing tbody[data-id='services/default/mock'] .delete-entity")
         b.wait_popup("delete-entity-dialog")
         b.click("#delete-entity-button")
         b.wait_popdown("delete-entity-dialog")
+        b.wait_not_present(".details-listing tbody[data-id='services/default/mock']")
 
         b.click(".details-listing tbody[data-id='replicationcontrollers/default/mock'] th")
-        b.click("#delete-entity")
+        b.wait_visible(".details-listing tbody[data-id='replicationcontrollers/default/mock'] .delete-entity")
+        b.click(".details-listing tbody[data-id='replicationcontrollers/default/mock'] .delete-entity")
         b.wait_popup("delete-entity-dialog")
         b.click("#delete-entity-button")
         b.wait_popdown("delete-entity-dialog")
+        b.wait_not_present(".details-listing tbody[data-id='replicationcontrollers/default/mock']")
 
         b.click(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] th")
-        b.click("#delete-pod")
+        b.wait_visible(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] .delete-pod")
+        b.click(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] .delete-pod")
         b.wait_popup("delete-pod-dialog")
         b.click("#delete-pod-button")
         b.wait_popdown("delete-pod-dialog")
-        self.assertEqual(b.is_present(".details-listing tbody[data-id='services/default/mock'] th"), False)
-        self.assertEqual(b.is_present(".details-listing tbody[data-id='replicationcontrollers/default/mock'] th"), False)
-        self.assertEqual(b.is_present(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] th"), False)
+        b.wait_not_present(".details-listing tbody[data-id='pods/default/"+podl[0]+"']")
 
     def testDashboard(self):
         b = self.browser
@@ -194,19 +197,19 @@ class TestKubernetes(KubernetesCase):
         b.click(".details-listing tbody[data-id='nodes/127.0.0.1'] th")
         b.wait_present(".details-listing tbody[data-id='nodes/127.0.0.1'] tr.listing-panel")
         self.assertEqual(b.text("tbody[data-id='nodes/127.0.0.1'] tr.listing-panel h3"), "127.0.0.1")
-        self.assertFalse(b.is_present(".details-listing tbody[data-id='nodes/127.0.0.1'] th"))
+        self.assertFalse(b.is_visible(".details-listing tbody[data-id='nodes/127.0.0.1'] th"))
         self.assertEqual(b.text("tbody[data-id='nodes/127.0.0.1'] tr.listing-panel .status").strip(), "Ready")
 
         b.click(".details-listing tbody[data-id='nodes/mynode'] th")
         b.wait_present(".details-listing tbody[data-id='nodes/mynode'] tr.listing-panel")
         self.assertEqual(b.text("tbody[data-id='nodes/mynode'] tr.listing-panel h3"), "mynode")
-        self.assertFalse(b.is_present(".details-listing tbody[data-id='nodes/mynode'] th"))
+        self.assertFalse(b.is_visible(".details-listing tbody[data-id='nodes/mynode'] th"))
         self.assertEqual(b.text("tbody[data-id='nodes/mynode'] tr.listing-panel .status").strip(), "Unknown")
 
         # Click on the service to expand into a panel
         b.click(".details-listing tbody[data-id='services/default/mock'] th")
         b.wait_present(".details-listing tbody[data-id='services/default/mock'] tr.listing-panel")
-        self.assertFalse(b.is_present(".details-listing tbody[data-id='services/default/mock'] th"))
+        self.assertFalse(b.is_visible(".details-listing tbody[data-id='services/default/mock'] th"))
         self.assertEqual(b.text("tbody[data-id='services/default/mock'] tr.listing-panel h3"), "mock")
 
         # Now the header and other services should still be present, check filter menu state
@@ -245,7 +248,6 @@ class TestKubernetes(KubernetesCase):
         b.upload_file("#deploy-app-manifest-file", "files/mock-k8s-tiny-app.json")
         b.wait_val("#deploy-app-namespace", "mynamespace1")
         b.set_val("#deploy-app-namespace", "mynamespace2")
-        b.wait_text("#deploy-app-namespace-group ul li:last-child", "mynamespace1")
         b.dialog_complete("#deploy-app-dialog")
 
         # mynamespace2 is now selected

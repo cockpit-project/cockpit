@@ -1,12 +1,5 @@
-<div class="panel panel-default">
-  <div class="panel-heading">
-      <button type="button" class="listing-star"
-          ng-click="star = !star"
-          ng-class="{ active: star }">
-          <span class="fa"></span>
-      </button>
-      <h3 class="panel-title">{{ item.metadata.name }}</h3>
-  </div>
-  <div class="panel-body">
-  </div>
+<div class="listing-head" ng-click="select(id, $event)">
+    <h3>{{ item.metadata.name }}</h3>
+</div>
+<div class="listing-body">
 </div>

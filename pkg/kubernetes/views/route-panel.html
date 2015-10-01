@@ -1,48 +1,43 @@
-<div class="panel panel-default panel-tabbed"
-    ng-class="{ pinned: pinned }">
-    <div class="panel-heading">
-        <div class="listing-icons">
-            <i class="pficon pficon-route"></i>
-        </div>
-        <div class="listing-actions">
-            <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
-            <button title="Adjust" class="btn btn-default pficon pficon-edit" disabled></button>
-        </div>
-        <h3 class="listing-title" ng-click="select(id)">{{ item.metadata.name }}</h3>
+<div class="listing-head" ng-click="select(id, $event)">
+    <div class="listing-actions">
+        <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
     </div>
-    <tabset class="">
-        <tab heading="Route">
-            <div class="panel-body row">
-                <div class="col-sm-6">
-                    <dl>
-                        <dt ng-if="client.flavor == 'openshift'" translatable="yes">Project</dt>
-                        <dt ng-if="client.flavor != 'openshift'" translatable="yes">Namespace</dt>
-                        <dd>{{ item.metadata.namespace }}</dd>
-                        <dt translatable="yes">Created</dt>
-                        <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | timeAgo }}</dd>
-                        <dt translatable="yes">Host</dt>
-                        <dd>{{ item.spec.host }}</dd>
+    <h3><i class="pficon pficon-route"></i>{{ item.metadata.name }}</h3>
+    <ul class="nav nav-tabs nav-tabs-pf">
+        <li ng-class="{active: tab('main')}"><a ng-click="tab('main', $event)">Route</a></li>
+    </ul>
+</div>
+<div class="listing-body" ng-show="tab('main')">
+    <div class="row">
+        <div class="col-sm-6">
+            <dl>
+                <dt ng-if="client.flavor == 'openshift'" translatable="yes">Project</dt>
+                <dt ng-if="client.flavor != 'openshift'" translatable="yes">Namespace</dt>
+                <dd>{{ item.metadata.namespace }}</dd>
+                <dt translatable="yes">Created</dt>
+                <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | timeAgo }}</dd>
+                <dt translatable="yes">Host</dt>
+                <dd>{{ item.spec.host }}</dd>
 
-                        <dt translatable="yes">TLS Termination</dt>
-                        <dd ng-if="item.spec.tls.termination">yes</dd>
-                        <dd ng-if="!item.spec.tls.termination">no</dd>
+                <dt translatable="yes">TLS Termination</dt>
+                <dd ng-if="item.spec.tls.termination" translatable="yes">yes</dd>
+                <dd ng-if="!item.spec.tls.termination" translatable="yes">no</dd>
 
-                        <dt ng-if="item.spec.to">{{ item.spec.to.kind }}</dd>
-                        <dd ng-if="item.spec.to">{{item.spec.to.name}}</dd>
-                    </dl>
-                </div>
-                <div class="col-sm-6">
-                    <dl>
-                        <dt class="header full" translatable="yes">Labels</dt>
-                        <dd class="full" ng-repeat="(key, value) in item.metadata.labels">{{key}}={{value}}</dd>
-                        <dd class="full" ng-if="!item.metadata.labels" translatable="yes">none</dd>
-
-                        <dt class="header full" translatable="yes">Annotations</dt>
-                        <dd class="full" ng-repeat="(key, value) in item.metadata.annotations">{{key}}={{value}}</dd>
-                        <dd class="full" ng-if="!item.metadata.annotations" translatable="yes">none</dd>
-                    </dl>
-                </div>
-            </div>
-        </tab>
-      </tabset>
+                <dt ng-if="item.spec.to">{{ item.spec.to.kind }}</dd>
+                <dd ng-if="item.spec.to">{{item.spec.to.name}}</dd>
+            </dl>
+        </div>
+        <div class="col-sm-6">
+            <dl class="full">
+                <dt translatable="yes">Labels</dt>
+                <dd ng-repeat="(key, value) in item.metadata.labels">{{key}}={{value}}</dd>
+                <dd ng-if="!item.metadata.labels" translatable="yes">none</dd>
+            </dl>
+            <dl class="full">
+                <dt translatable="yes">Annotations</dt>
+                <dd class="full" ng-repeat="(key, value) in item.metadata.annotations">{{key}}={{value}}</dd>
+                <dd class="full" ng-if="!item.metadata.annotations" translatable="yes">none</dd>
+            </dl>
+        </div>
+    </div>
 </div>

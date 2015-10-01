@@ -1,66 +1,69 @@
-<div class="panel panel-default panel-tabbed"
-    ng-class="{ pinned: pinned }">
-    <div class="panel-heading">
-        <div class="listing-icons">
-            <i class="fa fa-gear"></i>
-        </div>
-        <div class="listing-actions">
-            <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
-        </div>
-        <h3 class="listing-title" ng-click="select(id)">{{ item.metadata.name }}</h3>
+<div class="listing-head" ng-click="select(id, $event)">
+    <div class="listing-actions">
+        <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
     </div>
-    <tabset class="">
-        <tab heading="Deployment Config">
-            <div class="panel-body row">
-                <div class="col-sm-6">
-                    <dl>
-                        <dt ng-if="client.flavor == 'openshift'" translatable="yes">Project</dt>
-                        <dt ng-if="client.flavor != 'openshift'" translatable="yes">Namespace</dt>
-                        <dd>{{ item.metadata.namespace }}</dd>
-                        <dt translatable="yes">Created</dt>
-                        <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | timeAgo }}</dd>
-                        <dt translatable="yes">Replicas</dt>
-                        <dd>{{ item.spec.replicas }}</dd>
+    <h3><i class="fa fa-gear"></i>{{ item.metadata.name }}</h3>
+    <div class="listing-status">
+        {{item.status.conditions | nodeStatus}}
+    </div>
+    <ul class="nav nav-tabs nav-tabs-pf">
+        <li ng-class="{active: tab('main')}">
+            <a ng-click="tab('main', $event)" translatable="yes">Deployment Config</a></li>
+        <li ng-class="{active: tab('template')}" ng-if="item.spec.template">
+            <a ng-click="tab('template', $event)" translatable="yes">Template</a></li>
+    </ul>
+</div>
+<div class="listing-body" ng-show="tab('main')">
+    <div class="row">
+        <div class="col-sm-6">
+            <dl>
+                <dt ng-if="client.flavor == 'openshift'" translatable="yes">Project</dt>
+                <dt ng-if="client.flavor != 'openshift'" translatable="yes">Namespace</dt>
+                <dd>{{ item.metadata.namespace }}</dd>
+                <dt translatable="yes">Created</dt>
+                <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | timeAgo }}</dd>
+                <dt translatable="yes">Replicas</dt>
+                <dd>{{ item.spec.replicas }}</dd>
 
-                        <dt ng-if="item.spec.strategy.type" translatable="yes">Strategy</dd>
-                        <dd ng-if="item.spec.strategy.type">{{item.spec.strategy.type}}</dd>
+                <dt ng-if="item.spec.strategy.type" translatable="yes">Strategy</dd>
+                <dd ng-if="item.spec.strategy.type">{{item.spec.strategy.type}}</dd>
 
-                        <dt translatable="yes">Latest Version</dt>
-                        <dd ng-if="item.status.latestVersion">{{ item.status.latestVersion }}</dd>
-                        <dd ng-if="!item.status.latestVersion" translatable="yes">Not deployed</td>
-                    </dl>
-                </div>
-                <div class="col-sm-6">
-                    <dl>
-                        <dt class="header full" translatable="yes" ng-if="item.status.details">Deployment Causes</dt>
-                        <dd class="full" ng-if="item.status.details.message">{{ item.status.details.message }}</dd>
-                        <dd class="full" ng-repeat="cause in item.status.details.causes">
-                            {{ cause.type }}
-                            <span ng-if="cause.imageTrigger.from">
-                                - {{ cause.imageTrigger.from.name }}
-                            <span>
-                        </dd>
-
-                        <dt class="header full" translatable="yes" ng-if="item.spec.triggers">Triggers</dt>
-                        <dd class="full" ng-repeat="trigger in item.spec.triggers">
-                            {{ trigger.type }}
-                            <span ng-if="trigger.imageChangeParams.from">
-                                 - {{ trigger.imageChangeParams.from.name }}
-                            </span>
-                        </dd>
-
-                        <dt class="header full" translatable="yes">Labels</dt>
-                        <dd class="full" ng-if="!item.metadata.labels">none</span>
-                        <dd class="full" ng-repeat="(key, value) in item.metadata.labels">{{key}}={{value}}</dd>
-                    </dl>
-                </div>
-            </div>
-        </tab>
-        <tab heading="Template" ng-if="item.spec.template">
-            <kube-pod-body ng-init="pod = item.spec.template">
-            </kube-pod-body>
-            <kube-container-body ng-repeat="container in client.containers(item.spec.template)">
-            </kube-container-body>
-        </tab>
-      </tabset>
+                <dt translatable="yes">Latest Version</dt>
+                <dd ng-if="item.status.latestVersion">{{ item.status.latestVersion }}</dd>
+                <dd ng-if="!item.status.latestVersion" translatable="yes">Not deployed</td>
+            </dl>
+        </div>
+        <div class="col-sm-6">
+            <dl class="full">
+                <dt translatable="yes" ng-if="item.status.details">Deployment Causes</dt>
+                <dd ng-if="item.status.details.message">{{ item.status.details.message }}</dd>
+                <dd ng-repeat="cause in item.status.details.causes">
+                    {{ cause.type }}
+                    <span ng-if="cause.imageTrigger.from">
+                    - {{ cause.imageTrigger.from.name }}
+                    <span>
+                </dd>
+            </dl>
+            <dl class="full">
+                <dt translatable="yes" ng-if="item.spec.triggers">Triggers</dt>
+                <dd class="full" ng-repeat="trigger in item.spec.triggers">
+                    {{ trigger.type }}
+                    <span ng-if="trigger.imageChangeParams.from">
+                    - {{ trigger.imageChangeParams.from.name }}
+                    </span>
+                </dd>
+            </dl>
+            <dl class="full">
+                <dt translatable="yes">Labels</dt>
+                <dd ng-if="!item.metadata.labels">none</span>
+                <dd ng-repeat="(key, value) in item.metadata.labels">{{key}}={{value}}</dd>
+            </dl>
+        </div>
+    </div>
+</div>
+<div class="listing-body" ng-show="tab('template')" ng-if="item.spec.template">
+    <kube-pod-body ng-init="pod = item.spec.template">
+    </kube-pod-body>
+    <kube-container-body ng-repeat="container in client.containers(item.spec.template)">
+    </kube-container-body>
 </div>

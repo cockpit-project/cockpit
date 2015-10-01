@@ -1,8 +1,10 @@
-<div cockpit-listing>
-    <table class="listing details-listing">
+<div>
+    <table listing-table class="listing details-listing">
         <thead ng-if="!quiet">
-            <tr class="listing-title">
-                <td colspan="4" translatable="yes">Nodes</td>
+            <tr>
+                <td colspan="4">
+                    <h3 translatable="yes">Nodes</h3>
+                </td>
             </tr>
             <tr>
                 <th translatable="yes">Name</th>
@@ -11,10 +13,10 @@
                 <th translatable="yes">Status</th>
             </tr>
         </thead>
-        <tbody ng-repeat="item in nodes track by item.key"
-            ng-init="id = itemIdentifier(item)"
+        <tbody ng-repeat="item in nodes track by item.key" class="active"
+            ng-init="id = itemIdentifier(item)" ng-class="{open: selected(id)}"
             data-id="{{id}}" data-key="{{item.key}}">
-            <tr ng-click="select(id)" ng-if="!quiet && !selected(id)" class="listing-item">
+            <tr ng-click="select(id)" ng-if="!quiet" class="listing-item">
                 <th>{{item.metadata.name}}</th>
                 <td>
                     <div ng-if="item.status.nodeInfo.osImage">{{item.status.nodeInfo.osImage}}</div>
@@ -23,14 +25,15 @@
                 <td>{{item.status.conditions | nodeStatus}}</td>
             </tr>
             <tr class="listing-panel" ng-if="selected(id)">
-                <td cockpit-listing-panel kind="Node" colspan="4">
-                </td>
+                <td listing-panel kind="Node" colspan="4"></td>
             </tr>
         </tbody>
 
         <thead ng-if="!quiet">
-            <tr class="listing-title">
-                <td colspan="4" translatable="yes">Services</td>
+            <tr>
+                <td colspan="4">
+                    <h3 translatable="yes">Services</h3>
+                </td>
             </tr>
             <tr>
                 <th translatable="yes">Name</th>
@@ -41,9 +44,9 @@
             </tr>
         </thead>
         <tbody ng-repeat="item in services | orderObjectBy:['metadata.namespace', 'metadata.name'] as filtered_result track by item.key"
-            ng-init="id = itemIdentifier(item)"
-            data-id="{{id}}" data-key="{{item.key}}">
-            <tr ng-click="select(id)" ng-if="!quiet && !selected(id)" class="listing-item">
+            ng-init="id = itemIdentifier(item)" class="active"
+            data-id="{{id}}" data-key="{{item.key}}" ng-class="{open: selected(id)}">
+            <tr ng-click="select(id)" ng-if="!quiet" class="listing-item">
                 <th>{{item.metadata.name}}</th>
                 <td>{{item.metadata.namespace}}</td>
                 <td><kubernetes-service-cluster></td>
@@ -53,14 +56,16 @@
                 </td>
             </tr>
             <tr class="listing-panel" ng-if="selected(id)">
-                <td cockpit-listing-panel kind="Service" colspan="4">
+                <td listing-panel kind="Service" colspan="4">
                 </td>
             </tr>
         </tbody>
 
         <thead id="routes" ng-if="!quiet && client.flavor == 'openshift'">
-            <tr class="listing-title">
-                <td colspan="4" translatable="yes">Routes</td>
+            <tr>
+                <td colspan="4">
+                    <h3 translatable="yes">Routes</h3>
+                </td>
             </tr>
             <tr>
                 <th translatable="yes">Name</th>
@@ -71,22 +76,24 @@
             </tr>
         </thead>
         <tbody ng-repeat="item in routes | orderObjectBy:['metadata.namespace', 'metadata.name']  as filtered_result track by item.key"
+            class="active" ng-class="{open: selected(id)}"
             ng-init="id = itemIdentifier(item)" data-id="{{id}}" data-key="{{item.key}}">
-            <tr ng-click="select(id)" ng-if="!quiet && !selected(id)">
+            <tr ng-click="select(id)" ng-if="!quiet" class="listing-item">
                 <th>{{item.metadata.name}}</th>
                 <td>{{item.metadata.namespace}}</td>
                 <td>{{item.spec.host}}</td>
                 <td></td>
             </tr>
             <tr class="listing-panel" ng-if="selected(id)">
-                <td cockpit-listing-panel kind="Route" colspan="4">
-                </td>
+                <td listing-panel kind="Route" colspan="4"></td>
             </tr>
         </tbody>
 
         <thead id="deployment-configs" ng-if="!quiet && client.flavor == 'openshift'">
-            <tr class="listing-title">
-                <td colspan="4" translatable="yes">Deployment Configs</td>
+            <tr>
+                <td colspan="4">
+                    <h3 translatable="yes">Deployment Configs</h3>
+                </td>
             </tr>
             <tr>
                 <th translatable="yes">Name</th>
@@ -97,8 +104,9 @@
             </tr>
         </thead>
         <tbody ng-repeat="item in deploymentconfigs | orderObjectBy:['metadata.namespace', 'metadata.name'] as filtered_result track by item.key"
+            class="active" ng-class="{open: selected(id)}"
             ng-init="id = itemIdentifier(item)" data-id="{{id}}" data-key="{{item.key}}">
-            <tr ng-click="select(id)" ng-if="!quiet && !selected(id)">
+            <tr ng-click="select(id)" ng-if="!quiet" class="listing-item">
                 <th>{{item.metadata.name}}</th>
                 <td>{{item.metadata.namespace}}</td>
                 <td></td>
@@ -106,16 +114,15 @@
                 <td ng-if="!item.status.latestVersion" translatable="yes">Not deployed</td>
             </tr>
             <tr class="listing-panel" ng-if="selected(id)">
-                <td cockpit-listing-panel kind="DeploymentConfig" colspan="4">
-                </td>
+                <td listing-panel kind="DeploymentConfig" colspan="4"></td>
             </tr>
         </tbody>
 
-        <thead>
-
         <thead ng-if="!quiet">
-            <tr class="listing-title">
-                <td colspan="4" translatable="yes">Replication Controllers</td>
+            <tr>
+                <td colspan="4">
+                    <h3 translatable="yes">Replication Controllers</h3>
+                </td>
             </tr>
             <tr>
                 <th translatable="yes">Name</th>
@@ -126,9 +133,9 @@
             </tr>
         </thead>
         <tbody ng-repeat="item in replicationcontrollers | orderObjectBy:['metadata.namespace', 'metadata.name'] as filtered_result track by item.key"
-            ng-init="id = itemIdentifier(item)"
-            data-id="{{id}}" data-key="{{item.key}}">
-            <tr ng-click="select(id)" ng-if="!quiet && !selected(id)" class="listing-item">
+            ng-init="id = itemIdentifier(item)" class="active"
+            data-id="{{id}}" data-key="{{item.key}}" ng-class="{open: selected(id)}">
+            <tr ng-click="select(id)" ng-if="!quiet" class="listing-item">
                 <th>{{item.metadata.name}}</th>
                 <td>{{item.metadata.namespace}}</td>
                 <td></td>
@@ -136,14 +143,15 @@
                 <td ng-if="item.spec.replicas != item.status.replicas">{{ item.status.replicas }} of {{ item.spec.replicas }}</td>
             </tr>
             <tr class="listing-panel" ng-if="selected(id)">
-                <td cockpit-listing-panel kind="ReplicationController" colspan="4">
-                </td>
+                <td listing-panel kind="ReplicationController" colspan="4"></td>
             </tr>
         </tbody>
 
         <thead ng-if="!quiet">
-            <tr class="listing-title">
-                <td colspan="4" translatable="yes">Pods</td>
+            <tr>
+                <td colspan="4">
+                    <h3 translatable="yes">Pods</h3>
+                </td>
             </tr>
             <tr>
                 <th translatable="yes">Name</th>
@@ -154,17 +162,16 @@
             </tr>
         </thead>
         <tbody ng-repeat="item in pods | orderObjectBy:['metadata.namespace', 'metadata.name'] as filtered_result track by item.key"
-            ng-init="id = itemIdentifier(item)"
-            data-id="{{id}}" data-key="{{item.key}}">
-            <tr ng-click="select(id)" ng-if="!quiet && !selected(id)" class="listing-item">
+            ng-init="id = itemIdentifier(item)" class="active"
+            data-id="{{id}}" data-key="{{item.key}}" ng-class="{open: selected(id)}">
+            <tr ng-click="select(id)" ng-if="!quiet" class="listing-item">
                 <th>{{item.metadata.name}}</th>
                 <td>{{item.metadata.namespace}}</td>
                 <td>{{item.status.podIP}}</td>
                 <td>{{item.status.phase}}</td>
             </tr>
             <tr class="listing-panel" ng-if="selected(id)">
-                <td cockpit-listing-panel kind="Pod" colspan="4">
-                </td>
+                <td listing-panel kind="Pod" colspan="4"></td>
             </tr>
         </tbody>
     </table>

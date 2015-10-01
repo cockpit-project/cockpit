@@ -61,11 +61,11 @@ class TestOpenshift(MachineCase):
 
         self.assertEqual(b.text(".images-listing tr[data-id='library/busybox'] h3"), "library/busybox")
 
-        header = b.text(".images-listing tr[data-id='library/busybox'] div.panel-heading")
+        header = b.text(".images-listing tr[data-id='library/busybox'] div.listing-head")
         self.assertIn("registry.hub.docker.com", header)
 
         self.assertEqual(b.text(".images-listing tr[data-id='library/busybox'] h3"), "library/busybox")
-        panel = b.text(".images-listing tr[data-id='library/busybox'] div.panel-body")
+        panel = b.text(".images-listing tr[data-id='library/busybox'] div.listing-body")
         self.assertIn("latest", panel)
         self.assertIn("amd64", panel)
         self.assertIn("library/busybox@sha", panel)

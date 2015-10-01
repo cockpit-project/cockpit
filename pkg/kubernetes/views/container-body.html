@@ -1,4 +1,4 @@
-<div class="panel-body row">
+<div class="row">
     <div class="col-sm-6">
         <dl>
             <dt ng-if="item !== container" translatable="yes">Container</dt>
@@ -8,7 +8,7 @@
             <dt ng-if="container.status.imageID" translatable="yes">Image ID</dt>
             <dd ng-if="container.status.imageID"><tt>{{container.status.imageID | kubeIdentifier }}</tt></dd>
             <dt ng-if="container.status.containerID" translatable="yes">Container ID</dt>
-            <dd ng-if="container.status.containerID"><tt>{{container.status.containerID | kubeIdentifier }}</tt></dd>
+            <dd ng-if="container.status.containerID" revealable-text><tt>{{container.status.containerID | kubeIdentifier }}</tt></dd>
             <dt translatable="yes">Ports</dt>
             <dd>
                 <span ng-repeat="port in container.spec.ports">{{port.containerPort}}/{{port.protocol}}</span>
@@ -22,9 +22,9 @@
         </dl>
     </div>
     <div class="col-sm-6">
-        <dl>
-            <dt class="header full" ng-if="container.spec.env.length" translatable="yes">Environment</dt>
-            <dd class="full" revealable-text
+        <dl class="full">
+            <dt ng-if="container.spec.env.length" translatable="yes">Environment</dt>
+            <dd revealable-text
                 ng-repeat="env in container.spec.env"><tt>{{env.name}}=<span
                 ng-class="{masked: should_mask(env.name)}">{{env.value}}</span></tt>
             </dd>

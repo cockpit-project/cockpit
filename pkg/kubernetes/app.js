@@ -139,7 +139,7 @@ define([
             return kubernetes.k8client();
         })
 
-        .directive('cockpitListing', [
+        .directive('listingTable', [
             'kubernetesFilter',
             function(filter) {
                 return {
@@ -162,15 +162,20 @@ define([
                             }
                         };
 
-                        scope.select = function select(id, value) {
+                        scope.select = function select(id, ev) {
+                            var value;
+
+                            /* Check that either .btn or li were not clicked */
+                            if (ev && $(ev.target).parents().addBack().filter(".btn, li").length > 0)
+                                return;
+
                             if (!id) {
                                 Object.keys(selection).forEach(function(old) {
                                     delete selection[old];
                                 });
                                 scope.quiet = false;
                             } else {
-                                if (value === undefined)
-                                    value = !(id in selection);
+                                value = !(id in selection);
                                 if (value)
                                     selection[id] = true;
                                 else
@@ -188,13 +193,20 @@ define([
             }
         ])
 
-        .directive('cockpitListingPanel', [
+        .directive('listingPanel', [
             function() {
                 return {
                     restrict: 'A',
                     scope: true,
                     link: function(scope, element, attrs) {
-
+                        var tab = 'main';
+                        scope.tab = function(name, ev) {
+                            if (ev) {
+                                tab = name;
+                                ev.stopPropagation();
+                            }
+                            return tab === name;
+                        };
                     },
                     templateUrl: function(element, attrs) {
                         var kind = attrs.kind || "default";

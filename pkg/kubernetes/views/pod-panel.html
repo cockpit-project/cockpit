@@ -1,38 +1,43 @@
-<div class="panel panel-default panel-tabbed" ng-class="{ pinned: pinned }">
-    <div class="panel-heading">
-        <div class="listing-icons">
-            <i class="fa fa-cubes"></i>
-        </div>
+<div ng-init="containers = client.containers(item)">
+    <div class="listing-head" ng-click="select(id, $event)">
         <div class="listing-actions">
-            <button id="delete-pod" title="Delete" class="btn btn-danger btn-delete pficon pficon-delete " data-toggle="modal" data-target="#delete-pod-dialog" data-link="{{ item.metadata.selfLink }}" ></button>
+            <button title="Delete" class="delete-pod btn btn-danger btn-delete pficon pficon-delete"
+                data-toggle="modal" data-target="#delete-pod-dialog"
+                data-link="{{item.metadata.selfLink}}"></button>
         </div>
+        <h3><i class="fa fa-cubes"></i>{{ item.metadata.name }}</h3>
         <div class="listing-status">
             <span>{{item.status.phase}}</span>
         </div>
-        <h3 class="listing-title" ng-click="select(id)">{{ item.metadata.name }}</h3>
+        <ul class="nav nav-tabs nav-tabs-pf">
+            <li ng-class="{active: tab('main')}"><a ng-click="tab('main', $event)">Pod</a></li>
+            <li ng-class="{active: tab('containers')}"><a ng-click="tab('containers', $event)">Containers</a></li>
+            <li ng-class="{active: tab('logs')}">
+                <a ng-click="tab('logs', $event); connect('console')">Logs</a></li>
+            <li ng-class="{active: tab('shell')}">
+                <a ng-click="tab('shell', $event); connect('shell')">Shell</a></li>
+        </ul>
     </div>
-    <tabset class="" ng-init="containers = client.containers(item)">
-        <tab heading="Pod">
-            <kube-pod-body ng-init="pod = item">
-            </kube-pod-body>
-        </tab>
-        <tab heading="Containers">
-            <kube-container-body ng-repeat="container in containers">
-            </kube-container-body>
-        </tab>
-        <tab heading="Logs" select="connect('console')">
-            <div class="panel-body" ng-repeat="container in containers">
-                <kube-console namespace="{{item.metadata.namespace}}"
-                    pod="{{item.metadata.name}}" container="{{container.spec.name}}">
-                </kube-console>
-            </div>
-        </tab>
-        <tab heading="Shell" select="connect('shell')">
-            <div class="panel-body" ng-repeat="container in containers">
-                <kube-shell namespace="{{item.metadata.namespace}}"
-                    pod="{{item.metadata.name}}" container="{{container.spec.name}}">
-                </kube-shell>
-            </div>
-        </tab>
-    </tabset>
+    <div class="listing-body" ng-show="tab('main')">
+        <kube-pod-body ng-init="pod = item">
+        </kube-pod-body>
+    </div>
+    <div class="listing-body" ng-show="tab('containers')">
+        <kube-container-body ng-repeat="container in containers">
+        </kube-container-body>
+    </div>
+    <div class="listing-body" ng-show="tab('logs')">
+        <div class="container-fluid" ng-repeat="container in containers">
+            <kube-console namespace="{{item.metadata.namespace}}"
+                pod="{{item.metadata.name}}" container="{{container.spec.name}}">
+            </kube-console>
+        </div>
+    </div>
+    <div class="listing-body" ng-show="tab('shell')">
+        <div class="container-fluid" ng-repeat="container in containers">
+            <kube-shell namespace="{{item.metadata.namespace}}"
+                pod="{{item.metadata.name}}" container="{{container.spec.name}}">
+            </kube-shell>
+        </div>
+    </div>
 </div>

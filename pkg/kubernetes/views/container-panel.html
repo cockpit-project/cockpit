@@ -1,33 +1,29 @@
-<div class="panel panel-default panel-tabbed"
-    ng-class="{ pinned: pinned }">
-    <div class="panel-heading">
-        <div class="listing-icons">
-            <i class="fa fa-cube"></i>
-        </div>
-        <div class="listing-status">
-            <span ng-repeat="(state, value) in container.status.state">{{state}}</span>
-        </div>
+<div class="listing-head" ng-click="select(id, $event)">
+    <div class="listing-actions">
     </div>
-    <h3 class="listing-title" ng-click="select(id)">{{container.spec.name}}</h3>
-    <tabset class="">
-        <tab heading="Container">
-            <kube-container-body></kube-container-body>
-        </tab>
-        <tab heading="Logs" select="connect('console')">
-            <div class="panel-body">
-                <kube-console namespace="{{item.metadata.namespace}}"
-                    pod="{{item.metadata.name}}"
-                    container="{{container.spec.name}}">
-                </kube-console>
-            </div>
-        </tab>
-        <tab heading="Shell" select="connect('shell')" ng-if="container.status.state.running">
-            <div class="panel-body">
-                <kube-shell namespace="{{item.metadata.namespace}}"
-                    pod="{{item.metadata.name}}"
-                    container="{{container.spec.name}}">
-                </kube-shell>
-            </div>
-        </tab>
-    </tabset>
+    <h3><i class="fa fa-cube"></i>{{container.spec.name}}</h3>
+    <div class="listing-status">
+        <span ng-repeat="(state, value) in container.status.state">{{state}}</span>
+    </div>
+    <ul class="nav nav-tabs nav-tabs-pf">
+        <li ng-class="{active: tab('main')}">
+        <a ng-click="tab('main', $event)" translatable="yes">Container</a></li>
+        <li ng-class="{active: tab('logs')}">
+            <a ng-click="tab('logs', $event); connect('console')" translatable="yes">Logs</a></li>
+        <li ng-class="{active: tab('shell')}" ng-if="container.status.state.running">
+            <a ng-click="tab('shell', $event); connect('shell')" translatable="yes">Shell</a></li>
+    </ul>
+</div>
+<div class="listing-body" ng-show="tab('main')">
+    <kube-container-body></kube-container-body>
+</div>
+<div class="listing-body" ng-show="tab('logs')">
+    <kube-console namespace="{{item.metadata.namespace}}" pod="{{item.metadata.name}}"
+        container="{{container.spec.name}}">
+    </kube-console>
+</div>
+<div class="listing-body" ng-show="tab('shell') && container.status.state.running">
+    <kube-shell namespace="{{item.metadata.namespace}}" pod="{{item.metadata.name}}"
+        container="{{container.spec.name}}">
+    </kube-shell>
 </div>

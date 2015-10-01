@@ -38,7 +38,7 @@
             <h3 translatable="yes">Node</h3>
             <p translatable="yes">Nodes are the machines that run your containers.</p>
         </div>
-        <div ng-if='selected && !(selected.kind === "Node")'>
+        <div class="topology-actions" ng-if='selected && !(selected.kind === "Node")'>
           <div ng-if='selected.kind === "Pod"'>
             <button id="delete-pod" title="Delete" class="btn btn-danger btn-delete pficon pficon-delete delete-entity " data-toggle="modal" data-target="#delete-pod-dialog" data-link="{{ selected.metadata.selfLink }}" ></button>
           </div>

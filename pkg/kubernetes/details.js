@@ -23,6 +23,8 @@ define([
         var entity = k8client.objects[key];
         delete_entity_dlg.find('.modal-body').text(cockpit.format(_("Delete $0 $1?"), entity.kind, entity.metadata.name));
 
+        e.stopPropagation();
+
         delete_btn.on('click', function() {
             var promise = k8client.remove(entity.metadata.selfLink);
             delete_entity_dlg.dialog("promise", promise);
@@ -33,6 +35,8 @@ define([
         var key = $(e.relatedTarget).attr("data-key");
         var entity = k8client.objects[key];
         adjust_entity_dlg.find('#replica-count').val(entity.spec.replicas);
+
+        e.stopPropagation();
 
         adjust_btn.on('click', function() {
             function resize(item, value) {
@@ -101,6 +105,8 @@ define([
 
     delete_pod_dlg.on('show.bs.modal', function(e) {
         var pod = $(e.relatedTarget).attr('data-link');
+
+        e.stopPropagation();
 
         delete_pod_btn.on('click', function() {
             var promise = k8client.remove(pod);

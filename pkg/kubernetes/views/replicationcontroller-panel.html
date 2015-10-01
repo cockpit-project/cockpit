@@ -1,64 +1,66 @@
-<div class="panel panel-default panel-tabbed"
-    ng-class="{ pinned: pinned }">
-    <div class="panel-heading">
-        <div class="listing-icons">
-            <i class="fa pficon-replicator"></i>
-        </div>
-        <div class="listing-actions">
-            <button id="adjust-entity-btn" title="Adjust"  class="btn btn-default pficon pficon-edit"  data-toggle="modal" data-target="#adjust-entity-dialog"  data-id="{{id}}" data-key="{{item.key}}"></button>
-            <button id="delete-entity" title="Delete" class="btn btn-danger btn-delete pficon pficon-delete" data-toggle="modal" data-target="#delete-entity-dialog" data-id="{{id}}" data-key="{{item.key}}"></button>
-        </div>
-        <div class="listing-status">
-            <span ng-if="item.spec.replicas === item.status.replicas">{{ item.spec.replicas }}</span>
-            <span ng-if="item.spec.replicas !== item.status.replicas">{{ item.status.replicas }} of {{ item.spec.replicas }}</span>
-        </div>
-        <h3 class="listing-title" ng-click="select(id)">{{ item.metadata.name }}</h3>
+<div class="listing-head" ng-click="select(id, $event)">
+    <div class="listing-actions">
+        <button title="Delete" class="delete-entity btn btn-danger btn-delete pficon pficon-delete"
+            data-toggle="modal" data-target="#delete-entity-dialog" data-key="{{item.key}}"></button>
+        <button title="Adjust" class="adjust-entity btn btn-default pficon pficon-edit"
+            data-toggle="modal" data-target="#adjust-entity-dialog" data-key="{{item.key}}"></button>
     </div>
-    <tabset class="">
-        <tab heading="Replication Controller">
-            <div class="panel-body row">
-                <div class="col-sm-6">
-                    <dl>
-                        <dt ng-if="client.flavor == 'openshift'" translatable="yes">Project</dt>
-                        <dt ng-if="client.flavor != 'openshift'" translatable="yes">Namespace</dt>
-                        <dd>{{ item.metadata.namespace }}</dd>
-                        <dt translatable="yes">Created</dt>
-                        <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | timeAgo }}</dd>
-                        <dt translatable="yes">Replicas</dt>
-                        <dd>{{ item.spec.replicas }}</dd>
-                    </dl>
-                </div>
-                <div class="col-sm-6">
-                    <dl>
-                        <dt class="header full" translatable="yes">Labels</dt>
-                        <dd class="full" ng-repeat="(key, value) in item.metadata.labels">{{key}}={{value}}</dd>
-                    </dl>
-                </div>
-            </div>
-        </tab>
-        <tab heading="Pods">
-            <div class="panel-body row">
-                <div class="col-sm-6">
-                    <dl ng-init="pods = replicationcontrollerPods(item)">
-                        <dt class="header full" translatable="yes">Pod Replicated</dt>
-                        <dd class="full" ng-repeat="pod in pods">
-                            {{ pod.metadata.name }}</dd>
-                        <dd ng-if="!pods.count" translatable="yes">No pods replicated</dd>
-                    </dl>
-                </div>
-                <div class="col-sm-6">
-                    <dl>
-                        <dt class="header full" translatable="yes">Pod Selector</dt>
-                        <dd class="full" ng-repeat="(key, value) in item.spec.selector">{{key}}={{value}}</dd>
-                    </dl>
-                </div>
-            </div>
-        </tab>
-        <tab heading="Template" ng-if="item.spec.template">
-            <kube-pod-body ng-init="pod = item.spec.template">
-            </kube-pod-body>
-            <kube-container-body ng-repeat="container in client.containers(item.spec.template)">
-            </kube-container-body>
-        </tab>
-      </tabset>
+    <h3><i class="fa pficon-replicator"></i>{{ item.metadata.name }}</h3>
+    <div class="listing-status">
+        <span ng-if="item.spec.replicas === item.status.replicas">{{ item.spec.replicas }}</span>
+        <span ng-if="item.spec.replicas !== item.status.replicas">{{ item.status.replicas }}
+            of {{ item.spec.replicas }}</span>
+    </div>
+    <ul class="nav nav-tabs nav-tabs-pf">
+        <li ng-class="{active: tab('main')}">
+            <a ng-click="tab('main', $event)" translatable="yes">Replication Controller</a></li>
+        <li ng-class="{active: tab('pods')}">
+            <a ng-click="tab('pods', $event)" translatable="yes">Pods</a></li>
+        <li ng-class="{active: tab('template')}">
+            <a ng-click="tab('template', $event)" translatable="yes">Template</a></li>
+    </ul>
+</div>
+<div class="listing-body" ng-show="tab('main')">
+    <div class="row">
+        <div class="col-sm-6">
+            <dl>
+                <dt ng-if="client.flavor == 'openshift'" translatable="yes">Project</dt>
+                <dt ng-if="client.flavor != 'openshift'" translatable="yes">Namespace</dt>
+                <dd>{{ item.metadata.namespace }}</dd>
+                <dt translatable="yes">Created</dt>
+                <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | timeAgo }}</dd>
+                <dt translatable="yes">Replicas</dt>
+                <dd>{{ item.spec.replicas }}</dd>
+            </dl>
+        </div>
+        <div class="col-sm-6">
+            <dl class="full">
+                <dt translatable="yes">Labels</dt>
+                <dd ng-repeat="(key, value) in item.metadata.labels">{{key}}={{value}}</dd>
+            </dl>
+        </div>
+    </div>
+</div>
+<div class="listing-body" ng-show="tab('pods')">
+    <div class="row">
+        <div class="col-sm-6">
+            <dl class="full" ng-init="pods = replicationcontrollerPods(item)">
+                <dt translatable="yes">Pod Replicated</dt>
+                <dd ng-repeat="pod in pods">{{ pod.metadata.name }}</dd>
+                <dd ng-if="!pods.count" translatable="yes">No pods replicated</dd>
+            </dl>
+        </div>
+        <div class="col-sm-6">
+            <dl class="full">
+                <dt translatable="yes">Pod Selector</dt>
+                <dd ng-repeat="(key, value) in item.spec.selector">{{key}}={{value}}</dd>
+            </dl>
+        </div>
+    </div>
+</div>
+<div class="listing-body" ng-show="tab('template')">
+    <kube-pod-body ng-init="pod = item.spec.template">
+    </kube-pod-body>
+    <kube-container-body ng-repeat="container in client.containers(item.spec.template)">
+    </kube-container-body>
 </div>

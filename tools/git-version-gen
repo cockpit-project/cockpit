@@ -2,14 +2,16 @@
 
 set -euf
 
+BASE="$(dirname $0)"
+
 if [ $# -ne 1 ]; then
 	echo "usage: git-version-get fallback-file" >&2
 	exit 2
 fi
 
 generate() {
-	if [ -d .git ]; then
-		git describe | sed 's/-[0-9]\+-g.*/.x/'
+	if [ -d $BASE/../.git ]; then
+		git -C $BASE/.. describe | sed 's/-[0-9]\+-g.*/.x/'
 	else
 		cat $1
 	fi

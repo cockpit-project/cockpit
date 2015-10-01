@@ -214,10 +214,6 @@ install-data-local:: install-doc-local
 
 dist-hook: dist-doc-hook
 	echo $(VERSION) > $(distdir)/.tarball
-	ln -s networkmanager $(distdir)/pkg/network
-	ln -s realmd $(distdir)/pkg/domain
-	ln -s storaged $(distdir)/pkg/storage
-	ln -s systemd $(distdir)/pkg/system
 
 distcheck-hook: dist-doc-hook
 	$(srcdir)/tools/check-dist $(distdir)

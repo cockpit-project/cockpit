@@ -198,6 +198,15 @@ class Browser:
         self.phantom_wait_timeout = max (timeout, self.phantom_wait_timeout)
         return r
 
+    def wait(self, predicate):
+        self.arm_timeout()
+        while True:
+            val = predicate()
+            if val:
+                self.disarm_timeout()
+                return val
+            self.wait_checkpoint()
+
     def inject_js(self, code):
         self.phantom.do(code);
 

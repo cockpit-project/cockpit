@@ -312,14 +312,28 @@ on_handle_resource (CockpitWebServer *server,
                     CockpitWebResponse *response,
                     gpointer user_data)
 {
+  gchar **parts;
+  gchar *rebuilt;
+
   g_assert (g_str_has_prefix (path, "/pkg"));
 
+  /* TODO: This needs a better implementation later, when the tests aren't all broken */
+  parts = g_strsplit (path, "/", -1);
+  if (g_strcmp0 (parts[2], "system") == 0)
+    {
+      g_free (parts[2]);
+      parts[2] = g_strdup ("systemd");
+    }
+
+  rebuilt = g_strjoinv ("/", parts);
   inject_address (response, "bus_address", bus_address);
   inject_address (response, "direct_address", direct_address);
 
-  cockpit_web_response_file (response, path, FALSE,
+  cockpit_web_response_file (response, rebuilt, FALSE,
                              cockpit_web_server_get_document_roots (server));
 
+  g_strfreev (parts);
+  g_free (rebuilt);
   return TRUE;
 }
 

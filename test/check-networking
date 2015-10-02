@@ -34,20 +34,23 @@ class TestNetworking(MachineCase):
         return wait(getit).strip()
 
     def wait_for_iface(self, iface):
-        self.browser.wait_in_text("#networking-interfaces", iface)
-        start_time = time.time()
+        sel = "#networking-interfaces tr:contains('%s')" % iface
+
         valid_states = [
                           "Inactive",
                           "bps",
                           "Configuring IP"
                        ]
-        while (time.time() - start_time) < self.browser.phantom_wait_timeout:
-            element = self.browser.text("#networking-interfaces tr:contains('%s')" % iface)
+
+        def is_valid():
+            row_text = self.browser.text(sel)
             for state in valid_states:
-                if state in element:
-                    return
-            time.sleep(0.5)
-        raise Failure("Interface $s didn't come up" % iface)
+                if state in row_text:
+                    return True
+            return False
+
+        self.browser.wait_present(sel)
+        self.browser.wait(is_valid)
 
     def switch_off_rp_filter(self, m):
         #

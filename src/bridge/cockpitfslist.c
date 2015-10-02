@@ -78,7 +78,7 @@ error_to_problem (GError *error)
   else if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_DIRECTORY))
     return "not-found";
   else
-    return "internal-error";
+    return NULL;
 }
 
 static void
@@ -166,6 +166,7 @@ on_enumerator_ready (GObject *source_object,
   GError *error = NULL;
   GFileEnumerator *enumerator;
   JsonObject *options;
+  const gchar *problem;
 
   enumerator = g_file_enumerate_children_finish (G_FILE (source_object), res, &error);
   if (enumerator == NULL)
@@ -173,10 +174,14 @@ on_enumerator_ready (GObject *source_object,
       if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
         {
           CockpitFslist *self = COCKPIT_FSLIST (user_data);
-          g_message ("%s: couldn't list directory: %s", self->path, error->message);
+          problem = error_to_problem (error);
+          if (problem)
+            g_debug ("%s: couldn't list directory: %s", self->path, error->message);
+          else
+            g_warning ("%s: couldn't list directory: %s", self->path, error->message);
           options = cockpit_channel_close_options (COCKPIT_CHANNEL (self));
           json_object_set_string_member (options, "message", error->message);
-          cockpit_channel_close (COCKPIT_CHANNEL (self), error_to_problem (error));
+          cockpit_channel_close (COCKPIT_CHANNEL (self), problem ? problem : "internal-error");
         }
       g_clear_error (&error);
       return;

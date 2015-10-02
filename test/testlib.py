@@ -93,7 +93,7 @@ class Browser:
         self.phantom = Phantom("en_US.utf8")
 
     def title(self):
-        return self.phantom.eval('document.title');
+        return self.phantom.eval('document.title')
 
     def open(self, href):
         """
@@ -269,10 +269,10 @@ class Browser:
         self.wait_not_visible('#' + id)
 
     def arm_timeout(self):
-        return self.phantom.arm_timeout(self.phantom.timeout)
+        return self.phantom.arm_timeout(self.phantom.timeout * 1000)
 
     def disarm_timeout(self):
-        return self.phantom.disarm_timeout(self.phantom.timeout)
+        return self.phantom.disarm_timeout()
 
     def wait_checkpoint(self):
         return self.phantom.wait_checkpoint()
@@ -633,7 +633,7 @@ class Phantom:
             if arg_trace:
                 print "<-", repr(res['result'])
             return res['result']
-        raise Error("unexpected")
+        raise Error("unexpected: " + line.strip())
 
     def start(self):
         environ = os.environ.copy()

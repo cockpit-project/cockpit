@@ -67,24 +67,12 @@ LOAD_KEYS = [
 KEY_IDS = [
 
 ]
-def test_keys(b, keys):
-    b.call_js_func("""(function () {
-        require(["base1/cockpit"], function(cockpit) {
-            window.test_result = null;
-            cockpit.spawn([ "ssh-add", "-l" ]).
-                done(function (data) {
-                    window.test_result = data;
-                }).
-                fail(function (error) {
-                    console.log(error);
-                });
-        });
-    })""",)
-
-    b.wait_js_func("(function (expected) { return window.test_result == expected; })", "\n".join(keys) + "\n")
-
 @unittest.skipIf("atomic" in os.environ.get("TEST_OS", "") or "rhel" in os.environ.get("TEST_OS", ""), "key auth: not supported")
 class TestMultiMachineKeyAuth(MachineCase):
+
+    def check_keys(self, keys):
+        self.assertEqual(self.browser.eval_js("require('base1/cockpit').spawn([ 'ssh-add', '-l' ])"),
+                         "\n".join(keys) + "\n")
 
     def setUp(self):
         MachineCase.setUp(self)
@@ -137,7 +125,7 @@ class TestMultiMachineKeyAuth(MachineCase):
             assert False, "No running ssh-agent found"
 
         # Check our keys were loaded.
-        test_keys(b, [
+        self.check_keys([
             "2048 SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw /home/admin/.ssh/id_rsa (RSA)",
             "256 SHA256:dyHF4jiKz6RolQqORIATqhbZ4kil5cyiMQWizbQWU8k /home/admin/.ssh/id_ecdsa (ECDSA)",
             "256 SHA256:Uht4NX54Gjz62cNA8+LrHo63HiFW/i5aWg/cl/A3X+c /home/admin/.ssh/id_ed25519 (ED25519)",

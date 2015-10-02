@@ -49,43 +49,19 @@ def add_machine(b, address):
     b.click('#dashboard_setup_next')
     b.wait_popdown('dashboard_setup_server_dialog')
 
-def test_spawn(b, address):
-    b.call_js_func("""(function (address) {
-        require(["base1/cockpit"], function(cockpit) {
-            window.test_result = null;
-            cockpit.spawn([ "echo", "hi" ], { host: address }).
-                done(function (data) {
-                    window.test_result = data;
-                }).
-                fail(function (error) {
-                    console.log(error);
-                });
-        });
-    })""", address)
-
-    b.wait_js_func("(function (expected) { return window.test_result == expected; })",
-                   "hi\n")
-
-def test_dbus(b, address):
-    b.call_js_func("""(function (address) {
-        require(["base1/cockpit"], function(cockpit) {
-            window.test_result = null;
-            var p = cockpit.dbus("org.freedesktop.DBus", { host: address }).proxy("org.freedesktop.DBus", "/");
-            p.wait(function() {
-                if (p.valid) {
-                    p.GetId().
-                        done(function (id) {
-                            window.test_result = id;
-                        });
-                }
-            });
-        });
-    })""", address)
-
-    b.wait_js_func("(function () { return window.test_result != null; })");
-
-
 class TestMultiOS(MachineCase):
+    def check_spawn(self, b, address):
+        result = b.call_js_func("""(function(address) {
+            return require("base1/cockpit").spawn(['echo', 'hi'], { host: address });
+        })""", address)
+        self.assertEqual(result, "hi\n")
+
+    def check_dbus(self, b, address):
+        b.call_js_func("""(function(address) {
+            return require("base1/cockpit").dbus("org.freedesktop.DBus", { host: address })
+                .proxy("org.freedesktop.DBus", "/").call("GetId");
+        })""", address)
+
     def checkStock(self, system):
         dev_m = self.machine
         dev_b = self.browser
@@ -143,11 +119,11 @@ class TestMultiOS(MachineCase):
         dev_dashboard_addresses.append(stock_m.address)
         wait_dashboard_addresses (dev_b, dev_dashboard_addresses)
 
-        test_dbus(stock_b, dev_m.address)
-        test_dbus(dev_b, stock_m.address)
+        self.check_dbus(stock_b, dev_m.address)
+        self.check_dbus(dev_b, stock_m.address)
 
-        test_spawn(stock_b, dev_m.address)
-        test_spawn(dev_b, stock_m.address)
+        self.check_spawn(stock_b, dev_m.address)
+        self.check_spawn(dev_b, stock_m.address)
 
         dev_b.switch_to_top()
         dev_b.go("/@%s/network/interfaces" % stock_m.address)

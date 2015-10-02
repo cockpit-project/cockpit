@@ -40,7 +40,7 @@ class TestStorage(StorageCase):
             b.wait_text(detail_row_name(index), name)
 
         def check_free_block_devices(expected):
-            blocks = b.eval_js ("return ph_texts('#dialog [data-field=\"disks\"] .checkbox')")
+            blocks = b.eval_js("ph_texts('#dialog [data-field=\"disks\"] .checkbox')")
             if len(blocks) != len(expected):
                 return False
             for i in range(len(expected)):

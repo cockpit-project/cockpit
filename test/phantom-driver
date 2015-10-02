@@ -78,14 +78,6 @@ function disarm_timeout() {
 
 page.viewportSize = { width: 800, height: 480 };
 
-function result(out) {
-    if (lastError) {
-        out = { error: lastError };
-        lastError = null;
-    }
-    sys.stdout.writeLine(JSON.stringify(out));
-}
-
 var canary = "phantom-canary" + -(Date());
 
 function inject_basics() {
@@ -103,11 +95,36 @@ function inject_basics() {
     }
 }
 
-function step ()
-{
-    function wait_reload(callback, timeout) {
+var driver = {
+    timeout: 60 * 1000,
+
+    open: function(url) {
         var failure = null;
-        var result = null;
+
+        page.onResourceError = function(ex) {
+            failure = ex.errorString + " " + ex.url;
+        };
+
+        page.onLoadFinished = function(status) {
+            page.onLoadFinished = null;
+            page.onResourceError = null;
+            if (status == "success")
+                respond();
+            else
+                respond({ error: failure || status });
+        };
+
+	page.open(url);
+    },
+
+    reload: function() {
+        this.expect_reload();
+        page.reload();
+    },
+
+    expect_reload: function() {
+        var failure = null;
+        var res = null;
         var timer = null;
 
         function finish() {
@@ -115,22 +132,25 @@ function step ()
             page.onLoadFinished = null;
             clearTimeout(wait);
             clearTimeout(timer);
-            callback(result);
+            if (res === "success")
+                respond();
+            else
+                respond({ error: res });
         }
 
         timer = setTimeout(function() {
             timer = null;
-            result = "timeout";
+            res = "timeout";
             finish();
-        }, timeout || 10000);
+        }, this.timeout);
 
         page.onResourceError = function(ex) {
             failure = ex.errorString + " " + ex.url;
         };
 
-	/*
-	 * HACK: phantomjs fires the page.onLoadFinished() handler
-	 * for each iframe, sometimes with the iframe triggering the
+        /*
+         * HACK: phantomjs fires the page.onLoadFinished() handler
+         * for each iframe, sometimes with the iframe triggering the
          * event first. This leads to race conditions.
          *
          * The only work around is to use a timeout.
@@ -142,173 +162,176 @@ function step ()
             if (status != "success" && failure)
                 status = failure;
             failure = null;
-            if (!result || result != "success")
-                result = status;
-	    clearTimeout(wait);
-	    wait = setTimeout(function() {
+            if (!res || res != "success")
+                res = status;
+            clearTimeout(wait);
+            wait = setTimeout(function() {
                 wait = null;
                 finish();
             }, 200);
         };
+    },
+
+    switch_frame: function(name) {
+        if (page.switchToFrame(name))
+            respond();
+        else
+            respond({ error: "Can't switch to frame: " + name });
+    },
+
+    switch_top: function() {
+        page.switchToMainFrame();
+        respond();
+    },
+
+    show: function(file) {
+        if (!file)
+            file = "page.png"
+        page.render(file);
+        sys.stderr.writeLine("Wrote " + file)
+        respond();
+    },
+
+    quit: function() {
+        sys.stdout.writeLine(JSON.stringify({ result: true }));
+        phantom.exit(0);
+    },
+
+    sit: function() {
+        sys.stdout.writeLine(JSON.stringify({ result: true }));
+        // fall through to the phantom event loop
+    },
+
+    eval: function(code) {
+        lastError = null;
+        inject_basics();
+        var func = "function () { " + code + "}";
+        try {
+            var val = page.evaluate(func);
+        } catch(ex) {
+            respond({ error: String(ex) });
+        }
+        respond({ result: val });
+    },
+
+    wait: function(cond) {
+        var func = "function () { return " + cond + "}";
+        var local_timeout;
+
+        function resp(out) {
+            onCheckpoint = null;
+            if (local_timeout)
+                disarm_timeout();
+            respond(out);
+        }
+
+        function check() {
+            inject_basics();
+            var val = page.evaluate(func);
+            if (val) {
+                if (didTimeout) {
+                    sys.stderr.writeLine("WARNING: condition '" + cond +
+                            "' was true after timeout, add some more checkpoints");
+                }
+                resp({ result: val });
+            } else if (didTimeout) {
+                resp ({ error: "timeout" });
+            }
+        }
+
+        onCheckpoint = check;
+        local_timeout = arm_timeout(this.timeout);
+        check();
+    },
+
+    arm_timeout: function() {
+        if (arm_timeout(this.timeout))
+            respond({ result: true });
+        else
+            respond({ error: "timeout already armed" });
+    },
+
+    disarm_timeout: function() {
+        if (disarm_timeout())
+            respond({ result: true });
+        else
+            respond({ error: "no timeout armed" });
+    },
+
+    wait_checkpoint: function() {
+        onCheckpoint = function () {
+            onCheckpoint = null;
+            if (didTimeout)
+                respond({ error: "timeout" });
+            else
+                respond({ result: true });
+        }
+    },
+
+    keys: function(type, keys, modifier) {
+        var i;
+        if (typeof keys == "string") {
+            page.sendEvent(type, keys, null, null, modifier || 0);
+        } else {
+            for (i = 0; i < keys.length; i++) {
+                var k = keys[i];
+                if (typeof k == "string" && k.length > 1)
+                    k = page.event.key[k];
+                page.sendEvent(type, k, null, null, modifier || 0);
+            }
+        }
+        respond();
+    },
+
+    upload_file: function(selector, file) {
+        page.uploadFile(selector, file);
+        respond();
+    },
+
+    ping: function() {
+        respond({ result: "pong" });
+    },
+};
+
+var first = true;
+
+function respond(out) {
+    if (!first) {
+        if (lastError) {
+            out = { error: lastError };
+            lastError = null;
+        } else if (arguments.length === 0) {
+            out = { result: null };
+        }
+        sys.stdout.writeLine(JSON.stringify(out));
     }
 
-    function wait_open(callback) {
-        var failure = null;
+    first = false;
 
-        page.onResourceError = function(ex) {
-            failure = ex.errorString + " " + ex.url;
-        };
+    setTimeout(function() {
+        var line = sys.stdin.readLine();
 
-        page.onLoadFinished = function(status) {
-            if (status != "success" && failure)
-                status = failure;
-            page.onLoadFinished = null;
-            page.onResourceError = null;
-            callback(status);
-        };
-    }
-
-    setTimeout(function () {
-        if (onCheckpoint)
-            throw "nope";
-
-        var cmdline = sys.stdin.readLine();
-
-        if (cmdline == "" && sys.stdin.atEnd()) {
+        if (line == "" && sys.stdin.atEnd()) {
             phantom.exit(0);
             return;
         }
 
-        // sys.stderr.writeLine(cmdline);
-
-        var cmd = JSON.parse(cmdline);
-
-        function on_load(status) {
-            sys.stdout.writeLine(JSON.stringify({ result: status }));
-            step();
+        var cmd;
+        try {
+            cmd = JSON.parse(line);
+        } catch(ex) {
+            respond({ error: String(ex) });
+            return;
         }
 
-        if (cmd.cmd == "open") {
-            wait_open(on_load);
-            page.open(cmd.url);
-        } else if (cmd.cmd == "reload") {
-            wait_reload(on_load, cmd.timeout);
-            page.reload();
-        } else if (cmd.cmd == "expect-reload") {
-            wait_reload(on_load, cmd.timeout);
-        } else if (cmd.cmd == "inject") {
-            inject_basics();
-            var ret = page.injectJs(cmd.file);
-            result({ result: ret });
-            step();
-        } else if (cmd.cmd == "switch") {
-            if (page.switchToFrame(cmd.name))
-                result({ result: true });
-            else
-                result({ error: "Can't switch to frame" });
-            step();
-        } else if (cmd.cmd == "switch_top") {
-            page.switchToMainFrame();
-            result({ result: true });
-            step();
-        } else if (cmd.cmd == "switch_parent") {
-            if (page.switchToParentFrame())
-                result({ result: true });
-            else
-                result({ error: "Can't switch to parent frame" });
-            step();
-        } else if (cmd.cmd == "show") {
-            page.render(cmd.file || "page.png");
-            result({ result: true });
-            step();
-        } else if (cmd.cmd == "quit") {
-            result({ result: true });
-            phantom.exit(0);
-        } else if (cmd.cmd == "sit") {
-            result({ result: true });
-            // fall through to the phantom event loop
-        } else if (cmd.cmd == "do") {
-            lastError = null;
-            inject_basics();
-            var func = "function () { " + cmd.code + "}";
-            var val = page.evaluate (func);
-            result({ result: val });
-            step ();
-        } else if (cmd.cmd == "wait") {
-            var func = "function () { return " + cmd.cond + "}";
-            var local_timeout;
-
-            function respond(val)
-            {
-                onCheckpoint = null;
-                result(val);
-                if (local_timeout)
-                    disarm_timeout();
-                step ();
-            }
-
-            function check() {
-                inject_basics();
-                var val = page.evaluate (func);
-                if (val) {
-                    if (didTimeout)
-                        sys.stderr.writeLine("WARNING: condition '" + cmd.cond + "' was true after timeout, add some more checkpoints");
-                    respond ({result: val});
-                } else if (didTimeout)
-                    respond ({timeout: true});
-            }
-
-            onCheckpoint = check;
-
-            local_timeout = arm_timeout(cmd.timeout);
-            check ();
-        } else if (cmd.cmd == "armtimeout") {
-            if (arm_timeout(cmd.timeout))
-                result({ result: true });
-            else
-                result({ error: "timeout already armed" });
-            step();
-        } else if (cmd.cmd == "disarmtimeout") {
-            if (disarm_timeout(cmd.timeout))
-                result({ result: true });
-            else
-                result({ error: "no timeout armed" });
-            step();
-        } else if (cmd.cmd == "waitcheckpoint") {
-            onCheckpoint = function () {
-                onCheckpoint = null;
-                if (didTimeout)
-                    result({ timeout: true });
-                else
-                    result({ result: true });
-                step();
-            }
-        } else if (cmd.cmd == "keys") {
-            var i;
-            if (typeof cmd.keys == "string")
-                page.sendEvent (cmd.type, cmd.keys, null, null, cmd.modifier || 0);
-            else {
-                for (i = 0; i < cmd.keys.length; i++) {
-                    var k = cmd.keys[i];
-                    if (typeof k == "string" && k.length > 1)
-                        k = page.event.key[k];
-                    page.sendEvent (cmd.type, k, null, null, cmd.modifier || 0);
-                }
-            }
-            result({ result: true });
-            step ();
-        } else if (cmd.cmd == "upload") {
-            page.uploadFile(cmd.selector, cmd.file);
-            result({ result: true });
-            step();
-        } else if (cmd.cmd == "ping") {
-            result({ result: "pong" });
-            step();
+        if (onCheckpoint) {
+            respond({ error: "assertion: onCheckpoint should be cleared in phantom-driver" });
+        } else if (cmd.cmd in driver) {
+            driver.timeout = cmd.timeout || driver.timeout;
+            driver[cmd.cmd].apply(driver, cmd.args || args);
         } else {
-            result({ error: "?" });
-            step ();
+            respond({ error: "No such method defined: " + cmd.cmd });
         }
-
     }, 0);
 }
 
@@ -330,4 +353,5 @@ page.onError = function(msg, trace) {
     lastError = msg;
 }
 
-step();
+/* Get ready for message */
+respond();

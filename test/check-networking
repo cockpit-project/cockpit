@@ -56,7 +56,7 @@ class TestNetworking(MachineCase):
             self.browser.wait(is_valid)
         except:
             print "Interface %s didn't show up." % iface
-            print self.browser.eval_js("return $('#networking-interfaces').html();")
+            print self.browser.eval_js("$('#networking-interfaces').html();")
             print self.machine.execute("grep . /sys/class/net/*/address")
             raise
 

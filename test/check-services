@@ -109,6 +109,7 @@ ExecStart=/usr/bin/test-service %I
 
         b.go("#/")
         b.wait_in_text("#services", "test-fail.service")
+        b.wait_visible(svc_sel("test-fail.service"))
         b.click(svc_sel("test-fail.service"))
         b.wait_visible('#service-valid')
         b.wait_in_text('#service-valid', "inactive")

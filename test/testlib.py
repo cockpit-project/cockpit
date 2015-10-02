@@ -86,16 +86,14 @@ arg_sit_on_failure = False
 arg_trace = False
 
 class Browser:
-    phantom_wait_timeout = 60
-
     def __init__(self, address, label):
         self.default_user = "admin"
         self.address = address
         self.label = label
-        self.phantom = None
+        self.phantom = Phantom("en_US.utf8")
 
     def title(self):
-        return self.phantom.do('return document.title');
+        return self.phantom.eval('document.title');
 
     def open(self, href):
         """
@@ -115,9 +113,7 @@ class Browser:
 
         def tryopen(hard=False):
             try:
-                if self.phantom:
-                    self.phantom.kill()
-                self.phantom = Phantom("en_US.utf8")
+                self.phantom.kill()
                 self.phantom.open(href)
                 return True
             except:
@@ -134,25 +130,25 @@ class Browser:
     def reload(self):
         self.switch_to_top()
         self.wait_js_cond("ph_select('iframe.container-frame').every(function (e) { return e.getAttribute('data-loaded'); })")
-        self.phantom.reload(self.phantom_wait_timeout)
+        self.phantom.reload()
 
     def expect_reload(self):
-        self.phantom.expect_reload(self.phantom_wait_timeout)
+        self.phantom.expect_reload()
 
     def switch_to_frame(self, name):
-        self.phantom.switch_to_frame(name)
+        self.phantom.switch_frame(name)
 
     def switch_to_top(self):
-        self.phantom.switch_to_top()
+        self.phantom.switch_top()
 
     def upload_file(self, selector, file):
         self.phantom.upload_file(selector, file)
 
     def eval_js(self, code):
-        return self.phantom.do(code)
+        return self.phantom.eval(code)
 
     def call_js_func(self, func, *args):
-        return self.phantom.do("return %s(%s);" % (func, ','.join(map(jsquote, args))))
+        return self.phantom.eval("%s(%s)" % (func, ','.join(map(jsquote, args))))
 
     def go(self, hash, host="localhost"):
         # if not hash.startswith("/@"):
@@ -187,15 +183,16 @@ class Browser:
         return self.phantom.keys('keypress', keys)
 
     def wait_timeout(self, timeout):
+        browser = self
         class WaitParamsRestorer():
             def __init__(self, timeout):
                 self.timeout = timeout
             def __enter__(self):
                 pass
             def __exit__(self, type, value, traceback):
-                self.phantom_wait_timeout = self.timeout
-        r = WaitParamsRestorer(self.phantom_wait_timeout)
-        self.phantom_wait_timeout = max (timeout, self.phantom_wait_timeout)
+                browser.phantom.timeout = self.timeout
+        r = WaitParamsRestorer(self.phantom.timeout)
+        self.phantom.timeout = max(timeout, self.phantom.timeout)
         return r
 
     def wait(self, predicate):
@@ -211,10 +208,10 @@ class Browser:
         self.phantom.do(code);
 
     def wait_js_cond(self, cond):
-        return self.phantom.wait(cond, timeout=self.phantom_wait_timeout)
+        return self.phantom.wait(cond)
 
     def wait_js_func(self, func, *args):
-        return self.phantom.wait("%s(%s)" % (func, ','.join(map(jsquote, args))), timeout=self.phantom_wait_timeout)
+        return self.phantom.wait("%s(%s)" % (func, ','.join(map(jsquote, args))))
 
     def is_present(self, selector):
         return self.call_js_func('ph_is_present', selector)
@@ -272,10 +269,10 @@ class Browser:
         self.wait_not_visible('#' + id)
 
     def arm_timeout(self):
-        return self.phantom.arm_timeout(timeout=self.phantom_wait_timeout)
+        return self.phantom.arm_timeout(self.phantom.timeout)
 
     def disarm_timeout(self):
-        return self.phantom.disarm_timeout()
+        return self.phantom.disarm_timeout(self.phantom.timeout)
 
     def wait_checkpoint(self):
         return self.phantom.wait_checkpoint()
@@ -307,7 +304,6 @@ class Browser:
         Arguments:
 
             id: The identifier the page.  This is a string starting with "/"
-                For old cockpit this may be an old style page identifier.
         """
         assert path.startswith("/")
         if host:
@@ -330,7 +326,7 @@ class Browser:
                         self.click(".curtains button", True)
                         self.wait_not_visible(".curtains")
                         continue
-                raise exc_info[0], exc_info[1], exc_info[2]
+                raise sys.exc_info[0], sys.exc_info[1], sys.exc_info[2]
 
         self.switch_to_frame(frame)
         self.wait_present("body")
@@ -400,12 +396,10 @@ class Browser:
             title: Used for the filename.
         """
         if self.phantom:
-            self.phantom.show(file="%s-%s-%s.png" % (program_name, label or self.label, title))
+            self.phantom.show("%s-%s-%s.png" % (program_name, label or self.label, title))
 
     def kill(self):
-        if self.phantom:
-            self.phantom.kill()
-        self.phantom = None
+        self.phantom.kill()
 
 class MachineCase(unittest.TestCase):
     runner = None
@@ -498,7 +492,7 @@ systemctl start docker
         else:
             self.machine.execute("systemctl restart cockpit-testing.socket")
 
-    def login_and_go(self, path, user=None, host=None):
+    def login_and_go(self, path=None, user=None, host=None):
         self.start_cockpit(host)
         self.browser.login_and_go(path, user=user, host=host)
 
@@ -602,95 +596,69 @@ some_failed = False
 def jsquote(str):
     return json.dumps(str)
 
+# See phantom-driver for the methods that are defined
 class Phantom:
     def __init__(self, lang=None):
+        self.lang = lang
+        self.timeout = 60
+        self._driver = None
+
+    def __getattr__(self, name):
+        if not name.startswith("_"):
+            return lambda *args: self._invoke(name, *args)
+        raise AttributeError
+
+    def _invoke(self, name, *args):
+        if not self._driver:
+            self.start()
+        if arg_trace:
+            print "-> {0}({1})".format(name, repr(args)[1:-2])
+        line = json.dumps({
+            "cmd": name,
+            "args": args,
+            "timeout": self.timeout * 1000
+        }).replace("\n", " ") + "\n"
+        self._driver.stdin.write(line)
+        line = self._driver.stdout.readline()
+        try:
+            res = json.loads(line)
+        except:
+            print line.strip()
+            raise
+        if 'error' in res:
+            if arg_trace:
+                print "<- raise", res['error']
+            raise Error(res['error'])
+        if 'result' in res:
+            if arg_trace:
+                print "<-", repr(res['result'])
+            return res['result']
+        raise Error("unexpected")
+
+    def start(self):
         environ = os.environ.copy()
-        if lang:
-            environ["LC_ALL"] = lang
-        cmd = [
+        if self.lang:
+            environ["LC_ALL"] = self.lang
+        command = [
             "%s/phantom-driver" % topdir,
             "%s/sizzle.js" % topdir,
             "%s/phantom-lib.js" % topdir
         ]
-        self.driver = subprocess.Popen(cmd, env=environ,
-                                       stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True)
-        self.frame = None
-
-    def run(self, args):
-        if arg_trace:
-            print "->", repr(args)[:200]
-        self.driver.stdin.write(json.dumps(args).replace("\n", " ")+ "\n")
-        line = self.driver.stdout.readline()
-        if arg_trace:
-            print "<-", line.strip()
-        res = json.loads(line)
-        if 'error' in res:
-            raise Error(res['error'])
-        if 'timeout' in res:
-            raise Error("timeout")
-        if 'result' in res:
-            return res['result']
-        raise Error("unexpected")
-
-    def open(self, url):
-        status = self.run({'cmd': 'open', 'url': url})
-        if status != "success":
-            raise Error(status)
-
-    def reload(self, timeout):
-        status = self.run({'cmd': 'reload', 'timeout': timeout*1000})
-        if status != "success":
-            raise Error(status)
-
-    def expect_reload(self, timeout):
-        status = self.run({'cmd': 'expect-reload', 'timeout': timeout*1000})
-        if status != "success":
-            raise Error(status)
-
-    def inject(self, file):
-        if not self.run({'cmd': 'inject', 'file': file}):
-            raise Error("failed")
-
-    def switch_to_frame(self, name):
-        return self.run({'cmd': 'switch', 'name': name})
-
-    def switch_to_top(self):
-        return self.run({'cmd': 'switch_top'})
-
-    def upload_file(self, selector, file):
-        return self.run({'cmd': 'upload', 'file': file, 'selector': selector})
-
-    def do(self, code):
-        return self.run({'cmd': 'do', 'code': code})
-
-    def wait(self, cond, timeout):
-        return self.run({'cmd': 'wait', 'cond': cond, 'timeout': timeout*1000})
-
-    def arm_timeout(self, timeout):
-        return self.run({'cmd': 'armtimeout', 'timeout': timeout*1000 })
-
-    def disarm_timeout(self):
-        return self.run({'cmd': 'disarmtimeout' })
-
-    def wait_checkpoint(self):
-        return self.run({'cmd': 'waitcheckpoint' })
-
-    def show(self, file="page.png"):
-        if not self.run({'cmd': 'show', 'file': file}):
-            raise "failed"
-        print "Wrote %s" % file
-
-    def keys(self, type, keys):
-        self.run({'cmd': 'keys', 'type': type, 'keys': keys })
+        self._driver = subprocess.Popen(command, env=environ,
+                                        stdout=subprocess.PIPE,
+                                        stdin=subprocess.PIPE, close_fds=True)
 
     def quit(self):
-        self.run({'cmd': 'ping'})
-        self.driver.stdin.close()
-        self.driver.wait()
+        self._invoke("ping")
+        self._driver.stdin.close()
+        self._driver.wait()
+        self._driver = None
 
     def kill(self):
-        self.driver.terminate()
-        self.driver.wait()
+        if self._driver:
+            self._driver.terminate()
+            self._driver.wait()
+            self._driver = None
 
 def test_main():
     """

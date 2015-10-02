@@ -28,25 +28,27 @@ class TestReauthorize(MachineCase):
         m = self.machine
         b = self.browser
 
-	self.login_and_go("/playground/test")
+        self.login_and_go("/playground/test")
 
-	b.click(".cockpit-internal-reauthorize .btn")
-	b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
+        b.click(".cockpit-internal-reauthorize .btn")
+        b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
 
-	self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: authorized')
+        self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: authorized')
 
-	# Deauthorize
-	b.leave_page()
-	b.click("#content-user-name")
-	b.click("#deauthorize-item")
-	b.wait_attr("#deauthorize-item", "disabled", "disabled")
+        # Deauthorize
+        b.leave_page()
+        b.click("#content-user-name")
+        b.click("#credentials-item")
+        b.click("#credential-authorize button")
+        b.wait_not_present("#credential-authorize button")
+        b.click("#credentials-dialog [data-dismiss]")
 
-	b.enter_page("/playground/test")
+        b.enter_page("/playground/test")
 
-	b.click(".cockpit-internal-reauthorize .btn")
-	b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
+        b.click(".cockpit-internal-reauthorize .btn")
+        b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
 
-	self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: access-denied')
+        self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: access-denied')
 
     def testSuper(self):
         m = self.machine

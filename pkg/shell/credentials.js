@@ -476,9 +476,11 @@ define([
                         text(row, ".credential-fingerprint", key.fingerprint);
                         text(row, ".credential-comment", key.comment);
                         text(row, ".credential-data", key.data);
-                        row.find(".btn-onoff")
-                            .onoff("value", key.loaded)
-                            .onoff("disabled", !key.name);
+                        row.attr("data-name", key.name)
+                            .attr("data-loaded", key.loaded ? "1" : "0")
+                            .find(".btn-onoff")
+                                .onoff("value", key.loaded)
+                                .onoff("disabled", !key.name);
                     } else {
                         row.remove();
                     }

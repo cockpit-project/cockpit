@@ -60,7 +60,7 @@ mkpart logical ext2 24 48"""
         # are offered as free block devices.
 
         def check_free_block_devices():
-            blocks = b.eval_js ("return ph_texts('#dialog [data-field=\"disks\"] .checkbox')")
+            blocks = b.eval_js("ph_texts('#dialog [data-field=\"disks\"] .checkbox')")
             return len(blocks) == 2 and "/dev/sda6" in blocks[0] and "/dev/sdb" in blocks[1]
 
         self.dialog_with_retry(trigger = lambda: b.click('#create-mdraid'),

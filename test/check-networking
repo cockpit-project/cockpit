@@ -45,6 +45,7 @@ class TestNetworking(MachineCase):
             element = self.browser.text("#networking-interfaces tr:contains('%s')" % iface)
             for state in valid_states:
                 if state in element:
+                    self.browser.wait_visible("#networking-interfaces tr:contains('%s')" % iface)
                     return
             time.sleep(0.5)
         raise Failure("Interface $s didn't come up" % iface)

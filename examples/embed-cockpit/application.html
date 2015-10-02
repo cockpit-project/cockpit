@@ -62,7 +62,7 @@
         <div class="row row-cards-pf">
             <div id="embed-links" class="col-xs-3 col-sm-3 col-md-2">
                 <div class="row row-cards-pf">
-                    <input id="embed-address" class="form-control" value="127.0.0.1"/>
+                    <input id="embed-address" class="form-control" value="http://127.0.0.1"/>
                 </div>
                 <div class="card-pf card-pf-accented card-pf-aggregate-status">
                     <h2 class="card-pf-title">
@@ -164,7 +164,7 @@
             ev.preventDefault();
 
             var address = $("#embed-address").val();
-            var url = "http://" + address + ":9090" + href;
+            var url = address + ":9090" + href;
 
             var frame = frames[url];
             if (!frame) {

@@ -98,7 +98,7 @@ class TestNetworking(MachineCase):
 
         mac = "52:54:00:9e:00:F5"
         label = "test"
-        m.execute("echo -e 'TYPE=Ethernet\nHWADDR=%s\nBOOTPROTO=dhcp\n' >/etc/sysconfig/network-scripts/ifcfg-%s" % (mac, label))
+        m.execute("echo -e 'TYPE=Ethernet\nHWADDR=%s\nBOOTPROTO=autoip\n' >/etc/sysconfig/network-scripts/ifcfg-%s" % (mac, label))
         m.execute("nmcli c reload")
         iface = self.get_iface(m, m.add_netiface(mac));
 
@@ -106,9 +106,14 @@ class TestNetworking(MachineCase):
         b.click("#networking-interfaces tr:contains('%s')" % iface)
         b.wait_visible("#network-interface")
 
+        # Make sure we are working on the settings written above.
+        # "Link local" corresponds to "BOOTPROTO=autoip".
+        #
+        b.wait_present("tr:contains('IPv4')")
+        b.wait_in_text("tr:contains('IPv4')", "Link local")
+
         # Configure a manual IP address
         #
-        b.wait_in_text("#network-interface", "IPv4")
         b.click("tr:contains('IPv4') button")
         b.wait_popup("network-ip-settings-dialog")
         b.click("#network-ip-settings-dialog .btn.dropdown-toggle")

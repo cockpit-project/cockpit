@@ -541,7 +541,7 @@ function NetworkManagerModel() {
                 type:           get("connection", "type"),
                 uuid:           get("connection", "uuid"),
                 interface_name: get("connection", "interface-name"),
-                timestamp:      get("connection", "timestamp"),
+                timestamp:      get("connection", "timestamp", 0),
                 id:             get("connection", "id", _("Unknown")),
                 autoconnect:    get("connection", "autoconnect", true),
                 slave_type:     get("connection", "slave-type"),

@@ -1,6 +1,10 @@
 <div class="listing-head" ng-click="select(id, $event)">
     <div class="listing-actions">
-        <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
+        <button title="Adjust"  class="btn btn-default pficon pficon-edit"  data-toggle="modal" 
+            data-target="#adjust-route-dialog"  data-key="{{item.key}}"></button>
+        <button title="Delete" class="route-delete btn btn-danger btn-delete pficon pficon-delete " 
+            data-toggle="modal" data-target="#delete-entity-dialog" data-key="{{item.key}}">
+        </button>
     </div>
     <h3><i class="pficon pficon-route"></i>{{ item.metadata.name }}</h3>
     <ul class="nav nav-tabs nav-tabs-pf">

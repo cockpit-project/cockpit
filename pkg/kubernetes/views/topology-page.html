@@ -40,14 +40,18 @@
         </div>
         <div class="topology-actions" ng-if='selected && !(selected.kind === "Node")'>
           <div ng-if='selected.kind === "Pod"'>
-            <button id="delete-pod" title="Delete" class="btn btn-danger btn-delete pficon pficon-delete delete-entity " data-toggle="modal" data-target="#delete-pod-dialog" data-link="{{ selected.metadata.selfLink }}" ></button>
+            <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete delete-entity " data-toggle="modal" data-target="#delete-pod-dialog" data-link="{{ selected.metadata.selfLink }}" ></button>
+          </div>
+          <div ng-if='selected.kind === "Route"'>
+            <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete delete-entity" data-toggle="modal" data-target="#delete-entity-dialog" data-key="{{selected.key}}"></button>
+            <button title="Adjust"  class="btn btn-default pficon pficon-edit adjust-entity"  data-toggle="modal" data-target="#adjust-route-dialog"  data-key="{{selected.key}}"></button>
           </div>
           <div ng-if='selected.kind === "ReplicationController"'>
-            <button id="delete-entity" title="Delete" class="btn btn-danger btn-delete pficon pficon-delete delete-entity" data-toggle="modal" data-target="#delete-entity-dialog" data-id="{{id}}" data-key="{{selected.key}}"></button>
-            <button id="adjust-entity-btn" title="Adjust"  class="btn btn-default pficon pficon-edit adjust-entity"  data-toggle="modal" data-target="#adjust-entity-dialog"  data-id="{{id}}" data-key="{{selected.key}}"></button>
+            <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete delete-entity" data-toggle="modal" data-target="#delete-entity-dialog" data-id="{{id}}" data-key="{{selected.key}}"></button>
+            <button id="adjust-entity-btn" title="Adjust"  class="btn btn-default pficon pficon-edit adjust-entity"  data-toggle="modal" data-target="#adjust-rc-dialog"  data-id="{{id}}" data-key="{{selected.key}}"></button>
           </div>
-          <div ng-if='selected.kind === "Service"'>
-            <button id="delete-entity" title="Delete" class="btn btn-danger btn-delete pficon pficon-delete delete-entity" data-toggle="modal" data-target="#delete-entity-dialog" data-id="{{id}}" data-key="{{selected.key}}"></button>
+          <div ng-if='selected.kind === "Service" || selected.kind === "DeploymentConfig"'>
+            <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete delete-entity" data-toggle="modal" data-target="#delete-entity-dialog" data-id="{{id}}" data-key="{{selected.key}}"></button>
           </div>
         </div>
         <kubernetes-object-describer ng-if="selected" resource="selected" kind="{{ selected.kind }}"

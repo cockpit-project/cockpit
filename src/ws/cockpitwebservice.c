@@ -1568,17 +1568,6 @@ on_web_socket_open (WebSocketConnection *connection,
                     G_CALLBACK (on_web_socket_message), self);
 }
 
-static void
-on_web_socket_error (WebSocketConnection *connection,
-                     GError *error,
-                     gpointer unused)
-{
-  if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_EOF))
-    g_debug ("web socket error: %s", error->message);
-  else
-    g_message ("%s", error->message);
-}
-
 static gboolean
 on_web_socket_closing (WebSocketConnection *connection,
                        CockpitWebService *self)
@@ -1635,7 +1624,6 @@ on_web_socket_close (WebSocketConnection *connection,
   g_signal_handlers_disconnect_by_func (connection, on_web_socket_open, self);
   g_signal_handlers_disconnect_by_func (connection, on_web_socket_closing, self);
   g_signal_handlers_disconnect_by_func (connection, on_web_socket_close, self);
-  g_signal_handlers_disconnect_by_func (connection, on_web_socket_error, self);
 
   socket = cockpit_socket_lookup_by_connection (&self->sockets, connection);
   g_return_if_fail (socket != NULL);
@@ -1805,7 +1793,6 @@ cockpit_web_service_socket (CockpitWebService *self,
   g_signal_connect (connection, "open", G_CALLBACK (on_web_socket_open), self);
   g_signal_connect (connection, "closing", G_CALLBACK (on_web_socket_closing), self);
   g_signal_connect (connection, "close", G_CALLBACK (on_web_socket_close), self);
-  g_signal_connect (connection, "error", G_CALLBACK (on_web_socket_error), NULL);
 
   cockpit_socket_track (&self->sockets, connection);
   g_object_unref (connection);
@@ -1875,7 +1862,6 @@ cockpit_web_service_noauth (GIOStream *io_stream,
   g_free (application);
 
   g_signal_connect (connection, "open", G_CALLBACK (on_web_socket_noauth), NULL);
-  g_signal_connect (connection, "error", G_CALLBACK (on_web_socket_error), NULL);
 
   /* Unreferences connection when it closes */
   g_signal_connect (connection, "close", G_CALLBACK (g_object_unref), NULL);
@@ -2030,7 +2016,6 @@ cockpit_web_service_sideband (CockpitWebService *self,
   sideband->open_sig = g_signal_connect (connection, "open", G_CALLBACK (on_sideband_open), self);
   sideband->message_sig = g_signal_connect (connection, "message", G_CALLBACK (on_sideband_message), self);
   sideband->close_sig = g_signal_connect (connection, "close", G_CALLBACK (on_sideband_close), self);
-  g_signal_connect (connection, "error", G_CALLBACK (on_web_socket_error), NULL);
 
 out:
   if (bytes)
@@ -2046,7 +2031,6 @@ out:
       connection = create_web_socket_server_for_stream (NULL, path, escaped, io_stream,
                                                         headers, input_buffer);
       g_signal_connect (connection, "open", G_CALLBACK (on_sideband_invalid), "protocol-error");
-      g_signal_connect (connection, "error", G_CALLBACK (on_web_socket_error), NULL);
       g_signal_connect (connection, "close", G_CALLBACK (g_object_unref), NULL);
     }
 }

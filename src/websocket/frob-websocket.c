@@ -100,13 +100,6 @@ on_web_socket_message (WebSocketConnection *ws,
 }
 
 static void
-on_web_socket_error (WebSocketConnection *ws,
-                     GError *error)
-{
-  g_printerr ("WebSocket: error: %s\n", error->message);
-}
-
-static void
 on_web_socket_close (WebSocketConnection *ws)
 {
   gushort code;
@@ -156,7 +149,6 @@ main (int argc,
   web_socket = web_socket_client_new (argv[1], origin, (const gchar **)protocols);
   g_signal_connect (web_socket, "open", G_CALLBACK (on_web_socket_open), NULL);
   g_signal_connect (web_socket, "message", G_CALLBACK (on_web_socket_message), NULL);
-  g_signal_connect (web_socket, "error", G_CALLBACK (on_web_socket_error), NULL);
   g_signal_connect (web_socket, "close", G_CALLBACK (on_web_socket_close), NULL);
 
   g_main_loop_run (loop);

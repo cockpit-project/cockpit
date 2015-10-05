@@ -61,7 +61,7 @@ struct _WebSocketConnectionClass
                              WebSocketDataType type,
                              GBytes *message);
 
-  void      (* error)       (WebSocketConnection *self,
+  gboolean  (* error)       (WebSocketConnection *self,
                              GError *error);
 
   gboolean  (* closing)     (WebSocketConnection *self);

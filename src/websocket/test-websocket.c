@@ -458,16 +458,17 @@ create_iostream_pair (GIOStream **io1,
   g_object_unref (socket2);
 }
 
-static void
+static gboolean
 on_error_not_reached (WebSocketConnection *ws,
                       GError *error,
                       gpointer user_data)
 {
   /* At this point we know this will fail, but is informative */
   g_assert_no_error (error);
+  return TRUE;
 }
 
-static void
+static gboolean
 on_error_copy (WebSocketConnection *ws,
                GError *error,
                gpointer user_data)
@@ -475,6 +476,7 @@ on_error_copy (WebSocketConnection *ws,
   GError **copy = user_data;
   g_assert (*copy == NULL);
   *copy = g_error_copy (error);
+  return TRUE;
 }
 
 static WebSocketConnection *
@@ -505,7 +507,6 @@ setup_pair (Test *test,
   test->server = web_socket_server_new_for_stream ("ws://localhost/unix", NULL, NULL, ios, NULL, NULL);
   test->client = client_new_for_stream_and_flavor (ioc, fixture->flavor);
 
-  g_signal_connect (test->client, "error", G_CALLBACK (on_error_not_reached), NULL);
   g_signal_connect (test->server, "error", G_CALLBACK (on_error_not_reached), NULL);
 
   g_object_unref (ioc);

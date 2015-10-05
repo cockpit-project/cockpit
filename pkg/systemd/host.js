@@ -20,6 +20,7 @@
 define([
     "jquery",
     "base1/cockpit",
+    "base1/mustache",
     "domain/operation",
     "shell/controls",
     "shell/shell",
@@ -31,7 +32,7 @@ define([
     "base1/bootstrap-datepicker",
     "base1/bootstrap-combobox",
     "base1/patterns",
-], function($, cockpit, domain, controls, shell, server, service) {
+], function($, cockpit, Mustache, domain, controls, shell, server, service) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -64,6 +65,9 @@ function ServerTime() {
     var remote_offset = null;
 
     self.timedate = timedate;
+
+    self.timedate1_service = service.proxy("dbus-org.freedesktop.timedate1.service");
+    self.timesyncd_service = service.proxy("systemd-timesyncd.service");
 
     /*
      * The time we return from here as its UTC time set to the
@@ -147,6 +151,8 @@ function ServerTime() {
     self.update();
 }
 
+var change_systime_dialog;
+
 PageServer.prototype = {
     _init: function() {
         this.id = "server";
@@ -178,8 +184,7 @@ PageServer.prototype = {
         });
 
         $('#system_information_systime_button').on('click', function () {
-            PageSystemInformationChangeSystime.server_time = self.server_time;
-            $('#system_information_change_systime').modal('show');
+            change_systime_dialog.display(self.server_time);
         });
 
         self.domain_button = domain.button();
@@ -641,6 +646,8 @@ PageSystemInformationChangeSystime.prototype = {
     },
 
     setup: function() {
+        var self = this;
+
         function enable_apply_button() {
             $('#systime-apply-button').prop('disabled', false);
         }
@@ -662,24 +669,71 @@ PageSystemInformationChangeSystime.prototype = {
         $('#systime-timezones').on('change', enable_apply_button);
         $('#systime-date-input').on('focusin', $.proxy(this, "store_date"));
         $('#systime-date-input').on('focusout', $.proxy(this, "restore_date"));
+
+        self.ntp_servers_tmpl = $("#ntp-servers-tmpl").html();
+        Mustache.parse(this.ntp_servers_tmpl);
+
+        $('#systime-ntp-servers').on('click', '[data-action="add"]', function () {
+            var index = $(this).attr('data-index');
+            self.sync_ntp_servers();
+            self.custom_ntp_servers.splice(index+1, 0, "");
+            self.update_ntp_servers();
+
+            // HACK - without returning 'false' here, the dialog will
+            // be magically closed when controlled by the
+            // check-system-info test.
+            return false;
+        });
+
+        $('#systime-ntp-servers').on('click', '[data-action="del"]', function () {
+            var index = $(this).attr('data-index');
+            self.sync_ntp_servers();
+            self.custom_ntp_servers.splice(index, 1);
+            self.update_ntp_servers();
+
+            // HACK - without returning 'false' here, the dialog will
+            // be magically closed when controlled by the
+            // check-system-info test.
+            return false;
+        });
     },
 
     enter: function() {
-        var server_time = PageSystemInformationChangeSystime.server_time;
+        var self = this;
 
-        $('#systime-date-input').val(server_time.format());
-        $('#systime-time-minutes').val(server_time.now.getUTCMinutes());
-        $('#systime-time-hours').val(server_time.now.getUTCHours());
-        $('#change_systime').val(server_time.timedate.NTP ? 'ntp_time' : 'manual_time');
+        $('#systime-date-input').val(self.server_time.format());
+        $('#systime-time-minutes').val(self.server_time.now.getUTCMinutes());
+        $('#systime-time-hours').val(self.server_time.now.getUTCHours());
+        $('#change_systime').val(self.server_time.timedate.NTP ?
+                                 (self.custom_ntp_enabled ? 'ntp_time_custom' : 'ntp_time')
+                                 : 'manual_time');
+        $('#change_systime [value="ntp_time_custom"]').
+            attr("disabled", !self.custom_ntp_supported? "disabled" : null);
         $('#change_systime').selectpicker('refresh');
         $('#systime-parse-error').parents('tr').hide();
         $('#systime-timezone-error').parents('tr').hide();
         $('#systime-apply-button').prop('disabled', false);
         $('#systime-timezones').prop('disabled', 'disabled');
 
-        this.update();
-        this.update_minutes();
-        this.get_timezones();
+        self.update();
+        self.update_minutes();
+        self.update_ntp_servers();
+        self.get_timezones();
+    },
+
+    display: function(server_time) {
+        var self = this;
+
+        if (self.server_time) {
+            console.warn("change-systime dialog reentered");
+            return;
+        }
+
+        self.server_time = server_time;
+
+        self.get_ntp_servers(function () {
+            $('#system_information_change_systime').modal('show');
+        });
     },
 
     get_timezones: function() {
@@ -688,7 +742,7 @@ PageSystemInformationChangeSystime.prototype = {
         function parse_timezones(content) {
             var timezones = [];
             var lines = content.split('\n');
-            var curr_timezone = PageSystemInformationChangeSystime.server_time.timedate.Timezone;
+            var curr_timezone = self.server_time.timedate.Timezone;
 
             $('#systime-timezones').empty();
 
@@ -708,35 +762,159 @@ PageSystemInformationChangeSystime.prototype = {
            .done(parse_timezones);
     },
 
+    get_ntp_servers: function(callback) {
+        var self = this;
+
+        /* We only support editing the configuration of
+         * systemd-timesyncd, by dropping a file into
+         * /etc/systemd/timesyncd.conf.d.  We assume that timesyncd is
+         * used when:
+         *
+         * - systemd-timedated is answering for
+         *   org.freedesktop.timedate1 as opposed to, say, timedatex.
+         *
+         * - systemd-timesyncd is actually available.
+         *
+         * The better alternative would be to have an API in
+         * o.fd.timedate1 for managing the list of NTP server
+         * candidates.
+         */
+
+        var timedate1 = self.server_time.timedate1_service;
+        var timesyncd = self.server_time.timesyncd_service;
+
+        self.custom_ntp_supported = false;
+        self.custom_ntp_enabled = false;
+        self.custom_ntp_servers = [ ];
+
+        function check() {
+            if ((timedate1.exists === false || timedate1.unit) && (timesyncd.exists !== null)) {
+
+                $([ timedate1, timesyncd ]).off(".get_ntp_servers");
+
+                if (!timedate1.exists || timedate1.unit.Id !== "systemd-timedated.service") {
+                    console.log("systemd-timedated not in use, ntp server configuration not supported");
+                    callback();
+                    return;
+                }
+
+                if (!timesyncd.exists) {
+                    console.log("systemd-timesyncd not available, ntp server configuration not supported");
+                    callback();
+                    return;
+                }
+
+                self.custom_ntp_supported = true;
+
+                if (!self.ntp_config_file)
+                    self.ntp_config_file = cockpit.file("/etc/systemd/timesyncd.conf.d/50-cockpit.conf",
+                                                        { superuser: "try" });
+
+                self.ntp_config_file.read().
+                    done(function (text) {
+                        var ntp_line = "";
+                        self.ntp_servers = null;
+                        if (text) {
+                            self.custom_ntp_enabled = true;
+                            text.split("\n").forEach(function (line) {
+                                if (line.indexOf("NTP=") === 0) {
+                                    ntp_line = line.slice(4);
+                                    self.custom_ntp_enabled = true;
+                                } else if (line.indexOf("#NTP=") === 0) {
+                                    ntp_line = line.slice(5);
+                                    self.custom_ntp_enabled = false;
+                                }
+                            });
+
+                            self.custom_ntp_servers = ntp_line.split(" ").filter(function (val) {
+                                return val !== "";
+                            });
+                            if (self.custom_ntp_servers.length === 0)
+                                self.custom_ntp_enabled = false;
+                        }
+                        callback();
+                    }).
+                    fail(function (error) {
+                        console.warn("failed to load time servers", error);
+                        callback();
+                    });
+            }
+        }
+
+        $([ timedate1, timesyncd ]).on("changed.get_ntp_servers", check);
+        check();
+    },
+
+    set_ntp_servers: function(servers, enabled) {
+        var self = this;
+
+        var text;
+        var promise;
+
+        text = cockpit.format("# This file is automatically generated by Cockpit\n\n[Time]\n${0}NTP=${1}\n",
+                              enabled? "" : "#", servers.join(" "));
+
+        return cockpit.spawn([ "mkdir", "-p", "/etc/systemd/timesyncd.conf.d" ], { superuser: "try" }).
+            then(function () {
+                return self.ntp_config_file.replace(text); }).
+            then(function () {
+                return self.server_time.timesyncd_service.restart();
+            });
+    },
+
     show: function() {
     },
 
     leave: function() {
+        var self = this;
+
+        $(self.server_time.timedate1_service).off(".change_systime");
+        $(self.server_time.timesyncd_service).off(".change_systime");
+        self.server_time = null;
     },
 
     _on_apply_button: function(event) {
-        var server_time = PageSystemInformationChangeSystime.server_time;
+        var self = this;
 
-        if (!this.check_input())
+        if (!self.check_input())
             return;
 
         var manual_time = $('#change_systime').val() == 'manual_time';
+        var ntp_time_custom = $('#change_systime').val() == 'ntp_time_custom';
 
-        var promise = server_time.timedate.call('SetNTP', [!manual_time, true])
+        self.sync_ntp_servers();
+        var servers = self.custom_ntp_servers.filter(function (val) { return val !== ""; });
+
+        function target_error (msg, target) {
+            var err = new Error(msg);
+            err.target = target;
+            return err;
+        }
+
+        if (ntp_time_custom && servers.length === 0) {
+            var err = target_error(_("Need at least one NTP server"),
+                                   '#systime-ntp-servers .systime-inline');
+            $("#system_information_change_systime").dialog("failure", err);
+            return;
+        }
+
+        var promise = self.server_time.timedate.call('SetNTP', [!manual_time, true])
             .done(function() {
                 var promises = [];
                 var promise;
 
                 if (!$('#systime-timezones').prop('disabled')) {
-                    promise = server_time.timedate.call('SetTimezone', [$('#systime-timezones').val(), true]);
+                    promise = self.server_time.timedate.call('SetTimezone', [$('#systime-timezones').val(), true]);
                     promises.push(promise);
                 }
 
                 if (manual_time) {
-                    promise = server_time.change_time($("#systime-date-input").val(),
-                                                      $('#systime-time-hours').val(),
-                                                      $('#systime-time-minutes').val());
+                    promise = self.server_time.change_time($("#systime-date-input").val(),
+                                                           $('#systime-time-hours').val(),
+                                                           $('#systime-time-minutes').val());
                     promises.push(promise);
+                } else if (self.custom_ntp_supported) {
+                    promises.push(self.set_ntp_servers(servers, ntp_time_custom));
                 }
 
                 $("#system_information_change_systime").dialog("promise", $.when.apply($, promises));
@@ -798,10 +976,36 @@ PageSystemInformationChangeSystime.prototype = {
     },
 
     update: function() {
-        var ntp_time = $('#change_systime').val() === 'ntp_time';
-        $("#systime-date-input").prop('disabled', ntp_time);
-        $("#systime-time-hours").prop('disabled', ntp_time);
-        $("#systime-time-minutes").prop('disabled', ntp_time);
+        var manual_time = $('#change_systime').val() === 'manual_time';
+        var ntp_time_custom = $('#change_systime').val() === 'ntp_time_custom';
+        $('#systime-manual-row, #systime-manual-error-row').toggle(manual_time);
+        $('#systime-ntp-servers-row').toggle(ntp_time_custom);
+    },
+
+    sync_ntp_servers: function() {
+        var self = this;
+
+        self.custom_ntp_servers = $('#systime-ntp-servers input').map(function (i, elt) {
+            return $(elt).val();
+        }).get();
+    },
+
+    update_ntp_servers: function() {
+        var self = this;
+
+        if (self.custom_ntp_servers === null || self.custom_ntp_servers.length === 0)
+            self.custom_ntp_servers = [ "" ];
+
+        var model = {
+            NTPServers: self.custom_ntp_servers.map(function (val, i) {
+                return { index: i,
+                         Value: val,
+                         Placeholder: _("NTP Server")
+                       };
+            })
+        };
+
+        $('#systime-ntp-servers').html(Mustache.render(self.ntp_servers_tmpl, model));
     },
 
     update_minutes: function() {
@@ -1189,7 +1393,7 @@ function init() {
     memory_page = new PageMemoryStatus();
 
     dialog_setup(new PageSystemInformationChangeHostname());
-    dialog_setup(new PageSystemInformationChangeSystime());
+    dialog_setup(change_systime_dialog = new PageSystemInformationChangeSystime());
     dialog_setup(new PageShutdownDialog());
 
     $(cockpit).on("locationchanged", navigate);

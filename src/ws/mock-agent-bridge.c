@@ -182,7 +182,6 @@ int
 main (int argc,
       char **argv)
 {
-  GSocketAddress *auth_address = NULL;
   CockpitTransport *transport;
   gboolean terminated = FALSE;
   gboolean interupted = FALSE;
@@ -220,8 +219,7 @@ main (int argc,
       outfd = 1;
     }
 
-  auth_address = g_unix_socket_address_new (ssh_auth_sock);
-  cockpit_channel_internal_address ("ssh-agent", auth_address);
+  g_setenv ("SSH_AUTH_SOCK", ssh_auth_sock, TRUE);
   if (!g_spawn_sync (BUILDDIR, (gchar **)agent_argv, NULL,
                 G_SPAWN_DEFAULT, NULL, NULL,
                 &agent_output, &agent_error,
@@ -300,7 +298,6 @@ main (int argc,
     g_main_context_iteration (NULL, TRUE);
 
   g_object_unref (transport);
-  g_object_unref (auth_address);
   g_hash_table_destroy (channels);
 
   g_source_remove (sig_term);

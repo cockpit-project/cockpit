@@ -7,6 +7,7 @@
     <link href="../base1/cockpit.css" rel="stylesheet">
     <link href="../shell/shell.css" rel="stylesheet">
     <link href="../shell/plot.css" rel="stylesheet">
+    <link href="../system/host.css" rel="stylesheet">
     <script src="../base1/bundle.js"></script>
     <script src="../shell/bundle.js"></script>
     <script src="../shell/shell.js"></script>
@@ -210,6 +211,20 @@
         </div>
     </div>
 
+    <script id="ntp-servers-tmpl" type="x-template/mustache">
+      <div class="systime-inline">
+        {{#NTPServers}}
+        <form class="form-inline">
+          <button data-action="add" data-index={{index}} class="btn btn-default fa fa-plus"/>
+          <button data-action="del" data-index={{index}} class="btn btn-default pficon-close"/>
+          <div class="form-group">
+            <input type="text" class="form-control" value="{{Value}}" placeholder="{{Placeholder}}">
+          </div>
+        </form>
+        {{/NTPServers}}
+      </div>
+    </script>
+
     <div class="modal" id="system_information_change_systime" tabindex="-1"
         role="dialog" data-backdrop="static">
         <div class="modal-dialog cockpit-modal-md">
@@ -219,32 +234,6 @@
                 </div>
                 <div class="modal-body">
                     <table class="cockpit-form-table">
-                        <tr>
-                            <td><label class="control-label" for="change_systime"
-                                    translatable="yes">Set time</label></td>
-                            <td>
-                                <select class="form-control selectpicker" id="change_systime">
-                                    <option value="manual_time">Manually set the time</option>
-                                    <option value="ntp_time">Set time automatically using NTP</option>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td>
-                                <input type='text' class="form-control" id="systime-date-input"/>
-                                <input type='text' class="form-control" id="systime-time-hours"/>
-                                :
-                                <input type='text' class="form-control" id="systime-time-minutes"/>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                            </td>
-                            <td class="has-error">
-                                <span id="systime-parse-error" class="help-block"></span>
-                            </td>
-                        </tr>
                         <tr>
                             <td>
                                 <label class="control-label" translatable="yes">Time Zone</label>
@@ -260,6 +249,38 @@
                                 <span id="systime-timezone-error" class="help-block" translatable="yes">
                                     Invalid time zone
                                 </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label class="control-label" for="change_systime"
+                                       translatable="yes">Set time</label></td>
+                            <td>
+                                <select class="form-control selectpicker" id="change_systime">
+                                    <option value="manual_time">Manually</option>
+                                    <option value="ntp_time">Automatically using NTP</option>
+                                    <option value="ntp_time_custom">Automatically using specific NTP servers</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr id="systime-manual-row">
+                            <td></td>
+                            <td>
+                                <input type='text' class="form-control" id="systime-date-input"/>
+                                <input type='text' class="form-control" id="systime-time-hours"/>
+                                :
+                                <input type='text' class="form-control" id="systime-time-minutes"/>
+                            </td>
+                        </tr>
+                        <tr id="systime-manual-error-row">
+                            <td>
+                            </td>
+                            <td class="has-error">
+                                <span id="systime-parse-error" class="help-block"></span>
+                            </td>
+                        </tr>
+                        <tr id="systime-ntp-servers-row">
+                            <td></td>
+                            <td id="systime-ntp-servers">
                             </td>
                         </tr>
                     </table>

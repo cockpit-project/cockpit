@@ -183,6 +183,7 @@ on_iostream_closed (GObject *source,
   WebSocketConnection *self = user_data;
   WebSocketConnectionPrivate *pv = self->pv;
   GError *error = NULL;
+  gboolean unused;
 
   /* We treat connection as closed even if close fails */
   pv->io_closed = TRUE;
@@ -192,7 +193,7 @@ on_iostream_closed (GObject *source,
     {
       g_message ("error closing web socket stream: %s", error->message);
       if (!pv->dirty_close)
-        g_signal_emit (self, signals[ERROR], 0, error);
+        g_signal_emit (self, signals[ERROR], 0, error, &unused);
       pv->dirty_close = TRUE;
       g_error_free (error);
     }
@@ -518,12 +519,14 @@ gboolean
 _web_socket_connection_error (WebSocketConnection *self,
                               GError *error)
 {
+  gboolean unused;
+
   if (web_socket_connection_get_ready_state (self) != WEB_SOCKET_STATE_CLOSED)
     {
       if (error)
         {
           self->pv->dirty_close = TRUE;
-          g_signal_emit (self, signals[ERROR], 0, error);
+          g_signal_emit (self, signals[ERROR], 0, error, &unused);
         }
 
       g_error_free (error);
@@ -633,6 +636,17 @@ too_big_error_and_close (WebSocketConnection *self,
 
   /* The input is in an invalid state now */
   stop_input (self);
+}
+
+static gboolean
+web_socket_connection_default_error (WebSocketConnection *connection,
+                                     GError *error)
+{
+  if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_EOF))
+    g_debug ("web socket error: %s", error->message);
+  else
+    g_message ("%s", error->message);
+  return TRUE;
 }
 
 static gboolean
@@ -1624,10 +1638,11 @@ web_socket_connection_class_init (WebSocketConnectionClass *klass)
    */
   signals[ERROR] = g_signal_new ("error",
                                  WEB_SOCKET_TYPE_CONNECTION,
-                                 G_SIGNAL_RUN_FIRST,
+                                 G_SIGNAL_RUN_LAST,
                                  G_STRUCT_OFFSET (WebSocketConnectionClass, error),
-                                 NULL, NULL, g_cclosure_marshal_generic,
-                                 G_TYPE_NONE, 1, G_TYPE_ERROR);
+                                 g_signal_accumulator_true_handled, NULL,
+                                 g_cclosure_marshal_generic,
+                                 G_TYPE_BOOLEAN, 1, G_TYPE_ERROR);
 
   /**
    * WebSocketConnection::closing:
@@ -1642,6 +1657,7 @@ web_socket_connection_class_init (WebSocketConnectionClass *klass)
                                    g_signal_accumulator_true_handled, NULL, g_cclosure_marshal_generic,
                                    G_TYPE_BOOLEAN, 0);
 
+  klass->error = web_socket_connection_default_error;
   klass->closing = web_socket_connection_default_closing;
 
   /**

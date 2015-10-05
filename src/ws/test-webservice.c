@@ -280,7 +280,7 @@ teardown_for_socket (TestCase *test,
   alarm (0);
 }
 
-static void
+static gboolean
 on_error_not_reached (WebSocketConnection *ws,
                       GError *error,
                       gpointer user_data)
@@ -289,9 +289,10 @@ on_error_not_reached (WebSocketConnection *ws,
 
   /* At this point we know this will fail, but is informative */
   g_assert_no_error (error);
+  return TRUE;
 }
 
-static void
+static gboolean
 on_error_copy (WebSocketConnection *ws,
                GError *error,
                gpointer user_data)
@@ -301,6 +302,7 @@ on_error_copy (WebSocketConnection *ws,
   g_assert (result != NULL);
   g_assert (*result == NULL);
   *result = g_error_copy (error);
+  return TRUE;
 }
 
 static gboolean
@@ -1059,7 +1061,7 @@ test_bad_origin (TestCase *test,
   GError *error = NULL;
 
   cockpit_expect_log ("WebSocket", G_LOG_LEVEL_MESSAGE, "*received request from bad Origin*");
-  cockpit_expect_log ("cockpit-ws", G_LOG_LEVEL_MESSAGE, "*invalid handshake*");
+  cockpit_expect_log ("WebSocket", G_LOG_LEVEL_MESSAGE, "*invalid handshake*");
   cockpit_expect_log ("WebSocket", G_LOG_LEVEL_MESSAGE, "*unexpected status: 403*");
 
   start_web_service_and_create_client (test, data, &ws, &service);

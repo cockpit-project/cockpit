@@ -164,8 +164,6 @@ PageServer.prototype = {
         var self = this;
         update_hostname_privileged();
 
-        self.timedate = cockpit.dbus('org.freedesktop.timedate1').proxy();
-
         $('#shutdown-group').append(
               shell.action_btn(
                   function (op) { self.shutdown(op); },

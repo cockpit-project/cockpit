@@ -1,6 +1,8 @@
 <div class="listing-head" ng-click="select(id, $event)">
     <div class="listing-actions">
-        <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
+        <button title="Delete" class="deployment-delete btn btn-danger btn-delete pficon pficon-delete delete-entity " 
+            data-toggle="modal" data-target="#delete-entity-dialog" data-link="{{ item.metadata.selfLink }}" 
+            data-key="{{item.key}}"></button>
     </div>
     <h3><i class="fa fa-gear"></i>{{ item.metadata.name }}</h3>
     <div class="listing-status">

@@ -218,7 +218,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
       </div>
     </div>
 
-    <div class="modal" id="adjust-entity-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal" id="adjust-rc-dialog" tabindex="-1" role="dialog" data-backdrop="static">
       <div class="modal-dialog modal-sm">
         <div class="modal-content">
           <div class="modal-header">
@@ -227,7 +227,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr class="adjust-replicas-header">
-                <td colspan="2" class="header" translatable="yes">Replicas</td>
+                <td class="top"><label class="control-label" translatable="yes">Replicas</label></td>
                 <td>
                     <input class="form-control adjust-replica" type="text" id="replica-count" value="">
                 </td>
@@ -236,7 +236,31 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           </div>
           <div class="modal-footer">
             <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
-            <button class="btn btn-primary" translatable="yes" id="adjust-entity-button">Adjust</button>
+            <button class="btn btn-primary" translatable="yes" id="adjust-rc-button">Adjust</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="adjust-route-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+      <div class="modal-dialog modal-md">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" translatable="yes">Adjust Route</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr class="adjust-host-header">
+                <td class="top"><label class="control-label" translatable="yes">Host</label></td>
+                <td>
+                    <input class="form-control adjust-host" type="text" id="host-value" value="">
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
+            <button class="btn btn-primary" translatable="yes" id="adjust-route-button">Adjust</button>
           </div>
         </div>
       </div>
@@ -260,7 +284,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     </div>
 
     <div class="modal" id="delete-entity-dialog" tabindex="-1" role="dialog" data-backdrop="static">
-      <div class="modal-dialog modal-sm">
+      <div class="modal-dialog modal-md">
         <div class="modal-content">
           <div class="modal-header">
             <h4 class="modal-title" translatable="yes">Please Confirm Deletion</h4>

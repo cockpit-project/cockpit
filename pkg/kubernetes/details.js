@@ -11,12 +11,15 @@ define([
     var _ = cockpit.gettext;
 
     var k8client =  kubernetes.k8client();
-    var adjust_btn = $('#adjust-entity-button');
-    var adjust_entity_dlg = $('#adjust-entity-dialog');
-    var delete_btn = $('#delete-entity-button');
+    var adjust_btn = $('#adjust-rc-button');
+    var adjust_rc_dlg = $('#adjust-rc-dialog');
+    var adjust_route_btn = $('#adjust-route-button');
+    var adjust_route_dlg = $('#adjust-route-dialog');
+    var delete_entity_btn = $('#delete-entity-button');
     var delete_entity_dlg = $('#delete-entity-dialog');
     var delete_pod_dlg = $('#delete-pod-dialog');
     var delete_pod_btn = $('#delete-pod-button');
+
 
     delete_entity_dlg.on('show.bs.modal', function(e) {
         var key = $(e.relatedTarget).attr("data-key");
@@ -25,20 +28,84 @@ define([
 
         e.stopPropagation();
 
-        delete_btn.on('click', function() {
+        delete_entity_btn.off('click').on('click', function() {
             var promise = k8client.remove(entity.metadata.selfLink);
             delete_entity_dlg.dialog("promise", promise);
         });
     });
 
-    adjust_entity_dlg.on('show.bs.modal', function(e) {
+    adjust_route_dlg.on('show.bs.modal', function(e) {
         var key = $(e.relatedTarget).attr("data-key");
         var entity = k8client.objects[key];
-        adjust_entity_dlg.find('#replica-count').val(entity.spec.replicas);
+        adjust_route_dlg.find('#host-value').val(entity.spec.host);
 
         e.stopPropagation();
 
-        adjust_btn.on('click', function() {
+        adjust_route_btn.off('click').on('click', function() {
+            adjust_route_dlg.dialog("failure", null);
+            function update_value(item, value) {
+                var spec = item.spec;
+                if (!spec) {
+                    console.warn("route without spec");
+                    return false;
+                }
+
+                if (spec.host === value)
+                    return false;
+
+                spec.host = value;
+                return true;
+            }
+
+            function update_host(route) {
+                var failures = [];
+                var dfd = $.Deferred();
+                var req;
+                var ex;
+
+                var input = $('#host-value').val();
+                var value = $.trim(input);
+                if (value === "")
+                    ex = new Error(_("Not a valid value for Host"));
+
+                if (ex) {
+                    ex.target = "#host-value";
+                    failures.push(ex);
+                }
+
+                if (failures.length) {
+                    dfd.reject(failures);
+                    return dfd.promise();
+                }
+
+                dfd.notify(cockpit.format(_("Updating $0..."), route.metadata.name) || null);
+
+                req = k8client.modify(route.metadata.selfLink, function(item) {
+                        return update_value(item, input);
+                    })
+                    .done(function() {
+                        dfd.resolve();
+                    })
+                    .fail(function(ex) {
+                        ex = new Error(_("Unable to modify Routes"));
+                        ex.target = "#host-value";
+                        failures.push(ex);
+                        dfd.reject(failures);
+                    });
+                return dfd.promise();
+            }
+
+            adjust_route_dlg.dialog("promise", update_host(entity));
+        });
+
+    });
+
+    adjust_rc_dlg.on('show.bs.modal', function(e) {
+        var key = $(e.relatedTarget).attr("data-key");
+        var entity = k8client.objects[key];
+        adjust_rc_dlg.find('#replica-count').val(entity.spec.replicas);
+
+        adjust_btn.off('click').on('click', function() {
             function resize(item, value) {
                 var spec = item.spec;
                 if (!spec) {
@@ -60,7 +127,7 @@ define([
                 var req;
                 var ex;
 
-                var input = adjust_entity_dlg.find('#replica-count').val();
+                var input = adjust_rc_dlg.find('#replica-count').val();
                 var value = Number($.trim(input));
                 if (isNaN(value) || value < 0)
                     ex = new Error(_("Not a valid number of replicas"));
@@ -73,7 +140,7 @@ define([
                 }
 
                 if (failures.length) {
-                    adjust_entity_dlg.dialog("failure", failures);
+                    adjust_rc_dlg.dialog("failure", failures);
                     dfd.reject(ex);
                 }
 
@@ -98,7 +165,7 @@ define([
             }
 
             var promise = update_replica(entity);
-            adjust_entity_dlg.dialog("promise", promise);
+            adjust_rc_dlg.dialog("promise", promise);
         });
 
     });
@@ -108,7 +175,7 @@ define([
 
         e.stopPropagation();
 
-        delete_pod_btn.on('click', function() {
+        delete_pod_btn.off('click').on('click', function() {
             var promise = k8client.remove(pod);
             delete_pod_dlg.dialog("promise", promise);
         });

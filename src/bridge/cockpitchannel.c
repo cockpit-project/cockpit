@@ -911,6 +911,35 @@ safe_unref (gpointer data)
     g_object_unref (object);
 }
 
+static gboolean
+lookup_internal (const gchar *name,
+                 GSocketConnectable **connectable)
+{
+  const gchar *env;
+
+  g_assert (name != NULL);
+  g_assert (connectable != NULL);
+
+  if (g_str_equal (name, "ssh-agent"))
+    {
+      *connectable = NULL;
+      env = g_getenv ("SSH_AUTH_SOCK");
+      if (env != NULL && env[0] != '\0')
+        *connectable = G_SOCKET_CONNECTABLE (g_unix_socket_address_new (env));
+      else
+        *connectable = NULL;
+      return TRUE;
+    }
+
+  if (internal_addresses)
+    {
+      return g_hash_table_lookup_extended (internal_addresses, name, NULL,
+                                           (gpointer *)connectable);
+    }
+
+  return FALSE;
+}
+
 void
 cockpit_channel_internal_address (const gchar *name,
                                   GSocketAddress *address)
@@ -1029,14 +1058,7 @@ cockpit_channel_parse_connectable (CockpitChannel *self,
     }
   else if (internal)
     {
-      gboolean reg = FALSE;
-      if (internal_addresses)
-        {
-          reg = g_hash_table_lookup_extended(internal_addresses,
-                                             internal,
-                                             NULL,
-                                             (gpointer *)&connectable);
-        }
+      gboolean reg = lookup_internal (internal, &connectable);
 
       if (!connectable)
         {

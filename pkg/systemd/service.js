@@ -108,6 +108,7 @@ define([
 
             start: start,
             stop: stop,
+            restart: restart,
 
             enable: enable,
             disable: disable
@@ -279,6 +280,10 @@ define([
 
         function stop() {
             return call_manager_with_job("StopUnit", [ name, "replace" ]);
+        }
+
+        function restart() {
+            return call_manager_with_job("RestartUnit", [ name, "replace" ]);
         }
 
         function enable() {

@@ -49,6 +49,12 @@ define([
      * service is usually only started when it is needed by some other
      * service.
      *
+     * - proxy.unit
+     * - proxy.service
+     *
+     * The raw org.freedesktop.systemd1.Unit and Service D-Bus
+     * interface proxies for the service.
+     *
      * - promise = proxy.start()
      *
      * Start the service.  The return value is a standard jQuery
@@ -107,7 +113,7 @@ define([
             disable: disable
         };
 
-        var unit;
+        var unit, service;
 
         if (name.indexOf(".") == -1)
             name = name + ".service";
@@ -135,6 +141,13 @@ define([
             else
                 self.enabled = undefined;
 
+            self.unit = unit;
+
+            $(self).triggerHandler('changed');
+        }
+
+        function update_from_service() {
+            self.service = service;
             $(self).triggerHandler('changed');
         }
 
@@ -144,6 +157,10 @@ define([
                     unit = systemd_client.proxy('org.freedesktop.systemd1.Unit', path);
                     $(unit).on('changed', update_from_unit);
                     wait_valid(unit, update_from_unit);
+
+                    service = systemd_client.proxy('org.freedesktop.systemd1.Service', path);
+                    $(service).on('changed', update_from_service);
+                    wait_valid(service, update_from_service);
                 }).
                 fail(function (error) {
                     self.exists = false;
@@ -151,26 +168,30 @@ define([
                 });
         });
 
-        function refresh_unit() {
-            if (!unit)
+        function refresh() {
+            if (!unit || !service)
                 return;
 
-            systemd_client.call(unit.path,
-                                "org.freedesktop.DBus.Properties", "GetAll",
-                                [ "org.freedesktop.systemd1.Unit" ]).
-                fail(function (error) {
-                    console.log(error);
-                }).
-                done(function (result) {
-                    var props = { };
-                    for (var p in result[0])
-                        props[p] = result[0][p].v;
-                    var ifaces = { };
-                    ifaces["org.freedesktop.systemd1.Unit"] = props;
-                    var data = { };
-                    data[unit.path] = ifaces;
-                    systemd_client.notify(data);
-                });
+            function refresh_interface(path, iface) {
+                systemd_client.call(path,
+                                    "org.freedesktop.DBus.Properties", "GetAll", [ iface ]).
+                    fail(function (error) {
+                        console.log(error);
+                    }).
+                    done(function (result) {
+                        var props = { };
+                        for (var p in result[0])
+                            props[p] = result[0][p].v;
+                        var ifaces = { };
+                        ifaces[iface] = props;
+                        var data = { };
+                        data[unit.path] = ifaces;
+                        systemd_client.notify(data);
+                    });
+            }
+
+            refresh_interface(unit.path, "org.freedesktop.systemd1.Unit");
+            refresh_interface(service.path, "org.freedesktop.systemd1.Service");
         }
 
         /* HACK - https://bugs.freedesktop.org/show_bug.cgi?id=69575
@@ -193,19 +214,19 @@ define([
 
             $(systemd_manager).on("UnitNew", function (event, unit_id, path) {
                 if (unit_id == name)
-                    refresh_unit();
+                    refresh();
             });
         } else {
             // This is what we have to do.
 
             $(systemd_manager).on("Reloading", function (event, reloading) {
                 if (!reloading)
-                    refresh_unit();
+                    refresh();
             });
 
             $(systemd_manager).on("JobNew JobRemoved", function (event, number, path, unit_id, result) {
                 if (unit_id == name)
-                    refresh_unit();
+                    refresh();
             });
         }
 

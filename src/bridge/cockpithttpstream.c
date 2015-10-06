@@ -867,14 +867,22 @@ cockpit_http_stream_recv (CockpitChannel *channel,
   self->request = g_list_prepend (self->request, g_bytes_ref (message));
 }
 
-static void
-cockpit_http_stream_done (CockpitChannel *channel)
+static gboolean
+cockpit_http_stream_control (CockpitChannel *channel,
+                             const gchar *command,
+                             JsonObject *options)
 {
   CockpitHttpStream *self = COCKPIT_HTTP_STREAM (channel);
 
-  g_return_if_fail (self->state == BUFFER_REQUEST);
-  self->state = RELAY_REQUEST;
-  send_http_request (self);
+  if (g_str_equal (command, "done"))
+    {
+      g_return_val_if_fail (self->state == BUFFER_REQUEST, FALSE);
+      self->state = RELAY_REQUEST;
+      send_http_request (self);
+      return TRUE;
+    }
+
+  return FALSE;
 }
 
 static void
@@ -893,7 +901,7 @@ cockpit_http_stream_close (CockpitChannel *channel,
     {
       g_debug ("%s: relayed response", self->name);
       self->state = FINISHED;
-      cockpit_channel_done (channel);
+      cockpit_channel_control (channel, "done", NULL);
 
       /* Save this for another round? */
       if (self->keep_alive)
@@ -1077,7 +1085,7 @@ cockpit_http_stream_class_init (CockpitHttpStreamClass *klass)
   gobject_class->constructed = cockpit_http_stream_constructed;
 
   channel_class->prepare = cockpit_http_stream_prepare;
+  channel_class->control = cockpit_http_stream_control;
   channel_class->recv = cockpit_http_stream_recv;
-  channel_class->done = cockpit_http_stream_done;
   channel_class->close = cockpit_http_stream_close;
 }

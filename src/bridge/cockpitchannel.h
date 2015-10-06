@@ -60,10 +60,9 @@ struct _CockpitChannelClass
   void        (* recv)        (CockpitChannel *channel,
                                GBytes *message);
 
-  void        (* options)     (CockpitChannel *channel,
+  gboolean    (* control)     (CockpitChannel *channel,
+                               const gchar *command,
                                JsonObject *options);
-
-  void        (* done)        (CockpitChannel *channel);
 
   void        (* close)       (CockpitChannel *channel,
                                const gchar *problem);
@@ -80,13 +79,15 @@ const gchar *       cockpit_channel_get_id            (CockpitChannel *self);
 
 void                cockpit_channel_prepare           (CockpitChannel *self);
 
+void                cockpit_channel_control           (CockpitChannel *self,
+                                                       const gchar *command,
+                                                       JsonObject *message);
+
 void                cockpit_channel_ready             (CockpitChannel *self);
 
 void                cockpit_channel_send              (CockpitChannel *self,
                                                        GBytes *payload,
                                                        gboolean valid_utf8);
-
-void                cockpit_channel_done              (CockpitChannel *self);
 
 JsonObject *        cockpit_channel_get_options       (CockpitChannel *self);
 

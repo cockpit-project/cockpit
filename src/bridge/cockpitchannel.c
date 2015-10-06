@@ -230,13 +230,16 @@ on_transport_control (CockpitTransport *transport,
     return FALSE;
 
   klass = COCKPIT_CHANNEL_GET_CLASS (self);
-  if (g_str_equal (command, "options"))
+  if (g_str_equal (command, "close"))
     {
-      if (klass->options)
-        (klass->options) (self, options);
+      g_debug ("close channel %s", channel_id);
+      if (!cockpit_json_get_string (options, "problem", NULL, &problem))
+        problem = NULL;
+      cockpit_channel_close (self, problem);
       return TRUE;
     }
-  else if (g_str_equal (command, "done"))
+
+  if (g_str_equal (command, "done"))
     {
       if (self->priv->received_done)
         {
@@ -246,21 +249,13 @@ on_transport_control (CockpitTransport *transport,
       else
         {
           self->priv->received_done = TRUE;
-          if (self->priv->ready)
-            {
-              if (klass->done)
-                (klass->done) (self);
-            }
+          if (!self->priv->ready)
+            return TRUE;
         }
-      return TRUE;
     }
-  else if (g_str_equal (command, "close"))
-    {
-      g_debug ("close channel %s", channel_id);
-      if (!cockpit_json_get_string (options, "problem", NULL, &problem))
-        problem = NULL;
-      cockpit_channel_close (self, problem);
-    }
+
+  if (klass->control)
+    return (klass->control) (self, command, options);
 
   return FALSE;
 }
@@ -753,8 +748,8 @@ cockpit_channel_ready (CockpitChannel *self)
   /* No more data coming? */
   if (self->priv->received_done)
     {
-      if (klass->done)
-        (klass->done) (self);
+      if (klass->control)
+        (klass->control) (self, "done", NULL);
     }
 
   g_object_unref (self);
@@ -873,25 +868,42 @@ cockpit_channel_prepare (CockpitChannel *self)
 }
 
 /**
- * cockpit_channel_done:
+ * cockpit_channel_control:
  * @self: the channel
+ * @command: the control command
+ * @options: optional control message or NULL
  *
- * Send an EOF to the other side. This should only be called once.
- * Whether an EOF should be sent or not depends on the payload type.
+ * Send a control message to the other side.
+ *
+ * If @options is not NULL, then it may be modified by this code.
+ *
+ * With @command of "done" will send an EOF to the other side. This
+ * should only be called once. Whether an EOF should be sent or not
+ * depends on the payload type.
  */
 void
-cockpit_channel_done (CockpitChannel *self)
+cockpit_channel_control (CockpitChannel *self,
+                         const gchar *command,
+                         JsonObject *options)
 {
   JsonObject *object;
   GBytes *message;
 
   g_return_if_fail (COCKPIT_IS_CHANNEL (self));
-  g_return_if_fail (self->priv->sent_done == FALSE);
+  g_return_if_fail (command != NULL);
 
-  self->priv->sent_done = TRUE;
+  if (g_str_equal (command, "done"))
+    {
+      g_return_if_fail (self->priv->sent_done == FALSE);
+      self->priv->sent_done = TRUE;
+    }
 
-  object = json_object_new ();
-  json_object_set_string_member (object, "command", "done");
+  if (options)
+    object = json_object_ref (options);
+  else
+    object = json_object_new ();
+
+  json_object_set_string_member (object, "command", command);
   json_object_set_string_member (object, "channel", self->priv->id);
 
   message = cockpit_json_write_bytes (object);

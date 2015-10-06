@@ -132,45 +132,15 @@ send_login_html (CockpitWebResponse *response,
 {
   static const gchar *marker = "<head>";
   CockpitWebFilter *filter;
-  GHashTable *headers = NULL;
-  gchar *login_html;
-  GMappedFile *file;
-  GError *error = NULL;
-  GBytes *body = NULL;
-  GBytes *mark, *environment;
+  GBytes *environment;
 
-  login_html = g_build_filename (ws->static_roots[0], "login.html", NULL);
+  environment = build_environment (ws->os_release);
+  filter = cockpit_web_inject_new (marker, environment);
+  g_bytes_unref (environment);
 
-  file = g_mapped_file_new (login_html, FALSE, &error);
-  if (file == NULL)
-    {
-      g_warning ("%s: %s", login_html, error->message);
-      cockpit_web_response_error (response, 500, NULL, NULL);
-      g_clear_error (&error);
-    }
-  else
-    {
-      mark = g_bytes_new_static (marker, strlen (marker));
-      environment = build_environment (ws->os_release);
-      filter = cockpit_web_inject_new (marker, environment);
-      g_bytes_unref (environment);
-      g_bytes_unref (mark);
-
-      cockpit_web_response_add_filter (response, filter);
-      g_object_unref (filter);
-
-      headers = cockpit_web_server_new_table ();
-      g_hash_table_insert (headers, g_strdup ("Content-Type"), g_strdup ("text/html; charset=utf8"));
-
-      body = g_mapped_file_get_bytes (file);
-      cockpit_web_response_content (response, headers, body, NULL);
-
-      g_hash_table_unref (headers);
-      g_bytes_unref (body);
-      g_mapped_file_unref (file);
-    }
-
-  g_free (login_html);
+  cockpit_web_response_add_filter (response, filter);
+  cockpit_web_response_file (response, "/login.html", FALSE, ws->static_roots);
+  g_object_unref (filter);
 }
 
 static gchar *

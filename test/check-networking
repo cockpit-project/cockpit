@@ -50,6 +50,7 @@ class TestNetworking(MachineCase):
             return False
 
         self.browser.wait_present(sel)
+        self.browser.wait_visible(sel)
         self.browser.wait(is_valid)
 
     def switch_off_rp_filter(self, m):

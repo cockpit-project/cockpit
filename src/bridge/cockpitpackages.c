@@ -268,48 +268,74 @@ out:
 }
 
 static JsonObject *
-read_package_manifest (const gchar *directory,
-                       const gchar *package)
+read_json_file (const gchar *directory,
+                const gchar *name,
+                GError **error)
 {
-  JsonObject *manifest = NULL;
-  GError *error = NULL;
+  JsonObject *object;
   GMappedFile *mapped;
   gchar *filename;
   GBytes *bytes;
 
-  filename = g_build_filename (directory, "manifest.json", NULL);
-  mapped = g_mapped_file_new (filename, FALSE, &error);
+  filename = g_build_filename (directory, name, NULL);
+  mapped = g_mapped_file_new (filename, FALSE, error);
+  g_free (filename);
+
   if (!mapped)
     {
+      return NULL;
+    }
+
+  bytes = g_mapped_file_get_bytes (mapped);
+  object = cockpit_json_parse_bytes (bytes, error);
+  g_mapped_file_unref (mapped);
+  g_bytes_unref (bytes);
+
+  return object;
+}
+
+static JsonObject *
+read_package_manifest (const gchar *directory,
+                       const gchar *package)
+{
+  JsonObject *manifest = NULL;
+  JsonObject *override = NULL;
+  GError *error = NULL;
+
+
+  manifest = read_json_file (directory, "manifest.json", &error);
+  if (!manifest)
+    {
       if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
-        g_debug ("no manifest found: %s", filename);
-      else if (!g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOTDIR))
-        g_message ("%s: %s", package, error->message);
+        g_debug ("%s: no manifest found", package);
+      else
+        g_message ("%s: couldn't read manifest.json: %s", package, error->message);
       g_clear_error (&error);
+    }
+  else if (!validate_package (package))
+    {
+      g_warning ("%s: package has invalid name", package);
+      json_object_unref (manifest);
+      return NULL;
     }
   else
     {
-     if (!validate_package (package))
-       {
-         g_warning ("package has invalid name: %s", package);
-       }
-     else
-       {
-         bytes = g_mapped_file_get_bytes (mapped);
-         manifest = cockpit_json_parse_bytes (bytes, &error);
-         g_bytes_unref (bytes);
-
-         if (!manifest)
-           {
-             g_message ("%s: invalid manifest: %s", package, error->message);
-             g_clear_error (&error);
-           }
-       }
-
-      g_mapped_file_unref (mapped);
+      override = read_json_file (directory, "override.json", &error);
+      if (error)
+        {
+          if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
+            g_debug ("%s: no override found", package);
+          else
+            g_message ("%s: couldn't read override.json: %s", package, error->message);
+          g_clear_error (&error);
+        }
+      if (override)
+        {
+          cockpit_json_patch (manifest, override);
+          json_object_unref (override);
+        }
     }
 
-  g_free (filename);
   return manifest;
 }
 

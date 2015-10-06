@@ -118,14 +118,20 @@ class TestDocker(MachineCase):
         b.click("#containers-run-image-run");
         b.wait_popdown("containers_run_image_dialog")
         b.wait_in_text("#containers-containers", "PROBE2")
-        b.wait_present("#containers-containers tbody tr:contains('PROBE2'):contains('Stopped')")
+
+        # Wait for PROBE2 to Exit
+        b.click('#containers-containers tr:contains("PROBE2")')
+        b.wait_visible("#container-details")
+        b.wait_in_text("#container-details-state", "Exited")
 
         # Check links
         info = json.loads(m.execute('docker inspect PROBE2'))
         self.assertEqual(set(info[0]["HostConfig"]["Links"]),
                          set(["/PROBE1:/PROBE2/alias1", "/PROBE1:/PROBE2/alias2"]))
 
-        # delete PROBE2
+        # delete PROBE2 from dash
+        b.click("#container-details ol.breadcrumb a")
+        b.wait_visible("#containers-containers")
         b.wait_in_text('#containers-containers tbody', "PROBE2")
         b.wait_not_visible("#containers-containers tbody tr:contains('PROBE2') button.btn-delete")
         b.click("#containers-containers button.enable-danger")

@@ -124,7 +124,7 @@ on_files_listed (GObject *source_object,
 
       if (self->monitor == NULL)
         {
-          cockpit_channel_done (COCKPIT_CHANNEL (self));
+          cockpit_channel_control (COCKPIT_CHANNEL (self), "done", NULL);
           cockpit_channel_close (COCKPIT_CHANNEL (self), NULL);
         }
       return;

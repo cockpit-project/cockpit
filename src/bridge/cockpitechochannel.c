@@ -50,11 +50,19 @@ cockpit_echo_channel_recv (CockpitChannel *channel,
   cockpit_channel_send (channel, message, FALSE);
 }
 
-static void
-cockpit_echo_channel_done (CockpitChannel *channel)
+static gboolean
+cockpit_echo_channel_control (CockpitChannel *channel,
+                              const gchar *command,
+                              JsonObject *options)
 {
-  g_debug ("received echo channel done");
-  cockpit_channel_done (channel);
+  if (g_str_equal (command, "done"))
+    {
+      g_debug ("received echo channel done");
+      cockpit_channel_control (channel, command, options);
+      return TRUE;
+    }
+
+  return FALSE;
 }
 
 static void
@@ -76,6 +84,6 @@ cockpit_echo_channel_class_init (CockpitEchoChannelClass *klass)
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
   channel_class->prepare = cockpit_echo_channel_prepare;
+  channel_class->control = cockpit_echo_channel_control;
   channel_class->recv = cockpit_echo_channel_recv;
-  channel_class->done = cockpit_echo_channel_done;
 }

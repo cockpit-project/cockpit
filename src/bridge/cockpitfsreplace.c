@@ -142,12 +142,17 @@ xclose (int fd)
     return res;
 }
 
-static void
-cockpit_fsreplace_done (CockpitChannel *channel)
+static gboolean
+cockpit_fsreplace_control (CockpitChannel *channel,
+                           const gchar *command,
+                           JsonObject *unused)
 {
   CockpitFsreplace *self = COCKPIT_FSREPLACE (channel);
   const gchar *problem = NULL;
   JsonObject *options;
+
+  if (!g_str_equal (command, "done"))
+    return FALSE;
 
   /* Commit the changes when there was no problem  */
   if (xfsync (self->fd) < 0 || xclose (self->fd) < 0)
@@ -186,6 +191,7 @@ cockpit_fsreplace_done (CockpitChannel *channel)
 
   self->fd = -1;
   cockpit_channel_close (channel, problem);
+  return TRUE;
 }
 
 static void
@@ -295,8 +301,8 @@ cockpit_fsreplace_class_init (CockpitFsreplaceClass *klass)
   gobject_class->finalize = cockpit_fsreplace_finalize;
 
   channel_class->prepare = cockpit_fsreplace_prepare;
+  channel_class->control = cockpit_fsreplace_control;
   channel_class->recv = cockpit_fsreplace_recv;
-  channel_class->done = cockpit_fsreplace_done;
   channel_class->close = cockpit_fsreplace_close;
 }
 

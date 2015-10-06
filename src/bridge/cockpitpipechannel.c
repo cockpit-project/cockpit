@@ -104,48 +104,59 @@ process_pipe_buffer (CockpitPipeChannel *self,
     }
 }
 
-static void
-cockpit_pipe_channel_done (CockpitChannel *channel)
+static gboolean
+cockpit_pipe_channel_control (CockpitChannel *channel,
+                              const gchar *command,
+                              JsonObject *message)
 {
   CockpitPipeChannel *self = COCKPIT_PIPE_CHANNEL (channel);
+  const gchar *problem = NULL;
+  gboolean ret = TRUE;
 
-  self->closing = TRUE;
-  process_pipe_buffer (self, NULL);
-
-  /*
-   * If closed, call base class handler directly. Otherwise ask
-   * our pipe to close first, which will come back here.
-  */
-  if (self->open)
-    cockpit_pipe_close (self->pipe, NULL);
-}
-
-static void
-cockpit_pipe_channel_options (CockpitChannel *channel,
-                              JsonObject *options)
-{
-  CockpitPipeChannel *self = COCKPIT_PIPE_CHANNEL (channel);
-  const gchar *problem = "protocol-error";
-
-  if (!cockpit_json_get_int (options, "batch", self->batch, &self->batch))
+  /* New set of options for channel */
+  if (g_str_equal (command, "options"))
     {
-      g_warning ("invalid \"batch\" option for stream channel");
-      goto out;
+      problem = "protocol-error";
+      if (!cockpit_json_get_int (message, "batch", self->batch, &self->batch))
+        {
+          g_warning ("invalid \"batch\" option for stream channel");
+          goto out;
+        }
+
+      if (!cockpit_json_get_int (message, "latency", self->latency, &self->latency) ||
+          self->latency < 0 || self->latency >= G_MAXUINT)
+        {
+          g_warning ("invalid \"latency\" option for stream channel");
+          goto out;
+        }
+
+      problem = NULL;
+      process_pipe_buffer (self, NULL);
     }
 
-  if (!cockpit_json_get_int (options, "latency", self->latency, &self->latency) ||
-      self->latency < 0 || self->latency >= G_MAXUINT)
+  /* Channel input is done */
+  else if (g_str_equal (command, "done"))
     {
-      g_warning ("invalid \"latency\" option for stream channel");
-      goto out;
+      self->closing = TRUE;
+      process_pipe_buffer (self, NULL);
+
+      /*
+       * If closed, call base class handler directly. Otherwise ask
+       * our pipe to close first, which will come back here.
+      */
+      if (self->open)
+        cockpit_pipe_close (self->pipe, NULL);
     }
 
-  problem = NULL;
-  process_pipe_buffer (self, NULL);
+  else
+    {
+      ret = FALSE;
+    }
 
 out:
   if (problem)
     cockpit_channel_close (channel, problem);
+  return ret;
 }
 
 static void
@@ -278,7 +289,7 @@ on_pipe_close (CockpitPipe *pipe,
    * But we can do that later in a compatible way.
    */
   if (problem == NULL)
-    cockpit_channel_done (channel);
+    cockpit_channel_control (channel, "done", NULL);
 
   cockpit_channel_close (channel, problem);
 }
@@ -388,7 +399,7 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
     }
 
   /* Support our options in the open message too */
-  cockpit_pipe_channel_options (channel, options);
+  cockpit_pipe_channel_control (channel, "options", options);
   if (self->closing)
     goto out;
 
@@ -491,8 +502,7 @@ cockpit_pipe_channel_class_init (CockpitPipeChannelClass *klass)
   gobject_class->finalize = cockpit_pipe_channel_finalize;
 
   channel_class->prepare = cockpit_pipe_channel_prepare;
-  channel_class->options = cockpit_pipe_channel_options;
-  channel_class->done = cockpit_pipe_channel_done;
+  channel_class->control = cockpit_pipe_channel_control;
   channel_class->recv = cockpit_pipe_channel_recv;
   channel_class->close = cockpit_pipe_channel_close;
 }

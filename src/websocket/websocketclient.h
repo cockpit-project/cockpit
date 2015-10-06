@@ -47,6 +47,8 @@ void                  web_socket_client_include_header     (WebSocketClient *sel
                                                             const gchar *name,
                                                             const gchar *value);
 
+GHashTable *          web_socket_client_get_headers        (WebSocketClient *self);
+
 G_END_DECLS
 
 #endif /* __WEB_SOCKET_CLIENT_H__ */

@@ -434,6 +434,128 @@ test_string_encode (gconstpointer data)
   json_node_free (node);
 }
 
+static const gchar *patch_data =
+ "{"
+  "   \"string\": \"value\","
+  "   \"number\": 55,"
+  "   \"array\": [ \"one\", \"two\", \"three\" ],"
+  "   \"bool\": true,"
+  "   \"null\": null,"
+  "   \"object\": {"
+  "       \"one\": 1,"
+  "       \"two\": 2,"
+  "       \"nested\": {"
+  "           \"three\": 3"
+  "       }"
+  "   }"
+  "}";
+
+typedef struct {
+  const gchar *name;
+  const gchar *patch;
+  const gchar *result;
+} PatchFixture;
+
+static PatchFixture patch_fixtures[] = {
+  {
+    "simple-value",
+    "{\"string\": 5}",
+    "{"
+     "   \"string\": 5,"
+     "   \"number\": 55,"
+     "   \"array\": [ \"one\", \"two\", \"three\" ],"
+     "   \"bool\": true,"
+     "   \"null\": null,"
+     "   \"object\": {"
+     "       \"one\": 1,"
+     "       \"two\": 2,"
+     "       \"nested\": {"
+     "           \"three\": 3"
+     "       }"
+     "   }"
+     "}",
+  },
+  {
+    "multi-value",
+    "{"
+    "  \"array\": [ 5 ],"
+    "  \"number\": { \"test\": true }"
+    "}",
+    "{"
+     "   \"string\": \"value\","
+     "   \"number\": { \"test\": true },"
+     "   \"array\": [ 5 ],"
+     "   \"bool\": true,"
+     "   \"null\": null,"
+     "   \"object\": {"
+     "       \"one\": 1,"
+     "       \"two\": 2,"
+     "       \"nested\": {"
+     "           \"three\": 3"
+     "       }"
+     "   }"
+     "}",
+  },
+  {
+    "add-and-remove",
+    "{"
+    "  \"array\": null,"
+    "  \"number\": null,"
+    "  \"object\": null,"
+    "  \"added\": 42"
+    "}",
+    "{"
+     "   \"string\": \"value\","
+     "   \"bool\": true,"
+     "   \"null\": null,"
+     "   \"added\": 42"
+     "}",
+  },
+  {
+    "nested-objects",
+    "{"
+    "  \"object\": {"
+    "    \"one\": \"uno\","
+    "    \"nested\": null,"
+    "    \"three\": \"tres\""
+    "  }"
+    "}",
+    "{"
+     "   \"string\": \"value\","
+     "   \"number\": 55,"
+     "   \"array\": [ \"one\", \"two\", \"three\" ],"
+     "   \"bool\": true,"
+     "   \"null\": null,"
+     "   \"object\": {"
+     "       \"one\": \"uno\","
+     "       \"two\": 2,"
+     "       \"three\": \"tres\""
+     "   }"
+     "}",
+  }
+};
+
+static void
+test_patch (gconstpointer data)
+{
+  const PatchFixture *fixture = data;
+  GError *error = NULL;
+  JsonObject *object;
+  JsonObject *with;
+
+  object = cockpit_json_parse_object (patch_data, -1, &error);
+  g_assert_no_error (error);
+
+  with = cockpit_json_parse_object (fixture->patch, -1, &error);
+  g_assert_no_error (error);
+
+  cockpit_json_patch (object, with);
+
+  cockpit_assert_json_eq (object, fixture->result);
+  json_object_unref (object);
+  json_object_unref (with);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -478,6 +600,13 @@ main (int argc,
       name = g_strdup_printf ("/json/string/%s%d", escaped, i);
       g_test_add_data_func (name, string_fixtures + i, test_string_encode);
       g_free (escaped);
+      g_free (name);
+    }
+
+  for (i = 0; i < G_N_ELEMENTS (patch_fixtures); i++)
+    {
+      name = g_strdup_printf ("/json/patch/%s", patch_fixtures[i].name);
+      g_test_add_data_func (name, patch_fixtures + i, test_patch);
       g_free (name);
     }
 

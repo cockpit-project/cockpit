@@ -618,12 +618,12 @@ class VirtMachine(Machine):
         # it is ESSENTIAL to register the default implementation of the event loop before opening a connection
         # otherwise messages may be delayed or lost
         libvirt.virEventRegisterDefaultImpl()
-        self.virt_connection = libvirt.open("qemu:///session")
+        self.virt_connection = self._libvirt_connection(hypervisor = "qemu:///session")
         self.event_handler = VirtEventHandler(libvirt_connection=self.virt_connection, verbose=self.verbose)
 
         # network names are currently hardcoded into network-cockpit.xml
         self.network_name = self._read_network_name()
-        self.system_connection = libvirt.openReadOnly("qemu:///system")
+        self.system_connection = self._libvirt_connection(hypervisor = "qemu:///system", read_only = True)
         self.dhcp_net = self.system_connection.networkLookupByName(self.network_name)
 
         # we can't see the network itself as non-root, create it using vm-prep as root
@@ -633,6 +633,26 @@ class VirtMachine(Machine):
 
         # init variables needed for running a vm
         self._cleanup()
+
+    def _libvirt_connection(self, hypervisor, read_only = False):
+        tries_left = 5
+        connection = None
+        if read_only:
+            open_function = libvirt.openReadOnly
+        else:
+            open_function = libvirt.open
+        while not connection and (tries_left > 0):
+            try:
+                connection = open_function(hypervisor)
+            except:
+                # wait a bit
+                time.sleep(1)
+                pass
+            tries_left -= 1
+        if not connection:
+            # try again, but if an error occurs, don't catch it
+            connection = open_function(hypervisor)
+        return connection
 
     def _read_network_name(self):
         tree = etree.parse(open("./guest/network-cockpit.xml"))

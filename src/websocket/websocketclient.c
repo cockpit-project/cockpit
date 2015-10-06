@@ -39,6 +39,7 @@ struct _WebSocketClient
   gchar **possible_protocols;
   gpointer accept_key;
   GHashTable *include_headers;
+  GHashTable *response_headers;
   GCancellable *cancellable;
   GSource *idle_start;
 };
@@ -184,6 +185,10 @@ parse_handshake_response (WebSocketClient *self,
 
   consumed = in1 + in2;
 
+  if (self->response_headers)
+    g_hash_table_unref (self->response_headers);
+  self->response_headers = headers;
+
   /*
    * TODO: We could handle the following codes here:
    *  401: authentication
@@ -240,7 +245,6 @@ parse_handshake_response (WebSocketClient *self,
     }
 
   g_free (reason);
-  g_hash_table_unref (headers);
   if (consumed > 0)
     g_byte_array_remove_range (incoming, 0, consumed);
   return verified;
@@ -595,6 +599,8 @@ web_socket_client_finalize (GObject *object)
   g_free (self->accept_key);
   if (self->include_headers)
     g_hash_table_unref (self->include_headers);
+  if (self->response_headers)
+    g_hash_table_unref (self->response_headers);
   if (self->cancellable)
     g_object_unref (self->cancellable);
   g_assert (self->idle_start == NULL);
@@ -717,4 +723,11 @@ web_socket_client_include_header (WebSocketClient *self,
       self->include_headers = web_socket_util_new_headers ();
   g_hash_table_insert (self->include_headers,
                        g_strdup (name), g_strdup (value));
+}
+
+GHashTable *
+web_socket_client_get_headers (WebSocketClient *self)
+{
+  g_return_val_if_fail (WEB_SOCKET_IS_CLIENT (self), NULL);
+  return self->response_headers;
 }

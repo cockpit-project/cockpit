@@ -558,6 +558,7 @@ test_handshake (Test *test,
 {
   gboolean open_event_client = FALSE;
   gboolean open_event_server = FALSE;
+  GHashTable *headers;
 
   g_signal_connect (test->client, "open", G_CALLBACK (on_open_set_flag), &open_event_client);
   g_signal_connect (test->server, "open", G_CALLBACK (on_open_set_flag), &open_event_server);
@@ -567,6 +568,17 @@ test_handshake (Test *test,
 
   WAIT_UNTIL (web_socket_connection_get_ready_state (test->server) != WEB_SOCKET_STATE_CONNECTING);
   g_assert_cmpint (web_socket_connection_get_ready_state (test->server), ==, WEB_SOCKET_STATE_OPEN);
+
+  headers = web_socket_client_get_headers (WEB_SOCKET_CLIENT (test->client));
+  g_assert (headers != NULL);
+#if 0
+  GHashTableIter iter;
+  gpointer key, value;
+  g_hash_table_iter_init (&iter, headers);
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    g_printerr ("headers: %s %s\n", (gchar *)key, (gchar *)value);
+#endif
+  g_assert_cmpstr (g_hash_table_lookup (headers, "connection"), ==, "Upgrade");
 
   g_assert (open_event_client);
   g_assert (open_event_server);

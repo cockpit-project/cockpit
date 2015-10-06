@@ -351,6 +351,50 @@ cockpit_json_equal (JsonNode *previous,
 }
 
 /**
+ * cockpit_json_override:
+ * @target: a JSON object
+ * @override: a JSON object to override from
+ *
+ * Override the values in @target with the members in @override.
+ * Any members of @override are set on @target. If both contain
+ * objects for a given member, then these are overridden in turn.
+ *
+ * Any members that are set to null in the @override will be
+ * removed from the @target.
+ */
+void
+cockpit_json_patch (JsonObject *target,
+                    JsonObject *override)
+{
+  GList *l, *members;
+  JsonNode *node, *other;
+
+  members = json_object_get_members (override);
+  for (l = members; l != NULL; l = g_list_next (l))
+    {
+      node = json_object_get_member (override, l->data);
+      if (JSON_NODE_HOLDS_NULL (node))
+        {
+          json_object_remove_member (target, l->data);
+          continue;
+        }
+      else if (JSON_NODE_HOLDS_OBJECT (node))
+        {
+          other = json_object_get_member (target, l->data);
+          if (other && JSON_NODE_HOLDS_OBJECT (other))
+            {
+              cockpit_json_patch (json_node_get_object (other),
+                                  json_node_get_object (node));
+              continue;
+            }
+        }
+
+      json_object_set_member (target, l->data, json_node_copy (node));
+    }
+  g_list_free (members);
+}
+
+/**
  * cockpit_json_int_hash:
  * @v: pointer to a gint64
  *

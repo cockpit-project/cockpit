@@ -392,7 +392,7 @@ test_bad_receive (TestCase *tc,
 
 static const Fixture fixture_list_bad_name = {
     .datadirs = { SRCDIR "/src/bridge/mock-resource/bad-package", NULL },
-    .expect = "package * invalid *name*",
+    .expect = "*package*invalid*name*",
     .path = "/manifests.json"
 };
 

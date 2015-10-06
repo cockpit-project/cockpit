@@ -317,7 +317,7 @@ test_resource_checksum (TestResourceCase *tc,
 
   response = cockpit_web_response_new (tc->io, "/unused", NULL, NULL);
   cockpit_channel_response_serve (tc->service, tc->headers, response,
-                                "$71100b932eb766ef9043f855974ae8e3834173e2",
+                                "$386257ed81a663cdd7ee12633056dee18d60ddca",
                                 "/test/sub/file.ext");
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -329,7 +329,7 @@ test_resource_checksum (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
-                           "ETag: \"$71100b932eb766ef9043f855974ae8e3834173e2\"\r\n"
+                           "ETag: \"$386257ed81a663cdd7ee12633056dee18d60ddca\"\r\n"
                            "Cache-Control: max-age=31556926, public\r\n"
                            "Transfer-Encoding: chunked\r\n"
                            "\r\n"
@@ -385,7 +385,7 @@ test_resource_redirect_checksum (TestResourceCase *tc,
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 307 Temporary Redirect\r\n"
                            "Content-Type: text/html\r\n"
-                           "Location: /cockpit/$71100b932eb766ef9043f855974ae8e3834173e2/test/sub/file.ext\r\n"
+                           "Location: /cockpit/$386257ed81a663cdd7ee12633056dee18d60ddca/test/sub/file.ext\r\n"
                            "Content-Length: 91\r\n"
                            "\r\n"
                            "<html><head><title>Temporary redirect</title></head><body>Access via checksum</body></html>",

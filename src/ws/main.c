@@ -69,7 +69,7 @@ calculate_static_roots (GHashTable *os_release)
 {
   const gchar *os_id = NULL;
   const gchar *os_variant_id = NULL;
-  gchar *branding_dirs[3] = { NULL, };
+  gchar *dirs[4] = { NULL, };
   gchar **roots;
   gint i = 0;
 
@@ -86,21 +86,17 @@ calculate_static_roots (GHashTable *os_release)
   if (os_id)
     {
       if (os_variant_id)
-          branding_dirs[i++] = g_strdup_printf (DATADIR "/cockpit/branding/%s-%s", os_id, os_variant_id);
-      branding_dirs[i++] = g_strdup_printf (DATADIR "/cockpit/branding/%s", os_id);
+          dirs[i++] = g_strdup_printf (DATADIR "/cockpit/branding/%s-%s", os_id, os_variant_id);
+      dirs[i++] = g_strdup_printf (DATADIR "/cockpit/branding/%s", os_id);
     }
-  branding_dirs[i++] = g_strdup (DATADIR "/cockpit/branding/default");
-  g_assert (i <= 3);
+  dirs[i++] = g_strdup (DATADIR "/cockpit/branding/default");
+  dirs[i++] = g_strdup (DATADIR "/cockpit/static");
+  g_assert (i <= 4);
 
-  roots = cockpit_web_server_resolve_roots (DATADIR "/cockpit/static",
-                                            branding_dirs[0],
-                                            branding_dirs[1],
-                                            branding_dirs[2],
-                                            NULL);
+  roots = cockpit_web_server_resolve_roots (dirs[0], dirs[1], dirs[2], dirs[3], NULL);
 
-  g_free (branding_dirs[0]);
-  g_free (branding_dirs[1]);
-  g_free (branding_dirs[2]);
+  while (i > 0)
+    g_free (dirs[--i]);
 
   /* Allow branding symlinks to escape these roots into /usr/share/pixmaps */
   cockpit_web_exception_escape_root = "/usr/share/pixmaps";

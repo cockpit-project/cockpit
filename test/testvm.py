@@ -801,6 +801,7 @@ class VirtMachine(Machine):
         macs = self._qemu_network_macs()
         if not macs:
             raise Failure("no mac addresses found for created machine")
+        self.message("available mac addresses: %s" % (", ".join(macs)))
         self.macaddr = macs[0]
         if wait_for_ip:
             self.address = self._ip_from_mac(self.macaddr)
@@ -828,26 +829,30 @@ class VirtMachine(Machine):
             self._cleanup()
             raise
 
-    def _wait_for_ip(self, mac, timeout_sec = 180):
-        # our network is defined system wide
-        # luckily we have read access to that
-        # if there are multiple matches for the mac, get the most current one
-        start_time = time.time()
-        while (time.time() - start_time) < timeout_sec:
-            applicable_leases = filter(lambda lease: lease['mac'] == mac, self.dhcp_net.DHCPLeases())
-            if applicable_leases:
-                return sorted(applicable_leases, key=lambda lease: lease['expirytime'], reverse=True)[0]['ipaddr']
-            time.sleep(1)
-
-        raise Failure("Can't resolve IP of %s" % mac)
-
-    def _ip_from_mac(self, mac, timeout_sec = 180):
+    def _ip_from_mac(self, mac, timeout_sec = 300):
         # first see if we use a mac address defined in the network description
         for h in self._network_description.find(".//dhcp"):
             if h.get("mac") == mac:
                 return h.get("ip")
         # we didn't find it in the network description, so get it from the dhcp lease information
-        return self._wait_for_ip(mac, timeout_sec)
+
+        # our network is defined system wide, so we need a different hypervisor connection
+        # if there are multiple matches for the mac, get the most current one
+        start_time = time.time()
+        while (time.time() - start_time) < timeout_sec:
+            try:
+                with stdchannel_redirected(sys.stderr, os.devnull):
+                    applicable_leases = self.dhcp_net.DHCPLeases(mac)
+            except:
+                time.sleep(1)
+                continue
+            if applicable_leases:
+                return sorted(applicable_leases, key=lambda lease: lease['expirytime'], reverse=True)[0]['ipaddr']
+            time.sleep(1)
+
+        macs = self._qemu_network_macs()
+        lease_info = "\n".join(map(lambda lease: str(lease), self.dhcp_net.DHCPLeases()))
+        raise Failure("Can't resolve IP of %s\nAll current addresses: [%s]\nAll leases: %s" % (mac, ", ".join(macs), lease_info))
 
     def reset_reboot_flag(self):
         self.event_handler.reset_domain_reboot_status(self._domain)

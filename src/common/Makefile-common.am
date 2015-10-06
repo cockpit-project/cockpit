@@ -46,6 +46,8 @@ nodist_libcockpit_common_a_SOURCES = \
 libcockpit_common_a_SOURCES = \
 	src/common/cockpitcertificate.c \
 	src/common/cockpitcertificate.h \
+	src/common/cockpitconnect.c \
+	src/common/cockpitconnect.h \
 	src/common/cockpitenums.h \
 	src/common/cockpiterror.h src/common/cockpiterror.c \
 	src/common/cockpithash.c \
@@ -112,6 +114,7 @@ COCKPIT_CHECKS = \
 	test-hex \
 	test-json \
 	test-pipe \
+	test-connect \
 	test-stream \
 	test-transport \
 	test-unixsignal \
@@ -121,6 +124,11 @@ COCKPIT_CHECKS = \
 	test-config \
 	test-unicode \
 	$(NULL)
+
+
+test_connect_CFLAGS = $(libcockpit_common_a_CFLAGS)
+test_connect_SOURCES = src/common/test-connect.c
+test_connect_LDADD = $(libcockpit_common_a_LIBS)
 
 test_hash_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_hash_SOURCES = src/common/test-hash.c

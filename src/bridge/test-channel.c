@@ -23,6 +23,7 @@
 #include "mock-transport.h"
 
 #include "common/cockpitjson.h"
+#include "common/cockpitstream.h"
 #include "common/cockpittest.h"
 
 #include <json-glib/json-glib.h>
@@ -431,11 +432,11 @@ test_capable (void)
 static void
 test_invalid_internal (void)
 {
+  CockpitConnectable *connectable;
   JsonObject *options;
   MockTransport *transport;
   CockpitChannel *channel;
   JsonObject *sent;
-  GSocketConnectable *connectable;
 
   options = json_object_new ();
   json_object_set_string_member (options, "internal", "test");
@@ -447,7 +448,7 @@ test_invalid_internal (void)
                           "options", options,
                           NULL);
   json_object_unref (options);
-  connectable = cockpit_channel_parse_connectable (channel, NULL, NULL);
+  connectable = cockpit_channel_parse_stream (channel);
   g_assert (connectable == NULL);
   while (g_main_context_iteration (NULL, FALSE));
 
@@ -484,12 +485,11 @@ test_parse_port (void)
   JsonObject *options;
   MockTransport *transport;
   CockpitChannel *channel;
-  GSocketConnectable *connectable;
+  CockpitConnectable *connectable;
   GSocketAddress *address;
   GInetAddress *expected_ip;
   GInetAddress *got_ip; // owned by address
   gchar *name = NULL;
-  gboolean local = -1; /* yup */
 
   expected_ip = g_inet_address_new_from_string (cockpit_bridge_local_address);
 
@@ -503,7 +503,7 @@ test_parse_port (void)
                           "options", options,
                           NULL);
   json_object_unref (options);
-  connectable = cockpit_channel_parse_connectable (channel, NULL, &local);
+  connectable = cockpit_channel_parse_stream (channel);
   address = cockpit_channel_parse_address (channel, &name);
 
   g_assert (g_socket_address_get_family (address) == G_SOCKET_FAMILY_IPV4);
@@ -512,10 +512,10 @@ test_parse_port (void)
   got_ip = g_inet_socket_address_get_address ((GInetSocketAddress *)address);
   g_assert (g_inet_address_equal (got_ip, expected_ip));
 
-  g_assert_cmpint (local, ==, TRUE);
+  g_assert_cmpint (connectable->local, ==, TRUE);
 
   g_object_unref (channel);
-  g_object_unref (connectable);
+  cockpit_connectable_unref (connectable);
   g_object_unref (transport);
   g_object_unref (address);
   g_object_unref (expected_ip);
@@ -529,12 +529,11 @@ test_parse_address (void)
   JsonObject *options;
   MockTransport *transport;
   CockpitChannel *channel;
-  GSocketConnectable *connectable;
+  CockpitConnectable *connectable;
   GSocketAddress *address;
   GInetAddress *expected_ip;
   GInetAddress *got_ip; // owned by address
   gchar *name = NULL;
-  gboolean local = -1; /* yup */
 
   expected_ip = g_inet_address_new_from_string ("10.1.1.1");
 
@@ -549,7 +548,9 @@ test_parse_address (void)
                           "options", options,
                           NULL);
   json_object_unref (options);
-  connectable = cockpit_channel_parse_connectable (channel, NULL, &local);
+  connectable = cockpit_channel_parse_stream (channel);
+  g_assert (connectable != NULL);
+
   address = cockpit_channel_parse_address (channel, &name);
 
   g_assert (g_socket_address_get_family (address) == G_SOCKET_FAMILY_IPV4);
@@ -558,10 +559,10 @@ test_parse_address (void)
   got_ip = g_inet_socket_address_get_address ((GInetSocketAddress *)address);
   g_assert (g_inet_address_equal (got_ip, expected_ip));
 
-  g_assert_cmpint (local, ==, FALSE);
+  g_assert_cmpint (connectable->local, ==, FALSE);
 
   g_object_unref (channel);
-  g_object_unref (connectable);
+  cockpit_connectable_unref (connectable);
   g_object_unref (transport);
   g_object_unref (address);
   g_object_unref (expected_ip);

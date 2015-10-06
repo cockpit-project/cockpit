@@ -40,12 +40,10 @@ enum {
 struct _CockpitStreamPrivate {
   gchar *name;
   GMainContext *context;
-  CockpitStreamOptions *options;
 
   gboolean closed;
   gboolean closing;
-  GSocketAddressEnumerator *connecting;
-  GError *connect_error;
+  CockpitConnectable *connecting;
   gchar *problem;
 
   GIOStream *io;
@@ -113,11 +111,10 @@ close_immediately (CockpitStream *self,
 
   if (self->priv->connecting)
     {
-      g_object_unref (self->priv->connecting);
+      cockpit_connectable_unref (self->priv->connecting);
       self->priv->connecting = NULL;
     }
 
-  g_clear_error (&self->priv->connect_error);
   self->priv->closed = TRUE;
 
   g_debug ("%s: closing stream%s%s", self->priv->name,
@@ -203,15 +200,15 @@ close_output (CockpitStream *self)
 #endif
 
 static gchar *
-describe_certificate_errors (CockpitStream *self)
+describe_certificate_errors (GIOStream *io)
 {
   GTlsCertificateFlags flags;
   GString *str;
 
-  if (!G_IS_TLS_CONNECTION (self->priv->io))
+  if (!G_IS_TLS_CONNECTION (io))
     return NULL;
 
-  flags = g_tls_connection_get_peer_certificate_errors (G_TLS_CONNECTION (self->priv->io));
+  flags = g_tls_connection_get_peer_certificate_errors (G_TLS_CONNECTION (io));
   if (flags == 0)
     return NULL;
 
@@ -261,10 +258,11 @@ describe_certificate_errors (CockpitStream *self)
   return g_string_free (str, FALSE);
 }
 
-static void
-set_problem_from_error (CockpitStream *self,
+const gchar *
+cockpit_stream_problem (GError *error,
+                        const gchar *name,
                         const gchar *summary,
-                        GError *error)
+                        GIOStream *io)
 {
   const gchar *problem = NULL;
   gchar *details = NULL;
@@ -280,8 +278,7 @@ set_problem_from_error (CockpitStream *self,
     problem = "not-found";
   else if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_BROKEN_PIPE) ||
            g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CONNECTION_CLOSED) ||
-           g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_EOF) ||
-           (self->priv->received && g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_MISC)))
+           g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_EOF))
     problem = "disconnected";
 #if !GLIB_CHECK_VERSION(2,43,2)
   else if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_FAILED) &&
@@ -291,29 +288,52 @@ set_problem_from_error (CockpitStream *self,
   else if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_TIMED_OUT))
     problem = "timeout";
   else if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_NOT_TLS) ||
-           (!self->priv->received && g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_MISC)))
+           g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_MISC))
     problem = "protocol-error";
   else if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_BAD_CERTIFICATE))
     {
       problem = "unknown-hostkey";
-      details = describe_certificate_errors (self);
+      if (io != NULL)
+        details = describe_certificate_errors (io);
     }
-
-  g_free (self->priv->problem);
 
   if (problem)
     {
-      g_message ("%s: %s: %s%s%s", self->priv->name, summary, error->message,
+      g_message ("%s: %s: %s%s%s", name, summary, error->message,
                  details ? ": " : "", details ? details : "");
-      self->priv->problem = g_strdup (problem);
     }
   else
     {
-      g_warning ("%s: %s: %s", self->priv->name, summary, error->message);
-      self->priv->problem = g_strdup ("internal-error");
+      g_warning ("%s: %s: %s", name, summary, error->message);
+      problem = "internal-error";
     }
 
   g_free (details);
+  return problem;
+}
+
+static void
+set_problem_from_error (CockpitStream *self,
+                        const gchar *summary,
+                        GError *error)
+{
+  const gchar *problem;
+
+  if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_MISC))
+    {
+      g_message ("%s: %s: %s", self->priv->name, summary, error->message);
+      if (self->priv->received)
+        problem = "disconnected";
+      else
+        problem = "protocol-error";
+    }
+  else
+    {
+      problem = cockpit_stream_problem (error, self->priv->name, summary, self->priv->io);
+    }
+
+  g_free (self->priv->problem);
+  self->priv->problem = g_strdup (problem);
 }
 
 static gboolean
@@ -488,7 +508,7 @@ initialize_io (CockpitStream *self)
 
   if (self->priv->connecting)
     {
-      g_object_unref (self->priv->connecting);
+      cockpit_connectable_unref (self->priv->connecting);
       self->priv->connecting = NULL;
     }
 
@@ -573,10 +593,6 @@ cockpit_stream_dispose (GObject *object)
 
   while (self->priv->out_queue->head)
     g_bytes_unref (g_queue_pop_head (self->priv->out_queue));
-
-  if (self->priv->options)
-    cockpit_stream_options_unref (self->priv->options);
-  self->priv->options = NULL;
 
   G_OBJECT_CLASS (cockpit_stream_parent_class)->dispose (object);
 }
@@ -770,168 +786,46 @@ cockpit_close_later (CockpitStream *self)
 }
 
 static void
-on_address_next (GObject *object,
-                 GAsyncResult *result,
-                 gpointer user_data);
-
-static void
-on_socket_connect (GObject *object,
+on_connect_stream (GObject *object,
                    GAsyncResult *result,
                    gpointer user_data)
 {
-  CockpitStream *self = user_data;
+  CockpitStream *self = COCKPIT_STREAM (user_data);
   GError *error = NULL;
 
-  g_socket_connection_connect_finish (G_SOCKET_CONNECTION (object), result, &error);
-
-  if (!error && !self->priv->closed)
-    {
-      g_debug ("%s: connected", self->priv->name);
-
-      if (self->priv->options && self->priv->options->tls_client)
-        {
-          self->priv->io = g_tls_client_connection_new (G_IO_STREAM (object), NULL, &error);
-          if (self->priv->io)
-            {
-              g_debug ("%s: tls handshake", self->priv->name);
-
-              g_tls_client_connection_set_validation_flags (G_TLS_CLIENT_CONNECTION (self->priv->io),
-                                                            self->priv->options->tls_client_flags);
-
-              if (self->priv->options->tls_cert)
-                {
-                  g_tls_connection_set_certificate (G_TLS_CONNECTION (self->priv->io),
-                                                    self->priv->options->tls_cert);
-                }
-              if (self->priv->options->tls_database)
-                {
-                  g_tls_connection_set_database (G_TLS_CONNECTION (self->priv->io),
-                                                 self->priv->options->tls_database);
-                }
-
-              /* We track data end the same way we do for HTTP */
-              g_tls_connection_set_require_close_notify (G_TLS_CONNECTION (self->priv->io), FALSE);
-            }
-        }
-      else
-        {
-          self->priv->io = g_object_ref (object);
-        }
-    }
-
+  self->priv->io = cockpit_connect_stream_finish (result, &error);
   if (error)
     {
-      g_debug ("%s: couldn't connect: %s", self->priv->name, error->message);
-      g_clear_error (&self->priv->connect_error);
-      self->priv->connect_error = error;
-
-      g_socket_address_enumerator_next_async (self->priv->connecting, NULL,
-                                              on_address_next, g_object_ref (self));
+      set_problem_from_error (self, "couldn't connect", error);
+      close_immediately (self, NULL);
+      g_error_free (error);
     }
   else
     {
       initialize_io (self);
     }
 
-  g_object_unref (object);
   g_object_unref (self);
 }
 
-static void
-on_address_next (GObject *object,
-                 GAsyncResult *result,
-                 gpointer user_data)
-{
-  CockpitStream *self = user_data;
-  GSocketConnection *connection;
-  GSocketAddress *address;
-  GError *error = NULL;
-  GSocket *sock;
-
-  address = g_socket_address_enumerator_next_finish (G_SOCKET_ADDRESS_ENUMERATOR (object),
-                                                     result, &error);
-
-  if (error)
-    {
-      set_problem_from_error (self, "couldn't resolve", error);
-      g_error_free (error);
-      close_immediately (self, NULL);
-    }
-  else if (address)
-    {
-      sock = g_socket_new (g_socket_address_get_family (address), G_SOCKET_TYPE_STREAM, 0, &error);
-      if (sock)
-        {
-          g_socket_set_blocking (sock, FALSE);
-
-          connection = g_socket_connection_factory_create_connection (sock);
-          g_object_unref (sock);
-
-          g_socket_connection_connect_async (connection, address, NULL,
-                                             on_socket_connect, g_object_ref (self));
-        }
-
-      if (error)
-        {
-          g_debug ("%s: couldn't open socket: %s", self->priv->name, error->message);
-          g_clear_error (&self->priv->connect_error);
-          self->priv->connect_error = error;
-        }
-      g_object_unref (address);
-    }
-  else
-    {
-      if (self->priv->connect_error)
-        {
-          set_problem_from_error (self, "couldn't connect", self->priv->connect_error);
-          close_immediately (self, NULL);
-        }
-      else
-        {
-          g_message ("%s: no addresses found", self->priv->name);
-          close_immediately (self, "not-found");
-        }
-    }
-
-  g_object_unref (self);
-}
-
-/**
- * cockpit_stream_connect:
- * @name: name for pipe, for debugging
- * @address: socket address to connect to
- *
- * Create a new pipe connected as a client to the given socket
- * address, which can be a unix or inet address. Will connect
- * in stream mode.
- *
- * If the connection fails, a pipe is still returned. It will
- * close once the main loop is run with an appropriate problem.
- *
- * Returns: (transfer full): newly allocated CockpitStream.
- */
 CockpitStream *
 cockpit_stream_connect (const gchar *name,
-                        GSocketConnectable *connectable,
-                        CockpitStreamOptions *options)
+                        CockpitConnectable *connectable)
 {
-  CockpitStream *stream;
+  CockpitStream *self;
 
-  g_return_val_if_fail (G_IS_SOCKET_CONNECTABLE (connectable), NULL);
+  g_return_val_if_fail (connectable != NULL, NULL);
 
-  stream = g_object_new (COCKPIT_TYPE_STREAM,
-                         "io-stream", NULL,
-                         "name", name,
-                         NULL);
+  self = g_object_new (COCKPIT_TYPE_STREAM,
+                       "io-stream", NULL,
+                       "name", name,
+                       NULL);
 
-  if (options)
-    stream->priv->options = cockpit_stream_options_ref (options);
+  self->priv->connecting = cockpit_connectable_ref (connectable);
+  cockpit_connect_stream_full (self->priv->connecting, NULL,
+                               on_connect_stream, g_object_ref (self));
 
-  stream->priv->connecting = g_socket_connectable_enumerate (connectable);
-  g_socket_address_enumerator_next_async (stream->priv->connecting, NULL,
-                                          on_address_next, g_object_ref (stream));
-
-  return stream;
+  return self;
 }
 
 /**
@@ -986,29 +880,4 @@ cockpit_stream_new (const gchar *name,
                        "name", name,
                        "io-stream", io_stream,
                        NULL);
-}
-
-CockpitStreamOptions *
-cockpit_stream_options_ref (CockpitStreamOptions *options)
-{
-  g_return_val_if_fail (options != NULL, NULL);
-  options->refs++;
-  return options;
-}
-
-void
-cockpit_stream_options_unref (gpointer data)
-{
-  CockpitStreamOptions *options = data;
-
-  g_return_if_fail (options != NULL);
-
-  if (--(options->refs) <= 0)
-    {
-      if (options->tls_cert)
-        g_object_unref (options->tls_cert);
-      if (options->tls_database)
-        g_object_unref (options->tls_database);
-      g_free (options);
-    }
 }

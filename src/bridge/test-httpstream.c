@@ -79,6 +79,8 @@ teardown_general (TestGeneral *tt,
 {
   g_object_unref (tt->web_server);
   g_object_unref (tt->transport);
+
+  cockpit_assert_expected ();
 }
 
 static gboolean
@@ -226,6 +228,50 @@ test_http_stream2 (TestGeneral *tt,
   g_bytes_unref (data);
 }
 
+static void
+test_cannot_connect (TestGeneral *tt,
+                     gconstpointer unused)
+{
+  CockpitChannel *channel;
+  GBytes *bytes;
+  JsonObject *options;
+  const gchar *control;
+  JsonObject *object;
+  gboolean closed;
+
+  cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "*couldn't connect*");
+
+  options = json_object_new ();
+  json_object_set_int_member (options, "port", 5555);
+  json_object_set_string_member (options, "payload", "http-stream2");
+  json_object_set_string_member (options, "method", "GET");
+  json_object_set_string_member (options, "path", "/");
+  json_object_set_string_member (options, "address", "0.0.0.0");
+
+  channel = g_object_new (COCKPIT_TYPE_HTTP_STREAM,
+                          "transport", tt->transport,
+                          "id", "444",
+                          "options", options,
+                          NULL);
+
+  json_object_unref (options);
+
+  /* Tell HTTP we have no more data to send */
+  control = "{\"command\": \"done\", \"channel\": \"444\"}";
+  bytes = g_bytes_new_static (control, strlen (control));
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tt->transport), NULL, bytes);
+  g_bytes_unref (bytes);
+
+  closed = FALSE;
+  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_set_flag), &closed);
+  while (!closed)
+    g_main_context_iteration (NULL, TRUE);
+
+  object = mock_transport_pop_control (tt->transport);
+  cockpit_assert_json_eq (object, "{\"command\":\"ready\",\"channel\":\"444\"}");
+  object = mock_transport_pop_control (tt->transport);
+  cockpit_assert_json_eq (object, "{\"command\":\"close\",\"channel\":\"444\",\"problem\":\"not-found\"}");
+}
 
 /* -----------------------------------------------------------------------------
  * Test
@@ -830,6 +876,8 @@ main (int argc,
 
   g_test_add ("/http-stream/http-stream2", TestGeneral, NULL,
               setup_general, test_http_stream2, teardown_general);
+  g_test_add ("/http-stream/cannot-connect", TestGeneral, NULL,
+              setup_general, test_cannot_connect, teardown_general);
 
   g_test_add_func  ("/http-stream/parse_keepalive", test_parse_keep_alive);
   g_test_add_func  ("/http-stream/http_chunked", test_http_chunked);

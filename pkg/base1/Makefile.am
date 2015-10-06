@@ -1,4 +1,4 @@
-LINGUAS = de da pl
+LINGUAS = ca de da pl
 
 basedir = $(pkgdatadir)/base1
 base_GEN = \

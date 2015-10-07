@@ -516,7 +516,7 @@ class VirtEventHandler():
 
     # reboot flag should have probably been reset before this
     # returns whether domain has rebooted
-    def wait_for_reboot(self, domain, timeout_sec=60):
+    def wait_for_reboot(self, domain, timeout_sec=120):
         start_time = time.time()
         end_time = start_time + timeout_sec
         key = (domain.name(), domain.ID())
@@ -545,7 +545,7 @@ class VirtEventHandler():
                                                                              {'status': 'Stopped', 'detail': 'Shutdown'}
                                                                             ]
 
-    def wait_for_running(self, domain, timeout_sec=60):
+    def wait_for_running(self, domain, timeout_sec=120):
         start_time = time.time()
         end_time = start_time + timeout_sec
         if self.domain_is_running(domain):
@@ -567,7 +567,7 @@ class VirtEventHandler():
         except:
             return False
 
-    def wait_for_stopped(self, domain, timeout_sec=60):
+    def wait_for_stopped(self, domain, timeout_sec=120):
         start_time = time.time()
         end_time = start_time + timeout_sec
         uuid = domain.UUID()
@@ -885,7 +885,7 @@ class VirtMachine(Machine):
             raise Failure("system didn't reboot properly")
         self.wait_user_login()
 
-    def wait_boot(self, wait_for_running_timeout = 60):
+    def wait_boot(self, wait_for_running_timeout = 120):
         # we should check for selinux relabeling in progress here
         if not self.event_handler.wait_for_running(self._domain, timeout_sec=wait_for_running_timeout ):
             raise Failure("Machine %s didn't start." % (self.address))
@@ -894,7 +894,7 @@ class VirtMachine(Machine):
             raise Failure("Unable to reach machine %s via ssh." % (self.address))
         self.wait_user_login()
 
-    def stop(self, timeout_sec=60):
+    def stop(self, timeout_sec=120):
         if self._maintaining:
             self.shutdown(timeout_sec=timeout_sec)
         else:
@@ -930,7 +930,7 @@ class VirtMachine(Machine):
                 self._domain.destroy()
         self._cleanup(quick=True)
 
-    def wait_poweroff(self, timeout_sec=60):
+    def wait_poweroff(self, timeout_sec=120):
         # shutdown must have already been triggered
         if self._domain:
             if not self.event_handler.wait_for_stopped(self._domain, timeout_sec=timeout_sec):
@@ -938,7 +938,7 @@ class VirtMachine(Machine):
 
         self._cleanup()
 
-    def shutdown(self, timeout_sec=60):
+    def shutdown(self, timeout_sec=120):
         # shutdown the system gracefully
         # to stop it immediately, use kill()
         try:

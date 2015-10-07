@@ -61,7 +61,6 @@ Source0:        cockpit-%{version}.tar.gz
 %else
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.bz2
 %endif
-Source1:        cockpit.pam
 
 BuildRequires: pkgconfig(gio-unix-2.0)
 BuildRequires: pkgconfig(json-glib-1.0)
@@ -188,7 +187,7 @@ cp src/bridge/polkit-workarounds.rules %{buildroot}/%{_datadir}/polkit-1/rules.d
 rm -rf %{buildroot}/%{_datadir}/%{name}/playground
 %endif
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
-install -p -m 644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
+install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/%{name}/
 %if 0%{?selinux}

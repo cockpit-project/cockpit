@@ -65,7 +65,6 @@ def install(machine, rpms):
             "TEST_PACKAGES": " ".join(uploaded),
             "TEST_VERBOSE": machine.verbose
         }
-        machine.needs_writable_usr()
         machine.upload([install_packages_script], target_install_script_path)
         script_to_run = INSTALL_SCRIPT % (target_install_script_path)
         machine.execute(script=script_to_run, environment=env)

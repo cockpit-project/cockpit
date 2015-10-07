@@ -21,18 +21,15 @@
 # fully upgrade host first
 atomic host upgrade
 
+# Checkout current os branch
+# we'll use it every time we build a new tree
+ostree checkout fedora-atomic/f22/x86_64/docker-host /var/local-tree
+
 # make sure docker has started
 systemctl start docker
 
 # pull cockpit/ws so we don't need to download this for every test
-# we can't use atomic run because we need "--no-tls" flag
-/usr/bin/docker run -d --privileged --pid=host -v /:/host cockpit/ws /container/atomic-run --local-ssh  --no-tls
-
-# get the list of currently installed cockpit files
-# we need what's already here for when we wish to overwrite with new versions
-rpm -qa | grep cockpit > /root/cockpit_packages
-rpm -ql `rpm -qa | grep cockpit` | sort > /root/cockpit_files
-
+docker pull cockpit/ws
 docker pull busybox:latest
 docker pull busybox:buildroot-2014.02
 docker pull submod/helloapache

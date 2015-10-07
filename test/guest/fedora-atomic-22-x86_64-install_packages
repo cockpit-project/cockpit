@@ -21,21 +21,103 @@
 import subprocess
 import os
 import sys
+import shutil
+import urllib
 
 class AtomicCockpitInstaller:
-    root_home = "/root"
-    packages_force_install = ["cockpit-test-assets", "cockpit-kubernetes", "cockpit-networkmanager"]
+    branch = "fedora-atomic/f22/x86_64/docker-host"
+    checkout_location = "/var/local-tree"
+    repo_location = "/var/local-repo"
+    rpm_location = "/usr/share/rpm"
+
+    # Support installing random packages if needed.
+    external_packages = {}
+
+    packages_force_install = ["cockpit-kubernetes", "cockpit-networkmanager"]
 
     def __init__(self, rpms=None, verbose=False):
         self.verbose = verbose
         self.rpms = rpms
 
-    def files_in_package(self, rpm):
-        """ list of files in an rpm, including path """
-        cmd = "rpm2cpio %s | cpio --list --quiet" % (rpm)
-        filelist = subprocess.check_output(cmd, shell=True).strip().split("\n")
-        # filenames have leading . character
-        return map(lambda fname: fname[1:], filelist)
+    def setup_dirs(self):
+        if self.verbose:
+            print "setting up new ostree repo"
+
+        try:
+            shutil.rmtree(self.repo_location)
+        except:
+            pass
+
+        os.makedirs(self.repo_location)
+        subprocess.check_call(["ostree", "init", "--repo", self.repo_location,
+                               "--mode", "archive-z2"])
+
+        if not os.path.exists(self.checkout_location):
+            if self.verbose:
+                print "cloning current branch"
+
+            subprocess.check_call(["ostree", "checkout", self.branch,
+                                   self.checkout_location])
+
+        # move /usr/etc to /etc, makes rpm installs easier
+        subprocess.check_call(["mv", os.path.join(self.checkout_location, "usr", "etc"),
+                               os.path.join(self.checkout_location, "etc")])
+
+    def switch_to_local_tree(self):
+        if self.verbose:
+            print "install new ostree commit"
+
+        port = subprocess.check_output(["ostree", "trivial-httpd", self.repo_location,
+                                        "-p", "-", "-d"])
+
+        # Not an error if this fails
+        subprocess.call(["ostree", "remote", "delete", "local"])
+
+        subprocess.check_call(["ostree", "remote", "add", "local",
+                               "http://127.0.0.1:{0}".format(port.strip()),
+                               "--no-gpg-verify"])
+
+        status = subprocess.check_output(["rpm-ostree", "status"])
+        if "local:" in status:
+            subprocess.check_call(["rpm-ostree", "upgrade"])
+        else:
+            subprocess.check_call(["rpm-ostree", "rebase",
+                                   "local:{0}".format(self.branch)])
+
+    def commit_to_repo(self):
+        if self.verbose:
+            print "commit package changes to our repo"
+
+        # move etc back to /usr/etc
+        subprocess.check_call(["mv", os.path.join(self.checkout_location, "etc"),
+                               os.path.join(self.checkout_location, "usr", "etc")])
+
+        subprocess.check_call(["ostree", "commit", "-s", "cockpit-tree",
+                               "--repo", self.repo_location,
+                               "-b", self.branch,
+                               "--add-metadata-string", "version=cockpit-base.1",
+                               "--tree=dir={0}".format(self.checkout_location)])
+
+    def install_packages(self, packages, deps=True, replace=False):
+        args = ["rpm", "-i", "--root", self.checkout_location,
+                "--dbpath", self.rpm_location]
+
+        if replace:
+            args.extend(["--replacepkgs", "--replacefiles"])
+
+        if not deps:
+            args.append("--nodeps")
+
+        for package in packages:
+            args.append(os.path.abspath(os.path.join(os.getcwd(), package)))
+
+        subprocess.check_call(args)
+
+    def remove_packages(self, packages):
+        args = ["rpm", "-e", "--root", self.checkout_location,
+                "--dbpath", self.rpm_location]
+        args.extend(packages)
+        subprocess.check_call(args)
 
     def package_basename(self, package):
         """ only accept package with the name 'cockpit-%s-*' and return 'cockpit-%s' or None"""
@@ -45,77 +127,96 @@ class AtomicCockpitInstaller:
         else:
             return None
 
+    def update_container(self):
+        """ Install the latest cockpit-ws in our container"""
+        install = None
+        for package in self.rpms:
+            if 'cockpit-ws' in package:
+                install = package
+                break
+
+        if install:
+            path = "/host" + install;
+            subprocess.check_call(["docker", "run", "--name", "build-cockpit",
+                                   "-d", "--privileged", "-v", "/:/host",
+                                   "cockpit/ws", "sleep", "1d"])
+            subprocess.check_call(["docker", "exec", "build-cockpit",
+                                   "dnf", "remove", "--setopt=clean_requirements_on_remove=False",
+                                   "-y", "cockpit-ws"])
+            subprocess.check_call(["docker", "exec", "build-cockpit",
+                                   "dnf", "-y", "install", path])
+            subprocess.check_call(["docker", "commit", "build-cockpit",
+                                   "cockpit/ws"])
+            subprocess.check_call(["docker", "kill", "build-cockpit"])
+            subprocess.check_call(["docker", "rm", "build-cockpit"])
+
     def package_basenames(self, package_names):
         """ convert a list of package names to a list of their basenames """
         return filter(lambda s: not s is None, map(lambda s: self.package_basename(s), package_names))
 
-    def extract_files(self, rpm, directory):
-        """ extract an rpm into a target base directory """
-        cmd = "rpm2cpio %s | cpio --make-directories --extract --quiet --unconditional" % (rpm)
-        subprocess.check_call(cmd, cwd=directory, shell=True)
-
-    def extract_archives(self, packages_to_install, directory):
-        """ unpack a list of rpms into a given directory
-            return list of extracted files """
-        files_extracted = []
-        for rpm in packages_to_install:
-            if not os.path.isabs(rpm):
-                rpm = os.path.abspath(os.path.join(os.getcwd(), rpm))
-            if self.verbose:
-                print "processing package %s" % (rpm)
-            files_extracted.extend(self.files_in_package(rpm))
-            self.extract_files(rpm, directory)
-        return files_extracted
-
-    def get_cockpit_packages(self):
+    def get_installed_cockpit_packages(self):
         """ get list installed cockpit packages """
-        installed_packages = []
-        with open(os.path.join(self.root_home, "cockpit_packages"), "r") as package_file:
-            installed_packages = package_file.read().strip().split("\n")
-        return self.package_basenames(installed_packages)
+        packages = subprocess.check_output("rpm -qa | grep cockpit", shell=True)
 
-    def get_current_cockpit_files(self):
-        """ get current list of installed cockpit files
-            this list is created during initial setup and updated during during each install """
-        installed_files = []
-        with open(os.path.join(self.root_home, "cockpit_files"), "r") as f:
-            installed_files = f.read().strip().split("\n")
-        return installed_files
+        if self.verbose:
+            print "installed packages: {0}".format(packages)
 
-    def remove_orphaned_cockpit_files(self, installed_files):
-        """ delete any cockpit files that aren't included in the new packages, ignore directories """
-        current_files = filter(lambda f: os.path.exists(f), self.get_current_cockpit_files())
-        files_to_delete = filter(lambda f: f not in installed_files and not os.path.isdir(f), current_files)
-        for f in files_to_delete:
-            if self.verbose:
-                print "delete %s on atomic system" % (f)
-            os.remove(f)
+        installed_packages = packages.strip().split("\n")
+        return installed_packages
+
+    def clean_network(self):
+        if self.verbose:
+            print "clean network configuration:"
+        subprocess.check_call(["rm", "-rf", "/var/lib/NetworkManager"])
+        subprocess.check_call(["rm", "-rf", "/var/lib/dhcp"])
 
     def run(self):
-        installed_packages = self.get_cockpit_packages()
+        self.setup_dirs()
+
+        installed_packages = self.get_installed_cockpit_packages()
+        self.remove_packages(installed_packages)
+
+        packages_to_install = self.package_basenames(installed_packages)
         for p in self.packages_force_install:
-            if not p in installed_packages:
+            if not p in packages_to_install:
                 if self.verbose:
                     print "adding package %s (forced)" % (p)
-                installed_packages.append(p)
+                packages_to_install.append(p)
 
-        packages_to_install = filter(lambda p: any(os.path.split(p)[1].startswith(base) for base in installed_packages), self.rpms)
+        packages_to_install = filter(lambda p: any(os.path.split(p)[1].startswith(base) for base in packages_to_install), self.rpms)
 
         if self.verbose:
             print "packages to install:"
             print packages_to_install
 
-        installed_files = self.extract_archives(packages_to_install, "/")
+        self.install_packages(packages_to_install)
+        test_assets = [x for x in self.rpms \
+                       if os.path.split(x)[-1].startswith("cockpit-test-assets")]
+        self.install_packages(test_assets, deps=False, replace=True)
 
-        self.remove_orphaned_cockpit_files(installed_files)
+        if self.external_packages:
+            names = self.external_packages.keys()
+            if self.verbose:
+                print "external packages to install:"
+                print names
 
-        # save new list of installed files
-        with open(os.path.join(self.root_home, "cockpit_files"), "w") as f:
-            f.write("\n".join(installed_files))
+            downloader = urllib.URLopener()
+            for name, url in self.external_packages.items():
+                downloader.retrieve(url, name)
 
-rpms = os.getenv("TEST_PACKAGES").split(" ")
+            self.install_packages(names, replace=True)
+
+            for name in names:
+                os.remove(name)
+
+        self.commit_to_repo()
+        self.switch_to_local_tree()
+        self.update_container()
+        self.clean_network()
+
+
+rpms = os.getenv("TEST_PACKAGES", "").split(" ")
 verbose = os.getenv("TEST_VERBOSE", False)
-
 try:
     cockpit_installer = AtomicCockpitInstaller(rpms=rpms, verbose=verbose)
     cockpit_installer.run()

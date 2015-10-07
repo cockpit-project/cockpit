@@ -1005,7 +1005,7 @@ on_request_input (GObject *pollable_input,
         }
 
       if (!should_suppress_request_error (error))
-        g_warning ("couldn't read from connection: %s", error->message);
+        g_message ("couldn't read from connection: %s", error->message);
 
       cockpit_request_finish (request);
       g_error_free (error);
@@ -1108,7 +1108,7 @@ on_socket_input (GSocket *socket,
         }
 
       if (!should_suppress_request_error (error))
-        g_warning ("couldn't read from socket: %s", error->message);
+        g_message ("couldn't read from socket: %s", error->message);
 
       cockpit_request_finish (request);
       g_error_free (error);

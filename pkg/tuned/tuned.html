@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<!--
+This file is part of Cockpit.
+
+Copyright (C) 2015 Red Hat, Inc.
+
+Cockpit is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or
+(at your option) any later version.
+
+Cockpit is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+
+<head>
+  <title>Tuned</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
+  <link href="tuned.css" rel="stylesheet">
+  <script type="text/javascript" src="../base1/bundle.js"></script>
+</head>
+
+<body>
+    <script id="tuned-notification-success-template" type="x-template/mustache">
+      <div class="container-fluid alert alert-success alert-dismissible" role="alert">
+        <span class="pficon pficon-ok"></span>
+        <span class="tuned-emphasize" translatable="yes">
+          Profile successfully changed.
+        </span>
+        <button type="button" class="close" data-dismiss="alert">
+          <span class="pficon pficon-close"></span>
+        </button>
+      </div>
+    </script>
+
+    <script id="tuned-notification-failure-template" type="x-template/mustache">
+      <div class="container-fluid alert alert-danger alert-dismissible" role="alert">
+        <span class="pficon-layered">
+          <span class="pficon pficon-error-octagon"></span>
+          <span class="pficon pficon-error-exclamation"></span>
+        </span>
+        <span class="tuned-emphasize">
+          {{message}}
+        </span>
+        <span>
+          {{message_detail}}
+        </span>
+        <button type="button" class="close" data-dismiss="alert">
+          <span class="pficon pficon-close"/>
+        </button>
+      </div>
+    </script>
+
+    <div id="tuned-not-found" class="container-fluid" hidden>
+      <br/>
+      <span class="tuned-block-center" translatable="yes">
+        Tuned is not running or is not installed.
+      </span>
+      <br/>
+      <button class="btn btn-default btn-primary" id="tuned-start" translatable="yes">
+        Start tuned
+      </button>
+    </div>
+
+    <div id="tuned-manager-not-accessible" class="container-fluid" hidden>
+      <br/>
+      <span class="tuned-block-center" translatable="yes">
+        Current user isn't authorized to manage tuned profiles on this system.
+      </span>
+    </div>
+
+    <div id="tuned-updating" class="container-fluid" hidden>
+      <br/>
+      <center>
+        <span id="tuned-update-message" class="tuned-block-center"></span>
+        <br/>
+        <div class="spinner spinner-sm"></div>
+      </center>
+    </div>
+
+    <div class="panel panel-default">
+      <div id="tuned-system-status" class="container-fluid" hidden>
+        <table class="cockpit-form-table">
+          <tr>
+            <td>
+              <label class="control-label" for="tuned-profile-button">
+                Current Tuned Profile
+              </label>
+            </td>
+            <td>
+              <button class="btn btn-default" data-target="#tuned-change-profile" id="tuned-profile-button" data-toggle="modal">
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="modal" id="tuned-change-profile" tabindex="-1" role="dialog" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Change Tuned Profile</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td class="top">
+                  <label class="control-label" for="change-tuned" translatable="yes">
+                    Set tuned profile
+                  </label>
+                </td>
+                <td>
+                  <select class="selectpicker form-control" id="change-tuned">
+                  </select>
+                </td>
+              </tr>
+            </table>
+            <br/>
+            <table class="cockpit-info-table">
+              <tr id="recommend" style="display:none">
+                <td class="top">
+                  <label>
+                    Recommended Profile:
+                  </label>
+                </td>
+                <td id="recommended-profile">
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="tuned-recommend-button">
+              Recommend Profile
+            </button>
+            <button class="btn btn-primary" id="tuned-change-button">
+              Change Profile
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+        require([
+        "tuned/tuned"
+        ], function(tuned) {
+            tuned.init();
+        });
+    </script>
+</body>
+
+</html>

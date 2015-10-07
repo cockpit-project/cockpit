@@ -86,17 +86,16 @@ class TestConnection(KubernetesCase):
         m.execute("echo 'fubar,admin,10101' > /etc/kubernetes/passwd")
 
         # Setup the kube stuff in the right place
-        m.upload(["files/mock-kube-config-basic.json", "files/mock-k8s-tiny-app.json"], "/tmp")
+        m.upload(["files/mock-kube-config-basic.json"], "/tmp")
         m.execute("mkdir -p /home/admin/.kube/ && mv /tmp/mock-kube-config-basic.json /home/admin/.kube/config")
 
         self.fix_apiserver_config()
         m.execute("systemctl start etcd kube-apiserver")
         self.wait_api_server(port=6443, scheme='https')
-        m.execute("KUBECONFIG=/home/admin/.kube/config kubectl create -f /tmp/mock-k8s-tiny-app.json")
 
         self.login_and_go("/kubernetes")
         b.wait_present("#service-list")
-        b.wait_in_text("#service-list", "mock")
+        b.wait_in_text("#service-list", "You can deploy an application to your cluster.")
 
         # Check that this failed as a double check
         output = m.execute("curl -k -sS https://localhost:6443/api 2>&1 || true")
@@ -143,7 +142,7 @@ class TestNulecule(KubernetesCase):
         b.set_val("#deploy-app-nulecule-image", "submod/helloapache:0.1.11")
         b.set_val("#deploy-app-namespace", "mynamespace")
         b.click("#deploy-app-start")
-        self.allow_journal_messages('Could not find any image matching "submod/helloapache.*".')
+        self.allow_journal_messages('Could not find any image matching "submod/helloapache:0.1.11".')
         b.wait_not_attr("#deploy-app-start", "disabled", "disabled")
         b.dialog_cancel("#deploy-app-dialog")
 
@@ -153,7 +152,7 @@ class TestNulecule(KubernetesCase):
         b.click("#deploy-app")
         b.wait_popup("deploy-app-dialog")
         b.set_val("#deploy-app-type", "nulecule")
-        b.set_val("#deploy-app-nulecule-image", "submod/helloapache:0.1.11")
+        b.set_val("#deploy-app-nulecule-image", "submod/helloapache")
         b.set_val("#deploy-app-namespace", "mynamespace")
         b.dialog_complete("#deploy-app-dialog", result="fail")
         b.dialog_cancel("#deploy-app-dialog")

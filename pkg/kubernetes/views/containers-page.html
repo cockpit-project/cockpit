@@ -13,8 +13,8 @@
                 <th translatable="yes">Status</th>
             </tr>
         </thead>
-        <tbody ng-repeat="item in pods | orderObjectBy:['metedata.namespace', 'metadata.name']">
-            <tr ng-repeat-start="(id, container) in containers(item)"
+        <tbody ng-repeat="item in pods | orderObjectBy:['metedata.namespace', 'metadata.name'] track by item.key">
+            <tr ng-repeat-start="(id, container) in containers(item) track by container.key"
                 ng-click="select(id)" ng-if="!quiet && !selected(id)">
                 <th>{{container.spec.name}}</th>
                 <td>{{item.metadata.name}}</td>

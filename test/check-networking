@@ -33,7 +33,7 @@ class TestNetworking(MachineCase):
         return wait(getit).strip()
 
     def wait_for_iface(self, iface):
-        sel = "#networking-interfaces tr:contains('%s')" % iface
+        sel = "#networking-interfaces tr[data-interface='%s']" % iface
 
         valid_states = [
                           "Inactive",
@@ -103,7 +103,7 @@ class TestNetworking(MachineCase):
         iface = self.get_iface(m, m.add_netiface(mac));
 
         self.wait_for_iface(iface)
-        b.click("#networking-interfaces tr:contains('%s')" % iface)
+        b.click("#networking-interfaces tr[data-interface='%s']" % iface)
         b.wait_visible("#network-interface")
 
         # Make sure we are working on the settings written above.
@@ -171,8 +171,8 @@ class TestNetworking(MachineCase):
         b.click("button:contains('Add Bond')")
         b.wait_popup("network-bond-settings-dialog")
         b.set_val("#network-bond-settings-dialog tr:contains('Name') input", "tbond")
-        b.set_checked("label:contains('%s') input" % iface1, True)
-        b.set_checked("label:contains('%s') input" % iface2, True)
+        b.set_checked("input[data-iface='%s']" % iface1, True)
+        b.set_checked("input[data-iface='%s']" % iface2, True)
         b.click("#network-bond-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bond-settings-dialog")
         b.wait_in_text("#networking-interfaces", "tbond")
@@ -231,8 +231,8 @@ class TestNetworking(MachineCase):
         b.click("button:contains('Add Bridge')")
         b.wait_popup("network-bridge-settings-dialog")
         b.set_val("#network-bridge-settings-dialog tr:contains('Name') input", "tbridge")
-        b.set_checked("label:contains('%s') input" % iface1, True)
-        b.set_checked("label:contains('%s') input" % iface2, True)
+        b.set_checked("input[data-iface='%s']" % iface1, True)
+        b.set_checked("input[data-iface='%s']" % iface2, True)
         b.click("#network-bridge-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bridge-settings-dialog")
         b.wait_in_text("#networking-interfaces", "tbridge")

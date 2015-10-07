@@ -68,6 +68,7 @@ class TestLogin(MachineCase):
             b.wait_text("#login-error-message", "Permission denied")
 
         # Login as admin
+        b.open("/system")
         login("admin", "foobar")
         with b.wait_timeout(10) as r:
             b.expect_reload()

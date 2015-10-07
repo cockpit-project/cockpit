@@ -319,7 +319,7 @@ on_output_flushed (GObject *stream,
   else
     {
       if (!cockpit_web_should_suppress_output_error (self->logname, error))
-        g_warning ("%s: couldn't flush web output: %s", self->logname, error->message);
+        g_message ("%s: couldn't flush web output: %s", self->logname, error->message);
       self->failed = TRUE;
       g_error_free (error);
     }
@@ -366,7 +366,7 @@ on_response_output (GObject *pollable,
             }
 
           if (!cockpit_web_should_suppress_output_error (self->logname, error))
-            g_warning ("%s: couldn't write web output: %s", self->logname, error->message);
+            g_message ("%s: couldn't write web output: %s", self->logname, error->message);
 
           self->failed = TRUE;
           cockpit_web_response_done (self);

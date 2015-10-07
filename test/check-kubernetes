@@ -175,6 +175,7 @@ class TestKubernetes(KubernetesCase):
 
         # Check that container log output shows up
         b.click("#content .containers-listing tbody:first-of-type tr th")
+        b.wait_present(".listing-panel .listing-status:contains('running')")
         b.click("#content .listing-panel li a:contains('Logs')")
         b.wait_present(".listing-panel pre.logs")
         b.wait_visible(".listing-panel pre.logs")

@@ -63,6 +63,7 @@ define([
                         container = items[key];
                         id = pod.metadata.namespace + "/pod/" + pod.metadata.name + "/" + container.spec.name;
                         result[id] = container;
+                        container.key = id;
                     }
                     return result;
                 };

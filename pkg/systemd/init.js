@@ -760,7 +760,9 @@ define([
         systemd_manager.wait(function () {
             systemd_manager.Subscribe().
                 fail(function (error) {
-                    console.log(error);
+                    if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
+                        error.name != "org.freedesktop.DBus.Error.FileExists")
+                        console.warn("Subscribing to systemd signals failed", error);
                 });
             update();
         });

@@ -819,8 +819,8 @@ on_get_reply (GObject *source,
     {
       if (!g_cancellable_is_cancelled (self->cancellable))
         {
-          g_message ("%s: couldn't get property %s %s at %s", self->logname,
-                     gd->iface->name, gd->property, gd->path);
+          g_message ("%s: couldn't get property %s %s at %s: %s", self->logname,
+                     gd->iface->name, gd->property, gd->path, error->message);
         }
       g_error_free (error);
     }

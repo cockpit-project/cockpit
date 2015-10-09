@@ -95,11 +95,11 @@ var driver = {
     },
 
     reload: function(respond) {
-        this.expect_reload(respond);
-        page.reload({ result: null });
+        this.expect_load(respond);
+        page.reload();
     },
 
-    expect_reload: function(respond) {
+    expect_load: function(respond) {
         var failure = null;
         var res = null;
 
@@ -108,7 +108,7 @@ var driver = {
             page.onLoadFinished = null;
             clearTimeout(wait);
             if (res === "success")
-                respond({ result: null });
+                respond({ result: res });
             else
                 respond({ error: res });
         }
@@ -137,7 +137,7 @@ var driver = {
             wait = setTimeout(function() {
                 wait = null;
                 finish();
-            }, 200);
+            }, 500);
         };
     },
 

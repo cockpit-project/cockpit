@@ -48,7 +48,7 @@ class TestKeys(MachineCase):
             b.set_val("#login-user-input", user)
             b.set_val("#login-password-input", password)
             b.click('#login-button')
-            b.expect_reload()
+            b.expect_load()
             b.enter_page("/system")
             b.switch_to_top()
             b.wait_text('#content-user-name', user_name)

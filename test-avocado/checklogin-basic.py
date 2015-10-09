@@ -83,7 +83,7 @@ class checklogin_basic(cockpit.Test):
 
         # Login as admin
         login("admin", "foobar")
-        b.expect_reload()
+        b.expect_load()
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'Administrator')
 

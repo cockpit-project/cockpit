@@ -83,7 +83,7 @@ class TestMultiOS(MachineCase):
             browser.set_val('#login-user-input', browser.default_user)
             browser.set_val('#login-password-input', "foobar")
             browser.click('#login-button')
-            browser.expect_reload()
+            browser.expect_load()
             browser.wait_present('#content')
             browser.wait_visible('#content')
             if page:

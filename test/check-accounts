@@ -119,7 +119,7 @@ class TestAccounts(MachineCase):
         b.set_val("#login-user-input", "jussi")
         b.set_val("#login-password-input", 'ö5 foobar')
         b.click('#login-button')
-        b.expect_reload()
+        b.expect_load()
         b.wait_present('#content')
 
         self.allow_journal_messages("Password quality check failed:")

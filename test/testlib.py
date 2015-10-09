@@ -132,8 +132,8 @@ class Browser:
         self.wait_js_cond("ph_select('iframe.container-frame').every(function (e) { return e.getAttribute('data-loaded'); })")
         self.phantom.reload()
 
-    def expect_reload(self):
-        self.phantom.expect_reload()
+    def expect_load(self):
+        self.phantom.expect_load()
 
     def switch_to_frame(self, name):
         self.phantom.switch_frame(name)
@@ -359,7 +359,7 @@ class Browser:
         self.set_val('#login-user-input', user)
         self.set_val('#login-password-input', "foobar")
         self.click('#login-button')
-        self.expect_reload()
+        self.expect_load()
         self.wait_present('#content')
         self.wait_visible('#content')
         if path:
@@ -367,9 +367,10 @@ class Browser:
 
     def logout(self):
         self.switch_to_top()
+        self.wait_present("#content-user-name")
         self.click("#content-user-name")
         self.click('#go-logout')
-        self.expect_reload()
+        self.expect_load()
 
     def relogin(self, path=None, user=None):
         if user is None:
@@ -379,7 +380,7 @@ class Browser:
         self.set_val("#login-user-input", user)
         self.set_val("#login-password-input", "foobar")
         self.click('#login-button')
-        self.expect_reload()
+        self.expect_load()
         self.wait_present('#content')
         self.wait_visible('#content')
         if path:

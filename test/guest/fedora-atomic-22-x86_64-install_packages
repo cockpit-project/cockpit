@@ -135,16 +135,16 @@ class AtomicCockpitInstaller:
                 install = package
                 break
 
+        if self.verbose:
+            print "installing cockpit-ws in container"
+
         if install:
             path = "/host" + install;
             subprocess.check_call(["docker", "run", "--name", "build-cockpit",
                                    "-d", "--privileged", "-v", "/:/host",
                                    "cockpit/ws", "sleep", "1d"])
             subprocess.check_call(["docker", "exec", "build-cockpit",
-                                   "dnf", "remove", "--setopt=clean_requirements_on_remove=False",
-                                   "-y", "cockpit-ws"])
-            subprocess.check_call(["docker", "exec", "build-cockpit",
-                                   "dnf", "-y", "install", path])
+                                   "rpm", "-U", "--force", path])
             subprocess.check_call(["docker", "commit", "build-cockpit",
                                    "cockpit/ws"])
             subprocess.check_call(["docker", "kill", "build-cockpit"])

@@ -816,7 +816,7 @@ define([
 
             /* Note that we ignore tracknig for old shell code */
             if (current_frame && current_frame.contentWindow === child &&
-                child.name.indexOf("/shell/shell") === -1) {
+                child.name && child.name.indexOf("/shell/shell") === -1) {
                 hash = child.location.hash;
                 if (hash.indexOf("#") === 0)
                     hash = hash.substring(1);

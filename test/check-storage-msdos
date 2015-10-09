@@ -68,7 +68,7 @@ class TestStorage(StorageCase):
         # Create a extended partition to fill the rest of the disk
         self.content_single_action(2, "Create Partition")
         self.dialog_wait_open()
-        self.assertEqual(b.attr("option[value='dos-extended']", "disabled"), "")
+        b.wait_not_attr("option[value='dos-extended']", "disabled", "disabled")
         self.dialog_set_val("type", "dos-extended")
         self.dialog_wait_not_visible("name")
         self.dialog_wait_not_visible("mounting")

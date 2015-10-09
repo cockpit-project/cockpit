@@ -30,7 +30,9 @@ class TestNetworking(MachineCase):
         def getit():
             path = m.execute("grep -li '%s' /sys/class/net/*/address" % mac)
             return path.split("/")[-2]
-        return wait(getit).strip()
+        iface = wait(getit).strip()
+        print "%s -> %s" % (mac, iface)
+        return iface
 
     def wait_for_iface(self, iface):
         sel = "#networking-interfaces tr[data-interface='%s']" % iface
@@ -48,9 +50,15 @@ class TestNetworking(MachineCase):
                     return True
             return False
 
-        self.browser.wait_present(sel)
-        self.browser.wait_visible(sel)
-        self.browser.wait(is_valid)
+        try:
+            self.browser.wait_present(sel)
+            self.browser.wait_visible(sel)
+            self.browser.wait(is_valid)
+        except:
+            print "Interface %s didn't show up." % iface
+            print self.browser.eval_js("return $('#networking-interfaces').html();")
+            print self.machine.execute("grep . /sys/class/net/*/address")
+            raise
 
     def switch_off_rp_filter(self, m):
         #

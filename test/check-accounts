@@ -84,10 +84,10 @@ class TestAccounts(MachineCase):
         b.wait_present("#account-role-checkbox-10:not(:checked)")
         b.set_checked("#account-role-checkbox-10", True)
         b.wait_present("#account-role-checkbox-10:checked")
-        wait(lambda: "jussi" in m.execute("grep wheel /etc/group"), delay=1, tries=10)
+        b.wait(lambda: "jussi" in m.execute("grep wheel /etc/group"))
         b.set_checked("#account-role-checkbox-10", False)
         b.wait_present("#account-role-checkbox-10:not(:checked)")
-        wait(lambda: "jussi" not in m.execute("grep wheel /etc/group"), delay=1, tries=10)
+        b.wait(lambda: "jussi" not in m.execute("grep wheel /etc/group"))
         m.execute("/usr/sbin/usermod jussi -G 10 -a")
         b.wait_present("#account-role-checkbox-10:checked")
 

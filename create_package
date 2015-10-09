@@ -1,0 +1,115 @@
+#!/bin/bash
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+SELF=create_package
+
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+set -eu
+
+usage()
+{
+    echo >&2 "usage: $SELF [-f] -n package_name"
+    echo >&2 ""
+    echo >&2 "-f: overwrite existing files"
+    echo >&2 "-n package_name:"
+    echo >&2 "    pass the package name to use"
+    echo >&2 "    This will be used as the directory name and as the visible name in Cockpit."
+    echo >&2 "    The name is not allowed to contain whitespace."
+}
+
+package_name=
+force_creation=0
+while getopts ":fn:" opt; do
+  case $opt in
+    f)
+      force_creation=1
+      ;;
+    n)
+      package_name=$OPTARG
+      ;;
+    \?)
+      usage
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [ -z "$package_name" ]; then
+    echo "Error: $SELF requires a package_name argument" >&2
+    echo ""
+    usage
+    exit 1
+fi
+
+package_dir=$SCRIPT_DIR/pkg/$package_name
+
+declare -a target_filenames=(\
+    "$package_dir/bundle.js" \
+    "$package_dir/index.html" \
+    "$package_dir/$package_name.js" \
+    "$package_dir/Makefile.am" \
+    "$package_dir/manifest.json" \
+    "$package_dir/$package_name.css" \
+    "$package_dir/test.html" \
+    )
+
+if [[ $force_creation -eq 0 ]]; then
+    if [[ -d $package_dir ]]; then
+        echo "Package directory '$package_dir' already exists. Use -f to overwrite."
+        exit 1
+    fi
+    for f in "${target_filenames[@]}"
+    do
+        if [[ -f $f ]]; then
+            echo "File '$f' already exists. Use -f to overwrite."
+            exit 1
+        fi
+    done
+fi
+
+# copy our template
+mkdir -vp $package_dir
+for f in $SCRIPT_DIR/pkg/template/*; do
+    cp -vr $f $package_dir/
+done
+
+# some files need to be renamed
+mv $package_dir/package.js $package_dir/$package_name.js
+mv $package_dir/package.css $package_dir/$package_name.css
+
+# insert package name where necesary
+for f in "${target_filenames[@]}"
+do
+    sed -i "s/PACKAGE_NAME/$package_name/g" "$f"
+done
+
+include_line="include pkg/$package_name/Makefile.am"
+if grep -Fxq "$include_line" "$SCRIPT_DIR/Makefile.am"
+then
+    echo "base Makefile.am already has an entry for package $package_name, not changing the Makefile"
+else
+    # make sure we insert this somewhere with the other packages
+    modified_makefile=$(awk '/include pkg\//{seen++} seen && !/include pkg\//{print "'"$include_line"'"; seen=0} 1' "$SCRIPT_DIR/Makefile.am")
+    echo "$modified_makefile" > "$SCRIPT_DIR/Makefile.am"
+    echo "inserted entry into base Makefile.am"
+fi

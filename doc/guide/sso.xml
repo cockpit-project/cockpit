@@ -16,8 +16,8 @@
       
       command.</para>
 
-    <para>The domain must be resolveable by DNS. For instance, the SRV records of the
-      kerberos server should be resolveable:</para>
+    <para>The domain must be resolvable by DNS. For instance, the SRV records of the
+      kerberos server should be resolvable:</para>
 
 <programlisting>
 $ host -t SRV  _kerberos._udp.example.com
@@ -48,7 +48,7 @@ _kerberos._udp.example.com has SRV record 0 100 88 dc.example.com
 $ sudo klist -k
 </programlisting>
 
-    <para>Lastly accounts from the domain must be resolveable to unix accounts on the server
+    <para>Lastly accounts from the domain must be resolvable to unix accounts on the server
       running Cockpit. For example:</para>
 
 <programlisting>
@@ -77,7 +77,7 @@ Password for user@EXAMPLE.COM:
         <term>Mozilla Firefox</term>
         <listitem><para>Go to <code>about:config</code> and set the
           <code>network.negotiate-auth.trusted-uris</code> setting to your domain name
-          preceeded by a dot, ie: <code>.example.com</code></para></listitem>
+          preceded by a dot, ie: <code>.example.com</code></para></listitem>
       </varlistentry>
       <varlistentry>
         <term>Google Chrome</term>
@@ -108,7 +108,7 @@ Password for user@EXAMPLE.COM:
         <term>Mozilla Firefox</term>
         <listitem><para>Go to <code>about:config</code> and set the
           <code>network.negotiate-auth.delegation-uris</code> setting to your domain name
-          preceeded by a dot, ie: <code>.example.com</code></para></listitem>
+          preceded by a dot, ie: <code>.example.com</code></para></listitem>
       </varlistentry>
       <varlistentry>
         <term>Google Chrome</term>

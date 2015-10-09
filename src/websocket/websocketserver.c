@@ -651,7 +651,7 @@ web_socket_server_class_init (WebSocketServerClass *klass)
  *
  * The input and output streams of the @io_stream must be pollable.
  *
- * If the the input stream on the @io_stream has already been read, those
+ * If the input stream on the @io_stream has already been read, those
  * read bytes should be passed in the @input_buffer byte array.
  *
  * In addition if the HTTP headers have already been parsed, they should be

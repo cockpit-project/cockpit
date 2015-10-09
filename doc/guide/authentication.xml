@@ -23,7 +23,7 @@
 
     <para>The web server can also be run from the <filename>cockpit/ws</filename> docker
       container. If you are running cockpit on an <ulink url="http://www.projectatomic.io/">
-      Atomic Host</ulink> this will be the default. In this setup, cockpit estabilshes an
+      Atomic Host</ulink> this will be the default. In this setup, cockpit establishes an
       SSH connection from the container to the underlying host, meaning that it is up to
       your SSH server to grant access. To login with a local account, <filename>sshd
       </filename> will need to be configured to allow password based authentication.
@@ -35,7 +35,7 @@
     <title>Secondary server authentication</title>
 
     <para>Once you are able to login to the primary server you will be able to connect to
-      addtional servers. These servers will need to be running an SSH server on port 22
+      additional servers. These servers will need to be running an SSH server on port 22
       and be configured to support one of the following authentication methods.</para>
 
     <section id="password">
@@ -81,7 +81,7 @@
     <para>Note that when a user is authenticated in this way the authentication
       happens without a password, as such the standard cockpit reauthorization
       mechanisms do not work. The user will only be able to obtain additional
-      priviledges if they do not require a password.</para>
+      privileges if they do not require a password.</para>
 
     </section>
   </section>

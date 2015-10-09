@@ -8,7 +8,7 @@
     Cockpit components can be integrated.</para>
 
   <warning>
-    <para>None of the the following is stable at this time.</para>
+    <para>None of the following is stable at this time.</para>
 
     <para>In addition, any APIs or behavior not explicitly documented here is an
       internal API and can be changed at any time.</para>
@@ -41,7 +41,7 @@
     <title>Integrating Cockpit Components into Web Applications</title>
 
     <para>Instead of embedding the entirety of Cockpit, you can integrate specific components.
-      Only those components explictly documented as API should be integrated. Other components
+      Only those components explicitly documented as API should be integrated. Other components
       can and will change regularly.</para>
 
     <para>The component will load from the server in question and establish a WebSocket connection
@@ -93,7 +93,7 @@
     <para>When embedding Cockpit or integrating Cockpit components, it may be necessary to check
       whether Cockpit is available on a server before proceeding.</para>
 
-    <para>To do this perform a <code>/ping</code> requset to Cockpit. This is a simple HTTP
+    <para>To do this perform a <code>/ping</code> request to Cockpit. This is a simple HTTP
       GET request. It returns the following:</para>
 
 <programlisting>
@@ -103,7 +103,7 @@ GET: https://server.example.com:9090/ping
 
     <para>The <code>/ping</code> request allows
       <ulink url="http://en.wikipedia.org/wiki/Cross-origin_resource_sharing">Cross Origin Resource Sharing</ulink>
-      headers and as such can be performed from Javascript code with any origin. The reqeust can also be
+      headers and as such can be performed from Javascript code with any origin. The request can also be
       made via plain HTTP without SSL. It is by design that no further information is present in the
       response.</para>
 

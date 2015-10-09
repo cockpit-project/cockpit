@@ -55,7 +55,7 @@ test("public api", function() {
 asyncTest("simple request", function() {
     expect(2);
 
-    cockpit.http({ "internal": "test-server" }).get("/pkg/playground/manifest.json")
+    cockpit.http({ "internal": "test-server" }).get("/assets/playground/manifest.json")
         .done(function(data) {
             deepEqual(JSON.parse(data), {
                 version: 0,

@@ -33,13 +33,13 @@ Cockpit:
 
     $ cd /path/to/cockpit
     $ mkdir -p ~/.local/share/cockpit
-    $ ln -s $(pwd)/pkg/kubernetes ~/.local/share/cockpit
+    $ ln -s $(pwd)/assets/kubernetes ~/.local/share/cockpit
 
 You should find a 'Kubernetes Master' item on the 'Tools' menu in Cockpit.
 
 Now put some objects into kubernetes:
 
-    $ cd /path/to/cockpit/pkg/kubernetes/examples
+    $ cd /path/to/cockpit/assets/kubernetes/examples
     $ kubectl create -f k8s-sample-app.json
 
 More information on these example objects, and what you can get running

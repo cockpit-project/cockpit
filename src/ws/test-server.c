@@ -315,7 +315,7 @@ on_handle_resource (CockpitWebServer *server,
   gchar **parts;
   gchar *rebuilt;
 
-  g_assert (g_str_has_prefix (path, "/pkg"));
+  g_assert (g_str_has_prefix (path, "/assets"));
 
   /* TODO: This needs a better implementation later, when the tests aren't all broken */
   parts = g_strsplit (path, "/", -1);
@@ -365,7 +365,7 @@ server_ready (void)
                     "handle-stream",
                     G_CALLBACK (on_handle_stream_socket), NULL);
   g_signal_connect (server,
-                    "handle-resource::/pkg/",
+                    "handle-resource::/assets/",
                     G_CALLBACK (on_handle_resource), NULL);
   g_signal_connect (server, "handle-resource::/mock/",
                     G_CALLBACK (on_handle_mock), NULL);
@@ -382,7 +382,7 @@ server_ready (void)
       g_print ("**********************************************************************\n"
            "Please connect a supported web browser to\n"
            "\n"
-           " %s/pkg/base1/test-dbus.html\n"
+           " %s/assets/base1/test-dbus.html\n"
            "\n"
            "and check that the test suite passes. Press Ctrl+C to exit.\n"
            "**********************************************************************\n"

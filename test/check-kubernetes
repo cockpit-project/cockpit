@@ -233,7 +233,7 @@ class TestKubernetes(KubernetesCase):
 
         # Click the filter button to make only selected
         b.click(".filter-menu .btn:first-child")
-        self.assertEqual(b.text(".filter-menu li.active"), " Only selected items ")
+        b.wait_text(".filter-menu li.active", " Only selected items ")
         self.assertFalse(b.is_present(".details-listing thead th"))
         self.assertFalse(b.is_present(".details-listing tbody tr.listing-item"))
         self.assertTrue(b.is_present(".details-listing tr.listing-panel"))
@@ -241,10 +241,10 @@ class TestKubernetes(KubernetesCase):
         # Clear the selection via the menu
         b.click(".filter-menu .btn.dropdown-toggle")
         b.click(".filter-menu li:last-child a")
+        b.wait_text(".filter-menu li.active", " View all items ")
         self.assertTrue(b.is_present(".details-listing thead th"))
         self.assertTrue(b.is_present(".details-listing tbody tr.listing-item"))
         self.assertFalse(b.is_present(".details-listing tr.listing-panel"))
-        self.assertEqual(b.text(".filter-menu li.active"), " View all items ")
 
         # Back to dashboard
         b.click("a[href='#/']")

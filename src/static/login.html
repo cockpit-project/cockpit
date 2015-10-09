@@ -215,9 +215,9 @@
                     } else {
                         fatal(xhr.status + " error");
                     }
-                    phantom_checkpoint();
                     id("login-button").removeAttribute('disabled');
                     id("login-spinner").style.display = 'none';
+                    phantom_checkpoint();
                 };
                 xhr.send();
             }

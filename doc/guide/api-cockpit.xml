@@ -696,7 +696,7 @@ $(client).on("owner", function(event, owner) { ... })
         value will be the id of the name owner on the bus or null if the name
         is unowned. The absence of an owner should not be treated as a disconnection.
         However this makes it possible to take some action based on the
-        actual status of the service, for example disconecting a pending signal handler.</para>
+        actual status of the service, for example disconnecting a pending signal handler.</para>
     </refsection>
 
     <refsection id="cockpit-dbus-options">
@@ -771,7 +771,7 @@ proxy.Method(arg1, arg2)
         letter (as is convention) will be automatically defined on this proxy. These
         methods are called with arguments as normal javascript arguments. A
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
-        that will complete sucessfully when the method returns, or fail if an error occurs.
+        that will complete successfully when the method returns, or fail if an error occurs.
         The return values from the DBus method will be passed to the <code>done</code> handler
         function directly.</para>
 
@@ -857,7 +857,7 @@ invocation = proxy.call(method, args, [options])
       <para>The returned value is identical to the one returned from
         <link linkend="cockpit-dbus-call">client.call()</link>. It is a
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
-        that will complete sucessfully when the method returns, or fail if an error occurs.</para>
+        that will complete successfully when the method returns, or fail if an error occurs.</para>
     </refsection>
 
     <refsection id="cockpit-dbus-proxy-wait">
@@ -918,7 +918,7 @@ proxies = client.proxies([interface], [path_namespace])
 </programlisting>
 
       <para>Create <link linkend="cockpit-dbus-proxy">proxy javascript objects</link> for
-        a DBus interfaces. The proxes will have properties, methods and signals from
+        a DBus interfaces. The proxies will have properties, methods and signals from
         the DBus <code>interface</code>, and allow for natural interaction. If no
         <code>interface</code> is specified then the DBus bus name of the client is used.
         If no <code>path_namespace</code> is provided then <code>"/"</code> will be used.</para>
@@ -1028,7 +1028,7 @@ invocation = client.call(path, interface, method, args, [options])
 
       <para>The returned value is a
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
-        that will complete sucessfully when the method returns, or fail if an error occurs.</para>
+        that will complete successfully when the method returns, or fail if an error occurs.</para>
 
       <para>If <code>options</code> is specified it should be a plain javascript object,
         which may contain the following properties:</para>
@@ -1233,7 +1233,7 @@ watch = client.watch({ "path_namespace": path_namespace, "interface": interface 
 
       <para>The returned value is a
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
-        that will complete sucessfully when the watch has populated its initial set of properties
+        that will complete successfully when the watch has populated its initial set of properties
         and interfaces, and these have been notified via
         <link linkend="cockpit-dbus-onnotify"><code>client.onnotify</code></link>.</para>
 
@@ -1341,7 +1341,7 @@ variant = cockpit.variant(type, value)
 
       <para>A DBus variant is represented as a plain javascript object with a
         <code>"t"</code> property represesting the full DBus type of the variant,
-        and a <code>"v"</code> property containting the variant value.</para>
+        and a <code>"v"</code> property containing the variant value.</para>
 
       <para>This is a helper function for creating such a variant object.</para>
     </refsection>
@@ -1352,7 +1352,7 @@ variant = cockpit.variant(type, value)
 byte_array = cockpit.byte_array(value)
 </programlisting>
 
-      <para>A DBus byte array is represnted as base64 data encoded in a string. This
+      <para>A DBus byte array is represented as base64 data encoded in a string. This
         is a helper function for creating such a byte array.</para>
     </refsection>
   </refsection>
@@ -1611,7 +1611,7 @@ permission = cockpit.permission([options])
 
       <para>A boolean value which indicates if the permission is allowed or not. This will
         be <code>null</code> if the permission is unknown, or there was an error checking
-        the permission or the the permission data has not yet loaded. This property will update
+        the permission or the permission data has not yet loaded. This property will update
         asynchronously and if you wish to be notified of changes connect to the
         <link linkend="cockpit-permission-changed">permission.onchanged</link> event.</para>
     </refsection>
@@ -1989,7 +1989,7 @@ metrics = cockpit.metrics(interval, options, cache)
       </variablelist>
 
       <para>When the <code>options</code> argument is an array of
-      javascrip objects, then the metrics channel tries to use them in
+      javascript objects, then the metrics channel tries to use them in
       order until one succeeds.  This way, you can prefer PCP as the
       source but fall back to internal metrics when PCP is not
       available, for example.  The channel gives no indication which
@@ -2700,7 +2700,7 @@ data = cockpit.base64_decode(string, [constructor])
         argument should be a javascript string. The returned <code>data</code>> will be an
         array of bytes.</para>
       <para>You can pass <code>Uint8Array</code>, <code>Array</code> or <code>String</code>
-        as an alternate <code>contstructor</code> if you want the decoded data in an
+        as an alternate <code>constructor</code> if you want the decoded data in an
         alternate form. The default is to return an <code>Array</code>. Note that if you use a
         <code>String</code> for the decoded data, then you must guarantee that the data
         does not contain bytes that would be invalid for a string.</para>
@@ -2713,7 +2713,7 @@ encoder = cockpit.utf8_encoder([constructor])
 </programlisting>
       <para>Create an encoder for encoding a string into a UTF8 sequence of bytes.</para>
       <para>You can pass <code>Uint8Array</code>, <code>Array</code> or <code>String</code>
-        as an alternate <code>contstructor</code> if you want the decoded data in an
+        as an alternate <code>constructor</code> if you want the decoded data in an
         alternate form. The default is to return an <code>Array</code>.</para>
     </refsection>
 
@@ -2733,7 +2733,7 @@ data = encoder.encode(string)
 <programlisting>
 decoder = cockpit.utf8_decoder([fatal])
 </programlisting>
-      <para>Creates a decodker to decode a UTF8 sequence of bytes data into a string.</para>
+      <para>Creates a decoder to decode a UTF8 sequence of bytes data into a string.</para>
       <para>If the <code>fatal</code> is set to <code>true</code> then the <code>decoder</code>
         will throw an exception when it encounters invalid UTF8 data. By default invalid data
         will be substituted with special UTF8 characters.</para>

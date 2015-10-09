@@ -98,7 +98,7 @@ define([
                  * I'm not completely happy with this. We could be
                  * firing way too many $digests for the entire scope
                  * because other things from other code, could be triggering
-                 * while waiting for the the timeout.
+                 * while waiting for the timeout.
                  */
 
                 function digest() {

@@ -264,7 +264,7 @@ data = cockpit.base64_decode(string, [constructor])
       argument should be a javascript string. The returned <code>data</code>> will be an
       array of bytes.</para>
     <para>You can pass <code>Uint8Array</code>, <code>Array</code> or <code>String</code>
-      as an alternate <code>contstructor</code> if you want the decoded data in an
+      as an alternate <code>constructor</code> if you want the decoded data in an
       alternate form. The default is to return an <code>Array</code>. Note that if you use a
       <code>String</code> for the decoded data, then you must guarantee that the data
       does not contain bytes that would be invalid for a string.</para>
@@ -277,7 +277,7 @@ encoder = cockpit.utf8_encoder([constructor])
 </programlisting>
     <para>Create an encoder for encoding a string into a UTF8 sequence of bytes.</para>
     <para>You can pass <code>Uint8Array</code>, <code>Array</code> or <code>String</code>
-      as an alternate <code>contstructor</code> if you want the decoded data in an
+      as an alternate <code>constructor</code> if you want the decoded data in an
       alternate form. The default is to return an <code>Array</code>.</para>
   </refsection>
 
@@ -297,7 +297,7 @@ data = encoder.encode(string)
 <programlisting>
 decoder = cockpit.utf8_decoder([fatal])
 </programlisting>
-    <para>Creates a decodker to decode a UTF8 sequence of bytes data into a string.</para>
+    <para>Creates a decoder to decode a UTF8 sequence of bytes data into a string.</para>
     <para>If the <code>fatal</code> is set to <code>true</code> then the <code>decoder</code>
       will throw an exception when it encounters invalid UTF8 data. By default invalid data
       will be substituted with special UTF8 characters.</para>

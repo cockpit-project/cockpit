@@ -1,0 +1,32 @@
+{
+    "kind":"List",
+    "apiVersion":"v1",
+    "items": [{
+        "kind":"Pod",
+        "metadata": {
+	    "name": "multi-pod",
+	    "labels": {
+                "name":"mock"
+	    }
+        },
+        "spec": {
+	    "containers": [{
+                "name": "mock-container",
+                "image": "busybox:buildroot-2014.02",
+                "command": [
+                    "/bin/sh", "-c", "for x in $(seq 1 1000); do echo 'HelloMessage.' >&2; sleep 1; done"
+                ],
+                "ports": [{
+                    "containerPort":9949,
+                    "protocol":"TCP"
+                }]
+	    },{
+                "name": "second-container",
+                "image": "busybox:buildroot-2014.02",
+                "command": [
+                     "/bin/sh", "-c", "sleep 100000"
+                ]
+	    }]
+        }
+    }]
+}

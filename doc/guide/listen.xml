@@ -28,20 +28,14 @@
     <para>On servers with
       <ulink url="http://www.freedesktop.org/wiki/Software/systemd/"><code>systemd</code></ulink>
       Cockpit starts on demand via socket activation. To change its port and/or address
-      you should copy <code>/usr/lib/systemd/system/cockpit.socket</code> to
-      <code>/etc/systemd/system/cockpit.socket</code> and edit the <code>ListenStream</code>
-      option to specify the desired TCP port.</para>
+      you should place the following content in the
+      <code>/etc/systemd/system/cockpit.socket.d/listen.conf</code> file. Create the file
+      and directories in that path which not already exist. The <code>ListenStream</code>
+      option specifies the desired TCP port.</para>
 
 <programlisting>
-[Unit]
-Description=Cockpit Web Service Socket
-Documentation=man:cockpit-ws(8)
-
 [Socket]
 ListenStream=443
-
-[Install]
-WantedBy=sockets.target
 </programlisting>
 
     <para>In order for the changes to take effect, run the following commands:</para>

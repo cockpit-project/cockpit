@@ -6,6 +6,7 @@ Conflicts=cockpit.service
 
 [Service]
 Environment=G_MESSAGES_DEBUG=cockpit-ws G_DEBUG=fatal-criticals G_SLICE=always-malloc,debug-blocks
+ExecStartPre=sh -c 'echo 0 > /proc/sys/kernel/yama/ptrace_scope'
 ExecStart=@libexecdir@/cockpit-ws --no-tls
 User=@user@
 Group=@group@

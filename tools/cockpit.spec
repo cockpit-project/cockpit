@@ -17,7 +17,7 @@
 %define rev 1
 
 %if %{defined gitcommit}
-%define extra_flags CFLAGS='-O2 -Wall -Werror -fPIC -g'
+%define extra_flags CFLAGS='-O2 -Wall -Werror -fPIC -g -DWITH_DEBUG'
 %define branding default
 %endif
 

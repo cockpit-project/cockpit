@@ -538,11 +538,10 @@ introspect_flush (CockpitDBusCache *self)
       /* Steal everything, more could be added by callback */
       for (;;)
         {
-
-          id = g_queue_pop_head (self->introspects);
-          if (!id)
+          id = g_queue_pop_tail (self->introspects);
+          if (!id || id->introspecting)
             break;
-          g_queue_push_tail (queue, id);
+          g_queue_push_head (queue, id);
         }
 
       id = g_queue_pop_head (queue);

@@ -20,6 +20,9 @@
 
 from testlib import *
 
+import os
+import unittest
+
 FP_MD5 = "93:40:9e:67:82:78:a8:99:89:39:d5:ba:e0:50:70:e1"
 FP_SHA256 = "SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw"
 KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDG4iipTovcMg0xn+089QLNKVGpP2Pgq2duxHgAXre2XgA3dZL+kooioGFwBQSEjbWssKy82hKIN/W82/lQtL6krf7JQWnT3LZwD5DPsvHFKhOLghbiFzSI0uEL4NFFcZOMo5tGLrM5LsZsaIkkv5QkAE0tHIyeYinK6dQ2d8ZsfmgqxHDUQUWnz1T75X9fWQsUugSWI+8xAe0cfa4qZRz/IC+K7DEB3x4Ot5pl8FBuydJj/gb+Lwo2Vs27/d87W/0KHCqOHNwaVC8RBb1WcmXRDDetLGH1A9m5x7Ip/KU/cyvWWxw8S4VKZkTIcrGUhFYJDnjtE3Axz+D7agtps41t test-name"
@@ -150,6 +153,7 @@ class TestKeys(MachineCase):
         self.allow_journal_messages('Missing callback called fullpath = /home/user/.ssh/authorized_keys')
         self.allow_journal_messages('')
 
+    @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "no pam_ssh_add")
     def testPrivateKeys(self):
         b = self.browser
         m = self.machine
@@ -171,11 +175,17 @@ class TestKeys(MachineCase):
         self.login_and_go()
 
         id_rsa = "2048 SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw"
+        old_rsa = "2048 93:40:9e:67:82:78:a8:99:89:39:d5:ba:e0:50:70:e1"
         id_dsa = "1024 SHA256:x6S6fxMuEyqhpwNRAIK7ms6bZDY6xK9wzdDr2kCaWVY"
+        old_dsa = "1024 d4:55:41:20:f1:0a:e0:52:15:fc:fc:f0:63:22:1f:76"
 
         keys = list_keys()
-        self.assertIn(id_rsa, keys)
+        if "SHA256" in keys:
+            self.assertIn(id_rsa, keys)
+        else:
+            self.assertIn(old_rsa, keys)
         self.assertNotIn(id_dsa, keys)
+        self.assertNotIn(old_dsa, keys)
 
         b.click("#content-user-name")
         b.click("#credentials-item")
@@ -191,8 +201,12 @@ class TestKeys(MachineCase):
         assert b.is_present("tbody[data-name=id_rsa] li.active:contains('Details')")
         self.assertEqual(b.text("tbody[data-name=id_rsa] .credential-comment"), "pvolpe@pvolpe")
         self.assertEqual(b.text("tbody[data-name=id_rsa] .credential-type"), "RSA")
-        self.assertEqual(b.text("tbody[data-name=id_rsa] .credential-fingerprint"),
-                         "SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw")
+        text = b.text("tbody[data-name=id_rsa] .credential-fingerprint");
+        if "SHA256" in text:
+            self.assertEqual(text, id_rsa[5:])
+        else:
+            self.assertEqual(text, old_rsa[5:])
+
         b.click("tbody[data-name=id_rsa] li:contains('Public Key') a")
         assert b.is_visible("tbody[data-name=id_rsa] textarea")
         self.assertEqual(b.text("tbody[data-name=id_rsa] textarea"),
@@ -217,8 +231,12 @@ class TestKeys(MachineCase):
 
         # Both keys are now loaded
         keys = list_keys()
-        self.assertIn(id_rsa, keys)
-        self.assertIn(id_dsa, keys)
+        if "SHA256" in keys:
+            self.assertIn(id_rsa, keys)
+            self.assertIn(id_dsa, keys)
+        else:
+            self.assertIn(old_rsa, keys)
+            self.assertIn(old_dsa, keys)
 
         # Unload the RSA key
         b.click("tbody[data-name=id_rsa] .btn:contains('Off')")
@@ -226,8 +244,12 @@ class TestKeys(MachineCase):
 
         # Only DSA keys now loaded
         keys = list_keys()
-        self.assertIn(id_dsa, keys)
+        if "SHA256" in keys:
+            self.assertIn(id_dsa, keys)
+        else:
+            self.assertIn(old_dsa, keys)
         self.assertNotIn(id_rsa, keys)
+        self.assertNotIn(old_rsa, keys)
 
         # Change password of DSA key
         b.click("tbody[data-name=id_dsa] li:contains('Password') a")
@@ -241,7 +263,11 @@ class TestKeys(MachineCase):
         b.logout()
         b.login_and_go()
         keys = list_keys()
-        self.assertIn(id_rsa, keys)
-        self.assertIn(id_dsa, keys)
+        if "SHA256" in keys:
+            self.assertIn(id_rsa, keys)
+            self.assertIn(id_dsa, keys)
+        else:
+            self.assertIn(old_rsa, keys)
+            self.assertIn(old_dsa, keys)
 
 test_main()

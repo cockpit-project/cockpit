@@ -508,6 +508,7 @@ introspect_next (CockpitDBusCache *self)
     {
       if (g_cancellable_is_cancelled (self->cancellable))
         {
+          g_queue_pop_head (self->introspects);
           introspect_complete (self, id);
         }
       else

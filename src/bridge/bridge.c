@@ -35,8 +35,6 @@
 #include "cockpitpolkitagent.h"
 #include "cockpitportal.h"
 
-#include "deprecated/cockpitdbusjson1.h"
-
 #include "common/cockpitassets.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitlog.h"
@@ -100,7 +98,6 @@ static struct {
   const gchar *name;
   GType (* function) (void);
 } payload_types[] = {
-  { "dbus-json1", cockpit_dbus_json1_get_type },
   { "dbus-json3", cockpit_dbus_json_get_type },
   { "http-stream1", cockpit_http_stream_get_type },
   { "stream", cockpit_pipe_channel_get_type },

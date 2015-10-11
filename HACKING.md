@@ -48,9 +48,9 @@ The following should work in a fresh Git clone:
 
 In addition for testing the following dependencies are required:
 
-    $ sudo yum install trickle nbd-server python-libguestfs qemu \
-         mock qemu-kvm python curl libvirt-client libvirtd qemu-nbd \
-         krb5-workstation krb5-server
+    $ sudo yum install python-libguestfs qemu mock qemu-kvm rpm-build \
+         curl libvirt-client libvirt-python libvirt python-lxml \
+         krb5-workstation krb5-server selinux-policy-devel
     $ sudo npm install -g phantomjs
 
 ## Building and installing

@@ -22,10 +22,9 @@ define([
     "base1/cockpit",
     "docker/util",
     "shell/shell",
-    "shell/dbus",
     "shell/cockpit-plot",
     "shell/cockpit-util",
-], function($, cockpit, util, shell, dbusx) {
+], function($, cockpit, util, shell) {
 
     /* DOCKER CLIENT
      */

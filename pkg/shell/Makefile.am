@@ -24,7 +24,6 @@ shelldebug_DATA = \
 	pkg/shell/machines.js \
 	pkg/shell/shell.css \
 	pkg/shell/shell.html \
-	pkg/shell/dbus.js \
 	pkg/shell/controls.js \
 	pkg/shell/plot.js \
 	pkg/shell/cockpit-util.js \
@@ -47,7 +46,6 @@ pkg/shell/bundle.min.js: $(shell_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
 shell_MINFILES = \
-	pkg/shell/dbus.min.js \
 	pkg/shell/controls.min.js \
 	pkg/shell/plot.min.js \
 	pkg/shell/cockpit-util.min.js \

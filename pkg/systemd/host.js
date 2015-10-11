@@ -902,12 +902,16 @@ PageShutdownDialog.prototype = {
 
         var arg = (op == "shutdown") ? "--poweroff" : "--reboot";
 
-        var promise = cockpit.spawn(["shutdown", arg, when, message], { superuser: "try" });
+        var promise = cockpit.spawn(["shutdown", arg, when, message], { superuser: "try", err: "out" });
         $('#shutdown-dialog').dialog("promise", promise);
-        promise.done(function() {
-            if (op == "restart")
-                cockpit.hint("restart");
-        });
+        promise
+	    .stream(function(data) {
+                console.log(data);
+            })
+            .done(function() {
+                if (op == "restart")
+                    cockpit.hint("restart");
+            });
     },
 
     restart: function() {

@@ -65,8 +65,6 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitfswatch.h \
 	src/bridge/cockpitfslist.c \
 	src/bridge/cockpitfslist.h \
-	src/bridge/deprecated/cockpitdbusjson1.c \
-	src/bridge/deprecated/cockpitdbusjson1.h \
 	$(NULL)
 
 libcockpit_bridge_a_CFLAGS = \
@@ -119,7 +117,6 @@ BRIDGE_CHECKS = \
 	test-rules \
 	test-channel \
 	test-portal \
-	test-dbusjson \
 	test-pipe-channel \
 	test-packages \
 	test-fs \
@@ -140,11 +137,6 @@ test_channel_SOURCES = \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
 test_channel_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_channel_LDADD = $(libcockpit_bridge_LIBS)
-
-test_dbusjson_SOURCES = src/bridge/deprecated/test-dbusjson.c $(mock_dbus_sources)
-nodist_test_dbusjson_SOURCES = $(test_built_sources)
-test_dbusjson_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_dbusjson_LDADD = $(libcockpit_bridge_LIBS)
 
 test_packages_SOURCES = src/bridge/test-packages.c \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h

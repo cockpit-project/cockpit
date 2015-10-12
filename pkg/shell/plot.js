@@ -726,19 +726,40 @@ shell.format_date_tick = function format_date_tick(val, axis) {
     return label.substr(0, label.length-1);
 };
 
+shell.bytes_tick_unit = function bytes_tick_unit(axis) {
+    return cockpit.format_bytes(axis.max, 1024, true)[1];
+};
+
+shell.format_bytes_tick_no_unit = function format_bytes_tick_no_unit(val, axis) {
+    return cockpit.format_bytes(val, shell.bytes_tick_unit(axis), true)[0];
+};
+
 shell.format_bytes_tick = function format_bytes_tick(val, axis) {
-    var max = cockpit.format_bytes(axis.max, 1024, true);
-    return cockpit.format_bytes(val, max[1]);
+    return cockpit.format_bytes(val, 1024);
+};
+
+shell.bytes_per_sec_tick_unit = function bytes_per_sec_tick_unit(axis) {
+    return cockpit.format_bytes_per_sec(axis.max, 1024, true)[1];
+};
+
+shell.format_bytes_per_sec_tick_no_unit = function format_bytes_per_sec_tick_no_unit(val, axis) {
+    return cockpit.format_bytes_per_sec(val, shell.bytes_per_sec_tick_unit(axis), true)[0];
 };
 
 shell.format_bytes_per_sec_tick = function format_bytes_per_sec_tick(val, axis) {
-    var max = cockpit.format_bytes_per_sec(axis.max, 1024, true);
-    return cockpit.format_bytes_per_sec(val, max[1]);
+    return cockpit.format_bytes_per_sec(val, 1024);
+};
+
+shell.bits_per_sec_tick_unit = function bits_per_sec_tick_unit(axis) {
+    return cockpit.format_bits_per_sec(axis.max*8, 1000, true)[1];
+};
+
+shell.format_bits_per_sec_tick_no_unit = function format_bits_per_sec_tick_no_tick(val, axis) {
+    return cockpit.format_bits_per_sec(val*8, shell.bits_per_sec_tick_unit(axis), true)[0];
 };
 
 shell.format_bits_per_sec_tick = function format_bits_per_sec_tick(val, axis) {
-    var max = cockpit.format_bits_per_sec(axis.max*8, 1000, true);
-    return cockpit.format_bits_per_sec(val*8, max[1]);
+    return cockpit.format_bits_per_sec(val*8, 1000);
 };
 
 shell.setup_plot_controls = function setup_plot_controls(container, element, plots) {

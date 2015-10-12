@@ -413,8 +413,6 @@ run_bridge (const gchar *interactive)
   guint sig_int;
   int outfd;
   uid_t uid;
-  const gchar *ssh_auth_sock;
-  GSocketAddress *auth_address = NULL;
 
   cockpit_set_journal_logging (G_LOG_DOMAIN, !isatty (2));
 
@@ -489,17 +487,8 @@ run_bridge (const gchar *interactive)
       super = cockpit_portal_new_superuser (transport);
     }
 
-  ssh_auth_sock = g_getenv ("SSH_AUTH_SOCK");
-  if (ssh_auth_sock != NULL && ssh_auth_sock[0] != '\0')
-      auth_address = g_unix_socket_address_new (ssh_auth_sock);
-
   g_resources_register (cockpitassets_get_resource ());
   cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
-
-  cockpit_channel_internal_address ("ssh-agent", auth_address);
-
-  if (auth_address)
-      g_object_unref (auth_address);
 
   pcp = cockpit_portal_new_pcp (transport);
 

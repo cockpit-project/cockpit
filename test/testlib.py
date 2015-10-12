@@ -326,7 +326,8 @@ class Browser:
                         self.click(".curtains button", True)
                         self.wait_not_visible(".curtains")
                         continue
-                raise sys.exc_info[0], sys.exc_info[1], sys.exc_info[2]
+                exc_info = sys.exc_info()
+                raise exc_info[0], exc_info[1], exc_info[2]
 
         self.switch_to_frame(frame)
         self.wait_present("body")

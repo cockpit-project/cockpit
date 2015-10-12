@@ -635,32 +635,6 @@ shell.plot_simple_template = function simple() {
     };
 };
 
-shell.plot_simple_stacked_template = function simple_stacked() {
-    return {
-        colors: [ "#0099d3" ],
-        legend: { show: false },
-        series: { shadowSize: 0,
-                  lines: { lineWidth: 0.0,
-                           fill: 1.0
-                         }
-                },
-        xaxis: { tickFormatter: function() { return ""; } },
-        yaxis: { tickFormatter: function() { return ""; } },
-        // The point radius influences
-        // the margin around the grid
-        // even if no points are plotted.
-        // We don't want any margin, so
-        // we set the radius to zero.
-        points: { radius: 0 },
-        grid: { borderWidth: 1,
-                aboveData: true,
-                color: "black",
-                borderColor: $.color.parse("black").scale('a', 0.22).toString(),
-                labelMargin: 0
-              }
-    };
-};
-
 shell.memory_ticks = function memory_ticks(opts) {
     // Not more than 5 ticks, nicely rounded to powers of 2.
     var size = Math.pow(2.0, Math.ceil(Math.log(opts.max/5)/Math.LN2));

@@ -566,7 +566,7 @@ function Transport() {
     };
 
     self.send_control = function send_control(data) {
-        if(!ws && data.command == "close")
+        if(!ws && (data.command == "close" || data.command == "kill"))
             return; /* don't complain if closed and closing */
         self.send_message("", JSON.stringify(data));
     };

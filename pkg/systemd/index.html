@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/cockpit.css" rel="stylesheet">
     <link href="../shell/shell.css" rel="stylesheet">
+    <link href="../shell/plot.css" rel="stylesheet">
     <script src="../base1/bundle.js"></script>
     <script src="../shell/bundle.js"></script>
     <script src="../shell/shell.js"></script>
@@ -110,27 +111,23 @@
             </div>
             <br/>
             <br/>
-            <div style="color:black">
-                <a id="link-cpu">CPU</a>
-                <span style="float:right" id="server_cpu_text"></span>
+            <div>
+              <span class="plot-unit" id="server_cpu_unit">%</span><a id="link-cpu">CPU</a>
             </div>
             <div style="height:120px" id="server_cpu_graph" class="server-graph zoomable-plot"></div>
             <br/>
-            <div style="color:black">
-                <a id="link-memory">Memory</a>
-                <span style="float:right" id="server_memory_text"></span>
+            <div>
+              <span class="plot-unit" id="server_memory_unit"></span><a id="link-memory">Memory</a>
             </div>
             <div style="height:120px" id="server_memory_graph" class="server-graph zoomable-plot"></div>
             <br/>
-            <div style="color:black">
-                <a id="link-network">Network Traffic</a>
-                <span style="float:right" id="server_network_traffic_text"></span>
+            <div>
+              <span class="plot-unit" id="server_network_traffic_unit"></span><a id="link-network">Network Traffic</a>
             </div>
             <div style="height:120px" id="server_network_traffic_graph" class="server-graph zoomable-plot"></div>
             <br/>
-            <div style="color:black">
-                <a id="link-disk">Disk I/O</a>
-                <span style="float:right" id="server_disk_io_text"></span>
+            <div>
+              <span class="plot-unit" id="server_disk_io_unit"></span><a id="link-disk">Disk I/O</a>
             </div>
             <div style="height:120px" id="server_disk_io_graph" class="server-graph zoomable-plot"></div>
         </div>

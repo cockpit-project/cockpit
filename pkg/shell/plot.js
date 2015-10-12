@@ -387,7 +387,7 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
         return self;
     }
 
-    function add_metrics_stacked_instances_series(desc, opts, colors) {
+    function add_metrics_stacked_instances_series(desc, opts) {
         var channel = null;
 
         var self = {
@@ -600,23 +600,34 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
     return result;
 };
 
+var plot_colors = [ "#006bb4",
+                    "#008ff0",
+                    "#2daaff",
+                    "#69c2ff",
+                    "#a5daff",
+                    "#e1f3ff",
+                    "#00243c",
+                    "#004778"
+                  ];
+
 shell.plot_simple_template = function simple() {
     return {
-        colors: [ "#0099d3" ],
+        colors: plot_colors,
         legend: { show: false },
         series: { shadowSize: 0,
             lines: {
-                lineWidth: 0.0,
-                fill: 1.0
+                lineWidth: 2.0,
+                fill: 0.4
             }
         },
-        xaxis: { tickColor: "#d1d1d1",
+        xaxis: { tickLength: 0,
                  mode: "time",
                  tickFormatter: shell.format_date_tick,
                  minTickSize: [ 1, 'minute' ],
                  reserveSpace: false
                },
         yaxis: { tickColor: "#d1d1d1",
+                 min: 0
                },
         /*
          * The point radius influences the margin around the grid even if no points
@@ -627,7 +638,7 @@ shell.plot_simple_template = function simple() {
         },
         grid: {
             borderWidth: 1,
-            aboveData: true,
+            aboveData: false,
             color: "black",
             borderColor: $.color.parse("black").scale('a', 0.22).toString(),
             labelMargin: 0

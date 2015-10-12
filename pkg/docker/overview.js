@@ -64,26 +64,6 @@ define([
 
         $('.selectpicker').selectpicker();
 
-        var reds = [ "#250304",
-                     "#5c080c",
-                     "#970911",
-                     "#ce0e15",
-                     "#ef2930",
-                     "#f36166",
-                     "#f7999c",
-                     "#fbd1d2"
-                   ];
-
-        var blues = [ "#006bb4",
-                      "#008ff0",
-                      "#2daaff",
-                      "#69c2ff",
-                      "#a5daff",
-                      "#e1f3ff",
-                      "#00243c",
-                      "#004778"
-                    ];
-
         function highlight_container_row(event, id) {
             id = client.container_from_cgroup(id) || id;
             $('#containers-containers tr').removeClass('highlight');
@@ -98,10 +78,8 @@ define([
         };
 
         var cpu_options = shell.plot_simple_template();
-        $.extend(cpu_options.yaxis, { tickFormatter: function(v) { return v.toFixed(0) + "%"; },
-                                      labelWidth: 60
+        $.extend(cpu_options.yaxis, { tickFormatter: function(v) { return v.toFixed(0); }
                                     });
-        cpu_options.colors = blues;
         $.extend(cpu_options.grid,  { hoverable: true,
                                       autoHighlight: false
                                     });
@@ -132,10 +110,8 @@ define([
 
         var mem_options = shell.plot_simple_template();
         $.extend(mem_options.yaxis, { ticks: shell.memory_ticks,
-                                      tickFormatter: shell.format_bytes_tick,
-                                      labelWidth: 60
+                                      tickFormatter: shell.format_bytes_tick_no_unit
                                     });
-        mem_options.colors = blues;
         $.extend(mem_options.grid,  { hoverable: true,
                                       autoHighlight: false
                                     });
@@ -146,6 +122,8 @@ define([
             else
                 axes.yaxis.options.max = null;
             axes.yaxis.options.min = 0;
+
+            $("#containers-mem-unit").text(shell.bytes_tick_unit(axes.yaxis));
         };
 
         var mem_plot = shell.plot($("#containers-mem-graph"), 300);

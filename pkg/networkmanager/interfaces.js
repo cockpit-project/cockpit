@@ -1232,13 +1232,17 @@ function render_active_connection(dev, with_link, hide_link_local) {
     return $('<span>').text(parts.join(", "));
 }
 
-function network_plot_setup_hook(plot) {
-    var axes = plot.getAxes();
-    if (axes.yaxis.datamax < 100000)
-        axes.yaxis.options.max = 100000;
-    else
-        axes.yaxis.options.max = null;
-    axes.yaxis.options.min = 0;
+function make_network_plot_setup_hook(unit) {
+    return function (plot) {
+        var axes = plot.getAxes();
+        if (axes.yaxis.datamax < 100000)
+            axes.yaxis.options.max = 100000;
+        else
+            axes.yaxis.options.max = null;
+        axes.yaxis.options.min = 0;
+
+        $(unit).text(shell.bits_per_sec_tick_unit(axes.yaxis));
+    };
 }
 
 var permission = cockpit.permission({ group: "wheel" });
@@ -1320,16 +1324,6 @@ PageNetworking.prototype = {
         $("#networking-add-bridge").click($.proxy(this, "add_bridge"));
         $("#networking-add-vlan").click($.proxy(this, "add_vlan"));
 
-        var blues = [ "#006bb4",
-                      "#008ff0",
-                      "#2daaff",
-                      "#69c2ff",
-                      "#a5daff",
-                      "#e1f3ff",
-                      "#00243c",
-                      "#004778"
-                    ];
-
         function highlight_netdev_row(event, id) {
             $('#networking-interfaces tr').removeClass('highlight');
             if (id) {
@@ -1345,14 +1339,12 @@ PageNetworking.prototype = {
         };
 
         var rx_plot_options = shell.plot_simple_template();
-        $.extend(rx_plot_options.yaxis, { tickFormatter: shell.format_bytes_per_sec_tick,
-                                          labelWidth: 60
+        $.extend(rx_plot_options.yaxis, { tickFormatter: shell.format_bits_per_sec_tick_no_unit
                                         });
         $.extend(rx_plot_options.grid,  { hoverable: true,
                                           autoHighlight: false
                                         });
-        rx_plot_options.colors = blues;
-        rx_plot_options.setup_hook = network_plot_setup_hook;
+        rx_plot_options.setup_hook = make_network_plot_setup_hook("#networking-rx-unit");
         this.rx_plot = shell.plot($("#networking-rx-graph"), 300);
         this.rx_plot.set_options(rx_plot_options);
         this.rx_series = this.rx_plot.add_metrics_stacked_instances_series(rx_plot_data, { });
@@ -1367,14 +1359,12 @@ PageNetworking.prototype = {
         };
 
         var tx_plot_options = shell.plot_simple_template();
-        $.extend(tx_plot_options.yaxis, { tickFormatter: shell.format_bytes_per_sec_tick,
-                                          labelWidth: 60
+        $.extend(tx_plot_options.yaxis, { tickFormatter: shell.format_bits_per_sec_tick_no_unit
                                         });
         $.extend(tx_plot_options.grid,  { hoverable: true,
                                           autoHighlight: false
                                         });
-        tx_plot_options.colors = blues;
-        tx_plot_options.setup_hook = network_plot_setup_hook;
+        tx_plot_options.setup_hook = make_network_plot_setup_hook("#networking-tx-unit");
         this.tx_plot = shell.plot($("#networking-tx-graph"), 300);
         this.tx_plot.set_options(tx_plot_options);
         this.tx_series = this.tx_plot.add_metrics_stacked_instances_series(tx_plot_data, { });
@@ -1650,16 +1640,6 @@ PageNetworkInterface.prototype = {
                     self.disconnect();
             });
 
-        var blues = [ "#006bb4",
-                      "#008ff0",
-                      "#2daaff",
-                      "#69c2ff",
-                      "#a5daff",
-                      "#e1f3ff",
-                      "#00243c",
-                      "#004778"
-                    ];
-
         function highlight_netdev_row(event, id) {
             $('#network-interface-slaves tr').removeClass('highlight');
             if (id) {
@@ -1675,14 +1655,12 @@ PageNetworkInterface.prototype = {
         };
 
         var rx_plot_options = shell.plot_simple_template();
-        $.extend(rx_plot_options.yaxis, { tickFormatter: shell.format_bytes_per_sec_tick,
-                                          labelWidth: 60
+        $.extend(rx_plot_options.yaxis, { tickFormatter: shell.format_bits_per_sec_tick_no_unit
                                         });
         $.extend(rx_plot_options.grid,  { hoverable: true,
                                           autoHighlight: false
                                         });
-        rx_plot_options.colors = blues;
-        rx_plot_options.setup_hook = network_plot_setup_hook;
+        rx_plot_options.setup_hook = make_network_plot_setup_hook("#network-interface-rx-unit");
         this.rx_plot = shell.plot($("#network-interface-rx-graph"), 300);
         this.rx_plot.set_options(rx_plot_options);
         this.rx_series = this.rx_plot.add_metrics_stacked_instances_series(rx_plot_data, { });
@@ -1697,14 +1675,12 @@ PageNetworkInterface.prototype = {
         };
 
         var tx_plot_options = shell.plot_simple_template();
-        $.extend(tx_plot_options.yaxis, { tickFormatter: shell.format_bytes_per_sec_tick,
-                                          labelWidth: 60
+        $.extend(tx_plot_options.yaxis, { tickFormatter: shell.format_bits_per_sec_tick_no_unit
                                         });
         $.extend(tx_plot_options.grid,  { hoverable: true,
                                           autoHighlight: false
                                         });
-        tx_plot_options.colors = blues;
-        tx_plot_options.setup_hook = network_plot_setup_hook;
+        tx_plot_options.setup_hook = make_network_plot_setup_hook("#network-interface-tx-unit");
         this.tx_plot = shell.plot($("#network-interface-tx-graph"), 300);
         this.tx_plot.set_options(tx_plot_options);
         this.tx_series = this.tx_plot.add_metrics_stacked_instances_series(tx_plot_data, { });

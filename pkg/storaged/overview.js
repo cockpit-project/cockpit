@@ -287,29 +287,23 @@ define([
 
         $(client).on('changed', render_jobs);
 
-        function plot_setup(flot) {
-            var axes = flot.getAxes();
-            if (axes.yaxis.datamax < 100000)
-                axes.yaxis.options.max = 100000;
-            else
-                axes.yaxis.options.max = null;
-            axes.yaxis.options.min = 0;
+        function make_plot_setup(unit) {
+            return function plot_setup(flot) {
+                var axes = flot.getAxes();
+                if (axes.yaxis.datamax < 100000)
+                    axes.yaxis.options.max = 100000;
+                else
+                    axes.yaxis.options.max = null;
+                axes.yaxis.options.min = 0;
+
+                $(unit).text(shell.bytes_per_sec_tick_unit(axes.yaxis));
+            };
         }
 
         function highlight_drive(event, dev) {
             cur_highlight = dev;
             render_drives();
         }
-
-        var blues = [ "#006bb4",
-                      "#008ff0",
-                      "#2daaff",
-                      "#69c2ff",
-                      "#a5daff",
-                      "#e1f3ff",
-                      "#00243c",
-                      "#004778"
-                    ];
 
         var read_plot_data = {
             direct: "disk.dev.read_bytes",
@@ -320,14 +314,12 @@ define([
 
         var read_plot_options = shell.plot_simple_template();
         $.extend(read_plot_options.yaxis, { ticks: shell.memory_ticks,
-                                            tickFormatter: shell.format_bytes_per_sec_tick,
-                                            labelWidth: 60
+                                            tickFormatter: shell.format_bytes_per_sec_tick_no_unit
                                           });
         $.extend(read_plot_options.grid,  { hoverable: true,
                                             autoHighlight: false
                                           });
-        read_plot_options.colors = blues;
-        read_plot_options.setup_hook = plot_setup;
+        read_plot_options.setup_hook = make_plot_setup("#storage-reading-unit");
         var read_plot = shell.plot($("#storage-reading-graph"), 300);
         read_plot.set_options(read_plot_options);
         var read_series = read_plot.add_metrics_stacked_instances_series(read_plot_data, { });
@@ -343,14 +335,12 @@ define([
 
         var write_plot_options = shell.plot_simple_template();
         $.extend(write_plot_options.yaxis, { ticks: shell.memory_ticks,
-                                             tickFormatter: shell.format_bytes_per_sec_tick,
-                                             labelWidth: 60
+                                             tickFormatter: shell.format_bytes_per_sec_tick_no_unit
                                            });
         $.extend(write_plot_options.grid,  { hoverable: true,
                                              autoHighlight: false
                                            });
-        write_plot_options.colors = blues;
-        write_plot_options.setup_hook = plot_setup;
+        write_plot_options.setup_hook = make_plot_setup("#storage-writing-unit");
         var write_plot = shell.plot($("#storage-writing-graph"), 300);
         write_plot.set_options(write_plot_options);
         var write_series = write_plot.add_metrics_stacked_instances_series(write_plot_data, { });

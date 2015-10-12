@@ -25,6 +25,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
     <link href="../system/journal.css" type="text/css" rel="stylesheet">
+    <link href="../shell/plot.css" type="text/css" rel="stylesheet">
     <link href="storage.css" type="text/css" rel="stylesheet">
     <script src="../base1/bundle.js"></script>
     <script src="../system/bundle.js"></script>
@@ -274,12 +275,16 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-sm-6">
-          <div><span translatable="yes">Reading</span><span style="float:right" id="storage-reading-text"></span></div>
+        <div class="col-sm-6" style="padding-right:5px">
+          <div>
+            <span class="plot-unit" id="storage-reading-unit"></span><span class="plot-title" translatable="yes">Reading</span>
+          </div>
           <div style="height:120px" id="storage-reading-graph" class="zoomable-plot"></div>
         </div>
-        <div class="col-sm-6">
-          <div><span translatable="yes">Writing</span><span style="float:right" id="storage-writing-text"></span></div>
+        <div class="col-sm-6" style="padding-left:5px">
+          <div>
+            <span class="plot-unit" id="storage-writing-unit"></span><span class="plot-title" translatable="yes">Writing</span>
+          </div>
           <div style="height:120px" id="storage-writing-graph" class="zoomable-plot"></div>
         </div>
       </div>

@@ -466,15 +466,35 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
 
             var instance_data = $.extend({}, opts);
             var factor = desc.factor || 1;
-            var last = last_instance;
+            var threshold = desc.threshold || 0;
             var metrics_row;
+
+            var last = last_instance;
 
             function reset() {
                 metrics_row = grid.add(channel, [ "a", name ]);
                 instance_data.data = grid.add(function(row, x, n) {
                     for (var i = 0; i < n; i++) {
-                        var floor = last? last.data[x + i][2] : 0;
-                        row[x + i] = [(grid.beg + x + i)*interval, floor, floor + (metrics_row[x + i] || 0)*factor];
+                        var value = (metrics_row[x + i] || 0)*factor;
+                        var ts = (grid.beg + x + i)*interval;
+                        var floor = 0;
+
+                        if (last) {
+                            if (last.data[x + i][1])
+                                floor = last.data[x + i][1];
+                            else
+                                floor = last.data[x + i][2];
+                        }
+
+                        if (Math.abs(value) > threshold) {
+                            row[x + i] = [ ts, floor + value, floor ];
+                            if (row[x + i - 1] && row[x + i - 1][1] === null)
+                                row[x + i - 1][1] = row[x + i - 1][2];
+                        } else {
+                            row[x + i] = [ ts, null, floor ];
+                            if (row[x + i - 1] && row[x + i - 1][1] !== null)
+                                row[x + i - 1][1] = row[x + i - 1][2];
+                        }
                     }
                 });
                 sync();
@@ -516,7 +536,7 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
 
             for (name in instances) {
                 var d = instances[name].data;
-                if (d[index] && d[index][1] <= pos.y && pos.y <= d[index][2])
+                if (d[index] && d[index][1] && d[index][2] <= pos.y && pos.y <= d[index][1])
                     return name;
             }
             return false;

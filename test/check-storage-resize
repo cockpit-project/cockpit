@@ -58,4 +58,5 @@ class TestStorage(StorageCase):
         size = int(m.execute("df -k --output=size /run/media/admin/FSYS | tail -1").strip())
         assert (size < 300000)
 
-test_main()
+if __name__ == '__main__':
+    test_main()

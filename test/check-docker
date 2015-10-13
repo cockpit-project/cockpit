@@ -307,4 +307,5 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         self.allow_authorize_journal_messages()
         self.allow_journal_messages("cannot reauthorize identity.*:.*unix-user:root.*")
 
-test_main()
+if __name__ == '__main__':
+    test_main()

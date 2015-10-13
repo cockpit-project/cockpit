@@ -196,4 +196,5 @@ class TestKerberos(MachineCase):
         self.assertIn("HTTP/1.1 200 OK", output)
         self.assertIn('"admin@cockpit.lan"', output)
 
-test_main()
+if __name__ == '__main__':
+    test_main()

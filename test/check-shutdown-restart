@@ -66,4 +66,5 @@ class TestShutdownRestart(MachineCase):
         b.wait_popup("disconnected-dialog")
         m.wait_poweroff()
 
-test_main()
+if __name__ == '__main__':
+    test_main()

@@ -87,4 +87,5 @@ WantedBy=default.target
         b.wait_present('#file-content')
         b.wait_text('#file-content', "1")
 
-test_main()
+if __name__ == '__main__':
+    test_main()

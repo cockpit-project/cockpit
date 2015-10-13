@@ -42,4 +42,5 @@ class TestLoopback(MachineCase):
         b.wait_visible('#login-fatal')
         self.assertIn("The server refused to authenticate 'admin' using password authentication, and no other supported authentication methods are available.", b.text('#login-fatal'));
 
-test_main()
+if __name__ == '__main__':
+    test_main()

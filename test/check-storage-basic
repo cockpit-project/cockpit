@@ -58,4 +58,5 @@ class TestStorage(StorageCase):
         m.rem_disk(disk1)
         b.wait_not_in_text("#drives", "MYSERIAL")
 
-test_main()
+if __name__ == '__main__':
+    test_main()

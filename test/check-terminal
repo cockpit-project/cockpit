@@ -68,4 +68,5 @@ class TestTerminal(MachineCase):
         b.key_press([ 'e', 'c', 'h', 'o', ' ',  'ß', 'm', 'i', 'Return' ])
         wait_line(2, u'ßmi')
 
-test_main()
+if __name__ == '__main__':
+    test_main()

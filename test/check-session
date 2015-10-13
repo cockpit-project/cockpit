@@ -81,4 +81,5 @@ class TestSession(MachineCase):
         b.wait_text ("#account-user-name", "admin")
         b.wait_text("#account-user-name", "admin")
 
-test_main ()
+if __name__ == '__main__':
+    test_main()

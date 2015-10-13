@@ -142,4 +142,5 @@ class TestConnection(MachineCase):
 
         self.allow_journal_messages('peer did not close io when expected')
 
-test_main()
+if __name__ == '__main__':
+    test_main()

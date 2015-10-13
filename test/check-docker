@@ -50,12 +50,9 @@ class TestDocker(MachineCase):
 
     def wait_for_message(self, message):
         b = self.browser
-        # HACK - sometimes container output is missing from the logs
-        #        https://github.com/docker/docker/issues/10617
-        try:
-            b.wait_in_text("#container-terminal", message)
-        except:
-            raise RepeatThis("https://github.com/docker/docker/issues/10617")
+        # sometimes container output is missing from the logs
+        # https://github.com/docker/docker/issues/10617
+        b.wait_in_text("#container-terminal", message)
 
     def testBasic(self):
         b = self.browser

@@ -1,77 +1,33 @@
-#!/bin/bash
-# This file is part of Cockpit.
-#
-# Copyright (C) 2013 Red Hat, Inc.
-#
-# Cockpit is free software; you can redistribute it and/or modify it
-# under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation; either version 2.1 of the License, or
-# (at your option) any later version.
-#
-# Cockpit is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+#!/usr/bin/env python
 
-set -e
+import testlib
 
-LANG=C
-export LANG
+import glob
+import imp
+import os
+import string
+import sys
+import unittest
 
-TEST_OS=${TEST_OS:-fedora-22}
-TEST_ARCH=${TEST_ARCH:-x86_64}
-export TEST_OS
-export TEST_ARCH
+sys.dont_write_bytecode = True
 
-if which "parallel" >/dev/null 2>/dev/null; then
-  RUNNER="parallel --gnu -j ${TEST_JOBS:-1} -v"
-else
-  RUNNER="sh -ex"
-fi
+loader = unittest.TestLoader()
+suite = unittest.TestSuite()
 
-$RUNNER <<EOF
-./check-login
-./check-dashboard TestDashboard.testBasic
-./check-dashboard TestDashboard.testEdit
-./check-dashboard TestDashboard.testSetup
-./check-menu
-./check-shutdown-restart
-./check-system-info
-./check-realms
-./check-connection
-./check-services
-./check-networking
-./check-pages
-./check-storage-basic
-./check-storage-mounting
-./check-storage-msdos
-./check-storage-luks
-./check-storage-mdraid
-./check-storage-lvm2
-./check-storage-used
-./check-storage-hidden
-./check-storage-unused
-./check-storage-resize
-./check-storage-ignored
-./check-storage-multipath
-./check-journal
-./check-terminal
-./check-accounts
-./check-session
-./check-roles
-./check-multi-machine
-./check-multi-machine-key
-./check-multi-os
-./check-reauthorize
-./check-docker
-./check-loopback
-./check-embed
-./check-kubernetes
-./check-openshift
-./check-keys
-EOF
+def check_valid(filename):
+    if filename == "check-verify":
+        return False
+    allowed = string.ascii_letters + string.digits + '-_'
+    return all(c in allowed for c in filename)
 
-echo VERIFICATION PASSED
+# Load all modules that start with check-
+for filename in glob.glob("check-*"):
+    if not check_valid(filename) or not os.path.isfile(filename):
+        continue
+    name = filename.replace("-", "_")
+    with open(filename, 'rb') as fp:
+        module = imp.load_module(name, fp, filename, ("", "rb", imp.PY_SOURCE))
+        suite.addTests(loader.loadTestsFromModule(module))
+
+# And now run all the tests we got
+testlib.test_main(suite)

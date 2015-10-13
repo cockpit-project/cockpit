@@ -777,6 +777,7 @@ cockpit_portal_new_superuser (CockpitTransport *transport)
     PATH_PKEXEC,
     "--disable-internal-agent",
     "cockpit-bridge",
+    "--privileged",
     NULL
   };
 
@@ -784,6 +785,7 @@ cockpit_portal_new_superuser (CockpitTransport *transport)
     PATH_SUDO,
     "-n", /* non-interactive */
     "cockpit-bridge",
+    "--privileged",
     NULL
   };
 

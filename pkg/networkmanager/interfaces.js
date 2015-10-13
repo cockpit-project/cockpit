@@ -1335,7 +1335,8 @@ PageNetworking.prototype = {
             direct: "network.interface.in.bytes",
             internal: "network.all.rx",
             units: "bytes",
-            derive: "rate"
+            derive: "rate",
+            threshold: 200
         };
 
         var rx_plot_options = shell.plot_simple_template();
@@ -1355,7 +1356,8 @@ PageNetworking.prototype = {
             direct: "network.interface.out.bytes",
             internal: "network.all.tx",
             units: "bytes",
-            derive: "rate"
+            derive: "rate",
+            threshold: 200
         };
 
         var tx_plot_options = shell.plot_simple_template();

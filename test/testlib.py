@@ -66,9 +66,6 @@ __all__ = (
 
     'wait',
     'RepeatThis',
-
-    # Random utilities
-    'merge'
     )
 
 class RepeatThis(Exception):
@@ -692,7 +689,6 @@ def test_main():
     parser.add_argument('-q', '--quiet', dest='verbosity', action='store_const',
                         const=0, help='Quiet output')
     parser.add_argument('-s', dest='sit', action='store_true')
-    parser.add_argument('--vm-start-hook', help='Machine start hook')
     parser.add_argument('tests', nargs='*')
 
     parser.set_defaults(verbosity=1)
@@ -773,9 +769,3 @@ def sit():
     the browser.
     """
     raw_input ("Press RET to continue... ")
-
-def merge(*args):
-    return dict(reduce(lambda x,y: x + y, map(lambda d: d.items(), args), [ ]))
-
-def shesc(str):
-    return "'" + str.replace("'", "'\\''") + "'"

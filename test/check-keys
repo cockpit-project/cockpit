@@ -153,13 +153,15 @@ class TestKeys(MachineCase):
         self.allow_journal_messages('Missing callback called fullpath = /home/user/.ssh/authorized_keys')
         self.allow_journal_messages('')
 
-    @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "no pam_ssh_add")
     def testPrivateKeys(self):
         b = self.browser
         m = self.machine
 
         def list_keys():
             return b.eval_js("require('base1/cockpit').spawn([ 'ssh-add', '-l' ])")
+
+        # Operating systems where auto loading doesn't work
+        auto_load = "atomic" not in os.environ.get("TEST_OS", "")
 
         # Put all the keys in place
         m.execute("mkdir -p /home/admin/.ssh")
@@ -180,10 +182,11 @@ class TestKeys(MachineCase):
         old_dsa = "1024 d4:55:41:20:f1:0a:e0:52:15:fc:fc:f0:63:22:1f:76"
 
         keys = list_keys()
-        if "SHA256" in keys:
-            self.assertIn(id_rsa, keys)
-        else:
-            self.assertIn(old_rsa, keys)
+        if auto_load:
+            if "SHA256" in keys:
+                self.assertIn(id_rsa, keys)
+            else:
+                self.assertIn(old_rsa, keys)
         self.assertNotIn(id_dsa, keys)
         self.assertNotIn(old_dsa, keys)
 
@@ -194,7 +197,8 @@ class TestKeys(MachineCase):
         b.wait_present("tbody[data-name=id_rsa]")
 
         # Automatically loaded
-        assert b.is_present("tbody[data-name=id_rsa] .btn.active:contains('On')")
+        if auto_load:
+            assert b.is_present("tbody[data-name=id_rsa] .btn.active:contains('On')")
         b.click("tbody[data-name=id_rsa] tr.listing-item")
         assert b.is_visible("tbody[data-name=id_rsa] .listing-body")
         assert b.is_visible("tbody[data-name=id_rsa] ul")
@@ -232,10 +236,12 @@ class TestKeys(MachineCase):
         # Both keys are now loaded
         keys = list_keys()
         if "SHA256" in keys:
-            self.assertIn(id_rsa, keys)
+            if auto_load:
+                self.assertIn(id_rsa, keys)
             self.assertIn(id_dsa, keys)
         else:
-            self.assertIn(old_rsa, keys)
+            if auto_load:
+                self.assertIn(old_rsa, keys)
             self.assertIn(old_dsa, keys)
 
         # Unload the RSA key
@@ -260,14 +266,15 @@ class TestKeys(MachineCase):
         b.wait_present("tbody[data-name=id_dsa] li.active:contains('Details')")
 
         # Log off and log back in, and we should have both loaded automatically
-        b.logout()
-        b.login_and_go()
-        keys = list_keys()
-        if "SHA256" in keys:
-            self.assertIn(id_rsa, keys)
-            self.assertIn(id_dsa, keys)
-        else:
-            self.assertIn(old_rsa, keys)
-            self.assertIn(old_dsa, keys)
+        if auto_load:
+            b.logout()
+            b.login_and_go()
+            keys = list_keys()
+            if "SHA256" in keys:
+                self.assertIn(id_rsa, keys)
+                self.assertIn(id_dsa, keys)
+            else:
+                self.assertIn(old_rsa, keys)
+                self.assertIn(old_dsa, keys)
 
 test_main()

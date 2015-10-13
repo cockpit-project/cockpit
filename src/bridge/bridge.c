@@ -248,7 +248,7 @@ send_init_command (CockpitTransport *transport)
 }
 
 static void
-setup_dbus_daemon (gpointer addrfd)
+setup_daemon (gpointer addrfd)
 {
   g_unsetenv ("G_DEBUG");
   cockpit_unix_fd_close_all (3, GPOINTER_TO_INT (addrfd));
@@ -258,7 +258,6 @@ static GPid
 start_dbus_daemon (void)
 {
   GError *error = NULL;
-  const gchar *env;
   GString *address = NULL;
   gchar *line;
   gsize len;
@@ -275,14 +274,6 @@ start_dbus_daemon (void)
       NULL
   };
 
-  /* Automatically start a DBus session if necessary */
-  env = g_getenv ("DBUS_SESSION_BUS_ADDRESS");
-  if (env != NULL && env[0] != '\0')
-    {
-      g_debug ("already have session bus: %s", env);
-      goto out;
-    }
-
   if (pipe (addrfd))
     {
       g_warning ("pipe failed to allocate fds: %m");
@@ -297,7 +288,7 @@ start_dbus_daemon (void)
           G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_STDOUT_TO_DEV_NULL;
 
   g_spawn_async_with_pipes (NULL, dbus_argv, NULL, flags,
-                            setup_dbus_daemon, GINT_TO_POINTER (addrfd[1]),
+                            setup_daemon, GINT_TO_POINTER (addrfd[1]),
                             &pid, NULL, NULL, NULL, &error);
 
   close (addrfd[1]);
@@ -363,6 +354,67 @@ out:
   return pid;
 }
 
+static GPid
+start_ssh_agent (void)
+{
+  GError *error = NULL;
+  GSpawnFlags flags;
+  GPid pid = 0;
+  gint fd = -1;
+
+  gchar *bind_address = g_strdup_printf ("%s/ssh-agent.XXXXXX", g_get_user_runtime_dir ());
+
+  gchar *agent_argv[] = {
+      "ssh-agent",
+      "-a",
+      bind_address,
+      NULL
+  };
+
+  fd = g_mkstemp (bind_address);
+  if (fd < 0)
+    {
+      g_warning ("couldn't create temporary socket file: %s", g_strerror (errno));
+      goto out;
+    }
+  if (g_unlink (bind_address) < 0)
+    {
+      g_warning ("couldn't remove temporary socket file: %s", g_strerror (errno));
+      goto out;
+    }
+
+  flags = G_SPAWN_SEARCH_PATH | G_SPAWN_STDOUT_TO_DEV_NULL;
+  g_spawn_async (NULL, agent_argv, NULL, flags,
+                 setup_daemon, GINT_TO_POINTER (-1), &pid, &error);
+
+  if (error != NULL)
+    {
+      if (g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_NOENT))
+        g_debug ("couldn't start %s: %s", agent_argv[0], error->message);
+      else
+        g_warning ("couldn't start %s: %s", agent_argv[0], error->message);
+      pid = 0;
+      goto out;
+    }
+
+  g_debug ("launched %s", agent_argv[0]);
+  g_setenv ("SSH_AUTH_SOCK", bind_address, TRUE);
+
+out:
+  g_clear_error (&error);
+  if (fd >= 0)
+    close (fd);
+  g_free (bind_address);
+  return pid;
+}
+
+static gboolean
+have_env (const gchar *name)
+{
+  const gchar *env = g_getenv (name);
+  return env && env[0];
+}
+
 static gboolean
 on_signal_done (gpointer data)
 {
@@ -409,6 +461,7 @@ run_bridge (const gchar *interactive)
   const gchar *directory;
   struct passwd *pwd;
   GPid daemon_pid = 0;
+  GPid agent_pid = 0;
   guint sig_term;
   guint sig_int;
   int outfd;
@@ -461,9 +514,14 @@ run_bridge (const gchar *interactive)
 
   g_type_init ();
 
-  /* Start a session daemon if necessary */
+  /* Start daemons if necessary */
   if (!interactive)
-    daemon_pid = start_dbus_daemon ();
+    {
+      if (!have_env ("DBUS_SESSION_BUS_ADDRESS"))
+        daemon_pid = start_dbus_daemon ();
+      if (!have_env ("SSH_AUTH_SOCK"))
+        agent_pid = start_ssh_agent ();
+    }
 
   packages = cockpit_packages_new ();
   cockpit_dbus_internal_startup (interactive != NULL);
@@ -524,6 +582,8 @@ run_bridge (const gchar *interactive)
 
   if (daemon_pid)
     kill (daemon_pid, SIGTERM);
+  if (agent_pid)
+    kill (agent_pid, SIGTERM);
 
   g_source_remove (sig_term);
   g_source_remove (sig_int);

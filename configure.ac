@@ -240,7 +240,7 @@ AC_PATH_PROG([USERMOD], [usermod], [/usr/sbin/usermod], [$PATH:/usr/local/sbin:/
 AC_DEFINE_UNQUOTED([PATH_USERMOD],["$USERMOD"],[Location of usermod binary])
 
 # pkexec
-AC_PATH_PROG([PKEXEC], [pkexec], [/usr/sbin/pkexec], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
+AC_PATH_PROG([PKEXEC], [pkexec], [/usr/bin/pkexec], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
 AC_DEFINE_UNQUOTED([PATH_PKEXEC], ["$PKEXEC"], [Location of pkexec binary])
 
 # sudo

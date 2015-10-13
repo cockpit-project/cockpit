@@ -449,7 +449,8 @@ getpwuid_a (uid_t uid)
 }
 
 static int
-run_bridge (const gchar *interactive)
+run_bridge (const gchar *interactive,
+            gboolean privileged_slave)
 {
   CockpitTransport *transport;
   gboolean terminated = FALSE;
@@ -473,11 +474,14 @@ run_bridge (const gchar *interactive)
    * The bridge always runs from within $XDG_RUNTIME_DIR
    * This makes it easy to create user sockets and/or files.
    */
-  directory = g_get_user_runtime_dir ();
-  if (g_mkdir_with_parents (directory, 0700) < 0)
-    g_warning ("couldn't create runtime dir: %s: %s", directory, g_strerror (errno));
-  else if (g_chdir (directory) < 0)
-    g_warning ("couldn't change to runtime dir: %s: %s", directory, g_strerror (errno));
+  if (!privileged_slave)
+    {
+      directory = g_get_user_runtime_dir ();
+      if (g_mkdir_with_parents (directory, 0700) < 0)
+        g_warning ("couldn't create runtime dir: %s: %s", directory, g_strerror (errno));
+      else if (g_chdir (directory) < 0)
+        g_warning ("couldn't change to runtime dir: %s: %s", directory, g_strerror (errno));
+    }
 
   /* Always set environment variables early */
   uid = geteuid();
@@ -515,7 +519,7 @@ run_bridge (const gchar *interactive)
   g_type_init ();
 
   /* Start daemons if necessary */
-  if (!interactive)
+  if (!interactive && !privileged_slave)
     {
       if (!have_env ("DBUS_SESSION_BUS_ADDRESS"))
         daemon_pid = start_dbus_daemon ();
@@ -637,11 +641,13 @@ main (int argc,
   int ret;
 
   static gboolean opt_packages = FALSE;
+  static gboolean opt_privileged = FALSE;
   static gboolean opt_version = FALSE;
   static gchar *opt_interactive = NULL;
 
   static GOptionEntry entries[] = {
     { "interact", 0, 0, G_OPTION_ARG_STRING, &opt_interactive, "Interact with the raw protocol", "boundary" },
+    { "privileged", 0, 0, G_OPTION_ARG_NONE, &opt_privileged, "Privileged copy of bridge", NULL },
     { "packages", 0, 0, G_OPTION_ARG_NONE, &opt_packages, "Show Cockpit package information", NULL },
     { "version", 0, 0, G_OPTION_ARG_NONE, &opt_version, "Show Cockpit version information", NULL },
     { NULL }
@@ -700,7 +706,7 @@ main (int argc,
       return 2;
     }
 
-  ret = run_bridge (opt_interactive);
+  ret = run_bridge (opt_interactive, opt_privileged);
 
   g_free (opt_interactive);
   return ret;

@@ -33,16 +33,9 @@ class TestSession(MachineCase):
         def wait_session(should_exist):
             def cond():
                 return should_exist == ("admin" in m.execute("loginctl list-sessions"))
-            if should_exist:
-                wait(cond)
-            else:
-                # HACK - sometimes the session gets stuck forever in
-                #        state 'closing' with no processes.
-                #        https://bugs.freedesktop.org/show_bug.cgi?id=89024
-                try:
-                    wait(cond)
-                except:
-                    raise RepeatThis("https://bugs.freedesktop.org/show_bug.cgi?id=89024")
+            # sometimes the session gets stuck forever in state 'closing' with no processes.
+            # https://bugs.freedesktop.org/show_bug.cgi?id=89024
+            wait(cond)
 
         wait_session(False)
 

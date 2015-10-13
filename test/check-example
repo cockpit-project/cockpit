@@ -20,6 +20,7 @@
 
 from testlib import *
 
+import sys
 import time
 import unittest
 
@@ -29,14 +30,19 @@ class TestExample(MachineCase):
         b = self.browser
 
         self.login_and_go("/system")
-        b.wait_js_cond("$('#settings a').length != 0")
 
 class TestSimple(unittest.TestCase):
     def testOne(self):
-        time.sleep(1)
+        for i in range(0, 10):
+            time.sleep(0.100)
+            if i % 2:
+                print >> sys.stderr, ">1", i
+            else:
+                print ">2", i
         self.assertTrue(True)
+
     def testTwo(self):
-	self.assertFalse(True)
+        self.assertTrue(True)
 
 if __name__ == '__main__':
     test_main()

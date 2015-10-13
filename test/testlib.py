@@ -28,11 +28,13 @@ import argparse
 import subprocess
 import os
 import atexit
+import select
 import shutil
 import sys
 import socket
 import traceback
 import exceptions
+import random
 import re
 import json
 import signal
@@ -64,21 +66,13 @@ __all__ = (
 
     'sit',
 
-    'wait',
-    'RepeatThis',
+    'wait'
     )
-
-class RepeatThis(Exception):
-    def __init__(self, msg):
-        self.msg = msg
-    def __str__(self):
-        return self.msg
 
 topdir = os.path.normpath(os.path.dirname(__file__))
 
 # Command line options
 
-program_name = "TEST"
 arg_sit_on_failure = False
 arg_trace = False
 
@@ -395,7 +389,7 @@ class Browser:
             title: Used for the filename.
         """
         if self.phantom:
-            self.phantom.show("%s-%s-%s.png" % (program_name, label or self.label, title))
+            self.phantom.show("{0}-{1}.png".format(label or self.label, title))
 
     def kill(self):
         self.phantom.kill()
@@ -406,16 +400,18 @@ class MachineCase(unittest.TestCase):
     machine = None
     machines = [ ]
 
+    def label(self):
+        (unused, sep, label) = self.id().partition(".")
+        return label.replace(".", "-")
+
     def new_machine(self, flavor=None, system=None):
-        (unused, sep, label) = self.id().rpartition(".")
-        m = self.machine_class(verbose=arg_trace, flavor=flavor, system=system, label="%s-%s" % (program_name, label))
+        m = self.machine_class(verbose=arg_trace, flavor=flavor, system=system, label=self.label())
         self.addCleanup(lambda: m.kill())
         self.machines.append(m)
         return m
 
     def new_browser(self, address=None):
-        (unused, sep, label) = self.id().rpartition(".")
-        browser = Browser(address = address or self.machine.address, label=label)
+        browser = Browser(address = address or self.machine.address, label=self.label())
         self.addCleanup(lambda: browser.kill())
         return browser
 
@@ -429,13 +425,13 @@ class MachineCase(unittest.TestCase):
         self.tmpdir = tempfile.mkdtemp()
 
     def tearDown(self):
-        if self.runner and not self.runner.wasSuccessful():
+        if self.result and not self.result.wasSuccessful():
             self.snapshot("FAIL")
             self.copy_journal("FAIL")
             if arg_sit_on_failure:
-                for f in self.runner.failures:
+                for f in self.result.failures:
                     print >> sys.stderr, f[1]
-                for e in self.runner.errors:
+                for e in self.result.errors:
                     print >> sys.stderr, e[1]
                 print >> sys.stderr, "ADDRESS: %s" % self.machine.address
                 sit()
@@ -582,11 +578,9 @@ systemctl start docker
         self.browser.snapshot(title, label)
 
     def copy_journal(self, title, label=None):
-        if label is None:
-            (unused, sep, label) = self.id().rpartition(".")
         for m in self.machines:
             if m.address:
-                dir = "%s-%s-%s-%s.journal" % (program_name, label, m.address, title)
+                dir = "%s-%s-%s.journal" % (label or self.label(), m.address, title)
                 m.download_dir("/var/log/journal", dir)
                 print "Journal database copied to %s" % (dir)
 
@@ -659,7 +653,178 @@ class Phantom:
             self._driver.wait()
             self._driver = None
 
-def test_main():
+
+class TapResult(unittest.TestResult):
+    def __init__(self, stream, descriptions, verbosity):
+        self.offset = 0
+        super(TapResult, self).__init__(stream, descriptions, verbosity)
+
+    def ok(self, test):
+        data = "ok {0} {1}\n".format(self.offset, str(test))
+        sys.stdout.write(data)
+
+    def not_ok(self, test, err):
+        data = "not ok {0} {1}\n".format(self.offset, str(test))
+        if err:
+            data += self._exc_info_to_string(err, test)
+        sys.stdout.write(data)
+
+    def skip(self, test, reason):
+        sys.stdout.write("ok {0} # SKIP {1}\n".format(self.offset, reason))
+
+    def stop(self):
+        sys.stdout.write("Bail out!\n")
+        super(TapResult, self).stop()
+
+    def startTest(self, test):
+        self.offset += 1
+        test.result = self
+        sys.stdout.write("# {0}\n# {1}\n#\n".format('-' * 70, str(test)))
+        super(TapResult, self).startTest(test)
+
+    def stopTest(self, test):
+        test.result = None
+        sys.stdout.write("\n")
+        super(TapResult, self).stopTest(test)
+
+    def addError(self, test, err):
+        self.not_ok(test, err)
+        super(TapResult, self).addError(test, err)
+
+    def addFailure(self, test, err):
+        self.not_ok(test, err)
+        super(TapResult, self).addError(test, err)
+
+    def addSuccess(self, test):
+        self.ok(test)
+        super(TapResult, self).addSuccess(test)
+
+    def addSkip(self, test, reason):
+        self.skip(test, reason)
+        super(TapResult, self).addSkip(test, reason)
+
+    def addExpectedFailure(self, test, err):
+        self.ok(test)
+        super(TapResult, self).addExpectedFailure(test, err)
+
+    def addUnexpectedSuccess(self, test):
+        self.not_ok(test, None)
+        super(TapResult, self).addUnexpectedSuccess(test)
+
+class OutputBuffer(object):
+    def __init__(self):
+        self.poll = select.poll()
+        self.buffers = { }
+        self.fds = { }
+
+    def drain(self):
+        while self.fds:
+            for p in self.poll.poll(1000):
+                data = os.read(p[0], 1024)
+                if data == "":
+                    self.poll.unregister(p[0])
+                else:
+                    self.buffers[p[0]] += data
+            else:
+                break
+
+    def push(self, pid, fd):
+        self.poll.register(fd, select.POLLIN)
+        self.fds[pid] = fd
+        self.buffers[fd] = ""
+
+    def pop(self, pid):
+        fd = self.fds.pop(pid)
+        buffer = self.buffers.pop(fd)
+        try:
+            self.poll.unregister(fd)
+        except KeyError:
+            pass
+        while True:
+            data = os.read(fd, 1024)
+            if data == "":
+                break
+            buffer += data
+        os.close(fd)
+        return buffer
+
+class TapRunner(object):
+    resultclass = TapResult
+
+    def __init__(self, verbosity=1, failfast=False, jobs=1):
+        self.stream = unittest.runner._WritelnDecorator(sys.stderr)
+        self.verbosity = verbosity
+        self.failfast = failfast
+        self.jobs = jobs
+
+    def run(self, testable):
+        count = testable.countTestCases()
+        sys.stdout.write("1..{0}\n".format(count))
+
+        pids = set()
+        options = 0
+        buffer = None
+        if self.jobs > 1:
+            buffer = OutputBuffer()
+            options = os.WNOHANG
+        offset = 0
+        failures = []
+
+        def join_some(n):
+            while len(pids) > n:
+                if buffer:
+                    buffer.drain()
+                (pid, code) = os.waitpid(-1, options)
+                if pid:
+                    if buffer:
+                        sys.stdout.write(buffer.pop(pid))
+                    pids.remove(pid)
+                if code:
+                    failures.append(code)
+
+        for suite in testable:
+            for test in suite:
+                join_some(self.jobs - 1)
+
+                # Fork off a child process for each test
+                if buffer:
+                    (rfd, wfd) = os.pipe()
+
+                sys.stdout.flush()
+                sys.stderr.flush()
+                pid = os.fork()
+                if not pid:
+                    try:
+                        if buffer:
+                            os.dup2(wfd, 1)
+                            os.dup2(wfd, 2)
+                        random.seed()
+                        result = TapResult(self.stream, False, self.verbosity)
+                        result.offset = offset
+                        test(result)
+                        result.printErrors()
+                    except:
+                        sys.stderr.write("Unexpected exception while running {0}\n".format(test))
+                        traceback.print_exc(file=sys.stderr)
+                        sys.exit(1)
+                    else:
+                        if result.wasSuccessful():
+                            sys.exit(0)
+                        else:
+                            sys.exit(1)
+
+                # The parent process
+                pids.add(pid)
+                if buffer:
+                    os.close(wfd)
+                    buffer.push(pid, rfd)
+                offset += 1
+
+        join_some(0)
+        return len(failures)
+
+
+def test_main(suite=None):
     """
     Run all test cases, as indicated by 'args'.
 
@@ -667,21 +832,15 @@ def test_main():
     executed.  Otherwise only the given test cases are run.
     """
 
-    global program_name
     global arg_trace
     global arg_sit_on_failure
 
-    class Result(unittest.TextTestResult):
-        def startTest(self, test):
-            test.runner = self
-            unittest.TextTestResult.startTest(self, test)
-        def stopTest(self, test):
-            unittest.TextTestResult.stopTest(self, test)
-            test.runner = None
-
-    program_name = os.path.basename (sys.argv[0])
+    # Turn off python stdout buffering
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
 
     parser = argparse.ArgumentParser(description='Run Cockpit test')
+    parser.add_argument('-j', '--jobs', dest="jobs", type=int,
+                        default=os.environ.get("TEST_JOBS", 1), help="Number of concurrent jobs")
     parser.add_argument('-v', '--verbose', dest="verbosity", action='store_const',
                         const=2, help='Verbose output')
     parser.add_argument('-t', dest='trace', action='store_true',
@@ -694,30 +853,20 @@ def test_main():
     parser.set_defaults(verbosity=1)
     args = parser.parse_args()
 
+    if args.sit and args.jobs > 1:
+        parser.error("the -s or --sit argument not avalible with multiple jobs")
+
     arg_trace = args.trace
     arg_sit_on_failure = args.sit
 
     import __main__
     if len(args.tests) > 0:
         suite = unittest.TestLoader().loadTestsFromNames(args.tests, module=__main__)
-    else:
+    elif not suite:
         suite = unittest.TestLoader().loadTestsFromModule(__main__)
 
-    tries = 0
-    repeat_this = True
-    while repeat_this and tries < 5:
-        runner = unittest.TextTestRunner(verbosity=args.verbosity, failfast=True, resultclass=Result)
-        result = runner.run(suite)
-        repeat_this = False
-        for e in result.errors:
-            if "RepeatThis: " in e[1]:
-                repeat_this = True
-        tries += 1
-
-    if repeat_this:
-        print "Not repeating after %d spurious failures" % tries
-
-    sys.exit(not result.wasSuccessful())
+    runner = TapRunner(verbosity=args.verbosity, failfast=False, jobs=args.jobs)
+    sys.exit(runner.run(suite))
 
 class Error(Exception):
     def __init__(self, msg):

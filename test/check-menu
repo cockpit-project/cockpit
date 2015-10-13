@@ -27,7 +27,7 @@ class TestMenu(MachineCase):
         self.login_and_go("/system")
 
         b.switch_to_top()
-        b.click('#content-user-name')
+        b.click('#navbar-dropdown')
         b.wait_visible('a[data-target="#about"]')
         b.click('a[data-target="#about"]')
         b.wait_popup('about')

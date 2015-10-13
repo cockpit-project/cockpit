@@ -37,7 +37,7 @@ class TestReauthorize(MachineCase):
 
         # Deauthorize
         b.leave_page()
-        b.click("#content-user-name")
+        b.click("#navbar-dropdown")
         b.click("#credentials-item")
         b.click("#credential-authorize button")
         b.wait_not_present("#credential-authorize button")
@@ -63,7 +63,7 @@ class TestReauthorize(MachineCase):
 
         # Deauthorize
         b.leave_page()
-        b.click("#content-user-name")
+        b.click("#navbar-dropdown")
         b.click("#credentials-item")
         b.click("#credential-authorize button")
         b.wait_not_present("#credential-authorize button")

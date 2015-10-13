@@ -34,4 +34,5 @@ class TestMenu(MachineCase):
         b.click('#about button[data-dismiss="modal"]')
         b.wait_popdown("about")
 
-test_main()
+if __name__ == '__main__':
+    test_main()

@@ -20,6 +20,9 @@
 
 from testlib import *
 
+import time
+import unittest
+
 class TestExample(MachineCase):
     def testBasic(self):
         m = self.machine
@@ -28,4 +31,12 @@ class TestExample(MachineCase):
         self.login_and_go("/system")
         b.wait_js_cond("$('#settings a').length != 0")
 
-test_main()
+class TestSimple(unittest.TestCase):
+    def testOne(self):
+        time.sleep(1)
+        self.assertTrue(True)
+    def testTwo(self):
+	self.assertFalse(True)
+
+if __name__ == '__main__':
+    test_main()

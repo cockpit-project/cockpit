@@ -128,4 +128,5 @@ class TestOpenshift(MachineCase):
         b.wait_not_present(".details-listing tbody[data-id='deploymentconfigs/default/frontend']")
 
 
-test_main()
+if __name__ == '__main__':
+    test_main()

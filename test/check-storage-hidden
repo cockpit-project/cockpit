@@ -132,4 +132,5 @@ class TestStorage(StorageCase):
         b.wait_visible("#storage")
         self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_2), "")
 
-test_main()
+if __name__ == '__main__':
+    test_main()

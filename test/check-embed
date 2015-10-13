@@ -55,4 +55,5 @@ class TestEmbed(MachineCase):
         b.switch_to_frame("embed-auth")
         b.wait_present("#login-user-input")
 
-test_main()
+if __name__ == '__main__':
+    test_main()

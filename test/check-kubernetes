@@ -406,4 +406,5 @@ class TestNulecule(KubernetesCase):
         b.dialog_complete("#deploy-app-dialog", result="fail")
         b.dialog_cancel("#deploy-app-dialog")
 
-test_main()
+if __name__ == '__main__':
+    test_main()

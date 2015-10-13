@@ -190,4 +190,5 @@ class TestStorage(StorageCase):
 	    b.wait_visible("#storage")
 	    b.wait_not_in_text ("#mdraids", "ARR")
 
-test_main()
+if __name__ == '__main__':
+    test_main()

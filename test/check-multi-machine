@@ -309,4 +309,5 @@ class TestMultiMachine(MachineCase):
 
         self.allow_journal_messages(".*: .* host key for server is not known: .*")
 
-test_main()
+if __name__ == '__main__':
+    test_main()

@@ -125,4 +125,5 @@ class TestAccounts(MachineCase):
         self.allow_journal_messages("Password quality check failed:")
         self.allow_journal_messages("The password is a palindrome")
 
-test_main()
+if __name__ == '__main__':
+    test_main()

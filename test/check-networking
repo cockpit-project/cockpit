@@ -262,4 +262,5 @@ class TestNetworking(MachineCase):
         b.wait_visible("#networking")
         b.wait_not_in_text("#networking-interfaces", "tbridge")
 
-test_main()
+if __name__ == '__main__':
+    test_main()

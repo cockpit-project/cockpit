@@ -892,10 +892,10 @@ define([
                 return;
 
             var data = event.data;
-            if (typeof data !== "string")
+            var child = event.source;
+            if (!child || typeof data !== "string")
                 return;
 
-            var child = event.source;
             var source = source_by_name[child.name];
 
             /* Closing the transport */

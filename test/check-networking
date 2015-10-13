@@ -34,6 +34,13 @@ class TestNetworking(MachineCase):
         print "%s -> %s" % (mac, iface)
         return iface
 
+    def add_iface(self, mac=None, vlan=0):
+        m = self.machine
+        mac = m.add_netiface(mac=mac, vlan=vlan)
+        # Wait for the interface to get its final name
+        m.execute("udevadm settle")
+        return self.get_iface(m, mac)
+
     def wait_for_iface(self, iface):
         sel = "#networking-interfaces tr[data-interface='%s']" % iface
 
@@ -108,7 +115,7 @@ class TestNetworking(MachineCase):
         label = "test"
         m.execute("echo -e 'TYPE=Ethernet\nHWADDR=%s\nBOOTPROTO=autoip\n' >/etc/sysconfig/network-scripts/ifcfg-%s" % (mac, label))
         m.execute("nmcli c reload")
-        iface = self.get_iface(m, m.add_netiface(mac));
+        iface = self.add_iface(mac)
 
         self.wait_for_iface(iface)
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)
@@ -170,8 +177,8 @@ class TestNetworking(MachineCase):
         # Switching off rp_filter doesn't seem to be enough in the
         # case of bonds.
 
-        iface1 = self.get_iface(m, m.add_netiface());
-        iface2 = self.get_iface(m, m.add_netiface(vlan=1))
+        iface1 = self.add_iface()
+        iface2 = self.add_iface(vlan=1)
         self.wait_for_iface(iface1)
         self.wait_for_iface(iface2)
 
@@ -230,8 +237,8 @@ class TestNetworking(MachineCase):
         # "cockpit1" bridge that all VMs are connected to, and the
         # bridge we are creating here.
 
-        iface1 = self.get_iface(m, m.add_netiface());
-        iface2 = self.get_iface(m, m.add_netiface(vlan=1));
+        iface1 = self.add_iface()
+        iface2 = self.add_iface(vlan=1)
         self.wait_for_iface(iface1)
         self.wait_for_iface(iface2)
 

@@ -368,8 +368,8 @@ class Browser:
 
     def logout(self):
         self.switch_to_top()
-        self.wait_present("#content-user-name")
-        self.click("#content-user-name")
+        self.wait_present("#navbar-dropdown")
+        self.click("#navbar-dropdown")
         self.click('#go-logout')
         self.expect_load()
 

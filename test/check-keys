@@ -56,7 +56,7 @@ class TestKeys(MachineCase):
             b.switch_to_top()
             b.wait_text('#content-user-name', user_name)
 
-            b.click('#content-user-name')
+            b.click('#navbar-dropdown')
             b.click('#go-account')
             b.enter_page("/users")
             b.wait_text("#account-user-name", user);
@@ -187,7 +187,7 @@ class TestKeys(MachineCase):
         self.assertNotIn(id_dsa, keys)
         self.assertNotIn(old_dsa, keys)
 
-        b.click("#content-user-name")
+        b.click("#navbar-dropdown")
         b.click("#credentials-item")
 
         # Check the key display

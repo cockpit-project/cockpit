@@ -21,13 +21,20 @@
 }
 
 .zoom-controls {
-    display: none;
+    visibility: hidden;
 }
 
 .show-zoom-controls .zoom-controls {
-    display: block;
+    visibility: visible;
 }
 
 .show-zoom-cursor .zoomable-plot {
     cursor: ew-resize;
+}
+
+.standard-zoom-controls {
+    text-align:    right;       /* on the right */
+    margin-bottom: -15px;       /* overlapping with the title */
+    z-index:       1;           /* but on top of it */
+    position:      relative;
 }

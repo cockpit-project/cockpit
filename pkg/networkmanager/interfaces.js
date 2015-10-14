@@ -1398,6 +1398,11 @@ PageNetworking.prototype = {
                 }
             }
         }
+
+        $(window).on('resize', function () {
+            self.rx_plot.resize();
+            self.tx_plot.resize();
+        });
     },
 
     enter: function () {
@@ -1715,6 +1720,10 @@ PageNetworkInterface.prototype = {
             }
         }
 
+        $(window).on('resize', function () {
+            self.rx_plot.resize();
+            self.tx_plot.resize();
+        });
     },
 
     enter: function (dev_name) {

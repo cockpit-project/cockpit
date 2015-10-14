@@ -24,6 +24,15 @@
 </head>
 <body hidden>
 
+    <script id="ntp-status-tmpl" type="x-template/mustache">
+      {{#TimesyncdStatus}}
+      <div>{{.}}</div>
+      {{/TimesyncdStatus}}
+      {{^TimesyncdStatus}}
+      <div translatable="yes">Not synchronized to any time server.</div>
+      {{/TimesyncdStatus}}
+    </script>
+
     <div id="server" class="container-fluid">
         <div class="col-md-4 col-lg-3 cockpit-info-table-container">
             <table class="cockpit-info-table">
@@ -56,7 +65,9 @@
                 <tr>
                     <td>System Time</td>
                     <td><button class="btn btn-default systime-privileged"
-                            id="system_information_systime_button"></button></td>
+                                id="system_information_systime_button"></button>
+                      <div id="system_information_systime_ntp_status" style="white-space:normal"></div>
+                    </td>
                 </tr>
                 <tr>
                     <td translatable="yes">Power Options</td>

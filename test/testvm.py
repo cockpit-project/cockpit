@@ -124,7 +124,7 @@ class Machine:
         """Overridden by machine classes to stop the machine"""
         self.message("Not shutting down already running machine")
 
-    # wait for ssh port 22 to be open in the machine
+    # wait for ssh port 22 to be OPEN in the machine
     # get_new_address is an optional function to acquire a new ip address for each try
     #   it is expected to raise an exception on failure and return a valid address otherwise
     def wait_ssh(self, timeout_sec = 120, get_new_address = None):
@@ -400,7 +400,7 @@ class Machine:
         return messages
 
 class VirtEventHandler():
-    """ VirtEventHandler registers event handlers (currently: boot, resume, reboot) for libvirt domain instances
+    """ VirtEventHandler registers event handlers (currently: lifecycle, reboot) for libvirt domain instances
         It requires an existing libvirt connection handle, because libvirt requires the domain
         references to be from the same connection instance!
         A thread in the background will run the libvirt event loop. Convenience functions wait_for_reboot,
@@ -532,6 +532,10 @@ class VirtEventHandler():
                     return True
                 remaining_time = end_time - time.time()
         return False
+
+    def domain_rebooted(self, domain):
+        key = (domain.name(), domain.ID())
+        return key in self.domain_has_rebooted
 
     def domain_is_running(self, domain):
         key = (domain.name(), domain.ID())
@@ -877,12 +881,40 @@ class VirtMachine(Machine):
     def reset_reboot_flag(self):
         self.event_handler.reset_domain_reboot_status(self._domain)
 
+    # wait for ssh port 22 to be CLOSED in the machine or a reboot event, whichever comes first
+    # get_new_address is an optional function to acquire a new ip address for each try
+    #   it is expected to raise an exception on failure and return a valid address otherwise
+    def wait_reboot_or_ssh_unavailabe(self, timeout_sec = 120, get_new_address = None):
+        """Try to connect to self.address on port 22"""
+        start_time = time.time()
+        with stdchannel_redirected(sys.stderr, os.devnull):
+            while (time.time() - start_time) < timeout_sec:
+                if self.event_handler.domain_rebooted(self._domain):
+                    return True
+                if get_new_address:
+                    try:
+                        self.address = get_new_address()
+                    except:
+                        continue
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(1)
+                try:
+                    sock.connect((self.address, 22))
+                except:
+                    return True
+                finally:
+                    sock.close()
+                time.sleep(0.5)
+        return False
+
     def wait_reboot(self):
-        if not self.event_handler.wait_for_reboot(self._domain):
-            raise Failure("system didn't notify us about a reboot")
+        if not self.wait_reboot_or_ssh_unavailabe(timeout_sec = 60, get_new_address = lambda: self._ip_from_mac(self.macaddr, timeout_sec=5)):
+            raise Failure("system didn't close reboot / ssh port")
+
         # we may have to check for a new dhcp lease, but the old one can be active for a bit
         if not self.wait_ssh(timeout_sec = 60, get_new_address = lambda: self._ip_from_mac(self.macaddr, timeout_sec=5)):
             raise Failure("system didn't reboot properly")
+
         self.wait_user_login()
 
     def wait_boot(self, wait_for_running_timeout = 120):

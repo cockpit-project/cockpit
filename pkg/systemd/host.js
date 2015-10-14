@@ -195,6 +195,30 @@ PageServer.prototype = {
             $('#system_information_systime_button').text(self.server_time.format(true));
         });
 
+        var ntp_status_tmpl = $("#ntp-status-tmpl").html();
+        Mustache.parse(this.ntp_status_tmpl);
+
+        function update_ntp_status() {
+            var status = (self.server_time.timesyncd_service.service &&
+                          self.server_time.timesyncd_service.service.StatusText);
+
+            if (!status || status === "") {
+                $('#system_information_systime_ntp_status').html("");
+                return;
+            }
+
+            if (status == "Idle.")
+                status = null;
+
+            var model = {
+                TimesyncdStatus: status
+            };
+            $('#system_information_systime_ntp_status').html(Mustache.render(ntp_status_tmpl, model));
+        }
+
+        $(self.server_time.timesyncd_service).on("changed", update_ntp_status);
+        update_ntp_status();
+
         self.plot_controls = shell.setup_plot_controls($('#server'), $('#server-graph-toolbar'));
 
         var pmcd_service = service.proxy("pmcd");

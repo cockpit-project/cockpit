@@ -25,12 +25,25 @@
 <body hidden>
 
     <script id="ntp-status-tmpl" type="x-template/mustache">
-      {{#TimesyncdStatus}}
-      <div>{{.}}</div>
-      {{/TimesyncdStatus}}
-      {{^TimesyncdStatus}}
-      <div translatable="yes">Not synchronized to any time server.</div>
-      {{/TimesyncdStatus}}
+      {{#Synched}}
+      {{#Server}}
+      <div translatable="yes">Synchronized with {{Server}}</div>
+      {{/Server}}
+      {{^Server}}
+      <div translatable="yes">Synchronized</div>
+      {{/Server}}
+      {{/Synched}}
+      {{^Synched}}
+      {{#Server}}
+      <div translatable="yes">Trying to synchronize with {{Server}}</div>
+      {{/Server}}
+      {{^Server}}
+      <div translatable="yes">Not synchronized</div>
+      {{/Server}}
+      {{/Synched}}
+      {{#SubStatus}}
+      <div style="font-size:smaller">{{SubStatus}}</div>
+      {{/SubStatus}}
     </script>
 
     <div id="server" class="container-fluid">
@@ -66,7 +79,12 @@
                     <td>System Time</td>
                     <td><button class="btn btn-default systime-privileged"
                                 id="system_information_systime_button"></button>
-                      <div id="system_information_systime_ntp_status" style="white-space:normal"></div>
+                      <a hidden id="system_information_systime_ntp_status"
+                         tabindex="0" role="button" data-toggle="popover"
+                         data-trigger="focus" data-placement="top"
+                         data-html="true" data-content="">
+                        <span class="fa fa-lg fa-info-circle"></span>
+                      </a>
                     </td>
                 </tr>
                 <tr>

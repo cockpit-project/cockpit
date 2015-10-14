@@ -135,6 +135,11 @@ define([
         mem_plot.start_walking();
         $(mem_series).on('hover', highlight_container_row);
 
+        $(window).on('resize', function () {
+            cpu_plot.resize();
+            mem_plot.resize();
+        });
+
         function render_container(id, container) {
             if (container && container.CGroup) {
                 cpu_series.add_instance(container.CGroup);

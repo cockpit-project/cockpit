@@ -688,26 +688,6 @@ class VirtMachine(Machine):
         resource = resource.replace("/", "_")
         return os.path.join(resources, resource)
 
-    def _lock_resource(self, resource, exclusive=True):
-        resources = os.path.join(tempfile.gettempdir(), ".cockpit-test-resources")
-        if not os.path.exists(resources):
-            os.mkdir(resources, 0755)
-        lockpath = self._resource_lockfile_path(resource)
-        fd = os.open(lockpath, os.O_WRONLY | os.O_CREAT)
-        try:
-            flags = fcntl.LOCK_NB
-            if exclusive:
-                flags |= fcntl.LOCK_EX
-            else:
-                flags |= fcntl.LOCK_SH
-            fcntl.flock(fd, flags)
-        except IOError, ex:
-            os.close(fd)
-            return False
-        else:
-            self._locks.append({'fd': fd, 'path': lockpath})
-            return True
-
     def _get_fixed_mac_flavors(self):
         flavors = []
         tree = etree.parse(open("./guest/network-cockpit.xml"))
@@ -732,7 +712,7 @@ class VirtMachine(Machine):
             elif not flavor:
                 macaddrs.append(macaddr)
         for macaddr in macaddrs:
-            if macaddr and self._lock_resource(macaddr):
+            if macaddr:
                 return macaddr
         raise Failure("Couldn't find unused mac address for '%s'" % (self.flavor))
 
@@ -743,30 +723,40 @@ class VirtMachine(Machine):
         if not os.path.exists(self.run_dir):
             os.makedirs(self.run_dir, 0750)
 
-        if not os.path.exists(self._image_image):
-            self.message("create image from backing file")
-            subprocess.check_call([ "qemu-img", "create", "-q",
-                                    "-f", "qcow2",
-                                    "-o", "backing_file=%s,backing_fmt=qcow2" % self._image_original,
-                                    self._image_image ])
-
-            if os.path.exists(self._iso_original) and not os.path.exists(self._image_additional_iso):
-                shutil.copy(self._iso_original, self._image_additional_iso)
-
         image_to_use = self._image_image
-        if maintain:
-            if not self._lock_resource(self._image_image, exclusive=True):
-                raise Failure("Already running this image: %s (lockfile: '%s')" % (self.image, self._resource_lockfile_path(self.image)))
-        else:
+        if not os.path.exists(self._image_image):
+            if maintain:
+                # never write back to the original image
+                self.message("create image from backing file")
+                subprocess.check_call([ "qemu-img", "create", "-q",
+                                        "-f", "qcow2",
+                                        "-o", "backing_file=%s,backing_fmt=qcow2" % self._image_original,
+                                        self._image_image ])
+
+                if os.path.exists(self._iso_original) and not os.path.exists(self._image_additional_iso):
+                    shutil.copy(self._iso_original, self._image_additional_iso)
+            else:
+                # we don't have a "local" override image and we're throwing away the changes anyway
+                image_to_use = self._image_original
+
+        if not maintain:
             # create an additional qcow2 image with the original as a backing file
             (unused, self._transient_image) = tempfile.mkstemp(suffix='.qcow2', prefix="", dir=self.run_dir)
             subprocess.check_call([ "qemu-img", "create", "-q",
                                     "-f", "qcow2",
-                                    "-o", "backing_file=%s" % self._image_image,
+                                    "-o", "backing_file=%s" % image_to_use,
                                     self._transient_image ])
             image_to_use = self._transient_image
         if not macaddr:
             macaddr = self._choose_macaddr()
+
+        # if we have a static ip, this implies a singleton instance
+        # make sure we don't randomize the libvirt domain name in those cases
+        static_domain_name = None
+        if macaddr:
+            lease = self._static_lease_from_mac(macaddr)
+            if lease:
+                static_domain_name = self.image + "_" + lease['name']
 
         # domain xml
         test_domain_desc_original = ""
@@ -794,9 +784,13 @@ class VirtMachine(Machine):
             mac_desc = "<mac address='%(mac)s'/>" % {'mac': macaddr}
         while not dom_created:
             try:
-                rand_extension = '-' + ''.join(random.choice(string.digits + string.ascii_lowercase) for i in range(4))
+                if static_domain_name:
+                    domain_name = static_domain_name
+                else:
+                    rand_extension = '-' + ''.join(random.choice(string.digits + string.ascii_lowercase) for i in range(4))
+                    domain_name = self.image + rand_extension
                 test_domain_desc = test_domain_desc_original % {
-                                                "name": self.image + rand_extension,
+                                                "name": domain_name,
                                                 "arch": self.arch,
                                                 "memory_in_mib": MEMORY_MB,
                                                 "drive": image_to_use,
@@ -808,7 +802,10 @@ class VirtMachine(Machine):
             except libvirt.libvirtError, le:
                 # be ready to try again
                 if 'already exists with uuid' in le.message and tries_left > 0:
-                    self.message("domain exists, trying with different name")
+                    if static_domain_name:
+                        self.message("domain exists, but we can't pick a different name (static ip)")
+                    else:
+                        self.message("domain exists, trying with different name")
                     tries_left = tries_left - 1
                     time.sleep(1)
                     continue
@@ -849,11 +846,20 @@ class VirtMachine(Machine):
             self._cleanup()
             raise
 
-    def _ip_from_mac(self, mac, timeout_sec = 300):
-        # first see if we use a mac address defined in the network description
+    def _static_lease_from_mac(self, mac):
         for h in self._network_description.find(".//dhcp"):
             if h.get("mac") == mac:
-                return h.get("ip")
+                return { "ip":   h.get("ip"),
+                         "name": h.get("name")
+                       }
+        return None
+
+    def _ip_from_mac(self, mac, timeout_sec = 300):
+        # first see if we use a mac address defined in the network description
+        static_lease = self._static_lease_from_mac(mac)
+        if static_lease:
+            return static_lease["ip"]
+
         # we didn't find it in the network description, so get it from the dhcp lease information
 
         # our network is defined system wide, so we need a different hypervisor connection
@@ -907,12 +913,6 @@ class VirtMachine(Machine):
                     for index in dict(self._disks):
                         self.rem_disk(index)
             self._disks = { }
-            if hasattr(self, '_locks'):
-                for lock_entry in self._locks:
-                    # explicitly unlink the file so the resource becomes available again
-                    os.unlink(lock_entry['path'])
-                    os.close(lock_entry['fd'])
-            self._locks = []
             self._domain = None
             self.address = None
             self.macaddr = None

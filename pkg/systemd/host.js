@@ -938,10 +938,7 @@ PageSystemInformationChangeSystime.prototype = {
 
         return cockpit.spawn([ "mkdir", "-p", "/etc/systemd/timesyncd.conf.d" ], { superuser: "try" }).
             then(function () {
-                return self.ntp_config_file.replace(text); }).
-            then(function () {
-                return self.server_time.timesyncd_service.restart();
-            });
+                return self.ntp_config_file.replace(text); });
     },
 
     show: function() {
@@ -980,31 +977,50 @@ PageSystemInformationChangeSystime.prototype = {
             return;
         }
 
-        var promise = self.server_time.timedate.call('SetNTP', [!manual_time, true])
-            .done(function() {
-                var promises = [];
-                var promise;
+        var promises = [ ];
 
-                if (!$('#systime-timezones').prop('disabled')) {
-                    promise = self.server_time.timedate.call('SetTimezone', [$('#systime-timezones').val(), true]);
-                    promises.push(promise);
-                }
+        if (!$('#systime-timezones').prop('disabled')) {
+            promises.push(
+                self.server_time.timedate.call('SetTimezone', [$('#systime-timezones').val(), true]));
+        }
 
-                if (manual_time) {
-                    promise = self.server_time.change_time($("#systime-date-input").val(),
-                                                           $('#systime-time-hours').val(),
-                                                           $('#systime-time-minutes').val());
-                    promises.push(promise);
-                } else if (self.custom_ntp_supported) {
-                    promises.push(self.set_ntp_servers(servers, ntp_time_custom));
-                }
+        function set_ntp(val) {
+            return self.server_time.timedate.call('SetNTP', [val, true]);
+        }
 
-                $("#system_information_change_systime").dialog("promise", $.when.apply($, promises));
-            })
-            .fail(function(ex) {
-                $("#system_information_change_systime").dialog("failure", ex);
-            });
-        $("#system_information_change_systime").dialog("wait", promise);
+        if (manual_time) {
+            promises.push(
+                set_ntp(false)
+                    .then(function () {
+                        return self.server_time.change_time($("#systime-date-input").val(),
+                                                            $('#systime-time-hours').val(),
+                                                            $('#systime-time-minutes').val());
+                    }));
+        } else if (!self.custom_ntp_supported) {
+            promises.push(
+                set_ntp(true));
+        } else {
+            /* HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1272085
+             *
+             * Switch off NTP, bump the clock by one microsecond to
+             * clear the NTPSynchronized status, write the config
+             * file, and switch NTP back on.
+             *
+             */
+            promises.push(
+                set_ntp(false)
+                    .then(function () {
+                        return self.server_time.timedate.call('SetTime', [ 1, true, true ]);
+                    })
+                    .then(function () {
+                        return self.set_ntp_servers(servers, ntp_time_custom);
+                    })
+                    .then(function() {
+                        return set_ntp(true);
+                    }));
+        }
+
+        $("#system_information_change_systime").dialog("promise", $.when.apply($, promises));
     },
 
     check_input: function() {

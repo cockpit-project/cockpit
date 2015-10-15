@@ -49,6 +49,7 @@ class TestReauthorize(MachineCase):
         b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
 
         self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: access-denied')
+        self.allow_authorize_journal_messages()
 
     def testSuper(self):
         m = self.machine
@@ -75,6 +76,7 @@ class TestReauthorize(MachineCase):
         b.wait_in_text(".super-channel span", 'result:')
 
         self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
+        self.allow_authorize_journal_messages()
 
     def testShadow(self):
         m = self.machine

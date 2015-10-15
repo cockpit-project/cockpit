@@ -424,6 +424,20 @@ class VirtEventHandler():
 
         self.virEventLoopNativeStart()
 
+        # only show debug messages for specific domains, since
+        # we might have multiple event handlers at any given time
+        self.debug_domains = []
+
+    def allow_domain_debug_output(self, dom_name):
+        with self.data_lock:
+            if not dom_name in self.debug_domains:
+                self.debug_domains.append(dom_name)
+
+    def forbid_domain_debug_output(self, dom_name):
+        with self.data_lock:
+            if dom_name in self.debug_domains:
+                self.debug_domains.remove(dom_name)
+
     # 'reboot' and domain lifecycle events are treated differently by libvirt
     # a regular reboot doesn't affect the started/stopped state of the domain
     @staticmethod
@@ -431,7 +445,7 @@ class VirtEventHandler():
         key = (dom.name(), dom.ID())
         with event_handler.data_lock:
             if not key in event_handler.domain_has_rebooted or event_handler.domain_has_rebooted[key] != True:
-                if event_handler.verbose:
+                if event_handler.verbose and dom.name() in event_handler.debug_domains:
                     sys.stderr.write("[%s] REBOOT: Domain '%s' (ID %s)\n" % (str(time.time()), dom.name(), dom.ID()))
                 event_handler.domain_has_rebooted[key] = True
                 event_handler.signal_condition.notifyAll()
@@ -446,7 +460,7 @@ class VirtEventHandler():
             if not key in event_handler.domain_status or event_handler.domain_status[key] != value:
                 event_handler.domain_status[key] = value
                 event_handler.signal_condition.notifyAll()
-                if event_handler.verbose:
+                if event_handler.verbose and dom.name() in event_handler.debug_domains:
                     sys.stderr.write("[%s] EVENT: Domain '%s' (ID %s) %s %s\n" % (
                             str(time.time()),
                             dom.name(),
@@ -612,8 +626,8 @@ class VirtMachine(Machine):
         self._iso_original = os.path.join(self._images_dir, "%s.iso" % (self.image))
         self._checksum_original = os.path.join(self._images_dir, "%s-checksum" % (self.image))
 
-        self._fixed_mac_flavors = self._get_fixed_mac_flavors()
         self._network_description = etree.parse(open("./guest/network-cockpit.xml"))
+        self._fixed_mac_flavors = self._get_fixed_mac_flavors()
 
         # it is ESSENTIAL to register the default implementation of the event loop before opening a connection
         # otherwise messages may be delayed or lost
@@ -795,8 +809,12 @@ class VirtMachine(Machine):
                                                 "mac": mac_desc,
                                                 "additional_devices": additional_devices,
                                               }
+                # allow debug output for this domain
+                self.event_handler.allow_domain_debug_output(domain_name)
                 dom = self.virt_connection.createXML(test_domain_desc, libvirt.VIR_DOMAIN_START_AUTODESTROY)
             except libvirt.libvirtError, le:
+                # remove the debug output
+                self.event_handler.forbid_domain_debug_output(domain_name)
                 # be ready to try again
                 if 'already exists with uuid' in le.message and tries_left > 0:
                     if static_domain_name:
@@ -909,6 +927,9 @@ class VirtMachine(Machine):
                 if hasattr(self, '_disks'):
                     for index in dict(self._disks):
                         self.rem_disk(index)
+            # remove the debug output
+            if hasattr(self, '_domain') and self._domain:
+                self.event_handler.forbid_domain_debug_output(self._domain.name())
             self._disks = { }
             self._domain = None
             self.address = None

@@ -731,6 +731,8 @@ PageSystemInformationChangeSystime.prototype = {
         $('#change_systime').val(self.server_time.timedate.NTP ?
                                  (self.custom_ntp_enabled ? 'ntp_time_custom' : 'ntp_time')
                                  : 'manual_time');
+        $('#change_systime [value="ntp_time"]').
+            attr("disabled", !self.server_time.timedate.CanNTP? "disabled" : null);
         $('#change_systime [value="ntp_time_custom"]').
             attr("disabled", !self.custom_ntp_supported? "disabled" : null);
         $('#change_systime').selectpicker('refresh');

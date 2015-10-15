@@ -655,8 +655,7 @@ class VirtMachine(Machine):
         return connection
 
     def _read_network_name(self):
-        tree = etree.parse(open("./guest/network-cockpit.xml"))
-        for h in tree.iter("bridge"):
+        for h in self._network_description.iter("bridge"):
             return h.get("name")
         raise Failure("Couldn't find network name")
 
@@ -690,8 +689,7 @@ class VirtMachine(Machine):
 
     def _get_fixed_mac_flavors(self):
         flavors = []
-        tree = etree.parse(open("./guest/network-cockpit.xml"))
-        for h in tree.find(".//dhcp"):
+        for h in self._network_description.find(".//dhcp"):
             flavor = h.get("{urn:cockpit-project.org:cockpit}flavor")
             if flavor and not flavor in flavors:
                 flavors = flavors + [ flavor ]
@@ -702,8 +700,7 @@ class VirtMachine(Machine):
         if self.flavor not in self._fixed_mac_flavors:
             return None
         macaddrs = []
-        tree = etree.parse(open("./guest/network-cockpit.xml"))
-        for h in tree.find(".//dhcp"):
+        for h in self._network_description.find(".//dhcp"):
             macaddr = h.get("mac")
             flavor = h.get("{urn:cockpit-project.org:cockpit}flavor")
             if flavor == self.flavor:

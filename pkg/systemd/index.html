@@ -24,6 +24,20 @@
 </head>
 <body hidden>
 
+    <script id="ntp-status-icon-tmpl" type="x-template/mustache">
+      {{#Synched}}
+      <span class="fa fa-lg fa-info-circle"></span>
+      {{/Synched}}
+      {{^Synched}}
+      {{#Server}}
+      <span class="spinner spinner-xs spinner-inline"></span>
+      {{/Server}}
+      {{^Server}}
+      <span class="fa fa-lg fa-exclamation-circle" style="color:red"></span>
+      {{/Server}}
+      {{/Synched}}
+    </script>
+
     <script id="ntp-status-tmpl" type="x-template/mustache">
       {{#Synched}}
       {{#Server}}
@@ -83,7 +97,6 @@
                          tabindex="0" role="button" data-toggle="popover"
                          data-trigger="focus" data-placement="top"
                          data-html="true" data-content="">
-                        <span class="fa fa-lg fa-info-circle"></span>
                       </a>
                     </td>
                 </tr>

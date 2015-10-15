@@ -141,15 +141,20 @@ define([
 
             var values = { address: address, visible: true, color: self.unused_color() };
             var json = self.change(address, values);
+            var append = $.Deferred();
 
-            var known_hosts = cockpit.file("/var/lib/cockpit/known_hosts");
-            var append = known_hosts.modify(function(data) {
-                return data + "\n" + host_key;
-            });
+            if (host_key) {
+                var known_hosts = cockpit.file("/var/lib/cockpit/known_hosts");
+                append = known_hosts.modify(function(data) {
+                    return data + "\n" + host_key;
+                });
 
-            append.always(function() {
-                known_hosts.close();
-            });
+                append.always(function() {
+                    known_hosts.close();
+                });
+            } else {
+                append.resolve();
+            }
 
             $.when(json, append)
                 .done(function(e, t) {

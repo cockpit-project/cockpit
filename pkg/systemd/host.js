@@ -213,6 +213,9 @@ PageServer.prototype = {
         self.ntp_status_tmpl = $("#ntp-status-tmpl").html();
         Mustache.parse(this.ntp_status_tmpl);
 
+        self.ntp_status_icon_tmpl = $("#ntp-status-icon-tmpl").html();
+        Mustache.parse(this.ntp_status_icon_tmpl);
+
         function update_ntp_status() {
             var $elt = $('#system_information_systime_ntp_status');
 
@@ -242,14 +245,16 @@ PageServer.prototype = {
                     model.SubStatus = timesyncd_status;
             }
 
-            var status = Mustache.render(self.ntp_status_tmpl, model);
-
-            if (status != $elt.attr('data-content')) {
-                $elt.attr("data-content", status);
+            var popover_html = Mustache.render(self.ntp_status_tmpl, model);
+            if (popover_html != $elt.attr('data-content')) {
+                $elt.attr("data-content", popover_html);
                 // Refresh the popover if it is open
                 if ($elt.data('bs.popover').tip().hasClass('in'))
                     $elt.popover('show');
             }
+
+            var icon_html = Mustache.render(self.ntp_status_icon_tmpl, model);
+            $elt.html(icon_html);
         }
 
         $('#system_information_systime_ntp_status').popover();
@@ -258,22 +263,12 @@ PageServer.prototype = {
         $(self.server_time.timedate).on("changed", update_ntp_status);
         update_ntp_status();
 
-        /* NTPSynchronized needs to be polled so we do that while the
-         * popup is open.
+        /* NTPSynchronized needs to be polled so we just do that
+         * always.
          */
-
-        var poll_id;
-
-        $('#system_information_systime_ntp_status').on('show.bs.popover', function() {
-            self.server_time.timedate.poll();
-            poll_id = window.setInterval(function () {
-                self.server_time.poll_ntp_synchronized();
-            }, 1000);
-        });
-
-        $('#system_information_systime_ntp_status').on('hide.bs.popover', function() {
-            window.clearInterval(poll_id);
-        });
+        window.setInterval(function () {
+            self.server_time.poll_ntp_synchronized();
+        }, 5000);
 
         self.plot_controls = shell.setup_plot_controls($('#server'), $('#server-graph-toolbar'));
 
@@ -1016,6 +1011,10 @@ PageSystemInformationChangeSystime.prototype = {
                         return self.set_ntp_servers(servers, ntp_time_custom);
                     })
                     .then(function() {
+                        // NTPSynchronized should be false now.  Make
+                        // sure we pick that up immediately.
+                        self.server_time.poll_ntp_synchronized();
+
                         return set_ntp(true);
                     }));
         }

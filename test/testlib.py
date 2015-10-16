@@ -820,6 +820,10 @@ class TapRunner(object):
             offset += test.countTestCases()
 
         join_some(0)
+        if len(failures):
+            sys.stdout.write("# TESTS FAILED\n")
+        else:
+            sys.stdout.write("# TESTS PASSED\n")
         return len(failures)
 
 

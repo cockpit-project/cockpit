@@ -31,7 +31,7 @@ for filename in glob.glob(os.path.join(base, "check-*")):
         continue
     with open(filename, 'rb') as fp:
         module = imp.load_module(name, fp, filename, ("", "rb", imp.PY_SOURCE))
-        suite.addTests(loader.loadTestsFromModule(module))
+        suite.addTest(loader.loadTestsFromModule(module))
 
 # And now run all the tests we got
 testlib.test_main(suite)

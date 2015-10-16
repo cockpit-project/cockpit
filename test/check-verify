@@ -11,20 +11,24 @@ import unittest
 
 sys.dont_write_bytecode = True
 
+base = os.path.dirname(__file__)
 loader = unittest.TestLoader()
 suite = unittest.TestSuite()
 
 def check_valid(filename):
-    if filename == "check-verify":
-        return False
+    name = os.path.basename(filename)
+    if name == "check-verify":
+        return None
     allowed = string.ascii_letters + string.digits + '-_'
-    return all(c in allowed for c in filename)
+    if not all(c in allowed for c in name):
+        return None
+    return name.replace("-", "_")
 
 # Load all modules that start with check-
-for filename in glob.glob("check-*"):
-    if not check_valid(filename) or not os.path.isfile(filename):
+for filename in glob.glob(os.path.join(base, "check-*")):
+    name = check_valid(filename)
+    if not name or not os.path.isfile(filename):
         continue
-    name = filename.replace("-", "_")
     with open(filename, 'rb') as fp:
         module = imp.load_module(name, fp, filename, ("", "rb", imp.PY_SOURCE))
         suite.addTests(loader.loadTestsFromModule(module))

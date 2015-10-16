@@ -270,6 +270,10 @@ PageServer.prototype = {
             self.server_time.poll_ntp_synchronized();
         }, 5000);
 
+        $('#server').on('click', "[data-goto-sync-errors]", function () {
+            cockpit.jump("/system/services/#/systemd-timesyncd.service");
+        });
+
         self.plot_controls = shell.setup_plot_controls($('#server'), $('#server-graph-toolbar'));
 
         var pmcd_service = service.proxy("pmcd");

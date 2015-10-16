@@ -782,43 +782,42 @@ class TapRunner(object):
                 if code:
                     failures.append(code)
 
-        for suite in testable:
-            for test in suite:
-                join_some(self.jobs - 1)
+        for test in testable:
+            join_some(self.jobs - 1)
 
-                # Fork off a child process for each test
-                if buffer:
-                    (rfd, wfd) = os.pipe()
+            # Fork off a child process for each test
+            if buffer:
+                (rfd, wfd) = os.pipe()
 
-                sys.stdout.flush()
-                sys.stderr.flush()
-                pid = os.fork()
-                if not pid:
-                    try:
-                        if buffer:
-                            os.dup2(wfd, 1)
-                            os.dup2(wfd, 2)
-                        random.seed()
-                        result = TapResult(self.stream, False, self.verbosity)
-                        result.offset = offset
-                        test(result)
-                        result.printErrors()
-                    except:
-                        sys.stderr.write("Unexpected exception while running {0}\n".format(test))
-                        traceback.print_exc(file=sys.stderr)
-                        sys.exit(1)
+            sys.stdout.flush()
+            sys.stderr.flush()
+            pid = os.fork()
+            if not pid:
+                try:
+                    if buffer:
+                        os.dup2(wfd, 1)
+                        os.dup2(wfd, 2)
+                    random.seed()
+                    result = TapResult(self.stream, False, self.verbosity)
+                    result.offset = offset
+                    test(result)
+                    result.printErrors()
+                except:
+                    sys.stderr.write("Unexpected exception while running {0}\n".format(test))
+                    traceback.print_exc(file=sys.stderr)
+                    sys.exit(1)
+                else:
+                    if result.wasSuccessful():
+                        sys.exit(0)
                     else:
-                        if result.wasSuccessful():
-                            sys.exit(0)
-                        else:
-                            sys.exit(1)
+                        sys.exit(1)
 
-                # The parent process
-                pids.add(pid)
-                if buffer:
-                    os.close(wfd)
-                    buffer.push(pid, rfd)
-                offset += 1
+            # The parent process
+            pids.add(pid)
+            if buffer:
+                os.close(wfd)
+                buffer.push(pid, rfd)
+            offset += test.countTestCases()
 
         join_some(0)
         return len(failures)

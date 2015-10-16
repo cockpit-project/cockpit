@@ -43,8 +43,11 @@ class TestStorage(StorageCase):
         b.wait_in_text("#drives", "DISK2")
         b.wait_in_text("#drives", "DISK3")
 
+        dev_1 = "/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1"
+        dev_2 = "/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2"
+
         # Create a volume group out of two disks
-        m.execute("vgcreate TEST1 /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2")
+        m.execute("vgcreate TEST1 %s %s" % (dev_1, dev_2))
         b.wait_in_text("#vgroups", "TEST1")
         b.click('tr:contains("TEST1")')
         b.wait_visible("#storage-detail")
@@ -66,8 +69,8 @@ class TestStorage(StorageCase):
         b.wait_not_in_text("#content", "Logical Volume \"one\"")
 
         # remove a disk from the volume group
-        m.execute("pvmove /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2 &>/dev/null || true")
-        m.execute("vgreduce TEST1 /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2")
+        m.execute("pvmove %s &>/dev/null || true" % dev_2)
+        m.execute("vgreduce TEST1 %s" %dev_2)
         b.wait_not_in_text("#pvols", "DISK2")
 
         # Thin volumes
@@ -85,6 +88,12 @@ class TestStorage(StorageCase):
         b.wait_visible("#storage")
         m.execute("vgremove -f TEST1")
         b.wait_not_in_text("#vgroups", "TEST1")
+
+        # Sometimes one of the disks is still in use for unexplained
+        # reasons, so we wait for the physical volumes to be free
+        # again.
+        #
+        wait(lambda: m.execute("wipefs -n -a %s %s" % (dev_1, dev_2)))
 
         # create volume group in the UI
         b.wait_visible('#create-volume-group')

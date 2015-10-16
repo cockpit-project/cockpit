@@ -943,9 +943,7 @@ class VirtMachine(Machine):
     def kill(self):
         # stop system immediately, with potential data loss
         # to shutdown gracefully, use shutdown()
-        if hasattr(self, '_domain') and self._domain:
-            if self._domain.isActive():
-                self._domain.destroy()
+        # we just delete the variables and let libvirt clean up for us
         self._cleanup(quick=True)
 
     def wait_poweroff(self, timeout_sec=120):

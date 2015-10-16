@@ -15,9 +15,14 @@ base = os.path.dirname(__file__)
 loader = unittest.TestLoader()
 suite = unittest.TestSuite()
 
+exclude = [
+    'check-verify',
+    'check-example'
+]
+
 def check_valid(filename):
     name = os.path.basename(filename)
-    if name == "check-verify":
+    if name in exclude:
         return None
     allowed = string.ascii_letters + string.digits + '-_'
     if not all(c in allowed for c in name):

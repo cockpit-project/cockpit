@@ -42,8 +42,8 @@ class TestShutdownRestart(MachineCase):
         b.click("#shutdown-delay button")
         b.click("a.opt span:contains('No Delay')")
         b.click("#shutdown-action")
-        b.wait_popdown("shutdown-dialog")
         b.switch_to_top()
+        # we don't need to wait for the dialog to close here, just the disconnect
         b.wait_popup("disconnected-dialog")
         m.wait_reboot()
         self.start_cockpit()
@@ -61,8 +61,8 @@ class TestShutdownRestart(MachineCase):
         b.click("#shutdown-delay button")
         b.click("a.opt span:contains('No Delay')")
         b.click("#shutdown-action")
-        b.wait_popdown("shutdown-dialog")
         b.switch_to_top()
+        # we don't need to wait for the dialog to close here, just the disconnect
         b.wait_popup("disconnected-dialog")
         m.wait_poweroff()
 

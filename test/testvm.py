@@ -422,11 +422,11 @@ class VirtEventHandler():
         self.data_lock = threading.RLock()
         self.signal_condition = threading.Condition(self.data_lock)
 
-        self.virEventLoopNativeStart()
-
         # only show debug messages for specific domains, since
         # we might have multiple event handlers at any given time
         self.debug_domains = []
+
+        self.virEventLoopNativeStart()
 
     def allow_domain_debug_output(self, dom_name):
         with self.data_lock:

@@ -70,8 +70,17 @@ class TestStorage(StorageCase):
 
         # remove a disk from the volume group
         m.execute("pvmove %s &>/dev/null || true" % dev_2)
-        m.execute("vgreduce TEST1 %s" %dev_2)
+        m.execute("vgreduce TEST1 %s" % dev_2)
         b.wait_not_in_text("#pvols", "DISK2")
+
+        # Wipe the disk and make sure lvmetad forgets about it.  This
+        # might help with reusing it in the second half of this test.
+        #
+        # HACK - the pvscan is necessary because of
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1063813
+        #
+        m.execute("wipefs -a %s" % dev_2)
+        m.execute("pvscan --cache %s" % dev_2)
 
         # Thin volumes
         m.execute("lvcreate TEST1 --thinpool pool -L 20m")
@@ -88,12 +97,6 @@ class TestStorage(StorageCase):
         b.wait_visible("#storage")
         m.execute("vgremove -f TEST1")
         b.wait_not_in_text("#vgroups", "TEST1")
-
-        # Sometimes one of the disks is still in use for unexplained
-        # reasons, so we wait for the physical volumes to be free
-        # again.
-        #
-        wait(lambda: m.execute("wipefs -n -a %s %s" % (dev_1, dev_2)))
 
         # create volume group in the UI
         b.wait_visible('#create-volume-group')

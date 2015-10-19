@@ -3,19 +3,27 @@ define([
     "base1/cockpit",
     "base1/angular",
     "base1/term",
-    "kubernetes/app"
+    "kubernetes/app",
+    "kubernetes/container-terminal",
 ], function($, cockpit, angular, Terminal) {
     'use strict';
 
     var phantom_checkpoint = phantom_checkpoint || function () { };
 
-    return angular.module('kubernetes.containers', ['ngRoute'])
-        .config(['$routeProvider', function($routeProvider) {
-            $routeProvider.when('/pods/:namespace?', {
-                templateUrl: 'views/containers-page.html',
-                controller: 'ContainersCtrl'
-            });
-        }])
+    return angular.module('kubernetes.containers', [ 'ngRoute', 'kubernetesUI' ])
+        .config([
+            '$routeProvider',
+            'kubernetesContainerSocketProvider',
+            function($routeProvider, kubernetesContainerSocketProvider) {
+                $routeProvider.when('/pods/:namespace?', {
+                    templateUrl: 'views/containers-page.html',
+                    controller: 'ContainersCtrl'
+                });
+
+                /* Tell the container-terminal that we want to be involved in WebSocket creation */
+                kubernetesContainerSocketProvider.WebSocketFactory = 'kubeContainerWebSocket';
+            }
+        ])
 
         /*
          * The controller for the containers view.
@@ -193,47 +201,61 @@ define([
         })
 
         /*
-         * Displays a container shell
+         * A WebSocket factory for the kubernetes-container-terminal
          *
-         * <kube-console namespace="ns" pod="name" container="name"></kube-console>
+         * Because we don't yet know that the kubernetes we're talking
+         * to supports WebSockets, we just use kubectl instead and
+         * make a fake WebSocket out of it.
          */
-        .directive('kubeShell', function() {
-            return {
-                restrict: 'E',
-                link: function(scope, element, attrs) {
-                    var cmd = [
-                        "kubectl",
-                        "exec",
-                        "--namespace=" + attrs.namespace,
-                        "--container=" + attrs.container,
-                        "--tty",
-                        "--stdin",
-                        attrs.pod,
-                        "--",
-                        "/bin/sh",
-                        "-i"
-                    ];
+        .factory("kubeContainerWebSocket", [
+            function() {
+                function parser(url) {
+                    var options = { };
+                    var path = cockpit.location.decode(url, options);
 
-                    /* term.js wants the parent element to build its terminal inside of */
-                    var outer = $("<div>").addClass("console");
-                    element.append(outer);
+                    var command = [ ];
+                    var namespace = "default";
+                    var container = null;
+                    var pod = "";
 
-                    var term = null;
-                    var channel = null;
+                    var i, len;
+                    for (i = 0, len = path.length; i < len; i++) {
+                        if (path[i] === "namespaces")
+                            namespace = path[++i];
+                        else if (path[i] === "pods")
+                            pod = path[++i];
+                    }
 
-                    function connect() {
-                        outer.empty();
-                        if (term)
-                            term.destroy();
+                    for (i in options) {
+                        if (i == "container") {
+                            container = options[i];
+                        } else if (i == "command") {
+                            if (angular.isArray(options[i]))
+                                command = options[i];
+                            else
+                                command.push(options[i]);
+                        }
+                    }
 
-                        term = new Terminal({
-                            cols: 80,
-                            rows: 24,
-                            screenKeys: true
-                        });
+                    var ret = [ "kubectl", "exec", "--namespace=" + namespace ];
+                    if (container)
+                        ret.push("--container=" + container);
+                    ret.push("--tty", "--stdin", pod, "--");
+                    ret.push.apply(ret, command);
+                    return ret;
+                }
 
-                        term.open(outer[0]);
+                return function KubeFakeWebSocket(url, protocols) {
+                    var cmd = parser(url);
+                    var protocol = "base64.channel.k8s.io";
 
+                    /* A fake WebSocket */
+                    var channel;
+                    var state = 0; /* CONNECTING */
+                    var ws = { };
+                    cockpit.event_target(ws);
+
+                    function open() {
                         channel = cockpit.channel({
                             payload: "stream",
                             spawn: cmd,
@@ -242,49 +264,80 @@ define([
 
                         $(channel)
                             .on("close", function(ev, options) {
-                                var problem = options.problem || "disconnected";
-                                term.write('\x1b[31m' + problem + '\x1b[m\r\n');
-                                disconnect();
+                                console.log("closing state 3", ev, options);
+                                var problem = options.problem || "";
+                                $(channel).off();
+                                channel = null;
+
+                                state = 3;
+                                var cev = document.createEvent('Event');
+                                cev.initEvent('close', false, false, !!problem, 1000, problem);
+                                ws.dispatchEvent(cev);
                             })
-                            .on("message", function(ev, payload) {
-                                /* Output from pty to terminal */
-                                term.write(payload);
+                            .on("message", function(ev, data) {
+                                data = "1" + window.btoa(data);
+                                /* It's because of phantomjs */
+                                var mev = document.createEvent('MessageEvent');
+                                if (!mev.initMessageEvent)
+                                    mev = new window.MessageEvent('message', { 'data': data });
+                                else
+                                    mev.initMessageEvent('message', false, false, data, "");
+                                ws.dispatchEvent(mev);
                             });
 
-                        term.on('data', function(data) {
-                            if (channel && channel.valid)
-                                channel.send(data);
-                        });
+                        state = 1;
+                        var oev = document.createEvent('Event');
+                        oev.initEvent('open', false, false);
+                        ws.dispatchEvent(oev);
                     }
 
-                    function disconnect() {
-                        /* There's no term.hideCursor() function */
-                        if (term) {
-                            term.cursorHidden = true;
-                            term.refresh(term.y, term.y);
-                        }
-                        if (channel) {
-                            $(channel).off();
-                            channel.close("terminated");
-                        }
-                        channel = null;
+                    function fail() {
+                        var ev = document.createEvent('Event');
+                        ev.initEvent('close', false, false, false, 1002, "protocol-error");
+                        ws.dispatchEvent(ev);
                     }
 
-                    scope.$on("connect", function(ev, what) {
-                        if (what == "shell") {
-                            if (!channel)
-                                connect();
-                        }
+                    function close(code, reason) {
+                        if (channel)
+                            channel.close(reason);
+                    }
+
+                    function send(data) {
+                        if (channel)
+                            channel.send(window.atob(data.slice(1)));
+                    }
+
+                    /* A fake WebSocket */
+                    Object.defineProperties(ws, {
+                        binaryType: { value: "arraybuffer" },
+                        bufferedAmount: { value: 0 },
+                        extensions: { value: "" },
+                        protocol: { value: protocol },
+                        readyState: { get: function() { return state; } },
+                        url: { value: url },
+                        close: { value: close },
+                        send: { value: send },
                     });
 
-                    scope.$on("$destroy", function() {
-                        if (term)
-                            term.destroy();
-                        disconnect();
-                    });
-                }
-            };
-        })
+                    var valid = true;
+                    if (protocols) {
+                        if (angular.isArray (protocols))
+                            valid = protocols.indexOf(protocol) !== -1;
+                        else
+                            valid = (protocols === protocol);
+                    }
+
+                    if (valid) {
+                        window.setTimeout(open);
+                    } else {
+                        console.warn("Unsupported kubernetes container WebSocket subprotocol: " + protocols);
+                        window.setTimeout(fail);
+                    }
+
+                    return ws;
+                };
+            }
+        ])
 
         /*
          * Filter to display short docker ids

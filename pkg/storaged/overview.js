@@ -309,7 +309,8 @@ define([
             direct: "disk.dev.read_bytes",
             internal: "block.device.read",
             units: "bytes",
-            derive: "rate"
+            derive: "rate",
+            threshold: 1000
         };
 
         var read_plot_options = shell.plot_simple_template();
@@ -330,7 +331,8 @@ define([
             direct: "disk.dev.write_bytes",
             internal: "block.device.write",
             units: "bytes",
-            derive: "rate"
+            derive: "rate",
+            threshold: 1000
         };
 
         var write_plot_options = shell.plot_simple_template();

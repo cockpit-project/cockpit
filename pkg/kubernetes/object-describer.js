@@ -144,12 +144,7 @@ angular.module('kubernetesUI')
     scope: {
       containers: '='
     },
-    templateUrl: 'views/containers.html',
-    link: function($scope, element, attrs) {
-      $scope.shouldMask = function(name) {
-          return name.toLowerCase().indexOf('password') !== -1;
-      };
-    }
+    templateUrl: 'views/containers.html'
   }
 })
 .directive("kubernetesObjectDescribeContainerStatuses", function() {
@@ -170,19 +165,26 @@ angular.module('kubernetesUI')
     templateUrl: 'views/container-state.html'
   };
 })
-.directive("revealableText", function() {
+.directive("collapseLongText", function() {
   return {
     restrict: 'A',
+    scope: {
+      value: '@',
+      enableCollapse: '=?' // not intended to be passed in, it will be set depending on jquery availability
+    },
+    controller: ["$scope", function($scope) {
+      // If jquery is available
+      $scope.enableCollapse = !!window.$;
+    }],
     link: function($scope, element, attrs) {
-      element.addClass('revealable');
-      $(element).on("mouseover", function() {
-        var clickable = element[0].scrollWidth > element[0].clientWidth || element.find(".masked")[0];
-        element.toggleClass("clickable", clickable);
-      });
-      $(element).on("click", function() {
-        element.toggleClass("revealed");
-      });
-    }
+      if ($scope.enableCollapse) {
+        $('.reveal-contents-link', element).click(function (evt) {
+          $(this).hide();
+          $('.reveal-contents', element).show();
+        });  
+      }
+    },    
+    templateUrl: 'views/_collapse-long-text.html'
   }
 })
 .filter("isEmptyObj", function() {
@@ -194,19 +196,28 @@ angular.module('kubernetesUI')
 angular.module('kubernetesUI').run(['$templateCache', function($templateCache) {
   'use strict';
 
+  $templateCache.put('views/_collapse-long-text.html',
+    "<span ng-hide=\"enableCollapse && value.length > 120\">{{value}}</span>\n" +
+    "<span ng-show=\"enableCollapse && value.length > 120\">\n" +
+    "  <span class=\"reveal-contents-link\" style=\"cursor: pointer;\" title=\"Expand\">{{value.substring(0, 120)}}<a href=\"javascript:;\">...</a></span>\n" +
+    "  <span style=\"display: none;\" class=\"reveal-contents\">{{value}}</span>\n" +
+    "</span>"
+  );
+
+
   $templateCache.put('views/annotations.html',
     "  <h3>Annotations</h3>\n" +
     "  <span ng-if=\"!resource.metadata.annotations\"><em>none</em></span>\n" +
     "  <dl class=\"dl-horizontal\" ng-if=\"resource.metadata.annotations\">\n" +
     "    <dt ng-repeat-start=\"(annotationKey, annotationValue) in resource.metadata.annotations\" title=\"{{annotationKey}}\">{{annotationKey}}</dt>\n" +
-    "    <dd ng-repeat-end revealable-text>{{annotationValue}}</dd>\n" +
-    "  </dl>\n"
+    "    <dd ng-repeat-end collapse-long-text value=\"{{annotationValue}}\"></dd>\n" +
+    "  </dl>"
   );
 
 
   $templateCache.put('views/container-state.html',
     "<span ng-if=\"containerState | isEmptyObj\"><em>none</em></span>\n" +
-    "<span ng-repeat=\"(state, stateDescription) in containerState | limitTo: 1\" revealable-text>\n" +
+    "<span ng-repeat=\"(state, stateDescription) in containerState | limitTo: 1\">\n" +
     "  <span ng-switch=\"state\">\n" +
     "    <span ng-switch-when=\"waiting\">\n" +
     "      Waiting\n" +
@@ -232,7 +243,7 @@ angular.module('kubernetesUI').run(['$templateCache', function($templateCache) {
     "<div ng-if=\"!containerStatuses\"><em>none</em></div>\n" +
     "<dl ng-repeat=\"containerStatus in containerStatuses | orderBy:'name'\" class=\"dl-horizontal\">\n" +
     "  <dt>Name</dt>\n" +
-    "  <dd revealable-text>{{containerStatus.name}}</dd>\n" +
+    "  <dd>{{containerStatus.name}}</dd>\n" +
     "  <dt>State</dt>\n" +
     "  <dd>\n" +
     "    <kubernetes-object-describe-container-state container-state=\"containerStatus.state\"></container-state>\n" +
@@ -253,9 +264,9 @@ angular.module('kubernetesUI').run(['$templateCache', function($templateCache) {
     "<div ng-if=\"!containers.length\"><em>none</em></div>\n" +
     "<dl class=\"dl-horizontal\" ng-repeat=\"container in containers\">\n" +
     "<dt>Name</dt>\n" +
-    "<dd revealable-text>{{container.name}}</dd>\n" +
+    "<dd>{{container.name}}</dd>\n" +
     "<dt>Image</dt>\n" +
-    "<dd revealable-text ng-if=\"container.image\">{{container.image}}</dd>\n" +
+    "<dd ng-if=\"container.image\">{{container.image}}</dd>\n" +
     "<dd ng-if=\"!container.image\"><em>none</em></dd>\n" +
     "<dt>Ports</dt>\n" +
     "<dd>\n" +
@@ -267,7 +278,7 @@ angular.module('kubernetesUI').run(['$templateCache', function($templateCache) {
     "<dt>Env vars</dt>\n" +
     "<dd>\n" +
     "  <div ng-if=\"!container.env.length\"><em>none</em></div>\n" +
-    "  <div ng-repeat=\"env in container.env | orderBy:'name'\" revealable-text>{{env.name}}=<span ng-class=\"{masked: shouldMask(env.name)}\">{{env.value}}</span></div>\n" +
+    "  <div ng-repeat=\"env in container.env | orderBy:'name'\" collapse-long-text value=\"{{env.name}}={{env.value}}\"></div>\n" +
     "</dd>\n" +
     "</dl>\n" +
     "<div ng-if=\"$index != 0\" style=\"margin-bottom: 10px;\"></div>\n"

@@ -1103,7 +1103,11 @@ function full_scope(cockpit, $, po) {
             if (options) {
                 var query = [];
                 $.each(options, function(opt, value) {
-                    query.push(encodeURIComponent(opt) + "=" + encodeURIComponent(value));
+                    if (!$.isArray(value))
+                        value = [ value ];
+                    value.forEach(function(v) {
+                        query.push(encodeURIComponent(opt) + "=" + encodeURIComponent(v));
+                    });
                 });
                 if (query.length > 0)
                     href += "?" + query.join("&");
@@ -1124,8 +1128,17 @@ function full_scope(cockpit, $, po) {
             var path = decode_path(first);
             if (pos !== -1 && options) {
                 $.each(href.substring(pos + 1).split("&"), function(i, opt) {
-                    var parts = opt.split('=');
-                    options[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);
+                    var last, parts = opt.split('=');
+                    var name = decodeURIComponent(parts[0]);
+                    var value = decodeURIComponent(parts[1]);
+                    if (options.hasOwnProperty(name)) {
+                        last = options[name];
+                        if (!$.isArray(value))
+                            last = options[name] = [ last ];
+                        last.push(value);
+                    } else {
+                        options[name] = value;
+                    }
                 });
             }
 

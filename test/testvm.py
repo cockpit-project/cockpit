@@ -629,6 +629,7 @@ class VirtMachine(Machine):
         self._network_description = etree.parse(open("./guest/network-cockpit.xml"))
         self._fixed_mac_flavors = self._get_fixed_mac_flavors()
 
+
         # it is ESSENTIAL to register the default implementation of the event loop before opening a connection
         # otherwise messages may be delayed or lost
         libvirt.virEventRegisterDefaultImpl()

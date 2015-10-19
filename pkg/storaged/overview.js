@@ -512,21 +512,42 @@ define([
                           Action: {
                               Title: _("Next"),
                               action: function (vals, dialog) {
+                                  var dfd = $.Deferred();
+
                                   var options = { };
                                   if (vals.username || vals.password) {
                                       options.username = { t: 's', v: vals.username };
                                       options.password = { t: 's', v: vals.password };
                                   }
-                                  return client.manager_iscsi.call('DiscoverSendTargets',
-                                                                   [ vals.address,
-                                                                     0,
-                                                                     options
-                                                                   ]).
-                                      then(function (results) {
-                                          iscsi_add(vals, results[0]);
+
+                                  var cancelled = false;
+                                  client.manager_iscsi.call('DiscoverSendTargets',
+                                                            [ vals.address,
+                                                              0,
+                                                              options
+                                                            ]).
+                                      done(function (results) {
+                                          if (!cancelled) {
+                                              dfd.resolve();
+                                              iscsi_add(vals, results[0]);
+                                          }
+                                      }).
+                                      fail(function (error) {
+                                          if (!cancelled)
+                                              dfd.reject(error);
                                       });
+
+                                  var promise = dfd.promise();
+                                  promise.cancel = function () {
+                                      cancelled = true;
+                                      dfd.reject();
+                                  };
+                                  return promise;
                               },
                               failure_filter: function (vals, err) {
+                                  if (!err)
+                                      return err;
+
                                   // HACK - https://github.com/storaged-project/storaged/issues/26
                                   if (err.message.indexOf("initiator failed authorization") != -1)
                                       return [ { field: "username",

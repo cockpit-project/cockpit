@@ -38,6 +38,8 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/config.js \
 	pkg/kubernetes/containers.css \
 	pkg/kubernetes/containers.js \
+	pkg/kubernetes/container-terminal.js \
+	pkg/kubernetes/container-terminal.css \
 	pkg/kubernetes/d3.js \
 	pkg/kubernetes/dashboard.js \
 	pkg/kubernetes/details.css \
@@ -78,6 +80,7 @@ kubernetes_MIN = \
 	pkg/kubernetes/object-describer.min.js \
 	pkg/kubernetes/topology.min.js \
 	pkg/kubernetes/topology-graph.min.js \
+	pkg/kubernetes/container-terminal.min.js \
 	$(NULL)
 kubernetes_BUNDLE = \
 	pkg/kubernetes/d3.min.js \
@@ -129,6 +132,10 @@ update-lib:: update-bower
 		$(BOWER)/kubernetes-topology-graph/dist/topology-graph.js
 	$(CSSBUNDLE) -o $(srcdir)/pkg/kubernetes/topology-graph.css \
 		$(BOWER)/kubernetes-topology-graph/dist/topology-graph.css
+	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/container-terminal.js \
+		$(BOWER)/kubernetes-container-terminal/dist/container-terminal.js
+	$(CSSBUNDLE) -o $(srcdir)/pkg/kubernetes/container-terminal.css \
+		$(BOWER)/kubernetes-container-terminal/dist/container-terminal.css
 	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/d3.js \
 		$(BOWER)/d3/d3.js
 	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/d3.min.js \

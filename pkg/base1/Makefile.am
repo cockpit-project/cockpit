@@ -74,6 +74,7 @@ basefonts_DATA = \
 base_TESTS = \
 	pkg/base1/test-base64.html \
 	pkg/base1/test-utf8.html \
+	pkg/base1/test-events.html \
 	pkg/base1/test-chan.html \
 	pkg/base1/test-echo.html \
 	pkg/base1/test-async.html \

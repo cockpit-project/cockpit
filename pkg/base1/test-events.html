@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<!--
+This file is part of Cockpit.
+
+Copyright (C) 2014 Red Hat, Inc.
+
+Cockpit is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or
+(at your option) any later version.
+
+Cockpit is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Event target tests</title>
+    <link rel="stylesheet" href="../../tools/qunit.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="../../tools/qunit.js"></script>
+    <script type="text/javascript" src="cockpit.js"></script>
+</head>
+<body>
+    <h1 id="qunit-header">Event target tests</h1>
+    <h2 id="qunit-banner"></h2>
+    <div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+    <div id="qunit-fixture">test markup, will be hidden</div>
+    <div id="done-flag" style="display:none">Done</div>
+<script>
+
+test("event dispatch", function() {
+    var obj =  { };
+    cockpit.event_target(obj);
+
+    var count = 0;
+    function handler(ev) {
+        if (count == 0) {
+            equal(typeof ev, "object", "event is object");
+            equal(ev.type, "action", "event.type is 'action'");
+            equal(ev.data, "Data", "event.data is set");
+        }
+        count += 1;
+    }
+
+    var ev = document.createEvent("Event");
+    ev.initEvent("action", false, false);
+    ev.data = "Data";
+
+    obj.dispatchEvent(ev);
+    strictEqual(count, 0, "count is zero");
+
+    obj.onaction = handler;
+    obj.dispatchEvent(ev);
+    strictEqual(count, 1, "count is one")
+
+    obj.addEventListener("action", handler, true);
+    obj.dispatchEvent(ev);
+    strictEqual(count, 3, "count is three")
+
+    obj.addEventListener("action", handler, true);
+    obj.dispatchEvent(ev);
+    strictEqual(count, 6, "count is six")
+
+    obj.removeEventListener("action", handler, true);
+    obj.dispatchEvent(ev);
+    strictEqual(count, 8, "count is eight");
+
+    obj.onaction = null;
+    obj.dispatchEvent(ev);
+    strictEqual(count, 9, "count is nine");
+
+    obj.removeEventListener("action", handler, true);
+    obj.dispatchEvent(ev);
+    strictEqual(count, 9, "count is still nine");
+});
+
+QUnit.start();
+</script>
+</body>
+</html>

@@ -124,7 +124,7 @@ class TestStorage(StorageCase):
         b.wait_text_not(info_field("Device"), "--")
 
         # Create partition table
-        self.raid_action("Format")
+        b.click('[data-action="format_disk"]')
         self.dialog({ "type": "gpt" })
         b.wait_in_text("#content", "Free Space")
 

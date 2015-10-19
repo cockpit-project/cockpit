@@ -351,7 +351,13 @@
 
   <script id="content-tmpl" type="x-template/mustache">
     <div class="panel panel-default" id="content">
-      <div class="panel-heading">{{Title}}</div>
+      <div class="panel-heading">
+        <span>{{Title}}</span>
+        {{#path}}
+        <button class="btn btn-default storage-privileged pull-right" translatable="yes"
+                data-action="format_disk" data-arg="{{path}}">Create partition table</button>
+        {{/path}}
+      </div>
       <ul class="list-group">
         {{#Entries}}
         <li class="list-group-item">
@@ -380,19 +386,9 @@
       <div class="panel-heading">
         {{#Drive}}
         <span translatable="yes">Drive</span>
-        {{#block_dbus}}
-        <button class="btn btn-default storage-privileged" style="float:right" translatable="yes"
-                data-action="format_disk" data-arg="{{path}}">
-          Format
-        </button>
-        {{/block_dbus}}
         {{/Drive}}
         {{^Drive}}
         <span translatable="yes">Block Device</span>
-        <button class="btn btn-default storage-privileged" style="float:right" translatable="yes"
-                data-action="format_disk" data-arg="{{Block.dbus.path}}">
-          Format
-        </button>
         {{/Drive}}
       </div>
       <div class="panel-body">

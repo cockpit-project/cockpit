@@ -503,10 +503,6 @@ define([
             mdraid_stop_scrub: function mdraid_stop_scrub(path) {
                 return client.mdraids[path].RequestSyncAction("idle", {});
             },
-            mdraid_format: function mdraid_format(path) {
-                if (client.mdraids_block[path])
-                    actions.format_disk(client.mdraids_block[path].path);
-            },
             mdraid_toggle_bitmap: function mdraid_toggle_bitmap(path) {
                 var old = utils.decode_filename(client.mdraids[path].BitmapLocation);
                 return client.mdraids[path].SetBitmapLocation(utils.encode_filename(old == 'none'? 'internal' : 'none'), {});
@@ -1318,7 +1314,6 @@ define([
 
                 drive_model = {
                     dbus: drive,
-                    block_dbus: drive_block,
                     Size: drive.Size > 0 && utils.fmt_size_long(drive.Size),
                     Assessment: assessment,
                     Device: drive_block && utils.block_name(drive_block),
@@ -1335,6 +1330,7 @@ define([
                                      Content: (content_block &&
                                                mustache.render(content_tmpl,
                                                                { Title: _("Content"),
+                                                                 path: content_block.path,
                                                                  Entries: block_content_entries(content_block)
                                                                }))
                                    });
@@ -1454,7 +1450,6 @@ define([
             var actions = [
                 { title: _("Start"),           action: 'mdraid_start' },
                 { title: _("Stop"),            action: 'mdraid_stop' },
-                { title: _("Format"),          action: 'mdraid_format' },
                 { title: _("Start Scrubbing"), action: 'mdraid_start_scrub' },
                 { title: _("Stop Scrubbing"),  action: 'mdraid_stop_scrub' },
                 { title: _("Delete"),          action: 'mdraid_delete' }
@@ -1479,6 +1474,7 @@ define([
                                      Content: (block &&
                                                mustache.render(content_tmpl,
                                                                { Title: _("Content"),
+                                                                 path: block.path,
                                                                  Entries: block_content_entries(block)
                                                                }))
                                    });

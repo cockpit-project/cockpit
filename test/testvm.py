@@ -927,10 +927,13 @@ class VirtMachine(Machine):
                 if hasattr(self, '_disks'):
                     for index in dict(self._disks):
                         self.rem_disk(index)
-            # remove the debug output
-            if hasattr(self, '_domain') and self._domain:
-                self.event_handler.forbid_domain_debug_output(self._domain.name())
+
             self._disks = { }
+
+            if hasattr(self, '_domain') and self._domain:
+                # remove the debug output
+                self.event_handler.forbid_domain_debug_output(self._domain.name())
+
             self._domain = None
             self.address = None
             self.macaddr = None
@@ -943,7 +946,13 @@ class VirtMachine(Machine):
     def kill(self):
         # stop system immediately, with potential data loss
         # to shutdown gracefully, use shutdown()
-        # we just delete the variables and let libvirt clean up for us
+        if hasattr(self, '_domain') and self._domain:
+            try:
+                # not graceful
+                with stdchannel_redirected(sys.stderr, os.devnull):
+                    self._domain.destroyFlags(libvirt.VIR_DOMAIN_DESTROY_DEFAULT)
+            except:
+                pass
         self._cleanup(quick=True)
 
     def wait_poweroff(self, timeout_sec=120):
@@ -952,7 +961,7 @@ class VirtMachine(Machine):
             if not self.event_handler.wait_for_stopped(self._domain, timeout_sec=timeout_sec):
                 self.message("waiting for machine poweroff timed out")
 
-        self._cleanup()
+        self._cleanup(quick=True)
 
     def shutdown(self, timeout_sec=120):
         # shutdown the system gracefully

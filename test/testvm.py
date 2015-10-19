@@ -789,7 +789,7 @@ class VirtMachine(Machine):
         # keep trying while there are naming conflicts, but not forever
         dom_created = False
         dom = None
-        tries_left = 10
+        tries_left = 15
         mac_desc = ""
         if macaddr:
             mac_desc = "<mac address='%(mac)s'/>" % {'mac': macaddr}
@@ -822,7 +822,7 @@ class VirtMachine(Machine):
                     else:
                         self.message("domain exists, trying with different name")
                     tries_left = tries_left - 1
-                    time.sleep(1)
+                    time.sleep(2)
                     continue
                 else:
                     raise

@@ -830,6 +830,11 @@ function basic_scope(cockpit) {
         return new Channel(options);
     };
 
+    cockpit.event_target = function event_target(obj) {
+        event_mixin(obj, { });
+        return obj;
+    };
+
     /* ------------------------------------------------------------
      * Text Encoding
      */

@@ -96,7 +96,7 @@ test("decode", function() {
                    }
         ],
         [ "?a=1&a=2", { path: [ ],
-                         options: { a: "2" }
+                        options: { a: [ "1", "2" ] }
                        }
         ],
         [ "?%3f=%3d", { path: [ ],
@@ -178,7 +178,11 @@ test("encode", function() {
         [ "/p?=", { path: [ "p" ],
                      options: { "": "" }
                    }
-        ]
+        ],
+        [ "/p?value=one&value=two", {
+            path: [ "p" ],
+            options: { "value": [ "one", "two" ] }
+        }]
     ];
 
     var i;

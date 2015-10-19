@@ -25,7 +25,6 @@
 </div>
 <div class="listing-body" ng-show="tab('shell')"
     ng-if="item.status.phase == 'Running' && container.status.state.running">
-    <kube-shell namespace="{{item.metadata.namespace}}" pod="{{item.metadata.name}}"
-        container="{{container.spec.name}}">
-    </kube-shell>
+    <kubernetes-container-terminal pod="item" container="container.spec.name">
+    </kubernetes-container-terminal>
 </div>

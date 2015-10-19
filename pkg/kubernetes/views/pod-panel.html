@@ -34,10 +34,10 @@
         </div>
     </div>
     <div class="listing-body" ng-show="tab('shell')">
-        <div class="container-fluid" ng-repeat="container in containers">
-            <kube-shell namespace="{{item.metadata.namespace}}"
-                pod="{{item.metadata.name}}" container="{{container.spec.name}}">
-            </kube-shell>
+        <div class="container-fluid" ng-repeat="container in containers"
+            ng-if="item.status.phase == 'Running' && container.status.state.running">
+            <kubernetes-container-terminal pod="item" container="container.spec.name">
+            </kubernetes-container-terminal>
         </div>
     </div>
 </div>

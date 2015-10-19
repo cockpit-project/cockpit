@@ -169,6 +169,8 @@ class TestMultiMachine(MachineCase):
         b.wait_present("body")
         b.wait_in_text("body", "magic-m1-token")
 
+        self.allow_journal_messages(".*: .* host key for server is not known: .*")
+
     def testFrameNavigation(self):
         b = self.browser
         m1 = self.machine

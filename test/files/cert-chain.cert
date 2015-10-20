@@ -1,0 +1,48 @@
+# How to regenerate the following certificates
+$ openssl req -new -newkey rsa:1024 -nodes -out ca.csr -keyout ca.key -subj '/OU=CA'
+$ openssl x509 -trustout -signkey ca.key -days 36500 -req -in ca.csr -out ca.pem
+$ openssl req -new -newkey rsa:1024 -nodes -keyout inter.key -out inter.csr -subj '/OU=Intermediate'
+$ openssl x509 -req -days 36500 -in inter.csr -CA ca.pem -CAkey ca.key -set_serial 01 -out inter.pem
+$ openssl req -new -newkey rsa:1024 -nodes -keyout server.key -out server.csr -subj '/CN=localhost'
+$ openssl x509 -req -days 36500 -in server.csr -CA inter.pem -CAkey inter.key -set_serial 02 -out server.pem
+$ cat server.pem intermediate.pem server.key
+
+-----BEGIN CERTIFICATE-----
+MIIBnDCCAQUCAQIwDQYJKoZIhvcNAQELBQAwFzEVMBMGA1UECwwMSW50ZXJtZWRp
+YXRlMCAXDTE1MTAyMDA5MTI0M1oYDzIxMTUwOTI2MDkxMjQzWjAUMRIwEAYDVQQD
+DAlsb2NhbGhvc3QwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAKmd9yN41PjZ
+9EnULLm2gaaiBZaV3W61XjUe/etEOU8m5ullhNiv0DGZNbt0ZgfL9aW8dbekTV9Q
+e8+YaPPzFKlQnaqt7lt4IVu+xA6qzEmRC6mP5odAqmoElJich3GrF6x2x3jWrCbX
+zijIlOKDAAgLedLixML7aVPOCpY1Bmk7AgMBAAEwDQYJKoZIhvcNAQELBQADgYEA
+DmvvCUi/xEgvsRWoDt4dJmhga+qgZ7649a2EdYIavNqphpmLWncCrvi9AstpWnvY
+BJSivqYCUwLrgteRDxPf7XkRT17OafgW0Xyss+rng+PzSGVR77swAf7v9rzrfWKC
+JWma5uFMIDqJCReG1Ox93N2juZdI6auqbYnUYi/4YgA=
+-----END CERTIFICATE-----
+-----BEGIN CERTIFICATE-----
+MIIBlDCB/gIBATANBgkqhkiG9w0BAQsFADANMQswCQYDVQQLDAJDQTAgFw0xNTEw
+MjAwOTA4MDNaGA8yMTE1MDkyNjA5MDgwM1owFzEVMBMGA1UECwwMSW50ZXJtZWRp
+YXRlMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDYLKL3UTbKWrvZKq06NW/b
+8f87lLw/sH0DSNs09aT8aVq4wLqGA/RC0ky53rH/IQXrHvoxR6h/+DrrxtGERBFO
+MIKhU5rH0UuE+vPcNCt30W3Igs4l2pYTDGEeUV5U5WpqQarnjFv5RTDM3ky2WEWR
+hLstwlEVKWMcmL5n3x/InwIDAQABMA0GCSqGSIb3DQEBCwUAA4GBAJczX3JveUjJ
+a4WMLnKBJsAvyTcpFyuY+NwlmAnJyWCkdxYFloIUqk0RyyC0zeJ/8zhCQ2ebGBGW
+Veuxze4Co53Ukikt2S3lbGKz56yjYXUvxcus731KY7m0U5PF+yNdwbLds21Qn3oF
+ykBKf8Wtclujqbuf7W97JiiNsPzMnQR0
+-----END CERTIFICATE-----
+-----BEGIN PRIVATE KEY-----
+MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAKmd9yN41PjZ9EnU
+LLm2gaaiBZaV3W61XjUe/etEOU8m5ullhNiv0DGZNbt0ZgfL9aW8dbekTV9Qe8+Y
+aPPzFKlQnaqt7lt4IVu+xA6qzEmRC6mP5odAqmoElJich3GrF6x2x3jWrCbXzijI
+lOKDAAgLedLixML7aVPOCpY1Bmk7AgMBAAECgYEAl/30ozW46pIspSfbOEPCJHbV
+uR3sQjOGCuYNtY/6JuJ+UzFkfOP3FSrsimEAuQXcxzp85iX2K24stFcn3Uq6/JS6
+nBCuLtpex6RIunTHuhACgqsBKhsxJu9YPX5t8PwOlPKD8GnkLv3A7Y6zrMf5AJbu
+RkBhXWS2tdIVVlL3RvECQQDUNUYFG8LqgHjI1QISoPMLThshTuWj+roV5OpYR7kO
+931c6YqrhX+DfO8voXOdBRLbrbFddqdv/1EEH/2PtEFjAkEAzJ6nCPeQRdW18qHd
+/isXFtP4+Mlzmp+OzPaMVh18pTZLKRXQo/DGZtS56Sdp+5buIAtDhgw/AqQPNXgW
+l+5sSQJAGbGFk9LDq974QODBin3gT4sab9L8rPkLlOENmri8aFqA3EIOnyvfv4zd
+7PdwZx+ZI+4I3pciOMZCCezRp5ecnwJBALBiuv6B2b45YWTMn/6vynGFPIPJtHu/
+u2t3xLWfKYmJafT6tyX7MiwGiFQyA6w7CP5ad1SgTdjK78lZwbAqePECQQDT1mml
+lz5/qGORJzvzT+FR7B66aJ/ogeYySoKl12bDKJQ5/6v1b+nsA1LagqwdLDFb6HhH
+1hi9cF60gY7OQPR1
+-----END PRIVATE KEY-----
+

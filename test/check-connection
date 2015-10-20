@@ -125,6 +125,18 @@ class TestConnection(MachineCase):
             m.message(output)
             self.fail("RC4 cipher should not have been usable")
 
+        # Install a certificate chain
+        m.upload(["files/cert-chain.cert"], "/etc/cockpit/ws-certs.d")
+        m.execute("systemctl restart cockpit")
+
+        # Should use the new certificates and entire chain should show up
+        m.message(repr(args))
+        output = subprocess.check_output(args, stdin=null, stderr=subprocess.STDOUT)
+        m.message(output)
+        self.assertIn("DONE", output)
+        self.assertIn("s:/CN=localhost", output)
+        self.assertIn("1 s:/OU=Intermediate", output)
+
         self.allow_journal_messages(
             ".*Peer failed to perform TLS handshake",
             ".*Error performing TLS handshake: Could not negotiate a supported cipher suite.")

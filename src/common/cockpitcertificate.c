@@ -143,7 +143,7 @@ generate_temp_cert (GError **error)
   gchar *key_data = NULL;
   gchar *ret = NULL;
 
-  cert_path = g_strdup_printf ("%s/~self-signed.cert", dir);
+  cert_path = g_strdup_printf ("%s/0-self-signed.cert", dir);
 
   /* Generate self-signed cert, if it does not exist */
   if (g_file_test (cert_path, G_FILE_TEST_EXISTS))
@@ -163,10 +163,10 @@ generate_temp_cert (GError **error)
       goto out;
     }
 
-  tmp_key = create_temp_file (dir, "~self-signed.XXXXXX.tmp", error);
+  tmp_key = create_temp_file (dir, "0-self-signed.XXXXXX.tmp", error);
   if (!tmp_key)
     goto out;
-  tmp_pem = create_temp_file (dir, "~self-signed.XXXXXX.tmp", error);
+  tmp_pem = create_temp_file (dir, "0-self-signed.XXXXXX.tmp", error);
   if (!tmp_pem)
     goto out;
   if (!openssl_make_dummy_cert (tmp_key, tmp_pem, error))

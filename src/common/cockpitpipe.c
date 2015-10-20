@@ -884,9 +884,13 @@ _cockpit_pipe_write (CockpitPipe *self,
       return;
     }
 
+  /*
+   * Debugging this issue so have made thingcs more verbose.
+   * HACK: https://github.com/cockpit-project/cockpit/issues/2978
+   */
   if (self->priv->closed)
     {
-      g_warning ("assertion self->priv-closed failed at %s %d", caller, line);
+      g_critical ("assertion self->priv->closed check failed at %s %d", caller, line);
       return;
     }
 

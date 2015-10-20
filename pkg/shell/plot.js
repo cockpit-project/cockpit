@@ -138,11 +138,11 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
     var grid;
 
     function refresh_now() {
-        if (flot === null) {
-            if (element.height() === 0 || element.width() === 0)
-                return;
+        if (element.height() === 0 || element.width() === 0)
+            return;
+
+        if (flot === null)
             flot = $.plot(element, flot_data, options);
-        }
 
         flot.setData(flot_data);
         var axes = flot.getAxes();

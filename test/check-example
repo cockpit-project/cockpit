@@ -25,6 +25,13 @@ import time
 import unittest
 
 class TestExample(MachineCase):
+    def testFail(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/system")
+        self.assertFalse(True)
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -42,6 +49,9 @@ class TestSimple(unittest.TestCase):
         self.assertTrue(True)
 
     def testTwo(self):
+        self.assertFalse(True)
+
+    def testThree(self):
         self.assertTrue(True)
 
 if __name__ == '__main__':

@@ -2226,7 +2226,6 @@ PageNetworkInterface.prototype = {
                                     $('<td colspan="2">').text(device_state_text(dev))),
                                    $('<td style="text-align:right">').append(
                                        switchbox(is_active, function(val) {
-    console.log("is_active", val);
                                            if (val) {
                                                slave_con.activate(iface.Device).
                                                    fail(show_unexpected_error);
@@ -2297,7 +2296,12 @@ function PageNetworkInterface(model) {
 }
 
 function switchbox(val, callback) {
-    return $('<div class="btn-onoff">').onoff();
+    var onoff = $('<div class="btn-onoff">').onoff();
+    onoff.onoff("value", val);
+    onoff.on("change", function () {
+        callback(onoff.onoff("value"));
+    });
+    return onoff;
 }
 
 PageNetworkIpSettings.prototype = {
@@ -2424,6 +2428,9 @@ PageNetworkIpSettings.prototype = {
                                         text(_("-")).
                                         click(remove(i)))));
                         })));
+
+            // For testing
+            panel.attr("data-field", p);
 
             panel.enable_add = function enable_add(val) {
                 add_btn.prop('disabled', !val);

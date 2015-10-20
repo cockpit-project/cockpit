@@ -157,6 +157,18 @@ class TestNetworking(MachineCase):
         m.execute("nmcli c up '%s'" % id)
         b.wait_in_text("tr:contains('Status')", "10.111.")
 
+        # Switch off automatic DNS
+        b.click("tr:contains('IPv4') button")
+        b.wait_popup("network-ip-settings-dialog")
+        b.wait_text("#network-ip-settings-dialog [data-field='dns'] .btn.active", "On")
+        b.click("#network-ip-settings-dialog [data-field='dns'] .btn:contains('Off')")
+        # The "DNS Search Domains" setting should follow suit
+        b.wait_text("#network-ip-settings-dialog [data-field='dns_search'] .btn.active", "Off")
+        b.click("#network-ip-settings-dialog button:contains('Apply')")
+        b.wait_popdown("network-ip-settings-dialog")
+
+        self.assertIn("yes", m.execute("nmcli -f ipv4.ignore-auto-dns c s '%s'" % id))
+
     def testBond(self):
         b = self.browser
         m = self.machine

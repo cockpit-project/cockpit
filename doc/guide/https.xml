@@ -27,10 +27,38 @@
 
     <para>Cockpit will load a certificate from the <code>/etc/cockpit/ws-certs.d</code>
       directory. It will use the first file with a <code>.cert</code> extension in
-      alphabetical order.</para>
+      alphabetical order. The <literal>.cert</literal> file should contain at least two
+      OpenSSL style PEM blocks. First one or more <literal>BEGIN CERTIFICATE</literal>
+      blocks for the server certificate and the intermediate certificate authorities
+      and a last one containing a <literal>BEGIN PRIVATE KEY</literal> or similar.
+      The key may not be encrypted. For example:</para>
+<programlisting>
+-----BEGIN CERTIFICATE-----
+MIIDUzCCAjugAwIBAgIJAPXW+CuNYS6QMA0GCSqGSIb3DQEBCwUAMD8xKTAnBgNV
+BAoMIGI0OGE2NGNkNmMwNTQ1YThhZTgxOTEzZDE5YmJjMmRjMRIwEAYDVQQDDAls
+...
+-----END CERTIFICATE-----
+-----BEGIN CERTIFICATE-----
+MIIDUzCCAjugAwIBAgIJAPXW+CuNYS6QMA0GCSqGSIb3DQEBCwUAMD8xKTAnBgNV
+BAoMIGI0OGE2NGNkNmMwNTQ1YThhZTgxOTEzZDE5YmJjMmRjMRIwEAYDVQQDDAls
+...
+-----END CERTIFICATE-----
+-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCyOJ5garOYw0sm
+8TBCDSqQ/H1awGMzDYdB11xuHHsxYS2VepPMzMzryHR137I4dGFLhvdTvJUH8lUS
+...
+-----END PRIVATE KEY-----
+</programlisting>
 
-    <para>If no certificate is found, a self-signed certificate is created.</para>
+    <para>If no certificate is found, a self-signed certificate is created. using the
+      <code>openssl</code> command and stored in the
+      <filename>~self-signed.cert</filename> file.</para>
 
+    <para>To check which certificate <code>cockpit-ws</code> will use run
+      the following command.</para>
+<programlisting>
+$ sudo remotectl certificate
+</programlisting>
   </section>
 
   <section id="https-compat">

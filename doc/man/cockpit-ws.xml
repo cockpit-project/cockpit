@@ -70,12 +70,19 @@
       drop a file with the extension <literal>.cert</literal> in the
       <filename>/etc/cockpit/ws-certs.d</filename> directory. If there are
       multiple files in this directory, then the highest priority one
-      is chosen after sorting. If there is no TLS certificate, a
-      self-signed certificate is automatically generated using the
-      <command>/etc/pki/tls/certs/make-dummy-cert</command> command
-      and stored in
-      <filename>/etc/cockpit/ws-certs.d/~self-signed.cert</filename>.
-    </para>
+      is chosen after sorting.</para>
+    <para>The <literal>.cert</literal> file should contain at least two
+      OpenSSL style PEM blocks. First one or more <literal>BEGIN CERTIFICATE</literal>
+      blocks for the server certificate and intermediate certificate authorities
+      and a last one containing a <literal>BEGIN PRIVATE KEY</literal> or similar.
+      The key may not be encrypted.</para>
+    <para>If there is no TLS certificate, a self-signed certificate is
+      automatically generated using <command>openssl</command> and stored in
+      the <filename>~self-signed.cert</filename> file. To check which certificate
+      <command>cockpit-ws</command> will use run the following command.</para>
+<programlisting>
+$ sudo remotectl certificate
+</programlisting>
   </refsect1>
 
   <refsect1>

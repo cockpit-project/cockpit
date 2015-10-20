@@ -394,6 +394,26 @@ class Browser:
     def kill(self):
         self.phantom.kill()
 
+class InterceptResult(object):
+    def __init__(self, original, problems):
+        self.original = original
+        self.problems = problems
+
+    def __getattr__(self, name):
+        return getattr(self.original, name)
+
+    def addError(self, test, err):
+        self.problems.append(self._exc_info_to_string(err, test))
+        self.original.addError(test, err)
+
+    def addFailure(self, test, err):
+        self.problems.append(self._exc_info_to_string(err, test))
+        self.original.addFailure(test, err)
+
+    def addUnexpectedSuccess(self, test):
+        self.problems.append("Unexpected success: " + str(test))
+        self.original.addFailure(test, err)
+
 class MachineCase(unittest.TestCase):
     runner = None
     machine_class = testvm.VirtMachine
@@ -415,6 +435,28 @@ class MachineCase(unittest.TestCase):
         self.addCleanup(lambda: browser.kill())
         return browser
 
+    def run(self, result=None):
+        orig_result = result
+
+        # We need a result to intercept, so create one here
+        if result is None:
+            result = self.defaultTestResult()
+            startTestRun = getattr(result, 'startTestRun', None)
+            if startTestRun is not None:
+                startTestRun()
+
+        # Intercept all problems into our own array for use in tearDown()
+        self.problems = [ ]
+        intercept = InterceptResult(result, self.problems)
+        super(MachineCase, self).run(intercept)
+        self.problems = None
+
+        # Standard book keeping that we have to do
+        if orig_result is None:
+            stopTestRun = getattr(result, 'stopTestRun', None)
+            if stopTestRun is not None:
+                stopTestRun()
+
     def setUp(self, macaddr=None):
         self.machine = self.new_machine()
         self.machine.start(macaddr=macaddr)
@@ -425,14 +467,13 @@ class MachineCase(unittest.TestCase):
         self.tmpdir = tempfile.mkdtemp()
 
     def tearDown(self):
-        if self.result and not self.result.wasSuccessful():
+        problems = getattr(self, "problems", None)
+        if problems and len(problems):
             self.snapshot("FAIL")
             self.copy_journal("FAIL")
             if arg_sit_on_failure:
-                for f in self.result.failures:
-                    print >> sys.stderr, f[1]
-                for e in self.result.errors:
-                    print >> sys.stderr, e[1]
+                for tb in problems:
+                    print >> sys.stderr, tb
                 print >> sys.stderr, "ADDRESS: %s" % self.machine.address
                 sit()
         elif self.machine.address:
@@ -678,7 +719,6 @@ class TapResult(unittest.TestResult):
 
     def startTest(self, test):
         self.offset += 1
-        test.result = self
         sys.stdout.write("# {0}\n# {1}\n#\n".format('-' * 70, str(test)))
         super(TapResult, self).startTest(test)
 

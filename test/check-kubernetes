@@ -190,6 +190,7 @@ class TestKubernetes(KubernetesCase):
         def line_sel(i):
             return '#terminal .terminal div:nth-child(%d)' % i
 
+        b.wait_present("#content .listing-panel li a:contains('Shell')")
         b.click("#content .listing-panel li a:contains('Shell')")
         b.wait_present(".listing-panel div.terminal")
         b.wait_visible(".listing-panel div.terminal")

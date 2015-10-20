@@ -10,8 +10,9 @@
         <a ng-click="tab('main', $event)" translatable="yes">Container</a></li>
         <li ng-class="{active: tab('logs')}">
             <a ng-click="tab('logs', $event); connect('console')" translatable="yes">Logs</a></li>
-        <li ng-class="{active: tab('shell')}" ng-if="container.status.state.running">
-            <a ng-click="tab('shell', $event); connect('shell')" translatable="yes">Shell</a></li>
+        <li ng-class="{active: tab('shell')}"
+            ng-if="item.status.phase == 'Running' && container.status.state.running">
+                <a ng-click="tab('shell', $event); connect('shell')" translatable="yes">Shell</a></li>
     </ul>
 </div>
 <div class="listing-body" ng-show="tab('main')">
@@ -22,7 +23,8 @@
         container="{{container.spec.name}}">
     </kube-console>
 </div>
-<div class="listing-body" ng-show="tab('shell') && container.status.state.running">
+<div class="listing-body" ng-show="tab('shell')"
+    ng-if="item.status.phase == 'Running' && container.status.state.running">
     <kube-shell namespace="{{item.metadata.namespace}}" pod="{{item.metadata.name}}"
         container="{{container.spec.name}}">
     </kube-shell>

@@ -329,7 +329,7 @@ define([
 
         var write_plot_data = {
             direct: "disk.dev.write_bytes",
-            internal: "block.device.write",
+            internal: "block.device.written",
             units: "bytes",
             derive: "rate",
             threshold: 1000

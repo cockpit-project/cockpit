@@ -83,6 +83,7 @@ define([
         });
 
         var blob, parser, scheme = { port: 8080, headers: { } };
+        scheme.kubeconfig = data;
 
         if (cluster) {
             if (cluster.server) {
@@ -117,7 +118,37 @@ define([
         return scheme;
     }
 
+    function version_compare(v1, v2) {
+        var v1l = v1.split('.');
+        var v2l = v2.split('.');
+
+        function isNumber(x) {
+            return (/^\d+$/).test(x);
+        }
+        if (!v1l.every(isNumber) || !v2l.every(isNumber))
+            return NaN;
+
+        v1l = v1l.map(Number);
+        v2l = v2l.map(Number);
+
+        for (var i = 0; i < v1l.length; ++i) {
+            if (v2l.length == i)
+                return 1;
+            if (v1l[i] == v2l[i])
+                continue;
+            else if (v1l[i] > v2l[i])
+                return 1;
+            else
+                return -1;
+        }
+        if (v1l.length != v2l.length)
+            return -1;
+
+        return 0;
+    }
+
     return {
         'parse_scheme': parse_scheme,
+        'version_compare': version_compare,
     };
 });

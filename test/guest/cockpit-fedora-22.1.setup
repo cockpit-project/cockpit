@@ -3,7 +3,7 @@
 set -ex
 
 # docker images that we need for integration testing
-systemctl start docker
+time systemctl start docker
 docker pull busybox:latest
 docker pull busybox:buildroot-2014.02
 docker pull submod/helloapache

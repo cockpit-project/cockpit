@@ -514,6 +514,7 @@ define([
 
         function step() {
             var scheme = schemes.shift();
+            var kubeconfig = null;
 
             /* No further ports to try? */
             if (!scheme) {
@@ -521,6 +522,10 @@ define([
                 ex.problem = "not-found";
                 dfd.reject(ex);
                 return;
+            }
+            if (scheme.kubeconfig) {
+                kubeconfig = scheme.kubeconfig;
+                scheme.kubeconfig = null;
             }
 
             var http = cockpit.http(scheme.port, scheme);
@@ -552,6 +557,7 @@ define([
                     if (response && response.versions) {
                         aux.always(function() {
                             response.flavor = openshift ? "openshift" : "kubernetes";
+                            response.kubeconfig = kubeconfig;
                             dfd.resolve(http, response);
                         });
 
@@ -720,6 +726,7 @@ define([
         self.objects = { };
         self.resourceVersion = null;
         self.flavor = null;
+        self.config = null;
 
         /* Holds the connect api promise */
         var connected;
@@ -749,6 +756,7 @@ define([
                 connected = connect_api_server()
                     .done(function(http, response) {
                         self.flavor = response.flavor;
+                        self.config = response.kubeconfig;
                         for (var type in self.watches)
                             self.watches[type].start(http);
                     })

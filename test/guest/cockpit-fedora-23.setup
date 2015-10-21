@@ -73,6 +73,8 @@ dnf -y upgrade dnf
 dnf -y upgrade
 dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
+dnf -y reinstall docker-selinux
+
 # docker images that we need for integration testing
 systemctl start docker
 docker pull busybox:latest

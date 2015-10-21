@@ -1044,6 +1044,69 @@ test_bad_origin (TestCase *test,
 
 
 static void
+test_auth_results (TestCase *test,
+                   gconstpointer data)
+{
+  WebSocketConnection *ws;
+  GBytes *received = NULL;
+  CockpitWebService *service;
+  JsonObject *options;
+  JsonObject *auth_results;
+  GBytes *payload;
+  gchar *ochannel = NULL;
+  const gchar *channel;
+  const gchar *command;
+
+  /* Fail to spawn this program */
+  cockpit_ws_bridge_program = "/nonexistant";
+
+  start_web_service_and_connect_client (test, data, &ws, &service);
+  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+  g_signal_handlers_disconnect_by_func (ws, on_error_not_reached, NULL);
+
+  /* Should get an init message */
+  while (received == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  expect_control_message (received, "init", NULL, NULL);
+  g_bytes_unref (received);
+  received = NULL;
+
+  /* Channel should close immediately */
+  WAIT_UNTIL (received != NULL);
+
+  /* Should have auth methods details */
+  payload = cockpit_transport_parse_frame (received, &ochannel);
+  g_bytes_unref (received);
+  received = NULL;
+
+  g_assert (payload != NULL);
+  g_free (ochannel);
+
+  g_assert (cockpit_transport_parse_command (payload, &command, &channel, &options));
+  g_bytes_unref (payload);
+
+  g_assert_cmpstr (command, ==, "close");
+  g_assert_cmpstr (json_object_get_string_member (options, "problem"), ==, "no-cockpit");
+
+  auth_results = json_object_get_object_member (options, "auth-method-results");
+  g_assert (auth_results != NULL);
+
+  if (json_object_has_member (auth_results, "public-key"))
+    g_assert_cmpstr ("denied", ==,
+                     json_object_get_string_member (auth_results, "public-key"));
+
+  g_assert_cmpstr ("succeeded", ==,
+                   json_object_get_string_member (auth_results, "password"));
+  g_assert_cmpstr ("no-server-support", ==,
+                   json_object_get_string_member (auth_results, "gssapi-mic"));
+
+  json_object_unref (options);
+  g_bytes_unref (received);
+
+  close_client_and_stop_web_service (test, ws, service);
+}
+
+static void
 test_fail_spawn (TestCase *test,
                  gconstpointer data)
 {
@@ -1532,6 +1595,9 @@ main (int argc,
               &fixture_allowed_origin_hixie76, setup_for_socket,
               test_handshake_and_auth, teardown_for_socket);
 
+  g_test_add ("/web-service/auth-results", TestCase,
+              NULL, setup_for_socket,
+              test_auth_results, teardown_for_socket);
   g_test_add ("/web-service/fail-spawn/rfc6455", TestCase,
               &fixture_rfc6455, setup_for_socket,
               test_fail_spawn, teardown_for_socket);

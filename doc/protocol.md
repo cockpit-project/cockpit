@@ -153,8 +153,30 @@ channel is considered closed.
 
 See below for a list of problem codes.
 
-Other fields may be present in a close message.
+When a channel closing is the result of a ssh transport closing cockpit-ws
+reports on the authentication methods used while attempting to authenticate
+by adding a "auth-method-results" object to the close object. This is mainly
+useful to provide helpful error messages and suggestions to users.
 
+The "auth-method-results" object contains a key for each method that cockpit-ws
+is able to atempt authentication with as well as the result of the atempt.
+For example:
+
+    {
+        "password": "denied"
+    }
+
+This possible "result" values are:
+
+ * "no-server-support": The target server does not support this method.
+ * "not-provided": cockpit-ws doesn't have a credential to try so this method was skipped.
+ * "succeeded": Authentication with this method was successful.
+ * "denied": Authentication with this method was denied.
+ * "partial": The server wants more authentication.
+ * "error": Unexpected error occured when using this method.
+ * "not-tried": This methods was not tried, usually due to an earlier method succeeding.
+
+Other fields may be present in a close message.
 
 Command: done
 -------------

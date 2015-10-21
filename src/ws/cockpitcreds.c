@@ -259,6 +259,24 @@ hex_decode (const gchar *hex,
 }
 
 /**
+ * cockpit_creds_has_gssapi:
+ * @creds: the credentials
+ *
+ * Returns: true if this credentials instance has gssapi credentials
+ * stored. Otherwise false.
+ */
+gboolean
+cockpit_creds_has_gssapi (CockpitCreds *creds)
+{
+  g_return_val_if_fail (creds != NULL, FALSE);
+
+  if (!creds->gssapi_creds || !creds->krb5_ccache_name)
+    return FALSE;
+
+  return TRUE;
+}
+
+/**
  * cockpit_creds_push_thread_default_gssapi:
  * @creds: the credentials
  *

@@ -43,6 +43,8 @@ const gchar *       cockpit_ssh_transport_get_host_key          (CockpitSshTrans
 
 const gchar *       cockpit_ssh_transport_get_host_fingerprint  (CockpitSshTransport *self);
 
+GHashTable *        cockpit_ssh_transport_get_auth_method_results (CockpitSshTransport *self);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_SSH_TRANSPORT_H__ */

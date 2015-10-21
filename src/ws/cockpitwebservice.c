@@ -911,7 +911,8 @@ on_session_closed (CockpitTransport *transport,
             json_object_set_string_member (auth_json, hkey, hvalue);
         }
 
-      if (g_strcmp0 (problem, "unknown-hostkey") == 0 &&
+      if ((g_strcmp0 (problem, "unknown-hostkey") == 0 ||
+           g_strcmp0 (problem, "invalid-hostkey") == 0) &&
            ssh != NULL)
         {
           key = cockpit_ssh_transport_get_host_key (ssh);

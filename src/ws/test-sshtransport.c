@@ -705,7 +705,7 @@ test_expect_bad_key (TestCase *tc,
   while (!problem)
     g_main_context_iteration (NULL, TRUE);
 
-  g_assert_cmpstr (problem, ==, "unknown-hostkey");
+  g_assert_cmpstr (problem, ==, "invalid-hostkey");
 
   g_free (problem);
 }
@@ -736,7 +736,7 @@ test_expect_empty_key (TestCase *tc,
   while (!problem)
     g_main_context_iteration (NULL, TRUE);
 
-  g_assert_cmpstr (problem, ==, "unknown-hostkey");
+  g_assert_cmpstr (problem, ==, "invalid-hostkey");
 
   g_free (problem);
 }

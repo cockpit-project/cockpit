@@ -244,7 +244,7 @@ out:
 static const gchar *
 verify_knownhost (CockpitSshData *data)
 {
-  const gchar *ret = "unknown-hostkey";
+  const gchar *ret = "invalid-hostkey";
   ssh_key key = NULL;
   unsigned char *hash = NULL;
   const char *type = NULL;
@@ -345,6 +345,7 @@ verify_knownhost (CockpitSshData *data)
           g_debug ("Couldn't find the known hosts file");
           /* fall through */
         case SSH_SERVER_NOT_KNOWN:
+          ret = "unknown-hostkey";
           g_message ("%s: %s host key for server is not known: %s",
                      data->logname, type, data->host_fingerprint);
           break;

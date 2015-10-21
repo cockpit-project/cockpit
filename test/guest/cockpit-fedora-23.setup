@@ -68,12 +68,16 @@ echo foobar | passwd --stdin admin
 #
 #     https://bugzilla.redhat.com/show_bug.cgi?id=1211547
 #
-dnf -y upgrade dnf
+# Initially, we disable updates-testing since packages in
+# updates-testing frequently have unsatisfied dependencies.  At the
+# end, we try to update as far as possible towards updates-texting.
+
+dnf -y --disablerepo=updates-testing upgrade dnf
+dnf -y --disablerepo=updates-testing upgrade
+dnf -y --disablerepo=updates-testing install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+dnf -y --disablerepo=updates-testing reinstall docker-selinux
 
 dnf -y upgrade
-dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
-
-dnf -y reinstall docker-selinux
 
 # docker images that we need for integration testing
 systemctl start docker

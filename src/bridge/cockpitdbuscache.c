@@ -420,7 +420,8 @@ dbus_error_matches_unknown (GError *error)
 
 #if GLIB_CHECK_VERSION(2,42,0)
   ret = g_error_matches (error, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_INTERFACE) ||
-        g_error_matches (error, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_OBJECT);
+        g_error_matches (error, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_OBJECT) ||
+        g_error_matches (error, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_PROPERTY);
 #else
 
   gchar *remote = g_dbus_error_get_remote_error (error);
@@ -437,7 +438,8 @@ dbus_error_matches_unknown (GError *error)
        */
       ret = (g_str_equal (remote, "org.freedesktop.DBus.Error.UnknownMethod") ||
              g_str_equal (remote, "org.freedesktop.DBus.Error.UnknownObject") ||
-             g_str_equal (remote, "org.freedesktop.DBus.Error.UnknownInterface"));
+             g_str_equal (remote, "org.freedesktop.DBus.Error.UnknownInterface") ||
+             g_str_equal (remote, "org.freedesktop.DBus.Error.UnknownProperty"));
       g_free (remote);
     }
 #endif
@@ -819,8 +821,16 @@ on_get_reply (GObject *source,
     {
       if (!g_cancellable_is_cancelled (self->cancellable))
         {
-          g_message ("%s: couldn't get property %s %s at %s: %s", self->logname,
-                     gd->iface->name, gd->property, gd->path, error->message);
+          if (dbus_error_matches_unknown (error))
+            {
+              g_debug ("%s: couldn't get property %s %s at %s: %s", self->logname,
+                       gd->iface->name, gd->property, gd->path, error->message);
+            }
+          else
+            {
+              g_message ("%s: couldn't get property %s %s at %s: %s", self->logname,
+                         gd->iface->name, gd->property, gd->path, error->message);
+            }
         }
       g_error_free (error);
     }

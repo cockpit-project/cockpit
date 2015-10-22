@@ -40,11 +40,6 @@ import json
 import signal
 import tempfile
 import unittest
-try:
-    import testvm
-except ImportError:
-    print "Unable to import testvm, probably new test struture?"
-    pass
 
 class Timeout:
     def __init__(self, seconds=1, error_message='Timeout'):
@@ -416,8 +411,8 @@ class InterceptResult(object):
 
 class MachineCase(unittest.TestCase):
     runner = None
-    machine_class = testvm.VirtMachine
     machine = None
+    machine_class = None
     machines = [ ]
 
     def label(self):
@@ -425,6 +420,9 @@ class MachineCase(unittest.TestCase):
         return label.replace(".", "-")
 
     def new_machine(self, flavor=None, system=None):
+        if not self.machine_class:
+            import testvm
+            self.machine_class = testvm.VirtMachine
         m = self.machine_class(verbose=arg_trace, flavor=flavor, system=system, label=self.label())
         self.addCleanup(lambda: m.kill())
         self.machines.append(m)

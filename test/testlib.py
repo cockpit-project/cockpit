@@ -70,6 +70,7 @@ topdir = os.path.normpath(os.path.dirname(__file__))
 
 arg_sit_on_failure = False
 arg_trace = False
+arg_attachments = False
 
 class Browser:
     def __init__(self, address, label):
@@ -384,7 +385,10 @@ class Browser:
             title: Used for the filename.
         """
         if self.phantom:
-            self.phantom.show("{0}-{1}.png".format(label or self.label, title))
+            filename = "{0}-{1}.png".format(label or self.label, title)
+            self.phantom.show(filename)
+            if arg_attachments:
+                shutil.move(filename, arg_attachments)
 
     def kill(self):
         self.phantom.kill()
@@ -622,6 +626,8 @@ systemctl start docker
                 dir = "%s-%s-%s.journal" % (label or self.label(), m.address, title)
                 m.download_dir("/var/log/journal", dir)
                 print "Journal database copied to %s" % (dir)
+                if arg_attachments:
+                    shutil.move(dir, arg_attachments)
 
 some_failed = False
 
@@ -798,6 +804,7 @@ class TapRunner(object):
     def run(self, testable):
         count = testable.countTestCases()
         sys.stdout.write("1..{0}\n".format(count))
+        sys.stdout.flush()
 
         pids = set()
         options = 0
@@ -865,7 +872,7 @@ class TapRunner(object):
         return len(failures)
 
 
-def test_main(suite=None):
+def test_main(argv=None, suite=None, attachments=None):
     """
     Run all test cases, as indicated by 'args'.
 
@@ -877,9 +884,10 @@ def test_main(suite=None):
     global arg_sit_on_failure
 
     # Turn off python stdout buffering
+    sys.stdout.flush()
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
 
-    parser = argparse.ArgumentParser(description='Run Cockpit test')
+    parser = argparse.ArgumentParser(description='Run Cockpit test(s)')
     parser.add_argument('-j', '--jobs', dest="jobs", type=int,
                         default=os.environ.get("TEST_JOBS", 1), help="Number of concurrent jobs")
     parser.add_argument('-v', '--verbose', dest="verbosity", action='store_const',
@@ -892,22 +900,31 @@ def test_main(suite=None):
     parser.add_argument('tests', nargs='*')
 
     parser.set_defaults(verbosity=1)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     if args.sit and args.jobs > 1:
         parser.error("the -s or --sit argument not avalible with multiple jobs")
 
     arg_trace = args.trace
     arg_sit_on_failure = args.sit
+    if attachments:
+        if not os.path.exists(attachments):
+            os.makedirs(attachments)
+        arg_attachments = attachments
 
     import __main__
     if len(args.tests) > 0:
+        if suite:
+            parser.error("tests may not be specified when running a predefined test suite")
         suite = unittest.TestLoader().loadTestsFromNames(args.tests, module=__main__)
     elif not suite:
         suite = unittest.TestLoader().loadTestsFromModule(__main__)
 
     runner = TapRunner(verbosity=args.verbosity, failfast=False, jobs=args.jobs)
-    sys.exit(runner.run(suite))
+    ret = runner.run(suite)
+    if argv:
+        return ret
+    sys.exit(ret)
 
 class Error(Exception):
     def __init__(self, msg):

@@ -38,9 +38,9 @@ import shutil
 import threading
 import time
 
+import testinfra
+
 DEFAULT_FLAVOR="cockpit"
-DEFAULT_OS = "fedora-22"
-DEFAULT_ARCH = "x86_64"
 
 MEMORY_MB = 1024
 
@@ -90,8 +90,8 @@ class Machine:
         else:
             self.conf = { }
 
-        self.os = system or self.getconf('os') or os.environ.get("TEST_OS") or DEFAULT_OS
-        self.arch = arch or os.environ.get("TEST_ARCH") or DEFAULT_ARCH
+        self.os = system or self.getconf('os') or testinfra.OS
+        self.arch = arch or testinfra.ARCH
 
         self.tag = "0"
         tags = self.getconf('tags')

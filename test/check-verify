@@ -1,42 +1,152 @@
 #!/usr/bin/env python
 
-import testlib
-
+import argparse
 import glob
 import imp
 import os
 import string
+import subprocess
 import sys
 import unittest
 
+import testinfra
+
 sys.dont_write_bytecode = True
+BASE = os.path.dirname(__file__)
 
-base = os.path.dirname(__file__)
-loader = unittest.TestLoader()
-suite = unittest.TestSuite()
-
-exclude = [
+EXCLUDE = [
     'check-verify',
     'check-example'
 ]
 
+def start_publishing(github, host, name, revision):
+    identifier = name + "-" + revision[0:8] + "-" + testinfra.OS + "-" + testinfra.ARCH
+    status = {
+        # "irc": { "channel": "#cockpit" },
+        "github": {
+            "resource": github.qualify("statuses/" + revision),
+            "status": {
+                "state": "pending",
+                "context": github.context(),
+                "description": "Testing in progress"
+            }
+        }
+    }
+    return testinfra.Sink(host, identifier, status)
+
+def stop_publishing(sink, count):
+    if count:
+        message = "{0} tests failed".format(count)
+        sink.status["message"] = message
+        sink.status["github"]["status"]["state"] = "failure"
+        sink.status["github"]["status"]["description"] = message
+    else:
+        sink.status["github"]["status"]["state"] = "success"
+        sink.status["github"]["status"]["description"] = "All tests passed"
+    sink.flush()
+
 def check_valid(filename):
     name = os.path.basename(filename)
-    if name in exclude:
+    if name in EXCLUDE:
         return None
     allowed = string.ascii_letters + string.digits + '-_'
     if not all(c in allowed for c in name):
         return None
     return name.replace("-", "_")
 
-# Load all modules that start with check-
-for filename in glob.glob(os.path.join(base, "check-*")):
-    name = check_valid(filename)
-    if not name or not os.path.isfile(filename):
-        continue
-    with open(filename, 'rb') as fp:
-        module = imp.load_module(name, fp, filename, ("", "rb", imp.PY_SOURCE))
-        suite.addTest(loader.loadTestsFromModule(module))
+def main():
+    parser = argparse.ArgumentParser(description='Run Cockpit test suite', add_help=False)
+    parser.add_argument('--publish', dest='publish', action='store',
+                        help='Publish results centrally to a sink')
+    parser.add_argument('--rebase', dest='rebase', action='store_true',
+                        help='Rebase onto master before running tests')
+    parser.add_argument('--github', dest='github', action='store_true',
+                        help='Test something from GitHub')
+    parser.add_argument('--install', dest='install', action='store_true',
+                        help='Build and install Cockpit into test VMs')
+    parser.add_argument('--quick', dest='quick', action='store_true',
+                        help="Build test VMs quicker")
+    parser.add_argument('--clean', dest='clean', action='store_true',
+                        help="Build test VMs from clean state")
+    parser.add_argument('--verbose', dest='verbose', action='store_true',
+                        help="Be verbose about building and running tests")
+    (opts, argv) = parser.parse_known_args()
 
-# And now run all the tests we got
-testlib.test_main(suite)
+    attachments = None
+    revision = None
+    status = { }
+    sink = None
+    name = "test"
+    revision = None
+
+    # In case we need it
+    github = testinfra.GitHub("/repos/cockpit-project/cockpit/")
+
+    if opts.github:
+        sys.stderr.write("Talking to GitHub about {0} ...\n".format(github.context()))
+        for (priority, name, revision) in github.prioritize(opts.publish and True or False):
+            subprocess.check_call([ "git", "fetch", "origin", revision ])
+            subprocess.check_call([ "git", "checkout", revision ])
+            opts.install = True
+            opts.rebase = True
+            break
+        else:
+            parser.error("couldn't find anything to test on GitHub")
+
+    if opts.publish:
+        if not revision:
+            revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
+        sink = start_publishing(github, opts.publish, name, revision)
+        attachments = sink.attachments
+        sys.stderr.write("Testing {0} for {1} ...\n".format(revision, name))
+
+    if opts.rebase:
+        sys.stderr.write("Rebasing onto origin/master ...\n")
+        subprocess.check_call([ "git", "fetch", "origin" ])
+        if sink:
+            master = subprocess.check_output([ "git", "rev-parse", "origin/master" ]).strip()
+            sink.status["master"] = master
+        subprocess.check_call([ "git", "rebase", "origin/master" ])
+
+    if opts.install:
+        sys.stderr.write("Building and installing Cockpit ...\n")
+        cmd = [ "./testsuite-prepare" ]
+        if opts.clean:
+            cmd.append("--clean")
+        if opts.verbose:
+            cmd.append("--verbose")
+        if opts.quick:
+            cmd.append("--quick")
+        subprocess.check_call(cmd, cwd=BASE)
+
+    # Now actually load the tests, any modules that start with "check-*"
+    loader = unittest.TestLoader()
+    suite = unittest.TestSuite()
+    for filename in glob.glob(os.path.join(BASE, "check-*")):
+        name = check_valid(filename)
+        if not name or not os.path.isfile(filename):
+            continue
+        with open(filename, 'rb') as fp:
+            module = imp.load_module(name, fp, filename, ("", "rb", imp.PY_SOURCE))
+            suite.addTest(loader.loadTestsFromModule(module))
+
+    # And now load new testlib, and run all the tests we got
+    import testlib
+    os.chdir(BASE)
+    if opts.verbose:
+        argv.prepend("--verbose")
+    ret = testlib.test_main(argv=argv, suite=suite, attachments=attachments)
+
+    # All done
+    if sink:
+        stop_publishing(sink, ret)
+
+    # This script is always successful in github case
+    if opts.github:
+        return 0
+
+    # But normally we return number of tests failed
+    return ret
+
+if __name__ == '__main__':
+    sys.exit(main())

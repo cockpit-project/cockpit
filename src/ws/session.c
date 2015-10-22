@@ -521,6 +521,7 @@ perform_gssapi (void)
 
   /* We shouldn't be writing to kerberos caches here */
   setenv ("KRB5CCNAME", "FILE:/dev/null", 1);
+  setenv ("KRB5RCACHETYPE", "none", 1);
 
   debug ("reading kerberos auth from cockpit-ws");
   input.value = read_fd_until_eof (AUTH_FD, "gssapi data", &input.length);

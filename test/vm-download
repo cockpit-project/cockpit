@@ -21,8 +21,6 @@
 SELF=vm-download
 . ./testlib.sh
 
-URL=http://files.cockpit-project.org/testdata/images
-
 TEST_DATA=${TEST_DATA:-$PWD}
 
 set -euf
@@ -52,6 +50,13 @@ case ${1:-} in
 	exit 0
 	;;
 esac
+
+if [ -z "${TEST_DATA_URL-}" ]; then
+    echo >&2 "vm-download: TEST_DATA_URL is not set"
+    exit 1
+fi
+
+URL=$TEST_DATA_URL/images
 
 os=$(python -c "import json; print json.load(open('guest/$flavor.conf', 'r'))['os']" 2>/dev/null || true)
 os=${os:-$TEST_OS}

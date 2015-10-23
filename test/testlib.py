@@ -73,8 +73,15 @@ topdir = os.path.normpath(os.path.dirname(__file__))
 
 arg_sit_on_failure = False
 arg_trace = False
-arg_attachments = False
+arg_attachments = None
 arg_revision = None
+
+def attach(filename):
+    if not arg_attachments:
+        return
+    dest = os.path.join(arg_attachments, os.path.basename(filename))
+    if not os.path.exists(dest):
+        shutil.move(filename, dest)
 
 class Browser:
     def __init__(self, address, label):
@@ -391,8 +398,7 @@ class Browser:
         if self.phantom:
             filename = "{0}-{1}.png".format(label or self.label, title)
             self.phantom.show(filename)
-            if arg_attachments:
-                shutil.move(filename, arg_attachments)
+            attach(filename)
 
     def kill(self):
         self.phantom.kill()
@@ -633,14 +639,12 @@ systemctl start docker
                 dir = "%s-%s-%s.journal" % (label or self.label(), m.address, title)
                 m.download_dir("/var/log/journal", dir)
                 print "Journal database copied to %s" % (dir)
-                if arg_attachments:
-                    shutil.move(dir, arg_attachments)
                 log = "%s-%s-%s.log" % (label or self.label(), m.address, title)
                 with open(log, "w") as fp:
                     subprocess.call(["journalctl", "--directory", dir], stdout=fp)
                 print "Journal extracted to %s" % (log)
-                if arg_attachments:
-                    shutil.move(log, arg_attachments)
+                attach(dir)
+                attach(log)
 
 some_failed = False
 

@@ -43,6 +43,7 @@
         /* Graph information */
         var width;
         var height;
+        var radius = 20;
         var timeout;
         var nodes = [];
         var links = [];
@@ -73,7 +74,18 @@
                  .attr("x2", function(d) { return d.target.x; })
                  .attr("y2", function(d) { return d.target.y; });
 
-            vertices.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+            vertices
+                .attr("cx", function(d) {
+                    d.x = d.fixed ? d.x : Math.max(radius, Math.min(width - radius, d.x));
+                    return d.x;
+                })
+                .attr("cy", function(d) {
+                    d.y = d.fixed ? d.y : Math.max(radius, Math.min(height - radius, d.y));
+                    return d.y;
+                })
+                .attr("transform", function(d) {
+                    return "translate(" + d.x + "," + d.y + ")";
+                });
         });
 
         drag
@@ -115,20 +127,6 @@
                 .classed("selected", function(d) { return d.item === item; });
         }
 
-        function icon(d) {
-	    var text;
-	    if (kinds)
-		text = kinds[d.item.kind];
-	    return text || "";
-	}
-
-        function weak(d) {
-	    var status = d.item.status;
-            if (status && status.phase && status.phase !== "Running")
-                return true;
-            return false;
-        }
-
         function adjust() {
             timeout = null;
             width = outer.node().clientWidth;
@@ -149,20 +147,12 @@
             edges.attr("class", function(d) { return d.kinds; });
 
             vertices = svg.selectAll("g")
-                .data(nodes, function(d) { return d.id; })
-                .classed("weak", weak);
+                .data(nodes, function(d) { return d.id; });
 
             vertices.exit().remove();
 
-            var group = vertices.enter().append("g")
-                .attr("class", function(d) { return d.item.kind; })
-                .classed("weak", weak)
+            var added = vertices.enter().append("g")
                 .call(drag);
-
-            group.append("use")
-                .attr("xlink:href", icon);
-            group.append("title")
-                .text(function(d) { return d.item.metadata.name; });
 
             select(selection);
 
@@ -170,6 +160,8 @@
                 .nodes(nodes)
                 .links(links)
                 .start();
+
+            return added;
         }
 
         function digest() {
@@ -218,7 +210,9 @@
             }
 
             if (width && height)
-                update();
+                return update();
+            else
+                return d3.select();
         }
 
         function resized() {
@@ -234,17 +228,15 @@
         return {
             select: select,
             kinds: function(value) {
-                if (arguments.length === 0)
-                    return kinds;
                 kinds = value;
-                digest();
+                var added = digest();
+                return [vertices, added];
             },
 	    data: function(new_items, new_relations) {
-                if (arguments.length === 0)
-                    return [items, relations];
                 items = new_items || { };
                 relations = new_relations || [];
-                digest();
+                var added = digest();
+                return [vertices, added];
             },
             close: function() {
 	        window.removeEventListener('resize', resized);
@@ -287,21 +279,53 @@
                         element.css("display", "block");
 
                         function notify(item) {
-                            $scope.$emit("select", item);
-                            if (!("selection" in attributes))
+                            var event = $scope.$emit("select", item);
+                            if (attributes["selection"] === undefined && !event.defaultPrevented)
 	                        graph.select(item);
                         }
 
+                        function icon(d) {
+                            var text;
+                            var kinds = $scope.kinds;
+                            if (kinds)
+                                text = kinds[d.item.kind];
+                            return text || "";
+                        }
+
+                        function weak(d) {
+                            var status = d.item.status;
+                            if (status && status.phase && status.phase !== "Running")
+                                return true;
+                            return false;
+                        }
+
+                        function title(d) {
+                            return d.item.metadata.name;
+                        }
+
+                        function render(args) {
+                            var vertices = args[0];
+                            var added = args[1];
+                            var event = $scope.$emit("render", vertices, added);
+                            if (!event.defaultPrevented) {
+                                added.attr("class", function(d) { return d.item.kind; });
+                                added.append("use").attr("xlink:href", icon);
+                                added.append("title");
+                                vertices.selectAll("title")
+                                     .text(function(d) { return d.item.metadata.name; });
+                                vertices.classed("weak", weak);
+                            }
+                        }
+
                         var graph = topology_graph(element[0], $scope.force, notify);
-                        graph.kinds($scope.kinds);
 
                         /* If there's a kinds in the current scope, watch it for changes */
                         $scope.$watchCollection("kinds", function(value) {
-                            graph.kinds(value);
+                            render(graph.kinds(value));
                         });
 
                         $scope.$watchCollection('[items, relations]', function(values) {
-                            graph.data(values[0], values[1]);
+                            render(graph.data(values[0], values[1]));
                         });
 
                         /* Watch the selection for changes */
@@ -325,7 +349,7 @@
                     template: "<ng-transclude></ng-transclude>",
                     link: function($scope, element, attrs) {
                         var kind = attrs.kind;
-                        var icon = $scope.kinds[kind];
+                        var value = $scope.kinds[kind];
 
                         $scope.$watchCollection("kinds", function() {
                             element.toggleClass("active", kind in $scope.kinds);
@@ -333,10 +357,10 @@
 
                         element.on("click", function() {
                             if (kind in $scope.kinds) {
-	                        icon = $scope.kinds[kind];
+                                value = $scope.kinds[kind];
                                 delete $scope.kinds[kind];
                             } else {
-                                $scope.kinds[kind] = icon;
+                                $scope.kinds[kind] = value;
                             }
                             if ($scope.$parent)
 	                        $scope.$parent.$digest();

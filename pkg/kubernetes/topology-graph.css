@@ -35,19 +35,8 @@ kubernetes-topology-graph {
 }
 
 .kube-topology g.ReplicationController text {
-    fill: #9467bd;
-    font-size: 24px;
-}
-
-.kube-topology g.Route text {
-    fill: #888;
-    font-size: 22px;
-}
-
-.kube-topology g.DeploymentConfig text {
     font-family: FontAwesome;
-    fill: #888;
-    font-size: 22px;
+    fill: #9467bd;
 }
 
 .kube-topology g circle {
@@ -59,7 +48,8 @@ kubernetes-topology-graph {
     stroke-width: 2px;
 }
 
-.kube-topology g.selected use {
+.kube-topology g.selected use,
+.kube-topology g.selected circle {
     stroke-width: 4px;
 }
 

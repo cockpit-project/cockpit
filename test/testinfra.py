@@ -16,12 +16,14 @@ WHITELIST = "~/.config/github-whitelist"
 
 OS = os.environ.get("TEST_OS", "fedora-22")
 ARCH = os.environ.get("TEST_ARCH", "x86_64")
+TESTING = "Testing in progress"
 
 __all__ = (
     'Sink',
     'GitHub',
     'OS',
-    'ARCH'
+    'ARCH',
+    'TESTING'
 )
 
 class Sink(object):
@@ -90,6 +92,12 @@ class Sink(object):
             raise subprocess.CalledProcessError(ret, "ssh")
         self.ssh = None
 
+def dict_is_subset(full, check):
+    for (key, value) in check:
+        if not key in full or full[key] != value:
+            return False
+    return True
+
 class GitHub(object):
     def __init__(self, base):
         self.base = base
@@ -157,32 +165,28 @@ class GitHub(object):
         master = self.get("git/refs/heads/master")
         context = self.context()
 
+        # Add master with a priority of 11
+        results = [(9, "master", master["object"]["sha"])]
+
         # Load all the pull requests
         for pull in self.get("pulls"):
-            pull["status"] = None
+            state = None
+            last = { }
             for status in self.get("commits/{0}/statuses".format(pull["head"]["sha"])):
                 if status["context"] == context:
-                    pull["status"] = status["state"]
+                    state = status["state"]
+                    last = status
+                    break
+
+            if state in [ "success", "failure" ]:
+                continue
 
             # Pull in the labels for this pull
             labels = []
             for label in self.get("issues/{0}/labels".format(pull["number"])):
                 labels.append(label["name"])
-            pull["labels"] = labels
-            pulls.append(pull)
-
-        results = []
-
-        # Add master with a priority of 11
-        results.append((9, "master", master["object"]["sha"]))
-
-        # Prioritize each of the pull requests
-        for pull in pulls:
-            if pull["status"] in [ "success", "failure" ]:
-                continue
 
             status = { "state": "pending", "description": "Not yet tested", "context": context }
-
             priority = 10
 
             if "priority" in pull["labels"]:
@@ -198,10 +202,14 @@ class GitHub(object):
                 status["description"] = "Manual testing required"
                 priority = 0
 
+            # Is testing already in progress?
+            if last.get("description", None) == TESTING:
+                priority = 0
+
             revision = pull["head"]["sha"]
             number = pull["number"]
 
-            if update:
+            if update and not dict_is_subset(last, status):
                 self.post("statuses/" + revision, status)
 
             if priority > 0:

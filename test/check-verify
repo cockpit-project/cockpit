@@ -155,6 +155,8 @@ def main():
 
         # Nothing to test
         else:
+            if opts.github == "next":
+                return 1
             return 0
 
     # A specific github thing to test

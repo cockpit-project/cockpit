@@ -22,7 +22,7 @@
 # Adapted from create-guest-qcow2.  We don't use that script as is
 # since it is, to quote Mr Parker, "2% code and 98% config stuff".
 
-set -e
+set -ex
 
 if [ "$#" != 3 ]; then
     echo >&2 "Usage: fedora.install IMAGE ARCH URL"

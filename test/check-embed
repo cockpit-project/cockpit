@@ -28,7 +28,7 @@ class TestEmbed(MachineCase):
 
         self.start_cockpit()
 
-        b.open("file://%s/files/embed-cockpit.html" % os.path.realpath(os.path.dirname(__file__)))
+        b.open("file://%s/files/embed-cockpit.html" % os.path.realpath("."))
         b.wait_present("#embed-loaded")
         b.set_val("#embed-address", "http://" + m.address)
         b.click("#embed-full")

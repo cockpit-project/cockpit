@@ -166,7 +166,7 @@ class GitHub(object):
         context = self.context()
 
         # Add master with a priority of 11
-        results = [(9, "master", master["object"]["sha"])]
+        results = [(9, "master", master["object"]["sha"], "master")]
 
         # Load all the pull requests
         for pull in self.get("pulls"):
@@ -208,17 +208,18 @@ class GitHub(object):
 
             revision = pull["head"]["sha"]
             number = pull["number"]
+            ref = "pull/%d/head" % number
 
             if update and not dict_is_subset(last, status):
                 self.post("statuses/" + revision, status)
 
             if priority > 0:
-                results.append((priority, "pull-" + str(number), revision))
+                results.append((priority, "pull-" + str(number), revision, ref))
 
         results.sort(key=lambda v: v[0], reverse=True)
         return results
 
 if __name__ == '__main__':
     github = GitHub("/repos/cockpit-project/cockpit/")
-    for (priority, name, revision) in github.prioritize(True):
+    for (priority, name, revision, ref) in github.prioritize(True):
         sys.stdout.write("{0}: {1} ({2})\n".format(name, revision, priority))

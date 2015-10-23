@@ -28,7 +28,7 @@ def start_publishing(github, host, name, revision):
             "status": {
                 "state": "pending",
                 "context": github.context(),
-                "description": "Testing in progress"
+                "description": testinfra.TESTING
             }
         }
     }

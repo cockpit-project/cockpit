@@ -644,6 +644,8 @@ class VirtMachine(Machine):
         # Unique identifiers for hostnet config
         self._hostnet = 8
 
+        self._domain = None
+
         # init variables needed for running a vm
         self._cleanup()
 
@@ -945,7 +947,7 @@ class VirtMachine(Machine):
 
             self._disks = { }
 
-            if hasattr(self, '_domain') and self._domain:
+            if self._domain:
                 # remove the debug output
                 self.event_handler.forbid_domain_debug_output(self._domain.name())
 
@@ -961,7 +963,7 @@ class VirtMachine(Machine):
     def kill(self):
         # stop system immediately, with potential data loss
         # to shutdown gracefully, use shutdown()
-        if hasattr(self, '_domain') and self._domain:
+        if self._domain:
             try:
                 # not graceful
                 with stdchannel_redirected(sys.stderr, os.devnull):

@@ -740,7 +740,7 @@ class Naughty(object):
                         link = status["target_url"]
 
         # Build a lovely little message
-        data = { "body": "Ooops, it happened again\n```\n" + err.strip() + "\n```\n" + link + "\n" }
+        data = { "body": "Ooops, it happened again\n```\n{0}\n```\n{1}\n".format(err.strip(), link) }
         self.github.post("issues/{0}/comments".format(number), data)
         return True
 
@@ -756,7 +756,7 @@ class Naughty(object):
                 continue
             with open(os.path.join(directory, naughty), "r") as fp:
                 contents = fp.read().strip()
-            if contents == trace or fnmatch.fnmatch(contents, trace):
+            if contents in trace or fnmatch.fnmatch(contents, trace):
                 number = n
         if not number:
             return False

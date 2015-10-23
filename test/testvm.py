@@ -209,6 +209,7 @@ class Machine:
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
+            "-o", "BatchMode=yes",
             "-l", self.vm_username,
             self.address
         ]
@@ -281,7 +282,7 @@ class Machine:
         assert self.address
 
         cmd = [
-            "scp",
+            "scp", "-B",
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
@@ -302,7 +303,7 @@ class Machine:
         assert self.address
 
         cmd = [
-            "scp",
+            "scp", "-B",
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
@@ -321,7 +322,7 @@ class Machine:
         assert self.address
 
         cmd = [
-            "scp",
+            "scp", "-B",
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",

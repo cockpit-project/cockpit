@@ -7,6 +7,7 @@ import os
 import string
 import subprocess
 import sys
+import traceback
 import unittest
 
 import testinfra
@@ -22,7 +23,6 @@ EXCLUDE = [
 def start_publishing(github, host, name, revision):
     identifier = name + "-" + revision[0:8] + "-" + testinfra.OS + "-" + testinfra.ARCH
     status = {
-        # "irc": { "channel": "#cockpit" },
         "github": {
             "resource": github.qualify("statuses/" + revision),
             "status": {
@@ -34,15 +34,20 @@ def start_publishing(github, host, name, revision):
     }
     return testinfra.Sink(host, identifier, status)
 
-def stop_publishing(sink, count):
-    if count:
-        message = "{0} tests failed".format(count)
-        sink.status["message"] = message
+def stop_publishing(sink, ret):
+    if isinstance(ret, basestring):
+        message = ret
         sink.status["github"]["status"]["state"] = "failure"
-        sink.status["github"]["status"]["description"] = message
-    else:
+        # sink.status["irc"] = "#cockpit"
+    elif ret == 0:
+        message = "All tests passed"
         sink.status["github"]["status"]["state"] = "success"
-        sink.status["github"]["status"]["description"] = "All tests passed"
+    else:
+        message = "{0} tests failed".format(ret)
+        sink.status["github"]["status"]["state"] = "failure"
+        # sink.status["irc"] = "#cockpit"
+    sink.status["message"] = message
+    sink.status["github"]["status"]["description"] = message
     sink.flush()
 
 def check_valid(filename):
@@ -54,61 +59,20 @@ def check_valid(filename):
         return None
     return name.replace("-", "_")
 
-def main():
-    parser = argparse.ArgumentParser(description='Run Cockpit test suite', add_help=False)
-    parser.add_argument('--publish', dest='publish', action='store',
-                        help='Publish results centrally to a sink')
-    parser.add_argument('--rebase', dest='rebase', action='store_true',
-                        help='Rebase onto master before running tests')
-    parser.add_argument('--github', dest='github', action='store_true',
-                        help='Test something from GitHub')
-    parser.add_argument('--install', dest='install', action='store_true',
-                        help='Build and install Cockpit into test VMs')
-    parser.add_argument('--quick', dest='quick', action='store_true',
-                        help="Build test VMs quicker")
-    parser.add_argument('--clean', dest='clean', action='store_true',
-                        help="Build test VMs from clean state")
-    parser.add_argument('--verbose', dest='verbose', action='store_true',
-                        help="Be verbose about building and running tests")
-    (opts, argv) = parser.parse_known_args()
-
-    attachments = None
-    revision = None
-    status = { }
-    sink = None
-    name = "test"
-    revision = None
-
-    # In case we need it
-    github = testinfra.GitHub("/repos/cockpit-project/cockpit/")
-
-    if opts.github:
-        sys.stderr.write("Talking to GitHub about {0} ...\n".format(github.context()))
-        for (priority, name, revision) in github.prioritize(opts.publish and True or False):
-            subprocess.check_call([ "git", "fetch", "origin", revision ])
-            subprocess.check_call([ "git", "checkout", revision ])
-            opts.install = True
-            opts.rebase = True
-            break
-        else:
-            parser.error("couldn't find anything to test on GitHub")
-
-    if opts.publish:
-        if not revision:
-            revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
-        sink = start_publishing(github, opts.publish, name, revision)
-        attachments = sink.attachments
-        sys.stderr.write("Testing {0} for {1} ...\n".format(revision, name))
-
-    if opts.rebase:
+def rebase(sink):
+    try:
         sys.stderr.write("Rebasing onto origin/master ...\n")
         subprocess.check_call([ "git", "fetch", "origin" ])
         if sink:
             master = subprocess.check_output([ "git", "rev-parse", "origin/master" ]).strip()
             sink.status["master"] = master
         subprocess.check_call([ "git", "rebase", "origin/master" ])
+    except:
+        traceback.print_exc()
+        raise RuntimeError("Rebase failed")
 
-    if opts.install:
+def install(opts):
+    try:
         sys.stderr.write("Building and installing Cockpit ...\n")
         cmd = [ "./testsuite-prepare" ]
         if opts.clean:
@@ -118,6 +82,15 @@ def main():
         if opts.quick:
             cmd.append("--quick")
         subprocess.check_call(cmd, cwd=BASE)
+    except:
+        traceback.print_exc()
+        raise RuntimeError("Install failed")
+
+def step(opts, argv, sink):
+    if opts.rebase:
+        rebase(sink)
+    if opts.install:
+        install(opts)
 
     # Now actually load the tests, any modules that start with "check-*"
     loader = unittest.TestLoader()
@@ -130,12 +103,81 @@ def main():
             module = imp.load_module(name, fp, filename, ("", "rb", imp.PY_SOURCE))
             suite.addTest(loader.loadTestsFromModule(module))
 
-    # And now load new testlib, and run all the tests we got
-    import testlib
     os.chdir(BASE)
     if opts.verbose:
-        argv.prepend("--verbose")
-    ret = testlib.test_main(argv=argv, suite=suite, attachments=attachments)
+        argv.insert(0, "--verbose")
+
+    # And now load new testlib, and run all the tests we got
+    import testlib
+    attachments = sink and sink.attachments or None
+    return testlib.test_main(argv=argv, suite=suite, attachments=attachments)
+
+def main():
+    parser = argparse.ArgumentParser(description='Run Cockpit test suite', add_help=False)
+    parser.add_argument('--publish', dest='publish', action='store',
+                        help='Publish results centrally to a sink')
+    parser.add_argument('--rebase', dest='rebase', action='store_true',
+                        help='Rebase onto master before running tests')
+    parser.add_argument('--github', dest='github', action='store',
+                        help='Test something from GitHub (next, scan, NNNN)')
+    parser.add_argument('--install', dest='install', action='store_true',
+                        help='Build and install Cockpit into test VMs')
+    parser.add_argument('--quick', dest='quick', action='store_true',
+                        help="Build test VMs quicker")
+    parser.add_argument('--clean', dest='clean', action='store_true',
+                        help="Build test VMs from clean state")
+    parser.add_argument('--verbose', dest='verbose', action='store_true',
+                        help="Be verbose about building and running tests")
+    (opts, argv) = parser.parse_known_args()
+
+    revision = None
+    status = { }
+    sink = None
+    name = "test"
+    revision = None
+
+    # In case we need it
+    github = testinfra.GitHub()
+
+    # These are implied
+    if opts.github:
+        opts.install = True
+        opts.rebase = True
+
+    # When letting github decide what to test
+    if opts.github in [ "next", "scan" ]:
+        sys.stderr.write("Talking to GitHub about {0} ...\n".format(github.context()))
+        for (priority, name, revision) in github.prioritize(opts.publish):
+            if opts.github == "scan":
+                return 0 # Only scanning, no tests
+
+            # Get the relevant commit
+            subprocess.check_call([ "git", "fetch", "origin", revision ])
+            subprocess.check_call([ "git", "checkout", revision ])
+            break
+
+        # Nothing to test
+        else:
+            return 0
+
+    # A specific github thing to test
+    elif opts.github:
+        name = opts.github.replace("/", "-")
+        subprocess.check_call([ "git", "fetch", "origin", opts.github ])
+        subprocess.check_call([ "git", "checkout", "FETCH_HEAD" ])
+
+    if opts.publish:
+        if not revision:
+            revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
+        sink = start_publishing(github, opts.publish, name, revision)
+
+    sys.stderr.write("Testing {0} for {1} ...\n".format(revision, name))
+
+    try:
+        ret = step(opts, argv, sink)
+    except RuntimeError as exc:
+        ret = exc.args[0]
+        sys.stderr.write(ret + "\n")
 
     # All done
     if sink:

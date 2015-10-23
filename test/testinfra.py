@@ -93,13 +93,13 @@ class Sink(object):
         self.ssh = None
 
 def dict_is_subset(full, check):
-    for (key, value) in check:
+    for (key, value) in check.items():
         if not key in full or full[key] != value:
             return False
     return True
 
 class GitHub(object):
-    def __init__(self, base):
+    def __init__(self, base="/repos/cockpit-project/cockpit/"):
         self.base = base
         self.conn = None
         self.token = None
@@ -189,11 +189,11 @@ class GitHub(object):
             status = { "state": "pending", "description": "Not yet tested", "context": context }
             priority = 10
 
-            if "priority" in pull["labels"]:
+            if "priority" in labels:
                 priority += 2
-            if "needsdesign" in pull["labels"]:
+            if "needsdesign" in labels:
                 priority -= 2
-            if "needswork" in pull["labels"]:
+            if "needswork" in labels:
                 priority -= 3
 
             # It needs to be in the whitelist

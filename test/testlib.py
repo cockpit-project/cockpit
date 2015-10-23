@@ -394,29 +394,33 @@ class Browser:
         self.phantom.kill()
 
 class InterceptResult(object):
-    def __init__(self, original, problems):
+    def __init__(self, original, func):
         self.original = original
-        self.problems = problems
+        self.func = func
 
     def __getattr__(self, name):
         return getattr(self.original, name)
 
     def addError(self, test, err):
-        self.problems.append(self._exc_info_to_string(err, test))
+        func = self.func
+        func(test, self._exc_info_to_string(err, test))
         self.original.addError(test, err)
 
     def addFailure(self, test, err):
-        self.problems.append(self._exc_info_to_string(err, test))
+        func = self.func
+        func(test, self._exc_info_to_string(err, test))
         self.original.addFailure(test, err)
 
     def addUnexpectedSuccess(self, test):
-        self.problems.append("Unexpected success: " + str(test))
+        func = self.func
+        func(test, "Unexpected success: " + str(test))
         self.original.addFailure(test, err)
 
 class MachineCase(unittest.TestCase):
     runner = None
     machine = None
     machine_class = None
+    browser = None
     machines = [ ]
 
     def label(self):
@@ -447,11 +451,18 @@ class MachineCase(unittest.TestCase):
             if startTestRun is not None:
                 startTestRun()
 
-        # Intercept all problems into our own array for use in tearDown()
-        self.problems = [ ]
-        intercept = InterceptResult(result, self.problems)
+        def intercept(test, err):
+            self.failed = True
+            self.snapshot("FAIL")
+            self.copy_journal("FAIL")
+            if arg_sit_on_failure:
+                print >> sys.stderr, err
+                if self.machine:
+                    print >> sys.stderr, "ADDRESS: %s" % self.machine.address
+                sit()
+
+        intercept = InterceptResult(result, intercept)
         super(MachineCase, self).run(intercept)
-        self.problems = None
 
         # Standard book keeping that we have to do
         if orig_result is None:
@@ -469,16 +480,7 @@ class MachineCase(unittest.TestCase):
         self.tmpdir = tempfile.mkdtemp()
 
     def tearDown(self):
-        problems = getattr(self, "problems", None)
-        if problems and len(problems):
-            self.snapshot("FAIL")
-            self.copy_journal("FAIL")
-            if arg_sit_on_failure:
-                for tb in problems:
-                    print >> sys.stderr, tb
-                print >> sys.stderr, "ADDRESS: %s" % self.machine.address
-                sit()
-        elif self.machine.address:
+        if not getattr(self, "failed", False) and self.machine.address:
             self.check_journal_messages()
         shutil.rmtree(self.tmpdir)
 
@@ -618,7 +620,8 @@ systemctl start docker
         Arguments:
             title: Used for the filename.
         """
-        self.browser.snapshot(title, label)
+        if self.browser is not None:
+            self.browser.snapshot(title, label)
 
     def copy_journal(self, title, label=None):
         for m in self.machines:

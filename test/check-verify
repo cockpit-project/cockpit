@@ -13,7 +13,6 @@ import unittest
 import testinfra
 
 sys.dont_write_bytecode = True
-BASE = os.path.dirname(__file__)
 
 EXCLUDE = [
     'check-verify',
@@ -81,7 +80,7 @@ def install(opts):
             cmd.append("--verbose")
         if opts.quick:
             cmd.append("--quick")
-        subprocess.check_call(cmd, cwd=BASE)
+        subprocess.check_call(cmd)
     except:
         traceback.print_exc()
         raise RuntimeError("Install failed")
@@ -95,7 +94,7 @@ def step(opts, argv, sink):
     # Now actually load the tests, any modules that start with "check-*"
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
-    for filename in glob.glob(os.path.join(BASE, "check-*")):
+    for filename in glob.glob("check-*"):
         name = check_valid(filename)
         if not name or not os.path.isfile(filename):
             continue
@@ -103,14 +102,12 @@ def step(opts, argv, sink):
             module = imp.load_module(name, fp, filename, ("", "rb", imp.PY_SOURCE))
             suite.addTest(loader.loadTestsFromModule(module))
 
-    os.chdir(BASE)
     if opts.verbose:
         argv.insert(0, "--verbose")
 
     # And now load new testlib, and run all the tests we got
     import testlib
-    attachments = sink and sink.attachments or None
-    return testlib.test_main(argv=argv, suite=suite, attachments=attachments)
+    return testlib.test_main(argv=argv, suite=suite)
 
 def main():
     parser = argparse.ArgumentParser(description='Run Cockpit test suite', add_help=False)
@@ -169,8 +166,11 @@ def main():
     if not revision:
         revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
 
+    os.chdir(os.path.dirname(__file__))
+
     if opts.publish:
         sink = start_publishing(github, opts.publish, name, revision)
+        os.environ["TEST_ATTACHMENTS"] = sink.attachments
 
     # Tell any subprocesses what we are testing
     os.environ["TEST_REVISION"] = revision

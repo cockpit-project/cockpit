@@ -627,7 +627,6 @@ class VirtMachine(Machine):
         self._checksum_original = os.path.join(self._images_dir, "%s-checksum" % (self.image))
 
         self._network_description = etree.parse(open("./guest/network-cockpit.xml"))
-        self._fixed_mac_flavors = self._get_fixed_mac_flavors()
 
         # it is ESSENTIAL to register the default implementation of the event loop before opening a connection
         # otherwise messages may be delayed or lost
@@ -701,30 +700,46 @@ class VirtMachine(Machine):
         resource = resource.replace("/", "_")
         return os.path.join(resources, resource)
 
-    def _get_fixed_mac_flavors(self):
-        flavors = []
-        for h in self._network_description.find(".//dhcp"):
-            flavor = h.get("{urn:cockpit-project.org:cockpit}flavor")
-            if flavor and not flavor in flavors:
-                flavors = flavors + [ flavor ]
-        return flavors
+    # The lock is open until the process calling this function exits
+    def _lock_resource(self, resource, exclusive=True):
+        resources = os.path.join(tempfile.gettempdir(), ".cockpit-test-resources")
+        if not os.path.exists(resources):
+            os.mkdir(resources, 0755)
+        lockpath = self._resource_lockfile_path(resource)
+        fd = os.open(lockpath, os.O_WRONLY | os.O_CREAT)
+        try:
+            flags = fcntl.LOCK_NB
+            if exclusive:
+                flags |= fcntl.LOCK_EX
+            else:
+                flags |= fcntl.LOCK_SH
+            fcntl.flock(fd, flags)
+        except IOError, ex:
+            os.close(fd)
+            return False
+        else:
+            return True
 
     def _choose_macaddr(self):
-        # only return a mac address if we have defined some for this flavor in the network definition
-        if self.flavor not in self._fixed_mac_flavors:
-            return None
-        macaddrs = []
+        mac = None
+
+        # Check if this has a forced mac address
         for h in self._network_description.find(".//dhcp"):
-            macaddr = h.get("mac")
             flavor = h.get("{urn:cockpit-project.org:cockpit}flavor")
             if flavor == self.flavor:
-                macaddrs = [ macaddr ]
-                break
-            elif not flavor:
-                macaddrs.append(macaddr)
-        for macaddr in macaddrs:
-            if macaddr:
-                return macaddr
+                mac = h.get("mac")
+                if mac:
+                    return mac
+
+        # Now try to lock that address
+        for seed in range(1, 64 * 1024):
+            if not mac:
+                mac = "9E00%08x" % seed
+                mac = ":".join([mac[i:i+2] for i in range(0, len(mac), 2)])
+            if self._lock_resource(mac):
+                return mac
+            mac = None
+
         raise Failure("Couldn't find unused mac address for '%s'" % (self.flavor))
 
     def _start_qemu(self, maintain=False, macaddr=None, wait_for_ip=True):

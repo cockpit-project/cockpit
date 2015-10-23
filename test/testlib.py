@@ -871,11 +871,12 @@ class TapRunner(object):
             offset += test.countTestCases()
 
         join_some(0)
-        if len(failures):
-            sys.stdout.write("# TESTS FAILED\n")
+        count = len(failures)
+        if count:
+            sys.stdout.write("# {0} TESTS FAILED\n".format(count))
         else:
             sys.stdout.write("# TESTS PASSED\n")
-        return len(failures)
+        return count
 
 
 def test_main(argv=None, suite=None, attachments=None):

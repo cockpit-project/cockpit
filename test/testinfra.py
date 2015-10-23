@@ -112,6 +112,7 @@ class GitHub(object):
                 pass
             else:
                 raise
+        self.available = self.token and True or False
 
     def context(self):
         return "test/" + OS + "/" + ARCH
@@ -131,13 +132,18 @@ class GitHub(object):
         self.conn.request(method, self.qualify(resource), data, headers)
         response = self.conn.getresponse()
         output = response.read()
-        if response.status < 200 or response.status >= 300:
+        if method == "GET" and response.status == 404:
+            return ""
+        elif response.status < 200 or response.status >= 300:
             sys.stderr.write(output)
             raise Exception("GitHub API problem: {0}".format(response.reason or response.status))
         return output
 
     def get(self, resource):
-        return json.loads(self.request("GET", resource))
+        output = self.request("GET", resource)
+        if not output:
+            return None
+        return json.loads(output)
 
     def post(self, resource, data):
         headers = { "Content-Type": "application/json" }
@@ -160,7 +166,8 @@ class GitHub(object):
         # The whitelist defaults to the current user
         if whitelist is None:
             user = self.get("/user")
-            whitelist = [ user["login"] ]
+            if user:
+                whitelist = [ user["login"] ]
 
         master = self.get("git/refs/heads/master")
         context = self.context()
@@ -172,11 +179,13 @@ class GitHub(object):
         for pull in self.get("pulls"):
             state = None
             last = { }
-            for status in self.get("commits/{0}/statuses".format(pull["head"]["sha"])):
-                if status["context"] == context:
-                    state = status["state"]
-                    last = status
-                    break
+            statuses = self.get("commits/{0}/statuses".format(pull["head"]["sha"]))
+            if statuses:
+                for status in statuses:
+                    if status["context"] == context:
+                        state = status["state"]
+                        last = status
+                        break
 
             if state in [ "success", "failure" ]:
                 continue

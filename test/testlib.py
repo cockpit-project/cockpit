@@ -25,6 +25,7 @@ from time import sleep
 from urlparse import urlparse
 
 import argparse
+import fnmatch
 import subprocess
 import os
 import atexit
@@ -40,6 +41,8 @@ import json
 import signal
 import tempfile
 import unittest
+
+import testinfra
 
 class Timeout:
     def __init__(self, seconds=1, error_message='Timeout'):
@@ -71,6 +74,7 @@ topdir = os.path.normpath(os.path.dirname(__file__))
 arg_sit_on_failure = False
 arg_trace = False
 arg_attachments = False
+arg_revision = None
 
 class Browser:
     def __init__(self, address, label):
@@ -708,9 +712,63 @@ class Phantom:
             self._driver = None
 
 
+class Naughty(object):
+    def __init__(self):
+        self.github = None
+
+    def post_github(self, number, err):
+        if not self.github:
+            self.github = testinfra.GitHub()
+
+        # Ignore this if we were not given a token
+        if not self.github.available:
+            return False
+
+        # Lookup the link being logged to
+        context = self.github.context()
+        link = ""
+        revision = os.environ.get("TEST_REVISION", None)
+        if revision:
+            statuses = self.github.get("commits/{0}/statuses".format(revision))
+            if statuses:
+                for status in statuses:
+                    if status["context"] == context:
+                        link = status["target_url"]
+
+        # Build a lovely little message
+        data = { "body": "Ooops, it happened again\n```\n" + err.strip() + "\n```\n" + link + "\n" }
+        self.github.post("issues/{0}/comments".format(number), data)
+        return True
+
+    def check_issue(self, trace):
+        directory = "./naughty"
+        trace = trace.strip()
+        number = 0
+        for naughty in os.listdir(directory):
+            (prefix, unused, name) = naughty.partition("-")
+            try:
+                n = int(prefix)
+            except:
+                continue
+            with open(os.path.join(directory, naughty), "r") as fp:
+                contents = fp.read().strip()
+            if contents == trace or fnmatch.fnmatch(contents, trace):
+                number = n
+        if not number:
+            return False
+
+        sys.stderr.write("Ignoring known issue #{0}\n{1}\n".format(number, trace))
+        try:
+            self.post_github(number, trace)
+        except:
+            sys.stderr.write("Failed to post known issue to GitHub\n")
+            traceback.print_exc()
+        return True
+
 class TapResult(unittest.TestResult):
     def __init__(self, stream, descriptions, verbosity):
         self.offset = 0
+        self.naughty = None
         super(TapResult, self).__init__(stream, descriptions, verbosity)
 
     def ok(self, test):
@@ -725,6 +783,13 @@ class TapResult(unittest.TestResult):
 
     def skip(self, test, reason):
         sys.stdout.write("ok {0} # SKIP {1}\n".format(self.offset, reason))
+
+    def known_issue(self, test, err):
+        string = self._exc_info_to_string(err, test)
+        if self.naughty and self.naughty.check_issue(string):
+            self.addSkip(test, "Known issue")
+            return True
+        return False
 
     def stop(self):
         sys.stdout.write("Bail out!\n")
@@ -741,12 +806,14 @@ class TapResult(unittest.TestResult):
         super(TapResult, self).stopTest(test)
 
     def addError(self, test, err):
-        self.not_ok(test, err)
-        super(TapResult, self).addError(test, err)
+        if not self.known_issue(test, err):
+            self.not_ok(test, err)
+            super(TapResult, self).addError(test, err)
 
     def addFailure(self, test, err):
-        self.not_ok(test, err)
-        super(TapResult, self).addError(test, err)
+        if not self.known_issue(test, err):
+            self.not_ok(test, err)
+            super(TapResult, self).addError(test, err)
 
     def addSuccess(self, test):
         self.ok(test)
@@ -804,10 +871,10 @@ class OutputBuffer(object):
 class TapRunner(object):
     resultclass = TapResult
 
-    def __init__(self, verbosity=1, failfast=False, jobs=1):
+    def __init__(self, verbosity=1, jobs=1, thorough=False):
         self.stream = unittest.runner._WritelnDecorator(sys.stderr)
         self.verbosity = verbosity
-        self.failfast = failfast
+        self.thorough = thorough
         self.jobs = jobs
 
     def run(self, testable):
@@ -853,6 +920,8 @@ class TapRunner(object):
                         os.dup2(wfd, 2)
                     random.seed()
                     result = TapResult(self.stream, False, self.verbosity)
+                    if not self.thorough:
+                        result.naughty = Naughty()
                     result.offset = offset
                     test(result)
                     result.printErrors()
@@ -906,6 +975,8 @@ def test_main(argv=None, suite=None, attachments=None):
                         help='Trace machine boot and commands')
     parser.add_argument('-q', '--quiet', dest='verbosity', action='store_const',
                         const=0, help='Quiet output')
+    parser.add_argument('--thorough', dest='thorough', action='store',
+                        help='Thorough mode, no skipping known issues')
     parser.add_argument('-s', dest='sit', action='store_true')
     parser.add_argument('tests', nargs='*')
 
@@ -930,7 +1001,7 @@ def test_main(argv=None, suite=None, attachments=None):
     elif not suite:
         suite = unittest.TestLoader().loadTestsFromModule(__main__)
 
-    runner = TapRunner(verbosity=args.verbosity, failfast=False, jobs=args.jobs)
+    runner = TapRunner(verbosity=args.verbosity, jobs=args.jobs, thorough=args.thorough)
     ret = runner.run(suite)
     if argv:
         return ret

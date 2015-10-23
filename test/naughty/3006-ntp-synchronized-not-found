@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "./check-system-info", line 172, in testTimeServers
+    b.wait_popdown("system_information_change_systime")
+  File "/data/src/cockpit/test/testlib.py", line 260, in wait_popdown
+    self.wait_not_visible('#' + id)
+  File "/data/src/cockpit/test/testlib.py", line 232, in wait_not_visible
+    return self.wait_js_func('!ph_is_visible', selector)
+  File "/data/src/cockpit/test/testlib.py", line 205, in wait_js_func
+    return self.phantom.wait("%s(%s)" % (func, ','.join(map(jsquote, args))))
+  File "/data/src/cockpit/test/testlib.py", line 650, in <lambda>
+    return lambda *args: self._invoke(name, *args)
+  File "/data/src/cockpit/test/testlib.py", line 673, in _invoke
+    raise Error(res['error'])
+Error: timeout

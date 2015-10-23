@@ -961,6 +961,7 @@ def test_main(argv=None, suite=None, attachments=None):
 
     global arg_trace
     global arg_sit_on_failure
+    global arg_attachments
 
     # Turn off python stdout buffering
     sys.stdout.flush()
@@ -988,10 +989,10 @@ def test_main(argv=None, suite=None, attachments=None):
 
     arg_trace = args.trace
     arg_sit_on_failure = args.sit
-    if attachments:
-        if not os.path.exists(attachments):
-            os.makedirs(attachments)
-        arg_attachments = attachments
+
+    arg_attachments = os.environ.get("TEST_ATTACHMENTS", attachments)
+    if arg_attachments and not os.path.exists(arg_attachments):
+        os.makedirs(arg_attachments)
 
     import __main__
     if len(args.tests) > 0:

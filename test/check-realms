@@ -144,7 +144,9 @@ for x in 1 2 3 4 5 6 7 8 9 10; do
         sleep 1
     fi
 done
-echo '%(password)s' | realm join -U admin cockpit.lan
+if ! echo '%(password)s' | realm join -U admin cockpit.lan; then
+    journalctl -u realmd.service
+fi
 
 # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1144292
 echo '%(password)s' | kinit admin@COCKPIT.LAN

@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "./check-kubernetes", line 197, in testDashboard
+    b.wait_in_text(".listing-panel .terminal div:nth-child(1)", "#")
+  File "/data/src/cockpit/test/testlib.py", line 235, in wait_in_text
+    return self.wait_js_func('ph_in_text', selector, text)
+  File "/data/src/cockpit/test/testlib.py", line 205, in wait_js_func
+    return self.phantom.wait("%s(%s)" % (func, ','.join(map(jsquote, args))))
+  File "/data/src/cockpit/test/testlib.py", line 650, in <lambda>
+    return lambda *args: self._invoke(name, *args)
+  File "/data/src/cockpit/test/testlib.py", line 673, in _invoke
+    raise Error(res['error'])
+Error: timeout

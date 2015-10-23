@@ -166,10 +166,14 @@ def main():
         subprocess.check_call([ "git", "fetch", "origin", opts.github ])
         subprocess.check_call([ "git", "checkout", "FETCH_HEAD" ])
 
+    if not revision:
+        revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
+
     if opts.publish:
-        if not revision:
-            revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
         sink = start_publishing(github, opts.publish, name, revision)
+
+    # Tell any subprocesses what we are testing
+    os.environ["TEST_REVISION"] = revision
 
     sys.stderr.write("Testing {0} for {1} ...\n".format(revision, name))
 

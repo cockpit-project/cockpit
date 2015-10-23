@@ -628,6 +628,12 @@ systemctl start docker
                 print "Journal database copied to %s" % (dir)
                 if arg_attachments:
                     shutil.move(dir, arg_attachments)
+                log = "%s-%s-%s.log" % (label or self.label(), m.address, title)
+                with open(log, "w") as fp:
+                    subprocess.call(["journalctl", "--directory", dir], stdout=fp)
+                print "Journal extracted to %s" % (log)
+                if arg_attachments:
+                    shutil.move(log, arg_attachments)
 
 some_failed = False
 

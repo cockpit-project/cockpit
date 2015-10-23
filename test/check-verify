@@ -147,12 +147,12 @@ def main():
     # When letting github decide what to test
     if opts.github in [ "next", "scan" ]:
         sys.stderr.write("Talking to GitHub about {0} ...\n".format(github.context()))
-        for (priority, name, revision) in github.prioritize(opts.publish):
+        for (priority, name, revision, ref) in github.prioritize(opts.publish):
             if opts.github == "scan":
                 return 0 # Only scanning, no tests
 
             # Get the relevant commit
-            subprocess.check_call([ "git", "fetch", "origin", revision ])
+            subprocess.check_call([ "git", "fetch", "origin", ref ])
             subprocess.check_call([ "git", "checkout", revision ])
             break
 

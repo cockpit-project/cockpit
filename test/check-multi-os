@@ -22,6 +22,7 @@ from testlib import *
 
 import socket
 import time
+import subprocess
 
 def inject_extras(browser):
     browser.eval_js("""
@@ -131,7 +132,17 @@ class TestMultiOS(MachineCase):
 
         dev_b.switch_to_top()
         dev_b.go("/@%s/storage/devices" % stock_m.address)
-        dev_b.wait_present("iframe.container-frame[name='cockpit1:%s/shell/shell'][src$='#/storage']" % stock_m.address)
+
+        has_storage = True
+        try:
+            stock_m.execute("rpm -qa | grep cockpit-storaged")
+        except subprocess.CalledProcessError:
+            has_storage = False
+
+        if has_storage:
+            dev_b.wait_present("iframe.container-frame[name='cockpit1:%s/storage/devices']" % stock_m.address)
+        else:
+            dev_b.wait_present("iframe.container-frame[name='cockpit1:%s/shell/shell'][src$='#/storage']" % stock_m.address)
 
         dev_b.switch_to_top()
         dev_b.go("/@%s/users/local" % stock_m.address)

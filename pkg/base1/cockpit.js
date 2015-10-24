@@ -2366,6 +2366,8 @@ function full_scope(cockpit, $, po) {
             return _("The server refused to authenticate using any supported methods.");
         else if (problem == "unknown-hostkey")
             return _("Untrusted host");
+        else if (problem == "invalid-hostkey")
+            return _("Host key is incorrect");
         else if (problem == "internal-error")
             return _("Internal error");
         else if (problem == "timeout")
@@ -2378,6 +2380,8 @@ function full_scope(cockpit, $, po) {
             return _("Server has closed the connection.");
         else if (problem == "not-supported")
             return _("Cockpit is not compatible with the software on the system.");
+        else if (problem == "no-host")
+            return _("Cockpit could not contact the given host.");
         else
             return problem;
     };

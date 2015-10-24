@@ -36,8 +36,8 @@ You may need to rebuild the Vagrant VM periodically, by running:
 
 ## Development Dependencies
 
-For more complex hacking no Cockpit, you need to build Cockpit locally
-and install the relevant dependencies. Currently recent x86_64
+For more complex hacking on Cockpit, you need to build Cockpit locally
+and install the relevant dependencies. Currently, recent x86_64
 architectures of Fedora are most often used for development.
 
 Check `tools/cockpit.spec` for the concrete Fedora build dependencies.
@@ -46,11 +46,23 @@ The following should work in a fresh Git clone:
     $ sudo yum-builddep tools/cockpit.spec
     $ sudo yum install nodejs npm
 
+or
+
+    $ sudo dnf builddep tools/cockpit.spec
+    $ sudo dnf install nodejs npm
+
 In addition for testing the following dependencies are required:
 
     $ sudo yum install python-libguestfs qemu mock qemu-kvm rpm-build \
          curl libvirt-client libvirt-python libvirt python-lxml \
          krb5-workstation krb5-server selinux-policy-devel
+
+or
+
+    $ sudo dnf install python-libguestfs qemu mock qemu-kvm rpm-build \
+         curl libvirt-client libvirt-python libvirt python-lxml \
+         krb5-workstation krb5-server selinux-policy-devel
+
     $ sudo npm install -g phantomjs
 
 ## Building and installing
@@ -59,17 +71,17 @@ Cockpit uses the autotools and thus there are the familiar `./configure`
 script and the familar Makefile targets.
 
 But after a fresh clone of the Cockpit sources, you need to prepare
-them by running autogen.sh.  Maybe like so:
+them by running `autogen.sh`.  Maybe like so:
 
     $ mkdir build
     $ cd build
     $ ../autogen.sh --prefix=/usr --enable-maintainer-mode --enable-debug
 
-As shown, autogen.sh also runs 'configure' with the given options, and it
+As shown, `autogen.sh` also runs 'configure' with the given options, and it
 also prepares the build tree by downloading various nodejs dependencies.
 
 When working with a Git clone, it is therefore best to simply always
-run ../autogen.sh instead of `../configure`.
+run `../autogen.sh` instead of `../configure`.
 
 Creating a build directory puts the output of the build in a separate
 directory, rather than mixing it in with the sources, which is confusing.

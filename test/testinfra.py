@@ -150,7 +150,45 @@ class GitHub(object):
         headers = { "Content-Type": "application/json" }
         return json.loads(self.request("POST", resource, json.dumps(data), headers))
 
-    def prioritize(self, update=False):
+    def prioritize(self, revision, labels=[], update=None, baseline=10):
+        last = { }
+        state = None
+        statuses = self.get("commits/{0}/statuses".format(revision))
+        if statuses:
+            for status in statuses:
+                if status["context"] == self.context():
+                    state = status["state"]
+                    last = status
+                    break
+
+        if state in [ "success", "failure" ]:
+            return 0
+
+        priority = baseline
+
+        if priority > 0:
+            if "priority" in labels:
+                priority += 2
+            if "needsdesign" in labels:
+                priority -= 2
+            if "needswork" in labels:
+                priority -= 3
+
+            # Is testing already in progress?
+            if last.get("description", None) == TESTING:
+                update = None
+                priority = 0
+
+        if update and priority <= 0:
+            update = update.copy()
+            update["description"] = "Manual testing required"
+
+        if update and not dict_is_subset(last, update):
+            self.post("statuses/" + revision, update)
+
+        return priority
+
+    def scan(self, update=False):
         pulls = []
 
         # Try to load the whitelist
@@ -170,66 +208,44 @@ class GitHub(object):
             if user:
                 whitelist = [ user["login"] ]
 
-        master = self.get("git/refs/heads/master")
-        context = self.context()
+        results = []
 
-        # Add master with a priority of 11
-        results = [(9, "master", master["object"]["sha"], "master")]
+        if update:
+            status = { "state": "pending", "description": "Not yet tested", "context": self.context() }
+        else:
+            status = None
+
+        master = self.get("git/refs/heads/master")
+        priority = self.prioritize(master["object"]["sha"], update=status, baseline=9)
+        if priority > 0:
+            results.append((priority, "master", master["object"]["sha"], "master"))
 
         # Load all the pull requests
         for pull in self.get("pulls"):
-            state = None
-            last = { }
-            statuses = self.get("commits/{0}/statuses".format(pull["head"]["sha"]))
-            if statuses:
-                for status in statuses:
-                    if status["context"] == context:
-                        state = status["state"]
-                        last = status
-                        break
+            baseline = 10
 
-            if state in [ "success", "failure" ]:
-                continue
+            # It needs to be in the whitelist
+            login = pull["head"]["user"]["login"]
+            if login not in whitelist:
+                status["description"] = "Manual testing required"
+                baseline = 0
 
             # Pull in the labels for this pull
             labels = []
             for label in self.get("issues/{0}/labels".format(pull["number"])):
                 labels.append(label["name"])
 
-            status = { "state": "pending", "description": "Not yet tested", "context": context }
-            priority = 10
-
-            if "priority" in labels:
-                priority += 2
-            if "needsdesign" in labels:
-                priority -= 2
-            if "needswork" in labels:
-                priority -= 3
-
-            # It needs to be in the whitelist
-            login = pull["head"]["user"]["login"]
-            if login not in whitelist:
-                status["description"] = "Manual testing required"
-                priority = 0
-
-            # Is testing already in progress?
-            if last.get("description", None) == TESTING:
-                priority = 0
-
-            revision = pull["head"]["sha"]
             number = pull["number"]
-            ref = "pull/%d/head" % number
+            revision = pull["head"]["sha"]
 
-            if update and not dict_is_subset(last, status):
-                self.post("statuses/" + revision, status)
-
+            priority = self.prioritize(revision, labels, update=status, baseline=baseline)
             if priority > 0:
-                results.append((priority, "pull-" + str(number), revision, ref))
+                results.append((priority, "pull-%d" % number, revision, "pull/%d/head" % number))
 
         results.sort(key=lambda v: v[0], reverse=True)
         return results
 
 if __name__ == '__main__':
     github = GitHub("/repos/cockpit-project/cockpit/")
-    for (priority, name, revision, ref) in github.prioritize(True):
+    for (priority, name, revision, ref) in github.scan(True):
         sys.stdout.write("{0}: {1} ({2})\n".format(name, revision, priority))

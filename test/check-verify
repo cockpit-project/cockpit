@@ -67,6 +67,7 @@ def rebase(sink):
             sink.status["master"] = master
         subprocess.check_call([ "git", "rebase", "origin/master" ])
     except:
+        subprocess.call([ "git", "rebase", "--abort" ])
         traceback.print_exc()
         raise RuntimeError("Rebase failed")
 

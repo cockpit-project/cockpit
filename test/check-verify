@@ -162,8 +162,13 @@ def main():
 
     # A specific github thing to test
     elif opts.github:
-        name = opts.github.replace("/", "-")
-        subprocess.check_call([ "git", "fetch", "origin", opts.github ])
+        try:
+            ref = "pull/{0}/head".format(int(opts.github))
+            name = "pull-" + opts.github
+        except:
+            ref = opts.github
+            name = opts.github.replace("/", "-")
+        subprocess.check_call([ "git", "fetch", "origin", ref ])
         subprocess.check_call([ "git", "checkout", "FETCH_HEAD" ])
 
     if not revision:

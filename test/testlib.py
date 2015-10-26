@@ -79,7 +79,7 @@ def attach(filename):
     if not arg_attachments:
         return
     dest = os.path.join(arg_attachments, os.path.basename(filename))
-    if not os.path.exists(dest):
+    if os.path.exists(filename) and not os.path.exists(dest):
         shutil.move(filename, dest)
 
 class Browser:

@@ -634,8 +634,6 @@ class VirtMachine(Machine):
 
         # network names are currently hardcoded into network-cockpit.xml
         self.network_name = self._read_network_name()
-        self.system_connection = self._libvirt_connection(hypervisor = "qemu:///system", read_only = True)
-        self.dhcp_net = self.system_connection.networkLookupByName(self.network_name)
 
         # we can't see the network itself as non-root, create it using vm-prep as root
 
@@ -873,25 +871,28 @@ class VirtMachine(Machine):
         if static_lease:
             return static_lease["ip"]
 
-        # we didn't find it in the network description, so get it from the dhcp lease information
+        # we didn't find it in the network description, so get it from the arp
+        # arp output looks like this.
+        #
+        # Address      HWtype  HWaddress         Flags Mask   Iface
+        # 10.111.111.1 ether   9e:00:00:00:00:01 C            cockpit1
+        # ...
 
-        # our network is defined system wide, so we need a different hypervisor connection
-        # if there are multiple matches for the mac, get the most current one
         start_time = time.time()
         while (time.time() - start_time) < timeout_sec:
             try:
-                with stdchannel_redirected(sys.stderr, os.devnull):
-                    applicable_leases = self.dhcp_net.DHCPLeases(mac)
+                output = subprocess.check_output(["arp", "-ni", self.network_name])
             except:
-                time.sleep(1)
-                continue
-            if applicable_leases:
-                return sorted(applicable_leases, key=lambda lease: lease['expirytime'], reverse=True)[0]['ipaddr']
+                pass
+            else:
+                for line in output.split("\n"):
+                    parts = re.split(' +', line)
+                    if parts[2].lower() == mac.lower():
+                        return parts[0]
             time.sleep(1)
 
         macs = self._qemu_network_macs()
-        lease_info = "\n".join(map(lambda lease: str(lease), self.dhcp_net.DHCPLeases()))
-        raise Failure("Can't resolve IP of %s\nAll current addresses: [%s]\nAll leases: %s" % (mac, ", ".join(macs), lease_info))
+        raise Failure("Can't resolve IP of %s\nAll current addresses: [%s]\n%s" % (mac, ", ".join(macs), output))
 
     def reset_reboot_flag(self):
         self.event_handler.reset_domain_reboot_status(self._domain)

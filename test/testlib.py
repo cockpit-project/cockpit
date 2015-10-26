@@ -25,7 +25,6 @@ from time import sleep
 from urlparse import urlparse
 
 import argparse
-import fnmatch
 import subprocess
 import os
 import atexit
@@ -756,7 +755,7 @@ class Naughty(object):
                 continue
             with open(os.path.join(directory, naughty), "r") as fp:
                 contents = fp.read().strip()
-            if contents in trace or fnmatch.fnmatch(contents, trace):
+            if contents in trace:
                 number = n
         if not number:
             return False

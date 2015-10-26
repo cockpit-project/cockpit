@@ -227,7 +227,8 @@ class GitHub(object):
             # It needs to be in the whitelist
             login = pull["head"]["user"]["login"]
             if login not in whitelist:
-                status["description"] = "Manual testing required"
+                if status:
+                    status["description"] = "Manual testing required"
                 baseline = 0
 
             # Pull in the labels for this pull

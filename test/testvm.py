@@ -727,9 +727,10 @@ class VirtMachine(Machine):
                     return mac
 
         # Now try to lock that address
+        pid = os.getpid()
         for seed in range(1, 64 * 1024):
             if not mac:
-                mac = "9E00%08x" % seed
+                mac = "9E%02x%02x%02x%04x" % ((pid >> 16) & 0xff, (pid >> 8) & 0xff, pid & 0xff, seed)
                 mac = ":".join([mac[i:i+2] for i in range(0, len(mac), 2)])
             if self._lock_resource(mac):
                 return mac

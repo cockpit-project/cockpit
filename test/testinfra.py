@@ -1,4 +1,5 @@
 
+import argparse
 import errno
 import httplib
 import json
@@ -21,10 +22,30 @@ TESTING = "Testing in progress"
 __all__ = (
     'Sink',
     'GitHub',
+    'arg_parser',
     'OS',
     'ARCH',
     'TESTING'
 )
+
+def arg_parser():
+    parser = argparse.ArgumentParser(description='Run Cockpit test(s)')
+    parser.add_argument('-j', '--jobs', dest="jobs", type=int,
+                        default=os.environ.get("TEST_JOBS", 1), help="Number of concurrent jobs")
+    parser.add_argument('-v', '--verbose', dest="verbosity", action='store_const',
+                        const=2, help='Verbose output')
+    parser.add_argument('-t', "--trace", dest='trace', action='store_true',
+                        help='Trace machine boot and commands')
+    parser.add_argument('-q', '--quiet', dest='verbosity', action='store_const',
+                        const=0, help='Quiet output')
+    parser.add_argument('--thorough', dest='thorough', action='store',
+                        help='Thorough mode, no skipping known issues')
+    parser.add_argument('-s', "--sit", dest='sit', action='store_true',
+                        help="Sit and wait after test failure")
+    parser.add_argument('tests', nargs='*')
+
+    parser.set_defaults(verbosity=1)
+    return parser
 
 class Sink(object):
     def __init__(self, host, identifier, status=None):

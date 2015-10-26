@@ -24,7 +24,6 @@ Tools for writing Cockpit test cases.
 from time import sleep
 from urlparse import urlparse
 
-import argparse
 import subprocess
 import os
 import atexit
@@ -955,10 +954,9 @@ class TapRunner(object):
             sys.stdout.write("# TESTS PASSED\n")
         return count
 
-
-def test_main(argv=None, suite=None, attachments=None):
+def test_main(opts=None, suite=None, attachments=None, **kwargs):
     """
-    Run all test cases, as indicated by 'args'.
+    Run all test cases, as indicated by arguments.
 
     If no arguments are given on the command line, all test cases are
     executed.  Otherwise only the given test cases are run.
@@ -972,44 +970,32 @@ def test_main(argv=None, suite=None, attachments=None):
     sys.stdout.flush()
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
 
-    parser = argparse.ArgumentParser(description='Run Cockpit test(s)')
-    parser.add_argument('-j', '--jobs', dest="jobs", type=int,
-                        default=os.environ.get("TEST_JOBS", 1), help="Number of concurrent jobs")
-    parser.add_argument('-v', '--verbose', dest="verbosity", action='store_const',
-                        const=2, help='Verbose output')
-    parser.add_argument('-t', dest='trace', action='store_true',
-                        help='Trace machine boot and commands')
-    parser.add_argument('-q', '--quiet', dest='verbosity', action='store_const',
-                        const=0, help='Quiet output')
-    parser.add_argument('--thorough', dest='thorough', action='store',
-                        help='Thorough mode, no skipping known issues')
-    parser.add_argument('-s', dest='sit', action='store_true')
-    parser.add_argument('tests', nargs='*')
+    standalone = opts is None
+    parser = testinfra.arg_parser()
+    if standalone:
+        opts = parser.parse_args()
 
-    parser.set_defaults(verbosity=1)
-    args = parser.parse_args(argv)
-
-    if args.sit and args.jobs > 1:
+    if opts.sit and opts.jobs > 1:
         parser.error("the -s or --sit argument not avalible with multiple jobs")
 
-    arg_trace = args.trace
-    arg_sit_on_failure = args.sit
+    arg_trace = opts.trace
+    arg_sit_on_failure = opts.sit
 
     arg_attachments = os.environ.get("TEST_ATTACHMENTS", attachments)
     if arg_attachments and not os.path.exists(arg_attachments):
         os.makedirs(arg_attachments)
 
     import __main__
-    if len(args.tests) > 0:
+    if len(opts.tests) > 0:
         if suite:
             parser.error("tests may not be specified when running a predefined test suite")
-        suite = unittest.TestLoader().loadTestsFromNames(args.tests, module=__main__)
+        suite = unittest.TestLoader().loadTestsFromNames(opts.tests, module=__main__)
     elif not suite:
         suite = unittest.TestLoader().loadTestsFromModule(__main__)
 
-    runner = TapRunner(verbosity=args.verbosity, jobs=args.jobs, thorough=args.thorough)
+    runner = TapRunner(verbosity=opts.verbosity, jobs=opts.jobs, thorough=opts.thorough)
     ret = runner.run(suite)
-    if argv is not None:
+    if not standalone:
         return ret
     sys.exit(ret)
 

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import argparse
 import glob
 import imp
 import os
@@ -77,7 +76,7 @@ def install(opts):
         cmd = [ "./testsuite-prepare" ]
         if opts.clean:
             cmd.append("--clean")
-        if opts.verbose:
+        if opts.verbosity:
             cmd.append("--verbose")
         if opts.quick:
             cmd.append("--quick")
@@ -86,7 +85,7 @@ def install(opts):
         traceback.print_exc()
         raise RuntimeError("Install failed")
 
-def step(opts, argv, sink):
+def step(opts, sink):
     if opts.rebase:
         rebase(sink)
     if opts.install:
@@ -103,15 +102,12 @@ def step(opts, argv, sink):
             module = imp.load_module(name, fp, filename, ("", "rb", imp.PY_SOURCE))
             suite.addTest(loader.loadTestsFromModule(module))
 
-    if opts.verbose:
-        argv.insert(0, "--verbose")
-
     # And now load new testlib, and run all the tests we got
     import testlib
-    return testlib.test_main(argv=argv, suite=suite)
+    return testlib.test_main(opts=opts, suite=suite)
 
 def main():
-    parser = argparse.ArgumentParser(description='Run Cockpit test suite', add_help=False)
+    parser = testinfra.arg_parser()
     parser.add_argument('--publish', dest='publish', action='store',
                         help='Publish results centrally to a sink')
     parser.add_argument('--rebase', dest='rebase', action='store_true',
@@ -124,9 +120,7 @@ def main():
                         help="Build test VMs quicker")
     parser.add_argument('--clean', dest='clean', action='store_true',
                         help="Build test VMs from clean state")
-    parser.add_argument('--verbose', dest='verbose', action='store_true',
-                        help="Be verbose about building and running tests")
-    (opts, argv) = parser.parse_known_args()
+    opts = parser.parse_args()
 
     revision = None
     status = { }
@@ -186,7 +180,7 @@ def main():
     sys.stderr.write("Testing {0} for {1} ...\n".format(revision, name))
 
     try:
-        ret = step(opts, argv, sink)
+        ret = step(opts, sink)
     except RuntimeError as exc:
         ret = exc.args[0]
         sys.stderr.write(ret + "\n")

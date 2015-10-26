@@ -144,8 +144,6 @@ class MachineBuilder:
 
         if os.path.exists(self.machine._image_image):
             os.unlink(self.machine._image_image)
-        if os.path.exists(self.machine._image_additional_iso):
-            os.unlink(self.machine._image_additional_iso)
 
         if os.path.isfile(bootstrap_script):
             subprocess.check_call([ bootstrap_script, self.machine._image_image, self.machine.arch ])

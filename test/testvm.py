@@ -620,11 +620,8 @@ class VirtMachine(Machine):
         self.run_dir = os.path.join(self.test_dir, "run")
 
         self._image_image = os.path.join(self.run_dir, "%s.qcow2" % (self.image))
-        self._image_additional_iso = os.path.join(self.run_dir, "%s.iso" % (self.image))
-
         self._images_dir = os.path.join(self.test_data, "images")
         self._image_original = os.path.join(self._images_dir, "%s.qcow2" % (self.image))
-        self._iso_original = os.path.join(self._images_dir, "%s.iso" % (self.image))
         self._checksum_original = os.path.join(self._images_dir, "%s-checksum" % (self.image))
 
         self._network_description = etree.parse(open("./guest/network-cockpit.xml"))
@@ -685,9 +682,6 @@ class VirtMachine(Machine):
             files.append(self._image_image)
             subprocess.check_call([ "qemu-img", "convert", "-O", "qcow2", self._image_image, self._image_original ])
             # Copy additional ISO as well when it exists
-            if os.path.exists(self._image_additional_iso):
-                files.append(self._image_additional_iso)
-                shutil.copy(self._image_additional_iso, self._images_dir)
             with open(self._checksum_original, "w") as f:
                 subprocess.check_call([ "sha256sum" ] + map(os.path.basename, files),
                                       cwd=self._images_dir,
@@ -761,9 +755,6 @@ class VirtMachine(Machine):
                                         "-f", "qcow2",
                                         "-o", "backing_file=%s,backing_fmt=qcow2" % self._image_original,
                                         self._image_image ])
-
-                if os.path.exists(self._iso_original) and not os.path.exists(self._image_additional_iso):
-                    shutil.copy(self._iso_original, self._image_additional_iso)
             else:
                 # we don't have a "local" override image and we're throwing away the changes anyway
                 image_to_use = self._image_original
@@ -792,17 +783,6 @@ class VirtMachine(Machine):
         with open("./files/test_domain.xml", "r") as dom_desc:
             test_domain_desc_original = dom_desc.read()
 
-        additional_devices = ""
-        if os.path.exists(self._image_additional_iso):
-            """ load an iso image if one exists with the same basename as the image
-            """
-            additional_devices = """
-            <disk type='file' device='cdrom'>
-                <source file='%(iso)s'/>
-                <target dev='hdb' bus='ide'/>
-                <readonly/>
-            </disk>""" % {"iso": self._image_additional_iso}
-
         # add the virtual machine
         # keep trying while there are naming conflicts, but not forever
         dom_created = False
@@ -825,7 +805,7 @@ class VirtMachine(Machine):
                                                 "drive": image_to_use,
                                                 "disk_serial": "ROOT",
                                                 "mac": mac_desc,
-                                                "additional_devices": additional_devices,
+                                                "iso": os.path.join(self.test_dir, "guest/cloud-init.iso")
                                               }
                 # allow debug output for this domain
                 self.event_handler.allow_domain_debug_output(domain_name)

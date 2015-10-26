@@ -134,6 +134,8 @@ def main():
     name = "test"
     revision = None
 
+    os.chdir(os.path.dirname(__file__))
+
     # In case we need it
     github = testinfra.GitHub()
 
@@ -173,8 +175,6 @@ def main():
 
     if not revision:
         revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
-
-    os.chdir(os.path.dirname(__file__))
 
     if opts.publish:
         sink = start_publishing(github, opts.publish, name, revision)

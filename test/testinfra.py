@@ -161,10 +161,16 @@ class GitHub(object):
                     last = status
                     break
 
+        priority = baseline
+
+        # This commit definitively succeeds or fails
         if state in [ "success", "failure" ]:
             return 0
 
-        priority = baseline
+        # This test errored, we try again but low priority
+        elif state in [ "error" ]:
+            update = None
+            priority = 4
 
         if priority > 0:
             if "priority" in labels:

@@ -25,7 +25,11 @@
     <console type='pty'>
       <target type='serial' port='0'/>
     </console>
-    %(additional_devices)s
+    <disk type='file' device='cdrom'>
+      <source file='%(iso)s'/>
+      <target dev='hdb' bus='ide'/>
+      <readonly/>
+    </disk>
   </devices>
 </domain>
 

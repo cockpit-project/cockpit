@@ -887,7 +887,7 @@ class VirtMachine(Machine):
             else:
                 for line in output.split("\n"):
                     parts = re.split(' +', line)
-                    if parts[2].lower() == mac.lower():
+                    if len(parts) > 2 and parts[2].lower() == mac.lower():
                         return parts[0]
             time.sleep(1)
 

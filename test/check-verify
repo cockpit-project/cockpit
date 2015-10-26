@@ -30,20 +30,33 @@ def start_publishing(github, host, name, revision):
             }
         }
     }
+    if name == "master":
+        status['badge'] = {
+            'name': testinfra.OS + "-" + testinfra.ARCH,
+            'description': testinfra.OS,
+            'status': 'running'
+        }
     return testinfra.Sink(host, identifier, status)
 
 def stop_publishing(sink, ret):
+    def mark_failed():
+        sink.status["github"]["status"]["state"] = "failure"
+        if 'badge' in sink.status:
+            sink.status['badge']['status'] = "failed"
+        # sink.status["irc"] = "#cockpit"
+    def mark_passed():
+        sink.status["github"]["status"]["state"] = "success"
+        if 'badge' in sink.status:
+            sink.status['badge']['status'] = "passed"
     if isinstance(ret, basestring):
         message = ret
-        sink.status["github"]["status"]["state"] = "failure"
-        # sink.status["irc"] = "#cockpit"
+        mark_failed()
     elif ret == 0:
         message = "All tests passed"
-        sink.status["github"]["status"]["state"] = "success"
+        mark_passed()
     else:
         message = "{0} tests failed".format(ret)
-        sink.status["github"]["status"]["state"] = "failure"
-        # sink.status["irc"] = "#cockpit"
+        mark_failed()
     sink.status["message"] = message
     sink.status["github"]["status"]["description"] = message
     sink.flush()
@@ -127,6 +140,7 @@ def main():
     sink = None
     name = "test"
     revision = None
+    badge = False
 
     os.chdir(os.path.dirname(__file__))
 
@@ -171,7 +185,7 @@ def main():
         revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
 
     if opts.publish:
-        sink = start_publishing(github, opts.publish, name, revision)
+        sink = start_publishing(github, opts.publish, name, revision, badge)
         os.environ["TEST_ATTACHMENTS"] = sink.attachments
 
     # Tell any subprocesses what we are testing

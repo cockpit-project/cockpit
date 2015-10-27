@@ -23,8 +23,6 @@ import fcntl
 import json
 import libvirt
 import libvirt_qemu
-from   lxml import etree
-from   operator import attrgetter
 import os
 import random
 import re
@@ -39,6 +37,8 @@ import threading
 import time
 
 import testinfra
+
+import xml.etree.ElementTree as etree
 
 DEFAULT_FLAVOR="cockpit"
 

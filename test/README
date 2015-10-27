@@ -43,9 +43,13 @@ check-*,             for running selected tests.
 
 You can set these environment variables to configure the test suite:
 
-  TEST_OS    The OS to run the tests in.  Currently, "fedora-22"
-             and "rhel-7" are supported, with
-             "fedora-22" as the default.
+  TEST_OS    The OS to run the tests in.  Currently supported values: (vm-create)
+                "fedora-22"
+                "fedora-22-testing"
+                "fedora-23"
+                "centos-7"
+                "rhel-7"
+             "fedora-22" is the default (testinfra.py, testlib.sh)
 
              Note on "rhel-7": The installation routine expects subscription
              credentials to be present on the host:

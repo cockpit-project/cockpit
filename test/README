@@ -1,45 +1,75 @@
-# Automated Testing of Cockpit
+# Integration Tests of Cockpit
 
-This directory contains automated tests for Cockpit, and the support
+This directory contains automated integration tests for Cockpit, and the support
 files for them.
 
-To run the tests, you need to install the following packages on
-Fedora:
+To run the tests on Fedora, you need to install the following packages:
 
-  # yum install npm python-libguestfs qemu mock qemu-kvm python \
-         curl libvirt-client openssl rpmdevtools libguestfs-tools \
-         rpm-build krb5-workstation python-lxml expect rsync \
-         selinux-policy-devel xz
+    $ sudo yum install npm python-libguestfs qemu mock qemu-kvm python \
+         libvirt-client openssl libguestfs-tools selinux-policy-devel \
+         rpm-build krb5-workstation expect rsync libvirt-python curl xz
 
 Testing requires phantomjs globally on the system, not just inside the cockpit package.
 
-  # npm -g install phantomjs
+    $ sudo npm -g install phantomjs
 
-## Quick list of tools
+## Introduction
+
+To run the integration tests run the following. Don't run the integration tests
+as root:
+
+    $ ./VERIFY
+
+The first time you run the tests, they will create a cockpit1 bridged network used
+for testing. You may be required to type your sudo password for this to work. In
+addition various test images will be downloaded. This can take some time.
+
+Alternatively you can run an individual test like this:
+
+    $ cd test
+    $ ./testsuite-prepare
+    $ ./check-session
+
+The `./testsuite-prepare` command builds cockpit and puts it into the test. Only
+code currently committed in the current branch will be installed and tested.
+
+To see more verbose output from the test, use the --verbose and/or --trace flags:
+
+    $ ./check-session --verbose --trace
+
+In addition if you specify `--sit`, then the test wail wait on failure and allow
+you to log into cockpit and/or the test instance and diagnose the issue. An address
+will be printed of the test instance.
+
+    $ ./check-session --trace --sit
+
+## Details
 
 For setting up the host:
 
-vm-prep,     for creating the test network etc.
+ * vm-prep: Create the test network etc. Requires root.
 
-For managing test machines:
+For managing test machines and their images:
 
-vm-create,   for creating (or downloading) test machine images.
-vm-reset,    for starting over from a clean slate.
-vm-install,  for installing RPMs into a test machine image.
+ * vm-download: Download test images
+ * vm-upload: Upload test images
+ * vm-create: Create test machine images
+ * vm-reset: Start over from a clean slate
+ * vm-install: Install Cockpit into a test machine image
 
 For debugging:
 
-vm-run,      for running a test machine image.
-vm-copy,     for copying files into a running test machine.
-vm-sh,       for executing commands in a running test machine.
+ * vm-run: Run a test machine image
+ * vm-copy: Copy files into a running test machine
+ * vm-sh: Execute commands in a running test machine
 
 The test suite itself:
 
-testsuite-prepare,   for preparing everything so that tests can run.
-check-verify,        for running all tests.
-check-*,             for running selected tests.
+ * testsuite-prepare: Prepare everything so that tests can run
+ * check-verify: Run all tests
+ * check-*: Run the selected tests
 
-## Configuration
+## Test Configuration
 
 You can set these environment variables to configure the test suite:
 
@@ -51,12 +81,6 @@ You can set these environment variables to configure the test suite:
                 "rhel-7"
              "fedora-22" is the default (testinfra.py, testlib.sh)
 
-             Note on "rhel-7": The installation routine expects subscription
-             credentials to be present on the host:
-             ~/.rhel/login and ~/.rhel/pass, which will be copied to the guest.
-             Without these, the system can't be registered and the runtime
-             dependencies of cockpit won't be installed.
-
   TEST_ARCH  The machine architecture to use.  Currently, the default
              and only supported value is "x86_64".
 
@@ -65,31 +89,13 @@ You can set these environment variables to configure the test suite:
 
   TEST_JOBS  How many tests to run in parallel.  The default is 1.
 
-## Quick start
-
-First, you need to run ./testsuite-prepare.  This will download
-necessary images, compile cockpit, install the result, and set up some
-virtual networking.  It might ask for the sudo password in order to
-setup the network.
-
-Please make sure that mock does not issue a warning. You may have to add
-your user to the mock system group.
-
-  $ ./testsuite-prepare
-
-Then you can run some tests:
-
-  $ ./check-connection
-
-To run all tests in parallel, run check-verify like this:
-
-  $ TEST_JOBS=4 ./check-verify
-
 ## Test machines and their images
 
 The code under test is executed in one or more dedicated virtual
 machines, called the "test machines".  Fresh test machines are started
-for each test.
+for each test. To pull all the needed images for a given commit, use:
+
+ $ ./vm-download
 
 A test machine runs a "test machine image".  Such a test machine image
 contains the root filesystem that is booted inside the virtual
@@ -103,15 +109,16 @@ A test machine image is created with vm-create, like so:
 
   $ ./vm-create -v -f cockpit
 
-The image will be created in $TEST_DATA/images/.  The vm-create
-command will not overwrite existing test machine images and simply
-report success in that case.  Use the "--force" option to create a new
-image no matter what.
+The image will be created in $TEST_DATA/images/. In addition a link
+reference will be created in test/images/.
 
-The vm-create command will try to download an existing image from
-file.cockpit-project.org instead of creating a new image.
+If you wish that others use this new image then you should commit the
+new reference link, and use `vm-upload` to upload the new image. You
+would need to have Cockpit commit access to do this:
 
-There can be more than one test machine image.  For example, you might
+  $ ./vm-upload cockpit-fedora-22-x86_64
+
+There is more than one test machine image. For example, you might
 want to test a scenario where Cockpit on one machine talks to FreeIPA
 on another, and you want those two machines to use different images.
 
@@ -124,33 +131,11 @@ flavors are available:
 
   "stock" --   A stock installation of the given OS, including the stock
                version of Cockpit.  This is used to test compatibility
-               between released versions of Cockpit and the
-               development version.
+               between released versions of Cockpit and the development version.
 
   "ipa"     -- A FreeIPA server.
 
   "openshift" -- An Openshift Origin server.
-
-To define a new flavor, create a script called "FLAVOR.setup" in this
-directory.  Then, calling "vm-create -f FLAVOR ARGS..." will run
-"FLAVOR.setup ARGS..." inside the virtual machine.
-
-By default, launching a test machine from an image will dynamically
-assign it a 'random' MAC, which results in DHCP assigning it a random
-IP address.  This means that you can launch multiple test machines
-from a single image, maybe to use multiple machines inside a single
-test case, or to run multiple test cases in parallel.
-
-If you want a fixed MAC for a given flavor, you can set a cockpit:flavor
-attribute in the guest/network-cockpit.xml file, like this:
-
-	<host mac='52:54:00:9e:00:F0'
-		ip='10.111.112.100'
-		name='f0.cockpit.lan'
-		cockpit:flavor="ipa"/>
-
-Whenever a test machine of the flavor is launched, it will receive
-this MAC, and you can thus only run one of them at any given time.
 
 A test machine image created by vm-create doesn't contain any Cockpit
 code in it yet.  You can build and install the currently checked out
@@ -165,9 +150,9 @@ versions in $TEST_DATA/images.
 
 A typical sequence of steps would thus be the following:
 
-  $ ./vm-create ...       # Create a fresh image
-
+  $ ./vm-download
   $ ./vm-reset            # Start over
+  $ ../tools/make-rpms    # Create rpms
   $ ./vm-install ...      # Install code to test
   $ ./check-...           # Run some tests
 
@@ -175,18 +160,7 @@ A typical sequence of steps would thus be the following:
   $ ./vm-install ...      # Install code to test
   $ ./check-...           # Run some tests
 
-  etc.
-
-To update a test machine image for a given flavor (after making
-changes to the setup scripts, for example, or simply to install new
-versions of distribution packages), you should increase its 'tag'.
-
-The tags are stored in guest/FLAVOR.conf, one per OS.
-
-Changing the tag will cause testsuite-prepare to create new images for
-that tag.  You can have images for multiple tags in $TEST_DATA/images
-and switching between branches that use different tags works as
-expected.
+You can perform all of the above easily by doing `./testsuite-prepare`
 
 ## Running tests
 
@@ -207,27 +181,8 @@ You can log into a running test-machine with "vm-sh".
 You can also put calls to sit() into the tests themselves to stop them
 at strategic places.
 
-You can use the "--vm-start-hook" option to execute an arbitrary shell
-command after a test machine has been booted but before the test
-begins.
-
 That way, you can run a test cleanly while still being able to make
 quick changes, such as adding debugging output to JavaScript.
-
-The environment variable TEST_MACHINE is set to the identifier of the
-machine that has just been booted.
-
-For example, one might run a full "make install DESTDIR=..." and copy
-the resulting installation directory to the test machine.  This can
-maybe be done by a script like this:
-
-    inst=/var/tmp/INST
-    f20 rm -rf "$inst"
-    f20 make-top -k install DESTDIR="$inst"
-    f20 tar -C "$inst" -cf - . | ./vm-sh --machine $TEST_MACHINE 'cd / && cpio -idu'
-
-The hypthetical "f20" command executes a command in the build
-environment.
 
 ## Guidelines for writing tests
 

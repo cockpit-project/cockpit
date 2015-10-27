@@ -161,7 +161,7 @@ class GitHub(object):
                     last = status
                     break
 
-        if state in [ "success", "failure" ]:
+        if state in [ "success", "failure", "error" ]:
             return 0
 
         priority = baseline

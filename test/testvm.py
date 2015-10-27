@@ -860,10 +860,9 @@ class VirtMachine(Machine):
 
     def _static_lease_from_mac(self, mac):
         for h in self._network_description.find(".//dhcp"):
-            if h.get("mac") == mac:
-                return { "ip":   h.get("ip"),
-                         "name": h.get("name")
-                       }
+            netmac = h.get("mac") or ""
+            if netmac.lower() == mac.lower():
+                return { "ip":   h.get("ip"), "name": h.get("name") }
         return None
 
     def _ip_from_mac(self, mac, timeout_sec = 300):

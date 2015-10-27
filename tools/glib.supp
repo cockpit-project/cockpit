@@ -491,3 +491,14 @@
    ...
    fun:g_tls_client_connection_new
 }
+{
+   g_unix_signal_add_full
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:g_malloc
+   ...
+   fun:g_thread_new
+   ...
+   fun:g_unix_signal_add_full
+}

@@ -882,21 +882,18 @@ class VirtMachine(Machine):
         # we didn't find it in the network description, so get it from the arp
         # arp output looks like this.
         #
-        # Address      HWtype  HWaddress         Flags Mask   Iface
-        # 10.111.111.1 ether   9e:00:00:00:00:01 C            cockpit1
+        # IP address     HW type  Flags  HW address         Mask  Device
+        # 10.111.118.45  0x1      0x0    9e:00:03:72:00:04  *     cockpit1
         # ...
 
         start_time = time.time()
         while (time.time() - start_time) < timeout_sec:
-            try:
-                output = subprocess.check_output(["arp", "-ni", self.network_name])
-            except:
-                pass
-            else:
-                for line in output.split("\n"):
-                    parts = re.split(' +', line)
-                    if len(parts) > 2 and parts[2].lower() == mac.lower():
-                        return parts[0]
+            with open("/proc/net/arp", "r") as fp:
+                output = fp.read()
+            for line in output.split("\n"):
+                parts = re.split(' +', line)
+                if len(parts) > 5 and parts[3].lower() == mac.lower() and parts[5] == self.network_name:
+                    return parts[0]
             time.sleep(1)
 
         message = "{0}: [{1}]\n{2}\n".format(mac, ", ".join(self._qemu_network_macs()), output)

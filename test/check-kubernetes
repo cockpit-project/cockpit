@@ -336,16 +336,17 @@ class TestConnection(KubernetesCase):
         m.execute("echo 'fubar,admin,10101' > /etc/kubernetes/passwd")
 
         # Setup the kube stuff in the right place
-        m.upload(["files/mock-kube-config-basic.json"], "/tmp")
+        m.upload(["files/mock-kube-config-basic.json", "files/mock-k8s-tiny-app.json"], "/tmp")
         m.execute("mkdir -p /home/admin/.kube/ && mv /tmp/mock-kube-config-basic.json /home/admin/.kube/config")
 
         self.fix_apiserver_config()
         m.execute("systemctl start etcd kube-apiserver")
         self.wait_api_server(port=6443, scheme='https')
+        m.execute("KUBECONFIG=/home/admin/.kube/config kubectl create -f /tmp/mock-k8s-tiny-app.json")
 
         self.login_and_go("/kubernetes")
         b.wait_present("#service-list")
-        b.wait_in_text("#service-list", "You can deploy an application to your cluster.")
+        b.wait_in_text("#service-list", "mock")
 
         # Check that this failed as a double check
         output = m.execute("curl -k -sS https://localhost:6443/api 2>&1 || true")

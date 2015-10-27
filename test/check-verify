@@ -185,7 +185,7 @@ def main():
         revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
 
     if opts.publish:
-        sink = start_publishing(github, opts.publish, name, revision, badge)
+        sink = start_publishing(github, opts.publish, name, revision)
         os.environ["TEST_ATTACHMENTS"] = sink.attachments
 
     # Tell any subprocesses what we are testing

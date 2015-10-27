@@ -94,8 +94,10 @@ echo foobar | passwd --stdin admin
 # To enable persistent logging
 mkdir -p /var/log/journal
 
+# HACK: docker falls over regularly, print its log if it does
+systemctl start docker || journalctl -u docker
+
 # docker image that we need for integration testing
-systemctl start docker
 docker pull busybox:latest
 docker pull busybox:buildroot-2014.02
 docker pull submod/helloapache

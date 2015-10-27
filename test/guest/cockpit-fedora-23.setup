@@ -79,8 +79,10 @@ dnf -y --disablerepo=updates-testing reinstall docker-selinux
 
 dnf -y upgrade
 
+# HACK: docker falls over regularly, print its log if it does
+systemctl start docker || journalctl -u docker
+
 # docker images that we need for integration testing
-systemctl start docker
 docker pull busybox:latest
 docker pull busybox:buildroot-2014.02
 docker pull submod/helloapache

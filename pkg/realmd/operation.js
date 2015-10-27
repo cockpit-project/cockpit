@@ -294,8 +294,10 @@ define([
 
                     var diagnostics = "";
                     var sub = realmd.subscribe({ member: "Diagnostics" }, function(path, iface, signal, args) {
-                        if (args[1] === id)
+                        if (args[1] === id) {
+                            console.log(String(args[0]).trim());
                             diagnostics += args[0];
+                        }
                     });
 
                     var call, computer_ou;

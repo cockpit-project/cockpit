@@ -737,6 +737,7 @@ class Naughty(object):
                 for status in statuses:
                     if status["context"] == context:
                         link = status["target_url"]
+                        break
 
         # Build a lovely little message
         data = { "body": "Ooops, it happened again\n```\n{0}\n```\n{1}\n".format(err.strip(), link) }

@@ -1007,7 +1007,7 @@ def test_main(argv=None, suite=None, attachments=None):
 
     runner = TapRunner(verbosity=args.verbosity, jobs=args.jobs, thorough=args.thorough)
     ret = runner.run(suite)
-    if argv:
+    if argv is not None:
         return ret
     sys.exit(ret)
 

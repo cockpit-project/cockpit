@@ -25,8 +25,8 @@ atomic host upgrade
 # we'll use it every time we build a new tree
 ostree checkout fedora-atomic/f22/x86_64/docker-host /var/local-tree
 
-# make sure docker has started
-systemctl start docker
+# HACK: docker falls over regularly, print its log if it does
+systemctl start docker || journalctl -u docker
 
 # pull cockpit/ws so we don't need to download this for every test
 docker pull cockpit/ws

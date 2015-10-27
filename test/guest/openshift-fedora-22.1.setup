@@ -15,7 +15,9 @@ function wait() {
 
 hostnamectl set-hostname f1.cockpit.lan
 systemctl enable docker
-systemctl start docker
+
+# HACK: docker falls over regularly, print its log if it does
+systemctl start docker || journalctl -u docker
 
 # origin is too rotund to build in a normal sized VM. The linker
 # step runs out of memory. In addition origin has no Fedora packages

@@ -6,8 +6,6 @@
 
 [![Fedora 23 build status](https://cockpit.fedorapeople.org/hubbot/status-f23-x86_64.svg?master)](https://cockpit.fedorapeople.org/hubbot/)
 
-[![Fedora Rawhide build status](https://cockpit.fedorapeople.org/hubbot/status-fraw-x86_64.svg?master)](https://cockpit.fedorapeople.org/hubbot/)
-
 [![RHEL 7 build status](https://cockpit.fedorapeople.org/hubbot/status-r7-x86_64.svg?master)](https://cockpit.fedorapeople.org/hubbot/)
 
 # Cockpit

@@ -855,7 +855,7 @@ class VirtMachine(Machine):
                 self._domain.start()
             self._maintaining = maintain
         except:
-            self._cleanup()
+            self.kill()
             raise
 
     def _static_lease_from_mac(self, mac):

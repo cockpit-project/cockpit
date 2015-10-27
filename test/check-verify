@@ -60,7 +60,7 @@ def check_valid(filename):
 def rebase(sink):
     try:
         sys.stderr.write("Rebasing onto origin/master ...\n")
-        subprocess.check_call([ "git", "fetch", "origin" ])
+        subprocess.check_call([ "git", "fetch", "origin", "master" ])
         if sink:
             master = subprocess.check_output([ "git", "rev-parse", "origin/master" ]).strip()
             sink.status["master"] = master

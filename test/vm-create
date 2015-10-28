@@ -174,7 +174,7 @@ class MachineBuilder:
 
     def build(self, args):
         def modify(gf):
-            if self.machine.os in [ "fedora-22", "fedora-22-testing", "fedora-23", "centos-7" ]:
+            if self.machine.os in [ "fedora-22", "fedora-testing", "fedora-23", "centos-7" ]:
                 self._setup_fedora_like(gf)
             elif self.machine.os == "rhel-7":
                 credential_path = os.path.expanduser("~/.rhel/")

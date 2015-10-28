@@ -4,16 +4,12 @@ set -eux
 
 echo foobar | passwd --stdin root
 
-# HACK: DNF is unreliable and disconnects from mirrors all the time
-dnf -y install yum
-
 # Disable these things
 ln -sf ../selinux/config /etc/sysconfig/selinux
 printf 'SELINUX=permissive\nSELINUXTYPE=targeted\n' > /etc/selinux/config
 setenforce 0
 systemctl stop firewalld
-yum-deprecated -y remove firewalld
+dnf -y remove firewalld
 iptables -F
 
-yum-deprecated -y update
-yum-deprecated -y install golang git docker
+dnf -y install docker

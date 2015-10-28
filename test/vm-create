@@ -115,7 +115,7 @@ class MachineBuilder:
                         break
                     gf.umount("/")
                 if not gf.exists("/etc"):
-                    raise Failure("Can't find root partition")
+                    raise testvm.Failure("Can't find root partition")
 
             modify_func(gf)
             gf.touch("/.autorelabel")
@@ -136,7 +136,7 @@ class MachineBuilder:
         if os.path.isfile(bootstrap_script):
             subprocess.check_call([ bootstrap_script, self.machine._image_image, self.machine.arch ])
         else:
-            raise Failure("Unsupported OS %s: %s not found." % (self.machine.os, bootstrap_script))
+            raise testvm.Failure("Unsupported OS %s: %s not found." % (self.machine.os, bootstrap_script))
 
         if modify_func:
             self.run_modify_func(modify_func)
@@ -179,10 +179,10 @@ class MachineBuilder:
             elif self.machine.os == "rhel-7":
                 credential_path = os.path.expanduser("~/.rhel/")
                 if (not os.path.isfile(credential_path + "login")) or (not os.path.isfile(credential_path + "pass")):
-                    raise Failure("Subscription credentials expected in '~/.rhel/login', '~/.rhel/pass'.")
+                    raise testvm.Failure("Subscription credentials expected in '~/.rhel/login', '~/.rhel/pass'.")
                 self._setup_rhel_7(gf)
             else:
-                raise Failure("Unsupported OS %s" % self.machine.os)
+                raise testvm.Failure("Unsupported OS %s" % self.machine.os)
 
         def format_guest_setup_path(script_id=None):
             if script_id:
@@ -193,7 +193,7 @@ class MachineBuilder:
         # gather the scripts, separated by reboots
         script = format_guest_setup_path()
         if not os.path.exists(script):
-            raise Failure("Unsupported flavor %s: %s not found." % (self.machine.flavor, script))
+            raise testvm.Failure("Unsupported flavor %s: %s not found." % (self.machine.flavor, script))
         next_script = 1
         additional_scripts = [ ]
         while os.path.exists(format_guest_setup_path(next_script)):

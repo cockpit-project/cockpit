@@ -81,8 +81,8 @@ os=${TEST_OS:-}
 
 mockos=$os
 # if we're building for atomic, generate regular fedora packages
-if [[ "$os" =~ "fedora-atomic" ]]; then
-    mockos=${os/-atomic/}
+if [ "$os" = "fedora-atomic" ]; then
+    mockos="fedora-22"
 elif [ "$os" = "fedora-testing" ]; then
     mockos="fedora-22"
 fi

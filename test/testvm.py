@@ -855,6 +855,22 @@ class VirtMachine(Machine):
                 return { "ip":   h.get("ip"), "name": h.get("name") }
         return None
 
+    def _diagnose_no_address(self):
+        SCRIPT = """
+            eval virsh -c qemu:///session console $argv
+            set timeout -1
+            expect " login: "
+            send_user "root\r"
+            expect "Password: "
+            send_user "foobar\r"
+            expect " ~]# "
+            send_user "ip addr; echo ALL DONE\r"
+            expect "ALL DONE"
+            exit 0
+        """
+        expect = subprocess.Popen(["expect", "--", str(self._domain.ID())], stdin=subprocess.PIPE)
+        expect.communicate(SCRIPT)
+
     def _ip_from_mac(self, mac, timeout_sec = 300):
         # first see if we use a mac address defined in the network description
         static_lease = self._static_lease_from_mac(mac)
@@ -881,8 +897,10 @@ class VirtMachine(Machine):
                         return parts[0]
             time.sleep(1)
 
-        macs = self._qemu_network_macs()
-        raise Failure("Can't resolve IP of %s\nAll current addresses: [%s]\n%s" % (mac, ", ".join(macs), output))
+        message = "{0}: [{1}]\n{2}\n".format(mac, ", ".join(self._qemu_network_macs()), output)
+        sys.stderr.write(message)
+        self._diagnose_no_address()
+        raise Failure("Can't resolve IP of " + mac)
 
     def reset_reboot_flag(self):
         self.event_handler.reset_domain_reboot_status(self._domain)
@@ -901,6 +919,7 @@ class VirtMachine(Machine):
             raise Failure("Machine %s didn't start." % (self.address))
 
         if not Machine.wait_ssh(self, get_new_address = lambda: self._ip_from_mac(self.macaddr, timeout_sec=5)):
+            self._diagnose_no_address()
             raise Failure("Unable to reach machine %s via ssh." % (self.address))
         self.wait_user_login()
 

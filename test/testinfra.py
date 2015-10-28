@@ -202,6 +202,8 @@ class GitHub(object):
                 priority -= 2
             if "needswork" in labels:
                 priority -= 3
+            if "blocked" in labels:
+                priority -= 1
 
             # Is testing already in progress?
             if last.get("description", None) == TESTING:

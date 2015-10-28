@@ -857,18 +857,20 @@ class VirtMachine(Machine):
 
     def _diagnose_no_address(self):
         SCRIPT = """
-            eval virsh -c qemu:///session console $argv
+            spawn virsh -c qemu:///session console $argv
             set timeout -1
+            expect "Escape character"
+            send "\r"
             expect " login: "
-            send_user "root\r"
+            send "root\r"
             expect "Password: "
-            send_user "foobar\r"
+            send "foobar\r"
             expect " ~]# "
-            send_user "ip addr; echo ALL DONE\r"
-            expect "ALL DONE"
+            send "ip addr\r\n"
+            expect " ~]# "
             exit 0
         """
-        expect = subprocess.Popen(["expect", "--", str(self._domain.ID())], stdin=subprocess.PIPE)
+        expect = subprocess.Popen(["expect", "--", "-", str(self._domain.ID())], stdin=subprocess.PIPE)
         expect.communicate(SCRIPT)
 
     def _ip_from_mac(self, mac, timeout_sec = 300):

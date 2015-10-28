@@ -363,7 +363,8 @@ send_to_portal (CockpitPortal *self,
       return TRUE;
 
     case PORTAL_OPEN:
-      cockpit_transport_send (self->other, channel, payload);
+      if (self->transport)
+        cockpit_transport_send (self->other, channel, payload);
       return TRUE;
 
     case PORTAL_FAILED:

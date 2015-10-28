@@ -272,7 +272,7 @@ class GitHub(object):
             if priority > 0:
                 results.append((priority, "pull-%d" % number, revision, "pull/%d/head" % number))
 
-        results.sort(key=lambda v: v[0], reverse=True)
+        results.sort(key=lambda v: (v[0], v[1]), reverse=True)
         return results
 
 if __name__ == '__main__':

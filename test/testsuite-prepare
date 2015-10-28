@@ -83,6 +83,11 @@ if [ -z "$rpms" ]; then
   exit 1
 fi
 
+if [ -n "$TEST_ATTACHMENTS" ]; then
+    mkdir "$TEST_ATTACHMENTS"/mock
+    cp -r ../mock/*.log "$TEST_ATTACHMENTS"/mock
+fi
+
 ./vm-reset
 ./vm-download \
     cockpit-$TEST_OS-$TEST_ARCH \

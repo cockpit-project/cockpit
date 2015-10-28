@@ -858,7 +858,7 @@ class VirtMachine(Machine):
     def _diagnose_no_address(self):
         SCRIPT = """
             spawn virsh -c qemu:///session console $argv
-            set timeout -1
+            set timeout 300
             expect "Escape character"
             send "\r"
             expect " login: "

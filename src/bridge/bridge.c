@@ -43,6 +43,8 @@
 #include "common/cockpitunixfd.h"
 #include "common/cockpitwebresponse.h"
 
+#include <sys/prctl.h>
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -245,7 +247,7 @@ send_init_command (CockpitTransport *transport)
 }
 
 static void
-setup_daemon (gpointer addrfd)
+setup_dbus_daemon (gpointer addrfd)
 {
   g_unsetenv ("G_DEBUG");
   cockpit_unix_fd_close_all (3, GPOINTER_TO_INT (addrfd));
@@ -285,7 +287,7 @@ start_dbus_daemon (void)
           G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_STDOUT_TO_DEV_NULL;
 
   g_spawn_async_with_pipes (NULL, dbus_argv, NULL, flags,
-                            setup_daemon, GINT_TO_POINTER (addrfd[1]),
+                            setup_dbus_daemon, GINT_TO_POINTER (addrfd[1]),
                             &pid, NULL, NULL, NULL, &error);
 
   close (addrfd[1]);
@@ -351,6 +353,14 @@ out:
   return pid;
 }
 
+static void
+setup_ssh_agent (gpointer addrfd)
+{
+  g_unsetenv ("G_DEBUG");
+  prctl (PR_SET_PDEATHSIG, SIGTERM);
+  cockpit_unix_fd_close_all (3, GPOINTER_TO_INT (addrfd));
+}
+
 static GPid
 start_ssh_agent (void)
 {
@@ -382,7 +392,7 @@ start_ssh_agent (void)
 
   flags = G_SPAWN_SEARCH_PATH | G_SPAWN_STDOUT_TO_DEV_NULL;
   g_spawn_async (NULL, agent_argv, NULL, flags,
-                 setup_daemon, GINT_TO_POINTER (-1), &pid, &error);
+                 setup_ssh_agent, GINT_TO_POINTER (-1), &pid, &error);
 
   if (error != NULL)
     {

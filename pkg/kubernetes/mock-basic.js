@@ -78,7 +78,7 @@ define({
                     "restartCount": 0,
                     "containerID": "docker://9031b6aef7829ec029955377bd53642760899d4eed37738830756d0ce092a01d",
                     "podIP": "172.17.4.173",
-                    "image": "kubernetes/pause:latest",
+                    "image": "kubernetes/pause:0.8.0",
                     "imageID": "docker://6c4579af347b649857e915521132f15a06186d73faa62145e3eeeb6be0e97c27"
                 },
                 "slave": {

@@ -905,7 +905,7 @@ class TapRunner(object):
             buffer = OutputBuffer()
             options = os.WNOHANG
         offset = 0
-        failures = []
+        failures = { "count": 0 }
 
         def join_some(n):
             while len(pids) > n:
@@ -916,8 +916,11 @@ class TapRunner(object):
                     if buffer:
                         sys.stdout.write(buffer.pop(pid))
                     pids.remove(pid)
-                if code:
-                    failures.append(code)
+                if code & 0xff:
+                    failed = 1
+                else:
+                    failed = (code >> 8) & 0xff
+                failures["count"] += failed
 
         for test in testable:
             join_some(self.jobs - 1)
@@ -964,7 +967,7 @@ class TapRunner(object):
         # Report on the results
         duration = int(time.time() - start)
         details = "[{0}s on {1}]".format(duration, hostname)
-        count = len(failures)
+        count = failures["count"]
         if count:
             sys.stdout.write("# {0} TESTS FAILED {1}\n".format(count, details))
         else:

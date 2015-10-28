@@ -26,6 +26,8 @@ docker pull openshift/origin-deployer
 docker pull openshift/origin-deployer:v1.0.5
 docker pull openshift/origin-docker-registry
 docker pull openshift/origin-docker-registry:v1.0.5
+docker pull gcr.io/google_containers/pause:0.8.0
+docker pull beta.gcr.io/google_containers/pause:2.0
 docker run -d --name "origin" \
     --privileged --net=host --restart=always \
     -v /:/rootfs:ro -v /var/run:/var/run:rw -v /sys:/sys:ro -v /var/lib/docker:/var/lib/docker:rw \
@@ -75,6 +77,3 @@ oc create -f /tmp/imagestream.json
 # Wait for it to download
 wait images_has busybox
 sleep 20
-
-# And cleanup
-dnf -y remove yum

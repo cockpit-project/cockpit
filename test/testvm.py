@@ -867,14 +867,8 @@ class VirtMachine(Machine):
         expect = subprocess.Popen(["expect", "--", "-", str(self._domain.ID())], stdin=subprocess.PIPE)
         expect.communicate(SCRIPT)
 
-    def _ip_from_mac(self, mac, timeout_sec = 300):
-        # first see if we use a mac address defined in the network description
-        static_lease = self._static_lease_from_mac(mac)
-        if static_lease:
-            return static_lease["ip"]
-
-        # we didn't find it in the network description, so get it from the arp
-        # arp output looks like this.
+    def _ip_from_mac(self, mac, timeout_sec=300):
+        # Get address from the arp arp output looks like this.
         #
         # IP address     HW type  Flags  HW address         Mask  Device
         # 10.111.118.45  0x1      0x0    9e:00:03:72:00:04  *     cockpit1

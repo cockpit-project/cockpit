@@ -20,13 +20,23 @@ VIRSH=/bin/virsh
 QEMU_BRIDGE_HELPER=/usr/libexec/qemu-bridge-helper
 
 SELF=vm-prep
-. ./testlib.sh
 
 set -euf
 
 usage()
 {
 	echo >&2 "usage: $SELF [-u]"
+}
+
+warning()
+{
+	echo >&2 "$SELF: $@"
+}
+
+silent()
+{
+	"$@" > /dev/null 2> /dev/null
+	return $?
 }
 
 prepare()

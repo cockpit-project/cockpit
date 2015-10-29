@@ -1,0 +1,82 @@
+<html>
+  <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script>
+
+var tap_range = /^([0-9]+)\.\.([0-9]+)$/m;
+var tap_result = /^(ok|not ok) ([0-9]+) (.*$)/gm;
+
+function extract(text) {
+    var m;
+    var first, last, total, passed, failed;
+
+    $('#testing').hide();
+
+    if (m = tap_range.exec(text)) {
+        first = parseInt(m[1]);
+        last = parseInt(m[2]);
+        total = last-first+1;
+
+        passed = 0;
+        failed = 0;
+        $('#failures').empty();
+        while (m = tap_result.exec(text)) {
+            if(m[1] == "ok")
+                passed += 1;
+            else {
+                failed += 1;
+                $('#failures').append($('<li>').text(m[3]));
+            }
+        }
+
+        $('#total').text(total);
+        $('#passed').text(passed);
+        $('#failed').text(failed);
+        $('#left').text(total - passed - failed);
+        $('#testing').show();
+    }
+}
+
+var interval_id;
+
+function poll() {
+    $.get("log", "text").
+        done(function (text) {
+            $('#log').text(text);
+            extract(text);
+        });
+
+    $.get("status", "json").
+        done(function (text) {
+            var status = JSON.parse(text);
+            $('#message').text(status.message);
+            $('#status').show();
+            clearInterval(interval_id);
+        });
+}
+
+$(function () {
+    interval_id = setInterval(poll, 30000);
+    poll();
+});
+
+  </script>
+  <body>
+    <h1>Logs</h1>
+    <p>
+      <a href=".">Result directory</a>
+    </p>
+    <p id="testing" style="display:none">
+      <span id="total"></span> tests,
+      <span id="passed"></span> passed,
+      <span id="failed"></span> failed,
+      <span id="left"></span> to go.
+      <ul id="failures">
+      </ul>
+    </p>
+    <p id="status" style="display:none">
+      Done: <span id="message"></span>.
+    </p>
+    <pre id="log">
+    </pre>
+  </body>
+</html>

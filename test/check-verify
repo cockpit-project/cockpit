@@ -28,7 +28,9 @@ def start_publishing(github, host, name, revision):
                 "context": github.context(),
                 "description": testinfra.TESTING
             }
-        }
+        },
+        "link": "log.html",
+        "extras": [ "https://raw.githubusercontent.com/cockpit-project/cockpit/" + revision + "/test/files/log.html" ]
     }
     if name == "master":
         status['badge'] = {
@@ -59,6 +61,7 @@ def stop_publishing(sink, ret):
         mark_failed()
     sink.status["message"] = message
     sink.status["github"]["status"]["description"] = message
+    del sink.status["extras"]
     sink.flush()
 
 def check_valid(filename):

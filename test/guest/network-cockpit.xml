@@ -1,4 +1,4 @@
-<network>
+<network ipv6='yes'>
   <name>cockpit1</name>
   <uuid>f3605fa4-0763-41ea-8143-49da3bf73263</uuid>
   <forward mode='nat'>
@@ -18,4 +18,5 @@
       <host mac='52:54:00:9e:00:F4' ip='10.111.112.104' name='f4.cockpit.lan' cockpit:test="check-journal"/>
     </dhcp>
   </ip>
+  <ip family="ipv6" address="fd00:111:112::1" prefix="64"/>
 </network>

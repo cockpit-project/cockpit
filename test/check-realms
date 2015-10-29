@@ -62,7 +62,7 @@ class TestRealms(MachineCase):
         # Join cockpit.lan
         b.click("#system_information_realms_button")
         b.wait_popup("realms-op")
-        with b.wait_timeout(120):
+        with b.wait_timeout(180):
             b.set_val(".realms-op-address", "cockpit.lan")
             b.wait_attr(".realms-op-admin", "placeholder", 'e.g. "admin"')
             b.set_val(".realms-op-admin", "admin")

@@ -42,6 +42,7 @@ args = parser.parse_args()
 class MachineBuilder:
     def __init__(self, machine):
         self.machine = machine
+        self.macaddr = None
 
     def _setup_fstab(self,gf):
         gf.write("/etc/fstab", "/dev/vda / ext4 defaults\n")
@@ -143,8 +144,9 @@ class MachineBuilder:
 
     def run_setup_script(self, script, args):
         """Prepare a test image further by running some commands in it."""
-        self.machine.start(maintain=True)
+        self.machine.start(maintain=True, self.macaddr)
         try:
+            self.macaddr = self.machine.macaddr
             self.machine.wait_boot(wait_for_running_timeout=120)
             self.machine.upload([script], "/var/tmp/SETUP")
             env = {

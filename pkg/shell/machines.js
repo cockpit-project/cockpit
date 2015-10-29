@@ -139,30 +139,38 @@ define([
         self.add = function add(address, host_key) {
             var dfd = $.Deferred();
 
-            var values = { address: address, visible: true, color: self.unused_color() };
-            var json = self.change(address, values);
-            var append = $.Deferred();
+            function add_to_machines() {
+                var values = {
+                    address: address,
+                    visible: true,
+                    color: self.unused_color()
+                };
+
+                self.change(address, values)
+                    .done(function() {
+                        dfd.resolve(address);
+                    })
+                    .fail(function(ex) {
+                        dfd.reject(ex);
+                    });
+            }
 
             if (host_key) {
                 var known_hosts = cockpit.file("/var/lib/cockpit/known_hosts");
-                append = known_hosts.modify(function(data) {
-                    return data + "\n" + host_key;
-                });
-
-                append.always(function() {
-                    known_hosts.close();
-                });
+                known_hosts
+                    .modify(function(data) {
+                        return data + "\n" + host_key;
+                    })
+                    .done(add_to_machines)
+                    .fail(function(ex) {
+                        dfd.reject(ex);
+                    })
+                    .always(function() {
+                        known_hosts.close();
+                    });
             } else {
-                append.resolve();
+                add_to_machines();
             }
-
-            $.when(json, append)
-                .done(function(e, t) {
-                    dfd.resolve(address);
-                })
-                .fail(function(ex) {
-                    dfd.reject(ex);
-                });
 
             return dfd.promise();
         };

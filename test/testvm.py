@@ -77,8 +77,6 @@ class RepeatThis(Failure):
     pass
 
 class Machine:
-    boot_hook = None
-
     def __init__(self, address=None, flavor=None, system=None, arch=None, verbose=False, label=None):
         self.verbose = verbose
         self.flavor = flavor or DEFAULT_FLAVOR
@@ -152,14 +150,8 @@ class Machine:
         raise Failure("Timed out waiting for /run/nologin to disappear")
 
     def wait_boot(self):
-        """Wait for a machine to boot and execute hooks
-
-        This is usually overridden by derived classes.
-        """
-        if self.boot_hook:
-            environ = os.environ.copy()
-            environ["TEST_MACHINE"] = self.address
-            subprocess.check_call([ "/bin/sh", "-c", arg_vm_start_hook ], env=environ)
+        """Wait for a machine to boot"""
+        assert False, "Cannot wait for a machine we didn't start"
 
     def wait_poweroff(self):
         """Overridden by machine classes to wait for a machine to stop"""

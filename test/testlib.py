@@ -570,6 +570,12 @@ systemctl start docker
         # SELinux messages to ignore
         "(audit: )?type=1403 audit.*",
         "(audit: )?type=1404 audit.*",
+
+        # Messages from systemd libraries when they are in debug mode
+        'Successfully loaded SELinux database in.*',
+        'calling: info',
+        'Sent message type=method_call sender=.*',
+        'Got message type=method_return sender=.*',
     ]
 
     def allow_journal_messages(self, *patterns):
@@ -591,12 +597,6 @@ systemctl start docker
                                     'audit:.*denied.*2F6D656D66643A73642D73797374656D642D636F726564756D202864656C.*',
                                     'localhost: dropping message while waiting for child to exit',
                                     '.*: GDBus.Error:org.freedesktop.PolicyKit1.Error.Failed: .*',
-
-                                    # Messages from systemd libraries when they are in debug mode
-                                    'Successfully loaded SELinux database in.*',
-                                    'calling: info',
-                                    'Sent message type=method_call sender=.*',
-                                    'Got message type=method_return sender=.*',
                                     )
 
     def allow_authorize_journal_messages(self):

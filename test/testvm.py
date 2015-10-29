@@ -119,10 +119,12 @@ class Machine:
                     self.address = get_new_address()
                 except:
                     continue
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            addrinfo = socket.getaddrinfo(self.address, 22, 0, socket.SOCK_STREAM)
+            (family, socktype, proto, canonname, sockaddr) = addrinfo[0]
+            sock = socket.socket(family, socktype, proto)
             sock.settimeout(1)
             try:
-                sock.connect((self.address, 22))
+                sock.connect(sockaddr)
                 return True
             except:
                 pass
@@ -263,7 +265,7 @@ class Machine:
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
-        ] + sources + [ "%s@%s:%s" % (self.vm_username, self.address, dest), ]
+        ] + sources + [ "%s@[%s]:%s" % (self.vm_username, self.address, dest), ]
 
         self.message("Uploading", " ,".join(sources))
         self.message(" ".join(cmd))
@@ -284,7 +286,7 @@ class Machine:
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
-            "%s@%s:%s" % (self.vm_username, self.address, source), dest
+            "%s@[%s]:%s" % (self.vm_username, self.address, source), dest
         ]
 
         self.message("Downloading", source)
@@ -304,7 +306,7 @@ class Machine:
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
             "-r",
-            "%s@%s:%s" % (self.vm_username, self.address, source), dest
+            "%s@[%s]:%s" % (self.vm_username, self.address, source), dest
         ]
 
         self.message("Downloading", source)
@@ -994,7 +996,7 @@ class VirtMachine(Machine):
         if not serial:
             serial = "DISK%d" % index
 
-        path = os.path.join(self.run_dir, "disk-%s-%d" % (self.address, index))
+        path = os.path.join(self.run_dir, "disk-%s-%d" % (self._domain.name(), index))
         if os.path.exists(path):
             os.unlink(path)
 

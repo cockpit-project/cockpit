@@ -838,6 +838,15 @@ class VirtMachine(Machine):
             print "console, to quit use Ctrl+], Ctrl+5 (depending on locale)"
             proc = subprocess.Popen("virsh -c qemu:///session console %s" % self._domain.ID(), shell=True)
             proc.wait()
+            try:
+                if maintain:
+                    self.shutdown()
+                else:
+                    self.kill()
+            except libvirt.libvirtError, le:
+                # the domain may have already been freed (shutdown) while the console was running
+                self.message("libvirt error during shutdown: %s" % (le.get_error_message()))
+
         except:
             raise
         finally:

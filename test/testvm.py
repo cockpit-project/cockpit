@@ -826,10 +826,15 @@ class VirtMachine(Machine):
             self.address = self._ip_from_mac(self.macaddr)
 
     # start virsh console
-    def qemu_console(self, snapshot=False, macaddr=None):
+    def qemu_console(self, maintain=True, macaddr=None):
         try:
-            self._start_qemu(maintain=not snapshot, macaddr=macaddr, wait_for_ip=False)
+            self._start_qemu(maintain=maintain, macaddr=macaddr, wait_for_ip=False)
             self.message("started machine %s with address %s" % (self._domain.name(), self.address))
+            if maintain:
+                self.message("Changes are written to the image file.")
+                self.message("WARNING: Uncontrolled shutdown can lead to a corrupted image.")
+            else:
+                self.message("All changes are discarded, the image file won't be changed.")
             print "console, to quit use Ctrl+], Ctrl+5 (depending on locale)"
             proc = subprocess.Popen("virsh -c qemu:///session console %s" % self._domain.ID(), shell=True)
             proc.wait()

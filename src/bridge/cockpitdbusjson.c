@@ -1350,7 +1350,8 @@ on_add_match_ready (GObject *source,
   retval = g_dbus_connection_call_finish (G_DBUS_CONNECTION (source), result, &error);
   if (error)
     {
-      if (!g_cancellable_is_cancelled (self->cancellable))
+      if (!g_cancellable_is_cancelled (self->cancellable) &&
+          !g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CLOSED))
         {
           g_warning ("couldn't add match to bus: %s", error->message);
           cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");
@@ -1517,7 +1518,8 @@ on_remove_match_ready (GObject *source,
   retval = g_dbus_connection_call_finish (G_DBUS_CONNECTION (source), result, &error);
   if (error)
     {
-      if (!g_cancellable_is_cancelled (self->cancellable))
+      if (!g_cancellable_is_cancelled (self->cancellable) &&
+          !g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CLOSED))
         {
           g_warning ("couldn't remove match from bus: %s", error->message);
           cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");

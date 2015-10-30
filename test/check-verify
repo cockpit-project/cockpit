@@ -31,6 +31,7 @@ def start_publishing(github, host, name, revision):
         }
     }
     if name == "master":
+        status['irc'] = { }    # Only send to IRC when master
         status['badge'] = {
             'name': testinfra.OS + "-" + testinfra.ARCH,
             'description': testinfra.OS,
@@ -43,7 +44,8 @@ def stop_publishing(sink, ret):
         sink.status["github"]["status"]["state"] = "failure"
         if 'badge' in sink.status:
             sink.status['badge']['status'] = "failed"
-        # sink.status["irc"] = "#cockpit"
+        if "irc" in sink.status: # Never send success messages to IRC
+            sink.status["irc"]["channel"] = "#cockpit"
     def mark_passed():
         sink.status["github"]["status"]["state"] = "success"
         if 'badge' in sink.status:

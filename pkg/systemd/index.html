@@ -53,7 +53,9 @@
       {{/Server}}
       {{^Server}}
       <div translatable="yes">Not synchronized</div>
-      <a data-goto-sync-errors style="font-size:smaller">Log messages</a>
+      {{#service}}
+      <a data-goto-service="{{.}}" style="font-size:smaller">Log messages</a>
+      {{/service}}
       {{/Server}}
       {{/Synched}}
       {{#SubStatus}}

@@ -229,7 +229,8 @@ PageServer.prototype = {
             $elt.show();
 
             var model = {
-                Synched: self.server_time.timedate.NTPSynchronized
+                Synched: self.server_time.timedate.NTPSynchronized,
+                service: null
             };
 
             var timesyncd_server_regex = /.*time server (.*)\./i;
@@ -237,6 +238,9 @@ PageServer.prototype = {
             var timesyncd_status = (self.server_time.timesyncd_service.state == "running" &&
                                     self.server_time.timesyncd_service.service &&
                                     self.server_time.timesyncd_service.service.StatusText);
+
+            if (self.server_time.timesyncd_service.state == "running")
+                model.service = "systemd-timesyncd.service";
 
             if (timesyncd_status) {
                 var match = timesyncd_status.match(timesyncd_server_regex);
@@ -271,8 +275,9 @@ PageServer.prototype = {
             self.server_time.poll_ntp_synchronized();
         }, 5000);
 
-        $('#server').on('click', "[data-goto-sync-errors]", function () {
-            cockpit.jump("/system/services/#/systemd-timesyncd.service");
+        $('#server').on('click', "[data-goto-service]", function () {
+            var service = $(this).attr("data-goto-service");
+            cockpit.jump("/system/services/#/" + window.encodeURIComponent(service));
         });
 
         self.plot_controls = shell.setup_plot_controls($('#server'), $('#server-graph-toolbar'));

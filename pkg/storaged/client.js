@@ -102,41 +102,41 @@ define([
                                                        "/org/storaged/Storaged/Manager");
 
     client.mdraids = client.storaged_client.proxies("org.storaged.Storaged.MDRaid",
-                                                    "/org/storaged/Storaged/mdraid");
+                                                    "/org/storaged/Storaged");
 
     client.vgroups = client.storaged_client.proxies("org.storaged.Storaged.VolumeGroup",
-                                                    "/org/storaged/Storaged/lvm");
+                                                    "/org/storaged/Storaged");
 
     client.lvols = client.storaged_client.proxies("org.storaged.Storaged.LogicalVolume",
-                                                  "/org/storaged/Storaged/lvm");
+                                                  "/org/storaged/Storaged");
 
     client.drives = client.storaged_client.proxies("org.storaged.Storaged.Drive",
-                                                   "/org/storaged/Storaged/drives");
+                                                   "/org/storaged/Storaged");
 
     client.drives_ata = client.storaged_client.proxies("org.storaged.Storaged.Drive.Ata",
-                                                       "/org/storaged/Storaged/drives");
+                                                       "/org/storaged/Storaged");
 
     client.blocks = client.storaged_client.proxies("org.storaged.Storaged.Block",
-                                                   "/org/storaged/Storaged/block_devices");
+                                                   "/org/storaged/Storaged");
     client.blocks_ptable = client.storaged_client.proxies("org.storaged.Storaged.PartitionTable",
-                                                          "/org/storaged/Storaged/block_devices");
+                                                          "/org/storaged/Storaged");
     client.blocks_part = client.storaged_client.proxies("org.storaged.Storaged.Partition",
-                                                        "/org/storaged/Storaged/block_devices");
+                                                        "/org/storaged/Storaged");
     client.blocks_lvm2 = client.storaged_client.proxies("org.storaged.Storaged.Block.LVM2",
-                                                        "/org/storaged/Storaged/block_devices");
+                                                        "/org/storaged/Storaged");
     client.blocks_pvol = client.storaged_client.proxies("org.storaged.Storaged.PhysicalVolume",
-                                                        "/org/storaged/Storaged/block_devices");
+                                                        "/org/storaged/Storaged");
     client.blocks_fsys = client.storaged_client.proxies("org.storaged.Storaged.Filesystem",
-                                                        "/org/storaged/Storaged/block_devices");
+                                                        "/org/storaged/Storaged");
     client.blocks_crypto = client.storaged_client.proxies("org.storaged.Storaged.Encrypted",
-                                                          "/org/storaged/Storaged/block_devices");
+                                                          "/org/storaged/Storaged");
 
     client.storaged_jobs = client.storaged_client.proxies("org.storaged.Storaged.Job",
-                                                          "/org/storaged/Storaged/jobs");
+                                                          "/org/storaged/Storaged");
 
     client.udisks_client = cockpit.dbus("org.freedesktop.UDisks2");
     client.udisks_jobs = client.udisks_client.proxies("org.freedesktop.UDisks2.Job",
-                                                      "/org/freedesktop/UDisks2/jobs");
+                                                      "/org/freedesktop/UDisks2");
 
     /* Monitors
      */

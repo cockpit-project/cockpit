@@ -187,9 +187,9 @@ function chain(functions) {
     return dfd.promise();
 }
 
-function parse_passwd_content(content, tag, error) {
-    if (content === null) {
-        console.warn("Couldn't read /etc/passwd", error);
+function parse_passwd_content(content) {
+    if (!content) {
+        console.warn("Couldn't read /etc/passwd");
         return [ ];
     }
 
@@ -201,22 +201,24 @@ function parse_passwd_content(content, tag, error) {
         if (! lines[i])
             continue;
         column = lines[i].split(':');
-        ret[i] = [];
-        ret[i]["name"] = column[0];
-        ret[i]["password"] = column[1];
-        ret[i]["uid"] = parseInt(column[2], 10);
-        ret[i]["gid"] = parseInt(column[3], 10);
-        ret[i]["gecos"] = column[4];
-        ret[i]["home"] = column[5];
-        ret[i]["shell"] = column[6];
+        ret.push({
+            name: column[0],
+            password: column[1],
+            uid: parseInt(column[2], 10),
+            gid: parseInt(column[3], 10),
+            gecos: column[4],
+            home: column[5],
+            shell: column[6],
+        });
     }
 
     return ret;
 }
 
-function parse_group_content(content, tag, error) {
-    if (content === null) {
-        console.warn("Couldn't read /etc/group", error);
+function parse_group_content(content) {
+    content = (content || "").trim();
+    if (!content) {
+        console.warn("Couldn't read /etc/group");
         return [ ];
     }
 
@@ -228,11 +230,12 @@ function parse_group_content(content, tag, error) {
         if (! lines[i])
             continue;
         column = lines[i].split(':');
-        ret[i] = [];
-        ret[i]["name"] = column[0];
-        ret[i]["password"] = column[1];
-        ret[i]["gid"] = parseInt(column[2], 10);
-        ret[i]["userlist"] = column[3].split(',');
+        ret.push({
+            name: column[0],
+            password: column[1],
+            gid: parseInt(column[2], 10),
+            userlist: column[3].split(','),
+        });
     }
 
     return ret;
@@ -677,20 +680,18 @@ PageAccount.prototype = {
         var self = this;
 
         function parse_groups(content) {
-            var i, j;
-            self.groups = parse_group_content(content);
+            var groups = parse_group_content(content);
             while (self.roles.length > 0)
                 self.roles.pop();
-            for (i = 0, j = 0; i < self.groups.length; i++) {
-                if (self.groups[i]["name"] == "wheel" || self.groups[i]["name"] == "docker") {
-                   self.roles[j] = { };
-                   self.roles[j]["name"] = self.groups[i]["name"];
-                   self.roles[j]["desc"] = self.groups[i]["name"] == "wheel" ?
-                                           _("Server Administrator") :
-                                           _("Container Administrator");
-                   self.roles[j]["id"] = self.groups[i]["gid"];
-                   self.roles[j]["member"] = is_user_in_group(self.account_id, self.groups[i]);
-                   j++;
+            for (var i = 0; i < groups.length; i++) {
+                if (groups[i]["name"] == "wheel" || groups[i]["name"] == "docker") {
+                    self.roles.push({
+                        name: groups[i]["name"],
+                        desc: groups[i]["name"] == "wheel" ?  _("Server Administrator") :
+                                           _("Container Administrator"),
+                        id: groups[i]["gid"],
+                        member: is_user_in_group(self.account_id, groups[i]),
+                    });
                 }
             }
             $(self).triggerHandler("roles");

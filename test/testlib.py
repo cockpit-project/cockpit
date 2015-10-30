@@ -38,6 +38,7 @@ import re
 import json
 import signal
 import tempfile
+import time
 import unittest
 
 import testinfra
@@ -893,6 +894,10 @@ class TapRunner(object):
         sys.stdout.write("1..{0}\n".format(count))
         sys.stdout.flush()
 
+        # For statistics
+        start = time.time()
+        hostname = socket.gethostname().split(".")[0]
+
         pids = set()
         options = 0
         buffer = None
@@ -953,12 +958,17 @@ class TapRunner(object):
                 buffer.push(pid, rfd)
             offset += test.countTestCases()
 
+        # Wait for the remaining subprocesses
         join_some(0)
+
+        # Report on the results
+        duration = int(time.time() - start)
+        details = "[{0}s on {1}]".format(duration, hostname)
         count = len(failures)
         if count:
-            sys.stdout.write("# {0} TESTS FAILED\n".format(count))
+            sys.stdout.write("# {0} TESTS FAILED {1}\n".format(count, details))
         else:
-            sys.stdout.write("# TESTS PASSED\n")
+            sys.stdout.write("# TESTS PASSED {0}\n".format(details))
         return count
 
 def test_main(opts=None, suite=None, attachments=None, **kwargs):

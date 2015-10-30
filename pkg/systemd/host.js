@@ -232,7 +232,7 @@ PageServer.prototype = {
                 Synched: self.server_time.timedate.NTPSynchronized
             };
 
-            var timesyncd_server_regex = /Using Time Server (.*)./;
+            var timesyncd_server_regex = /.*time server (.*)\./i;
 
             var timesyncd_status = (self.server_time.timesyncd_service.state == "running" &&
                                     self.server_time.timesyncd_service.service &&

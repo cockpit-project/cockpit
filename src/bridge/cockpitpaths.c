@@ -130,6 +130,16 @@ cockpit_paths_new (void)
   return g_tree_new_full (tree_path_cmp, NULL, g_free, NULL);
 }
 
+/*
+ * cockpit_paths_add:
+ * @tree: The tree to add to
+ * @path: The path to add
+ *
+ * Adds the path if this path or a parent is not already
+ * in the tree. Will return %NULL if the path is already
+ * in the tree ... otherwise will return the internally
+ * reallocated path.
+ */
 const gchar *
 cockpit_paths_add (GTree *tree,
                    const gchar *path)
@@ -144,9 +154,10 @@ cockpit_paths_add (GTree *tree,
       pd->data = (gchar *)(pd + 1);
       memcpy ((gchar *)pd->data, path, key.len + 1);
       g_tree_replace (tree, pd, pd);
+      return pd->data;
     }
 
-  return pd->data;
+  return NULL;
 }
 
 gboolean

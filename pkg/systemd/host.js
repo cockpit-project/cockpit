@@ -148,7 +148,8 @@ function ServerTime() {
         client.call(timedate.path,
                     "org.freedesktop.DBus.Properties", "Get", [ "org.freedesktop.timedate1", "NTPSynchronized" ]).
             fail(function (error) {
-                if (error.name != "org.freedesktop.DBus.Error.UnknownProperty")
+                if (error.name != "org.freedesktop.DBus.Error.UnknownProperty" &&
+                    error.problem != "not-found")
                     console.log("can't get NTPSynchronized property", error);
             }).
             done(function (result) {

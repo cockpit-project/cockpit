@@ -181,7 +181,7 @@ $(client).on("owner", function(event, owner) { ... })
   <refsection id="cockpit-dbus-proxy">
     <title>client.proxy</title>
 <programlisting>
-proxy = client.proxy([interface, path])
+proxy = client.proxy([interface, path], [options])
 </programlisting>
 
     <para>Create proxy javascript object for a DBus <code>interface</code>. At the
@@ -265,6 +265,10 @@ $(proxy).on("Signal", function(event, arg1, arg2) {
     <para>Signals that do not start with an upper case letter can be subscribed to by
       using <link linkend="cockpit-dbus-proxy-signal"><code>proxy.onsignal</code></link>
       directly.</para>
+
+    <para>Usually a proxy asks the <code>client</code> to watch and notify it of changes
+      to the relevant object or path. You can pass an <code>options</code> argument with
+      the <code>watch</code> field set to <code>false</code> to prevent this.</para>
   </refsection>
 
   <refsection id="cockpit-dbus-proxy-client">
@@ -387,7 +391,7 @@ $(proxy).on("signal", function(event, name, args) {
   <refsection id="cockpit-dbus-proxies">
     <title>client.proxies</title>
 <programlisting>
-proxies = client.proxies([interface], [path_namespace])
+proxies = client.proxies([interface], [path_namespace], [options])
 </programlisting>
 
     <para>Create <link linkend="cockpit-dbus-proxy">proxy javascript objects</link> for
@@ -422,6 +426,10 @@ for (proxy in proxies) {
 
     <para>Use the <code>proxies.wait()</code> function to be notified when the initial
       set of proxies has been populated.</para>
+
+    <para>Usually a proxies ask the <code>client</code> to watch and be notified of changes
+      to the relevant object or path. You can pass an <code>options</code> argument with
+      the <code>watch</code> field set to <code>false</code> to prevent this.</para>
   </refsection>
 
   <refsection id="cockpit-dbus-proxies-wait">

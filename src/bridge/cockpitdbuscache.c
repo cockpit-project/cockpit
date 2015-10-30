@@ -1043,20 +1043,44 @@ process_interfaces (CockpitDBusCache *self,
     batch_unref (self, batch);
 }
 
+typedef struct {
+  GVariant *body;
+  const gchar *manager_added;
+} ProcessInterfacesData;
+
+static void
+retrieve_managed_objects (CockpitDBusCache *self,
+                          const gchar *namespace_path,
+                          BatchData *batch);
+
 static void
 process_interfaces_added (CockpitDBusCache *self,
                           gpointer user_data)
 {
-  GVariant *body = user_data;
+  ProcessInterfacesData *pis = user_data;
+  BatchData *batch = NULL;
   GVariant *interfaces;
   const gchar *path;
 
-  g_variant_get (body, "(&o@a{sa{sv}})", &path, &interfaces);
-  process_interfaces (self, NULL, NULL,
-                      intern_string (self, path), interfaces);
+  /*
+   * We added a manager while processing this message, perform a full manager
+   * load as part of the same batch.
+   */
+  if (pis->manager_added)
+    {
+      batch = batch_create (self);
+      retrieve_managed_objects (self, pis->manager_added, batch);
+    }
+
+  g_variant_get (pis->body, "(&o@a{sa{sv}})", &path, &interfaces);
+  process_interfaces (self, batch, NULL, intern_string (self, path), interfaces);
   g_variant_unref (interfaces);
 
-  g_variant_unref (user_data);
+  if (batch)
+    batch_unref (self, batch);
+
+  g_variant_unref (pis->body);
+  g_slice_free (ProcessInterfacesData, pis);
 }
 
 static void
@@ -1085,17 +1109,23 @@ static void
 process_interfaces_removed (CockpitDBusCache *self,
                             gpointer user_data)
 {
-  GVariant *body = user_data;
+  ProcessInterfacesData *pis = user_data;
   GVariant *array;
   const gchar *path;
   const gchar *interface;
   GVariantIter iter;
   BatchData *batch;
 
-
   batch = batch_create (self);
 
-  g_variant_get (body, "(&o@as)", &path, &array);
+  /*
+   * We added a manager while processing this message, perform a full manager
+   * load as part of the same batch.
+   */
+  if (pis->manager_added)
+    retrieve_managed_objects (self, pis->manager_added, batch);
+
+  g_variant_get (pis->body, "(&o@as)", &path, &array);
   path = intern_string (self, path);
 
   g_variant_iter_init (&iter, array);
@@ -1105,7 +1135,8 @@ process_interfaces_removed (CockpitDBusCache *self,
   batch_unref (self, batch);
 
   g_variant_unref (array);
-  g_variant_unref (body);
+  g_variant_unref (pis->body);
+  g_slice_free (ProcessInterfacesData, pis);
 }
 
 static void
@@ -1118,21 +1149,23 @@ on_manager_signal (GDBusConnection *connection,
                    gpointer user_data)
 {
   CockpitDBusCache *self = user_data;
+  CockpitDBusBarrierFunc barrier_func = NULL;
+  const gchar * manager_added;
+  ProcessInterfacesData *pis;
 
   /* Note that this is an ObjectManager */
-  cockpit_paths_add (self->managed, path);
+  manager_added = cockpit_paths_add (self->managed, path);
 
   if (g_str_equal (member, "InterfacesAdded"))
     {
       if (g_variant_is_of_type (body, G_VARIANT_TYPE ("(oa{sa{sv}})")))
         {
           g_debug ("%s: signal InterfacesAdded at %s", self->logname, path);
-          cockpit_dbus_cache_barrier (self, process_interfaces_added, g_variant_ref (body));
+          barrier_func = process_interfaces_added;
         }
       else
         {
           g_debug ("%s: received InterfacesAdded with bad type", self->logname);
-          return;
         }
     }
   else if (g_str_equal (member, "InterfacesRemoved"))
@@ -1140,13 +1173,20 @@ on_manager_signal (GDBusConnection *connection,
       if (g_variant_is_of_type (body, G_VARIANT_TYPE ("(oas)")))
         {
           g_debug ("%s: signal InterfacesRemoved at %s", self->logname, path);
-          cockpit_dbus_cache_barrier (self, process_interfaces_removed, g_variant_ref (body));
+          barrier_func = process_interfaces_removed;
         }
       else
         {
           g_debug ("%s: received InterfacesRemoved with bad type", self->logname);
-          return;
         }
+    }
+
+  if (barrier_func)
+    {
+      pis = g_slice_new0 (ProcessInterfacesData);
+      pis->body = g_variant_ref (body);
+      pis->manager_added = manager_added;
+      cockpit_dbus_cache_barrier (self, barrier_func, pis);
     }
 }
 
@@ -1689,13 +1729,36 @@ on_get_managed_objects_reply (GObject *source,
   g_slice_free (GetManagedObjectsData, gmod);
 }
 
+static void
+retrieve_managed_objects (CockpitDBusCache *self,
+                          const gchar *namespace_path,
+                          BatchData *batch)
+{
+  GetManagedObjectsData *gmod;
+
+  g_assert (namespace_path != NULL);
+
+  gmod = g_slice_new0 (GetManagedObjectsData);
+  gmod->batch = batch_ref (batch);
+  gmod->path = namespace_path;
+  gmod->self = g_object_ref (self);
+
+  g_debug ("%s: calling GetManagedObjects() on %s", self->logname, namespace_path);
+
+  g_dbus_connection_call (self->connection, self->name, namespace_path,
+                          "org.freedesktop.DBus.ObjectManager", "GetManagedObjects",
+                          g_variant_new ("()"), G_VARIANT_TYPE ("(a{oa{sa{sv}}})"),
+                          G_DBUS_CALL_FLAGS_NONE, -1, /* timeout */
+                          self->cancellable, on_get_managed_objects_reply, gmod);
+}
+
+
 void
 cockpit_dbus_cache_watch (CockpitDBusCache *self,
                           const gchar *path,
                           gboolean is_namespace,
                           const gchar *interface)
 {
-  GetManagedObjectsData *gmod;
   const gchar *namespace_path;
   BatchData *batch;
 
@@ -1718,18 +1781,7 @@ cockpit_dbus_cache_watch (CockpitDBusCache *self,
 
   if (namespace_path)
     {
-      gmod = g_slice_new0 (GetManagedObjectsData);
-      gmod->batch = batch_ref (batch);
-      gmod->path = namespace_path;
-      gmod->self = g_object_ref (self);
-
-      g_debug ("%s: calling GetManagedObjects() on %s", self->logname, namespace_path);
-
-      g_dbus_connection_call (self->connection, self->name, namespace_path,
-                              "org.freedesktop.DBus.ObjectManager", "GetManagedObjects",
-                              g_variant_new ("()"), G_VARIANT_TYPE ("(a{oa{sa{sv}}})"),
-                              G_DBUS_CALL_FLAGS_NONE, -1, /* timeout */
-                              self->cancellable, on_get_managed_objects_reply, gmod);
+      retrieve_managed_objects (self, namespace_path, batch);
     }
   else
     {

@@ -790,7 +790,7 @@ PageSystemInformationChangeSystime.prototype = {
         $('#change_systime [value="ntp_time"]').
             attr("disabled", !self.server_time.timedate.CanNTP? "disabled" : null);
         $('#change_systime [value="ntp_time_custom"]').
-            attr("disabled", !self.custom_ntp_supported? "disabled" : null);
+            attr("disabled", !(self.server_time.timedate.CanNTP && self.custom_ntp_supported)? "disabled" : null);
         $('#change_systime').selectpicker('refresh');
         $('#systime-parse-error').parents('tr').hide();
         $('#systime-timezone-error').parents('tr').hide();

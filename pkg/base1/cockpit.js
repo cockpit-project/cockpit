@@ -1550,7 +1550,7 @@ function full_scope(cockpit, $, po) {
             waits.fireWith(self);
     }
 
-    function DBusProxies(client, cache, iface, path_namespace) {
+    function DBusProxies(client, cache, iface, path_namespace, options) {
         var self = this;
 
         var waits = $.Callbacks("once memory");
@@ -1574,10 +1574,13 @@ function full_scope(cockpit, $, po) {
         client.subscribe(match);
 
         /* Watch for property changes */
-        client.watch(match).always(function() { waits.fire(); });
+        if (options.watch !== false)
+            client.watch(match).always(function() { waits.fireWith(self); });
+        else
+            waits.fireWith(self);
 
         /* Already added watch/subscribe, tell proxies not to */
-        var options = { watch: false, subscribe: false };
+        options = $.extend({ watch: false, subscribe: false }, options);
 
         function update(props, path) {
             var proxy = self[path];
@@ -1862,13 +1865,15 @@ function full_scope(cockpit, $, po) {
             return new Constructor(self, cache, iface, String(path), options);
         };
 
-        self.proxies = function proxies(iface, path_namespace) {
+        self.proxies = function proxies(iface, path_namespace, options) {
             if (!iface)
                 iface = name;
             if (!path_namespace)
                 path_namespace = "/";
+            if (!options)
+                options = { };
             ensure_cache();
-            return new DBusProxies(self, cache, String(iface), String(path_namespace));
+            return new DBusProxies(self, cache, String(iface), String(path_namespace), options);
         };
 
     }

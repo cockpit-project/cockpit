@@ -368,11 +368,13 @@ send_to_portal (CockpitPortal *self,
       return TRUE;
 
     case PORTAL_FAILED:
-      if (channel && !(flags & COCKPIT_PORTAL_FALLBACK) &&
-          g_hash_table_contains (self->channels, channel))
+      if ((flags & COCKPIT_PORTAL_FALLBACK) == 0)
         {
-          g_hash_table_remove (self->channels, channel);
-          send_close_channel (self, channel, self->problem);
+          if (channel && g_hash_table_contains (self->channels, channel))
+            {
+              g_hash_table_remove (self->channels, channel);
+              send_close_channel (self, channel, self->problem);
+            }
           return TRUE;
         }
       return FALSE;

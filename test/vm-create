@@ -144,7 +144,7 @@ class MachineBuilder:
 
     def run_setup_script(self, script, args):
         """Prepare a test image further by running some commands in it."""
-        self.machine.start(maintain=True, self.macaddr)
+        self.machine.start(maintain=True, macaddr=self.macaddr)
         try:
             self.macaddr = self.machine.macaddr
             self.machine.wait_boot(wait_for_running_timeout=120)

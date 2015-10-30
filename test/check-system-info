@@ -150,7 +150,7 @@ class TestSystemInfo(MachineCase):
 
         # Use systemd-timedated as the provider of
         # org.freedesktop.timedate1 instead of timedatex.
-        m.execute("systemctl disable timedatex; systemctl stop timedatex")
+        m.execute("systemctl disable timedatex; systemctl stop timedatex; systemctl unmask systemd-timedated")
 
         self.login_and_go("/system")
 

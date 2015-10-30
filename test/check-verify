@@ -190,6 +190,10 @@ def main():
         sink = start_publishing(github, opts.publish, name, revision)
         os.environ["TEST_ATTACHMENTS"] = sink.attachments
 
+    # Master is always thorough
+    if name == "master":
+        opts.thorough = True
+
     # Tell any subprocesses what we are testing
     os.environ["TEST_REVISION"] = revision
 

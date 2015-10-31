@@ -534,7 +534,12 @@ test_no_forwarding (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   g_assert_cmpstr (result, ==, problem);
+#ifdef HAVE_SSH_SET_AGENT_SOCKET
   g_assert_cmpstr (problem, ==, "no-forwarding");
+#else
+  g_assert_cmpstr (problem, ==, "authentication-not-supported");
+#endif
+
   g_free (problem);
   g_free (result);
 

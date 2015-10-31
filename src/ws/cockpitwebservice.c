@@ -964,6 +964,73 @@ on_session_closed (CockpitTransport *transport,
     }
 }
 
+
+static void
+parse_host (const gchar *host,
+            gchar **hostname,
+            gchar **username,
+            gint *port)
+{
+  gchar *user_arg = NULL;
+  gchar *host_arg = NULL;
+  gchar *tmp = NULL;
+  gchar *end = NULL;
+
+  guint port_num = cockpit_ws_specific_ssh_port;
+  guint64 tmp_num;
+
+  gsize host_offset = 0;
+  gsize host_length = strlen (host);
+
+  tmp = strrchr (host, '@');
+  if (tmp)
+    {
+      if (tmp[0] != host[0])
+      {
+        user_arg = g_strndup (host, tmp - host);
+        host_offset = strlen (user_arg) + 1;
+        host_length = host_length - host_offset;
+      }
+      else
+        {
+          g_message ("ignoring blank user in %s", host);
+        }
+    }
+
+  tmp = strrchr (host, ':');
+  if (tmp)
+    {
+      tmp_num = g_ascii_strtoull (tmp + 1, &end, 10);
+      if (end[0] == '\0' && tmp_num < G_MAXUSHORT)
+        {
+          port_num = (guint) tmp_num;
+          host_length = host_length - strlen (tmp);
+        }
+      else
+        {
+          g_message ("ignoring invalid port in %s", host);
+        }
+    }
+
+  host_arg = g_strndup (host + host_offset, host_length);
+  /* Overide hostname for tests */
+  if (cockpit_ws_specific_ssh_port != 0 &&
+      g_strcmp0 (host_arg, "localhost") == 0)
+    {
+      *hostname = g_strdup ("127.0.0.1");
+    }
+  else
+    {
+      *hostname = g_strdup (host_arg);
+    }
+
+  *username = g_strdup (user_arg);
+  *port = port_num;
+
+  g_free (host_arg);
+  g_free (user_arg);
+}
+
 static CockpitSession *
 lookup_or_open_session (CockpitWebService *self,
                         JsonObject *options)
@@ -972,9 +1039,12 @@ lookup_or_open_session (CockpitWebService *self,
   CockpitSshAgent *agent = NULL;
   CockpitTransport *transport;
   CockpitCreds *creds = NULL;
+  gchar *hostname = NULL;
+  gchar *username = NULL;
+  gint port;
+
   const gchar *host_key = NULL;
   const gchar *host = NULL;
-  const gchar *hostname;
   const gchar *specific_user;
   const gchar *password;
   gboolean private;
@@ -996,23 +1066,15 @@ lookup_or_open_session (CockpitWebService *self,
    */
   private = FALSE;
 
+  if (!cockpit_json_get_string (options, "password", NULL, &password))
+    password = NULL;
+
   if (cockpit_json_get_string (options, "user", NULL, &specific_user)
       && specific_user && !g_str_equal (specific_user, ""))
     {
-      if (!cockpit_json_get_string (options, "password", NULL, &password))
-        password = NULL;
-      creds = cockpit_creds_new (specific_user,
-                                 cockpit_creds_get_application (self->creds),
-                                 COCKPIT_CRED_PASSWORD, password,
-                                 COCKPIT_CRED_RHOST, cockpit_creds_get_rhost (self->creds),
-                                 NULL);
-
-      /* A private session for this host */
-      private = TRUE;
-    }
-  else
-    {
-      creds = cockpit_creds_ref (self->creds);
+      /* Forcing a user means a private session, unless otherwise specified */
+      if (!cockpit_json_get_bool (options, "temp-session", TRUE, &private))
+        private = TRUE;
     }
 
   if (!cockpit_json_get_string (options, "host-key", NULL, &host_key))
@@ -1022,20 +1084,34 @@ lookup_or_open_session (CockpitWebService *self,
 
   if (!private)
     session = cockpit_session_by_host (&self->sessions, host);
+
   if (!session)
     {
-      /* Used during testing */
-      hostname = host;
-      if (g_strcmp0 (host, "localhost") == 0)
+      parse_host (host, &hostname, &username, &port);
+      if (specific_user || username)
         {
-          if (cockpit_ws_specific_ssh_port != 0)
-            hostname = "127.0.0.1";
+          creds = cockpit_creds_new (specific_user != NULL ? specific_user : username,
+                                     cockpit_creds_get_application (self->creds),
+                                     COCKPIT_CRED_PASSWORD, password,
+                                     COCKPIT_CRED_RHOST, cockpit_creds_get_rhost (self->creds),
+                                     NULL);
         }
       else
         {
+          creds = cockpit_creds_ref (self->creds);
+        }
+
+      /* lookup local session only when not connecting
+       * to localhost host and when not testing with
+       * cockpit_ws_specific_ssh_port
+       */
+      if (g_strcmp0 (hostname, "localhost") != 0 &&
+          (g_strcmp0 (hostname, "127.0.0.1") != 0 ||
+           cockpit_ws_specific_ssh_port == 0))
+        {
           CockpitSession *local = cockpit_session_by_host (&self->sessions,
                                                            "localhost");
-          if (local->transport)
+          if (local && local->transport)
             {
                 gchar *next_id = cockpit_web_service_unique_channel (self);
                 gchar *channel_id = g_strdup_printf ("ssh-agent%s",
@@ -1050,7 +1126,7 @@ lookup_or_open_session (CockpitWebService *self,
 
       transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
                                 "host", hostname,
-                                "port", cockpit_ws_specific_ssh_port,
+                                "port", port,
                                 "command", cockpit_ws_bridge_program,
                                 "creds", creds,
                                 "known-hosts", cockpit_ws_known_hosts,
@@ -1066,14 +1142,18 @@ lookup_or_open_session (CockpitWebService *self,
 
       if (agent)
         g_object_unref (agent);
+
+      cockpit_creds_unref (creds);
+      g_free (hostname);
+      g_free (username);
     }
 
   json_object_remove_member (options, "host");
   json_object_remove_member (options, "user");
   json_object_remove_member (options, "password");
   json_object_remove_member (options, "host-key");
+  json_object_remove_member (options, "temp-session");
 
-  cockpit_creds_unref (creds);
   return session;
 }
 
@@ -1383,6 +1463,7 @@ on_web_socket_open (WebSocketConnection *connection,
       json_array_add_string_element (capabilities, "binary");
       json_array_add_string_element (capabilities, "ssh");
       json_array_add_string_element (capabilities, "multi");
+      json_array_add_string_element (capabilities, "connection-string");
       json_array_add_string_element (capabilities, "auth-method-results");
       json_object_set_array_member (object, "capabilities", capabilities);
     }

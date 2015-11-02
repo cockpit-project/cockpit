@@ -359,6 +359,9 @@
             "base1/cockpit",
             "shell/index"
         ], function(cockpit, index) {
+            /* For debugging and such */
+            window.cockpit = cockpit;
+
             /* Drain any initial messages we receive into the router */
             cockpit.transport.wait(function() {
                 window.removeEventListener("message", message_queue, false);

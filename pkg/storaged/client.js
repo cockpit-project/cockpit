@@ -92,47 +92,44 @@ define([
      */
 
     client.time_offset = undefined;  /* Number of milliseconds that the server is ahead of us. */
-
     client.storaged_features = undefined;
 
     client.storaged_client = cockpit.dbus("org.storaged.Storaged");
-    client.manager = client.storaged_client.proxy("org.storaged.Storaged.Manager",
-                                                  "/org/storaged/Storaged/Manager");
-    client.manager_lvm2 = client.storaged_client.proxy("org.storaged.Storaged.Manager.LVM2",
-                                                       "/org/storaged/Storaged/Manager");
 
-    client.mdraids = client.storaged_client.proxies("org.storaged.Storaged.MDRaid",
-                                                    "/org/storaged/Storaged");
+    function proxy(iface, path) {
+        return client.storaged_client.proxy(iface, path, { watch: true });
+    }
 
-    client.vgroups = client.storaged_client.proxies("org.storaged.Storaged.VolumeGroup",
-                                                    "/org/storaged/Storaged");
+    function proxies(iface) {
+        /* We create the proxies here with 'watch' set to false and
+         * establish a general watch for all of them.  This is more
+         * efficient since it reduces the number of D-Bus calls done
+         * by the cache.
+         */
+        return client.storaged_client.proxies(iface, "/org/storaged/Storaged",
+                                              { watch: false });
+    }
 
-    client.lvols = client.storaged_client.proxies("org.storaged.Storaged.LogicalVolume",
-                                                  "/org/storaged/Storaged");
+    client.storaged_client.watch({ path_namespace: "/org/storaged/Storaged" });
 
-    client.drives = client.storaged_client.proxies("org.storaged.Storaged.Drive",
-                                                   "/org/storaged/Storaged");
+    client.manager = proxy("org.storaged.Storaged.Manager",
+                           "/org/storaged/Storaged/Manager");
+    client.manager_lvm2 = proxy("org.storaged.Storaged.Manager.LVM2",
+                                "/org/storaged/Storaged/Manager");
 
-    client.drives_ata = client.storaged_client.proxies("org.storaged.Storaged.Drive.Ata",
-                                                       "/org/storaged/Storaged");
-
-    client.blocks = client.storaged_client.proxies("org.storaged.Storaged.Block",
-                                                   "/org/storaged/Storaged");
-    client.blocks_ptable = client.storaged_client.proxies("org.storaged.Storaged.PartitionTable",
-                                                          "/org/storaged/Storaged");
-    client.blocks_part = client.storaged_client.proxies("org.storaged.Storaged.Partition",
-                                                        "/org/storaged/Storaged");
-    client.blocks_lvm2 = client.storaged_client.proxies("org.storaged.Storaged.Block.LVM2",
-                                                        "/org/storaged/Storaged");
-    client.blocks_pvol = client.storaged_client.proxies("org.storaged.Storaged.PhysicalVolume",
-                                                        "/org/storaged/Storaged");
-    client.blocks_fsys = client.storaged_client.proxies("org.storaged.Storaged.Filesystem",
-                                                        "/org/storaged/Storaged");
-    client.blocks_crypto = client.storaged_client.proxies("org.storaged.Storaged.Encrypted",
-                                                          "/org/storaged/Storaged");
-
-    client.storaged_jobs = client.storaged_client.proxies("org.storaged.Storaged.Job",
-                                                          "/org/storaged/Storaged");
+    client.mdraids = proxies("org.storaged.Storaged.MDRaid");
+    client.vgroups = proxies("org.storaged.Storaged.VolumeGroup");
+    client.lvols = proxies("org.storaged.Storaged.LogicalVolume");
+    client.drives = proxies("org.storaged.Storaged.Drive");
+    client.drives_ata = proxies("org.storaged.Storaged.Drive.Ata");
+    client.blocks = proxies("org.storaged.Storaged.Block");
+    client.blocks_ptable = proxies("org.storaged.Storaged.PartitionTable");
+    client.blocks_part = proxies("org.storaged.Storaged.Partition");
+    client.blocks_lvm2 = proxies("org.storaged.Storaged.Block.LVM2");
+    client.blocks_pvol = proxies("org.storaged.Storaged.PhysicalVolume");
+    client.blocks_fsys = proxies("org.storaged.Storaged.Filesystem");
+    client.blocks_crypto = proxies("org.storaged.Storaged.Encrypted");
+    client.storaged_jobs = proxies("org.storaged.Storaged.Job");
 
     client.udisks_client = cockpit.dbus("org.freedesktop.UDisks2");
     client.udisks_jobs = client.udisks_client.proxies("org.freedesktop.UDisks2.Job",

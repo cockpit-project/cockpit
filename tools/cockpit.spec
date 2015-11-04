@@ -189,6 +189,9 @@ find %{buildroot}%{_datadir}/%{name}/system -type f >> shell.list
 echo '%dir %{_datadir}/%{name}/users' >> shell.list
 find %{buildroot}%{_datadir}/%{name}/users -type f >> shell.list
 
+echo '%dir %{_datadir}/%{name}/sosreport' > sosreport.list
+find %{buildroot}%{_datadir}/%{name}/sosreport -type f >> sosreport.list
+
 echo '%dir %{_datadir}/%{name}/subscriptions' > subscriptions.list
 find %{buildroot}%{_datadir}/%{name}/subscriptions -type f >> subscriptions.list
 
@@ -332,6 +335,17 @@ BuildArch: noarch
 This package contains the Cockpit shell UI assets.
 
 %files shell -f shell.list
+
+%package sosreport
+Summary: Cockpit user interface for diagnostic reports
+Requires: sos
+BuildArch: noarch
+
+%description sosreport
+The Cockpit component for creating diagnostic reports with the
+sosreport tool.
+
+%files sosreport -f sosreport.list
 
 %package storaged
 Summary: Cockpit user interface for storage, using Storaged

@@ -16,7 +16,7 @@
             </tr>
         </thead>
         <tbody data-ng-rubbish="" ng-if="0"
-            ng-repeat-start="item in pods | orderObjectBy:['metedata.namespace', 'metadata.name'] track by item.key">
+            ng-repeat-start="item in pods | orderObjectBy:['metadata.namespace', 'metadata.name'] track by item.key">
         </tbody>
         <tbody ng-repeat="(id, container) in containers(item) track by container.key"
             class="active" ng-class="{open: selected(id)}">

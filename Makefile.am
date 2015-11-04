@@ -244,6 +244,7 @@ include pkg/playground/Makefile.am
 include pkg/realmd/Makefile.am
 include pkg/registry/Makefile.am
 include pkg/shell/Makefile.am
+include pkg/sosreport/Makefile.am
 include pkg/subscriptions/Makefile.am
 include pkg/systemd/Makefile.am
 include pkg/storaged/Makefile.am

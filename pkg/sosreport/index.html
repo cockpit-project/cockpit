@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<!--
+This file is part of Cockpit.
+
+Copyright (C) 2015 Red Hat, Inc.
+
+Cockpit is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or
+(at your option) any later version.
+
+Cockpit is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+  <head>
+    <title translatable="yes">Diagnostic reports</title>
+    <meta charset="utf-8">
+    <link href="../base1/cockpit.css" rel="stylesheet">
+    <link href="sosreport.css" rel="stylesheet">
+    <script type="text/javascript" src="../base1/bundle.js"></script>
+  </head>
+  <body hidden>
+    <script>
+      require([
+        "sosreport/index"
+      ], function(sosreport) {
+        sosreport.init();
+      });
+    </script>
+
+    <div style="text-align:center;margin:20px">
+      <img src="sosreport.png">
+      <p translatable="yes">
+        This tool will collect system configuration and diagnostic
+        information from this system for use with diagnosing problems
+        with the system.
+      </p>
+      <p translatable="yes">
+        The collected information will be stored locally on the system.
+      </p>
+      <button translatable="yes" class="btn btn-primary"
+              data-toggle="modal" data-target="#sos">Create report</button>
+    </div>
+
+    <div class="modal" id="sos" tabindex="-1" role="dialog" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" translatable="yes">Create diagnostic report</h4>
+          </div>
+          <div class="modal-body">
+            <div id="sos-intro" hidden>
+            </div>
+            <div id="sos-alert" class="alert alert-info">
+              <span class="pficon pficon-info"></span>
+              <span class="alert-message" translatable="yes">
+                The generated archive contains data considered
+                sensitive and its content should be reviewed by the
+                originating organization before being passed to any
+                third party.
+              </span>
+            </div>
+            <div id="sos-progress">
+              <center>
+                <div translatable="yes" style="margin-bottom:5px">Generating report</div>
+                <div class="progress">
+                  <div class="progress-bar" role="progressbar" style="width: 0%;"></div>
+                </div>
+              </center>
+            </div>
+            <div id="sos-download">
+              <center>
+                <div translatable="yes" style="margin-bottom:5px">Done!</div>
+                <button class="btn btn-primary">Download report</button>
+              </center>
+            </div>
+            <div id="sos-error">
+              <div class="alert alert-danger">
+                <span class="pficon pficon-error-circle-o"></span>
+                <span class="alert-message"></span>
+              </div>
+              <textarea id="sos-error-extra">
+              </textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button id="sos-cancel" class="btn btn-default"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

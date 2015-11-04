@@ -4,15 +4,6 @@ set -ex
 
 echo foobar | passwd --stdin root
 
-# Let's not bother with SELinux until f23 is released.
-#
-# Known problems:
-#   https://bugzilla.redhat.com/show_bug.cgi?id=1250842
-#
-setenforce 0
-ln -sf ../selinux/config /etc/sysconfig/selinux
-echo 'SELINUX=permissive' > /etc/selinux/config
-
 # We install all dependencies of the cockpit packages since we want
 # them to not spontaneously change from one test run to the next when
 # the distribution repository is updated.
@@ -93,6 +84,9 @@ docker pull submod/atomicapp
 rm -rf /var/log/journal/*
 echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
 printf "[Coredump]\nStorage=journal\n" > /etc/systemd/coredump.conf
+
+ln -sf ../selinux/config /etc/sysconfig/selinux
+printf "SELINUX=enforcing\nSELINUXTYPE=targeted\n" > /etc/selinux/config
 
 touch /.autorelabel
 

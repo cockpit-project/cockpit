@@ -13,7 +13,7 @@ disks or network adapters.
 
 ## Using Vagrant
 
-It's possible to test and work on on Cockpit web assets by just using
+It's possible to test and work on Cockpit web assets by just using
 Vagrant. In the top level directory of the repository, you can run:
 
     $ sudo vagrant up

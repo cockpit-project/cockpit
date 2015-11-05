@@ -70,6 +70,10 @@ dnf -y --disablerepo=updates-testing reinstall docker-selinux
 
 dnf -y upgrade
 
+# HACK: We need atomic from updates-testing, but it has a dependency bug
+# https://bodhi.fedoraproject.org/updates/atomic-1.4-1.git9d724aa.fc23
+dnf -y --enablerepo=updates-testing upgrade atomic python3-dbus
+
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker
 

@@ -286,6 +286,10 @@ var driver = {
     ping: function(respond) {
         respond({ result: "pong" });
     },
+
+    cookies: function(respond) {
+        respond({ result: phantom.cookies });
+    }
 };
 
 function step() {

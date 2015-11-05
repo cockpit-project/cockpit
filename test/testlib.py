@@ -147,6 +147,13 @@ class Browser:
     def call_js_func(self, func, *args):
         return self.phantom.eval("%s(%s)" % (func, ','.join(map(jsquote, args))))
 
+    def cookie(self, name):
+        cookies = self.phantom.cookies()
+        for c in cookies:
+            if c['name'] == name:
+                return c['value']
+        return None
+
     def go(self, hash, host="localhost"):
         # if not hash.startswith("/@"):
         #    hash = "/@" + host + hash

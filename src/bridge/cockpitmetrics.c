@@ -189,7 +189,10 @@ on_timeout_tick (gpointer data)
   else if (next_interval / 1000 <= G_MAXUINT)
     self->priv->timeout = g_timeout_add_seconds (next_interval / 1000, on_timeout_tick, self);
   else
-    cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");
+    {
+      g_warning ("invalid metric timeout tick offset");
+      cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");
+    }
 
   return FALSE;
 }

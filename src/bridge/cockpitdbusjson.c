@@ -2010,6 +2010,7 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
       self->connection = cockpit_dbus_internal_client ();
       if (self->connection == NULL)
         {
+          g_warning ("no internal DBus connection");
           problem = "internal-error";
           goto out;
         }

@@ -1829,15 +1829,20 @@ function full_scope(cockpit, $, po) {
             calls[id] = dfd;
 
             var msg = JSON.stringify({ "watch": match, "id": id });
-            dbus_debug("dbus:", msg);
-            channel.send(msg);
+            if (channel && channel.valid) {
+                dbus_debug("dbus:", msg);
+                channel.send(msg);
+            } else {
+                console.log("rejecting watch with", closed);
+                dfd.reject(new DBusError(closed));
+            }
 
             var jpromise = dfd.promise;
             dfd.promise = function() {
                 return $.extend(jpromise.apply(this, arguments), {
                     remove: function remove() {
                         delete calls[id];
-                        if (channel.valid) {
+                        if (channel && channel.valid) {
                             msg = JSON.stringify({ "unwatch": match });
                             dbus_debug("dbus:", msg);
                             channel.send(msg);

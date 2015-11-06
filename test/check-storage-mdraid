@@ -188,8 +188,8 @@ class TestStorage(StorageCase):
         self.raid_action("Delete")
         self.confirm()
         with b.wait_timeout(120):
-	    b.wait_visible("#storage")
-	    b.wait_not_in_text ("#mdraids", "ARR")
+            b.wait_visible("#storage")
+            b.wait_not_in_text ("#mdraids", "ARR")
 
 if __name__ == '__main__':
     test_main()

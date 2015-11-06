@@ -42,5 +42,7 @@ class TestLoopback(MachineCase):
         b.wait_visible('#login-fatal')
         self.assertIn("The server refused to authenticate 'admin' using password authentication, and no other supported authentication methods are available.", b.text('#login-fatal'));
 
+        self.allow_journal_messages("cockpit-polkit: couldn't respond to polkit daemon: GDBus\\.Error:org\\.freedesktop\\.PolicyKit1\\.Error\\.Failed: No session for cookie")
+
 if __name__ == '__main__':
     test_main()

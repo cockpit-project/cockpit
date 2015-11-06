@@ -387,7 +387,7 @@ define([
                                     { value: "raid4",  Title: _("RAID 4 (Dedicated Parity)") },
                                     { value: "raid5",  Title: _("RAID 5 (Distributed Parity)"), selected: true },
                                     { value: "raid6",  Title: _("RAID 6 (Double Distributed Parity)") },
-                                    { value: "raid10", Title: _("AID 10 (Stripe of Mirrors)") }
+                                    { value: "raid10", Title: _("RAID 10 (Stripe of Mirrors)") }
                                 ]
                               },
                               { SelectOne: "chunk",

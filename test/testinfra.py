@@ -137,7 +137,7 @@ class GitHub(object):
         self.available = self.token and True or False
 
     def context(self):
-        return "test/" + OS + "/" + ARCH
+        return OS + "/" + ARCH
 
     def qualify(self, resource):
         return urlparse.urljoin(self.base, resource)

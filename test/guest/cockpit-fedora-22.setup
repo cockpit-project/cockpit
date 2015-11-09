@@ -2,6 +2,13 @@
 
 set -ex
 
+# HACK - virt-resize might not be able to resize our xfs rootfs,
+# depending on how it was compiled and which plugins are installed,
+# and will just silently not do it.  So we do it here.
+#
+xfs_growfs /
+df -h /
+
 echo foobar | passwd --stdin root
 
 # We install all dependencies of the cockpit packages since we want

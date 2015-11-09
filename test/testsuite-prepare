@@ -78,7 +78,7 @@ if [ "$install_selinux" == "no" ]; then
 cockpit-selinux"
 fi
 
-rpms=$(../tools/make-rpms $make_rpms_opts | grep -vF "$skip")
+rpms=$(../tools/make-rpms $make_rpms_opts | grep -vF "$skip" || true)
 
 # Upload the build logs if desired
 if [ -n "${TEST_ATTACHMENTS:-}" ]; then

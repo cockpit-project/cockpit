@@ -7,7 +7,7 @@ SELF=testsuite-prepare
 
 make_rpms_opts=
 cockpit_create_opts=
-install_selinux=yes
+install_selinux=no
 install_opts=
 use_make_rpms_rev=yes
 
@@ -24,7 +24,6 @@ while [ $# -gt 0 ]; do
     -c|--clean)
         make_rpms_opts="$make_rpms_opts --clean"
         cockpit_create_opts="--force --no-save"
-        install_selinux=no
         use_make_rpms_rev=no
         ;;
     -q|--quick)

@@ -250,7 +250,6 @@ include src/static/Makefile-static.am
 include src/remotectl/Makefile-remotectl.am
 include src/reauthorize/Makefile-reauthorize.am
 include src/retest/Makefile.am
-include src/selinux/Makefile-selinux.am
 include src/pam-ssh-add/Makefile.am
 include branding/default/Makefile.am
 include branding/fedora/Makefile.am

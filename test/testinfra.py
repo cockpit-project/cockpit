@@ -275,6 +275,15 @@ class GitHub(object):
         results.sort(key=lambda v: v[0], reverse=True)
         return results
 
+    def trigger(self, pull_number):
+        # TODO
+        # - honor whitelist
+        # - only trigger failed
+        pull = self.get("pulls/" + pull_number)
+        revision = pull['head']['sha']
+        status = { "state": "pending", "description": "Not yet tested", "context": self.context() }
+        self.post("statuses/" + revision, status)
+
 if __name__ == '__main__':
     github = GitHub("/repos/cockpit-project/cockpit/")
     for (priority, name, revision, ref) in github.scan(True):

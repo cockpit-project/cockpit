@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+
+import sys
+import argparse
+import testinfra
+
+sys.dont_write_bytecode = True
+
+def main():
+    parser = argparse.ArgumentParser(description='Manually trigger CI Robots')
+    parser.add_argument('pull')
+    opts = parser.parse_args()
+
+    github = testinfra.GitHub()
+    github.trigger(opts.pull)
+
+if __name__ == '__main__':
+    sys.exit(main())

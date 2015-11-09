@@ -77,6 +77,18 @@ dnf -y reinstall docker-selinux
 # https://bodhi.fedoraproject.org/updates/atomic-1.4-1.git9d724aa.fc23
 dnf -y --enablerepo=updates-testing upgrade atomic python3-dbus
 
+# Prepare for building
+dnf -y install mock dnf-plugins-core
+useradd -u 2000 -c Builder -G mock builder
+
+# HACK - mock --installdeps with yum is broken, it seems that it can't
+# run any package scriptlets.  Yum is deprecated anyway so we just use
+# dnf.  I wonder why dnf isn't the default anyway...
+#
+echo "config_opts['package_manager'] = 'dnf'" >>/etc/mock/site-defaults.cfg
+
+su - builder -c "mock --verbose --installdeps $TEST_SOURCE_PACKAGE"
+
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker
 

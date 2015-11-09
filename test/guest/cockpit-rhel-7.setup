@@ -45,7 +45,7 @@ wget -T 15 -t 4 https://copr.fedoraproject.org/coprs/phatina/storaged/repo/epel-
 yum-config-manager --enable rhel-7-server-optional-rpms
 yum-config-manager --enable rhel-7-server-extras-rpms
 
-# enable epel for libssh
+# enable epel for libssh and mock
 mkdir /tmp/dep
 cd /tmp/dep
 wget -T 15 -t 4 http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
@@ -94,6 +94,11 @@ gdb
 "
 
 yum install --nogpgcheck -y $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+
+# Prepare for building
+yum -y install mock
+useradd -u 2000 -c Builder -G mock builder
+su - builder -c "mock --verbose --installdeps $TEST_SOURCE_PACKAGE"
 
 subscription-manager unregister
 

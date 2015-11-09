@@ -4,7 +4,7 @@
 [![Fedora 22 Cloud Atomic Host build status](https://cockpit.fedorapeople.org/hubbot/status-f22-atomic-x86_64.svg?master)](https://cockpit.fedorapeople.org/hubbot/)
 [![Fedora 22 Testing build status](https://cockpit.fedorapeople.org/hubbot/status-f22-t-x86_64.svg?master)](https://cockpit.fedorapeople.org/hubbot/)
 
-[![Fedora 23 build status](https://fedorapeople.org/groups/cockpit/status/fedora-23-x86_64.svg)](https://fedorapeople.org/groups/cockpit/status/fedora-23-x86_64.html)
+[![Fedora 23 build status](http://files.cockpit-project.org/status/fedora-23-x86_64.svg)](http://files.cockpit-project.org/status/fedora-23-x86_64.html)
 
 [![RHEL 7 build status](https://fedorapeople.org/groups/cockpit/status/rhel-7-x86_64.svg)](https://fedorapeople.org/groups/cockpit/status/rhel-7-x86_64.html)
 

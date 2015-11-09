@@ -9,7 +9,6 @@
 #
 # Globals that may be defined elsewhere
 #  * gitcommit xxxx
-#  * selinux 1
 #  * tag 0.71
 #
 
@@ -21,20 +20,8 @@
 %define branding default
 %endif
 
-#Defaults for our SELinux policy toggle
-%if %{undefined selinux}
-%if %{defined gitcommit}
-%define selinux 1
-%endif
-%if 0%{?fedora} > 0 && 0%{?fedora} <= 21
-%define selinux 1
-%endif
-%if 0%{?rhel}
-%define selinux 1
-%endif
 %if 0%{?centos}
 %define rhel 0
-%endif
 %endif
 
 %define _hardened_build 1
@@ -92,14 +79,6 @@ BuildRequires: nodejs
 BuildRequires: krb5-server
 %endif
 
-# For selinux
-%if 0%{?selinux}
-BuildRequires: selinux-policy-devel
-BuildRequires: checkpolicy
-BuildRequires: selinux-policy-doc
-BuildRequires: sed
-%endif
-
 # For documentation
 BuildRequires: xmlto
 
@@ -151,6 +130,7 @@ Requires: glib-networking
 Requires: openssl
 Requires: glib2 >= 2.37.4
 Requires: libssh >= %{libssh_version}
+Obsoletes: cockpit-selinux-policy <= 0.83
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
@@ -170,9 +150,6 @@ env NOCONFIGURE=1 ./autogen.sh
 %endif
 %configure --disable-static --disable-silent-rules --with-cockpit-user=cockpit-ws --with-branding=%{branding}
 make -j %{?extra_flags} all
-%if 0%{?selinux}
-make selinux
-%endif
 
 %check
 make -j check
@@ -190,10 +167,6 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/%{name}/
-%if 0%{?selinux}
-install -d %{buildroot}%{_datadir}/selinux/targeted
-install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
-%endif
 
 # Build the package lists for resource packages
 echo '%dir %{_datadir}/%{name}/base1' > shell.list
@@ -442,40 +415,6 @@ pulls in some necessary packages via dependencies.
 %{_unitdir}/cockpit-testing.socket
 %{_unitdir}/test-server.service
 %{_unitdir}/test-server.socket
-
-%endif
-
-%if 0%{?selinux}
-
-%package selinux-policy
-Summary: SELinux policy for Cockpit testing
-Requires: %{name} = %{version}-%{release}
-Requires: selinux-policy
-Requires: selinux-policy-targeted
-Requires(post): /usr/sbin/semodule, /sbin/restorecon, /sbin/fixfiles
-Requires(postun): /usr/sbin/semodule, /sbin/restorecon, /sbin/fixfiles
-BuildArch: noarch
-
-%description selinux-policy
-SELinux policy for Cockpit testing.
-
-%files selinux-policy
-%defattr(-,root,root,0755)
-%{_datadir}/selinux/targeted/cockpit.pp
-
-%post selinux-policy
-/usr/sbin/semodule -s targeted -i %{_datadir}/selinux/targeted/cockpit.pp
-/sbin/fixfiles -R cockpit restore || :
-/sbin/fixfiles -R cockpit-test-assets restore || :
-/sbin/restorecon -R %{_localstatedir}/lib/%{name}
-
-%postun selinux-policy
-if [ $1 -eq 0 ] ; then
-  /usr/sbin/semodule -s targeted -r cockpit &> /dev/null || :
-  /sbin/fixfiles -R cockpit-selinux-policy restore || :
-  [ -d %{_localstatedir}/lib/%{name} ]  && \
-    /sbin/restorecon -R %{_localstatedir}/lib/%{name} &> /dev/null || :
-fi
 
 %endif
 

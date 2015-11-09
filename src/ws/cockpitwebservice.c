@@ -54,7 +54,7 @@ const gchar *cockpit_ws_session_program =
 const gchar *cockpit_ws_bridge_program = NULL;
 
 const gchar *cockpit_ws_known_hosts =
-    PACKAGE_LOCALSTATE_DIR "/lib/cockpit/known_hosts";
+    PACKAGE_LOCALSTATE_DIR "/known_hosts";
 
 const gchar *cockpit_ws_default_host_header =
     "0.0.0.0:0"; /* Must be something invalid */

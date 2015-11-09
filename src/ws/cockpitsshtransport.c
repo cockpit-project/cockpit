@@ -35,6 +35,7 @@
 
 #include <glib/gstdio.h>
 
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -119,6 +120,49 @@ ssh_msg_is_disconnected (const gchar *msg)
 }
 
 /*
+ * HACK: SELinux prevents us from writing to the directories we want to
+ * write to, so we have to try multiple locations.
+ *
+ * https://bugzilla.redhat.com/show_bug.cgi?id=1279430
+ */
+static gchar *
+create_knownhosts_temp (void)
+{
+  const gchar *directories[] = {
+      PACKAGE_LOCALSTATE_DIR,
+      "/tmp",
+      NULL,
+  };
+
+  gchar *name;
+  int i, fd, err;
+
+  for (i = 0; directories[i] != NULL; i++)
+    {
+      name = g_build_filename (directories[i], "known-hosts.XXXXXX", NULL);
+      fd = mkstemp (name);
+      err = errno;
+
+      if (fd >= 0)
+        {
+          close (fd);
+          return name;
+        }
+
+      g_free (name);
+
+      if ((err == ENOENT || err == EPERM || err == EACCES) && directories[i + 1] != NULL)
+        continue;
+
+      g_warning ("couldn't make temporary file for knownhosts line in %s: %m", directories[i]);
+      break;
+    }
+
+  return NULL;
+}
+
+
+/*
  * NOTE: This function changes the SSH_OPTIONS_KNOWNHOSTS option on
  * the session.
  *
@@ -132,19 +176,14 @@ ssh_msg_is_disconnected (const gchar *msg)
 static gchar *
 get_knownhosts_line (ssh_session session)
 {
-  char name[] = "/tmp/cockpit-XXXXXX";
-  int fd;
+
+  gchar *name = NULL;
   GError *error = NULL;
   gchar *line = NULL;
 
-  fd = mkstemp (name);
-  if (fd == -1)
-    {
-      g_warning ("Couldn't make temporary name for knownhosts line: %m");
-      goto out;
-    }
-
-  close (fd);
+  name = create_knownhosts_temp ();
+  if (!name)
+    goto out;
 
   if (ssh_options_set (session, SSH_OPTIONS_KNOWNHOSTS, name) != SSH_OK)
     {
@@ -168,8 +207,11 @@ get_knownhosts_line (ssh_session session)
   g_strstrip (line);
 
 out:
-  if (fd != -1)
-    g_unlink (name);
+  if (name)
+    {
+      g_unlink (name);
+      g_free (name);
+    }
 
   return line;
 }
@@ -1355,7 +1397,7 @@ cockpit_ssh_transport_set_property (GObject *obj,
     case PROP_KNOWN_HOSTS:
       string = g_value_get_string (value);
       if (string == NULL)
-        string = PACKAGE_LOCALSTATE_DIR "/lib/cockpit/known_hosts";
+        string = PACKAGE_LOCALSTATE_DIR "/known_hosts";
       ssh_options_set (self->data->session, SSH_OPTIONS_KNOWNHOSTS, string);
       self->data->knownhosts_file = g_strdup (string);
       break;

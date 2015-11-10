@@ -101,13 +101,11 @@ install-exec-hook::
 EXTRA_DIST += \
 	src/ws/cockpit.service.in \
 	src/ws/cockpit-testing.service.in \
-	src/ws/test-server.service.in \
 	$(firewall_DATA) \
 	$(NULL)
 
 CLEANFILES += \
 	cockpit-testing.service \
-	test-server.service \
 	cockpit.service \
 	$(NULL)
 
@@ -157,14 +155,7 @@ test_server_LDADD = 					\
 	-lpam 						\
 	$(NULL)
 
-testassets_systemdunit_data += \
-	$(srcdir)/src/ws/cockpit-testing.socket \
-	$(srcdir)/src/ws/test-server.socket
-
-test-server.service : src/ws/test-server.service.in Makefile
-	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
-noinst_DATA += test-server.service
-testassets_systemdunit_data += test-server.service
+testassets_systemdunit_data += $(srcdir)/src/ws/cockpit-testing.socket
 
 WS_CHECKS = \
 	test-creds \

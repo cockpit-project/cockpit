@@ -140,9 +140,6 @@ The Cockpit Web Service listens on the network, and authenticates users.
 
 %prep
 %setup -q
-%if 0%{?fedora} == 20
-	sed -i s/unconfined_service_t/unconfined_t/g src/ws/test-server.service.in
-%endif
 
 %build
 %if %{defined gitcommit}
@@ -413,8 +410,6 @@ pulls in some necessary packages via dependencies.
 %{_datadir}/polkit-1/rules.d
 %{_unitdir}/cockpit-testing.service
 %{_unitdir}/cockpit-testing.socket
-%{_unitdir}/test-server.service
-%{_unitdir}/test-server.socket
 
 %endif
 

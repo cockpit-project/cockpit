@@ -402,21 +402,23 @@ convert_metric_description (CockpitInternalMetrics *self,
   MetricDescription *desc = find_metric_description (name);
   if (desc == NULL)
     {
-      g_warning ("%s: unknown internal metric %s", self->name, name);
-      return FALSE;
+      g_message ("%s: unknown internal metric %s", self->name, name);
     }
-
-  if (units && g_strcmp0 (desc->units, units) != 0)
+  else
     {
-      g_warning ("%s: %s has units %s, not %s", self->name, name, desc->units, units);
-      return FALSE;
+      if (units && g_strcmp0 (desc->units, units) != 0)
+        {
+          g_warning ("%s: %s has units %s, not %s", self->name, name, desc->units, units);
+          return FALSE;
+        }
+
+      if (desc->instanced)
+        info->instances = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+
+      info->desc = desc;
+      self->samplers |= desc->sampler;
     }
 
-  if (desc->instanced)
-    info->instances = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-
-  info->desc = desc;
-  self->samplers |= desc->sampler;
   return TRUE;
 }
 
@@ -463,6 +465,11 @@ cockpit_internal_metrics_prepare (CockpitChannel *channel)
       MetricInfo *info = &self->metrics[i];
       if (!convert_metric_description (self, json_array_get_element (metrics, i), info, i))
         goto out;
+      if (!info->desc)
+        {
+          problem = "not-supported";
+          goto out;
+        }
     }
 
   /* "interval" option */

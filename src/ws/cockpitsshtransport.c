@@ -144,103 +144,6 @@ ssh_msg_is_disconnected (const gchar *msg)
                      strstr (msg, "Socket error: Connection reset by peer"));
 }
 
-/*
- * HACK: SELinux prevents us from writing to the directories we want to
- * write to, so we have to try multiple locations.
- *
- * https://bugzilla.redhat.com/show_bug.cgi?id=1279430
- */
-static gchar *
-create_knownhosts_temp (void)
-{
-  const gchar *directories[] = {
-      PACKAGE_LOCALSTATE_DIR,
-      "/tmp",
-      NULL,
-  };
-
-  gchar *name;
-  int i, fd, err;
-
-  for (i = 0; directories[i] != NULL; i++)
-    {
-      name = g_build_filename (directories[i], "known-hosts.XXXXXX", NULL);
-      fd = g_mkstemp (name);
-      err = errno;
-
-      if (fd >= 0)
-        {
-          close (fd);
-          return name;
-        }
-
-      g_free (name);
-
-      if ((err == ENOENT || err == EPERM || err == EACCES) && directories[i + 1] != NULL)
-        continue;
-
-      g_warning ("couldn't make temporary file for knownhosts line in %s: %m", directories[i]);
-      break;
-    }
-
-  return NULL;
-}
-
-
-/*
- * NOTE: This function changes the SSH_OPTIONS_KNOWNHOSTS option on
- * the session.
- *
- * We can't save and restore it since ssh_options_get doesn't allow us
- * to retrieve the old value of SSH_OPTIONS_KNOWNHOSTS.
- *
- * HACK: This function should be provided by libssh.
- *
- * https://red.libssh.org/issues/162
-*/
-static gchar *
-get_knownhosts_line (ssh_session session)
-{
-
-  gchar *name = NULL;
-  GError *error = NULL;
-  gchar *line = NULL;
-
-  name = create_knownhosts_temp ();
-  if (!name)
-    goto out;
-
-  if (ssh_options_set (session, SSH_OPTIONS_KNOWNHOSTS, name) != SSH_OK)
-    {
-      g_warning ("Couldn't set SSH_OPTIONS_KNOWNHOSTS option.");
-      goto out;
-    }
-
-  if (ssh_write_knownhost (session) != SSH_OK)
-    {
-      g_warning ("Couldn't write knownhosts file: %s", ssh_get_error (session));
-      goto out;
-    }
-
-  if (!g_file_get_contents (name, &line, NULL, &error))
-    {
-      g_warning ("Couldn't read temporary known_hosts %s: %s", name, error->message);
-      g_clear_error (&error);
-      goto out;
-    }
-
-  g_strstrip (line);
-
-out:
-  if (name)
-    {
-      g_unlink (name);
-      g_free (name);
-    }
-
-  return line;
-}
-
 static const gchar *
 verify_knownhost (CockpitSshData *data)
 {
@@ -251,12 +154,14 @@ verify_knownhost (CockpitSshData *data)
   int state;
   gsize len;
 
-  data->host_key = get_knownhosts_line (data->session);
+  data->host_key = ssh_dump_knownhost (data->session);
   if (data->host_key == NULL)
     {
       ret = "internal-error";
       goto done;
     }
+
+  g_strstrip (data->host_key);
 
   if (ssh_get_publickey (data->session, &key) != SSH_OK)
     {

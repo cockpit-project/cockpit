@@ -65,17 +65,13 @@ echo foobar | passwd --stdin admin
 # the rest. This helps avoid things like:
 #
 #     https://bugzilla.redhat.com/show_bug.cgi?id=1211547
-#
-# Initially, we disable updates-testing since packages in
-# updates-testing frequently have unsatisfied dependencies.  At the
-# end, we try to update as far as possible towards updates-texting.
 
-dnf -y --disablerepo=updates-testing upgrade dnf
-dnf -y --disablerepo=updates-testing upgrade
-dnf -y --disablerepo=updates-testing install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
-dnf -y --disablerepo=updates-testing reinstall docker-selinux
-
+dnf -y upgrade dnf
 dnf -y upgrade
+dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+
+# HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1273893
+dnf -y reinstall docker-selinux
 
 # HACK: We need atomic from updates-testing, but it has a dependency bug
 # https://bodhi.fedoraproject.org/updates/atomic-1.4-1.git9d724aa.fc23

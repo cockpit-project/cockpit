@@ -57,10 +57,19 @@ $ sudo systemctl restart cockpit.socket
       the desired TCP port.</para>
 
 <programlisting>
-$ semanage port -a -t websm_port_t -p tcp 443
+$ sudo semanage port -a -t websm_port_t -p tcp 9999
 </programlisting>
 
-    <para>The change should take effect immediately.</para>
+    <para>If the port is already defined by some other part of the SELinux policy, then
+      you will need to use the <code>-m</code> argument to modify the definition. That's
+      the case with the <code>443</code> SSL port, which is typically defined as an
+      <code>http_port_t</code> port.</para>
+
+<programlisting>
+$ sudo semanage port -m -t websm_port_t -p tcp 443
+</programlisting>
+
+    <para>The changes should take effect immediately.</para>
   </section>
 
   <section id="listen-firewalld">

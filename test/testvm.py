@@ -205,6 +205,7 @@ class Machine:
             input = ""
             for name, value in environment.items():
                 input += "%s='%s'\n" % (name, value)
+                input += "export %s\n" % name
             input += script
             command = "<script>"
 

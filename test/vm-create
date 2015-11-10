@@ -142,16 +142,18 @@ class MachineBuilder:
         if modify_func:
             self.run_modify_func(modify_func)
 
-    def run_setup_script(self, script):
+    def run_setup_script(self, script, srpm):
         """Prepare a test image further by running some commands in it."""
         self.machine.start(maintain=True, macaddr=self.macaddr)
         try:
             self.macaddr = self.machine.macaddr
             self.machine.wait_boot(wait_for_running_timeout=120)
             self.machine.upload([script], "/var/tmp/SETUP")
+            self.machine.upload([srpm], "/var/tmp")
             env = {
                 "TEST_OS": self.machine.os,
-                "TEST_FLAVOR": self.machine.flavor
+                "TEST_FLAVOR": self.machine.flavor,
+                "TEST_SOURCE_PACKAGE": os.path.join("/var/tmp", os.path.basename(srpm))
             }
             self.machine.message("run setup script on guest")
             self.machine.execute(script="/var/tmp/SETUP", environment=env, quiet=not self.machine.verbose)
@@ -206,11 +208,13 @@ class MachineBuilder:
         else:
             self.unpack_base(modify_func=modify)
 
+        srpm = subprocess.check_output([ "../tools/make-srpm" ]).strip()
+
         self.machine.message("Running setup script %s" % (script))
-        self.run_setup_script(script)
+        self.run_setup_script(script, srpm)
         for additional_script in additional_scripts:
             self.machine.message("Running additional setup script %s" % (additional_script))
-            self.run_setup_script(additional_script)
+            self.run_setup_script(additional_script, srpm)
 
         self.run_selinux_relabel()
 

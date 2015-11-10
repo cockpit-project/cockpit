@@ -9,7 +9,6 @@ make_rpms_opts=
 cockpit_create_opts=
 install_selinux=no
 install_opts=
-use_make_rpms_rev=yes
 
 usage()
 {
@@ -24,7 +23,6 @@ while [ $# -gt 0 ]; do
     -c|--clean)
         make_rpms_opts="$make_rpms_opts --clean"
         cockpit_create_opts="--force --no-save"
-        use_make_rpms_rev=no
         ;;
     -q|--quick)
         make_rpms_opts="$make_rpms_opts --quick"
@@ -43,11 +41,6 @@ while [ $# -gt 0 ]; do
     esac
     shift
 done
-
-if [ "$use_make_rpms_rev" == "yes" ]; then
-    rev=$(python -c "import json; print json.load(open('guest/cockpit.conf', 'r'))['tags']['$TEST_OS']" 2>/dev/null || true)
-    make_rpms_opts="$make_rpms_opts"
-fi
 
 IP=/sbin/ip
 

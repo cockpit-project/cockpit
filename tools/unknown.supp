@@ -428,3 +428,12 @@
    fun:exit
    fun:(below main)
 }
+{
+   res_vinit
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:__res_vinit
+   ...
+   fun:getaddrinfo
+}

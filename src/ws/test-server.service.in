@@ -1,6 +1,0 @@
-[Unit]
-Description=Test Server
-
-[Service]
-WorkingDirectory=@datadir@/cockpit-test-assets
-ExecStart=/usr/bin/runcon -t unconfined_service_t -- @datadir@/cockpit-test-assets/test-server

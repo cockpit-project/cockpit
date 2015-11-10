@@ -23,6 +23,8 @@
 #include "cockpitmetrics.h"
 #include "mock-transport.h"
 
+#include "cockpitinternalmetrics.h"
+
 #include "common/cockpittest.h"
 #include "common/cockpitjson.h"
 
@@ -538,6 +540,57 @@ test_dynamic_instances (TestCase *tc,
   json_object_unref (meta);
 }
 
+static void
+on_close_get_problem (CockpitChannel *channel,
+                      const gchar *problem,
+                      gpointer user_data)
+{
+  gchar **result = user_data;
+  g_assert (result != NULL);
+  g_assert (*result == NULL);
+  *result = g_strdup (problem ? problem : "");
+}
+
+static void
+test_not_supported (void)
+{
+  MockTransport *transport;
+  CockpitMetrics *channel;
+  gchar *problem = NULL;
+  JsonObject *options;
+
+  cockpit_expect_message ("*unknown internal metric*");
+
+  transport = mock_transport_new ();
+  g_signal_connect (transport, "closed", G_CALLBACK (on_transport_closed), NULL);
+  options = json_obj ("{ 'metrics': [ { 'name': 'invalid.metrics',"
+                   "                 'instances': [ 'b', 'a' ],"
+                   "                 'derive': 'delta'"
+                   "               }"
+                   "             ],"
+                   "  'interval': 100"
+                   "}");
+  channel = g_object_new (cockpit_internal_metrics_get_type (),
+                          "transport", transport,
+                          "id", "1234",
+                          "options", options,
+                          NULL);
+  json_object_unref (options);
+  g_signal_connect (channel, "closed", G_CALLBACK (on_close_get_problem), &problem);
+
+  while (problem == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpstr (problem, ==, "not-supported");
+
+  g_object_add_weak_pointer (G_OBJECT (channel), (gpointer *)&channel);
+  g_object_unref (channel);
+  g_assert (channel == NULL);
+
+  g_object_unref (transport);
+  g_free (problem);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -559,6 +612,8 @@ main (int argc,
               setup, test_instances, teardown);
   g_test_add ("/metrics/dynamic-instances", TestCase, NULL,
               setup, test_dynamic_instances, teardown);
+
+  g_test_add_func ("/metrics/not-supported", test_not_supported);
 
   return g_test_run ();
 }

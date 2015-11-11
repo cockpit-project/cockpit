@@ -604,6 +604,8 @@ class VirtMachine(Machine):
 
         self._network_description = etree.parse(open("./guest/network-cockpit.xml"))
 
+        self.test_disk_desc_original = None
+
         # it is ESSENTIAL to register the default implementation of the event loop before opening a connection
         # otherwise messages may be delayed or lost
         libvirt.virEventRegisterDefaultImpl()
@@ -647,6 +649,13 @@ class VirtMachine(Machine):
         for h in self._network_description.iter("bridge"):
             return h.get("name")
         raise Failure("Couldn't find network name")
+
+    # only read the disk template once per machine
+    def _domain_disk_template(self):
+        if not self.test_disk_desc_original:
+            with open("./guest/test-domain-disk.xml", "r") as desc_file:
+                self.test_disk_desc_original = desc_file.read()
+        return self.test_disk_desc_original
 
     def save(self):
         assert not self._domain
@@ -998,13 +1007,10 @@ class VirtMachine(Machine):
 
         subprocess.check_call(["qemu-img", "create", "-q", "-f", "raw", path, str(size)])
 
-        disk_desc_template = ""
-        with open("./guest/test-domain-disk.xml", "r") as desc_file:
-            disk_desc_template = desc_file.read()
-            filename = path
+        filename = path
 
         dev = 'sd' + string.ascii_lowercase[index]
-        disk_desc = disk_desc_template % {
+        disk_desc = self._domain_disk_template() % {
                           'file': filename,
                           'serial': serial,
                           'unit': index,
@@ -1038,10 +1044,7 @@ class VirtMachine(Machine):
         serial = self._disks[main_index]["serial"]
 
         dev = 'sd' + string.ascii_lowercase[index]
-        disk_desc_template = ""
-        with open("./files/test-domain-disk.xml", "r") as desc_file:
-            disk_desc_template = desc_file.read()
-        disk_desc = disk_desc_template % {'file': filename, 'serial': serial, 'unit': index, 'dev': dev}
+        disk_desc = self._domain_disk_template() % {'file': filename, 'serial': serial, 'unit': index, 'dev': dev}
 
         if self._domain.attachDeviceFlags(disk_desc, libvirt.VIR_DOMAIN_AFFECT_LIVE ) != 0:
             raise Failure("Unable to add disk to vm")
@@ -1058,10 +1061,7 @@ class VirtMachine(Machine):
         assert index in self._disks
         disk = self._disks.pop(index)
 
-        disk_desc_template = ""
-        with open("./files/test-domain-disk.xml", "r") as desc_file:
-            disk_desc_template = desc_file.read()
-        disk_desc = disk_desc_template % {
+        disk_desc = self._domain_disk_template() % {
                       'file': disk["filename"],
                       'serial': disk["serial"],
                       'unit': index,

@@ -22,6 +22,7 @@ WHITELIST_LOCAL = "~/.config/github-whitelist"
 OS = os.environ.get("TEST_OS", "fedora-22")
 ARCH = os.environ.get("TEST_ARCH", "x86_64")
 TESTING = "Testing in progress"
+NOT_TESTED = "Not yet tested"
 
 __all__ = (
     'Sink',
@@ -195,16 +196,17 @@ class GitHub(object):
         headers = { "Content-Type": "application/json" }
         return json.loads(self.request("POST", resource, json.dumps(data), headers))
 
-    def prioritize(self, revision, labels=[], update=None, baseline=10):
-        last = { }
-        state = None
+    def rev_status(self, revision):
         statuses = self.get("commits/{0}/statuses".format(revision))
         if statuses:
             for status in statuses:
                 if status["context"] == self.context():
-                    state = status["state"]
-                    last = status
-                    break
+                    return status
+        return None
+
+    def prioritize(self, revision, labels=[], update=None, baseline=10):
+        last = self.rev_status(revision)
+        state = None if not last else last["state"]
 
         priority = baseline
 
@@ -249,7 +251,7 @@ class GitHub(object):
         results = []
 
         if update:
-            status = { "state": "pending", "description": "Not yet tested", "context": self.context() }
+            status = { "state": "pending", "description": NOT_TESTED, "context": self.context() }
         else:
             status = None
 
@@ -284,10 +286,8 @@ class GitHub(object):
         results.sort(key=lambda v: v[0], reverse=True)
         return results
 
-    def trigger(self, pull_number):
-        # TODO
-        # - only trigger failed
-
+    def trigger(self, pull_number, force = False):
+        sys.stderr.write("triggering pull {0} for context {1}\n".format(pull_number, self.context()))
         pull = self.get("pulls/" + pull_number)
 
         # triggering is manual, so don't prevent triggering a user that isn't on the whitelist
@@ -298,7 +298,15 @@ class GitHub(object):
             sys.stderr.write("warning: pull request author '{0}' isn't in github-whitelist.\n".format(login))
 
         revision = pull['head']['sha']
-        status = { "state": "pending", "description": "Not yet tested", "context": self.context() }
+        current_status = self.rev_status(revision)
+        if current_status and current_status["state"] not in ["error", "failure"]:
+            if force:
+                sys.stderr.write("Pull request isn't in error state, but forcing update.\n")
+            else:
+                sys.stderr.write("Pull request isn't in error state, not triggering test. Status is: '{0}'\n".format(current_status["state"]))
+                return
+
+        status = { "state": "pending", "description": NOT_TESTED, "context": self.context() }
         self.post("statuses/" + revision, status)
 
 if __name__ == '__main__':

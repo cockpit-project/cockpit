@@ -763,7 +763,7 @@ class VirtMachine(Machine):
 
         # domain xml
         test_domain_desc_original = ""
-        with open("./files/test_domain.xml", "r") as dom_desc:
+        with open("./guest/test-domain.xml", "r") as dom_desc:
             test_domain_desc_original = dom_desc.read()
 
         # add the virtual machine
@@ -999,7 +999,7 @@ class VirtMachine(Machine):
         subprocess.check_call(["qemu-img", "create", "-q", "-f", "raw", path, str(size)])
 
         disk_desc_template = ""
-        with open("./files/test_domain_disk.xml", "r") as desc_file:
+        with open("./guest/test-domain-disk.xml", "r") as desc_file:
             disk_desc_template = desc_file.read()
             filename = path
 
@@ -1039,7 +1039,7 @@ class VirtMachine(Machine):
 
         dev = 'sd' + string.ascii_lowercase[index]
         disk_desc_template = ""
-        with open("./files/test_domain_disk.xml", "r") as desc_file:
+        with open("./files/test-domain-disk.xml", "r") as desc_file:
             disk_desc_template = desc_file.read()
         disk_desc = disk_desc_template % {'file': filename, 'serial': serial, 'unit': index, 'dev': dev}
 
@@ -1059,7 +1059,7 @@ class VirtMachine(Machine):
         disk = self._disks.pop(index)
 
         disk_desc_template = ""
-        with open("./files/test_domain_disk.xml", "r") as desc_file:
+        with open("./files/test-domain-disk.xml", "r") as desc_file:
             disk_desc_template = desc_file.read()
         disk_desc = disk_desc_template % {
                       'file': disk["filename"],

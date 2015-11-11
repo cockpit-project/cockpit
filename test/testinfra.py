@@ -286,9 +286,17 @@ class GitHub(object):
 
     def trigger(self, pull_number):
         # TODO
-        # - honor whitelist
         # - only trigger failed
+
         pull = self.get("pulls/" + pull_number)
+
+        # triggering is manual, so don't prevent triggering a user that isn't on the whitelist
+        # but issue a warning in case of an oversight
+        whitelist = read_whitelist()
+        login = pull["head"]["user"]["login"]
+        if login not in whitelist:
+            sys.stderr.write("warning: pull request author '{0}' isn't in github-whitelist.\n".format(login))
+
         revision = pull['head']['sha']
         status = { "state": "pending", "description": "Not yet tested", "context": self.context() }
         self.post("statuses/" + revision, status)

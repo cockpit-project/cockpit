@@ -99,7 +99,7 @@ class Machine:
             return
         print " ".join(args)
 
-    def start(self, maintain=False, macaddr=None):
+    def start(self, maintain=False, macaddr=None, memory_mb=None, cpus=None):
         """Overridden by machine classes to start the machine"""
         self.message("Assuming machine is already running")
 
@@ -731,7 +731,10 @@ class VirtMachine(Machine):
 
         raise Failure("Couldn't find unused mac address for '%s'" % (self.flavor))
 
-    def _start_qemu(self, maintain=False, macaddr=None, wait_for_ip=True):
+    def _start_qemu(self, maintain=False, macaddr=None, wait_for_ip=True, memory_mb=None, cpus=None):
+        memory_mb = memory_mb or MEMORY_MB;
+        cpus = cpus or 1
+
         # make sure we have a clean slate
         self._cleanup()
 
@@ -790,7 +793,8 @@ class VirtMachine(Machine):
             test_domain_desc = test_domain_desc_original % {
                                             "name": domain_name,
                                             "arch": self.arch,
-                                            "memory_in_mib": MEMORY_MB,
+                                            "cpus": cpus,
+                                            "memory_in_mib": memory_mb,
                                             "drive": image_to_use,
                                             "disk_serial": "ROOT",
                                             "mac": mac_desc,
@@ -844,11 +848,11 @@ class VirtMachine(Machine):
         finally:
             self._cleanup()
 
-    def start(self, maintain=False, macaddr=None):
+    def start(self, maintain=False, macaddr=None, memory_mb=None, cpus=None):
         tries = 0
         while True:
             try:
-                self._start_qemu(maintain=maintain, macaddr=macaddr)
+                self._start_qemu(maintain=maintain, macaddr=macaddr, memory_mb=memory_mb, cpus=cpus)
                 if not self._domain.isActive():
                     self._domain.start()
                 self._maintaining = maintain

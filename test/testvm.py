@@ -73,7 +73,7 @@ class Failure(Exception):
     def __str__(self):
         return self.msg
 
-class RepeatThis(Failure):
+class RepeatableFailure(Failure):
     pass
 
 class Machine:
@@ -767,47 +767,35 @@ class VirtMachine(Machine):
             test_domain_desc_original = dom_desc.read()
 
         # add the virtual machine
-        # keep trying while there are naming conflicts, but not forever
-        dom_created = False
         dom = None
-        tries_left = 15
         mac_desc = ""
         if macaddr:
             mac_desc = "<mac address='%(mac)s'/>" % {'mac': macaddr}
-        while not dom_created:
-            try:
-                if static_domain_name:
-                    domain_name = static_domain_name
-                else:
-                    rand_extension = '-' + ''.join(random.choice(string.digits + string.ascii_lowercase) for i in range(4))
-                    domain_name = self.image + rand_extension
-                test_domain_desc = test_domain_desc_original % {
-                                                "name": domain_name,
-                                                "arch": self.arch,
-                                                "memory_in_mib": MEMORY_MB,
-                                                "drive": image_to_use,
-                                                "disk_serial": "ROOT",
-                                                "mac": mac_desc,
-                                                "iso": os.path.join(self.test_dir, "guest/cloud-init.iso")
-                                              }
-                # allow debug output for this domain
-                self.event_handler.allow_domain_debug_output(domain_name)
-                dom = self.virt_connection.createXML(test_domain_desc, libvirt.VIR_DOMAIN_START_AUTODESTROY)
-            except libvirt.libvirtError, le:
-                # remove the debug output
-                self.event_handler.forbid_domain_debug_output(domain_name)
-                # be ready to try again
-                if 'already exists with uuid' in le.message and tries_left > 0:
-                    if static_domain_name:
-                        self.message("domain exists, but we can't pick a different name (static ip)")
-                    else:
-                        self.message("domain exists, trying with different name")
-                    tries_left = tries_left - 1
-                    time.sleep(2)
-                    continue
-                else:
-                    raise
-            dom_created = True
+        try:
+            if static_domain_name:
+                domain_name = static_domain_name
+            else:
+                rand_extension = '-' + ''.join(random.choice(string.digits + string.ascii_lowercase) for i in range(4))
+                domain_name = self.image + rand_extension
+            test_domain_desc = test_domain_desc_original % {
+                                            "name": domain_name,
+                                            "arch": self.arch,
+                                            "memory_in_mib": MEMORY_MB,
+                                            "drive": image_to_use,
+                                            "disk_serial": "ROOT",
+                                            "mac": mac_desc,
+                                            "iso": os.path.join(self.test_dir, "guest/cloud-init.iso")
+                                          }
+            # allow debug output for this domain
+            self.event_handler.allow_domain_debug_output(domain_name)
+            dom = self.virt_connection.createXML(test_domain_desc, libvirt.VIR_DOMAIN_START_AUTODESTROY)
+        except libvirt.libvirtError, le:
+            # remove the debug output
+            self.event_handler.forbid_domain_debug_output(domain_name)
+            if not static_domain_name and 'already exists with uuid' in le.message:
+                raise RepeatableFailure("libvirt domain already exists: " + le.message)
+            else:
+                raise
 
         self._domain = dom
 
@@ -847,14 +835,27 @@ class VirtMachine(Machine):
             self._cleanup()
 
     def start(self, maintain=False, macaddr=None):
-        try:
-            self._start_qemu(maintain=maintain, macaddr=macaddr)
-            if not self._domain.isActive():
-                self._domain.start()
-            self._maintaining = maintain
-        except:
-            self.kill()
-            raise
+        tries = 0
+        while True:
+            try:
+                self._start_qemu(maintain=maintain, macaddr=macaddr)
+                if not self._domain.isActive():
+                    self._domain.start()
+                self._maintaining = maintain
+            except RepeatableFailure, ex:
+                self.kill()
+                if tries < 5:
+                    tries += 1
+                    time.sleep(2)
+                    continue
+                else:
+                    raise
+            except:
+                self.kill()
+                raise
+
+            # Normally only one pass
+            break
 
     def _static_lease_from_mac(self, mac):
         for h in self._network_description.find(".//dhcp"):
@@ -888,6 +889,7 @@ class VirtMachine(Machine):
         # 10.111.118.45  0x1      0x0    9e:00:03:72:00:04  *     cockpit1
         # ...
 
+        output = ""
         start_time = time.time()
         while (time.time() - start_time) < timeout_sec:
             with open("/proc/net/arp", "r") as fp:
@@ -901,7 +903,7 @@ class VirtMachine(Machine):
         message = "{0}: [{1}]\n{2}\n".format(mac, ", ".join(self._qemu_network_macs()), output)
         sys.stderr.write(message)
         self._diagnose_no_address()
-        raise Failure("Can't resolve IP of " + mac)
+        raise RepeatableFailure("Can't resolve IP of " + mac)
 
     def reset_reboot_flag(self):
         self.event_handler.reset_domain_reboot_status(self._domain)

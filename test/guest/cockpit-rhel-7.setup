@@ -17,12 +17,21 @@ subscription-manager register --auto-attach --username=`cat ~/.rhel/login` --pas
 # remove credentials from test machine
 rm -rf ~/.rhel
 
+# Only start logging here.  Otherwise the subscription credentials
+# appear in the output above.
+#
+set -x
+
 # These are in the magic base image but seem to have become
 # unavailable for some reason.
 #
 yum -y --disablerepo=rhel-7-server-rt-beta-rpms --disablerepo=rhel-sap-hana-for-rhel-7-server-rpms install yum-utils
 yum-config-manager --disable rhel-7-server-rt-beta-rpms
 yum-config-manager --disable rhel-sap-hana-for-rhel-7-server-rpms
+
+# HTB seems to have some problems...
+#
+yum-config-manager --disable rhel-7-server-htb-rpms
 
 yum -y install wget
 cd /etc/yum.repos.d

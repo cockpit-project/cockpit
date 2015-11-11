@@ -93,6 +93,8 @@ AM_CPPFLAGS = \
 	-D_POSIX_PTHREAD_SEMANTICS -D_REENTRANT \
 	$(NULL)
 
+AM_LDFLAGS = -Wl,--as-needed
+
 LOG_DRIVER = $(top_srcdir)/tools/tap-driver
 LOG_COMPILER = $(top_srcdir)/tools/tap-gtester
 

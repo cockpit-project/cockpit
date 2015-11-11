@@ -373,42 +373,38 @@ convert_metric_description (CockpitInternalMetrics *self,
       if (!cockpit_json_get_string (json_node_get_object (node), "name", NULL, &name)
           || name == NULL)
         {
-          g_warning ("%s: invalid \"metrics\" option was specified (no name for metric %d)",
-                     self->name, index);
+          g_warning ("invalid \"metrics\" option was specified (no name for metric %d)", index);
           return FALSE;
         }
 
       if (!cockpit_json_get_string (json_node_get_object (node), "units", NULL, &units))
         {
-          g_warning ("%s: invalid units for metric %s (not a string)",
-                     self->name, name);
+          g_warning ("invalid units for metric %s (not a string)", name);
           return FALSE;
         }
 
       if (!cockpit_json_get_string (json_node_get_object (node), "derive", NULL, &info->derive))
         {
-          g_warning ("%s: invalid derivation mode for metric %s (not a string)",
-                     self->name, name);
+          g_warning ("invalid derivation mode for metric %s (not a string)", name);
           return FALSE;
         }
     }
   else
     {
-      g_warning ("%s: invalid \"metrics\" option was specified (not an object for metric %d)",
-                 self->name, index);
+      g_warning ("invalid \"metrics\" option was specified (not an object for metric %d)", index);
       return FALSE;
     }
 
   MetricDescription *desc = find_metric_description (name);
   if (desc == NULL)
     {
-      g_message ("%s: unknown internal metric %s", self->name, name);
+      g_message ("unknown internal metric %s", name);
     }
   else
     {
       if (units && g_strcmp0 (desc->units, units) != 0)
         {
-          g_warning ("%s: %s has units %s, not %s", self->name, name, desc->units, units);
+          g_warning ("%s has units %s, not %s", name, desc->units, units);
           return FALSE;
         }
 
@@ -438,14 +434,14 @@ cockpit_internal_metrics_prepare (CockpitChannel *channel)
   /* "instances" option */
   if (!cockpit_json_get_strv (options, "instances", NULL, (gchar ***)&self->instances))
     {
-      g_warning ("%s: invalid \"instances\" option (not an array of strings)", self->name);
+      g_warning ("invalid \"instances\" option (not an array of strings)");
       goto out;
     }
 
   /* "omit-instances" option */
   if (!cockpit_json_get_strv (options, "omit-instances", NULL, (gchar ***)&self->omit_instances))
     {
-      g_warning ("%s: invalid \"omit-instances\" option (not an array of strings)", self->name);
+      g_warning ("invalid \"omit-instances\" option (not an array of strings)");
       goto out;
     }
 
@@ -453,7 +449,7 @@ cockpit_internal_metrics_prepare (CockpitChannel *channel)
   self->n_metrics = 0;
   if (!cockpit_json_get_array (options, "metrics", NULL, &metrics))
     {
-      g_warning ("%s: invalid \"metrics\" option was specified (not an array)", self->name);
+      g_warning ("invalid \"metrics\" option was specified (not an array)");
       goto out;
     }
   if (metrics)
@@ -475,12 +471,12 @@ cockpit_internal_metrics_prepare (CockpitChannel *channel)
   /* "interval" option */
   if (!cockpit_json_get_int (options, "interval", 1000, &self->interval))
     {
-      g_warning ("%s: invalid \"interval\" option", self->name);
+      g_warning ("invalid \"interval\" option");
       goto out;
     }
   else if (self->interval <= 0 || self->interval > G_MAXINT)
     {
-      g_warning ("%s: invalid \"interval\" value: %" G_GINT64_FORMAT, self->name, self->interval);
+      g_warning ("invalid \"interval\" value: %" G_GINT64_FORMAT, self->interval);
       goto out;
     }
 

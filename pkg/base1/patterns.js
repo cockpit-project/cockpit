@@ -169,7 +169,7 @@ define([
         });
 
         /* When dialog is shown again, remove all mods */
-        sel.on("show.bs.modal.dialog-wait", function() {
+        sel.on("hide.bs.modal.dialog-wait", function() {
             clear_wait(sel);
         });
 

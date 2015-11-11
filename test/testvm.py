@@ -1007,11 +1007,9 @@ class VirtMachine(Machine):
 
         subprocess.check_call(["qemu-img", "create", "-q", "-f", "raw", path, str(size)])
 
-        filename = path
-
         dev = 'sd' + string.ascii_lowercase[index]
         disk_desc = self._domain_disk_template() % {
-                          'file': filename,
+                          'file': path,
                           'serial': serial,
                           'unit': index,
                           'dev': dev
@@ -1023,7 +1021,7 @@ class VirtMachine(Machine):
         self._disks[index] = {
             "path": path,
             "serial": serial,
-            "filename": filename,
+            "filename": path,
             "dev": dev
         }
 

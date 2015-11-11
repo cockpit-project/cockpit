@@ -415,7 +415,8 @@ dbus_error_matches_unknown (GError *error)
   gboolean ret = FALSE;
 
   if (g_error_matches (error, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_METHOD) ||
-      g_error_matches (error, G_DBUS_ERROR, G_DBUS_ERROR_ACCESS_DENIED))
+      g_error_matches (error, G_DBUS_ERROR, G_DBUS_ERROR_ACCESS_DENIED) ||
+      g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CLOSED))
     return TRUE;
 
 #if GLIB_CHECK_VERSION(2,42,0)

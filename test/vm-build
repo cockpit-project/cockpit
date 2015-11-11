@@ -32,7 +32,7 @@ args = parser.parse_args()
 def build(machine):
     """Build Cockpit in a virtual machine"""
     srpm = subprocess.check_output([ "../tools/make-srpm" ]).strip()
-    machine.start()
+    machine.start(memory_mb=4096, cpus=4)
     try:
         machine.wait_boot()
         machine.upload([ srpm ], "/var/tmp")

@@ -486,4 +486,10 @@ define([
                 }
             });
         });
+
+    return {
+        keys_instance: function () {
+            return new Keys();
+        }
+    };
 });

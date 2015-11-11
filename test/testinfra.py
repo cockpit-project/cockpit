@@ -13,7 +13,11 @@ import tempfile
 import urlparse
 
 TOKEN = "~/.config/github-token"
-WHITELIST = "~/.config/github-whitelist"
+topdir = os.path.normpath(os.path.dirname(__file__))
+
+# the user name is accepted if it's found in either list
+WHITELIST = os.path.join(topdir, "files/github-whitelist")
+WHITELIST_LOCAL = "~/.config/github-whitelist"
 
 OS = os.environ.get("TEST_OS", "fedora-22")
 ARCH = os.environ.get("TEST_ARCH", "x86_64")
@@ -46,6 +50,26 @@ def arg_parser():
 
     parser.set_defaults(verbosity=1)
     return parser
+
+def read_whitelist():
+    # Try to load the whitelists
+    # Always expect the in-tree version to be present
+    whitelist = None
+    with open(WHITELIST, "r") as wh:
+        whitelist = [x.strip() for x in wh.read().split("\n") if x.strip()]
+
+    # The local file may or may not exist
+    try:
+        wh = open(WHITELIST_LOCAL, "r")
+        whitelist += [x.strip() for x in wh.read().split("\n") if x.strip()]
+    except IOError as exc:
+        if exc.errno == errno.ENOENT:
+            pass
+        else:
+            raise
+
+    # remove duplicate entries
+    return set(whitelist)
 
 class Sink(object):
     def __init__(self, host, identifier, status=None):
@@ -220,22 +244,7 @@ class GitHub(object):
     def scan(self, update=False):
         pulls = []
 
-        # Try to load the whitelist
-        whitelist = None
-        try:
-            wh = open(os.path.expanduser(WHITELIST), "r")
-            whitelist = [x.strip() for x in wh.read().split("\n") if x.strip()]
-        except IOError as exc:
-            if exc.errno == errno.ENOENT:
-                pass
-            else:
-                raise
-
-        # The whitelist defaults to the current user
-        if whitelist is None:
-            user = self.get("/user")
-            if user:
-                whitelist = [ user["login"] ]
+        whitelist = read_whitelist()
 
         results = []
 

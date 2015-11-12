@@ -1457,16 +1457,18 @@ on_web_socket_open (WebSocketConnection *connection,
   json_object_set_int_member (object, "version", 1);
   json_object_set_string_member (object, "channel-seed", socket->id);
   json_object_set_string_member (object, "host", "localhost");
+
+  capabilities = json_array_new ();
+  json_array_add_string_element (capabilities, "ssh");
+  json_array_add_string_element (capabilities, "connection-string");
+  json_array_add_string_element (capabilities, "auth-method-results");
+  json_array_add_string_element (capabilities, "multi");
+
   if (web_socket_connection_get_flavor (connection) == WEB_SOCKET_FLAVOR_RFC6455)
     {
-      capabilities = json_array_new ();
       json_array_add_string_element (capabilities, "binary");
-      json_array_add_string_element (capabilities, "ssh");
-      json_array_add_string_element (capabilities, "multi");
-      json_array_add_string_element (capabilities, "connection-string");
-      json_array_add_string_element (capabilities, "auth-method-results");
-      json_object_set_array_member (object, "capabilities", capabilities);
     }
+  json_object_set_array_member (object, "capabilities", capabilities);
 
   info = json_object_new ();
   json_object_set_string_member (info, "version", PACKAGE_VERSION);

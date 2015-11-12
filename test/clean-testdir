@@ -1,0 +1,95 @@
+#!/bin/bash
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+set -euf
+
+SELF=clean-testdir
+
+TEST_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+CLEAN_PACKAGES=0
+CLEAN_TESTFILES=0
+CLEAN_VM=0
+CLEAN_ALL=0
+DRY_RUN="-f"
+
+usage()
+{
+    echo >&2 "Usage: $SELF [-h] [-d] [-a] [-p] [-t] [-r]"
+    echo >&2 "        -h Display info on usage"
+    echo >&2 ""
+    echo >&2 "        -d Dry run: don't actually clean anything"
+    echo >&2 ""
+    echo >&2 "        -a Clean directory of all non-versioned files"
+    echo >&2 ""
+    echo >&2 "        -p Delete created packages (*.rpm)"
+    echo >&2 "        -t Delete test files (attachments, screenshots, journals, logs)"
+    echo >&2 "        -r Run vm-reset"
+}
+
+while getopts "hdaptr" OPTION
+do
+    case $OPTION in
+        h)
+            usage
+            exit 0
+            ;;
+        d)
+            DRY_RUN="-n"
+            ;;
+        a)
+            CLEAN_ALL=1
+            ;;
+        p)
+            CLEAN_PACKAGES=1
+            ;;
+        t)
+            CLEAN_TESTFILES=1
+            ;;
+        r)
+            CLEAN_VM=1
+            ;;
+     esac
+done
+
+if [ $CLEAN_ALL == 1 ]; then
+    echo >&2 "Cleaning everything"
+    git clean "$DRY_RUN" -d -x $TEST_DIR
+    exit 0
+fi
+
+if [ $CLEAN_PACKAGES == 1 ]; then
+    echo >&2 "Cleaning packages"
+    git clean "$DRY_RUN" -d -x "$TEST_DIR/*.rpm"
+fi
+
+if [ $CLEAN_TESTFILES == 1 ]; then
+    echo >&2 "Cleaning testfiles"
+    git clean "$DRY_RUN" -d -x "$TEST_DIR/attachments*"
+    git clean "$DRY_RUN" -d -x "$TEST_DIR/Test*\.png"
+    git clean "$DRY_RUN" -d -x "$TEST_DIR/Test*\.journal*"
+    git clean "$DRY_RUN" -d -x "$TEST_DIR/Test*\.log"
+fi
+
+if [ $CLEAN_VM == 1 ]; then
+    echo >&2 "Cleaning vm directory"
+    if [ $DRY_RUN == "-f" ]; then
+        $TEST_DIR/vm-reset
+    fi
+fi
+

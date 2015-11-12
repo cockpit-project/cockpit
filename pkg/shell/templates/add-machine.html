@@ -1,0 +1,44 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal"
+        aria-hidden="true">&times;</button>
+    <h4 class="modal-title" translatable="yes">Add Machine to Dashboard</h4>
+</div>
+
+<div class="modal-body">
+    <div>
+        <table class="cockpit-form-table">
+            <tr>
+                <td class="top" translatable="yes">Address</td>
+                <td>
+                <div class="dialog-wrapper error-keep">
+                    <input class="form-control" id="add-machine-address"
+                       type="test" value="{{ full_address }}"
+                       list="options"
+                       placeholder="{{ placeholder }}"/>
+                    <datalist id="options">
+                        {{#options}}
+                        <option value="{{.}}">
+                        {{/options}}
+                    </datalist>
+                </div>
+                </td>
+            </tr>
+            <tr>
+                <td translatable="yes">Color</td>
+                <td id="add-machine-color-picker">
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="modal-footer">
+    {{#nearlimit}}
+    <div class="alert alert-warning dialog-error dashboard-machine-warning">
+        <span class="pficon pficon-warning-triangle-o"></span>
+        <span translatable="yes">Connecting simultaneously to more than {{ limit }} machines is unsupported.</span>
+    </div>
+    {{/nearlimit}}
+    <button class="btn btn-default" data-dismiss="modal" translatable="yes">Cancel</button>
+    <button class="btn btn-primary" translatable="yes">Add</button>
+</div>

@@ -7,7 +7,7 @@ define([
 
     /* machines.json path */
     var path = "/var/lib/cockpit/machines.json";
-
+    var known_hosts_path = "/var/lib/cockpit/known_hosts";
     /*
      * We share the Machines state between multiple frames. Only
      * one frame has the job of loading the state, usually index.js
@@ -100,12 +100,19 @@ define([
 
             var machine;
             for (host in hosts) {
-                machine = sync(machines[host] || { }, content[host], overlay[host]);
+                var old_machine = machines[host] || { };
+                var old_conns = old_machine.connection_string;
+                machine = sync(old_machine, content[host], overlay[host]);
 
                 /* Fill in defaults */
                 machine.key = host;
                 if (!machine.address)
                     machine.address = host;
+
+                machine.connection_string = self.generate_connection_string(machine.user,
+                                                                            machine.port,
+                                                                            machine.address);
+
                 if (!machine.label) {
                     if (host == "localhost" || host == "localhost.localdomain")
                         machine.label = window.location.hostname;
@@ -115,7 +122,8 @@ define([
                 if (!machine.avatar)
                     machine.avatar = "../shell/images/server-small.png";
 
-                events.push([host in machines ? "updated" : "added", [machine, host]]);
+                events.push([host in machines ? "updated" : "added",
+                            [machine, host, old_conns]]);
                 machines[host] = machine;
             }
 
@@ -136,43 +144,26 @@ define([
                 $(self).triggerHandler("ready");
         }
 
-        self.add = function add(address, host_key) {
-            var dfd = $.Deferred();
 
-            function add_to_machines() {
-                var values = {
-                    address: address,
-                    visible: true,
-                    color: self.unused_color()
-                };
+        self.add_key = function(host_key) {
+            var known_hosts = cockpit.file(known_hosts_path);
+            return known_hosts
+                .modify(function(data) {
+                    return data + "\n" + host_key;
+                })
+                .always(function() {
+                    known_hosts.close();
+                });
+        };
 
-                self.change(address, values)
-                    .done(function() {
-                        dfd.resolve(address);
-                    })
-                    .fail(function(ex) {
-                        dfd.reject(ex);
-                    });
-            }
-
-            if (host_key) {
-                var known_hosts = cockpit.file("/var/lib/cockpit/known_hosts");
-                known_hosts
-                    .modify(function(data) {
-                        return data + "\n" + host_key;
-                    })
-                    .done(add_to_machines)
-                    .fail(function(ex) {
-                        dfd.reject(ex);
-                    })
-                    .always(function() {
-                        known_hosts.close();
-                    });
-            } else {
-                add_to_machines();
-            }
-
-            return dfd.promise();
+        self.add = function add(connection_string, color) {
+            var values = self.split_connection_string(connection_string);
+            return self.change(values['address'],
+                               $.extend({
+                                    visible: true,
+                                    color: color || self.unused_color(),
+                                }, values)
+            );
         };
 
         self.unused_color = function unused_color() {
@@ -205,16 +196,25 @@ define([
 
         self.change = function change(host, values) {
             var hostnamed, call;
+            var machine = self.lookup(host);
+
             if (values.label) {
-                hostnamed = cockpit.dbus("org.freedesktop.hostname1", { host: host });
-                call = hostnamed.call("/org/freedesktop/hostname1", "org.freedesktop.hostname1",
-                                      "SetPrettyHostname", [ values.label, true ])
-                    .always(function() {
-                        hostnamed.close();
-                    })
-                    .fail(function(ex) {
-                        console.warn("couldn't set pretty host name: " + ex);
-                    });
+
+                var conn_to = host;
+                if (machine)
+                    conn_to = machine.connection_string;
+
+                if (!machine || machine.label !== values.label) {
+                    hostnamed = cockpit.dbus("org.freedesktop.hostname1", { host: conn_to });
+                    call = hostnamed.call("/org/freedesktop/hostname1", "org.freedesktop.hostname1",
+                                          "SetPrettyHostname", [ values.label, true ])
+                        .always(function() {
+                            hostnamed.close();
+                        })
+                        .fail(function(ex) {
+                            console.warn("couldn't set pretty host name: " + ex);
+                        });
+                }
             }
 
             function mutate(data) {
@@ -288,7 +288,47 @@ define([
         });
 
         self.lookup = function lookup(address) {
-            return machines[address || "localhost"] || null;
+            var parts = self.split_connection_string(address);
+            return machines[parts.address || "localhost"] || null;
+        };
+
+        self.generate_connection_string = function (user, port, addr) {
+            var address = addr;
+            if (user)
+                address = user + "@" + address;
+
+            if (port)
+                address = address + ":" + port;
+
+            return address;
+        };
+
+        self.split_connection_string = function(conn_to) {
+            var parts = {};
+            var user_spot = -1;
+            var port_spot = -1;
+
+            if (conn_to) {
+                user_spot = conn_to.lastIndexOf('@');
+                port_spot = conn_to.lastIndexOf(':');
+            }
+
+            if (user_spot > 0) {
+                parts.user = conn_to.substring(0, user_spot);
+                conn_to = conn_to.substring(user_spot+1);
+                port_spot = conn_to.lastIndexOf(':');
+            }
+
+            if (port_spot > -1) {
+                var port = parseInt(conn_to.substring(port_spot+1));
+                if (!isNaN(port)) {
+                    parts.port = port;
+                    conn_to = conn_to.substring(0, port_spot);
+                }
+            }
+
+            parts.address = conn_to;
+            return parts;
         };
 
         self.close = function close() {
@@ -328,7 +368,7 @@ define([
         $(machines).on("updated", updated);
         $(machines).on("removed", removed);
 
-        function updated(ev, machine, host) {
+        function updated(ev, machine, host, old_conns) {
             if (!machine) {
                 machine = machines.lookup(host);
                 if (!machine)
@@ -356,10 +396,17 @@ define([
                 machines.overlay(host, overlay);
 
             /* Don't automatically reconnect failed machines */
-            if (machine.visible && (!machine.problem || machine.restarting))
-                self.connect(host);
-            else if (!machine.visible)
+            if (machine.visible) {
+                if (old_conns && machine.connection_string != old_conns) {
+                    cockpit.kill(old_conns);
+                    self.disconnect(host);
+                    self.connect(host);
+                } else if (!machine.problem || machine.restarting) {
+                    self.connect(host);
+                }
+            } else {
                 self.disconnect(host);
+            }
         }
 
         function removed(ev, machine, host) {
@@ -375,7 +422,8 @@ define([
             if (channel)
                 return;
 
-            channel = cockpit.channel({ host: host, payload: "echo" });
+            channel = cockpit.channel({ host: machine.connection_string,
+                                        payload: "echo" });
             channels[host] = channel;
 
             var local = host === "localhost";
@@ -383,11 +431,12 @@ define([
             /* Request is null, and message is true when connected */
             var request = null;
             var open = local;
+            var problem = null;
 
             function whirl() {
                 if (!request && open)
                     state(host, "connected", null);
-                else
+                else if (!problem)
                     state(host, "connecting", null);
             }
 
@@ -398,7 +447,7 @@ define([
                 if (machine.checksum)
                     url = "../../" + machine.checksum + "/manifests.json";
                 else
-                    url = "../../@" + machine.address + "/manifests.json";
+                    url = "../../@" + encodeURI(machine.connection_string) + "/manifests.json";
                 request = $.ajax({ url: url, dataType: "json", cache: true})
                     .done(function(manifests) {
                         var overlay = { manifests: manifests };
@@ -408,7 +457,7 @@ define([
                         machines.overlay(host, overlay);
                     })
                     .fail(function(ex) {
-                        console.warn("failed to load manifests from " + machine.address + ": " + ex);
+                        console.warn("failed to load manifests from " + machine.connection_string + ": " + ex);
                     })
                     .always(function() {
                         request = null;
@@ -426,7 +475,7 @@ define([
                         whirl();
                     })
                 .on("close", function(ev, options) {
-                    var problem = options.problem || "disconnected";
+                    problem = options.problem || "disconnected";
                     open = false;
                     state(host, "failed", problem);
                     var machine = machines[host];
@@ -439,7 +488,8 @@ define([
                 });
             }
 
-            var proxy = cockpit.dbus("org.freedesktop.hostname1", { host: host }).proxy();
+            var proxy = cockpit.dbus("org.freedesktop.hostname1",
+                                     { host: machine.connection_string }).proxy();
             proxies[host] = proxy;
             proxy.wait(function() {
                 $(proxy).on("changed", function() {
@@ -524,6 +574,14 @@ define([
         "#024830",
         "#024848"
     ];
+
+    module.known_hosts_path = known_hosts_path;
+
+    $(cockpit.info).on("changed", function () {
+        var caps = cockpit.transport.options.capabilities || [];
+        module.allow_connection_string = $.inArray("connection-string", caps) != -1;
+        module.has_auth_results = $.inArray("auth-method-results", caps) != -1;
+    });
 
     return module;
 });

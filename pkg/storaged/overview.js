@@ -387,7 +387,7 @@ define([
                                     { value: "raid4",  Title: _("RAID 4 (Dedicated Parity)") },
                                     { value: "raid5",  Title: _("RAID 5 (Distributed Parity)"), selected: true },
                                     { value: "raid6",  Title: _("RAID 6 (Double Distributed Parity)") },
-                                    { value: "raid10", Title: _("AID 10 (Stripe of Mirrors)") }
+                                    { value: "raid10", Title: _("RAID 10 (Stripe of Mirrors)") }
                                 ]
                               },
                               { SelectOne: "chunk",
@@ -402,7 +402,10 @@ define([
                                     { value: "512", Title: _("512 KB"), selected: true },
                                     { value: "1024", Title: _("1 MB") },
                                     { value: "2048", Title: _("2 MB") }
-                                ]
+                                ],
+                                visible: function (vals) {
+                                    return vals.level != "raid1";
+                                }
                               },
                               { SelectMany: "disks",
                                 Title: _("Disks"),
@@ -421,7 +424,7 @@ define([
                               Title: _("Create"),
                               action: function (vals) {
                                   return client.manager.MDRaidCreate(vals.disks, vals.level,
-                                                                     vals.name, vals.chunk * 1024,
+                                                                     vals.name, (vals.chunk || 0)* 1024,
                                                                      { });
                               }
                           }

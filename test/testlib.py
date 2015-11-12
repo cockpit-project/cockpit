@@ -320,8 +320,8 @@ class Browser:
             except Error, ex:
                 if reconnect and ex.msg == 'timeout':
                     reconnect = False
-                    if self.is_present(".curtains button"):
-                        self.click(".curtains button", True)
+                    if self.is_present("#machine-reconnect"):
+                        self.click("#machine-reconnect", True)
                         self.wait_not_visible(".curtains")
                         continue
                 exc_info = sys.exc_info()
@@ -584,6 +584,10 @@ systemctl start docker
         """Don't fail if the journal containes a entry matching the given regexp"""
         for p in patterns:
             self.allowed_messages.append(p)
+
+    def allow_hostkey_messages(self):
+        self.allow_journal_messages('.*: .* host key for server is not known: .*',
+                                    '.*: failed to retrieve resource: hostkey-unknown')
 
     def allow_restart_journal_messages(self):
         self.allow_journal_messages(".*Connection reset by peer.*",

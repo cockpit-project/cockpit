@@ -1,0 +1,21 @@
+<div class="modal-header">
+    <h4 class="modal-title" translatable="yes">Authentication Failed</h4>
+</div>
+<div class="modal-body">
+    {{#supported}}
+    <p translatable="yes">Cockpit was unable to log into <strong>{{host}}</strong>. To use this machine with cockpit you will need to enable one of the following authentication methods in the sshd config on <strong>{{ host }}</strong>:</p>
+    <ul>
+        {{#password}}<li translatable="yes">Password</li>{{/password}}
+        {{#public-key}}<li translatable="yes">Public Key</li>{{/public-key}}
+        {{#gssapi-mic}}<li translatable="yes">Kerberos Based SSO</li>{{/gssapi-mic}}
+    </ul>
+    {{/supported}}
+
+    {{^supported}}
+    <p translatable="yes">Cockpit was unable to log in to <strong>{{host}}</strong>. You may want to try to <a id="do-sync-users">synchronize users</a>. For more authentication options and troubleshooting support please upgrade cockpit-ws to a newer version.</p>
+    {{/supported}}
+
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" data-dismiss="modal" translatable="yes">Close</button>
+</div>

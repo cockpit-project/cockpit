@@ -1,0 +1,47 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal"
+        aria-hidden="true">&times;</button>
+    <h4 class="modal-title" translatable="yes">Could not contact {{host}}</h4>
+</div>
+
+<div class="modal-body">
+    <p>
+        <span translatable="yes">Cockpit was unable to contact <strong>{{host}}</strong>.</span>
+        {{^allow_connection_string}}
+        <span translatable="yes">To try a different port you will need to upgrade cockpit-ws to a newer version.</span>
+        {{/allow_connection_string}}
+
+        {{#allow_connection_string}}
+        <span translatable="yes">Is sshd running on a different port?</span>
+        {{/allow_connection_string}}
+    </p>
+
+    {{#allow_connection_string}}
+    <div>
+        <table class="cockpit-form-table">
+            <tr>
+                <td class="top" translatable="yes">Port</td>
+                <td>
+                <div class="dialog-wrapper error-keep">
+                    <input id="edit-machine-port"
+                       type="test" value="{{ port }}"
+                       list="options"
+                       placeholder="22"/>
+                </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    {{/allow_connection_string}}
+</div>
+
+<div class="modal-footer">
+    {{#allow_connection_string}}
+    <button class="btn btn-default" data-dismiss="modal" translatable="yes">Cancel</button>
+    <button class="btn btn-primary" translatable="yes">Update</button>
+    {{/allow_connection_string}}
+
+    {{^allow_connection_string}}
+    <button class="btn btn-default" data-dismiss="modal" translatable="yes">Close</button>
+    {{/allow_connection_string}}
+</div>

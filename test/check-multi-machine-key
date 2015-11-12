@@ -26,36 +26,17 @@ import unittest
 import os
 import subprocess
 
-def inject_extras(browser):
-    browser.eval_js("""
-    dashboard_addresses = function () {
-       var addresses = $('#dashboard-hosts .list-group-item').map(function(i,e) { return $(e).data("address"); }).get();
-       return addresses;
-    }
-    """)
-
-def wait_dashboard_addresses(b, expected):
-    b.wait_js_func(
-        """(function (expected) {
-        return expected.sort().toString() == dashboard_addresses().sort().toString();
-        })""", expected)
-
-def add_machine(b, address):
-    b.click('#dashboard-add')
-    b.wait_popup('dashboard_setup_server_dialog')
-    b.set_val('#dashboard_setup_address', address)
-    b.wait_text('#dashboard_setup_next', "Next")
-    b.click('#dashboard_setup_next')
-    b.wait_text('#dashboard_setup_next', "Add host")
-    b.click('#dashboard_setup_next')
-    b.wait_text('#dashboard_setup_next', "Close")
-    b.click('#dashboard_setup_next')
-    b.wait_popdown('dashboard_setup_server_dialog')
-
 def kill_user_admin(machine):
     # logind from systemd 208 is buggy, so we use systemd directly if it fails
     # https://bugs.freedesktop.org/show_bug.cgi?id=71092
     machine.execute("loginctl kill-user admin || systemctl kill user-1000.slice")
+
+def authorize_user(m, user):
+    m.execute("mkdir -p /home/{0}/.ssh".format(user))
+    m.upload(["files/ssh/id_rsa.pub"], "/home/{0}/.ssh/authorized_keys".format(user))
+    m.execute("chown -R {0}:{0} /home/{0}/.ssh/".format(user))
+    m.execute("chmod 600 /home/{0}/.ssh/authorized_keys".format(user))
+    m.execute("chmod 700 /home/{0}/.ssh".format(user))
 
 LOAD_KEYS = [
     "id_rsa", # password: foobar
@@ -79,6 +60,7 @@ class TestMultiMachineKeyAuth(MachineCase):
         self.machine2 = self.new_machine()
         self.machine2.start()
         self.machine2.wait_boot()
+        self.machine2.execute("sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config")
 
     def tearDown(self):
         if self.runner and self.runner.wasSuccessful():
@@ -90,20 +72,7 @@ class TestMultiMachineKeyAuth(MachineCase):
         m1 = self.machine
         m2 = self.machine2
 
-        self.login_and_go("/dashboard")
-        inject_extras(b)
-        wait_dashboard_addresses (b, [ "localhost" ])
-
-        add_machine(b, m2.address)
-        wait_dashboard_addresses (b, [ "localhost", m2.address ])
-
-        # Logout
-        b.logout()
-        b.wait_visible("#login")
-
-        # Change the admin password on m2 so password login
-        # no longer works
-        m2.execute("echo abcdefg | passwd --stdin admin")
+        # Load keys
         m1.execute("mkdir -p /home/admin/.ssh")
 
         m1.upload(["files/ssh/{0}".format(k) for k in LOAD_KEYS],
@@ -113,11 +82,10 @@ class TestMultiMachineKeyAuth(MachineCase):
         m1.execute("chmod 400 /home/admin/.ssh/*")
         m1.execute("chown -R admin:admin /home/admin/.ssh")
 
-        # Server is marked as down.
-        b.login_and_go("/dashboard")
-        inject_extras(b)
-        wait_dashboard_addresses (b, [ "localhost", m2.address ])
-        b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-error.png')
+        # Add user
+        m2.execute("useradd user -c 'User' || true")
+
+        self.login_and_go("/system")
 
         try:
             m1.execute("ps xa | grep ssh-agent | grep -v grep")
@@ -131,23 +99,45 @@ class TestMultiMachineKeyAuth(MachineCase):
             "256 SHA256:Uht4NX54Gjz62cNA8+LrHo63HiFW/i5aWg/cl/A3X+c /home/admin/.ssh/id_ed25519 (ED25519)",
         ])
 
-        # add key
-        m2.execute("mkdir -p /home/admin/.ssh")
-        m2.upload(["files/ssh/id_rsa.pub"], "/home/admin/.ssh/authorized_keys")
-        m2.execute("chown -R admin:admin /home/admin/.ssh/")
-        m2.execute("chmod 600 /home/admin/.ssh/authorized_keys")
-        m2.execute("chmod 700 /home/admin/.ssh")
+        # Add machine
+        b.switch_to_top()
+        b.go("/@%s" % m2.address)
+        b.wait_visible("#machine-troubleshoot")
+        b.click('#machine-troubleshoot')
+        b.wait_popup('troubleshoot-dialog')
 
-        # Server is up.
-        b.click("#dashboard-hosts a[data-address='%s']" % m2.address)
-        b.switch_to_top()
-        b.wait_js_cond('window.location.pathname != "/dashboard"')
-        b.enter_page("/system", host=m2.address)
-        b.wait_text_not("#system_information_hostname_button", "")
-        b.switch_to_top()
-        b.go("/dashboard")
-        b.enter_page("/dashboard")
-        b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-small.png')
+        b.wait_text('#troubleshoot-dialog .btn-primary', "Add")
+        b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
+        b.click('#troubleshoot-dialog .btn-primary')
+        b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
+        b.click('#troubleshoot-dialog .btn-primary')
+        b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
+        b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
+        b.wait_visible("#login-available")
+        b.wait_not_present("#login-diff-password")
+        b.wait_present("#login-custom-user")
+        self.assertEqual(b.val("#login-custom-user"), "")
+        b.set_val("#login-custom-user", "user")
+        self.assertEqual(b.val("#login-type"), "stored")
+        b.wait_not_in_text("#login-type", "Password")
+        b.wait_visible("#login-available")
+        b.wait_not_in_text("#login-available", "Login Password")
+        b.wait_in_text("#login-available", "id_rsa")
+        b.wait_in_text("#login-available", "id_ecdsa")
+        b.wait_in_text("#login-available", "id_ed25519")
+
+        # add key
+        authorize_user(m2, "user")
+
+        # Login
+        b.click("#troubleshoot-dialog .btn-primary")
+        b.wait_text('#troubleshoot-dialog .btn-primary', "Synchronize")
+        b.wait_present("#sync-users")
+        b.wait_present("#sync-username")
+        b.wait_not_present("#sync-password")
+        b.click("#troubleshoot-dialog .btn-default")
+        b.wait_popdown('troubleshoot-dialog')
+        b.enter_page("/system", host="user@{0}".format(m2.address))
 
         # Logout
         b.logout()
@@ -158,10 +148,51 @@ class TestMultiMachineKeyAuth(MachineCase):
         except subprocess.CalledProcessError:
             pass
 
+        # Remove authorized keys
+        m2.execute("rm /home/user/.ssh/authorized_keys")
+        authorize_user(m2, "admin")
+
+        self.login_and_go("/system")
+        b.switch_to_top()
+        b.go("/@%s" % m2.address)
+        b.wait_visible("#machine-troubleshoot")
+        b.click('#machine-troubleshoot')
+        b.wait_popup('troubleshoot-dialog')
+
+        b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
+        b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
+        b.wait_visible("#login-available")
+        b.wait_visible("#login-custom-user")
+        self.assertEqual(b.val("#login-custom-user"), "user")
+        b.set_val("#login-custom-user", "")
+        b.click("#troubleshoot-dialog .btn-primary")
+        b.wait_popdown('troubleshoot-dialog')
+        b.enter_page("/system", host=m2.address)
+        b.wait_not_present("iframe.container-frame[name='cockpit1:user@{0}/system']".format(m2.address))
+
+        # Change user
+        authorize_user(m2, "user")
+
+        b.go("/dashboard")
+        b.enter_page("/dashboard")
+        b.click('#dashboard-enable-edit')
+        b.wait_visible("#dashboard-hosts .list-group-item[data-address='{0}'] button.pficon-edit".format(m2.address))
+        b.click("#dashboard-hosts .list-group-item[data-address='{0}'] button.pficon-edit".format(m2.address))
+        b.wait_popup('host-edit-dialog')
+        b.wait_visible('#host-edit-user')
+        self.assertEqual(b.val("#host-edit-user"), "")
+        b.set_val('#host-edit-user', 'user')
+        b.click('#host-edit-apply')
+        b.wait_popdown('host-edit-dialog')
+        b.wait_not_present("iframe.container-frame[name='cockpit1:{0}/system']".format(m2.address))
+
+        b.click("#dashboard-hosts .list-group-item[data-address='{0}']".format(m2.address))
+        b.enter_page("/system", host="user@{0}".format(m2.address))
+
         self.allow_restart_journal_messages()
-        self.allow_journal_messages(".*: .* host key for server is not known: .*",
-                                    # Might happen when killing the bridge.
-                                    "localhost: dropping message while waiting for child to exit",
+        self.allow_hostkey_messages()
+        # Might happen when killing the bridge.
+        self.allow_journal_messages("localhost: dropping message while waiting for child to exit",
                                     "Received message for unknown channel: .*",
                                     ".*: error reading from ssh",
                                     ".*: bridge program failed: Child process exited with code .*",

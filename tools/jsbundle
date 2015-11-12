@@ -31,6 +31,8 @@ var result = "";
 var delim = "";
 var input;
 var output = process.argv[2];
+var output_parts = output.split('/');
+
 var files = process.argv.slice(3);
 step();
 
@@ -54,7 +56,10 @@ function step() {
     var parts = input.split("/");
     var last = parts.length - 1;
 
-    var dir = parts[last - 1];
+    var dir = output_parts[output_parts.length - 2];
+    var dir_idx = parts.indexOf(dir)
+    if (dir_idx !== last)
+        dir = parts.slice(dir_idx, last).join('/');
     dir = maps[dir] || dir;
 
     var file = parts[last];

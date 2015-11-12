@@ -1,0 +1,74 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal"
+        aria-hidden="true">&times;</button>
+    <h4 class="modal-title" translatable="yes">Log in to {{host}}</h4>
+</div>
+
+<div class="modal-body">
+    {{^available}}
+    <p translatable="yes">Cockpit was unable to log into <strong>{{host}}</strong>.</a></p>
+    {{/available}}
+
+    {{#available}}
+    <p translatable="yes">Cockpit was unable to log into <strong>{{host}}</strong> you can change your authentication credentials below. You may prefer to <a id="do-sync-users">synchronize users.</a></p>
+
+    <div>
+        <table class="cockpit-form-table">
+            <tr>
+                <td translatable="yes" class="top">User name</td>
+                <td>
+                    <input class="form-control" id="login-custom-user" type="text" value="{{machine_user}}" placeholder="{{ user }}"/>
+                </td>
+                <td>
+                    <a tabindex="0" role="button" data-toggle="popover"
+                        data-trigger="focus" data-placement="bottom"
+                        data-content="Leave blank to connect to this machine as the currently logged in user ({{user}}). If you enter a different username, that user will always be used connecting to this machine.">
+                        <span class="fa fa-lg fa-info-circle"></span>
+                    </a>
+                </td>
+            </tr>
+
+            <tr>
+                <td translatable="yes">Authentication</td>
+                <td>
+                    <select class="form-control" id="login-type" type="text">
+                        {{#allows_password}}
+                        <option value="password" translatable="yes">Type a password</option>
+                        {{/allows_password}}
+                        <option value="stored" translatable="yes">Using available credentials</option>
+                    </select>
+                </td>
+            </tr>
+
+            {{#allows_password}}
+            <tr id="login-diff-password">
+                <td translatable="yes" class="top">Password</td>
+                <td>
+                    <input class="form-control" id="login-custom-password" type="password" />
+                </td>
+                <td>
+                    <a tabindex="0" role="button" data-toggle="popover"
+                        data-trigger="focus" data-placement="bottom"
+                        data-content="Entering a different password here means you will need to retype it every time you reconnect to this machine">
+                        <span class="fa fa-lg fa-info-circle"></span>
+                    </a>
+                </td>
+            </tr>
+            {{/allows_password}}
+            <tr id="login-available">
+                <td translatable="yes" class="top">Available</td>
+                <td class="top">
+                        {{#password}}<div translatable="yes">Login Password</div>{{/password}}
+                        {{#gssapi-mic}}<div translatable="yes">Kerberos Ticket</div>{{/gssapi-mic}}
+                        {{#public-key}}<div class="keys"><div class='dialog-wait pull-left'><div class='spinner spinner-sm'></div><span translatable="yes">Checking for public keys</span></div></div>{{/public-key}}
+                </td>
+            </tr>
+        </table>
+    </div>
+    {{/available}}
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-default" data-dismiss="modal" translatable="yes">Cancel</button>
+    <button class="btn btn-primary" translatable="yes">Log In</button>
+</div>

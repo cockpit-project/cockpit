@@ -25,8 +25,9 @@ define([
     "shell/machines",
     "shell/credentials",
     'translated!base1/po',
-    "manifests"
-], function($, cockpit, machis, credentials, po, local_manifests) {
+    "manifests",
+    "shell/machine-dialogs",
+], function($, cockpit, machis, credentials, po, local_manifests, mdialogs) {
     "use strict";
 
     var module = { };
@@ -37,6 +38,9 @@ define([
     var default_title = "Cockpit";
 
     var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
+
+    /* Is troubleshooting dialog open */
+    var troubleshooting = false;
 
     /* The oops bar */
 
@@ -199,6 +203,8 @@ define([
 
     var ready = false;
     var machines = machis.instance();
+    mdialogs.setup_machines(machines);
+
     var loader = machis.loader(machines);
     var frames = new Frames();
     module.router = new Router();
@@ -218,8 +224,7 @@ define([
         .on("added updated", function(ev, machine) {
             if (!machine.visible)
                 frames.remove(machine);
-
-            if (machine.problem)
+            else if (machine.problem)
                 frames.remove(machine);
 
             update_machines();
@@ -240,7 +245,18 @@ define([
     });
 
     /* Reconnect button */
-    $(".curtains button").on("click", function(ev) {
+    $("#machine-reconnect").on("click", function(ev) {
+        navigate(null, true);
+    });
+
+    /* Troubleshoot pause navigation */
+    $("#troubleshoot-dialog").on("show.bs.modal", function(ev) {
+        troubleshooting = true;
+    });
+
+    /* Troubleshoot dialog close */
+    $("#troubleshoot-dialog").on("hide.bs.modal", function(ev) {
+        troubleshooting = false;
         navigate(null, true);
     });
 
@@ -362,8 +378,9 @@ define([
     function navigate(state, reconnect) {
         var machine;
 
-        /* If this is a watchdog problem let the dialog handle it */
-        if (watchdog_problem)
+        /* If this is a watchdog problem or we are troubleshooting
+         * let the dialog handle it */
+        if (watchdog_problem || troubleshooting)
             return;
 
         /* phantomjs has a problem retrieving state, so we allow it to be passed in */
@@ -382,6 +399,9 @@ define([
             };
 
         /* Asked to reconnect to the machine */
+        } else if (!machine.visible) {
+            machine.state = "failed";
+            machine.problem = "not-found";
         } else if (reconnect && machine.state !== "connected") {
             loader.connect(state.host);
         }
@@ -538,19 +558,35 @@ define([
                 message = "";
             } else {
                 title = _("Couldn't connect to the machine");
-                if (machine.problem == "not-found")
+                if (machine.problem == "not-found") {
                     message = _("Cannot connect to an unknown machine");
-                else
-                    message = cockpit.message(machine.problem || machine.state);
+                } else {
+                    var error = machine.problem || machine.state;
+                    if (error)
+                        message = cockpit.message(error);
+                    else
+                        message = "";
+                }
+            }
+
+            if (mdialogs.needs_troubleshoot(machine)) {
+                $("#machine-troubleshoot").off()
+                    .on("click", function () {
+                        mdialogs.troubleshoot("troubleshoot-dialog", machine);
+                    });
+                $("#machine-troubleshoot").show();
+            } else {
+                $("#machine-troubleshoot").hide();
             }
 
             restarting = !!machine.restarting;
             $(".curtains").show();
             $(".curtains .spinner").toggle(connecting || restarting);
-            $(".curtains button").toggle(!connecting);
+            $("#machine-reconnect").toggle(!connecting && machine.problem != "not-found");
             $(".curtains i").toggle(!connecting && !restarting);
             $(".curtains h1").text(title);
             $(".curtains p").text(message);
+
             $("#machine-spinner").hide();
 
             update_title(null, machine);
@@ -650,16 +686,19 @@ define([
         /* Lists of frames, by host */
         var iframes = { };
 
+        function remove_frame(frame) {
+            $(frame.contentWindow).off();
+            $(frame).remove();
+        }
         self.remove = function remove(machine) {
-            var host = machine.address;
-            if (!host)
-                host = "localhost";
-            var list = iframes[host];
+            var address = machine.address;
+            if (!address)
+                address = "localhost";
+            var list = iframes[address];
             if (list) {
-                delete iframes[host];
+                delete iframes[address];
                 $.each(list, function(i, frame) {
-                    $(frame.contentWindow).off();
-                    $(frame).remove();
+                    remove_frame(frame);
                 });
             }
         };
@@ -697,17 +736,30 @@ define([
 
         self.lookup = function lookup(machine, component, hash) {
             var host;
-            if (machine)
-                host = machine.address;
+            var address;
+
+            if (machine) {
+                host = machine.connection_string;
+                address = machine.address;
+            }
+
             if (!host)
                 host = "localhost";
 
-            var list = iframes[host];
+            if (!address)
+                address = host;
+
+            var list = iframes[address];
             if (!list)
-                iframes[host] = list = { };
+                iframes[address] = list = { };
 
             var name = "cockpit1:" + host + "/" + component;
             var frame = list[component];
+            if (frame && frame.getAttribute("name") != name) {
+                remove_frame(frame);
+                frame = null;
+            }
+
             var wind = window.frames[name];
 
             /* A preloaded frame */

@@ -43,7 +43,7 @@ def arg_parser():
                         help='Trace machine boot and commands')
     parser.add_argument('-q', '--quiet', dest='verbosity', action='store_const',
                         const=0, help='Quiet output')
-    parser.add_argument('--thorough', dest='thorough', action='store',
+    parser.add_argument('--thorough', dest='thorough', action='store_true',
                         help='Thorough mode, no skipping known issues')
     parser.add_argument('-s', "--sit", dest='sit', action='store_true',
                         help="Sit and wait after test failure")

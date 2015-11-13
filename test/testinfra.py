@@ -230,7 +230,7 @@ class GitHub(object):
                 priority -= 1
 
             # Is testing already in progress?
-            if last.get("description", None) == TESTING:
+            if last and last.get("description", None) == TESTING:
                 update = None
                 priority = 0
 

@@ -452,8 +452,6 @@ echo "
         datadir:                    ${datadir}
         sysconfdir:                 ${sysconfdir}
         localstatedir:              ${localstatedir}
-        dbusservicedir:             ${dbusservicedir}
-        dbussystemdir:              ${dbussystemdir}
         pamdir:                     ${pamdir}
 
         compiler:                   ${CC}

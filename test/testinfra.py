@@ -238,7 +238,7 @@ class GitHub(object):
             update = update.copy()
             update["description"] = "Manual testing required"
 
-        if update and not dict_is_subset(last, update):
+        if update and (not last or not dict_is_subset(last, update)):
             self.post("statuses/" + revision, update)
 
         return priority

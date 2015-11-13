@@ -594,6 +594,20 @@ tls_certificate_new_from_file (const gchar *file,
   return cert;
 }
 
+static gint
+tls_certificate_count (GTlsCertificate *cert)
+{
+  gint count = 0;
+
+  while (cert != NULL)
+    {
+      cert = g_tls_certificate_get_issuer (cert);
+      count++;
+    }
+
+  return count;
+}
+
 GTlsCertificate *
 cockpit_certificate_load (const gchar *cert_path,
                           GError **error)
@@ -603,5 +617,7 @@ cockpit_certificate_load (const gchar *cert_path,
   cert = tls_certificate_new_from_file (cert_path, error);
   if (cert == NULL)
     g_prefix_error (error, "%s: ", cert_path);
+  else
+    g_debug ("loaded %d certificates from %s", tls_certificate_count (cert), cert_path);
   return cert;
 }

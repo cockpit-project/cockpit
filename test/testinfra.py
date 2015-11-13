@@ -202,11 +202,11 @@ class GitHub(object):
             for status in statuses:
                 if status["context"] == self.context():
                     return status
-        return None
+        return { }
 
     def prioritize(self, revision, labels=[], update=None, baseline=10):
         last = self.rev_status(revision)
-        state = None if not last else last["state"]
+        state = last.get("state", None)
 
         priority = baseline
 
@@ -299,7 +299,7 @@ class GitHub(object):
 
         revision = pull['head']['sha']
         current_status = self.rev_status(revision)
-        if current_status and current_status["state"] not in ["error", "failure"]:
+        if current_status.get("state", "empty") not in ["error", "failure"]:
             if force:
                 sys.stderr.write("Pull request isn't in error state, but forcing update.\n")
             else:

@@ -299,7 +299,7 @@ class GitHub(object):
 
         revision = pull['head']['sha']
         current_status = self.rev_status(revision)
-        if current_status.get("state", "empty") not in ["error", "failure"]:
+        if current_status.get("state", "empty") not in ["empty", "error", "failure"]:
             if force:
                 sys.stderr.write("Pull request isn't in error state, but forcing update.\n")
             else:

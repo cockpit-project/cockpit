@@ -22,36 +22,19 @@ rm -rf ~/.rhel
 #
 set -x
 
-# These are in the magic base image but seem to have become
-# unavailable for some reason.
-#
-yum -y --disablerepo=rhel-7-server-rt-beta-rpms --disablerepo=rhel-sap-hana-for-rhel-7-server-rpms install yum-utils
-yum-config-manager --disable rhel-7-server-rt-beta-rpms
-yum-config-manager --disable rhel-sap-hana-for-rhel-7-server-rpms
-
-# HTB seems to have some problems...
-#
-yum-config-manager --disable rhel-7-server-htb-rpms
-
 yum -y install wget
 cd /etc/yum.repos.d
 
-# we need the cockpit-preview copr for updated glib2
-wget -T 15 -t 4 https://copr.fedoraproject.org/coprs/sgallagh/cockpit-preview/repo/epel-7/sgallagh-cockpit-preview-epel-7.repo
-
-# we need storaged 2
-wget -T 15 -t 4 https://copr.fedoraproject.org/coprs/phatina/storaged/repo/epel-7/phatina-storaged-epel-7.repo
-
+# Configure repositories.
+#
+# HACK - "htb" doesn't work right now, but we can use "beta".  Once
+# possible, we should do without any beta repositories.
+#
+yum -y --disablerepo=rhel-7-server-htb-rpms install yum-utils
 yum-config-manager --enable rhel-7-server-optional-rpms
 yum-config-manager --enable rhel-7-server-extras-rpms
-
-# enable epel for libssh and mock
-mkdir /tmp/dep
-cd /tmp/dep
-wget -T 15 -t 4 http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-rpm -Uvh epel-release-*.rpm
-cd
-rm -rf /tmp/dep
+yum-config-manager --disable rhel-7-server-htb-rpms
+yum-config-manager --enable rhel-7-server-beta-rpms
 
 yum --nogpgcheck -y update
 
@@ -96,6 +79,15 @@ gdb
 yum install --nogpgcheck -y $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # Prepare for building
+
+# enable epel for mock
+mkdir /tmp/dep
+cd /tmp/dep
+wget -T 15 -t 4 http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+rpm -Uvh epel-release-*.rpm
+cd
+rm -rf /tmp/dep
+
 yum -y install mock
 useradd -u 2000 -c Builder -G mock builder
 su - builder -c "mock --verbose --installdeps $TEST_SOURCE_PACKAGE"

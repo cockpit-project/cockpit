@@ -24,6 +24,7 @@
 #include "common/cockpitjson.h"
 #include "common/cockpitpipe.h"
 #include "common/cockpitstream.h"
+#include "common/cockpitwebresponse.h"
 
 #include "websocket/websocket.h"
 
@@ -649,20 +650,6 @@ on_stream_close (CockpitStream *stream,
 }
 
 static gboolean
-simple_token (const gchar *string)
-{
-  string += strcspn (string, " \t\r\n\v");
-  return string[0] == '\0';
-}
-
-static gboolean
-single_line (const gchar *string)
-{
-  string += strcspn (string, "\r\n\v");
-  return string[0] == '\0';
-}
-
-static gboolean
 disallowed_header (const gchar *name,
                    const gchar *value,
                    gboolean binary)
@@ -752,7 +739,7 @@ send_http_request (CockpitHttpStream *self)
       g_warning ("%s: missing \"path\" field in HTTP stream request", self->name);
       goto out;
     }
-  else if (!simple_token (path))
+  else if (!cockpit_web_response_is_simple_token (path))
     {
       g_warning ("%s: invalid \"path\" field in HTTP stream request", self->name);
       goto out;
@@ -768,7 +755,7 @@ send_http_request (CockpitHttpStream *self)
       g_warning ("%s: missing \"method\" field in HTTP stream request", self->name);
       goto out;
     }
-  else if (!simple_token (method))
+  else if (!cockpit_web_response_is_simple_token (method))
     {
       g_warning ("%s: invalid \"method\" field in HTTP stream request", self->name);
       goto out;
@@ -795,7 +782,7 @@ send_http_request (CockpitHttpStream *self)
       for (l = names; l != NULL; l = g_list_next (l))
         {
           header = l->data;
-          if (!simple_token (header))
+          if (!cockpit_web_response_is_simple_token (header))
             {
               g_warning ("%s: invalid header in HTTP stream request: %s", self->name, header);
               goto out;
@@ -812,7 +799,7 @@ send_http_request (CockpitHttpStream *self)
               g_warning ("%s: disallowed header in HTTP stream request: %s", self->name, header);
               goto out;
             }
-          if (!single_line (value))
+          if (!cockpit_web_response_is_header_value (value))
             {
               g_warning ("%s: invalid header value in HTTP stream request: %s", self->name, header);
               goto out;

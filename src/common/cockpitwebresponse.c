@@ -624,6 +624,20 @@ cockpit_web_response_get_state (CockpitWebResponse *self)
     return COCKPIT_WEB_RESPONSE_QUEUING;
 }
 
+gboolean
+cockpit_web_response_is_simple_token (const gchar *string)
+{
+  string += strcspn (string, " \t\r\n\v");
+  return string[0] == '\0';
+}
+
+gboolean
+cockpit_web_response_is_header_value (const gchar *string)
+{
+  string += strcspn (string, "\r\n\v");
+  return string[0] == '\0';
+}
+
 enum {
     HEADER_CONTENT_TYPE = 1 << 0,
     HEADER_CONTENT_ENCODING = 1 << 1,
@@ -649,8 +663,8 @@ append_header (GString *string,
 {
   if (value)
     {
-      g_return_val_if_fail (strchr (name, '\n') == NULL, 0);
-      g_return_val_if_fail (strchr (value, '\n') == NULL, 0);
+      g_return_val_if_fail (cockpit_web_response_is_simple_token (name), 0);
+      g_return_val_if_fail (cockpit_web_response_is_header_value (value), 0);
       g_string_append_printf (string, "%s: %s\r\n", name, value);
     }
   if (g_ascii_strcasecmp ("Content-Type", name) == 0)
@@ -986,6 +1000,9 @@ cockpit_web_response_error (CockpitWebResponse *self,
           break;
         case 405:
           message = "Method Not Allowed";
+          break;
+        case 410:
+          message = "Requested resource is no longer available";
           break;
         case 413:
           message = "Request Entity Too Large";

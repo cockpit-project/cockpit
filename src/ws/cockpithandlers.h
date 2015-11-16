@@ -41,6 +41,14 @@ gboolean       cockpit_handler_socket            (CockpitWebServer *server,
                                                   guint in_length,
                                                   CockpitHandlerData *data);
 
+gboolean       cockpit_handler_external          (CockpitWebServer *server,
+                                                  const gchar *path,
+                                                  GIOStream *io_stream,
+                                                  GHashTable *headers,
+                                                  GByteArray *input,
+                                                  guint in_length,
+                                                  CockpitHandlerData *data);
+
 gboolean       cockpit_handler_root              (CockpitWebServer *server,
                                                   const gchar *path,
                                                   GHashTable *headers,

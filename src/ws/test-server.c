@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "cockpitwebservice.h"
+#include "cockpitchannelresponse.h"
 #include "cockpitchannelsocket.h"
 
 #include "common/cockpitpipe.h"
@@ -232,7 +233,6 @@ on_handle_stream_socket (CockpitWebServer *server,
                          gpointer user_data)
 {
   CockpitTransport *transport;
-  const gchar *query = NULL;
   CockpitCreds *creds;
   CockpitPipe *pipe;
   gchar *value;
@@ -241,9 +241,7 @@ on_handle_stream_socket (CockpitWebServer *server,
   if (!g_str_has_prefix (path, "/cockpit/socket"))
     return FALSE;
 
-  if (path[15] == '?')
-    query = path + 16;
-  else if (path[15] != '\0')
+  if (path[15] != '\0')
     return FALSE;
 
   if (service)
@@ -272,15 +270,58 @@ on_handle_stream_socket (CockpitWebServer *server,
       g_object_add_weak_pointer (G_OBJECT (service), (gpointer *)&service);
     }
 
-  if (query)
-    cockpit_channel_socket_open (service, "/cockpit/socket", query, io_stream, headers, input);
-  else
-    cockpit_web_service_socket (service, "/cockpit/socket", io_stream, headers, input);
+  cockpit_web_service_socket (service, "/cockpit/socket", io_stream, headers, input);
 
   /* Keeps ref on itself until it closes */
   g_object_unref (service);
 
   return TRUE;
+}
+
+static gboolean
+on_handle_stream_external (CockpitWebServer *server,
+                           const gchar *path,
+                           GIOStream *io_stream,
+                           GHashTable *headers,
+                           GByteArray *input,
+                           guint in_length,
+                           gpointer user_data)
+{
+  CockpitWebResponse *response;
+  gboolean handled = FALSE;
+  const gchar *upgrade;
+  JsonObject *open;
+
+  if (!g_str_has_prefix (path, "/cockpit/"))
+    return FALSE;
+
+  /* Remove /cockpit part */
+  path += 8;
+
+  if (service)
+    {
+      open = cockpit_web_service_pop_external (service, path);
+      if (open)
+        {
+          upgrade = g_hash_table_lookup (headers, "Upgrade");
+          if (upgrade && g_str_equal (upgrade, "websocket"))
+            {
+              cockpit_channel_socket_open (service, open, path, io_stream, headers, input);
+              handled = TRUE;
+            }
+          else
+            {
+              response = cockpit_web_response_new (io_stream, path, NULL, headers);
+              cockpit_channel_response_open (service, headers, response, open);
+              g_object_unref (response);
+              handled = TRUE;
+            }
+
+          json_object_unref (open);
+        }
+    }
+
+  return handled;
 }
 
 static void
@@ -363,9 +404,10 @@ server_ready (void)
                   error->message, g_quark_to_string (error->domain), error->code);
     }
 
-  g_signal_connect (server,
-                    "handle-stream",
+  g_signal_connect (server, "handle-stream",
                     G_CALLBACK (on_handle_stream_socket), NULL);
+  g_signal_connect (server, "handle-stream",
+                    G_CALLBACK (on_handle_stream_external), NULL);
   g_signal_connect (server,
                     "handle-resource::/pkg/",
                     G_CALLBACK (on_handle_resource), NULL);

@@ -99,7 +99,8 @@ cockpit_channel_inject_perform (CockpitChannelInject *inject,
 
 typedef struct {
   const gchar *logname;
-  gchar *channel;
+  const gchar *channel;
+  JsonObject *open;
 
   CockpitWebResponse *response;
   GHashTable *headers;
@@ -168,19 +169,19 @@ cockpit_channel_response_close (CockpitChannelResponse *chesp,
     {
       if (state < COCKPIT_WEB_RESPONSE_COMPLETE)
         {
-          g_message ("%s: invalid state while serving resource", chesp->logname);
+          g_message ("%s: invalid state while serving external channel", chesp->logname);
           cockpit_web_response_abort (chesp->response);
         }
       else
         {
-          g_debug ("%s: completed serving resource", chesp->logname);
+          g_debug ("%s: completed serving external channel", chesp->logname);
         }
     }
   else if (state == COCKPIT_WEB_RESPONSE_READY)
     {
       if (g_str_equal (problem, "not-found"))
         {
-          g_debug ("%s: resource not found", chesp->logname);
+          g_debug ("%s: not found", chesp->logname);
           cockpit_web_response_error (chesp->response, 404, NULL, NULL);
         }
       else if (g_str_equal (problem, "no-host") ||
@@ -194,16 +195,16 @@ cockpit_channel_response_close (CockpitChannelResponse *chesp,
         }
       else
         {
-          g_message ("%s: failed to retrieve resource: %s", chesp->logname, problem);
+          g_message ("%s: external channel failed: %s", chesp->logname, problem);
           cockpit_web_response_error (chesp->response, 500, NULL, NULL);
         }
     }
   else
     {
       if (g_str_equal (problem, "disconnected"))
-        g_debug ("%s: failure while serving resource: %s", chesp->logname, problem);
+        g_debug ("%s: failure while serving external channel: %s", chesp->logname, problem);
       else
-        g_message ("%s: failure while serving resource: %s", chesp->logname, problem);
+        g_message ("%s: failure while serving external channel: %s", chesp->logname, problem);
       cockpit_web_response_abort (chesp->response);
     }
 
@@ -211,8 +212,24 @@ cockpit_channel_response_close (CockpitChannelResponse *chesp,
   g_object_unref (chesp->transport);
   g_hash_table_unref (chesp->headers);
   cockpit_channel_inject_free (chesp->inject);
-  g_free (chesp->channel);
+  json_object_unref (chesp->open);
   g_free (chesp);
+}
+
+static gboolean
+ensure_headers (CockpitChannelResponse *chesp,
+                guint status,
+                const gchar *reason)
+{
+  if (cockpit_web_response_get_state (chesp->response) == COCKPIT_WEB_RESPONSE_READY)
+    {
+      if (chesp->inject)
+        cockpit_channel_inject_perform (chesp->inject, chesp->response, chesp->transport);
+      cockpit_web_response_headers_full (chesp->response, status, reason, -1, chesp->headers);
+      return TRUE;
+    }
+
+  return FALSE;
 }
 
 static gboolean
@@ -223,6 +240,7 @@ on_transport_recv (CockpitTransport *transport,
 {
   if (channel && g_str_equal (channel, chesp->channel))
     {
+      ensure_headers (chesp, 200, "OK");
       cockpit_web_response_queue (chesp->response, payload);
       return TRUE;
     }
@@ -278,10 +296,10 @@ parse_httpstream_response (CockpitChannelResponse *chesp,
 }
 
 static gboolean
-on_transport_httpstream_headers (CockpitTransport *transport,
-                                 const gchar *channel,
-                                 GBytes *payload,
-                                 CockpitChannelResponse *chesp)
+on_httpstream_recv (CockpitTransport *transport,
+                    const gchar *channel,
+                    GBytes *payload,
+                    CockpitChannelResponse *chesp)
 {
   GError *error = NULL;
   JsonObject *object;
@@ -308,9 +326,8 @@ on_transport_httpstream_headers (CockpitTransport *transport,
 
   if (parse_httpstream_response (chesp, object, &status, &reason))
     {
-      if (chesp->inject)
-        cockpit_channel_inject_perform (chesp->inject, chesp->response, chesp->transport);
-      cockpit_web_response_headers_full (chesp->response, status, reason, -1, chesp->headers);
+      if (!ensure_headers (chesp, status, reason))
+        g_return_val_if_reached (FALSE);
     }
   else
     {
@@ -356,6 +373,38 @@ on_transport_control (CockpitTransport *transport,
   return TRUE; /* handled */
 }
 
+static gboolean
+on_httpstream_control (CockpitTransport *transport,
+                       const gchar *command,
+                       const gchar *channel,
+                       JsonObject *options,
+                       GBytes *message,
+                       CockpitChannelResponse *chesp)
+{
+  gint64 status;
+  const gchar *reason;
+
+  if (!channel || !g_str_equal (channel, chesp->channel))
+    return FALSE; /* not handled */
+
+  if (g_str_equal (command, "response"))
+    {
+      if (parse_httpstream_response (chesp, options, &status, &reason))
+        {
+          if (!ensure_headers (chesp, status, reason))
+            g_return_val_if_reached (FALSE);
+        }
+      else
+        {
+          cockpit_web_response_error (chesp->response, 500, NULL, NULL);
+        }
+      return TRUE;
+    }
+
+  return on_transport_control (transport, command, channel, options, message, chesp);
+}
+
+
 static void
 on_transport_closed (CockpitTransport *transport,
                      const gchar *problem,
@@ -364,30 +413,84 @@ on_transport_closed (CockpitTransport *transport,
   cockpit_channel_response_close (chesp, problem ? problem : "disconnected");
 }
 
+static CockpitChannelResponse *
+cockpit_channel_response_create (CockpitWebResponse *response,
+                                 CockpitTransport *transport,
+                                 const gchar *logname,
+                                 GHashTable *headers,
+                                 JsonObject *open)
+{
+  CockpitChannelResponse *chesp;
+  const gchar *channel;
+  const gchar *payload;
+  JsonObject *done;
+  GBytes *bytes;
+
+  channel = json_object_get_string_member (open, "channel");
+  g_return_val_if_fail (channel != NULL, NULL);
+
+  payload = json_object_get_string_member (open, "payload");
+
+  chesp = g_new0 (CockpitChannelResponse, 1);
+  chesp->response = g_object_ref (response);
+  chesp->transport = g_object_ref (transport);
+  chesp->headers = g_hash_table_ref (headers);
+  chesp->channel = channel;
+  chesp->logname = logname ? logname : channel;
+  chesp->open = json_object_ref (open);
+
+  /* Special handling for http-stream1, splice in headers, handle injection */
+  if (g_strcmp0 (payload, "http-stream1") == 0)
+    chesp->transport_recv = g_signal_connect (transport, "recv", G_CALLBACK (on_httpstream_recv), chesp);
+  else
+    chesp->transport_recv = g_signal_connect (transport, "recv", G_CALLBACK (on_transport_recv), chesp);
+
+  /* Special handling for http-stream2, splice in headers, handle injection */
+  if (g_strcmp0 (payload, "http-stream2") == 0)
+    chesp->transport_control = g_signal_connect (transport, "control", G_CALLBACK (on_httpstream_control), chesp);
+  else
+    chesp->transport_control = g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), chesp);
+
+  chesp->transport_closed = g_signal_connect (transport, "closed", G_CALLBACK (on_transport_closed), chesp);
+
+  bytes = cockpit_json_write_bytes (chesp->open);
+  cockpit_transport_send (transport, NULL, bytes);
+  g_bytes_unref (bytes);
+
+  done = cockpit_transport_build_json ("command", "done", "channel", chesp->channel, NULL);
+  bytes = cockpit_json_write_bytes (done);
+  json_object_unref (done);
+  cockpit_transport_send (transport, NULL, bytes);
+  g_bytes_unref (bytes);
+
+  return chesp;
+}
+
 void
 cockpit_channel_response_serve (CockpitWebService *service,
-                                GHashTable *headers,
+                                GHashTable *in_headers,
                                 CockpitWebResponse *response,
                                 const gchar *where,
                                 const gchar *path)
 {
-  CockpitChannelResponse *chesp;
+  CockpitChannelResponse *chesp = NULL;
   CockpitTransport *transport = NULL;
   const gchar *host = NULL;
   gchar *quoted_etag = NULL;
+  GHashTable *out_headers = NULL;
   gchar *val = NULL;
   gboolean handled = FALSE;
   GHashTableIter iter;
-  GBytes *command;
   const gchar *checksum;
   JsonObject *object = NULL;
   JsonObject *heads;
+  gchar *channel = NULL;
   gpointer key;
   gpointer value;
 
   g_return_if_fail (COCKPIT_IS_WEB_SERVICE (service));
+  g_return_if_fail (in_headers != NULL);
   g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (response));
-  g_return_if_fail (headers != NULL);
   g_return_if_fail (path != NULL);
 
   if (where == NULL)
@@ -402,8 +505,8 @@ cockpit_channel_response_serve (CockpitWebService *service,
     {
       quoted_etag = g_strdup_printf ("\"%s\"", where);
 
-      if (g_strcmp0 (g_hash_table_lookup (headers, "If-None-Match"), where) == 0 ||
-          g_strcmp0 (g_hash_table_lookup (headers, "If-None-Match"), quoted_etag) == 0)
+      if (g_strcmp0 (g_hash_table_lookup (in_headers, "If-None-Match"), where) == 0 ||
+          g_strcmp0 (g_hash_table_lookup (in_headers, "If-None-Match"), quoted_etag) == 0)
         {
           cockpit_web_response_headers (response, 304, "Not Modified", 0, "ETag", quoted_etag, NULL);
           cockpit_web_response_complete (response);
@@ -461,22 +564,10 @@ cockpit_channel_response_serve (CockpitWebService *service,
         }
     }
 
-  chesp = g_new0 (CockpitChannelResponse, 1);
-  chesp->response = g_object_ref (response);
-  chesp->transport = g_object_ref (transport);
-  chesp->headers = cockpit_web_server_new_table ();
-  chesp->logname = cockpit_web_response_get_path (response);
-  chesp->channel = cockpit_web_service_unique_channel (service);
-  json_object_set_string_member (object, "channel", chesp->channel);
+  out_headers = cockpit_web_server_new_table ();
 
-  chesp->transport_recv = g_signal_connect (transport, "recv", G_CALLBACK (on_transport_httpstream_headers), chesp);
-  chesp->transport_closed = g_signal_connect (transport, "closed", G_CALLBACK (on_transport_closed), chesp);
-  chesp->transport_control = g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), chesp);
-
-  if (!where)
-    {
-      chesp->inject = cockpit_channel_inject_new (service, path);
-    }
+  channel = cockpit_web_service_unique_channel (service);
+  json_object_set_string_member (object, "channel", channel);
 
   if (quoted_etag)
     {
@@ -484,13 +575,13 @@ cockpit_channel_response_serve (CockpitWebService *service,
        * If we have a checksum, then use it as an ETag. It is intentional that
        * a cockpit-bridge version could (in the future) override this.
        */
-      g_hash_table_insert (chesp->headers, g_strdup ("ETag"), quoted_etag);
+      g_hash_table_insert (out_headers, g_strdup ("ETag"), quoted_etag);
       quoted_etag = NULL;
     }
 
   heads = json_object_new ();
 
-  g_hash_table_iter_init (&iter, headers);
+  g_hash_table_iter_init (&iter, in_headers);
   while (g_hash_table_iter_next (&iter, &key, &value))
     {
       val = NULL;
@@ -521,18 +612,12 @@ cockpit_channel_response_serve (CockpitWebService *service,
   json_object_set_string_member (heads, "Host", host);
   json_object_set_object_member (object, "headers", heads);
 
-  command = cockpit_json_write_bytes (object);
-  cockpit_transport_send (transport, NULL, command);
-  g_bytes_unref (command);
+  chesp = cockpit_channel_response_create (response, transport,
+                                           cockpit_web_response_get_path (response),
+                                           out_headers, object);
 
-  json_object_unref (object);
-  object = cockpit_transport_build_json ("command", "done",
-                                         "channel", chesp->channel,
-                                         NULL);
-
-  command = cockpit_json_write_bytes (object);
-  cockpit_transport_send (transport, NULL, command);
-  g_bytes_unref (command);
+  if (!where)
+    chesp->inject = cockpit_channel_inject_new (service, path);
 
   handled = TRUE;
 
@@ -540,7 +625,59 @@ out:
   if (object)
     json_object_unref (object);
   g_free (quoted_etag);
+  if (out_headers)
+    g_hash_table_unref (out_headers);
+  g_free (channel);
 
   if (!handled)
     cockpit_web_response_error (response, 404, NULL, NULL);
+}
+
+void
+cockpit_channel_response_open (CockpitWebService *service,
+                               GHashTable *in_headers,
+                               CockpitWebResponse *response,
+                               JsonObject *open)
+{
+  CockpitTransport *transport;
+  WebSocketDataType data_type;
+  JsonObject *external;
+  GHashTable *headers;
+  const gchar *value;
+
+  transport = cockpit_web_service_ensure_transport (service, open);
+  if (!transport)
+    {
+      cockpit_web_response_error (response, 502, NULL, NULL);
+      return;
+    }
+
+  headers = cockpit_web_server_new_table ();
+
+  external = json_object_get_object_member (open, "external");
+  g_return_if_fail (external != NULL);
+
+  if (!cockpit_json_get_string (external, "disposition", NULL, &value))
+    g_return_if_reached ();
+  if (value)
+    g_hash_table_insert (headers, g_strdup ("Content-Disposition"), g_strdup (value));
+
+  if (!cockpit_json_get_string (external, "type", NULL, &value))
+    g_return_if_reached ();
+  if (!value)
+    {
+      if (!cockpit_web_service_parse_binary (open, &data_type))
+        g_return_if_reached ();
+      if (data_type == WEB_SOCKET_DATA_TEXT)
+        value = "text/plain";
+      else
+        value = "application/octet-stream";
+    }
+  g_hash_table_insert (headers, g_strdup ("Content-Type"), g_strdup (value));
+
+  /* We shouldn't need to send this part further */
+  json_object_remove_member (open, "external");
+
+  cockpit_channel_response_create (response, transport, NULL, headers, open);
+  g_hash_table_unref (headers);
 }

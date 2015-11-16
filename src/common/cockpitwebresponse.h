@@ -115,6 +115,10 @@ GBytes *              cockpit_web_response_negotiation   (const gchar *path,
 gboolean     cockpit_web_should_suppress_output_error    (const gchar *logname,
                                                           GError *error);
 
+gboolean     cockpit_web_response_is_simple_token        (const gchar *string);
+
+gboolean     cockpit_web_response_is_header_value        (const gchar *string);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_RESPONSE_H__ */

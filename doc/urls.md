@@ -1,6 +1,6 @@
 
-Cockpit resource URL paths
-==========================
+Cockpit URL paths
+=================
 
 This is developer documentation about the various resource paths in Cockpit
 and their characteristics. This doesn't apply to the visible URLs shown
@@ -25,6 +25,10 @@ in the main Cockpit address bar.
 
  * ```/cockpit+embedder/$host/package/...``` an embedder identifier can be
    included in the path.
+
+ * ```/cockpit/socket``` The main web socket
+
+ * ```/cockpit/channel/...``` External channel URLs
 
  * If loading through cockpit-ws ... any other URL that starts with
    a possible host name or package name will be handled by shell/index.html.

@@ -25,11 +25,16 @@
 G_BEGIN_DECLS
 
 
-void             cockpit_channel_response_serve       (CockpitWebService *self,
+void             cockpit_channel_response_serve       (CockpitWebService *service,
                                                        GHashTable *headers,
                                                        CockpitWebResponse *response,
                                                        const gchar *where,
                                                        const gchar *path);
+
+void             cockpit_channel_response_open        (CockpitWebService *service,
+                                                       GHashTable *headers,
+                                                       CockpitWebResponse *response,
+                                                       JsonObject *open);
 
 G_END_DECLS
 

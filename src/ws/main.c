@@ -194,6 +194,10 @@ main (int argc,
   g_signal_connect (server, "handle-stream",
                     G_CALLBACK (cockpit_handler_socket), &data);
 
+  /* External channels, ignore stuff they shouldn't handle */
+  g_signal_connect (server, "handle-stream",
+                    G_CALLBACK (cockpit_handler_external), &data);
+
   /* Don't redirect to TLS for /ping */
   g_object_set (server, "ssl-exception-prefix", "/ping", NULL);
   g_signal_connect (server, "handle-resource::/ping",

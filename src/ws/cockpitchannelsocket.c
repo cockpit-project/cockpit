@@ -183,62 +183,28 @@ on_socket_close (WebSocketConnection *connection,
 
 void
 cockpit_channel_socket_open (CockpitWebService *self,
+                             JsonObject *open,
                              const gchar *path,
-                             const gchar *escaped,
                              GIOStream *io_stream,
                              GHashTable *headers,
                              GByteArray *input_buffer)
 {
   CockpitChannelSocket *chock = NULL;
-  const gchar *array[] = { NULL, NULL };
   CockpitWebResponse *response;
   WebSocketDataType data_type;
-  const gchar **protocols;
-  const gchar *protocol;
-  JsonObject *open = NULL;
-  GBytes *bytes = NULL;
-  const gchar *channel;
-  gchar *data;
-
-  data = g_uri_unescape_string (escaped, "/");
-  if (data == NULL)
-    {
-      g_warning ("invalid sideband query string");
-      goto out;
-    }
-
-  bytes = g_bytes_new_take (data, strlen (data));
-  if (!cockpit_transport_parse_command (bytes, NULL, &channel, &open))
-    {
-      g_warning ("invalid sideband command");
-      goto out;
-    }
-
-  if (channel != NULL)
-    {
-      g_warning ("should not specify \"channel\" in sideband command: %s", channel);
-      goto out;
-    }
-
-  if (!cockpit_json_get_string (open, "protocol", NULL, &protocol))
-    {
-      g_warning ("invalid sideband \"protocol\" option");
-      goto out;
-    }
-  else if (protocol)
-    {
-      array[0] = protocol;
-      protocols = array;
-    }
-  else
-    {
-      protocols = NULL;
-    }
-
-  json_object_set_string_member (open, "command", "open");
+  CockpitTransport *transport;
 
   if (!cockpit_web_service_parse_binary (open, &data_type))
-    goto out;
+    g_return_if_reached ();
+
+  transport = cockpit_web_service_ensure_transport (self, open);
+  if (!transport)
+    {
+      response = cockpit_web_response_new (io_stream, path, NULL, headers);
+      cockpit_web_response_error (response, 400, NULL, NULL);
+      g_object_unref (response);
+      return;
+    }
 
   chock = g_new0 (CockpitChannelSocket, 1);
   chock->channel = cockpit_web_service_unique_channel (self);
@@ -246,30 +212,13 @@ cockpit_channel_socket_open (CockpitWebService *self,
   chock->open = json_object_ref (open);
   chock->data_type = data_type;
 
-  chock->socket = cockpit_web_service_create_socket (protocols, path, escaped,
-                                                     io_stream, headers, input_buffer);
+  chock->socket = cockpit_web_service_create_socket (NULL, path, io_stream, headers, input_buffer);
   chock->socket_open = g_signal_connect (chock->socket, "open", G_CALLBACK (on_socket_open), chock);
   chock->socket_message = g_signal_connect (chock->socket, "message", G_CALLBACK (on_socket_message), chock);
   chock->socket_close = g_signal_connect (chock->socket, "close", G_CALLBACK (on_socket_close), chock);
 
-  chock->transport = cockpit_web_service_ensure_transport (self, open);
+  chock->transport = g_object_ref (transport);
   chock->transport_recv = g_signal_connect (chock->transport, "recv", G_CALLBACK (on_transport_recv), chock);
   chock->transport_control = g_signal_connect (chock->transport, "control", G_CALLBACK (on_transport_control), chock);
   chock->transport_closed = g_signal_connect (chock->transport, "closed", G_CALLBACK (on_transport_closed), chock);
-
-  open = NULL;
-
-out:
-  if (bytes)
-    g_bytes_unref (bytes);
-  if (open)
-    json_object_unref (open);
-
-  if (!chock)
-    {
-      /* If above failed, then send back a 'Bad Request' response */
-      response = cockpit_web_response_new (io_stream, path, NULL, headers);
-      cockpit_web_response_error (response, 400, NULL, NULL);
-      g_object_unref (response);
-    }
 }

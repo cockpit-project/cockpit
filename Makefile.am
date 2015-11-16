@@ -29,6 +29,8 @@ V_GZIP = $(V_GZIP_$(V))
 V_GZIP_ = $(V_GZIP_$(AM_DEFAULT_VERBOSITY))
 V_GZIP_0 = @echo "  GZIP    " $@;
 
+GZIP = gzip -n
+
 MV = mv -f
 
 JSMODULE = $(srcdir)/tools/missing $(srcdir)/tools/jsmodule
@@ -48,19 +50,19 @@ CSSBUNDLE = $(srcdir)/tools/missing $(srcdir)/tools/cssbundle
 
 .min.css.min.css.gz:
 	@$(MKDIR_P) $(dir $@)
-	$(V_GZIP) gzip -c $< > $@.tmp && $(MV) $@.tmp $@
+	$(V_GZIP) $(GZIP) -c $< > $@.tmp && $(MV) $@.tmp $@
 .min.html.min.html.gz:
 	@$(MKDIR_P) $(dir $@)
-	$(V_GZIP) gzip -c $< > $@.tmp && $(MV) $@.tmp $@
+	$(V_GZIP) $(GZIP) -c $< > $@.tmp && $(MV) $@.tmp $@
 .js.js.gz:
 	@$(MKDIR_P) $(dir $@)
-	$(V_GZIP) gzip -c $< > $@.tmp && $(MV) $@.tmp $@
+	$(V_GZIP) $(GZIP) -c $< > $@.tmp && $(MV) $@.tmp $@
 .min.js.min.js.gz:
 	@$(MKDIR_P) $(dir $@)
-	$(V_GZIP) gzip -c $< > $@.tmp && $(MV) $@.tmp $@
+	$(V_GZIP) $(GZIP) -c $< > $@.tmp && $(MV) $@.tmp $@
 .woff.woff.gz:
 	@$(MKDIR_P) $(dir $@)
-	$(V_GZIP) gzip -c $< > $@.tmp && $(MV) $@.tmp $@
+	$(V_GZIP) $(GZIP) -c $< > $@.tmp && $(MV) $@.tmp $@
 
 po/po.%.js: po/%.po
 	@$(MKDIR_P) $(dir $@)

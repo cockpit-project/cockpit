@@ -26,6 +26,8 @@
 #include "common/cockpittransport.h"
 #include "common/cockpitwebresponse.h"
 
+#include "websocket/websocket.h"
+
 G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_WEB_SERVICE         (cockpit_web_service_get_type ())
@@ -47,27 +49,33 @@ void                 cockpit_web_service_socket      (CockpitWebService *self,
                                                       GHashTable *headers,
                                                       GByteArray *input_buffer);
 
-void                 cockpit_web_service_sideband    (CockpitWebService *self,
-                                                      const gchar *path,
-                                                      const gchar *details,
-                                                      GIOStream *io_stream,
-                                                      GHashTable *headers,
-                                                      GByteArray *input_buffer);
-
-void                 cockpit_web_service_resource    (CockpitWebService *self,
-                                                      GHashTable *headers,
-                                                      CockpitWebResponse *response,
-                                                      const gchar *where,
-                                                      const gchar *path);
-
-void                 cockpit_web_service_noauth      (GIOStream *io_stream,
-                                                      const gchar *path,
-                                                      GHashTable *headers,
-                                                      GByteArray *input_buffer);
-
 CockpitCreds *       cockpit_web_service_get_creds   (CockpitWebService *self);
 
 gboolean             cockpit_web_service_get_idling  (CockpitWebService *self);
+
+WebSocketConnection *   cockpit_web_service_create_socket    (const gchar **protocols,
+                                                              const gchar *path,
+                                                              const gchar *query,
+                                                              GIOStream *io_stream,
+                                                              GHashTable *headers,
+                                                              GByteArray *input_buffer);
+
+gchar *                 cockpit_web_service_unique_channel   (CockpitWebService *self);
+
+CockpitTransport *      cockpit_web_service_ensure_transport (CockpitWebService *self,
+                                                              JsonObject *open);
+
+CockpitTransport *      cockpit_web_service_find_transport   (CockpitWebService *self,
+                                                              const gchar *checksum);
+
+const gchar *           cockpit_web_service_get_checksum     (CockpitWebService *self,
+                                                              CockpitTransport *transport);
+
+const gchar *           cockpit_web_service_get_host         (CockpitWebService *self,
+                                                              CockpitTransport *transport);
+
+gboolean                cockpit_web_service_parse_binary     (JsonObject *open,
+                                                              WebSocketDataType *type);
 
 G_END_DECLS
 

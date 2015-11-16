@@ -158,6 +158,74 @@ test_host_header (TestGeneral *tt,
   g_bytes_unref (data);
 }
 
+static gboolean
+handle_default (CockpitWebServer *server,
+                const gchar *path,
+                GHashTable *headers,
+                CockpitWebResponse *response,
+                gpointer user_data)
+{
+  const gchar *data = "Da Da Da";
+  GBytes *bytes;
+
+  bytes = g_bytes_new_static (data, strlen (data));
+  cockpit_web_response_content (response, NULL, bytes, NULL);
+  g_bytes_unref (bytes);
+
+  return TRUE;
+}
+
+static void
+test_http_stream2 (TestGeneral *tt,
+                   gconstpointer unused)
+{
+  CockpitChannel *channel;
+  GBytes *bytes;
+  JsonObject *options;
+  const gchar *control;
+  JsonObject *object;
+  gboolean closed;
+  GBytes *data;
+  guint count;
+
+  g_signal_connect (tt->web_server, "handle-resource::/", G_CALLBACK (handle_default), tt);
+
+  options = json_object_new ();
+  json_object_set_int_member (options, "port", tt->port);
+  json_object_set_string_member (options, "payload", "http-stream2");
+  json_object_set_string_member (options, "method", "GET");
+  json_object_set_string_member (options, "path", "/");
+
+  channel = g_object_new (COCKPIT_TYPE_HTTP_STREAM,
+                          "transport", tt->transport,
+                          "id", "444",
+                          "options", options,
+                          NULL);
+
+  json_object_unref (options);
+
+  /* Tell HTTP we have no more data to send */
+  control = "{\"command\": \"done\", \"channel\": \"444\"}";
+  bytes = g_bytes_new_static (control, strlen (control));
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tt->transport), NULL, bytes);
+  g_bytes_unref (bytes);
+
+  closed = FALSE;
+  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_set_flag), &closed);
+  while (!closed)
+    g_main_context_iteration (NULL, TRUE);
+
+  object = mock_transport_pop_control (tt->transport);
+  g_assert (object != NULL);
+  cockpit_assert_json_eq (object, "{\"command\":\"response\",\"channel\":\"444\",\"status\":200,\"reason\":\"OK\",\"headers\":{}}");
+  json_object_unref (object);
+
+  data = mock_transport_combine_output (tt->transport, "444", &count);
+  cockpit_assert_bytes_eq (data, "Da Da Da", -1);
+  g_assert_cmpuint (count, ==, 1);
+  g_bytes_unref (data);
+}
+
 
 /* -----------------------------------------------------------------------------
  * Test
@@ -759,6 +827,9 @@ main (int argc,
               setup_general, test_host_header, teardown_general);
   g_test_add ("/http-stream/address-host-header", TestGeneral, ip,
               setup_general, test_host_header, teardown_general);
+
+  g_test_add ("/http-stream/http-stream2", TestGeneral, NULL,
+              setup_general, test_http_stream2, teardown_general);
 
   g_test_add_func  ("/http-stream/parse_keepalive", test_parse_keep_alive);
   g_test_add_func  ("/http-stream/http_chunked", test_http_chunked);

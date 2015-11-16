@@ -70,13 +70,6 @@ dnf -y upgrade dnf
 dnf -y upgrade
 dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
-# HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1273893
-dnf -y reinstall docker-selinux
-
-# HACK: We need atomic from updates-testing, but it has a dependency bug
-# https://bodhi.fedoraproject.org/updates/atomic-1.4-1.git9d724aa.fc23
-dnf -y --enablerepo=updates-testing upgrade atomic python3-dbus
-
 # Prepare for building
 dnf -y install mock dnf-plugins-core
 useradd -u 2000 -c Builder -G mock builder

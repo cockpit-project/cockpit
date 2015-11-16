@@ -22,11 +22,10 @@ set -ex
 
 out=$1
 arch=$2
-os=fedora-22
+os=fedora-23
 
 virt-builder "$os" \
              --output "$out" \
              --size 8G \
              --format qcow2 \
-             --arch "$arch" \
-             --firstboot-command "dnf config-manager --set-enabled updates-testing"
+             --arch "$arch"

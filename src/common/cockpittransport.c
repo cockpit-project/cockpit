@@ -288,3 +288,56 @@ out:
     json_object_unref (object);
   return ret;
 }
+
+static JsonObject *
+build_json_va (const gchar *name,
+               va_list va)
+{
+  JsonObject *object;
+  const gchar *value;
+
+  object = json_object_new ();
+
+  while (name)
+    {
+      value = va_arg (va, const gchar *);
+      if (value)
+        json_object_set_string_member (object, name, value);
+      name = va_arg (va, const gchar *);
+    }
+
+  return object;
+}
+
+JsonObject *
+cockpit_transport_build_json (const gchar *name,
+                              ...)
+{
+  JsonObject *object;
+  va_list va;
+
+  va_start (va, name);
+  object = build_json_va (name, va);
+  va_end (va);
+
+  return object;
+}
+
+GBytes *
+cockpit_transport_build_control (const gchar *name,
+                                 ...)
+{
+  JsonObject *object;
+  GBytes *message;
+  va_list va;
+
+  va_start (va, name);
+  object = build_json_va (name, va);
+  va_end (va);
+
+  message = cockpit_json_write_bytes (object);
+  json_object_unref (object);
+  return message;
+}
+
+

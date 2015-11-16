@@ -241,7 +241,7 @@ test_resource_failure (TestResourceCase *tc,
   GBytes *bytes;
   GPid pid;
 
-  cockpit_expect_message ("*: failed to retrieve resource: terminated");
+  cockpit_expect_message ("*: external channel failed: terminated");
 
   response = cockpit_web_response_new (tc->io, "/unused", NULL, NULL);
 

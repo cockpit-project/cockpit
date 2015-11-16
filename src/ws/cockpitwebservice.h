@@ -55,7 +55,6 @@ gboolean             cockpit_web_service_get_idling  (CockpitWebService *self);
 
 WebSocketConnection *   cockpit_web_service_create_socket    (const gchar **protocols,
                                                               const gchar *path,
-                                                              const gchar *query,
                                                               GIOStream *io_stream,
                                                               GHashTable *headers,
                                                               GByteArray *input_buffer);
@@ -76,6 +75,12 @@ const gchar *           cockpit_web_service_get_host         (CockpitWebService 
 
 gboolean                cockpit_web_service_parse_binary     (JsonObject *open,
                                                               WebSocketDataType *type);
+
+gboolean                cockpit_web_service_parse_external   (JsonObject *options,
+                                                              JsonObject **external);
+
+JsonObject *            cockpit_web_service_pop_external     (CockpitWebService *self,
+                                                              const gchar *target);
 
 G_END_DECLS
 

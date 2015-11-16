@@ -26,8 +26,8 @@ G_BEGIN_DECLS
 
 
 void                 cockpit_channel_socket_open     (CockpitWebService *service,
+                                                      JsonObject *open,
                                                       const gchar *path,
-                                                      const gchar *details,
                                                       GIOStream *io_stream,
                                                       GHashTable *headers,
                                                       GByteArray *input_buffer);

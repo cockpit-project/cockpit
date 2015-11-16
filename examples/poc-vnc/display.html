@@ -29,18 +29,28 @@ require([
         $("canvas").show();
         $("table").hide();
 
-        var channel = {
+        var channel = cockpit.channel({
             command: "open",
             payload: "stream",
             protocol: "binary",
+            address: "127.0.0.1",
             port: parseInt($("#port").val(), 10),
-            binary: "raw"
-        };
+            binary: "raw",
+            external: { }
+        });
 
-        console.log("channel", $("#port").text(), channel.port);
+        console.log("channel", $("#port").val());
+
+        $(channel).on("control", function(ev, options) {
+            if (options.command == "ready")
+                connect("cockpit/" + options.target);
+            else
+                throw "Unexpected control message: " + options.command;
+        });
+    });
+
+    function connect(path) {
         WebUtil.init_logging('warn');
-
-        var path = "socket?" + encodeURIComponent(JSON.stringify(channel));
 
         var options = {
             target: document.getElementById('canvas'),
@@ -48,7 +58,7 @@ require([
             repeaterID: '',
             true_color: true,
             local_cursor: true,
-            shared: true,
+            shared: false,
             view_only: false,
         };
 
@@ -63,7 +73,7 @@ require([
 
         var rfb = new RFB(options);
         rfb.connect(window.location.hostname, window.location.port, "", path);
-    });
+    }
 });
 </script>
 </head>

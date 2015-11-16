@@ -71,8 +71,7 @@ handle_noauth_socket (GIOStream *io_stream,
   gchar *application;
 
   application = cockpit_auth_parse_application (path);
-  connection = cockpit_web_service_create_socket (NULL, application, NULL, io_stream,
-                                                  headers, input_buffer);
+  connection = cockpit_web_service_create_socket (NULL, application, io_stream, headers, input_buffer);
   g_free (application);
 
   g_signal_connect (connection, "open", G_CALLBACK (on_web_socket_noauth), NULL);
@@ -92,7 +91,6 @@ cockpit_handler_socket (CockpitWebServer *server,
                         CockpitHandlerData *ws)
 {
   CockpitWebService *service = NULL;
-  const gchar *query = NULL;
   const gchar *segment = NULL;
 
   /*
@@ -105,22 +103,14 @@ cockpit_handler_socket (CockpitWebServer *server,
   if (!segment)
     segment = path;
 
-  if (!segment || !g_str_has_prefix (segment, "/socket"))
-    return FALSE;
-
-  if (segment[7] == '?')
-    query = segment + 8;
-  else if (segment[7] != '\0')
+  if (!segment || !g_str_equal (segment, "/socket"))
     return FALSE;
 
   if (headers)
     service = cockpit_auth_check_cookie (ws->auth, path, headers);
   if (service)
     {
-      if (query)
-        cockpit_channel_socket_open (service, path, query, io_stream, headers, input);
-      else
-        cockpit_web_service_socket (service, path, io_stream, headers, input);
+      cockpit_web_service_socket (service, path, io_stream, headers, input);
       g_object_unref (service);
     }
   else
@@ -130,6 +120,58 @@ cockpit_handler_socket (CockpitWebServer *server,
 
   return TRUE;
 }
+
+gboolean
+cockpit_handler_external (CockpitWebServer *server,
+                          const gchar *path,
+                          GIOStream *io_stream,
+                          GHashTable *headers,
+                          GByteArray *input,
+                          guint in_length,
+                          CockpitHandlerData *ws)
+{
+  CockpitWebResponse *response = NULL;
+  CockpitWebService *service = NULL;
+  const gchar *segment = NULL;
+  gboolean handled = FALSE;
+  const gchar *upgrade;
+  JsonObject *open;
+
+  /* The path must start with /cockpit+xxx/channel/ or similar */
+  if (path && path[0])
+    segment = strchr (path + 1, '/');
+  if (!segment)
+    return FALSE;
+
+  service = cockpit_auth_check_cookie (ws->auth, path, headers);
+  if (service)
+    {
+      open = cockpit_web_service_pop_external (service, segment);
+      if (open)
+        {
+          upgrade = g_hash_table_lookup (headers, "Upgrade");
+          if (upgrade && g_str_equal (upgrade, "websocket"))
+            {
+              cockpit_channel_socket_open (service, open, path, io_stream, headers, input);
+              handled = TRUE;
+            }
+          else
+            {
+              response = cockpit_web_response_new (io_stream, path, NULL, headers);
+              cockpit_channel_response_open (service, headers, response, open);
+              g_object_unref (response);
+              handled = TRUE;
+            }
+
+          json_object_unref (open);
+        }
+
+      g_object_unref (service);
+    }
+
+  return handled;
+}
+
 
 static GBytes *
 build_environment (GHashTable *os_release)

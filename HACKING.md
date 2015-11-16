@@ -196,7 +196,7 @@ only for the user which ran the above command.
 
 To revert the above change, run:
 
-    $ rm ~/.local/share/cockpit
+    $ rm -r ~/.local/share/cockpit
 
 ## Debug logging of Cockpit processes
 

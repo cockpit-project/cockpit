@@ -102,6 +102,7 @@ static struct {
 } payload_types[] = {
   { "dbus-json3", cockpit_dbus_json_get_type },
   { "http-stream1", cockpit_http_stream_get_type },
+  { "http-stream2", cockpit_http_stream_get_type },
   { "stream", cockpit_pipe_channel_get_type },
   { "fsread1", cockpit_fsread_get_type },
   { "fsreplace1", cockpit_fsreplace_get_type },

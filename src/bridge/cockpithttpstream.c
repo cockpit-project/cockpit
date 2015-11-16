@@ -211,6 +211,7 @@ typedef struct _CockpitHttpStream {
   gboolean failed;
   gboolean binary;
   gboolean keep_alive;
+  gboolean headers_inline;
 
   /* The request */
   GList *request;
@@ -397,11 +398,19 @@ relay_headers (CockpitHttpStream *self,
     json_object_set_string_member (heads, key, value);
 
   json_object_set_object_member (object, "headers", heads);
-  message = cockpit_json_write_bytes (object);
-  json_object_unref (object);
 
-  cockpit_channel_send (channel, message, TRUE);
-  g_bytes_unref (message);
+  if (self->headers_inline)
+    {
+      message = cockpit_json_write_bytes (object);
+      cockpit_channel_send (channel, message, TRUE);
+      g_bytes_unref (message);
+    }
+  else
+    {
+      cockpit_channel_control (channel, "response", object);
+    }
+
+  json_object_unref (object);
 
 out:
   if (problem)
@@ -938,6 +947,7 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
   CockpitHttpStream *self = COCKPIT_HTTP_STREAM (channel);
   GSocketConnectable *connectable = NULL;
   CockpitStreamOptions *opts = NULL;
+  const gchar *payload;
   const gchar *connection;
   JsonObject *options;
   const gchar *path;
@@ -962,6 +972,16 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
       g_warning ("bad \"path\" field in HTTP stream request");
       cockpit_channel_close (channel, "protocol-error");
       goto out;
+    }
+
+  /*
+   * In http-stream1 the headers are sent as first message.
+   * In http-stream2 the headers are in a control message.
+   */
+  if (cockpit_json_get_string (options, "payload", NULL, &payload) &&
+      payload && g_str_equal (payload, "http-stream1"))
+    {
+      self->headers_inline = TRUE;
     }
 
   self->client = cockpit_http_client_ensure (connection);

@@ -8,6 +8,10 @@ libcockpit_ws_a_SOURCES = \
 	src/ws/cockpitws.h				\
 	src/ws/cockpithandlers.h	src/ws/cockpithandlers.c	\
 	src/ws/cockpitauth.h		src/ws/cockpitauth.c		\
+	src/ws/cockpitchannelresponse.h \
+	src/ws/cockpitchannelresponse.c \
+	src/ws/cockpitchannelsocket.h \
+	src/ws/cockpitchannelsocket.c \
 	src/ws/cockpitcreds.h src/ws/cockpitcreds.c \
 	src/ws/cockpitwebservice.h \
 	src/ws/cockpitwebservice.c \
@@ -163,6 +167,7 @@ WS_CHECKS = \
 	test-sshtransport \
 	test-sshagent \
 	test-webservice \
+	test-channelresponse \
 	test-handlers \
 	test-kerberos \
 	$(NULL)
@@ -176,6 +181,17 @@ test_auth_SOURCES = \
 	$(NULL)
 
 test_auth_LDADD = \
+	libcockpit-ws.a \
+	$(cockpit_ws_LDADD) \
+	$(NULL)
+
+test_channelresponse_CFLAGS = $(cockpit_ws_CFLAGS)
+test_channelresponse_SOURCES = src/ws/test-channelresponse.c \
+	src/ws/mock-auth.c src/ws/mock-auth.h \
+	src/common/mock-io-stream.c src/common/mock-io-stream.h \
+	$(NULL)
+test_channelresponse_LDADD = \
+	libwebsocket.a \
 	libcockpit-ws.a \
 	$(cockpit_ws_LDADD) \
 	$(NULL)

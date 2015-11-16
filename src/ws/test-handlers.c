@@ -575,6 +575,117 @@ static const DefaultFixture fixture_static_application = {
     "url(\"brand.png\");*"
 };
 
+static void
+make_io_streams (GIOStream **io_a,
+                 GIOStream **io_b)
+{
+  GSocket *socket1, *socket2;
+  GError *error = NULL;
+  int fds[2];
+
+  if (socketpair (PF_UNIX, SOCK_STREAM, 0, fds) < 0)
+    g_assert_not_reached ();
+
+  socket1 = g_socket_new_from_fd (fds[0], &error);
+  g_assert_no_error (error);
+
+  socket2 = g_socket_new_from_fd (fds[1], &error);
+  g_assert_no_error (error);
+
+  *io_a = G_IO_STREAM (g_socket_connection_factory_create_connection (socket1));
+  *io_b = G_IO_STREAM (g_socket_connection_factory_create_connection (socket2));
+
+  g_object_unref (socket1);
+  g_object_unref (socket2);
+}
+
+static void
+on_error_not_reached (WebSocketConnection *ws,
+                      GError *error,
+                      gpointer user_data)
+{
+  g_assert (error != NULL);
+
+  /* At this point we know this will fail, but is informative */
+  g_assert_no_error (error);
+}
+
+static void
+on_message_get_bytes (WebSocketConnection *ws,
+                      WebSocketDataType type,
+                      GBytes *message,
+                      gpointer user_data)
+{
+  GBytes **received = user_data;
+  g_assert_cmpint (type, ==, WEB_SOCKET_DATA_TEXT);
+  if (*received != NULL)
+    {
+      gsize length;
+      gconstpointer data = g_bytes_get_data (message, &length);
+      g_test_message ("received unexpected extra message: %.*s", (int)length, (gchar *)data);
+      g_assert_not_reached ();
+    }
+  *received = g_bytes_ref (message);
+}
+
+static void
+test_socket_unauthenticated (void)
+{
+  WebSocketConnection *client;
+  GBytes *received = NULL;
+  GIOStream *io_a, *io_b;
+  GBytes *payload;
+  const gchar *problem;
+  const gchar *command;
+  const gchar *unused;
+  gchar *channel;
+  JsonObject *options;
+
+  make_io_streams (&io_a, &io_b);
+
+  client = g_object_new (WEB_SOCKET_TYPE_CLIENT,
+                         "url", "ws://127.0.0.1/unused",
+                         "origin", "http://127.0.0.1",
+                         "io-stream", io_a,
+                         NULL);
+
+  g_signal_connect (client, "error", G_CALLBACK (on_error_not_reached), NULL);
+
+  /* Matching the above origin */
+  cockpit_ws_default_host_header = "127.0.0.1";
+
+  g_assert (cockpit_handler_socket (NULL, "/cockpit/socket", io_b, NULL, NULL, 0, NULL));
+
+  g_signal_connect (client, "message", G_CALLBACK (on_message_get_bytes), &received);
+
+  /* Should close right after opening */
+  while (web_socket_connection_get_ready_state (client) != WEB_SOCKET_STATE_CLOSED)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* And we should have received a message */
+  g_assert (received != NULL);
+
+  payload = cockpit_transport_parse_frame (received, &channel);
+  g_assert (payload != NULL);
+  g_assert (channel == NULL);
+  g_bytes_unref (received);
+
+  g_assert (cockpit_transport_parse_command (payload, &command, &unused, &options));
+  g_bytes_unref (payload);
+
+  g_assert_cmpstr (command, ==, "init");
+  g_assert (cockpit_json_get_string (options, "problem", NULL, &problem));
+  g_assert_cmpstr (problem, ==, "no-session");
+  json_object_unref (options);
+
+  g_object_unref (client);
+
+  while (g_main_context_iteration (NULL, FALSE));
+
+  g_object_unref (io_a);
+  g_object_unref (io_b);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -640,6 +751,8 @@ main (int argc,
 
   g_test_add ("/handlers/favicon", Test, "/favicon.ico",
               setup, test_favicon_ico, teardown);
+
+  g_test_add_func ("/handlers/noauth", test_socket_unauthenticated);
 
   return g_test_run ();
 }

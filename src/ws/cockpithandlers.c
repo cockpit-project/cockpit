@@ -20,6 +20,9 @@
 #include "config.h"
 
 #include "cockpithandlers.h"
+
+#include "cockpitchannelresponse.h"
+#include "cockpitchannelsocket.h"
 #include "cockpitwebservice.h"
 #include "cockpitws.h"
 
@@ -39,6 +42,45 @@
 /* For overriding during tests */
 const gchar *cockpit_ws_shell_component = "/shell/index.html";
 
+static void
+on_web_socket_noauth (WebSocketConnection *connection,
+                      gpointer data)
+{
+  GBytes *payload;
+  GBytes *prefix;
+
+  g_debug ("closing unauthenticated web socket");
+
+  payload = cockpit_transport_build_control ("command", "init", "problem", "no-session", NULL);
+  prefix = g_bytes_new_static ("\n", 1);
+
+  web_socket_connection_send (connection, WEB_SOCKET_DATA_TEXT, prefix, payload);
+  web_socket_connection_close (connection, WEB_SOCKET_CLOSE_GOING_AWAY, "no-session");
+
+  g_bytes_unref (prefix);
+  g_bytes_unref (payload);
+}
+
+static void
+handle_noauth_socket (GIOStream *io_stream,
+                      const gchar *path,
+                      GHashTable *headers,
+                      GByteArray *input_buffer)
+{
+  WebSocketConnection *connection;
+  gchar *application;
+
+  application = cockpit_auth_parse_application (path);
+  connection = cockpit_web_service_create_socket (NULL, application, NULL, io_stream,
+                                                  headers, input_buffer);
+  g_free (application);
+
+  g_signal_connect (connection, "open", G_CALLBACK (on_web_socket_noauth), NULL);
+
+  /* Unreferences connection when it closes */
+  g_signal_connect (connection, "close", G_CALLBACK (g_object_unref), NULL);
+}
+
 /* Called by @server when handling HTTP requests to /cockpit/socket */
 gboolean
 cockpit_handler_socket (CockpitWebServer *server,
@@ -49,7 +91,7 @@ cockpit_handler_socket (CockpitWebServer *server,
                         guint in_length,
                         CockpitHandlerData *ws)
 {
-  CockpitWebService *service;
+  CockpitWebService *service = NULL;
   const gchar *query = NULL;
   const gchar *segment = NULL;
 
@@ -71,18 +113,19 @@ cockpit_handler_socket (CockpitWebServer *server,
   else if (segment[7] != '\0')
     return FALSE;
 
-  service = cockpit_auth_check_cookie (ws->auth, path, headers);
+  if (headers)
+    service = cockpit_auth_check_cookie (ws->auth, path, headers);
   if (service)
     {
       if (query)
-        cockpit_web_service_sideband (service, path, query, io_stream, headers, input);
+        cockpit_channel_socket_open (service, path, query, io_stream, headers, input);
       else
         cockpit_web_service_socket (service, path, io_stream, headers, input);
       g_object_unref (service);
     }
   else
     {
-      cockpit_web_service_noauth (io_stream, path, headers, input);
+      handle_noauth_socket (io_stream, path, headers, input);
     }
 
   return TRUE;
@@ -274,8 +317,8 @@ handle_resource (CockpitHandlerData *data,
     {
       if (service)
         {
-          cockpit_web_service_resource (service, headers, response, where,
-                                        cockpit_web_response_get_path (response));
+          cockpit_channel_response_serve (service, headers, response, where,
+                                          cockpit_web_response_get_path (response));
         }
       else if (g_str_has_suffix (path, ".html"))
         {
@@ -317,8 +360,8 @@ handle_shell (CockpitHandlerData *data,
     }
   else if (service)
     {
-      cockpit_web_service_resource (service, headers, response,
-                                    NULL, cockpit_ws_shell_component);
+      cockpit_channel_response_serve (service, headers, response,
+                                      NULL, cockpit_ws_shell_component);
     }
   else
     {

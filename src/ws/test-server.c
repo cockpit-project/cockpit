@@ -19,6 +19,9 @@
 
 #include "config.h"
 
+#include "cockpitwebservice.h"
+#include "cockpitchannelsocket.h"
+
 #include "common/cockpitpipe.h"
 #include "common/cockpitconf.h"
 #include "common/cockpitpipetransport.h"
@@ -30,9 +33,6 @@
 #include <glib-unix.h>
 #include <glib/gstdio.h>
 #include <string.h>
-
-#include "cockpitws.h"
-#include "cockpitwebservice.h"
 
 static GMainLoop *loop = NULL;
 static int exit_code = 0;
@@ -271,7 +271,7 @@ on_handle_stream_socket (CockpitWebServer *server,
     }
 
   if (query)
-    cockpit_web_service_sideband (service, "/cockpit/socket", query, io_stream, headers, input);
+    cockpit_channel_socket_open (service, "/cockpit/socket", query, io_stream, headers, input);
   else
     cockpit_web_service_socket (service, "/cockpit/socket", io_stream, headers, input);
 

@@ -98,6 +98,12 @@ gboolean    cockpit_transport_parse_command  (GBytes *payload,
                                               const gchar **channel,
                                               JsonObject **options);
 
+JsonObject *cockpit_transport_build_json     (const gchar *name,
+                                              ...) G_GNUC_NULL_TERMINATED;
+
+GBytes *    cockpit_transport_build_control  (const gchar *name,
+                                              ...) G_GNUC_NULL_TERMINATED;
+
 G_END_DECLS
 
 #endif /* __COCKPIT_TRANSPORT_H__ */

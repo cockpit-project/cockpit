@@ -311,5 +311,5 @@ class GitHub(object):
 
 if __name__ == '__main__':
     github = GitHub("/repos/cockpit-project/cockpit/")
-    for (priority, name, revision, ref) in github.scan(True):
+    for (priority, name, revision, ref) in github.scan(False):
         sys.stdout.write("{0}: {1} ({2})\n".format(name, revision, priority))

@@ -116,6 +116,14 @@ docker pull busybox:buildroot-2014.02
 docker pull submod/helloapache
 docker pull submod/atomicapp
 
+# HACK - kdump.service somehow interferes with our storage tests.
+# https://bugzilla.redhat.com/show_bug.cgi?id=1283128
+#
+# Right after boot, kdump.service is busy for some time and during
+# that time parted fails when creating a new partition.
+#
+systemctl disable kdump.service
+
 # Final tweaks
 
 rm -rf /var/log/journal/*

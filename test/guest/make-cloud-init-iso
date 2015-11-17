@@ -37,11 +37,11 @@ host_key_pub=`cat host_key.pub`
 
 mkdir -p $init_dir
 
+# We don't want to hardcode values:
+# local-hostname: we want multiple instances of the vm to run in parallel
+# instance-id: cloud-init skips some init stuff if this is constant (e.g. runcmd)
 cat >$meta_data <<EOF
-instance-id: id-fedora-atomic-22-01
-local-hostname: fedora-atomic-22.cockpit.lan
 EOF
-
 
 cat >$user_data <<EOF
 #cloud-config
@@ -67,6 +67,18 @@ ssh_keys:
   rsa_private: |
 ${host_key}
   rsa_public: ${host_key_pub}
+
+# make sure that our user script runs on every boot
+cloud_final_modules:
+ - scripts-per-once
+ - scripts-per-boot
+ - scripts-per-instance
+ - [scripts-user, always]
+ - final-message
+
+# we may need to ping something on the network to update the arp cache
+runcmd:
+  - while ! ifconfig | grep -q 10\.111\.; do sleep .1; done; ping -W 1s -c 3 10.111.112.1 || true
 
 EOF
 

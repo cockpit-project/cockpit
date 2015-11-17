@@ -3,7 +3,7 @@ Description=Cockpit Web Service
 Documentation=man:cockpit-ws(8)
 
 [Service]
-ExecStartPre=@sbindir@/remotectl certificate --ensure --user=root --group=@group@
+ExecStartPre=@sbindir@/remotectl certificate --ensure --user=root --group=@group@ --selinux-type=@selinux_config_type@
 ExecStart=@libexecdir@/cockpit-ws
 PermissionsStartOnly=true
 User=@user@

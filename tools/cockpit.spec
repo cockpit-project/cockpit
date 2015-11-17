@@ -145,7 +145,7 @@ The Cockpit Web Service listens on the network, and authenticates users.
 %if %{defined gitcommit}
 env NOCONFIGURE=1 ./autogen.sh
 %endif
-%configure --disable-static --disable-silent-rules --with-cockpit-user=cockpit-ws --with-branding=%{branding}
+%configure --disable-static --disable-silent-rules --with-cockpit-user=cockpit-ws --with-branding=%{branding} --with-selinux-config-type=etc_t
 make -j4 %{?extra_flags} all
 
 %check

@@ -255,6 +255,10 @@ AC_DEFINE_UNQUOTED([PATH_SSH_ADD], ["$SSH_ADD"], [Location of ssh-add binary])
 AC_PATH_PROG([SSH_AGENT], [ssh-agent], [/usr/bin/ssh-agent], [$PATH:/usr/local/bin:/usr/bin:/bin])
 AC_DEFINE_UNQUOTED([PATH_SSH_AGENT], ["$SSH_AGENT"], [Location of ssh-agent binary])
 
+# chcon
+AC_PATH_PROG([CHCON], [chcon], [/usr/bin/chcon], [$PATH:/usr/local/bin:/usr/bin:/bin])
+AC_DEFINE_UNQUOTED([PATH_CHCON], ["$CHCON"], [Location of chcon binary])
+
 changequote(,)dnl
 if test "x$GCC" = "xyes"; then
   CFLAGS="-Wall \
@@ -299,7 +303,6 @@ AC_ARG_WITH(cockpit_group,
 			   [Group for running cockpit]
                           )
            )
-
 if test -z "$with_cockpit_user"; then
     COCKPIT_USER=root
     COCKPIT_GROUP=
@@ -314,6 +317,15 @@ fi
 
 AC_SUBST(COCKPIT_USER)
 AC_SUBST(COCKPIT_GROUP)
+
+AC_ARG_WITH(selinux_config_type,
+	    AS_HELP_STRING([--with-selinux-config-type=<type>],
+			   [SELinux context type for cockpit config files]
+                          )
+           )
+
+COCKPIT_SELINUX_CONFIG_TYPE=$with_selinux_config_type
+AC_SUBST(COCKPIT_SELINUX_CONFIG_TYPE)
 
 # Documentation
 
@@ -461,6 +473,7 @@ echo "
         cockpit-ws:                 ${enable_ws}
         cockpit-ws user:            ${COCKPIT_USER}
         cockpit-ws group:           ${COCKPIT_GROUP}
+        selinux config type:        ${COCKPIT_SELINUX_CONFIG_TYPE}
 
         Maintainer mode:            ${USE_MAINTAINER_MODE}
         Building docs:              ${enable_doc}
@@ -476,4 +489,5 @@ echo "
         ssh-agent:                  ${SSH_AGENT}
         sudo:                       ${SUDO}
         usermod:                    ${USERMOD}
+        chcon:                      ${CHCON}
 "

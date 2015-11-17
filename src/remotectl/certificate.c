@@ -61,15 +61,25 @@ locate_certificate (void)
 
 static int
 ensure_certificate (const gchar *user,
-                    const gchar *group)
+                    const gchar *group,
+                    const gchar *selinux)
 {
   struct passwd *pwd = NULL;
   struct group *gr = NULL;
   GTlsCertificate *certificate = NULL;
   GError *error = NULL;
   gchar *path = NULL;
+  gint status = 0;
   mode_t mode;
   int ret = 1;
+
+  const gchar *chcon_argv[] = {
+    PATH_CHCON,
+    "--type",
+    selinux,
+    "path-here",
+    NULL
+  };
 
   if (!user)
     user = "root";
@@ -118,6 +128,20 @@ ensure_certificate (const gchar *user,
       goto out;
     }
 
+  if (selinux)
+    {
+      chcon_argv[3] = path;
+      g_spawn_sync (NULL, (gchar **)chcon_argv, NULL, G_SPAWN_DEFAULT, NULL, NULL, NULL, NULL, &status, &error);
+      if (!error)
+        g_spawn_check_exit_status (status, &error);
+      if (error)
+        {
+          g_message ("couldn't change SELinux type context '%s' for certificate: %s: %s",
+                     selinux, path, error->message);
+          goto out;
+        }
+    }
+
   ret = 0;
 
 out:
@@ -134,6 +158,7 @@ cockpit_remotectl_certificate (int argc,
   GOptionContext *context;
   GError *error = NULL;
   gboolean ensure = FALSE;
+  gchar *selinux = NULL;
   gchar *group = NULL;
   gchar *user = NULL;
   int ret = 1;
@@ -145,6 +170,8 @@ cockpit_remotectl_certificate (int argc,
       "The unix user that should own the certificate", "name" },
     { "group", 0, 0, G_OPTION_ARG_STRING, &group,
       "The unix group that should read the certificate", "group" },
+    { "selinux-type", 0, 0, G_OPTION_ARG_STRING, &selinux,
+      "The SELinux security context type for the certificate", "selinux" },
     { G_OPTION_REMAINING, 0, G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_CALLBACK,
       cockpit_remotectl_no_arguments, NULL, NULL },
     { NULL },
@@ -164,13 +191,14 @@ cockpit_remotectl_certificate (int argc,
     {
       g_set_prgname ("remotectl");
       if (ensure)
-        ret = ensure_certificate (user, group);
+        ret = ensure_certificate (user, group, selinux);
       else
         ret = locate_certificate ();
     }
 
   g_option_context_free (context);
   g_clear_error (&error);
+  g_free (selinux);
   g_free (group);
   g_free (user);
   return ret;

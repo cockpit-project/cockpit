@@ -125,8 +125,11 @@ class TestConnection(MachineCase):
             m.message(output)
             self.fail("RC4 cipher should not have been usable")
 
-        # Install a certificate chain
+        # Install a certificate chain, and give it an arbitrary bad file context
         m.upload(["files/cert-chain.cert"], "/etc/cockpit/ws-certs.d")
+        m.execute("chcon --type svirt_sandbox_file_t /etc/cockpit/ws-certs.d/cert-chain.cert")
+
+        # This should also reset the file context
         m.execute("systemctl restart cockpit")
 
         # Should use the new certificates and entire chain should show up

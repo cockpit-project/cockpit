@@ -150,6 +150,7 @@ SED_SUBST = sed \
         -e 's,[@]VERSION[@],$(VERSION),g' \
         -e 's,[@]user[@],$(COCKPIT_USER),g' \
         -e 's,[@]group[@],$(COCKPIT_GROUP),g' \
+        -e 's,[@]selinux_config_type[@],$(COCKPIT_SELINUX_CONFIG_TYPE),g' \
         $(NULL)
 
 GDBUS_CODEGEN = $(top_srcdir)/tools/gdbus-unbreak-codegen

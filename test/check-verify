@@ -20,15 +20,17 @@ EXCLUDE = [
 
 def start_publishing(github, host, name, revision):
     identifier = name + "-" + revision[0:8] + "-" + testinfra.OS + "-" + testinfra.ARCH
+    description = "{0} [{1}]".format(testinfra.TESTING, testinfra.HOSTNAME)
     status = {
         "github": {
             "resource": github.qualify("statuses/" + revision),
             "status": {
                 "state": "pending",
                 "context": github.context(),
-                "description": testinfra.TESTING
+                "description": description,
             }
         },
+        "revision": revision,
         "link": "log.html",
         "extras": [ "https://raw.githubusercontent.com/cockpit-project/cockpit/" + revision + "/test/files/log.html" ]
     }
@@ -40,6 +42,13 @@ def start_publishing(github, host, name, revision):
             'status': 'running'
         }
     return testinfra.Sink(host, identifier, status)
+
+def check_publishing(sink, github):
+    expected = sink.status["github"]["status"]["description"]
+    status = github.status(sink.status["revision"])
+    current = status.get("description", None)
+    if current and current != expected:
+        raise RuntimeError("Verify collision: " + current)
 
 def stop_publishing(sink, ret):
     def mark_failed():
@@ -101,12 +110,7 @@ def install(opts):
         traceback.print_exc()
         raise RuntimeError("Install failed")
 
-def step(opts, sink):
-    if opts.rebase:
-        rebase(sink)
-    if opts.install:
-        install(opts)
-
+def run(opts, sink):
     # Now actually load the tests, any modules that start with "check-*"
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
@@ -201,7 +205,17 @@ def main():
     sys.stderr.write("Testing {0} for {1} ...\n".format(revision, name))
 
     try:
-        ret = step(opts, sink)
+        if opts.rebase:
+            rebase(sink)
+        if opts.install:
+            install(opts)
+
+        # Check if we are still publishing, in case some other verify
+        # machine collided with our test
+        if opts.github and sink:
+            check_publishing(sink, github)
+
+        ret = run(opts, sink)
     except RuntimeError as exc:
         ret = exc.args[0]
         sys.stderr.write(ret + "\n")

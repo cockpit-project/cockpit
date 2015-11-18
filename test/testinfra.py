@@ -198,7 +198,7 @@ class GitHub(object):
         headers = { "Content-Type": "application/json" }
         return json.loads(self.request("POST", resource, json.dumps(data), headers))
 
-    def rev_status(self, revision):
+    def status(self, revision):
         statuses = self.get("commits/{0}/statuses".format(revision))
         if statuses:
             for status in statuses:
@@ -207,7 +207,7 @@ class GitHub(object):
         return { }
 
     def prioritize(self, revision, labels=[], update=None, baseline=10):
-        last = self.rev_status(revision)
+        last = self.status(revision)
         state = last.get("state", None)
 
         priority = baseline
@@ -300,7 +300,7 @@ class GitHub(object):
             sys.stderr.write("warning: pull request author '{0}' isn't in github-whitelist.\n".format(login))
 
         revision = pull['head']['sha']
-        current_status = self.rev_status(revision)
+        current_status = self.status(revision)
         if current_status.get("state", "empty") not in ["empty", "error", "failure"]:
             if force:
                 sys.stderr.write("Pull request isn't in error state, but forcing update.\n")

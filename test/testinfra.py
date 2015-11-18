@@ -6,6 +6,7 @@ import json
 import urllib
 import os
 import shutil
+import socket
 import subprocess
 import sys
 import tarfile
@@ -21,6 +22,8 @@ WHITELIST_LOCAL = "~/.config/github-whitelist"
 
 OS = os.environ.get("TEST_OS", "fedora-22")
 ARCH = os.environ.get("TEST_ARCH", "x86_64")
+HOSTNAME = socket.gethostname().split(".")[0]
+
 TESTING = "Testing in progress"
 NOT_TESTED = "Not yet tested"
 

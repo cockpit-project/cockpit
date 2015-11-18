@@ -30,7 +30,6 @@ import atexit
 import select
 import shutil
 import sys
-import socket
 import traceback
 import exceptions
 import random
@@ -904,7 +903,6 @@ class TapRunner(object):
 
         # For statistics
         start = time.time()
-        hostname = socket.gethostname().split(".")[0]
 
         pids = set()
         options = 0
@@ -974,7 +972,7 @@ class TapRunner(object):
 
         # Report on the results
         duration = int(time.time() - start)
-        details = "[{0}s on {1}]".format(duration, hostname)
+        details = "[{0}s on {1}]".format(duration, testinfra.HOSTNAME)
         count = failures["count"]
         if count:
             sys.stdout.write("# {0} TESTS FAILED {1}\n".format(count, details))

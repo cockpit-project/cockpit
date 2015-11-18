@@ -2,6 +2,13 @@
 
 set -ex
 
+# HACK - virt-resize might not be able to resize our xfs rootfs,
+# depending on how it was compiled and which plugins are installed,
+# and will just silently not do it.  So we do it here.
+#
+xfs_growfs /
+df -h /
+
 echo foobar | passwd --stdin root
 
 # We install all dependencies of the cockpit packages since we want
@@ -69,5 +76,10 @@ dnf -y upgrade
 dnf -y copr enable phatina/storaged
 
 dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+
+# Prepare for building
+dnf -y install mock
+useradd -u 2000 -c Builder -G mock builder
+su - builder -c "mock --installdeps $TEST_SOURCE_PACKAGE"
 
 dnf clean all

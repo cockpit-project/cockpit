@@ -146,10 +146,10 @@ The Cockpit Web Service listens on the network, and authenticates users.
 env NOCONFIGURE=1 ./autogen.sh
 %endif
 %configure --disable-static --disable-silent-rules --with-cockpit-user=cockpit-ws --with-branding=%{branding}
-make -j %{?extra_flags} all
+make -j4 %{?extra_flags} all
 
 %check
-make -j check
+make -j4 check
 
 %install
 make install DESTDIR=%{buildroot}

@@ -2,6 +2,13 @@
 
 set -e
 
+# HACK - virt-resize might not be able to resize our xfs rootfs,
+# depending on how it was compiled and which plugins are installed,
+# and will just silently not do it.  So we do it here.
+#
+xfs_growfs /
+df -h /
+
 # Remove any internal files
 rm /etc/yum.repos.d/download.devel.redhat.com.repo
 
@@ -10,32 +17,24 @@ subscription-manager register --auto-attach --username=`cat ~/.rhel/login` --pas
 # remove credentials from test machine
 rm -rf ~/.rhel
 
-# These are in the magic base image but seem to have become
-# unavailable for some reason.
+# Only start logging here.  Otherwise the subscription credentials
+# appear in the output above.
 #
-yum -y --disablerepo=rhel-7-server-rt-beta-rpms --disablerepo=rhel-sap-hana-for-rhel-7-server-rpms install yum-utils
-yum-config-manager --disable rhel-7-server-rt-beta-rpms
-yum-config-manager --disable rhel-sap-hana-for-rhel-7-server-rpms
+set -x
 
 yum -y install wget
 cd /etc/yum.repos.d
 
-# we need the cockpit-preview copr for updated glib2
-wget -T 15 -t 4 https://copr.fedoraproject.org/coprs/sgallagh/cockpit-preview/repo/epel-7/sgallagh-cockpit-preview-epel-7.repo
-
-# we need storaged 2
-wget -T 15 -t 4 https://copr.fedoraproject.org/coprs/phatina/storaged/repo/epel-7/phatina-storaged-epel-7.repo
-
+# Configure repositories.
+#
+# HACK - "htb" doesn't work right now, but we can use "beta".  Once
+# possible, we should do without any beta repositories.
+#
+yum -y --disablerepo=rhel-7-server-htb-rpms install yum-utils
 yum-config-manager --enable rhel-7-server-optional-rpms
 yum-config-manager --enable rhel-7-server-extras-rpms
-
-# enable epel for libssh
-mkdir /tmp/dep
-cd /tmp/dep
-wget -T 15 -t 4 http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-rpm -Uvh epel-release-*.rpm
-cd
-rm -rf /tmp/dep
+yum-config-manager --disable rhel-7-server-htb-rpms
+yum-config-manager --enable rhel-7-server-beta-rpms
 
 yum --nogpgcheck -y update
 
@@ -79,6 +78,20 @@ gdb
 
 yum install --nogpgcheck -y $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
+# Prepare for building
+
+# enable epel for mock
+mkdir /tmp/dep
+cd /tmp/dep
+wget -T 15 -t 4 http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+rpm -Uvh epel-release-*.rpm
+cd
+rm -rf /tmp/dep
+
+yum -y install mock
+useradd -u 2000 -c Builder -G mock builder
+su - builder -c "mock --verbose --installdeps $TEST_SOURCE_PACKAGE"
+
 subscription-manager unregister
 
 maybe() { if type "$1" >/dev/null 2>&1; then "$@"; fi; }
@@ -102,6 +115,13 @@ docker pull busybox:latest
 docker pull busybox:buildroot-2014.02
 docker pull submod/helloapache
 docker pull submod/atomicapp
+
+# HACK - kdump.service somehow interferes with our storage tests.
+#
+# Right after boot, kdump.service is busy for some time and during
+# that time parted fails when creating a new partition.
+#
+systemctl disable kdump.service
 
 # Final tweaks
 

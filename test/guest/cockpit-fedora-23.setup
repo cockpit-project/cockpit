@@ -2,6 +2,13 @@
 
 set -ex
 
+# HACK - virt-resize might not be able to resize our xfs rootfs,
+# depending on how it was compiled and which plugins are installed,
+# and will just silently not do it.  So we do it here.
+#
+xfs_growfs /
+df -h /
+
 echo foobar | passwd --stdin root
 
 # We install all dependencies of the cockpit packages since we want
@@ -58,21 +65,22 @@ echo foobar | passwd --stdin admin
 # the rest. This helps avoid things like:
 #
 #     https://bugzilla.redhat.com/show_bug.cgi?id=1211547
-#
-# Initially, we disable updates-testing since packages in
-# updates-testing frequently have unsatisfied dependencies.  At the
-# end, we try to update as far as possible towards updates-texting.
 
-dnf -y --disablerepo=updates-testing upgrade dnf
-dnf -y --disablerepo=updates-testing upgrade
-dnf -y --disablerepo=updates-testing install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
-dnf -y --disablerepo=updates-testing reinstall docker-selinux
-
+dnf -y upgrade dnf
 dnf -y upgrade
+dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
-# HACK: We need atomic from updates-testing, but it has a dependency bug
-# https://bodhi.fedoraproject.org/updates/atomic-1.4-1.git9d724aa.fc23
-dnf -y --enablerepo=updates-testing upgrade atomic python3-dbus
+# Prepare for building
+dnf -y install mock dnf-plugins-core
+useradd -u 2000 -c Builder -G mock builder
+
+# HACK - mock --installdeps with yum is broken, it seems that it can't
+# run any package scriptlets.  Yum is deprecated anyway so we just use
+# dnf.  I wonder why dnf isn't the default anyway...
+#
+echo "config_opts['package_manager'] = 'dnf'" >>/etc/mock/site-defaults.cfg
+
+su - builder -c "mock --verbose --installdeps $TEST_SOURCE_PACKAGE"
 
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker

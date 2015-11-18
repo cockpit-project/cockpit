@@ -5,11 +5,10 @@ set -e
 SELF=testsuite-prepare
 . ./testlib.sh
 
-make_rpms_opts=
+vm_build_opts=
 cockpit_create_opts=
 install_selinux=no
 install_opts=
-use_make_rpms_rev=yes
 
 usage()
 {
@@ -22,14 +21,13 @@ eval set -- "$args"
 while [ $# -gt 0 ]; do
     case $1 in
     -c|--clean)
-        make_rpms_opts="$make_rpms_opts --clean"
         cockpit_create_opts="--force --no-save"
-        use_make_rpms_rev=no
         ;;
     -q|--quick)
-        make_rpms_opts="$make_rpms_opts --quick"
+        vm_build_opts="$vm_build_opts --quick"
         ;;
     -v|--verbose)
+        vm_build_opts="$vm_build_opts --verbose"
         install_opts="$install_opts -v"
         ;;
     -h|--help)
@@ -43,11 +41,6 @@ while [ $# -gt 0 ]; do
     esac
     shift
 done
-
-if [ "$use_make_rpms_rev" == "yes" ]; then
-    rev=$(python -c "import json; print json.load(open('guest/cockpit.conf', 'r'))['tags']['$TEST_OS']" 2>/dev/null || true)
-    make_rpms_opts="$make_rpms_opts"
-fi
 
 IP=/sbin/ip
 
@@ -64,6 +57,20 @@ if ! silent $IP address show dev cockpit1; then
   sudo ./vm-prep
 fi
 
+# The Atomic variants can't build their own packages, so we build in
+# their non-Atomic siblings.  For example, fedora-atomic-22 is build
+# in fedora-22.
+#
+BUILD_OS=${TEST_OS/-atomic/}
+
+./vm-reset
+./vm-download \
+    cockpit-$TEST_OS-$TEST_ARCH \
+    cockpit-$BUILD_OS-$TEST_ARCH \
+    ipa-fedora-22-x86_64 \
+    openshift-fedora-22-x86_64 \
+    stock-fedora-22-x86_64
+
 skip="cockpit-doc-
 cockpit-debuginfo"
 
@@ -77,23 +84,19 @@ if [ "$install_selinux" == "no" ]; then
 cockpit-selinux"
 fi
 
-rpms=$(../tools/make-rpms $make_rpms_opts | grep -vF "$skip" || true)
+rpms=""
+if TEST_OS=$BUILD_OS ./vm-build $vm_build_opts; then
+    rpms=$(find mock -name "*.rpm" -not -name "*.src.rpm" | grep -vF "$skip")
+fi
 
 # Upload the build logs if desired
 if [ -n "${TEST_ATTACHMENTS:-}" ]; then
     mkdir "$TEST_ATTACHMENTS"/mock
-    cp -r ../mock/*.log "$TEST_ATTACHMENTS"/mock
+    cp -r ./mock/*.log "$TEST_ATTACHMENTS"/mock
 fi
 
 if [ -z "$rpms" ]; then
   exit 1
 fi
-
-./vm-reset
-./vm-download \
-    cockpit-$TEST_OS-$TEST_ARCH \
-    ipa-fedora-22-x86_64 \
-    openshift-fedora-22-x86_64 \
-    stock-fedora-22-x86_64
 
 ./vm-install $install_opts -f cockpit $rpms

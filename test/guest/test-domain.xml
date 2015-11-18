@@ -1,5 +1,6 @@
 <domain type='kvm'>
   <name>%(name)s</name>
+  <vcpu>%(cpus)d</vcpu>
   <os>
     <type arch='%(arch)s'>hvm</type>
     <boot dev='hd'/>
@@ -32,4 +33,3 @@
     </disk>
   </devices>
 </domain>
-

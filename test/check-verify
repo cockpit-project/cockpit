@@ -94,8 +94,6 @@ def install(opts):
         cmd = [ "./testsuite-prepare" ]
         if opts.clean:
             cmd.append("--clean")
-        if opts.verbosity:
-            cmd.append("--verbose")
         if opts.quick:
             cmd.append("--quick")
         subprocess.check_call(cmd)

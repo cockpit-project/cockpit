@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import os
+import sys
+import subprocess
+
+import testvm
+
+parser = argparse.ArgumentParser(description='Build Cockpit packages in a virtual machine')
+parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
+parser.add_argument('-f', '--flavor', action='store', help='The image to use for building')
+parser.add_argument('-q', '--quick', action='store_true', help='Build faster')
+args = parser.parse_args()
+
+def build(machine):
+    """Build Cockpit in a virtual machine"""
+    srpm = subprocess.check_output([ "../tools/make-srpm" ]).strip()
+    machine.start(memory_mb=4096, cpus=4)
+    try:
+        machine.wait_boot()
+        machine.upload([ srpm ], "/var/tmp")
+        mock_opts = ""
+        if args.verbose:
+            mock_opts += " --verbose"
+        if args.quick:
+            mock_opts += " --nocheck --define='selinux 0'"
+        mock_cmd = ("mock --offline --no-clean --resultdir /var/tmp/mock %s --rebuild /var/tmp/%s"
+                    % (mock_opts, os.path.basename(srpm)))
+        machine.execute('su - builder -c "%s"' % mock_cmd)
+        machine.download_dir("/var/tmp/mock", "mock")
+    finally:
+        machine.stop()
+
+try:
+    machine = testvm.VirtMachine(verbose=args.verbose, flavor=args.flavor, label="build")
+    build(machine)
+except testvm.Failure, ex:
+    print >> sys.stderr, "vm-build:", ex
+    sys.exit(1)

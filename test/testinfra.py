@@ -124,7 +124,6 @@ class Sink(object):
 
         # Send a zero character and send the attachments
         files = os.listdir(self.attachments)
-        print >> sys.stderr, "attachments are", files
         if len(files):
             self.ssh.stdin.write('\x00')
             self.ssh.stdin.flush()

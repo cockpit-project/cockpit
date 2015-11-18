@@ -243,6 +243,7 @@ cat subscriptions.list docker.list networkmanager.list >> shell.list
 %{_datadir}/appdata
 %{_datadir}/applications
 %{_datadir}/pixmaps
+%doc %{_mandir}/man1/cockpit.1.gz
 
 %files bridge
 %doc %{_mandir}/man1/cockpit-bridge.1.gz

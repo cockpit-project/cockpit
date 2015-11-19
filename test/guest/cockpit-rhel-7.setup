@@ -116,11 +116,14 @@ docker pull busybox:buildroot-2014.02
 docker pull submod/helloapache
 docker pull submod/atomicapp
 
-# HACK - kdump.service somehow interferes with our storage tests.
-# https://bugzilla.redhat.com/show_bug.cgi?id=1283128
+# HACK - kdump.service interferes with our storage tests, by loading
+# the system for some time after boot and thereby causing a race
+# between parted and udevd to turn out for the worse.  Disabling
+# kdump.service helps somewhat, but the race is still there, and
+# parted still fails occasionally.
 #
-# Right after boot, kdump.service is busy for some time and during
-# that time parted fails when creating a new partition.
+# https://bugzilla.redhat.com/show_bug.cgi?id=1245144
+# Fixed in parted-3.1-23.el7
 #
 systemctl disable kdump.service
 

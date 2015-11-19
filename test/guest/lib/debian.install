@@ -1,0 +1,64 @@
+#! /bin/sh
+
+set -ex
+
+export DEB_BUILD_OPTIONS=""
+
+do_build=
+do_install=
+stdout_dest="/dev/null"
+args=$(getopt -o "vqs:" -l "verbose,quick,skip:,build,install" -- "$@")
+eval set -- "$args"
+while [ $# -gt 0 ]; do
+    case $1 in
+	-v|--verbose)
+            stdout_dest="/dev/stdout"
+	    ;;
+	-q|--quick)
+            DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS nocheck"
+	    ;;
+        --build)
+            do_build=t
+            ;;
+        --install)
+            do_install=t
+            ;;
+	--)
+	    shift
+	    break
+	    ;;
+    esac
+    shift
+done
+tar="$1"
+
+
+# Build
+
+if [ -n "$do_build" ]; then
+    rm -rf build-results
+    mkdir build-results
+    resultdir=$PWD/build-results
+    ( cd $(dirname "$tar")
+      rm -rf cockpit-wip
+      tar xzf "$tar"
+      mv cockpit-wip/tools/debian cockpit-wip/debian
+      dpkg-source --compression=gzip -b cockpit-wip
+
+      # Some unit tests want a real network interface
+      echo USENETWORK=yes >>~/.pbuilderrc
+
+      pbuilder --build --buildresult "$resultdir" --logfile "$resultdir/build.log" cockpit_0.dsc >$stdout_dest
+    )
+fi
+
+# Install
+
+if [ -n "$do_install" ]; then
+    packages=$(find build-results -name "*.deb")
+    dpkg --install $packages
+
+    # firewall-cmd --add-service=cockpit --permanent
+
+    rm -rf /var/log/journal/*
+fi

@@ -45,7 +45,9 @@ def start_publishing(github, host, name, revision):
 
 def check_publishing(sink, github):
     expected = sink.status["github"]["status"]["description"]
+    github.debug = True # HACK: Temporary while debugging GitHub issues
     status = github.status(sink.status["revision"])
+    github.debug = False
     current = status.get("description", None)
     if current and current != expected:
         raise RuntimeError("Verify collision: " + current)

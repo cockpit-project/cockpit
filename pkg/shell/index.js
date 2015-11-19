@@ -624,20 +624,17 @@ define([
     function recalculate_layout() {
         var topnav = $('#topnav');
         var sidebar = $('#sidebar');
+        var content = $('#content');
 
         var window_height = $(window).height();
-        var window_width = $(window).width();
         var topnav_height = topnav.height();
-        var sidebar_width = sidebar.is(':visible') ? sidebar.outerWidth() : 0;
 
         var y = window_height - topnav_height;
-        if (current_frame) {
-            $(current_frame)
-                .height(Math.abs(y))
-                .width(Math.abs(window_width - sidebar_width));
-        }
-
+        $(current_frame).height(Math.floor(y));
         sidebar.height(y);
+
+        var sidebar_width = sidebar.is(':visible') ? sidebar.outerWidth() : 0;
+        content.css("margin-left", sidebar_width + "px");
     }
 
     $(window).on('resize', function () {

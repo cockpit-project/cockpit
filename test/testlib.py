@@ -797,7 +797,7 @@ class TapResult(unittest.TestResult):
         sys.stdout.write(data)
 
     def skip(self, test, reason):
-        sys.stdout.write("ok {0} # SKIP {1}\n".format(self.offset, reason))
+        sys.stdout.write("ok {0} {1} # SKIP {2}\n".format(self.offset, str(test), reason))
 
     def known_issue(self, test, err):
         string = self._exc_info_to_string(err, test)

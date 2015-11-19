@@ -152,6 +152,7 @@ class GitHub(object):
         self.base = base
         self.conn = None
         self.token = None
+        self.debug = False
         try:
             gt = open(os.path.expanduser(TOKEN), "r")
             self.token = gt.read().strip()
@@ -177,7 +178,7 @@ class GitHub(object):
             headers["Authorization"] = "token " + self.token
         if not self.conn:
             self.conn = httplib.HTTPSConnection("api.github.com", strict=True)
-        # conn.set_debuglevel(1)
+        self.conn.set_debuglevel(self.debug and 1 or 0)
         self.conn.request(method, self.qualify(resource), data, headers)
         response = self.conn.getresponse()
         output = response.read()

@@ -203,7 +203,7 @@ class MachineBuilder:
             additional_scripts += [ format_guest_setup_path(next_script) ]
             next_script += 1
 
-        if "atomic" in self.machine.image:
+        if "atomic" in self.machine.image or "debian" in self.machine.image:
             self.unpack_base(modify_func=None)
         else:
             self.unpack_base(modify_func=modify)

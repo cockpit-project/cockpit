@@ -1,0 +1,115 @@
+#! /bin/bash
+
+set -ex
+
+# TODO: Hack "console=ttyS0,115200" into kernel command line
+
+# We install all dependencies of the cockpit packages since we want
+# them to not spontaneously change from one test run to the next when
+# the distribution repository is updated.
+#
+COCKPIT_DEPS="\
+docker.io \
+libjson-glib-1.0-0 \
+libpcp3 \
+libpolkit-agent-1-0 \
+libpolkit-gobject-1-0 \
+libpwquality-tools \
+libssh-4 \
+network-manager \
+pcp \
+policykit-1 \
+realmd \
+selinux-basics \
+xdg-utils \
+"
+
+# XXX - We have a explicit list of build dependencies here since that
+# there is no straighforward way to have pbuilder install them.
+#
+COCKPIT_BUILD_DEPS="\
+debhelper \
+dh-autoreconf \
+autoconf \
+automake \
+intltool \
+libssh-dev \
+libssl-dev \
+zlib1g-dev \
+libkrb5-dev \
+libxslt1-dev \
+libkeyutils-dev \
+libglib2.0-dev \
+libsystemd-dev \
+libpolkit-agent-1-dev \
+libpcp3-dev \
+libjson-glib-dev \
+libpam0g-dev \
+libpcp-import1-dev \
+libpcp-pmda3-dev \
+xsltproc \
+xmlto \
+docbook-xsl \
+glib-networking \
+nodejs-legacy \
+npm \
+openssh-client \
+"
+
+# We also install the packages necessary to join a FreeIPA domain so
+# that we don't have to go to the network during a test run.
+#
+IPA_CLIENT_PACKAGES="\
+"
+
+TEST_PACKAGES="\
+curl \
+"
+
+# Enable a console on ttyS0 so that we can log-in via vm-run
+#
+echo 'GRUB_CMDLINE_LINUX="console=ttyS0,115200"' >>/etc/default/grub
+update-grub
+
+useradd -m -U -c Administrator -G sudo -s /bin/bash admin
+echo admin:foobar | chpasswd
+
+# We want dockah!
+#
+echo "deb http://ftp.uk.debian.org/debian jessie-backports main" >>/etc/apt/sources.list
+
+apt-get -y update
+apt-get -y upgrade
+apt-get -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+
+# Prepare for building
+#
+apt-get -y install dpkg-dev pbuilder
+pbuilder --create
+echo "apt-get -y install fakeroot $COCKPIT_BUILD_DEPS" >debian-8.install-build-deps
+pbuilder --execute --save-after-exec debian-8.install-build-deps
+# Disable build-dep installation for the real builds
+echo PBUILDERSATISFYDEPENDSCMD=true >~/.pbuilderrc
+
+# docker images that we need for integration testing
+systemctl start docker
+docker pull busybox:latest
+docker pull busybox:buildroot-2014.02
+docker pull submod/helloapache
+docker pull submod/atomicapp
+
+# Final tweaks
+
+# Enable persistent journal
+mkdir /var/log/journal
+
+# Allow root login with password
+sed -i 's/^PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+# HACK
+#
+# Disable old SSH init script.  Something is calling "/etc/init.d/ssh
+# reload" during boot and that results in the ssh port being
+# unreachable temporarily.
+#
+chmod a-x /etc/init.d/ssh

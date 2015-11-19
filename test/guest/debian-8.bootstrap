@@ -1,0 +1,28 @@
+#! /bin/bash
+
+set -ex
+
+BASE=$(dirname $0)
+
+out=$1
+arch=$2
+
+# HACK
+#
+# virt-resize from libhguestfs 1.30.5 can resize the virt-builder
+# debian-8 template, but it destroys the swap partition in the
+# process.  Since we hopefully don't need it, we remove it from fstab.
+#
+DISABLE_SWAP_EDIT="/etc/fstab:s/^UUID=.*swap.*/#\0/"
+
+virt-builder debian-8 \
+             --output "$out" \
+             --size 8G \
+             --format qcow2 \
+             --arch "$arch" \
+             --root-password password:foobar \
+             --ssh-inject root:file:$BASE/identity.pub \
+             --upload $BASE/host_key:/etc/ssh/ssh_host_rsa_key \
+             --chmod 0600:/etc/ssh/ssh_host_rsa_key \
+             --upload $BASE/host_key.pub:/etc/ssh/ssh_host_rsa_key.pub \
+             --edit "$DISABLE_SWAP_EDIT"

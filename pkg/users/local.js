@@ -501,8 +501,9 @@ PageAccountsCreate.prototype = {
 
         for (var i = 0; i < username.length; i++) {
             if (! this.is_valid_char_username(username[i])) {
-                dfd.reject(new Error(_("The user name can only consist of letters" +
-                            "from a-z, digits, dots, dashes and underscores.")));
+                dfd.reject(new Error(
+                  _("The user name can only consist of letters from a-z, digits, dots, dashes and underscores.")
+                ));
                 return dfd.promise();
             }
         }

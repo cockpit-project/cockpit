@@ -612,7 +612,7 @@ PageAccount.prototype = {
         $('#account-set-password').on('click', $.proxy (this, "set_password"));
         $('#account-delete').on('click', $.proxy (this, "delete_account"));
         $('#account-logout').on('click', $.proxy (this, "logout_account"));
-        $('#account-locked').on('change', $.proxy (this, "change_locked"));
+        $('#account-locked').on('change', $.proxy (this, "change_locked", true, null));
         $('#add-authorized-key').on('click', $.proxy (this, "add_key"));
         $('#add-authorized-key-dialog').on('hidden.bs.modal', function () {
             $("#authorized-keys-text").val("");
@@ -734,18 +734,28 @@ PageAccount.prototype = {
            });
     },
 
-    get_locked: function() {
+    get_locked: function(update_display) {
+        update_display = typeof update_display !== 'undefined' ? update_display : true;
+        var dfd = $.Deferred();
         var self = this;
 
         function parse_locked(content) {
-            self.locked = content.indexOf("Password locked.") > -1;
-            self.update();
+            return content.indexOf("Password locked.") > -1;
         }
 
         cockpit.spawn(["/usr/bin/passwd", "-S", self.account_id],
                       { "environ": [ "LC_ALL=C" ], "superuser": "require" })
-           .done(parse_locked)
-           .fail(log_unexpected_error);
+            .done(function(content) {
+                    self.locked = parse_locked(content);
+                    if (update_display)
+                        self.update();
+                    dfd.resolve(self.locked);
+                })
+            .fail(function(error) {
+                    dfd.reject(error);
+                });
+
+        return dfd.promise();
     },
 
     get_logged: function() {
@@ -930,11 +940,31 @@ PageAccount.prototype = {
            .fail(show_unexpected_error);
     },
 
-    change_locked: function() {
+    change_locked: function(verify_status, desired_lock_state) {
+        desired_lock_state = desired_lock_state !== null ?
+            desired_lock_state : $('#account-locked').prop('checked');
+        var self = this;
         cockpit.spawn(["/usr/sbin/usermod",
                        this.account["name"],
-                       $('#account-locked').prop('checked') ? "--lock" : "--unlock"], { "superuser": "require"})
-           .done($.proxy (this, "get_locked"))
+                       desired_lock_state ? "--lock" : "--unlock"], { "superuser": "require"})
+            .done(function() {
+                self.get_locked(false)
+                    .done(function(locked) {
+                        /* if we care about what the lock state should be and it doesn't match, try to change again
+                           this is a workaround for different ways of handling a locked account
+                           https://github.com/cockpit-project/cockpit/issues/1216
+                           https://bugzilla.redhat.com/show_bug.cgi?id=853153
+                           This seems to be fixed in fedora 23 (usermod catches the different locking behavior)
+                        */
+                        if (verify_status && desired_lock_state !== locked) {
+                            console.log("Account locked state doesn't match desired value, trying again.");
+                            // only retry once to avoid uncontrolled recursion
+                            self.change_locked(false, desired_lock_state);
+                        } else {
+                            self.update();
+                        }
+                    });
+                })
            .fail(show_unexpected_error);
     },
 

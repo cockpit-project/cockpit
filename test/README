@@ -5,9 +5,9 @@ files for them.
 
 To run the tests on Fedora, you need to install the following packages:
 
-    $ sudo yum install npm python-libguestfs qemu mock qemu-kvm python \
+    $ sudo yum install npm python-libguestfs qemu qemu-kvm python \
          libvirt-client openssl libguestfs-tools selinux-policy-devel \
-         rpm-build krb5-workstation expect rsync libvirt-python curl xz
+         krb5-workstation expect rsync libvirt-python curl xz
 
 Testing requires phantomjs globally on the system, not just inside the cockpit package.
 
@@ -55,7 +55,7 @@ For managing test machines and their images:
  * vm-upload: Upload test images
  * vm-create: Create test machine images
  * vm-reset: Start over from a clean slate
- * vm-install: Install Cockpit into a test machine image
+ * vm-install: Build and install Cockpit packages into a test machine image
 
 For debugging:
 
@@ -75,8 +75,9 @@ You can set these environment variables to configure the test suite:
 
   TEST_OS    The OS to run the tests in.  Currently supported values: (vm-create)
                 "fedora-22"
-                "fedora-22-testing"
                 "fedora-23"
+                "fedora-testing"
+                "fedora-atomic"
                 "centos-7"
                 "rhel-7"
              "fedora-22" is the default (testinfra.py, testlib.sh)

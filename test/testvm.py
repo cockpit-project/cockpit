@@ -299,7 +299,7 @@ class Machine:
             "-o", "UserKnownHostsFile=/dev/null",
         ] + sources + [ "%s@[%s]:%s" % (self.vm_username, self.address, dest), ]
 
-        self.message("Uploading", " ,".join(sources))
+        self.message("Uploading", ", ".join(sources))
         self.message(" ".join(cmd))
         if self.verbose:
             subprocess.check_call(cmd)

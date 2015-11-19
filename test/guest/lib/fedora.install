@@ -1,0 +1,59 @@
+#! /bin/bash
+
+set -ex
+
+skip="cockpit-doc-
+cockpit-debuginfo"
+
+do_build=
+do_install=
+mock_opts=""
+args=$(getopt -o "vqs:" -l "verbose,quick,skip:,build,install" -- "$@")
+eval set -- "$args"
+while [ $# -gt 0 ]; do
+	case $1 in
+	    -v|--verbose)
+                mock_opts="$mock_opts --verbose"
+		;;
+	    -q|--quick)
+                mock_opts="$mock_opts --nocheck --define='selinux 0'"
+		;;
+            -s|--skip)
+                skip="$skip
+$2"
+                shift
+                ;;
+            --build)
+                do_build=t
+                ;;
+            --install)
+                do_install=t
+                ;;
+	    --)
+		shift
+		break
+		;;
+	esac
+	shift
+done
+tar=$1
+
+# Build
+
+if [ -n "$do_build" ]; then
+    rm -rf build-results
+    srpm=$(/var/lib/testvm/make-srpm "$tar")
+    su builder -c "/usr/bin/mock --offline --no-clean --resultdir build-results $mock_opts --rebuild $srpm"
+fi
+
+# Install
+
+if [ -n "$do_install" ]; then
+    packages=$(find build-results -name "*.rpm" -not -name "*.src.rpm" | grep -vF "$skip")
+    rpm -U --force $packages
+
+    firewall-cmd --add-service=cockpit --permanent
+
+    rm -rf /var/log/journal/*
+    rm -rf /var/lib/NetworkManager/dhclient-*.lease
+fi

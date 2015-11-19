@@ -99,11 +99,12 @@ if [ ! -f "$SKIP_REPO_FLAG" ]; then
     rm -rf /tmp/dep
 fi
 
-# only install mock and build if TEST_SOURCE_PACKAGE is set
-if [ -n "$TEST_SOURCE_PACKAGE" ]; then
-    yum -y install mock
+# only install mock and build if TEST_SOURCE is set
+if [ -n "$TEST_SOURCE" ]; then
+    yum -y install mock rpm-build
     useradd -c Builder -G mock builder
-    su - builder -c "mock --verbose --installdeps $TEST_SOURCE_PACKAGE"
+    srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
+    su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
 fi
 
 if [ ! -f "$SKIP_REPO_FLAG" ]; then

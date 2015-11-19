@@ -78,8 +78,9 @@ dnf -y copr enable phatina/storaged
 dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # Prepare for building
-dnf -y install mock
+dnf -y install mock rpm-build
 useradd -c Builder -G mock builder
-su - builder -c "mock --installdeps $TEST_SOURCE_PACKAGE"
+srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
+su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
 
 dnf clean all

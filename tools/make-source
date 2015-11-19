@@ -1,7 +1,7 @@
 #!/bin/bash
 # This file is part of Cockpit.
 #
-# Copyright (C) 2013 Red Hat, Inc.
+# Copyright (C) 2015 Red Hat, Inc.
 #
 # Cockpit is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published by
@@ -19,18 +19,29 @@
 set -eu
 
 if [ $# != 0 ]; then
-	echo "usage: make-srpm" >&2
+	echo "usage: make-tar" >&2
     exit 2
 fi
 
 base=$(cd $(dirname $0); pwd -P)
-rpm_tmpdir=$(mktemp -d -t rpmbuild.XXXXXX)
+outdir=$(pwd -P)
 
-srpm=$(cd ${rpm_tmpdir}
-       source=$("$base/make-source")
-       "$base/../test/guest/lib/make-srpm" "$source")
+# Make a .tar.gz with the source code
 
-echo $(basename "$srpm")
-mv "$srpm" .
+cd $base/..
 
-rm -rf "${rpm_tmpdir}"
+if [ -d .git ]; then
+    git archive HEAD --prefix cockpit-wip/ --output $outdir/cockpit-wip.tar
+    if [ -d tools/node_modules ]; then
+        tar -rf $outdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' tools/node_modules
+    fi
+else
+    tar -cf $outdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' .
+fi
+
+# Make sure to include the .tarball in our tarball
+echo "wip" > $outdir/.tarball
+tar -rf $outdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' -C $outdir .tarball
+
+gzip -f --fast $outdir/cockpit-wip.tar
+echo $outdir/cockpit-wip.tar.gz

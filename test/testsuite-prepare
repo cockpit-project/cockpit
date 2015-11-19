@@ -5,10 +5,7 @@ set -e
 SELF=testsuite-prepare
 . ./testlib.sh
 
-vm_build_opts=
-cockpit_create_opts=
-install_selinux=no
-install_opts=
+vm_install_opts=
 
 usage()
 {
@@ -16,19 +13,15 @@ usage()
 }
 
 
-args=$(getopt -o "h,v,c,q" -l "help,verbose,clean,quick" -- "$@")
+args=$(getopt -o "h,v,q" -l "help,verbose,quick" -- "$@")
 eval set -- "$args"
 while [ $# -gt 0 ]; do
     case $1 in
-    -c|--clean)
-        cockpit_create_opts="--force --no-save"
-        ;;
     -q|--quick)
-        vm_build_opts="$vm_build_opts --quick"
+        vm_install_opts="$vm_install_opts --quick"
         ;;
     -v|--verbose)
-        vm_build_opts="$vm_build_opts --verbose"
-        install_opts="$install_opts -v"
+        vm_install_opts="$vm_install_opts --verbose"
         ;;
     -h|--help)
         usage
@@ -58,7 +51,7 @@ if ! silent $IP address show dev cockpit1; then
 fi
 
 # The Atomic variants can't build their own packages, so we build in
-# their non-Atomic siblings.  For example, fedora-atomic-22 is build
+# their non-Atomic siblings.  For example, fedora-atomic is build
 # in fedora-22.
 #
 if [ "$TEST_OS" = "fedora-atomic" ]; then
@@ -75,32 +68,19 @@ fi
     openshift \
     fedora-stock
 
-skip="cockpit-doc-
-cockpit-debuginfo"
-
-if [ "$TEST_OS" == "rhel-7" ]; then
-    skip="$skip
-cockpit-kubernetes"
-fi
-
-if [ "$install_selinux" == "no" ]; then
-    skip="$skip
-cockpit-selinux"
-fi
-
-rpms=""
-if TEST_OS=$BUILD_OS ./vm-build $vm_build_opts; then
-    rpms=$(find mock -name "*.rpm" -not -name "*.src.rpm" | grep -vF "$skip")
+install_failed=no
+if ! ./vm-install $vm_install_opts --build-image $BUILD_OS; then
+    install_failed=yes
 fi
 
 # Upload the build logs if desired
 if [ -n "${TEST_ATTACHMENTS:-}" ]; then
-    mkdir "$TEST_ATTACHMENTS"/mock
-    cp -r ./mock/*.log "$TEST_ATTACHMENTS"/mock
+    mkdir "$TEST_ATTACHMENTS"/build-results
+    cp -r ./build-results/*.log "$TEST_ATTACHMENTS"/build-results
 fi
 
-if [ -z "$rpms" ]; then
+if [ $install_failed == "yes" ]; then
   exit 1
 fi
 
-./vm-install $install_opts $rpms
+exit 0

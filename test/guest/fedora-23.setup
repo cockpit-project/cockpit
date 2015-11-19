@@ -71,7 +71,7 @@ dnf -y upgrade
 dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # Prepare for building
-dnf -y install mock dnf-plugins-core
+dnf -y install mock dnf-plugins-core rpm-build
 useradd -c Builder -G mock builder
 
 # HACK - mock --installdeps with yum is broken, it seems that it can't
@@ -80,7 +80,8 @@ useradd -c Builder -G mock builder
 #
 echo "config_opts['package_manager'] = 'dnf'" >>/etc/mock/site-defaults.cfg
 
-su - builder -c "mock --verbose --installdeps $TEST_SOURCE_PACKAGE"
+srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
+su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
 
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker

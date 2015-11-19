@@ -23,6 +23,7 @@ import os
 import sys
 import shutil
 import urllib
+import argparse
 
 class AtomicCockpitInstaller:
     branch = "fedora-atomic/f22/x86_64/docker-host"
@@ -214,12 +215,25 @@ class AtomicCockpitInstaller:
         self.update_container()
         self.clean_network()
 
+parser = argparse.ArgumentParser(description='Install Cockpit in Fedora Atomic')
+parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
+parser.add_argument('-q', '--quick', action='store_true', help='Build faster')
+parser.add_argument('--build', action='store_true', help='Build')
+parser.add_argument('--install', action='store_true', help='Install')
+args = parser.parse_args()
 
-rpms = os.getenv("TEST_PACKAGES", "").split(" ")
-verbose = os.getenv("TEST_VERBOSE", False)
-try:
-    cockpit_installer = AtomicCockpitInstaller(rpms=rpms, verbose=verbose)
-    cockpit_installer.run()
-except Exception, ex:
-    print >> sys.stderr, "Atomic cockpit installation failed:", ex
+if args.build:
+    print >> sys.stderr, "Can't build on fedora-atomic"
     sys.exit(1)
+
+if args.install:
+    os.chdir("build-results")
+    rpms = map(os.path.abspath,
+               filter(lambda f: f.endswith(".rpm") and not f.endswith(".src.rpm"),
+                      os.listdir(".")))
+    try:
+        cockpit_installer = AtomicCockpitInstaller(rpms=rpms, verbose=args.verbose)
+        cockpit_installer.run()
+    except Exception, ex:
+        print >> sys.stderr, "Atomic cockpit installation failed:", ex
+        sys.exit(1)

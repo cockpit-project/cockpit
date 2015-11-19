@@ -19,60 +19,73 @@
 import argparse
 import os
 import sys
+import subprocess
 
 import testvm
 import testinfra
 
 parser = argparse.ArgumentParser(description='Install Cockpit on a virtual machine')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
-parser.add_argument('-i', '--image', default=testinfra.DEFAULT_IMAGE, help='The image to install to')
-parser.add_argument('rpms', metavar='RPM', nargs='+', help='RPMS to install')
+parser.add_argument('-q', '--quick', action='store_true', help='Build faster')
+parser.add_argument('-b', '--build-image', action='store', help='Build in this image')
+parser.add_argument('-B', '--build-only', action='store_true', help='Only build and download results')
+parser.add_argument('-I', '--install-only', action='store_true', help='Only upload and install')
+parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to use')
 args = parser.parse_args()
 
-INSTALL_SCRIPT = """#!/bin/sh
-export TEST_PACKAGES
-export TEST_VERBOSE
-%s"""
+install_image = not args.build_only and args.image
+build_image = not args.install_only and (args.build_image or args.image)
 
-def install(machine, rpms):
-    """Install rpms in the pre-built test image"""
-    for rpm in rpms:
-        if not os.path.exists(rpm):
-            raise testvm.Failure("file does not exist: %s" % rpm)
+def upload_scripts(machine):
+    machine.execute("rm -rf /var/lib/testvm")
+    machine.upload([ "guest/lib" ], "/var/lib/testvm")
+    machine.upload([ "./guest/%s.install" % machine.image ], "/var/tmp")
 
-    if not rpms:
-        raise testvm.Failure("Please specify packages to install")
+def run_install_script(machine, do_build, do_install, arg):
+        machine.execute("cd /var/tmp; ./%s.install%s%s%s%s%s" % (machine.image,
+                                                                 " --verbose" if args.verbose else "",
+                                                                 " --quick" if args.quick else "",
+                                                                 " --build" if do_build else "",
+                                                                 " --install" if do_install else "",
+                                                                 " '%s'" % arg if arg else ""))
 
-    # see if there is an os-specific install script to use, otherwise use generic
-    install_packages_script = os.path.join(machine.test_dir, "guest/%s.install" % (machine.image, ))
-    if not os.path.exists(install_packages_script):
-        install_packages_script = os.path.join(machine.test_dir, "guest/default.install")
+def build_and_maybe_install(image, do_install):
+    """Build and maybe install Cockpit into a test image"""
+    machine = testvm.VirtMachine(verbose=args.verbose, image=image, label="install")
+    source = subprocess.check_output([ "../tools/make-source" ]).strip()
+    machine.start(maintain=do_install, memory_mb=4096, cpus=4)
+    try:
+        machine.wait_boot()
+        upload_scripts(machine)
+        machine.upload([ source ], "/var/tmp")
+        run_install_script(machine, True, do_install, os.path.basename(source))
+    finally:
+        try:
+            machine.download_dir("/var/tmp/build-results", "build-results")
+        finally:
+            machine.stop()
 
-    target_install_script_path = "~/install_packages.py"
-
+def only_install(image):
+    """Install Cockpit into a test image"""
+    machine = testvm.VirtMachine(verbose=args.verbose, image=image, label="install")
     machine.start(maintain=True)
     try:
         machine.wait_boot()
-        machine.upload(rpms, "/var/tmp")
-        uploaded = []
-        for rpm in rpms:
-            base = os.path.basename(rpm)
-            dest = os.path.join("/var/tmp", base)
-            uploaded.append(dest)
-        env = {
-            "TEST_OS": machine.image,
-            "TEST_PACKAGES": " ".join(uploaded),
-            "TEST_VERBOSE": machine.verbose
-        }
-        machine.upload([install_packages_script], target_install_script_path)
-        script_to_run = INSTALL_SCRIPT % (target_install_script_path)
-        machine.execute(script=script_to_run, environment=env)
+        upload_scripts(machine)
+        machine.execute("rm -rf /var/tmp/build-results");
+        machine.upload([ "build-results" ], "/var/tmp")
+        run_install_script(machine, False, True, None)
     finally:
         machine.stop()
 
 try:
-    machine = testvm.VirtMachine(verbose=args.verbose, image=args.image, label="install")
-    install(machine, args.rpms)
+    if build_image and build_image == install_image:
+        build_and_maybe_install(build_image, do_install=True)
+    else:
+        if build_image:
+            build_and_maybe_install(build_image, do_install=False)
+        if install_image:
+            only_install(install_image)
 except testvm.Failure, ex:
     print >> sys.stderr, "vm-install:", ex
     sys.exit(1)

@@ -1,0 +1,24 @@
+#! /bin/bash
+
+set -e
+
+tar=$1
+
+cd $(dirname "$1")
+
+tar xzf "$1" cockpit-wip/tools/cockpit.spec
+sed '1i\
+%define gitcommit wip' cockpit-wip/tools/cockpit.spec > cockpit.spec
+
+rm -f *.src.rpm
+rpmbuild -bs \
+         --quiet \
+         --define "_sourcedir `pwd`" \
+         --define "_specdir `pwd`" \
+         --define "_builddir `pwd`" \
+         --define "_srcrpmdir `pwd`" \
+         --define "_rpmdir `pwd`" \
+         --define "_buildrootdir `pwd`/.build" \
+         --define "optflags -ggdb3 -O0" \
+         cockpit.spec
+echo $PWD/*.src.rpm

@@ -128,6 +128,8 @@ ensure_certificate (const gchar *user,
       goto out;
     }
 
+  if (g_strcmp0 (selinux, "") == 0)
+    selinux = NULL;
   if (selinux)
     {
       chcon_argv[3] = path;

@@ -170,6 +170,10 @@ class GitHub(object):
     def qualify(self, resource):
         return urlparse.urljoin(self.base, resource)
 
+    def reset(self):
+        self.conn = None
+        self.debug = False
+
     def request(self, method, resource, data="", headers=None):
         if headers is None:
             headers = { }

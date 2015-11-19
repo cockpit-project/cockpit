@@ -727,27 +727,23 @@ class Phantom:
 
 
 class Naughty(object):
-    def __init__(self):
-        self.github = None
-
     def normalize_traceback(self, trace):
         # All file paths converted to basename
         return re.sub(r'File "[^"]*/([^/"]+)"', 'File "\\1"', trace.strip())
 
     def post_github(self, number, err):
-        if not self.github:
-            self.github = testinfra.GitHub()
+        github = testinfra.GitHub()
 
         # Ignore this if we were not given a token
-        if not self.github.available:
+        if not github.available:
             return False
 
         # Lookup the link being logged to
-        context = self.github.context()
+        context = github.context()
         link = ""
         revision = os.environ.get("TEST_REVISION", None)
         if revision:
-            statuses = self.github.get("commits/{0}/statuses".format(revision))
+            statuses = github.get("commits/{0}/statuses".format(revision))
             if statuses:
                 for status in statuses:
                     if status["context"] == context:
@@ -756,7 +752,7 @@ class Naughty(object):
 
         # Build a lovely little message
         data = { "body": "Ooops, it happened again\n```\n{0}\n```\n{1}\n".format(err.strip(), link) }
-        self.github.post("issues/{0}/comments".format(number), data)
+        github.post("issues/{0}/comments".format(number), data)
         return True
 
     def check_issue(self, trace):

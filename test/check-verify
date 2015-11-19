@@ -50,17 +50,22 @@ def check_publishing(sink, github):
     github.debug = False
     current = status.get("description", None)
     if current and current != expected:
+        sink.status.pop("github", None)
+        sink.status.pop("badge", None)
+        sink.status.pop("irc", None)
         raise RuntimeError("Verify collision: " + current)
 
 def stop_publishing(sink, ret):
     def mark_failed():
-        sink.status["github"]["status"]["state"] = "failure"
+        if "github" in sink.status:
+            sink.status["github"]["status"]["state"] = "failure"
         if 'badge' in sink.status:
             sink.status['badge']['status'] = "failed"
         if "irc" in sink.status: # Never send success messages to IRC
             sink.status["irc"]["channel"] = "#cockpit"
     def mark_passed():
-        sink.status["github"]["status"]["state"] = "success"
+        if "github" in sink.status:
+            sink.status["github"]["status"]["state"] = "success"
         if 'badge' in sink.status:
             sink.status['badge']['status'] = "passed"
     if isinstance(ret, basestring):
@@ -73,7 +78,8 @@ def stop_publishing(sink, ret):
         message = "{0} tests failed".format(ret)
         mark_failed()
     sink.status["message"] = message
-    sink.status["github"]["status"]["description"] = message
+    if "github" in sink.status:
+        sink.status["github"]["status"]["description"] = message
     del sink.status["extras"]
     sink.flush()
 

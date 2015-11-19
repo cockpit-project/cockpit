@@ -1,5 +1,6 @@
 
 import argparse
+import datetime
 import errno
 import httplib
 import json
@@ -174,7 +175,7 @@ class GitHub(object):
         self.conn = None
         self.debug = False
 
-    def request(self, method, resource, data="", headers=None):
+    def request(self, method, resource, data="", headers=None, return_headers_on_unmodified=False):
         if headers is None:
             headers = { }
         headers["User-Agent"] = "Cockpit Tests"
@@ -188,6 +189,11 @@ class GitHub(object):
         output = response.read()
         if method == "GET" and response.status == 404:
             return ""
+        elif response.status == 304: # not modified
+            if return_headers_on_unmodified:
+                return response.getheaders()
+            else:
+                return None
         elif response.status < 200 or response.status >= 300:
             sys.stderr.write(output)
             raise Exception("GitHub API problem: {0}".format(response.reason or response.status))
@@ -293,6 +299,47 @@ class GitHub(object):
         results.sort(key=lambda v: v[0], reverse=True)
         return results
 
+    def httpdate(self, dt):
+        """Return a string representation of a date according to RFC 1123
+        (HTTP/1.1).
+
+        The supplied date must be in UTC.
+
+        From: http://stackoverflow.com/a/225106
+
+        """
+        weekday = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][dt.weekday()]
+        month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
+                 "Oct", "Nov", "Dec"][dt.month - 1]
+        return "%s, %02d %s %04d %02d:%02d:%02d GMT" % (weekday, dt.day, month,
+            dt.year, dt.hour, dt.minute, dt.second)
+
+    def check_limits(self):
+        # in order for the limit not to be affected by the call itself,
+        # use a conditional request with a timestamp in the future
+
+        future_timestamp = datetime.datetime.utcnow() + datetime.timedelta(seconds=3600)
+
+        info = self.request(method = "GET",
+                            resource = "git/refs/heads/master",
+                            data = "",
+                            headers = { 'If-Modified-Since': self.httpdate(future_timestamp) },
+                            return_headers_on_unmodified = True
+                           )
+        sys.stdout.write("Rate limits:\n")
+        for entry in ["X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"]:
+            entries = filter(lambda t: t[0].lower() == entry.lower(), info)
+            if entries:
+                if entry == "X-RateLimit-Reset":
+                    try:
+                        readable = datetime.datetime.utcfromtimestamp(float(entries[0][1])).isoformat()
+                    except:
+                        readable = "parse error"
+                        pass
+                    sys.stdout.write("{0}: {1} ({2})\n".format(entry, entries[0][1], readable))
+                else:
+                    sys.stdout.write("{0}: {1}\n".format(entry, entries[0][1]))
+
     def trigger(self, pull_number, force = False):
         sys.stderr.write("triggering pull {0} for context {1}\n".format(pull_number, self.context()))
         pull = self.get("pulls/" + pull_number)
@@ -318,5 +365,19 @@ class GitHub(object):
 
 if __name__ == '__main__':
     github = GitHub("/repos/cockpit-project/cockpit/")
-    for (priority, name, revision, ref) in github.scan(True):
-        sys.stdout.write("{0}: {1} ({2})\n".format(name, revision, priority))
+    parser = argparse.ArgumentParser(description='Test infrastructure: scan and update status of pull requests on github')
+    parser.add_argument('-c', '--check',
+                        help = 'Only check github rate limits with the currently configured credentials',
+                        action = "store_true",
+                        default = False)
+    parser.add_argument('-d', '--dry',
+                        help = 'Don''t actually change anything on github',
+                        action = "store_true",
+                        default = False)
+    opts = parser.parse_args()
+
+    if (opts.check):
+        github.check_limits()
+    else:
+        for (priority, name, revision, ref) in github.scan(update = not opts.dry):
+            sys.stdout.write("{0}: {1} ({2})\n".format(name, revision, priority))

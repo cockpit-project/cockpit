@@ -292,6 +292,7 @@ class Machine:
 
         cmd = [
             "scp", "-B",
+            "-r", "-p",
             "-P", str(self.ssh_port),
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",

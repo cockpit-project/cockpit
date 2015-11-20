@@ -148,6 +148,7 @@ class MachineBuilder:
         try:
             self.macaddr = self.machine.macaddr
             self.machine.wait_boot(wait_for_running_timeout=120)
+            self.machine.upload([ "guest/lib" ], "/var/lib/testvm")
             self.machine.upload([script], "/var/tmp/SETUP")
             self.machine.upload([srpm], "/var/tmp")
             env = {

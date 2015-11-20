@@ -36,6 +36,7 @@ def build(machine):
     machine.start(memory_mb=4096, cpus=4)
     try:
         machine.wait_boot()
+        machine.upload([ "guest/lib" ], "/var/lib/testvm")
         machine.upload([ srpm ], "/var/tmp")
         mock_opts = ""
         if args.verbose:

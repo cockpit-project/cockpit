@@ -686,14 +686,11 @@ function Channel(options) {
         transport.register(id, on_control, on_message);
 
         /* Now open the channel */
-        var command = {
-            "command" : "open",
-            "channel": id
-        };
-        for (var i in options) {
-            if (options.hasOwnProperty(i) && command[i] === undefined)
-                command[i] = options[i];
-        }
+        var command = { };
+        for (var i in options)
+            command[i] = options[i];
+        command.command = "open";
+        command.channel = id;
 
         if (!command.host) {
             if (default_host)

@@ -178,6 +178,20 @@ This possible "result" values are:
 
 Other fields may be present in a close message.
 
+Command: ready
+--------------
+
+The "ready" command indicates that the channel implementation (usually
+the bridge) is in a ready and settled state. It is not normally necessary to
+listen to this control message, since it is possible to start sending payload
+over a channel immediately after the open message has been sent.
+
+The following fields are defined:
+
+ * "channel": The id of the channel
+
+Other fields may be present in a ready message.
+
 Command: done
 -------------
 

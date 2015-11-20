@@ -36,15 +36,21 @@
 <script type="text/javascript">
 
 asyncTest("basic", function() {
-    expect(3);
+    expect(4);
 
     var channel = cockpit.channel({ "payload": "echo" });
+    var pass = 0;
 
     $(channel).on("control", function(ev, options) {
-        equal(options.command, "done", "got done");
-        channel.close();
-        $(channel).off();
-        start();
+        if (pass == 0) {
+            equal(options.command, "ready", "got ready");
+            pass += 1;
+        } else {
+            equal(options.command, "done", "got done");
+            channel.close();
+            $(channel).off();
+            start();
+        }
     });
 
     $(channel).on("message", function(ev, payload) {

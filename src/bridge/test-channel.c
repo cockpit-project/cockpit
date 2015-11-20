@@ -255,6 +255,7 @@ test_close_transport (TestCase *tc,
                       gconstpointer unused)
 {
   MockEchoChannel *chan;
+  JsonObject *control;
   GBytes *sent;
   gchar *problem = NULL;
 
@@ -273,6 +274,8 @@ test_close_transport (TestCase *tc,
   g_assert (chan->close_called == TRUE);
 
   g_assert_cmpstr (problem, ==, "boooo");
+  control = mock_transport_pop_control (tc->transport);
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
   g_assert (mock_transport_pop_control (tc->transport) == NULL);
 
   g_free (problem);

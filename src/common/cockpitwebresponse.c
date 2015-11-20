@@ -36,12 +36,6 @@
 #include <string.h>
 
 /**
- * Certain processes may want to allow symlinks to certain
- * directory, like branding
- */
-const gchar *cockpit_web_exception_escape_root = NULL;
-
-/**
  * Certain processes may want to have a non-default error page.
  */
 const gchar *cockpit_web_failure_resource = NULL;
@@ -1127,9 +1121,8 @@ cockpit_web_response_file (CockpitWebResponse *response,
 {
   const gchar *cache_control;
   GError *error = NULL;
-  gchar *unescaped;
-  char *path = NULL;
-  gchar *built = NULL;
+  gchar *unescaped = NULL;
+  gchar *path = NULL;
   GMappedFile *file = NULL;
   const gchar *root;
   GBytes *body;
@@ -1141,6 +1134,15 @@ cockpit_web_response_file (CockpitWebResponse *response,
 
   g_return_if_fail (escaped != NULL);
 
+  /* Someone is trying to escape the root directory, or access hidden files? */
+  unescaped = g_uri_unescape_string (escaped, NULL);
+  if (strstr (unescaped, "/.") || strstr (unescaped, "../") || strstr (unescaped, "//"))
+    {
+      g_debug ("%s: invalid path request", escaped);
+      cockpit_web_response_error (response, 404, NULL, "Not Found");
+      goto out;
+    }
+
 again:
   root = *(roots++);
   if (root == NULL)
@@ -1149,45 +1151,8 @@ again:
       goto out;
     }
 
-  unescaped = g_uri_unescape_string (escaped, NULL);
-  built = g_build_filename (root, unescaped, NULL);
-  g_free (unescaped);
-
-  path = realpath (built, NULL);
-  g_free (built);
-
-  if (path == NULL)
-    {
-      if (errno == ENOENT || errno == ENOTDIR || errno == ELOOP || errno == ENAMETOOLONG)
-        {
-          g_debug ("%s: file not found in root: %s", escaped, root);
-          goto again;
-        }
-      else if (errno == EACCES)
-        {
-          cockpit_web_response_error (response, 403, NULL, "Access Denied");
-          goto out;
-        }
-      else
-        {
-          g_warning ("%s: resolving path failed: %m", escaped);
-          cockpit_web_response_error (response, 500, NULL, "Internal Server Error");
-          goto out;
-        }
-    }
-
-  /* Double check that realpath() did the right thing */
-  g_return_if_fail (strstr (path, "../") == NULL);
-  g_return_if_fail (!g_str_has_suffix (path, "/.."));
-
-  /* Someone is trying to escape the root directory */
-  if (!path_has_prefix (path, root) &&
-      !path_has_prefix (path, cockpit_web_exception_escape_root))
-    {
-      g_debug ("%s: request tried to escape the root directory: %s: %s", escaped, root, path);
-      cockpit_web_response_error (response, 404, NULL, "Not Found");
-      goto out;
-    }
+  g_free (path);
+  path = g_build_filename (root, unescaped, NULL);
 
   if (g_file_test (path, G_FILE_TEST_IS_DIR))
     {
@@ -1195,22 +1160,30 @@ again:
       goto out;
     }
 
+  /* As a double check of above behavior */
+  g_assert (path_has_prefix (path, root));
+
+  g_clear_error (&error);
   file = g_mapped_file_new (path, FALSE, &error);
   if (file == NULL)
     {
-      if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_PERM) ||
-          g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ACCES) ||
-          g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ISDIR))
+      if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT) ||
+          g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NAMETOOLONG))
+        {
+          g_debug ("%s: file not found in root: %s", escaped, root);
+          goto again;
+        }
+      else if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_PERM) ||
+               g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ACCES) ||
+               g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ISDIR))
         {
           cockpit_web_response_error (response, 403, NULL, "Access denied");
-          g_clear_error (&error);
           goto out;
         }
       else
         {
           g_warning ("%s: %s", path, error->message);
           cockpit_web_response_error (response, 500, NULL, "Internal server error");
-          g_clear_error (&error);
           goto out;
         }
     }
@@ -1228,7 +1201,9 @@ again:
   g_bytes_unref (body);
 
 out:
-  free (path);
+  g_free (unescaped);
+  g_clear_error (&error);
+  g_free (path);
   if (file)
     g_mapped_file_unref (file);
 }

@@ -1,0 +1,8 @@
+
+{
+   ssh_userauth_agent_leak
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:ssh_userauth_agent
+}

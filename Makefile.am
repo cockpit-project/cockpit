@@ -122,6 +122,7 @@ VALGRIND_SUPPRESSIONS = \
 	tools/pcp.supp \
 	tools/unknown.supp \
 	tools/zlib.supp \
+	tools/libssh.supp \
 	$(NULL)
 
 valgrind-suppressions: $(VALGRIND_SUPPRESSIONS)

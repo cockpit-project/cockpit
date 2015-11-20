@@ -76,6 +76,8 @@ GType           cockpit_auth_get_type        (void) G_GNUC_CONST;
 
 CockpitAuth *   cockpit_auth_new             (gboolean login_loopback);
 
+gchar *         cockpit_auth_nonce           (CockpitAuth *self);
+
 void            cockpit_auth_login_async     (CockpitAuth *self,
                                               const gchar *path,
                                               GHashTable *headers,

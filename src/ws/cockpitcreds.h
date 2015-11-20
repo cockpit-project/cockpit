@@ -29,10 +29,11 @@ G_BEGIN_DECLS
 
 typedef struct _CockpitCreds       CockpitCreds;
 
-#define COCKPIT_CRED_FULLNAME "full-name"
-#define COCKPIT_CRED_PASSWORD "password"
-#define COCKPIT_CRED_RHOST    "rhost"
-#define COCKPIT_CRED_GSSAPI   "gssapi"
+#define COCKPIT_CRED_FULLNAME     "full-name"
+#define COCKPIT_CRED_PASSWORD     "password"
+#define COCKPIT_CRED_RHOST        "rhost"
+#define COCKPIT_CRED_GSSAPI       "gssapi"
+#define COCKPIT_CRED_CSRF_TOKEN   "csrf-token"
 
 #define         COCKPIT_TYPE_CREDS           (cockpit_creds_get_type ())
 
@@ -55,6 +56,8 @@ const gchar *   cockpit_creds_get_fullname   (CockpitCreds *creds);
 const gchar *   cockpit_creds_get_password   (CockpitCreds *creds);
 
 const gchar *   cockpit_creds_get_rhost      (CockpitCreds *creds);
+
+const gchar *   cockpit_creds_get_csrf_token (CockpitCreds *creds);
 
 gboolean        cockpit_creds_equal          (gconstpointer v1,
                                               gconstpointer v2);

@@ -32,14 +32,16 @@ define([
     "data!shell/templates/not-supported.html",
     "data!shell/templates/sync-users.html",
     "data!shell/templates/unknown-hostkey.html",
+    'translated!base1/po',
     "base1/patterns",
     "base1/bootstrap-select",
 ], function($, cockpit, mustache, machines, credentials,
             add_tmpl, auth_failed_tmpl, change_auth_tmpl,
             change_port_tmpl, color_picker_tmpl, invalid_hostkey_tmpl,
-            not_supported_tmpl, sync_users_tmpl, unknown_hosts_tmpl) {
+            not_supported_tmpl, sync_users_tmpl, unknown_hosts_tmpl, po) {
     "use strict";
 
+    cockpit.locale(po);
     var _ = cockpit.gettext;
     var machines_ins;
 
@@ -56,27 +58,29 @@ define([
         "no-host": "change-port"
     };
 
-    var templates = {
-        "add-machine" : add_tmpl,
-        "auth-failed" : auth_failed_tmpl,
-        "change-auth" : change_auth_tmpl,
-        "change-port" : change_port_tmpl,
-        "color-picker" : color_picker_tmpl,
-        "invalid-hostkey" : invalid_hostkey_tmpl,
-        "not-supported" : not_supported_tmpl,
-        "sync-users" : sync_users_tmpl,
-        "unknown-hostkey" : unknown_hosts_tmpl
-    };
+    function translate_and_init(tmpl) {
+        var tmp = $("<div>").append(tmpl);
+        tmp.find("[translatable=\"yes\"]").each(function(i, e) {
+            var old = e.outerHTML;
+            var translated = cockpit.gettext(e.getAttribute("context"), $(e).text());
+            $(e).removeAttr("translatable").text(translated);
+            tmpl.replace(old, e.outerHTML);
+        });
+        mustache.parse(tmpl);
+        return tmpl;
+    }
 
-    mustache.parse(add_tmpl);
-    mustache.parse(auth_failed_tmpl);
-    mustache.parse(change_auth_tmpl);
-    mustache.parse(change_port_tmpl);
-    mustache.parse(color_picker_tmpl);
-    mustache.parse(invalid_hostkey_tmpl);
-    mustache.parse(not_supported_tmpl);
-    mustache.parse(sync_users_tmpl);
-    mustache.parse(unknown_hosts_tmpl);
+    var templates = {
+        "add-machine" : translate_and_init(add_tmpl),
+        "auth-failed" : translate_and_init(auth_failed_tmpl),
+        "change-auth" : translate_and_init(change_auth_tmpl),
+        "change-port" : translate_and_init(change_port_tmpl),
+        "color-picker" : translate_and_init(color_picker_tmpl),
+        "invalid-hostkey" : translate_and_init(invalid_hostkey_tmpl),
+        "not-supported" : translate_and_init(not_supported_tmpl),
+        "sync-users" : translate_and_init(sync_users_tmpl),
+        "unknown-hostkey" : translate_and_init(unknown_hosts_tmpl)
+    };
 
     function full_address(address) {
         var machine = machines_ins.lookup(address);
@@ -165,7 +169,12 @@ define([
             var context = $.extend({
                 'host' : address_or_label(),
                 'full_address' : self.address,
-                'context_title' : self.context_title
+                'context_title' : self.context_title,
+                'strong' : function() {
+                    return function(text, render) {
+                        return "<strong>" + render(text) + "</strong>";
+                    };
+                }
             }, data, address_data);
 
             var text = mustache.render(templates[template], context);
@@ -647,7 +656,12 @@ define([
                 'machine_user' : machine_user,
                 'user' : cockpit.user.user,
                 'allows_password' : allows_password,
-                'machines.allow_connection_string' : machines.allow_connection_string
+                'machines.allow_connection_string' : machines.allow_connection_string,
+                'sync_link' : function() {
+                    return function(text, render) {
+                        return '<a id="do-sync-users">' + render(text) + "</a>";
+                    };
+                }
             }, template);
 
             if (methods === null && machines.has_auth_results) {
@@ -833,7 +847,8 @@ define([
         function render() {
             function formated_groups() {
                 /*jshint validthis:true */
-                return this.groups.join(", ");
+                if (this.groups)
+                    return this.groups.join(", ");
             }
 
             /* assume password is allowed for backwards compatibility */

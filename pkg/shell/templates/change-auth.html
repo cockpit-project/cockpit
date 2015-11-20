@@ -6,11 +6,11 @@
 
 <div class="modal-body">
     {{^available}}
-    <p translatable="yes">Cockpit was unable to log into <strong>{{host}}</strong>.</a></p>
+    <p translatable="yes">Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}.</p>
     {{/available}}
 
     {{#available}}
-    <p translatable="yes">Cockpit was unable to log into <strong>{{host}}</strong> you can change your authentication credentials below. You may prefer to <a id="do-sync-users">synchronize users.</a></p>
+    <p translatable="yes">Cockpit was unable to log into {{#strong}}{{host}}{{/strong}} you can change your authentication credentials below. You may prefer to {{#sync_link}}synchronize users{{/sync_link}}.</p>
 
     <div>
         <table class="cockpit-form-table">

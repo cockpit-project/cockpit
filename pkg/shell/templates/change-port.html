@@ -6,7 +6,7 @@
 
 <div class="modal-body">
     <p>
-        <span translatable="yes">Cockpit was unable to contact <strong>{{host}}</strong>.</span>
+        <span translatable="yes">Cockpit was unable to contact {{#strong}}{{host}}{{/strong}}.</span>
         {{^allow_connection_string}}
         <span translatable="yes">To try a different port you will need to upgrade cockpit-ws to a newer version.</span>
         {{/allow_connection_string}}

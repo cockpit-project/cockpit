@@ -62,7 +62,7 @@ class TestLogin(MachineCase):
 
         # Try to login as user with correct password
         login ("user", "abcdefg")
-        if 'atomic' in m.os:
+        if 'atomic' in m.image:
             b.wait_in_text("body", "connect or authenticate: terminated")
         else:
             b.wait_text("#login-error-message", "Permission denied")

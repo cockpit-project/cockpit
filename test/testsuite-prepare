@@ -61,15 +61,19 @@ fi
 # their non-Atomic siblings.  For example, fedora-atomic-22 is build
 # in fedora-22.
 #
-BUILD_OS=${TEST_OS/-atomic/}
+if [ "$TEST_OS" = "fedora-atomic" ]; then
+    BUILD_OS="fedora-22"
+else
+    BUILD_OS="$TEST_OS"
+fi
 
 ./vm-reset
 ./vm-download \
-    cockpit-$TEST_OS-$TEST_ARCH \
-    cockpit-$BUILD_OS-$TEST_ARCH \
-    ipa-fedora-22-x86_64 \
-    openshift-fedora-22-x86_64 \
-    stock-fedora-22-x86_64
+    $TEST_OS \
+    $BUILD_OS \
+    ipa \
+    openshift \
+    fedora-stock
 
 skip="cockpit-doc-
 cockpit-debuginfo"
@@ -99,4 +103,4 @@ if [ -z "$rpms" ]; then
   exit 1
 fi
 
-./vm-install $install_opts -f cockpit $rpms
+./vm-install $install_opts $rpms

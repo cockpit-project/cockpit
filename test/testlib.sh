@@ -18,7 +18,6 @@
 set -eu
 
 TEST_OS=${TEST_OS:-fedora-22}
-TEST_ARCH=${TEST_ARCH:-x86_64}
 TEST_RUN=./run
 
 warning()

@@ -22,11 +22,12 @@ import sys
 import subprocess
 
 import testvm
+import testinfra
 
 parser = argparse.ArgumentParser(description='Build Cockpit packages in a virtual machine')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
-parser.add_argument('-f', '--flavor', action='store', help='The image to use for building')
 parser.add_argument('-q', '--quick', action='store_true', help='Build faster')
+parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to build in')
 args = parser.parse_args()
 
 def build(machine):
@@ -49,7 +50,7 @@ def build(machine):
         machine.stop()
 
 try:
-    machine = testvm.VirtMachine(verbose=args.verbose, flavor=args.flavor, label="build")
+    machine = testvm.VirtMachine(verbose=args.verbose, image=args.image, label="build")
     build(machine)
 except testvm.Failure, ex:
     print >> sys.stderr, "vm-build:", ex

@@ -77,14 +77,14 @@ class RepeatableFailure(Failure):
     pass
 
 class Machine:
-    def __init__(self, address=None, flavor=None, system=None, arch=None, verbose=False, label=None):
+    def __init__(self, address=None, image=None, verbose=False, label=None):
         self.verbose = verbose
-        self.flavor = flavor or DEFAULT_FLAVOR
 
-        self.os = system or testinfra.OS
-        self.arch = arch or testinfra.ARCH
+        # Currently all images are x86_64. When that changes we will have
+        # an override file for those images that are not
+        self.arch = "x86_64"
 
-        self.image = "%s-%s-%s" % (self.flavor, self.os, self.arch)
+        self.image = image or testinfra.DEFAULT_IMAGE
         self.test_dir = os.path.abspath(os.path.dirname(__file__))
         self.test_data = os.environ.get("TEST_DATA") or self.test_dir
         self.vm_username = "root"
@@ -745,8 +745,8 @@ class VirtMachine(Machine):
 
         # Check if this has a forced mac address
         for h in self._network_description.find(".//dhcp"):
-            flavor = h.get("{urn:cockpit-project.org:cockpit}flavor")
-            if flavor == self.flavor:
+            image = h.get("{urn:cockpit-project.org:cockpit}image")
+            if image == self.image:
                 mac = h.get("mac")
                 if mac:
                     return mac
@@ -761,7 +761,7 @@ class VirtMachine(Machine):
                 return mac
             mac = None
 
-        raise Failure("Couldn't find unused mac address for '%s'" % (self.flavor))
+        raise Failure("Couldn't find unused mac address for '%s'" % (self.image))
 
     def _start_qemu(self, maintain=False, macaddr=None, wait_for_ip=True, memory_mb=None, cpus=None):
         memory_mb = memory_mb or MEMORY_MB;
@@ -1151,5 +1151,5 @@ class VirtMachine(Machine):
 
     def needs_writable_usr(self):
         # On atomic systems, we need a hack to change files in /usr/lib/systemd
-        if "atomic" in self.os:
+        if "atomic" in self.image:
             self.execute(command="mount -o remount,rw /usr")

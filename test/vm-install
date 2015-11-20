@@ -21,11 +21,12 @@ import os
 import sys
 
 import testvm
+import testinfra
 
 parser = argparse.ArgumentParser(description='Install Cockpit on a virtual machine')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
-parser.add_argument('-f', '--flavor', action='store', help='The image to modify')
-parser.add_argument('rpms', metavar='RPM', nargs='*', help='RPMS to install')
+parser.add_argument('-i', '--image', default=testinfra.DEFAULT_IMAGE, help='The image to install to')
+parser.add_argument('rpms', metavar='RPM', nargs='+', help='RPMS to install')
 args = parser.parse_args()
 
 INSTALL_SCRIPT = """#!/bin/sh
@@ -43,9 +44,9 @@ def install(machine, rpms):
         raise testvm.Failure("Please specify packages to install")
 
     # see if there is an os-specific install script to use, otherwise use generic
-    install_packages_script = os.path.join(machine.test_dir, "guest/%s-%s-install_packages" % (machine.os, machine.arch))
+    install_packages_script = os.path.join(machine.test_dir, "guest/%s.install" % (machine.image, ))
     if not os.path.exists(install_packages_script):
-        install_packages_script = os.path.join(machine.test_dir, "guest/default-install_packages")
+        install_packages_script = os.path.join(machine.test_dir, "guest/default.install")
 
     target_install_script_path = "~/install_packages.py"
 
@@ -59,9 +60,7 @@ def install(machine, rpms):
             dest = os.path.join("/var/tmp", base)
             uploaded.append(dest)
         env = {
-            "TEST_OS": machine.os,
-            "TEST_ARCH": machine.arch,
-            "TEST_FLAVOR": machine.flavor,
+            "TEST_OS": machine.image,
             "TEST_PACKAGES": " ".join(uploaded),
             "TEST_VERBOSE": machine.verbose
         }
@@ -72,7 +71,7 @@ def install(machine, rpms):
         machine.stop()
 
 try:
-    machine = testvm.VirtMachine(verbose=args.verbose, flavor=args.flavor, label="install")
+    machine = testvm.VirtMachine(verbose=args.verbose, image=args.image, label="install")
     install(machine, args.rpms)
 except testvm.Failure, ex:
     print >> sys.stderr, "vm-install:", ex

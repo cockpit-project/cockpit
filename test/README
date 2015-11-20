@@ -81,9 +81,6 @@ You can set these environment variables to configure the test suite:
                 "rhel-7"
              "fedora-22" is the default (testinfra.py, testlib.sh)
 
-  TEST_ARCH  The machine architecture to use.  Currently, the default
-             and only supported value is "x86_64".
-
   TEST_DATA  Where to find and store test machine images.  The
              default is the same directory that this README file is in.
 
@@ -107,7 +104,7 @@ with a clean state.
 
 A test machine image is created with vm-create, like so:
 
-  $ ./vm-create -v -f cockpit
+  $ ./vm-create -v fedora-23
 
 The image will be created in $TEST_DATA/images/. In addition a link
 reference will be created in test/images/.
@@ -116,24 +113,23 @@ If you wish that others use this new image then you should commit the
 new reference link, and use `vm-upload` to upload the new image. You
 would need to have Cockpit commit access to do this:
 
-  $ ./vm-upload cockpit-fedora-22-x86_64
+  $ ./vm-upload fedora-23
 
 There is more than one test machine image. For example, you might
 want to test a scenario where Cockpit on one machine talks to FreeIPA
 on another, and you want those two machines to use different images.
 
-This is handled by passing the "--flavor" / "-f" option to vm-create
-and other scripts that work with test machine images.  Currently, two
-flavors are available:
+This is handled by passing a specific image to vm-create
+and other scripts that work with test machine images.
 
-  "cockpit" -- The basic image for running the development version of Cockpit.
-               This is the default.
+  "fedora-NN" -- The basic image for running the development version of Cockpit.
+                 This is the default.
 
-  "stock" --   A stock installation of the given OS, including the stock
-               version of Cockpit.  This is used to test compatibility
-               between released versions of Cockpit and the development version.
+  "fedora-stock" -- A stock installation of Fedora, including the stock
+                    version of Cockpit.  This is used to test compatibility
+                    between released versions of Cockpit and the development version.
 
-  "ipa"     -- A FreeIPA server.
+  "ipa"       -- A FreeIPA server.
 
   "openshift" -- An Openshift Origin server.
 

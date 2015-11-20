@@ -314,6 +314,7 @@ class Browser:
         while True:
             try:
                 self.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
+                self.wait_not_visible(".curtains")
                 self.wait_visible("iframe.container-frame[name='%s']" % frame)
                 break
             except Error, ex:

@@ -615,13 +615,13 @@ define([
         if (frame != current_frame) {
             $(current_frame).css('display', 'none');
             current_frame = frame;
-            $(frame).css('display', 'block');
         }
 
         var label, item;
         if (machine.state == "connected") {
             $(".curtains").hide();
             $("#machine-spinner").toggle(frame && !$(frame).attr("data-ready"));
+            $(frame).css('display', 'block');
             item = compiled.items[state.component];
             label = item ? item.label : "";
             update_title(label, machine);

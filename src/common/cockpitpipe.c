@@ -101,6 +101,10 @@ static guint cockpit_pipe_sig_close;
 
 static void  cockpit_close_later (CockpitPipe *self);
 
+static void  set_problem_from_errno (CockpitPipe *self,
+                                     const gchar *message,
+                                     int errn);
+
 G_DEFINE_TYPE (CockpitPipe, cockpit_pipe, G_TYPE_OBJECT);
 
 static void
@@ -272,8 +276,8 @@ dispatch_input (gint fd,
           g_byte_array_set_size (self->priv->in_buffer, len);
           if (errno != EAGAIN && errno != EINTR)
             {
-              g_warning ("%s: couldn't read: %s", self->priv->name, g_strerror (errno));
-              close_immediately (self, "internal-error");
+              set_problem_from_errno (self, "couldn't read", errno);
+              close_immediately (self, NULL); /* problem already set */
               return FALSE;
             }
           return TRUE;
@@ -395,8 +399,9 @@ close_output (CockpitPipe *self)
 }
 
 static void
-set_problem_from_connect_errno (CockpitPipe *self,
-                                int errn)
+set_problem_from_errno (CockpitPipe *self,
+                        const gchar *message,
+                        int errn)
 {
   const gchar *problem = NULL;
 
@@ -409,12 +414,12 @@ set_problem_from_connect_errno (CockpitPipe *self,
 
   if (problem)
     {
-      g_message ("%s: couldn't connect: %s", self->priv->name, g_strerror (errn));
+      g_message ("%s: %s: %s", self->priv->name, message, g_strerror (errn));
       self->priv->problem = g_strdup (problem);
     }
   else
     {
-      g_warning ("%s: couldn't connect: %s", self->priv->name, g_strerror (errn));
+      g_warning ("%s: %s: %s", self->priv->name, message, g_strerror (errn));
       self->priv->problem = g_strdup ("internal-error");
     }
 }
@@ -440,7 +445,7 @@ dispatch_connect (CockpitPipe *self)
     }
   else if (error != 0)
     {
-      set_problem_from_connect_errno (self, error);
+      set_problem_from_errno (self, "couldn't connect", error);
       close_immediately (self, NULL); /* problem already set */
     }
   else
@@ -496,10 +501,15 @@ dispatch_output (gint fd,
       if (errno != EAGAIN && errno != EINTR)
         {
           if (errno == EPIPE)
-            g_debug ("%s: couldn't write: %s", self->priv->name, g_strerror (errno));
+            {
+              g_debug ("%s: couldn't write: %s", self->priv->name, g_strerror (errno));
+              close_immediately (self, "terminated");
+            }
           else
-            g_warning ("%s: couldn't write: %s", self->priv->name, g_strerror (errno));
-          close_immediately (self, "internal-error");
+            {
+              set_problem_from_errno (self, "couldn't write", errno);
+              close_immediately (self, NULL); /* already set */
+            }
         }
       return FALSE;
     }
@@ -1022,7 +1032,7 @@ cockpit_pipe_connect (const gchar *name,
   pipe->priv->connecting = connecting;
   if (errn != 0)
     {
-      set_problem_from_connect_errno (pipe, errn);
+      set_problem_from_errno (pipe, "couldn't connect", errn);
       cockpit_close_later (pipe);
     }
 

@@ -743,6 +743,7 @@ cockpit_channel_ready (CockpitChannel *self)
       g_queue_free (queue);
     }
 
+  cockpit_channel_control (self, "ready", NULL);
   self->priv->ready = TRUE;
 
   /* No more data coming? */

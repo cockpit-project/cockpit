@@ -216,9 +216,9 @@ test_http_stream2 (TestGeneral *tt,
     g_main_context_iteration (NULL, TRUE);
 
   object = mock_transport_pop_control (tt->transport);
-  g_assert (object != NULL);
+  cockpit_assert_json_eq (object, "{\"command\":\"ready\",\"channel\":\"444\"}");
+  object = mock_transport_pop_control (tt->transport);
   cockpit_assert_json_eq (object, "{\"command\":\"response\",\"channel\":\"444\",\"status\":200,\"reason\":\"OK\",\"headers\":{}}");
-  json_object_unref (object);
 
   data = mock_transport_combine_output (tt->transport, "444", &count);
   cockpit_assert_bytes_eq (data, "Da Da Da", -1);

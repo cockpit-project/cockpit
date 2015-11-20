@@ -437,11 +437,11 @@ class MachineCase(unittest.TestCase):
         (unused, sep, label) = self.id().partition(".")
         return label.replace(".", "-")
 
-    def new_machine(self, flavor=None, system=None):
+    def new_machine(self, image=None):
         if not self.machine_class:
             import testvm
             self.machine_class = testvm.VirtMachine
-        m = self.machine_class(verbose=arg_trace, flavor=flavor, system=system, label=self.label())
+        m = self.machine_class(verbose=arg_trace, image=image, label=self.label())
         self.addCleanup(lambda: m.kill())
         self.machines.append(m)
         return m
@@ -500,7 +500,7 @@ class MachineCase(unittest.TestCase):
         We only need to do this on atomic systems.
         On other systems, systemctl blocks until the service is actually running.
         """
-        if not "atomic" in self.machine.os or not atomic_wait_for_host:
+        if not "atomic" in self.machine.image or not atomic_wait_for_host:
             return
         WAIT_COCKPIT_RUNNING = """#!/bin/sh
 until curl -s --connect-timeout 1 http://%s:9090 >/dev/null; do
@@ -516,7 +516,7 @@ done;
         Cockpit is not running when the test virtual machine starts up, to
         allow you to make modifications before it starts.
         """
-        if "atomic" in self.machine.os:
+        if "atomic" in self.machine.image:
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1228776
             # we want to run:
             # self.machine.execute("atomic run cockpit/ws --no-tls")
@@ -535,7 +535,7 @@ systemctl start docker
     def restart_cockpit(self):
         """Restart Cockpit.
         """
-        if "atomic" in self.machine.os:
+        if "atomic" in self.machine.image:
             with Timeout(seconds=30, error_message="Timeout while waiting for cockpit/ws to restart"):
                 self.machine.execute("docker restart `docker ps | grep cockpit/ws | awk '{print $1;}'`")
                 self.wait_for_cockpit_running()

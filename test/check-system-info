@@ -82,7 +82,7 @@ class TestSystemInfo(MachineCase):
         b = self.browser
 
         network_time_prefix = "NTP enabled"
-        if m.os == "fedora-23" or m.os == "fedora-testing":
+        if m.image == "fedora-23" or m.image == "fedora-testing":
             network_time_prefix = "Network time on"
 
         # make sure system is on expected timezone EEST

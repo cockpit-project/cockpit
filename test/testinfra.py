@@ -40,8 +40,7 @@ topdir = os.path.normpath(os.path.dirname(__file__))
 WHITELIST = os.path.join(topdir, "files/github-whitelist")
 WHITELIST_LOCAL = "~/.config/github-whitelist"
 
-OS = os.environ.get("TEST_OS", "fedora-22")
-ARCH = os.environ.get("TEST_ARCH", "x86_64")
+DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-22")
 HOSTNAME = socket.gethostname().split(".")[0]
 DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-22")
 

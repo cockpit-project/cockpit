@@ -282,8 +282,8 @@ cockpit sources checked out, here's how you get it running:
     $ cd /path/to/src/cockpit
     $ cd ./test
     $ ./vm-prep
-    $ ./vm-download -f ipa
-    $ ./vm-run -f ipa
+    $ ./vm-download ipa
+    $ ./vm-run ipa
 
 The IP address of the IPA server will be printed. The root password
 is `foobar`. The IPA admin password is `foobarfoo`.

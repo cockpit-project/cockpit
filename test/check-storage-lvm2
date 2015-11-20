@@ -30,7 +30,7 @@ class TestStorage(StorageCase):
         mount_point_thin = "/run/thin"
 
         # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1211183
-        if m.os == "rhel-7":
+        if m.image == "rhel-7":
             return
 
         self.login_and_go("/storage")

@@ -36,7 +36,7 @@ class TestRealms(MachineCase):
 
         # Start the FreeIPA instance and use it as the DNS server
         #
-        ipa = self.new_machine(flavor="ipa", system="fedora-22")
+        ipa = self.new_machine(image="ipa")
         ipa.start()
         ipa.wait_boot()
 
@@ -158,7 +158,7 @@ ipa-getkeytab -q -s f0.cockpit.lan -p HTTP/x0.cockpit.lan -k /etc/krb5.keytab
 @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "atomic: missing bind-utils")
 class TestKerberos(MachineCase):
     def setUp(self):
-        self.ipa = self.new_machine(flavor="ipa", system="fedora-22")
+        self.ipa = self.new_machine(image="ipa")
         self.ipa.start()
         self.ipa.wait_boot()
 

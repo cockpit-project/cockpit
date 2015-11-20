@@ -20,8 +20,8 @@
 #
 # Usage: vm-create
 #
-# Installs the OS indicated by TEST_OS and TEST_ARCH into the image
-# for test machine TEST_IMAGE and tweaks it to be useable with
+# Installs the OS indicated by TEST_OS into the image
+# for test machine and tweaks it to be useable with
 # vm-run and testlib.py.
 
 import argparse
@@ -31,12 +31,12 @@ import subprocess
 import sys
 
 import testvm
+import testinfra
 
 parser = argparse.ArgumentParser(description='Create a virtual machine image')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
-parser.add_argument('-f', '--flavor', action='store', help='The flavor to create')
 parser.add_argument('-n', '--no-save', action='store_true', help='Don\'t save the new image')
-parser.add_argument('args', nargs='*', help='Arguments to the flavor setup script')
+parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to create')
 args = parser.parse_args()
 
 class MachineBuilder:
@@ -129,15 +129,15 @@ class MachineBuilder:
         if not os.path.exists(self.machine.run_dir):
             os.makedirs(self.machine.run_dir, 0750)
 
-        bootstrap_script = "./guest/%s.bootstrap" % (self.machine.os, )
+        bootstrap_script = "./guest/%s.bootstrap" % (self.machine.image, )
 
         if os.path.exists(self.machine._image_image):
             os.unlink(self.machine._image_image)
 
         if os.path.isfile(bootstrap_script):
-            subprocess.check_call([ bootstrap_script, self.machine._image_image, self.machine.arch ])
+            subprocess.check_call([ bootstrap_script, self.machine._image_image ])
         else:
-            raise testvm.Failure("Unsupported OS %s: %s not found." % (self.machine.os, bootstrap_script))
+            raise testvm.Failure("Unsupported OS %s: %s not found." % (self.machine.image, bootstrap_script))
 
         if modify_func:
             self.run_modify_func(modify_func)
@@ -151,8 +151,7 @@ class MachineBuilder:
             self.machine.upload([script], "/var/tmp/SETUP")
             self.machine.upload([srpm], "/var/tmp")
             env = {
-                "TEST_OS": self.machine.os,
-                "TEST_FLAVOR": self.machine.flavor,
+                "TEST_OS": self.machine.image,
                 "TEST_SOURCE_PACKAGE": os.path.join("/var/tmp", os.path.basename(srpm))
             }
             self.machine.message("run setup script on guest")
@@ -177,33 +176,33 @@ class MachineBuilder:
 
     def build(self):
         def modify(gf):
-            if self.machine.os in [ "fedora-22", "fedora-testing", "fedora-23", "centos-7" ]:
+            if self.machine.image in [ "fedora-22", "fedora-testing", "fedora-23", "centos-7" ]:
                 self._setup_fedora_like(gf)
-            elif self.machine.os == "rhel-7":
+            elif self.machine.image == "rhel-7":
                 credential_path = os.path.expanduser("~/.rhel/")
                 if (not os.path.isfile(credential_path + "login")) or (not os.path.isfile(credential_path + "pass")):
                     raise testvm.Failure("Subscription credentials expected in '~/.rhel/login', '~/.rhel/pass'.")
                 self._setup_rhel_7(gf)
             else:
-                raise testvm.Failure("Unsupported OS %s" % self.machine.os)
+                raise testvm.Failure("Unsupported OS %s" % self.machine.image)
 
         def format_guest_setup_path(script_id=None):
             if script_id:
-                return os.path.join(self.machine.test_dir, "guest/%s-%s.%d.setup" % (self.machine.flavor, self.machine.os, next_script))
+                return os.path.join(self.machine.test_dir, "guest/%s.%d.setup" % (self.machine.image, next_script))
             else:
-                return os.path.join(self.machine.test_dir, "guest/%s-%s.setup" % (self.machine.flavor, self.machine.os))
+                return os.path.join(self.machine.test_dir, "guest/%s.setup" % (self.machine.image, ))
 
         # gather the scripts, separated by reboots
         script = format_guest_setup_path()
         if not os.path.exists(script):
-            raise testvm.Failure("Unsupported flavor %s: %s not found." % (self.machine.flavor, script))
+            raise testvm.Failure("Unsupported image %s: %s not found." % (self.machine.image, script))
         next_script = 1
         additional_scripts = [ ]
         while os.path.exists(format_guest_setup_path(next_script)):
             additional_scripts += [ format_guest_setup_path(next_script) ]
             next_script += 1
 
-        if "atomic" in self.machine.os:
+        if "atomic" in self.machine.image:
             self.unpack_base(modify_func=None)
         else:
             self.unpack_base(modify_func=modify)
@@ -219,7 +218,7 @@ class MachineBuilder:
         self.run_selinux_relabel()
 
 try:
-    machine = testvm.VirtMachine(verbose=args.verbose, flavor=args.flavor)
+    machine = testvm.VirtMachine(verbose=args.verbose, image=args.image)
     builder = MachineBuilder(machine)
     builder.build()
     if not args.no_save:

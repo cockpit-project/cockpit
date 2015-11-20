@@ -40,8 +40,6 @@ DEVNULL = open("/dev/null", "r+")
 #
 
 DEFAULT = "https://fedorapeople.org/groups/cockpit/images/"
-ENVVAR = "TEST_IMAGES_" + testinfra.OS.split("-")[0].upper()
-STORE = os.environ.get(ENVVAR, os.environ.get("TEST_IMAGES", DEFAULT))
 
 parser = argparse.ArgumentParser(description='Download a virtual machine')
 parser.add_argument("--force", action="store_true", help="Force unnecessary downloads")
@@ -62,7 +60,16 @@ def download(image):
     if not args.force and os.path.exists(dest):
         return
 
-    for store in args.store:
+    if args.store:
+        stores = args.store
+    else:
+        stores = []
+        store = os.environ.get("TEST_IMAGES_" + image.split("-")[0].upper(), None)
+        if store:
+            stores.append(store)
+        stores.append(os.environ.get("TEST_IMAGES", DEFAULT))
+
+    for store in stores:
         try:
             source = os.path.join(store, os.path.basename(dest)) + ".xz"
             subprocess.check_call(["curl", "-s", "-f", "-I", source], stdout=DEVNULL)
@@ -106,14 +113,6 @@ def every():
         if os.path.islink(link):
             result.append(filename)
     return result
-
-# Add in the defaults image stores if not specified
-if not args.store:
-    args.store = []
-    envvar = "TEST_IMAGES_" + testinfra.OS.split("-")[0].upper()
-    if envvar in os.environ:
-        args.store.append(os.environ[envvar])
-    args.store.append(os.environ.get("TEST_IMAGES", DEFAULT))
 
 # By default download all links
 if not args.image and not args.prune:

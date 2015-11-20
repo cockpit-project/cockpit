@@ -87,7 +87,8 @@ elif [ "$os" = "fedora-testing" ]; then
     mockos="fedora-22"
 fi
 
-arch=${TEST_ARCH:-}
+# Will have a lookup overide once we have non x86_64
+arch=x86_64
 
 srpm=$("$make_srpm" "$@")
 rm -rf $base/mock/*

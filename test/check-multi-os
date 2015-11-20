@@ -79,7 +79,7 @@ class TestMultiOS(MachineCase):
                 .proxy("org.freedesktop.DBus", "/").call("GetId");
         })""", address)
 
-    def checkStock(self, system):
+    def checkStock(self, image):
         dev_m = self.machine
         dev_b = self.browser
 
@@ -117,7 +117,7 @@ class TestMultiOS(MachineCase):
             browser.switch_to_frame(frame)
             browser.wait_visible('#' + page)
 
-        stock_m = self.new_machine(flavor='stock', system=system)
+        stock_m = self.new_machine(image=image)
         stock_m.start()
         stock_m.wait_boot()
         stock_b = self.new_browser(stock_m.address)
@@ -176,7 +176,7 @@ class TestMultiOS(MachineCase):
         self.allow_journal_messages("usermod: user 'postfix' does not exist")
 
     def testFedora22(self):
-        self.checkStock('fedora-22')
+        self.checkStock('fedora-stock')
 
 if __name__ == '__main__':
     test_main()

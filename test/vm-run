@@ -20,15 +20,16 @@ import argparse
 import sys
 
 import testvm
+import testinfra
 
 parser = argparse.ArgumentParser(description='Run a test machine')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose details')
-parser.add_argument('-f', '--flavor', action='store', help='The flavor to run')
 parser.add_argument('-m', '--maintain', action='store_true', help='Changes are permanent')
+parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to run')
 args = parser.parse_args()
 
 try:
-    machine = testvm.VirtMachine(verbose=args.verbose, flavor=args.flavor)
+    machine = testvm.VirtMachine(verbose=args.verbose, image=args.image)
     machine.qemu_console(args.maintain)
 except testvm.Failure, ex:
     print >> sys.stderr, "vm-run:", ex

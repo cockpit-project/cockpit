@@ -11,8 +11,8 @@
   <ip address='10.111.112.1' netmask='255.255.240.0'>
     <dhcp xmlns:cockpit="urn:cockpit-project.org:cockpit">
       <range start="10.111.112.2" end="10.111.127.254" />
-      <host mac='52:54:00:9e:00:F0' ip='10.111.112.100' name='f0.cockpit.lan' cockpit:flavor="ipa"/>
-      <host mac='52:54:00:9e:00:F1' ip='10.111.112.101' name='f1.cockpit.lan' cockpit:flavor="openshift"/>
+      <host mac='52:54:00:9e:00:F0' ip='10.111.112.100' name='f0.cockpit.lan' cockpit:image="ipa"/>
+      <host mac='52:54:00:9e:00:F1' ip='10.111.112.101' name='f1.cockpit.lan' cockpit:image="openshift"/>
       <host mac='52:54:00:9e:00:F2' ip='10.111.112.102' name='f2.cockpit.lan' cockpit:test="check-networking"/>
       <host mac='52:54:00:9e:00:F3' ip='10.111.112.103' name='f3.cockpit.lan' cockpit:test="check-shutdown-restart"/>
       <host mac='52:54:00:9e:00:F4' ip='10.111.112.104' name='f4.cockpit.lan' cockpit:test="check-journal"/>

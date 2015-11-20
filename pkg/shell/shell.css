@@ -151,6 +151,10 @@ html, body {
     margin-bottom: 10px;
 }
 
+#host-edit-color-popover .popover-content {
+    width: 220px;
+}
+
 #host-edit-color-popover .color-cell {
     display: inline-block;
     width: 25px;
@@ -169,26 +173,39 @@ html, body {
     min-width: 55px;
 }
 
-/* This warning is not displayed by default */
-.dashboard-machine-warning {
-    display: none;
-}
-
 /* Make the time range buttons equal width */
 
 #dashboard-range-buttons button {
     width: 70px;
 }
 
-/* Make the error and success icons in setup the right size and color */
-
-.cockpit-setup-task-table .cockpit-setup-task-error {
-    color: #af151a;
-    font-size: 18px;
+#sync-users {
+    max-height: 126px;
+    overflow-y: auto;
+    overflow-x: none;
+    display: block;
+    border: 1px solid #BABABA;
+    margin-bottom: 15px;
 }
 
-.cockpit-setup-task-table .cockpit-setup-task-done {
-    font-size: 18px;
+#sync-users table.table {
+    margin-bottom: 0;
+}
+
+#sync-users .table > tbody > tr:first-child > td {
+    border-top: none;
+}
+
+#sync-users .center-spinner {
+    padding: 15px;
+}
+
+#add-unknown-host pre {
+    margin: 0;
+}
+
+#edit-machine-port {
+    width: 100px;
 }
 
 /* navbar styles */
@@ -674,4 +691,12 @@ tbody.unlock .credential-panel {
 
 tbody.unlock .credential-unlock {
     display: block;
+}
+
+.banned {
+    color: #ff0000;
+    font-size: 75px;
+    line-height: 75px;
+    float: left;
+    padding-right: 15px;
 }

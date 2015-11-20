@@ -70,6 +70,7 @@ typedef struct {
     const char *expect_key;
     const gchar *mock_agent_arg;
 
+    gboolean no_password;
     gboolean ignore_key;
     int ssh_log_level;
 } TestFixture;
@@ -106,6 +107,24 @@ read_all_into_string (int fd)
           input->str[input->len] = '\0';
         }
     }
+}
+
+static void
+check_auth_results (TestCase *tc,
+                    const gchar *expect_key_result,
+                    const gchar *expect_pw_result,
+                    const gchar *expect_gss_result)
+{
+  GHashTable *ht = cockpit_ssh_transport_get_auth_method_results (COCKPIT_SSH_TRANSPORT (tc->transport));
+
+#ifdef HAVE_SSH_SET_AGENT_SOCKET
+  g_assert_cmpstr (expect_key_result, ==,
+                   g_hash_table_lookup (ht, "public-key"));
+#endif
+  g_assert_cmpstr (expect_pw_result, ==,
+                   g_hash_table_lookup (ht, "password"));
+  g_assert_cmpstr (expect_gss_result, ==,
+                   g_hash_table_lookup (ht, "gssapi-mic"));
 }
 
 static void
@@ -158,7 +177,7 @@ setup_transport (TestCase *tc,
   const TestFixture *fixture = data;
   g_assert (fixture != NULL);
 
-  const gchar *password = fixture->client_password ? fixture->client_password : PASSWORD;
+  const gchar *password;
   CockpitCreds *creds;
   CockpitSshAgent *agent = NULL;
   const gchar *known_hosts;
@@ -173,6 +192,11 @@ setup_transport (TestCase *tc,
 #if WITH_MOCK
   setup_mock_sshd (tc, data);
 #endif
+
+  if (fixture->no_password)
+    password = NULL;
+  else
+    password = fixture->client_password ? fixture->client_password : PASSWORD;
 
   creds = cockpit_creds_new (g_get_user_name (), "cockpit", COCKPIT_CRED_PASSWORD, password, NULL);
 
@@ -304,6 +328,7 @@ test_echo_and_close (TestCase *tc,
   GBytes *sent;
   gboolean closed = FALSE;
   gboolean result = FALSE;
+  const TestFixture *fixture = data;
 
   sent = g_bytes_new_static ("the message", 11);
   g_signal_connect (tc->transport, "result", G_CALLBACK (on_closed_set_flag), &result);
@@ -334,6 +359,11 @@ test_echo_and_close (TestCase *tc,
 
   g_assert (closed);
   g_assert (received == NULL);
+
+  if (fixture->mock_agent_arg)
+    check_auth_results (tc, "succeeded", "not-tried", "no-server-support");
+  else
+    check_auth_results (tc, "denied", "succeeded", "no-server-support");
 }
 
 static void
@@ -480,8 +510,41 @@ test_unsupported_auth (TestCase *tc,
   g_assert_cmpstr (problem, ==, "authentication-not-supported");
   g_free (problem);
   g_free (result);
+
+  check_auth_results (tc, "no-server-support", "no-server-support", "no-server-support");
 }
 
+static const TestFixture fixture_no_forwarding = {
+  .ssh_command = BUILDDIR "/mock-echo",
+  .no_password = TRUE,
+};
+
+static void
+test_no_forwarding (TestCase *tc,
+                    gconstpointer data)
+{
+  gchar *problem = NULL;
+  gchar *result = NULL;
+
+  g_signal_connect (tc->transport, "result", G_CALLBACK (on_closed_get_problem), &result);
+  g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+
+  /* Gets fired first */
+  while (problem == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpstr (result, ==, problem);
+#ifdef HAVE_SSH_SET_AGENT_SOCKET
+  g_assert_cmpstr (problem, ==, "no-forwarding");
+#else
+  g_assert_cmpstr (problem, ==, "authentication-not-supported");
+#endif
+
+  g_free (problem);
+  g_free (result);
+
+  check_auth_results (tc, "denied", "not-provided", "no-server-support");
+}
 
 static const TestFixture fixture_auth_failed = {
   .client_password = "bad password",
@@ -499,6 +562,8 @@ test_auth_failed (TestCase *tc,
 
   g_assert_cmpstr (problem, ==, "authentication-failed");
   g_free (problem);
+
+  check_auth_results (tc, "denied", "denied", "no-server-support");
 }
 
 #endif
@@ -645,7 +710,7 @@ test_expect_bad_key (TestCase *tc,
   while (!problem)
     g_main_context_iteration (NULL, TRUE);
 
-  g_assert_cmpstr (problem, ==, "unknown-hostkey");
+  g_assert_cmpstr (problem, ==, "invalid-hostkey");
 
   g_free (problem);
 }
@@ -676,7 +741,7 @@ test_expect_empty_key (TestCase *tc,
   while (!problem)
     g_main_context_iteration (NULL, TRUE);
 
-  g_assert_cmpstr (problem, ==, "unknown-hostkey");
+  g_assert_cmpstr (problem, ==, "invalid-hostkey");
 
   g_free (problem);
 }
@@ -698,6 +763,8 @@ test_bad_command (TestCase *tc,
 
   g_assert_cmpstr (problem, ==, "no-cockpit");
   g_free (problem);
+
+  check_auth_results (tc, "denied", "succeeded", "no-server-support");
 }
 
 static void
@@ -824,6 +891,8 @@ test_key_auth_failed (TestCase *tc,
   test_auth_failed (tc, data);
   while (!tc->agent_closed)
     g_main_context_iteration (NULL, TRUE);
+
+  check_auth_results (tc, "denied", "denied", "no-server-support");
 }
 
 #endif
@@ -850,6 +919,8 @@ main (int argc,
               setup_transport, test_terminate_problem, teardown);
   g_test_add ("/ssh-transport/unsupported-auth", TestCase, &fixture_unsupported_auth,
               setup_transport, test_unsupported_auth, teardown);
+  g_test_add ("/ssh-transport/no-forwarding", TestCase, &fixture_no_forwarding,
+              setup_transport, test_no_forwarding, teardown);
   g_test_add ("/ssh-transport/auth-failed", TestCase,
               &fixture_auth_failed, setup_transport,
               test_auth_failed, teardown);

@@ -37,7 +37,7 @@ def wait_dashboard_addresses(b, expected):
         return expected.sort().toString() == dashboard_addresses().sort().toString();
         })""", expected)
 
-def add_machine(b, address):
+def old_add_machine(b, address):
     b.click('#dashboard-add')
     b.wait_popup('dashboard_setup_server_dialog')
     b.set_val('#dashboard_setup_address', address)
@@ -47,6 +47,23 @@ def add_machine(b, address):
     b.click('#dashboard_setup_next')
     b.wait_text('#dashboard_setup_next', "Close")
     b.click('#dashboard_setup_next')
+    b.wait_popdown('dashboard_setup_server_dialog')
+
+def new_add_machine(b, address):
+    b.click('#dashboard-add')
+    b.wait_popup('dashboard_setup_server_dialog')
+    b.set_val('#add-machine-address', address)
+
+    b.wait_text('#dashboard_setup_server_dialog .btn-primary', "Add")
+    b.wait_present("#dashboard_setup_server_dialog .btn-primary:not([disabled])")
+    b.click('#dashboard_setup_server_dialog .btn-primary')
+    b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
+    b.click('#dashboard_setup_server_dialog .btn-primary')
+
+    b.wait_text('#dashboard_setup_server_dialog .btn-primary', "Synchronize")
+    b.wait_present("#sync-users")
+    b.wait_in_text("#sync-users", "admin")
+    b.click("#dashboard_setup_server_dialog .btn-default")
     b.wait_popdown('dashboard_setup_server_dialog')
 
 class TestMultiOS(MachineCase):
@@ -66,7 +83,7 @@ class TestMultiOS(MachineCase):
         dev_m = self.machine
         dev_b = self.browser
 
-        self.allow_journal_messages(".*: .* host key for server is not known: .*")
+        self.allow_hostkey_messages()
 
         self.login_and_go("/dashboard")
         inject_extras(dev_b)
@@ -109,13 +126,13 @@ class TestMultiOS(MachineCase):
         inject_extras(stock_b)
         wait_dashboard_addresses (stock_b, [ "localhost" ])
 
-        add_machine(stock_b, dev_m.address)
+        old_add_machine(stock_b, dev_m.address)
         wait_dashboard_addresses (stock_b, [ "localhost", dev_m.address ])
 
         dev_b.switch_to_top()
         dev_b.switch_to_frame("cockpit1:localhost/dashboard")
 
-        add_machine(dev_b, stock_m.address)
+        new_add_machine(dev_b, stock_m.address)
         dev_dashboard_addresses.append(stock_m.address)
         wait_dashboard_addresses (dev_b, dev_dashboard_addresses)
 

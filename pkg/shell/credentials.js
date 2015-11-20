@@ -137,7 +137,10 @@ define([
                 id = parts[1];
                 type = parts[0].substring(4).toUpperCase();
                 comment = parts.slice(2).join(" ");
-
+            } else if (parts[0].indexOf("ecdsa-") === 0) {
+                id = parts[1];
+                type = "ECDSA";
+                comment = parts.slice(2).join(" ");
             } else {
                 return;
             }
@@ -486,4 +489,10 @@ define([
                 }
             });
         });
+
+    return {
+        keys_instance: function () {
+            return new Keys();
+        }
+    };
 });

@@ -51,10 +51,12 @@ define([
             wrapper.addClass("has-error").append(message);
         }
 
-        wrapper.on("keypress.dialog-error change.dialog-error", function() {
-            wrapper.removeClass("has-error")
-                .find(".dialog-error.help-block").css("visibility", "hidden");
-        });
+        if (!wrapper.hasClass("error-keep")) {
+            wrapper.on("keypress.dialog-error change.dialog-error", function() {
+                wrapper.removeClass("has-error")
+                    .find(".dialog-error.help-block").css("visibility", "hidden");
+            });
+        }
     }
 
     function global_error(sel, error) {
@@ -167,7 +169,7 @@ define([
         });
 
         /* When dialog is shown again, remove all mods */
-        sel.on("show.bs.modal.dialog-wait", function() {
+        sel.on("hide.bs.modal.dialog-wait", function() {
             clear_wait(sel);
         });
 

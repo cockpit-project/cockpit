@@ -92,6 +92,33 @@ class Machine:
         self.address = address
         self.mac = None
         self.label = label or "UNKNOWN"
+        self.ssh_port = 22;
+
+    def change_ssh_port(self, port=None, timeout_sec=120):
+        try:
+            port = int(port)
+        except:
+            port = 22
+
+        self.execute("firewall-cmd --permanent --zone=public --add-port={0}/tcp".format(port))
+        self.execute("firewall-cmd --reload")
+        self.execute("semanage port -a -t ssh_port_t -p tcp {0}".format(port))
+        self.execute("sed -i 's/.*Port .*/Port {0}/' /etc/ssh/sshd_config".format(port))
+        self.execute("sed -i 's/.*ListenStream=.*/ListenStream={0}/' /usr/lib/systemd/system/sshd.socket".format(port))
+        self.execute("systemctl daemon-reload && systemctl restart sshd && systemctl reenable sshd.socket")
+        self.ssh_port = port
+
+        start_time = time.time()
+        error = None
+        while (time.time() - start_time) < timeout_sec:
+            try:
+                self.execute("true", quiet=True)
+                return
+            except Exception, e:
+                error = e
+            time.sleep(0.5)
+
+        raise error
 
     def message(self, *args):
         """Prints args if in verbose mode"""
@@ -107,11 +134,12 @@ class Machine:
         """Overridden by machine classes to stop the machine"""
         self.message("Not shutting down already running machine")
 
-    # wait for ssh port 22 to be open in the machine
+    # wait for ssh port to be open in the machine
     # get_new_address is an optional function to acquire a new ip address for each try
     #   it is expected to raise an exception on failure and return a valid address otherwise
     def wait_ssh(self, timeout_sec = 120, get_new_address = None):
-        """Try to connect to self.address on port 22"""
+        """Try to connect to self.address on ssh port"""
+
         start_time = time.time()
         while (time.time() - start_time) < timeout_sec:
             if get_new_address:
@@ -119,7 +147,7 @@ class Machine:
                     self.address = get_new_address()
                 except:
                     continue
-            addrinfo = socket.getaddrinfo(self.address, 22, 0, socket.SOCK_STREAM)
+            addrinfo = socket.getaddrinfo(self.address, self.ssh_port, 0, socket.SOCK_STREAM)
             (family, socktype, proto, canonname, sockaddr) = addrinfo[0]
             sock = socket.socket(family, socktype, proto)
             sock.settimeout(1)
@@ -185,6 +213,7 @@ class Machine:
 
         cmd = [
             "ssh",
+            "-p", str(self.ssh_port),
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
@@ -263,6 +292,7 @@ class Machine:
 
         cmd = [
             "scp", "-B",
+            "-P", str(self.ssh_port),
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
@@ -284,6 +314,7 @@ class Machine:
 
         cmd = [
             "scp", "-B",
+            "-P", str(self.ssh_port),
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
@@ -303,6 +334,7 @@ class Machine:
 
         cmd = [
             "scp", "-B",
+            "-P", str(self.ssh_port),
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",

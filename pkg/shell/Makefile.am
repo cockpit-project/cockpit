@@ -6,6 +6,19 @@ nodist_shell_DATA = \
 	pkg/shell/shell.min.css.gz \
 	pkg/shell/shell.min.html.gz \
 	$(NULL)
+
+shell_TEMPLATES = \
+	pkg/shell/templates/add-machine.html \
+	pkg/shell/templates/auth-failed.html \
+	pkg/shell/templates/change-auth.html \
+	pkg/shell/templates/change-port.html \
+	pkg/shell/templates/color-picker.html \
+	pkg/shell/templates/invalid-hostkey.html \
+	pkg/shell/templates/not-supported.html \
+	pkg/shell/templates/sync-users.html \
+	pkg/shell/templates/unknown-hostkey.html \
+	$(NULL)
+
 shell_DATA = \
 	pkg/shell/index.min.html \
 	pkg/shell/manifest.json \
@@ -13,6 +26,11 @@ shell_DATA = \
 
 shell_SCRIPTS = \
 	pkg/shell/ssh-list-private-keys.sh \
+	$(NULL)
+
+shelltemplatesdebugdir = $(debugdir)$(shelldir)/templates
+shelltemplatesdebug_DATA = \
+	$(shell_TEMPLATES) \
 	$(NULL)
 
 shelldebugdir = $(debugdir)$(shelldir)
@@ -24,6 +42,7 @@ shelldebug_DATA = \
 	pkg/shell/index.js \
 	pkg/shell/machines.js \
 	pkg/shell/plot.css \
+	pkg/shell/machine-dialogs.js \
 	pkg/shell/shell.css \
 	pkg/shell/shell.html \
 	pkg/shell/controls.js \
@@ -37,11 +56,13 @@ shell_MINIFIED = \
 	pkg/shell/credentials.min.js \
 	pkg/shell/index.min.js \
 	pkg/shell/machines.min.js \
+	pkg/shell/machine-dialogs.min.js \
 	$(NULL)
 
 shell_BUNDLE = \
 	$(shell_MINIFIED) \
 	$(shell_SCRIPTS) \
+	$(shell_TEMPLATES) \
 	$(NULL)
 
 pkg/shell/bundle.min.js: $(shell_BUNDLE)

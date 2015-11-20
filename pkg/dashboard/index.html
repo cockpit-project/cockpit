@@ -132,115 +132,62 @@
         data-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal"
-                        aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Add Host</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="cockpit-setup-tab" id="dashboard_setup_address_tab">
-                        <input type="search" class="form-control" id="dashboard_setup_address"/>
-                        <label>
-                            <input type="checkbox" id="dashboard_setup_address_reuse_creds"/>
-                            Log in with my current credentials.
-                        </label>
-                        <div id="dashboard_setup_address_error" class="help-block"
-                            style="visibility: hidden;">Placeholder</div>
-                        <ul class="list-group" id="dashboard_setup_address_discovered">
-                        </ul>
-                    </div>
-                    <div class="cockpit-setup-tab" id="dashboard_setup_login_tab">
-                        <p>Log in to <span id="dashboard_setup_login_address"></span>.</p>
-                        <table class="cockpit-form-table">
-                            <tr>
-                                <td>
-                                    <label class="control-label" for="dashboard_setup_login_user"
-                                        translatable="yes">User Name</label>
-                                </td>
-                                <td id="login_user_cell">
-                                    <input type="text" class="form-control"
-                                        id="dashboard_setup_login_user"/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label class="control-label" for="dashboard_setup_login_password"
-                                        translatable="yes">Password</label>
-                                </td>
-                                <td>
-                                    <input type="password" class="form-control"
-                                        id="dashboard_setup_login_password"/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td class="has-error">
-                                    <div id="dashboard_setup_login_error" class="help-block"
-                                        style="visibility: hidden;">Placeholder</div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <div class="cockpit-setup-tab" id="dashboard_setup_action_tab">
-                        <p>Will add server to dashboard:</p>
-                        <table>
-                            <tr>
-                                <td>Address:</td>
-                                <td id="dashboard_setup_action_address"></td>
-                            </tr>
-                            <tr>
-                                <td>Fingerprint:</td>
-                                <td id="dashboard_setup_action_fingerprint"></td>
-                            </tr>
-                        </table>
-                        <ul class="list-group" id="dashboard_setup_action_tasks">
-                        </ul>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <div class="alert alert-warning dialog-error dashboard-machine-warning">
-                        <span class="pficon pficon-warning-triangle-o"></span>
-                        Connecting simultaneously to more than
-                        <span class="dashboard-machine-limit"><span>20</span></span>
-                        machines is unsupported.
-                    </div>
-                    <button class="btn btn-default" id="dashboard_setup_prev">Previous</button>
-                    <button class="btn btn-primary" id="dashboard_setup_next">Next</button>
-                </div>
             </div>
         </div>
     </div>
 
     <div class="modal" id="host-edit-dialog" tabindex="-1" role="dialog" data-backdrop="static">
-        <div class="modal-dialog modal-sm">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Change Server Appearance</h4>
+                    <h4 class="modal-title">Change Server</h4>
                 </div>
                 <div class="modal-body">
+                <div>
                     <input data-role="none" type="file" id="host-edit-file-input"
                         style="display:none"/>
-                    <center>
-                        <div>
-                            <input class="form-control" id="host-edit-name"/>
-                        </div>
-                        <div id="host-edit-avatar" style="margin-top:10px"></div>
-                        <div>
-                            <div id="host-edit-color" data-toggle="dropdown"
-                                style="width:256px;height:32px;margin-top:10px">
-                            </div>
-                            <div id="host-edit-color-popover" class="popover top in" tabindex="-1">
-                                <div class="arrow"></div>
-                                <div class="popover-content"></div>
-                            </div>
-                        </div>
-                    </center>
-                    <div id="host-edit-fail"></div>
+                    <table class="cockpit-form-table">
+                        <tr>
+                            <td class="top" translatable="yes">Host Name</td>
+                            <td>
+                                <input class="form-control" id="host-edit-name"/>
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr id="host-edit-user-row">
+                            <td class="top" translatable="yes">User</td>
+                            <td>
+                                <input class="form-control" id="host-edit-user"/>
+                            </td>
+                            <td>
+                                <a tabindex="0" role="button" data-toggle="popover"
+                                    data-trigger="focus" data-placement="bottom"
+                                    data-content="Leave blank to connect to this machine as the currently logged in user. If you enter a different username, that user will always be used when connecting to this machine.">
+                                    <span class="fa fa-lg fa-info-circle"></span>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td translatable="yes">Color</td>
+                            <td id="host-edit-colorpicker">
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="top" translatable="yes">Avatar</td>
+                            <td>
+                                <div id="host-edit-avatar" style="margin-top:10px"></div>
+                                <div id="host-edit-fail"></div>
+                            </td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <button class="btn btn-primary" id="host-edit-apply">Set</button>
+                    <div class="pull-left"><a id="host-edit-sync-users" translatable="yes">Synchronize users</a></div>
+                    <button class="btn btn-default" data-dismiss="modal" translatable="yes">Cancel</button>
+                    <button class="btn btn-primary" id="host-edit-apply" translatable="yes">Set</button>
                 </div>
             </div>
         </div>

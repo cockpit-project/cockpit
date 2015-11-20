@@ -1,0 +1,18 @@
+<div>
+    <div id="host-edit-color" data-toggle="dropdown"
+        style="width:100px; height:26px; background-color: {{ selected_color }}">
+    </div>
+    <div id="host-edit-color-popover" class="popover in" tabindex="-1">
+        <div class="arrow"></div>
+        <div class="popover-content">
+            {{#colors}}
+            <div>
+                {{#list}}
+                <div class="color-cell" style="background-color: {{.}}"></div>
+                {{/list}}
+            </div>
+            {{/colors}}
+        </div>
+        <div class="arrow"></div>
+    </div>
+</div>

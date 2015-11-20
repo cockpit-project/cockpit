@@ -115,8 +115,10 @@ read_all_into_string (int fd)
 }
 
 static void
-setup_mock_sshd (TestCase *test,
-                 gconstpointer data)
+start_mock_sshd (const gchar *user,
+                 const gchar *password,
+                 GPid *out_pid,
+                 gushort *out_port)
 {
   GError *error = NULL;
   GString *port;
@@ -126,13 +128,13 @@ setup_mock_sshd (TestCase *test,
 
   const gchar *argv[] = {
       BUILDDIR "/mock-sshd",
-      "--user", test->ssh_user ? test->ssh_user : g_get_user_name (),
-      "--password", test->ssh_password ? test->ssh_password : PASSWORD,
+      "--user", user,
+      "--password", password,
       NULL
   };
 
   g_spawn_async_with_pipes (BUILDDIR, (gchar **)argv, NULL, G_SPAWN_DO_NOT_REAP_CHILD, NULL, NULL,
-                            &test->mock_sshd, NULL, &out_fd, NULL, &error);
+                            out_pid, NULL, &out_fd, NULL, &error);
   g_assert_no_error (error);
 
   /*
@@ -150,34 +152,50 @@ setup_mock_sshd (TestCase *test,
   if (!endptr || *endptr != '\0' || value == 0 || value > G_MAXUSHORT)
       g_critical ("invalid port printed by mock-sshd: %s", port->str);
 
-  test->ssh_port = (gushort)value;
+  *out_port = (gushort)value;
   g_string_free (port, TRUE);
+}
+
+static void
+setup_mock_sshd (TestCase *test,
+                 gconstpointer data)
+{
+  start_mock_sshd (test->ssh_user ? test->ssh_user : g_get_user_name (),
+                   test->ssh_password ? test->ssh_password : PASSWORD,
+                   &test->mock_sshd,
+                   &test->ssh_port);
 
   cockpit_ws_specific_ssh_port = test->ssh_port;
+
   cockpit_ws_known_hosts = SRCDIR "/src/ws/mock_known_hosts";
+}
+
+static void
+stop_mock_sshd (GPid mock_sshd) {
+  GPid pid;
+  int status;
+
+  pid = waitpid (mock_sshd, &status, WNOHANG);
+  g_assert_cmpint (pid, >=, 0);
+  if (pid == 0)
+    kill (mock_sshd, SIGTERM);
+  else if (status != 0)
+    {
+      if (WIFSIGNALED (status))
+        g_critical ("mock-sshd terminated: %d", WTERMSIG (status));
+      else
+        g_critical ("mock-sshd failed: %d", WEXITSTATUS (status));
+    }
+  g_spawn_close_pid (mock_sshd);
 }
 
 static void
 teardown_mock_sshd (TestCase *test,
                     gconstpointer data)
 {
-  GPid pid;
-  int status;
-
   if (test->mock_sshd)
     {
-      pid = waitpid (test->mock_sshd, &status, WNOHANG);
-      g_assert_cmpint (pid, >=, 0);
-      if (pid == 0)
-        kill (test->mock_sshd, SIGTERM);
-      else if (status != 0)
-        {
-          if (WIFSIGNALED (status))
-            g_critical ("mock-sshd terminated: %d", WTERMSIG (status));
-          else
-            g_critical ("mock-sshd failed: %d", WEXITSTATUS (status));
-        }
-      g_spawn_close_pid (test->mock_sshd);
+      stop_mock_sshd (test->mock_sshd);
     }
 }
 
@@ -826,6 +844,132 @@ test_specified_creds (TestCase *test,
 }
 
 static void
+test_specified_creds_overide_host (TestCase *test,
+                                   gconstpointer data)
+{
+  WebSocketConnection *ws;
+  GBytes *received = NULL;
+  GBytes *sent;
+  CockpitWebService *service;
+
+  start_web_service_and_create_client (test, data, &ws, &service);
+  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
+  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
+
+  /* Open a channel with a host that has a bad username
+     but use a good username in the json */
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
+  send_control_message (ws, "open", "4",
+                        "payload", "test-text",
+                        "user", "user", "password",
+                        "Another password",
+                        "host", "test@127.0.0.1",
+                        NULL);
+
+  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
+
+  sent = g_bytes_new_static ("4\nwheee", 7);
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
+  WAIT_UNTIL (received != NULL);
+  g_assert (g_bytes_equal (received, sent));
+  g_bytes_unref (sent);
+  g_bytes_unref (received);
+  received = NULL;
+
+  close_client_and_stop_web_service (test, ws, service);
+}
+
+static void
+test_user_host_fail (TestCase *test,
+                      gconstpointer data)
+{
+  WebSocketConnection *ws;
+  GBytes *received = NULL;
+  CockpitWebService *service;
+#ifdef HAVE_SSH_SET_AGENT_SOCKET
+  const gchar *expect_problem = "no-forwarding";
+#else
+  const gchar *expect_problem = "authentication-not-supported";
+#endif
+
+
+  start_web_service_and_create_client (test, data, &ws, &service);
+  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
+  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
+
+  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+
+  /* Open a channel with a host that has a bad username */
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
+  send_control_message (ws, "open", "4",
+                        "payload", "test-text",
+                        "host", "baduser@127.0.0.1",
+                        NULL);
+
+  while (received == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  expect_control_message (received, "init", NULL, NULL);
+  g_bytes_unref (received);
+  received = NULL;
+
+  /* We should now get a close command */
+  WAIT_UNTIL (received != NULL);
+
+  /* Should have gotten a failure message, about the credentials */
+  expect_control_message (received, "close", "4", "problem", expect_problem, NULL);
+  g_bytes_unref (received);
+
+  close_client_and_stop_web_service (test, ws, service);
+}
+
+static void
+test_host_port (TestCase *test,
+                      gconstpointer data)
+{
+  WebSocketConnection *ws;
+  GBytes *received = NULL;
+  GBytes *sent = NULL;
+  CockpitWebService *service;
+  gchar *host = NULL;
+  GPid pid;
+  gushort port;
+
+  /* start a new mock sshd on a different port */
+  start_mock_sshd ("auser", "apassword", &pid, &port);
+
+  host = g_strdup_printf ("127.0.0.1:%d", port);
+
+  start_web_service_and_create_client (test, data, &ws, &service);
+  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
+  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
+
+  /* Open a channel with a host that has a port
+   * and a user that doesn't work on the main mock ssh
+   */
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
+  send_control_message (ws, "open", "4",
+                        "payload", "test-text",
+                        "host", host,
+                        "user", "auser",
+                        "password", "apassword",
+                        NULL);
+
+  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
+
+  sent = g_bytes_new_static ("4\nwheee", 7);
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
+  WAIT_UNTIL (received != NULL);
+  g_assert (g_bytes_equal (received, sent));
+  g_bytes_unref (sent);
+  g_bytes_unref (received);
+  received = NULL;
+
+  close_client_and_stop_web_service (test, ws, service);
+  stop_mock_sshd (pid);
+  g_free (host);
+}
+
+static void
 test_specified_creds_fail (TestCase *test,
                            gconstpointer data)
 {
@@ -1042,6 +1186,69 @@ test_bad_origin (TestCase *test,
   g_clear_error (&error);
 }
 
+
+static void
+test_auth_results (TestCase *test,
+                   gconstpointer data)
+{
+  WebSocketConnection *ws;
+  GBytes *received = NULL;
+  CockpitWebService *service;
+  JsonObject *options;
+  JsonObject *auth_results;
+  GBytes *payload;
+  gchar *ochannel = NULL;
+  const gchar *channel;
+  const gchar *command;
+
+  /* Fail to spawn this program */
+  cockpit_ws_bridge_program = "/nonexistant";
+
+  start_web_service_and_connect_client (test, data, &ws, &service);
+  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+  g_signal_handlers_disconnect_by_func (ws, on_error_not_reached, NULL);
+
+  /* Should get an init message */
+  while (received == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  expect_control_message (received, "init", NULL, NULL);
+  g_bytes_unref (received);
+  received = NULL;
+
+  /* Channel should close immediately */
+  WAIT_UNTIL (received != NULL);
+
+  /* Should have auth methods details */
+  payload = cockpit_transport_parse_frame (received, &ochannel);
+  g_bytes_unref (received);
+  received = NULL;
+
+  g_assert (payload != NULL);
+  g_free (ochannel);
+
+  g_assert (cockpit_transport_parse_command (payload, &command, &channel, &options));
+  g_bytes_unref (payload);
+
+  g_assert_cmpstr (command, ==, "close");
+  g_assert_cmpstr (json_object_get_string_member (options, "problem"), ==, "no-cockpit");
+
+  auth_results = json_object_get_object_member (options, "auth-method-results");
+  g_assert (auth_results != NULL);
+
+  if (json_object_has_member (auth_results, "public-key"))
+    g_assert_cmpstr ("denied", ==,
+                     json_object_get_string_member (auth_results, "public-key"));
+
+  g_assert_cmpstr ("succeeded", ==,
+                   json_object_get_string_member (auth_results, "password"));
+  g_assert_cmpstr ("no-server-support", ==,
+                   json_object_get_string_member (auth_results, "gssapi-mic"));
+
+  json_object_unref (options);
+  g_bytes_unref (received);
+
+  close_client_and_stop_web_service (test, ws, service);
+}
 
 static void
 test_fail_spawn (TestCase *test,
@@ -1532,6 +1739,9 @@ main (int argc,
               &fixture_allowed_origin_hixie76, setup_for_socket,
               test_handshake_and_auth, teardown_for_socket);
 
+  g_test_add ("/web-service/auth-results", TestCase,
+              NULL, setup_for_socket,
+              test_auth_results, teardown_for_socket);
   g_test_add ("/web-service/fail-spawn/rfc6455", TestCase,
               &fixture_rfc6455, setup_for_socket,
               test_fail_spawn, teardown_for_socket);
@@ -1550,6 +1760,15 @@ main (int argc,
   g_test_add ("/web-service/specified-creds-fail", TestCase,
               &fixture_rfc6455, setup_for_socket_spec,
               test_specified_creds_fail, teardown_for_socket);
+  g_test_add ("/web-service/specified-creds-overide-host", TestCase,
+              &fixture_rfc6455, setup_for_socket_spec,
+              test_specified_creds_overide_host, teardown_for_socket);
+  g_test_add ("/web-service/user-host-fail", TestCase,
+              &fixture_rfc6455, setup_for_socket_spec,
+              test_user_host_fail, teardown_for_socket);
+  g_test_add ("/web-service/host-port", TestCase,
+              &fixture_rfc6455, setup_for_socket_spec,
+              test_host_port, teardown_for_socket);
 
   g_test_add ("/web-service/timeout-session", TestCase, NULL,
               setup_for_socket, test_timeout_session, teardown_for_socket);

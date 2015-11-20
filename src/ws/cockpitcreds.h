@@ -61,6 +61,8 @@ gboolean        cockpit_creds_equal          (gconstpointer v1,
 
 guint           cockpit_creds_hash           (gconstpointer v);
 
+gboolean        cockpit_creds_has_gssapi     (CockpitCreds *creds);
+
 const gchar *   cockpit_creds_get_application            (CockpitCreds *creds);
 
 gss_cred_id_t   cockpit_creds_push_thread_default_gssapi (CockpitCreds *creds);

@@ -165,6 +165,15 @@ recv_json (TestCase *tc)
   return res;
 }
 
+static JsonObject *
+recv_control (TestCase *tc)
+{
+  JsonObject *msg;
+  while ((msg = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  return msg;
+}
+
 static void
 close_channel (TestCase *tc,
                const gchar *problem)
@@ -796,9 +805,8 @@ test_dir_simple (TestCase *tc,
   g_assert_cmpstr (json_object_get_string_member (event, "type"), ==, "file");
   json_object_unref (event);
 
-  event = recv_json (tc);
-  g_assert_cmpstr (json_object_get_string_member (event, "event"), ==, "present-done");
-  json_object_unref (event);
+  control = recv_control (tc);
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
 
   g_free (base);
 
@@ -826,9 +834,8 @@ test_dir_simple_no_watch (TestCase *tc,
   g_assert_cmpstr (json_object_get_string_member (event, "type"), ==, "file");
   json_object_unref (event);
 
-  event = recv_json (tc);
-  g_assert_cmpstr (json_object_get_string_member (event, "event"), ==, "present-done");
-  json_object_unref (event);
+  control = recv_control (tc);
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
 
   g_free (base);
 
@@ -864,9 +871,8 @@ test_dir_watch (TestCase *tc,
 
   setup_fslist_channel (tc, tc->test_dir, TRUE);
 
-  event = recv_json (tc);
-  g_assert_cmpstr (json_object_get_string_member (event, "event"), ==, "present-done");
-  json_object_unref (event);
+  control = recv_control (tc);
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
 
   set_contents (tc->test_path, "Hello!");
 

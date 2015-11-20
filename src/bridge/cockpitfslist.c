@@ -109,16 +109,6 @@ on_files_listed (GObject *source_object,
 
   if (files == NULL)
     {
-      JsonObject *msg;
-      GBytes *msg_bytes;
-
-      msg = json_object_new ();
-      json_object_set_string_member (msg, "event", "present-done");
-      msg_bytes = cockpit_json_write_bytes (msg);
-      json_object_unref (msg);
-      cockpit_channel_send (COCKPIT_CHANNEL(self), msg_bytes, FALSE);
-      g_bytes_unref (msg_bytes);
-
       g_clear_object (&self->cancellable);
       g_object_unref (source_object);
 

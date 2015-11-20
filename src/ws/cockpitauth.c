@@ -162,6 +162,17 @@ cockpit_auth_init (CockpitAuth *self)
                                              on_process_timeout, self);
 }
 
+gchar *
+cockpit_auth_nonce (CockpitAuth *self)
+{
+  guint64 seed;
+
+  seed = self->nonce_seed++;
+  return g_compute_hmac_for_data (G_CHECKSUM_SHA256,
+                                  self->key->data, self->key->len,
+                                  (guchar *)&seed, sizeof (seed));
+}
+
 static inline gchar *
 str_skip (gchar *v,
           gchar c)
@@ -502,13 +513,16 @@ cockpit_auth_session_login_async (CockpitAuth *self,
 }
 
 static CockpitCreds *
-create_creds_for_authenticated (const char *user,
+create_creds_for_authenticated (CockpitAuth *self,
+                                const char *user,
                                 SessionLoginData *sl,
                                 JsonObject *results)
 {
   const gchar *fullname = NULL;
   const gchar *password = NULL;
   const gchar *gssapi_creds = NULL;
+  CockpitCreds *creds = NULL;
+  gchar *csrf_token;
 
   /*
    * Dig the password out of the authorization header, rather than having
@@ -530,18 +544,25 @@ create_creds_for_authenticated (const char *user,
       fullname = NULL;
     }
 
-  /* TODO: Try to avoid copying password */
-  return cockpit_creds_new (user,
-                            sl->application,
-                            COCKPIT_CRED_FULLNAME, fullname,
-                            COCKPIT_CRED_PASSWORD, password,
-                            COCKPIT_CRED_RHOST, sl->remote_peer,
-                            COCKPIT_CRED_GSSAPI, gssapi_creds,
-                            NULL);
+  csrf_token = cockpit_auth_nonce (self);
+
+  creds = cockpit_creds_new (user,
+                             sl->application,
+                             COCKPIT_CRED_FULLNAME, fullname,
+                             COCKPIT_CRED_PASSWORD, password,
+                             COCKPIT_CRED_RHOST, sl->remote_peer,
+                             COCKPIT_CRED_GSSAPI, gssapi_creds,
+                             COCKPIT_CRED_CSRF_TOKEN, csrf_token,
+                             NULL);
+
+  g_free (csrf_token);
+
+  return creds;
 }
 
 static CockpitCreds *
-parse_auth_results (SessionLoginData *sl,
+parse_auth_results (CockpitAuth *self,
+                    SessionLoginData *sl,
                     GHashTable *headers,
                     GError **error)
 {
@@ -587,7 +608,7 @@ parse_auth_results (SessionLoginData *sl,
       else
         {
           g_debug ("user authenticated as %s", pam_user);
-          creds = create_creds_for_authenticated (pam_user, sl, results);
+          creds = create_creds_for_authenticated (self, pam_user, sl, results);
         }
     }
   else if (code == PAM_AUTH_ERR || code == PAM_USER_UNKNOWN)
@@ -637,7 +658,7 @@ cockpit_auth_session_login_finish (CockpitAuth *self,
 
   sl = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
 
-  creds = parse_auth_results (sl, headers, error);
+  creds = parse_auth_results (self, sl, headers, error);
   if (!creds)
     return NULL;
 
@@ -716,6 +737,7 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
   RemoteLoginData *rl;
   const gchar *application;
   const gchar *password;
+  gchar *csrf_token;
   gchar *memory = NULL;
   GBytes *input;
   gchar *type = NULL;
@@ -732,11 +754,16 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
       password = parse_basic_auth_password (input, &user);
       if (password && user)
         {
+          csrf_token = cockpit_auth_nonce (self);
+
           creds = cockpit_creds_new (user,
                                      application,
                                      COCKPIT_CRED_PASSWORD, password,
                                      COCKPIT_CRED_RHOST, remote_peer,
+                                     COCKPIT_CRED_CSRF_TOKEN, csrf_token,
                                      NULL);
+
+          g_free (csrf_token);
         }
       g_free (user);
     }
@@ -988,7 +1015,6 @@ cockpit_auth_login_finish (CockpitAuth *self,
   CockpitCreds *creds;
   gchar *cookie_b64 = NULL;
   gchar *header;
-  guint64 seed;
   gchar *id;
 
   g_return_val_if_fail (klass->login_finish != NULL, FALSE);
@@ -997,10 +1023,7 @@ cockpit_auth_login_finish (CockpitAuth *self,
   if (creds == NULL)
     return NULL;
 
-  seed = self->nonce_seed++;
-  id = g_compute_hmac_for_data (G_CHECKSUM_SHA256,
-                                self->key->data, self->key->len,
-                                (guchar *)&seed, sizeof (seed));
+  id = cockpit_auth_nonce (self);
 
   authenticated = g_new0 (CockpitAuthenticated, 1);
   authenticated->cookie = g_strdup_printf ("v=2;k=%s", id);

@@ -39,6 +39,7 @@ struct _CockpitCreds {
   gchar *password;
   gchar *rhost;
   gchar *gssapi_creds;
+  gchar *csrf_token;
   krb5_context krb5_ctx;
   krb5_ccache krb5_ccache;
   gchar *krb5_ccache_name;
@@ -58,6 +59,7 @@ cockpit_creds_free (gpointer data)
   g_free (creds->password);
   g_free (creds->rhost);
   g_free (creds->gssapi_creds);
+  g_free (creds->csrf_token);
 
   if (creds->krb5_ctx)
     {
@@ -116,6 +118,8 @@ cockpit_creds_new (const gchar *user,
         creds->rhost = g_strdup (va_arg (va, const char *));
       else if (g_str_equal (type, COCKPIT_CRED_GSSAPI))
         creds->gssapi_creds = g_strdup (va_arg (va, const char *));
+      else if (g_str_equal (type, COCKPIT_CRED_CSRF_TOKEN))
+        creds->csrf_token = g_strdup (va_arg (va, const char *));
       else
         g_assert_not_reached ();
     }
@@ -205,6 +209,13 @@ cockpit_creds_get_password (CockpitCreds *creds)
   if (g_atomic_int_get (&creds->poisoned))
       return NULL;
   return creds->password;
+}
+
+const gchar *
+cockpit_creds_get_csrf_token (CockpitCreds *creds)
+{
+  g_return_val_if_fail (creds != NULL, NULL);
+  return creds->csrf_token;
 }
 
 /**

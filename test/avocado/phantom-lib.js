@@ -1,1 +1,1 @@
-../test/phantom-lib.js
+../phantom-lib.js

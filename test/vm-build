@@ -44,9 +44,11 @@ def build(machine):
         mock_cmd = ("mock --offline --no-clean --resultdir /var/tmp/mock %s --rebuild /var/tmp/%s"
                     % (mock_opts, os.path.basename(srpm)))
         machine.execute('su - builder -c "%s"' % mock_cmd)
-        machine.download_dir("/var/tmp/mock", "mock")
     finally:
-        machine.stop()
+        try:
+            machine.download_dir("/var/tmp/mock", "mock")
+        finally:
+            machine.stop()
 
 try:
     machine = testvm.VirtMachine(verbose=args.verbose, flavor=args.flavor, label="build")

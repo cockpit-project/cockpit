@@ -882,6 +882,100 @@ define([
         };
 
         /*
+         * socket:
+         * @url: relative url for web socket
+         * @protocols: WebSocket protocols
+         *
+         * Opens up a Kubernetes WebSocket. Returns a
+         * standard WebSocket object.
+         */
+        self.socket = function socket(url, protocols) {
+            if (!protocols)
+                protocols = [];
+            else if (!angular.isArray(protocols))
+                protocols = [ String(protocols) ];
+
+            /* A fake WebSocket */
+            var channel;
+            var state = 0; /* CONNECTING */
+            var ws = { };
+            cockpit.event_target(ws);
+
+            function open(http) {
+                channel = cockpit.channel(angular.extend({ }, http.options, {
+                    payload: "websocket-stream1",
+                    path: url,
+                    protocols: protocols,
+                }));
+
+                $(channel)
+                    .on("close", function(ev, options) {
+                        var problem = options.problem || "";
+                        $(channel).off();
+                        channel = null;
+
+                        state = 3;
+                        var cev = document.createEvent('Event');
+                        cev.initEvent('close', false, false, !!problem, 1000, problem);
+                        ws.dispatchEvent(cev);
+                    })
+                    .on("message", function(ev, data) {
+                        /* It's because of phantomjs */
+                        var mev = document.createEvent('MessageEvent');
+                        if (!mev.initMessageEvent)
+                            mev = new window.MessageEvent('message', { 'data': data });
+                        else
+                            mev.initMessageEvent('message', false, false, data, "");
+                        ws.dispatchEvent(mev);
+                    });
+
+                state = 1;
+                var oev = document.createEvent('Event');
+                oev.initEvent('open', false, false);
+                ws.dispatchEvent(oev);
+            }
+
+            function fail() {
+                var ev = document.createEvent('Event');
+                ev.initEvent('close', false, false, false, 1002, "protocol-error");
+                ws.dispatchEvent(ev);
+            }
+
+            function close(code, reason) {
+                if (channel)
+                    channel.close(reason);
+            }
+
+            function send(data) {
+                if (channel)
+                    channel.send(data);
+            }
+
+            /* A fake WebSocket */
+            Object.defineProperties(ws, {
+                binaryType: { value: "arraybuffer" },
+                bufferedAmount: { value: 0 },
+                extensions: { value: "" },
+                protocol: { value: protocols[0] },
+                readyState: { get: function() { return state; } },
+                url: { value: url },
+                close: { value: close },
+                send: { value: send },
+            });
+
+            window.setTimeout(function() {
+                connected.then(function(http) {
+                    open(http);
+                }, function(ex) {
+                    console.warn(ex);
+                    fail();
+                });
+            });
+
+            return ws;
+        };
+
+        /*
          * close:
          *
          * Close the connection to kubernetes, cancel any watches.

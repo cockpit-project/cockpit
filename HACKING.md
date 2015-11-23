@@ -54,7 +54,18 @@ In addition for testing the following dependencies are required:
 
     $ sudo npm install -g phantomjs
 
-## Building and installing
+## Building and Installing RPMs
+
+If you wish to test out a development branch on Fedora, you can just
+build installable RPMs.
+
+    $ tools/make-rpms --verbose
+    $ sudo yum install noarch/cockpit*-wip-1.rpm x86_64/cockpit*-wip-1.rpm
+
+If you want to develop Cockpit, then skip this section, and build from
+source.
+
+## Building and Installing from source
 
 Cockpit uses the autotools and thus there are the familiar `./configure`
 script and the familar Makefile targets.

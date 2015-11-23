@@ -503,11 +503,6 @@ main (int argc,
   // System cockpit configuration file should not be loaded
   cockpit_config_file = NULL;
 
-  /* This isolates us from affecting other processes during tests */
-  bus = g_test_dbus_new (G_TEST_DBUS_NONE);
-  g_test_dbus_up (bus);
-  bus_address = g_test_dbus_get_bus_address (bus);
-
   context = g_option_context_new ("- test dbus json server");
   g_option_context_add_main_entries (context, entries, NULL);
   g_option_context_set_ignore_unknown_options (context, TRUE);
@@ -515,6 +510,24 @@ main (int argc,
     {
       g_printerr ("test-server: %s\n", error->message);
       exit (2);
+    }
+
+  /* This isolates us from affecting other processes during tests */
+  bus = g_test_dbus_new (G_TEST_DBUS_NONE);
+  g_test_dbus_up (bus);
+  bus_address = g_test_dbus_get_bus_address (bus);
+
+  guid = g_dbus_generate_guid ();
+  direct_dbus_server = g_dbus_server_new_sync ("unix:tmpdir=/tmp/dbus-tests",
+                                               G_DBUS_SERVER_FLAGS_NONE,
+                                               guid,
+                                               NULL,
+                                               NULL,
+                                               &error);
+  if (direct_dbus_server == NULL)
+    {
+      g_printerr ("test-server: %s\n", error->message);
+      exit (3);
     }
 
   /* Skip the program name */
@@ -552,25 +565,13 @@ main (int argc,
                          loop,
                          NULL);
 
-  guid = g_dbus_generate_guid ();
-  direct_dbus_server = g_dbus_server_new_sync ("unix:tmpdir=/tmp/dbus-tests",
-                                               G_DBUS_SERVER_FLAGS_NONE,
-                                               guid,
-                                               NULL,
-                                               NULL,
-                                               &error);
-  if (direct_dbus_server == NULL)
-    {
-      g_printerr ("test-server: %s\n", error->message);
-      exit (3);
-    }
-
   g_signal_connect_object (direct_dbus_server,
                            "new-connection",
                            G_CALLBACK (on_new_direct_connection),
                            NULL, 0);
   g_dbus_server_start (direct_dbus_server);
   direct_address = g_dbus_server_get_client_address (direct_dbus_server);
+
   g_main_loop_run (loop);
 
   g_source_remove (sig_term);

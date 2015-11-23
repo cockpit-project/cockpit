@@ -1457,6 +1457,7 @@ on_web_socket_open (WebSocketConnection *connection,
   json_object_set_int_member (object, "version", 1);
   json_object_set_string_member (object, "channel-seed", socket->id);
   json_object_set_string_member (object, "host", "localhost");
+  json_object_set_string_member (object, "csrf-token", cockpit_creds_get_csrf_token (self->creds));
 
   capabilities = json_array_new ();
   json_array_add_string_element (capabilities, "ssh");

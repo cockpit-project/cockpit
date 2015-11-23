@@ -82,6 +82,7 @@ The following fields are defined:
  * "channel-seed": A seed to be used when generating new channel ids.
  * "host": The host being communicated with.
  * "problem": A problem occurred during init.
+ * "csrf-token": The web service will send a csrf-token for external channels.
 
 If a problem occurs that requires shutdown of a transport, then the "problem"
 field can be set to indicate why the shutdown will be shortly occurring.

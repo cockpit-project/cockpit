@@ -229,6 +229,7 @@ send_login_response (CockpitWebResponse *response,
 
   object = json_object_new ();
   json_object_set_string_member (object, "user", cockpit_creds_get_user (creds));
+  json_object_set_string_member (object, "csrf-token", cockpit_creds_get_csrf_token (creds));
 
   content = cockpit_json_write_bytes (object);
   json_object_unref (object);

@@ -215,7 +215,10 @@ setup_mock_webserver (TestCase *test,
   user = g_get_user_name ();
   test->auth = mock_auth_new (user, PASSWORD);
 
-  test->creds = cockpit_creds_new (user, "cockpit", COCKPIT_CRED_PASSWORD, PASSWORD, NULL);
+  test->creds = cockpit_creds_new (user, "cockpit",
+                                   COCKPIT_CRED_PASSWORD, PASSWORD,
+                                   COCKPIT_CRED_CSRF_TOKEN, "my-csrf-token",
+                                   NULL);
 }
 
 static void
@@ -587,14 +590,31 @@ test_handshake_and_echo (TestCase *test,
 {
   WebSocketConnection *ws;
   GBytes *received = NULL;
+  GBytes *control = NULL;
   CockpitWebService *service;
+  CockpitCreds *creds;
   GBytes *sent;
   gulong handler;
+  const gchar *token;
 
   /* Sends a "test" message in channel "4" */
   start_web_service_and_connect_client (test, data, &ws, &service);
 
   sent = g_bytes_new_static ("4\ntest", 6);
+  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &control);
+
+  WAIT_UNTIL (control != NULL);
+
+  creds = cockpit_web_service_get_creds (service);
+  g_assert (creds != NULL);
+
+  token = cockpit_creds_get_csrf_token (creds);
+  g_assert_cmpstr (token, ==, "my-csrf-token");
+
+  expect_control_message (control, "init", NULL, "csrf-token", token, NULL);
+  g_bytes_unref (control);
+
+  g_signal_handler_disconnect (ws, handler);
   handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
 
   WAIT_UNTIL (received != NULL);

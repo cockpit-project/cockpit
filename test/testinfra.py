@@ -40,7 +40,6 @@ topdir = os.path.normpath(os.path.dirname(__file__))
 WHITELIST = os.path.join(topdir, "files/github-whitelist")
 WHITELIST_LOCAL = "~/.config/github-whitelist"
 
-DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-22")
 HOSTNAME = socket.gethostname().split(".")[0]
 DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-22")
 
@@ -51,9 +50,10 @@ __all__ = (
     'Sink',
     'GitHub',
     'arg_parser',
-    'OS',
-    'ARCH',
-    'TESTING'
+    'DEFAULT_IMAGE',
+    'HOSTNAME',
+    'TESTING',
+    'NOT_TESTED'
 )
 
 def arg_parser():
@@ -185,7 +185,7 @@ class GitHub(object):
         self.available = self.token and True or False
 
     def context(self):
-        return OS + "/" + ARCH
+        return DEFAULT_IMAGE
 
     def qualify(self, resource):
         return urlparse.urljoin(self.base, resource)

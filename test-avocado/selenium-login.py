@@ -40,6 +40,7 @@ import inspect
 user = "test"
 passwd = "superhardpasswordtest5554"
 
+
 class BasicTestSuite(Test):
 
     def __init__(self, *args, **kwargs):
@@ -50,10 +51,13 @@ class BasicTestSuite(Test):
             self.driver = selenium.webdriver.Firefox()
             guest_machine = 'localhost'
         else:
-            selenium_hub = os.environ["HUB"] if os.environ.has_key("HUB") else "localhost"
-            browser = os.environ["BROWSER"] if os.environ.has_key("BROWSER") else "firefox"
+            selenium_hub = os.environ["HUB"] if os.environ.has_key(
+                "HUB") else "localhost"
+            browser = os.environ["BROWSER"] if os.environ.has_key(
+                "BROWSER") else "firefox"
             guest_machine = os.environ["GUEST"]
-            self.driver = selenium.webdriver.Remote(command_executor='http://%s:4444/wd/hub' % selenium_hub ,desired_capabilities={'browserName': browser})
+            self.driver = selenium.webdriver.Remote(
+                command_executor='http://%s:4444/wd/hub' % selenium_hub, desired_capabilities={'browserName': browser})
         #
 
         self.driver.set_window_size(1024, 768)

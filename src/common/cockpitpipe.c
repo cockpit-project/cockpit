@@ -1222,9 +1222,10 @@ cockpit_pipe_pty (const gchar **argv,
       g_printerr ("couldn't execute: %s: %s\n", argv[0], g_strerror (errno));
       _exit (127);
     }
-  else if (pid == 0)
+  else if (pid < 0)
     {
       g_warning ("forkpty failed: %s", g_strerror (errno));
+      pid = 0;
       fd = -1;
     }
 

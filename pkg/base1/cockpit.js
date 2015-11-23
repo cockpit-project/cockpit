@@ -43,14 +43,6 @@ function is_array(it) {
     return Object.prototype.toString.call(it) === '[object Array]';
 }
 
-function BasicError(problem, message) {
-    this.problem = problem;
-    this.message = message || cockpit.message(problem);
-    this.toString = function() {
-        return this.message;
-    };
-}
-
 /* -------------------------------------------------------------------------
  * Channels
  *
@@ -994,6 +986,14 @@ function basic_scope(cockpit) {
 
 
 function full_scope(cockpit, $, po) {
+
+    function BasicError(problem, message) {
+        this.problem = problem;
+        this.message = message || cockpit.message(problem);
+        this.toString = function() {
+            return this.message;
+        };
+    }
 
     /* ---------------------------------------------------------------------
      * User and system information

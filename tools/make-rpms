@@ -1,7 +1,7 @@
 #!/bin/bash
 # This file is part of Cockpit.
 #
-# Copyright (C) 2013 Red Hat, Inc.
+# Copyright (C) 2015 Red Hat, Inc.
 #
 # Cockpit is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published by
@@ -16,40 +16,28 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-set -eu
+set -euf
 
 base=$(cd $(dirname $0)/../; pwd -P)
 
-# For the TEST_OS defines
-. $base/test/testlib.sh
-
 usage()
 {
-	echo "usage: make-rpms [--clean] [--quick] [--verbose]"
+	echo "usage: make-rpms [--quick] [--verbose]"
 }
 
-mock_opts=""
-mock_clean_opts="--no-clean --no-cleanup-after"
-mock_define="unused"
-mock_value="0"
+quiet="--quiet"
+check=""
 
-args=$(getopt -o "h,v,c,q,r:" -l "help,verbose,clean,quick" -- "$@")
+args=$(getopt -o "h,v" -l "help,quick,verbose" -- "$@")
 eval set -- "$args"
 while [ $# -gt 0 ]; do
 	case $1 in
-	-c|--clean)
-        # We always use --no-cleanup-after because a
-        # --no-clean build can not start with a chroot that
-        # has been cleaned previously.
-		mock_clean_opts="--no-cleanup-after"
-		;;
 	-v|--verbose)
-		mock_opts="$mock_opts --verbose"
+		quiet=""
 		;;
-	-q|--quick)
-		mock_define="selinux" mock_value="0"
-		mock_opts="$mock_opts --offline --nocheck"
-		;;
+    -q|--quick)
+        check="--nocheck"
+        ;;
 	-h|--help)
 		usage
 		exit 0
@@ -67,82 +55,17 @@ if [ $# -ne 0 ]; then
 	exit 2
 fi
 
-if test $(id -u) = 0; then
-    echo "Don't run this as root!"
-    exit 1
-fi
+srpm="$($base/tools/make-srpm)"
 
-make_srpm=$base/tools/make-srpm
+tmpdir=$(mktemp -d $PWD/rpm-build.XXXXXX)
+rpmbuild --rebuild $check $quiet \
+    --define "_sourcedir $tmpdir" \
+    --define "_specdir $tmpdir" \
+    --define "_builddir $tmpdir" \
+    --define "_srcrpmdir $tmpdir" \
+    --define "_rpmdir $tmpdir/output" \
+    --define "_buildrootdir $tmpdir/build" \
+    $srpm
 
-# $os is the TEST_OS value that we are building for, without changes.
-# $mockos the mock configuration we are using as the basis for it.
-
-os=${TEST_OS:-}
-
-mockos=$os
-# if we're building for atomic, generate regular fedora packages
-if [[ "$os" =~ "fedora-atomic" ]]; then
-    mockos=${os/-atomic/}
-elif [ "$os" = "fedora-testing" ]; then
-    mockos="fedora-22"
-fi
-
-# Will have a lookup overide once we have non x86_64
-arch=x86_64
-
-srpm=$("$make_srpm" "$@")
-rm -rf $base/mock/*
-
-mockcfgdir=${TEST_DATA:-$base}/mock
-
-# Create our custom config
-mkdir -p $base/mock $mockcfgdir
-cp --preserve=timestamps /etc/mock/site-defaults.cfg $mockcfgdir
-cp --preserve=timestamps /etc/mock/logging.ini $mockcfgdir
-mockcfg=$mockcfgdir/$os-$arch-cockpit.cfg
-
-if [ "$os" == "rhel-7" ]; then
-    mockos="epel-7"
-    # get epel packages instead, they don't require a subscription
-    cp --preserve=timestamps /etc/mock/$mockos-$arch.cfg $mockcfg
-    cat >>$mockcfg <<EOF
-config_opts['root'] = "$os-$arch-cockpit"
-config_opts['yum.conf'] += """
-[sgallagh-cockpit-preview]
-name=Copr repo for cockpit-preview owned by sgallagh
-baseurl=https://copr-be.cloud.fedoraproject.org/results/sgallagh/cockpit-preview/$os-$arch/
-skip_if_unavailable=True
-gpgcheck=1
-gpgkey=https://copr-be.cloud.fedoraproject.org/results/sgallagh/cockpit-preview/pubkey.gpg
-enabled=1
-"""
-EOF
-else
-    cp --preserve=timestamps /etc/mock/$mockos-$arch.cfg $mockcfg
-    cat >>$mockcfg <<EOF
-config_opts['root'] = "$os-$arch-cockpit"
-EOF
-    if [[ "$os" =~ "-testing" ]]; then
-        cat >>$mockcfg <<EOF
-config_opts['yum.conf'] += """
-[updates-testing]
-enabled=1
-"""
-EOF
-    fi
-fi
-
-touch -r /etc/mock/$mockos-$arch.cfg $mockcfg
-
-if LANG=C /usr/bin/mock --quiet $mock_opts $mock_clean_opts --configdir=$mockcfgdir \
-	--resultdir $base/mock -r $os-$arch-cockpit --define="$mock_define $mock_value" $srpm; then
-    grep "^Wrote: .*\.\($arch\|noarch\)\.rpm$" $base/mock/build.log | while read l; do
-        p=$(basename "$l") # knocks off the "Wrote:" part as well...
-        echo $p
-        mv $base/mock/$p .
-    done
-    exit 0
-else
-    echo >&2 FAILED
-    exit 1
-fi
+find $tmpdir/output -name '*.rpm' -printf '%f\n' -exec mv {} . \;
+rm -r $tmpdir

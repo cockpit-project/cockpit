@@ -19,7 +19,7 @@ EXCLUDE = [
 ]
 
 def start_publishing(github, host, name, revision):
-    identifier = name + "-" + revision[0:8] + "-" + testinfra.OS + "-" + testinfra.ARCH
+    identifier = name + "-" + revision[0:8] + "-" + testinfra.DEFAULT_IMAGE
     description = "{0} [{1}]".format(testinfra.TESTING, testinfra.HOSTNAME)
     status = {
         "github": {
@@ -37,8 +37,8 @@ def start_publishing(github, host, name, revision):
     if name == "master":
         status['irc'] = { }    # Only send to IRC when master
         status['badge'] = {
-            'name': testinfra.OS + "-" + testinfra.ARCH,
-            'description': testinfra.OS,
+            'name': testinfra.DEFAULT_IMAGE,
+            'description': testinfra.DEFAULT_IMAGE,
             'status': 'running'
         }
     return testinfra.Sink(host, identifier, status)

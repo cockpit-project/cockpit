@@ -99,106 +99,114 @@ define([
         /*
          * Displays a container console.
          *
-         * <kube-console namespace="ns" pod="name" container="name"></kube-console>
+         * <kube-console namespace="ns" container="name"></kube-console>
          */
-        .directive('kubeConsole', function() {
-            return {
-                restrict: 'E',
-                link: function(scope, element, attrs) {
-                    var limit = 64 * 1024;
-                    var cmd = [
-                        "kubectl",
-                        "logs",
-                        "--namespace=" + attrs.namespace,
-                        "--container=" + attrs.container,
-                        "--follow",
-                        attrs.pod
-                    ];
+        .directive('kubeConsole', [
+            'kubeContainerWebSocket',
+            function(socket) {
+                return {
+                    restrict: 'E',
+                    scope: {
+                        pod: '&',
+                        container: '&',
+                        command: '@',
+                        prevent: '='
+                    },
+                    link: function(scope, element, attrs) {
+                        var limit = 64 * 1024;
 
-                    var outer = $("<div>").addClass("console");
-                    element.append(outer);
-                    var pre = $("<pre>").addClass("logs");
-                    outer.append(pre);
-                    var channel = null;
-                    var wait = null;
+                        var outer = $("<div>").addClass("console");
+                        element.append(outer);
+                        var pre = $("<pre>").addClass("logs");
+                        outer.append(pre);
+                        var wait = null;
+                        var ws = null;
 
-                    function connect() {
-                        pre.empty();
+                        function connect() {
+                            pre.empty();
 
-                        channel = cockpit.channel({
-                            payload: "stream",
-                            spawn: cmd,
-                            err: "out",
-                        });
+                            var url = "", pod = scope.pod();
+                            if (pod.metadata)
+                                url += pod.metadata.selfLink;
+                            else
+                                url += pod;
+                            url += "/log";
+                            if (url.indexOf('?') === -1)
+                                url += '?';
+                            url += "follow=1";
 
-                        var writing = [];
-                        var count = 0;
+                            var container = scope.container ? scope.container() : null;
+                            if (container)
+                                url += "&container=" + encodeURIComponent(container);
 
-                        function drain() {
-                            wait = null;
-                            var at_bottom = pre[0].scrollHeight - pre.scrollTop() <= pre.outerHeight();
-                            var text = writing.join("");
+                            var writing = [];
+                            var count = 0;
 
-                            /*
-                             * Stay under the limit. I wish we could use some other mechanism
-                             * for limiting the log output, such as:
-                             *
-                             * https://github.com/kubernetes/kubernetes/issues/12447
-                             */
-                            count += text.length;
-                            var first;
-                            while (count > limit) {
-                                first = pre.children().first();
-                                if (!first[0])
-                                    break;
-                                count -= first.remove().text().length;
+                            function drain() {
+                                wait = null;
+                                var at_bottom = pre[0].scrollHeight - pre.scrollTop() <= pre.outerHeight();
+                                var text = writing.join("");
+
+                                /*
+                                 * Stay under the limit. I wish we could use some other mechanism
+                                 * for limiting the log output, such as:
+                                 *
+                                 * https://github.com/kubernetes/kubernetes/issues/12447
+                                 */
+                                count += text.length;
+                                var first;
+                                while (count > limit) {
+                                    first = pre.children().first();
+                                    if (!first[0])
+                                        break;
+                                    count -= first.remove().text().length;
+                                }
+
+                                /* And add our text */
+                                var span = $("<span>").text(text);
+                                writing.length = 0;
+                                pre.append(span);
+                                if (at_bottom)
+                                    pre.scrollTop(pre.prop("scrollHeight"));
+
+                                phantom_checkpoint();
                             }
 
-                            /* And add our text */
-                            var span = $("<span>").text(text);
-                            writing.length = 0;
-                            pre.append(span);
-                            if (at_bottom)
-                                pre.scrollTop(pre.prop("scrollHeight"));
-
-                            phantom_checkpoint();
-                        }
-
-                        $(channel)
-                            .on("close", function(ev, options) {
-                                if (options.problem)
-                                    writing.push(options.problem);
+                            ws = socket(url);
+                            ws.onclose = function(ev) {
+                                writing.push(ev.reason);
                                 drain();
                                 disconnect();
-                            })
-                            .on("message", function(ev, data) {
-                                writing.push(data);
+                                ws = null;
+                            };
+                            ws.onmessage = function(ev) {
+                                writing.push(ev.data);
                                 if (wait === null)
                                     wait = window.setTimeout(drain, 50);
-                            });
-                    }
-
-                    function disconnect() {
-                        if (channel) {
-                            channel.close("terminated");
-                            $(channel).off();
+                            };
                         }
-                        channel = null;
-                        window.clearTimeout(wait);
-                        wait = null;
-                    }
 
-                    scope.$on("connect", function(ev, what) {
-                        if (what == "console") {
-                            if (!channel)
+                        function disconnect() {
+                            if (ws) {
+                                ws.onopen = ws.onmessage = ws.onerror = ws.onclose = null;
+                                if (ws.readyState < 2) // CLOSING
+                                    ws.close();
+                                ws = null;
+                            }
+                            window.clearTimeout(wait);
+                            wait = null;
+                        }
+
+                        scope.$watch("prevent", function(prevent) {
+                            if (!prevent && !ws)
                                 connect();
-                        }
-                    });
+                        });
 
-                    scope.$on("$destroy", disconnect);
-                }
-            };
-        })
+                        scope.$on("$destroy", disconnect);
+                    }
+                };
+            }
+        ])
 
         /*
          * A WebSocket factory for the kubernetes-container-terminal
@@ -207,23 +215,30 @@ define([
          * to supports WebSockets, we just use kubectl instead and
          * make a fake WebSocket out of it.
          */
-        .factory("kubeContainerWebSocket", [
+        .factory("kubeFakeWebSocket", [
             function() {
                 function parser(url) {
                     var options = { };
                     var path = cockpit.location.decode(url, options);
 
                     var command = [ ];
+                    var args = [ ];
                     var namespace = "default";
                     var container = null;
+                    var cmd = "log";
                     var pod = "";
 
                     var i, len;
                     for (i = 0, len = path.length; i < len; i++) {
-                        if (path[i] === "namespaces")
+                        if (path[i] === "namespaces") {
                             namespace = path[++i];
-                        else if (path[i] === "pods")
+                        } else if (path[i] === "pods") {
                             pod = path[++i];
+                            if (path[i + 1] == "exec")
+                                cmd = "exec";
+                            else if (path[i + 1] == "log")
+                                cmd = "logs";
+                        }
                     }
 
                     for (i in options) {
@@ -234,20 +249,23 @@ define([
                                 command = options[i];
                             else
                                 command.push(options[i]);
+                        } else if (i == "stdin" || i == "tty" || i == "follow") {
+                            args.push("--" + i);
                         }
                     }
 
-                    var ret = [ "kubectl", "exec", "--namespace=" + namespace ];
+                    var ret = [ "kubectl", cmd, "--namespace=" + namespace ];
                     if (container)
                         ret.push("--container=" + container);
-                    ret.push("--tty", "--stdin", pod, "--");
+                    ret.push.apply(ret, args);
+                    ret.push(pod, "--");
                     ret.push.apply(ret, command);
                     return ret;
                 }
 
                 return function KubeFakeWebSocket(url, protocols) {
                     var cmd = parser(url);
-                    var protocol = "base64.channel.k8s.io";
+                    var base64 = false;
 
                     /* A fake WebSocket */
                     var channel;
@@ -264,7 +282,6 @@ define([
 
                         $(channel)
                             .on("close", function(ev, options) {
-                                console.log("closing state 3", ev, options);
                                 var problem = options.problem || "";
                                 $(channel).off();
                                 channel = null;
@@ -275,7 +292,8 @@ define([
                                 ws.dispatchEvent(cev);
                             })
                             .on("message", function(ev, data) {
-                                data = "1" + window.btoa(data);
+                                if (base64)
+                                    data = "1" + window.btoa(data);
                                 /* It's because of phantomjs */
                                 var mev = document.createEvent('MessageEvent');
                                 if (!mev.initMessageEvent)
@@ -303,8 +321,10 @@ define([
                     }
 
                     function send(data) {
+                        if (base64)
+                            data = window.atob(data.slice(1));
                         if (channel)
-                            channel.send(window.atob(data.slice(1)));
+                            channel.send(data);
                     }
 
                     /* A fake WebSocket */
@@ -312,7 +332,7 @@ define([
                         binaryType: { value: "arraybuffer" },
                         bufferedAmount: { value: 0 },
                         extensions: { value: "" },
-                        protocol: { value: protocol },
+                        protocol: { value: base64 ? "base64.channel.k8s.io" : "" },
                         readyState: { get: function() { return state; } },
                         url: { value: url },
                         close: { value: close },
@@ -321,10 +341,10 @@ define([
 
                     var valid = true;
                     if (protocols) {
-                        if (angular.isArray (protocols))
-                            valid = protocols.indexOf(protocol) !== -1;
+                        if (angular.isArray(protocols))
+                            valid = base64 = protocols.indexOf("base64.channel.k8s.io") !== -1;
                         else
-                            valid = (protocols === protocol);
+                            valid = base64 = "base64.channel.k8s.io";
                     }
 
                     if (valid) {
@@ -335,6 +355,26 @@ define([
                     }
 
                     return ws;
+                };
+            }
+        ])
+
+        .factory("kubeContainerWebSocket", [
+            'kubernetesClient',
+            'kubeFakeWebSocket',
+            function(client, kubeFakeWebSocket) {
+                /*
+                 * So for compatibility we have to decide whether to open
+                 * a kubectl based WebSocket or one that talks to kubernetes
+                 * with a real WebSocket. We prefer the former for now, because
+                 * the condition is easy to detect. If kubectl is available,
+                 * we use it.
+                 */
+                return function(url, protocols) {
+                    if (client.config) /* config is retrieved from kubectl */
+                        return kubeFakeWebSocket(url, protocols);
+                    else
+                        return client.socket(url, protocols);
                 };
             }
         ])

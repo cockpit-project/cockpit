@@ -55,6 +55,9 @@ def download(image):
     if not os.path.islink(link):
         parser.error("image link does not exist: " + image)
 
+    if not os.path.exists(DATA):
+        os.makedirs(DATA)
+
     dest = os.path.join(DATA, os.readlink(link))
     if not args.force and os.path.exists(dest):
         return

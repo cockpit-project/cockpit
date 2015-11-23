@@ -523,6 +523,12 @@ test_webserver_noredirect_exception (TestCase *tc,
 {
   gchar *resp;
 
+  if (!tc->hostport)
+    {
+      cockpit_test_skip ("no non-loopback address found");
+      return;
+    }
+
   g_object_set (tc->web_server, "ssl-exception-prefix", "/pkg", NULL);
   resp = perform_http_request (tc->hostport, "GET /pkg/shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
   cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");

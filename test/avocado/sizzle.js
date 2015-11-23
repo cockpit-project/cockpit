@@ -1,1 +1,1 @@
-../test/sizzle.js
+../sizzle.js

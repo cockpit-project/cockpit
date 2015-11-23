@@ -472,14 +472,27 @@
                                 </div>
                             </td>
                             <td>
-                                <div id="shutdown-time">
-                                    <input class="form-control" value="18"/>
-                                    <span>:</span>
-                                    <input class="form-control" value="00"/>
+                                <div class="row" id="shutdown-time">
+                                    <div class="col-md-7">
+                                        <input type='text' class="col-md-offset-1 form-control"
+                                            id="shutdown-date-input"/>
+                                    </div>
+                                    <div class="col-md-5 row nomargin nopadding">
+                                        <div class="col-md-offset-1 col-md-5 nopadding">
+                                            <input type='text' class="form-control" id="shutdown-time-hours"/>
+                                        </div>
+                                        <div class="col-md-1 text-center nopadding">:</div>
+                                        <div class="col-md-5 nopadding">
+                                            <input type='text' class="form-control" id="shutdown-time-minutes"/>
+                                        </div>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
                     </table>
+                    <div class="has-error">
+                        <span id="shutdown-parse-error" class="help-block"></span>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-default btn-danger" translatable="yes" data-dismiss="modal">

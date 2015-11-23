@@ -108,7 +108,7 @@ function ServerTime() {
      * behavior and formatting of a Date() object in the absence of
      * IntlDateFormat and  friends.
      */
-    Object.defineProperty(self, 'now', {
+    Object.defineProperty(self, 'utc_fake_now', {
         enumerable: true,
         get: function get() {
             var offset = time_offset + remote_offset;
@@ -116,8 +116,15 @@ function ServerTime() {
         }
     });
 
+    Object.defineProperty(self, 'now', {
+        enumerable: true,
+        get: function get() {
+            return new Date(time_offset + (new Date()).valueOf());
+        }
+    });
+
     self.format = function format(and_time) {
-        var string = self.now.toISOString();
+        var string = self.utc_fake_now.toISOString();
         if (!and_time)
             return string.split('T')[0];
         var pos = string.lastIndexOf(':');
@@ -697,6 +704,7 @@ PageServer.prototype = {
 
     shutdown: function(action_type) {
         PageShutdownDialog.type = action_type;
+        PageShutdownDialog.server_time = this.server_time;
         $('#shutdown-dialog').modal('show');
     },
 };
@@ -922,8 +930,8 @@ PageSystemInformationChangeSystime.prototype = {
         var self = this;
 
         $('#systime-date-input').val(self.server_time.format());
-        $('#systime-time-minutes').val(self.server_time.now.getUTCMinutes());
-        $('#systime-time-hours').val(self.server_time.now.getUTCHours());
+        $('#systime-time-minutes').val(self.server_time.utc_fake_now.getUTCMinutes());
+        $('#systime-time-hours').val(self.server_time.utc_fake_now.getUTCHours());
 
         self.ntp_type = self.server_time.timedate.NTP ?
                         (self.custom_ntp_enabled ? 'ntp_time_custom' : 'ntp_time') : 'manual_time';
@@ -1289,7 +1297,19 @@ PageShutdownDialog.prototype = {
             self.update();
         });
 
+        $('#shutdown-date-input').datepicker({
+            autoclose: true,
+            todayHighlight: true,
+            format: 'yyyy-mm-dd',
+            startDate: "today",
+        });
+
         $("#shutdown-time input").change($.proxy(self, "update"));
+
+        self.date = null;
+        $('#shutdown-time-minutes').on('focusout', $.proxy(this, "update_minutes"));
+        $('#shutdown-date-input').on('focusin', $.proxy(this, "store_date"));
+        $('#shutdown-date-input').on('focusout', $.proxy(this, "restore_date"));
     },
 
     enter: function(event) {
@@ -1303,6 +1323,13 @@ PageShutdownDialog.prototype = {
         /* Track the value correctly */
         self.delay = $("#shutdown-delay li:first-child").attr("value");
 
+        var server_time = PageShutdownDialog.server_time;
+        $('#shutdown-date-input').val(server_time.format());
+        $('#shutdown-time-hours').val(server_time.now.getUTCHours());
+        $('#shutdown-time-minutes').val(server_time.now.getUTCMinutes());
+
+        self.show_errors(false);
+
         if (PageShutdownDialog.type == 'shutdown') {
           $('#shutdown-dialog .modal-title').text(_("Shut Down"));
           $("#shutdown-action").click($.proxy(this, "shutdown"));
@@ -1312,7 +1339,15 @@ PageShutdownDialog.prototype = {
           $("#shutdown-action").click($.proxy(this, "restart"));
           $("#shutdown-action").text(_("Restart"));
         }
-        this.update();
+
+        self.update_minutes();
+        self.update();
+    },
+
+    show_errors: function(show) {
+        $('#shutdown-parse-error').css('visibility', show ? 'visible' : 'hidden');
+        $('#shutdown-action').prop('disabled', show);
+        $("#shutdown-time").toggleClass("has-error", show);
     },
 
     show: function(e) {
@@ -1339,24 +1374,103 @@ PageShutdownDialog.prototype = {
         $("#shutdown-action").prop('disabled', disabled);
     },
 
+    validate: function() {
+        var valid = true;
+        var self = this;
+
+        if (self.delay == "x") {
+            var time_error = false;
+            var date_error = false;
+
+            var h = parseInt($("#shutdown-time-hours").val(), 10);
+            var m = parseInt($("#shutdown-time-minutes").val(), 10);
+
+            if (isNaN(h) || h < 0 || h > 23  ||
+                isNaN(m) || m < 0 || m > 59) {
+               time_error = true;
+            }
+
+            var date = new Date($("#shutdown-date-input").val());
+
+            if (isNaN(date.getTime()) || date.getTime() < 0)
+                date_error = true;
+
+            if (time_error && date_error) {
+                $('#shutdown-parse-error').text(_("Invalid date format and invalid time format"));
+            } else if (time_error) {
+                $('#shutdown-parse-error').text(_("Invalid time format"));
+            } else if (date_error) {
+                $('#shutdown-parse-error').text(_("Invalid date format"));
+            } else {
+                self.show_errors(false);
+            }
+
+            valid = ! time_error && ! date_error;
+        }
+
+        self.show_errors(! valid);
+        return valid;
+    },
+
     do_action: function(op) {
         var self = this;
         var message = $("#shutdown-message").val();
         var when;
 
-        if (self.delay == "x")
-            when = ($("#shutdown-time input:nth-child(1)").val() + ":" +
-                    $("#shutdown-time input:nth-child(3)").val());
-        else
-            when = "+" + self.delay;
-
         var arg = (op == "shutdown") ? "--poweroff" : "--reboot";
-
-        if (op == "restart")
-            cockpit.hint("restart");
 
         var promise = cockpit.spawn(["shutdown", arg, when, message], { superuser: "try" });
         $('#shutdown-dialog').dialog("promise", promise);
+
+        var dfd = $.Deferred();
+        function get_server_date() {
+            if (self.delay == "x") {
+                var datestr = $("#shutdown-date-input").val();
+                var hourstr = $("#shutdown-time-hours").val();
+                var minstr = $("#shutdown-time-minutes").val();
+
+                cockpit.spawn(["/usr/bin/date", "--date=" + datestr + " " + hourstr + ":" + minstr, "+%s"])
+                    .fail(function(ex) {
+                        dfd.reject(ex);
+                    })
+                    .done(function(data) {
+                        var input_timestamp = parseInt(data, 10);
+                        var server_timestamp = parseInt(PageShutdownDialog.server_time.raw_now.getTime() / 1000, 10);
+                        var when = Math.ceil((input_timestamp - server_timestamp) / 60);
+                        dfd.resolve(when);
+                    });
+            } else {
+                dfd.resolve(self.delay);
+            }
+
+            return dfd.promise();
+        }
+
+        if (!self.validate())
+            return;
+
+        $.when(get_server_date()).done(function(when) {
+            if (when < 0) {
+                $('#shutdown-parse-error').text(_("Cannot schedule event in the past"));
+                self.show_errors(true);
+            } else {
+                when = "+" + when;
+            }
+
+            var arg = (op == "shutdown") ? "--poweroff" : "--reboot";
+            if (op == "restart")
+                cockpit.hint("restart");
+
+            var message = $("#shutdown-message").val();
+            cockpit.spawn(["shutdown", arg, when, message], { superuser: true })
+                .fail(function(ex) {
+                    $('#shutdown-dialog').modal('hide');
+                    console.log(ex); /* XXXX */
+                })
+                .done(function(ex) {
+                    $('#shutdown-dialog').modal('hide');
+                });
+        });
     },
 
     restart: function() {
@@ -1365,6 +1479,21 @@ PageShutdownDialog.prototype = {
 
     shutdown: function() {
         this.do_action('shutdown');
+    },
+
+    update_minutes: function() {
+        var val = parseInt($('#shutdown-time-minutes').val(), 10);
+        if (val < 10)
+            $('#shutdown-time-minutes').val("0" + val);
+    },
+
+    store_date: function() {
+        this.date = $("#shutdown-date-input").val();
+    },
+
+    restore_date: function() {
+        if ($("#shutdown-date-input").val().length === 0)
+            $("#shutdown-date-input").val(this.date);
     }
 };
 

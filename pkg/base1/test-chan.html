@@ -134,6 +134,7 @@ function MockWebSocket(url, protocol) {
             "command": "init",
             "version": 1,
             "channel-seed": "test",
+            "csrf-token": "the-csrf-token",
             "user": {
                 "user": "scruffy",
                 "name": "Scruffy the Janitor"
@@ -600,7 +601,7 @@ asyncTest("inject message", function() {
 });
 
 asyncTest("transport options", function() {
-    expect(2);
+    expect(3);
 
     var channel;
     $(mock_peer).on("recv", function(event, chan, payload) {
@@ -610,6 +611,7 @@ asyncTest("transport options", function() {
                 "command": "init",
                 "version": 1,
                 "channel-seed": "test",
+                "csrf-token": "the-csrf-token",
                 "user": {
                     "user": "scruffy",
                     "name": "Scruffy the Janitor"
@@ -619,6 +621,7 @@ asyncTest("transport options", function() {
                     "build": "nasty stuff",
                 }
             }, "is correct");
+            equal(cockpit.transport.csrf_token, "the-csrf-token", "got csrf token");
             channel.close();
             start();
         }

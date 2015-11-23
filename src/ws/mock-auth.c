@@ -111,6 +111,7 @@ mock_auth_login_finish (CockpitAuth *auth,
   GSimpleAsyncResult *result = G_SIMPLE_ASYNC_RESULT (async);
   CockpitCreds *creds;
   CockpitPipe *pipe;
+  gchar *nonce;
 
   const gchar *argv[] = {
     cockpit_ws_bridge_program ? cockpit_ws_bridge_program : BUILDDIR "/cockpit-bridge",
@@ -120,11 +121,16 @@ mock_auth_login_finish (CockpitAuth *auth,
   if (g_simple_async_result_propagate_error (result, error))
       return NULL;
 
+  nonce = cockpit_auth_nonce (auth);
+
   creds = cockpit_creds_new (self->expect_user,
                              g_object_get_data (G_OBJECT (result), "application"),
                              COCKPIT_CRED_PASSWORD, self->expect_password,
                              COCKPIT_CRED_RHOST, g_object_get_data (G_OBJECT (result), "remote"),
+                             COCKPIT_CRED_CSRF_TOKEN, nonce,
                              NULL);
+
+  g_free (nonce);
 
   if (transport)
     {

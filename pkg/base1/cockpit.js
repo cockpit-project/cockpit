@@ -995,6 +995,7 @@ function full_scope(cockpit, $, po) {
             $.extend(cockpit.info, options.system);
         if (options.system)
             $(cockpit.info).trigger("changed");
+        cockpit.transport.csrf_token = options["csrf-token"];
         cockpit.transport.options = options;
         cockpit.transport.host = default_host;
     };

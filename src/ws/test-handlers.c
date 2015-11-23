@@ -268,6 +268,7 @@ test_login_accept (Test *test,
   const gchar *output;
   GHashTable *headers;
   CockpitCreds *creds;
+  const gchar *token;
 
   user = g_get_user_name ();
   headers = mock_auth_basic_header (user, PASSWORD);
@@ -290,6 +291,9 @@ test_login_accept (Test *test,
   creds = cockpit_web_service_get_creds (service);
   g_assert_cmpstr (cockpit_creds_get_user (creds), ==, user);
   g_assert_cmpstr (cockpit_creds_get_password (creds), ==, PASSWORD);
+
+  token = cockpit_creds_get_csrf_token (creds);
+  g_assert (strstr (output, token));
 
   g_hash_table_destroy (headers);
   g_object_unref (service);

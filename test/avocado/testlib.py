@@ -1,1 +1,1 @@
-../test/testlib.py
+../testlib.py

@@ -43,6 +43,7 @@ WHITELIST_LOCAL = "~/.config/github-whitelist"
 OS = os.environ.get("TEST_OS", "fedora-22")
 ARCH = os.environ.get("TEST_ARCH", "x86_64")
 HOSTNAME = socket.gethostname().split(".")[0]
+DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-22")
 
 TESTING = "Testing in progress"
 NOT_TESTED = "Not yet tested"

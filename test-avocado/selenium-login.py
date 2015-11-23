@@ -1,21 +1,34 @@
 #!/usr/bin/python
 """ SETUP tasks
-curl https://copr.fedoraproject.org/coprs/lmr/Autotest/repo/epel-7/lmr-Autotest-epel-7.repo > /etc/yum.repos.d/lmr-Autotest-epel-7.repo
-yum  --nogpgcheck -y install python-pip avocado npm xorg-x11-server-Xvfb firefox cockpit 
-pip install selenium
+
+# workaround for RHEL7
+# curl https://copr.fedoraproject.org/coprs/lmr/Autotest/repo/epel-7/lmr-Autotest-epel-7.repo > /etc/yum.repos.d/lmr-Autotest-epel-7.repo
+# yum --nogpgcheck -y install python-pip
+# pip install selenium
+yum --nogpgcheck -y install avocado python-selenium
+
 adduser test
 echo superhardpasswordtest5554 | passwd --stdin test
 usermod -a -G wheel test
-systemctl start cockpit
-chown test.test /home/test/test.py
 
-# under user:
-sudo -u test bash -c 'Xvfb :99 -ac& sleep 2; export DISPLAY=:99; avocado run selenium-login.py'
+# in case of you would like to use selenium server in docker:
+docker run -d -p 4444:4444 --name selenium-hub selenium/hub:2.48.2
+docker run -d --link selenium-hub:hub selenium/node-chrome:2.48.2
+docker run -d --link selenium-hub:hub selenium/node-firefox:2.48.2
+
+systemctl start cockpit
+
+# RUN AS
+avocado run selenium-login.py
+# OR ALTERNATIVELY with docker selenium server (BROWSER=firefox or chrome)
+HUB=localhost BROWSER=chrome GUEST=`hostname -i` avocado run selenium-login.py 
+
 
 """
 
 
 import selenium.webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from avocado import Test
 from avocado import main
 from avocado.utils import process
@@ -27,23 +40,28 @@ import inspect
 user = "test"
 passwd = "superhardpasswordtest5554"
 
-
 class BasicTestSuite(Test):
 
     def __init__(self, *args, **kwargs):
         super(BasicTestSuite, self).__init__(*args, **kwargs)
 
     def setUp(self):
-        pass
-        #self.driver = selenium.webdriver.PhantomJS(service_args=['--web-security=no','--ssl-protocol=any', '--ignore-ssl-errors=yes'])
-        # self.driver=selenium.webdriver.Chrome()
-        self.driver = selenium.webdriver.Firefox()
+        if not (os.environ.has_key("HUB") or os.environ.has_key("BROWSER")):
+            self.driver = selenium.webdriver.Firefox()
+            guest_machine = 'localhost'
+        else:
+            selenium_hub = os.environ["HUB"] if os.environ.has_key("HUB") else "localhost"
+            browser = os.environ["BROWSER"] if os.environ.has_key("BROWSER") else "firefox"
+            guest_machine = os.environ["GUEST"]
+            self.driver = selenium.webdriver.Remote(command_executor='http://%s:4444/wd/hub' % selenium_hub ,desired_capabilities={'browserName': browser})
+        #
+
         self.driver.set_window_size(1024, 768)
         self.driver.set_page_load_timeout(30)
         self.driver.implicitly_wait(10)
         self.default_try = 10
         self.default_sleep = 1
-        self.driver.get('https://localhost:9090')
+        self.driver.get('https://%s:9090' % guest_machine)
 
     def tearDown(self):
         pass

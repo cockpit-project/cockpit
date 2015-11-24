@@ -104,7 +104,6 @@ The following fields are defined:
  * "user": Optional alternate user for authenticating with host
  * "superuser": Optional. Use "require" to run as root, or "try" to attempt to run as root.
  * "group": A group that can later be used with the "kill" command.
- * "external": Create an channel if present, see below
  * "capabilities": Optional, array of capability strings required from the bridge
 
 If "binary" is set then this channel transfers binary messages. If "binary"
@@ -128,19 +127,14 @@ An example of an open:
 
 This message is sent to the cockpit-bridge.
 
-If the "external" field is present, then an external channel will be prepared.
-This requires another HTTP or WebSocket request to open the actual channel. An
-"external" control message will be sent with the URL to which the request
-should be made.
+The open fields are also used with external channels. External channels are
+channels that have their payload sent via a separate HTTP request or another
+WebSocket. In this case the "channel" field must not be present, and an
+"external" field may be present with the following arguments:
 
-If present the "external" field should be set to an object, containing the
-following optional fields:
-
- * "disposition": a Content-Disposition header for GET responses
- * "type": a Content-Type header for GET responses
-
-An external channel will respond with a "ready" control message that has a
-"target" field containing the relative target URL.
+ * "content-disposition": a Content-Disposition header for GET responses
+ * "content-type": a Content-Type header for GET responses
+ * "protocols": an array of possible protocols for a WebSocket
 
 Command: close
 --------------
@@ -315,19 +309,6 @@ Example logout message:
     }
 
 The "logout" command is broadcast to all bridge instances.
-
-
-Command: sideband
------------------
-
-A control message sent by a channel, indicating that the payload data should be
-sent over a sideband Websocket or HTTP request.
-
-The following fields are defined:
-
- * "target": The URL at which the data is available
-
-This message is sent from the web service to the frontend.
 
 
 Payload: null

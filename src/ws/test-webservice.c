@@ -1671,6 +1671,98 @@ test_logout (TestCase *test,
   close_client_and_stop_web_service (test, ws, service);
 }
 
+static void
+test_parse_external (void)
+{
+  const gchar *content_disposition;
+  const gchar *content_type;
+  gchar **protocols;
+  JsonObject *object;
+  JsonObject *external;
+  JsonArray *array;
+  gboolean ret;
+
+  object = json_object_new ();
+
+  ret = cockpit_web_service_parse_external (object, NULL, NULL, NULL);
+  g_assert (ret == TRUE);
+
+  ret = cockpit_web_service_parse_external (object, &content_type, &content_disposition, &protocols);
+  g_assert (ret == TRUE);
+  g_assert (content_type == NULL);
+  g_assert (content_disposition == NULL);
+  g_assert (protocols == NULL);
+
+  external = json_object_new ();
+  json_object_set_object_member (object, "external", external);
+
+  ret = cockpit_web_service_parse_external (object, &content_type, &content_disposition, &protocols);
+  g_assert (ret == TRUE);
+  g_assert (content_type == NULL);
+  g_assert (content_disposition == NULL);
+  g_assert (protocols == NULL);
+
+  array = json_array_new ();
+  json_array_add_string_element (array, "one");
+  json_array_add_string_element (array, "two");
+  json_array_add_string_element (array, "three");
+  json_object_set_array_member (external, "protocols", array);
+
+  json_object_set_string_member (external, "content-type", "text/plain");
+  json_object_set_string_member (external, "content-disposition", "filename; test");
+
+  ret = cockpit_web_service_parse_external (object, &content_type, &content_disposition, &protocols);
+  g_assert (ret == TRUE);
+  g_assert_cmpstr (content_type, ==, "text/plain");
+  g_assert_cmpstr (content_disposition, ==, "filename; test");
+  g_assert (protocols != NULL);
+  g_assert_cmpstr (protocols[0], ==, "one");
+  g_assert_cmpstr (protocols[1], ==, "two");
+  g_assert_cmpstr (protocols[2], ==, "three");
+  g_assert_cmpstr (protocols[3], ==, NULL);
+  g_free (protocols);
+
+  json_object_unref (object);
+}
+
+typedef struct {
+  const gchar *name;
+  const gchar *input;
+  const gchar *message;
+} ParseExternalFailure;
+
+static ParseExternalFailure external_failure_fixtures[] = {
+  { "bad-channel", "{ \"channel\": \"blah\" }", "don't specify \"channel\" on external channel" },
+  { "bad-command", "{ \"command\": \"test\" }", "don't specify \"command\" on external channel" },
+  { "bad-external", "{ \"external\": \"test\" }", "invalid \"external\" option" },
+  { "bad-disposition", "{ \"external\": { \"content-disposition\": 5 } }", "invalid*content-disposition*" },
+  { "invalid-disposition", "{ \"external\": { \"content-disposition\": \"xx\nx\" } }", "invalid*content-disposition*" },
+  { "bad-type", "{ \"external\": { \"content-type\": 5 } }", "invalid*content-type*" },
+  { "invalid-type", "{ \"external\": { \"content-type\": \"xx\nx\" } }", "invalid*content-type*" },
+  { "bad-protocols", "{ \"external\": { \"protocols\": \"xx\nx\" } }", "invalid*protocols*" },
+};
+
+static void
+test_parse_external_failure (gconstpointer data)
+{
+  const ParseExternalFailure *fixture = data;
+  GError *error = NULL;
+  JsonObject *object;
+  gboolean ret;
+
+  object = cockpit_json_parse_object (fixture->input, -1, &error);
+  g_assert_no_error (error);
+
+  cockpit_expect_message (fixture->message);
+
+  ret = cockpit_web_service_parse_external (object, NULL, NULL, NULL);
+  g_assert (ret == FALSE);
+
+  json_object_unref (object);
+
+  cockpit_assert_expected ();
+}
+
 static gboolean
 on_hack_raise_sigchld (gpointer user_data)
 {
@@ -1682,6 +1774,9 @@ int
 main (int argc,
       char *argv[])
 {
+  gchar *name;
+  gint i;
+
   cockpit_test_init (&argc, &argv);
 
   /*
@@ -1798,6 +1893,14 @@ main (int argc,
               setup_for_socket, test_dispose, teardown_for_socket);
   g_test_add ("/web-service/logout", TestCase, NULL,
               setup_for_socket, test_logout, teardown_for_socket);
+
+  g_test_add_func ("/web-service/parse-external/success", test_parse_external);
+  for (i = 0; i < G_N_ELEMENTS (external_failure_fixtures); i++)
+    {
+      name = g_strdup_printf ("/web-service/parse-external/%s", external_failure_fixtures[i].name);
+      g_test_add_data_func (name, external_failure_fixtures + i, test_parse_external_failure);
+      g_free (name);
+    }
 
   return g_test_run ();
 }

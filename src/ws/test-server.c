@@ -290,17 +290,49 @@ on_handle_stream_external (CockpitWebServer *server,
   CockpitWebResponse *response;
   gboolean handled = FALSE;
   const gchar *upgrade;
-  JsonObject *open;
+  CockpitCreds *creds;
+  const gchar *expected;
+  const gchar *query;
+  JsonObject *open = NULL;
+  GBytes *bytes;
+  guchar *decoded;
+  gsize length;
 
-  if (!g_str_has_prefix (path, "/cockpit/"))
+  if (!g_str_has_prefix (path, "/cockpit/channel/"))
     return FALSE;
 
-  /* Remove /cockpit part */
-  path += 8;
+  /* Remove /cockpit/channel/ part */
+  path += 17;
 
   if (service)
     {
-      open = cockpit_web_service_pop_external (service, path);
+      creds = cockpit_web_service_get_creds (service);
+      g_return_val_if_fail (creds != NULL, FALSE);
+
+      expected = cockpit_creds_get_csrf_token (creds);
+      g_return_val_if_fail (expected != NULL, FALSE);
+
+      /* The end of the token */
+      query = strchr (path, '?');
+      if (!query)
+        query = path + strlen (path);
+
+      /* No such path is valid */
+      if (strncmp (expected, path, query - path) == 0)
+        {
+          decoded = g_base64_decode (query, &length);
+          if (decoded)
+            {
+              bytes = g_bytes_new_take (decoded, length);
+              if (!cockpit_transport_parse_command (bytes, NULL, NULL, &open))
+                {
+                  open = NULL;
+                  g_message ("invalid external channel query");
+                }
+              g_bytes_unref (bytes);
+            }
+        }
+
       if (open)
         {
           upgrade = g_hash_table_lookup (headers, "Upgrade");

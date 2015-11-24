@@ -133,43 +133,93 @@ cockpit_handler_external (CockpitWebServer *server,
   CockpitWebResponse *response = NULL;
   CockpitWebService *service = NULL;
   const gchar *segment = NULL;
-  gboolean handled = FALSE;
+  JsonObject *open = NULL;
+  const gchar *query = NULL;
+  CockpitCreds *creds;
+  const gchar *expected;
   const gchar *upgrade;
-  JsonObject *open;
+  guchar *decoded;
+  GBytes *bytes;
+  gsize length;
+  gsize seglen;
 
-  /* The path must start with /cockpit+xxx/channel/ or similar */
+  /* The path must start with /cockpit+xxx/channel/csrftoken? or similar */
   if (path && path[0])
     segment = strchr (path + 1, '/');
   if (!segment)
     return FALSE;
+  if (!g_str_has_prefix (segment, "/channel/"))
+    return FALSE;
+  segment += 9;
 
+  /* Make sure we are authenticated, otherwise 404 */
   service = cockpit_auth_check_cookie (ws->auth, path, headers);
-  if (service)
+  if (!service)
+    return FALSE;
+
+  creds = cockpit_web_service_get_creds (service);
+  g_return_val_if_fail (creds != NULL, FALSE);
+
+  expected = cockpit_creds_get_csrf_token (creds);
+  g_return_val_if_fail (expected != NULL, FALSE);
+
+  /* The end of the token */
+  query = strchr (segment, '?');
+  if (query)
     {
-      open = cockpit_web_service_pop_external (service, segment);
-      if (open)
-        {
-          upgrade = g_hash_table_lookup (headers, "Upgrade");
-          if (upgrade && g_str_equal (upgrade, "websocket"))
-            {
-              cockpit_channel_socket_open (service, open, path, io_stream, headers, input);
-              handled = TRUE;
-            }
-          else
-            {
-              response = cockpit_web_response_new (io_stream, path, NULL, headers);
-              cockpit_channel_response_open (service, headers, response, open);
-              g_object_unref (response);
-              handled = TRUE;
-            }
-
-          json_object_unref (open);
-        }
-
-      g_object_unref (service);
+      seglen = query - segment;
+      query += 1;
+    }
+  else
+    {
+      seglen = strlen (segment);
+      query = "";
     }
 
-  return handled;
+  /* No such path is valid */
+  if (strlen (expected) != seglen || memcmp (expected, segment, seglen) != 0)
+    {
+      g_message ("invalid csrf token");
+      return FALSE;
+    }
+
+  decoded = g_base64_decode (query, &length);
+  if (decoded)
+    {
+      bytes = g_bytes_new_take (decoded, length);
+      if (!cockpit_transport_parse_command (bytes, NULL, NULL, &open))
+        {
+          open = NULL;
+          g_message ("invalid external channel query");
+        }
+      g_bytes_unref (bytes);
+    }
+
+  if (!open)
+    {
+      response = cockpit_web_response_new (io_stream, path, NULL, headers);
+      cockpit_web_response_error (response, 400, NULL, NULL);
+      g_object_unref (response);
+    }
+  else
+    {
+      upgrade = g_hash_table_lookup (headers, "Upgrade");
+      if (upgrade && g_str_equal (upgrade, "websocket"))
+        {
+          cockpit_channel_socket_open (service, open, path, io_stream, headers, input);
+        }
+      else
+        {
+          response = cockpit_web_response_new (io_stream, path, NULL, headers);
+          cockpit_channel_response_open (service, headers, response, open);
+          g_object_unref (response);
+        }
+      json_object_unref (open);
+    }
+
+  g_object_unref (service);
+
+  return TRUE;
 }
 
 

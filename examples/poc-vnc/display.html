@@ -29,23 +29,17 @@ require([
         $("canvas").show();
         $("table").hide();
 
-        var channel = cockpit.channel({
-            command: "open",
-            payload: "stream",
-            protocol: "binary",
-            address: "127.0.0.1",
-            port: parseInt($("#port").val(), 10),
-            binary: "raw",
-            external: { }
-        });
+        var query = window.btoa(JSON.stringify({
+                payload: "stream",
+                protocol: "binary",
+                address: "127.0.0.1",
+                port: parseInt($("#port").val(), 10),
+                binary: "raw",
+        }));
 
         console.log("channel", $("#port").val());
-
-        $(channel).on("control", function(ev, options) {
-            if (options.command == "ready")
-                connect("cockpit/" + options.target);
-            else
-                throw "Unexpected control message: " + options.command;
+        cockpit.transport.wait(function() {
+            connect("cockpit/channel/" + cockpit.transport.csrf_token + "?" + query);
         });
     });
 

@@ -297,6 +297,7 @@ cockpit_web_socket_stream_prepare (CockpitChannel *channel)
   CockpitConnectable *connectable = NULL;
   JsonObject *options;
   const gchar *path;
+  gboolean started = FALSE;
 
   COCKPIT_CHANNEL_CLASS (cockpit_web_socket_stream_parent_class)->prepare (channel);
 
@@ -326,10 +327,15 @@ cockpit_web_socket_stream_prepare (CockpitChannel *channel)
   self->binary = json_object_has_member (options, "binary");
 
   cockpit_connect_stream_full (connectable, NULL, on_socket_connect, g_object_ref (self));
+  started = TRUE;
 
 out:
   if (connectable)
-    cockpit_connectable_unref (connectable);
+    {
+      cockpit_connectable_unref (connectable);
+      if (!started)
+        cockpit_channel_close (channel, "protocol-error");
+    }
 }
 
 static void

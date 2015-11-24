@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2016 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+  <head>
+    <title>Websocket Channel Tests</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../../tools/qunit.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="../../tools/qunit.js"></script>
+
+    <script type="text/javascript" src="cockpit.js"></script>
+  </head>
+  <body>
+    <h1 id="qunit-header">Websocket Channel Tests</h1>
+    <h2 id="qunit-banner"></h2><div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2><ol id="qunit-tests"></ol>
+    <div id="qunit-fixture">test markup, will be hidden</div>
+    <div id="done-flag" style="display:none">Done</div>
+  </body>
+<script type="text/javascript">
+
+asyncTest("external channel websocket", function() {
+    expect(3);
+
+    var query = window.btoa(JSON.stringify({
+        payload: "websocket-stream1",
+        address: "localhost",
+        port: parseInt(window.location.port, 10),
+        path: "/cockpit/echosocket/",
+    }));
+
+    var count = 0;
+    var ws = new WebSocket("ws://" + location.host + "/cockpit/channel/" +
+                           cockpit.transport.csrf_token + '?' + query);
+    ws.onopen = function() {
+        ok(true, "websocket is open");
+        ws.send("oh marmalade");
+    };
+    ws.onerror = function() {
+        ok(false, "websocket error");
+    };
+    ws.onmessage = function(ev) {
+        if (count == 0) {
+            equal(ev.data, "OH MARMALADE", "got payload");
+            ws.send("another test");
+            count += 1;
+        } else {
+            equal(ev.data, "ANOTHER TEST", "got payload again");
+            ws.close(1000);
+        }
+    };
+    ws.onclose = function(ev) {
+        start();
+    }
+});
+
+asyncTest("bad channel options websocket", function() {
+
+
+    var payloads = [
+        window.btoa(JSON.stringify({
+            payload: "websocket-stream1",
+            address: "localhost",
+            port: 'bad',
+            path: "/cockpit/echosocket/",
+        })),
+        window.btoa(JSON.stringify({
+            payload: "websocket-stream1",
+            address: "localhost",
+            port: parseInt(window.location.port, 10),
+        }))
+    ];
+    expect(payloads.length * 3);
+    function step() {
+        var query = payloads.shift();
+        var url = "ws://" + location.host + "/cockpit/channel/" +
+                               cockpit.transport.csrf_token + '?' + query;
+        console.log(url);
+        var ws = new WebSocket(url);
+        ws.onopen = function() {
+            ok(true, "websocket opened");
+        };
+        ws.onclose = function(ev) {
+            console.log(ev);
+            ok(!ev.wasClean, url + "websocket unclean shutdown");
+            notEqual(ev.code, 0, url + "websocket error code");
+            ws = null;
+            if (payloads.length == 0)
+                start();
+            else
+                step();
+        };
+    }
+    step();
+});
+
+cockpit.transport.wait(function() {
+    QUnit.start();
+});
+
+</script>
+</html>

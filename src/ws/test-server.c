@@ -277,6 +277,33 @@ on_handle_stream_socket (CockpitWebServer *server,
   return TRUE;
 }
 
+static void
+on_echo_socket_message (WebSocketConnection *self,
+                        WebSocketDataType type,
+                        GBytes *message,
+                        gpointer user_data)
+{
+  GByteArray *array = g_bytes_unref_to_array (g_bytes_ref (message));
+  GBytes *payload;
+  guint i;
+
+  /* Capitalize and relay back */
+  for (i = 0; i < array->len; i++)
+    array->data[i] = g_ascii_toupper (array->data[i]);
+
+  payload = g_byte_array_free_to_bytes (array);
+  web_socket_connection_send (self, type, NULL, payload);
+  g_bytes_unref (payload);
+}
+
+static void
+on_echo_socket_close (WebSocketConnection *ws,
+                      gpointer user_data)
+{
+  g_message ("SOCKET CLOSING");
+  g_object_unref (ws);
+}
+
 static gboolean
 on_handle_stream_external (CockpitWebServer *server,
                            const gchar *path,
@@ -297,6 +324,25 @@ on_handle_stream_external (CockpitWebServer *server,
   guchar *decoded;
   gsize length;
   gsize seglen;
+
+  if (g_str_has_prefix (path, "/cockpit/echosocket"))
+    {
+      const gchar *protocols[] = { "cockpit1", NULL };
+      const gchar *origins[2] = { NULL, NULL };
+      WebSocketConnection *ws = NULL;
+      gchar *url;
+
+      url = g_strdup_printf ("ws://localhost:%u%s", server_port, path);
+      origins[0] = g_strdup_printf ("http://localhost:%u", server_port);
+
+      g_message ("RUNNING SOCKET %s %s", url, origins[0]);
+      ws = web_socket_server_new_for_stream (url, (const gchar **)origins,
+                                             protocols, io_stream, headers, input);
+
+      g_signal_connect (ws, "message", G_CALLBACK (on_echo_socket_message), NULL);
+      g_signal_connect (ws, "close", G_CALLBACK (on_echo_socket_close), NULL);
+      return TRUE;
+    }
 
   if (!g_str_has_prefix (path, "/cockpit/channel/"))
     return FALSE;

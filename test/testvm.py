@@ -854,9 +854,9 @@ class VirtMachine(Machine):
             self.address = self._ip_from_mac(self.macaddr)
 
     # start virsh console
-    def qemu_console(self, maintain=True, macaddr=None):
+    def qemu_console(self, maintain=True, macaddr=None, memory_mb=None, cpus=None):
         try:
-            self._start_qemu(maintain=maintain, macaddr=macaddr, wait_for_ip=False)
+            self._start_qemu(maintain=maintain, macaddr=macaddr, wait_for_ip=False, memory_mb=memory_mb, cpus=cpus)
             self.message("started machine %s with address %s" % (self._domain.name(), self.address))
             if maintain:
                 self.message("Changes are written to the image file.")

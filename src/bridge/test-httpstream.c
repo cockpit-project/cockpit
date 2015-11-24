@@ -21,13 +21,15 @@
 #include "config.h"
 
 #include "cockpithttpstream.h"
-#include "cockpithttpstream.c"
+
+#include "common/cockpitjson.h"
 #include "common/cockpittest.h"
 #include "common/cockpitwebresponse.h"
 #include "common/cockpitwebserver.h"
 
 #include "mock-transport.h"
-#include <json-glib/json-glib.h>
+
+#include <string.h>
 
 static void
 on_closed_set_flag (CockpitChannel *channel,
@@ -409,44 +411,31 @@ test_parse_keep_alive (void)
 {
   const gchar *version;
   GHashTable *headers;
-  MockTransport *transport;
-  CockpitHttpStream *stream;
-
-  JsonObject *options;
-  options = json_object_new ();
-  transport = g_object_new (mock_transport_get_type (), NULL);
-  stream = g_object_new (COCKPIT_TYPE_HTTP_STREAM,
-                            "transport", transport,
-                            "id", "1",
-                            "options", options,
-                            NULL);
+  gboolean keep_alive;
 
   headers = g_hash_table_new (g_str_hash, g_str_equal);
 
   version = "HTTP/1.1";
   g_hash_table_insert (headers, "Connection", "keep-alive");
 
-  parse_keep_alive (stream, version, headers);
-  g_assert (stream->keep_alive == TRUE);
+  keep_alive = cockpit_http_stream_parse_keep_alive (version, headers);
+  g_assert (keep_alive == TRUE);
 
   version = "HTTP/1.0";
-  parse_keep_alive (stream, version, headers);
-  g_assert (stream->keep_alive == TRUE);
+  keep_alive = cockpit_http_stream_parse_keep_alive (version, headers);
+  g_assert (keep_alive == TRUE);
 
 
   g_hash_table_remove (headers, "Connection");
 
-  parse_keep_alive (stream, version, headers);
-  g_assert (stream->keep_alive == FALSE);
+  keep_alive = cockpit_http_stream_parse_keep_alive (version, headers);
+  g_assert (keep_alive == FALSE);
 
   version = "HTTP/1.1";
-  parse_keep_alive (stream, version, headers);
-  g_assert (stream->keep_alive == TRUE);
+  keep_alive = cockpit_http_stream_parse_keep_alive (version, headers);
+  g_assert (keep_alive == TRUE);
 
   g_hash_table_destroy (headers);
-  g_object_unref (transport);
-  g_object_unref (stream);
-  json_object_unref (options);
 }
 
 typedef struct {

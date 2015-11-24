@@ -291,21 +291,23 @@ parse_transfer_encoding (CockpitHttpStream *self,
   return TRUE;
 }
 
-static gboolean
-parse_keep_alive (CockpitHttpStream *self,
-                  const gchar *version,
-                  GHashTable *headers)
+gboolean
+cockpit_http_stream_parse_keep_alive (const gchar *version,
+                                      GHashTable *headers)
 {
   const gchar *header;
 
   header = g_hash_table_lookup (headers, "Connection");
 
-  g_debug ("%s: got Connection of %s on %s response", self->name, header, version);
-
   if (!header)
     {
+      g_debug ("got no \"Connection\" header on %s response", version);
       if (version && g_ascii_strcasecmp (version, "HTTP/1.1") == 0)
         header = "keep-alive";
+    }
+  else
+    {
+      g_debug ("got \"Connection\" header of %s on %s response", header, version);
     }
 
   /*
@@ -316,7 +318,15 @@ parse_keep_alive (CockpitHttpStream *self,
    * to tell us.
    */
 
-  self->keep_alive = (header && strstr (header, "keep-alive") != NULL);
+  return (header && strstr (header, "keep-alive") != NULL);
+}
+
+static gboolean
+parse_keep_alive (CockpitHttpStream *self,
+                  const gchar *version,
+                  GHashTable *headers)
+{
+  self->keep_alive = cockpit_http_stream_parse_keep_alive (version, headers);
   return TRUE;
 }
 

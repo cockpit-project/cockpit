@@ -88,7 +88,6 @@ cockpit_handler_socket (CockpitWebServer *server,
                         GIOStream *io_stream,
                         GHashTable *headers,
                         GByteArray *input,
-                        guint in_length,
                         CockpitHandlerData *ws)
 {
   CockpitWebService *service = NULL;
@@ -128,7 +127,6 @@ cockpit_handler_external (CockpitWebServer *server,
                           GIOStream *io_stream,
                           GHashTable *headers,
                           GByteArray *input,
-                          guint in_length,
                           CockpitHandlerData *ws)
 {
   CockpitWebResponse *response = NULL;

@@ -67,8 +67,7 @@ struct _CockpitWebServerClass {
                                 const gchar *path,
                                 GIOStream *io_stream,
                                 GHashTable *headers,
-                                GByteArray *input,
-                                guint in_length);
+                                GByteArray *input);
 
   gboolean (* handle_resource) (CockpitWebServer *server,
                                 const gchar *path,
@@ -301,8 +300,7 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
                                           const gchar *path,
                                           GIOStream *io_stream,
                                           GHashTable *headers,
-                                          GByteArray *input,
-                                          guint in_length)
+                                          GByteArray *input)
 {
   CockpitWebResponse *response;
   gboolean claimed = FALSE;
@@ -436,12 +434,11 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
                                     NULL, /* accu_data */
                                     g_cclosure_marshal_generic,
                                     G_TYPE_BOOLEAN,
-                                    5,
+                                    4,
                                     G_TYPE_STRING,
                                     G_TYPE_IO_STREAM,
                                     G_TYPE_HASH_TABLE,
-                                    G_TYPE_BYTE_ARRAY,
-                                    G_TYPE_UINT);
+                                    G_TYPE_BYTE_ARRAY);
 
   sig_handle_resource = g_signal_new ("handle-resource",
                                       G_OBJECT_CLASS_TYPE (klass),
@@ -826,8 +823,7 @@ path_has_prefix (const gchar *path,
 static void
 process_request (CockpitRequest *request,
                  const gchar *path,
-                 GHashTable *headers,
-                 guint length)
+                 GHashTable *headers)
 {
   gboolean claimed = FALSE;
 
@@ -854,7 +850,6 @@ process_request (CockpitRequest *request,
                  request->io,
                  headers,
                  request->buffer,
-                 length,
                  &claimed);
 
   if (!claimed)
@@ -955,7 +950,7 @@ parse_and_process_request (CockpitRequest *request)
     }
 
   g_byte_array_remove_range (request->buffer, 0, off1 + off2);
-  process_request (request, path, headers, length);
+  process_request (request, path, headers);
 
 out:
   if (headers)

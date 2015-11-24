@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from avocado import job
+from avocado import main
 import cockpit
 
 class checkexample_foo(cockpit.Test):
@@ -28,7 +28,7 @@ class checkexample_foo(cockpit.Test):
 
     def test(self):
         b = self.browser
-        ...
+
 
 if __name__ == "__main__":
-    job.main()
+    main()

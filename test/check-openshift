@@ -24,6 +24,7 @@ import os
 import unittest
 
 @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-openshift on rhel-7.")
+@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
 class TestOpenshift(MachineCase):
     def setUp(self):
         self.openshift = self.new_machine(image="openshift")

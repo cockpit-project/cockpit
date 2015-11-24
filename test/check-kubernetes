@@ -25,6 +25,7 @@ import sys
 import unittest
 
 @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-kubernetes on rhel-7.")
+@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
 class KubernetesCase(MachineCase):
 
     # HACK: https://github.com/GoogleCloudPlatform/kubernetes/issues/8311
@@ -54,6 +55,7 @@ class KubernetesCase(MachineCase):
 
 
 @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-kubernetes on rhel-7.")
+@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
 class TestKubernetes(KubernetesCase):
     def setUp(self):
         MachineCase.setUp(self)
@@ -292,6 +294,7 @@ class TestKubernetes(KubernetesCase):
 
 
 @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-kubernetes on rhel-7.")
+@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
 class TestConnection(KubernetesCase):
     def testConnect(self):
         m = self.machine
@@ -354,6 +357,7 @@ class TestConnection(KubernetesCase):
 
 
 @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-nulecule on rhel-7.")
+@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
 class TestNulecule(KubernetesCase):
     def setUp(self):
         MachineCase.setUp(self)

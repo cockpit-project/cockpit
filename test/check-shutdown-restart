@@ -49,8 +49,7 @@ class TestShutdownRestart(MachineCase):
         # we don't need to wait for the dialog to close here, just the disconnect
         b.wait_popup("disconnected-dialog")
         m.wait_reboot()
-        self.start_cockpit()
-        b.relogin("/system")
+        self.login_and_go("/system")
 
         self.allow_restart_journal_messages()
         self.allow_journal_messages("Shutdown scheduled for .*")

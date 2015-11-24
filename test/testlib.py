@@ -480,9 +480,9 @@ class MachineCase(unittest.TestCase):
             if stopTestRun is not None:
                 stopTestRun()
 
-    def setUp(self, macaddr=None):
+    def setUp(self, macaddr=None, memory_mb=None, cpus=None):
         self.machine = self.new_machine()
-        self.machine.start(macaddr=macaddr)
+        self.machine.start(macaddr=macaddr, memory_mb=memory_mb, cpus=cpus)
         if arg_trace:
             print "starting machine %s" % (self.machine.address)
         self.machine.wait_boot()

@@ -229,7 +229,6 @@ on_handle_stream_socket (CockpitWebServer *server,
                          GIOStream *io_stream,
                          GHashTable *headers,
                          GByteArray *input,
-                         guint in_length,
                          gpointer user_data)
 {
   CockpitTransport *transport;
@@ -284,7 +283,6 @@ on_handle_stream_external (CockpitWebServer *server,
                            GIOStream *io_stream,
                            GHashTable *headers,
                            GByteArray *input,
-                           guint in_length,
                            gpointer user_data)
 {
   CockpitWebResponse *response;

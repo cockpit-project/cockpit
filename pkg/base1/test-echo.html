@@ -145,29 +145,6 @@ asyncTest("binary", function() {
     channel.send(buffer);
 });
 
-asyncTest("sideband", function() {
-    expect(2);
-
-    var params = {
-        "payload": "echo",
-        "protocol": "booyah"
-    };
-
-    var ws = new WebSocket(cockpit.transport.uri() + "?" + JSON.stringify(params), "booyah");
-    ws.onopen = function() {
-        if (ws.protocol !== undefined)
-            equal(ws.protocol, "booyah", "got right protocol");
-        else
-            ok(true, "skipping protocol check");
-        ws.send("the payload");
-    };
-    ws.onmessage = function(event) {
-        strictEqual(event.data, "the payload", "got the right payload");
-        ws.close();
-        start();
-    };
-});
-
 QUnit.start();
 
 </script>

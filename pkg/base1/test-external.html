@@ -36,71 +36,53 @@
 <script type="text/javascript">
 
 asyncTest("external get", function() {
-    expect(7);
+    expect(4);
 
-    var channel = cockpit.channel({ "payload": "fslist1", "path": "/tmp", "watch": false, "external": { } });
-    var req = null;
+    /* The query string used to open the channel */
+    var query = window.btoa(JSON.stringify({
+        payload: "fslist1",
+        path: "/tmp",
+        watch: false
+    }));
 
-    $(channel).on("control", function(ev, options) {
-        equal(options.command, "ready", "got ready");
-        strictEqual(req, null, "one ready message");
-
-        target = options.target;
-        equal(typeof (target), "string", "got target")
-
-        req = new XMLHttpRequest();
-        req.open("GET", "/cockpit/" + target);
-        req.onreadystatechange = function() {
-            if (req.readyState == 4) {
-                equal(this.status, 200, "got right status");
-                equal(this.statusText, "OK", "got right reason");
-                equal(this.getResponseHeader("Content-Type"), "text/plain", "default type");
-                ok(this.responseText.indexOf('"present"'), "got listing");
-                channel.close();
-                $(channel).off();
-                start();
-            }
-        };
-        req.send();
-    });
-
-    $(channel).on("message", function(ev, payload) {
-        notOk(true, "shouldn't get payload here");
-    });
+    var req = new XMLHttpRequest();
+    req.open("GET", "/cockpit/channel/" + cockpit.transport.csrf_token + '?' + query);
+    req.onreadystatechange = function() {
+        if (req.readyState == 4) {
+            equal(req.status, 200, "got right status");
+            equal(req.statusText, "OK", "got right reason");
+            equal(req.getResponseHeader("Content-Type"), "text/plain", "default type");
+            ok(req.responseText.indexOf('"present"'), "got listing");
+            start();
+        }
+    };
+    req.send();
 });
 
 asyncTest("external headers", function() {
-    expect(6);
+    expect(3);
 
-    var channel = cockpit.channel({ "payload": "fslist1", "path": "/tmp", "watch": false,
-                                    "external": { "disposition": "my disposition; blah", "type": "test/blah" } });
-    var req = null;
+    var query = window.btoa(JSON.stringify({
+        payload: "fslist1",
+        path: "/tmp",
+        watch: false,
+        external: {
+            "content-disposition": "my disposition; blah",
+            "content-type": "test/blah",
+        },
+    }));
 
-    $(channel).on("control", function(ev, options) {
-        equal(options.command, "ready", "got ready");
-        strictEqual(req, null, "one ready message");
-
-        target = options.target;
-        equal(typeof (target), "string", "got target")
-
-        req = new XMLHttpRequest();
-        req.open("GET", "/cockpit/" + target);
-        req.onreadystatechange = function() {
-            if (req.readyState == 4) {
-                equal(this.status, 200, "got right status");
-                equal(this.getResponseHeader("Content-Type"), "test/blah", "got type");
-                equal(this.getResponseHeader("Content-Disposition"), "my disposition; blah", "got disposition");
-                channel.close();
-                $(channel).off();
-                start();
-            }
-        };
-        req.send();
-    });
-
-    $(channel).on("message", function(ev, payload) {
-        ok(false, "shouldn't get payload here");
-    });
+    var req = new XMLHttpRequest();
+    req.open("GET", "/cockpit/channel/" + cockpit.transport.csrf_token + '?' + query);
+    req.onreadystatechange = function() {
+        if (req.readyState == 4) {
+            equal(this.status, 200, "got right status");
+            equal(this.getResponseHeader("Content-Type"), "test/blah", "got type");
+            equal(this.getResponseHeader("Content-Disposition"), "my disposition; blah", "got disposition");
+            start();
+        }
+    };
+    req.send();
 });
 
 asyncTest("external invalid", function() {
@@ -117,52 +99,85 @@ asyncTest("external invalid", function() {
     req.send();
 });
 
-asyncTest("external websocket", function() {
-    expect(6);
+asyncTest("external no token", function() {
+    expect(1);
 
-    var channel = cockpit.channel({ "payload": "echo", "external": { } });
-    var count = 0;
-    var ws = null;
+    /* The query string used to open the channel */
+    var query = window.btoa(JSON.stringify({
+        payload: "fslist1",
+        path: "/tmp",
+        watch: false
+    }));
 
-    $(channel).on("control", function(ev, options) {
-        equal(options.command, "ready", "got ready");
-        strictEqual(ws, null, "one ready message");
-
-        target = options.target;
-        equal(typeof (target), "string", "got target")
-
-        ws = new WebSocket("ws://" + location.host + "/cockpit/" + target, "protocol-unused");
-        ws.onopen = function() {
-            ok(true, "websocket is open");
-            ws.send("oh marmalade");
-        };
-        ws.onerror = function() {
-            ok(false, "websocket error");
-        };
-        ws.onmessage = function(ev) {
-            if (count == 0) {
-                equal(ev.data, "oh marmalade", "got payload");
-                ws.send("another test");
-                count += 1;
-            } else {
-                equal(ev.data, "another test", "got payload again");
-                ws.close(1000);
-            }
-        };
-        ws.onclose = function() {
-            channel.close();
-            $(channel).off();
+    var req = new XMLHttpRequest();
+    req.open("GET", "/cockpit/channel/?" + query);
+    req.onreadystatechange = function() {
+        if (req.readyState == 4) {
+            equal(this.status, 404, "got not found");
             start();
         }
-    });
+    }
+    req.send();
+});
 
-    $(channel).on("message", function(ev, payload) {
-        notOk(true, "shouldn't get payload here");
-    });
+asyncTest("external websocket", function() {
+    expect(3);
+
+    var query = window.btoa(JSON.stringify({
+        payload: "echo"
+    }));
+
+    var count = 0;
+    var ws = new WebSocket("ws://" + location.host + "/cockpit/channel/" +
+                           cockpit.transport.csrf_token + '?' + query, "protocol-unused");
+    ws.onopen = function() {
+        ok(true, "websocket is open");
+        ws.send("oh marmalade");
+    };
+    ws.onerror = function() {
+        ok(false, "websocket error");
+    };
+    ws.onmessage = function(ev) {
+        if (count == 0) {
+            equal(ev.data, "oh marmalade", "got payload");
+            ws.send("another test");
+            count += 1;
+        } else {
+            equal(ev.data, "another test", "got payload again");
+            ws.close(1000);
+        }
+    };
+    ws.onclose = function() {
+        start();
+    }
+});
+
+asyncTest("external websocket protocols", function() {
+    expect(1);
+
+    var query = window.btoa(JSON.stringify({
+        payload: "echo",
+        external: {
+            protocols: [ "two", "three" ]
+        }
+    }));
+
+    var count = 0;
+    var ws = new WebSocket("ws://" + location.host + "/cockpit/channel/" +
+                           cockpit.transport.csrf_token + '?' + query, [ "one", "two" ]);
+    ws.onopen = function() {
+        equal(ws.protocol, "two", "chose right protocol");
+        ws.close();
+    };
+    ws.onclose = function() {
+        start();
+    }
 });
 
 
-QUnit.start();
+cockpit.transport.wait(function() {
+    QUnit.start();
+});
 
 </script>
 </html>

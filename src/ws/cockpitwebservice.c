@@ -406,110 +406,6 @@ cockpit_sockets_cleanup (CockpitSockets *sockets)
 }
 
 /* ----------------------------------------------------------------------------
- * CockpitExternal
- */
-
-typedef struct {
-  gchar *target;
-  const gchar *channel;
-  JsonObject *open;
-} CockpitExternal;
-
-typedef struct {
-  GHashTable *by_channel;
-  GHashTable *by_target;
-} CockpitExternals;
-
-static void
-cockpit_external_free (gpointer data)
-{
-  CockpitExternal *external = data;
-  if (external)
-    {
-      g_free (external->target);
-      json_object_unref (external->open);
-      g_free (external);
-    }
-}
-
-static void
-cockpit_externals_init (CockpitExternals *externals)
-{
-  externals->by_channel = g_hash_table_new (g_str_hash, g_str_equal);
-
-  /* This owns the external */
-  externals->by_target = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                                NULL, cockpit_external_free);
-}
-
-static const gchar *
-cockpit_external_add_channel (CockpitExternals *externals,
-                              const gchar *csrf_token,
-                              JsonObject *open)
-{
-  CockpitExternal *external;
-  gchar *segment;
-  gsize length;
-
-  g_assert (csrf_token != NULL);
-
-  length = strlen (csrf_token);
-  g_assert (length != 0);
-
-  external = g_new0 (CockpitExternal, 1);
-  external->channel = json_object_get_string_member (open, "channel");
-  segment = g_compute_hmac_for_string (G_CHECKSUM_SHA256,
-                                       (const guchar *)csrf_token, length,
-                                       external->channel, -1);
-  external->target = g_strdup_printf ("/channel/%s", segment);
-  g_free (segment);
-  external->open = json_object_ref (open);
-
-  /* Owned by the channel options */
-  g_hash_table_replace (externals->by_channel, (gchar *)external->channel, external);
-  g_hash_table_replace (externals->by_target, external->target, external);
-
-  return external->target;
-}
-
-static JsonObject *
-cockpit_external_steal_target (CockpitExternals *externals,
-                               const gchar *target)
-{
-  CockpitExternal *external = g_hash_table_lookup (externals->by_target, target);
-  JsonObject *open;
-
-  if (!external)
-    return NULL;
-
-  open = json_object_ref (external->open);
-  g_hash_table_remove (externals->by_channel, external->channel);
-  g_hash_table_remove (externals->by_target, external->target);
-
-  return open;
-}
-
-
-static void
-cockpit_external_remove_channel (CockpitExternals *externals,
-                                 const gchar *channel)
-{
-  CockpitExternal *external = g_hash_table_lookup (externals->by_channel, channel);
-  if (external)
-    {
-      g_hash_table_remove (externals->by_channel, channel);
-      g_hash_table_remove (externals->by_target, external->target);
-    }
-}
-
-static void
-cockpit_externals_cleanup (CockpitExternals *externals)
-{
-  g_hash_table_destroy (externals->by_channel);
-  g_hash_table_destroy (externals->by_target);
-}
-
-/* ----------------------------------------------------------------------------
  * Web Socket Routing
  */
 
@@ -519,7 +415,6 @@ struct _CockpitWebService {
   CockpitCreds *creds;
   CockpitSockets sockets;
   CockpitSessions sessions;
-  CockpitExternals externals;
   gboolean closing;
   GBytes *control_prefix;
   guint ping_timeout;
@@ -583,7 +478,6 @@ cockpit_web_service_finalize (GObject *object)
 
   cockpit_sessions_cleanup (&self->sessions);
   cockpit_sockets_cleanup (&self->sockets);
-  cockpit_externals_cleanup (&self->externals);
   g_bytes_unref (self->control_prefix);
   cockpit_creds_unref (self->creds);
   if (self->ping_timeout)
@@ -636,7 +530,6 @@ process_close (CockpitWebService *self,
     cockpit_session_remove_channel (&self->sessions, session, channel);
   if (socket)
     cockpit_socket_remove_channel (&self->sockets, socket, channel);
-  cockpit_external_remove_channel (&self->externals, channel);
   g_hash_table_remove (self->channel_groups, channel);
 
   return TRUE;
@@ -1285,40 +1178,71 @@ cockpit_web_service_parse_binary (JsonObject *options,
 
 gboolean
 cockpit_web_service_parse_external (JsonObject *options,
-                                    JsonObject **result)
+                                    const gchar **content_type,
+                                    const gchar **content_disposition,
+                                    gchar ***protocols)
 {
   JsonObject *external;
   const gchar *value;
   JsonNode *node;
 
+  g_return_val_if_fail (options != NULL, FALSE);
+
+  if (!cockpit_json_get_string (options, "channel", NULL, &value) || value != NULL)
+    {
+      g_message ("don't specify \"channel\" on external channel");
+      return FALSE;
+    }
+  if (!cockpit_json_get_string (options, "command", NULL, &value) || value != NULL)
+    {
+      g_message ("don't specify \"command\" on external channel");
+      return FALSE;
+    }
+
   node = json_object_get_member (options, "external");
   if (node == NULL)
     {
-      *result = NULL;
+      if (content_disposition)
+        *content_disposition = NULL;
+      if (content_type)
+        *content_type = NULL;
+      if (protocols)
+        *protocols = NULL;
       return TRUE;
     }
 
   if (!JSON_NODE_HOLDS_OBJECT (node))
     {
-      g_warning ("invalid \"external\" option");
+      g_message ("invalid \"external\" option");
       return FALSE;
     }
 
   external = json_node_get_object (node);
-  if (!cockpit_json_get_string (external, "disposition", NULL, &value) ||
+
+  if (!cockpit_json_get_string (external, "content-disposition", NULL, &value) ||
       (value && !cockpit_web_response_is_header_value (value)))
     {
-      g_warning ("invalid \"disposition\" external option");
+      g_message ("invalid \"content-disposition\" external option");
       return FALSE;
     }
-  if (!cockpit_json_get_string (external, "type", NULL, &value) ||
+  if (content_disposition)
+    *content_disposition = value;
+
+  if (!cockpit_json_get_string (external, "content-type", NULL, &value) ||
       (value && !cockpit_web_response_is_header_value (value)))
     {
-      g_warning ("invalid \"type\" external option");
+      g_message ("invalid \"content-type\" external option");
+      return FALSE;
+    }
+  if (content_type)
+    *content_type = value;
+
+  if (!cockpit_json_get_strv (external, "protocols", NULL, protocols))
+    {
+      g_message ("invalid \"protocols\" external option");
       return FALSE;
     }
 
-  *result = external;
   return TRUE;
 }
 
@@ -1330,12 +1254,8 @@ process_and_relay_open (CockpitWebService *self,
 {
   WebSocketDataType data_type = WEB_SOCKET_DATA_TEXT;
   CockpitSession *session = NULL;
-  const gchar *csrf_token;
-  JsonObject *external;
-  const gchar *target;
   const gchar *group;
   GBytes *payload;
-  GBytes *control;
 
   if (self->closing)
     {
@@ -1355,39 +1275,18 @@ process_and_relay_open (CockpitWebService *self,
       return FALSE;
     }
 
-  if (!cockpit_web_service_parse_external (options, &external))
-    return FALSE;
-
   if (!cockpit_web_service_parse_binary (options, &data_type))
     return FALSE;
 
   session = lookup_or_open_session (self, options);
 
   cockpit_session_add_channel (&self->sessions, session, channel);
-  if (external)
-    {
-      csrf_token = cockpit_creds_get_csrf_token (self->creds);
-      g_return_val_if_fail (csrf_token && csrf_token[0], FALSE);
-
-      target = cockpit_external_add_channel (&self->externals, csrf_token, options);
-      control = cockpit_transport_build_control ("command", "ready",
-                                                 "target", target + 1,
-                                                 "channel", channel,
-                                                 NULL);
-
-      g_debug ("%s: adding external channel %s at %s", socket->id, channel, target);
-
-      if (web_socket_connection_get_ready_state (socket->connection) == WEB_SOCKET_STATE_OPEN)
-        web_socket_connection_send (socket->connection, WEB_SOCKET_DATA_TEXT, self->control_prefix, control);
-
-      g_bytes_unref (control);
-    }
-
-  cockpit_socket_add_channel (&self->sockets, socket, channel, data_type);
+  if (socket)
+    cockpit_socket_add_channel (&self->sockets, socket, channel, data_type);
   if (group)
     g_hash_table_insert (self->channel_groups, g_strdup (channel), g_strdup (group));
 
-  if (!external && !session->sent_done)
+  if (!session->sent_done)
     {
       payload = cockpit_json_write_bytes (options);
       cockpit_transport_send (session->transport, NULL, payload);
@@ -1744,7 +1643,6 @@ cockpit_web_service_init (CockpitWebService *self)
   self->control_prefix = g_bytes_new_static ("\n", 1);
   cockpit_sessions_init (&self->sessions);
   cockpit_sockets_init (&self->sockets);
-  cockpit_externals_init (&self->externals);
   self->ping_timeout = g_timeout_add_seconds (cockpit_ws_ping_interval, on_ping_time, self);
   self->channel_groups = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 }
@@ -1979,21 +1877,4 @@ cockpit_web_service_find_transport (CockpitWebService *self,
     }
 
   return NULL;
-}
-
-JsonObject *
-cockpit_web_service_pop_external (CockpitWebService *self,
-                                  const gchar *target)
-{
-  JsonObject *open;
-
-  g_return_val_if_fail (COCKPIT_IS_WEB_SERVICE (self), NULL);
-  g_return_val_if_fail (target != NULL, NULL);
-
-  open = cockpit_external_steal_target (&self->externals, target);
-
-  if (open)
-    g_debug ("handling external channel at %s", target);
-
-  return open;
 }

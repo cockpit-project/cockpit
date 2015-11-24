@@ -1001,9 +1001,6 @@ cockpit_web_response_error (CockpitWebResponse *self,
         case 405:
           message = "Method Not Allowed";
           break;
-        case 410:
-          message = "Requested resource is no longer available";
-          break;
         case 413:
           message = "Request Entity Too Large";
           break;

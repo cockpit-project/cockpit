@@ -76,11 +76,10 @@ const gchar *           cockpit_web_service_get_host         (CockpitWebService 
 gboolean                cockpit_web_service_parse_binary     (JsonObject *open,
                                                               WebSocketDataType *type);
 
-gboolean                cockpit_web_service_parse_external   (JsonObject *options,
-                                                              JsonObject **external);
-
-JsonObject *            cockpit_web_service_pop_external     (CockpitWebService *self,
-                                                              const gchar *target);
+gboolean                cockpit_web_service_parse_external   (JsonObject *open,
+                                                              const gchar **content_type,
+                                                              const gchar **content_disposition,
+                                                              gchar ***protocols);
 
 G_END_DECLS
 

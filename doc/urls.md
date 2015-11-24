@@ -28,7 +28,7 @@ in the main Cockpit address bar.
 
  * ```/cockpit/socket``` The main web socket
 
- * ```/cockpit/channel/...``` External channel URLs
+ * ```/cockpit/channel/csrftoken?query``` External channel URLs
 
  * If loading through cockpit-ws ... any other URL that starts with
    a possible host name or package name will be handled by shell/index.html.

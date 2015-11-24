@@ -39,6 +39,10 @@
 #include <libssh/libssh.h>
 #include <libssh/callbacks.h>
 
+#if WITH_DEBUG
+#include "common/cockpittest.h"
+#endif
+
 /* ---------------------------------------------------------------------------------------------------- */
 
 static gint      opt_port         = 9090;
@@ -207,6 +211,12 @@ main (int argc,
   /* The fallback handler for everything else */
   g_signal_connect (server, "handle-resource",
                     G_CALLBACK (cockpit_handler_default), &data);
+
+  /* Debugging issues during testing */
+#if WITH_DEBUG
+  signal (SIGABRT, cockpit_test_signal_backtrace);
+  signal (SIGSEGV, cockpit_test_signal_backtrace);
+#endif
 
   g_main_loop_run (loop);
 

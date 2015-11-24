@@ -71,6 +71,9 @@ test_get_string (TestCase *tc,
   g_assert (ret == TRUE);
   g_assert_cmpstr (value, ==, "value");
 
+  ret = cockpit_json_get_string (tc->root, "string", NULL, NULL);
+  g_assert (ret == TRUE);
+
   ret = cockpit_json_get_string (tc->root, "unknown", NULL, &value);
   g_assert (ret == TRUE);
   g_assert_cmpstr (value, ==, NULL);
@@ -80,6 +83,9 @@ test_get_string (TestCase *tc,
   g_assert_cmpstr (value, ==, "default");
 
   ret = cockpit_json_get_string (tc->root, "number", NULL, &value);
+  g_assert (ret == FALSE);
+
+  ret = cockpit_json_get_string (tc->root, "number", NULL, NULL);
   g_assert (ret == FALSE);
 }
 
@@ -94,11 +100,17 @@ test_get_int (TestCase *tc,
   g_assert (ret == TRUE);
   g_assert_cmpint (value, ==, 55);
 
+  ret = cockpit_json_get_int (tc->root, "number", 0, NULL);
+  g_assert (ret == TRUE);
+
   ret = cockpit_json_get_int (tc->root, "unknown", 66, &value);
   g_assert (ret == TRUE);
   g_assert_cmpint (value, ==, 66);
 
   ret = cockpit_json_get_int (tc->root, "string", 66, &value);
+  g_assert (ret == FALSE);
+
+  ret = cockpit_json_get_int (tc->root, "string", 66, NULL);
   g_assert (ret == FALSE);
 }
 
@@ -113,6 +125,9 @@ test_get_bool (TestCase *tc,
   g_assert (ret == TRUE);
   g_assert_cmpint (value, ==, TRUE);
 
+  ret = cockpit_json_get_bool (tc->root, "bool", FALSE, NULL);
+  g_assert (ret == TRUE);
+
   ret = cockpit_json_get_bool (tc->root, "unknown", TRUE, &value);
   g_assert (ret == TRUE);
   g_assert_cmpint (value, ==, TRUE);
@@ -122,6 +137,9 @@ test_get_bool (TestCase *tc,
   g_assert_cmpint (value, ==, FALSE);
 
   ret = cockpit_json_get_bool (tc->root, "string", FALSE, &value);
+  g_assert (ret == FALSE);
+
+  ret = cockpit_json_get_bool (tc->root, "string", FALSE, NULL);
   g_assert (ret == FALSE);
 }
 
@@ -182,6 +200,41 @@ test_get_strv (TestCase *tc,
 
   ret = cockpit_json_get_strv (tc->root, "number", NULL, &value);
   g_assert (ret == FALSE);
+}
+
+static void
+test_get_array (TestCase *tc,
+                gconstpointer data)
+{
+  JsonArray *defawlt = json_array_new ();
+  gboolean ret;
+  JsonArray *value;
+
+  ret = cockpit_json_get_array (tc->root, "array", NULL, &value);
+  g_assert (ret == TRUE);
+  g_assert (value != NULL);
+  g_assert_cmpstr (json_array_get_string_element (value, 0), ==, "one");
+  g_assert_cmpstr (json_array_get_string_element (value, 1), ==, "two");
+  g_assert_cmpstr (json_array_get_string_element (value, 2), ==, "three");
+
+  ret = cockpit_json_get_array (tc->root, "array", NULL, NULL);
+  g_assert (ret == TRUE);
+
+  ret = cockpit_json_get_array (tc->root, "unknown", NULL, &value);
+  g_assert (ret == TRUE);
+  g_assert (value == NULL);
+
+  ret = cockpit_json_get_array (tc->root, "unknown", defawlt, &value);
+  g_assert (ret == TRUE);
+  g_assert (value == defawlt);
+
+  ret = cockpit_json_get_array (tc->root, "number", NULL, &value);
+  g_assert (ret == FALSE);
+
+  ret = cockpit_json_get_array (tc->root, "number", NULL, NULL);
+  g_assert (ret == FALSE);
+
+  json_array_unref (defawlt);
 }
 
 static void
@@ -406,6 +459,8 @@ main (int argc,
               setup, test_get_null, teardown);
   g_test_add ("/json/get-strv", TestCase, NULL,
               setup, test_get_strv, teardown);
+  g_test_add ("/json/get-array", TestCase, NULL,
+              setup, test_get_array, teardown);
 
   g_test_add_func ("/json/parser-trims", test_parser_trims);
   g_test_add_func ("/json/parser-empty", test_parser_empty);

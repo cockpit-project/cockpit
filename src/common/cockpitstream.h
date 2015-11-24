@@ -46,6 +46,8 @@ struct _CockpitStreamClass {
 
   /* signals */
 
+  void        (* open)        (CockpitStream *stream);
+
   void        (* read)        (CockpitStream *pipe,
                                GByteArray *buffer,
                                gboolean eof);

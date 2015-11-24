@@ -268,8 +268,6 @@ test_cannot_connect (TestGeneral *tt,
     g_main_context_iteration (NULL, TRUE);
 
   object = mock_transport_pop_control (tt->transport);
-  cockpit_assert_json_eq (object, "{\"command\":\"ready\",\"channel\":\"444\"}");
-  object = mock_transport_pop_control (tt->transport);
   cockpit_assert_json_eq (object, "{\"command\":\"close\",\"channel\":\"444\",\"problem\":\"not-found\"}");
 }
 

@@ -58,6 +58,7 @@ struct _CockpitStreamPrivate {
   gboolean received;
 };
 
+static guint cockpit_stream_sig_open;
 static guint cockpit_stream_sig_read;
 static guint cockpit_stream_sig_close;
 
@@ -518,6 +519,8 @@ initialize_io (CockpitStream *self)
   g_source_attach (self->priv->in_source, self->priv->context);
 
   start_output (self);
+
+  g_signal_emit (self, cockpit_stream_sig_open, 0);
 }
 
 static void
@@ -657,6 +660,15 @@ cockpit_stream_class_init (CockpitStreamClass *klass)
   g_object_class_install_property (gobject_class, PROP_PROBLEM,
                 g_param_spec_string ("problem", "problem", "problem", NULL,
                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+
+  /**
+   * CockpitStream::open:
+   *
+   * Emitted when actually open and connected.
+   */
+  cockpit_stream_sig_open = g_signal_new ("open", COCKPIT_TYPE_STREAM, G_SIGNAL_RUN_LAST,
+                                          G_STRUCT_OFFSET (CockpitStreamClass, open),
+                                          NULL, NULL, NULL, G_TYPE_NONE, 0);
 
   /**
    * CockpitStream::read:

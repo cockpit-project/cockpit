@@ -154,6 +154,7 @@ BRIDGE_CHECKS = \
 	test-metrics \
 	test-httpstream \
 	test-setup \
+	test-websocketstream \
 	$(NULL)
 
 mock_bridge_SOURCES = src/bridge/mock-bridge.c
@@ -214,6 +215,12 @@ test_httpstream_SOURCES = \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
 test_httpstream_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_httpstream_LDADD = $(libcockpit_bridge_LIBS) -ldl
+
+test_websocketstream_SOURCES = \
+	src/bridge/test-websocketstream.c \
+	src/bridge/mock-transport.c src/bridge/mock-transport.h
+test_websocketstream_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_websocketstream_LDADD = $(libcockpit_bridge_LIBS) -ldl
 
 noinst_PROGRAMS += $(BRIDGE_CHECKS) mock-bridge
 TESTS += $(BRIDGE_CHECKS)

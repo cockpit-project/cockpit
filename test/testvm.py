@@ -769,9 +769,6 @@ class VirtMachine(Machine):
     def _start_qemu(self, maintain=False, macaddr=None, wait_for_ip=True, memory_mb=None, cpus=None):
         memory_mb = memory_mb or VirtMachine.memory_mb or MEMORY_MB;
         cpus = cpus or VirtMachine.cpus or 1
-        print "memory: "
-        print memory_mb
-        time.sleep(5)
 
         # make sure we have a clean slate
         self._cleanup()

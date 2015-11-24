@@ -98,7 +98,7 @@ class TestReauthorize(MachineCase):
         b = self.browser
 
         m.execute("useradd user -c 'Barney' || true")
-        m.execute("echo foobar | passwd --stdin user")
+        m.execute("echo user:foobar | chpasswd")
 
 
         b.default_user = "user"

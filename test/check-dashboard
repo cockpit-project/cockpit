@@ -231,21 +231,21 @@ class TestDashboard(MachineCase):
         m2.wait_boot()
 
         # lockout admin
-        m2.execute("echo badpass | passwd --stdin admin")
+        m2.execute("echo admin:badpass | chpasswd")
 
         # Create some users on m1 and m2.
         m1.execute("groupadd docker")
         m2.execute("groupadd docker")
 
         m1.execute("useradd junior -G docker")
-        m1.execute("echo foobar | passwd --stdin junior")
+        m1.execute("echo junior:foobar | chpasswd")
         m1.execute("useradd nosync -G docker")
-        m1.execute("echo foobar | passwd --stdin nosync")
+        m1.execute("echo nosync:foobar | chpasswd")
 
         m1.execute("useradd senior -G wheel")
-        m1.execute("echo foobar | passwd --stdin senior")
+        m1.execute("echo senior:foobar | chpasswd")
         m2.execute("useradd senior")
-        m2.execute("echo barfoo | passwd --stdin senior")
+        m2.execute("echo senior:barfoo | chpasswd")
 
         # Sync them via Setup.
 

@@ -626,6 +626,9 @@ class VirtEventHandler():
         self.eventLoopThread.start()
 
 class VirtMachine(Machine):
+    memory_mb = None
+    cpus = None
+
     def __init__(self, **args):
         Machine.__init__(self, **args)
 
@@ -764,8 +767,11 @@ class VirtMachine(Machine):
         raise Failure("Couldn't find unused mac address for '%s'" % (self.image))
 
     def _start_qemu(self, maintain=False, macaddr=None, wait_for_ip=True, memory_mb=None, cpus=None):
-        memory_mb = memory_mb or MEMORY_MB;
-        cpus = cpus or 1
+        memory_mb = memory_mb or VirtMachine.memory_mb or MEMORY_MB;
+        cpus = cpus or VirtMachine.cpus or 1
+        print "memory: "
+        print memory_mb
+        time.sleep(5)
 
         # make sure we have a clean slate
         self._cleanup()
@@ -854,9 +860,9 @@ class VirtMachine(Machine):
             self.address = self._ip_from_mac(self.macaddr)
 
     # start virsh console
-    def qemu_console(self, maintain=True, macaddr=None):
+    def qemu_console(self, maintain=True, macaddr=None, memory_mb=None, cpus=None):
         try:
-            self._start_qemu(maintain=maintain, macaddr=macaddr, wait_for_ip=False)
+            self._start_qemu(maintain=maintain, macaddr=macaddr, wait_for_ip=False, memory_mb=memory_mb, cpus=cpus)
             self.message("started machine %s with address %s" % (self._domain.name(), self.address))
             if maintain:
                 self.message("Changes are written to the image file.")

@@ -53,11 +53,11 @@ class Test(Test):
         self.journal_start = re.sub('.*cursor: ', '',
                                     subprocess.check_output("journalctl --show-cursor -n0 -o cat || true", shell=True))
 
-    def runTest(self):
-        process.run("systemctl start cockpit.socket", shell=True)
-        process.run("sleep 5", shell=True)
+    def test(self):
+        #process.run("systemctl start cockpit.socket", shell=True)
+        #process.run("sleep 5", shell=True)
         self.phase()
-        self.check_journal_messages()
+        #self.check_journal_messages()
 
     def tearDown(self):
         state = self.get_state()
@@ -66,8 +66,8 @@ class Test(Test):
         #
         # TODO: Do this only when the test has failed.
         #
-        self.browser.snapshot("DONE")
-        process.run("journalctl >'%s.journal' -c'%s'" % (self.label, self.journal_start), shell=True)
+        #self.browser.snapshot("DONE")
+        #process.run("journalctl >'%s.journal' -c'%s'" % (self.label, self.journal_start), shell=True)
 
         # If this is a remote run, copy all screenshots and journals
         # to the results directory so that they get copied out of the
@@ -79,13 +79,13 @@ class Test(Test):
         #
         # TODO: Do this only once after running all tests.
         #
-        if not state['job_logdir'].startswith("/tmp/"):
-            process.run("cp -v *.png *.journal '%s'" %  state['job_logdir'],
-                        shell=True, ignore_status=True)
+        #if not state['job_logdir'].startswith("/tmp/"):
+        #    process.run("cp -v *.png *.journal '%s'" %  state['job_logdir'],
+        #                shell=True, ignore_status=True)
 
-        for f in self.cleanup_funcs: f()
+        #for f in self.cleanup_funcs: f()
 
-        process.run("systemctl stop cockpit.socket cockpit.service", shell=True)
+        #process.run("systemctl stop cockpit.socket cockpit.service", shell=True)
 
     allowed_messages = [
         # This is a failed login, which happens every time

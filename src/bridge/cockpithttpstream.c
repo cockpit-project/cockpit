@@ -201,6 +201,7 @@ typedef struct _CockpitHttpStream {
 
   /* The connection */
   CockpitStream *stream;
+  gulong sig_open;
   gulong sig_read;
   gulong sig_close;
 
@@ -568,6 +569,14 @@ relay_all (CockpitHttpStream *self,
 }
 
 static void
+on_stream_open (CockpitStream *stream,
+                gpointer user_data)
+{
+  CockpitChannel *channel = user_data;
+  cockpit_channel_ready (channel);
+}
+
+static void
 on_stream_read (CockpitStream *stream,
                 GByteArray *buffer,
                 gboolean end_of_data,
@@ -898,6 +907,8 @@ cockpit_http_stream_close (CockpitChannel *channel,
       /* Save this for another round? */
       if (self->keep_alive)
         {
+          if (self->sig_open)
+            g_signal_handler_disconnect (self->stream, self->sig_open);
           g_signal_handler_disconnect (self->stream, self->sig_read);
           g_signal_handler_disconnect (self->stream, self->sig_close);
           cockpit_http_client_checkin (self->client, self->stream);
@@ -988,7 +999,10 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
 
   self->stream = cockpit_http_client_checkout (self->client);
   if (!self->stream)
-    self->stream = cockpit_stream_connect (self->name, self->client->connectable);
+    {
+      self->stream = cockpit_stream_connect (self->name, self->client->connectable);
+      self->sig_open = g_signal_connect (self->stream, "open", G_CALLBACK (on_stream_open), self);
+    }
 
   /* Parsed elsewhere */
   self->binary = json_object_has_member (options, "binary");
@@ -996,7 +1010,9 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
   self->sig_read = g_signal_connect (self->stream, "read", G_CALLBACK (on_stream_read), self);
   self->sig_close = g_signal_connect (self->stream, "close", G_CALLBACK (on_stream_close), self);
 
-  cockpit_channel_ready (channel);
+  /* If not waiting for open */
+  if (!self->sig_open)
+    cockpit_channel_ready (channel);
 
 out:
   if (connectable)
@@ -1010,6 +1026,8 @@ cockpit_http_stream_dispose (GObject *object)
 
   if (self->stream)
     {
+      if (self->sig_open)
+        g_signal_handler_disconnect (self->stream, self->sig_open);
       g_signal_handler_disconnect (self->stream, self->sig_read);
       g_signal_handler_disconnect (self->stream, self->sig_close);
       cockpit_stream_close (self->stream, NULL);

@@ -21,7 +21,7 @@ systemctl start cockpit
 # RUN AS
 avocado run selenium-login.py
 # OR ALTERNATIVELY with docker selenium server (BROWSER=firefox or chrome)
-HUB=localhost BROWSER=chrome GUEST=`hostname -i` avocado run selenium-login.py 
+HUB=localhost BROWSER=chrome GUEST=`hostname -i` avocado run selenium-login.py
 
 
 """
@@ -58,7 +58,6 @@ class BasicTestSuite(Test):
             guest_machine = os.environ["GUEST"]
             self.driver = selenium.webdriver.Remote(
                 command_executor='http://%s:4444/wd/hub' % selenium_hub, desired_capabilities={'browserName': browser})
-        #
 
         self.driver.set_window_size(1024, 768)
         self.driver.set_page_load_timeout(30)

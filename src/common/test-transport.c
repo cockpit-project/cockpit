@@ -583,6 +583,25 @@ test_parse_command_no_channel (void)
   json_object_unref (options);
 }
 
+static void
+test_parse_command_nulls (void)
+{
+  const gchar *input = "{ \"command\": \"test\", \"opt\": \"one\" }";
+  GBytes *message;
+  JsonObject *options;
+  gboolean ret;
+
+  message = g_bytes_new_static (input, strlen (input));
+
+  ret = cockpit_transport_parse_command (message, NULL, NULL, &options);
+  g_bytes_unref (message);
+
+  g_assert (ret == TRUE);
+  g_assert_cmpstr (json_object_get_string_member (options, "opt"), ==, "one");
+
+  json_object_unref (options);
+}
+
 struct {
   const char *name;
   const char *json;
@@ -631,6 +650,7 @@ main (int argc,
 
   g_test_add_func ("/transport/parse-command/normal", test_parse_command);
   g_test_add_func ("/transport/parse-command/no-channel", test_parse_command_no_channel);
+  g_test_add_func ("/transport/parse-command/nulls", test_parse_command_nulls);
 
   for (i = 0; i < G_N_ELEMENTS (bad_command_payloads); i++)
     {

@@ -19,17 +19,16 @@
 
 import os, re, subprocess, shutil, imp
 
-from avocado import test
+from avocado import Test
 from avocado.utils import process
 from testlib import Browser
 
 __all__ = [ 'Test' ]
 
-class Test(test.Test):
+class Test(Test):
     def __init__(self, **args):
         test.Test.__init__(self, **args)
         self.cleanup_funcs = [ ]
-#        self.environment = imp.load_source("", os.path.dirname(__file__) + "/lib/var.env")
         self.environment = self.params
 
     def atcleanup(self, func):

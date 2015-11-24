@@ -30,6 +30,9 @@ class StorageCase(MachineCase):
         if "atomic" in os.getenv("TEST_OS", ""):
             self.skipTest("No storage on Atomic")
 
+        if "debian" in os.getenv("TEST_OS", ""):
+            self.skipTest("No storage on Debian (yet)")
+
         MachineCase.setUp(self)
 
     def inode(self, f):

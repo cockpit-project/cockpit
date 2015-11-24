@@ -284,17 +284,19 @@ cockpit_transport_parse_command (GBytes *payload,
     }
 
   /* Parse out the channel */
-  valid = cockpit_json_get_string (object, "channel", NULL, channel);
-  if (valid && *channel)
+  if (channel)
     {
-      valid = (!g_str_equal ("", *channel) &&
-               strcspn (*channel, "\n") == strlen (*channel));
-    }
-
-  if (!valid)
-    {
-      g_warning ("Received invalid control message: invalid channel");
-      goto out;
+      valid = cockpit_json_get_string (object, "channel", NULL, channel);
+      if (valid && *channel)
+        {
+          valid = (!g_str_equal ("", *channel) &&
+                   strcspn (*channel, "\n") == strlen (*channel));
+        }
+      if (!valid)
+        {
+          g_warning ("Received invalid control message: invalid channel");
+          goto out;
+        }
     }
 
   *options = json_object_ref (object);

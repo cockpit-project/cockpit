@@ -34,7 +34,7 @@ class TestLogin(MachineCase):
 
         # Setup users and passwords
         m.execute("useradd user -c 'Barney Bär' || true")
-        m.execute("echo abcdefg | passwd --stdin user")
+        m.execute("echo user:abcdefg | chpasswd")
 
         # Setup a special PAM config that disallows non-wheel users
         def deny_non_root(remote_filename):

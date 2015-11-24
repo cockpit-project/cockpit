@@ -369,7 +369,7 @@ class TestMultiMachine(MachineCase):
         b.wait_visible("#login")
 
         # Break auth
-        m2.execute("echo alt-password | passwd --stdin admin")
+        m2.execute("echo admin:alt-password | chpasswd")
         self.login_and_go(None)
         b.go(machine_path)
 

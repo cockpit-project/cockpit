@@ -29,7 +29,7 @@ class TestAccounts(MachineCase):
 
         # Add a user externally
         m.execute("useradd anton")
-        m.execute("echo foobar | passwd --stdin anton")
+        m.execute("echo anton:foobar | chpasswd")
         b.wait_in_text('#accounts-list', "anton")
 
         # Set a real name

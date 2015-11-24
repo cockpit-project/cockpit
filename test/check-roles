@@ -27,7 +27,7 @@ class TestRoles(MachineCase):
 
         # Create a user without any role
         m.execute("useradd user -c 'User' || true")
-        m.execute("echo foobar | passwd --stdin user")
+        m.execute("echo user:foobar | chpasswd")
 
         self.start_cockpit()
 

@@ -603,6 +603,16 @@ the following fields:
 Any data to be sent should be sent via the channel, and then the channel
 should be closed without a problem.
 
+Payload: websocket-stream1
+--------------------------
+
+This channel payload implements a WebSocket client. The data in the
+channel is the message frames.
+
+Most of same options for http-stream2 apply here.
+
+The response headers are send back in a "response" control message.
+
 Payload: stream
 ---------------
 

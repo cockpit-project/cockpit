@@ -889,12 +889,12 @@ define([
                 if (ex.problem == "access-denied") {
                     needs_root = true;
                     if (!methods && machines.has_auth_results)
-                        /* We need to know if password auth is
+                        /* TODO: We need to know if password auth is
                          * supported but we only get that when the transport
-                         * closes. Passing a blank host-key will open
-                         * a private channel that fails
+                         * closes. Passing an invalid username should
+                         * open new transport that fails.
                          */
-                        try_to_connect(dialog.address, { "host-key" : "" })
+                        try_to_connect(dialog.address, { "user" : "1" })
                             .fail(function(ex) {
                                 methods = ex['auth-method-results'];
                             })

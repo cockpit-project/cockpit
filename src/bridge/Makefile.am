@@ -21,6 +21,8 @@ libcockpit_stub_a_SOURCES = \
 	src/bridge/cockpitpaths.h \
 	src/bridge/cockpitnullchannel.c \
 	src/bridge/cockpitnullchannel.h \
+	src/bridge/cockpitwebsocketstream.c \
+	src/bridge/cockpitwebsocketstream.h \
 	$(NULL)
 
 libcockpit_stub_a_CFLAGS = \

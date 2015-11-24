@@ -28,6 +28,9 @@ G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_HTTP_STREAM         (cockpit_http_stream_get_type ())
 
-GType              cockpit_http_stream_get_type     (void) G_GNUC_CONST;
+GType              cockpit_http_stream_get_type           (void) G_GNUC_CONST;
+
+gboolean           cockpit_http_stream_parse_keep_alive   (const gchar *version,
+                                                           GHashTable *headers);
 
 #endif /* COCKPIT_HTTP_STREAM_H__ */

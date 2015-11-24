@@ -34,13 +34,15 @@ cockpit_json_get_int (JsonObject *object,
   node = json_object_get_member (object, name);
   if (!node)
     {
-      *value = defawlt;
+      if (value)
+        *value = defawlt;
       return TRUE;
     }
   else if (json_node_get_value_type (node) == G_TYPE_INT64 ||
            json_node_get_value_type (node) == G_TYPE_DOUBLE)
     {
-      *value = json_node_get_int (node);
+      if (value)
+        *value = json_node_get_int (node);
       return TRUE;
     }
   else
@@ -60,12 +62,14 @@ cockpit_json_get_bool (JsonObject *object,
   node = json_object_get_member (object, name);
   if (!node)
     {
-      *value = defawlt;
+      if (value)
+        *value = defawlt;
       return TRUE;
     }
   else if (json_node_get_value_type (node) == G_TYPE_BOOLEAN)
     {
-      *value = json_node_get_boolean (node);
+      if (value)
+        *value = json_node_get_boolean (node);
       return TRUE;
     }
   else
@@ -86,12 +90,14 @@ cockpit_json_get_string (JsonObject *options,
   node = json_object_get_member (options, name);
   if (!node)
     {
-      *value = defawlt;
+      if (value)
+        *value = defawlt;
       return TRUE;
     }
   else if (json_node_get_value_type (node) == G_TYPE_STRING)
     {
-      *value = json_node_get_string (node);
+      if (value)
+        *value = json_node_get_string (node);
       return TRUE;
     }
   else
@@ -111,12 +117,14 @@ cockpit_json_get_array (JsonObject *options,
   node = json_object_get_member (options, name);
   if (!node)
     {
-      *value = defawlt;
+      if (value)
+        *value = defawlt;
       return TRUE;
     }
   else if (json_node_get_node_type (node) == JSON_NODE_ARRAY)
     {
-      *value = json_node_get_array (node);
+      if (value)
+        *value = json_node_get_array (node);
       return TRUE;
     }
   else
@@ -185,7 +193,7 @@ cockpit_json_get_strv (JsonObject *options,
       val[length] = NULL;
     }
 
-  if (valid)
+  if (valid && value)
     *value = val;
   else
     g_free (val);

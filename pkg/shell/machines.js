@@ -577,7 +577,7 @@ define([
 
     module.known_hosts_path = known_hosts_path;
 
-    $(cockpit.info).on("changed", function () {
+    cockpit.transport.wait(function() {
         var caps = cockpit.transport.options.capabilities || [];
         module.allow_connection_string = $.inArray("connection-string", caps) != -1;
         module.has_auth_results = $.inArray("auth-method-results", caps) != -1;

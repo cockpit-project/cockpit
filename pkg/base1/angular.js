@@ -1,6 +1,5 @@
 /* DO NOT EDIT. Automatically generated file */
 /* jshint ignore:start */
-define(["jquery"], function() {
 /**
  * @license AngularJS v1.3.14
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -42425,6 +42424,8 @@ angular.module('patternfly.views').directive('pfDataToolbar',
 
 }]);
 
-return window.angular; });
+if (typeof define === "function" && define.amd) {
+    define(["jquery"], function() { return window.angular; });
+}
 
 /* jshint ignore:end */

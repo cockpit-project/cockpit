@@ -1,0 +1,74 @@
+.icon-sidebar {
+    width: unit(@sidebar-width, px);
+
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        width: unit(@sidebar-width - 10, px);
+        border-right: 1px solid @sidebar-pf-border-color;
+        height: 100%;
+        position: fixed;
+        background-color: @sidebar-pf-bg;
+        top: 0px;
+        z-index: 1;
+
+        li {
+            border-bottom: 1px solid @sidebar-pf-border-color;
+            display: block;
+            font-size: 13px;
+
+            a {
+                border-bottom: 0;
+                background-color: #fff;
+                padding: 15px 10px;
+                text-align: center;
+                display: block;
+                color: inherit;
+                text-decoration: none;
+                position: relative;
+
+                i {
+                    display: inline;
+                    font-size: 20px;
+                    line-height: 20px;
+                    color: #b3b3b3;
+                }
+
+                i.pficon-image {
+                    font-size: 24px;
+                    line-height: 20px;
+                }
+            }
+
+            a:hover {
+                background-color: #f6f6f6;
+            }
+        }
+
+        li.active {
+            a  {
+                color: @link-color;
+
+		i {
+			color: @link-color;
+		}
+            }
+
+            a:hover {
+                background-color: #fff;
+            }
+
+            a:after {
+                content: '';
+                width: 4px;
+                height: 100%;
+                left: 0;
+                top: 0;
+                display: block;
+                position: absolute;
+                background-color: @link-color;
+            }
+        }
+    }
+}

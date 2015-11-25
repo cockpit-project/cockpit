@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<!--
+This file is part of Cockpit.
+
+Copyright (C) 2015 Red Hat, Inc.
+
+Cockpit is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or
+(at your option) any later version.
+
+Cockpit is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<title translatable="yes">Image Registry</title>
+<meta name="description" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="../base1/cockpit.css">
+<link rel="stylesheet" href="bundle.css">
+
+<script src="../base1/angular.js"></script>
+<script src="bundle.js"></script>
+
+<!-- debug:start -->
+<link rel="stylesheet/less" type="text/css" href="styles/main.less" />
+<script src="bower_components/less/dist/less.js" type="text/javascript"></script>
+<script src="scripts/dashboard.js"></script>
+<script src="scripts/exceptions.js"></script>
+<script src="scripts/images.js"></script>
+<script src="scripts/projects.js"></script>
+<script src="scripts/main.js"></script>
+<!-- debug:end -->
+
+</head>
+
+<body ng-app='registry' ng-controller="MainCtrl">
+    <div ng-cloak>
+        <div class="icon-sidebar">
+            <div>
+                <ul>
+                    <li ng-class="{ active: is_active('views/dashboard-page.html')}">
+                        <a ng-href="#/">
+                            <i class="fa fa-dashboard fa-fw"></i><br>Overview
+                        </a>
+                    </li>
+                    <li ng-class="{ active: is_active('views/images-page.html')}">
+                        <a ng-href="#/images">
+                            <i class="pficon pficon-image fa-fw"></i><br>Images
+                        </a>
+                    </li>
+                    <li ng-class="{ active: is_active('views/projects-page.html')}">
+                        <a ng-href="#/projects">
+                            <i class="pficon pficon-project fa-fw"></i><br>Projects
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    <div id="content" class="container-fluid" ng-view>
+    </div>
+
+</body>
+</html>

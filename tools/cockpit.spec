@@ -165,6 +165,9 @@ install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/%{name}/
 
+# This is not yet packaged
+rm -rf %{buildroot}%{_datadir}/%{name}/registry
+
 # Build the package lists for resource packages
 echo '%dir %{_datadir}/%{name}/base1' > shell.list
 find %{buildroot}%{_datadir}/%{name}/base1 -type f >> shell.list

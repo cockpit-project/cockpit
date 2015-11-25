@@ -152,6 +152,48 @@ asyncTest("binary replace", function() {
         });
 });
 
+asyncTest("replace large", function() {
+    expect(3);
+    var str = new Array(23 * 1023).join('abcdef12345');
+    cockpit.file(dir + "/large").replace(str).
+        always(function() {
+            equal(this.state(), "resolved", "didn't fail");
+            cockpit.spawn([ "cat", dir + "/large" ])
+                .done(function(res) {
+                    equal(res.length, str.length, "correct large length");
+                    ok(res == str, "correct large data");
+                    start();
+                });
+        });
+});
+
+asyncTest("binary replace large", function() {
+    expect(4);
+    var data = new Uint8Array(249 * 1023);
+    var i, len = data.byteLength;
+    for (i = 0; i < len; i++)
+       data[i] = i % 233;
+    cockpit.file(dir + "/large-binary", { binary: true }).replace(data).
+        always(function() {
+            equal(this.state(), "resolved", "didn't fail");
+            cockpit.spawn([ "cat", dir + "/large-binary" ], { binary: true })
+                .done(function (res) {
+                    var i, len = res.byteLength, eq = true;
+                    equal(res.byteLength, 249 * 1023, "check length");
+                    equal(res.byteLength, data.byteLength, "correct large length");
+                    for (i = 0; i < len; i++) {
+                        if (res[i] !== data[i] || res[i] === undefined) {
+                            eq = false;
+                            break;
+                        }
+                    }
+                    ok(eq, "got back same data");
+                    start();
+                });
+        });
+});
+
+
 asyncTest("remove", function() {
     expect(3);
     cockpit.spawn([ "bash", "-c", "test -f " + dir + "/bar && echo exists" ])

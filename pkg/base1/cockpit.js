@@ -2025,13 +2025,26 @@ function full_scope(cockpit, $, po) {
                 }
             });
 
-            /* TODO - don't flood the channel when file_content is
-             *        very large.
-             */
-            if (file_content !== null)
-                replace_channel.send(file_content);
-            replace_channel.control({ command: "done" });
+            var len = 0, binary = false;
+            if (file_content) {
+                if (file_content.byteLength) {
+                    len = file_content.byteLength;
+                    binary = true;
+                } else if (file_content.length) {
+                    len = file_content.length;
+                }
+            }
 
+            var i, n, batch = 16 * 1024;
+            for (i = 0; i < len; i += batch) {
+                n = Math.min(len - i, batch);
+                if (binary)
+                    replace_channel.send(new window.Uint8Array(file_content.buffer, i, n));
+                else
+                    replace_channel.send(file_content.substr(i, n));
+            }
+
+            replace_channel.control({ command: "done" });
             return dfd.promise();
         }
 

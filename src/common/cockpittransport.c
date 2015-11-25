@@ -172,6 +172,44 @@ cockpit_transport_emit_closed (CockpitTransport *transport,
   g_signal_emit (transport, signals[CLOSED], 0, problem);
 }
 
+static GBytes *
+parse_frame (GBytes *message,
+             gboolean expect,
+             gchar **channel)
+{
+  const gchar *data;
+  gsize length;
+  const gchar *line;
+  gsize channel_len;
+
+  g_return_val_if_fail (message != NULL, NULL);
+
+  data = g_bytes_get_data (message, &length);
+  line = memchr (data, '\n', length);
+  if (!line)
+    {
+      if (expect)
+        g_message ("received invalid message without channel prefix");
+      return NULL;
+    }
+
+  channel_len = line - data;
+  if (memchr (data, '\0', channel_len) != NULL)
+    {
+      if (expect)
+        g_message ("received massage with invalid channel prefix");
+      return NULL;
+    }
+
+  if (channel_len)
+    *channel = g_strndup (data, channel_len);
+  else
+    *channel = NULL;
+
+  channel_len++;
+  return g_bytes_new_from_bytes (message, channel_len, length - channel_len);
+}
+
 /**
  * cockpit_transport_parse_frame:
  * @message: message to parse
@@ -189,35 +227,14 @@ GBytes *
 cockpit_transport_parse_frame (GBytes *message,
                                gchar **channel)
 {
-  const gchar *data;
-  gsize length;
-  const gchar *line;
-  gsize channel_len;
+  return parse_frame (message, TRUE, channel);
+}
 
-  g_return_val_if_fail (message != NULL, NULL);
-
-  data = g_bytes_get_data (message, &length);
-  line = memchr (data, '\n', length);
-  if (!line)
-    {
-      g_warning ("Received invalid message without channel prefix");
-      return NULL;
-    }
-
-  channel_len = line - data;
-  if (memchr (data, '\0', channel_len) != NULL)
-    {
-      g_warning ("Received massage with invalid channel prefix");
-      return NULL;
-    }
-
-  if (channel_len)
-    *channel = g_strndup (data, channel_len);
-  else
-    *channel = NULL;
-
-  channel_len++;
-  return g_bytes_new_from_bytes (message, channel_len, length - channel_len);
+GBytes *
+cockpit_transport_maybe_frame (GBytes *message,
+                               gchar **channel)
+{
+  return parse_frame (message, FALSE, channel);
 }
 
 /**

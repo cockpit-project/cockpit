@@ -184,6 +184,7 @@ cockpit_channel_response_close (CockpitChannelResponse *chesp,
           cockpit_web_response_error (chesp->response, 404, NULL, NULL);
         }
       else if (g_str_equal (problem, "no-host") ||
+               g_str_equal (problem, "no-cockpit") ||
                g_str_equal (problem, "no-forwarding") ||
                g_str_equal (problem, "unknown-hostkey") ||
                g_str_equal (problem, "authentication-failed"))

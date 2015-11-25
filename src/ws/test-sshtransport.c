@@ -746,14 +746,19 @@ test_expect_empty_key (TestCase *tc,
   g_free (problem);
 }
 
-
+/* The output from this will go to stderr */
 static const TestFixture fixture_bad_command = {
-  .ssh_command = "/nonexistant 2> /dev/null",
+  .ssh_command = "/nonexistant",
+};
+
+/* Yes this makes a difference with bash, output goes to stdout */
+static const TestFixture fixture_command_not_found = {
+  .ssh_command = "nonexistant-command",
 };
 
 static void
-test_bad_command (TestCase *tc,
-                  gconstpointer data)
+test_no_cockpit (TestCase *tc,
+                 gconstpointer data)
 {
   gchar *problem = NULL;
 
@@ -930,7 +935,9 @@ main (int argc,
 #endif
 #endif
   g_test_add ("/ssh-transport/bad-command", TestCase, &fixture_bad_command,
-              setup_transport, test_bad_command, teardown);
+              setup_transport, test_no_cockpit, teardown);
+  g_test_add ("/ssh-transport/command-not-found", TestCase, &fixture_command_not_found,
+              setup_transport, test_no_cockpit, teardown);
   g_test_add ("/ssh-transport/close-while-connecting", TestCase, &fixture_cat,
               setup_transport, test_close_while_connecting, teardown);
   g_test_add_func ("/ssh-transport/cannot-connect", test_cannot_connect);

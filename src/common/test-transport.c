@@ -416,8 +416,6 @@ test_read_truncated (void)
   out = dup (2);
   g_assert (out >= 0);
 
-  cockpit_expect_warning ("*received truncated 1 byte frame");
-
   /* Pass in a read end of the pipe */
   transport = cockpit_pipe_transport_new_fds ("test", fds[0], out);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
@@ -428,7 +426,7 @@ test_read_truncated (void)
 
   WAIT_UNTIL (problem != NULL);
 
-  g_assert_cmpstr (problem, ==, "internal-error");
+  g_assert_cmpstr (problem, ==, "disconnected");
   g_free (problem);
 
   g_object_unref (transport);

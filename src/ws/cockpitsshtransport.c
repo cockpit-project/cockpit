@@ -1125,8 +1125,8 @@ drain_buffer (CockpitSshTransport *self)
       /* Received a partial message */
       if (self->buffer->len > 0)
         {
-          g_warning ("%s: received truncated %d byte frame", self->logname, (int)self->buffer->len);
-          close_immediately (self, "internal-error");
+          g_debug ("%s: received truncated %d byte frame", self->logname, (int)self->buffer->len);
+          close_immediately (self, "disconnected");
         }
     }
 }

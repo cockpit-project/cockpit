@@ -429,7 +429,6 @@ class TestMultiMachine(MachineCase):
         self.allow_journal_messages('.*: couldn\'t connect: Connection refused',
                                     '.* failed to retrieve resource: hostkey-changed',
                                     '.* host key for server has changed to: .*',
-                                    '.*: incorrect protocol: received invalid length prefix',
                                     '.*: received truncated .*')
 
 if __name__ == '__main__':

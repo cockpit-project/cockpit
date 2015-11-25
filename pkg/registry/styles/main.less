@@ -1,0 +1,12 @@
+@pf-path: "../bower_components/patternfly/less";
+@import "@{pf-path}/variables.less";
+
+@sidebar-width: 100;
+
+@import "sidebar.less";
+
+#content {
+    margin-left: unit(@sidebar-width, px);
+    margin-right: 0px;
+    min-height: 100%;
+}

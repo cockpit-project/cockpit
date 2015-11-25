@@ -30,6 +30,10 @@ var ops = stdio.getopt({
     module: { key: "d", multiple: true, description: "Module returning an angular module" }
 });
 
+if (!ops.args || !ops.args.length) {
+    fatal("no templates specified", 2);
+}
+
 if (!ops.module) {
     fatal("no module specified", 2);
 }

@@ -494,7 +494,7 @@ test_parse_frame_bad (void)
   GBytes *message;
   GBytes *payload;
 
-  cockpit_expect_warning ("*invalid channel prefix");
+  cockpit_expect_message ("*invalid channel prefix");
 
   message = g_bytes_new_static ("b\x00y\ntest", 8);
   payload = cockpit_transport_parse_frame (message, &channel);
@@ -504,7 +504,7 @@ test_parse_frame_bad (void)
 
   cockpit_assert_expected ();
 
-  cockpit_expect_warning ("*invalid message without channel prefix");
+  cockpit_expect_message ("*invalid message without channel prefix");
 
   channel = NULL;
   message = g_bytes_new_static ("test", 4);
@@ -514,6 +514,27 @@ test_parse_frame_bad (void)
   g_free (channel);
 
   cockpit_assert_expected ();
+}
+
+static void
+test_parse_frame_maybe (void)
+{
+  gchar *channel = NULL;
+  GBytes *message;
+  GBytes *payload;
+
+  message = g_bytes_new_static ("b\x00y\ntest", 8);
+  payload = cockpit_transport_maybe_frame (message, &channel);
+  g_assert (payload == NULL);
+  g_bytes_unref (message);
+  g_free (channel);
+
+  channel = NULL;
+  message = g_bytes_new_static ("test", 4);
+  payload = cockpit_transport_maybe_frame (message, &channel);
+  g_assert (payload == NULL);
+  g_bytes_unref (message);
+  g_free (channel);
 }
 
 static void
@@ -604,8 +625,9 @@ main (int argc,
 
   cockpit_test_init (&argc, &argv);
 
-  g_test_add_func ("/transport/parse-frame", test_parse_frame);
-  g_test_add_func ("/transport/parse-frame-bad", test_parse_frame_bad);
+  g_test_add_func ("/transport/parse-frame/ok", test_parse_frame);
+  g_test_add_func ("/transport/parse-frame/bad", test_parse_frame_bad);
+  g_test_add_func ("/transport/parse-frame/maybe", test_parse_frame_maybe);
 
   g_test_add_func ("/transport/parse-command/normal", test_parse_command);
   g_test_add_func ("/transport/parse-command/no-channel", test_parse_command_no_channel);

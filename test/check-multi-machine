@@ -427,7 +427,6 @@ class TestMultiMachine(MachineCase):
 
         self.allow_hostkey_messages()
         self.allow_journal_messages('.*: couldn\'t connect: Connection refused',
-                                    '.* failed to retrieve resource: protocol-error',
                                     '.* failed to retrieve resource: hostkey-changed',
                                     '.* host key for server has changed to: .*',
                                     '.*: incorrect protocol: received invalid length prefix',

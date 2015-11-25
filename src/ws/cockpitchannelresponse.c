@@ -199,7 +199,10 @@ cockpit_channel_response_close (CockpitChannelResponse *chesp,
     }
   else
     {
-      g_message ("%s: failure while serving resource: %s", chesp->logname, problem);
+      if (g_str_equal (problem, "disconnected"))
+        g_debug ("%s: failure while serving resource: %s", chesp->logname, problem);
+      else
+        g_message ("%s: failure while serving resource: %s", chesp->logname, problem);
       cockpit_web_response_abort (chesp->response);
     }
 

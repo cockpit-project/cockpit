@@ -134,8 +134,8 @@ on_pipe_read (CockpitPipe *pipe,
       /* Received a partial message */
       if (input->len > 0)
         {
-          g_warning ("%s: received truncated %d byte frame", self->name, input->len);
-          cockpit_pipe_close (pipe, "internal-error");
+          g_debug ("%s: received truncated %d byte frame", self->name, input->len);
+          cockpit_pipe_close (pipe, "disconnected");
         }
     }
 

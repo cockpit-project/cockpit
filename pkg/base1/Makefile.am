@@ -208,20 +208,22 @@ update-lib:: update-bower
 		$(srcdir)/pkg/base1/fonts/glyphicons.woff
 	cp $(BOWER)/patternfly/components/font-awesome/fonts/fontawesome-webfont.woff \
 		$(srcdir)/pkg/base1/fonts/fontawesome.woff
-	$(JSMODULE) -m -a window.angular -d jquery -o $(srcdir)/pkg/base1/angular.js \
+	$(JSMODULE) -o $(srcdir)/pkg/base1/angular.js \
 	    $(BOWER)/angular/angular.js \
 	    $(BOWER)/angular-route/angular-route.js \
 	    $(BOWER)/angular-animate/angular-animate.js \
 	    $(BOWER)/angular-bootstrap/ui-bootstrap.js \
 	    $(BOWER)/angular-bootstrap/ui-bootstrap-tpls.js \
-	    $(BOWER)/angular-patternfly/dist/angular-patternfly.js
-	$(JSMODULE) -m -a window.angular -d jquery -o $(srcdir)/pkg/base1/angular.min.js \
+	    $(BOWER)/angular-patternfly/dist/angular-patternfly.js \
+	    $(srcdir)/pkg/base1/angular-config.js
+	$(JSMODULE) -o $(srcdir)/pkg/base1/angular.min.js \
 	    $(BOWER)/angular/angular.min.js \
 	    $(BOWER)/angular-animate/angular-animate.min.js \
 	    $(BOWER)/angular-route/angular-route.min.js \
 	    $(BOWER)/angular-bootstrap/ui-bootstrap.min.js \
 	    $(BOWER)/angular-bootstrap/ui-bootstrap-tpls.min.js \
-	    $(BOWER)/angular-patternfly/dist/angular-patternfly.min.js
+	    $(BOWER)/angular-patternfly/dist/angular-patternfly.min.js \
+	    $(srcdir)/pkg/base1/angular-config.js
 	$(JSMODULE) -o $(srcdir)/pkg/base1/moment.js \
 		$(BOWER)/momentjs/moment.js
 	$(JSMODULE) -o $(srcdir)/pkg/base1/moment.min.js \

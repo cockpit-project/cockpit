@@ -46,7 +46,7 @@ CSSBUNDLE = $(srcdir)/tools/missing $(srcdir)/tools/cssbundle
 .html.min.html:
 	@$(MKDIR_P) $(dir $@)
 	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint --extract=always $<
-	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/html-minifier --output $@ $<
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/htmlmin $@ $<
 
 .min.css.min.css.gz:
 	@$(MKDIR_P) $(dir $@)

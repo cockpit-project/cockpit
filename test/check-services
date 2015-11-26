@@ -123,6 +123,7 @@ ExecStart=/usr/bin/test-service %I
 
         # Instantiate a template
         b.wait_in_text("#services", "test-template@.service")
+        b.wait_visible(svc_sel("test-template@.service"))
         b.click(svc_sel("test-template@.service"))
         b.wait_visible('#service-template')
         b.set_val("#service-template input", "//param-f//o//o//")

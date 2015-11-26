@@ -110,10 +110,13 @@ if [ ! -f "$SKIP_REPO_FLAG" ]; then
     subscription-manager unregister
 fi
 
-maybe() { if type "$1" >/dev/null 2>&1; then "$@"; fi; }
-
 # For the D-Bus test server
-maybe firewall-cmd --permanent --add-port 8765/tcp
+if type "firewall-cmd" >/dev/null 2>&1; then
+    FIREWALL_STATE=$(firewall-cmd --state || true)
+    if [ "$FIREWALL_STATE" == "running" ]; then
+        firewall-cmd --permanent --add-port 8765/tcp
+    fi
+fi
 
 echo 'NETWORKING=yes' > /etc/sysconfig/network
 

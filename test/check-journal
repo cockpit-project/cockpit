@@ -34,8 +34,6 @@ class TestJournal(MachineCase):
             # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1253649
             return
 
-        m.needs_writable_usr()
-
         self.allow_restart_journal_messages()
         self.allow_journal_messages(".*Failed to get realtime timestamp: Cannot assign requested address.*")
 
@@ -75,7 +73,7 @@ class TestJournal(MachineCase):
         # process around for a bit longer after the last line has been
         # output.
         #
-        m.write("/usr/lib/systemd/system/log123.service",
+        m.write("/etc/systemd/system/log123.service",
 """
 [Unit]
 Description=123 different log lines
@@ -84,7 +82,7 @@ Description=123 different log lines
 ExecStart=/bin/sh -c '/usr/bin/seq 123; sleep 10'
 """)
 
-        m.write("/usr/lib/systemd/system/slow10.service",
+        m.write("/etc/systemd/system/slow10.service",
 """
 [Unit]
 Description=Slowly log 10 identical lines

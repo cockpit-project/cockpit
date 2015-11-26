@@ -26,6 +26,13 @@ class TestTerminal(MachineCase):
         m = self.machine
         b.default_user = "admin"
 
+        # Make sure we get what we expect
+        m.write("/tmp/bashrc-extra", """
+PS1="\u@\h \W]\$ "
+PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/#$HOME/\~}"'
+""")
+        m.execute("cat /tmp/bashrc-extra >>/home/admin/.bashrc")
+
         self.login_and_go("/system/terminal")
 
         def line_sel(i):

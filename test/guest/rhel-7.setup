@@ -100,9 +100,12 @@ if [ ! -f "$SKIP_REPO_FLAG" ]; then
     rm -rf /tmp/dep
 fi
 
-yum -y install mock
-useradd -u 2000 -c Builder -G mock builder
-su - builder -c "mock --verbose --installdeps $TEST_SOURCE_PACKAGE"
+# only install mock and build if TEST_SOURCE_PACKAGE is set
+if [ -n "$TEST_SOURCE_PACKAGE" ]; then
+    yum -y install mock
+    useradd -u 2000 -c Builder -G mock builder
+    su - builder -c "mock --verbose --installdeps $TEST_SOURCE_PACKAGE"
+fi
 
 if [ ! -f "$SKIP_REPO_FLAG" ]; then
     subscription-manager unregister

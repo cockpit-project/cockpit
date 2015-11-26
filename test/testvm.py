@@ -421,6 +421,12 @@ class Machine:
             messages = [ ]
         return messages
 
+    def get_admin_group(self):
+        if "debian" in self.image:
+            return "sudo"
+        else:
+            return "wheel"
+
 class VirtEventHandler():
     """ VirtEventHandler registers event handlers (currently: boot, resume, reboot) for libvirt domain instances
         It requires an existing libvirt connection handle, because libvirt requires the domain

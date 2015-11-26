@@ -103,8 +103,8 @@ def prune():
     for filename in os.listdir(DATA):
         path = os.path.join(DATA, filename)
         if os.path.isfile(path) and path.endswith(".qcow2") and path not in targets:
-            sys.stderr.write("Pruning {0}\n".format(image))
-            os.unlink(image)
+            sys.stderr.write("Pruning {0}\n".format(filename))
+            os.unlink(path)
 
 def every():
     result = []

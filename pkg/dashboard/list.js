@@ -216,7 +216,7 @@ function host_edit_dialog(machine_manager, host) {
         });
 }
 
-var permission = cockpit.permission({ group: "wheel" });
+var permission = cockpit.permission({ admin: true });
 $(permission).on("changed", update_servers_privileged);
 
 function update_servers_privileged() {

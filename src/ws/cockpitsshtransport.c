@@ -1109,7 +1109,7 @@ drain_error_buffer (CockpitSshTransport *self)
     {
       if (len > 0)
           g_printerr ("%s", data);
-      g_string_erase (self->errbuf, 0, -1);
+      g_string_erase (self->errbuf, 0, self->errbuf->len);
       pos = NULL;
     }
   else

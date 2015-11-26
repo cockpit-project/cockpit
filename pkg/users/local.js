@@ -680,16 +680,22 @@ PageAccount.prototype = {
     get_roles: function() {
         var self = this;
 
+        var role_groups = {
+            "wheel":   _("Server Administrator"),
+            "sudo":    _("Server Administrator"),
+            "docker":  _("Container Administrator")
+        };
+
         function parse_groups(content) {
             var groups = parse_group_content(content);
             while (self.roles.length > 0)
                 self.roles.pop();
             for (var i = 0; i < groups.length; i++) {
-                if (groups[i]["name"] == "wheel" || groups[i]["name"] == "docker") {
+                var name = groups[i]["name"];
+                if (role_groups[name]) {
                     self.roles.push({
-                        name: groups[i]["name"],
-                        desc: groups[i]["name"] == "wheel" ?  _("Server Administrator") :
-                                           _("Container Administrator"),
+                        name: name,
+                        desc: role_groups[name],
                         id: groups[i]["gid"],
                         member: is_user_in_group(self.account_id, groups[i]),
                     });

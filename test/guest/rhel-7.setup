@@ -126,14 +126,16 @@ echo foobar | passwd --stdin admin
 # To enable persistent logging
 mkdir -p /var/log/journal
 
-# HACK: docker falls over regularly, print its log if it does
-systemctl start docker || journalctl -u docker
+if type "docker" >/dev/null 2>&1; then
+    # HACK: docker falls over regularly, print its log if it does
+    systemctl start docker || journalctl -u docker
 
-# docker image that we need for integration testing
-docker pull busybox:latest
-docker pull busybox:buildroot-2014.02
-docker pull submod/helloapache
-docker pull submod/atomicapp
+    # docker image that we need for integration testing
+    docker pull busybox:latest
+    docker pull busybox:buildroot-2014.02
+    docker pull submod/helloapache
+    docker pull submod/atomicapp
+fi
 
 # HACK - kdump.service interferes with our storage tests, by loading
 # the system for some time after boot and thereby causing a race

@@ -234,8 +234,8 @@ class TestDashboard(MachineCase):
         m2.execute("echo admin:badpass | chpasswd")
 
         # Create some users on m1 and m2.
-        m1.execute("groupadd docker")
-        m2.execute("groupadd docker")
+        m1.execute("getent group docker >/dev/null || groupadd docker")
+        m2.execute("getent group docker >/dev/null || groupadd docker")
 
         m1.execute("useradd junior -G docker")
         m1.execute("echo junior:foobar | chpasswd")

@@ -242,7 +242,7 @@ class TestDashboard(MachineCase):
         m1.execute("useradd nosync -G docker")
         m1.execute("echo nosync:foobar | chpasswd")
 
-        m1.execute("useradd senior -G wheel")
+        m1.execute("useradd senior -G %s" % m1.get_admin_group())
         m1.execute("echo senior:foobar | chpasswd")
         m2.execute("useradd senior")
         m2.execute("echo senior:barfoo | chpasswd")
@@ -301,7 +301,7 @@ class TestDashboard(MachineCase):
                          password_hash(m2, "admin"))
 
         self.assertIn ("docker", groups(m2, "junior"))
-        self.assertIn ("wheel", groups(m2, "senior"))
+        self.assertIn (m2.get_admin_group(), groups(m2, "senior"))
 
         try:
             m2.execute("id nosync")

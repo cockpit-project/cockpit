@@ -271,11 +271,11 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         b = self.browser
         m = self.machine
 
-        # Try to access docker without wheel group
+        # Try to access docker without admin (wheel, sudo, ...) group
         m.execute("systemctl start docker")
         m.execute("usermod -G '' admin")
 
-        # HACK: Logging in without "wheel" will try to write to
+        # HACK: Logging in without the admin group will try to write to
         # /var/lib/cockpit/, but this will fail.
         # https://github.com/cockpit-project/cockpit/issues/1248
         #
@@ -289,8 +289,8 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         b.wait_text("#curtain h1", "Not authorized to access Docker on this system")
         b.wait_visible("#curtain button[data-action='docker-connect']")
 
-        # Give "admin" access via the wheel group and login again
-        m.execute("usermod -G wheel admin")
+        # Give "admin" access via the admin group and login again
+        m.execute("usermod -G %s admin" % m.get_admin_group())
         m.execute("systemctl stop docker")
         b.relogin("/docker")
         self.allow_restart_journal_messages()

@@ -110,7 +110,7 @@ class TestRoles(MachineCase):
         m = self.machine
         b = self.browser
 
-        m.execute("groupadd docker")
+        m.execute("getent group docker >/dev/null || groupadd docker")
 
         self.login_and_go("/users")
         b.go("#/admin")

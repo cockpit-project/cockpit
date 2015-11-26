@@ -24,8 +24,7 @@ class TestPages(MachineCase):
     def testBasic(self):
         m = self.machine
         b = self.browser
-        m.needs_writable_usr()
-        m.write("/usr/lib/systemd/system/test.service",
+        m.write("/etc/systemd/system/test.service",
 """
 [Unit]
 Description=Test Service

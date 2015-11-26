@@ -56,14 +56,16 @@ class TestRoles(MachineCase):
         b.click('#go-account')
         b.enter_page("/users")
 
+        admin_role_sel = 'input[data-name="%s"]' % m.get_admin_group()
+
         b.wait_text("#account-user-name", "user")
         b.wait_present('#account-real-name-wrapper.disabled')
         b.wait_present("#account-locked[disabled]")
         b.wait_present("#account-set-password:not(.disabled)")
         b.wait_present("#account-delete.disabled")
         b.wait_present("#account-logout.disabled")
-        b.wait_present("#account-role-checkbox-10[disabled]")
-        b.wait_present("#account-role-checkbox-10:not(:checked)")
+        b.wait_present(admin_role_sel + "[disabled]")
+        b.wait_present(admin_role_sel + ":not(:checked)")
 
         # Check permissions for admin account
         b.go("#/admin")
@@ -74,17 +76,17 @@ class TestRoles(MachineCase):
         b.wait_present("#account-set-password.disabled")
         b.wait_present("#account-delete.disabled")
         b.wait_present("#account-logout.disabled")
-        b.wait_present("#account-role-checkbox-10[disabled]")
-        b.wait_present("#account-role-checkbox-10:checked")
+        b.wait_present(admin_role_sel + "[disabled]")
+        b.wait_present(admin_role_sel + ":checked")
 
-        # Add "wheel" role from the outside (and wait for it to stick)
+        # Add admin role from the outside (and wait for it to stick)
         b.go("#/user")
         b.wait_visible("#account")
         b.wait_text("#account-user-name", "user")
 
-        b.wait_present("#account-role-checkbox-10:not(:checked)")
-        m.execute("usermod -a -G wheel user")
-        b.wait_present("#account-role-checkbox-10:checked")
+        b.wait_present(admin_role_sel + ":not(:checked)")
+        m.execute("usermod -a -G %s user" % m.get_admin_group())
+        b.wait_present(admin_role_sel + ":checked")
 
         b.relogin("/users", "user")
         b.wait_text("#account-user-name", "user")
@@ -98,8 +100,8 @@ class TestRoles(MachineCase):
         b.wait_present("#account-set-password:not(.disabled)")
         b.wait_present("#account-delete:not(.disabled)")
         b.wait_present("#account-logout:not(.disabled)")
-        b.wait_present("#account-role-checkbox-10:not([disabled])")
-        b.wait_present("#account-role-checkbox-10:checked")
+        b.wait_present(admin_role_sel + ":not([disabled])")
+        b.wait_present(admin_role_sel + ":checked")
 
         self.allow_restart_journal_messages()
         self.allow_authorize_journal_messages()

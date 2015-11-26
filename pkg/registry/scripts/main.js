@@ -26,18 +26,29 @@
         'registry.dashboard',
         'openshift.images',
         'openshift.projects',
+        'kubeClient',
+        'kubeClient.cockpit'
     ])
 
-    .config(['$routeProvider',
-        function($routeProvider) {
+    .config([
+        '$routeProvider',
+        'KubeWatchProvider',
+        'KubeRequestProvider',
+        function($routeProvider, KubeWatchProvider, KubeRequestProvider) {
             $routeProvider.otherwise({ redirectTo: '/' });
+
+            /* Tell the kube-client code to use cockpit watches and requests */
+            KubeWatchProvider.KubeWatchFactory = "CockpitKubeWatch";
+            KubeRequestProvider.KubeRequestFactory = "CockpitKubeRequest";
         }
     ])
 
     .controller('MainCtrl', [
         '$scope',
         '$route',
-        function($scope, $route) {
+        '$rootScope',
+        'kubeLoader',
+        function($scope, $route, $rootScope, kubeLoader) {
 
             /* Used to set detect which route is active */
             $scope.is_active = function is_active(template) {
@@ -47,6 +58,11 @@
 
             /* Used while debugging */
             $scope.console = console;
+
+            /* When the loader changes digest */
+            kubeLoader.listen(function() {
+                $rootScope.$applyAsync();
+            });
         }
     ]);
 

@@ -28,11 +28,14 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 <link rel="stylesheet" href="bundle.css">
 
 <script src="../base1/angular.js"></script>
+<script src="../base1/cockpit.js"></script>
 <script src="bundle.js"></script>
 
 <!-- debug:start -->
 <link rel="stylesheet/less" type="text/css" href="styles/main.less" />
 <script src="bower_components/less/dist/less.js" type="text/javascript"></script>
+<script src="scripts/kube-client.js"></script>
+<script src="scripts/kube-client-cockpit.js"></script>
 <script src="scripts/dashboard.js"></script>
 <script src="scripts/exceptions.js"></script>
 <script src="scripts/images.js"></script>
@@ -65,6 +68,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 </ul>
             </div>
         </div>
+    </div>
 
     <div id="content" class="container-fluid" ng-view>
     </div>

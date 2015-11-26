@@ -21,10 +21,12 @@
     "use strict";
 
     angular.module('openshift.images', [
-        'ngRoute'
+        'ngRoute',
+        'kubeClient',
     ])
 
-    .config(['$routeProvider',
+    .config([
+        '$routeProvider',
         function($routeProvider) {
             $routeProvider.when('/images', {
                 templateUrl: 'views/images-page.html',
@@ -36,8 +38,15 @@
 
     .controller('ImagesCtrl', [
         '$scope',
-        function($scope) {
+        'kubeLoader',
+        'kubeSelect',
+        function($scope, loader, select) {
+
             /* nothing here yet */
+            loader.watch("images");
+            $scope.images = function() {
+                return select().kind("Image");
+            };
         }
     ]);
 

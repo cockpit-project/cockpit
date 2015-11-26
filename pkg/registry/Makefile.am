@@ -13,6 +13,8 @@ registry_MODULES = \
 	pkg/registry/scripts/dashboard.js \
 	pkg/registry/scripts/exceptions.js \
 	pkg/registry/scripts/images.js \
+	pkg/registry/scripts/kube-client.js \
+	pkg/registry/scripts/kube-client-cockpit.js \
 	pkg/registry/scripts/projects.js \
 	pkg/registry/scripts/main.js \
 	$(NULL)
@@ -23,6 +25,7 @@ registry_BOWER = \
 	$(NULL)
 
 registry_TESTS = \
+	pkg/registry/tests/test-kube-client.html \
 	$(NULL)
 
 # Typically only modify stuff above this line
@@ -88,6 +91,9 @@ EXTRA_DIST += \
 	pkg/registry/index.min.html \
 	pkg/registry/bundle.min.js \
 	pkg/registry/templates.js \
+	pkg/registry/scripts/kube-client-mock.js \
+	pkg/registry/tests/fixture-basic.js \
+	pkg/registry/tests/fixture-large.js \
 	$(registry_BOWER) \
 	$(registry_LESS) \
 	$(registry_BUNDLE) \

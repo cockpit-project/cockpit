@@ -2640,18 +2640,26 @@ function full_scope(cockpit, $, po) {
 
         var user = cockpit.user;
         var group = null;
+        var admin = false;
 
         if (options)
             group = options.group;
+
+        if (options && options.admin)
+            admin = true;
 
         function decide() {
             if (user.id === 0)
                 return true;
 
-            if (group && user.groups) {
+            if (user.groups) {
                 var allowed = false;
                 $.each(user.groups, function(i, name) {
                     if (name == group) {
+                        allowed = true;
+                        return false;
+                    }
+                    if (admin && (name == "wheel" || name == "sudo")) {
                         allowed = true;
                         return false;
                     }

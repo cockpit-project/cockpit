@@ -1589,10 +1589,12 @@ request.close([problem])
 <refsection id="cockpit-permission">
     <title>Permission Lookup</title>
 
-    <para>Cockpit provides a mechanism for checking if the current user satisfies a
-      given criteria. Currently capable of checking for root users, and group
-      membership. This is meant for updating UI elements based on what actions the
-      user can perform. It is <emphasis>not an access control mechanism</emphasis>.</para>
+    <para>Cockpit provides a mechanism for checking if the current
+    user satisfies a given criteria. Currently capable of checking for
+    root users, group membership, and the ability to become
+    superuser. This is meant for updating UI elements based on what
+    actions the user can perform. It is <emphasis>not an access
+    control mechanism</emphasis>.</para>
 
     <refsection id="cockpit-permission-constructor">
       <title>cockpit.permission()</title>
@@ -1600,10 +1602,14 @@ request.close([problem])
 permission = cockpit.permission([options])
 </programlisting>
 
-      <para>Create a new permission object to check if the current user has permission.
-        The "root" user is always given permission. The <code>options</code> argument
-        can contain a <code>"group"</code> field, and members of that group are also
-        given permission.</para>
+      <para>Create a new permission object to check if the current
+      user has permission.  The "root" user is always given
+      permission. The <code>options</code> argument can contain a
+      <code>"group"</code> field, and members of that group are also
+      given permission.  The <code>options</code> argument can also
+      contain a <code>"admin"</code> field, and if set to true, users
+      that can open channels with a <code>{ superuser: true }</code>
+      option are given permission.</para>
     </refsection>
 
     <refsection id="cockpit-permission-allowed">

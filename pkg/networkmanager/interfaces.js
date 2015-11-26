@@ -1245,7 +1245,7 @@ function make_network_plot_setup_hook(unit) {
     };
 }
 
-var permission = cockpit.permission({ group: "wheel" });
+var permission = cockpit.permission({ admin: true });
 $(permission).on("changed", update_network_privileged);
 
 function update_network_privileged() {

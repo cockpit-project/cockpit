@@ -38,7 +38,7 @@ define([
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 
-var permission = cockpit.permission({ group: "wheel" });
+var permission = cockpit.permission({ admin: true });
 $(permission).on("changed", update_hostname_privileged);
 
 function update_hostname_privileged() {

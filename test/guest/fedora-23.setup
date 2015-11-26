@@ -58,7 +58,7 @@ maybe firewall-cmd --permanent --add-port 8765/tcp
 
 echo 'NETWORKING=yes' > /etc/sysconfig/network
 
-useradd -u 1000 -c Administrator -G wheel admin
+useradd -c Administrator -G wheel admin
 echo foobar | passwd --stdin admin
 
 # Let's upgrade dnf first and then use the new dnf to upgrade
@@ -72,7 +72,7 @@ dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # Prepare for building
 dnf -y install mock dnf-plugins-core
-useradd -u 2000 -c Builder -G mock builder
+useradd -c Builder -G mock builder
 
 # HACK - mock --installdeps with yum is broken, it seems that it can't
 # run any package scriptlets.  Yum is deprecated anyway so we just use

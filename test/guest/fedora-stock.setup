@@ -1,6 +1,6 @@
 #! /bin/bash
 
-useradd -u 1000 -c Administrator -G wheel admin
+useradd -c Administrator -G wheel admin
 echo foobar | passwd --stdin admin
 
 dnf -y update

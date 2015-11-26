@@ -102,7 +102,7 @@ fi
 # only install mock and build if TEST_SOURCE_PACKAGE is set
 if [ -n "$TEST_SOURCE_PACKAGE" ]; then
     yum -y install mock
-    useradd -u 2000 -c Builder -G mock builder
+    useradd -c Builder -G mock builder
     su - builder -c "mock --verbose --installdeps $TEST_SOURCE_PACKAGE"
 fi
 
@@ -120,7 +120,7 @@ fi
 
 echo 'NETWORKING=yes' > /etc/sysconfig/network
 
-useradd -u 1000 -c Administrator -G wheel admin
+useradd -c Administrator -G wheel admin
 echo foobar | passwd --stdin admin
 
 # To enable persistent logging

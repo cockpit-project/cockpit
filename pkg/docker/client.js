@@ -433,10 +433,17 @@ define([
                 });
         };
 
-        this.restart = function restart(id) {
+        this.restart = function restart(id, timeout) {
             waiting(id);
+            if (timeout === undefined)
+                timeout = 10;
             util.docker_debug("restarting:", id);
-            return http.post("/v1.12/containers/" + encodeURIComponent(id) + "/restart")
+            return http.request({
+                method: "POST",
+                path: "/v1.12/containers/" + encodeURIComponent(id) + "/restart",
+                params: { 't': timeout },
+                body: ""
+            })
                 .fail(function(ex) {
                     util.docker_debug("restart failed:", id, ex);
                 })

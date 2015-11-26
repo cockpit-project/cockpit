@@ -51,7 +51,7 @@ define([
         });
     }
 
-    var permission = cockpit.permission({ group: "wheel" });
+    var permission = cockpit.permission({ admin: true });
 
     function update_storage_privileged() {
         update_privileged_ui(permission, ".storage-privileged",

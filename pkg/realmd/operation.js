@@ -392,7 +392,7 @@ define([
             if (!realmd)
                 return;
 
-            permission = cockpit.permission({ group: "wheel" });
+            permission = cockpit.permission({ admin: true });
 
             function update_realm_privileged() {
                 controls.update_privileged_ui(permission, element,

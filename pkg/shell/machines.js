@@ -151,7 +151,7 @@ define([
 
 
         self.add_key = function(host_key) {
-            var known_hosts = cockpit.file(known_hosts_path);
+            var known_hosts = cockpit.file(known_hosts_path, { superuser: "try" });
             return known_hosts
                 .modify(function(data) {
                     return data + "\n" + host_key;
@@ -233,7 +233,7 @@ define([
             }
 
             /* Update the JSON file */
-            var local = cockpit.file(path, { syntax: JSON });
+            var local = cockpit.file(path, { syntax: JSON, superuser: "try" });
             var mod = local.modify(mutate, last.content, last.tag)
                 .done(function(data, tag) {
                     var prop, over = { };

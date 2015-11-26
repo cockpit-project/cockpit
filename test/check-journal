@@ -30,10 +30,6 @@ class TestJournal(MachineCase):
         b = self.browser
         m = self.machine
 
-        if "219-21" in m.execute("rpmquery systemd"):
-            # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1253649
-            return
-
         self.allow_restart_journal_messages()
         self.allow_journal_messages(".*Failed to get realtime timestamp: Cannot assign requested address.*")
 

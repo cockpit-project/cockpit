@@ -31,7 +31,6 @@ fi
 set -x
 
 yum -y install wget
-cd /etc/yum.repos.d
 
 if [ ! -f "$SKIP_REPO_FLAG" ]; then
     # Configure repositories.

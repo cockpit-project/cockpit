@@ -24,9 +24,6 @@ import time
 
 from testlib import *
 
-admins_only_pam = """account    sufficient   pam_succeed_if.so uid = 0\\
-account    required     pam_succeed_if.so user ingroup wheel"""
-
 class TestLogin(MachineCase):
     def testBasic(self):
         m = self.machine
@@ -35,6 +32,9 @@ class TestLogin(MachineCase):
         # Setup users and passwords
         m.execute("useradd user -c 'Barney Bär' || true")
         m.execute("echo user:abcdefg | chpasswd")
+
+        admins_only_pam = """account    sufficient   pam_succeed_if.so uid = 0\\
+account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group()
 
         # Setup a special PAM config that disallows non-wheel users
         def deny_non_root(remote_filename):

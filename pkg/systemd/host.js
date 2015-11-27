@@ -105,7 +105,7 @@ function ServerTime() {
     }
 
     self.update = function update() {
-        cockpit.spawn(["/usr/bin/date", "+%s:%:z"])
+        cockpit.spawn(["date", "+%s:%:z"])
             .done(function(data) {
                 var parts = data.trim().split(":").map(function(x) {
                     return parseInt(x, 10);
@@ -125,7 +125,7 @@ function ServerTime() {
          * way to make sense of this date without a round trip to the
          * server ... the timezone is really server specific.
          */
-        cockpit.spawn(["/usr/bin/date", "--date=" + datestr + " " + hourstr + ":" + minstr, "+%s"])
+        cockpit.spawn(["date", "--date=" + datestr + " " + hourstr + ":" + minstr, "+%s"])
             .fail(function(ex) {
                 dfd.reject(ex);
             })

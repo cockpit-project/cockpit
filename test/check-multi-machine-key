@@ -49,6 +49,8 @@ KEY_IDS = [
 
 ]
 @unittest.skipIf("rhel" in os.environ.get("TEST_OS", ""), "key auth: not supported")
+# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=805030
+@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No ssh keys on Debian (yet).")
 class TestMultiMachineKeyAuth(MachineCase):
 
     def load_key(self, name, password):

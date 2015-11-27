@@ -17,10 +17,13 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import os
 import sys
 
 import testvm
 import testinfra
+
+BASE = os.path.dirname(__file__)
 
 parser = argparse.ArgumentParser(description='Run a test machine')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose details')
@@ -32,6 +35,7 @@ parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='T
 args = parser.parse_args()
 
 try:
+    os.chdir(BASE)
     machine = testvm.VirtMachine(verbose=args.verbose, image=args.image)
     machine.qemu_console(maintain=args.maintain,
                          memory_mb=args.memory,

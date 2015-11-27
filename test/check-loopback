@@ -29,10 +29,22 @@ class TestLoopback(MachineCase):
         b = self.browser
         m = self.machine
 
-        m.spawn("/usr/libexec/cockpit-ws --local-ssh --no-tls", "cockpit-ws");
+        if "debian" in m.image:
+            cockpit_ws = "/usr/lib/cockpit/cockpit-ws"
+        else:
+            cockpit_ws = "/usr/libexec/cockpit-ws"
+
+        m.spawn(cockpit_ws + " --local-ssh --no-tls", "cockpit-ws");
         b.login_and_go("/system", user="admin")
 
         m.execute("sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config")
+
+        # When ssd is not socket activated, we need to restart it so
+        # that it reloads its configuration.  When it _is_ socket
+        # activated, we must avoid starting the service, since that
+        # would fail and break ssh connectivity from that point on.
+        #
+        m.execute("! systemctl --quiet is-enabled sshd || systemctl restart sshd")
 
         b.logout()
         b.wait_visible("#login")
@@ -42,7 +54,8 @@ class TestLoopback(MachineCase):
         b.wait_visible('#login-fatal')
         self.assertIn("The server refused to authenticate 'admin' using password authentication, and no other supported authentication methods are available.", b.text('#login-fatal'));
 
-        self.allow_journal_messages("cockpit-polkit: couldn't respond to polkit daemon: GDBus\\.Error:org\\.freedesktop\\.PolicyKit1\\.Error\\.Failed: No session for cookie")
+        self.allow_journal_messages("cockpit-polkit: couldn't respond to polkit daemon: GDBus\\.Error:org\\.freedesktop\\.PolicyKit1\\.Error\\.Failed: No session for cookie",
+                                    ".*server offered unsupported authentication methods: public-key.*")
 
 if __name__ == '__main__':
     test_main()

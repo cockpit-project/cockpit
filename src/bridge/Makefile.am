@@ -100,9 +100,8 @@ cockpit_polkit_LDADD = libreauthorize.a $(REAUTHORIZE_LIBS) $(COCKPIT_POLKIT_LIB
 # polkit-agent-helper-1 need to be setuid root because polkit wants
 # responses to come from a root process
 install-data-hook::
-	-chown root:0 $(DESTDIR)$(libexecdir)/cockpit-polkit
-	-chown root:0 $(DESTDIR)$(libexecdir)/cockpit-polkit
-	-chmod 4755 $(DESTDIR)$(libexecdir)/cockpit-polkit
+	chown -f root:0 $(DESTDIR)$(libexecdir)/cockpit-polkit || true
+	chmod -f 4755 $(DESTDIR)$(libexecdir)/cockpit-polkit
 
 EXTRA_DIST += \
 	src/bridge/cockpit.pam.insecure \

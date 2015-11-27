@@ -181,8 +181,8 @@ uninstall-local:: uninstall-doc-local
 
 install-data-hook::
 	mkdir -p $(DESTDIR)$(localstatedir)/lib/cockpit
-	-chgrp wheel $(DESTDIR)$(localstatedir)/lib/cockpit
-	-chmod 775 $(DESTDIR)$(localstatedir)/lib/cockpit
+	chgrp wheel $(DESTDIR)$(localstatedir)/lib/cockpit || true
+	chmod 775 $(DESTDIR)$(localstatedir)/lib/cockpit
 
 LATEST = latest/
 

@@ -99,8 +99,8 @@ firewall_DATA = src/ws/cockpit.xml
 # If running cockpit-ws as a non-standard user, we also set up
 # cockpit-session to be setuid root, but only runnable by cockpit-session
 install-exec-hook::
-	-chown root:$(COCKPIT_GROUP) $(DESTDIR)$(libexecdir)/cockpit-session
-	-test "$(COCKPIT_USER)" != "root" && chmod 4750 $(DESTDIR)$(libexecdir)/cockpit-session
+	chown -f root:$(COCKPIT_GROUP) $(DESTDIR)$(libexecdir)/cockpit-session || true
+	test "$(COCKPIT_USER)" != "root" && chmod -f 4750 $(DESTDIR)$(libexecdir)/cockpit-session || true
 
 EXTRA_DIST += \
 	src/ws/cockpit.service.in \
@@ -286,7 +286,7 @@ TESTS += $(WS_CHECKS)
 
 install-exec-hook::
 	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d
-	-chmod 755 $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d
+	chmod 755 $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d
 
 update-known-hosts:
 	cat $(srcdir)/src/ws/mock_*.pub | \

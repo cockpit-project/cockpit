@@ -184,6 +184,7 @@ class TestDashboard(MachineCase):
         b.wait_js_cond('window.location.pathname.indexOf("/@%s") === 0' % m3.address)
 
         self.allow_hostkey_messages()
+        self.allow_journal_messages(".*server offered unsupported authentication methods: password public-key.*")
 
     def testEdit(self):
         b = self.browser

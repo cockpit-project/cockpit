@@ -123,10 +123,6 @@ class TestSystemInfo(MachineCase):
 
         self.assertIn("%s: yes" % network_time_prefix, m.execute("LC_ALL=C timedatectl"))
 
-        # HACK: Work around for SELinux bug in Fedora 21
-        # https://bugzilla.redhat.com/show_bug.cgi?id=1014315
-        m.execute("setenforce 0")
-
         # Change the date
         b.click("#system_information_systime_button")
         b.wait_popup("system_information_change_systime")

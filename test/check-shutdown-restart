@@ -33,7 +33,7 @@ class TestShutdownRestart(MachineCase):
         b = self.browser
 
         # HACK -https://bugzilla.redhat.com/show_bug.cgi?id=1278287
-        m.execute("setenforce 0")
+        m.execute("! selinuxenabled || setenforce 0")
 
         self.login_and_go("/system")
 

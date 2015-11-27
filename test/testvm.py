@@ -103,7 +103,7 @@ class Machine:
         # Keep in mind that not all operating systems have firewalld
         self.execute("firewall-cmd --permanent --zone=public --add-port={0}/tcp || true".format(port))
         self.execute("firewall-cmd --reload || true")
-        self.execute("semanage port -a -t ssh_port_t -p tcp {0}".format(port))
+        self.execute("! selinuxenabled || semanage port -a -t ssh_port_t -p tcp {0}".format(port))
         self.execute("sed -i 's/.*Port .*/Port {0}/' /etc/ssh/sshd_config".format(port))
 
         # We stop the sshd.socket unit and just go with a regular

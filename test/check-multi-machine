@@ -405,7 +405,7 @@ class TestMultiMachine(MachineCase):
         b.logout()
         b.wait_visible("#login")
 
-        m1.execute("semanage port -a -t ssh_port_t -p tcp 2222")
+        m1.execute("! selinuxenabled || semanage port -a -t ssh_port_t -p tcp 2222")
         m2.change_ssh_port(2222)
         self.login_and_go(None)
         b.go(machine_path)

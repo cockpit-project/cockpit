@@ -127,7 +127,7 @@ class TestConnection(MachineCase):
 
         # Install a certificate chain, and give it an arbitrary bad file context
         m.upload(["files/cert-chain.cert"], "/etc/cockpit/ws-certs.d")
-        m.execute("chcon --type svirt_sandbox_file_t /etc/cockpit/ws-certs.d/cert-chain.cert")
+        m.execute("! selinuxenabled || chcon --type svirt_sandbox_file_t /etc/cockpit/ws-certs.d/cert-chain.cert")
 
         # This should also reset the file context
         m.execute("systemctl restart cockpit")
@@ -161,7 +161,8 @@ class TestConnection(MachineCase):
         m = self.machine
 
         # Change port according to documentation: http://files.cockpit-project.org/guide/latest/listen.html
-        m.execute('semanage port -m -t websm_port_t -p tcp 443 && mkdir -p /etc/systemd/system/cockpit.socket.d/ && printf "[Socket]\nListenStream=\nListenStream=443" > /etc/systemd/system/cockpit.socket.d/listen.conf')
+        m.execute('! selinuxenabled || semanage port -m -t websm_port_t -p tcp 443')
+        m.execute('mkdir -p /etc/systemd/system/cockpit.socket.d/ && printf "[Socket]\nListenStream=\nListenStream=443" > /etc/systemd/system/cockpit.socket.d/listen.conf')
         m.execute('systemctl daemon-reload && systemctl restart cockpit.socket')
 
         output = m.execute('wget --no-check-certificate -O - https://localhost 2>&1 || true')

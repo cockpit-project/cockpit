@@ -135,8 +135,8 @@ function passwd_change(user, new_pass) {
     var dfd = $.Deferred();
 
     var buffer = "";
-    cockpit.spawn(["/usr/bin/passwd", "--stdin", user ], {superuser: "require", err: "out" })
-        .input(new_pass)
+    cockpit.spawn([ "chpasswd" ], {superuser: "require", err: "out" })
+        .input(user + ":" + new_pass)
         .done(function() {
             dfd.resolve();
         })

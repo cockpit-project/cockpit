@@ -100,7 +100,6 @@ asyncTest("multi cache", function() {
         equal(typeof result, "function", "provider2 got result function");
 
         var timer = window.setTimeout(function() {
-            console.log("provider2 setting value");
             result({ myobject: "value2" });
         }, 200);
 

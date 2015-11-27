@@ -42,7 +42,6 @@ asyncTest("get wall time", function() {
     var dbus = cockpit.dbus(null, { "bus": "internal" });
     dbus.call("/time", "cockpit.Time", "GetWallTime", [ ])
         .done(function(reply) {
-            console.log(reply);
             ok(reply[0] > 1000000000000, "in right range");
             ok(reply[0] < 9000000000000, "in right range");
         })

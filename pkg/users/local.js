@@ -746,7 +746,9 @@ PageAccount.prototype = {
         var self = this;
 
         function parse_locked(content) {
-            return content.indexOf("Password locked.") > -1;
+            var status = content.split(" ")[1];
+            // libuser uses "LK", shadow-utils use "L".
+            return status && (status == "LK" || status == "L");
         }
 
         cockpit.spawn(["/usr/bin/passwd", "-S", self.account_id],

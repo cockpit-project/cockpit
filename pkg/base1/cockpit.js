@@ -161,7 +161,7 @@ function event_mixin(obj, handlers) {
     obj.removeEventListener = function removeEventListener(type, handler) {
         var length = handlers[type] ? handlers[type].length : 0;
         for (var i = 0; i < length; i++) {
-            if (handlers[type][i] == handler) {
+            if (handlers[type][i] === handler) {
                 handlers[type][i] = null;
                 break;
             }

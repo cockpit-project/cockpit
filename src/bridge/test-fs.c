@@ -311,6 +311,12 @@ test_read_non_existent (TestCase *tc,
   assert_received (tc, "");
 
   control = mock_transport_pop_control (tc->transport);
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
+
+  control = mock_transport_pop_control (tc->transport);
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "done");
+
+  control = mock_transport_pop_control (tc->transport);
   g_assert (json_object_get_member (control, "problem") == NULL);
   g_assert_cmpstr (json_object_get_string_member (control, "tag"), ==, "-");
 }

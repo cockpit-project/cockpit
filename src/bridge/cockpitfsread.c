@@ -219,6 +219,8 @@ cockpit_fsread_prepare (CockpitChannel *channel)
       int err = errno;
       if (err == ENOENT)
         {
+          cockpit_channel_ready (channel);
+          cockpit_channel_control (channel, "done", NULL);
           options = cockpit_channel_close_options (channel);
           json_object_set_string_member (options, "tag", "-");
           cockpit_channel_close (channel, NULL);

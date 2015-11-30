@@ -50,6 +50,7 @@ function is_array(it) {
  */
 
 var default_transport = null;
+var public_transport = null;
 var reload_after_disconnect = false;
 var expect_disconnect = false;
 var init_callback = null;
@@ -477,6 +478,12 @@ function Transport() {
             channel_seed = String(options["channel-seed"]);
         if (options["host"])
             default_host = options["host"];
+
+        if (public_transport) {
+            public_transport.options = options;
+            public_transport.csrf_token = options["csrf-token"];
+            public_transport.host = default_host;
+        }
 
         if (init_callback)
             init_callback(options);
@@ -949,7 +956,7 @@ function basic_scope(cockpit) {
         });
     };
 
-    cockpit.transport = {
+    cockpit.transport = public_transport = {
         wait: ensure_transport,
         inject: function inject(message) {
             if (!default_transport)
@@ -995,9 +1002,6 @@ function full_scope(cockpit, $, po) {
             $.extend(cockpit.info, options.system);
         if (options.system)
             $(cockpit.info).trigger("changed");
-        cockpit.transport.csrf_token = options["csrf-token"];
-        cockpit.transport.options = options;
-        cockpit.transport.host = default_host;
     };
 
     function User() {

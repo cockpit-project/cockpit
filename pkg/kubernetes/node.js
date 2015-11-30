@@ -23,30 +23,28 @@ define([
     "base1/mustache",
     "kubernetes/client",
     "base1/patterns"
-], function(jQuery, cockpit, Mustache, kubernetes) {
+], function($, cockpit, Mustache, kubernetes) {
     "use strict";
 
     var _ = cockpit.gettext;
-    var $ = jQuery.scoped("#node-dialog");
-
     var kube = null;
 
     var regex = /^[a-z0-9.-]+$/i;
-    var dialog = $("#node-dialog", document);
+    var dialog = $("#node-dialog");
 
     dialog
         .on("show.bs.modal", function(ev) {
             kube = kubernetes.k8client();
 
             /* We don't support configuration for now */
-            $(".configure-option input")
+            $(".configure-option input", dialog)
                 .attr("disabled", "disabled");
 
-            $("#node-name").val('');
-            $("#node-address").val('');
+            $("#node-name", dialog).val('');
+            $("#node-address", dialog).val('');
         })
         .on("shown.bs.modal", function() {
-            $("#node-address").focus();
+            ("#node-address", dialog).focus();
         })
         .on("hide.bs.modal", function(ev) {
             kube.close();
@@ -57,8 +55,8 @@ define([
         var failures = [];
         var items = [];
 
-        var name = $("#node-name").val().trim();
-        var address = $("#node-address").val().trim();
+        var name = $("#node-name", dialog).val().trim();
+        var address = $("#node-address", dialog).val().trim();
 
         var ex;
         if (!address)
@@ -100,20 +98,20 @@ define([
 
     var name_dirty = false;
 
-    $("#node-name").on("input", function() {
+    $("#node-name", dialog).on("input", function() {
         name_dirty = true;
     });
-    $("#node-address").on("input", function() {
+    $("#node-address", dialog).on("input", function() {
         if (!name_dirty)
-            $("#node-name").val($(this).val());
+            $("#node-name", dialog).val($(this).val());
     });
 
     dialog.on('keypress', function(e) {
         if (e.keyCode === 13)
-            $(".btn-primary").trigger('click');
+            $(".btn-primary", dialog).trigger('click');
     });
 
-    $(".btn-primary").on("click", function() {
+    $(".btn-primary", dialog).on("click", function() {
         var items = gather();
         if (!items)
             return;

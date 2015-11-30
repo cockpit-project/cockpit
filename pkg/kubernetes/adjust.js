@@ -23,15 +23,13 @@ define([
     "base1/mustache",
     "kubernetes/client",
     "base1/patterns"
-], function(jQuery, cockpit, Mustache, kubernetes) {
+], function($, cockpit, Mustache, kubernetes) {
     "use strict";
 
     var _ = cockpit.gettext;
-    var $ = jQuery.scoped("#adjust-dialog");
-
     var kube = null;
 
-    var dialog = $("#adjust-dialog", document);
+    var dialog = $("#adjust-dialog");
 
     dialog
         .on("show.bs.modal", function(ev) {
@@ -49,7 +47,7 @@ define([
             var spec = service.spec || { };
 
             /* We can't edit the name for now */
-            $("#adjust-name")
+            $("#adjust-name", dialog)
                 .val(meta.name)
                 .attr("disabled", "disabled");
 
@@ -68,14 +66,14 @@ define([
                 };
             });
 
-            var template = $("#adjust-template").html();
-            $("table.cockpit-form-table").append(Mustache.render(template, { replicas: replicas }));
+            var template = $("#adjust-template", dialog).html();
+            $("table.cockpit-form-table", dialog).append(Mustache.render(template, { replicas: replicas }));
 
             /* Only show header if any replicas */
-            $(".adjust-replicas-header").toggle(replicas.length > 0);
+            $(".adjust-replicas-header", dialog).toggle(replicas.length > 0);
         })
         .on("hide.bs.modal", function(ev) {
-            $("tr.adjust-replicas").remove();
+            $("tr.adjust-replicas", dialog).remove();
             kube.close();
             kube = null;
         });
@@ -99,7 +97,7 @@ define([
         var failures = [];
         var tasks = [];
 
-        $("input.adjust-replica").each(function() {
+        $("input.adjust-replica", dialog).each(function() {
             var input = $(this);
 
             var uid, ex, value;
@@ -167,7 +165,7 @@ define([
         return promise;
     }
 
-    $(".btn-primary").on("click", function() {
+    $(".btn-primary", dialog).on("click", function() {
         var tasks = gather();
         if (!tasks)
             return;

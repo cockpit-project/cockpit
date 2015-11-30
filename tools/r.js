@@ -1,1 +1,1 @@
-node_modules/.bin/r.js
+../node_modules/.bin/r.js

@@ -9,4 +9,4 @@ mkdir -p "$(dirname $output)"
 
 # Note that we also remove these debug sections
 sed '/debug:start/,/debug:end/d' "$@" |
-    $base/node_modules/.bin/html-minifier --config-file="$base/htmlmin.conf" --output="$output"
+    $base/../node_modules/.bin/html-minifier --config-file="$base/htmlmin.conf" --output="$output"

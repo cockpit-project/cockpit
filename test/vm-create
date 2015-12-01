@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # This file is part of Cockpit.
 #
-# Copyright (C) 2013 Red Hat, Inc.
+# Copyright (C) 2015 Red Hat, Inc.
 #
 # Cockpit is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published by
@@ -25,7 +25,6 @@
 # vm-run and testlib.py.
 
 import argparse
-import guestfs
 import os
 import shutil
 import subprocess
@@ -47,83 +46,7 @@ class MachineBuilder:
         self.machine = machine
         self.macaddr = None
 
-    def _setup_ssh_keys(self, gf):
-        def copy(fr, to):
-            with open(os.path.join(self.machine.test_dir, fr), "r") as f:
-                gf.write(to, f.read())
-
-        # We use a fixed host key for all test machines since things
-        # get too annoying when it changes from run to run.
-        #
-        copy("guest/host_key", "/etc/ssh/ssh_host_rsa_key")
-        gf.chmod(0600, "/etc/ssh/ssh_host_rsa_key")
-        copy("guest/host_key.pub", "/etc/ssh/ssh_host_rsa_key.pub")
-
-        if not gf.exists("/root/.ssh"):
-            gf.mkdir_mode("/root/.ssh", 0700)
-        copy("guest/identity.pub", "/root/.ssh/authorized_keys")
-
-    def _setup_fedora_network(self,gf):
-        ifcfg_eth0 = 'BOOTPROTO="dhcp"\nDEVICE="eth0"\nONBOOT="yes"\n'
-        gf.write("/etc/sysconfig/network-scripts/ifcfg-eth0", ifcfg_eth0)
-
-    def _setup_fedora_like (self, gf):
-        self._setup_ssh_keys(gf)
-        self._setup_fedora_network(gf)
-
-        # systemctl disable sshd.service
-        gf.rm_f("/etc/systemd/system/multi-user.target.wants/sshd.service")
-        # systemctl enable sshd.socket
-        gf.mkdir_p("/etc/systemd/system/sockets.target.wants/")
-        gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
-
-    def _setup_rhel_7 (self, gf):
-        self._setup_ssh_keys(gf)
-        self._setup_fedora_network(gf)
-
-        # systemctl disable sshd.service
-        gf.rm_f("/etc/systemd/system/multi-user.target.wants/sshd.service")
-        # systemctl enable sshd.socket
-        gf.mkdir_p("/etc/systemd/system/sockets.target.wants/")
-        gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
-
-        # upload subscription information
-        gf.mkdir_p("/root/.rhel")
-        gf.upload(os.path.expanduser("~/.rhel/login"), "/root/.rhel/login")
-        gf.upload(os.path.expanduser("~/.rhel/pass"), "/root/.rhel/pass")
-
-    def run_modify_func(self, modify_func):
-        gf = guestfs.GuestFS(python_return_dict=True)
-        if self.machine.verbose:
-            gf.set_trace(1)
-        try:
-            gf.add_drive_opts(self.machine.image_file, readonly=False)
-            gf.launch()
-            # try to mount device directly
-            devices = gf.list_devices()
-            assert len(devices) == 1
-            try:
-                gf.mount(devices[0], "/")
-            except:
-                # if this fails, we may have to perform more intricate mounting
-                # get the first one that isn't swap and mount it as root
-                filesystems = gf.list_filesystems()
-                for fs in filesystems:
-                    if filesystems[fs] == "swap":
-                        continue
-                    gf.mount(fs, "/")
-                    if gf.exists("/etc"):
-                        break
-                    gf.umount("/")
-                if not gf.exists("/etc"):
-                    raise testvm.Failure("Can't find root partition")
-
-            modify_func(gf)
-            gf.touch("/.autorelabel")
-        finally:
-            gf.close()
-
-    def unpack_base(self, modify_func=None):
+    def bootstrap_system(self):
         assert not self.machine._domain
 
         if not os.path.exists(self.machine.run_dir):
@@ -138,9 +61,6 @@ class MachineBuilder:
             subprocess.check_call([ bootstrap_script, self.machine.image_file ])
         else:
             raise testvm.Failure("Unsupported OS %s: %s not found." % (self.machine.image, bootstrap_script))
-
-        if modify_func:
-            self.run_modify_func(modify_func)
 
     def run_setup_script(self, script, source):
         """Prepare a test image further by running some commands in it."""
@@ -158,69 +78,37 @@ class MachineBuilder:
             self.machine.message("run setup script on guest")
             self.machine.execute(script="/var/tmp/SETUP", environment=env, quiet=not self.machine.verbose)
             self.machine.execute(command="rm /var/tmp/SETUP")
-            # bug in selinux-policy-targeted-3.13.1-128.13.fc22
-            # HACK https://bugzilla.redhat.com/show_bug.cgi?id=1224211
-            # we need to restart systemctl and then reboot the system
-            # run this after every script for now
-            self.machine.execute(command="systemctl daemon-reexec")
-            self.machine.execute(command="shutdown --poweroff now &")
         finally:
             self.machine.stop(timeout_sec=60)
 
-    def run_selinux_relabel(self):
-        """Boot an image the first time which allows relabeling"""
-        self.machine.start(maintain=True)
+    def boot_system(self):
+        """Start the system to make sure it can boot, then shutdown cleanly
+        This also takes care of any selinux relabeling setup triggered
+        Don't wait for an ip address during start, since the system might reboot"""
+        self.machine.start(maintain=True, macaddr=self.macaddr, wait_for_ip=False)
+        self.machine.reset_reboot_flag()
         try:
-            self.machine.wait_boot()
+            self.macaddr = self.machine.macaddr
+            # it could be that selinux relabeling needs a reboot
+            self.machine.wait_boot(wait_for_running_timeout=120, allow_one_reboot=True)
         finally:
-            self.machine.stop()
+            self.machine.stop(timeout_sec=120)
 
     def build(self):
-        def modify(gf):
-            if self.machine.image in [ "fedora-22", "fedora-testing", "fedora-23", "centos-7" ]:
-                self._setup_fedora_like(gf)
-            elif self.machine.image == "rhel-7":
-                credential_path = os.path.expanduser("~/.rhel/")
-                if (not os.path.isfile(credential_path + "login")) or (not os.path.isfile(credential_path + "pass")):
-                    raise testvm.Failure("Subscription credentials expected in '~/.rhel/login', '~/.rhel/pass'.")
-                self._setup_rhel_7(gf)
-            elif self.machine.image in [ "selenium" ]:
-                pass
-            else:
-                raise testvm.Failure("Unsupported OS %s" % self.machine.image)
-
-        def format_guest_setup_path(script_id=None):
-            if script_id:
-                return os.path.join(self.machine.test_dir, "guest/%s.%d.setup" % (self.machine.image, next_script))
-            else:
-                return os.path.join(self.machine.test_dir, "guest/%s.setup" % (self.machine.image, ))
-
-        if "atomic" in self.machine.image:
-            self.unpack_base(modify_func=None)
-        else:
-            self.unpack_base(modify_func=modify)
+        self.bootstrap_system()
 
         # gather the scripts, separated by reboots
-        script = format_guest_setup_path()
+        script = os.path.join(self.machine.test_dir, "guest/%s.setup" % (self.machine.image, ))
+
         if not os.path.exists(script):
             raise testvm.Failure("Unsupported image %s: %s not found." % (self.machine.image, script))
-        next_script = 1
-        additional_scripts = [ ]
-        while os.path.exists(format_guest_setup_path(next_script)):
-            additional_scripts += [ format_guest_setup_path(next_script) ]
-            next_script += 1
 
         self.machine.message("Running setup script %s" % (script))
         source = subprocess.check_output([ "../tools/make-source" ]).strip()
         self.run_setup_script(script, source)
-        for additional_script in additional_scripts:
-            self.machine.message("Running additional setup script %s" % (additional_script))
-            self.run_setup_script(additional_script, source)
 
-        # no need for relabeling in all cases
-        if self.machine.image in ["selenium"]:
-            return
-        self.run_selinux_relabel()
+        # make sure we can boot the system
+        self.boot_system()
 
     def save(self):
         data_dir = os.path.join(os.environ.get("TEST_DATA", self.machine.test_dir), "images")

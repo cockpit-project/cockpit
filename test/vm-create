@@ -47,9 +47,6 @@ class MachineBuilder:
         self.machine = machine
         self.macaddr = None
 
-    def _setup_fstab(self,gf):
-        gf.write("/etc/fstab", "/dev/vda / ext4 defaults\n")
-
     def _setup_ssh_keys(self, gf):
         def copy(fr, to):
             with open(os.path.join(self.machine.test_dir, fr), "r") as f:

@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 #
 # Copyright (C) 2015 Red Hat Inc.
 # Author: <marius.vollmer@redhat.com>
@@ -20,10 +20,21 @@
 
 set -ex
 
-if [ "$#" != 3 ]; then
-    echo >&2 "Usage: fedora.build IMAGE OS ARCH"
+if [ "$#" -lt 3 ]; then
+    echo >&2 "Usage: fedora.build IMAGE OS ARCH [SUBSCRIPTION_PATH]"
     exit 1
 fi
+
+subscription_args=""
+
+if [ "$#" -gt 3 ]; then
+    subscription_path=$4
+    subscription_args="--mkdir /root/.rhel \
+      --upload $subscription_path/login:/root/.rhel/login \
+      --upload $subscription_path/pass:/root/.rhel/pass"
+fi
+
+BASE=$(dirname $0)
 
 out=$1
 os=$2
@@ -33,4 +44,15 @@ virt-builder "$os" \
              --output "$out" \
              --size 8G \
              --format qcow2 \
-             --arch "$arch"
+             --arch "$arch"\
+             --root-password password:foobar \
+             --ssh-inject root:file:$BASE/identity.pub \
+             --upload $BASE/host_key:/etc/ssh/ssh_host_rsa_key \
+             --chmod 0600:/etc/ssh/ssh_host_rsa_key \
+             --upload $BASE/host_key.pub:/etc/ssh/ssh_host_rsa_key.pub \
+             --upload $BASE/fedora-network-ifcfg:/etc/sysconfig/network-scripts/ifcfg-eth0 \
+             --delete /etc/systemd/system/multi-user.target.wants/sshd.service \
+             --mkdir /etc/systemd/system/sockets.target.wants \
+             --link /usr/lib/systemd/system/sshd.socket:/etc/systemd/system/sockets.target.wants \
+             --selinux-relabel \
+             $subscription_args

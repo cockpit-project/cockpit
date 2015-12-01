@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 set -ex
 
@@ -16,6 +16,7 @@ echo foobar | passwd --stdin root
 # the distribution repository is updated.
 #
 COCKPIT_DEPS="\
+avocado \
 json-glib \
 realmd \
 glib-networking \
@@ -68,6 +69,10 @@ echo foobar | passwd --stdin admin
 
 dnf -y upgrade dnf
 dnf -y upgrade
+
+# We need avocado for some integration tests
+dnf -y -q copr enable lmr/Autotest
+
 dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # Prepare for building

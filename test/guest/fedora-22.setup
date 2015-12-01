@@ -16,6 +16,7 @@ echo foobar | passwd --stdin root
 # the distribution repository is updated.
 #
 COCKPIT_DEPS="\
+avocado \
 json-glib \
 realmd \
 glib-networking \
@@ -75,6 +76,9 @@ dnf -y upgrade
 #
 dnf -y copr enable phatina/storaged
 
+# We need avocado for some integration tests
+dnf -y -q copr enable lmr/Autotest
+
 dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # Prepare for building
@@ -84,3 +88,27 @@ srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
 su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
 
 dnf clean all
+
+# HACK: docker falls over regularly, print its log if it does
+systemctl start docker || journalctl -u docker
+
+# docker images that we need for integration testing
+docker pull busybox:latest
+docker pull busybox:buildroot-2014.02
+docker pull submod/helloapache:0.1.11
+docker pull gcr.io/google_containers/pause:0.8.0
+
+# Final tweaks
+
+rm -rf /var/log/journal/*
+echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
+printf "[Coredump]\nStorage=journal\n" > /etc/systemd/coredump.conf
+
+ln -sf ../selinux/config /etc/sysconfig/selinux
+printf "SELINUX=enforcing\nSELINUXTYPE=targeted\n" > /etc/selinux/config
+
+touch /.autorelabel
+
+# Audit events to the journal
+rm -f '/etc/systemd/system/multi-user.target.wants/auditd.service'
+rm -rf /var/log/audit/

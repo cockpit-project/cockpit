@@ -88,9 +88,14 @@ class MachineBuilder:
         gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
 
         # upload subscription information
-        gf.mkdir_p("/root/.rhel")
-        gf.upload(os.path.expanduser("~/.rhel/login"), "/root/.rhel/login")
-        gf.upload(os.path.expanduser("~/.rhel/pass"), "/root/.rhel/pass")
+        # skip this if credentials don't exist on local system
+        # or if the guest doesn't want to use the credentials (see rhel-7.setup)
+        loginfile = os.path.expanduser("~/.rhel/login")
+        passfile = os.path.expanduser("~/.rhel/pass")
+        if os.path.exists(loginfile) and os.path.exists(passfile) and not gf.is_file("/root/.skip_repos"):
+            gf.mkdir_p("/root/.rhel")
+            gf.upload(loginfile, "/root/.rhel/login")
+            gf.upload(passfile, "/root/.rhel/pass")
 
     def run_modify_func(self, modify_func):
         gf = guestfs.GuestFS(python_return_dict=True)

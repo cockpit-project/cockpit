@@ -32,6 +32,8 @@ dnf -y remove firewalld
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker
 
+systemctl enable docker
+
 # docker images that we need for integration testing
 docker pull selenium/hub:2.48.2
 docker pull selenium/node-chrome:2.48.2

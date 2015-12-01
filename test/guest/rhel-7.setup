@@ -33,15 +33,15 @@ set -x
 if [ ! -f "$SKIP_REPO_FLAG" ]; then
     # Configure repositories.
     #
-    # HACK - "htb" doesn't work right now, but we can use "beta".  Once
-    # possible, we should do without any beta repositories.
-    #
-    yum -y --disablerepo=rhel-7-server-htb-rpms --disablerepo=rhel-sjis-for-rhel-7-server-rpms install yum-utils
+    # if disabling the repos doesn't work, do without
+    yum -y --disablerepo=rhel-7-server-htb-rpms --disablerepo=rhel-sjis-for-rhel-7-server-rpms install yum-utils || yum -y install yum-utils
     yum-config-manager --enable rhel-7-server-optional-rpms
     yum-config-manager --enable rhel-7-server-extras-rpms
-    yum-config-manager --disable rhel-sjis-for-rhel-7-server-rpms
-    yum-config-manager --disable rhel-7-server-htb-rpms
-    yum-config-manager --enable rhel-7-server-beta-rpms
+
+    # the following don't necessarily need to work
+    yum-config-manager --enable rhel-7-server-beta-rpms || true
+    yum-config-manager --disable rhel-sjis-for-rhel-7-server-rpms || true
+    yum-config-manager --disable rhel-7-server-htb-rpms || true
 fi
 
 yum --nogpgcheck -y update
@@ -52,6 +52,7 @@ echo foobar | passwd --stdin root
 # them to not spontaneously change from one test run to the next when
 # the distribution repository is updated.
 COCKPIT_DEPS="\
+avocado \
 device-mapper-multipath \
 docker \
 etcd \
@@ -61,6 +62,7 @@ kubernetes \
 libssh \
 pcp-libs \
 pcp \
+python-pip \
 realmd \
 selinux-policy-targeted \
 subscription-manager \
@@ -85,20 +87,23 @@ valgrind
 gdb
 "
 
+# enable epel for mock and avocado
+mkdir /tmp/dep
+cd /tmp/dep
+yum -y install wget
+wget -T 15 -t 4 http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+rpm -Uvh epel-release-*.rpm
+cd
+rm -rf /tmp/dep
+
+# get autotest
+wget -T 15 -t 4 -O /etc/yum.repos.d/lmr-Autotest-epel-7.repo https://copr.fedoraproject.org/coprs/lmr/Autotest/repo/epel-7/lmr-Autotest-epel-7.repo
+
 yum install --nogpgcheck -y $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
-# Prepare for building
+pip install selenium
 
-if [ ! -f "$SKIP_REPO_FLAG" ]; then
-    # enable epel for mock
-    mkdir /tmp/dep
-    cd /tmp/dep
-    yum -y install wget
-    wget -T 15 -t 4 http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    rpm -Uvh epel-release-*.rpm
-    cd
-    rm -rf /tmp/dep
-fi
+# Prepare for building
 
 # only install mock and build if TEST_SOURCE is set
 if [ -n "$TEST_SOURCE" ]; then

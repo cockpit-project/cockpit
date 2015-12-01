@@ -36,6 +36,7 @@ import random
 import re
 import json
 import signal
+import shutil
 import subprocess
 import tempfile
 import time
@@ -60,6 +61,7 @@ __all__ = (
     'test_main',
     'Browser',
     'MachineCase',
+    'Timeout',
 
     'sit',
 
@@ -439,6 +441,7 @@ class MachineCase(unittest.TestCase):
     machine_class = None
     browser = None
     machines = [ ]
+    avocado_results_dir = "/root/avocado_results"
 
     def label(self):
         (unused, sep, label) = self.id().partition(".")
@@ -472,6 +475,7 @@ class MachineCase(unittest.TestCase):
             self.failed = True
             self.snapshot("FAIL")
             self.copy_journal("FAIL")
+            self.copy_avocado_logs("FAIL")
             if arg_sit_on_failure:
                 print >> sys.stderr, err
                 if self.machine:
@@ -669,6 +673,23 @@ systemctl start docker
                 subprocess.call(["tar", "cfz", archive, dir])
                 attach(archive)
                 attach(log)
+
+    def copy_avocado_logs(self, title, label=None):
+        if self.machine.address:
+            dir = "%s-%s-%s.avocado" % (label or self.label(), self.machine.address, title)
+            # if this fails, we didn't have avocado results (ignore)
+            try:
+                self.machine.download_dir(MachineCase.avocado_results_dir, dir)
+                # avocado creates a "latest" symlink, recreate this here
+                shutil.rmtree(path=os.path.join(dir, "latest"), ignore_errors=True)
+                print "Avocado results copied to %s" % (dir)
+
+                # compress the logs and attach that
+                archive = "{0}.tar.gz".format(dir)
+                subprocess.call(["tar", "cfz", archive, dir])
+                attach(archive)
+        else:
+            print "no machine address"
 
 some_failed = False
 

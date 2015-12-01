@@ -13,3 +13,79 @@ dnf -y remove firewalld
 iptables -F
 
 dnf -y install docker
+
+# Wait for x for 5 minutes
+function wait() {
+    for i in $(seq 1 50); do
+        if eval "$@"; then
+            return 0
+        fi
+        sleep 6
+    done
+    exit 6
+}
+
+hostnamectl set-hostname f1.cockpit.lan
+systemctl enable docker
+
+# HACK: docker falls over regularly, print its log if it does
+systemctl start docker || journalctl -u docker
+
+# origin is too rotund to build in a normal sized VM. The linker
+# step runs out of memory. In addition origin has no Fedora packages
+docker pull openshift/origin
+docker pull openshift/origin-deployer
+docker pull openshift/origin-deployer:v1.0.5
+docker pull openshift/origin-docker-registry
+docker pull openshift/origin-docker-registry:v1.0.5
+docker pull gcr.io/google_containers/pause:0.8.0
+docker pull beta.gcr.io/google_containers/pause:2.0
+docker run -d --name "origin" \
+    --privileged --net=host --restart=always \
+    -v /:/rootfs:ro -v /var/run:/var/run:rw -v /sys:/sys:ro -v /var/lib/docker:/var/lib/docker:rw \
+    -v /var/lib/openshift/openshift.local.volumes:/var/lib/openshift/openshift.local.volumes \
+    openshift/origin start
+
+# Docker has no start notification, no way to know when openshift has started
+sleep 20
+
+# docker run --name "origin" --entrypoint="/bin/true" openshift/origin
+docker cp origin:/usr/bin/openshift /usr/local/bin
+ln -snf openshift /usr/local/bin/oc
+ln -snf openshift /usr/local/bin/oadm
+# docker rm origin
+
+# cd /
+# openshift start &
+
+mkdir -p /root/.kube
+# cp /openshift.local.config/master/admin.kubeconfig /root/.kube/config
+docker cp origin:/var/lib/openshift/openshift.local.config/master/admin.kubeconfig /root/.kube
+docker cp origin:/var/lib/openshift/openshift.local.config/master/openshift-registry.kubeconfig /root/.kube
+ln -sf admin.kubeconfig /root/.kube/config
+
+# Check if we can connect to openshift
+wait oc get pods
+
+# Deploy the registry
+oadm registry --credentials=/root/.kube/openshift-registry.kubeconfig
+
+function endpoint_has_address() {
+    oc get endpoints $1 --template='{{.subsets}}' | grep -q addresses
+}
+
+function images_has() {
+    oc get images | grep -q "$1"
+}
+
+# Wait for registry deployment to happen
+wait oc get endpoints docker-registry
+wait endpoint_has_address docker-registry
+
+# Load in some images
+echo '{"apiVersion":"v1","kind":"ImageStream","metadata": {"name":"busybox"},"spec":{"dockerImageRepository": "busybox"}}' > /tmp/imagestream.json
+oc create -f /tmp/imagestream.json
+
+# Wait for it to download
+wait images_has busybox
+sleep 20

@@ -35,10 +35,7 @@ PKG_NAME="Cockpit"
 olddir=$(pwd)
 cd $srcdir
 
-(
-	cd tools
-	npm install # see tools/package.json
-)
+npm install # see tools/package.json
 
 rm -rf autom4te.cache
 

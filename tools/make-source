@@ -32,8 +32,8 @@ cd $base/..
 
 if [ -d .git ]; then
     git archive HEAD --prefix cockpit-wip/ --output $outdir/cockpit-wip.tar
-    if [ -d tools/node_modules ]; then
-        tar -rf $outdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' tools/node_modules
+    if [ -d node_modules ]; then
+        tar -rf $outdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' node_modules
     fi
 else
     tar -cf $outdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' .

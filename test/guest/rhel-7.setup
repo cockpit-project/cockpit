@@ -30,17 +30,16 @@ fi
 #
 set -x
 
-yum -y install wget
-
 if [ ! -f "$SKIP_REPO_FLAG" ]; then
     # Configure repositories.
     #
     # HACK - "htb" doesn't work right now, but we can use "beta".  Once
     # possible, we should do without any beta repositories.
     #
-    yum -y --disablerepo=rhel-7-server-htb-rpms install yum-utils
+    yum -y --disablerepo=rhel-7-server-htb-rpms --disablerepo=rhel-sjis-for-rhel-7-server-rpms install yum-utils
     yum-config-manager --enable rhel-7-server-optional-rpms
     yum-config-manager --enable rhel-7-server-extras-rpms
+    yum-config-manager --disable rhel-sjis-for-rhel-7-server-rpms
     yum-config-manager --disable rhel-7-server-htb-rpms
     yum-config-manager --enable rhel-7-server-beta-rpms
 fi
@@ -93,6 +92,7 @@ if [ ! -f "$SKIP_REPO_FLAG" ]; then
     # enable epel for mock
     mkdir /tmp/dep
     cd /tmp/dep
+    yum -y install wget
     wget -T 15 -t 4 http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     rpm -Uvh epel-release-*.rpm
     cd

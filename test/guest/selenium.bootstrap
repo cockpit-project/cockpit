@@ -1,0 +1,43 @@
+#!/bin/bash
+#
+# Copyright (C) 2015 Red Hat Inc.
+# Author: Dominik Perpeet <dperpeet@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301 USA.
+
+set -ex
+
+BASE=$(dirname $0)
+
+out=$1
+arch=$2
+os=fedora-23
+
+virt-builder "$os" \
+             --output "$out" \
+             --size 8G \
+             --format qcow2 \
+             --arch "$arch"\
+             --root-password password:foobar \
+             --ssh-inject root:file:$BASE/identity.pub \
+             --upload $BASE/host_key:/etc/ssh/ssh_host_rsa_key \
+             --chmod 0600:/etc/ssh/ssh_host_rsa_key \
+             --upload $BASE/host_key.pub:/etc/ssh/ssh_host_rsa_key.pub \
+             --delete /etc/systemd/system/multi-user.target.wants/sshd.service \
+             --mkdir /etc/systemd/system/sockets.target.wants \
+             --link /usr/lib/systemd/system/sshd.socket:/etc/systemd/system/sockets.target.wants \
+             --upload $BASE/selenium_start.sh:/root/selenium_start.sh \
+             --selinux-relabel

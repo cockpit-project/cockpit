@@ -36,6 +36,7 @@ virt-builder "$os" \
              --upload $BASE/host_key:/etc/ssh/ssh_host_rsa_key \
              --chmod 0600:/etc/ssh/ssh_host_rsa_key \
              --upload $BASE/host_key.pub:/etc/ssh/ssh_host_rsa_key.pub \
+             --upload $BASE/fedora-network-ifcfg:/etc/sysconfig/network-scripts/ifcfg-eth0 \
              --delete /etc/systemd/system/multi-user.target.wants/sshd.service \
              --mkdir /etc/systemd/system/sockets.target.wants \
              --link /usr/lib/systemd/system/sshd.socket:/etc/systemd/system/sockets.target.wants \

@@ -187,6 +187,8 @@ class MachineBuilder:
                 if (not os.path.isfile(credential_path + "login")) or (not os.path.isfile(credential_path + "pass")):
                     raise testvm.Failure("Subscription credentials expected in '~/.rhel/login', '~/.rhel/pass'.")
                 self._setup_rhel_7(gf)
+            elif self.machine.image in [ "selenium" ]:
+                pass
             else:
                 raise testvm.Failure("Unsupported OS %s" % self.machine.image)
 
@@ -195,6 +197,11 @@ class MachineBuilder:
                 return os.path.join(self.machine.test_dir, "guest/%s.%d.setup" % (self.machine.image, next_script))
             else:
                 return os.path.join(self.machine.test_dir, "guest/%s.setup" % (self.machine.image, ))
+
+        if "atomic" in self.machine.image:
+            self.unpack_base(modify_func=None)
+        else:
+            self.unpack_base(modify_func=modify)
 
         # gather the scripts, separated by reboots
         script = format_guest_setup_path()
@@ -206,19 +213,16 @@ class MachineBuilder:
             additional_scripts += [ format_guest_setup_path(next_script) ]
             next_script += 1
 
-        if "atomic" in self.machine.image:
-            self.unpack_base(modify_func=None)
-        else:
-            self.unpack_base(modify_func=modify)
-
-        source = subprocess.check_output([ "../tools/make-source" ]).strip()
-
         self.machine.message("Running setup script %s" % (script))
+        source = subprocess.check_output([ "../tools/make-source" ]).strip()
         self.run_setup_script(script, source)
         for additional_script in additional_scripts:
             self.machine.message("Running additional setup script %s" % (additional_script))
             self.run_setup_script(additional_script, source)
 
+        # no need for relabeling in all cases
+        if self.machine.image in ["selenium"]:
+            return
         self.run_selinux_relabel()
 
     def save(self):

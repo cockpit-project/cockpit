@@ -128,18 +128,6 @@ EXTRA_DIST += \
 update-lib:: update-bower
 	$(JSMODULE) -m -d base1/angular -o $(srcdir)/pkg/kubernetes/object-describer.js \
 	    $(BOWER)/kubernetes-object-describer/dist/object-describer.js
-	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/topology-graph.js \
-		$(BOWER)/kubernetes-topology-graph/dist/topology-graph.js
-	$(CSSBUNDLE) -o $(srcdir)/pkg/kubernetes/topology-graph.css \
-		$(BOWER)/kubernetes-topology-graph/dist/topology-graph.css
-	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/container-terminal.js \
-		$(BOWER)/kubernetes-container-terminal/dist/container-terminal.js
-	$(CSSBUNDLE) -o $(srcdir)/pkg/kubernetes/container-terminal.css \
-		$(BOWER)/kubernetes-container-terminal/dist/container-terminal.css
-	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/d3.js \
-		$(BOWER)/d3/d3.js
-	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/d3.min.js \
-		$(BOWER)/d3/d3.min.js
 
 # Never recreate these files
 pkg/kubernetes/d3.min.js:

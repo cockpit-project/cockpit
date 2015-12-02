@@ -30,13 +30,14 @@ parser = argparse.ArgumentParser(
 parser.add_argument('-v', '--verbose', action='store_true',
                     help='Display verbose progress details')
 parser.add_argument('-I', '--install', action='append',
-                    dest="yum-list", default=[], help='Only upload and install')
-parser.add_argument('-r', '--run-command', action='append', dest="command-list",
+                    dest="yumlist", default=[], help='Only upload and install')
+parser.add_argument('-r', '--run-command', action='append', dest="commandlist",
                     default=[], help='Run command inside virtual machine')
 parser.add_argument('image', nargs='?',
                     default=testinfra.DEFAULT_IMAGE, help='The image to use')
 args = parser.parse_args()
 
+current_image=args.image
 
 def run_command(image):
     """Run command inside image"""
@@ -46,7 +47,7 @@ def run_command(image):
     allcommands = []
     try:
         machine.wait_boot()
-        for foo in args.command - list:
+        for foo in args.commandlist:
             sys.stderr, "Executing: " + foo
             machine.execute(foo)
     finally:
@@ -61,14 +62,14 @@ def install_packages(image):
     allpackages = []
     try:
         machine.wait_boot()
-        for foo in args.yum - list:
+        for foo in args.yumlist:
             if os.path.isfile(foo):
                 pname = os.path.basename(foo)
                 machine.upload([foo], "/var/tmp/" + pname)
                 allpackages.append("/var/tmp/" + pname)
             elif not re.search("/", foo):
                 allpackages.append(foo)
-            else
+            else:
                 print >> sys.stderr, "Bad package name or path: " + foo
         if allpackages:
             print >> sys.stderr, "Installing: " + ' '.join(allpackages)
@@ -76,5 +77,5 @@ def install_packages(image):
     finally:
         machine.stop()
 
-run_command
-install_packages
+run_command(current_image)
+install_packages(current_image)

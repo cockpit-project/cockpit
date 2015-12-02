@@ -430,7 +430,9 @@ class TestMultiMachine(MachineCase):
                                     '.* failed to retrieve resource: hostkey-changed',
                                     '.* host key for server has changed to: .*',
                                     '.* spawning remote bridge failed .*',
-                                    '.*: received truncated .*')
+                                    '.*: received truncated .*',
+                                    '.*: host key for this server changed key type: .*',
+                                    '.*: server offered unsupported authentication methods: .*')
 
 if __name__ == '__main__':
     test_main()

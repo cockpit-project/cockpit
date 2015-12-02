@@ -267,7 +267,7 @@ define([
 
     function can_try_method(methods, method) {
         if (is_method_supported(methods, method))
-            return methods[method] != "not-provided";
+            return method == 'password' || methods[method] != "not-provided";
         return false;
     }
 

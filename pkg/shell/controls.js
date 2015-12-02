@@ -20,6 +20,7 @@
 define([
     "jquery",
     "base1/cockpit",
+    "shell/attrchange",
 ], function($, cockpit) {
 "use strict";
 

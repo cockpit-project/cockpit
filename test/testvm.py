@@ -94,14 +94,18 @@ class Machine:
         self.label = label or "UNKNOWN"
         self.ssh_port = 22;
 
+    def open_firewall(self, port):
+        if not "debian" in self.image:
+            self.execute("firewall-cmd --permanent --zone=public --add-port={0}/tcp".format(port))
+            self.execute("firewall-cmd --reload")
+
     def change_ssh_port(self, port=None, timeout_sec=120):
         try:
             port = int(port)
         except:
             port = 22
 
-        self.execute("firewall-cmd --permanent --zone=public --add-port={0}/tcp".format(port))
-        self.execute("firewall-cmd --reload")
+        self.open_firewall(port)
         self.execute("! selinuxenabled || semanage port -a -t ssh_port_t -p tcp {0}".format(port))
         self.execute("sed -i 's/.*Port .*/Port {0}/' /etc/ssh/sshd_config".format(port))
 

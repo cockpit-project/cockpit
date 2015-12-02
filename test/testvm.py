@@ -104,8 +104,12 @@ class Machine:
         self.execute("firewall-cmd --reload")
         self.execute("semanage port -a -t ssh_port_t -p tcp {0}".format(port))
         self.execute("sed -i 's/.*Port .*/Port {0}/' /etc/ssh/sshd_config".format(port))
-        self.execute("sed -i 's/.*ListenStream=.*/ListenStream={0}/' /usr/lib/systemd/system/sshd.socket".format(port))
-        self.execute("systemctl daemon-reload && systemctl restart sshd && systemctl reenable sshd.socket")
+
+        # We stop the sshd.socket unit and just go with a regular
+        # daemon.  This is more portable and reloading/restarting the
+        # socket doesn't seem to work well.
+        #
+        self.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
         self.ssh_port = port
 
         start_time = time.time()

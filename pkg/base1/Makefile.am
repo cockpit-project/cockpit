@@ -56,8 +56,8 @@ base_BUNDLE = \
 
 pkg/base1/bundle.min.js: $(base_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
-pkg/base1/term.min.js: pkg/base1/term.js
-	@$(MKDIR_P) $(dir $@)
+
+pkg/base1/mustache.min.js: pkg/base1/mustache.js
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $< --mangle > $@.tmp && $(MV) $@.tmp $@
 
 install-data-local::
@@ -162,50 +162,18 @@ update-lib:: update-bower
 	    jquery.flot.time.min.js \
 	    jquery-amend.min.js \
 	    $(NULL)
-	$(JSMODULE) -o $(srcdir)/pkg/base1/bootstrap-select.js \
-	    $(BOWER)/patternfly/components/bootstrap-select/dist/js/bootstrap-select.js
-	$(JSMODULE) -o $(srcdir)/pkg/base1/bootstrap-select.min.js \
-	    $(BOWER)/patternfly/components/bootstrap-select/dist/js/bootstrap-select.min.js
 	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-datepicker.js \
 	    $(BOWER)/patternfly/components/bootstrap-datepicker/dist/js/bootstrap-datepicker.js
 	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-datepicker.min.js \
 	    $(BOWER)/patternfly/components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js
 	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-combobox.js \
 	    $(BOWER)/patternfly/components/bootstrap-combobox/js/bootstrap-combobox.js
-	$(srcdir)/tools/uglifyjs $(BOWER)/requirejs/require.js > require.min.js
 	$(JSMODULE) -o $(srcdir)/pkg/base1/require.js \
 	    $(BOWER)/requirejs/require.js \
 	    $(srcdir)/pkg/base1/require-config.js \
 	    $(srcdir)/pkg/base1/require-loaders.js
-	$(JSMODULE) -o $(srcdir)/pkg/base1/require.min.js \
-	    require.min.js \
-	    $(srcdir)/pkg/base1/require-config.js \
-	    $(srcdir)/pkg/base1/require-loaders.js
-	$(JSMODULE) -o $(srcdir)/pkg/base1/mustache.js \
-		$(BOWER)/mustache/mustache.js
-	$(srcdir)/tools/uglifyjs $(BOWER)/mustache/mustache.js > \
-		$(srcdir)/pkg/base1/mustache.min.js
-	$(srcdir)/tools/uglifyjs $(BOWER)/requirejs/require.js > require.min.js
-	$(JSMODULE) -o $(srcdir)/pkg/base1/require.js \
-	    $(BOWER)/requirejs/require.js \
-	    $(srcdir)/pkg/base1/require-config.js \
-	    $(srcdir)/pkg/base1/require-loaders.js
-	$(JSMODULE) -o $(srcdir)/pkg/base1/require.min.js \
-	    require.min.js \
-	    $(srcdir)/pkg/base1/require-config.js \
-	    $(srcdir)/pkg/base1/require-loaders.js
-	$(JSMODULE) -o $(srcdir)/pkg/base1/mustache.js \
-		$(BOWER)/mustache/mustache.js
-	$(srcdir)/tools/uglifyjs $(BOWER)/mustache/mustache.js > \
-		$(srcdir)/pkg/base1/mustache.min.js
 	$(JSMODULE) -m -a window.Terminal -o $(srcdir)/pkg/base1/term.js \
 	    $(BOWER)/term.js/src/term.js
-	cp $(BOWER)/patternfly/dist/fonts/PatternFlyIcons-webfont.woff \
-		$(srcdir)/pkg/base1/fonts/patternfly.woff
-	cp $(BOWER)/patternfly/components/bootstrap/fonts/glyphicons-halflings-regular.woff \
-		$(srcdir)/pkg/base1/fonts/glyphicons.woff
-	cp $(BOWER)/patternfly/components/font-awesome/fonts/fontawesome-webfont.woff \
-		$(srcdir)/pkg/base1/fonts/fontawesome.woff
 	$(JSMODULE) -o $(srcdir)/pkg/base1/angular.js \
 	    $(BOWER)/angular/angular.js \
 	    $(BOWER)/angular-route/angular-route.js \
@@ -222,19 +190,11 @@ update-lib:: update-bower
 	    $(BOWER)/angular-bootstrap/ui-bootstrap-tpls.min.js \
 	    $(BOWER)/angular-patternfly/dist/angular-patternfly.min.js \
 	    $(srcdir)/pkg/base1/angular-config.js
-	$(JSMODULE) -o $(srcdir)/pkg/base1/moment.js \
-		$(BOWER)/momentjs/moment.js
-	$(JSMODULE) -o $(srcdir)/pkg/base1/moment.min.js \
-		$(BOWER)/momentjs/min/moment.min.js
 
 # Never recreate these files
 pkg/base1/angular.min.js:
 	@true
 pkg/base1/jquery.min.js:
-	@true
-pkg/base1/mustache.min.js:
-	@true
-pkg/base1/require.min.js:
 	@true
 pkg/base1/bootstrap-select.min.js:
 	@true

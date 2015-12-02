@@ -29,7 +29,3 @@ EXTRA_DIST += \
 	$(NULL)
 
 endif
-
-update-lib:: update-bower
-	rm -f $(srcdir)/src/static/fonts/*.woff
-	cp $(BOWER)/patternfly/dist/fonts/OpenSans-*.woff $(srcdir)/src/static/fonts/

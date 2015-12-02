@@ -26,7 +26,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR([tools])
 AC_CONFIG_MACRO_DIR([tools])
 
-AM_INIT_AUTOMAKE([1.9 foreign dist-bzip2 no-dist-gzip subdir-objects])
+AM_INIT_AUTOMAKE([1.9 foreign dist-bzip2 no-dist-gzip subdir-objects tar-ustar])
 AM_MAINTAINER_MODE([enable])
 
 AC_USE_SYSTEM_EXTENSIONS

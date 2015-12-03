@@ -33,24 +33,39 @@ parser.add_argument('-i', '--install', action='append',
                     dest="yumlist", default=[], help='Install packages')
 parser.add_argument('-r', '--run-command', action='append', dest="commandlist",
                     default=[], help='Run command inside virtual machine')
+parser.add_argument('-s', '--script', action='append', dest="scriptlist",
+                    default=[], help='Run selected script inside virtual machine')
 parser.add_argument('image', nargs='?',
                     default=testinfra.DEFAULT_IMAGE, help='The image to use')
 args = parser.parse_args()
 
 
-def run_command(machine_instance):
+def run_command(machine_instance,commandlist):
     """Run command inside image"""
-    for foo in args.commandlist:
+    for foo in commandlist:
         machine_instance.message("Executing: " + foo)
         machine_instance.execute(foo)
 
+def run_script(machine_instance,scriptlist)
+    """Run script inside image"""
+    allscripts = []
+    for foo in scriptlist:
+        if os.path.isfile(foo):
+            pname = os.path.basename(foo)
+            uploadpath="/var/tmp/" + pname
+            machine_instance.upload([foo], uploadpath)
+            machine_instance.execute("chmod a+x %s" % uploadpath)
+            machine_instance.execute(uploadpath)
+        else:
+            machine_instance.message("Bad path to script: " + foo)
 
-def install_packages(machine_instance):
+
+def install_packages(machine_instance,yumlist):
     """Install packages into a test image
     It could be done via local rpms or normal package installation
     """
     allpackages = []
-    for foo in args.yumlist:
+    for foo in yumlist:
         if os.path.isfile(foo):
             pname = os.path.basename(foo)
             machine_instance.upload([foo], "/var/tmp/" + pname)
@@ -63,16 +78,19 @@ def install_packages(machine_instance):
         machine_instance.message("Installing: " + ' '.join(allpackages))
         machine_instance.execute("yum install -y " + ' '.join(allpackages))
 
+
 current_image = args.image
-if args.commandlist or args.yumlist:
+if args.commandlist or args.yumlist or args.scriptlist:
     machine = testvm.VirtMachine(
         verbose=args.verbose, image=current_image, label="install")
     machine.start(maintain=True)
     machine.wait_boot()
     try:
         if args.commandlist:
-            run_command(machine)
+            run_command(machine,args.commandlist)
         if args.yumlist:
-            install_packages(machine)
+            install_packages(machine,args.yumlist)
+        if args.scriptlist:
+            run_script(machine,args.scriptlist)
     finally:
         machine.stop()

@@ -26,11 +26,11 @@ import testvm
 import testinfra
 
 parser = argparse.ArgumentParser(
-    description='Install Cockpit on a virtual machine')
+    description='Run command inside or install packages into a Cockpit virtual machine')
 parser.add_argument('-v', '--verbose', action='store_true',
                     help='Display verbose progress details')
-parser.add_argument('-I', '--install', action='append',
-                    dest="yumlist", default=[], help='Only upload and install')
+parser.add_argument('-i', '--install', action='append',
+                    dest="yumlist", default=[], help='Install packages')
 parser.add_argument('-r', '--run-command', action='append', dest="commandlist",
                     default=[], help='Run command inside virtual machine')
 parser.add_argument('image', nargs='?',

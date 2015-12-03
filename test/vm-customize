@@ -37,11 +37,13 @@ parser.add_argument('image', nargs='?',
                     default=testinfra.DEFAULT_IMAGE, help='The image to use')
 args = parser.parse_args()
 
+
 def run_command(machine_instance):
     """Run command inside image"""
     for foo in args.commandlist:
         machine_instance.message("Executing: " + foo)
         machine_instance.execute(foo)
+
 
 def install_packages(machine_instance):
     """Install packages into a test image

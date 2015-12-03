@@ -49,7 +49,7 @@ def run_command(image):
     try:
         machine.wait_boot()
         for foo in args.commandlist:
-            print >> sys.stderr, "Executing: " + foo
+            machine.message("Executing: " + foo)
             machine.execute(foo)
     finally:
         machine.stop()
@@ -73,9 +73,9 @@ def install_packages(image):
             elif not re.search("/", foo):
                 allpackages.append(foo)
             else:
-                print >> sys.stderr, "Bad package name or path: " + foo
+                machine.message("Bad package name or path: " + foo)
         if allpackages:
-            print >> sys.stderr, "Installing: " + ' '.join(allpackages)
+            machine.message("Installing: " + ' '.join(allpackages))
             machine.execute("yum install -y " + ' '.join(allpackages))
     finally:
         machine.stop()

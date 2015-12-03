@@ -112,7 +112,7 @@ class TestMultiOS(MachineCase):
             else:
                 frame = "localhost/shell/shell"
             browser.switch_to_top()
-            browser.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
+            browser.wait_present("iframe.container-frame[name='%s'][data-ready]" % frame)
             browser.wait_visible("iframe.container-frame[name='%s']" % frame)
             browser.switch_to_frame(frame)
             browser.wait_visible('#' + page)
@@ -157,7 +157,7 @@ class TestMultiOS(MachineCase):
         stock_b.switch_to_top()
         stock_b.go("#/@%s/system/index" % dev_m.address)
         stock_b.wait_present("iframe.container-frame[name='%s/system/index']" % dev_m.address)
-        stock_b.wait_present("iframe.container-frame[name='%s/system/index'][data-loaded]" % dev_m.address)
+        stock_b.wait_present("iframe.container-frame[name='%s/system/index'][data-ready]" % dev_m.address)
         stock_b.switch_to_frame('%s/system/index' % dev_m.address)
         stock_b.wait_present("#system_information_hardware_text")
         stock_b.wait_text_not("#system_information_hardware_text", "")
@@ -166,7 +166,7 @@ class TestMultiOS(MachineCase):
         stock_b.switch_to_top()
         stock_b.go("#/@%s" % dev_m.address)
         stock_b.wait_present("iframe.container-frame[name='%s/shell/shell']" % dev_m.address)
-        stock_b.wait_present("iframe.container-frame[name='%s/shell/shell'][data-loaded]" % dev_m.address)
+        stock_b.wait_present("iframe.container-frame[name='%s/shell/shell'][data-ready]" % dev_m.address)
         stock_b.switch_to_frame('%s/shell/shell' % dev_m.address)
         stock_b.wait_present(".curtains")
 

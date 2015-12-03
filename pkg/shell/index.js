@@ -922,13 +922,6 @@ define([
             child.addEventListener("unload", on_unload);
             child.addEventListener("hashchange", on_hashchange);
 
-            /*
-             * Setting the "data-loaded" attribute helps the testsuite
-             * know when it can switch into the frame and inject its
-             * own additions.
-             */
-            frame.setAttribute('data-loaded', '1');
-
             perform_track(child);
             phantom_checkpoint();
 

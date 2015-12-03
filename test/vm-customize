@@ -49,7 +49,7 @@ def run_command(image):
     try:
         machine.wait_boot()
         for foo in args.commandlist:
-            sys.stderr, "Executing: " + foo
+            print >> sys.stderr, "Executing: " + foo
             machine.execute(foo)
     finally:
         machine.stop()

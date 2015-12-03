@@ -37,50 +37,40 @@ parser.add_argument('image', nargs='?',
                     default=testinfra.DEFAULT_IMAGE, help='The image to use')
 args = parser.parse_args()
 
-current_image = args.image
-
-
-def run_command(image):
+def run_command(machine_instance):
     """Run command inside image"""
-    machine = testvm.VirtMachine(
-        verbose=args.verbose, image=image, label="install")
-    machine.start(maintain=True)
-    allcommands = []
-    try:
-        machine.wait_boot()
-        for foo in args.commandlist:
-            machine.message("Executing: " + foo)
-            machine.execute(foo)
-    finally:
-        machine.stop()
+    for foo in args.commandlist:
+        machine_instance.message("Executing: " + foo)
+        machine_instance.execute(foo)
 
-
-def install_packages(image):
+def install_packages(machine_instance):
     """Install packages into a test image
     It could be done via local rpms or normal package installation
     """
-    machine = testvm.VirtMachine(
-        verbose=args.verbose, image=image, label="install")
-    machine.start(maintain=True)
     allpackages = []
+    for foo in args.yumlist:
+        if os.path.isfile(foo):
+            pname = os.path.basename(foo)
+            machine_instance.upload([foo], "/var/tmp/" + pname)
+            allpackages.append("/var/tmp/" + pname)
+        elif not re.search("/", foo):
+            allpackages.append(foo)
+        else:
+            machine_instance.message("Bad package name or path: " + foo)
+    if allpackages:
+        machine_instance.message("Installing: " + ' '.join(allpackages))
+        machine_instance.execute("yum install -y " + ' '.join(allpackages))
+
+current_image = args.image
+if args.commandlist or args.yumlist:
+    machine = testvm.VirtMachine(
+        verbose=args.verbose, image=current_image, label="install")
+    machine.start(maintain=True)
+    machine.wait_boot()
     try:
-        machine.wait_boot()
-        for foo in args.yumlist:
-            if os.path.isfile(foo):
-                pname = os.path.basename(foo)
-                machine.upload([foo], "/var/tmp/" + pname)
-                allpackages.append("/var/tmp/" + pname)
-            elif not re.search("/", foo):
-                allpackages.append(foo)
-            else:
-                machine.message("Bad package name or path: " + foo)
-        if allpackages:
-            machine.message("Installing: " + ' '.join(allpackages))
-            machine.execute("yum install -y " + ' '.join(allpackages))
+        if args.commandlist:
+            run_command(machine)
+        if args.yumlist:
+            install_packages(machine)
     finally:
         machine.stop()
-
-if args.commandlist:
-    run_command(current_image)
-if args.yumlist:
-    install_packages(current_image)

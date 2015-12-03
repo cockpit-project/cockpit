@@ -80,5 +80,7 @@ def install_packages(image):
     finally:
         machine.stop()
 
-run_command(current_image)
-install_packages(current_image)
+if args.commandlist:
+    run_command(current_image)
+if args.yumlist:
+    install_packages(current_image)

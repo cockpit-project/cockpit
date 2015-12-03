@@ -37,7 +37,8 @@ parser.add_argument('image', nargs='?',
                     default=testinfra.DEFAULT_IMAGE, help='The image to use')
 args = parser.parse_args()
 
-current_image=args.image
+current_image = args.image
+
 
 def run_command(image):
     """Run command inside image"""
@@ -55,7 +56,9 @@ def run_command(image):
 
 
 def install_packages(image):
-    """Install Cockpit into a test image"""
+    """Install packages into a test image
+    It could be done via local rpms or normal package installation
+    """
     machine = testvm.VirtMachine(
         verbose=args.verbose, image=image, label="install")
     machine.start(maintain=True)

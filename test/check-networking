@@ -85,44 +85,21 @@ class TestNetworking(MachineCase):
 
         self.switch_off_rp_filter(m)
 
-        # Something strange is happening here.
-        #
-        # When hot-plugging the network interface below, it is
-        # automatically recognized and NM will create a connection
-        # settings object for it with path
-        # /org/freedesktop/NetworkManager/Settings/1.  No file in
-        # /etc/sysconfig/network-scripts exists for it.  The interface
-        # will be activated automatically with those default settings.
-        #
-        # Calling 'Update' on that object will cause a file to be
-        # created in /etc/sysconfig/network-scripts, the connection is
-        # activated immediately (so that the actual IP address of the
-        # network interface changes), the settings object disappears
-        # from D-Bus, and a new object with the same id and uuid
-        # appears at /org/freedesktop/NetworkManager/Settings/2.
-        #
-        # In order to avoid racing against this, we explicitly modify
-        # the connection with nmcli so that NetworkManager settles
-        # down.
-
         self.login_and_go("/network")
-        b.wait_in_text("#networking-interfaces", m.address)
 
         # Add interface, wait for it to be recognized and activated by
         # Network Manager, and switch to its page
 
         mac = "52:54:00:9e:00:F2"
-        label = "test"
-        m.execute("echo -e 'TYPE=Ethernet\nHWADDR=%s\nBOOTPROTO=autoip\n' >/etc/sysconfig/network-scripts/ifcfg-%s" % (mac, label))
-        m.execute("nmcli c reload")
-        iface = self.add_iface(mac)
+        m.execute("nmcli c a type ethernet ifname '*' con-name TEST mac %s" % mac)
+        m.execute("nmcli c m TEST ipv4.method link-local")
 
+        iface = self.add_iface(mac)
         self.wait_for_iface(iface)
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)
         b.wait_visible("#network-interface")
 
         # Make sure we are working on the settings written above.
-        # "Link local" corresponds to "BOOTPROTO=autoip".
         #
         b.wait_present("tr:contains('IPv4')")
         b.wait_in_text("tr:contains('IPv4')", "Link local")
@@ -150,11 +127,10 @@ class TestNetworking(MachineCase):
         # Switch it back to "auto" from the command line and bring it
         # up again
         #
-        id = "System %s" % label
-        m.execute("nmcli c m '%s' ipv4.method auto" % id)
-        m.execute("nmcli c m '%s' ipv4.addresses ''" % id)
+        m.execute("nmcli c m TEST ipv4.method auto")
+        m.execute("nmcli c m TEST ipv4.addresses ''")
         b.wait_in_text("tr:contains('IPv4')", "Automatic (DHCP)")
-        m.execute("nmcli c up '%s'" % id)
+        m.execute("nmcli c up TEST")
         b.wait_in_text("tr:contains('Status')", "10.111.")
 
         # Switch off automatic DNS
@@ -167,7 +143,7 @@ class TestNetworking(MachineCase):
         b.click("#network-ip-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-ip-settings-dialog")
 
-        self.assertIn("yes", m.execute("nmcli -f ipv4.ignore-auto-dns c s '%s'" % id))
+        self.assertIn("yes", m.execute("nmcli -f ipv4.ignore-auto-dns c s TEST"))
 
     def testBond(self):
         b = self.browser
@@ -176,7 +152,6 @@ class TestNetworking(MachineCase):
         self.switch_off_rp_filter(m)
 
         self.login_and_go("/network")
-        b.wait_in_text("#networking-interfaces", m.address)
 
         # Add interfaces and wait for them to be active or not (as
         # appropriate for the OS).
@@ -239,7 +214,6 @@ class TestNetworking(MachineCase):
         self.switch_off_rp_filter(m)
 
         self.login_and_go("/network")
-        b.wait_in_text("#networking-interfaces", m.address)
 
         # Add interfaces and wait for them to be active or not (as
         # appropriate for the OS).

@@ -25,6 +25,7 @@ import subprocess
 import unittest
 
 @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "atomic: missing bind-utils")
+@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No ipa-client-install in Debian (yet)")
 class TestRealms(MachineCase):
 
     def testIpa(self):
@@ -195,6 +196,7 @@ ipa-getkeytab -q -s f0.cockpit.lan -p HTTP/x0.cockpit.lan -k /etc/krb5.keytab
 
 # This is here because our test framework can't run ipa VM's twice
 @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "atomic: missing bind-utils")
+@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No ipa-client-install in Debian (yet)")
 class TestKerberos(MachineCase):
     def setUp(self):
         self.ipa = self.new_machine(image="ipa")

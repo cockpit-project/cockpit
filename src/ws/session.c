@@ -504,6 +504,7 @@ perform_gssapi (void)
   struct pam_conv conv = { pam_conv_func, };
   OM_uint32 major, minor;
   gss_cred_id_t client = GSS_C_NO_CREDENTIAL;
+  gss_cred_id_t server = GSS_C_NO_CREDENTIAL;
   gss_buffer_desc input = GSS_C_EMPTY_BUFFER;
   gss_buffer_desc output = GSS_C_EMPTY_BUFFER;
   gss_buffer_desc local = GSS_C_EMPTY_BUFFER;
@@ -513,6 +514,7 @@ perform_gssapi (void)
   gss_OID mech_type = GSS_C_NO_OID;
   pam_handle_t *pamh = NULL;
   OM_uint32 flags = 0;
+  const char *msg;
   char *str = NULL;
   OM_uint32 caps = 0;
   int res;
@@ -526,7 +528,20 @@ perform_gssapi (void)
   debug ("reading kerberos auth from cockpit-ws");
   input.value = read_fd_until_eof (AUTH_FD, "gssapi data", &input.length);
 
-  major = gss_accept_sec_context (&minor, &context, GSS_C_NO_CREDENTIAL, &input,
+  debug ("acquiring server credentials");
+  major = gss_acquire_cred (&minor, GSS_C_NO_NAME, GSS_C_INDEFINITE, GSS_C_NO_OID_SET,
+                            GSS_C_ACCEPT, &server, NULL, NULL);
+  if (GSS_ERROR (major))
+    {
+      /* This is a routine error message, don't litter */
+      msg = gssapi_strerror (major, minor);
+      if (input.length == 0 && !strstr (msg, "nonexistent or empty"))
+        warnx ("couldn't acquire server credentials: %s", msg);
+      res = PAM_AUTHINFO_UNAVAIL;
+      goto out;
+    }
+
+  major = gss_accept_sec_context (&minor, &context, server, &input,
                                   GSS_C_NO_CHANNEL_BINDINGS, &name, &mech_type,
                                   &output, &flags, &caps, &client);
 
@@ -639,6 +654,8 @@ out:
     gss_release_buffer (&minor, &local);
   if (client != GSS_C_NO_CREDENTIAL)
     gss_release_cred (&minor, &client);
+  if (server != GSS_C_NO_CREDENTIAL)
+    gss_release_cred (&minor, &server);
   if (name != GSS_C_NO_NAME)
      gss_release_name (&minor, &name);
   if (context != GSS_C_NO_CONTEXT)

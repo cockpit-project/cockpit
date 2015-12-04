@@ -215,7 +215,7 @@ else
   fi
 fi
 AC_SUBST([systemdunitdir], [$systemdunitdir])
-AC_MSG_RESULT(systemdunitdir)
+AC_MSG_RESULT($systemdunitdir)
 
 # Internationalization
 

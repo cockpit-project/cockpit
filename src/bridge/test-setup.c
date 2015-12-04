@@ -32,6 +32,7 @@ extern const gchar *cockpit_bridge_path_shadow;
 extern const gchar *cockpit_bridge_path_newusers;
 extern const gchar *cockpit_bridge_path_chpasswd;
 extern const gchar *cockpit_bridge_path_usermod;
+extern gboolean     cockpit_bridge_have_newusers_crypt_method;
 
 typedef struct {
   GDBusConnection *connection;
@@ -291,6 +292,7 @@ test_commit_passwd1 (TestCase *tc,
   cockpit_bridge_path_newusers = SRCDIR "/src/bridge/mock-setup/newusers";
   cockpit_bridge_path_chpasswd = SRCDIR "/src/bridge/mock-setup/chpasswd";
   cockpit_bridge_path_usermod = SRCDIR "/src/bridge/mock-setup/usermod";
+  cockpit_bridge_have_newusers_crypt_method = TRUE;
 
   directory = g_strdup ("/tmp/test-cockpit-setup.XXXXXX");
   directory = g_mkdtemp (directory);
@@ -321,6 +323,71 @@ test_commit_passwd1 (TestCase *tc,
   string = g_build_filename (directory, "chpasswd", NULL);
   g_assert (g_file_get_contents (string, &contents, NULL, NULL));
   g_assert_cmpstr (contents, ==, "root:$6$RBjDivsC$mlwBspq8QVmDe92lS/uVFiCHnw69KO.v7BQ69TE50CUMx6AKwfOZJ9gjU0y846UkQt9NrLlChu6j0z9V2//0b/\nscruffy:$6$kiB.xr6x$xDzRjU5dHnwqds7Vs1iRe7NWKRI2AvK38DbGF2DIOfI9MtqHL.hDwL6GhBxEyliTGQi3FyEVR0y2pG6xuEGJ81\n");
+  g_free (contents);
+  g_assert (g_unlink (string) >= 0);
+  g_free (string);
+
+  string = g_build_filename (directory, "usermod", NULL);
+  g_assert (g_file_get_contents (string, &contents, NULL, NULL));
+  g_assert_cmpstr (contents, ==, "hermes --append --group wheel,docker\nroot --append --group root\nscruffy --append --group wheel\n");
+  g_free (contents);
+  g_assert (g_unlink (string) >= 0);
+  g_free (string);
+
+  g_assert (g_rmdir (directory) >= 0);
+  g_free (directory);
+}
+
+static void
+test_commit_passwd1_no_crypt_method (TestCase *tc,
+                                     gconstpointer unused)
+{
+  GVariant *retval;
+  GVariant *transferred;
+  GError *error = NULL;
+  gchar *directory;
+  gchar *string;
+  gchar *contents;
+
+  /* Same as test_commit_passwd1, but the new password for hermes will
+   * be set via chpasswd.
+   */
+
+  cockpit_bridge_path_passwd = SRCDIR "/src/bridge/mock-setup/remote-passwd";
+  cockpit_bridge_path_newusers = SRCDIR "/src/bridge/mock-setup/newusers";
+  cockpit_bridge_path_chpasswd = SRCDIR "/src/bridge/mock-setup/chpasswd";
+  cockpit_bridge_path_usermod = SRCDIR "/src/bridge/mock-setup/usermod";
+  cockpit_bridge_have_newusers_crypt_method = FALSE;
+
+  directory = g_strdup ("/tmp/test-cockpit-setup.XXXXXX");
+  directory = g_mkdtemp (directory);
+  g_assert (directory != NULL);
+
+  g_setenv ("MOCK_OUTPUT", directory, TRUE);
+
+  transferred = g_variant_new ("(@as@as)",
+                               g_variant_new_strv (passwd_data, -1),
+                               g_variant_new_strv (group_data, -1));
+  retval = dbus_call_with_main_loop (tc, "/setup", "cockpit.Setup", "Commit",
+                                     g_variant_new ("(sv)", "passwd1", transferred),
+                                     G_VARIANT_TYPE ("()"), &error);
+
+  g_assert_no_error (error);
+  string = g_variant_print (retval, FALSE);
+  g_assert_cmpstr (string, ==, "()");
+  g_free (string);
+  g_variant_unref (retval);
+
+  string = g_build_filename (directory, "newusers", NULL);
+  g_assert (g_file_get_contents (string, &contents, NULL, NULL));
+  g_assert_cmpstr (contents, ==, "hermes:$6$vK.Xvf4y$8PI2sHG7VVexATp2uyqHyhqRMeCisGL0Zer2fs.Suy4Q.eg9OWCoPGIeSDbxhOLvpfQKGorAaQIRLuVJH5uUO.:::Hermes Conrad:/home/hermes:/bin/sh']>,)\n");
+  g_free (contents);
+  g_assert (g_unlink (string) >= 0);
+  g_free (string);
+
+  string = g_build_filename (directory, "chpasswd", NULL);
+  g_assert (g_file_get_contents (string, &contents, NULL, NULL));
+  g_assert_cmpstr (contents, ==, "root:$6$RBjDivsC$mlwBspq8QVmDe92lS/uVFiCHnw69KO.v7BQ69TE50CUMx6AKwfOZJ9gjU0y846UkQt9NrLlChu6j0z9V2//0b/\nscruffy:$6$kiB.xr6x$xDzRjU5dHnwqds7Vs1iRe7NWKRI2AvK38DbGF2DIOfI9MtqHL.hDwL6GhBxEyliTGQi3FyEVR0y2pG6xuEGJ81\nhermes:$6$vK.Xvf4y$8PI2sHG7VVexATp2uyqHyhqRMeCisGL0Zer2fs.Suy4Q.eg9OWCoPGIeSDbxhOLvpfQKGorAaQIRLuVJH5uUO.\n");
   g_free (contents);
   g_assert (g_unlink (string) >= 0);
   g_free (string);
@@ -387,6 +454,7 @@ test_commit_fail_chpasswd (TestCase *tc,
   cockpit_bridge_path_passwd = SRCDIR "/src/bridge/mock-setup/remote-passwd";
   cockpit_bridge_path_chpasswd = "/bin/false";
   cockpit_bridge_path_newusers = SRCDIR "/src/bridge/mock-setup/newusers";
+  cockpit_bridge_have_newusers_crypt_method = TRUE;
 
   directory = g_strdup ("/tmp/test-cockpit-setup.XXXXXX");
   directory = g_mkdtemp (directory);
@@ -503,6 +571,8 @@ main (int argc,
 
   g_test_add ("/setup/commit/passwd1", TestCase, NULL,
               setup, test_commit_passwd1, teardown);
+  g_test_add ("/setup/commit/passwd1-no-crypt-method", TestCase, NULL,
+              setup, test_commit_passwd1_no_crypt_method, teardown);
   g_test_add ("/setup/commit/unsupported", TestCase, NULL,
               setup, test_commit_unsupported, teardown);
   g_test_add ("/setup/commit/bad", TestCase, NULL,

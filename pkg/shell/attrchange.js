@@ -7,7 +7,7 @@ Copyright (C) 2013 Selvakumar Arumugam
 You may use attrchange plugin under the terms of the MIT Licese.
 https://github.com/meetselva/attrchange/blob/master/MIT-License.txt
 */
-(function($) {
+define(['jquery'], function($) {
    function isDOMAttrModifiedSupported() {
 		var p = document.createElement('p');
 		var flag = false;
@@ -126,4 +126,4 @@ https://github.com/meetselva/attrchange/blob/master/MIT-License.txt
 
 		return this;
     };
-})(jQuery);
+});

@@ -152,7 +152,7 @@ update-lib:: update-bower
 	    $(BOWER)/jquery-flot/jquery.flot.selection.js \
 	    $(BOWER)/jquery-flot/jquery.flot.time.js \
 	    $(BOWER)/jquery-amend/jquery-amend.js \
-	    $(srcdir)/pkg/base1/attrchange.js
+	    $(NULL)
 	$(JSMODULE) -o $(srcdir)/pkg/base1/jquery.min.js \
 	    $(BOWER)/jquery/dist/jquery.min.js \
 	    $(BOWER)/patternfly/components/bootstrap/dist/js/bootstrap.min.js \
@@ -161,7 +161,7 @@ update-lib:: update-bower
 	    jquery.flot.selection.min.js \
 	    jquery.flot.time.min.js \
 	    jquery-amend.min.js \
-	    $(srcdir)/pkg/base1/attrchange.min.js
+	    $(NULL)
 	$(JSMODULE) -o $(srcdir)/pkg/base1/bootstrap-select.js \
 	    $(BOWER)/patternfly/components/bootstrap-select/dist/js/bootstrap-select.js
 	$(JSMODULE) -o $(srcdir)/pkg/base1/bootstrap-select.min.js \

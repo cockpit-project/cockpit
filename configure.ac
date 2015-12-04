@@ -239,6 +239,15 @@ AM_CONDITIONAL([WITH_PHANTOMJS], [test -n "$PHANTOMJS"])
 AC_PATH_PROG([USERMOD], [usermod], [/usr/sbin/usermod], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
 AC_DEFINE_UNQUOTED([PATH_USERMOD],["$USERMOD"],[Location of usermod binary])
 
+# newusers
+AC_MSG_CHECKING(whether newusers understands --crypt-method)
+if newusers --help | grep -q -e --crypt-method; then
+  AC_DEFINE_UNQUOTED([HAVE_NEWUSERS_CRYPT_METHOD],[1],[whether newusers understands --crypt-method])
+  AC_MSG_RESULT(yes)
+else
+  AC_MSG_RESULT(no)
+fi
+
 # pkexec
 AC_PATH_PROG([PKEXEC], [pkexec], [/usr/bin/pkexec], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
 AC_DEFINE_UNQUOTED([PATH_PKEXEC], ["$PKEXEC"], [Location of pkexec binary])

@@ -39,13 +39,13 @@ BASE=$(dirname $0)
 out=$1
 os=$2
 arch=$3
-test -z "$VOLUME_SIZE" && VOLUME_SIZE=8
+test -z "$VOLUME_SIZE" && VOLUME_SIZE="8G"
 
 # we can't use virt-builder --ssh-inject until all our target systems support this
 
 virt-builder "$os" \
              --output "$out" \
-             --size ${VOLUME_SIZE}G \
+             --size $VOLUME_SIZE \
              --format qcow2 \
              --arch "$arch"\
              --root-password password:foobar \

@@ -60,6 +60,8 @@ guint cockpit_ws_process_idle = 600;
 
 static guint sig__idling = 0;
 
+static gboolean gssapi_not_avail = FALSE;
+
 G_DEFINE_TYPE (CockpitAuth, cockpit_auth, G_TYPE_OBJECT)
 
 typedef struct {
@@ -387,9 +389,9 @@ build_gssapi_output_header (GHashTable *headers,
 {
   gchar *encoded;
   const gchar *output = NULL;
+  gchar *value = NULL;
   gpointer data;
   gsize length;
-  gchar *value;
 
   if (results)
     {
@@ -400,24 +402,26 @@ build_gssapi_output_header (GHashTable *headers,
         }
     }
 
-  if (output)
+  if (!output)
+    return;
+
+  data = cockpit_hex_decode (output, &length);
+  if (!data)
     {
-      data = cockpit_hex_decode (output, &length);
-      if (!data)
-        {
-          g_warning ("received invalid gssapi-output from cockpit-session");
-          return;
-        }
+      g_warning ("received invalid gssapi-output from cockpit-session");
+      return;
+    }
+  if (length)
+    {
       encoded = g_base64_encode (data, length);
       value = g_strdup_printf ("Negotiate %s", encoded);
-
-      g_free (data);
       g_free (encoded);
     }
   else
     {
       value = g_strdup ("Negotiate");
     }
+  g_free (data);
 
   g_hash_table_replace (headers, g_strdup ("WWW-Authenticate"), value);
   g_debug ("gssapi: WWW-Authenticate: %s", value);
@@ -473,6 +477,12 @@ cockpit_auth_session_login_async (CockpitAuth *self,
 
   application = cockpit_auth_parse_application (path);
   input = cockpit_auth_parse_authorization (headers, &type);
+
+  if (!input && !gssapi_not_avail)
+    {
+      type = g_strdup ("negotiate");
+      input = g_bytes_new_static ("", 0);
+    }
 
   if (input && application)
     {
@@ -611,6 +621,13 @@ parse_auth_results (CockpitAuth *self,
           creds = create_creds_for_authenticated (self, pam_user, sl, results);
         }
     }
+  else if (code == PAM_AUTHINFO_UNAVAIL && g_str_equal (sl->auth_type, "negotiate"))
+    {
+      gssapi_not_avail = TRUE;
+      g_debug ("negotiate auth is not available, disabling");
+      g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                   "Negotiate authentication not available");
+    }
   else if (code == PAM_AUTH_ERR || code == PAM_USER_UNKNOWN)
     {
       g_debug ("authentication failed: %d", (int)code);
@@ -651,10 +668,7 @@ cockpit_auth_session_login_finish (CockpitAuth *self,
                         cockpit_auth_session_login_async), NULL);
 
   if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (result), error))
-    {
-      build_gssapi_output_header (headers, NULL);
-      return NULL;
-    }
+    return NULL;
 
   sl = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
 

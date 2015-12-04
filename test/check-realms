@@ -164,20 +164,19 @@ class TestKerberos(MachineCase):
 
         MachineCase.setUp(self)
 
+    def configure_kerberos(self):
         # Setup a place for kerberos caches
-        self.ccache = "%s/krb5cc" % self.tmpdir
-        os.environ['KRB5CCNAME'] = self.ccache
-        self.config = "%s/krb5.conf" % self.tmpdir
+        ccache = "%s/krb5cc" % self.tmpdir
+        os.environ['KRB5CCNAME'] = ccache
+        config = "%s/krb5.conf" % self.tmpdir
 
         args = { "addr": self.ipa.address, "dir": self.tmpdir, "password": "foobarfoo" }
 
         # Setup a kerberos config that doesn't require DNS
-        os.environ['KRB5_CONFIG'] = self.config
-        with open(self.config, "w") as f:
+        os.environ['KRB5_CONFIG'] = config
+        with open(config, "w") as f:
             data = KRB5_TEMPLATE % args
             f.write(data)
-
-        self.start_cockpit()
 
         self.machine.execute(script=JOIN_SCRIPT % args)
         env = os.environ.copy()
@@ -186,12 +185,27 @@ class TestKerberos(MachineCase):
         self.assertEqual(proc.wait(), 0)
 
     def tearDown(self):
-        del os.environ['KRB5CCNAME']
-        del os.environ['KRB5_CONFIG']
+        if 'KRB5CCNAME' in os.environ:
+            del os.environ['KRB5CCNAME']
+        if 'KRB_CONFIG' in os.environ:
+            del os.environ['KRB5_CONFIG']
 
         MachineCase.tearDown(self)
 
     def testNegotiate(self):
+
+        # Make sure negotiate auth is not offered first
+        self.start_cockpit()
+
+        output = subprocess.check_output(['/usr/bin/curl', '-v', '-s',
+                                          '--resolve', 'x0.cockpit.lan:9090:%s' % self.machine.address,
+                                          'http://x0.cockpit.lan:9090/cockpit/login'], stderr=subprocess.STDOUT)
+        self.assertIn("HTTP/1.1 401", output)
+        self.assertNotIn("WWW-Authenticate: Negotiate", output)
+
+        self.configure_kerberos()
+        self.restart_cockpit()
+
         output = subprocess.check_output(['/usr/bin/curl', '-s', '--negotiate', '-u', ':', "-D", "-",
                                           '--resolve', 'x0.cockpit.lan:9090:%s' % self.machine.address,
                                           'http://x0.cockpit.lan:9090/cockpit/login'])

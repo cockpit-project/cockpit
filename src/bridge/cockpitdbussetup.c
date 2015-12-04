@@ -40,6 +40,12 @@ const gchar *cockpit_bridge_path_newusers = "/usr/sbin/newusers";
 const gchar *cockpit_bridge_path_chpasswd = "/usr/sbin/chpasswd";
 const gchar *cockpit_bridge_path_usermod = PATH_USERMOD;
 
+#ifdef HAVE_NEWUSERS_CRYPT_METHOD
+gboolean cockpit_bridge_have_newusers_crypt_method = TRUE;
+#else
+gboolean cockpit_bridge_have_newusers_crypt_method = FALSE;
+#endif
+
 static GVariant *
 setup_get_property (GDBusConnection *connection,
                     const gchar *sender,
@@ -590,8 +596,23 @@ setup_commit_passwd1 (GVariant *parameters,
   GHashTable *usermod;
   gchar **memlist;
   GString *string;
+  gboolean user_exists;
+
+  /* We are getting crypted passwords so we need to use
+   * --crypt-method=NONE with newusers and chpasswd so that the string
+   * is installed unchanged.  Unfortunately, newusers might or might
+   * not support the --crypt-method option, depending on whether it
+   * was compiled with or without PAM.  When the option is missing, we
+   * fix up the password afterwards via chpasswd.
+   *
+   * However, newusers needs some valid password to create new users.
+   * Thus, we need a good random string that passes all password
+   * quality criteria, and we just use the crpyted password for that.
+   */
 
   const gchar *argv[] = { cockpit_bridge_path_newusers, "--crypt-method=NONE", NULL };
+  if (!cockpit_bridge_have_newusers_crypt_method)
+    argv[1] = NULL;
 
   g_variant_get (parameters, "(&sv)", &mechanism, &transferred);
 
@@ -632,14 +653,17 @@ setup_commit_passwd1 (GVariant *parameters,
     {
       parts = g_strsplit(lines[i], ":", 3);
 
-      if (g_hash_table_lookup (users, parts[0]))
-        {
-          g_string_append_printf (chpasswd, "%s:%s\n", parts[0], parts[1]);
-        }
-      else
+      user_exists = (g_hash_table_lookup (users, parts[0]) != NULL);
+
+      if (!user_exists)
         {
           g_string_append (newusers, lines[i]);
           g_string_append_c (newusers, '\n');
+        }
+
+      if (user_exists || !cockpit_bridge_have_newusers_crypt_method)
+        {
+          g_string_append_printf (chpasswd, "%s:%s\n", parts[0], parts[1]);
         }
 
       g_strfreev (parts);

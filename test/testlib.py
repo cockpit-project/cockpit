@@ -126,7 +126,7 @@ class Browser:
 
     def reload(self):
         self.switch_to_top()
-        self.wait_js_cond("ph_select('iframe.container-frame').every(function (e) { return e.getAttribute('data-loaded'); })")
+        self.wait_js_cond("ph_select('iframe.container-frame').every(function (e) { return e.getAttribute('data-ready'); })")
         self.phantom.reload()
 
     def expect_load(self):
@@ -320,7 +320,7 @@ class Browser:
 
         while True:
             try:
-                self.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
+                self.wait_present("iframe.container-frame[name='%s'][data-ready]" % frame)
                 self.wait_not_visible(".curtains")
                 self.wait_visible("iframe.container-frame[name='%s']" % frame)
                 break

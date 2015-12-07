@@ -8,6 +8,9 @@
     <ulink url="https://wiki.gnome.org/Projects/NetworkManager">NetworkManager</ulink>
     and the DBus APIs it provides to interact with the system's network configuration.</para>
 
+  <para>If a interface is not managed NetworkManager, then Cockpit can
+    not change its configuration.</para>
+
   <para>For non root users, NetworkManager controls access to its APIs via
     <link linkend="privileges">Policy Kit</link> and a user logged into Cockpit will have
     the same permissions as they do from the command line.</para>

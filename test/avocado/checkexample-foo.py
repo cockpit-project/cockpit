@@ -19,15 +19,21 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 from avocado import main
+from avocado import Test
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import cockpit
 
-class checkexample_foo(cockpit.Test):
+
+class checkexample_foo(Test):
     """
     Example test for cockpit
     """
 
     def test(self):
-        b = self.browser
+        c = cockpit.Cockpit()
+        b = c.browser
 
 
 if __name__ == "__main__":

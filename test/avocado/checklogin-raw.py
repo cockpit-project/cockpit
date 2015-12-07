@@ -20,50 +20,66 @@
 
 import base64
 import time
+import subprocess
 
-from avocado import job
-from avocado.utils import process
-
+from avocado import main
+from avocado import Test
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import cockpit
 
-class checklogin_raw(cockpit.Test):
+
+machine = "localhost"
+
+
+class checklogin_raw(Test):
     """
     Test login for cockpit
     """
 
     def curl_auth(self, url, userpass):
         header = "Authorization: Basic " + base64.b64encode(userpass)
-        return process.run("/usr/bin/curl -s -k -D - --header %s http://%s:9090%s " %  (header, "localhost", url), ignore_status=True)
+        return subprocess.check_output(['/usr/bin/curl', '-s', '-k',  '-D', '-',
+                                        '--header', header,
+                                        'http://%s:9090%s' % (machine, url)])
 
     def curl_auth_code(self, url, userpass):
-        lines = self.curl_auth(url, userpass).stdout.splitlines()
+        lines = self.curl_auth(url, userpass).splitlines()
         assert len(lines) > 0
         tokens = lines[0].split(' ', 2)
         assert len(tokens) == 3
-        self.log.debug(tokens)
         return int(tokens[1])
 
-    def test(self):
+    def testRaw(self):
+        c = cockpit.Cockpit()
         time.sleep(0.5)
-        self.assertEqual(self.curl_auth_code ('/login', ''), 401)
-        self.assertEqual(self.curl_auth_code ('/login', 'foo:'), 401)
-        self.assertEqual(self.curl_auth_code ('/login', 'foo:bar\n'), 401)
-        self.assertEqual(self.curl_auth_code ('/login', 'foo:bar:baz'), 401)
-        self.assertEqual(self.curl_auth_code ('/login', ':\n\n'), 401)
-        self.assertEqual(self.curl_auth_code ('/login', 'admin:bar'), 401)
-        self.assertEqual(self.curl_auth_code ('/login', 'foo:bar'), 401)
-        self.assertEqual(self.curl_auth_code ('/login', 'admin:' + 'x' * 4000), 401)
-        self.assertEqual(self.curl_auth_code ('/login', 'x' * 4000 + ':bar'), 401)
-        self.assertEqual(self.curl_auth_code ('/login', 'a' * 4000 + ':'), 401)
-        self.assertEqual(self.curl_auth_code ('/login', 'a' * 4000 + ':b\nc'), 401)
-        self.assertEqual(self.curl_auth_code ('/login', 'a' * 4000 + ':b\nc\n'), 401)
+        self.assertEqual(self.curl_auth_code('/cockpit/login', ''), 401)
+        self.assertEqual(self.curl_auth_code('/cockpit/login', 'foo:'), 401)
+        self.assertEqual(self.curl_auth_code(
+            '/cockpit/login', 'foo:bar\n'), 401)
+        self.assertEqual(self.curl_auth_code(
+            '/cockpit/login', 'foo:bar:baz'), 401)
+        self.assertEqual(self.curl_auth_code('/cockpit/login', ':\n\n'), 401)
+        self.assertEqual(self.curl_auth_code(
+            '/cockpit/login', 'admin:bar'), 401)
+        self.assertEqual(self.curl_auth_code('/cockpit/login', 'foo:bar'), 401)
+        self.assertEqual(self.curl_auth_code(
+            '/cockpit/login', 'admin:' + 'x' * 4000), 401)
+        self.assertEqual(self.curl_auth_code(
+            '/cockpit/login', 'x' * 4000 + ':bar'), 401)
+        self.assertEqual(self.curl_auth_code(
+            '/cockpit/login', 'a' * 4000 + ':'), 401)
+        self.assertEqual(self.curl_auth_code(
+            '/cockpit/login', 'a' * 4000 + ':b\nc'), 401)
+        self.assertEqual(self.curl_auth_code(
+            '/cockpit/login', 'a' * 4000 + ':b\nc\n'), 401)
 
-        self.allow_journal_messages ("Returning error-response ... with reason .*",
-                                     "pam_unix\(cockpit:auth\): authentication failure; .*",
-                                     "pam_unix\(cockpit:auth\): check pass; user unknown",
-                                     "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
-                                     "couldn't parse login input: Malformed input",
-                                     "couldn't parse login input: Authentication failed")
-
+        c.allow_journal_messages("Returning error-response ... with reason .*",
+                                    "pam_unix\(cockpit:auth\): authentication failure; .*",
+                                    "pam_unix\(cockpit:auth\): check pass; user unknown",
+                                    "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
+                                    "couldn't parse login input: Malformed input",
+                                    "couldn't parse login input: Authentication failed")
 if __name__ == "__main__":
-    job.main()
+    main()

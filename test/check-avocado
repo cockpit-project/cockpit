@@ -24,57 +24,40 @@ import sys
 import testvm
 from testlib import *
 
-avocado_tests = ["selenium-login.py"]
+avocado_tests = ["checkexample-foo.py",
+                 "checklogin-basic.py",  "checklogin-raw.py", ]
+
 
 class TestAvocadoSuite(MachineCase):
+
     def setUp(self):
         MachineCase.setUp(self)
-        self.selenium = self.new_machine(image="selenium")
-        self.selenium.start()
-        self.selenium.wait_boot()
-        # start selenium on the server
-        self.selenium.execute("/root/selenium_start.sh")
+        self.machine_test_dir = "/tmp/avocado_tests"
+        self.m = self.machine
+        self.workaround()
+        self.start_cockpit()
 
-    def wait_for_selenium_running(self, host, port=4444):
-        """Wait until selenium is running.
-        """
-        WAIT_SELENIUM_RUNNING = """#!/bin/sh
-until curl -s --connect-timeout 1 http://%s:%d >/dev/null; do
-    sleep 0.5;
-done;
-""" % (host, port)
-        with testvm.stdchannel_redirected(sys.stdout, os.devnull):
-            with Timeout(seconds=30, error_message="Timeout while waiting for selenium to start"):
-                self.machine.execute(script=WAIT_SELENIUM_RUNNING)
+    def workaround(self):
+        self.m.execute("yum -y install npm fontconfig")
+        self.m.execute("npm -g install phantomjs")
 
     def testAvocado(self):
-        m = self.machine
-        b = self.browser
-
-        self.start_cockpit()
-        machine_test_dir = "/tmp/avocado_tests"
-        m.execute(command="mkdir /p " + MachineCase.avocado_results_dir)
+        self.m.execute(command="mkdir -p " + MachineCase.avocado_results_dir)
         # first upload all of the tests to the target machine
-        m.upload([os.path.join(m.test_dir, "avocado")], machine_test_dir)
+        self.m.upload([os.path.join(self.m.test_dir, "avocado")],
+                      self.machine_test_dir)
+        # upload sizzle.js to proper dir
+        self.m.upload([os.path.join(self.m.test_dir, "sizzle.js")],
+                      self.machine_test_dir)
 
-        # GUEST needs to be the address of the machine
-        # cockpit runs on from the selenium HUB's viewpoint
-        # run these tests from the result directory
-        cmd_parts = ["HUB=" + self.selenium.address,
-                     "BROWSER=firefox",
-                     "GUEST=" + m.address,
-                     "avocado run",
+        cmd_parts = ["avocado run",
                      "--job-results-dir " + MachineCase.avocado_results_dir,
-                     machine_test_dir + "/selenium-login.py"
-                    ]
+                     ' '.join([self.machine_test_dir +
+                               os.sep + x for x in avocado_tests])
+                     ]
 
-        m.execute("adduser test")
-        m.execute("echo superhardpasswordtest5554 | passwd --stdin test")
-        m.execute("usermod -a -G wheel test")
-
-        self.wait_for_selenium_running(self.selenium.address)
         try:
-            m.execute(" ".join(cmd_parts))
+            self.m.execute(" ".join(cmd_parts))
         except:
             self.fail("avocado tests failed")
 

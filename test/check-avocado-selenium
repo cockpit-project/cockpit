@@ -1,0 +1,84 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import sys
+
+import testvm
+from testlib import *
+
+avocado_tests = ["selenium-login.py"]
+
+
+class TestAvocadoSuite(MachineCase):
+
+    def setUp(self):
+        MachineCase.setUp(self)
+        self.selenium = self.new_machine(image="selenium")
+        self.selenium.start()
+        self.selenium.wait_boot()
+        # start selenium on the server
+        self.selenium.execute("/root/selenium_start.sh")
+
+    def wait_for_selenium_running(self, host, port=4444):
+        """Wait until selenium is running.
+        """
+        WAIT_SELENIUM_RUNNING = """#!/bin/sh
+until curl -s --connect-timeout 1 http://%s:%d >/dev/null; do
+    sleep 0.5;
+done;
+""" % (host, port)
+        with testvm.stdchannel_redirected(sys.stdout, os.devnull):
+            with Timeout(seconds=30, error_message="Timeout while waiting for selenium to start"):
+                self.machine.execute(script=WAIT_SELENIUM_RUNNING)
+
+    def testAvocado(self):
+        m = self.machine
+        b = self.browser
+
+        self.start_cockpit()
+        machine_test_dir = "/tmp/avocado_tests"
+        m.execute(command="mkdir /p " + MachineCase.avocado_results_dir)
+        # first upload all of the tests to the target machine
+        m.upload([os.path.join(m.test_dir, "avocado")], machine_test_dir)
+
+        # GUEST needs to be the address of the machine
+        # cockpit runs on from the selenium HUB's viewpoint
+        # run these tests from the result directory
+        cmd_parts = ["HUB=" + self.selenium.address,
+                     "BROWSER=firefox",
+                     "GUEST=" + m.address,
+                     "avocado run",
+                     "--job-results-dir " + MachineCase.avocado_results_dir,
+                     machine_test_dir + "/selenium-login.py"
+                     ]
+
+        m.execute("adduser test")
+        m.execute("echo superhardpasswordtest5554 | passwd --stdin test")
+        m.execute("usermod -a -G wheel test")
+
+        self.wait_for_selenium_running(self.selenium.address)
+        try:
+            m.execute(" ".join(cmd_parts))
+        except:
+            self.fail("avocado tests failed")
+
+if __name__ == '__main__':
+    test_main()

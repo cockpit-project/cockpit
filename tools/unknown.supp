@@ -437,3 +437,11 @@
    ...
    fun:getaddrinfo
 }
+{
+   libc_freeres
+   Memcheck:Free
+   fun:free
+   fun:__libc_freeres
+   ...
+   fun:exit
+}

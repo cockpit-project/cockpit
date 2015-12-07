@@ -33,8 +33,12 @@ static gchar *
 generate_subject (void)
 {
   static const char HEX[] = "0123456789abcdef";
+  gchar hostname[HOST_NAME_MAX + 1] = { 0, };
   gchar *content;
   gchar *subject;
+  gchar *cn;
+  int ret;
+
 
   /*
    * HACK: We have to use a unique value in DN because otherwise
@@ -48,15 +52,21 @@ generate_subject (void)
    *
    */
 
+  ret = gethostname (hostname, sizeof (hostname));
+  if (ret < 0 || g_str_equal (hostname, ""))
+    cn = "localhost";
+  else
+    cn = hostname;
+
   if (g_file_get_contents ("/etc/machine-id", &content, NULL, NULL))
     {
-      subject = g_strdup_printf ("/O=%s/CN=localhost",
-                                 g_strstrip (g_strcanon (content, HEX, ' ')));
+      subject = g_strdup_printf ("/O=%s/CN=%s",
+                                 g_strstrip (g_strcanon (content, HEX, ' ')), cn);
       g_free (content);
     }
   else
     {
-      subject = g_strdup ("/CN=localhost");
+      subject = g_strdup_printf ("/CN=%s", cn);
     }
 
   return subject;

@@ -131,6 +131,8 @@
                         show_login();
                     } else if (xhr.statusText) {
                         fatal(xhr.statusText);
+                    } else if (xhr.status == 0) {
+                        show_login();
                     } else {
                         fatal(xhr.status + " error");
                     }

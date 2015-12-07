@@ -547,6 +547,7 @@ typedef struct {
   GSocket *conn_sock;
   GSource *conn_source;
   GSocketAddress *address;
+  gboolean skip_ipv6_loopback;
   guint16 port;
 } TestConnect;
 
@@ -618,6 +619,15 @@ setup_connect (TestConnect *tc,
 
   g_socket_bind (tc->listen_sock, address, TRUE, &error);
   g_object_unref (address);
+
+  if (error != NULL && family == G_SOCKET_FAMILY_IPV6)
+    {
+      /* Some test runners don't have IPv6 loopback, strangely enough */
+      g_clear_error (&error);
+      tc->skip_ipv6_loopback = TRUE;
+      return;
+    }
+
   g_assert_no_error (error);
 
   tc->address = g_socket_get_local_address (tc->listen_sock, &error);
@@ -688,6 +698,12 @@ test_connect_loopback (TestConnect *tc,
   CockpitStream *stream;
   GError *error = NULL;
   GByteArray *buffer;
+
+  if (tc->skip_ipv6_loopback)
+    {
+      cockpit_test_skip ("no loopback for ipv6 found");
+      return;
+    }
 
   connectable = cockpit_loopback_new (tc->port);
   stream = cockpit_stream_connect ("loopback", connectable, NULL);

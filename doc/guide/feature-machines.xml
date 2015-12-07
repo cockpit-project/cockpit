@@ -12,6 +12,9 @@
     <link linkend="authentication">authenticated</link> with the logged in
     user's password and/or SSH keys.</para>
 
+  <para>Using SSH keys is only supported when the system has the
+    necessary APIs in libssh.</para>
+
   <para>There is currently no command line interface for adding and/or removing
     machines from the dashboard. The machine data is stored in
     <filename>/var/lib/cockpit/machines.json</filename> and SSH host keys are

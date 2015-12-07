@@ -220,7 +220,7 @@ install-data-local:: install-doc-local
 
 dist-hook: dist-doc-hook
 	echo $(VERSION) > $(distdir)/.tarball
-	-(git -C $(srcdir) ls-tree HEAD --name-only -r bower_components/ || echo bower_components/ ) | tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xvf -
+	-(cd $(srcdir) git ls-tree HEAD --name-only -r bower_components/ || echo bower_components/ ) | tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xvf -
 
 distcheck-hook: dist-doc-hook
 	$(srcdir)/tools/check-dist $(distdir)

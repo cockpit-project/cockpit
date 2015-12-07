@@ -20,7 +20,10 @@
 
 from testlib import *
 import subprocess
+import unittest
+import os
 
+@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No sosreport on Debian.")
 class TestSOS(MachineCase):
     def testBasic(self):
         b = self.browser

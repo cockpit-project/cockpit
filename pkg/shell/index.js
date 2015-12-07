@@ -87,7 +87,7 @@ define([
             return;
 
         var len, content = style.content;
-        if (content && content != "none") {
+        if (content && content != "none" && content != "normal") {
             len = content.length;
             if ((content[0] === '"' || content[0] === '\'') &&
                 len > 2 && content[len - 1] === content[0])

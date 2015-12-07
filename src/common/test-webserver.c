@@ -66,13 +66,12 @@ setup (TestCase *tc,
   tc->localport = g_strdup_printf ("localhost:%d", port);
 
   inet = cockpit_test_find_non_loopback_address ();
-  if (inet)
-    {
-      str = g_inet_address_to_string (inet);
-      tc->hostport = g_strdup_printf ("%s:%d", str, port);
-      g_free (str);
-      g_object_unref (inet);
-    }
+  g_assert (inet != NULL);
+
+  str = g_inet_address_to_string (inet);
+  tc->hostport = g_strdup_printf ("%s:%d", str, port);
+  g_free (str);
+  g_object_unref (inet);
 }
 
 static void
@@ -494,14 +493,7 @@ test_webserver_redirect_notls (TestCase *tc,
 {
   gchar *resp;
 
-  if (!tc->hostport)
-    {
-      cockpit_test_skip ("no non-loopback address found");
-      return;
-    }
-
   resp = perform_http_request (tc->hostport, "GET /pkg/shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
-
   cockpit_assert_strmatch (resp, "HTTP/* 301 *\r\nLocation: https://*");
   g_free (resp);
 }

@@ -11,7 +11,8 @@ fi
 
 generate() {
 	if [ -d $BASE/../.git ]; then
-		git -C $BASE/.. describe | sed 's/-[0-9]\+-g.*/.x/'
+        cd $BASE/..
+		git describe | sed 's/-[0-9]\+-g.*/.x/'
 	else
 		cat $1
 	fi

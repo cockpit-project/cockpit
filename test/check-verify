@@ -215,6 +215,7 @@ def main():
     # Tell any subprocesses what we are testing
     os.environ["TEST_REVISION"] = revision
     testinfra.DEFAULT_IMAGE = context
+    os.environ["TEST_OS"] = context
 
     sys.stderr.write("Testing {0} for {1} on {2} ...\n".format(revision, name, context))
 
@@ -227,7 +228,6 @@ def main():
         # Check if we are still publishing, in case some other verify
         # machine collided with our test
         if opts.github and sink:
-            github.reset()
             check_publishing(sink, github)
 
         ret = run(opts, sink)

@@ -25,6 +25,7 @@ import httplib
 import json
 import urllib
 import os
+import random
 import shutil
 import socket
 import subprocess
@@ -42,6 +43,14 @@ WHITELIST_LOCAL = "~/.config/github-whitelist"
 
 HOSTNAME = socket.gethostname().split(".")[0]
 DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-22")
+
+DEFAULT_VERIFY = {
+    'fedora-22': [ 'master', 'pulls' ],
+    'fedora-23': [ 'master', 'pulls' ],
+    'rhel-7': [ 'master', 'pulls' ],
+    'fedora-atomic': [ 'master' ],
+    'fedora-testing': [ 'master' ],
+}
 
 TESTING = "Testing in progress"
 NOT_TESTED = "Not yet tested"
@@ -184,9 +193,6 @@ class GitHub(object):
                 raise
         self.available = self.token and True or False
 
-    def context(self):
-        return DEFAULT_IMAGE
-
     def qualify(self, resource):
         return urlparse.urljoin(self.base, resource)
 
@@ -228,28 +234,36 @@ class GitHub(object):
         headers = { "Content-Type": "application/json" }
         return json.loads(self.request("POST", resource, json.dumps(data), headers))
 
-    def status(self, revision):
+    def statuses(self, revision):
+        result = { }
         statuses = self.get("commits/{0}/statuses".format(revision))
         if statuses:
             for status in statuses:
-                if status["context"] == self.context():
-                    return status
-        return { }
+                if status["context"] not in result:
+                    result[status["context"]] = status
+        return result
 
-    def prioritize(self, revision, labels=[], update=None, baseline=10):
-        last = self.status(revision)
-        state = last.get("state", None)
+    def labels(self, issue):
+        result = [ ]
+        for label in self.get("issues/{0}/labels".format(issue)):
+            result.append(label["name"])
+        return result
 
-        priority = baseline
+    def prioritize(self, status, labels, priority):
+        state = status.get("state", None)
+        update = { "state": "pending" }
 
-        # This commit definitively succeeds or fails
+        # This commit definitively succeeded or failed
         if state in [ "success", "failure" ]:
-            return 0
+            priority = 0
+            update = None
 
         # This test errored, we try again but low priority
         elif state in [ "error" ]:
+            priority -= 6
+
+        elif state in [ "pending" ]:
             update = None
-            priority = 4
 
         if priority > 0:
             if "priority" in labels:
@@ -262,61 +276,84 @@ class GitHub(object):
                 priority -= 1
 
             # Is testing already in progress?
-            if last.get("description", "").startswith(TESTING):
-                update = None
+            if status.get("description", "").startswith(TESTING):
                 priority = 0
 
-        if update and priority <= 0:
-            update = update.copy()
-            update["description"] = "Manual testing required"
+        if update:
+            if priority <= 0:
+                update["description"] = "Manual testing required"
+            else:
+                update["description"] = NOT_TESTED
 
-        if update and not dict_is_subset(last, update):
-            self.post("statuses/" + revision, update)
+        return [priority, update]
 
-        return priority
-
-    def scan(self, update=False):
-        pulls = []
-
+    def scan(self, update, context):
         whitelist = read_whitelist()
-
         results = []
 
-        if update:
-            status = { "state": "pending", "description": NOT_TESTED, "context": self.context() }
-        else:
-            status = None
+        # Figure out what contexts/images we need to verify
+        contexts = DEFAULT_VERIFY
+        if context:
+            contexts = { context: contexts.get(context, [ "master" ]) }
 
-        master = self.get("git/refs/heads/master")
-        priority = self.prioritize(master["object"]["sha"], update=status, baseline=9)
-        if priority > 0:
-            results.append((priority, "master", master["object"]["sha"], "master"))
+        master_contexts = []
+        pull_contexts = []
+        for (context, what) in contexts.items():
+            if "master" in what:
+                master_contexts.append(context)
+            if "pulls" in what:
+                pull_contexts.append(context)
 
-        # Load all the pull requests
-        for pull in self.get("pulls"):
-            baseline = 10
+        def update_status(revision, context, last, changes):
+            if update and changes and not dict_is_subset(last, changes):
+                changes["context"] = context
+                self.post("statuses/" + revision, changes)
 
-            # It needs to be in the whitelist
-            login = pull["head"]["user"]["login"]
-            if login not in whitelist:
-                if status:
-                    status["description"] = "Manual testing required"
-                baseline = 0
+        if master_contexts:
+            master = self.get("git/refs/heads/master")
+            revision = master["object"]["sha"]
+            statuses = self.statuses(revision)
+            for context in master_contexts:
+                status = statuses.get(context, { })
+                (priority, changes) = self.prioritize(status, [], 9)
+                results.append((priority, "master", revision, "master", context))
+                update_status(revision, context, status, changes)
 
-            # Pull in the labels for this pull
-            labels = []
-            for label in self.get("issues/{0}/labels".format(pull["number"])):
-                labels.append(label["name"])
+        if pull_contexts:
+            pulls = self.get("pulls")
+            for pull in pulls:
+                baseline = 10
 
-            number = pull["number"]
-            revision = pull["head"]["sha"]
+                # It needs to be in the whitelist
+                login = pull["head"]["user"]["login"]
+                if login not in whitelist:
+                    baseline = 0
 
-            priority = self.prioritize(revision, labels, update=status, baseline=baseline)
-            if priority > 0:
-                results.append((priority, "pull-%d" % number, revision, "pull/%d/head" % number))
+                number = pull["number"]
+                labels = self.labels(number)
+                revision = pull["head"]["sha"]
+                statuses = self.statuses(revision)
 
-        results.sort(key=lambda v: v[0], reverse=True)
-        return results
+                for context in pull_contexts:
+                    status = statuses.get(context, { })
+                    (priority, changes) = self.prioritize(status, labels, baseline)
+                    results.append((priority, "pull-%d" % number, revision, "pull/%d/head" % number, context))
+                    update_status(revision, context, status, changes)
+
+        # Only work on tasks that have a priority greater than zero
+        def filter_tasks(task):
+            return task[0] > 0
+
+        # Prefer higher priorities, and "local" operating system
+        def sort_key(task):
+            key = task[0]
+            if task[4] != DEFAULT_IMAGE:
+                key -= random.randint(1, 3)
+            return key
+
+        random.seed()
+        results = filter(filter_tasks, results)
+        return sorted(results, key=sort_key, reverse=True)
 
     def httpdate(self, dt):
         """Return a string representation of a date according to RFC 1123
@@ -359,8 +396,10 @@ class GitHub(object):
                 else:
                     sys.stdout.write("{0}: {1}\n".format(entry, entries[0][1]))
 
-    def trigger(self, pull_number, force = False):
-        sys.stderr.write("triggering pull {0} for context {1}\n".format(pull_number, self.context()))
+    def trigger(self, pull_number, force=False, context=None):
+        if not context:
+            context = DEFAULT_IMAGE
+        sys.stderr.write("triggering pull {0} for context {1}\n".format(pull_number, context))
         pull = self.get("pulls/" + pull_number)
 
         # triggering is manual, so don't prevent triggering a user that isn't on the whitelist
@@ -371,32 +410,31 @@ class GitHub(object):
             sys.stderr.write("warning: pull request author '{0}' isn't in github-whitelist.\n".format(login))
 
         revision = pull['head']['sha']
-        current_status = self.status(revision)
-        if current_status.get("state", "empty") not in ["empty", "error", "failure"]:
+        statuses = self.statuses(revision)
+        status = statuses.get(context, { })
+        if status.get("state", "empty") not in ["empty", "error", "failure"]:
             if force:
                 sys.stderr.write("Pull request isn't in error state, but forcing update.\n")
             else:
-                sys.stderr.write("Pull request isn't in error state, not triggering test. Status is: '{0}'\n".format(current_status["state"]))
+                sys.stderr.write("Pull request isn't in error state. Status is: '{0}'\n".format(status["state"]))
                 return
 
-        status = { "state": "pending", "description": NOT_TESTED, "context": self.context() }
-        self.post("statuses/" + revision, status)
+        changes = { "state": "pending", "description": NOT_TESTED, "context": context }
+        self.post("statuses/" + revision, changes)
 
 if __name__ == '__main__':
     github = GitHub("/repos/cockpit-project/cockpit/")
     parser = argparse.ArgumentParser(description='Test infrastructure: scan and update status of pull requests on github')
-    parser.add_argument('-c', '--check',
-                        help = 'Only check github rate limits with the currently configured credentials',
-                        action = "store_true",
-                        default = False)
-    parser.add_argument('-d', '--dry',
-                        help = 'Don''t actually change anything on github',
-                        action = "store_true",
-                        default = False)
+    parser.add_argument('-c', '--check', action="store_true", default=False,
+                        help='Only check github rate limits with the currently configured credentials')
+    parser.add_argument('-d', '--dry', action="store_true", default=False,
+                        help='Don''t actually change anything on github')
+    parser.add_argument('image', action='store', nargs='?',
+                        help='The operating system image to verify against')
     opts = parser.parse_args()
 
     if (opts.check):
         github.check_limits()
     else:
-        for (priority, name, revision, ref) in github.scan(update = not opts.dry):
-            sys.stdout.write("{0}: {1} ({2})\n".format(name, revision, priority))
+        for (priority, name, revision, ref, context) in github.scan(not opts.dry, opts.image):
+            sys.stdout.write("{0}: {1} ({2} {3})\n".format(name, revision, priority, context))

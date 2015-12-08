@@ -31,9 +31,6 @@ class TestRealms(MachineCase):
         m = self.machine
         b = self.browser
 
-        # TODO: Make this work with non-root
-        b.default_user = "root"
-
         # Start the FreeIPA instance and use it as the DNS server
         #
         ipa = self.new_machine(image="ipa")

@@ -22,7 +22,7 @@ base=$(cd $(dirname $0)/../; pwd -P)
 
 usage()
 {
-	echo "usage: make-rpms [--quick] [--verbose]"
+	echo "usage: make-rpms [--quick] [--verbose] [tarball]"
 }
 
 quiet="--quiet"
@@ -50,12 +50,12 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
-if [ $# -ne 0 ]; then
+if [ $# -gt 1 ]; then
 	usage
 	exit 2
 fi
 
-srpm="$($base/tools/make-srpm)"
+srpm="$($base/tools/make-srpm ${1-})"
 
 tmpdir=$(mktemp -d $PWD/rpm-build.XXXXXX)
 rpmbuild --rebuild $check $quiet \

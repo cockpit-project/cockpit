@@ -18,19 +18,17 @@
 
 set -eu
 
-if [ $# != 0 ]; then
-	echo "usage: make-srpm" >&2
+if [ $# -gt 1 ]; then
+    echo "usage: make-srpm [tarball]" >&2
     exit 2
 fi
 
 base=$(cd $(dirname $0); pwd -P)
-rpm_tmpdir=$(mktemp -d -t rpmbuild.XXXXXX)
 
-srpm=$(cd ${rpm_tmpdir}
-       source=$("$base/make-source")
-       "$base/../test/guest/lib/make-srpm" "$source")
+if [ -z ${1-} ]; then
+    source=$("$base/make-source")
+else
+    source="$1"
+fi
 
-echo $(basename "$srpm")
-mv "$srpm" .
-
-rm -rf "${rpm_tmpdir}"
+exec "$base/../test/guest/lib/make-srpm" "$source"

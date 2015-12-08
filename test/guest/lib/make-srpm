@@ -1,24 +1,40 @@
-#! /bin/bash
+#!/bin/bash
 
-set -e
+set -eu
 
 tar=$1
 
-cd $(dirname "$1")
+version=$(echo $1 | sed -n 's|.*cockpit-\([^ -/]\+\)\.tar\..*|\1|p')
+if [ -z "$version" ]; then
+    echo "make-srpm: couldn't parse version from tarball: $1"
+    exit 2
+fi
 
-tar xzf "$1" cockpit-wip/tools/cockpit.spec
+modify_spec() {
+case $version in
+wip)
 sed '1i\
-%define gitcommit wip' cockpit-wip/tools/cockpit.spec > cockpit.spec
+%define gitcommit wip'
+;;
+*)
+sed "1i\
+%define tag $version"
+esac
+}
 
-rm -f *.src.rpm
+tmpdir=$(mktemp -d $PWD/srpm-build.XXXXXX)
+tar xaf "$1" -O cockpit-$version/tools/cockpit.spec | modify_spec > $tmpdir/cockpit.spec
+
+
 rpmbuild -bs \
          --quiet \
-         --define "_sourcedir `pwd`" \
-         --define "_specdir `pwd`" \
-         --define "_builddir `pwd`" \
+         --define "_sourcedir $(dirname $1)" \
+         --define "_specdir $tmpdir" \
+         --define "_builddir $tmpdir" \
          --define "_srcrpmdir `pwd`" \
-         --define "_rpmdir `pwd`" \
-         --define "_buildrootdir `pwd`/.build" \
-         --define "optflags -ggdb3 -O0" \
-         cockpit.spec
-echo $PWD/*.src.rpm
+         --define "_rpmdir $tmpdir" \
+         --define "_buildrootdir $tmpdir/.build" \
+         $tmpdir/cockpit.spec
+
+rpm --qf '%{Name}-%{Version}-%{Release}.src.rpm\n' -q --specfile $tmpdir/cockpit.spec | head -n1
+rm -rf $tmpdir

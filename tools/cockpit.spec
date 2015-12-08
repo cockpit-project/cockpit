@@ -170,6 +170,11 @@ install -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/%{name}/
 # This is not yet packaged
 rm -rf %{buildroot}%{_datadir}/%{name}/registry
 
+# On RHEL we don't yet show options for changing language
+%if 0%{?rhel}
+echo '{ "linguas": null }' > %{buildroot}%{_datadir}/%{name}/shell/override.json
+%endif
+
 # Build the package lists for resource packages
 echo '%dir %{_datadir}/%{name}/base1' > shell.list
 find %{buildroot}%{_datadir}/%{name}/base1 -type f >> shell.list

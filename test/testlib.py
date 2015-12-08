@@ -751,7 +751,7 @@ class Naughty(object):
             return False
 
         # Lookup the link being logged to
-        context = github.context()
+        context = testinfra.DEFAULT_IMAGE
         link = ""
         revision = os.environ.get("TEST_REVISION", None)
         if revision:

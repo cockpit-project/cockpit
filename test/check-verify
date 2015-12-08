@@ -18,15 +18,15 @@ EXCLUDE = [
     'check-example'
 ]
 
-def start_publishing(github, host, name, revision):
-    identifier = name + "-" + revision[0:8] + "-" + testinfra.DEFAULT_IMAGE
+def start_publishing(github, host, name, revision, context):
+    identifier = name + "-" + revision[0:8] + "-" + context
     description = "{0} [{1}]".format(testinfra.TESTING, testinfra.HOSTNAME)
     status = {
         "github": {
             "resource": github.qualify("statuses/" + revision),
             "status": {
                 "state": "pending",
-                "context": github.context(),
+                "context": context,
                 "description": description,
             }
         },
@@ -37,15 +37,17 @@ def start_publishing(github, host, name, revision):
     if name == "master":
         status['irc'] = { }    # Only send to IRC when master
         status['badge'] = {
-            'name': testinfra.DEFAULT_IMAGE,
-            'description': testinfra.DEFAULT_IMAGE,
+            'name': context,
+            'description': context,
             'status': 'running'
         }
     return testinfra.Sink(host, identifier, status)
 
 def check_publishing(sink, github):
     expected = sink.status["github"]["status"]["description"]
-    status = github.status(sink.status["revision"])
+    context = sink.status["github"]["status"]["context"]
+    statuses = github.statuses(sink.status["revision"])
+    status = statuses.get(context, None)
     current = status.get("description", None)
     if current and current != expected:
         sink.status.pop("github", None)
@@ -146,6 +148,8 @@ def main():
                         help="Build test VMs quicker")
     parser.add_argument('--clean', dest='clean', action='store_true',
                         help="Build test VMs from clean state")
+    parser.add_argument('image', action='store', nargs='?',
+                        help='The operating system image to verify against')
     opts = parser.parse_args()
 
     revision = None
@@ -154,6 +158,7 @@ def main():
     name = "test"
     revision = None
     badge = False
+    context = None
 
     os.chdir(os.path.dirname(__file__))
 
@@ -167,8 +172,8 @@ def main():
 
     # When letting github decide what to test
     if opts.github in [ "next", "scan" ]:
-        sys.stderr.write("Talking to GitHub about {0} ...\n".format(github.context()))
-        for (priority, name, revision, ref) in github.scan(opts.publish):
+        sys.stderr.write("Talking to GitHub ...\n")
+        for (priority, name, revision, ref, context) in github.scan(opts.publish, opts.image):
             if opts.github == "scan":
                 return 0 # Only scanning, no tests
 
@@ -196,9 +201,11 @@ def main():
 
     if not revision:
         revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
+    if not context:
+        context = testinfra.DEFAULT_IMAGE
 
     if opts.publish:
-        sink = start_publishing(github, opts.publish, name, revision)
+        sink = start_publishing(github, opts.publish, name, revision, context)
         os.environ["TEST_ATTACHMENTS"] = sink.attachments
 
     # Master is always thorough
@@ -207,8 +214,9 @@ def main():
 
     # Tell any subprocesses what we are testing
     os.environ["TEST_REVISION"] = revision
+    testinfra.DEFAULT_IMAGE = context
 
-    sys.stderr.write("Testing {0} for {1} ...\n".format(revision, name))
+    sys.stderr.write("Testing {0} for {1} on {2} ...\n".format(revision, name, context))
 
     try:
         if opts.rebase:

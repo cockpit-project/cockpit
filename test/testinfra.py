@@ -196,21 +196,27 @@ class GitHub(object):
     def qualify(self, resource):
         return urlparse.urljoin(self.base, resource)
 
-    def reset(self):
-        self.conn = None
-        self.debug = False
-
     def request(self, method, resource, data="", headers=None, return_headers_on_unmodified=False):
         if headers is None:
             headers = { }
         headers["User-Agent"] = "Cockpit Tests"
         if self.token:
             headers["Authorization"] = "token " + self.token
-        if not self.conn:
-            self.conn = httplib.HTTPSConnection("api.github.com", strict=True)
-        self.conn.set_debuglevel(self.debug and 1 or 0)
-        self.conn.request(method, self.qualify(resource), data, headers)
-        response = self.conn.getresponse()
+        connected = False
+        while not connected:
+            if not self.conn:
+                self.conn = httplib.HTTPSConnection("api.github.com", strict=True)
+                connected = True
+            self.conn.set_debuglevel(self.debug and 1 or 0)
+            try:
+                self.conn.request(method, self.qualify(resource), data, headers)
+                response = self.conn.getresponse()
+                break
+            # This happens when GitHub disconnects a keep-alive connection
+            except httplib.BadStatusLine:
+                if connected:
+                    raise
+                self.conn = None
         output = response.read()
         if method == "GET" and response.status == 404:
             return ""

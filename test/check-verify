@@ -228,7 +228,6 @@ def main():
         # Check if we are still publishing, in case some other verify
         # machine collided with our test
         if opts.github and sink:
-            github.reset()
             check_publishing(sink, github)
 
         ret = run(opts, sink)

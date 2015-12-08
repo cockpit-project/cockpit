@@ -21,6 +21,7 @@
 
 define([
     "jquery",
+    "base1/bootstrap-select",
     "base1/cockpit",
     "translated!base1/po",
     "base1/mustache",
@@ -110,6 +111,7 @@ define([
         }
 
         $('#tuned-start').on('click', function() {
+
             var proc = cockpit.spawn(["systemctl", "restart", "tuned.service"]).
                     done(function() {});
         });
@@ -132,7 +134,7 @@ define([
                     $('#tuned-change-profile').dialog('failure', new Error("Problem applying tuned profile"));
                     //TODO: log errors
                 }
-                $('#tuned-change-profile').hide();
+                $('#tuned-change-profile').modal('hide');
             });
         });
 
@@ -140,15 +142,8 @@ define([
             get_profile();
         }
 
-        function verify_profile() { }
-        function recommend_profile() { }
-        function switch_profile() {}
-
         return {
             'get_profiles': get_profiles,
-            'verify_profile': verify_profile,
-            'recommend_profile': recommend_profile,
-            'switch_profile': switch_profile
         };
     }
 

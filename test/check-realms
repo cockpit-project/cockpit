@@ -112,6 +112,48 @@ class TestRealms(MachineCase):
         # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1256636
         self.allow_journal_messages(".*type=1400 audit.*denied.*nsupdate.*nsswitch.conf.*realmd_var_lib_t.*")
 
+    def testNotSupported(self):
+        m = self.machine
+        b = self.browser
+
+        # TODO - improve the behavior of Cockpit for this case
+        # See https://github.com/cockpit-project/cockpit/issues/3291
+
+        # Disable sssd support in realmd
+
+        realmd_distro_conf = "/usr/lib/realmd/realmd-distro.conf"
+        if "rhel" in m.image:
+            realmd_distro_conf = "/usr/lib64/realmd/realmd-distro.conf"
+
+        m.execute("echo -e '[providers]\nsssd = no\n' >>%s" % realmd_distro_conf)
+
+        # Start the FreeIPA instance and use it as the DNS server
+        #
+        ipa = self.new_machine(image="ipa")
+        ipa.start()
+        ipa.wait_boot()
+
+        m.execute("hostnamectl set-hostname x0.cockpit.lan")
+        m.execute("echo -e 'domain cockpit.lan\nsearch cockpit.lan\nnameserver %s\n' >/etc/resolv.conf; chattr +i /etc/resolv.conf" % ipa.address)
+
+        # Wait for DNS to work as expected.
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
+        #
+        wait(lambda: m.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
+
+        self.login_and_go("/system")
+
+        # Join cockpit.lan
+        b.click("#system_information_realms_button")
+        b.wait_popup("realms-op")
+        b.set_val(".realms-op-address", "cockpit.lan")
+        # TODO - expect error indication
+        b.set_val(".realms-op-admin", "admin")
+        b.set_val(".realms-op-admin-password", "foobarfoo")
+        b.click(".realms-op-apply")
+        # TODO - expect better error message
+        b.wait_text_not(".realms-op-error", "")
+
 KRB5_TEMPLATE = """
 [logging]
  default = FILE:%(dir)s/krb5.log

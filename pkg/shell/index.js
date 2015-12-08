@@ -132,7 +132,8 @@ define([
      * separate automatically generated file. Need to see.
      */
     var manifest = local_manifests["shell"] || { };
-    $.each(manifest.linguas, function(code, name) {
+    $(".display-language-menu").toggle(!!manifest.linguas);
+    $.each(manifest.linguas || { }, function(code, name) {
         var el = $("<option>").text(name).val(code);
         if (code == cockpit.language)
             el.attr("selected", "true");
@@ -146,7 +147,7 @@ define([
         return false;
     });
 
-    $("display-language").on("shown.bs.modal", function() {
+    $("#display-language").on("shown.bs.modal", function() {
         $("display-language-list").focus();
         phantom_checkpoint();
     });

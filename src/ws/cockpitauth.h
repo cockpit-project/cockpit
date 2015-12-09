@@ -97,8 +97,10 @@ CockpitWebService *  cockpit_auth_check_cookie    (CockpitAuth *self,
 
 gchar *         cockpit_auth_parse_application    (const gchar *path);
 
-GBytes *        cockpit_auth_parse_authorization  (GHashTable *headers,
-                                                   gchar **type);
+GBytes *        cockpit_auth_parse_authorization      (GHashTable *headers,
+                                                       gboolean base64_decode);
+
+gchar *        cockpit_auth_parse_authorization_type  (GHashTable *headers);
 
 G_END_DECLS
 

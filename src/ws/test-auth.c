@@ -21,6 +21,7 @@
 
 #include "mock-auth.h"
 
+#include "common/cockpitconf.h"
 #include "common/cockpitenums.h"
 #include "common/cockpiterror.h"
 #include "common/cockpittest.h"
@@ -46,6 +47,22 @@ static void
 teardown (Test *test,
           gconstpointer data)
 {
+  g_object_unref (test->auth);
+}
+
+static void
+setup_normal (Test *test,
+              gconstpointer data)
+{
+  cockpit_config_file = SRCDIR "/src/ws/mock-config.conf";
+  test->auth = cockpit_auth_new (FALSE);
+}
+
+static void
+teardown_normal (Test *test,
+                 gconstpointer data)
+{
+  cockpit_assert_expected ();
   g_object_unref (test->auth);
 }
 
@@ -289,6 +306,136 @@ test_process_timeout (Test *test,
     g_main_context_iteration (NULL, TRUE);
 }
 
+typedef struct {
+  const gchar *header;
+  const gchar *error_message;
+  const gchar *warning;
+  int error_code;
+} ErrorFixture;
+
+static void
+test_custom_fail (Test *test,
+                  gconstpointer data)
+{
+  GAsyncResult *result = NULL;
+  CockpitWebService *service;
+  GError *error = NULL;
+  GHashTable *headers;
+  const ErrorFixture *fix = data;
+
+  if (fix->warning)
+    cockpit_expect_warning (fix->warning);
+
+  headers = web_socket_util_new_headers ();
+  g_hash_table_insert (headers, g_strdup ("Authorization"), g_strdup (fix->header));
+
+  cockpit_auth_login_async (test->auth, "/cockpit", headers, NULL, on_ready_get_result, &result);
+  g_hash_table_unref (headers);
+
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  headers = web_socket_util_new_headers ();
+  service = cockpit_auth_login_finish (test->auth, result, 0, headers, &error);
+  g_object_unref (result);
+
+  g_assert (service == NULL);
+  if (fix->error_code)
+    g_assert_error (error, COCKPIT_ERROR, fix->error_code);
+  else
+    g_assert (error != NULL);
+
+  g_assert_cmpstr (fix->error_message, ==, error->message);
+  g_clear_error (&error);
+
+  g_hash_table_destroy (headers);
+}
+
+static void
+test_bad_command (Test *test,
+                  gconstpointer data)
+{
+  cockpit_expect_possible_log ("cockpit-protocol", G_LOG_LEVEL_WARNING,
+                               "*couldn't read*");
+  cockpit_expect_unordered_log ("cockpit-ws", G_LOG_LEVEL_WARNING,
+                                "*spawn login failed during auth*");
+  test_custom_fail (test, data);
+}
+
+static void
+test_custom_success (Test *test,
+                     gconstpointer data)
+{
+  GAsyncResult *result = NULL;
+  CockpitWebService *service;
+  CockpitCreds *creds;
+  GError *error = NULL;
+  GHashTable *headers;
+
+  headers = web_socket_util_new_headers ();
+  g_hash_table_insert (headers, g_strdup ("Authorization"), g_strdup ("testscheme success"));
+  cockpit_auth_login_async (test->auth, "/cockpit/", headers, NULL, on_ready_get_result, &result);
+  g_hash_table_unref (headers);
+
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  headers = web_socket_util_new_headers ();
+  service = cockpit_auth_login_finish (test->auth, result, 0, headers, &error);
+  g_object_unref (result);
+  g_assert_no_error (error);
+  g_assert (service != NULL);
+
+  creds = cockpit_web_service_get_creds (service);
+  g_assert_cmpstr ("me", ==, cockpit_creds_get_user (creds));
+  g_assert_cmpstr ("cockpit", ==, cockpit_creds_get_application (creds));
+  g_assert_null (cockpit_creds_get_password (creds));
+
+  g_hash_table_destroy (headers);
+  g_object_unref (service);
+}
+
+static const ErrorFixture fixture_bad_command = {
+  .error_code = COCKPIT_ERROR_FAILED,
+  .error_message = "Internal error in login process",
+  .header = "badcommand bad",
+};
+
+static const ErrorFixture fixture_auth_failed = {
+  .error_code = COCKPIT_ERROR_AUTHENTICATION_FAILED,
+  .error_message = "Authentication failed",
+  .header = "testscheme fail",
+};
+
+static const ErrorFixture fixture_auth_denied = {
+  .error_code = COCKPIT_ERROR_PERMISSION_DENIED,
+  .error_message = "Permission denied",
+  .header = "testscheme denied",
+};
+
+static const ErrorFixture fixture_auth_no_user = {
+  .error_message = "Invalid data from mock-auth-command process: missing user",
+  .header = "testscheme no-user",
+};
+
+static const ErrorFixture fixture_auth_with_error = {
+  .error_code = COCKPIT_ERROR_FAILED,
+  .error_message = "Invalid data from mock-auth-command: unknown: detail for error",
+  .header = "testscheme with-error",
+};
+
+static const ErrorFixture fixture_auth_none = {
+  .error_code = COCKPIT_ERROR_AUTHENTICATION_FAILED,
+  .error_message = "Authentication disabled",
+  .header = "none invalid",
+};
+
+static const ErrorFixture fixture_auth_no_write = {
+  .error_message = "Invalid data from mock-auth-command: no results",
+  .header = "testscheme no-write",
+  .warning = "*JSON data was empty"
+};
+
 int
 main (int argc,
       char *argv[])
@@ -305,6 +452,20 @@ main (int argc,
   g_test_add ("/auth/headers-bad", Test, NULL, setup, test_headers_bad, teardown);
   g_test_add ("/auth/idle-timeout", Test, NULL, setup, test_idle_timeout, teardown);
   g_test_add ("/auth/process-timeout", Test, NULL, setup, test_process_timeout, teardown);
-
+  g_test_add ("/auth/custom-success", Test, NULL, setup_normal, test_custom_success, teardown_normal);
+  g_test_add ("/auth/custom-fail-auth", Test, &fixture_auth_failed,
+              setup_normal, test_custom_fail, teardown_normal);
+  g_test_add ("/auth/custom-denied-auth", Test, &fixture_auth_denied,
+              setup_normal, test_custom_fail, teardown_normal);
+  g_test_add ("/auth/custom-no-user", Test, &fixture_auth_no_user,
+              setup_normal, test_custom_fail, teardown_normal);
+  g_test_add ("/auth/custom-with-error", Test, &fixture_auth_with_error,
+              setup_normal, test_custom_fail, teardown_normal);
+  g_test_add ("/auth/custom-no-write", Test, &fixture_auth_no_write,
+              setup_normal, test_custom_fail, teardown_normal);
+  g_test_add ("/auth/none", Test, &fixture_auth_none,
+              setup_normal, test_custom_fail, teardown_normal);
+  g_test_add ("/auth/bad-command", Test, &fixture_bad_command,
+              setup_normal, test_bad_command, teardown_normal);
   return g_test_run ();
 }

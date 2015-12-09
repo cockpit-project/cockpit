@@ -168,11 +168,30 @@ write_auth_begin (int result_code)
    * JSON objects do not parse.
    *
    * In addition this is not a cross platform message. We are sending
-   * to cockpit-ws running on the same machine. PAM codes will be
-   * identical and should all be understood by cockpit-ws.
+   * to cockpit-ws running on the same machine.
    */
 
   fprintf (authf, "{ \"result-code\": %d", result_code);
+
+  if (result_code == PAM_AUTH_ERR || result_code == PAM_USER_UNKNOWN)
+    {
+      write_auth_string ("error", "authentication-failed");
+    }
+  else if (result_code == PAM_PERM_DENIED)
+    {
+      write_auth_string ("error", "permission-denied");
+    }
+  else if (result_code == PAM_AUTHINFO_UNAVAIL)
+    {
+      write_auth_string ("error", "authentication-unavailable");
+    }
+  else if (result_code != PAM_SUCCESS)
+    {
+      write_auth_string ("error", "pam-error");
+    }
+
+  if (result_code != PAM_SUCCESS)
+    write_auth_string ("message", pam_strerror (NULL, result_code));
 
   debug ("wrote result %d to cockpit-ws", result_code);
 }

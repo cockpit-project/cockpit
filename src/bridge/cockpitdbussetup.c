@@ -36,8 +36,8 @@ const gchar *cockpit_bridge_path_passwd = "/etc/passwd";
 const gchar *cockpit_bridge_path_group = "/etc/group";
 const gchar *cockpit_bridge_path_shadow = "/etc/shadow";
 
-const gchar *cockpit_bridge_path_newusers = "/usr/sbin/newusers";
-const gchar *cockpit_bridge_path_chpasswd = "/usr/sbin/chpasswd";
+const gchar *cockpit_bridge_path_newusers = PATH_NEWUSERS;
+const gchar *cockpit_bridge_path_chpasswd = PATH_CHPASSWD;
 const gchar *cockpit_bridge_path_usermod = PATH_USERMOD;
 
 #ifdef HAVE_NEWUSERS_CRYPT_METHOD

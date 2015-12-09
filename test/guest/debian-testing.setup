@@ -67,12 +67,13 @@ curl \
 useradd -m -U -c Administrator -G sudo -s /bin/bash admin
 echo admin:foobar | chpasswd
 
-# Upgrade to testing
+# Upgrade to unstable
 #
-echo "deb http://ftp.uk.debian.org/debian testing main" >/etc/apt/sources.list
-
+echo "deb http://ftp.uk.debian.org/debian unstable main" >/etc/apt/sources.list
+export DEBIAN_FRONTEND=noninteractive
 apt-get -y update
 apt-get -y dist-upgrade
+
 apt-get -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # Enable a console on ttyS0 so that we can log-in via vm-run.

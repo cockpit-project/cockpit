@@ -967,9 +967,14 @@ on_channel_exit_status (ssh_session session,
     {
       problem = "no-cockpit";
     }
+  else if (!self->received_frame)
+    {
+      g_message ("%s: spawning remote bridge failed with %d status", self->logname, exit_status);
+      problem = "no-cockpit";
+    }
   else if (exit_status)
     {
-      g_warning ("%s: bridge exited with %d status", self->logname, exit_status);
+      g_message ("%s: remote bridge exited with %d status", self->logname, exit_status);
       problem = "internal-error";
     }
   if (!self->problem)

@@ -74,6 +74,42 @@ Origins = https://somedomain1.com https://somedomain2.com:9090
     </variablelist>
   </refsect1>
 
+  <refsect1 id="oauth">
+	  <title>OAuth</title>
+        <para>Cockpit can be configured to support the <ulink url="https://tools.ietf.org/html/rfc6749#section-4.2">
+        implicit grant</ulink> OAuth authorization flow. When successful the resulting oauth
+        token will be passed to cockpit-ws using the <literal>Bearer</literal> auth-scheme.
+        For a login to be successful, cockpit will also need a to be configured to verify
+        and allow <literal>Bearer</literal> tokens.</para>
+	<variablelist>
+	  <varlistentry>
+	    <term><option>URL</option></term>
+	    <listitem>
+          <para>This is the url that cockpit will redirect the users browser to when it needs
+          to obtain an oauth token. Cockpit will add a redirect_uri parameter to the url with
+          the location of where the oauth provider should redirect to once a token has been
+          obtained.</para>
+        </listitem>
+      </varlistentry>
+	  <varlistentry>
+	    <term><option>ErrorParam</option></term>
+	    <listitem>
+          <para>When a oauth provider redirects a user back to cockpit, look for this parameter
+          in the querystring or fragment portion of the url to find a error message. When not
+          provided it will default to <literal>error_description</literal></para>
+        </listitem>
+      </varlistentry>
+	  <varlistentry>
+	    <term><option>TokenParam</option></term>
+	    <listitem>
+          <para>When a oauth provider redirects a user back to cockpit, look for this parameter
+          in the querystring or fragment portion of the url to find the access token. When not
+          provided it will default to <literal>access_token</literal></para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
   <refsect1>
     <title>BUGS</title>
     <para>

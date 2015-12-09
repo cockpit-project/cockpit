@@ -224,6 +224,26 @@ cockpit_handler_external (CockpitWebServer *server,
 }
 
 
+static void
+add_oauth_to_environment (JsonObject *environment)
+{
+  static const gchar *url;
+  JsonObject *object;
+
+  url = cockpit_conf_string ("OAuth", "URL");
+
+  if (url)
+    {
+      object = json_object_new ();
+      json_object_set_string_member (object, "URL", url);
+      json_object_set_string_member (object, "ErrorParam",
+                                     cockpit_conf_string ("oauth", "ErrorParam"));
+      json_object_set_string_member (object, "TokenParam",
+                                     cockpit_conf_string ("oauth", "TokenParam"));
+      json_object_set_object_member (environment, "OAuth", object);
+  }
+}
+
 static GBytes *
 build_environment (GHashTable *os_release)
 {
@@ -252,6 +272,8 @@ build_environment (GHashTable *os_release)
         json_object_set_string_member (osr, key, value);
       json_object_set_object_member (object, "os-release", osr);
     }
+
+  add_oauth_to_environment (object);
 
   bytes = cockpit_json_write_bytes (object);
   json_object_unref (object);

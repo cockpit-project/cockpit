@@ -87,8 +87,12 @@ Requires: %{name}-networkmanager = %{version}-%{release}
 Requires: %{name}-ws = %{version}-%{release}
 Requires: %{name}-shell = %{version}-%{release}
 Requires: %{name}-storaged = %{version}-%{release}
+
+# Fedora does not want docker in its default install after F24
+%if 0%{?fedora} == 0 || 0%{?fedora} < 24
 %ifarch x86_64 armv7hl
 Requires: %{name}-docker = %{version}-%{release}
+%endif
 %endif
 %if 0%{?rhel}
 Requires: %{name}-subscriptions = %{version}-%{release}

@@ -34,10 +34,10 @@ def fix_hostkey(m, key=None):
     m.execute("echo '{0}' > /var/lib/cockpit/known_hosts".format(key))
 
 def break_bridge(m):
-    m.execute("mv /bin/cockpit-bridge /bin/cockpit-bridge-mv")
+    m.execute("ln -snf /bin/false /usr/local/bin/cockpit-bridge")
 
 def fix_bridge(m):
-    m.execute("mv /bin/cockpit-bridge-mv /bin/cockpit-bridge")
+    m.execute("rm /usr/local/bin/cockpit-bridge")
 
 def check_failed_state(b, expected_title):
     b.wait_present("#troubleshoot-dialog .btn-default:not([disabled])")
@@ -429,6 +429,7 @@ class TestMultiMachine(MachineCase):
         self.allow_journal_messages('.*: couldn\'t connect: Connection refused',
                                     '.* failed to retrieve resource: hostkey-changed',
                                     '.* host key for server has changed to: .*',
+                                    '.* spawning remote bridge failed .*',
                                     '.*: received truncated .*')
 
 if __name__ == '__main__':

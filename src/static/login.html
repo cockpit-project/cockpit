@@ -11,7 +11,29 @@
 
         (function(console) {
             var environment = window.environment || { };
+            var oauth = environment.OAuth || null;
+            if (oauth) {
+                if (!oauth.TokenParam)
+                    oauth.TokenParam = "access_token";
+                if (!oauth.ErrorParam)
+                    oauth.ErrorParam = "error_description";
+            }
+
             var login_path;
+            var qs_re = /[?&]?([^=]+)=([^&]*)/g;
+            var oauth_redirect_to = null;
+
+            function QueryParams(qs) {
+                qs = qs.split('+').join(' ');
+
+                var params = {};
+                var tokens;
+
+                while (tokens = qs_re.exec(qs)) {
+                    params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+                }
+                return params;
+            }
 
             function unquote(str) {
                 str = str.trim();
@@ -34,6 +56,14 @@
             function fatal(msg) {
                 if (window.console)
                     console.warn("fatal:", msg);
+
+                id("login-again").style.display = "none";
+                id("login-wait-validating").style.display = "none";
+
+                if (oauth_redirect_to) {
+                    id("login-again").href = oauth_redirect_to;
+                    id("login-again").style.display = "block";
+                }
 
                 id("login").style.display = 'none';
                 id("login-details").style.display = 'none';
@@ -111,15 +141,19 @@
                 localStorage.setItem('os-release', os_release);
 
                 /* Try automatic/kerberos authentication? */
-                if (sessionStorage.getItem("logout-intent") == "explicit") {
+                if (oauth) {
+                    id("login-details").style.display = 'none';
+                    id("login").style.display = 'none';
+                    oauth_auto_login();
+                } else if (sessionStorage.getItem("logout-intent") == "explicit") {
                     sessionStorage.removeItem("logout-intent");
                     show_login();
                 } else {
-                    auto_login();
+                    standard_auto_login();
                 }
             }
 
-            function auto_login() {
+            function standard_auto_login() {
                 var xhr = new XMLHttpRequest();
                 xhr.open("GET", login_path, true);
                 xhr.onreadystatechange = function () {
@@ -138,6 +172,53 @@
                     }
                 };
                 xhr.send();
+            }
+
+            function oauth_auto_login() {
+                if (!oauth.URL)
+                    return fatal("Cockpit authentication is configured incorrectly.");
+
+                var query = QueryParams(window.location.search);
+                if (!window.location.search && window.location.hash)
+                    query = QueryParams(window.location.hash.slice(1));
+
+                /* Not all providers allow hashes in redirect urls */
+                var url_parts = window.location.href.split('#', 2);
+
+                var token_val;
+                oauth_redirect_to = oauth.URL;
+                if (oauth.URL.indexOf("?") > -1)
+                    oauth_redirect_to += "&";
+                else
+                    oauth_redirect_to += "?";
+                oauth_redirect_to += "redirect_uri=" + encodeURIComponent(url_parts[0]);
+
+                if (query[oauth.TokenParam]) {
+                    token_val = query[oauth.TokenParam];
+                    id("login-wait-validating").style.display = "block";
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("GET", login_path, true);
+                    xhr.setRequestHeader("Authorization", "Bearer " + token_val);
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState != 4) {
+                            return;
+                        } else if (xhr.status == 200) {
+                            run(JSON.parse(xhr.responseText));
+                        } else {
+                            fatal(xhr.statusText);
+                        }
+                    };
+                    xhr.send();
+                } else if (query[oauth.ErrorParam]) {
+                    fatal(query[oauth.ErrorParam]);
+                } else {
+                    /* Store url we originally wanted in case we
+                     * had to strip a hash or query params
+                     */
+                    window.sessionStorage.setItem('login-wanted',
+                                                  window.location.href);
+                    window.location = oauth_redirect_to;
+                }
             }
 
             function login_failure(msg) {
@@ -225,8 +306,23 @@
             }
 
             function run(response) {
+                var wanted = window.sessionStorage.getItem('login-wanted');
+                var str;
                 window.sessionStorage.clear();
-                window.location.reload(true);
+
+                if (response && response["login-data"]) {
+                    str = JSON.stringify(response["login-data"]);
+                    try {
+                        window.sessionStorage.setItem('login-data', str);
+                    } catch(ex) {
+                        console.warn("Error storing login-data:", ex);
+                    }
+                }
+
+                if (wanted && wanted != window.location.href)
+                    window.location = wanted;
+                else
+                    window.location.reload(true);
             }
 
             window.onload = boot;
@@ -703,6 +799,12 @@ label {
   width: 24px;
 }
 
+.spinner-inline {
+  display: inline-block;
+  margin-right: 3px;
+  vertical-align: middle;
+}
+
         /* Login page specific overrides */
         body {
             color: #fff;
@@ -752,7 +854,7 @@ label {
         </div><!--/.col-*-->
 
         <div id="login" class="col-sm-7 col-md-6 col-lg-5 login-area" style="visibility: hidden;">
-          <div class="form-horizontal" role="form">
+          <div id="login-form" class="form-horizontal" role="form">
             <div class="form-group login-form">
               <label for="login-user-input" class="col-sm-2 col-md-2 control-label">User name</label>
               <div class="col-sm-10 col-md-10">
@@ -789,8 +891,19 @@ label {
           <p class="login-note">Log in with your server user account.</p>
         </div><!--/.col-*-->
 
+        <div style="display: none;" class="col-sm-7 col-md-6 col-lg-5" id="login-wait-validating">
+          <div class=" col-xs-12 col-sm-offset-2 col-sm-6">
+            <span class="help-block" id="login-error-message">Validating authentication token</span>
+          </div>
+          <div class="col-sm-1">
+            <div class="spinner col-xs-15" id="login-spinner">
+            </div>
+          </div>
+        </div>
+
         <div id="login-fatal" style="display: none;">
           <span id="login-fatal-message"></span>
+          <a style="display: none;" id="login-again">Try Again</a>
         </div>
 
       </div><!--/.row-->

@@ -978,6 +978,7 @@ function full_scope(cockpit, $, po) {
     }
 
     cockpit.logout = function logout(reload) {
+        window.sessionStorage.clear();
         if (reload !== false)
             reload_after_disconnect = true;
         ensure_transport(function(transport) {

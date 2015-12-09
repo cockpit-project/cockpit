@@ -18,25 +18,18 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import sys
+import os
+import unittest
 
+import avocadolib
 import testvm
 from testlib import *
 
 avocado_tests = ["selenium-login.py"]
 
-
-class TestAvocadoSuite(MachineCase):
-
-    def setUp(self):
-        MachineCase.setUp(self)
-        self.selenium = self.new_machine(image="selenium")
-        self.selenium.start()
-        self.selenium.wait_boot()
-        # start selenium on the server
-        self.selenium.execute("/root/selenium_start.sh")
-
+@unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "atomic: missing avocado")
+class TestAvocadoSeleniumSuite(MachineCase):
     def wait_for_selenium_running(self, host, port=4444):
         """Wait until selenium is running.
         """
@@ -49,35 +42,46 @@ done;
             with Timeout(seconds=30, error_message="Timeout while waiting for selenium to start"):
                 self.machine.execute(script=WAIT_SELENIUM_RUNNING)
 
-    def testAvocado(self):
-        m = self.machine
-        b = self.browser
-
+    def setUp(self):
+        MachineCase.setUp(self)
         self.start_cockpit()
-        machine_test_dir = "/tmp/avocado_tests"
-        m.execute(command="mkdir /p " + MachineCase.avocado_results_dir)
-        # first upload all of the tests to the target machine
-        m.upload([os.path.join(m.test_dir, "avocado")], machine_test_dir)
 
+        self.selenium = self.new_machine(image="selenium")
+        self.selenium.start()
+        self.selenium.wait_boot()
+        # start selenium on the server
+        self.selenium.execute(command="/root/selenium_start.sh")
+
+        self.allow_journal_messages("Error receiving data: Connection reset by peer",
+                                    "connection unexpectedly closed by peer"
+                                   )
+        avocadolib.prepare_avocado_tests(self.machine)
+        self.machine.execute("adduser test")
+        self.machine.execute("echo superhardpasswordtest5554 | passwd --stdin test")
+        self.machine.execute("usermod -a -G wheel test")
+
+        self.wait_for_selenium_running(self.selenium.address)
+
+    def testAvocadoSeleniumFirefox(self):
         # GUEST needs to be the address of the machine
         # cockpit runs on from the selenium HUB's viewpoint
         # run these tests from the result directory
-        cmd_parts = ["HUB=" + self.selenium.address,
-                     "BROWSER=firefox",
-                     "GUEST=" + m.address,
-                     "avocado run",
-                     "--job-results-dir " + MachineCase.avocado_results_dir,
-                     machine_test_dir + "/selenium-login.py"
-                     ]
+        env = [ "HUB=" + self.selenium.address,
+                "BROWSER=firefox",
+                "GUEST=" + self.machine.address
+              ]
+        if not avocadolib.run_avocado(machine=self.machine, avocado_tests=avocado_tests, print_failed=True, env=env):
+            self.fail("avocado tests failed")
 
-        m.execute("adduser test")
-        m.execute("echo superhardpasswordtest5554 | passwd --stdin test")
-        m.execute("usermod -a -G wheel test")
-
-        self.wait_for_selenium_running(self.selenium.address)
-        try:
-            m.execute(" ".join(cmd_parts))
-        except:
+    def testAvocadoSeleniumChrome(self):
+        # GUEST needs to be the address of the machine
+        # cockpit runs on from the selenium HUB's viewpoint
+        # run these tests from the result directory
+        env = [ "HUB=" + self.selenium.address,
+                "BROWSER=chrome",
+                "GUEST=" + self.machine.address
+              ]
+        if not avocadolib.run_avocado(machine=self.machine, avocado_tests=avocado_tests, print_failed=True, env=env):
             self.fail("avocado tests failed")
 
 if __name__ == '__main__':

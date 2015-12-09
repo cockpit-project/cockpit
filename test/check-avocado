@@ -19,46 +19,27 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import sys
+import unittest
 
-import testvm
+import avocadolib
 from testlib import *
 
-avocado_tests = ["checkexample-foo.py",
-                 "checklogin-basic.py",  "checklogin-raw.py", ]
+avocado_tests = ["checklogin-basic.py",
+                 "checklogin-raw.py",
+                ]
 
-
+@unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "atomic: missing avocado")
 class TestAvocadoSuite(MachineCase):
 
     def setUp(self):
         MachineCase.setUp(self)
-        self.machine_test_dir = "/tmp/avocado_tests"
-        self.m = self.machine
-        self.workaround()
         self.start_cockpit()
 
-    def workaround(self):
-        self.m.execute("yum -y install npm fontconfig")
-        self.m.execute("npm -g install phantomjs")
-
     def testAvocado(self):
-        self.m.execute(command="mkdir -p " + MachineCase.avocado_results_dir)
-        # first upload all of the tests to the target machine
-        self.m.upload([os.path.join(self.m.test_dir, "avocado")],
-                      self.machine_test_dir)
-        # upload sizzle.js to proper dir
-        self.m.upload([os.path.join(self.m.test_dir, "sizzle.js")],
-                      self.machine_test_dir)
+        self.allow_journal_messages("Error receiving data: Connection reset by peer")
+        avocadolib.prepare_avocado_tests(self.machine)
 
-        cmd_parts = ["avocado run",
-                     "--job-results-dir " + MachineCase.avocado_results_dir,
-                     ' '.join([self.machine_test_dir +
-                               os.sep + x for x in avocado_tests])
-                     ]
-
-        try:
-            self.m.execute(" ".join(cmd_parts))
-        except:
+        if not avocadolib.run_avocado(machine=self.machine, avocado_tests=avocado_tests, print_failed=True):
             self.fail("avocado tests failed")
 
 if __name__ == '__main__':

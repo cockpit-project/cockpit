@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 set -ex
 
@@ -16,23 +16,29 @@ echo foobar | passwd --stdin root
 # the distribution repository is updated.
 #
 COCKPIT_DEPS="\
-avocado \
-json-glib \
-realmd \
-glib-networking \
-libssh \
-selinux-policy-targeted \
+atomic \
+device-mapper-multipath \
 docker \
-pcp-libs \
-pcp \
-kubernetes \
 etcd \
-subscription-manager \
+glib-networking \
+json-glib \
+kubernetes \
+libssh \
+pcp \
+pcp-libs \
+realmd \
+selinux-policy-targeted \
+sos \
 storaged \
 storaged-lvm2 \
-device-mapper-multipath \
-atomic \
-sos \
+subscription-manager \
+"
+
+AVOCADO_TEST_DEPS="\
+avocado \
+fontconfig \
+npm \
+python-selenium \
 "
 
 # We also install the packages necessary to join a FreeIPA domain so
@@ -80,7 +86,10 @@ dnf -y copr enable phatina/storaged
 # We need avocado for some integration tests
 dnf -y -q copr enable lmr/Autotest
 
-dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES $AVOCADO_TEST_DEPS
+
+# integration tests need phantomjs to run locally
+npm -g install phantomjs
 
 # Prepare for building
 dnf -y install mock rpm-build

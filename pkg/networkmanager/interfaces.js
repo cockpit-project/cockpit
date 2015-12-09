@@ -143,12 +143,7 @@ function NetworkManagerModel() {
     var self = this;
     var byteorder = null;
 
-    /* HACK - https://github.com/cockpit-project/cockpit/issues/3310
-     *
-     * Older versions of NetworkManager don't allow remote network control.
-     * https://bugzilla.redhat.com/show_bug.cgi?id=1145646
-     */
-    var client = cockpit.dbus("org.freedesktop.NetworkManager", { superuser: true });
+    var client = cockpit.dbus("org.freedesktop.NetworkManager");
 
     self.client = client;
 
@@ -1250,9 +1245,6 @@ function make_network_plot_setup_hook(unit) {
     };
 }
 
-/* HACK - https://github.com/cockpit-project/cockpit/issues/3310
- * Check the NetworkManager polkit policy.
- */
 var permission = cockpit.permission({ admin: true });
 $(permission).on("changed", update_network_privileged);
 

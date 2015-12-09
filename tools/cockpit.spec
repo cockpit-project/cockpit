@@ -82,17 +82,31 @@ BuildRequires: krb5-server
 # For documentation
 BuildRequires: xmlto
 
+# Mandatory components of "cockpit"
 Requires: %{name}-bridge = %{version}-%{release}
-Requires: %{name}-networkmanager = %{version}-%{release}
 Requires: %{name}-ws = %{version}-%{release}
 Requires: %{name}-shell = %{version}-%{release}
+
+# Optional components (for f24 we use soft deps)
+%if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
+Recommends: %{name}-networkmanager = %{version}-%{release}
+Recommends: %{name}-storaged = %{version}-%{release}
+%ifarch x86_64 armv7hl
+Recommends: %{name}-docker = %{version}-%{release}
+%endif
+Suggests: %{name}-pcp = %{version}-%{release}
+Suggests: %{name}-kubernetes = %{version}-%{release}
+
+# Older releases need to have strict requirements
+%else
+Requires: %{name}-networkmanager = %{version}-%{release}
 Requires: %{name}-storaged = %{version}-%{release}
 %ifarch x86_64 armv7hl
 Requires: %{name}-docker = %{version}-%{release}
 %endif
-%if 0%{?rhel}
-Requires: %{name}-subscriptions = %{version}-%{release}
+
 %endif
+
 
 %description
 Cockpit runs in a browser and can manage your network of GNU/Linux

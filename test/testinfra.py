@@ -54,6 +54,7 @@ DEFAULT_VERIFY = {
 
 TESTING = "Testing in progress"
 NOT_TESTED = "Not yet tested"
+NO_TESTING = "Manual testing required"
 
 __all__ = (
     'Sink',
@@ -193,6 +194,9 @@ class GitHub(object):
                 raise
         self.available = self.token and True or False
 
+        # Try to load the whitelists
+        self.whitelist = read_whitelist()
+
     def qualify(self, resource):
         return urlparse.urljoin(self.base, resource)
 
@@ -287,20 +291,19 @@ class GitHub(object):
 
         if update:
             if priority <= 0:
-                update["description"] = "Manual testing required"
+                update["description"] = NO_TESTING
             else:
                 update["description"] = NOT_TESTED
 
         return [priority, update]
 
     def scan(self, update, context):
-        whitelist = read_whitelist()
         results = []
 
         # Figure out what contexts/images we need to verify
         contexts = DEFAULT_VERIFY
         if context:
-            contexts = { context: contexts.get(context, [ "master" ]) }
+            contexts = { context: contexts.get(context, [ ]) }
 
         master_contexts = []
         pull_contexts = []
@@ -325,26 +328,34 @@ class GitHub(object):
                 results.append((priority, "master", revision, "master", context))
                 update_status(revision, context, status, changes)
 
-        if pull_contexts:
-            pulls = self.get("pulls")
-            for pull in pulls:
+        pulls = self.get("pulls")
+        for pull in pulls:
+            number = pull["number"]
+            labels = self.labels(number)
+            revision = pull["head"]["sha"]
+            statuses = self.statuses(revision)
+            login = pull["head"]["user"]["login"]
+
+            for context in contexts.keys():
+                status = statuses.get(context, None)
                 baseline = 10
 
-                # It needs to be in the whitelist
-                login = pull["head"]["user"]["login"]
-                if login not in whitelist:
-                    baseline = 0
+                # Only create new status for those requested
+                if not status:
+                    if context not in pull_contexts:
+                        continue
+                    status = { }
 
-                number = pull["number"]
-                labels = self.labels(number)
-                revision = pull["head"]["sha"]
-                statuses = self.statuses(revision)
+                # For unmarked and untested status, user must be in whitelist
+                # Not this only applies to this specific commit. A new status
+                # will apply if the user pushes a new commit.
+                if login not in self.whitelist:
+                    if status.get("description", NO_TESTING) == NO_TESTING:
+                        baseline = 0
 
-                for context in pull_contexts:
-                    status = statuses.get(context, { })
-                    (priority, changes) = self.prioritize(status, labels, baseline)
-                    results.append((priority, "pull-%d" % number, revision, "pull/%d/head" % number, context))
-                    update_status(revision, context, status, changes)
+                (priority, changes) = self.prioritize(status, labels, baseline)
+                results.append((priority, "pull-%d" % number, revision, "pull/%d/head" % number, context))
+                update_status(revision, context, status, changes)
 
         # Only work on tasks that have a priority greater than zero
         def filter_tasks(task):
@@ -402,31 +413,6 @@ class GitHub(object):
                 else:
                     sys.stdout.write("{0}: {1}\n".format(entry, entries[0][1]))
 
-    def trigger(self, pull_number, force=False, context=None):
-        if not context:
-            context = DEFAULT_IMAGE
-        sys.stderr.write("triggering pull {0} for context {1}\n".format(pull_number, context))
-        pull = self.get("pulls/" + pull_number)
-
-        # triggering is manual, so don't prevent triggering a user that isn't on the whitelist
-        # but issue a warning in case of an oversight
-        whitelist = read_whitelist()
-        login = pull["head"]["user"]["login"]
-        if login not in whitelist:
-            sys.stderr.write("warning: pull request author '{0}' isn't in github-whitelist.\n".format(login))
-
-        revision = pull['head']['sha']
-        statuses = self.statuses(revision)
-        status = statuses.get(context, { })
-        if status.get("state", "empty") not in ["empty", "error", "failure"]:
-            if force:
-                sys.stderr.write("Pull request isn't in error state, but forcing update.\n")
-            else:
-                sys.stderr.write("Pull request isn't in error state. Status is: '{0}'\n".format(status["state"]))
-                return
-
-        changes = { "state": "pending", "description": NOT_TESTED, "context": context }
-        self.post("statuses/" + revision, changes)
 
 if __name__ == '__main__':
     github = GitHub("/repos/cockpit-project/cockpit/")

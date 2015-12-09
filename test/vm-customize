@@ -1,0 +1,97 @@
+#!/usr/bin/env python
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import os
+import sys
+import subprocess
+import re
+
+import testvm
+import testinfra
+
+parser = argparse.ArgumentParser(
+    description='Run command inside or install packages into a Cockpit virtual machine')
+parser.add_argument('-v', '--verbose', action='store_true',
+                    help='Display verbose progress details')
+parser.add_argument('-i', '--install', action='append',
+                    dest="yumlist", default=[], help='Install packages')
+parser.add_argument('-r', '--run-command', action='append', dest="commandlist",
+                    default=[], help='Run command inside virtual machine')
+parser.add_argument('-s', '--script', action='append', dest="scriptlist",
+                    default=[], help='Run selected script inside virtual machine')
+parser.add_argument('image', nargs='?',
+                    default=testinfra.DEFAULT_IMAGE, help='The image to use')
+args = parser.parse_args()
+
+
+def run_command(machine_instance, commandlist):
+    """Run command inside image"""
+    for foo in commandlist:
+        machine_instance.message("Executing: " + foo)
+        machine_instance.execute(foo)
+
+
+def run_script(machine_instance, scriptlist):
+    """Run script inside image"""
+    allscripts = []
+    for foo in scriptlist:
+        if os.path.isfile(foo):
+            pname = os.path.basename(foo)
+            uploadpath = "/var/tmp/" + pname
+            machine_instance.upload([foo], uploadpath)
+            machine_instance.execute("chmod a+x %s" % uploadpath)
+            machine_instance.execute(uploadpath)
+        else:
+            machine_instance.message("Bad path to script: " + foo)
+
+
+def install_packages(machine_instance, yumlist):
+    """Install packages into a test image
+    It could be done via local rpms or normal package installation
+    """
+    allpackages = []
+    for foo in yumlist:
+        if os.path.isfile(foo):
+            pname = os.path.basename(foo)
+            machine_instance.upload([foo], "/var/tmp/" + pname)
+            allpackages.append("/var/tmp/" + pname)
+        elif not re.search("/", foo):
+            allpackages.append(foo)
+        else:
+            machine_instance.message("Bad package name or path: " + foo)
+    if allpackages:
+        machine_instance.message("Installing: " + ' '.join(allpackages))
+        machine_instance.execute("yum install -y " + ' '.join(allpackages))
+
+
+current_image = args.image
+if args.commandlist or args.yumlist or args.scriptlist:
+    machine = testvm.VirtMachine(
+        verbose=args.verbose, image=current_image, label="install")
+    machine.start(maintain=True)
+    machine.wait_boot()
+    try:
+        if args.commandlist:
+            run_command(machine, args.commandlist)
+        if args.yumlist:
+            install_packages(machine, args.yumlist)
+        if args.scriptlist:
+            run_script(machine, args.scriptlist)
+    finally:
+        machine.stop()

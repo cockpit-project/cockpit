@@ -57,6 +57,7 @@ def stdchannel_redirected(stdchannel, dest_filename):
         noisy_function()
     """
     try:
+        stdchannel.flush()
         oldstdchannel = os.dup(stdchannel.fileno())
         dest_file = open(dest_filename, 'w')
         os.dup2(dest_file.fileno(), stdchannel.fileno())
@@ -300,16 +301,15 @@ class Machine:
             "-P", str(self.ssh_port),
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
-            "-o", "UserKnownHostsFile=/dev/null",
-        ] + sources + [ "%s@[%s]:%s" % (self.vm_username, self.address, dest), ]
+            "-o", "UserKnownHostsFile=/dev/null"
+          ]
+        if not self.verbose:
+            cmd += [ "-q" ]
+        cmd += sources + [ "%s@[%s]:%s" % (self.vm_username, self.address, dest) ]
 
         self.message("Uploading", ", ".join(sources))
         self.message(" ".join(cmd))
-        if self.verbose:
-            subprocess.check_call(cmd)
-        else:
-            with stdchannel_redirected(sys.stderr, os.devnull):
-                subprocess.check_call(cmd)
+        subprocess.check_call(cmd)
 
     def download(self, source, dest):
         """Download a file from the test machine.
@@ -323,8 +323,10 @@ class Machine:
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
-            "%s@[%s]:%s" % (self.vm_username, self.address, source), dest
-        ]
+            ]
+        if not self.verbose:
+            cmd += ["-q"]
+        cmd += [ "%s@[%s]:%s" % (self.vm_username, self.address, source), dest ]
 
         self.message("Downloading", source)
         self.message(" ".join(cmd))
@@ -344,8 +346,10 @@ class Machine:
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
             "-r",
-            "%s@[%s]:%s" % (self.vm_username, self.address, source), dest
-        ]
+          ]
+        if not self.verbose:
+            cmd += ["-q"]
+        cmd += [ "%s@[%s]:%s" % (self.vm_username, self.address, source), dest ]
 
         self.message("Downloading", source)
         self.message(" ".join(cmd))
@@ -954,7 +958,7 @@ class VirtMachine(Machine):
             raise Failure("Machine %s didn't start." % (self.address))
 
         # if we allow a reboot, the connection to test for a finished boot may be interrupted
-        # by the reboot, causing the exception
+        # by the reboot, causing an exception
         try:
             start_time = time.time()
             connected = False
@@ -962,7 +966,7 @@ class VirtMachine(Machine):
                 if Machine.wait_ssh(self, timeout_sec=15, get_new_address = lambda: self._ip_from_mac(self.macaddr, timeout_sec=3)):
                     connected = True
                     break
-                if self.event_handler.has_rebooted(self._domain):
+                if allow_one_reboot and self.event_handler.has_rebooted(self._domain):
                     self.reset_reboot_flag()
                     self.wait_boot(wait_for_running_timeout, allow_one_reboot=False)
             if not connected:

@@ -20,6 +20,9 @@
 
 set -ex
 
+# Make sure docker is up and running
+systemctl start docker
+
 docker run -d -p 4444:4444 --name selenium-hub selenium/hub:2.48.2
 docker run -d --link selenium-hub:hub selenium/node-chrome:2.48.2
 docker run -d --link selenium-hub:hub selenium/node-firefox:2.48.2

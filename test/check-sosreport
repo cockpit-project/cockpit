@@ -19,8 +19,12 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 from testlib import *
-import subprocess
 
+import os
+import subprocess
+import unittest
+
+@unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "atomic: missing sosreport")
 class TestSOS(MachineCase):
     def testBasic(self):
         b = self.browser

@@ -48,6 +48,7 @@ DEFAULT_VERIFY = {
     'fedora-22': [ 'master', 'pulls' ],
     'fedora-23': [ 'master', 'pulls' ],
     'rhel-7': [ 'master', 'pulls' ],
+    'debian-8': [ 'master', 'pulls' ],
     'fedora-atomic': [ 'master' ],
     'fedora-testing': [ 'master' ],
 }

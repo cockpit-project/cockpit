@@ -18,6 +18,8 @@
  */
 #include "config.h"
 
+FAIL
+
 #include "cockpitchannel.h"
 #include "cockpitdbusinternal.h"
 #include "cockpitdbusjson.h"

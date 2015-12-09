@@ -45,10 +45,10 @@ HOSTNAME = socket.gethostname().split(".")[0]
 DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-22")
 
 DEFAULT_VERIFY = {
-    'fedora-22': [ 'master', 'pulls' ],
+    'fedora-22': [ 'master' ],
     'fedora-23': [ 'master', 'pulls' ],
     'rhel-7': [ 'master', 'pulls' ],
-    'fedora-atomic': [ 'master' ],
+    'fedora-atomic': [ 'master', 'pulls' ],
     'fedora-testing': [ 'master' ],
 }
 

@@ -31,12 +31,12 @@ class TestServices(MachineCase):
 Description=Test Service
 
 [Service]
-ExecStart=/bin/sh /usr/bin/test-service
+ExecStart=/bin/sh /usr/local/bin/test-service
 
 [Install]
 WantedBy=default.target
 """)
-        m.write("/usr/bin/test-service",
+        m.write("/usr/local/bin/test-service",
 """
 #! /bin/sh
 
@@ -62,7 +62,7 @@ ExecStart=/usr/bin/false
 Description=Test Template for %I
 
 [Service]
-ExecStart=/usr/bin/test-service %I
+ExecStart=/usr/local/bin/test-service %I
 """)
 
         self.login_and_go("/system/services")

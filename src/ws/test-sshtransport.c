@@ -598,10 +598,17 @@ test_ignore_hostkey (TestCase *tc,
                       gconstpointer data)
 {
   const TestFixture *fixture = data;
+  const gchar *json;
   gchar *problem = NULL;
+  GBytes *bytes;
 
   /* This test should validate in spite of not having known_hosts */
   g_assert (fixture->ignore_key == TRUE);
+
+  json = "{\"command\":\"init\",\"version\":1}";
+  bytes = g_bytes_new_static (json, strlen (json));
+  cockpit_transport_send (tc->transport, NULL, bytes);
+  g_bytes_unref (bytes);
 
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
   cockpit_transport_close (tc->transport, NULL);
@@ -667,11 +674,17 @@ static void
 test_expect_host_key (TestCase *tc,
                       gconstpointer data)
 {
+  const gchar *json = "{\"command\":\"init\",\"version\":1}";
   const TestFixture *fixture = data;
   gchar *problem = NULL;
+  GBytes *bytes;
 
   /* This test should validate in spite of not having known_hosts */
   g_assert (fixture->expect_key != NULL);
+
+  bytes = g_bytes_new_static (json, strlen (json));
+  cockpit_transport_send (tc->transport, NULL, bytes);
+  g_bytes_unref (bytes);
 
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
   cockpit_transport_close (tc->transport, NULL);
@@ -754,6 +767,16 @@ static const TestFixture fixture_bad_command = {
 /* Yes this makes a difference with bash, output goes to stdout */
 static const TestFixture fixture_command_not_found = {
   .ssh_command = "nonexistant-command",
+};
+
+/* A valid command that exits with 0 */
+static const TestFixture fixture_command_exits = {
+  .ssh_command = "/usr/bin/true",
+};
+
+/* A valid command that exits with 1 */
+static const TestFixture fixture_command_fails = {
+  .ssh_command = "/usr/bin/false",
 };
 
 static void
@@ -937,6 +960,10 @@ main (int argc,
   g_test_add ("/ssh-transport/bad-command", TestCase, &fixture_bad_command,
               setup_transport, test_no_cockpit, teardown);
   g_test_add ("/ssh-transport/command-not-found", TestCase, &fixture_command_not_found,
+              setup_transport, test_no_cockpit, teardown);
+  g_test_add ("/ssh-transport/command-not-cockpit", TestCase, &fixture_command_exits,
+              setup_transport, test_no_cockpit, teardown);
+  g_test_add ("/ssh-transport/command-just-fails", TestCase, &fixture_command_fails,
               setup_transport, test_no_cockpit, teardown);
   g_test_add ("/ssh-transport/close-while-connecting", TestCase, &fixture_cat,
               setup_transport, test_close_while_connecting, teardown);

@@ -663,16 +663,19 @@ systemctl start docker
             if m.address:
                 dir = "%s-%s-%s.journal" % (label or self.label(), m.address, title)
                 m.download_dir("/var/log/journal", dir)
-                print "Journal database copied to %s" % (dir)
-                log = "%s-%s-%s.log" % (label or self.label(), m.address, title)
-                with open(log, "w") as fp:
-                    subprocess.call(["journalctl", "--directory", dir], stdout=fp)
-                print "Journal extracted to %s" % (log)
-                # compress the journal and attach that
-                archive = "{0}.tar.gz".format(dir)
-                subprocess.call(["tar", "cfz", archive, dir])
-                attach(archive)
-                attach(log)
+                if os.path.exists(dir):
+                    print "Journal database copied to %s" % (dir)
+                    log = "%s-%s-%s.log" % (label or self.label(), m.address, title)
+                    with open(log, "w") as fp:
+                        subprocess.call(["journalctl", "--directory", dir], stdout=fp)
+                    print "Journal extracted to %s" % (log)
+                    # compress the journal and attach that
+                    archive = "{0}.tar.gz".format(dir)
+                    subprocess.call(["tar", "cfz", archive, dir])
+                    attach(archive)
+                    attach(log)
+                else:
+                    print "Journal doesn't exist"
 
     def copy_avocado_logs(self, title, label=None):
         if self.machine.address:

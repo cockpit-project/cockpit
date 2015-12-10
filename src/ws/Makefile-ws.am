@@ -58,6 +58,7 @@ EXTRA_DIST += \
 	src/ws/mock-kdc.conf.in \
 	src/ws/mock-static \
 	src/ws/mock-config.conf \
+	src/ws/mock-auth-command \
 	$(NULL)
 
 # ----------------------------------------------------------------------------------------------------
@@ -88,6 +89,10 @@ cockpit.service : src/ws/cockpit.service.in Makefile.am
 	$(AM_V_GEN) $(SED_SUBST) $< > $@
 nodist_systemdunit_DATA += cockpit.service
 
+mock-auth-command: src/ws/mock-auth-command
+	$(AM_V_GEN) $(SED_SUBST) $< > $@
+	chmod +x $@
+
 cockpit-testing.service : src/ws/cockpit-testing.service.in Makefile
 	$(AM_V_GEN) $(SED_SUBST) $< > $@
 noinst_DATA += cockpit-testing.service
@@ -111,6 +116,7 @@ EXTRA_DIST += \
 CLEANFILES += \
 	cockpit-testing.service \
 	cockpit.service \
+	mock-auth-command \
 	$(NULL)
 
 @INTLTOOL_XML_RULE@
@@ -280,7 +286,9 @@ noinst_PROGRAMS += \
 	$(NULL)
 
 noinst_SCRIPTS += \
-	src/ws/mock-pid-cat
+	src/ws/mock-pid-cat \
+	mock-auth-command \
+	$(NULL)
 
 TESTS += $(WS_CHECKS)
 

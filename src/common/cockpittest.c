@@ -62,6 +62,8 @@ typedef struct {
   const gchar *file;
   int line;
   const gchar *func;
+  gboolean skipable;
+  gboolean optional;
 } ExpectedMessage;
 
 static gint ignore_fatal_count = 0;
@@ -122,6 +124,7 @@ expected_message_handler (const gchar *log_domain,
 {
   gint level = log_level & G_LOG_LEVEL_MASK;
   ExpectedMessage *expected = NULL;
+  GSList *l = NULL;
   gchar *expected_message;
   gboolean skip = FALSE;
 
@@ -130,8 +133,6 @@ expected_message_handler (const gchar *log_domain,
   if (level && expected_messages &&
       (level & G_LOG_LEVEL_DEBUG) == 0)
     {
-      expected = expected_messages->data;
-
       if (log_level & G_LOG_FLAG_FATAL)
         {
           ignore_fatal_count = 1;
@@ -140,16 +141,25 @@ expected_message_handler (const gchar *log_domain,
           g_test_log_set_fatal_handler (expected_fatal_handler, NULL);
         }
 
-      if (g_strcmp0 (expected->log_domain, log_domain) == 0 &&
-          ((log_level & expected->log_level) == expected->log_level) &&
-          g_pattern_match_simple (expected->pattern, message))
+      /* Loop until we find a non-skipable message or have a match */
+      for (l = expected_messages; l != NULL; l = l->next)
         {
-          expected_messages = g_slist_delete_link (expected_messages,
-                                                   expected_messages);
-          g_free (expected->log_domain);
-          g_free (expected->pattern);
-          g_free (expected);
-          skip = TRUE;
+          expected = l->data;
+          if (g_strcmp0 (expected->log_domain, log_domain) == 0 &&
+              ((log_level & expected->log_level) == expected->log_level) &&
+              g_pattern_match_simple (expected->pattern, message))
+            {
+              expected_messages = g_slist_delete_link (expected_messages, l);
+              g_free (expected->log_domain);
+              g_free (expected->pattern);
+              g_free (expected);
+              skip = TRUE;
+              break;
+            }
+          else if (!expected->skipable)
+            {
+              break;
+            }
         }
     }
 
@@ -162,7 +172,8 @@ expected_message_handler (const gchar *log_domain,
 
   if (expected)
     {
-      expected_message = g_strdup_printf ("Did not see expected %s-%s: %s",
+      expected_message = g_strdup_printf ("Got unexpected message: %s instead of %s-%s: %s",
+                                          message,
                                           expected->log_domain,
                                           calc_prefix (expected->log_level),
                                           expected->pattern);
@@ -226,7 +237,9 @@ _cockpit_expect_logged_msg (const char *domain,
                             int line,
                             const gchar *func,
                             GLogLevelFlags log_level,
-                            const gchar *pattern)
+                            const gchar *pattern,
+                            gboolean skipable,
+                            gboolean optional)
 {
   ExpectedMessage *expected;
 
@@ -244,6 +257,8 @@ _cockpit_expect_logged_msg (const char *domain,
   expected->file = file;
   expected->line = line;
   expected->func = func;
+  expected->skipable = optional ? TRUE : skipable;
+  expected->optional = optional;
 
   G_LOCK (expected);
   expected_messages = g_slist_append (expected_messages, expected);
@@ -262,24 +277,30 @@ cockpit_assert_expected (void)
 {
   ExpectedMessage *expected = NULL;
   gchar *message = NULL;
-
+  GSList *l = NULL;
   g_assert (cockpit_test_init_was_called);
 
   G_LOCK (expected);
 
   if (expected_messages)
     {
-      expected = expected_messages->data;
-
-      message = g_strdup_printf ("Did not see expected %s-%s: %s",
-                                 expected->log_domain,
-                                 calc_prefix (expected->log_level),
-                                 expected->pattern);
+      for (l = expected_messages; l != NULL; l = l->next)
+        {
+          expected = l->data;
+          if (!expected->optional)
+            {
+              message = g_strdup_printf ("Did not see expected %s-%s: %s",
+                                         expected->log_domain,
+                                         calc_prefix (expected->log_level),
+                                         expected->pattern);
+              break;
+            }
+        }
     }
 
   G_UNLOCK (expected);
 
-  if (expected)
+  if (message)
     {
       g_assertion_message (expected->log_domain, expected->file, expected->line,
                            expected->func, message);

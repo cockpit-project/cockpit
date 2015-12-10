@@ -7,6 +7,7 @@ registry_VIEWS = \
 
 registry_LESS = \
 	pkg/registry/styles/main.less \
+	pkg/registry/styles/images.less \
 	pkg/registry/styles/sidebar.less \
 	$(NULL)
 
@@ -19,6 +20,7 @@ registry_MODULES = \
 	pkg/registry/scripts/kube-client-cockpit.js \
 	pkg/registry/scripts/projects.js \
 	pkg/registry/scripts/main.js \
+	pkg/registry/scripts/listing.js \
 	$(NULL)
 
 registry_BOWER = \

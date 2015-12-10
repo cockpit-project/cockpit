@@ -19,6 +19,7 @@ registry_MODULES = \
 	pkg/registry/scripts/kube-client-cockpit.js \
 	pkg/registry/scripts/projects.js \
 	pkg/registry/scripts/main.js \
+	pkg/registry/scripts/listing.js \
 	$(NULL)
 
 registry_BOWER = \

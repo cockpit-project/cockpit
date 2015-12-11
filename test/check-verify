@@ -215,7 +215,7 @@ def main():
     testinfra.DEFAULT_IMAGE = context
     os.environ["TEST_OS"] = context
 
-    sys.stderr.write("Testing {0} for {1} on {2} ...\n".format(revision, name, context))
+    sys.stderr.write("Testing {0} for {1} with {2} on {3}...\n".format(revision, name, context, testinfra.HOSTNAME))
 
     try:
         if opts.rebase:

@@ -65,7 +65,7 @@ registry_BUNDLE = \
 
 # Bundles all the view templates into a $templateCache loadable
 pkg/registry/templates.js: $(registry_VIEWS)
-	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/ngbundle -d registry/app -o $@ $^
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/ngbundle -m registry -o $@ $^
 
 # Everything else into a nice big bundle
 pkg/registry/bundle.min.js: $(registry_BUNDLE) pkg/registry/templates.js

@@ -27,21 +27,30 @@ if (process.argv.length < 4) {
 
 var ops = stdio.getopt({
     output: { key: "o", args: 1, description: "Output file" },
-    module: { key: "d", multiple: true, description: "Module returning an angular module" }
+    require: { key: "d", args: 1, description: "Require an angular module" },
+    module: { key: "m", args: 1, description: "Extend an angular module" }
 });
 
 if (!ops.args || !ops.args.length) {
     fatal("no templates specified", 2);
 }
 
-if (!ops.module) {
+var result;
+if (ops.require) {
+    result = 'require(["' + ops.require + '"], function(module) {\nmodule';
+} else if (ops.module) {
+    result = '(function(){angular.module("' + ops.module + '")';
+} else {
     fatal("no module specified", 2);
 }
 
-var result = 'require(["' + ops.module + '"], function(module) {\n' +
-             'module.run(["$templateCache", function($templateCache) {\n';
-var suffix = '}]);\n' +
-             '});'
+result += '.run(["$templateCache", function($templateCache) {\n';
+
+var suffix = '}]);';
+if (ops.require)
+    suffix += '});';
+else if (ops.module)
+    suffix += '})();';
 
 /* Read in the config */
 fs.readFile(path.resolve(__dirname, 'htmlmin.conf'), 'utf8', function(err, data) {

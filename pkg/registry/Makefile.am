@@ -2,6 +2,7 @@ registry_VIEWS = \
 	pkg/registry/views/dashboard-page.html \
 	pkg/registry/views/images-page.html \
 	pkg/registry/views/projects-page.html \
+	pkg/registry/views/example-dialog.html \
 	$(NULL)
 
 registry_LESS = \
@@ -11,6 +12,7 @@ registry_LESS = \
 
 registry_MODULES = \
 	pkg/registry/scripts/dashboard.js \
+	pkg/registry/scripts/dialog.js \
 	pkg/registry/scripts/exceptions.js \
 	pkg/registry/scripts/images.js \
 	pkg/registry/scripts/kube-client.js \

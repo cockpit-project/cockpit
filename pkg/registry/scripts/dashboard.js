@@ -21,7 +21,8 @@
     "use strict";
 
     angular.module('registry.dashboard', [
-        'ngRoute'
+        'ngRoute',
+        'ui.cockpit'
     ])
 
     .config(['$routeProvider',
@@ -36,8 +37,64 @@
 
     .controller('DashboardCtrl', [
         '$scope',
-        function($scope) {
-            /* nothing here yet */
+        '$modal',
+        function($scope, $modal) {
+            $scope.exampleDialog = function() {
+                $modal.open({
+                    controller: 'ExampleDialogCtrl',
+                    templateUrl: 'views/example-dialog.html',
+                    resolve: {
+                        exampleData: function() {
+                            return [1, 2, 3];
+                        }
+                    },
+                }).result.then(function(response) {
+                    console.log("dialog response", response);
+                }, function(reject) {
+                    console.log("dialog reject", reject);
+                });
+            };
+        }
+    ])
+
+    .controller('ExampleDialogCtrl', [
+        '$q',
+        '$timeout',
+        '$interval',
+        '$scope',
+        "exampleData",
+        function($q, $timeout, $interval, $scope, data) {
+            $scope.exampleData = data;
+
+            var ex1 = new Error("This field is invalid");
+            ex1.target = "#control-1";
+            var ex2 = new Error("Another problem with this field");
+            ex2.target = "#control-2";
+            $scope.inputErrors = [ex1, ex2];
+
+            $scope.bigError = new Error("This is a global failure message");
+
+            /* A mock operation, cancellable with progress */
+            $scope.waitOperation = function() {
+                var defer = $q.defer();
+                var count = 0;
+                var interval = $interval(function() {
+                    count += 1;
+                    defer.notify("Step " + count);
+                }, 500);
+                var timeout = $timeout(function() {
+                    $interval.cancel(interval);
+                    defer.resolve("Resolution");
+                }, 5000);
+                var promise = defer.promise;
+                promise.cancel = function() {
+                    console.log("waitOperation is cancelled");
+                    $interval.cancel(interval);
+                    $timeout.cancel(timeout);
+                    defer.reject();
+                };
+                return promise;
+            };
         }
     ]);
 

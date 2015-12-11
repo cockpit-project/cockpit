@@ -152,7 +152,7 @@ define([
         /* Disable everything and stash previous disabled state */
         var controls = sel.find(".form-control").add(".btn", sel);
         if (cancellation)
-            controls = controls.not("[data-dismiss]");
+            controls = controls.not("[data-dismiss]").not(".btn-cancel");
         controls.each(function() {
             var ctl = $(this);
             if (!ctl.attr("disabled")) {
@@ -161,7 +161,7 @@ define([
             }
         });
 
-        sel.find(".btn[data-dismiss]").on("click.dialog-wait", function() {
+        sel.find(".btn[data-dismiss], .btn-cancel").on("click.dialog-wait", function() {
             cancelled = true;
             if (cancellation)
                 cancellation.apply(promise);

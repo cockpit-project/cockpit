@@ -72,7 +72,7 @@ fi
 # Upload the build logs if desired
 if [ -n "${TEST_ATTACHMENTS:-}" ]; then
     mkdir "$TEST_ATTACHMENTS"/build-results
-    cp -r ./build-results/*.log "$TEST_ATTACHMENTS"/build-results
+    cp -r ./tmp/build-results/*.log "$TEST_ATTACHMENTS"/build-results
 fi
 
 if [ $install_failed == "yes" ]; then

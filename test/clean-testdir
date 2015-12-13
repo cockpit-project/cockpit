@@ -80,7 +80,7 @@ fi
 
 if [ $CLEAN_TESTFILES == 1 ]; then
     echo >&2 "Cleaning testfiles"
-    git clean "$DRY_RUN" -d -x "$TEST_DIR/attachments*"
+    git clean "$DRY_RUN" -d -x "$TEST_DIR/tmp/attachments*"
     git clean "$DRY_RUN" -d -x "$TEST_DIR/Test*\.png"
     git clean "$DRY_RUN" -d -x "$TEST_DIR/Test*\.journal*"
     git clean "$DRY_RUN" -d -x "$TEST_DIR/Test*\.log"

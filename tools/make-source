@@ -42,6 +42,7 @@ fi
 # Make sure to include the .tarball in our tarball
 echo "wip" > $outdir/.tarball
 tar -rf $outdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' -C $outdir .tarball
+rm $outdir/.tarball
 
 gzip -f --fast $outdir/cockpit-wip.tar
 echo $outdir/cockpit-wip.tar.gz

@@ -111,7 +111,7 @@ def read_whitelist():
 
 class Sink(object):
     def __init__(self, host, identifier, status=None):
-        self.attachments = tempfile.mkdtemp(prefix="attachments.", dir=".")
+        self.attachments = tempfile.mkdtemp(prefix="attachments.", dir=os.path.join(topdir, "tmp"))
         self.status = status
 
         # Start a gzip and cat processes

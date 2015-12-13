@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import sys
+
+import testinfra
+
+def main():
+    parser = argparse.ArgumentParser(description='Test infrastructure: scan and update status of pull requests on github')
+    parser.add_argument('-d', '--dry', action="store_true", default=False,
+                        help='Don''t actually change anything on github')
+    parser.add_argument('image', action='store', nargs='?',
+                        help='The operating system image to scan against')
+    opts = parser.parse_args()
+
+    github = testinfra.GitHub("/repos/cockpit-project/cockpit/")
+    for (priority, name, revision, ref, context) in github.scan(not opts.dry, opts.image):
+        sys.stdout.write("{0}: {1} ({2} {3})\n".format(name, revision, priority, context))
+
+if __name__ == '__main__':
+    sys.exit(main())

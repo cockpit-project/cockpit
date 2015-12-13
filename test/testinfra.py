@@ -374,20 +374,3 @@ class GitHub(object):
         random.seed()
         results = filter(filter_tasks, results)
         return sorted(results, key=sort_key, reverse=True)
-
-if __name__ == '__main__':
-    github = GitHub("/repos/cockpit-project/cockpit/")
-    parser = argparse.ArgumentParser(description='Test infrastructure: scan and update status of pull requests on github')
-    parser.add_argument('-c', '--check', action="store_true", default=False,
-                        help='Only check github rate limits with the currently configured credentials')
-    parser.add_argument('-d', '--dry', action="store_true", default=False,
-                        help='Don''t actually change anything on github')
-    parser.add_argument('image', action='store', nargs='?',
-                        help='The operating system image to verify against')
-    opts = parser.parse_args()
-
-    if (opts.check):
-        github.check_limits()
-    else:
-        for (priority, name, revision, ref, context) in github.scan(not opts.dry, opts.image):
-            sys.stdout.write("{0}: {1} ({2} {3})\n".format(name, revision, priority, context))

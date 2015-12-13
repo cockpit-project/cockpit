@@ -49,15 +49,11 @@ def main():
     future_timestamp = datetime.datetime.utcnow() + datetime.timedelta(seconds=3600)
 
     github = testinfra.GitHub("/repos/cockpit-project/cockpit/")
-    info = github.request(method = "GET",
-                        resource = "git/refs/heads/master",
-                        data = "",
-                        headers = { 'If-Modified-Since': httpdate(future_timestamp) },
-                        return_headers_on_unmodified = True
-                       )
+    headers = { 'If-Modified-Since': httpdate(future_timestamp) }
+    response = github.request("GET", "git/refs/heads/master", "", headers)
     sys.stdout.write("Rate limits:\n")
     for entry in ["X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"]:
-        entries = filter(lambda t: t[0].lower() == entry.lower(), info)
+        entries = filter(lambda t: t[0].lower() == entry.lower(), response['headers'].items())
         if entries:
             if entry == "X-RateLimit-Reset":
                 try:

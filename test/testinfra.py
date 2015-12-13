@@ -19,7 +19,6 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import datetime
 import errno
 import httplib
 import json
@@ -375,48 +374,6 @@ class GitHub(object):
         random.seed()
         results = filter(filter_tasks, results)
         return sorted(results, key=sort_key, reverse=True)
-
-    def httpdate(self, dt):
-        """Return a string representation of a date according to RFC 1123
-        (HTTP/1.1).
-
-        The supplied date must be in UTC.
-
-        From: http://stackoverflow.com/a/225106
-
-        """
-        weekday = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][dt.weekday()]
-        month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
-                 "Oct", "Nov", "Dec"][dt.month - 1]
-        return "%s, %02d %s %04d %02d:%02d:%02d GMT" % (weekday, dt.day, month,
-            dt.year, dt.hour, dt.minute, dt.second)
-
-    def check_limits(self):
-        # in order for the limit not to be affected by the call itself,
-        # use a conditional request with a timestamp in the future
-
-        future_timestamp = datetime.datetime.utcnow() + datetime.timedelta(seconds=3600)
-
-        info = self.request(method = "GET",
-                            resource = "git/refs/heads/master",
-                            data = "",
-                            headers = { 'If-Modified-Since': self.httpdate(future_timestamp) },
-                            return_headers_on_unmodified = True
-                           )
-        sys.stdout.write("Rate limits:\n")
-        for entry in ["X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"]:
-            entries = filter(lambda t: t[0].lower() == entry.lower(), info)
-            if entries:
-                if entry == "X-RateLimit-Reset":
-                    try:
-                        readable = datetime.datetime.utcfromtimestamp(float(entries[0][1])).isoformat()
-                    except:
-                        readable = "parse error"
-                        pass
-                    sys.stdout.write("{0}: {1} ({2})\n".format(entry, entries[0][1], readable))
-                else:
-                    sys.stdout.write("{0}: {1}\n".format(entry, entries[0][1]))
-
 
 if __name__ == '__main__':
     github = GitHub("/repos/cockpit-project/cockpit/")

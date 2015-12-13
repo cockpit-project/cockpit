@@ -31,6 +31,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import time
 import urlparse
 
 TOKEN = "~/.config/github-token"
@@ -200,10 +201,20 @@ class GitHub(object):
         # Try to load the whitelists
         self.whitelist = read_whitelist()
 
+        # The cache directory
+        self.cache_directory = os.path.join(topdir, "tmp", "cache")
+        if not os.path.exists(self.cache_directory):
+            os.makedirs(self.cache_directory)
+        now = time.time()
+        for filename in os.listdir(self.cache_directory):
+            path = os.path.join(self.cache_directory, filename)
+            if os.path.isfile(path) and os.stat(path).st_mtime < now - 7 * 86400:
+                os.remove(path)
+
     def qualify(self, resource):
         return urlparse.urljoin(self.base, resource)
 
-    def request(self, method, resource, data="", headers=None, return_headers_on_unmodified=False):
+    def request(self, method, resource, data="", headers=None):
         if headers is None:
             headers = { }
         headers["User-Agent"] = "Cockpit Tests"
@@ -224,28 +235,51 @@ class GitHub(object):
                 if connected:
                     raise
                 self.conn = None
-        output = response.read()
-        if method == "GET" and response.status == 404:
-            return ""
-        elif response.status == 304: # not modified
-            if return_headers_on_unmodified:
-                return response.getheaders()
-            else:
+        heads = { }
+        for (header, value) in response.getheaders():
+            heads[header.lower()] = value
+        return {
+            "status": response.status,
+            "reason": response.reason,
+            "headers": heads,
+            "data": response.read()
+        }
+
+    def cache(self, resource, response=None):
+        path = os.path.join(self.cache_directory, urllib.quote(resource, safe=''))
+        if response is None:
+            if not os.path.exists(path):
                 return None
-        elif response.status < 200 or response.status >= 300:
-            sys.stderr.write(output)
-            raise Exception("GitHub API problem: {0}".format(response.reason or response.status))
-        return output
+            with open(path, 'r') as fp:
+                return json.load(fp)
+        else:
+            with open(path, 'w') as fp:
+                json.dump(response, fp)
 
     def get(self, resource):
-        output = self.request("GET", resource)
-        if not output:
+        headers = { }
+        cached = self.cache(resource)
+        if cached:
+            etag = cached['headers'].get("etag", None)
+            if etag:
+                headers['If-None-Match'] = etag
+        response = self.request("GET", resource, "", headers)
+        if response['status'] == 404:
             return None
-        return json.loads(output)
+        elif cached and response['status'] == 304: # Not modified
+            return json.loads(cached['data'])
+        elif response['status'] < 200 or response['status'] >= 300:
+            raise Exception("GitHub API problem: {0}".format(response['reason'] or response['status']))
+        else:
+            self.cache(resource, response)
+            return json.loads(response['data'])
 
     def post(self, resource, data):
-        headers = { "Content-Type": "application/json" }
-        return json.loads(self.request("POST", resource, json.dumps(data), headers))
+        response = self.request("POST", resource, json.dumps(data), { "Content-Type": "application/json" })
+        if response['status'] < 200 or response['status'] >= 300:
+            sys.stderr.write(response['data'])
+            raise Exception("GitHub API problem: {0}".format(response['reason'] or response['status']))
+        return json.loads(response['data'])
 
     def statuses(self, revision):
         result = { }

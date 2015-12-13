@@ -637,7 +637,7 @@ class VirtMachine(Machine):
     def __init__(self, **args):
         Machine.__init__(self, **args)
 
-        self.run_dir = os.path.join(self.test_dir, "run")
+        self.run_dir = os.path.join(self.test_dir, "tmp", "run")
 
         self.image_base = os.path.join(self.test_dir, "images", self.image)
         self.image_file = os.path.join(self.run_dir, "%s.qcow2" % (self.image))

@@ -61,7 +61,7 @@ def build_and_maybe_install(image, do_install):
         run_install_script(machine, True, do_install, os.path.basename(source))
     finally:
         try:
-            machine.download_dir("/var/tmp/build-results", "build-results")
+            machine.download_dir("/var/tmp/build-results", "tmp/build-results")
         finally:
             machine.stop()
 
@@ -73,7 +73,7 @@ def only_install(image):
         machine.wait_boot()
         upload_scripts(machine)
         machine.execute("rm -rf /var/tmp/build-results");
-        machine.upload([ "build-results" ], "/var/tmp")
+        machine.upload([ "tmp/build-results" ], "/var/tmp")
         run_install_script(machine, False, True, None)
     finally:
         machine.stop()

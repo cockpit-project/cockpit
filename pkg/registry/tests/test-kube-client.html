@@ -127,7 +127,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         }
     ]);
 
-    kubeTest("list nodes", 5, FIXTURE_BASIC, [
+    kubeTest("list nodes", 6, FIXTURE_BASIC, [
         "kubeLoader",
         "kubeSelect",
         function(loader, select) {
@@ -138,7 +138,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 equal(node.metadata.name, "127.0.0.1", "localhost node");
                 equal(typeof node.spec.capacity, "object", "node has resources");
 
-                / * Key should not be encoded as JSON * /
+                /* The same thing should be returned */
+                var nodes1 = select().kind("Node");
+                strictEqual(nodes, nodes1, "same object returned");
+
+                /* Key should not be encoded as JSON */
                 var parsed = JSON.parse(JSON.stringify(node));
                 ok(!("key" in parsed), "key should not be serialized")
                 strictEqual(parsed.key, undefined, "key not be undefined after serialize");
@@ -500,11 +504,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 equal(item.kind, "ReplicationController", "any replication controller");
 
                 /* Shouldn't match */
-                var item = select().kind("BadKind").name("3controller").namespace("default").one();
+                item = select().kind("BadKind").name("3controller").namespace("default").one();
                 strictEqual(item, null, "mismatch kind");
-                var item = select().kind("ReplicationController").name("badcontroller").namespace("default").one();
+                item = select().kind("ReplicationController").name("badcontroller").namespace("default").one();
                 strictEqual(item, null, "mismatch name");
-                var item = select().kind("ReplicationController").name("3controller").namespace("baddefault").one();
+                item = select().kind("ReplicationController").name("3controller").namespace("baddefault").one();
                 strictEqual(item, null, "mismatch namespace");
             }, function(response) {
                 equal(response, false, "load failed");
@@ -514,7 +518,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         }
     ]);
 
-    kubeTest("select", 9, FIXTURE_LARGE, [
+    kubeTest("select", 10, FIXTURE_LARGE, [
         "kubeLoader",
         "kubeSelect",
         function(loader, select) {
@@ -523,8 +527,12 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 var results = select().namespace("default").label({ "type": "odd" });
                 equal(results.length, 500, "correct amount");
 
+                /* The same thing should be returned */
+                var results1 = select().namespace("default").label({ "type": "odd" });
+                strictEqual(results, results1, "same object returned");
+
                 /* Select everything odd, but wrong namespace, no pods */
-                var results = select().namespace("other").label({ "type": "odd" });
+                results = select().namespace("other").label({ "type": "odd" });
                 equal(results.length, 0, "other namespace no pods");
 
                 /* The same ones selected even when a second (present) label */

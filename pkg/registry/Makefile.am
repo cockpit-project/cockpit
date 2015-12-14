@@ -7,6 +7,7 @@ registry_VIEWS = \
 
 registry_LESS = \
 	pkg/registry/styles/main.less \
+	pkg/registry/styles/images.less \
 	pkg/registry/styles/sidebar.less \
 	$(NULL)
 

@@ -1,3 +1,47 @@
-<h1>Images place holder</h1>
-
-<p ng-repeat="image in images()">{{ image | json }}</p>
+<div>
+    <table listing-table class="listing images-listing">
+        <thead>
+            <tr>
+                <td colspan="4">
+                    <h3 translatable="yes">Images</h3>
+                </td>
+            </tr>
+            <tr>
+                <th translatable="yes">Tags</th>
+                <th translatable="yes">Author</th>
+                <th translatable="yes">Size</th>
+                <th translatable="yes">Last Updated</th>
+            </tr>
+        </thead>
+        <tbody ng-repeat-start="stream in imagestreams() track by stream.metadata.name"
+               ng-init="sid = stream.metadata.namespace + '/' + stream.metadata.name"
+               data-id="{{ sid }}" class="active" ng-class="{open: selected(sid)}">
+            <tr class="listing-item imagestream-item" ng-click="select(sid)">
+                <th colspan="4">{{ sid }}</th>
+            </tr>
+            <tr class="listing-panel" ng-if="selected(sid)" ng-init="id = sid">
+                <td listing-panel kind="ImageStream" colspan="4"></td>
+            </tr>
+        </tbody>
+        <tbody ng-repeat="tag in stream.status.tags track by tag.tag"
+               ng-init="iid = sid + ':' + tag.tag" data-id="{{ iid }}"
+               class="active" ng-class="{open: selected(iid), last: $last, first: $first}">
+            <tr class="listing-item tag-item" ng-click="select(iid)"
+                ng-repeat-start="image in images(tag) track by image.metadata.name">
+                <td><span class="image-tag">:{{ tag.tag }}</span></td>
+                <td colspan="3"><tt>{{ image.metadata.name }}</tt></td>
+            </tr>
+            <tr class="listing-item image-item" ng-click="select(sid)" ng-repeat-end="">
+                <td></td>
+                <td>{{ image.dockerImageMetadata.Author }}</td>
+                <td>{{ image.dockerImageMetadata.VirtualSize }}</td>
+                <td>{{ image.dockerImageMetadata.Created }}</td>
+            </tr>
+            <tr class="listing-panel" ng-if="selected(iid)" ng-init="id = iid">
+                <td listing-panel kind="Image" colspan="4"></td>
+            </tr>
+        </tbody>
+        <tbody data-ng-rubbish="" ng-if="0" ng-repeat-end>
+        </tbody>
+    </table>
+</div>

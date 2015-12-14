@@ -27,7 +27,7 @@ function wait_curl(){
     FULLLINK="http://localhost:4444$LINK"
     for foo in `seq $TICKS`; do
         if curl -s --connect-timeout 1 $FULLLINK | grep "$GREP_CMD" >/dev/null; then
-            echo "$FULLLINK ('$GREP_CMD' aviable on page)"
+            echo "$FULLLINK ('$GREP_CMD' available on page)"
             break
         else
             sleep 0.5

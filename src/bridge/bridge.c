@@ -366,10 +366,13 @@ static GPid
 start_ssh_agent (void)
 {
   GError *error = NULL;
-  GSpawnFlags flags;
   GPid pid = 0;
   gint fd = -1;
+  gint status = -1;
 
+  gchar *pid_line = NULL;
+  gchar *agent_output = NULL;
+  gchar *agent_error = NULL;
   gchar *bind_address = g_strdup_printf ("%s/ssh-agent.XXXXXX", g_get_user_runtime_dir ());
 
   gchar *agent_argv[] = {
@@ -391,17 +394,39 @@ start_ssh_agent (void)
       goto out;
     }
 
-  flags = G_SPAWN_SEARCH_PATH | G_SPAWN_STDOUT_TO_DEV_NULL;
-  g_spawn_async (NULL, agent_argv, NULL, flags,
-                 setup_ssh_agent, GINT_TO_POINTER (-1), &pid, &error);
-
-  if (error != NULL)
+  if (!g_spawn_sync (NULL, agent_argv, NULL,
+                     G_SPAWN_SEARCH_PATH, setup_ssh_agent,
+                     GINT_TO_POINTER (-1),
+                     &agent_output, &agent_error,
+                     &status, &error))
     {
       if (g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_NOENT))
         g_debug ("couldn't start %s: %s", agent_argv[0], error->message);
       else
         g_warning ("couldn't start %s: %s", agent_argv[0], error->message);
-      pid = 0;
+      goto out;
+    }
+
+  if (!g_spawn_check_exit_status (status, &error))
+    {
+      g_warning ("couldn't start %s: %s: %s", agent_argv[0],
+                 error->message, agent_error);
+      goto out;
+    }
+
+  pid_line = strstr (agent_output, "SSH_AGENT_PID=");
+  if (pid_line)
+    {
+      if (sscanf (pid_line, "SSH_AGENT_PID=%d;", &pid) != 1)
+        {
+            g_warning ("couldn't find pid in %s", pid_line);
+            goto out;
+        }
+    }
+
+  if (pid < 1)
+    {
+      g_warning ("couldn't get agent pid from ssh-agent output: %s", agent_output);
       goto out;
     }
 
@@ -413,6 +438,8 @@ out:
   if (fd >= 0)
     close (fd);
   g_free (bind_address);
+  g_free (agent_error);
+  g_free (agent_output);
   return pid;
 }
 

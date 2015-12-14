@@ -18,11 +18,29 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301 USA.
 
-set -ex
+set -e
+TICKS=120
+
+function wait_curl(){
+    LINK=$1
+    GREP_CMD=$2
+    FULLLINK="http://localhost:4444$LINK"
+    for foo in `seq $TICKS`; do
+        if curl -s --connect-timeout 1 $FULLLINK | grep "$GREP_CMD" >/dev/null; then
+            echo "$FULLLINK ('$GREP_CMD' aviable on page)"
+            break
+        else
+            sleep 0.5
+        fi
+    done
+}
 
 # Make sure docker is up and running
 systemctl start docker
 
 docker run -d -p 4444:4444 --name selenium-hub selenium/hub:2.48.2
+wait_curl /grid/console "Grid Console"
 docker run -d --link selenium-hub:hub selenium/node-chrome:2.48.2
+wait_curl /grid/console "googlechrome"
 docker run -d --link selenium-hub:hub selenium/node-firefox:2.48.2
+wait_curl /grid/console "firefox"

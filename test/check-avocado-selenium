@@ -54,6 +54,7 @@ done;
         self.selenium.execute(command="/root/selenium_start.sh")
 
         self.allow_journal_messages("Error receiving data: Connection reset by peer",
+                                    "Error sending data: Connection reset by peer",
                                     "connection unexpectedly closed by peer"
                                    )
         avocadolib.prepare_avocado_tests(self.machine)

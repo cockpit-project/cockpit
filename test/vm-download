@@ -84,6 +84,11 @@ def download(image, force, stores):
     os.close(fd)
     shutil.move(temp, dest)
 
+    # Handle alternate TEST_DATA
+    image_file = os.path.join(IMAGES, os.readlink(link))
+    if not os.path.exists(image_file):
+        os.symlink(os.path.abspath(dest), image_file)
+
 def prune():
     targets = []
     for filename in os.listdir(IMAGES):

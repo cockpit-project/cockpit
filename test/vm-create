@@ -27,11 +27,14 @@
 import argparse
 import guestfs
 import os
+import shutil
 import subprocess
 import sys
 
 import testvm
 import testinfra
+
+BASE = os.path.dirname(__file__)
 
 parser = argparse.ArgumentParser(description='Create a virtual machine image')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
@@ -97,7 +100,7 @@ class MachineBuilder:
         if self.machine.verbose:
             gf.set_trace(1)
         try:
-            gf.add_drive_opts(self.machine._image_image, readonly=False)
+            gf.add_drive_opts(self.machine.image_file, readonly=False)
             gf.launch()
             # try to mount device directly
             devices = gf.list_devices()
@@ -131,11 +134,11 @@ class MachineBuilder:
 
         bootstrap_script = "./guest/%s.bootstrap" % (self.machine.image, )
 
-        if os.path.exists(self.machine._image_image):
-            os.unlink(self.machine._image_image)
+        if os.path.exists(self.machine.image_file):
+            os.unlink(self.machine.image_file)
 
         if os.path.isfile(bootstrap_script):
-            subprocess.check_call([ bootstrap_script, self.machine._image_image ])
+            subprocess.check_call([ bootstrap_script, self.machine.image_file ])
         else:
             raise testvm.Failure("Unsupported OS %s: %s not found." % (self.machine.image, bootstrap_script))
 
@@ -218,12 +221,47 @@ class MachineBuilder:
 
         self.run_selinux_relabel()
 
+    def save(self):
+        data_dir = os.path.join(os.environ.get("TEST_DATA", self.machine.test_dir), "images")
+        images_dir = os.path.join(self.machine.test_dir, "images")
+
+        if not os.path.exists(data_dir):
+            os.makedirs(data_dir, 0750)
+
+        if not os.path.exists(self.machine.image_file):
+            raise Failure("Nothing to save.")
+
+        partial = os.path.join(data_dir, self.machine.image + ".partial")
+
+        # Copy image via convert, to make it sparse again
+        subprocess.check_call([ "qemu-img", "convert", "-O", "qcow2", self.machine.image_file, partial ])
+
+        # Hash the image here
+        (sha, x1, x2) = subprocess.check_output([ "sha1sum", partial ]).partition(" ")
+        if not sha:
+            raise Failure("sha1sum returned invalid output")
+
+        name = self.machine.image + "-" + sha + ".qcow2"
+        data_file = os.path.join(data_dir, name)
+        shutil.move(partial, data_file)
+
+        # Update the images symlink
+        if os.path.islink(self.machine.image_base):
+            os.unlink(self.machine.image_base)
+        os.symlink(name, self.machine.image_base)
+
+        # Handle alternate TEST_DATA
+        image_file = os.path.join(images_dir, name)
+        if not os.path.exists(image_file):
+            os.symlink(os.path.abspath(data_file), image_file)
+
 try:
+    os.chdir(BASE)
     machine = testvm.VirtMachine(verbose=args.verbose, image=args.image)
     builder = MachineBuilder(machine)
     builder.build()
     if not args.no_save:
-        machine.save()
+        builder.save()
 except testvm.Failure, ex:
     print >> sys.stderr, "vm-create:", ex
     sys.exit(1)

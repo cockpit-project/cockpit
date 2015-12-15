@@ -86,7 +86,6 @@ class Machine:
 
         self.image = image or testinfra.DEFAULT_IMAGE
         self.test_dir = os.path.abspath(os.path.dirname(__file__))
-        self.test_data = os.environ.get("TEST_DATA") or self.test_dir
         self.vm_username = "root"
         self.vm_password = "foobar"
         self.address = address
@@ -640,9 +639,8 @@ class VirtMachine(Machine):
 
         self.run_dir = os.path.join(self.test_dir, "run")
 
-        self._image_image = os.path.join(self.run_dir, "%s.qcow2" % (self.image))
-        self._images_dir = os.path.join(self.test_data, "images")
-        self._image_ref = os.path.join(self.test_dir, "images", self.image)
+        self.image_base = os.path.join(self.test_dir, "images", self.image)
+        self.image_file = os.path.join(self.run_dir, "%s.qcow2" % (self.image))
 
         self._network_description = etree.parse(open("./guest/network-cockpit.xml"))
 
@@ -698,31 +696,6 @@ class VirtMachine(Machine):
             with open("./guest/test-domain-disk.xml", "r") as desc_file:
                 self.test_disk_desc_original = desc_file.read()
         return self.test_disk_desc_original
-
-    def save(self):
-        assert not self._domain
-        if not os.path.exists(self._images_dir):
-            os.makedirs(self._images_dir, 0750)
-
-        if os.path.exists(self._image_image):
-            partial = os.path.join(self._images_dir, self.image + ".partial")
-
-            # Copy image via convert, to make it sparse again
-            subprocess.check_call([ "qemu-img", "convert", "-O", "qcow2", self._image_image, partial ])
-
-            # Hash the image here
-            (sha, x1, x2) = subprocess.check_output([ "sha1sum", partial ]).partition(" ")
-            if not sha:
-                raise Failure("sha1sum returned invalid output")
-
-            name = self.image + "-" + sha + ".qcow2"
-            shutil.move(partial, os.path.join(self._images_dir, name))
-            if os.path.islink(self._image_ref):
-                os.unlink(self._image_ref)
-            os.symlink(name, self._image_ref)
-
-        else:
-            raise Failure("Nothing to save.")
 
     def _resource_lockfile_path(self, resource):
         resources = os.path.join(tempfile.gettempdir(), ".cockpit-test-resources")
@@ -782,19 +755,18 @@ class VirtMachine(Machine):
         if not os.path.exists(self.run_dir):
             os.makedirs(self.run_dir, 0750)
 
-        image_to_use = self._image_image
-        if not os.path.exists(self._image_image):
-            target = os.path.join(self._images_dir, os.readlink(self._image_ref))
+        image_to_use = self.image_file
+        if not os.path.exists(self.image_file):
             if maintain:
                 # never write back to the original image
                 self.message("create image from backing file")
                 subprocess.check_call([ "qemu-img", "create", "-q",
                                         "-f", "qcow2",
-                                        "-o", "backing_file=%s,backing_fmt=qcow2" % target,
-                                        self._image_image ])
+                                        "-o", "backing_file=%s,backing_fmt=qcow2" % self.image_base,
+                                        self.image_file ])
             else:
                 # we don't have a "local" override image and we're throwing away the changes anyway
-                image_to_use = target
+                image_to_use = self.image_base
 
         if not maintain:
             # create an additional qcow2 image with the original as a backing file

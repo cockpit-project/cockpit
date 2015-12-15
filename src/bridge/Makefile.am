@@ -4,6 +4,8 @@ noinst_LIBRARIES += \
 	$(NULL)
 
 libcockpit_bridge_a_SOURCES = \
+	src/bridge/cockpitbridge.c \
+	src/bridge/cockpitbridge.h \
 	src/bridge/cockpitblocksamples.c \
 	src/bridge/cockpitblocksamples.h \
 	src/bridge/cockpitcgroupsamples.c \

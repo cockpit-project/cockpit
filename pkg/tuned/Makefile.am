@@ -1,6 +1,6 @@
 
 tuneddir = $(pkgdatadir)/tuned
-tuned_DATA = \
+nodist_tuned_DATA = \
 	pkg/tuned/tuned.min.css.gz \
 	pkg/tuned/tuned.min.html.gz \
 	pkg/tuned/tuned.min.js.gz \
@@ -18,12 +18,14 @@ CLEANFILES += \
 	pkg/tuned/tuned.min.js \
 	pkg/tuned/tuned.min.html \
 	pkg/tuned/tuned.min.css \
+	$(nodist_tuned_DATA) \
 	$(NULL)
 
 EXTRA_DIST += \
 	pkg/tuned/tuned.min.js \
 	pkg/tuned/tuned.min.html \
 	pkg/tuned/tuned.min.css \
+	pkg/tuned/manifest.json \
 	$(tuned_DATA) \
 	$(tuneddebug_DATA) \
 	$(NULL)

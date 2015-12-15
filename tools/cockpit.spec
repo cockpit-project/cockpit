@@ -223,6 +223,9 @@ find %{buildroot}%{_datadir}/%{name}/network -type f >> networkmanager.list
 echo '%dir %{_datadir}/%{name}/ostree' > ostree.list
 find %{buildroot}%{_datadir}/%{name}/ostree -type f >> ostree.list
 
+# Not yet packaged
+rm -rf %{buildroot}%{_datadir}/%{name}/tuned
+
 %ifarch x86_64 armv7hl
 echo '%dir %{_datadir}/%{name}/docker' > docker.list
 find %{buildroot}%{_datadir}/%{name}/docker -type f >> docker.list

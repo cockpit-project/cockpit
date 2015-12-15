@@ -26,68 +26,23 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
   <link href="tuned.css" rel="stylesheet">
   <script type="text/javascript" src="../base1/bundle.js"></script>
+  <script type="text/javascript" src="tuned.js"></script>
 </head>
 
-<body>
-    <script id="tuned-notification-success-template" type="x-template/mustache">
-      <div class="container-fluid alert alert-success alert-dismissible" role="alert">
-        <span class="pficon pficon-ok"></span>
-        <span class="tuned-emphasize" translatable="yes">
-          Profile successfully changed.
-        </span>
-        <button type="button" class="close" data-dismiss="alert">
-          <span class="pficon pficon-close"></span>
-        </button>
-      </div>
-    </script>
-
-    <script id="tuned-notification-failure-template" type="x-template/mustache">
-      <div class="container-fluid alert alert-danger alert-dismissible" role="alert">
-        <span class="pficon-layered">
-          <span class="pficon pficon-error-octagon"></span>
-          <span class="pficon pficon-error-exclamation"></span>
-        </span>
-        <span class="tuned-emphasize">
-          {{message}}
-        </span>
-        <span>
-          {{message_detail}}
-        </span>
-        <button type="button" class="close" data-dismiss="alert">
-          <span class="pficon pficon-close"/>
-        </button>
-      </div>
-    </script>
-
-    <div id="tuned-not-found" class="container-fluid" hidden>
-      <br/>
-      <span class="tuned-block-center" translatable="yes">
-        Tuned is not running or is not installed.
-      </span>
-      <br/>
-      <button class="btn btn-default btn-primary" id="tuned-start" translatable="yes">
-        Start tuned
-      </button>
+<body hidden>
+    <div class="curtains blank-slate-pf" hidden>
+        <div class="blank-slate-pf-icon">
+            <div class="spinner spinner-lg" hidden></div>
+            <i class="fa fa-exclamation-circle"></i>
+        </div>
+        <h1></h1>
+        <p></p>
+        <div class="blank-slate-pf-main-action">
+            <button id="tuned-start" class="btn btn-primary btn-lg" translatable="yes" hidden>Start</button>
+        </div>
     </div>
 
-    <div id="tuned-manager-not-accessible" class="container-fluid" hidden>
-      <br/>
-      <span class="tuned-block-center" translatable="yes">
-        Current user isn't authorized to manage tuned profiles on this system.
-      </span>
-    </div>
-
-    <div id="tuned-updating" class="container-fluid" hidden>
-      <br/>
-      <center>
-        <span id="tuned-update-message" class="tuned-block-center"></span>
-        <br/>
-        <div class="spinner spinner-sm"></div>
-      </center>
-    </div>
-
-    <div class="panel panel-default">
-      <div id="tuned-system-status" class="container-fluid" hidden>
+      <div id="tuned-system-status" class="container-fluid">
         <table class="cockpit-form-table">
           <tr>
             <td>
@@ -101,7 +56,6 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           </tr>
         </table>
       </div>
-    </div>
 
     <div class="modal" id="tuned-change-profile" tabindex="-1" role="dialog" data-backdrop="static">
       <div class="modal-dialog">
@@ -125,7 +79,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             </table>
             <br/>
             <table class="cockpit-info-table">
-              <tr id="recommend" style="display:none">
+              <tr id="recommend" hidden>
                 <td class="top">
                   <label>
                     Recommended Profile:
@@ -150,14 +104,6 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         </div>
       </div>
     </div>
-
-    <script>
-        require([
-        "tuned/tuned"
-        ], function(tuned) {
-            tuned.init();
-        });
-    </script>
 </body>
 
 </html>

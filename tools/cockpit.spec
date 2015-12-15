@@ -295,6 +295,7 @@ cat subscriptions.list docker.list networkmanager.list >> shell.list
 %{_sbindir}/remotectl
 %{_libdir}/security/pam_ssh_add.so
 %{_libexecdir}/cockpit-ws
+%{_libexecdir}/cockpit-stub
 %attr(4750, root, cockpit-ws) %{_libexecdir}/cockpit-session
 %attr(775, -, wheel) %{_localstatedir}/lib/%{name}
 %{_datadir}/%{name}/static

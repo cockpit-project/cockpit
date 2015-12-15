@@ -1,17 +1,39 @@
 
 noinst_LIBRARIES += \
+	libcockpit-stub.a \
 	libcockpit-bridge.a \
 	$(NULL)
 
-libcockpit_bridge_a_SOURCES = \
+libcockpit_stub_a_SOURCES = \
 	src/bridge/cockpitbridge.c \
 	src/bridge/cockpitbridge.h \
+	src/bridge/cockpitchannel.c \
+	src/bridge/cockpitchannel.h \
+	src/bridge/cockpitechochannel.c \
+	src/bridge/cockpitechochannel.h \
+	src/bridge/cockpithttpstream.c \
+	src/bridge/cockpithttpstream.h \
+	src/bridge/cockpitinteracttransport.c \
+	src/bridge/cockpitinteracttransport.h \
+	src/bridge/cockpitpackages.c \
+	src/bridge/cockpitpackages.h \
+	src/bridge/cockpitpaths.c \
+	src/bridge/cockpitpaths.h \
+	src/bridge/cockpitnullchannel.c \
+	src/bridge/cockpitnullchannel.h \
+	$(NULL)
+
+libcockpit_stub_a_CFLAGS = \
+	-I$(srcdir)/src/bridge \
+	-DG_LOG_DOMAIN=\"cockpit-bridge\" \
+	$(COCKPIT_CFLAGS) \
+	$(NULL)
+
+libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitblocksamples.c \
 	src/bridge/cockpitblocksamples.h \
 	src/bridge/cockpitcgroupsamples.c \
 	src/bridge/cockpitcgroupsamples.h \
-	src/bridge/cockpitchannel.c \
-	src/bridge/cockpitchannel.h \
 	src/bridge/cockpitcpusamples.c \
 	src/bridge/cockpitcpusamples.h \
 	src/bridge/cockpitdbuscache.c \
@@ -27,18 +49,8 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitdbususer.c \
 	src/bridge/cockpitdisksamples.c \
 	src/bridge/cockpitdisksamples.h \
-	src/bridge/cockpitechochannel.c \
-	src/bridge/cockpitechochannel.h \
-	src/bridge/cockpithttpstream.c \
-	src/bridge/cockpithttpstream.h \
-	src/bridge/cockpitinteracttransport.c \
-	src/bridge/cockpitinteracttransport.h \
-	src/bridge/cockpitpackages.c \
-	src/bridge/cockpitpackages.h \
 	src/bridge/cockpitinternalmetrics.c \
 	src/bridge/cockpitinternalmetrics.h \
-	src/bridge/cockpitpaths.c \
-	src/bridge/cockpitpaths.h \
 	src/bridge/cockpitpipechannel.c \
 	src/bridge/cockpitpipechannel.h \
 	src/bridge/cockpitpolkitagent.c \
@@ -55,8 +67,6 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitnetdevsamples.h \
 	src/bridge/cockpitnetworksamples.c \
 	src/bridge/cockpitnetworksamples.h \
-	src/bridge/cockpitnullchannel.c \
-	src/bridge/cockpitnullchannel.h \
 	src/bridge/cockpitsamples.c \
 	src/bridge/cockpitsamples.h \
 	src/bridge/cockpitfsread.c \
@@ -75,8 +85,16 @@ libcockpit_bridge_a_CFLAGS = \
 	$(COCKPIT_BRIDGE_CFLAGS) \
 	$(NULL)
 
+libcockpit_stub_LIBS = \
+	libcockpit-stub.a \
+	libcockpit-common.a \
+	libwebsocket.a \
+	$(COCKPIT_LIBS) \
+	$(NULL)
+
 libcockpit_bridge_LIBS = \
 	libcockpit-bridge.a \
+	libcockpit-stub.a \
 	libcockpit-common.a \
 	libwebsocket.a \
 	$(COCKPIT_BRIDGE_LIBS) \
@@ -98,6 +116,16 @@ cockpit_bridge_LDADD = $(libcockpit_bridge_LIBS)
 cockpit_polkit_SOURCES = src/bridge/cockpitpolkithelper.c
 cockpit_polkit_CFLAGS = $(COCKPIT_POLKIT_CFLAGS)
 cockpit_polkit_LDADD = libreauthorize.a $(REAUTHORIZE_LIBS) $(COCKPIT_POLKIT_LIBS)
+
+libexec_PROGRAMS += cockpit-stub
+
+cockpit_stub_SOURCES = src/bridge/stub.c
+cockpit_stub_CFLAGS = \
+	-I$(srcdir)/src/bridge \
+	-DG_LOG_DOMAIN=\"cockpit-bridge\" \
+	$(COCKPIT_CFLAGS) \
+	$(NULL)
+cockpit_stub_LDADD = $(libcockpit_stub_LIBS)
 
 # polkit-agent-helper-1 need to be setuid root because polkit wants
 # responses to come from a root process
@@ -209,6 +237,8 @@ libexec_PROGRAMS += cockpit-pcp
 noinst_LIBRARIES += libcockpit-pcp.a
 
 libcockpit_pcp_a_SOURCES = \
+	src/bridge/cockpitbridge.c \
+	src/bridge/cockpitbridge.h \
 	src/bridge/cockpitchannel.c \
 	src/bridge/cockpitchannel.h \
 	src/bridge/cockpitmetrics.c \

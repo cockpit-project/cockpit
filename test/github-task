@@ -1,0 +1,4 @@
+#!/bin/sh
+
+BASE=$(dirname $0)
+exec $BASE/check-verify --github=next "$@"

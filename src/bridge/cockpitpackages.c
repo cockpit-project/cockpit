@@ -49,6 +49,7 @@ struct _CockpitPackage {
   gchar *directory;
   JsonObject *manifest;
   GHashTable *paths;
+  gchar *content_security_policy;
 };
 
 /*
@@ -74,6 +75,7 @@ cockpit_package_free (gpointer data)
   g_debug ("%s: freeing package", package->name);
   g_free (package->name);
   g_free (package->directory);
+  g_free (package->content_security_policy);
   if (package->paths)
     g_hash_table_unref (package->paths);
   if (package->manifest)
@@ -359,6 +361,27 @@ read_package_name (JsonObject *manifest,
   return value;
 }
 
+static void
+setup_package_manifest (CockpitPackage *package,
+                        JsonObject *manifest)
+{
+  const gchar *field = "content-security-policy";
+  const gchar *strict = "default-src 'self'";
+  const gchar *policy = NULL;
+
+  if (!cockpit_json_get_string (manifest, field, strict, &policy) ||
+      !cockpit_web_response_is_header_value (policy))
+    {
+      g_warning ("%s: invalid %s: %s", package->name, field, policy);
+      policy = strict;
+    }
+
+  package->content_security_policy = g_strdup (policy);
+  json_object_remove_member (manifest, field);
+
+  package->manifest = manifest;
+}
+
 static CockpitPackage *
 maybe_add_package (GHashTable *listing,
                    const gchar *parent,
@@ -399,11 +422,11 @@ maybe_add_package (GHashTable *listing,
     goto out;
 
   package = cockpit_package_new (name);
-
   package->directory = path;
-  package->manifest = manifest;
   if (paths)
     package->paths = g_hash_table_ref (paths);
+
+  setup_package_manifest (package, manifest);
 
   g_hash_table_replace (listing, package->name, package);
   g_debug ("%s: added package at %s", package->name, package->directory);
@@ -639,6 +662,7 @@ handle_packages (CockpitWebServer *server,
   gchar *name;
   const gchar *path;
   GHashTable *out_headers = NULL;
+  const gchar *type;
   GBytes *bytes = NULL;
   gchar *chosen = NULL;
 
@@ -686,6 +710,17 @@ handle_packages (CockpitWebServer *server,
 
   if (g_str_has_suffix (chosen, ".gz"))
     g_hash_table_insert (out_headers, g_strdup ("Content-Encoding"), g_strdup ("gzip"));
+
+  type = cockpit_web_response_content_type (path);
+  if (type)
+    {
+      g_hash_table_insert (out_headers, g_strdup ("Content-Type"), g_strdup (type));
+      if (g_str_has_prefix (type, "text/html"))
+        {
+          g_hash_table_insert (out_headers, g_strdup ("Content-Security-Policy"),
+                               g_strdup (package->content_security_policy));
+        }
+    }
 
   cockpit_web_response_headers_full (response, 200, "OK", -1, out_headers);
 

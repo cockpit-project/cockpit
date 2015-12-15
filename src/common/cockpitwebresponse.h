@@ -112,6 +112,8 @@ GBytes *              cockpit_web_response_negotiation   (const gchar *path,
                                                           gchar **actual,
                                                           GError **error);
 
+const gchar *         cockpit_web_response_content_type  (const gchar *path);
+
 gboolean     cockpit_web_should_suppress_output_error    (const gchar *logname,
                                                           GError *error);
 

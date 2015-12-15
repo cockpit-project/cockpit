@@ -85,6 +85,13 @@ $ cockpit-bridge --packages
 
     <variablelist>
       <varlistentry>
+        <term>content-security-policy</term>
+        <listitem><para>By default Cockpit serves packages using a strict
+            <ulink url="https://en.wikipedia.org/wiki/Content_Security_Policy">Content Security Policy</ulink>,
+            which among other things does not allow inline styles or scripts. This can
+            be overriden on a per-package basis, with this setting.</para></listitem>
+      </varlistentry>
+      <varlistentry>
         <term>menu</term>
         <listitem><para>An optional JSON object containing any main menu items that this package
           provides. These will be added into the Cockpit user interface on the side bar.

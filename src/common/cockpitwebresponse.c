@@ -724,41 +724,15 @@ finish_headers (CockpitWebResponse *self,
                 gint status,
                 guint seen)
 {
-  gint i;
-
-  static const struct {
-    const gchar *extension;
-    const gchar *content_type;
-  } content_types[] = {
-    { ".css", "text/css" },
-    { ".gif", "image/gif" },
-    { ".eot", "application/vnd.ms-fontobject" },
-    { ".html", "text/html" },
-    { ".ico", "image/vnd.microsoft.icon" },
-    { ".jpg", "image/jpg" },
-    { ".js", "application/javascript" },
-    { ".json", "application/json" },
-    { ".otf", "font/opentype" },
-    { ".png", "image/png" },
-    { ".svg", "image/svg+xml" },
-    { ".ttf", "application/octet-stream" }, /* unassigned */
-    { ".txt", "text/plain" },
-    { ".woff", "application/font-woff" },
-    { ".xml", "text/xml" },
-  };
+  const gchar *content_type;
 
   /* Automatically figure out content type */
   if ((seen & HEADER_CONTENT_TYPE) == 0 &&
       self->full_path != NULL && status >= 200 && status <= 299)
     {
-      for (i = 0; i < G_N_ELEMENTS (content_types); i++)
-        {
-          if (g_str_has_suffix (self->full_path, content_types[i].extension))
-            {
-              g_string_append_printf (string, "Content-Type: %s\r\n", content_types[i].content_type);
-              break;
-            }
-        }
+      content_type = cockpit_web_response_content_type (self->full_path);
+      if (content_type)
+        g_string_append_printf (string, "Content-Type: %s\r\n", content_type);
     }
 
   if (status != 304)
@@ -1491,4 +1465,39 @@ out:
   g_free (name);
   g_free (base);
   return bytes;
+}
+
+const gchar *
+cockpit_web_response_content_type (const gchar *path)
+{
+  static const struct {
+    const gchar *extension;
+    const gchar *content_type;
+  } content_types[] = {
+    { ".css", "text/css" },
+    { ".gif", "image/gif" },
+    { ".eot", "application/vnd.ms-fontobject" },
+    { ".html", "text/html" },
+    { ".ico", "image/vnd.microsoft.icon" },
+    { ".jpg", "image/jpg" },
+    { ".js", "application/javascript" },
+    { ".json", "application/json" },
+    { ".otf", "font/opentype" },
+    { ".png", "image/png" },
+    { ".svg", "image/svg+xml" },
+    { ".ttf", "application/octet-stream" }, /* unassigned */
+    { ".txt", "text/plain" },
+    { ".woff", "application/font-woff" },
+    { ".xml", "text/xml" },
+  };
+
+  gint i;
+
+  for (i = 0; i < G_N_ELEMENTS (content_types); i++)
+    {
+      if (g_str_has_suffix (path, content_types[i].extension))
+          return content_types[i].content_type;
+    }
+
+  return NULL;
 }

@@ -33,13 +33,7 @@ IMAGES = os.path.join(BASE, "images")
 DATA = os.path.join(os.environ.get("TEST_DATA", BASE), "images")
 DEVNULL = open("/dev/null", "r+")
 
-#
-# To override the location per operating system you can define variables like this:
-#
-# TEST_IMAGES=http://example.com/default/
-# TEST_IMAGES_FEDORA=https://myserver.com/fedora/
-#
-
+CONFIG = "~/.config/image-stores"
 DEFAULT = "https://fedorapeople.org/groups/cockpit/images/"
 
 def download(image, force, stores):
@@ -55,11 +49,13 @@ def download(image, force, stores):
         return
 
     if not stores:
-        stores = []
-        store = os.environ.get("TEST_IMAGES_" + image.split("-")[0].upper(), None)
-        if store:
-            stores.append(store)
-        stores.append(os.environ.get("TEST_IMAGES", DEFAULT))
+        config = os.path.expanduser(CONFIG)
+        if os.path.exists(config):
+            with open(config, 'r') as fp:
+                stores = fp.read().strip().split("\n")
+        else:
+            stores = []
+        stores.append(DEFAULT)
 
     for store in stores:
         try:

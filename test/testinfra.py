@@ -56,6 +56,9 @@ TESTING = "Testing in progress"
 NOT_TESTED = "Not yet tested"
 NO_TESTING = "Manual testing required"
 
+# Days after which images expire if not in use
+IMAGE_EXPIRE = 14
+
 __all__ = (
     'Sink',
     'GitHub',
@@ -63,7 +66,8 @@ __all__ = (
     'DEFAULT_IMAGE',
     'HOSTNAME',
     'TESTING',
-    'NOT_TESTED'
+    'NOT_TESTED',
+    'IMAGE_EXPIRE',
 )
 
 def arg_parser():

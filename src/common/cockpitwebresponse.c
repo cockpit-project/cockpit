@@ -1108,6 +1108,7 @@ cockpit_web_response_file (CockpitWebResponse *response,
                            const gchar **roots)
 {
   const gchar *cache_control;
+  const gchar *csp_header;
   GError *error = NULL;
   gchar *unescaped = NULL;
   gchar *path = NULL;
@@ -1178,9 +1179,21 @@ again:
 
   body = g_mapped_file_get_bytes (file);
 
+  /*
+   * The default Content-Security-Policy for .html files allows
+   * the site to have inline <script> and <style> tags. This code
+   * is not used when serving resources once logged in, only for
+   * static resources when we don't yet have a session.
+   */
+
+  csp_header = NULL;
+  if (g_str_has_suffix (unescaped, ".html"))
+    csp_header = "Content-Security-Policy";
+
   cache_control = cache_forever ? "max-age=31556926, public" : NULL;
   cockpit_web_response_headers (response, 200, "OK", g_bytes_get_size (body),
                                 "Cache-Control", cache_control,
+                                csp_header, "default-src 'self' 'unsafe-inline'",
                                 NULL);
 
   if (cockpit_web_response_queue (response, body))

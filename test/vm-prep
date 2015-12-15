@@ -19,6 +19,7 @@
 VIRSH=/bin/virsh
 QEMU_BRIDGE_HELPER=/usr/libexec/qemu-bridge-helper
 
+BASE=$(dirname $0)
 SELF=vm-prep
 
 set -euf
@@ -53,7 +54,7 @@ DEVICE=$NETWORK_NAME
 NM_CONTROLLED=no
 EOF
 
-    $VIRSH net-define ./guest/network-cockpit.xml
+    $VIRSH net-define $BASE/guest/network-cockpit.xml
 	$VIRSH net-autostart $NETWORK_NAME
 	$VIRSH net-start $NETWORK_NAME
 

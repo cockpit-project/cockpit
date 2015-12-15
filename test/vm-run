@@ -18,6 +18,7 @@
 
 import argparse
 import os
+import subprocess
 import sys
 
 import testvm
@@ -37,6 +38,18 @@ args = parser.parse_args()
 try:
     os.chdir(BASE)
     machine = testvm.VirtMachine(verbose=args.verbose, image=args.image)
+
+    # Check that things are configured
+    with open(os.devnull, 'w') as fp:
+        if subprocess.call(["ip", "address", "show", "dev", "cockpit1"], stdout=fp, stderr=fp) != 0:
+            raise Exception("vm-run: please run: sudo {0}/vm-prep".format(BASE))
+
+    # Check that image is downloaded
+    if not os.path.exists(machine.image_base):
+        ret = subprocess.call(["./vm-download", args.image])
+        if ret != 0:
+            sys.exit(ret)
+
     machine.qemu_console(maintain=args.maintain,
                          memory_mb=args.memory,
                          cpus=args.cpus)

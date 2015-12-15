@@ -46,10 +46,6 @@ require_binary() {
   fi
 }
 
-if ! silent $IP address show dev cockpit1; then
-  sudo ./vm-prep
-fi
-
 # The Atomic variants can't build their own packages, so we build in
 # their non-Atomic siblings.  For example, fedora-atomic is build
 # in fedora-22.

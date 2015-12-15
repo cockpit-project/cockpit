@@ -41,14 +41,7 @@ DEVNULL = open("/dev/null", "r+")
 
 DEFAULT = "https://fedorapeople.org/groups/cockpit/images/"
 
-parser = argparse.ArgumentParser(description='Download a virtual machine')
-parser.add_argument("--force", action="store_true", help="Force unnecessary downloads")
-parser.add_argument("--store", action="append", help="Where to find images")
-parser.add_argument("--prune", action="store_true", help="Remove unused images")
-parser.add_argument('image', nargs='*')
-args = parser.parse_args()
-
-def download(image):
+def download(image, force, stores):
     link = os.path.join(IMAGES, image)
     if not os.path.islink(link):
         parser.error("image link does not exist: " + image)
@@ -57,12 +50,10 @@ def download(image):
         os.makedirs(DATA)
 
     dest = os.path.join(DATA, os.readlink(link))
-    if not args.force and os.path.exists(dest):
+    if not force and os.path.exists(dest):
         return
 
-    if args.store:
-        stores = args.store
-    else:
+    if not stores:
         stores = []
         store = os.environ.get("TEST_IMAGES_" + image.split("-")[0].upper(), None)
         if store:
@@ -114,11 +105,22 @@ def every():
             result.append(filename)
     return result
 
-# By default download all links
-if not args.image and not args.prune:
-    args.image = every()
+def main():
+    parser = argparse.ArgumentParser(description='Download a virtual machine')
+    parser.add_argument("--force", action="store_true", help="Force unnecessary downloads")
+    parser.add_argument("--store", action="append", help="Where to find images")
+    parser.add_argument("--prune", action="store_true", help="Remove unused images")
+    parser.add_argument('image', nargs='*')
+    args = parser.parse_args()
 
-if args.prune:
-    prune()
-for image in args.image:
-    download(image)
+    # By default download all links
+    if not args.image and not args.prune:
+        args.image = every()
+
+    if args.prune:
+        prune()
+    for image in args.image:
+        download(image, args.force, args.store)
+
+if __name__ == '__main__':
+    sys.exit(main())

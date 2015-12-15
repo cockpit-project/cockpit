@@ -45,7 +45,8 @@ def run_avocado(machine, avocado_tests, print_failed=True, env=[]):
     cmd_parts = env + ["avocado run",
                  "--job-results-dir " + MachineCase.avocado_results_dir,
                  ' '.join([machine_test_dir +
-                           os.sep + x for x in avocado_tests])
+                           os.sep + x for x in avocado_tests]),
+                 ">&2"
                  ]
 
     try:

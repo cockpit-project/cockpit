@@ -11,12 +11,7 @@ BASE = os.path.dirname(__file__)
 IMAGES = os.path.join(BASE, "images")
 DATA = os.path.join(os.environ.get("TEST_DATA", BASE), "images")
 
-parser = argparse.ArgumentParser(description='Upload virtual machine images')
-parser.add_argument("--store", default=UPLOAD, help="Where to send images")
-parser.add_argument('image', nargs='+')
-args = parser.parse_args()
-
-def upload(source):
+def upload(store, source):
     name = os.path.basename(source)
 
     # Compress the image
@@ -26,21 +21,30 @@ def upload(source):
         subprocess.check_call(xz, stdout=fp)
 
     # And upload the compressed version
-    dest = os.path.join(args.store, name + ".xz")
+    dest = os.path.join(store, name + ".xz")
     subprocess.check_call(["rsync", "--progress", compressed, dest])
 
     # Remove the compressed version
     os.unlink(compressed)
 
-sources = []
-for image in args.image:
-    link = os.path.join(IMAGES, image)
-    if not os.path.islink(link):
-        parser.error("image link does not exist: " + image)
-    source = os.path.join(DATA, os.readlink(link))
-    if not os.path.isfile(source):
-        parser.error("image does not exist: " + image)
-    sources.append(source)
+def main():
+    parser = argparse.ArgumentParser(description='Upload virtual machine images')
+    parser.add_argument("--store", default=UPLOAD, help="Where to send images")
+    parser.add_argument('image', nargs='*')
+    args = parser.parse_args()
 
-for source in sources:
-    upload(source)
+    sources = []
+    for image in args.image:
+        link = os.path.join(IMAGES, image)
+        if not os.path.islink(link):
+            parser.error("image link does not exist: " + image)
+        source = os.path.join(DATA, os.readlink(link))
+        if not os.path.isfile(source):
+            parser.error("image does not exist: " + image)
+        sources.append(source)
+
+    for source in sources:
+        upload(args.store, source)
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -50,6 +50,7 @@ done;
         self.selenium.start()
         self.selenium.wait_boot()
         # start selenium on the server
+        self.selenium.upload(["./guest/selenium_start.sh"], "/root")
         self.selenium.execute(command="/root/selenium_start.sh")
 
         self.allow_journal_messages("Error receiving data: Connection reset by peer",

@@ -36,22 +36,30 @@ void     _cockpit_expect_logged_msg         (const char *domain,
                                              int line,
                                              const char *func,
                                              GLogLevelFlags log_level,
-                                             const gchar *pattern);
+                                             const gchar *pattern,
+                                             gboolean skipable,
+                                             gboolean optional);
 
 #define cockpit_expect_log(domain, level, pattern) \
-  (_cockpit_expect_logged_msg ((domain), __FILE__, __LINE__, G_STRFUNC, (level), (pattern)))
+  (_cockpit_expect_logged_msg ((domain), __FILE__, __LINE__, G_STRFUNC, (level), (pattern), FALSE, FALSE))
+
+#define cockpit_expect_unordered_log(domain, level, pattern) \
+  (_cockpit_expect_logged_msg ((domain), __FILE__, __LINE__, G_STRFUNC, (level), (pattern), TRUE, FALSE))
+
+#define cockpit_expect_possible_log(domain, level, pattern) \
+  (_cockpit_expect_logged_msg ((domain), __FILE__, __LINE__, G_STRFUNC, (level), (pattern), TRUE, TRUE))
 
 #define cockpit_expect_warning(pattern) \
-  (_cockpit_expect_logged_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, G_LOG_LEVEL_WARNING, (pattern)))
+  (_cockpit_expect_logged_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, G_LOG_LEVEL_WARNING, (pattern), FALSE, FALSE))
 
 #define cockpit_expect_critical(pattern) \
-  (_cockpit_expect_logged_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, G_LOG_LEVEL_CRITICAL, (pattern)))
+  (_cockpit_expect_logged_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, G_LOG_LEVEL_CRITICAL, (pattern), FALSE, FALSE))
 
 #define cockpit_expect_message(pattern) \
-  (_cockpit_expect_logged_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, G_LOG_LEVEL_MESSAGE, (pattern)))
+  (_cockpit_expect_logged_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, G_LOG_LEVEL_MESSAGE, (pattern), FALSE, FALSE))
 
 #define cockpit_expect_info(pattern) \
-  (_cockpit_expect_logged_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, G_LOG_LEVEL_INFO, (pattern)))
+  (_cockpit_expect_logged_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, G_LOG_LEVEL_INFO, (pattern), FALSE, FALSE))
 
 void     cockpit_assert_expected            (void);
 

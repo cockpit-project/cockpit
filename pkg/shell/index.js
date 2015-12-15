@@ -423,15 +423,22 @@ define([
 
     function choose_component(state, compiled) {
         var item;
+        var single_host = machines.list.length <= 1;
+        var dashboards = ordered(compiled.items, "dashboard");
 
-        if (machines.list.length <= 1 || shell_embedded)
+        if (shell_embedded)
             state.sidebar = true;
 
         /* See if we should show a dashboard */
-        if (!state.sidebar) {
-            item = ordered(compiled.items, "dashboard")[0];
-            if (item)
+        if (!state.sidebar && dashboards.length > 0) {
+            item = dashboards[0];
+            /* Don't chose a dashboard as a single host unless
+             * it specifically supports that.
+             */
+            if (item && (!single_host || item.wants !== "multiple-machines"))
                 return item.path;
+            else
+                item = null;
         }
 
         /* See if we can find something with currently selected label */
@@ -1019,7 +1026,8 @@ define([
                 var item = {
                     section: section,
                     label: cockpit.gettext(info.label) || prop,
-                    order: info.order === undefined ? 1000 : info.order
+                    order: info.order === undefined ? 1000 : info.order,
+                    wants: info.wants,
                 };
                 if (info.path)
                     item.path = info.path.replace(/\.html$/, "");

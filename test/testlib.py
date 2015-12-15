@@ -612,6 +612,8 @@ systemctl start docker
                                     ".*: failed to retrieve resource: terminated",
                                     # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1253319
                                     'audit:.*denied.*2F6D656D66643A73642D73797374656D642D636F726564756D202864656C.*',
+                                    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1285019
+                                    'audit:.*denied.*systemd-logind.*nologin.*',
                                     'localhost: dropping message while waiting for child to exit',
                                     '.*: GDBus.Error:org.freedesktop.PolicyKit1.Error.Failed: .*',
                                     )

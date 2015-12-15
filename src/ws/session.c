@@ -61,6 +61,7 @@ static struct passwd *pwd;
 const char *rhost;
 static pid_t child;
 static int want_session = 1;
+static char *auth_delimiter = "";
 static FILE *authf;
 
 #if DEBUG_SESSION
@@ -121,7 +122,7 @@ write_auth_string (const char *field,
   const unsigned char *at;
   char buf[8];
 
-  fprintf (authf, ", \"%s\": \"", field);
+  fprintf (authf, "%s \"%s\": \"", auth_delimiter, field);
   for (at = (const unsigned char *)str; *at; at++)
     {
       if (*at == '\\' || *at == '\"' || *at < 0x1f)
@@ -135,6 +136,7 @@ write_auth_string (const char *field,
         }
     }
   fputc_unlocked ('\"', authf);
+  auth_delimiter = ",";
 }
 
 static void
@@ -145,7 +147,7 @@ write_auth_hex (const char *field,
   static const char hex[] = "0123456789abcdef";
   size_t i;
 
-  fprintf (authf, ", \"%s\": \"", field);
+  fprintf (authf, "%s \"%s\": \"", auth_delimiter, field);
   for (i = 0; i < len; i++)
     {
       unsigned char byte = src[i];
@@ -153,6 +155,7 @@ write_auth_hex (const char *field,
       fputc_unlocked (hex[byte & 0xf], authf);
     }
   fputc_unlocked ('\"', authf);
+  auth_delimiter = ",";
 }
 
 static void
@@ -166,13 +169,29 @@ write_auth_begin (int result_code)
    * The use of JSON here is not coincidental. It allows the cockpit-ws
    * to detect whether it received the entire result or not. Partial
    * JSON objects do not parse.
-   *
-   * In addition this is not a cross platform message. We are sending
-   * to cockpit-ws running on the same machine. PAM codes will be
-   * identical and should all be understood by cockpit-ws.
    */
 
-  fprintf (authf, "{ \"result-code\": %d", result_code);
+  fprintf (authf, "{ ");
+
+  if (result_code == PAM_AUTH_ERR || result_code == PAM_USER_UNKNOWN)
+    {
+      write_auth_string ("error", "authentication-failed");
+    }
+  else if (result_code == PAM_PERM_DENIED)
+    {
+      write_auth_string ("error", "permission-denied");
+    }
+  else if (result_code == PAM_AUTHINFO_UNAVAIL)
+    {
+      write_auth_string ("error", "authentication-unavailable");
+    }
+  else if (result_code != PAM_SUCCESS)
+    {
+      write_auth_string ("error", "pam-error");
+    }
+
+  if (result_code != PAM_SUCCESS)
+    write_auth_string ("message", pam_strerror (NULL, result_code));
 
   debug ("wrote result %d to cockpit-ws", result_code);
 }

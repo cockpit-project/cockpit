@@ -161,7 +161,7 @@ function event_mixin(obj, handlers) {
     obj.removeEventListener = function removeEventListener(type, handler) {
         var length = handlers[type] ? handlers[type].length : 0;
         for (var i = 0; i < length; i++) {
-            if (handlers[type][i] == handler) {
+            if (handlers[type][i] === handler) {
                 handlers[type][i] = null;
                 break;
             }
@@ -916,21 +916,6 @@ function basic_scope(cockpit) {
     cockpit.base64_encode = base64_encode;
     cockpit.base64_decode = base64_decode;
 
-    cockpit.logout = function logout(reload) {
-        if (reload !== false)
-            reload_after_disconnect = true;
-        ensure_transport(function(transport) {
-            transport.send_control({ "command": "logout", "disconnect": true });
-        });
-    };
-
-    /* Not public API ... yet? */
-    cockpit.drop_privileges = function drop_privileges() {
-        ensure_transport(function(transport) {
-            transport.send_control({ "command": "logout", "disconnect": false });
-        });
-    };
-
     cockpit.kill = function kill(host, group) {
         var options = { "command": "kill" };
         if (host)
@@ -991,6 +976,21 @@ function full_scope(cockpit, $, po) {
             return this.message;
         };
     }
+
+    cockpit.logout = function logout(reload) {
+        if (reload !== false)
+            reload_after_disconnect = true;
+        ensure_transport(function(transport) {
+            transport.send_control({ "command": "logout", "disconnect": true });
+        });
+    };
+
+    /* Not public API ... yet? */
+    cockpit.drop_privileges = function drop_privileges() {
+        ensure_transport(function(transport) {
+            transport.send_control({ "command": "logout", "disconnect": false });
+        });
+    };
 
     /* ---------------------------------------------------------------------
      * User and system information

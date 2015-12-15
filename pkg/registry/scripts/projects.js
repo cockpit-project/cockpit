@@ -28,13 +28,13 @@
         function($routeProvider) {
             $routeProvider.when('/projects', {
                 templateUrl: 'views/projects-page.html',
-                controller: 'ImagesCtrl',
+                controller: 'ProjectsCtrl',
                 reloadOnSearch: false,
             });
         }
     ])
 
-    .controller('ImagesCtrl', [
+    .controller('ProjectsCtrl', [
         '$scope',
         function($scope) {
             /* nothing here yet */

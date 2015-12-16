@@ -984,7 +984,7 @@
                 return promise;
             }
 
-            function removeResource(/* ... */) {
+            function deleteResource(/* ... */) {
                 var path = resourcePath(arguments);
                 var resource = loader.objects[path];
                 var promise = new KubeRequest("DELETE", path);
@@ -995,8 +995,8 @@
             }
 
             return {
-                create: createObjects,
-                remove: removeResource
+                "create": createObjects,
+                "delete": deleteResource
             };
         }
     ])

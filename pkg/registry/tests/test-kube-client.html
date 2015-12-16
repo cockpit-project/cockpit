@@ -458,7 +458,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
             methods.create(CREATE_ITEMS, "namespace2").then(function() {
                 ok("/api/v1/namespaces/namespace2/pods/pod1" in loader.objects, "pod created");
-                methods.remove("/api/v1/namespaces/namespace2/pods/pod1").then(function() {
+                methods.delete("/api/v1/namespaces/namespace2/pods/pod1").then(function() {
                     ok(true, "remove succeeded");
                     watch.finally(function() {
                         ok(!("/api/v1/namespaces/namespace2/pods/pod1" in loader.objects), "pod was removed");

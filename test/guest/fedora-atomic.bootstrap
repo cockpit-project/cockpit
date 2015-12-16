@@ -24,8 +24,8 @@ out=$1
 arch=x86_64
 
 # download the newest base image
-base="http://download.fedoraproject.org/pub/fedora/linux/releases/22/Cloud/$arch/Images"
-pattern="Fedora-Cloud-Atomic-22-[0-9\.]+.$arch.qcow2"
+base="http://download.fedoraproject.org/pub/fedora/linux/releases/23/Cloud/$arch/Images"
+pattern="Fedora-Cloud-Atomic-23-[0-9\.]+.$arch.qcow2"
 
 newest=`wget -q -O- $base | egrep -o $pattern | sort -V | tail -1`
 

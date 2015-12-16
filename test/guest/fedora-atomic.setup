@@ -18,12 +18,18 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+# HACK - https://github.com/cockpit-project/cockpit/issues/3338
+# Use mac's in name policy, prevents interference from network-scripts
+mkdir -p /etc/systemd/network
+printf "[Link]\nNamePolicy=kernel database onboard mac\nMACAddressPolicy=persistent" > /etc/systemd/network/99-default.link
+rm /etc/udev/rules.d/80-net-setup-link.rules
+
 # fully upgrade host first
 atomic host upgrade
 
 # Checkout current os branch
 # we'll use it every time we build a new tree
-ostree checkout fedora-atomic/f22/x86_64/docker-host /var/local-tree
+ostree checkout fedora-atomic/f23/x86_64/docker-host /var/local-tree
 
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker
@@ -32,8 +38,8 @@ systemctl start docker || journalctl -u docker
 docker pull cockpit/ws
 docker pull busybox:latest
 docker pull busybox:buildroot-2014.02
-docker pull submod/helloapache
-docker pull submod/atomicapp
+docker pull submod/helloapache:0.1.11
+docker pull gcr.io/google_containers/pause:0.8.0
 
 # Final tweaks
 

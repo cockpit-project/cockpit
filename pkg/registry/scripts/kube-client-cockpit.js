@@ -463,7 +463,7 @@
                  * connect discovery stuff. Otherwise ask our connect service
                  * for connection info, and do discovery.
                  */
-                if (config && config.payload)
+                if (config && config.port)
                     connect = config;
                 else
                     connect = $injector.get('cockpitKubeDiscover')();
@@ -471,7 +471,8 @@
                 $q.when(connect, function connected(options) {
                     var opts = angular.extend({ }, config, options, {
                         path: path,
-                        method: method
+                        method: method,
+                        payload: "http-stream2"
                     });
 
                     opts.headers = angular.extend(heads, opts.headers || { });
@@ -583,11 +584,10 @@
                 var last, aux, req;
                 defer = $q.defer();
 
-                var cp = "http-stream2";
                 var schemes = [
-                    { port: 8080, payload: cp },
-                    { port: 8443, tls: { }, payload: cp },
-                    { port: 6443, tls: { }, payload: cp }
+                    { port: 8080 },
+                    { port: 8443, tls: { } },
+                    { port: 6443, tls: { } },
                 ];
 
                 function step(options, kubeConfig) {

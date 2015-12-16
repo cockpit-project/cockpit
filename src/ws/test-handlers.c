@@ -24,6 +24,7 @@
 #include "cockpithandlers.h"
 #include "cockpitws.h"
 
+#include "common/cockpitconf.h"
 #include "common/cockpittest.h"
 #include "common/mock-io-stream.h"
 #include "common/cockpitwebserver.h"
@@ -339,6 +340,7 @@ typedef struct {
   const gchar *path;
   const gchar *auth;
   const gchar *expect;
+  const gchar *config;
   gboolean with_home;
 } DefaultFixture;
 
@@ -352,6 +354,8 @@ setup_default (Test *test,
   GAsyncResult *result = NULL;
   GHashTable *headers;
   const gchar *user;
+
+  cockpit_config_file = fixture->config;
 
   g_setenv ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
   if (fixture->with_home)
@@ -391,6 +395,7 @@ teardown_default (Test *test,
   g_unsetenv ("XDG_DATA_HOME");
 
   teardown (test, fixture->path);
+  cockpit_conf_cleanup ();
 };
 
 static void
@@ -466,6 +471,16 @@ static const DefaultFixture fixture_shell_index = {
   .expect = "HTTP/1.1 200*"
       "<base href=\"/cockpit/@localhost/another/test.html\">*"
       "<title>In home dir</title>*"
+};
+
+static const DefaultFixture fixture_shell_configured_index = {
+  .path = "/",
+  .auth = "/cockpit",
+  .with_home = TRUE,
+  .config = SRCDIR "/src/ws/mock-config.conf",
+  .expect = "HTTP/1.1 200*"
+      "<base href=\"/cockpit/@localhost/second/test.html\">*"
+      "<title>In system dir</title>*"
 };
 
 static const DefaultFixture fixture_shell_package = {
@@ -714,6 +729,8 @@ main (int argc,
               setup, test_ping, teardown);
 
   g_test_add ("/handlers/shell/index", Test, &fixture_shell_index,
+              setup_default, test_default, teardown_default);
+  g_test_add ("/handlers/shell/configured_index", Test, &fixture_shell_configured_index,
               setup_default, test_default, teardown_default);
   g_test_add ("/handlers/shell/package", Test, &fixture_shell_package,
               setup_default, test_default, teardown_default);

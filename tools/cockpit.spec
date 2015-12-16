@@ -253,8 +253,8 @@ cat subscriptions.list docker.list networkmanager.list >> shell.list
 %{_docdir}/%{name}/COPYING
 %{_docdir}/%{name}/README.md
 %dir %{_datadir}/%{name}
-%{_datadir}/appdata
-%{_datadir}/applications
+%{_datadir}/appdata/cockpit.appdata.xml
+%{_datadir}/applications/cockpit.desktop
 %{_datadir}/pixmaps/cockpit.png
 %doc %{_mandir}/man1/cockpit.1.gz
 

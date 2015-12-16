@@ -26,6 +26,7 @@
 #include "cockpitwebservice.h"
 #include "cockpitws.h"
 
+#include "common/cockpitconf.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitenums.h"
 #include "common/cockpitwebinject.h"
@@ -438,6 +439,7 @@ handle_shell (CockpitHandlerData *data,
               CockpitWebResponse *response)
 {
   gboolean valid;
+  const gchar *shell_path;
 
   /* Check if a valid path for a shell to be served at */
   valid = g_str_equal (path, "/") ||
@@ -453,8 +455,9 @@ handle_shell (CockpitHandlerData *data,
     }
   else if (service)
     {
-      cockpit_channel_response_serve (service, headers, response,
-                                      NULL, cockpit_ws_shell_component);
+      shell_path = cockpit_conf_string ("WebService", "Shell");
+      cockpit_channel_response_serve (service, headers, response, NULL,
+                                      shell_path ? shell_path : cockpit_ws_shell_component);
     }
   else
     {

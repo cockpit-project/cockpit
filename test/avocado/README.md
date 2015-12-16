@@ -1,7 +1,4 @@
-# Porting tests to Avocado
-
-The test suite in this directory is going to replace the old one as
-soon as we can manage.
+# Tests using Avocado
 
 The rules for tests are a bit different:
 

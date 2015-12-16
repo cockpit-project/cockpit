@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Copyright (C) 2015 Red Hat Inc.
-# Author: <marius.vollmer@redhat.com>
+# Author: Dominik Perpeet <dperpeet@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,32 +20,17 @@
 
 set -ex
 
-if [ "$#" -lt 3 ]; then
-    echo >&2 "Usage: fedora.build IMAGE OS ARCH [SUBSCRIPTION_PATH]"
-    exit 1
-fi
-
-subscription_args=""
-
-if [ "$#" -gt 3 ]; then
-    subscription_path=$4
-    subscription_args="--mkdir /root/.rhel \
-      --upload $subscription_path/login:/root/.rhel/login \
-      --upload $subscription_path/pass:/root/.rhel/pass"
-fi
-
 BASE=$(dirname $0)
 
 out=$1
-os=$2
-arch=$3
-test -z "$BOOTSTRAP_VOLUME_SIZE" && BOOTSTRAP_VOLUME_SIZE="8G"
+arch=$2
+os=fedora-23
 
 # we can't use virt-builder --ssh-inject until all our target systems support this
 
 virt-builder "$os" \
              --output "$out" \
-             --size $BOOTSTRAP_VOLUME_SIZE \
+             --size 8G \
              --format qcow2 \
              --arch "$arch"\
              --root-password password:foobar \
@@ -61,5 +46,5 @@ virt-builder "$os" \
              --delete /etc/systemd/system/multi-user.target.wants/sshd.service \
              --mkdir /etc/systemd/system/sockets.target.wants \
              --link /usr/lib/systemd/system/sshd.socket:/etc/systemd/system/sockets.target.wants \
-             --selinux-relabel \
-             $subscription_args
+             --upload $BASE/selenium_start.sh:/root/selenium_start.sh \
+             --selinux-relabel

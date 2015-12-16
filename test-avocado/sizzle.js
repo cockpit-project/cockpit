@@ -1,1 +1,0 @@
-../test/sizzle.js

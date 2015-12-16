@@ -11,3 +11,19 @@ dnf -y --enablerepo=updates-testing update
 dnf -y --enablerepo=updates-testing install freeipa-server bind bind-dyndb-ldap
 
 dnf clean all
+
+hostnamectl set-hostname f0.cockpit.lan
+
+# Let's make sure that ipa-server-install doesn't block on
+# /dev/random.
+#
+rm -f /dev/random
+ln -s /dev/urandom /dev/random
+
+ipa-server-install -U -p foobarfoo -a foobarfoo -n cockpit.lan -r COCKPIT.LAN --setup-dns --no-forwarders
+
+# Make sure any initial password change is overridden
+printf 'foobarfoo\nfoobarfoo\nfoobarfoo\n' | kinit admin@COCKPIT.LAN
+
+ln -sf ../selinux/config /etc/sysconfig/selinux
+echo 'SELINUX=permissive' > /etc/selinux/config

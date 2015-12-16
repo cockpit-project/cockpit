@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 set -ex
 
@@ -16,22 +16,29 @@ echo foobar | passwd --stdin root
 # the distribution repository is updated.
 #
 COCKPIT_DEPS="\
-json-glib \
-realmd \
-glib-networking \
-libssh \
-selinux-policy-targeted \
+atomic \
+device-mapper-multipath \
 docker \
-pcp-libs \
-pcp \
-kubernetes \
 etcd \
-subscription-manager \
+glib-networking \
+json-glib \
+kubernetes \
+libssh \
+pcp \
+pcp-libs \
+realmd \
+selinux-policy-targeted \
+sos \
 storaged \
 storaged-lvm2 \
-device-mapper-multipath \
-atomic \
-sos \
+subscription-manager \
+"
+
+AVOCADO_TEST_DEPS="\
+avocado \
+fontconfig \
+npm \
+python-selenium \
 "
 
 # We also install the packages necessary to join a FreeIPA domain so
@@ -76,7 +83,13 @@ dnf -y upgrade
 #
 dnf -y copr enable phatina/storaged
 
-dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+# We need avocado for some integration tests
+dnf -y -q copr enable lmr/Autotest
+
+dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES $AVOCADO_TEST_DEPS
+
+# integration tests need phantomjs to run locally
+npm -g install phantomjs
 
 # Prepare for building
 dnf -y install mock rpm-build
@@ -85,3 +98,27 @@ srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
 su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
 
 dnf clean all
+
+# HACK: docker falls over regularly, print its log if it does
+systemctl start docker || journalctl -u docker
+
+# docker images that we need for integration testing
+docker pull busybox:latest
+docker pull busybox:buildroot-2014.02
+docker pull submod/helloapache:0.1.11
+docker pull gcr.io/google_containers/pause:0.8.0
+
+# Final tweaks
+
+rm -rf /var/log/journal/*
+echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
+printf "[Coredump]\nStorage=journal\n" > /etc/systemd/coredump.conf
+
+ln -sf ../selinux/config /etc/sysconfig/selinux
+printf "SELINUX=enforcing\nSELINUXTYPE=targeted\n" > /etc/selinux/config
+
+touch /.autorelabel
+
+# Audit events to the journal
+rm -f '/etc/systemd/system/multi-user.target.wants/auditd.service'
+rm -rf /var/log/audit/

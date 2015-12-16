@@ -18,48 +18,40 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from avocado import job
+from avocado import main
+from avocado import Test
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import cockpit
 
-username="user"
+username = "user"
 
-admins_only_pam = """
-#%PAM-1.0
-auth	   required	pam_sepermit.so
-auth       substack     password-auth
-auth       include      postlogin
-auth       optional     pam_reauthorize.so prepare
-account    required     pam_nologin.so
-account    sufficient   pam_succeed_if.so uid = 0
-account    required     pam_succeed_if.so user ingroup wheel
-account    include      password-auth
-password   include      password-auth
-# pam_selinux.so close should be the first session rule
-session    required     pam_selinux.so close
-session    required     pam_loginuid.so
-# pam_selinux.so open should only be followed by sessions to be executed in the user context
-session    required     pam_selinux.so open env_params
-session    optional     pam_keyinit.so force revoke
-session    optional     pam_reauthorize.so prepare
-session    include      password-auth
-session    include      postlogin
-"""
+admins_only_pam = """account    sufficient   pam_succeed_if.so uid = 0\\
+account    required     pam_succeed_if.so user ingroup wheel"""
 
-class checklogin_basic(cockpit.Test):
+
+class checklogin_basic(Test):
     """
     Test login for cockpit
     """
 
-    def test(self):
-        b = self.browser
+    def testLogin(self):
+        c = cockpit.Cockpit()
+        b = c.browser
 
         # Setup users and passwords
-        setup_cmd = "useradd %s -c 'Barney Bär'; echo abcdefg | passwd --stdin %s" % (username, username)
+        setup_cmd = "useradd %s -c 'Barney Bär'; echo %s:abcdefg | chpasswd" % (
+            username, username)
         cleanup_cmd = "userdel -r %s" % username
-        self.run_shell_command(setup_cmd, cleanup_cmd)
+        c.run_shell_command(setup_cmd, cleanup_cmd)
 
-        # Setup a special PAM config that disallows non-wheel users
-        self.replace_file("/etc/pam.d/cockpit", admins_only_pam)
+        def deny_non_root(remote_filename):
+            c.run_shell_command(
+                """sed -i '/nologin/a %s' %s || true""" % (admins_only_pam, remote_filename))
+
+        deny_non_root("/etc/pam.d/cockpit")
+        deny_non_root("/etc/pam.d/sshd")
 
         b.open("/system")
         b.wait_visible("#login")
@@ -78,12 +70,14 @@ class checklogin_basic(cockpit.Test):
         b.wait_text_not("#login-error-message", "")
 
         # Try to login as user with correct password
-        login (username, "abcdefg")
+        login(username, "abcdefg")
         b.wait_text("#login-error-message", "Permission denied")
 
         # Login as admin
+        b.open("/system")
         login("admin", "foobar")
-        b.expect_load()
+        with b.wait_timeout(10) as r:
+            b.expect_load()
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'Administrator')
 
@@ -92,14 +86,18 @@ class checklogin_basic(cockpit.Test):
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'Administrator')
 
+        b.click("#content-user-name")
         b.click('#go-account')
-        b.enter_page("account")
-        b.wait_text ("#account-user-name", "admin")
+        b.enter_page("/users")
+        b.wait_text("#account-user-name", "admin")
 
-        self.allow_journal_messages ("Returning error-response ... with reason .*",
-                                     "pam_unix\(cockpit:auth\): authentication failure; .*",
-                                     "pam_unix\(cockpit:auth\): check pass; user unknown",
-                                     "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*")
+        c.allow_journal_messages("Returning error-response ... with reason .*",
+                                 "pam_unix\(cockpit:auth\): authentication failure; .*",
+                                 "pam_unix\(cockpit:auth\): check pass; user unknown",
+                                 "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*")
+
+        c.tearDown()
+
 
 if __name__ == "__main__":
-    job.main()
+    main()

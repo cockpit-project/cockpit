@@ -57,6 +57,7 @@ def stdchannel_redirected(stdchannel, dest_filename):
         noisy_function()
     """
     try:
+        stdchannel.flush()
         oldstdchannel = os.dup(stdchannel.fileno())
         dest_file = open(dest_filename, 'w')
         os.dup2(dest_file.fileno(), stdchannel.fileno())
@@ -301,16 +302,15 @@ class Machine:
             "-P", str(self.ssh_port),
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
-            "-o", "UserKnownHostsFile=/dev/null",
-        ] + sources + [ "%s@[%s]:%s" % (self.vm_username, self.address, dest), ]
+            "-o", "UserKnownHostsFile=/dev/null"
+          ]
+        if not self.verbose:
+            cmd += [ "-q" ]
+        cmd += sources + [ "%s@[%s]:%s" % (self.vm_username, self.address, dest) ]
 
         self.message("Uploading", ", ".join(sources))
         self.message(" ".join(cmd))
-        if self.verbose:
-            subprocess.check_call(cmd)
-        else:
-            with stdchannel_redirected(sys.stderr, os.devnull):
-                subprocess.check_call(cmd)
+        subprocess.check_call(cmd)
 
     def download(self, source, dest):
         """Download a file from the test machine.
@@ -324,8 +324,10 @@ class Machine:
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
-            "%s@[%s]:%s" % (self.vm_username, self.address, source), dest
-        ]
+            ]
+        if not self.verbose:
+            cmd += ["-q"]
+        cmd += [ "%s@[%s]:%s" % (self.vm_username, self.address, source), dest ]
 
         self.message("Downloading", source)
         self.message(" ".join(cmd))
@@ -345,8 +347,10 @@ class Machine:
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
             "-r",
-            "%s@[%s]:%s" % (self.vm_username, self.address, source), dest
-        ]
+          ]
+        if not self.verbose:
+            cmd += ["-q"]
+        cmd += [ "%s@[%s]:%s" % (self.vm_username, self.address, source), dest ]
 
         self.message("Downloading", source)
         self.message(" ".join(cmd))
@@ -565,6 +569,11 @@ class VirtEventHandler():
                     return True
                 remaining_time = end_time - time.time()
         return False
+
+    def has_rebooted(self, domain):
+        key = (domain.name(), domain.ID())
+        with self.data_lock:
+            return key in self.domain_has_rebooted
 
     def domain_is_running(self, domain):
         key = (domain.name(), domain.ID())
@@ -889,11 +898,11 @@ class VirtMachine(Machine):
         finally:
             self._cleanup()
 
-    def start(self, maintain=False, macaddr=None, memory_mb=None, cpus=None):
+    def start(self, maintain=False, macaddr=None, memory_mb=None, cpus=None, wait_for_ip=True):
         tries = 0
         while True:
             try:
-                self._start_qemu(maintain=maintain, macaddr=macaddr, memory_mb=memory_mb, cpus=cpus)
+                self._start_qemu(maintain=maintain, macaddr=macaddr, wait_for_ip=wait_for_ip, memory_mb=memory_mb, cpus=cpus)
                 if not self._domain.isActive():
                     self._domain.start()
                 self._maintaining = maintain
@@ -971,15 +980,34 @@ class VirtMachine(Machine):
             raise Failure("system didn't reboot properly")
         self.wait_user_login()
 
-    def wait_boot(self, wait_for_running_timeout = 120):
+    def wait_boot(self, wait_for_running_timeout = 120, allow_one_reboot=False):
         # we should check for selinux relabeling in progress here
         if not self.event_handler.wait_for_running(self._domain, timeout_sec=wait_for_running_timeout ):
             raise Failure("Machine %s didn't start." % (self.address))
 
-        if not Machine.wait_ssh(self, get_new_address = lambda: self._ip_from_mac(self.macaddr, timeout_sec=5)):
-            self._diagnose_no_address()
-            raise Failure("Unable to reach machine %s via ssh." % (self.address))
-        self.wait_user_login()
+        # if we allow a reboot, the connection to test for a finished boot may be interrupted
+        # by the reboot, causing an exception
+        try:
+            start_time = time.time()
+            connected = False
+            while (time.time() - start_time) < wait_for_running_timeout:
+                if Machine.wait_ssh(self, timeout_sec=15, get_new_address = lambda: self._ip_from_mac(self.macaddr, timeout_sec=3)):
+                    connected = True
+                    break
+                if allow_one_reboot and self.event_handler.has_rebooted(self._domain):
+                    self.reset_reboot_flag()
+                    self.wait_boot(wait_for_running_timeout, allow_one_reboot=False)
+            if not connected:
+                self._diagnose_no_address()
+                raise Failure("Unable to reach machine %s via ssh." % (self.address))
+            self.wait_user_login()
+        except:
+            if allow_one_reboot:
+                self.wait_reboot()
+                self.reset_reboot_flag()
+                self.wait_boot(wait_for_running_timeout, allow_one_reboot=False)
+            else:
+                raise
 
     def stop(self, timeout_sec=120):
         if self._maintaining:

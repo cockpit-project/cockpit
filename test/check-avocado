@@ -18,17 +18,29 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from avocado import job
-import cockpit
+import os
+import unittest
 
-class checkexample_foo(cockpit.Test):
-    """
-    Example test for cockpit
-    """
+import avocadolib
+from testlib import *
 
-    def test(self):
-        b = self.browser
-        ...
+avocado_tests = ["checklogin-basic.py",
+                 "checklogin-raw.py",
+                ]
 
-if __name__ == "__main__":
-    job.main()
+@unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "atomic: missing avocado")
+class TestAvocadoSuite(MachineCase):
+
+    def setUp(self):
+        MachineCase.setUp(self)
+        self.start_cockpit()
+
+    def testAvocado(self):
+        self.allow_journal_messages("Error receiving data: Connection reset by peer")
+        avocadolib.prepare_avocado_tests(self.machine)
+
+        if not avocadolib.run_avocado(machine=self.machine, avocado_tests=avocado_tests, print_failed=True):
+            self.fail("avocado tests failed")
+
+if __name__ == '__main__':
+    test_main()

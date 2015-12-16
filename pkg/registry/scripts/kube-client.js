@@ -864,18 +864,39 @@
                 }
             });
 
-            function select(what) {
-                var results, indexed = false;
-                if (!what) {
-                    what = loader.objects;
-                    indexed = true;
+            function selection(what, indexed) {
+                return cached(what).selection || mixinSelection(what, undefined, indexed);
+            }
 
-                } else if (angular.isArray(what) || typeof (what) != "object") {
-                    console.warn("You should pass object dicts or null to kubeSelect()");
-                    return null;
+            function select(arg) {
+                var what, meta, i, len;
+                if (!arg) {
+                    return selection(loader.objects, true);
+
+                } else if (typeof arg == "object") {
+                    if (typeof arg.kind == "string") {
+                        if (arg.items) {
+                            arg = arg.items;
+                        } else {
+                            arg = [ arg ];
+                        }
+                    }
+
+                    if (typeof arg.length == "number") {
+                        what = { };
+                        for (i = 0, len = arg.length; i < len; i++) {
+                            meta = arg[i].metadata || { };
+                            what[meta.selfLink || i] = arg[i];
+                        }
+                        return selection(what);
+
+                    } else {
+                        return selection(arg);
+                    }
                 }
 
-                return cached(what).selection || mixinSelection(what, undefined, indexed);
+                console.warn("Pass resources or resource dicts or null to kubeSelect()");
+                return selection({ });
             }
 
             /* A seldom used 'static' method */

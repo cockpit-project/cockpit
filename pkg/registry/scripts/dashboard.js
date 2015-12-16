@@ -72,6 +72,11 @@
             ex2.target = "#control-2";
             $scope.inputErrors = [ex1, ex2];
 
+            $scope.select = {
+                value: 'First option',
+                possible: ['First option', 'Second option', 'Third option']
+            };
+
             $scope.bigError = new Error("This is a global failure message");
 
             /* A mock operation, cancellable with progress */

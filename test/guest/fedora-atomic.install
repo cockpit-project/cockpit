@@ -24,9 +24,10 @@ import sys
 import shutil
 import urllib
 import argparse
+import datetime
 
 class AtomicCockpitInstaller:
-    branch = "fedora-atomic/f22/x86_64/docker-host"
+    branch = "fedora-atomic/f23/x86_64/docker-host"
     checkout_location = "/var/local-tree"
     repo_location = "/var/local-repo"
     rpm_location = "/usr/share/rpm"
@@ -93,7 +94,9 @@ class AtomicCockpitInstaller:
         subprocess.check_call(["mv", os.path.join(self.checkout_location, "etc"),
                                os.path.join(self.checkout_location, "usr", "etc")])
 
+        now = datetime.datetime.utcnow()
         subprocess.check_call(["ostree", "commit", "-s", "cockpit-tree",
+                               "--timestamp={0} +0000".format(now.strftime("%Y-%m-%d %H:%M:%S")),
                                "--repo", self.repo_location,
                                "-b", self.branch,
                                "--add-metadata-string", "version=cockpit-base.1",

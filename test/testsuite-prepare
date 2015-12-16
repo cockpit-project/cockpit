@@ -52,10 +52,10 @@ fi
 
 # The Atomic variants can't build their own packages, so we build in
 # their non-Atomic siblings.  For example, fedora-atomic is build
-# in fedora-22.
+# in fedora-23
 #
 if [ "$TEST_OS" = "fedora-atomic" ]; then
-    BUILD_OS="fedora-22"
+    BUILD_OS="fedora-23"
 else
     BUILD_OS="$TEST_OS"
 fi

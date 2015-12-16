@@ -43,10 +43,10 @@ class TestEmbed(MachineCase):
 
         # Page should show automatically now that other frame logged in
         b.switch_to_top()
-        b.click("#embed-network")
-        b.wait_present("iframe[name='embed-network'][loaded]")
-        b.switch_to_frame("embed-network")
-        b.wait_visible("#networking")
+        b.click("#embed-terminal")
+        b.wait_present("iframe[name='embed-terminal'][loaded]")
+        b.switch_to_frame("embed-terminal")
+        b.wait_visible("#terminal")
 
         # Clicking on the link with separate auth, shouldn't log in automatically
         b.switch_to_top()

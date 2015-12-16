@@ -18,11 +18,21 @@
             <tr>
                 <td class="top">
                     <label class="control-label" for="control-2">
-                        Another
+                        Select Example
                     </label>
                 </td>
                 <td>
-                    <input id="control-2" class="form-control" type="text">
+                    <div id="control-2" class="btn-group bootstrap-select form-control" dropdown>
+                        <button class="btn btn-default dropdown-toggle" dropdown-toggle>
+                            <span class="pull-left">{{ select.value }}</span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="value in select.possible" ng-class="{active: value == select.value}">
+                                <a ng-click="select.value = value">{{ value }}</a>
+                            </li>
+                        </ul>
+                    </div>
                 </td>
             </tr>
         </table>

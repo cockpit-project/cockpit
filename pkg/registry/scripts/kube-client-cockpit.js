@@ -365,7 +365,7 @@
                         if (stopping)
                             return;
 
-                        var msg = "watching " + path + " failed:";
+                        var msg = "watching " + path + " failed: ";
                         var problem = options.problem;
                         var status = response.status;
 

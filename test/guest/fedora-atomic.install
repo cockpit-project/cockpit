@@ -83,8 +83,17 @@ class AtomicCockpitInstaller:
         if "local:" in status:
             subprocess.check_call(["rpm-ostree", "upgrade"])
         else:
-            subprocess.check_call(["rpm-ostree", "rebase",
-                                   "local:{0}".format(self.branch)])
+            try:
+                subprocess.check_call(["setenforce", "0"])
+                subprocess.check_call(["rpm-ostree", "rebase",
+                                       "local:{0}".format(self.branch)])
+                subprocess.check_call(["rpm-ostree", "rebase",
+                                       "local:{0}".format(self.branch)])
+            except:
+                print subprocess.check_output(['coredumpctl'])
+                raise
+            finally:
+                subprocess.check_call(["setenforce", "1"])
 
     def commit_to_repo(self):
         if self.verbose:

@@ -29,6 +29,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 
 import testvm
 import testinfra
@@ -107,8 +108,21 @@ class MachineBuilder:
         source = subprocess.check_output([ "../tools/make-source" ]).strip()
         self.run_setup_script(script, source)
 
-        # make sure we can boot the system
-        self.boot_system()
+        tries_left = 3
+        successfully_booted = False
+        while tries_left > 0:
+            try:
+                # make sure we can boot the system
+                self.boot_system()
+                successfully_booted = True
+                break
+            except:
+                # we might need to wait for the image to become available again
+                # accessing it in maintain=True mode successively can trigger qemu errors
+                time.sleep(3)
+                tries_left -= 1
+        if not successfully_booted:
+            raise testvm.Failure("Unable to verify that machine boot works.")
 
     def save(self):
         data_dir = os.path.join(os.environ.get("TEST_DATA", self.machine.test_dir), "images")
@@ -118,7 +132,7 @@ class MachineBuilder:
             os.makedirs(data_dir, 0750)
 
         if not os.path.exists(self.machine.image_file):
-            raise Failure("Nothing to save.")
+            raise testvm.Failure("Nothing to save.")
 
         partial = os.path.join(data_dir, self.machine.image + ".partial")
 
@@ -128,7 +142,7 @@ class MachineBuilder:
         # Hash the image here
         (sha, x1, x2) = subprocess.check_output([ "sha1sum", partial ]).partition(" ")
         if not sha:
-            raise Failure("sha1sum returned invalid output")
+            raise testvm.Failure("sha1sum returned invalid output")
 
         name = self.machine.image + "-" + sha + ".qcow2"
         data_file = os.path.join(data_dir, name)

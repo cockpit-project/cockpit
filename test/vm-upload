@@ -39,7 +39,7 @@ def prune(store):
 
     # Get remote list of files order than the given date
     (host, unused, path) = store.partition(":")
-    cmd = ["ssh", host, "--", "find", path, "-mtime", "+{0}".format(testinfra.IMAGE_EXPIRE), "-print0"]
+    cmd = ["ssh", host, "--", "find", path, "-name", "'*.xz'", "-mtime", "+{0}".format(testinfra.IMAGE_EXPIRE), "-print0"]
     output = subprocess.check_output(cmd)
 
     remove = []
@@ -50,7 +50,7 @@ def prune(store):
         else:
             remove.append(path)
 
-    cmd = ["ssh", host, "--", "echo", "rm", "-v" ] + remove
+    cmd = ["ssh", host, "--", "rm", "-vf" ] + remove
     subprocess.check_call(cmd)
 
 def main():

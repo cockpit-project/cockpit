@@ -27,12 +27,14 @@ def main():
     parser = argparse.ArgumentParser(description='Test infrastructure: scan and update status of pull requests on github')
     parser.add_argument('-d', '--dry', action="store_true", default=False,
                         help='Don''t actually change anything on github')
-    parser.add_argument('image', action='store', nargs='?',
-                        help='The operating system image to scan against')
+    parser.add_argument('--except', dest='except_context', action='store_true',
+                        help='Scan for anything except the specified context')
+    parser.add_argument('context', action='store', nargs='?',
+                        help='The test context to scan for tasks')
     opts = parser.parse_args()
 
     github = testinfra.GitHub("/repos/cockpit-project/cockpit/")
-    for (priority, name, revision, ref, context) in github.scan(not opts.dry, opts.image):
+    for (priority, name, revision, ref, context) in github.scan(not opts.dry, opts.context, opts.except_context):
         sys.stdout.write("{0}: {1} ({2} {3})\n".format(name, revision, priority, context))
 
 if __name__ == '__main__':

@@ -1,4 +1,80 @@
-#!/bin/sh
+#!/usr/bin/env python
 
-BASE=$(dirname $0)
-exec $BASE/check-verify --github=next "$@"
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import fnmatch
+import os
+import subprocess
+import sys
+
+import testinfra
+
+sys.dont_write_bytecode = True
+
+def main():
+    parser = argparse.ArgumentParser(description='Perform next testing task from Github')
+    parser.add_argument('-j', '--jobs', dest="jobs", type=int,
+                        default=os.environ.get("TEST_JOBS", 1), help="Number of concurrent jobs")
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help='Verbose output')
+    parser.add_argument('--publish', dest='publish', action='store',
+                        help='Publish results centrally to a sink')
+    parser.add_argument('--except', dest='except_context', action='store_true',
+                        help='Choose tasks from any context except the one specified')
+    parser.add_argument('context', action='store', nargs='?',
+                        help='The test context to choose tasks from')
+    opts = parser.parse_args()
+
+    os.chdir(os.path.dirname(__file__))
+    github = testinfra.GitHub()
+
+    # When letting github decide what to test
+    sys.stderr.write("Talking to GitHub ...\n")
+    for (priority, name, revision, ref, context) in github.scan(opts.publish, opts.context, opts.except_context):
+        break
+    else: # Nothing to test
+        return 1
+
+    os.environ["TEST_NAME"] = name
+
+    # Split a value like verify/fedora-23
+    (prefix, unused, value) = context.partition("/")
+
+    # Figure out what to do next
+    if prefix == "verify":
+        subprocess.check_call([ "git", "fetch", "origin", ref ])
+        subprocess.check_call([ "git", "checkout", revision ])
+
+        os.environ["TEST_OS"] = value
+        cmd = [ "./check-verify", "--install", "--rebase", "--jobs", str(opts.jobs) ]
+
+        if opts.publish:
+            cmd.append("--publish=" + opts.publish)
+        if opts.verbose:
+            cmd.append("--verbose")
+
+        subprocess.call(cmd)
+        return 0
+
+    else:
+        sys.stderr.write("github-task: unknown context: " + context)
+
+
+if __name__ == '__main__':
+    sys.exit(main())

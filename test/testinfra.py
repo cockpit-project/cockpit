@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
 import errno
 import httplib
 import json
@@ -45,12 +44,12 @@ HOSTNAME = socket.gethostname().split(".")[0]
 DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-22")
 
 DEFAULT_VERIFY = {
-    'fedora-22': [ 'master' ],
-    'fedora-23': [ 'master', 'pulls' ],
-    'rhel-7': [ 'master', 'pulls' ],
-    'fedora-atomic': [ 'master', 'pulls' ],
-    'debian-unstable': [ 'master', 'pulls' ],
-    'fedora-testing': [ 'master' ],
+    'verify/fedora-22': [ 'master' ],
+    'verify/fedora-23': [ 'master', 'pulls' ],
+    'verify/rhel-7': [ 'master', 'pulls' ],
+    'verify/fedora-atomic': [ 'master', 'pulls' ],
+    'verify/debian-unstable': [ 'master', 'pulls' ],
+    'verify/fedora-testing': [ 'master' ],
 }
 
 TESTING = "Testing in progress"
@@ -63,32 +62,12 @@ IMAGE_EXPIRE = 14
 __all__ = (
     'Sink',
     'GitHub',
-    'arg_parser',
     'DEFAULT_IMAGE',
     'HOSTNAME',
     'TESTING',
     'NOT_TESTED',
     'IMAGE_EXPIRE',
 )
-
-def arg_parser():
-    parser = argparse.ArgumentParser(description='Run Cockpit test(s)')
-    parser.add_argument('-j', '--jobs', dest="jobs", type=int,
-                        default=os.environ.get("TEST_JOBS", 1), help="Number of concurrent jobs")
-    parser.add_argument('-v', '--verbose', dest="verbosity", action='store_const',
-                        const=2, help='Verbose output')
-    parser.add_argument('-t', "--trace", dest='trace', action='store_true',
-                        help='Trace machine boot and commands')
-    parser.add_argument('-q', '--quiet', dest='verbosity', action='store_const',
-                        const=0, help='Quiet output')
-    parser.add_argument('--thorough', dest='thorough', action='store_true',
-                        help='Thorough mode, no skipping known issues')
-    parser.add_argument('-s', "--sit", dest='sit', action='store_true',
-                        help="Sit and wait after test failure")
-    parser.add_argument('tests', nargs='*')
-
-    parser.set_defaults(verbosity=1)
-    return parser
 
 def read_whitelist():
     # Try to load the whitelists
@@ -335,14 +314,21 @@ class GitHub(object):
 
         return [priority, update]
 
-    def scan(self, update, context):
-        results = []
-
+    def scan(self, update, context, except_context=False):
         # Figure out what contexts/images we need to verify
+        #
+        # When context is set and except_context is True we
+        # check everything except the specific context. When
+        # it's False then the specified context is the only
+        # one we scan tasks for.
         contexts = DEFAULT_VERIFY
         if context:
-            contexts = { context: contexts.get(context, [ ]) }
+            if except_context:
+                contexts.pop(context, None)
+            else:
+                contexts = { context: contexts.get(context, [ ]) }
 
+        results = []
         master_contexts = []
         pull_contexts = []
         for (context, what) in contexts.items():
@@ -401,10 +387,11 @@ class GitHub(object):
 
         # Prefer higher priorities, and "local" operating system
         def sort_key(task):
-            key = task[0]
-            if task[4] != DEFAULT_IMAGE:
-                key -= random.randint(1, 3)
-            return key
+            priority = task[0]
+            context = task[4]
+            if DEFAULT_IMAGE not in context:
+                priority -= random.randint(1, 3)
+            return priority
 
         random.seed()
         results = filter(filter_tasks, results)

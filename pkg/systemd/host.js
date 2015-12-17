@@ -193,6 +193,9 @@ PageServer.prototype = {
                     { title: _("Shutdown"),        action: 'shutdown' },
                   ])
         );
+        $('#system-ostree-version-link').on('click', function () {
+            cockpit.jump("/ostree", cockpit.transport.host);
+        });
 
         $('#system_information_hostname_button').on('click', function () {
             PageSystemInformationChangeHostname.client = self.client;
@@ -326,6 +329,16 @@ PageServer.prototype = {
 
     enter: function() {
         var self = this;
+
+        self.ostree_client = cockpit.dbus('org.projectatomic.rpmostree1',
+                                          {"superuser" : true});
+        $(self.ostree_client).on("close", function () {
+            self.ostree_client = null;
+        });
+
+        self.sysroot = self.ostree_client.proxy('org.projectatomic.rpmostree1.Sysroot',
+                                                '/org/projectatomic/rpmostree1/Sysroot');
+        $(self.sysroot).on("changed", $.proxy(this, "sysroot_changed"));
 
         self.client = cockpit.dbus('org.freedesktop.hostname1');
         self.hostname_proxy = self.client.proxy('org.freedesktop.hostname1',
@@ -567,6 +580,42 @@ PageServer.prototype = {
         self.client = null;
 
         $(cockpit).off('.server');
+
+        $(self.sysroot).off();
+        self.sysroot = null;
+        if (self.ostree_client) {
+            self.ostree_client.close();
+            self.ostree_client = null;
+        }
+    },
+
+    sysroot_changed: function() {
+        var self = this;
+
+        if (self.sysroot.Booted && self.ostree_client) {
+            var version = "";
+            self.ostree_client.call(self.sysroot.Booted,
+                                    "org.freedesktop.DBus.Properties", "Get",
+                                    ['org.projectatomic.rpmostree1.OS',
+                                     "BootedDeployment"])
+                .done(function (result) {
+                    if (result && result[0]) {
+                        var deployment = result[0].v;
+                        if (deployment && deployment.version)
+                            version = deployment.version.v;
+                    }
+                })
+                .fail(function (ex) {
+                    console.log(ex);
+                })
+                .always(function () {
+                    $("#system-ostree-version").toggleClass("hidden", !version);
+                    $("#system-ostree-version-link").text(version);
+                });
+        } else {
+            $("#system-ostree-version").toggleClass("hidden", true);
+            $("#system-ostree-version-link").text("");
+        }
     },
 
     shutdown: function(action_type) {

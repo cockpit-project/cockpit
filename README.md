@@ -1,12 +1,9 @@
-[![travis CI build status](https://travis-ci.org/cockpit-project/cockpit.svg?branch=master)](https://travis-ci.org/cockpit-project/cockpit)
-
-[![Fedora 22 build status](https://fedorapeople.org/groups/cockpit/status/fedora-22-x86_64.svg)](https://fedorapeople.org/groups/cockpit/status/fedora-22-x86_64.html)
-[![Fedora 22 Cloud Atomic Host build status](https://cockpit.fedorapeople.org/hubbot/status-f22-atomic-x86_64.svg?master)](https://cockpit.fedorapeople.org/hubbot/)
-[![Fedora 22 Testing build status](https://cockpit.fedorapeople.org/hubbot/status-f22-t-x86_64.svg?master)](https://cockpit.fedorapeople.org/hubbot/)
-
-[![Fedora 23 build status](http://files.cockpit-project.org/status/fedora-23-x86_64.svg)](http://files.cockpit-project.org/status/fedora-23-x86_64.html)
-
-[![RHEL 7 build status](https://fedorapeople.org/groups/cockpit/status/rhel-7-x86_64.svg)](https://fedorapeople.org/groups/cockpit/status/rhel-7-x86_64.html)
+[![travis CI build status](https://travis-ci.org/cockpit-project/cockpit.svg?branch=master)](https://travis-ci.org/cockpit-project/cockpit) <br />
+[![Fedora 22 build status](https://fedorapeople.org/groups/cockpit/status/fedora-22.svg)](https://fedorapeople.org/groups/cockpit/status/fedora-22.html) <br />
+[![Fedora 23 build status](http://files.cockpit-project.org/status/fedora-23.svg)](http://files.cockpit-project.org/status/fedora-23.html) <br />
+[![Fedora 23 Atomic Host status](https://fedorapeople.org/groups/cockpit/status/fedora-atomic.svg)](https://fedorapeople.org/groups/cockpit/status/fedora-atomic.html) <br />
+[![Fedora 23 Testing status](https://fedorapeople.org/groups/cockpit/status/fedora-testing.svg)](https://fedorapeople.org/groups/cockpit/status/fedora-testing.html) <br />
+[![RHEL 7 build status](https://fedorapeople.org/groups/cockpit/status/rhel-7.svg)](https://fedorapeople.org/groups/cockpit/status/rhel-7.html)
 
 # Cockpit
 **A remote manager for GNU/Linux servers**

@@ -96,7 +96,7 @@ def prune(force):
             targets.append(target)
     for filename in os.listdir(DATA):
         path = os.path.join(DATA, filename)
-        if not force and os.stat(path).st_mtime > now - testinfra.IMAGE_EXPIRE * 86400:
+        if not force and os.lstat(path).st_mtime > now - testinfra.IMAGE_EXPIRE * 86400:
             continue
         if os.path.isfile(path) and "." in path and path not in targets:
             sys.stderr.write("Pruning {0}\n".format(filename))

@@ -8,18 +8,15 @@ sys.dont_write_bytecode = True
 
 def main():
     parser = argparse.ArgumentParser(description='Manually trigger CI Robots')
-    parser.add_argument('pull')
-    parser.add_argument('-f', '--force',
-                        help='Force setting the status even if the program logic thinks it shouldn''t be done',
-                        action="store_true")
-    parser.add_argument('image', action='store', nargs='?',
-                        help='The operating system image to verify against')
+    parser.add_argument('-f', '--force', action="store_true",
+                        help='Force setting the status even if the program logic thinks it shouldn''t be done')
+    parser.add_argument('pull', help='The pull request to trigger')
+    parser.add_argument('context', help='The github task context to trigger')
     opts = parser.parse_args()
 
     github = testinfra.GitHub()
 
-    context = opts.image or testinfra.DEFAULT_IMAGE
-    sys.stderr.write("triggering pull {0} for context {1}\n".format(opts.pull, context))
+    sys.stderr.write("triggering pull {0} for context {1}\n".format(opts.pull, opts.context))
     pull = github.get("pulls/" + opts.pull)
 
     # triggering is manual, so don't prevent triggering a user that isn't on the whitelist
@@ -30,7 +27,7 @@ def main():
 
     revision = pull['head']['sha']
     statuses = github.statuses(revision)
-    status = statuses.get(context, { })
+    status = statuses.get(opts.context, { })
     if status.get("state", "empty") not in ["empty", "error", "failure"]:
         if opts.force:
             sys.stderr.write("Pull request isn't in error state, but forcing update.\n")
@@ -38,7 +35,7 @@ def main():
             sys.stderr.write("Pull request isn't in error state. Status is: '{0}'\n".format(status["state"]))
             return 1
 
-    changes = { "state": "pending", "description": testinfra.NOT_TESTED, "context": context }
+    changes = { "state": "pending", "description": testinfra.NOT_TESTED, "context": opts.context }
     github.post("statuses/" + revision, changes)
     return 0
 

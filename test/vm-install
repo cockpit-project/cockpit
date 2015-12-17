@@ -41,15 +41,16 @@ def upload_scripts(machine):
     machine.upload([ "guest/lib" ], "/var/lib/testvm")
     machine.upload([ "./guest/%s.install" % machine.image ], "/var/tmp")
 
-def run_install_script(machine, do_build, do_install, arg):
-        machine.execute("cd /var/tmp; ./%s.install%s%s%s%s%s" % (machine.image,
-                                                                 " --verbose" if args.verbose else "",
-                                                                 " --quick" if args.quick else "",
-                                                                 " --build" if do_build else "",
-                                                                 " --install" if do_install else "",
-                                                                 " '%s'" % arg if arg else ""))
+def run_install_script(machine, do_build, do_install, skip, arg):
+    machine.execute("cd /var/tmp; ./%s.install%s%s%s%s%s%s" % (machine.image,
+                                                             " --verbose" if args.verbose else "",
+                                                             " --quick" if args.quick else "",
+                                                             " --build" if do_build else "",
+                                                             " --install" if do_install else "",
+                                                             " --skip '%s'" % skip if skip else "",
+                                                             " '%s'" % arg if arg else ""))
 
-def build_and_maybe_install(image, do_install):
+def build_and_maybe_install(image, do_install=False, skip=None):
     """Build and maybe install Cockpit into a test image"""
     machine = testvm.VirtMachine(verbose=args.verbose, image=image, label="install")
     source = subprocess.check_output([ "../tools/make-source" ]).strip()
@@ -58,14 +59,14 @@ def build_and_maybe_install(image, do_install):
         machine.wait_boot()
         upload_scripts(machine)
         machine.upload([ source ], "/var/tmp")
-        run_install_script(machine, True, do_install, os.path.basename(source))
+        run_install_script(machine, True, do_install, skip, os.path.basename(source))
     finally:
         try:
             machine.download_dir("/var/tmp/build-results", "tmp/build-results")
         finally:
             machine.stop()
 
-def only_install(image):
+def only_install(image, skip=None):
     """Install Cockpit into a test image"""
     machine = testvm.VirtMachine(verbose=args.verbose, image=image, label="install")
     machine.start(maintain=True)
@@ -74,18 +75,22 @@ def only_install(image):
         upload_scripts(machine)
         machine.execute("rm -rf /var/tmp/build-results");
         machine.upload([ "tmp/build-results" ], "/var/tmp")
-        run_install_script(machine, False, True, None)
+        run_install_script(machine, False, True, skip, None)
     finally:
         machine.stop()
 
 try:
+    skip = "cockpit-ostree"
+    if build_image == "fedora-atomic" or install_image == "fedora-atomic":
+        skip = None
+
     if build_image and build_image == install_image:
-        build_and_maybe_install(build_image, do_install=True)
+        build_and_maybe_install(build_image, do_install=True, skip=skip)
     else:
         if build_image:
-            build_and_maybe_install(build_image, do_install=False)
+            build_and_maybe_install(build_image, do_install=False, skip=skip)
         if install_image:
-            only_install(install_image)
+            only_install(install_image, skip)
 except testvm.Failure, ex:
     print >> sys.stderr, "vm-install:", ex
     sys.exit(1)

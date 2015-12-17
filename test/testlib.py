@@ -24,6 +24,7 @@ Tools for writing Cockpit test cases.
 from time import sleep
 from urlparse import urlparse
 
+import argparse
 import subprocess
 import os
 import atexit
@@ -59,6 +60,7 @@ class Timeout:
 __all__ = (
     # Test definitions
     'test_main',
+    'arg_parser',
     'Browser',
     'MachineCase',
     'Timeout',
@@ -1025,6 +1027,25 @@ class TapRunner(object):
             sys.stdout.write("# TESTS PASSED {0}\n".format(details))
         return count
 
+def arg_parser():
+    parser = argparse.ArgumentParser(description='Run Cockpit test(s)')
+    parser.add_argument('-j', '--jobs', dest="jobs", type=int,
+                        default=os.environ.get("TEST_JOBS", 1), help="Number of concurrent jobs")
+    parser.add_argument('-v', '--verbose', dest="verbosity", action='store_const',
+                        const=2, help='Verbose output')
+    parser.add_argument('-t', "--trace", dest='trace', action='store_true',
+                        help='Trace machine boot and commands')
+    parser.add_argument('-q', '--quiet', dest='verbosity', action='store_const',
+                        const=0, help='Quiet output')
+    parser.add_argument('--thorough', dest='thorough', action='store_true',
+                        help='Thorough mode, no skipping known issues')
+    parser.add_argument('-s', "--sit", dest='sit', action='store_true',
+                        help="Sit and wait after test failure")
+    parser.add_argument('tests', nargs='*')
+
+    parser.set_defaults(verbosity=1)
+    return parser
+
 def test_main(opts=None, suite=None, attachments=None, **kwargs):
     """
     Run all test cases, as indicated by arguments.
@@ -1042,7 +1063,7 @@ def test_main(opts=None, suite=None, attachments=None, **kwargs):
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
 
     standalone = opts is None
-    parser = testinfra.arg_parser()
+    parser = arg_parser()
     if standalone:
         opts = parser.parse_args()
 

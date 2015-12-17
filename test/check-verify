@@ -9,6 +9,7 @@ import sys
 import traceback
 import unittest
 
+import testlib
 import testinfra
 
 sys.dont_write_bytecode = True
@@ -18,15 +19,15 @@ EXCLUDE = [
     'check-example'
 ]
 
-def start_publishing(github, host, name, revision, context):
-    identifier = name + "-" + revision[0:8] + "-" + context
+def start_publishing(github, host, name, revision, image):
+    identifier = name + "-" + revision[0:8] + "-" + image
     description = "{0} [{1}]".format(testinfra.TESTING, testinfra.HOSTNAME)
     status = {
         "github": {
             "resource": github.qualify("statuses/" + revision),
             "status": {
                 "state": "pending",
-                "context": context,
+                "context": "verify/" + image,
                 "description": description,
             }
         },
@@ -37,8 +38,8 @@ def start_publishing(github, host, name, revision, context):
     if name == "master":
         status['irc'] = { }    # Only send to IRC when master
         status['badge'] = {
-            'name': context,
-            'description': context,
+            'name': image,
+            'description': image,
             'status': 'running'
         }
     return testinfra.Sink(host, identifier, status)
@@ -131,17 +132,14 @@ def run(opts, sink):
             suite.addTest(loader.loadTestsFromModule(module))
 
     # And now load new testlib, and run all the tests we got
-    import testlib
     return testlib.test_main(opts=opts, suite=suite)
 
 def main():
-    parser = testinfra.arg_parser()
+    parser = testlib.arg_parser()
     parser.add_argument('--publish', dest='publish', action='store',
                         help='Publish results centrally to a sink')
     parser.add_argument('--rebase', dest='rebase', action='store_true',
                         help='Rebase onto master before running tests')
-    parser.add_argument('--github', dest='github', action='store',
-                        help='Test something from GitHub (next, scan, NNNN)')
     parser.add_argument('--install', dest='install', action='store_true',
                         help='Build and install Cockpit into test VMs')
     parser.add_argument('--quick', dest='quick', action='store_true',
@@ -155,55 +153,20 @@ def main():
     revision = None
     status = { }
     sink = None
-    name = "test"
     revision = None
     badge = False
-    context = opts.image or testinfra.DEFAULT_IMAGE
+    image = opts.image or testinfra.DEFAULT_IMAGE
 
     os.chdir(os.path.dirname(__file__))
 
     # In case we need it
     github = testinfra.GitHub()
 
-    # These are implied
-    if opts.github:
-        opts.install = True
-        opts.rebase = True
-
-    # When letting github decide what to test
-    if opts.github in [ "next", "scan" ]:
-        sys.stderr.write("Talking to GitHub ...\n")
-        for (priority, name, revision, ref, context) in github.scan(opts.publish, opts.image):
-            if opts.github == "scan":
-                return 0 # Only scanning, no tests
-
-            # Get the relevant commit
-            subprocess.check_call([ "git", "fetch", "origin", ref ])
-            subprocess.check_call([ "git", "checkout", revision ])
-            break
-
-        # Nothing to test
-        else:
-            if opts.github == "next":
-                return 1
-            return 0
-
-    # A specific github thing to test
-    elif opts.github:
-        try:
-            ref = "pull/{0}/head".format(int(opts.github))
-            name = "pull-" + opts.github
-        except:
-            ref = opts.github
-            name = opts.github.replace("/", "-")
-        subprocess.check_call([ "git", "fetch", "origin", ref ])
-        subprocess.check_call([ "git", "checkout", "FETCH_HEAD" ])
-
-    if not revision:
-        revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
+    revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
+    name = os.environ.get("TEST_NAME", "test")
 
     if opts.publish:
-        sink = start_publishing(github, opts.publish, name, revision, context)
+        sink = start_publishing(github, opts.publish, name, revision, image)
         os.environ["TEST_ATTACHMENTS"] = sink.attachments
 
     # Master is always thorough
@@ -212,10 +175,11 @@ def main():
 
     # Tell any subprocesses what we are testing
     os.environ["TEST_REVISION"] = revision
-    testinfra.DEFAULT_IMAGE = context
-    os.environ["TEST_OS"] = context
+    testinfra.DEFAULT_IMAGE = image
+    os.environ["TEST_OS"] = image
 
-    sys.stderr.write("Testing {0} for {1} with {2} on {3}...\n".format(revision, name, context, testinfra.HOSTNAME))
+    msg = "Testing {0} for {1} with {2} on {3}...\n".format(revision, name, image, testinfra.HOSTNAME)
+    sys.stderr.write(msg)
 
     try:
         if opts.rebase:
@@ -225,7 +189,7 @@ def main():
 
         # Check if we are still publishing, in case some other verify
         # machine collided with our test
-        if opts.github and sink:
+        if sink:
             check_publishing(sink, github)
 
         ret = run(opts, sink)
@@ -236,10 +200,6 @@ def main():
     # All done
     if sink:
         stop_publishing(sink, ret)
-
-    # This script is always successful in github case
-    if opts.github:
-        return 0
 
     # But normally we return number of tests failed
     return ret

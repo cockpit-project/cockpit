@@ -7,6 +7,7 @@ playground_DATA = \
 	pkg/playground/metrics.html \
 	pkg/playground/metrics.min.html \
 	pkg/playground/patterns.html \
+	pkg/playground/patterns.js \
 	pkg/playground/patterns.min.html \
 	pkg/playground/service.html \
 	pkg/playground/service.min.html \
@@ -18,12 +19,20 @@ playground_DATA = \
 	pkg/playground/po.en.js \
 	$(NULL)
 
+playground_NOINST = \
+	pkg/playground/patterns.min.js \
+	$(NULL)
+
+noinst_DATA += $(playground_NOINST)
+
 CLEANFILES += \
 	pkg/playground/test.min.html \
 	pkg/playground/speed.min.html \
 	pkg/playground/metrics.min.html \
+	pkg/playground/patterns.min.js \
 	$(NULL)
 
 EXTRA_DIST += \
 	$(playground_DATA) \
+	$(playground_NOINST) \
 	$(NULL)

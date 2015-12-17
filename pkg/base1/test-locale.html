@@ -36,7 +36,9 @@
 <script>
 
 var pig_latin = {
-    "": { "language": "pig", "plural-forms": "nplurals=2; plural=(n != 1);" },
+    "": { "language": "pig", "plural-forms": function(n) {
+        var nplurals, plurals; nplurals=2; plural=(n != 1); return plural;
+    } },
     "Marmalade": [ null, "Armalademay" ],
     "$0 bucket": [ "$0 buckets", "$0 ucketbay", "$0 ucketsbay" ],
     "explain\u0004Marmalade": [ null, "ArmaladeMAY" ],
@@ -44,7 +46,9 @@ var pig_latin = {
 };
 
 var ru = {
-    "": { "language": "ru", "plural-forms": "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);" },
+    "": { "language": "ru", "plural-forms":
+        function(n) { var nplural, plural; nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2); return plural;
+    } },
     "$0 bit": [ "$0 bits", "$0 бит", "$0 бита", "$0 бит" ]
 };
 

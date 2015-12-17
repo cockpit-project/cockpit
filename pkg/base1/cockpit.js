@@ -2168,17 +2168,8 @@ function full_scope(cockpit, $, po) {
         }
 
         if (header) {
-            if (header["plural-forms"]) {
-                /*
-                 * This code has been cross checked when it was compiled by our
-                 * po2json tool. Therefore ignore warnings about eval being evil.
-                 */
-
-                /* jshint ignore:start */
-                po_plural = new Function("n", "var nplurals, plural; " +
-                                         header["plural-forms"] + "; return plural;");
-                /* jshint ignore:end */
-            }
+            if (header["plural-forms"])
+                po_plural = header["plural-forms"];
             if (header["language"])
                 lang = header["language"];
         }

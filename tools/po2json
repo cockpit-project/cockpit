@@ -37,14 +37,24 @@ var input = process.argv[argi];
 var output = process.argv[argi + 1];
 
 function prepare_header(header) {
-    /* Check that the plural forms isn't being sneaky since we eval it later */
-    var plurals = header["plural-forms"];
+    var body, statement, plurals = header["plural-forms"], ret = null;
     if (plurals) {
         try {
+            /* Check that the plural forms isn't being sneaky since we build a function here */
             Jed.PF.parse(plurals);
         } catch(ex) {
             fatal("bad plural forms: " + ex.message, 1);
         }
+
+        /* A function for the front end */
+	statement = header["plural-forms"];
+        if (statement[statement.length - 1] != ';')
+            statement += ';';
+	body = '\nvar nplurals, plural;\n' + statement + '\nreturn plural;';
+	ret = new Function("n", body);
+
+        /* Added back in later */
+        delete header["plural-forms"];
     }
 
     /* We don't need to be transferring this */
@@ -57,17 +67,28 @@ function prepare_header(header) {
     delete header["mime-version"];
     delete header["content-type"];
     delete header["content-transfer-encoding"];
+
+    return ret;
 }
 
 po2json.parseFile(input, { "fuzzy": true }, function(err, jsonData) {
+    var plurals, pos;
+
     if (err)
         fatal(err.message);
 
     var header = jsonData[""];
     if (header)
-        prepare_header(header);
+        plurals = prepare_header(header);
 
     var data = JSON.stringify(jsonData);
+
+    /* We know the brace in is the location to insert our function */
+    if (plurals) {
+        pos = data.indexOf('{', 1);
+        data = data.substr(0, pos + 1) + "'plural-forms':" + String(plurals) + "," + data.substr(pos + 1);
+    }
+
     if (module)
         data = "define(" + data + ");";
 

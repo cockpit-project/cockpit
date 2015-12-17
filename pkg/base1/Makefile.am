@@ -15,7 +15,7 @@ nodist_base_DATA = \
 	pkg/base1/jquery.min.js.gz \
 	pkg/base1/cockpit.min.js.gz \
 	pkg/base1/bundle.min.js.gz \
-	$(base_GEN:.js=.js.gz) \
+	$(base_GEN:.js=.min.js.gz) \
 	$(NULL)
 base_DATA = \
 	pkg/base1/manifest.json \
@@ -131,6 +131,7 @@ EXTRA_DIST += \
 	$(basefonts_DATA) \
 	$(basefontsdebug_DATA) \
 	$(base_TESTS) \
+	$(base_GEN:.js=.min.js) \
 	$(NULL)
 
 update-lib:: update-bower

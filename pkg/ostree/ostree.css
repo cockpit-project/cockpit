@@ -1,0 +1,76 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2013 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* ---------------------------------------------------------------------------------------------------- */
+
+/* Used to hide angular elements until they are ready */
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+    display: none !important;
+}
+
+.curtains {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+}
+
+.ostree-progress {
+    max-width: 300px;
+    max-height: 15px;
+    line-height: 1;
+    font-size: 13px;
+    overflow: hidden;
+    padding-bottom: 10px;
+    text-overflow: ellipsis;
+    text-align: right;
+    float: right;
+}
+
+.container-fluid {
+    margin-top: 0;
+}
+
+.listing {
+    width: 75%
+}
+
+table.listing.listingtop thead h3 {
+    padding-top: 0;
+    margin-top: 0;
+}
+
+.listing-panel dt.full {
+    text-align: left;
+    min-width: none;
+    max-width: none;
+    float: none;
+    width: auto;
+}
+
+.listing-panel dt.header {
+    padding-top: 10px;
+}
+
+.listing-panel dt.header:first-child {
+    padding-top: 0px;
+}
+
+.hidden.active {
+    display: block !important;
+}

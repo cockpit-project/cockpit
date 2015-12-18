@@ -765,6 +765,12 @@ class Phantom:
             self._driver.wait()
             self._driver = None
 
+def list_directories(dirs):
+    result = [ ];
+    for d in dirs:
+        for f in os.listdir(d):
+            result.append(os.path.join(d, f))
+    return result
 
 class Naughty(object):
     def normalize_traceback(self, trace):
@@ -796,16 +802,19 @@ class Naughty(object):
         return True
 
     def check_issue(self, trace):
-        directory = "./naughty"
+        directories =  [ "./naughty" ]
+        image_naughty = "./naughty-" + testinfra.DEFAULT_IMAGE
+        if os.path.exists(image_naughty):
+            directories.append(image_naughty)
         trace = self.normalize_traceback(trace)
         number = 0
-        for naughty in os.listdir(directory):
-            (prefix, unused, name) = naughty.partition("-")
+        for naughty in list_directories(directories):
+            (prefix, unused, name) = os.path.basename(naughty).partition("-")
             try:
                 n = int(prefix)
             except:
                 continue
-            with open(os.path.join(directory, naughty), "r") as fp:
+            with open(naughty, "r") as fp:
                 contents = self.normalize_traceback(fp.read())
             if contents in trace:
                 number = n

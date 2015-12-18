@@ -86,6 +86,7 @@ CLEANFILES += \
 	pkg/registry/index.min.html \
 	pkg/registry/bundle.min.js \
 	pkg/registry/templates.js \
+	pkg/registry/bundle.min.css \
 	$(registry_MIN) \
 	$(nodist_registry_DATA) \
 	$(NULL)

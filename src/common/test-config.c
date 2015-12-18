@@ -36,6 +36,11 @@ test_get_strings (void)
                    ==, "string");
   g_assert_cmpstr (cockpit_conf_string ("Section2", "value2"),
                    ==, "commas, or spaces");
+
+  /* Case insensitive */
+  g_assert_cmpstr (cockpit_conf_string ("sectiON2", "Value2"),
+                   ==, "commas, or spaces");
+
   cockpit_conf_cleanup ();
 }
 

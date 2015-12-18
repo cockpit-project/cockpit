@@ -1,0 +1,9 @@
+# This redirects all make targets to builddir
+all:
+	$(MAKE) -C $(REDIRECT) all
+%:
+	$(MAKE) -C $(REDIRECT) $@
+ifeq ($(MAKEFLAGS), )
+JOBARG = -j4
+endif
+# REDIRECT=build

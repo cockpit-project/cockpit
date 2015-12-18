@@ -21,6 +21,7 @@
 
 #include "cockpitwebserver.h"
 
+#include "cockpithash.h"
 #include "cockpitmemory.h"
 #include "cockpitwebresponse.h"
 
@@ -501,7 +502,7 @@ cockpit_web_server_get_port (CockpitWebServer *self)
 GHashTable *
 cockpit_web_server_new_table (void)
 {
-  return web_socket_util_new_headers ();
+  return g_hash_table_new_full (cockpit_str_case_hash, cockpit_str_case_equal, g_free, g_free);
 }
 
 gchar *

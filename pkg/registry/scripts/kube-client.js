@@ -111,6 +111,13 @@
             }
         };
 
+        self.get = function get(key) {
+            var p = array[hash("" + key) % size];
+            if (!p)
+                return [];
+            return p.slice();
+        };
+
         self.all = function all(keys) {
             var i, j, p, result, n;
             var rl, rv, pv, ri, px;
@@ -594,7 +601,6 @@
 
             /* A hash index */
             var index = null;
-            var indexers = null;
 
             /* The filter prototype for functions available on selector */
             var proto = null;
@@ -609,7 +615,6 @@
                 /* Get called like this when reset */
                 if (!present) {
                     index = null;
-                    indexers = null;
 
                 /* Called like this when more objects arrive */
                 } else if (index) {
@@ -624,25 +629,27 @@
                 /* TODO: Derive this value from cluster size */
                 index = new HashIndex(262139);
 
-                /* Figure out which indexers to use */
-                indexers = [];
-                for (name in filters) {
-                    filter = filters[name];
-                    if (filter.keys)
-                        indexers.push(filter);
-                }
-
                 /* And index all the objects */
                 indexObjects(loader.objects);
             }
 
             /* Populate index for the given objects and current filters */
             function indexObjects(objects) {
-                var link, object, i, len;
+                var link, object, name, key, keys, filter;
                 for (link in objects) {
                     object = objects[link];
-                    for (i = 0, len = indexers.length; i < len; i++)
-                        index.add(indexers[i].keys(object), link);
+                    for (name in filters) {
+                        filter = filters[name];
+                        if (filter.digest) {
+                            key = filter.digest.call(null, object);
+                            if (key)
+                                index.add([ key ], link);
+                        } else if (filter.digests) {
+                            keys = filter.digests.call(null, object);
+                            if (keys.length)
+                                index.add(keys, link);
+                        }
+                    }
                 }
             }
 
@@ -668,17 +675,28 @@
 
                     /* Fast path, already calculated results */
                     var desc = filter.name + ": " + JSON.stringify(args);
-                    var results = cache[desc];
-                    if (results)
-                        return results;
+                    if (desc in cache)
+                        return cache[desc];
 
-                    if (filter.criteria) {
-                        args = filter.criteria.apply(filter, args);
-                        results = filter.filter.call(filter, this, args, cache);
+                    var results;
+                    if (filter.filter) {
+                        results = filter.filter.apply(this, args);
+
                     } else {
-                        args.unshift(this);
-                        args.push(cache);
-                        results = filter.filter.apply(filter, args);
+                        if (!index)
+                            indexCreate();
+                        if (!cache.indexed) {
+                            indexObjects(this);
+                            cache.indexed = true;
+                        }
+                        if (filter.digests) {
+                            results = digestsFilter(filter, this, args);
+                        } else if (filter.digest) {
+                            results = digestFilter(filter, this, args);
+                        } else {
+                            console.warn("invalid filter: " + filter.name);
+                            results = { };
+                        }
                     }
 
                     cache[desc] = results;
@@ -720,36 +738,68 @@
                 return results;
             }
 
-            function defaultFilter(what, criteria, cache) {
-                /* jshint validthis: true */
-                var filter = this;
+            function digestFilter(filter, what, criteria) {
+                var p, pl, key, keyo, possible, link, object;
+                var results = { }, count = 0;
 
-                /* Digest down to possible matches */
-                var possible, keys;
-                if (filter.keys) {
-                    keys = filter.keys(criteria);
-                    if (keys.length) {
-                        if (!index)
-                            indexCreate();
-                        if (!cache.indexed) {
-                            indexObjects(what);
-                            cache.indexed = true;
+                key = filter.digest.apply(null, criteria);
+                if (key !== null && key !== undefined) {
+                    possible = index.get(key);
+                } else {
+                    possible = [];
+                }
+
+                for (p = 0, pl = possible.length; p < pl; p++) {
+                    link = possible[p];
+                    object = what[link];
+                    if (object) {
+                        if (key === filter.digest.call(null, object)) {
+                            results[link] = object;
+                            count += 1;
                         }
-                        possible = index.all(keys);
                     }
                 }
 
-                if (!possible)
-                    possible = Object.keys(what);
+                return mixinSelection(results, count, true);
+            }
 
-                var results = { };
-                var i, len, object, link, count = 0;
-                for (i = 0, len = possible.length; i < len; i++) {
-                    link = possible[i];
+            function digestsFilter(filter, what, criteria) {
+                var keys, keyn, keyo, k, link, match, object, possible;
+                var p, pl, j, jl;
+                var results = { }, count = 0;
+
+                keys = filter.digests.apply(null, criteria);
+                keyn = keys.length;
+                if (keyn > 0) {
+                    possible = index.all(keys);
+                    keys.sort();
+                } else {
+                    possible = [];
+                }
+
+                for (p = 0, pl = possible.length; p < pl; p++) {
+                    link = possible[p];
                     object = what[link];
-                    if (object && filter.match(object, criteria)) {
-                        results[link] = object;
-                        count += 1;
+                    if (object) {
+                        keyo = filter.digests.call(null, object);
+                        keyo.sort();
+                        match = false;
+
+                        /* Search for first key */
+                        for (j = 0, jl = keyo.length; !match && j < jl; j++) {
+                            if (keys[0] === keyo[j]) {
+                                match = true;
+                                for (k = 0; match && k < keyn; k++) {
+                                    if (keys[k] !== keyo[j + k])
+                                        match = false;
+                                }
+                            }
+                        }
+
+                        if (match) {
+                            results[link] = object;
+                            count += 1;
+                        }
                     }
                 }
 
@@ -765,102 +815,68 @@
                 }
 
                 filters[filter.name] = filter;
-                if (!filter.filter)
-                    filter.filter = defaultFilter;
-
-                indexers = null;
                 index = null;
                 proto = null;
                 version += 1;
             }
 
             /* The one filter */
-            registerFilter("one", function(what) {
+            registerFilter("one", function() {
                 var link;
-                for (link in what)
-                    return what[link];
+                for (link in this)
+                    return this[link];
                 return null;
             });
 
             /* The extend filter */
-            registerFilter("extend", function(what, target) {
+            registerFilter("extend", function(target) {
                 var link;
-                for (link in what)
-                    target[link] = what[link];
+                for (link in this)
+                    target[link] = this[link];
                 return target;
             });
 
             /* The label filter */
             registerFilter({
                 name: "label",
-                keys: function(object) {
-                    var labels = (object.metadata || { }).labels || [];
-                    var i, ret = [];
-                    for (i in labels)
+                digests: function(arg) {
+                    var i, ret = [], meta = arg.metadata;
+                    var labels = meta ? meta.labels : arg;
+                    for (i in labels || [])
                         ret.push(i + "=" + labels[i]);
                     return ret;
-                },
-                match: function(object, criteria) {
-                    var i, labels = (object.metadata || { }).labels || [];
-                    var selector = criteria.metadata.labels;
-                    var ret = false;
-                    for (i in selector) {
-                        if (labels[i] !== selector[i]) {
-                            ret = false;
-                            break;
-                        }
-                        ret = true;
-                    }
-                    return ret;
-                },
-                criteria: function(selector) {
-                    return { metadata: { labels: selector } };
                 }
             });
 
             /* The namespace filter */
             registerFilter({
                 name: "namespace",
-                keys: function(object) {
-                    var meta = object.metadata || [];
-                    return meta.namespace ? [ meta.namespace ] : [];
-                },
-                match: function(object, criteria) {
-                    var meta = object.metadata || [];
-                    return meta.namespace === criteria.metadata.namespace;
-                },
-                criteria: function(namespace) {
-                    return { metadata: { namespace: namespace } };
+                digest: function(arg) {
+                    if (typeof arg === "string")
+                        return arg;
+                    var meta = arg.metadata;
+                    return meta ? meta.namespace : null;
                 }
             });
 
             /* The name filter */
             registerFilter({
                 name: "name",
-                keys: function(object) {
-                    var meta = object.metadata || [];
-                    return meta.name ? [ meta.name ] : [];
-                },
-                match: function(object, criteria) {
-                    var meta = object.metadata || [];
-                    return meta.name === criteria.metadata.name;
-                },
-                criteria: function(name) {
-                    return { metadata: { name: name } };
+                digest: function(arg) {
+                    if (typeof arg === "string")
+                        return arg;
+                    var meta = arg.metadata;
+                    return meta ? meta.name : null;
                 }
             });
 
             /* The kind filter */
             registerFilter({
                 name: "kind",
-                keys: function(object) {
-                    return [ object.kind ];
-                },
-                match: function(object, criteria) {
-                    return object.kind === criteria.kind;
-                },
-                criteria: function(kind) {
-                    return { kind: kind };
+                digest: function(arg) {
+                    if (typeof arg === "string")
+                        return arg;
+                    return arg.kind;
                 }
             });
 

@@ -153,6 +153,14 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         })""")
 
         m.execute("systemctl start log123")
+
+        if "222-10" in m.execute("rpmquery systemd"):
+            # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1292805
+            # --follow is broken again, so we need to switch pages explicitly
+            # and hope that the service has started sending out messages in the meantime...
+            b.go("#/?prio=*&start=oldest&service=nonexisting.service")
+            wait_journal_empty()
+            b.go("#/?prio=*&start=oldest&service=log123.service")
         wait_log123()
 
         b.go("#/?prio=*&start=oldest&service=nonexisting.service")
@@ -173,6 +181,14 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                        ])
 
         m.execute("systemctl start slow10")
+
+        if "222-10" in m.execute("rpmquery systemd"):
+            # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1292805
+            # --follow is broken again, so we need to switch pages explicitly
+            # and hope that the service has started sending out messages in the meantime...
+            b.go("#/?prio=*&start=oldest&service=nonexisting.service")
+            wait_journal_empty()
+            b.go("#/?prio=*&start=oldest&service=slow10.service")
         wait_slow10()
 
         b.go("#/?prio=*&start=oldest&service=nonexisting.service")

@@ -43,6 +43,7 @@ systemd_MIN = \
 	pkg/systemd/journal.min.js \
 	pkg/systemd/journalctl.min.js \
 	pkg/systemd/renderer.min.js \
+	pkg/systemd/service.min.js \
 	$(NULL)
 systemd_BUNDLE = \
 	pkg/systemd/journal_day_header.mustache \

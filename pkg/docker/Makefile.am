@@ -51,6 +51,7 @@ TESTS += $(docker_TESTS)
 
 CLEANFILES += \
 	pkg/docker/bundle.min.js \
+	pkg/docker/docker.min.css \
 	$(docker_BUNDLE) \
 	$(nodist_docker_DATA) \
 	$(NULL)

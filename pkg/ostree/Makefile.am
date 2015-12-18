@@ -10,7 +10,7 @@ ostree_DATA = \
 	pkg/ostree/manifest.json \
 	$(NULL)
 
-ostreedebugdir = $(DBGDIR)$(ostreedir)
+ostreedebugdir = $(debugdir)$(ostreedir)
 ostreedebug_DATA = \
 	pkg/ostree/ostree.css \
 	pkg/ostree/app.js \

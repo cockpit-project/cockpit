@@ -506,6 +506,7 @@ define([
         var req;
         var aux;
 
+        var login_data = window.sessionStorage.getItem('login-data');
         var schemes = [
             { port: 8080 },
             { port: 8443, tls: { }, capabilities: ['tls-certificates'] },
@@ -513,9 +514,8 @@ define([
         ];
 
         function step() {
-            var scheme = schemes.shift();
             var kubeconfig = null;
-
+            var scheme = schemes.shift();
             /* No further ports to try? */
             if (!scheme) {
                 var ex = new Error(_("Couldn't find running kube-apiserver"));
@@ -523,6 +523,14 @@ define([
                 dfd.reject(ex);
                 return;
             }
+
+            /* If scheme is a function call it, the function is
+             * responsible to call step again when ready */
+            if (typeof scheme === "function") {
+                scheme();
+                return;
+            }
+
             if (scheme.kubeconfig) {
                 kubeconfig = scheme.kubeconfig;
                 scheme.kubeconfig = null;
@@ -580,20 +588,27 @@ define([
                 });
         }
 
-        /* Load the kube config, and then try to start connecting */
-        cockpit.spawn(["/usr/bin/kubectl", "config", "view", "--output=json", "--raw"])
-            .fail(function(ex, output) {
-                if (output)
-                    console.warn(output);
-                else
-                    console.warn(ex);
-            })
-            .done(function(data) {
-                var scheme = config.parse_scheme(data);
-                debug("kube config scheme:", scheme);
-                schemes.unshift(scheme);
-            })
-            .always(step);
+        function get_kubectl_config() {
+            /* Load the kube config, and then try to start connecting */
+            cockpit.spawn(["/usr/bin/kubectl", "config", "view", "--output=json", "--raw"])
+                .fail(function(ex, output) {
+                    if (output)
+                        console.warn(output);
+                    else
+                        console.warn(ex);
+                })
+                .done(function(data) {
+                    var scheme = config.parse_scheme(data);
+                    debug("kube config scheme:", scheme);
+                    schemes.unshift(scheme);
+                })
+                .always(step);
+        }
+
+        schemes.unshift(get_kubectl_config);
+        if (login_data)
+            schemes.unshift(config.parse_scheme(login_data));
+        step();
 
         var promise = dfd.promise();
         promise.cancel = function cancel() {

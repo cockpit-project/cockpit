@@ -399,6 +399,24 @@ cockpit_socket_destroy (CockpitSockets *sockets,
 }
 
 static void
+cockpit_sockets_close (CockpitSockets *sockets,
+                       const gchar *problem)
+{
+  GHashTableIter iter;
+  CockpitSocket *socket;
+
+  if (!problem)
+    problem = "terminated";
+
+  g_hash_table_iter_init (&iter, sockets->by_connection);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&socket))
+    {
+      if (web_socket_connection_get_ready_state (socket->connection) < WEB_SOCKET_STATE_CLOSING)
+        web_socket_connection_close (socket->connection, WEB_SOCKET_CLOSE_GOING_AWAY, problem);
+    }
+}
+
+static void
 cockpit_sockets_cleanup (CockpitSockets *sockets)
 {
   g_hash_table_destroy (sockets->by_connection);
@@ -436,7 +454,6 @@ static void
 cockpit_web_service_dispose (GObject *object)
 {
   CockpitWebService *self = COCKPIT_WEB_SERVICE (object);
-  CockpitSocket *socket;
   CockpitSession *session;
   GHashTableIter iter;
   gboolean emit = FALSE;
@@ -448,12 +465,7 @@ cockpit_web_service_dispose (GObject *object)
     }
   self->closing = TRUE;
 
-  g_hash_table_iter_init (&iter, self->sockets.by_connection);
-  while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&socket))
-    {
-      if (web_socket_connection_get_ready_state (socket->connection) < WEB_SOCKET_STATE_CLOSING)
-        web_socket_connection_close (socket->connection, WEB_SOCKET_CLOSE_GOING_AWAY, "terminated");
-    }
+  cockpit_sockets_close (&self->sockets, NULL);
 
   g_hash_table_iter_init (&iter, self->sessions.by_transport);
   while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
@@ -900,6 +912,11 @@ on_session_closed (CockpitTransport *transport,
   session = cockpit_session_by_transport (&self->sessions, transport);
   if (session != NULL)
     {
+      /* Closing the primary session closes all web sockets */
+      primary = session->primary;
+      if (primary)
+          cockpit_sockets_close (&self->sockets, problem);
+
       if (COCKPIT_IS_SSH_TRANSPORT (transport))
         {
           ssh = COCKPIT_SSH_TRANSPORT (transport);
@@ -920,7 +937,7 @@ on_session_closed (CockpitTransport *transport,
         }
 
       g_hash_table_iter_init (&iter, session->channels);
-      while (g_hash_table_iter_next (&iter, (gpointer *)&channel, NULL))
+      while (!primary && g_hash_table_iter_next (&iter, (gpointer *)&channel, NULL))
         {
           socket = cockpit_socket_lookup_by_channel (&self->sockets, channel);
           if (socket)
@@ -952,7 +969,6 @@ on_session_closed (CockpitTransport *transport,
             }
         }
 
-      primary = session->primary;
       cockpit_session_destroy (&self->sessions, session);
 
       if (auth_json)

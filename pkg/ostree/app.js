@@ -71,14 +71,20 @@ define([
 
                 function show_failure(ex) {
                     var message = null;
-                    if (ex.problem === "access-denied")
+                    var final = false;
+                    if (ex.problem === "access-denied") {
                         message = _("Not authorized to update software on this system");
-                    else
+                    } else if (ex.problem === "not-found") {
+                        message = _("OSTree is not available on this system");
+                        final = true;
+                    } else {
                         message = cockpit.message(ex);
+                    }
 
                     set_curtains({ state: 'failed',
                                    failure: ex,
-                                   message: message });
+                                   message: message,
+                                   final: final });
                 }
 
                 function check_empty() {

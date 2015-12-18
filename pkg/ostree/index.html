@@ -234,7 +234,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             <h1 ng-if="curtains.state == 'failed'" translatable="yes">Unable to communicate with OSTree</h1>
             <h1 ng-if="curtains.state == 'empty'" translatable="yes">No Deployments</h1>
             <p ng-if="curtains.message">{{curtains.message}}</p>
-            <div class="blank-slate-pf-main-action" ng-if="curtains.state == 'failed'">
+            <div class="blank-slate-pf-main-action" ng-if="curtains.state == 'failed' && !curtains.final">
                 <button class="btn btn-primary btn-lg" translatable="yes" ng-click="reconnect()">
                     Reconnect
                 </button>

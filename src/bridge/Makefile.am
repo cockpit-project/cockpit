@@ -11,6 +11,8 @@ libcockpit_stub_a_SOURCES = \
 	src/bridge/cockpitchannel.h \
 	src/bridge/cockpitechochannel.c \
 	src/bridge/cockpitechochannel.h \
+	src/bridge/cockpitenvironment.c \
+	src/bridge/cockpitenvironment.h \
 	src/bridge/cockpithttpstream.c \
 	src/bridge/cockpithttpstream.h \
 	src/bridge/cockpitinteracttransport.c \

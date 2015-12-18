@@ -324,6 +324,20 @@ A channel opened with this payload type will send back all data that
 it receives. It sends an "done" when it receives one.
 
 
+Payload: environment-json
+-------------
+
+This channel will reply with a JSON object where each key/value pair is the name and
+value of the environment variables requested. If the variable is not present, a
+null value will be returned. Once a reply is sent the channel is immediately closed.
+
+Additional "open" command options are needed to open a channel of this
+type:
+
+ * "vars": The environment variables to retrive values for. This should be an
+   array of strings.
+
+
 Payload: dbus-json3
 -------------------
 

@@ -21,6 +21,7 @@
 #include "cockpitbridge.h"
 #include "cockpitchannel.h"
 #include "cockpitechochannel.h"
+#include "cockpitenvironment.h"
 #include "cockpitinteracttransport.h"
 #include "cockpithttpstream.h"
 #include "cockpitnullchannel.h"
@@ -56,6 +57,7 @@ static CockpitPayloadType payload_types[] = {
   { "http-stream2", cockpit_http_stream_get_type },
   { "null", cockpit_null_channel_get_type },
   { "echo", cockpit_echo_channel_get_type },
+  { "environment-json", cockpit_environment_get_type },
   { NULL },
 };
 

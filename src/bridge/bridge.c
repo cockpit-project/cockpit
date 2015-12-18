@@ -22,6 +22,7 @@
 #include "cockpitdbusinternal.h"
 #include "cockpitdbusjson.h"
 #include "cockpitechochannel.h"
+#include "cockpitenvironment.h"
 #include "cockpitfslist.h"
 #include "cockpitfsread.h"
 #include "cockpitfswatch.h"
@@ -75,6 +76,7 @@ static CockpitPayloadType payload_types[] = {
   { "null", cockpit_null_channel_get_type },
   { "echo", cockpit_echo_channel_get_type },
   { "metrics1", cockpit_internal_metrics_get_type },
+  { "environment-json", cockpit_environment_get_type },
   { NULL },
 };
 

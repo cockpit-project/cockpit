@@ -102,6 +102,11 @@ define([
             for (host in hosts) {
                 var old_machine = machines[host] || { };
                 var old_conns = old_machine.connection_string;
+
+                /* Invert logic for color, always respect what's on disk */
+                if (content[host] && content[host].color && overlay[host])
+                    delete overlay[host].color;
+
                 machine = sync(old_machine, content[host], overlay[host]);
 
                 /* Fill in defaults */

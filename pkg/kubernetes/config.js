@@ -51,6 +51,22 @@ define([
         return window.btoa(window.unescape(encodeURIComponent(user + ":" + pass)));
     }
 
+    function parse_server(server, scheme) {
+        var parser = document.createElement('a');
+        parser.href = server;
+        if (parser.hostname)
+            scheme.address = parser.hostname;
+        if (parser.port)
+            scheme.port = parser.port;
+        if (parser.protocol == 'https:') {
+            if (!parser.port)
+                scheme.port = parser.href == server ? 6443 : 443;
+            else
+                scheme.port = parser.port;
+            scheme.tls = { };
+        }
+    }
+
     function parse_scheme(data, context_name) {
         var config = JSON.parse(data);
 
@@ -82,21 +98,13 @@ define([
                 cluster = info.cluster;
         });
 
-        var blob, parser, scheme = { port: 8080, headers: { } };
+        var blob, scheme = { port: 8080, headers: { } };
         scheme.kubeconfig = data;
 
         if (cluster) {
             if (cluster.server) {
-                parser = document.createElement('a');
-                parser.href = cluster.server;
-                if (parser.hostname)
-                    scheme.address = parser.hostname;
-                if (parser.port)
-                    scheme.port = parser.port;
-                if (parser.protocol == 'https:') {
-                    scheme.port = parser.port || 6443;
-                    scheme.tls = { };
-
+                parse_server(cluster.server, scheme);
+                if (scheme.tls) {
                     scheme.tls.authority = parse_cert_option(cluster, "certificate-authority");
                     scheme.tls.validate = !cluster["insecure-skip-tls-verify"];
                 }
@@ -150,5 +158,6 @@ define([
     return {
         'parse_scheme': parse_scheme,
         'version_compare': version_compare,
+        'parse_server': parse_server
     };
 });

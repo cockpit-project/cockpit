@@ -87,8 +87,6 @@ class AtomicCockpitInstaller:
                 subprocess.check_call(["setenforce", "0"])
                 subprocess.check_call(["rpm-ostree", "rebase",
                                        "local:{0}".format(self.branch)])
-                subprocess.check_call(["rpm-ostree", "rebase",
-                                       "local:{0}".format(self.branch)])
             except:
                 os.system("sysctl kernel.core_pattern")
                 os.system("coredumpctl || true")

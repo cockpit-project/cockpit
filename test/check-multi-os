@@ -59,11 +59,6 @@ def new_add_machine(b, address):
     b.click('#dashboard_setup_server_dialog .btn-primary')
     b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
     b.click('#dashboard_setup_server_dialog .btn-primary')
-
-    b.wait_text('#dashboard_setup_server_dialog .btn-primary', "Synchronize")
-    b.wait_present("#sync-users")
-    b.wait_in_text("#sync-users", "admin")
-    b.click("#dashboard_setup_server_dialog .btn-default")
     b.wait_popdown('dashboard_setup_server_dialog')
 
 class TestMultiOS(MachineCase):

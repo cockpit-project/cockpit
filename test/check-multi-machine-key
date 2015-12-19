@@ -146,11 +146,6 @@ class TestMultiMachineKeyAuth(MachineCase):
 
         # Login
         b.click("#troubleshoot-dialog .btn-primary")
-        b.wait_text('#troubleshoot-dialog .btn-primary', "Synchronize")
-        b.wait_present("#sync-users")
-        b.wait_present("#sync-username")
-        b.wait_not_present("#sync-password")
-        b.click("#troubleshoot-dialog .btn-default")
         b.wait_popdown('troubleshoot-dialog')
         b.enter_page("/system", host="user@{0}".format(m2.address))
 

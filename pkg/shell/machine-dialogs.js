@@ -347,11 +347,22 @@ define([
         var self = this;
         var color = null;
         var selector = dialog.get_sel();
+        var run_error = null;
 
         var invisible = machines_ins.addresses.filter(function(addr) {
             var m = machines_ins.lookup(addr);
             return !m || !m.visible;
         });
+
+        function existing_error(address) {
+            var ex = null;
+            var machine = machines_ins.lookup(address);
+            if (machine && machine.visible) {
+                ex = new Error(_("This machine has already been added."));
+                ex.target = "#add-machine-address";
+            }
+            return ex;
+        }
 
         function check_address(evt) {
             var disabled = true;
@@ -365,19 +376,30 @@ define([
                        (addr.indexOf('@') > -1 || addr.indexOf(':') > -1)) {
                 ex = new Error(_("This version of cockpit-ws does not support connecting to a host with an alternate user or port"));
             } else if (addr.search(/\s+/) === -1) {
-                disabled = false;
+                ex = existing_error(addr);
+                if (!ex)
+                    disabled = false;
             } else {
                 ex = new Error(_("The IP address or host name cannot contain whitespace."));
             }
 
             if (ex)
                 ex.target = "#add-machine-address";
-            selector.dialog("failure", ex);
+
+            if (run_error)
+                selector.dialog("failure", run_error, ex);
+            else
+                selector.dialog("failure", ex);
+
+            button.prop("disabled", disabled);
         }
 
         function add_machine() {
+            run_error = null;
             dialog.address = $('#add-machine-address').val();
             color = $.color.parse($('#host-edit-color').css('background-color')).toString();
+            if (existing_error(dialog.address))
+                return;
 
             dialog.set_goal(function() {
                 var dfp = $.Deferred();
@@ -392,13 +414,11 @@ define([
                 return dfp.promise();
             });
 
-            dialog.set_on_success(function() {
-                dialog.render_template("sync-users");
-            });
-
             dialog.run(try_to_connect(dialog.address), function (ex) {
-                if (ex.problem == "no-host")
+                if (ex.problem == "no-host") {
                     ex = cockpit.message(ex);
+                    run_error = ex;
+                }
                 dialog.render_error(ex);
             });
         }

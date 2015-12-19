@@ -68,10 +68,6 @@ def add_machine(b, address, known_host=False):
     b.switch_to_top()
     b.go("/@%s" % address)
     start_machine_troubleshoot(b, new=True, known_host=known_host)
-    b.wait_text('#troubleshoot-dialog .btn-primary', "Synchronize")
-    b.wait_present("#sync-users")
-    b.wait_in_text("#sync-users", "admin")
-    b.click("#troubleshoot-dialog .btn-default")
     b.wait_popdown('troubleshoot-dialog')
     b.enter_page("/system", host=address)
 

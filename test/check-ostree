@@ -100,8 +100,8 @@ class OstreeRestartCase(MachineCase):
         cockpit_shell = m.execute("rpm -qa | grep cockpit-shell").strip()
         cockpit_nm = m.execute("rpm -qa | grep cockpit-networkmanager").strip()
 
-        self.login_and_go("/ostree")
-        b.enter_page("/ostree")
+        self.login_and_go("/updates")
+        b.enter_page("/updates")
 
         # Check current and rollback target
         b.wait_present('table.listing')
@@ -192,7 +192,7 @@ class OstreeRestartCase(MachineCase):
         m.wait_reboot()
         self.start_cockpit()
         b.reload()
-        b.login_and_go("/ostree")
+        b.login_and_go("/updates")
         m.reset_reboot_flag()
 
         # After reboot, check commit
@@ -235,7 +235,7 @@ class OstreeRestartCase(MachineCase):
         m.wait_reboot()
         self.start_cockpit()
         b.reload()
-        b.login_and_go("/ostree")
+        b.login_and_go("/updates")
         m.reset_reboot_flag()
 
         # After reboot upgrade but no rollback target
@@ -261,13 +261,13 @@ class OstreeCase(MachineCase):
 
         # login
         self.start_cockpit()
-        b.open("/ostree")
+        b.open("/updates")
         b.wait_visible("#login")
         b.set_val("#login-user-input", "user")
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
 
-        b.enter_page("/ostree")
+        b.enter_page("/updates")
 
         b.wait_present(".curtains")
         b.wait_in_text(".curtains", "Not authorized")

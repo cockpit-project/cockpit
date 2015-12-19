@@ -194,7 +194,7 @@ PageServer.prototype = {
                   ])
         );
         $('#system-ostree-version-link').on('click', function () {
-            cockpit.jump("/ostree", cockpit.transport.host);
+            cockpit.jump("/updates", cockpit.transport.host);
         });
 
         $('#system_information_hostname_button').on('click', function () {

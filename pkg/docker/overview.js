@@ -266,7 +266,7 @@ define([
                         total = cockpit.format_bytes(b_used + b_total);
                     } else {
                         var warning = _("WARNING: Docker may be reporting the size it has allocated to it's storage pool using sparse files, not the actual space available to the underlying storage device.");
-                        $('#containers-storage').tooltip({ title : warning });
+                        $('#containers-storage').tooltip({ title : warning, placement : "auto" });
                     }
 
                     var formated = used + " / " + total;

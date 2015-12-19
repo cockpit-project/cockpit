@@ -901,17 +901,12 @@ test_specified_creds_overide_host (TestCase *test,
 
 static void
 test_user_host_fail (TestCase *test,
-                      gconstpointer data)
+                     gconstpointer data)
 {
   WebSocketConnection *ws;
   GBytes *received = NULL;
   CockpitWebService *service;
-#ifdef HAVE_SSH_SET_AGENT_SOCKET
-  const gchar *expect_problem = "no-forwarding";
-#else
-  const gchar *expect_problem = "authentication-not-supported";
-#endif
-
+  const gchar *expect_problem = "authentication-failed";
 
   start_web_service_and_create_client (test, data, &ws, &service);
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);

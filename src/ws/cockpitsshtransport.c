@@ -579,6 +579,7 @@ cockpit_ssh_authenticate (CockpitSshData *data)
       else if (!has_creds)
         {
           result_string = "not-provided";
+          methods_tried = methods_tried | method;
         }
       else
         {
@@ -624,16 +625,6 @@ cockpit_ssh_authenticate (CockpitSshData *data)
       g_message ("%s: server offered unsupported authentication methods: %s",
                  data->logname, description);
       g_free (description);
-      problem = "authentication-not-supported";
-    }
-  else if (!(methods_tried & SSH_AUTH_METHOD_PASSWORD) &&
-           !(methods_tried & SSH_AUTH_METHOD_GSSAPI_MIC))
-    {
-      problem = "no-forwarding";
-    }
-  else
-    {
-      problem = "authentication-failed";
     }
 
 out:

@@ -507,43 +507,11 @@ test_unsupported_auth (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   g_assert_cmpstr (result, ==, problem);
-  g_assert_cmpstr (problem, ==, "authentication-not-supported");
+  g_assert_cmpstr (problem, ==, "authentication-failed");
   g_free (problem);
   g_free (result);
 
   check_auth_results (tc, "no-server-support", "no-server-support", "no-server-support");
-}
-
-static const TestFixture fixture_no_forwarding = {
-  .ssh_command = BUILDDIR "/mock-echo",
-  .no_password = TRUE,
-};
-
-static void
-test_no_forwarding (TestCase *tc,
-                    gconstpointer data)
-{
-  gchar *problem = NULL;
-  gchar *result = NULL;
-
-  g_signal_connect (tc->transport, "result", G_CALLBACK (on_closed_get_problem), &result);
-  g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
-
-  /* Gets fired first */
-  while (problem == NULL)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_assert_cmpstr (result, ==, problem);
-#ifdef HAVE_SSH_SET_AGENT_SOCKET
-  g_assert_cmpstr (problem, ==, "no-forwarding");
-#else
-  g_assert_cmpstr (problem, ==, "authentication-not-supported");
-#endif
-
-  g_free (problem);
-  g_free (result);
-
-  check_auth_results (tc, "denied", "not-provided", "no-server-support");
 }
 
 static const TestFixture fixture_auth_failed = {
@@ -947,8 +915,6 @@ main (int argc,
               setup_transport, test_terminate_problem, teardown);
   g_test_add ("/ssh-transport/unsupported-auth", TestCase, &fixture_unsupported_auth,
               setup_transport, test_unsupported_auth, teardown);
-  g_test_add ("/ssh-transport/no-forwarding", TestCase, &fixture_no_forwarding,
-              setup_transport, test_no_forwarding, teardown);
   g_test_add ("/ssh-transport/auth-failed", TestCase,
               &fixture_auth_failed, setup_transport,
               test_auth_failed, teardown);

@@ -3,7 +3,7 @@ define([
     "base1/cockpit",
     "base1/angular",
     "base1/moment",
-    "ostree/client",
+    "updates/client",
 ], function($, cockpit, angular, moment, client) {
     'use strict';
 

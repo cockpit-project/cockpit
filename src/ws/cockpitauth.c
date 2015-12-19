@@ -778,21 +778,27 @@ on_remote_login_done (CockpitSshTransport *transport,
 {
   CockpitAuth *self = COCKPIT_AUTH (g_async_result_get_source_object (user_data));
   GSimpleAsyncResult *task = user_data;
+  GHashTable *results = NULL;
+  const gchar *pw_result;
 
   if (problem)
     {
       if (g_str_equal (problem, "authentication-failed"))
         {
-          g_simple_async_result_set_error (task, COCKPIT_ERROR,
-                                           COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                                           "Authentication failed");
-        }
-      else if (g_str_equal (problem, "authentication-not-supported") ||
-               g_str_equal (problem, "no-forwarding"))
-        {
-          g_simple_async_result_set_error (task, COCKPIT_ERROR,
-                                           COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                                           "Authentication failed: authentication-not-supported");
+          results = cockpit_ssh_transport_get_auth_method_results (transport);
+          pw_result = g_hash_table_lookup (results, "password");
+          if (!pw_result || g_strcmp0 (pw_result, "no-server-support") == 0)
+            {
+              g_simple_async_result_set_error (task, COCKPIT_ERROR,
+                                               COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                                               "Authentication failed: authentication-not-supported");
+            }
+          else
+            {
+              g_simple_async_result_set_error (task, COCKPIT_ERROR,
+                                               COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                                               "Authentication failed");
+            }
         }
       else
         {

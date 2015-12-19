@@ -222,9 +222,6 @@ define([
 
         function get_client() {
             if (!client) {
-                var sysroot_ready = false;
-                var os_proxies_ready = false;
-
                 self.connection_error = null;
                 self.os_list = [];
 
@@ -256,28 +253,29 @@ define([
                     if (sysroot && sysroot.valid)
                         build_os_list(sysroot.Deployments);
 
-                    sysroot_ready = true;
-                    if (os_proxies_ready)
-                        waits.fire();
-                });
+                    if (client) {
+                        os_proxies = client.proxies(OS, PATH);
+                        $(os_proxies).on("changed", trigger_changed);
+                        $(os_proxies).on("added", function(event, proxy) {
+                            if (proxy.Name)
+                                os_names[proxy.Name] = proxy.path;
+                            trigger_changed();
+                        });
 
-                os_proxies = client.proxies(OS, PATH);
-                $(os_proxies).on("changed", trigger_changed);
-                $(os_proxies).on("added", function(event, proxy) {
-                    if (proxy.Name)
-                        os_names[proxy.Name] = proxy.path;
-                    trigger_changed();
-                });
-                os_proxies.wait(function() {
-                    for (var path in os_proxies) {
-                        var proxy = os_proxies[path];
-                        os_names[path] = path;
+                        os_proxies.wait(function() {
+                            for (var path in os_proxies) {
+                                var proxy = os_proxies[path];
+                                os_names[path] = path;
+                            }
+                            waits.fire();
+                        });
+                    } else {
+                        waits.fire();
                     }
-
-                    os_proxies_ready = true;
-                    if (sysroot_ready)
-                        waits.fire();
                 });
+
+
+
            }
            return client;
         }

@@ -1283,11 +1283,11 @@ function ensure_usage_monitor() {
                                                 metrics_path_names: [ "rx", "tx" ]
                                               },
                                               { source: "internal",
-                                                metrics: [ { name: "network.all.rx",
+                                                metrics: [ { name: "network.interface.rx",
                                                              units: "bytes",
                                                              derive: "rate"
                                                            },
-                                                           { name: "network.all.tx",
+                                                           { name: "network.interface.tx",
                                                              units: "bytes",
                                                              derive: "rate"
                                                            },
@@ -1333,7 +1333,7 @@ PageNetworking.prototype = {
 
         var rx_plot_data = {
             direct: "network.interface.in.bytes",
-            internal: "network.all.rx",
+            internal: "network.interface.rx",
             units: "bytes",
             derive: "rate",
             threshold: 200
@@ -1354,7 +1354,7 @@ PageNetworking.prototype = {
 
         var tx_plot_data = {
             direct: "network.interface.out.bytes",
-            internal: "network.all.tx",
+            internal: "network.interface.tx",
             units: "bytes",
             derive: "rate",
             threshold: 200
@@ -1387,6 +1387,7 @@ PageNetworking.prototype = {
         });
 
         function handle_usage_samples() {
+            // console.log(JSON.stringify(usage_samples));
             for (var iface in usage_samples) {
                 var samples = usage_samples[iface];
                 var rx = samples[0][0];
@@ -1656,7 +1657,7 @@ PageNetworkInterface.prototype = {
 
         var rx_plot_data = {
             direct: "network.interface.in.bytes",
-            internal: "network.all.rx",
+            internal: "network.interface.rx",
             units: "bytes",
             derive: "rate"
         };
@@ -1676,7 +1677,7 @@ PageNetworkInterface.prototype = {
 
         var tx_plot_data = {
             direct: "network.interface.out.bytes",
-            internal: "network.all.tx",
+            internal: "network.interface.tx",
             units: "bytes",
             derive: "rate"
         };

@@ -943,6 +943,43 @@ test_user_host_fail (TestCase *test,
 }
 
 static void
+test_user_host_reuse_password (TestCase *test,
+                               gconstpointer data)
+{
+  WebSocketConnection *ws;
+  GBytes *received = NULL;
+  GBytes *sent;
+  CockpitWebService *service;
+  const gchar *user = g_get_user_name ();
+  gchar *user_host = NULL;
+
+  start_web_service_and_create_client (test, data, &ws, &service);
+  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
+  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
+
+  /* Open a channel with the same user as creds but no password */
+  user_host = g_strdup_printf ("%s@127.0.0.1", user);
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
+  send_control_message (ws, "open", "4",
+                        "payload", "test-text",
+                        "host", user_host,
+                        NULL);
+
+  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
+
+  sent = g_bytes_new_static ("4\nwheee", 7);
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
+  WAIT_UNTIL (received != NULL);
+  g_assert (g_bytes_equal (received, sent));
+  g_bytes_unref (sent);
+  g_bytes_unref (received);
+  received = NULL;
+
+  close_client_and_stop_web_service (test, ws, service);
+  g_free (user_host);
+}
+
+static void
 test_host_port (TestCase *test,
                       gconstpointer data)
 {
@@ -1878,6 +1915,9 @@ main (int argc,
   g_test_add ("/web-service/specified-creds-overide-host", TestCase,
               &fixture_rfc6455, setup_for_socket_spec,
               test_specified_creds_overide_host, teardown_for_socket);
+  g_test_add ("/web-service/user-host-same", TestCase,
+              &fixture_rfc6455, setup_for_socket,
+              test_user_host_reuse_password, teardown_for_socket);
   g_test_add ("/web-service/user-host-fail", TestCase,
               &fixture_rfc6455, setup_for_socket_spec,
               test_user_host_fail, teardown_for_socket);

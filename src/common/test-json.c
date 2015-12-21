@@ -30,6 +30,7 @@ static const gchar *test_data =
   "   \"string\": \"value\","
   "   \"number\": 55,"
   "   \"array\": [ \"one\", \"two\", \"three\" ],"
+  "   \"object\": { \"test\": \"one\" },"
   "   \"bool\": true,"
   "   \"null\": null"
   "}";
@@ -235,6 +236,39 @@ test_get_array (TestCase *tc,
   g_assert (ret == FALSE);
 
   json_array_unref (defawlt);
+}
+
+static void
+test_get_object (TestCase *tc,
+                gconstpointer data)
+{
+  JsonObject *defawlt = json_object_new ();
+  gboolean ret;
+  JsonObject *value;
+
+  ret = cockpit_json_get_object (tc->root, "object", NULL, &value);
+  g_assert (ret == TRUE);
+  g_assert (value != NULL);
+  g_assert_cmpstr (json_object_get_string_member (value, "test"), ==, "one");
+
+  ret = cockpit_json_get_object (tc->root, "object", NULL, NULL);
+  g_assert (ret == TRUE);
+
+  ret = cockpit_json_get_object (tc->root, "unknown", NULL, &value);
+  g_assert (ret == TRUE);
+  g_assert (value == NULL);
+
+  ret = cockpit_json_get_object (tc->root, "unknown", defawlt, &value);
+  g_assert (ret == TRUE);
+  g_assert (value == defawlt);
+
+  ret = cockpit_json_get_object (tc->root, "number", NULL, &value);
+  g_assert (ret == FALSE);
+
+  ret = cockpit_json_get_object (tc->root, "array", NULL, NULL);
+  g_assert (ret == FALSE);
+
+  json_object_unref (defawlt);
 }
 
 static void
@@ -583,6 +617,8 @@ main (int argc,
               setup, test_get_strv, teardown);
   g_test_add ("/json/get-array", TestCase, NULL,
               setup, test_get_array, teardown);
+  g_test_add ("/json/get-object", TestCase, NULL,
+              setup, test_get_object, teardown);
 
   g_test_add_func ("/json/parser-trims", test_parser_trims);
   g_test_add_func ("/json/parser-empty", test_parser_empty);

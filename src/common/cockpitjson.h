@@ -81,6 +81,11 @@ gboolean       cockpit_json_get_array         (JsonObject *object,
                                                JsonArray *defawlt,
                                                JsonArray **value);
 
+gboolean       cockpit_json_get_object        (JsonObject *options,
+                                               const gchar *member,
+                                               JsonObject *defawlt,
+                                               JsonObject **value);
+
 gboolean       cockpit_json_get_null          (JsonObject *object,
                                                const gchar *member,
                                                gboolean *present);

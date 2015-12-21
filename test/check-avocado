@@ -29,6 +29,7 @@ avocado_tests = ["checklogin-basic.py",
                 ]
 
 @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "atomic: missing avocado")
+@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "Debian: missing avocado")
 class TestAvocadoSuite(MachineCase):
 
     def setUp(self):

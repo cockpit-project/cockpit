@@ -29,6 +29,7 @@ from testlib import *
 avocado_tests = ["selenium-login.py"]
 
 @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "atomic: missing avocado")
+@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "Debian: missing avocado")
 class TestAvocadoSeleniumSuite(MachineCase):
     def wait_for_selenium_running(self, host, port=4444):
         """Wait until selenium is running.

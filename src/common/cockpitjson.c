@@ -133,6 +133,33 @@ cockpit_json_get_array (JsonObject *options,
     }
 }
 
+gboolean
+cockpit_json_get_object (JsonObject *options,
+                         const gchar *member,
+                         JsonObject *defawlt,
+                         JsonObject **value)
+{
+  JsonNode *node;
+
+  node = json_object_get_member (options, member);
+  if (!node)
+    {
+      if (value)
+        *value = defawlt;
+      return TRUE;
+    }
+  else if (json_node_get_node_type (node) == JSON_NODE_OBJECT)
+    {
+      if (value)
+        *value = json_node_get_object (node);
+      return TRUE;
+    }
+  else
+    {
+      return FALSE;
+    }
+}
+
 /**
  * cockpit_json_get_strv:
  * @options: the json object

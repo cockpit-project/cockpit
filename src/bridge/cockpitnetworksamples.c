@@ -54,6 +54,7 @@ cockpit_network_samples (CockpitSamples *samples)
       guint64 bytes_rx, packets_rx, errors_rx, dropped_rx, fifo_rx, frame_rx, compressed_rx, multicast_rx;
       guint64 bytes_tx, packets_tx, errors_tx, dropped_tx, fifo_tx, frame_tx, compressed_tx, multicast_tx;
       gint num_parsed;
+      gchar *ptr;
 
       /* Format is
        *
@@ -84,9 +85,17 @@ cockpit_network_samples (CockpitSamples *samples)
           continue;
         }
 
+      /* remove trailing ':' from interface name */
+      ptr = strrchr (iface_name, ':');
+      if (ptr)
+        *ptr = '\0';
+
       /* skip loopback */
-      if (g_strcmp0 (iface_name, "lo:") == 0)
+      if (g_strcmp0 (iface_name, "lo") == 0)
         continue;
+
+      cockpit_samples_sample (samples, "network.interface.rx", iface_name, total_rx);
+      cockpit_samples_sample (samples, "network.interface.tx", iface_name, total_tx);
 
       total_rx += bytes_rx;
       total_tx += bytes_tx;

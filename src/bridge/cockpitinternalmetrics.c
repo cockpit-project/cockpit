@@ -76,8 +76,10 @@ static MetricDescription metric_descriptions[] = {
   { "block.device.read",    "bytes", "counter", TRUE, BLOCK_SAMPLER },
   { "block.device.written", "bytes", "counter", TRUE, BLOCK_SAMPLER },
 
-  { "network.all.rx", "bytes", "counter", FALSE, NETWORK_SAMPLER },
-  { "network.all.tx", "bytes", "counter", FALSE, NETWORK_SAMPLER },
+  { "network.all.rx",       "bytes", "counter", FALSE, NETWORK_SAMPLER },
+  { "network.all.tx",       "bytes", "counter", FALSE, NETWORK_SAMPLER },
+  { "network.interface.rx", "bytes", "counter", TRUE,  NETWORK_SAMPLER },
+  { "network.interface.tx", "bytes", "counter", TRUE,  NETWORK_SAMPLER },
 
   { "mount.total", "bytes", "instant", TRUE, MOUNT_SAMPLER },
   { "mount.used",  "bytes", "instant", TRUE, MOUNT_SAMPLER },

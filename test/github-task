@@ -22,10 +22,125 @@ import fnmatch
 import os
 import subprocess
 import sys
+import time
 
 sys.dont_write_bytecode = True
 
 import testinfra
+
+def start_publishing(github, host, name, revision, context, image):
+    identifier = name + "-" + revision[0:8] + "-" + image
+    description = "{0} [{1}]".format(testinfra.TESTING, testinfra.HOSTNAME)
+    status = {
+        "github": {
+            "resource": github.qualify("statuses/" + revision),
+            "status": {
+                "state": "pending",
+                "context": context,
+                "description": description,
+            }
+        },
+        "revision": revision,
+        "link": "log.html",
+        "extras": [ "https://raw.githubusercontent.com/cockpit-project/cockpit/" +
+            revision + "/test/files/log.html" ]
+    }
+    if name == "master":
+        status['irc'] = { }    # Only send to IRC when master
+        status['badge'] = {
+            'name': image,
+            'description': image,
+            'status': 'running'
+        }
+
+    # For other scripts to use
+    os.environ["TEST_DESCRIPTION"] = description
+    return testinfra.Sink(host, identifier, status)
+
+def check_publishing(sink, github):
+    expected = test
+    expected = sink.status["github"]["status"]["description"]
+    context = sink.status["github"]["status"]["context"]
+    statuses = github.statuses(sink.status["revision"])
+    status = statuses.get(context, None)
+    current = status.get("description", None)
+    if current and current != expected:
+        sink.status.pop("github", None)
+        sink.status.pop("badge", None)
+        sink.status.pop("irc", None)
+        sys.stderr.write("Verify collision: {0}\n".format(current))
+        return False
+    return True
+
+def rebase(sink):
+    try:
+        sys.stderr.write("Rebasing onto origin/master ...\n")
+        subprocess.check_call([ "git", "fetch", "origin", "master" ])
+        if sink:
+            master = subprocess.check_output([ "git", "rev-parse", "origin/master" ]).strip()
+            sink.status["master"] = master
+        subprocess.check_call([ "git", "rebase", "origin/master" ])
+        return None
+    except:
+        subprocess.call([ "git", "rebase", "--abort" ])
+        traceback.print_exc()
+        return "Rebase failed"
+
+def stop_publishing(sink, ret):
+    def mark_failed():
+        if "github" in sink.status:
+            sink.status["github"]["status"]["state"] = "failure"
+        if 'badge' in sink.status:
+            sink.status['badge']['status'] = "failed"
+        if "irc" in sink.status: # Never send success messages to IRC
+            sink.status["irc"]["channel"] = "#cockpit"
+    def mark_passed():
+        if "github" in sink.status:
+            sink.status["github"]["status"]["state"] = "success"
+        if 'badge' in sink.status:
+            sink.status['badge']['status'] = "passed"
+    if isinstance(ret, basestring):
+        message = ret
+        mark_failed()
+    elif ret == 0:
+        message = "All tests passed"
+        mark_passed()
+    else:
+        message = "{0} tests failed".format(ret)
+        mark_failed()
+    sink.status["message"] = message
+    if "github" in sink.status:
+        sink.status["github"]["status"]["description"] = message
+    del sink.status["extras"]
+    sink.flush()
+
+def eintr_retry_call(func, *args):
+    while True:
+        try:
+            return func(*args)
+        except (OSError, IOError) as e:
+            if e.errno == errno.EINTR:
+                continue
+            raise
+
+# The goal here is that after 60 seconds we call check_publishing
+def wait_testing(proc, sink, github):
+    count = 0
+    flags = WNOHANG
+    while True:
+        pid, status = eintr_retry_call(os.waitpid, proc.pid, flags)
+        if count < 60:
+            time.sleep(1)
+            count += 1
+        elif count == 60:
+            if sink and not check_publishing(sink, github):
+                proc.terminate()
+            flags = 0
+        if pid == proc.pid:
+            if os.WIFSIGNALED(status):
+                return os.WTERMSIG(status)
+            else:
+                return os.WEXITSTATUS(status)
 
 def main():
     parser = argparse.ArgumentParser(description='Perform next testing task from Github')
@@ -51,30 +166,54 @@ def main():
     else: # Nothing to test
         return 1
 
-    os.environ["TEST_NAME"] = name
-
     # Split a value like verify/fedora-23
     (prefix, unused, value) = context.partition("/")
 
+    subprocess.check_call([ "git", "fetch", "origin", ref ])
+    subprocess.check_call([ "git", "checkout", revision ])
+
+    os.environ["TEST_NAME"] = name
+    os.environ["TEST_OS"] = value
+    os.environ["TEST_REVISION"] = revision
+
+    if opts.publish:
+        sink = start_publishing(github, opts.publish, name, revision, context, value)
+        os.environ["TEST_ATTACHMENTS"] = sink.attachments
+
+    msg = "Testing {0} for {1} with {2} on {3}...\n".format(revision, name, context, testinfra.HOSTNAME)
+    sys.stderr.write(msg)
+
     # Figure out what to do next
     if prefix == "verify":
-        subprocess.check_call([ "git", "fetch", "origin", ref ])
-        subprocess.check_call([ "git", "checkout", revision ])
-
-        os.environ["TEST_OS"] = value
-        cmd = [ "./check-verify", "--install", "--rebase", "--jobs", str(opts.jobs) ]
+        cmd = [ "./check-verify", "--install", "--jobs", str(opts.jobs) ]
 
         if opts.publish:
             cmd.append("--publish=" + opts.publish)
         if opts.verbose:
             cmd.append("--verbose")
 
-        subprocess.call(cmd)
-        return 0
+    elif prefix == "avocado":
+        cmd = [ "./avocado/run-tests", "--install" ]
+        if opts.verbose:
+            cmd.append("--verbose")
 
     else:
         sys.stderr.write("github-task: unknown context: " + context)
+        return 1
 
+    if opts.rebase:
+        ret = testinfra.rebase(sink)
+
+    # Actually run the tests
+    if not ret:
+        proc = Popen(cmd)
+        ret = wait_testing(proc, sink, github)
+
+    # All done
+    if sink:
+        stop_publishing(sink, ret)
+
+    return 0
 
 if __name__ == '__main__':
     sys.exit(main())

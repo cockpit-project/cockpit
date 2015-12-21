@@ -116,9 +116,6 @@ class TestRealms(MachineCase):
         m = self.machine
         b = self.browser
 
-        # TODO - improve the behavior of Cockpit for this case
-        # See https://github.com/cockpit-project/cockpit/issues/3291
-
         # Disable sssd support in realmd
 
         realmd_distro_conf = "/usr/lib/realmd/realmd-distro.conf"
@@ -147,12 +144,11 @@ class TestRealms(MachineCase):
         b.click("#system_information_realms_button")
         b.wait_popup("realms-op")
         b.set_val(".realms-op-address", "cockpit.lan")
-        # TODO - expect error indication
+        b.wait_js_cond("$('.realms-op-address-error').attr('title') != ''")
         b.set_val(".realms-op-admin", "admin")
         b.set_val(".realms-op-admin-password", "foobarfoo")
         b.click(".realms-op-apply")
-        # TODO - expect better error message
-        b.wait_text_not(".realms-op-error", "")
+        b.wait_text(".realms-op-error", "Joining this domain is not supported")
 
 KRB5_TEMPLATE = """
 [logging]

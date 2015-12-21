@@ -184,11 +184,18 @@ define([
 
         function update() {
             var have_one = 0;
+            var message;
 
             $(".realms-op-spinner").toggle(!!operation);
             $(".realms-op-wait-message").toggle(!!operation);
             $(".realms-op-field").prop('disabled', !!operation);
             $(".realms-op-apply").prop('disabled', !!operation);
+
+            if (realm && kerberos && !kerberos.valid) {
+                message = cockpit.format(_("Domain $0 is not supported"), realm.Name);
+                $(".realms-op-address-spinner").hide();
+                $(".realms-op-address-error").show().attr('title', message);
+            }
 
             if (operation)
                 button.attr('disabled', 'disabled');
@@ -305,8 +312,12 @@ define([
                         computer_ou = $(".realms-join-computer-ou").val();
                         if (computer_ou)
                             options["computer-ou"] = cockpit.variant('s', computer_ou);
-                        call = kerberos.call("Join", [ credentials(), options ]);
-
+                        if (kerberos.valid) {
+                            call = kerberos.call("Join", [ credentials(), options ]);
+                        } else {
+                            busy(null);
+                            $(".realms-op-error").empty().text(_("Joining this domain is not supported")).show();
+                        }
                     } else if (mode == 'leave') {
                         call = realm.Deconfigure(options);
                     }

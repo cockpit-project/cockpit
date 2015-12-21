@@ -313,6 +313,12 @@ typedef struct {
   int error_code;
 } ErrorFixture;
 
+typedef struct {
+  const gchar *data;
+  const gchar *warning;
+  const gchar *header;
+} SuccessFixture;
+
 static void
 test_custom_fail (Test *test,
                   gconstpointer data)
@@ -371,9 +377,14 @@ test_custom_success (Test *test,
   CockpitCreds *creds;
   GError *error = NULL;
   GHashTable *headers;
+  JsonObject *login_data;
+  const SuccessFixture *fix = data;
+
+  if (fix->warning)
+    cockpit_expect_warning (fix->warning);
 
   headers = web_socket_util_new_headers ();
-  g_hash_table_insert (headers, g_strdup ("Authorization"), g_strdup ("testscheme success"));
+  g_hash_table_insert (headers, g_strdup ("Authorization"), g_strdup (fix->header));
   cockpit_auth_login_async (test->auth, "/cockpit/", headers, NULL, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
@@ -391,9 +402,34 @@ test_custom_success (Test *test,
   g_assert_cmpstr ("cockpit", ==, cockpit_creds_get_application (creds));
   g_assert_null (cockpit_creds_get_password (creds));
 
+  login_data = cockpit_creds_get_login_data (creds);
+  if (fix->data)
+    g_assert_cmpstr (json_object_get_string_member (login_data, "login"),
+                     ==, fix->data);
+  else
+    g_assert_null (login_data);
+
   g_hash_table_destroy (headers);
   g_object_unref (service);
 }
+
+static const SuccessFixture fixture_no_data = {
+  .warning = NULL,
+  .data = NULL,
+  .header = "testscheme success"
+};
+
+static const SuccessFixture fixture_bad_data = {
+  .warning = "*received bad login-data*",
+  .data = NULL,
+  .header = "testscheme success-bad-data"
+};
+
+static const SuccessFixture fixture_data = {
+  .warning = NULL,
+  .data = "data",
+  .header = "testscheme success-with-data"
+};
 
 static const ErrorFixture fixture_bad_command = {
   .error_code = COCKPIT_ERROR_FAILED,
@@ -452,7 +488,12 @@ main (int argc,
   g_test_add ("/auth/headers-bad", Test, NULL, setup, test_headers_bad, teardown);
   g_test_add ("/auth/idle-timeout", Test, NULL, setup, test_idle_timeout, teardown);
   g_test_add ("/auth/process-timeout", Test, NULL, setup, test_process_timeout, teardown);
-  g_test_add ("/auth/custom-success", Test, NULL, setup_normal, test_custom_success, teardown_normal);
+  g_test_add ("/auth/custom-success", Test, &fixture_no_data,
+              setup_normal, test_custom_success, teardown_normal);
+  g_test_add ("/auth/custom-success-bad-data", Test, &fixture_bad_data,
+              setup_normal, test_custom_success, teardown_normal);
+  g_test_add ("/auth/custom-success-with-data", Test, &fixture_data,
+              setup_normal, test_custom_success, teardown_normal);
   g_test_add ("/auth/custom-fail-auth", Test, &fixture_auth_failed,
               setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/custom-denied-auth", Test, &fixture_auth_denied,

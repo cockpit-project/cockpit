@@ -33,6 +33,14 @@ case $auth in
         echo "{\"user\": \"me\" }" >&3
         success=1
         ;;
+    "success-with-data")
+        echo "{\"user\": \"me\", \"login-data\": { \"login\": \"data\"} }" >&3
+        success=1
+        ;;
+    "success-bad-data")
+        echo "{\"user\": \"me\", \"login-data\": \"bad\" }" >&3
+        success=1
+        ;;
     "no-user")
         echo "{ }" >&3
         ;;

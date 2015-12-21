@@ -509,9 +509,10 @@ auth_parse_application (const gchar *path,
 
 static CockpitCreds *
 create_creds_for_spawn_authenticated (CockpitAuth *self,
-                                      const char *user,
+                                      const gchar *user,
                                       SpawnLoginData *sl,
-                                      JsonObject *results)
+                                      JsonObject *results,
+                                      const gchar *raw_data)
 {
   const gchar *fullname = NULL;
   const gchar *password = NULL;
@@ -543,6 +544,7 @@ create_creds_for_spawn_authenticated (CockpitAuth *self,
 
   creds = cockpit_creds_new (user,
                              sl->application,
+                             COCKPIT_CRED_LOGIN_DATA, raw_data,
                              COCKPIT_CRED_FULLNAME, fullname,
                              COCKPIT_CRED_PASSWORD, password,
                              COCKPIT_CRED_RHOST, sl->remote_peer,
@@ -551,7 +553,6 @@ create_creds_for_spawn_authenticated (CockpitAuth *self,
                              NULL);
 
   g_free (csrf_token);
-
   return creds;
 }
 
@@ -567,14 +568,16 @@ parse_cockpit_spawn_results (CockpitAuth *self,
   const gchar *user;
   const gchar *error_str;
   const gchar *message;
+  gchar *json_str = NULL;
   JsonObject *results;
 
   buffer = cockpit_pipe_get_buffer (sl->auth_pipe);
-  g_debug ("%s says: %.*s", sl->command,
-           (int)buffer->len,
-           (const gchar *)buffer->data);
 
-  results = cockpit_json_parse_object ((const gchar *)buffer->data, buffer->len, &json_error);
+  /* ensure json_str is null terminated */
+  json_str = g_strndup ((const gchar *)buffer->data, buffer->len);
+  g_debug ("%s says: %.*s", sl->command, (int)buffer->len, json_str);
+
+  results = cockpit_json_parse_object (json_str, buffer->len, &json_error);
 
   if (g_error_matches (json_error, JSON_PARSER_ERROR, JSON_PARSER_ERROR_INVALID_DATA))
     {
@@ -612,7 +615,8 @@ parse_cockpit_spawn_results (CockpitAuth *self,
           else
             {
               g_debug ("user authenticated as %s", user);
-              creds = create_creds_for_spawn_authenticated (self, user, sl, results);
+              creds = create_creds_for_spawn_authenticated (self, user, sl,
+                                                            results, json_str);
             }
         }
       else
@@ -655,6 +659,8 @@ parse_cockpit_spawn_results (CockpitAuth *self,
 
   if (results)
     json_object_unref (results);
+
+  g_free (json_str);
   return creds;
 }
 

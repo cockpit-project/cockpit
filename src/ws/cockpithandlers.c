@@ -318,11 +318,16 @@ send_login_response (CockpitWebResponse *response,
                      GHashTable *headers)
 {
   JsonObject *object;
+  JsonObject *login_data;
   GBytes *content;
 
   object = json_object_new ();
   json_object_set_string_member (object, "user", cockpit_creds_get_user (creds));
   json_object_set_string_member (object, "csrf-token", cockpit_creds_get_csrf_token (creds));
+
+  login_data = cockpit_creds_get_login_data (creds);
+  if (login_data)
+      json_object_set_object_member (object, "login-data", json_object_ref (login_data));
 
   content = cockpit_json_write_bytes (object);
   json_object_unref (object);

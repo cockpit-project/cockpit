@@ -68,6 +68,9 @@ An error response should contain the following fields:
 A successful response must contain a ```user``` field with the user
 name of the user that was just logged in. Additional fields may be present.
 
+If a successful response contains a ```login-data``` field and that field contains a valid
+json object that object will be included in the HTTP response sent to client.
+
 Once the response has been sent fd #3 should be closed and a bridge should be launched
 speaking the cockpit protocol on stdin and stdout.
 

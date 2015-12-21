@@ -92,14 +92,20 @@ class TestNetworking(MachineCase):
 
         self.login_and_go("/network")
 
-        # Add interface, wait for it to be recognized and activated by
-        # Network Manager, and switch to its page
+        # We create two connection settings for the new interface and
+        # explicitly activate one.  This tests whether Cockpit picks
+        # up the right one, and also protects us against pre-existing
+        # connection settings that might otherwise interfere.
 
         mac = "52:54:00:9e:00:F2"
         m.execute("nmcli c a type ethernet ifname '*' con-name TEST mac %s" % mac)
+        m.execute("nmcli c a type ethernet ifname '*' con-name TEST2 mac %s" % mac)
         m.execute("nmcli c m TEST ipv4.method link-local")
 
         iface = self.add_iface(mac)
+        wait(lambda: m.execute('nmcli d | grep %s | grep -v unavailable' % iface))
+        m.execute('nmcli c up TEST')
+
         self.wait_for_iface(iface)
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)
         b.wait_visible("#network-interface")

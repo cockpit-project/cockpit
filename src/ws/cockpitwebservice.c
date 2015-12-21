@@ -1062,8 +1062,10 @@ lookup_or_open_session (CockpitWebService *self,
   const gchar *host_key = NULL;
   const gchar *host = NULL;
   const gchar *specific_user;
+  const gchar *creds_user;
   const gchar *password;
   gboolean private;
+  gboolean new_creds = FALSE;
 
   if (!cockpit_json_get_string (options, "host", "localhost", &host))
     host = "localhost";
@@ -1104,7 +1106,16 @@ lookup_or_open_session (CockpitWebService *self,
   if (!session)
     {
       parse_host (host, &hostname, &username, &port);
-      if (specific_user || username)
+      creds_user = cockpit_creds_get_user (self->creds);
+
+      if (specific_user)
+        new_creds = TRUE;
+      else if (username && g_strcmp0(username, creds_user) != 0)
+        new_creds = TRUE;
+      else if (username && password != NULL)
+        new_creds = TRUE;
+
+      if (new_creds)
         {
           creds = cockpit_creds_new (specific_user != NULL ? specific_user : username,
                                      cockpit_creds_get_application (self->creds),

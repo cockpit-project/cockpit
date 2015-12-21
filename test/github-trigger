@@ -16,6 +16,10 @@ def main():
 
     github = testinfra.GitHub()
 
+    if opts.context not in testinfra.DEFAULT_VERIFY:
+        sys.stderr.write("github-trigger: invalid context: {0}\n".format(opts.context))
+        return 2
+
     sys.stderr.write("triggering pull {0} for context {1}\n".format(opts.pull, opts.context))
     pull = github.get("pulls/" + opts.pull)
 

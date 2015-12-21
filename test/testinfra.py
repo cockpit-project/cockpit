@@ -63,6 +63,7 @@ __all__ = (
     'Sink',
     'GitHub',
     'DEFAULT_IMAGE',
+    'DEFAULT_VERIFY',
     'HOSTNAME',
     'TESTING',
     'NOT_TESTED',

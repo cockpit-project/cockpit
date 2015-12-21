@@ -41,7 +41,7 @@ WHITELIST = os.path.join(topdir, "files/github-whitelist")
 WHITELIST_LOCAL = "~/.config/github-whitelist"
 
 HOSTNAME = socket.gethostname().split(".")[0]
-DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-22")
+DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-23")
 
 DEFAULT_VERIFY = {
     'verify/fedora-22': [ 'master' ],

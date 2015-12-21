@@ -532,7 +532,7 @@ mock_ssh_server (const gchar *server_addr,
   if (ssh_handle_key_exchange (state.session))
     {
       msg = ssh_get_error (state.session);
-      if (!strstr (msg, "SSH_MESSAGE_DISCONNECT"))
+      if (!strstr (msg, "_DISCONNECT"))
         g_critical ("key exchange failed: %s", msg);
       return 1;
     }

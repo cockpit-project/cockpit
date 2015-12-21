@@ -249,13 +249,18 @@ define([
             }
 
             function is_mpath_member() {
-                // A configured multipath member has
-                // IdType="mpath_member", but unconfigured ones look
-                // like normal block devices.  We can check their
-                // drive to find out whether it has been properly set
-                // up.
-                return (block.IdType == "mpath_member" ||
-                        client.drives[block.Drive] && !client.drives_block[block.Drive]);
+                if (!client.drives[block.Drive])
+                    return false;
+                if (!client.drives_block[block.Drive]) {
+                    // Broken multipath drive
+                    return true;
+                }
+                var members = client.drives_multipath_blocks[block.Drive];
+                for (var i = 0; i < members.length; i++) {
+                    if (members[i] == block)
+                        return true;
+                }
+                return false;
             }
 
             return (!block.HintIgnore &&

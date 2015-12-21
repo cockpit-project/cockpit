@@ -582,16 +582,16 @@ static const DefaultFixture fixture_static_simple = {
   .path = "/cockpit/static/branding.css",
   .auth = NULL,
   .expect = "HTTP/1.1 200*"
-    "#index-brand*"
-    "url(\"brand.png\");*"
+    "#badge*"
+    "url(\"logo.png\");*"
 };
 
 static const DefaultFixture fixture_static_application = {
   .path = "/cockpit+application/static/branding.css",
   .auth = NULL,
   .expect = "HTTP/1.1 200*"
-    "#index-brand*"
-    "url(\"brand.png\");*"
+    "#badge*"
+    "url(\"logo.png\");*"
 };
 
 static void

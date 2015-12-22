@@ -9,10 +9,10 @@ import sys
 import traceback
 import unittest
 
+sys.dont_write_bytecode = True
+
 import testlib
 import testinfra
-
-sys.dont_write_bytecode = True
 
 EXCLUDE = [
     'check-verify',

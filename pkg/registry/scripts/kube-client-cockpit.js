@@ -382,14 +382,13 @@
                         } else if (failed) {
                             updateMessage(response);
                             msg += (response.message || response.reason || status);
-                            if (status === 404 || status === 410) {
+                            if (status === 404 || status === 410 || status === 403 ) {
                                 debug(msg);
-                                return; /* don't try watch again if we get a 404 */
+                                loadFinish(response);
+                                return; /* don't try watch again if we get a 404/410/403 */
                             } else {
                                 console.warn(msg);
                             }
-                            if (status === 403)
-                                return; /* don't try again for forbidden */
                             loadFinish(response);
 
                         } else if (!blocked) {

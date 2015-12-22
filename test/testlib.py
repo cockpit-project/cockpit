@@ -680,7 +680,7 @@ systemctl start docker
                     print "Journal doesn't exist"
 
     def copy_avocado_logs(self, title, label=None):
-        if self.machine.address:
+        if self.machine and self.machine.address:
             dir = "%s-%s-%s.avocado" % (label or self.label(), self.machine.address, title)
             # if this fails, we didn't have avocado results (ignore silently)
             try:
@@ -695,8 +695,6 @@ systemctl start docker
                 attach(archive)
             except:
                 pass
-        else:
-            print "no machine address"
 
 some_failed = False
 

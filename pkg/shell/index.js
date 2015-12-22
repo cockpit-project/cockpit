@@ -774,10 +774,16 @@ define([
                     frame = wind.frameElement;
                 if (frame) {
                     src = frame.getAttribute('src');
+
                     if (src) {
                         frame.url = src.split("#")[0];
                         list[component] = frame;
+
+                    /* HACK: Because phantomjs sometimes has half loaded iframes */
                     } else {
+                        if (frame.contentWindow)
+                            $(frame.contentWindow).off();
+                        $(frame).remove();
                         frame = null;
                     }
                 }

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<!--
+This file is part of Cockpit.
+
+Copyright (C) 2015 Red Hat, Inc.
+
+Cockpit is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or
+(at your option) any later version.
+
+Cockpit is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+
+<head>
+    <title>OpenConnect VPN</title>
+    <meta charset="utf-8">
+    <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
+    <link href="ocserv.css" type="text/css" rel="stylesheet">
+    <script type="text/javascript" src="../base1/cockpit.js"></script>
+</head>
+<body>
+
+    <div id="status-info" class="container-fluid">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+               <span id="head">Server status</span>
+            </div>
+            <table class="cockpit-info-table" id="status-table">
+            </table>
+        </div>
+    </div>
+
+    <div id="users-info" class="container-fluid">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <span id="head">Connected users</span>
+            </div>
+            <table class="table table-hover" id="users-table">
+                <thead>
+                    <tr>
+                        <th class="ocserv-users-id">ID</th>
+                        <th class="ocserv-users-name">Username</th>
+                        <th class="ocserv-users-remote-ip">Remote IP</th>
+                        <th class="ocserv-users-ip">VPN IP</th>
+                        <th class="ocserv-users-since">Since</th>
+                        <th class="ocserv-users-state">State</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-tbody">
+                </tbody>
+                </table>
+        </div>
+    </div>
+
+
+<script>
+require([
+    'jquery',
+    'base1/cockpit'
+], function($, cockpit) {
+        var raw;
+        var status_raw;
+
+        occtl_users_run();
+        occtl_status_run();
+
+        function occtl_users_run() {
+            var proc = cockpit.spawn(["/usr/bin/occtl", "-n", "-j", "show", "users"]);
+            proc.done(occtl_users_success);
+            proc.stream(occtl_users_output);
+            proc.fail(occtl_users_fail);
+
+            raw = "";
+        }
+
+        function occtl_users_success() {
+            var obj;
+            try {
+                    obj = JSON.parse(raw);
+            } catch(e) {
+                    console.warn(e, obj);
+            }
+
+            $("#users-table-tbody").empty();
+
+            $.each(obj, function (index,Object) {
+                    var ipv4 = Object.IPv4;
+                    var ipv6 = Object.IPv6;
+                    var ip;
+
+                    if (ipv4 && ipv6) {
+                    ip = ipv4 + "/" + ipv6;
+                } else {
+                    if (ipv4)
+                        ip = ipv4;
+                    else
+                        ip = ipv6;
+                }
+
+                var row = $("<tr>").append(
+                    $('<td class="ocserv-users-id">').text(Object.ID),
+                    $('<td class="ocserv-users-name">').text(Object.Username),
+                        $('<td class="ocserv-users-remote-ip">').text(Object["Remote IP"]),
+                        $('<td class="ocserv-users-ip">').text(ip),
+                        $('<td class="ocserv-users-since">').text(Object["Connected at"]),
+                        $('<td class="ocserv-users-state">').text(Object.State)
+                );
+                $("#users-table-tbody").append(row);
+            });
+        }
+
+        function occtl_users_fail() {
+            console.warn("FAIL!");
+        }
+
+        function occtl_users_output(data) {
+            raw = raw.concat(data);
+        }
+
+        function occtl_status_run() {
+            function occtl_status_output(data) {
+                status_raw = status_raw.concat(data);
+            }
+
+            status_raw = "";
+
+            var proc = cockpit.spawn(["/usr/bin/occtl", "-n", "-j", "show", "status"]);
+            proc.done(occtl_status_success);
+            proc.stream(occtl_status_output);
+            proc.fail(occtl_status_fail);
+        }
+
+        function occtl_status_success() {
+            var obj;
+            try {
+                    obj = JSON.parse(status_raw);
+            } catch(e) {
+                    console.warn(e, obj);
+            }
+
+            $("#status_table").empty();
+
+            if (!obj) {
+                occtl_status_fail();
+            } else {
+                $("#status_table").append('<tr><td>Status</td><td>' +
+                    obj.Status + '</td></tr>').toString();
+                $("#status_table").append('<tr><td>Uptime</td><td>' +
+                    obj["_Up since"] + '</td></tr>').toString();
+                $("#status_table").append('<tr><td>Connected users</td><td>' +
+                    obj["Clients"] + '</td></tr>').toString();
+                $("#status_table").append('<tr><td>IPs in ban list</td><td>' +
+                    obj["IPs in ban list"] + '</td></tr>').toString();
+            }
+        }
+
+        function occtl_status_fail() {
+            $("#status_table").empty();
+            $("#status_table").append('<tr><td>Status</td><td>offline</td></tr>').toString();
+        }
+
+});
+</script>
+</body>
+</html>
+

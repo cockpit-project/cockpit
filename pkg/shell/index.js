@@ -765,16 +765,26 @@ define([
                 frame = null;
             }
 
-            var wind = window.frames[name];
+            var wind, src;
 
             /* A preloaded frame */
-            if (!frame && wind) {
-                frame = wind.frameElement;
-                frame.url = frame.getAttribute('src').split("#")[0];
-                list[component] = frame;
+            if (!frame) {
+                wind = window.frames[name];
+                if (wind)
+                    frame = wind.frameElement;
+                if (frame) {
+                    src = frame.getAttribute('src');
+                    if (src) {
+                        frame.url = src.split("#")[0];
+                        list[component] = frame;
+                    } else {
+                        frame = null;
+                    }
+                }
+            }
 
             /* Need to create a new frame */
-            } else if (!frame) {
+            if (!frame) {
                 frame = document.createElement("iframe");
                 frame.setAttribute("class", "container-frame");
                 frame.setAttribute("name", name);
@@ -803,7 +813,7 @@ define([
 
             if (!hash)
                 hash = "/";
-            var src = frame.url + "#" + hash;
+            src = frame.url + "#" + hash;
             if (frame.getAttribute('src') != src)
                 frame.setAttribute('src', src);
 

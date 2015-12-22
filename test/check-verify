@@ -163,7 +163,9 @@ def main():
     github = testinfra.GitHub()
 
     revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
-    name = os.environ.get("TEST_NAME", "test")
+    name = os.environ.get("TEST_NAME")
+    if not name:
+        name = "test"
 
     if opts.publish:
         sink = start_publishing(github, opts.publish, name, revision, image)

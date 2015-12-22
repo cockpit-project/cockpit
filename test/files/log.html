@@ -1,6 +1,11 @@
+<!DOCTYPE html>
 <html>
-  <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script>
+    <head>
+        <title>Cockpit starting...</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="//code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"></script>
+        <script>
 
 var tap_range = /^([0-9]+)\.\.([0-9]+)$/m;
 var tap_result = /^(ok|not ok) ([0-9]+) (.*$)/gm;
@@ -32,7 +37,7 @@ function extract(text) {
         while (m = tap_skipped.exec(text)) {
             skipped += 1;
             passed -= 1;
-            $('#failures').append($('<li>').text(m[1] + " -- " + m[2]));
+            $('#skipped-tests').append($('<li>').text(m[1] + " -- " + m[2]));
         }
 
         $('#total').text(total);
@@ -68,6 +73,7 @@ $(function () {
 });
 
   </script>
+</head>
   <body>
     <h1>Logs</h1>
     <p>
@@ -78,9 +84,11 @@ $(function () {
       <span id="passed"></span> passed,
       <span id="failed"></span> failed,
       <span id="skipped"></span> skipped,
-      <span id="left"></span> to go.
-      <ul id="failures">
-      </ul>
+      <span id="left"></span> to go.<br>
+      <span>Failed tests:</span>
+          <ul id="failures"></ul>
+      <span>Skipped tests:</span>
+          <ul id="skipped-tests"></ul>
     </p>
     <p id="status" style="display:none">
       Done: <span id="message"></span>.

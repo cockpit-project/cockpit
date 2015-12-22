@@ -18,12 +18,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-# HACK - https://github.com/cockpit-project/cockpit/issues/3338
-# Use mac's in name policy, prevents interference from network-scripts
-mkdir -p /etc/systemd/network
-printf "[Link]\nNamePolicy=kernel database onboard mac\nMACAddressPolicy=persistent" > /etc/systemd/network/99-default.link
-rm /etc/udev/rules.d/80-net-setup-link.rules
-
 # fully upgrade host first
 atomic host upgrade
 

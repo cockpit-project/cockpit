@@ -20,7 +20,7 @@
 (function() {
     "use strict";
 
-    angular.module('exceptionOverride', [])
+    angular.module('registry', [])
 
     .factory('$exceptionHandler', [
         '$log',

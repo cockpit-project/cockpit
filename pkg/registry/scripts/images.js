@@ -37,6 +37,7 @@
     angular.module('registry.images', [
         'ngRoute',
         'kubeClient',
+        'registry.date',
     ])
 
     .config([

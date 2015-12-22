@@ -86,21 +86,47 @@ def download(image, force, stores):
     if not os.path.exists(image_file):
         os.symlink(os.path.abspath(dest), image_file)
 
-def prune(force):
+def prune(force, dryrun):
     now = time.time()
     targets = []
     for filename in os.listdir(IMAGES):
         path = os.path.join(IMAGES, filename)
-        if os.path.islink(path):
-            target = os.path.join(DATA, os.readlink(path))
+
+        # only consider original image entries as trustworthy sources and ignore non-links
+        if path.endswith(".qcow2") or path.endswith(".partial") or not os.path.islink(path):
+            continue
+
+        target = os.readlink(path)
+
+        # if the path isn't absolute, it can resolve to either the images directory or here (might be the same)
+        if not os.path.isabs(target):
+            targets.append(os.path.join(IMAGES, target))
+            targets.append(os.path.join(DATA, target))
+        else:
             targets.append(target)
+
     for filename in os.listdir(DATA):
         path = os.path.join(DATA, filename)
         if not force and os.lstat(path).st_mtime > now - testinfra.IMAGE_EXPIRE * 86400:
             continue
-        if os.path.isfile(path) and "." in path and path not in targets:
+        if os.path.isfile(path) and (path.endswith(".qcow2") or path.endswith(".partial")) and path not in targets:
             sys.stderr.write("Pruning {0}\n".format(filename))
-            os.unlink(path)
+            if not dryrun:
+                os.unlink(path)
+
+    # now prune broken links
+    for filename in os.listdir(IMAGES):
+        path = os.path.join(IMAGES, filename)
+
+        # don't prune original image entries and ignore non-links
+        if not path.endswith(".qcow2") or not os.path.islink(path):
+            continue
+
+        # if the link isn't valid, prune
+        if not os.path.isfile(path):
+            sys.stderr.write("Pruning link {0}\n".format(path))
+            if not dryrun:
+                os.unlink(path)
 
 def every():
     result = []
@@ -112,9 +138,10 @@ def every():
 
 def main():
     parser = argparse.ArgumentParser(description='Download a virtual machine')
-    parser.add_argument("--force", action="store_true", help="Force unnecessary downloads")
+    parser.add_argument("--force", action="store_true", help="Force unnecessary downloads, delete images even if they aren't old")
     parser.add_argument("--store", action="append", help="Where to find images")
-    parser.add_argument("--prune", action="store_true", help="Remove unused images")
+    parser.add_argument("--prune", action="store_true", help="Remove unused images and links")
+    parser.add_argument("-d", "--dry-run-prune", dest="dryrun", action="store_true", help="Don't actually delete images and links")
     parser.add_argument('image', nargs='*')
     args = parser.parse_args()
 
@@ -123,7 +150,7 @@ def main():
         args.image = every()
 
     if args.prune:
-        prune(args.force)
+        prune(args.force, args.dryrun)
     for image in args.image:
         download(image, args.force, args.store)
 

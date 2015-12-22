@@ -25,12 +25,13 @@ TEST_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 CLEAN_PACKAGES=0
 CLEAN_TESTFILES=0
 CLEAN_VM=0
+CLEAN_IMAGELINKS=0
 CLEAN_ALL=0
 DRY_RUN="-f"
 
 usage()
 {
-    echo >&2 "Usage: $SELF [-h] [-d] [-a] [-p] [-t] [-r]"
+    echo >&2 "Usage: $SELF [-h] [-d] [-a] [-p] [-t] [-r] [-l]"
     echo >&2 "        -h Display info on usage"
     echo >&2 ""
     echo >&2 "        -d Dry run: don't actually clean anything"
@@ -40,9 +41,10 @@ usage()
     echo >&2 "        -p Delete created packages (*.rpm)"
     echo >&2 "        -t Delete test files (attachments, screenshots, journals, logs)"
     echo >&2 "        -r Run vm-reset"
+    echo >&2 "        -l Clean image links"
 }
 
-while getopts "hdaptr" OPTION
+while getopts "hdaptrl" OPTION
 do
     case $OPTION in
         h)
@@ -64,12 +66,27 @@ do
         r)
             CLEAN_VM=1
             ;;
+        l)
+            CLEAN_IMAGELINKS=1
+            ;;
      esac
 done
 
+clean_links()
+{
+    # we want to remove additional links created by our scripts
+    if [ $DRY_RUN == "-f" ]; then
+        find $TEST_DIR/images -name '*.qcow2' -type l -exec sh -c "file -b {} | grep -q ^broken" \; -print0 | xargs -0 rm -v -f
+    else
+        # dry run, only print
+        find $TEST_DIR/images -name '*.qcow2' -type l -exec sh -c "file -b {} | grep -q ^broken" \; -print
+    fi
+}
+
 if [ $CLEAN_ALL == 1 ]; then
     echo >&2 "Cleaning everything"
-    git clean "$DRY_RUN" -d -x $TEST_DIR
+    # don't use git clean on the images directory
+    git clean "$DRY_RUN" -d -x $TEST_DIR -e "$TEST_DIR/images"
     exit 0
 fi
 
@@ -91,5 +108,10 @@ if [ $CLEAN_VM == 1 ]; then
     if [ $DRY_RUN == "-f" ]; then
         $TEST_DIR/vm-reset
     fi
+fi
+
+if [ $CLEAN_IMAGELINKS == 1 ]; then
+    echo >&2 "Cleaning image links"
+    clean_links
 fi
 

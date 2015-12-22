@@ -778,6 +778,9 @@ define([
                         frame.url = src.split("#")[0];
                         list[component] = frame;
                     } else {
+                        if (frame.contentWindow)
+                            $(frame.contentWindow).off();
+                        $(frame).remove();
                         frame = null;
                     }
                 }

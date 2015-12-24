@@ -374,7 +374,7 @@
             /* Drain any initial messages we receive into the router */
             cockpit.transport.wait(function() {
                 window.removeEventListener("message", message_queue, false);
-                index.router.start(messages);
+                index.start(messages);
                 messages = null;
             });
         });

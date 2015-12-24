@@ -22,146 +22,51 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 define([
     "jquery",
     "base1/cockpit",
+    "shell/base_index",
     "shell/machines",
     "shell/credentials",
     'translated!base1/po',
-    "manifests",
     "shell/machine-dialogs",
-], function($, cockpit, machis, credentials, po, local_manifests, mdialogs) {
+], function($, cockpit, base_index, machis, credentials, po, mdialogs) {
     "use strict";
-
-    var module = { };
 
     cockpit.locale(po);
     var _ = cockpit.gettext;
 
     var default_title = "Cockpit";
-
     var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
 
-    /* Is troubleshooting dialog open */
-    var troubleshooting = false;
+    var machines = machis.instance();
+    var loader = machis.loader(machines);
 
-    /* The oops bar */
-
-    var oops = null;
-    function setup_oops() {
-        if (oops)
-            return true;
-        oops = $("#navbar-oops");
-        if (!oops)
-            return false;
-        oops.children("a").on("click", function() {
-            $("#error-popup-title").text(_("Unexpected error"));
-            var details = _("Cockpit had an unexpected internal error. <br/><br/>") +
-                          _("You can try restarting Cockpit by pressing refresh in your browser. ") +
-                          _("The javascript console contains details about this error ") +
-                          _("(<b>Ctrl-Shift-J</b> in most browsers).");
-            $("#error-popup-message").html(details);
-            $('#error-popup').modal('show');
-        });
-        return true;
-    }
-
-    if (window.navigator.userAgent.indexOf("PhantomJS") == -1) {
-        var old_onerror = window.onerror;
-        window.onerror = function cockpit_error_handler(msg, url, line) {
-            if (setup_oops())
-                oops.show();
-            phantom_checkpoint();
-            if (old_onerror)
-                return old_onerror(msg, url, line);
-            return false;
-        };
-    }
-
-    /* Branding */
-
-    function brand(id) {
-        var os_release = JSON.parse(window.localStorage['os-release'] || "{}");
-
-        var style, elt = $(id)[0];
-        if (elt)
-            style = window.getComputedStyle(elt);
-        if (!style)
-            return;
-
-        var len, content = style.content;
-        if (content && content != "none" && content != "normal") {
-            len = content.length;
-            if ((content[0] === '"' || content[0] === '\'') &&
-                len > 2 && content[len - 1] === content[0])
-                content = content.substr(1, len - 2);
-            elt.innerHTML = cockpit.format(content, os_release) || default_title;
-            default_title = $(elt).text();
-        }
-    }
-
-    brand('#index-brand');
-
-    /* Basic menu items */
-
-    $("#go-logout").on("click", function() {
-        cockpit.logout();
-    });
-    $("#go-account").on("click", function() {
-        jump({ host: "localhost", component: "users", hash: "/" + cockpit.user["user"] });
+    var index = base_index.new_index_from_proto({
+        navigate: function (state, sidebar) {
+            return navigate(state, sidebar);
+        },
+        brand_sel: "#index-brand",
+        logout_sel: "#go-logout",
+        oops_sel: "#navbar-oops",
+        language_sel: "#display-language",
+        about_sel: "#about-version",
+        account_sel: "#go-account",
+        user_sel: "#content-user-name",
+        default_title: default_title
     });
 
-    /* User name and menu */
-
-    function update_user(first) {
-        var str = cockpit.user["name"] || cockpit.user["user"];
-        if (!str)
-            str = first ? "" : "???";
-        $('#content-user-name').text(str);
-
-        var is_root = (cockpit.user["user"] == "root");
-        var is_not_root = (cockpit.user["user"] && !is_root);
-        $('#deauthorize-item').toggle(is_not_root);
-    }
-
-    $(cockpit.user).on("changed", update_user);
-    update_user(true);
-
-    /* Display language dialog */
-
-    /*
-     * Note that we don't go ahead and load all the po files in order
-     * to produce this list. Perhaps we would include it somewhere in a
-     * separate automatically generated file. Need to see.
-     */
-    var manifest = local_manifests["shell"] || { };
-    $(".display-language-menu").toggle(!!manifest.linguas);
-    $.each(manifest.linguas || { }, function(code, name) {
-        var el = $("<option>").text(name).val(code);
-        if (code == cockpit.language)
-            el.attr("selected", "true");
-        $("#display-language-list").append(el);
+    /* Restarts */
+    $(index).on("expect_restart", function (ev, host) {
+        loader.expect_restart(host);
+        index.jump({ host: "localhost", component: "" });
     });
 
-    $("#display-language-select-button").on("click", function(event) {
-        var code_to_select = $("#display-language-list").val();
-        window.localStorage.setItem("cockpit.lang", code_to_select);
-        window.location.reload(true);
-        return false;
-    });
-
-    $("#display-language").on("shown.bs.modal", function() {
-        $("display-language-list").focus();
-        phantom_checkpoint();
-    });
-
-    /* About dialog */
-
-    $(cockpit.info).on("changed", function() {
-        $("#about-version").text(cockpit.info.version);
-        phantom_checkpoint();
-    });
-
-    /* Disconnected dialog */
-
+    /* Disconnection Dialog */
     var watchdog_problem = null;
+    $(index).on("disconnect", function (ev, problem) {
+        watchdog_problem = problem;
+        $('.modal[role="dialog"]').modal('hide');
+        $('#disconnected-dialog').modal('show');
+        phantom_checkpoint();
+    });
 
     $("#disconnected-dialog").on("show.bs.modal", function() {
         /* Try to reconnect right away ... so that reconnect button has a chance */
@@ -189,61 +94,8 @@ define([
         phantom_checkpoint();
     });
 
-    var watchdog = cockpit.channel({ "payload": "null" });
-    $(watchdog).on("close", function(event, options) {
-        watchdog_problem = options.problem || "disconnected";
-        console.warn("transport closed: " + watchdog_problem);
-        $('.modal[role="dialog"]').modal('hide');
-        $('#disconnected-dialog').modal('show');
-        phantom_checkpoint();
-    });
-
-    /* Navigation */
-
-    var current_frame = null;
-
-    var ready = false;
-    var machines = machis.instance();
-    mdialogs.setup_machines(machines);
-
-    var loader = machis.loader(machines);
-    var frames = new Frames();
-    module.router = new Router();
-
-    /* When the machine list is ready we start processing navigation */
-    $(machines)
-        .on("ready", function(ev) {
-            ready = true;
-            $(window).on("popstate", function(ev) {
-                navigate(ev.state, true);
-            });
-            build_navbar();
-            navigate();
-            $("body").show();
-            phantom_checkpoint();
-        })
-        .on("added updated", function(ev, machine) {
-            if (!machine.visible)
-                frames.remove(machine);
-            else if (machine.problem)
-                frames.remove(machine);
-
-            update_machines();
-            if (ready)
-                navigate();
-        })
-        .on("removed", function(ev, machine) {
-            frames.remove(machine);
-            update_machines();
-        });
-
-    /* When only one machine this operates as a link */
-    $("#machine-link").on("click", function(ev) {
-        if (machines.list.length == 1) {
-            jump({ host: machines.list[0].address, sidebar: true, component: "" });
-            return false;
-        }
-    });
+    /* Is troubleshooting dialog open */
+    var troubleshooting = false;
 
     /* Reconnect button */
     $("#machine-reconnect").on("click", function(ev) {
@@ -261,119 +113,38 @@ define([
         navigate(null, true);
     });
 
-    /* Handles an href link as seen below */
-    $(document).on("click", "a[href]", function(ev) {
-        var a = this;
-        if (window.location.host === a.host) {
-            jump(a.getAttribute('href'));
-            ev.preventDefault();
-            phantom_checkpoint();
-        }
-    });
+    /* Navigation */
+    var ready = false;
+    mdialogs.setup_machines(machines);
 
-    /*
-     * Navigation is driven by state objects, which are used with pushState()
-     * and friends. The state is the canonical navigation location, and not
-     * the URL. Only when no state has been pushed or we are arriving from
-     * a link, do we parse the state from the URL.
-     *
-     * Each state object has:
-     *   host: a machine host
-     *   component: the stripped component to load
-     *   hash: the hash to pass to the component
-     *   sidebar: set to true to hint that we want a component with a sidebar
-     *
-     * If state.sidebar is set, and no component has yet been chosen for the
-     * given state, then we try to find one that would show a sidebar.
-     */
+    /* When the machine list is ready we start processing navigation */
+    $(machines)
+        .on("ready", function(ev) {
+            ready = true;
+            index.ready();
+        })
+        .on("added updated", function(ev, machine) {
+            if (!machine.visible)
+                index.frames.remove(machine);
+            else if (machine.problem)
+                index.frames.remove(machine);
 
-    /* Build an href for use in an <a> */
-    function href(state, sidebar) {
-        return encode(state, sidebar);
-    }
+            update_machines();
+            if (ready)
+                navigate();
+        })
+        .on("removed", function(ev, machine) {
+            index.frames.remove(machine);
+            update_machines();
+        });
 
-    /* Encode navigate state into a string */
-    function encode(state, sidebar) {
-        var path = [];
-        if (state.host && (sidebar || state.host !== "localhost"))
-            path.push("@" + state.host);
-        if (state.component)
-            path.push.apply(path, state.component.split("/"));
-        var string = cockpit.location.encode(path);
-        if (state.hash && state.hash !== "/")
-            string += "#" + state.hash;
-        return string;
-    }
-
-    /* Decodes navigate state from a string */
-    function decode(string) {
-        var state = { version: "v1", hash: "" };
-        var pos = string.indexOf("#");
-        if (pos !== -1) {
-            state.hash = string.substring(pos + 1);
-            string = string.substring(0, pos);
-        }
-        if (string[0] != '/')
-            string = "/" + string;
-        var path = cockpit.location.decode(string);
-        if (path[0] && path[0][0] == "@") {
-            state.host = path.shift().substring(1);
-            state.sidebar = true;
-        } else {
-            state.host = "localhost";
-        }
-        if (path.length && path[path.length - 1] == "index")
-            path.pop();
-        state.component = path.join("/");
-        return state;
-    }
-
-    function retrieve() {
-        var state = window.history.state;
-        if (!state || state.version !== "v1") {
-            if (shell_embedded)
-                state = decode("/" + window.location.hash);
-            else
-                state = decode(window.location.pathname + window.location.hash);
-        }
-        return state;
-    }
-
-    /* Jumps to a given navigate state */
-    function jump(state, replace) {
-        if (typeof (state) === "string")
-            state = decode(state);
-
-        var current = retrieve();
-
-        /* Make sure we have the data we need */
-        if (!state.host)
-            state.host = current.host || "localhost";
-        if (!("component" in state))
-            state.component = current.component || "";
-
-        var target;
-        var history = window.history;
-
-        if (shell_embedded)
-            target = window.location;
-        else
-            target = encode(state);
-        if (replace) {
-            history.replaceState(state, "", target);
+    /* When only one machine this operates as a link */
+    $("#machine-link").on("click", function(ev) {
+        if (machines.list.length == 1) {
+            index.jump({ host: machines.list[0].address, sidebar: true, component: "" });
             return false;
         }
-
-        if (state.host !== current.host ||
-            state.component !== current.component ||
-            state.hash !== current.hash) {
-            history.pushState(state, "", target);
-            navigate(state, true);
-            return true;
-        }
-
-        return false;
-    }
+    });
 
     /* Handles navigation */
     function navigate(state, reconnect) {
@@ -386,7 +157,7 @@ define([
 
         /* phantomjs has a problem retrieving state, so we allow it to be passed in */
         if (!state)
-            state = retrieve();
+            state = index.retrieve_state();
         machine = machines.lookup(state.host);
 
         /* No such machine */
@@ -415,16 +186,16 @@ define([
         update_sidebar(machine, state, compiled);
         update_frame(machine, state, compiled);
 
-        recalculate_layout();
+        index.recalculate_layout();
 
         /* Just replace the state, and URL */
-        jump(state, true);
+        index.jump(state, true);
     }
 
     function choose_component(state, compiled) {
         var item;
         var single_host = machines.list.length <= 1;
-        var dashboards = ordered(compiled.items, "dashboard");
+        var dashboards = compiled.ordered("dashboard");
 
         if (shell_embedded)
             state.sidebar = true;
@@ -444,40 +215,17 @@ define([
         /* See if we can find something with currently selected label */
         var label = $("#sidebar li.active a").text();
         if (label) {
-            item = search(compiled.items, "label", label);
+            item = compiled.search("label", label);
             if (item)
                 return item.path;
         }
 
         /* Go for the first item */
-        item = ordered(compiled.items, "menu")[0];
+        item = compiled.ordered("menu")[0];
         if (item)
             return item.path;
 
         return "system";
-    }
-
-    /* Navigation widgets */
-
-    function build_navbar() {
-        var navbar = $("#content-navbar");
-
-        function links(component) {
-            var a = $("<a>")
-                .attr("href", href({ host: "localhost", component: component.path }))
-                .text(component.label);
-            return $("<li class='dashboard-link'>")
-                .attr("data-component", component.path)
-                .append(a);
-        }
-
-        var machine, items = { };
-        if (shell_embedded) {
-            navbar.hide();
-        } else {
-            components(local_manifests, "dashboard", items);
-            navbar.append(ordered(items).map(links));
-        }
     }
 
     function update_navbar(machine, state, compiled) {
@@ -528,14 +276,14 @@ define([
             return $("<li>")
                 .toggleClass("active", state.component === component.path)
                 .append($("<a>")
-                    .attr("href", href({ host: machine.address, component: component.path }))
+                    .attr("href", index.href({ host: machine.address, component: component.path }))
                     .text(component.label));
         }
 
-        var menu = ordered(compiled.items, "menu").map(links);
+        var menu = compiled.ordered("menu").map(links);
         $("#sidebar-menu").empty().append(menu);
 
-        var tools = ordered(compiled.items, "tools").map(links);
+        var tools = compiled.ordered("tools").map(links);
         $("#sidebar-tools").empty().append(tools);
     }
 
@@ -552,10 +300,12 @@ define([
 
     function update_frame(machine, state, compiled) {
         var title, message, connecting, restarting;
+        var current_frame = index.current_frame();
 
         if (machine.state != "connected") {
             $(current_frame).hide();
             current_frame = null;
+            index.current_frame(current_frame);
 
             connecting = (machine.state == "connecting");
             if (machine.restarting) {
@@ -619,10 +369,10 @@ define([
 
         var frame;
         if (component)
-            frame = frames.lookup(machine, component, hash);
+            frame = index.frames.lookup(machine, component, hash);
         if (frame != current_frame) {
             $(current_frame).css('display', 'none');
-            current_frame = frame;
+            index.current_frame(frame);
         }
 
         var label, item;
@@ -659,403 +409,10 @@ define([
                     .attr("role", "menuitem")
                     .attr("tabindex", "-1")
                     .attr("data-address", machine.address)
-                    .attr("href", href({ host: machine.address }, true))
+                    .attr("href", index.href({ host: machine.address }, true))
                     .append(avatar, text));
             });
         list.empty().append(links);
-    }
-
-    function recalculate_layout() {
-        var topnav = $('#topnav');
-        var sidebar = $('#sidebar');
-        var content = $('#content');
-
-        var window_height = $(window).height();
-        var topnav_height = topnav.height();
-
-        var y = window_height - topnav_height;
-        $(current_frame).height(Math.floor(y));
-        sidebar.height(y);
-
-        var sidebar_width = sidebar.is(':visible') ? sidebar.outerWidth() : 0;
-        content.css("margin-left", sidebar_width + "px");
-    }
-
-    $(window).on('resize', function () {
-        recalculate_layout();
-    });
-
-    function Frames() {
-        var self = this;
-
-        /* Lists of frames, by host */
-        var iframes = { };
-
-        function remove_frame(frame) {
-            $(frame.contentWindow).off();
-            $(frame).remove();
-        }
-        self.remove = function remove(machine) {
-            var address = machine.address;
-            if (!address)
-                address = "localhost";
-            var list = iframes[address];
-            if (list) {
-                delete iframes[address];
-                $.each(list, function(i, frame) {
-                    remove_frame(frame);
-                });
-            }
-        };
-
-        function frame_ready(frame, count) {
-            var ready = false;
-
-            window.clearTimeout(frame.timer);
-            frame.timer = null;
-
-            try {
-                ready = $("body", frame.contentWindow.document).is(":visible");
-            } catch(ex) {
-                ready = true;
-            }
-
-            if (!count)
-                count = 0;
-            count += 1;
-            if (count > 50)
-                ready = true;
-
-            if (ready) {
-                if (frame.getAttribute("data-ready") != "1") {
-                    frame.setAttribute("data-ready", "1");
-                    if (count > 0)
-                        navigate();
-                }
-            } else {
-                frame.timer = window.setTimeout(function() {
-                    frame_ready(frame, count + 1);
-                }, 100);
-            }
-        }
-
-        self.lookup = function lookup(machine, component, hash) {
-            var host;
-            var address;
-
-            if (machine) {
-                host = machine.connection_string;
-                address = machine.address;
-            }
-
-            if (!host)
-                host = "localhost";
-
-            if (!address)
-                address = host;
-
-            var list = iframes[address];
-            if (!list)
-                iframes[address] = list = { };
-
-            var name = "cockpit1:" + host + "/" + component;
-            var frame = list[component];
-            if (frame && frame.getAttribute("name") != name) {
-                remove_frame(frame);
-                frame = null;
-            }
-
-            var wind, src;
-
-            /* A preloaded frame */
-            if (!frame) {
-                wind = window.frames[name];
-                if (wind)
-                    frame = wind.frameElement;
-                if (frame) {
-                    src = frame.getAttribute('src');
-
-                    if (src) {
-                        frame.url = src.split("#")[0];
-                        list[component] = frame;
-
-                    /* HACK: Because phantomjs sometimes has half loaded iframes */
-                    } else {
-                        if (frame.contentWindow)
-                            $(frame.contentWindow).off();
-                        $(frame).remove();
-                        frame = null;
-                    }
-                }
-            }
-
-            /* Need to create a new frame */
-            if (!frame) {
-                frame = document.createElement("iframe");
-                frame.setAttribute("class", "container-frame");
-                frame.setAttribute("name", name);
-                frame.style.display = "none";
-
-                var parts = component.split("/");
-
-                var base, checksum;
-                if (machine)
-                    checksum = machine.checksum;
-                if (host === "localhost")
-                    base = "..";
-                else if (checksum)
-                    base = "../../" + checksum;
-                else
-                    base = "../../@" + host;
-
-                frame.url = base + "/" + component;
-                if (component.indexOf("/") === -1)
-                    frame.url += "/index";
-                frame.url += ".html";
-
-                $("#content").append(frame);
-                list[component] = frame;
-            }
-
-            if (!hash)
-                hash = "/";
-            src = frame.url + "#" + hash;
-            if (frame.getAttribute('src') != src)
-                frame.setAttribute('src', src);
-
-            frame_ready(frame);
-            return frame;
-        };
-    }
-
-    function Router() {
-        var self = this;
-
-        var unique_id = 0;
-        var origin = cockpit.transport.origin;
-        var source_by_seed = { };
-        var source_by_name = { };
-
-        cockpit.transport.filter(function(message, channel, control) {
-            var seed, source, pos;
-
-            /* Only control messages with a channel are forwardable */
-            if (control) {
-                if (control.channel !== undefined) {
-                    for (seed in source_by_seed)
-                        source_by_seed[seed].window.postMessage(message, origin);
-                }
-                return true; /* still deliver locally */
-
-            /* Forward message to relevant frame */
-            } else if (channel) {
-                pos = channel.indexOf('!');
-                if (pos !== -1) {
-                    seed = channel.substring(0, pos + 1);
-                    source = source_by_seed[seed];
-                    if (source) {
-                        source.window.postMessage(message, origin);
-                        return false; /* Stop delivery */
-                    }
-                }
-                /* Still deliver the message locally */
-                return true;
-            }
-        });
-
-        function perform_jump(child, control) {
-            if (child !== window) {
-                if (!current_frame || current_frame.contentWindow != child)
-                    return;
-            }
-            var str = control.location || "";
-            if (str[0] != "/")
-                str = "/" + str;
-            if (control.host)
-                str = "/@" + encodeURIComponent(control.host) + str;
-            jump(str);
-        }
-
-        function perform_track(child) {
-            var hash;
-
-            /* Note that we ignore tracknig for old shell code */
-            if (current_frame && current_frame.contentWindow === child &&
-                child.name && child.name.indexOf("/shell/shell") === -1) {
-                hash = child.location.hash;
-                if (hash.indexOf("#") === 0)
-                    hash = hash.substring(1);
-                if (hash === "/")
-                    hash = "";
-                jump({ hash: hash });
-            }
-        }
-
-        function on_unload(ev) {
-            var source = source_by_name[ev.target.defaultView.name];
-            if (source)
-                unregister(source);
-        }
-
-        function on_hashchange(ev) {
-            var source = source_by_name[ev.target.name];
-            if (source)
-                perform_track(source.window);
-        }
-
-        function on_load(ev) {
-            var source = source_by_name[ev.target.contentWindow.name];
-            if (source)
-                perform_track(source.window);
-        }
-
-        function unregister(source) {
-            var child = source.window;
-            cockpit.kill(null, child.name);
-            var frame = child.frameElement;
-            if (frame)
-                frame.removeEventListener("load", on_load);
-            child.removeEventListener("unload", on_unload);
-            child.removeEventListener("hashchange", on_hashchange);
-            delete source_by_seed[source.channel_seed];
-            delete source_by_name[source.name];
-        }
-
-        function register(child) {
-            var host, name = child.name || "";
-            if (name.indexOf("cockpit1:") === 0)
-                host = name.substring(9).split("/")[0];
-            if (!name || !host) {
-                console.warn("invalid child window name", child, name);
-                return;
-            }
-
-            unique_id += 1;
-            var seed = (cockpit.transport.options["channel-seed"] || "undefined:") + unique_id + "!";
-            var source = {
-                name: name,
-                window: child,
-                channel_seed: seed,
-                default_host: host
-            };
-            source_by_seed[seed] = source;
-            source_by_name[name] = source;
-
-            var frame = child.frameElement;
-            frame.addEventListener("load", on_load);
-            child.addEventListener("unload", on_unload);
-            child.addEventListener("hashchange", on_hashchange);
-
-            /*
-             * Setting the "data-loaded" attribute helps the testsuite
-             * know when it can switch into the frame and inject its
-             * own additions.
-             */
-            frame.setAttribute('data-loaded', '1');
-
-            perform_track(child);
-            phantom_checkpoint();
-
-            navigate();
-            return source;
-        }
-
-        function message_handler(event) {
-            if (event.origin !== origin)
-                return;
-
-            var data = event.data;
-            var child = event.source;
-            if (!child || typeof data !== "string")
-                return;
-
-            var source = source_by_name[child.name];
-
-            /* Closing the transport */
-            if (data.length === 0) {
-                if (source)
-                    unregister(source);
-                return;
-            }
-
-            /* A control message */
-            if (data[0] == '\n') {
-                var control = JSON.parse(data.substring(1));
-                if (control.command === "init") {
-                    if (source)
-                        unregister(source);
-                    source = register(child);
-                    if (source) {
-                        var reply = $.extend({ }, cockpit.transport.options,
-                            { command: "init", "host": source.default_host, "channel-seed": source.channel_seed }
-                        );
-                        child.postMessage("\n" + JSON.stringify(reply), origin);
-                    }
-
-                } else if (control.command === "jump") {
-                    perform_jump(child, control);
-                    return;
-
-                } else if (control.command === "hint") {
-                    /* watchdog handles current host for now */
-                    if (control.hint == "restart" && control.host != cockpit.transport.host) {
-                        loader.expect_restart(control.host);
-                        jump({ host: "localhost", component: "" });
-                    }
-                    return;
-                } else if (control.command == "oops") {
-                    if (setup_oops())
-                        oops.show();
-                    return;
-
-                /* Only control messages with a channel are forwardable */
-                } else if (control.channel === undefined) {
-                    return;
-
-                /* Add the child's group to all open channel messages */
-                } else if (control.command == "open") {
-                    control.group = child.name;
-                    data = "\n" + JSON.stringify(control);
-                }
-            }
-
-            if (!source) {
-                console.warn("child frame " + child.name + " sending data without init");
-                return;
-            }
-
-            /* Everything else gets forwarded */
-            cockpit.transport.inject(data);
-        }
-
-
-        self.start = function start(messages) {
-            window.addEventListener("message", message_handler, false);
-            for (var i = 0, len = messages.length; i < len; i++)
-                message_handler(messages[i]);
-        };
-    }
-
-    function components(manifests, section, items) {
-        $.each(manifests || { }, function(name, manifest) {
-            $.each(manifest[section] || { }, function(prop, info) {
-                var item = {
-                    section: section,
-                    label: cockpit.gettext(info.label) || prop,
-                    order: info.order === undefined ? 1000 : info.order,
-                    wants: info.wants,
-                };
-                if (info.path)
-                    item.path = info.path.replace(/\.html$/, "");
-                else
-                    item.path = name + "/" + prop;
-                if (item.path.indexOf("/") === -1)
-                    item.path = name + "/" + item.path;
-                if (item.path.slice(-6) == "/index")
-                    item.path = item.path.slice(0, -6);
-                items[item.path] = item;
-            });
-        });
     }
 
     function compatibility(machine) {
@@ -1088,35 +445,13 @@ define([
     }
 
     function compile(machine) {
-        var compiled = {
-            items: { },
-            compat: compatibility(machine)
-        };
-        components(machine.manifests, "tools", compiled.items);
-        components(machine.manifests, "dashboard", compiled.items);
-        components(machine.manifests, "menu", compiled.items);
+        var compiled = base_index.new_compiled();
+        compiled.load(machine.manifests, "tools");
+        compiled.load(machine.manifests, "dashboard");
+        compiled.load(machine.manifests, "menu");
+        compiled.compat = compatibility(machine);
         return compiled;
     }
 
-    function ordered(object, section) {
-        var x, list = [];
-        if (!object)
-            object = { };
-        for (x in object) {
-            if (!section || object[x].section === section)
-                list.push(object[x]);
-        }
-        list.sort(function(a, b) { return a.order - b.order; });
-        return list;
-    }
-
-    function search(object, prop, value) {
-        var x;
-        for (x in object) {
-            if (object[x][prop] === value)
-                return object[x];
-        }
-    }
-
-    return module;
+    return index;
 });

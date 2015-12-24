@@ -37,6 +37,7 @@ shelldebugdir = $(debugdir)$(shelldir)
 shelldebug_DATA = \
 	pkg/shell/shell.js \
 	pkg/shell/attrchange.js \
+	pkg/shell/base_index.js \
 	pkg/shell/bundle.js \
 	pkg/shell/credentials.js \
 	pkg/shell/index.html \
@@ -54,6 +55,7 @@ shelldebug_DATA = \
 	$(NULL)
 
 shell_MINIFIED = \
+	pkg/shell/base_index.min.js \
 	pkg/shell/credentials.min.js \
 	pkg/shell/index.min.js \
 	pkg/shell/machines.min.js \

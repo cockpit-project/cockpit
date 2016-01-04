@@ -148,7 +148,7 @@ test_resource_simple (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
-                           "Content-Security-Policy: default-src 'self'\r\n"
+                           "Content-Security-Policy: default-src 'self'; connect-src 'self' ws: wss:\r\n"
                            "Content-Type: text/html\r\n"
                            "Transfer-Encoding: chunked\r\n"
                            "\r\n"
@@ -515,7 +515,7 @@ test_resource_language_suffix (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
-                           "Content-Security-Policy: default-src 'self'\r\n"
+                           "Content-Security-Policy: default-src 'self'; connect-src 'self' ws: wss:\r\n"
                            "Content-Type: text/html\r\n"
                            "Transfer-Encoding: chunked\r\n"
                            "\r\n"
@@ -554,7 +554,7 @@ test_resource_language_fallback (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
-                           "Content-Security-Policy: default-src 'self'\r\n"
+                           "Content-Security-Policy: default-src 'self'; connect-src 'self' ws: wss:\r\n"
                            "Content-Type: text/html\r\n"
                            "Transfer-Encoding: chunked\r\n"
                            "\r\n"

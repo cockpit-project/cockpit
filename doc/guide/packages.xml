@@ -86,10 +86,14 @@ $ cockpit-bridge --packages
     <variablelist>
       <varlistentry>
         <term>content-security-policy</term>
-        <listitem><para>By default Cockpit serves packages using a strict
+        <listitem>
+          <para>By default Cockpit serves packages using a strict
             <ulink url="https://en.wikipedia.org/wiki/Content_Security_Policy">Content Security Policy</ulink>,
             which among other things does not allow inline styles or scripts. This can
-            be overriden on a per-package basis, with this setting.</para></listitem>
+            be overriden on a per-package basis, with this setting.</para>
+          <para>If the overriden content security policy does not contain a <code>default-src</code> or
+            <code>connect-src</code> these will be added to to the poli8cy from the manifest.</para>
+        </listitem>
       </varlistentry>
       <varlistentry>
         <term>menu</term>

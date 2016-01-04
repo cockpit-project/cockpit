@@ -31,6 +31,7 @@
 #include "cockpitnetworksamples.h"
 #include "cockpitmountsamples.h"
 #include "cockpitcgroupsamples.h"
+#include "cockpitdisksamples.h"
 
 #include "common/cockpitjson.h"
 
@@ -51,7 +52,8 @@ typedef enum {
   BLOCK_SAMPLER = 1 << 2,
   NETWORK_SAMPLER = 1 << 3,
   MOUNT_SAMPLER = 1 << 4,
-  CGROUP_SAMPLER = 1 << 5
+  CGROUP_SAMPLER = 1 << 5,
+  DISK_SAMPLER = 1 << 6
 } SamplerSet;
 
 typedef struct {
@@ -75,6 +77,9 @@ static MetricDescription metric_descriptions[] = {
 
   { "block.device.read",    "bytes", "counter", TRUE, BLOCK_SAMPLER },
   { "block.device.written", "bytes", "counter", TRUE, BLOCK_SAMPLER },
+
+  { "disk.all.read",    "bytes", "counter", FALSE, DISK_SAMPLER },
+  { "disk.all.written", "bytes", "counter", FALSE, DISK_SAMPLER },
 
   { "network.all.rx",       "bytes", "counter", FALSE, NETWORK_SAMPLER },
   { "network.all.tx",       "bytes", "counter", FALSE, NETWORK_SAMPLER },
@@ -315,6 +320,8 @@ cockpit_internal_metrics_tick (CockpitMetrics *metrics,
     cockpit_mount_samples (COCKPIT_SAMPLES (self));
   if (self->samplers & CGROUP_SAMPLER)
     cockpit_cgroup_samples (COCKPIT_SAMPLES (self));
+  if (self->samplers & DISK_SAMPLER)
+    cockpit_disk_samples (COCKPIT_SAMPLES (self));
 
   /* Check for disappeared instances
    */

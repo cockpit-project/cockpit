@@ -120,10 +120,14 @@ cockpit_disk_samples (CockpitSamples *samples)
        * very elegant... we should consult sysfs via libgudev1
        * instead.
        */
-      if (dev_major == 253)
+      if (dev_major == 253     /* device-mapper */
+          || dev_major == 9)   /* md */
         continue;
 
-      if (g_str_has_prefix (dev_name, "sd") && g_ascii_isdigit (dev_name[strlen (dev_name) - 1]))
+      if ((g_str_has_prefix (dev_name, "sd")
+           || g_str_has_prefix (dev_name, "hd")
+           || g_str_has_prefix (dev_name, "vd"))
+          && g_ascii_isdigit (dev_name[strlen (dev_name) - 1]))
         continue;
 
       bytes_read += num_sectors_read * 512;

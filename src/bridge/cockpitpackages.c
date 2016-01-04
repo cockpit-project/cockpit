@@ -361,22 +361,75 @@ read_package_name (JsonObject *manifest,
   return value;
 }
 
+static gboolean
+strv_have_prefix (gchar **strv,
+                  const gchar *prefix)
+{
+  gint i;
+
+  for (i = 0; strv && strv[i] != NULL; i++)
+    {
+      if (g_str_has_prefix (strv[i], prefix))
+        return TRUE;
+    }
+  return FALSE;
+}
+
+static gchar *
+build_content_security_policy (const gchar *input)
+{
+  const gchar *default_src = "default-src 'self'";
+  const gchar *connect_src = "connect-src 'self' ws: wss:";
+  gchar **parts = NULL;
+  GString *result;
+  gint i;
+
+  result = g_string_sized_new (128);
+
+  /*
+   * Note that browsers need to be explicitly told they can connect
+   * to a WebSocket. This is non-obvious, but it stems from the fact
+   * that some browsers treat 'https' and 'wss' as different protocols.
+   *
+   * Since each component could establish a WebSocket connection back to
+   * cockpit-ws, we need to insert that into the policy.
+   */
+
+  if (input)
+    parts = g_strsplit (input, ";", -1);
+  if (!strv_have_prefix (parts, "default-src "))
+    g_string_append_printf (result, "%s; ", default_src);
+  if (!strv_have_prefix (parts, "connect-src "))
+    g_string_append_printf (result, "%s; ", connect_src);
+
+  for (i = 0; parts && parts[i] != NULL; i++)
+    {
+      g_strstrip (parts[i]);
+      g_string_append_printf (result, "%s; ", parts[i]);
+    }
+
+  g_strfreev (parts);
+
+  /* Remove trailing semicolon */
+  g_string_set_size (result, result->len - 2);
+  return g_string_free (result, FALSE);
+}
+
 static void
 setup_package_manifest (CockpitPackage *package,
                         JsonObject *manifest)
 {
   const gchar *field = "content-security-policy";
-  const gchar *strict = "default-src 'self'";
   const gchar *policy = NULL;
 
-  if (!cockpit_json_get_string (manifest, field, strict, &policy) ||
-      !cockpit_web_response_is_header_value (policy))
+  if (!cockpit_json_get_string (manifest, field, NULL, &policy) ||
+      (policy && !cockpit_web_response_is_header_value (policy)))
     {
       g_warning ("%s: invalid %s: %s", package->name, field, policy);
-      policy = strict;
+      policy = NULL;
     }
 
-  package->content_security_policy = g_strdup (policy);
+  package->content_security_policy = build_content_security_policy (policy);
   json_object_remove_member (manifest, field);
 
   package->manifest = manifest;

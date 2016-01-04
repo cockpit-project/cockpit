@@ -442,8 +442,8 @@ PageServer.prototype = {
         /* Disk IO graph */
 
         var disk_data = {
-            direct: [ "disk.dev.total_bytes" ],
-            internal: [ "block.device.read", "block.device.written" ],
+            direct: [ "disk.all.total_bytes" ],
+            internal: [ "disk.all.read", "disk.all.written" ],
             units: "bytes",
             derive: "rate"
         };

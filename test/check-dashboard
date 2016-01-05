@@ -204,18 +204,11 @@ class TestDashboard(MachineCase):
         b.wait_visible('#host-edit-user[disabled]')
         b.click('#host-edit-color-popover div.popover-content > div:first-child > div:nth-child(3)')
         b.wait_not_visible('#host-edit-color-popover')
-        color = b.attr("#host-edit-color", "style")
         b.click('#host-edit-apply')
         b.wait_popdown('host-edit-dialog')
 
         b.wait_in_text('#dashboard-hosts a:first-child span.host-label', "Horst")
-        try:
-            b.wait_not_attr("#dashboard-hosts .list-group-item[data-address='localhost']", "style", old_style)
-        except:
-            print "color button style '{0}'".format(color)
-            print "dashboard style '{0}'".format(old_style)
-            print m.execute("cat /var/lib/cockpit/machines.json")
-            raise
+        b.wait_not_attr("#dashboard-hosts .list-group-item[data-address='localhost']", "style", old_style)
         self.assertEqual(m.execute("hostnamectl --pretty"), "Horst\n")
 
     def testSetup(self):

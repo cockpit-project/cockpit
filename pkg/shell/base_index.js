@@ -125,6 +125,7 @@ define([
 
                     /* HACK: Because phantomjs sometimes has half loaded iframes */
                     } else {
+                        console.log("remove frame because it is missing a src");
                         if (frame.contentWindow)
                             $(frame.contentWindow).off();
                         $(frame).remove();

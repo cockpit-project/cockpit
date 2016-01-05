@@ -1,0 +1,42 @@
+
+@tag-border: @link-color;
+
+table.projects-listing {
+
+    tr {
+        display: table-row;
+        vertical-align: inherit;
+        border-color: inherit;
+    }
+
+    .details-listing {
+        min-width: 70% !important;
+    }
+
+    tr.listing-item {
+        border-top: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+    }
+
+    tbody.first {
+        tr.tag-item td {
+            padding-top: 20px;
+        }
+    }
+
+    tbody.last {
+        tr.listing-item.tag-item td:first-child {
+            background-size: 100% 20px;
+            background-repeat: no-repeat;
+        }
+    }
+
+    tr.tag-item td {
+        padding-bottom: 0px;
+    }
+
+    tr.listing-item tt {
+        color: @metadata-color;
+    }
+}

@@ -20,8 +20,9 @@
 (function() {
     "use strict";
 
-    angular.module('openshift.projects', [
-        'ngRoute'
+    angular.module('registry.projects', [
+        'ngRoute',
+        'kubeClient'
     ])
 
     .config(['$routeProvider',
@@ -34,10 +35,55 @@
         }
     ])
 
+    .factory("projectUtil", [
+        function() {
+            return {
+                formatMembers: function (members, kind) {
+                    var mlist = "";
+                    var i;
+                    if (!members || members.length === 0)
+                        return mlist;
+                    if (members.length <= 3) {
+                        for (i = members.length - 1; i >= 0; i--) {
+                            mlist += members[i] + ",";
+                        }
+                    } else {
+                        if (kind === "Groups") {
+                            mlist = members.length + " " + kind;
+                        } else if (kind === "Users") {
+                            mlist = members.length + " " + kind;
+                        }
+                    }
+                    return mlist;
+                }
+            };
+        }
+    ])
+
     .controller('ProjectsCtrl', [
         '$scope',
-        function($scope) {
-            /* nothing here yet */
+        'kubeLoader',
+        'kubeSelect',
+        '$modal',
+        'projectUtil',
+        function($scope, loader, select, $modal, util) {
+            loader.watch("users");
+            loader.watch("groups");
+            loader.load("Project", null, null);
+
+            $scope.users = function() {
+                return select().kind("User");
+            };
+
+            $scope.groups = function() {
+                return select().kind("Group");
+            };
+
+            $scope.projects = function() {
+                return select().kind("Project");
+            };
+
+            $scope.formatMembers = util.formatMembers;
         }
     ]);
 

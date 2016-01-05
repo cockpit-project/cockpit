@@ -65,8 +65,8 @@ class BasicTestSuite(Test):
 
     def tearDown(self):
         pass
-#        self.driver.close()
-#        self.driver.quit()
+        self.driver.close()
+        self.driver.quit()
 
     def wait(self, method, text):
         returned = None

@@ -20,6 +20,7 @@ registry_LESS = \
 	pkg/registry/styles/dropdown.less \
 	pkg/registry/styles/filter.less \
 	pkg/registry/styles/images.less \
+	pkg/registry/styles/projects.less \
 	pkg/registry/styles/sidebar.less \
 	$(NULL)
 
@@ -43,6 +44,7 @@ registry_BOWER = \
 registry_TESTS = \
 	pkg/registry/tests/test-kube-client.html \
 	pkg/registry/tests/test-images.html \
+	pkg/registry/tests/test-projects.html \
 	$(NULL)
 
 # Typically only modify stuff above this line

@@ -25,7 +25,7 @@
         'ui.bootstrap',
         'registry.dashboard',
         'registry.images',
-        'openshift.projects',
+        'registry.projects',
         'kubeClient',
         'kubeClient.cockpit'
     ])
@@ -93,7 +93,7 @@
             /* Curtains related logic */
             function connect() {
                 $scope.curtains = { };
-                loader.watch("namespaces").then(function() {
+                discover().then(function() {
                     $scope.curtains = null;
                     visible();
                 }, function(resp) {

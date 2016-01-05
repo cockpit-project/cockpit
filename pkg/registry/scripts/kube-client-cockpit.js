@@ -418,6 +418,8 @@
                 $q.when(cockpitKubeDiscover(), function(options) {
                     http = options;
                     startWatch();
+                }, function(resp) {
+                    loadFinish(resp);
                 });
 
                 promise.cancel = function cancel(ex) {
@@ -595,7 +597,7 @@
 
                     /* No further ports to try? */
                     if (!options) {
-                        last.statusText = "Couldn't find running kube-apiserver";
+                        last.statusText = "Couldn't find running API server";
                         last.problem = "not-found";
                         defer.reject(last);
                         return;

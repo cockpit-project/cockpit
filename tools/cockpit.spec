@@ -171,8 +171,6 @@ make -j4 check
 make install DESTDIR=%{buildroot}
 %if %{defined gitcommit}
 make install-test-assets DESTDIR=%{buildroot}
-mkdir -p %{buildroot}/%{_datadir}/polkit-1/rules.d
-cp src/bridge/polkit-workarounds.rules %{buildroot}/%{_datadir}/polkit-1/rules.d
 %else
 rm -rf %{buildroot}/%{_datadir}/%{name}/playground
 %endif
@@ -462,7 +460,6 @@ pulls in some necessary packages via dependencies.
 %files test-assets
 %{_datadir}/%{name}/playground
 %{_datadir}/cockpit-test-assets
-%{_datadir}/polkit-1/rules.d
 %{_unitdir}/cockpit-testing.service
 %{_unitdir}/cockpit-testing.socket
 

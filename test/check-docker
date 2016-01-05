@@ -151,6 +151,7 @@ class TestDocker(MachineCase):
         b.wait_in_text("#container-details-state", "Exited")
 
         # Make sure after restart we only have one
+        b.wait_visible("#container-details-start")
         b.click("#container-details-start")
         self.wait_for_message("%s\n%s" % (message, message))
         b.call_js_func("ph_count_check", ".logs",  1)

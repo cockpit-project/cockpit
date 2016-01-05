@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="startup">
+  <title>Start up</title>
+
+  <para>Cockpit's <code>cockpit-ws</code> component is what the browser connects to
+    and it typically starts on demand via
+    <ulink url="http://www.freedesktop.org/wiki/Software/systemd/"><code>systemd</code></ulink>
+    socket activation.</para>
+
+  <para>The actual <code>cockpit.service</code> and <code>cockpit-ws</code> process will start on
+    demand when a browser accesses the <code>cockpit.socket</code>,
+    <link linkend="listen">usually on port 9090</link>. Once a user logs in then
+    a <code>cockpit-bridge</code> process will be started in a Linux user login session. The
+    bridge will exit when the user logs out. In addition, after 10 minutes of inactivity, the
+    <code>cockpit-ws</code> process will exit on its own.</para>
+
+  <para>Only systems that you connect to with your browser need to have the <code>cockpit.socket</code>
+    enabled. For systems that you add to the dashboard of another Cockpit instance, the bridge is started
+    via SSH on demand.</para>
+
+  <section id="startup-boot">
+    <title>Boot start up</title>
+
+    <para>To make Cockpit available by default after system boot the <code>cockpit.socket</code>
+      needs to be enabled:</para>
+
+<programlisting>
+$ sudo systemctl enable cockpit.socket
+</programlisting>
+
+    <para>If you wish to not have Cockpit available by default via a browser, then the
+      <code>cockpit.socket</code> should be disabled:</para>
+
+<programlisting>
+$ sudo systemctl disable cockpit.socket
+</programlisting>
+
+  </section>
+
+</chapter>

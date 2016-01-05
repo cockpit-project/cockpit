@@ -38,6 +38,7 @@ BASE = os.path.dirname(__file__)
 
 parser = argparse.ArgumentParser(description='Create a virtual machine image')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
+parser.add_argument('-s', '--sit', action='store_true', help='Sit and wait if setup script fails')
 parser.add_argument('-n', '--no-save', action='store_true', help='Don\'t save the new image')
 parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to create')
 args = parser.parse_args()
@@ -78,7 +79,15 @@ class MachineBuilder:
             }
             self.machine.message("run setup script on guest")
             self.machine.execute(script="/var/tmp/SETUP", environment=env, quiet=not self.machine.verbose)
-            self.machine.execute(command="rm /var/tmp/SETUP")
+
+            try:
+                self.machine.execute(command="rm /var/tmp/SETUP")
+            except subprocess.CalledProcessError, ex:
+                if args.sit:
+                    sys.stderr.write("ADDRESS: {0}\n".format(self.machine.address))
+                    raw_input ("Press RET to continue... ")
+                raise testvm.Failure("setup failed with code {0}\n".format(ex.returncode))
+
         finally:
             self.machine.stop(timeout_sec=60)
 

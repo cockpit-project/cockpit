@@ -75,9 +75,14 @@ cockpit_mount_samples (CockpitSamples *samples)
 
       if (statvfs (dir, &buf) >= 0)
         {
-          total = buf.f_frsize * buf.f_blocks;
+          // We explicitly store the fragment size as 64 bits so that
+          // computations with it don't overflow on 32 bit
+          // architectures.
+
+          gint64 frsize = buf.f_frsize;
+          total = frsize * buf.f_blocks;
           cockpit_samples_sample (samples, "mount.total", dir, total);
-          cockpit_samples_sample (samples, "mount.used", dir, total - buf.f_frsize * buf.f_bfree);
+          cockpit_samples_sample (samples, "mount.used", dir, total - frsize * buf.f_bfree);
         }
 
       g_free (dir);

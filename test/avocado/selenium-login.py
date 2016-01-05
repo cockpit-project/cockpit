@@ -65,8 +65,8 @@ class BasicTestSuite(Test):
 
     def tearDown(self):
         pass
-        self.driver.close()
-        self.driver.quit()
+#        self.driver.close()
+#        self.driver.quit()
 
     def wait(self, method, text):
         returned = None
@@ -188,6 +188,57 @@ class BasicTestSuite(Test):
         self.wait_xpath("//*[contains(text(), '%s')]" % "dbus.service")
 
         self.mainframe()
+        
+    def test40ContainerTab(self):
+        self.login()
+        self.wait_iframe("system")
+        self.wait_link('Containers').click()
+        self.selectframe("docker")
+        time.sleep(3)
+        elem = self.wait_id('curtain')
+        if "display: block;" in str(elem.get_attribute("style")):
+            elem = self.wait_xpath("//*[@data-action='docker-start']")
+            elem.click()
+        elem = self.wait_xpath(
+            "//*[@id='containers' and @style='display: block;']")
+        self.wait_id('containers-storage')
+        self.wait_id('containers-images-search').click()
+        elem = self.wait_xpath(
+            "//*[@id='containers-search-image-dialog' and @class='modal in']")
+        baseelem = elem
+        elem = self.wait_id('containers-search-image-search',baseelem)
+        elem.clear()
+        elem.send_keys("fedora")
+        elem = self.wait_xpath(
+            "//*[@id='containers-search-image-results' and @style='display: block;']")
+        elem = self.wait_xpath(
+            "//*[contains(text(), '%s')]" % "Official Docker")
+        elem = self.wait_xpath(
+            "//div[@id='containers-search-image-dialog']//button[contains(text(), '%s')]" % "Cancel")
+        elem.click()
+        elem = self.wait_xpath(
+            "//*[@id='containers-search-image-dialog' and @style='display: none;']")
 
+        self.wait_id('containers-images-search').click()
+        elem = self.wait_xpath(
+            "//*[@id='containers-search-image-dialog' and @class='modal in']")
+        baseelem = elem
+        elem = self.wait_id('containers-search-image-search',baseelem)
+        elem.clear()
+        elem.send_keys("cockpit")
+        elem = self.wait_xpath(
+            "//*[@id='containers-search-image-results' and @style='display: block;']")
+        elem = self.wait_xpath(
+            "//*[contains(text(), '%s')]" % "Cockpit Web Ser")
+        elem.click()
+        elem = self.wait_id('containers-search-download', baseelem)
+        elem.click()
+        elem = self.wait_xpath(
+            "//*[@id='containers-search-image-dialog' and @style='display: none;']")
+        elem = self.wait_xpath(
+            "//*[@class='container-col-tags' and contains(text(), 'cockpit/ws')]")
+
+        self.mainframe()
+        
 if __name__ == '__main__':
     main()

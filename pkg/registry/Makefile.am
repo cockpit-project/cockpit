@@ -49,6 +49,7 @@ registrydebug_DATA = \
 	pkg/registry/bundle.js \
 	pkg/registry/bundle.css \
 	pkg/registry/index.html \
+	pkg/registry/override.json \
 	$(NULL)
 
 install-data-hook::

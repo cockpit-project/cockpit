@@ -47,8 +47,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 </head>
 
-<body ng-app='registry' ng-controller="MainCtrl">
-    <div ng-cloak>
+<body ng-app='registry' ng-controller="MainCtrl" hidden>
+    <div ng-cloak ng-if="!curtains">
         <div class="icon-sidebar">
             <div>
                 <ul>
@@ -72,7 +72,23 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         </div>
     </div>
 
-    <div id="content" class="container-fluid" ng-view>
+    <div id="content" class="container-fluid" ng-view ng-if="!curtains">
+    </div>
+
+    <div class="curtains blank-slate-pf" ng-if="curtains">
+        <div class="blank-slate-pf-icon">
+            <div class="spinner spinner-lg" ng-show="!curtains.status"></div>
+            <i class="fa fa-exclamation-circle" ng-if="curtains.status && curtains.status != 403"></i>
+            <i class="fa fa-lock" ng-if="curtains.status == 403"></i>
+        </div>
+        <h1 ng-if="!curtains.status" translatable="yes">Connecting...</h1>
+        <h1 ng-if="curtains.status" translatable="yes">Couldn't connect to server</h1>
+        <p ng-if="curtains.message">{{curtains.message}}</p>
+        <div class="blank-slate-pf-main-action" ng-if="curtains.status">
+            <button class="btn btn-primary btn-lg" translatable="yes" ng-click="reconnect()">
+                Reconnect
+            </button>
+        </div>
     </div>
 
 </body>

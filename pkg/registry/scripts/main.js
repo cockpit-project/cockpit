@@ -47,8 +47,10 @@
         '$scope',
         '$route',
         '$rootScope',
+        '$timeout',
         'kubeLoader',
-        function($scope, $route, $rootScope, kubeLoader) {
+        'cockpitKubeDiscover',
+        function($scope, $route, $rootScope, $timeout, loader, discover) {
 
             /* Used to set detect which route is active */
             $scope.is_active = function is_active(template) {
@@ -59,8 +61,38 @@
             /* Used while debugging */
             $scope.console = console;
 
+            /* Show the body when ready */
+            function visible() {
+                document.getElementsByTagName("body")[0].removeAttribute("hidden");
+            }
+
+            /* Show after some seconds whether ready or not */
+            $timeout(visible, 1000);
+
+            /* Curtains related logic */
+            function connect() {
+                $scope.curtains = { };
+                loader.watch("projects").then(function() {
+                    $scope.curtains = null;
+                    visible();
+                }, function(resp) {
+                    $scope.curtains = { status: resp.status, message: resp.message || resp.statusText };
+                    visible();
+                });
+            }
+
+            /* Connect automatically initially */
+            connect();
+
+            /* Used by reconnect buttons */
+            $scope.reconnect = function() {
+                discover(true);
+                loader.reset();
+                connect();
+            };
+
             /* When the loader changes digest */
-            kubeLoader.listen(function() {
+            loader.listen(function() {
                 $rootScope.$applyAsync();
             });
         }

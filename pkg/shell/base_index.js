@@ -86,6 +86,7 @@ define([
         self.lookup = function lookup(machine, component, hash) {
             var host;
             var address;
+            var new_frame = false;
 
             if (machine) {
                 host = machine.connection_string;
@@ -118,24 +119,14 @@ define([
                     frame = wind.frameElement;
                 if (frame) {
                     src = frame.getAttribute('src');
-
-                    if (src) {
-                        frame.url = src.split("#")[0];
-                        list[component] = frame;
-
-                    /* HACK: Because phantomjs sometimes has half loaded iframes */
-                    } else {
-                        console.log("Remove frame because it is missing a src");
-                        if (frame.contentWindow)
-                            $(frame.contentWindow).off();
-                        $(frame).remove();
-                        frame = null;
-                    }
+                    frame.url = src.split("#")[0];
+                    list[component] = frame;
                 }
             }
 
             /* Need to create a new frame */
             if (!frame) {
+                new_frame = true;
                 frame = document.createElement("iframe");
                 frame.setAttribute("class", "container-frame");
                 frame.setAttribute("name", name);
@@ -157,9 +148,6 @@ define([
                 if (component.indexOf("/") === -1)
                     frame.url += "/index";
                 frame.url += ".html";
-
-                $("#content").append(frame);
-                list[component] = frame;
             }
 
             if (!hash)
@@ -168,6 +156,11 @@ define([
             if (frame.getAttribute('src') != src)
                 frame.setAttribute('src', src);
 
+            /* Store frame only when fully setup */
+            if (new_frame) {
+                list[component] = frame;
+                $("#content").append(frame);
+            }
             frame_ready(frame);
             return frame;
         };

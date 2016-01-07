@@ -544,6 +544,17 @@ perform_gssapi (void)
   setenv ("KRB5CCNAME", "FILE:/dev/null", 1);
   setenv ("KRB5RCACHETYPE", "none", 1);
 
+  /* Always attempt to use gss-proxy as it is transparent with the interposer
+   * plugin in MIT Kerberos. If interposer plugin is not available, it is no-op,
+   * if gss-proxy is not running, it is no-op either.
+   *
+   * No error messages will be in the logs for case when gss-proxy is not used.
+   *
+   * Currently gss-proxy interposer plugin uses secure_getenv() to read the environment
+   * variables and it will not work with cockpit-session due to setuid bit, cockpit-session
+   * needs to implement fork-and-drop-privileges way of handling GSSAPI. */
+  setenv ("GSS_USE_PROXY", "yes", 1);
+
   debug ("reading kerberos auth from cockpit-ws");
   input.value = read_fd_until_eof (AUTH_FD, "gssapi data", &input.length);
 

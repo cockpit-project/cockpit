@@ -35,6 +35,8 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import os
 import re
 import time
+machine_test_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.append(machine_test_dir)
 import libdisc
 
 user = "test"

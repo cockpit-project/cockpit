@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -euf
+
+found=""
+cat $1/README
+find $1 -name 'COPYING' -o -name '*LICENSE*' -print | sort | while read filename; do
+    directory=$(dirname $filename)
+    name=$(basename $directory)
+
+    case $found in
+    "* $name *")
+        # skip
+        ;;
+    *)
+        found="$found $name "
+        printf "\n\n--------------------------------------------------------------\n## %s\n\n" $name
+        cat $filename
+        ;;
+    esac
+done

@@ -36,6 +36,7 @@ olddir=$(pwd)
 cd $srcdir
 
 npm install # see package.json
+find node_modules -name test | xargs rm -rf
 
 rm -rf autom4te.cache
 

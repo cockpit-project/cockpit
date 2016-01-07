@@ -35,6 +35,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import os
 import re
 import time
+import libdisc
 
 user = "test"
 passwd = "superhardpasswordtest5554"
@@ -143,7 +144,7 @@ class BasicTestSuite(Test):
         elem = self.wait_id('go-logout')
         elem.click()
 
-    def Xtest10Base(self):
+    def test10Base(self):
         elem = self.wait_id('server-name')
         out = process.run("hostname", shell=True)
         self.assertTrue(str(out.stdout)[:-1] in str(elem.text))
@@ -261,27 +262,29 @@ class BasicTestSuite(Test):
         self.mainframe()
 
     def test60ChangeTabStorage(self):
-        name = process.run(
+        reald_name = process.run(
             "storagedctl status | tail -1 |sed -r 's/.* ([a-z]+).*/\\1/'", shell=True).stdout[:-1]
-        serial = process.run(
+        reald_serial = process.run(
             "storagedctl status | tail -1 |sed -r 's/.* ([^ ]+)\s+[a-z]+.*/\\1/'", shell=True).stdout[:-1]
-        print ">>>" + name + ">>>" + serial + ">>>"
-
+        print ">>>" + reald_name + ">>>" + reald_serial + ">>>"
+        other_disc=libdisc.DiscSimple()
+        other_discname=other_disc.adddisc("d1")
+        other_shortname=os.path.basename(other_discname)
         self.login()
         self.wait_iframe("system")
         self.wait_link('Storage').click()
         self.selectframe("storage")
         elem = self.wait_id("drives")
-        elem = self.wait_xpath("//*[@data-goto-block='%s']" % name)
+        elem = self.wait_xpath("//*[@data-goto-block='%s']" % other_shortname)
         elem.click()
         elem = self.wait_xpath(
             "//*[@id='storage-detail' and @style='display: block;']")
         basel = elem
-        self.wait_xpath("//*[contains(text(), '%s')]" % "Firmware Version")
-        self.wait_xpath("//*[contains(text(), '%s')]" % serial)
+        self.wait_xpath("//*[contains(text(), '%s')]" % "Capacity")
+        self.wait_xpath("//*[contains(text(), '%s')]" % "1000 MB")
 
         self.wait_link('Storage', basel).click()
-        elem = self.wait_xpath("//*[@data-goto-block='%s']" % name)
+        elem = self.wait_xpath("//*[@data-goto-block='%s']" % other_shortname)
 
         self.mainframe()
 

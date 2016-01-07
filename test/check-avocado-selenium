@@ -64,6 +64,9 @@ done;
         self.machine.execute("adduser test")
         self.machine.execute("echo superhardpasswordtest5554 | passwd --stdin test")
         self.machine.execute("usermod -a -G wheel test")
+        self.machine.execute("echo 'test        ALL=(ALL)       NOPASSWD: ALL' >> /etc/sudoers")
+        self.machine.execute("sed -i 's/^Defaults.*requiretty/#&/g' /etc/sudoers")
+        self.machine.execute("echo 'Defaults !requiretty' >> /etc/sudoers")
 
         self.wait_for_selenium_running(self.selenium.address)
 

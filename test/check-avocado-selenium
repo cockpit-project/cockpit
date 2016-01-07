@@ -58,7 +58,11 @@ done;
                                     "Error sending data: Connection reset by peer",
                                     "connection unexpectedly closed by peer",
                                     ".*docker.sock.*No such file or directory",
-                                    "ahoj notice"
+                                    "ahoj notice",
+                                    'Error: Could not obtain the password to be scored',
+                                    'Password quality check failed:',
+                                    'The password is a palindrome',
+                                    'The password is shorter than 8 characters'
                                    )
         avocadolib.prepare_avocado_tests(self.machine)
         self.machine.execute("adduser test")

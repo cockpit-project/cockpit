@@ -57,7 +57,8 @@ done;
         self.allow_journal_messages("Error receiving data: Connection reset by peer",
                                     "Error sending data: Connection reset by peer",
                                     "connection unexpectedly closed by peer",
-                                    ".*docker.sock.*No such file or directory"
+                                    ".*docker.sock.*No such file or directory",
+                                    "ahoj notice"
                                    )
         avocadolib.prepare_avocado_tests(self.machine)
         self.machine.execute("adduser test")

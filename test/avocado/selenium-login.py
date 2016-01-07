@@ -65,8 +65,8 @@ class BasicTestSuite(Test):
 
     def tearDown(self):
         pass
-        self.driver.close()
-        self.driver.quit()
+#        self.driver.close()
+#        self.driver.quit()
 
     def wait(self, method, text):
         returned = None
@@ -143,12 +143,12 @@ class BasicTestSuite(Test):
         elem = self.wait_id('go-logout')
         elem.click()
 
-    def test10Base(self):
+    def Xtest10Base(self):
         elem = self.wait_id('server-name')
         out = process.run("hostname", shell=True)
         self.assertTrue(str(out.stdout)[:-1] in str(elem.text))
 
-    def test20Login(self):
+    def Xtest20Login(self):
         elem = self.login()
         self.wait_iframe("system")
         elem = self.wait_id("content-user-name")
@@ -168,7 +168,7 @@ class BasicTestSuite(Test):
         elem = self.wait_id("content-user-name")
         self.assertEqual(elem.text, user)
 
-    def test30ChangeTabServices(self):
+    def Xtest30ChangeTabServices(self):
         self.login()
         self.wait_iframe("system")
         self.wait_link('Services').click()
@@ -189,7 +189,7 @@ class BasicTestSuite(Test):
 
         self.mainframe()
         
-    def test40ContainerTab(self):
+    def Xtest40ContainerTab(self):
         self.login()
         self.wait_iframe("system")
         self.wait_link('Containers').click()
@@ -238,6 +238,127 @@ class BasicTestSuite(Test):
         elem = self.wait_xpath(
             "//*[@class='container-col-tags' and contains(text(), 'cockpit/ws')]")
 
+        self.mainframe()
+
+    def Xtest50ChangeTabLogs(self):
+        self.login()
+        self.wait_iframe("system")
+        self.wait_link('Logs').click()
+        self.selectframe("logs")
+        elem = self.wait_xpath("//button[contains(text(), 'Errors')]")
+        elem.click()
+        elem = self.wait_xpath("//button[contains(text(), 'Warnings')]")
+        elem.click()
+        elem = self.wait_xpath("//button[contains(text(), 'Notices')]")
+        elem.click()
+        checkt="ahoj notice"
+        out=process.run("systemd-cat -p notice echo '%s'" % checkt, shell=True)
+        elem = self.wait_xpath(
+            "//*[@class='cockpit-log-message' and contains(text(), '%s')]" % checkt)
+        elem.click()
+        elem = self.wait_xpath(
+            "//*[@id='journal-entry' and @style='display: block;']")
+        self.mainframe()
+
+    def Xtest60ChangeTabStorage(self):
+        name = process.run(
+            "storagedctl status | tail -1 |sed -r 's/.* ([a-z]+).*/\\1/'", shell=True).stdout[:-1]
+        serial = process.run(
+            "storagedctl status | tail -1 |sed -r 's/.* ([^ ]+)\s+[a-z]+.*/\\1/'", shell=True).stdout[:-1]
+        print ">>>" + name + ">>>" + serial + ">>>"
+
+        self.login()
+        self.wait_iframe("system")
+        self.wait_link('Storage').click()
+        self.selectframe("storage")
+        elem = self.wait_id("drives")
+        elem = self.wait_xpath("//*[@data-goto-block='%s']" % name)
+        elem.click()
+        elem = self.wait_xpath(
+            "//*[@id='storage-detail' and @style='display: block;']")
+        basel = elem
+        self.wait_xpath("//*[contains(text(), '%s')]" % "Firmware Version")
+        self.wait_xpath("//*[contains(text(), '%s')]" % serial)
+
+        self.wait_link('Storage', basel).click()
+        elem = self.wait_xpath("//*[@data-goto-block='%s']" % name)
+
+        self.mainframe()
+
+    def Xtest70ChangeTabNetworking(self):
+        self.login()
+        self.wait_iframe("system")
+        out = process.run(
+            "ip r |grep default | head -1 | cut -d ' ' -f 5", shell=True)
+        self.wait_link('Network').click()
+        self.selectframe("network")
+
+        self.wait_id("networking-interfaces")
+        self.wait_id("networking-tx-graph")
+
+        elem = self.wait_xpath("//*[contains(text(), '%s')]" % out.stdout[:-1])
+        self.mainframe()
+
+    def test80ChangeTabTools(self):
+        self.login()
+        self.wait_iframe("system")
+        elem = self.wait_link('Tools')
+        self.assertEqual(elem.get_attribute('class'), "collapsed")
+        elem.click()
+        time.sleep(1)
+        elem = self.wait_link('Tools')
+        self.assertEqual(elem.get_attribute('class'), "")
+        elem.click()
+        time.sleep(1)
+        elem = self.wait_link('Tools')
+        self.assertEqual(elem.get_attribute('class'), "collapsed")
+        elem.click()
+        time.sleep(1)
+
+        self.wait_link('Accounts').click()
+        self.selectframe("users")
+        elem = self.wait_xpath(
+            "//*[@class='cockpit-account-user-name' and contains(text(), '%s')]" % user)
+        elem.click()
+        elem = self.wait_xpath(
+            "//*[@id='account' and @style='display: block;']")
+        self.wait_xpath("//*[contains(text(), '%s')]" % "Full Name")
+        self.wait_link('Accounts', elem).click()
+        self.wait_id('accounts-create').click()
+        elem = self.wait_id('accounts-create-real-name')
+        elem.clear()
+        elem.send_keys('testxx')
+        elem = self.wait_id('accounts-create-pw1')
+        elem.clear()
+        elem.send_keys(passwd)
+        elem = self.wait_id('accounts-create-pw2')
+        elem.clear()
+        elem.send_keys(passwd)
+        self.wait_id('accounts-create-create').click()
+        elem = self.wait_xpath(
+            "//*[@class='cockpit-account-user-name' and contains(text(), '%s')]" % 'testxx')
+        elem.click()
+        self.wait_id('account-delete').click()
+        elem = self.wait_xpath(
+            "//*[@id='account-confirm-delete-dialog' and @style='display: block;']")
+        self.wait_id('account-confirm-delete-apply').click()
+        time.sleep(2)
+        self.mainframe()
+
+        self.wait_link('Terminal').click()
+        self.selectframe("terminal")
+        elem = self.wait_xpath("//*[@class='terminal']")
+        terminal = elem
+        terminal.send_keys("touch /tmp/testabc\n")
+        terminal.send_keys("touch /tmp/testabd\n")
+        terminal.send_keys("ls /tmp/test*\n")
+        elem = self.wait_xpath(
+            "//*[contains(text(), '%s') and contains(text(), '%s')]" % ('/tmp/testabc', '/tmp/testabd'))
+        self.assertTrue("/tmp/testabc" in elem.text)
+        process.run("ls /tmp/testabc")
+        terminal.send_keys("rm /tmp/testabc /tmp/testabd\n")
+        process.run("ls /tmp/testabc |wc -l |grep 0", shell=True)
+        process.run("ls /tmp/testabd |wc -l |grep 0", shell=True)
         self.mainframe()
         
 if __name__ == '__main__':

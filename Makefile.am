@@ -1,9 +1,7 @@
 NULL =
 man_MANS =
 BUILT_SOURCES =
-EXTRA_DIST = README.md branding bower.json
 CLEANFILES = $(man_MANS)
-DISTCLEANFILES = $(srcdir)/Makefile
 bin_PROGRAMS =
 check_SCRIPTS =
 check_PROGRAMS =
@@ -18,6 +16,18 @@ TESTS =
 
 dist_systemdunit_DATA   =
 nodist_systemdunit_DATA =
+
+DISTCLEANFILES = \
+	$(srcdir)/Makefile \
+	node_modules \
+	$(NULL)
+
+EXTRA_DIST = \
+	bower.json \
+	branding \
+	node_modules \
+	README.md \
+	$(NULL)
 
 SUFFIXES = .css .min.css .min.css.gz .js .js.gz .min.js .min.js.gz .html .min.html .min.html.gz .woff .woff.gz .1 .8 .5
 
@@ -220,7 +230,9 @@ install-data-local:: install-doc-local
 
 dist-hook: dist-doc-hook
 	echo $(VERSION) > $(distdir)/.tarball
-	-(cd $(srcdir) git ls-tree HEAD --name-only -r bower_components/ || echo bower_components/ ) | tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xvf -
+	-(cd $(srcdir); git ls-tree HEAD --name-only -r bower_components/ || echo bower_components/ ) | tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xvf -
+	$(srcdir)/tools/build-copying $(srcdir)/node_modules > $(distdir)/COPYING.node
+	$(srcdir)/tools/build-copying $(BOWER) > $(distdir)/COPYING.bower
 
 distcheck-hook: dist-doc-hook
 	$(srcdir)/tools/check-dist $(distdir)
@@ -231,10 +243,21 @@ upload-pot:
 download-po:
 	zanata-cli -B pull --min-doc-percent 30 --project-config "$(srcdir)/tools/zanata.xml" -s "$(builddir)/po" -t "$(srcdir)/po"
 
-BOWER = $(srcdir)/tools/bower_components
+BOWER = $(srcdir)/bower_components
+
+BOWER_CLEAN = \
+	$(BOWER)/sizzle/external/ \
+	$(BOWER)/patternfly/components/bootstrap-treeview \
+	$(BOWER)/patternfly/components/google-code-prettify \
+	$(BOWER)/patternfly/components/datatables* \
+	$(BOWER)/patternfly/components/?3 \
+	$(BOWER)/patternfly/components/jquery \
+	$(BOWER)/patternfly/components/matchHeight \
+	$(NULL)
 
 update-bower:
-	( cd $(srcdir)/tools && ./bower update )
+	cd $(srcdir) && bower update
+	rm -rf $(BOWER_CLEAN)
 
 include pkg/base1/Makefile.am
 include pkg/dashboard/Makefile.am

@@ -1,1 +1,1 @@
-../../bower_components/patternfly/components/d3/d3.js
+../../bower_components/d3/d3.js

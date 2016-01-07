@@ -46,7 +46,7 @@ URL:            http://cockpit-project.org/
 %if %{defined gitcommit}
 Source0:        cockpit-%{version}.tar.gz
 %else
-Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.bz2
+Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 %endif
 
 BuildRequires: pkgconfig(gio-unix-2.0)

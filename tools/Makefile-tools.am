@@ -1,5 +1,5 @@
 EXTRA_DIST += \
-	tools/bower \
+	tools/build-copying \
 	tools/cockpit.pam \
 	tools/cockpit.debian.pam \
 	tools/cockpit.spec \
@@ -23,10 +23,6 @@ EXTRA_DIST += \
 	tools/qunit-config.js \
 	tools/gdbus-unbreak-codegen \
 	$(VALGRIND_SUPPRESSIONS)
-	$(NULL)
-
-DISTCLEANFILES += \
-	node_modules \
 	$(NULL)
 
 update-lib:: update-bower

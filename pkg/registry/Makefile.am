@@ -30,6 +30,7 @@ registry_BOWER = \
 
 registry_TESTS = \
 	pkg/registry/tests/test-kube-client.html \
+	pkg/registry/tests/test-images.html \
 	$(NULL)
 
 # Typically only modify stuff above this line

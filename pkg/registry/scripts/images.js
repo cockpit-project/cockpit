@@ -42,11 +42,11 @@
     .config([
         '$routeProvider',
         function($routeProvider) {
-            $routeProvider.when('/images', {
-                templateUrl: 'views/images-page.html',
-                controller: 'ImagesCtrl',
-                reloadOnSearch: false,
-            });
+            $routeProvider
+                .when('/images/:namespace?', {
+                    templateUrl: 'views/images-page.html',
+                    controller: 'ImagesCtrl'
+                });
         }
     ])
 

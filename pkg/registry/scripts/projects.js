@@ -26,7 +26,7 @@
 
     .config(['$routeProvider',
         function($routeProvider) {
-            $routeProvider.when('/projects', {
+            $routeProvider.when('/projects/:namespace?', {
                 templateUrl: 'views/projects-page.html',
                 controller: 'ProjectsCtrl',
                 reloadOnSearch: false,

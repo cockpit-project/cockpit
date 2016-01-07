@@ -72,7 +72,7 @@
             /* Curtains related logic */
             function connect() {
                 $scope.curtains = { };
-                loader.watch("projects").then(function() {
+                loader.watch("namespaces").then(function() {
                     $scope.curtains = null;
                     visible();
                 }, function(resp) {
@@ -95,6 +95,50 @@
             loader.listen(function() {
                 $rootScope.$applyAsync();
             });
+        }
+    ])
+
+    .directive('filterBar', [
+        'kubeLoader',
+        'kubeSelect',
+        'filterService',
+        function(loader, select, filter) {
+            loader.watch("namespaces");
+            return {
+                restrict: 'E',
+                scope: true,
+                link: function(scope, element, attrs) {
+                    scope.filter =  filter;
+                    scope.namespaces = function namespaces() {
+                        return select().kind("Namespace");
+                    };
+                },
+                templateUrl: 'views/filter-bar.html'
+            };
+        }
+    ])
+
+    .factory('filterService', [
+        'kubeLoader',
+        '$route',
+        '$rootScope',
+        function(loader, $route, $rootScope) {
+            $rootScope.$on("$routeChangeSuccess", function (event, current, prev) {
+                var value = current.params["namespace"] || null;
+                if (value !== loader.namespace())
+                    loader.namespace(value);
+            });
+
+            return {
+                namespace: function(value) {
+                    if (arguments.length === 0)
+                        return $route.current.params["namespace"];
+                    var copy = angular.copy($route.current.params);
+                    copy["namespace"] = value || "";
+                    copy["target"] = null;
+                    $route.updateParams(copy);
+                }
+            };
         }
     ]);
 

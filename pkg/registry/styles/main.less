@@ -7,10 +7,11 @@
 @metadata-color: #888;
 
 @import "sidebar.less";
+@import "filter.less";
 @import "images.less";
 
 #content {
-    margin-left: unit(@sidebar-width, px);
+    margin-left: unit(@sidebar-width + 10, px);
     margin-right: 0px;
     min-height: 100%;
 }

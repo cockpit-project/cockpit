@@ -593,15 +593,13 @@ parse_cockpit_spawn_results (CockpitAuth *self,
                  json_error ? json_error->message : NULL);
       g_error_free (json_error);
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                   "Invalid data from %s: no results",
-                   sl->command);
+                   "Authentication failed: no results");
     }
   else if (!cockpit_json_get_string (results, "error", NULL, &error_str) ||
            !cockpit_json_get_string (results, "message", NULL, &message))
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                   "Invalid data from %s: invalid results",
-                   sl->command);
+                   "Authentication failed: invalid results");
     }
   else
     {
@@ -610,7 +608,7 @@ parse_cockpit_spawn_results (CockpitAuth *self,
           if (!cockpit_json_get_string (results, "user", NULL, &user) || !user)
             {
               g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                           "Invalid data from %s process: missing user", sl->command);
+                           "Authentication failed: missing user");
             }
           else
             {
@@ -647,8 +645,7 @@ parse_cockpit_spawn_results (CockpitAuth *self,
               g_debug ("error from %s: %s: %s", sl->command,
                        error_str, message);
               g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
-                           "Invalid data from %s: %s: %s",
-                           sl->command,
+                           "Authentication failed: %s: %s",
                            error_str,
                            message);
             }

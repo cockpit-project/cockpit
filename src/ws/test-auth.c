@@ -450,13 +450,13 @@ static const ErrorFixture fixture_auth_denied = {
 };
 
 static const ErrorFixture fixture_auth_no_user = {
-  .error_message = "Invalid data from mock-auth-command process: missing user",
+  .error_message = "Authentication failed: missing user",
   .header = "testscheme no-user",
 };
 
 static const ErrorFixture fixture_auth_with_error = {
   .error_code = COCKPIT_ERROR_FAILED,
-  .error_message = "Invalid data from mock-auth-command: unknown: detail for error",
+  .error_message = "Authentication failed: unknown: detail for error",
   .header = "testscheme with-error",
 };
 
@@ -467,7 +467,7 @@ static const ErrorFixture fixture_auth_none = {
 };
 
 static const ErrorFixture fixture_auth_no_write = {
-  .error_message = "Invalid data from mock-auth-command: no results",
+  .error_message = "Authentication failed: no results",
   .header = "testscheme no-write",
   .warning = "*JSON data was empty"
 };

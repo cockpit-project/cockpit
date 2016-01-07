@@ -33,6 +33,7 @@ import inspect
 import selenium.webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import os
+import sys
 import re
 import time
 machine_test_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))

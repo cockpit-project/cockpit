@@ -65,8 +65,8 @@ class BasicTestSuite(Test):
 
     def tearDown(self):
         pass
-#        self.driver.close()
-#        self.driver.quit()
+        self.driver.close()
+        self.driver.quit()
 
     def wait(self, method, text):
         returned = None
@@ -148,7 +148,7 @@ class BasicTestSuite(Test):
         out = process.run("hostname", shell=True)
         self.assertTrue(str(out.stdout)[:-1] in str(elem.text))
 
-    def Xtest20Login(self):
+    def test20Login(self):
         elem = self.login()
         self.wait_iframe("system")
         elem = self.wait_id("content-user-name")
@@ -168,7 +168,7 @@ class BasicTestSuite(Test):
         elem = self.wait_id("content-user-name")
         self.assertEqual(elem.text, user)
 
-    def Xtest30ChangeTabServices(self):
+    def test30ChangeTabServices(self):
         self.login()
         self.wait_iframe("system")
         self.wait_link('Services').click()
@@ -189,7 +189,7 @@ class BasicTestSuite(Test):
 
         self.mainframe()
         
-    def Xtest40ContainerTab(self):
+    def test40ContainerTab(self):
         self.login()
         self.wait_iframe("system")
         self.wait_link('Containers').click()
@@ -240,7 +240,7 @@ class BasicTestSuite(Test):
 
         self.mainframe()
 
-    def Xtest50ChangeTabLogs(self):
+    def test50ChangeTabLogs(self):
         self.login()
         self.wait_iframe("system")
         self.wait_link('Logs').click()
@@ -260,7 +260,7 @@ class BasicTestSuite(Test):
             "//*[@id='journal-entry' and @style='display: block;']")
         self.mainframe()
 
-    def Xtest60ChangeTabStorage(self):
+    def test60ChangeTabStorage(self):
         name = process.run(
             "storagedctl status | tail -1 |sed -r 's/.* ([a-z]+).*/\\1/'", shell=True).stdout[:-1]
         serial = process.run(
@@ -285,7 +285,7 @@ class BasicTestSuite(Test):
 
         self.mainframe()
 
-    def Xtest70ChangeTabNetworking(self):
+    def test70ChangeTabNetworking(self):
         self.login()
         self.wait_iframe("system")
         out = process.run(

@@ -1,0 +1,27 @@
+.content-filter {
+    background-color: @sidebar-pf-bg;
+    padding: 10px 16px 10px 10px;
+    border-bottom: 1px @sidebar-pf-border-color solid;
+    position: fixed;
+    top: 0px;
+    left: 90px;
+    right: 0px;
+    z-index: 1;
+}
+
+.content-filter + div {
+    padding-top: 50px;
+}
+
+.namespace-filter .btn,
+.namespace-filter .dropdown-menu {
+    font-size: 13px;
+}
+
+.namespace-filter .btn-group.open .dropdown-toggle {
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.125) inset;
+}
+
+.namespace-filter .namespace-meta {
+    color: @metadata-color;
+}

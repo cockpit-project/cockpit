@@ -1,12 +1,16 @@
 registry_VIEWS = \
 	pkg/registry/views/dashboard-page.html \
-	pkg/registry/views/images-page.html \
-	pkg/registry/views/projects-page.html \
 	pkg/registry/views/example-dialog.html \
+	pkg/registry/views/filter-bar.html \
+	pkg/registry/views/image-panel.html \
+	pkg/registry/views/images-page.html \
+	pkg/registry/views/imagestream-panel.html \
+	pkg/registry/views/projects-page.html \
 	$(NULL)
 
 registry_LESS = \
 	pkg/registry/styles/main.less \
+	pkg/registry/styles/filter.less \
 	pkg/registry/styles/images.less \
 	pkg/registry/styles/sidebar.less \
 	$(NULL)

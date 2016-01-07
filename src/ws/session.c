@@ -517,6 +517,8 @@ perform_basic (void)
   return pamh;
 }
 
+static char *krb5_ktname_envp = NULL;
+
 static pam_handle_t *
 perform_gssapi (void)
 {
@@ -543,6 +545,12 @@ perform_gssapi (void)
   /* We shouldn't be writing to kerberos caches here */
   setenv ("KRB5CCNAME", "FILE:/dev/null", 1);
   setenv ("KRB5RCACHETYPE", "none", 1);
+
+  /* If keytab was passed, enforce its use */
+  if (krb5_ktname_envp)
+    {
+      setenv ("KRB5_KTNAME", krb5_ktname_envp, 1);
+    }
 
   debug ("reading kerberos auth from cockpit-ws");
   input.value = read_fd_until_eof (AUTH_FD, "gssapi data", &input.length);
@@ -921,6 +929,14 @@ save_environment (void)
     }
 
   env_saved[j] = NULL;
+
+  /* Handle Kerberos keytab separately, no need to restore it in environment */
+  value = getenv ("KRB5_KTNAME");
+  if (value)
+    {
+      if (asprintf (&krb5_ktname_envp, "%s", value) < 0)
+            errx (42, "couldn't allocate environment");
+    }
 }
 
 int
@@ -986,6 +1002,12 @@ main (int argc,
 
   for (i = 0; env_saved[i] != NULL; i++)
     pam_putenv (pamh, env_saved[i]);
+
+  if (krb5_ktname_envp)
+    {
+       free(krb5_ktname_envp);
+       krb5_ktname_envp = NULL;
+    }
 
   env = pam_getenvlist (pamh);
   if (env == NULL)

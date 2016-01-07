@@ -57,7 +57,7 @@ class BasicTestSuite(Test):
             self.driver = selenium.webdriver.Remote(
                 command_executor='http://%s:4444/wd/hub' % selenium_hub, desired_capabilities={'browserName': browser})
 
-        self.driver.set_window_size(1024, 768)
+        self.driver.set_window_size(1400, 1200)
         self.driver.set_page_load_timeout(90)
         self.driver.implicitly_wait(10)
         self.default_try = 10

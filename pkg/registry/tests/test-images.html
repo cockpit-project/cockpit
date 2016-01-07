@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<!--
+This file is part of Cockpit.
+
+Copyright (C) 2015 Red Hat, Inc.
+
+Cockpit is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or
+(at your option) any later version.
+
+Cockpit is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Image filter tests</title>
+    <link rel="stylesheet" href="../../../tools/qunit.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="../../../tools/qunit.js"></script>
+
+    <script src="../../base1/angular.js"></script>
+    <script src="../scripts/kube-client.js"></script>
+    <script src="../scripts/images.js"></script>
+</head>
+<body>
+    <h1 id="qunit-header">Images tests</h1>
+    <h2 id="qunit-banner"></h2>
+    <div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+    <div id="qunit-fixture">test markup, will be hidden</div>
+    <div id="done-flag" style="display:none">Done</div>
+<script>
+function suite(fixtures) {
+    "use strict";
+
+    /* Filled in with a function */
+    var inject;
+
+    var module = angular.module("registry.images.tests", [
+        "kubeClient",
+        "registry.images",
+    ])
+
+    function imagesTest(name, count, fixtures, func) {
+        test(name, function() {
+            expect(count);
+            inject([
+                "kubeLoader",
+                function(loader, data) {
+                    loader.reset(true);
+                    if (fixtures)
+                        loader.handle(fixtures);
+                }
+            ]);
+            inject(func);
+        });
+    }
+
+    imagesTest("filter containsTagImage", 7, fixtures, [
+        "imageSelect",
+        function(select) {
+            var streams = select().containsTagImage("sha256:c1ee91e9f0f96ea280d17befdd968ce4e37653939fc9e5e36429cd9674a28719");
+            equal(streams.length, 2, "number ofstreams");
+            ok("/oapi/v1/namespaces/marmalade/imagestreams/busybee" in streams, "matched busybee");
+            ok("/oapi/v1/namespaces/marmalade/imagestreams/juggs" in streams, "matched juggs");
+
+            streams = select().containsTagImage("sha256:0885eeaec4514820b2c879100425e9ea10beaf4412db7f67acfe53b4df2b9450");
+            equal(streams.length, 1, "one stream matched");
+            ok("/oapi/v1/namespaces/marmalade/imagestreams/juggs" in streams, "other stream matched juggs");
+            ok(!("/oapi/v1/namespaces/marmalade/imagestreams/busybee" in streams), "other stream not busybee");
+
+            /* An unknown image */
+            streams = select().containsTagImage("sha256:2077956b196342f92271663ec85124aef44ee486f141b7d48e6ce5be410d78f1");
+            equal(streams.length, 0, "no streams selected");
+        }
+    ]);
+
+    imagesTest("filter taggedBy", 4, fixtures, [
+        "imageSelect",
+        function(select) {
+            var tag = { "tag": "2.5", "items": [
+                { "image": "sha256:d0329beccad118aa937e839d536d753ee612b67f8feb6adb519e7f5aa6e75fbe" },
+                { "image": "sha256:0885eeaec4514820b2c879100425e9ea10beaf4412db7f67acfe53b4df2b9450" }
+            ]};
+
+            var images = select().kind("Image").taggedBy(tag);
+            equal(images.length, 2, "number of images");
+            ok("/oapi/v1/images/sha256:d0329beccad118aa937e839d536d753ee612b67f8feb6adb519e7f5aa6e75fbe" in images, "matched busybee");
+            ok("/oapi/v1/images/sha256:0885eeaec4514820b2c879100425e9ea10beaf4412db7f67acfe53b4df2b9450" in images, "matched juggs");
+
+            var tag = { "tag": "2.5", "items": [
+                { "image": "sha256:00329beccad118aa937e839d536d753ee612b67f8feb6adb519e7f5aa6e75fbe" },
+                { "image": "sha256:0085eeaec4514820b2c879100425e9ea10beaf4412db7f67acfe53b4df2b9450" }
+            ]};
+
+            var images = select().kind("Image").taggedBy(tag);
+            equal(images.length, 0, "no images matched");
+        }
+    ]);
+
+    imagesTest("filter listTagNames", 3, fixtures, [
+        "imageSelect",
+        function(select) {
+            var names = select().listTagNames("sha256:c1ee91e9f0f96ea280d17befdd968ce4e37653939fc9e5e36429cd9674a28719");
+            deepEqual(names, ["marmalade/busybee:latest", "marmalade/juggs:extratag"], "got right names");
+
+            names = select().listTagNames("sha256:0885eeaec4514820b2c879100425e9ea10beaf4412db7f67acfe53b4df2b9450");
+            deepEqual(names, ["marmalade/juggs:latest"], "got another image tag name");
+
+            names = select().listTagNames("sha256:2077956b196342f92271663ec85124aef44ee486f141b7d48e6ce5be410d78f1");
+            deepEqual(names, [], "no names returned");
+        }
+    ]);
+
+    imagesTest("filter dockerImageManifest", 3, fixtures, [
+        "imageSelect",
+        function(select) {
+            var manifests = select().kind("Image").dockerImageManifest();
+            equal(manifests.length, 1, "only manifest returned");
+
+            var manifest = manifests["/oapi/v1/images/sha256:d0329beccad118aa937e839d536d753ee612b67f8feb6adb519e7f5aa6e75fbe"];
+            ok(!!manifest, "got right manifest");
+
+            equal(manifest.history[0].v1Compatibility.config.Hostname, "ea7fe68f39fd", "parsed manifest and compat");
+        }
+    ]);
+
+    angular.module('exceptionOverride', []).factory('$exceptionHandler', function() {
+        return function(exception, cause) {
+            exception.message += ' (caused by "' + cause + '")';
+            throw exception;
+        };
+    });
+
+    module.run([
+        '$injector',
+        function($injector) {
+            inject = function inject(func) {
+                return $injector.invoke(func);
+            };
+            QUnit.start();
+        }
+    ]);
+
+    angular.bootstrap(document, ['registry.images.tests']);
+}
+
+/* Invoke the test suite with this data */
+suite([
+    { "kind": "ImageStream", "apiVersion": "v1",
+      "metadata": { "name": "busybee", "namespace": "marmalade",
+           "selfLink": "/oapi/v1/namespaces/marmalade/imagestreams/busybee",
+           "uid": "4612c052-b44e-11e5-a4da-5254009e00f1"
+      },
+      "spec": {},
+      "status": {
+            "dockerImageRepository": "172.30.87.3:5000/marmalade/busybee",
+            "tags": [
+                { "tag": "0.x", "items": [
+                        { "created": "2016-01-06T08:19:58Z",
+                            "dockerImageReference": "172.30.87.3:5000/marmalade/busybee@sha256:beadfbc3da8d183c245ab5bad4dd185dacde72dbe81b270926e60e705e534afb",
+                            "image": "sha256:beadfbc3da8d183c245ab5bad4dd185dacde72dbe81b270926e60e705e534afb"
+                        } ]
+                },
+                { "tag": "latest", "items": [
+                        { "created": "2016-01-06T08:19:58Z",
+                            "dockerImageReference": "172.30.87.3:5000/marmalade/busybee@sha256:c1ee91e9f0f96ea280d17befdd968ce4e37653939fc9e5e36429cd9674a28719",
+                            "image": "sha256:c1ee91e9f0f96ea280d17befdd968ce4e37653939fc9e5e36429cd9674a28719"
+                        } ]
+                }
+            ]
+        }
+    },
+    { "kind": "ImageStream", "apiVersion": "v1",
+        "metadata": { "name": "juggs", "namespace": "marmalade",
+            "selfLink": "/oapi/v1/namespaces/marmalade/imagestreams/juggs",
+            "uid": "84e3a672-b44e-11e5-a4da-5254009e00f1"
+        },
+        "spec": {},
+        "status": {
+            "dockerImageRepository": "172.30.87.3:5000/marmalade/juggs",
+            "tags": [
+                { "tag": "2.11", "items": [
+                    { "created": "2016-01-06T08:21:43Z",
+                        "dockerImageReference": "172.30.87.3:5000/marmalade/juggs@sha256:b074b7b7905895741f7425ab4e78b9df384aaa518258d2e81d9e904ecf6c9f0f",
+                        "image": "sha256:b074b7b7905895741f7425ab4e78b9df384aaa518258d2e81d9e904ecf6c9f0f"
+                    } ]
+                },
+                { "tag": "2.5", "items": [
+                    { "created": "2016-01-06T08:21:46Z",
+                        "dockerImageReference": "172.30.87.3:5000/marmalade/juggs@sha256:d0329beccad118aa937e839d536d753ee612b67f8feb6adb519e7f5aa6e75fbe",
+                        "image": "sha256:d0329beccad118aa937e839d536d753ee612b67f8feb6adb519e7f5aa6e75fbe"
+                    } ]
+                },
+                { "tag": "latest", "items": [
+                    { "created": "2016-01-06T08:21:43Z",
+                        "dockerImageReference": "172.30.87.3:5000/marmalade/juggs@sha256:0885eeaec4514820b2c879100425e9ea10beaf4412db7f67acfe53b4df2b9450",
+                        "image": "sha256:0885eeaec4514820b2c879100425e9ea10beaf4412db7f67acfe53b4df2b9450"
+                    } ]
+                },
+                { "tag": "extratag", "items": [
+                        { "created": "2016-01-06T08:19:58Z",
+                            "dockerImageReference": "172.30.87.3:5000/marmalade/busybee@sha256:c1ee91e9f0f96ea280d17befdd968ce4e37653939fc9e5e36429cd9674a28719",
+                            "image": "sha256:c1ee91e9f0f96ea280d17befdd968ce4e37653939fc9e5e36429cd9674a28719"
+                        } ]
+                }
+            ]
+        }
+    },
+    { "kind": "ImageStream", "apiVersion": "v1",
+        "metadata": { "name": "origin", "namespace": "marmalade",
+            "selfLink": "/oapi/v1/namespaces/marmalade/imagestreams/origin",
+            "uid": "94813e0a-b44e-11e5-a4da-5254009e00f1"
+        },
+        "spec": {},
+        "status": {
+            "dockerImageRepository": "172.30.87.3:5000/marmalade/origin",
+            "tags": [
+                { "tag": "latest", "items": [
+                    { "created": "2016-01-06T08:22:10Z",
+                        "dockerImageReference": "172.30.87.3:5000/marmalade/origin@sha256:6077956b196342f92271663ec85124aef44ee486f141b7d48e6ce5be410d78f1",
+                        "image": "sha256:6077956b196342f92271663ec85124aef44ee486f141b7d48e6ce5be410d78f1"
+                    } ]
+                }
+            ]
+        }
+    },
+
+    { "kind": "Image", "apiVersion": "v1", "metadata": {
+            "name": "sha256:0885eeaec4514820b2c879100425e9ea10beaf4412db7f67acfe53b4df2b9450",
+            "selfLink": "/oapi/v1/images/sha256:0885eeaec4514820b2c879100425e9ea10beaf4412db7f67acfe53b4df2b9450",
+        },
+        "dockerImageReference": "172.30.87.3:5000/marmalade/juggs@sha256:0885eeaec4514820b2c879100425e9ea10beaf4412db7f67acfe53b4df2b9450",
+        "dockerImageMetadata": { "kind": "DockerImage", "apiVersion": "1.0", "Id": "",
+            "Created": null, "ContainerConfig": {} },
+        "dockerImageMetadataVersion": "1.0",
+    },
+    {
+        "kind": "Image", "apiVersion": "v1", "metadata": {
+            "name": "sha256:6077956b196342f92271663ec85124aef44ee486f141b7d48e6ce5be410d78f1",
+            "selfLink": "/oapi/v1/images/sha256:6077956b196342f92271663ec85124aef44ee486f141b7d48e6ce5be410d78f1",
+        },
+        "dockerImageReference": "172.30.87.3:5000/marmalade/origin@sha256:6077956b196342f92271663ec85124aef44ee486f141b7d48e6ce5be410d78f1",
+        "dockerImageMetadata": { "kind": "DockerImage", "apiVersion": "1.0", "Id": "",
+            "Created": null, "ContainerConfig": {} },
+        "dockerImageMetadataVersion": "1.0",
+    },
+    { "kind": "Image", "apiVersion": "v1",
+        "metadata": {
+            "name": "sha256:98842019ab49391fe6b419eb131211ceb1aa17a89f655b05e7305366fecea5f2",
+            "selfLink": "/oapi/v1/images/sha256:98842019ab49391fe6b419eb131211ceb1aa17a89f655b05e7305366fecea5f2",
+        },
+        "dockerImageReference": "172.30.87.3:5000/zerog/test@sha256:98842019ab49391fe6b419eb131211ceb1aa17a89f655b05e7305366fecea5f2",
+        "dockerImageMetadata": { "kind": "DockerImage", "apiVersion": "1.0", "Id": "",
+            "Created": null, "ContainerConfig": {} },
+        "dockerImageMetadataVersion": "1.0",
+    },
+    {
+        "kind": "Image", "apiVersion": "v1", "metadata": {
+            "name": "sha256:a7ca0c3e270a994cfdef0a1d77d8bd41d401135f2f9e02e0a3661cd026e81a77",
+            "selfLink": "/oapi/v1/images/sha256:a7ca0c3e270a994cfdef0a1d77d8bd41d401135f2f9e02e0a3661cd026e81a77",
+        },
+        "dockerImageReference": "172.30.87.3:5000/zerog/test@sha256:a7ca0c3e270a994cfdef0a1d77d8bd41d401135f2f9e02e0a3661cd026e81a77",
+        "dockerImageMetadata": { "kind": "DockerImage", "apiVersion": "1.0", "Id": "",
+            "Created": null, "ContainerConfig": {} },
+        "dockerImageMetadataVersion": "1.0",
+    },
+    {
+        "kind": "Image", "apiVersion": "v1", "metadata": {
+            "name": "sha256:b074b7b7905895741f7425ab4e78b9df384aaa518258d2e81d9e904ecf6c9f0f",
+            "selfLink": "/oapi/v1/images/sha256:b074b7b7905895741f7425ab4e78b9df384aaa518258d2e81d9e904ecf6c9f0f",
+        },
+        "dockerImageReference": "172.30.87.3:5000/marmalade/juggs@sha256:b074b7b7905895741f7425ab4e78b9df384aaa518258d2e81d9e904ecf6c9f0f",
+        "dockerImageMetadata": { "kind": "DockerImage", "apiVersion": "1.0", "Id": "",
+            "Created": null, "ContainerConfig": {} },
+        "dockerImageMetadataVersion": "1.0",
+    },
+    {
+        "kind": "Image", "apiVersion": "v1", "metadata": {
+            "name": "sha256:beadfbc3da8d183c245ab5bad4dd185dacde72dbe81b270926e60e705e534afb",
+            "selfLink": "/oapi/v1/images/sha256:beadfbc3da8d183c245ab5bad4dd185dacde72dbe81b270926e60e705e534afb",
+        },
+        "dockerImageReference": "172.30.87.3:5000/marmalade/busybee@sha256:beadfbc3da8d183c245ab5bad4dd185dacde72dbe81b270926e60e705e534afb",
+        "dockerImageMetadata": { "kind": "DockerImage", "apiVersion": "1.0", "Id": "",
+            "Created": null, "ContainerConfig": {} },
+        "dockerImageMetadataVersion": "1.0",
+    },
+    {
+        "kind": "Image", "apiVersion": "v1", "metadata": {
+            "name": "sha256:c1ee91e9f0f96ea280d17befdd968ce4e37653939fc9e5e36429cd9674a28719",
+            "selfLink": "/oapi/v1/images/sha256:c1ee91e9f0f96ea280d17befdd968ce4e37653939fc9e5e36429cd9674a28719",
+        },
+        "dockerImageReference": "172.30.87.3:5000/marmalade/busybee@sha256:c1ee91e9f0f96ea280d17befdd968ce4e37653939fc9e5e36429cd9674a28719",
+        "dockerImageMetadata": { "kind": "DockerImage", "apiVersion": "1.0", "Id": "",
+            "Created": null, "ContainerConfig": {} },
+        "dockerImageMetadataVersion": "1.0",
+    },
+    {
+        "kind": "Image", "apiVersion": "v1", "metadata": {
+            "name": "sha256:d0329beccad118aa937e839d536d753ee612b67f8feb6adb519e7f5aa6e75fbe",
+            "selfLink": "/oapi/v1/images/sha256:d0329beccad118aa937e839d536d753ee612b67f8feb6adb519e7f5aa6e75fbe",
+        },
+        "dockerImageReference": "172.30.87.3:5000/marmalade/juggs@sha256:d0329beccad118aa937e839d536d753ee612b67f8feb6adb519e7f5aa6e75fbe",
+        "dockerImageMetadata": { "kind": "DockerImage", "apiVersion": "1.0", "Id": "",
+            "Created": null, "ContainerConfig": {} },
+        "dockerImageMetadataVersion": "1.0",
+        "dockerImageManifest": "{\n   \"schemaVersion\": 1,\n   \"name\": \"marmalade/juggs\",\n   \"tag\": \"2.5\",\n   \"architecture\": \"amd64\",\n   \"fsLayers\": [\n      {\n         \"blobSum\": \"sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef\"\n      },\n      {\n         \"blobSum\": \"sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef\"\n      },\n      {\n         \"blobSum\": \"sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef\"\n      },\n      {\n         \"blobSum\": \"sha256:56e77d887b7139fde5d79bbd6ae4ebeaa94321802a6174d7abb4f38f49a27d69\"\n      },\n      {\n         \"blobSum\": \"sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef\"\n      },\n      {\n         \"blobSum\": \"sha256:f9874afde6a72a7a909b1d66981d91f4577953f4c76ee964769a6ae03b0f3772\"\n      },\n      {\n         \"blobSum\": \"sha256:b66af3c1eb6d172529118591b976c4e54791f3b8d6f181ca770e69e7588e194f\"\n      },\n      {\n         \"blobSum\": \"sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef\"\n      },\n      {\n         \"blobSum\": \"sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef\"\n      },\n      {\n         \"blobSum\": \"sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef\"\n      },\n      {\n         \"blobSum\": \"sha256:9508eff2c6877c4ae2275863cc8eae93bdac3d1b1943b0037976024be6af417f\"\n      }\n   ],\n   \"history\": [\n      {\n         \"v1Compatibility\": \"{\\\"id\\\":\\\"7ee8909bffd6a73c5255c5d9ee0913c1a71eda71cae1680e80a118b2cf660ed5\\\",\\\"parent\\\":\\\"77cb3764521afea728f4f5cf35ba4fed3101ffafe1729e92613909da9f703993\\\",\\\"created\\\":\\\"2016-01-06T08:21:35.017125922Z\\\",\\\"container\\\":\\\"6f2dd149ff0f64aa299db520b9129bca2a849d06e7161efb745837f32ea236a5\\\",\\\"container_config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"nobody:wheel\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":{\\\"8888/tcp\\\":{}},\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":[\\\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\\\"],\\\"Cmd\\\":[\\\"/bin/sh\\\",\\\"-c\\\",\\\"#(nop) CMD [\\\\\\\"/bin/sh\\\\\\\" \\\\\\\"-c\\\\\\\" \\\\\\\"['-c']\\\\\\\"]\\\"],\\\"Image\\\":\\\"77cb3764521afea728f4f5cf35ba4fed3101ffafe1729e92613909da9f703993\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":[\\\"/bin/sh\\\",\\\"-c\\\",\\\"['top', '-b']\\\"],\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":[],\\\"Labels\\\":null},\\\"docker_version\\\":\\\"1.8.2-fc22\\\",\\\"config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"nobody:wheel\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":{\\\"8888/tcp\\\":{}},\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":[\\\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\\\"],\\\"Cmd\\\":[\\\"/bin/sh\\\",\\\"-c\\\",\\\"['-c']\\\"],\\\"Image\\\":\\\"77cb3764521afea728f4f5cf35ba4fed3101ffafe1729e92613909da9f703993\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":[\\\"/bin/sh\\\",\\\"-c\\\",\\\"['top', '-b']\\\"],\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":[],\\\"Labels\\\":null},\\\"architecture\\\":\\\"amd64\\\",\\\"os\\\":\\\"linux\\\",\\\"Size\\\":0}\\n\"\n      },\n      {\n         \"v1Compatibility\": \"{\\\"id\\\":\\\"77cb3764521afea728f4f5cf35ba4fed3101ffafe1729e92613909da9f703993\\\",\\\"parent\\\":\\\"a2103feac6eef95929fb2c4e9e3260b652c0036a3ad98ddf15e184c699199195\\\",\\\"created\\\":\\\"2016-01-06T08:21:26.172751536Z\\\",\\\"container\\\":\\\"ad08cf884c6b0656a20bbdcf512a1ab2feeff5dbf98269157c475605b03dca0e\\\",\\\"container_config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"nobody:wheel\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":{\\\"8888/tcp\\\":{}},\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":[\\\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\\\"],\\\"Cmd\\\":[\\\"/bin/sh\\\",\\\"-c\\\",\\\"#(nop) ENTRYPOINT \\\\u0026{[\\\\\\\"/bin/sh\\\\\\\" \\\\\\\"-c\\\\\\\" \\\\\\\"['top', '-b']\\\\\\\"]}\\\"],\\\"Image\\\":\\\"a2103feac6eef95929fb2c4e9e3260b652c0036a3ad98ddf15e184c699199195\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":[\\\"/bin/sh\\\",\\\"-c\\\",\\\"['top', '-b']\\\"],\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":[],\\\"Labels\\\":null},\\\"docker_version\\\":\\\"1.8.2-fc22\\\",\\\"config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"nobody:wheel\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":{\\\"8888/tcp\\\":{}},\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":[\\\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\\\"],\\\"Cmd\\\":null,\\\"Image\\\":\\\"a2103feac6eef95929fb2c4e9e3260b652c0036a3ad98ddf15e184c699199195\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":[\\\"/bin/sh\\\",\\\"-c\\\",\\\"['top', '-b']\\\"],\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":[],\\\"Labels\\\":null},\\\"architecture\\\":\\\"amd64\\\",\\\"os\\\":\\\"linux\\\",\\\"Size\\\":0}\\n\"\n      },\n      {\n         \"v1Compatibility\": \"{\\\"id\\\":\\\"a2103feac6eef95929fb2c4e9e3260b652c0036a3ad98ddf15e184c699199195\\\",\\\"parent\\\":\\\"b3da26959ba2a01373f612d31cbb3337e6e1afa0d2a06d5f6c1880698d008bb1\\\",\\\"created\\\":\\\"2016-01-06T08:21:18.578786519Z\\\",\\\"container\\\":\\\"0d73398c96f7b301569378598da7b61f233cc7a8a8d5c84ddaa5fc5f853ddc82\\\",\\\"container_config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"nobody:wheel\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":{\\\"8888/tcp\\\":{}},\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":[\\\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\\\"],\\\"Cmd\\\":[\\\"/bin/sh\\\",\\\"-c\\\",\\\"#(nop) USER [nobody:wheel]\\\"],\\\"Image\\\":\\\"b3da26959ba2a01373f612d31cbb3337e6e1afa0d2a06d5f6c1880698d008bb1\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":null,\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":[],\\\"Labels\\\":null},\\\"docker_version\\\":\\\"1.8.2-fc22\\\",\\\"config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"nobody:wheel\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":{\\\"8888/tcp\\\":{}},\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":[\\\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\\\"],\\\"Cmd\\\":[\\\"/bin/sh\\\",\\\"-c\\\",\\\"\\\\\\\"/echo-script\\\\\\\"\\\"],\\\"Image\\\":\\\"b3da26959ba2a01373f612d31cbb3337e6e1afa0d2a06d5f6c1880698d008bb1\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":null,\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":[],\\\"Labels\\\":null},\\\"architecture\\\":\\\"amd64\\\",\\\"os\\\":\\\"linux\\\",\\\"Size\\\":0}\\n\"\n      },\n      {\n         \"v1Compatibility\": \"{\\\"id\\\":\\\"b3da26959ba2a01373f612d31cbb3337e6e1afa0d2a06d5f6c1880698d008bb1\\\",\\\"parent\\\":\\\"1edacc3f2e75148c66bccffd7842820ae59827adffe0e5b48d2115f12ca851e7\\\",\\\"created\\\":\\\"2016-01-06T08:21:08.259502484Z\\\",\\\"container\\\":\\\"b9ba5da52a76df85921ec62f4016c69373b708b803b901f606338266a64e84b6\\\",\\\"container_config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":{\\\"8888/tcp\\\":{}},\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":[\\\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\\\"],\\\"Cmd\\\":[\\\"/bin/sh\\\",\\\"-c\\\",\\\"#(nop) ADD file:13b71f8f71940741c6a1ced38145982a5fd0040731b3317a6dd736d041c21d61 in /usr/bin\\\"],\\\"Image\\\":\\\"1edacc3f2e75148c66bccffd7842820ae59827adffe0e5b48d2115f12ca851e7\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":null,\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":[],\\\"Labels\\\":null},\\\"docker_version\\\":\\\"1.8.2-fc22\\\",\\\"config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":{\\\"8888/tcp\\\":{}},\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":[\\\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\\\"],\\\"Cmd\\\":[\\\"/bin/sh\\\",\\\"-c\\\",\\\"\\\\\\\"/echo-script\\\\\\\"\\\"],\\\"Image\\\":\\\"1edacc3f2e75148c66bccffd7842820ae59827adffe0e5b48d2115f12ca851e7\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":null,\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":[],\\\"Labels\\\":null},\\\"architecture\\\":\\\"amd64\\\",\\\"os\\\":\\\"linux\\\",\\\"Size\\\":107039903}\\n\"\n      },\n      {\n         \"v1Compatibility\": \"{\\\"id\\\":\\\"1edacc3f2e75148c66bccffd7842820ae59827adffe0e5b48d2115f12ca851e7\\\",\\\"parent\\\":\\\"6516d0b7169ac9aa48b0590f36fa9e1a0a4c0ad9d42ce912f8e2711b55e54ba6\\\",\\\"created\\\":\\\"2016-01-06T08:20:34.176144863Z\\\",\\\"container\\\":\\\"65bf3bc3387d3583384f6b508e133be86857b5c8bf7ffb802fe43b0299c2e297\\\",\\\"container_config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":{\\\"8888/tcp\\\":{}},\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":[\\\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\\\"],\\\"Cmd\\\":[\\\"/bin/sh\\\",\\\"-c\\\",\\\"#(nop) CMD [\\\\\\\"/bin/sh\\\\\\\" \\\\\\\"-c\\\\\\\" \\\\\\\"\\\\\\\\\\\\\\\"/echo-script\\\\\\\\\\\\\\\"\\\\\\\"]\\\"],\\\"Image\\\":\\\"6516d0b7169ac9aa48b0590f36fa9e1a0a4c0ad9d42ce912f8e2711b55e54ba6\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":null,\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":[],\\\"Labels\\\":null},\\\"docker_version\\\":\\\"1.8.2-fc22\\\",\\\"author\\\":\\\"cockpit@example.com\\\",\\\"config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":{\\\"8888/tcp\\\":{}},\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":[\\\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\\\"],\\\"Cmd\\\":[\\\"/bin/sh\\\",\\\"-c\\\",\\\"\\\\\\\"/echo-script\\\\\\\"\\\"],\\\"Image\\\":\\\"6516d0b7169ac9aa48b0590f36fa9e1a0a4c0ad9d42ce912f8e2711b55e54ba6\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":null,\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":[],\\\"Labels\\\":null},\\\"architecture\\\":\\\"amd64\\\",\\\"os\\\":\\\"linux\\\",\\\"Size\\\":0}\\n\"\n      },\n      {\n         \"v1Compatibility\": \"{\\\"id\\\":\\\"6516d0b7169ac9aa48b0590f36fa9e1a0a4c0ad9d42ce912f8e2711b55e54ba6\\\",\\\"parent\\\":\\\"41d80ac73b24079e8cf595f197688ebf56beaebfe56bc9484e23a46f7a290eee\\\",\\\"created\\\":\\\"2016-01-06T08:20:25.991656579Z\\\",\\\"container\\\":\\\"8b4f5fe8bc39f5288558ac226d067edf51946f89130202641439e4c5ac5fcdbe\\\",\\\"container_config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":{\\\"8888/tcp\\\":{}},\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":[\\\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\\\"],\\\"Cmd\\\":[\\\"/bin/sh\\\",\\\"-c\\\",\\\"chmod +x /echo-script\\\"],\\\"Image\\\":\\\"41d80ac73b24079e8cf595f197688ebf56beaebfe56bc9484e23a46f7a290eee\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":null,\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":[],\\\"Labels\\\":null},\\\"docker_version\\\":\\\"1.8.2-fc22\\\",\\\"author\\\":\\\"cockpit@example.com\\\",\\\"config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":{\\\"8888/tcp\\\":{}},\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":[\\\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\\\"],\\\"Cmd\\\":[\\\"sh\\\"],\\\"Image\\\":\\\"41d80ac73b24079e8cf595f197688ebf56beaebfe56bc9484e23a46f7a290eee\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":null,\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":[],\\\"Labels\\\":null},\\\"architecture\\\":\\\"amd64\\\",\\\"os\\\":\\\"linux\\\",\\\"Size\\\":49}\\n\"\n      },\n      {\n         \"v1Compatibility\": \"{\\\"id\\\":\\\"41d80ac73b24079e8cf595f197688ebf56beaebfe56bc9484e23a46f7a290eee\\\",\\\"parent\\\":\\\"a1b76b6382ca1865e163ac778fbdd0d1846b6a299603e391e465bd7bfc7ac658\\\",\\\"created\\\":\\\"2016-01-06T08:20:17.534405031Z\\\",\\\"container\\\":\\\"a0742cf04040b9b5262ebde1eaf5a694764cb908731af4fab4add0a123399207\\\",\\\"container_config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":{\\\"8888/tcp\\\":{}},\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":[\\\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\\\"],\\\"Cmd\\\":[\\\"/bin/sh\\\",\\\"-c\\\",\\\"#(nop) ADD file:b35fc316562d0e29fa7ae1e767f3597811f4349e30aa74122b67965a103f817a in /\\\"],\\\"Image\\\":\\\"a1b76b6382ca1865e163ac778fbdd0d1846b6a299603e391e465bd7bfc7ac658\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":null,\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":[],\\\"Labels\\\":null},\\\"docker_version\\\":\\\"1.8.2-fc22\\\",\\\"author\\\":\\\"cockpit@example.com\\\",\\\"config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":{\\\"8888/tcp\\\":{}},\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":[\\\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\\\"],\\\"Cmd\\\":[\\\"sh\\\"],\\\"Image\\\":\\\"a1b76b6382ca1865e163ac778fbdd0d1846b6a299603e391e465bd7bfc7ac658\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":null,\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":[],\\\"Labels\\\":null},\\\"architecture\\\":\\\"amd64\\\",\\\"os\\\":\\\"linux\\\",\\\"Size\\\":49}\\n\"\n      },\n      {\n         \"v1Compatibility\": \"{\\\"id\\\":\\\"a1b76b6382ca1865e163ac778fbdd0d1846b6a299603e391e465bd7bfc7ac658\\\",\\\"parent\\\":\\\"050da25c447833662b48486ae491372c5c7b6a05b75f484aff3dbac3f1b439c5\\\",\\\"created\\\":\\\"2016-01-06T08:20:09.053368674Z\\\",\\\"container\\\":\\\"948552785bb199f4a156198db84c2d4e7cee599341e6f7cbe7e37c313a9cfc30\\\",\\\"container_config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":{\\\"8888/tcp\\\":{}},\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":[\\\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\\\"],\\\"Cmd\\\":[\\\"/bin/sh\\\",\\\"-c\\\",\\\"#(nop) EXPOSE 8888/tcp\\\"],\\\"Image\\\":\\\"050da25c447833662b48486ae491372c5c7b6a05b75f484aff3dbac3f1b439c5\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":null,\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":[],\\\"Labels\\\":null},\\\"docker_version\\\":\\\"1.8.2-fc22\\\",\\\"author\\\":\\\"cockpit@example.com\\\",\\\"config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":{\\\"8888/tcp\\\":{}},\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":[\\\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\\\"],\\\"Cmd\\\":[\\\"sh\\\"],\\\"Image\\\":\\\"050da25c447833662b48486ae491372c5c7b6a05b75f484aff3dbac3f1b439c5\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":null,\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":[],\\\"Labels\\\":null},\\\"architecture\\\":\\\"amd64\\\",\\\"os\\\":\\\"linux\\\",\\\"Size\\\":0}\\n\"\n      },\n      {\n         \"v1Compatibility\": \"{\\\"id\\\":\\\"050da25c447833662b48486ae491372c5c7b6a05b75f484aff3dbac3f1b439c5\\\",\\\"parent\\\":\\\"fc0db02f30724abc777d7ae2b2404c6d074f1e2ceca19912352aea30a42f50b7\\\",\\\"created\\\":\\\"2016-01-06T08:20:00.125277163Z\\\",\\\"container\\\":\\\"dc23369599cbd51f1595f85c4ecd4998496a00928dba75a1b86683ce87e22c72\\\",\\\"container_config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":null,\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":[\\\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\\\"],\\\"Cmd\\\":[\\\"/bin/sh\\\",\\\"-c\\\",\\\"#(nop) MAINTAINER cockpit@example.com\\\"],\\\"Image\\\":\\\"fc0db02f30724abc777d7ae2b2404c6d074f1e2ceca19912352aea30a42f50b7\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":null,\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":[],\\\"Labels\\\":null},\\\"docker_version\\\":\\\"1.8.2-fc22\\\",\\\"author\\\":\\\"cockpit@example.com\\\",\\\"config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":null,\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":[\\\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\\\"],\\\"Cmd\\\":[\\\"sh\\\"],\\\"Image\\\":\\\"fc0db02f30724abc777d7ae2b2404c6d074f1e2ceca19912352aea30a42f50b7\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":null,\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":[],\\\"Labels\\\":null},\\\"architecture\\\":\\\"amd64\\\",\\\"os\\\":\\\"linux\\\",\\\"Size\\\":0}\\n\"\n      },\n      {\n         \"v1Compatibility\": \"{\\\"id\\\":\\\"fc0db02f30724abc777d7ae2b2404c6d074f1e2ceca19912352aea30a42f50b7\\\",\\\"parent\\\":\\\"5c5fb281b01ee091a0fffa5b4a4c7fb7d358e7fb7c49c263d6d7a4e35d199fd0\\\",\\\"created\\\":\\\"2015-12-08T18:31:51.481948133Z\\\",\\\"container\\\":\\\"f63d86f7f85b3207532327b6e484bf09d8a0d1a0979cf7bdce1bd5268666fdd3\\\",\\\"container_config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":null,\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":null,\\\"Cmd\\\":[\\\"/bin/sh\\\",\\\"-c\\\",\\\"#(nop) CMD [\\\\\\\"sh\\\\\\\"]\\\"],\\\"Image\\\":\\\"5c5fb281b01ee091a0fffa5b4a4c7fb7d358e7fb7c49c263d6d7a4e35d199fd0\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":null,\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":null,\\\"Labels\\\":null},\\\"docker_version\\\":\\\"1.8.3\\\",\\\"config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":null,\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":null,\\\"Cmd\\\":[\\\"sh\\\"],\\\"Image\\\":\\\"5c5fb281b01ee091a0fffa5b4a4c7fb7d358e7fb7c49c263d6d7a4e35d199fd0\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":null,\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":null,\\\"Labels\\\":null},\\\"architecture\\\":\\\"amd64\\\",\\\"os\\\":\\\"linux\\\",\\\"Size\\\":0}\\n\"\n      },\n      {\n         \"v1Compatibility\": \"{\\\"id\\\":\\\"5c5fb281b01ee091a0fffa5b4a4c7fb7d358e7fb7c49c263d6d7a4e35d199fd0\\\",\\\"created\\\":\\\"2015-12-08T18:31:50.979824705Z\\\",\\\"container\\\":\\\"ea7fe68f39fd0df314e841247fb940ddef4c02ab7b5edb0ee724adc3174bc8d9\\\",\\\"container_config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":null,\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":null,\\\"Cmd\\\":[\\\"/bin/sh\\\",\\\"-c\\\",\\\"#(nop) ADD file:c295b0748bf05d4527f500b62ff269bfd0037f7515f1375d2ee474b830bad382 in /\\\"],\\\"Image\\\":\\\"\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":null,\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":null,\\\"Labels\\\":null},\\\"docker_version\\\":\\\"1.8.3\\\",\\\"config\\\":{\\\"Hostname\\\":\\\"ea7fe68f39fd\\\",\\\"Domainname\\\":\\\"\\\",\\\"User\\\":\\\"\\\",\\\"AttachStdin\\\":false,\\\"AttachStdout\\\":false,\\\"AttachStderr\\\":false,\\\"ExposedPorts\\\":null,\\\"PublishService\\\":\\\"\\\",\\\"Tty\\\":false,\\\"OpenStdin\\\":false,\\\"StdinOnce\\\":false,\\\"Env\\\":null,\\\"Cmd\\\":null,\\\"Image\\\":\\\"\\\",\\\"Volumes\\\":null,\\\"VolumeDriver\\\":\\\"\\\",\\\"WorkingDir\\\":\\\"\\\",\\\"Entrypoint\\\":null,\\\"NetworkDisabled\\\":false,\\\"MacAddress\\\":\\\"\\\",\\\"OnBuild\\\":null,\\\"Labels\\\":null},\\\"architecture\\\":\\\"amd64\\\",\\\"os\\\":\\\"linux\\\",\\\"Size\\\":1113436}\\n\"\n      }\n   ]\n}"
+    }
+]);
+
+</script>
+</body>
+</html>

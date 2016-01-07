@@ -1076,12 +1076,10 @@
             var self = this;
 
             /* Until we come up with a good default implementation, must be provided */
-            self.KubeRequestFactory = null;
+            self.KubeRequestFactory = "MissingKubeRequest";
 
             function load(injector, name) {
-                if (!name)
-                    throw "no KubeRequestFactory set";
-                else if (angular.isString(name))
+                if (angular.isString(name))
                     return injector.get(name, "KubeRequest");
                 else
                     return injector.invoke(name);
@@ -1093,6 +1091,14 @@
                     return load($injector, self.KubeRequestFactory);
                 }
             ];
+        }
+    ])
+
+    .factory("MissingKubeRequest", [
+        function() {
+            return function MissingKubeRequest(path, callback) {
+                throw "no KubeRequestFactory set";
+            };
         }
     ])
 
@@ -1127,12 +1133,10 @@
             var self = this;
 
             /* Until we come up with a good default implementation, must be provided */
-            self.KubeWatchFactory = null;
+            self.KubeWatchFactory = "MissingKubeWatch";
 
             function load(injector, name) {
-                if (!name)
-                    throw "no KubeWatchFactory set";
-                else if (angular.isString(name))
+                if (angular.isString(name))
                     return injector.get(name, "KubeWatch");
                 else
                     return injector.invoke(name);
@@ -1145,6 +1149,15 @@
                 }
             ];
         }
+    ])
+
+    .factory("MissingKubeWatch", [
+        function() {
+            return function MissingKubeWatch(path, callback) {
+                throw "no KubeWatchFactory set";
+            };
+        }
     ]);
+
 
 }());

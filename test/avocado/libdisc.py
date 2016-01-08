@@ -75,19 +75,19 @@ class DiscSimple():
         self.targetlist=[]
 
     def adddisc(self,name, size=999):
-        outfile="%s%s" % (self.location, name)
+        outfile="%s/%s" % (self.location, name)
         process.run("dd if=/dev/zero of=%s bs=1M count=1 seek=%d" % (outfile, size), shell = True)
-        process.run("losetup -f %s; sleep 1" % outfile, shell = True)
-        tmp = process.run("losetup -j %s" % outfile, shell = True)
+        process.run("sudo losetup -f %s; sleep 1" % outfile, shell = True)
+        tmp = process.run("sudo losetup -j %s" % outfile, shell = True)
         tmp1 = re.search('(/dev/loop[0-9]+):\s+', tmp.stdout)
         self.targetlist.append(name)
         return tmp1.group(1)
 
     def deldisc(self,name):
         outfile="%s%s" % (self.location, name)
-        tmp = process.run("losetup -j %s" % outfile, shell = True)
+        tmp = process.run("sudo losetup -j %s" % outfile, shell = True)
         tmp1 = re.search('(/dev/loop[0-9]+):\s+', tmp.stdout)
-        process.run("losetup -d %s" % tmp1.group(1), shell = True)
+        process.run("sudo losetup -d %s" % tmp1.group(1), shell = True)
         self.targetlist.remove(name)
 
     def clear(self):

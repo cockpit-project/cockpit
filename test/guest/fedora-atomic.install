@@ -35,7 +35,7 @@ class AtomicCockpitInstaller:
     # Support installing random packages if needed.
     external_packages = {}
 
-    packages_force_install = ["cockpit-kubernetes", "cockpit-networkmanager", "cockpit-ostree"]
+    packages_force_install = ["cockpit-kubernetes", "cockpit-networkmanager", "cockpit-ostree", "cockpit-sosreport" ]
 
     def __init__(self, rpms=None, verbose=False):
         self.verbose = verbose

@@ -62,8 +62,8 @@ class BasicTestSuite(Test):
 
         self.driver.set_window_size(1400, 1200)
         self.driver.set_page_load_timeout(90)
-        self.driver.implicitly_wait(10)
-        self.default_try = 10
+        self.driver.implicitly_wait(1)
+        self.default_try = 30
         self.default_sleep = 1
         self.driver.get('http://%s:9090' % guest_machine)
 
@@ -72,43 +72,46 @@ class BasicTestSuite(Test):
         self.driver.close()
         self.driver.quit()
 
-    def wait(self, method, text):
+    def wait(self, method, text, overridetry, fatal):
         returned = None
-        for foo in (0, self.default_try):
+        #time.sleep(self.default_sleep)
+        internaltry = overridetry if overridetry else self.default_try
+        for foo in range(0, internaltry):
             try:
                 returned = method(text)
                 break
             except:
-                print "."
+                print "REP>", foo
                 time.sleep(self.default_sleep)
                 pass
         if returned is None:
-            self.driver.get_screenshot_as_file(
-                "snapshot-%s-%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack()[2][3])))
-            print "snapshot-%s-%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack()[2][3]))
-            method(text)
+            if fatal:
+                self.driver.get_screenshot_as_file("snapshot-%s-%s-lines_%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack()[2][3]), '-'.join([str(x[2]) for x in inspect.stack() if inspect.stack()[0][1] == x[1] ])))
+                print ("snapshot-%s-%s-lines_%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack()[2][3]), '-'.join([str(x[2]) for x in inspect.stack() if inspect.stack()[0][1] == x[1] ])))
+            else:
+                return None
         return method(text)
 
-    def wait_id(self, el, baseelement=None):
+    def wait_id(self, el, baseelement=None, overridetry=None, fatal=True):
         if not baseelement:
             baseelement = self.driver
-        return self.wait(baseelement.find_element_by_id, el)
+        return self.wait(baseelement.find_element_by_id, el, overridetry=overridetry, fatal=fatal)
 
-    def wait_link(self, el, baseelement=None):
+    def wait_link(self, el, baseelement=None, overridetry=None, fatal=True):
         if not baseelement:
             baseelement = self.driver
-        return self.wait(baseelement.find_element_by_partial_link_text, el)
+        return self.wait(baseelement.find_element_by_partial_link_text, el, overridetry=overridetry, fatal=fatal)
 
-    def wait_xpath(self, el, baseelement=None):
+    def wait_xpath(self, el, baseelement=None, overridetry=None, fatal=True):
         if not baseelement:
             baseelement = self.driver
-        return self.wait(baseelement.find_element_by_xpath, el)
+        return self.wait(baseelement.find_element_by_xpath, el, overridetry=overridetry, fatal=fatal)
 
-    def wait_iframe(self, el, baseelement=None):
+    def wait_iframe(self, el, baseelement=None, overridetry=None, fatal=True):
         if not baseelement:
             baseelement = self.driver
         out = None
-        iframes = self.wait(baseelement.find_elements_by_xpath, "//iframe")
+        iframes = self.wait(baseelement.find_elements_by_xpath, "//iframe", overridetry=overridetry, fatal=fatal)
         if len(iframes) == 0:
             raise Exception('There is no iframe, but SHOULD be')
         elif len(iframes) == 1:
@@ -362,7 +365,9 @@ class BasicTestSuite(Test):
             "//*[contains(text(), '%s') and contains(text(), '%s')]" % ('/tmp/testabc', '/tmp/testabd'))
         self.assertTrue("/tmp/testabc" in elem.text)
         process.run("ls /tmp/testabc")
-        terminal.send_keys("rm /tmp/testabc /tmp/testabd\n")
+        terminal.send_keys("rm -v /tmp/testabc /tmp/testabd\n")
+        self.wait_xpath(
+            "//*[contains(text(), '%s')]" % 'removed')
         process.run("ls /tmp/testabc |wc -l |grep 0", shell=True)
         process.run("ls /tmp/testabd |wc -l |grep 0", shell=True)
         self.mainframe()

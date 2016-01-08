@@ -24,6 +24,7 @@ base_DATA = \
 basedebugdir = $(debugdir)$(basedir)
 basedebug_DATA = \
 	pkg/base1/angular.js \
+	pkg/base1/angular-csp.css \
 	pkg/base1/angular-patternfly.css \
 	pkg/base1/bootstrap-datepicker.js \
 	pkg/base1/bootstrap-select.js \

@@ -199,31 +199,9 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         # Wait for it to appear
         b.wait_in_text("#containers-images", image_name)
 
-        # Run it
-        b.click("#containers-images tr:contains(\"%s\") button.fa-play" % (image_name))
-        b.wait_popup("containers_run_image_dialog")
-        b.set_val("#containers-run-image-name", "PROBE2")
-        b.set_val(".containers-run-portmapping form:eq(0) input:eq(1)", port)
-        b.click("#containers-run-image-run");
-        b.wait_popdown("containers_run_image_dialog")
-        b.wait_in_text("#containers-containers", "PROBE2")
-
-        # Check output of the probe
-        b.click('#containers-containers tr:contains("PROBE2")')
-        b.wait_visible("#container-details")
-        self.wait_for_message(message)
-        b.wait_in_text("#container-details-ports", "0.0.0.0:%d -> %d/tcp" % (port, port))
-
-        # Check connection on port, this also causes container to exit
-        data = m.execute("exec 3<>/dev/tcp/localhost/%d; cat <&3" % (port)).rstrip()
-        self.assertEqual(data, message)
-
-        # Wait for exit
-        b.wait_in_text("#container-details-state", "Exited")
-
-        self.del_container_from_details("PROBE2")
         nport = port + 1;
-        # Run it again, but expose additional port
+
+        # Run it and expose additional port via the ui
         b.click("#containers-images tr:contains(\"%s\") button.fa-play" % (image_name))
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE2")
@@ -265,7 +243,7 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         # Wait for exit
         b.wait_in_text("#container-details-state", "Exited")
 
-        self.del_container_from_details("PROBE1")
+        self.del_container_from_details("PROBE2")
 
     @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "we can't use cockpit on atomic if docker is stopped")
     def testFailure(self):

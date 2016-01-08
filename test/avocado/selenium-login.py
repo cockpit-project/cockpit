@@ -86,8 +86,10 @@ class BasicTestSuite(Test):
                 pass
         if returned is None:
             if fatal:
-                self.driver.get_screenshot_as_file("snapshot-%s-%s-lines_%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack()[2][3]), '-'.join([str(x[2]) for x in inspect.stack() if inspect.stack()[0][1] == x[1] ])))
-                print  "snapshot-%s-%s-lines_%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack()[2][3]), '-'.join([str(x[2]) for x in inspect.stack() if inspect.stack()[0][1] == x[1] ]))
+                screenshot_file="snapshot-%s-%s-lines_%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack()[2][3]), '-'.join([str(x[2]) for x in inspect.stack() if inspect.stack()[0][1] == x[1] ]))
+                self.driver.get_screenshot_as_file(screenshot_file)
+                print  screenshot_file
+                raise Exception('ERR: Unable to locate name: %s' % str(text), screenshot_file)
             else:
                 return None
         return method(text)

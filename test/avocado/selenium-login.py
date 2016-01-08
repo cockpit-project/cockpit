@@ -33,8 +33,12 @@ import inspect
 import selenium.webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import os
+import sys
 import re
 import time
+machine_test_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.append(machine_test_dir)
+import libdisc
 
 user = "test"
 passwd = "superhardpasswordtest5554"
@@ -56,7 +60,7 @@ class BasicTestSuite(Test):
             self.driver = selenium.webdriver.Remote(
                 command_executor='http://%s:4444/wd/hub' % selenium_hub, desired_capabilities={'browserName': browser})
 
-        self.driver.set_window_size(1024, 768)
+        self.driver.set_window_size(1400, 1200)
         self.driver.set_page_load_timeout(90)
         self.driver.implicitly_wait(10)
         self.default_try = 10
@@ -188,6 +192,180 @@ class BasicTestSuite(Test):
         self.wait_xpath("//*[contains(text(), '%s')]" % "dbus.service")
 
         self.mainframe()
+        
+    def test40ContainerTab(self):
+        self.login()
+        self.wait_iframe("system")
+        self.wait_link('Containers').click()
+        self.selectframe("docker")
+        time.sleep(3)
+        elem = self.wait_id('curtain')
+        if "display: block;" in str(elem.get_attribute("style")):
+            elem = self.wait_xpath("//*[@data-action='docker-start']")
+            elem.click()
+        elem = self.wait_xpath(
+            "//*[@id='containers' and @style='display: block;']")
+        self.wait_id('containers-storage')
+        self.wait_id('containers-images-search').click()
+        elem = self.wait_xpath(
+            "//*[@id='containers-search-image-dialog' and @class='modal in']")
+        baseelem = elem
+        elem = self.wait_id('containers-search-image-search',baseelem)
+        elem.clear()
+        elem.send_keys("fedora")
+        elem = self.wait_xpath(
+            "//*[@id='containers-search-image-results' and @style='display: block;']")
+        elem = self.wait_xpath(
+            "//*[contains(text(), '%s')]" % "Official Docker")
+        elem = self.wait_xpath(
+            "//div[@id='containers-search-image-dialog']//button[contains(text(), '%s')]" % "Cancel")
+        elem.click()
+        elem = self.wait_xpath(
+            "//*[@id='containers-search-image-dialog' and @style='display: none;']")
 
+        self.wait_id('containers-images-search').click()
+        elem = self.wait_xpath(
+            "//*[@id='containers-search-image-dialog' and @class='modal in']")
+        baseelem = elem
+        elem = self.wait_id('containers-search-image-search',baseelem)
+        elem.clear()
+        elem.send_keys("cockpit")
+        elem = self.wait_xpath(
+            "//*[@id='containers-search-image-results' and @style='display: block;']")
+        elem = self.wait_xpath(
+            "//*[contains(text(), '%s')]" % "Cockpit Web Ser")
+        elem.click()
+        elem = self.wait_id('containers-search-download', baseelem)
+        elem.click()
+        elem = self.wait_xpath(
+            "//*[@id='containers-search-image-dialog' and @style='display: none;']")
+        elem = self.wait_xpath(
+            "//*[@class='container-col-tags' and contains(text(), 'cockpit/ws')]")
+
+        self.mainframe()
+
+    def test50ChangeTabLogs(self):
+        self.login()
+        self.wait_iframe("system")
+        self.wait_link('Logs').click()
+        self.selectframe("logs")
+        elem = self.wait_xpath("//button[contains(text(), 'Errors')]")
+        elem.click()
+        elem = self.wait_xpath("//button[contains(text(), 'Warnings')]")
+        elem.click()
+        elem = self.wait_xpath("//button[contains(text(), 'Notices')]")
+        elem.click()
+        checkt="ahoj notice"
+        out=process.run("systemd-cat -p notice echo '%s'" % checkt, shell=True)
+        elem = self.wait_xpath(
+            "//*[@class='cockpit-log-message' and contains(text(), '%s')]" % checkt)
+        elem.click()
+        elem = self.wait_xpath(
+            "//*[@id='journal-entry' and @style='display: block;']")
+        self.mainframe()
+
+    def test60ChangeTabStorage(self):
+        reald_name = process.run(
+            "storagedctl status | tail -1 |sed -r 's/.* ([a-z]+).*/\\1/'", shell=True).stdout[:-1]
+        reald_serial = process.run(
+            "storagedctl status | tail -1 |sed -r 's/.* ([^ ]+)\s+[a-z]+.*/\\1/'", shell=True).stdout[:-1]
+        print ">>>" + reald_name + ">>>" + reald_serial + ">>>"
+        other_disc=libdisc.DiscSimple()
+        other_discname=other_disc.adddisc("d1")
+        other_shortname=os.path.basename(other_discname)
+        self.login()
+        self.wait_iframe("system")
+        self.wait_link('Storage').click()
+        self.selectframe("storage")
+        elem = self.wait_id("drives")
+        elem = self.wait_xpath("//*[@data-goto-block='%s']" % other_shortname)
+        elem.click()
+        elem = self.wait_xpath(
+            "//*[@id='storage-detail' and @style='display: block;']")
+        basel = elem
+        self.wait_xpath("//*[contains(text(), '%s')]" % "Capacity")
+        self.wait_xpath("//*[contains(text(), '%s')]" % "1000 MB")
+
+        self.wait_link('Storage', basel).click()
+        elem = self.wait_xpath("//*[@data-goto-block='%s']" % other_shortname)
+
+        self.mainframe()
+
+    def test70ChangeTabNetworking(self):
+        self.login()
+        self.wait_iframe("system")
+        out = process.run(
+            "ip r |grep default | head -1 | cut -d ' ' -f 5", shell=True)
+        self.wait_link('Network').click()
+        self.selectframe("network")
+
+        self.wait_id("networking-interfaces")
+        self.wait_id("networking-tx-graph")
+
+        elem = self.wait_xpath("//*[contains(text(), '%s')]" % out.stdout[:-1])
+        self.mainframe()
+
+    def test80ChangeTabTools(self):
+        self.login()
+        self.wait_iframe("system")
+        elem = self.wait_link('Tools')
+        self.assertEqual(elem.get_attribute('class'), "collapsed")
+        elem.click()
+        time.sleep(1)
+        elem = self.wait_link('Tools')
+        self.assertEqual(elem.get_attribute('class'), "")
+        elem.click()
+        time.sleep(1)
+        elem = self.wait_link('Tools')
+        self.assertEqual(elem.get_attribute('class'), "collapsed")
+        elem.click()
+        time.sleep(1)
+
+        self.wait_link('Accounts').click()
+        self.selectframe("users")
+        elem = self.wait_xpath(
+            "//*[@class='cockpit-account-user-name' and contains(text(), '%s')]" % user)
+        elem.click()
+        elem = self.wait_xpath(
+            "//*[@id='account' and @style='display: block;']")
+        self.wait_xpath("//*[contains(text(), '%s')]" % "Full Name")
+        self.wait_link('Accounts', elem).click()
+        self.wait_id('accounts-create').click()
+        elem = self.wait_id('accounts-create-real-name')
+        elem.clear()
+        elem.send_keys('testxx')
+        elem = self.wait_id('accounts-create-pw1')
+        elem.clear()
+        elem.send_keys(passwd)
+        elem = self.wait_id('accounts-create-pw2')
+        elem.clear()
+        elem.send_keys(passwd)
+        self.wait_id('accounts-create-create').click()
+        elem = self.wait_xpath(
+            "//*[@class='cockpit-account-user-name' and contains(text(), '%s')]" % 'testxx')
+        elem.click()
+        self.wait_id('account-delete').click()
+        elem = self.wait_xpath(
+            "//*[@id='account-confirm-delete-dialog' and @style='display: block;']")
+        self.wait_id('account-confirm-delete-apply').click()
+        time.sleep(2)
+        self.mainframe()
+
+        self.wait_link('Terminal').click()
+        self.selectframe("terminal")
+        elem = self.wait_xpath("//*[@class='terminal']")
+        terminal = elem
+        terminal.send_keys("touch /tmp/testabc\n")
+        terminal.send_keys("touch /tmp/testabd\n")
+        terminal.send_keys("ls /tmp/test*\n")
+        elem = self.wait_xpath(
+            "//*[contains(text(), '%s') and contains(text(), '%s')]" % ('/tmp/testabc', '/tmp/testabd'))
+        self.assertTrue("/tmp/testabc" in elem.text)
+        process.run("ls /tmp/testabc")
+        terminal.send_keys("rm /tmp/testabc /tmp/testabd\n")
+        process.run("ls /tmp/testabc |wc -l |grep 0", shell=True)
+        process.run("ls /tmp/testabd |wc -l |grep 0", shell=True)
+        self.mainframe()
+        
 if __name__ == '__main__':
     main()

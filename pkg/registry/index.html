@@ -52,18 +52,18 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         <div class="icon-sidebar">
             <div>
                 <ul>
-                    <li ng-class="{ active: is_active('views/dashboard-page.html')}">
-                        <a ng-href="#/">
+                    <li ng-class="{ active: viewActive(null)}">
+                        <a ng-href="{{ viewUrl(null) }}">
                             <i class="fa fa-dashboard fa-fw"></i><br>Overview
                         </a>
                     </li>
-                    <li ng-class="{ active: is_active('views/images-page.html')}">
-                        <a ng-href="#/images">
+                    <li ng-class="{ active: viewActive('images')}">
+                        <a ng-href="{{ viewUrl('images') }}">
                             <i class="pficon pficon-image fa-fw"></i><br>Images
                         </a>
                     </li>
-                    <li ng-class="{ active: is_active('views/projects-page.html')}">
-                        <a ng-href="#/projects">
+                    <li ng-class="{ active: viewActive('projects')}">
+                        <a ng-href="{{ viewUrl('projects') }}">
                             <i class="pficon pficon-project fa-fw"></i><br>Projects
                         </a>
                     </li>

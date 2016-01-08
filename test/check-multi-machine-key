@@ -46,9 +46,17 @@ LOAD_KEYS = [
 ]
 
 KEY_IDS = [
-
+    "2048 SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw /home/admin/.ssh/id_rsa (RSA)",
+    "256 SHA256:dyHF4jiKz6RolQqORIATqhbZ4kil5cyiMQWizbQWU8k /home/admin/.ssh/id_ecdsa (ECDSA)",
+    "256 SHA256:Uht4NX54Gjz62cNA8+LrHo63HiFW/i5aWg/cl/A3X+c /home/admin/.ssh/id_ed25519 (ED25519)"
 ]
-@unittest.skipIf("rhel" in os.environ.get("TEST_OS", ""), "key auth: not supported")
+
+KEY_IDS_MD5 = [
+    "2048 93:40:9e:67:82:78:a8:99:89:39:d5:ba:e0:50:70:e1 /home/admin/.ssh/id_rsa (RSA)",
+    "256 bd:56:df:c3:ff:e4:1d:9d:f5:c4:b9:cc:64:00:d5:93 /home/admin/.ssh/id_ecdsa (ECDSA)",
+    "256 7a:8a:54:6d:85:b3:e0:f2:7e:1f:14:7a:75:a8:33:d9 /home/admin/.ssh/id_ed25519 (ED25519)"
+]
+
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=805030
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No ssh keys on Debian (yet).")
 class TestMultiMachineKeyAuth(MachineCase):
@@ -66,8 +74,11 @@ class TestMultiMachineKeyAuth(MachineCase):
         self.machine2 = self.new_machine()
         self.machine2.start()
         self.machine2.wait_boot()
+        # Add user
+        self.machine2.execute("useradd user -c 'User' || true")
         self.machine2.execute("sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config")
         self.machine2.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
+        self.machine2.wait_ssh()
 
     def tearDown(self):
         if self.runner and self.runner.wasSuccessful():
@@ -89,9 +100,6 @@ class TestMultiMachineKeyAuth(MachineCase):
         m1.execute("chmod 400 /home/admin/.ssh/*")
         m1.execute("chown -R admin:admin /home/admin/.ssh")
 
-        # Add user
-        m2.execute("useradd user -c 'User' || true")
-
         self.login_and_go("/system")
 
         try:
@@ -104,13 +112,11 @@ class TestMultiMachineKeyAuth(MachineCase):
             self.load_key('id_rsa', 'foobar')
             self.check_keys([
                 "2048 SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw id_rsa (RSA)"])
+        elif 'rhel' in m1.image:
+            self.check_keys(KEY_IDS_MD5)
         else:
             # Check our keys were loaded.
-            self.check_keys([
-                "2048 SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw /home/admin/.ssh/id_rsa (RSA)",
-                "256 SHA256:dyHF4jiKz6RolQqORIATqhbZ4kil5cyiMQWizbQWU8k /home/admin/.ssh/id_ecdsa (ECDSA)",
-                "256 SHA256:Uht4NX54Gjz62cNA8+LrHo63HiFW/i5aWg/cl/A3X+c /home/admin/.ssh/id_ed25519 (ED25519)",
-            ])
+            self.check_keys(KEY_IDS)
 
         # Add machine
         b.switch_to_top()

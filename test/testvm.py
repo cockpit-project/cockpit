@@ -282,7 +282,7 @@ class Machine:
         proc.wait()
 
         if proc.returncode != 0:
-            raise subprocess.CalledProcessError(proc.returncode, command)
+            raise subprocess.CalledProcessError(proc.returncode, command, output=output)
         return output
 
     def upload(self, sources, dest):

@@ -357,6 +357,7 @@ class BasicTestSuite(Test):
 
         self.wait_link('Terminal').click()
         self.selectframe("terminal")
+        self.wait_xpath("//div[@id='terminal']")
         elem = self.wait_xpath("//*[@class='terminal']")
         terminal = elem
         terminal.send_keys("touch /tmp/testabc\n")

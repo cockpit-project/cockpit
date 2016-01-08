@@ -3,7 +3,8 @@
 [![Fedora 23 build status](http://files.cockpit-project.org/status/fedora-23.svg)](http://files.cockpit-project.org/status/fedora-23.html) <br />
 [![Fedora 23 Atomic Host status](https://fedorapeople.org/groups/cockpit/status/fedora-atomic.svg)](https://fedorapeople.org/groups/cockpit/status/fedora-atomic.html) <br />
 [![Fedora 23 Testing status](https://fedorapeople.org/groups/cockpit/status/fedora-testing.svg)](https://fedorapeople.org/groups/cockpit/status/fedora-testing.html) <br />
-[![RHEL 7 build status](https://fedorapeople.org/groups/cockpit/status/rhel-7.svg)](https://fedorapeople.org/groups/cockpit/status/rhel-7.html)
+[![RHEL 7 build status](https://fedorapeople.org/groups/cockpit/status/rhel-7.svg)](https://fedorapeople.org/groups/cockpit/status/rhel-7.html) <br />
+[![Debian Unstable build status](https://fedorapeople.org/groups/cockpit/status/debian-unstable.svg)](https://fedorapeople.org/groups/cockpit/status/debian-unstable.html)
 
 # Cockpit
 **A remote manager for GNU/Linux servers**

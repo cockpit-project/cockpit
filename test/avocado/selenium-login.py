@@ -87,7 +87,7 @@ class BasicTestSuite(Test):
         if returned is None:
             if fatal:
                 self.driver.get_screenshot_as_file("snapshot-%s-%s-lines_%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack()[2][3]), '-'.join([str(x[2]) for x in inspect.stack() if inspect.stack()[0][1] == x[1] ])))
-                print ("snapshot-%s-%s-lines_%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack()[2][3]), '-'.join([str(x[2]) for x in inspect.stack() if inspect.stack()[0][1] == x[1] ])))
+                print >> sys.stderr, ("snapshot-%s-%s-lines_%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack()[2][3]), '-'.join([str(x[2]) for x in inspect.stack() if inspect.stack()[0][1] == x[1] ])))
             else:
                 return None
         return method(text)
@@ -111,6 +111,7 @@ class BasicTestSuite(Test):
         if not baseelement:
             baseelement = self.driver
         out = None
+        self.wait_xpath("//iframe", baseelement, overridetry=overridetry, fatal=fatal)
         iframes = self.wait(baseelement.find_elements_by_xpath, "//iframe", overridetry=overridetry, fatal=fatal)
         if len(iframes) == 0:
             raise Exception('There is no iframe, but SHOULD be')

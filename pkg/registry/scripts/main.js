@@ -45,17 +45,38 @@
 
     .controller('MainCtrl', [
         '$scope',
-        '$route',
+        '$location',
         '$rootScope',
         '$timeout',
         'kubeLoader',
         'cockpitKubeDiscover',
-        function($scope, $route, $rootScope, $timeout, loader, discover) {
+        function($scope, $location, $rootScope, $timeout, loader, discover) {
 
             /* Used to set detect which route is active */
-            $scope.is_active = function is_active(template) {
-                var current = $route.current;
-                return current && current.loadedTemplateUrl === template;
+            $scope.viewActive = function(segment) {
+                var url = $location.url() || "/";
+                var parts = url.split('?')[0].split("/");
+                if (!segment && !parts[1])
+                    return true;
+                if (segment === parts[1])
+                    return true;
+                return false;
+            };
+
+            /* Used to build simple route URLs */
+            $scope.viewUrl = function(segment) {
+                var parts, namespace = loader.namespace();
+                if (!segment) {
+                    if (namespace)
+                        return "#/?namespace=" + encodeURIComponent(namespace);
+                    else
+                        return "#/";
+                } else {
+                    parts = [ segment ];
+                    if (namespace)
+                        parts.push(namespace);
+                    return "#/" + parts.map(encodeURIComponent).join("/");
+                }
             };
 
             /* Used while debugging */
@@ -123,11 +144,17 @@
         '$route',
         '$rootScope',
         function(loader, $route, $rootScope) {
-            $rootScope.$on("$routeChangeSuccess", function (event, current, prev) {
-                var value = current.params["namespace"] || null;
+            function loadNamespace(route) {
+                var value = route.params["namespace"] || null;
                 if (value !== loader.namespace())
                     loader.namespace(value);
+            }
+
+            $rootScope.$on("$routeChangeSuccess", function (event, current, prev) {
+                loadNamespace(current);
             });
+
+            loadNamespace($route.current);
 
             return {
                 namespace: function(value) {

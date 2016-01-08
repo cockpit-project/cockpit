@@ -87,7 +87,7 @@ class BasicTestSuite(Test):
         if returned is None:
             if fatal:
                 self.driver.get_screenshot_as_file("snapshot-%s-%s-lines_%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack()[2][3]), '-'.join([str(x[2]) for x in inspect.stack() if inspect.stack()[0][1] == x[1] ])))
-                print >> sys.stderr, ("snapshot-%s-%s-lines_%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack()[2][3]), '-'.join([str(x[2]) for x in inspect.stack() if inspect.stack()[0][1] == x[1] ])))
+                print  "snapshot-%s-%s-lines_%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack()[2][3]), '-'.join([str(x[2]) for x in inspect.stack() if inspect.stack()[0][1] == x[1] ]))
             else:
                 return None
         return method(text)
@@ -368,8 +368,9 @@ class BasicTestSuite(Test):
         self.assertTrue("/tmp/testabc" in elem.text)
         process.run("ls /tmp/testabc")
         terminal.send_keys("rm -v /tmp/testabc /tmp/testabd\n")
+        time.sleep(1)
         self.wait_xpath(
-            "//*[contains(text(), '%s')]" % 'removed')
+            "//div[contains(text(), '%s')]" % 'removed')
         process.run("ls /tmp/testabc |wc -l |grep 0", shell=True)
         process.run("ls /tmp/testabd |wc -l |grep 0", shell=True)
         self.mainframe()

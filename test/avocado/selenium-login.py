@@ -62,8 +62,8 @@ class BasicTestSuite(Test):
 
         self.driver.set_window_size(1400, 1200)
         self.driver.set_page_load_timeout(90)
-        self.driver.implicitly_wait(1)
-        self.default_try = 30
+        self.driver.implicitly_wait(3)
+        self.default_try = 10
         self.default_sleep = 1
         self.driver.get('http://%s:9090' % guest_machine)
 

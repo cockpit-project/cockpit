@@ -362,13 +362,9 @@ class BasicTestSuite(Test):
         self.wait_xpath("//div[@id='terminal']")
         elem = self.wait_xpath("//*[@class='terminal']")
         terminal = elem
-        time.sleep(self.default_sleep)
         terminal.send_keys("touch /tmp/testabc\n")
-        time.sleep(self.default_sleep)
         terminal.send_keys("touch /tmp/testabd\n")
-        time.sleep(self.default_sleep)
         terminal.send_keys("ls /tmp/test*\n")
-        time.sleep(self.default_sleep)
         elem = self.wait_xpath(
             "//*[contains(text(), '%s') and contains(text(), '%s')]" % ('/tmp/testabc', '/tmp/testabd'))
         self.assertTrue("/tmp/testabc" in elem.text)
@@ -376,8 +372,6 @@ class BasicTestSuite(Test):
         time.sleep(self.default_sleep)
         terminal.send_keys("rm -v /tmp/testabc /tmp/testabd\n")
         time.sleep(self.default_sleep)
-        self.wait_xpath(
-            "//div[contains(text(), '%s')]" % 'removed')
         process.run("ls /tmp/testabc |wc -l |grep 0", shell=True)
         process.run("ls /tmp/testabd |wc -l |grep 0", shell=True)
         self.mainframe()

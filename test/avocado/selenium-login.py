@@ -336,7 +336,7 @@ class BasicTestSuite(Test):
         self.wait_xpath("//*[contains(text(), '%s')]" % "Full Name")
         self.wait_link('Accounts', elem).click()
         time.sleep(self.default_sleep)
-        self.wait_xpath('//*[@id="accounts-create]"').click()
+        self.wait_xpath('//*[@id="accounts-create"]').click()
         elem = self.wait_id('accounts-create-real-name')
         elem.clear()
         elem.send_keys('testxx')

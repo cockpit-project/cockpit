@@ -17,6 +17,18 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* Try to load docker and if it's not available
+ * return an empty module instead of an error
+ */
+require(['docker/docker'],
+    function () {},
+    function (err) {
+        require.undef("docker/docker");
+        define("docker/docker", [], function () {});
+        require(['docker/docker'], function () {});
+    }
+);
+
 define([
     "jquery",
     "base1/cockpit",
@@ -449,6 +461,16 @@ define([
 
     nulecule.nuleculeclient =  function client() {
         return new NuleculeClient();
+    };
+
+    nulecule.check_requirements =  function () {
+        if (docker) {
+            return cockpit.spawn(["ls", "/usr/bin/atomic"]);
+        } else {
+            var deferred = $.Deferred();
+            deferred.reject("No docker");
+            return deferred;
+        }
     };
 
     return nulecule;

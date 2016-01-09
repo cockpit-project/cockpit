@@ -38,6 +38,15 @@ define([
 
     var run_stage = false;
 
+    /* Only add the nulecule option if the basic
+     * dependencies are met.
+     */
+    nulecule.check_requirements().done(function () {
+        $("#deploy-app-type option[value='nulecule']")
+            .toggleClass('hidden', false);
+        $("#deploy-app-type").selectpicker('refresh');
+    });
+
     function finish_success() {
         var current_namespace = client.namespace();
         var added_namespace = $("#deploy-app-namespace").val();

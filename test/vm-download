@@ -36,11 +36,7 @@ DEVNULL = open("/dev/null", "r+")
 CONFIG = "~/.config/image-stores"
 DEFAULT = "https://fedorapeople.org/groups/cockpit/images/"
 
-def download(image, force, stores):
-    link = os.path.join(IMAGES, image)
-    if not os.path.islink(link):
-        parser.error("image link does not exist: " + image)
-
+def download(link, force, stores):
     if not os.path.exists(DATA):
         os.makedirs(DATA)
 
@@ -152,7 +148,10 @@ def main():
     if args.prune:
         prune(args.force, args.dryrun)
     for image in args.image:
-        download(image, args.force, args.store)
+        link = os.path.join(IMAGES, image)
+        if not os.path.islink(link):
+            parser.error("image link does not exist: " + image)
+        download(link, args.force, args.store)
 
 if __name__ == '__main__':
     sys.exit(main())

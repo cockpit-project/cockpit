@@ -32,16 +32,25 @@ from avocado.utils import process
 import inspect
 import selenium.webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 import os
 import sys
 import re
 import time
-machine_test_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+machine_test_dir = os.path.dirname(
+    os.path.abspath(inspect.getfile(inspect.currentframe())))
 sys.path.append(machine_test_dir)
 import libdisc
 
 user = "test"
 passwd = "superhardpasswordtest5554"
+
+present = EC.presence_of_element_located
+visible = EC.visibility_of_element_located
+clickable = EC.element_to_be_clickable
+invisible = EC.invisibility_of_element_located
+frame = EC.frame_to_be_available_and_switch_to_it
 
 
 class BasicTestSuite(Test):
@@ -54,8 +63,10 @@ class BasicTestSuite(Test):
             self.driver = selenium.webdriver.Firefox()
             guest_machine = 'localhost'
         else:
-            selenium_hub = os.environ["HUB"] if os.environ.has_key("HUB") else "localhost"
-            browser = os.environ["BROWSER"] if os.environ.has_key("BROWSER") else "firefox"
+            selenium_hub = os.environ["HUB"] if os.environ.has_key(
+                "HUB") else "localhost"
+            browser = os.environ["BROWSER"] if os.environ.has_key(
+                "BROWSER") else "firefox"
             guest_machine = os.environ["GUEST"]
             self.driver = selenium.webdriver.Remote(
                 command_executor='http://%s:4444/wd/hub' % selenium_hub, desired_capabilities={'browserName': browser})
@@ -72,49 +83,56 @@ class BasicTestSuite(Test):
         self.driver.close()
         self.driver.quit()
 
-    def wait(self, method, text, overridetry, fatal):
+    def wait(self, method, text, overridetry, fatal, cond):
         returned = None
-        #time.sleep(self.default_sleep)
+        cond = cond if cond else visible
+        # time.sleep(self.default_sleep)
         internaltry = overridetry if overridetry else self.default_try
         for foo in range(0, internaltry):
             try:
-                returned = method(text)
-                break
+                #returned = method(text)
+                returned = cond((method, text))
+                if returned:
+                    break
             except:
                 print "REP>", foo
                 time.sleep(self.default_sleep)
                 pass
         if returned is None:
             if fatal:
-                screenshot_file="snapshot-%s-%s-lines_%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack()[2][3]), '-'.join([str(x[2]) for x in inspect.stack() if inspect.stack()[0][1] == x[1] ]))
+                screenshot_file = "snapshot-%s-%s-lines_%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack(
+                )[2][3]), '-'.join([str(x[2]) for x in inspect.stack() if inspect.stack()[0][1] == x[1]]))
                 self.driver.get_screenshot_as_file(screenshot_file)
-                print  screenshot_file
-                raise Exception('ERR: Unable to locate name: %s' % str(text), screenshot_file)
+                print screenshot_file
+                raise Exception('ERR: Unable to locate name: %s' %
+                                str(text), screenshot_file)
             else:
                 return None
-        return method(text)
+        return returned
 
-    def wait_id(self, el, baseelement=None, overridetry=None, fatal=True):
+    def wait_id(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):
         if not baseelement:
             baseelement = self.driver
-        return self.wait(baseelement.find_element_by_id, el, overridetry=overridetry, fatal=fatal)
+        return self.wait(By.ID, el, overridetry=overridetry, fatal=fatal, cond=cond)
 
-    def wait_link(self, el, baseelement=None, overridetry=None, fatal=True):
+    def wait_link(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):
         if not baseelement:
             baseelement = self.driver
-        return self.wait(baseelement.find_element_by_partial_link_text, el, overridetry=overridetry, fatal=fatal)
+        return self.wait(By.PARTIAL_LINK_TEXT, el, overridetry=overridetry, fatal=fatal, cond=cond)
 
-    def wait_xpath(self, el, baseelement=None, overridetry=None, fatal=True):
+    def wait_xpath(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):
         if not baseelement:
             baseelement = self.driver
-        return self.wait(baseelement.find_element_by_xpath, el, overridetry=overridetry, fatal=fatal)
+        return self.wait(By.XPATH, el, overridetry=overridetry, fatal=fatal, cond=cond)
 
-    def wait_iframe(self, el, baseelement=None, overridetry=None, fatal=True):
+    def wait_iframe(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):
         if not baseelement:
             baseelement = self.driver
         out = None
-        self.wait_xpath("//iframe", baseelement, overridetry=overridetry, fatal=fatal)
-        iframes = self.wait(baseelement.find_elements_by_xpath, "//iframe", overridetry=overridetry, fatal=fatal)
+        self.wait_xpath("//iframe", baseelement,
+                        overridetry=overridetry, fatal=fatal)
+        iframes = self.wait(baseelement.find_elements_by_xpath,
+                            "//iframe", overridetry=overridetry, fatal=fatal, cond=cond)
         if len(iframes) == 0:
             raise Exception('There is no iframe, but SHOULD be')
         elif len(iframes) == 1:
@@ -198,7 +216,7 @@ class BasicTestSuite(Test):
         self.wait_xpath("//*[contains(text(), '%s')]" % "dbus.service")
 
         self.mainframe()
-        
+
     def test40ContainerTab(self):
         self.login()
         self.wait_iframe("system")
@@ -216,7 +234,7 @@ class BasicTestSuite(Test):
         elem = self.wait_xpath(
             "//*[@id='containers-search-image-dialog' and @class='modal in']")
         baseelem = elem
-        elem = self.wait_id('containers-search-image-search',baseelem)
+        elem = self.wait_id('containers-search-image-search', baseelem)
         elem.clear()
         elem.send_keys("fedora")
         elem = self.wait_xpath(
@@ -233,7 +251,7 @@ class BasicTestSuite(Test):
         elem = self.wait_xpath(
             "//*[@id='containers-search-image-dialog' and @class='modal in']")
         baseelem = elem
-        elem = self.wait_id('containers-search-image-search',baseelem)
+        elem = self.wait_id('containers-search-image-search', baseelem)
         elem.clear()
         elem.send_keys("cockpit")
         elem = self.wait_xpath(
@@ -261,8 +279,9 @@ class BasicTestSuite(Test):
         elem.click()
         elem = self.wait_xpath("//button[contains(text(), 'Notices')]")
         elem.click()
-        checkt="ahoj notice"
-        out=process.run("systemd-cat -p notice echo '%s'" % checkt, shell=True)
+        checkt = "ahoj notice"
+        out = process.run("systemd-cat -p notice echo '%s'" %
+                          checkt, shell=True)
         elem = self.wait_xpath(
             "//*[@class='cockpit-log-message' and contains(text(), '%s')]" % checkt)
         elem.click()
@@ -276,9 +295,9 @@ class BasicTestSuite(Test):
         reald_serial = process.run(
             "storagedctl status | tail -1 |sed -r 's/.* ([^ ]+)\s+[a-z]+.*/\\1/'", shell=True).stdout[:-1]
         print ">>>" + reald_name + ">>>" + reald_serial + ">>>"
-        other_disc=libdisc.DiscSimple()
-        other_discname=other_disc.adddisc("d1")
-        other_shortname=os.path.basename(other_discname)
+        other_disc = libdisc.DiscSimple()
+        other_discname = other_disc.adddisc("d1")
+        other_shortname = os.path.basename(other_discname)
         self.login()
         self.wait_iframe("system")
         self.wait_link('Storage').click()
@@ -376,6 +395,6 @@ class BasicTestSuite(Test):
         process.run("ls /tmp/testabc |wc -l |grep 0", shell=True)
         process.run("ls /tmp/testabd |wc -l |grep 0", shell=True)
         self.mainframe()
-        
+
 if __name__ == '__main__':
     main()

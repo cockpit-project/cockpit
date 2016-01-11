@@ -238,6 +238,8 @@ class BasicTestSuite(Test):
         self.login()
         self.wait_link('Logs').click()
         self.wait_frame("logs")
+        self.wait_id("journal")
+        self.wait_id("journal-prio")
         elem = self.wait_text('Errors', cond=clickable, element="button")
         elem.click()
         elem = self.wait_text('Warnings', cond=clickable, element="button")

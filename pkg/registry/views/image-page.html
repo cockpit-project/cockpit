@@ -6,7 +6,8 @@
         <i class="pficon pficon-image"></i>
         {{ imagestream.metadata.namespace }}/{{ imagestream.metadata.name}}:{{ tag.tag }}
     </h3>
-    <a href="#" translatable="yes">Show all images</a>
+    <a ng-href="#/images/{{ imagestream.metadata.namespace }}/{{ imagestream.metadata.name }}"
+        translatable="yes">Show all images</a>
 </div>
 
 <div>

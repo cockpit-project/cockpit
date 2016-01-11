@@ -62,20 +62,34 @@
 
     .controller('ImagesCtrl', [
         '$scope',
+        '$location',
         'imageLoader',
         'imageSelect',
+        'ListingState',
         'filterService',
-        function($scope, loader, select) {
+        function($scope, $location, loader, select, ListingState) {
             loader.watch();
 
             $scope.images = function(tag) {
-                var result = select().kind("Image").taggedBy(tag);
-                return result;
+                return select().kind("Image").taggedBy(tag);
             };
 
             $scope.imagestreams = function() {
-                return select().kind("ImageStream");
+                var result = select().kind("ImageStream");
+                var namespace = loader.namespace();
+                if (namespace)
+                    result = result.namespace(namespace);
+                return result;
             };
+
+            $scope.listing = new ListingState($scope);
+
+            $scope.$on("activate", function(ev, id) {
+                if (!$scope.listing.expandable) {
+                    ev.preventDefault();
+                    $location.path('/images/' + id);
+                }
+            });
         }
     ])
 
@@ -297,6 +311,7 @@
                     handle_imagestream(imagestream);
                 },
                 listen: loader.listen,
+                namespace: loader.namespace,
             };
         }
     ]);

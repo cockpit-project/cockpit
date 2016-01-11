@@ -62,7 +62,8 @@ done;
                                     'Error: Could not obtain the password to be scored',
                                     'Password quality check failed:',
                                     'The password is a palindrome',
-                                    'The password is shorter than 8 characters'
+                                    'The password is shorter than 8 characters',
+                                    '.*dev=.tmpfs..*scontext=system_u:system_r:syslogd_t:s0 tcontext=system_u:object_r:tmpfs_t:s0.*'
                                    )
         avocadolib.prepare_avocado_tests(self.machine)
         self.machine.execute("adduser test")

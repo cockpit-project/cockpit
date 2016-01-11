@@ -530,9 +530,15 @@
                         callbacks.unshift(callback);
                     else
                         callbacks.push(callback);
+                    var timeout = window.setTimeout(function() {
+                        callback.call(self, objects);
+                        timeout = null;
+                    }, 0);
                     return {
                         cancel: function() {
                             var i, len;
+                            window.clearTimeout(timeout);
+                            timeout = null;
                             for (i = 0, len = callbacks.length; i < len; i++) {
                                 if (callbacks[i] === callback)
                                     callbacks[i] = null;

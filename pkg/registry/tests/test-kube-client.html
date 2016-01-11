@@ -189,20 +189,28 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 equal(pods.length, 0, "pods gone");
 
                 var defer = $q.defer();
+                var listened = false;
                 var x = loader.listen(function() {
-                    pods = select().kind("Pod");
-                    equal(pods.length, 1, "pods from namespace other");
-                    ok("/api/v1/namespaces/other/pods/apache" in pods, "other pod")
-                    x.cancel();
-
-                    strictEqual(loader.namespace(null), null, "namespace to null");
-                    strictEqual(loader.namespace(), null, "namespace is null again");
-                    x = loader.listen(function() {
+                    if (listened) {
                         pods = select().kind("Pod");
-                        equal(pods.length, "3", "all pods back");
+                        equal(pods.length, 1, "pods from namespace other");
+                        ok("/api/v1/namespaces/other/pods/apache" in pods, "other pod")
                         x.cancel();
-                        defer.resolve();
-                    });
+
+                        strictEqual(loader.namespace(null), null, "namespace to null");
+                        strictEqual(loader.namespace(), null, "namespace is null again");
+                        listened = false;
+                        x = loader.listen(function() {
+                            if (listened) {
+                                pods = select().kind("Pod");
+                                equal(pods.length, "3", "all pods back");
+                                x.cancel();
+                                defer.resolve();
+                            }
+                            listened = true;
+                        });
+                    }
+                    listened = true;
                 });
 
                 return defer.promise;
@@ -269,12 +277,17 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                       "apache", "pod has label");
 
                 var defer = $q.defer();
+                var listened = false;
                 var x = loader.listen(function() {
-                    var pods = select().kind("Pod");
-                    equal(pods["/api/v1/namespaces/default/pods/apache"].metadata.labels.name,
-                          "apachepooo", "pod has changed");
-                    x.cancel();
-                    defer.resolve();
+                    var pods;
+                    if (listened) {
+                        pods = select().kind("Pod");
+                        equal(pods["/api/v1/namespaces/default/pods/apache"].metadata.labels.name,
+                              "apachepooo", "pod has changed");
+                        x.cancel();
+                        defer.resolve();
+                    }
+                    listened = true;
                 });
 
                 data.update("namespaces/default/pods/apache", {
@@ -307,15 +320,19 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                       "apache", "pod has label");
 
                 var defer = $q.defer();
+                var listened = false;
                 var x = loader.listen(function() {
-                    var pods = select().kind("Pod");
-                    equal(pods.length, 2, "removed a pod");
-                    strictEqual(pods["/api/v1/namespaces/default/pods/apache"], undefined, "removed pod");
-                    equal(pods["/api/v1/namespaces/default/pods/database-1"].metadata.labels.name,
-                          "wordpressreplica", "other pod");
-
-                    x.cancel();
-                    defer.resolve();
+                    var pods;
+                    if (listened) {
+                        pods = select().kind("Pod");
+                        equal(pods.length, 2, "removed a pod");
+                        strictEqual(pods["/api/v1/namespaces/default/pods/apache"], undefined, "removed pod");
+                        equal(pods["/api/v1/namespaces/default/pods/database-1"].metadata.labels.name,
+                              "wordpressreplica", "other pod");
+                        x.cancel();
+                        defer.resolve();
+                    }
+                    listened = true;
                 });
 
                 data.update("namespaces/default/pods/apache", null);

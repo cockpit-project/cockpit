@@ -359,7 +359,7 @@ class Machine:
             subprocess.check_call(cmd)
             subprocess.check_call([ "find", dest, "-type", "f", "-exec", "chmod", "0644", "{}", ";" ])
         except:
-            self.message("Error while downloading journal")
+            self.message("Error while downloading directory '{0}'".format(source))
 
     def write(self, dest, content):
         """Write a file into the test machine

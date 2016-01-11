@@ -230,7 +230,8 @@ class Machine:
         if command:
             assert not environment, "Not yet supported"
             cmd += [command]
-            self.message("+", command)
+            if not quiet:
+                self.message("+", command)
         else:
             assert not input, "input not supported to script"
             cmd += ["sh", "-s"]

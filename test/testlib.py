@@ -685,9 +685,12 @@ systemctl start docker
     def copy_avocado_logs(self, title, label=None):
         if self.machine and self.machine.address:
             dir = "%s-%s-%s.avocado" % (label or self.label(), self.machine.address, title)
-            # if this fails, we didn't have avocado results (ignore silently)
-            try:
-                self.machine.download_dir(MachineCase.avocado_results_dir, dir, quiet=not self.machine.verbose)
+            # check if the remote directory exists (if it doesn't, we want to quit silently)
+            test_command = "if test -d '{0}'; then echo exists; fi".format(MachineCase.avocado_results_dir)
+            if "exists" not in self.machine.execute(command=test_command,quiet=True):
+                return
+            self.machine.download_dir(MachineCase.avocado_results_dir, dir)
+            if os.path.exists(dir):
                 # avocado creates a "latest" symlink, recreate this here
                 shutil.rmtree(path=os.path.join(dir, "latest"), ignore_errors=True)
                 print "Avocado results copied to %s" % (dir)
@@ -696,8 +699,6 @@ systemctl start docker
                 archive = "{0}.tar.gz".format(dir)
                 subprocess.call(["tar", "cfz", archive, dir])
                 attach(archive)
-            except:
-                pass
 
 some_failed = False
 

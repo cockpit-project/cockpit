@@ -10,10 +10,10 @@
             <li ng-class="{active: tab('meta')}"><a ng-click="tab('meta', $event)">Metadata</a></li>
         </ul>
     </div>
-    <div class="listing-body" ng-show="tab('main')">
+    <div imagestream-body class="listing-body" ng-show="tab('main')">
         Image stream
     </div>
-    <div class="listing-body" ng-show="tab('meta')">
+    <div imagestream-meta class="listing-body" ng-show="tab('meta')">
         Meta
     </div>
 </div>

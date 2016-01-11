@@ -1,0 +1,18 @@
+<div class="content-filter">
+    <div class="listing-actions">
+        <button class="btn btn-danger btn-delete pficon pficon-delete"></button>
+    </div>
+    <h3>
+        <i class="fa fa-folder"></i>
+        {{ imagestream.metadata.namespace }}/{{ imagestream.metadata.name}}
+    </h3>
+    <a href="#" translatable="yes">Show all image streams</a>
+</div>
+
+<div>
+    <h3 translatable="yes">Image Stream</h3>
+    <div imagestream-body></div>
+
+    <h3 translatable="yes">Metadata</h3>
+    <div imagestream-meta></div>
+</div>

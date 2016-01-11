@@ -59,7 +59,6 @@ users:
 ssh_pwauth: True
 chpasswd:
   list: |
-    fedora:${vm_pass}
     ${vm_user}:${vm_pass}
     admin:${vm_pass}
   expire: False

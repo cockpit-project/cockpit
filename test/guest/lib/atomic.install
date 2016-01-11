@@ -1,0 +1,252 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import subprocess
+import os
+import sys
+import shutil
+import urllib
+import argparse
+import datetime
+import json
+
+class AtomicCockpitInstaller:
+    branch = None
+    checkout_location = "/var/local-tree"
+    repo_location = "/var/local-repo"
+    rpm_location = "/usr/share/rpm"
+
+    # Support installing random packages if needed.
+    external_packages = {}
+
+    packages_force_install = ["cockpit-kubernetes", "cockpit-networkmanager", "cockpit-ostree", "cockpit-sosreport" ]
+
+    def __init__(self, rpms=None, verbose=False):
+        self.verbose = verbose
+        self.rpms = rpms
+        self.branch = json.load(open("/usr/share/rpm-ostree/treefile.json"))["ref"]
+
+    def setup_dirs(self):
+        if self.verbose:
+            print "setting up new ostree repo"
+
+        try:
+            shutil.rmtree(self.repo_location)
+        except:
+            pass
+
+        os.makedirs(self.repo_location)
+        subprocess.check_call(["ostree", "init", "--repo", self.repo_location,
+                               "--mode", "archive-z2"])
+
+        if not os.path.exists(self.checkout_location):
+            if self.verbose:
+                print "cloning current branch"
+
+            subprocess.check_call(["ostree", "checkout", self.branch,
+                                   self.checkout_location])
+
+        # move /usr/etc to /etc, makes rpm installs easier
+        subprocess.check_call(["mv", os.path.join(self.checkout_location, "usr", "etc"),
+                               os.path.join(self.checkout_location, "etc")])
+
+    def switch_to_local_tree(self):
+        if self.verbose:
+            print "install new ostree commit"
+
+        port = subprocess.check_output(["ostree", "trivial-httpd", self.repo_location,
+                                        "-p", "-", "-d"])
+
+        # Not an error if this fails
+        subprocess.call(["ostree", "remote", "delete", "local"])
+
+        subprocess.check_call(["ostree", "remote", "add", "local",
+                               "http://127.0.0.1:{0}".format(port.strip()),
+                               "--no-gpg-verify"])
+
+        status = subprocess.check_output(["rpm-ostree", "status"])
+        if "local:" in status:
+            subprocess.check_call(["rpm-ostree", "upgrade"])
+        else:
+            try:
+                subprocess.check_call(["setenforce", "0"])
+                subprocess.check_call(["rpm-ostree", "rebase",
+                                       "local:{0}".format(self.branch)])
+            except:
+                os.system("sysctl kernel.core_pattern")
+                os.system("coredumpctl || true")
+                raise
+            finally:
+                subprocess.check_call(["setenforce", "1"])
+
+    def commit_to_repo(self):
+        if self.verbose:
+            print "commit package changes to our repo"
+
+        # move etc back to /usr/etc
+        subprocess.check_call(["mv", os.path.join(self.checkout_location, "etc"),
+                               os.path.join(self.checkout_location, "usr", "etc")])
+
+        now = datetime.datetime.utcnow()
+        subprocess.check_call(["ostree", "commit", "-s", "cockpit-tree",
+                               "--timestamp={0} +0000".format(now.strftime("%Y-%m-%d %H:%M:%S")),
+                               "--repo", self.repo_location,
+                               "-b", self.branch,
+                               "--add-metadata-string", "version=cockpit-base.1",
+                               "--tree=dir={0}".format(self.checkout_location)])
+
+    def install_packages(self, packages, deps=True, replace=False):
+        args = ["rpm", "-U", "--root", self.checkout_location,
+                "--dbpath", self.rpm_location]
+
+        if replace:
+            args.extend(["--replacepkgs", "--replacefiles"])
+
+        if not deps:
+            args.append("--nodeps")
+
+        for package in packages:
+            args.append(os.path.abspath(os.path.join(os.getcwd(), package)))
+
+        subprocess.check_call(args)
+
+    def remove_packages(self, packages):
+        args = ["rpm", "-e", "--root", self.checkout_location,
+                "--dbpath", self.rpm_location]
+        args.extend(packages)
+        subprocess.check_call(args)
+
+    def package_basename(self, package):
+        """ only accept package with the name 'cockpit-%s-*' and return 'cockpit-%s' or None"""
+        basename = "-".join(package.split("-")[:2])
+        if basename.startswith("cockpit-"):
+            return basename
+        else:
+            return None
+
+    def update_container(self):
+        """ Install the latest cockpit-ws in our container"""
+        install = None
+        for package in self.rpms:
+            if 'cockpit-ws' in package:
+                install = package
+                break
+
+        if self.verbose:
+            print "installing cockpit-ws in container"
+
+        if install:
+            path = "/host" + install;
+            subprocess.check_call(["docker", "run", "--name", "build-cockpit",
+                                   "-d", "--privileged", "-v", "/:/host",
+                                   "cockpit/ws", "sleep", "1d"])
+            subprocess.check_call(["docker", "exec", "build-cockpit",
+                                   "rpm", "-U", "--force", path])
+            subprocess.check_call(["docker", "commit", "build-cockpit",
+                                   "cockpit/ws"])
+            subprocess.check_call(["docker", "kill", "build-cockpit"])
+            subprocess.check_call(["docker", "rm", "build-cockpit"])
+
+    def package_basenames(self, package_names):
+        """ convert a list of package names to a list of their basenames """
+        return filter(lambda s: not s is None, map(lambda s: self.package_basename(s), package_names))
+
+    def get_installed_cockpit_packages(self):
+        """ get list installed cockpit packages """
+        packages = subprocess.check_output("rpm -qa | grep cockpit", shell=True)
+
+        if self.verbose:
+            print "installed packages: {0}".format(packages)
+
+        installed_packages = packages.strip().split("\n")
+        return installed_packages
+
+    def clean_network(self):
+        if self.verbose:
+            print "clean network configuration:"
+        subprocess.check_call(["rm", "-rf", "/var/lib/NetworkManager"])
+        subprocess.check_call(["rm", "-rf", "/var/lib/dhcp"])
+
+    def run(self):
+        self.setup_dirs()
+
+        installed_packages = self.get_installed_cockpit_packages()
+        self.remove_packages(installed_packages)
+
+        packages_to_install = self.package_basenames(installed_packages)
+        for p in self.packages_force_install:
+            if not p in packages_to_install:
+                if self.verbose:
+                    print "adding package %s (forced)" % (p)
+                packages_to_install.append(p)
+
+        packages_to_install = filter(lambda p: any(os.path.split(p)[1].startswith(base) for base in packages_to_install), self.rpms)
+
+        if self.verbose:
+            print "packages to install:"
+            print packages_to_install
+
+        if self.external_packages:
+            names = self.external_packages.keys()
+            if self.verbose:
+                print "external packages to install:"
+                print names
+
+            downloader = urllib.URLopener()
+            for name, url in self.external_packages.items():
+                downloader.retrieve(url, name)
+
+            self.install_packages(names, replace=True)
+
+            for name in names:
+                os.remove(name)
+
+        self.install_packages(packages_to_install)
+        test_assets = [x for x in self.rpms \
+                       if os.path.split(x)[-1].startswith("cockpit-test-assets")]
+        self.install_packages(test_assets, deps=False, replace=True)
+
+        self.commit_to_repo()
+        self.switch_to_local_tree()
+        self.update_container()
+        self.clean_network()
+
+parser = argparse.ArgumentParser(description='Install Cockpit in Atomic')
+parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
+parser.add_argument('-q', '--quick', action='store_true', help='Build faster')
+parser.add_argument('--build', action='store_true', help='Build')
+parser.add_argument('--install', action='store_true', help='Install')
+args = parser.parse_args()
+
+if args.build:
+    print >> sys.stderr, "Can't build on Atomic"
+    sys.exit(1)
+
+if args.install:
+    os.chdir("build-results")
+    rpms = map(os.path.abspath,
+               filter(lambda f: f.endswith(".rpm") and not f.endswith(".src.rpm"),
+                      os.listdir(".")))
+    try:
+        cockpit_installer = AtomicCockpitInstaller(rpms=rpms, verbose=args.verbose)
+        cockpit_installer.run()
+    except Exception, ex:
+        print >> sys.stderr, "Atomic cockpit installation failed:", ex
+        sys.exit(1)

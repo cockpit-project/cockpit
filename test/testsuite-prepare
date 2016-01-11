@@ -52,6 +52,8 @@ require_binary() {
 #
 if [ "$TEST_OS" = "fedora-atomic" ]; then
     BUILD_OS="fedora-23"
+elif [ "$TEST_OS" = "rhel-atomic" ]; then
+    BUILD_OS="rhel-7"
 else
     BUILD_OS="$TEST_OS"
 fi

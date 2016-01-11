@@ -53,3 +53,25 @@
 .namespace-filter .namespace-meta {
     color: @metadata-color;
 }
+
+.filter-menu {
+    display: block;
+
+    .caret {
+        height: 10px;
+    }
+}
+
+.filter-menu > .btn + .dropdown-toggle {
+    padding: 3px 1px;
+    min-width: 0;
+    border-left: none;
+    height: 26px;
+}
+
+.filter-menu > .btn:first-child {
+    border-right: none;
+    height: 26px;
+    font-size: 15px;
+}
+

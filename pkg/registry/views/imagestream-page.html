@@ -1,12 +1,12 @@
 <div class="content-filter">
     <div class="listing-actions">
-        <button class="btn btn-danger btn-delete pficon pficon-delete"></button>
+        <button class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
     </div>
     <h3>
         <i class="fa fa-folder"></i>
         {{ imagestream.metadata.namespace }}/{{ imagestream.metadata.name}}
     </h3>
-    <a href="#" translatable="yes">Show all image streams</a>
+    <a ng-href="{{ viewUrl('images') }}" translatable="yes">Show all image streams</a>
 </div>
 
 <div>

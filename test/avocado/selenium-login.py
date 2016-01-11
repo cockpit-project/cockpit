@@ -56,9 +56,6 @@ frame = EC.frame_to_be_available_and_switch_to_it
 
 class BasicTestSuite(Test):
 
-    def __init__(self, *args, **kwargs):
-        super(BasicTestSuite, self).__init__(*args, **kwargs)
-
     def setUp(self):
         if not (os.environ.has_key("HUB") or os.environ.has_key("BROWSER")):
             self.driver = selenium.webdriver.Firefox()
@@ -303,7 +300,9 @@ class BasicTestSuite(Test):
         elem = self.wait_id('account')
         self.wait_text("Full Name")
         self.wait_link('Accounts', elem).click()
-        self.wait_xpath('//*[@id="accounts-create"]', cond=clickable).click()
+        self.wait_id("accounts-create", cond=clickable).click()
+        self.wait_id("accounts-create-dialog")
+        self.wait_id('accounts-create-create', cond=clickable)
         elem = self.wait_id('accounts-create-real-name')
         elem.clear()
         elem.send_keys('testxx')

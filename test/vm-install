@@ -81,7 +81,7 @@ def only_install(image, skip=None):
 
 try:
     skip = "cockpit-ostree"
-    if build_image == "fedora-atomic" or install_image == "fedora-atomic":
+    if "atomic" in install_image:
         skip = None
 
     if build_image and build_image == install_image:

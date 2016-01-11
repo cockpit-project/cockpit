@@ -73,6 +73,10 @@ class MachineBuilder:
             self.machine.upload([ "guest/lib" ], "/var/lib/testvm")
             self.machine.upload([script], "/var/tmp/SETUP")
             self.machine.upload([source], "/var/tmp")
+
+            if "rhel" in self.machine.image:
+                self.machine.upload([ os.path.expanduser("~/.rhel") ], "/root/")
+
             env = {
                 "TEST_OS": self.machine.image,
                 "TEST_SOURCE": os.path.join("/var/tmp", os.path.basename(source))
@@ -82,6 +86,7 @@ class MachineBuilder:
 
             try:
                 self.machine.execute(command="rm /var/tmp/SETUP")
+                self.machine.execute(command="rm -rf /root/.rhel")
             except subprocess.CalledProcessError, ex:
                 if args.sit:
                     sys.stderr.write("ADDRESS: {0}\n".format(self.machine.address))

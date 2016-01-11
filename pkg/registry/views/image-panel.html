@@ -11,14 +11,13 @@
             <li ng-class="{active: tab('meta')}"><a ng-click="tab('meta', $event)">Metadata</a></li>
         </ul>
     </div>
-    <div class="listing-body" ng-show="tab('main')">
-        image_tags(image)
-        Image
+
+    <div image-body class="listing-body" ng-show="tab('main')">
     </div>
-    <div class="listing-body" ng-show="tab('config')">
-        Config
+
+    <div image-config class="listing-body" ng-show="tab('config')">
     </div>
-    <div class="listing-body" ng-show="tab('meta')">
-        Meta
+
+    <div image-meta class="listing-body" ng-show="tab('meta')">
     </div>
 </div>

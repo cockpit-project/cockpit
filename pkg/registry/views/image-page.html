@@ -1,0 +1,22 @@
+<div class="content-filter">
+    <div class="listing-actions">
+        <button class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
+    </div>
+    <h3>
+        <i class="pficon pficon-image"></i>
+        {{ imagestream.metadata.namespace }}/{{ imagestream.metadata.name}}:{{ tag.tag }}
+    </h3>
+    <a href="#" translatable="yes">Show all images</a>
+</div>
+
+<div>
+    <h3 translatable="yes">Image</h3>
+    <div image-body></div>
+
+    <h3 translatable="yes">Configuration</h3>
+    <div image-config></div>
+
+    <h3 translatable="yes">Metadata</h3>
+    <div image-meta></div>
+</div>
+</div>

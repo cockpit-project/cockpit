@@ -242,10 +242,13 @@ class BasicTestSuite(Test):
         self.wait_id("journal-prio")
         elem = self.wait_text('Errors', cond=clickable, element="button")
         elem.click()
+        self.wait_id("journal")
         elem = self.wait_text('Warnings', cond=clickable, element="button")
         elem.click()
+        self.wait_id("journal")
         elem = self.wait_text('Notices', cond=clickable, element="button")
         elem.click()
+        self.wait_id("journal")
         checkt = "ahojnotice"
         out = process.run("systemd-cat -p notice echo '%s'" %
                           checkt, shell=True)

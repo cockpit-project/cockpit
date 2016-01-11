@@ -43,7 +43,7 @@ def start_trivial_httpd(m):
     m.execute("ostree trivial-httpd -d -P {0} {1} ".format(*args))
 
 
-def generate_new_commit(m):
+def generate_new_commit(m, pkg_to_remove):
     # Make one change of each type to a new rpm tree
     branch = m.execute("ostree refs --repo={0}".format(REPO_LOCATION))
 
@@ -55,12 +55,11 @@ def generate_new_commit(m):
     usr_etc = os.path.join(CHECKOUT_LOCATION, "usr", "etc")
     m.execute("mv {0} {1}".format(usr_etc, rpm_etc))
 
-    # Remove sos
-    sos_pkg = m.execute("rpm -qa | grep sos-")
-    rpm_args = [CHECKOUT_LOCATION, RPM_LOCATION, sos_pkg]
+    # Remove a package
+    rpm_args = [CHECKOUT_LOCATION, RPM_LOCATION, pkg_to_remove]
+    m.execute("rpm -e --root {0} --dbpath {1} {2}".format(*rpm_args))
 
     # Install our dummy packages, dbonly
-    m.execute("rpm -e --root {0} --dbpath {1} {2}".format(*rpm_args))
     rpm_args[-1] = ' '.join(["{0}.rpm".format(os.path.join("/home/admin", x)) \
                                 for x in INSTALL_RPMS])
     m.execute("rpm -U --oldpackage --root {0} --dbpath {1} --justdb {2}".format(*rpm_args))
@@ -96,7 +95,7 @@ class OstreeRestartCase(MachineCase):
         b = self.browser
         m = self.machine
 
-        sos_pkg = m.execute("rpm -qa | grep sos").strip()
+        sos_pkg = m.execute("rpm -qa | grep cockpit-sosreport").strip()
         cockpit_shell = m.execute("rpm -qa | grep cockpit-shell").strip()
         cockpit_nm = m.execute("rpm -qa | grep cockpit-networkmanager").strip()
 
@@ -145,7 +144,7 @@ class OstreeRestartCase(MachineCase):
         b.wait_present("table.listing tbody:nth-child(2) div.listing-actions button:not('.disabled')")
 
         # Generate new commit
-        generate_new_commit(m)
+        generate_new_commit(m, sos_pkg)
 
         # Check again have update data
         b.click("table.listing tbody:nth-child(2) div.listing-actions button")

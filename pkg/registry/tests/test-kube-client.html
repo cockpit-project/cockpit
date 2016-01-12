@@ -63,14 +63,33 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         asyncTest(name, function() {
             expect(count);
             inject([
+                "$q",
+                '$exceptionHandler',
                 "kubeLoader",
                 "MockKubeData",
-                function(loader, data) {
+                function($q, $exceptionHandler, loader, data) {
                     data.load(fixtures);
                     loader.reset(true);
+
+                    var result;
+                    try {
+                        result = inject(func);
+                    } catch(ex) {
+                        $exceptionHandler(ex);
+                        ok(!true, "test failed with exception: " + String(ex));
+                        start();
+                        return;
+                    }
+
+                    $q.when(result, function() {
+                        start();
+                    }, function(ex) {
+                        $exceptionHandler(ex);
+                        ok(!true, "test failed with exception: " + String(ex));
+                        start();
+                    });
                 }
             ]);
-            inject(func);
         });
     }
 
@@ -83,16 +102,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             equal(typeof promise.catch, "function", "promise has catch");
             equal(typeof promise.finally, "function", "promise has finally");
 
-            promise.then(function(items) {
+            return promise.then(function(items) {
                 ok(angular.isArray(items), "got items array");
                 equal(items.length, 1, "one node");
                 equal(items[0].metadata.name, "127.0.0.1", "localhost node");
-            }, function(output) {
-                ok(!true, "not sucessfully loaded");
-            }).finally(function() {
-                start();
             });
-
         }
     ]);
 
@@ -100,13 +114,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         "kubeLoader",
         function(loader) {
             var promise = loader.load("nonexistant");
-            promise.then(function(data) {
+            return promise.then(function(data) {
                 ok(!true, "successfully loaded");
             }, function(response) {
                 equal(response.status, 404, "not found");
                 ok(true, "not sucessfully loaded");
-            }).finally(function() {
-                start();
             });
         }
     ]);
@@ -114,15 +126,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     kubeTest("loader watch", 3, FIXTURE_BASIC, [
         "kubeLoader",
         function(loader) {
-            loader.watch("nodes").then(function(response) {
+            return loader.watch("nodes").then(function(response) {
                 ok("/api/v1/nodes/127.0.0.1" in loader.objects, "found node");
                 var node = loader.objects["/api/v1/nodes/127.0.0.1"];
                 equal(node.metadata.name, "127.0.0.1", "localhost node");
                 equal(typeof node.spec.capacity, "object", "node has resources");
-            }, function(response) {
-                ok(!true, "not sucessfully loaded");
-            }).finally(function() {
-                start();
             });
         }
     ]);
@@ -131,7 +139,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         "kubeLoader",
         "kubeSelect",
         function(loader, select) {
-            loader.watch("nodes").then(function() {
+            return loader.watch("nodes").then(function() {
                 var nodes = select().kind("Node");
                 ok("/api/v1/nodes/127.0.0.1" in nodes, "found node");
                 var node = nodes["/api/v1/nodes/127.0.0.1"];
@@ -146,8 +154,6 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 var parsed = JSON.parse(JSON.stringify(node));
                 ok(!("key" in parsed), "key should not be serialized")
                 strictEqual(parsed.key, undefined, "key not be undefined after serialize");
-            }).finally(function() {
-                start();
             });
         }
     ]);
@@ -156,37 +162,35 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         "kubeLoader",
         "kubeSelect",
         function(loader, select) {
-            loader.watch("pods").then(function() {
+            return loader.watch("pods").then(function() {
                 var pods = select().kind("Pod");
                 equal(pods.length, 3, "found pods");
                 var pod = pods["/api/v1/namespaces/default/pods/apache"];
                 equal(typeof pod, "object", "found pod")
                 equal(pod.metadata.labels.name, "apache", "pod has label");
-            }).finally(function() {
-                start();
             });
         }
     ]);
 
     kubeTest("set namespace", 10, FIXTURE_BASIC, [
+        "$q",
         "kubeLoader",
         "kubeSelect",
-        function(loader, select) {
-            loader.watch("pods").then(function() {
+        function($q, loader, select) {
+            return loader.watch("pods").then(function() {
                 var pods = select().kind("Pod");
                 equal(pods.length, 3, "number of pods");
                 strictEqual(loader.namespace(), null, "namespace is null");
 
-                console.warn("changing namespace");
                 strictEqual(loader.namespace("other"), "other", "namespace change");
                 strictEqual(loader.namespace(), "other", "namespace is other");
 
                 pods = select().kind("Pod");
                 equal(pods.length, 0, "pods gone");
 
+                var defer = $q.defer();
                 var x = loader.listen(function() {
                     pods = select().kind("Pod");
-                    console.log(pods);
                     equal(pods.length, 1, "pods from namespace other");
                     ok("/api/v1/namespaces/other/pods/apache" in pods, "other pod")
                     x.cancel();
@@ -197,31 +201,35 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                         pods = select().kind("Pod");
                         equal(pods.length, "3", "all pods back");
                         x.cancel();
-                        start();
+                        defer.resolve();
                     });
                 });
+
+                return defer.promise;
             });
         }
     ]);
 
     kubeTest("add pod", 3, FIXTURE_BASIC, [
+        "$q",
         "kubeLoader",
         "kubeSelect",
         "MockKubeData",
-        function(loader, select, data) {
-            loader.watch("pods").then(function() {
+        function($q, loader, select, data) {
+            return loader.watch("pods").then(function() {
                 var pods = select().kind("Pod");
                 equal(pods.length, 3, "number of pods");
                 equal(pods["/api/v1/namespaces/default/pods/apache"].metadata.labels.name,
                       "apache", "pod has label");
 
+                var defer = $q.defer();
                 var x = loader.listen(function() {
                     var pods = select().kind("Pod");
                     if (pods.length === 4) {
                         equal(pods["/api/v1/namespaces/default/pods/aardvark"].metadata.labels.name,
                               "aardvark", "new pod present in items");
                         x.cancel();
-                        start();
+                        defer.resolve();
                     }
                 });
 
@@ -241,28 +249,32 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                         "imagePullPolicy": "IfNotPresent"
                     }
                 });
+
+                return defer.promise;
             });
 
         }
     ]);
 
     kubeTest("update pod", 3, FIXTURE_BASIC, [
+        "$q",
         "kubeLoader",
         "kubeSelect",
         "MockKubeData",
-        function(loader, select, data) {
-            loader.watch("pods").then(function() {
+        function($q, loader, select, data) {
+            return loader.watch("pods").then(function() {
                 var pods = select().kind("Pod");
                 equal(pods.length, 3, "number of pods");
                 equal(pods["/api/v1/namespaces/default/pods/apache"].metadata.labels.name,
                       "apache", "pod has label");
 
+                var defer = $q.defer();
                 var x = loader.listen(function() {
                     var pods = select().kind("Pod");
                     equal(pods["/api/v1/namespaces/default/pods/apache"].metadata.labels.name,
                           "apachepooo", "pod has changed");
                     x.cancel();
-                    start();
+                    defer.resolve();
                 });
 
                 data.update("namespaces/default/pods/apache", {
@@ -276,21 +288,25 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                         },
                     }
                 });
+
+                return defer.promise;
             });
         }
     ]);
 
     kubeTest("remove pod", 5, FIXTURE_BASIC, [
+        "$q",
         "kubeLoader",
         "kubeSelect",
         "MockKubeData",
-        function(loader, select, data) {
-            loader.watch("pods").then(function() {
+        function($q, loader, select, data) {
+            return loader.watch("pods").then(function() {
                 var pods = select().kind("Pod");
                 equal(pods.length, 3, "number of pods");
                 equal(pods["/api/v1/namespaces/default/pods/apache"].metadata.labels.name,
                       "apache", "pod has label");
 
+                var defer = $q.defer();
                 var x = loader.listen(function() {
                     var pods = select().kind("Pod");
                     equal(pods.length, 2, "removed a pod");
@@ -299,10 +315,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                           "wordpressreplica", "other pod");
 
                     x.cancel();
-                    start();
+                    defer.resolve();
                 });
 
                 data.update("namespaces/default/pods/apache", null);
+                return defer.promise;
             });
         }
     ]);
@@ -311,7 +328,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         "kubeLoader",
         "kubeSelect",
         function(loader, select) {
-            loader.watch("services").then(function() {
+            return loader.watch("services").then(function() {
                 var services = select().kind("Service");
                 var x, svc = null;
                 for (x in services) {
@@ -321,7 +338,6 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 equal(services.length, 2, "number of services");
                 equal(svc.metadata.name, "kubernetes", "service id");
                 equal(svc.spec.selector.component, "apiserver", "service has label");
-                start();
             });
         }
     ]);
@@ -368,13 +384,9 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             loader.watch("pods");
             loader.watch("nodes");
             loader.watch("namespaces");
-            methods.create(CREATE_ITEMS, "namespace1").then(function() {
+            return methods.create(CREATE_ITEMS, "namespace1").then(function() {
                 equal(loader.objects["/api/v1/namespaces/namespace1/pods/pod1"].metadata.name, "pod1", "pod object");
                 equal(loader.objects["/api/v1/nodes/node1"].metadata.name, "node1", "node object");
-            }, function(response) {
-                equal(response, false, "should have succeeded");
-            }).finally(function() {
-                start();
             });
         }
     ]);
@@ -393,19 +405,13 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 "metadata" : { "name": "namespace1" }
             };
 
-            methods.create(NAMESPACE_ITEM).then(function() {
+            return methods.create(NAMESPACE_ITEM).then(function() {
                 ok("/api/v1/namespaces/namespace1" in loader.objects, "namespace created");
 
-                methods.create(CREATE_ITEMS, "namespace1").then(function() {
+                return methods.create(CREATE_ITEMS, "namespace1").then(function() {
                     ok("/api/v1/namespaces/namespace1/pods/pod1" in loader.objects, "pod created");
                     ok("/api/v1/nodes/node1" in loader.objects, "node created");
-                }, function(response) {
-                    equal(response, true, "create failed");
-                }).finally(function() {
-                    start();
                 });
-            }, function(response) {
-                equal(response, true, "create failed");
             });
         }
     ]);
@@ -417,13 +423,9 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             loader.watch("pods");
             loader.watch("nodes");
             loader.watch("namespaces");
-            methods.create(CREATE_ITEMS).then(function() {
+            return methods.create(CREATE_ITEMS).then(function() {
                 equal(loader.objects["/api/v1/namespaces/default/pods/pod1"].metadata.name, "pod1", "pod created");
                 equal(loader.objects["/api/v1/nodes/node1"].metadata.name, "node1", "node created");
-            }, function(response) {
-                equal(response, false, "should have succeeded");
-            }).finally(function() {
-                start();
             });
         }
     ]);
@@ -439,13 +441,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             var items = CREATE_ITEMS.slice();
             items.push(items[0]);
 
-            methods.create(items).then(function(response) {
+            return methods.create(items).then(function(response) {
                 equal(response, false, "should have failed");
             }, function(response) {
                 equal(response.status, 409, "http already exists");
                 equal(response.data.code, 409, "kubernetes already exists");
-            }).finally(function() {
-                start();
             });
         }
     ]);
@@ -456,19 +456,14 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         function(loader, methods) {
             var watch = loader.watch("pods");
 
-            methods.create(CREATE_ITEMS, "namespace2").then(function() {
+            return methods.create(CREATE_ITEMS, "namespace2").then(function() {
                 ok("/api/v1/namespaces/namespace2/pods/pod1" in loader.objects, "pod created");
-                methods.delete("/api/v1/namespaces/namespace2/pods/pod1").then(function() {
+                return methods.delete("/api/v1/namespaces/namespace2/pods/pod1").then(function() {
                     ok(true, "remove succeeded");
-                    watch.finally(function() {
+                    return watch.finally(function() {
                         ok(!("/api/v1/namespaces/namespace2/pods/pod1" in loader.objects), "pod was removed");
-                        start();
                     });
-                }, function(response) {
-                    equal(response, false, "remove failed");
                 });
-            }, function(response) {
-                equal(response, false, "create failed");
             });
         }
     ]);
@@ -490,7 +485,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 "spec": { "replicas": 1, "selector": { "factor3": "yes" } }
             };
 
-            loader.watch("replicationcontrollers").then(function() {
+            return loader.watch("replicationcontrollers").then(function() {
                 /* Get the item */
                 var item = select().kind("ReplicationController").name("3controller").namespace("default").one();
                 deepEqual(item, expected, "correct item");
@@ -510,10 +505,6 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 strictEqual(item, null, "mismatch name");
                 item = select().kind("ReplicationController").name("3controller").namespace("baddefault").one();
                 strictEqual(item, null, "mismatch namespace");
-            }, function(response) {
-                equal(response, false, "load failed");
-            }).finally(function() {
-                start();
             });
         }
     ]);
@@ -522,7 +513,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         "kubeLoader",
         "kubeSelect",
         function(loader, select) {
-            loader.watch("pods").then(function() {
+            return loader.watch("pods").then(function() {
                 /* Select everything odd, 500 pods */
                 var results = select().namespace("default").label({ "type": "odd" });
                 equal(results.length, 500, "correct amount");
@@ -562,10 +553,6 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 /* Nothing selected when empty selector */
                 results = select().label({ });
                 equal(results.length, 0, "nothing selected");
-            }, function(response) {
-                equal(response, false, "load failed");
-            }).finally(function() {
-                start();
             });
         }
     ]);

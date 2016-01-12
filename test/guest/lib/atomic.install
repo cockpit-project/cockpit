@@ -233,6 +233,7 @@ parser.add_argument('-v', '--verbose', action='store_true', help='Display verbos
 parser.add_argument('-q', '--quick', action='store_true', help='Build faster')
 parser.add_argument('--build', action='store_true', help='Build')
 parser.add_argument('--install', action='store_true', help='Install')
+parser.add_argument('--skip', action='append', default=[], help='Packes to skip during installation')
 args = parser.parse_args()
 
 if args.build:
@@ -242,7 +243,9 @@ if args.build:
 if args.install:
     os.chdir("build-results")
     rpms = map(os.path.abspath,
-               filter(lambda f: f.endswith(".rpm") and not f.endswith(".src.rpm"),
+               filter(lambda f: (f.endswith(".rpm")
+                                 and not f.endswith(".src.rpm")
+                                 and not any(f.startswith(s) for s in args.skip)),
                       os.listdir(".")))
     try:
         cockpit_installer = AtomicCockpitInstaller(rpms=rpms, verbose=args.verbose)

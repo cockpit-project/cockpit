@@ -99,10 +99,13 @@ class BasicTestSuite(Test):
             if fatal:
                 screenshot_file = "snapshot-%s-%s-lines_%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack(
                 )[2][3]), '-'.join([str(x[2]) for x in inspect.stack() if inspect.stack()[0][1] == x[1]]))
-                self.driver.get_screenshot_as_file(screenshot_file)
-                print screenshot_file
-                raise Exception('ERR: Unable to locate name: %s' %
-                                str(text), screenshot_file)
+                additional_text=""
+                try:
+                    self.driver.get_screenshot_as_file(screenshot_file)
+                except:
+                    screenshot_file="Unable to catch screenshot: " + screenshot_file
+                finally:
+                    raise Exception('ERR: Unable to locate name: %s' % str(text), screenshot_file)
             else:
                 return None
         return returned
@@ -166,6 +169,7 @@ class BasicTestSuite(Test):
 
     def test20Login(self):
         elem = self.login()
+        self.wait_id("sidebar")
         elem = self.wait_id("content-user-name")
         self.assertEqual(elem.text, user)
 
@@ -182,6 +186,7 @@ class BasicTestSuite(Test):
 
     def test30ChangeTabServices(self):
         self.login()
+        self.wait_id("sidebar")
         self.wait_link('Services').click()
         self.wait_frame("services")
 
@@ -201,6 +206,7 @@ class BasicTestSuite(Test):
 
     def test40ContainerTab(self):
         self.login()
+        self.wait_id("sidebar")
         self.wait_link('Containers').click()
         self.wait_frame("docker")
         if self.wait_xpath("//*[@data-action='docker-start']", fatal=False, overridetry=5, cond=clickable):
@@ -236,6 +242,7 @@ class BasicTestSuite(Test):
 
     def test50ChangeTabLogs(self):
         self.login()
+        self.wait_id("sidebar")
         self.wait_link('Logs').click()
         self.wait_frame("logs")
         self.wait_id("journal")
@@ -262,7 +269,8 @@ class BasicTestSuite(Test):
         other_discname = other_disc.adddisc("d1")
         other_shortname = os.path.basename(other_discname)
         self.login()
-        self.wait_link('Storage', cond=clickable).click()
+        self.wait_id("sidebar")
+        self.wait_link('Storage').click()
         self.wait_frame("storage")
         self.wait_id("drives")
         elem = self.wait_xpath("//*[@data-goto-block='%s']" % other_shortname, cond=clickable)
@@ -279,6 +287,7 @@ class BasicTestSuite(Test):
 
     def test70ChangeTabNetworking(self):
         self.login()
+        self.wait_id("sidebar")
         out = process.run(
             "ip r |grep default | head -1 | cut -d ' ' -f 5", shell=True)
         self.wait_link('Network').click()
@@ -294,6 +303,7 @@ class BasicTestSuite(Test):
 
     def test80ChangeTabTools(self):
         self.login()
+        self.wait_id("sidebar")
         self.wait_id("tools-panel",cond=invisible)
         self.wait_link('Tools').click()
         self.wait_id("tools-panel")

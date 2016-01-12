@@ -59,7 +59,7 @@ def run_avocado(machine, avocado_tests, print_failed=True, env=[]):
                         command="cat " + os.path.join(MachineCase.avocado_results_dir, "latest/results.json"),
                         quiet=True
                     )
-                machine.execute("cp *.png %s/ || true" % MachineCase.avocado_results_dir)
+                machine.execute("cp -v *.png %s/ 2>/dev/null || true" % MachineCase.avocado_results_dir)
                 failed_tests = json.loads(failed_tests_info)
                 for t in failed_tests['tests']:
                     test_status = t['status']

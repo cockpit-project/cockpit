@@ -17,6 +17,7 @@ registry_VIEWS = \
 
 registry_LESS = \
 	pkg/registry/styles/main.less \
+	pkg/registry/styles/dashboard.less \
 	pkg/registry/styles/dropdown.less \
 	pkg/registry/styles/filter.less \
 	pkg/registry/styles/images.less \
@@ -54,6 +55,8 @@ nodist_registry_DATA = \
 	$(NULL)
 registry_DATA = \
  	pkg/registry/manifest.json \
+	pkg/registry/sparkle-placeholder.png \
+	pkg/registry/donut-placeholder.png \
 	$(NULL)
 
 registrydebugdir = $(debugdir)$(registrydir)

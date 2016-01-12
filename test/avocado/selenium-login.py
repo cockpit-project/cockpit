@@ -71,14 +71,26 @@ class BasicTestSuite(Test):
 
         self.driver.set_window_size(1400, 1200)
         self.driver.set_page_load_timeout(90)
-        self.driver.implicitly_wait(30)
         self.default_try = 40
         self.default_explicit_wait = 1
         self.driver.get('http://%s:9090' % guest_machine)
+        self.error=True
 
     def tearDown(self):
-        self.driver.close()
-        self.driver.quit()
+        if self.error:
+            screenshot_file=""
+            try:
+                screenshot_file="snapshot-teardown-%s.png" %  str(time.clock())
+                self.driver.save_screenshot(screenshot_file)
+                print "Screenshot done in teardown phase: " + screenshot_file
+            except:
+                screenshot_file="Unable to catch screenshot: " + screenshot_file
+                raise Exception('ERR: Unable to store screenshot: %s' % screenshot_file)
+        try:
+            self.driver.close()
+            self.driver.quit()
+        except:
+            raise Exception('ERR: Unable to close WEBdriver')
 
     def wait(self, method, text, baseelement, overridetry, fatal, cond):
         if not baseelement:
@@ -101,9 +113,11 @@ class BasicTestSuite(Test):
                 )[2][3]), '-'.join([str(x[2]) for x in inspect.stack() if inspect.stack()[0][1] == x[1]]))
                 additional_text=""
                 try:
-                    self.driver.get_screenshot_as_file(screenshot_file)
+                    self.driver.save_screenshot(screenshot_file)
+                    self.error=False
                 except:
                     screenshot_file="Unable to catch screenshot: " + screenshot_file
+                    pass
                 finally:
                     raise Exception('ERR: Unable to locate name: %s' % str(text), screenshot_file)
             else:
@@ -166,6 +180,7 @@ class BasicTestSuite(Test):
         elem = self.wait_id('server-name')
         out = process.run("hostname", shell=True)
         self.assertTrue(str(out.stdout)[:-1] in str(elem.text))
+        self.error=False
 
     def test20Login(self):
         elem = self.login()
@@ -183,6 +198,7 @@ class BasicTestSuite(Test):
         elem = self.login()
         elem = self.wait_id("content-user-name")
         self.assertEqual(elem.text, user)
+        self.error=False
 
     def test30ChangeTabServices(self):
         self.login()
@@ -203,6 +219,7 @@ class BasicTestSuite(Test):
         self.wait_text("dbus.service")
 
         self.mainframe()
+        self.error=False
 
     def test40ContainerTab(self):
         self.login()
@@ -239,6 +256,7 @@ class BasicTestSuite(Test):
         elem = self.wait_text('cockpit/ws')
 
         self.mainframe()
+        self.error=False
 
     def test50ChangeTabLogs(self):
         self.login()
@@ -263,6 +281,7 @@ class BasicTestSuite(Test):
         elem.click()
         elem = self.wait_id('journal-entry')
         self.mainframe()
+        self.error=False
 
     def test60ChangeTabStorage(self):
         other_disc = libdisc.DiscSimple()
@@ -284,6 +303,7 @@ class BasicTestSuite(Test):
         elem = self.wait_xpath("//*[@data-goto-block='%s']" % other_shortname)
 
         self.mainframe()
+        self.error=False
 
     def test70ChangeTabNetworking(self):
         self.login()
@@ -300,6 +320,7 @@ class BasicTestSuite(Test):
         elem.click()
         self.wait_text("Carrier", element="td")
         self.mainframe()
+        self.error=False
 
     def test80ChangeTabTools(self):
         self.login()
@@ -359,6 +380,7 @@ class BasicTestSuite(Test):
         process.run("ls /tmp/testabc |wc -l |grep 0", shell=True)
         process.run("ls /tmp/testabd |wc -l |grep 0", shell=True)
         self.mainframe()
+        self.error=False
 
 if __name__ == '__main__':
     main()

@@ -586,6 +586,9 @@ systemctl start docker
         "(audit: )?type=1403 audit.*",
         "(audit: )?type=1404 audit.*",
 
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1298157
+        "type=1400 .*granted.*comm=\"tuned\".*",
+
         # SELinux fighting with systemd: https://bugzilla.redhat.com/show_bug.cgi?id=1253319
         "(audit: )?type=1400 audit.*systemd-journal.*path=2F6D656D66643A73642D73797374656D642D636F726564756D202864656C6574656429",
 

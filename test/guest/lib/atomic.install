@@ -106,7 +106,6 @@ class AtomicCockpitInstaller:
 
         now = datetime.datetime.utcnow()
         subprocess.check_call(["ostree", "commit", "-s", "cockpit-tree",
-                               "--timestamp={0} +0000".format(now.strftime("%Y-%m-%d %H:%M:%S")),
                                "--repo", self.repo_location,
                                "-b", self.branch,
                                "--add-metadata-string", "version=cockpit-base.1",

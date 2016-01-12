@@ -255,11 +255,12 @@ class GitHub(object):
             self.cache(resource, response)
             return json.loads(response['data'])
 
-    def post(self, resource, data):
+    def post(self, resource, data, accept=[]):
         response = self.request("POST", resource, json.dumps(data), { "Content-Type": "application/json" })
-        if response['status'] < 200 or response['status'] >= 300:
-            sys.stderr.write(response['data'])
-            raise Exception("GitHub API problem: {0}".format(response['reason'] or response['status']))
+        status = response['status']
+        if (status < 200 or status >= 300) and status not in accept:
+            sys.stderr.write("{0}\n{1}\n", resource, response['data'])
+            raise Exception("GitHub API problem: {0}".format(response['reason'] or status))
         return json.loads(response['data'])
 
     def statuses(self, revision):
@@ -341,7 +342,10 @@ class GitHub(object):
         def update_status(revision, context, last, changes):
             if update and changes and not dict_is_subset(last, changes):
                 changes["context"] = context
-                self.post("statuses/" + revision, changes)
+                response = self.post("statuses/" + revision, changes, accept=[ 422 ]) # 422 Unprocessable Entity
+                for error in response.get("errors", []):
+                    sys.stderr.write("{0}: {1}\n".format(revision, error.get('message', json.dumps(error))))
+                    sys.stderr.write(json.dumps(changes))
 
         if master_contexts:
             master = self.get("git/refs/heads/master")

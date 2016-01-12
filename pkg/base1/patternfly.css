@@ -5099,7 +5099,7 @@ a.thumbnail.active {
   color: #333333;
 }
 .alert {
-  padding: 7px;
+  padding: 11px;
   margin-bottom: 20px;
   border: 1px solid transparent;
   border-radius: 1px;
@@ -5120,7 +5120,7 @@ a.thumbnail.active {
 }
 .alert-dismissable,
 .alert-dismissible {
-  padding-right: 27px;
+  padding-right: 31px;
 }
 .alert-dismissable .close,
 .alert-dismissible .close {
@@ -5130,7 +5130,7 @@ a.thumbnail.active {
   color: inherit;
 }
 .alert-success {
-  background-color: #ffffff;
+  background-color: #e8f9e7;
   border-color: #3f9c35;
   color: #333333;
 }
@@ -5141,18 +5141,18 @@ a.thumbnail.active {
   color: #1a1a1a;
 }
 .alert-info {
-  background-color: #ffffff;
-  border-color: #cccccc;
+  background-color: #f2f2f2;
+  border-color: #8b8d8f;
   color: #333333;
 }
 .alert-info hr {
-  border-top-color: #bfbfbf;
+  border-top-color: #7e8082;
 }
 .alert-info .alert-link {
   color: #1a1a1a;
 }
 .alert-warning {
-  background-color: #ffffff;
+  background-color: #fdf4ea;
   border-color: #ec7a08;
   color: #333333;
 }
@@ -5163,7 +5163,7 @@ a.thumbnail.active {
   color: #1a1a1a;
 }
 .alert-danger {
-  background-color: #ffffff;
+  background-color: #fbe7e7;
   border-color: #cc0000;
   color: #333333;
 }
@@ -8624,8 +8624,9 @@ button.close {
   content: "\f23a";
 }
 .alert {
-  border-width: 2px;
-  padding-left: 34px;
+  border-width: 1px;
+  padding-left: 47px;
+  padding-right: 14px;
   position: relative;
 }
 .alert .alert-link {
@@ -8634,17 +8635,32 @@ button.close {
 .alert .alert-link:hover {
   color: #00618a;
 }
+.alert > .btn.pull-right {
+  margin-top: -3px;
+}
 .alert > .pficon {
-  font-size: 20px;
+  font-size: 22px;
   position: absolute;
-  left: 7px;
-  top: 7px;
+  left: 13px;
+  top: 10px;
+}
+.alert .close {
+  opacity: 0.85;
+  filter: alpha(opacity=85);
+}
+.alert .close:hover,
+.alert .close:focus {
+  opacity: 1;
+  filter: alpha(opacity=100);
 }
 .alert .pficon-info {
-  color: #72767b;
+  color: #4d5258;
+}
+.alert-dismissable {
+  padding-right: 28px;
 }
 .alert-dismissable .close {
-  right: -16px;
+  right: -13px;
   top: 1px;
 }
 .badge {
@@ -8937,6 +8953,7 @@ fieldset[disabled] .btn-primary.active {
   text-transform: uppercase;
 }
 .btn-group > .dropdown-menu,
+.dropdown > .dropdown-menu,
 .input-group-btn > .dropdown-menu {
   margin-top: -1px;
 }
@@ -8983,6 +9000,13 @@ fieldset[disabled] .btn-primary.active {
 }
 .open .dropdown-submenu.active > .dropdown-menu {
   display: block;
+}
+.chars-remaining-pf span {
+  font-weight: 600;
+  padding-right: 5px;
+}
+.chars-warn-remaining-pf {
+  color: #cc0000;
 }
 .form-control[disabled],
 .form-control[readonly],
@@ -9479,24 +9503,37 @@ td > .progress:first-child:last-child {
   box-shadow: none;
 }
 .progress-label-left .progress-bar span,
+.progress-label-right .progress-bar span,
 .progress-label-top-right .progress-bar span {
   color: #333333;
-  font-size: 14px;
   position: absolute;
   text-align: right;
 }
 .progress-label-left .progress-bar span {
+  font-size: 14px;
   left: -40px;
   top: 0;
   width: 35px;
 }
+.progress-label-right .progress-bar span,
 .progress-label-top-right .progress-bar span {
-  max-width: 25%;
+  font-size: 11px;
   overflow: hidden;
   right: 0;
   text-overflow: ellipsis;
-  top: -31px;
   white-space: nowrap;
+}
+.progress-label-right .progress-bar span strong,
+.progress-label-top-right .progress-bar span strong {
+  font-weight: 600;
+}
+.progress-label-right .progress-bar span {
+  max-width: 85px;
+  top: 0;
+}
+.progress-label-top-right .progress-bar span {
+  max-width: 47%;
+  top: -30px;
 }
 .progress-label-left.progress-sm .progress-bar span,
 .progress-label-top-right.progress-sm .progress-bar span {
@@ -9508,9 +9545,21 @@ td > .progress:first-child:last-child {
 .progress-xs .progress-bar {
   line-height: 6px;
 }
+.progress-bar-remaining {
+  background: transparent;
+}
+.progress-container {
+  position: relative;
+}
+.progress-container.progress-description-left {
+  padding-left: 90px;
+}
+.progress-container.progress-label-right {
+  padding-right: 90px;
+}
 .progress-description {
   margin-bottom: 10px;
-  max-width: 74%;
+  max-width: 52%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -9525,6 +9574,13 @@ td > .progress:first-child:last-child {
 .progress-description .pficon {
   font-size: 14px;
   margin-right: 3px;
+}
+.progress-description-left .progress-description {
+  left: 0;
+  margin-bottom: 0;
+  max-width: 85px;
+  position: absolute;
+  top: 0;
 }
 .progress-description .tooltip {
   white-space: normal;

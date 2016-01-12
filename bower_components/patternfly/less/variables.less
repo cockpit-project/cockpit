@@ -5,16 +5,18 @@
 
 // PatternFly-specific
 // -------------------
+@bootstrap-switch-handle-default-bg-color:                          #fbfbfb;
 @btn-default-bg-img-start:                                          #fafafa;
 @btn-default-bg-img-stop:                                           #ededed;
 @btn-xs-font-weight:                                                400;
 @card-pf-accented-border-top-color:                                 #39a5dc;
-@card-pf-aggregate-status-title-icon-color:                         #72767b;
+@card-pf-aggregate-status-title-icon-color:                         #333;
 @card-pf-bg-color:                                                  #fff;
 @card-pf-border-color:                                              #d1d1d1;
 @card-pf-border-top-color:                                          transparent;
 @card-pf-container-bg-color:                                        #f5f5f5;
 @card-pf-footer-bg-color:                                           #fafafa;
+@donut-font-size-big:                                               30px;
 @dropdown-divider-margin:                                           4px 1px;
 @dropdown-link-active-border-color:                                 #0076b7;
 @dropdown-link-hover-border-color:                                  #b3d3e7;
@@ -35,6 +37,10 @@
 @img-bg-login:                                                      "bg-login.jpg";
 @img-path:                                                          "../img";
 @img-spinner:                                                       "spinner.gif";
+@img-spinner-inverse:                                               "spinner-inverse.gif";
+@img-spinner-inverse-lg:                                            "spinner-inverse-lg.gif";
+@img-spinner-inverse-sm:                                            "spinner-inverse-sm.gif";
+@img-spinner-inverse-xs:                                            "spinner-inverse-xs.gif";
 @img-spinner-lg:                                                    "spinner-lg.gif";
 @img-spinner-sm:                                                    "spinner-sm.gif";
 @img-spinner-xs:                                                    "spinner-xs.gif";
@@ -84,12 +90,55 @@
 @navbar-pf-navbar-navbar-persistent-border-color:                   #cecdcd;
 @pagination-padding-small-vertical:                                 0;
 @panel-default-border-color:                                        #bebdbd;
+@pficon-var-add-circle-o:                                           "\e61b";
+@pficon-var-build:                                                  "\e902";
+@pficon-var-builder-image:                                          "\e800";
+@pficon-var-close:                                                  "\e60b";
+@pficon-var-cluster:                                                "\e620";
+@pficon-var-container-node:                                         "\e621";
+@pficon-var-delete:                                                 "\e611";
+@pficon-var-edit:                                                   "\e60a";
+@pficon-var-error-circle-o:                                         "\e61d";
+@pficon-var-export:                                                 "\e616";
+@pficon-var-folder-close:                                           "\e607";
+@pficon-var-folder-open:                                            "\e606";
+@pficon-var-help:                                                   "\e605";
+@pficon-var-history:                                                "\e617";
+@pficon-var-home:                                                   "\e618";
+@pficon-var-image:                                                  "\e61f";
+@pficon-var-import:                                                 "\e615";
+@pficon-var-info:                                                   "\e604";
+@pficon-var-flag:                                                   "\e603";
+@pficon-var-kubernetes:                                             "\e627";
+@pficon-var-ok:                                                     "\e602";
+@pficon-var-openshift:                                              "\e626";
+@pficon-var-print:                                                  "\e612";
+@pficon-var-project:                                                "\e622";
+@pficon-var-registry:                                               "\e623";
+@pficon-var-replicator:                                             "\e624";
+@pficon-var-restart:                                                "\e613";
+@pficon-var-route:                                                  "\e625";
+@pficon-var-running:                                                "\e614";
+@pficon-var-save:                                                   "\e601";
+@pficon-var-screen:                                                 "\e600";
+@pficon-var-service:                                                "\e61e";
+@pficon-var-settings:                                               "\e610";
+@pficon-var-thumb-tack-o:                                           "\e609";
+@pficon-var-topology:                                               "\e608";
+@pficon-var-trend-down:                                             "\e900";
+@pficon-var-trend-up:                                               "\e901";
+@pficon-var-user:                                                   "\e60e";
+@pficon-var-users:                                                  "\e60f";
+@pficon-var-warning-triangle-o:                                     "\e61c";
+@progress-description-label-width:                                  85px;
 @sidebar-pf-bg:                                                     #fafafa;
 @sidebar-pf-border-color:                                           #d0d0d0;
 @table-border-hover:                                                #a7cadf;
 @table-cell-padding-bottom:                                         3px;
 @table-cell-padding-top:                                            2px;
 // Reference variables declared in block above
+@bootstrap-switch-bg-color-start:                                   @btn-default-bg-img-start;
+@bootstrap-switch-bg-color-stop:                                    @btn-default-bg-img-stop;
 @img-path-alt:                                                      @img-path;
 @nav-pf-vertical-alt-border-color:                                  @sidebar-pf-border-color;
 @navbar-pf-alt-border-color:                                        @navbar-pf-border-color;
@@ -133,9 +182,9 @@
 
 // Bootstrap overrides
 // -------------------
-@alert-info-border:                                                 #ccc;
+@alert-info-border:                                                 #8b8d8f;
 @alert-link-font-weight:                                            500;
-@alert-padding:                                                     7px;
+@alert-padding:                                                     11px;
 @body-bg:                                                           #ffffff;
 @border-radius-base:                                                1px;
 @brand-danger:                                                      #cc0000;
@@ -199,15 +248,15 @@
 @tooltip-bg:                                                        #434343;
 @tooltip-max-width:                                                 220px;
 // Reference variables declared in block above
-@alert-danger-bg:                                                   @body-bg;
+@alert-danger-bg:                                                   #fbe7e7;
 @alert-danger-border:                                               @brand-danger;
 @alert-danger-text:                                                 @gray-dark;
-@alert-info-bg:                                                     @body-bg;
+@alert-info-bg:                                                     #f2f2f2;
 @alert-info-text:                                                   @gray-dark;
-@alert-success-bg:                                                  @body-bg;
+@alert-success-bg:                                                  #e8f9e7;
 @alert-success-border:                                              @brand-success;
 @alert-success-text:                                                @gray-dark;
-@alert-warning-bg:                                                  @body-bg;
+@alert-warning-bg:                                                  #fdf4ea;
 @alert-warning-border:                                              @brand-warning;
 @alert-warning-text:                                                @gray-dark;
 @badge-border-radius:                                               @border-radius-base;
@@ -250,6 +299,7 @@
 
 // PatternFly-specific variables based on Bootstrap overides
 // ---------------------------------------------------------
+@bootstrap-switch-bg-color:                                         @btn-default-bg;
 @btn-danger-bg-img-start:                                           @brand-danger;
 @btn-danger-bg-img-stop:                                            @btn-danger-bg;
 @btn-primary-bg-img-start:                                          @brand-primary;

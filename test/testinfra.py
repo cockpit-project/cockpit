@@ -265,11 +265,17 @@ class GitHub(object):
 
     def statuses(self, revision):
         result = { }
-        statuses = self.get("commits/{0}/statuses".format(revision))
-        if statuses:
-            for status in statuses:
-                if status["context"] not in result:
-                    result[status["context"]] = status
+        page = 1
+        count = 100
+        while count == 100:
+            statuses = self.get("commits/{0}/statuses?page={1}&per_page={2}".format(revision, page, count))
+            count = 0
+            page += 1
+            if statuses:
+                for status in statuses:
+                    if status["context"] not in result:
+                        result[status["context"]] = status
+                count = len(statuses)
         return result
 
     def labels(self, issue):

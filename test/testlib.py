@@ -589,6 +589,9 @@ systemctl start docker
         # https://bugzilla.redhat.com/show_bug.cgi?id=1298157
         "type=1400 .*granted.*comm=\"tuned\".*",
 
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1298171
+        "type=1400 .*denied.*comm=\"iptables\".*name=\"xtables.lock\".*",
+
         # SELinux fighting with systemd: https://bugzilla.redhat.com/show_bug.cgi?id=1253319
         "(audit: )?type=1400 audit.*systemd-journal.*path=2F6D656D66643A73642D73797374656D642D636F726564756D202864656C6574656429",
 

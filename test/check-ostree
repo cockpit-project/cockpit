@@ -23,6 +23,7 @@ import json
 import os
 import sys
 import unittest
+import testinfra
 
 INSTALL_RPMS = [
     "empty-1-0.noarch",
@@ -72,6 +73,7 @@ def generate_new_commit(m, pkg_to_remove):
     m.execute(command.format(*commit_args))
 
 @unittest.skipIf("atomic" not in os.environ.get("TEST_OS", ""), "Skipping check-ostree on non atomic systems.")
+@unittest.skipIf(testinfra.DEFAULT_IMAGE == "rhel-atomic", "rpm-ostree too old")
 class OstreeRestartCase(MachineCase):
 
     def setUp(self):
@@ -248,6 +250,7 @@ class OstreeRestartCase(MachineCase):
 
 
 @unittest.skipIf("atomic" not in os.environ.get("TEST_OS", ""), "Skipping check-ostree on non atomic systems.")
+@unittest.skipIf(testinfra.DEFAULT_IMAGE == "rhel-atomic", "rpm-ostree too old")
 class OstreeCase(MachineCase):
 
     def testPermission(self):

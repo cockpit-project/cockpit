@@ -49,7 +49,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 </head>
 
-<body ng-app='registry' ng-controller="MainCtrl" hidden>
+<body ng-app='registry' ng-controller="MainCtrl" ng-class="{'cards-pf': viewActive(null)}" hidden>
     <div ng-cloak ng-if="!curtains">
         <div class="icon-sidebar">
             <div>

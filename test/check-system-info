@@ -62,7 +62,7 @@ class TestSystemInfo(MachineCase):
         b.click("#system_information_change_hostname button:contains('Change')")
         b.wait_popdown("system_information_change_hostname")
 
-        if "atomic" in m.image:
+        if "fedora-atomic" in m.image:
             b.wait_present('#system-ostree-version')
             b.wait_visible('#system-ostree-version')
             b.wait_text('#system-ostree-version-link', "cockpit-base.1")
@@ -89,7 +89,7 @@ class TestSystemInfo(MachineCase):
         b = self.browser
 
         network_time_prefix = "Network time on"
-        if m.image in {"fedora-22", "rhel-7"}:
+        if m.image in {"fedora-22", "rhel-7", "rhel-atomic"}:
             network_time_prefix = "NTP enabled"
 
         # make sure system is on expected timezone EEST
@@ -145,6 +145,7 @@ class TestSystemInfo(MachineCase):
         self.assertIn("EEST 2018\n", m.execute("LC_ALL=C date"))
 
     @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "No NTP servers config on rhel-7.")
+    @unittest.skipIf("rhel-atomic" == os.environ.get("TEST_OS", ""), "No NTP servers config on rhel-atomic.")
     def testTimeServers(self):
         m = self.machine
         b = self.browser

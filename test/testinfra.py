@@ -327,15 +327,18 @@ class GitHub(object):
         # Figure out what contexts/images we need to verify
         #
         # When context is set and except_context is True we
-        # check everything except the specific context. When
-        # it's False then the specified context is the only
-        # one we scan tasks for.
+        # check everything except contexts that start with the
+        # specified one. When it's False then the specified
+        # context is the only one we scan tasks for.
         contexts = DEFAULT_VERIFY
         if context:
-            if except_context:
-                contexts.pop(context, None)
-            else:
-                contexts = { context: contexts.get(context, [ ]) }
+            for ctx in contexts.keys():
+                if except_context:
+                    if ctx.startswith(context):
+                        contexts.pop(ctx)
+                else:
+                    if not ctx.startswith(context):
+                        contexts.pop(ctx)
 
         results = []
         master_contexts = []

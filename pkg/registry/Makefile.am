@@ -43,6 +43,7 @@ registry_MODULES = \
 	pkg/registry/scripts/dialog.js \
 	pkg/registry/scripts/listing.js \
 	pkg/registry/scripts/images.js \
+	pkg/registry/scripts/layers.js \
 	pkg/registry/scripts/dashboard.js \
 	pkg/registry/scripts/projects.js \
 	pkg/registry/scripts/main.js \

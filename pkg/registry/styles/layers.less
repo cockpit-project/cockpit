@@ -1,0 +1,34 @@
+image-layers {
+    border: 1px solid @sidebar-pf-border-color;
+    box-sizing: border-box;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+}
+
+.image-layers {
+    overflow: hidden;
+
+    .column {
+        fill-opacity: 0;
+        cursor: pointer;
+    }
+
+    .layer {
+        fill: #4d4d4d;
+    }
+
+    .selected .layer {
+        fill: @link-color;
+    }
+
+    .line {
+        stroke: @link-color;
+        stroke-width: 1px;
+        fill: transparent;
+    }
+
+    .label {
+        font-family: monospace;
+        font-weight: normal;
+    }
+}

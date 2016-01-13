@@ -28,6 +28,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     <script src="../scripts/kube-client.js"></script>
     <script src="../scripts/date.js"></script>
     <script src="../scripts/listing.js"></script>
+    <script src="../scripts/layers.js"></script>
     <script src="../scripts/images.js"></script>
 </head>
 <body>
@@ -124,7 +125,7 @@ function suite(fixtures) {
         }
     ]);
 
-    imagesTest("filter dockerImageManifest", 3, fixtures, [
+    imagesTest("filter dockerImageManifest", 5, fixtures, [
         "kubeSelect",
         "imageData",
         function(select, data) {
@@ -135,6 +136,13 @@ function suite(fixtures) {
             ok(!!manifest, "got right manifest");
 
             equal(manifest.history[0].v1Compatibility.config.Hostname, "ea7fe68f39fd", "parsed manifest and compat");
+
+            var second = select().kind("Image").dockerImageManifest();
+            strictEqual(manifests, second, "should return exactly the same");
+
+            manifests = select(null).dockerImageManifest();
+            second = select(null).dockerImageManifest();
+            strictEqual(manifests, second, "null should return exactly the same");
         }
     ]);
 

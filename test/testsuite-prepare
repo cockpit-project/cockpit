@@ -35,17 +35,6 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-IP=/sbin/ip
-
-# Prerequisites
-require_binary() {
-  bin=$1
-  if ! which "$bin" >/dev/null 2>/dev/null; then
-    echo 1>&2 "Missing tool /usr/bin/$bin"
-    exit 1
-  fi
-}
-
 # The Atomic variants can't build their own packages, so we build in
 # their non-Atomic siblings.  For example, fedora-atomic is build
 # in fedora-23
@@ -64,7 +53,6 @@ fi
     $BUILD_OS \
     ipa \
     openshift \
-    selenium \
     fedora-stock
 
 install_failed=no

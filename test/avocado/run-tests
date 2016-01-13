@@ -18,12 +18,14 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import argparse
 import json
 import os
+import sys
 
-from testlib import *
 import testvm
 
+topdir = os.path.normpath(os.path.join(os.path.dirname(__file__), "..")
 machine_test_dir = "/tmp/avocado_tests"
 
 def prepare_avocado_tests(machine):
@@ -32,7 +34,7 @@ def prepare_avocado_tests(machine):
     machine.execute(command="mkdir -p " + MachineCase.avocado_results_dir)
     machine.upload([os.path.join(machine.test_dir, "avocado")], machine_test_dir)
 
-def run_avocado(machine, avocado_tests, print_failed=True, env=[]):
+def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
     """ Execute avocado on the machine with the passed environment variables and run
         the specified tests. For example:
         run_avocado(machine,
@@ -44,8 +46,7 @@ def run_avocado(machine, avocado_tests, print_failed=True, env=[]):
     """
     cmd_parts = env + ["avocado run",
                  "--job-results-dir " + MachineCase.avocado_results_dir,
-                 ' '.join([machine_test_dir +
-                           os.sep + x for x in avocado_tests]),
+                 ' '.join([machine_test_dir + os.sep + x for x in avocado_tests]),
                  ">&2"
                  ]
 
@@ -73,3 +74,68 @@ def run_avocado(machine, avocado_tests, print_failed=True, env=[]):
         return False
 
     return True
+
+def wait_for_selenium_running(machine, host, port=4444):
+    WAIT_SELENIUM_RUNNING = """#!/bin/sh
+until curl -s --connect-timeout 1 http://%s:%d >/dev/null; do
+sleep 0.5;
+done;
+""" % (host, port)
+    with testvm.stdchannel_redirected(sys.stdout, os.devnull):
+        with Timeout(seconds=30, error_message="Timeout while waiting for selenium to start"):
+            machine.execute(script=WAIT_SELENIUM_RUNNING)
+
+def run_avocado(avocado_tests, verbose):
+    machine = testvm.VirtMachine(verbose=verbose, label="avocado")
+    selenium = testvm.VirtMachine(image="selenium", label="selenium", verbose=verbose)
+
+    try:
+        machine.start()
+        selenium.start()
+        machine.wait_boot()
+        selenium.wait_boot()
+
+        # start selenium on the server
+        selenium.upload(["./guest/selenium_start.sh"], "/root")
+        selenium.execute(command="/root/selenium_start.sh")
+
+        machine.execute("adduser test")
+        machine.execute("echo superhardpasswordtest5554 | passwd --stdin test")
+        machine.execute("usermod -a -G wheel test")
+
+        wait_for_selenium_running(machine, selenium.address)
+        prepare_avocado_tests(machine)
+
+        # Now actually run the tests
+        env = [ "HUB=" + self.selenium.address, "GUEST=" + self.machine.address ]
+        return avocadolib.run_avocado(machine, avocado_tests, env=env):
+
+    finally:
+        machine.kill()
+        selenium.kill()
+
+def main():
+    parser = argparse.ArgumentParser(description='Run Cockpit Avocado test(s)')
+    parser.add_argument('-v', '--verbose', dest="verbosity", action='store_true',
+                        help='Verbose output')
+    parser.add_argument('--install', dest='install', action='store_true',
+                        help='Build and install Cockpit into test VMs')
+    parser.add_argument('tests', nargs='*')
+
+    # TODO: One test for Firefox, another for Chrome
+    parser.set_defaults(tests=[ "checklogin-basic.py", "checklogin-raw.py", "selenium-login.py" ])
+
+    opts = parser.parse_args()
+    if opts.install:
+        sys.stderr.write("Building and installing Cockpit ...\n")
+        subprocess.check_call([ os.path.join(topdir, "vm-download"), testinfa.DEFAULT_IMAGE, "selenium" ]
+        subprocess.check_call([ os.path.join(topdir, "vm-reset") ]
+        subprocess.check_call([ os.path.join(topdir, "vm-install") ]
+
+    if run_avocado(opts.tests, opts.verbose):
+        return 0
+    else:
+        return 1
+
+if __name__ == '__main__':
+    sys.exit(main())

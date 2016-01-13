@@ -20,9 +20,8 @@
 define([
     "jquery",
     "base1/angular",
-    "kubernetes/d3",
     "kubernetes/topology-graph"
-], function($, angular, d3) {
+], function($, angular) {
     "use strict";
 
     var icons = {

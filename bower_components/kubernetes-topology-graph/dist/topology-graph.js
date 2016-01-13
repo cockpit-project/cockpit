@@ -19,7 +19,7 @@
 
 (function(root, factory) {
     if (typeof(define) === 'function' && define.amd)
-        define(["base1/angular", "./d3" ], factory);
+        define(["angular", "d3" ], factory);
     else
         factory(root.angular, root.d3);
 }(this, function(angular, d3) {

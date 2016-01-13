@@ -2089,7 +2089,7 @@ var requirejs, require, define;
         baseUrl: "../",
         waitSeconds: 30,
         paths: {
-            "jquery": "base1/jquery"
+            "jquery": "base1/jquery",
         }
     });
 })(require);

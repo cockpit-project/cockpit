@@ -21,7 +21,7 @@ define([
     "jquery",
     "base1/cockpit",
     "base1/angular",
-    "kubernetes/d3",
+    "base1/d3",
     "kubernetes/client",
 ], function($, cockpit, angular, d3, client) {
     "use strict";

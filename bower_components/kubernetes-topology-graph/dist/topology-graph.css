@@ -35,12 +35,12 @@ kubernetes-topology-graph {
 }
 
 .kube-topology g.ReplicationController text {
-    font-family: FontAwesome;
     fill: #9467bd;
+    font-size: 24px;
 }
 
 .kube-topology g circle {
-    stroke: #bbb;
+    stroke: #aaa;
     fill: #fff;
 }
 
@@ -54,13 +54,13 @@ kubernetes-topology-graph {
 }
 
 .kube-topology line {
-    stroke: #bbb;
+    stroke: #aaa;
     stroke-width: 1;
 }
 
 .kube-topology line.ReplicationControllerPod {
     stroke-linecap: round;
-    stroke-dasharray: 1, 2;
+    stroke-dasharray: 5, 2;
 }
 
 kubernetes-topology-icon {

@@ -7,6 +7,7 @@ base_GEN = \
 nodist_base_DATA = \
 	pkg/base1/angular.min.js.gz \
 	pkg/base1/cockpit.min.css.gz \
+	pkg/base1/d3.min.js.gz \
 	pkg/base1/po.js.gz \
 	pkg/base1/require.min.js.gz \
 	pkg/base1/term.min.js.gz \
@@ -31,6 +32,7 @@ basedebug_DATA = \
 	pkg/base1/bootstrap-combobox.js \
 	pkg/base1/bundle.js \
 	pkg/base1/cockpit.css \
+	pkg/base1/d3.js \
 	pkg/base1/patternfly.css \
 	pkg/base1/patternfly-additions.css \
 	pkg/base1/po.js \
@@ -61,6 +63,8 @@ pkg/base1/bootstrap-select.min.js: pkg/base1/bootstrap-select.js
 	$(MIN_JS_RULE)
 pkg/base1/bundle.min.js: $(base_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
+pkg/base1/d3.min.js: pkg/base1/d3.js
+	$(MIN_JS_RULE)
 pkg/base1/jquery.min.js: pkg/base1/jquery.js
 	$(MIN_JS_RULE)
 pkg/base1/moment.min.js: pkg/base1/moment.js
@@ -117,6 +121,7 @@ CLEANFILES += \
 	pkg/base1/bundle.min.js \
 	pkg/base1/cockpit.min.js \
 	pkg/base1/cockpit.min.css \
+	pkg/base1/d3.min.js \
 	pkg/base1/jquery.min.js \
 	pkg/base1/patterns.min.js \
 	pkg/base1/moment.min.js \
@@ -135,6 +140,7 @@ EXTRA_DIST += \
 	pkg/base1/bootstrap-combobox.min.js \
 	pkg/base1/bundle.min.js \
 	pkg/base1/cockpit.min.css \
+	pkg/base1/d3.min.js \
 	pkg/base1/jquery.min.js \
 	pkg/base1/require.min.js \
 	pkg/base1/mustache.min.js \

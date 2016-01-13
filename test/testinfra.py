@@ -339,11 +339,18 @@ class GitHub(object):
         results = []
         master_contexts = []
         pull_contexts = []
+        verify_contexts = []
+        image_contexts = []
         for (context, what) in contexts.items():
+            (prefix, unused1, unused2) = context.partition("/")
             if "master" in what:
                 master_contexts.append(context)
             if "pulls" in what:
                 pull_contexts.append(context)
+            if prefix == "verify":
+                verify_contexts.append(context)
+            if prefix == "image":
+                image_contexts.append(context)
 
         def update_status(revision, context, last, changes):
             if update and changes and not dict_is_subset(last, changes):
@@ -371,13 +378,27 @@ class GitHub(object):
             statuses = self.statuses(revision)
             login = pull["head"]["user"]["login"]
 
+            has_image_context = False
+            for context in image_contexts:
+                if statuses.get(context, None):
+                    has_image_context = True
+                    break
+
             for context in contexts.keys():
                 status = statuses.get(context, None)
                 baseline = 10
 
-                # Only create new status for those requested
+                # Auto-create a task, but only for verification of
+                # pull requests that are not for creating a new image.
+                # Verification of image creation pull requests will be
+                # explicitly triggered.
+
                 if not status:
+                    if context not in verify_contexts:
+                        continue
                     if context not in pull_contexts:
+                        continue
+                    if has_image_context:
                         continue
                     status = { }
 

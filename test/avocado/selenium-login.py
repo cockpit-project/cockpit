@@ -46,6 +46,7 @@ import libdisc
 
 user = "test"
 passwd = "superhardpasswordtest5554"
+javascript_clicks=True
 
 present = EC.presence_of_element_located
 visible = EC.visibility_of_element_located
@@ -91,6 +92,12 @@ class BasicTestSuite(Test):
             self.driver.quit()
         except:
             raise Exception('ERR: Unable to close WEBdriver')
+
+    def click(self,element):
+        if javascript_clicks:
+            self.driver.execute_script("arguments[0].click();", element)
+        else:
+            element.click()
 
     def wait(self, method, text, baseelement, overridetry, fatal, cond):
         if not baseelement:
@@ -167,14 +174,14 @@ class BasicTestSuite(Test):
         elem = self.wait_id('login-password-input')
         elem.clear()
         elem.send_keys(tmppasswd)
-        self.wait_id("login-button").click()
+        self.click(self.wait_id("login-button", cond=clickable))
         return elem
 
     def logout(self):
-        elem = self.wait_id('navbar-dropdown')
-        elem.click()
-        elem = self.wait_id('go-logout')
-        elem.click()
+        elem = self.wait_id('navbar-dropdown', cond=clickable)
+        self.click(elem)
+        elem = self.wait_id('go-logout', cond=clickable)
+        self.click(elem)
 
     def test10Base(self):
         elem = self.wait_id('server-name')
@@ -203,19 +210,21 @@ class BasicTestSuite(Test):
     def test30ChangeTabServices(self):
         self.login()
         self.wait_id("sidebar")
-        self.wait_link('Services').click()
+        self.click(self.wait_link('Services', cond=clickable))
         self.wait_frame("services")
-
-        elem = self.wait_text("Socket")
-        elem.click()
+        self.wait_id("services-list-enabled")
+        elem = self.wait_text("Socket", cond=clickable)
+        self.click(elem)
         self.wait_text("udev")
-
-        elem = self.wait_text("Target")
-        elem.click()
+        self.wait_id("services-list-enabled")
+        elem = self.wait_text("Target", cond=clickable)
+        self.click(elem)
+        self.wait_id("services-list-enabled")
         self.wait_text("reboot.target")
-
-        elem = self.wait_text("System Services")
-        elem.click()
+        
+        elem = self.wait_text("System Services", cond=clickable)
+        self.click(elem)
+        self.wait_id("services-list-enabled")
         self.wait_text("dbus.service")
 
         self.mainframe()
@@ -224,13 +233,13 @@ class BasicTestSuite(Test):
     def test40ContainerTab(self):
         self.login()
         self.wait_id("sidebar")
-        self.wait_link('Containers').click()
+        self.click(self.wait_link('Containers', cond=clickable))
         self.wait_frame("docker")
         if self.wait_xpath("//*[@data-action='docker-start']", fatal=False, overridetry=5, cond=clickable):
-            self.wait_xpath("//*[@data-action='docker-start']").click()
+            self.click(self.wait_xpath("//*[@data-action='docker-start']",cond=clickable))
         elem = self.wait_id('containers')
         self.wait_id('containers-storage')
-        self.wait_id('containers-images-search').click()
+        self.click(self.wait_id('containers-images-search', cond=clickable))
         elem = self.wait_id('containers-search-image-dialog')
         elem = self.wait_id('containers-search-image-search')
         elem.clear()
@@ -239,19 +248,19 @@ class BasicTestSuite(Test):
         elem = self.wait_text("Official Docker", element="td")
         elem = self.wait_xpath(
             "//div[@id='containers-search-image-dialog']//button[contains(text(), '%s')]" % "Cancel",cond=clickable)
-        elem.click()
+        self.click(elem)
         elem = self.wait_id('containers-search-image-dialog',cond=invisible)
 
-        self.wait_id('containers-images-search',cond=clickable).click()
+        self.click(self.wait_id('containers-images-search',cond=clickable))
         elem = self.wait_id('containers-search-image-dialog')
         elem = self.wait_id('containers-search-image-search')
         elem.clear()
         elem.send_keys("cockpit")
         elem = self.wait_id('containers-search-image-results')
         elem = self.wait_text("Cockpit Web Ser", element="td", cond=clickable)
-        elem.click()
+        self.click(elem)
         elem = self.wait_id('containers-search-download', cond=clickable)
-        elem.click()
+        self.click(elem)
         elem = self.wait_id('containers-search-image-dialog', cond=invisible)
         elem = self.wait_text('cockpit/ws')
 
@@ -261,24 +270,28 @@ class BasicTestSuite(Test):
     def test50ChangeTabLogs(self):
         self.login()
         self.wait_id("sidebar")
-        self.wait_link('Logs').click()
+        self.click(self.wait_link('Logs', cond=clickable))
         self.wait_frame("logs")
         self.wait_id("journal")
+        elem=self.wait_id("journal-current-day")
         self.wait_id("journal-prio")
         elem = self.wait_text('Errors', cond=clickable, element="button")
-        elem.click()
+        self.click(elem)
         self.wait_id("journal")
+        elem=self.wait_id("journal-current-day")
         elem = self.wait_text('Warnings', cond=clickable, element="button")
-        elem.click()
+        self.click(elem)
         self.wait_id("journal")
+        elem=self.wait_id("journal-current-day")
         elem = self.wait_text('Notices', cond=clickable, element="button")
-        elem.click()
+        self.click(elem)
         self.wait_id("journal")
+        elem=self.wait_id("journal-current-day")
         checkt = "ahojnotice"
         out = process.run("systemd-cat -p notice echo '%s'" %
                           checkt, shell=True)
-        elem = self.wait_text(checkt)
-        elem.click()
+        elem = self.wait_text(checkt, cond=clickable)
+        self.click(elem)
         elem = self.wait_id('journal-entry')
         self.mainframe()
         self.error=False
@@ -289,17 +302,17 @@ class BasicTestSuite(Test):
         other_shortname = os.path.basename(other_discname)
         self.login()
         self.wait_id("sidebar")
-        self.wait_link('Storage').click()
+        self.click(self.wait_link('Storage', cond=clickable))
         self.wait_frame("storage")
         self.wait_id("drives")
         elem = self.wait_xpath("//*[@data-goto-block='%s']" % other_shortname, cond=clickable)
-        elem.click()
+        self.click(elem)
         self.wait_id('storage-detail')
         self.wait_text(other_discname, element="td")
         self.wait_text("Capacity", element="td")
         self.wait_text("1000 MB", element="td")
 
-        self.wait_link('Storage').click()
+        self.click(self.wait_link('Storage', cond=clickable))
         elem = self.wait_xpath("//*[@data-goto-block='%s']" % other_shortname)
 
         self.mainframe()
@@ -310,14 +323,14 @@ class BasicTestSuite(Test):
         self.wait_id("sidebar")
         out = process.run(
             "ip r |grep default | head -1 | cut -d ' ' -f 5", shell=True)
-        self.wait_link('Network').click()
+        self.click(self.wait_link('Network', cond=clickable))
         self.wait_frame("network")
 
         self.wait_id("networking-interfaces")
         self.wait_id("networking-tx-graph")
 
         elem = self.wait_xpath("//tr[@data-interface='%s']" % out.stdout[:-1],cond=clickable)
-        elem.click()
+        self.click(elem)
         self.wait_text("Carrier", element="td")
         self.mainframe()
         self.error=False
@@ -326,17 +339,17 @@ class BasicTestSuite(Test):
         self.login()
         self.wait_id("sidebar")
         self.wait_id("tools-panel",cond=invisible)
-        self.wait_link('Tools').click()
+        self.click(self.wait_link('Tools', cond=clickable))
         self.wait_id("tools-panel")
-        self.wait_link('Accounts').click()
+        self.click(self.wait_link('Accounts', cond=clickable))
         self.wait_frame("users")
         elem = self.wait_xpath(
             "//*[@class='cockpit-account-user-name' and contains(text(), '%s')]" % user, cond=clickable)
-        elem.click()
+        self.click(elem)
         elem = self.wait_id('account')
         self.wait_text("Full Name")
-        self.wait_link('Accounts', elem).click()
-        self.wait_id("accounts-create", cond=clickable).click()
+        self.click(self.wait_link('Accounts', elem, cond=clickable))
+        self.click(self.wait_id("accounts-create", cond=clickable))
         self.wait_id("accounts-create-dialog")
         self.wait_id('accounts-create-create', cond=clickable)
         elem = self.wait_id('accounts-create-real-name')
@@ -349,18 +362,18 @@ class BasicTestSuite(Test):
         elem.clear()
         elem.send_keys(passwd)
         self.wait_xpath("//span[@id='accounts-create-password-meter-message' and contains(text(), '%s')]" % "Excellent")
-        self.wait_id('accounts-create-create', cond=clickable).click()
+        self.click(self.wait_id('accounts-create-create', cond=clickable))
         elem = self.wait_xpath(
             "//*[@class='cockpit-account-user-name' and contains(text(), '%s')]" % 'testxx', cond=clickable)
-        elem.click()
-        self.wait_id('account-delete', cond=clickable).click()
+        self.click(elem)
+        self.click(self.wait_id('account-delete', cond=clickable))
         self.wait_id('account-confirm-delete-dialog')
-        self.wait_id('account-confirm-delete-apply', cond=clickable).click()
+        self.click(self.wait_id('account-confirm-delete-apply', cond=clickable))
         self.wait_xpath(
             "//*[@class='cockpit-account-user-name' and contains(text(), '%s')]" % user, cond=clickable)
         self.mainframe()
 
-        self.wait_link('Terminal').click()
+        self.click(self.wait_link('Terminal', cond=clickable))
         self.wait_frame("terminal")
         self.wait_id('terminal')
         elem = self.wait_xpath("//*[@class='terminal']")

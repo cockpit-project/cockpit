@@ -366,9 +366,13 @@
             var batch = null;
             var batchTimeout = null;
 
-            function createWatch(what) {
-                var path = resourcePath([what, null, onlyNamespace]);
-                return new KubeWatch(path, handleFrames);
+            function ensureWatch(what, namespace) {
+                var path = resourcePath([what, null, namespace || onlyNamespace]);
+                if (!(path in watches)) {
+                    watches[path] = new KubeWatch(path, handleFrames);
+                    watches[path].arguments = [what, namespace];
+                }
+                return watches[path];
             }
 
             function handleFrames(frames) {
@@ -436,33 +440,36 @@
             }
 
             function resetLoader(total) {
-                var link, what;
+                var link, path;
 
                 /* We drop any batched objects in flight */
                 window.clearTimeout(batchTimeout);
                 batchTimeout = null;
                 batch = null;
 
+                /* Cancel all the watches  */
+                angular.forEach(watches, function(watch) {
+                    watch.cancel();
+                });
+
                 /* Clear out everything */
                 for (link in objects)
                     delete objects[link];
 
-                /* Create all the watches again */
-                for (what in watches) {
-                    if (watches[what])
-                        watches[what].cancel();
-                    watches[what] = null;
-                }
+                var old = watches;
+                watches = { };
+
+                if (total)
+                    onlyNamespace = null;
 
                 /* Tell the callbacks we're resetting */
                 invokeCallbacks();
 
-                if (total) {
-                    watches = { };
-                    onlyNamespace = null;
-                } else {
-                    for (what in watches)
-                        watches[what] = createWatch(what);
+                /* Recreate all the watches as necessary */
+                if (!total) {
+                    angular.forEach(old, function(watch) {
+                        ensureWatch.apply(this, watch.arguments);
+                    });
                 }
             }
 
@@ -504,11 +511,7 @@
             }
 
             var self = {
-                watch: function watch(what) {
-                    if (!(what in watches))
-                        watches[what] = createWatch(what);
-                    return watches[what];
-                },
+                watch: ensureWatch,
                 load: function load(/* ... */) {
                     return loadObjects.apply(this, arguments);
                 },
@@ -527,9 +530,15 @@
                         callbacks.unshift(callback);
                     else
                         callbacks.push(callback);
+                    var timeout = window.setTimeout(function() {
+                        callback.call(self, objects);
+                        timeout = null;
+                    }, 0);
                     return {
                         cancel: function() {
                             var i, len;
+                            window.clearTimeout(timeout);
+                            timeout = null;
                             for (i = 0, len = callbacks.length; i < len; i++) {
                                 if (callbacks[i] === callback)
                                     callbacks[i] = null;

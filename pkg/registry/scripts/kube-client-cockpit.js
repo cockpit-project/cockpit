@@ -271,7 +271,7 @@
 
                         object = frame.object;
                         if (!object) {
-                            console.warn("invalid watch without object");
+                            console.warn("invalid watch without object", frame);
                             continue;
                         }
 

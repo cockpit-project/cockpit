@@ -20,10 +20,10 @@
 (function() {
     "use strict";
 
-    function in_class_or_tag(el, cls, tag) {
+    function inClassOrTag(el, cls, tag) {
         return (el && el.classList && el.classList.contains(cls)) ||
                (el && el.tagName === tag) ||
-               (el && in_class_or_tag(el.parentNode, cls, tag));
+               (el && inClassOrTag(el.parentNode, cls, tag));
     }
 
     angular.module('registry')
@@ -33,44 +33,68 @@
             return {
                 restrict: 'A',
                 link: function(scope, element, attrs) {
-                    var selection = { };
-
-                    /* Only view selected items? */
-                    scope.only = false;
-
-                    scope.selection = selection;
-
-                    scope.selected = function selected(id) {
-                        if (angular.isUndefined(id)) {
-                            for (id in selection)
-                                return true;
-                            return false;
-                        } else {
-                            return id in selection;
-                        }
-                    };
-
-                    scope.select = function select(id, ev) {
-                        var value;
-
-                        /* Check that either .btn or li were not clicked */
-                        if (ev && in_class_or_tag(ev.target, "btn", "li"))
-                            return;
-
-                        if (!id) {
-                            Object.keys(selection).forEach(function(old) {
-                                delete selection[old];
-                            });
-                            scope.only = false;
-                        } else {
-                            value = !(id in selection);
-                            if (value)
-                                selection[id] = true;
-                            else
-                                delete selection[id];
-                        }
-                    };
                 }
+            };
+        }
+    ])
+
+    .factory('ListingState', [
+        function() {
+            return function ListingState(scope) {
+                var self = this;
+                var data = { };
+
+                /* Check that either .btn or li were not clicked */
+                function checkBrowserEvent(ev) {
+                    return !(ev && inClassOrTag(ev.target, "btn", "li"));
+                }
+
+                self.only = false;
+
+                self.expanded = function expanded(id) {
+                    if (angular.isUndefined(id)) {
+                        for (id in data)
+                            return true;
+                        return false;
+                    } else {
+                        return id in data;
+                    }
+                };
+
+                self.toggle = function toggle(id, ev) {
+                    var value;
+                    if (id) {
+                        value = !(id in data);
+                        if (value)
+                            self.expand(id, ev);
+                        else
+                            self.collapse(id, ev);
+                    }
+                };
+
+                self.expand = function expand(id, ev) {
+                    var emitted;
+                    if (checkBrowserEvent(ev)) {
+                        emitted = scope.$emit("activate", id);
+                        if (!emitted.defaultPrevented) {
+                            data[id] = true;
+                        }
+                    }
+                };
+
+                self.collapse = function collapse(id, ev) {
+                    if (checkBrowserEvent(ev)) {
+                        if (id) {
+                            delete data[id];
+                        } else {
+                            Object.keys(data).forEach(function(old) {
+                                delete data[old];
+                            });
+                            self.only = false;
+                        }
+                    }
+                };
+
             };
         }
     ])

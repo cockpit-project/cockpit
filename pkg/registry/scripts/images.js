@@ -46,27 +46,145 @@
                 .when('/images/:namespace?', {
                     templateUrl: 'views/images-page.html',
                     controller: 'ImagesCtrl'
+                })
+                .when('/images/:namespace/:target', {
+                    controller: 'ImageCtrl',
+                    templateUrl: function(params) {
+                        var target = params['target'] || '';
+                        if (target.indexOf(':') === -1)
+                            return 'views/imagestream-page.html';
+                        else
+                            return 'views/image-page.html';
+                    }
                 });
         }
     ])
 
     .controller('ImagesCtrl', [
         '$scope',
+        '$location',
         'imageLoader',
         'imageSelect',
-        function($scope, loader, select) {
+        'ListingState',
+        'filterService',
+        function($scope, $location, loader, select, ListingState) {
             loader.watch();
 
             $scope.images = function(tag) {
-                var result = select().kind("Image").taggedBy(tag);
-                return result;
+                return select().kind("Image").taggedBy(tag);
             };
 
             $scope.imagestreams = function() {
-                return select().kind("ImageStream");
+                var result = select().kind("ImageStream");
+                var namespace = loader.namespace();
+                if (namespace)
+                    result = result.namespace(namespace);
+                return result;
             };
+
+            $scope.listing = new ListingState($scope);
+
+            $scope.$on("activate", function(ev, id) {
+                if (!$scope.listing.expandable) {
+                    ev.preventDefault();
+                    $location.path('/images/' + id);
+                }
+            });
         }
     ])
+
+    /*
+     * Note that we use the same controller for both the ImageStream
+     * and the Image view. This is because ngRoute can't special case
+     * routes based on the colon we use to differentiate the two in
+     * the path.
+     *
+     * ie: cockpit/ws vs. cockpit/ws:latest
+     *
+     * The |kind| on the scope tells us which is which.
+     */
+    .controller('ImageCtrl', [
+        '$scope',
+        '$routeParams',
+        'imageLoader',
+        'imageSelect',
+        function($scope, $routeParams, loader, select) {
+            var target = $routeParams["target"] || "";
+            var pos = target.indexOf(":");
+
+            /* colon contains a tag name, only set if we're looking at an image */
+            var namespace = $routeParams["namespace"] || "";
+            var name, tagname;
+            if (pos === -1) {
+                $scope.kind = "ImageStream";
+                name = target;
+                tagname = null;
+            } else {
+                $scope.kind = "Image";
+                name = target.substr(0, pos);
+                tagname = target.substr(pos + 1);
+            }
+
+            loader.watch();
+            loader.listen(function() {
+                $scope.imagestream = select().kind("ImageStream").namespace(namespace).name(name).one();
+                $scope.image = $scope.tag = null;
+
+                imagestreamEachTagItem($scope.imagestream || {}, function(tag, item) {
+                    if (tag.tag === tagname)
+                        $scope.tag = tag;
+                });
+
+                if ($scope.tag)
+                    $scope.image = select().kind("Image").taggedBy($scope.tag).one();
+            });
+        }
+    ])
+
+    .directive('imageBody',
+        function() {
+            return {
+                restrict: 'A',
+                templateUrl: 'views/image-body.html'
+            };
+        }
+    )
+
+    .directive('imageConfig',
+        function() {
+            return {
+                restrict: 'A',
+                templateUrl: 'views/image-config.html'
+            };
+        }
+    )
+
+    .directive('imageMeta',
+        function() {
+            return {
+                restrict: 'A',
+                templateUrl: 'views/image-meta.html'
+            };
+        }
+    )
+
+    .directive('imagestreamBody',
+        function() {
+            return {
+                restrict: 'A',
+                templateUrl: 'views/imagestream-body.html'
+            };
+        }
+    )
+
+    .directive('imagestreamMeta',
+        function() {
+            return {
+                restrict: 'A',
+                templateUrl: 'views/imagestream-meta.html'
+            };
+        }
+    )
 
     .factory("imageSelect", [
         'kubeSelect',
@@ -192,6 +310,8 @@
                 load: function(imagestream) {
                     handle_imagestream(imagestream);
                 },
+                listen: loader.listen,
+                namespace: loader.namespace,
             };
         }
     ]);

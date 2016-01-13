@@ -327,7 +327,7 @@ define([
 
                 object = action.object;
                 if (!object) {
-                    console.warn("invalid watch without object");
+                    console.warn("invalid watch without object", action);
                     continue;
                 }
 

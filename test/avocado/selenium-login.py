@@ -231,7 +231,7 @@ parameters:
         self.wait_frame("docker")
         if self.wait_xpath("//*[@data-action='docker-start']", fatal=False, overridetry=5, cond=clickable):
             self.click(self.wait_xpath("//*[@data-action='docker-start']",cond=clickable))
-        elem = self.wait_id('containers')
+        self.wait_id('containers')
         self.wait_id('containers-storage')
         self.click(self.wait_id('containers-images-search', cond=clickable))
         self.wait_id('containers-search-image-dialog')

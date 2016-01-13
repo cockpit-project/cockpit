@@ -1,6 +1,6 @@
 <div>
-    <!-- TODO: Fill in the layers graph here -->
-    <pre>Layers TODO</pre>
+    <image-layers layers="imageLayers(image)">
+    </image-layers>
     <dl>
         <dt ng-if="config.Labels" translatable="yes">Labels</dt>
         <dd ng-repeat="(name, value) in config.Labels"><tt>{{name}}={{value}}</tt></dd>

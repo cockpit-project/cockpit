@@ -39,6 +39,7 @@
         'kubeClient',
         'registry.date',
         'registry.listing',
+        'registry.layers',
     ])
 
     .config([
@@ -326,6 +327,7 @@
             /* Load images, but fallback to loading individually */
             var watching = null;
             function watchImages() {
+                loader.watch("images");
                 if (!watching)
                     watching = loader.watch("imagestreams");
                 return watching;
@@ -403,9 +405,11 @@
             }
 
             function imageLayers(image) {
-                var manifest = select({ 1: image }).dockerImageManifest().one() || { };
-                if (manifest.schemaVersion !== 1)
-                    return [];
+                if (!image)
+                    return null;
+                var manifest = select(image).dockerImageManifest().one();
+                if (!manifest || manifest.schemaVersion !== 1)
+                    return null;
                 return manifest.history;
             }
 

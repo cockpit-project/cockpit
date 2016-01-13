@@ -1,0 +1,51 @@
+<!doctype html>
+<html class="no-js">
+<head>
+    <meta charset="utf-8">
+    <title>Image Layers Example</title>
+    <meta name="viewport" content="width=device-width">
+    <script src="../../base1/angular.js"></script>
+    <script src="../../base1/d3.js"></script>
+    <script src="../scripts/layers.js"></script>
+    <style>
+        .image-layers {
+            font-family: monospace;
+        }
+        .image-layers .column {
+            fill-opacity: 0;
+            cursor: pointer;
+        }
+        .image-layers .layer {
+            fill: #4d4d4d;
+        }
+        .image-layers .selected .layer {
+            fill: #0099d3;
+        }
+        .image-layers .line {
+            stroke: #0099d3;
+            stroke-width: 1px;
+            fill: transparent;
+        }
+    </style>
+</head>
+<body ng-app="exampleApp" style="background-color: #eee;">
+    <image-layers layers="data.layers">
+    </image-layers>
+
+    <script type="text/javascript">
+        var datasets = [];
+
+        function sink(data) {
+            datasets.push(data);
+        }
+        angular.module('exampleApp', ['registry.layers'])
+	    .run(function($rootScope) {
+                $rootScope.data = { };
+                $rootScope.data.layers = datasets[0];
+            });
+    </script>
+
+    <!-- JSONP data sets to load -->
+    <script src="frob-layers-v1compatibility.jsonp"></script>
+</body>
+</html>

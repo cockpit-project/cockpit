@@ -32,6 +32,7 @@
 #include <unistd.h>
 
 static GLogFunc old_handler;
+static gboolean have_journal = FALSE;
 
 void
 cockpit_null_log_handler (const gchar *log_domain,
@@ -52,6 +53,9 @@ cockpit_journal_log_handler (const gchar *log_domain,
   int priority;
   const gchar *domains;
 
+  /* In case we have generate our own log lines */
+  const gchar *prefix;
+
   /*
    * Note: we should not call GLib fucntions here.
    *
@@ -67,6 +71,7 @@ cockpit_journal_log_handler (const gchar *log_domain,
      */
     case G_LOG_LEVEL_ERROR:
       priority = LOG_CRIT;
+      prefix = "ERROR";
       break;
 
     /*
@@ -76,6 +81,7 @@ cockpit_journal_log_handler (const gchar *log_domain,
      */
     case G_LOG_LEVEL_CRITICAL:
       priority = LOG_CRIT;
+      prefix = "CRITICAL";
       break;
 
     /*
@@ -85,6 +91,7 @@ cockpit_journal_log_handler (const gchar *log_domain,
      */
     case G_LOG_LEVEL_WARNING:
       priority = LOG_ERR;
+      prefix = "WARNING";
       break;
 
     /*
@@ -94,11 +101,13 @@ cockpit_journal_log_handler (const gchar *log_domain,
     case G_LOG_LEVEL_MESSAGE:
     default:
       priority = LOG_WARNING;
+      prefix = "MESSAGE";
       break;
 
     /* Informational messages, startup, shutdown etc. */
     case G_LOG_LEVEL_INFO:
       priority = LOG_INFO;
+      prefix = "INFO";
       break;
 
     /* Debug messages. */
@@ -111,15 +120,26 @@ cockpit_journal_log_handler (const gchar *log_domain,
         }
 
       priority = LOG_INFO;
+      prefix = "DEBUG";
       break;
     }
 
   if (to_journal)
     {
-      sd_journal_send ("MESSAGE=%s", message,
-                       "PRIORITY=%d", (int)priority,
-                       "COCKPIT_DOMAIN=%s", log_domain ? log_domain : "",
-                       NULL);
+      if (have_journal)
+        {
+          sd_journal_send ("MESSAGE=%s", message,
+                           "PRIORITY=%d", (int)priority,
+                           "COCKPIT_DOMAIN=%s", log_domain ? log_domain : "",
+                           NULL);
+        }
+      else if (old_handler == NULL)
+        {
+            g_printerr ("%s: %s: %s\n",
+                        prefix,
+                        log_domain ? log_domain : "Unknown",
+                        message);
+        }
     }
 
   /* After journal, since this may have side effects */
@@ -134,6 +154,13 @@ cockpit_set_journal_logging (const gchar *stderr_domain,
   int fd;
 
   old_handler = g_log_set_default_handler (cockpit_journal_log_handler, NULL);
+
+  /* SELinux won't let us always open the sd_journal_stream_fd
+   * so just check that the main journal socket exists
+   */
+  have_journal = g_file_test ("/run/systemd/journal/socket", G_FILE_TEST_EXISTS);
+  if (only)
+    old_handler = NULL;
 
   if (only && stderr_domain)
     {
@@ -154,7 +181,4 @@ cockpit_set_journal_logging (const gchar *stderr_domain,
             }
         }
     }
-
-  if (only)
-    old_handler = NULL;
 }

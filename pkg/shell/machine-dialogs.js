@@ -23,6 +23,7 @@ define([
     "base1/mustache",
     "shell/machines",
     "shell/credentials",
+    "manifests",
     "data!shell/templates/add-machine.html",
     "data!shell/templates/auth-failed.html",
     "data!shell/templates/change-auth.html",
@@ -35,7 +36,7 @@ define([
     'translated!base1/po',
     "base1/patterns",
     "base1/bootstrap-select",
-], function($, cockpit, mustache, machines, credentials,
+], function($, cockpit, mustache, machines, credentials, local_manifests,
             add_tmpl, auth_failed_tmpl, change_auth_tmpl,
             change_port_tmpl, color_picker_tmpl, invalid_hostkey_tmpl,
             not_supported_tmpl, sync_users_tmpl, unknown_hosts_tmpl, po) {
@@ -424,18 +425,10 @@ define([
         }
 
         self.load = function() {
-            var limit_el = $(".machine-limit");
-            if (!limit_el.length) {
-                try {
-                    var doc = window.parent.document;
-                    limit_el = $('.machine-limit', doc);
-                } catch (ex) {}
-            }
-
-            var limit = parseInt(limit_el.text(), 10);
-            if (isNaN(limit)) {
+            var manifest = local_manifests["shell"] || {};
+            var limit = parseInt(manifest["machine-limit"], 10);
+            if (!limit || isNaN(limit))
                 limit = 20;
-            }
 
             dialog.render({
                 'nearlimit' : limit * 0.75 <= machines_ins.list.length,

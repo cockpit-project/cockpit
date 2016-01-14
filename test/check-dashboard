@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import json
 from testlib import *
 
 class TestDashboard(MachineCase):
@@ -300,6 +301,55 @@ class TestDashboard(MachineCase):
 
         m2.execute("ps aux | grep cockpit-bridge | grep admin")
         self.allow_hostkey_messages()
+
+
+    def testLimits(self):
+        b = self.browser
+        m = self.machine
+
+        def fake_machines(amount):
+            # build a machine json manually
+            d = {
+                "localhost" : {"visible":True,"address":"localhost"}
+            }
+
+            for i in range(amount):
+                n = "bad{0}".format(i)
+                d[n] = {"visible":True,"address":n}
+
+            m.execute("echo '{0}' > /var/lib/cockpit/machines.json".format(json.dumps(d)))
+            return d.keys()
+
+        def check_limit(limit):
+            b.click('#dashboard-add')
+            b.wait_popup('dashboard_setup_server_dialog')
+            if limit:
+                b.wait_visible("#dashboard_setup_server_dialog .dashboard-machine-warning")
+                b.wait_in_text("#dashboard_setup_server_dialog .dashboard-machine-warning",
+                               "{0} machines".format(limit))
+            else:
+                b.wait_not_present("#dashboard_setup_server_dialog .dashboard-machine-warning")
+
+            b.click("#dashboard_setup_server_dialog .btn-default")
+
+        self.login_and_go("/dashboard")
+        self.inject_extras(b)
+
+        self.wait_dashboard_addresses (b, [ "localhost" ])
+        check_limit(0)
+
+        self.wait_dashboard_addresses (b, fake_machines(3))
+        if 'rhel' in m.image:
+            check_limit(5)
+        else:
+            check_limit(0)
+
+        self.wait_dashboard_addresses (b, fake_machines(14))
+        if 'rhel' in m.image:
+            check_limit(5)
+        else:
+            check_limit(20)
+        self.allow_journal_messages(".*couldn't connect: Failed to resolve hostname bad.*")
 
 if __name__ == '__main__':
     test_main()

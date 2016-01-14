@@ -1,0 +1,15 @@
+[WebService]
+Shell = /simple-shell/index.html
+
+[Basic]
+Action = spawn-login-with-decoded
+Command = {{.login_command}}
+
+{{if .oauth_url }}
+[Bearer]
+Action = spawn-login-with-header
+Command = {{.login_command}}
+
+[OAuth]
+Url = {{.oauth_url}}
+{{end}}

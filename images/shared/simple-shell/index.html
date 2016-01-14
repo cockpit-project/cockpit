@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cockpit</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../base1/cockpit.css" rel="stylesheet">
+    <link href="../../static/branding.css" rel="stylesheet">
+    <link href="../shell/shell.css" rel="stylesheet">
+    <script src="../base1/require.js"></script>
+    <script src="../base1/bundle.js"></script>
+    <script src="../shell/bundle.js"></script>
+  </head>
+  <body style="overflow: hidden;" hidden>
+    <nav id="topnav" class="navbar navbar-default navbar-pf" role="navigation">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
+          <i class="fa fa-bars" alt="Toggle navigation"></i>
+        </button>
+        <div class="navbar-brand">
+          <div id="index-brand"></div>
+        </div>
+      </div>
+      <div class="collapse navbar-collapse navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-utility">
+          <li id="navbar-oops" style="display: none;">
+            <a><span class="oops-status" translatable="yes">Ooops!</span></a>
+          </li>
+          <li class="dropdown">
+            <a id="navbar-dropdown" class="dropdown-toggle" data-toggle="dropdown">
+              <span class="pficon pficon-user"></span>
+              <span id="content-user-name"></span><b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="display-language-menu">
+                <a data-toggle="modal" data-target="#display-language" translatable="yes">Display Language</a>
+              </li>
+              <li class="divider display-language-menu"></li>
+              <li>
+                <a data-toggle="modal" data-target="#about" translatable="yes">About Cockpit</a>
+              </li>
+              <li class="divider"></li>
+              <li>
+                <a id="go-logout" translatable="yes">Log out</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-primary" id="content-navbar">
+          <li class="dropdown" id="machine-dropdown">
+            <a id="machine-color"></a>
+            <a id="machine-link" class="dropdown-toggle" data-toggle="dropdown"
+                aria-haspopup="true" role="button" aria-expanded="false">
+               <img src="../shell/images/server-small.png" id="machine-avatar" class="machine-avatar"><span>Machines</span>
+               <b class="caret"></b>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="modal" id="about" tabindex="-1" role="dialog" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" translatable="yes">About Cockpit</h4>
+          </div>
+          <div class="modal-body">
+            <div id="about-desciption" translatable="yes">
+              Cockpit is an interactive Linux server admin interface.
+            </div>
+            <div translatable="yes">
+              <a target="_blank" href="http://cockpit-project.org/">Project website</a>
+            </div>
+            <div>
+              <span translatable="yes">Version</span> <span id="about-version"></span>.
+            </div>
+            <div translatable="yes">
+              Licensed under the <a href="https://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html"
+                  target="_blank">GNU LGPL version 2.1</a>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" data-dismiss="modal">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="display-language" tabindex="-1" role="dialog" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" translatable="yes">Display Language</h4>
+          </div>
+          <div class="modal-body">
+	    <p translatable="yes">Choose the language to be used in the application</p>
+            <select id="display-language-list" size="5" data-role="none">
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" data-dismiss="modal" translatable="yes">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="display-language-select-button" translatable="yes">
+              Select
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="disconnected-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" translatable="yes">Disconnected</h4>
+          </div>
+          <div class="modal-body">
+            <div id="disconnected-error"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" id="disconnected-reconnect" translatable="yes">
+              Try to reconnect
+            </button>
+            <button class="btn btn-default" id="disconnected-logout" translatable="yes">
+              Log in again
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+        /* Indicates to child frames that we are a cockpit1 router frame */
+        window.name = "cockpit1";
+
+        /* The same thing as above, but compatibility with old cockpit */
+        window.options = { sink: true, protocol: "cockpit1" };
+
+        /* While the index is initializing, snag any messages we receive from frames */
+        var messages = [ ];
+        function message_queue(event) {
+            messages.push(event);
+        }
+        window.addEventListener("message", message_queue, false);
+
+        require([
+            "base1/cockpit",
+            "simple-shell/index"
+        ], function(cockpit, index) {
+            /* For debugging and such */
+            window.cockpit = cockpit;
+
+            /* Drain any initial messages we receive into the router */
+            cockpit.transport.wait(function() {
+                window.removeEventListener("message", message_queue, false);
+                index.start(messages);
+                messages = null;
+            });
+        });
+    </script>
+
+    <div class="curtains blank-slate-pf" hidden>
+    </div>
+
+    <div id="content">
+    </div>
+
+  </body>
+</html>

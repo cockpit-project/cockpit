@@ -51,6 +51,10 @@ DEFAULT_VERIFY = {
     'verify/rhel-atomic': [ 'master', 'pulls' ],
     'verify/debian-unstable': [ 'master', 'pulls' ],
     'verify/fedora-testing': [ 'master' ],
+
+    'image/fedora-23': [ 'pulls' ],
+    'image/fedora-atomic': [ 'pulls' ],
+    'image/debian-unstable': [ 'pulls' ]
 }
 
 TESTING = "Testing in progress"

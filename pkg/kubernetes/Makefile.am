@@ -116,6 +116,7 @@ EXTRA_DIST += \
 	pkg/kubernetes/index.min.html \
 	pkg/kubernetes/kubernetes.min.js \
 	pkg/kubernetes/templates.js \
+	$(kubernetes_BUNDLE) \
 	$(NULL)
 
 update-lib:: update-bower

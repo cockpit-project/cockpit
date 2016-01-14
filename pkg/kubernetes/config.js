@@ -59,7 +59,7 @@ define([
         if (parser.port)
             scheme.port = parser.port;
         if (parser.protocol == 'https:') {
-            if (!parser.port)
+            if (!parser.port || parser.port === "0")
                 scheme.port = parser.href == server ? 6443 : 443;
             else
                 scheme.port = parser.port;

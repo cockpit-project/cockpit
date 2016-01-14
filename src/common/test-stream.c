@@ -647,7 +647,8 @@ static void
 teardown_connect (TestConnect *tc,
                   gconstpointer data)
 {
-  g_object_unref (tc->address);
+  if (tc->address)
+    g_object_unref (tc->address);
   if (tc->conn_source)
     {
       g_source_destroy (tc->conn_source);

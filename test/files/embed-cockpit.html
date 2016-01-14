@@ -1,1 +1,190 @@
-../../examples/embed-cockpit/application.html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Embed Example</title>
+    <base href="https://rawgit.com/patternfly/patternfly/master/tests/cards.html">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../dist/img/favicon.ico">
+    <link href="../dist/css/patternfly.min.css" rel="stylesheet" media="screen, print">
+    <link href="../dist/css/patternfly-additions.min.css" rel="stylesheet" media="screen, print">
+    <script src="../components/jquery/dist/jquery.min.js"></script>
+    <script src="../components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="../components/matchHeight/jquery.matchHeight-min.js"></script>
+    <script src="../dist/js/patternfly.min.js"></script>
+    <style>
+        #embed-links .card-pf-body {
+            opacity: 0.3;
+        }
+        #embed-here {
+            height: 550px;
+        }
+        #embed-address {
+            display: block;
+            margin-bottom: 20px;
+        }
+        a[target] {
+            cursor: pointer;
+        }
+        iframe {
+            display: block;
+            width: 100%;
+            height: 500px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body class="cards-pf">
+
+    <!-- BOILERPLATE: Makes this look like another app -->
+    <nav class="navbar navbar-default navbar-pf" role="navigation">
+        <div class="navbar-header"><a class="navbar-brand"><img src="../dist/img/brand.svg"/></a></div>
+        <ul class="nav navbar-nav navbar-utility">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    <span class="pficon pficon-user"></span> Brian Johnson <b class="caret"></b></a>
+                <ul class="dropdown-menu"><li><a href="#">Link</a></li></ul>
+            </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-primary">
+          <li class="active">
+	  	<a class="active">Embed Example</a>
+          </li>
+          <li><a href="bootstrap-treeview-2.html">Tree View</a></li>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="form.html">Form</a></li>
+          <li><a href="tab.html">Tab</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- BOILERPLATE: Makes this look like another app -->
+    <div class="container-fluid container-cards-pf">
+        <div class="row row-cards-pf">
+            <div id="embed-links" class="col-xs-3 col-sm-3 col-md-2">
+                <div class="row row-cards-pf">
+                    <input id="embed-address" class="form-control" value="http://127.0.0.1"/>
+                </div>
+                <div class="card-pf card-pf-accented card-pf-aggregate-status">
+                    <h2 class="card-pf-title">
+                        <a id="embed-full" href="/cockpit/@localhost/shell/index.html">
+                            <span class="fa fa-server"></span>Full Server
+                        </a>
+                    </h2>
+                    <div class="card-pf-body">
+                        <p class="card-pf-aggregate-status-notifications">
+                            <span class="card-pf-aggregate-status-notification">
+                                <span class="pficon pficon-add-circle-o"></span></span>
+                        </p>
+                    </div>
+                </div>
+                <div class="card-pf card-pf-accented card-pf-aggregate-status card-pf-with-action">
+                    <h2 class="card-pf-title">
+                        <a id="embed-terminal" href="/cockpit/@localhost/system/terminal.html">
+                            <span class="fa fa-terminal"></span>Server Terminal</a>
+                    </h2>
+                    <div class="card-pf-body">
+                        <p class="card-pf-aggregate-status-notifications">
+                            <span class="card-pf-aggregate-status-notification"><span
+                                    class="pficon pficon-error-circle-o"></span>4</span>
+                            <span class="card-pf-aggregate-status-notification"><span
+                                    class="pficon pficon-warning-triangle-o"></span>1</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="card-pf card-pf-accented card-pf-aggregate-status">
+                    <h2 class="card-pf-title">
+                        <a id="embed-network" href="/cockpit/@localhost/network/index.html">
+                            <span class="fa fa-plug"></span>Server Networking</a>
+                    </h2>
+                    <div class="card-pf-body">
+                        <p class="card-pf-aggregate-status-notifications">
+                        <span class="card-pf-aggregate-status-notification"><span
+                                    class="pficon pficon-error-circle-o"></span>1</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="card-pf card-pf-accented card-pf-aggregate-status">
+                    <h2 class="card-pf-title">
+                        <a id="embed-storage" href="/cockpit/@localhost/storage/index.html">
+                            <span class="fa fa-hdd-o"></span>Server Storage</a>
+                    </h2>
+                    <div class="card-pf-body">
+                        <p class="card-pf-aggregate-status-notifications">
+                        <span class="card-pf-aggregate-status-notification"><span
+                                    class="pficon pficon-error-circle-o"></span>1</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="card-pf card-pf-accented card-pf-aggregate-status card-pf-with-action">
+                    <h2 class="card-pf-title">
+                        <a id="embed-kubernetes" href="/cockpit/@localhost/kubernetes/index.html">
+                            <span class="fa fa-sitemap"></span>Kubernetes
+                        </a>
+                    </h2>
+                    <div class="card-pf-body">
+                        <p class="card-pf-aggregate-status-notifications">
+                        <span class="card-pf-aggregate-status-notification"><span
+                                class="pficon pficon-ok"></span></span>
+                        </p>
+                    </div>
+                </div>
+                <div class="card-pf card-pf-accented card-pf-aggregate-status">
+                    <h2 class="card-pf-title">
+                        <a id="embed-auth" href="/cockpit+app/@localhost/shell/index.html">
+                            <span class="fa fa-lock"></span>Separate Auth
+                        </a>
+                    </h2>
+                    <div class="card-pf-body">
+                        <p class="card-pf-aggregate-status-notifications">
+                        <span class="card-pf-aggregate-status-notification"><span
+                                    class="pficon pficon-error-circle-o"></span>1</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-9 col-sm-9 col-md-10">
+                <div class="card-pf">
+                    <div class="card-pf-heading">
+                        <h2 id="embed-title" class="card-pf-title">
+                            Embedded Cockpit Here
+                        </h2>
+                    </div>
+                    <div id="embed-here" class="card-pf-body">
+                    </div>
+                </div>
+            </div>
+        </div><!-- /row -->
+    </div><!-- /container -->
+    <script>
+        var phantom_checkpoint = phantom_checkpoint || function () { };
+
+        var frames = { };
+        $("#embed-links").on("click", "a[href]", function(ev) {
+            var href = $(this).attr("href");
+            ev.preventDefault();
+
+            var address = $("#embed-address").val();
+            var url = address + ":9090" + href;
+
+            var frame = frames[url];
+            if (!frame) {
+                frame = frames[url] = $("<iframe>")
+                    .attr("src", url)
+                    .attr("name", $(this).attr("id"));
+                $("#embed-here").append(frame);
+                frame[0].addEventListener("load", function() {
+                    $(this).attr("loaded", "1");
+                    phantom_checkpoint();
+                });
+            }
+
+            $("iframe").hide();
+            frame.show();
+            $("#embed-title").text($(this).text());
+            return false;
+        });
+    </script>
+    <div id="embed-loaded">
+    </div>
+</body>
+</html>

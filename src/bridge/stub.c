@@ -230,6 +230,19 @@ main (int argc,
   g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
   g_setenv ("GIO_USE_VFS", "local", TRUE);
 
+  /*
+   * All channels that are added here should
+   * not rely on running as a real user, however
+   * they may lookup paths, such as run dir or
+   * home directory. Glib has problems if
+   * g_get_user_database_entry is called without
+   * a real user, which it's path functions
+   * do as a last resort when no environment vars
+   * are set. So set HOME if it isn't set..
+   */
+  g_setenv("HOME", "/", FALSE);
+
+
   context = g_option_context_new (NULL);
   g_option_context_add_main_entries (context, entries, NULL);
   g_option_context_set_description (context,

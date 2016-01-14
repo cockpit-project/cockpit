@@ -669,11 +669,7 @@ div.listing-maybe div.listing-body {
 
 /* When panel is a row of a table: head is white */
 tr.listing-item + tr.listing-panel div.listing-head {
-    background-color: white;
     border-top: 3px solid #0099d3;
-}
-tr.listing-item + tr.listing-panel div.listing-body {
-    background-color: #f6f6f6;
 }
 
 tbody.active .listing-head {
@@ -827,6 +823,7 @@ tbody.open tr.listing-head {
     border-style: solid;
     border-width: 1px 1px 0px 1px;
     border-top: 3px solid #0099d3;
+    background-color: #f6f6f6;
 }
 
 tr.listing-head + tr.listing-head {
@@ -840,7 +837,6 @@ tr.listing-head + tr.listing-head td {
 tr.listing-body td {
     padding: 20px 25px;
     font-size: 13px;
-    background-color: #f6f6f6;
 }
 
 .listing-body .alert {

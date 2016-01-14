@@ -4,6 +4,8 @@ nodist_tuned_DATA = \
 	pkg/tuned/tuned.min.css.gz \
 	pkg/tuned/tuned.min.html.gz \
 	pkg/tuned/tuned.min.js.gz \
+	$(NULL)
+tuned_DATA = \
 	pkg/tuned/manifest.json \
 	$(NULL)
 
@@ -25,7 +27,6 @@ EXTRA_DIST += \
 	pkg/tuned/tuned.min.js \
 	pkg/tuned/tuned.min.html \
 	pkg/tuned/tuned.min.css \
-	pkg/tuned/manifest.json \
 	$(tuned_DATA) \
 	$(tuneddebug_DATA) \
 	$(NULL)

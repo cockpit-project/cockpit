@@ -142,6 +142,7 @@ EXTRA_DIST += \
 	pkg/base1/term.min.js \
 	pkg/base1/test-dbus-common.js \
 	$(base_BUNDLE) \
+	$(base_GEN) \
 	$(base_GEN:.js=.min.js) \
 	$(NULL)
 

@@ -22,6 +22,7 @@ registry_LESS = \
 	pkg/registry/styles/images.less \
 	pkg/registry/styles/projects.less \
 	pkg/registry/styles/sidebar.less \
+	pkg/registry/styles/variables.less \
 	$(NULL)
 
 registry_MODULES = \
@@ -34,11 +35,6 @@ registry_MODULES = \
 	pkg/registry/scripts/projects.js \
 	pkg/registry/scripts/main.js \
 	pkg/registry/scripts/listing.js \
-	$(NULL)
-
-registry_BOWER = \
-	pkg/registry/bower_components/less/dist/less.js \
-	pkg/registry/bower_components/patternfly/less/variables.less \
 	$(NULL)
 
 registry_TESTS = \
@@ -64,18 +60,18 @@ registrydebug_DATA = \
 	pkg/registry/bundle.js \
 	pkg/registry/bundle.css \
 	pkg/registry/index.html \
+	pkg/registry/less.js \
 	pkg/registry/override.json \
 	$(NULL)
 
 install-data-hook::
 	mkdir -p $(DESTDIR)$(registrydebugdir)
-	tar -cf - -C $(srcdir) $(registry_VIEWS) $(registry_LESS) $(registry_MODULES) $(registry_BOWER) | tar -xf - --strip-components=2 -C $(DESTDIR)$(registrydebugdir)
+	tar -chf - -C $(srcdir) $(registry_VIEWS) $(registry_LESS) $(registry_MODULES) | tar -xf - --strip-components=2 -C $(DESTDIR)$(registrydebugdir)
 
 uninstall-hook:
 	rm -rf $(DESTDIR)$(registrydebugdir)/scripts
 	rm -rf $(DESTDIR)$(registrydebugdir)/views
 	rm -rf $(DESTDIR)$(registrydebugdir)/styles
-	rm -rf $(DESTDIR)$(registrydebugdir)/bower_components
 
 registry_MIN = $(registry_MODULES:.js=.min.js)
 

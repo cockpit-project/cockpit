@@ -64,6 +64,9 @@ NO_TESTING = "Manual testing required"
 # Days after which images expire if not in use
 IMAGE_EXPIRE = 14
 
+# Days before we make a new image
+IMAGE_MAX_AGE = 7
+
 __all__ = (
     'Sink',
     'GitHub',

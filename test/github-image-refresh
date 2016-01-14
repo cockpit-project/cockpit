@@ -1,0 +1,124 @@
+#!/usr/bin/env python
+
+import argparse
+import sys
+import json
+import time
+
+sys.dont_write_bytecode = True
+
+import testinfra
+
+def create_image_pull_request(github, image):
+    context = "image/" + image
+    branch = "refresh-{0}-{1}".format(image, time.strftime("%Y-%m-%d"))
+    title = "IMG - Refresh of {0}".format(image)
+
+    if context not in testinfra.DEFAULT_VERIFY:
+        sys.stderr.write("github-image-refresh: invalid context: {0}\n".format(context))
+        return False
+
+    sys.stderr.write("creating pull for {0} refresh on branch {1}\n".format(image, branch))
+
+    # Create branch
+    master = github.get("git/refs/heads/master")
+    result = github.post("git/refs", { 'ref': 'refs/heads/' + branch, 'sha': master['object']['sha'] }, [ 422 ])
+    if result.get('message', None) == "Reference already exists":
+        print "Branch exists already, nothing to do."
+        return True
+
+    # Delete the old image link, just so that we have a commit to make a pull request out of
+    old_link = github.get('contents/test/images/' + image + "?ref=" + branch)
+    commit_response = github.delete('contents/test/images/' + image,
+                                    { 'branch': branch,
+                                      'sha': old_link['sha'],
+                                      'message': "Request new {0} image".format(image) })
+
+    # Put a trigger on the commit
+    github.post("statuses/" + commit_response['commit']['sha'],
+                { 'context': context,
+                  'state': 'pending',
+                  'description': testinfra.NOT_TESTED })
+
+    # And finally create the pull request
+    github.post("pulls", { 'title': title,
+                           'head': branch,
+                           'base': "master" })
+
+    return True
+
+def scan(github):
+
+    # Get the most recent 200 pull requests
+
+    pulls = [ ]
+    page = 1
+    count = 30
+    while count == 30 and len(pulls) < 200:
+        pulls_page = github.get("pulls?state=all&page={0}&per_page={1}".format(page, count))
+        if not pulls_page:
+            return
+        count = len(pulls_page)
+        page += 1
+        pulls += pulls_page
+
+    # Find the most recent pull request for each image context
+
+    image_contexts = []
+    for (context, what) in testinfra.DEFAULT_VERIFY.items():
+        (task, unused1, unused2) = context.partition("/")
+        if task == "image":
+            image_contexts.append(context)
+
+    image_pulls = { }
+    for pull in pulls:
+        if pull['title'].startswith("IMG - "):
+            statuses = github.statuses(pull['head']['sha'])
+            for context in image_contexts:
+                if not context in image_pulls and statuses.get(context, None):
+                    image_pulls[context] = pull
+
+    # Check which ones need a refreshment
+
+    image_refresh = [ ]
+    for context in image_contexts:
+        age = (context in image_pulls and
+               time.time() - time.mktime(time.strptime(image_pulls[context]['created_at'],
+                                                       "%Y-%m-%dT%H:%M:%SZ")))
+        if not age or age > testinfra.IMAGE_MAX_AGE * 24 * 60 * 60:
+            image_refresh.append(context.split("/")[1])
+
+    return image_refresh
+
+def main():
+    parser = argparse.ArgumentParser(description='Create pull requests for creating new images')
+    parser.add_argument("--scan", action="store_true", help="Scan for images that are too old")
+    parser.add_argument("--create", action="store_true", help="Refresh the given images")
+    parser.add_argument('image', nargs='*', help='The image(s) to refresh')
+    opts = parser.parse_args()
+
+    github = testinfra.GitHub(base="/repos/mvollmer/cockpit/")
+
+    if not opts.scan and not opts.create:
+        print "One of --scan or --create, please"
+        return 1
+
+    if opts.scan:
+        if len(opts.image) > 0:
+            print "No explicit images with --scan, please"
+            return 1
+        images = scan(github)
+    else:
+        images = opts.image
+
+    for image in images:
+        if opts.create:
+            if not create_image_pull_request(github, image):
+                return 1
+        else:
+            print image
+
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -64,7 +64,7 @@ kubernetesviewsdebug_DATA = \
 	$(kubernetes_VIEWS) \
 	$(NULL)
 
-kubernetes_MIN = \
+kubernetes_BUNDLE = \
 	pkg/kubernetes/adjust.min.js \
 	pkg/kubernetes/app.min.js \
 	pkg/kubernetes/client.min.js \
@@ -73,6 +73,7 @@ kubernetes_MIN = \
 	pkg/kubernetes/dashboard.min.js \
 	pkg/kubernetes/deploy.min.js \
 	pkg/kubernetes/details.min.js \
+	pkg/kubernetes/d3.min.js \
 	pkg/kubernetes/graphs.min.js \
 	pkg/kubernetes/images.min.js \
 	pkg/kubernetes/nulecule.min.js \
@@ -81,10 +82,6 @@ kubernetes_MIN = \
 	pkg/kubernetes/topology.min.js \
 	pkg/kubernetes/topology-graph.min.js \
 	pkg/kubernetes/container-terminal.min.js \
-	$(NULL)
-kubernetes_BUNDLE = \
-	pkg/kubernetes/d3.min.js \
-	$(kubernetes_MIN) \
 	$(NULL)
 
 # Bundles all the view templates into a $templateCache loadable
@@ -95,6 +92,9 @@ pkg/kubernetes/templates.js: $(kubernetes_VIEWS)
 pkg/kubernetes/kubernetes.min.js: $(kubernetes_BUNDLE) pkg/kubernetes/templates.js
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
+pkg/kubernetes/d3.min.js: pkg/kubernetes/d3.js
+	$(MIN_JS_RULE)
+
 kubernetes_TESTS = \
 	pkg/kubernetes/test-kubernetes.html \
 	$(NULL)
@@ -103,10 +103,11 @@ TESTS += $(kubernetes_TESTS)
 
 CLEANFILES += \
 	pkg/kubernetes/app.min.css \
+	pkg/kubernetes/d3.min.js \
 	pkg/kubernetes/index.min.html \
 	pkg/kubernetes/kubernetes.min.js \
 	pkg/kubernetes/templates.js \
-	$(kubernetes_MIN) \
+	$(kubernetes_BUNDLE) \
 	$(nodist_kubernetes_DATA) \
 	$(NULL)
 
@@ -120,7 +121,3 @@ EXTRA_DIST += \
 update-lib:: update-bower
 	$(JSMODULE) -m -d base1/angular -o $(srcdir)/pkg/kubernetes/object-describer.js \
 	    $(BOWER)/kubernetes-object-describer/dist/object-describer.js
-
-# Never recreate these files
-pkg/kubernetes/d3.min.js:
-	@true

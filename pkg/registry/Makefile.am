@@ -120,6 +120,3 @@ EXTRA_DIST += \
 	$(registry_TESTS) \
 	$(registry_VIEWS) \
 	$(NULL)
-
-update-lib:: update-bower
-	@true

@@ -228,11 +228,25 @@ endif
 install-data-local:: install-doc-local
 	@true
 
+# Subdirectories to distribute everything that's committed to git
+COMMITTED_DIST = \
+	bower_components/ \
+	pkg/ \
+	po/ \
+	tools/ \
+	test/ \
+	$(NULL)
+
 dist-hook: dist-doc-hook
+	( git -C $(srcdir) ls-tree HEAD --name-only -r $(COMMITTED_DIST) || echo $(COMMITTED_DIST) ) | \
+		tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xvf -
 	echo $(VERSION) > $(distdir)/.tarball
-	-(cd $(srcdir); git ls-tree HEAD --name-only -r bower_components/ || echo bower_components/ ) | tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xvf -
 	$(srcdir)/tools/build-copying $(srcdir)/node_modules > $(distdir)/COPYING.node
 	$(srcdir)/tools/build-copying $(BOWER) > $(distdir)/COPYING.bower
+
+dist-xz: distdir
+	tar --format=posix -cf - "$(distdir)" | xz -ec > $(distdir).tar.xz
+	find "$(distdir)" -type d ! -perm -200 -exec chmod u+w {} ';' && rm -rf "$(distdir)"
 
 distcheck-hook: dist-doc-hook
 	$(srcdir)/tools/check-dist $(distdir)

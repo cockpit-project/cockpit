@@ -40,6 +40,4 @@ EXTRA_DIST += \
 	pkg/ostree/ostree.min.js \
 	pkg/ostree/ostree.min.css \
 	$(ostree_BUNDLE) \
-	$(ostree_DATA) \
-	$(ostreedebug_DATA) \
 	$(NULL)

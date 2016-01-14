@@ -40,8 +40,5 @@ EXTRA_DIST += \
 	pkg/networkmanager/bundle.min.js \
 	pkg/networkmanager/index.min.html \
 	pkg/networkmanager/networking.min.css \
-	$(networkmanager_DATA) \
-	$(networkmanagerdebug_DATA) \
-	$(networkmanager_TESTS) \
 	$(networkmanager_BUNDLE) \
 	$(NULL)

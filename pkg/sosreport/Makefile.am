@@ -27,6 +27,4 @@ EXTRA_DIST += \
 	pkg/sosreport/index.min.html \
 	pkg/sosreport/index.min.js \
 	pkg/sosreport/sosreport.min.css \
-	$(sosreport_DATA) \
-	$(sosreportdebug_DATA) \
 	$(NULL)

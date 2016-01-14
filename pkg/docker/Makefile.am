@@ -51,7 +51,9 @@ TESTS += $(docker_TESTS)
 
 CLEANFILES += \
 	pkg/docker/bundle.min.js \
+	pkg/docker/console.min.html \
 	pkg/docker/docker.min.css \
+	pkg/docker/index.min.html \
 	$(docker_BUNDLE) \
 	$(nodist_docker_DATA) \
 	$(NULL)
@@ -61,8 +63,5 @@ EXTRA_DIST += \
 	pkg/docker/console.min.html \
 	pkg/docker/docker.min.css \
 	pkg/docker/index.min.html \
-	$(docker_DATA) \
-	$(dockerdebug_DATA) \
-	$(docker_TESTS) \
 	$(docker_BUNDLE) \
 	$(NULL)

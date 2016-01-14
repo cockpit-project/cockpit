@@ -55,8 +55,5 @@ EXTRA_DIST += \
 	pkg/users/bundle.min.js \
 	pkg/users/index.min.html \
 	pkg/users/users.min.css \
-	$(users_DATA) \
-	$(usersdebug_DATA) \
-	$(users_TESTS) \
 	$(users_BUNDLE) \
 	$(NULL)

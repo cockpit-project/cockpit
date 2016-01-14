@@ -124,10 +124,5 @@ EXTRA_DIST += \
 	pkg/shell/bundle.min.js \
 	pkg/shell/index.min.html \
 	pkg/shell/shell.min.html \
-	$(shell_DATA) \
 	$(shell_BUNDLE) \
-	$(shell_SHELL) \
-	$(shelldebug_DATA) \
-	$(shellimages_DATA) \
-	$(shell_TESTS) \
 	$(NULL)

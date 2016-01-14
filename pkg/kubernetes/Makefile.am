@@ -115,14 +115,6 @@ EXTRA_DIST += \
 	pkg/kubernetes/index.min.html \
 	pkg/kubernetes/kubernetes.min.js \
 	pkg/kubernetes/templates.js \
-	$(kubernetes_BUNDLE) \
-	$(kubernetes_DATA) \
-	$(kubernetesdebug_DATA) \
-	$(kubernetes_TESTS) \
-	$(kubernetes_VIEWS) \
-	pkg/kubernetes/mock-basic.js \
-	pkg/kubernetes/mock-large.js \
-	pkg/kubernetes/d3.min.js \
 	$(NULL)
 
 update-lib:: update-bower

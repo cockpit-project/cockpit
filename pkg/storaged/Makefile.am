@@ -61,9 +61,5 @@ EXTRA_DIST += \
 	pkg/storaged/bundle.min.js \
 	pkg/storaged/index.min.html \
 	pkg/storaged/storage.min.css \
-	$(storaged_DATA) \
-	$(storageddebug_DATA) \
-	$(storagedimages_DATA) \
-	$(storaged_TESTS) \
 	$(storaged_BUNDLE) \
 	$(NULL)

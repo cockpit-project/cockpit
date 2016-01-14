@@ -199,6 +199,9 @@ def main():
         if opts.verbose:
             cmd.append("--verbose")
 
+    elif prefix == "image":
+        cmd = [ "./vm-create", "--verbose", "--upload" ]
+
     else:
         sys.stderr.write("github-task: unknown context: " + context)
         return 1

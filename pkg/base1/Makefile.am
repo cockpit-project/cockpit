@@ -103,13 +103,16 @@ base_TESTS = \
 TESTS += $(base_TESTS)
 
 CLEANFILES += \
+	pkg/base1/bootstrap-combobox.min.js \
 	pkg/base1/bundle.min.js \
-	pkg/base1/term.min.js \
 	pkg/base1/cockpit.min.js \
 	pkg/base1/cockpit.min.css \
 	pkg/base1/patterns.min.js \
-	pkg/base1/bootstrap-combobox.min.js \
+	pkg/base1/mustache.min.js \
+	pkg/base1/require.min.js \
+	pkg/base1/term.min.js \
 	$(base_GEN) \
+	$(base_GEN:.js=.min.js) \
 	$(nodist_base_DATA) \
 	$(NULL)
 
@@ -127,12 +130,6 @@ EXTRA_DIST += \
 	pkg/base1/term.min.js \
 	pkg/base1/test-dbus-common.js \
 	$(base_BUNDLE) \
-	$(base_DATA) \
-	$(basedebug_DATA) \
-	$(baseimages_DATA) \
-	$(basefonts_DATA) \
-	$(basefontsdebug_DATA) \
-	$(base_TESTS) \
 	$(base_GEN:.js=.min.js) \
 	$(NULL)
 

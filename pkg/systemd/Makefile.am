@@ -82,8 +82,5 @@ EXTRA_DIST += \
 	pkg/systemd/service.min.js \
 	pkg/systemd/services.min.html \
 	pkg/systemd/terminal.min.html \
-	$(systemd_DATA) \
-	$(systemddebug_DATA) \
-	$(systemd_TESTS) \
 	$(systemd_BUNDLE) \
 	$(NULL)

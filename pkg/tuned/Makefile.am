@@ -27,6 +27,4 @@ EXTRA_DIST += \
 	pkg/tuned/tuned.min.js \
 	pkg/tuned/tuned.min.html \
 	pkg/tuned/tuned.min.css \
-	$(tuned_DATA) \
-	$(tuneddebug_DATA) \
 	$(NULL)

@@ -30,6 +30,9 @@ CLEANFILES += \
 	pkg/playground/speed.min.html \
 	pkg/playground/metrics.min.html \
 	pkg/playground/patterns.min.js \
+	pkg/playground/plot.min.html \
+	pkg/playground/service.min.html \
+	pkg/playground/patterns.min.html \
 	$(NULL)
 
 EXTRA_DIST += \

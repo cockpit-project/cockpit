@@ -34,8 +34,5 @@ CLEANFILES += \
 EXTRA_DIST += \
 	pkg/dashboard/bundle.min.js \
 	pkg/dashboard/index.min.html \
-	$(dashboard_DATA) \
-	$(dashboarddebug_DATA) \
 	$(dashboard_BUNDLE) \
-	$(NULL)
 	$(NULL)

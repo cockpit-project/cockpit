@@ -27,6 +27,4 @@ EXTRA_DIST += \
 	pkg/subscriptions/index.min.html \
 	pkg/subscriptions/subscriptions.min.js \
 	pkg/subscriptions/subscriptions.min.css \
-	$(subscriptions_DATA) \
-	$(subscriptionsdebug_DATA) \
 	$(NULL)

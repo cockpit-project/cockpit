@@ -29,7 +29,8 @@ sys.dont_write_bytecode = True
 import testinfra
 
 def start_publishing(github, host, name, revision, context, image):
-    identifier = name + "-" + revision[0:8] + "-" + image
+    task = context.split("/")[0]
+    identifier = name + "-" + revision[0:8] + "-" + image + "-" + task
     description = "{0} [{1}]".format(testinfra.TESTING, testinfra.HOSTNAME)
     status = {
         "github": {
@@ -198,6 +199,9 @@ def main():
         cmd = [ "./avocado/run-tests", "--install" ]
         if opts.verbose:
             cmd.append("--verbose")
+
+    elif prefix == "image":
+        cmd = [ "./vm-create", "--verbose", "--upload" ]
 
     else:
         sys.stderr.write("github-task: unknown context: " + context)

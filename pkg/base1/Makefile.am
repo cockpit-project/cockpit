@@ -55,11 +55,18 @@ base_BUNDLE = \
 	pkg/base1/patterns.min.js \
 	$(NULL)
 
+pkg/base1/angular.min.js: pkg/base1/angular.js
+	$(MIN_JS_RULE)
+pkg/base1/bootstrap-select.min.js: pkg/base1/bootstrap-select.js
+	$(MIN_JS_RULE)
 pkg/base1/bundle.min.js: $(base_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
-
+pkg/base1/jquery.min.js: pkg/base1/jquery.js
+	$(MIN_JS_RULE)
+pkg/base1/moment.min.js: pkg/base1/moment.js
+	$(MIN_JS_RULE)
 pkg/base1/mustache.min.js: pkg/base1/mustache.js
-	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $< --mangle > $@.tmp && $(MV) $@.tmp $@
+	$(MIN_JS_RULE)
 
 install-data-local::
 	$(MKDIR_P) $(DESTDIR)$(basedebugdir)
@@ -103,11 +110,16 @@ base_TESTS = \
 TESTS += $(base_TESTS)
 
 CLEANFILES += \
+	pkg/base1/angular.min.js \
+	pkg/base1/bootstrap-datepicker.min.js \
+	pkg/base1/bootstrap-select.min.js \
 	pkg/base1/bootstrap-combobox.min.js \
 	pkg/base1/bundle.min.js \
 	pkg/base1/cockpit.min.js \
 	pkg/base1/cockpit.min.css \
+	pkg/base1/jquery.min.js \
 	pkg/base1/patterns.min.js \
+	pkg/base1/moment.min.js \
 	pkg/base1/mustache.min.js \
 	pkg/base1/require.min.js \
 	pkg/base1/term.min.js \
@@ -134,10 +146,6 @@ EXTRA_DIST += \
 	$(NULL)
 
 update-lib:: update-bower
-	$(srcdir)/tools/uglifyjs $(BOWER)/jquery-flot/jquery.flot.js > jquery.flot.min.js
-	$(srcdir)/tools/uglifyjs $(BOWER)/jquery-flot/jquery.flot.selection.js > jquery.flot.selection.min.js
-	$(srcdir)/tools/uglifyjs $(BOWER)/jquery-flot/jquery.flot.time.js > jquery.flot.time.min.js
-	$(srcdir)/tools/uglifyjs $(BOWER)/jquery-amend/jquery-amend.js > jquery-amend.min.js
 	sed -f $(srcdir)/tools/patternfly.sed \
 		$(BOWER)/patternfly/dist/css/patternfly.css > $(srcdir)/pkg/base1/patternfly.css
 	sed -f $(srcdir)/tools/patternfly.sed \
@@ -153,19 +161,8 @@ update-lib:: update-bower
 	    $(BOWER)/jquery-flot/jquery.flot.time.js \
 	    $(BOWER)/jquery-amend/jquery-amend.js \
 	    $(NULL)
-	$(JSMODULE) -o $(srcdir)/pkg/base1/jquery.min.js \
-	    $(BOWER)/jquery/dist/jquery.min.js \
-	    $(BOWER)/patternfly/components/bootstrap/dist/js/bootstrap.min.js \
-	    $(BOWER)/patternfly/dist/js/patternfly.min.js \
-	    jquery.flot.min.js \
-	    jquery.flot.selection.min.js \
-	    jquery.flot.time.min.js \
-	    jquery-amend.min.js \
-	    $(NULL)
 	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-datepicker.js \
 	    $(BOWER)/patternfly/components/bootstrap-datepicker/dist/js/bootstrap-datepicker.js
-	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-datepicker.min.js \
-	    $(BOWER)/patternfly/components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js
 	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-combobox.js \
 	    $(BOWER)/patternfly/components/bootstrap-combobox/js/bootstrap-combobox.js
 	$(JSMODULE) -o $(srcdir)/pkg/base1/require.js \
@@ -182,23 +179,3 @@ update-lib:: update-bower
 	    $(BOWER)/angular-bootstrap/ui-bootstrap-tpls.js \
 	    $(BOWER)/angular-patternfly/dist/angular-patternfly.js \
 	    $(srcdir)/pkg/base1/angular-config.js
-	$(JSMODULE) -o $(srcdir)/pkg/base1/angular.min.js \
-	    $(BOWER)/angular/angular.min.js \
-	    $(BOWER)/angular-animate/angular-animate.min.js \
-	    $(BOWER)/angular-route/angular-route.min.js \
-	    $(BOWER)/angular-bootstrap/ui-bootstrap.min.js \
-	    $(BOWER)/angular-bootstrap/ui-bootstrap-tpls.min.js \
-	    $(BOWER)/angular-patternfly/dist/angular-patternfly.min.js \
-	    $(srcdir)/pkg/base1/angular-config.js
-
-# Never recreate these files
-pkg/base1/angular.min.js:
-	@true
-pkg/base1/jquery.min.js:
-	@true
-pkg/base1/bootstrap-select.min.js:
-	@true
-pkg/base1/bootstrap-datepicker.min.js:
-	@true
-pkg/base1/moment.min.js:
-	@true

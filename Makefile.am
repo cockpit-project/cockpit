@@ -39,40 +39,46 @@ V_GZIP = $(V_GZIP_$(V))
 V_GZIP_ = $(V_GZIP_$(AM_DEFAULT_VERBOSITY))
 V_GZIP_0 = @echo "  GZIP    " $@;
 
-GZIP = gzip -n
-
 MV = mv -f
 
 JSMODULE = $(srcdir)/tools/missing $(srcdir)/tools/jsmodule
 CSSBUNDLE = $(srcdir)/tools/missing $(srcdir)/tools/cssbundle
 
+MIN_JS_RULE = \
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $< --mangle > $@.tmp && $(MV) $@.tmp $@
+
+MIN_CSS_RULE = \
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(srcdir)/tools/missing $(srcdir)/tools/r.js -o cssIn=$< optimizeCss=standard logLevel=3 out=$@
+
+MIN_HTML_RULE = \
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(srcdir)/tools/missing $(srcdir)/tools/htmlmin $@ $<
+
+GZ_RULE = \
+	$(V_GZIP) $(MKDIR_P) $(dir $@) && \
+	gzip -n -c $< > $@.tmp && $(MV) $@.tmp $@
+
 .css.min.css:
-	@$(MKDIR_P) $(dir $@)
-	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/r.js -o cssIn=$< optimizeCss=standard logLevel=3 out=$@
+	$(MIN_CSS_RULE)
 .js.min.js:
-	@$(MKDIR_P) $(dir $@)
 	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $<
-	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $< --mangle > $@.tmp && $(MV) $@.tmp $@
+	$(MIN_JS_RULE)
 .html.min.html:
-	@$(MKDIR_P) $(dir $@)
 	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint --extract=always $<
-	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/htmlmin $@ $<
+	$(MIN_HTML_RULE)
 
 .min.css.min.css.gz:
-	@$(MKDIR_P) $(dir $@)
-	$(V_GZIP) $(GZIP) -c $< > $@.tmp && $(MV) $@.tmp $@
+	$(GZ_RULE)
 .min.html.min.html.gz:
-	@$(MKDIR_P) $(dir $@)
-	$(V_GZIP) $(GZIP) -c $< > $@.tmp && $(MV) $@.tmp $@
+	$(GZ_RULE)
 .js.js.gz:
-	@$(MKDIR_P) $(dir $@)
-	$(V_GZIP) $(GZIP) -c $< > $@.tmp && $(MV) $@.tmp $@
+	$(GZ_RULE)
 .min.js.min.js.gz:
-	@$(MKDIR_P) $(dir $@)
-	$(V_GZIP) $(GZIP) -c $< > $@.tmp && $(MV) $@.tmp $@
+	$(GZ_RULE)
 .woff.woff.gz:
-	@$(MKDIR_P) $(dir $@)
-	$(V_GZIP) $(GZIP) -c $< > $@.tmp && $(MV) $@.tmp $@
+	$(GZ_RULE)
 
 po/po.%.js: po/%.po
 	@$(MKDIR_P) $(dir $@)

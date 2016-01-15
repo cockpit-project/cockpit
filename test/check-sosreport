@@ -34,10 +34,7 @@ class TestSOS(MachineCase):
         b.click('[data-target="#sos"]')
         b.wait_visible("#sos")
 
-        # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1278807
-        # Sosreport waits 5 minutes for a hung ausearch, so we wait 10 minutes
-        # for sosreport.
-        with b.wait_timeout(600):
+        with b.wait_timeout(180):
             b.wait_visible("#sos-download")
 
         # There doesn't seem to be a easy way to do a real download

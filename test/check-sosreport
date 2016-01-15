@@ -25,7 +25,6 @@ import subprocess
 import unittest
 
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No sosreport on Debian.")
-@unittest.skipIf("rhel-atomic" in os.environ.get("TEST_OS", ""), "No sosreport on rhel-atomic.")
 class TestSOS(MachineCase):
     def testBasic(self):
         b = self.browser

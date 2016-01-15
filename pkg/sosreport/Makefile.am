@@ -7,6 +7,7 @@ nodist_sosreport_DATA = \
 sosreport_DATA = \
 	pkg/sosreport/manifest.json \
 	pkg/sosreport/sosreport.png \
+	pkg/sosreport/run-sosreport.sh \
 	$(NULL)
 
 sosreportdebugdir = $(debugdir)$(sosreportdir)

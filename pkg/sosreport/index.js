@@ -20,8 +20,9 @@
 define([
     "jquery",
     "base1/cockpit",
+    "data!./run-sosreport.sh",
     "translated!base1/po"
-], function($, cockpit, po) {
+], function($, cockpit, run_sosreport_sh, po) {
     "use strict";
 
     cockpit.locale(po);
@@ -58,8 +59,8 @@ define([
         sos_archive_url = null;
         sos_archive_files = [ ];
 
-        var task = cockpit.spawn([ "/usr/sbin/sosreport", "--batch" ],
-                                 { superuser: true, err: "out" });
+        var task = cockpit.script(run_sosreport_sh, [ "--batch" ],
+                                  { superuser: true, err: "out" });
         sos_task = task;
 
         // TODO - Use a real API instead of scraping stdout once such
@@ -88,6 +89,12 @@ define([
                 if (m) {
                     var archive = m[1];
                     var basename = archive.replace(/.*\//, "");
+
+                    // When running sosreport in a container on the
+                    // Atomics, the archive path needs to be adjusted.
+                    //
+                    if (archive.indexOf("/host") === 0)
+                        archive = archive.substr(5);
 
                     sos_archive_files = [ archive, archive + ".md5" ];
 

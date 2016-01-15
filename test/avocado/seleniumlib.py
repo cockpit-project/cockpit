@@ -26,7 +26,6 @@ HUB=localhost BROWSER=chrome GUEST=`hostname -i` avocado run selenium-login.py
 
 import inspect
 import selenium.webdriver
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -35,12 +34,13 @@ import time
 
 user = "test"
 passwd = "superhardpasswordtest5554"
-javascript_clicks=True
+javascript_clicks = True
 
 visible = EC.visibility_of_element_located
 clickable = EC.element_to_be_clickable
 invisible = EC.invisibility_of_element_located
 frame = EC.frame_to_be_available_and_switch_to_it
+
 
 class SeleniumTest():
 
@@ -63,18 +63,18 @@ class SeleniumTest():
         # self.default_explicit_wait is time for waiting for element
         # default_explicit_wait * default_try = max time for waiting for element
         self.driver.get('http://%s:9090' % guest_machine)
-        self.error=True
+        self.error = True
 
     def closing(self):
         if self.error:
-            screenshot_file=""
+            screenshot_file = ""
             try:
-                screenshot_file="snapshot-teardown-%s.png" %  str(time.clock())
+                screenshot_file = "snapshot-teardown-%s.png" % str(time.clock())
                 # using time.clock() to ensure that snapshot files are unique and ordered
                 self.driver.save_screenshot(screenshot_file)
                 print "Screenshot done in teardown phase: " + screenshot_file
             except Exception as e:
-                screenshot_file="Unable to catch screenshot: " + screenshot_file
+                screenshot_file = "Unable to catch screenshot: " + screenshot_file
                 raise Exception('ERR: Unable to store screenshot: %s' % screenshot_file, str(e))
         try:
             self.driver.close()
@@ -82,7 +82,7 @@ class SeleniumTest():
         except Exception as e:
             raise Exception('ERR: Unable to close WEBdriver', str(e))
 
-    def click(self,element):
+    def click(self, element):
         if javascript_clicks:
             self.driver.execute_script("arguments[0].click();", element)
         else:
@@ -112,51 +112,50 @@ parameters:
                 pass
         if returned is None:
             if fatal:
-                screenshot_file = "snapshot-%s-%s-lines_%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack(
-                )[2][3]), '-'.join([str(x[2]) for x in inspect.stack() if inspect.stack()[0][1] == x[1]]))
-                additional_text=""
+                screenshot_file = "snapshot-%s-%s-lines_%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack()[2][3]), '-'.join([str(x[2]) for x in inspect.stack() if inspect.stack()[0][1] == x[1]]))
+                additional_text = ""
                 try:
                     self.driver.save_screenshot(screenshot_file)
-                    self.error=False
+                    self.error = False
                 except:
-                    screenshot_file="Unable to catch screenshot: " + screenshot_file
+                    screenshot_file = "Unable to catch screenshot: " + screenshot_file
                     pass
                 finally:
                     raise Exception('ERR: Unable to locate name: %s' % str(text), screenshot_file)
         return returned
 
     def wait_id(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):
-        return self.wait(By.ID, text=el, baseelement = baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
+        return self.wait(By.ID, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
 
     def wait_link(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):
-        return self.wait(By.PARTIAL_LINK_TEXT, baseelement = baseelement, text=el, overridetry=overridetry, fatal=fatal, cond=cond)
+        return self.wait(By.PARTIAL_LINK_TEXT, baseelement=baseelement, text=el, overridetry=overridetry, fatal=fatal, cond=cond)
 
     def wait_xpath(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):
-        return self.wait(By.XPATH, text=el, baseelement = baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
+        return self.wait(By.XPATH, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
 
     def wait_text(self, el, nextel="", element="*", baseelement=None, overridetry=None, fatal=True, cond=None):
-        search_string=""
-        search_string_next=""
-        elem=None
+        search_string = ""
+        search_string_next = ""
+        elem = None
         for foo in el.split():
             if search_string == "":
                 search_string = search_string + 'contains(text(), "%s")' % foo
             else:
-                search_string=search_string + ' and contains(text(), "%s")' % foo
+                search_string = search_string + ' and contains(text(), "%s")' % foo
         for foo in nextel.split():
             if search_string_next == "":
                 search_string_next = search_string_next + 'contains(text(), "%s")' % foo
             else:
                 search_string_next = search_string_next + ' and contains(text(), "%s")' % foo
         if nextel:
-            elem = self.wait_xpath("//%s[%s]/following-sibling::%s[%s]" % (element, search_string, element, search_string_next), baseelement = baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
+            elem = self.wait_xpath("//%s[%s]/following-sibling::%s[%s]" % (element, search_string, element, search_string_next), baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
         else:
-            elem = self.wait_xpath("//%s[%s]" % (element, search_string), baseelement = baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
+            elem = self.wait_xpath("//%s[%s]" % (element, search_string), baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
         return elem
-    
+
     def wait_frame(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):
-        text="//iframe[contains(@name,'%s')]" % el
-        return self.wait(By.XPATH, text=text, baseelement = baseelement, overridetry=overridetry, fatal=fatal, cond=frame)
+        text = "//iframe[contains(@name,'%s')]" % el
+        return self.wait(By.XPATH, text=text, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=frame)
 
     def mainframe(self):
         self.driver.switch_to_default_content()

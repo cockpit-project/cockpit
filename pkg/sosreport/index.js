@@ -60,7 +60,7 @@ define([
         sos_archive_files = [ ];
 
         var task = cockpit.script(run_sosreport_sh, [ "--batch" ],
-                                  { superuser: true, err: "out" });
+                                  { superuser: true, err: "out", pty: true });
         sos_task = task;
 
         // TODO - Use a real API instead of scraping stdout once such
@@ -68,7 +68,7 @@ define([
 
         var output = "";
         var progress_regex = /Running ([0-9]+)\/([0-9]+):/g;
-        var archive_regex = /Your sosreport has been generated and saved in:[ \n]+(\/[^\n]+)/;
+        var archive_regex = /Your sosreport has been generated and saved in:[ \r\n]+(\/[^\r\n]+)/;
 
         task.stream(function (text) {
             if (sos_task == task) {

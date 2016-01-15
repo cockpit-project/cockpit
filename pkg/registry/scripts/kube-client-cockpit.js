@@ -118,9 +118,10 @@
                 if (parser.port)
                     options.port = parseInt(parser.port, 10);
                 if (parser.protocol == 'https:') {
-                    options.port = parseInt(parser.port, 10) || 6443;
-                    options.tls = { };
+                    if (!options.port)
+                        options.port = parser.href == cluster.server ? 6443 : 443;
 
+                    options.tls = { };
                     options.tls.authority = parseCertOption(cluster, "certificate-authority");
                     options.tls.validate = !cluster["insecure-skip-tls-verify"];
                 }
@@ -582,7 +583,8 @@
                 if (!force && defer)
                     return defer.promise;
 
-                var last, aux, req;
+                var last, aux, req, kubectl, loginOptions;
+                var loginData = window.sessionStorage.getItem('login-data');
                 defer = $q.defer();
 
                 var schemes = [
@@ -600,6 +602,13 @@
                         last.statusText = "Couldn't find running API server";
                         last.problem = "not-found";
                         defer.reject(last);
+                        return;
+                    }
+
+                    /* If options is a function call it, the function is
+                     * responsible to call step again when ready */
+                    if (typeof options === "function") {
+                        options();
                         return;
                     }
 
@@ -630,18 +639,27 @@
                     });
                 }
 
-                var kubectl = cockpitKubectlConfig()
-                    .then(function(data) {
-                        var options = parseKubeConfig(data);
-                        step(options, options ? data : null);
-                    })
-                    .catch(function(options) {
-                        console.warn("kubectl failed: " + (options.message || options.problem));
-                        step();
-                    });
+                function kubectlStep() {
+                    kubectl = cockpitKubectlConfig()
+                        .then(function(data) {
+                            var options = parseKubeConfig(data);
+                            step(options, options ? data : null);
+                        })
+                        .catch(function(options) {
+                            console.warn("kubectl failed: " + (options.message || options.problem));
+                            step();
+                        });
+                }
+
+                schemes.unshift(kubectlStep);
+                if (loginData)
+                    loginOptions = parseKubeConfig(loginData);
+                step(loginOptions, loginOptions ? loginData : null);
 
                 defer.promise.cancel = function cancel() {
-                    kubectl.cancel("cancelled");
+                    if (kubectl)
+                        kubectl.cancel("cancelled");
+
                     if (req)
                         req.close("cancelled");
                 };

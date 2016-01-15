@@ -984,6 +984,7 @@ function full_scope(cockpit, $, po) {
         ensure_transport(function(transport) {
             transport.send_control({ "command": "logout", "disconnect": true });
         });
+        window.sessionStorage.setItem("logout-intent", "explicit");
     };
 
     /* Not public API ... yet? */

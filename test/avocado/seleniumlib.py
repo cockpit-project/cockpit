@@ -35,13 +35,15 @@ from avocado import Test
 
 user = "test"
 passwd = "superhardpasswordtest5554"
+
+# use javascript to generate clicks in the browsers
+# this prevents races where the test clicks in the wrong place because the page layout changed
 javascript_clicks = True
 
 visible = EC.visibility_of_element_located
 clickable = EC.element_to_be_clickable
 invisible = EC.invisibility_of_element_located
 frame = EC.frame_to_be_available_and_switch_to_it
-
 
 class SeleniumTest(Test):
     """
@@ -60,20 +62,27 @@ class SeleniumTest(Test):
 
         self.driver.set_window_size(1400, 1200)
         self.driver.set_page_load_timeout(90)
-        self.default_try = 40
+
         # self.default_try is number of repeats for finding element
-        self.default_explicit_wait = 1
+        self.default_try = 40
+
         # self.default_explicit_wait is time for waiting for element
         # default_explicit_wait * default_try = max time for waiting for element
+        self.default_explicit_wait = 1
+
         self.driver.get('http://%s:9090' % guest_machine)
+
+        # if self.error evaluates to True when a test finishes,
+        # an error is raised and a screenshot generated
         self.error = True
 
     def tearDown(self):
         if self.error:
             screenshot_file = ""
             try:
+                # use time.clock() to ensure that snapshot files are unique and ordered
                 screenshot_file = "snapshot-teardown-%s.png" % str(time.clock())
-                # using time.clock() to ensure that snapshot files are unique and ordered
+
                 self.driver.save_screenshot(screenshot_file)
                 print "Screenshot done in teardown phase: " + screenshot_file
             except Exception as e:

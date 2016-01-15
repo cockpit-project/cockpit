@@ -1,13 +1,15 @@
 #!/usr/bin/python
 
-from avocado import main
-from avocado.utils import process
+# we need to be able to find and import seleniumlib, so add this directory
 import os
 import sys
 machine_test_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(machine_test_dir)
-from seleniumlib import *
+
+from avocado import main
+from avocado.utils import process
 import libdisc
+from seleniumlib import *
 
 class BasicTestSuite(SeleniumTest):
     """
@@ -15,23 +17,23 @@ class BasicTestSuite(SeleniumTest):
     """
     def test10Base(self):
         out = process.run("hostname", shell=True)
-        elem = self.wait_id('server-name')
-        self.assertTrue(str(out.stdout)[:-1] in str(elem.text))
+        server_element = self.wait_id('server-name')
+        self.assertTrue(str(out.stdout)[:-1] in str(server_element.text))
         self.error=False
 
     def test20Login(self):
         self.login()
         self.wait_id("sidebar")
-        elem = self.wait_id("content-user-name")
-        self.assertEqual(elem.text, user)
+        user_element = self.wait_id("content-user-name")
+        self.assertEqual(user_element.text, user)
         self.logout()
         self.wait_id('server-name')
         self.login("baduser", "badpasswd")
-        elem = self.wait_id('login-error-message')
-        self.assertTrue("Wrong" in elem.text)
+        message_element = self.wait_id('login-error-message')
+        self.assertTrue("Wrong" in message_element.text)
         self.login()
-        elem = self.wait_id("content-user-name")
-        self.assertEqual(elem.text, user)
+        username_element = self.wait_id("content-user-name")
+        self.assertEqual(username_element.text, user)
         self.error=False
 
     def test30ChangeTabServices(self):
@@ -63,9 +65,9 @@ class BasicTestSuite(SeleniumTest):
         self.wait_id('containers-storage')
         self.click(self.wait_id('containers-images-search', cond=clickable))
         self.wait_id('containers-search-image-dialog')
-        elem = self.wait_id('containers-search-image-search')
-        elem.clear()
-        elem.send_keys("fedora")
+        search_element = self.wait_id('containers-search-image-search')
+        search_element.clear()
+        search_element.send_keys("fedora")
         self.wait_id('containers-search-image-results')
         self.wait_text("Official Docker", element="td")
         self.click(self.wait_xpath(
@@ -73,9 +75,9 @@ class BasicTestSuite(SeleniumTest):
         self.wait_id('containers-search-image-dialog',cond=invisible)
         self.click(self.wait_id('containers-images-search',cond=clickable))
         self.wait_id('containers-search-image-dialog')
-        elem = self.wait_id('containers-search-image-search')
-        elem.clear()
-        elem.send_keys("cockpit")
+        search_element = self.wait_id('containers-search-image-search')
+        search_element.clear()
+        search_element.send_keys("cockpit")
         self.wait_id('containers-search-image-results')
         self.click(self.wait_text("Cockpit Web Ser", element="td", cond=clickable))
         self.click(self.wait_id('containers-search-download', cond=clickable))
@@ -102,8 +104,7 @@ class BasicTestSuite(SeleniumTest):
         self.wait_id("journal")
         self.wait_id("journal-current-day")
         checkt = "ahojnotice"
-        out = process.run("systemd-cat -p notice echo '%s'" %
-                          checkt, shell=True)
+        out = process.run("systemd-cat -p notice echo '%s'" % checkt, shell=True)
         self.click(self.wait_text(checkt, cond=clickable))
         self.wait_id('journal-entry')
         self.mainframe()
@@ -131,8 +132,7 @@ class BasicTestSuite(SeleniumTest):
     def test70ChangeTabNetworking(self):
         self.login()
         self.wait_id("sidebar")
-        out = process.run(
-            "ip r |grep default | head -1 | cut -d ' ' -f 5", shell=True)
+        out = process.run("ip r |grep default | head -1 | cut -d ' ' -f 5", shell=True)
         self.click(self.wait_link('Network', cond=clickable))
         self.wait_frame("network")
         self.wait_id("networking-interfaces")
@@ -159,15 +159,18 @@ class BasicTestSuite(SeleniumTest):
         self.click(self.wait_id("accounts-create", cond=clickable))
         self.wait_id("accounts-create-dialog")
         self.wait_id('accounts-create-create', cond=clickable)
-        elem = self.wait_id('accounts-create-real-name')
-        elem.clear()
-        elem.send_keys('testxx')
-        elem = self.wait_id('accounts-create-pw1')
-        elem.clear()
-        elem.send_keys(passwd)
-        elem = self.wait_id('accounts-create-pw2')
-        elem.clear()
-        elem.send_keys(passwd)
+
+        create_element = self.wait_id('accounts-create-real-name')
+        create_element.clear()
+        create_element.send_keys('testxx')
+
+        pw1_element = self.wait_id('accounts-create-pw1')
+        pw1_element.clear()
+        pw1_element.send_keys(passwd)
+        pw2_element = self.wait_id('accounts-create-pw2')
+        pw2_element.clear()
+        pw2_element.send_keys(passwd)
+
         self.wait_xpath("//span[@id='accounts-create-password-meter-message' and contains(text(), '%s')]" % "Excellent")
         self.click(self.wait_id('accounts-create-create', cond=clickable))
         self.click(self.wait_xpath(

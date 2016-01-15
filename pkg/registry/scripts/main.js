@@ -49,8 +49,14 @@
         '$rootScope',
         '$timeout',
         'kubeLoader',
+        'kubeSelect',
         'cockpitKubeDiscover',
-        function($scope, $location, $rootScope, $timeout, loader, discover) {
+        function($scope, $location, $rootScope, $timeout, loader, select, discover) {
+            $scope.config = {
+                registry: {
+                    host: "hostname"
+                }
+            };
 
             /* Used to set detect which route is active */
             $scope.viewActive = function(segment) {
@@ -93,11 +99,23 @@
             /* Curtains related logic */
             function connect() {
                 $scope.curtains = { };
-                discover().then(function() {
+                discover().then(function(options) {
                     $scope.curtains = null;
+                    $scope.config.registry.password = null;
+
+                    /* See if we have a bearer token to use */
+                    var authorization, pos;
+                    if (options.headers) {
+                        authorization = (options.headers['Authorization'] || "").trim();
+                        if (authorization.toLowerCase().indexOf("bearer ") === 0)
+                            $scope.config.registry.password = authorization.substr(7).trim();
+                    }
+
                     visible();
                 }, function(resp) {
                     $scope.curtains = { status: resp.status, message: resp.message || resp.statusText };
+                    $scope.config.registry.password = null;
+
                     visible();
                 });
             }
@@ -112,8 +130,36 @@
                 connect();
             };
 
+            /*
+             * HACK: Because we don't have access to the information
+             * about the docker-registry Route, we cannot lookup its
+             * hostname information. So for now lets just look at an
+             * image stream.
+             */
+            var discoverHost = function() {
+                var host = null;
+                angular.forEach(select().kind("ImageStream"), function(stream) {
+                    var repo, status = stream.status || {};
+                    if (!host) {
+                        repo = status.dockerImageRepository || "";
+                        host = repo.split("/")[0];
+                    }
+                });
+                return host;
+            };
+
             /* When the loader changes digest */
             loader.listen(function() {
+                var host;
+
+                if (discoverHost) {
+                    host = discoverHost();
+                    if (host) {
+                        $scope.config.registry.host = host;
+                        discoverHost = null;
+                    }
+                }
+
                 $rootScope.$applyAsync();
             });
         }

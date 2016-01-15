@@ -112,10 +112,14 @@ process_open (CockpitBridge *self,
       if (!cockpit_json_get_string (options, "payload", NULL, &payload))
         payload = NULL;
 
+      if (payload)
+        channel_function = g_hash_table_lookup (self->payloads, payload);
+      else
+        g_warning ("%s: caller didn't provide a payload", channel_id);
+
       /* This will close with "not-supported" */
       channel_type = COCKPIT_TYPE_CHANNEL;
 
-      channel_function = g_hash_table_lookup (self->payloads, payload);
       if (channel_function != NULL)
           channel_type = channel_function ();
 

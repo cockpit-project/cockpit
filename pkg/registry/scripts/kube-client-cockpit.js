@@ -71,7 +71,7 @@
 
     function parseKubeConfig(data, contextName) {
         var config, blob, parser;
-        var options = { port: 8080, headers: { }, payload: "http-stream2" };
+        var options = { port: 8080, headers: { } };
 
         try {
             config = JSON.parse(data);
@@ -612,6 +612,7 @@
                         return;
                     }
 
+                    options.payload = "http-stream2";
                     debug("trying kube at:", options);
                     req = new CockpitKubeRequest("GET", "/api", "", options);
                     req.then(function(response) {

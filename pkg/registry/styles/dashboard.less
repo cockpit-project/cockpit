@@ -1,0 +1,176 @@
+
+.container-cards-pf {
+    display: flex;
+    margin-top: 10px;
+}
+
+.card-pf {
+    flex-grow: 1;
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    flex-basis: 33%;
+}
+
+.card-pf-wide {
+    flex-basis: ~"calc(66% + 20px)";
+}
+
+.card-pf-heading {
+    margin-bottom: 0px;
+
+    i {
+        font-size: 24px;
+        line-height: 16px;
+        vertical-align: top;
+        padding-right: 5px;
+    }
+}
+
+.card-pf-body {
+    margin-top: 10px;
+    margin-bottom: auto;
+}
+
+.card-pf-utilization .card-pf-title {
+    line-height: 1.1;
+}
+
+.card-pf-footer {
+    min-height: 5em;
+}
+
+.dashboard-cards {
+    width: 100%;
+    max-width: 1024px;
+
+}
+
+.dashboard-summary {
+    min-width: 300px;
+
+    .card-pf-body {
+        padding-bottom: 5px;
+    }
+
+    i {
+        font-size: 40px;
+        float: left;
+        display: block;
+        margin: 10px 20px 110px 0;
+    }
+
+    img {
+        margin: 20px auto 0px auto;
+        display: block;
+    }
+
+    dl {
+        margin-left: 20px;
+    }
+
+    dt {
+        font-weight: 300;
+        float: right;
+        padding-top: 16px;
+        font-size: 12px;
+        width: 130px;
+        height: 26px;
+        margin-left: 10px;
+    }
+
+    dd {
+        font-size: 26px;
+        text-align: right;
+    }
+}
+
+.dashboard-storage {
+    img {
+        display: block;
+        margin: 20px auto 0px auto;
+    }
+}
+
+.dashboard-images {
+    .card-pf-body {
+        margin: 10px -10px;
+        padding-bottom: 0px;
+    }
+
+    .table > tbody > tr > td {
+        border-top: none;
+        font-weight: bold;
+        padding: 0px;
+    }
+
+    .table a {
+        display: block;
+        color: inherit;
+        padding: 8px 15px;
+    }
+
+    .card-pf-body div {
+        padding: 7px 10px 10px 10px;
+        cursor: pointer;
+    }
+
+    .card-pf-footer {
+        background: none;
+        border: none;
+        padding: 0px 20px 10px 10px;
+        min-height: 0;
+        text-align: right;
+    }
+
+    .card-pf-body div:hover {
+        background-color: @table-bg-hover;
+    }
+
+    dt {
+        font-size: 13px;
+    }
+
+    dt a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    dd {
+        float: right;
+        margin-left: 20px;
+    }
+
+    ul {
+        background: linear-gradient(90deg, transparent 20px, @tag-border 20px, @tag-border 22px, transparent 22px);
+        background-size: 100% 20px;
+        background-repeat: no-repeat;
+        padding: 10px 0px 0px 20px;
+        margin-bottom: 0px;
+
+        li {
+            background: linear-gradient(180deg, transparent 8px, @tag-border 8px, @tag-border 10px, transparent 10px);
+            background-repeat: no-repeat;
+            padding-left: 7px;
+            display: inline;
+            list-style: none;
+        }
+
+        li:first-child {
+            padding-left: 15px;
+        }
+    }
+}
+
+.dashboard-commands {
+    p {
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    pre {
+        font-size: 13px;
+        background-color: @command-bg-color;
+    }
+}
+

@@ -38,7 +38,19 @@
     .controller('DashboardCtrl', [
         '$scope',
         '$modal',
-        function($scope, $modal) {
+        'kubeLoader',
+        'kubeSelect',
+        'imageLoader',
+        function($scope, $modal, loader, select, images) {
+            loader.watch("namespaces");
+            images.watch();
+
+            loader.listen(function() {
+                $scope.namespaces = select().kind("Namespace");
+                $scope.images = select().kind("Image");
+                $scope.imagestreams = select().kind("ImageStream");
+            });
+
             $scope.exampleDialog = function() {
                 $modal.open({
                     controller: 'ExampleDialogCtrl',

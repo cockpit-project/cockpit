@@ -9,7 +9,7 @@
 #
 # Globals that may be defined elsewhere
 #  * gitcommit xxxx
-#  * tag 0.71
+#  * tag 0.91
 #
 
 %define branding auto
@@ -248,9 +248,9 @@ sed -i "s|%{buildroot}/usr/src/debug||" debug.list
 tar -C %{buildroot}/usr/src/debug -cf - . | tar -C %{buildroot} -xf -
 rm -rf %{buildroot}/usr/src/debug
 
-# On RHEL subscriptions, networkmanager, and docker are part of the shell package
+# On RHEL subscriptions, networkmanager, and sosreport are part of the shell package
 %if 0%{?rhel}
-cat subscriptions.list docker.list networkmanager.list >> shell.list
+cat subscriptions.list sosreport.list networkmanager.list >> shell.list
 %endif
 
 # Only strip out debug info in non wip builds
@@ -360,17 +360,6 @@ This package contains the Cockpit shell UI assets.
 
 %files shell -f shell.list
 
-%package sosreport
-Summary: Cockpit user interface for diagnostic reports
-Requires: sos
-BuildArch: noarch
-
-%description sosreport
-The Cockpit component for creating diagnostic reports with the
-sosreport tool.
-
-%files sosreport -f sosreport.list
-
 %package storaged
 Summary: Cockpit user interface for storage, using Storaged
 Requires: storaged >= 2.1.1
@@ -383,9 +372,29 @@ The Cockpit component for managing storage.  This package uses Storaged.
 
 %files storaged -f storaged.list
 
+%package ostree
+Summary: Cockpit user interface for rpm-ostree
+Requires: rpm-ostree >= 2015.10-1
+
+%description ostree
+The Cockpit components for managing software updates for ostree based systems.
+
+%files ostree -f ostree.list
+
 # Conditionally built packages below
 
 %if 0%{?rhel} == 0
+
+%package sosreport
+Summary: Cockpit user interface for diagnostic reports
+Requires: sos
+BuildArch: noarch
+
+%description sosreport
+The Cockpit component for creating diagnostic reports with the
+sosreport tool.
+
+%files sosreport -f sosreport.list
 
 %package subscriptions
 Summary: Cockpit subscription user interface package
@@ -408,6 +417,8 @@ The Cockpit component for managing networking.  This package uses NetworkManager
 
 %files networkmanager -f networkmanager.list
 
+%endif
+
 %ifarch x86_64 armv7hl
 
 %package docker
@@ -419,8 +430,6 @@ The Cockpit components for interacting with Docker and user interface.
 This package is not yet complete.
 
 %files docker -f docker.list
-
-%endif
 
 %endif
 
@@ -437,15 +446,6 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 %files kubernetes -f kubernetes.list
 
 %endif
-
-%package ostree
-Summary: Cockpit user interface for rpm-ostree
-Requires: rpm-ostree >= 2015.10-1
-
-%description ostree
-The Cockpit components for managing software updates for ostree based systems.
-
-%files ostree -f ostree.list
 
 %if %{defined gitcommit}
 

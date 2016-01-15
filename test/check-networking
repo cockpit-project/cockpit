@@ -167,16 +167,16 @@ class TestNetworking(MachineCase):
         # Add interfaces and wait for them to be active or not (as
         # appropriate for the OS).
 
-        # HACK - The second interface is connected to a different
-        # outside network than the first to avoid something similar to
+        # HACK - The interfaces are connected each to their own
+        # outside network to avoid something similar to
         #
         #  https://bugzilla.redhat.com/show_bug.cgi?id=1211287
         #
         # Switching off rp_filter doesn't seem to be enough in the
         # case of bonds.
 
-        iface1 = self.add_iface()
-        iface2 = self.add_iface(vlan=1)
+        iface1 = self.add_iface(vlan=1)
+        iface2 = self.add_iface(vlan=2)
         self.wait_for_iface(iface1)
         self.wait_for_iface(iface2)
 
@@ -190,10 +190,11 @@ class TestNetworking(MachineCase):
         b.wait_popdown("network-bond-settings-dialog")
         b.wait_in_text("#networking-interfaces", "tbond")
 
-        # Wait for the bond to be active
+        # Wait for the bond to be active.  We wont get an IP because
+        # neither vlan=1 nor vlan=2 are connected to anything.
         b.click("#networking-interfaces td:first-child:contains('tbond')")
         b.wait_visible("#network-interface")
-        b.wait_in_text("tr:contains('Status')", "10.111.")
+        b.wait_in_text("tr:contains('Status')", "Configuring IP")
         b.wait_present("tr[data-interface='%s']" % iface1)
         b.wait_present("tr[data-interface='%s']" % iface2)
 

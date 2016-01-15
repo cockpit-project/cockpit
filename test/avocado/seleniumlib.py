@@ -31,6 +31,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 import os
 import time
+from avocado import Test
 
 user = "test"
 passwd = "superhardpasswordtest5554"
@@ -42,9 +43,11 @@ invisible = EC.invisibility_of_element_located
 frame = EC.frame_to_be_available_and_switch_to_it
 
 
-class SeleniumTest():
-
-    def initialization(self):
+class SeleniumTest(Test):
+    """
+    :avocado: disable
+    """
+    def setUp(self):
         if not (os.environ.has_key("HUB") or os.environ.has_key("BROWSER")):
             self.driver = selenium.webdriver.Firefox()
             guest_machine = 'localhost'
@@ -65,7 +68,7 @@ class SeleniumTest():
         self.driver.get('http://%s:9090' % guest_machine)
         self.error = True
 
-    def closing(self):
+    def tearDown(self):
         if self.error:
             screenshot_file = ""
             try:

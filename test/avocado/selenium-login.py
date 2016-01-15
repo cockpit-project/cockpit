@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-from avocado import Test
 from avocado import main
 from avocado.utils import process
 import os
@@ -10,13 +9,10 @@ sys.path.append(machine_test_dir)
 from seleniumlib import *
 import libdisc
 
-class BasicTestSuite(Test, SeleniumTest):
-    def setUp(self):
-        self.initialization()
-
-    def tearDown(self):
-        self.closing()
-
+class BasicTestSuite(SeleniumTest):
+    """
+    :avocado: enable
+    """
     def test10Base(self):
         out = process.run("hostname", shell=True)
         elem = self.wait_id('server-name')

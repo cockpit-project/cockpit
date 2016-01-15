@@ -1,3 +1,135 @@
-<h1>Dashboard place holder</h1>
+<div class="container-cards-pf dashboard-cards">
+    <div class="card-pf dashboard-summary">
+        <div class="card-pf-body">
+            <i class="pficon pficon-image"></i>
+            <dl>
+                <dt translatable="yes">Images</dt>
+                <dd>{{ images.length }}</dd>
+                <dt translatable="yes">Image streams</dt>
+                <dd>{{ imagestreams.length }}</dd>
+            </dl>
+            <!-- TODO: A real graph -->
+            <img src="sparkle-placeholder.png">
+        </div>
+        <div class="card-pf-footer">
+            <div class="dropdown pull-right " dropdown>
+                <!-- TODO: This dropdown drives the graph above -->
+                <button type="button" class="btn btn-default dropdown-toggle"
+                    dropdown-toggle>
+                    <span translatable="yes">Last 30 Days</span><span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                    <li><a href="#">Not Implemented</a></li>
+                </ul>
+            </div>
+            <a href="#" class="card-pf-link-with-icon">
+                <span class="pficon pficon-add-circle-o"></span>Add image stream
+            </a>
+        </div>
+    </div>
 
-<button class="btn btn-default" ng-click="exampleDialog()">Modal</button>
+    <div class="card-pf card-pf-utilization dashboard-storage">
+        <h2 class="card-pf-title" translatable="yes">Storage Space</h2>
+        <div class="card-pf-body">
+            <p class="card-pf-utilization-details">
+                <span class="card-pf-utilization-card-details-count">200</span>
+                <span class="card-pf-utilization-card-details-description">
+                    <span class="card-pf-utilization-card-details-line-1">Available</span>
+                    <span class="card-pf-utilization-card-details-line-2">of 1300 GB</span>
+                </span>
+            </p>
+            <!-- TODO: A real graph -->
+            <img src="donut-placeholder.png">
+        </div>
+    </div>
+
+    <div class="card-pf dashboard-summary">
+        <div class="card-pf-body">
+            <i class="pficon pficon-project"></i>
+            <dl>
+                <!-- TODO: Fill in actual projects values -->
+                <dt translatable="yes">Projects</dt>
+                <dd>5</dd>
+                <dt translatable="yes">Users</dt>
+                <dd>23</dd>
+                <dt translatable="yes">Groups</dt>
+                <dd>12</dd>
+            </dl>
+        </div>
+        <div class="card-pf-footer">
+            <a href="#" class="card-pf-link-with-icon">
+                <span class="pficon pficon-add-circle-o"></span>Add project
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container-cards-pf dashboard-cards">
+        <div class="card-pf card-pf-wide dashboard-images">
+            <div class="card-pf-heading">
+                <h2 class="card-pf-title" translatable="yes">Images pushed recently</h2>
+            </div>
+            <div class="card-pf-body">
+                <!-- TODO: This isn't filtering the latest -->
+                <div ng-repeat="stream in imagestreams">
+                    <!-- TODO: This is using the imagestream date -->
+                    <dd title="{{ stream.metadata.creationTimestamp | dateRelative }}">
+                        {{ stream.metadata.creationTimestamp | dateRelative }}</dd>
+                    <!-- TODO: Need to have a way to determine public/shared/private -->
+                    <dd class="dashboard-images-col"><i class="fa fa-lock imagestream-lock"
+                        title="Private image stream"></i></dd>
+                    <dt><a ng-href="#/images/{{stream.metadata.namespace}}/{{stream.metadata.name}}">
+                        {{ stream.metadata.namespace}}/{{stream.metadata.name }}</a></dt>
+                    <!-- TODO: Display ... when too many tags listed -->
+                    <ul class="image-tag-list">
+                        <li ng-repeat="tag in stream.status.tags | limitTo:5 track by tag.tag">
+                        <a ng-href="#/images/{{stream.metadata.namespace}}/{{stream.metadata.name}}:{{tag.tag}}"
+                            class="image-tag" >:{{ tag.tag }}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-pf-footer">
+                <a href="#/images" translatable="yes">Show all images</a>
+            </div>
+        </div>
+        <div class="card-pf dashboard-images">
+            <div class="card-pf-heading">
+                <h2 class="card-pf-title" translatable="yes">Images by project</h2>
+            </div>
+            <div class="card-pf-body">
+                <table class="table table-striped table-hover">
+                    <tr ng-repeat="(key, namespace) in namespaces track by key">
+                        <td>
+                            <a ng-href="#/images/{{ namespace.metadata.name }}">
+                                {{ namespace.metadata.name }}
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+</div>
+<div class="container-cards-pf dashboard-cards">
+    <div class="card-pf dashboard-commands">
+        <div class="card-pf-heading">
+            <h2 class="card-pf-title">
+                <i class="fa fa-keyboard-o"></i>
+                <span translatable="yes">Docker commands</span>
+            </h2>
+        </div>
+        <div class="card-pf-body">
+            <p translatable="yes">Log into the registry:</p>
+            <div class="alert alert-warning" ng-if="!config.registry.password">
+                <span class="pficon pficon-warning-triangle-o"></span>
+                <span translatable="yes">Your login credentials do not give you access to use the docker registry from the command line.</span>
+            </div>
+            <pre ng-if="config.registry.password">$ sudo docker login -p {{config.registry.password}} -e unused -u unused {{config.registry.host}}</pre>
+            <p translatable="yes">Push an image:</p>
+<pre>$ sudo docker tag <em>myimage</em> {{config.registry.host}}/<em>project</em>/<em>name:tag</em>
+$ sudo docker push {{config.registry.host}}/<em>project</em>/<em>name</em></pre>
+            <p translatable="yes">Pull an image:</p>
+<pre>$ sudo docker pull {{config.registry.host}}/<em>project</em>/<em>name:tag</em></pre>
+        </div>
+    </div>
+</div>

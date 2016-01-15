@@ -37,6 +37,7 @@
     angular.module('registry.images', [
         'ngRoute',
         'kubeClient',
+        'registry.date',
     ])
 
     .config([
@@ -127,10 +128,10 @@
 
             loader.watch();
             loader.listen(function() {
-                $scope.imagestream = select().kind("ImageStream").namespace(namespace).name(name).one();
+                $scope.stream = select().kind("ImageStream").namespace(namespace).name(name).one();
                 $scope.image = $scope.tag = null;
 
-                imagestreamEachTagItem($scope.imagestream || {}, function(tag, item) {
+                imagestreamEachTagItem($scope.stream || {}, function(tag, item) {
                     if (tag.tag === tagname)
                         $scope.tag = tag;
                 });

@@ -57,8 +57,8 @@ DEFAULT_VERIFY = {
     'image/debian-unstable': [ 'pulls' ]
 }
 
-TESTING = "Testing in progress"
-NOT_TESTED = "Not yet tested"
+TESTING = "In progress"
+NOT_TESTED = "Not yet started"
 NO_TESTING = "Manual testing required"
 
 # Days after which images expire if not in use

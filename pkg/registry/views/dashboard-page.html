@@ -120,16 +120,16 @@
         </div>
         <div class="card-pf-body">
             <p translatable="yes">Log into the registry:</p>
-            <div class="alert alert-warning" ng-if="!config.registry.password">
+            <div class="alert alert-warning" ng-if="!settings.registry.password">
                 <span class="pficon pficon-warning-triangle-o"></span>
                 <span translatable="yes">Your login credentials do not give you access to use the docker registry from the command line.</span>
             </div>
-            <pre ng-if="config.registry.password">$ sudo docker login -p {{config.registry.password}} -e unused -u unused {{config.registry.host}}</pre>
+            <pre ng-if="settings.registry.password">$ sudo docker login -p {{settings.registry.password}} -e unused -u unused {{settings.registry.host}}</pre>
             <p translatable="yes">Push an image:</p>
-<pre>$ sudo docker tag <em>myimage</em> {{config.registry.host}}/<em>project</em>/<em>name:tag</em>
-$ sudo docker push {{config.registry.host}}/<em>project</em>/<em>name</em></pre>
+<pre>$ sudo docker tag <em>myimage</em> {{settings.registry.host}}/<em>project</em>/<em>name:tag</em>
+$ sudo docker push {{settings.registry.host}}/<em>project</em>/<em>name</em></pre>
             <p translatable="yes">Pull an image:</p>
-<pre>$ sudo docker pull {{config.registry.host}}/<em>project</em>/<em>name:tag</em></pre>
+<pre>$ sudo docker pull {{settings.registry.host}}/<em>project</em>/<em>name:tag</em></pre>
         </div>
     </div>
 </div>

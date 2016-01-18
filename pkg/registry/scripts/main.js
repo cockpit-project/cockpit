@@ -52,7 +52,7 @@
         'kubeSelect',
         'cockpitKubeDiscover',
         function($scope, $location, $rootScope, $timeout, loader, select, discover) {
-            $scope.config = {
+            $scope.settings = {
                 registry: {
                     host: "hostname"
                 }
@@ -101,20 +101,20 @@
                 $scope.curtains = { };
                 discover().then(function(options) {
                     $scope.curtains = null;
-                    $scope.config.registry.password = null;
+                    $scope.settings.registry.password = null;
 
                     /* See if we have a bearer token to use */
                     var authorization, pos;
                     if (options.headers) {
                         authorization = (options.headers['Authorization'] || "").trim();
                         if (authorization.toLowerCase().indexOf("bearer ") === 0)
-                            $scope.config.registry.password = authorization.substr(7).trim();
+                            $scope.settings.registry.password = authorization.substr(7).trim();
                     }
 
                     visible();
                 }, function(resp) {
                     $scope.curtains = { status: resp.status, message: resp.message || resp.statusText };
-                    $scope.config.registry.password = null;
+                    $scope.settings.registry.password = null;
 
                     visible();
                 });
@@ -155,7 +155,7 @@
                 if (discoverHost) {
                     host = discoverHost();
                     if (host) {
-                        $scope.config.registry.host = host;
+                        $scope.settings.registry.host = host;
                         discoverHost = null;
                     }
                 }

@@ -64,26 +64,18 @@
     .controller('ImagesCtrl', [
         '$scope',
         '$location',
-        'imageLoader',
-        'imageSelect',
+        'imageData',
         'ListingState',
         'filterService',
-        function($scope, $location, loader, select, ListingState) {
-            loader.watch();
-
-            $scope.images = function(tag) {
-                return select().kind("Image").taggedBy(tag);
-            };
-
-            $scope.imagestreams = function() {
-                var result = select().kind("ImageStream");
-                var namespace = loader.namespace();
-                if (namespace)
-                    result = result.namespace(namespace);
-                return result;
-            };
+        function($scope, $location, data, ListingState) {
+            $scope.images = data.imagesByTag;
+            $scope.imagestreams = data.allStreams;
+            $scope.imageConfig = data.imageConfig;
 
             $scope.listing = new ListingState($scope);
+
+            /* Watch all the images in current namespace */
+            data.watchImages();
 
             $scope.$on("activate", function(ev, id) {
                 if (!$scope.listing.expandable) {
@@ -107,9 +99,10 @@
     .controller('ImageCtrl', [
         '$scope',
         '$routeParams',
-        'imageLoader',
-        'imageSelect',
-        function($scope, $routeParams, loader, select) {
+        'kubeSelect',
+        'kubeLoader',
+        'imageData',
+        function($scope, $routeParams, select, loader, data) {
             var target = $routeParams["target"] || "";
             var pos = target.indexOf(":");
 
@@ -126,18 +119,31 @@
                 tagname = target.substr(pos + 1);
             }
 
-            loader.watch();
-            loader.listen(function() {
+            /* There's no way to watch a single item ... so watch them all :( */
+            data.watchImages();
+
+
+            var c = loader.listen(function() {
                 $scope.stream = select().kind("ImageStream").namespace(namespace).name(name).one();
-                $scope.image = $scope.tag = null;
+                $scope.image = $scope.config = $scope.layers = $scope.tag = null;
 
                 imagestreamEachTagItem($scope.stream || {}, function(tag, item) {
                     if (tag.tag === tagname)
                         $scope.tag = tag;
                 });
 
+
                 if ($scope.tag)
                     $scope.image = select().kind("Image").taggedBy($scope.tag).one();
+                if ($scope.image) {
+                    $scope.names = data.imageTagNames($scope.image);
+                    $scope.config = data.imageConfig($scope.image);
+                    $scope.layers = data.imageLayers($scope.image);
+                }
+            });
+
+            $scope.$on("$destroy", function() {
+                c.cancel();
             });
         }
     ])
@@ -187,9 +193,56 @@
         }
     )
 
-    .factory("imageSelect", [
+    .factory("imageData", [
         'kubeSelect',
-        function(select) {
+        'kubeLoader',
+        function(select, loader) {
+
+            /* Called when we have to load images via imagestreams */
+            function handle_imagestreams(objects) {
+                for (var link in objects) {
+                    if (objects[link].kind === "ImageStream")
+                        handle_imagestream(objects[link]);
+                }
+            }
+
+            function handle_imagestream(imagestream) {
+                var meta = imagestream.metadata || { };
+                var status = imagestream.status || { };
+                angular.forEach(status.tags || [ ], function(tag) {
+                    angular.forEach(tag.items || [ ], function(item) {
+                        var link = loader.resolve("Image", item.image);
+                        if (link in loader.objects)
+                            return;
+
+                        /* An interim object while we're loading */
+                        var interim = { kind: "Image", apiVersion: "v1", metadata: { name: item.image } };
+                        loader.handle(interim);
+
+                        var name = meta.name + "@" + item.image;
+                        loader.load("ImageStreamImage", name, meta.namespace).then(function(resource) {
+                            var image = resource.image;
+                            if (image) {
+                                image.kind = "Image";
+                                loader.handle(image);
+                            }
+                        }, function(response) {
+                            console.warn("couldn't load image: " + response.statusText);
+                            interim.metadata.resourceVersion = "invalid";
+                        });
+                    });
+                });
+            }
+
+            /* Load images, but fallback to loading individually */
+            var watching = null;
+            function watchImages() {
+                if (!watching)
+                    watching = loader.watch("imagestreams");
+                return watching;
+            }
+
+            loader.listen(handle_imagestreams);
 
             /*
              * Filters selection to those with names that are
@@ -252,67 +305,49 @@
                 return select(results);
             });
 
-            return select;
-        }
-    ])
-
-    .factory("imageLoader", [
-        "kubeLoader",
-        function(loader) {
-            var watching;
-
-            /* Called when we have to load images via imagestreams */
-            function handle_imagestreams(objects) {
-                for (var link in objects) {
-                    if (objects[link].kind === "ImageStream")
-                        handle_imagestream(objects[link]);
-                }
+            function imagesByTag(tag) {
+                return select().kind("Image").taggedBy(tag);
             }
 
-            function handle_imagestream(imagestream) {
-                var meta = imagestream.metadata || { };
-                var status = imagestream.status || { };
-                angular.forEach(status.tags || [ ], function(tag) {
-                    angular.forEach(tag.items || [ ], function(item) {
-                        var link = loader.resolve("Image", item.image);
-                        if (link in loader.objects)
-                            return;
+            function listImagestreams() {
+                var result = select().kind("ImageStream");
+                var namespace = loader.namespace();
+                if (namespace)
+                    result = result.namespace(namespace);
+                return result;
+            }
 
-                        /* An interim object while we're loading */
-                        var interim = { kind: "Image", apiVersion: "v1", metadata: { name: item.image } };
-                        loader.handle(interim);
+            function imageLayers(image) {
+                var manifest = select({ 1: image }).dockerImageManifest().one() || { };
+                if (manifest.schemaVersion !== 1)
+                    return [];
+                return manifest.history;
+            }
 
-                        var name = meta.name + "@" + item.image;
-                        loader.load("ImageStreamImage", name, meta.namespace).then(function(resource) {
-                            var image = resource.image;
-                            if (image) {
-                                image.kind = "Image";
-                                loader.handle(image);
-                            }
-                        }, function(response) {
-                            console.warn("couldn't load image: " + response.statusText);
-                            interim.metadata.resourceVersion = "invalid";
-                        });
-                    });
-                });
+            function imageConfig(image) {
+                var compat, layers = imageLayers(image) || { };
+                if (layers[0]) {
+                    compat = layers[0].v1Compatibility;
+                    if (compat && compat.config)
+                        return compat.config;
+                }
+
+                var meta = image.dockerImageMetadata || { };
+                return meta.Config || { };
+            }
+
+            /* HACK: We really want a metadata index here */
+            function imageTagNames(image) {
+                return select().kind("ImageStream").listTagNames(image.metadata.name);
             }
 
             return {
-                watch: function() {
-                    if (watching)
-                        return;
-
-                    /* Load images, but fallback to loading individually */
-                    watching = loader.watch("imagestreams");
-                    loader.watch("images").catch(function(response) {
-                        loader.listen(handle_imagestreams);
-                    });
-                },
-                load: function(imagestream) {
-                    handle_imagestream(imagestream);
-                },
-                listen: loader.listen,
-                namespace: loader.namespace,
+                watchImages: watchImages,
+                allStreams: listImagestreams,
+                imagesByTag: imagesByTag,
+                imageLayers: imageLayers,
+                imageConfig: imageConfig,
+                imageTagNames: imageTagNames,
             };
         }
     ]);

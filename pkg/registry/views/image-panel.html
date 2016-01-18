@@ -2,9 +2,8 @@
     <div class="listing-head" ng-click="listing.collapse(id, $event)">
         <div class="listing-actions">
             <button class="btn btn-danger btn-delete pficon pficon-delete"></button>
-            <button class="btn btn-default fa fa-tags image-tags"></button>
         </div>
-        <h3><i class="pficon pficon-image"></i>{{ object.name }}</h3>
+        <h3><i class="pficon pficon-image"></i>{{ names[0] }}</h3>
         <ul class="nav nav-tabs nav-tabs-pf">
             <li ng-class="{active: tab('main')}"><a ng-click="tab('main', $event)">Image</a></li>
             <li ng-class="{active: tab('config')}"><a ng-click="tab('config', $event)">Configuration</a></li>

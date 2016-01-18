@@ -6,18 +6,20 @@
         <i class="pficon pficon-image"></i>
         {{ stream.metadata.namespace }}/{{ stream.metadata.name}}:{{ tag.tag }}
     </h3>
-    <a ng-href="#/images/{{ imagestream.metadata.namespace }}/{{ imagestream.metadata.name }}"
-        translatable="yes">Show all images</a>
+    <a ng-href="#/images/{{ stream.metadata.namespace }}/{{ imagestream.metadata.name }}"
+        translatable="yes" class="hidden-xs">Show all images</a>
 </div>
 
-<div>
+<div class="listing-inline">
     <h3 translatable="yes">Image</h3>
-    <div image-body></div>
+    <div class="listing-body container-fluid" image-body></div>
 
+<!--
     <h3 translatable="yes">Configuration</h3>
     <div image-config></div>
 
     <h3 translatable="yes">Metadata</h3>
     <div image-meta></div>
+-->
 </div>
 </div>

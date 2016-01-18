@@ -1,9 +1,9 @@
 <dl>
     <dt translatable="yes">Pull repository</dt>
     <dd ng-if="stream.spec.dockerImageRepository"><tt>{{stream.spec.dockerImageRepository}}</tt></dd>
-    <dd ng-if="!stream.spec.dockerImageRepository"><em>None</em></dd>
+    <dd ng-if="!stream.spec.dockerImageRepository"><em translatable="yes">None</em></dd>
     <dt ng-if="stream.spec.dockerImageRepository" translatable="yes">Pull tags</dt>
-    <dd ng-if="stream.spec.dockerImageRepository && !stream.spec.tags"><em>All</em></dd>
+    <dd ng-if="stream.spec.dockerImageRepository && !stream.spec.tags"><em translatable="yes">All</em></dd>
     <dd ng-if="stream.spec.dockerImageRepository && stream.spec.tags">
         <span class="image-tag" ng-repeat="tag in stream.spec.tags">{{ tag.tag }}
     </dd>

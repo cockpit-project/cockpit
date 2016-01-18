@@ -1,1 +1,14 @@
-Metadata stuff here
+<div>
+    <!-- TODO: Fill in the layers graph here -->
+    <pre>Layers TODO</pre>
+    <dl>
+        <dt ng-if="config.Labels" translatable="yes">Labels</dt>
+        <dd ng-repeat="(name, value) in config.Labels"><tt>{{name}}={{value}}</tt></dd>
+        <dt ng-if="config.OnBuild.length" translatable="yes">On Build</dt>
+        <dd ng-repeat="line in config.OnBuild"><tt>{{line}}</tt></dd>
+        <dt ng-if="image.metadata.annotations" translatable="yes">Annotations</dt>
+        <dd ng-repeat="(name, value) in image.metadata.annotations">{{name}}: {{value}}</dd>
+        <dt translatable="yes">Docker Version</dt>
+        <dd>{{image.dockerImageMetadata.DockerVersion}}</dd>
+    </dl>
+</div>

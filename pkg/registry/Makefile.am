@@ -4,6 +4,7 @@ registry_VIEWS = \
 	pkg/registry/views/image-body.html \
 	pkg/registry/views/image-config.html \
 	pkg/registry/views/image-meta.html \
+	pkg/registry/views/image-listing.html \
 	pkg/registry/views/image-page.html \
 	pkg/registry/views/image-panel.html \
 	pkg/registry/views/images-page.html \

@@ -102,7 +102,8 @@
         'kubeSelect',
         'kubeLoader',
         'imageData',
-        function($scope, $routeParams, select, loader, data) {
+        'ListingState',
+        function($scope, $routeParams, select, loader, data, ListingState) {
             var target = $routeParams["target"] || "";
             var pos = target.indexOf(":");
 
@@ -142,9 +143,57 @@
                 }
             });
 
+            $scope.listing = new ListingState($scope);
+            $scope.listing.inline = true;
+
+            /* So we can use the same imageListing directive */
+            $scope.imagestreams = function() {
+                if ($scope.stream)
+                    return { "/": $scope.stream };
+                return { };
+            };
+
+            $scope.images = data.imagesByTag;
+
             $scope.$on("$destroy", function() {
                 c.cancel();
             });
+        }
+    ])
+
+    .directive('imagePanel', [
+        'kubeLoader',
+        'imageData',
+        function(loader, data) {
+            return {
+                restrict: 'A',
+                scope: true,
+                link: function(scope, element, attrs) {
+                    var tab = 'main';
+                    scope.tab = function(name, ev) {
+                        if (ev) {
+                            tab = name;
+                            ev.stopPropagation();
+                        }
+                        return tab === name;
+                    };
+
+                    var c = loader.listen(function() {
+                        scope.names = scope.config = scope.layers = null;
+                        console.log("image scope", scope);
+                        if (scope.image) {
+                            scope.names = data.imageTagNames(scope.image);
+                            scope.config = data.imageConfig(scope.image);
+                            scope.layers = data.imageLayers(scope.image);
+                        }
+                    });
+
+                    scope.$on("$destroy", function() {
+                        c.cancel();
+                    });
+                },
+                templateUrl: "views/image-panel.html"
+            };
         }
     ])
 
@@ -189,6 +238,15 @@
             return {
                 restrict: 'A',
                 templateUrl: 'views/imagestream-meta.html'
+            };
+        }
+    )
+
+    .directive('imageListing',
+        function() {
+            return {
+                restrict: 'A',
+                templateUrl: 'views/image-listing.html'
             };
         }
     )

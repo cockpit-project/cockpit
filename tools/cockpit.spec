@@ -374,7 +374,11 @@ The Cockpit component for managing storage.  This package uses Storaged.
 
 %package ostree
 Summary: Cockpit user interface for rpm-ostree
+%if 0%{?rhel}
+Requires: rpm-ostree-client >= 2015.11-1
+%else
 Requires: rpm-ostree >= 2015.10-1
+%endif
 
 %description ostree
 The Cockpit components for managing software updates for ostree based systems.

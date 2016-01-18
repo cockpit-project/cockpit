@@ -1,51 +1,5 @@
 <filter-bar class="content-filter">
 </filter-bar>
 
-<div>
-    <table listing-table class="listing images-listing">
-        <thead>
-            <tr>
-                <td colspan="4">
-                    <h3 translatable="yes">Images</h3>
-                </td>
-            </tr>
-            <tr>
-                <th translatable="yes">Tags</th>
-                <th translatable="yes">Author</th>
-                <th translatable="yes">Last Updated</th>
-            </tr>
-        </thead>
-        <tbody ng-repeat-start="stream in imagestreams() track by stream.metadata.name"
-               ng-init="sid = stream.metadata.namespace + '/' + stream.metadata.name"
-               data-id="{{ sid }}" class="active" ng-class="{open: listing.expanded(sid)}">
-            <tr class="listing-item imagestream-item" ng-click="listing.toggle(sid)">
-                <th colspan="4">{{ sid }}</th>
-            </tr>
-            <tr class="listing-panel" ng-if="listing.expanded(sid)" ng-init="id = sid">
-                <td listing-panel kind="ImageStream" colspan="3"></td>
-            </tr>
-        </tbody>
-        <tbody ng-repeat="tag in stream.status.tags track by tag.tag"
-               ng-init="iid = sid + ':' + tag.tag" data-id="{{ iid }}"
-               class="active" ng-class="{open: listing.expanded(iid), last: $last, first: $first}">
-            <tr class="listing-item tag-item" ng-click="listing.toggle(iid)"
-                ng-repeat-start="image in images(tag) track by image.metadata.name">
-                <td><span class="image-tag">:{{ tag.tag }}</span></td>
-                <td colspan="3"><tt>{{ image.metadata.name }}</tt></td>
-            </tr>
-            <tr class="listing-item image-item" ng-click="listing.toggle(iid)"
-                ng-init="conf = imageConfig(image); layer = imageLayers(image)[0]">
-                <td></td>
-                <td ng-if="conf.author">{{ conf.author }}</td>
-                <td ng-if="!conf.author">{{ image.dockerImageMetadata.Author }}</td>
-                <td ng-if="layer.v1Compatibility.created">{{ layer.v1Compatibility.created | dateRelative  }}</td>
-                <td ng-if="!layer.v1Compatibility.created">{{ image.dockerImageMetadata.Created | dateRelative }}</td>
-            </tr>
-            <tr class="listing-panel" ng-if="listing.expanded(iid)" ng-init="id = iid" ng-repeat-end="">
-                <td listing-panel kind="Image" colspan="3"></td>
-            </tr>
-        </tbody>
-        <tbody data-ng-rubbish="" ng-if="0" ng-repeat-end>
-        </tbody>
-    </table>
+<div image-listing>
 </div>

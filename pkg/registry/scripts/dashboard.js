@@ -39,19 +39,23 @@
         '$scope',
         'kubeLoader',
         'kubeSelect',
-        'imageLoader',
         'projectActions',
-        function($scope, loader, select, images, projectActions) {
+        function($scope, loader, select, projectActions) {
             loader.load("projects");
             loader.watch("users");
             loader.watch("groups");
-            images.watch();
+            loader.watch("imagestreams");
 
-            loader.listen(function() {
+            var c = loader.listen(function() {
                 $scope.projects = select().kind("Project");
                 $scope.users = select().kind("Project");
+                $scope.groups = select().kind("Group");
                 $scope.images = select().kind("Image");
                 $scope.imagestreams = select().kind("ImageStream");
+            });
+
+            $scope.$on("$destroy", function() {
+                c.cancel();
             });
 
             $scope.createProject = projectActions.create;

@@ -62,7 +62,39 @@ table.images-listing {
     tr.listing-item tt {
         color: @metadata-color;
     }
+
+    /* The following may need to go into the main listing pattern */
+    dt {
+        width: auto;
+    }
 }
+
+dl.image-tags {
+    dt {
+        line-height: 30px;
+    }
+
+    .image-tag {
+        padding: 2px 5px;
+        line-height: 30px;
+    }
+
+    .image-tag:after {
+        content: '\a';
+        white-space: pre;
+    }
+}
+
+@media (min-width: @screen-md-min) {
+    dl.image-tags {
+        dt {
+            width: auto;
+            min-width: 0px;
+            padding: 0px 15px;
+        }
+    }
+}
+
 
 .image-tag {
     border: 2px solid @tag-border;
@@ -84,9 +116,17 @@ a.image-tag {
 
 pre {
     font-size: 13px;
+    padding: 5px 10px;
     background-color: @command-bg-color;
+    border: none;
 
     em {
         font-weight: bold;
     }
+}
+
+.fa-info-circle {
+    font-size: 15px;
+    color: @metadata-color;
+    padding: 0px 5px;
 }

@@ -54,7 +54,7 @@ function suite(fixtures) {
             expect(count);
             inject([
                 "kubeLoader",
-                function(loader, data) {
+                function(loader) {
                     loader.reset(true);
                     if (fixtures)
                         loader.handle(fixtures);
@@ -65,8 +65,9 @@ function suite(fixtures) {
     }
 
     imagesTest("filter containsTagImage", 7, fixtures, [
-        "imageSelect",
-        function(select) {
+        "kubeSelect",
+        "imageData",
+        function(select, data) {
             var streams = select().containsTagImage("sha256:c1ee91e9f0f96ea280d17befdd968ce4e37653939fc9e5e36429cd9674a28719");
             equal(streams.length, 2, "number ofstreams");
             ok("/oapi/v1/namespaces/marmalade/imagestreams/busybee" in streams, "matched busybee");
@@ -84,8 +85,9 @@ function suite(fixtures) {
     ]);
 
     imagesTest("filter taggedBy", 4, fixtures, [
-        "imageSelect",
-        function(select) {
+        "kubeSelect",
+        "imageData",
+        function(select, data) {
             var tag = { "tag": "2.5", "items": [
                 { "image": "sha256:d0329beccad118aa937e839d536d753ee612b67f8feb6adb519e7f5aa6e75fbe" },
                 { "image": "sha256:0885eeaec4514820b2c879100425e9ea10beaf4412db7f67acfe53b4df2b9450" }
@@ -107,8 +109,9 @@ function suite(fixtures) {
     ]);
 
     imagesTest("filter listTagNames", 3, fixtures, [
-        "imageSelect",
-        function(select) {
+        "kubeSelect",
+        "imageData",
+        function(select, data) {
             var names = select().listTagNames("sha256:c1ee91e9f0f96ea280d17befdd968ce4e37653939fc9e5e36429cd9674a28719");
             deepEqual(names, ["marmalade/busybee:latest", "marmalade/juggs:extratag"], "got right names");
 
@@ -121,8 +124,9 @@ function suite(fixtures) {
     ]);
 
     imagesTest("filter dockerImageManifest", 3, fixtures, [
-        "imageSelect",
-        function(select) {
+        "kubeSelect",
+        "imageData",
+        function(select, data) {
             var manifests = select().kind("Image").dockerImageManifest();
             equal(manifests.length, 1, "only manifest returned");
 

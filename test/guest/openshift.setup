@@ -100,11 +100,15 @@ cd /tmp
 printf '#!/bin/sh\necho hello from container\nsleep 100000\n' > echo-script
 printf 'FROM busybox\nMAINTAINER cockpit@example.com\nEXPOSE 8888\nADD echo-script /\nRUN chmod +x /echo-script\nCMD \"/echo-script\"' > Dockerfile
 docker build -t registry:5000/marmalade/juggs:latest .
-printf "FROM registry:5000/marmalade/juggs:latest\nVOLUME /test\nVOLUME another\nWORKDIR /tmp" > Dockerfile
+printf "FROM registry:5000/marmalade/juggs:latest\nVOLUME /test\nVOLUME /another\nWORKDIR /tmp" > Dockerfile
 docker build -t registry:5000/marmalade/juggs:2.11 .
 cp /usr/bin/openshift .
-printf "FROM registry:5000/marmalade/juggs:latest\nADD openshift /usr/bin\nUSER nobody:wheel\nENTRYPOINT ['top', '-b']\nCMD ['-c']" > Dockerfile
+printf "FROM registry:5000/marmalade/juggs:latest\nADD openshift /usr/bin\nUSER nobody:wheel\nENTRYPOINT [\"top\", \"-b\"]\nCMD [\"-c\"]" > Dockerfile
 docker build -t registry:5000/marmalade/juggs:2.5 .
+printf "FROM registry:5000/marmalade/juggs:2.5\nSTOPSIGNAL SIGKILL\nONBUILD ADD . /app/src\nARG hello=test\nARG simple\nLABEL Test=Value\nLABEL version=\"1.0\"" > Dockerfile
+docker build -t registry:5000/marmalade/juggs:2.8 .
+
+
 docker push registry:5000/marmalade/juggs
 
 docker tag openshift/origin registry:5000/marmalade/origin

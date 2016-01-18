@@ -39,9 +39,9 @@
                 </dl>
             </div>
             <div class="col-sm-6">
-                <dl class="full">
+                <dl class="full-width">
                     <dt translatable="yes">Labels</dt>
-                    <dd class="full" ng-repeat="(key, value) in item.metadata.labels">{{key}}={{value}}</dd>
+                    <dd ng-repeat="(key, value) in item.metadata.labels">{{key}}={{value}}</dd>
                 </dl>
             </div>
         </div>
@@ -49,18 +49,18 @@
     <div class="listing-body" ng-show="tab('endpoints')">
         <div class="row">
             <div class="col-sm-6">
-                <dl class="full" ng-repeat="subset in endpoint.subsets">
+                <dl class="full-width" ng-repeat="subset in endpoint.subsets">
                     <dt translatable="yes">Pod Endpoints</dt>
                     <dd ng-repeat="address in subset.addresses">
                         {{ address.ip }} &#8594; {{ address.targetRef.name }}</dd>
                 </dl>
                 <dl ng-if="!endpoint.subsets.length">
-                    <dt class="header full" translatable="yes">Pod Endpoints</dt>
-                    <dd class="full" translatable="yes">No pods selected</dd>
+                    <dt translatable="yes">Pod Endpoints</dt>
+                    <dd translatable="yes">No pods selected</dd>
                 </dl>
             </div>
             <div class="col-sm-6">
-                <dl class="full">
+                <dl class="full-width">
                     <dt translatable="yes">Pod Selector</dt>
                     <dd ng-repeat="(key, value) in item.spec.selector">{{key}}={{value}}</dd>
                 </dl>

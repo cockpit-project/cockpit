@@ -33,7 +33,7 @@
             </dl>
         </div>
         <div class="col-xs-12 col-md-6">
-            <dl class="full">
+            <dl class="full-width">
                 <dt translatable="yes">Labels</dt>
                 <dd ng-repeat="(key, value) in item.metadata.labels">{{key}}={{value}}</dd>
                 <dd ng-if="!item.metadata.labels" translatable="yes">none</dd>
@@ -59,7 +59,7 @@
             </dl>
         </div>
         <div class="col-xs-12 col-md-6">
-            <dl class="full">
+            <dl class="full-width">
                 <dt translatable="yes">Annotations</dt>
                 <dd ng-repeat="(key, value) in item.metadata.annotations">{{key}}={{value}}</dd>
                 <dd ng-if="!item.metadata.annotations" translatable="yes">none</dd>
@@ -76,7 +76,7 @@
             </dl>
         </div>
         <div class="col-sm-6">
-            <dl class="full" ng-init="pods = nodePods(item)">
+            <dl class="full-width" ng-init="pods = nodePods(item)">
                 <dt translatable="yes">Scheduled Pods</dt>
                 <dd ng-repeat="pod in pods">{{ pod.metadata.name }}</dd>
                 <dd ng-if="!pods.count" translatable="yes">No pods scheduled</dd>

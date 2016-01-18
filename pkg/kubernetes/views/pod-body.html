@@ -22,9 +22,9 @@
         </dl>
     </div>
     <div class="col-sm-6">
-        <dl>
-            <dt class="header full" translatable="yes">Labels</dt>
-            <dd class="full" ng-repeat="(key, value) in pod.metadata.labels">{{key}}={{value}}</dd>
+        <dl class="full-width">
+            <dt translatable="yes">Labels</dt>
+            <dd ng-repeat="(key, value) in pod.metadata.labels">{{key}}={{value}}</dd>
         </dl>
     </div>
 </div>

@@ -136,27 +136,27 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                     This deployment contains the same packages as your currently booted system
                 </div>
                 <div class="col-sm-6" ng-if="packages.adds">
-                    <dl class="additions">
-                        <dt class="header full" translatable="yes">Additions</dt>
-                        <dd class="full" ng-repeat="package in packages.adds">{{package.name}}-{{package.version}}.{{package.arch}}</dd>
+                    <dl class="additions full-width">
+                        <dt translatable="yes">Additions</dt>
+                        <dd ng-repeat="package in packages.adds">{{package.name}}-{{package.version}}.{{package.arch}}</dd>
                     </dl>
                 </div>
                 <div class="col-sm-6" ng-if="packages.removes">
-                    <dl class="removals">
-                        <dt class="header full" translatable="yes">Removals</dt>
-                        <dd class="full" ng-repeat="package in packages.removes">{{package.name}}-{{package.version}}.{{package.arch}}</dd>
+                    <dl class="removals full-width">
+                        <dt translatable="yes">Removals</dt>
+                        <dd ng-repeat="package in packages.removes">{{package.name}}-{{package.version}}.{{package.arch}}</dd>
                     </dl>
                 </div>
                 <div class="col-sm-6" ng-if="packages.up">
-                    <dl class="upgrades">
-                        <dt class="header full" translatable="yes">Updates</dt>
-                        <dd class="full" ng-repeat="package in packages.up">{{package.name}}-{{package.version}}.{{package.arch}}</dd>
+                    <dl class="upgrades full-width">
+                        <dt translatable="yes">Updates</dt>
+                        <dd ng-repeat="package in packages.up">{{package.name}}-{{package.version}}.{{package.arch}}</dd>
                     </dl>
                 </div>
                 <div class="col-sm-6" ng-if="packages.down">
-                    <dl class="downgrades">
-                        <dt class="header full" translatable="yes">Downgrades</dt>
-                        <dd class="full" ng-repeat="package in packages.down">{{package.name}}-{{package.version}}.{{package.arch}}</dd>
+                    <dl class="downgrades full-width">
+                        <dt translatable="yes">Downgrades</dt>
+                        <dd ng-repeat="package in packages.down">{{package.name}}-{{package.version}}.{{package.arch}}</dd>
                     </dl>
                 </div>
 

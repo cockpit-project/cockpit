@@ -32,15 +32,15 @@
             </dl>
         </div>
         <div class="col-sm-6">
-            <dl class="full">
+            <dl class="full-width">
                 <dt translatable="yes">Labels</dt>
                 <dd ng-repeat="(key, value) in item.metadata.labels">{{key}}={{value}}</dd>
                 <dd ng-if="!item.metadata.labels" translatable="yes">none</dd>
             </dl>
-            <dl class="full">
+            <dl class="full-width">
                 <dt translatable="yes">Annotations</dt>
-                <dd class="full" ng-repeat="(key, value) in item.metadata.annotations">{{key}}={{value}}</dd>
-                <dd class="full" ng-if="!item.metadata.annotations" translatable="yes">none</dd>
+                <dd ng-repeat="(key, value) in item.metadata.annotations">{{key}}={{value}}</dd>
+                <dd ng-if="!item.metadata.annotations" translatable="yes">none</dd>
             </dl>
         </div>
     </div>

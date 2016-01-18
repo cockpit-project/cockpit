@@ -349,10 +349,11 @@
     .factory("kubeLoader", [
         "$q",
         "$exceptionHandler",
+        "$timeout",
         "KubeWatch",
         "KubeRequest",
         "KUBE_SCHEMA",
-        function($q, $exceptionHandler, KubeWatch, KubeRequest, KUBE_SCHEMA) {
+        function($q, $exceptionHandler, $timeout, KubeWatch, KubeRequest, KUBE_SCHEMA) {
             var callbacks = [];
             var onlyNamespace = null;
 
@@ -530,14 +531,14 @@
                         callbacks.unshift(callback);
                     else
                         callbacks.push(callback);
-                    var timeout = window.setTimeout(function() {
-                        callback.call(self, objects);
+                    var timeout = $timeout(function() {
                         timeout = null;
+                        callback.call(self, objects);
                     }, 0);
                     return {
                         cancel: function() {
                             var i, len;
-                            window.clearTimeout(timeout);
+                            $timeout.cancel(timeout);
                             timeout = null;
                             for (i = 0, len = callbacks.length; i < len; i++) {
                                 if (callbacks[i] === callback)

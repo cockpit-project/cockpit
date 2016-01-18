@@ -728,6 +728,14 @@ tbody.active .listing-head {
     padding: 20px 25px;
     font-size: 13px;
     border: 1px solid #ccc;
+    background-color: white;
+}
+
+.listing-inline .listing-body {
+    border: none;
+    padding-top: 0px;
+    padding-left: 0px;
+    padding-bottom: 0px;
 }
 
 .listing-actions {
@@ -758,27 +766,28 @@ tbody.active .listing-head {
     margin: 0;
 }
 
-.listing-body dl + dl {
-    margin-top: 26px;
-}
-
 .listing-body dt {
     clear: left;
     float: left;
-    width: 35%;
-    min-width: 100px;
-    max-width: 250px;
+    width: 100px;
     min-height: 26px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: right;
-    padding-right: 10px;
     color: #888;
     font-weight: normal;
 }
 
-.listing-body dl.full dt {
+.listing-body dd {
+    margin-left: 110px;
+    min-height: 26px;
+    max-width: 1000px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.listing-body dl.full-width dt {
     text-align: left;
     min-width: none;
     max-width: none;
@@ -786,11 +795,16 @@ tbody.active .listing-head {
     width: auto;
 }
 
-.listing-body dd {
-    min-height: 26px;
-    max-width: 1000px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.listing-body dl.full-width dd {
+    margin-left: 0px;
+}
+
+.listing-body dl.wide-terms dt {
+    width: 180px;
+}
+
+.listing-body dl.wide-terms dd {
+    margin-left: 190px;
 }
 
 table.listing tbody.open {

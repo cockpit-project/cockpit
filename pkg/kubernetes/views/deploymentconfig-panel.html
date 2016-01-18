@@ -36,7 +36,7 @@
             </dl>
         </div>
         <div class="col-sm-6">
-            <dl class="full">
+            <dl class="full-width">
                 <dt translatable="yes" ng-if="item.status.details">Deployment Causes</dt>
                 <dd ng-if="item.status.details.message">{{ item.status.details.message }}</dd>
                 <dd ng-repeat="cause in item.status.details.causes">
@@ -46,7 +46,7 @@
                     <span>
                 </dd>
             </dl>
-            <dl class="full">
+            <dl class="full-width">
                 <dt translatable="yes" ng-if="item.spec.triggers">Triggers</dt>
                 <dd class="full" ng-repeat="trigger in item.spec.triggers">
                     {{ trigger.type }}
@@ -55,7 +55,7 @@
                     </span>
                 </dd>
             </dl>
-            <dl class="full">
+            <dl class="full-width">
                 <dt translatable="yes">Labels</dt>
                 <dd ng-if="!item.metadata.labels">none</span>
                 <dd ng-repeat="(key, value) in item.metadata.labels">{{key}}={{value}}</dd>

@@ -26,7 +26,7 @@
            ng-init="iid = sid + ':' + tag.tag" data-id="{{ iid }}"
            class="active" ng-class="{open: listing.expanded(iid), last: $last, first: $first}">
         <tr class="listing-item tag-item" ng-click="listing.toggle(iid)"
-            ng-repeat-start="image in images(tag) track by image.metadata.name">
+            ng-repeat-start="image in imagesByTag(tag) track by image.metadata.name">
             <td><span class="image-tag">:{{ tag.tag }}</span></td>
             <td colspan="3"><tt>{{ image.metadata.name }}</tt></td>
         </tr>

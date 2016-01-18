@@ -68,9 +68,8 @@
         'ListingState',
         'filterService',
         function($scope, $location, data, ListingState) {
-            $scope.images = data.imagesByTag;
             $scope.imagestreams = data.allStreams;
-            $scope.imageConfig = data.imageConfig;
+            angular.extend($scope, data);
 
             $scope.listing = new ListingState($scope);
 
@@ -153,7 +152,7 @@
                 return { };
             };
 
-            $scope.images = data.imagesByTag;
+            angular.extend($scope, data);
 
             $scope.$on("$destroy", function() {
                 c.cancel();
@@ -180,7 +179,6 @@
 
                     var c = loader.listen(function() {
                         scope.names = scope.config = scope.layers = null;
-                        console.log("image scope", scope);
                         if (scope.image) {
                             scope.names = data.imageTagNames(scope.image);
                             scope.config = data.imageConfig(scope.image);
@@ -399,6 +397,19 @@
                 return select().kind("ImageStream").listTagNames(image.metadata.name);
             }
 
+            function configCommand(config) {
+                var result = [ ];
+                if (config.Entrypoint)
+                    result.push.apply(result, config.Entrypoint);
+                if (config.Cmd)
+                    result.push.apply(result, config.Cmd);
+                var string = result.join(" ");
+                if (config.User && config.User.split(":")[0] != "root")
+                    return "$ " + string;
+                else
+                    return "# " + string;
+            }
+
             return {
                 watchImages: watchImages,
                 allStreams: listImagestreams,
@@ -406,6 +417,7 @@
                 imageLayers: imageLayers,
                 imageConfig: imageConfig,
                 imageTagNames: imageTagNames,
+                configCommand: configCommand,
             };
         }
     ]);

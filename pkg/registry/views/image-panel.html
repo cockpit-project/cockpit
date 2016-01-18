@@ -5,9 +5,15 @@
         </div>
         <h3><i class="pficon pficon-image"></i>{{ names[0] }}</h3>
         <ul class="nav nav-tabs nav-tabs-pf">
-            <li ng-class="{active: tab('main')}"><a ng-click="tab('main', $event)">Image</a></li>
-            <li ng-class="{active: tab('config')}"><a ng-click="tab('config', $event)">Configuration</a></li>
-            <li ng-class="{active: tab('meta')}"><a ng-click="tab('meta', $event)">Metadata</a></li>
+            <li ng-class="{active: tab('main')}">
+                <a ng-click="tab('main', $event)" translatable="yes">Image</a>
+            </li>
+            <li ng-class="{active: tab('config')}">
+                <a ng-click="tab('config', $event)" translatable="yes">Container</a>
+            </li>
+            <li ng-class="{active: tab('meta')}">
+                <a ng-click="tab('meta', $event)" translatable="yes">Metadata</a>
+            </li>
         </ul>
     </div>
 

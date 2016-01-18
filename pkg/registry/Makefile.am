@@ -23,7 +23,8 @@ registry_LESS = \
 	pkg/registry/styles/images.less \
 	pkg/registry/styles/projects.less \
 	pkg/registry/styles/sidebar.less \
-	pkg/registry/styles/variables.less \
+	pkg/registry/styles/variables-bootstrap.less \
+	pkg/registry/styles/variables-patternfly.less \
 	$(NULL)
 
 registry_MODULES = \

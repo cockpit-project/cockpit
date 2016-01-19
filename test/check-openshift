@@ -23,109 +23,24 @@ from testlib import *
 import os
 import unittest
 
+from kubelib import *
+
 @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-openshift on rhel-7.")
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
-class TestOpenshift(MachineCase):
+class TestOpenshift(MachineCase, OpenshiftCommonTests):
     def setUp(self):
         self.openshift = self.new_machine(image="openshift")
         self.openshift.start()
         self.openshift.wait_boot()
-
-        MachineCase.setUp(self)
+        self.openshift.upload(["files/mock-app-openshift.json"], "/tmp")
+        super(TestOpenshift, self).setUp()
 
         tmpfile = os.path.join(self.tmpdir, "config")
         self.openshift.download("/root/.kube/config", tmpfile)
-        self.openshift.upload(["files/mock-app-openshift.json"], "/tmp")
 
         m = self.machine
         with open(tmpfile, "r") as f:
             m.execute("mkdir -p /home/admin/.kube && cat > /home/admin/.kube/config", input=f.read())
-
-    def tearDown(self):
-        MachineCase.tearDown(self)
-
-    def testBasic(self):
-        m = self.machine
-        b = self.browser
-
-        # populate routes
-        self.openshift.execute("oc expose service docker-registry --hostname=test.example.com")
-
-        self.login_and_go("/kubernetes")
-        b.wait_present("#service-list")
-        b.wait_in_text("#service-list", "registry")
-
-        # Switch to images view
-        b.click("a[href='#/images']")
-        b.wait_present(".images-listing tr[data-id='library/busybox']")
-        self.assertEqual(b.text(".images-listing tr[data-id='library/busybox'] th"), "library/busybox")
-        b.click(".images-listing tr[data-id='library/busybox']")
-
-        self.assertEqual(b.text(".images-listing tr[data-id='library/busybox'] h3"), "library/busybox")
-
-        header = b.text(".images-listing tr[data-id='library/busybox'] div.listing-head")
-        self.assertIn("registry.hub.docker.com", header)
-
-        self.assertEqual(b.text(".images-listing tr[data-id='library/busybox'] h3"), "library/busybox")
-        b.wait_in_text(".images-listing tr[data-id='library/busybox'] div.listing-body", "latest")
-        b.wait_in_text(".images-listing tr[data-id='library/busybox'] div.listing-body", "amd64")
-        b.wait_in_text(".images-listing tr[data-id='library/busybox'] div.listing-body", "library/busybox@sha")
-
-        # Switch to detail view
-        b.click("a[href='#/list']")
-        b.wait_present("#content .details-listing")
-        b.wait_present("#routes")
-        b.wait_present("#deployment-configs")
-
-        b.wait_present(".details-listing tbody[data-id='deploymentconfigs/default/docker-registry'] th")
-        self.assertEqual(b.text(".details-listing tbody[data-id='deploymentconfigs/default/docker-registry'] th"), "docker-registry")
-        self.assertIn("DeploymentConfig:", b.attr(".details-listing tbody[data-id='deploymentconfigs/default/docker-registry']", "data-key"))
-
-        b.wait_present(".details-listing tbody[data-id='routes/default/docker-registry'] th")
-        self.assertEqual(b.text(".details-listing tbody[data-id='routes/default/docker-registry'] th"), "docker-registry")
-        self.assertIn("Route:", b.attr(".details-listing tbody[data-id='routes/default/docker-registry']", "data-key"))
-
-        # Switch to topology view
-        b.click("a[href='#/topology']")
-        b.wait_present("svg line.DeploymentConfigReplicationController")
-        b.wait_present("svg line.RouteService")
-
-    def testDelete(self):
-        m = self.machine
-        b = self.browser
-        b.wait_timeout(120)
-
-        self.login_and_go("/kubernetes")
-        b.wait_present("#service-list")
-
-        self.openshift.execute("oc create -f /tmp/mock-app-openshift.json")
-        b.wait_in_text("#service-list", "mock")
-
-        b.click("a[href='#/list']")
-        b.wait_present("#content .details-listing")
-        b.wait_present("#routes")
-        b.wait_present("#deployment-configs")
-
-        b.wait_present(".details-listing tbody[data-id='deploymentconfigs/default/frontend'] th")
-        b.wait_present(".details-listing tbody[data-id='routes/default/mock'] th")
-        self.assertEqual(b.is_present(".details-listing tbody[data-id='routes/default/mock'] th"), True)
-        self.assertEqual(b.is_present(".details-listing tbody[data-id='deploymentconfigs/default/frontend'] th"), True)
-
-        b.click(".details-listing tbody[data-id='routes/default/mock'] th")
-        b.wait_visible(".details-listing tbody[data-id='routes/default/mock'] .route-delete")
-        b.click(".details-listing tbody[data-id='routes/default/mock'] .route-delete")
-        b.wait_popup("delete-entity-dialog")
-        b.click("#delete-entity-button")
-        b.wait_popdown("delete-entity-dialog")
-        b.wait_not_present(".details-listing tbody[data-id='routes/default/mock']")
-
-        b.click(".details-listing tbody[data-id='deploymentconfigs/default/frontend'] th")
-        b.wait_visible(".details-listing tbody[data-id='deploymentconfigs/default/frontend'] .deployment-delete")
-        b.click(".details-listing tbody[data-id='deploymentconfigs/default/frontend'] .deployment-delete")
-        b.wait_popup("delete-entity-dialog")
-        b.click("#delete-entity-button")
-        b.wait_popdown("delete-entity-dialog")
-        b.wait_not_present(".details-listing tbody[data-id='deploymentconfigs/default/frontend']")
 
 
 if __name__ == '__main__':

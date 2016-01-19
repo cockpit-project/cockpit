@@ -23,6 +23,7 @@ import os
 import subprocess
 import sys
 import time
+import traceback
 
 sys.dont_write_bytecode = True
 
@@ -204,7 +205,7 @@ def main():
     ret = rebase(sink)
 
     # Actually run the tests
-    if ret == 0:
+    if not ret:
         proc = subprocess.Popen(cmd)
         ret = wait_testing(proc, sink, github)
 

@@ -1183,7 +1183,7 @@ class VirtMachine(Machine):
         if "atomic" in self.image:
             self.execute(command="mount -o remount,rw /usr")
 
-    def wait_for_cockpit_running(self, atomic_wait_for_host="localhost"):
+    def wait_for_cockpit_running(self, atomic_wait_for_host="localhost", port=9090):
         """Wait until cockpit is running.
 
         We only need to do this on atomic systems.
@@ -1192,10 +1192,10 @@ class VirtMachine(Machine):
         if not "atomic" in self.image or not atomic_wait_for_host:
             return
         WAIT_COCKPIT_RUNNING = """#!/bin/sh
-until curl -s --connect-timeout 1 http://%s:9090 >/dev/null; do
+until curl -s --connect-timeout 1 http://%s:%s >/dev/null; do
     sleep 0.5;
 done;
-""" % (atomic_wait_for_host)
+""" % (atomic_wait_for_host, port)
         with Timeout(seconds=30, error_message="Timeout while waiting for cockpit/ws to start"):
             self.execute(script=WAIT_COCKPIT_RUNNING)
 

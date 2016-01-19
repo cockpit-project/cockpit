@@ -36,9 +36,9 @@ from avocado import Test
 user = "test"
 passwd = "superhardpasswordtest5554"
 
-# use javascript to generate clicks in the browsers
+# use javascript to generate clicks in the browsers and add more javascript checks for elements
 # this prevents races where the test clicks in the wrong place because the page layout changed
-javascript_clicks = True
+javascript_operations = True
 
 visible = EC.visibility_of_element_located
 clickable = EC.element_to_be_clickable
@@ -94,11 +94,37 @@ class SeleniumTest(Test):
         except Exception as e:
             raise Exception('ERR: Unable to close WEBdriver', str(e))
 
+    def everything_loaded(self, element):
+        if javascript_operations:
+            for foo in range(0, self.default_try): 
+                if self.driver.execute_script("return Array.from(arguments[0].children).every(function (e) { return e.getAttribute('data-loaded'); })", element):
+                    break
+
     def click(self, element):
-        if javascript_clicks:
-            self.driver.execute_script("arguments[0].click();", element)
-        else:
-            element.click()
+        notdone=""
+        self.everything_loaded(element)
+        for foo in range(0, self.default_try):
+            try:
+                if javascript_operations:
+                    self.driver.execute_script("arguments[0].click();", element)
+                else:
+                    element.click()
+                break
+                notdone=None
+            except Exception as e:
+                notdone=e
+                time.sleep(self.default_explicit_wait)
+                pass
+        if notdone:
+            raise Exception('ERR: Unable to CLICK on element ', str(notdone))
+
+    def send_keys(self, element, text, clear=True):
+        if clear:
+            element.clear()
+        element.send_keys(text)
+        if javascript_operations:
+            self.driver.execute_script('var ev = document.createEvent("Event"); ev.initEvent("change", true, false); arguments[0].dispatchEvent(ev);', element)
+            self.driver.execute_script('var ev = document.createEvent("Event"); ev.initEvent("keydown", true, false); arguments[0].dispatchEvent(ev);', element)
 
     def wait(self, method, text, baseelement, overridetry, fatal, cond):
         """
@@ -134,6 +160,8 @@ parameters:
                     pass
                 finally:
                     raise Exception('ERR: Unable to locate name: %s' % str(text), screenshot_file)
+        if not (cond == frame or fatal == False):
+            self.everything_loaded(returned)
         return returned
 
     def wait_id(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):
@@ -173,12 +201,8 @@ parameters:
         self.driver.switch_to_default_content()
 
     def login(self, tmpuser=user, tmppasswd=passwd):
-        elem = self.wait_id('login-user-input')
-        elem.clear()
-        elem.send_keys(tmpuser)
-        elem = self.wait_id('login-password-input')
-        elem.clear()
-        elem.send_keys(tmppasswd)
+        self.send_keys(self.wait_id('login-user-input'), tmpuser)
+        self.send_keys(self.wait_id('login-password-input'), tmppasswd)
         self.click(self.wait_id("login-button", cond=clickable))
 
     def logout(self):

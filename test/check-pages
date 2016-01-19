@@ -48,7 +48,7 @@ WantedBy=default.target
         b.wait_present("#service-unit .panel-heading")
         b.wait_text("#service-unit .panel-heading", "Test Service")
 
-        self.restart_cockpit()
+        m.restart_cockpit()
         b.relogin("/system/services")
         b.wait_present("#service-unit .panel-heading")
         b.wait_text("#service-unit .panel-heading", "Test Service")

@@ -29,7 +29,7 @@ class TestConnection(MachineCase):
         b = self.browser
         m = self.machine
 
-        self.start_cockpit()
+        m.start_cockpit()
 
         # take cockpit-ws down on the login page
         b.open("/system")
@@ -146,7 +146,7 @@ class TestConnection(MachineCase):
 
     def testConfigOrigins(self):
         m = self.machine
-        self.start_cockpit()
+        m.start_cockpit()
         m.execute('echo "[WebService]\nOrigins = http://other-origin:9090 http://localhost:9090" > /etc/cockpit/cockpit.conf')
         output = m.execute('curl -s -f -N -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Origin: http://other-origin:9090" -H "Host: localhost:9090" -H "Sec-Websocket-Key: 3sc2c9IzwRUc3BlSIYwtSA==" -H "Sec-Websocket-Version: 13" http://localhost:9090/cockpit/socket')
         self.assertIn('"no-session"', output)

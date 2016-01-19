@@ -191,7 +191,7 @@ class OstreeRestartCase(MachineCase):
             b.wait_popup("disconnected-dialog")
 
         m.wait_reboot()
-        self.start_cockpit()
+        m.start_cockpit()
         b.reload()
         b.login_and_go("/updates")
         m.reset_reboot_flag()
@@ -234,7 +234,7 @@ class OstreeRestartCase(MachineCase):
             b.wait_popup("disconnected-dialog")
 
         m.wait_reboot()
-        self.start_cockpit()
+        m.start_cockpit()
         b.reload()
         b.login_and_go("/updates")
         m.reset_reboot_flag()
@@ -262,7 +262,7 @@ class OstreeCase(MachineCase):
         m.execute("echo foobar | passwd --stdin user")
 
         # login
-        self.start_cockpit()
+        m.start_cockpit()
         b.open("/updates")
         b.wait_visible("#login")
         b.set_val("#login-user-input", "user")

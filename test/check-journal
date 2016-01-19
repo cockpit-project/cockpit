@@ -203,7 +203,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         m.wait_reboot()
         m.execute("logger -p user.err --tag check-journal AFTER BOOT");
 
-        self.start_cockpit()
+        m.start_cockpit()
         b.switch_to_top()
         b.relogin('/system/logs')
         inject_extras()

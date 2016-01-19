@@ -26,7 +26,7 @@ class TestEmbed(MachineCase):
         b = self.browser
         m = self.machine
 
-        self.start_cockpit()
+        m.start_cockpit()
 
         b.open("file://%s/files/embed-cockpit.html" % os.path.realpath("."))
         b.wait_present("#embed-loaded")

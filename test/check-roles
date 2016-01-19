@@ -29,7 +29,7 @@ class TestRoles(MachineCase):
         m.execute("useradd user -c 'User' || true")
         m.execute("echo user:foobar | chpasswd")
 
-        self.start_cockpit()
+        m.start_cockpit()
 
         def login(user, password):
             b.set_val("#login-user-input", user)

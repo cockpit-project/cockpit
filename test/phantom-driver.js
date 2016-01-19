@@ -1,5 +1,3 @@
-#!/usr/bin/env phantomjs
-
 /*
  * This file is part of Cockpit.
  *

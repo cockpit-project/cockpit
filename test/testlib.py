@@ -679,7 +679,8 @@ class Phantom:
         if self.lang:
             environ["LC_ALL"] = self.lang
         command = [
-            "%s/phantom-driver" % topdir,
+            "%s/phantom-command" % topdir,
+            "%s/phantom-driver.js" % topdir,
             "%s/sizzle.js" % topdir,
             "%s/phantom-lib.js" % topdir
         ]

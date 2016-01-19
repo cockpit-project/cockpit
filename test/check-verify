@@ -68,6 +68,8 @@ def main():
                         help="Build test VMs quicker")
     parser.add_argument('--clean', dest='clean', action='store_true',
                         help="Build test VMs from clean state")
+    parser.add_argument('--rebase', action='store_true',
+                        help="Dummy option, for bootstrapping the new github-task.")
     parser.add_argument('image', action='store', nargs='?',
                         help='The operating system image to verify against')
     opts = parser.parse_args()

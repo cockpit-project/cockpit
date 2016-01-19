@@ -20,6 +20,9 @@
 (function() {
     "use strict";
 
+    /* Move this elsewhere once we reuse it */
+    var NAME_RE = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
+
     angular.module('registry.projects', [
         'ngRoute',
         'kubeClient'
@@ -85,6 +88,67 @@
 
             $scope.formatMembers = util.formatMembers;
         }
-    ]);
+    ])
 
+    .factory('projectActions', [
+        '$modal',
+        function($modal) {
+            function createDialog() {
+                return $modal.open({
+                    controller: 'ProjectNewCtrl',
+                    templateUrl: 'views/project-new-dialog.html',
+                });
+            }
+
+            return {
+                create: createDialog,
+            };
+        }
+    ])
+
+    .controller('ProjectNewCtrl', [
+        '$q',
+        '$scope',
+        "kubeMethods",
+        function($q, $scope, methods) {
+            var fields = {
+                name: "",
+                display: "",
+                description: ""
+            };
+
+            $scope.fields = fields;
+
+            $scope.performCreate = function performCreate() {
+                var defer, ex;
+
+                var name = fields.name.trim();
+                var display = fields.display.trim();
+                var description = fields.description.trim();
+
+                if (!NAME_RE.test(name)) {
+                    console.log("name is", name, $scope);
+                    ex = new Error("Invalid project name");
+                    ex.target = "#project-new-name";
+                    defer = $q.defer();
+                    defer.reject(ex);
+                    return defer.promise;
+                }
+
+                var project = {
+                    kind: "Project",
+                    apiVersion: "v1",
+                    metadata: {
+                        name: name,
+                        annotations: {
+                            "openshift.io/description": description,
+                            "openshift.io/display-name": display,
+                        }
+                    }
+                };
+
+                return methods.create(project);
+            };
+        }
+    ]);
 }());

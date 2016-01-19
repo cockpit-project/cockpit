@@ -1,6 +1,5 @@
 registry_VIEWS = \
 	pkg/registry/views/dashboard-page.html \
-	pkg/registry/views/example-dialog.html \
 	pkg/registry/views/filter-bar.html \
 	pkg/registry/views/image-body.html \
 	pkg/registry/views/image-config.html \
@@ -12,6 +11,7 @@ registry_VIEWS = \
 	pkg/registry/views/imagestream-meta.html \
 	pkg/registry/views/imagestream-page.html \
 	pkg/registry/views/imagestream-panel.html \
+	pkg/registry/views/project-new-dialog.html \
 	pkg/registry/views/projects-page.html \
 	$(NULL)
 

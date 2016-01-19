@@ -86,7 +86,7 @@ class Machine:
         self.arch = "x86_64"
 
         self.image = image or testinfra.DEFAULT_IMAGE
-        self.test_dir = os.path.abspath(os.path.dirname(__file__))
+        self.test_dir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
         self.vm_username = "root"
         self.vm_password = "foobar"
         self.address = address

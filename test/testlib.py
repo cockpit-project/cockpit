@@ -70,7 +70,7 @@ __all__ = (
     'wait'
     )
 
-topdir = os.path.normpath(os.path.dirname(__file__))
+topdir = os.path.normpath(os.path.dirname(os.path.realpath(__file__)))
 
 # Command line options
 

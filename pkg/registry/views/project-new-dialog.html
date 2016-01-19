@@ -1,0 +1,40 @@
+<modal-dialog>
+    <div class="modal-header">
+        <h4 class="modal-title" translatable="yes">New Project</h4>
+    </div>
+    <div class="modal-body">
+        <table class="cockpit-form-table">
+            <tr>
+                <td class="top">
+                    <label class="control-label" for="project-new-name" translatable="yes">Name</label>
+                </td>
+                <td>
+                    <input id="project-new-name" class="form-control" type="text"
+                        ng-model="fields.name" autofocus>
+                </td>
+            </tr>
+            <tr>
+                <td class="top">
+                    <label class="control-label" for="project-new-display" translatable="yes">Display name</label>
+                </td>
+                <td>
+                    <input id="project-new-display" class="form-control" type="text"
+                        ng-model="fields.display">
+                </td>
+            </tr>
+            <tr>
+                <td class="top">
+                    <label class="control-label" for="project-new-description" translatable="yes">Description</label>
+                </td>
+                <td>
+                    <input id="project-new-description" class="form-control" type="text"
+                        ng-model="fields.description">
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
+        <button class="btn btn-primary" ng-click="complete(performCreate())" translatable="yes">Create</button>
+    </div>
+</modal-dialog>

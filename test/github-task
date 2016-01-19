@@ -179,7 +179,12 @@ def main():
     (prefix, unused, value) = context.partition("/")
 
     os.environ["TEST_NAME"] = name
-    os.environ["TEST_OS"] = value
+
+    # use default os for selenium tests
+    if prefix == "selenium":
+        os.environ["TEST_OS"] = testinfra.DEFAULT_IMAGE
+    else:
+        os.environ["TEST_OS"] = value
     os.environ["TEST_REVISION"] = revision
 
     sink = None
@@ -190,6 +195,7 @@ def main():
     msg = "Testing {0} for {1} with {2} on {3}...\n".format(revision, name, context, testinfra.HOSTNAME)
     sys.stderr.write(msg)
 
+    ret = None
     # Figure out what to do next
     if prefix == "verify":
         cmd = [ "./check-verify", "--install", "--jobs", str(opts.jobs) ]
@@ -200,15 +206,21 @@ def main():
             cmd.append("--verbose")
 
     elif prefix == "avocado":
-        cmd = [ "./avocado/run-tests", "--install" ]
+        cmd = [ "./avocado/run-tests", "--install", "--tests" ]
+        if opts.verbose:
+            cmd.append("--verbose")
+
+    elif prefix == "selenium":
+        if value not in ['firefox', 'chrome']:
+            ret = "Unknown browser for selenium test"
+        cmd = [ "./avocado/run-tests", "--install", "--selenium-tests", "--browser", value]
         if opts.verbose:
             cmd.append("--verbose")
 
     else:
-        sys.stderr.write("github-task: unknown context: " + context)
-        return 1
+        ret = "Unknown context"
 
-    ret = rebase(sink)
+    ret = ret or rebase(sink)
 
     # Actually run the tests
     if not ret:

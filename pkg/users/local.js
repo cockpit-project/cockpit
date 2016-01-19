@@ -1061,7 +1061,7 @@ PageAccountSetPassword.prototype = {
 
     setup: function() {
         $('#account-set-password-apply').on('click', $.proxy(this, "apply"));
-        $('#account-set-password-dialog .check-passwords').on('keydown', $.proxy(this, "validate"));
+        $('#account-set-password-dialog .check-passwords').on('keydown change', $.proxy(this, "validate"));
     },
 
     enter: function() {

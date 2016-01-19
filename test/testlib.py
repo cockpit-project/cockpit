@@ -73,11 +73,12 @@ def attach(filename):
         shutil.move(filename, dest)
 
 class Browser:
-    def __init__(self, address, label):
+    def __init__(self, address, label, port=9090):
         self.default_user = "admin"
         self.address = address
         self.label = label
         self.phantom = Phantom("en_US.utf8")
+        self.port = port
 
     def title(self):
         return self.phantom.eval('document.title')
@@ -96,7 +97,7 @@ class Browser:
           Error: When a timeout occurs waiting for the page to load.
         """
         if href.startswith("/"):
-            href = "http://%s:9090%s" % (self.address, href)
+            href = "http://%s:%s%s" % (self.address, self.port, href)
 
         def tryopen(hard=False):
             try:
@@ -443,8 +444,8 @@ class MachineCase(unittest.TestCase):
         self.machines.append(m)
         return m
 
-    def new_browser(self, address=None):
-        browser = Browser(address = address or self.machine.address, label=self.label())
+    def new_browser(self, address=None, port=9090):
+        browser = Browser(address = address or self.machine.address, label=self.label(), port=port)
         self.addCleanup(lambda: browser.kill())
         return browser
 

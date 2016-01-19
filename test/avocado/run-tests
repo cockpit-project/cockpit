@@ -21,6 +21,7 @@
 import argparse
 import json
 import os
+import shutil
 import sys
 import subprocess
 
@@ -28,7 +29,7 @@ import subprocess
 # the directory structure breaks on the second run with .pyc files
 sys.dont_write_bytecode = True
 
-from testlib import MachineCase, Timeout
+from testlib import Timeout
 import testinfra
 import testvm
 
@@ -36,6 +37,9 @@ topdir = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__
 sys.path.append(os.path.abspath(os.path.dirname(os.path.realpath(__file__))))
 
 machine_test_dir = "/tmp/avocado_tests"
+
+# this is where the avocado results on the test machine will be stored
+avocado_results_dir = "/root/avocado_results"
 
 def start_cockpit(machine, atomic_wait_for_host="localhost"):
     """Start Cockpit.
@@ -62,7 +66,7 @@ systemctl start docker
 def prepare_avocado_tests(machine):
     """ Upload all avocado related files and create the results directory
     """
-    machine.execute(command="mkdir -p " + MachineCase.avocado_results_dir)
+    machine.execute(command="mkdir -p " + avocado_results_dir)
     machine.upload([os.path.join(machine.test_dir, "avocado")], machine_test_dir)
 
 def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
@@ -76,7 +80,7 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
         If 'print_failed' is True, attempt to print a list of failed tests
     """
     cmd_parts = env + ["avocado run",
-                 "--job-results-dir " + MachineCase.avocado_results_dir,
+                 "--job-results-dir " + avocado_results_dir,
                  ' '.join([machine_test_dir + os.sep + x for x in avocado_tests]),
                  ">&2"
                  ]
@@ -88,10 +92,10 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
             # try to get the list of failed tests
             try:
                 failed_tests_info = machine.execute(
-                        command="cat " + os.path.join(MachineCase.avocado_results_dir, "latest/results.json"),
+                        command="cat " + os.path.join(avocado_results_dir, "latest/results.json"),
                         quiet=True
                     )
-                machine.execute("cp -v *.png %s/ 2>/dev/null || true" % MachineCase.avocado_results_dir)
+                machine.execute("cp -v *.png %s/ 2>/dev/null || true" % avocado_results_dir)
                 failed_tests = json.loads(failed_tests_info)
                 for t in failed_tests['tests']:
                     test_status = t['status']
@@ -106,6 +110,23 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
         return False
 
     return True
+
+def copy_avocado_logs(machine, title):
+    if machine and machine.address:
+        dir = "%s-%s.avocado" % (machine.address, title)
+        # check if the remote directory exists (if it doesn't, we want to quit silently)
+        test_command = "if test -d '{0}'; then echo exists; fi".format(avocado_results_dir)
+        if "exists" not in machine.execute(command=test_command,quiet=True):
+            return
+        machine.download_dir(avocado_results_dir, dir)
+        if os.path.exists(dir):
+            # avocado creates a "latest" symlink, we can delete that here
+            shutil.rmtree(path=os.path.join(dir, "latest"), ignore_errors=True)
+            print "Avocado results copied to %s" % (dir)
+
+            # compress the logs and attach that
+            archive = "{0}.tar.gz".format(dir)
+            subprocess.call(["tar", "cfz", archive, dir])
 
 def wait_for_selenium_running(machine, host, port=4444):
     WAIT_SELENIUM_RUNNING = """#!/bin/sh
@@ -151,8 +172,12 @@ def run_avocado(avocado_tests, verbose, browser):
         # Now actually run the tests
         selenium_address = selenium.address if selenium else ""
         env = [ "HUB=" + selenium_address, "GUEST=" + machine.address, "BROWSER=" + browser ]
-        return run_avocado_tests(machine, avocado_tests, env=env)
+        success = run_avocado_tests(machine, avocado_tests, env=env)
 
+        if not success:
+            copy_avocado_logs(machine, "FAILED")
+
+        return success
     finally:
         machine.kill()
         if selenium:

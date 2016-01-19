@@ -443,7 +443,6 @@ class MachineCase(unittest.TestCase):
     machine_class = None
     browser = None
     machines = [ ]
-    avocado_results_dir = "/root/avocado_results"
 
     def label(self):
         (unused, sep, label) = self.id().partition(".")
@@ -477,7 +476,6 @@ class MachineCase(unittest.TestCase):
             self.failed = True
             self.snapshot("FAIL")
             self.copy_journal("FAIL")
-            self.copy_avocado_logs("FAIL")
             if arg_sit_on_failure:
                 print >> sys.stderr, err
                 if self.machine:
@@ -690,24 +688,6 @@ systemctl start docker
                     attach(log)
                 else:
                     print "Journal doesn't exist"
-
-    def copy_avocado_logs(self, title, label=None):
-        if self.machine and self.machine.address:
-            dir = "%s-%s-%s.avocado" % (label or self.label(), self.machine.address, title)
-            # check if the remote directory exists (if it doesn't, we want to quit silently)
-            test_command = "if test -d '{0}'; then echo exists; fi".format(MachineCase.avocado_results_dir)
-            if "exists" not in self.machine.execute(command=test_command,quiet=True):
-                return
-            self.machine.download_dir(MachineCase.avocado_results_dir, dir)
-            if os.path.exists(dir):
-                # avocado creates a "latest" symlink, recreate this here
-                shutil.rmtree(path=os.path.join(dir, "latest"), ignore_errors=True)
-                print "Avocado results copied to %s" % (dir)
-
-                # compress the logs and attach that
-                archive = "{0}.tar.gz".format(dir)
-                subprocess.call(["tar", "cfz", archive, dir])
-                attach(archive)
 
 some_failed = False
 

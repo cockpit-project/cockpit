@@ -201,7 +201,7 @@ def main():
         sys.stderr.write("github-task: unknown context: " + context)
         return 1
 
-    ret = testinfra.rebase(sink)
+    ret = rebase(sink)
 
     # Actually run the tests
     if ret == 0:

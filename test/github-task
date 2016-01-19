@@ -102,7 +102,7 @@ def stop_publishing(sink, ret):
         message = ret
         mark_failed()
     elif ret == 0:
-        message = "All tests passed"
+        message = "Tests passed"
         mark_passed()
     else:
         message = "{0} tests failed".format(ret)

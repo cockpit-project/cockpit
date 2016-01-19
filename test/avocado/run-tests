@@ -40,6 +40,13 @@ machine_test_dir = "/tmp/avocado_tests"
 # this is where the avocado results on the test machine will be stored
 avocado_results_dir = "/root/avocado_results"
 
+# this is where we publish logs on the local machine
+arg_attachments_dir = os.environ.get("TEST_ATTACHMENTS", None)
+if not arg_attachments_dir:
+    arg_attachments_dir = os.getcwd()
+if not os.path.exists(arg_attachments_dir):
+    os.makedirs(arg_attachments_dir)
+
 def prepare_avocado_tests(machine):
     """ Upload all avocado related files and create the results directory
     """
@@ -102,7 +109,7 @@ def copy_avocado_logs(machine, title):
             print "Avocado results copied to %s" % (dir)
 
             # compress the logs and attach that
-            archive = "{0}.tar.gz".format(dir)
+            archive = os.path.join(arg_attachments_dir, "{0}.tar.gz".format(dir))
             subprocess.call(["tar", "cfz", archive, dir])
 
 def wait_for_selenium_running(machine, host, port=4444):

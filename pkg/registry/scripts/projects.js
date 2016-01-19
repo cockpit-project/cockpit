@@ -69,7 +69,8 @@
         'kubeSelect',
         '$modal',
         'projectUtil',
-        function($scope, loader, select, $modal, util) {
+        'projectActions',
+        function($scope, loader, select, $modal, util, actions) {
             loader.watch("users");
             loader.watch("groups");
             loader.load("Project", null, null);
@@ -87,6 +88,7 @@
             };
 
             $scope.formatMembers = util.formatMembers;
+            $scope.createProject = actions.create;
         }
     ])
 

@@ -447,7 +447,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         }
     ]);
 
-    kubeTest("create object exists", 2, FIXTURE_BASIC, [
+    kubeTest("create object exists", 1, FIXTURE_BASIC, [
         "kubeLoader",
         "kubeMethods",
         function(loader, methods) {
@@ -461,8 +461,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             return methods.create(items).then(function(response) {
                 equal(response, false, "should have failed");
             }, function(response) {
-                equal(response.status, 409, "http already exists");
-                equal(response.data.code, 409, "kubernetes already exists");
+                equal(response.code, 409, "http already exists");
             });
         }
     ]);

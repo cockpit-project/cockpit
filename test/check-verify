@@ -19,71 +19,6 @@ EXCLUDE = [
     'check-example'
 ]
 
-def start_publishing(github, host, name, revision, image):
-    identifier = name + "-" + revision[0:8] + "-" + image
-    description = "{0} [{1}]".format(testinfra.TESTING, testinfra.HOSTNAME)
-    status = {
-        "github": {
-            "resource": github.qualify("statuses/" + revision),
-            "status": {
-                "state": "pending",
-                "context": "verify/" + image,
-                "description": description,
-            }
-        },
-        "revision": revision,
-        "link": "log.html",
-        "extras": [ "https://raw.githubusercontent.com/cockpit-project/cockpit/" + revision + "/test/files/log.html" ]
-    }
-    if name == "master":
-        status['irc'] = { }    # Only send to IRC when master
-        status['badge'] = {
-            'name': image,
-            'description': image,
-            'status': 'running'
-        }
-    return testinfra.Sink(host, identifier, status)
-
-def check_publishing(sink, github):
-    expected = sink.status["github"]["status"]["description"]
-    context = sink.status["github"]["status"]["context"]
-    statuses = github.statuses(sink.status["revision"])
-    status = statuses.get(context, None)
-    current = status.get("description", None)
-    if current and current != expected:
-        sink.status.pop("github", None)
-        sink.status.pop("badge", None)
-        sink.status.pop("irc", None)
-        raise RuntimeError("Verify collision: " + current)
-
-def stop_publishing(sink, ret):
-    def mark_failed():
-        if "github" in sink.status:
-            sink.status["github"]["status"]["state"] = "failure"
-        if 'badge' in sink.status:
-            sink.status['badge']['status'] = "failed"
-        if "irc" in sink.status: # Never send success messages to IRC
-            sink.status["irc"]["channel"] = "#cockpit"
-    def mark_passed():
-        if "github" in sink.status:
-            sink.status["github"]["status"]["state"] = "success"
-        if 'badge' in sink.status:
-            sink.status['badge']['status'] = "passed"
-    if isinstance(ret, basestring):
-        message = ret
-        mark_failed()
-    elif ret == 0:
-        message = "All tests passed"
-        mark_passed()
-    else:
-        message = "{0} tests failed".format(ret)
-        mark_failed()
-    sink.status["message"] = message
-    if "github" in sink.status:
-        sink.status["github"]["status"]["description"] = message
-    del sink.status["extras"]
-    sink.flush()
-
 def check_valid(filename):
     name = os.path.basename(filename)
     if name in EXCLUDE:
@@ -92,19 +27,6 @@ def check_valid(filename):
     if not all(c in allowed for c in name):
         return None
     return name.replace("-", "_")
-
-def rebase(sink):
-    try:
-        sys.stderr.write("Rebasing onto origin/master ...\n")
-        subprocess.check_call([ "git", "fetch", "origin", "master" ])
-        if sink:
-            master = subprocess.check_output([ "git", "rev-parse", "origin/master" ]).strip()
-            sink.status["master"] = master
-        subprocess.check_call([ "git", "rebase", "origin/master" ])
-    except:
-        subprocess.call([ "git", "rebase", "--abort" ])
-        traceback.print_exc()
-        raise RuntimeError("Rebase failed")
 
 def install(opts):
     try:
@@ -115,9 +37,11 @@ def install(opts):
         if opts.quick:
             cmd.append("--quick")
         subprocess.check_call(cmd)
+        return 0
     except:
         traceback.print_exc()
-        raise RuntimeError("Install failed")
+        sys.stderr.write("Install failed\n")
+        return 1
 
 def run(opts, sink):
     # Now actually load the tests, any modules that start with "check-*"
@@ -138,8 +62,6 @@ def main():
     parser = testlib.arg_parser()
     parser.add_argument('--publish', dest='publish', action='store',
                         help='Publish results centrally to a sink')
-    parser.add_argument('--rebase', dest='rebase', action='store_true',
-                        help='Rebase onto master before running tests')
     parser.add_argument('--install', dest='install', action='store_true',
                         help='Build and install Cockpit into test VMs')
     parser.add_argument('--quick', dest='quick', action='store_true',
@@ -162,14 +84,12 @@ def main():
     # In case we need it
     github = testinfra.GitHub()
 
-    revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
+    revision = os.environ.get("TEST_REVISION")
+    if not revision:
+        revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
     name = os.environ.get("TEST_NAME")
     if not name:
         name = "test"
-
-    if opts.publish:
-        sink = start_publishing(github, opts.publish, name, revision, image)
-        os.environ["TEST_ATTACHMENTS"] = sink.attachments
 
     # Master is always thorough
     if name == "master":
@@ -183,27 +103,12 @@ def main():
     msg = "Testing {0} for {1} with {2} on {3}...\n".format(revision, name, image, testinfra.HOSTNAME)
     sys.stderr.write(msg)
 
-    try:
-        if opts.rebase:
-            rebase(sink)
-        if opts.install:
-            install(opts)
-
-        # Check if we are still publishing, in case some other verify
-        # machine collided with our test
-        if sink:
-            check_publishing(sink, github)
-
+    ret = None
+    if opts.install:
+        ret = install(opts)
+    if not ret:
         ret = run(opts, sink)
-    except RuntimeError as exc:
-        ret = exc.args[0]
-        sys.stderr.write(ret + "\n")
 
-    # All done
-    if sink:
-        stop_publishing(sink, ret)
-
-    # But normally we return number of tests failed
     return ret
 
 if __name__ == '__main__':

@@ -230,7 +230,7 @@ class TestKerberos(MachineCase):
     def testNegotiate(self):
 
         # Make sure negotiate auth is not offered first
-        self.start_cockpit()
+        self.machine.start_cockpit()
 
         output = subprocess.check_output(['/usr/bin/curl', '-v', '-s',
                                           '--resolve', 'x0.cockpit.lan:9090:%s' % self.machine.address,
@@ -239,7 +239,7 @@ class TestKerberos(MachineCase):
         self.assertNotIn("WWW-Authenticate: Negotiate", output)
 
         self.configure_kerberos()
-        self.restart_cockpit()
+        self.machine.restart_cockpit()
 
         output = subprocess.check_output(['/usr/bin/curl', '-s', '--negotiate', '-u', ':', "-D", "-",
                                           '--resolve', 'x0.cockpit.lan:9090:%s' % self.machine.address,

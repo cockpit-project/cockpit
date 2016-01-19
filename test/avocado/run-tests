@@ -29,7 +29,6 @@ import subprocess
 # the directory structure breaks on the second run with .pyc files
 sys.dont_write_bytecode = True
 
-from testlib import Timeout
 import testinfra
 import testvm
 
@@ -40,28 +39,6 @@ machine_test_dir = "/tmp/avocado_tests"
 
 # this is where the avocado results on the test machine will be stored
 avocado_results_dir = "/root/avocado_results"
-
-def start_cockpit(machine, atomic_wait_for_host="localhost"):
-    """Start Cockpit.
-
-    Cockpit is not running when the test virtual machine starts up, to
-    allow you to make modifications before it starts.
-    """
-    if "atomic" in machine.image:
-        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1228776
-        # we want to run:
-        # self.machine.execute("atomic run cockpit/ws --no-tls")
-        # but atomic doesn't forward the parameter, so we use the resulting command
-        # also we need to wait for cockpit to be up and running
-        RUN_COCKPIT_CONTAINER = """#!/bin/sh
-systemctl start docker
-/usr/bin/docker run -d --privileged --pid=host -v /:/host cockpit/ws /container/atomic-run --local-ssh --no-tls
-"""
-        with testlib.Timeout(seconds=30, error_message="Timeout while waiting for cockpit/ws to start"):
-            machine.execute(script=RUN_COCKPIT_CONTAINER)
-            wait_for_cockpit_running(atomic_wait_for_host)
-    else:
-        machine.execute("systemctl start cockpit-testing.socket")
 
 def prepare_avocado_tests(machine):
     """ Upload all avocado related files and create the results directory
@@ -135,7 +112,7 @@ sleep 0.5;
 done;
 """ % (host, port)
     with testvm.stdchannel_redirected(sys.stdout, os.devnull):
-        with Timeout(seconds=30, error_message="Timeout while waiting for selenium to start"):
+        with testvm.Timeout(seconds=30, error_message="Timeout while waiting for selenium to start"):
             machine.execute(script=WAIT_SELENIUM_RUNNING)
 
 def run_avocado(avocado_tests, verbose, browser):
@@ -149,7 +126,7 @@ def run_avocado(avocado_tests, verbose, browser):
             selenium.start()
 
         machine.wait_boot()
-        start_cockpit(machine)
+        machine.start_cockpit()
         if selenium:
             selenium.wait_boot()
 

@@ -36,7 +36,6 @@ import exceptions
 import random
 import re
 import json
-import signal
 import shutil
 import subprocess
 import tempfile
@@ -45,25 +44,12 @@ import unittest
 
 import testinfra
 
-class Timeout:
-    def __init__(self, seconds=1, error_message='Timeout'):
-        self.seconds = seconds
-        self.error_message = error_message
-    def handle_timeout(self, signum, frame):
-        raise Exception(self.error_message)
-    def __enter__(self):
-        signal.signal(signal.SIGALRM, self.handle_timeout)
-        signal.alarm(self.seconds)
-    def __exit__(self, type, value, traceback):
-        signal.alarm(0)
-
 __all__ = (
     # Test definitions
     'test_main',
     'arg_parser',
     'Browser',
     'MachineCase',
-    'Timeout',
 
     'sit',
 
@@ -505,56 +491,8 @@ class MachineCase(unittest.TestCase):
             self.check_journal_messages()
         shutil.rmtree(self.tmpdir)
 
-    def wait_for_cockpit_running(self, atomic_wait_for_host="localhost"):
-        """Wait until cockpit is running.
-
-        We only need to do this on atomic systems.
-        On other systems, systemctl blocks until the service is actually running.
-        """
-        if not "atomic" in self.machine.image or not atomic_wait_for_host:
-            return
-        WAIT_COCKPIT_RUNNING = """#!/bin/sh
-until curl -s --connect-timeout 1 http://%s:9090 >/dev/null; do
-    sleep 0.5;
-done;
-""" % (atomic_wait_for_host)
-        with Timeout(seconds=30, error_message="Timeout while waiting for cockpit/ws to start"):
-            self.machine.execute(script=WAIT_COCKPIT_RUNNING)
-
-    def start_cockpit(self, atomic_wait_for_host="localhost"):
-        """Start Cockpit.
-
-        Cockpit is not running when the test virtual machine starts up, to
-        allow you to make modifications before it starts.
-        """
-        if "atomic" in self.machine.image:
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1228776
-            # we want to run:
-            # self.machine.execute("atomic run cockpit/ws --no-tls")
-            # but atomic doesn't forward the parameter, so we use the resulting command
-            # also we need to wait for cockpit to be up and running
-            RUN_COCKPIT_CONTAINER = """#!/bin/sh
-systemctl start docker
-/usr/bin/docker run -d --privileged --pid=host -v /:/host cockpit/ws /container/atomic-run --local-ssh --no-tls
-"""
-            with Timeout(seconds=30, error_message="Timeout while waiting for cockpit/ws to start"):
-                self.machine.execute(script=RUN_COCKPIT_CONTAINER)
-                self.wait_for_cockpit_running(atomic_wait_for_host)
-        else:
-            self.machine.execute("systemctl start cockpit-testing.socket")
-
-    def restart_cockpit(self):
-        """Restart Cockpit.
-        """
-        if "atomic" in self.machine.image:
-            with Timeout(seconds=30, error_message="Timeout while waiting for cockpit/ws to restart"):
-                self.machine.execute("docker restart `docker ps | grep cockpit/ws | awk '{print $1;}'`")
-                self.wait_for_cockpit_running()
-        else:
-            self.machine.execute("systemctl restart cockpit-testing.socket")
-
     def login_and_go(self, path=None, user=None, host=None):
-        self.start_cockpit(host)
+        self.machine.start_cockpit(host)
         self.browser.login_and_go(path, user=user, host=host)
 
     allowed_messages = [

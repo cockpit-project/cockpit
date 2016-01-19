@@ -43,7 +43,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         deny_non_root("/etc/pam.d/cockpit")
         deny_non_root("/etc/pam.d/sshd")
 
-        self.start_cockpit()
+        m.start_cockpit()
         b.open("/system")
         b.wait_visible("#login")
 
@@ -106,7 +106,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         return int(tokens[1])
 
     def testRaw(self):
-        self.start_cockpit()
+        self.machine.start_cockpit()
         time.sleep(0.5)
         self.assertEqual(self.curl_auth_code ('/cockpit/login', ''), 401)
         self.assertEqual(self.curl_auth_code ('/cockpit/login', 'foo:'), 401)

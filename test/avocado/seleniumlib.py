@@ -160,7 +160,7 @@ parameters:
                     pass
                 finally:
                     raise Exception('ERR: Unable to locate name: %s' % str(text), screenshot_file)
-        if not (cond == frame or fatal == False):
+        if not (cond == frame or fatal == False or cond == invisible):
             self.everything_loaded(returned)
         return returned
 

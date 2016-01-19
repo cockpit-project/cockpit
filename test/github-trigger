@@ -12,16 +12,11 @@ def main():
     parser.add_argument('-f', '--force', action="store_true",
                         help='Force setting the status even if the program logic thinks it shouldn''t be done')
     parser.add_argument('pull', help='The pull request to trigger')
-    parser.add_argument('context', help='The github task context to trigger')
+    parser.add_argument('context', nargs='?', help='The github task context to trigger')
     opts = parser.parse_args()
 
     github = testinfra.GitHub()
 
-    if opts.context not in testinfra.DEFAULT_VERIFY:
-        sys.stderr.write("github-trigger: invalid context: {0}\n".format(opts.context))
-        return 2
-
-    sys.stderr.write("triggering pull {0} for context {1}\n".format(opts.pull, opts.context))
     pull = github.get("pulls/" + opts.pull)
 
     # triggering is manual, so don't prevent triggering a user that isn't on the whitelist
@@ -32,17 +27,27 @@ def main():
 
     revision = pull['head']['sha']
     statuses = github.statuses(revision)
-    status = statuses.get(opts.context, { })
-    if status.get("state", "empty") not in ["empty", "error", "failure"]:
-        if opts.force:
-            sys.stderr.write("Pull request isn't in error state, but forcing update.\n")
-        else:
-            sys.stderr.write("Pull request isn't in error state. Status is: '{0}'\n".format(status["state"]))
-            return 1
+    if opts.context:
+        contexts = [ opts.context ]
+        all = False
+    else:
+        contexts = list(set(statuses.keys()) & set(testinfra.DEFAULT_VERIFY.keys()))
+        all = True
 
-    changes = { "state": "pending", "description": testinfra.NOT_TESTED, "context": opts.context }
-    github.post("statuses/" + revision, changes)
-    return 0
+    ret = 0
+    for context in contexts:
+        status = statuses.get(context, { })
+        if status.get("state", all and "unknown" or "empty") not in ["empty", "error", "failure"]:
+            if not opts.force:
+                if not all:
+                    sys.stderr.write("{0}: isn't in triggerable state: {1}\n".format(context, status["state"]))
+                    ret = 1
+                continue
+        sys.stderr.write("{0}: triggering on pull request {1}\n".format(context, opts.pull))
+        changes = { "state": "pending", "description": testinfra.NOT_TESTED, "context": context }
+        github.post("statuses/" + revision, changes)
+
+    return ret
 
 if __name__ == '__main__':
     sys.exit(main())

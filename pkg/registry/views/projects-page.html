@@ -2,7 +2,11 @@
     <table listing-table class="listing projects-listing">
         <thead ng-if="!quiet">
             <tr>
-                <td colspan="4">
+                <td colspan="3">
+                    <a class="pull-right" ng-click="createProject()">
+                        <i translatable="yes" class="pficon pficon-add-circle-o"></i>
+                        <span translatable="yes">New Project</span>
+                    </a>
                     <h3 translatable="yes">Projects</h3>
                 </td>
             </tr>

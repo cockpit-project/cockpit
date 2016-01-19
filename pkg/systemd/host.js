@@ -22,6 +22,7 @@ define([
     "base1/cockpit",
     "base1/mustache",
     "domain/operation",
+    "performance/dialog",
     "shell/controls",
     "shell/shell",
     "system/server",
@@ -32,7 +33,7 @@ define([
     "base1/bootstrap-datepicker",
     "base1/bootstrap-combobox",
     "base1/patterns",
-], function($, cockpit, Mustache, domain, controls, shell, server, service) {
+], function($, cockpit, Mustache, domain, performance, controls, shell, server, service) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -208,6 +209,9 @@ PageServer.prototype = {
 
         self.domain_button = domain.button();
         $("#system-info-realms td.button-location").append(self.domain_button);
+
+        self.performance_button = performance.button();
+        $("#system-info-performance td.button-location").append(self.performance_button);
 
         self.server_time = new ServerTime();
         $(self.server_time).on("changed", function() {

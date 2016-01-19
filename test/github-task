@@ -150,6 +150,8 @@ def main():
                         help='Verbose output')
     parser.add_argument('--publish', dest='publish', action='store',
                         help='Publish results centrally to a sink')
+    parser.add_argument('--head', dest='head', action='store_true',
+                        help='Instead of choosing from GitHub, perform the specified task on HEAD')
     parser.add_argument('--except', dest='except_context', action='store_true',
                         help='Choose tasks from any context except the one specified')
     parser.add_argument('context', action='store', nargs='?',
@@ -160,17 +162,21 @@ def main():
     github = testinfra.GitHub()
 
     # When letting github decide what to test
-    sys.stderr.write("Talking to GitHub ...\n")
-    for (priority, name, revision, ref, context) in github.scan(opts.publish, opts.context, opts.except_context):
-        break
-    else: # Nothing to test
-        return 1
+    if opts.head:
+        name = "test"
+        revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
+        context = opts.context or "verify/" + DEFAULT_IMAGE
+    else:
+        sys.stderr.write("Talking to GitHub ...\n")
+        for (pri, name, revision, ref, context) in github.scan(opts.publish, opts.context, opts.except_context):
+            subprocess.check_call([ "git", "fetch", "origin", ref ])
+            subprocess.check_call([ "git", "checkout", revision ])
+            break
+        else: # Nothing to test
+            return 1
 
     # Split a value like verify/fedora-23
     (prefix, unused, value) = context.partition("/")
-
-    subprocess.check_call([ "git", "fetch", "origin", ref ])
-    subprocess.check_call([ "git", "checkout", revision ])
 
     os.environ["TEST_NAME"] = name
     os.environ["TEST_OS"] = value

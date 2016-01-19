@@ -334,10 +334,10 @@ class GitHub(object):
         if context:
             for ctx in contexts.keys():
                 if except_context:
-                    if ctx.startswith(context):
+                    if context in ctx:
                         contexts.pop(ctx)
                 else:
-                    if not ctx.startswith(context):
+                    if context not in ctx:
                         contexts.pop(ctx)
 
         results = []

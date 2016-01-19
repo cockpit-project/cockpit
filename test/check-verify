@@ -43,7 +43,7 @@ def install(opts):
         sys.stderr.write("Install failed\n")
         return 1
 
-def run(opts, sink):
+def run(opts):
     # Now actually load the tests, any modules that start with "check-*"
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
@@ -60,8 +60,7 @@ def run(opts, sink):
 
 def main():
     parser = testlib.arg_parser()
-    parser.add_argument('--publish', dest='publish', action='store',
-                        help='Publish results centrally to a sink')
+    parser.add_argument('--publish', action='store', help="Unused")
     parser.add_argument('--install', dest='install', action='store_true',
                         help='Build and install Cockpit into test VMs')
     parser.add_argument('--quick', dest='quick', action='store_true',
@@ -72,11 +71,6 @@ def main():
                         help='The operating system image to verify against')
     opts = parser.parse_args()
 
-    revision = None
-    status = { }
-    sink = None
-    revision = None
-    badge = False
     image = opts.image or testinfra.DEFAULT_IMAGE
 
     os.chdir(os.path.dirname(__file__))
@@ -87,12 +81,9 @@ def main():
     revision = os.environ.get("TEST_REVISION")
     if not revision:
         revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
-    name = os.environ.get("TEST_NAME")
-    if not name:
-        name = "test"
 
     # Master is always thorough
-    if name == "master":
+    if os.environ.get("TEST_NAME") == "master":
         opts.thorough = True
 
     # Tell any subprocesses what we are testing
@@ -100,14 +91,11 @@ def main():
     testinfra.DEFAULT_IMAGE = image
     os.environ["TEST_OS"] = image
 
-    msg = "Testing {0} for {1} with {2} on {3}...\n".format(revision, name, image, testinfra.HOSTNAME)
-    sys.stderr.write(msg)
-
-    ret = None
+    ret = 0
     if opts.install:
         ret = install(opts)
     if not ret:
-        ret = run(opts, sink)
+        ret = run(opts)
 
     return ret
 

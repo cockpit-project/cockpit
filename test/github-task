@@ -188,8 +188,6 @@ def main():
     if prefix == "verify":
         cmd = [ "./check-verify", "--install", "--jobs", str(opts.jobs) ]
 
-        if opts.publish:
-            cmd.append("--publish=" + opts.publish)
         if opts.verbose:
             cmd.append("--verbose")
 

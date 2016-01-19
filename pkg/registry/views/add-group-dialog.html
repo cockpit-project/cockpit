@@ -1,0 +1,23 @@
+<modal-dialog>
+    <div class="modal-header">
+        <h4 class="modal-title" translatable="yes">Add Group</h4>
+    </div>
+    <div class="modal-body">
+        <table class="cockpit-form-table">
+            <tr>
+                <td class="top">
+                    <label class="control-label" for="group_name" translatable="yes">
+                        Name
+                    </label>
+                </td>
+                <td>
+                    <input id="group_name" ng-model="fields.name" class="form-control" type="text" >
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
+        <button class="btn btn-primary" translatable="yes" ng-click="complete(performCreate())">Create</button>
+    </div>
+</modal-dialog>

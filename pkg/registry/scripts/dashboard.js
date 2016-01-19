@@ -58,7 +58,7 @@
                 c.cancel();
             });
 
-            $scope.createProject = projectActions.create;
+            $scope.createProject = projectActions.createProject;
         }
     ]);
 

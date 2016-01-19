@@ -22,11 +22,42 @@ import argparse
 import json
 import os
 import sys
+import subprocess
 
+# we use symlinked files
+# the directory structure breaks on the second run with .pyc files
+sys.dont_write_bytecode = True
+
+from testlib import MachineCase, Timeout
+import testinfra
 import testvm
 
-topdir = os.path.normpath(os.path.join(os.path.dirname(__file__), "..")
+topdir = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
+sys.path.append(os.path.abspath(os.path.dirname(os.path.realpath(__file__))))
+
 machine_test_dir = "/tmp/avocado_tests"
+
+def start_cockpit(machine, atomic_wait_for_host="localhost"):
+    """Start Cockpit.
+
+    Cockpit is not running when the test virtual machine starts up, to
+    allow you to make modifications before it starts.
+    """
+    if "atomic" in machine.image:
+        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1228776
+        # we want to run:
+        # self.machine.execute("atomic run cockpit/ws --no-tls")
+        # but atomic doesn't forward the parameter, so we use the resulting command
+        # also we need to wait for cockpit to be up and running
+        RUN_COCKPIT_CONTAINER = """#!/bin/sh
+systemctl start docker
+/usr/bin/docker run -d --privileged --pid=host -v /:/host cockpit/ws /container/atomic-run --local-ssh --no-tls
+"""
+        with testlib.Timeout(seconds=30, error_message="Timeout while waiting for cockpit/ws to start"):
+            machine.execute(script=RUN_COCKPIT_CONTAINER)
+            wait_for_cockpit_running(atomic_wait_for_host)
+    else:
+        machine.execute("systemctl start cockpit-testing.socket")
 
 def prepare_avocado_tests(machine):
     """ Upload all avocado related files and create the results directory
@@ -86,19 +117,24 @@ done;
         with Timeout(seconds=30, error_message="Timeout while waiting for selenium to start"):
             machine.execute(script=WAIT_SELENIUM_RUNNING)
 
-def run_avocado(avocado_tests, verbose):
+def run_avocado(avocado_tests, verbose, browser):
+    use_selenium = (browser != 'none')
     machine = testvm.VirtMachine(verbose=verbose, label="avocado")
-    selenium = testvm.VirtMachine(image="selenium", label="selenium", verbose=verbose)
+    selenium = testvm.VirtMachine(image="selenium", label="selenium", verbose=verbose) if use_selenium else None
 
     try:
         machine.start()
-        selenium.start()
-        machine.wait_boot()
-        selenium.wait_boot()
+        if selenium:
+            selenium.start()
 
-        # start selenium on the server
-        selenium.upload(["./guest/selenium_start.sh"], "/root")
-        selenium.execute(command="/root/selenium_start.sh")
+        machine.wait_boot()
+        start_cockpit(machine)
+        if selenium:
+            selenium.wait_boot()
+
+            # start selenium on the server
+            selenium.upload(["./guest/selenium_start.sh"], "/root")
+            selenium.execute(command="/root/selenium_start.sh")
 
         machine.execute("adduser test")
         machine.execute("echo superhardpasswordtest5554 | passwd --stdin test")
@@ -107,16 +143,20 @@ def run_avocado(avocado_tests, verbose):
         machine.execute("sed -i 's/^Defaults.*requiretty/#&/g' /etc/sudoers")
         machine.execute("echo 'Defaults !requiretty' >> /etc/sudoers")
 
-        wait_for_selenium_running(machine, selenium.address)
+        if selenium:
+            wait_for_selenium_running(machine, selenium.address)
+
         prepare_avocado_tests(machine)
 
         # Now actually run the tests
-        env = [ "HUB=" + self.selenium.address, "GUEST=" + self.machine.address ]
-        return run_avocado_tests(machine, avocado_tests, env=env):
+        selenium_address = selenium.address if selenium else ""
+        env = [ "HUB=" + selenium_address, "GUEST=" + machine.address, "BROWSER=" + browser ]
+        return run_avocado_tests(machine, avocado_tests, env=env)
 
     finally:
         machine.kill()
-        selenium.kill()
+        if selenium:
+            selenium.kill()
 
 def main():
     parser = argparse.ArgumentParser(description='Run Cockpit Avocado test(s)')
@@ -124,19 +164,42 @@ def main():
                         help='Verbose output')
     parser.add_argument('--install', dest='install', action='store_true',
                         help='Build and install Cockpit into test VMs')
+    parser.add_argument("-b", "--browser", choices=['none', 'firefox', 'chrome'],
+                    default='none',
+                    help="selenium browser choice - in case of none, selenium isn't started")
+    parser.add_argument("-s", "--selenium-tests", dest='selenium_tests', action='store_true',
+                        help="Run known browser/selenium tests")
+    parser.add_argument("-t", "--tests", dest='regular_tests', action='store_true',
+                        help="Run known regular (non-selenium) tests")
     parser.add_argument('tests', nargs='*')
-
-    # TODO: One test for Firefox, another for Chrome
-    parser.set_defaults(tests=[ "checklogin-basic.py", "checklogin-raw.py", "selenium-login.py" ])
 
     opts = parser.parse_args()
     if opts.install:
         sys.stderr.write("Building and installing Cockpit ...\n")
-        subprocess.check_call([ os.path.join(topdir, "vm-download"), testinfa.DEFAULT_IMAGE, "selenium" ]
-        subprocess.check_call([ os.path.join(topdir, "vm-reset") ]
-        subprocess.check_call([ os.path.join(topdir, "vm-install") ]
+        subprocess.check_call([ os.path.join(topdir, "vm-download"), testinfra.DEFAULT_IMAGE, "selenium" ])
+        subprocess.check_call([ os.path.join(topdir, "vm-reset") ])
+        subprocess.check_call([ os.path.join(topdir, "vm-install") ])
 
-    if run_avocado(opts.tests, opts.verbose):
+    regular_tests = [ "checklogin-basic.py", "checklogin-raw.py" ]
+    browser_tests = [ "selenium-login.py" ]
+
+    if opts.regular_tests:
+        opts.tests += regular_tests
+    if opts.selenium_tests:
+        opts.tests += browser_tests
+
+    # if we don't have a browser but are supposed to run selenium related tests, fail
+    if opts.browser is 'none':
+        for t in browser_tests:
+            if t in opts.tests:
+                sys.stderr.write("Unable to run test {0} because browser isn't set.\n".format(t))
+                return 1
+
+    if len(opts.tests) is 0:
+        sys.stderr.write("No tests specified.\n")
+        return 0
+
+    if run_avocado(opts.tests, opts.verbosity, opts.browser):
         return 0
     else:
         return 1

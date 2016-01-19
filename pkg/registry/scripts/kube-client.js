@@ -972,18 +972,22 @@
                 }
 
                 var haveNs = false;
+                var wantNs = false;
 
                 objects.forEach(function(resource) {
                     var meta = resource.metadata;
                     if (resource.kind == "Namespace" && meta && meta.name === namespace)
                         haveNs = true;
+                    var schema = SCHEMA[resource.kind] || SCHEMA[""];
+                    if (!schema.global)
+                        wantNs = true;
                 });
 
                 /* Shallow copy of the array, we modify it below */
                 objects = objects.slice();
 
-                /* Create the namespace if it exists */
-                if (namespace && !haveNs) {
+                /* Create the namespace  */
+                if (namespace && wantNs && !haveNs) {
                     objects.unshift({
                         apiVersion : "v1",
                         kind : "Namespace",
@@ -1017,7 +1021,7 @@
                                 step();
                             } else {
                                 debug("create failed:", path, resp || response);
-                                defer.reject(response);
+                                defer.reject(resp || response);
                             }
                         });
                 }
@@ -1038,6 +1042,9 @@
                 return promise.then(function() {
                     if (resource)
                         loader.handle(resource, true);
+                }, function(response) {
+                    var resp = response.data;
+                    throw resp || response;
                 });
             }
 

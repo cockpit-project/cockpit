@@ -671,7 +671,7 @@ class VirtMachine(Machine):
         self.image_base = os.path.join(self.test_dir, "images", self.image)
         self.image_file = os.path.join(self.run_dir, "%s.qcow2" % (self.image))
 
-        self._network_description = etree.parse(open("./guest/network-cockpit.xml"))
+        self._network_description = etree.parse(open(os.path.join(self.test_dir, "guest/network-cockpit.xml")))
 
         self.test_disk_desc_original = None
 
@@ -722,7 +722,7 @@ class VirtMachine(Machine):
     # only read the disk template once per machine
     def _domain_disk_template(self):
         if not self.test_disk_desc_original:
-            with open("./guest/test-domain-disk.xml", "r") as desc_file:
+            with open(os.path.join(self.test_dir, "guest/test-domain-disk.xml"), "r") as desc_file:
                 self.test_disk_desc_original = desc_file.read()
         return self.test_disk_desc_original
 
@@ -818,7 +818,7 @@ class VirtMachine(Machine):
 
         # domain xml
         test_domain_desc_original = ""
-        with open("./guest/test-domain.xml", "r") as dom_desc:
+        with open(os.path.join(self.test_dir, "guest/test-domain.xml"), "r") as dom_desc:
             test_domain_desc_original = dom_desc.read()
 
         # add the virtual machine

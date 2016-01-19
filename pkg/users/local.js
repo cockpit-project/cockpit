@@ -373,7 +373,7 @@ PageAccountsCreate.prototype = {
         var self = this;
         $('#accounts-create-cancel').on('click', $.proxy(this, "cancel"));
         $('#accounts-create-create').on('click', $.proxy(this, "create"));
-        $('#accounts-create-dialog .check-passwords').on('keydown', $.proxy(this, "validate"));
+        $('#accounts-create-dialog .check-passwords').on('keydown change', $.proxy(this, "validate"));
         $('#accounts-create-real-name').on('input', $.proxy(this, "suggest_username"));
         $('#accounts-create-user-name').on('input', function() { self.username_dirty = true; });
     },
@@ -1061,7 +1061,7 @@ PageAccountSetPassword.prototype = {
 
     setup: function() {
         $('#account-set-password-apply').on('click', $.proxy(this, "apply"));
-        $('#account-set-password-dialog .check-passwords').on('keydown', $.proxy(this, "validate"));
+        $('#account-set-password-dialog .check-passwords').on('keydown change', $.proxy(this, "validate"));
     },
 
     enter: function() {

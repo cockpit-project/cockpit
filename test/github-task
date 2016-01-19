@@ -58,7 +58,6 @@ def start_publishing(github, host, name, revision, context, image):
     return testinfra.Sink(host, identifier, status)
 
 def check_publishing(sink, github):
-    expected = test
     expected = sink.status["github"]["status"]["description"]
     context = sink.status["github"]["status"]["context"]
     statuses = github.statuses(sink.status["revision"])
@@ -126,7 +125,7 @@ def eintr_retry_call(func, *args):
 # The goal here is that after 60 seconds we call check_publishing
 def wait_testing(proc, sink, github):
     count = 0
-    flags = WNOHANG
+    flags = os.WNOHANG
     while True:
         pid, status = eintr_retry_call(os.waitpid, proc.pid, flags)
         if count < 60:
@@ -176,6 +175,7 @@ def main():
     os.environ["TEST_OS"] = value
     os.environ["TEST_REVISION"] = revision
 
+    sink = None
     if opts.publish:
         sink = start_publishing(github, opts.publish, name, revision, context, value)
         os.environ["TEST_ATTACHMENTS"] = sink.attachments
@@ -201,12 +201,11 @@ def main():
         sys.stderr.write("github-task: unknown context: " + context)
         return 1
 
-    if opts.rebase:
-        ret = testinfra.rebase(sink)
+    ret = testinfra.rebase(sink)
 
     # Actually run the tests
-    if not ret:
-        proc = Popen(cmd)
+    if ret == 0:
+        proc = subprocess.Popen(cmd)
         ret = wait_testing(proc, sink, github)
 
     # All done

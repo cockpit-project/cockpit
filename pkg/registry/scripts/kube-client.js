@@ -38,7 +38,7 @@
     var OPENSHIFT = "/oapi/v1";
     var DEFAULT = { api: KUBE, create: 0 };
     var SCHEMA = flatSchema([
-        { kind: "Group", type: "groups", api: OPENSHIFT },
+        { kind: "Group", type: "groups", api: OPENSHIFT, global: true },
         { kind: "Image", type: "images", api: OPENSHIFT, global: true },
         { kind: "ImageStream", type: "imagestreams", api: OPENSHIFT },
         { kind: "ImageStreamImage", type: "imagestreamimages", api: OPENSHIFT },

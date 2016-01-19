@@ -12,7 +12,9 @@ registry_VIEWS = \
 	pkg/registry/views/imagestream-meta.html \
 	pkg/registry/views/imagestream-page.html \
 	pkg/registry/views/imagestream-panel.html \
-	pkg/registry/views/project-new-dialog.html \
+	pkg/registry/views/add-group-dialog.html \
+	pkg/registry/views/add-user-dialog.html \
+	pkg/registry/views/add-project-dialog.html \
 	pkg/registry/views/projects-page.html \
 	$(NULL)
 

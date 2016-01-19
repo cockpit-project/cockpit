@@ -115,7 +115,7 @@ done;
         with testvm.Timeout(seconds=30, error_message="Timeout while waiting for selenium to start"):
             machine.execute(script=WAIT_SELENIUM_RUNNING)
 
-def run_avocado(avocado_tests, verbose, browser):
+def run_avocado(avocado_tests, verbose, browser, download_logs):
     use_selenium = (browser != 'none')
     machine = testvm.VirtMachine(verbose=verbose, label="avocado")
     selenium = testvm.VirtMachine(image="selenium", label="selenium", verbose=verbose) if use_selenium else None
@@ -153,6 +153,8 @@ def run_avocado(avocado_tests, verbose, browser):
 
         if not success:
             copy_avocado_logs(machine, "FAILED")
+        elif download_logs:
+            copy_avocado_logs(machine, "PASSED")
 
         return success
     finally:
@@ -173,6 +175,8 @@ def main():
                         help="Run known browser/selenium tests")
     parser.add_argument("-t", "--tests", dest='regular_tests', action='store_true',
                         help="Run known regular (non-selenium) tests")
+    parser.add_argument("-l", "--logs", dest='download_logs', action='store_true',
+                        help="Always download avocado logs, even on success")
     parser.add_argument('tests', nargs='*')
 
     opts = parser.parse_args()
@@ -201,7 +205,7 @@ def main():
         sys.stderr.write("No tests specified.\n")
         return 0
 
-    if run_avocado(opts.tests, opts.verbosity, opts.browser):
+    if run_avocado(opts.tests, opts.verbosity, opts.browser, opts.download_logs):
         return 0
     else:
         return 1

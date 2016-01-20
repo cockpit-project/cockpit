@@ -45,6 +45,25 @@ test_get_strings (void)
 }
 
 static void
+test_get_bool (void)
+{
+  cockpit_config_file = SRCDIR "/src/ws/mock-config.conf";
+
+  g_assert_true (cockpit_conf_bool ("bad-section", "value", TRUE));
+  g_assert_false (cockpit_conf_bool ("bad-section", "value", FALSE));
+  g_assert_false (cockpit_conf_bool ("Section2", "missing", FALSE));
+
+  g_assert_true (cockpit_conf_bool ("Section2", "true", FALSE));
+  g_assert_true (cockpit_conf_bool ("Section2", "truelower", FALSE));
+  g_assert_true (cockpit_conf_bool ("Section2", "one", FALSE));
+  g_assert_true (cockpit_conf_bool ("Section2", "yes", FALSE));
+
+  g_assert_false (cockpit_conf_bool ("Section2", "value1", TRUE));
+
+  cockpit_conf_cleanup ();
+}
+
+static void
 test_get_strvs (void)
 {
   const gchar **comma = NULL;
@@ -84,6 +103,7 @@ main (int argc,
 {
   cockpit_test_init (&argc, &argv);
 
+  g_test_add_func ("/conf/test-bool", test_get_bool);
   g_test_add_func ("/conf/test-strings", test_get_strings);
   g_test_add_func ("/conf/test-strvs", test_get_strvs);
   g_test_add_func ("/conf/fail_load", test_fail_load);

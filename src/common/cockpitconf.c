@@ -141,6 +141,34 @@ cockpit_conf_string (const gchar *section,
   return NULL;
 }
 
+gboolean
+cockpit_conf_bool (const gchar *section,
+                   const gchar *field,
+                   gboolean defawlt)
+{
+  GHashTable *sect = NULL;
+  gchar *cmp = NULL;
+  const gchar *value;
+  gboolean ret = defawlt;
+
+  ensure_cockpit_conf ();
+  sect = g_hash_table_lookup (cockpit_conf, section);
+  if (sect != NULL)
+    {
+      value = g_hash_table_lookup (sect, field);
+      if (value)
+        {
+          cmp = g_ascii_strdown (value, -1);
+          ret = g_strcmp0 (cmp, "yes") == 0 ||
+                g_strcmp0 (cmp, "true") == 0 ||
+                g_strcmp0 (cmp, "1") == 0;
+        }
+    }
+
+  g_free (cmp);
+  return ret;
+}
+
 static const gchar **
 build_strv (const gchar *section,
             const gchar *field,

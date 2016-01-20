@@ -30,6 +30,7 @@ parser.add_argument('-q', '--quick', action='store_true', help='Build faster')
 parser.add_argument('-b', '--build-image', action='store', help='Build in this image')
 parser.add_argument('-B', '--build-only', action='store_true', help='Only build and download results')
 parser.add_argument('-I', '--install-only', action='store_true', help='Only upload and install')
+parser.add_argument('-c', '--containers', action='store_true', help='Install container images')
 parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to use')
 args = parser.parse_args()
 
@@ -40,15 +41,23 @@ def upload_scripts(machine):
     machine.execute("rm -rf /var/lib/testvm")
     machine.upload([ "guest/lib" ], "/var/lib/testvm")
     machine.upload([ "./guest/%s.install" % machine.image ], "/var/tmp")
+    if args.containers:
+        machine.upload(["../images"], "/var/tmp")
 
 def run_install_script(machine, do_build, do_install, skip, arg):
+    install = do_install
+    if args.containers:
+        do_install = False
+
     machine.execute("cd /var/tmp; ./%s.install%s%s%s%s%s%s" % (machine.image,
-                                                             " --verbose" if args.verbose else "",
-                                                             " --quick" if args.quick else "",
-                                                             " --build" if do_build else "",
-                                                             " --install" if do_install else "",
-                                                             " --skip '%s'" % skip if skip else "",
-                                                             " '%s'" % arg if arg else ""))
+                                                         " --verbose" if args.verbose else "",
+                                                         " --quick" if args.quick else "",
+                                                         " --build" if do_build else "",
+                                                         " --install" if do_install else "",
+                                                         " --skip '%s'" % skip if skip else "",
+                                                         " '%s'" % arg if arg else ""))
+    if install and args.containers:
+        machine.execute("/var/lib/testvm/containers.install")
 
 def build_and_maybe_install(image, do_install=False, skip=None):
     """Build and maybe install Cockpit into a test image"""

@@ -73,6 +73,7 @@ class MachineBuilder:
             self.machine.upload([ "guest/lib" ], "/var/lib/testvm")
             self.machine.upload([script], "/var/tmp/SETUP")
             self.machine.upload([source], "/var/tmp")
+            self.machine.upload([ "../images/base" ], "/var/tmp/cockpit-base")
 
             if "rhel" in self.machine.image:
                 self.machine.upload([ os.path.expanduser("~/.rhel") ], "/root/")

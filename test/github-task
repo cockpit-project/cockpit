@@ -59,8 +59,11 @@ def start_publishing(github, host, name, revision, context, image):
     return testinfra.Sink(host, identifier, status)
 
 def check_publishing(sink, github):
-    expected = sink.status["github"]["status"]["description"]
-    context = sink.status["github"]["status"]["context"]
+    data = sink.status.get("github", None)
+    if not data:
+        return True
+    expected = data["status"]["description"]
+    context = data["status"]["context"]
     statuses = github.statuses(sink.status["revision"])
     status = statuses.get(context, None)
     current = status.get("description", None)
@@ -134,7 +137,10 @@ def wait_testing(proc, sink, github):
             count += 1
         elif count == 60:
             if sink and not check_publishing(sink, github):
-                proc.terminate()
+                try:
+                    proc.terminate()
+                except OSError:
+                    pass
             flags = 0
         if pid == proc.pid:
             if os.WIFSIGNALED(status):

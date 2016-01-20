@@ -64,7 +64,7 @@ class SeleniumTest(Test):
         self.driver.set_page_load_timeout(90)
         # self.default_try is number of repeats for finding element
         self.default_try = 40
-
+        self.__internal_function_used=None
         # self.default_explicit_wait is time for waiting for element
         # default_explicit_wait * default_try = max time for waiting for element
         self.default_explicit_wait = 1
@@ -94,14 +94,13 @@ class SeleniumTest(Test):
             raise Exception('ERR: Unable to close WEBdriver', str(e))
 
     def everything_loaded(self, element):
+        isokay = False
         if javascript_operations:
-            for foo in range(0, self.default_try): 
-                if self.driver.execute_script("return Array.from(arguments[0].children).every(function (e) { return e.getAttribute('data-loaded'); })", element):
-                    break
+            isokay = self.driver.execute_script("return arguments[0].getAttribute('data-loaded')", element)
+        return isokay
 
     def click(self, element):
         notdone=""
-        self.everything_loaded(element)
         for foo in range(0, self.default_try):
             try:
                 if javascript_operations:
@@ -112,7 +111,11 @@ class SeleniumTest(Test):
                 notdone=None
             except Exception as e:
                 notdone=e
-                time.sleep(self.default_explicit_wait)
+                pass
+            try:
+                element=self.__internal_function_used()
+                self.everything_loaded(element)
+            except:
                 pass
         if notdone:
             raise Exception('ERR: Unable to CLICK on element ', str(notdone))
@@ -145,10 +148,7 @@ parameters:
             try:
                 myfunction = lambda :WebDriverWait(baseelement, self.default_explicit_wait).until(cond((method, text)))
                 returned = myfunction()
-                if not (cond == frame or fatal == False or cond == invisible):
-                    self.everything_loaded(returned, myfunction)
-                returned = myfunction()
-                if returned:
+                if not (cond == frame or fatal == False or cond == invisible) and self.everything_loaded(returned):
                     break
             except:
                 pass
@@ -164,6 +164,7 @@ parameters:
                     pass
                 finally:
                     raise Exception('ERR: Unable to locate name: %s' % str(text), screenshot_file)
+        self.__internal_function_used = myfunction
         return returned
 
     def wait_id(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):

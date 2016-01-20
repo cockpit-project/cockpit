@@ -33,6 +33,10 @@ const gchar **  cockpit_conf_strv             (const gchar *section,
                                                const gchar *field,
                                                gchar delimiter);
 
+gboolean        cockpit_conf_bool             (const gchar *section,
+                                               const gchar *field,
+                                               gboolean defawlt);
+
 void            cockpit_conf_cleanup          (void);
 
 void            cockpit_conf_init             (void);

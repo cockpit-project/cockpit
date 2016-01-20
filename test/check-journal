@@ -199,7 +199,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         # insert messages as errors because we know these will be shown by default
         m.execute("logger -p user.err --tag check-journal BEFORE BOOT");
-        m.spawn("sleep 0.1 && reboot", "reboot")
+        m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
         m.wait_reboot()
         m.execute("logger -p user.err --tag check-journal AFTER BOOT");
 

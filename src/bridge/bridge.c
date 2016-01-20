@@ -573,6 +573,7 @@ main (int argc,
   if (!g_getenv ("XDG_DATA_DIRS") && !g_str_equal (DATADIR, "/usr/share"))
     g_setenv ("XDG_DATA_DIRS", DATADIR, TRUE);
 
+  g_setenv ("LANG", "en_US.UTF-8", FALSE);
   g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
   g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
   g_setenv ("GIO_USE_VFS", "local", TRUE);

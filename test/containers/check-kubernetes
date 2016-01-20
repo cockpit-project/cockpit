@@ -1,0 +1,135 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import sys
+
+base_dir = os.path.dirname(os.path.realpath(__file__))
+test_dir = os.path.abspath(os.path.join(base_dir, ".."))
+
+try:
+    import testlib
+except:
+    sys.path.append(test_dir)
+
+from testlib import *
+from testvm import VirtMachine
+import kubelib
+
+class KubernetesContainerMachine(VirtMachine):
+
+    def start_cockpit(self, *args, **kwargs):
+        host = "172.17.0.1"
+        if kwargs.pop('invalid_kube_service', False):
+            host = ""
+
+        self.execute("""#!/bin/sh
+            systemctl start docker
+            # HACK: Allow container to talk to the host
+            iptables -I INPUT 4 -i docker0 -j ACCEPT
+            /usr/bin/docker run -d -e COCKPIT_KUBE_INSECURE=true -e KUBERNETES_INSECURE=true -e KUBERNETES_SERVICE_PORT=6443 -e KUBERNETES_SERVICE_HOST={0} -p 9090:9090 cockpit/kubernetes
+            """.format(host))
+        self.wait_for_cockpit_running(self.address)
+
+class KubernetesContainerCase(kubelib.KubernetesCase):
+    machine_class = KubernetesContainerMachine
+
+    def setup_basic_auth(self):
+        self.machine.execute("systemctl stop kube-apiserver")
+        self.machine.execute("echo 'foobar,admin,admin' > /etc/kubernetes/basic")
+        self.machine.execute("sed -i 's#^KUBE_API_ARGS=.*#KUBE_API_ARGS=\"--basic-auth-file=/etc/kubernetes/basic\"#g' /etc/kubernetes/apiserver")
+        self.machine.execute("systemctl start kube-apiserver")
+
+class TestKubernetesLogin(KubernetesContainerCase):
+
+    def testKubernetesLogin(self):
+        self.invalid_kube_service = True
+        m = self.machine
+        b = self.browser
+
+        def login(user, password):
+            b.set_val('#login-user-input', user)
+            b.set_val('#login-password-input', password)
+            b.click('#login-button')
+
+        m.start_cockpit(invalid_kube_service=True)
+
+        # Try to login, no api var
+        b.open("/")
+        b.wait_visible("#login")
+        login("admin", "foobar")
+        b.wait_in_text("#login-fatal-message", "No kubernetes")
+        b.wait_not_visible('#login-button')
+
+        m.execute('docker stop $(docker ps -q --filter image="cockpit/kubernetes")')
+        m.start_cockpit()
+
+        b.open("/")
+        login("admin", "foobar")
+        b.wait_in_text("#login-fatal-message", "Couldn't connect to the api")
+        b.wait_not_visible('#login-button')
+
+        # Start kubernetes
+        self.start_kubernetes()
+        self.wait_api_server(port=6443, scheme='https')
+
+        b.reload()
+        login("admin", "foobar")
+        b.wait_in_text("#login-fatal-message", "API is unauthenticated")
+        b.wait_not_visible('#login-button')
+
+        # Try to login as user with a wrong password
+        self.setup_basic_auth()
+        b.reload()
+        login("admin", "bad")
+        b.wait_text_not("#login-error-message", "")
+        b.wait_visible('#login-button')
+
+        login("admin", "foobar")
+        with b.wait_timeout(10) as r:
+            b.expect_load()
+        b.wait_present("#content")
+        b.wait_text('#content-user-name', 'admin')
+
+        # reload, which should log us in with the cookie
+        b.reload()
+        b.wait_present("#content")
+        b.wait_text('#content-user-name', 'admin')
+        b.wait_in_text("title", "Cockpit Kubernetes")
+        b.enter_page("/kubernetes")
+        b.wait_present("#node-list")
+
+class KubernetesCase(KubernetesContainerCase, kubelib.KubernetesCommonTests):
+    machine_class = KubernetesContainerMachine
+
+    def setUp(self):
+        super(KubernetesCase, self).setUp()
+        self.start_kubernetes()
+        self.fix_apiserver_config()
+        self.setup_basic_auth()
+        self.start_kubernetes()
+
+        self.wait_api_server(port=6443, scheme='https')
+        config = os.path.join(test_dir, "files/mock-k8s-tiny-app.json")
+        self.machine.upload([config], "/tmp")
+        self.wait_api_server(port=6443, scheme='https')
+
+if __name__ == '__main__':
+    test_main()

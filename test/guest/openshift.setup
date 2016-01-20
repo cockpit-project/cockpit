@@ -120,6 +120,9 @@ oc config use-context default/10-111-112-101:8443/system:admin
 # Wait for it to download
 wait images_has busybox
 
+# Setup basics for building images
+/var/lib/testvm/images.setup
+
 # Print out the kubeconfig file for copy paste
 echo "---------------------------------------------------------------"
 cat /root/.kube/config

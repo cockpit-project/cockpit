@@ -1,0 +1,145 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import sys
+import tempfile
+import time
+
+base_dir = os.path.dirname(os.path.realpath(__file__))
+test_dir = os.path.abspath(os.path.join(base_dir, ".."))
+
+try:
+    import testlib
+except:
+    sys.path.append(test_dir)
+
+from testlib import *
+from testvm import VirtMachine
+import kubelib
+
+class OCBrowser(Browser):
+    def login_and_go(self, path=None, user=None, host=None):
+        if user is None:
+            user = self.default_user
+        href = path
+        if not href:
+            href = "/"
+        if host:
+            href = "/@" + host + href
+        self.open(href)
+
+        self.expect_load()
+        self.wait_visible("#inputUsername")
+        self.wait_visible("#inputPassword")
+
+        self.set_val("#inputUsername", user)
+        self.set_val("#inputPassword", "foobar")
+        self.click('.btn-primary')
+        self.expect_load()
+        self.wait_present('#content')
+        self.wait_visible('#content')
+        if path:
+            self.enter_page(path.split("#")[0], host=host)
+
+
+class OCMachine(VirtMachine):
+    def wait_oc(self):
+        i = 0
+        while True:
+            try:
+                self.execute("oc status")
+                break;
+            except:
+                if i > 20:
+                    raise
+                i = i + 1
+                time.sleep(1)
+
+    def start_cockpit(self, *args, **kwargs):
+        path = os.path.join(test_dir, "files", "cockpit-openshift-template.json")
+        self.upload([path], "/tmp")
+        self.wait_oc()
+
+        # TODO: For now we only support cluster admins
+        self.execute("oadm policy add-cluster-role-to-user cluster-admin admin")
+        self.execute("oc process -f /tmp/cockpit-openshift-template.json -v COCKPIT_KUBE_INSECURE=true,COCKPIT_KUBE_URL=http://{0}:30000,OPENSHIFT_OAUTH_PROVIDER_URL=https://{0}:8443 > out.json".format(self.address))
+        self.execute("oc create -f out.json")
+        self.wait_for_cockpit_running(self.address, port=30000)
+
+class TestOpenshift(kubelib.KubernetesCase, kubelib.OpenshiftCommonTests):
+    machine_class = OCMachine
+
+    def setUp(self, macaddr=None, memory_mb=None, cpus=None):
+        self.machine = self.new_machine(image='openshift')
+        self.machine.start(macaddr=macaddr, memory_mb=memory_mb, cpus=cpus)
+        self.machine.wait_boot()
+
+        path = os.path.join(test_dir, "files", "mock-app-openshift.json")
+        self.machine.upload([path], "/tmp")
+
+        self.browser = OCBrowser(self.machine.address, self.label(), port=30000)
+        self.addCleanup(lambda: self.browser.kill())
+
+        self.tmpdir = tempfile.mkdtemp()
+        self.openshift = self.machine
+        self.machine.wait_oc()
+
+    def testLogin(self):
+        b = self.browser
+        self.machine.start_cockpit()
+
+        b.open("/")
+        b.expect_load()
+
+        b.wait_visible("#inputUsername")
+        b.wait_visible("#inputPassword")
+        b.wait_in_text("title", "OpenShift Origin")
+
+        b.set_val("#inputUsername", "kuser")
+        b.set_val("#inputPassword", "foobar")
+        b.click('.btn-primary')
+
+        b.expect_load()
+        b.wait_present("#content")
+        b.wait_text('#content-user-name', 'kuser')
+        b.wait_in_text("title", "Cockpit Openshift")
+        b.enter_page("/kubernetes")
+        b.wait_present("#node-list")
+
+        b.logout()
+        b.wait_in_text("#login-fatal-message", "Logout Successful")
+        b.wait_not_visible('#login-button')
+
+        b.open("/#error_description=AError")
+        b.wait_not_visible('#login-button')
+        b.wait_in_text("#login-fatal-message", "AError")
+        b.click("#login-again")
+        b.expect_load()
+
+        b.set_val("#inputUsername", "kuser")
+        b.set_val("#inputPassword", "foobar")
+        b.click('.btn-primary')
+
+        b.expect_load()
+        b.wait_present("#content")
+
+if __name__ == '__main__':
+    test_main()

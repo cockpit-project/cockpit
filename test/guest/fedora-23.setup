@@ -107,8 +107,10 @@ docker pull busybox:buildroot-2014.02
 docker pull submod/helloapache:0.1.11
 docker pull gcr.io/google_containers/pause:0.8.0
 
-# Final tweaks
+# Setup basics for building images
+/var/lib/testvm/images.setup
 
+# Final tweaks
 rm -rf /var/log/journal/*
 echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
 printf "[Coredump]\nStorage=journal\n" > /etc/systemd/coredump.conf

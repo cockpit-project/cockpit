@@ -1,0 +1,102 @@
+#!/usr/bin/python
+# This file is part of Cockpit.
+#
+# Copyright (C) 2016 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import os
+import sys
+import glob
+import imp
+import os
+import string
+import subprocess
+import unittest
+
+sys.dont_write_bytecode = True
+
+base_dir = os.path.dirname(os.path.realpath(__file__))
+testdir = os.path.abspath(os.path.join(base_dir, ".."))
+sys.path.append(testdir)
+
+import testinfra
+import testlib
+
+def check_valid(filename):
+    name = os.path.basename(filename)
+    allowed = string.ascii_letters + string.digits + '-_'
+    if not all(c in allowed for c in name):
+        return None
+    return name.replace("-", "_")
+
+def install(opts):
+    sys.stderr.write("Building and installing Cockpit ...\n")
+    cmds = [
+        [ os.path.join(testdir, "vm-download"), testinfra.DEFAULT_IMAGE ],
+        [ os.path.join(testdir, "vm-reset") ],
+        [ os.path.join(testdir, "vm-install"), "--containers" ],
+    ]
+
+    if opts.container == 'kubernetes':
+        cmds.append([ os.path.join(testdir, "vm-download"), 'openshift' ])
+        cmds.append([ os.path.join(testdir, "vm-install"),
+                                    "--install-only",
+                                    "--containers",
+                                    "openshift" ])
+
+    for cmd in cmds:
+        subprocess.check_call(cmd)
+
+def run(opts):
+    # Now actually load the tests, any modules that start with "check-*"
+    loader = unittest.TestLoader()
+    suite = unittest.TestSuite()
+    for filename in glob.glob(os.path.join(base_dir,
+                                           "check-{0}*".format(opts.container))):
+        name = check_valid(filename)
+        if not name or not os.path.isfile(filename):
+            continue
+        with open(filename, 'rb') as fp:
+            module = imp.load_module(name, fp, filename, ("", "rb", imp.PY_SOURCE))
+            suite.addTest(loader.loadTestsFromModule(module))
+
+    # And now load new testlib, and run all the tests we got
+    return testlib.test_main(opts=opts, suite=suite)
+
+def main():
+    parser = testlib.arg_parser()
+    parser.add_argument('-i', '--install', dest="install", action='store_true',
+                        help='Install rpms')
+    parser.add_argument('-c', '--container', dest="container", action='store',
+                        help='container to test')
+    opts = parser.parse_args()
+    if not opts.container:
+        opts.container = 'kubernetes'
+
+    if opts.install:
+        install(opts)
+
+    if not os.path.isdir(os.path.abspath(os.path.join(testdir, "..", "images", opts.container))):
+        sys.stderr.write("Unable to run tests for unknown container {0}.\n".format(opts.container))
+        exit(1)
+
+    if run(opts):
+        return 0
+    else:
+        return 1
+
+if __name__ == '__main__':
+    sys.exit(main())

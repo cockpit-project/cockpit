@@ -185,8 +185,12 @@ def main():
     (prefix, unused, value) = context.partition("/")
 
     os.environ["TEST_NAME"] = name
-    os.environ["TEST_OS"] = value
     os.environ["TEST_REVISION"] = revision
+
+    if prefix == 'image':
+        os.environ["TEST_OS"] = 'fedora-23'
+    else:
+        os.environ["TEST_OS"] = value
 
     sink = None
     if opts.publish:
@@ -217,6 +221,10 @@ def main():
         if opts.verbose:
             cmd.append("--verbose")
 
+    elif prefix == "image":
+        cmd = [ "./containers/run-tests", "--install", "--container", value]
+        if opts.verbose:
+            cmd.append("--verbose")
     else:
         ret = "Unknown context"
 

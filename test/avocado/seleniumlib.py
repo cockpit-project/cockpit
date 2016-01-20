@@ -62,10 +62,10 @@ class SeleniumTest(Test):
 
         self.driver.set_window_size(1400, 1200)
         self.driver.set_page_load_timeout(90)
-
         # self.default_try is number of repeats for finding element
         self.default_try = 40
-
+        # stored search function for each element to be able to refresh element in case of detached from DOM
+        self.element_wait_functions = { }
         # self.default_explicit_wait is time for waiting for element
         # default_explicit_wait * default_try = max time for waiting for element
         self.default_explicit_wait = 1
@@ -95,30 +95,38 @@ class SeleniumTest(Test):
             raise Exception('ERR: Unable to close WEBdriver', str(e))
 
     def everything_loaded(self, element):
+        """
+This function is only for internal purposes:
+    It via javascript check that attribute data-loaded is in element
+        """
         if javascript_operations:
-            for foo in range(0, self.default_try): 
-                if self.driver.execute_script("return Array.from(arguments[0].children).every(function (e) { return e.getAttribute('data-loaded'); })", element):
-                    break
+            return self.driver.execute_script("return arguments[0].getAttribute('data-loaded')", element)
+        else:
+            return True
 
     def click(self, element):
-        notdone=""
-        self.everything_loaded(element)
+        failure = "CLICK: too many tries"
+        usedfunction = self.element_wait_functions[element] if element in self.element_wait_functions else None
         for foo in range(0, self.default_try):
             try:
                 if javascript_operations:
                     self.driver.execute_script("arguments[0].click();", element)
                 else:
                     element.click()
+                failure = None
                 break
-                notdone=None
             except Exception as e:
-                notdone=e
-                time.sleep(self.default_explicit_wait)
+                failure = e
                 pass
-        if notdone:
-            raise Exception('ERR: Unable to CLICK on element ', str(notdone))
+            try:
+                element = usedfunction() if usedfunction else element
+                self.everything_loaded(element)
+            except:
+                pass
+        if failure:
+            raise Exception('ERR: Unable to CLICK on element ', str(failure))
 
-    def send_keys(self, element, text, clear=True):
+    def send_keys(self, element, text, clear = True):
         if clear:
             element.clear()
         element.send_keys(text)
@@ -126,8 +134,11 @@ class SeleniumTest(Test):
             self.driver.execute_script('var ev = document.createEvent("Event"); ev.initEvent("change", true, false); arguments[0].dispatchEvent(ev);', element)
             self.driver.execute_script('var ev = document.createEvent("Event"); ev.initEvent("keydown", true, false); arguments[0].dispatchEvent(ev);', element)
 
-    def wait(self, method, text, baseelement, overridetry, fatal, cond):
+    def wait(self, method, text, baseelement, overridetry, fatal, cond, jscheck):
         """
+This function is low level, tests should prefer to use the wait_* functions:
+    This function stores caller function for this element to an internal dictionary, in case that
+    element is lost and has to be renewed (-> self.element_wait_functions)
 parameters:
     method - used selenim method method
     text - what are you searching for
@@ -135,16 +146,21 @@ parameters:
     overridetry - change value of repeats
     fatal - boolean if search is fatal or notice
     cond - use selenim conditions (aliases are defined above class)
+    jscheck - use javascipt to wait for element has attribute-data loaded, it is safer, but slower
         """
         if not baseelement:
             baseelement = self.driver
         returned = None
         cond = cond if cond else visible
         internaltry = overridetry if overridetry else self.default_try
+        usedfunction = lambda :WebDriverWait(baseelement, self.default_explicit_wait).until(cond((method, text)))
         for foo in range(0, internaltry):
             try:
-                returned = WebDriverWait(baseelement, self.default_explicit_wait).until(cond((method, text)))
-                if returned:
+                returned = usedfunction()
+                if jscheck:
+                    if not (cond == frame or fatal == False or cond == invisible) and self.everything_loaded(returned):
+                        break
+                else:
                     break
             except:
                 pass
@@ -160,20 +176,19 @@ parameters:
                     pass
                 finally:
                     raise Exception('ERR: Unable to locate name: %s' % str(text), screenshot_file)
-        if not (cond == frame or fatal == False or cond == invisible):
-            self.everything_loaded(returned)
+        self.element_wait_functions[returned] = usedfunction
         return returned
 
-    def wait_id(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):
-        return self.wait(By.ID, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
+    def wait_id(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False):
+        return self.wait(By.ID, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, jscheck=jscheck)
 
-    def wait_link(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):
-        return self.wait(By.PARTIAL_LINK_TEXT, baseelement=baseelement, text=el, overridetry=overridetry, fatal=fatal, cond=cond)
+    def wait_link(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False):
+        return self.wait(By.PARTIAL_LINK_TEXT, baseelement=baseelement, text=el, overridetry=overridetry, fatal=fatal, cond=cond, jscheck=jscheck)
 
-    def wait_xpath(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):
-        return self.wait(By.XPATH, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
+    def wait_xpath(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False):
+        return self.wait(By.XPATH, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, jscheck=jscheck)
 
-    def wait_text(self, el, nextel="", element="*", baseelement=None, overridetry=None, fatal=True, cond=None):
+    def wait_text(self, el, nextel="", element="*", baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False):
         search_string = ""
         search_string_next = ""
         elem = None
@@ -188,14 +203,14 @@ parameters:
             else:
                 search_string_next = search_string_next + ' and contains(text(), "%s")' % foo
         if nextel:
-            elem = self.wait_xpath("//%s[%s]/following-sibling::%s[%s]" % (element, search_string, element, search_string_next), baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
+            elem = self.wait_xpath("//%s[%s]/following-sibling::%s[%s]" % (element, search_string, element, search_string_next), baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, jscheck=jscheck)
         else:
-            elem = self.wait_xpath("//%s[%s]" % (element, search_string), baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
+            elem = self.wait_xpath("//%s[%s]" % (element, search_string), baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, jscheck=jscheck)
         return elem
 
-    def wait_frame(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):
+    def wait_frame(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False):
         text = "//iframe[contains(@name,'%s')]" % el
-        return self.wait(By.XPATH, text=text, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=frame)
+        return self.wait(By.XPATH, text=text, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=frame, jscheck=jscheck)
 
     def mainframe(self):
         self.driver.switch_to_default_content()

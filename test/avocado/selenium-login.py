@@ -4,7 +4,7 @@
 import os
 import sys
 machine_test_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(machine_test_dir)
+sys.path.insert(1,machine_test_dir)
 
 from avocado import main
 from avocado.utils import process

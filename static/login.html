@@ -247,9 +247,13 @@
 
             function show_login() {
                 /* Show the login screen */
-                document.title = environment.hostname;
+                var title = environment.title;
+                if (!title)
+                    title = environment.hostname;
+
+                document.title = title;
                 var b = document.createElement("b");
-                b.appendChild(document.createTextNode(environment.hostname));
+                b.appendChild(document.createTextNode(title));
                 id("server-name").appendChild(b);
                 id("login").style.visibility = 'visible';
                 id("login-user-input").focus();

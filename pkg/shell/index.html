@@ -368,8 +368,26 @@
             "base1/cockpit",
             "shell/index"
         ], function(cockpit, index) {
-            /* For debugging and such */
-            window.cockpit = cockpit;
+            function follow(arg) {
+                /* A promise of some sort */
+                if (arguments.length == 1 && typeof arg.then == "function") {
+                    arg.then(function() { console.log.apply(console, arguments); },
+                             function() { console.error.apply(console, arguments); });
+                    if (typeof arg.stream == "function")
+                        arg.stream(function() { console.log.apply(console,arguments); });
+                }
+            }
+
+            var zz_value;
+
+            /* For debugging utility */
+            Object.defineProperties(window, {
+                cockpit: { value: cockpit },
+                zz: {
+                    get: function() { return zz_value; },
+                    set: function(val) { zz_value = val; follow(val); }
+                }
+            });
 
             /* Drain any initial messages we receive into the router */
             cockpit.transport.wait(function() {

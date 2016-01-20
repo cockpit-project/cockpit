@@ -253,11 +253,17 @@ build_environment (GHashTable *os_release)
   GHashTableIter iter;
   GBytes *bytes;
   JsonObject *object;
+  const gchar *title;
   gchar *hostname;
   gpointer key, value;
   JsonObject *osr;
 
   object = json_object_new ();
+
+  title = cockpit_conf_string ("WebService", "LoginTitle");
+  if (title)
+    json_object_set_string_member (object, "title", title);
+
   hostname = g_malloc0 (HOST_NAME_MAX + 1);
   gethostname (hostname, HOST_NAME_MAX);
   hostname[HOST_NAME_MAX] = '\0';

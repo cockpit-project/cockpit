@@ -179,12 +179,7 @@ def main():
     (prefix, unused, value) = context.partition("/")
 
     os.environ["TEST_NAME"] = name
-
-    # use default os for selenium tests
-    if prefix == "selenium":
-        os.environ["TEST_OS"] = testinfra.DEFAULT_IMAGE
-    else:
-        os.environ["TEST_OS"] = value
+    os.environ["TEST_OS"] = value
     os.environ["TEST_REVISION"] = revision
 
     sink = None
@@ -209,6 +204,7 @@ def main():
             cmd.append("--verbose")
 
     elif prefix == "selenium":
+        os.environ["TEST_OS"] = "fedora-23"
         if value not in ['firefox', 'chrome']:
             ret = "Unknown browser for selenium test"
         cmd = [ "./avocado/run-tests", "--install", "--selenium-tests", "--browser", value]

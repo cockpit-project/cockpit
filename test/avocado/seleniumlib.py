@@ -62,7 +62,6 @@ class SeleniumTest(Test):
 
         self.driver.set_window_size(1400, 1200)
         self.driver.set_page_load_timeout(90)
-
         # self.default_try is number of repeats for finding element
         self.default_try = 40
 
@@ -139,11 +138,16 @@ parameters:
         if not baseelement:
             baseelement = self.driver
         returned = None
+        myfunction=None
         cond = cond if cond else visible
         internaltry = overridetry if overridetry else self.default_try
         for foo in range(0, internaltry):
             try:
-                returned = WebDriverWait(baseelement, self.default_explicit_wait).until(cond((method, text)))
+                myfunction = lambda :WebDriverWait(baseelement, self.default_explicit_wait).until(cond((method, text)))
+                returned = myfunction()
+                if not (cond == frame or fatal == False or cond == invisible):
+                    self.everything_loaded(returned, myfunction)
+                returned = myfunction()
                 if returned:
                     break
             except:
@@ -160,8 +164,6 @@ parameters:
                     pass
                 finally:
                     raise Exception('ERR: Unable to locate name: %s' % str(text), screenshot_file)
-        if not (cond == frame or fatal == False or cond == invisible):
-            self.everything_loaded(returned)
         return returned
 
     def wait_id(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):

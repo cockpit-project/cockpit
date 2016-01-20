@@ -173,6 +173,7 @@ def main():
     parser = argparse.ArgumentParser(description='Run Cockpit Avocado test(s)')
     parser.add_argument('-v', '--verbose', dest="verbosity", action='store_true',
                         help='Verbose output')
+    parser.add_argument('-q', '--quick', action='store_true', help='Build faster')
     parser.add_argument('--install', dest='install', action='store_true',
                         help='Build and install Cockpit into test VMs')
     parser.add_argument("-b", "--browser", choices=['none', 'firefox', 'chrome'],
@@ -191,7 +192,13 @@ def main():
         sys.stderr.write("Building and installing Cockpit ...\n")
         subprocess.check_call([ os.path.join(topdir, "vm-download"), testinfra.DEFAULT_IMAGE, "selenium" ])
         subprocess.check_call([ os.path.join(topdir, "vm-reset") ])
-        subprocess.check_call([ os.path.join(topdir, "vm-install") ])
+
+        cmd = [ os.path.join(topdir, "vm-install") ]
+        if opts.verbosity:
+            cmd.append("--verbose")
+        if opts.quick:
+            cmd.append("--quick")
+        subprocess.check_call(cmd)
 
     regular_tests = [ "checklogin-basic.py", "checklogin-raw.py" ]
     browser_tests = [ "selenium-login.py" ]

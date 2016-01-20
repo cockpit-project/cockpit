@@ -366,7 +366,7 @@ class GitHub(object):
             statuses = self.statuses(revision)
             for context in master_contexts:
                 status = statuses.get(context, { })
-                (priority, changes) = self.prioritize(status, [], 9)
+                (priority, changes) = self.prioritize(status, [], 8)
                 results.append((priority, "master", revision, "master", context))
                 update_status(revision, context, status, changes)
 
@@ -408,7 +408,7 @@ class GitHub(object):
             priority = task[0]
             context = task[4]
             if DEFAULT_IMAGE not in context:
-                priority -= random.randint(1, 3)
+                priority -= random.randint(1, 2)
             return priority
 
         random.seed()

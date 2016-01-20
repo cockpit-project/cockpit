@@ -182,6 +182,7 @@ class Cockpit():
         messages = self.journal_messages(syslog_ids, 5)
         messages += self.audit_messages("14")  # 14xx is selinux
         all_found = True
+        first = None
         for m in messages:
             found = False
             for p in self.allowed_messages:
@@ -192,5 +193,6 @@ class Cockpit():
             if not found:
                 print "Unexpected journal message '%s'" % m
                 all_found = False
-        self.assertTrue(
-            all_found, msg="There were unexpected journal messages")
+                if not first:
+                    first = m
+        self.assertTrue(all_found, msg=first)

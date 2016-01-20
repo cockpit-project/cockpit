@@ -585,6 +585,7 @@ class MachineCase(unittest.TestCase):
         messages = machine.journal_messages(syslog_ids, 5)
         messages += machine.audit_messages("14") # 14xx is selinux
         all_found = True
+        first = None
         for m in messages:
             found = False
             for p in self.allowed_messages:
@@ -595,9 +596,11 @@ class MachineCase(unittest.TestCase):
             if not found:
                 print "Unexpected journal message '%s'" % m
                 all_found = False
+                if not first:
+                    first = m
         if not all_found:
             self.copy_journal("FAIL")
-            raise Error("There were unexpected journal messages")
+            raise Error(first)
 
     def snapshot(self, title, label=None):
         """Take a snapshot of the current screen and save it as a PNG.

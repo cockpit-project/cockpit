@@ -106,7 +106,7 @@ This function is only for internal purposes:
 
     def click(self, element):
         failure = "CLICK: too many tries"
-        usedfunction = self.element_wait_functions[element]
+        usedfunction = self.element_wait_functions[element] if element in self.element_wait_functions else None
         for foo in range(0, self.default_try):
             try:
                 if javascript_operations:
@@ -119,12 +119,12 @@ This function is only for internal purposes:
                 failure = e
                 pass
             try:
-                element = self.usedfunction()
+                element = usedfunction() if usedfunction else element
                 self.everything_loaded(element)
             except:
                 pass
         if failure:
-            raise Exception('ERR: Unable to CLICK on element ', str(notdone))
+            raise Exception('ERR: Unable to CLICK on element ', str(failure))
 
     def send_keys(self, element, text, clear = True):
         if clear:
@@ -136,12 +136,9 @@ This function is only for internal purposes:
 
     def wait(self, method, text, baseelement, overridetry, fatal, cond, jscheck):
         """
-This function is only for internal purposes:
-    General function for waiting on generic element
-    You can use it in case no other methods are implemented in this lib,
-    but ideally, write own function, instead of using this one directly.
-    This function stores caller function to dict, for purposes, that element is
-    lost and had to be renewed -> self.element_wait_functions
+This function is low level, tests should prefer to use the wait_* functions:
+    This function stores caller function for this element to an internal dictionary, in case that
+    element is lost and has to be renewed (-> self.element_wait_functions)
 parameters:
     method - used selenim method method
     text - what are you searching for

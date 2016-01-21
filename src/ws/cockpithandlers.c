@@ -205,7 +205,7 @@ cockpit_handler_external (CockpitWebServer *server,
   else
     {
       upgrade = g_hash_table_lookup (headers, "Upgrade");
-      if (upgrade && g_str_equal (upgrade, "websocket"))
+      if (upgrade && g_ascii_strcasecmp (upgrade, "websocket"))
         {
           cockpit_channel_socket_open (service, open, path, io_stream, headers, input);
         }

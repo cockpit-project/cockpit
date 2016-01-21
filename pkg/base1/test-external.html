@@ -51,7 +51,7 @@ asyncTest("external get", function() {
         if (req.readyState == 4) {
             equal(req.status, 200, "got right status");
             equal(req.statusText, "OK", "got right reason");
-            equal(req.getResponseHeader("Content-Type"), "text/plain", "default type");
+            equal(req.getResponseHeader("Content-Type"), "application/octet-stream", "default type");
             ok(req.responseText.indexOf('"present"'), "got listing");
             start();
         }
@@ -152,30 +152,9 @@ asyncTest("external websocket", function() {
     }
 });
 
-asyncTest("external websocket protocols", function() {
-    expect(1);
-
-    var query = window.btoa(JSON.stringify({
-        payload: "echo",
-        external: {
-            protocols: [ "two", "three" ]
-        }
-    }));
-
-    var count = 0;
-    var ws = new WebSocket("ws://" + location.host + "/cockpit/channel/" +
-                           cockpit.transport.csrf_token + '?' + query, [ "one", "two" ]);
-    ws.onopen = function() {
-        equal(ws.protocol, "two", "chose right protocol");
-        ws.close();
-    };
-    ws.onclose = function() {
-        start();
-    }
-});
-
-
 cockpit.transport.wait(function() {
+    /* Tell tap-phantom not to worry about HTTP failures past this point */
+    console.log("phantom-tap-expect-resource-error");
     QUnit.start();
 });
 

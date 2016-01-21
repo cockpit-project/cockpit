@@ -97,6 +97,7 @@ base_TESTS = \
 	pkg/base1/test-dbus.html \
 	pkg/base1/test-dbus-address.html \
 	pkg/base1/test-dbus-framed.html \
+	pkg/base1/test-external.html \
 	pkg/base1/test-location.html \
 	pkg/base1/test-framed.html \
 	pkg/base1/test-locale.html \

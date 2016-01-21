@@ -117,6 +117,9 @@ function run(url) {
         else if (msg == "phantom-tap-error")
             setTimeout(function() { phantom.exit(1); }, 0);
 
+	else if (msg == "phantom-tap-expect-resource-error")
+            page.onResourceError = null;
+
         /* TAP lines go to stdout */
         else if (msg.match(/^ok [0-9]+/i) ||
                  msg.match(/^not ok [0-9]+/i) ||

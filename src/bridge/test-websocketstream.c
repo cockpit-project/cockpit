@@ -200,7 +200,7 @@ test_bad_origin (TestCase *test,
   while (problem == NULL)
     g_main_context_iteration (NULL, TRUE);
 
-  g_assert_cmpstr (problem, ==, "internal-error");
+  g_assert_cmpstr (problem, ==, "protocol-error");
   while (!test->ws_closed)
     g_main_context_iteration (NULL, TRUE);
 

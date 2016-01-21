@@ -64,7 +64,8 @@ class SeleniumTest(Test):
         self.driver.set_page_load_timeout(90)
         # self.default_try is number of repeats for finding element
         self.default_try = 40
-        self.__internal_function_used = None
+        # stored search function for each element to be able to refresh element in case of detached from DOM
+        self.element_wait_functions = { }
         # self.default_explicit_wait is time for waiting for element
         # default_explicit_wait * default_try = max time for waiting for element
         self.default_explicit_wait = 1
@@ -94,32 +95,35 @@ class SeleniumTest(Test):
             raise Exception('ERR: Unable to close WEBdriver', str(e))
 
     def everything_loaded(self, element):
-        isokay = False
+        """
+This function is only for internal purposes:
+    It via javascript check that attribute data-loaded is in element
+        """
         if javascript_operations:
-            isokay = self.driver.execute_script("return arguments[0].getAttribute('data-loaded')", element)
+            return self.driver.execute_script("return arguments[0].getAttribute('data-loaded')", element)
         else:
-            isokay = True
-        return isokay
+            return True
 
     def click(self, element):
-        notdone = ""
+        failure = "CLICK: too many tries"
+        usedfunction = self.element_wait_functions[element]
         for foo in range(0, self.default_try):
             try:
                 if javascript_operations:
                     self.driver.execute_script("arguments[0].click();", element)
                 else:
                     element.click()
+                failure = None
                 break
-                notdone = None
             except Exception as e:
-                notdone = e
+                failure = e
                 pass
             try:
-                element = self.__internal_function_used()
+                element = self.usedfunction()
                 self.everything_loaded(element)
             except:
                 pass
-        if notdone:
+        if failure:
             raise Exception('ERR: Unable to CLICK on element ', str(notdone))
 
     def send_keys(self, element, text, clear = True):
@@ -132,6 +136,10 @@ class SeleniumTest(Test):
 
     def wait(self, method, text, baseelement, overridetry, fatal, cond, jscheck):
         """
+This function is only for internal purposes:
+    General function for waiting on generic element
+    You can use it in case no other methods are implemented in this lib,
+    but ideally, write own function, instead of using this one directly.
 parameters:
     method - used selenim method method
     text - what are you searching for
@@ -146,10 +154,10 @@ parameters:
         returned = None
         cond = cond if cond else visible
         internaltry = overridetry if overridetry else self.default_try
-        self.__internal_function_used = lambda :WebDriverWait(baseelement, self.default_explicit_wait).until(cond((method, text)))
+        usedfunction = lambda :WebDriverWait(baseelement, self.default_explicit_wait).until(cond((method, text)))
         for foo in range(0, internaltry):
             try:
-                returned = self.__internal_function_used()
+                returned = usedfunction()
                 if jscheck:
                     if not (cond == frame or fatal == False or cond == invisible) and self.everything_loaded(returned):
                         break
@@ -169,6 +177,7 @@ parameters:
                     pass
                 finally:
                     raise Exception('ERR: Unable to locate name: %s' % str(text), screenshot_file)
+        self.element_wait_functions[returned] = usedfunction
         return returned
 
     def wait_id(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False):

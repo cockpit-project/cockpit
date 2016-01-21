@@ -1193,7 +1193,7 @@ again:
   cache_control = cache_forever ? "max-age=31556926, public" : NULL;
   cockpit_web_response_headers (response, 200, "OK", g_bytes_get_size (body),
                                 "Cache-Control", cache_control,
-                                csp_header, "default-src 'self' 'unsafe-inline'",
+                                csp_header, "default-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:",
                                 NULL);
 
   if (cockpit_web_response_queue (response, body))

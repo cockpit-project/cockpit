@@ -64,7 +64,7 @@ class SeleniumTest(Test):
         self.driver.set_page_load_timeout(90)
         # self.default_try is number of repeats for finding element
         self.default_try = 40
-        self.__internal_function_used=None
+        self.__internal_function_used = None
         # self.default_explicit_wait is time for waiting for element
         # default_explicit_wait * default_try = max time for waiting for element
         self.default_explicit_wait = 1

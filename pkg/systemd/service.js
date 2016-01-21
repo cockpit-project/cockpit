@@ -106,6 +106,8 @@ define([
             state: null,
             enabled: null,
 
+            wait: wait,
+
             start: start,
             stop: stop,
             restart: restart,
@@ -115,6 +117,7 @@ define([
         };
 
         var unit, service;
+        var wait_callbacks = $.Callbacks("once memory");
 
         if (name.indexOf(".") == -1)
             name = name + ".service";
@@ -145,6 +148,7 @@ define([
             self.unit = unit;
 
             $(self).triggerHandler('changed');
+            wait_callbacks.fire();
         }
 
         function update_from_service() {
@@ -229,6 +233,10 @@ define([
                 if (unit_id == name)
                     refresh();
             });
+        }
+
+        function wait(callback) {
+            wait_callbacks.add(callback);
         }
 
         /* Actions

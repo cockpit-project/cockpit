@@ -179,10 +179,7 @@ class KubernetesCommonTests(object):
         b.click("#content .listing-panel li a:contains('Logs')")
         b.wait_present(".listing-panel pre.logs")
         b.wait_visible(".listing-panel pre.logs")
-
-        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1261459
-        # This is broken in Fedora 22
-        # b.wait_in_text(".listing-panel pre.logs", "HelloMessage.")
+        b.wait_in_text(".listing-panel pre.logs", "HelloMessage.")
 
         def line_sel(i):
             return '#terminal .terminal div:nth-child(%d)' % i

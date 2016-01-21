@@ -197,6 +197,9 @@ find %{buildroot}%{_datadir}/%{name}/dashboard -type f >> shell.list
 echo '%dir %{_datadir}/%{name}/realmd' >> shell.list
 find %{buildroot}%{_datadir}/%{name}/realmd -type f >> shell.list
 
+echo '%dir %{_datadir}/%{name}/tuned' >> shell.list
+find %{buildroot}%{_datadir}/%{name}/tuned -type f >> shell.list
+
 echo '%dir %{_datadir}/%{name}/shell' >> shell.list
 find %{buildroot}%{_datadir}/%{name}/shell -type f >> shell.list
 
@@ -220,9 +223,6 @@ find %{buildroot}%{_datadir}/%{name}/network -type f >> networkmanager.list
 
 echo '%dir %{_datadir}/%{name}/ostree' > ostree.list
 find %{buildroot}%{_datadir}/%{name}/ostree -type f >> ostree.list
-
-# Not yet packaged
-rm -rf %{buildroot}%{_datadir}/%{name}/tuned
 
 %ifarch x86_64 armv7hl
 echo '%dir %{_datadir}/%{name}/docker' > docker.list

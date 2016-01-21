@@ -39,7 +39,7 @@ var CONFIG_TEMPLATE = "cockpit.conf.tmpl"
 
 var confDir = flag.String("config-dir", "/container", "Directory with cockpit-kube-launch config files")
 
-func writeConfigFile(confData map[string]string) {
+func writeConfigFile(confData map[string]interface{}) {
 	tmpl, tErr := template.New("cockpit.conf.tmpl").ParseFiles(path.Join(*confDir, CONFIG_TEMPLATE))
 	if tErr != nil {
 		log.Fatalf("Invalid cockpit.conf template: %s", tErr)
@@ -148,9 +148,10 @@ func main() {
 		name = "openshift"
 	}
 
-	confData := make(map[string]string)
+	confData := make(map[string]interface{})
 	confData["login_command"] = path.Join(location, "cockpit-kube-auth")
 	confData["oauth_url"] = oauth_url
+	confData["is_openshift"] = isOpenShift
 	writeConfigFile(confData)
 
 	override := path.Join(*confDir, fmt.Sprintf("%s-override.json", name))

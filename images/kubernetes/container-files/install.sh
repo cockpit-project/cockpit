@@ -7,9 +7,8 @@ set -ex
 /container/scripts/install-rpms.sh --nodeps cockpit-ws-  cockpit-kubernetes-
 
 # Remove unwanted packages
-rm -rf /usr/share/cockpit/domain/ /usr/share/cockpit/system/ /usr/share/cockpit/users/ /usr/share/cockpit/dashboard/
+rm -rf /usr/share/cockpit/realmd/ /usr/share/cockpit/system/ /usr/share/cockpit/users/ /usr/share/cockpit/dashboard/
 
-ln -sf /container/simple-shell /usr/share/cockpit/
 ln -sf /container/branding /usr/share/cockpit/branding/cockpit-kubernetes
 
 rm -rf /container/scripts
@@ -22,4 +21,4 @@ mkdir -p /etc/cockpit/
 chmod 775 /etc
 chmod 775 /etc/cockpit
 chmod 775 /etc/os-release
-chmod 775 /container/simple-shell
+chmod 775 /usr/share/cockpit/shell

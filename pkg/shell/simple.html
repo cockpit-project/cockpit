@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/cockpit.css" rel="stylesheet">
     <link href="../../static/branding.css" rel="stylesheet">
-    <link href="../shell/shell.css" rel="stylesheet">
+    <link href="shell.css" rel="stylesheet">
     <script src="../base1/require.js"></script>
     <script src="../base1/bundle.js"></script>
-    <script src="../shell/bundle.js"></script>
+    <script src="bundle.js"></script>
   </head>
   <body style="overflow: hidden;" hidden>
     <nav id="topnav" class="navbar navbar-default navbar-pf" role="navigation">
@@ -149,7 +149,7 @@
 
         require([
             "base1/cockpit",
-            "simple-shell/index"
+            "shell/simple-index"
         ], function(cockpit, index) {
             /* For debugging and such */
             window.cockpit = cockpit;

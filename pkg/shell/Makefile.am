@@ -21,6 +21,7 @@ shell_TEMPLATES = \
 
 shell_DATA = \
 	pkg/shell/index.min.html \
+	pkg/shell/simple.min.html \
 	pkg/shell/manifest.json \
 	$(NULL)
 
@@ -47,6 +48,8 @@ shelldebug_DATA = \
 	pkg/shell/machine-dialogs.js \
 	pkg/shell/shell.css \
 	pkg/shell/shell.html \
+	pkg/shell/simple-index.js \
+	pkg/shell/simple.html \
 	pkg/shell/controls.js \
 	pkg/shell/plot.js \
 	pkg/shell/cockpit-util.js \
@@ -58,6 +61,7 @@ shell_MINIFIED = \
 	pkg/shell/base_index.min.js \
 	pkg/shell/credentials.min.js \
 	pkg/shell/index.min.js \
+	pkg/shell/simple-index.min.js \
 	pkg/shell/machines.min.js \
 	pkg/shell/machine-dialogs.min.js \
 	$(NULL)
@@ -112,6 +116,7 @@ CLEANFILES += \
 	pkg/shell/bundle.min.js \
 	pkg/shell/index.min.html \
 	pkg/shell/shell.min.html \
+	pkg/shell/simple.min.html \
 	$(shell_MINIFIED) \
 	$(nodist_shell_DATA) \
 	$(shell_MINFILES) \
@@ -124,6 +129,7 @@ EXTRA_DIST += \
 	pkg/shell/bundle.min.js \
 	pkg/shell/index.min.html \
 	pkg/shell/shell.min.html \
+	pkg/shell/simple.min.html \
 	$(shell_MINFILES) \
 	$(shell_BUNDLE) \
 	$(NULL)

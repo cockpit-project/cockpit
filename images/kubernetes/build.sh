@@ -51,7 +51,6 @@ mv cockpit-kube-launch "$TDIR"
 
 cp -r "$BASE/container-files/"* "$TDIR"
 cp "$BASE/container-files/.Dockerfile" "$TDIR/Dockerfile"
-cp -r "$IMAGES_SHARED/simple-shell" "$TDIR"
 cp -r "$IMAGES_SHARED/scripts" "$TDIR"
 
 if [ -n "$rpmdir" ]; then

@@ -32,9 +32,9 @@ define([
     var _ = cockpit.gettext;
 
     var default_title = "Cockpit";
-    var manifest = manifests["simple-shell"] || { };
+    var manifest = manifests["shell"] || { };
     if (manifest.title)
-        default_title = manifest.title
+        default_title = manifest.title;
 
     var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
 
@@ -132,7 +132,7 @@ define([
 
         $("#machine-link span").text(default_title);
         if ($(".dashboard-link").length < 2)
-            $('#content-navbar').toggleClass("hidden", true)
+            $('#content-navbar').toggleClass("hidden", true);
     }
 
     function update_title(label) {

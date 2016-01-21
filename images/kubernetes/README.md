@@ -64,8 +64,6 @@ This container installs cockpit-ws, cockpit-shell and cockpit-kubernetes rpms. I
 
 In addition to the above rpms, the following is added from this repo to the container:
 
- * **simple-shell:** A cockpit javascript package. Replaces the standard cockpit shell with one that does not expect to have access to the host system.
-
  * **cockpit-kube-launch:** The container command, prepares the approprite cockpit configuration and launches cockpit-ws.
 
  * **cockpit-kube-auth:** Spawned for each login, it verifies the users login credentials and on success launches cockpit-stub. For more information on how cockpit supports this see https://github.com/cockpit-project/cockpit/blob/master/doc/authentication.md

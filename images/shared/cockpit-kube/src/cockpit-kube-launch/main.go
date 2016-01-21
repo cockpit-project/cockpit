@@ -156,7 +156,7 @@ func main() {
 
 	override := path.Join(*confDir, fmt.Sprintf("%s-override.json", name))
 	brand := path.Join(*confDir, fmt.Sprintf("%s-brand", name))
-	linkFiles(override, path.Join(*confDir, "simple-shell/override.json"))
+	linkFiles(override, "/usr/share/cockpit/shell/override.json")
 	linkFiles(brand, "/etc/os-release")
 	syscall.Exec(args[0], args, os.Environ())
 }

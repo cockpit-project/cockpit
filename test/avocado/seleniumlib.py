@@ -97,7 +97,7 @@ class SeleniumTest(Test):
         isokay = False
         if javascript_operations:
             isokay = self.driver.execute_script("return arguments[0].getAttribute('data-loaded')", element)
-        else
+        else:
             isokay = True
         return isokay
 
@@ -130,7 +130,7 @@ class SeleniumTest(Test):
             self.driver.execute_script('var ev = document.createEvent("Event"); ev.initEvent("change", true, false); arguments[0].dispatchEvent(ev);', element)
             self.driver.execute_script('var ev = document.createEvent("Event"); ev.initEvent("keydown", true, false); arguments[0].dispatchEvent(ev);', element)
 
-    def wait(self, method, text, baseelement, overridetry, fatal, cond):
+    def wait(self, method, text, baseelement, overridetry, fatal, cond, jscheck):
         """
 parameters:
     method - used selenim method method
@@ -139,22 +139,22 @@ parameters:
     overridetry - change value of repeats
     fatal - boolean if search is fatal or notice
     cond - use selenim conditions (aliases are defined above class)
+    jscheck - use javascipt to wait for element has attribute-data loaded, it is safer, but slower
         """
         if not baseelement:
             baseelement = self.driver
         returned = None
-        myfunction=None
         cond = cond if cond else visible
         internaltry = overridetry if overridetry else self.default_try
+        self.__internal_function_used = lambda :WebDriverWait(baseelement, self.default_explicit_wait).until(cond((method, text)))
         for foo in range(0, internaltry):
             try:
-                myfunction = lambda :WebDriverWait(baseelement, self.default_explicit_wait).until(cond((method, text)))
-                returned = myfunction()
-                if not (cond == frame or fatal == False or cond == invisible):
-                    if cond == clickable and self.everything_loaded(returned):
+                returned = self.__internal_function_used()
+                if jscheck:
+                    if not (cond == frame or fatal == False or cond == invisible) and self.everything_loaded(returned):
                         break
-                    else:
-                        break
+                else:
+                    break
             except:
                 pass
         if returned is None:
@@ -169,19 +169,18 @@ parameters:
                     pass
                 finally:
                     raise Exception('ERR: Unable to locate name: %s' % str(text), screenshot_file)
-        self.__internal_function_used = myfunction
         return returned
 
-    def wait_id(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):
-        return self.wait(By.ID, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
+    def wait_id(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False):
+        return self.wait(By.ID, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, jscheck=jscheck)
 
-    def wait_link(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):
-        return self.wait(By.PARTIAL_LINK_TEXT, baseelement=baseelement, text=el, overridetry=overridetry, fatal=fatal, cond=cond)
+    def wait_link(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False):
+        return self.wait(By.PARTIAL_LINK_TEXT, baseelement=baseelement, text=el, overridetry=overridetry, fatal=fatal, cond=cond, jscheck=jscheck)
 
-    def wait_xpath(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):
-        return self.wait(By.XPATH, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
+    def wait_xpath(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False):
+        return self.wait(By.XPATH, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, jscheck=jscheck)
 
-    def wait_text(self, el, nextel="", element="*", baseelement=None, overridetry=None, fatal=True, cond=None):
+    def wait_text(self, el, nextel="", element="*", baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False):
         search_string = ""
         search_string_next = ""
         elem = None
@@ -196,14 +195,14 @@ parameters:
             else:
                 search_string_next = search_string_next + ' and contains(text(), "%s")' % foo
         if nextel:
-            elem = self.wait_xpath("//%s[%s]/following-sibling::%s[%s]" % (element, search_string, element, search_string_next), baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
+            elem = self.wait_xpath("//%s[%s]/following-sibling::%s[%s]" % (element, search_string, element, search_string_next), baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, jscheck=jscheck)
         else:
-            elem = self.wait_xpath("//%s[%s]" % (element, search_string), baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
+            elem = self.wait_xpath("//%s[%s]" % (element, search_string), baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, jscheck=jscheck)
         return elem
 
-    def wait_frame(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):
+    def wait_frame(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False):
         text = "//iframe[contains(@name,'%s')]" % el
-        return self.wait(By.XPATH, text=text, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=frame)
+        return self.wait(By.XPATH, text=text, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=frame, jscheck=jscheck)
 
     def mainframe(self):
         self.driver.switch_to_default_content()

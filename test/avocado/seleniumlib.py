@@ -97,10 +97,12 @@ class SeleniumTest(Test):
         isokay = False
         if javascript_operations:
             isokay = self.driver.execute_script("return arguments[0].getAttribute('data-loaded')", element)
+        else
+            isokay = True
         return isokay
 
     def click(self, element):
-        notdone=""
+        notdone = ""
         for foo in range(0, self.default_try):
             try:
                 if javascript_operations:
@@ -108,19 +110,19 @@ class SeleniumTest(Test):
                 else:
                     element.click()
                 break
-                notdone=None
+                notdone = None
             except Exception as e:
-                notdone=e
+                notdone = e
                 pass
             try:
-                element=self.__internal_function_used()
+                element = self.__internal_function_used()
                 self.everything_loaded(element)
             except:
                 pass
         if notdone:
             raise Exception('ERR: Unable to CLICK on element ', str(notdone))
 
-    def send_keys(self, element, text, clear=True):
+    def send_keys(self, element, text, clear = True):
         if clear:
             element.clear()
         element.send_keys(text)
@@ -148,8 +150,11 @@ parameters:
             try:
                 myfunction = lambda :WebDriverWait(baseelement, self.default_explicit_wait).until(cond((method, text)))
                 returned = myfunction()
-                if not (cond == frame or fatal == False or cond == invisible) and self.everything_loaded(returned):
-                    break
+                if not (cond == frame or fatal == False or cond == invisible):
+                    if cond == clickable and self.everything_loaded(returned):
+                        break
+                    else:
+                        break
             except:
                 pass
         if returned is None:

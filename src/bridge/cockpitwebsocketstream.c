@@ -53,9 +53,12 @@ typedef struct _CockpitWebSocketStream {
   gulong sig_message;
   gulong sig_closing;
   gulong sig_close;
+  gulong sig_error;
 
   gboolean binary;
   gboolean closed;
+  gushort last_error_code;
+
 } CockpitWebSocketStream;
 
 typedef struct {
@@ -169,10 +172,24 @@ on_web_socket_closing (WebSocketConnection *connection,
   return TRUE;
 }
 
+static gboolean
+on_web_socket_error (WebSocketConnection *ws,
+                     GError *error,
+                     gpointer user_data)
+{
+  CockpitWebSocketStream *self = COCKPIT_WEB_SOCKET_STREAM (user_data);
+  self->last_error_code = 0;
+  if (error && error->domain == WEB_SOCKET_ERROR)
+    self->last_error_code = error->code;
+
+  return TRUE;
+}
+
 static void
 on_web_socket_close (WebSocketConnection *connection,
                      gpointer user_data)
 {
+  CockpitWebSocketStream *self = COCKPIT_WEB_SOCKET_STREAM (user_data);
   CockpitChannel *channel = COCKPIT_CHANNEL (user_data);
   const gchar *problem;
   gushort code;
@@ -186,6 +203,11 @@ on_web_socket_close (WebSocketConnection *connection,
     }
   else if (problem == NULL || !problem[0])
     {
+      /* If we don't have a code but have a last error
+       * use it's code */
+      if (code == 0)
+        code = self->last_error_code;
+
       switch (code)
         {
         case WEB_SOCKET_CLOSE_NO_STATUS:
@@ -277,6 +299,7 @@ on_socket_connect (GObject *object,
   self->sig_message = g_signal_connect (self->client, "message", G_CALLBACK (on_web_socket_message), self);
   self->sig_closing = g_signal_connect (self->client, "closing", G_CALLBACK (on_web_socket_closing), self);
   self->sig_close = g_signal_connect (self->client, "close", G_CALLBACK (on_web_socket_close), self);
+  self->sig_error = g_signal_connect (self->client, "error", G_CALLBACK (on_web_socket_error), self);
 
   problem = NULL;
 
@@ -351,6 +374,7 @@ cockpit_web_socket_stream_dispose (GObject *object)
       g_signal_handler_disconnect (self->client, self->sig_message);
       g_signal_handler_disconnect (self->client, self->sig_closing);
       g_signal_handler_disconnect (self->client, self->sig_close);
+      g_signal_handler_disconnect (self->client, self->sig_error);
       g_object_unref (self->client);
       self->client = NULL;
     }

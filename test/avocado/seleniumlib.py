@@ -140,6 +140,8 @@ This function is only for internal purposes:
     General function for waiting on generic element
     You can use it in case no other methods are implemented in this lib,
     but ideally, write own function, instead of using this one directly.
+    This function stores caller function to dict, for purposes, that element is
+    lost and had to be renewed -> self.element_wait_functions
 parameters:
     method - used selenim method method
     text - what are you searching for

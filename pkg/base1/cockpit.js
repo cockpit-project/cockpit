@@ -2419,6 +2419,7 @@ function full_scope(cockpit, $, po) {
     function HttpClient(endpoint, options) {
         var self = this;
 
+        self.options = options;
         options.payload = "http-stream1";
 
         if (endpoint !== undefined) {

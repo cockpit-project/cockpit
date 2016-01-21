@@ -29,8 +29,12 @@
 
         <thead ng-if="!quiet">
             <tr>
-                <td colspan="4">
-                    <h3 translatable="yes">Groups</h3>
+                <td colspan="3">
+                    <a class="pull-right" id="add-group" ng-click="createGroup()">
+                        <i translatable="yes" class="pficon pficon-add-circle-o"></i>
+                        <span translatable="yes">New Group</span>
+                    </a>
+                    <h3 translatable="yes">Groups</h3>     
                 </td>
             </tr>
             <tr>
@@ -52,8 +56,12 @@
 
         <thead ng-if="!quiet">
             <tr>
-                <td colspan="4">
-                    <h3 translatable="yes">Users</h3>
+                <td colspan="3">
+                    <a class="pull-right" id="add-user" ng-click="createUser()">
+                        <i translatable="yes" class="pficon pficon-add-circle-o"></i>
+                        <span translatable="yes">Add User</span>
+                    </a>                       
+                    <h3 translatable="yes">Users</h3>                    
                 </td>
             </tr>
             <tr>

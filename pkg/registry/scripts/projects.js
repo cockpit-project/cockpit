@@ -40,25 +40,40 @@
 
     .factory("projectUtil", [
         function() {
-            return {
-                formatMembers: function (members, kind) {
-                    var mlist = "";
-                    var i;
-                    if (!members || members.length === 0)
-                        return mlist;
-                    if (members.length <= 3) {
-                        for (i = members.length - 1; i >= 0; i--) {
-                            mlist += members[i] + ",";
-                        }
-                    } else {
-                        if (kind === "Groups") {
-                            mlist = members.length + " " + kind;
-                        } else if (kind === "Users") {
-                            mlist = members.length + " " + kind;
-                        }
-                    }
+
+            function formatMembers(members, kind) {
+                var mlist = "";
+                var i;
+                if (!members || members.length === 0)
                     return mlist;
+                if (members.length <= 3) {
+                    for (i = members.length - 1; i >= 0; i--) {
+                        mlist += members[i] + ",";
+                    }
+                } else {
+                    if (kind === "Groups") {
+                        mlist = members.length + " " + kind;
+                    } else if (kind === "Users") {
+                        mlist = members.length + " " + kind;
+                    }
                 }
+                return mlist;
+            }
+            function validateName(name, target) {
+                var ex = null;
+                if (!name) {
+                    ex = new Error("Name cannot be empty.");
+                    ex.target = target;
+                } else if (!NAME_RE.test(name)) {
+                    console.log("name is", name);
+                    ex = new Error("Invalid Name");
+                    ex.target = target;
+                }
+                return ex;
+            }
+            return {
+                formatMembers: formatMembers,
+                validateName: validateName
             };
         }
     ])
@@ -70,7 +85,7 @@
         '$modal',
         'projectUtil',
         'projectActions',
-        function($scope, loader, select, $modal, util, actions) {
+        function($scope, loader, select, $modal, util, projectAction) {
             loader.watch("users");
             loader.watch("groups");
             loader.load("Project", null, null);
@@ -88,22 +103,40 @@
             };
 
             $scope.formatMembers = util.formatMembers;
-            $scope.createProject = actions.create;
+
+            $scope.createProject = projectAction.createProject;
+
+            $scope.createGroup = projectAction.createGroup;
+
+            $scope.createUser = projectAction.createUser;
         }
     ])
 
     .factory('projectActions', [
         '$modal',
         function($modal) {
-            function createDialog() {
+            function createProject() {
                 return $modal.open({
                     controller: 'ProjectNewCtrl',
-                    templateUrl: 'views/project-new-dialog.html',
+                    templateUrl: 'views/add-project-dialog.html',
                 });
             }
-
+            function createUser() {
+                return $modal.open({
+                    controller: 'UserNewCtrl',
+                    templateUrl: 'views/add-user-dialog.html',
+                });
+            }
+            function createGroup() {
+                return $modal.open({
+                    controller: 'GroupNewCtrl',
+                    templateUrl: 'views/add-group-dialog.html',
+                });
+            }
             return {
-                create: createDialog,
+                createProject: createProject,
+                createGroup: createGroup,
+                createUser: createUser,
             };
         }
     ])
@@ -112,7 +145,8 @@
         '$q',
         '$scope',
         "kubeMethods",
-        function($q, $scope, methods) {
+        'projectUtil',
+        function($q, $scope, methods, util) {
             var fields = {
                 name: "",
                 display: "",
@@ -122,16 +156,12 @@
             $scope.fields = fields;
 
             $scope.performCreate = function performCreate() {
-                var defer, ex;
-
+                var defer;
                 var name = fields.name.trim();
                 var display = fields.display.trim();
                 var description = fields.description.trim();
-
-                if (!NAME_RE.test(name)) {
-                    console.log("name is", name, $scope);
-                    ex = new Error("Invalid project name");
-                    ex.target = "#project-new-name";
+                var ex = util.validateName(name, "#project-new-name");
+                if(ex) {
                     defer = $q.defer();
                     defer.reject(ex);
                     return defer.promise;
@@ -150,6 +180,82 @@
                 };
 
                 return methods.create(project);
+            };
+        }
+    ])
+
+    .controller('UserNewCtrl', [
+        '$q',
+        '$scope',
+        "kubeMethods",
+        'projectUtil',
+        function($q, $scope, methods, util) {
+            var fields = {
+                name: "",
+                identities: ""
+            };
+
+            $scope.fields = fields;
+
+            $scope.performCreate = function performCreate() {
+                var defer;
+                var identities = [];
+                var name = fields.name.trim();
+                if (fields.identities.trim() !== "")
+                    identities = [fields.identities.trim()];
+                
+                var ex = util.validateName(name, "#user_name");
+                if(ex) {
+                    defer = $q.defer();
+                    defer.reject(ex);
+                    return defer.promise;
+                }
+
+                var user = {
+                    "kind": "User",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": name
+                    },
+                    "identities": identities
+                };
+
+                return methods.create(user);
+            };
+        }   
+    ])
+
+    .controller('GroupNewCtrl', [
+        '$q',
+        '$scope',
+        "kubeMethods",
+        'projectUtil',
+        function($q, $scope, methods, util) {
+            var fields = {
+                name: ""
+            };
+
+            $scope.fields = fields;
+
+            $scope.performCreate = function performCreate() {
+                var defer;
+                var name = fields.name.trim();
+                var ex = util.validateName(name, "#group_name");
+                if(ex) {
+                    defer = $q.defer();
+                    defer.reject(ex);
+                    return defer.promise;
+                }
+
+                var group = {
+                    "kind": "Group",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": name
+                    }
+                };
+
+                return methods.create(group);
             };
         }
     ]);

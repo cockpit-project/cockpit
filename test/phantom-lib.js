@@ -7,11 +7,15 @@
 
 localStorage.clear();
 
-if (!window.Sizzle)
-    throw "Sizzle was not properly loaded"
-
 function ph_select(sel) {
-    return Sizzle(sel);
+    var list, i, els = [];
+    if (window.jQuery)
+        list = window.jQuery(sel);
+    else
+        list = document.querySelectorAll(sel);
+    for (i = 0; i < list.length; i++)
+        els.push(list[i]);
+    return els;
 }
 
 function ph_only(els, sel)

@@ -266,7 +266,6 @@ download-po:
 BOWER = $(srcdir)/bower_components
 
 BOWER_CLEAN = \
-	$(BOWER)/sizzle/external/ \
 	$(BOWER)/patternfly/components/bootstrap-treeview \
 	$(BOWER)/patternfly/components/google-code-prettify \
 	$(BOWER)/patternfly/components/datatables* \

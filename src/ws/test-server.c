@@ -293,16 +293,18 @@ on_handle_stream_external (CockpitWebServer *server,
   CockpitCreds *creds;
   const gchar *expected;
   const gchar *query;
+  const gchar *segment;
   JsonObject *open = NULL;
   GBytes *bytes;
   guchar *decoded;
   gsize length;
+  gsize seglen;
 
   if (!g_str_has_prefix (path, "/cockpit/channel/"))
     return FALSE;
 
   /* Remove /cockpit/channel/ part */
-  path += 17;
+  segment = path + 17;
 
   if (service)
     {
@@ -313,12 +315,13 @@ on_handle_stream_external (CockpitWebServer *server,
       g_return_val_if_fail (expected != NULL, FALSE);
 
       /* The end of the token */
-      query = strchr (path, '?');
+      query = strchr (segment, '?');
       if (!query)
-        query = path + strlen (path);
+        query = segment + strlen (segment);
 
       /* No such path is valid */
-      if (strncmp (expected, path, query - path) == 0)
+      seglen = query - segment;
+      if (strlen(expected) == seglen && memcmp (expected, segment, seglen) == 0)
         {
           decoded = g_base64_decode (query, &length);
           if (decoded)
@@ -336,7 +339,7 @@ on_handle_stream_external (CockpitWebServer *server,
       if (open)
         {
           upgrade = g_hash_table_lookup (headers, "Upgrade");
-          if (upgrade && g_str_equal (upgrade, "websocket"))
+          if (upgrade && g_ascii_strcasecmp (upgrade, "websocket") == 0)
             {
               cockpit_channel_socket_open (service, open, path, io_stream, headers, input);
               handled = TRUE;

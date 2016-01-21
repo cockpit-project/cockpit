@@ -29,8 +29,8 @@ sys.dont_write_bytecode = True
 
 import testinfra
 
-def start_publishing(github, host, name, revision, context, image):
-    identifier = name + "-" + revision[0:8] + "-" + image
+def start_publishing(github, host, name, revision, context):
+    identifier = name + "-" + revision[0:8] + "-" + context.replace("/", "-")
     description = "{0} [{1}]".format(testinfra.TESTING, testinfra.HOSTNAME)
     status = {
         "github": {
@@ -46,7 +46,9 @@ def start_publishing(github, host, name, revision, context, image):
         "extras": [ "https://raw.githubusercontent.com/cockpit-project/cockpit/" +
             revision + "/test/files/log.html" ]
     }
-    if name == "master":
+
+    (prefix, unused, image) = context.partition("/")
+    if name == "master" and prefix == "verify":
         status['irc'] = { }    # Only send to IRC when master
         status['badge'] = {
             'name': image,
@@ -194,7 +196,7 @@ def main():
 
     sink = None
     if opts.publish:
-        sink = start_publishing(github, opts.publish, name, revision, context, value)
+        sink = start_publishing(github, opts.publish, name, revision, context)
         os.environ["TEST_ATTACHMENTS"] = sink.attachments
 
     msg = "Testing {0} for {1} with {2} on {3}...\n".format(revision, name, context, testinfra.HOSTNAME)

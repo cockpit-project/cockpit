@@ -1,5 +1,10 @@
 [WebService]
 Shell = /simple-shell/index.html
+{{if .is_openshift }}
+LoginTitle = Cockpit Openshift
+{{else}}
+LoginTitle = Cockpit Kubernetes
+{{end}}
 
 [Basic]
 Action = spawn-login-with-decoded

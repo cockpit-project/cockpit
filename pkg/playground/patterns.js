@@ -70,6 +70,14 @@ require([
         return promise;
     }
 
+    /* Select */
+
+    $("#control-2").on("click", "[value]", function(ev) {
+        var target = $(this);
+        $("span", ev.delegateTarget).first().text(target.text());
+        console.log("value: ", target.attr("value"));
+    });
+
     /* Switches */
 
     $("#my-switch")

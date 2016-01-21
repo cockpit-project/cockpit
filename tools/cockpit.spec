@@ -194,8 +194,8 @@ find %{buildroot}%{_datadir}/%{name}/base1 -type f >> shell.list
 echo '%dir %{_datadir}/%{name}/dashboard' >> shell.list
 find %{buildroot}%{_datadir}/%{name}/dashboard -type f >> shell.list
 
-echo '%dir %{_datadir}/%{name}/domain' >> shell.list
-find %{buildroot}%{_datadir}/%{name}/domain -type f >> shell.list
+echo '%dir %{_datadir}/%{name}/realmd' >> shell.list
+find %{buildroot}%{_datadir}/%{name}/realmd -type f >> shell.list
 
 echo '%dir %{_datadir}/%{name}/shell' >> shell.list
 find %{buildroot}%{_datadir}/%{name}/shell -type f >> shell.list

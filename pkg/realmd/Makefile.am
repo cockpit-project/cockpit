@@ -1,4 +1,4 @@
-realmddir = $(pkgdatadir)/domain
+realmddir = $(pkgdatadir)/realmd
 nodist_realmd_DATA = \
 	pkg/realmd/bundle.min.js.gz \
 	$(NULL)

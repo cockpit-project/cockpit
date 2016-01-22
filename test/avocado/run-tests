@@ -55,6 +55,7 @@ def prepare_avocado_tests(machine):
 
 def tap_output(machine):
     json_info = json.loads(machine.execute(command="cat " + os.path.join(avocado_results_dir, "latest/results.json"), quiet=True))
+    print "\nTAP output -------------------------"
     print "1..%s" % len(json_info['tests'])
     counter = 1
     for t in json_info['tests']:

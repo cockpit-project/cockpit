@@ -371,7 +371,8 @@ define([
                  * we use it.
                  */
                 return function(url, protocols) {
-                    if (client.config) /* config is retrieved from kubectl */
+                    /* config is retrieved from kubectl */
+                    if (client.used_kubectl)
                         return kubeFakeWebSocket(url, protocols);
                     else
                         return client.socket(url, protocols);

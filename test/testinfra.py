@@ -356,9 +356,14 @@ class GitHub(object):
             if update and changes and not dict_is_subset(last, changes):
                 changes["context"] = context
                 response = self.post("statuses/" + revision, changes, accept=[ 422 ]) # 422 Unprocessable Entity
+                errors = response.get("errors", None)
+                if not errors:
+                    return True
                 for error in response.get("errors", []):
                     sys.stderr.write("{0}: {1}\n".format(revision, error.get('message', json.dumps(error))))
                     sys.stderr.write(json.dumps(changes))
+                return False
+            return True
 
         if master_contexts:
             master = self.get("git/refs/heads/master")
@@ -367,8 +372,8 @@ class GitHub(object):
             for context in master_contexts:
                 status = statuses.get(context, { })
                 (priority, changes) = self.prioritize(status, [], 8)
-                results.append((priority, "master", revision, "master", context))
-                update_status(revision, context, status, changes)
+                if update_status(revision, context, status, changes):
+                    results.append((priority, "master", revision, "master", context))
 
         pulls = self.get("pulls")
         for pull in pulls:
@@ -396,8 +401,8 @@ class GitHub(object):
                         baseline = 0
 
                 (priority, changes) = self.prioritize(status, labels, baseline)
-                results.append((priority, "pull-%d" % number, revision, "pull/%d/head" % number, context))
-                update_status(revision, context, status, changes)
+                if update_status(revision, context, status, changes):
+                    results.append((priority, "pull-%d" % number, revision, "pull/%d/head" % number, context))
 
         # Only work on tasks that have a priority greater than zero
         def filter_tasks(task):

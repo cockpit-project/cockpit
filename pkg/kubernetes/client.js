@@ -515,6 +515,8 @@ define([
 
         function step() {
             var kubeconfig = null;
+            var used_kubectl = false;
+
             var scheme = schemes.shift();
             /* No further ports to try? */
             if (!scheme) {
@@ -529,6 +531,11 @@ define([
             if (typeof scheme === "function") {
                 scheme();
                 return;
+            }
+
+            if (scheme.used_kubectl) {
+                used_kubectl = scheme.used_kubectl;
+                scheme.used_kubectl = null;
             }
 
             if (scheme.kubeconfig) {
@@ -566,6 +573,7 @@ define([
                         aux.always(function() {
                             response.flavor = openshift ? "openshift" : "kubernetes";
                             response.kubeconfig = kubeconfig;
+                            response.used_kubectl = used_kubectl;
                             dfd.resolve(http, response);
                         });
 
@@ -599,6 +607,9 @@ define([
                 })
                 .done(function(data) {
                     var scheme = config.parse_scheme(data);
+                    if (scheme)
+                        scheme.used_kubectl = true;
+
                     debug("kube config scheme:", scheme);
                     schemes.unshift(scheme);
                 })
@@ -742,6 +753,7 @@ define([
         self.resourceVersion = null;
         self.flavor = null;
         self.config = null;
+        self.used_kubectl = false;
 
         /* Holds the connect api promise */
         var connected;
@@ -772,6 +784,7 @@ define([
                     .done(function(http, response) {
                         self.flavor = response.flavor;
                         self.config = response.kubeconfig;
+                        self.used_kubectl = response.used_kubectl;
                         for (var type in self.watches)
                             self.watches[type].start(http);
                     })

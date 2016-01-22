@@ -70,11 +70,11 @@ def tap_output(machine):
             print "not ok %s %s" % (counter, test_name)
         print machine.execute(command="cat " + test_log, quiet=True)
         counter = counter + 1
-        failed = [x for x in json_info['tests'] if x['status'] != "PASS"]
-        if len(failed):
-            print "# %d TESTS FAILED" % len(failed)
-        else:
-            print "# TESTS PASSED"
+    failed = [x for x in json_info['tests'] if x['status'] != "PASS"]
+    if len(failed):
+        print "# %d TESTS FAILED" % len(failed)
+    else:
+        print "# TESTS PASSED"
 
 def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
     """ Execute avocado on the machine with the passed environment variables and run

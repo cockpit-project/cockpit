@@ -441,8 +441,10 @@ cockpit_channel_response_create (CockpitWebService *service,
   chesp->transport = g_object_ref (transport);
   chesp->headers = g_hash_table_ref (headers);
   chesp->channel = cockpit_web_service_unique_channel (service);
-  chesp->logname = logname ? logname : chesp->channel;
   chesp->open = json_object_ref (open);
+
+  if (!cockpit_json_get_string (open, "path", chesp->channel, &chesp->logname))
+    chesp->logname = chesp->channel;
 
   json_object_set_string_member (open, "command", "open");
   json_object_set_string_member (open, "channel", chesp->channel);

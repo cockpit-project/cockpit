@@ -173,7 +173,7 @@ def main():
     if opts.head:
         name = "test"
         revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
-        context = opts.context or "verify/" + DEFAULT_IMAGE
+        context = opts.context or "verify/" + testinfra.DEFAULT_IMAGE
     else:
         sys.stderr.write("Talking to GitHub ...\n")
         for (pri, name, revision, ref, context) in github.scan(opts.publish, opts.context, opts.except_context):

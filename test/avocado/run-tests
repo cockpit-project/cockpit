@@ -53,6 +53,29 @@ def prepare_avocado_tests(machine):
     machine.execute(command="mkdir -p " + avocado_results_dir)
     machine.upload([os.path.join(machine.test_dir, "avocado")], machine_test_dir)
 
+def tap_output(machine):
+    json_info = json.loads(machine.execute(command="cat " + os.path.join(avocado_results_dir, "latest/results.json"), quiet=True))
+    print "1..%s" % len(json_info['tests'])
+    counter = 1
+    for t in json_info['tests']:
+        test_status = t['status']
+        test_name = t['test']
+        test_log = t['logfile']
+        print "# ----------------------------------------------------------------------"
+        print "# %s" % test_name
+        print "#"
+        if test_status == 'PASS':
+            print "ok %s %s" % (counter, test_name)
+        else:
+            print "not ok %s %s" % (counter, test_name)
+        print machine.execute(command="cat " + test_log, quiet=True)
+        counter = counter + 1
+        failed = [x for x in json_info['tests'] if x['status'] != "PASS"]
+        if len(failed):
+            print "# %d TESTS FAILED" % len(failed)
+        else:
+            print "# TESTS PASSED"
+
 def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
     """ Execute avocado on the machine with the passed environment variables and run
         the specified tests. For example:
@@ -63,6 +86,7 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
         Return success of the tests (True: all passed, False: at least one failed)
         If 'print_failed' is True, attempt to print a list of failed tests
     """
+    return_state = True
     cmd_parts = env + ["avocado run",
                  "--job-results-dir " + avocado_results_dir,
                  ' '.join([machine_test_dir + os.sep + x for x in avocado_tests]),
@@ -91,9 +115,9 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
                         print "[" + test_status + "] " + test_name + " (" + fail_reason + ")"
             except:
                 print "Unable to show avocado test result summary"
-        return False
-
-    return True
+        return_state = False
+    tap_output(machine)
+    return return_state
 
 def copy_avocado_logs(machine, title):
     if machine and machine.address:

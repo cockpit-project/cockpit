@@ -77,14 +77,6 @@ EOF
 	if ! silent grep -F $NETWORK_NAME ${qemu_config_dir}/bridge.conf; then
 		echo "$rule" >> ${qemu_config_dir}/bridge.conf
 	fi
-
-    # HACK: selinux issues with qemu-bridge-helper prevent bridge creation for additional network adapters
-    # https://bugzilla.redhat.com/show_bug.cgi?id=1267217
-    # we can circumvent this with a custom selinux policy
-    case "$(LANG=C getenforce)" in
-    *Enforcing*)
-        (cd $BASE/files && make -f /usr/share/selinux/devel/Makefile ./cockpit_test_bridge.pp && semodule -i ./cockpit_test_bridge.pp)
-    esac
 }
 
 unprepare()

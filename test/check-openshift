@@ -22,12 +22,26 @@ from testlib import *
 
 import os
 import unittest
+import time
 
 from kubelib import *
 
 @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-openshift on rhel-7.")
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
 class TestOpenshift(MachineCase, OpenshiftCommonTests):
+
+    def wait_oc(self):
+        i = 0
+        while True:
+            try:
+                self.openshift.execute("oc status")
+                break;
+            except:
+                if i > 20:
+                    raise
+                i = i + 1
+                time.sleep(1)
+
     def setUp(self):
         self.openshift = self.new_machine(image="openshift")
         self.openshift.start()
@@ -41,6 +55,8 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
         m = self.machine
         with open(tmpfile, "r") as f:
             m.execute("mkdir -p /home/admin/.kube && cat > /home/admin/.kube/config", input=f.read())
+
+        self.wait_oc()
 
 
 if __name__ == '__main__':

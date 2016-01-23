@@ -198,7 +198,7 @@ install-data-hook::
 	mkdir -p $(DESTDIR)$(kubernetesdebugdir)
 	tar -chf - -C $(srcdir) $(shared_LESS) $(shared_VIEWS) $(shared_MODULES) $(registry_VIEWS) $(registry_LESS) $(registry_MODULES) $(kubernetes_VIEWS) $(kubernetes_LESS) $(kubernetes_MODULES) | tar -xf - --strip-components=2 -C $(DESTDIR)$(kubernetesdebugdir)
 
-uninstall-hook:
+uninstall-hook::
 	rm -rf $(DESTDIR)$(kubernetesdebugdir)/scripts
 	rm -rf $(DESTDIR)$(kubernetesdebugdir)/views
 	rm -rf $(DESTDIR)$(kubernetesdebugdir)/styles

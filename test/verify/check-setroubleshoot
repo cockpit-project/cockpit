@@ -1,0 +1,121 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2016 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+import os
+import subprocess
+import unittest
+
+FIX_AUDITD = """
+set -e
+mkdir -p /var/log/audit
+touch /var/log/audit.log
+restorecon -r /var/log/audit
+systemctl start auditd
+"""
+
+SELINUX_ALERT_SCRIPT = """
+set -e
+mkdir -p ~/selinux_temp
+cd ~/selinux_temp
+cp /bin/ls ls
+chcon -t httpd_exec_t ls
+# this won't work, but it generates an error
+runcon -u system_u -r system_r -t httpd_t -- ./ls  /home/* || true
+"""
+
+############################################################
+# WARNING
+# the following script will disable ssh access to the system
+############################################################
+SELINUX_SERIOUS_ALERT_SCRIPT = """
+set -e
+chcon -t admin_home_t /etc/ssh/ssh_host_ecdsa_key
+systemctl restart sshd || true
+"""
+
+@unittest.skipIf("rhel" in os.environ.get("TEST_OS", ""), "DBUS API of setroubleshoot too old.")
+@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No setroubleshoot on debian.")
+@unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "No setroubleshoot on atomic systems.")
+class TestSelinux(MachineCase):
+    def testTroubleshootAlerts(self):
+        b = self.browser
+
+        self.login_and_go("/selinux/setroubleshoot")
+
+        # at the beginning, there should be no entries
+        b.wait_in_text("body", "No SELinux alerts.")
+
+        # fix audit events first
+        self.machine.execute(script=FIX_AUDITD)
+
+        #########################################################
+        # trigger an alert
+        self.machine.execute(script=SELINUX_ALERT_SCRIPT)
+
+        # wait for the alert to appear
+        b.wait_present("td:contains('SELinux is preventing ls from read access on the directory')")
+
+        # expand it to see details
+        row_selector = "td:contains('SELinux is preventing ls from read access on the directory'):parent"
+        b.click(row_selector)
+
+        # this should have two alerts, but there seems to be a known issue that some messages are delayed
+        # b.wait_in_text(row_selector, "2 occurrences")
+
+        # a solution is present
+        b.wait_in_text(row_selector, "You must tell SELinux about this by enabling the 'httpd_read_user_content' boolean.")
+
+        # ... but we can't apply it automatically
+        # there are several solutions this can match against - that's ok, we want at least one to have this message
+        b.wait_in_text(row_selector, "Unable to apply this solution automatically")
+
+        # collapse again
+        b.click("tbody.open .listing-head")
+
+        # wait until it is collapsed
+        b.wait_not_in_text(row_selector, "You must tell SELinux about this by enabling the 'httpd_read_user_content' boolean.")
+
+        #########################################################
+        # trigger a more serious, but fixable, alert
+        self.machine.execute(script=SELINUX_SERIOUS_ALERT_SCRIPT)
+
+        # wait for the alert to appear
+        b.wait_present("td:contains('SELinux is preventing sshd from read access on the file')")
+
+        # expand it to see details
+        row_selector = "td:contains('SELinux is preventing sshd from read access on the file'):parent"
+        b.click(row_selector)
+
+        # a solution is present
+        b.wait_in_text(row_selector, "you must fix the labels")
+
+        # and it can be applied
+        btn_sel = "div.list-group-item:contains('you must fix the labels') button"
+        b.click(btn_sel)
+
+        # there's a known issue where setroubleshoot is unable to run the fix
+        #b.wait_in_text(row_selector, "Successfully ran /sbin/restorecon /etc/ssh/ssh_host_ecdsa_key")
+        b.wait_in_text(row_selector, "Solution applied successfully:")
+
+if __name__ == '__main__':
+    test_main()

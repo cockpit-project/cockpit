@@ -230,6 +230,15 @@ on_timeout_set_flag (gpointer data)
   return FALSE;
 }
 
+static gboolean
+on_idling_set_flag (CockpitAuth *auth,
+                    gpointer data)
+{
+  gboolean *flag = data;
+  *flag = TRUE;
+  return FALSE;
+}
+
 static void
 test_idle_timeout (Test *test,
                    gconstpointer data)
@@ -239,6 +248,7 @@ test_idle_timeout (Test *test,
   GError *error = NULL;
   GHashTable *headers;
   gboolean flag = FALSE;
+  gboolean idling = FALSE;
 
   /* The idle timeout is one second */
   g_assert (cockpit_ws_service_idle == 1);
@@ -270,6 +280,9 @@ test_idle_timeout (Test *test,
   g_assert (cockpit_web_service_get_idling (service));
   g_object_unref (service);
 
+  g_assert (cockpit_ws_process_idle == 2);
+  g_signal_connect (test->auth, "idling", G_CALLBACK (on_idling_set_flag), &idling);
+
   /* Now wait for 2 seconds, and the service should be gone */
   g_timeout_add_seconds (2, on_timeout_set_flag, &flag);
   while (!flag)
@@ -279,17 +292,14 @@ test_idle_timeout (Test *test,
   service = cockpit_auth_check_cookie (test->auth, "/cockpit", headers);
   g_assert (service == NULL);
 
-  g_hash_table_destroy (headers);
-}
+  /* Now wait for 3 seconds, and the auth should have said its idling */
+  flag = FALSE;
+  g_timeout_add_seconds (3, on_timeout_set_flag, &flag);
+  while (!flag)
+    g_main_context_iteration (NULL, TRUE);
 
-static gboolean
-on_idling_set_flag (CockpitAuth *auth,
-                    gpointer data)
-{
-  gboolean *flag = data;
-  g_assert (*flag == FALSE);
-  *flag = TRUE;
-  return FALSE;
+  g_assert (idling == TRUE);
+  g_hash_table_destroy (headers);
 }
 
 static void

@@ -62,7 +62,7 @@
 guint cockpit_ws_service_idle = 15;
 
 /* Timeout of everything when noone is connected */
-guint cockpit_ws_process_idle = 600;
+guint cockpit_ws_process_idle = 90;
 
 static guint sig__idling = 0;
 
@@ -1198,6 +1198,7 @@ static void
 on_web_service_destroy (CockpitWebService *service,
                         gpointer data)
 {
+  on_web_service_idling (service, data);
   cockpit_authenticated_destroy (data);
 }
 

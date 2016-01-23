@@ -94,6 +94,7 @@ Recommends: %{name}-docker = %{version}-%{release}
 %endif
 Suggests: %{name}-pcp = %{version}-%{release}
 Suggests: %{name}-kubernetes = %{version}-%{release}
+Suggests: %{name}-selinux = %{version}-%{release}
 
 # Older releases need to have strict requirements
 %else
@@ -218,6 +219,14 @@ find %{buildroot}%{_datadir}/%{name}/network -type f >> networkmanager.list
 
 echo '%dir %{_datadir}/%{name}/ostree' > ostree.list
 find %{buildroot}%{_datadir}/%{name}/ostree -type f >> ostree.list
+
+# on RHEL systems we don't have the required setroubleshoot-server packages
+%if 0%{?rhel}
+rm -rf %{buildroot}%{_datadir}/%{name}/selinux
+%else
+echo '%dir %{_datadir}/%{name}/selinux' > selinux.list
+find %{buildroot}%{_datadir}/%{name}/selinux -type f >> selinux.list
+%endif
 
 %ifarch x86_64 armv7hl
 echo '%dir %{_datadir}/%{name}/docker' > docker.list
@@ -413,6 +422,17 @@ This package contains the Cockpit user interface integration with local
 subscription management.
 
 %files subscriptions -f subscriptions.list
+
+%package selinux
+Summary: Cockpit SELinux package
+Requires: setroubleshoot-server >= 3.3.3
+BuildArch: noarch
+
+%description selinux
+This package contains the Cockpit user interface integration with the
+utility setroubleshoot to diagnose and resolve SELinux issues.
+
+%files selinux -f selinux.list
 
 %package networkmanager
 Summary: Cockpit user interface for networking, using NetworkManager

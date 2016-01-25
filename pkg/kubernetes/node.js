@@ -44,7 +44,7 @@ define([
             $("#node-address", dialog).val('');
         })
         .on("shown.bs.modal", function() {
-            ("#node-address", dialog).focus();
+            $("#node-address", dialog).focus();
         })
         .on("hide.bs.modal", function(ev) {
             kube.close();

@@ -1,4 +1,4 @@
-<div ng-init="endpoint = serviceEndpoint(item)">
+<div>
     <div class="listing-head" ng-click="select(id, $event)">
         <div class="listing-actions">
             <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete delete-entity"
@@ -6,8 +6,8 @@
         </div>
         <h3><i class="fa pficon-service"></i>{{ item.metadata.name }}</h3>
         <div class="listing-status">
-            <span ng-if="endpoint.subsets.length !== 0" translatable="yes">Ready</span>
-            <span ng-if="endpoint.subsets.length === 0" translatable="yes">Not Ready</span>
+            <span ng-if="serviceEndpoint(item).subsets.length !== 0" translatable="yes">Ready</span>
+            <span ng-if="serviceEndpoint(item).subsets.length === 0" translatable="yes">Not Ready</span>
         </div>
         <ul class="nav nav-tabs nav-tabs-pf">
             <li ng-class="{active: tab('main')}"><a ng-click="tab('main', $event)">Service</a></li>
@@ -49,12 +49,12 @@
     <div class="listing-body" ng-show="tab('endpoints')">
         <div class="row">
             <div class="col-sm-6">
-                <dl class="full-width" ng-repeat="subset in endpoint.subsets">
+                <dl class="full-width" ng-repeat="subset in serviceEndpoint(item).subsets">
                     <dt translatable="yes">Pod Endpoints</dt>
                     <dd ng-repeat="address in subset.addresses">
                         {{ address.ip }} &#8594; {{ address.targetRef.name }}</dd>
                 </dl>
-                <dl ng-if="!endpoint.subsets.length">
+                <dl ng-if="!serviceEndpoint(item).subsets.length">
                     <dt translatable="yes">Pod Endpoints</dt>
                     <dd translatable="yes">No pods selected</dd>
                 </dl>

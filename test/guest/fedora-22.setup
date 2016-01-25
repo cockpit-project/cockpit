@@ -32,13 +32,7 @@ sos \
 storaged \
 storaged-lvm2 \
 subscription-manager \
-"
-
-AVOCADO_TEST_DEPS="\
-avocado \
-fontconfig \
-npm \
-python-selenium \
+tuned \
 "
 
 # We also install the packages necessary to join a FreeIPA domain so
@@ -86,10 +80,7 @@ dnf -y copr enable phatina/storaged
 # We need avocado for some integration tests
 dnf -y -q copr enable lmr/Autotest
 
-dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES $AVOCADO_TEST_DEPS
-
-# integration tests need phantomjs to run locally
-npm -g install phantomjs
+dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # Prepare for building
 dnf -y install mock rpm-build

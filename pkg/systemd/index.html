@@ -13,6 +13,7 @@
     <script src="../shell/shell.js"></script>
     <script src="../system/bundle.js"></script>
     <script src="../domain/bundle.js"></script>
+    <script src="../performance/bundle.js"></script>
     <script>
         require([
             "jquery",
@@ -67,19 +68,24 @@
         <div class="col-md-4 col-lg-3 cockpit-info-table-container">
             <table class="cockpit-info-table">
                 <tr>
-                    <td>Hardware</td>
+                    <td translatable="yes">Hardware</td>
                     <td id="system_information_hardware_text"></td>
                 </tr>
                 <tr>
-                    <td>Asset Tag</td>
+                    <td translatable="yes">Asset Tag</td>
                     <td id="system_information_asset_tag_text"></td>
                 </tr>
                 <tr>
-                    <td>BIOS</td>
+                    <td translatable="yes">BIOS</td>
                     <td id="system_information_bios_text"></td>
                 </tr>
+                <tr id="system-info-performance">
+                    <td translatable="yes">Performance Profile</td>
+                    <td class="button-location">
+                    </td>
+                </tr>
                 <tr>
-                    <td>Operating System</td>
+                    <td translatable="yes">Operating System</td>
                     <td id="system_information_os_text"></td>
                 </tr>
                 <tr id="system-ostree-version" class="hidden">
@@ -87,17 +93,17 @@
                     <td><a id="system-ostree-version-link"></a></td>
                 </tr>
                 <tr>
-                    <td>Host Name</td>
+                    <td translatable="yes">Host Name</td>
                     <td><button class="btn btn-default hostname-privileged"
                             id="system_information_hostname_button"></button></td>
                 </tr>
                 <tr id="system-info-realms">
-                    <td>Domain</td>
+                    <td translatable="yes">Domain</td>
                     <td class="button-location">
                     </td>
                 </tr>
                 <tr>
-                    <td>System Time</td>
+                    <td translatable="yes">System Time</td>
                     <td><button class="btn btn-default systime-privileged"
                                 id="system_information_systime_button"></button>
                       <a hidden id="system_information_systime_ntp_status"

@@ -151,15 +151,29 @@ define([
             }
 
             function with_info(active, recommended, profiles) {
-                var profiles_model = profiles.map(function (p) {
-                    return { profile: p,
-                             Title: p,
-                             Description: "",
-                             recommended: p == recommended
-                           };
+                var model = [];
+                profiles.forEach(function(p) {
+                    var name, desc;
+                    if (typeof p === "string") {
+                        name = p;
+                        desc = "";
+                    } else {
+                        name = p[0];
+                        desc = p[1];
+                    }
+                    if (name != "none") {
+                        model.push({
+                            profile: name,
+                            Title: name,
+                            Description: desc,
+                            recommended: name == recommended
+                        });
+                    }
                 });
 
-                dialog = create_dialog(profiles_model);
+                model.unshift({ profile: "none", Title: _("None"), Description: _("Disable tuned") });
+
+                dialog = create_dialog(model);
                 dialog.find('[data-profile="' + active + '"]').addClass('active');
                 dialog.find('[data-profile]').on('click', function () {
                     dialog.dialog('failure', null);
@@ -203,6 +217,18 @@ define([
                 dialog.modal('show');
             }
 
+            function tuned_profiles() {
+                return tuned.call('/Tuned', 'com.redhat.tuned.control', 'profiles2', [])
+                    .then(function(result) {
+                        return result[0];
+                    }, function() {
+                        return tuned.call('/Tuned', 'com.redhat.tuned.control', 'profiles', [])
+                            .then(function(result) {
+                                return result[0];
+                            });
+                    });
+            }
+
             function with_tuned() {
                 poll(tuned)
                     .done(function (state, active, recommended) {
@@ -210,13 +236,9 @@ define([
                             show_error(_("Tuned has failed to start"));
                             return;
                         }
-                        tuned.call('/Tuned', 'com.redhat.tuned.control', 'profiles', [])
-                            .done(function (result) {
-                                var profiles = result[0];
-                                profiles.unshift("none");
-                                with_info(active, recommended, profiles);
-                            })
-                            .fail(show_error);
+                        tuned_profiles().then(function(profiles) {
+                            with_info(active, recommended, profiles);
+                        }, show_error);
                     })
                     .fail(show_error);
             }

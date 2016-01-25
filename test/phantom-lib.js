@@ -173,7 +173,7 @@ function ph_go(href) {
         window.location.hash = href;
 
     } else {
-        if (!window.name.indexOf("cockpit1") === 0)
+        if (window.name.indexOf("cockpit1") !== 0)
             throw "ph_go() called in non cockpit window";
         var control = {
             command: "jump",

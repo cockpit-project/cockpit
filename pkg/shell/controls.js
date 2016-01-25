@@ -357,8 +357,8 @@ module.update_privileged_ui = function update_privileged_ui(perm, selector, deni
         if (typeof $(this).data(allowed_key) === 'undefined' ||
                $(this).data(allowed_key) === false)
             $(this).data(allowed_key, $(this).attr('title') || "");
-            $(this).tooltip({ html: true });
 
+        $(this).tooltip({ html: true });
         if ($(this).hasClass("disabled") === allowed) {
           $(this).toggleClass("disabled", !allowed)
                .attr('data-original-title', null);

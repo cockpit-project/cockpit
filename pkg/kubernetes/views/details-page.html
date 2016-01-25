@@ -50,9 +50,9 @@
                 <th>{{item.metadata.name}}</th>
                 <td>{{item.metadata.namespace}}</td>
                 <td><kubernetes-service-cluster></td>
-                <td ng-init="endpoint = serviceEndpoint(item)">
-                    <span ng-if="endpoint.subsets.length !== 0" translatable="yes">Ready</span>
-                    <span ng-if="endpoint.subsets.length === 0" translatable="yes">Not Ready</span>
+                <td>
+                    <span ng-if="serviceEndpoint(item).subsets.length !== 0" translatable="yes">Ready</span>
+                    <span ng-if="serviceEndpoint(item).subsets.length === 0" translatable="yes">Not Ready</span>
                 </td>
             </tr>
             <tr class="listing-panel" ng-if="selected(id)">

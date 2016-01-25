@@ -165,7 +165,7 @@ create_knownhosts_temp (void)
   for (i = 0; directories[i] != NULL; i++)
     {
       name = g_build_filename (directories[i], "known-hosts.XXXXXX", NULL);
-      fd = mkstemp (name);
+      fd = g_mkstemp (name);
       err = errno;
 
       if (fd >= 0)

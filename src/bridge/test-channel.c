@@ -504,6 +504,8 @@ test_parse_port (void)
                           NULL);
   json_object_unref (options);
   connectable = cockpit_channel_parse_stream (channel);
+  g_assert (connectable != NULL);
+
   address = cockpit_channel_parse_address (channel, &name);
 
   g_assert (g_socket_address_get_family (address) == G_SOCKET_FAMILY_IPV4);

@@ -504,13 +504,10 @@ PageServer.prototype = {
             return ret;
         }
 
-        cockpit.spawn(["grep", "\\w", "bios_vendor", "bios_version", "bios_date", "sys_vendor", "product_name"],
+        cockpit.spawn(["grep", "\\w", "sys_vendor", "product_name"],
                       { directory: "/sys/devices/virtual/dmi/id", err: "ignore" })
             .done(function(output) {
                 var fields = parse_lines(output);
-                $("#system_information_bios_text").text(fields.bios_vendor + " " +
-                                                        fields.bios_version + " (" +
-                                                        fields.bios_date + ")");
                 $("#system_information_hardware_text").text(fields.sys_vendor + " " +
                                                             fields.product_name);
             })

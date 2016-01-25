@@ -97,9 +97,6 @@ rpm -Uvh epel-release-*.rpm
 cd
 rm -rf /tmp/dep
 
-# get autotest
-wget -T 15 -t 4 -O /etc/yum.repos.d/lmr-Autotest-epel-7.repo https://copr.fedoraproject.org/coprs/lmr/Autotest/repo/epel-7/lmr-Autotest-epel-7.repo
-
 yum install --nogpgcheck -y $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # Prepare for building

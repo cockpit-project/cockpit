@@ -77,9 +77,6 @@ dnf -y upgrade
 #
 dnf -y copr enable phatina/storaged
 
-# We need avocado for some integration tests
-dnf -y -q copr enable lmr/Autotest
-
 dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # Prepare for building

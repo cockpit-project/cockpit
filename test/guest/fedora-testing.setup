@@ -71,10 +71,6 @@ dnf config-manager --set-enabled updates-testing
 dnf -y upgrade dnf
 dnf -y upgrade
 
-# We need avocado for some integration tests
-dnf -y -q copr enable lmr/Autotest
-
-
 dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # Prepare for building

@@ -244,11 +244,13 @@ a {
  * Make the table row hover color match the list-group-item.
  */
 .table-hover > tbody > tr > td,
-.table-hover > tbody > tr > th {
+.table-hover > tbody > tr > th,
+.dialog-list .list-group-item {
     cursor: pointer;
 }
 .table-hover > tbody > tr:hover > td,
-.table-hover > tbody > tr:hover > th {
+.table-hover > tbody > tr:hover > th,
+.dialog-list .list-group-item:hover:not(.active) {
     background-color: #d4edfa;
 }
 

@@ -30,11 +30,16 @@
 
     .config(['$routeProvider',
         function($routeProvider) {
-            $routeProvider.when('/projects/:namespace?', {
-                templateUrl: 'views/projects-page.html',
-                controller: 'ProjectsCtrl',
-                reloadOnSearch: false,
-            });
+            $routeProvider
+                .when('/projects/:namespace?', {
+                    controller: 'ProjectsCtrl',
+                    templateUrl: function(params) {
+                        if (!params['namespace'])
+                            return 'views/projects-page.html';
+                        else
+                            return 'views/project-page.html';
+                    }
+                });
         }
     ])
 
@@ -85,32 +90,93 @@
         '$modal',
         'projectUtil',
         'projectActions',
-        function($scope, loader, select, $modal, util, projectAction) {
-            loader.watch("users");
-            loader.watch("groups");
-            loader.load("Project", null, null);
+        '$routeParams',
+        'ListingState',
+        '$location',
+        function($scope, loader, select, $modal, util, projectAction, $routeParams, ListingState, $location) {
+            var namespace = $routeParams["namespace"] || "";
+            if (namespace) {
+                $scope.listing = new ListingState($scope);
 
-            $scope.users = function() {
-                return select().kind("User");
-            };
+                loader.load("Project", null, null);
+                $scope.project = function() {
+                    return select().kind("Project").name(namespace).one();
+                };
 
-            $scope.groups = function() {
-                return select().kind("Group");
-            };
+            } else {
 
-            $scope.projects = function() {
-                return select().kind("Project");
-            };
+                $scope.listing = new ListingState($scope);
+                loader.watch("users");
+                loader.watch("groups");
+                loader.load("Project", null, null);
 
-            $scope.formatMembers = util.formatMembers;
+                $scope.users = function() {
+                    return select().kind("User");
+                };
 
-            $scope.createProject = projectAction.createProject;
+                $scope.groups = function() {
+                    return select().kind("Group");
+                };
 
-            $scope.createGroup = projectAction.createGroup;
+                $scope.projects = function() {
+                    return select().kind("Project");
+                };
 
-            $scope.createUser = projectAction.createUser;
+                $scope.formatMembers = util.formatMembers;
+
+                $scope.createProject = projectAction.createProject;
+
+                $scope.createGroup = projectAction.createGroup;
+
+                $scope.createUser = projectAction.createUser;
+
+                $scope.$on("activate", function(ev, id) {
+                    if (!$scope.listing.expandable) {
+                        ev.preventDefault();
+                        $location.path('/projects/' + id);
+                    }
+                });
+              }
         }
     ])
+
+    .directive('projectPanel', [
+        'kubeLoader',
+        'kubeSelect',
+        function(loader, select) {
+            return {
+                restrict: 'A',
+                scope: true,
+                link: function(scope, element, attrs) {
+                    var tab = 'main';
+                    scope.tab = function(name, ev) {
+                        if (ev) {
+                            tab = name;
+                            ev.stopPropagation();
+                        }
+                        return tab === name;
+                    };
+
+                    var currProject = scope.id;
+                    loader.load("Project", null, null);
+                    scope.project = function() {
+                        return select().kind("Project").name(currProject).one();
+                    };
+
+                },
+                templateUrl: "views/project-panel.html"
+            };
+        }
+    ])
+
+    .directive('projectListing',
+        function() {
+            return {
+                restrict: 'A',
+                templateUrl: 'views/project-listing.html'
+            };
+        }
+    )
 
     .factory('projectActions', [
         '$modal',

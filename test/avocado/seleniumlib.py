@@ -81,10 +81,11 @@ class SeleniumTest(Test):
             screenshot_file = ""
             try:
                 # use time.clock() to ensure that snapshot files are unique and ordered
-                screenshot_file = "snapshot-teardown-%s.png" % str(time.clock())
+                # sample name is like: screenshot-teardown-172434.png
+                screenshot_file = "screenshot-teardown-%s.png" % str(time.clock())[2:]
 
                 self.driver.save_screenshot(screenshot_file)
-                print "Screenshot done in teardown phase: " + screenshot_file
+                self.log.error("Screenshot(teardown) - Wrote: " + screenshot_file)
             except Exception as e:
                 screenshot_file = "Unable to catch screenshot: " + screenshot_file
                 raise Exception('ERR: Unable to store screenshot: %s' % screenshot_file, str(e))
@@ -166,7 +167,9 @@ parameters:
                 pass
         if returned is None:
             if fatal:
-                screenshot_file = "snapshot-%s-%s-lines_%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack()[2][3]), '-'.join([str(x[2]) for x in inspect.stack() if inspect.stack()[0][1] == x[1]]))
+                # sample screenshot name is: screenshot-test20Login.png
+                # it stores super caller method to name via inspection code stack
+                screenshot_file = "screenshot-%s.png" % str(inspect.stack()[2][3])
                 additional_text = ""
                 try:
                     self.driver.save_screenshot(screenshot_file)
@@ -175,6 +178,7 @@ parameters:
                     screenshot_file = "Unable to catch screenshot: " + screenshot_file
                     pass
                 finally:
+                    self.log.error("Screenshot(test) - Wrote: " + screenshot_file)
                     raise Exception('ERR: Unable to locate name: %s' % str(text), screenshot_file)
         self.element_wait_functions[returned] = usedfunction
         return returned

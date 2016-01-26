@@ -24,6 +24,7 @@ import os
 import shutil
 import sys
 import subprocess
+import glob
 
 # we use symlinked files
 # the directory structure breaks on the second run with .pyc files
@@ -133,7 +134,8 @@ def copy_avocado_logs(machine, title):
             # avocado creates a "latest" symlink, we can delete that here
             shutil.rmtree(path=os.path.join(dir, "latest"), ignore_errors=True)
             print "Avocado results copied to %s" % (dir)
-
+            for screenshot in glob.glob(os.path.join(dir,'*.png')):
+                shutil.move(screenshot, arg_attachments_dir)
             # compress the logs and attach that
             archive = os.path.join(arg_attachments_dir, "{0}.tar.gz".format(dir))
             subprocess.call(["tar", "cfz", archive, dir])

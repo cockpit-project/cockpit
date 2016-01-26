@@ -118,7 +118,7 @@
                 if (parser.port)
                     options.port = parseInt(parser.port, 10);
                 if (parser.protocol == 'https:') {
-                    if (!options.port)
+                    if (!parser.port || parser.port === "0")
                         options.port = parser.href == cluster.server ? 6443 : 443;
 
                     options.tls = { };

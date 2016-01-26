@@ -34,6 +34,7 @@ import time
 import urlparse
 
 from testpulltask import GithubPullTask
+from testimagetask import GithubImageTask
 
 TOKEN = "~/.config/github-token"
 topdir = os.path.normpath(os.path.dirname(os.path.realpath(__file__)))
@@ -62,6 +63,19 @@ DEFAULT_VERIFY = {
 TESTING = "Testing in progress"
 NOT_TESTED = "Not yet tested"
 NO_TESTING = "Manual testing required"
+
+DEFAULT_IMAGE_REFRESH = {
+    'fedora-22': True,
+    'fedora-23': True,
+    'fedora-atomic': True,
+    'debian-unstable': True,
+    'fedora-testing': True
+}
+
+ISSUE_TITLE_IMAGE_REFRESH = "Image refresh for {0}"
+
+# Days after which a image is refreshed
+IMAGE_REFRESH = 7
 
 # Days after which images expire if not in use
 IMAGE_EXPIRE = 14
@@ -412,10 +426,26 @@ class GitHub(object):
                     results.append((priority, GithubPullTask("pull-%d" % number, revision,
                                                              "pull/%d/head" % number, context)))
 
+    def scan_for_image_tasks(self):
+        issues = self.get("issues?labels=bot")
+
+        results = [ ]
+        for image in DEFAULT_IMAGE_REFRESH:
+            found = False
+            for issue in issues:
+                if issue['title'] == ISSUE_TITLE_IMAGE_REFRESH.format(image):
+                    age = time.time() - time.mktime(time.strptime(issue['created_at'], "%Y-%m-%dT%H:%M:%SZ"))
+                    if age < IMAGE_REFRESH * 24 * 60 * 60:
+                        found = True
+                    print "not old enough", image, age
+            if not found:
+                results.append((10, GithubImageTask("refresh-" + image, image)))
+
         return results
 
     def scan(self, update, context, except_context=False):
-        tasks = self.scan_for_pull_tasks(update, context, except_context)
+        tasks = (self.scan_for_pull_tasks(update, context, except_context)
+                 + self.scan_for_image_tasks())
 
         # Only work on tasks that have a priority greater than zero
         def filter_tasks(task):

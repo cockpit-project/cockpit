@@ -1,0 +1,167 @@
+import os
+import subprocess
+import sys
+import traceback
+
+import testinfra
+
+class GithubPullTask(object):
+    def __init__(self, name, revision, ref, context):
+        self.name = name
+        self.revision = revision
+        self.ref = ref
+        self.context = context
+
+        self.sink = None
+
+    def description(self):
+        return "{0} {1} {2}".format(self.name, self.context, self.revision)
+
+    def start_publishing(self, host, github):
+        identifier = self.name + "-" + self.revision[0:8] + "-" + self.context.replace("/", "-")
+        description = "{0} [{1}]".format(testinfra.TESTING, testinfra.HOSTNAME)
+        status = {
+            "github": {
+                "resource": github.qualify("statuses/" + self.revision),
+                "status": {
+                    "state": "pending",
+                    "context": self.context,
+                    "description": description,
+                }
+            },
+            "revision": self.revision,
+            "link": "log.html",
+            "extras": [ "https://raw.githubusercontent.com/cockpit-project/cockpit/" +
+                self.revision + "/test/files/log.html" ]
+        }
+
+        (prefix, unused, image) = self.context.partition("/")
+        if self.name == "master" and prefix == "verify":
+            status['irc'] = { }    # Only send to IRC when master
+            status['badge'] = {
+                'name': image,
+                'description': image,
+                'status': 'running'
+            }
+
+        # For other scripts to use
+        os.environ["TEST_DESCRIPTION"] = description
+        self.sink = testinfra.Sink(host, identifier, status)
+
+    def check_publishing(self, github):
+        if not self.sink:
+            return True
+
+        data = self.sink.status.get("github", None)
+        if not data:
+            return True
+        expected = data["status"]["description"]
+        context = data["status"]["context"]
+        statuses = github.statuses(self.sink.status["revision"])
+        status = statuses.get(context, None)
+        current = status.get("description", None)
+        if current and current != expected:
+            self.sink.status.pop("github", None)
+            self.sink.status.pop("badge", None)
+            self.sink.status.pop("irc", None)
+            sys.stderr.write("Verify collision: {0}\n".format(current))
+            return False
+        return True
+
+    def rebase(self):
+        try:
+            sys.stderr.write("Rebasing onto origin/master ...\n")
+            subprocess.check_call([ "git", "fetch", "origin", "master" ])
+            if self.sink:
+                master = subprocess.check_output([ "git", "rev-parse", "origin/master" ]).strip()
+                self.sink.status["master"] = master
+            subprocess.check_call([ "git", "rebase", "origin/master" ])
+            return None
+        except:
+            subprocess.call([ "git", "rebase", "--abort" ])
+            traceback.print_exc()
+            return "Rebase failed"
+
+    def stop_publishing(self, ret):
+        sink = self.sink
+        def mark_failed():
+            if "github" in sink.status:
+                sink.status["github"]["status"]["state"] = "failure"
+            if 'badge' in sink.status:
+                sink.status['badge']['status'] = "failed"
+            if "irc" in sink.status: # Never send success messages to IRC
+                sink.status["irc"]["channel"] = "#cockpit"
+        def mark_passed():
+            if "github" in sink.status:
+                sink.status["github"]["status"]["state"] = "success"
+            if 'badge' in sink.status:
+                sink.status['badge']['status'] = "passed"
+        if isinstance(ret, basestring):
+            message = ret
+            mark_failed()
+        elif ret == 0:
+            message = "Tests passed"
+            mark_passed()
+        else:
+            message = "{0} tests failed".format(ret)
+            mark_failed()
+        sink.status["message"] = message
+        if "github" in sink.status:
+            sink.status["github"]["status"]["description"] = message
+        del sink.status["extras"]
+        sink.flush()
+
+    def run(self, opts, github):
+
+        if self.ref:
+            subprocess.check_call([ "git", "fetch", "origin", self.ref ])
+            subprocess.check_call([ "git", "checkout", self.revision ])
+
+        # Split a value like verify/fedora-23
+        (prefix, unused, value) = self.context.partition("/")
+
+        os.environ["TEST_NAME"] = self.name
+        os.environ["TEST_REVISION"] = self.revision
+
+        if prefix == 'image':
+            os.environ["TEST_OS"] = 'fedora-23'
+        else:
+            os.environ["TEST_OS"] = value
+
+        if opts.publish:
+            self.start_publishing(opts.publish, github)
+            os.environ["TEST_ATTACHMENTS"] = self.sink.attachments
+
+        msg = "Testing {0} for {1} with {2} on {3}...\n".format(self.revision, self.name,
+                                                                self.context, testinfra.HOSTNAME)
+        sys.stderr.write(msg)
+
+        ret = None
+        # Figure out what to do next
+        if prefix == "verify":
+            cmd = [ "./check-verify", "--install", "--jobs", str(opts.jobs) ]
+        elif prefix == "avocado":
+            cmd = [ "./avocado/run-tests", "--install", "--quick", "--tests" ]
+        elif prefix == "selenium":
+            os.environ["TEST_OS"] = "fedora-23"
+            if value not in ['firefox', 'chrome']:
+                ret = "Unknown browser for selenium test"
+            cmd = [ "./avocado/run-tests", "--install", "--quick", "--selenium-tests", "--browser", value]
+        elif prefix == "image":
+            cmd = [ "./containers/run-tests", "--install", "--container", value]
+        else:
+            ret = "Unknown context"
+
+        if opts.verbose:
+            cmd.append("--verbose")
+
+        ret = ret or self.rebase()
+
+        # Actually run the tests
+        if not ret:
+            proc = subprocess.Popen(cmd)
+            ret = testinfra.wait_testing(proc, lambda: self.check_publishing(github))
+
+        # All done
+        if self.sink:
+            self.stop_publishing(ret)

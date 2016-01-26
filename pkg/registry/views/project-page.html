@@ -1,0 +1,41 @@
+<filter-bar class="content-filter">
+</filter-bar>
+<div>
+    <table listing-table class="listing projects-listing">
+        <thead>
+            <tr>
+                <td colspan="3">
+                    <a class="pull-right">
+                        <button class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
+                        <button class="btn btn-default pficon pficon-edit" disabled></button>
+                    </a>
+                    <h3 translatable="yes">{{ project().metadata.name }}</h3>
+                    <h4 translatable="yes">{{ project().metadata.annotations["openshift.io/description"] }}
+                    </h3>
+                </td>
+            </tr>
+            <tr>
+                <th translatable="yes">Project Members</th>
+                <th translatable="yes">Roles</th>
+                <th translatable="yes"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="listing-item">
+                <td>todo members</td>
+                <td>todo roles</td>
+                <td></td>
+            </tr>
+        </tbody>
+        <thead>
+            <tr>
+                <td colspan="3">
+                    <a class="pull-left" disabled>
+                        <i translatable="yes" class="pficon pficon-add-circle-o"></i>
+                        <span translatable="yes">Add Member</span>
+                    </a>
+                </td>
+            </tr>
+        </thead>
+    </table>
+</div>

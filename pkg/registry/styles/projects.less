@@ -1,7 +1,39 @@
 
 @tag-border: @link-color;
 
+table.project-body {
+    margin-top: 0px;
+
+    thead.th {
+        border-top:0px;
+        font-size: 12px;
+    }
+
+    tr {
+        display: table-row;
+        vertical-align: inherit;
+        border-color: inherit;
+    }
+
+    tr.listing-item {
+        border-top: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+    }
+}
+
+table.listing > thead td {
+    padding-top: 0px;
+}
+
+.project-panel {
+    padding-right: 25px;
+    padding-top: 0px;
+}
+
 table.projects-listing {
+    max-width: 2000px;
+    min-width: 85%;
 
     tr {
         display: table-row;
@@ -17,6 +49,10 @@ table.projects-listing {
         border-top: 1px solid #eee;
         border-bottom: 1px solid #eee;
         cursor: pointer;
+    }
+
+    tr.inner-project-listing {
+        display: table-row;
     }
 
     tbody.first {

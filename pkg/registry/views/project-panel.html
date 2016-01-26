@@ -1,0 +1,38 @@
+<div class="listing-head" ng-click="listing.collapse(id, $event)">
+    <div class="listing-actions">
+        <button class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
+        <button class="btn btn-default pficon pficon-edit" disabled></button>
+    </div>
+    <h3><i class="pficon pficon-project"></i>{{ project().metadata.name }}</h3>
+    <h4>{{ project().metadata.annotations["openshift.io/description"] }}</h4>
+</div>
+<div class="listing-body project-panel" ng-show="tab('main')">
+    <div>
+        <table listing-table class="listing project-body">
+            <thead >
+                <tr >
+                    <th translatable="yes">Project Members</th>
+                    <th translatable="yes">Roles</th>
+                    <th translatable="yes"></th>
+                </tr>
+            </thead>
+            <tbody colspan="3">
+                <tr class="listing-item inner-project-listing ">
+                    <td>todo members</td>
+                    <td>todo roles</td>
+                    <td></td>
+                </tr>
+            </tbody>
+	       <thead >
+	            <tr>
+	                <td colspan="3">
+                        <a class="pull-left" disabled>
+                            <i translatable="yes" class="pficon pficon-add-circle-o"></i>
+                            <span translatable="yes">Add Member</span>
+                        </a>
+                    </td>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>

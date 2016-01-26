@@ -1,0 +1,78 @@
+<table listing-table class="listing projects-listing">
+    <thead>
+        <tr>
+            <td colspan="3">
+                <a class="pull-right" ng-click="createProject()">
+                    <i translatable="yes" class="pficon pficon-add-circle-o"></i>
+                    <span translatable="yes">New Project</span>
+                </a>
+                <h3 translatable="yes">Projects</h3>
+            </td>
+        </tr>
+        <tr>
+            <th translatable="yes">Name</th>
+            <th translatable="yes">Description</th>
+            <th translatable="yes">Members</th>
+        </tr>
+    </thead>
+    <tbody ng-repeat-start="item in projects() track by item.metadata.name"  ng-init="sid = item.metadata.name" 
+           data-id="{{ sid }}" class="active" ng-class="{ open: listing.expanded(sid) }">
+        <tr class="listing-item" ng-click="listing.toggle(sid)">
+            <th>{{ item.metadata.name }}</th>
+            <td>{{ item.metadata.annotations["openshift.io/description"] }}</td>
+            <td></td>
+        </tr>
+        <tr class="listing-panel" ng-if="listing.expanded(sid)" ng-init="id = sid">
+            <td project-panel colspan="3"></td>
+        </tr>
+    </tbody>
+    <tbody data-ng-rubbish="" ng-if="0" ng-repeat-end></tbody>
+    <thead>
+        <tr>
+            <td colspan="3">
+                <a class="pull-right" id="add-group" ng-click="createGroup()">
+                    <i translatable="yes" class="pficon pficon-add-circle-o"></i>
+                    <span translatable="yes">New Group</span>
+                </a>
+                <h3 translatable="yes">Groups</h3>
+            </td>
+        </tr>
+        <tr>
+            <th translatable="yes">Name</th>
+            <th translatable="yes">Description</th>
+            <th translatable="yes">Members</th>
+        </tr>
+    </thead>
+    <tbody ng-repeat="item in groups()" class="active">
+        <tr class="listing-item">
+            <th>{{ item.metadata.name }}</th>
+            <td></td>
+            <td>{{ formatMembers(item.users, 'Users') }}</td>
+        </tr>
+        <tr class="listing-panel" ng-if="selected(id)"></tr>
+    </tbody>
+    <thead>
+        <tr>
+            <td colspan="3">
+                <a class="pull-right" id="add-user" ng-click="createUser()">
+                    <i translatable="yes" class="pficon pficon-add-circle-o"></i>
+                    <span translatable="yes">Add User</span>
+                </a>
+                <h3 translatable="yes">Users</h3>
+            </td>
+        </tr>
+        <tr>
+            <th translatable="yes">Name</th>
+            <th translatable="yes">Identity</th>
+            <th translatable="yes">Member of</th>
+        </tr>
+    </thead>
+    <tbody ng-repeat="item in users()" class="active">
+        <tr class="listing-item">
+            <th>{{ item.metadata.name }}</th>
+            <td>{{ formatMembers(item.identities, 'Identities') }}</td>
+            <td>{{ formatMembers(item.groups, 'Groups') }}</td>
+        </tr>
+        <tr class="listing-panel" ng-if="selected(id)"></tr>
+    </tbody>
+</table>

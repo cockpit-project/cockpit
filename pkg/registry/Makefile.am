@@ -16,6 +16,9 @@ registry_VIEWS = \
 	pkg/registry/views/add-user-dialog.html \
 	pkg/registry/views/add-project-dialog.html \
 	pkg/registry/views/projects-page.html \
+	pkg/registry/views/project-page.html \
+	pkg/registry/views/project-panel.html \
+	pkg/registry/views/project-listing.html \
 	$(NULL)
 
 registry_LESS = \

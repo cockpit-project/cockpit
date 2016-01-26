@@ -36,8 +36,8 @@ def main():
     opts = parser.parse_args()
 
     github = testinfra.GitHub("/repos/cockpit-project/cockpit/")
-    for (priority, name, revision, ref, context) in github.scan(not opts.dry, opts.context, opts.except_context):
-        sys.stdout.write("{0}: {1} ({2} {3})\n".format(name, revision, priority, context))
+    for entry in github.scan(not opts.dry, opts.context, opts.except_context):
+        sys.stdout.write("{0}: {1}\n".format(entry.priority, entry.task.description()))
 
 if __name__ == '__main__':
     sys.exit(main())

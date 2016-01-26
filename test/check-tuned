@@ -29,6 +29,10 @@ class TestTuned(MachineCase):
         b = self.browser
         m = self.machine
 
+        recommended_profile = "virtual-guest"
+        if m.image == "rhel-atomic":
+            recommended_profile = "atomic-guest"
+
         # Stop tuned in case it is running by default, as on RHEL.
 
         m.execute("systemctl stop tuned")
@@ -42,14 +46,12 @@ class TestTuned(MachineCase):
                     "Tuned is not running")
 
         # Start tuned manually and hit the info button to force an
-        # update
+        # update.  The recommended profile will be activated
+        # automatically.
 
         m.execute("systemctl start tuned")
         b.click('#system-info-performance [data-toggle="popover"]')
-        if m.image == "rhel-atomic":
-            b.wait_text('#system-info-performance button', "atomic-guest")
-        else:
-            b.wait_text('#system-info-performance button', "virtual-guest")
+        b.wait_text('#system-info-performance button', recommended_profile)
         b.wait_attr('#system-info-performance [data-toggle="popover"]', 'data-content',
                     "This system is using the recommended profile")
 
@@ -58,12 +60,10 @@ class TestTuned(MachineCase):
         b.click('#system-info-performance button')
         b.wait_present('#tuned-dialog')
         b.wait_visible('#tuned-dialog')
-        if m.image == "rhel-atomic":
-            b.wait_in_text('#tuned-dialog .list-group-item.active', "atomic-guest (recommended)")
-        else:
-            b.wait_in_text('#tuned-dialog .list-group-item.active', "virtual-guest (recommended)")
+        b.wait_in_text('#tuned-dialog .list-group-item.active p', recommended_profile)
+        b.wait_in_text('#tuned-dialog .list-group-item.active .badge', "recommended")
         b.click('#tuned-dialog [data-profile="balanced"]')
-        b.wait_in_text('#tuned-dialog .list-group-item.active', "balanced")
+        b.wait_in_text('#tuned-dialog .list-group-item.active p', "balanced")
         b.click('#tuned-dialog button.apply')
         b.wait_not_present('#tuned-dialog')
 

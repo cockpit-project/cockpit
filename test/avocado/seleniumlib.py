@@ -81,7 +81,7 @@ class SeleniumTest(Test):
             screenshot_file = ""
             try:
                 # use time.clock() to ensure that snapshot files are unique and ordered
-                screenshot_file = "screenshot-teardown-%s.png" % str(time.clock())
+                screenshot_file = "screenshot-teardown-%s.png" % str(time.clock())[2:]
 
                 self.driver.save_screenshot(screenshot_file)
                 self.log.error("Screenshot(teardown) - Wrote: " + screenshot_file)
@@ -166,7 +166,7 @@ parameters:
                 pass
         if returned is None:
             if fatal:
-                screenshot_file = "screenshot-%s-%s-lines_%s.png" % (str(inspect.stack()[1][3]), str(inspect.stack()[2][3]), '-'.join([str(x[2]) for x in inspect.stack() if inspect.stack()[0][1] == x[1]]))
+                screenshot_file = "screenshot-%s.png" % str(inspect.stack()[2][3])
                 additional_text = ""
                 try:
                     self.driver.save_screenshot(screenshot_file)

@@ -132,8 +132,19 @@ echo foobar | passwd --stdin admin
 mkdir -p /var/log/journal
 
 if type "docker" >/dev/null 2>&1; then
+<<<<<<< HEAD
     # docker images that we need for integration testing
     /var/lib/testvm/docker-images.setup
+=======
+    # HACK: docker falls over regularly, print its log if it does
+    systemctl start docker || journalctl -u docker
+
+    # docker image that we need for integration testing
+    docker pull busybox:latest
+    docker pull busybox:buildroot-2014.02
+    docker pull submod/helloapache:0.4
+    docker pull gcr.io/google_containers/pause:0.8.0
+>>>>>>> 6bd4d05... Atomic 1.8 integration with Cockpit
 fi
 
 yum clean all

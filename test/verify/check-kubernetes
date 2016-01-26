@@ -125,7 +125,7 @@ class TestNulecule(KubernetesCase):
 
         # 1)check atomic version
         output = m.execute("atomic -v 2>&1")
-        self.assertTrue(float(output) >= 1.1)
+        self.assertTrue(float(output) >= 1.8)
 
         # 2) fail  invalid image
         b.click("#deploy-app")
@@ -140,10 +140,10 @@ class TestNulecule(KubernetesCase):
         b.click("#deploy-app")
         b.wait_popup("deploy-app-dialog")
         b.set_val("#deploy-app-type", "nulecule")
-        b.set_val("#deploy-app-nulecule-image", "submod/helloapache:0.1.11")
+        b.set_val("#deploy-app-nulecule-image", "submod/helloapache:0.4")
         b.set_val("#deploy-app-namespace", "mynamespace")
         b.click("#deploy-app-start")
-        self.allow_journal_messages('Could not find any image matching "submod/helloapache:0.1.11".')
+        self.allow_journal_messages('Could not find any image matching "submod/helloapache:0.4".')
         b.wait_not_attr("#deploy-app-start", "disabled", "disabled")
         b.dialog_cancel("#deploy-app-dialog")
 

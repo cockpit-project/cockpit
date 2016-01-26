@@ -97,6 +97,11 @@ su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
 # reduce image size
 dnf clean all
 /var/lib/testvm/zero-disk.setup
+# docker images that we need for integration testing
+docker pull busybox:latest
+docker pull busybox:buildroot-2014.02
+docker pull submod/helloapache:0.1.11
+docker pull gcr.io/google_containers/pause:0.8.0
 
 # Final tweaks
 

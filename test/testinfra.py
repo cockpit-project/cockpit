@@ -33,6 +33,9 @@ import tempfile
 import time
 import urlparse
 
+from testpulltask import GithubPullTask
+from testimagetask import GithubImageTask
+
 TOKEN = "~/.config/github-token"
 topdir = os.path.normpath(os.path.dirname(os.path.realpath(__file__)))
 
@@ -60,6 +63,19 @@ DEFAULT_VERIFY = {
 TESTING = "Testing in progress"
 NOT_TESTED = "Not yet tested"
 NO_TESTING = "Manual testing required"
+
+DEFAULT_IMAGE_REFRESH = {
+    'fedora-22': True,
+    'fedora-23': True,
+    'fedora-atomic': True,
+    'debian-unstable': True,
+    'fedora-testing': True
+}
+
+ISSUE_TITLE_IMAGE_REFRESH = "Image refresh for {0}"
+
+# Days after which a image is refreshed
+IMAGE_REFRESH = 7
 
 # Days after which images expire if not in use
 IMAGE_EXPIRE = 14
@@ -289,7 +305,7 @@ class GitHub(object):
             result.append(label["name"])
         return result
 
-    def prioritize(self, status, labels, priority):
+    def prioritize(self, status, labels, priority, context):
         state = status.get("state", None)
         update = { "state": "pending" }
 
@@ -319,6 +335,10 @@ class GitHub(object):
             if status.get("description", "").startswith(TESTING):
                 priority = 0
 
+        # Prefer "local" operating system
+        if DEFAULT_IMAGE not in context:
+            priority -= random.randint(1, 2)
+
         if update:
             if priority <= 0:
                 update["description"] = NO_TESTING
@@ -327,7 +347,10 @@ class GitHub(object):
 
         return [priority, update]
 
-    def scan(self, update, context, except_context=False):
+    def scan_for_pull_tasks(self, update, context, except_context=False):
+        # XXX
+        return [  ]
+
         # Figure out what contexts/images we need to verify
         #
         # When context is set and except_context is True we
@@ -372,9 +395,9 @@ class GitHub(object):
             statuses = self.statuses(revision)
             for context in master_contexts:
                 status = statuses.get(context, { })
-                (priority, changes) = self.prioritize(status, [], 8)
+                (priority, changes) = self.prioritize(status, [], 8, context)
                 if update_status(revision, context, status, changes):
-                    results.append((priority, "master", revision, "master", context))
+                    results.append((priority, GithubPullTask("master", revision, "master", context)))
 
         pulls = self.get("pulls")
         for pull in pulls:
@@ -401,22 +424,75 @@ class GitHub(object):
                     if status.get("description", NO_TESTING) == NO_TESTING:
                         baseline = 0
 
-                (priority, changes) = self.prioritize(status, labels, baseline)
+                (priority, changes) = self.prioritize(status, labels, baseline, context)
                 if update_status(revision, context, status, changes):
-                    results.append((priority, "pull-%d" % number, revision, "pull/%d/head" % number, context))
+                    results.append((priority, GithubPullTask("pull-%d" % number, revision,
+                                                             "pull/%d/head" % number, context)))
+
+    def scan_for_image_tasks(self):
+
+        # XXX
+        return [ (10, GithubImageTask("refresh-fedora-23", "fedora-23")) ]
+
+        issues = self.get("issues?labels=bot")
+
+        results = [ ]
+        for image in DEFAULT_IMAGE_REFRESH:
+            found = False
+            for issue in issues:
+                if issue['title'] == ISSUE_TITLE_IMAGE_REFRESH.format(image):
+                    age = time.time() - time.mktime(time.strptime(issue['created_at'], "%Y-%m-%dT%H:%M:%SZ"))
+                    if age < IMAGE_REFRESH * 24 * 60 * 60:
+                        found = True
+                    print "not old enough", image, age
+            if not found:
+                results.append((10, GithubImageTask("refresh-" + image, image)))
+
+        return results
+
+    def scan(self, update, context, except_context=False):
+        tasks = (self.scan_for_pull_tasks(update, context, except_context)
+                 + self.scan_for_image_tasks())
 
         # Only work on tasks that have a priority greater than zero
         def filter_tasks(task):
             return task[0] > 0
 
-        # Prefer higher priorities, and "local" operating system
+        # Prefer higher priorities
         def sort_key(task):
-            priority = task[0]
-            context = task[4]
-            if DEFAULT_IMAGE not in context:
-                priority -= random.randint(1, 2)
-            return priority
+            return task[0]
 
         random.seed()
-        results = filter(filter_tasks, results)
-        return sorted(results, key=sort_key, reverse=True)
+        tasks = filter(filter_tasks, tasks)
+        return sorted(tasks, key=sort_key, reverse=True)
+
+def eintr_retry_call(func, *args):
+    while True:
+        try:
+            return func(*args)
+        except (OSError, IOError) as e:
+            if e.errno == errno.EINTR:
+                continue
+            raise
+
+# The goal here is that after 60 seconds we call check
+def wait_testing(proc, check):
+    count = 0
+    flags = os.WNOHANG
+    while True:
+        pid, status = eintr_retry_call(os.waitpid, proc.pid, flags)
+        if count < 60:
+            time.sleep(1)
+            count += 1
+        elif count == 60:
+            if not check():
+                try:
+                    proc.terminate()
+                except OSError:
+                    pass
+            flags = 0
+        if pid == proc.pid:
+            if os.WIFSIGNALED(status):
+                return os.WTERMSIG(status)
+            else:
+                return os.WEXITSTATUS(status)

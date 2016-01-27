@@ -55,7 +55,8 @@ class GithubImageTask(object):
         msg = "Creating image {0} on {1}...\n".format(self.image, testinfra.HOSTNAME)
         sys.stderr.write(msg)
 
-        proc = subprocess.Popen([ "./vm-create", "--verbose", "--upload", self.image ])
+        # proc = subprocess.Popen([ "./vm-create", "--verbose", "--upload", self.image ])
+        proc = subprocess.Popen([ "ln", "-sf", "test-test-test", "images/" + self.image ])
         ret = testinfra.wait_testing(proc, lambda: self.check_publishing(github))
 
         # Github wants the OAuth token as the username and git will

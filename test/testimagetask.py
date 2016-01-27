@@ -45,7 +45,7 @@ class GithubImageTask(object):
         msg = "Creating image {0} on {1}...\n".format(self.image, testinfra.HOSTNAME)
         sys.stderr.write(msg)
 
-        cmd = [ "./vm-create", "--upload", "--verbose", self.image ]
+        cmd = [ "ln", "-sf", "test-test-test", "images/" + self.image ]
 
         proc = subprocess.Popen(cmd)
         ret = testinfra.wait_testing(proc, lambda: self.check_publishing(github))

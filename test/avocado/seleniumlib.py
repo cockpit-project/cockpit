@@ -81,6 +81,7 @@ class SeleniumTest(Test):
             screenshot_file = ""
             try:
                 # use time.clock() to ensure that snapshot files are unique and ordered
+                # sample name is like: screenshot-teardown-172434.png
                 screenshot_file = "screenshot-teardown-%s.png" % str(time.clock())[2:]
 
                 self.driver.save_screenshot(screenshot_file)
@@ -166,6 +167,8 @@ parameters:
                 pass
         if returned is None:
             if fatal:
+                # sample screenshot name is: screenshot-test20Login.png
+                # it stores super caller method to name via inspection code stack
                 screenshot_file = "screenshot-%s.png" % str(inspect.stack()[2][3])
                 additional_text = ""
                 try:

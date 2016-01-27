@@ -16,14 +16,14 @@ class BasicTestSuite(SeleniumTest):
     :avocado: enable
     """
     def test10Base(self):
-        out = process.run("Xhostname", shell=True)
+        out = process.run("hostname", shell=True)
         server_element = self.wait_id('server-name')
         self.assertTrue(str(out.stdout)[:-1] in str(server_element.text))
         self.error=False
 
     def test20Login(self):
         self.login()
-        self.wait_id("Xsidebar")
+        self.wait_id("sidebar")
         user_element = self.wait_id("content-user-name")
         self.assertEqual(user_element.text, user)
         self.logout()

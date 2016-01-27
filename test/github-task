@@ -211,7 +211,7 @@ def main():
             cmd.append("--verbose")
 
     elif prefix == "avocado":
-        cmd = [ "./avocado/run-tests", "--install", "--quick", "--tests" ]
+        cmd = [ "./avocado/run-tests", "--logs", "--install", "--quick", "--tests" ]
         if opts.verbose:
             cmd.append("--verbose")
 
@@ -219,7 +219,7 @@ def main():
         os.environ["TEST_OS"] = "fedora-23"
         if value not in ['firefox', 'chrome']:
             ret = "Unknown browser for selenium test"
-        cmd = [ "./avocado/run-tests", "--install", "--quick", "--selenium-tests", "--browser", value]
+        cmd = [ "./avocado/run-tests", "--logs", "--install", "--quick", "--selenium-tests", "--browser", value]
         if opts.verbose:
             cmd.append("--verbose")
 

@@ -47,6 +47,10 @@ if not arg_attachments_dir:
     arg_attachments_dir = os.getcwd()
 if not os.path.exists(arg_attachments_dir):
     os.makedirs(arg_attachments_dir)
+avocado_attachments_dir = os.path.join(arg_attachments_dir,"avocado-logs")
+if not os.path.exists(avocado_attachments_dir):
+    os.makedirs(avocado_attachments_dir)
+
 
 def prepare_avocado_tests(machine):
     """ Upload all avocado related files and create the results directory
@@ -106,7 +110,7 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
                         command="cat " + os.path.join(avocado_results_dir, "latest/results.json"),
                         quiet=True
                     )
-                machine.execute("cp -v *.png %s/ 2>/dev/null || true" % avocado_results_dir)
+                machine.execute("cp -v *.png %s/ 2>/dev/null || true" % os.join.path(avocado_results_dir,"latest"))
                 failed_tests = json.loads(failed_tests_info)
                 for t in failed_tests['tests']:
                     test_status = t['status']
@@ -130,6 +134,7 @@ def copy_avocado_logs(machine, title):
         if "exists" not in machine.execute(command=test_command,quiet=True):
             return
         machine.download_dir(avocado_results_dir, dir)
+        machine.download_dir(os.join.path(avocado_results_dir,"latest"), avocado_attachments_dir)
         if os.path.exists(dir):
             # avocado creates a "latest" symlink, we can delete that here
             shutil.rmtree(path=os.path.join(dir, "latest"), ignore_errors=True)

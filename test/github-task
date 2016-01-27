@@ -18,137 +18,14 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import fnmatch
 import os
 import subprocess
 import sys
-import time
-import traceback
 
 sys.dont_write_bytecode = True
 
 import testinfra
-
-def start_publishing(github, host, name, revision, context):
-    identifier = name + "-" + revision[0:8] + "-" + context.replace("/", "-")
-    description = "{0} [{1}]".format(testinfra.TESTING, testinfra.HOSTNAME)
-    status = {
-        "github": {
-            "resource": github.qualify("statuses/" + revision),
-            "status": {
-                "state": "pending",
-                "context": context,
-                "description": description,
-            }
-        },
-        "revision": revision,
-        "link": "log.html",
-        "extras": [ "https://raw.githubusercontent.com/cockpit-project/cockpit/" +
-            revision + "/test/files/log.html" ]
-    }
-
-    (prefix, unused, image) = context.partition("/")
-    if name == "master" and prefix == "verify":
-        status['irc'] = { }    # Only send to IRC when master
-        status['badge'] = {
-            'name': image,
-            'description': image,
-            'status': 'running'
-        }
-
-    # For other scripts to use
-    os.environ["TEST_DESCRIPTION"] = description
-    return testinfra.Sink(host, identifier, status)
-
-def check_publishing(sink, github):
-    data = sink.status.get("github", None)
-    if not data:
-        return True
-    expected = data["status"]["description"]
-    context = data["status"]["context"]
-    statuses = github.statuses(sink.status["revision"])
-    status = statuses.get(context, None)
-    current = status.get("description", None)
-    if current and current != expected:
-        sink.status.pop("github", None)
-        sink.status.pop("badge", None)
-        sink.status.pop("irc", None)
-        sys.stderr.write("Verify collision: {0}\n".format(current))
-        return False
-    return True
-
-def rebase(sink):
-    try:
-        sys.stderr.write("Rebasing onto origin/master ...\n")
-        subprocess.check_call([ "git", "fetch", "origin", "master" ])
-        if sink:
-            master = subprocess.check_output([ "git", "rev-parse", "origin/master" ]).strip()
-            sink.status["master"] = master
-        subprocess.check_call([ "git", "rebase", "origin/master" ])
-        return None
-    except:
-        subprocess.call([ "git", "rebase", "--abort" ])
-        traceback.print_exc()
-        return "Rebase failed"
-
-def stop_publishing(sink, ret):
-    def mark_failed():
-        if "github" in sink.status:
-            sink.status["github"]["status"]["state"] = "failure"
-        if 'badge' in sink.status:
-            sink.status['badge']['status'] = "failed"
-        if "irc" in sink.status: # Never send success messages to IRC
-            sink.status["irc"]["channel"] = "#cockpit"
-    def mark_passed():
-        if "github" in sink.status:
-            sink.status["github"]["status"]["state"] = "success"
-        if 'badge' in sink.status:
-            sink.status['badge']['status'] = "passed"
-    if isinstance(ret, basestring):
-        message = ret
-        mark_failed()
-    elif ret == 0:
-        message = "Tests passed"
-        mark_passed()
-    else:
-        message = "{0} tests failed".format(ret)
-        mark_failed()
-    sink.status["message"] = message
-    if "github" in sink.status:
-        sink.status["github"]["status"]["description"] = message
-    del sink.status["extras"]
-    sink.flush()
-
-def eintr_retry_call(func, *args):
-    while True:
-        try:
-            return func(*args)
-        except (OSError, IOError) as e:
-            if e.errno == errno.EINTR:
-                continue
-            raise
-
-# The goal here is that after 60 seconds we call check_publishing
-def wait_testing(proc, sink, github):
-    count = 0
-    flags = os.WNOHANG
-    while True:
-        pid, status = eintr_retry_call(os.waitpid, proc.pid, flags)
-        if count < 60:
-            time.sleep(1)
-            count += 1
-        elif count == 60:
-            if sink and not check_publishing(sink, github):
-                try:
-                    proc.terminate()
-                except OSError:
-                    pass
-            flags = 0
-        if pid == proc.pid:
-            if os.WIFSIGNALED(status):
-                return os.WTERMSIG(status)
-            else:
-                return os.WEXITSTATUS(status)
+import testpulltask
 
 def main():
     parser = argparse.ArgumentParser(description='Perform next testing task from Github')
@@ -174,72 +51,16 @@ def main():
         name = "test"
         revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
         context = opts.context or "verify/" + testinfra.DEFAULT_IMAGE
+        task = testpulltask.GithubPullTask("test", revision, None, context)
     else:
         sys.stderr.write("Talking to GitHub ...\n")
-        for (pri, name, revision, ref, context) in github.scan(opts.publish, opts.context, opts.except_context):
-            subprocess.check_call([ "git", "fetch", "origin", ref ])
-            subprocess.check_call([ "git", "checkout", revision ])
-            break
+        tasks = github.scan(opts.publish, opts.context, opts.except_context)
+        if len(tasks) > 0:
+            task = tasks[0][1]
         else: # Nothing to test
             return 1
 
-    # Split a value like verify/fedora-23
-    (prefix, unused, value) = context.partition("/")
-
-    os.environ["TEST_NAME"] = name
-    os.environ["TEST_REVISION"] = revision
-
-    if prefix == 'image':
-        os.environ["TEST_OS"] = 'fedora-23'
-    else:
-        os.environ["TEST_OS"] = value
-
-    sink = None
-    if opts.publish:
-        sink = start_publishing(github, opts.publish, name, revision, context)
-        os.environ["TEST_ATTACHMENTS"] = sink.attachments
-
-    msg = "Testing {0} for {1} with {2} on {3}...\n".format(revision, name, context, testinfra.HOSTNAME)
-    sys.stderr.write(msg)
-
-    ret = None
-    # Figure out what to do next
-    if prefix == "verify":
-        cmd = [ "./check-verify", "--install", "--jobs", str(opts.jobs) ]
-
-        if opts.verbose:
-            cmd.append("--verbose")
-
-    elif prefix == "avocado":
-        cmd = [ "./avocado/run-tests", "--install", "--quick", "--tests" ]
-        if opts.verbose:
-            cmd.append("--verbose")
-
-    elif prefix == "selenium":
-        os.environ["TEST_OS"] = "fedora-23"
-        if value not in ['firefox', 'chrome']:
-            ret = "Unknown browser for selenium test"
-        cmd = [ "./avocado/run-tests", "--install", "--quick", "--selenium-tests", "--browser", value]
-        if opts.verbose:
-            cmd.append("--verbose")
-
-    elif prefix == "image":
-        cmd = [ "./containers/run-tests", "--install", "--container", value]
-        if opts.verbose:
-            cmd.append("--verbose")
-    else:
-        ret = "Unknown context"
-
-    ret = ret or rebase(sink)
-
-    # Actually run the tests
-    if not ret:
-        proc = subprocess.Popen(cmd)
-        ret = wait_testing(proc, sink, github)
-
-    # All done
-    if sink:
-        stop_publishing(sink, ret)
+    task.run(opts, github)
 
     return 0
 

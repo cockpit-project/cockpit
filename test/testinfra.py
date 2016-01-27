@@ -348,6 +348,9 @@ class GitHub(object):
         return [priority, update]
 
     def scan_for_pull_tasks(self, update, context, except_context=False):
+        # XXX
+        return [  ]
+
         # Figure out what contexts/images we need to verify
         #
         # When context is set and except_context is True we
@@ -427,6 +430,10 @@ class GitHub(object):
                                                              "pull/%d/head" % number, context)))
 
     def scan_for_image_tasks(self):
+
+        # XXX
+        return [ (10, GithubImageTask("refresh-fedora-23", "fedora-23")) ]
+
         issues = self.get("issues?labels=bot")
 
         results = [ ]

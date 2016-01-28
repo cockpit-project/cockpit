@@ -24,7 +24,7 @@ class GithubImageTask(object):
                       "data": {
                           "title": testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(self.image),
                           "labels": [ "bot" ],
-                          "body": "Image creation in process on %s\nLog: ${sink/link}" % (host),
+                          "body": "Image creation for %s in process on %s.\nLog: ${sink/link}" % (self.image, host),
                       },
                       "result": "issue"
                     }
@@ -32,7 +32,18 @@ class GithubImageTask(object):
             },
 
             "onaborted": {
-                # Do nothing for now
+                "github": {
+                    "token": github.token,
+                    "requests": [
+                        # Post comment about failure
+                        { "method": "POST",
+                          "resource": "${issue/url}/comments",
+                          "data": {
+                              "body": "Image creation aborted",
+                          }
+                        }
+                    ]
+                },
             }
         }
         self.sink = testinfra.Sink(host, identifier, status)
@@ -40,8 +51,36 @@ class GithubImageTask(object):
     def check_publishing(self, github):
         return True
 
-    def stop_publishing(self, ret, branch):
-        self.sink.status = { }
+    def stop_publishing(self, github, ret, branch):
+        if ret == 0:
+            message = "Image creation done"
+        else:
+            message = "Image creation failed"
+
+        requests = [
+            # Post comment
+            { "method": "POST",
+              "resource": "${issue/url}/comments",
+              "data": {
+                  "body": message
+              }
+            }
+        ]
+
+        if branch:
+            requests += [
+                # Turn issue into pull request
+                { "method": "POST",
+                  "resource": github.base + "pulls",
+                  "data": {
+                      "issue": "@issue/number@",
+                      "head": branch,
+                      "base": "master"
+                  }
+                }
+            ]
+
+        self.sink.status['github']['requests'] = requests
         self.sink.flush()
 
     def run(self, opts, github):
@@ -58,7 +97,8 @@ class GithubImageTask(object):
         msg = "Creating image {0} on {1}...\n".format(self.image, testinfra.HOSTNAME)
         sys.stderr.write(msg)
 
-        proc = subprocess.Popen([ "./vm-create", "--verbose", "--upload", self.image ])
+        # proc = subprocess.Popen([ "./vm-create", "--verbose", "--upload", self.image ])
+        proc = subprocess.Popen([ "ln", "-sf", "test.test.test", "images/" + self.image ])
         ret = testinfra.wait_testing(proc, lambda: self.check_publishing(github))
 
         # Github wants the OAuth token as the username and git will
@@ -92,4 +132,4 @@ class GithubImageTask(object):
                 ret = 1
 
         if self.sink:
-            self.stop_publishing(ret, user + ":" + branch)
+            self.stop_publishing(github, ret, user + ":" + branch)

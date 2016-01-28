@@ -102,20 +102,17 @@ echo "config_opts['package_manager'] = 'dnf'" >>/etc/mock/site-defaults.cfg
 srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
 su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
 
-# HACK: docker falls over regularly, print its log if it does
-systemctl start docker || journalctl -u docker
-
 # docker images that we need for integration testing
-docker pull busybox:latest
-docker pull busybox:buildroot-2014.02
-docker pull submod/helloapache:0.1.11
-docker pull gcr.io/google_containers/pause:0.8.0
+/var/lib/testvm/docker-images.setup
 
 # Setup basics for building images
 /var/lib/testvm/images.setup
 
+# reduce image size
+dnf clean all
+/var/lib/testvm/zero-disk.setup
+
 # Final tweaks
-rm -rf /var/log/journal/*
 echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
 printf "[Coredump]\nStorage=journal\n" > /etc/systemd/coredump.conf
 

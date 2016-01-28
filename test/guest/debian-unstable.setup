@@ -85,12 +85,12 @@ pbuilder --execute --save-after-exec debian-8.install-build-deps
 # Disable build-dep installation for the real builds
 echo PBUILDERSATISFYDEPENDSCMD=true >~/.pbuilderrc
 
-# Pull docker images that we need for integration testing
-systemctl start docker
-docker pull busybox:latest
-docker pull busybox:buildroot-2014.02
-docker pull submod/helloapache:0.1.11
-docker pull gcr.io/google_containers/pause:0.8.0
+# docker images that we need for integration testing
+/var/lib/testvm/docker-images.setup
+
+# reduce image size
+apt-get clean
+/var/lib/testvm/zero-disk.setup
 
 # Final tweaks
 

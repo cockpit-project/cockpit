@@ -17,12 +17,22 @@ class GithubImageTask(object):
         status = {
             "github": {
                 "token": github.token,
-                "resource": github.base,
-                "message": "Image creation in progress",
-                "issue": {
-                    "title": testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(self.image),
-                    "labels": [ "bot" ]
-                }
+                "requests": [
+                    # Create issue
+                    { "method": "POST",
+                      "resource": github.base + "issues",
+                      "data": {
+                          "title": testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(self.image),
+                          "labels": [ "bot" ],
+                          "body": "Image creation in process on %s\nLog: ${sink/link}" % (host),
+                      },
+                      "result": "issue"
+                    }
+                ]
+            },
+
+            "onaborted": {
+                # Do nothing for now
             }
         }
         self.sink = testinfra.Sink(host, identifier, status)
@@ -31,14 +41,7 @@ class GithubImageTask(object):
         return True
 
     def stop_publishing(self, ret, branch):
-        if ret == 0:
-            message = "Image creation done"
-            if branch:
-                self.sink.status['github']['pull'] = { 'head': branch,
-                                                       'base': "master" }
-        else:
-            message = "Image creation failed"
-        self.sink.status['github']['message'] = message
+        self.sink.status = { }
         self.sink.flush()
 
     def run(self, opts, github):

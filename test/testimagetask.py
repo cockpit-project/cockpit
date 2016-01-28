@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 
@@ -17,12 +18,33 @@ class GithubImageTask(object):
         status = {
             "github": {
                 "token": github.token,
-                "resource": github.base,
-                "message": "Image creation in progress",
-                "issue": {
-                    "title": testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(self.image),
-                    "labels": [ "bot" ]
-                }
+                "requests": [
+                    # Create issue
+                    { "method": "POST",
+                      "resource": github.base + "issues",
+                      "data": {
+                          "title": testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(self.image),
+                          "labels": [ "bot" ],
+                          "body": "Image creation for %s in process on %s.\nLog: ${sink/link}" % (self.image, host),
+                      },
+                      "result": "issue"
+                    }
+                ]
+            },
+
+            "onaborted": {
+                "github": {
+                    "token": github.token,
+                    "requests": [
+                        # Post comment about failure
+                        { "method": "POST",
+                          "resource": "${issue/url}/comments",
+                          "data": {
+                              "body": "Image creation aborted",
+                          }
+                        }
+                    ]
+                },
             }
         }
         self.sink = testinfra.Sink(host, identifier, status)
@@ -30,15 +52,36 @@ class GithubImageTask(object):
     def check_publishing(self, github):
         return True
 
-    def stop_publishing(self, ret, branch):
+    def stop_publishing(self, github, ret, branch):
         if ret == 0:
             message = "Image creation done"
-            if branch:
-                self.sink.status['github']['pull'] = { 'head': branch,
-                                                       'base': "master" }
         else:
             message = "Image creation failed"
-        self.sink.status['github']['message'] = message
+
+        requests = [
+            # Post comment
+            { "method": "POST",
+              "resource": "${issue/url}/comments",
+              "data": {
+                  "body": message
+              }
+            }
+        ]
+
+        if branch:
+            requests += [
+                # Turn issue into pull request
+                { "method": "POST",
+                  "resource": github.base + "pulls",
+                  "data": {
+                      "issue": "{issue/number}",
+                      "head": branch,
+                      "base": "master"
+                  }
+                }
+            ]
+
+        self.sink.status['github']['requests'] = requests
         self.sink.flush()
 
     def run(self, opts, github):
@@ -81,13 +124,15 @@ class GithubImageTask(object):
         branch = "refresh-" + self.image
         url = "https://{0}@github.com/{1}/cockpit.git".format(github.token, user)
 
+        # When image creation failed, remove the link and make a pull
+        # request anyway, for extra attention
+
         if ret == 0:
-            if (run_censored([ "git", "checkout", "--detach" ]) and
-                run_censored([ "git", "commit", "-a", "-m", "Refreshed {0} image".format(self.image) ]) and
-                run_censored([ "git", "push", url, "+HEAD:refs/heads/" + branch ])):
-                pass
-            else:
-                ret = 1
+            os.unlink("images/" + self.image)
+
+        have_branch = (run_censored([ "git", "checkout", "--detach" ]) and
+                       run_censored([ "git", "commit", "-a", "-m", "Refreshed {0} image".format(self.image) ]) and
+                       run_censored([ "git", "push", url, "+HEAD:refs/heads/" + branch ]))
 
         if self.sink:
-            self.stop_publishing(ret, user + ":" + branch)
+            self.stop_publishing(github, ret, user + ":" + branch if have_branch else None)

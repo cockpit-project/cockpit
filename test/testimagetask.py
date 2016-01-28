@@ -73,7 +73,7 @@ class GithubImageTask(object):
                 { "method": "POST",
                   "resource": github.base + "pulls",
                   "data": {
-                      "issue": "@issue/number@",
+                      "issue": "{issue/number}",
                       "head": branch,
                       "base": "master"
                   }

@@ -87,7 +87,7 @@ class MachineBuilder:
 
             try:
                 self.machine.execute(script="/var/tmp/SETUP", environment=env, quiet=not self.machine.verbose)
-                self.machine.execute(command="rm /var/tmp/SETUP")
+                self.machine.execute(command="rm -f /var/tmp/SETUP")
                 self.machine.execute(command="rm -rf /root/.rhel")
             except subprocess.CalledProcessError, ex:
                 if args.sit:
@@ -153,7 +153,7 @@ class MachineBuilder:
         partial = os.path.join(data_dir, self.machine.image + ".partial")
 
         # Copy image via convert, to make it sparse again
-        subprocess.check_call([ "qemu-img", "convert", "-O", "qcow2", self.machine.image_file, partial ])
+        subprocess.check_call([ "qemu-img", "convert", "-c", "-O", "qcow2", self.machine.image_file, partial ])
 
         # Hash the image here
         (sha, x1, x2) = subprocess.check_output([ "sha1sum", partial ]).partition(" ")

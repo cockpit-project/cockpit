@@ -10,8 +10,6 @@ iptables -F
 dnf -y --enablerepo=updates-testing update
 dnf -y --enablerepo=updates-testing install freeipa-server bind bind-dyndb-ldap
 
-dnf clean all
-
 hostnamectl set-hostname f0.cockpit.lan
 
 # Let's make sure that ipa-server-install doesn't block on
@@ -27,3 +25,7 @@ printf 'foobarfoo\nfoobarfoo\nfoobarfoo\n' | kinit admin@COCKPIT.LAN
 
 ln -sf ../selinux/config /etc/sysconfig/selinux
 echo 'SELINUX=permissive' > /etc/selinux/config
+
+# reduce image size
+dnf clean all
+/var/lib/testvm/zero-disk.setup

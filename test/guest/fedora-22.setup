@@ -85,16 +85,10 @@ useradd -c Builder -G mock builder
 srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
 su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
 
-dnf clean all
-
-# HACK: docker falls over regularly, print its log if it does
-systemctl start docker || journalctl -u docker
-
 # docker images that we need for integration testing
-docker pull busybox:latest
-docker pull busybox:buildroot-2014.02
-docker pull submod/helloapache:0.1.11
-docker pull gcr.io/google_containers/pause:0.8.0
+/var/lib/testvm/docker-images.setup
+
+dnf clean all
 
 # Final tweaks
 

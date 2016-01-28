@@ -134,4 +134,12 @@ wait images_has busybox
 echo "---------------------------------------------------------------"
 cat /root/.kube/config
 
+# Wait a bit in case an operator wants to copy some info
 sleep 20
+
+# docker images that we need for integration testing
+/var/lib/testvm/docker-images.setup
+
+# reduce image size
+dnf clean all
+/var/lib/testvm/zero-disk.setup

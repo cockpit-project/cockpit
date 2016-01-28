@@ -3,7 +3,7 @@
 
 # This file is part of Cockpit.
 #
-# Copyright (C) 2015 Red Hat, Inc.
+# Copyright (C) 2016 Red Hat, Inc.
 #
 # Cockpit is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published by
@@ -18,22 +18,10 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-# fully upgrade host first
-atomic host upgrade
+# HACK: docker falls over regularly, print its log if it does
+systemctl start docker || journalctl -u docker
 
-# Checkout current os branch
-# we'll use it every time we build a new tree
-ref=$(python -c 'import json; print json.load(open("/usr/share/rpm-ostree/treefile.json"))["ref"]')
-ostree checkout "$ref" /var/local-tree
-
-# docker images that we need for integration testing
-/var/lib/testvm/docker-images.setup
-
-# reduce image size
-/var/lib/testvm/zero-disk.setup
-
-# Final tweaks
-
-rm -rf /var/log/journal/*
-echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
-printf "[Coredump]\nStorage=journal\n" > /etc/systemd/coredump.conf
+docker pull busybox:latest
+docker pull busybox:buildroot-2014.02
+docker pull submod/helloapache:0.1.11
+docker pull gcr.io/google_containers/pause:0.8.0

@@ -312,6 +312,12 @@ class GitHub(object):
         elif state in [ "pending" ]:
             update = None
 
+        # Don't start working on "bot" pull requests automatically.
+        # The bot triggers them explicitly.
+        elif "bot" in labels:
+            priority = 0
+            update = None
+
         if priority > 0:
             if "priority" in labels:
                 priority += 2

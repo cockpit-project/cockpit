@@ -753,11 +753,11 @@
                 {{#SelectMany}}
                 <td class="top">{{Title}}</td>
                 <td>
-                  <ul class="list-group available-disks-group" data-field={{.}}>
+                  <ul class="list-group available-disks-group dialog-list" data-field={{.}}>
                     {{#Options}}
                     <li class="list-group-item">
                       <div class="checkbox" style="margin:0px">
-                        <label><input type="checkbox">{{Title}}</label>
+                        <label><input type="checkbox"><span>{{Title}}</span></label>
                       </div>
                     </li>
                     {{/Options}}

@@ -26,6 +26,7 @@ sys.dont_write_bytecode = True
 
 import testinfra
 import testpulltask
+import testimagetask
 
 def main():
     parser = argparse.ArgumentParser(description='Perform next testing task from Github')
@@ -37,6 +38,8 @@ def main():
                         help='Publish results centrally to a sink')
     parser.add_argument('--head', dest='head', action='store_true',
                         help='Instead of choosing from GitHub, perform the specified task on HEAD')
+    parser.add_argument('--refresh', action='store',
+                        help='Instead of choosing from GitHub, refresh the given image')
     parser.add_argument('--except', dest='except_context', action='store_true',
                         help='Choose tasks from any context except the one specified')
     parser.add_argument('context', action='store', nargs='?',
@@ -52,6 +55,13 @@ def main():
         revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
         context = opts.context or "verify/" + testinfra.DEFAULT_IMAGE
         task = testpulltask.GithubPullTask("test", revision, None, context)
+    elif opts.refresh:
+        image = opts.refresh
+        config = testinfra.DEFAULT_IMAGE_REFRESH.get(image, None)
+        if not config:
+            print "Unknown image:", image
+            return 1
+        task = testimagetask.GithubImageTask("refresh-" + image, image, config)
     else:
         sys.stderr.write("Talking to GitHub ...\n")
         task_entries = github.scan(opts.publish, opts.context, opts.except_context)

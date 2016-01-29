@@ -103,6 +103,7 @@ __all__ = (
     'GitHub',
     'DEFAULT_IMAGE',
     'DEFAULT_VERIFY',
+    'DEFAULT_IMAGE_REFRESH',
     'HOSTNAME',
     'TESTING',
     'NOT_TESTED',

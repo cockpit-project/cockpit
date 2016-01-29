@@ -186,8 +186,10 @@ class StorageCase(MachineCase):
             self.dialog_cancel()
         self.dialog_wait_close()
 
+    # HACK - sometimes we have to use "storagedctl" and sometimes "storagectl".
+
     def wait_in_storaged_configuration(self, mount_point):
-        wait(lambda: mount_point in self.machine.execute("storagedctl dump | grep Configuration"))
+        wait(lambda: mount_point in self.machine.execute("/usr/bin/storage*ctl dump | grep Configuration"))
 
     def wait_not_in_storaged_configuration(self, mount_point):
-        wait(lambda: mount_point not in self.machine.execute("storagedctl dump | grep Configuration"))
+        wait(lambda: mount_point not in self.machine.execute("/usr/bin/storage*ctl dump | grep Configuration"))

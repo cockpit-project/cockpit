@@ -34,6 +34,7 @@ import time
 import urlparse
 
 from testpulltask import GithubPullTask
+from testimagetask import GithubImageTask
 
 TOKEN = "~/.config/github-token"
 topdir = os.path.normpath(os.path.dirname(os.path.realpath(__file__)))
@@ -44,6 +45,8 @@ WHITELIST_LOCAL = "~/.config/github-whitelist"
 
 HOSTNAME = socket.gethostname().split(".")[0]
 DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-23")
+
+BASELINE_PRIORITY = 10
 
 DEFAULT_VERIFY = {
     'verify/fedora-22': [ 'master' ],
@@ -63,6 +66,35 @@ TESTING = "Testing in progress"
 NOT_TESTED = "Not yet tested"
 NO_TESTING = "Manual testing required"
 
+DEFAULT_IMAGE_REFRESH = {
+    'fedora-22': {
+        'triggers': [ "verify/fedora-22" ]
+    },
+    'fedora-23': {
+        'triggers': [
+            "verify/fedora-23",
+            "verify/fedora-atomic",  # builds in fedora-23
+            "avocado/fedora-23",
+            "selenium/firefox",
+            "selenium/chrome"
+        ]
+    },
+    'fedora-atomic': {
+        'triggers': [ "verify/fedora-atomic" ]
+    },
+    'debian-unstable': {
+        'triggers': [ "verify/debian-unstable" ]
+    },
+    'fedora-testing': {
+        'triggers': [ "verify/fedora-testing" ]
+    }
+}
+
+ISSUE_TITLE_IMAGE_REFRESH = "Image refresh for {0}"
+
+# Days after which a image is refreshed
+IMAGE_REFRESH = 7
+
 # Days after which images expire if not in use
 IMAGE_EXPIRE = 14
 
@@ -71,6 +103,7 @@ __all__ = (
     'GitHub',
     'DEFAULT_IMAGE',
     'DEFAULT_VERIFY',
+    'DEFAULT_IMAGE_REFRESH',
     'HOSTNAME',
     'TESTING',
     'NOT_TESTED',
@@ -397,7 +430,7 @@ class GitHub(object):
 
             for context in contexts.keys():
                 status = statuses.get(context, None)
-                baseline = 10
+                baseline = BASELINE_PRIORITY
 
                 # Only create new status for those requested
                 if not status:
@@ -419,6 +452,23 @@ class GitHub(object):
 
         return results
 
+    def scan_for_image_tasks(self):
+        issues = self.get("issues?labels=bot")
+
+        results = [ ]
+        for image, config in DEFAULT_IMAGE_REFRESH.items():
+            found = False
+            for issue in issues:
+                if issue['title'] == ISSUE_TITLE_IMAGE_REFRESH.format(image):
+                    age = time.time() - time.mktime(time.strptime(issue['created_at'], "%Y-%m-%dT%H:%M:%SZ"))
+                    if age < IMAGE_REFRESH * 24 * 60 * 60:
+                        found = True
+            if not found:
+                results.append(GitHub.TaskEntry(BASELINE_PRIORITY, GithubImageTask("refresh-" + image, image,
+                                                                                   config)))
+
+        return results
+
     # Figure out what contexts/images we need to verify
     #
     # When context is set and except_context is True we
@@ -427,7 +477,8 @@ class GitHub(object):
     # context is the only one we scan tasks for.
 
     def scan(self, update, context, except_context=False):
-        task_entries = self.scan_for_pull_tasks(update, context, except_context)
+        task_entries = (self.scan_for_pull_tasks(update, context, except_context)
+                        + self.scan_for_image_tasks())
 
         # Only work on tasks that have a priority greater than zero
         def filter_entries(entry):

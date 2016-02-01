@@ -155,12 +155,28 @@ static void
 cockpit_auth_init (CockpitAuth *self)
 {
   gint fd;
+  gint read_bytes;
+  gint read_result;
 
   self->key = g_byte_array_new ();
   g_byte_array_set_size (self->key, 128);
   fd = g_open ("/dev/urandom", O_RDONLY, 0);
-  if (fd < 0 || read (fd, self->key->data, 128) != 128)
+  if (fd < 0)
     g_error ("couldn't read random key, startup aborted");
+  read_bytes = 0;
+  do
+    {
+      errno = 0;
+      read_result = read (fd, self->key->data + read_bytes, self->key->len - read_bytes);
+      if (read_result <= 0)
+        {
+          if (errno == EAGAIN || errno == EINTR)
+              continue;
+          g_error ("couldn't read random key, startup aborted");
+        }
+      read_bytes += read_result;
+    }
+  while (read_bytes < self->key->len);
   close (fd);
 
   self->authenticated = g_hash_table_new_full (g_str_hash, g_str_equal,

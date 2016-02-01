@@ -13,6 +13,7 @@ class GithubPullTask(object):
         self.context = context
 
         self.sink = None
+        self.github_status_data = None
 
     def description(self):
         return "{0} {1} {2}".format(self.name, self.context, self.revision)
@@ -20,19 +21,47 @@ class GithubPullTask(object):
     def start_publishing(self, host, github):
         identifier = self.name + "-" + self.revision[0:8] + "-" + self.context.replace("/", "-")
         description = "{0} [{1}]".format(testinfra.TESTING, testinfra.HOSTNAME)
+
+        self.github_status_data = {
+            "state": "pending",
+            "context": self.context,
+            "description": description,
+            "target_url": ":link"
+        }
+
         status = {
             "github": {
-                "resource": github.qualify("statuses/" + self.revision),
-                "status": {
-                    "state": "pending",
-                    "context": self.context,
-                    "description": description,
-                }
+                "token": github.token,
+                "requests": [
+                    # Set status to pending
+                    { "method": "POST",
+                      "resource": github.qualify("statuses/" + self.revision),
+                      "data": self.github_status_data
+                    }
+                ]
             },
             "revision": self.revision,
             "link": "log.html",
             "extras": [ "https://raw.githubusercontent.com/cockpit-project/cockpit/" +
-                self.revision + "/test/files/log.html" ]
+                        self.revision + "/test/files/log.html" ],
+
+            "onaborted": {
+                "github": {
+                    "token": github.token,
+                    "requests": [
+                        # Set status to error
+                        { "method": "POST",
+                          "resource": github.qualify("statuses/" + self.revision),
+                          "data": {
+                              "state": "error",
+                              "context": self.context,
+                              "description": "Aborted without status",
+                              "target_url": ":link"
+                          }
+                        }
+                    ]
+                },
+            }
         }
 
         (prefix, unused, image) = self.context.partition("/")
@@ -43,6 +72,11 @@ class GithubPullTask(object):
                 'description': image,
                 'status': 'running'
             }
+            status['onaborted']['badge'] = {
+                'name': image,
+                'description': image,
+                'status': 'error'
+            }
 
         # For other scripts to use
         os.environ["TEST_DESCRIPTION"] = description
@@ -52,11 +86,10 @@ class GithubPullTask(object):
         if not self.sink:
             return True
 
-        data = self.sink.status.get("github", None)
-        if not data:
+        if not self.github_status_data:
             return True
-        expected = data["status"]["description"]
-        context = data["status"]["context"]
+        expected = self.github_status_data["description"]
+        context = self.github_status_data["context"]
         statuses = github.statuses(self.sink.status["revision"])
         status = statuses.get(context, None)
         current = status.get("description", None)
@@ -86,14 +119,14 @@ class GithubPullTask(object):
         sink = self.sink
         def mark_failed():
             if "github" in sink.status:
-                sink.status["github"]["status"]["state"] = "failure"
+                self.github_status_data["state"] = "failure"
             if 'badge' in sink.status:
                 sink.status['badge']['status'] = "failed"
             if "irc" in sink.status: # Never send success messages to IRC
                 sink.status["irc"]["channel"] = "#cockpit"
         def mark_passed():
             if "github" in sink.status:
-                sink.status["github"]["status"]["state"] = "success"
+                self.github_status_data["state"] = "success"
             if 'badge' in sink.status:
                 sink.status['badge']['status'] = "passed"
         if isinstance(ret, basestring):
@@ -107,7 +140,7 @@ class GithubPullTask(object):
             mark_failed()
         sink.status["message"] = message
         if "github" in sink.status:
-            sink.status["github"]["status"]["description"] = message
+            self.github_status_data["description"] = message
         del sink.status["extras"]
         sink.flush()
 

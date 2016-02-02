@@ -635,7 +635,7 @@ define([
                     len > 2 && content[len - 1] === content[0])
                     content = content.substr(1, len - 2);
                 elt.innerHTML = cockpit.format(content, os_release) || default_title;
-                default_title = $(elt).text();
+                return $(elt).text();
             }
         }
 
@@ -717,7 +717,7 @@ define([
             setup_language(self.language_sel);
 
         if (self.brand_sel)
-            setup_brand(self.brand_sel, self.default_title);
+            self.default_title = setup_brand(self.brand_sel);
 
         if (self.about_sel)
             setup_about(self.about_sel);

@@ -29,7 +29,7 @@ Cockpit will use the openshift OAuth server to authenticate users. You need to p
 
 ```
 oc process -f deploy-examples/cockpit-openshift-template.json
-    -v COCKPIT_KUBE_URL=https://ip-or-domain,OPENSHIFT_MASTER=https://ip-or-domain:port | oc create -f -
+    -v COCKPIT_KUBE_URL=https://ip-or-domain,OPENSHIFT_OAUTH_PROVIDER_URL=https://ip-or-domain:port | oc create -f -
 ```
 
 This will create an OAuth Client and a cockpit-kube service replication controller and pod.

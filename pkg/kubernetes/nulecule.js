@@ -20,12 +20,18 @@
 /* Try to load docker and if it's not available
  * return an empty module instead of an error
  */
-require(['docker/docker'],
+
+var optional_pkgs = ['docker/docker', 'system/service'];
+require(optional_pkgs,
     function () {},
     function (err) {
-        require.undef("docker/docker");
-        define("docker/docker", [], function () {});
-        require(['docker/docker'], function () {});
+        var i;
+        for (i = 0; i < optional_pkgs.length; i++) {
+            var pkg = optional_pkgs[i];
+            require.undef(pkg);
+            define(pkg, [], function () {});
+        }
+        require(optional_pkgs, function () {});
     }
 );
 

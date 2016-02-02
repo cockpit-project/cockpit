@@ -119,7 +119,8 @@ class GithubImageTask(object):
         msg = "Creating image {0} on {1}...\n".format(self.image, testinfra.HOSTNAME)
         sys.stderr.write(msg)
 
-        proc = subprocess.Popen([ "./vm-create", "--verbose", "--upload", self.image ])
+        proc = subprocess.Popen([ "ln", "-sf", "TEST", "images/" + self.image ])
+        # proc = subprocess.Popen([ "./vm-create", "--verbose", "--upload", self.image ])
         ret = testinfra.wait_testing(proc, lambda: self.check_publishing(github))
 
         # Github wants the OAuth token as the username and git will
@@ -144,6 +145,8 @@ class GithubImageTask(object):
         branch = "refresh-" + self.image + "-" + time.strftime("%Y-%m-%d")
         url = "https://{0}@github.com/{1}/cockpit.git".format(github.token, user)
 
+        print "BRANCH", branch
+
         # When image creation fails, remove the link and make a pull
         # request anyway, for extra attention
 
@@ -156,4 +159,4 @@ class GithubImageTask(object):
                        run_censored([ "git", "push", url, "+HEAD:refs/heads/" + branch ]))
 
         if self.sink:
-            self.stop_publishing(github, ret, user + ":" + branch if have_branch else None)
+            self.stop_publishing(github, ret, (user + "::" + branch) if have_branch else None)

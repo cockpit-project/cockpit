@@ -33,7 +33,6 @@ define([
     cockpit.locale(po);
     var _ = cockpit.gettext;
 
-    var default_title = "Cockpit";
     var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
 
     var machines = machis.instance();
@@ -50,7 +49,7 @@ define([
         about_sel: "#about-version",
         account_sel: "#go-account",
         user_sel: "#content-user-name",
-        default_title: default_title
+        default_title: "Cockpit"
     });
 
     /* Restarts */
@@ -292,7 +291,7 @@ define([
             label += " - ";
         else
             label = "";
-        var suffix = default_title;
+        var suffix = index.default_title;
         if (machine && machine.label)
             suffix = machine.label;
         document.title = label + suffix;

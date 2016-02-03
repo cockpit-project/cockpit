@@ -453,7 +453,7 @@ class GitHub(object):
         return results
 
     def scan_for_image_tasks(self):
-        issues = self.get("issues?labels=bot")
+        issues = self.get("issues?labels=bot&filter=all&state=all")
 
         results = [ ]
         for image, config in DEFAULT_IMAGE_REFRESH.items():

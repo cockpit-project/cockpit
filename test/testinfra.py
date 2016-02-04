@@ -272,7 +272,10 @@ class GitHub(object):
             if not os.path.exists(path):
                 return None
             with open(path, 'r') as fp:
-                return json.load(fp)
+                try:
+                    return json.load(fp)
+                except ValueError:
+                    return None
         else:
             with open(path, 'w') as fp:
                 json.dump(response, fp)

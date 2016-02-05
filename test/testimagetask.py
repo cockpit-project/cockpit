@@ -53,16 +53,28 @@ class GithubImageTask(object):
         self.sink = testinfra.Sink(host, identifier, status)
 
     def check_publishing(self, github):
+        # If the most recently created issue for our image does not
+        # mention our host, we have been overtaken and should stop.
+
+        expected_title = testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(self.image)
+        expected_description = "Image creation for %s in process on %s." % (self.image, testinfra.HOSTNAME)
+
+        issues = github.get("issues?labels=bot&filter=all&state=all")
+        for issue in issues:
+            if issue['title'] == expected_title:
+                return issue['body'].startswith(expected_description)
         return True
 
     def stop_publishing(self, github, ret, branch):
-        if ret == 0:
-            message = "Image creation done."
+        if ret is None:
+            message = "Image creation stopped to avoid conflict."
         else:
-            message = "Image creation failed."
-
-        if not branch:
-            message += "\nBranch creation failed."
+            if ret == 0:
+                message = "Image creation done."
+            else:
+                message = "Image creation failed."
+            if not branch:
+                message += "\nBranch creation failed."
 
         requests = [
             # Post comment
@@ -119,8 +131,20 @@ class GithubImageTask(object):
         msg = "Creating image {0} on {1}...\n".format(self.image, testinfra.HOSTNAME)
         sys.stderr.write(msg)
 
+        def check():
+            if not self.check_publishing(github):
+                self.overtaken = True
+                return False
+            return True
+
         proc = subprocess.Popen([ "./vm-create", "--verbose", "--upload", self.image ])
-        ret = testinfra.wait_testing(proc, lambda: self.check_publishing(github))
+        self.overtaken = False
+        ret = testinfra.wait_testing(proc, check)
+
+        if self.overtaken:
+            if self.sink:
+                self.stop_publishing(github, None, None)
+            return
 
         # Github wants the OAuth token as the username and git will
         # happily echo that back out.  So we censor all output.

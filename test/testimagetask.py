@@ -53,6 +53,21 @@ class GithubImageTask(object):
         self.sink = testinfra.Sink(host, identifier, status)
 
     def check_publishing(self, github):
+        # If the most recently created issue for our image does not
+        # mention our host, we have been overtaken and should stop.
+
+        print "CHECKING"
+
+        expected_title = testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(self.image)
+        expected_description = "Image creation for %s in process on %s." % (self.image, testinfra.HOSTNAME)
+
+        issues = github.get("issues?labels=bot&filter=all&state=all")
+        for issue in issues:
+            if issue['title'] == expected_title:
+                print expected_description
+                print issue['body']
+                return False
+                return issue['body'].startswith(expected_description)
         return True
 
     def stop_publishing(self, github, ret, branch):

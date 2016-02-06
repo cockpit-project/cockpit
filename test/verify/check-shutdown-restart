@@ -1,0 +1,127 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+import re
+import ast
+
+class TestShutdownRestart(MachineCase):
+    def setUp(self):
+        # we need a static ip for this test
+        MachineCase.setUp(self, macaddr='52:54:00:9e:00:F3')
+        self.machine.execute("hostnamectl set-hostname machine1")
+        self.machine2 = self.new_machine()
+        self.machine2.start()
+        self.machine2.wait_boot()
+        self.machine2.execute("hostnamectl set-hostname machine2")
+
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        m2 = self.machine2
+        b2 = self.new_browser(m2.address)
+
+        # HACK -https://bugzilla.redhat.com/show_bug.cgi?id=1278287
+        m.execute("! selinuxenabled || setenforce 0")
+
+        self.login_and_go("/system")
+
+        # Reboot
+        m.reset_reboot_flag()
+        b.click("#shutdown-group button.btn-danger")
+        b.wait_popup("shutdown-dialog")
+        b.wait_in_text("#shutdown-action", 'Restart')
+        b.click("#shutdown-delay button")
+        b.click("a.opt span:contains('No Delay')")
+        b.click("#shutdown-action")
+        b.switch_to_top()
+
+        b.wait_visible(".curtains")
+        b.wait_in_text(".curtains h1", "Disconnected")
+
+        m.wait_reboot()
+        m.start_cockpit()
+        b.click("#machine-reconnect")
+        b.expect_load()
+        b.wait_visible("#login")
+
+        self.allow_restart_journal_messages()
+        self.allow_journal_messages("Shutdown scheduled for .*")
+        self.check_journal_messages()
+
+        m2.start_cockpit()
+        b2.login_and_go("/system")
+
+        # Add machine with static IP to m2
+        b2.switch_to_top()
+        b2.go("/@%s" % m.address)
+        b2.wait_visible("#machine-troubleshoot")
+        b2.click('#machine-troubleshoot')
+        b2.wait_popup('troubleshoot-dialog')
+        b2.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
+        b2.wait_text('#troubleshoot-dialog .btn-primary', "Add")
+        b2.click('#troubleshoot-dialog .btn-primary')
+        b2.wait_in_text('#troubleshoot-dialog', "Fingerprint")
+        b2.click('#troubleshoot-dialog .btn-primary')
+        b2.wait_popdown('troubleshoot-dialog')
+        b2.enter_page("/system", host=m.address)
+        b2.wait_text("#system_information_hostname_button", "machine1")
+
+        # Check auto reconnect on restart
+        m.reset_reboot_flag()
+        b2.click("#shutdown-group button.btn-danger")
+        b2.wait_popup("shutdown-dialog")
+        b2.wait_in_text("#shutdown-action", 'Restart')
+        b2.click("#shutdown-delay button")
+        b2.click("a.opt span:contains('No Delay')")
+        b2.click("#shutdown-action")
+        b2.switch_to_top()
+
+        b2.wait_visible(".curtains")
+        b2.wait_visible(".curtains .spinner")
+        b2.wait_in_text(".curtains h1", "restarting")
+
+        m.wait_reboot()
+
+        b2.wait_not_visible(".curtains")
+        b2.enter_page("/system", host=m.address, reconnect=False)
+
+        # Poweroff
+        self.login_and_go("/system")
+        b.enter_page("/system")
+        b.click("#shutdown-group span.caret")
+        b.click("#shutdown-group a:contains('Shutdown')")
+        b.wait_popup("shutdown-dialog")
+        b.wait_in_text("#shutdown-action", 'Shutdown')
+        b.click("#shutdown-delay button")
+        b.click("a.opt span:contains('No Delay')")
+        b.click("#shutdown-action")
+        b.switch_to_top()
+        # we don't need to wait for the dialog to close here, just the disconnect
+        b.wait_visible(".curtains")
+        b.wait_in_text(".curtains h1", "Disconnected")
+
+        m.wait_poweroff()
+
+if __name__ == '__main__':
+    test_main()

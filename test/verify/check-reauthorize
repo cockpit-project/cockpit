@@ -1,0 +1,131 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import subprocess
+import time
+
+import parent
+from testlib import *
+
+class TestReauthorize(MachineCase):
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/playground/test")
+
+        b.click(".cockpit-internal-reauthorize .btn")
+        b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
+
+        self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: authorized')
+
+        # Deauthorize
+        b.leave_page()
+        b.click("#navbar-dropdown")
+        b.click("#credentials-item")
+        b.click("#credential-authorize button")
+        b.wait_not_present("#credential-authorize button")
+        b.click("#credentials-dialog [data-dismiss]")
+
+        b.enter_page("/playground/test")
+
+        b.click(".cockpit-internal-reauthorize .btn")
+        b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
+
+        self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: access-denied')
+        self.allow_authorize_journal_messages()
+
+    def testSuper(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/playground/test")
+
+        b.click(".super-channel .btn")
+        b.wait_in_text(".super-channel span", 'result: ')
+
+        self.assertIn('result: uid=0', b.text(".super-channel span"))
+
+        # Deauthorize
+        b.leave_page()
+        b.click("#navbar-dropdown")
+        b.click("#credentials-item")
+        b.click("#credential-authorize button")
+        b.wait_not_present("#credential-authorize button")
+        b.click("#credentials-dialog [data-dismiss]")
+
+        b.enter_page("/playground/test")
+
+        b.click(".super-channel .btn")
+        b.wait_in_text(".super-channel span", 'result:')
+
+        self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
+        self.allow_authorize_journal_messages()
+
+    def testShadow(self):
+        m = self.machine
+        b = self.browser
+
+        # Delete pam_reauthorize.so from everything in /etc/pam.d/*
+        # This causes the code to be forced to use the shadow logic
+        m.execute("sed -i '/pam_reauthorize/d' /etc/pam.d/*")
+
+        self.login_and_go("/playground/test")
+
+        b.click(".cockpit-internal-reauthorize .btn")
+        b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
+
+        self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: authorized')
+
+    def testSudo(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("useradd user -c 'Barney' || true")
+        m.execute("echo user:foobar | chpasswd")
+
+
+        b.default_user = "user"
+        self.login_and_go("/playground/test")
+
+        b.click(".super-channel .btn")
+        b.wait_in_text(".super-channel span", 'result: ')
+
+        self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
+
+        m.execute("echo 'user ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/user-override")
+
+        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1196451
+        # RHEL used to require this
+        m.execute("sed -i /requiretty/d /etc/sudoers")
+
+        b.logout()
+
+        self.login_and_go("/playground/test")
+
+        b.click(".super-channel .btn")
+        b.wait_in_text(".super-channel span", 'result: ')
+
+        self.assertIn('result: uid=0', b.text(".super-channel span"))
+
+        self.allow_authorize_journal_messages()
+
+if __name__ == '__main__':
+    test_main()

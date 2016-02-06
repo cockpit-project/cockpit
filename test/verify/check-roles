@@ -1,0 +1,125 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+class TestRoles(MachineCase):
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -c 'User' || true")
+        m.execute("echo user:foobar | chpasswd")
+
+        m.start_cockpit()
+
+        def login(user, password):
+            b.set_val("#login-user-input", user)
+            b.set_val("#login-password-input", password)
+            b.click('#login-button')
+
+        # login
+        b.open("/system")
+        b.wait_visible("#login")
+        login("user", "foobar")
+        b.expect_load()
+        b.enter_page("/system")
+        b.switch_to_top()
+        b.wait_text('#content-user-name', 'User')
+
+        # HACK: Logging in as "user" will try to write to
+        # /var/lib/cockpit/, but this will fail.
+        # https://github.com/cockpit-project/cockpit/issues/1248
+        #
+        self.allow_journal_messages(".*Failed to create file '/var/lib/cockpit/.*': Permission denied")
+
+        # Check permissions for own account
+        b.click('#content-user-name')
+        b.click('#go-account')
+        b.enter_page("/users")
+
+        admin_role_sel = 'input[data-name="%s"]' % m.get_admin_group()
+
+        b.wait_text("#account-user-name", "user")
+        b.wait_present('#account-real-name-wrapper.disabled')
+        b.wait_present("#account-locked[disabled]")
+        b.wait_present("#account-set-password:not(.disabled)")
+        b.wait_present("#account-delete.disabled")
+        b.wait_present("#account-logout.disabled")
+        b.wait_present(admin_role_sel + "[disabled]")
+        b.wait_present(admin_role_sel + ":not(:checked)")
+
+        # Check permissions for admin account
+        b.go("#/admin")
+        b.wait_visible("#account")
+        b.wait_text("#account-user-name", "admin")
+        b.wait_present('#account-real-name-wrapper.disabled')
+        b.wait_present("#account-locked[disabled]")
+        b.wait_present("#account-set-password.disabled")
+        b.wait_present("#account-delete.disabled")
+        b.wait_present("#account-logout.disabled")
+        b.wait_present(admin_role_sel + "[disabled]")
+        b.wait_present(admin_role_sel + ":checked")
+
+        # Add admin role from the outside (and wait for it to stick)
+        b.go("#/user")
+        b.wait_visible("#account")
+        b.wait_text("#account-user-name", "user")
+
+        b.wait_present(admin_role_sel + ":not(:checked)")
+        m.execute("usermod -a -G %s user" % m.get_admin_group())
+        b.wait_present(admin_role_sel + ":checked")
+
+        b.relogin("/users", "user")
+        b.wait_text("#account-user-name", "user")
+
+        # Check permissions for admin again
+        b.go("#/admin")
+        b.wait_visible("#account")
+        b.wait_text("#account-user-name", "admin")
+        b.wait_present("#account-real-name-wrapper:not(.disabled)")
+        b.wait_present("#account-locked:not([disabled])")
+        b.wait_present("#account-set-password:not(.disabled)")
+        b.wait_present("#account-delete:not(.disabled)")
+        b.wait_present("#account-logout:not(.disabled)")
+        b.wait_present(admin_role_sel + ":not([disabled])")
+        b.wait_present(admin_role_sel + ":checked")
+
+        self.allow_restart_journal_messages()
+        self.allow_authorize_journal_messages()
+
+    def testDynamic(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("getent group docker >/dev/null || groupadd docker")
+
+        self.login_and_go("/users")
+        b.go("#/admin")
+
+        b.wait_in_text("#account-change-roles-roles", "Container Administrator")
+
+        m.execute("groupdel docker")
+        b.wait_not_in_text("#account-change-roles-roles", "Container Administrator")
+
+if __name__ == '__main__':
+    test_main()

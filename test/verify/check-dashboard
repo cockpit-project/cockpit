@@ -1,0 +1,356 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import json
+import parent
+from testlib import *
+
+class TestDashboard(MachineCase):
+    def inject_extras(self, b):
+        b.eval_js("""
+        dashboard_addresses = function () {
+          var addresses = $('#dashboard-hosts .list-group-item').map(function(i,e) { return $(e).data("address"); }).get();
+          return addresses;
+        }
+        """)
+
+    def check_discovered_addresses(self, b, addresses):
+        b.click('#dashboard-add')
+        b.wait_popup('dashboard_setup_server_dialog')
+        self.wait_discovered_addresses (b, addresses)
+        b.click('#dashboard_setup_server_dialog .btn-default')
+        b.wait_popdown('dashboard_setup_server_dialog')
+
+    def wait_discovered_addresses(self, b, expected):
+        b.wait_js_func(
+            """(function (expected) {
+                var actual = $('#dashboard_setup_server_dialog datalist option').map(function(i,e) { return $(e).val() }).get();
+                return expected.sort().toString() == actual.sort().toString();
+                })""", expected)
+
+    def wait_dashboard_addresses(self, b, expected):
+        b.wait_js_func(
+            """(function (expected) {
+            return expected.sort().toString() == dashboard_addresses().sort().toString();
+            })""", expected)
+
+    def machine_remove(self, b, address):
+        b.click("#dashboard-enable-edit")
+        b.click("#dashboard-hosts a[data-address='%s'] button.pficon-delete" % address)
+
+    def add_machine(self, b, address, known_host=False):
+        b.click('#dashboard-add')
+        b.wait_popup('dashboard_setup_server_dialog')
+        b.set_val('#add-machine-address', address)
+        self.add_machine_finish(b, known_host=known_host)
+
+    def add_machine_finish(self, b, known_host=False):
+        b.wait_text('#dashboard_setup_server_dialog .btn-primary', "Add")
+        b.wait_present("#dashboard_setup_server_dialog .btn-primary:not([disabled])")
+        b.click('#dashboard_setup_server_dialog .btn-primary')
+        if not known_host:
+            b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
+            b.click('#dashboard_setup_server_dialog .btn-primary')
+        b.wait_popdown('dashboard_setup_server_dialog')
+
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        m2 = self.new_machine()
+        m2.start()
+        m2.wait_boot()
+
+        m3 = self.new_machine()
+        m3.start()
+        m3.wait_boot()
+
+        self.login_and_go("/dashboard")
+        self.inject_extras(b)
+
+        self.wait_dashboard_addresses (b, [ "localhost" ])
+
+        # Start second browser and check that it is in sync
+        b2 = self.new_browser()
+        b2.default_user = "root"
+        b2.login_and_go("/dashboard")
+        self.inject_extras(b2)
+        self.wait_dashboard_addresses (b2, [ "localhost" ])
+        b.wait_present("#dashboard-hosts a[data-address='localhost'] button.pficon-delete.disabled")
+
+        self.add_machine (b, m2.address)
+        self.wait_dashboard_addresses (b, [ "localhost", m2.address ])
+        self.wait_dashboard_addresses (b2, [ "localhost", m2.address ])
+
+        self.add_machine (b, m3.address)
+        self.wait_dashboard_addresses (b, [ "localhost", m3.address, m2.address ])
+        self.wait_dashboard_addresses (b2, [ "localhost", m3.address, m2.address ])
+
+        # Remove two
+        self.machine_remove (b, m2.address)
+        self.wait_dashboard_addresses (b, [ "localhost", m3.address ])
+        self.wait_dashboard_addresses (b2, [ "localhost", m3.address ])
+
+        self.machine_remove (b, m3.address)
+        self.wait_dashboard_addresses (b, [ "localhost" ])
+        self.wait_dashboard_addresses (b2, [ "localhost" ])
+
+        # Check that the two removed machines are listed in "Add Host"
+        # on both browsers
+        self.check_discovered_addresses (b, [ m2.address, m3.address ])
+        self.check_discovered_addresses (b2, [ m2.address, m3.address ])
+
+        # Add one back, check addresses on both browsers
+        self.add_machine (b, m2.address, True)
+        self.wait_dashboard_addresses (b, [ "localhost", m2.address ])
+        self.wait_dashboard_addresses (b2, [ "localhost", m2.address ])
+        self.check_discovered_addresses (b, [ m3.address ])
+        self.check_discovered_addresses (b2, [ m3.address ])
+
+        # And the second one, check addresses on both browsers
+        self.add_machine (b, m3.address, True)
+        self.wait_dashboard_addresses (b, [ "localhost", m2.address, m3.address ])
+        self.wait_dashboard_addresses (b2, [ "localhost", m2.address, m3.address ])
+        self.check_discovered_addresses (b, [  ])
+        self.check_discovered_addresses (b2, [  ])
+
+        # Test change user, not doing in edit to reuse machines
+
+        # Navigate to load iframe
+        b.click("#dashboard-hosts .list-group-item[data-address='{0}']".format(m3.address))
+        b.enter_page("/system", m3.address);
+        b.switch_to_top()
+        b.go("/dashboard")
+        b.enter_page("/dashboard")
+        b.switch_to_top()
+        b.wait_present("iframe.container-frame[name='cockpit1:{0}/system']".format(m3.address))
+        b.enter_page("/dashboard")
+
+        b.click('#dashboard-enable-edit')
+        b.wait_visible("#dashboard-hosts .list-group-item[data-address='{0}'] button.pficon-edit".format(m3.address))
+
+        b.click("#dashboard-hosts .list-group-item[data-address='{0}'] button.pficon-edit".format(m3.address))
+
+        b.wait_popup('host-edit-dialog')
+        b.wait_visible('#host-edit-user')
+        b.set_val('#host-edit-user', 'bad-user')
+
+        b.click('#host-edit-apply')
+        b.wait_popdown('host-edit-dialog')
+        b.wait_not_present("iframe.container-frame[name='cockpit1:{0}/system']".format(m3.address))
+        b.wait_present("#dashboard-hosts .failed[data-address='{0}']".format(m3.address))
+
+        b.click('#dashboard-enable-edit')
+        b.wait_visible("#dashboard-hosts .list-group-item[data-address='{0}'] button.pficon-edit".format(m3.address))
+        b.click("#dashboard-hosts .list-group-item[data-address='{0}'] button.pficon-edit".format(m3.address))
+        b.wait_popup('host-edit-dialog')
+        b.wait_visible('#host-edit-user')
+        b.set_val('#host-edit-user', '')
+        b.click('#host-edit-apply')
+        b.wait_popdown('host-edit-dialog')
+        b.wait_present("#dashboard-hosts .connected[data-address='{0}']".format(m3.address))
+
+        # Test switching
+        b.leave_page()
+        b.wait_js_cond('$("#machine-dropdown ul li").length == 3')
+        b.click("#machine-link")
+        b.click("#machine-dropdown ul a[data-address='localhost']")
+        b.wait_js_cond('window.location.pathname == "/system"')
+        b.click("#machine-link")
+        b.click("#machine-dropdown ul a[data-address='%s']" % m2.address)
+        b.wait_js_cond('window.location.pathname.indexOf("/@%s") === 0' % m2.address)
+        b.click("#machine-link")
+        b.click("#machine-dropdown ul a[data-address='%s']" % m3.address)
+        b.wait_js_cond('window.location.pathname.indexOf("/@%s") === 0' % m3.address)
+
+        self.allow_hostkey_messages()
+        self.allow_journal_messages(".*server offered unsupported authentication methods: password public-key.*")
+
+    def testEdit(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/dashboard")
+        self.inject_extras(b)
+        self.wait_dashboard_addresses (b, [ "localhost" ])
+        old_style = b.attr("#dashboard-hosts .list-group-item[data-address='localhost']", "style")
+
+        b.wait_not_visible('#dashboard-hosts a:first-child button.pficon-edit')
+        b.click('#dashboard-enable-edit')
+        b.wait_visible('#dashboard-hosts a:first-child button.pficon-edit')
+
+        b.click('#dashboard-hosts a:first-child button.pficon-edit')
+        b.wait_not_visible('#dashboard-hosts a:first-child button.pficon-edit')
+
+        b.wait_popup('host-edit-dialog')
+        b.set_val('#host-edit-name', "Horst")
+        b.click('#host-edit-color')
+        b.wait_visible('#host-edit-color-popover')
+        b.wait_visible('#host-edit-user[disabled]')
+        b.click('#host-edit-color-popover div.popover-content > div:first-child > div:nth-child(3)')
+        b.wait_not_visible('#host-edit-color-popover')
+        b.click('#host-edit-apply')
+        b.wait_popdown('host-edit-dialog')
+
+        b.wait_in_text('#dashboard-hosts a:first-child span.host-label', "Horst")
+        b.wait_not_attr("#dashboard-hosts .list-group-item[data-address='localhost']", "style", old_style)
+        self.assertEqual(m.execute("hostnamectl --pretty"), "Horst\n")
+
+    def testSetup(self):
+        b = self.browser
+
+        m1 = self.machine
+        m2 = self.new_machine()
+        m2.start()
+        m2.wait_boot()
+
+        # lockout admin
+        m2.execute("echo admin:badpass | chpasswd")
+
+        # Create some users on m1 and m2.
+        m1.execute("getent group docker >/dev/null || groupadd docker")
+        m2.execute("getent group docker >/dev/null || groupadd docker")
+
+        m1.execute("useradd junior -G docker")
+        m1.execute("echo junior:foobar | chpasswd")
+        m1.execute("useradd nosync -G docker")
+        m1.execute("echo nosync:foobar | chpasswd")
+
+        m1.execute("useradd senior -G %s" % m1.get_admin_group())
+        m1.execute("echo senior:foobar | chpasswd")
+        m2.execute("useradd senior")
+        m2.execute("echo senior:barfoo | chpasswd")
+
+        # Sync them via Setup.
+
+        self.login_and_go("/dashboard")
+        self.inject_extras(b)
+
+        self.wait_dashboard_addresses (b, [ "localhost" ])
+        b.click('#dashboard-add')
+        b.wait_popup('dashboard_setup_server_dialog')
+        b.set_val('#add-machine-address', m2.address)
+        b.wait_text('#dashboard_setup_server_dialog .btn-primary', "Add")
+        b.wait_present("#dashboard_setup_server_dialog .btn-primary:not([disabled])")
+        b.click('#dashboard_setup_server_dialog .btn-primary')
+        b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
+        b.click('#dashboard_setup_server_dialog .btn-primary')
+        b.wait_in_text('#dashboard_setup_server_dialog .modal-title', "Log in to".format(m2.address))
+        b.wait_present("#do-sync-users")
+        b.click("#do-sync-users")
+
+        b.wait_text('#dashboard_setup_server_dialog .btn-primary', "Synchronize")
+        b.wait_present("#sync-users")
+        b.wait_in_text("#sync-users", "admin")
+        b.wait_present("#sync-username")
+
+        b.click('#sync-users input[name="admin"]')
+        b.click('#sync-users input[name="junior"]')
+        b.click('#sync-users input[name="senior"]')
+
+        b.set_val('#sync-username', "root")
+        b.set_val('#sync-password', "notthepassword")
+        b.click('#dashboard_setup_server_dialog .btn-primary')
+        b.wait_present("#dashboard_setup_server_dialog .btn-primary:not([disabled])")
+        b.wait_text('#dashboard_setup_server_dialog .dialog-error', "Login failed")
+        b.set_val('#sync-password', "foobar")
+
+        b.click('#dashboard_setup_server_dialog .btn-primary')
+        b.wait_popdown('dashboard_setup_server_dialog')
+
+        # Check the result
+        def password_hash(machine, user):
+            return machine.execute("getent shadow %s | cut -d: -f2" % user)
+
+        def groups(machine, user):
+            return machine.execute("groups %s | cut -d: -f2" % user)
+
+        self.assertEqual(password_hash(m1, "junior"),
+                         password_hash(m2, "junior"))
+
+        self.assertEqual(password_hash(m1, "senior"),
+                         password_hash(m2, "senior"))
+
+        self.assertEqual(password_hash(m1, "admin"),
+                         password_hash(m2, "admin"))
+
+        self.assertIn ("docker", groups(m2, "junior"))
+        self.assertIn (m2.get_admin_group(), groups(m2, "senior"))
+
+        try:
+            m2.execute("id nosync")
+            self.assertFalse("User nosync should not have been synced")
+        except:
+            pass
+
+        m2.execute("ps aux | grep cockpit-bridge | grep admin")
+        self.allow_hostkey_messages()
+
+
+    def testLimits(self):
+        b = self.browser
+        m = self.machine
+
+        def fake_machines(amount):
+            # build a machine json manually
+            d = {
+                "localhost" : {"visible":True,"address":"localhost"}
+            }
+
+            for i in range(amount):
+                n = "bad{0}".format(i)
+                d[n] = {"visible":True,"address":n}
+
+            m.execute("echo '{0}' > /var/lib/cockpit/machines.json".format(json.dumps(d)))
+            return d.keys()
+
+        def check_limit(limit):
+            b.click('#dashboard-add')
+            b.wait_popup('dashboard_setup_server_dialog')
+            if limit:
+                b.wait_visible("#dashboard_setup_server_dialog .dashboard-machine-warning")
+                b.wait_in_text("#dashboard_setup_server_dialog .dashboard-machine-warning",
+                               "{0} machines".format(limit))
+            else:
+                b.wait_not_present("#dashboard_setup_server_dialog .dashboard-machine-warning")
+
+            b.click("#dashboard_setup_server_dialog .btn-default")
+
+        self.login_and_go("/dashboard")
+        self.inject_extras(b)
+
+        self.wait_dashboard_addresses (b, [ "localhost" ])
+        check_limit(0)
+
+        self.wait_dashboard_addresses (b, fake_machines(3))
+        if 'rhel' in m.image:
+            check_limit(5)
+        else:
+            check_limit(0)
+
+        self.wait_dashboard_addresses (b, fake_machines(14))
+        if 'rhel' in m.image:
+            check_limit(5)
+        else:
+            check_limit(20)
+        self.allow_journal_messages(".*couldn't connect: Failed to resolve hostname bad.*")
+
+if __name__ == '__main__':
+    test_main()

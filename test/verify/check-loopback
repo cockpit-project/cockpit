@@ -1,0 +1,62 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+import time
+import os
+import unittest
+
+@unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "unnecessary on atomic, container is started this way")
+class TestLoopback(MachineCase):
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        if "debian" in m.image:
+            cockpit_ws = "/usr/lib/cockpit/cockpit-ws"
+        else:
+            cockpit_ws = "/usr/libexec/cockpit-ws"
+
+        m.spawn(cockpit_ws + " --local-ssh --no-tls", "cockpit-ws");
+        b.login_and_go("/system", user="admin")
+
+        m.execute("sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config")
+
+        # When ssd is not socket activated, we need to restart it so
+        # that it reloads its configuration.  When it _is_ socket
+        # activated, we must avoid starting the service, since that
+        # would fail and break ssh connectivity from that point on.
+        #
+        m.execute("! systemctl --quiet is-enabled sshd || systemctl restart sshd")
+
+        b.logout()
+        b.wait_visible("#login")
+        b.set_val('#login-user-input', "admin")
+        b.set_val('#login-password-input', "foobar")
+        b.click('#login-button')
+        b.wait_visible('#login-fatal')
+        self.assertIn("The server refused to authenticate 'admin' using password authentication, and no other supported authentication methods are available.", b.text('#login-fatal'));
+
+        self.allow_journal_messages("cockpit-polkit: couldn't respond to polkit daemon: GDBus\\.Error:org\\.freedesktop\\.PolicyKit1\\.Error\\.Failed: No session for cookie",
+                                    ".*server offered unsupported authentication methods: public-key.*")
+
+if __name__ == '__main__':
+    test_main()

@@ -1,0 +1,176 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+class TestServices(MachineCase):
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        m.write("/etc/systemd/system/test.service",
+"""
+[Unit]
+Description=Test Service
+
+[Service]
+ExecStart=/bin/sh /usr/local/bin/test-service
+
+[Install]
+WantedBy=default.target
+""")
+        m.write("/usr/local/bin/test-service",
+"""
+#! /bin/sh
+
+trap "echo STOP" 0
+
+echo START
+while true; do
+  sleep 5
+  echo WORKING
+done
+""")
+        m.write("/etc/systemd/system/test-fail.service",
+"""
+[Unit]
+Description=Failing Test Service
+
+[Service]
+ExecStart=/usr/bin/false
+""")
+        m.write("/etc/systemd/system/test-template@.service",
+"""
+[Unit]
+Description=Test Template for %I
+
+[Service]
+ExecStart=/usr/local/bin/test-service %I
+""")
+
+        self.login_and_go("/system/services")
+
+        def svc_sel(service):
+            return 'tr[data-goto-unit="%s"]' % service
+
+        def wait_service_state(service, state):
+            b.wait_present(svc_sel(service));
+            b.wait_in_text(svc_sel(service), state)
+
+        def wait_service_in_panel(service, title):
+            b.wait_in_text(".panel:contains('%s') .panel-heading" % service, title)
+
+        b.wait_in_text("#services", "test.service")
+        wait_service_in_panel("test.service", "Disabled")
+
+        m.execute("systemctl start test.service")
+        wait_service_state("test.service", "running")
+        m.execute("systemctl stop test.service")
+        wait_service_in_panel("test.service", "Disabled")
+        m.execute("systemctl enable test.service")
+        wait_service_state("test.service", "inactive")
+
+        unit_action_btn = '#service-valid .list-group-item:nth-child(1) .btn-group'
+        file_action_btn = '#service-valid .list-group-item:nth-child(2) .btn-group'
+
+        b.click(svc_sel("test.service"))
+        b.wait_visible('#service-valid')
+        b.wait_in_text('#service-valid', "inactive")
+        b.wait_action_btn(unit_action_btn, "Start")
+        b.click_action_btn(unit_action_btn)
+        b.wait_in_text('#service-valid', "active")
+        b.wait_action_btn(unit_action_btn, "Stop")
+        b.wait_in_text('#service-log', "START")
+        b.wait_in_text('#service-log', "WORKING")
+
+        b.wait_in_text('#service-valid', "enabled")
+        b.wait_action_btn(file_action_btn, "Disable")
+        b.click_action_btn(file_action_btn)
+        b.wait_in_text('#service-valid', "disabled")
+        b.wait_action_btn(file_action_btn, "Enable")
+
+        b.go("#/")
+        b.wait_in_text("#services", "test-fail.service")
+        b.wait_visible(svc_sel("test-fail.service"))
+        b.click(svc_sel("test-fail.service"))
+        b.wait_visible('#service-valid')
+        b.wait_in_text('#service-valid', "inactive")
+        b.wait_action_btn(unit_action_btn, "Start")
+        b.click_action_btn(unit_action_btn)
+        b.wait_in_text('#service-valid', "failed")
+
+        b.go("#/")
+        b.wait_in_text("#services", "test-fail.service")
+        wait_service_state("test-fail.service", "failed")
+
+        # Instantiate a template
+        b.wait_in_text("#services", "test-template@.service")
+        b.wait_visible(svc_sel("test-template@.service"))
+        b.click(svc_sel("test-template@.service"))
+        b.wait_visible('#service-template')
+        b.set_val("#service-template input", "//param-f//o//o//")
+        b.click("#service-template button")
+        b.wait_visible("#service-valid")
+        b.wait_text("#service-unit .panel-heading", "Test Template for param-f/o/o")
+        b.wait_text("#service-valid a[data-goto-unit]", "test-template@.service")
+        b.click("#service-valid a[data-goto-unit]")
+        b.wait_visible("#service-template")
+
+        self.allow_journal_messages("Failed to get realtime timestamp: Cannot assign requested address")
+
+    def testApi(self):
+        m = self.machine
+        b = self.browser
+
+        m.write("/etc/systemd/system/test.service",
+"""
+[Unit]
+Description=Test Service
+
+[Service]
+ExecStart=/bin/sh -c "while true; do sleep 5; done"
+
+[Install]
+WantedBy=default.target
+""")
+
+        self.login_and_go("/playground/service#/test")
+
+        b.wait_text('#exists', 'true')
+        b.wait_text('#state', '"stopped"')
+        b.wait_text('#enabled', 'false')
+
+        b.click('#start')
+        b.wait_text('#state', '"running"')
+        b.click('#stop')
+        b.wait_text('#state', '"stopped"')
+
+        b.click('#enable')
+        b.wait_text('#enabled', 'true')
+        b.click('#disable')
+        b.wait_text('#enabled', 'false')
+
+        b.go('#/foo')
+        b.wait_text('#exists', 'false')
+
+
+if __name__ == '__main__':
+    test_main()

@@ -1,0 +1,63 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from storagelib import *
+
+class TestStorage(StorageCase):
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+        b.wait_in_text("#drives", "VirtIO")
+
+        # Add a disk, partition it, format it, and finally remove it.
+        disk1 = m.add_disk("10M", serial="MYSERIAL")
+
+        b.wait_in_text("#drives", "MYSERIAL")
+        b.click('tr:contains("MYSERIAL")')
+        b.wait_visible('#storage-detail')
+        b.wait_in_text('#content', "Unrecognized Data")
+        b.wait_not_in_text('#content', "Partition")
+
+        def info_field_value(name):
+            return b.text('#detail tr:contains("%s") td:nth-child(2)' % name)
+
+        self.assertEqual(self.inode(info_field_value("Device File")),
+                         self.inode("/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL"))
+
+        m.execute('parted -s /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL mktable gpt')
+        m.execute('parted -s /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL mkpart primary ext2 1M 8M')
+        b.wait_in_text("#content", "Partition")
+
+        m.execute('mke2fs -q /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL-part1')
+        b.wait_in_text("#content", "File System")
+
+        b.go("#/")
+        b.wait_visible('#storage')
+        b.wait_in_text("#drives", "MYSERIAL")
+        m.execute('udevadm settle')
+        m.rem_disk(disk1)
+        b.wait_not_in_text("#drives", "MYSERIAL")
+
+if __name__ == '__main__':
+    test_main()

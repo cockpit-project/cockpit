@@ -1,0 +1,100 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from storagelib import *
+
+class TestStorage(StorageCase):
+    def testLuks(self):
+        m = self.machine
+        b = self.browser
+
+        mount_point_secret = "/run/secret"
+
+        self.login_and_go("/storage")
+
+        # Add a disk and partition it
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('tr:contains("MYDISK")')
+        b.wait_visible("#storage-detail")
+        b.click('[data-action="format_disk"]')
+        self.dialog({ "type": "gpt" })
+        b.wait_in_text("#content", "Free Space")
+
+        assert m.execute("cat /etc/crypttab").strip() == ""
+
+        # Format it with luks
+        self.content_single_action(1, "Create Partition")
+        self.dialog({ "size": "10",
+                      "type": "luks+ext4",
+                      "name": "ENCRYPTED",
+                      "passphrase": "vainu-reku-toma-rolle-kaja",
+                      "passphrase2": "vainu-reku-toma-rolle-kaja",
+                      "store_passphrase": True,
+                      "mounting": "custom",
+                      "mount_point": mount_point_secret })
+        b.wait_in_text("#content", "LUKS Encrypted")
+        b.wait_in_text("#content", "unlocked")
+        b.wait_in_text("#content", "ENCRYPTED")
+
+        self.wait_in_storaged_configuration(mount_point_secret)
+
+        assert m.execute("grep 'UUID=' /etc/crypttab") != ""
+        assert m.execute("grep %s /etc/fstab" % mount_point_secret) != ""
+        assert m.execute("cat /etc/luks-keys/*") == "vainu-reku-toma-rolle-kaja"
+
+        # Lock it
+        self.content_default_action(1, "Lock")
+        b.wait_in_text("#content", "locked")
+        b.wait_not_in_text("#content", "ENCRYPTED")
+
+        # Unlock
+        self.content_default_action(1, "Unlock")
+        self.dialog({ "passphrase": "vainu-reku-toma-rolle-kaja" })
+        b.wait_in_text("#content", "unlocked")
+        b.wait_in_text("#content", "ENCRYPTED")
+
+        # Change options.  We keep trying until the stack has synched
+        # up with crypttab and we see the old passphrase.
+
+        self.dialog_with_retry(trigger = lambda: self.content_action(1, "Encryption Options"),
+                               expect = { "passphrase": "vainu-reku-toma-rolle-kaja" },
+                               values = { "passphrase": "wrong-passphrase",
+                                          "options": "weird,options" })
+
+        assert m.execute("grep 'weird,options' /etc/crypttab") != ""
+        assert m.execute("cat /etc/luks-keys/*") == "wrong-passphrase"
+
+        self.wait_in_storaged_configuration("weird,options")
+
+        # Delete the partition
+        self.content_action(1, "Delete")
+        self.confirm()
+        b.wait_in_text("#content", "Free Space")
+        b.wait_not_in_text("#content", "ENCRYPTED")
+
+        assert m.execute("cat /etc/crypttab").strip() == ""
+        assert m.execute("grep %s /etc/fstab || true" % mount_point_secret) == ""
+
+if __name__ == '__main__':
+    test_main()
+

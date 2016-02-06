@@ -1,0 +1,133 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import base64
+import subprocess
+import time
+
+import parent
+from testlib import *
+
+class TestLogin(MachineCase):
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        # Setup users and passwords
+        m.execute("useradd user -c 'Barney Bär' || true")
+        m.execute("echo user:abcdefg | chpasswd")
+
+        admins_only_pam = """account    sufficient   pam_succeed_if.so uid = 0\\
+account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group()
+
+        # Setup a special PAM config that disallows non-wheel users
+        def deny_non_root(remote_filename):
+            m.execute("""sed -i '/nologin/a %s' %s || true""" % (admins_only_pam, remote_filename))
+
+        deny_non_root("/etc/pam.d/cockpit")
+        deny_non_root("/etc/pam.d/sshd")
+
+        m.start_cockpit()
+        b.open("/system")
+        b.wait_visible("#login")
+
+        def login(user, password):
+            b.set_val('#login-user-input', user)
+            b.set_val('#login-password-input', password)
+            b.click('#login-button')
+
+        # Try to login as a non-existing user
+        login("nonexisting", "blahblah")
+        b.wait_text_not("#login-error-message", "")
+
+        # Try to login as user with a wrong password
+        login("user", "gfedcba")
+        b.wait_text_not("#login-error-message", "")
+
+        # Try to login as user with correct password
+        login ("user", "abcdefg")
+        if 'atomic' in m.image:
+            b.wait_in_text("body", "connect or authenticate: terminated")
+        else:
+            b.wait_text("#login-error-message", "Permission denied")
+
+        # Login as admin
+        b.open("/system")
+        login("admin", "foobar")
+        with b.wait_timeout(10) as r:
+            b.expect_load()
+        b.wait_present("#content")
+        b.wait_text('#content-user-name', 'Administrator')
+
+        # reload, which should log us in with the cookie
+        b.reload()
+        b.wait_present("#content")
+        b.wait_text('#content-user-name', 'Administrator')
+
+        b.click("#content-user-name")
+        b.click('#go-account')
+        b.enter_page("/users")
+        b.wait_text ("#account-user-name", "admin")
+
+        self.allow_journal_messages ("Returning error-response ... with reason .*",
+                            "pam_unix\(cockpit:auth\): authentication failure; .*",
+                            "pam_unix\(cockpit:auth\): check pass; user unknown",
+                            "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*")
+
+        self.allow_restart_journal_messages()
+
+    def curl_auth(self, url, userpass):
+        header = "Authorization: Basic " + base64.b64encode(userpass)
+        return subprocess.check_output(['/usr/bin/curl', '-s', '-k',  '-D', '-',
+                                    '--header', header,
+                                    'http://%s:9090%s' % (self.machine.address, url) ])
+
+    def curl_auth_code(self, url, userpass):
+        lines = self.curl_auth(url, userpass).splitlines()
+        assert len(lines) > 0
+        tokens = lines[0].split(' ', 2)
+        assert len(tokens) == 3
+        return int(tokens[1])
+
+    def testRaw(self):
+        self.machine.start_cockpit()
+        time.sleep(0.5)
+        self.assertEqual(self.curl_auth_code ('/cockpit/login', ''), 401)
+        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'foo:'), 401)
+        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'foo:bar\n'), 401)
+        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'foo:bar:baz'), 401)
+        self.assertEqual(self.curl_auth_code ('/cockpit/login', ':\n\n'), 401)
+        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'admin:bar'), 401)
+        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'foo:bar'), 401)
+        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'admin:' + 'x' * 4000), 401)
+        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'x' * 4000 + ':bar'), 401)
+        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'a' * 4000 + ':'), 401)
+        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'a' * 4000 + ':b\nc'), 401)
+        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'a' * 4000 + ':b\nc\n'), 401)
+
+        self.allow_journal_messages ("Returning error-response ... with reason .*",
+                            "pam_unix\(cockpit:auth\): authentication failure; .*",
+                            "pam_unix\(cockpit:auth\): check pass; user unknown",
+                            "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
+                            "couldn't parse login input: Malformed input",
+                            "couldn't parse login input: Authentication failed")
+
+if __name__ == '__main__':
+    test_main()

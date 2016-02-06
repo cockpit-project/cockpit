@@ -1,0 +1,80 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+class TestTerminal(MachineCase):
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+        b.default_user = "admin"
+
+        # Make sure we get what we expect
+        m.write("/tmp/bashrc-extra", """
+PS1="\u@\h \W]\$ "
+PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/#$HOME/\~}"'
+""")
+        m.execute("cat /tmp/bashrc-extra >>/home/admin/.bashrc")
+
+        self.login_and_go("/system/terminal")
+
+        def line_sel(i):
+            return '#terminal .terminal div:nth-child(%d)' % i
+
+        def line_text(t):
+            return t + u'\xa0'*(80-len(t))
+
+        def wait_line(i,t):
+            b.wait_text(line_sel(i), line_text(t))
+
+        b.wait_present('#terminal .terminal')
+        b.focus('#terminal .terminal')
+
+        # wait for prompt in first line and remember it
+        b.wait_text_not(line_sel(1), line_text(""))
+        prompt = b.text(line_sel(1))
+
+        # Make sure we are started in home directory
+        self.assertIn("~]$", prompt)
+
+        # Run some commands
+        b.key_press( [ 'w', 'h', 'o', 'a', 'm', 'i', 'Return' ] )
+        wait_line(2, "admin")
+
+        wait_line(3, prompt)
+        b.key_press([ 'e', 'c', 'h', 'o', ' ',  'ä', 'ö', 'ü', 'Return' ])
+        wait_line(4, u'äöü')
+
+        # The '@' sign is in the default prompt
+        b.wait_in_text("#terminal-title", '@')
+
+        # now reset terminal
+        b.click('#terminal-reset')
+
+        b.focus('#terminal .terminal')
+
+        # terminal should be empty, so we look at lines 1 and 2 again
+        wait_line(1, prompt)
+        b.key_press([ 'e', 'c', 'h', 'o', ' ',  'ß', 'm', 'i', 'Return' ])
+        wait_line(2, u'ßmi')
+
+if __name__ == '__main__':
+    test_main()

@@ -41,6 +41,12 @@ def download(link, force, stores):
         os.makedirs(DATA)
 
     dest = os.path.join(DATA, os.readlink(link))
+
+    # we have the file but there is not valid link
+    if os.path.exists(dest) and not os.path.exists(link):
+        os.symlink(dest, os.path.join(IMAGES, os.readlink(link)))
+
+    # file already exists
     if not force and os.path.exists(dest):
         return
 

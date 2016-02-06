@@ -737,8 +737,8 @@ class Naughty(object):
         return True
 
     def check_issue(self, trace):
-        directories =  [ "./naughty" ]
-        image_naughty = "./naughty-" + testinfra.DEFAULT_IMAGE
+        directories =  [ os.path.join(topdir, "naughty") ]
+        image_naughty = os.path.join(topdir, "naughty-" + testinfra.DEFAULT_IMAGE)
         if os.path.exists(image_naughty):
             directories.append(image_naughty)
         trace = self.normalize_traceback(trace)

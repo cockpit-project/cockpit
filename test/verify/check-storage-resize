@@ -1,0 +1,63 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from storagelib import *
+
+class TestStorage(StorageCase):
+    def testResize(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+        m.add_disk("500M", serial="DISK1")
+        b.wait_in_text("#drives", "DISK1")
+
+        m.execute("vgcreate TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
+        m.execute("lvcreate TEST -n vol -L 200m")
+        m.execute("mkfs.ext4 -q -L FSYS /dev/TEST/vol")
+
+        b.wait_in_text("#vgroups", "TEST")
+        b.click('#vgroups tr:contains("TEST")')
+        b.wait_visible("#storage-detail")
+        b.wait_in_text("#content", "FSYS")
+
+        self.content_action(1, "Mount")
+        b.wait_in_text("#content", "/run/media/admin/FSYS")
+
+        self.content_action(1, "Resize")
+        self.dialog({ "size": "400" })
+
+        size = int(m.execute("df -k --output=size /run/media/admin/FSYS | tail -1").strip())
+        assert (size > 300000)
+
+        self.content_action(1, "Resize")
+        self.dialog({ "size": "200" })
+
+        # Shrinking a filesystem will unmount it
+        self.content_action(1, "Mount")
+        b.wait_in_text("#content", "/run/media/admin/FSYS")
+
+        size = int(m.execute("df -k --output=size /run/media/admin/FSYS | tail -1").strip())
+        assert (size < 300000)
+
+if __name__ == '__main__':
+    test_main()

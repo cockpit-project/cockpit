@@ -1,0 +1,58 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+import os
+import subprocess
+import unittest
+
+@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No sosreport on Debian.")
+class TestSOS(MachineCase):
+    def testBasic(self):
+        b = self.browser
+
+        self.login_and_go("/sosreport")
+
+        b.click('[data-target="#sos"]')
+        b.wait_visible("#sos")
+
+        with b.wait_timeout(180):
+            b.wait_visible("#sos-download")
+
+        # There doesn't seem to be a easy way to do a real download
+        # with PhantomJS, but we really want to excersize our special
+        # machinery that makes the download work.  So we steal the
+        # cookie and use curl.
+        #
+        # https://github.com/ariya/phantomjs/issues/10052
+
+        b.click("#sos-download button")
+        b.wait_present("body > iframe")
+        url = "http://" + self.machine.address + ":9090" + b.attr("body > iframe", "src")
+        cookie = b.cookie('cockpit')
+        size = subprocess.check_output('curl -s -f -b "cockpit=%s" "%s" | wc -c' % (cookie, url), shell=True)
+        self.assertGreater(int(size), 1000000)
+
+        self.allow_journal_messages('.*{ associate }.*comm="sosreport".*')
+
+if __name__ == '__main__':
+    test_main()

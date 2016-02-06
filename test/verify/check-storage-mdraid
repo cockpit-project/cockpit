@@ -1,0 +1,196 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from storagelib import *
+
+class TestStorage(StorageCase):
+    def tearDown(self):
+        # HACK - for debugging https://github.com/cockpit-project/cockpit/issues/2924
+        print self.machine.execute("parted -s /dev/md127 print || true")
+        print self.machine.execute("lsblk || true")
+        MachineCase.tearDown(self)
+
+    def wait_states(self, states):
+        self.browser.wait_js_func("""(function(states) {
+          var found = { };
+          $('#disks li').each(function (i, e) {
+            var cols = $(e).find('td').map(function (i, e) { return $(e).text(); }).get();
+            if (cols.length >= 3)
+              found[cols[1]] = cols[2].trim();
+          });
+          for (s in states) {
+            if (states[s] != found[s])
+              return false;
+          }
+          return true;
+        })""", states)
+
+    def raid_add_disk(self, name):
+        self.browser.click('[data-action="mdraid_add_disk"]')
+        self.dialog_wait_open()
+        self.dialog_select("disks", name, True)
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+    def raid_remove_disk(self, name):
+        self.browser.click('#disks li:contains("%s") button' % name)
+
+    def raid_action(self, action):
+        self.browser.click_action_btn ('.panel-heading:contains("RAID Device") .btn-group', action)
+
+    def raid_default_action(self, action):
+        self.browser.wait_action_btn ('.panel-heading:contains("RAID Device") .btn-group', action)
+        self.browser.click_action_btn ('.panel-heading:contains("RAID Device") .btn-group')
+
+    def testRaid(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+        b.wait_in_text("#drives", "VirtIO")
+
+        # Add four disks and make a RAID out of three of them
+        m.add_disk("50M", serial="DISK1")
+        m.add_disk("50M", serial="DISK2")
+        m.add_disk("50M", serial="DISK3")
+        m.add_disk("50M", serial="DISK4")
+        b.wait_in_text("#drives", "DISK1")
+        b.wait_in_text("#drives", "DISK2")
+        b.wait_in_text("#drives", "DISK3")
+        b.wait_in_text("#drives", "DISK4")
+
+        b.click("#create-mdraid")
+        self.dialog_wait_open()
+        self.dialog_wait_val("level", "raid5")
+        self.dialog_apply()
+        self.dialog_wait_error("disks", "At least 2 disks are needed")
+        self.dialog_select("disks", "DISK1", True)
+        self.dialog_apply()
+        self.dialog_wait_error("disks", "At least 2 disks are needed")
+        self.dialog_select("disks", "DISK2", True)
+        self.dialog_select("disks", "DISK3", True)
+        self.dialog_set_val("level", "raid6")
+        self.dialog_apply()
+        self.dialog_wait_error("disks", "At least 4 disks are needed")
+        self.dialog_set_val("level", "raid5")
+        self.dialog_set_val("name", "ARR")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        b.wait_in_text("#mdraids", "ARR")
+
+        b.click('tr:contains("ARR")')
+        b.wait_visible('#storage-detail')
+
+        self.wait_states({ "QEMU QEMU HARDDISK (DISK1)": "In Sync",
+                           "QEMU QEMU HARDDISK (DISK2)": "In Sync",
+                           "QEMU QEMU HARDDISK (DISK3)": "In Sync" })
+
+        # Degrade and repair it
+
+        def info_field(name):
+            return '#detail tr:contains("%s") td:nth-child(2)' % name
+
+        dev = b.text(info_field("Device"))
+        m.execute("mdadm --quiet %s --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 --remove /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1" % dev)
+        b.wait_in_text(info_field("State"), "DEGRADED")
+        m.execute("wipefs -a /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
+        m.execute("mdadm --quiet %s --add /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1" % dev)
+        b.wait_in_text(info_field("State"), "Recovering")
+        b.wait_not_in_text(info_field("State"), "DEGRADED")
+
+        # Turn it off and on again
+        self.raid_default_action("Stop")
+        b.wait_in_text(info_field("State"), "Not running")
+        self.raid_default_action("Start")
+        b.wait_in_text(info_field("State"), "Running")
+        b.wait_text_not(info_field("Device"), "--")
+
+        # Create partition table
+        b.wait_present('[data-action="format_disk"]')
+        b.click('[data-action="format_disk"]')
+        self.dialog({ "type": "gpt" })
+        b.wait_in_text("#content", "Free Space")
+
+        # Create first partition
+        self.content_single_action(1, "Create Partition")
+        self.dialog({ "size": "20",
+                      "type": "ext4",
+                      "name": "One" })
+        b.wait_in_text("#content", "One")
+
+        # Create second partition
+        self.content_single_action(2, "Create Partition")
+        self.dialog({ "type": "ext4",
+                      "name": "Two" })
+        b.wait_in_text("#content", "Two")
+        b.wait_not_in_text("#content", "Free Space")
+
+        # Delete first partition
+        self.content_action(1, "Delete")
+        self.confirm()
+        b.wait_in_text("#content", "Free Space")
+        b.wait_not_in_text("#content", "One")
+
+        # Play with disks
+
+        # Add a spare
+        self.raid_add_disk("DISK4")
+        self.wait_states({ "QEMU QEMU HARDDISK (DISK4)": "Spare" })
+
+        # Remove DISK1.  The spare takes over.
+        self.raid_remove_disk("DISK1")
+        b.wait_not_in_text('#disks', "DISK1")
+        self.wait_states({ "QEMU QEMU HARDDISK (DISK4)": "In Sync" })
+
+        # Remove DISK4.  The array degrades.
+        self.raid_remove_disk("DISK4")
+        b.wait_not_in_text('#disks', "DISK4")
+        b.wait_in_text(info_field("State"), "DEGRADED")
+
+        # Add DISK1.  The array recovers.
+        self.raid_add_disk("DISK1")
+        b.wait_in_text('#disks', "DISK1")
+        b.wait_not_in_text(info_field("State"), "DEGRADED")
+
+        # Stop the array, destroy a disk, and start the array
+        self.raid_default_action("Stop")
+        b.wait_in_text(info_field("State"), "Not running")
+        m.execute("wipefs -a /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
+        b.wait_not_in_text('#disks', "DISK1")
+        self.raid_default_action("Start")
+        b.wait_in_text(info_field("State"), "Running")
+        b.wait_in_text(info_field("State"), "DEGRADED")
+
+        # Add DISK1.  The array recovers.
+        self.raid_add_disk("DISK1")
+        b.wait_in_text('#disks', "DISK1")
+        b.wait_not_in_text(info_field("State"), "DEGRADED")
+
+        # Delete the array.  We are back on the storage page.
+        self.raid_action("Delete")
+        self.confirm()
+        with b.wait_timeout(120):
+            b.wait_visible("#storage")
+            b.wait_not_in_text ("#mdraids", "ARR")
+
+if __name__ == '__main__':
+    test_main()

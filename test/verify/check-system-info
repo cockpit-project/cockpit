@@ -1,0 +1,198 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+import time
+import unittest
+import os
+
+os_release = """
+NAME="Foobar Adventure Linux Server"
+VERSION="2.0 (Day of Doom)"
+ID="foobar"
+VERSION_ID="2.0"
+PRETTY_NAME="Foobar Adventure Linux Server 2.0 (Day of Doom)"
+"""
+
+class TestSystemInfo(MachineCase):
+
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        # /etc/os-release might be a symlink and file watching doesn't
+        # follow symlinks, so we remove it and then create a regular
+        # file.
+        #
+        m.execute("rm /etc/os-release")
+        m.write("/etc/os-release", os_release)
+
+        self.login_and_go("/system")
+        b.wait_text('#system_information_os_text',
+                    "Foobar Adventure Linux Server 2.0 (Day of Doom)")
+
+        m.write("/etc/os-release", os_release.replace ("2.0", "2.1").replace("Day of Doom", "A New Morning"))
+        b.wait_text('#system_information_os_text',
+                    "Foobar Adventure Linux Server 2.1 (A New Morning)")
+
+        m.execute("hostnamectl set-hostname --pretty 'Adventure Box'")
+        b.wait_in_text('#system_information_hostname_button', "Adventure Box")
+
+        b.click('#system_information_hostname_button')
+        b.wait_popup("system_information_change_hostname")
+        b.wait_val("#sich-pretty-hostname", "Adventure Box")
+        b.set_val("#sich-hostname", "host1.cockpit.lan")
+        b.click("#system_information_change_hostname button:contains('Change')")
+        b.wait_popdown("system_information_change_hostname")
+
+        if "fedora-atomic" in m.image:
+            b.wait_present('#system-ostree-version')
+            b.wait_visible('#system-ostree-version')
+            b.wait_text('#system-ostree-version-link', "cockpit-base.1")
+        else:
+            b.wait_not_visible("#system-ostree-version")
+
+        b.wait_text('#system_information_hostname_button', "Adventure Box (host1.cockpit.lan)")
+        # HACK /usr/bin/hostname output is delayed in systemd v208, so that DBus gets notified early
+        # this issue is resolved in systemd v219
+        tries_left = 5
+        current_hostname = ""
+        while tries_left > 0:
+            current_hostname = m.execute("hostname")
+            if current_hostname == "host1.cockpit.lan\n":
+                break
+            # wait a bit and try again
+            time.sleep(1)
+            tries_left = tries_left - 1
+
+        self.assertEqual(current_hostname, "host1.cockpit.lan\n")
+
+    def testTime(self):
+        m = self.machine
+        b = self.browser
+
+        network_time_prefix = "Network time on"
+        if m.image in {"fedora-22", "rhel-7", "rhel-atomic"}:
+            network_time_prefix = "NTP enabled"
+
+        # make sure system is on expected timezone EEST
+        m.execute("LC_ALL=C timedatectl set-timezone Europe/Helsinki")
+
+        # Something gets confused when systemd-timesyncd isn't
+        # available.  This is harmless.
+        #
+        self.allow_journal_messages("org.freedesktop.systemd1: couldn't get property org.freedesktop.systemd1.Service ExecMain at /org/freedesktop/systemd1/unit/systemd_2dtimedated_2eservice: GDBus.Error:org.freedesktop.DBus.Error.UnknownProperty: Unknown property")
+
+        self.login_and_go("/system")
+
+        # Make sure the date loads
+        b.wait_text_not("#system_information_systime_button", "")
+
+        # Change the date
+        b.click("#system_information_systime_button")
+        b.wait_popup("system_information_change_systime")
+        b.set_val("#change_systime", "manual_time")
+        b.set_val("#systime-date-input", "2020-01-24")
+        b.set_val("#systime-time-hours", "08")
+        b.set_val("#systime-time-minutes", "03")
+        b.click("#systime-apply-button")
+        b.wait_popdown("system_information_change_systime")
+
+        self.assertIn("%s: no" % network_time_prefix, m.execute("LC_ALL=C timedatectl"))
+        self.assertIn("Fri Jan 24 08:03:", m.execute("LC_ALL=C date"))
+        self.assertIn("EET 2020\n", m.execute("LC_ALL=C date"))
+
+        b.wait_text("#system_information_systime_button", "2020-01-24 08:03")
+
+        # Set to NTP
+        b.click("#system_information_systime_button")
+        b.wait_popup("system_information_change_systime")
+        b.set_val("#change_systime", "ntp_time")
+        b.click("#systime-apply-button")
+        b.wait_popdown("system_information_change_systime")
+
+        self.assertIn("%s: yes" % network_time_prefix, m.execute("LC_ALL=C timedatectl"))
+
+        # Change the date
+        b.click("#system_information_systime_button")
+        b.wait_popup("system_information_change_systime")
+        b.set_val("#change_systime", "manual_time")
+        b.set_val("#systime-date-input", "2018-06-04")
+        b.set_val("#systime-time-hours", "06")
+        b.set_val("#systime-time-minutes", "34")
+        b.click("#systime-apply-button")
+        b.wait_popdown("system_information_change_systime")
+
+        self.assertIn("%s: no" % network_time_prefix, m.execute("LC_ALL=C timedatectl"))
+        self.assertIn("Mon Jun  4 06:34:", m.execute("LC_ALL=C date"))
+        self.assertIn("EEST 2018\n", m.execute("LC_ALL=C date"))
+
+    @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "No NTP servers config on rhel-7.")
+    @unittest.skipIf("rhel-atomic" == os.environ.get("TEST_OS", ""), "No NTP servers config on rhel-atomic.")
+    def testTimeServers(self):
+        m = self.machine
+        b = self.browser
+
+        conf = "/etc/systemd/timesyncd.conf.d/50-cockpit.conf"
+
+        # Use systemd-timedated as the provider of
+        # org.freedesktop.timedate1 instead of timedatex.
+        m.execute("systemctl disable timedatex; systemctl stop timedatex; systemctl unmask systemd-timedated")
+
+        self.login_and_go("/system")
+
+        # Wait until everything is ready to go...
+        b.wait_text_not("#system_information_systime_button", "")
+
+        # Add two NTP servers.  We can't expect the servers to be used, so
+        # we only test that they get added.
+        b.click("#system_information_systime_button")
+        b.wait_popup("system_information_change_systime")
+        b.set_val("#change_systime", "ntp_time_custom")
+        b.wait_visible("#systime-ntp-servers")
+        b.wait_present("#systime-ntp-servers form:nth-child(1) input")
+        b.set_val("#systime-ntp-servers form:nth-child(1) input", "0.pool.ntp.org")
+        b.click('#systime-ntp-servers form:nth-child(1) button[data-action="add"]')
+        b.wait_present("#systime-ntp-servers form:nth-child(2) input")
+        b.set_val("#systime-ntp-servers form:nth-child(2) input", "1.pool.ntp.org")
+        b.click("#systime-apply-button")
+        b.wait_popdown("system_information_change_systime")
+
+        self.assertIn("0.pool.ntp.org", m.execute("grep '^NTP=' %s" % conf))
+        self.assertIn("1.pool.ntp.org", m.execute("grep '^NTP=' %s" % conf))
+
+        # Set conf from the outside, check that we pick that up, and
+        # switch to default servers.
+        m.write(conf, "[Time]\nNTP=2.pool.ntp.org\n")
+        b.click("#system_information_systime_button")
+        b.wait_popup("system_information_change_systime")
+        b.wait_visible("#systime-ntp-servers")
+        b.wait_present("#systime-ntp-servers form:nth-child(1)")
+        b.wait_val("#systime-ntp-servers form:nth-child(1) input", "2.pool.ntp.org")
+        b.set_val("#change_systime", "ntp_time")
+        b.wait_not_visible("#systime-ntp-servers")
+        b.click("#systime-apply-button")
+        b.wait_popdown("system_information_change_systime")
+
+        self.assertIn("2.pool.ntp.org", m.execute("grep '^#NTP=' %s" % conf))
+
+if __name__ == '__main__':
+    test_main()

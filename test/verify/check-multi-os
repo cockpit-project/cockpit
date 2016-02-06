@@ -1,0 +1,178 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+import socket
+import time
+
+def inject_extras(browser):
+    browser.eval_js("""
+    dashboard_addresses = function () {
+       var addresses = $('#dashboard-hosts .list-group-item').map(function(i,e) { return $(e).data("address"); }).get();
+       return addresses;
+    }
+    """)
+
+def wait_dashboard_addresses(b, expected):
+    b.wait_js_func(
+        """(function (expected) {
+        return expected.sort().toString() == dashboard_addresses().sort().toString();
+        })""", expected)
+
+def old_add_machine(b, address):
+    b.click('#dashboard-add')
+    b.wait_popup('dashboard_setup_server_dialog')
+    b.set_val('#dashboard_setup_address', address)
+    b.wait_text('#dashboard_setup_next', "Next")
+    b.click('#dashboard_setup_next')
+    b.wait_text('#dashboard_setup_next', "Add host")
+    b.click('#dashboard_setup_next')
+    b.wait_text('#dashboard_setup_next', "Close")
+    b.click('#dashboard_setup_next')
+    b.wait_popdown('dashboard_setup_server_dialog')
+
+def new_add_machine(b, address):
+    b.click('#dashboard-add')
+    b.wait_popup('dashboard_setup_server_dialog')
+    b.set_val('#add-machine-address', address)
+
+    b.wait_text('#dashboard_setup_server_dialog .btn-primary', "Add")
+    b.wait_present("#dashboard_setup_server_dialog .btn-primary:not([disabled])")
+    b.click('#dashboard_setup_server_dialog .btn-primary')
+    b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
+    b.click('#dashboard_setup_server_dialog .btn-primary')
+    b.wait_popdown('dashboard_setup_server_dialog')
+
+class TestMultiOS(MachineCase):
+    def check_spawn(self, b, address):
+        result = b.call_js_func("""(function(address) {
+            return require("base1/cockpit").spawn(['echo', 'hi'], { host: address });
+        })""", address)
+        self.assertEqual(result, "hi\n")
+
+    def check_dbus(self, b, address):
+        b.call_js_func("""(function(address) {
+            return require("base1/cockpit").dbus("org.freedesktop.DBus", { host: address })
+                .proxy("org.freedesktop.DBus", "/").call("GetId");
+        })""", address)
+
+    def checkStock(self, image):
+        dev_m = self.machine
+        dev_b = self.browser
+
+        self.allow_hostkey_messages()
+
+        self.login_and_go("/dashboard")
+        inject_extras(dev_b)
+
+        dev_dashboard_addresses = [ "localhost" ]
+        wait_dashboard_addresses (dev_b, dev_dashboard_addresses)
+
+        def stock_login_and_go(browser, page, href, host="localhost"):
+            if host:
+                browser.open("/#" + "/@" + host + href)
+            else:
+                browser.open("/#" + href)
+            browser.wait_visible("#login")
+            browser.set_val('#login-user-input', browser.default_user)
+            browser.set_val('#login-password-input', "foobar")
+            browser.click('#login-button')
+            browser.expect_load()
+            browser.wait_present('#content')
+            browser.wait_visible('#content')
+            if page:
+                stock_enter_page(browser, page, host=host)
+
+        def stock_enter_page(browser, page, host="localhost"):
+            if host:
+                frame = host + "/shell/shell"
+            else:
+                frame = "localhost/shell/shell"
+            browser.switch_to_top()
+            browser.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
+            browser.wait_visible("iframe.container-frame[name='%s']" % frame)
+            browser.switch_to_frame(frame)
+            browser.wait_visible('#' + page)
+
+        stock_m = self.new_machine(image=image)
+        stock_m.start()
+        stock_m.wait_boot()
+        stock_b = self.new_browser(stock_m.address)
+
+        stock_login_and_go(stock_b, "dashboard", href="/dashboard/list", host=None)
+        inject_extras(stock_b)
+        wait_dashboard_addresses (stock_b, [ "localhost" ])
+
+        old_add_machine(stock_b, dev_m.address)
+        wait_dashboard_addresses (stock_b, [ "localhost", dev_m.address ])
+
+        dev_b.switch_to_top()
+        dev_b.switch_to_frame("cockpit1:localhost/dashboard")
+
+        new_add_machine(dev_b, stock_m.address)
+        dev_dashboard_addresses.append(stock_m.address)
+        wait_dashboard_addresses (dev_b, dev_dashboard_addresses)
+
+        self.check_dbus(stock_b, dev_m.address)
+        self.check_dbus(dev_b, stock_m.address)
+
+        self.check_spawn(stock_b, dev_m.address)
+        self.check_spawn(dev_b, stock_m.address)
+
+        dev_b.switch_to_top()
+        dev_b.go("/@%s/network/interfaces" % stock_m.address)
+        dev_b.wait_present("iframe.container-frame[name='cockpit1:%s/shell/shell'][src$='#/networking']" % stock_m.address)
+
+        dev_b.switch_to_top()
+        dev_b.go("/@%s/storage/devices" % stock_m.address)
+        dev_b.wait_present("iframe.container-frame[name='cockpit1:%s/shell/shell'][src$='#/storage']" % stock_m.address)
+
+        dev_b.switch_to_top()
+        dev_b.go("/@%s/users/local" % stock_m.address)
+        dev_b.wait_present("iframe.container-frame[name='cockpit1:%s/shell/shell'][src$='#/accounts']" % stock_m.address)
+
+        stock_b.switch_to_top()
+        stock_b.go("#/@%s/system/index" % dev_m.address)
+        stock_b.wait_present("iframe.container-frame[name='%s/system/index']" % dev_m.address)
+        stock_b.wait_present("iframe.container-frame[name='%s/system/index'][data-loaded]" % dev_m.address)
+        stock_b.switch_to_frame('%s/system/index' % dev_m.address)
+        stock_b.wait_present("#system_information_hardware_text")
+        stock_b.wait_text_not("#system_information_hardware_text", "")
+
+        # Shows a curtains when accessing to default page from old system
+        stock_b.switch_to_top()
+        stock_b.go("#/@%s" % dev_m.address)
+        stock_b.wait_present("iframe.container-frame[name='%s/shell/shell']" % dev_m.address)
+        stock_b.wait_present("iframe.container-frame[name='%s/shell/shell'][data-loaded]" % dev_m.address)
+        stock_b.switch_to_frame('%s/shell/shell' % dev_m.address)
+        stock_b.wait_present(".curtains")
+
+        # Messages from previous versions of cockpit
+        self.allow_journal_messages("g_hash_table_iter_next: assertion 'ri->version == ri->hash_table->version' failed")
+        self.allow_journal_messages("couldn't run usermod command: Child process exited with code 6")
+        self.allow_journal_messages("usermod: user 'postfix' does not exist")
+
+    def testFedora22(self):
+        self.checkStock('fedora-stock')
+
+if __name__ == '__main__':
+    test_main()

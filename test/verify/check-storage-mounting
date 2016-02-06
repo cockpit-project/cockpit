@@ -1,0 +1,129 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from storagelib import *
+
+storaged_debug_service = """
+[Unit]
+Description=Storaged
+Documentation=man:storaged(8)
+
+[Service]
+Type=dbus
+BusName=org.storaged.Storaged
+ExecStart=/usr/lib/storaged/storaged
+"""
+
+class TestStorage(StorageCase):
+
+    def testMounting(self):
+        m = self.machine
+        b = self.browser
+
+        mount_point_foo = "/run/foo"
+        mount_point_bar = "/run/bar"
+
+        self.login_and_go("/storage")
+
+        # Add a disk
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('#drives tr:contains("MYDISK")')
+        b.wait_visible('#storage-detail')
+
+        # Format it
+
+        self.content_default_action(1, "Format")
+        self.dialog({ "type": "ext4",
+                      "name": "FILESYSTEM",
+                      "mounting": "custom",
+                      "mount_point": mount_point_foo })
+        b.wait_in_text("#content", "FILESYSTEM")
+        self.wait_in_storaged_configuration(mount_point_foo)
+
+        self.content_default_action(1, "Mount");
+        b.wait_in_text("#content", "mounted on %s" % mount_point_foo)
+
+        self.content_default_action(1, "Unmount");
+        b.wait_in_text("#content", "not mounted")
+
+        self.dialog_with_retry(trigger = lambda: self.content_action(1, "Filesystem Options"),
+                               expect = { "name": "FILESYSTEM",
+                                          "mounting": "custom",
+                                          "mount_point": mount_point_foo },
+                               values = { "mount_point": mount_point_bar })
+        self.wait_in_storaged_configuration(mount_point_bar)
+
+        self.content_default_action(1, "Mount");
+        b.wait_in_text("#content", "mounted on %s" % mount_point_bar)
+
+        # Go to overview page and check that the filesystem usage is
+        # displayed correctly.
+
+        def wait_ratio_in_range(sel, low, high):
+            b.wait_js_func("""(function (sel, low, high) {
+              var text = ph_text(sel);
+              var match = text.match('([0-9.]+) / ([0-9]+)');
+              if (!match)
+                return false;
+              var ratio = parseFloat(match[1]) / parseFloat(match[2]);
+              return low <= ratio && ratio <= high;
+            })""", sel, low, high)
+
+        b.go("#/")
+        b.wait_in_text("#storage_mounts", mount_point_bar)
+        bar_selector = '#storage_mounts tr:contains("%s") td:nth-child(4)' % mount_point_bar
+        wait_ratio_in_range(bar_selector, 0.0, 0.1)
+        m.execute("dd if=/dev/zero of=%s/zero bs=1M count=30 status=none" % mount_point_bar)
+        wait_ratio_in_range(bar_selector, 0.5, 1.0)
+        m.execute("rm %s/zero" % mount_point_bar)
+        wait_ratio_in_range(bar_selector, 0.0, 0.1)
+        m.execute("umount %s" % mount_point_bar)
+        b.wait_not_in_text("#storage_mounts", mount_point_bar)
+        b.click('#storage_mounts tr:contains("FILESYSTEM")')
+        b.wait_visible("#storage-detail")
+
+        def wait_info_field_value(name, value):
+            return b.wait_text('#detail tr:contains("%s") td:nth-child(2)' % name, value)
+
+        wait_info_field_value("Serial Number", "MYDISK")
+
+        b.wait_in_text("#content", "not mounted")
+
+        self.content_action(1, "Filesystem Options");
+        self.dialog(expect = { "name": "FILESYSTEM" },
+                    values = { "mounting": "default" })
+        self.wait_not_in_storaged_configuration(mount_point_bar)
+
+        self.content_default_action(1, "Mount");
+        b.wait_in_text("#content", "mounted on /run/media/admin/FILESYSTEM")
+
+        self.content_default_action(1, "Unmount");
+        b.wait_in_text("#content", "not mounted")
+
+        self.content_action(1, "Format")
+        self.dialog({ "type": "empty" })
+
+        b.wait_in_text("#content", "Unrecognized Data")
+
+if __name__ == '__main__':
+    test_main()

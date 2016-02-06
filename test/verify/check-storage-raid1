@@ -1,0 +1,52 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from storagelib import *
+
+class TestStorage(StorageCase):
+    def testRaidLevelOne(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+        b.wait_in_text("#drives", "VirtIO")
+
+        # Add four two and make a RAID out of them
+        m.add_disk("50M", serial="DISK1")
+        m.add_disk("50M", serial="DISK2")
+        b.wait_in_text("#drives", "DISK1")
+        b.wait_in_text("#drives", "DISK2")
+
+        b.click("#create-mdraid")
+        self.dialog_wait_open()
+        self.dialog_set_val("level", "raid1")
+        self.dialog_select("disks", "DISK1", True)
+        self.dialog_select("disks", "DISK2", True)
+        self.dialog_set_val("name", "SOMERAID")
+        # The dialog should make sure that the Chunk size is ignored (has to be 0 for RAID 1)
+        self.dialog_apply()
+        self.dialog_wait_close()
+        b.wait_in_text("#mdraids", "SOMERAID")
+
+
+if __name__ == '__main__':
+    test_main()

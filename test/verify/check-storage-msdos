@@ -1,0 +1,93 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from storagelib import *
+
+class TestStorage(StorageCase):
+    def testDosParts(self):
+        m = self.machine
+        b = self.browser
+
+        # HACK: DOS Extended Partitions are broken on Fedora 21 and
+        # later with no known reasonable workaround.
+        #
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1135493
+        #
+        # The thing that seems to be broken is creating other
+        # partitions while a extended partition also exists, so we
+        # don't do that for now.  A workaround would be to reboot the
+        # machine.
+
+        self.login_and_go("/storage")
+
+        # Add a disk
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('tr:contains("MYDISK")')
+        b.wait_visible("#storage-detail")
+
+        # Format it with a DOS partition table
+        b.click('[data-action="format_disk"]')
+        self.dialog({ "type": "dos" })
+        b.wait_in_text("#detail", "Free Space")
+
+        # Create a primary partition
+        self.content_single_action(1, "Create Partition")
+        self.dialog({ "size": "10",
+                      "type": "ext4",
+                      "name": "FIRST" })
+        b.wait_in_text("#detail", "FIRST")
+
+        # Open dialog for formatting the primary partition and check that "dos-extended" is not offered.
+        self.content_action(1, "Format")
+        self.dialog_wait_open()
+        self.assertEqual(b.attr("option[value='dos-extended']", "disabled"), "disabled")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        b.wait_in_text("#detail", "Free Space for Primary Partitions")
+
+        # Create a extended partition to fill the rest of the disk
+        self.content_single_action(2, "Create Partition")
+        self.dialog_wait_open()
+        b.wait_not_attr("option[value='dos-extended']", "disabled", "disabled")
+        self.dialog_set_val("type", "dos-extended")
+        self.dialog_wait_not_visible("name")
+        self.dialog_wait_not_visible("mounting")
+        self.dialog_wait_not_visible("mount_point")
+        self.dialog_wait_not_visible("mount_options")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        b.wait_in_text("#detail", "Extended Partition")
+
+        b.wait_not_in_text("#detail", "Free Space for Primary Partitions")
+
+        # Open dialog for creating logical partitions and check that
+        # "dos-extended" is not offered.
+        self.content_single_action(3, "Create Partition")
+        self.dialog_wait_open()
+        self.assertEqual(b.attr("option[value='dos-extended']", "disabled"), "disabled")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+if __name__ == '__main__':
+    test_main()

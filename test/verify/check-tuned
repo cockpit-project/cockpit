@@ -1,0 +1,76 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+import unittest
+import os
+
+@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No tuned on Debian.")
+@unittest.skipIf("fedora-atomic" in os.environ.get("TEST_OS", ""), "No tuned on Fedora Atomic.")
+class TestTuned(MachineCase):
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        recommended_profile = "virtual-guest"
+        if m.image == "rhel-atomic":
+            recommended_profile = "atomic-guest"
+
+        # Stop tuned in case it is running by default, as on RHEL.
+
+        m.execute("systemctl stop tuned")
+
+        # Login and check initial state
+
+        self.login_and_go("/system")
+
+        b.wait_text('#system-info-performance button', "none")
+        b.wait_attr('#system-info-performance [data-toggle="popover"]', 'data-content',
+                    "Tuned is not running")
+
+        # Start tuned manually and hit the info button to force an
+        # update.  The recommended profile will be activated
+        # automatically.
+
+        m.execute("systemctl start tuned")
+        b.click('#system-info-performance [data-toggle="popover"]')
+        b.wait_text('#system-info-performance button', recommended_profile)
+        b.wait_attr('#system-info-performance [data-toggle="popover"]', 'data-content',
+                    "This system is using the recommended profile")
+
+        # Switch the profile
+
+        b.click('#system-info-performance button')
+        b.wait_present('#tuned-dialog')
+        b.wait_visible('#tuned-dialog')
+        b.wait_in_text('#tuned-dialog .list-group-item.active p', recommended_profile)
+        b.wait_in_text('#tuned-dialog .list-group-item.active .badge', "recommended")
+        b.click('#tuned-dialog [data-profile="balanced"]')
+        b.wait_in_text('#tuned-dialog .list-group-item.active p', "balanced")
+        b.click('#tuned-dialog button.apply')
+        b.wait_not_present('#tuned-dialog')
+
+        b.wait_text('#system-info-performance button', "balanced")
+        b.wait_attr('#system-info-performance [data-toggle="popover"]', 'data-content',
+                    "This system is using a custom profile")
+
+if __name__ == '__main__':
+    test_main()

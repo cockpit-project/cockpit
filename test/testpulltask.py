@@ -139,7 +139,7 @@ class GithubPullTask(object):
         ret = None
         # Figure out what to do next
         if prefix == "verify":
-            cmd = [ "timeout", "120m", "./check-verify", "--install", "--jobs", str(opts.jobs) ]
+            cmd = [ "timeout", "120m", "./verify/run-tests", "--install", "--jobs", str(opts.jobs) ]
         elif prefix == "avocado":
             cmd = [ "timeout", "60m", "./avocado/run-tests", "--install", "--quick", "--tests" ]
         elif prefix == "selenium":

@@ -1,0 +1,46 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import time
+
+import parent
+from testlib import *
+from storagelib import *
+
+class TestStorage(StorageCase):
+    def testIgnored(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+        m.add_disk("50M", serial="DISK1")
+        b.wait_in_text("#drives", "DISK1")
+
+        m.execute("yes | mke2fs -q -L TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
+        b.wait_in_text("#mounts", "TEST")
+
+        # Hide it via a udev rule
+        m.write("/etc/udev/rules.d/99-ignore.rules",
+                'SUBSYSTEM=="block", ENV{ID_SERIAL_SHORT}=="DISK1", ENV{UDISKS_IGNORE}="1"\n')
+        m.execute("udevadm control --reload; udevadm trigger")
+        b.wait_not_in_text("#mounts", "TEST")
+
+if __name__ == '__main__':
+    test_main()

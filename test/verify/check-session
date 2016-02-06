@@ -1,0 +1,79 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+class TestSession(MachineCase):
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        self.allow_restart_journal_messages()
+        # Might happen when killing the bridge.
+        self.allow_journal_messages("localhost: dropping message while waiting for child to exit",
+                                    ".*No session for cookie")
+
+        def wait_session(should_exist):
+            def cond():
+                return should_exist == ("admin" in m.execute("loginctl list-sessions"))
+            # sometimes the session gets stuck forever in state 'closing' with no processes.
+            # https://bugs.freedesktop.org/show_bug.cgi?id=89024
+            wait(cond)
+
+        wait_session(False)
+
+        # Login
+        self.login_and_go("/system")
+        wait_session(True)
+
+        # Logout
+        b.logout()
+        b.wait_visible("#login")
+        wait_session(False)
+
+        # Login again
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+        b.click('#login-button')
+        b.expect_load()
+        b.enter_page("/system")
+        wait_session(True)
+
+        # Kill session from the outside
+        m.execute("loginctl kill-user admin")
+        wait_session(False)
+
+        b.relogin("/system", "admin")
+        wait_session(True)
+
+        # Kill session from the inside
+        b.switch_to_top()
+        b.wait_present("#content")
+        b.wait_visible("#content")
+        b.wait_text('#content-user-name', 'Administrator')
+        b.click('#content-user-name')
+        b.click('#go-account')
+        b.enter_page("/users")
+        b.wait_text ("#account-user-name", "admin")
+        b.wait_text("#account-user-name", "admin")
+
+if __name__ == '__main__':
+    test_main()

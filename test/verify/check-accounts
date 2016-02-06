@@ -1,0 +1,132 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+class TestAccounts(MachineCase):
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/users")
+
+        # Add a user externally
+        m.execute("useradd anton")
+        m.execute("echo anton:foobar | chpasswd")
+        b.wait_in_text('#accounts-list', "anton")
+
+        # Set a real name
+        b.go("#/anton")
+        b.wait_visible("#account")
+        b.wait_text("#account-user-name", "anton")
+        b.set_val('#account-real-name', "Anton Arbitrary")
+        b.wait_not_attr('#account-real-name', 'data-dirty', 'true')
+        # don't wait for /etc/passwd to be current - this should hold true once the 'data-dirty' was removed
+        self.assertIn("Anton Arbitrary", m.execute("grep anton /etc/passwd"))
+
+        # Delete it
+        b.click('#account-delete')
+        b.wait_popup('account-confirm-delete-dialog')
+        b.click('#account-confirm-delete-apply')
+        b.wait_popdown('account-confirm-delete-dialog')
+        b.wait_visible("#accounts")
+        b.wait_not_in_text('#accounts-list', "Anton Arbitrary")
+
+        # Create a user from the UI
+        b.click('#accounts-create')
+        b.wait_popup('accounts-create-dialog')
+        b.set_val('#accounts-create-user-name', "berta")
+        b.set_val('#accounts-create-real-name', "Berta Bestimmt")
+        b.set_val('#accounts-create-pw1', "fooB3r123")
+        b.set_val('#accounts-create-pw2', "fooB3r123")
+        b.click('#accounts-create-create')
+        b.wait_popdown('accounts-create-dialog')
+        b.wait_in_text('#accounts-list', "Berta Bestimmt")
+
+        # Delete it externally
+        m.execute("userdel berta")
+        b.wait_not_in_text('#accounts-list', "Berta Bestimmt")
+
+        # Create a locked user
+        b.click('#accounts-create')
+        b.wait_popup('accounts-create-dialog')
+        b.set_val('#accounts-create-user-name', "jussi")
+        b.set_val('#accounts-create-real-name', "Jussi Junior")
+        b.set_val('#accounts-create-pw1', "fooB3r123")
+        b.set_val('#accounts-create-pw2', "fooB3r123")
+        b.set_val('#accounts-create-locked', "yes")
+        b.click('#accounts-create-create')
+        b.wait_popdown('accounts-create-dialog')
+        b.wait_in_text('#accounts-list', "Jussi Junior")
+
+        admin_role_sel = 'input[data-name="%s"]' % m.get_admin_group()
+
+        # Unlock it and make it an admin
+        b.go("#/jussi")
+        b.wait_visible("#account")
+        b.wait_text("#account-user-name", "jussi")
+        b.set_val('#accounts-create-locked', "no")
+        b.wait_present(admin_role_sel + ":not(:checked)")
+        b.set_checked(admin_role_sel, True)
+        b.wait_present(admin_role_sel + ":checked")
+        b.wait(lambda: "jussi" in m.execute("grep %s /etc/group" % m.get_admin_group()))
+        b.set_checked(admin_role_sel, False)
+        b.wait_present(admin_role_sel + ":not(:checked)")
+        b.wait(lambda: "jussi" not in m.execute("grep %s /etc/group" % m.get_admin_group()))
+        m.execute("/usr/sbin/usermod jussi -G %s -a" % m.get_admin_group())
+        b.wait_present(admin_role_sel + ":checked")
+
+        # Change the password of this account
+        b.go("#/jussi")
+        b.wait_visible("#account")
+        b.wait_text("#account-user-name", "jussi")
+        b.click('#account-set-password')
+        b.wait_popup('account-set-password-dialog')
+
+        # Something invalid
+        b.set_val("#account-set-password-pw1", 'a')
+        b.set_val("#account-set-password-pw2", 'a')
+        b.click('#account-set-password-apply')
+        b.wait_present(".check-passwords.has-error")
+        self.assertEqual(b.text(".check-passwords.has-error .dialog-error.help-block"), "Password is not acceptable")
+
+        # Now set to something valid
+        b.set_val("#account-set-password-pw1", 'ö5 foobar')
+        b.set_val("#account-set-password-pw2", 'ö5 foobar')
+        b.click('#account-set-password-apply')
+        b.wait_popdown('account-set-password-dialog')
+
+        # Logout and login with the new password
+        b.logout()
+        self.allow_restart_journal_messages()
+        b.open("/users")
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "jussi")
+        b.set_val("#login-password-input", 'ö5 foobar')
+        b.click('#login-button')
+        b.expect_load()
+        b.wait_present('#content')
+
+        self.allow_journal_messages("Password quality check failed:")
+        self.allow_journal_messages("The password is a palindrome")
+
+if __name__ == '__main__':
+    test_main()

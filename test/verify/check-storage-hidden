@@ -1,0 +1,139 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from storagelib import *
+
+class TestStorage(StorageCase):
+    def testHiddenLuks(self):
+        m = self.machine
+        b = self.browser
+
+        mount_point_1 = "/run/mount1"
+        mount_point_2 = "/run/mount2"
+
+        self.login_and_go("/storage")
+
+        m.add_disk("50M", serial="DISK1")
+        m.add_disk("50M", serial="DISK2")
+        b.wait_in_text("#drives", "DISK1")
+        b.wait_in_text("#drives", "DISK2")
+
+        # Create a volume group with a logical volume with a encrypted
+        # filesystem.
+
+        b.wait_visible('#create-volume-group')
+        b.click('#create-volume-group')
+        self.dialog_wait_open()
+        self.dialog_set_val('name', "TEST")
+        self.dialog_select('disks', "DISK1", True)
+        self.dialog_apply()
+        self.dialog_wait_close()
+        b.wait_in_text('#vgroups', "TEST")
+
+        b.click('#vgroups tr:contains("TEST")')
+        b.wait_visible('#storage-detail')
+        self.content_default_action(1, "Create Plain Logical Volume")
+        self.dialog({ 'name': "lvol",
+                      'size': "48" })
+        b.wait_in_text("#content", "Logical Volume \"lvol\"")
+
+        self.content_default_action(1, "Format")
+        self.dialog({ "type": "luks+ext4",
+                      "name": "FS",
+                      "passphrase": "einszweidrei",
+                      "passphrase2": "einszweidrei",
+                      "mounting": "custom",
+                      "mount_point": mount_point_1,
+                      "crypto_options": "my-crypto-tag" })
+        b.wait_in_text("#content", "FS")
+        self.wait_in_storaged_configuration(mount_point_1)
+        self.wait_in_storaged_configuration("my-crypto-tag")
+
+        # Now doubly hide the clear text block device by locking the
+        # crypto backing device and deactivating /dev/TEST/lvol
+        self.content_action(1, "Lock")
+        b.wait_not_in_text("#content", "FS")
+        self.content_action(1, "Deactivate")
+        b.wait_in_text("#content", "(inactive)")
+
+        # HACK - https://github.com/storaged-project/storaged/issues/17
+        #
+        # Calling wait_in_storaged_configuration above should be
+        # enough to ensure that storaged has picked up the changed
+        # fstab and that all ChildConfiguration properties are
+        # up-to-date.  However, this doesn't happen for LogicalVolume
+        # interfaces.  They only pick up the changes somewhere along
+        # the Lock/Deactivate activities, so we explicitly wait for
+        # that to have happened.
+        #
+        # HACK - sometimes we have to use "storagedctl" and sometimes "storagectl".
+        #
+        wait(lambda: "my-crypto-tag" in m.execute("/usr/bin/storage*ctl dump | grep ChildConfiguration"))
+
+        # Deleting the volume group should still remove the fstab entry
+        b.click_action_btn('.panel-heading:contains("Volume Group") .btn-group', "Delete")
+        self.confirm()
+        b.wait_visible("#storage")
+        self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_1), "")
+        self.assertEqual(m.execute("grep %s /etc/crypttab || true" % "my-crypto-tag"), "")
+
+    def testHiddenRaid(self):
+        m = self.machine
+        b = self.browser
+
+        mount_point_1 = "/run/mount1"
+        mount_point_2 = "/run/mount2"
+
+        self.login_and_go("/storage")
+
+        m.add_disk("50M", serial="DISK1")
+        m.add_disk("50M", serial="DISK2")
+        b.wait_in_text("#drives", "DISK1")
+        b.wait_in_text("#drives", "DISK2")
+
+        # Now do the same with a MDRAID
+
+        self.dialog_with_retry(trigger = lambda: b.click('#create-mdraid'),
+                               expect = lambda: (self.dialog_is_present('disks', "DISK1") and
+                                                 self.dialog_is_present('disks', "DISK2")),
+                               values = { "name": "ARR",
+                                          "disks": { "DISK1": True,
+                                                     "DISK2": True }})
+        b.wait_in_text('#mdraids', "ARR")
+
+        b.click('#mdraids tr:contains("ARR")')
+        b.wait_visible('#storage-detail')
+        self.content_default_action(1, "Format")
+        self.dialog({ "type": "ext4",
+                      "name": "FS2",
+                      "mounting": "custom",
+                      "mount_point": mount_point_2 })
+        b.wait_in_text("#content", "FS2")
+        self.wait_in_storaged_configuration(mount_point_2)
+
+        self.browser.click_action_btn ('.panel-heading:contains("RAID Device") .btn-group', "Delete")
+        self.confirm()
+        b.wait_visible("#storage")
+        self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_2), "")
+
+if __name__ == '__main__':
+    test_main()

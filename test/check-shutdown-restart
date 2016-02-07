@@ -46,9 +46,16 @@ class TestShutdownRestart(MachineCase):
         b.click("a.opt span:contains('No Delay')")
         b.click("#shutdown-action")
         b.switch_to_top()
-        # we don't need to wait for the dialog to close here, just the disconnect
-        b.wait_popup("disconnected-dialog")
+
+        b.wait_visible(".curtains")
+        b.wait_in_text(".curtains h1", "Disconnected")
+
         m.wait_reboot()
+        m.start_cockpit()
+        b.click("#machine-reconnect")
+        b.expect_load()
+        b.wait_visible("#login")
+
         self.login_and_go("/system")
 
         self.allow_restart_journal_messages()
@@ -65,7 +72,9 @@ class TestShutdownRestart(MachineCase):
         b.click("#shutdown-action")
         b.switch_to_top()
         # we don't need to wait for the dialog to close here, just the disconnect
-        b.wait_popup("disconnected-dialog")
+        b.wait_visible(".curtains")
+        b.wait_in_text(".curtains h1", "Disconnected")
+
         m.wait_poweroff()
 
 if __name__ == '__main__':

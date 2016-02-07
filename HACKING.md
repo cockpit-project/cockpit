@@ -19,11 +19,20 @@ Vagrant. In the top level directory of the repository, you can run:
     $ sudo vagrant up
 
 Cockpit will listen on port 9090 of the vagrant VM started, and also
-port 9090 of localhost if cockpit is not running locally. Any changes
-you make to the system in the Vagrant VM won't affect the host machine.
+port 9090 of localhost if cockpit is not running locally. Access Cockpit
+at:
+
+    https://localhost:9090
+
+Any changes you make to the system in the Vagrant VM won't affect the
+host machine.
 
 You can edit files in the `pkg/` subdirectory of the Cockpit sources
-and the changes should take effect immediately in the Vagrant VM.
+and the changes should take effect after syncing them to the Vagrant
+VM. Use one of the folowing commands to sync:
+
+    $ sudo vagrant rsync
+    $ sudo vagrant rsync-auto
 
 The Vagrant VM is in debug mode, which means that resources will load
 into your web browser more slowly than in a production install of

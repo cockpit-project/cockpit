@@ -1,10 +1,13 @@
 # vi: set ft=ruby :
+#
+# See HACKING.md for how to use this Vagrantfile.
+#
 
 Vagrant.configure(2) do |config|
 
     config.vm.box = "fedora-23-cloud-base"
     config.vm.synced_folder ".", "/vagrant", disabled: true
-    config.vm.synced_folder ".", "/cockpit", type: "nfs", nfs_udp: false
+    config.vm.synced_folder ".", "/cockpit", type: "rsync", rsync__exclude: ['/src/', '/test/', '/node_modules/', '/doc/', '/examples/', '/images/', '/build/', '/x86_64/' ]
     config.vm.network "private_network", ip: "192.168.50.10"
     config.vm.network "forwarded_port", guest: 9090, host: 9090
     config.vm.hostname = "cockpit-devel"

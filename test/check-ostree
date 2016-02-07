@@ -188,8 +188,9 @@ class OstreeRestartCase(MachineCase):
 
         b.switch_to_top()
         with b.wait_timeout(120):
-            b.wait_popup("disconnected-dialog")
+            b.wait_visible(".curtains")
 
+        b.wait_in_text(".curtains h1", "Disconnected")
         m.wait_reboot()
         m.start_cockpit()
         b.reload()
@@ -231,8 +232,9 @@ class OstreeRestartCase(MachineCase):
 
         b.switch_to_top()
         with b.wait_timeout(120):
-            b.wait_popup("disconnected-dialog")
+            b.wait_visible(".curtains")
 
+        b.wait_in_text(".curtains h1", "Disconnected")
         m.wait_reboot()
         m.start_cockpit()
         b.reload()

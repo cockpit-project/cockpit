@@ -62,35 +62,7 @@ define([
     var watchdog_problem = null;
     $(index).on("disconnect", function (ev, problem) {
         watchdog_problem = problem;
-        $('.modal[role="dialog"]').modal('hide');
-        $('#disconnected-dialog').modal('show');
-        phantom_checkpoint();
-    });
-
-    $("#disconnected-dialog").on("show.bs.modal", function() {
-        /* Try to reconnect right away ... so that reconnect button has a chance */
-        new window.WebSocket(cockpit.transport.uri(), "cockpit1");
-        $('#disconnected-error').text(cockpit.message(watchdog_problem));
-        phantom_checkpoint();
-    });
-
-    $('#disconnected-reconnect').on("click", function() {
-        /*
-         * If the connection was interrupted, but cockpit-ws is still running,
-         * then it still has our session. The dummy cockpit.channel() above tried
-         * to reestablish a connection with the same credentials.
-         *
-         * So if that works, this should reload the current page and get back to
-         * where the user was right away. Otherwise this sends the user back
-         * to the login screen.
-         */
-        window.sessionStorage.clear();
-        window.location.reload(false);
-    });
-
-    $('#disconnected-logout').on("click", function() {
-        cockpit.logout();
-        phantom_checkpoint();
+        show_disconnected();
     });
 
     /* Is troubleshooting dialog open */
@@ -98,7 +70,12 @@ define([
 
     /* Reconnect button */
     $("#machine-reconnect").on("click", function(ev) {
-        navigate(null, true);
+        if (watchdog_problem) {
+            window.sessionStorage.clear();
+            window.location.reload(true);
+        } else {
+            navigate(null, true);
+        }
     });
 
     /* Troubleshoot pause navigation */
@@ -144,6 +121,22 @@ define([
             return false;
         }
     });
+
+    function show_disconnected() {
+        var current_frame = index.current_frame();
+
+        if (current_frame)
+            $(current_frame).hide();
+
+        $(".curtains .spinner").toggle(false);
+        $("#machine-reconnect").toggle(true);
+        $("#machine-troubleshoot").toggle(false);
+        $(".curtains i").toggle(true);
+        $(".curtains h1").text(_("Disconnected"));
+        $(".curtains p").text(cockpit.message(watchdog_problem));
+        $(".curtains").show();
+        phantom_checkpoint();
+    }
 
     /* Handles navigation */
     function navigate(state, reconnect) {

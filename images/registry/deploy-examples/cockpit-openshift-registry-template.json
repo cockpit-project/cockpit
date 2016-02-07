@@ -1,0 +1,137 @@
+{
+   "kind": "Template",
+   "apiVersion": "v1",
+   "metadata": {
+      "name": "cockpit-openshift-registry-template"
+   },
+   "labels": {
+      "createdBy": "cockpit-openshift-registry-template"
+   },
+   "parameters": [
+      {
+         "description": "The public url for the Openshift OAuth Provider",
+         "name": "OPENSHIFT_OAUTH_PROVIDER_URL",
+         "required": true
+      },
+      {
+         "description": "The public url for the Openshift OAuth Provider",
+         "name": "COCKPIT_KUBE_URL",
+         "required": true
+      },
+      {
+         "description": "The public url for the Openshift OAuth Provider",
+         "name": "COCKPIT_KUBE_INSECURE",
+         "required": false
+      },
+      {
+         "description": "Oauth client secret",
+         "name": "OPENSHIFT_OAUTH_CLIENT_SECRET",
+         "from": "user[a-zA-Z0-9]{64}",
+         "generate": "expression"
+      },
+      {
+         "description": "Oauth client id",
+         "name": "OPENSHIFT_OAUTH_CLIENT_ID",
+         "value": "cockpit-oauth-client"
+      },
+      {
+         "description": "Skip kubernetes CA verification",
+         "name": "KUBERNETES_INSECURE",
+         "value": ""
+      },
+      {
+         "description": "PEM Encoded certificate to use for CA verification",
+         "name": "KUBERNETES_CA_DATA",
+         "value": ""
+      }
+   ],
+   "objects": [
+      {
+         "kind":"DeploymentConfig",
+         "apiVersion":"v1",
+         "metadata":{
+            "name":"cockpit-kube",
+            "labels":{
+               "name":"cockpit-kube"
+            }
+         },
+         "spec":{
+            "replicas":1,
+            "selector":{
+               "name":"cockpit-kube"
+            },
+            "template":{
+               "metadata":{
+                  "labels":{
+                     "name":"cockpit-kube"
+                  }
+               },
+               "spec":{
+                  "containers":[{
+                    "name": "cockpit-kube",
+                    "image": "cockpit/registry",
+                    "ports":[{
+                        "containerPort":9090,
+                        "protocol":"TCP"
+                     }],
+                    "env":[
+                      {
+                        "name": "OPENSHIFT_OAUTH_PROVIDER_URL",
+                        "value": "${OPENSHIFT_OAUTH_PROVIDER_URL}"
+                      },
+                      {
+                        "name": "OPENSHIFT_OAUTH_CLIENT_ID",
+                        "value": "${OPENSHIFT_OAUTH_CLIENT_ID}"
+                      },
+                      {
+                        "name": "KUBERNETES_INSECURE",
+                        "value": "${KUBERNETES_INSECURE}"
+                      },
+                      {
+                        "name": "KUBERNETES_CA_DATA",
+                        "value": "${KUBERNETES_CA_DATA}"
+                      },
+                      {
+                        "name": "COCKPIT_KUBE_INSECURE",
+                        "value": "${COCKPIT_KUBE_INSECURE}"
+                      }]
+                  }]
+               }
+            }
+         }
+      },
+      {
+         "kind":"Service",
+         "apiVersion":"v1",
+         "metadata":{
+            "name":"cockpit-kube",
+            "labels":{
+               "name":"cockpit-kube"
+            }
+         },
+         "spec":{
+             "type": "ClusterIP",
+             "ports": [{
+                 "protocol": "TCP",
+                 "port": 9000,
+                 "targetPort": 9090
+             }],
+            "selector":{
+               "name":"cockpit-kube"
+            }
+         }
+      },
+      {
+        "kind": "OAuthClient",
+        "apiVersion": "v1",
+        "metadata": {
+          "name": "${OPENSHIFT_OAUTH_CLIENT_ID}"
+        },
+        "respondWithChallenges": false,
+        "secret": "${OPENSHIFT_OAUTH_CLIENT_SECRET}",
+        "redirectURIs": [
+            "${COCKPIT_KUBE_URL}"
+        ]
+      }
+   ]
+}

@@ -20,11 +20,13 @@ set -ex
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker
 
-mkdir /var/tmp/images/kubernetes/rpms
-cp -r /var/tmp/build-results/*.rpm /var/tmp/images/kubernetes/rpms/
-
-cd /var/tmp/images/kubernetes/
-docker build --build-arg VERSION=wip -t cockpit/kubernetes .
-rm -r /var/tmp/images/kubernetes/rpms
+for NAME in kubernetes registry
+do
+    mkdir "/var/tmp/images/$NAME/rpms"
+    cp -r /var/tmp/build-results/*.rpm "/var/tmp/images/$NAME/rpms/"
+    cd "/var/tmp/images/$NAME/"
+    docker build --build-arg VERSION=wip -t "cockpit/$NAME" .
+    rm -r "/var/tmp/images/$NAME/rpms"
+done
 
 rm -rf /var/log/journal/* || true

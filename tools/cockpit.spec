@@ -179,9 +179,6 @@ install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/%{name}/
 
-# This is not yet packaged
-rm -rf %{buildroot}%{_datadir}/%{name}/registry
-
 # On RHEL we don't yet show options for changing language
 %if 0%{?rhel}
 echo '{ "linguas": null, "machine-limit": 5 }' > %{buildroot}%{_datadir}/%{name}/shell/override.json
@@ -235,8 +232,11 @@ touch docker.list
 %ifarch x86_64
 echo '%dir %{_datadir}/%{name}/kubernetes' > kubernetes.list
 find %{buildroot}%{_datadir}/%{name}/kubernetes -type f >> kubernetes.list
+echo '%dir %{_datadir}/%{name}/registry' >> kubernetes.list
+find %{buildroot}%{_datadir}/%{name}/registry -type f >> kubernetes.list
 %else
 rm -rf %{buildroot}/%{_datadir}/%{name}/kubernetes
+rm -rf %{buildroot}/%{_datadir}/%{name}/registry
 touch kubernetes.list
 %endif
 

@@ -362,10 +362,12 @@ define([
 
         function state(host, value, problem) {
             var values = { state: value, problem: problem };
-            if (value == "connected")
+            if (value == "connected") {
                 values.restarting = false;
-            else if (problem)
+            } else if (problem) {
                 values.manifests = null;
+                values.checksum = null;
+            }
             machines.overlay(host, values);
         }
 
@@ -406,7 +408,7 @@ define([
                     cockpit.kill(old_conns);
                     self.disconnect(host);
                     self.connect(host);
-                } else if (!machine.problem || machine.restarting) {
+                } else if (!machine.problem) {
                     self.connect(host);
                 }
             } else {
@@ -483,8 +485,8 @@ define([
                     problem = options.problem || "disconnected";
                     open = false;
                     state(host, "failed", problem);
-                    var machine = machines[host];
-                    if (machine && machine.restarting) {
+                    var m = machines.lookup(host);
+                    if (m && m.restarting) {
                         window.setTimeout(function() {
                             self.connect(host);
                         }, 10000);
@@ -527,7 +529,9 @@ define([
         };
 
         self.expect_restart = function expect_restart(host) {
-            machines.overlay(host, { restarting: true });
+            var parts = machines.split_connection_string(host);
+            machines.overlay(parts.address, { restarting: true,
+                                              problem: null });
         };
 
         self.close = function close() {

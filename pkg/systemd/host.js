@@ -1262,12 +1262,11 @@ PageShutdownDialog.prototype = {
 
         var arg = (op == "shutdown") ? "--poweroff" : "--reboot";
 
+        if (op == "restart")
+            cockpit.hint("restart");
+
         var promise = cockpit.spawn(["shutdown", arg, when, message], { superuser: "try" });
         $('#shutdown-dialog').dialog("promise", promise);
-        promise.done(function() {
-            if (op == "restart")
-                cockpit.hint("restart");
-        });
     },
 
     restart: function() {

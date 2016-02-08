@@ -55,7 +55,6 @@ define([
     /* Restarts */
     $(index).on("expect_restart", function (ev, host) {
         loader.expect_restart(host);
-        index.jump({ host: "localhost", component: "" });
     });
 
     /* Disconnection Dialog */
@@ -319,7 +318,7 @@ define([
                 }
             }
 
-            if (mdialogs.needs_troubleshoot(machine)) {
+            if (!machine.restarting && mdialogs.needs_troubleshoot(machine)) {
                 $("#machine-troubleshoot").off()
                     .on("click", function () {
                         mdialogs.troubleshoot("troubleshoot-dialog", machine);

@@ -449,6 +449,17 @@ define([
             var transaction_client = null;
             var subscription = null;
             var dp = $.Deferred();
+            var i;
+            var reboot = false;
+
+            if ($.isArray(method_args)) {
+                for (i = 0; i < method_args.length; i++) {
+                    if ($.isPlainObject(method_args[i])) {
+                        reboot = method_args[i].reboot;
+                        break;
+                    }
+                }
+            }
 
             function cleanup(ex) {
                 local_running = null;
@@ -485,6 +496,9 @@ define([
                                 "address": result[0],
                                 "bus": "none"
                             };
+
+                            if (reboot)
+                                cockpit.hint('restart');
 
                             transaction_client = cockpit.dbus(null, connect_args);
                             $(transaction_client).on("close", function(event, ex) {

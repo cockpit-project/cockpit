@@ -152,7 +152,7 @@ class GithubPullTask(object):
         else:
             ret = "Unknown context"
 
-        if opts.verbose:
+        if cmd and opts.verbose:
             cmd.append("--verbose")
 
         ret = ret or self.rebase()

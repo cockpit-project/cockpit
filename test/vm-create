@@ -84,9 +84,9 @@ class MachineBuilder:
                 "TEST_SOURCE": os.path.join("/var/tmp", os.path.basename(source))
             }
             self.machine.message("run setup script on guest")
-            self.machine.execute(script="/var/tmp/SETUP", environment=env, quiet=not self.machine.verbose)
 
             try:
+                self.machine.execute(script="/var/tmp/SETUP", environment=env, quiet=not self.machine.verbose)
                 self.machine.execute(command="rm /var/tmp/SETUP")
                 self.machine.execute(command="rm -rf /root/.rhel")
             except subprocess.CalledProcessError, ex:

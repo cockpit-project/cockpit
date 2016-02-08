@@ -86,6 +86,7 @@ class SeleniumTest(Test):
 
                 self.driver.save_screenshot(screenshot_file)
                 self.log.error("Screenshot(teardown) - Wrote: " + screenshot_file)
+                self.debug_logs()
             except Exception as e:
                 screenshot_file = "Unable to catch screenshot: " + screenshot_file
                 raise Exception('ERR: Unable to store screenshot: %s' % screenshot_file, str(e))
@@ -94,6 +95,11 @@ class SeleniumTest(Test):
             self.driver.quit()
         except Exception as e:
             raise Exception('ERR: Unable to close WEBdriver', str(e))
+
+    def debug_logs(self, logs=['browser','driver','client','server']):
+        for log in logs:
+            self.log.error(">>>>> " + log)
+            self.log.error(self.driver.get_log(log))
 
     def everything_loaded(self, element):
         """
@@ -179,6 +185,7 @@ parameters:
                     pass
                 finally:
                     self.log.error("Screenshot(test) - Wrote: " + screenshot_file)
+                    self.debug_logs()
                     raise Exception('ERR: Unable to locate name: %s' % str(text), screenshot_file)
         self.element_wait_functions[returned] = usedfunction
         return returned

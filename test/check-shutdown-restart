@@ -27,10 +27,18 @@ class TestShutdownRestart(MachineCase):
     def setUp(self):
         # we need a static ip for this test
         MachineCase.setUp(self, macaddr='52:54:00:9e:00:F3')
+        self.machine.execute("hostnamectl set-hostname machine1")
+        self.machine2 = self.new_machine()
+        self.machine2.start()
+        self.machine2.wait_boot()
+        self.machine2.execute("hostnamectl set-hostname machine2")
 
     def testBasic(self):
         m = self.machine
         b = self.browser
+
+        m2 = self.machine2
+        b2 = self.new_browser(m2.address)
 
         # HACK -https://bugzilla.redhat.com/show_bug.cgi?id=1278287
         m.execute("! selinuxenabled || setenforce 0")
@@ -56,13 +64,50 @@ class TestShutdownRestart(MachineCase):
         b.expect_load()
         b.wait_visible("#login")
 
-        self.login_and_go("/system")
-
         self.allow_restart_journal_messages()
         self.allow_journal_messages("Shutdown scheduled for .*")
         self.check_journal_messages()
 
+        m2.start_cockpit()
+        b2.login_and_go("/system")
+
+        # Add machine with static IP to m2
+        b2.switch_to_top()
+        b2.go("/@%s" % m.address)
+        b2.wait_visible("#machine-troubleshoot")
+        b2.click('#machine-troubleshoot')
+        b2.wait_popup('troubleshoot-dialog')
+        b2.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
+        b2.wait_text('#troubleshoot-dialog .btn-primary', "Add")
+        b2.click('#troubleshoot-dialog .btn-primary')
+        b2.wait_in_text('#troubleshoot-dialog', "Fingerprint")
+        b2.click('#troubleshoot-dialog .btn-primary')
+        b2.wait_popdown('troubleshoot-dialog')
+        b2.enter_page("/system", host=m.address)
+        b2.wait_text("#system_information_hostname_button", "machine1")
+
+        # Check auto reconnect on restart
+        m.reset_reboot_flag()
+        b2.click("#shutdown-group button.btn-danger")
+        b2.wait_popup("shutdown-dialog")
+        b2.wait_in_text("#shutdown-action", 'Restart')
+        b2.click("#shutdown-delay button")
+        b2.click("a.opt span:contains('No Delay')")
+        b2.click("#shutdown-action")
+        b2.switch_to_top()
+
+        b2.wait_visible(".curtains")
+        b2.wait_visible(".curtains .spinner")
+        b2.wait_in_text(".curtains h1", "restarting")
+
+        m.wait_reboot()
+
+        b2.wait_not_visible(".curtains")
+        b2.enter_page("/system", host=m.address, reconnect=False)
+
         # Poweroff
+        self.login_and_go("/system")
+        b.enter_page("/system")
         b.click("#shutdown-group span.caret")
         b.click("#shutdown-group a:contains('Shutdown')")
         b.wait_popup("shutdown-dialog")

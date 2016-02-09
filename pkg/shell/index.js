@@ -277,6 +277,7 @@ define([
 
         var tools = compiled.ordered("tools").map(links);
         $("#sidebar-tools").empty().append(tools);
+        $('#tools-panel li.active').parents('#tools-panel').collapse('show');
     }
 
     function update_title(label, machine) {

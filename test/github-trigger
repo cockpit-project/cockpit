@@ -19,6 +19,10 @@ def main():
 
     pull = github.get("pulls/" + opts.pull)
 
+    if not pull:
+        sys.stderr.write("{0} is not a pull request.\n".format(opts.pull))
+        return 1
+
     # triggering is manual, so don't prevent triggering a user that isn't on the whitelist
     # but issue a warning in case of an oversight
     login = pull["head"]["user"]["login"]

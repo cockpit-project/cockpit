@@ -312,7 +312,7 @@ class OpenshiftCommonTests(object):
         self.assertEqual(b.text(".images-listing tr[data-id='library/busybox'] h3"), "library/busybox")
         b.wait_in_text(".images-listing tr[data-id='library/busybox'] div.listing-body", "latest")
         b.wait_in_text(".images-listing tr[data-id='library/busybox'] div.listing-body", "amd64")
-        b.wait_in_text(".images-listing tr[data-id='library/busybox'] div.listing-body", "library/busybox@sha")
+        b.wait_in_text(".images-listing tr[data-id='library/busybox'] div.listing-body", "busybox@sha")
 
         # Switch to detail view
         b.click("a[href='#/list']")

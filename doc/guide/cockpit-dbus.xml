@@ -112,7 +112,8 @@ client = cockpit.dbus(name, [options])
         <term><code>"host"</code></term>
         <listitem><para>The host to open the channel to. If no host is specified
           then the correct one will be automatically selected based on the page
-          calling this function.</para></listitem>
+          calling this function. If an alternate user is required, then it must be
+            specified as a <code>"user@myhost"</code> value.</para></listitem>
       </varlistentry>
       <varlistentry>
         <term><code>"superuser"</code></term>

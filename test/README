@@ -28,20 +28,20 @@ Alternatively you can run an individual test like this:
 
     $ cd test
     $ ./testsuite-prepare
-    $ ./check-session
+    $ ./verify/check-session
 
 The `./testsuite-prepare` command builds cockpit and puts it into the test. Only
 code currently committed in the current branch will be installed and tested.
 
 To see more verbose output from the test, use the --verbose and/or --trace flags:
 
-    $ ./check-session --verbose --trace
+    $ ./verify/check-session --verbose --trace
 
 In addition if you specify `--sit`, then the test wail wait on failure and allow
 you to log into cockpit and/or the test instance and diagnose the issue. An address
 will be printed of the test instance.
 
-    $ ./check-session --trace --sit
+    $ ./verify/check-session --trace --sit
 
 ## Details
 
@@ -67,7 +67,7 @@ The test suite itself:
 
  * testsuite-prepare: Prepare everything so that tests can run
  * check-verify: Run all tests
- * check-*: Run the selected tests
+ * verify/check-*: Run the selected tests
 
 ## Test Configuration
 
@@ -152,11 +152,11 @@ A typical sequence of steps would thus be the following:
   $ ./vm-reset            # Start over
   $ ../tools/make-rpms    # Create rpms
   $ ./vm-install ...      # Install code to test
-  $ ./check-...           # Run some tests
+  $ ./verify/check-...    # Run some tests
 
   $ ./vm-reset            # Start over
   $ ./vm-install ...      # Install code to test
-  $ ./check-...           # Run some tests
+  $ ./verify/check-...    # Run some tests
 
 You can perform all of the above easily by doing `./testsuite-prepare`
 
@@ -166,7 +166,7 @@ Once you have a test machine image that contains the version of
 Cockpit that you want to test, you can run tests by picking a program
 and just executing it:
 
-  $ ./check-connection
+  $ ./verify/check-connection
 
 ## Debugging tests
 

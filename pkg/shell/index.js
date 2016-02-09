@@ -134,6 +134,7 @@ define([
         $(".curtains h1").text(_("Disconnected"));
         $(".curtains p").text(cockpit.message(watchdog_problem));
         $(".curtains").show();
+        $("#navbar-dropdown").addClass("disabled");
         phantom_checkpoint();
     }
 

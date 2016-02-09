@@ -98,8 +98,11 @@ class SeleniumTest(Test):
 
     def debug_logs(self, logs=['browser','driver','client','server']):
         for log in logs:
-            self.log.error(">>>>> " + log)
-            self.log.error(self.driver.get_log(log))
+            receivedlog=self.driver.get_log(log)
+            if receivedlog:
+                self.log.info(">>>>> " + log)
+                for line in receivedlog:
+                    self.log.info("      " + str(line))
 
     def everything_loaded(self, element):
         """

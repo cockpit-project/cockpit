@@ -44,16 +44,16 @@ docker pull openshift/origin
 container=$(docker create openshift/origin)
 docker cp $container:/usr/bin - | tar -C /usr -xf - bin/openshift bin/oc bin/oadm bin/kubectl
 
-printf "[Unit]\nDescription=Openshift\n[Service]\nExecStart=/usr/bin/openshift start\n[Install]\nWantedBy=multi-user.target\n" > /etc/systemd/system/openshift.service
+printf "[Unit]\nDescription=Openshift\n[Service]\nExecStart=/usr/bin/openshift start --master=10.111.112.101\n[Install]\nWantedBy=multi-user.target\n" > /etc/systemd/system/openshift.service
 
 systemctl daemon-reload
 systemctl enable openshift
 systemctl start openshift || journalctl -u openshift
 
 # Now pull all the images we're going to use with openshift
-docker pull openshift/origin-deployer:v1.1
-docker pull openshift/origin-docker-registry:v1.1
-docker pull openshift/origin-pod:v1.1
+docker pull openshift/origin-deployer:v1.1.2
+docker pull openshift/origin-docker-registry:v1.1.2
+docker pull openshift/origin-pod:v1.1.2
 
 mkdir -p /root/.kube
 cp /openshift.local.config/master/admin.kubeconfig /root/.kube/config
@@ -89,6 +89,13 @@ printf "scruffy\r\nscruffy\r\n" | oc login
 oc new-project marmalade
 token=$(oc whoami -t)
 docker login -p "$token" -e silly@email.com -u unneeded registry:5000
+
+echo '{"apiVersion":"v1","kind":"ImageStream","metadata": {"name":"busybee"}}' > /tmp/imagestream.json
+oc create -f /tmp/imagestream.json
+echo '{"apiVersion":"v1","kind":"ImageStream","metadata": {"name":"juggs"}}' > /tmp/imagestream.json
+oc create -f /tmp/imagestream.json
+echo '{"apiVersion":"v1","kind":"ImageStream","metadata": {"name":"origin"}}' > /tmp/imagestream.json
+oc create -f /tmp/imagestream.json
 
 # Get ready to push busybox into place
 docker pull busybox

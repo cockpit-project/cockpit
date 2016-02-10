@@ -194,6 +194,8 @@ class GithubPullTask(object):
         if not ret:
             proc = subprocess.Popen(cmd)
             ret = testinfra.wait_testing(proc, lambda: self.check_publishing(github))
+            if ret == 124:
+                ret = "Test run has timed out"
 
         # All done
         if self.sink:

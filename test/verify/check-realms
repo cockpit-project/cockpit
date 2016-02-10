@@ -25,6 +25,12 @@ import os
 import subprocess
 import unittest
 
+def prepare_resolv(machine, address):
+    machine.execute("hostnamectl set-hostname x0.cockpit.lan")
+    # on Debian, /etc/resolv.conf can be a symbolic link
+    # so instead of overwriting, delete it and write a new one
+    machine.execute("echo -e 'domain cockpit.lan\nsearch cockpit.lan\nnameserver %s\n' >/etc/resolv2.conf; mv /etc/resolv2.conf /etc/resolv.conf; chattr +i /etc/resolv.conf" % address)
+
 @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "atomic: missing bind-utils")
 class TestRealms(MachineCase):
 
@@ -38,8 +44,7 @@ class TestRealms(MachineCase):
         ipa.start()
         ipa.wait_boot()
 
-        m.execute("hostnamectl set-hostname x0.cockpit.lan")
-        m.execute("echo -e 'domain cockpit.lan\nsearch cockpit.lan\nnameserver %s\n' >/etc/resolv.conf; chattr +i /etc/resolv.conf" % ipa.address)
+        prepare_resolv(m, ipa.address)
 
         # Wait for DNS to work as expected.
         # https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
@@ -131,8 +136,7 @@ class TestRealms(MachineCase):
         ipa.start()
         ipa.wait_boot()
 
-        m.execute("hostnamectl set-hostname x0.cockpit.lan")
-        m.execute("echo -e 'domain cockpit.lan\nsearch cockpit.lan\nnameserver %s\n' >/etc/resolv.conf; chattr +i /etc/resolv.conf" % ipa.address)
+        prepare_resolv(m, ipa.address)
 
         # Wait for DNS to work as expected.
         # https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
@@ -169,9 +173,6 @@ KRB5_TEMPLATE = """
 
 JOIN_SCRIPT = """
 set -e
-hostnamectl set-hostname x0.cockpit.lan
-echo -e 'domain cockpit.lan\nsearch cockpit.lan\nnameserver %(addr)s\n' > /etc/resolv.conf
-chattr +i /etc/resolv.conf
 # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
 for x in 1 2 3 4 5 6 7 8 9 10; do
     if nslookup -type=SRV _ldap._tcp.cockpit.lan; then
@@ -186,7 +187,7 @@ fi
 
 # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1144292
 echo '%(password)s' | kinit admin@COCKPIT.LAN
-curl -s --negotiate -u : https://f0.cockpit.lan/ipa/json --header 'Referer: https://f0.cockpit.lan/ipa' --header "Content-Type: application/json" --header "Accept: application/json" --data '{"params": [["HTTP/x0.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false}], "method": "service_add", "id": 0}'
+curl --insecure -s --negotiate -u : https://f0.cockpit.lan/ipa/json --header 'Referer: https://f0.cockpit.lan/ipa' --header "Content-Type: application/json" --header "Accept: application/json" --data '{"params": [["HTTP/x0.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false}], "method": "service_add", "id": 0}'
 ipa-getkeytab -q -s f0.cockpit.lan -p HTTP/x0.cockpit.lan -k /etc/krb5.keytab
 """
 
@@ -214,6 +215,7 @@ class TestKerberos(MachineCase):
             data = KRB5_TEMPLATE % args
             f.write(data)
 
+        prepare_resolv(self.machine, self.ipa.address)
         self.machine.execute(script=JOIN_SCRIPT % args)
         env = os.environ.copy()
         proc = subprocess.Popen(["kinit", "admin@COCKPIT.LAN"], env=env, stdin=subprocess.PIPE)

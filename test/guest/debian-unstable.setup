@@ -64,6 +64,9 @@ openssh-client \
 # that we don't have to go to the network during a test run.
 #
 IPA_CLIENT_PACKAGES="\
+sssd-tools \
+packagekit \
+freeipa-client \
 "
 
 TEST_PACKAGES="\
@@ -87,6 +90,9 @@ echo PBUILDERSATISFYDEPENDSCMD=true >~/.pbuilderrc
 
 # docker images that we need for integration testing
 /var/lib/testvm/docker-images.setup
+
+# in case there are unnecessary packages
+apt-get -y autoremove || true
 
 # reduce image size
 apt-get clean

@@ -42,6 +42,7 @@ class TestAccounts(MachineCase):
         # don't wait for /etc/passwd to be current - this should hold true once the 'data-dirty' was removed
         self.assertIn("Anton Arbitrary", m.execute("grep anton /etc/passwd"))
 
+        good_password = "tqymuVh.ZfZnP§9Wr=LM3JyG5yx"
         # Delete it
         b.click('#account-delete')
         b.wait_popup('account-confirm-delete-dialog')
@@ -55,8 +56,8 @@ class TestAccounts(MachineCase):
         b.wait_popup('accounts-create-dialog')
         b.set_val('#accounts-create-user-name', "berta")
         b.set_val('#accounts-create-real-name', "Berta Bestimmt")
-        b.set_val('#accounts-create-pw1', "fooB3r123")
-        b.set_val('#accounts-create-pw2', "fooB3r123")
+        b.set_val('#accounts-create-pw1', good_password)
+        b.set_val('#accounts-create-pw2', good_password)
         b.click('#accounts-create-create')
         b.wait_popdown('accounts-create-dialog')
         b.wait_in_text('#accounts-list', "Berta Bestimmt")
@@ -70,8 +71,8 @@ class TestAccounts(MachineCase):
         b.wait_popup('accounts-create-dialog')
         b.set_val('#accounts-create-user-name', "jussi")
         b.set_val('#accounts-create-real-name', "Jussi Junior")
-        b.set_val('#accounts-create-pw1', "fooB3r123")
-        b.set_val('#accounts-create-pw2', "fooB3r123")
+        b.set_val('#accounts-create-pw1', good_password)
+        b.set_val('#accounts-create-pw2', good_password)
         b.set_val('#accounts-create-locked', "yes")
         b.click('#accounts-create-create')
         b.wait_popdown('accounts-create-dialog')
@@ -108,9 +109,10 @@ class TestAccounts(MachineCase):
         b.wait_present(".check-passwords.has-error")
         self.assertEqual(b.text(".check-passwords.has-error .dialog-error.help-block"), "Password is not acceptable")
 
+        good_password_2 = "cEwghLY§X9R&m8RLwk4Xfed9Bw="
         # Now set to something valid
-        b.set_val("#account-set-password-pw1", 'ö5 foobar')
-        b.set_val("#account-set-password-pw2", 'ö5 foobar')
+        b.set_val("#account-set-password-pw1", good_password_2)
+        b.set_val("#account-set-password-pw2", good_password_2)
         b.click('#account-set-password-apply')
         b.wait_popdown('account-set-password-dialog')
 
@@ -120,7 +122,7 @@ class TestAccounts(MachineCase):
         b.open("/users")
         b.wait_visible("#login")
         b.set_val("#login-user-input", "jussi")
-        b.set_val("#login-password-input", 'ö5 foobar')
+        b.set_val("#login-password-input", good_password_2)
         b.click('#login-button')
         b.expect_load()
         b.wait_present('#content')

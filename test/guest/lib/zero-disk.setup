@@ -18,9 +18,9 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-# on Debian we don't want to delete pbuilder
+# on Debian we don't want to delete pbuilder or cracklib
 if [ -d "/var/cache" ]; then
-    ( cd /var/cache; ls . | grep -vx pbuilder | xargs rm -rf )
+    find /var/cache/* -maxdepth 0 -depth -name "*" ! -path /var/cache/pbuilder ! -path /var/cache/cracklib -exec rm -rf {} \;
 fi
 rm -rf /var/tmp/*
 rm -rf /var/log/journal/*

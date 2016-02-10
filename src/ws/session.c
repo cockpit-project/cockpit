@@ -56,6 +56,7 @@
 #define MAX_BUFFER 64 * 1024
 #define AUTH_FD 3
 #define EX 127
+#define DEFAULT_PATH "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 static struct passwd *pwd;
 const char *rhost;
@@ -898,6 +899,7 @@ static const char *env_names[] = {
   "G_DEBUG",
   "G_MESSAGES_DEBUG",
   "G_SLICE",
+  "PATH",
   NULL
 };
 
@@ -909,6 +911,9 @@ save_environment (void)
 {
   const char *value;
   int i, j;
+
+  /* Force save our default path */
+  setenv ("PATH", DEFAULT_PATH, 1);
 
   for (i = 0, j = 0; env_names[i] != NULL; i++)
     {
@@ -957,7 +962,7 @@ main (int argc,
         }
 
       /* set a minimal environment */
-      setenv ("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", 1);
+      setenv ("PATH", DEFAULT_PATH, 1);
 
       if (setgid (0) != 0 || setuid (0) != 0)
         err (1, "couldn't switch permissions correctly");

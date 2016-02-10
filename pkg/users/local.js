@@ -20,6 +20,7 @@
 var $ = require("jquery");
 var cockpit = require("cockpit");
 
+var React = require("react");
 var Mustache = require("mustache");
 var authorized_keys = require("./authorized-keys");
 
@@ -271,6 +272,31 @@ function is_user_in_group(user, group) {
     return false;
 }
 
+var AccountItem = React.createClass({
+    displayName: 'AccountItem',
+    click: function(ev) {
+        if (ev && ev.button === 0)
+            cockpit.location.go([this.props.name]);
+    },
+    render: function() {
+        return React.createElement('div', {className: "cockpit-account", onClick: this.click },
+            React.createElement('div', {className: "cockpit-account-pic pficon pficon-user"}),
+            React.createElement('div', {className: "cockpit-account-real-name"}, this.props.gecos),
+            React.createElement('div', {className: "cockpit-account-user-name"}, this.props.name)
+        );
+    }
+});
+
+var AccountList = React.createClass({
+    displayName: 'AccountList',
+    render: function() {
+        var i, items = [];
+        for (i in this.props.accounts)
+            items.push(React.createElement(AccountItem, this.props.accounts[i]));
+        return React.createElement('div', null, items);
+    }
+});
+
 function log_unexpected_error(error) {
     console.warn("Unexpected error", error);
 }
@@ -316,30 +342,22 @@ PageAccounts.prototype = {
     },
 
     update: function() {
-        var list = $("#accounts-list");
-
         this.accounts.sort (function (a, b) {
                                 if (! a["gecos"]) return -1;
                                 else if (! b["gecos"]) return 1;
                                 else return a["gecos"].localeCompare(b["gecos"]);
                             });
 
-        list.empty();
-        for (var i = 0; i < this.accounts.length; i++) {
-            if ((this.accounts[i]["uid"] < 1000 && this.accounts[i]["uid"] !== 0) ||
-                  this.accounts[i]["shell"].match(/^(\/usr)?\/sbin\/nologin/) ||
-                  this.accounts[i]["shell"] === '/bin/false')
-                continue;
-            var img =
-                $('<div/>', { 'class': "cockpit-account-pic pficon pficon-user" });
-            var div =
-                $('<div/>', { 'class': "cockpit-account" }).append(
-                    img,
-                    $('<div/>', { 'class': "cockpit-account-real-name" }).text(this.accounts[i]["gecos"]),
-                    $('<div/>', { 'class': "cockpit-account-user-name" }).text(this.accounts[i]["name"]));
-            div.on('click', $.proxy(this, "go", this.accounts[i]["name"]));
-            list.append(div);
-        }
+        var accounts = this.accounts.filter(function(account) {
+            return !((account["uid"] < 1000 && account["uid"] !== 0) ||
+                     account["shell"].match(/^(\/usr)?\/sbin\/nologin/) ||
+                     account["shell"] === '/bin/false');
+        });
+
+        React.render(
+            React.createElement(AccountList, { accounts: accounts }),
+            document.getElementById('accounts-list')
+        );
     },
 
     create: function () {

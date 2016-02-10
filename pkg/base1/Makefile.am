@@ -16,6 +16,8 @@ nodist_base_DATA = \
 	pkg/base1/jquery.min.js.gz \
 	pkg/base1/cockpit.min.js.gz \
 	pkg/base1/bundle.min.js.gz \
+	pkg/base1/react.min.js.gz \
+	pkg/base1/react-dom.min.js.gz \
 	$(base_GEN:.js=.min.js.gz) \
 	$(NULL)
 base_DATA = \
@@ -73,6 +75,10 @@ pkg/base1/moment.min.js: pkg/base1/moment.js
 pkg/base1/mustache.min.js: pkg/base1/mustache.js
 	$(MIN_JS_RULE)
 pkg/base1/term.min.js: pkg/base1/term.js
+	$(MIN_JS_RULE)
+pkg/base1/react.min.js: pkg/base1/react.js
+	$(MIN_JS_RULE)
+pkg/base1/react-dom.min.js: pkg/base1/react-dom.js
 	$(MIN_JS_RULE)
 
 install-data-local::

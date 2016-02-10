@@ -36,8 +36,15 @@ def main():
     opts = parser.parse_args()
 
     github = testinfra.GitHub("/repos/cockpit-project/cockpit/")
+
     for entry in github.scan(not opts.dry, opts.context, opts.except_context):
         sys.stdout.write("{0}: {1}\n".format(entry.priority, entry.task.description()))
+
+    for image, wait_time in github.scan_image_wait_times().items():
+        # Images with wait_time <= 0 are already included in the list
+        # of tasks above, so we don't need to list them here.
+        if wait_time > 0:
+            sys.stdout.write("{0} will be refreshed in {1:.1f} days.\n".format(image, wait_time))
 
 if __name__ == '__main__':
     sys.exit(main())

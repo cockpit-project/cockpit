@@ -455,21 +455,27 @@ class GitHub(object):
 
         return results
 
-    def scan_for_image_tasks(self):
+    def scan_image_wait_times(self):
         issues = self.get("issues?labels=bot&filter=all&state=all")
 
-        results = [ ]
+        wait_times = { }
         for image, config in DEFAULT_IMAGE_REFRESH.items():
-            found = False
+            wait_times[image] = 0
             for issue in issues:
                 if issue['title'] == ISSUE_TITLE_IMAGE_REFRESH.format(image):
                     age = time.time() - time.mktime(time.strptime(issue['created_at'], "%Y-%m-%dT%H:%M:%SZ"))
-                    if age < IMAGE_REFRESH * 24 * 60 * 60:
-                        found = True
-            if not found:
-                results.append(GitHub.TaskEntry(BASELINE_PRIORITY, GithubImageTask("refresh-" + image, image,
-                                                                                   config)))
+                    wait_time = IMAGE_REFRESH - (age / (24 * 60 * 60))
+                    if wait_time > wait_times[image]:
+                        wait_times[image] = wait_time
+        return wait_times
 
+    def scan_for_image_tasks(self):
+        results = [ ]
+        for image, wait_time in self.scan_image_wait_times().items():
+            if wait_time <= 0:
+                results.append(GitHub.TaskEntry(BASELINE_PRIORITY, GithubImageTask("refresh-" + image,
+                                                                                   image,
+                                                                                   DEFAULT_IMAGE_REFRESH[image])))
         return results
 
     # Figure out what tasks needs doing

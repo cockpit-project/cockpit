@@ -302,6 +302,9 @@ cockpit_bridge_new (CockpitTransport *transport,
                          "init-received", init_received,
                          NULL);
 
+  /* Set a path if nothing is set */
+  g_setenv ("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", 0);
+
   for (i = 0; payload_types[i].name != NULL; i++)
     {
       cockpit_bridge_add_payload (bridge, payload_types[i].name,

@@ -104,8 +104,8 @@ define([
                         path: archive,
                         superuser: true,
                         external: {
-                            "content-disposition": 'attachement; filename="' + basename + '"',
-                            "content-type": "application/octet-stream"
+                            "content-disposition": 'attachment; filename="' + basename + '"',
+                            "content-type": "application/x-xz, application/octet-stream"
                         }
                     }));
                     sos_archive_url = "/cockpit/channel/" + cockpit.transport.csrf_token + '?' + query;

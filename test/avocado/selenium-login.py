@@ -190,5 +190,26 @@ class BasicTestSuite(SeleniumTest):
         self.mainframe()
         self.error=False
 
+    def test90SosReport(self):
+        self.login()
+        self.wait_id("sidebar")
+        self.wait_id("tools-panel",cond=invisible)
+        self.click(self.wait_link('Tools', cond=clickable))
+        self.wait_id("tools-panel")
+        self.click(self.wait_link('Diagnostic report', cond=clickable))
+        self.wait_frame("sosreport")
+        self.wait_text("This tool will collect system configuration and diagnostic")
+        self.click(self.wait_xpath('//button[@data-target="#sos"]', cond=clickable))
+        self.wait_id("sos")
+        self.wait_text("Generating report")
+        process.run("pgrep sosreport", shell=True)
+        process.run("echo Waiting for sosreport;while true;do if pgrep sosreport >/dev/null;then echo -n .;else echo Finished;break;fi;sleep 1;done", shell=True)
+        element = self.wait_id("sos-download")
+        self.wait_xpath('//button[contains(text(), "%s")]' % "Download", cond=clickable, baseelement=element)
+        self.click(self.wait_id("sos-cancel", cond=clickable))
+        self.wait_text("This tool will collect system configuration and diagnostic")
+        self.mainframe()
+        self.error = False
+
 if __name__ == '__main__':
     main()

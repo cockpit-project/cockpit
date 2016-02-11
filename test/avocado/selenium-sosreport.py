@@ -27,8 +27,11 @@ class BasicTestSuite(SeleniumTest):
         self.click(self.wait_xpath('//button[@data-target="#sos"]', cond=clickable))
         self.wait_id("sos")
         self.wait_text("Generating report")
-        process.run("sleep 1; pgrep sosreport", shell=True)
+        process.run("pgrep sosreport", shell=True)
         process.run("echo Waiting for sosreport;while true;do if pgrep sosreport >/dev/null;then echo -n .;else echo Finished;break;fi;sleep 1;done", shell=True)
         self.wait_text("Done!")
         self.wait_text("Download report")
-        self.click(self.wait_text("Download report"), cond=clickable)
+        self.click(self.wait_id("sos-cancel", cond=clickable))
+        self.wait_text("This tool will collect system configuration and diagnostic")
+        self.mainframe()
+        self.error=False

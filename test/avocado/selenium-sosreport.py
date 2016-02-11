@@ -29,7 +29,6 @@ class BasicTestSuite(SeleniumTest):
         self.wait_text("Generating report")
         process.run("pgrep sosreport", shell=True)
         process.run("echo Waiting for sosreport;while true;do if pgrep sosreport >/dev/null;then echo -n .;else echo Finished;break;fi;sleep 1;done", shell=True)
-        self.wait_text("Done!")
         self.wait_text("Download report")
         self.click(self.wait_id("sos-cancel", cond=clickable))
         self.wait_text("This tool will collect system configuration and diagnostic")

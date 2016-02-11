@@ -11,7 +11,7 @@ from avocado.utils import process
 import libdisc
 from seleniumlib import *
 
-class BasicTestSuite(SeleniumTest):
+class SosReportingTab(SeleniumTest):
     """
     :avocado: enable
     """

@@ -87,7 +87,7 @@ class SeleniumTest(Test):
                 # sample name is like: screenshot-teardown-172434.png
                 screenshot_file = "screenshotTeardown%s.png" % str(time.clock())[2:]
 
-                self.driver.save_screenshot(str(actualpath) + screenshot_file)
+                self.driver.save_screenshot(os.path.join(str(actualpath),screenshot_file))
                 self.log.error("Screenshot(teardown) - Wrote: " + screenshot_file)
             except Exception as e:
                 screenshot_file = "Unable to catch screenshot: " + screenshot_file
@@ -175,10 +175,10 @@ parameters:
                 screenshot_file = "screenshot%s.png" % str(inspect.stack()[2][3])
                 additional_text = ""
                 try:
-                    self.driver.save_screenshot(str(actualpath) + screenshot_file)
+                    self.driver.save_screenshot(os.path.join(str(actualpath),screenshot_file))
                     self.error = False
-                except:
-                    screenshot_file = "Unable to catch screenshot: " + screenshot_file
+                except Exception as e:
+                    screenshot_file = "Unable to catch screenshot: " + screenshot_file + str(e)
                     pass
                 finally:
                     self.log.error("Screenshot(test) - Wrote: " + screenshot_file)

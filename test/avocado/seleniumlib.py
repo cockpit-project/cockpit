@@ -36,6 +36,9 @@ from avocado import Test
 user = "test"
 passwd = "superhardpasswordtest5554"
 
+# for storing screenshots, used full path
+actualpath=os.path.dirname(os.path.realpath(__file__))
+
 # use javascript to generate clicks in the browsers and add more javascript checks for elements
 # this prevents races where the test clicks in the wrong place because the page layout changed
 javascript_operations = True
@@ -82,9 +85,9 @@ class SeleniumTest(Test):
             try:
                 # use time.clock() to ensure that snapshot files are unique and ordered
                 # sample name is like: screenshot-teardown-172434.png
-                screenshot_file = "screenshot-teardown-%s.png" % str(time.clock())[2:]
+                screenshot_file = "screenshotTeardown%s.png" % str(time.clock())[2:]
 
-                self.driver.save_screenshot(screenshot_file)
+                self.driver.save_screenshot(str(actualpath) + screenshot_file)
                 self.log.error("Screenshot(teardown) - Wrote: " + screenshot_file)
             except Exception as e:
                 screenshot_file = "Unable to catch screenshot: " + screenshot_file
@@ -169,10 +172,10 @@ parameters:
             if fatal:
                 # sample screenshot name is: screenshot-test20Login.png
                 # it stores super caller method to name via inspection code stack
-                screenshot_file = "screenshot-%s.png" % str(inspect.stack()[2][3])
+                screenshot_file = "screenshot%s.png" % str(inspect.stack()[2][3])
                 additional_text = ""
                 try:
-                    self.driver.save_screenshot(screenshot_file)
+                    self.driver.save_screenshot(str(actualpath) + screenshot_file)
                     self.error = False
                 except:
                     screenshot_file = "Unable to catch screenshot: " + screenshot_file

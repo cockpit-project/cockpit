@@ -589,6 +589,8 @@ class MachineCase(unittest.TestCase):
         all_found = True
         first = None
         for m in messages:
+            # remove leading/trailing whitespace
+            m = m.strip()
             found = False
             for p in self.allowed_messages:
                 match = re.match(p, m)

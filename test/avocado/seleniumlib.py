@@ -31,7 +31,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 import os
 import time
-from avocado import Test
+from testvm import Timeout
 
 user = "test"
 passwd = "superhardpasswordtest5554"
@@ -44,18 +44,6 @@ visible = EC.visibility_of_element_located
 clickable = EC.element_to_be_clickable
 invisible = EC.invisibility_of_element_located
 frame = EC.frame_to_be_available_and_switch_to_it
-
-class Timeout:
-    def __init__(self, seconds=1, error_message='Timeout'):
-        self.seconds = seconds
-        self.error_message = error_message
-    def handle_timeout(self, signum, frame):
-        raise Exception(self.error_message)
-    def __enter__(self):
-        signal.signal(signal.SIGALRM, self.handle_timeout)
-        signal.alarm(self.seconds)
-    def __exit__(self, type, value, traceback):
-        signal.alarm(0)
 
 class SeleniumTest(Test):
     """

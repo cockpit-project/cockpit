@@ -32,7 +32,7 @@ class SosReportingTab(SeleniumTest):
         while True:
             try:
                 process.run("pgrep sosreport", shell=True)
-                self.wait_text("Generating report")
+                self.wait_text("Generating report", overridetry=5)
             except:
                 break
             time.sleep(1)

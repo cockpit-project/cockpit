@@ -77,6 +77,14 @@ class StorageCase(MachineCase):
         else:
             self.browser.set_val(self.dialog_field(field), val)
 
+    def dialog_set_expander(self, field, val):
+        self.browser.call_js_func(
+            """(function (sel, val) {
+                 if ($(sel).hasClass('collapsed') == val) {
+                    $(sel).click();
+                 }
+            })""", self.dialog_field(field), val)
+
     def dialog_is_present(self, field, label):
         return self.browser.is_present('%s .checkbox:contains("%s") input' % (self.dialog_field(field), label))
 

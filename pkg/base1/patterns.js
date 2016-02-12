@@ -46,10 +46,9 @@ define([
         }
 
         var message;
-        if (error.message) {
+        if (error.message)
             message = $("<div class='dialog-error help-block'>").text(error.message);
-            wrapper.addClass("has-error").append(message);
-        }
+        wrapper.addClass("has-error").append(message);
 
         if (!wrapper.hasClass("error-keep")) {
             wrapper.on("keypress.dialog-error change.dialog-error", function() {

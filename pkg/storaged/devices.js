@@ -51,6 +51,8 @@ define([
             cockpit.location.go([ 'vg', $(this).attr('data-goto-vgroup') ]);
         });
 
+        utils.init_arming_zones($('body'));
+
         function navigate() {
             var path = cockpit.location.path;
 

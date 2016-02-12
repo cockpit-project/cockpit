@@ -38,6 +38,7 @@ define([
 
         function update_features() {
             $('#vgroups').toggle(client.features.lvm2);
+            $('#iscsi-sessions').toggle(client.features.iscsi);
         }
 
         $(client.features).on("changed", update_features);
@@ -102,6 +103,37 @@ define([
         }
 
         $(client).on('changed', render_vgroups);
+
+        var iscsi_sessions_tmpl = $("#iscsi-sessions-tmpl").html();
+        mustache.parse(iscsi_sessions_tmpl);
+
+        function render_iscsi_sessions() {
+            function cmp_session(path_a, path_b) {
+                var session_a = client.iscsi_sessions[path_a];
+                var session_b = client.iscsi_sessions[path_b];
+                return session_a.target_name.localeCompare(session_b.target_name);
+            }
+
+            function make_session(path) {
+                var session = client.iscsi_sessions[path];
+                return {
+                    path: path,
+                    Name: session.data["target_name"],
+                    Tpgt: session.data["tpgt"],
+                    Address: session.data["persistent_address"],
+                    Port: session.data["persistent_port"]
+                };
+            }
+
+            var s = Object.keys(client.iscsi_sessions).sort(cmp_session).map(make_session);
+            $('#iscsi-sessions').amend(mustache.render(iscsi_sessions_tmpl,
+                                                       { Sessions: s,
+                                                         HasSessions: s.length > 0
+                                                       }));
+            permissions.update();
+        }
+
+        $(client).on('changed', render_iscsi_sessions);
 
         var drives_tmpl = $("#drives-tmpl").html();
         mustache.parse(drives_tmpl);
@@ -359,6 +391,7 @@ define([
 
         render_mdraids();
         render_vgroups();
+        render_iscsi_sessions();
         render_drives();
         render_others();
         render_mounts();
@@ -456,6 +489,224 @@ define([
                               }
                           }
                         });
+        });
+
+        function iscsi_discover() {
+            dialog.open({ Title: _("Add iSCSI Portal"),
+                          Fields: [
+                              { TextInput: "address",
+                                Title: _("Server Address"),
+                                validate: function (val) {
+                                    if (val === "")
+                                        return _("Server address can not be empty.");
+                                }
+                              },
+                              { TextInput: "username",
+                                Title: "Username"
+
+                              },
+                              { PassInput: "password",
+                                Title: "Password"
+                              }
+                          ],
+                          Action: {
+                              Title: _("Next"),
+                              action: function (vals, dialog) {
+                                  var dfd = $.Deferred();
+
+                                  var options = { };
+                                  if (vals.username || vals.password) {
+                                      options.username = { t: 's', v: vals.username };
+                                      options.password = { t: 's', v: vals.password };
+                                  }
+
+                                  var cancelled = false;
+                                  client.manager_iscsi.call('DiscoverSendTargets',
+                                                            [ vals.address,
+                                                              0,
+                                                              options
+                                                            ]).
+                                      done(function (results) {
+                                          if (!cancelled) {
+                                              dfd.resolve();
+                                              iscsi_add(vals, results[0]);
+                                          }
+                                      }).
+                                      fail(function (error) {
+                                          if (!cancelled)
+                                              dfd.reject(error);
+                                      });
+
+                                  var promise = dfd.promise();
+                                  promise.cancel = function () {
+                                      cancelled = true;
+                                      dfd.reject();
+                                  };
+                                  return promise;
+                              },
+                              failure_filter: function (vals, err) {
+                                  if (!err)
+                                      return err;
+
+                                  // HACK - https://github.com/storaged-project/storaged/issues/26
+                                  if (err.message.indexOf("initiator failed authorization") != -1)
+                                      return [ { field: "username",
+                                                 message: null,
+                                               },
+                                               { field: "password",
+                                                 message: _("Invalid username or password"),
+                                               }
+                                             ];
+                                  else if (err.message.indexOf("cannot resolve host name") != -1)
+                                      return { field: "address",
+                                               message: _("Unknown host name")
+                                             };
+                                  else if (err.message.indexOf("connection login retries") != -1)
+                                      return { field: "address",
+                                               message: _("Unable to reach server")
+                                             };
+                                  else
+                                      return err;
+                              }
+                          }
+                        });
+        }
+
+        function iscsi_login(target, cred_vals) {
+            var options = {
+                'node.startup': { t: 's', v: "automatic" }
+            };
+            if (cred_vals.username || cred_vals.password) {
+                options.username = { t: 's', v: cred_vals.username };
+                options.password = { t: 's', v: cred_vals.password };
+            }
+            return client.manager_iscsi.call('Login',
+                                             [ target[0],
+                                               target[1],
+                                               target[2],
+                                               target[3],
+                                               target[4],
+                                               options
+                                             ]);
+        }
+
+        function iscsi_add(discover_vals, nodes) {
+            var target_rows = nodes.map(function (n) {
+                return { Columns: [ n[0], n[2], n[3] ],
+                         value: n
+                       };
+            });
+            dialog.open({ Title: cockpit.format(_("Available targets on $0"),
+                                                discover_vals.address),
+                          Fields: [
+                              { SelectRow: "target",
+                                Title: _("Targets"),
+                                Headers: [ _("Name"), _("Address"),_("Port") ],
+                                Rows: target_rows
+                              }
+                          ],
+                          Action: {
+                              Title: _("Add"),
+                              action: function (vals) {
+                                  return iscsi_login(vals.target, discover_vals);
+                              },
+                              failure_filter: function (vals, err) {
+                                  // HACK - https://github.com/storaged-project/storaged/issues/26
+                                  if (err.message.indexOf("authorization") != -1)
+                                      iscsi_add_with_creds(discover_vals, vals);
+                                  else
+                                      return err;
+                              }
+                          }
+                        });
+        }
+
+        function iscsi_add_with_creds(discover_vals, login_vals) {
+            dialog.open({ Title: "Authentication required",
+                          Fields: [
+                              { TextInput: "username",
+                                Title: "Username",
+                                Value: discover_vals.username
+                              },
+                              { PassInput: "password",
+                                Title: "Password",
+                                Value: discover_vals.password
+                              }
+                          ],
+                          Action: {
+                              Title: _("Add"),
+                              action: function (vals) {
+                                  return iscsi_login(login_vals.target, vals);
+                              },
+                              failure_filter: function (vals, err) {
+                                  // HACK - https://github.com/storaged-project/storaged/issues/26
+                                  if (err.message.indexOf("authorization") != -1)
+                                      return [ { field: "username",
+                                                 message: null,
+                                               },
+                                               { field: "password",
+                                                 message: _("Invalid username or password"),
+                                               }
+                                             ];
+                                  else
+                                      return err;
+                              }
+                          }
+                        });
+        }
+
+        function iscsi_remove(path) {
+            var session = client.iscsi_sessions[path];
+            if (!session)
+                return;
+
+            var options = {
+                'node.startup': { t: 's', v: "manual" }
+            };
+
+            session.Logout(options).
+                fail(function (error) {
+                    $('#error-popup-title').text(_("Error"));
+                    $('#error-popup-message').text(error.toString());
+                    $('#error-popup').modal('show');
+                });
+        }
+
+        function iscsi_change_name() {
+            client.manager_iscsi.call('GetInitiatorName').
+                done(function (results) {
+                    var name = results[0];
+                    dialog.open({ Title: _("Change iSCSI Initiator Name"),
+                                  Fields: [
+                                      { TextInput: "name",
+                                        Title: _("Name"),
+                                        Value: name
+                                      }
+                                  ],
+                                  Action: {
+                                      Title: _("Change"),
+                                      action: function (vals) {
+                                          return client.manager_iscsi.call('SetInitiatorName',
+                                                                           [ vals.name,
+                                                                             { }
+                                                                           ]);
+                                      }
+                                  }
+                                });
+                });
+        }
+
+        $('#storage').on('click', '[data-action="add-iscsi-portal"]', function () {
+            iscsi_discover();
+        });
+
+        $('#storage').on('click', '[data-action="edit-iscsi"]', function () {
+            iscsi_change_name();
+        });
+
+        $('#storage').on('click', '[data-iscsi-session-remove]', function () {
+            utils.reset_arming_zone($(this));
+            iscsi_remove($(this).attr('data-iscsi-session-remove'));
         });
 
         function hide() {

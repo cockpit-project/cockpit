@@ -33,28 +33,55 @@ define([
         mustache.parse(storage_dialog_tmpl);
     }
 
-    function dialog_open(def) {
+    var cur_dialog;
 
+    function dialog_open(def) {
         // Convert initial values for SizeInput fields to MB.
         def.Fields.forEach(function (f) {
             if (f.SizeInput && f.Value)
                 f.ValueMB = (f.Value / (1024*1024)).toFixed(0);
         });
 
+        function toggle_arrow(event) {
+            var collapsed = $(this).hasClass('collapsed');
+            if (collapsed) {
+                $(this).removeClass('collapsed');
+                $(this).find('.fa').removeClass('fa-angle-right').addClass('fa-angle-down');
+            } else {
+                $(this).addClass('collapsed');
+                $(this).find('.fa').removeClass('fa-angle-down').addClass('fa-angle-right');
+            }
+            update_visibility();
+        }
+
+        function select_row(event) {
+            var tbody = $(this);
+            var row = $(event.target).parent('tr');
+            tbody.find('tr').removeClass('highlight');
+            row.addClass('highlight');
+        }
+
+        if (cur_dialog)
+            cur_dialog.modal('hide');
+
         var $dialog = $(mustache.render(storage_dialog_tmpl, def));
         $('body').append($dialog);
+        cur_dialog = $dialog;
+
+        $dialog.on('hidden.bs.modal', function () {
+            $dialog.remove();
+        });
+
         $dialog.find('.selectpicker').selectpicker();
+        $dialog.find('.dialog-arrow').on('click', toggle_arrow);
+        $dialog.find('.dialog-select-row-table tbody').on('click', select_row);
+        $dialog.find('.dialog-select-row-table tbody tr:first-child').addClass('highlight');
 
         var invisible = { };
 
-        function clear_errors() {
-            // We leave the actual text in the help-block in order
-            // to avoid a annoying relayout of the dialog.
-            $dialog.dialog('failure', null);
-        }
-
         function get_name(f) {
-            return f.TextInput || f.PassInput || f.SelectOne || f.SelectMany || f.SizeInput || f.CheckBox;
+            return (f.TextInput || f.PassInput || f.SelectOne || f.SelectMany || f.SizeInput ||
+                    f.CheckBox || f.Arrow || f.SelectRow);
         }
 
         function get_field_values() {
@@ -79,7 +106,13 @@ define([
                         if (e.checked)
                             vals[n].push(f.Options[i].value);
                     });
-                }
+                } else if (f.SelectRow) {
+                    $f.find('tbody tr').each(function (i, e) {
+                        if ($(e).hasClass('highlight'))
+                            vals[n] = f.Rows[i].value;
+                    });
+                } else if (f.Arrow)
+                    vals[n] = !$f.hasClass('collapsed');
             });
 
             return vals;
@@ -122,19 +155,41 @@ define([
         }
 
         $dialog.on('change input', function () {
-            clear_errors();
             update_visibility();
         });
 
-        $dialog.on('hidden.bs.modal', function () {
-            $dialog.remove();
-        });
+        function error_field_to_target(err) {
+            if (err.field)
+                return { message: err.message,
+                         target: '[data-field="' + err.field + '"]'
+                       };
+            else
+                return err;
+        }
 
         $dialog.find('button[data-action="apply"]').on('click', function () {
             var vals = get_validated_field_values();
             if (vals !== null) {
                 var promise = def.Action.action(vals);
-                $dialog.dialog('promise', promise);
+                if (promise) {
+                    $dialog.dialog('wait', promise);
+                    promise
+                        .done(function (result) {
+                            $dialog.modal('hide');
+                        })
+                        .fail(function (err) {
+                            if (def.Action.failure_filter)
+                                err = def.Action.failure_filter(vals, err);
+                            if (err) {
+                                if (err.length)
+                                    err = err.map(error_field_to_target);
+                                else
+                                    err = error_field_to_target(err);
+                                $dialog.dialog('failure', err);
+                            }
+                        });
+                } else
+                    $dialog.modal('hide');
             }
         });
 

@@ -5,7 +5,8 @@ import os
 import sys
 import time
 machine_test_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(1, machine_test_dir)
+if not machine_test_dir in sys.path:
+    sys.path.insert(1, machine_test_dir)
 
 from avocado import main
 from avocado.utils import process
@@ -29,6 +30,8 @@ class SosReportingTab(SeleniumTest):
         self.wait_id("sos")
         self.wait_text("Generating report")
         process.run("pgrep sosreport", shell=True)
+        # duration of report generation depends on the target system - as along as sosreport is active, we don't want to timeout
+        # it is also important to call some selenium method there to ensure that connection to HUB will not be lost
         while True:
             try:
                 process.run("pgrep sosreport", shell=True)

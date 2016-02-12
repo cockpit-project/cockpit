@@ -37,6 +37,9 @@ from testvm import Timeout
 user = "test"
 passwd = "superhardpasswordtest5554"
 
+# for storing screenshots, used full path
+actualpath = os.path.dirname(os.path.realpath(__file__))
+
 # use javascript to generate clicks in the browsers and add more javascript checks for elements
 # this prevents races where the test clicks in the wrong place because the page layout changed
 javascript_operations = True
@@ -84,13 +87,13 @@ class SeleniumTest(Test):
             try:
                 # use time.clock() to ensure that snapshot files are unique and ordered
                 # sample name is like: screenshot-teardown-172434.png
-                screenshot_file = "screenshot-teardown-%s.png" % str(time.clock())[2:]
+                screenshot_file = "screenshotTeardown%s.png" % str(time.clock())[2:]
 
-                self.driver.save_screenshot(screenshot_file)
+                self.driver.save_screenshot(os.path.join(actualpath,screenshot_file))
                 self.log.error("Screenshot(teardown) - Wrote: " + screenshot_file)
                 self.get_debug_logs()
             except Exception as e:
-                screenshot_file = "Unable to catch screenshot: " + screenshot_file
+                screenshot_file = "Unable to catch screenshot: {0}".format(screenshot_file)
                 raise Exception('ERR: Unable to store screenshot: %s' % screenshot_file, str(e))
         try:
             self.driver.close()
@@ -180,13 +183,13 @@ parameters:
             if fatal:
                 # sample screenshot name is: screenshot-test20Login.png
                 # it stores super caller method to name via inspection code stack
-                screenshot_file = "screenshot-%s.png" % str(inspect.stack()[2][3])
+                screenshot_file = "screenshot%s.png" % str(inspect.stack()[2][3])
                 additional_text = ""
                 try:
-                    self.driver.save_screenshot(screenshot_file)
+                    self.driver.save_screenshot(os.path.join(actualpath,screenshot_file))
                     self.error = False
-                except:
-                    screenshot_file = "Unable to catch screenshot: " + screenshot_file
+                except Exception as e:
+                    screenshot_file = "Unable to catch screenshot: {0} ({1})".format(screenshot_file, e)
                     pass
                 finally:
                     self.log.error("Screenshot(test) - Wrote: " + screenshot_file)

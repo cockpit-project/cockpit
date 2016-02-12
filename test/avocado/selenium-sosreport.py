@@ -41,7 +41,7 @@ class SosReportingTab(SeleniumTest):
             except:
                 break
             if time.time() - start_time > timeout_sec:
-                raise Exception('sosrepot did not finished in %s secs' % timeout_sec)
+                raise Exception("sosreport did not finish in {0} seconds".format(timeout_sec))
             time.sleep(1)
         element = self.wait_id("sos-download")
         self.wait_xpath('//button[contains(text(), "%s")]' % "Download", cond=clickable, baseelement=element)

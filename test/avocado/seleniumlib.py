@@ -31,6 +31,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 import os
 import time
+from avocado import Test
 from testvm import Timeout
 
 user = "test"

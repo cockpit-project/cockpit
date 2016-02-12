@@ -3,6 +3,7 @@
 # we need to be able to find and import seleniumlib, so add this directory
 import os
 import sys
+import time
 machine_test_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(1, machine_test_dir)
 
@@ -28,7 +29,13 @@ class SosReportingTab(SeleniumTest):
         self.wait_id("sos")
         self.wait_text("Generating report")
         process.run("pgrep sosreport", shell=True)
-        process.run("echo Waiting for sosreport;while true;do if pgrep sosreport >/dev/null;then echo -n .;else echo Finished;break;fi;sleep 1;done", shell=True)
+        while True:
+            try:
+                process.run("pgrep sosreport", shell=True)
+                self.wait_text("Generating report")
+            except:
+                break
+            time.sleep(1)
         element = self.wait_id("sos-download")
         self.wait_xpath('//button[contains(text(), "%s")]' % "Download", cond=clickable, baseelement=element)
         self.click(self.wait_id("sos-cancel", cond=clickable))

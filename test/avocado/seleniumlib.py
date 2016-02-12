@@ -37,7 +37,7 @@ user = "test"
 passwd = "superhardpasswordtest5554"
 
 # for storing screenshots, used full path
-actualpath=os.path.dirname(os.path.realpath(__file__))
+actualpath = os.path.dirname(os.path.realpath(__file__))
 
 # use javascript to generate clicks in the browsers and add more javascript checks for elements
 # this prevents races where the test clicks in the wrong place because the page layout changed
@@ -87,10 +87,10 @@ class SeleniumTest(Test):
                 # sample name is like: screenshot-teardown-172434.png
                 screenshot_file = "screenshotTeardown%s.png" % str(time.clock())[2:]
 
-                self.driver.save_screenshot(os.path.join(str(actualpath),screenshot_file))
+                self.driver.save_screenshot(os.path.join(actualpath,screenshot_file))
                 self.log.error("Screenshot(teardown) - Wrote: " + screenshot_file)
             except Exception as e:
-                screenshot_file = "Unable to catch screenshot: " + screenshot_file
+                screenshot_file = "Unable to catch screenshot: {0}".format(screenshot_file)
                 raise Exception('ERR: Unable to store screenshot: %s' % screenshot_file, str(e))
         try:
             self.driver.close()
@@ -175,10 +175,10 @@ parameters:
                 screenshot_file = "screenshot%s.png" % str(inspect.stack()[2][3])
                 additional_text = ""
                 try:
-                    self.driver.save_screenshot(os.path.join(str(actualpath),screenshot_file))
+                    self.driver.save_screenshot(os.path.join(actualpath,screenshot_file))
                     self.error = False
                 except Exception as e:
-                    screenshot_file = "Unable to catch screenshot: " + screenshot_file + str(e)
+                    screenshot_file = "Unable to catch screenshot: {0} ({1})".format(screenshot_file, e)
                     pass
                 finally:
                     self.log.error("Screenshot(test) - Wrote: " + screenshot_file)

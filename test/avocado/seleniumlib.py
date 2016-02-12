@@ -45,23 +45,36 @@ clickable = EC.element_to_be_clickable
 invisible = EC.invisibility_of_element_located
 frame = EC.frame_to_be_available_and_switch_to_it
 
+class Timeout:
+    def __init__(self, seconds=1, error_message='Timeout'):
+        self.seconds = seconds
+        self.error_message = error_message
+    def handle_timeout(self, signum, frame):
+        raise Exception(self.error_message)
+    def __enter__(self):
+        signal.signal(signal.SIGALRM, self.handle_timeout)
+        signal.alarm(self.seconds)
+    def __exit__(self, type, value, traceback):
+        signal.alarm(0)
+
 class SeleniumTest(Test):
     """
     :avocado: disable
     """
     def setUp(self):
         if not (os.environ.has_key("HUB") or os.environ.has_key("BROWSER")):
-            self.driver = selenium.webdriver.Firefox()
+            with Timeout(seconds=30, error_message="Timeout: Unable to attach firefox driver"):
+                self.driver = selenium.webdriver.Firefox()
             guest_machine = 'localhost'
         else:
             selenium_hub = os.environ["HUB"] if os.environ.has_key("HUB") else "localhost"
             browser = os.environ["BROWSER"] if os.environ.has_key("BROWSER") else "firefox"
             guest_machine = os.environ["GUEST"]
-            self.driver = selenium.webdriver.Remote(
-                command_executor='http://%s:4444/wd/hub' % selenium_hub, desired_capabilities={'browserName': browser})
-
-        self.driver.set_window_size(1400, 1200)
-        self.driver.set_page_load_timeout(90)
+            with Timeout(seconds=30, error_message="Timeout: Unable to attach remote Browser on hub"):
+                self.driver = selenium.webdriver.Remote(command_executor='http://%s:4444/wd/hub' % selenium_hub, desired_capabilities={'browserName': browser})
+        with Timeout(seconds=30, error_message="Timeout: Unable to set browser options"):
+            self.driver.set_window_size(1400, 1200)
+            self.driver.set_page_load_timeout(90)
         # self.default_try is number of repeats for finding element
         self.default_try = 40
         # stored search function for each element to be able to refresh element in case of detached from DOM
@@ -69,8 +82,8 @@ class SeleniumTest(Test):
         # self.default_explicit_wait is time for waiting for element
         # default_explicit_wait * default_try = max time for waiting for element
         self.default_explicit_wait = 1
-
-        self.driver.get('http://%s:9090' % guest_machine)
+        with Timeout(seconds=30, error_message="Timeout: Unable to get page"):
+            self.driver.get('http://%s:9090' % guest_machine)
 
         # if self.error evaluates to True when a test finishes,
         # an error is raised and a screenshot generated

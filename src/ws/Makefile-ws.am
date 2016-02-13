@@ -93,11 +93,6 @@ mock-auth-command: src/ws/mock-auth-command
 	$(AM_V_GEN) $(SED_SUBST) $< > $@
 	chmod +x $@
 
-cockpit-testing.service : src/ws/cockpit-testing.service.in Makefile
-	$(AM_V_GEN) $(SED_SUBST) $< > $@
-noinst_DATA += cockpit-testing.service
-testassets_systemdunit_data += cockpit-testing.service
-
 firewalldir = $(prefix)/lib/firewalld/services
 firewall_DATA = src/ws/cockpit.xml
 
@@ -109,12 +104,10 @@ install-exec-hook::
 
 EXTRA_DIST += \
 	src/ws/cockpit.service.in \
-	src/ws/cockpit-testing.service.in \
 	$(firewall_DATA) \
 	$(NULL)
 
 CLEANFILES += \
-	cockpit-testing.service \
 	cockpit.service \
 	mock-auth-command \
 	$(NULL)
@@ -162,8 +155,6 @@ test_server_LDADD = 					\
 	$(GIO_LIBS)					\
 	-lpam 						\
 	$(NULL)
-
-testassets_systemdunit_data += $(srcdir)/src/ws/cockpit-testing.socket
 
 WS_CHECKS = \
 	test-creds \

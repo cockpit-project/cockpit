@@ -1210,7 +1210,7 @@ done;
         with Timeout(seconds=30, error_message="Timeout while waiting for cockpit/ws to start"):
             self.execute(script=WAIT_COCKPIT_RUNNING)
 
-    def start_cockpit(self, atomic_wait_for_host="localhost"):
+    def start_cockpit(self, atomic_wait_for_host="localhost", tls=False):
         """Start Cockpit.
 
         Cockpit is not running when the test virtual machine starts up, to
@@ -1222,15 +1222,31 @@ done;
             # self.execute("atomic run cockpit/ws --no-tls")
             # but atomic doesn't forward the parameter, so we use the resulting command
             # also we need to wait for cockpit to be up and running
-            RUN_COCKPIT_CONTAINER = """#!/bin/sh
-systemctl start docker
-/usr/bin/docker run -d --privileged --pid=host -v /:/host cockpit/ws /container/atomic-run --local-ssh --no-tls
-"""
+            cmd = """#!/bin/sh
+            systemctl start docker &&
+            """
+            if tls:
+                cmd += "/usr/bin/docker run -d --privileged --pid=host -v /:/host cockpit/ws /container/atomic-run --local-ssh\n"
+            else:
+                cmd += "/usr/bin/docker run -d --privileged --pid=host -v /:/host cockpit/ws /container/atomic-run --local-ssh --no-tls\n"
             with Timeout(seconds=30, error_message="Timeout while waiting for cockpit/ws to start"):
-                self.execute(script=RUN_COCKPIT_CONTAINER)
+                self.execute(script=cmd)
                 self.wait_for_cockpit_running(atomic_wait_for_host)
+        elif tls:
+            self.execute(script="""#!/bin/sh
+            rm -f /etc/systemd/system/cockpit.service.d/notls.conf &&
+            systemctl daemon-reload &&
+            systemctl start cockpit.socket
+            """)
         else:
-            self.execute("systemctl start cockpit-testing.socket")
+            self.execute(script="""#!/bin/sh
+            mkdir -p /etc/systemd/system/cockpit.service.d/ &&
+            rm -f /etc/systemd/system/cockpit.service.d/notls.conf &&
+            systemctl daemon-reload &&
+            printf \"[Service]\nExecStartPre=-/bin/sh -c 'echo 0 > /proc/sys/kernel/yama/ptrace_scope'\nExecStart=\n%s --no-tls\n\" `systemctl cat cockpit.service | grep ExecStart=` > /etc/systemd/system/cockpit.service.d/notls.conf &&
+            systemctl daemon-reload &&
+            systemctl start cockpit.socket
+            """)
 
     def restart_cockpit(self):
         """Restart Cockpit.
@@ -1240,4 +1256,13 @@ systemctl start docker
                 self.execute("docker restart `docker ps | grep cockpit/ws | awk '{print $1;}'`")
                 self.wait_for_cockpit_running()
         else:
-            self.execute("systemctl restart cockpit-testing.socket")
+            self.execute("systemctl restart cockpit.socket")
+
+    def stop_cockpit(self):
+        """Stop Cockpit.
+        """
+        if "atomic" in self.image:
+            with Timeout(seconds=30, error_message="Timeout while waiting for cockpit/ws to stop"):
+                self.execute("docker kill `docker ps | grep cockpit/ws | awk '{print $1;}'`")
+        else:
+            self.execute("systemctl stop cockpit.socket")

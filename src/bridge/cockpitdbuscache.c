@@ -1264,12 +1264,6 @@ cockpit_dbus_cache_dispose (GObject *object)
   batch_flush (self);
   barrier_flush (self);
 
-  if (self->connection)
-    {
-      g_object_unref (self->connection);
-      self->connection = NULL;
-    }
-
   G_OBJECT_CLASS (cockpit_dbus_cache_parent_class)->dispose (object);
 }
 
@@ -1277,6 +1271,8 @@ static void
 cockpit_dbus_cache_finalize (GObject *object)
 {
   CockpitDBusCache *self = COCKPIT_DBUS_CACHE (object);
+
+  g_clear_object (&self->connection);
 
   g_free (self->name);
   g_free (self->logname);

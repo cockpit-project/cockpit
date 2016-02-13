@@ -469,8 +469,6 @@ pulls in some necessary packages via dependencies.
 %files test-assets
 %{_datadir}/%{name}/playground
 %{_datadir}/cockpit-test-assets
-%{_unitdir}/cockpit-testing.service
-%{_unitdir}/cockpit-testing.socket
 
 %endif
 

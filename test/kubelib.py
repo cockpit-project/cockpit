@@ -207,7 +207,7 @@ class KubernetesCommonTests(object):
         b.wait_present(".details-listing tbody[data-id='nodes/127.0.0.1'] tr.listing-panel")
         self.assertEqual(b.text("tbody[data-id='nodes/127.0.0.1'] tr.listing-panel h3"), "127.0.0.1")
         self.assertFalse(b.is_visible(".details-listing tbody[data-id='nodes/127.0.0.1'] th"))
-        self.assertEqual(b.text("tbody[data-id='nodes/127.0.0.1'] tr.listing-panel .status").strip(), "Ready")
+        b.wait_in_text("tbody[data-id='nodes/127.0.0.1'] tr.listing-panel .status", "Ready")
 
         b.click(".details-listing tbody[data-id='nodes/mynode'] th")
         b.wait_present(".details-listing tbody[data-id='nodes/mynode'] tr.listing-panel")

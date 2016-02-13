@@ -257,47 +257,58 @@ class Machine:
             input += script
             command = "<script>"
 
-        output = ""
-        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdin_fd = proc.stdin.fileno()
-        stdout_fd = proc.stdout.fileno()
-        stderr_fd = proc.stderr.fileno()
-        rset = [stdout_fd, stderr_fd]
-        wset = [stdin_fd]
-        while len(rset) > 0 or len(wset) > 0:
-            ret = select.select(rset, wset, [], 10)
-            for fd in ret[0]:
-                if fd == stdout_fd:
-                    data = os.read(fd, 1024)
-                    if data == "":
-                        rset.remove(stdout_fd)
-                        proc.stdout.close()
-                    else:
-                        if self.verbose:
-                            sys.stdout.write(data)
-                        output += data
-                elif fd == stderr_fd:
-                    data = os.read(fd, 1024)
-                    if data == "":
-                        rset.remove(stderr_fd)
-                        proc.stderr.close()
-                    else:
-                        data = SSH_WARNING.sub("", data)
-                        if not quiet or self.verbose:
-                            sys.stderr.write(data)
-            for fd in ret[1]:
-                if fd == stdin_fd:
-                    if input:
-                        num = os.write(fd, input)
-                        input = input[num:]
-                    if not input:
-                        wset.remove(stdin_fd)
-                        proc.stdin.close()
-        proc.wait()
+        # connection might be refused, so try this 10 times
+        tries_left = 10;
+        while tries_left > 0:
+            tries_left = tries_left - 1
 
-        if proc.returncode != 0:
-            raise subprocess.CalledProcessError(proc.returncode, command, output=output)
-        return output
+            output = ""
+            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdin_fd = proc.stdin.fileno()
+            stdout_fd = proc.stdout.fileno()
+            stderr_fd = proc.stderr.fileno()
+            rset = [stdout_fd, stderr_fd]
+            wset = [stdin_fd]
+            while len(rset) > 0 or len(wset) > 0:
+                ret = select.select(rset, wset, [], 10)
+                for fd in ret[0]:
+                    if fd == stdout_fd:
+                        data = os.read(fd, 1024)
+                        if data == "":
+                            rset.remove(stdout_fd)
+                            proc.stdout.close()
+                        else:
+                            if self.verbose:
+                                sys.stdout.write(data)
+                            output += data
+                    elif fd == stderr_fd:
+                        data = os.read(fd, 1024)
+                        if data == "":
+                            rset.remove(stderr_fd)
+                            proc.stderr.close()
+                        else:
+                            data = SSH_WARNING.sub("", data)
+                            if not quiet or self.verbose:
+                                sys.stderr.write(data)
+                for fd in ret[1]:
+                    if fd == stdin_fd:
+                        if input:
+                            num = os.write(fd, input)
+                            input = input[num:]
+                        if not input:
+                            wset.remove(stdin_fd)
+                            proc.stdin.close()
+            proc.wait()
+
+            # try again if the connection was refused, unless we've used up our tries
+            if proc.returncode == 255 and tries_left > 0:
+                self.message("ssh: connection refused, trying again")
+                time.sleep(1)
+                continue
+
+            if proc.returncode != 0:
+                raise subprocess.CalledProcessError(proc.returncode, command, output=output)
+            return output
 
     def upload(self, sources, dest):
         """Upload a file into the test machine

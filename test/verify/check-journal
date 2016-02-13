@@ -33,6 +33,7 @@ class TestJournal(MachineCase):
 
         self.allow_restart_journal_messages()
         self.allow_journal_messages(".*Failed to get realtime timestamp: Cannot assign requested address.*")
+        self.allow_journal_messages("g_dbus_connection_call_finish_internal: assertion 'G_IS_DBUS_CONNECTION (connection)' failed")
 
         def inject_extras():
             b.eval_js("""

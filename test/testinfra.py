@@ -108,7 +108,7 @@ NON_PUBLIC_STORE = "~/.config/non-public-image-store"
 
 try:
     np = open(os.path.expanduser(NON_PUBLIC_STORE), "r")
-    non_public_store = np.readline()
+    non_public_store = np.read().strip()
     for image, config in NON_PUBLIC_IMAGE_REFRESH.items():
         config['store'] = non_public_store
         DEFAULT_IMAGE_REFRESH[image] = config

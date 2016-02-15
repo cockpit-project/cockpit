@@ -138,8 +138,8 @@ class GithubImageTask(object):
             return True
 
         cmd = [ "./vm-create", "--verbose", "--upload" ]
-        if self.config.store:
-            cmd += [ "--store", self.config.store ]
+        if 'store' in self.config:
+            cmd += [ "--store", self.config['store'] ]
         cmd += [ self.image ]
 
         print cmd

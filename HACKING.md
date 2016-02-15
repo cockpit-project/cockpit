@@ -52,12 +52,12 @@ architectures of Fedora are most often used for development.
 Check `tools/cockpit.spec` for the concrete Fedora build dependencies.
 The following should work in a fresh Git clone:
 
-    $ sudo yum-builddep tools/cockpit.spec
-    $ sudo yum install nodejs npm
+    $ sudo dnf builddep tools/cockpit.spec
+    $ sudo dnf install nodejs npm
 
 In addition for testing the following dependencies are required:
 
-    $ sudo yum install python-libguestfs qemu mock qemu-kvm rpm-build \
+    $ sudo dnf install python-libguestfs qemu mock qemu-kvm rpm-build \
          curl libvirt-client libvirt-python libvirt python-lxml \
          krb5-workstation krb5-server selinux-policy-devel
 
@@ -69,7 +69,7 @@ If you wish to test out a development branch on Fedora, you can just
 build installable RPMs.
 
     $ tools/make-rpms --verbose
-    $ sudo yum install noarch/cockpit*-wip-1.rpm x86_64/cockpit*-wip-1.rpm
+    $ sudo dnf install noarch/cockpit*-wip-1.rpm x86_64/cockpit*-wip-1.rpm
 
 If you want to develop Cockpit, then skip this section, and build from
 source.

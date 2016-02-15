@@ -88,7 +88,12 @@ Description=Slowly log 10 identical lines
 ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 10'
 """)
 
-        m.execute("systemctl stop chronyd &>/dev/null; systemctl disable chronyd; date 010112002050; hwclock -w")
+        # Stop NTP if it is running.  Debian needs this since
+        # timedatectl doesn't touch ntpd.
+        #
+        m.execute("! systemctl --quiet is-active ntp || (systemctl disable ntp && systemctl stop ntp)")
+
+        m.execute("timedatectl set-ntp off; timedatectl set-time 2050-01-01")
 
         self.login_and_go("/system/logs")
         inject_extras()

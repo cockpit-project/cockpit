@@ -90,6 +90,34 @@ DEFAULT_IMAGE_REFRESH = {
     }
 }
 
+NON_PUBLIC_IMAGE_REFRESH = {
+    'rhel-7': {
+        'triggers': [
+            "verify/rhel-7",
+            "verify/rhel-atomic"  # builds in rhel-7
+        ]
+    },
+    'rhel-atomic': {
+        'triggers': [ "verify/rhel-atomic" ]
+    }
+}
+
+## Add non-public images if we have a store for them
+
+NON_PUBLIC_STORE = "~/.config/non-public-image-store"
+
+try:
+    np = open(os.path.expanduser(NON_PUBLIC_STORE), "r")
+    non_public_store = np.readline()
+    for image, config in NON_PUBLIC_IMAGE_REFRESH.items():
+        config['store'] = non_public_store
+        DEFAULT_IMAGE_REFRESH[image] = config
+except IOError as exc:
+    if exc.errno == errno.ENOENT:
+        pass
+    else:
+        raise
+
 ISSUE_TITLE_IMAGE_REFRESH = "Image refresh for {0}"
 
 # Days after which a image is refreshed

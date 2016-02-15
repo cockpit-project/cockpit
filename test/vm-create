@@ -41,6 +41,7 @@ parser.add_argument('-v', '--verbose', action='store_true', help='Display verbos
 parser.add_argument('-s', '--sit', action='store_true', help='Sit and wait if setup script fails')
 parser.add_argument('-n', '--no-save', action='store_true', help='Don\'t save the new image')
 parser.add_argument('-u', '--upload', action='store_true', help='Upload the image after creation')
+parser.add_argument("--store", default=None, help="Where to send images")
 parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to create')
 args = parser.parse_args()
 
@@ -185,7 +186,11 @@ try:
         builder.save()
         if args.upload:
             print "Uploading..."
-            subprocess.check_call([ "./vm-upload", args.image ])
+            cmd = [ "./vm-upload" ]
+            if args.store:
+                cmd += [ "--store", args.store ]
+            cmd += [ args.image ]
+            subprocess.check_call(cmd)
 
 except testvm.Failure, ex:
     print >> sys.stderr, "vm-create:", ex

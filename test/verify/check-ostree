@@ -28,7 +28,7 @@ import testinfra
 
 INSTALL_RPMS = [
     "empty-1-0.noarch",
-    "cockpit-shell-wip-0.1.noarch",
+    "cockpit-ostree-wip-0.1.noarch",
     "cockpit-networkmanager-wip-2.noarch",
 ]
 
@@ -99,7 +99,7 @@ class OstreeRestartCase(MachineCase):
         m = self.machine
 
         sos_pkg = m.execute("rpm -qa | grep cockpit-sosreport").strip()
-        cockpit_shell = m.execute("rpm -qa | grep cockpit-shell").strip()
+        cockpit_shell = m.execute("rpm -qa | grep cockpit-ostree").strip()
         cockpit_nm = m.execute("rpm -qa | grep cockpit-networkmanager").strip()
 
         self.login_and_go("/updates")
@@ -168,7 +168,7 @@ class OstreeRestartCase(MachineCase):
                                  'additions', 'removals'])
 
         b.wait_text("table.listing tbody:nth-child(3) dl.upgrades dd", "cockpit-networkmanager-wip-2.noarch")
-        b.wait_text("table.listing tbody:nth-child(3) dl.downgrades dd", "cockpit-shell-wip-0.1.noarch")
+        b.wait_text("table.listing tbody:nth-child(3) dl.downgrades dd", "cockpit-ostree-wip-0.1.noarch")
         b.wait_text("table.listing tbody:nth-child(3) dl.additions dd", "empty-1-0.noarch")
         b.wait_text("table.listing tbody:nth-child(3) dl.removals dd", sos_pkg)
 

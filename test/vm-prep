@@ -62,21 +62,23 @@ EOF
 		chmod -v u+s $QEMU_BRIDGE_HELPER
 	fi
 
-	qemu_config_dir=
-	for d in /etc/qemu-kvm/ /etc/qemu; do
-	    if test -f ${d}/bridge.conf; then
-		qemu_config_dir=${d}
-	    fi
+	qemu_config_dirs=()
+  for d in /etc/qemu-kvm/ /etc/qemu; do
+      if test -f ${d}/bridge.conf; then
+          qemu_config_dirs+=(${d})
+      fi
 	done
-	if test -z "$qemu_config_dir"; then
-	    warning "Could not find qemu config dir"
+  if [ ${#qemu_config_dirs[@]} -eq 0 ]; then
+      warning "Could not find qemu config dir"
 	    exit 1
-	fi
+  fi
 
 	rule="allow $NETWORK_NAME"
-	if ! silent grep -F $NETWORK_NAME ${qemu_config_dir}/bridge.conf; then
-		echo "$rule" >> ${qemu_config_dir}/bridge.conf
-	fi
+  for qemu_config_dir in ${qemu_config_dirs[@]}; do
+      if ! silent grep -F $NETWORK_NAME ${qemu_config_dir}/bridge.conf; then
+        echo "$rule" >> ${qemu_config_dir}/bridge.conf
+      fi
+  done
 }
 
 unprepare()

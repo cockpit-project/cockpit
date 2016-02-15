@@ -185,7 +185,6 @@ install-test-assets: $(testassets_programs) $(testassets_data) $(testassets_syst
         done
 	cd $(srcdir); for d in $(testassets_data); do $(INSTALL_DATA) -D $$d $(DESTDIR)$(testassetsdir)/$$d; done
 	for d in $(testassets_systemdunit_data); do $(INSTALL_DATA) $$d $(DESTDIR)$(systemdunitdir); done
-	ln -sn $(libexecdir)/cockpit-bridge $(DESTDIR)$(testassetsdir)/cockpit-bridge
 
 clean-local:
 	find $(builddir) -name '*.gc??' -delete

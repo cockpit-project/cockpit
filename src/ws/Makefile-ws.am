@@ -148,8 +148,6 @@ EXTRA_DIST += \
 noinst_PROGRAMS += test-server
 check_PROGRAMS += test-server
 
-testassets_programs += test-server
-
 test_server_SOURCES = src/ws/test-server.c $(mock_dbus_sources)
 nodist_test_server_SOURCES = $(test_built_sources)
 test_server_CFLAGS = 					\

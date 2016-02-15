@@ -137,7 +137,12 @@ class GithubImageTask(object):
                 return False
             return True
 
-        proc = subprocess.Popen([ "./vm-create", "--verbose", "--upload", self.image ])
+        cmd = [ "./vm-create", "--verbose", "--upload" ]
+        if 'store' in self.config:
+            cmd += [ "--store", self.config['store'] ]
+        cmd += [ self.image ]
+
+        proc = subprocess.Popen(cmd)
         self.overtaken = False
         ret = testinfra.wait_testing(proc, check)
 

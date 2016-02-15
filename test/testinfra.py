@@ -90,6 +90,34 @@ DEFAULT_IMAGE_REFRESH = {
     }
 }
 
+PRIVATE_IMAGE_REFRESH = {
+    'rhel-7': {
+        'triggers': [
+            "verify/rhel-7",
+            "verify/rhel-atomic"  # builds in rhel-7
+        ]
+    },
+    'rhel-atomic': {
+        'triggers': [ "verify/rhel-atomic" ]
+    }
+}
+
+## Add private images if we have a store for them
+
+PRIVATE_STORE = "~/.config/private-image-store"
+
+try:
+    pr = open(os.path.expanduser(PRIVATE_STORE), "r")
+    private_store = pr.read().strip()
+    for image, config in PRIVATE_IMAGE_REFRESH.items():
+        config['store'] = private_store
+        DEFAULT_IMAGE_REFRESH[image] = config
+except IOError as exc:
+    if exc.errno == errno.ENOENT:
+        pass
+    else:
+        raise
+
 ISSUE_TITLE_IMAGE_REFRESH = "Image refresh for {0}"
 
 # Days after which a image is refreshed

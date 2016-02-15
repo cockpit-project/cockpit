@@ -56,7 +56,7 @@ def prune(store):
 def main():
     parser = argparse.ArgumentParser(description='Upload virtual machine images')
     parser.add_argument("--store", default=UPLOAD, help="Where to send images")
-    parser.add_argument("--prune", action='store_true', help="Where to send images")
+    parser.add_argument("--prune", action='store_true', help="Remove unused images from the image store first")
     parser.add_argument('image', nargs='*')
     args = parser.parse_args()
 

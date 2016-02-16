@@ -18,9 +18,26 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-# on Debian we don't want to delete pbuilder or cracklib
+# We don't want to delete the pbuilder caches since we need them
+# during build.  Mock with --offline and dnf is happy without caches,
+# but with yum it isn't, so we provide an option to also leave the
+# mock caches in place.
+#
+# We also want to keep cracklib since otherwise password quality
+# checks break on Debian.
+
+keep="! -path /var/cache/pbuilder ! -path /var/cache/cracklib"
+while [ $# -gt 0 ]; do
+    case $1 in
+	--keep-mock-cache)
+            keep="$keep ! -path /var/cache/mock"
+	    ;;
+    esac
+    shift
+done
+
 if [ -d "/var/cache" ]; then
-    find /var/cache/* -maxdepth 0 -depth -name "*" ! -path /var/cache/pbuilder ! -path /var/cache/cracklib -exec rm -rf {} \;
+    find /var/cache/* -maxdepth 0 -depth -name "*" $keep -exec rm -rf {} \;
 fi
 rm -rf /var/tmp/*
 rm -rf /var/log/journal/*

@@ -137,7 +137,7 @@ if type "docker" >/dev/null 2>&1; then
 fi
 
 yum clean all
-/var/lib/testvm/zero-disk.setup
+/var/lib/testvm/zero-disk.setup --keep-mock-cache
 
 # HACK - kdump.service interferes with our storage tests, by loading
 # the system for some time after boot and thereby causing a race

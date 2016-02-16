@@ -29,6 +29,9 @@ ostree checkout "$ref" /var/local-tree
 # docker images that we need for integration testing
 /var/lib/testvm/docker-images.setup
 
+# we need cockpit/ws as well
+docker pull cockpit/ws
+
 # reduce image size
 /var/lib/testvm/zero-disk.setup
 

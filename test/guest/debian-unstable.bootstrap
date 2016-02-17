@@ -7,7 +7,12 @@ BASE=$(dirname $0)
 out=$1
 arch=$2
 
+if [ "$VIRT_BUILDER_NO_CACHE" == "yes" ]; then
+    virt_builder_caching="--no-cache"
+fi
+
 virt-builder debian-8 \
+             $virt_builder_caching \
              --output "$out" \
              --size 8G \
              --format qcow2 \

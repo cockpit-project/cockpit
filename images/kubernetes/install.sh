@@ -3,8 +3,12 @@
 set -ex
 
 # Install packages without dependencies
+if [ -z "$VERSION" ]; then
+    eval $(/container/scripts/get-version-env.sh)
+fi
+
 /container/scripts/install-rpms.sh -a noarch --nodeps cockpit-shell-
-/container/scripts/install-rpms.sh --nodeps cockpit-ws-  cockpit-kubernetes-
+/container/scripts/install-rpms.sh --nodeps cockpit-ws-  cockpit-kubernetes- cockpit-auth-kubernetes-
 
 # Remove unwanted packages
 rm -rf /usr/share/cockpit/realmd/ /usr/share/cockpit/system/ /usr/share/cockpit/tuned/ /usr/share/cockpit/users/ /usr/share/cockpit/dashboard/
@@ -12,6 +16,7 @@ rm -rf /usr/share/cockpit/realmd/ /usr/share/cockpit/system/ /usr/share/cockpit/
 ln -sf /container/branding /usr/share/cockpit/branding/cockpit-kubernetes
 
 rm -rf /container/scripts
+rm -rf /container/rpms
 
 # Openshift will change the user
 # but it will be part of gid 0

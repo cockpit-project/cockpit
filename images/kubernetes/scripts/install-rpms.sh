@@ -29,16 +29,24 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
+if [ -z "$COCKPIT_RPM_URL" ]; then
+    COCKPIT_RPM_URL="https://kojipkgs.fedoraproject.org/packages/cockpit"
+fi
+
+if [ -z "$INSTALLER" ]; then
+    INSTALLER="dnf"
+fi
+
 for package in $@
 do
     rpm=$(/usr/bin/find /container/rpms -name "$package*.rpm" || true)
     if [ -z "$rpm" ]; then
-        rpm="https://kojipkgs.fedoraproject.org/packages/cockpit/$VERSION/$RELEASE.fc23/$arch/$package$VERSION-$RELEASE.fc23.$arch.rpm"
+        rpm="$COCKPIT_RPM_URL/$VERSION/$RELEASE/$arch/$package$VERSION-$RELEASE.$arch.rpm"
     fi
 
     echo "$rpm"
     if [ -z "$nodeps" ]; then
-        dnf install -y "$rpm"
+        $INSTALLER install -y "$rpm"
     else
         rpm --nodeps -i "$rpm"
     fi

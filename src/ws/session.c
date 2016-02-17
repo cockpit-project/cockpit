@@ -891,7 +891,8 @@ fork_session (char **env)
 static void
 pass_to_child (int signo)
 {
-  kill (child, signo);
+  if (child > 0)
+    kill (child, signo);
 }
 
 /* Environment variables to transfer */

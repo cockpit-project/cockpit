@@ -41,9 +41,14 @@ os=$2
 arch=$3
 test -z "$BOOTSTRAP_VOLUME_SIZE" && BOOTSTRAP_VOLUME_SIZE="8G"
 
+if [ "$VIRT_BUILDER_NO_CACHE" == "yes" ]; then
+    virt_builder_caching="--no-cache"
+fi
+
 # we can't use virt-builder --ssh-inject until all our target systems support this
 
 virt-builder "$os" \
+             $virt_builder_caching \
              --output "$out" \
              --size $BOOTSTRAP_VOLUME_SIZE \
              --format qcow2 \

@@ -201,6 +201,7 @@ class GithubImageTask(object):
             cmd += [ "--store", self.config['store'] ]
         cmd += [ self.image ]
 
+        os.environ['VIRT_BUILDER_NO_CACHE'] = "yes"
         proc = subprocess.Popen(cmd)
         self.overtaken = False
         ret = testinfra.wait_testing(proc, check)

@@ -164,6 +164,8 @@ class GithubImageTask(object):
             cmd += [ "--store", self.config['store'] ]
         cmd += [ self.image ]
 
+        cmd = [ "ln", "-sf", "TEST", "images/" + self.image ]
+
         proc = subprocess.Popen(cmd)
         self.overtaken = False
         ret = testinfra.wait_testing(proc, check)

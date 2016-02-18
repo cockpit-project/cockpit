@@ -29,13 +29,17 @@ class GithubImageTask(object):
 
         if self.issue:
             requests += [
-                # Set issue body
-                { "method": "PATCH",
+                # Get issue
+                { "method": "GET",
                   "resource": github.qualify("issues/" + str(self.issue['number'])),
+                  "result": "issue"
+                },
+                # Add comment
+                { "method": "POST",
+                  "resource": ":issue.comments_url",
                   "data": {
                       "body": body_text
-                  },
-                  "result": "issue"
+                  }
                 }
             ]
         else:

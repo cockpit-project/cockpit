@@ -16,9 +16,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-# Install everything we will need to build testing containers
-dnf install -y golang golang-src
-
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker
 

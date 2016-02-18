@@ -8,7 +8,7 @@ if [ -z "$VERSION" ]; then
 fi
 
 /container/scripts/install-rpms.sh -a noarch --nodeps cockpit-shell-
-/container/scripts/install-rpms.sh --nodeps cockpit-ws-  cockpit-kubernetes- cockpit-auth-kubernetes-
+/container/scripts/install-rpms.sh --nodeps cockpit-ws-  cockpit-kubernetes-
 
 # Remove unwanted packages
 rm -rf /usr/share/cockpit/realmd/ /usr/share/cockpit/system/ /usr/share/cockpit/tuned/ /usr/share/cockpit/users/ /usr/share/cockpit/dashboard/

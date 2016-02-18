@@ -15,10 +15,16 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+set -ex
 
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker
 
-sh /var/tmp/images/kubernetes/build.sh --rpmdir=/var/tmp/build-results
+mkdir /var/tmp/images/kubernetes/rpms
+cp -r /var/tmp/build-results/*.rpm /var/tmp/images/kubernetes/rpms/
+
+cd /var/tmp/images/kubernetes/
+docker build --build-arg VERSION=wip -t cockpit/kubernetes .
+rm -r /var/tmp/images/kubernetes/rpms
 
 rm -rf /var/log/journal/* || true

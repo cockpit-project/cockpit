@@ -443,12 +443,16 @@ This package is not yet complete.
 Summary: Cockpit user interface for Kubernetes cluster
 Requires: /usr/bin/kubectl
 Requires: %{name}-shell = %{version}-%{release}
+BuildRequires: golang-bin
+BuildRequires: golang-src
 
 %description kubernetes
 The Cockpit components for visualizing and configuring a Kubernetes
 cluster. Installed on the Kubernetes master. This package is not yet complete.
 
 %files kubernetes -f kubernetes.list
+%{_libexecdir}/cockpit-kube-auth
+%{_libexecdir}/cockpit-kube-launch
 
 %endif
 

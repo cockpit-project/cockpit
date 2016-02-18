@@ -231,6 +231,11 @@ AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE],["$GETTEXT_PACKAGE"],[gettext domain])
 AC_PATH_PROG([PHANTOMJS], [phantomjs])
 AM_CONDITIONAL([WITH_PHANTOMJS], [test -n "$PHANTOMJS"])
 
+# go
+
+AC_PATH_PROG([GOLANG], [go])
+AM_CONDITIONAL([WITH_GOLANG], [test -n "$GOLANG"])
+
 # usermod
 #
 # usermod might not be world-executable, so AC_PATH_PROG might not

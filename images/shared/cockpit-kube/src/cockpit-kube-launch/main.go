@@ -27,7 +27,6 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"path/filepath"
 	"strconv"
 	"syscall"
 	"text/template"
@@ -117,13 +116,6 @@ func main() {
 
 	setupCertificates()
 
-	filename := os.Args[0]
-	filedirectory := filepath.Dir(filename)
-	location, e := filepath.Abs(filedirectory)
-	if e != nil {
-		log.Fatalf("Could't find location %v", e)
-	}
-
 	name := "kubernetes"
 
 	oauth_url := os.Getenv("OPENSHIFT_OAUTH_PROVIDER_URL")
@@ -149,7 +141,7 @@ func main() {
 	}
 
 	confData := make(map[string]interface{})
-	confData["login_command"] = path.Join(location, "cockpit-kube-auth")
+	confData["login_command"] = "/usr/libexec/cockpit-kube-auth"
 	confData["oauth_url"] = oauth_url
 	confData["is_openshift"] = isOpenShift
 	writeConfigFile(confData)

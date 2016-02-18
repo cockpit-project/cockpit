@@ -307,3 +307,4 @@ include branding/default/Makefile.am
 include branding/fedora/Makefile.am
 include branding/centos/Makefile.am
 include branding/rhel/Makefile.am
+include images/shared/cockpit-kube/Makefile.am

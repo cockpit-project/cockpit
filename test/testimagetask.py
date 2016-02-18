@@ -6,33 +6,55 @@ import time
 import testinfra
 
 class GithubImageTask(object):
-    def __init__(self, name, image, config):
+    def __init__(self, name, image, config, issue):
         self.name = name
         self.image = image
         self.config = config
+        self.issue = issue
         self.sink = None
 
     def description(self):
-        return self.name
+        if self.issue:
+            return "{} (#{})".format(self.name, self.issue['number'])
+        else:
+            return self.name
 
     def start_publishing(self, host, github):
         identifier = self.name + "-" + time.strftime("%Y-%m-%d")
+        requests = [ ]
+
+        body_text = ("Image creation for %s in process on %s.\nLog: :link"
+                     % (self.image, testinfra.HOSTNAME))
+
+        if self.issue:
+            requests += [
+                # Set issue body
+                { "method": "PATCH",
+                  "resource": github.qualify("issues/" + str(self.issue['number'])),
+                  "data": {
+                      "body": body_text
+                  },
+                  "result": "issue"
+                }
+            ]
+        else:
+            requests += [
+                # Create issue
+                { "method": "POST",
+                  "resource": github.qualify("issues"),
+                  "data": {
+                      "title": testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(self.image),
+                      "labels": [ "bot" ],
+                      "body": body_text
+                  },
+                  "result": "issue"
+                }
+            ]
+
         status = {
             "github": {
                 "token": github.token,
-                "requests": [
-                    # Create issue
-                    { "method": "POST",
-                      "resource": github.qualify("issues"),
-                      "data": {
-                          "title": testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(self.image),
-                          "labels": [ "bot" ],
-                          "body": ("Image creation for %s in process on %s.\nLog: :link"
-                                   % (self.image, testinfra.HOSTNAME))
-                      },
-                      "result": "issue"
-                    }
-                ]
+                "requests": requests
             },
 
             "onaborted": {

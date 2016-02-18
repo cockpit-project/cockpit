@@ -7,16 +7,21 @@ sys.dont_write_bytecode = True
 
 import testinfra
 
-def main():
-    parser = argparse.ArgumentParser(description='Manually trigger CI Robots')
-    parser.add_argument('-f', '--force', action="store_true",
-                        help='Force setting the status even if the program logic thinks it shouldn''t be done')
-    parser.add_argument('pull', help='The pull request to trigger')
-    parser.add_argument('context', nargs='?', help='The github task context to trigger')
-    opts = parser.parse_args()
+def trigger_image_refresh(github, opts):
+    title = testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(opts.refresh)
+    if opts.pull:
+        # Add a comment to the pull request with the right text and set the right label
+        issue = github.get("issues/" + opts.pull)
+        github.post("issues/" + opts.pull + "/comments", { "body": "bot: " + title })
+        github.patch("issues/" + opts.pull, { "labels": issue['labels'] + [ "bot" ] })
+    else:
+        # Make a new issue with the right content.
+        github.post("issues", { "title": title,
+                                "labels": [ "bot" ],
+                                "body": "bot: " + title })
+    return 0
 
-    github = testinfra.GitHub()
-
+def trigger_pull(github, opts):
     pull = github.get("pulls/" + opts.pull)
 
     if not pull:
@@ -52,6 +57,25 @@ def main():
         github.post("statuses/" + revision, changes)
 
     return ret
+
+def main():
+    parser = argparse.ArgumentParser(description='Manually trigger CI Robots')
+    parser.add_argument('-f', '--force', action="store_true",
+                        help='Force setting the status even if the program logic thinks it shouldn''t be done')
+    parser.add_argument('--refresh', help='Trigger a image refresh')
+    parser.add_argument('pull', nargs='?', help='The pull request to trigger')
+    parser.add_argument('context', nargs='?', help='The github task context to trigger')
+    opts = parser.parse_args()
+
+    github = testinfra.GitHub()
+
+    if opts.refresh:
+        return trigger_image_refresh(github, opts)
+    elif opts.pull and not opts.refresh:
+        return trigger_pull(github, opts)
+    else:
+        sys.stderr.write("Please specify either --refresh or a pull request.\n")
+        return 1
 
 if __name__ == '__main__':
     sys.exit(main())

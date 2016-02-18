@@ -334,6 +334,14 @@ class GitHub(object):
             raise Exception("GitHub API problem: {0}".format(response['reason'] or status))
         return json.loads(response['data'])
 
+    def patch(self, resource, data, accept=[]):
+        response = self.request("PATCH", resource, json.dumps(data), { "Content-Type": "application/json" })
+        status = response['status']
+        if (status < 200 or status >= 300) and status not in accept:
+            sys.stderr.write("{0}\n{1}\n".format(resource, response['data']))
+            raise Exception("GitHub API problem: {0}".format(response['reason'] or status))
+        return json.loads(response['data'])
+
     def statuses(self, revision):
         result = { }
         page = 1
@@ -499,11 +507,38 @@ class GitHub(object):
 
     def scan_for_image_tasks(self):
         results = [ ]
+
+        # Trigger based on how old the youngest issue is
         for image, wait_time in self.scan_image_wait_times().items():
             if wait_time <= 0:
                 results.append(GitHub.TaskEntry(BASELINE_PRIORITY, GithubImageTask("refresh-" + image,
                                                                                    image,
-                                                                                   DEFAULT_IMAGE_REFRESH[image])))
+                                                                                   DEFAULT_IMAGE_REFRESH[image],
+                                                                                   None)))
+
+        # Trigger on explicit requests
+
+        def issue_requests_image_refresh(issue, comments, image):
+            request = "bot: " + ISSUE_TITLE_IMAGE_REFRESH.format(image)
+            in_process_prefix = "Image creation for {} in process".format(image)
+
+            needed = False
+            for body in [ issue['body'] ] + [ c['body'] for c in comments ]:
+                if body == request:
+                    needed = True
+                if body.startswith(in_process_prefix):
+                    needed = False
+            return needed
+
+        for issue in self.get("issues?labels=bot&state=open"):
+            comments = self.get(issue['comments_url'])
+            for image in DEFAULT_IMAGE_REFRESH:
+                if issue_requests_image_refresh(issue, comments, image):
+                    results.append(GitHub.TaskEntry(BASELINE_PRIORITY, GithubImageTask("refresh-" + image,
+                                                                                       image,
+                                                                                       DEFAULT_IMAGE_REFRESH[image],
+                                                                                       issue)))
+
         return results
 
     # Figure out what tasks needs doing

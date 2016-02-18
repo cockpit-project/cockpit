@@ -499,11 +499,30 @@ class GitHub(object):
 
     def scan_for_image_tasks(self):
         results = [ ]
+
+        # Trigger based on how old the youngest issue is
         for image, wait_time in self.scan_image_wait_times().items():
             if wait_time <= 0:
                 results.append(GitHub.TaskEntry(BASELINE_PRIORITY, GithubImageTask("refresh-" + image,
                                                                                    image,
-                                                                                   DEFAULT_IMAGE_REFRESH[image])))
+                                                                                   DEFAULT_IMAGE_REFRESH[image],
+                                                                                   None)))
+
+        # Trigger on explicit requests
+
+        def issue_requests_image_refresh(issue, image):
+            if issue['title'] == ISSUE_TITLE_IMAGE_REFRESH.format(image) and issue['body'] == "":
+                return True
+            return False
+
+        for issue in self.get("issues?labels=bot&state=open"):
+            for image in DEFAULT_IMAGE_REFRESH:
+                if issue_requests_image_refresh(issue, image):
+                    results.append(GitHub.TaskEntry(BASELINE_PRIORITY, GithubImageTask("refresh-" + image,
+                                                                                       image,
+                                                                                       DEFAULT_IMAGE_REFRESH[image],
+                                                                                       issue)))
+
         return results
 
     # Figure out what tasks needs doing

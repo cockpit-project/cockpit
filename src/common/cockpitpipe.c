@@ -900,7 +900,8 @@ _cockpit_pipe_write (CockpitPipe *self,
    */
   if (self->priv->closed)
     {
-      g_critical ("assertion self->priv->closed check failed at %s %d", caller, line);
+      g_critical ("assertion self->priv->closed check failed at %s %d (%p %d)",
+                  caller, line, self->priv->child, self->priv->pid);
       return;
     }
 

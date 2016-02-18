@@ -9,7 +9,7 @@ import testinfra
 
 def trigger_image_refresh(github, opts):
     # Make a new issue with the right title and label, but an empty body.
-    github.post("issues", { "title": testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(opt.refresh),
+    github.post("issues", { "title": testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(opts.refresh),
                             "labels": [ "bot" ],
                             "body": "" })
     return 0

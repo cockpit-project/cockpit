@@ -8,10 +8,17 @@ sys.dont_write_bytecode = True
 import testinfra
 
 def trigger_image_refresh(github, opts):
-    # Make a new issue with the right title and label, but an empty body.
-    github.post("issues", { "title": testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(opts.refresh),
-                            "labels": [ "bot" ],
-                            "body": "" })
+    title = testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(opts.refresh)
+    if opts.pull:
+        # Add a comment to the pull request with the right text and set the right label
+        issue = github.get("issues/" + opts.pull)
+        github.post("issues/" + opts.pull + "/comments", { "body": "bot: " + title })
+        github.patch("issues/" + opts.pull, { "labels": issue['labels'] + [ "bot" ] })
+    else:
+        # Make a new issue with the right content.
+        github.post("issues", { "title": title,
+                                "labels": [ "bot" ],
+                                "body": "bot: " + title })
     return 0
 
 def trigger_pull(github, opts):
@@ -64,7 +71,7 @@ def main():
 
     if opts.refresh:
         return trigger_image_refresh(github, opts)
-    elif opts.pull:
+    elif opts.pull and not opts.refresh:
         return trigger_pull(github, opts)
     else:
         sys.stderr.write("Please specify either --refresh or a pull request.\n")

@@ -11,6 +11,7 @@ class GithubImageTask(object):
         self.image = image
         self.config = config
         self.issue = issue
+        self.pull = None
         self.sink = None
 
     def description(self):
@@ -78,6 +79,9 @@ class GithubImageTask(object):
         # If the most recently created issue for our image does not
         # mention our host, we have been overtaken and should stop.
 
+        # TODO - look for comments not body
+        # TODO - handle explicit issues
+
         expected_title = testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(self.image)
         expected_description = "Image creation for %s in process on %s." % (self.image, testinfra.HOSTNAME)
 
@@ -93,6 +97,8 @@ class GithubImageTask(object):
         else:
             if ret == 0:
                 message = "Image creation done."
+                if self.pull:
+                    message += "\nResults at " + branch
             else:
                 message = "Image creation failed."
             if not branch:
@@ -108,7 +114,7 @@ class GithubImageTask(object):
             }
         ]
 
-        if branch:
+        if not self.pull and branch:
             requests += [
                 # Turn issue into pull request
                 { "method": "POST",
@@ -145,6 +151,9 @@ class GithubImageTask(object):
             print "Need a github token to run image creation tasks"
             return
 
+        if self.issue and 'pull_request' in self.issue:
+            self.pull = github.get(self.issue['pull_request']['url'])
+
         if opts.publish:
             self.start_publishing(opts.publish, github)
 
@@ -152,6 +161,10 @@ class GithubImageTask(object):
 
         msg = "Creating image {0} on {1}...\n".format(self.image, testinfra.HOSTNAME)
         sys.stderr.write(msg)
+
+        if self.pull:
+            subprocess.check_call([ "git", "fetch", "origin", self.pull['head']['ref'] ])
+            subprocess.check_call([ "git", "checkout", self.pull['head']['sha'] ])
 
         def check():
             if not self.check_publishing(github):
@@ -194,7 +207,11 @@ class GithubImageTask(object):
 
         # Push the new image link to origin, but don't change any local refs
 
-        branch = "refresh-" + self.image + "-" + time.strftime("%Y-%m-%d")
+        if self.pull:
+            branch = "refresh-" + self.image + "-" + self.pull['head']['sha']
+        else:
+            branch = "refresh-" + self.image + "-" + time.strftime("%Y-%m-%d")
+
         url = "https://{0}@github.com/{1}/cockpit.git".format(github.token, user)
 
         # When image creation fails, remove the link and make a pull

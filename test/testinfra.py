@@ -334,6 +334,14 @@ class GitHub(object):
             raise Exception("GitHub API problem: {0}".format(response['reason'] or status))
         return json.loads(response['data'])
 
+    def patch(self, resource, data, accept=[]):
+        response = self.request("PATCH", resource, json.dumps(data), { "Content-Type": "application/json" })
+        status = response['status']
+        if (status < 200 or status >= 300) and status not in accept:
+            sys.stderr.write("{0}\n{1}\n".format(resource, response['data']))
+            raise Exception("GitHub API problem: {0}".format(response['reason'] or status))
+        return json.loads(response['data'])
+
     def statuses(self, revision):
         result = { }
         page = 1
@@ -510,14 +518,22 @@ class GitHub(object):
 
         # Trigger on explicit requests
 
-        def issue_requests_image_refresh(issue, image):
-            if issue['title'] == ISSUE_TITLE_IMAGE_REFRESH.format(image) and issue['body'] == "":
-                return True
-            return False
+        def issue_requests_image_refresh(issue, comments, image):
+            request = "bot: " + ISSUE_TITLE_IMAGE_REFRESH.format(image)
+            in_process_prefix = "Image creation for {} in process".format(image)
+
+            needed = False
+            for body in [ issue['body'] ] + [ c['body'] for c in comments ]:
+                if body == request:
+                    needed = True
+                if body.startswith(in_process_prefix):
+                    needed = False
+            return needed
 
         for issue in self.get("issues?labels=bot&state=open"):
+            comments = self.get(issue['comments_url'])
             for image in DEFAULT_IMAGE_REFRESH:
-                if issue_requests_image_refresh(issue, image):
+                if issue_requests_image_refresh(issue, comments, image):
                     results.append(GitHub.TaskEntry(BASELINE_PRIORITY, GithubImageTask("refresh-" + image,
                                                                                        image,
                                                                                        DEFAULT_IMAGE_REFRESH[image],

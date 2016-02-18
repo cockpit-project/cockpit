@@ -1,3 +1,5 @@
 Traceback (most recent call last):
-  File "kubelib.py", line 182, in testDashboard
+  File "kubelib.py", line 198, in testDashboard
+    self.check_logs(b)
+  File "kubelib.py", line 72, in check_logs
     b.wait_in_text(".listing-panel pre.logs", "HelloMessage.")

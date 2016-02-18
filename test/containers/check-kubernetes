@@ -132,5 +132,22 @@ class KubernetesCase(KubernetesContainerCase, kubelib.KubernetesCommonTests):
         self.machine.upload([config], "/tmp")
         self.wait_api_server(port=6443, scheme='https')
 
+        version = self.machine.execute("rpm -qa | grep kubernetes-master")
+        self.supports_websocket = True
+        if ("-1.1.0-0.17" in version or version < "kubernetes-master-1.1.0-0.17"):
+            self.supports_websocket = False
+
+    def check_logs(self, b):
+        if not self.supports_websocket:
+            print "No websocket support on kubernetes yet"
+        else:
+            super(KubernetesCase, self).check_logs(b)
+
+    def check_shell(self, b):
+        if not self.supports_websocket:
+            print "No websocket support on kubernetes yet"
+        else:
+            super(KubernetesCase, self).check_shell(b)
+
 if __name__ == '__main__':
     test_main()

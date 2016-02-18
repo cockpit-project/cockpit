@@ -62,6 +62,28 @@ class KubernetesCase(MachineCase):
 
 class KubernetesCommonTests(object):
 
+    def check_logs(self, b):
+        # Check that container log output shows up
+        b.click("#content .containers-listing tbody:first-of-type tr th")
+        b.wait_present(".listing-panel .listing-status:contains('running')")
+        b.click("#content .listing-panel li a:contains('Logs')")
+        b.wait_present(".listing-panel pre.logs")
+        b.wait_visible(".listing-panel pre.logs")
+        b.wait_in_text(".listing-panel pre.logs", "HelloMessage.")
+
+    def check_shell(self, b):
+        def line_sel(i):
+            return '#terminal .terminal div:nth-child(%d)' % i
+
+        b.wait_present("#content .listing-panel li a:contains('Shell')")
+        b.click("#content .listing-panel li a:contains('Shell')")
+        b.wait_present(".listing-panel div.terminal")
+        b.wait_visible(".listing-panel div.terminal")
+        b.wait_in_text(".listing-panel .terminal div:nth-child(1)", "#")
+        b.focus('.listing-panel .terminal')
+        b.key_press( [ 'w', 'h', 'o', 'a', 'm', 'i', 'Return' ] )
+        b.wait_in_text(".listing-panel .terminal div:nth-child(2)", "root")
+
     def testDelete(self):
         b = self.browser
         m = self.machine
@@ -173,25 +195,8 @@ class KubernetesCommonTests(object):
         b.wait_present("#content .containers-listing tbody tr th")
         self.assertEqual(b.text("#content .containers-listing tbody:first-of-type tr th"), "mock-container")
 
-        # Check that container log output shows up
-        b.click("#content .containers-listing tbody:first-of-type tr th")
-        b.wait_present(".listing-panel .listing-status:contains('running')")
-        b.click("#content .listing-panel li a:contains('Logs')")
-        b.wait_present(".listing-panel pre.logs")
-        b.wait_visible(".listing-panel pre.logs")
-        b.wait_in_text(".listing-panel pre.logs", "HelloMessage.")
-
-        def line_sel(i):
-            return '#terminal .terminal div:nth-child(%d)' % i
-
-        b.wait_present("#content .listing-panel li a:contains('Shell')")
-        b.click("#content .listing-panel li a:contains('Shell')")
-        b.wait_present(".listing-panel div.terminal")
-        b.wait_visible(".listing-panel div.terminal")
-        b.wait_in_text(".listing-panel .terminal div:nth-child(1)", "#")
-        b.focus('.listing-panel .terminal')
-        b.key_press( [ 'w', 'h', 'o', 'a', 'm', 'i', 'Return' ] )
-        b.wait_in_text(".listing-panel .terminal div:nth-child(2)", "root")
+        self.check_logs(b)
+        self.check_shell(b)
 
         # Check that service shows up on listing view
         b.click("a[href='#/list']")
@@ -227,6 +232,7 @@ class KubernetesCommonTests(object):
         self.assertEqual(b.text(".filter-menu li.active"), " View all items ")
 
         # Click the filter button to make only selected
+        b.wait_visible(".filter-menu .btn:first-child")
         b.click(".filter-menu .btn:first-child")
         b.wait_text(".filter-menu li.active", " Only selected items ")
         self.assertFalse(b.is_present(".details-listing thead th"))

@@ -83,6 +83,26 @@ define([
             }
         }
 
+        self.lookup_component_hash = function(machine, component) {
+            var address, list, frame, src;
+
+            if (machine)
+                address = machine.address;
+
+            if (!address)
+                address = "localhost";
+
+            list = iframes[address];
+            if (list)
+                frame = list[component];
+
+            if (frame) {
+                src = frame.getAttribute('src');
+                if (src)
+                    return src.split("#")[1];
+            }
+        };
+
         self.lookup = function lookup(machine, component, hash) {
             var host;
             var address;
@@ -542,6 +562,13 @@ define([
 
             var target;
             var history = window.history;
+            var frame_change = (state.host !== current.host ||
+                                state.component !== current.component);
+
+            if (frame_change && !state.hash) {
+                state.hash = self.frames.lookup_component_hash(state.host,
+                                                               state.component);
+            }
 
             if (shell_embedded)
                 target = window.location;
@@ -552,9 +579,8 @@ define([
                 return false;
             }
 
-            if (state.host !== current.host ||
-                state.component !== current.component ||
-                state.hash !== current.hash) {
+
+            if (frame_change || state.hash !== current.hash) {
                 history.pushState(state, "", target);
                 self.navigate(state, true);
                 return true;

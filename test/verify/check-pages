@@ -54,6 +54,33 @@ WantedBy=default.target
         b.wait_present("#service-unit .panel-heading")
         b.wait_text("#service-unit .panel-heading", "Test Service")
 
+        # check that navigating away and back preserves place
+        b.switch_to_top();
+        b.click("a[href='/system']")
+        b.enter_page("/system")
+        b.wait_present("#system_information_hostname_button")
+        b.switch_to_top();
+        b.click("a[href='/system/services']")
+        b.enter_page("/system/services")
+        b.wait_present("#service-unit .panel-heading")
+        b.wait_visible("#service-unit")
+        b.wait_present("ol.breadcrumb")
+        b.wait_text("#service-unit .panel-heading", "Test Service")
+        b.switch_to_top();
+        b.wait_js_cond('window.location.pathname === "/system/services"')
+        b.wait_js_cond('window.location.hash === "#/test.service"')
+
+        # check that when inside the component clicking the navbar
+        # takes you home
+        b.switch_to_top()
+        b.click("a[href='/system/services']")
+        b.enter_page("/system/services")
+        b.wait_present("#services-list-enabled")
+        b.wait_not_visible("#service-unit")
+        b.switch_to_top();
+        b.wait_js_cond('window.location.pathname === "/system/services"')
+        b.wait_js_cond('window.location.hash === ""')
+
         # Navigate inside an iframe
         b.switch_to_top()
         b.go("/@localhost/playground/test")

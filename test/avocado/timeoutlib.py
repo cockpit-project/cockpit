@@ -1,0 +1,155 @@
+#!/usr/bin/python
+# copied from: https://gist.github.com/happz/d50897af8a2e90cce8c7
+
+import signal
+import time
+
+class Timeout(object):
+    def __init__(self, retry, timeout):
+        self.retry = retry
+        self.timeout = timeout
+
+    def __enter__(self):
+        def timeout_handler(signum, frame):
+            if __debug__:
+                self.retry.timeouts_triggered += 1
+
+            raise Exception()
+
+        self.orig_sighand = signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(self.timeout)
+
+    def __exit__(self, type, value, traceback):
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, self.orig_sighand)
+
+class NOPTimeout(object):
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, *args, **kwargs):
+        pass
+
+class Retry(object):
+    def __init__(self, attempts = 1, timeout = None, exceptions = (Exception,), error = None):
+        """
+        Try to run things ATTEMPTS times, at max, each attempt must not exceed TIMEOUT seconds.
+        Restart only when one of EXCEPTIONS is raised, all other exceptions will just bubble up.
+        When the maximal number of attempts is reached, raise ERROR.
+        """
+
+        self.attempts = attempts
+        self.timeout = timeout
+        self.exceptions = exceptions
+        self.error = error or Exception('Too many retries!')
+
+        self.timeout_wrapper = Timeout if timeout is not None else NOPTimeout
+
+        # some accounting, for testing purposes
+        if __debug__:
+            self.failed_attempts = 0
+            self.timeouts_triggered = 0
+
+    def __call__(self, fn):
+        def __wrap(*args, **kwargs):
+            # This is not an endless loop. It will be broken by
+            # 1) first successfull return of fn(), or
+            # 2) by decrementing self.attempts to zero, or
+            # 3) when unexpected exception is raised by fn().
+            while True:
+                with self.timeout_wrapper(self, self.timeout):
+                    try:
+                        return fn(*args, **kwargs)
+
+                    except self.exceptions as e:
+                        # Handle exceptions we are expected to catch, by logging a failed
+                        # attempt, and checking the number of attempts.
+                        if __debug__:
+                            self.failed_attempts += 1
+
+                        self.attempts -= 1
+
+                        if self.attempts == 0:
+                            raise self.error
+
+                        continue
+
+                    except Exception as e:
+                        # Handle all other exceptions, by logging a failed attempt and
+                        # re-raising the exception, effectively killing the loop.
+                        if __debug__:
+                            self.failed_attempts += 1
+
+                        raise e
+
+        return __wrap
+
+if __name__ == '__main__':
+    class IFailedError(Exception):
+        pass
+
+    white_horse = []
+
+    # Simple "try so many times, and die" case
+    @Retry(attempts = 5, error = IFailedError('Too many retries!'))
+    def do_something1(a, b, c, d = 79):
+        white_horse.append(d)
+        raise IFailedError()
+
+    try:
+        do_something1(2, 4, 6, d = 97)
+
+    except IFailedError as e:
+        retry = do_something1.func_closure[1].cell_contents
+
+        assert len(white_horse) == 5
+        assert retry.failed_attempts == 5
+        assert retry.timeouts_triggered == 0
+
+    except Exception as e:
+        assert False, 'Unexpected exception raised: %s' % repr(e)
+
+
+    # Now with timeout
+    black_horse = []
+    brown_horse = []
+
+    @Retry(attempts = 2, timeout = 5, error = IFailedError('Too many retries!'))
+    def do_something2(a, b):
+        black_horse.append(b)
+        time.sleep(30)
+        brown_horse.append(True)
+
+    try:
+        do_something2(1, 2)
+
+    except IFailedError as e:
+        retry = do_something2.func_closure[1].cell_contents
+
+        assert not len(brown_horse)
+        assert len(black_horse) == 2
+        assert retry.timeouts_triggered == 2
+        assert retry.failed_attempts == 2
+
+    except Exception as e:
+        assert False, 'Unexpected exception raised: %s' % repr(e)
+
+    # And react only to a set of exceptions
+    @Retry(attempts = 3, exceptions = (ValueError,))
+    def do_something3():
+        raise IndexError('This one goes right to the top')
+
+    try:
+        do_something3()
+
+    except IndexError as e:
+        retry = do_something3.func_closure[1].cell_contents
+
+        assert retry.failed_attempts == 1
+        assert retry.timeouts_triggered == 0
+
+    except Exception as e:
+        assert False, 'Unexpected exception raised: %s' % repr(e)

@@ -374,10 +374,10 @@ The Cockpit component for managing storage.  This package uses Storaged.
 
 %package ostree
 Summary: Cockpit user interface for rpm-ostree
-%if 0%{?rhel}
-Requires: rpm-ostree-client >= 2015.11-1
-%else
+%if 0%{?fedora} > 0 && 0%{?fedora} < 24
 Requires: rpm-ostree >= 2015.10-1
+%else
+Requires: /usr/libexec/rpm-ostreed
 %endif
 
 %description ostree

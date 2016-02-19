@@ -244,6 +244,7 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
         flot_data = [ ];
         flot = null;
         $(element).empty();
+        $(element).data("flot_data", null);
     }
 
     function resize() {
@@ -600,6 +601,9 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
     $(element).on("mouseleave", hover_off);
     $(element).on("plotselecting", selecting);
     $(element).on("plotselected", selected);
+
+    // for testing
+    $(element).data("flot_data", flot_data);
 
     reset(x_range_seconds, x_stop_seconds);
 

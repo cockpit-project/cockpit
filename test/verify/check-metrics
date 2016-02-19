@@ -1,0 +1,138 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2016 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import unittest
+import os
+
+import parent
+from testlib import *
+
+def read_mem_info(machine):
+    info = { }
+    for l in machine.execute("cat /proc/meminfo").splitlines():
+        (name, value) = l.strip().split(":")
+        if value.endswith("kB"):
+            info[name] = int(value[:-2])*1024
+        else:
+            info[name] = int(value)
+    return info
+
+def load_cpu(machine, seconds):
+    machine.spawn("( while true; do true; done ) & pid=$!; sleep {0}; kill $pid".format(seconds),
+                  "load-cpu.log")
+
+def load_disk(machine, dev, seconds):
+    machine.spawn("( while true; do dd if={0} of={0}; done ) & pid=$!; sleep {1}; kill $pid".format(dev, seconds),
+                  "load-disk.log")
+
+def load_net(machine, seconds):
+    identity = machine._calc_identity()
+    machine.upload([ identity ], "/var/tmp")
+    machine.spawn("( ssh -o StrictHostKeyChecking=no -i /var/tmp/{1} {0} cat /dev/zero >/dev/null ) & pid=$!; sleep 10; kill $pid".format(machine.address, os.path.basename(identity)),
+                  "load-net.log")
+
+class TestMetrics(MachineCase):
+
+    def check_host_metrics(self):
+        b = self.browser
+        m = self.machine
+
+        b.eval_js("""
+          ph_plateau = function (data, min, max, duration, label) {
+            var i, start = undefined, start_index, sum;
+            for (i = 0; i < data.length; i++) {
+              if ((min === null || data[i][1] >= min) && (max === null || data[i][1] <= max)) {
+                if (start === undefined) {
+                  start = data[i][0];
+                  start_index = i;
+                  sum = 0;
+                }
+                sum += data[i][1];
+                if (data[i][0] - start >= duration * 1000) {
+                  console.log("avg", label, sum/(i - start_index + 1));
+                  return true;
+                }
+              } else {
+                if (start)
+                  console.log("out of range:", data[i][1], ",", data[i][0] - start, "ms");
+                start = undefined;
+              }
+            }
+            return false;
+          }
+        """)
+
+        b.eval_js("""
+          ph_flot_data_plateau = function (sel, min, max, duration, label) {
+            return ph_plateau($(sel).data("flot_data")[0]['data'], min, max, duration, label);
+          }
+        """)
+
+        # CPU.  We load one cpu for 20 seconds.  The resulting CPU
+        # load can be all over the place since we don't control the
+        # environment where the test virtual machine runs well enough.
+        # So we are happy with anything above 50% for 15 seconds.
+        #
+        load_cpu(m, 20)
+        b.wait_js_func("ph_flot_data_plateau", "#server_cpu_graph", 50, 105, 15, "cpu");
+
+        # Memory.  We assume that the machine has had a reasonably
+        # stable memory situation for the last 20 seconds.
+        #
+        meminfo = read_mem_info(m)
+        mem_used = meminfo['MemTotal'] - meminfo['MemFree']
+        b.wait_js_func("ph_flot_data_plateau", "#server_memory_graph", mem_used*0.95, mem_used*1.05, 15, "mem");
+
+        # Disk.  Anything above 100 kiB/s is good.
+        #
+        disk = m.add_disk("10M", serial="MYSERIAL")
+        load_disk(m, "/dev/sda", 10)
+        b.wait_js_func("ph_flot_data_plateau", "#server_disk_io_graph", 100*1024, None, 5, "disk io");
+
+        # Network.  Anything above 300 kb/s is good.
+        #
+        load_net(m, 10)
+        b.wait_js_func("ph_flot_data_plateau", "#server_network_traffic_graph", 300*1000, None, 5, "net io");
+
+    @unittest.skipIf("rhel" in os.environ.get("TEST_OS", ""), "No PCP on RHEL.")
+    @unittest.skipIf("fedora-atomic" in os.environ.get("TEST_OS", ""), "No PCP on Fedora Atomic.")
+    def testPcp(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/system")
+        m.execute("pgrep cockpit-pcp")
+
+        self.check_host_metrics()
+
+    def testInternal(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("! [ -f /usr/libexec/cockpit-pcp ] || rm /usr/libexec/cockpit-pcp")
+        m.execute("! [ -f /usr/lib/cockpit/cockpit-pcp ] || rm /usr/lib/cockpit/cockpit-pcp")
+
+        self.login_and_go("/system")
+        m.execute("! pgrep cockpit-pcp")
+
+        self.check_host_metrics()
+
+if __name__ == '__main__':
+    test_main()

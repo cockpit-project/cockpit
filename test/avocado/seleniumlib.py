@@ -32,7 +32,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 import os
 import time
 from avocado import Test
-from testvm import Timeout
+from timeoutlib import Retry
 
 user = "test"
 passwd = "superhardpasswordtest5554"
@@ -55,18 +55,21 @@ class SeleniumTest(Test):
     """
     def setUp(self):
         if not (os.environ.has_key("HUB") or os.environ.has_key("BROWSER")):
-            with Timeout(seconds=30, error_message="Timeout: Unable to attach firefox driver"):
+            @Retry(attempts = 3, timeout = 30, error = Exception('Timeout: Unable to attach firefox driver'))
+            def connectfirefox():
                 self.driver = selenium.webdriver.Firefox()
+            connectfirefox()
             guest_machine = 'localhost'
         else:
             selenium_hub = os.environ["HUB"] if os.environ.has_key("HUB") else "localhost"
             browser = os.environ["BROWSER"] if os.environ.has_key("BROWSER") else "firefox"
             guest_machine = os.environ["GUEST"]
-            with Timeout(seconds=30, error_message="Timeout: Unable to attach remote Browser on hub"):
+            @Retry(attempts = 3, timeout = 30, error = Exception('Timeout: Unable to attach remote Browser on hub'))
+            def connectbrowser():
                 self.driver = selenium.webdriver.Remote(command_executor='http://%s:4444/wd/hub' % selenium_hub, desired_capabilities={'browserName': browser})
-        with Timeout(seconds=30, error_message="Timeout: Unable to set browser options"):
-            self.driver.set_window_size(1400, 1200)
-            self.driver.set_page_load_timeout(90)
+            connectbrowser()
+        self.driver.set_window_size(1400, 1200)
+        self.driver.set_page_load_timeout(90)
         # self.default_try is number of repeats for finding element
         self.default_try = 40
         # stored search function for each element to be able to refresh element in case of detached from DOM
@@ -74,8 +77,10 @@ class SeleniumTest(Test):
         # self.default_explicit_wait is time for waiting for element
         # default_explicit_wait * default_try = max time for waiting for element
         self.default_explicit_wait = 1
-        with Timeout(seconds=30, error_message="Timeout: Unable to get page"):
+        @Retry(attempts = 3, timeout = 30, error = Exception('Timeout: Unable to get page'))
+        def connectwebpage():
             self.driver.get('http://%s:9090' % guest_machine)
+        connectwebpage()
 
         # if self.error evaluates to True when a test finishes,
         # an error is raised and a screenshot generated

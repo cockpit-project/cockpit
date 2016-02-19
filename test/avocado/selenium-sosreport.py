@@ -12,7 +12,7 @@ from avocado import main
 from avocado.utils import process
 import libdisc
 from seleniumlib import *
-from testvm import Timeout
+from timeoutlib import Retry
 
 class SosReportingTab(SeleniumTest):
     """
@@ -33,14 +33,11 @@ class SosReportingTab(SeleniumTest):
         process.run("pgrep sosreport", shell=True)
         # duration of report generation depends on the target system - as along as sosreport is active, we don't want to timeout
         # it is also important to call some selenium method there to ensure that connection to HUB will not be lost
-        with Timeout(seconds=240, error_message="Timeout: sosreport did not finish"):
-            while True:
-                try:
-                    process.run("pgrep sosreport", shell=True)
-                    self.wait_text("Generating report", overridetry=5)
-                except:
-                    break
-                time.sleep(1)
+        @Retry(attempts = 30, timeout = 10, error = Exception('Timeout: sosreport did not finish'), inverse = True)
+        def waitforsosreport():
+            process.run("pgrep sosreport", shell=True)
+            self.wait_text("Generating report", overridetry=5)
+        waitforsosreport()
         element = self.wait_id("sos-download")
         self.wait_xpath('//button[contains(text(), "%s")]' % "Download", cond=clickable, baseelement=element)
         self.click(self.wait_id("sos-cancel", cond=clickable))

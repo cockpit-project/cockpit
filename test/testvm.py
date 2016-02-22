@@ -99,9 +99,7 @@ class Machine:
         self.image = image or testinfra.DEFAULT_IMAGE
         self.test_dir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
         self.vm_username = "root"
-        self.vm_password = "foobar"
         self.address = address
-        self.mac = None
         self.label = label or "UNKNOWN"
         self.ssh_master = None
         self.ssh_process = None

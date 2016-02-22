@@ -819,6 +819,12 @@ on_remote_login_done (CockpitSshTransport *transport,
                                                "Authentication failed");
             }
         }
+      else if (g_str_equal (problem, "terminated"))
+        {
+              g_simple_async_result_set_error (task, COCKPIT_ERROR,
+                                               COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                                               "Authentication failed: terminated");
+        }
       else
         {
           g_simple_async_result_set_error (task, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,

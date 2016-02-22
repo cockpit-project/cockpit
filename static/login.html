@@ -303,6 +303,8 @@
                         if (xhr.statusText.indexOf("authentication-not-supported") > -1) {
                             var user = trim(id("login-user-input").value);
                             fatal("The server refused to authenticate '" + user + "' using password authentication, and no other supported authentication methods are available.");
+                        } else if (xhr.statusText.indexOf("terminated") > -1) {
+                            login_failure("Authentication Failed: Server closed connection");
                         } else {
                             login_failure("Wrong user name or password");
                         }

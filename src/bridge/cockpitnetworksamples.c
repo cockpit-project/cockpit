@@ -94,8 +94,8 @@ cockpit_network_samples (CockpitSamples *samples)
       if (g_strcmp0 (iface_name, "lo") == 0)
         continue;
 
-      cockpit_samples_sample (samples, "network.interface.rx", iface_name, total_rx);
-      cockpit_samples_sample (samples, "network.interface.tx", iface_name, total_tx);
+      cockpit_samples_sample (samples, "network.interface.rx", iface_name, bytes_rx);
+      cockpit_samples_sample (samples, "network.interface.tx", iface_name, bytes_tx);
 
       total_rx += bytes_rx;
       total_tx += bytes_tx;

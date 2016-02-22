@@ -116,11 +116,11 @@ class TestSystemInfo(MachineCase):
         b.click("#systime-apply-button")
         b.wait_popdown("system_information_change_systime")
 
+        b.wait_text("#system_information_systime_button", "2020-01-24 08:03")
+
         self.assertIn("%s: no" % network_time_prefix, m.execute("LC_ALL=C timedatectl"))
         self.assertIn("Fri Jan 24 08:03:", m.execute("LC_ALL=C date"))
         self.assertIn("EET 2020\n", m.execute("LC_ALL=C date"))
-
-        b.wait_text("#system_information_systime_button", "2020-01-24 08:03")
 
         # Set to NTP
         b.click("#system_information_systime_button")

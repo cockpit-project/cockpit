@@ -36,14 +36,18 @@ define([
         jobs_tmpl = $("#jobs-tmpl").html();
         mustache.parse(jobs_tmpl);
 
-        /* As a special service, we try to also show UDisks2 jobs.  As
-         * a shortcut, we assume that we can blindly transform a
-         * UDisks2 object path into a Storaged object path for the
-         * same object.
+        /* As a special service, we try to also show UDisks2 jobs.
+         * (But only if storaged itself isn't behind
+         * org.freedesktop.UDisks2, of course.)  As a shortcut, we
+         * assume that we can blindly transform a UDisks2 object path
+         * into a Storaged object path for the same object.
          */
 
         function udisks_path_to_storaged_path(upath) {
-            return upath.replace("/org/freedesktop/UDisks2/", "/org/storaged/Storaged/");
+            if (client.udisks_client)
+                return upath.replace("/org/freedesktop/UDisks2/", "/org/storaged/Storaged/");
+            else
+                return upath;
         }
 
         function update_job_spinners(parent) {

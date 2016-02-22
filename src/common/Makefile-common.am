@@ -1,12 +1,9 @@
-test_dbus_generated = test-dbus-generated.h test-dbus-generated.c
-
-test-dbus-generated.h: test-dbus-generated.c
-test-dbus-generated.c: Makefile.am $(srcdir)/src/common/com.redhat.Cockpit.DBusTests.xml
-	$(AM_V_GEN) $(GDBUS_CODEGEN) \
+mock-dbus-tests:
+	gdbus-codegen \
 		--interface-prefix com.redhat.Cockpit.DBusTests \
 		--c-namespace Test \
 		--c-generate-object-manager \
-		--generate-c-code test-dbus-generated \
+		--generate-c-code $(srcdir)/src/common/mock-dbus-tests \
 		$(srcdir)/src/common/com.redhat.Cockpit.DBusTests.xml \
 		$(NULL)
 
@@ -17,19 +14,13 @@ src/common/cockpitassets.c: src/common/cockpitassets.gresource.xml src/common/fa
 	@$(MKDIR_P) $(dir $@)
 	$(AM_V_GEN) glib-compile-resources --target=$@ --generate-source --sourcedir=$(dir $<) $<
 
-test_built_sources = $(test_dbus_generated)
-mock_dbus_sources = \
-	src/common/mock-service.c \
-	src/common/mock-service.h \
-	$(NULL)
-
 COCKPIT_ASSETS = \
        src/common/cockpitassets.h \
        src/common/cockpitassets.c \
        $(NULL)
 
-BUILT_SOURCES += $(test_built_sources) $(COCKPIT_ASSETS)
-CLEANFILES += $(test_built_sources) $(COCKPIT_ASSETS)
+BUILT_SOURCES += $(COCKPIT_ASSETS)
+CLEANFILES += $(COCKPIT_ASSETS)
 
 EXTRA_DIST += \
 	src/common/mock-content \
@@ -40,9 +31,6 @@ EXTRA_DIST += \
 
 noinst_LIBRARIES += libcockpit-common.a
 
-nodist_libcockpit_common_a_SOURCES = \
-	$(dbus_built_sources) \
-	$(NULL)
 libcockpit_common_a_SOURCES = \
 	src/common/cockpitcertificate.c \
 	src/common/cockpitcertificate.h \
@@ -92,7 +80,11 @@ libcockpit_common_a_SOURCES = \
 	src/common/cockpitwebserver.c \
 	src/common/cockpitconf.h \
 	src/common/cockpitconf.c \
-	$(COCKPIT_ASSETS)
+	src/common/mock-dbus-tests.c \
+	src/common/mock-dbus-tests.h \
+	src/common/mock-service.c \
+	src/common/mock-service.h \
+	$(COCKPIT_ASSETS) \
 	$(NULL)
 
 libcockpit_common_a_CFLAGS = \

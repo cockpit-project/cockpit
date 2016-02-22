@@ -170,8 +170,6 @@ SED_SUBST = sed \
         -e 's,[@]selinux_config_type[@],$(COCKPIT_SELINUX_CONFIG_TYPE),g' \
         $(NULL)
 
-GDBUS_CODEGEN = $(top_srcdir)/tools/gdbus-unbreak-codegen
-
 testassetsdir = $(datadir)/cockpit-test-assets
 testassets_programs =
 testassets_data =

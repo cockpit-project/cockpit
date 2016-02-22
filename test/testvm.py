@@ -45,8 +45,6 @@ DEFAULT_FLAVOR="cockpit"
 
 MEMORY_MB = 1024
 
-SSH_WARNING = re.compile(r'Warning: Permanently added .* to the list of known hosts.*\n')
-
 # based on http://stackoverflow.com/a/17753573
 # we use this to quieten down calls
 @contextlib.contextmanager
@@ -105,7 +103,12 @@ class Machine:
         self.address = address
         self.mac = None
         self.label = label or "UNKNOWN"
-        self.ssh_port = 22;
+        self.ssh_master = None
+        self.ssh_process = None
+        self.ssh_port = 22
+
+    def disconnect(self):
+        self._kill_ssh_master()
 
     def change_ssh_port(self, port=None, timeout_sec=120):
         try:
@@ -150,13 +153,17 @@ class Machine:
 
     def stop(self):
         """Overridden by machine classes to stop the machine"""
+        self.disconnect()
         self.message("Not shutting down already running machine")
 
-    # wait for ssh port to be open in the machine
+    # wait until we can execute something on the machine. ie: wait for ssh
     # get_new_address is an optional function to acquire a new ip address for each try
     #   it is expected to raise an exception on failure and return a valid address otherwise
-    def wait_ssh(self, timeout_sec = 120, get_new_address = None):
+    def wait_execute(self, timeout_sec=120, get_new_address=None):
         """Try to connect to self.address on ssh port"""
+
+        # If connected to machine, kill master connection
+        self._kill_ssh_master()
 
         start_time = time.time()
         while (time.time() - start_time) < timeout_sec:
@@ -191,7 +198,7 @@ class Machine:
             try:
                 self.execute("! test -f /run/nologin")
                 return
-            except:
+            except subprocess.CalledProcessError:
                 pass
             tries_left = tries_left - 1
             time.sleep(1)
@@ -213,6 +220,94 @@ class Machine:
         """Overridden by machine classes to gracefully shutdown the running machine"""
         assert False, "Cannot shutdown a machine we didn't start"
 
+    def _start_ssh_master(self):
+        self._kill_ssh_master()
+
+        control = os.path.join(self.test_dir, "tmp", "ssh-%h-%p-%r-" + str(os.getpid()))
+
+        cmd = [
+            "ssh",
+            "-p", str(self.ssh_port),
+            "-i", self._calc_identity(),
+            "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null",
+            "-o", "BatchMode=yes",
+            "-M", # ControlMaster, no stdin
+            "-o", "ControlPath=" + control,
+            "-o", "LogLevel=ERROR",
+            "-l", self.vm_username,
+            self.address,
+            "/bin/bash -c 'echo READY; read a'"
+        ]
+
+        # Connection might be refused, so try this 10 times
+        tries_left = 10;
+        while tries_left > 0:
+            tries_left = tries_left - 1
+            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            stdout_fd = proc.stdout.fileno()
+            output = ""
+            while stdout_fd > -1 and "READY" not in output:
+                ret = select.select([stdout_fd], [], [], 10)
+                for fd in ret[0]:
+                    if fd == stdout_fd:
+                        data = os.read(fd, 1024)
+                        if data == "":
+                            stdout_fd = -1
+                            proc.stdout.close()
+                        output += data
+
+            if stdout_fd > -1:
+                break
+
+            # try again if the connection was refused, unless we've used up our tries
+            proc.wait()
+            if proc.returncode == 255 and tries_left > 0:
+                self.message("ssh: connection refused, trying again")
+                time.sleep(1)
+                continue
+            else:
+                raise Failure("SSH master process exited with code: {0}".format(proc.returncode))
+
+        self.ssh_master = control
+        self.ssh_process = proc
+
+        if not self._check_ssh_master():
+            raise Failure("Couldn't launch an SSH master process")
+
+    def _kill_ssh_master(self):
+        if self.ssh_master:
+            self.ssh_master = None
+        if self.ssh_process:
+            self.ssh_process.stdin.close()
+            self.ssh_process.wait()
+            self.ssh_process = None
+
+    def _check_ssh_master(self):
+        if not self.ssh_master:
+            return False
+        cmd = [
+            "ssh",
+            "-q",
+            "-p", str(self.ssh_port),
+            "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null",
+            "-o", "BatchMode=yes",
+            "-S", self.ssh_master,
+            "-O", "check",
+            "-l", self.vm_username,
+            self.address
+        ]
+        with open(os.devnull, 'w') as devnull:
+            code = subprocess.call(cmd, stdin=devnull, stdout=devnull, stderr=devnull)
+            if code == 0:
+                return True
+        return False
+
+    def _ensure_ssh_master(self):
+        if not self._check_ssh_master():
+            self._start_ssh_master()
+
     def execute(self, command=None, script=None, input=None, environment={}, quiet=False):
         """Execute a shell command in the test machine and return its output.
 
@@ -229,13 +324,15 @@ class Machine:
         assert command or script
         assert self.address
 
+        self._ensure_ssh_master()
+
         cmd = [
             "ssh",
             "-p", str(self.ssh_port),
-            "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
             "-o", "BatchMode=yes",
+            "-o", "ControlPath=" + self.ssh_master,
             "-l", self.vm_username,
             self.address
         ]
@@ -257,58 +354,45 @@ class Machine:
             input += script
             command = "<script>"
 
-        # connection might be refused, so try this 10 times
-        tries_left = 10;
-        while tries_left > 0:
-            tries_left = tries_left - 1
+        output = ""
+        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdin_fd = proc.stdin.fileno()
+        stdout_fd = proc.stdout.fileno()
+        stderr_fd = proc.stderr.fileno()
+        rset = [stdout_fd, stderr_fd]
+        wset = [stdin_fd]
+        while len(rset) > 0 or len(wset) > 0:
+            ret = select.select(rset, wset, [], 10)
+            for fd in ret[0]:
+                if fd == stdout_fd:
+                    data = os.read(fd, 1024)
+                    if data == "":
+                        rset.remove(stdout_fd)
+                        proc.stdout.close()
+                    else:
+                        if self.verbose:
+                            sys.stdout.write(data)
+                        output += data
+                elif fd == stderr_fd:
+                    data = os.read(fd, 1024)
+                    if data == "":
+                        rset.remove(stderr_fd)
+                        proc.stderr.close()
+                    elif not quiet or self.verbose:
+                        sys.stderr.write(data)
+            for fd in ret[1]:
+                if fd == stdin_fd:
+                    if input:
+                        num = os.write(fd, input)
+                        input = input[num:]
+                    if not input:
+                        wset.remove(stdin_fd)
+                        proc.stdin.close()
+        proc.wait()
 
-            output = ""
-            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            stdin_fd = proc.stdin.fileno()
-            stdout_fd = proc.stdout.fileno()
-            stderr_fd = proc.stderr.fileno()
-            rset = [stdout_fd, stderr_fd]
-            wset = [stdin_fd]
-            while len(rset) > 0 or len(wset) > 0:
-                ret = select.select(rset, wset, [], 10)
-                for fd in ret[0]:
-                    if fd == stdout_fd:
-                        data = os.read(fd, 1024)
-                        if data == "":
-                            rset.remove(stdout_fd)
-                            proc.stdout.close()
-                        else:
-                            if self.verbose:
-                                sys.stdout.write(data)
-                            output += data
-                    elif fd == stderr_fd:
-                        data = os.read(fd, 1024)
-                        if data == "":
-                            rset.remove(stderr_fd)
-                            proc.stderr.close()
-                        else:
-                            data = SSH_WARNING.sub("", data)
-                            if not quiet or self.verbose:
-                                sys.stderr.write(data)
-                for fd in ret[1]:
-                    if fd == stdin_fd:
-                        if input:
-                            num = os.write(fd, input)
-                            input = input[num:]
-                        if not input:
-                            wset.remove(stdin_fd)
-                            proc.stdin.close()
-            proc.wait()
-
-            # try again if the connection was refused, unless we've used up our tries
-            if proc.returncode == 255 and tries_left > 0:
-                self.message("ssh: connection refused, trying again")
-                time.sleep(1)
-                continue
-
-            if proc.returncode != 0:
-                raise subprocess.CalledProcessError(proc.returncode, command, output=output)
-            return output
+        if proc.returncode != 0:
+            raise subprocess.CalledProcessError(proc.returncode, command, output=output)
+        return output
 
     def upload(self, sources, dest):
         """Upload a file into the test machine
@@ -320,13 +404,15 @@ class Machine:
         assert sources and dest
         assert self.address
 
+        self._ensure_ssh_master()
+
         cmd = [
             "scp", "-B",
             "-r", "-p",
-            "-P", str(self.ssh_port),
-            "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
-            "-o", "UserKnownHostsFile=/dev/null"
+            "-o", "UserKnownHostsFile=/dev/null",
+            "-o", "ControlPath=" + self.ssh_master,
+            "-o", "BatchMode=yes",
           ]
         if not self.verbose:
             cmd += [ "-q" ]
@@ -342,12 +428,15 @@ class Machine:
         assert source and dest
         assert self.address
 
+        self._ensure_ssh_master()
+
         cmd = [
             "scp", "-B",
             "-P", str(self.ssh_port),
-            "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
+            "-o", "ControlPath=" + self.ssh_master,
+            "-o", "BatchMode=yes",
             ]
         if not self.verbose:
             cmd += ["-q"]
@@ -364,12 +453,15 @@ class Machine:
         assert source and dest
         assert self.address
 
+        self._ensure_ssh_master()
+
         cmd = [
             "scp", "-B",
             "-P", str(self.ssh_port),
-            "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
+            "-o", "ControlPath=" + self.ssh_master,
+            "-o", "BatchMode=yes",
             "-r",
           ]
         if not self.verbose:
@@ -1036,7 +1128,7 @@ class VirtMachine(Machine):
         if not self.event_handler.wait_for_reboot(self._domain):
             raise Failure("system didn't notify us about a reboot")
         # we may have to check for a new dhcp lease, but the old one can be active for a bit
-        if not self.wait_ssh(timeout_sec = 60, get_new_address = lambda: self._ip_from_mac(self.macaddr, timeout_sec=5)):
+        if not self.wait_execute(timeout_sec=60, get_new_address=lambda: self._ip_from_mac(self.macaddr, timeout_sec=5)):
             raise Failure("system didn't reboot properly")
         self.wait_user_login()
 
@@ -1051,7 +1143,7 @@ class VirtMachine(Machine):
             start_time = time.time()
             connected = False
             while (time.time() - start_time) < wait_for_running_timeout:
-                if Machine.wait_ssh(self, timeout_sec=15, get_new_address = lambda: self._ip_from_mac(self.macaddr, timeout_sec=3)):
+                if self.wait_execute(timeout_sec=15, get_new_address=lambda: self._ip_from_mac(self.macaddr, timeout_sec=3)):
                     connected = True
                     break
                 if allow_one_reboot and self.event_handler.has_rebooted(self._domain):
@@ -1076,6 +1168,7 @@ class VirtMachine(Machine):
             self.kill()
 
     def _cleanup(self, quick=False):
+        self.disconnect()
         try:
             if not quick:
                 if hasattr(self, '_disks'):
@@ -1100,6 +1193,7 @@ class VirtMachine(Machine):
     def kill(self):
         # stop system immediately, with potential data loss
         # to shutdown gracefully, use shutdown()
+        self.disconnect()
         if self._domain:
             try:
                 # not graceful
@@ -1120,6 +1214,7 @@ class VirtMachine(Machine):
     def shutdown(self, timeout_sec=120):
         # shutdown the system gracefully
         # to stop it immediately, use kill()
+        self.disconnect()
         try:
             if self._domain:
                 self._domain.shutdown()

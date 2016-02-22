@@ -76,10 +76,10 @@ class TestMultiMachineKeyAuth(MachineCase):
         self.machine2.start()
         self.machine2.wait_boot()
         # Add user
+        self.machine2.wait_execute()
         self.machine2.execute("useradd user -c 'User' || true")
         self.machine2.execute("sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config")
         self.machine2.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
-        self.machine2.wait_ssh()
 
     def tearDown(self):
         if self.runner and self.runner.wasSuccessful():

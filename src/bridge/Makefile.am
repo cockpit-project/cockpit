@@ -66,8 +66,6 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitmetrics.h \
 	src/bridge/cockpitmountsamples.c \
 	src/bridge/cockpitmountsamples.h \
-	src/bridge/cockpitnetdevsamples.c \
-	src/bridge/cockpitnetdevsamples.h \
 	src/bridge/cockpitnetworksamples.c \
 	src/bridge/cockpitnetworksamples.h \
 	src/bridge/cockpitsamples.c \

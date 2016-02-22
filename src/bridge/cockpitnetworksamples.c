@@ -90,10 +90,6 @@ cockpit_network_samples (CockpitSamples *samples)
       if (ptr)
         *ptr = '\0';
 
-      /* skip loopback */
-      if (g_strcmp0 (iface_name, "lo") == 0)
-        continue;
-
       cockpit_samples_sample (samples, "network.interface.rx", iface_name, bytes_rx);
       cockpit_samples_sample (samples, "network.interface.tx", iface_name, bytes_tx);
 

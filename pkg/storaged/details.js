@@ -926,11 +926,15 @@ define([
         mustache.parse(action_btn_tmpl);
 
         function create_block_action_btn (target, is_crypto_locked, is_partition) {
-            var block = (target.iface == "org.storaged.Storaged.Block")? target : null;
+            function endsWith(str, suffix) {
+                return str.indexOf(suffix, str.length - suffix.length) !== -1;
+            }
+
+            var block = endsWith(target.iface, ".Block")? target : null;
             var block_fsys = block && client.blocks_fsys[block.path];
             var block_lvm2 = block && client.blocks_lvm2[block.path];
 
-            var lvol = (target.iface == "org.storaged.Storaged.LogicalVolume")? target : null;
+            var lvol = endsWith(target.iface, ".LogicalVolume")? target : null;
 
             var is_filesystem         = (block && block.IdUsage == 'filesystem');
             var is_filesystem_mounted = (block_fsys && block_fsys.MountPoints.length > 0);

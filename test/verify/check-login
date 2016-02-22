@@ -64,7 +64,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # Try to login as user with correct password
         login ("user", "abcdefg")
         if 'atomic' in m.image:
-            b.wait_in_text("body", "connect or authenticate: terminated")
+            b.wait_in_text("#login-error-message", "Server closed connection")
         else:
             b.wait_text("#login-error-message", "Permission denied")
 

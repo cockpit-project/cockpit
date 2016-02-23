@@ -36,7 +36,6 @@ cockpit_block_samples (CockpitSamples *samples)
   if (!g_file_get_contents ("/proc/diskstats", &contents, &len, &error))
     {
       g_message ("error loading contents /proc/diskstats: %s", error->message);
-      g_error_free (error);
       goto out;
     }
 

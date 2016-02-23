@@ -804,19 +804,22 @@ on_connect_stream (GObject *object,
 {
   CockpitStream *self = COCKPIT_STREAM (user_data);
   GError *error = NULL;
+  GIOStream *io;
 
-  self->priv->io = cockpit_connect_stream_finish (result, &error);
+  io = cockpit_connect_stream_finish (result, &error);
   if (error)
     {
       set_problem_from_error (self, "couldn't connect", error);
       close_immediately (self, NULL);
       g_error_free (error);
     }
-  else
+  else if (!self->priv->closed)
     {
+      self->priv->io = g_object_ref (io);
       initialize_io (self);
     }
 
+  g_clear_object (&io);
   g_object_unref (self);
 }
 

@@ -699,6 +699,23 @@ test_connect_and_read (TestConnect *tc,
 }
 
 static void
+test_connect_early_close (TestConnect *tc,
+                          gconstpointer user_data)
+{
+  CockpitConnectable connectable = { .address = G_SOCKET_CONNECTABLE (tc->address) };
+  CockpitStream *stream;
+
+  stream = cockpit_stream_connect ("connect-early-close", &connectable);
+  g_assert (stream != NULL);
+
+  cockpit_stream_close (stream, NULL);
+  g_object_unref (stream);
+
+  while (tc->conn_sock == NULL)
+    g_main_context_iteration (NULL, TRUE);
+}
+
+static void
 test_connect_loopback (TestConnect *tc,
                        gconstpointer user_data)
 {
@@ -920,6 +937,8 @@ main (int argc,
 
   g_test_add ("/stream/connect/and-read", TestConnect, NULL,
               setup_connect, test_connect_and_read, teardown_connect);
+  g_test_add ("/stream/connect/early-close", TestConnect, NULL,
+              setup_connect, test_connect_early_close, teardown_connect);
   g_test_add ("/stream/connect/and-write", TestConnect, NULL,
               setup_connect, test_connect_and_write, teardown_connect);
   g_test_add ("/stream/connect/loopback-ipv4", TestConnect, GINT_TO_POINTER (G_SOCKET_FAMILY_IPV4),

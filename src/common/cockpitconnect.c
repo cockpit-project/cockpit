@@ -140,6 +140,13 @@ on_socket_connect (GObject *object,
               /* We track data end the same way we do for HTTP */
               g_tls_connection_set_require_close_notify (G_TLS_CONNECTION (cs->io), FALSE);
             }
+
+          else if (error)
+            {
+              g_debug ("%s: couldn't open tls connection: %s", connectable->name, error->message);
+              g_clear_error (&cs->error);
+              cs->error = error;
+            }
         }
       else
         {

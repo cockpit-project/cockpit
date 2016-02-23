@@ -53,7 +53,11 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         prompt = b.text(line_sel(1))
 
         # Make sure we are started in home directory
-        self.assertIn("~]$", prompt)
+        # Account for non-standard prompting
+        if "]" not in prompt:
+            self.assertIn(":~$", prompt)
+        else:
+            self.assertIn("~]$", prompt)
 
         # Run some commands
         b.key_press( [ 'w', 'h', 'o', 'a', 'm', 'i', 'Return' ] )

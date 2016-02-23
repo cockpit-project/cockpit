@@ -199,6 +199,7 @@ class TestMultiMachine(MachineCase):
         b.go(m2_path)
         b.enter_page("/playground/test", m2.address)
         b.wait_present("img[src='hammer.gif']");
+        b.wait_visible("img[src='hammer.gif']");
         b.click("img[src='hammer.gif']");
         b.switch_to_top()
 

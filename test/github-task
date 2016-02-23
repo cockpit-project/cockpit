@@ -61,7 +61,7 @@ def main():
         if not config:
             print "Unknown image:", image
             return 1
-        task = testimagetask.GithubImageTask("refresh-" + image, image, config)
+        task = testimagetask.GithubImageTask("refresh-" + image, image, config, None)
     else:
         sys.stderr.write("Talking to GitHub ...\n")
         task_entries = github.scan(opts.publish, opts.context, opts.except_context)

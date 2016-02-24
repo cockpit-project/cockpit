@@ -52,7 +52,7 @@ class NOPTimeout(object):
         pass
 
 class Retry(object):
-    def __init__(self, attempts = 1, timeout = None, exceptions = (Exception,), error = None):
+    def __init__(self, attempts = 1, timeout = None, exceptions = (Exception,), error = None, inverse = False, delay = None):
         """
         Try to run things ATTEMPTS times, at max, each attempt must not exceed TIMEOUT seconds.
         Restart only when one of EXCEPTIONS is raised, all other exceptions will just bubble up.
@@ -63,9 +63,9 @@ class Retry(object):
         self.timeout = timeout
         self.exceptions = exceptions
         self.error = error or Exception('Too many retries!')
-
+        self.inverse = inverse
         self.timeout_wrapper = Timeout if timeout is not None else NOPTimeout
-
+        self.delay = delay if delay is not None else timeout
         # some accounting, for testing purposes
         if __debug__:
             self.failed_attempts = 0
@@ -77,32 +77,41 @@ class Retry(object):
             # 1) first successfull return of fn(), or
             # 2) by decrementing self.attempts to zero, or
             # 3) when unexpected exception is raised by fn().
+            output = None
+            starttime = time.clock()
             while True:
                 with self.timeout_wrapper(self, self.timeout):
                     try:
-                        return fn(*args, **kwargs)
-
+                        output = fn(*args, **kwargs)
+                        if self.inverse:
+                            output = None
+                        else:
+                            return output
                     except self.exceptions as e:
-                        # Handle exceptions we are expected to catch, by logging a failed
-                        # attempt, and checking the number of attempts.
-                        if __debug__:
-                            self.failed_attempts += 1
-
-                        self.attempts -= 1
-
-                        if self.attempts == 0:
-                            raise self.error
-
-                        continue
+                        if self.inverse:
+                            return True
+                        else:
+                            # Handle exceptions we are expected to catch, by logging a failed
+                            # attempt, and checking the number of attempts.
+                            if __debug__:
+                                self.failed_attempts += 1
+                            self.attempts -= 1
+                            if self.attempts == 0:
+                                raise self.error
+                            time.sleep((self.delay-(time.clock()-starttime))*0.95)
+                            continue
 
                     except Exception as e:
                         # Handle all other exceptions, by logging a failed attempt and
                         # re-raising the exception, effectively killing the loop.
                         if __debug__:
                             self.failed_attempts += 1
-
                         raise e
-
+                self.attempts -= 1
+                self.failed_attempts += 1
+                if self.attempts == 0:
+                    raise self.error
+                time.sleep((self.delay-(time.clock()-starttime)))
         return __wrap
 
 if __name__ == '__main__':

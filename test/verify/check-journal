@@ -185,11 +185,6 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.go("#/?prio=*&start=oldest&service=slow10.service")
         wait_slow10()
 
-        if "208" in m.execute("journalctl --version"):
-            # HACK - Old versions of journalctl get the rest wrong.
-            # https://bugzilla.redhat.com/show_bug.cgi?id=1211972
-            return
-
         # insert messages as errors because we know these will be shown by default
         m.execute("systemctl start systemd-journald.service")
         m.execute("logger -p user.err --tag check-journal BEFORE BOOT");

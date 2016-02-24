@@ -37,7 +37,7 @@ from testvm import Timeout
 user = "test"
 passwd = "superhardpasswordtest5554"
 
-# for storing screenshots,
+# path for storing selenium screenshots
 actualpath = "."
 
 # use javascript to generate clicks in the browsers and add more javascript checks for elements

@@ -133,15 +133,16 @@ func (self *Client) fetchVersion(authHeader string) error {
 
 func (self *Client) guessUserData(creds *Credentials) error {
 	// Do this explictly so that we know we have a valid response
+	// Kubernetes doesn't provide any way for a caller
+	// to find out who it is, so fill in the
+	// user as best we can.
 	err := self.fetchVersion(creds.GetHeader())
 	if err != nil {
 		return err
 	}
 
-	// Kubernetes doesn't provide any way for a caller
-	// to find out who it is, so we just make sure that
-	// a request with no auth info fails. And fill in the
-	// user as best we can.
+	// If the API is open make sure we don't have any credentials
+	// so we aren't just saying yes to everything
 	resp, e := self.DoRequest("GET", "api", "", nil, nil)
 
 	// Treat connection errors as internal errors and invalid
@@ -152,8 +153,11 @@ func (self *Client) guessUserData(creds *Credentials) error {
 
 	defer resp.Body.Close()
 	if resp.StatusCode != 401 && resp.StatusCode != 403 {
-		return errors.New("API is unauthenticated, refusing to connect")
+		if (creds.authHeader != "") {
+			return newAuthError(fmt.Sprintf("Couldn't get api version: %s", resp.Status))
+		}
 	}
+
 	creds.DisplayName = creds.UserName
 	return nil
 }
@@ -229,6 +233,9 @@ func (self *Client) Login(authType string, authData string) ([]byte, error) {
 	}
 
 	if err != nil {
+		if (creds.authType == "negotiate") {
+			return nil, newAuthError(fmt.Sprintf("Negotiate failed: %s", err))
+		}
 		return nil, err
 	}
 

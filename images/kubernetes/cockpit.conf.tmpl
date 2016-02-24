@@ -4,6 +4,10 @@ Shell = /shell/simple.html
 LoginTitle = Cockpit Openshift
 {{else}}
 LoginTitle = Cockpit Kubernetes
+
+[Negotiate]
+Action = spawn-login-with-decoded
+Command = {{.login_command}}
 {{end}}
 
 [Basic]

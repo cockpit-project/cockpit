@@ -35,6 +35,7 @@ type Credentials struct {
 	bearerToken string
 
 	authHeader string
+	authType string
 }
 
 func (self *Credentials) GetHeader() string {
@@ -64,6 +65,7 @@ func (self *Credentials) GetApiUserMap() map[string]interface{} {
 
 func NewCredentials(authType string, authData string) (*Credentials, error) {
 	cred := new(Credentials)
+	cred.authType = authType;
 	if authType == "basic" {
 		parts := strings.SplitN(authData, ":", 2)
 		cred.UserName = parts[0]
@@ -75,6 +77,8 @@ func NewCredentials(authType string, authData string) (*Credentials, error) {
 	} else if authType == "bearer" {
 		cred.bearerToken = authData
 		cred.authHeader = fmt.Sprintf("Bearer %s", cred.bearerToken)
+	} else if authType == "negotiate" {
+		cred.UserName = "Unauthenticated"
 	} else {
 		return nil, errors.New(fmt.Sprintf("Unsuported authentication type %s", authType))
 	}

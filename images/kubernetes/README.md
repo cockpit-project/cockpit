@@ -46,9 +46,9 @@ Only ```COCKPIT_KUBE_URL``` and ```OPENSHIFT_OAUTH_PROVIDER_URL``` are required.
 Deploy on kubernetes
 --------------------
 
-This container will only work with kubernetes if it is configured to use basic authentication. See http://kubernetes.io/v1.1/docs/admin/authentication.html for more information.
+This container will only work with kubernetes if the API is open or configured to use basic authentication. See http://kubernetes.io/v1.1/docs/admin/authentication.html for more information.
 
-Once that is setup, you can deploy with the following command.
+WARNING: If you choose to deploy this container to communicate with an open kubernetes API you should take care to not expose it to an insecure network.
 
 ```
 kubectl create -f deploy-examples/cockpit-kubernetes.json

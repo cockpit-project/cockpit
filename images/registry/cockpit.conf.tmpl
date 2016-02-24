@@ -2,6 +2,13 @@
 Shell = /shell/simple.html
 LoginTitle = Atomic Registry
 
+{{if .is_openshift }}
+{{else}}
+[Negotiate]
+Action = spawn-login-with-decoded
+Command = {{.login_command}}
+{{end}}
+
 [Basic]
 Action = spawn-login-with-decoded
 Command = {{.login_command}}

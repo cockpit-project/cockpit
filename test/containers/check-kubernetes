@@ -92,9 +92,13 @@ class TestKubernetesLogin(KubernetesContainerCase):
         self.wait_api_server(port=6443, scheme='https')
 
         b.reload()
-        login("admin", "foobar")
-        b.wait_in_text("#login-fatal-message", "API is unauthenticated")
-        b.wait_not_visible('#login-button')
+        b.wait_present("#content")
+        b.wait_text('#content-user-name', 'Unauthenticated')
+        b.wait_in_text("title", "Cockpit Kubernetes")
+        b.enter_page("/kubernetes")
+        b.wait_present("#node-list")
+        b.switch_to_top()
+        b.logout()
 
         # Try to login as user with a wrong password
         self.setup_basic_auth()

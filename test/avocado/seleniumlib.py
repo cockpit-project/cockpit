@@ -37,8 +37,8 @@ from testvm import Timeout
 user = "test"
 passwd = "superhardpasswordtest5554"
 
-# for storing screenshots, used full path
-actualpath = os.path.dirname(os.path.realpath(__file__))
+# for storing screenshots,
+actualpath = "."
 
 # use javascript to generate clicks in the browsers and add more javascript checks for elements
 # this prevents races where the test clicks in the wrong place because the page layout changed

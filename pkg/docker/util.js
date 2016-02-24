@@ -152,7 +152,12 @@ define([
 
     util.render_container = function render_container(client, $panel,
                                                       prefix, id, container, danger_mode) {
-        var tr = $("#" + prefix + id);
+
+        // Docker ID can contain funny characters such as ":" so
+        // we take care not to embed them into jQuery query
+        // strings or HTML.
+
+        var tr = $(document.getElementById(prefix + id));
 
         if (!container) {
             tr.remove();
@@ -215,7 +220,7 @@ define([
                         });
                     return false;
                 });
-            tr = $('<tr id="' + prefix + id + '">').append(
+            tr = $('<tr>', { 'id': prefix + id }).append(
                 $('<td class="container-col-name">'),
                 $('<td class="container-col-image">'),
                 $('<td class="container-col-command">'),

@@ -33,7 +33,7 @@ class SosReportingTab(SeleniumTest):
         process.run("pgrep sosreport", shell=True)
         # duration of report generation depends on the target system - as along as sosreport is active, we don't want to timeout
         # it is also important to call some selenium method there to ensure that connection to HUB will not be lost
-        @Retry(attempts = 60, timeout = 5, error = Exception('Timeout: sosreport did not finish'), inverse = True)
+        @Retry(attempts = 30, timeout = 10, error = Exception('Timeout: sosreport did not finish'), inverse = True)
         def waitforsosreport():
             process.run("pgrep sosreport", shell=True)
             self.wait_text("Generating report", overridetry=5)

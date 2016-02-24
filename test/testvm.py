@@ -108,37 +108,6 @@ class Machine:
     def disconnect(self):
         self._kill_ssh_master()
 
-    def change_ssh_port(self, port=None, timeout_sec=120):
-        try:
-            port = int(port)
-        except:
-            port = 22
-
-        # Keep in mind that not all operating systems have firewalld
-        self.execute("firewall-cmd --permanent --zone=public --add-port={0}/tcp || true".format(port))
-        self.execute("firewall-cmd --reload || true")
-        self.execute("! selinuxenabled || semanage port -a -t ssh_port_t -p tcp {0}".format(port))
-        self.execute("sed -i 's/.*Port .*/Port {0}/' /etc/ssh/sshd_config".format(port))
-
-        # We stop the sshd.socket unit and just go with a regular
-        # daemon.  This is more portable and reloading/restarting the
-        # socket doesn't seem to work well.
-        #
-        self.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
-        self.ssh_port = port
-
-        start_time = time.time()
-        error = None
-        while (time.time() - start_time) < timeout_sec:
-            try:
-                self.execute("true", quiet=True)
-                return
-            except Exception, e:
-                error = e
-            time.sleep(0.5)
-
-        raise error
-
     def message(self, *args):
         """Prints args if in verbose mode"""
         if not self.verbose:
@@ -151,7 +120,6 @@ class Machine:
 
     def stop(self):
         """Overridden by machine classes to stop the machine"""
-        self.disconnect()
         self.message("Not shutting down already running machine")
 
     # wait until we can execute something on the machine. ie: wait for ssh

@@ -317,29 +317,30 @@
      * resolve with the resource or an array of objects at the
      * given path.
      *
-     * ns = loader.namespace()
+     * loader.limits
      *
-     * Return the current namespace that watches are limited to
-     * or null if watching all namespaces.
+     * Contains various limits that govern what the loader loads
+     * from watches. Of note is loader.limits.namespace which is set
+     * to null for the loader to load all objects, or a namespace
+     * string or array of namespace strings for the loader to watch
+     * objects from specific namespaces.
      *
-     * loader.namespace("value")
+     * loader.limit(options)
      *
-     * Change the namespace that watches are limited to. Specify a
-     * value of null to watch all namespaces. This will clear out
-     * all loaded objects, and start all watches again.
+     * Adjust the loader limits that govern what the loader loads
+     * from watches. Options can contain a "namespace" field to
+     * set the namespace or namespaces to limit watching to.
      *
-     * loader.reset([total])
+     * loader.reset()
      *
-     * Clear out all loaded objects, and clear all watches. If
-     * the total flag is set, won't restart the watches, but
-     * clear all the loaded state.
+     * Clear out all loaded objects, and clear all watches. Also
+     * clears the limits and other state.
      *
      * loader.objects
      *
      * A dict of all loaded objects.
      *
      * promise = loader.watch(type)
-     * promise = loader.watch(path)
      *
      * Start watching the given resource type. The returned promise
      * will be resolved when an initial set of objects have been
@@ -355,7 +356,7 @@
         "KUBE_SCHEMA",
         function($q, $exceptionHandler, $timeout, KubeWatch, KubeRequest, KUBE_SCHEMA) {
             var callbacks = [];
-            var onlyNamespace = null;
+            var limits = { namespace: null };
 
             /* All the current watches */
             var watches = { };
@@ -368,12 +369,29 @@
             var batchTimeout = null;
 
             function ensureWatch(what, namespace) {
-                var path = resourcePath([what, null, namespace || onlyNamespace]);
-                if (!(path in watches)) {
+                var schema = SCHEMA[what] || SCHEMA[""];
+                var path = schema.api;
+                if (!schema.global && namespace)
+                    path += "/namespaces/" + namespace;
+                path += "/" + schema.type;
+                if (!(what in watches)) {
                     watches[path] = new KubeWatch(path, handleFrames);
-                    watches[path].arguments = [what, namespace];
+                    watches[path].params = { what: what, global: schema.global, namespace: namespace };
                 }
                 return watches[path];
+            }
+
+            function ensureWatches(what) {
+                var parts, namespace = limits.namespace;
+                if (angular.isArray(namespace)) {
+                    parts = [];
+                    angular.forEach(namespace, function(val) {
+                        parts.push(ensureWatch(what, val));
+                    });
+                    return $q.all(parts);
+                } else {
+                    return ensureWatch(what, namespace);
+                }
             }
 
             function handleFrames(frames) {
@@ -390,10 +408,10 @@
                         return; /* called again later */
                 }
 
-                handleFlush();
+                handleFlush(invokeCallbacks);
             }
 
-            function handleFlush() {
+            function handleFlush(invoke) {
                 var drain = batch;
                 batch = null;
 
@@ -419,7 +437,7 @@
                 }
 
                 /* Run all the listeners and then digest */
-                invokeCallbacks(present, removed);
+                invoke(present, removed);
             }
 
             function invokeCallbacks(/* ... */) {
@@ -437,10 +455,10 @@
 
             function handleTimeout() {
                 batchTimeout = null;
-                handleFlush();
+                handleFlush(invokeCallbacks);
             }
 
-            function resetLoader(total) {
+            function resetLoader() {
                 var link, path;
 
                 /* We drop any batched objects in flight */
@@ -449,7 +467,9 @@
                 batch = null;
 
                 /* Cancel all the watches  */
-                angular.forEach(watches, function(watch) {
+                var old = watches;
+                watches = { };
+                angular.forEach(old, function(watch) {
                     watch.cancel();
                 });
 
@@ -457,21 +477,12 @@
                 for (link in objects)
                     delete objects[link];
 
-                var old = watches;
-                watches = { };
-
-                if (total)
-                    onlyNamespace = null;
+                for (link in limits)
+                    delete limits[link];
+                limits.namespace = null;
 
                 /* Tell the callbacks we're resetting */
                 invokeCallbacks();
-
-                /* Recreate all the watches as necessary */
-                if (!total) {
-                    angular.forEach(old, function(watch) {
-                        ensureWatch.apply(this, watch.arguments);
-                    });
-                }
             }
 
             function handleObjects(objects, removed, kind) {
@@ -483,7 +494,7 @@
                         object: resource
                     };
                 }));
-                handleFlush();
+                handleFlush(invokeCallbacks);
             }
 
             function loadObjects(/* ... */) {
@@ -511,21 +522,71 @@
                 return promise;
             }
 
+            function adjustNamespace(value) {
+                window.clearTimeout(batchTimeout);
+                batchTimeout = null;
+
+                /* Convert this to our native format */
+                var i, len, only = { };
+                if (value === null) {
+                    only = null;
+                } else if (angular.isArray(value)) {
+                    angular.forEach(value, function(namespace) {
+                        only[namespace] = true;
+                    });
+                } else {
+                    only[value] = true;
+                }
+                limits.namespace = value;
+
+                /* Flush everything that's outstanding */
+                var present = { }, removed = { };
+                handleFlush(function(a, b) {
+                    present = a;
+                    removed = b;
+                });
+
+                /* Remove objects that are not in these namespaces */
+                var meta, link;
+                for (link in objects) {
+                    meta = objects[link].metadata;
+                    if (only && meta.namespace && !(meta.namespace in only)) {
+                        removed[link] = objects[link];
+                        delete objects[link];
+                        delete present[link];
+                    }
+                }
+
+                /* Cancel any watches not applicable to these namespaces */
+                var path, watch, reconnect = [ ];
+                for (path in watches) {
+                    watch = watches[path];
+                    if ((!only && watch.params.namespace) ||
+                        (only && !watch.params.global && !(watch.params.namespace in only))) {
+                        watches[path].cancel();
+                        reconnect.push(watch);
+                    }
+                }
+
+                /* Tell the world what we did */
+                invokeCallbacks(present, removed);
+
+                /* Reconnect all the watches we cancelled with proper namespace */
+                angular.forEach(reconnect, function(watch) {
+                    ensureWatches(watch.params.what);
+                });
+            }
+
             var self = {
-                watch: ensureWatch,
+                watch: ensureWatches,
                 load: function load(/* ... */) {
                     return loadObjects.apply(this, arguments);
                 },
-                namespace: function namespace(value) {
-                    if (value !== undefined) {
-                        onlyNamespace = value;
-                        resetLoader();
-                    }
-                    return onlyNamespace;
+                limit: function limit(options) {
+                    if ("namespace" in options)
+                        adjustNamespace(options.namespace);
                 },
-                reset: function reset(total) {
-                    resetLoader(total);
-                },
+                reset: resetLoader,
                 listen: function listen(callback, before) {
                     if (before)
                         callbacks.unshift(callback);
@@ -556,6 +617,7 @@
                     return resourcePath(arguments);
                 },
                 objects: objects,
+                limits: limits,
             };
 
             return self;

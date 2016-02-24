@@ -22,7 +22,8 @@
 
     angular.module('registry.dashboard', [
         'ngRoute',
-        'ui.cockpit'
+        'ui.cockpit',
+        'registry.images',
     ])
 
     .config(['$routeProvider',
@@ -40,11 +41,21 @@
         'kubeLoader',
         'kubeSelect',
         'projectActions',
-        function($scope, loader, select, projectActions) {
+        'imageData',
+        'filterService',
+        function($scope, loader, select, projectActions, imageData, filterService) {
             loader.load("projects");
             loader.watch("users");
             loader.watch("groups");
-            loader.watch("imagestreams");
+
+            /*
+             * For now the dashboard  has to watch all images in
+             * order to display the 'Images pushed recently' data
+             *
+             * In the future we want to have a metadata or filtering
+             * service that we can query for that data.
+             */
+            imageData.watchImages();
 
             var c = loader.listen(function() {
                 $scope.projects = select().kind("Project");

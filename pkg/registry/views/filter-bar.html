@@ -29,9 +29,9 @@
         <li ng-class="{ checked: !filter.namespace() }">
             <a ng-click="filter.namespace(null)">All Projects</a>
         </li>
-        <li ng-repeat="(key, object) in namespaces() track by key"
-            ng-class="{ checked: object.metadata.name == filter.namespace() }">
-            <a ng-click="filter.namespace(object.metadata.name)">{{object.metadata.name}}</a>
+        <li ng-repeat="name in filter.namespaces() track by name"
+            ng-class="{ checked: name == filter.namespace() }">
+            <a ng-click="filter.namespace(name)">{{name}}</a>
         </li>
     </ul>
 </div>

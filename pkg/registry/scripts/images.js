@@ -366,11 +366,7 @@
             }
 
             function listImagestreams() {
-                var result = select().kind("ImageStream");
-                var namespace = loader.namespace();
-                if (namespace)
-                    result = result.namespace(namespace);
-                return result;
+                return select().kind("ImageStream");
             }
 
             function imageLayers(image) {

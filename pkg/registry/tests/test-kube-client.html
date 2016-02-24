@@ -172,7 +172,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         }
     ]);
 
-    kubeTest("set namespace", 10, FIXTURE_BASIC, [
+    kubeTest("set namespace", 7, FIXTURE_BASIC, [
         "$q",
         "kubeLoader",
         "kubeSelect",
@@ -180,35 +180,25 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             return loader.watch("pods").then(function() {
                 var pods = select().kind("Pod");
                 equal(pods.length, 3, "number of pods");
-                strictEqual(loader.namespace(), null, "namespace is null");
+                strictEqual(loader.limits.namespace, null, "namespace is null");
 
-                strictEqual(loader.namespace("other"), "other", "namespace change");
-                strictEqual(loader.namespace(), "other", "namespace is other");
+                loader.limit({ namespace: "other" });
+                strictEqual(loader.limits.namespace, "other", "namespace is other");
 
                 pods = select().kind("Pod");
-                equal(pods.length, 0, "pods gone");
+                equal(pods.length, 1, "pods from namespace other");
+                ok("/api/v1/namespaces/other/pods/apache" in pods, "other pod")
 
+                loader.limit({ namespace: null });
+                strictEqual(loader.limits.namespace, null, "namespace is null again");
                 var defer = $q.defer();
                 var listened = false;
                 var x = loader.listen(function() {
                     if (listened) {
                         pods = select().kind("Pod");
-                        equal(pods.length, 1, "pods from namespace other");
-                        ok("/api/v1/namespaces/other/pods/apache" in pods, "other pod")
+                        equal(pods.length, 3, "all pods back");
                         x.cancel();
-
-                        strictEqual(loader.namespace(null), null, "namespace to null");
-                        strictEqual(loader.namespace(), null, "namespace is null again");
-                        listened = false;
-                        x = loader.listen(function() {
-                            if (listened) {
-                                pods = select().kind("Pod");
-                                equal(pods.length, "3", "all pods back");
-                                x.cancel();
-                                defer.resolve();
-                            }
-                            listened = true;
-                        });
+                        defer.resolve();
                     }
                     listened = true;
                 });

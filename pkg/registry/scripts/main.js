@@ -71,7 +71,9 @@
 
             /* Used to build simple route URLs */
             $scope.viewUrl = function(segment) {
-                var parts, namespace = loader.namespace();
+                var parts, namespace = loader.limits.namespace;
+                if (angular.isArray(namespace))
+                    namespace = null;
                 if (!segment) {
                     if (namespace)
                         return "#/?namespace=" + encodeURIComponent(namespace);
@@ -170,15 +172,11 @@
         'kubeSelect',
         'filterService',
         function(loader, select, filter) {
-            loader.watch("namespaces");
             return {
                 restrict: 'E',
                 scope: true,
                 link: function(scope, element, attrs) {
                     scope.filter =  filter;
-                    scope.namespaces = function namespaces() {
-                        return select().kind("Namespace");
-                    };
                 },
                 templateUrl: 'views/filter-bar.html'
             };
@@ -187,13 +185,78 @@
 
     .factory('filterService', [
         'kubeLoader',
+        'kubeSelect',
         '$route',
         '$rootScope',
-        function(loader, $route, $rootScope) {
+        function(loader, select, $route, $rootScope) {
+            /*
+             * We have the following cases to account for:
+             *
+             * Openshift:
+             *  - Have Project objects
+             *  - Project objects are listable by any user, only accessilbe returned
+             *  - Project objects are not watchable
+             *
+             * Kubernetes and Openshift
+             *  - Namespace objects are only accessible to all users
+             */
+
+            var globals = true;
+
+            loader.watch("namespaces")
+                .catch(function() {
+                    globals = false;
+                    loadNamespace($route.current);
+                });
+
+            loader.load("projects");
+
+            /*
+             * When either a Namespace or Project is loaded we'll want to reinterpret
+             * how we look at the current namespace. This helps to handle cases where
+             * the user can't see all projects, and one is loaded.
+             */
+            loader.listen(function(present) {
+                var link, added, object;
+                for (link in present) {
+                    object = present[link];
+                    if (object.kind == "Namespace" || object.kind == "Project") {
+                        loadNamespace($route.current);
+                        return;
+                    }
+                }
+            });
+
+            function calcAvailable() {
+                var all;
+                if (globals)
+                    all = select().kind("Namespace");
+                if (!all || all.length === 0)
+                    all = select().kind("Project");
+
+                var link, meta, ret = [];
+                for (link in all) {
+                    meta = all[link].metadata || { };
+                    if (meta.name)
+                        ret.push(meta.name);
+                }
+
+                return ret;
+            }
+
             function loadNamespace(route) {
                 var value = route.params["namespace"] || null;
-                if (value !== loader.namespace())
-                    loader.namespace(value);
+
+                /*
+                 * When we can't see globals, we tell the loader about
+                 * all namespaces that we can see. It'll open up individual
+                 * watches about those namespaces.
+                 */
+                if (value === null && !globals)
+                    value = calcAvailable();
+
+                if (!angular.equals(value, loader.limit.namespaces))
+                    loader.limit({ namespace: value });
             }
 
             $rootScope.$on("$routeChangeSuccess", function (event, current, prev) {
@@ -203,6 +266,7 @@
             loadNamespace($route.current);
 
             return {
+                namespaces: calcAvailable,
                 namespace: function(value) {
                     if (arguments.length === 0)
                         return $route.current.params["namespace"];

@@ -445,6 +445,7 @@ class MachineCase(unittest.TestCase):
             if len(self.machines) != 0:
                 raise unittest.SkipTest("Cannot run multiple machines if a specific machine address is specified")
             machine = testvm.Machine(address=arg_address, image=image, verbose=arg_trace, label=self.label())
+            self.addCleanup(lambda: machine.disconnect())
         else:
             if not machine_class:
                 machine_class = testvm.VirtMachine

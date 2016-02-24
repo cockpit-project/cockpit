@@ -17,14 +17,14 @@ class BasicTestSuite(SeleniumTest):
     :avocado: enable
     """
     def test10Base(self):
-        out = process.run("hhostname", shell=True)
+        out = process.run("hostname", shell=True)
         server_element = self.wait_id('server-name')
         self.assertTrue(str(out.stdout)[:-1] in str(server_element.text))
         self.error=False
 
     def test20Login(self):
         self.login()
-        self.wait_id("ssidebar")
+        self.wait_id("sidebar")
         user_element = self.wait_id("content-user-name")
         self.assertEqual(user_element.text, user)
         self.logout()
@@ -38,7 +38,7 @@ class BasicTestSuite(SeleniumTest):
         self.error=False
 
     def test30ChangeTabServices(self):
-        self.llogin()
+        self.login()
         self.wait_id("sidebar")
         self.click(self.wait_link('Services', cond=clickable))
         self.wait_frame("services")
@@ -91,7 +91,7 @@ class BasicTestSuite(SeleniumTest):
         self.wait_id("journal")
         self.wait_id("journal-current-day")
         self.wait_id("journal-prio")
-        self.click(self.wait_text('Errors'))
+        self.click(self.wait_text('Errors', cond=clickable, element="button"))
         self.wait_id("journal")
         self.wait_id("journal-current-day")
         self.click(self.wait_text('Warnings', cond=clickable, element="button"))

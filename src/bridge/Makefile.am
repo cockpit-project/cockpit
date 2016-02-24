@@ -49,6 +49,7 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitdbussetup.c \
 	src/bridge/cockpitdbustime.c \
 	src/bridge/cockpitdbususer.c \
+	src/bridge/cockpitdbusenvironment.c \
 	src/bridge/cockpitdisksamples.c \
 	src/bridge/cockpitdisksamples.h \
 	src/bridge/cockpitinternalmetrics.c \
@@ -155,6 +156,7 @@ BRIDGE_CHECKS = \
 	test-httpstream \
 	test-setup \
 	test-websocketstream \
+	test-environment \
 	$(NULL)
 
 mock_bridge_SOURCES = src/bridge/mock-bridge.c
@@ -191,6 +193,10 @@ test_rules_LDADD = $(libcockpit_bridge_LIBS)
 test_setup_SOURCES = src/bridge/test-setup.c
 test_setup_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_setup_LDADD = $(libcockpit_bridge_LIBS)
+
+test_environment_SOURCES = src/bridge/test-environment.c
+test_environment_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_environment_LDADD = $(libcockpit_bridge_LIBS)
 
 test_pipe_channel_SOURCES = \
 	src/bridge/test-pipe-channel.c \

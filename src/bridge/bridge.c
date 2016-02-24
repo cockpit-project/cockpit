@@ -465,6 +465,7 @@ run_bridge (const gchar *interactive,
   cockpit_dbus_time_startup ();
   cockpit_dbus_user_startup (pwd);
   cockpit_dbus_setup_startup ();
+  cockpit_dbus_environment_startup ();
 
   g_free (pwd);
   pwd = NULL;

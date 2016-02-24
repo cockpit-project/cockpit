@@ -108,7 +108,18 @@ define([
                 container.State = { };
             if (container.Config === undefined)
                 container.Config = { };
-            $.extend(container, containers_meta[id]);
+
+            // Add in the fields of the short form of the container
+            // info, but never overwrite fields that are already in
+            // the long form.
+            //
+            // TODO: Figure out and document why we do this at all.
+
+            for (var m in containers_meta[id]) {
+                if (container[m] === undefined)
+                    container[m] = containers_meta[id][m];
+            }
+
             var name = container_to_name(container);
             if (name)
                 containers_by_name[name] = id;

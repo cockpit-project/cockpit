@@ -150,7 +150,12 @@ define([
         }
 
         function render_image(id, image) {
-            var tr = $("#" + id);
+
+            // Docker ID can contain funny characters such as ":" so
+            // we take care not to embed them into jQuery query
+            // strings or HTML.
+
+            var tr = $(document.getElementById(id));
 
             if (!image ||
                 !image.RepoTags ||
@@ -167,7 +172,7 @@ define([
                         run_image(client, id);
                         return false;
                     });
-                tr = $('<tr id="' + id + '">').append(
+                tr = $('<tr>', { 'id': id }).append(
                     $('<td class="image-col-tags">'),
                     $('<td class="image-col-created">'),
                     $('<td class="image-col-size-graph">'),

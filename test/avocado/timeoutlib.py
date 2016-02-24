@@ -56,7 +56,9 @@ class Retry(object):
         """
         Try to run things ATTEMPTS times, at max, each attempt must not exceed TIMEOUT seconds.
         Restart only when one of EXCEPTIONS is raised, all other exceptions will just bubble up.
-        When the maximal number of attempts is reached, raise ERROR.
+        When the maximal number of attempts is reached, raise ERROR. Wait DELAY seconds between
+        attempts.
+        When INVERSE is True, successfull return of wrapped code is considered as a failure.
         """
 
         self.attempts = attempts
@@ -66,40 +68,60 @@ class Retry(object):
         self.inverse = inverse
         self.timeout_wrapper = Timeout if timeout is not None else NOPTimeout
         self.delay = delay if delay is not None else timeout
+
         # some accounting, for testing purposes
         if __debug__:
             self.failed_attempts = 0
             self.timeouts_triggered = 0
 
+    def handle_failure(self, start_time):
+        if __debug__:
+            self.failed_attempts += 1
+
+        self.attempts -= 1
+        if self.attempts == 0:
+            raise self.error
+
+        # Before the next iteration sleep $delay seconds. It's the
+        # remaining time to the $timeout Since it makes not much sense
+        # to feed time.sleep() with negative delays, return None.
+
+        if self.delay is None:
+            return None
+
+        delay = self.delay - (time.time() - start_time)
+        return delay if delay > 0 else None
+
     def __call__(self, fn):
         def __wrap(*args, **kwargs):
             # This is not an endless loop. It will be broken by
-            # 1) first successfull return of fn(), or
+            # 1) first "successfull" return of fn() - taking self.inverse into account, of course - or
             # 2) by decrementing self.attempts to zero, or
             # 3) when unexpected exception is raised by fn().
+
             output = None
-            starttime = time.clock()
+            delay = None  # no delay yet
+
             while True:
+                if delay is not None:
+                  time.sleep(delay)
+
                 with self.timeout_wrapper(self, self.timeout):
+                    start_time = time.time()
+
                     try:
                         output = fn(*args, **kwargs)
-                        if self.inverse:
-                            output = None
-                        else:
+                        if not self.inverse:
                             return output
+
                     except self.exceptions as e:
                         if self.inverse:
                             return True
-                        else:
-                            # Handle exceptions we are expected to catch, by logging a failed
-                            # attempt, and checking the number of attempts.
-                            if __debug__:
-                                self.failed_attempts += 1
-                            self.attempts -= 1
-                            if self.attempts == 0:
-                                raise self.error
-                            time.sleep((self.delay-(time.clock()-starttime))*0.95)
-                            continue
+
+                        # Handle exceptions we are expected to catch, by logging a failed
+                        # attempt, and checking the number of attempts.
+                        delay = self.handle_failure(start_time)
+                        continue
 
                     except Exception as e:
                         # Handle all other exceptions, by logging a failed attempt and
@@ -107,11 +129,9 @@ class Retry(object):
                         if __debug__:
                             self.failed_attempts += 1
                         raise e
-                self.attempts -= 1
-                self.failed_attempts += 1
-                if self.attempts == 0:
-                    raise self.error
-                time.sleep((self.delay-(time.clock()-starttime)))
+
+                delay = self.handle_failure(start_time)
+
         return __wrap
 
 if __name__ == '__main__':
@@ -137,6 +157,8 @@ if __name__ == '__main__':
         assert retry.timeouts_triggered == 0
 
     except Exception as e:
+        import sys, traceback
+        print >> sys.stderr, traceback.format_exc()
         assert False, 'Unexpected exception raised: %s' % repr(e)
 
 
@@ -162,6 +184,8 @@ if __name__ == '__main__':
         assert retry.failed_attempts == 2
 
     except Exception as e:
+        import sys, traceback
+        print >> sys.stderr, traceback.format_exc()
         assert False, 'Unexpected exception raised: %s' % repr(e)
 
     # And react only to a set of exceptions
@@ -179,4 +203,44 @@ if __name__ == '__main__':
         assert retry.timeouts_triggered == 0
 
     except Exception as e:
+        import sys, traceback
+        print >> sys.stderr, traceback.format_exc()
+        assert False, 'Unexpected exception raised: %s' % repr(e)
+
+    # Use inverted result of wrapped fn
+    @Retry(attempts = 1 , timeout = 1, error = IFailedError('Too many retries!'), inverse = True)
+    def do_something4():
+        raise IFailedError('No, I did not!')
+
+    assert do_something4() is True
+
+    # Test delay usage
+    red_horse = []
+
+    @Retry(attempts = 5, timeout = 5, error = IFailedError('Too many retries!'), delay = 20)
+    def do_something5():
+        red_horse.append(time.time())
+        time.sleep(10)  # should be enough to get killed by watchdog
+
+    try:
+        start_time = time.time()
+
+        do_something5()
+
+    except IFailedError as e:
+        end_time = time.time()
+
+        retry = do_something5.func_closure[1].cell_contents
+
+        assert retry.failed_attempts == 5
+        assert retry.timeouts_triggered == 5
+
+        for i in range(1, 5):
+            assert red_horse[i] - red_horse[i - 1] >= 20.0, 'Interval #%i was shorter than expected: %f' % (i, red_horse[i] - red_horse[i - 1])
+
+        assert (end_time - start_time) >= (4 * 20.0 + 5.0), 'All attempts took shorter time than expected: %f' % (end_time - start_time)
+
+    except Exception as e:
+        import sys, traceback
+        print >> sys.stderr, traceback.format_exc()
         assert False, 'Unexpected exception raised: %s' % repr(e)

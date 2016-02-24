@@ -336,6 +336,7 @@ typedef struct {
   gchar *remote_peer;
   gchar *auth_type;
   gchar *application;
+  gchar **envp;
   const gchar *command;
 } SpawnLoginData;
 
@@ -352,6 +353,7 @@ spawn_login_data_free (gpointer data)
   g_free (sl->auth_type);
   g_free (sl->application);
   g_free (sl->remote_peer);
+  g_strfreev (sl->envp);
   g_free (sl);
 }
 
@@ -378,6 +380,7 @@ spawn_child_setup (gpointer data)
 
 static CockpitPipe *
 spawn_process (const gchar *command,
+               gchar **envp,
                const gchar *type,
                GBytes *input,
                const gchar *remote_peer,
@@ -404,7 +407,7 @@ spawn_process (const gchar *command,
 
   g_debug ("spawning %s", argv[0]);
 
-  if (!g_spawn_async_with_pipes (NULL, (gchar **) argv, NULL,
+  if (!g_spawn_async_with_pipes (NULL, (gchar **) argv, envp,
                                  G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_LEAVE_DESCRIPTORS_OPEN,
                                  spawn_child_setup, GINT_TO_POINTER (pwfds[1]),
                                  &pid, &in_fd, &out_fd, NULL, &error))
@@ -691,6 +694,7 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
   SpawnLoginData *sl;
   GBytes *input = NULL;
   const gchar *command;
+  const gchar *keytab;
 
   result = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
                                       cockpit_auth_spawn_login_async);
@@ -708,10 +712,19 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
       sl->authorization = g_bytes_ref (input);
       sl->application = g_strdup (application);
       sl->command = command;
+      sl->envp = NULL;
 
       g_simple_async_result_set_op_res_gpointer (result, sl, spawn_login_data_free);
 
-      sl->process_pipe = spawn_process (command, type,
+      /* Allow redefining Kerberos keytab via cockpit.conf for GSSAPI use */
+      keytab = type_option (type, "keytab", NULL);
+      if (keytab && !gssapi_not_avail)
+        {
+          sl->envp = g_get_environ ();
+          sl->envp = g_environ_setenv (sl->envp, "KRB5_KTNAME", keytab, TRUE);
+        }
+
+      sl->process_pipe = spawn_process (command, sl->envp, type,
                                          input, remote_peer,
                                          &sl->auth_pipe);
 

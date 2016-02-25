@@ -59,7 +59,7 @@ DEFAULT_VERIFY = {
     'avocado/fedora-23': [ 'master', 'pulls' ],
     'selenium/firefox': [ 'master', 'pulls' ],
     'selenium/chrome': [ 'master', 'pulls' ],
-    'image/kubernetes': [ ],
+    'container/kubernetes': [ ],
 }
 
 TESTING = "Testing in progress"

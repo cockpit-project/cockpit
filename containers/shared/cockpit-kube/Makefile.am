@@ -1,19 +1,19 @@
 if WITH_GOLANG
 
 GO_BUILD_RULE = \
-	GOPATH=$(abs_srcdir)/images/shared/cockpit-kube $(GOLANG) build "$@"
+	GOPATH=$(abs_srcdir)/containers/shared/cockpit-kube $(GOLANG) build "$@"
 
 COCKPIT_KUBE_HELPERS =	\
-	images/shared/cockpit-kube/src/cockpit-kube-auth/helpers/creds.go	\
-	images/shared/cockpit-kube/src/cockpit-kube-auth/helpers/client.go	\
+	containers/shared/cockpit-kube/src/cockpit-kube-auth/helpers/creds.go	\
+	containers/shared/cockpit-kube/src/cockpit-kube-auth/helpers/client.go	\
 	$(NULL)
 
 COCKPIT_KUBE_AUTH = $(COCKPIT_KUBE_HELPERS) \
-	images/shared/cockpit-kube/src/cockpit-kube-auth/main.go	\
+	containers/shared/cockpit-kube/src/cockpit-kube-auth/main.go	\
 	$(NULL)
 
 COCKPIT_KUBE_LAUNCH = $(COCKPIT_KUBE_HELPERS) \
-	images/shared/cockpit-kube/src/cockpit-kube-launch/main.go	\
+	containers/shared/cockpit-kube/src/cockpit-kube-launch/main.go	\
 	$(NULL)
 
 cockpit-kube-auth$(EXEEXT): $(COCKPIT_KUBE_AUTH)

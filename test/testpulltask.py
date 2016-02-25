@@ -156,7 +156,7 @@ class GithubPullTask(object):
         os.environ["TEST_NAME"] = self.name
         os.environ["TEST_REVISION"] = self.revision
 
-        if prefix == 'image':
+        if prefix == 'container':
             os.environ["TEST_OS"] = 'fedora-23'
         else:
             os.environ["TEST_OS"] = value
@@ -180,7 +180,7 @@ class GithubPullTask(object):
             if value not in ['firefox', 'chrome']:
                 ret = "Unknown browser for selenium test"
             cmd = [ "timeout", "60m", "./avocado/run-tests", "--install", "--quick", "--selenium-tests", "--browser", value]
-        elif prefix == "image":
+        elif prefix == "image" or prefix == "container":
             cmd = [ "timeout", "90m", "./containers/run-tests", "--install", "--container", value]
         else:
             ret = "Unknown context"

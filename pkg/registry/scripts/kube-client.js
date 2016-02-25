@@ -45,6 +45,8 @@
         { kind: "Namespace", type: "namespaces", api: KUBE, global: true, create: -100 },
         { kind: "Node", type: "nodes", api: KUBE, global: true },
         { kind: "Pod", type: "pods", api: KUBE, create: -20 },
+        { kind: "PolicyBinding", type: "policybindings", api: OPENSHIFT },
+        { kind: "RoleBinding", type: "rolebindings", api: OPENSHIFT },
         { kind: "Project", type: "projects", api: OPENSHIFT, global: true, create: -90 },
         { kind: "ReplicationController", type: "replicationcontrollers", api: KUBE, create: -60 },
         { kind: "Service", type: "services", api: KUBE, create: -80 },

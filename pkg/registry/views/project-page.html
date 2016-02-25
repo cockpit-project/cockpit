@@ -20,10 +20,12 @@
                 <th translatable="yes"></th>
             </tr>
         </thead>
-        <tbody>
+        <tbody ng-repeat="user in users()" ng-if="subjectIsMember(user, project().metadata.name)">
             <tr class="listing-item">
-                <td>todo members</td>
-                <td>todo roles</td>
+                <td>{{ user.metadata.name }}</td>
+                <td>
+                    <span ng-repeat="role in subjectRoleBindings(user, project().metadata.name)">{{ role.metadata.name }} </span>
+                </td>
                 <td></td>
             </tr>
         </tbody>

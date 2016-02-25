@@ -1,8 +1,9 @@
 <div>
     <div class="listing-head" ng-click="listing.collapse(id, $event)">
         <div class="listing-actions">
-            <button class="btn btn-danger btn-delete pficon pficon-delete"></button>
-            <button class="btn btn-default pficon pficon-edit"></button>
+            <button class="btn btn-danger btn-delete pficon pficon-delete"
+                ng-click="deleteImageStream(stream)"></button>
+            <button class="btn btn-default pficon pficon-edit" disabled></button>
         </div>
         <h3><i class="fa fa-th-list"></i>{{ object.name }}</h3>
         <ul class="nav nav-tabs nav-tabs-pf">

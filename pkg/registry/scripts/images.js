@@ -65,9 +65,10 @@
         '$scope',
         '$location',
         'imageData',
+        'imageActions',
         'ListingState',
         'filterService',
-        function($scope, $location, data, ListingState) {
+        function($scope, $location, data, actions, ListingState) {
             $scope.imagestreams = data.allStreams;
             angular.extend($scope, data);
 
@@ -82,6 +83,9 @@
                     $location.path('/images/' + id);
                 }
             });
+
+            /* All the actions available on the $scope */
+            angular.extend($scope, actions);
         }
     ])
 
@@ -97,12 +101,14 @@
      */
     .controller('ImageCtrl', [
         '$scope',
+        '$location',
         '$routeParams',
         'kubeSelect',
         'kubeLoader',
         'imageData',
+        'imageActions',
         'ListingState',
-        function($scope, $routeParams, select, loader, data, ListingState) {
+        function($scope, $location, $routeParams, select, loader, data, actions, ListingState) {
             var target = $routeParams["target"] || "";
             var pos = target.indexOf(":");
 
@@ -152,11 +158,25 @@
                 return { };
             };
 
-            angular.extend($scope, data);
-
             $scope.$on("$destroy", function() {
                 c.cancel();
             });
+
+            /* All the data actions available on the $scope */
+            angular.extend($scope, data);
+            angular.extend($scope, actions);
+
+            /* But special case a few */
+            $scope.deleteImageStream = function(stream) {
+                var promise = actions.deleteImageStream(stream);
+
+                /* If the promise is successful, redirect to another page */
+                promise.then(function() {
+                    $location.path($scope.viewUrl('images'));
+                });
+
+                return promise;
+            };
         }
     ])
 
@@ -416,6 +436,42 @@
                 configCommand: configCommand,
             };
         }
-    ]);
+    ])
 
+    .factory('imageActions', [
+        '$modal',
+        function($modal) {
+            function deleteImageStream(stream) {
+                var modal = $modal.open({
+                    controller: 'ImageStreamDeleteCtrl',
+                    templateUrl: 'views/imagestream-delete.html',
+                    resolve: {
+                        dialogData: function() {
+                            return { stream: stream };
+                        }
+                    },
+                });
+
+                return modal.result;
+            }
+
+            return {
+                deleteImageStream: deleteImageStream
+            };
+        }
+    ])
+
+    .controller("ImageStreamDeleteCtrl", [
+        "$scope",
+        "$modalInstance",
+        "dialogData",
+        "kubeMethods",
+        function($scope, $instance, dialogData, methods) {
+            angular.extend($scope, dialogData);
+
+            $scope.performDelete = function performDelete() {
+                return methods.delete($scope.stream);
+            };
+        }
+    ]);
 }());

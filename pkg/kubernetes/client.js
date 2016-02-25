@@ -938,7 +938,7 @@ define([
                         if (!mev.initMessageEvent)
                             mev = new window.MessageEvent('message', { 'data': data });
                         else
-                            mev.initMessageEvent('message', false, false, data, "");
+                            mev.initMessageEvent('message', false, false, data, null, null, window, null);
                         ws.dispatchEvent(mev);
                     });
 

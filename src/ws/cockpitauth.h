@@ -51,6 +51,10 @@ struct _CockpitAuth
   guint64 nonce_seed;
   gboolean login_loopback;
   gulong timeout_tag;
+  guint startups;
+  guint max_startups;
+  guint max_startups_begin;
+  guint max_startups_rate;
 };
 
 struct _CockpitAuthClass

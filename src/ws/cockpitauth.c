@@ -64,6 +64,10 @@ guint cockpit_ws_service_idle = 15;
 /* Timeout of everything when noone is connected */
 guint cockpit_ws_process_idle = 90;
 
+/* Maximum number of pending authentication requests */
+const gchar *cockpit_ws_max_startups = NULL;
+static guint max_startups = 10;
+
 static guint sig__idling = 0;
 
 static gboolean gssapi_not_avail = FALSE;
@@ -184,6 +188,11 @@ cockpit_auth_init (CockpitAuth *self)
 
   self->timeout_tag = g_timeout_add_seconds (cockpit_ws_process_idle,
                                              on_process_timeout, self);
+
+  self->startups = 0;
+  self->max_startups = max_startups;
+  self->max_startups_begin = max_startups;
+  self->max_startups_rate = 100;
 }
 
 gchar *
@@ -1156,6 +1165,46 @@ cockpit_auth_check_cookie (CockpitAuth *self,
     }
 }
 
+/*
+ * returns TRUE if auth can proceed, FALSE otherwise.
+ * dropping starts at connection max_startups_begin with a probability
+ * of (max_startups_rate/100). the probability increases linearly until
+ * all connections are dropped for startups > max_startups
+ */
+
+static gboolean
+can_start_auth (CockpitAuth *self)
+{
+  int p, r;
+
+  /* 0 means unlimited */
+  if (self->max_startups == 0)
+    return TRUE;
+
+  /* Under soft limit */
+	if (self->startups <= self->max_startups_begin)
+		return TRUE;
+
+  /* Over hard limit */
+	if (self->startups > self->max_startups)
+		return FALSE;
+
+  /* If rate is 100, soft limit is hard limit */
+	if (self->max_startups_rate == 100)
+		return FALSE;
+
+	p = 100 - self->max_startups_rate;
+	p *= self->startups - self->max_startups_begin;
+	p /= self->max_startups - self->max_startups_begin;
+	p += self->max_startups_rate;
+	r = g_random_int_range (0, 100);
+
+	g_debug ("calculating if auth can start: (%u:%u:%u): p %d, r %d",
+	         self->max_startups_begin, self->max_startups_rate,
+	         self->max_startups, p, r);
+	return (r < p) ? FALSE : TRUE;
+}
+
 void
 cockpit_auth_login_async (CockpitAuth *self,
                           const gchar *path,
@@ -1165,8 +1214,26 @@ cockpit_auth_login_async (CockpitAuth *self,
                           gpointer user_data)
 {
   CockpitAuthClass *klass = COCKPIT_AUTH_GET_CLASS (self);
+  GSimpleAsyncResult *result = NULL;
+
   g_return_if_fail (klass->login_async != NULL);
-  klass->login_async (self, path, headers, remote_peer, callback, user_data);
+
+  self->startups++;
+  if (can_start_auth (self))
+    {
+      klass->login_async (self, path, headers, remote_peer, callback, user_data);
+    }
+  else
+    {
+      g_message ("Request dropped; too many startup connections: %u", self->startups);
+      result = g_simple_async_result_new_error (G_OBJECT (self), callback, user_data,
+                                                COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
+                                               "Connection closed by host");
+      g_simple_async_result_complete_in_idle (result);
+    }
+
+  if (result)
+    g_object_unref (result);
 }
 
 static gboolean
@@ -1241,6 +1308,7 @@ cockpit_auth_login_finish (CockpitAuth *self,
 
   g_return_val_if_fail (klass->login_finish != NULL, FALSE);
   creds = klass->login_finish (self, result, out_headers, &transport, error);
+  self->startups--;
 
   if (creds == NULL)
     return NULL;
@@ -1294,7 +1362,46 @@ CockpitAuth *
 cockpit_auth_new (gboolean login_loopback)
 {
   CockpitAuth *self = g_object_new (COCKPIT_TYPE_AUTH, NULL);
+  const gchar *max_startups_conf;
+  gint count = 0;
+
   self->login_loopback = login_loopback;
+
+  if (cockpit_ws_max_startups == NULL)
+    max_startups_conf = cockpit_conf_string ("WebService", "MaxStartups");
+  else
+    max_startups_conf = cockpit_ws_max_startups;
+
+  self->max_startups = max_startups;
+  self->max_startups_begin = max_startups;
+  self->max_startups_rate = 100;
+
+  if (max_startups_conf)
+    {
+      count = sscanf (max_startups_conf, "%u:%u:%u",
+                      &self->max_startups_begin,
+                      &self->max_startups_rate,
+                      &self->max_startups);
+
+      /* If all three numbers are not given use the
+       * first as a hard limit */
+      if (count == 1 || count == 2)
+        {
+          self->max_startups = self->max_startups_begin;
+          self->max_startups_rate = 100;
+        }
+
+      if (count < 1 || count > 3 ||
+          self->max_startups_begin > self->max_startups ||
+          self->max_startups_rate > 100 || self->max_startups_rate < 1)
+        {
+          g_warning ("Illegal MaxStartups spec: %s. Reverting to defaults", max_startups_conf);
+          self->max_startups = max_startups;
+          self->max_startups_begin = max_startups;
+          self->max_startups_rate = 100;
+        }
+    }
+
   return self;
 }
 

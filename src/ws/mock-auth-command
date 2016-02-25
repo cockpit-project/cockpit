@@ -23,6 +23,10 @@ set -euf
 auth=$(cat <&3)
 success=0
 case $auth in
+    "failslow")
+        sleep 2
+        echo "{ \"error\": \"authentication-failed\" }" >&3
+        ;;
     "fail")
         echo "{ \"error\": \"authentication-failed\" }" >&3
         ;;

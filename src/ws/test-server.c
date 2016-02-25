@@ -175,6 +175,22 @@ mock_http_headers (CockpitWebResponse *response,
 }
 
 static gboolean
+mock_http_host (CockpitWebResponse *response,
+                GHashTable *in_headers)
+{
+  GHashTable *headers;
+
+  headers = cockpit_web_server_new_table();
+  g_hash_table_insert (headers, g_strdup ("Host"), g_strdup (g_hash_table_lookup (in_headers, "Host")));
+  cockpit_web_response_headers_full (response, 201, "Yoo Hoo", -1, headers);
+  cockpit_web_response_complete (response);
+
+  g_hash_table_unref (headers);
+
+  return TRUE;
+}
+
+static gboolean
 mock_http_connection (CockpitWebResponse *response)
 {
   GIOStream *io;
@@ -209,6 +225,8 @@ on_handle_mock (CockpitWebServer *server,
     return mock_http_stream (response);
   if (g_str_equal (path, "/headers"))
     return mock_http_headers (response, headers);
+  if (g_str_equal (path, "/host"))
+    return mock_http_host (response, headers);
   if (g_str_equal (path, "/connection"))
     return mock_http_connection (response);
   else

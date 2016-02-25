@@ -55,7 +55,7 @@ test("public api", function() {
 asyncTest("simple request", function() {
     expect(2);
 
-    cockpit.http({ "internal": "test-server" }).get("/pkg/playground/manifest.json")
+    cockpit.http({ "internal": "/test-server" }).get("/pkg/playground/manifest.json")
         .done(function(data) {
             deepEqual(JSON.parse(data), {
                 version: 0,
@@ -75,7 +75,7 @@ asyncTest("simple request", function() {
 asyncTest("with params", function() {
     expect(2);
 
-    cockpit.http({ "internal": "test-server" })
+    cockpit.http({ "internal": "/test-server" })
         .get("/mock/qs", { "key": "value", "name": "Scruffy the Janitor" })
         .done(function(resp) {
             equal(resp, "key=value&name=Scruffy+the+Janitor", "right query string");
@@ -89,7 +89,7 @@ asyncTest("with params", function() {
 asyncTest("not found", function() {
     expect(6);
 
-    cockpit.http({ "internal": "test-server" })
+    cockpit.http({ "internal": "/test-server" })
         .get("/not/found")
         .response(function(status, headers) {
             equal(status, 404, "status code");
@@ -111,7 +111,7 @@ asyncTest("streaming", function() {
 
     var at = 0;
     var got = "";
-    cockpit.http({ "internal": "test-server" })
+    cockpit.http({ "internal": "/test-server" })
         .get("/mock/stream")
         .stream(function(resp) {
             got += resp;
@@ -130,7 +130,7 @@ asyncTest("streaming", function() {
 asyncTest("close", function() {
     expect(4);
 
-    var req = cockpit.http({ "internal": "test-server" }).get("/mock/stream");
+    var req = cockpit.http({ "internal": "/test-server" }).get("/mock/stream");
 
     var at = 0;
     req.stream(function(resp) {
@@ -151,7 +151,7 @@ asyncTest("close", function() {
 asyncTest("headers", function() {
     expect(3);
 
-    cockpit.http({ "internal": "test-server" })
+    cockpit.http({ "internal": "/test-server" })
         .get("/mock/headers", null, { "Header1": "booo", "Header2": "yay value" })
         .response(function(status, headers) {
             equal(status, 201, "status code");
@@ -168,10 +168,25 @@ asyncTest("headers", function() {
         });
 });
 
+asyncTest("escape host header", function() {
+    expect(3);
+
+    cockpit.http({ "internal": "/test-server" })
+        .get("/mock/host", null, { })
+        .response(function(status, headers) {
+            equal(status, 201, "status code");
+            deepEqual(headers.Host, "%2Ftest-server", "got back escaped headers");
+        })
+        .always(function() {
+            equal(this.state(), "resolved", "split response didn't fail");
+            start();
+        });
+});
+
 asyncTest("connection headers", function() {
     expect(3);
 
-    cockpit.http({ "internal": "test-server", "headers": { "Header1": "booo", "Header2": "not this" }})
+    cockpit.http({ "internal": "/test-server", "headers": { "Header1": "booo", "Header2": "not this" }})
         .get("/mock/headers", null, { "Header2": "yay value", "Header0": "extra" })
         .response(function(status, headers) {
             equal(status, 201, "status code");
@@ -192,7 +207,7 @@ asyncTest("connection headers", function() {
 test("http promise recursive", function() {
     expect(7);
 
-    var promise = cockpit.http({ "internal": "test-server" }).get("/")
+    var promise = cockpit.http({ "internal": "/test-server" }).get("/")
 
     var target = { };
     var promise2 = promise.promise(target);
@@ -216,13 +231,13 @@ asyncTest("http keep alive", function() {
      */
 
     var first;
-    cockpit.http({ "internal": "test-server", "connection": "marmalade" }).get("/mock/connection")
+    cockpit.http({ "internal": "/test-server", "connection": "marmalade" }).get("/mock/connection")
         .always(function() {
             equal(this.state(), "resolved", "response didn't fail");
         })
         .done(function(data) {
             first = data;
-            cockpit.http({ "internal": "test-server", "connection": "marmalade" }).get("/mock/connection")
+            cockpit.http({ "internal": "/test-server", "connection": "marmalade" }).get("/mock/connection")
                 .done(function(data) {
                     equal(first, data, "same connection");
                 })
@@ -242,13 +257,13 @@ asyncTest("http connection different", function() {
      */
 
     var first;
-    cockpit.http({ "internal": "test-server", "connection": "one" }).get("/mock/connection")
+    cockpit.http({ "internal": "/test-server", "connection": "one" }).get("/mock/connection")
         .always(function() {
             equal(this.state(), "resolved", "response didn't fail");
         })
         .done(function(data) {
             first = data;
-            cockpit.http({ "internal": "test-server", "connection": "two" }).get("/mock/connection")
+            cockpit.http({ "internal": "/test-server", "connection": "two" }).get("/mock/connection")
                 .done(function(data) {
                     notEqual(first, data, "different connection");
                 })
@@ -267,7 +282,7 @@ asyncTest("http connection without address ", function() {
      */
 
     var first;
-    cockpit.http({ "internal": "test-server", "connection": "one" }).get("/mock/connection")
+    cockpit.http({ "internal": "/test-server", "connection": "one" }).get("/mock/connection")
         .always(function() {
             equal(this.state(), "resolved", "response didn't fail");
         })

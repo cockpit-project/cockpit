@@ -831,7 +831,11 @@ send_http_request (CockpitHttpStream *self)
     }
 
   if (!had_host)
-    g_string_append_printf (string, "Host: %s\r\n", self->client->connectable->name);
+    {
+      g_string_append (string, "Host: ");
+      g_string_append_uri_escaped (string, self->client->connectable->name, "[]!%$&()*+,-.:;=\\_~", FALSE);
+      g_string_append (string, "\r\n");
+    }
   if (!had_encoding)
     g_string_append (string, "Accept-Encoding: identity\r\n");
 

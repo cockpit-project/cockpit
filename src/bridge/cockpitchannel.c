@@ -644,7 +644,7 @@ cockpit_channel_class_init (CockpitChannelClass *klass)
     {
       inet = g_inet_address_new_loopback (G_SOCKET_FAMILY_IPV4);
       address = g_inet_socket_address_new (inet, atoi (port));
-      cockpit_channel_internal_address ("test-server", address);
+      cockpit_channel_internal_address ("/test-server", address);
       g_object_unref (address);
       g_object_unref (inet);
     }

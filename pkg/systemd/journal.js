@@ -77,7 +77,7 @@ define([
         out.empty();
 
         function show_entry(entry) {
-            $('#journal-entry-message').text(entry["MESSAGE"]);
+            $('#journal-entry-message').text(journal_renderer.make_printable(entry["MESSAGE"]));
 
             var d = new Date(entry["__REALTIME_TIMESTAMP"] / 1000);
             $('#journal-entry-date').text(d.toString());
@@ -99,7 +99,7 @@ define([
                             $('<td style="text-align:right">').
                                 text(key),
                             $('<td style="text-align:left">').
-                                text(entry[key])));
+                                text(journal_renderer.make_printable(entry[key]))));
                 }
             });
         }

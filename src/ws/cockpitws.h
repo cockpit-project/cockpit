@@ -38,6 +38,7 @@ extern gint cockpit_ws_session_timeout;
 /* From cockpitauth.c */
 extern guint cockpit_ws_service_idle;
 extern guint cockpit_ws_process_idle;
+extern const gchar *cockpit_ws_max_startups;
 
 G_END_DECLS
 

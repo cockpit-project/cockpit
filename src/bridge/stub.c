@@ -20,6 +20,8 @@
 
 #include "cockpitbridge.h"
 #include "cockpitchannel.h"
+#include "cockpitdbusinternal.h"
+#include "cockpitdbusjson.h"
 #include "cockpitechochannel.h"
 #include "cockpitinteracttransport.h"
 #include "cockpithttpstream.h"
@@ -52,12 +54,15 @@
 
 static CockpitPackages *packages;
 
+extern gboolean cockpit_dbus_json_allow_external;
+
 static CockpitPayloadType payload_types[] = {
   { "http-stream1", cockpit_http_stream_get_type },
   { "http-stream2", cockpit_http_stream_get_type },
   { "null", cockpit_null_channel_get_type },
   { "echo", cockpit_echo_channel_get_type },
   { "websocket-stream1", cockpit_web_socket_stream_get_type },
+  { "dbus-json3", cockpit_dbus_json_get_type },
   { NULL },
 };
 
@@ -133,7 +138,10 @@ run_bridge (const gchar *interactive)
 
   g_type_init ();
 
+  cockpit_dbus_json_allow_external = FALSE;
+
   packages = cockpit_packages_new ();
+  cockpit_dbus_internal_startup (interactive != NULL);
 
   if (interactive)
     {
@@ -150,6 +158,9 @@ run_bridge (const gchar *interactive)
   cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
 
   bridge = cockpit_bridge_new (transport, payload_types, init_received);
+  cockpit_dbus_time_startup ();
+  cockpit_dbus_environment_startup ();
+
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
   send_init_command (transport);
 

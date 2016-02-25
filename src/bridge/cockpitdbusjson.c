@@ -39,6 +39,8 @@
  * type.
  */
 
+gboolean cockpit_dbus_json_allow_external = TRUE;
+
 #define COCKPIT_DBUS_JSON(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_DBUS_JSON, CockpitDBusJson))
 
 typedef struct {
@@ -1995,6 +1997,12 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
   else
     {
       g_warning ("invalid \"bus\" option in dbus channel: %s", bus);
+      goto out;
+    }
+
+  if (!internal && !cockpit_dbus_json_allow_external)
+    {
+      problem = "not-supported";
       goto out;
     }
 

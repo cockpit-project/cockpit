@@ -251,5 +251,27 @@ s.send("MESSAGE=Hello \\01 World\\nPRIORITY=3\\nFOO=bar\\nBIN=a\\01b\\02c\\03\\n
         wait_field("FOO", "bar")
         wait_field("BIN", "[6 bytes of binary data]")
 
+    def testNoMessage(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute(
+"""
+python -c '
+import socket
+s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+s.connect("/run/systemd/journal/socket")
+s.send("PRIORITY=3\\nFOO=bar\\n")'
+""")
+
+        self.login_and_go("/system/logs")
+
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('[no data]')"
+        b.wait_present(sel)
+        b.wait_visible(sel)
+        b.click(sel)
+
+        b.wait_text("#journal-entry-message", "[no data]")
+
 if __name__ == '__main__':
     test_main()

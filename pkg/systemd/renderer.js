@@ -36,7 +36,9 @@ define([
     var journal_renderer = {};
 
     function make_printable(value) {
-        if ($.type(value) == "string")
+        if (value === undefined)
+            return _("[no data]");
+        else if ($.type(value) == "string")
             return value;
         else if (value.length !== undefined)
             return cockpit.format(_("[$0 bytes of binary data]"), value.length);

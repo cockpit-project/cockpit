@@ -89,7 +89,7 @@ def main():
     if opts.install:
         install(opts)
 
-    if not os.path.isdir(os.path.abspath(os.path.join(testdir, "..", "images", opts.container))):
+    if not os.path.isdir(os.path.abspath(os.path.join(testdir, "..", "containers", opts.container))):
         sys.stderr.write("Unable to run tests for unknown container {0}.\n".format(opts.container))
         exit(1)
 

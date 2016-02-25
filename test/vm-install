@@ -42,7 +42,7 @@ def upload_scripts(machine):
     machine.upload([ "guest/lib" ], "/var/lib/testvm")
     machine.upload([ "./guest/%s.install" % machine.image ], "/var/tmp")
     if args.containers:
-        machine.upload(["../images"], "/var/tmp")
+        machine.upload(["../containers"], "/var/tmp")
 
 def run_install_script(machine, do_build, do_install, skip, arg):
     install = do_install

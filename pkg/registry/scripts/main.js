@@ -76,14 +76,14 @@
                     namespace = null;
                 if (!segment) {
                     if (namespace)
-                        return "#/?namespace=" + encodeURIComponent(namespace);
+                        return "/?namespace=" + encodeURIComponent(namespace);
                     else
-                        return "#/";
+                        return "/";
                 } else {
                     parts = [ segment ];
                     if (namespace)
                         parts.push(namespace);
-                    return "#/" + parts.map(encodeURIComponent).join("/");
+                    return "/" + parts.map(encodeURIComponent).join("/");
                 }
             };
 

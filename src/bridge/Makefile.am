@@ -9,6 +9,16 @@ libcockpit_stub_a_SOURCES = \
 	src/bridge/cockpitbridge.h \
 	src/bridge/cockpitchannel.c \
 	src/bridge/cockpitchannel.h \
+	src/bridge/cockpitdbuscache.c \
+	src/bridge/cockpitdbuscache.h \
+	src/bridge/cockpitdbusinternal.h \
+	src/bridge/cockpitdbusinternal.c \
+	src/bridge/cockpitdbusjson.c \
+	src/bridge/cockpitdbusjson.h \
+	src/bridge/cockpitdbusrules.c \
+	src/bridge/cockpitdbusrules.h \
+	src/bridge/cockpitdbustime.c \
+	src/bridge/cockpitdbusenvironment.c \
 	src/bridge/cockpitechochannel.c \
 	src/bridge/cockpitechochannel.h \
 	src/bridge/cockpithttpstream.c \
@@ -38,18 +48,8 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitcgroupsamples.h \
 	src/bridge/cockpitcpusamples.c \
 	src/bridge/cockpitcpusamples.h \
-	src/bridge/cockpitdbuscache.c \
-	src/bridge/cockpitdbuscache.h \
-	src/bridge/cockpitdbusinternal.h \
-	src/bridge/cockpitdbusinternal.c \
-	src/bridge/cockpitdbusjson.c \
-	src/bridge/cockpitdbusjson.h \
-	src/bridge/cockpitdbusrules.c \
-	src/bridge/cockpitdbusrules.h \
 	src/bridge/cockpitdbussetup.c \
-	src/bridge/cockpitdbustime.c \
 	src/bridge/cockpitdbususer.c \
-	src/bridge/cockpitdbusenvironment.c \
 	src/bridge/cockpitdisksamples.c \
 	src/bridge/cockpitdisksamples.h \
 	src/bridge/cockpitinternalmetrics.c \

@@ -250,16 +250,24 @@ on_handle_stream_socket (CockpitWebServer *server,
                          gpointer user_data)
 {
   CockpitTransport *transport;
+  const gchar *query = NULL;
   CockpitCreds *creds;
   CockpitPipe *pipe;
   gchar *value;
   gchar **env;
+  gchar **argv;
 
   if (!g_str_has_prefix (path, "/cockpit/socket"))
     return FALSE;
 
-  if (path[15] != '\0')
-    return FALSE;
+  if (path[15] == '?')
+    {
+      query = path + 16;
+    }
+  else if (path[15] != '\0')
+    {
+      return FALSE;
+    }
 
   if (service)
     {
@@ -273,7 +281,15 @@ on_handle_stream_socket (CockpitWebServer *server,
       creds = cockpit_creds_new (g_get_user_name (), "test",
                                  COCKPIT_CRED_CSRF_TOKEN, "myspecialtoken",
                                  NULL);
-      pipe = cockpit_pipe_spawn ((const gchar **)bridge_argv, (const gchar **)env, NULL, FALSE);
+
+      argv = g_strdupv (bridge_argv);
+      if (query)
+        argv[g_strv_length (argv) - 1] = g_strdup (query);
+
+      pipe = cockpit_pipe_spawn ((const gchar **)argv, (const gchar **)env, NULL, FALSE);
+
+      g_free (argv);
+
       transport = cockpit_pipe_transport_new (pipe);
       service = cockpit_web_service_new (creds, transport);
       cockpit_creds_unref (creds);
@@ -618,11 +634,6 @@ main (int argc,
     { NULL }
   };
 
-  char *default_argv[] = {
-    "cockpit-bridge",
-    NULL
-  };
-
   signal (SIGPIPE, SIG_IGN);
   /* avoid gvfs (http://bugzilla.gnome.org/show_bug.cgi?id=526454) */
   g_setenv ("GIO_USE_VFS", "local", TRUE);
@@ -673,16 +684,11 @@ main (int argc,
   argc--;
   argv++;
 
-  if (argc == 0)
-    {
-      argc = 1;
-      argv = default_argv;
-    }
-
   /* Null terminate the bridge command line */
-  bridge_argv = g_new0 (char *, argc + 1);
+  bridge_argv = g_new0 (char *, argc + 2);
   for (i = 0; i < argc; i++)
     bridge_argv[i] = argv[i];
+  bridge_argv[i] = "cockpit-bridge";
 
   loop = g_main_loop_new (NULL, FALSE);
 

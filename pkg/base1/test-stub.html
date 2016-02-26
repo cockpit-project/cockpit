@@ -35,6 +35,10 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     <div id="done-flag" style="display:none">Done</div>
 <script id='dbus-tests'>
 
+/* Tell cockpit to use an alternate url to connect to test-server */
+window.mock.url = cockpit.transport.uri();
+window.mock.url += "?cockpit-stub";
+
 function internal_test(options) {
     expect(2);
     var dbus = cockpit.dbus(null, options);

@@ -139,6 +139,7 @@ VALGRIND_SUPPRESSIONS = \
 	tools/glib.supp \
 	tools/pthread.supp \
 	tools/travis.supp \
+	tools/polkit.supp \
 	tools/pcp.supp \
 	tools/unknown.supp \
 	tools/zlib.supp \

@@ -32,6 +32,8 @@
 
 #include <string.h>
 
+extern const gchar *cockpit_ws_max_startups;
+
 typedef struct {
   CockpitAuth *auth;
 } Test;
@@ -316,6 +318,68 @@ test_process_timeout (Test *test,
     g_main_context_iteration (NULL, TRUE);
 }
 
+static void
+test_max_startups (Test *test,
+                   gconstpointer data)
+{
+  GAsyncResult *result1 = NULL;
+  GAsyncResult *result2 = NULL;
+  GAsyncResult *result3 = NULL;
+
+  CockpitWebService *service;
+
+  GHashTable *headers_slow;
+  GHashTable *headers_fail;
+
+  GError *error1 = NULL;
+  GError *error2 = NULL;
+  GError *error3 = NULL;
+
+  cockpit_expect_message ("Request dropped; too many startup connections: 2");
+
+  headers_slow = web_socket_util_new_headers ();
+  headers_fail = web_socket_util_new_headers ();
+  g_hash_table_insert (headers_slow, g_strdup ("Authorization"), g_strdup ("testscheme failslow"));
+  g_hash_table_insert (headers_fail, g_strdup ("Authorization"), g_strdup ("testscheme fail"));
+
+  /* Slow request that takes a while to complete */
+  cockpit_auth_login_async (test->auth, "/cockpit", headers_slow, NULL, on_ready_get_result, &result1);
+
+  /* Request that gets dropped */
+  cockpit_auth_login_async (test->auth, "/cockpit", headers_fail, NULL, on_ready_get_result, &result2);
+  while (result2 == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  service = cockpit_auth_login_finish (test->auth, result2, 0, NULL, &error2);
+  g_object_unref (result2);
+  g_assert (service == NULL);
+  g_assert_cmpstr ("Connection closed by host", ==, error2->message);
+
+  /* Wait for first request to finish */
+  while (result1 == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  service = cockpit_auth_login_finish (test->auth, result1, 0, NULL, &error1);
+  g_object_unref (result1);
+  g_assert (service == NULL);
+  g_assert_cmpstr ("Authentication failed", ==, error1->message);
+
+  /* Now that first is finished we can successfully run another one */
+  g_hash_table_insert (headers_fail, g_strdup ("Authorization"), g_strdup ("testscheme fail"));
+  cockpit_auth_login_async (test->auth, "/cockpit", headers_fail, NULL, on_ready_get_result, &result3);
+  while (result3 == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  service = cockpit_auth_login_finish (test->auth, result3, 0, NULL, &error3);
+  g_object_unref (result3);
+  g_assert (service == NULL);
+  g_assert_cmpstr ("Authentication failed", ==, error3->message);
+
+  g_clear_error (&error1);
+  g_clear_error (&error2);
+  g_clear_error (&error3);
+
+  g_hash_table_destroy (headers_fail);
+  g_hash_table_destroy (headers_slow);
+}
+
 typedef struct {
   const gchar *header;
   const gchar *error_message;
@@ -482,6 +546,117 @@ static const ErrorFixture fixture_auth_no_write = {
   .warning = "*JSON data was empty"
 };
 
+typedef struct {
+  const gchar *str;
+  guint max_startups;
+  guint max_startups_rate;
+  guint max_startups_begin;
+  gboolean warn;
+} StartupFixture;
+
+static void
+setup_startups (Test *test,
+                gconstpointer data)
+{
+  const StartupFixture *fix = data;
+  cockpit_config_file = SRCDIR "does-not-exist";
+  cockpit_ws_max_startups = fix->str;
+  if (fix->warn)
+    cockpit_expect_warning ("Illegal MaxStartups spec*");
+
+  test->auth = cockpit_auth_new (FALSE);
+}
+
+static void
+teardown_startups (Test *test,
+                 gconstpointer data)
+{
+  cockpit_assert_expected ();
+  g_object_unref (test->auth);
+}
+
+static const StartupFixture fixture_normal = {
+  .str = "20:50:200",
+  .max_startups = 200,
+  .max_startups_begin = 20,
+  .max_startups_rate = 50,
+  .warn = FALSE,
+};
+
+static const StartupFixture fixture_single = {
+  .str = "20",
+  .max_startups = 20,
+  .max_startups_begin = 20,
+  .max_startups_rate = 100,
+  .warn = FALSE,
+};
+
+static const StartupFixture fixture_double = {
+  .str = "20:50",
+  .max_startups = 20,
+  .max_startups_begin = 20,
+  .max_startups_rate = 100,
+  .warn = FALSE,
+};
+
+static const StartupFixture fixture_unlimited = {
+  .str = "0",
+  .max_startups = 0,
+  .max_startups_begin = 0,
+  .max_startups_rate = 100,
+  .warn = FALSE,
+};
+
+static const StartupFixture fixture_bad = {
+  .str = "bad",
+  .max_startups = 10,
+  .max_startups_begin = 10,
+  .max_startups_rate = 100,
+  .warn = TRUE,
+};
+
+static const StartupFixture fixture_bad_rate = {
+  .str = "20:101:40",
+  .max_startups = 10,
+  .max_startups_begin = 10,
+  .max_startups_rate = 100,
+  .warn = TRUE,
+};
+
+static const StartupFixture fixture_bad_startups = {
+  .str = "40:101:20",
+  .max_startups = 10,
+  .max_startups_begin = 10,
+  .max_startups_rate = 100,
+  .warn = TRUE,
+};
+
+static const StartupFixture fixture_bad_negative = {
+  .str = "-40:101:20",
+  .max_startups = 10,
+  .max_startups_begin = 10,
+  .max_startups_rate = 100,
+  .warn = TRUE,
+};
+
+static const StartupFixture fixture_bad_too_many = {
+  .str = "40:101:20:50:50",
+  .max_startups = 10,
+  .max_startups_begin = 10,
+  .max_startups_rate = 100,
+  .warn = TRUE,
+};
+
+static void
+test_max_startups_conf (Test *test,
+                        gconstpointer data)
+{
+  const StartupFixture *fix = data;
+  g_assert_cmpuint (fix->max_startups_begin, ==, test->auth->max_startups_begin);
+  g_assert_cmpuint (fix->max_startups,  ==, test->auth->max_startups);
+  g_assert_cmpuint (fix->max_startups_rate,  ==, test->auth->max_startups_rate);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -518,5 +693,25 @@ main (int argc,
               setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/bad-command", Test, &fixture_bad_command,
               setup_normal, test_bad_command, teardown_normal);
+  g_test_add ("/auth/max-startups", Test, NULL,
+              setup_normal, test_max_startups, teardown_normal);
+  g_test_add ("/auth/max-startups-normal", Test, &fixture_normal,
+              setup_startups, test_max_startups_conf, teardown_startups);
+  g_test_add ("/auth/max-startups-single", Test, &fixture_single,
+              setup_startups, test_max_startups_conf, teardown_startups);
+  g_test_add ("/auth/max-startups-double", Test, &fixture_double,
+              setup_startups, test_max_startups_conf, teardown_startups);
+  g_test_add ("/auth/max-startups-unlimited", Test, &fixture_unlimited,
+              setup_startups, test_max_startups_conf, teardown_startups);
+  g_test_add ("/auth/max-startups-bad", Test, &fixture_bad,
+              setup_startups, test_max_startups_conf, teardown_startups);
+  g_test_add ("/auth/max-startups-bad-rate", Test, &fixture_bad_rate,
+              setup_startups, test_max_startups_conf, teardown_startups);
+  g_test_add ("/auth/max-startups-bad-startups", Test, &fixture_bad_startups,
+              setup_startups, test_max_startups_conf, teardown_startups);
+  g_test_add ("/auth/max-startups-bad-negative", Test, &fixture_bad_negative,
+              setup_startups, test_max_startups_conf, teardown_startups);
+  g_test_add ("/auth/max-startups-too-many", Test, &fixture_bad_too_many,
+              setup_startups, test_max_startups_conf, teardown_startups);
   return g_test_run ();
 }

@@ -92,3 +92,12 @@ If not provided host will default to 127.0.0.1
 # None
 
 The ```none``` action forces an immediate authentication denied message.
+
+# Limits
+
+Like ```sshd``` cockpit can be configured to limit the number of concurrent
+login attempts allowed. This is done by adding a ```MaxStartups```
+option to the ```WebService``` section of your cockpit configuration.
+Additional connections will be dropped until authentication succeeds or
+the connections are closed. See the man page for cockpit.conf for more
+details. By default the limit is set to 10.

@@ -38,19 +38,12 @@
   <refsect1><title>DESCRIPTION</title>
   <para>
     Cockpit can be configured via /etc/cockpit/cockpit.conf.  That file has a INI
-    file syntax and thus contains key / value pairs, grouped into topical groups.
-
-    For example, to set the "group" key in the "login" group to the
-    value "adm", place this into /etc/cockpit/cockpit.conf:
-
-<programlisting>
-[login]
-group = adm
-</programlisting>
-
+    file syntax and thus contains key / value pairs, grouped into topical groups. See the
+    examples below for details..
   </para>
 
-  <para>Note: The port that cockpit listens on cannot be changed in this file. To change the port change the systemd <filename>cockpit.socket</filename> file.</para>
+  <para>Note: The port that cockpit listens on cannot be changed in this file. To change
+    the port change the systemd <filename>cockpit.socket</filename> file.</para>
   </refsect1>
 
   <refsect1 id="webservice">

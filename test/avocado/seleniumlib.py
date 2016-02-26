@@ -104,7 +104,11 @@ class SeleniumTest(Test):
             self.driver.close()
             self.driver.quit()
         except Exception as e:
-            raise Exception('ERR: Unable to close WEBdriver', str(e))
+            self.get_debug_logs()
+            if self.error:
+                raise Exception('ERR: Unable to close WEBdriver', str(e))
+            else:
+                self.log.info('ERR: Unable to close WEBdriver: {0}'.format(e))
 
     def get_debug_logs(self, logs=['browser','driver','client','server']):
         for log in logs:

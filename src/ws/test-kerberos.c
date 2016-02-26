@@ -118,6 +118,9 @@ static void
 teardown (TestCase *test,
           gconstpointer data)
 {
+  if (!mock_kdc_available)
+    return;
+
   if (test->ccache)
     krb5_cc_close (test->krb, test->ccache);
   if (test->ccache_name)
@@ -303,7 +306,7 @@ test_authenticate (TestCase *test,
 
   if (!mock_kdc_available)
     {
-      cockpit_test_skip ("kdc not available to test against");
+      cockpit_test_skip ("mock kdc not available to test against");
       return;
     }
 
@@ -533,7 +536,8 @@ main (int argc,
   /* Try to debug crashing during tests */
   signal (SIGABRT, cockpit_test_signal_backtrace);
 
-  mock_kdc_start ();
+  if (g_strcmp0 (g_get_user_name (), "root") != 0)
+    mock_kdc_start ();
 
   g_test_add ("/kerberos/authenticate", TestCase, NULL,
               setup, test_authenticate, teardown);

@@ -153,6 +153,10 @@ cockpit_set_journal_logging (const gchar *stderr_domain,
 {
   int fd;
 
+  /* Don't log to journal while being tested by test-server */
+  if (g_getenv ("COCKPIT_TEST_SERVER_PORT") != NULL)
+    only = FALSE;
+
   old_handler = g_log_set_default_handler (cockpit_journal_log_handler, NULL);
 
   /* SELinux won't let us always open the sd_journal_stream_fd

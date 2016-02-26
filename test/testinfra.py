@@ -40,7 +40,7 @@ TOKEN = "~/.config/github-token"
 topdir = os.path.normpath(os.path.dirname(os.path.realpath(__file__)))
 
 # the user name is accepted if it's found in either list
-WHITELIST = os.path.join(topdir, "files/github-whitelist")
+WHITELIST = os.path.join(topdir, "github-whitelist")
 WHITELIST_LOCAL = "~/.config/github-whitelist"
 
 HOSTNAME = socket.gethostname().split(".")[0]

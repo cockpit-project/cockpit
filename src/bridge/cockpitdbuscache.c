@@ -1273,6 +1273,7 @@ cockpit_dbus_cache_finalize (GObject *object)
   CockpitDBusCache *self = COCKPIT_DBUS_CACHE (object);
 
   g_clear_object (&self->connection);
+  g_object_unref (self->cancellable);
 
   g_free (self->name);
   g_free (self->logname);
@@ -1287,6 +1288,7 @@ cockpit_dbus_cache_finalize (GObject *object)
 
   g_hash_table_unref (self->introsent);
   g_hash_table_unref (self->introspected);
+  g_hash_table_unref (self->cache);
 
   g_hash_table_destroy (self->interned);
   g_list_free_full (self->trash, g_free);
@@ -1514,6 +1516,8 @@ process_introspect_children (CockpitDBusCache *self,
                                 NULL, NULL, NULL);
             }
         }
+
+      g_free (child_path);
     }
 
   /* Anything remaining in snapshot stays */

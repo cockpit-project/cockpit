@@ -23,7 +23,7 @@ import sys
 
 sys.dont_write_bytecode = True
 
-import testinfra
+from common import testinfra
 
 def main():
     parser = argparse.ArgumentParser(description='Test infrastructure: scan and update status of pull requests on github')

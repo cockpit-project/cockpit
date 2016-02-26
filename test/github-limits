@@ -24,7 +24,7 @@ import sys
 
 sys.dont_write_bytecode = True
 
-import testinfra
+from common import testinfra
 
 def httpdate(dt):
     """Return a string representation of a date according to RFC 1123

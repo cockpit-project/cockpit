@@ -189,7 +189,7 @@ class TestDocker(MachineCase):
 
         # Create an updated image, expose a port
         m.execute("mkdir /var/tmp/container-probe")
-        m.upload(["files/listen-on-port.sh"], "/var/tmp/container-probe")
+        m.upload(["verify/files/listen-on-port.sh"], "/var/tmp/container-probe")
         m.execute("""echo -e '
 FROM busybox
 MAINTAINER cockpit

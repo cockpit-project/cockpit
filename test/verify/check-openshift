@@ -51,7 +51,7 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
         self.openshift = self.new_machine(image="openshift")
         self.openshift.start()
         self.openshift.wait_boot()
-        self.openshift.upload(["files/mock-app-openshift.json"], "/tmp")
+        self.openshift.upload(["verify/files/mock-app-openshift.json"], "/tmp")
         super(TestOpenshift, self).setUp()
 
         tmpfile = os.path.join(self.tmpdir, "config")

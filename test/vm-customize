@@ -22,8 +22,8 @@ import re
 import sys
 import subprocess
 
-import testinfra
-import testvm
+from common import testinfra
+from common import testvm
 
 parser = argparse.ArgumentParser(
         description='Run command inside or install packages into a Cockpit virtual machine',

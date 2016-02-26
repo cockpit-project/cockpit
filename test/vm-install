@@ -21,8 +21,8 @@ import os
 import sys
 import subprocess
 
-import testvm
-import testinfra
+from common import testvm
+from common import testinfra
 
 parser = argparse.ArgumentParser(description='Install Cockpit on a virtual machine')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
@@ -39,8 +39,8 @@ build_image = not args.install_only and (args.build_image or args.image)
 
 def upload_scripts(machine):
     machine.execute("rm -rf /var/lib/testvm")
-    machine.upload([ "guest/lib" ], "/var/lib/testvm")
-    machine.upload([ "./guest/%s.install" % machine.image ], "/var/tmp")
+    machine.upload([ os.path.join(testinfra.TEST_DIR, "images", "scripts", "lib") ], "/var/lib/testvm")
+    machine.upload([ os.path.join(testinfra.TEST_DIR, "images", "scripts", "%s.install" % machine.image) ], "/var/tmp")
     if args.containers:
         machine.upload(["../containers"], "/var/tmp")
 

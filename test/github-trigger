@@ -5,7 +5,7 @@ import sys
 
 sys.dont_write_bytecode = True
 
-import testinfra
+from common import testinfra
 
 def trigger_image(github, opts):
     title = testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(opts.image)

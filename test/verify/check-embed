@@ -20,6 +20,8 @@
 
 import parent
 from testlib import *
+import testinfra
+
 import os
 
 class TestEmbed(MachineCase):
@@ -29,7 +31,7 @@ class TestEmbed(MachineCase):
 
         m.start_cockpit()
 
-        b.open("file://%s/files/embed-cockpit.html" % os.path.realpath("."))
+        b.open("file://%s/verify/files/embed-cockpit.html" % testinfra.TEST_DIR)
         b.wait_present("#embed-loaded")
         b.set_val("#embed-address", "http://" + m.address)
         b.click("#embed-full")

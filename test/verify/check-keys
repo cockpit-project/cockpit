@@ -169,10 +169,10 @@ class TestKeys(MachineCase):
         # Put all the keys in place
         m.execute("mkdir -p /home/admin/.ssh")
         m.upload([
-            "files/ssh/id_rsa",
-            "files/ssh/id_dsa",
-            "files/ssh/id_rsa.pub",
-            "files/ssh/id_dsa.pub"
+            "verify/files/ssh/id_rsa",
+            "verify/files/ssh/id_dsa",
+            "verify/files/ssh/id_rsa.pub",
+            "verify/files/ssh/id_dsa.pub"
         ], "/home/admin/.ssh/")
         m.execute("chmod 600 /home/admin/.ssh/*")
         m.execute("chown -R admin:admin /home/admin/.ssh")

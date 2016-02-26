@@ -30,11 +30,11 @@ import glob
 # the directory structure breaks on the second run with .pyc files
 sys.dont_write_bytecode = True
 
-import testinfra
-import testvm
-
-topdir = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 sys.path.append(os.path.abspath(os.path.dirname(os.path.realpath(__file__))))
+
+from common import testinfra
+from common import testvm
 
 machine_test_dir = "/tmp/avocado_tests"
 
@@ -52,7 +52,8 @@ def prepare_avocado_tests(machine):
     """ Upload all avocado related files and create the results directory
     """
     machine.execute(command="mkdir -p " + avocado_results_dir)
-    machine.upload([os.path.join(machine.test_dir, "avocado")], machine_test_dir)
+    machine.upload(["avocado"], machine_test_dir)
+    machine.execute(command="ls -l /tmp/avocado_tests")
 
 def tap_output(machine):
     try:
@@ -175,7 +176,7 @@ def run_avocado(avocado_tests, verbose, browser, download_logs):
             selenium.wait_boot()
 
             # start selenium on the server
-            selenium.upload(["./guest/selenium_start.sh"], "/root")
+            selenium.upload([ "avocado/selenium_start.sh"], "/root")
             selenium.execute(command="/root/selenium_start.sh")
 
         machine.execute("adduser test")
@@ -227,10 +228,10 @@ def main():
     opts = parser.parse_args()
     if opts.install:
         sys.stderr.write("Building and installing Cockpit ...\n")
-        subprocess.check_call([ os.path.join(topdir, "vm-download"), testinfra.DEFAULT_IMAGE, "selenium" ])
-        subprocess.check_call([ os.path.join(topdir, "vm-reset") ])
+        subprocess.check_call([ os.path.join(testinfra.TEST_DIR, "vm-download"), testinfra.DEFAULT_IMAGE, "selenium" ])
+        subprocess.check_call([ os.path.join(testinfra.TEST_DIR, "vm-reset") ])
 
-        cmd = [ os.path.join(topdir, "vm-install") ]
+        cmd = [ os.path.join(testinfra.TEST_DIR, "vm-install") ]
         if opts.verbosity:
             cmd.append("--verbose")
         if opts.quick:

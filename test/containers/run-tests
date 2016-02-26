@@ -32,8 +32,8 @@ base_dir = os.path.dirname(os.path.realpath(__file__))
 testdir = os.path.abspath(os.path.join(base_dir, ".."))
 sys.path.append(testdir)
 
-import testinfra
-import testlib
+from common import testinfra
+from common import testlib
 
 def check_valid(filename):
     name = os.path.basename(filename)

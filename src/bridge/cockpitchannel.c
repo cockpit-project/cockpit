@@ -929,28 +929,32 @@ lookup_internal (const gchar *name,
                  GSocketConnectable **connectable)
 {
   const gchar *env;
+  gboolean ret = FALSE;
+  GSocketAddress *address;
 
   g_assert (name != NULL);
   g_assert (connectable != NULL);
 
-  if (g_str_equal (name, "ssh-agent"))
+  if (internal_addresses)
+    {
+      ret = g_hash_table_lookup_extended (internal_addresses, name, NULL,
+                                          (gpointer *)connectable);
+    }
+
+  if (!ret && g_str_equal (name, "ssh-agent"))
     {
       *connectable = NULL;
       env = g_getenv ("SSH_AUTH_SOCK");
       if (env != NULL && env[0] != '\0')
-        *connectable = G_SOCKET_CONNECTABLE (g_unix_socket_address_new (env));
-      else
-        *connectable = NULL;
-      return TRUE;
+        {
+          address = g_unix_socket_address_new (env);
+          *connectable = G_SOCKET_CONNECTABLE (address);
+          cockpit_channel_internal_address ("ssh-agent", address);
+        }
+      ret = TRUE;
     }
 
-  if (internal_addresses)
-    {
-      return g_hash_table_lookup_extended (internal_addresses, name, NULL,
-                                           (gpointer *)connectable);
-    }
-
-  return FALSE;
+  return ret;
 }
 
 void

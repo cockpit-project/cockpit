@@ -64,6 +64,7 @@ arg_sit_on_failure = False
 arg_trace = False
 arg_attachments = None
 arg_revision = None
+arg_address = None
 
 def attach(filename):
     if not arg_attachments:
@@ -436,13 +437,22 @@ class MachineCase(unittest.TestCase):
         return label.replace(".", "-")
 
     def new_machine(self, image=None):
-        if not self.machine_class:
-            import testvm
-            self.machine_class = testvm.VirtMachine
-        m = self.machine_class(verbose=arg_trace, image=image, label=self.label())
-        self.addCleanup(lambda: m.kill())
-        self.machines.append(m)
-        return m
+        import testvm
+        machine_class = self.machine_class
+        if arg_address:
+            if machine_class:
+                raise unittest.SkipTest("Cannot run this test when specific machine address is specified")
+            if len(self.machines) != 0:
+                raise unittest.SkipTest("Cannot run multiple machines if a specific machine address is specified")
+            machine = testvm.Machine(address=arg_address, image=image, verbose=arg_trace, label=self.label())
+        else:
+            if not machine_class:
+                machine_class = testvm.VirtMachine
+            machine = machine_class(verbose=arg_trace, image=image, label=self.label())
+            self.addCleanup(lambda: machine.kill())
+
+        self.machines.append(machine)
+        return machine
 
     def new_browser(self, address=None, port=9090):
         browser = Browser(address = address or self.machine.address, label=self.label(), port=port)
@@ -479,11 +489,13 @@ class MachineCase(unittest.TestCase):
                 stopTestRun()
 
     def setUp(self, macaddr=None, memory_mb=None, cpus=None):
+        self.machines = [ ]
         self.machine = self.new_machine()
         self.machine.start(macaddr=macaddr, memory_mb=memory_mb, cpus=cpus)
-        if arg_trace:
-            print "starting machine %s" % (self.machine.address)
-        self.machine.wait_boot()
+        if not arg_address:
+            if arg_trace:
+                print "starting machine %s" % (self.machine.address)
+            self.machine.wait_boot()
         self.browser = self.new_browser()
         self.tmpdir = tempfile.mkdtemp()
 
@@ -993,6 +1005,7 @@ def test_main(opts=None, suite=None, attachments=None, **kwargs):
     global arg_trace
     global arg_sit_on_failure
     global arg_attachments
+    global arg_address
 
     # Turn off python stdout buffering
     sys.stdout.flush()
@@ -1000,6 +1013,9 @@ def test_main(opts=None, suite=None, attachments=None, **kwargs):
 
     standalone = opts is None
     parser = arg_parser()
+    parser.add_argument('--machine', dest="address", action="store",
+                        default=None, help="Run this test against an already running machine")
+
     if standalone:
         opts = parser.parse_args()
 
@@ -1008,6 +1024,7 @@ def test_main(opts=None, suite=None, attachments=None, **kwargs):
 
     arg_trace = opts.trace
     arg_sit_on_failure = opts.sit
+    arg_address = getattr(opts, "address", None)
 
     arg_attachments = os.environ.get("TEST_ATTACHMENTS", attachments)
     if arg_attachments and not os.path.exists(arg_attachments):

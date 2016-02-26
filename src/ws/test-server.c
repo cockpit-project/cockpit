@@ -240,6 +240,7 @@ on_handle_mock (CockpitWebServer *server,
  */
 
 static CockpitWebService *service;
+static CockpitPipe *bridge;
 
 static gboolean
 on_handle_stream_socket (CockpitWebServer *server,
@@ -252,7 +253,11 @@ on_handle_stream_socket (CockpitWebServer *server,
   CockpitTransport *transport;
   const gchar *query = NULL;
   CockpitCreds *creds;
-  CockpitPipe *pipe;
+  int session_stdin = -1;
+  int session_stdout = -1;
+  GError *error = NULL;
+  GPid pid = 0;
+
   gchar *value;
   gchar **env;
   gchar **argv;
@@ -275,29 +280,44 @@ on_handle_stream_socket (CockpitWebServer *server,
     }
   else
     {
+      g_clear_object (&bridge);
+
       value = g_strdup_printf ("%d", server_port);
       env = g_environ_setenv (g_get_environ (), "COCKPIT_TEST_SERVER_PORT", value, TRUE);
-
-      creds = cockpit_creds_new (g_get_user_name (), "test",
-                                 COCKPIT_CRED_CSRF_TOKEN, "myspecialtoken",
-                                 NULL);
 
       argv = g_strdupv (bridge_argv);
       if (query)
         argv[g_strv_length (argv) - 1] = g_strdup (query);
 
-      pipe = cockpit_pipe_spawn ((const gchar **)argv, (const gchar **)env, NULL, FALSE);
+      g_spawn_async_with_pipes (NULL, argv, env,
+                                G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
+                                NULL, NULL, &pid, &session_stdin, &session_stdout, NULL, &error);
 
+      g_strfreev (env);
       g_free (argv);
+      g_free (value);
 
-      transport = cockpit_pipe_transport_new (pipe);
+      if (error)
+        {
+          g_critical ("couldn't run bridge %s: %s", bridge_argv[0], error->message);
+          return FALSE;
+        }
+
+      bridge = g_object_new (COCKPIT_TYPE_PIPE,
+                             "name", "test-server-bridge",
+                             "in-fd", session_stdout,
+                             "out-fd", session_stdin,
+                             "pid", pid,
+                             NULL);
+
+      creds = cockpit_creds_new (g_get_user_name (), "test",
+                                 COCKPIT_CRED_CSRF_TOKEN, "myspecialtoken",
+                                 NULL);
+
+      transport = cockpit_pipe_transport_new (bridge);
       service = cockpit_web_service_new (creds, transport);
       cockpit_creds_unref (creds);
       g_object_unref (transport);
-      g_object_unref (pipe);
-
-      g_free (value);
-      g_strfreev (env);
 
       /* Clear the pointer automatically when service is done */
       g_object_add_weak_pointer (G_OBJECT (service), (gpointer *)&service);
@@ -608,10 +628,29 @@ setup_path (const char *argv0)
   g_free (dir);
 }
 
+static void
+on_bridge_done (CockpitPipe *pipe,
+                const gchar *problem,
+                gpointer user_data)
+{
+  gint status;
+  status = cockpit_pipe_exit_status (pipe);
+  if (WIFEXITED (status))
+    exit_code = WEXITSTATUS (status);
+  else if (status != 0)
+    exit_code = 1;
+  g_main_loop_quit (loop);
+}
+
 static gboolean
 on_signal_done (gpointer data)
 {
-  g_main_loop_quit (loop);
+  if (service)
+    cockpit_web_service_disconnect (service);
+  if (bridge)
+    g_signal_connect (bridge, "close", G_CALLBACK (on_bridge_done), NULL);
+  else
+    g_main_loop_quit (loop);
   return TRUE;
 }
 
@@ -720,6 +759,7 @@ main (int argc,
   g_source_remove (sig_term);
   g_source_remove (sig_int);
 
+  g_clear_object (&bridge);
   g_clear_object (&exported);
   g_clear_object (&exported_b);
   g_clear_object (&direct_dbus_server);

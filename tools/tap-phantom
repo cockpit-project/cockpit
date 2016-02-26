@@ -27,6 +27,7 @@ var child = require("child_process");
 
 var url = null;
 var server = [];
+var proc;
 
 /*
  * Strip prefix from url
@@ -111,10 +112,14 @@ function run(url) {
 
     page.onConsoleMessage = function(msg, lineNum, sourceId) {
         /* All done with testing */
-        if (msg === "phantom-tap-done")
-            setTimeout(function() { phantom.exit(0); }, 0);
+        if (msg === "phantom-tap-done") {
+            if (proc) {
+                proc.kill("TERM");
+            } else {
+                setTimeout(function() { phantom.exit(0); }, 0);
+            }
 
-        else if (msg == "phantom-tap-error")
+        } else if (msg == "phantom-tap-error")
             setTimeout(function() { phantom.exit(1); }, 0);
 
 	else if (msg == "phantom-tap-expect-resource-error")
@@ -167,7 +172,7 @@ function launch() {
     var running = false;
     var buffer = "";
 
-    var proc = child.spawn(server[0], server.slice(1));
+    proc = child.spawn(server[0], server.slice(1));
     if (proc.pid === 0) {
        console.log("tap-phantom: couldn't spawn: " + server[0]);
        phantom.exit(127);
@@ -187,7 +192,8 @@ function launch() {
         sys.stderr.write(data);
     });
     proc.on("exit", function(code) {
-        console.log(server[0] + " exited unsuccessfully");
+	if (code != 0)
+            sys.stderr.writeLine(server[0] + " exited unsuccessfully: " + code);
         phantom.exit(code);
     });
 }

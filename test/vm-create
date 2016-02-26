@@ -31,8 +31,8 @@ import subprocess
 import sys
 import time
 
-import testvm
-import testinfra
+from common import testvm
+from common import testinfra
 
 BASE = os.path.dirname(__file__)
 
@@ -56,7 +56,7 @@ class MachineBuilder:
         if not os.path.exists(self.machine.run_dir):
             os.makedirs(self.machine.run_dir, 0750)
 
-        bootstrap_script = "./guest/%s.bootstrap" % (self.machine.image, )
+        bootstrap_script = os.path.join(testinfra.TEST_DIR, "images", "guest", "%s.bootstrap" % (self.machine.image, ))
 
         if os.path.exists(self.machine.image_file):
             os.unlink(self.machine.image_file)
@@ -72,7 +72,7 @@ class MachineBuilder:
         try:
             self.macaddr = self.machine.macaddr
             self.machine.wait_boot(wait_for_running_timeout=120)
-            self.machine.upload([ "guest/lib" ], "/var/lib/testvm")
+            self.machine.upload([ os.path.join(testinfra.TEST_DIR, "images", "scripts/lib") ], "/var/lib/testvm")
             self.machine.upload([script], "/var/tmp/SETUP")
             self.machine.upload([source], "/var/tmp")
             self.machine.upload([ "guest/lib/base" ], "/var/tmp/cockpit-base")
@@ -116,7 +116,7 @@ class MachineBuilder:
         self.bootstrap_system()
 
         # gather the scripts, separated by reboots
-        script = os.path.join(self.machine.test_dir, "guest/%s.setup" % (self.machine.image, ))
+        script = os.path.join(testinfra.TEST_DIR, "images", "guest", "%s.setup" % (self.machine.image, ))
 
         if not os.path.exists(script):
             raise testvm.Failure("Unsupported image %s: %s not found." % (self.machine.image, script))
@@ -142,8 +142,8 @@ class MachineBuilder:
             raise testvm.Failure("Unable to verify that machine boot works.")
 
     def save(self):
-        data_dir = os.path.join(os.environ.get("TEST_DATA", self.machine.test_dir), "images")
-        images_dir = os.path.join(self.machine.test_dir, "images")
+        data_dir = os.path.join(os.environ.get("TEST_DATA", testinfra.TEST_DIR), "images")
+        images_dir = os.path.join(testinfra.TEST_DIR, "images")
 
         if not os.path.exists(data_dir):
             os.makedirs(data_dir, 0750)

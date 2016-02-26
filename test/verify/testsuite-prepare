@@ -3,9 +3,23 @@
 set -e
 
 SELF=testsuite-prepare
-. ./testlib.sh
 
 vm_install_opts=
+
+# TODO: This really needs to be migrated to python and use testinfra
+TEST_OS=${TEST_OS:-fedora-23}
+TEST_RUN=./run
+
+warning()
+{
+       echo >&2 "$SELF: $@"
+}
+
+silent()
+{
+       "$@" > /dev/null 2> /dev/null
+       return $?
+}
 
 usage()
 {

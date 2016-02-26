@@ -26,7 +26,6 @@ import imp
 from avocado.utils import process
 from testlib import Browser
 
-
 class Cockpit():
 
     def __init__(self,):

@@ -96,7 +96,7 @@ class TestMetrics(MachineCase):
         # we only get as much as the qemu process itself gets.
 
         base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        m.upload([ base_dir + "/files/measure-cpu" ], "/var/lib/testvm/")
+        m.upload([ "verify/files/measure-cpu" ], "/var/lib/testvm/")
 
         cpu_start = m.execute("/var/lib/testvm/measure-cpu start")
         cpu_pid = m.spawn("while true; do true; done", "cpu-load.log")

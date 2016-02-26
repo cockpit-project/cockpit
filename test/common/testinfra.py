@@ -37,7 +37,7 @@ from testpulltask import GithubPullTask
 from testimagetask import GithubImageTask
 
 TOKEN = "~/.config/github-token"
-TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(__file__)))
+TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
 
 # the user name is accepted if it's found in either list
 WHITELIST = os.path.join(TEST_DIR, "github-whitelist")

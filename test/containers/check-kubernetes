@@ -29,9 +29,9 @@ try:
 except:
     sys.path.append(test_dir)
 
-from testlib import *
-from testvm import VirtMachine
-import kubelib
+from common.testlib import *
+from common.testvm import VirtMachine
+from verify import kubelib
 
 class KubernetesContainerMachine(VirtMachine):
 
@@ -132,7 +132,7 @@ class KubernetesCase(KubernetesContainerCase, kubelib.KubernetesCommonTests):
         self.start_kubernetes()
 
         self.wait_api_server(port=6443, scheme='https')
-        config = os.path.join(test_dir, "files/mock-k8s-tiny-app.json")
+        config = os.path.join(test_dir, "verify/files/mock-k8s-tiny-app.json")
         self.machine.upload([config], "/tmp")
         self.wait_api_server(port=6443, scheme='https')
 

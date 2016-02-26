@@ -1,1 +1,1 @@
-../testvm.py
+../common/testvm.py

@@ -20,7 +20,7 @@
 
 import os
 
-from testlib import *
+from common.testlib import *
 
 base_dir = os.path.dirname(os.path.realpath(__file__))
 

@@ -97,7 +97,6 @@ class Machine:
         self.arch = "x86_64"
 
         self.image = image or testinfra.DEFAULT_IMAGE
-        self.test_dir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
         self.vm_username = "root"
         self.address = address
         self.label = label or "UNKNOWN"
@@ -189,7 +188,7 @@ class Machine:
     def _start_ssh_master(self):
         self._kill_ssh_master()
 
-        control = os.path.join(self.test_dir, "tmp", "ssh-%h-%p-%r-" + str(os.getpid()))
+        control = os.path.join(testinfra.TEST_DIR, "tmp", "ssh-%h-%p-%r-" + str(os.getpid()))
 
         cmd = [
             "ssh",
@@ -399,7 +398,12 @@ class Machine:
           ]
         if not self.verbose:
             cmd += [ "-q" ]
-        cmd += sources + [ "%s@[%s]:%s" % (self.vm_username, self.address, dest) ]
+
+        def relative_to_test_dir(path):
+            return os.path.join(testinfra.TEST_DIR, path)
+        cmd += map(relative_to_test_dir, sources)
+
+        cmd += [ "%s@[%s]:%s" % (self.vm_username, self.address, dest) ]
 
         self.message("Uploading", ", ".join(sources))
         self.message(" ".join(cmd))
@@ -486,7 +490,7 @@ class Machine:
         return int(self.execute("{ (%s) >/var/log/%s 2>&1 & }; echo $!" % (shell_cmd, log_id)))
 
     def _calc_identity(self):
-        identity = os.path.join(self.test_dir, "guest/identity")
+        identity = os.path.join(testinfra.TEST_DIR, "common/identity")
         os.chmod(identity, 0600)
         return identity
 
@@ -809,12 +813,12 @@ class VirtMachine(Machine):
     def __init__(self, **args):
         Machine.__init__(self, **args)
 
-        self.run_dir = os.path.join(self.test_dir, "tmp", "run")
+        self.run_dir = os.path.join(testinfra.TEST_DIR, "tmp", "run")
 
-        self.image_base = os.path.join(self.test_dir, "images", self.image)
+        self.image_base = os.path.join(testinfra.TEST_DIR, "images", self.image)
         self.image_file = os.path.join(self.run_dir, "%s.qcow2" % (self.image))
 
-        self._network_description = etree.parse(open(os.path.join(self.test_dir, "guest/network-cockpit.xml")))
+        self._network_description = etree.parse(open(os.path.join(testinfra.TEST_DIR, "common/network-cockpit.xml")))
 
         self.test_disk_desc_original = None
 
@@ -865,7 +869,7 @@ class VirtMachine(Machine):
     # only read the disk template once per machine
     def _domain_disk_template(self):
         if not self.test_disk_desc_original:
-            with open(os.path.join(self.test_dir, "guest/test-domain-disk.xml"), "r") as desc_file:
+            with open(os.path.join(testinfra.TEST_DIR, "common/test-domain-disk.xml"), "r") as desc_file:
                 self.test_disk_desc_original = desc_file.read()
         return self.test_disk_desc_original
 
@@ -961,7 +965,7 @@ class VirtMachine(Machine):
 
         # domain xml
         test_domain_desc_original = ""
-        with open(os.path.join(self.test_dir, "guest/test-domain.xml"), "r") as dom_desc:
+        with open(os.path.join(testinfra.TEST_DIR, "common/test-domain.xml"), "r") as dom_desc:
             test_domain_desc_original = dom_desc.read()
 
         # add the virtual machine
@@ -983,7 +987,7 @@ class VirtMachine(Machine):
                                             "drive": image_to_use,
                                             "disk_serial": "ROOT",
                                             "mac": mac_desc,
-                                            "iso": os.path.join(self.test_dir, "guest/cloud-init.iso")
+                                            "iso": os.path.join(testinfra.TEST_DIR, "common/cloud-init.iso")
                                           }
             # allow debug output for this domain
             self.event_handler.allow_domain_debug_output(domain_name)

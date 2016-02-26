@@ -56,8 +56,6 @@ __all__ = (
     'wait'
     )
 
-topdir = os.path.normpath(os.path.dirname(os.path.realpath(__file__)))
-
 # Command line options
 
 arg_sit_on_failure = False
@@ -691,10 +689,11 @@ class Phantom:
         environ = os.environ.copy()
         if self.lang:
             environ["LC_ALL"] = self.lang
+        path = os.path.dirname(__file__)
         command = [
-            "%s/phantom-command" % topdir,
-            "%s/phantom-driver.js" % topdir,
-            "%s/phantom-lib.js" % topdir
+            "%s/phantom-command" % path,
+            "%s/phantom-driver.js" % path,
+            "%s/phantom-lib.js" % path
         ]
         self._driver = subprocess.Popen(command, env=environ,
                                         stdout=subprocess.PIPE,
@@ -749,8 +748,8 @@ class Naughty(object):
         return True
 
     def check_issue(self, trace):
-        directories =  [ os.path.join(topdir, "naughty") ]
-        image_naughty = os.path.join(topdir, "naughty-" + testinfra.DEFAULT_IMAGE)
+        directories =  [ os.path.join(testinfra.TEST_DIR, "verify", "naughty") ]
+        image_naughty = os.path.join(testinfra.TEST_DIR, "verify", "naughty-" + testinfra.DEFAULT_IMAGE)
         if os.path.exists(image_naughty):
             directories.append(image_naughty)
         trace = self.normalize_traceback(trace)

@@ -146,11 +146,11 @@ valgrind-suppressions: $(VALGRIND_SUPPRESSIONS)
 
 check-memory: valgrind-suppressions
 	$(MAKE) LOG_FLAGS="-- valgrind $(VALGRIND_ARGS)" \
-	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS) cockpit-bridge" \
+	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
 		$(AM_MAKEFLAGS) check
 recheck-memory: valgrind-suppressions
 	$(MAKE) LOG_FLAGS="-- valgrind $(VALGRIND_ARGS)" \
-	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS) cockpit-bridge" \
+	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
 		$(AM_MAKEFLAGS) recheck
 
 SED_SUBST = sed \

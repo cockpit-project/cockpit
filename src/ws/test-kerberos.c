@@ -95,7 +95,6 @@ setup (TestCase *test,
 
   krb5_free_principal (test->krb, principal);
   krb5_get_init_creds_opt_free (test->krb, opt);
-  krb5_free_cred_contents (test->krb, &creds);
 
   g_assert (code != ENOMEM);
   if (code != 0)
@@ -104,6 +103,7 @@ setup (TestCase *test,
       return;
     }
 
+  krb5_free_cred_contents (test->krb, &creds);
   g_free (name);
 
   if (krb5_cc_get_full_name (test->krb, test->ccache, &test->ccache_name) != 0)

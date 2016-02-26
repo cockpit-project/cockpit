@@ -26,7 +26,7 @@
 
 #include <string.h>
 
-#define DEBUG_BATCHES 1
+#define DEBUG_BATCHES 0
 
 /*
  * This is a cache of properties which tracks updates. The best way to do

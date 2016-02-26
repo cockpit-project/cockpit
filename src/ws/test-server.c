@@ -303,7 +303,7 @@ on_handle_stream_socket (CockpitWebServer *server,
       g_object_add_weak_pointer (G_OBJECT (service), (gpointer *)&service);
     }
 
-  cockpit_web_service_socket (service, "/cockpit/socket", io_stream, headers, input);
+  cockpit_web_service_socket (service, path, io_stream, headers, input);
 
   /* Keeps ref on itself until it closes */
   g_object_unref (service);
@@ -334,7 +334,6 @@ static void
 on_echo_socket_close (WebSocketConnection *ws,
                       gpointer user_data)
 {
-  g_message ("SOCKET CLOSING");
   g_object_unref (ws);
 }
 
@@ -369,7 +368,6 @@ on_handle_stream_external (CockpitWebServer *server,
       url = g_strdup_printf ("ws://localhost:%u%s", server_port, path);
       origins[0] = g_strdup_printf ("http://localhost:%u", server_port);
 
-      g_message ("RUNNING SOCKET %s %s", url, origins[0]);
       ws = web_socket_server_new_for_stream (url, (const gchar **)origins,
                                              protocols, io_stream, headers, input);
 

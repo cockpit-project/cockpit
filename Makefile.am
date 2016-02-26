@@ -1,7 +1,6 @@
 NULL =
 man_MANS =
 BUILT_SOURCES =
-CLEANFILES = $(man_MANS)
 bin_PROGRAMS =
 check_SCRIPTS =
 check_PROGRAMS =
@@ -16,6 +15,11 @@ TESTS =
 
 dist_systemdunit_DATA   =
 nodist_systemdunit_DATA =
+
+CLEANFILES = \
+	$(man_MANS) \
+	valgrind-suppressions \
+	$(NULL)
 
 DISTCLEANFILES = \
 	$(srcdir)/Makefile \

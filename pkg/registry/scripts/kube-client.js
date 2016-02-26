@@ -608,10 +608,10 @@
                         }
                     };
                 },
-                handle: function handle(objects, removed) {
+                handle: function handle(objects, removed, kind) {
                     if (!angular.isArray(objects))
                         objects = [ objects ];
-                    handleObjects(objects, removed);
+                    handleObjects(objects, removed, kind);
                 },
                 resolve: function resolve(/* ... */) {
                     return resourcePath(arguments);

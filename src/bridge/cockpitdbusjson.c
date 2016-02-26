@@ -783,6 +783,8 @@ build_json_error (GError *error)
   g_dbus_error_strip_remote_error (error);
 
   json_array_add_string_element (reply, error_name != NULL ? error_name : "");
+  g_free (error_name);
+
   if (error->message)
     json_array_add_string_element (args, error->message);
   json_array_add_array_element (reply, args);
@@ -1140,7 +1142,7 @@ handle_dbus_call_on_interface (CockpitDBusJson *self,
 {
   GVariant *parameters = NULL;
   GError *error = NULL;
-  GDBusMessage *message;
+  GDBusMessage *message = NULL;
 
   g_return_if_fail (call->param_type != NULL);
   parameters = parse_json (call->args, call->param_type, &error);
@@ -1177,6 +1179,8 @@ out:
     }
   if (call)
     call_data_free (call);
+  if (message)
+    g_object_unref (message);
 }
 
 static void

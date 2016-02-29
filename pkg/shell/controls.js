@@ -342,7 +342,7 @@ module.Slider = function Slider() {
     var div = $("<div class='slider'>").
         append($("<div class='slider-bar'>").
             append($("<div class='slider-thumb'>")));
-    setup_slider(div);
+    setup_slider(div[0]);
     return div;
 };
 

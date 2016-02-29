@@ -184,8 +184,18 @@ else
   AC_CHECK_HEADER([pcp/pmapi.h], ,
     [AC_MSG_ERROR([Couldn't find pcp headers $disable_msg])]
   )
+  AC_CHECK_HEADERS([pcp/import.h pcp/pmda.h], ,
+    [AC_MSG_ERROR([Couldn't find pcp headers $disable_msg])],
+    [#include <pcp/pmapi.h>]
+  )
   AC_CHECK_LIB(pcp, pmNewContext, [ true ],
     [AC_MSG_ERROR([Couldn't find pcp library $disable_msg])]
+  )
+  AC_CHECK_LIB(pcp_pmda, pmdaCacheLookup, [ true ],
+    [AC_MSG_ERROR([Couldn't find pcp_pmda library $disable_msg])]
+  )
+  AC_CHECK_LIB(pcp_import, pmiStart, [ true ],
+    [AC_MSG_ERROR([Couldn't find pcp_import library $disable_msg])]
   )
   COCKPIT_PCP_LIBS="$COCKPIT_PCP_LIBS -lpcp -lm"
 fi

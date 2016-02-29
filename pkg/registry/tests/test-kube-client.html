@@ -474,6 +474,22 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         }
     ]);
 
+    kubeTest("lookup host", 2, FIXTURE_BASIC, [
+        "kubeLoader",
+        "kubeSelect",
+        function(loader, select) {
+            return loader.watch("pods").then(function() {
+                /* Get the item */
+                var item = select().host("127.0.0.1").one();
+                deepEqual(item.metadata.selfLink, "/api/v1/namespaces/default/pods/database-1", "correct pod");
+
+                /* Shouldn't match */
+                item = select().host("127.0.0.2").one();
+                strictEqual(item, null, "mismatch host");
+            });
+        }
+    ]);
+
     kubeTest("lookup", 6, FIXTURE_LARGE, [
         "kubeLoader",
         "kubeSelect",

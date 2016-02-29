@@ -655,6 +655,7 @@
      *  .kind(kind)       Limit to specified kind
      *  .namespace(ns)    Limit to specified namespace
      *  .name(name)       Limit to this name
+     *  .host(name)       Limit to this host
      *  .label(selector)  Limit to objects whose label match selector
      *  .one()            Choose one of results, or null
      *  .extend(obj)      Extend obj with the results
@@ -951,6 +952,18 @@
                     if (typeof arg === "string")
                         return arg;
                     return arg.kind;
+                }
+            });
+
+            /* The host filter */
+            registerFilter({
+                name: "host",
+                digest: function(arg) {
+                    if (typeof arg === "string")
+                        return arg;
+
+                    var spec = arg.spec;
+                    return spec ? spec.nodeName : null;
                 }
             });
 

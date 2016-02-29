@@ -236,6 +236,19 @@ dup_string (const char *str,
   return buf;
 }
 
+static char *
+trim_trailing_chars (const char *str,
+                     char c)
+{
+  size_t n;
+
+  n = strlen (str);
+  while (n > 0 && str[n - 1] == c)
+    n--;
+
+  return dup_string (str, n);
+}
+
 static const char *
 gssapi_strerror (OM_uint32 major_status,
                  OM_uint32 minor_status)
@@ -502,7 +515,14 @@ perform_basic (void)
     {
       write_auth_string ("user", pwd->pw_name);
       if (pwd->pw_gecos)
-        write_auth_string ("full-name", pwd->pw_gecos);
+        {
+          char *name;
+
+          name = trim_trailing_chars (pwd->pw_name, ',');
+          write_auth_string ("full-name", name);
+
+          free (name);
+        }
     }
   write_auth_end ();
 
@@ -640,7 +660,14 @@ out:
     {
       write_auth_string ("user", pwd->pw_name);
       if (pwd->pw_gecos)
-        write_auth_string ("full-name", pwd->pw_gecos);
+        {
+          char *name;
+
+          name = trim_trailing_chars (pwd->pw_name, ',');
+          write_auth_string ("full-name", name);
+
+          free (name);
+        }
     }
   if (output.value)
     write_auth_hex ("gssapi-output", output.value, output.length);

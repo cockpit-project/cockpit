@@ -332,7 +332,8 @@ PageAccounts.prototype = {
         list.empty();
         for (var i = 0; i < this.accounts.length; i++) {
             if ((this.accounts[i]["uid"] < 1000 && this.accounts[i]["uid"] !== 0) ||
-                  this.accounts[i]["shell"] == "/sbin/nologin")
+                  this.accounts[i]["shell"].match(/^(\/usr)?\/sbin\/nologin/) ||
+                  this.accounts[i]["shell"] === '/bin/false')
                 continue;
             var img =
                 $('<div/>', { 'class': "cockpit-account-pic pficon pficon-user" });

@@ -25,6 +25,7 @@
 #include <errno.h>
 #include <grp.h>
 #include <pwd.h>
+#include <string.h>
 
 static void
 variant_table_sink (GHashTable *props,
@@ -48,11 +49,21 @@ populate_passwd_props (GHashTable *props,
     }
   else
     {
+      size_t n;
+      gchar *full;
+
+      n = strlen (pw->pw_gecos);
+      while (n > 0 && pw->pw_gecos[n - 1] == ',')
+        n--;
+      full = g_strndup (pw->pw_gecos, n);
+
       variant_table_sink (props, "Id", g_variant_new_int64 (pw->pw_uid));
       variant_table_sink (props, "Name", g_variant_new_string (pw->pw_name));
-      variant_table_sink (props, "Full", g_variant_new_string (pw->pw_gecos));
+      variant_table_sink (props, "Full", g_variant_new_string (full));
       variant_table_sink (props, "Home", g_variant_new_string (pw->pw_dir));
       variant_table_sink (props, "Shell", g_variant_new_string (pw->pw_shell));
+
+      g_free (full);
     }
 }
 

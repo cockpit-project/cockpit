@@ -339,7 +339,9 @@ type_option (const gchar *type,
  */
 
 typedef struct {
-  CockpitPipe *process_pipe;
+  gint process_in;
+  gint process_out;
+  GPid process_pid;
   CockpitPipe *auth_pipe;
   GBytes *authorization;
   gchar *remote_peer;
@@ -352,8 +354,12 @@ static void
 spawn_login_data_free (gpointer data)
 {
   SpawnLoginData *sl = data;
-  if (sl->process_pipe)
-    g_object_unref (sl->process_pipe);
+  if (sl->process_in != -1)
+    close (sl->process_in);
+  if (sl->process_out != -1)
+    close (sl->process_out);
+  if (sl->process_pid != 0)
+    g_child_watch_add (sl->process_pid, (GChildWatchFunc)g_spawn_close_pid, NULL);
   if (sl->auth_pipe)
     g_object_unref (sl->auth_pipe);
   if (sl->authorization)
@@ -383,60 +389,6 @@ spawn_child_setup (gpointer data)
     }
 
   close (auth_fd);
-}
-
-static CockpitPipe *
-spawn_process (const gchar *command,
-               const gchar *type,
-               GBytes *input,
-               const gchar *remote_peer,
-               CockpitPipe **auth_pipe)
-{
-  CockpitPipe *pipe = NULL;
-  int pwfds[2] = { -1, -1 };
-  GError *error = NULL;
-  GPid pid = 0;
-  gint in_fd = -1;
-  gint out_fd = -1;
-
-  const gchar *argv[] = {
-      command,
-      type,
-      remote_peer ? remote_peer : "",
-      NULL,
-  };
-
-  g_return_val_if_fail (input != NULL, NULL);
-
-  if (socketpair (PF_UNIX, SOCK_STREAM, 0, pwfds) < 0)
-    g_return_val_if_reached (NULL);
-
-  g_debug ("spawning %s", argv[0]);
-
-  if (!g_spawn_async_with_pipes (NULL, (gchar **) argv, NULL,
-                                 G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_LEAVE_DESCRIPTORS_OPEN,
-                                 spawn_child_setup, GINT_TO_POINTER (pwfds[1]),
-                                 &pid, &in_fd, &out_fd, NULL, &error))
-    {
-      g_warning ("failed to start %s: %s", argv[0], error->message);
-      g_error_free (error);
-      return NULL;
-    }
-
-  pipe = g_object_new (COCKPIT_TYPE_PIPE,
-                       "name", "localhost",
-                       "pid", pid,
-                       "in-fd", out_fd,
-                       "out-fd", in_fd,
-                       NULL);
-
-  /* Child process end of pipe */
-  close (pwfds[1]);
-
-  *auth_pipe = cockpit_pipe_new ("auth-pipe", pwfds[0], pwfds[0]);
-  cockpit_pipe_write (*auth_pipe, input);
-  cockpit_pipe_close (*auth_pipe, NULL);
-  return pipe;
 }
 
 static void
@@ -700,6 +652,15 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
   SpawnLoginData *sl;
   GBytes *input = NULL;
   const gchar *command;
+  int pwfds[2] = { -1, -1 };
+  GError *error = NULL;
+
+  const gchar *argv[] = {
+      "command",
+      type,
+      remote_peer ? remote_peer : "",
+      NULL,
+  };
 
   result = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
                                       cockpit_auth_spawn_login_async);
@@ -716,25 +677,40 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
       sl->auth_type = g_strdup (type);
       sl->authorization = g_bytes_ref (input);
       sl->application = g_strdup (application);
-      sl->command = command;
+      argv[0] = sl->command = command;
+      sl->process_in = -1;
+      sl->process_out = -1;
 
       g_simple_async_result_set_op_res_gpointer (result, sl, spawn_login_data_free);
 
-      sl->process_pipe = spawn_process (command, type,
-                                         input, remote_peer,
-                                         &sl->auth_pipe);
+      if (socketpair (PF_UNIX, SOCK_STREAM, 0, pwfds) < 0)
+        g_return_if_reached ();
 
-      if (sl->process_pipe)
+      g_debug ("spawning %s", argv[0]);
+
+      if (g_spawn_async_with_pipes (NULL, (gchar **) argv, NULL,
+                                     G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_LEAVE_DESCRIPTORS_OPEN,
+                                     spawn_child_setup, GINT_TO_POINTER (pwfds[1]),
+                                     &sl->process_pid, &sl->process_in, &sl->process_out, NULL, &error))
         {
-          g_signal_connect (sl->auth_pipe, "close",
-                            G_CALLBACK (on_spawn_login_done), g_object_ref (result));
+          sl->auth_pipe = cockpit_pipe_new ("auth-pipe", pwfds[0], pwfds[0]);
+          cockpit_pipe_write (sl->auth_pipe, input);
+          cockpit_pipe_close (sl->auth_pipe, NULL);
+          g_signal_connect (sl->auth_pipe, "close", G_CALLBACK (on_spawn_login_done), g_object_ref (result));
         }
       else
         {
+          g_warning ("failed to start %s: %s", argv[0], error->message);
+          g_error_free (error);
+          close (pwfds[0]);
+
           g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
                                            "Internal error starting %s", command);
           g_simple_async_result_complete_in_idle (result);
         }
+
+      /* Child process end of pipe */
+      close (pwfds[1]);
     }
   else
     {
@@ -758,6 +734,7 @@ cockpit_auth_spawn_login_finish (CockpitAuth *self,
 {
   CockpitCreds *creds;
   SpawnLoginData *sl;
+  CockpitPipe *pipe;
 
   g_return_val_if_fail (g_simple_async_result_is_valid (result, G_OBJECT (self),
                         cockpit_auth_spawn_login_async), NULL);
@@ -773,7 +750,20 @@ cockpit_auth_spawn_login_finish (CockpitAuth *self,
     return NULL;
 
   if (transport)
-    *transport = cockpit_pipe_transport_new (sl->process_pipe);
+    {
+      pipe = g_object_new (COCKPIT_TYPE_PIPE,
+                           "name", "localhost",
+                           "pid", sl->process_pid,
+                           "in-fd", sl->process_out,
+                           "out-fd", sl->process_in,
+                           NULL);
+      sl->process_pid = 0;
+      sl->process_out = -1;
+      sl->process_in = -1;
+
+      *transport = cockpit_pipe_transport_new (pipe);
+      g_object_unref (pipe);
+    }
 
   return creds;
 }

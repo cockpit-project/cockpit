@@ -37,10 +37,10 @@ from testpulltask import GithubPullTask
 from testimagetask import GithubImageTask
 
 TOKEN = "~/.config/github-token"
-topdir = os.path.normpath(os.path.dirname(os.path.realpath(__file__)))
+TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(__file__)))
 
 # the user name is accepted if it's found in either list
-WHITELIST = os.path.join(topdir, "github-whitelist")
+WHITELIST = os.path.join(TEST_DIR, "github-whitelist")
 WHITELIST_LOCAL = "~/.config/github-whitelist"
 
 HOSTNAME = socket.gethostname().split(".")[0]
@@ -136,6 +136,7 @@ __all__ = (
     'TESTING',
     'NOT_TESTED',
     'IMAGE_EXPIRE',
+    'TEST_DIR',
 )
 
 def read_whitelist():
@@ -160,7 +161,7 @@ def read_whitelist():
 
 class Sink(object):
     def __init__(self, host, identifier, status=None):
-        self.attachments = tempfile.mkdtemp(prefix="attachments.", dir=os.path.join(topdir, "tmp"))
+        self.attachments = tempfile.mkdtemp(prefix="attachments.", dir=os.path.join(TEST_DIR, "tmp"))
         self.status = status
 
         # Start a gzip and cat processes
@@ -251,7 +252,7 @@ class GitHub(object):
         self.whitelist = read_whitelist()
 
         # The cache directory
-        self.cache_directory = os.path.join(topdir, "tmp", "cache")
+        self.cache_directory = os.path.join(TEST_DIR, "tmp", "cache")
         if not os.path.exists(self.cache_directory):
             os.makedirs(self.cache_directory)
         now = time.time()

@@ -53,7 +53,6 @@ define([
     function sos_create() {
         $("#sos-progress .progress-bar").css("width", "0%");
         $("#sos-download, #sos-error").hide();
-        $("#sos-alert, #sos-progress").show();
         $("#sos-cancel").text(_("Cancel"));
 
         sos_archive_url = null;
@@ -80,6 +79,7 @@ define([
                 while ((m = progress_regex.exec(output))) {
                     p = (parseInt(m[1], 10) / parseInt(m[2], 10)) * 100;
                 }
+                $("#sos-alert, #sos-progress").show();
                 $("#sos-progress .progress-bar").css("width", p.toString() + "%");
             }
         });

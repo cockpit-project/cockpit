@@ -188,6 +188,9 @@ class AtomicCockpitInstaller:
         subprocess.check_call(["rm", "-rf", "/var/lib/dhcp"])
 
     def run(self):
+        # Delete previous deployment
+        subprocess.check_call(["ostree", "admin", "undeploy", "1"])
+
         self.setup_dirs()
 
         installed_packages = self.get_installed_cockpit_packages()

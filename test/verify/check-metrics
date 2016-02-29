@@ -118,7 +118,7 @@ class TestMetrics(MachineCase):
         m = self.machine
 
         self.login_and_go("/system")
-        m.execute("pgrep cockpit-pcp")
+        wait(lambda: m.execute("pgrep cockpit-pcp"))
 
         self.check_host_metrics()
 
@@ -133,6 +133,7 @@ class TestMetrics(MachineCase):
         m.execute("! pgrep cockpit-pcp")
 
         self.check_host_metrics()
+        m.execute("! pgrep cockpit-pcp")
 
 if __name__ == '__main__':
     test_main()

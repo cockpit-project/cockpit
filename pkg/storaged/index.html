@@ -762,6 +762,29 @@
                   <input class="form-control" type="text" {{#ValueMB}}value="{{.}}"{{/ValueMB}} data-field={{.}}>
                 </td>
                 {{/SizeInput}}
+                {{#SizeSlider}}
+                <td class="top">{{Title}}</td>
+                <td>
+                  <div class="dialog-wrapper">
+                    <div class="size-slider" data-field={{.}}>
+                      <table>
+                        <tr>
+                          <td>
+                            <div class="slider"></div>
+                          </td>
+                          <td>
+                            <input class="form-control size-text">
+                          </td>
+                          <td>
+                            <select class="form-control selectpicker size-unit">
+                            </select>
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+                  </div>
+                </td>
+                {{/SizeSlider}}
                 {{#CheckBox}}
                 <td></td>
                 <td>

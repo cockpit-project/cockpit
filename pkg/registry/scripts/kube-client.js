@@ -1197,6 +1197,64 @@
     ])
 
     /**
+     * KubeSocket
+     *
+     * Create a new low level kubernetes websocket request
+     *
+     * An implementation of KubeSocket must be provided. It has the
+     * following characteristics.
+     *
+     * ws = KubeSocket(path, [config])
+     *
+     * Creates a new websocket request, for the given path.
+     *
+     *  headers    An dict of headers to include
+     *  protocals  An list or string of websocket protocols
+     *
+     * In addition the config object can include implementation specific
+     * settings or data.
+     *
+     * A object is returned that implements the Web API
+     * Websocket interface. Specifically it should
+     * expose a 'readyState' attribute, provide
+     * open and close functions, and emit open, close and
+     * message events.
+     *
+     * Implementation specific fields may also be present
+     */
+
+    .provider("KubeSocket", [
+        function() {
+            var self = this;
+
+            /* Until we come up with a good default implementation, must be provided */
+            self.KubeSocketFactory = "MissingKubeSocket";
+
+            function load(injector, name) {
+                if (angular.isString(name))
+                    return injector.get(name, "KubeSocket");
+                else
+                    return injector.invoke(name);
+            }
+
+            self.$get = [
+                "$injector",
+                function($injector) {
+                    return load($injector, self.KubeSocketFactory);
+                }
+            ];
+        }
+    ])
+
+    .factory("MissingKubeSocket", [
+        function() {
+            return function MissingKubeSocket(path, callback) {
+                throw "no KubeSocketFactory set";
+            };
+        }
+    ])
+
+    /**
      * KubeWatch
      *
      * Create a new low level kubernetes watch. These are instantiated

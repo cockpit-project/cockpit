@@ -232,7 +232,10 @@ touch docker.list
 %ifarch x86_64
 echo '%dir %{_datadir}/%{name}/kubernetes' > kubernetes.list
 find %{buildroot}%{_datadir}/%{name}/kubernetes -type f >> kubernetes.list
+%if %{defined gitcommit}
+%else
 mv %{buildroot}/%{_datadir}/%{name}/registry/manifest.json %{buildroot}/%{_datadir}/%{name}/registry/manifest.disabled
+%endif
 echo '%dir %{_datadir}/%{name}/registry' >> kubernetes.list
 find %{buildroot}%{_datadir}/%{name}/registry -type f >> kubernetes.list
 %else

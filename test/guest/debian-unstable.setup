@@ -111,3 +111,5 @@ sed -i 's/^PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
 # unreachable temporarily.
 #
 chmod a-x /etc/init.d/ssh
+mkdir -p /etc/systemd/system/sshd.service.d/
+printf "[Service]\nExecReload=\n" > /etc/systemd/system/sshd.service.d/noreload.conf

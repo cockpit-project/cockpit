@@ -25,7 +25,8 @@
 
     angular.module('registry.projects', [
         'ngRoute',
-        'kubeClient'
+        'kubeClient',
+        'registry.listing',
     ])
 
     .config(['$routeProvider',

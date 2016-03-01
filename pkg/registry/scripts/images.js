@@ -416,6 +416,8 @@
 
             function configCommand(config) {
                 var result = [ ];
+                if (!config)
+                    return "";
                 if (config.Entrypoint)
                     result.push.apply(result, config.Entrypoint);
                 if (config.Cmd)

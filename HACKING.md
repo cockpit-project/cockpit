@@ -24,8 +24,8 @@ at:
 
     https://localhost:9090
 
-Any changes you make to the system in the Vagrant VM won't affect the
-host machine.
+and login with user `admin` and password `foobar`. Any changes you
+make to the system in the Vagrant VM won't affect the host machine.
 
 You can edit files in the `pkg/` subdirectory of the Cockpit sources
 and the changes should take effect after syncing them to the Vagrant

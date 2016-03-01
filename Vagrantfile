@@ -11,6 +11,7 @@ Vagrant.configure(2) do |config|
     config.vm.network "private_network", ip: "192.168.50.10"
     config.vm.network "forwarded_port", guest: 9090, host: 9090
     config.vm.hostname = "cockpit-devel"
+    config.vm.post_up_message = "You can now access Cockpit at https://localhost:9090 (login as 'admin' with password 'foobar')"
 
     config.vm.provider "libvirt" do |libvirt, override|
         override.vm.box_url = "https://download.fedoraproject.org/pub/fedora/linux/releases/23/Cloud/x86_64/Images/Fedora-Cloud-Base-Vagrant-23-20151030.x86_64.vagrant-libvirt.box"

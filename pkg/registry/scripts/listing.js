@@ -26,7 +26,7 @@
                (el && inClassOrTag(el.parentNode, cls, tag));
     }
 
-    angular.module('registry')
+    angular.module('registry.listing', [])
 
     .directive('listingTable', [
         function() {

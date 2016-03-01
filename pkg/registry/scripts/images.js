@@ -38,6 +38,7 @@
         'ngRoute',
         'kubeClient',
         'registry.date',
+        'registry.listing',
     ])
 
     .config([

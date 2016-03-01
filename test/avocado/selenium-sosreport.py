@@ -29,6 +29,7 @@ class SosReportingTab(SeleniumTest):
         self.wait_text("This tool will collect system configuration and diagnostic")
         self.click(self.wait_xpath('//button[@data-target="#sos"]', cond=clickable))
         self.wait_id("sos")
+        self.wait_visible("#sos-progress")
         self.wait_text("Generating report")
         @Retry(attempts = 10, timeout = 3, error = Exception('Timeout: sosreport did not start'))
         def waitforsosreportstarted():

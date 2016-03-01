@@ -29,6 +29,9 @@ Vagrant.configure(2) do |config|
         getent passwd admin >/dev/null || useradd -u 1000 -c Administrator -G wheel admin
         echo foobar | passwd --stdin admin
 
+        usermod -a -G wheel vagrant
+        chfn -f Vagrant vagrant
+
         mkdir -p /root/.local/share /home/admin/.local/share /usr/local/share
         ln -snf /cockpit/pkg /usr/local/share/cockpit
         ln -snf /cockpit/pkg /root/.local/share/cockpit

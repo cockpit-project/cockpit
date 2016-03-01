@@ -40,7 +40,7 @@ Vagrant.configure(2) do |config|
 
         dnf copr enable -y @cockpit/cockpit-preview
         dnf install -y docker kubernetes atomic subscription-manager etcd pcp realmd \
-		NetworkManager storaged storaged-lvm2 git yum-utils
+		NetworkManager storaged storaged-lvm2 git yum-utils tuned
         dnf install -y cockpit cockpit-pcp
         debuginfo-install -y cockpit cockpit-pcp
 

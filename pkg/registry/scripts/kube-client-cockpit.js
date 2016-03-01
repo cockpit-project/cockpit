@@ -443,6 +443,101 @@
         }
     ])
 
+    .factory("CockpitKubeSocket", [
+        "$q",
+        "$injector",
+        function($q, $injector) {
+            return function CockpitKubeSocket(url, config) {
+                var connect;
+                var state = 0; /* CONNECTING */
+                var ws = { };
+                var channel;
+
+                var protocols = [];
+                if (config && config.protocols) {
+                    protocols = config.protocols;
+                    if (!angular.isArray(protocols))
+                        protocols = [ String(config.protocols) ];
+                }
+
+                /*
+                 * If we're called with fully formed options, then don't do
+                 * connect discovery stuff. Otherwise ask our connect service
+                 * for connection info, and do discovery.
+                 */
+                if (config && config.port)
+                    connect = config;
+                else
+                    connect = $injector.get('cockpitKubeDiscover')();
+
+                function fail() {
+                    var ev = document.createEvent('Event');
+                    ev.initEvent('close', false, false, false, 1002, "protocol-error");
+                    ws.dispatchEvent(ev);
+                }
+
+                function close(code, reason) {
+                    if (channel)
+                        channel.close(reason);
+                }
+
+                function send(data) {
+                    if (channel)
+                        channel.send(data);
+                }
+
+                /* A fake WebSocket */
+                Object.defineProperties(ws, {
+                    binaryType: { value: "arraybuffer" },
+                    bufferedAmount: { value: 0 },
+                    extensions: { value: "" },
+                    protocol: { value: protocols[0] },
+                    readyState: { get: function() { return state; } },
+                    url: { value: url },
+                    close: { value: close },
+                    send: { value: send },
+                });
+
+                $q.when(connect, function connected(options) {
+                    cockpit.event_target(ws);
+
+                    channel = cockpit.channel(angular.extend({ }, options, {
+                        payload: "websocket-stream1",
+                        path: url,
+                        protocols: protocols,
+                    }));
+
+                    channel.addEventListener("close", function(ev, options) {
+                        var problem = options.problem || "";
+                        channel = null;
+
+                        state = 3;
+                        var cev = document.createEvent('Event');
+                        cev.initEvent('close', false, false, !!problem, 1000, problem);
+                        ws.dispatchEvent(cev);
+                    });
+
+                    channel.addEventListener("message", function(ev, data) {
+                        /* It's because of phantomjs */
+                        var mev = document.createEvent('MessageEvent');
+                        if (!mev.initMessageEvent)
+                            mev = new window.MessageEvent('message', { 'data': data });
+                        else
+                            mev.initMessageEvent('message', false, false, data, null, null, window, null);
+                        ws.dispatchEvent(mev);
+                    });
+
+                    state = 1;
+                    var oev = document.createEvent('Event');
+                    oev.initEvent('open', false, false);
+                    ws.dispatchEvent(oev);
+                });
+
+                return ws;
+            };
+        }
+    ])
+
     .factory("CockpitKubeRequest", [
         "$q",
         "$injector",

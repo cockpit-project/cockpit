@@ -88,6 +88,8 @@ class TestConnection(MachineCase):
         b.expect_load()
         b.enter_page("/system")
 
+        # Reauthorization can fail due to disconnects above
+        self.allow_journal_messages("cockpit-polkit: user admin reauthorization failed")
         self.allow_restart_journal_messages()
 
     def testTls(self):

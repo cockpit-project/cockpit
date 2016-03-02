@@ -34,12 +34,26 @@
         '$routeProvider',
         'KubeWatchProvider',
         'KubeRequestProvider',
-        function($routeProvider, KubeWatchProvider, KubeRequestProvider) {
+        '$provide',
+        function($routeProvider, KubeWatchProvider, KubeRequestProvider, $provide) {
             $routeProvider.otherwise({ redirectTo: '/' });
 
             /* Tell the kube-client code to use cockpit watches and requests */
             KubeWatchProvider.KubeWatchFactory = "CockpitKubeWatch";
             KubeRequestProvider.KubeRequestFactory = "CockpitKubeRequest";
+
+            $provide.decorator("$exceptionHandler",
+                ['$delegate',
+                 '$log',
+                 function($delegate, $log) {
+                    return function (exception, cause) {
+                        /* Displays an oops if we're running in cockpit */
+                        if (window.parent !== window && window.name.indexOf("cockpit1:") === 0)
+                            window.parent.postMessage("\n{ \"command\": \"oops\" }", "*");
+
+                        $delegate(exception, cause);
+                    };
+              }]);
         }
     ])
 

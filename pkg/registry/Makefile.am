@@ -38,7 +38,6 @@ registry_MODULES = \
 	pkg/registry/scripts/kube-client-cockpit.js \
 	pkg/registry/scripts/date.js \
 	pkg/registry/scripts/dialog.js \
-	pkg/registry/scripts/exceptions.js \
 	pkg/registry/scripts/listing.js \
 	pkg/registry/scripts/images.js \
 	pkg/registry/scripts/dashboard.js \

@@ -51,6 +51,8 @@ Vagrant.configure(2) do |config|
         printf "[Service]\nExecStartPre=/cockpit/tools/git-version-check\n" > \
             /etc/systemd/system/cockpit.service.d/version.conf
 
+        printf "[WebService]\nAllowUnencrypted=true\n" > /etc/cockpit/cockpit.conf
+
         systemctl daemon-reload
     SHELL
 end

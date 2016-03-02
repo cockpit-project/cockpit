@@ -168,6 +168,12 @@ and just executing it:
 
   $ ./verify/check-connection
 
+Many of the verify tests can also be run against an already running
+machine. Although be aware that lots of the tests change state on
+the target machine.
+
+  $ ./verify/check-connection --machine=10.1.1.2
+
 ## Debugging tests
 
 If you pass the "-s" ("sit on failure") option to a test program, it

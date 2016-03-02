@@ -54,27 +54,29 @@ class TestMetrics(MachineCase):
         b = self.browser
         m = self.machine
 
+        # When checking whether the plots show the expected results,
+        # we look for a segment of the data of a certain duration
+        # whose average is in a certain range.  Otherwise any short
+        # outlier will make us miss the plateau.  Such outliers happen
+        # frequently with the CPU plot.
+
         b.eval_js("""
           ph_plateau = function (data, min, max, duration, label) {
-            var i, start = undefined, start_index, sum;
-            for (i = 0; i < data.length; i++) {
-              if ((min === null || data[i][1] >= min) && (max === null || data[i][1] <= max)) {
-                if (start === undefined) {
-                  start = data[i][0];
-                  start_index = i;
-                  sum = 0;
-                }
-                sum += data[i][1];
-                if (data[i][0] - start >= duration * 1000) {
-                  console.log("avg", label, sum/(i - start_index + 1));
-                  return true;
-                }
-              } else {
-                if (start)
-                  console.log("out of range:", data[i][1], ",", data[i][0] - start, "ms");
-                start = undefined;
+              var i, j;
+              var sum;  // sum of data[i..j]
+
+              sum = 0;
+              i = 0;
+              for (j = 0; j < data.length; j++) {
+                  sum += data[j][1];
+                  while (i < j && (data[j][0] - data[i][0]) > duration * 1000) {
+                      avg = sum / (j - i + 1);
+                      if ((min === null || avg >= min) && (max === null || avg <= max))
+                          return true;
+                      sum -= data[i][1];
+                      i++;
+                  }
               }
-            }
             return false;
           }
         """)
@@ -88,10 +90,11 @@ class TestMetrics(MachineCase):
         # CPU.  We load one cpu for 20 seconds.  The resulting CPU
         # load can be all over the place since we don't control the
         # environment where the test virtual machine runs well enough.
-        # So we are happy with anything above 50% for 15 seconds.
+        # So we are happy with anything averaging more than 80% for 15
+        # seconds.  (One CPU equals "100%" in our graphs.)
         #
         load_cpu(m, 20)
-        b.wait_js_func("ph_flot_data_plateau", "#server_cpu_graph", 50, 105, 15, "cpu");
+        b.wait_js_func("ph_flot_data_plateau", "#server_cpu_graph", 80, 105, 15, "cpu");
 
         # Memory.  We assume that the machine has had a reasonably
         # stable memory situation for the last 20 seconds.

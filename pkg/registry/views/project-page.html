@@ -29,6 +29,15 @@
                 <td></td>
             </tr>
         </tbody>
+        <tbody ng-repeat="group in groups()" ng-if="subjectIsMember(group, project().metadata.name)">
+            <tr class="listing-item">
+                <td>{{ group.metadata.name }}</td>
+                <td>
+                    <span ng-repeat="role in subjectRoleBindings(group, project().metadata.name)">{{ role.metadata.name }} </span>
+                </td>
+                <td></td>
+            </tr>
+        </tbody>
         <thead>
             <tr>
                 <td colspan="3">

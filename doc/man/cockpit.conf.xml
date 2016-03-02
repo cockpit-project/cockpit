@@ -84,6 +84,15 @@ Origins = https://somedomain1.com https://somedomain2.com:9090
              number of unauthenticated connections reaches <literal>full</literal> (60).</para>
         </listitem>
       </varlistentry>
+      <varlistentry>
+        <term><option>AllowUnencrypted</option></term>
+        <listitem>
+          <para>If true, cockpit will accept unencrypted HTTP connections. Otherwise, it
+            redirects all HTTP connections to HTTPS. Exceptions are connections from
+            localhost and for certain URLs (like <code>/ping</code>). Defaults to
+            false.</para>
+        </listitem>
+      </varlistentry>
     </variablelist>
   </refsect1>
 

@@ -65,6 +65,11 @@ gint               cockpit_web_server_get_port             (CockpitWebServer *se
 
 const gchar **     cockpit_web_server_get_document_roots   (CockpitWebServer *self);
 
+void               cockpit_web_server_set_redirect_tls     (CockpitWebServer *self,
+                                                            gboolean          redirect_tls);
+
+gboolean           cockpit_web_server_get_redirect_tls     (CockpitWebServer *self);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_WEB_SERVER_H__ */

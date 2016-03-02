@@ -41,15 +41,19 @@ class StorageCase(MachineCase):
     # Action buttons
 
     def content_action(self, index, action):
-        self.browser.click_action_btn(content_action_btn(index), action)
+        btn = content_action_btn(index)
+        self.browser.wait_present(btn)
+        self.browser.click_action_btn(btn, action)
 
     def content_default_action(self, index, action):
         btn = content_action_btn(index)
+        self.browser.wait_present(btn)
         self.browser.wait_action_btn (btn, action)
         self.browser.click_action_btn (btn)
 
     def content_single_action(self, index, action):
         btn = "#content .list-group li:nth-child(%d) button" % index
+        self.browser.wait_present(btn)
         self.browser.wait_text (btn, action)
         self.browser.click (btn)
 

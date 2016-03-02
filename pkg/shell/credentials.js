@@ -238,6 +238,7 @@ define([
 
             var dfd = $.Deferred();
             var buffer = "";
+            var output = "";
             var failure = _("Not a valid private key");
 
             var timeout = window.setTimeout(function() {
@@ -255,12 +256,14 @@ define([
                     dfd.resolve();
                 })
                 .fail(function(ex) {
+                    console.log(output);
                     if (ex.constructor.name == "ProcessError")
                         ex = new Error(failure);
                     dfd.reject(ex);
                 })
                 .stream(function(data) {
                     buffer += data;
+                    output += data;
                     if (perm_exp.test(buffer)) {
                         failure = _("Invalid file permissions");
                         buffer = "";

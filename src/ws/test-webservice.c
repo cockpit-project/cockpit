@@ -182,9 +182,9 @@ stop_mock_sshd (GPid mock_sshd) {
   else if (status != 0)
     {
       if (WIFSIGNALED (status))
-        g_critical ("mock-sshd terminated: %d", WTERMSIG (status));
+        g_message ("mock-sshd terminated: %d", WTERMSIG (status));
       else
-        g_critical ("mock-sshd failed: %d", WEXITSTATUS (status));
+        g_message ("mock-sshd failed: %d", WEXITSTATUS (status));
     }
   g_spawn_close_pid (mock_sshd);
 }

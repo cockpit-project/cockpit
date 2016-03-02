@@ -87,6 +87,7 @@ echo "$address     registry registry.cockpit.lan" >> /etc/hosts
 # Log in as another user
 printf "scruffy\r\nscruffy\r\n" | oc login
 oc new-project marmalade
+
 token=$(oc whoami -t)
 docker login -p "$token" -e silly@email.com -u unneeded registry:5000
 
@@ -123,6 +124,9 @@ docker push registry:5000/marmalade/origin
 
 # Use the admin context by default
 oc config use-context default/10-111-112-101:8443/system:admin
+
+# Some roles for testing against
+oc patch --namespace=marmalade policybinding ':default' -p '{"roleBindings":[{"name":"admin","roleBinding":{"metadata":{"name":"admin","namespace":"marmalade"},"userNames":["myadmin"],"groupNames":null,"subjects":[{"kind":"User","name":"myadmin"}],"roleRef":{"name":"admin"}}},{"name":"edit","roleBinding":{"metadata":{"name":"edit","namespace":"marmalade"},"userNames":["myadmin","amanda"],"groupNames":null,"subjects":[{"kind":"User","name":"myadmin"},{"kind":"User","name":"amanda"}],"roleRef":{"name":"edit"}}},{"name":"view","roleBinding":{"metadata":{"name":"view","namespace":"marmalade"},"userNames":["myadmin","tom","amanda"],"groupNames":["sports"],"subjects":[{"kind":"User","name":"myadmin"},{"kind":"User","name":"tom"},{"kind":"User","name":"amanda"},{"kind":"Group","name":"sports"}],"roleRef":{"name":"view"}}}]}'
 
 # Wait for it to download
 wait images_has busybox

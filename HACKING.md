@@ -22,7 +22,7 @@ Cockpit will listen on port 9090 of the vagrant VM started, and also
 port 9090 of localhost if cockpit is not running locally. Access Cockpit
 at:
 
-    https://localhost:9090
+    http://localhost:9090
 
 and login with user `admin` and password `foobar`. Any changes you
 make to the system in the Vagrant VM won't affect the host machine.

@@ -3486,14 +3486,23 @@ function full_scope(cockpit, $, po) {
 
         self.move = function move(beg, end) {
             stop_walking();
+            /* Some code paths use now twice.
+             * They should use the same value.
+             */
+            var now = null;
 
             /* Treat negative numbers relative to now */
-            if (beg === undefined)
+            if (beg === undefined) {
                 beg = 0;
-            else if (is_negative(beg))
-                beg = Math.floor($.now() / self.interval) + beg;
-            if (end !== undefined && is_negative(end))
-                end = Math.floor($.now() / self.interval) + end;
+            } else if (is_negative(beg)) {
+                now = $.now();
+                beg = Math.floor(now / self.interval) + beg;
+            }
+            if (end !== undefined && is_negative(end)) {
+                if (now === null)
+                    now = $.now();
+                end = Math.floor(now / self.interval) + end;
+            }
 
             move_internal(beg, end, false);
         };

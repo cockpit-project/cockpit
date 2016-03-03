@@ -53,6 +53,8 @@
         { kind: "User", type: "users", api: OPENSHIFT, global: true },
     ]);
 
+    var NAME_RE = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
+
     function debug() {
         if (window.debugging == "all" || window.debugging == "kube")
             console.debug.apply(console, arguments);
@@ -1125,9 +1127,50 @@
                 });
             }
 
+            function checkResource(resource, targets) {
+                var defer = $q.defer();
+                var ex, exs = [];
+
+                if (!targets)
+                    targets = { };
+
+                /* Some simple metadata checks */
+                var meta = resource.metadata;
+                if (meta) {
+                    ex = null;
+                    if (!meta.name)
+                        ex = new Error("The name cannot be empty");
+                    else if (!NAME_RE.test(meta.name))
+                        ex = new Error("The name contains invalid characters");
+                    if (ex) {
+                        ex.target = targets["metadata.name"];
+                        exs.push(ex);
+                    }
+
+                    ex = null;
+                    if (meta.namespace !== undefined) {
+                        if (!meta.namespace)
+                            ex = new Error("The namespace cannot be empty");
+                        else if (!NAME_RE.test(meta.namespace))
+                            ex = new Error("The name contains invalid characters");
+                    }
+                    if (ex) {
+                        ex.target = targets["metadata.namespace"];
+                        exs.push(ex);
+                    }
+                }
+
+                if (exs.length)
+                    defer.reject(exs);
+                else
+                    defer.resolve();
+                return defer.promise;
+            }
+
             return {
                 "create": createObjects,
-                "delete": deleteResource
+                "delete": deleteResource,
+                "check": checkResource,
             };
         }
     ])

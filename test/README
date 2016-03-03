@@ -74,14 +74,14 @@ The test suite itself:
 You can set these environment variables to configure the test suite:
 
   TEST_OS    The OS to run the tests in.  Currently supported values: (vm-create)
-                "fedora-22"
                 "fedora-23"
+                "fedora-24"
                 "fedora-testing"
                 "fedora-atomic"
                 "centos-7"
                 "rhel-7"
                 "debian-unstable"
-             "fedora-23" is the default (testinfra.py, testlib.sh)
+             "fedora-24" is the default (testinfra.py, testlib.sh)
 
   TEST_DATA  Where to find and store test machine images.  The
              default is the same directory that this README file is in.
@@ -106,7 +106,7 @@ with a clean state.
 
 A test machine image is created with vm-create, like so:
 
-  $ ./vm-create -v fedora-23
+  $ ./vm-create -v fedora-24
 
 The image will be created in $TEST_DATA/images/. In addition a link
 reference will be created in test/images/.
@@ -115,7 +115,7 @@ If you wish that others use this new image then you should commit the
 new reference link, and use `vm-upload` to upload the new image. You
 would need to have Cockpit commit access to do this:
 
-  $ ./vm-upload fedora-23
+  $ ./vm-upload fedora-24
 
 There is more than one test machine image. For example, you might
 want to test a scenario where Cockpit on one machine talks to FreeIPA

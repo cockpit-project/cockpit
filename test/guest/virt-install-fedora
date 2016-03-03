@@ -33,6 +33,7 @@ out=$1
 arch=$2
 url=$3
 
+base=$(dirname $0)
 ks=fedora.ks
 
 cat <<EOF >$ks
@@ -53,6 +54,13 @@ autopart
 
 %packages
 @core
+%end
+
+%post
+mkdir /root/.ssh
+chmod 700 /root/.ssh
+echo "$(cat $base/identity.pub)" > /root/.ssh/authorized_keys
+chmod 600 /root/.ssh/authorized_keys
 %end
 EOF
 

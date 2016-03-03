@@ -1127,6 +1127,21 @@
                 });
             }
 
+            function patchResource(resource, patch) {
+                var path = resourcePath([resource]);
+                var body = JSON.stringify(patch);
+                var config = { headers: { "Content-Type": "application/strategic-merge-patch+json" } };
+                var promise = new KubeRequest("PATCH", path, body, config);
+                return promise.then(function(response) {
+                    debug("patched resource:", path, response.data);
+                    if (response.data.kind)
+                        loader.handle(response.data);
+                }, function(response) {
+                    var resp = response.data;
+                    throw resp || response;
+                });
+            }
+
             function checkResource(resource, targets) {
                 var defer = $q.defer();
                 var ex, exs = [];
@@ -1171,6 +1186,7 @@
                 "create": createObjects,
                 "delete": deleteResource,
                 "check": checkResource,
+                "patch": patchResource,
             };
         }
     ])

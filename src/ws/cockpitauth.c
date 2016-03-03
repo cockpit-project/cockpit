@@ -491,7 +491,6 @@ create_creds_for_spawn_authenticated (CockpitAuth *self,
                                       JsonObject *results,
                                       const gchar *raw_data)
 {
-  const gchar *fullname = NULL;
   const gchar *password = NULL;
   const gchar *gssapi_creds = NULL;
   CockpitCreds *creds = NULL;
@@ -511,18 +510,11 @@ create_creds_for_spawn_authenticated (CockpitAuth *self,
       gssapi_creds = NULL;
     }
 
-  if (!cockpit_json_get_string (results, "full-name", NULL, &fullname))
-    {
-      g_warning ("received bad full-name from %s", sl->command);
-      fullname = NULL;
-    }
-
   csrf_token = cockpit_auth_nonce (self);
 
   creds = cockpit_creds_new (user,
                              sl->application,
                              COCKPIT_CRED_LOGIN_DATA, raw_data,
-                             COCKPIT_CRED_FULLNAME, fullname,
                              COCKPIT_CRED_PASSWORD, password,
                              COCKPIT_CRED_RHOST, sl->remote_peer,
                              COCKPIT_CRED_GSSAPI, gssapi_creds,

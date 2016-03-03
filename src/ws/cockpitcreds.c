@@ -36,7 +36,6 @@ struct _CockpitCreds {
   gint poisoned;
   gchar *user;
   gchar *application;
-  gchar *fullname;
   gchar *password;
   gchar *rhost;
   gchar *gssapi_creds;
@@ -56,7 +55,6 @@ cockpit_creds_free (gpointer data)
 
   g_free (creds->user);
   g_free (creds->application);
-  g_free (creds->fullname);
   cockpit_secclear (creds->password, -1);
   g_free (creds->password);
   g_free (creds->rhost);
@@ -148,8 +146,6 @@ cockpit_creds_new (const gchar *user,
       type = va_arg (va, const char *);
       if (type == NULL)
         break;
-      else if (g_str_equal (type, COCKPIT_CRED_FULLNAME))
-        creds->fullname = g_strdup (va_arg (va, const char *));
       else if (g_str_equal (type, COCKPIT_CRED_PASSWORD))
         creds->password = g_strdup (va_arg (va, const char *));
       else if (g_str_equal (type, COCKPIT_CRED_RHOST))
@@ -233,13 +229,6 @@ cockpit_creds_get_application (CockpitCreds *creds)
 {
   g_return_val_if_fail (creds != NULL, NULL);
   return creds->application;
-}
-
-const gchar *
-cockpit_creds_get_fullname (CockpitCreds *creds)
-{
-  g_return_val_if_fail (creds != NULL, NULL);
-  return creds->fullname;
 }
 
 const gchar *

@@ -9,7 +9,9 @@ registry_VIEWS = \
 	pkg/registry/views/image-panel.html \
 	pkg/registry/views/images-page.html \
 	pkg/registry/views/imagestream-body.html \
+	pkg/registry/views/imagestream-delete.html \
 	pkg/registry/views/imagestream-meta.html \
+	pkg/registry/views/imagestream-modify.html \
 	pkg/registry/views/imagestream-page.html \
 	pkg/registry/views/imagestream-panel.html \
 	pkg/registry/views/add-group-dialog.html \

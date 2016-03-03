@@ -24,6 +24,7 @@
         'ngRoute',
         'ui.cockpit',
         'registry.images',
+        'registry.projects',
     ])
 
     .config(['$routeProvider',
@@ -40,10 +41,11 @@
         '$scope',
         'kubeLoader',
         'kubeSelect',
-        'projectActions',
         'imageData',
+        'imageActions',
+        'projectActions',
         'filterService',
-        function($scope, loader, select, projectActions, imageData, filterService) {
+        function($scope, loader, select, imageData, imageActions, projectActions, filterService) {
             loader.load("projects");
             loader.watch("users");
             loader.watch("groups");
@@ -70,6 +72,7 @@
             });
 
             $scope.createProject = projectActions.createProject;
+            $scope.createImageStream = imageActions.createImageStream;
         }
     ]);
 

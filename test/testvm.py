@@ -243,6 +243,11 @@ class Machine:
 
     def _kill_ssh_master(self):
         if self.ssh_master:
+            try:
+                os.unlink(self.ssh_master)
+            except OSError as e:
+                if e.errno != errno.ENOENT:
+                    raise
             self.ssh_master = None
         if self.ssh_process:
             self.ssh_process.stdin.close()

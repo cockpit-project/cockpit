@@ -581,6 +581,9 @@ class MachineCase(unittest.TestCase):
                                     'audit:.*denied.*systemd-logind.*nologin.*',
                                     'localhost: dropping message while waiting for child to exit',
                                     '.*: GDBus.Error:org.freedesktop.PolicyKit1.Error.Failed: .*',
+
+                                    # HACK: https://github.com/systemd/systemd/pull/1758
+                                    'Error was encountered while opening journal files:.*'
                                     )
 
     def allow_authorize_journal_messages(self):

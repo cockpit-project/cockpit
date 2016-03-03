@@ -31,6 +31,7 @@ selinux-policy-targeted \
 sos \
 storaged \
 storaged-lvm2 \
+storaged-iscsi \
 subscription-manager \
 tuned \
 "
@@ -49,6 +50,7 @@ TEST_PACKAGES="\
 systemtap-runtime-virtguest \
 valgrind \
 gdb \
+targetcli \
 "
 
 rm -rf /etc/sysconfig/iptables
@@ -67,32 +69,34 @@ echo foobar | passwd --stdin admin
 # the rest. This helps avoid things like:
 #
 #     https://bugzilla.redhat.com/show_bug.cgi?id=1211547
-#
+
 dnf -y upgrade dnf
 dnf -y upgrade
-
-# We need storaged 2 from the phatine/storaged copr.  We wait until
-# here to enable it in order to use a up-to-date version of the dnf
-# "copr" plugin: https://bugzilla.redhat.com/show_bug.cgi?id=1273738
-#
-dnf -y copr enable phatina/storaged
 
 dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # Prepare for building
-dnf -y install mock rpm-build
+dnf -y install mock dnf-plugins-core rpm-build
 useradd -c Builder -G mock builder
+
+# HACK - mock --installdeps with yum is broken, it seems that it can't
+# run any package scriptlets.  Yum is deprecated anyway so we just use
+# dnf.  I wonder why dnf isn't the default anyway...
+#
+echo "config_opts['package_manager'] = 'dnf'" >>/etc/mock/site-defaults.cfg
+
 srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
 su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
 
 # docker images that we need for integration testing
 /var/lib/testvm/docker-images.setup
 
+# reduce image size
+docker ps -a --quiet --no-trunc | xargs docker rm
 dnf clean all
+/var/lib/testvm/zero-disk.setup
 
 # Final tweaks
-
-rm -rf /var/log/journal/*
 echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
 printf "[Coredump]\nStorage=journal\n" > /etc/systemd/coredump.conf
 

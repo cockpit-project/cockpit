@@ -91,7 +91,7 @@ class TestSystemInfo(MachineCase):
         b = self.browser
 
         network_time_prefix = "Network time on"
-        if m.image in {"fedora-22", "rhel-7", "rhel-atomic"}:
+        if m.image in {"rhel-7", "rhel-atomic"}:
             network_time_prefix = "NTP enabled"
 
         # make sure system is on expected timezone EEST

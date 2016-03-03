@@ -17,7 +17,7 @@
 
 set -eu
 
-TEST_OS=${TEST_OS:-fedora-23}
+TEST_OS=${TEST_OS:-fedora-24}
 TEST_RUN=./run
 
 warning()

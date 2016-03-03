@@ -1,5 +1,9 @@
 if WITH_GOLANG
 
+AM_V_GO = $(am__v_GO_@AM_V@)
+am__v_GO_ = $(am__v_GO_@AM_DEFAULT_V@)
+am__v_GO_0 = @echo "  GO      " $@;
+
 GO_BUILD_RULE = \
 	GOPATH=$(abs_srcdir)/containers/shared/cockpit-kube $(GOLANG) build \
 		-ldflags "-B 0x"`head -c20 /dev/urandom|od -An -tx1|tr -d ' \n'` "$@"
@@ -18,10 +22,10 @@ COCKPIT_KUBE_LAUNCH = $(COCKPIT_KUBE_HELPERS) \
 	$(NULL)
 
 cockpit-kube-auth$(EXEEXT): $(COCKPIT_KUBE_AUTH)
-	$(GO_BUILD_RULE)
+	$(AM_V_GO) $(GO_BUILD_RULE)
 
 cockpit-kube-launch$(EXEEXT): $(COCKPIT_KUBE_LAUNCH)
-	$(GO_BUILD_RULE)
+	$(AM_V_GO) $(GO_BUILD_RULE)
 
 libexec_PROGRAMS += cockpit-kube-auth cockpit-kube-launch
 

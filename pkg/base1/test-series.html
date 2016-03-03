@@ -523,6 +523,12 @@ asyncTest("walk", function() {
     });
 });
 
+/* mock $.now() function that returns a constant value to avoid races
+ */
+$.now = function() {
+    return 0;
+}
+
 QUnit.start();
 
 </script>

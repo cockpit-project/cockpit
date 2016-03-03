@@ -1,7 +1,8 @@
 if WITH_GOLANG
 
 GO_BUILD_RULE = \
-	GOPATH=$(abs_srcdir)/containers/shared/cockpit-kube $(GOLANG) build "$@"
+	GOPATH=$(abs_srcdir)/containers/shared/cockpit-kube $(GOLANG) build \
+		-ldflags "-B 0x"`head -c20 /dev/urandom|od -An -tx1|tr -d ' \n'` "$@"
 
 COCKPIT_KUBE_HELPERS =	\
 	containers/shared/cockpit-kube/src/cockpit-kube-auth/helpers/creds.go	\

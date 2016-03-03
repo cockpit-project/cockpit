@@ -20,9 +20,6 @@
 (function() {
     "use strict";
 
-    /* Move this elsewhere once we reuse it */
-    var NAME_RE = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
-
     angular.module('registry.projects', [
         'ngRoute',
         'kubeClient',
@@ -199,24 +196,10 @@
                 return mlist;
             }
 
-            function validateName(name, target) {
-                var ex = null;
-                if (!name) {
-                    ex = new Error("Name cannot be empty.");
-                    ex.target = target;
-                } else if (!NAME_RE.test(name)) {
-                    console.log("name is", name);
-                    ex = new Error("Invalid Name");
-                    ex.target = target;
-                }
-                return ex;
-            }
-
             return {
                 subjectRoleBindings: subjectRoleBindings,
                 subjectIsMember: subjectIsMember,
                 formatMembers: formatMembers,
-                validateName: validateName
             };
         }
     ])
@@ -292,8 +275,7 @@
         '$q',
         '$scope',
         "kubeMethods",
-        'projectData',
-        function($q, $scope, methods, util) {
+        function($q, $scope, methods) {
             var fields = {
                 name: "",
                 display: "",
@@ -304,21 +286,14 @@
 
             $scope.performCreate = function performCreate() {
                 var defer;
-                var name = fields.name.trim();
                 var display = fields.display.trim();
                 var description = fields.description.trim();
-                var ex = util.validateName(name, "#project-new-name");
-                if (ex) {
-                    defer = $q.defer();
-                    defer.reject(ex);
-                    return defer.promise;
-                }
 
                 var project = {
                     kind: "Project",
                     apiVersion: "v1",
                     metadata: {
-                        name: name,
+                        name: fields.name.trim(),
                         annotations: {
                             "openshift.io/description": description,
                             "openshift.io/display-name": display,
@@ -326,7 +301,10 @@
                     }
                 };
 
-                return methods.create(project);
+                return methods.check(project, { "metadata.name": "#project-new-name" })
+                    .then(function() {
+                        return methods.create(project);
+                    });
             };
         }
     ])
@@ -335,8 +313,7 @@
         '$q',
         '$scope',
         "kubeMethods",
-        'projectData',
-        function($q, $scope, methods, util) {
+        function($q, $scope, methods) {
             var fields = {
                 name: "",
                 identities: ""
@@ -347,27 +324,22 @@
             $scope.performCreate = function performCreate() {
                 var defer;
                 var identities = [];
-                var name = fields.name.trim();
                 if (fields.identities.trim() !== "")
                     identities = [fields.identities.trim()];
-
-                var ex = util.validateName(name, "#user_name");
-                if (ex) {
-                    defer = $q.defer();
-                    defer.reject(ex);
-                    return defer.promise;
-                }
 
                 var user = {
                     "kind": "User",
                     "apiVersion": "v1",
                     "metadata": {
-                        "name": name
+                        "name": fields.name.trim()
                     },
                     "identities": identities
                 };
 
-                return methods.create(user);
+                return methods.check(user, { "metadata.name": "#user_name" })
+                    .then(function() {
+                        return methods.create(user);
+                    });
             };
         }
     ])
@@ -376,8 +348,7 @@
         '$q',
         '$scope',
         "kubeMethods",
-        'projectData',
-        function($q, $scope, methods, util) {
+        function($q, $scope, methods) {
             var fields = {
                 name: ""
             };
@@ -386,23 +357,19 @@
 
             $scope.performCreate = function performCreate() {
                 var defer;
-                var name = fields.name.trim();
-                var ex = util.validateName(name, "#group_name");
-                if(ex) {
-                    defer = $q.defer();
-                    defer.reject(ex);
-                    return defer.promise;
-                }
 
                 var group = {
                     "kind": "Group",
                     "apiVersion": "v1",
                     "metadata": {
-                        "name": name
+                        "name": fields.name.trim()
                     }
                 };
 
-                return methods.create(group);
+                return methods.check(group, { "metadata.name": "#group_name" })
+                    .then(function() {
+                        return methods.create(group);
+                    });
             };
         }
     ]);

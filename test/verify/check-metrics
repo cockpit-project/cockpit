@@ -34,31 +34,34 @@ def read_mem_info(machine):
             info[name] = int(value)
     return info
 
-def load_cpu(machine, seconds):
-    machine.spawn("( while true; do true; done ) & pid=$!; sleep {0}; kill $pid".format(seconds),
-                  "load-cpu.log")
-
-def load_disk(machine, dev, seconds):
-    machine.spawn("( while true; do dd if={0} of={0}; done ) & pid=$!; sleep {1}; kill $pid".format(dev, seconds),
-                  "load-disk.log")
-
-def load_net(machine, seconds):
-    identity = machine._calc_identity()
-    machine.upload([ identity ], "/var/tmp")
-    machine.spawn("( ssh -o StrictHostKeyChecking=no -i /var/tmp/{1} {0} cat /dev/zero >/dev/null ) & pid=$!; sleep 10; kill $pid".format(machine.address, os.path.basename(identity)),
-                  "load-net.log")
-
 class TestMetrics(MachineCase):
 
     def check_host_metrics(self):
         b = self.browser
         m = self.machine
 
+        b.eval_js("""
+          ph_plot_timestamp = function (sel) {
+            var data = $(sel).data("flot_data")[0]['data'];
+            return data[data.length-1][0];
+          }
+        """)
+
+        b.eval_js("""
+          ph_plot_timestamp_is = function (sel, ts) {
+            return ph_plot_timestamp(sel, 0) >= ts;
+          }
+        """)
+
+        def wait_for_plot(sel, seconds):
+            now = b.call_js_func("ph_plot_timestamp", sel)
+            b.wait_js_func("ph_plot_timestamp_is", sel, now+20*1000)
+
         # When checking whether the plots show the expected results,
         # we look for a segment of the data of a certain duration
         # whose average is in a certain range.  Otherwise any short
-        # outlier will make us miss the plateau.  Such outliers happen
-        # frequently with the CPU plot.
+        # outlier will make us miss the expected plateau.  Such
+        # outliers happen frequently with the CPU plot.
 
         b.eval_js("""
           ph_plateau = function (data, min, max, duration, label) {
@@ -87,32 +90,46 @@ class TestMetrics(MachineCase):
           }
         """)
 
-        # CPU.  We load one cpu for 20 seconds.  The resulting CPU
-        # load can be all over the place since we don't control the
-        # environment where the test virtual machine runs well enough.
-        # So we are happy with anything averaging more than 80% for 15
-        # seconds.  (One CPU equals "100%" in our graphs.)
-        #
-        load_cpu(m, 20)
-        b.wait_js_func("ph_flot_data_plateau", "#server_cpu_graph", 80, 105, 15, "cpu");
+        # CPU.  We have to measure the actual percentage independently
+        # and check whether the plot matches it.  This is because we
+        # can not reliably create 100% load in a virtual machine since
+        # we only get as much as the qemu process itself gets.
+
+        base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        m.upload([ base_dir + "/files/measure-cpu" ], "/var/lib/testvm/")
+
+        cpu_start = m.execute("/var/lib/testvm/measure-cpu start")
+        cpu_pid = m.spawn("while true; do true; done", "cpu-load.log")
+        wait_for_plot("#server_cpu_graph", 20)
+        m.execute("kill %d" % cpu_pid)
+        cpu_percentage = float(m.execute("/var/lib/testvm/measure-cpu stop '%s'" % cpu_start))
+
+        print "Measured CPU", cpu_percentage
+        self.assertTrue(b.call_js_func("ph_flot_data_plateau", "#server_cpu_graph",
+                                       cpu_percentage*0.95, cpu_percentage*1.05, 15, "cpu"));
 
         # Memory.  We assume that the machine has had a reasonably
-        # stable memory situation for the last 20 seconds.
+        # stable memory situation for the last 20 seconds and we just
+        # check whether we see that in the plot.
         #
         meminfo = read_mem_info(m)
         mem_used = meminfo['MemTotal'] - meminfo['MemFree']
         b.wait_js_func("ph_flot_data_plateau", "#server_memory_graph", mem_used*0.95, mem_used*1.05, 15, "mem");
 
-        # Disk.  Anything above 100 kiB/s is good.
+        # Disk.  Anything above 100 kiB/s is good for now.
         #
         disk = m.add_disk("10M", serial="MYSERIAL")
-        load_disk(m, "/dev/sda", 10)
+        disk_pid = m.spawn("while true; do dd if=/dev/sda of=/dev/sda; done", "load-disk.log")
         b.wait_js_func("ph_flot_data_plateau", "#server_disk_io_graph", 100*1024, None, 5, "disk io");
+        m.execute("kill %d" % disk_pid)
 
-        # Network.  Anything above 300 kb/s is good.
+        # Network.  Anything above 300 kb/s is good for now.
         #
-        load_net(m, 10)
+        identity = m._calc_identity()
+        m.upload([ identity ], "/var/tmp")
+        net_pid = m.spawn("ssh -o StrictHostKeyChecking=no -i /var/tmp/{1} {0} cat /dev/zero >/dev/null".format(m.address, os.path.basename(identity)), "load-net.log")
         b.wait_js_func("ph_flot_data_plateau", "#server_network_traffic_graph", 300*1000, None, 5, "net io");
+        m.execute("kill %d" % net_pid)
 
     @unittest.skipIf("rhel" in os.environ.get("TEST_OS", ""), "No PCP on RHEL.")
     @unittest.skipIf("fedora-atomic" in os.environ.get("TEST_OS", ""), "No PCP on Fedora Atomic.")

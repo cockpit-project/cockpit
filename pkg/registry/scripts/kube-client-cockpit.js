@@ -555,6 +555,9 @@
                     heads[CONTENT_TYPE] = JSON_TYPE;
                 }
 
+                if (!config)
+                    config = { };
+
                 /*
                  * If we're called with fully formed options, then don't do
                  * connect discovery stuff. Otherwise ask our connect service
@@ -572,7 +575,7 @@
                         payload: "http-stream2"
                     });
 
-                    opts.headers = angular.extend(heads, opts.headers || { });
+                    opts.headers = angular.extend(heads, config.headers || { }, options.headers || { });
                     channel = cockpit.channel(opts);
 
                     var response = { };

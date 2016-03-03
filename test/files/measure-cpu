@@ -1,0 +1,36 @@
+#! /usr/bin/python
+
+import sys
+import os
+import ctypes
+
+CLOCK_MONOTONIC_RAW = 4 # see <linux/time.h>
+
+class timespec(ctypes.Structure):
+    _fields_ = [
+        ('tv_sec', ctypes.c_long),
+        ('tv_nsec', ctypes.c_long)
+    ]
+
+librt = ctypes.CDLL('librt.so.1', use_errno=True)
+clock_gettime = librt.clock_gettime
+clock_gettime.argtypes = [ctypes.c_int, ctypes.POINTER(timespec)]
+
+def monotonic_time():
+    t = timespec()
+    if clock_gettime(CLOCK_MONOTONIC_RAW , ctypes.pointer(t)) != 0:
+        errno_ = ctypes.get_errno()
+        raise OSError(errno_, os.strerror(errno_))
+    return t.tv_sec + t.tv_nsec * 1e-9
+
+def cpu_stat():
+    for l in open("/proc/stat", "r").readlines():
+        if l.startswith("cpu "):
+            return int(l.split()[1])
+
+if sys.argv[1] == "start":
+    print repr((monotonic_time(), cpu_stat()))
+elif sys.argv[1] == "stop":
+    (start_time, start_stat) = eval(sys.argv[2])
+    hz = os.sysconf('SC_CLK_TCK')
+    print (cpu_stat() - start_stat) / (monotonic_time() - start_time) / hz * 100

@@ -16,13 +16,10 @@ echo foobar | passwd --stdin root
 # the distribution repository is updated.
 #
 COCKPIT_DEPS="\
-atomic \
 device-mapper-multipath \
-docker \
 etcd \
 glib-networking \
 json-glib \
-kubernetes \
 libssh \
 pcp \
 pcp-libs \
@@ -88,11 +85,7 @@ echo "config_opts['package_manager'] = 'dnf'" >>/etc/mock/site-defaults.cfg
 srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
 su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
 
-# docker images that we need for integration testing
-/var/lib/testvm/docker-images.setup
-
 # reduce image size
-docker ps -a --quiet --no-trunc | xargs docker rm
 dnf clean all
 /var/lib/testvm/zero-disk.setup
 

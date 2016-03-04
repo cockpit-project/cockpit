@@ -175,7 +175,8 @@ class BasicTestSuite(SeleniumTest):
         self.wait_id('terminal')
         terminal = self.wait_xpath("//*[@class='terminal']")
         prefix = "/tmp/cockpitrndadr/"
-        process.run("mkdir {0}".format(prefix), shell=True)
+        self.send_keys(terminal, "mkdir {0}\n".format(prefix), clear=False)
+        self.wait_text("mkdir {0}".format(prefix), user, element="div")
         self.send_keys(terminal, "touch {0}abc\n".format(prefix), clear=False)
         self.wait_text("touch {0}abc".format(prefix), user, element="div")
         self.send_keys(terminal, "touch {0}abd\n".format(prefix), clear=False)

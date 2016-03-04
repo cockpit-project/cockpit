@@ -78,6 +78,10 @@ class StorageCase(MachineCase):
         elif isinstance(val, dict):
             for label in val:
                 self.dialog_select(field, label, val[label])
+        elif isinstance(val, int):
+            # size slider
+            self.browser.set_val(self.dialog_field(field) + " select.size-unit", "1048576")
+            self.browser.set_val(self.dialog_field(field) + " input.size-text", str(val))
         else:
             self.browser.set_val(self.dialog_field(field), val)
 
@@ -96,7 +100,12 @@ class StorageCase(MachineCase):
         self.browser.set_checked('%s .checkbox:contains("%s") input' % (self.dialog_field(field), label), val)
 
     def dialog_wait_val(self, field, val):
-        self.browser.wait_val(self.dialog_field(field), val)
+        if isinstance(val, int):
+            # size slider
+            self.browser.wait_val(self.dialog_field(field) + " select.size-unit", "1048576")
+            self.browser.wait_val(self.dialog_field(field) + " input.size-text", str(val))
+        else:
+            self.browser.wait_val(self.dialog_field(field), val)
 
     def dialog_wait_error(self, field, val):
         # XXX - allow for more than one error

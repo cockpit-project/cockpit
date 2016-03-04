@@ -116,21 +116,21 @@ class TestStorage(StorageCase):
         # create a logical volume
         self.content_default_action(1, "Create Plain Logical Volume")
         self.dialog({ "name": "one",
-                      "size": "20" })
+                      "size": 20 })
         b.wait_in_text("#content", "Logical Volume \"one\"")
 
         # try to shrink it without a filesystem.
         self.content_action(1, "Resize")
         self.dialog_wait_open()
-        self.dialog_wait_val("size", "20")
-        self.dialog_set_val("size", "10")
+        self.dialog_wait_val("size", 20)
+        self.dialog_set_val("size", 10)
         self.dialog_apply()
         self.dialog_wait_error(None, "This logical volume can not be made smaller.")
         self.dialog_cancel()
 
         # grow it
         self.content_action(1, "Resize")
-        self.dialog({ "size": "30" })
+        self.dialog({ "size": 30 })
 
         # format and mount it
         self.content_default_action(1, "Format")
@@ -148,7 +148,7 @@ class TestStorage(StorageCase):
 
         # shrink it, this time with a filesystem.
         self.content_action(1, "Resize")
-        self.dialog({ "size": "10" })
+        self.dialog({ "size": 10 })
 
         # delete it
         self.content_action(1, "Delete")
@@ -161,16 +161,17 @@ class TestStorage(StorageCase):
         b.wait_action_btn('#pvols li:nth-child(2) .btn-group', "Remove")
         b.click_action_btn('#pvols li:nth-child(2) .btn-group')
         b.wait_not_in_text("#pvols", "DISK2")
+        b.wait_in_text("#detail .cockpit-info-table", "48 MiB")
 
         # create thin pool and volume
         self.content_action(1, "Create Pool for Thin Logical Volumes")
         self.dialog({ "name": "pool",
-                      "size": "20" })
+                      "size": 20 })
         b.wait_in_text('#content', "Pool for Thin Logical Volumes \"pool\"")
 
         self.content_default_action(1, "Create Thin Volume")
         self.dialog({ "name": "thin",
-                      "size": "50" })
+                      "size": 50 })
         b.wait_in_text('#content', "Thin Logical Volume \"thin\"")
 
         # add a disk and resize the pool
@@ -180,9 +181,10 @@ class TestStorage(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
         b.wait_in_text("#pvols", "DISK2")
+        b.wait_in_text("#detail .cockpit-info-table", "96 MiB")
 
         self.content_action(1, "Resize")
-        self.dialog({ "size": "70" })
+        self.dialog({ "size": 70 })
 
         # use almost all of the pool by erasing the thin volume
         self.content_default_action(2, "Format")

@@ -22,8 +22,8 @@ systemctl start docker || journalctl -u docker
 
 for NAME in kubernetes registry
 do
-    mkdir "/var/tmp/containers/$NAME/rpms"
-    cp -r /var/tmp/build-results/*.rpm "/var/tmp/containers/$NAME/rpms/"
+    mkdir -p "/var/tmp/containers/$NAME/rpms"
+    cp -f /var/tmp/build-results/*.rpm "/var/tmp/containers/$NAME/rpms/"
     cd "/var/tmp/containers/$NAME/"
     docker build --build-arg VERSION=wip -t "cockpit/$NAME" .
     rm -r "/var/tmp/containers/$NAME/rpms"

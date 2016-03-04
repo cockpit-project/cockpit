@@ -126,7 +126,7 @@ docker push registry:5000/marmalade/origin
 oc config use-context default/10-111-112-101:8443/system:admin
 
 # Some roles for testing against
-oc patch --namespace=marmalade policybinding ':default' -p '{"roleBindings":[{"name":"admin","roleBinding":{"metadata":{"name":"admin","namespace":"marmalade"},"userNames":["myadmin"],"groupNames":null,"subjects":[{"kind":"User","name":"myadmin"}],"roleRef":{"name":"admin"}}},{"name":"edit","roleBinding":{"metadata":{"name":"edit","namespace":"marmalade"},"userNames":["myadmin","amanda"],"groupNames":null,"subjects":[{"kind":"User","name":"myadmin"},{"kind":"User","name":"amanda"}],"roleRef":{"name":"edit"}}},{"name":"view","roleBinding":{"metadata":{"name":"view","namespace":"marmalade"},"userNames":["myadmin","tom","amanda"],"groupNames":["sports"],"subjects":[{"kind":"User","name":"myadmin"},{"kind":"User","name":"tom"},{"kind":"User","name":"amanda"},{"kind":"Group","name":"sports"}],"roleRef":{"name":"view"}}}]}'
+oc patch --namespace=marmalade policybinding ':default' -p '{"roleBindings":[{"name":"admin","roleBinding":{"metadata":{"name":"admin","namespace":"marmalade"},"userNames":["scruffy"],"groupNames":null,"subjects":[{"kind":"User","name":"scruffy"}],"roleRef":{"name":"admin"}}},{"name":"edit","roleBinding":{"metadata":{"name":"edit","namespace":"marmalade"},"userNames":["scruffy","amanda"],"groupNames":null,"subjects":[{"kind":"User","name":"scruffy"},{"kind":"User","name":"amanda"}],"roleRef":{"name":"edit"}}},{"name":"view","roleBinding":{"metadata":{"name":"view","namespace":"marmalade"},"userNames":["scruffy","tom","amanda"],"groupNames":["sports"],"subjects":[{"kind":"User","name":"scruffy"},{"kind":"User","name":"tom"},{"kind":"User","name":"amanda"},{"kind":"Group","name":"sports"}],"roleRef":{"name":"view"}}}]}'
 
 # Wait for it to download
 wait images_has busybox
@@ -137,9 +137,6 @@ cat /root/.kube/config
 
 # Wait a bit in case an operator wants to copy some info
 sleep 20
-
-# docker images that we need for integration testing
-/var/lib/testvm/docker-images.setup
 
 # reduce image size
 dnf clean all

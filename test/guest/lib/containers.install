@@ -25,7 +25,7 @@ do
     mkdir -p "/var/tmp/containers/$NAME/rpms"
     cp -f /var/tmp/build-results/*.rpm "/var/tmp/containers/$NAME/rpms/"
     cd "/var/tmp/containers/$NAME/"
-    docker build --build-arg VERSION=wip -t "cockpit/$NAME" .
+    docker build --build-arg OFFLINE=1 -t "cockpit/$NAME" .
     rm -r "/var/tmp/containers/$NAME/rpms"
 done
 

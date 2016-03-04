@@ -131,8 +131,8 @@ define([
                                 validate: function (size) {
                                     if (isNaN(size))
                                         return _("Size must be specified.");
-                                    if (size === 0)
-                                        return _("Size can not be zero.");
+                                    if (size <= 0)
+                                        return _("Size must be greater than zero.");
                                 }
                               },
                               { SelectOne: "erase",

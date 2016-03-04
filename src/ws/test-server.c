@@ -36,6 +36,7 @@
 #include <string.h>
 
 static GMainLoop *loop = NULL;
+static gboolean signalled = FALSE;
 static int exit_code = 0;
 static gint server_port = 0;
 static gchar **bridge_argv;
@@ -645,12 +646,21 @@ on_bridge_done (CockpitPipe *pipe,
 static gboolean
 on_signal_done (gpointer data)
 {
-  if (service)
-    cockpit_web_service_disconnect (service);
-  if (bridge)
-    g_signal_connect (bridge, "close", G_CALLBACK (on_bridge_done), NULL);
-  else
-    g_main_loop_quit (loop);
+  gboolean first = !signalled;
+  signalled = TRUE;
+
+  if (first)
+    {
+      if (service)
+        cockpit_web_service_disconnect (service);
+      if (bridge)
+        {
+          g_signal_connect (bridge, "close", G_CALLBACK (on_bridge_done), NULL);
+          return TRUE;
+        }
+    }
+
+  g_main_loop_quit (loop);
   return TRUE;
 }
 

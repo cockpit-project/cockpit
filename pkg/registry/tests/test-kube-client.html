@@ -68,7 +68,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 "kubeLoader",
                 "MockKubeData",
                 function($q, $exceptionHandler, loader, data) {
-                    data.load(fixtures);
+                    if (fixtures)
+                        data.load(fixtures);
                     loader.reset(true);
 
                     var result;
@@ -470,6 +471,78 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                         ok(!("/api/v1/namespaces/namespace2/pods/pod1" in loader.objects), "pod was removed");
                     });
                 });
+            });
+        }
+    ]);
+
+    kubeTest("patch pod", 4, FIXTURE_BASIC, [
+        "kubeLoader",
+        "kubeMethods",
+        function(loader, methods) {
+            var watch = loader.watch("pods");
+            var path = "/api/v1/namespaces/namespace2/pods/pod1";
+
+            return methods.create(CREATE_ITEMS, "namespace2").then(function() {
+                ok(path in loader.objects, "pod created");
+                return methods.patch(path, { "extra": "blah" }).then(function() {
+                    ok(true, "patch succeeded");
+                    return methods.patch(loader.objects[path], { "second": "test" }).then(function() {
+                        return watch.finally(function() {
+                            var pod = loader.objects[path];
+                            equal(pod.extra, "blah", "pod has changed");
+                            equal(pod.second, "test", "pod changed by own object");
+                        });
+                    });
+                });
+            });
+        }
+    ]);
+    kubeTest("check resource ok", 0, null, [
+        "kubeMethods",
+        function(methods) {
+            var data = { kind: "Blah", metadata: { name: "test" } };
+            return methods.check(data);
+        }
+    ]);
+
+    kubeTest("check resource name empty", 3, null, [
+        "kubeMethods",
+        function(methods) {
+            var data = { kind: "Blah", metadata: { name: "" } };
+            return methods.check(data).catch(function(ex) {
+                ok(angular.isArray(ex), "threw array of failures");
+                equal(ex.length, 1, "number of errors");
+                ok(ex[0] instanceof Error, "threw an error");
+            });
+        }
+    ]);
+
+    kubeTest("check resource name namespace bad", 6, null, [
+        "kubeMethods",
+        function(methods) {
+            var data = { kind: "Blah", metadata: { name: "a#a", namespace: "" } };
+            var targets = { "metadata.name": "#name", "metadata.namespace": "#namespace" };
+            return methods.check(data, targets).catch(function(ex) {
+                ok(angular.isArray(ex), "threw array of failures");
+                equal(ex.length, 2, "number of errors");
+                ok(ex[0] instanceof Error, "threw an error");
+                equal(ex[0].target, "#name", "correct name target");
+                ok(ex[1] instanceof Error, "threw an error");
+                equal(ex[1].target, "#namespace", "correct name target");
+            });
+        }
+    ]);
+
+    kubeTest("check resource namespace bad", 4, null, [
+        "kubeMethods",
+        function(methods) {
+            var data = { kind: "Blah", metadata: { name: "aa", namespace: "" } };
+            var targets = { "metadata.name": "#name", "metadata.namespace": "#namespace" };
+            return methods.check(data, targets).catch(function(ex) {
+                ok(angular.isArray(ex), "threw array of failures");
+                equal(ex.length, 1, "number of errors");
+                ok(ex[0] instanceof Error, "threw an error");
+                equal(ex[0].target, "#namespace", "correct name target");
             });
         }
     ]);

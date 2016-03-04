@@ -113,6 +113,8 @@
             ret = kubeApiGet(req, parts, query, baseUri);
         } else if (req.method === "DELETE") {
             ret = kubeApiDelete(req, parts, query, baseUri);
+        } else if (req.method === "PATCH") {
+            ret = kubeApiPatch(req, parts, query, baseUri);
         }  else {
             req.mockRespond(405, "Unsupported method");
             ret = true;
@@ -350,6 +352,43 @@
         var key = parts.join("/");
 
         var resp = kubeUpdate(key, null);
+        req.mockRespond(200, "OK", { "Content-Type": "application/json" }, JSON.stringify(resp));
+        return true;
+    }
+
+    function kubeApiPatch(req, parts, query, baseUri) {
+        var namespace;
+        var kind;
+        var name;
+
+        if (parts.length === 4) {
+            if (parts[0] != "namespaces")
+                return false;
+            namespace = parts[1];
+            kind = parts[2];
+            name = parts[3];
+        } else if (parts.length === 2) {
+            namespace = parts[1];
+        } else {
+            return false;
+        }
+
+        if (req.headers["Content-Type"] != "application/strategic-merge-patch+json") {
+            req.mockRespond(400, "Bad Content Type");
+            return true;
+        }
+
+        var key = parts.join("/");
+        var patch;
+        try {
+            patch = JSON.parse(req.body);
+        } catch(ex) {
+            req.mockRespond(400, "Bad JSON");
+            return true;
+        }
+
+        var data = angular.extend({ }, kubeData[key] || { }, patch);
+        var resp = kubeUpdate(key, data);
         req.mockRespond(200, "OK", { "Content-Type": "application/json" }, JSON.stringify(resp));
         return true;
     }

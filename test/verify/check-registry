@@ -57,6 +57,7 @@ class TestRegistry(MachineCase):
     def testBasic(self):
         b = self.browser
         m = self.machine
+        o = self.openshift
 
         self.login_and_go("/registry")
         b.wait_present(".dashboard-summary")
@@ -72,6 +73,61 @@ class TestRegistry(MachineCase):
         b.click("tbody[data-id='marmalade/busybee:0.x'] tr td span.image-tag")
         b.wait_present(".listing-head h3")
         b.wait_in_text(".listing-head h3", "marmalade/busybee:0.x")
+
+        output = o.execute("oc get imagestream --namespace=marmalade --output=json busybee")
+        self.assertNotIn(output, "postgres")
+
+        # Add postgres into the stream
+        b.click(".pficon-edit")
+        b.wait_present("modal-dialog")
+        b.wait_visible("#imagestream-modify-populate")
+        b.click("#imagestream-modify-populate button")
+        b.wait_visible("#imagestream-modify-populate .dropdown-menu")
+        b.click("#imagestream-modify-populate a[value='pull']")
+        b.wait_visible("#imagestream-modify-pull")
+        b.set_val("#imagestream-modify-pull", "postgres")
+        b.click(".btn-primary")
+        b.wait_not_present("modal-dialog")
+        output = o.execute("oc get imagestream --namespace=marmalade --output=json busybee")
+        self.assertNotIn(output, "postgres")
+
+        # Remove postgres into the stream
+        b.click(".pficon-edit")
+        b.wait_present("modal-dialog")
+        b.wait_visible("#imagestream-modify-populate")
+        b.click("#imagestream-modify-populate button")
+        b.wait_visible("#imagestream-modify-populate .dropdown-menu")
+        b.click("#imagestream-modify-populate a[value='none']")
+        b.click(".btn-primary")
+        b.wait_not_present("modal-dialog")
+        output = o.execute("oc get imagestream --namespace=marmalade --output=json busybee")
+        self.assertNotIn(output, "postgres")
+
+        # Go to the images view and create a new imagestream
+        b.click("#content a[href='#/images/marmalade']")
+        b.wait_present("a i.pficon-add-circle-o")
+        b.click("a i.pficon-add-circle-o")
+        b.wait_present("modal-dialog")
+        b.wait_visible("#imagestream-modify-name")
+        b.set_val("#imagestream-modify-name", "zero")
+        b.wait_val("#imagestream-modify-project-text", "marmalade")
+        b.click("#imagestream-modify-project button")
+        b.wait_visible("#imagestream-modify-project .dropdown-menu")
+        b.click("#imagestream-modify-project a[value='default']")
+        b.wait_val("#imagestream-modify-project-text", "default")
+        b.set_val("#imagestream-modify-project-text", "###")
+        b.click(".btn-primary")
+        b.wait_visible(".dialog-error")
+        b.set_val("#imagestream-modify-project-text", "default")
+        b.click(".btn-primary")
+        b.wait_not_present("modal-dialog")
+
+        # Switch to the default namespace and look for what we created
+        b.click("filter-bar .namespace-filter button")
+        b.wait_visible("filter-bar .namespace-filter .dropdown-menu")
+        b.click("filter-bar .namespace-filter a[value='default']")
+        b.wait_visible("tbody[data-id='default/zero']")
+
 
 if __name__ == '__main__':
     test_main()

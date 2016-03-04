@@ -445,7 +445,8 @@
         '$modal',
         function($modal) {
             function deleteImageStream(stream) {
-                var modal = $modal.open({
+                return $modal.open({
+                    animation: false,
                     controller: 'ImageStreamDeleteCtrl',
                     templateUrl: 'views/imagestream-delete.html',
                     resolve: {
@@ -453,13 +454,39 @@
                             return { stream: stream };
                         }
                     },
-                });
+                }).result;
+            }
 
-                return modal.result;
+            function createImageStream() {
+                return $modal.open({
+                    animation: false,
+                    controller: 'ImageStreamModifyCtrl',
+                    templateUrl: 'views/imagestream-modify.html',
+                    resolve: {
+                        dialogData: function() {
+                            return { };
+                        }
+                    },
+                }).result;
+            }
+
+            function modifyImageStream(stream) {
+                return $modal.open({
+                    animation: false,
+                    controller: 'ImageStreamModifyCtrl',
+                    templateUrl: 'views/imagestream-modify.html',
+                    resolve: {
+                        dialogData: function() {
+                            return { stream: stream };
+                        }
+                    },
+                }).result;
             }
 
             return {
-                deleteImageStream: deleteImageStream
+                createImageStream: createImageStream,
+                modifyImageStream: modifyImageStream,
+                deleteImageStream: deleteImageStream,
             };
         }
     ])
@@ -475,6 +502,72 @@
             $scope.performDelete = function performDelete() {
                 return methods.delete($scope.stream);
             };
+        }
+    ])
+
+    .controller("ImageStreamModifyCtrl", [
+        "$scope",
+        "$modalInstance",
+        "dialogData",
+        "kubeMethods",
+        "filterService",
+        function($scope, $instance, dialogData, methods, filter) {
+            var stream = dialogData.stream || { };
+            var meta = stream.metadata || { };
+            var spec = stream.spec || { };
+
+            var fields = {
+                name: meta.name || "",
+                project: meta.namespace || filter.namespace() || "",
+                populate: spec.dockerImageRepository ? "pull" : "none",
+                pull: spec.dockerImageRepository || "",
+            };
+
+            $scope.fields = fields;
+            $scope.labels = {
+                populate: {
+                    none: "Don't pull images automatically",
+                    pull: "Pull all tags from another image repository",
+                }
+            };
+
+            function performModify() {
+                var data = { spec: { dockerImageRepository: null, tags: null } };
+
+                if (fields.populate != "none")
+                    data.spec.dockerImageRepository = fields.pull.trim();
+
+                return methods.patch(stream, data);
+            }
+
+            function performCreate() {
+                var data = {
+                    kind: "ImageStream",
+                    metadata: {
+                        name: fields.name.trim(),
+                        namespace: fields.project.trim(),
+                    }
+                };
+
+                if (fields.populate != "none") {
+                    data.spec = {
+                        dockerImageRepository: fields.pull.trim(),
+                    };
+                }
+
+                return methods.check(data, {
+                    "metadata.name": "#imagestream-modify-name",
+                    "metadata.namespace": "#imagestream-modify-project",
+                }).then(function() {
+                    return methods.create(data, fields.project);
+                });
+            }
+
+            $scope.performCreate = performCreate;
+            $scope.performModify = performModify;
+
+            $scope.projects = filter.namespaces;
+            angular.extend($scope, dialogData);
         }
     ]);
 }());

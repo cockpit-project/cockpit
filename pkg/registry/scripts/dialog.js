@@ -124,10 +124,15 @@
     ]);
 
     function queryAll(element, selector) {
-        var result = [];
-        var i, len = element.length;
-        for (i = 0; i < len; i++)
-            result.push.apply(result, element[i].querySelectorAll(selector));
+        var list, result = [];
+        var j, i, jlen, len = element.length;
+        for (i = 0; i < len; i++) {
+            list = element[i].querySelectorAll(selector);
+            if (list) {
+                for (j = 0, jlen = list.length; j < jlen; j++)
+                    result.push(list[i]);
+            }
+        }
         return angular.element(result);
     }
 
@@ -257,7 +262,11 @@
 
         function handleClear(ev) {
             var target = ev.target;
-            clearError(angular.element(target));
+            /* jshint validthis:true */
+            while (target !== this) {
+                clearError(angular.element(target));
+                target = target.parentNode;
+            }
         }
 
         function clearError(target) {

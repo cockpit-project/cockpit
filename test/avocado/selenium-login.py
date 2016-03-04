@@ -181,7 +181,7 @@ class BasicTestSuite(SeleniumTest):
         self.send_keys(terminal, "touch {0}abd\n".format(prefix), clear=False)
         self.wait_text("touch {0}abd".format(prefix), user, element="div")
         self.send_keys(terminal, "ls {0}*\n".format(prefix), clear=False)
-        self.wait_text("ls {0}*".format(prefix), '{0}abc {0}abd'.format(prefix), element="div")
+        self.wait_text("ls {0}*".format(prefix), '{0}abc'.format(prefix), element="div")
         process.run("ls {0}abc".format(prefix), shell=True)
         process.run("ls {0}abd".format(prefix), shell=True)
         self.send_keys(terminal, "rm {0}abc {0}abd\n".format(prefix), clear=False)

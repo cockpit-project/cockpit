@@ -518,7 +518,7 @@
                     }
                 }, function(response) {
                     req = null;
-                    throw response;
+                    return $q.reject(response);
                 });
                 promise.cancel = function cancel(ex) {
                     req.cancel(ex);
@@ -1123,7 +1123,7 @@
                         loader.handle(resource, true);
                 }, function(response) {
                     var resp = response.data;
-                    throw resp || response;
+                    return $q.reject(resp || response);
                 });
             }
 
@@ -1138,7 +1138,7 @@
                         loader.handle(response.data);
                 }, function(response) {
                     var resp = response.data;
-                    throw resp || response;
+                    return $q.reject(resp || response);
                 });
             }
 

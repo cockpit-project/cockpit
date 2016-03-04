@@ -164,9 +164,10 @@ class TestStorage(StorageCase):
         b.wait_in_text("#detail .cockpit-info-table", "48 MiB")
 
         # create thin pool and volume
+        # the pool will be maximum size, 48 MiB
         self.content_action(1, "Create Pool for Thin Logical Volumes")
-        self.dialog({ "name": "pool",
-                      "size": 20 })
+        self.dialog(expect = { "size": 48 },
+                    values = { "name": "pool" })
         b.wait_in_text('#content', "Pool for Thin Logical Volumes \"pool\"")
 
         self.content_default_action(1, "Create Thin Volume")

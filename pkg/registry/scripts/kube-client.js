@@ -42,6 +42,7 @@
         { kind: "Image", type: "images", api: OPENSHIFT, global: true },
         { kind: "ImageStream", type: "imagestreams", api: OPENSHIFT },
         { kind: "ImageStreamImage", type: "imagestreamimages", api: OPENSHIFT },
+        { kind: "ImageStreamTag", type: "imagestreamtags", api: OPENSHIFT },
         { kind: "Namespace", type: "namespaces", api: KUBE, global: true, create: -100 },
         { kind: "Node", type: "nodes", api: KUBE, global: true },
         { kind: "Pod", type: "pods", api: KUBE, create: -20 },

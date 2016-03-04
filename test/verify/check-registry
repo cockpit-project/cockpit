@@ -128,6 +128,28 @@ class TestRegistry(MachineCase):
         b.click("filter-bar .namespace-filter a[value='default']")
         b.wait_visible("tbody[data-id='default/zero']")
 
+        # Delete the tagged image from its own screen
+        b.go("#/images/marmalade/busybee:0.x")
+        b.wait_in_text(".content-filter h3", "marmalade/busybee:0.x")
+        b.click(".pficon-delete")
+        b.wait_present("modal-dialog")
+        b.click("modal-dialog .btn-danger")
+        b.wait_not_present("modal-dialog")
+
+        # Should redirect to the imagestream page
+        b.wait_in_text(".content-filter", "Show all image streams")
+        self.assertNotIn("0.x", b.text("#content"))
+
+        # Delete via the main UI
+        b.wait_present("tbody[data-id='marmalade/busybee:latest']")
+        b.click("tbody[data-id='marmalade/busybee:latest'] tr td span.image-tag")
+        b.click(".listing-head .pficon-delete")
+        b.wait_present("modal-dialog")
+        b.click("modal-dialog .btn-danger")
+        b.wait_not_present("modal-dialog")
+
+        # All tags here have been removed
+        b.wait_not_present(".image-tag")
 
 if __name__ == '__main__':
     test_main()

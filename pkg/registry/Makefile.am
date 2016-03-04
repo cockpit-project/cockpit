@@ -3,6 +3,7 @@ registry_VIEWS = \
 	pkg/registry/views/filter-bar.html \
 	pkg/registry/views/image-body.html \
 	pkg/registry/views/image-config.html \
+	pkg/registry/views/image-delete.html \
 	pkg/registry/views/image-meta.html \
 	pkg/registry/views/image-listing.html \
 	pkg/registry/views/image-page.html \

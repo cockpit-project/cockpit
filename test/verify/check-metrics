@@ -138,9 +138,9 @@ class TestMetrics(MachineCase):
         m = self.machine
 
         self.login_and_go("/system")
-        wait(lambda: m.execute("pgrep cockpit-pcp"))
 
         self.check_host_metrics()
+        m.execute("pgrep cockpit-pcp")
 
     def testInternal(self):
         b = self.browser
@@ -150,7 +150,6 @@ class TestMetrics(MachineCase):
         m.execute("! [ -f /usr/lib/cockpit/cockpit-pcp ] || rm /usr/lib/cockpit/cockpit-pcp")
 
         self.login_and_go("/system")
-        m.execute("! pgrep cockpit-pcp")
 
         self.check_host_metrics()
         m.execute("! pgrep cockpit-pcp")

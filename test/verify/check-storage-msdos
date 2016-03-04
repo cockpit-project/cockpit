@@ -52,7 +52,7 @@ class TestStorage(StorageCase):
 
         # Create a primary partition
         self.content_single_action(1, "Create Partition")
-        self.dialog({ "size": "10",
+        self.dialog({ "size": 10,
                       "type": "ext4",
                       "name": "FIRST" })
         b.wait_in_text("#detail", "FIRST")

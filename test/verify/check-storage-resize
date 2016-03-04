@@ -44,13 +44,13 @@ class TestStorage(StorageCase):
         b.wait_in_text("#content", "/run/media/admin/FSYS")
 
         self.content_action(1, "Resize")
-        self.dialog({ "size": "400" })
+        self.dialog({ "size": 400 })
 
         size = int(m.execute("df -k --output=size /run/media/admin/FSYS | tail -1").strip())
         assert (size > 300000)
 
         self.content_action(1, "Resize")
-        self.dialog({ "size": "200" })
+        self.dialog({ "size": 200 })
 
         # Shrinking a filesystem will unmount it
         self.content_action(1, "Mount")

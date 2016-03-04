@@ -55,7 +55,12 @@ def prepare_avocado_tests(machine):
     machine.upload([os.path.join(machine.test_dir, "avocado")], machine_test_dir)
 
 def tap_output(machine):
-    json_info = json.loads(machine.execute(command="cat " + os.path.join(avocado_results_dir, "latest/results.json"), quiet=True))
+    try:
+        json_info = json.loads(machine.execute(command="cat " + os.path.join(avocado_results_dir, "latest/results.json"), quiet=True))
+    except Exception as e:
+        print "ERROR: Unable to fetch JSON from remote machine:", os.path.join(avocado_results_dir, "latest/results.json")
+        print e
+        return None
     print "\nTAP output -------------------------"
     print "1..%s" % len(json_info['tests'])
     counter = 1
@@ -67,7 +72,11 @@ def tap_output(machine):
         print "# ----------------------------------------------------------------------"
         print "# %s (time %d secs)" % (test_name, test_time)
         print "#"
-        print machine.execute(command="cat " + test_log, quiet=True)
+        try:
+            print machine.execute(command="cat " + test_log, quiet=True)
+        except Exception as e:
+            print "ERROR: Unable to fetch testlog from remote machine:", test_log
+            print e
         print "# TEST LOG END -------"
         if test_status == 'PASS':
             print "ok %s %s (time %d secs)" % (counter, test_name, test_time)

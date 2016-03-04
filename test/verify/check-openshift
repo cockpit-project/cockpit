@@ -349,5 +349,24 @@ class TestRegistry(MachineCase):
         # All tags here have been removed
         b.wait_not_present(".image-tag")
 
+    def testProjectAdmin(self):
+        o = self.openshift
+        b = self.browser
+        m = self.machine
+
+        # Log in as scruffy
+        tmpfile = os.path.join(self.tmpdir, "scruffy")
+        o.execute('printf "scruffy\r\nscruffy\r\n" | oc login')
+        o.download("/root/.kube/config", tmpfile)
+        with open(tmpfile, "r") as f:
+            m.execute("mkdir -p /home/admin/.kube && cat > /home/admin/.kube/config", input=f.read())
+
+        self.login_and_go("/registry")
+
+        # Make sure the summary is not visible to non cluster admins
+        b.wait_present(".dashboard-images")
+        b.wait_visible(".dashboard-images:nth-child(1)")
+        b.wait_not_present(".dashboard-summary")
+
 if __name__ == '__main__':
     test_main()

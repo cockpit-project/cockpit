@@ -64,8 +64,9 @@
         '$timeout',
         'kubeLoader',
         'kubeSelect',
+        'filterService',
         'cockpitKubeDiscover',
-        function($scope, $location, $rootScope, $timeout, loader, select, discover) {
+        function($scope, $location, $rootScope, $timeout, loader, select, filter, discover) {
             $scope.settings = {
                 registry: {
                     host: "hostname"
@@ -112,11 +113,17 @@
             /* Show after some seconds whether ready or not */
             $timeout(visible, 1000);
 
+            function display(admin) {
+                $scope.curtains = null;
+                $scope.settings.admin = admin;
+                filter.globals(admin);
+                visible();
+            }
+
             /* Curtains related logic */
             function connect() {
                 $scope.curtains = { };
                 discover().then(function(options) {
-                    $scope.curtains = null;
                     $scope.settings.registry.password = null;
 
                     /* See if we have a bearer token to use */
@@ -127,7 +134,11 @@
                             $scope.settings.registry.password = authorization.substr(7).trim();
                     }
 
-                    visible();
+                    loader.watch("namespaces").then(function() {
+                        display(true);
+                    }, function() {
+                        display(false);
+                    });
                 }, function(resp) {
                     $scope.curtains = { status: resp.status, message: resp.message || resp.statusText };
                     $scope.settings.registry.password = null;
@@ -213,16 +224,11 @@
              *
              * Kubernetes and Openshift
              *  - Namespace objects are only accessible to all users
+             *
+             * The globals variable is set based on this.
              */
 
             var globals = true;
-
-            loader.watch("namespaces")
-                .catch(function() {
-                    globals = false;
-                    loadNamespace($route.current);
-                });
-
             loader.load("projects");
 
             /*
@@ -277,10 +283,19 @@
                 loadNamespace(current);
             });
 
-            loadNamespace($route.current);
+            if ($route.current)
+                loadNamespace($route.current);
 
             return {
-                namespaces: calcAvailable,
+                globals: function(value) {
+                    if (arguments.length === 0)
+                        return globals;
+                    value = !!value;
+                    if (globals !== value) {
+                        globals = value;
+                        loadNamespace($route.current);
+                    }
+                },
                 namespace: function(value) {
                     if (arguments.length === 0)
                         return $route.current.params["namespace"];
@@ -288,7 +303,8 @@
                     copy["namespace"] = value || "";
                     copy["target"] = null;
                     $route.updateParams(copy);
-                }
+                },
+                namespaces: calcAvailable,
             };
         }
     ]);

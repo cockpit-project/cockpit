@@ -18,9 +18,8 @@
     <tbody ng-repeat-start="stream in imagestreams() track by stream.metadata.name"
            ng-init="sid = stream.metadata.namespace + '/' + stream.metadata.name"
            data-id="{{ sid }}" class="active" ng-class="{open: listing.expanded(sid)}">
-        <tr class="listing-item imagestream-item" ng-click="listing.toggle(sid)"
-            ng-if="!listing.inline">
-            <th colspan="4">{{ sid }}</th>
+        <tr class="listing-item imagestream-item" ng-click="listing.toggle(sid)">
+            <th ng-if="!listing.inline" colspan="4">{{ sid }}</th>
         </tr>
         <tr class="listing-panel" ng-if="listing.expanded(sid)" ng-init="id = sid">
             <td listing-panel kind="ImageStream" colspan="3"></td>

@@ -53,6 +53,8 @@
         { kind: "User", type: "users", api: OPENSHIFT, global: true },
     ]);
 
+    var NAME_RE = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
+
     function debug() {
         if (window.debugging == "all" || window.debugging == "kube")
             console.debug.apply(console, arguments);
@@ -516,7 +518,7 @@
                     }
                 }, function(response) {
                     req = null;
-                    throw response;
+                    return $q.reject(response);
                 });
                 promise.cancel = function cancel(ex) {
                     req.cancel(ex);
@@ -1121,13 +1123,70 @@
                         loader.handle(resource, true);
                 }, function(response) {
                     var resp = response.data;
-                    throw resp || response;
+                    return $q.reject(resp || response);
                 });
+            }
+
+            function patchResource(resource, patch) {
+                var path = resourcePath([resource]);
+                var body = JSON.stringify(patch);
+                var config = { headers: { "Content-Type": "application/strategic-merge-patch+json" } };
+                var promise = new KubeRequest("PATCH", path, body, config);
+                return promise.then(function(response) {
+                    debug("patched resource:", path, response.data);
+                    if (response.data.kind)
+                        loader.handle(response.data);
+                }, function(response) {
+                    var resp = response.data;
+                    return $q.reject(resp || response);
+                });
+            }
+
+            function checkResource(resource, targets) {
+                var defer = $q.defer();
+                var ex, exs = [];
+
+                if (!targets)
+                    targets = { };
+
+                /* Some simple metadata checks */
+                var meta = resource.metadata;
+                if (meta) {
+                    ex = null;
+                    if (!meta.name)
+                        ex = new Error("The name cannot be empty");
+                    else if (!NAME_RE.test(meta.name))
+                        ex = new Error("The name contains invalid characters");
+                    if (ex) {
+                        ex.target = targets["metadata.name"];
+                        exs.push(ex);
+                    }
+
+                    ex = null;
+                    if (meta.namespace !== undefined) {
+                        if (!meta.namespace)
+                            ex = new Error("The namespace cannot be empty");
+                        else if (!NAME_RE.test(meta.namespace))
+                            ex = new Error("The name contains invalid characters");
+                    }
+                    if (ex) {
+                        ex.target = targets["metadata.namespace"];
+                        exs.push(ex);
+                    }
+                }
+
+                if (exs.length)
+                    defer.reject(exs);
+                else
+                    defer.resolve();
+                return defer.promise;
             }
 
             return {
                 "create": createObjects,
-                "delete": deleteResource
+                "delete": deleteResource,
+                check: checkResource,
+                patch: patchResource,
             };
         }
     ])

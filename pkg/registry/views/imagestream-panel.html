@@ -3,7 +3,8 @@
         <div class="listing-actions">
             <button class="btn btn-danger btn-delete pficon pficon-delete"
                 ng-click="deleteImageStream(stream)"></button>
-            <button class="btn btn-default pficon pficon-edit" disabled></button>
+            <button class="btn btn-default pficon pficon-edit"
+                ng-click="modifyImageStream(stream)"></button>
         </div>
         <h3><i class="fa fa-th-list"></i>{{ object.name }}</h3>
         <ul class="nav nav-tabs nav-tabs-pf">

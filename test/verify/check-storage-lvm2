@@ -30,10 +30,6 @@ class TestStorage(StorageCase):
         mount_point_one = "/run/one"
         mount_point_thin = "/run/thin"
 
-        # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1211183
-        if m.image == "rhel-7":
-            return
-
         self.login_and_go("/storage")
         b.wait_in_text("#drives", "VirtIO")
 

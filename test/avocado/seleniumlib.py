@@ -111,8 +111,9 @@ class SeleniumTest(Test):
                 self.log.info('ERR: Unable to close WEBdriver: {0}'.format(e))
 
     def get_debug_logs(self, logs=['browser','driver','client','server']):
+        max_line_log_count = 10
         for log in logs:
-            receivedlog = self.driver.get_log(log)
+            receivedlog = [x for x in self.driver.get_log(log)][-max_line_log_count:]
             if receivedlog:
                 self.log.info(">>>>> " + log)
                 for line in receivedlog:

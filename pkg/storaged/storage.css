@@ -242,7 +242,8 @@
     height: 5px;
     white-space: nowrap;
     font-size: 0px;
-    background-color: #e7e7e7;
+    background-color: #ededed;
+    box-shadow: inset 0 0 1px rgba(0,0,0,0.5);
     cursor: pointer;
     user-select: none;
     -moz-user-select: none;
@@ -270,7 +271,7 @@
 
 .slider > div:first-child {
     float: left;
-    background-color: #0099d3;
+    background-color: #00a8e1;
 }
 
 .slider-disabled > div:first-child {
@@ -281,14 +282,15 @@
 .slider-thumb {
     position: absolute;
     border-radius: 9px;
-    background-color: #0099d3;
+    background-color: #0085cf;
     width: 18px;
     height: 18px;
     top: -6px;
     right: -9px;
     content: '.';
     cursor: pointer;
-    border: 1px solid #267da1;
+    border: 1px solid #006e9c;
+    background-image: linear-gradient(to bottom,#00a8e1 0%,#0085cf 100%);
     z-index: 1;
 }
 

@@ -178,6 +178,18 @@
 
                 return promise;
             };
+
+            $scope.deleteTag = function(stream, tag) {
+                var promise = actions.deleteTag(stream, tag);
+
+                /* If the promise is successful, redirect to another page */
+                promise.then(function() {
+                    var parts = [ "images", stream.metadata.namespace, stream.metadata.name ];
+                    $location.path("/" + parts.map(encodeURIComponent).join("/"));
+                });
+
+                return promise;
+            };
         }
     ])
 
@@ -446,6 +458,7 @@
         function($modal) {
             function deleteImageStream(stream) {
                 var modal = $modal.open({
+                    animation: false,
                     controller: 'ImageStreamDeleteCtrl',
                     templateUrl: 'views/imagestream-delete.html',
                     resolve: {
@@ -458,8 +471,24 @@
                 return modal.result;
             }
 
+            function deleteTag(stream, tag) {
+                var modal = $modal.open({
+                    animation: false,
+                    controller: 'ImageDeleteCtrl',
+                    templateUrl: 'views/image-delete.html',
+                    resolve: {
+                        dialogData: function() {
+                            return { stream: stream, tag: tag };
+                        }
+                    },
+                });
+
+                return modal.result;
+            }
+
             return {
-                deleteImageStream: deleteImageStream
+                deleteImageStream: deleteImageStream,
+                deleteTag: deleteTag,
             };
         }
     ])
@@ -474,6 +503,21 @@
 
             $scope.performDelete = function performDelete() {
                 return methods.delete($scope.stream);
+            };
+        }
+    ])
+
+    .controller("ImageDeleteCtrl", [
+        "$scope",
+        "$modalInstance",
+        "dialogData",
+        "kubeMethods",
+        function($scope, $instance, dialogData, methods) {
+            angular.extend($scope, dialogData);
+
+            $scope.performDelete = function performDelete() {
+                var name = $scope.stream.metadata.name + ":" + $scope.tag.tag;
+                return methods.delete("ImageStreamTag", name, $scope.stream.metadata.namespace);
             };
         }
     ]);

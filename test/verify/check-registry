@@ -128,6 +128,14 @@ class TestRegistry(MachineCase):
         b.click("filter-bar .namespace-filter a[value='default']")
         b.wait_visible("tbody[data-id='default/zero']")
 
+        # Go to the images view and check annotations
+        b.wait_present("tbody[data-id='default/busybox']")
+        b.click("tbody[data-id='default/busybox'] th")
+        b.wait_present(".content-filter h3")
+        b.wait_in_text(".content-filter h3", "default/busybox")
+        b.wait_in_text("#content", "Annotations")
+        b.wait_in_text("div[imagestream-meta]", "openshift.io/image.dockerRepositoryCheck")
+
         # Delete the tagged image from its own screen
         b.go("#/images/marmalade/busybee:0.x")
         b.wait_in_text(".content-filter h3", "marmalade/busybee:0.x")

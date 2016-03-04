@@ -2,11 +2,6 @@
     <dt translatable="yes">Pull repository</dt>
     <dd ng-if="stream.spec.dockerImageRepository"><tt>{{stream.spec.dockerImageRepository}}</tt></dd>
     <dd ng-if="!stream.spec.dockerImageRepository"><em translatable="yes">None</em></dd>
-    <dt ng-if="stream.spec.dockerImageRepository" translatable="yes">Pull tags</dt>
-    <dd ng-if="stream.spec.dockerImageRepository && !stream.spec.tags"><em translatable="yes">All</em></dd>
-    <dd ng-if="stream.spec.dockerImageRepository && stream.spec.tags">
-        <span class="image-tag" ng-repeat="tag in stream.spec.tags">{{ tag.tag }}
-    </dd>
     <dt translatable="yes">Image count</dt>
     <dd translatable="yes">{{stream.status.tags.length}}</dd>
 </dl>
@@ -15,4 +10,4 @@
     <span translatable="yes">To push to an image to this image stream:</span>
 </p>
 <pre>$ sudo docker tag <em>myimage</em> {{stream.status.dockerImageRepository}}:<em>tag</em>
-$ sudo docker push {{stream.status.dockerImageRepository}}/{{stream.metadata.name}}</pre>
+$ sudo docker push {{stream.status.dockerImageRepository}}</pre>

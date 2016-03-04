@@ -6,16 +6,14 @@
             <button class="btn btn-default pficon pficon-edit"
                 ng-click="modifyImageStream(stream)"></button>
         </div>
-        <h3><i class="fa fa-th-list"></i>{{ object.name }}</h3>
+        <h3><i class="fa fa-th-list"></i>{{ stream.metadata.namespace}}/{{ stream.metadata.name }}</h3>
         <ul class="nav nav-tabs nav-tabs-pf">
             <li ng-class="{active: tab('main')}"><a ng-click="tab('main', $event)">Image stream</a></li>
             <li ng-class="{active: tab('meta')}"><a ng-click="tab('meta', $event)">Metadata</a></li>
         </ul>
     </div>
     <div imagestream-body class="listing-body" ng-show="tab('main')">
-        Image stream
     </div>
     <div imagestream-meta class="listing-body" ng-show="tab('meta')">
-        Meta
     </div>
 </div>

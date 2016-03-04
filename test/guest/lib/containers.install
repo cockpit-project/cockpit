@@ -25,7 +25,8 @@ do
     mkdir -p "/var/tmp/containers/$NAME/rpms"
     cp -f /var/tmp/build-results/*.rpm "/var/tmp/containers/$NAME/rpms/"
     cd "/var/tmp/containers/$NAME/"
-    docker build --build-arg OFFLINE=1 -t "cockpit/$NAME" .
+    sed -i -e "s#FROM .*#FROM cockpit/base#" Dockerfile
+    docker build --build-arg OFFLINE=1 -t "cockpit/$NAME" . 1>&2;
     rm -r "/var/tmp/containers/$NAME/rpms"
 done
 

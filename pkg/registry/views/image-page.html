@@ -1,12 +1,13 @@
 <div class="content-filter">
     <div class="listing-actions">
-        <button class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
+        <button class="btn btn-danger btn-delete pficon pficon-delete"
+            ng-click="deleteTag(stream, tag)"></button>
     </div>
     <h3>
         <i class="pficon pficon-image"></i>
         {{ stream.metadata.namespace }}/{{ stream.metadata.name}}:{{ tag.tag }}
     </h3>
-    <a ng-href="#/images/{{ stream.metadata.namespace }}/{{ imagestream.metadata.name }}"
+    <a ng-href="#/images/{{ stream.metadata.namespace }}/{{ stream.metadata.name }}"
         translatable="yes" class="hidden-xs">Show all images</a>
 </div>
 

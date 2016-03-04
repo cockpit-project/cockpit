@@ -1,4 +1,4 @@
-FROM cockpit/base
+FROM fedora:23
 
 ARG RELEASE=1
 ARG VERSION=0.96

@@ -4,286 +4,659 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-06 17:06-0700\n"
-"PO-Revision-Date: 2015-07-01 09:49-0400\n"
+"POT-Creation-Date: 2016-03-04 15:39-0800\n"
+"PO-Revision-Date: 2015-10-12 01:10-0400\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <kde-i18n-uk@kde.org>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Zanata 3.7.2\n"
+"X-Generator: Zanata 3.8.2\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
 
-#: ../pkg/dashboard/index.html.h:1 ../pkg/shell/index.html.h:1
-#: ../pkg/systemd/index.html.h:1 ../src/ws/cockpit.desktop.in.h:1
-msgid "Cockpit"
-msgstr "Cockpit"
+#: ../pkg/tuned/dialog.js:99
+#, fuzzy
+msgid "Tuned is not available"
+msgstr "Недоступний"
 
-#: ../pkg/dashboard/index.html.h:2
-msgid "Lost connection. Trying to reconnect"
-msgstr "З’єднання розірвано. Намагаємося його повторно встановити"
+#: ../pkg/tuned/dialog.js:101
+#, fuzzy
+msgid "Tuned is not running"
+msgstr "Зупинено"
 
-#: ../pkg/dashboard/index.html.h:3 ../pkg/realmd/operation.html.h:4
-#: ../pkg/users/index.html.h:8
-msgid "User Name"
-msgstr "Ім'я користувача"
-
-#: ../pkg/dashboard/index.html.h:4 ../pkg/users/index.html.h:13
-msgid "Password"
-msgstr "Пароль"
-
-#: ../pkg/dashboard/list.js:206
-msgid "The user <b>$0</b> is not permitted to manage servers"
-msgstr "Користувачу <b>$0</b> заборонено керувати серверами"
-
-#: ../pkg/dashboard/list.js:406
-msgid ""
-"You are currently connected directly to this server. You cannot delete it."
+#: ../pkg/tuned/dialog.js:103
+msgid "Tuned is off"
 msgstr ""
-"Зараз ваш комп’ютер безпосередньо з’єднано із цим сервером. Ви не можете "
-"його вилучити."
 
-#: ../pkg/dashboard/list.js:578
-msgid "IP address or host name cannot contain whitespace."
+#: ../pkg/tuned/dialog.js:105
+msgid "This system is using the recommended profile"
+msgstr ""
+
+#: ../pkg/tuned/dialog.js:107
+msgid "This system is using a custom profile"
+msgstr ""
+
+#: ../pkg/tuned/dialog.js:117
+msgid "Communication with tuned has failed"
+msgstr ""
+
+#: ../pkg/tuned/dialog.js:174 ../pkg/registry/views/image-config.html.h:7
+#: ../pkg/registry/views/imagestream-body.html.h:2
+#: ../pkg/kubernetes/views/service-panel.html.h:9
+msgid "None"
+msgstr ""
+
+#: ../pkg/tuned/dialog.js:174
+#, fuzzy
+msgid "Disable tuned"
+msgstr "Вимкнено"
+
+#: ../pkg/tuned/dialog.js:236
+#, fuzzy
+msgid "Tuned has failed to start"
+msgstr "Не вдалося встановити образ."
+
+#: ../pkg/shell/index.js:134 ../pkg/shell/simple-index.js:83
+#: ../pkg/shell/simple.html.h:17
+msgid "Disconnected"
+msgstr "Роз'єднано"
+
+#: ../pkg/shell/index.js:244 ../pkg/kubernetes/views/dashboard-page.html.h:11
+msgid "Machines"
+msgstr "Машини"
+
+#: ../pkg/shell/index.js:305
+msgid "The machine is restarting"
+msgstr "Комп’ютер перезавантажується"
+
+#: ../pkg/shell/index.js:308
+msgid "Connecting to the machine"
+msgstr "Встановлюємо з’єднання із комп’ютером"
+
+#: ../pkg/shell/index.js:311
+msgid "Couldn't connect to the machine"
+msgstr "Не вдалося встановити з’єднання із комп’ютером"
+
+#: ../pkg/shell/index.js:313
+msgid "Cannot connect to an unknown machine"
+msgstr "Неможливо встановити з’єднання із невідомим комп’ютером"
+
+#: ../pkg/shell/machine-dialogs.js:362
+msgid "This machine has already been added."
+msgstr ""
+
+#: ../pkg/shell/machine-dialogs.js:378
+msgid ""
+"This version of cockpit-ws does not support connecting to a host with an "
+"alternate user or port"
+msgstr ""
+
+#: ../pkg/shell/machine-dialogs.js:384
+#, fuzzy
+msgid "The IP address or host name cannot contain whitespace."
 msgstr "У IP-адресі або назві вузла не повинно бути пробілів."
 
-#: ../pkg/dashboard/list.js:581 ../pkg/dashboard/list.js:606
-#: ../pkg/dashboard/list.js:712 ../pkg/dashboard/list.js:812
-#: ../pkg/dashboard/list.js:850 ../pkg/dashboard/list.js:871
-#: ../pkg/realmd/operation.html.h:11
-msgid "Next"
-msgstr "Далі"
+#: ../pkg/shell/machine-dialogs.js:410
+#, fuzzy
+msgid "Failed to add machine: $0"
+msgstr "Не вдалося запустити Docker: $0"
 
-#: ../pkg/dashboard/list.js:603
-msgid "User name cannot contain whitespace."
-msgstr "У імені користувача не повинно бути пробілів."
-
-#: ../pkg/dashboard/list.js:620
+#: ../pkg/shell/machine-dialogs.js:436
 msgid "Enter IP address or host name"
 msgstr "Введіть IP-адресу або назву вузла"
 
-#: ../pkg/dashboard/list.js:728
-msgid "Add host"
-msgstr "Додати вузол"
+#: ../pkg/shell/machine-dialogs.js:471
+#, fuzzy
+msgid "Failed to edit machine: $0"
+msgstr "Не вдалося запустити Docker: $0"
 
-#: ../pkg/dashboard/list.js:737 ../pkg/systemd/services.html.h:12
-msgid "Close"
-msgstr "Закрити"
-
-#: ../pkg/dashboard/list.js:853
-msgid "IP address or host name cannot be empty."
-msgstr "IP-адреса або назва вузла не може бути порожньою."
-
-#: ../pkg/dashboard/list.js:874
-msgid "User name cannot be empty."
-msgstr "Ім’я користувача не може бути порожнім."
-
-#: ../pkg/dashboard/list.js:950
-msgid "Synchronize admin logins"
-msgstr "Синхронізувати адміністративні входи"
-
-#: ../pkg/docker/console.html.h:1 ../pkg/docker/run.js:194
-msgid "Container"
-msgstr "Контейнер"
-
-#: ../pkg/docker/index.html.h:1
-msgid "Containers"
-msgstr "Контейнери"
-
-#: ../pkg/docker/index.html.h:2
-msgid "Connecting to Docker"
-msgstr "Встановлюємо з’єднання із Docker"
-
-#: ../pkg/docker/index.html.h:3
-msgid "Not authorized to access Docker on this system"
-msgstr "Не уповноважено на доступ до Docker у цій системі"
-
-#: ../pkg/docker/index.html.h:4
-msgid "Docker is not installed or activated on the system"
-msgstr "Docker не встановлено або не активовано у цій системі"
-
-#: ../pkg/docker/index.html.h:5
-msgid "Can't connect to Docker"
-msgstr "Не вдалося з’єднатися з Docker"
-
-#: ../pkg/docker/index.html.h:6
-msgid "Start Docker"
-msgstr "Запустити Docker"
-
-#: ../pkg/docker/index.html.h:7
-msgid "Try again"
-msgstr "Повторити спробу"
-
-#: ../pkg/docker/index.html.h:8 ../pkg/systemd/logs.html.h:9
-msgid "All"
-msgstr "Всі"
-
-#: ../pkg/docker/index.html.h:9 ../pkg/storaged/details.js:1416
-msgid "Running"
-msgstr "Працює"
-
-#: ../pkg/docker/index.html.h:10
-msgid ""
-"\n"
-"              Get new image\n"
-"            "
+#: ../pkg/shell/credentials.js:176
+msgid "No such file or directory"
 msgstr ""
-"\n"
-"              Отримати новий образ\n"
-"            "
 
-#: ../pkg/docker/index.html.h:13
-msgid "{{host_port_label}}"
-msgstr "{{host_port_label}}"
+#: ../pkg/shell/credentials.js:180
+#, fuzzy
+msgid "The passwords do not match."
+msgstr "Паролі не збігаються"
 
-#: ../pkg/docker/index.html.h:14
-msgid "{{alias_label}}"
-msgstr "{{alias_label}}"
+#: ../pkg/shell/credentials.js:185
+#, fuzzy
+msgid "Prompting via ssh-keygen timed out"
+msgstr "Час очікування відповіді на запит за допомогою passwd вичерпано"
 
-#: ../pkg/docker/index.html.h:15
-msgid "Image"
-msgstr "Образ"
+#: ../pkg/shell/credentials.js:207 ../pkg/users/local.js:83
+msgid "Old password not accepted"
+msgstr "Старий пароль не прийнято"
 
-#: ../pkg/docker/index.html.h:16
-msgid "Container Name"
-msgstr "Назва контейнера"
+#: ../pkg/shell/credentials.js:217 ../pkg/users/local.js:117
+#: ../pkg/users/local.js:149
+msgid "Failed to change password"
+msgstr "Не вдалося змінити пароль"
 
-#: ../pkg/docker/index.html.h:17
-msgid "Command"
-msgstr "Команда"
+#: ../pkg/shell/credentials.js:225 ../pkg/users/local.js:125
+msgid "New password was not accepted"
+msgstr "Новий пароль не прийнято"
 
-#: ../pkg/docker/index.html.h:18
-msgid "Memory limit"
-msgstr "Обмеження пам’яті"
-
-#: ../pkg/docker/index.html.h:19
-msgid "CPU priority"
-msgstr "Пріоритетність процесора"
-
-#: ../pkg/docker/index.html.h:20
-msgid "With terminal"
-msgstr "За допомогою термінала"
-
-#: ../pkg/docker/index.html.h:21
-msgid "Links"
-msgstr "Посилання"
-
-#: ../pkg/docker/index.html.h:22 ../pkg/networkmanager/index.html.h:19
-#: ../pkg/networkmanager/interfaces.js:2221
-msgid "Ports"
-msgstr "Порти"
-
-#: ../pkg/docker/index.html.h:23 ../pkg/networkmanager/index.html.h:42
-#: ../pkg/users/index.html.h:17
-msgid ""
-"\n"
-"            Cancel\n"
-"          "
+#: ../pkg/shell/credentials.js:242
+msgid "Not a valid private key"
 msgstr ""
-"\n"
-"              Скасувати\n"
-"            "
 
-#: ../pkg/docker/index.html.h:26
-msgid ""
-"\n"
-"            Run\n"
-"          "
-msgstr ""
-"\n"
-"              Виконати\n"
-"            "
+#: ../pkg/shell/credentials.js:245
+#, fuzzy
+msgid "Prompting via ssh-add timed out"
+msgstr "Час очікування відповіді на запит за допомогою passwd вичерпано"
 
-#: ../pkg/docker/index.html.h:29
-msgid ""
-"\n"
-"            Download\n"
-"          "
-msgstr ""
-"\n"
-"              Отримати\n"
-"            "
+#: ../pkg/shell/credentials.js:268
+#, fuzzy
+msgid "Invalid file permissions"
+msgstr "Некоректний формат визначення часу"
 
-#: ../pkg/docker/index.html.h:32 ../pkg/users/index.html.h:20
-msgid ""
-"\n"
-"            Change\n"
-"          "
-msgstr ""
-"\n"
-"              Змінити\n"
-"            "
+#: ../pkg/shell/credentials.js:272
+#, fuzzy
+msgid "Password not accepted"
+msgstr "Старий пароль не прийнято"
 
-#: ../pkg/docker/index.html.h:35
-msgid "Repository"
-msgstr "Сховище"
-
-#: ../pkg/docker/index.html.h:36
-msgid "Tag"
-msgstr "Мітка"
-
-#: ../pkg/docker/index.html.h:37
-msgid "Author"
-msgstr "Автор"
-
-#: ../pkg/docker/index.html.h:38
-msgid ""
-"\n"
-"            Commit\n"
-"          "
-msgstr ""
-"\n"
-"              Надіслати\n"
-"            "
-
-#: ../pkg/docker/index.html.h:41 ../pkg/networkmanager/index.html.h:52
-#: ../pkg/shell/index.js:50 ../pkg/users/local.js:1122
+#: ../pkg/shell/base_index.js:637 ../pkg/users/local.js:1163
+#: ../pkg/docker/index.html.h:43 ../pkg/networkmanager/index.html.h:52
 msgid "Unexpected error"
 msgstr "Неочікувана помилка"
 
-#: ../pkg/docker/containers.js:57
-msgid "Failed to start Docker: $0"
-msgstr "Не вдалося запустити Docker: $0"
+#: ../pkg/shell/base_index.js:638
+msgid "Cockpit had an unexpected internal error. <br/><br/>"
+msgstr "У Cockpit сталася неочікувана внутрішня помилка. <br/><br/>"
 
-#: ../pkg/docker/details.js:40 ../pkg/docker/image.js:38
+#: ../pkg/shell/base_index.js:639
+msgid "You can try restarting Cockpit by pressing refresh in your browser. "
+msgstr ""
+"Ви можете спробувати перезапустити Cockpit натисканням кнопки оновлення "
+"сторінки у вашому браузері. "
+
+#: ../pkg/shell/base_index.js:640
+msgid "The javascript console contains details about this error "
+msgstr "У консолі javascript наведено подробиці щодо цієї помилки "
+
+#: ../pkg/shell/base_index.js:641
+msgid "(<b>Ctrl-Shift-J</b> in most browsers)."
+msgstr "(<b>Ctrl-Shift-J</b> у більшості браузерів)."
+
+#: ../pkg/users/local.js:44
+msgid "The user <b>$0</b> is not permitted to modify accounts"
+msgstr "Користувачу <b>$0</b> заборонено змінювати облікові записи"
+
+#: ../pkg/users/local.js:61
+msgid "Unable to delete root account"
+msgstr "Неможливо вилучити обліковий запис root"
+
+#: ../pkg/users/local.js:64
+msgid "Unable to rename root account"
+msgstr "Неможливо перейменувати обліковий запис root"
+
+#: ../pkg/users/local.js:87
+msgid "Prompting via passwd timed out"
+msgstr "Час очікування відповіді на запит за допомогою passwd вичерпано"
+
+#: ../pkg/users/local.js:252
+msgid "Password is too weak"
+msgstr "Пароль є надто простим"
+
+#: ../pkg/users/local.js:264
+msgid "Password is not acceptable"
+msgstr "Пароль є неприйнятним"
+
+#: ../pkg/users/local.js:289 ../pkg/users/local.js:597
+msgctxt "page-title"
+msgid "Accounts"
+msgstr "Облікові записи"
+
+#: ../pkg/users/local.js:400 ../pkg/users/local.js:1083
+msgid "The passwords do not match"
+msgstr "Паролі не збігаються"
+
+#: ../pkg/users/local.js:405
+msgid "No user name specified"
+msgstr "Не вказано імені користувача"
+
+#: ../pkg/users/local.js:410
+msgid "No real name specified"
+msgstr "Не вказано справжнього імені"
+
+#: ../pkg/users/local.js:434 ../pkg/users/local.js:1105
+msgid "Excellent password"
+msgstr "Чудовий пароль"
+
+#: ../pkg/users/local.js:506
+#, fuzzy
+msgid ""
+"The user name can only consist of letters from a-z, digits, dots, dashes and "
+"underscores."
+msgstr ""
+"Ім’я користувача може складатися лише із літер a-z, цифр, крапок, дефісів та "
+"символів підкреслювання."
+
+#: ../pkg/users/local.js:514
+msgid "This user name already exists"
+msgstr "Запис користувача із таким іменем уже існує"
+
+#: ../pkg/users/local.js:685 ../pkg/users/local.js:686
+msgid "Server Administrator"
+msgstr "Адміністратор сервера"
+
+#: ../pkg/users/local.js:687
+msgid "Container Administrator"
+msgstr "Адміністратор контейнера"
+
+#: ../pkg/users/local.js:842
+msgid "Logged In"
+msgstr "Вхід"
+
+#: ../pkg/users/local.js:844
+msgid "Never"
+msgstr "Ніколи"
+
+#: ../pkg/users/local.js:1021
+msgid "Delete $0"
+msgstr "Вилучити $0"
+
+#: ../pkg/users/local.js:1154 ../pkg/storaged/overview.js:669
+#: ../pkg/storaged/details.js:914 ../pkg/storaged/devices.js:112
+#: ../pkg/systemd/services.html.h:13
+msgid "Error"
+msgstr "Помилка"
+
+#: ../pkg/users/authorized-keys.js:99
+msgid "Validating key"
+msgstr "Перевірка ключа"
+
+#: ../pkg/users/authorized-keys.js:104
+msgid "Adding key"
+msgstr "Додавання ключа"
+
+#: ../pkg/users/authorized-keys.js:111
+msgid "Error saving authorized keys: "
+msgstr "Помилка під час спроби зберегти уповноважені ключі: "
+
+#: ../pkg/users/authorized-keys.js:114
+msgid "The key you provided was not valid."
+msgstr "Наданий вами ключ є некоректним."
+
+#: ../pkg/systemd/journal.js:91
+msgid "Journal entry"
+msgstr "Запис журналу"
+
+#: ../pkg/systemd/journal.js:119
+msgid "Journal entry not found"
+msgstr "Не знайдено запису журналу"
+
+#: ../pkg/systemd/init.js:251
+msgid "Enabled"
+msgstr "Увімкнено"
+
+#: ../pkg/systemd/init.js:252 ../pkg/networkmanager/interfaces.js:1586
+msgid "Disabled"
+msgstr "Вимкнено"
+
+#: ../pkg/systemd/init.js:253
+msgid "Static"
+msgstr "Статичний"
+
+#: ../pkg/systemd/init.js:325 ../pkg/systemd/init.js:608
+msgid "$0 Template"
+msgstr "Шаблон $0"
+
+#. <method>:<mode>
+#: ../pkg/systemd/init.js:464 ../pkg/storaged/details.js:1455
+msgid "Start"
+msgstr "Почати"
+
+#: ../pkg/systemd/init.js:465 ../pkg/storaged/details.js:1456
+msgid "Stop"
+msgstr "Зупинити"
+
+#: ../pkg/systemd/init.js:466 ../pkg/systemd/host.js:193
+#: ../pkg/systemd/host.js:1222 ../pkg/systemd/host.js:1224
+msgid "Restart"
+msgstr "Перезапустити"
+
+#: ../pkg/systemd/init.js:467
+msgid "Reload"
+msgstr "Перезавантажити"
+
+#: ../pkg/systemd/init.js:468
+msgid "Reload or Restart"
+msgstr "Перезавантажити або перезапустити"
+
+#: ../pkg/systemd/init.js:469
+msgid "Try Restart"
+msgstr "Спробувати перезапустити"
+
+#: ../pkg/systemd/init.js:470
+msgid "Reload or Try Restart"
+msgstr "Перезавантажити або спробувати перезапустити"
+
+#: ../pkg/systemd/init.js:471
+msgid "Isolate"
+msgstr "Ізолювати"
+
+#. <method>:<force>
+#: ../pkg/systemd/init.js:489
+msgid "Enable"
+msgstr "Увімкнути"
+
+#: ../pkg/systemd/init.js:490
+msgid "Enable Forcefully"
+msgstr "Примусово увімкнути"
+
+#: ../pkg/systemd/init.js:491
+msgid "Disable"
+msgstr "Вимкнути"
+
+#: ../pkg/systemd/init.js:492
+msgid "Preset"
+msgstr "Шаблон"
+
+#: ../pkg/systemd/init.js:493
+msgid "Preset Forcefully"
+msgstr "Примусово початкові налаштування"
+
+#: ../pkg/systemd/init.js:494
+msgid "Mask"
+msgstr "Маска"
+
+#: ../pkg/systemd/init.js:495
+msgid "Mask Forcefully"
+msgstr "Примусово замаскувати"
+
+#: ../pkg/systemd/init.js:496
+msgid "Unmask"
+msgstr "Розмаскувати"
+
+#: ../pkg/systemd/init.js:568
+msgid "Since $0"
+msgstr "З $0"
+
+#: ../pkg/systemd/init.js:586
+msgid "This unit is an instance of the $0 template."
+msgstr "Цей модуль є екземпляром шаблона $0."
+
+#: ../pkg/systemd/renderer.js:57
+msgid "Reboot"
+msgstr "Перезавантажити"
+
+#: ../pkg/systemd/renderer.js:121
+msgid "Load earlier entries"
+msgstr "Завантажити попередні записи"
+
+#: ../pkg/systemd/renderer.js:127 ../pkg/systemd/renderer.js:142
+#: ../pkg/systemd/renderer.js:186 ../pkg/systemd/renderer.js:227
+msgid "Loading..."
+msgstr "Завантаження…"
+
+#. No visible day headers
+#.
+#: ../pkg/systemd/renderer.js:182
+msgid "Go to"
+msgstr "Перейти до"
+
+#: ../pkg/systemd/host.js:49
+msgid "The user <b>$0</b> is not permitted to modify hostnames"
+msgstr "Користувачу <b>$0</b> не дозволено змінювати назви вузлів"
+
+#: ../pkg/systemd/host.js:194 ../pkg/systemd/host.js:1218
+#: ../pkg/systemd/host.js:1220
+msgid "Shutdown"
+msgstr "Вимкнути"
+
+#: ../pkg/systemd/host.js:543
+msgid "Set Host name"
+msgstr "Встановити назву вузла"
+
+#: ../pkg/systemd/host.js:1029
+msgid "Need at least one NTP server"
+msgstr ""
+
+#: ../pkg/systemd/host.js:1105
+msgid "Invalid date format and invalid time format"
+msgstr "Некоректний формат дати і часу"
+
+#: ../pkg/systemd/host.js:1107
+msgid "Invalid time format"
+msgstr "Некоректний формат визначення часу"
+
+#: ../pkg/systemd/host.js:1109
+msgid "Invalid date format"
+msgstr "Некоректний формат дати"
+
+#: ../pkg/systemd/host.js:1160
+msgid "NTP Server"
+msgstr ""
+
+#: ../pkg/systemd/host.js:1196
+msgid "1 Minute"
+msgstr "1 хвилина"
+
+#: ../pkg/systemd/host.js:1197
+msgid "5 Minutes"
+msgstr "5 хвилин"
+
+#: ../pkg/systemd/host.js:1198
+msgid "20 Minutes"
+msgstr "20 хвилин"
+
+#: ../pkg/systemd/host.js:1199
+msgid "40 Minutes"
+msgstr "40 хвилин"
+
+#: ../pkg/systemd/host.js:1200
+msgid "60 Minutes"
+msgstr "60 хвилин"
+
+#: ../pkg/systemd/host.js:1201
+msgid "No Delay"
+msgstr "Без затримки"
+
+#: ../pkg/systemd/host.js:1202
+msgid "Specific Time"
+msgstr "У визначений час"
+
+#: ../pkg/systemd/host.js:1212
+msgid "Message to logged in users"
+msgstr "Повідомлення користувачам, які увійшли"
+
+#: ../pkg/systemd/host.js:1291
+msgctxt "page-title"
+msgid "CPU Status"
+msgstr "Стан процесора"
+
+#: ../pkg/systemd/host.js:1324
+msgid "I/O Wait"
+msgstr "Очікування В-В"
+
+#: ../pkg/systemd/host.js:1325
+msgid "Kernel"
+msgstr "Ядро"
+
+#: ../pkg/systemd/host.js:1326 ../pkg/dashboard/index.html.h:4
+msgid "User"
+msgstr "Користувач"
+
+#: ../pkg/systemd/host.js:1327
+msgid "Nice"
+msgstr "Пріоритетність"
+
+#: ../pkg/systemd/host.js:1377
+msgctxt "page-title"
+msgid "Memory"
+msgstr "Пам'ять"
+
+#: ../pkg/systemd/host.js:1411
+msgid "Swap Used"
+msgstr "Використано резерву"
+
+#: ../pkg/systemd/host.js:1412
+msgid "Cached"
+msgstr "Кеш"
+
+#: ../pkg/systemd/host.js:1413
+msgid "Used"
+msgstr "Використано"
+
+#: ../pkg/systemd/host.js:1414
+msgid "Free"
+msgstr "Вільно"
+
+#: ../pkg/realmd/operation.js:90 ../pkg/realmd/operation.js:95
+msgid "page-title"
+msgstr "заголовок сторінки"
+
+#: ../pkg/realmd/operation.js:91
+msgid "Join"
+msgstr "З'єднати"
+
+#: ../pkg/realmd/operation.js:96
+msgid "Leave"
+msgstr "Вийти"
+
+#: ../pkg/realmd/operation.js:143
+msgid "Domain $0 could not be contacted"
+msgstr "Не вдалося встановити зв’язок із доменом $0"
+
+#: ../pkg/realmd/operation.js:195
+#, fuzzy
+msgid "Domain $0 is not supported"
+msgstr "Підтримки версії atomicapp $0 не передбачено."
+
+#: ../pkg/realmd/operation.js:209 ../pkg/realmd/operation.js:215
+msgid "e.g. \"$0\""
+msgstr "наприклад «$0»"
+
+#: ../pkg/realmd/operation.js:241
+msgid "Administrator Password"
+msgstr "Пароль адміністратора"
+
+#: ../pkg/realmd/operation.js:242 ../pkg/realmd/operation.html.h:5
+msgid "User Password"
+msgstr "Пароль користувача"
+
+#: ../pkg/realmd/operation.js:243 ../pkg/realmd/operation.html.h:8
+msgid "One Time Password"
+msgstr "Одноразовий пароль"
+
+#: ../pkg/realmd/operation.js:244 ../pkg/networkmanager/interfaces.js:1591
+#: ../pkg/networkmanager/interfaces.js:2455
+#: ../pkg/networkmanager/interfaces.js:2459
+#: ../pkg/networkmanager/interfaces.js:2465
+msgid "Automatic"
+msgstr "Автоматично"
+
+#: ../pkg/realmd/operation.js:319
+#, fuzzy
+msgid "Joining this domain is not supported"
+msgstr "Підтримки версії atomicapp $0 не передбачено."
+
+#: ../pkg/realmd/operation.js:338
+msgid "More"
+msgstr "Більше"
+
+#: ../pkg/realmd/operation.js:391
+msgid "Cannot join a domain because realmd is not available on this system"
+msgstr ""
+"Не вдалося долучитися до домену, оскільки у цій системі недоступна служба "
+"realmd"
+
+#: ../pkg/realmd/operation.js:410
+msgid "The user <b>$0</b> is not permitted to modify realms"
+msgstr "Користувачу <b>$0</b> не дозволено вносити зміни до областей"
+
+#: ../pkg/realmd/operation.js:427
+msgid "Join Domain"
+msgstr "Долучитися до домену"
+
+#: ../pkg/docker/overview.js:170
+msgid "Run image"
+msgstr "Запустити образ"
+
+#: ../pkg/docker/overview.js:273
+msgid ""
+"WARNING: Docker may be reporting the size it has allocated to it's storage "
+"pool using sparse files, not the actual space available to the underlying "
+"storage device."
+msgstr ""
+"Попередження: Docker може повідомляти про об’єм пам’яті, який було отримано "
+"у буфері сховища даних з використанням розгорнутих файлів, а не справжній "
+"об’єм, доступний на основному пристрої зберігання даних."
+
+#: ../pkg/docker/util.js:71
+msgid "Up since $StartedAt"
+msgstr "Працює з $StartedAt"
+
+#: ../pkg/docker/util.js:73
+msgid "Exited $ExitCode"
+msgstr "Завершено $ExitCode"
+
+#: ../pkg/docker/util.js:82
+msgid "default"
+msgstr "типовий"
+
+#: ../pkg/docker/util.js:83
+msgid "$0 shares"
+msgstr "$0 спільних ресурсів"
+
+#: ../pkg/docker/util.js:187
+msgid "Stopped"
+msgstr "Зупинено"
+
+#: ../pkg/docker/util.js:286
+msgid "unlimited"
+msgstr "без обмежень"
+
+#: ../pkg/docker/util.js:407
+msgid "Container is currently running."
+msgstr "Контейнер працює."
+
+#: ../pkg/docker/util.js:409
+msgid ""
+"Container is currently marked as not running, but regular stopping failed."
+msgstr ""
+"Зараз контейнер позначено як такий, що працює, але звичайна спроба зупинити "
+"роботу зазнала невдачі."
+
+#: ../pkg/docker/util.js:410
+msgid "Error message from Docker:"
+msgstr "Повідомлення щодо помилки від Docker:"
+
+#: ../pkg/docker/util.js:420
+msgid "Please confirm forced deletion of $0"
+msgstr "Будь ласка, підтвердьте примусове вилучення $0"
+
+#: ../pkg/docker/util.js:422
+msgid "Force Delete"
+msgstr "Примусове вилучення"
+
+#: ../pkg/docker/util.js:463
+msgid "Failed to stop Docker scope: $0"
+msgstr "Не вдалося зупинити область Docker: $0"
+
+#: ../pkg/docker/image.js:38 ../pkg/docker/details.js:40
 msgctxt "page-title"
 msgid "Containers"
 msgstr "Контейнери"
 
-#: ../pkg/docker/details.js:177
-msgid "${hip}:${hport} -> $cport"
-msgstr "${hip}:${hport} -> $cport"
+#: ../pkg/docker/image.js:70
+msgid "Image $0"
+msgstr "Зображення $0"
 
-#: ../pkg/docker/details.js:205 ../pkg/docker/image.js:105
+#: ../pkg/docker/image.js:105 ../pkg/docker/details.js:205
 #: ../pkg/storaged/details.js:1650
 msgid "Not found"
 msgstr "Не знайдено"
 
-#: ../pkg/docker/details.js:294 ../pkg/docker/image.js:148
-#: ../pkg/storaged/details.js:558 ../pkg/storaged/details.js:721
-#: ../pkg/storaged/details.js:881
+#: ../pkg/docker/image.js:148 ../pkg/docker/details.js:294
+#: ../pkg/storaged/details.js:554 ../pkg/storaged/details.js:717
+#: ../pkg/storaged/details.js:877
 msgid "Please confirm deletion of $0"
 msgstr "Будь ласка, підтвердьте вилучення $0"
-
-#: ../pkg/docker/details.js:295
-msgid "Deleting a container will erase all data in it."
-msgstr ""
-"Вилучення контейнера призведе до витирання усіх даних, що на ньому "
-"зберігаються."
-
-#: ../pkg/docker/details.js:296 ../pkg/docker/image.js:150
-#: ../pkg/kubernetes/index.html.h:35 ../pkg/storaged/details.js:563
-#: ../pkg/storaged/details.js:727 ../pkg/storaged/details.js:887
-#: ../pkg/storaged/details.js:993 ../pkg/storaged/details.js:1460
-#: ../pkg/storaged/details.js:1618 ../pkg/users/index.html.h:6
-msgid "Delete"
-msgstr "Вилучити"
-
-#: ../pkg/docker/image.js:70
-msgid "Image $0"
-msgstr "Зображення $0"
 
 #: ../pkg/docker/image.js:149
 msgid ""
@@ -296,21 +669,37 @@ msgstr ""
 "ніколи не було записано до сховища. У цьому випадку ви, ймовірно, не зможете "
 "отримати образ знову."
 
-#: ../pkg/docker/overview.js:182
-msgid "Run image"
-msgstr ""
+#: ../pkg/docker/image.js:150 ../pkg/docker/details.js:296
+#: ../pkg/storaged/details.js:559 ../pkg/storaged/details.js:723
+#: ../pkg/storaged/details.js:883 ../pkg/storaged/details.js:993
+#: ../pkg/storaged/details.js:1459 ../pkg/storaged/details.js:1618
+#: ../pkg/users/index.html.h:6
+#: ../pkg/registry/views/imagestream-delete.html.h:4
+#: ../pkg/registry/views/image-delete.html.h:4
+#: ../pkg/kubernetes/index.html.h:37
+msgid "Delete"
+msgstr "Вилучити"
 
-#: ../pkg/docker/overview.js:285
-msgid ""
-"WARNING: Docker may be reporting the size it has allocated to it's storage "
-"pool using sparse files, not the actual space available to the underlying "
-"storage device."
-msgstr ""
-"Попередження: Docker може повідомляти про об’єм пам’яті, який було отримано "
-"у буфері сховища даних з використанням розгорнутих файлів, а не справжній "
-"об’єм, доступний на основному пристрої зберігання даних."
+#: ../pkg/docker/details.js:177
+msgid "${hip}:${hport} -> $cport"
+msgstr "${hip}:${hport} -> $cport"
 
-#: ../pkg/docker/run.js:196
+#: ../pkg/docker/details.js:295
+msgid "Deleting a container will erase all data in it."
+msgstr ""
+"Вилучення контейнера призведе до витирання усіх даних, що на ньому "
+"зберігаються."
+
+#: ../pkg/docker/run.js:194 ../pkg/registry/views/image-page.html.h:3
+#: ../pkg/registry/views/image-panel.html.h:2 ../pkg/docker/console.html.h:1
+#: ../pkg/kubernetes/views/container-body.html.h:1
+#: ../pkg/kubernetes/views/container-panel.html.h:1
+msgid "Container"
+msgstr "Контейнер"
+
+#: ../pkg/docker/run.js:196 ../pkg/kubernetes/views/route-panel.html.h:4
+#: ../pkg/kubernetes/views/details-page.html.h:14
+#: ../pkg/kubernetes/index.html.h:32
 msgid "Host"
 msgstr "Вузол"
 
@@ -340,6 +729,8 @@ msgid "to host port"
 msgstr "до порту основної системи"
 
 #: ../pkg/docker/run.js:467 ../pkg/docker/run.js:534
+#: ../pkg/kubernetes/views/route-panel.html.h:9
+#: ../pkg/kubernetes/views/node-panel.html.h:10
 msgid "none"
 msgstr "немає"
 
@@ -355,591 +746,272 @@ msgstr "TCP"
 msgid "alias"
 msgstr "псевдонім"
 
+#: ../pkg/docker/containers.js:57
+msgid "Failed to start Docker: $0"
+msgstr "Не вдалося запустити Docker: $0"
+
 #: ../pkg/docker/search.js:130
 msgid "Error downloading"
 msgstr "Помилка під час отримання"
 
-#: ../pkg/docker/util.js:71
-msgid "Up since $StartedAt"
-msgstr "Працює з $StartedAt"
-
-#: ../pkg/docker/util.js:73
-msgid "Exited $ExitCode"
-msgstr "Завершено $ExitCode"
-
-#: ../pkg/docker/util.js:82
-msgid "default"
-msgstr "типовий"
-
-#: ../pkg/docker/util.js:83
-msgid "$0 shares"
-msgstr "$0 спільних ресурсів"
-
-#: ../pkg/docker/util.js:182
-msgid "Stopped"
-msgstr "Зупинено"
-
-#: ../pkg/docker/util.js:281
-msgid "unlimited"
-msgstr "без обмежень"
-
-#: ../pkg/docker/util.js:402
-msgid "Container is currently running."
-msgstr "Контейнер працює."
-
-#: ../pkg/docker/util.js:404
-msgid ""
-"Container is currently marked as not running, but regular stopping failed."
+#: ../pkg/playground/test.js:14
+msgid "Translation"
 msgstr ""
-"Зараз контейнер позначено як такий, що працює, але звичайна спроба зупинити "
-"роботу зазнала невдачі."
 
-#: ../pkg/docker/util.js:405
-msgid "Error message from Docker:"
-msgstr "Повідомлення щодо помилки від Docker:"
+#: ../pkg/playground/test.js:15
+msgctxt "reverse"
+msgid "Translation"
+msgstr ""
 
-#: ../pkg/docker/util.js:415
-msgid "Please confirm forced deletion of $0"
-msgstr "Будь ласка, підтвердьте примусове вилучення $0"
+#: ../pkg/dashboard/list.js:226
+msgid "The user <b>$0</b> is not permitted to manage servers"
+msgstr "Користувачу <b>$0</b> заборонено керувати серверами"
 
-#: ../pkg/docker/util.js:417
-msgid "Force Delete"
-msgstr "Примусове вилучення"
+#: ../pkg/dashboard/list.js:407
+msgid ""
+"You are currently connected directly to this server. You cannot delete it."
+msgstr ""
+"Зараз ваш комп’ютер безпосередньо з’єднано із цим сервером. Ви не можете "
+"його вилучити."
 
-#: ../pkg/docker/util.js:458
-msgid "Failed to stop Docker scope: $0"
-msgstr "Не вдалося зупинити область Docker: $0"
+#: ../pkg/kubernetes/node.js:63
+msgid "Please type an address"
+msgstr "Будь ласка, введіть адресу"
 
-#: ../pkg/kubernetes/adjust.js:109 ../pkg/kubernetes/details.js:62
-msgid "Not a valid number of replicas"
+#: ../pkg/kubernetes/node.js:65
+msgid "The address contains invalid characters"
+msgstr "У адресі містяться некоректні символи"
+
+#: ../pkg/kubernetes/node.js:72
+msgid "The name contains invalid charaters"
+msgstr "У назві містяться некоректні символи"
+
+#: ../pkg/kubernetes/details.js:27
+msgid "Delete $0 $1?"
+msgstr "Вилучити $0 $1?"
+
+#: ../pkg/kubernetes/details.js:69
+#, fuzzy
+msgid "Not a valid value for Host"
 msgstr "Некоректна кількість реплік"
 
-#: ../pkg/kubernetes/adjust.js:111 ../pkg/kubernetes/details.js:64
-msgid "The maximum number of replicas is 128"
-msgstr "Максимальною є кількість реплік 128"
-
-#: ../pkg/kubernetes/adjust.js:125 ../pkg/kubernetes/details.js:76
+#: ../pkg/kubernetes/details.js:81 ../pkg/kubernetes/details.js:147
+#: ../pkg/kubernetes/adjust.js:123
 msgid "Updating $0..."
 msgstr "Оновлення $0…"
 
-#: ../pkg/kubernetes/client.js:520
+#: ../pkg/kubernetes/details.js:90
+#, fuzzy
+msgid "Unable to modify Routes"
+msgstr "Неможливо перейменувати обліковий запис root"
+
+#: ../pkg/kubernetes/details.js:133 ../pkg/kubernetes/adjust.js:107
+msgid "Not a valid number of replicas"
+msgstr "Некоректна кількість реплік"
+
+#: ../pkg/kubernetes/details.js:135 ../pkg/kubernetes/adjust.js:109
+msgid "The maximum number of replicas is 128"
+msgstr "Максимальною є кількість реплік 128"
+
+#: ../pkg/kubernetes/details.js:331
+#: ../pkg/kubernetes/views/service-panel.html.h:1
+#: ../pkg/kubernetes/views/details-page.html.h:11
+#: ../pkg/kubernetes/views/node-panel.html.h:12
+msgid "Ready"
+msgstr "Готовий"
+
+#: ../pkg/kubernetes/details.js:331
+#: ../pkg/kubernetes/views/service-panel.html.h:2
+#: ../pkg/kubernetes/views/details-page.html.h:12
+#: ../pkg/kubernetes/views/node-panel.html.h:13
+msgid "Not Ready"
+msgstr "Не готовий"
+
+#: ../pkg/kubernetes/details.js:348 ../pkg/networkmanager/interfaces.js:545
+#: ../pkg/networkmanager/interfaces.js:949
+#: ../pkg/networkmanager/interfaces.js:1853
+#: ../pkg/networkmanager/interfaces.js:1855
+#: ../pkg/registry/views/image-body.html.h:4
+#: ../pkg/kubernetes/views/node-panel.html.h:14
+msgid "Unknown"
+msgstr "Невідомий"
+
+#: ../pkg/kubernetes/client.js:523
 msgid "Couldn't find running kube-apiserver"
 msgstr "Не вдалося знайти запущеного kube-apiserver"
 
-#: ../pkg/kubernetes/client.js:1343
+#: ../pkg/kubernetes/client.js:1473
 msgid "Invalid kubernetes application manifest"
 msgstr "Некоректний маніфест програми kubernetes"
 
-#: ../pkg/kubernetes/client.js:1369
+#: ../pkg/kubernetes/client.js:1499
 msgid "Unsupported kubernetes object in data"
 msgstr "Непідтримуваний об’єкт kubernetes у даних"
 
-#: ../pkg/kubernetes/client.js:1456
+#: ../pkg/kubernetes/client.js:1586
 msgid "Unsupported or incompatible kubernetes API server."
 msgstr ""
 "Непідтримуваний або несумісний сервер програмного інтерфейсу kubernetes."
 
-#: ../pkg/kubernetes/client.js:1458
+#: ../pkg/kubernetes/client.js:1588
 msgid "Could not connect to kubernetes API server."
 msgstr ""
 "Не вдалося встановити з’єднання із сервером програмного інтерфейсу "
 "kubernetes."
 
-#: ../pkg/kubernetes/deploy.js:69
+#: ../pkg/kubernetes/deploy.js:78
 msgid "Please create another namespace for $0 \"$1\""
 msgstr "Будь ласка, створіть інший простір назв для $0 «$1»"
 
-#: ../pkg/kubernetes/deploy.js:254 ../pkg/kubernetes/deploy.js:291
+#: ../pkg/kubernetes/deploy.js:263 ../pkg/kubernetes/deploy.js:300
 msgid "Namespace cannot be empty."
 msgstr "Простір назв не може бути порожнім."
 
-#: ../pkg/kubernetes/deploy.js:256 ../pkg/kubernetes/deploy.js:293
+#: ../pkg/kubernetes/deploy.js:265 ../pkg/kubernetes/deploy.js:302
 msgid "Please provide a valid namespace."
 msgstr "Будь ласка, вкажіть коректний простір назв."
 
-#: ../pkg/kubernetes/deploy.js:306
+#: ../pkg/kubernetes/deploy.js:315
 msgid ""
 "No metadata file was selected. Please select a Kubernetes metadata file."
 msgstr ""
 "Не вибрано файл метаданих. Будь ласка, виберіть файл метаданих Kubernetes."
 
-#: ../pkg/kubernetes/deploy.js:308
+#: ../pkg/kubernetes/deploy.js:317
 msgid "The selected file is not a valid Kubernetes application manifest."
 msgstr "Вибраний файл не є коректним маніфестом програми Kubernetes."
 
-#: ../pkg/kubernetes/deploy.js:323
+#: ../pkg/kubernetes/deploy.js:332
 msgid "Unable to read the Kubernetes application manifest. Code $0."
 msgstr "Не вдалося прочитати маніфест програми Kubernetes. Код $0."
 
-#: ../pkg/kubernetes/deploy.js:340
+#: ../pkg/kubernetes/deploy.js:349
 msgid "Nulecule field cannot be empty."
 msgstr "Поле Nulecule слід заповнити."
 
-#: ../pkg/kubernetes/deploy.js:404
+#: ../pkg/kubernetes/deploy.js:413 ../pkg/kubernetes/views/route-panel.html.h:2
+#: ../pkg/kubernetes/views/containers-page.html.h:5
+#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:5
+#: ../pkg/kubernetes/views/service-panel.html.h:4
+#: ../pkg/kubernetes/views/pod-body.html.h:2
+#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:4
+#: ../pkg/kubernetes/views/dashboard-page.html.h:9
+#: ../pkg/kubernetes/views/details-page.html.h:8
 msgid "Namespace"
 msgstr "Простір назв"
 
-#: ../pkg/kubernetes/deploy.js:406
+#: ../pkg/kubernetes/deploy.js:415
+#: ../pkg/registry/views/imagestream-modify.html.h:4
+#: ../pkg/kubernetes/views/route-panel.html.h:1
+#: ../pkg/kubernetes/views/containers-page.html.h:4
+#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:4
+#: ../pkg/kubernetes/views/service-panel.html.h:3
+#: ../pkg/kubernetes/views/pod-body.html.h:1
+#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:3
+#: ../pkg/kubernetes/views/dashboard-page.html.h:8
+#: ../pkg/kubernetes/views/details-page.html.h:7
 msgid "Project"
-msgstr ""
+msgstr "Проект"
 
-#: ../pkg/kubernetes/deploy.js:409 ../pkg/kubernetes/deploy.js:459
+#: ../pkg/kubernetes/deploy.js:418 ../pkg/kubernetes/deploy.js:468
 msgid "Select Manifest File..."
 msgstr "Вибір файла маніфесту…"
 
-#: ../pkg/kubernetes/details.js:24
+#: ../pkg/kubernetes/images.js:351
+msgid " + $0 more"
+msgstr ""
+
+#: ../pkg/kubernetes/images.js:353
 #, fuzzy
-msgid "Delete $0 $1?"
-msgstr "Вилучити $0"
+msgid "$0 image"
+msgstr "Запустити образ"
 
-#: ../pkg/kubernetes/details.js:258
-msgid "Ready"
-msgstr "Готовий"
+#: ../pkg/kubernetes/images.js:353
+#, fuzzy
+msgid "$0 images"
+msgstr "Запустити образ"
 
-#: ../pkg/kubernetes/details.js:258
-msgid "Not Ready"
-msgstr "Не готовий"
-
-#: ../pkg/kubernetes/details.js:275 ../pkg/networkmanager/interfaces.js:545
-#: ../pkg/networkmanager/interfaces.js:949
-#: ../pkg/networkmanager/interfaces.js:1865
-#: ../pkg/networkmanager/interfaces.js:1867
-msgid "Unknown"
-msgstr "Невідомий"
-
-#: ../pkg/kubernetes/graphs.js:333
+#: ../pkg/kubernetes/graphs.js:516
 msgid "CPU"
 msgstr "Процесор"
 
-#: ../pkg/kubernetes/graphs.js:338
+#: ../pkg/kubernetes/graphs.js:521
 msgid "Memory"
 msgstr "Пам'ять"
 
-#: ../pkg/kubernetes/graphs.js:343
+#: ../pkg/kubernetes/graphs.js:526
 msgid "Network"
 msgstr "Мережа"
 
-#: ../pkg/kubernetes/index.html.h:1
-msgid "Kubernetes Cluster"
-msgstr "Кластер Kubernetes"
-
-#: ../pkg/kubernetes/index.html.h:2
-msgid "Connecting to Kubernetes"
-msgstr "Встановлюємо з’єднання із Kubernetes"
-
-#: ../pkg/kubernetes/index.html.h:3
-msgid "Couldn't connect to Kubernetes server"
-msgstr "Не вдалося встановити з’єднання із сервером Kubernetes"
-
-#: ../pkg/kubernetes/index.html.h:4
-msgid ""
-"\n"
-"            Reconnect\n"
-"          "
-msgstr ""
-"\n"
-"            Повторно з’єднатися\n"
-"          "
-
-#: ../pkg/kubernetes/index.html.h:7
-msgid "Deploy Application"
-msgstr "Розгорнути програму"
-
-#: ../pkg/kubernetes/index.html.h:8
-msgid ""
-"\n"
-"                  Type\n"
-"                  "
-msgstr ""
-"\n"
-"                  Тип\n"
-"                  "
-
-#: ../pkg/kubernetes/index.html.h:11
-msgid "Kubernetes Manifest"
-msgstr "Маніфест Kubernetes"
-
-#: ../pkg/kubernetes/index.html.h:12
-msgid "Nulecule Application"
-msgstr "Програма Nulecule"
-
-#: ../pkg/kubernetes/index.html.h:13
-msgid ""
-"\n"
-"                  Manifest\n"
-"                  "
-msgstr ""
-"\n"
-"                  Маніфест\n"
-"                  "
-
-#: ../pkg/kubernetes/index.html.h:16
-msgid ""
-"\n"
-"                  Nulecule\n"
-"                  "
-msgstr ""
-"\n"
-"                  Nulecule\n"
-"                  "
-
-#: ../pkg/kubernetes/index.html.h:19
-msgid ""
-"\n"
-"              Cancel\n"
-"              "
-msgstr ""
-"\n"
-"              Скасувати\n"
-"            "
-
-#: ../pkg/kubernetes/index.html.h:22
-msgid ""
-"\n"
-"              Deploy\n"
-"              "
-msgstr ""
-"\n"
-"              Розгорнути\n"
-"              "
-
-#: ../pkg/kubernetes/index.html.h:25
-msgid "Adjust Service"
-msgstr "Скоригувати службу"
-
-#: ../pkg/kubernetes/index.html.h:26 ../pkg/networkmanager/index.html.h:14
-#: ../pkg/storaged/overview.js:388 ../pkg/storaged/overview.js:443
-#: ../pkg/storaged/details.js:162 ../pkg/storaged/details.js:378
-#: ../pkg/storaged/details.js:616 ../pkg/storaged/details.js:636
-#: ../pkg/storaged/details.js:672 ../pkg/storaged/details.js:698
-#: ../pkg/storaged/details.js:748 ../pkg/storaged/details.js:777
-#: ../pkg/storaged/index.html.h:12
-msgid "Name"
-msgstr "Назва"
-
-#: ../pkg/kubernetes/index.html.h:27 ../pkg/realmd/operation.html.h:10
-#: ../pkg/storaged/index.html.h:16
-msgid "Cancel"
-msgstr "Скасувати"
-
-#: ../pkg/kubernetes/index.html.h:28
-msgid "Adjust"
-msgstr "Скоригувати"
-
-#: ../pkg/kubernetes/index.html.h:29
-#, fuzzy
-msgid "Adjust Replication Controller"
-msgstr "Контролер реплікації"
-
-#: ../pkg/kubernetes/index.html.h:30
-msgid "Replicas"
-msgstr "Репліки"
-
-#: ../pkg/kubernetes/index.html.h:31
-#, fuzzy
-msgid "Please Confirm Deletion"
-msgstr "Будь ласка, підтвердьте вилучення $0"
-
-#: ../pkg/kubernetes/index.html.h:32
-msgid ""
-"\n"
-"            Deleting a Pod will kill all associated containers. Pods may be "
-"automatically created again in some cases.\n"
-"          "
-msgstr ""
-
-#: ../pkg/kubernetes/index.html.h:36
-#, fuzzy
-msgid ""
-"\n"
-"          "
-msgstr ""
-"\n"
-"            "
-
-#: ../pkg/kubernetes/index.html.h:38
-msgid "Add Cluster Node "
-msgstr "Додати вузол кластера "
-
-#: ../pkg/kubernetes/index.html.h:39
-msgid "Address"
-msgstr "Адреса"
-
-#: ../pkg/kubernetes/index.html.h:40
-msgid "Configure Kubelet and Proxy"
-msgstr "Налаштувати Kubelet і проксі"
-
-#: ../pkg/kubernetes/index.html.h:41
-msgid "Configure Flannel networking"
-msgstr "Налаштувати роботу у мережі Flannel"
-
-#: ../pkg/kubernetes/index.html.h:42 ../pkg/storaged/details.js:537
-#: ../pkg/storaged/details.js:821
-msgid "Add"
-msgstr "Додати"
-
-#: ../pkg/kubernetes/node.js:65
-msgid "Please type an address"
-msgstr "Будь ласка, введіть адресу"
-
-#: ../pkg/kubernetes/node.js:67
-msgid "The address contains invalid characters"
-msgstr "У адресі містяться некоректні символи"
-
-#: ../pkg/kubernetes/node.js:74
-msgid "The name contains invalid charaters"
-msgstr "У назві містяться некоректні символи"
-
-#: ../pkg/kubernetes/nulecule.js:120
+#: ../pkg/kubernetes/nulecule.js:142
 msgid "The image is not a correctly labeled Nulecule image."
 msgstr "Образ не є належним чином позначеним образом Nulecule."
 
-#: ../pkg/kubernetes/nulecule.js:134
-#, fuzzy
+#: ../pkg/kubernetes/nulecule.js:156
 msgid "This image is not a supported Nulecule image"
-msgstr "Образ не є належним чином позначеним образом Nulecule."
+msgstr "Цей образ не є підтримуваним образом Nulecule"
 
-#: ../pkg/kubernetes/nulecule.js:155
+#: ../pkg/kubernetes/nulecule.js:177
 msgid "The 'atomic' command is not installed on the system."
 msgstr "Програму «atomic» у системі не встановлено."
 
-#: ../pkg/kubernetes/nulecule.js:165
+#: ../pkg/kubernetes/nulecule.js:187
 msgid "The 'atomic' command version $0 is not supported."
 msgstr "Підтримки команди «atomic» версії $0 не передбачено."
 
-#: ../pkg/kubernetes/nulecule.js:230
+#: ../pkg/kubernetes/nulecule.js:210
+#, fuzzy
+msgid "Unable to start docker"
+msgstr "Не вдалося запустити Docker: $0"
+
+#: ../pkg/kubernetes/nulecule.js:233
 msgid "Unable to pull Nulecule app image."
+msgstr "Не вдалося отримати образ програми Nulecule."
+
+#: ../pkg/kubernetes/nulecule.js:281
+msgid "No supported providers found."
 msgstr ""
 
-#: ../pkg/kubernetes/nulecule.js:252
+#: ../pkg/kubernetes/nulecule.js:315
 msgid "Installing ..."
 msgstr "Встановлення…"
 
-#: ../pkg/kubernetes/nulecule.js:259
+#: ../pkg/kubernetes/nulecule.js:322
 msgid "Running ..."
 msgstr "Виконання…"
 
-#: ../pkg/kubernetes/nulecule.js:305
+#: ../pkg/kubernetes/nulecule.js:371
 msgid "Image failed to "
 msgstr "Образ не вдалося "
 
-#: ../pkg/kubernetes/nulecule.js:361
+#: ../pkg/kubernetes/nulecule.js:394
+msgid "Reading answers file ..."
+msgstr ""
+
+#: ../pkg/kubernetes/nulecule.js:405
 msgid "Unable to read answer.conf.sample file."
 msgstr "Не вдалося прочитати файл answer.conf.sample."
 
-#: ../pkg/kubernetes/nulecule.js:374
+#: ../pkg/kubernetes/nulecule.js:496
 msgid "Image failed to install."
 msgstr "Не вдалося встановити образ."
 
-#: ../pkg/kubernetes/nulecule.js:381
+#: ../pkg/kubernetes/nulecule.js:503
 msgid "Temporary folder was not created"
 msgstr "Тимчасову теку не створено"
 
-#: ../pkg/kubernetes/nulecule.js:388
+#: ../pkg/kubernetes/nulecule.js:510
 msgid "atomicapp version $0 is not supported."
 msgstr "Підтримки версії atomicapp $0 не передбачено."
 
-#: ../pkg/kubernetes/nulecule.js:428
+#: ../pkg/kubernetes/nulecule.js:512
+#, fuzzy
+msgid "Only atomicapp version gretater than $0 is supported."
+msgstr "Підтримки версії atomicapp $0 не передбачено."
+
+#: ../pkg/kubernetes/nulecule.js:551
 msgid "Image failed to run."
 msgstr "Не вдалося запустити образ."
-
-#: ../pkg/networkmanager/index.html.h:1
-#, fuzzy
-msgid "Networking"
-msgstr "Робота у мережі"
-
-#: ../pkg/networkmanager/index.html.h:2 ../pkg/storaged/index.html.h:17
-msgid "Go to now"
-msgstr "Перейти зараз"
-
-#: ../pkg/networkmanager/index.html.h:3 ../pkg/storaged/index.html.h:18
-msgid "5 minutes"
-msgstr "5 хвилин"
-
-#: ../pkg/networkmanager/index.html.h:4 ../pkg/storaged/index.html.h:19
-msgid "1 hour"
-msgstr "1 година"
-
-#: ../pkg/networkmanager/index.html.h:5 ../pkg/storaged/index.html.h:20
-msgid "6 hours"
-msgstr "6 годин"
-
-#: ../pkg/networkmanager/index.html.h:6 ../pkg/storaged/index.html.h:21
-msgid "1 day"
-msgstr "1 день"
-
-#: ../pkg/networkmanager/index.html.h:7 ../pkg/storaged/index.html.h:22
-msgid "1 week"
-msgstr "1 тиждень"
-
-#: ../pkg/networkmanager/index.html.h:8
-#, fuzzy
-msgid "Sending"
-msgstr "Читання"
-
-#: ../pkg/networkmanager/index.html.h:9
-#, fuzzy
-msgid "Receiving"
-msgstr "Нещодавні"
-
-#: ../pkg/networkmanager/index.html.h:10
-msgid "Interfaces"
-msgstr "Інтерфейси"
-
-#: ../pkg/networkmanager/index.html.h:11
-#, fuzzy
-msgid "Add Bond"
-msgstr "Прив’язка"
-
-#: ../pkg/networkmanager/index.html.h:12
-#, fuzzy
-msgid "Add Bridge"
-msgstr "Міст"
-
-#: ../pkg/networkmanager/index.html.h:13
-#, fuzzy
-msgid "Add VLAN"
-msgstr "VLAN"
-
-#: ../pkg/networkmanager/index.html.h:15
-#, fuzzy
-msgid "IP Address"
-msgstr "Адреса"
-
-#: ../pkg/networkmanager/index.html.h:16
-#, fuzzy
-msgid "Networking Logs"
-msgstr "Робота у мережі"
-
-#: ../pkg/networkmanager/index.html.h:17
-msgid "Parent"
-msgstr "Батьківський"
-
-#: ../pkg/networkmanager/index.html.h:18
-msgid "VLAN Id"
-msgstr "Ід. VLAN"
-
-#: ../pkg/networkmanager/index.html.h:20
-msgid "Spanning Tree Protocol (STP)"
-msgstr "Протокол пересування ієрархією (STP)"
-
-#: ../pkg/networkmanager/index.html.h:21
-msgid "STP Priority"
-msgstr "Пріоритет STP"
-
-#: ../pkg/networkmanager/index.html.h:22
-msgid "STP Forward delay"
-msgstr "Затримка переспрямування STP"
-
-#: ../pkg/networkmanager/index.html.h:23
-msgid "STP Hello time"
-msgstr "Час вітання STP"
-
-#: ../pkg/networkmanager/index.html.h:24
-msgid "STP Maximum message age"
-msgstr "Максимальний вік повідомлення STP"
-
-#: ../pkg/networkmanager/index.html.h:25
-msgid "Priority"
-msgstr "Пріоритетність"
-
-#: ../pkg/networkmanager/index.html.h:26
-msgid "Path cost"
-msgstr "Вартість маршруту"
-
-#: ../pkg/networkmanager/index.html.h:27
-msgid "Hair Pin mode"
-msgstr "Режим початкової зони"
-
-#: ../pkg/networkmanager/index.html.h:28
-#: ../pkg/networkmanager/interfaces.js:2221
-msgid "Members"
-msgstr "Учасники"
-
-#: ../pkg/networkmanager/index.html.h:29
-msgid "Mode"
-msgstr "Режим"
-
-#: ../pkg/networkmanager/index.html.h:30
-msgid "Primary"
-msgstr "Основний"
-
-#: ../pkg/networkmanager/index.html.h:31
-msgid "Link Monitoring"
-msgstr "Спостереження за зв’язком"
-
-#: ../pkg/networkmanager/index.html.h:32
-msgid "Monitoring Interval"
-msgstr "Інтервал оновлення"
-
-#: ../pkg/networkmanager/index.html.h:33
-msgid "Monitoring Targets"
-msgstr "Спостерігаємо за цілями"
-
-#: ../pkg/networkmanager/index.html.h:34
-msgid "Link up delay"
-msgstr "Затримка встановлення зв’язку"
-
-#: ../pkg/networkmanager/index.html.h:35
-msgid "Link down delay"
-msgstr "Затримка розірвання зв’язку"
-
-#: ../pkg/networkmanager/index.html.h:36 ../pkg/users/index.html.h:34
-#, fuzzy
-msgid ""
-"\n"
-"            Delete\n"
-"          "
-msgstr ""
-"\n"
-"              Вилучити\n"
-"            "
-
-#: ../pkg/networkmanager/index.html.h:39 ../pkg/storaged/index.html.h:50
-#: ../pkg/systemd/index.html.h:4
-msgid "On"
-msgstr "Увімкнено"
-
-#: ../pkg/networkmanager/index.html.h:40 ../pkg/storaged/index.html.h:51
-#: ../pkg/systemd/index.html.h:5
-msgid "Off"
-msgstr "Вимкнено"
-
-#: ../pkg/networkmanager/index.html.h:41
-#, fuzzy
-msgid "IP Settings"
-msgstr "Параметри IPv4"
-
-#: ../pkg/networkmanager/index.html.h:45
-#, fuzzy
-msgid ""
-"\n"
-"            Apply\n"
-"          "
-msgstr ""
-"\n"
-"              Застоувати\n"
-"            "
-
-#: ../pkg/networkmanager/index.html.h:48
-#, fuzzy
-msgid "Bond Settings"
-msgstr "Параметри облікового запису"
-
-#: ../pkg/networkmanager/index.html.h:49
-#, fuzzy
-msgid "Bridge Settings"
-msgstr "Параметри IPv4"
-
-#: ../pkg/networkmanager/index.html.h:50
-#, fuzzy
-msgid "Bridge Port Settings"
-msgstr "Порт містка"
-
-#: ../pkg/networkmanager/index.html.h:51
-#, fuzzy
-msgid "VLAN Settings"
-msgstr "Параметри IPv4"
 
 #. NM_DEVICE_STATE_UNAVAILABLE
 #: ../pkg/networkmanager/interfaces.js:707
@@ -949,7 +1021,7 @@ msgstr "Недоступний"
 #. NM_DEVICE_STATE_DISCONNECTED
 #: ../pkg/networkmanager/interfaces.js:709
 #: ../pkg/networkmanager/interfaces.js:1166
-#: ../pkg/networkmanager/interfaces.js:1900
+#: ../pkg/networkmanager/interfaces.js:1888
 msgid "Inactive"
 msgstr "Неактивний"
 
@@ -994,7 +1066,7 @@ msgid "Deactivating"
 msgstr "Деактивація"
 
 #. NM_DEVICE_STATE_FAILED
-#: ../pkg/networkmanager/interfaces.js:727
+#: ../pkg/networkmanager/interfaces.js:727 ../pkg/ostree/index.html.h:14
 msgid "Failed"
 msgstr "Помилка"
 
@@ -1006,587 +1078,511 @@ msgstr "Немає сигналу"
 msgid "Part of "
 msgstr "Є частиною "
 
-#: ../pkg/networkmanager/interfaces.js:1251
+#: ../pkg/networkmanager/interfaces.js:1255
 msgid "The user <b>$0</b> is not permitted to modify network settings"
 msgstr "Користувачу <b>$0</b> заборонено змінювати параметри роботи мережі"
 
-#: ../pkg/networkmanager/interfaces.js:1312
-#: ../pkg/networkmanager/interfaces.js:1632
+#: ../pkg/networkmanager/interfaces.js:1316
+#: ../pkg/networkmanager/interfaces.js:1630
 msgctxt "page-title"
 msgid "Networking"
 msgstr "Робота у мережі"
 
-#: ../pkg/networkmanager/interfaces.js:1584
+#: ../pkg/networkmanager/interfaces.js:1582
 msgid "Automatic (DHCP)"
 msgstr "Автоматично (DHCP)"
 
-#: ../pkg/networkmanager/interfaces.js:1585
-#: ../pkg/networkmanager/interfaces.js:1595
+#: ../pkg/networkmanager/interfaces.js:1583
+#: ../pkg/networkmanager/interfaces.js:1593
 msgid "Link local"
 msgstr "Пов’язати локальний"
 
-#: ../pkg/networkmanager/interfaces.js:1586
-#: ../pkg/networkmanager/interfaces.js:1596
+#: ../pkg/networkmanager/interfaces.js:1584
+#: ../pkg/networkmanager/interfaces.js:1594
 msgid "Manual"
 msgstr "Вручну"
 
-#: ../pkg/networkmanager/interfaces.js:1587
+#: ../pkg/networkmanager/interfaces.js:1585
 msgid "Shared"
 msgstr "Спільний"
 
-#: ../pkg/networkmanager/interfaces.js:1588 ../pkg/systemd/init.js:252
-msgid "Disabled"
-msgstr "Вимкнено"
-
-#: ../pkg/networkmanager/interfaces.js:1593
-#: ../pkg/networkmanager/interfaces.js:2460
-#: ../pkg/networkmanager/interfaces.js:2464
-#: ../pkg/networkmanager/interfaces.js:2470 ../pkg/realmd/operation.js:237
-msgid "Automatic"
-msgstr "Автоматично"
-
-#: ../pkg/networkmanager/interfaces.js:1594
+#: ../pkg/networkmanager/interfaces.js:1592
 msgid "Automatic (DHCP only)"
 msgstr "Автоматично (лише DHCP)"
 
-#: ../pkg/networkmanager/interfaces.js:1597
+#: ../pkg/networkmanager/interfaces.js:1595
 msgid "Ignore"
 msgstr "Ігнорувати"
 
-#: ../pkg/networkmanager/interfaces.js:1602
+#: ../pkg/networkmanager/interfaces.js:1600
 msgid "Round Robin"
 msgstr "Циклічне"
 
-#: ../pkg/networkmanager/interfaces.js:1603
+#: ../pkg/networkmanager/interfaces.js:1601
 msgid "Active Backup"
 msgstr "Активне резервування"
 
-#: ../pkg/networkmanager/interfaces.js:1604
+#: ../pkg/networkmanager/interfaces.js:1602
 msgid "XOR"
 msgstr "XOR"
 
-#: ../pkg/networkmanager/interfaces.js:1605
+#: ../pkg/networkmanager/interfaces.js:1603
 msgid "Broadcast"
 msgstr "Трансляція"
 
-#: ../pkg/networkmanager/interfaces.js:1606
+#: ../pkg/networkmanager/interfaces.js:1604
 msgid "802.3ad"
 msgstr "802.3ad"
 
-#: ../pkg/networkmanager/interfaces.js:1607
+#: ../pkg/networkmanager/interfaces.js:1605
 msgid "Adaptive transmit load balancing"
 msgstr "Адаптивне урівноваження навантаження за передаванням"
 
-#: ../pkg/networkmanager/interfaces.js:1608
+#: ../pkg/networkmanager/interfaces.js:1606
 msgid "Adaptive load balancing"
 msgstr "Адаптивне урівноваження навантаження"
 
-#: ../pkg/networkmanager/interfaces.js:1613
+#: ../pkg/networkmanager/interfaces.js:1611
 msgid "MII (Recommended)"
 msgstr "MII (рекомендоване)"
 
-#: ../pkg/networkmanager/interfaces.js:1614
+#: ../pkg/networkmanager/interfaces.js:1612
 msgid "ARP"
 msgstr "ARP"
 
-#: ../pkg/networkmanager/interfaces.js:1851
-#: ../pkg/networkmanager/interfaces.js:1859
-#: ../pkg/networkmanager/interfaces.js:2055
+#: ../pkg/networkmanager/interfaces.js:1839
+#: ../pkg/networkmanager/interfaces.js:1847
+#: ../pkg/networkmanager/interfaces.js:2043
 msgid "Bond"
 msgstr "Прив’язка"
 
-#: ../pkg/networkmanager/interfaces.js:1853
-#: ../pkg/networkmanager/interfaces.js:1861
-#: ../pkg/networkmanager/interfaces.js:2119
+#: ../pkg/networkmanager/interfaces.js:1841
+#: ../pkg/networkmanager/interfaces.js:1849
+#: ../pkg/networkmanager/interfaces.js:2107
 msgid "VLAN"
 msgstr "VLAN"
 
-#: ../pkg/networkmanager/interfaces.js:1855
-#: ../pkg/networkmanager/interfaces.js:1863
-#: ../pkg/networkmanager/interfaces.js:2081
+#: ../pkg/networkmanager/interfaces.js:1843
+#: ../pkg/networkmanager/interfaces.js:1851
+#: ../pkg/networkmanager/interfaces.js:2069
 msgid "Bridge"
 msgstr "Міст"
 
-#: ../pkg/networkmanager/interfaces.js:1884
+#: ../pkg/networkmanager/interfaces.js:1872
 msgid "Carrier"
 msgstr "Носій сигналу"
 
-#: ../pkg/networkmanager/interfaces.js:1887
+#: ../pkg/networkmanager/interfaces.js:1875
 msgid "Yes"
 msgstr "Так"
 
-#: ../pkg/networkmanager/interfaces.js:1888
+#: ../pkg/networkmanager/interfaces.js:1876
 msgid "No"
 msgstr "Ні"
 
-#: ../pkg/networkmanager/interfaces.js:1907
+#: ../pkg/networkmanager/interfaces.js:1895
+#: ../pkg/kubernetes/views/containers-page.html.h:7
+#: ../pkg/kubernetes/views/details-page.html.h:5
+#: ../pkg/kubernetes/views/node-panel.html.h:11
 #: ../pkg/subscriptions/index.html.h:45
 msgid "Status"
 msgstr "Стан"
 
-#: ../pkg/networkmanager/interfaces.js:1940
+#: ../pkg/networkmanager/interfaces.js:1928
 msgid "Unknown configuration"
 msgstr "Невідомі налаштування"
 
-#: ../pkg/networkmanager/interfaces.js:2014
+#: ../pkg/networkmanager/interfaces.js:2002
 msgid "Configure"
 msgstr "Налаштувати"
 
-#: ../pkg/networkmanager/interfaces.js:2031
+#: ../pkg/networkmanager/interfaces.js:2019
 msgid "Master"
 msgstr "Основний"
 
-#: ../pkg/networkmanager/interfaces.js:2050
+#: ../pkg/networkmanager/interfaces.js:2038
 msgid "ARP Monitoring"
 msgstr "Стеження за ARP"
 
-#: ../pkg/networkmanager/interfaces.js:2070
+#: ../pkg/networkmanager/interfaces.js:2058
 msgid "Spanning Tree Protocol"
 msgstr "Протокол пересування ієрархією"
 
-#: ../pkg/networkmanager/interfaces.js:2072
-#: ../pkg/networkmanager/interfaces.js:2096
+#: ../pkg/networkmanager/interfaces.js:2060
+#: ../pkg/networkmanager/interfaces.js:2084
 msgid "Priority $priority"
 msgstr "Пріоритетність $priority"
 
-#: ../pkg/networkmanager/interfaces.js:2074
+#: ../pkg/networkmanager/interfaces.js:2062
 msgid "Forward delay $forward_delay"
 msgstr "Затримка переспрямування $forward_delay"
 
-#: ../pkg/networkmanager/interfaces.js:2076
+#: ../pkg/networkmanager/interfaces.js:2064
 msgid "Hello time $hello_time"
 msgstr "Час вітання $hello_time"
 
-#: ../pkg/networkmanager/interfaces.js:2078
+#: ../pkg/networkmanager/interfaces.js:2066
 msgid "Maximum message age $max_age"
 msgstr "Максимальний вік повідомлення $max_age"
 
-#: ../pkg/networkmanager/interfaces.js:2098
+#: ../pkg/networkmanager/interfaces.js:2086
 msgid "Path cost $path_cost"
 msgstr "Вартість шляху $path_cost"
 
-#: ../pkg/networkmanager/interfaces.js:2100
+#: ../pkg/networkmanager/interfaces.js:2088
 msgid "Hairpin mode"
 msgstr "Режим початкової зони (hairpin)"
 
-#: ../pkg/networkmanager/interfaces.js:2102
+#: ../pkg/networkmanager/interfaces.js:2090
 msgid "Bridge port"
 msgstr "Порт містка"
 
-#: ../pkg/networkmanager/interfaces.js:2116
+#: ../pkg/networkmanager/interfaces.js:2104
 msgid "Parent $parent"
 msgstr "Батьківський $parent"
 
-#: ../pkg/networkmanager/interfaces.js:2117
+#: ../pkg/networkmanager/interfaces.js:2105
 msgid "Id $id"
 msgstr "Ід. $id"
 
-#: ../pkg/networkmanager/interfaces.js:2125
+#: ../pkg/networkmanager/interfaces.js:2113
 msgid "General"
 msgstr "Загальний"
 
-#: ../pkg/networkmanager/interfaces.js:2134
+#: ../pkg/networkmanager/interfaces.js:2122
 msgid "Connect automatically"
 msgstr "З’єднуватися автоматично"
 
-#: ../pkg/networkmanager/interfaces.js:2135
+#: ../pkg/networkmanager/interfaces.js:2123
 msgid "IPv4"
 msgstr "IPv4"
 
-#: ../pkg/networkmanager/interfaces.js:2136
+#: ../pkg/networkmanager/interfaces.js:2124
 msgid "IPv6"
 msgstr "IPv6"
 
-#: ../pkg/networkmanager/interfaces.js:2437
+#: ../pkg/networkmanager/interfaces.js:2209
+#: ../pkg/registry/views/project-listing.html.h:5
+#: ../pkg/networkmanager/index.html.h:28
+msgid "Members"
+msgstr "Учасники"
+
+#: ../pkg/networkmanager/interfaces.js:2209
+#: ../pkg/registry/views/image-config.html.h:6 ../pkg/docker/index.html.h:24
+#: ../pkg/kubernetes/views/container-body.html.h:5
+#: ../pkg/kubernetes/views/service-panel.html.h:8
+#: ../pkg/networkmanager/index.html.h:19
+msgid "Ports"
+msgstr "Порти"
+
+#: ../pkg/networkmanager/interfaces.js:2429
 msgid "-"
 msgstr "-"
 
-#: ../pkg/networkmanager/interfaces.js:2449
+#: ../pkg/networkmanager/interfaces.js:2444
 msgid "Prefix length or Netmask"
 msgstr "Довжина префікса або маска мережі"
 
-#: ../pkg/networkmanager/interfaces.js:2449
+#: ../pkg/networkmanager/interfaces.js:2444
 msgid "Prefix length"
 msgstr "Довжина префікса"
 
-#: ../pkg/networkmanager/interfaces.js:2452
+#: ../pkg/networkmanager/interfaces.js:2447
+#: ../pkg/kubernetes/views/details-page.html.h:9
 msgid "Addresses"
 msgstr "Адреси"
 
-#: ../pkg/networkmanager/interfaces.js:2459
+#: ../pkg/networkmanager/interfaces.js:2454
 msgid "DNS"
 msgstr "DNS"
 
-#: ../pkg/networkmanager/interfaces.js:2463
+#: ../pkg/networkmanager/interfaces.js:2458
 msgid "DNS Search Domains"
 msgstr "Домени пошуку DNS"
 
-#: ../pkg/networkmanager/interfaces.js:2468
+#: ../pkg/networkmanager/interfaces.js:2463
+#: ../pkg/kubernetes/views/details-page.html.h:13
 msgid "Routes"
 msgstr "Маршрути"
 
-#: ../pkg/networkmanager/interfaces.js:2502
+#: ../pkg/networkmanager/interfaces.js:2497
 msgid "IPv4 Settings"
 msgstr "Параметри IPv4"
 
-#: ../pkg/networkmanager/interfaces.js:2502
+#: ../pkg/networkmanager/interfaces.js:2497
 msgid "IPv6 Settings"
 msgstr "Параметри IPv6"
 
-#: ../pkg/realmd/operation.html.h:1
-msgid "Domain Address"
-msgstr "Адреса домену"
-
-#: ../pkg/realmd/operation.html.h:2
-msgid "Computer OU"
-msgstr "OU комп’ютера"
-
-#: ../pkg/realmd/operation.html.h:3
-msgid "Authentication"
-msgstr "Розпізнавання"
-
-#: ../pkg/realmd/operation.html.h:5 ../pkg/realmd/operation.js:235
-msgid "User Password"
-msgstr "Пароль користувача"
-
-#: ../pkg/realmd/operation.html.h:6
-msgid "Domain Administrator Name"
-msgstr "Ім’я адміністратора домену"
-
-#: ../pkg/realmd/operation.html.h:7
-msgid "Domain Administrator Password"
-msgstr "Пароль адміністратора домену"
-
-#: ../pkg/realmd/operation.html.h:8 ../pkg/realmd/operation.js:236
-msgid "One Time Password"
-msgstr "Одноразовий пароль"
-
-#: ../pkg/realmd/operation.html.h:9
-msgid "This may take a while"
-msgstr "Зачекайте"
-
-#: ../pkg/realmd/operation.js:90 ../pkg/realmd/operation.js:95
-msgid "page-title"
-msgstr "заголовок сторінки"
-
-#: ../pkg/realmd/operation.js:91
-msgid "Join"
-msgstr "З'єднати"
-
-#: ../pkg/realmd/operation.js:96
-msgid "Leave"
-msgstr "Вийти"
-
-#: ../pkg/realmd/operation.js:143
-msgid "Domain $0 could not be contacted"
-msgstr "Не вдалося встановити зв’язок із доменом $0"
-
-#: ../pkg/realmd/operation.js:202 ../pkg/realmd/operation.js:208
-msgid "e.g. \"$0\""
-msgstr "наприклад «$0»"
-
-#: ../pkg/realmd/operation.js:234
-msgid "Administrator Password"
-msgstr "Пароль адміністратора"
-
-#: ../pkg/realmd/operation.js:325
-msgid "More"
-msgstr "Більше"
-
-#: ../pkg/realmd/operation.js:378
-msgid "Cannot join a domain because realmd is not available on this system"
-msgstr ""
-"Не вдалося долучитися до домену, оскільки у цій системі недоступна служба "
-"realmd"
-
-#: ../pkg/realmd/operation.js:397
-msgid "The user <b>$0</b> is not permitted to modify realms"
-msgstr "Користувачу <b>$0</b> не дозволено вносити зміни до областей"
-
-#: ../pkg/realmd/operation.js:414
-msgid "Join Domain"
-msgstr "Долучитися до домену"
-
-#: ../pkg/shell/index.html.h:2
-msgid "Ooops!"
-msgstr "Вибачте!"
-
-#: ../pkg/shell/index.html.h:3
-msgid "Display Language"
-msgstr "Мова перекладу"
-
-#: ../pkg/shell/index.html.h:4
-msgid "About Cockpit"
-msgstr "Про Cockpit"
-
-#: ../pkg/shell/index.html.h:5
-msgid "Account Settings"
-msgstr "Параметри облікового запису"
-
-#: ../pkg/shell/index.html.h:6
-msgid "Drop extra privileges"
-msgstr "Скинути зайві привілеї"
-
-#: ../pkg/shell/index.html.h:7
-msgid "Log out"
-msgstr "Вийти"
-
-#: ../pkg/shell/index.html.h:8
-msgid ""
-"\n"
-"              Cockpit is an interactive Linux server admin interface.\n"
-"            "
-msgstr ""
-"\n"
-"              Cockpit — інтерактивний інтерфейс адміністратора сервера "
-"Linux.\n"
-"            "
-
-#: ../pkg/shell/index.html.h:11 ../pkg/subscriptions/index.html.h:43
-msgid "Version"
-msgstr "Версія"
-
-#: ../pkg/shell/index.html.h:12
-msgid "Choose the language to be used in the application"
-msgstr "Виберіть мову перекладу, яку буде використано для інтерфейсу програми"
-
-#: ../pkg/shell/index.html.h:13 ../pkg/storaged/index.html.h:64
-#: ../pkg/subscriptions/index.html.h:34
-msgid ""
-"\n"
-"              Cancel\n"
-"            "
-msgstr ""
-"\n"
-"              Скасувати\n"
-"            "
-
-#: ../pkg/shell/index.html.h:16
-msgid ""
-"\n"
-"              Select\n"
-"            "
-msgstr ""
-"\n"
-"              Вибрати\n"
-"            "
-
-#: ../pkg/shell/index.html.h:19
-msgid "Disconnected"
-msgstr "Роз'єднано"
-
-#: ../pkg/shell/index.html.h:20
-msgid ""
-"\n"
-"              Try to reconnect\n"
-"            "
-msgstr ""
-"\n"
-"              Спробувати з’єднатися знову\n"
-"            "
-
-#: ../pkg/shell/index.html.h:23
-msgid ""
-"\n"
-"              Log in again\n"
-"            "
-msgstr ""
-"\n"
-"              Увійти знову\n"
-"            "
-
-#: ../pkg/shell/index.html.h:26
-msgid ""
-"\n"
-"              Close\n"
-"            "
-msgstr ""
-"\n"
-"              Закрити\n"
-"            "
-
-#: ../pkg/shell/index.html.h:29
-msgid ""
-"\n"
-"                Tools\n"
-"              "
-msgstr ""
-"\n"
-"                Інструменти\n"
-"              "
-
-#: ../pkg/shell/index.html.h:32
+#: ../pkg/ostree/client.js:60
 #, fuzzy
-msgid "Reconnect"
-msgstr "Роз'єднано"
+msgid "Receiving delta parts"
+msgstr "Отримання"
 
-#: ../pkg/shell/index.js:51
-msgid "Cockpit had an unexpected internal error. <br/><br/>"
-msgstr "У Cockpit сталася неочікувана внутрішня помилка. <br/><br/>"
-
-#: ../pkg/shell/index.js:52
-msgid "You can try restarting Cockpit by pressing refresh in your browser. "
-msgstr ""
-"Ви можете спробувати перезапустити Cockpit натисканням кнопки оновлення "
-"сторінки у вашому браузері. "
-
-#: ../pkg/shell/index.js:53
-msgid "The javascript console contains details about this error "
-msgstr "У консолі javascript наведено подробиці щодо цієї помилки "
-
-#: ../pkg/shell/index.js:54
-msgid "(<b>Ctrl-Shift-J</b> in most browsers)."
-msgstr "(<b>Ctrl-Shift-J</b> у більшості браузерів)."
-
-#: ../pkg/shell/index.js:484
-msgid "Machines"
-msgstr "Машини"
-
-#: ../pkg/shell/index.js:542
-msgid "The machine is restarting"
+#: ../pkg/ostree/client.js:62
+msgid "Receiving metadata objects"
 msgstr ""
 
-#: ../pkg/shell/index.js:545
-#, fuzzy
-msgid "Connecting to the machine"
-msgstr "Встановлюємо з’єднання із Docker"
+#: ../pkg/ostree/client.js:65
+msgid "Receiving objects: $0%"
+msgstr ""
 
-#: ../pkg/shell/index.js:548
+#: ../pkg/ostree/client.js:68
 #, fuzzy
-msgid "Couldn't connect to the machine"
-msgstr "Не вдалося встановити з’єднання із сервером Kubernetes"
+msgid "Writing objects"
+msgstr "Запис"
 
-#: ../pkg/shell/index.js:550
+#: ../pkg/ostree/client.js:70
+msgid "Scanning metadata"
+msgstr ""
+
+#: ../pkg/ostree/client.js:489
 #, fuzzy
-msgid "Cannot connect to an unknown machine"
-msgstr "Не вдалося з’єднатися з Docker"
+msgid "OS $0 not found"
+msgstr "Не знайдено"
 
-#: ../pkg/storaged/overview.js:150
+#: ../pkg/ostree/app.js:76
+#, fuzzy
+msgid "Not authorized to update software on this system"
+msgstr "Не уповноважено на доступ до Docker у цій системі"
+
+#: ../pkg/ostree/app.js:78
+#, fuzzy
+msgid "OSTree is not available on this system"
+msgstr "У цій системі програмний інтерфейс «storaged» є недоступним."
+
+#: ../pkg/ostree/app.js:96
+msgid "No OSTree deployments found"
+msgstr ""
+
+#: ../pkg/ostree/app.js:214
+msgid "Checking for updates"
+msgstr ""
+
+#: ../pkg/ostree/app.js:300
+msgid "$0 package"
+msgstr ""
+
+#: ../pkg/ostree/app.js:300
+msgid "$0 packages"
+msgstr ""
+
+#: ../pkg/storaged/overview.js:182
 msgctxt "storage"
 msgid "Hard Disk"
 msgstr "Жорсткий диск"
 
-#: ../pkg/storaged/overview.js:152
+#: ../pkg/storaged/overview.js:184
 msgctxt "storage"
 msgid "Solid-State Disk"
 msgstr "Твердотільний диск"
 
-#: ../pkg/storaged/overview.js:155 ../pkg/storaged/overview.js:157
+#: ../pkg/storaged/overview.js:187 ../pkg/storaged/overview.js:189
 msgctxt "storage"
 msgid "Removable Drive"
 msgstr "Портативний диск"
 
-#: ../pkg/storaged/overview.js:159
+#: ../pkg/storaged/overview.js:191
 msgctxt "storage"
 msgid "Optical Drive"
 msgstr "Пристрій читання оптичних дисків"
 
-#: ../pkg/storaged/overview.js:162 ../pkg/storaged/overview.js:164
+#: ../pkg/storaged/overview.js:194 ../pkg/storaged/overview.js:196
 msgctxt "storage"
 msgid "Drive"
 msgstr "Диск"
 
-#: ../pkg/storaged/overview.js:223
+#: ../pkg/storaged/overview.js:255
 msgid "$0 Block Device"
 msgstr "$0, блоковий пристрій"
 
-#: ../pkg/storaged/overview.js:385 ../pkg/storaged/index.html.h:26
+#: ../pkg/storaged/overview.js:410
 msgid "Create RAID Device"
 msgstr "Створити пристрій RAID"
 
-#: ../pkg/storaged/overview.js:391
+#: ../pkg/storaged/overview.js:413 ../pkg/storaged/overview.js:471
+#: ../pkg/storaged/overview.js:604 ../pkg/storaged/overview.js:682
+#: ../pkg/storaged/details.js:162 ../pkg/storaged/details.js:378
+#: ../pkg/storaged/details.js:612 ../pkg/storaged/details.js:632
+#: ../pkg/storaged/details.js:668 ../pkg/storaged/details.js:694
+#: ../pkg/storaged/details.js:744 ../pkg/storaged/details.js:773
+#: ../pkg/registry/views/imagestream-modify.html.h:3
+#: ../pkg/registry/views/add-project-dialog.html.h:2
+#: ../pkg/registry/views/project-listing.html.h:3
+#: ../pkg/kubernetes/views/containers-page.html.h:2
+#: ../pkg/kubernetes/views/dashboard-page.html.h:5
+#: ../pkg/kubernetes/views/details-page.html.h:2
+#: ../pkg/kubernetes/index.html.h:26 ../pkg/networkmanager/index.html.h:14
+#: ../pkg/storaged/index.html.h:18
+msgid "Name"
+msgstr "Назва"
+
+#: ../pkg/storaged/overview.js:416
 msgid "RAID Level"
 msgstr "Рівень RAID"
 
-#: ../pkg/storaged/overview.js:393
+#: ../pkg/storaged/overview.js:418
 msgid "RAID 0 (Stripe)"
 msgstr "RAID 0 (Стрічка)"
 
-#: ../pkg/storaged/overview.js:394
+#: ../pkg/storaged/overview.js:419
 msgid "RAID 1 (Mirror)"
 msgstr "RAID 1 (Дзеркало)"
 
-#: ../pkg/storaged/overview.js:395
+#: ../pkg/storaged/overview.js:420
 msgid "RAID 4 (Dedicated Parity)"
 msgstr "RAID 4 (Пов’язана парність)"
 
-#: ../pkg/storaged/overview.js:396
+#: ../pkg/storaged/overview.js:421
 msgid "RAID 5 (Distributed Parity)"
 msgstr "RAID 5 (Розподілена парність)"
 
-#: ../pkg/storaged/overview.js:397
+#: ../pkg/storaged/overview.js:422
 msgid "RAID 6 (Double Distributed Parity)"
 msgstr "RAID 6 (Подвійна розподілена парність)"
 
-#: ../pkg/storaged/overview.js:398
-msgid "AID 10 (Stripe of Mirrors)"
+#: ../pkg/storaged/overview.js:423
+#, fuzzy
+msgid "RAID 10 (Stripe of Mirrors)"
 msgstr "AID 10 (стрічка дзеркал)"
 
-#: ../pkg/storaged/overview.js:402
+#: ../pkg/storaged/overview.js:427
 msgid "Chunk Size"
 msgstr "Розмір фрагмента"
 
-#: ../pkg/storaged/overview.js:404
+#: ../pkg/storaged/overview.js:429
 msgid "4 KB"
 msgstr "4 кБ"
 
-#: ../pkg/storaged/overview.js:405
+#: ../pkg/storaged/overview.js:430
 msgid "8 KB"
 msgstr "8 кБ"
 
-#: ../pkg/storaged/overview.js:406
+#: ../pkg/storaged/overview.js:431
 msgid "16 KB"
 msgstr "16 кБ"
 
-#: ../pkg/storaged/overview.js:407
+#: ../pkg/storaged/overview.js:432
 msgid "32 KB"
 msgstr "32 кБ"
 
-#: ../pkg/storaged/overview.js:408
+#: ../pkg/storaged/overview.js:433
 msgid "64 KB"
 msgstr "64 кБ"
 
-#: ../pkg/storaged/overview.js:409
+#: ../pkg/storaged/overview.js:434
 msgid "128 KB"
 msgstr "128 кБ"
 
-#: ../pkg/storaged/overview.js:410
+#: ../pkg/storaged/overview.js:435
 msgid "512 KB"
 msgstr "512 кБ"
 
-#: ../pkg/storaged/overview.js:411
+#: ../pkg/storaged/overview.js:436
 msgid "1 MB"
 msgstr "1 МБ"
 
-#: ../pkg/storaged/overview.js:412
+#: ../pkg/storaged/overview.js:437
 msgid "2 MB"
 msgstr "2 МБ"
 
-#: ../pkg/storaged/overview.js:416 ../pkg/storaged/overview.js:447
-#: ../pkg/storaged/details.js:520 ../pkg/storaged/details.js:801
-#: ../pkg/storaged/index.html.h:54
+#: ../pkg/storaged/overview.js:444 ../pkg/storaged/overview.js:475
+#: ../pkg/storaged/details.js:516 ../pkg/storaged/details.js:797
+#: ../pkg/storaged/index.html.h:56
 msgid "Disks"
 msgstr "Диски"
 
-#: ../pkg/storaged/overview.js:423
+#: ../pkg/storaged/overview.js:451
 msgid "At least $0 disks are needed."
 msgstr "Потрібно принаймні $0 дисків."
 
-#: ../pkg/storaged/overview.js:429 ../pkg/storaged/overview.js:458
-#: ../pkg/storaged/details.js:648 ../pkg/storaged/details.js:681
-#: ../pkg/storaged/details.js:704 ../pkg/storaged/details.js:757
-#: ../pkg/storaged/details.js:786
+#: ../pkg/storaged/overview.js:457 ../pkg/storaged/overview.js:486
+#: ../pkg/storaged/details.js:644 ../pkg/storaged/details.js:677
+#: ../pkg/storaged/details.js:700 ../pkg/storaged/details.js:753
+#: ../pkg/storaged/details.js:782
+#: ../pkg/registry/views/add-project-dialog.html.h:6
+#: ../pkg/registry/views/add-group-dialog.html.h:6
 msgid "Create"
 msgstr "Створити"
 
-#: ../pkg/storaged/overview.js:440 ../pkg/storaged/index.html.h:27
+#: ../pkg/storaged/overview.js:468
 msgid "Create Volume Group"
 msgstr "Створити групу томів"
 
-#: ../pkg/storaged/overview.js:453 ../pkg/storaged/details.js:532
-#: ../pkg/storaged/details.js:816
+#: ../pkg/storaged/overview.js:481 ../pkg/storaged/details.js:528
+#: ../pkg/storaged/details.js:812
 msgid "At least one disk is needed."
 msgstr "Потрібен принаймні один диск."
+
+#: ../pkg/storaged/overview.js:495
+msgid "Add iSCSI Portal"
+msgstr ""
+
+#: ../pkg/storaged/overview.js:498
+#, fuzzy
+msgid "Server Address"
+msgstr "IP-адреса"
+
+#: ../pkg/storaged/overview.js:501
+#, fuzzy
+msgid "Server address can not be empty."
+msgstr "Ім’я користувача не може бути порожнім."
+
+#: ../pkg/storaged/overview.js:513 ../pkg/realmd/operation.html.h:11
+msgid "Next"
+msgstr "Далі"
+
+#: ../pkg/storaged/overview.js:557 ../pkg/storaged/overview.js:648
+#, fuzzy
+msgid "Invalid username or password"
+msgstr "Некоректне ім’я користувача або пароль."
+
+#: ../pkg/storaged/overview.js:562
+#, fuzzy
+msgid "Unknown host name"
+msgstr "невідоме призначення"
+
+#: ../pkg/storaged/overview.js:566
+msgid "Unable to reach server"
+msgstr ""
+
+#: ../pkg/storaged/overview.js:599
+msgid "Available targets on $0"
+msgstr ""
+
+#: ../pkg/storaged/overview.js:603 ../pkg/systemd/services.html.h:2
+msgid "Targets"
+msgstr "Призначення"
+
+#: ../pkg/storaged/overview.js:604 ../pkg/shell/templates/add-machine.html.h:2
+#: ../pkg/kubernetes/views/dashboard-page.html.h:6
+#: ../pkg/kubernetes/views/details-page.html.h:4
+#: ../pkg/kubernetes/views/node-panel.html.h:2
+#: ../pkg/kubernetes/index.html.h:41
+msgid "Address"
+msgstr "Адреса"
+
+#: ../pkg/storaged/overview.js:604 ../pkg/shell/templates/change-port.html.h:5
+#, fuzzy
+msgid "Port"
+msgstr "Порти"
+
+#: ../pkg/storaged/overview.js:609 ../pkg/storaged/overview.js:637
+#: ../pkg/storaged/details.js:533 ../pkg/storaged/details.js:817
+#: ../pkg/shell/templates/add-machine.html.h:6
+#: ../pkg/registry/views/add-user-dialog.html.h:9
+#: ../pkg/kubernetes/index.html.h:44
+msgid "Add"
+msgstr "Додати"
+
+#: ../pkg/storaged/overview.js:679
+#, fuzzy
+msgid "Change iSCSI Initiator Name"
+msgstr "Ім’я адміністратора домену"
+
+#: ../pkg/storaged/overview.js:687
+#, fuzzy
+msgid "Change"
+msgstr "Змінити зображення"
 
 #. Translators: Used in "42.5 KB (42399 bytes)"
 #: ../pkg/storaged/utils.js:65
@@ -1678,10 +1674,11 @@ msgstr "Створити розділ на $0"
 msgid "Format $0"
 msgstr "Форматувати $0"
 
-#: ../pkg/storaged/details.js:125 ../pkg/storaged/details.js:585
-#: ../pkg/storaged/details.js:640 ../pkg/storaged/details.js:676
-#: ../pkg/storaged/details.js:752 ../pkg/storaged/details.js:781
-#: ../pkg/storaged/index.html.h:14
+#: ../pkg/storaged/details.js:125 ../pkg/storaged/details.js:581
+#: ../pkg/storaged/details.js:636 ../pkg/storaged/details.js:672
+#: ../pkg/storaged/details.js:748 ../pkg/storaged/details.js:777
+#: ../pkg/kubernetes/views/imagerepository-panel.html.h:7
+#: ../pkg/storaged/index.html.h:20
 msgid "Size"
 msgstr "Розмір"
 
@@ -1705,7 +1702,8 @@ msgstr "Не перезаписувати наявні дані"
 msgid "Overwrite existing data with zeros"
 msgstr "Перезаписати наявні дані нулями"
 
-#: ../pkg/storaged/details.js:146
+#: ../pkg/storaged/details.js:146 ../pkg/shell/index.html.h:3
+#: ../pkg/kubernetes/views/service-panel.html.h:7
 msgid "Type"
 msgstr "Тип"
 
@@ -1779,6 +1777,7 @@ msgid "Mounting"
 msgstr "Монтування"
 
 #: ../pkg/storaged/details.js:198 ../pkg/storaged/details.js:384
+#: ../pkg/registry/views/image-config.html.h:2
 #: ../pkg/subscriptions/index.html.h:26
 msgid "Default"
 msgstr "Типовий"
@@ -1788,7 +1787,7 @@ msgid "Custom"
 msgstr "Нетиповий"
 
 #: ../pkg/storaged/details.js:204 ../pkg/storaged/details.js:389
-#: ../pkg/storaged/index.html.h:13
+#: ../pkg/storaged/index.html.h:19
 msgid "Mount Point"
 msgstr "Точка монтування"
 
@@ -1801,7 +1800,7 @@ msgid "Create partition"
 msgstr "Створити розділ"
 
 #: ../pkg/storaged/details.js:217 ../pkg/storaged/details.js:306
-#: ../pkg/storaged/details.js:989 ../pkg/storaged/details.js:1457
+#: ../pkg/storaged/details.js:989
 msgid "Format"
 msgstr "Формат"
 
@@ -1857,80 +1856,75 @@ msgstr "Збережений пароль"
 msgid "Options"
 msgstr "Параметри"
 
-#: ../pkg/storaged/details.js:517 ../pkg/storaged/details.js:798
+#: ../pkg/storaged/details.js:513 ../pkg/storaged/details.js:794
 msgid "Add Disks"
 msgstr "Додати диски"
 
-#: ../pkg/storaged/details.js:564
+#: ../pkg/storaged/details.js:560
 msgid "Deleting a RAID device will erase all data on it."
 msgstr "Вилучення пристрою RAID призведе до витирання з нього усіх даних."
 
-#: ../pkg/storaged/details.js:582
+#: ../pkg/storaged/details.js:578
 msgid "Resize Logical Volume"
 msgstr "Змінити розмір логічного тому"
 
-#: ../pkg/storaged/details.js:590
+#: ../pkg/storaged/details.js:586
 msgid "Resize Filesystem"
 msgstr "Змінити розмір файлової системи"
 
-#: ../pkg/storaged/details.js:598 ../pkg/storaged/details.js:966
+#: ../pkg/storaged/details.js:594 ../pkg/storaged/details.js:966
 msgid "Resize"
 msgstr "Змінити розмір"
 
-#: ../pkg/storaged/details.js:613
+#: ../pkg/storaged/details.js:609
 msgid "Renamee Logical Volume"
 msgstr "Перейменувати логічний том"
 
-#: ../pkg/storaged/details.js:621 ../pkg/storaged/details.js:967
+#: ../pkg/storaged/details.js:617 ../pkg/storaged/details.js:967
 #: ../pkg/storaged/details.js:1617
 msgid "Rename"
 msgstr "Перейменувати"
 
-#: ../pkg/storaged/details.js:633 ../pkg/storaged/details.js:971
+#: ../pkg/storaged/details.js:629 ../pkg/storaged/details.js:971
 msgid "Create Snapshot"
 msgstr "Створення знімка"
 
-#: ../pkg/storaged/details.js:669 ../pkg/storaged/details.js:983
+#: ../pkg/storaged/details.js:665 ../pkg/storaged/details.js:983
 msgid "Create Thin Volume"
 msgstr "Створити тонкий том"
 
-#: ../pkg/storaged/details.js:695
+#: ../pkg/storaged/details.js:691
 msgid "Rename Volume Group"
 msgstr "Перейменувати групу томів"
 
-#: ../pkg/storaged/details.js:726
+#: ../pkg/storaged/details.js:722
 msgid "Deleting a volume group will erase all data on it."
 msgstr ""
 "Вилучення групи томів призведе до витирання усіх даних, що у ній "
 "зберігаються."
 
-#: ../pkg/storaged/details.js:745
+#: ../pkg/storaged/details.js:741
 msgid "Create Plain Volume"
 msgstr "Створити простий том"
 
-#: ../pkg/storaged/details.js:765
+#: ../pkg/storaged/details.js:761
 msgid "Sorry"
 msgstr "Вибачте"
 
-#: ../pkg/storaged/details.js:774 ../pkg/storaged/details.js:1558
+#: ../pkg/storaged/details.js:770 ../pkg/storaged/details.js:1558
 msgid "Create Pool for Thin Logical Volumes"
 msgstr "Створити буфер для тонких логічних томів"
 
-#: ../pkg/storaged/details.js:874
+#: ../pkg/storaged/details.js:870
 msgid "Deleting a logical volume will delete all data in it."
 msgstr ""
 "Вилучення логічного тому призведе до витирання усіх даних, що на ньому "
 "зберігаються."
 
-#: ../pkg/storaged/details.js:877
+#: ../pkg/storaged/details.js:873
 msgid "Deleting a partition will delete all data in it."
 msgstr ""
 "Вилучення розділу призведе до вилучення усіх даних, що на ньому зберігаються."
-
-#: ../pkg/storaged/details.js:918 ../pkg/storaged/devices.js:109
-#: ../pkg/systemd/services.html.h:13 ../pkg/users/local.js:1113
-msgid "Error"
-msgstr "Помилка"
 
 #: ../pkg/storaged/details.js:954
 msgid "Mount"
@@ -2049,7 +2043,7 @@ msgstr "Основний розділ"
 msgid "Partition"
 msgstr "Розділ"
 
-#: ../pkg/storaged/details.js:1337 ../pkg/storaged/details.js:1481
+#: ../pkg/storaged/details.js:1336 ../pkg/storaged/details.js:1480
 msgid "Content"
 msgstr "Вміст"
 
@@ -2127,6 +2121,11 @@ msgstr ", лишилося $0"
 msgid "$0 disks are missing"
 msgstr "Не вистачає $0 дисків"
 
+#: ../pkg/storaged/details.js:1416 ../pkg/docker/index.html.h:11
+#: ../pkg/ostree/index.html.h:7
+msgid "Running"
+msgstr "Працює"
+
 #: ../pkg/storaged/details.js:1416
 msgid "Not running"
 msgstr "Зупинено"
@@ -2159,20 +2158,11 @@ msgstr "Заблоковано"
 msgid "Unknown ($0)"
 msgstr "Невідомий ($0)"
 
-#. <method>:<mode>
-#: ../pkg/storaged/details.js:1455 ../pkg/systemd/init.js:464
-msgid "Start"
-msgstr "Почати"
-
-#: ../pkg/storaged/details.js:1456 ../pkg/systemd/init.js:465
-msgid "Stop"
-msgstr "Зупинити"
-
-#: ../pkg/storaged/details.js:1458
+#: ../pkg/storaged/details.js:1457
 msgid "Start Scrubbing"
 msgstr "Почати витирання"
 
-#: ../pkg/storaged/details.js:1459
+#: ../pkg/storaged/details.js:1458
 msgid "Stop Scrubbing"
 msgstr "Зупинити витирання"
 
@@ -2229,6 +2219,2379 @@ msgstr "$0, вільно $1"
 msgid "Logical Volumes"
 msgstr "Логічні томи"
 
+#: ../pkg/storaged/jobs.js:109
+msgid "SMART self-test of $target"
+msgstr "Самоперевірка SMART $target"
+
+#: ../pkg/storaged/jobs.js:110
+msgid "Ejecting $target"
+msgstr "Видобуваємо $target"
+
+#: ../pkg/storaged/jobs.js:111
+msgid "Unlocking $target"
+msgstr "Розблокуємо $target"
+
+#: ../pkg/storaged/jobs.js:112
+msgid "Locking $target"
+msgstr "Блокуємо $target"
+
+#: ../pkg/storaged/jobs.js:113 ../pkg/storaged/jobs.js:118
+#: ../pkg/storaged/jobs.js:122
+msgid "Modifying $target"
+msgstr "Змінюємо $target"
+
+#: ../pkg/storaged/jobs.js:114
+msgid "Starting swapspace $target"
+msgstr "Запускаємо резервну область пам’яті $target"
+
+#: ../pkg/storaged/jobs.js:115
+msgid "Stopping swapspace $target"
+msgstr "Зупиняємо резервну область пам’яті $target"
+
+#: ../pkg/storaged/jobs.js:116
+msgid "Mounting $target"
+msgstr "Монтуємо $target"
+
+#: ../pkg/storaged/jobs.js:117
+msgid "Unmounting $target"
+msgstr "Демонтуємо $target"
+
+#: ../pkg/storaged/jobs.js:119
+msgid "Erasing $target"
+msgstr "Витираємо $target"
+
+#: ../pkg/storaged/jobs.js:120
+msgid "Creating filesystem on $target"
+msgstr "Створюємо файлову систему на $target"
+
+#: ../pkg/storaged/jobs.js:121
+msgid "Setting up loop device $target"
+msgstr "Налаштовуємо петльовий пристрій $target"
+
+#: ../pkg/storaged/jobs.js:123 ../pkg/storaged/jobs.js:133
+msgid "Deleting $target"
+msgstr "Вилучаємо $target"
+
+#: ../pkg/storaged/jobs.js:124
+msgid "Creating partition $target"
+msgstr "Створюємо розділ $target"
+
+#: ../pkg/storaged/jobs.js:125
+msgid "Cleaning up for $target"
+msgstr "Спорожнюємо для $target"
+
+#: ../pkg/storaged/jobs.js:126
+msgid "Securely erasing $target"
+msgstr "Безпечно витираємо $target"
+
+#: ../pkg/storaged/jobs.js:127
+msgid "Very securely erasing $target"
+msgstr "Дуже безпечно витираємо $target"
+
+#: ../pkg/storaged/jobs.js:128
+msgid "Stopping RAID Device $target"
+msgstr "Зупиняємо пристрій RAID $target"
+
+#: ../pkg/storaged/jobs.js:129
+msgid "Starting RAID Device $target"
+msgstr "Зупиняємо пристрій RAID $target"
+
+#: ../pkg/storaged/jobs.js:130
+msgid "Marking $target as faulty"
+msgstr "Позначаємо $target як помилковий"
+
+#: ../pkg/storaged/jobs.js:131
+msgid "Removing $target from RAID Device"
+msgstr "Вилучаємо $target з пристрою RAID"
+
+#: ../pkg/storaged/jobs.js:132
+msgid "Creating RAID Device $target"
+msgstr "Створюємо пристрій RAID $target"
+
+#: ../pkg/storaged/jobs.js:134
+msgid "Activating $target"
+msgstr "Активуємо $target"
+
+#: ../pkg/storaged/jobs.js:135
+msgid "Deactivating $target"
+msgstr "Деактивуємо $target"
+
+#: ../pkg/storaged/jobs.js:136
+msgid "Creating snapshot of $target"
+msgstr "Створюємо знімок $target"
+
+#: ../pkg/storaged/jobs.js:137
+msgid "Creating volume group $target"
+msgstr "Створюємо групу томів $target"
+
+#: ../pkg/storaged/jobs.js:138
+msgid "Deleting volume group $target"
+msgstr "Вилучаємо групу томів $target"
+
+#: ../pkg/storaged/jobs.js:139
+msgid "Adding physical volume to $target"
+msgstr "Додаємо фізичний том до $target"
+
+#: ../pkg/storaged/jobs.js:140
+msgid "Removing physical volume from $target"
+msgstr "Вилучаємо фізичний том з $target"
+
+#: ../pkg/storaged/jobs.js:141
+msgid "Emptying $target"
+msgstr "Спорожняємо $target"
+
+#: ../pkg/storaged/jobs.js:142
+msgid "Creating logical volume $target"
+msgstr "Створюємо логічний том $target"
+
+#: ../pkg/storaged/jobs.js:143
+msgid "Renaming $target"
+msgstr "Перейменовуємо $target"
+
+#: ../pkg/storaged/jobs.js:144
+msgid "Resizing $target"
+msgstr "Зміна розміру $target"
+
+#: ../pkg/storaged/jobs.js:150
+msgid "Operation '$operation' on $target"
+msgstr "Дія «$operation» над $target"
+
+#: ../pkg/storaged/jobs.js:164
+msgid "unknown target"
+msgstr "невідоме призначення"
+
+#: ../pkg/storaged/permissions.js:59
+msgid "The user <b>$0</b> is not permitted to manage storage"
+msgstr "Користувачу <b>$0</b> не дозволено керувати сховищем даних"
+
+#: ../pkg/subscriptions/subscriptions.js:50
+msgid "Login cannot be empty"
+msgstr "Ім’я користувача не може бути порожнім"
+
+#: ../pkg/subscriptions/subscriptions.js:56
+msgid "Password cannot be empty"
+msgstr "Пароль не може бути порожнім"
+
+#: ../pkg/subscriptions/subscriptions.js:394
+msgid "Registering system..."
+msgstr "Реєструємо систему…"
+
+#: ../pkg/subscriptions/subscriptions.js:453
+msgid "Failed to register the system"
+msgstr "Не вдалося зареєструвати систему"
+
+#: ../pkg/subscriptions/subscriptions.js:472
+msgid ""
+"Unable to register at this time because a call to subscription manager is "
+"already in progress. Please try again."
+msgstr ""
+"Не вдалося зареєструватися цього разу, оскільки виконується обробка у засобі "
+"керування передплатами. Будь ласка, повторіть спробу."
+
+#: ../pkg/subscriptions/subscriptions.js:496
+msgid "Invalid login or password."
+msgstr "Некоректне ім’я користувача або пароль."
+
+#: ../pkg/base1/patterns.js:235 ../pkg/shell/index.html.h:27
+#: ../pkg/systemd/index.html.h:16 ../pkg/playground/patterns.html.h:28
+#: ../pkg/networkmanager/index.html.h:39 ../pkg/storaged/index.html.h:52
+msgid "On"
+msgstr "Увімкнено"
+
+#: ../pkg/base1/patterns.js:235 ../pkg/shell/index.html.h:28
+#: ../pkg/systemd/index.html.h:17 ../pkg/playground/patterns.html.h:29
+#: ../pkg/networkmanager/index.html.h:40 ../pkg/storaged/index.html.h:53
+msgid "Off"
+msgstr "Вимкнено"
+
+#: ../pkg/base1/cockpit.js:1244
+msgid "$0 killed with signal $1"
+msgstr ""
+
+#: ../pkg/base1/cockpit.js:1246
+msgid "$0 exited with code $1"
+msgstr ""
+
+#: ../pkg/base1/cockpit.js:1248
+#, fuzzy
+msgid "$0 failed"
+msgstr "Помилка"
+
+#: ../pkg/base1/cockpit.js:2358
+msgid "Your session has been terminated."
+msgstr ""
+
+#: ../pkg/base1/cockpit.js:2360
+msgid "Your session has expired. Please log in again."
+msgstr ""
+
+#: ../pkg/base1/cockpit.js:2362
+msgid "Not permitted to perform this action."
+msgstr ""
+
+#: ../pkg/base1/cockpit.js:2364
+msgid "Login failed"
+msgstr ""
+
+#: ../pkg/base1/cockpit.js:2366
+msgid "The server refused to authenticate using any supported methods."
+msgstr ""
+
+#: ../pkg/base1/cockpit.js:2368
+msgid "Untrusted host"
+msgstr ""
+
+#: ../pkg/base1/cockpit.js:2370
+msgid "Host key is incorrect"
+msgstr ""
+
+#: ../pkg/base1/cockpit.js:2372
+#, fuzzy
+msgid "Internal error"
+msgstr "Неочікувана помилка"
+
+#: ../pkg/base1/cockpit.js:2374
+#, fuzzy
+msgid "Connection has timed out."
+msgstr "Час очікування відповіді на запит за допомогою passwd вичерпано"
+
+#: ../pkg/base1/cockpit.js:2376
+#, fuzzy
+msgid "Cockpit is not installed on the system."
+msgstr "Docker не встановлено або не активовано у цій системі"
+
+#: ../pkg/base1/cockpit.js:2378
+msgid "Cannot forward login credentials"
+msgstr ""
+
+#: ../pkg/base1/cockpit.js:2380
+msgid "Server has closed the connection."
+msgstr ""
+
+#: ../pkg/base1/cockpit.js:2382
+#, fuzzy
+msgid "Cockpit is not compatible with the software on the system."
+msgstr "Docker не встановлено або не активовано у цій системі"
+
+#: ../pkg/base1/cockpit.js:2384
+msgid "Cockpit could not contact the given host."
+msgstr ""
+
+#: ../pkg/sosreport/index.js:50 ../pkg/sosreport/index.js:114
+#: ../pkg/shell/templates/change-port.html.h:8
+#: ../pkg/shell/templates/unknown-hostkey.html.h:4
+#: ../pkg/shell/templates/not-supported.html.h:3
+#: ../pkg/shell/templates/invalid-hostkey.html.h:4
+#: ../pkg/shell/templates/auth-failed.html.h:7 ../pkg/shell/index.html.h:37
+#: ../pkg/systemd/services.html.h:12
+msgid "Close"
+msgstr "Закрити"
+
+#: ../pkg/sosreport/index.js:56 ../pkg/tuned/dialog.html.h:2
+#: ../pkg/shell/templates/change-port.html.h:6
+#: ../pkg/shell/templates/sync-users.html.h:7
+#: ../pkg/shell/templates/change-auth.html.h:13
+#: ../pkg/shell/templates/add-machine.html.h:5
+#: ../pkg/registry/views/imagestream-modify.html.h:7
+#: ../pkg/registry/views/add-project-dialog.html.h:5
+#: ../pkg/registry/views/imagestream-delete.html.h:3
+#: ../pkg/registry/views/add-group-dialog.html.h:5
+#: ../pkg/registry/views/add-user-dialog.html.h:8
+#: ../pkg/registry/views/image-delete.html.h:3
+#: ../pkg/realmd/operation.html.h:10 ../pkg/dashboard/index.html.h:8
+#: ../pkg/kubernetes/index.html.h:27 ../pkg/storaged/index.html.h:22
+msgid "Cancel"
+msgstr "Скасувати"
+
+#: ../pkg/sosreport/index.js:116
+msgid "No archive has been created."
+msgstr ""
+
+#: ../pkg/tuned/dialog.html.h:1
+msgid "Change Performance Profile"
+msgstr ""
+
+#: ../pkg/tuned/dialog.html.h:3
+#, fuzzy
+msgid "Change Profile"
+msgstr "Змінити зображення"
+
+#: ../pkg/shell/simple.html.h:1 ../pkg/shell/index.html.h:1
+#: ../pkg/systemd/index.html.h:1 ../pkg/dashboard/index.html.h:1
+msgid "Cockpit"
+msgstr "Cockpit"
+
+#: ../pkg/shell/simple.html.h:2 ../pkg/shell/index.html.h:5
+msgid "Ooops!"
+msgstr "Вибачте!"
+
+#: ../pkg/shell/simple.html.h:3 ../pkg/shell/index.html.h:6
+msgid "Display Language"
+msgstr "Мова перекладу"
+
+#: ../pkg/shell/simple.html.h:4 ../pkg/shell/index.html.h:7
+msgid "About Cockpit"
+msgstr "Про Cockpit"
+
+#: ../pkg/shell/simple.html.h:5 ../pkg/shell/index.html.h:10
+msgid "Log out"
+msgstr "Вийти"
+
+#: ../pkg/shell/simple.html.h:6 ../pkg/shell/index.html.h:11
+msgid ""
+"\n"
+"              Cockpit is an interactive Linux server admin interface.\n"
+"            "
+msgstr ""
+"\n"
+"              Cockpit — інтерактивний інтерфейс адміністратора сервера "
+"Linux.\n"
+"            "
+
+#: ../pkg/shell/simple.html.h:9 ../pkg/shell/index.html.h:14
+#: ../pkg/systemd/index.html.h:9 ../pkg/ostree/index.html.h:19
+#: ../pkg/subscriptions/index.html.h:43
+msgid "Version"
+msgstr "Версія"
+
+#: ../pkg/shell/simple.html.h:10 ../pkg/shell/index.html.h:15
+msgid "Choose the language to be used in the application"
+msgstr "Виберіть мову перекладу, яку буде використано для інтерфейсу програми"
+
+#: ../pkg/shell/simple.html.h:11 ../pkg/shell/index.html.h:16
+#: ../pkg/storaged/index.html.h:66 ../pkg/subscriptions/index.html.h:34
+msgid ""
+"\n"
+"              Cancel\n"
+"            "
+msgstr ""
+"\n"
+"              Скасувати\n"
+"            "
+
+#: ../pkg/shell/simple.html.h:14 ../pkg/shell/index.html.h:19
+msgid ""
+"\n"
+"              Select\n"
+"            "
+msgstr ""
+"\n"
+"              Вибрати\n"
+"            "
+
+#: ../pkg/shell/simple.html.h:18
+msgid ""
+"\n"
+"              Try to reconnect\n"
+"            "
+msgstr ""
+"\n"
+"              Спробувати з’єднатися знову\n"
+"            "
+
+#: ../pkg/shell/simple.html.h:21
+msgid ""
+"\n"
+"              Log in again\n"
+"            "
+msgstr ""
+"\n"
+"              Увійти знову\n"
+"            "
+
+#: ../pkg/shell/simple.html.h:24 ../pkg/shell/index.html.h:41
+msgid "Reconnect"
+msgstr "Повторно з’єднатися"
+
+#: ../pkg/shell/templates/change-port.html.h:1
+msgid "Could not contact {{host}}"
+msgstr ""
+
+#: ../pkg/shell/templates/change-port.html.h:2
+msgid "Cockpit was unable to contact {{#strong}}{{host}}{{/strong}}."
+msgstr ""
+
+#: ../pkg/shell/templates/change-port.html.h:3
+msgid ""
+"To try a different port you will need to upgrade cockpit-ws to a newer "
+"version."
+msgstr ""
+
+#: ../pkg/shell/templates/change-port.html.h:4
+msgid "Is sshd running on a different port?"
+msgstr ""
+
+#: ../pkg/shell/templates/change-port.html.h:7
+msgid "Update"
+msgstr ""
+
+#: ../pkg/shell/templates/sync-users.html.h:1 ../pkg/dashboard/index.html.h:7
+#, fuzzy
+msgid "Synchronize users"
+msgstr "Синхронізувати адміністративні входи"
+
+#: ../pkg/shell/templates/sync-users.html.h:2
+msgid ""
+"Select the users that you would like to be synchronized with {{#strong}}"
+"{{host}}{{/strong}}"
+msgstr ""
+
+#: ../pkg/shell/templates/sync-users.html.h:3
+msgid "Error loading users: {{perm_failed}}"
+msgstr ""
+
+#: ../pkg/shell/templates/sync-users.html.h:4
+msgid ""
+"You are connected to {{#strong}}{{host}}{{/strong}}, however in order to "
+"synchronize users, a user with superuser privileges is required."
+msgstr ""
+
+#: ../pkg/shell/templates/sync-users.html.h:5
+#: ../pkg/shell/templates/change-auth.html.h:4
+#, fuzzy
+msgid "User name"
+msgstr "Ім'я користувача"
+
+#: ../pkg/shell/templates/sync-users.html.h:6
+#: ../pkg/shell/templates/change-auth.html.h:8
+#: ../pkg/shell/templates/auth-failed.html.h:3 ../pkg/shell/index.html.h:31
+#: ../pkg/users/index.html.h:13
+msgid "Password"
+msgstr "Пароль"
+
+#: ../pkg/shell/templates/sync-users.html.h:8
+#, fuzzy
+msgid "Synchronize"
+msgstr "Синхронізувати адміністративні входи"
+
+#: ../pkg/shell/templates/unknown-hostkey.html.h:1
+#, fuzzy
+msgid "Unknown Host Key"
+msgstr "Невідомий"
+
+#: ../pkg/shell/templates/unknown-hostkey.html.h:2
+msgid ""
+"The authenticity of host {{#strong}}{{host}}{{/strong}} can't be "
+"established. Are you sure you want to continue connecting?"
+msgstr ""
+
+#: ../pkg/shell/templates/unknown-hostkey.html.h:3 ../pkg/shell/index.html.h:4
+msgid "Fingerprint"
+msgstr ""
+
+#: ../pkg/shell/templates/unknown-hostkey.html.h:5
+#, fuzzy
+msgid "Connect"
+msgstr "Повторно з’єднатися"
+
+#: ../pkg/shell/templates/change-auth.html.h:1
+msgid "Log in to {{host}}"
+msgstr ""
+
+#: ../pkg/shell/templates/change-auth.html.h:2
+msgid "Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}."
+msgstr ""
+
+#: ../pkg/shell/templates/change-auth.html.h:3
+msgid ""
+"Cockpit was unable to log into {{#strong}}{{host}}{{/strong}} you can change "
+"your authentication credentials below. You may prefer to {{#sync_link}}"
+"synchronize users{{/sync_link}}."
+msgstr ""
+
+#: ../pkg/shell/templates/change-auth.html.h:5 ../pkg/shell/index.html.h:9
+#: ../pkg/realmd/operation.html.h:3
+msgid "Authentication"
+msgstr "Розпізнавання"
+
+#: ../pkg/shell/templates/change-auth.html.h:6
+#, fuzzy
+msgid "Type a password"
+msgstr "Встановити пароль"
+
+#: ../pkg/shell/templates/change-auth.html.h:7
+msgid "Using available credentials"
+msgstr ""
+
+#: ../pkg/shell/templates/change-auth.html.h:9
+#, fuzzy
+msgid "Available"
+msgstr "Недоступний"
+
+#: ../pkg/shell/templates/change-auth.html.h:10
+#, fuzzy
+msgid "Login Password"
+msgstr "Пароль"
+
+#: ../pkg/shell/templates/change-auth.html.h:11
+msgid "Kerberos Ticket"
+msgstr ""
+
+#: ../pkg/shell/templates/change-auth.html.h:12
+msgid "Checking for public keys"
+msgstr ""
+
+#: ../pkg/shell/templates/change-auth.html.h:14
+#, fuzzy
+msgid "Log In"
+msgstr "Вийти"
+
+#: ../pkg/shell/templates/not-supported.html.h:1
+msgid "Cockpit is not installed"
+msgstr ""
+
+#: ../pkg/shell/templates/not-supported.html.h:2
+msgid ""
+"A compatible version of Cockpit is not installed on {{#strong}}{{host}}{{/"
+"strong}}."
+msgstr ""
+
+#: ../pkg/shell/templates/invalid-hostkey.html.h:1
+msgid "Incorrect Host Key"
+msgstr ""
+
+#: ../pkg/shell/templates/invalid-hostkey.html.h:2
+msgid ""
+"The key of {{#strong}}{{host}}{{/strong}} does not match the key previously "
+"in use. Unless this machine was recently replaced, it is likely that someone "
+"is trying to attack your connection to this machine."
+msgstr ""
+
+#: ../pkg/shell/templates/invalid-hostkey.html.h:3
+msgid ""
+"You can remove the previously stored key by running the following command"
+msgstr ""
+
+#: ../pkg/shell/templates/auth-failed.html.h:1
+#, fuzzy
+msgid "Authentication Failed"
+msgstr "Розпізнавання"
+
+#: ../pkg/shell/templates/auth-failed.html.h:2
+msgid ""
+"Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}. To use this "
+"machine with cockpit you will need to enable one of the following "
+"authentication methods in the sshd config on {{#strong}}{{host}}{{/strong}}:"
+msgstr ""
+
+#: ../pkg/shell/templates/auth-failed.html.h:4 ../pkg/shell/index.html.h:30
+#, fuzzy
+msgid "Public Key"
+msgstr "Додати відкритий ключ"
+
+#: ../pkg/shell/templates/auth-failed.html.h:5
+msgid "Kerberos Based SSO"
+msgstr ""
+
+#: ../pkg/shell/templates/auth-failed.html.h:6
+msgid ""
+"Cockpit was unable to log in to {{#strong}}{{host}}{{/strong}}. You may want "
+"to try to {{#sync_link}}synchronize users{{/sync_link}}. For more "
+"authentication options and troubleshooting support please upgrade cockpit-ws "
+"to a newer version."
+msgstr ""
+
+#: ../pkg/shell/templates/add-machine.html.h:1
+msgid "Add Machine to Dashboard"
+msgstr ""
+
+#: ../pkg/shell/templates/add-machine.html.h:3 ../pkg/dashboard/index.html.h:5
+msgid "Color"
+msgstr ""
+
+#: ../pkg/shell/templates/add-machine.html.h:4
+msgid ""
+"Connecting simultaneously to more than {{ limit }} machines is unsupported."
+msgstr ""
+
+#: ../pkg/shell/index.html.h:2
+#, fuzzy
+msgid "Comment"
+msgstr "Команда"
+
+#: ../pkg/shell/index.html.h:8
+msgid "Account Settings"
+msgstr "Параметри облікового запису"
+
+#: ../pkg/shell/index.html.h:22
+msgid ""
+"\n"
+"              Close\n"
+"            "
+msgstr ""
+"\n"
+"              Закрити\n"
+"            "
+
+#: ../pkg/shell/index.html.h:25
+msgid "Use my password for privileged tasks and to connect to other machines"
+msgstr ""
+
+#: ../pkg/shell/index.html.h:26
+msgid "Use the following keys to authenticate against other systems"
+msgstr ""
+
+#: ../pkg/shell/index.html.h:29
+msgid "Details"
+msgstr ""
+
+#: ../pkg/shell/index.html.h:32
+#, fuzzy
+msgid "Unlock Key"
+msgstr "Розблокувати"
+
+#: ../pkg/shell/index.html.h:33 ../pkg/users/index.html.h:27
+msgid "Old Password"
+msgstr "Старий пароль"
+
+#: ../pkg/shell/index.html.h:34 ../pkg/users/index.html.h:28
+msgid "New Password"
+msgstr "Новий пароль"
+
+#: ../pkg/shell/index.html.h:35 ../pkg/users/index.html.h:23
+msgid "Confirm"
+msgstr "Підтвердити"
+
+#: ../pkg/shell/index.html.h:36
+#, fuzzy
+msgid "Change Password"
+msgstr "Встановити пароль"
+
+#: ../pkg/shell/index.html.h:38
+msgid ""
+"\n"
+"                Tools\n"
+"              "
+msgstr ""
+"\n"
+"                Інструменти\n"
+"              "
+
+#: ../pkg/shell/index.html.h:42
+msgid "Troubleshoot"
+msgstr ""
+
+#: ../pkg/users/index.html.h:1
+msgid "Local Accounts"
+msgstr "Локальні облікові записи"
+
+#: ../pkg/users/index.html.h:2
+msgid "Create New Account"
+msgstr "Створити новий рахунок"
+
+#: ../pkg/users/index.html.h:3
+msgid "Account not available or cannot be edited."
+msgstr "Обліковий запис недоступний або його не можна редагувати."
+
+#: ../pkg/users/index.html.h:4
+msgid "Accounts"
+msgstr "Облікові записи"
+
+#: ../pkg/users/index.html.h:5
+msgid "Terminate Session"
+msgstr "Перервати сеанс"
+
+#: ../pkg/users/index.html.h:7
+msgid "Full Name"
+msgstr "Повне ім'я"
+
+#: ../pkg/users/index.html.h:8 ../pkg/realmd/operation.html.h:4
+msgid "User Name"
+msgstr "Ім'я користувача"
+
+#: ../pkg/users/index.html.h:9 ../pkg/registry/views/project-panel.html.h:2
+#: ../pkg/registry/views/project-page.html.h:3
+msgid "Roles"
+msgstr "Ролі"
+
+#: ../pkg/users/index.html.h:10
+msgid "Last Login"
+msgstr "Останній вхід"
+
+#: ../pkg/users/index.html.h:11
+msgid "Access"
+msgstr "Доступ"
+
+#: ../pkg/users/index.html.h:12
+msgid "Lock Account"
+msgstr "Заблокувати обліковий запис"
+
+#: ../pkg/users/index.html.h:14
+msgid "Set Password"
+msgstr "Встановити пароль"
+
+#: ../pkg/users/index.html.h:15
+msgid "Authorized Public SSH Keys"
+msgstr "Уповноважені відкриті ключі SSH"
+
+#: ../pkg/users/index.html.h:16
+msgid "Change Picture"
+msgstr "Змінити зображення"
+
+#: ../pkg/users/index.html.h:17 ../pkg/docker/index.html.h:25
+#: ../pkg/networkmanager/index.html.h:42
+msgid ""
+"\n"
+"            Cancel\n"
+"          "
+msgstr ""
+"\n"
+"              Скасувати\n"
+"            "
+
+#: ../pkg/users/index.html.h:20 ../pkg/docker/index.html.h:34
+msgid ""
+"\n"
+"            Change\n"
+"          "
+msgstr ""
+"\n"
+"              Змінити\n"
+"            "
+
+#: ../pkg/users/index.html.h:24
+msgid ""
+"\n"
+"            Create\n"
+"          "
+msgstr ""
+"\n"
+"              Створити\n"
+"            "
+
+#: ../pkg/users/index.html.h:29
+msgid "Confirm New Password"
+msgstr "Підтвердження нового пароля"
+
+#: ../pkg/users/index.html.h:30
+msgid ""
+"\n"
+"            Set\n"
+"          "
+msgstr ""
+"\n"
+"              Встановити\n"
+"            "
+
+#: ../pkg/users/index.html.h:33
+msgid "Delete Files"
+msgstr "Вилучити файли"
+
+#: ../pkg/users/index.html.h:34 ../pkg/networkmanager/index.html.h:36
+msgid ""
+"\n"
+"            Delete\n"
+"          "
+msgstr ""
+"\n"
+"              Вилучити\n"
+"            "
+
+#: ../pkg/users/index.html.h:37
+msgid "Unnamed"
+msgstr "Без назви"
+
+#: ../pkg/users/index.html.h:38
+msgid "Invalid key"
+msgstr "Некоректний ключ"
+
+#: ../pkg/users/index.html.h:39
+msgid "There are no authorized public keys for this account."
+msgstr "Для цього облікового запису немає уповноважених відкритих ключів."
+
+#: ../pkg/users/index.html.h:40
+msgid ""
+"You do not have permission to view the authorized public keys for this "
+"account."
+msgstr ""
+"У вас немає прав доступу для перегляду уповноважених відкритих ключів для "
+"цього облікового запису."
+
+#: ../pkg/users/index.html.h:41
+msgid "Failed to load authorized keys."
+msgstr "Не вдалося завантажити уповноважені ключі."
+
+#: ../pkg/users/index.html.h:42
+msgid "Add public key"
+msgstr "Додати відкритий ключ"
+
+#: ../pkg/users/index.html.h:43
+msgid ""
+"\n"
+"            Add key\n"
+"          "
+msgstr ""
+"\n"
+"              Додати ключ\n"
+"            "
+
+#: ../pkg/registry/views/image-config.html.h:1
+#, fuzzy
+msgid "Run as"
+msgstr "Запустити образ"
+
+#: ../pkg/registry/views/image-config.html.h:3
+msgid "Directory"
+msgstr ""
+
+#: ../pkg/registry/views/image-config.html.h:4
+#, fuzzy
+msgid "Stop with"
+msgstr "Зупинити"
+
+#: ../pkg/registry/views/image-config.html.h:5
+#: ../pkg/kubernetes/views/container-body.html.h:9
+msgid "Environment"
+msgstr ""
+
+#: ../pkg/registry/views/image-config.html.h:8
+#, fuzzy
+msgid "Volumes"
+msgstr "Групи томів"
+
+#: ../pkg/registry/views/imagestream-modify.html.h:1
+msgid "Create image stream"
+msgstr ""
+
+#: ../pkg/registry/views/imagestream-modify.html.h:2
+#, fuzzy
+msgid "Change image stream"
+msgstr "Змінити зображення"
+
+#: ../pkg/registry/views/imagestream-modify.html.h:5
+#, fuzzy
+msgid "Populate"
+msgstr "Ізолювати"
+
+#: ../pkg/registry/views/imagestream-modify.html.h:6
+msgid "Pull from"
+msgstr ""
+
+#: ../pkg/registry/views/image-page.html.h:1
+#: ../pkg/registry/views/dashboard-page.html.h:10
+msgid "Show all images"
+msgstr ""
+
+#: ../pkg/registry/views/image-page.html.h:2
+#: ../pkg/registry/views/image-panel.html.h:1 ../pkg/docker/index.html.h:17
+#: ../pkg/kubernetes/views/container-body.html.h:2
+msgid "Image"
+msgstr "Образ"
+
+#: ../pkg/registry/views/image-page.html.h:4
+#: ../pkg/registry/views/image-panel.html.h:3
+#: ../pkg/registry/views/imagestream-page.html.h:3
+msgid "Metadata"
+msgstr ""
+
+#: ../pkg/registry/views/add-project-dialog.html.h:1
+#: ../pkg/registry/views/project-listing.html.h:1
+#, fuzzy
+msgid "New Project"
+msgstr "Проект"
+
+#: ../pkg/registry/views/add-project-dialog.html.h:3
+#, fuzzy
+msgid "Display name"
+msgstr "Мова перекладу"
+
+#: ../pkg/registry/views/add-project-dialog.html.h:4
+#: ../pkg/registry/views/project-listing.html.h:4
+#, fuzzy
+msgid "Description"
+msgstr "Передплати"
+
+#: ../pkg/registry/views/filter-bar.html.h:1
+#: ../pkg/kubernetes/views/filter-bar.html.h:1
+msgid "Expand items inline"
+msgstr ""
+
+#: ../pkg/registry/views/filter-bar.html.h:2
+#: ../pkg/kubernetes/views/filter-bar.html.h:2
+msgid "Only expanded items"
+msgstr ""
+
+#: ../pkg/registry/views/filter-bar.html.h:3
+#: ../pkg/kubernetes/views/filter-bar.html.h:3
+msgid "Collapse all"
+msgstr ""
+
+#: ../pkg/registry/views/filter-bar.html.h:4
+#: ../pkg/kubernetes/views/filter-bar.html.h:4
+#, fuzzy
+msgid "All Projects"
+msgstr "Проект"
+
+#: ../pkg/registry/views/filter-bar.html.h:5
+#: ../pkg/kubernetes/views/filter-bar.html.h:5
+#, fuzzy
+msgid "Project:"
+msgstr "Проект"
+
+#: ../pkg/registry/views/image-meta.html.h:1
+#: ../pkg/kubernetes/views/route-panel.html.h:8
+#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:8
+#: ../pkg/kubernetes/views/service-panel.html.h:11
+#: ../pkg/kubernetes/views/pod-body.html.h:10
+#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:10
+#: ../pkg/kubernetes/views/node-panel.html.h:9
+msgid "Labels"
+msgstr ""
+
+#: ../pkg/registry/views/image-meta.html.h:2
+msgid "On Build"
+msgstr ""
+
+#: ../pkg/registry/views/image-meta.html.h:3
+#: ../pkg/kubernetes/views/route-panel.html.h:10
+#: ../pkg/kubernetes/views/node-panel.html.h:19
+#, fuzzy
+msgid "Annotations"
+msgstr "Розпізнавання"
+
+#: ../pkg/registry/views/image-meta.html.h:4
+#, fuzzy
+msgid "Docker Version"
+msgstr "Версія"
+
+#: ../pkg/registry/views/imagestream-delete.html.h:1
+#, fuzzy
+msgid "Delete image stream"
+msgstr "Вилучити файли"
+
+#: ../pkg/registry/views/imagestream-delete.html.h:2
+msgid ""
+"Do you want to delete the '{{stream.metadata.namespace}}/{{stream.metadata."
+"name}}' image stream?"
+msgstr ""
+
+#: ../pkg/registry/views/project-panel.html.h:1
+#: ../pkg/registry/views/project-page.html.h:2
+#, fuzzy
+msgid "Project Members"
+msgstr "Проект"
+
+#: ../pkg/registry/views/project-panel.html.h:3
+#: ../pkg/registry/views/project-page.html.h:4
+#, fuzzy
+msgid "Add Member"
+msgstr "Елемент RAID"
+
+#: ../pkg/registry/views/add-group-dialog.html.h:1
+msgid "Add Group"
+msgstr ""
+
+#: ../pkg/registry/views/add-group-dialog.html.h:2
+#: ../pkg/registry/views/add-user-dialog.html.h:2
+#, fuzzy
+msgid ""
+"\n"
+"                        Name\n"
+"                    "
+msgstr ""
+"\n"
+"              Скасувати\n"
+"            "
+
+#: ../pkg/registry/views/project-listing.html.h:2
+#: ../pkg/registry/views/dashboard-page.html.h:6
+#, fuzzy
+msgid "Projects"
+msgstr "Проект"
+
+#: ../pkg/registry/views/project-listing.html.h:6
+#, fuzzy
+msgid "New Group"
+msgstr "Група томів"
+
+#: ../pkg/registry/views/project-listing.html.h:7
+#: ../pkg/registry/views/dashboard-page.html.h:8
+#, fuzzy
+msgid "Groups"
+msgstr "Групи томів"
+
+#: ../pkg/registry/views/project-listing.html.h:8
+#: ../pkg/registry/views/add-user-dialog.html.h:1
+#, fuzzy
+msgid "Add User"
+msgstr "Користувач"
+
+#: ../pkg/registry/views/project-listing.html.h:9
+#: ../pkg/registry/views/dashboard-page.html.h:7
+#, fuzzy
+msgid "Users"
+msgstr "Користувач"
+
+#: ../pkg/registry/views/project-listing.html.h:10
+msgid "Identity"
+msgstr ""
+
+#: ../pkg/registry/views/project-listing.html.h:11
+#, fuzzy
+msgid "Member of"
+msgstr "Учасники"
+
+#: ../pkg/registry/views/imagestream-page.html.h:1
+msgid "Show all image streams"
+msgstr ""
+
+#: ../pkg/registry/views/imagestream-page.html.h:2
+#, fuzzy
+msgid "Image Stream"
+msgstr "Зображення $0"
+
+#: ../pkg/registry/views/image-listing.html.h:1
+#: ../pkg/registry/views/dashboard-page.html.h:4
+msgid "New image stream"
+msgstr ""
+
+#: ../pkg/registry/views/image-listing.html.h:2
+#: ../pkg/registry/views/dashboard-page.html.h:1
+#: ../pkg/kubernetes/views/images-page.html.h:3
+#, fuzzy
+msgid "Images"
+msgstr "Образ"
+
+#: ../pkg/registry/views/image-listing.html.h:3
+#: ../pkg/registry/views/image-body.html.h:1
+#: ../pkg/kubernetes/views/imagerepository-panel.html.h:3
+msgid "Tags"
+msgstr ""
+
+#: ../pkg/registry/views/image-listing.html.h:4
+#: ../pkg/registry/views/image-body.html.h:3 ../pkg/docker/index.html.h:39
+#: ../pkg/kubernetes/views/imagerepository-panel.html.h:4
+msgid "Author"
+msgstr "Автор"
+
+#: ../pkg/registry/views/image-listing.html.h:5
+#: ../pkg/kubernetes/views/images-page.html.h:4
+#: ../pkg/kubernetes/views/imagerepository-panel.html.h:8
+#, fuzzy
+msgid "Last Updated"
+msgstr "Попередні 7 днів"
+
+#: ../pkg/registry/views/add-user-dialog.html.h:5
+#, fuzzy
+msgid ""
+"\n"
+"                        Identity\n"
+"                    "
+msgstr ""
+"\n"
+"              Скасувати\n"
+"            "
+
+#: ../pkg/registry/views/project-page.html.h:1
+msgid "{{ project().metadata.name }}"
+msgstr ""
+
+#: ../pkg/registry/views/dashboard-page.html.h:2
+msgid "Image streams"
+msgstr ""
+
+#: ../pkg/registry/views/dashboard-page.html.h:3
+#, fuzzy
+msgid "Last 30 Days"
+msgstr "Попередні 7 днів"
+
+#: ../pkg/registry/views/dashboard-page.html.h:5
+#, fuzzy
+msgid "Storage Space"
+msgstr "Сховище даних"
+
+#: ../pkg/registry/views/dashboard-page.html.h:9
+msgid "Images pushed recently"
+msgstr ""
+
+#: ../pkg/registry/views/dashboard-page.html.h:11
+msgid "Images by project"
+msgstr ""
+
+#: ../pkg/registry/views/dashboard-page.html.h:12
+msgid "Docker commands"
+msgstr ""
+
+#: ../pkg/registry/views/dashboard-page.html.h:13
+msgid "Log into the registry:"
+msgstr ""
+
+#: ../pkg/registry/views/dashboard-page.html.h:14
+msgid ""
+"Your login credentials do not give you access to use the docker registry "
+"from the command line."
+msgstr ""
+
+#: ../pkg/registry/views/dashboard-page.html.h:15
+#, fuzzy
+msgid "Push an image:"
+msgstr "Запустити образ"
+
+#: ../pkg/registry/views/dashboard-page.html.h:16
+#, fuzzy
+msgid "Pull an image:"
+msgstr "Запустити образ"
+
+#: ../pkg/registry/views/imagestream-body.html.h:1
+#, fuzzy
+msgid "Pull repository"
+msgstr "Сховище"
+
+#: ../pkg/registry/views/imagestream-body.html.h:3
+msgid "Pull tags"
+msgstr ""
+
+#: ../pkg/registry/views/imagestream-body.html.h:4 ../pkg/systemd/logs.html.h:9
+#: ../pkg/docker/index.html.h:10
+msgid "All"
+msgstr "Всі"
+
+#: ../pkg/registry/views/imagestream-body.html.h:5
+#, fuzzy
+msgid "Image count"
+msgstr "Зображення $0"
+
+#: ../pkg/registry/views/imagestream-body.html.h:6
+msgid "{{stream.status.tags.length}}"
+msgstr ""
+
+#: ../pkg/registry/views/imagestream-body.html.h:7
+msgid "To push to an image to this image stream:"
+msgstr ""
+
+#: ../pkg/registry/views/image-body.html.h:2
+#, fuzzy
+msgid "Change tags"
+msgstr "Змінити зображення"
+
+#: ../pkg/registry/views/image-body.html.h:5
+#: ../pkg/kubernetes/views/route-panel.html.h:3
+#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:6
+#: ../pkg/kubernetes/views/service-panel.html.h:5
+#: ../pkg/kubernetes/views/pod-body.html.h:3
+#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:5
+#: ../pkg/kubernetes/views/node-panel.html.h:1
+#, fuzzy
+msgid "Created"
+msgstr "Створити"
+
+#: ../pkg/registry/views/image-body.html.h:6
+msgid "Pushed"
+msgstr ""
+
+#: ../pkg/registry/views/image-body.html.h:7
+#: ../pkg/kubernetes/views/imagerepository-panel.html.h:6
+#: ../pkg/subscriptions/index.html.h:44
+msgid "Architecture"
+msgstr "Архітектура"
+
+#: ../pkg/registry/views/image-body.html.h:8
+msgid "Digest"
+msgstr ""
+
+#: ../pkg/registry/views/image-body.html.h:9
+msgid "Identifier"
+msgstr ""
+
+#: ../pkg/registry/views/image-body.html.h:10
+msgid "To pull this image:"
+msgstr ""
+
+#: ../pkg/registry/views/image-delete.html.h:1
+msgid "Remove image tag"
+msgstr ""
+
+#: ../pkg/registry/views/image-delete.html.h:2
+msgid ""
+"Do you want to remove the image tagged as '{{stream.metadata.namespace}}/"
+"{{stream.metadata.name}}:{{tag.tag}}'?"
+msgstr ""
+
+#: ../pkg/registry/index.html.h:1
+msgid "Image Registry"
+msgstr ""
+
+#: ../pkg/registry/index.html.h:2 ../pkg/kubernetes/index.html.h:2
+#, fuzzy
+msgid "Connecting..."
+msgstr "Завантаження…"
+
+#: ../pkg/registry/index.html.h:3 ../pkg/kubernetes/index.html.h:3
+#, fuzzy
+msgid "Couldn't connect to server"
+msgstr "Не вдалося встановити з’єднання із сервером Kubernetes"
+
+#: ../pkg/registry/index.html.h:4 ../pkg/kubernetes/index.html.h:4
+#, fuzzy
+msgid ""
+"\n"
+"                Reconnect\n"
+"            "
+msgstr ""
+"\n"
+"            Повторно з’єднатися\n"
+"          "
+
+#: ../pkg/systemd/terminal.html.h:1
+msgid "Terminal"
+msgstr "Термінал"
+
+#: ../pkg/systemd/terminal.html.h:2
+msgid "Reset"
+msgstr "Скинути"
+
+#: ../pkg/systemd/services.html.h:1
+#: ../pkg/kubernetes/views/details-page.html.h:6
+msgid "Services"
+msgstr "Служби"
+
+#: ../pkg/systemd/services.html.h:3
+msgid "System Services"
+msgstr "Служби системи"
+
+#: ../pkg/systemd/services.html.h:4
+msgid "Sockets"
+msgstr "Сокети"
+
+#: ../pkg/systemd/services.html.h:5
+msgid "Timers"
+msgstr "Таймери"
+
+#: ../pkg/systemd/services.html.h:6
+msgid "Paths"
+msgstr "Шляхи"
+
+#: ../pkg/systemd/services.html.h:7
+msgid "Instantiate"
+msgstr "Створити екземпляр"
+
+#: ../pkg/systemd/services.html.h:8
+#, fuzzy
+msgid "Service Logs"
+msgstr "Служби"
+
+#: ../pkg/systemd/services.html.h:9
+msgid "Note"
+msgstr "Примітка"
+
+#: ../pkg/systemd/services.html.h:10
+msgid ""
+"This unit is not designed to be enabled explicitly.\n"
+"          "
+msgstr ""
+"Цей модуль створено для вмикання явним чином.\n"
+"          "
+
+#: ../pkg/systemd/index.html.h:2
+msgid "Synchronized with {{Server}}"
+msgstr ""
+
+#: ../pkg/systemd/index.html.h:3
+#, fuzzy
+msgid "Synchronized"
+msgstr "Синхронізувати адміністративні входи"
+
+#: ../pkg/systemd/index.html.h:4
+msgid "Trying to synchronize with {{Server}}"
+msgstr ""
+
+#: ../pkg/systemd/index.html.h:5
+msgid "Not synchronized"
+msgstr ""
+
+#: ../pkg/systemd/index.html.h:6
+msgid "Hardware"
+msgstr ""
+
+#: ../pkg/systemd/index.html.h:7
+msgid "Asset Tag"
+msgstr ""
+
+#: ../pkg/systemd/index.html.h:8 ../pkg/kubernetes/views/details-page.html.h:3
+#: ../pkg/ostree/index.html.h:18
+msgid "Operating System"
+msgstr ""
+
+#: ../pkg/systemd/index.html.h:10 ../pkg/dashboard/index.html.h:3
+#, fuzzy
+msgid "Host Name"
+msgstr "Справжня назва вузла"
+
+#: ../pkg/systemd/index.html.h:11
+#, fuzzy
+msgid "Domain"
+msgstr "Долучитися до домену"
+
+#: ../pkg/systemd/index.html.h:12
+#, fuzzy
+msgid "System Time"
+msgstr "Служби системи"
+
+#: ../pkg/systemd/index.html.h:13
+msgid "Power Options"
+msgstr "Параметри живлення"
+
+#: ../pkg/systemd/index.html.h:14
+msgid "Performance Profile"
+msgstr ""
+
+#: ../pkg/systemd/index.html.h:15
+#, fuzzy
+msgid "Store Performance Data"
+msgstr "Зберігати дані щодо швидкодії"
+
+#: ../pkg/systemd/index.html.h:18
+msgid "Pretty Host Name"
+msgstr "Зручна назва вузла"
+
+#: ../pkg/systemd/index.html.h:19
+msgid "Real Host Name"
+msgstr "Справжня назва вузла"
+
+#: ../pkg/systemd/index.html.h:20
+msgid "Time Zone"
+msgstr "Часовий пояс"
+
+#: ../pkg/systemd/index.html.h:21
+msgid ""
+"\n"
+"                                    Invalid time zone\n"
+"                                "
+msgstr ""
+"\n"
+"                           Некоректний часовий пояс\n"
+"                      "
+
+#: ../pkg/systemd/index.html.h:24
+msgid "Set time"
+msgstr "Встановити час"
+
+#: ../pkg/systemd/index.html.h:25
+msgid ""
+"\n"
+"                        Cancel\n"
+"                    "
+msgstr ""
+"\n"
+"              Скасувати\n"
+"            "
+
+#: ../pkg/systemd/index.html.h:28
+msgid ""
+"\n"
+"                    "
+msgstr ""
+"\n"
+"                    "
+
+#: ../pkg/systemd/index.html.h:30
+msgid "Delay"
+msgstr "Затримка"
+
+#: ../pkg/systemd/logs.html.h:1
+msgid "Journal"
+msgstr "Журнал"
+
+#: ../pkg/systemd/logs.html.h:2
+msgid "Recent"
+msgstr "Нещодавні"
+
+#: ../pkg/systemd/logs.html.h:3
+msgid "Current boot"
+msgstr "Поточне завантаження"
+
+#: ../pkg/systemd/logs.html.h:4
+msgid "Last 24 hours"
+msgstr "Попередні 24 години"
+
+#: ../pkg/systemd/logs.html.h:5
+msgid "Last 7 days"
+msgstr "Попередні 7 днів"
+
+#: ../pkg/systemd/logs.html.h:6
+msgid "Errors"
+msgstr "Помилки"
+
+#: ../pkg/systemd/logs.html.h:7
+msgid "Warnings"
+msgstr "Попередження"
+
+#: ../pkg/systemd/logs.html.h:8
+msgid "Notices"
+msgstr "Примітки"
+
+#: ../pkg/systemd/logs.html.h:10
+#: ../pkg/kubernetes/views/container-panel.html.h:2
+msgid "Logs"
+msgstr ""
+
+#: ../pkg/systemd/logs.html.h:11
+msgid "Entry"
+msgstr "Запис"
+
+#: ../pkg/realmd/operation.html.h:1
+msgid "Domain Address"
+msgstr "Адреса домену"
+
+#: ../pkg/realmd/operation.html.h:2
+msgid "Computer OU"
+msgstr "OU комп’ютера"
+
+#: ../pkg/realmd/operation.html.h:6
+msgid "Domain Administrator Name"
+msgstr "Ім’я адміністратора домену"
+
+#: ../pkg/realmd/operation.html.h:7
+msgid "Domain Administrator Password"
+msgstr "Пароль адміністратора домену"
+
+#: ../pkg/realmd/operation.html.h:9
+msgid "This may take a while"
+msgstr "Зачекайте"
+
+#: ../pkg/docker/index.html.h:1
+#: ../pkg/kubernetes/views/containers-page.html.h:1
+#: ../pkg/kubernetes/views/dashboard-page.html.h:7
+msgid "Containers"
+msgstr "Контейнери"
+
+#: ../pkg/docker/index.html.h:2
+msgid "Connecting to Docker"
+msgstr "Встановлюємо з’єднання із Docker"
+
+#: ../pkg/docker/index.html.h:3
+msgid "Not authorized to access Docker on this system"
+msgstr "Не уповноважено на доступ до Docker у цій системі"
+
+#: ../pkg/docker/index.html.h:4
+msgid "Docker is not installed or activated on the system"
+msgstr "Docker не встановлено або не активовано у цій системі"
+
+#: ../pkg/docker/index.html.h:5
+msgid "Can't connect to Docker"
+msgstr "Не вдалося з’єднатися з Docker"
+
+#: ../pkg/docker/index.html.h:6
+msgid "Start Docker"
+msgstr "Запустити Docker"
+
+#: ../pkg/docker/index.html.h:7
+msgid "Try again"
+msgstr "Повторити спробу"
+
+#: ../pkg/docker/index.html.h:8
+msgid "Combined CPU usage"
+msgstr ""
+
+#: ../pkg/docker/index.html.h:9
+msgid "Combined memory usage"
+msgstr ""
+
+#: ../pkg/docker/index.html.h:12
+msgid ""
+"\n"
+"              Get new image\n"
+"            "
+msgstr ""
+"\n"
+"              Отримати новий образ\n"
+"            "
+
+#: ../pkg/docker/index.html.h:15
+msgid "{{host_port_label}}"
+msgstr "{{host_port_label}}"
+
+#: ../pkg/docker/index.html.h:16
+msgid "{{alias_label}}"
+msgstr "{{alias_label}}"
+
+#: ../pkg/docker/index.html.h:18
+msgid "Container Name"
+msgstr "Назва контейнера"
+
+#: ../pkg/docker/index.html.h:19
+msgid "Command"
+msgstr "Команда"
+
+#: ../pkg/docker/index.html.h:20
+msgid "Memory limit"
+msgstr "Обмеження пам’яті"
+
+#: ../pkg/docker/index.html.h:21
+msgid "CPU priority"
+msgstr "Пріоритетність процесора"
+
+#: ../pkg/docker/index.html.h:22
+msgid "With terminal"
+msgstr "За допомогою термінала"
+
+#: ../pkg/docker/index.html.h:23
+msgid "Links"
+msgstr "Посилання"
+
+#: ../pkg/docker/index.html.h:28
+msgid ""
+"\n"
+"            Run\n"
+"          "
+msgstr ""
+"\n"
+"              Виконати\n"
+"            "
+
+#: ../pkg/docker/index.html.h:31
+msgid ""
+"\n"
+"            Download\n"
+"          "
+msgstr ""
+"\n"
+"              Отримати\n"
+"            "
+
+#: ../pkg/docker/index.html.h:37
+msgid "Repository"
+msgstr "Сховище"
+
+#: ../pkg/docker/index.html.h:38
+msgid "Tag"
+msgstr "Мітка"
+
+#: ../pkg/docker/index.html.h:40
+msgid ""
+"\n"
+"            Commit\n"
+"          "
+msgstr ""
+"\n"
+"              Надіслати\n"
+"            "
+
+#: ../pkg/playground/patterns.html.h:1
+msgid "Cockpit Pattern Usage"
+msgstr ""
+
+#: ../pkg/playground/patterns.html.h:2
+msgid "Example Dialog"
+msgstr ""
+
+#: ../pkg/playground/patterns.html.h:3
+#, fuzzy
+msgid ""
+"\n"
+"                                Label\n"
+"                            "
+msgstr ""
+"\n"
+"                           Некоректний часовий пояс\n"
+"                      "
+
+#: ../pkg/playground/patterns.html.h:6
+#, fuzzy
+msgid ""
+"\n"
+"                                Select\n"
+"                            "
+msgstr ""
+"\n"
+"                           Некоректний часовий пояс\n"
+"                      "
+
+#: ../pkg/playground/patterns.html.h:9
+#, fuzzy
+msgid "One"
+msgstr "Увімкнено"
+
+#: ../pkg/playground/patterns.html.h:10
+#, fuzzy
+msgid ""
+"\n"
+"                    Cancel\n"
+"                "
+msgstr ""
+"\n"
+"              Скасувати\n"
+"            "
+
+#: ../pkg/playground/patterns.html.h:13
+#, fuzzy
+msgid ""
+"\n"
+"                    Clear\n"
+"                "
+msgstr ""
+"\n"
+"                    Адреса\n"
+"                  "
+
+#: ../pkg/playground/patterns.html.h:16
+#, fuzzy
+msgid ""
+"\n"
+"                    Invalid\n"
+"                "
+msgstr ""
+"\n"
+"                    Користувач\n"
+"                  "
+
+#: ../pkg/playground/patterns.html.h:19
+#, fuzzy
+msgid ""
+"\n"
+"                    Error\n"
+"                "
+msgstr ""
+"\n"
+"                    Користувач\n"
+"                  "
+
+#: ../pkg/playground/patterns.html.h:22
+#, fuzzy
+msgid ""
+"\n"
+"                    Wait\n"
+"                "
+msgstr ""
+"\n"
+"                    Користувач\n"
+"                  "
+
+#: ../pkg/playground/patterns.html.h:25
+#, fuzzy
+msgid ""
+"\n"
+"        Show Dialog\n"
+"    "
+msgstr ""
+"\n"
+"              Отримати\n"
+"            "
+
+#: ../pkg/playground/test.html.h:1
+#, fuzzy
+msgid "Cockpit terminal"
+msgstr "За допомогою термінала"
+
+#: ../pkg/playground/test.html.h:2 ../pkg/networkmanager/index.html.h:1
+msgid "Networking"
+msgstr "Робота у мережі"
+
+#: ../pkg/dashboard/index.html.h:2
+msgid "Lost connection. Trying to reconnect"
+msgstr "З’єднання розірвано. Намагаємося його повторно встановити"
+
+#: ../pkg/dashboard/index.html.h:6
+msgid "Avatar"
+msgstr ""
+
+#: ../pkg/dashboard/index.html.h:9
+#, fuzzy
+msgid "Set"
+msgstr "Сокети"
+
+#: ../pkg/kubernetes/views/route-panel.html.h:5
+#, fuzzy
+msgid "TLS Termination"
+msgstr "Перервати сеанс"
+
+#: ../pkg/kubernetes/views/route-panel.html.h:6
+#, fuzzy
+msgid "yes"
+msgstr "байтів"
+
+#: ../pkg/kubernetes/views/route-panel.html.h:7
+#, fuzzy
+msgid "no"
+msgstr "немає"
+
+#: ../pkg/kubernetes/views/containers-page.html.h:3
+#: ../pkg/kubernetes/views/topology-page.html.h:2
+msgid "Pod"
+msgstr ""
+
+#: ../pkg/kubernetes/views/containers-page.html.h:6
+#: ../pkg/kubernetes/views/topology-page.html.h:11
+#: ../pkg/kubernetes/views/pod-body.html.h:8
+msgid "Node"
+msgstr ""
+
+#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:1
+#: ../pkg/kubernetes/views/topology-page.html.h:5
+#, fuzzy
+msgid "Replication Controller"
+msgstr "Скоригувати контролер реплікації"
+
+#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:2
+#: ../pkg/kubernetes/views/details-page.html.h:20
+msgid "Pods"
+msgstr ""
+
+#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:3
+#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:2
+#, fuzzy
+msgid "Template"
+msgstr "Шаблон $0"
+
+#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:7
+#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:6
+#: ../pkg/kubernetes/views/details-page.html.h:19
+#: ../pkg/kubernetes/index.html.h:30
+msgid "Replicas"
+msgstr "Репліки"
+
+#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:9
+#, fuzzy
+msgid "Pod Replicated"
+msgstr "Репліки"
+
+#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:10
+msgid "No pods replicated"
+msgstr ""
+
+#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:11
+#: ../pkg/kubernetes/views/service-panel.html.h:14
+msgid "Pod Selector"
+msgstr ""
+
+#: ../pkg/kubernetes/views/filter-bar.html.h:6
+#, fuzzy
+msgid "All Namespaces"
+msgstr "Простір назв"
+
+#: ../pkg/kubernetes/views/filter-bar.html.h:7
+#, fuzzy
+msgid "Namespace:"
+msgstr "Простір назв"
+
+#: ../pkg/kubernetes/views/topology-page.html.h:1
+msgid "Select an object to see more details."
+msgstr ""
+
+#: ../pkg/kubernetes/views/topology-page.html.h:3
+msgid ""
+"Pods contain one or more containers that run\n"
+"                together on a node, containing your application code."
+msgstr ""
+
+#: ../pkg/kubernetes/views/topology-page.html.h:6
+msgid ""
+"Replication controllers dynamically create instances of\n"
+"                pods from templates, and remove pods when necessary."
+msgstr ""
+
+#: ../pkg/kubernetes/views/topology-page.html.h:8
+#, fuzzy
+msgid "Service"
+msgstr "Служби"
+
+#: ../pkg/kubernetes/views/topology-page.html.h:9
+msgid ""
+"Services group pods and provide a common DNS\n"
+"                name and an optional, load-balanced IP address to access "
+"them."
+msgstr ""
+
+#: ../pkg/kubernetes/views/topology-page.html.h:12
+msgid "Nodes are the machines that run your containers."
+msgstr ""
+
+#: ../pkg/kubernetes/views/container-body.html.h:3
+#, fuzzy
+msgid "Image ID"
+msgstr "Образ"
+
+#: ../pkg/kubernetes/views/container-body.html.h:4
+#, fuzzy
+msgid "Container ID"
+msgstr "Контейнер"
+
+#: ../pkg/kubernetes/views/container-body.html.h:6
+#: ../pkg/kubernetes/views/details-page.html.h:10
+#, fuzzy
+msgid "State"
+msgstr "Стан"
+
+#: ../pkg/kubernetes/views/container-body.html.h:7
+#, fuzzy
+msgid "Since"
+msgstr "З $0"
+
+#: ../pkg/kubernetes/views/container-body.html.h:8
+#, fuzzy
+msgid "Restart Count"
+msgstr "Перезапустити"
+
+#: ../pkg/kubernetes/views/service-panel.html.h:6
+#: ../pkg/kubernetes/views/node-panel.html.h:3
+#, fuzzy
+msgid "IP"
+msgstr "IPv4"
+
+#: ../pkg/kubernetes/views/service-panel.html.h:10
+msgid "Session Affinity"
+msgstr ""
+
+#: ../pkg/kubernetes/views/service-panel.html.h:12
+msgid "Pod Endpoints"
+msgstr ""
+
+#: ../pkg/kubernetes/views/service-panel.html.h:13
+msgid "No pods selected"
+msgstr ""
+
+#: ../pkg/kubernetes/views/images-page.html.h:1
+#, fuzzy
+msgid "Image Repositories"
+msgstr "Сховище"
+
+#: ../pkg/kubernetes/views/images-page.html.h:2
+#, fuzzy
+msgid "Image Repository"
+msgstr "Сховище"
+
+#: ../pkg/kubernetes/views/images-page.html.h:5
+msgid "No image repositories are present."
+msgstr ""
+
+#: ../pkg/kubernetes/views/pod-body.html.h:4
+#, fuzzy
+msgid "Restart Policy"
+msgstr "Перезапустити"
+
+#: ../pkg/kubernetes/views/pod-body.html.h:5
+#, fuzzy
+msgid "Service Account"
+msgstr "Журнал служб"
+
+#: ../pkg/kubernetes/views/pod-body.html.h:6
+msgid "DNS Policy"
+msgstr ""
+
+#: ../pkg/kubernetes/views/pod-body.html.h:7
+msgid "Phase"
+msgstr ""
+
+#: ../pkg/kubernetes/views/pod-body.html.h:9
+#, fuzzy
+msgid "Pod Address"
+msgstr "IP-адреса"
+
+#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:1
+msgid "Deployment Config"
+msgstr ""
+
+#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:7
+#: ../pkg/kubernetes/views/details-page.html.h:16
+#, fuzzy
+msgid "Latest Version"
+msgstr "Версія"
+
+#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:8
+msgid "Deployment Causes"
+msgstr ""
+
+#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:9
+msgid "Triggers"
+msgstr ""
+
+#: ../pkg/kubernetes/views/container-panel.html.h:3
+msgid "Shell"
+msgstr ""
+
+#: ../pkg/kubernetes/views/dashboard-page.html.h:1
+msgid "Deploy"
+msgstr ""
+
+#: ../pkg/kubernetes/views/dashboard-page.html.h:2
+#, fuzzy
+msgid "Kubernetes Services"
+msgstr "Маніфест Kubernetes"
+
+#: ../pkg/kubernetes/views/dashboard-page.html.h:3
+#, fuzzy
+msgid "Could not list services"
+msgstr "Не вдалося побудувати список користувачів"
+
+#: ../pkg/kubernetes/views/dashboard-page.html.h:4
+msgid "You can deploy an application to your cluster."
+msgstr ""
+
+#: ../pkg/kubernetes/views/dashboard-page.html.h:10
+#, fuzzy
+msgid "Kubernetes Nodes"
+msgstr "Маніфест Kubernetes"
+
+#: ../pkg/kubernetes/views/imagerepository-panel.html.h:1
+msgid "From:"
+msgstr ""
+
+#: ../pkg/kubernetes/views/imagerepository-panel.html.h:2
+#, fuzzy
+msgid "Projects:"
+msgstr "Проект"
+
+#: ../pkg/kubernetes/views/imagerepository-panel.html.h:5
+#, fuzzy
+msgid "Docker"
+msgstr "Запустити Docker"
+
+#: ../pkg/kubernetes/views/details-page.html.h:1
+msgid "Nodes"
+msgstr ""
+
+#: ../pkg/kubernetes/views/details-page.html.h:15
+msgid "Deployment Configs"
+msgstr ""
+
+#: ../pkg/kubernetes/views/details-page.html.h:17
+msgid "Not deployed"
+msgstr ""
+
+#: ../pkg/kubernetes/views/details-page.html.h:18
+#, fuzzy
+msgid "Replication Controllers"
+msgstr "Скоригувати контролер реплікації"
+
+#: ../pkg/kubernetes/views/node-panel.html.h:4
+msgid "OS"
+msgstr ""
+
+#: ../pkg/kubernetes/views/node-panel.html.h:5
+#, fuzzy
+msgid "Machine ID"
+msgstr "Машини"
+
+#: ../pkg/kubernetes/views/node-panel.html.h:6
+#, fuzzy
+msgid "Container Runtime Version"
+msgstr "Назва контейнера"
+
+#: ../pkg/kubernetes/views/node-panel.html.h:7
+#, fuzzy
+msgid "Kubelet Version"
+msgstr "Версія"
+
+#: ../pkg/kubernetes/views/node-panel.html.h:8
+#, fuzzy
+msgid "Proxy Version"
+msgstr "Версія"
+
+#: ../pkg/kubernetes/views/node-panel.html.h:15
+msgid "Reason"
+msgstr ""
+
+#: ../pkg/kubernetes/views/node-panel.html.h:16
+msgid "Message"
+msgstr ""
+
+#: ../pkg/kubernetes/views/node-panel.html.h:17
+msgid "Last Heartbeat"
+msgstr ""
+
+#: ../pkg/kubernetes/views/node-panel.html.h:18
+msgid "Last Status Change"
+msgstr ""
+
+#: ../pkg/kubernetes/views/node-panel.html.h:20
+msgid "Scheduled Pods"
+msgstr ""
+
+#: ../pkg/kubernetes/views/node-panel.html.h:21
+msgid "No pods scheduled"
+msgstr ""
+
+#: ../pkg/kubernetes/index.html.h:1
+msgid "Kubernetes Cluster"
+msgstr "Кластер Kubernetes"
+
+#: ../pkg/kubernetes/index.html.h:7
+msgid "Deploy Application"
+msgstr "Розгорнути програму"
+
+#: ../pkg/kubernetes/index.html.h:8
+msgid ""
+"\n"
+"                  Type\n"
+"                  "
+msgstr ""
+"\n"
+"                  Тип\n"
+"                  "
+
+#: ../pkg/kubernetes/index.html.h:11
+msgid "Kubernetes Manifest"
+msgstr "Маніфест Kubernetes"
+
+#: ../pkg/kubernetes/index.html.h:12
+msgid "Nulecule Application"
+msgstr "Програма Nulecule"
+
+#: ../pkg/kubernetes/index.html.h:13
+msgid ""
+"\n"
+"                  Manifest\n"
+"                  "
+msgstr ""
+"\n"
+"                  Маніфест\n"
+"                  "
+
+#: ../pkg/kubernetes/index.html.h:16
+msgid ""
+"\n"
+"                  Nulecule\n"
+"                  "
+msgstr ""
+"\n"
+"                  Nulecule\n"
+"                  "
+
+#: ../pkg/kubernetes/index.html.h:19
+msgid ""
+"\n"
+"              Cancel\n"
+"              "
+msgstr ""
+"\n"
+"              Скасувати\n"
+"            "
+
+#: ../pkg/kubernetes/index.html.h:22
+msgid ""
+"\n"
+"              Deploy\n"
+"              "
+msgstr ""
+"\n"
+"              Розгорнути\n"
+"              "
+
+#: ../pkg/kubernetes/index.html.h:25
+msgid "Adjust Service"
+msgstr "Скоригувати службу"
+
+#: ../pkg/kubernetes/index.html.h:28
+msgid "Adjust"
+msgstr "Скоригувати"
+
+#: ../pkg/kubernetes/index.html.h:29
+msgid "Adjust Replication Controller"
+msgstr "Скоригувати контролер реплікації"
+
+#: ../pkg/kubernetes/index.html.h:31
+#, fuzzy
+msgid "Adjust Route"
+msgstr "Скоригувати"
+
+#: ../pkg/kubernetes/index.html.h:33
+msgid "Please Confirm Deletion"
+msgstr "Будь ласка, підтвердьте вилучення"
+
+#: ../pkg/kubernetes/index.html.h:34
+msgid ""
+"\n"
+"            Deleting a Pod will kill all associated containers. Pods may be "
+"automatically created again in some cases.\n"
+"          "
+msgstr ""
+"\n"
+"            Вилучення кокона призведе до завершення роботи усіх пов’язаних "
+"із ним контейнерів. У певних випадках кокон може бути повторно створено "
+"автоматично.\n"
+"          "
+
+#: ../pkg/kubernetes/index.html.h:38
+msgid ""
+"\n"
+"          "
+msgstr ""
+"\n"
+"          "
+
+#: ../pkg/kubernetes/index.html.h:40
+msgid "Add Cluster Node "
+msgstr "Додати вузол кластера "
+
+#: ../pkg/kubernetes/index.html.h:42
+msgid "Configure Kubelet and Proxy"
+msgstr "Налаштувати Kubelet і проксі"
+
+#: ../pkg/kubernetes/index.html.h:43
+msgid "Configure Flannel networking"
+msgstr "Налаштувати роботу у мережі Flannel"
+
+#: ../pkg/networkmanager/index.html.h:2 ../pkg/storaged/index.html.h:23
+msgid "Go to now"
+msgstr "Перейти зараз"
+
+#: ../pkg/networkmanager/index.html.h:3 ../pkg/storaged/index.html.h:24
+msgid "5 minutes"
+msgstr "5 хвилин"
+
+#: ../pkg/networkmanager/index.html.h:4 ../pkg/storaged/index.html.h:25
+msgid "1 hour"
+msgstr "1 година"
+
+#: ../pkg/networkmanager/index.html.h:5 ../pkg/storaged/index.html.h:26
+msgid "6 hours"
+msgstr "6 годин"
+
+#: ../pkg/networkmanager/index.html.h:6 ../pkg/storaged/index.html.h:27
+msgid "1 day"
+msgstr "1 день"
+
+#: ../pkg/networkmanager/index.html.h:7 ../pkg/storaged/index.html.h:28
+msgid "1 week"
+msgstr "1 тиждень"
+
+#: ../pkg/networkmanager/index.html.h:8
+msgid "Sending"
+msgstr "Надсилання"
+
+#: ../pkg/networkmanager/index.html.h:9
+msgid "Receiving"
+msgstr "Отримання"
+
+#: ../pkg/networkmanager/index.html.h:10
+msgid "Interfaces"
+msgstr "Інтерфейси"
+
+#: ../pkg/networkmanager/index.html.h:11
+msgid "Add Bond"
+msgstr "Додати зв’язок"
+
+#: ../pkg/networkmanager/index.html.h:12
+msgid "Add Bridge"
+msgstr "Додати місток"
+
+#: ../pkg/networkmanager/index.html.h:13
+msgid "Add VLAN"
+msgstr "Додати VLAN"
+
+#: ../pkg/networkmanager/index.html.h:15
+msgid "IP Address"
+msgstr "IP-адреса"
+
+#: ../pkg/networkmanager/index.html.h:16
+msgid "Networking Logs"
+msgstr "Журнали роботи у мережі"
+
+#: ../pkg/networkmanager/index.html.h:17
+msgid "Parent"
+msgstr "Батьківський"
+
+#: ../pkg/networkmanager/index.html.h:18
+msgid "VLAN Id"
+msgstr "Ід. VLAN"
+
+#: ../pkg/networkmanager/index.html.h:20
+msgid "Spanning Tree Protocol (STP)"
+msgstr "Протокол пересування ієрархією (STP)"
+
+#: ../pkg/networkmanager/index.html.h:21
+msgid "STP Priority"
+msgstr "Пріоритет STP"
+
+#: ../pkg/networkmanager/index.html.h:22
+msgid "STP Forward delay"
+msgstr "Затримка переспрямування STP"
+
+#: ../pkg/networkmanager/index.html.h:23
+msgid "STP Hello time"
+msgstr "Час вітання STP"
+
+#: ../pkg/networkmanager/index.html.h:24
+msgid "STP Maximum message age"
+msgstr "Максимальний вік повідомлення STP"
+
+#: ../pkg/networkmanager/index.html.h:25
+msgid "Priority"
+msgstr "Пріоритетність"
+
+#: ../pkg/networkmanager/index.html.h:26
+msgid "Path cost"
+msgstr "Вартість маршруту"
+
+#: ../pkg/networkmanager/index.html.h:27
+msgid "Hair Pin mode"
+msgstr "Режим початкової зони"
+
+#: ../pkg/networkmanager/index.html.h:29
+msgid "Mode"
+msgstr "Режим"
+
+#: ../pkg/networkmanager/index.html.h:30
+msgid "Primary"
+msgstr "Основний"
+
+#: ../pkg/networkmanager/index.html.h:31
+msgid "Link Monitoring"
+msgstr "Спостереження за зв’язком"
+
+#: ../pkg/networkmanager/index.html.h:32
+msgid "Monitoring Interval"
+msgstr "Інтервал оновлення"
+
+#: ../pkg/networkmanager/index.html.h:33
+msgid "Monitoring Targets"
+msgstr "Спостерігаємо за цілями"
+
+#: ../pkg/networkmanager/index.html.h:34
+msgid "Link up delay"
+msgstr "Затримка встановлення зв’язку"
+
+#: ../pkg/networkmanager/index.html.h:35
+msgid "Link down delay"
+msgstr "Затримка розірвання зв’язку"
+
+#: ../pkg/networkmanager/index.html.h:41
+msgid "IP Settings"
+msgstr "Параметри IP"
+
+#: ../pkg/networkmanager/index.html.h:45
+msgid ""
+"\n"
+"            Apply\n"
+"          "
+msgstr ""
+"\n"
+"              Застосувати\n"
+"            "
+
+#: ../pkg/networkmanager/index.html.h:48
+msgid "Bond Settings"
+msgstr "Параметри зв’язку"
+
+#: ../pkg/networkmanager/index.html.h:49
+msgid "Bridge Settings"
+msgstr "Параметри містка"
+
+#: ../pkg/networkmanager/index.html.h:50
+msgid "Bridge Port Settings"
+msgstr "Параметри порту містка"
+
+#: ../pkg/networkmanager/index.html.h:51
+msgid "VLAN Settings"
+msgstr "Параметри VLAN"
+
+#: ../pkg/ostree/index.html.h:1
+msgid "Software Updates"
+msgstr ""
+
+#: ../pkg/ostree/index.html.h:2
+msgid "Check for updates"
+msgstr ""
+
+#: ../pkg/ostree/index.html.h:3
+#, fuzzy
+msgid ""
+"\n"
+"                    Update and reboot\n"
+"                "
+msgstr ""
+"\n"
+"                    Адреса\n"
+"                  "
+
+#: ../pkg/ostree/index.html.h:6
+msgid "Roll back and reboot"
+msgstr ""
+
+#: ../pkg/ostree/index.html.h:8
+#, fuzzy
+msgid ""
+"\n"
+"                    Default\n"
+"                  "
+msgstr ""
+"\n"
+"                    Адреса\n"
+"                  "
+
+#: ../pkg/ostree/index.html.h:11
+#, fuzzy
+msgid ""
+"\n"
+"                    Available\n"
+"                  "
+msgstr ""
+"\n"
+"                    Користувач\n"
+"                  "
+
+#: ../pkg/ostree/index.html.h:15
+#, fuzzy
+msgid "Updating"
+msgstr "Оновлення $0…"
+
+#: ../pkg/ostree/index.html.h:16
+msgid "Tree"
+msgstr ""
+
+#: ../pkg/ostree/index.html.h:17
+msgid "Packages"
+msgstr ""
+
+#: ../pkg/ostree/index.html.h:20
+msgid "Released"
+msgstr ""
+
+#: ../pkg/ostree/index.html.h:21
+#, fuzzy
+msgid "Additions"
+msgstr "Параметри"
+
+#: ../pkg/ostree/index.html.h:22
+#, fuzzy
+msgid "Removals"
+msgstr "Вилучити"
+
+#: ../pkg/ostree/index.html.h:23
+msgid "Updates"
+msgstr ""
+
+#: ../pkg/ostree/index.html.h:24
+msgid "Downgrades"
+msgstr ""
+
+#: ../pkg/ostree/index.html.h:25
+msgid ""
+"\n"
+"                    This deployment contains the same packages as your "
+"currently booted system\n"
+"                "
+msgstr ""
+
+#: ../pkg/ostree/index.html.h:28
+msgid "Operating System Updates"
+msgstr ""
+
+#: ../pkg/ostree/index.html.h:29
+#, fuzzy
+msgid "Connecting"
+msgstr "Встановлюємо з’єднання із Docker"
+
+#: ../pkg/ostree/index.html.h:30
+msgid "Unable to communicate with OSTree"
+msgstr ""
+
+#: ../pkg/ostree/index.html.h:31
+#, fuzzy
+msgid "No Deployments"
+msgstr "Без затримки"
+
+#: ../pkg/ostree/index.html.h:32
+#, fuzzy
+msgid ""
+"\n"
+"                    Reconnect\n"
+"                "
+msgstr ""
+"\n"
+"                  Вилучити\n"
+"                "
+
 #: ../pkg/storaged/index.html.h:1
 msgid "Storage"
 msgstr "Сховище даних"
@@ -2239,7 +4602,7 @@ msgstr "У цій системі програмний інтерфейс «stora
 
 #: ../pkg/storaged/index.html.h:3
 msgid "Start Multipath"
-msgstr ""
+msgstr "Запустити Multipath"
 
 #: ../pkg/storaged/index.html.h:4
 msgid ""
@@ -2248,154 +4611,178 @@ msgid ""
 "multipath service is not running.\n"
 "      "
 msgstr ""
+"\n"
+"        У системі є пристрої із декількома шляхами доступу, але службу "
+"multipath не запущено.\n"
+"      "
 
 #: ../pkg/storaged/index.html.h:7
 msgid "RAID Devices"
 msgstr "Пристрої RAID"
 
 #: ../pkg/storaged/index.html.h:8
+msgid "No storage set up as RAID"
+msgstr ""
+
+#: ../pkg/storaged/index.html.h:9
 msgid "Volume Groups"
 msgstr "Групи томів"
 
-#: ../pkg/storaged/index.html.h:9
+#: ../pkg/storaged/index.html.h:10
+#, fuzzy
+msgid "No volume groups created"
+msgstr "Створюємо групу томів $target"
+
+#: ../pkg/storaged/index.html.h:11
+#, fuzzy
+msgid "iSCSI Targets"
+msgstr "Призначення"
+
+#: ../pkg/storaged/index.html.h:12
+msgid "{{Address}}:{{Port}}"
+msgstr ""
+
+#: ../pkg/storaged/index.html.h:13
+msgid "No iSCSI targets set up"
+msgstr ""
+
+#: ../pkg/storaged/index.html.h:14
 msgid "Drives"
 msgstr "Диски"
 
-#: ../pkg/storaged/index.html.h:10
+#: ../pkg/storaged/index.html.h:15
+msgid "No drives attached"
+msgstr ""
+
+#: ../pkg/storaged/index.html.h:16
 msgid "Other Devices"
 msgstr "Інші пристрої"
 
-#: ../pkg/storaged/index.html.h:11
+#: ../pkg/storaged/index.html.h:17
 msgid "Filesystems"
 msgstr "Файлові системи"
 
-#: ../pkg/storaged/index.html.h:15
+#: ../pkg/storaged/index.html.h:21
 msgid "Jobs"
 msgstr "Завдання"
 
-#: ../pkg/storaged/index.html.h:23
+#: ../pkg/storaged/index.html.h:29
 msgid "Reading"
 msgstr "Читання"
 
-#: ../pkg/storaged/index.html.h:24
+#: ../pkg/storaged/index.html.h:30
 msgid "Writing"
 msgstr "Запис"
 
-#: ../pkg/storaged/index.html.h:25
-#, fuzzy
+#: ../pkg/storaged/index.html.h:31
 msgid "Storage Logs"
-msgstr "Журнал сховища даних"
+msgstr "Журнали зберігання"
 
-#: ../pkg/storaged/index.html.h:28
+#: ../pkg/storaged/index.html.h:32
+#, fuzzy
+msgid "Create partition table"
+msgstr "Створити розділ"
+
+#: ../pkg/storaged/index.html.h:33
 msgid "Drive"
 msgstr "Диск"
 
-#: ../pkg/storaged/index.html.h:29
-msgid ""
-"\n"
-"          Format\n"
-"        "
-msgstr ""
-"\n"
-"          Формат\n"
-"        "
-
-#: ../pkg/storaged/index.html.h:32
+#: ../pkg/storaged/index.html.h:34
 msgid "Block Device"
 msgstr "Блоковий пристрій"
 
-#: ../pkg/storaged/index.html.h:33
+#: ../pkg/storaged/index.html.h:35
 msgctxt "storage"
 msgid "Model"
 msgstr "Модель"
 
-#: ../pkg/storaged/index.html.h:34
+#: ../pkg/storaged/index.html.h:36
 msgctxt "storage"
 msgid "Firmware Version"
 msgstr "Версія мікропрограми"
 
-#: ../pkg/storaged/index.html.h:35
+#: ../pkg/storaged/index.html.h:37
 msgctxt "storage"
 msgid "Serial Number"
 msgstr "Серійний номер"
 
-#: ../pkg/storaged/index.html.h:36
+#: ../pkg/storaged/index.html.h:38
 msgctxt "storage"
 msgid "World Wide Name"
 msgstr "Глобальна назва (WWN)"
 
-#: ../pkg/storaged/index.html.h:37
+#: ../pkg/storaged/index.html.h:39
 msgctxt "storage"
 msgid "Capacity"
 msgstr "Місткість"
 
-#: ../pkg/storaged/index.html.h:38
+#: ../pkg/storaged/index.html.h:40
 msgid "No media inserted"
 msgstr "Не виявлено носія даних"
 
-#: ../pkg/storaged/index.html.h:39
+#: ../pkg/storaged/index.html.h:41
 msgctxt "storage"
 msgid "Assessment"
 msgstr "Оцінка"
 
-#: ../pkg/storaged/index.html.h:40
+#: ../pkg/storaged/index.html.h:42
 msgid "DISK IS FAILING"
 msgstr "ДИСК НЕПРАЦЕЗДАТНИЙ"
 
-#: ../pkg/storaged/index.html.h:41
+#: ../pkg/storaged/index.html.h:43
 msgid "Disk is OK"
 msgstr "З диском усе гаразд"
 
-#: ../pkg/storaged/index.html.h:42
+#: ../pkg/storaged/index.html.h:44
 msgctxt "storage"
 msgid "Device File"
 msgstr "Файл пристрою"
 
-#: ../pkg/storaged/index.html.h:43
+#: ../pkg/storaged/index.html.h:45
 #, fuzzy
 msgctxt "storage"
-msgid "Multipath Devices"
-msgstr "Інші пристрої"
+msgid "Multipathed Devices"
+msgstr "Пристрої Multipath"
 
-#: ../pkg/storaged/index.html.h:44
+#: ../pkg/storaged/index.html.h:46
 msgid "RAID Device"
 msgstr "пристрій RAID"
 
-#: ../pkg/storaged/index.html.h:45
+#: ../pkg/storaged/index.html.h:47
 msgctxt "storage"
 msgid "Device"
 msgstr "Пристрій"
 
-#: ../pkg/storaged/index.html.h:46
+#: ../pkg/storaged/index.html.h:48
 msgctxt "storage"
 msgid "Name"
 msgstr "Назва"
 
-#: ../pkg/storaged/index.html.h:47
+#: ../pkg/storaged/index.html.h:49
 msgctxt "storage"
 msgid "UUID"
 msgstr "UUID"
 
-#: ../pkg/storaged/index.html.h:48
+#: ../pkg/storaged/index.html.h:50
 msgctxt "storage"
 msgid "RAID Level"
 msgstr "Рівень RAID:"
 
-#: ../pkg/storaged/index.html.h:49
+#: ../pkg/storaged/index.html.h:51
 msgctxt "storage"
 msgid "Bitmap"
 msgstr "Растр"
 
-#: ../pkg/storaged/index.html.h:52
+#: ../pkg/storaged/index.html.h:54
 msgctxt "storage"
 msgid "State"
 msgstr "Стан"
 
-#: ../pkg/storaged/index.html.h:53
+#: ../pkg/storaged/index.html.h:55
 msgid "ARRAY IS DEGRADED"
 msgstr "МАСИВ МАЄ ЗАНИЖЕНІ ХАРАКТЕРИСТИКИ"
 
-#: ../pkg/storaged/index.html.h:55
+#: ../pkg/storaged/index.html.h:57
 msgid ""
 "\n"
 "                  Remove\n"
@@ -2405,15 +4792,15 @@ msgstr ""
 "                  Вилучити\n"
 "                "
 
-#: ../pkg/storaged/index.html.h:58
+#: ../pkg/storaged/index.html.h:60
 msgid "Volume Group"
 msgstr "Група томів"
 
-#: ../pkg/storaged/index.html.h:59
+#: ../pkg/storaged/index.html.h:61
 msgid "Physical Volumes"
 msgstr "Фізичні томи"
 
-#: ../pkg/storaged/index.html.h:60
+#: ../pkg/storaged/index.html.h:62
 msgid ""
 "\n"
 "          Add\n"
@@ -2423,154 +4810,9 @@ msgstr ""
 "          Додати\n"
 "        "
 
-#: ../pkg/storaged/index.html.h:63
+#: ../pkg/storaged/index.html.h:65
 msgid "Storage Log"
 msgstr "Журнал сховища даних"
-
-#: ../pkg/storaged/jobs.js:105
-msgid "SMART self-test of $target"
-msgstr "Самоперевірка SMART $target"
-
-#: ../pkg/storaged/jobs.js:106
-msgid "Ejecting $target"
-msgstr "Видобуваємо $target"
-
-#: ../pkg/storaged/jobs.js:107
-msgid "Unlocking $target"
-msgstr "Розблокуємо $target"
-
-#: ../pkg/storaged/jobs.js:108
-msgid "Locking $target"
-msgstr "Блокуємо $target"
-
-#: ../pkg/storaged/jobs.js:109 ../pkg/storaged/jobs.js:114
-#: ../pkg/storaged/jobs.js:118
-msgid "Modifying $target"
-msgstr "Змінюємо $target"
-
-#: ../pkg/storaged/jobs.js:110
-msgid "Starting swapspace $target"
-msgstr "Запускаємо резервну область пам’яті $target"
-
-#: ../pkg/storaged/jobs.js:111
-msgid "Stopping swapspace $target"
-msgstr "Зупиняємо резервну область пам’яті $target"
-
-#: ../pkg/storaged/jobs.js:112
-msgid "Mounting $target"
-msgstr "Монтуємо $target"
-
-#: ../pkg/storaged/jobs.js:113
-msgid "Unmounting $target"
-msgstr "Демонтуємо $target"
-
-#: ../pkg/storaged/jobs.js:115
-msgid "Erasing $target"
-msgstr "Витираємо $target"
-
-#: ../pkg/storaged/jobs.js:116
-msgid "Creating filesystem on $target"
-msgstr "Створюємо файлову систему на $target"
-
-#: ../pkg/storaged/jobs.js:117
-msgid "Setting up loop device $target"
-msgstr "Налаштовуємо петльовий пристрій $target"
-
-#: ../pkg/storaged/jobs.js:119 ../pkg/storaged/jobs.js:129
-msgid "Deleting $target"
-msgstr "Вилучаємо $target"
-
-#: ../pkg/storaged/jobs.js:120
-msgid "Creating partition $target"
-msgstr "Створюємо розділ $target"
-
-#: ../pkg/storaged/jobs.js:121
-msgid "Cleaning up for $target"
-msgstr "Спорожнюємо для $target"
-
-#: ../pkg/storaged/jobs.js:122
-msgid "Securely erasing $target"
-msgstr "Безпечно витираємо $target"
-
-#: ../pkg/storaged/jobs.js:123
-msgid "Very securely erasing $target"
-msgstr "Дуже безпечно витираємо $target"
-
-#: ../pkg/storaged/jobs.js:124
-msgid "Stopping RAID Device $target"
-msgstr "Зупиняємо пристрій RAID $target"
-
-#: ../pkg/storaged/jobs.js:125
-msgid "Starting RAID Device $target"
-msgstr "Зупиняємо пристрій RAID $target"
-
-#: ../pkg/storaged/jobs.js:126
-msgid "Marking $target as faulty"
-msgstr "Позначаємо $target як помилковий"
-
-#: ../pkg/storaged/jobs.js:127
-msgid "Removing $target from RAID Device"
-msgstr "Вилучаємо $target з пристрою RAID"
-
-#: ../pkg/storaged/jobs.js:128
-msgid "Creating RAID Device $target"
-msgstr "Створюємо пристрій RAID $target"
-
-#: ../pkg/storaged/jobs.js:130
-msgid "Activating $target"
-msgstr "Активуємо $target"
-
-#: ../pkg/storaged/jobs.js:131
-msgid "Deactivating $target"
-msgstr "Деактивуємо $target"
-
-#: ../pkg/storaged/jobs.js:132
-msgid "Creating snapshot of $target"
-msgstr "Створюємо знімок $target"
-
-#: ../pkg/storaged/jobs.js:133
-msgid "Creating volume group $target"
-msgstr "Створюємо групу томів $target"
-
-#: ../pkg/storaged/jobs.js:134
-msgid "Deleting volume group $target"
-msgstr "Вилучаємо групу томів $target"
-
-#: ../pkg/storaged/jobs.js:135
-msgid "Adding physical volume to $target"
-msgstr "Додаємо фізичний том до $target"
-
-#: ../pkg/storaged/jobs.js:136
-msgid "Removing physical volume from $target"
-msgstr "Вилучаємо фізичний том з $target"
-
-#: ../pkg/storaged/jobs.js:137
-msgid "Emptying $target"
-msgstr "Спорожняємо $target"
-
-#: ../pkg/storaged/jobs.js:138
-msgid "Creating logical volume $target"
-msgstr "Створюємо логічний том $target"
-
-#: ../pkg/storaged/jobs.js:139
-msgid "Renaming $target"
-msgstr "Перейменовуємо $target"
-
-#: ../pkg/storaged/jobs.js:140
-msgid "Resizing $target"
-msgstr "Зміна розміру $target"
-
-#: ../pkg/storaged/jobs.js:146
-msgid "Operation '$operation' on $target"
-msgstr "Дія «$operation» над $target"
-
-#: ../pkg/storaged/jobs.js:160
-msgid "unknown target"
-msgstr "невідоме призначення"
-
-#: ../pkg/storaged/permissions.js:59
-msgid "The user <b>$0</b> is not permitted to manage storage"
-msgstr "Користувачу <b>$0</b> не дозволено керувати сховищем даних"
 
 #: ../pkg/subscriptions/index.html.h:1
 msgid "Subscriptions"
@@ -2710,10 +4952,6 @@ msgstr "Назва продукту"
 msgid "Product ID"
 msgstr "Ід. продукту"
 
-#: ../pkg/subscriptions/index.html.h:44
-msgid "Architecture"
-msgstr "Архітектура"
-
 #: ../pkg/subscriptions/index.html.h:46
 msgid "Starts"
 msgstr "Починається"
@@ -2722,804 +4960,129 @@ msgstr "Починається"
 msgid "Ends"
 msgstr "Завершується"
 
-#: ../pkg/subscriptions/subscriptions.js:50
-msgid "Login cannot be empty"
-msgstr "Ім’я користувача не може бути порожнім"
-
-#: ../pkg/subscriptions/subscriptions.js:56
-msgid "Password cannot be empty"
-msgstr "Пароль не може бути порожнім"
-
-#: ../pkg/subscriptions/subscriptions.js:394
-msgid "Registering system..."
-msgstr "Реєструємо систему…"
-
-#: ../pkg/subscriptions/subscriptions.js:453
-msgid "Failed to register the system"
-msgstr "Не вдалося зареєструвати систему"
-
-#: ../pkg/subscriptions/subscriptions.js:472
-msgid ""
-"Unable to register at this time because a call to subscription manager is "
-"already in progress. Please try again."
+#: ../pkg/sosreport/index.html.h:1
+msgid "Diagnostic reports"
 msgstr ""
-"Не вдалося зареєструватися цього разу, оскільки виконується обробка у засобі "
-"керування передплатами. Будь ласка, повторіть спробу."
 
-#: ../pkg/subscriptions/subscriptions.js:496
-msgid "Invalid login or password."
-msgstr "Некоректне ім’я користувача або пароль."
+#: ../pkg/sosreport/index.html.h:2
+msgid ""
+"\n"
+"        This tool will collect system configuration and diagnostic\n"
+"        information from this system for use with diagnosing problems\n"
+"        with the system.\n"
+"      "
+msgstr ""
 
-#: ../pkg/systemd/index.html.h:2
-msgid "Power Options"
-msgstr "Параметри живлення"
+#: ../pkg/sosreport/index.html.h:7
+msgid ""
+"\n"
+"        The collected information will be stored locally on the system.\n"
+"      "
+msgstr ""
 
-#: ../pkg/systemd/index.html.h:3
-msgid "Store performance data"
-msgstr "Зберігати дані щодо швидкодії"
-
-#: ../pkg/systemd/index.html.h:6
-msgid "Pretty Host Name"
-msgstr "Зручна назва вузла"
-
-#: ../pkg/systemd/index.html.h:7
-msgid "Real Host Name"
-msgstr "Справжня назва вузла"
-
-#: ../pkg/systemd/index.html.h:8
-msgid "Set time"
-msgstr "Встановити час"
-
-#: ../pkg/systemd/index.html.h:9
-msgid "Time Zone"
-msgstr "Часовий пояс"
-
-#: ../pkg/systemd/index.html.h:10
+#: ../pkg/sosreport/index.html.h:10
 #, fuzzy
+msgid "Create report"
+msgstr "Створення знімка"
+
+#: ../pkg/sosreport/index.html.h:11
+msgid "Create diagnostic report"
+msgstr ""
+
+#: ../pkg/sosreport/index.html.h:12
 msgid ""
 "\n"
-"                                    Invalid time zone\n"
-"                                "
+"                The generated archive contains data considered\n"
+"                sensitive and its content should be reviewed by the\n"
+"                originating organization before being passed to any\n"
+"                third party.\n"
+"              "
 msgstr ""
-"\n"
-"                     Некоректний часовий пояс\n"
-"                  "
 
-#: ../pkg/systemd/index.html.h:13
+#: ../pkg/sosreport/index.html.h:18
 #, fuzzy
-msgid ""
-"\n"
-"                        Cancel\n"
-"                    "
-msgstr ""
-"\n"
-"                    Користувач\n"
-"                  "
-
-#: ../pkg/systemd/index.html.h:16
-#, fuzzy
-msgid ""
-"\n"
-"                    "
-msgstr ""
-"\n"
-"              Виконати\n"
-"            "
-
-#: ../pkg/systemd/index.html.h:18
-msgid "Delay"
-msgstr "Затримка"
-
-#: ../pkg/systemd/host.js:47
-msgid "The user <b>$0</b> is not permitted to modify hostnames"
-msgstr "Користувачу <b>$0</b> не дозволено змінювати назви вузлів"
-
-#: ../pkg/systemd/host.js:172 ../pkg/systemd/host.js:862
-#: ../pkg/systemd/host.js:864 ../pkg/systemd/init.js:466
-msgid "Restart"
-msgstr "Перезапустити"
-
-#: ../pkg/systemd/host.js:173 ../pkg/systemd/host.js:858
-#: ../pkg/systemd/host.js:860
-msgid "Shutdown"
-msgstr "Вимкнути"
-
-#: ../pkg/systemd/host.js:440
-msgid "Set Host name"
-msgstr "Встановити назву вузла"
-
-#: ../pkg/systemd/host.js:771
-msgid "Invalid date format and invalid time format"
-msgstr "Некоректний формат дати і часу"
-
-#: ../pkg/systemd/host.js:773
-msgid "Invalid time format"
-msgstr "Некоректний формат визначення часу"
-
-#: ../pkg/systemd/host.js:775
-msgid "Invalid date format"
-msgstr "Некоректний формат дати"
-
-#: ../pkg/systemd/host.js:836
-msgid "1 Minute"
-msgstr "1 хвилина"
-
-#: ../pkg/systemd/host.js:837
-msgid "5 Minutes"
-msgstr "5 хвилин"
-
-#: ../pkg/systemd/host.js:838
-msgid "20 Minutes"
-msgstr "20 хвилин"
-
-#: ../pkg/systemd/host.js:839
-msgid "40 Minutes"
-msgstr "40 хвилин"
-
-#: ../pkg/systemd/host.js:840
-msgid "60 Minutes"
-msgstr "60 хвилин"
-
-#: ../pkg/systemd/host.js:841
-msgid "No Delay"
-msgstr "Без затримки"
-
-#: ../pkg/systemd/host.js:842
-msgid "Specific Time"
-msgstr "У визначений час"
-
-#: ../pkg/systemd/host.js:852
-msgid "Message to logged in users"
-msgstr "Повідомлення користувачам, які увійшли"
-
-#: ../pkg/systemd/host.js:932
-msgctxt "page-title"
-msgid "CPU Status"
-msgstr "Стан процесора"
-
-#: ../pkg/systemd/host.js:965
-msgid "I/O Wait"
-msgstr "Очікування В-В"
-
-#: ../pkg/systemd/host.js:966
-msgid "Kernel"
-msgstr "Ядро"
-
-#: ../pkg/systemd/host.js:967
-msgid "User"
-msgstr "Користувач"
-
-#: ../pkg/systemd/host.js:968
-msgid "Nice"
-msgstr "Пріоритетність"
-
-#: ../pkg/systemd/host.js:1018
-msgctxt "page-title"
-msgid "Memory"
-msgstr "Пам'ять"
-
-#: ../pkg/systemd/host.js:1052
-msgid "Swap Used"
-msgstr "Використано резерву"
-
-#: ../pkg/systemd/host.js:1053
-msgid "Cached"
-msgstr "Кеш"
-
-#: ../pkg/systemd/host.js:1054
-msgid "Used"
-msgstr "Використано"
-
-#: ../pkg/systemd/host.js:1055
-msgid "Free"
-msgstr "Вільно"
-
-#: ../pkg/systemd/services.html.h:1
-msgid "Services"
-msgstr "Служби"
-
-#: ../pkg/systemd/services.html.h:2
-msgid "Targets"
-msgstr "Призначення"
-
-#: ../pkg/systemd/services.html.h:3
-msgid "System Services"
-msgstr "Служби системи"
-
-#: ../pkg/systemd/services.html.h:4
-msgid "Sockets"
-msgstr "Сокети"
-
-#: ../pkg/systemd/services.html.h:5
-msgid "Timers"
-msgstr "Таймери"
-
-#: ../pkg/systemd/services.html.h:6
-msgid "Paths"
-msgstr "Шляхи"
-
-#: ../pkg/systemd/services.html.h:7
-msgid "Instantiate"
-msgstr "Створити екземпляр"
-
-#: ../pkg/systemd/services.html.h:8
-msgid "Service Journal"
-msgstr "Журнал служб"
-
-#: ../pkg/systemd/services.html.h:9
-msgid "Note"
-msgstr "Примітка"
-
-#: ../pkg/systemd/services.html.h:10
-msgid ""
-"This unit is not designed to be enabled explicitly.\n"
-"          "
-msgstr ""
-"Цей модуль створено для вмикання явним чином.\n"
-"          "
-
-#: ../pkg/systemd/init.js:251
-msgid "Enabled"
-msgstr "Увімкнено"
-
-#: ../pkg/systemd/init.js:253
-msgid "Static"
-msgstr "Статичний"
-
-#: ../pkg/systemd/init.js:325 ../pkg/systemd/init.js:608
-msgid "$0 Template"
-msgstr "Шаблон $0"
-
-#: ../pkg/systemd/init.js:467
-msgid "Reload"
-msgstr "Перезавантажити"
-
-#: ../pkg/systemd/init.js:468
-msgid "Reload or Restart"
-msgstr "Перезавантажити або перезапустити"
-
-#: ../pkg/systemd/init.js:469
-msgid "Try Restart"
-msgstr "Спробувати перезапустити"
-
-#: ../pkg/systemd/init.js:470
-msgid "Reload or Try Restart"
-msgstr "Перезавантажити або спробувати перезапустити"
-
-#: ../pkg/systemd/init.js:471
-msgid "Isolate"
-msgstr "Ізолювати"
-
-#. <method>:<force>
-#: ../pkg/systemd/init.js:489
-msgid "Enable"
-msgstr "Увімкнути"
-
-#: ../pkg/systemd/init.js:490
-msgid "Enable Forcefully"
-msgstr "Примусово увімкнути"
-
-#: ../pkg/systemd/init.js:491
-msgid "Disable"
-msgstr "Вимкнути"
-
-#: ../pkg/systemd/init.js:492
-msgid "Preset"
-msgstr "Шаблон"
-
-#: ../pkg/systemd/init.js:493
-msgid "Preset Forcefully"
-msgstr "Примусово початкові налаштування"
-
-#: ../pkg/systemd/init.js:494
-msgid "Mask"
-msgstr "Маска"
-
-#: ../pkg/systemd/init.js:495
-msgid "Mask Forcefully"
-msgstr "Примусово замаскувати"
-
-#: ../pkg/systemd/init.js:496
-msgid "Unmask"
-msgstr "Розмаскувати"
-
-#: ../pkg/systemd/init.js:568
-msgid "Since $0"
-msgstr "З $0"
-
-#: ../pkg/systemd/init.js:586
-msgid "This unit is an instance of the $0 template."
-msgstr "Цей модуль є екземпляром шаблона $0."
-
-#: ../pkg/systemd/logs.html.h:1
-msgid "Journal"
-msgstr "Журнал"
-
-#: ../pkg/systemd/logs.html.h:2
-msgid "Recent"
-msgstr "Нещодавні"
-
-#: ../pkg/systemd/logs.html.h:3
-msgid "Current boot"
-msgstr "Поточне завантаження"
-
-#: ../pkg/systemd/logs.html.h:4
-msgid "Last 24 hours"
-msgstr "Попередні 24 години"
-
-#: ../pkg/systemd/logs.html.h:5
-msgid "Last 7 days"
-msgstr "Попередні 7 днів"
-
-#: ../pkg/systemd/logs.html.h:6
-msgid "Errors"
-msgstr "Помилки"
-
-#: ../pkg/systemd/logs.html.h:7
-msgid "Warnings"
-msgstr "Попередження"
-
-#: ../pkg/systemd/logs.html.h:8
-msgid "Notices"
-msgstr "Примітки"
-
-#: ../pkg/systemd/logs.html.h:10
-msgid "Entry"
-msgstr "Запис"
-
-#: ../pkg/systemd/journal.js:91
-msgid "Journal entry"
-msgstr "Запис журналу"
-
-#: ../pkg/systemd/journal.js:119
-msgid "Journal entry not found"
-msgstr "Не знайдено запису журналу"
-
-#: ../pkg/systemd/renderer.js:57
-msgid "Reboot"
-msgstr "Перезавантажити"
-
-#: ../pkg/systemd/renderer.js:121
-msgid "Load earlier entries"
-msgstr "Завантажити попередні записи"
-
-#: ../pkg/systemd/renderer.js:127 ../pkg/systemd/renderer.js:142
-#: ../pkg/systemd/renderer.js:186 ../pkg/systemd/renderer.js:227
-msgid "Loading..."
-msgstr "Завантаження…"
-
-#. No visible day headers
-#.
-#: ../pkg/systemd/renderer.js:182
-msgid "Go to"
-msgstr "Перейти до"
-
-#: ../pkg/systemd/terminal.html.h:1
-msgid "Terminal"
-msgstr "Термінал"
-
-#: ../pkg/systemd/terminal.html.h:2
-msgid "Reset"
-msgstr "Скинути"
-
-#: ../pkg/users/authorized-keys.js:99
-msgid "Validating key"
-msgstr "Перевірка ключа"
-
-#: ../pkg/users/authorized-keys.js:104
-msgid "Adding key"
-msgstr "Додавання ключа"
-
-#: ../pkg/users/authorized-keys.js:111
-msgid "Error saving authorized keys: "
-msgstr "Помилка під час спроби зберегти уповноважені ключі: "
-
-#: ../pkg/users/authorized-keys.js:114
-msgid "The key you provided was not valid."
-msgstr "Наданий вами ключ є некоректним."
-
-#: ../pkg/users/index.html.h:1
-#, fuzzy
-msgid "Local Accounts"
-msgstr "Заблокувати обліковий запис"
-
-#: ../pkg/users/index.html.h:2
-msgid "Create New Account"
-msgstr "Створити новий рахунок"
-
-#: ../pkg/users/index.html.h:3
-msgid "Account not available or cannot be edited."
+msgid "Generating report"
+msgstr "Вилучаємо $target"
+
+#: ../pkg/sosreport/index.html.h:19
+msgid "Done!"
 msgstr ""
 
-#: ../pkg/users/index.html.h:4
-#, fuzzy
-msgid "Accounts"
-msgstr "Облікові записи"
+#~ msgid "User name cannot contain whitespace."
+#~ msgstr "У імені користувача не повинно бути пробілів."
 
-#: ../pkg/users/index.html.h:5
-#, fuzzy
-msgid "Terminate Session"
-msgstr "Версія мікропрограми"
+#~ msgid "Add host"
+#~ msgstr "Додати вузол"
 
-#: ../pkg/users/index.html.h:7
-msgid "Full Name"
-msgstr "Повне ім'я"
+#~ msgid "IP address or host name cannot be empty."
+#~ msgstr "IP-адреса або назва вузла не може бути порожньою."
 
-#: ../pkg/users/index.html.h:9
-msgid "Roles"
-msgstr "Ролі"
+#~ msgid "Connecting to Kubernetes"
+#~ msgstr "Встановлюємо з’єднання із Kubernetes"
 
-#: ../pkg/users/index.html.h:10
-msgid "Last Login"
-msgstr "Останній вхід"
-
-#: ../pkg/users/index.html.h:11
-msgid "Access"
-msgstr "Доступ"
-
-#: ../pkg/users/index.html.h:12
-msgid "Lock Account"
-msgstr "Заблокувати обліковий запис"
-
-#: ../pkg/users/index.html.h:14
-msgid "Set Password"
-msgstr "Встановити пароль"
-
-#: ../pkg/users/index.html.h:15
-msgid "Authorized Public SSH Keys"
-msgstr "Уповноважені відкриті ключі SSH"
-
-#: ../pkg/users/index.html.h:16
-msgid "Change Picture"
-msgstr ""
-
-#: ../pkg/users/index.html.h:23
-msgid "Confirm"
-msgstr "Підтвердити"
-
-#: ../pkg/users/index.html.h:24
-#, fuzzy
-msgid ""
-"\n"
-"            Create\n"
-"          "
-msgstr ""
-"\n"
-"              Створити\n"
-"            "
-
-#: ../pkg/users/index.html.h:27
-msgid "Old Password"
-msgstr "Старий пароль"
-
-#: ../pkg/users/index.html.h:28
-msgid "New Password"
-msgstr "Новий пароль"
-
-#: ../pkg/users/index.html.h:29
-msgid "Confirm New Password"
-msgstr "Підтвердження нового пароля"
-
-#: ../pkg/users/index.html.h:30
-#, fuzzy
-msgid ""
-"\n"
-"            Set\n"
-"          "
-msgstr ""
-"\n"
-"              Встановити\n"
-"            "
-
-#: ../pkg/users/index.html.h:33
-msgid "Delete Files"
-msgstr "Вилучити файли"
-
-#: ../pkg/users/index.html.h:37
-msgid "Unnamed"
-msgstr "Без назви"
-
-#: ../pkg/users/index.html.h:38
-msgid "Invalid key"
-msgstr "Некоректний ключ"
-
-#: ../pkg/users/index.html.h:39
-msgid "There are no authorized public keys for this account."
-msgstr "Для цього облікового запису немає уповноважених відкритих ключів."
-
-#: ../pkg/users/index.html.h:40
-msgid ""
-"You do not have permission to view the authorized public keys for this "
-"account."
-msgstr ""
-"У вас немає прав доступу для перегляду уповноважених відкритих ключів для "
-"цього облікового запису."
-
-#: ../pkg/users/index.html.h:41
-msgid "Failed to load authorized keys."
-msgstr "Не вдалося завантажити уповноважені ключі."
-
-#: ../pkg/users/index.html.h:42
-msgid "Add public key"
-msgstr "Додати відкритий ключ"
-
-#: ../pkg/users/index.html.h:43
-#, fuzzy
-msgid ""
-"\n"
-"            Add key\n"
-"          "
-msgstr ""
-"\n"
-"              Додати ключ\n"
-"            "
-
-#: ../pkg/users/local.js:44
-msgid "The user <b>$0</b> is not permitted to modify accounts"
-msgstr "Користувачу <b>$0</b> заборонено змінювати облікові записи"
-
-#: ../pkg/users/local.js:61
-msgid "Unable to delete root account"
-msgstr "Неможливо вилучити обліковий запис root"
-
-#: ../pkg/users/local.js:64
-msgid "Unable to rename root account"
-msgstr "Неможливо перейменувати обліковий запис root"
-
-#: ../pkg/users/local.js:83
-msgid "Old password not accepted"
-msgstr "Старий пароль не прийнято"
-
-#: ../pkg/users/local.js:87
-msgid "Prompting via passwd timed out"
-msgstr "Час очікування відповіді на запит за допомогою passwd вичерпано"
-
-#: ../pkg/users/local.js:117 ../pkg/users/local.js:149
-msgid "Failed to change password"
-msgstr "Не вдалося змінити пароль"
-
-#: ../pkg/users/local.js:125
-msgid "New password was not accepted"
-msgstr "Новий пароль не прийнято"
-
-#: ../pkg/users/local.js:249
-msgid "Password is too weak"
-msgstr "Пароль є надто простим"
-
-#: ../pkg/users/local.js:261
-msgid "Password is not acceptable"
-msgstr "Пароль є неприйнятним"
-
-#: ../pkg/users/local.js:286 ../pkg/users/local.js:592
-msgctxt "page-title"
-msgid "Accounts"
-msgstr "Облікові записи"
-
-#: ../pkg/users/local.js:396 ../pkg/users/local.js:1042
-msgid "The passwords do not match"
-msgstr "Паролі не збігаються"
-
-#: ../pkg/users/local.js:401
-msgid "No user name specified"
-msgstr "Не вказано імені користувача"
-
-#: ../pkg/users/local.js:406
-msgid "No real name specified"
-msgstr "Не вказано справжнього імені"
-
-#: ../pkg/users/local.js:430 ../pkg/users/local.js:1064
-msgid "Excellent password"
-msgstr "Чудовий пароль"
-
-#: ../pkg/users/local.js:501
-msgid ""
-"The user name can only consist of lettersfrom a-z, digits, dots, dashes and "
-"underscores."
-msgstr ""
-"Ім’я користувача може складатися лише із літер a-z, цифр, крапок, дефісів та "
-"символів підкреслювання."
-
-#: ../pkg/users/local.js:509
-msgid "This user name already exists"
-msgstr "Запис користувача із таким іменем уже існує"
-
-#: ../pkg/users/local.js:689
-msgid "Server Administrator"
-msgstr "Адміністратор сервера"
-
-#: ../pkg/users/local.js:690
-msgid "Container Administrator"
-msgstr "Адміністратор контейнера"
-
-#: ../pkg/users/local.js:821
-msgid "Logged In"
-msgstr "Вхід"
-
-#: ../pkg/users/local.js:823
-msgid "Never"
-msgstr "Ніколи"
-
-#: ../pkg/users/local.js:980
-msgid "Delete $0"
-msgstr "Вилучити $0"
-
-#: ../src/bridge/cockpitdbussetup.c:215 ../src/bridge/cockpitdbussetup.c:353
-#, c-format
-msgid "Unsupported setup mechanism: %s"
-msgstr "Непідтримуваний механізм налаштовування: %s"
-
-#: ../src/bridge/cockpitdbussetup.c:229
-msgid "Couldn't list users"
-msgstr "Не вдалося побудувати список користувачів"
-
-#: ../src/bridge/cockpitdbussetup.c:359
-msgid "Bad data passed for passwd1 mechanism"
-msgstr "Механізму passwd1 передано помилкові дані"
-
-#: ../src/bridge/cockpitdbussetup.c:374
-msgid "Couldn't load user data"
-msgstr "Не вдалося завантажити дані користувача"
-
-#: ../src/bridge/cockpitdbussetup.c:459
-msgid "Couldn't change user groups"
-msgstr "Не вдалося змінити групи користувачів"
-
-#: ../src/bridge/cockpitdbussetup.c:512
-msgid "Couldn't change user password"
-msgstr "Не вдалося змінити пароль користувача"
-
-#: ../src/bridge/cockpitdbussetup.c:536
-msgid "Couldn't create new users"
-msgstr "Не вдалося створити записи користувачів"
-
-#: ../src/bridge/cockpitdbussetup.c:618
-msgid "Couldn't list local users"
-msgstr "Не вдалося побудувати список локальних користувачів"
-
-#: ../src/ws/cockpit.appdata.xml.in.h:1
-msgid ""
-"Cockpit is a server manager that makes it easy to administer your Linux "
-"servers via a web browser. Jumping between the terminal and the web tool is "
-"no problem. A service started via Cockpit can be stopped via the terminal. "
-"Likewise, if an error occurs in the terminal, it can be seen in the Cockpit "
-"journal interface."
-msgstr ""
-"Cockpit — програма для керування сервером, яка полегшує адміністрування "
-"ваших серверів під керуванням Linux за допомогою програми для перегляду "
-"сторінок інтернету. Ви зможете одночасно використовувати термінал і "
-"вебінструмент. Службу, яку було запущено за допомогою Cockpit, можна "
-"зупинити за допомогою термінала. І навпаки, якщо трапиться помилка у "
-"терміналі, ви побачите її у інтерфейсі журналу Cockpit."
-
-#: ../src/ws/cockpit.appdata.xml.in.h:2
-msgid ""
-"Cockpit is perfect for new sysadmins, allowing them to easily perform simple "
-"tasks such as storage administration, inspecting journals and starting and "
-"stopping services. You can monitor and administer several servers at the "
-"same time. Just add them with a single click and your machines will look "
-"after its buddies."
-msgstr ""
-"Cockpit — чудовий інструмент для системних адміністраторів-початківців. За "
-"його допомогою вони без проблем впораються із простими завданнями, зокрема "
-"адмініструванням сховищ даних, інспектуванням журналів та запуском і "
-"зупиненням служб. Ви зможете одночасно стежити за роботою декількох серверів "
-"і адмініструвати ці сервери. Просто додайте їх одним клацанням кнопкою миші "
-"і ваш комп’ютер сам нагляне за своїми приятелями."
-
-#: ../src/ws/cockpit.desktop.in.h:2
-msgid "A user interface for GNU/Linux servers"
-msgstr "Інтерфейс користувача для серверів GNU/Linux"
-
-#: ../src/ws/cockpit.desktop.in.h:3
-msgid "Remote;Administration;"
-msgstr "віддалене;адміністрування;"
-
-#~ msgid "Deploy"
-#~ msgstr "Розгорнути"
-
-#~ msgid "Kubernetes Services"
-#~ msgstr "Служби Kubernetes"
-
-#~ msgid "Could not list services"
-#~ msgstr "Не вдалося побудувати список служб"
-
-#~ msgid "You can deploy an application to your cluster."
-#~ msgstr "Ви можете розгорнути програму на вашому кластері."
-
-#~ msgid "Kubernetes Nodes"
-#~ msgstr "Вузли Kubernetes"
-
-#~ msgid "Labels"
-#~ msgstr "Мітки"
-
-#~ msgid "Select an object to see more details."
-#~ msgstr "Виберіть об’єкт для перегляду ширшого спектра параметрів."
-
-#~ msgid "Pod"
-#~ msgstr "Кокон"
-
-#~ msgid ""
-#~ "Pods contain one or more containers that run\n"
-#~ "                    together on a node, containing your application code."
-#~ msgstr ""
-#~ "Кокони містять один або декілька контейнерів, які працюють разом\n"
-#~ "                    на вузлі, де міститься код вашої програми."
-
-#~ msgid "Service"
-#~ msgstr "Служба"
-
-#~ msgid ""
-#~ "Services group pods and provide a common DNS\n"
-#~ "                    name and an optional, load-balanced IP address to "
-#~ "access them."
-#~ msgstr ""
-#~ "Служби збирають у групи кокони і надають загальну назву DNS\n"
-#~ "                    та додаткову, збалансовану за навантаженням IP-адресу "
-#~ "для доступу до них."
-
-#~ msgid ""
-#~ "Replication controllers dynamically create instances of\n"
-#~ "                    pods from templates, and remove pods when necessary."
-#~ msgstr ""
-#~ "Контролери реплікації динамічно створюють екземпляри\n"
-#~ "                    коконів із шаблонів і вилучають кокони, якщо потрібно."
-
-#~ msgid "Node"
-#~ msgstr "Вузол"
-
-#~ msgid "Nodes are the machines that run your containers."
-#~ msgstr "Вузли — комп’ютери, на яких запущено ваші контейнери."
-
-#~ msgid "Nodes"
-#~ msgstr "Вузли"
-
-#~ msgid "System Info"
-#~ msgstr "Відомості щодо системи"
-
-#~ msgid "Replication Controllers"
-#~ msgstr "Керування реплікацією"
-
-#~ msgid "Pods"
-#~ msgstr "Кокони"
+#~ msgid "Drop extra privileges"
+#~ msgstr "Скинути зайві привілеї"
 
 #~ msgid ""
 #~ "\n"
-#~ "                  Namespace\n"
-#~ "                  "
+#~ "          Format\n"
+#~ "        "
 #~ msgstr ""
 #~ "\n"
-#~ "                  Простір назв\n"
-#~ "                  "
+#~ "          Формат\n"
+#~ "        "
 
-#~ msgid "$0 CPU $1 RAM"
-#~ msgstr "$0 Процесор $1 RAM"
+#~ msgid "Unsupported setup mechanism: %s"
+#~ msgstr "Непідтримуваний механізм налаштовування: %s"
 
-#~ msgid "$0 of $1"
-#~ msgstr "$0 з $1"
+#~ msgid "Bad data passed for passwd1 mechanism"
+#~ msgstr "Механізму passwd1 передано помилкові дані"
 
-#~ msgid "Cluster: $0"
-#~ msgstr "Кластер: $0"
+#~ msgid "Couldn't load user data"
+#~ msgstr "Не вдалося завантажити дані користувача"
 
-#~ msgid "Endpoint: $0"
-#~ msgstr "Кінцевий пункт: $0"
+#~ msgid "Couldn't change user groups"
+#~ msgstr "Не вдалося змінити групи користувачів"
 
-#~ msgid "Networking Journal"
-#~ msgstr "Журнал роботи у мережі"
+#~ msgid "Couldn't change user password"
+#~ msgstr "Не вдалося змінити пароль користувача"
+
+#~ msgid "Couldn't create new users"
+#~ msgstr "Не вдалося створити записи користувачів"
+
+#~ msgid "Couldn't list local users"
+#~ msgstr "Не вдалося побудувати список локальних користувачів"
 
 #~ msgid ""
-#~ "\n"
-#~ "                Cancel\n"
-#~ "              "
+#~ "Cockpit is a server manager that makes it easy to administer your Linux "
+#~ "servers via a web browser. Jumping between the terminal and the web tool "
+#~ "is no problem. A service started via Cockpit can be stopped via the "
+#~ "terminal. Likewise, if an error occurs in the terminal, it can be seen in "
+#~ "the Cockpit journal interface."
 #~ msgstr ""
-#~ "\n"
-#~ "                Скасувати\n"
-#~ "              "
+#~ "Cockpit — програма для керування сервером, яка полегшує адміністрування "
+#~ "ваших серверів під керуванням Linux за допомогою програми для перегляду "
+#~ "сторінок інтернету. Ви зможете одночасно використовувати термінал і "
+#~ "вебінструмент. Службу, яку було запущено за допомогою Cockpit, можна "
+#~ "зупинити за допомогою термінала. І навпаки, якщо трапиться помилка у "
+#~ "терміналі, ви побачите її у інтерфейсі журналу Cockpit."
 
-#~ msgid "Toggle navigation"
-#~ msgstr "Увімкнути або вимкнути навігацію"
+#~ msgid ""
+#~ "Cockpit is perfect for new sysadmins, allowing them to easily perform "
+#~ "simple tasks such as storage administration, inspecting journals and "
+#~ "starting and stopping services. You can monitor and administer several "
+#~ "servers at the same time. Just add them with a single click and your "
+#~ "machines will look after its buddies."
+#~ msgstr ""
+#~ "Cockpit — чудовий інструмент для системних адміністраторів-початківців. "
+#~ "За його допомогою вони без проблем впораються із простими завданнями, "
+#~ "зокрема адмініструванням сховищ даних, інспектуванням журналів та "
+#~ "запуском і зупиненням служб. Ви зможете одночасно стежити за роботою "
+#~ "декількох серверів і адмініструвати ці сервери. Просто додайте їх одним "
+#~ "клацанням кнопкою миші і ваш комп’ютер сам нагляне за своїми приятелями."
 
-#~ msgid "Trying to reconnect to the system"
-#~ msgstr "Намагаємося повторно з’єднатися із системою"
+#~ msgid "A user interface for GNU/Linux servers"
+#~ msgstr "Інтерфейс користувача для серверів GNU/Linux"
 
-#~ msgid "Storage Journal"
-#~ msgstr "Журнал сховища"
+#~ msgid "Remote;Administration;"
+#~ msgstr "віддалене;адміністрування;"

@@ -1,30 +1,29 @@
-# Bruno R. Zanuzzo <xmrbrz@fedoraproject.org>, 2015. #zanata
-# Luis Carlos Peters Motta <luiscpmotta@gmail.com>, 2015. #zanata
-# Marco Aurélio Krause <ouesten@me.com>, 2015. #zanata
+# Goran <goransocemo@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-03-04 15:39-0800\n"
-"PO-Revision-Date: 2015-10-26 06:30-0400\n"
-"Last-Translator: Luis Carlos Peters Motta <luiscpmotta@gmail.com>\n"
-"Language-Team: Portuguese (Brazil)\n"
-"Language: pt-BR\n"
+"PO-Revision-Date: 2016-02-27 03:52-0500\n"
+"Last-Translator: Goran <goransocemo@gmail.com>\n"
+"Language-Team: Croatian\n"
+"Language: hr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Zanata 3.8.2\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
 
 #: ../pkg/tuned/dialog.js:99
 #, fuzzy
 msgid "Tuned is not available"
-msgstr "Indisponível"
+msgstr "Nije dostupno"
 
 #: ../pkg/tuned/dialog.js:101
 #, fuzzy
 msgid "Tuned is not running"
-msgstr "Não está rodando"
+msgstr "Spremnik je pokrenut."
 
 #: ../pkg/tuned/dialog.js:103
 msgid "Tuned is off"
@@ -51,7 +50,7 @@ msgstr ""
 #: ../pkg/tuned/dialog.js:174
 #, fuzzy
 msgid "Disable tuned"
-msgstr "Desabilitado"
+msgstr "Onemogućen"
 
 #: ../pkg/tuned/dialog.js:236
 msgid "Tuned has failed to start"
@@ -60,23 +59,23 @@ msgstr ""
 #: ../pkg/shell/index.js:134 ../pkg/shell/simple-index.js:83
 #: ../pkg/shell/simple.html.h:17
 msgid "Disconnected"
-msgstr ""
+msgstr "Nepovezan"
 
 #: ../pkg/shell/index.js:244 ../pkg/kubernetes/views/dashboard-page.html.h:11
 msgid "Machines"
-msgstr "Máquinas"
+msgstr ""
 
 #: ../pkg/shell/index.js:305
 msgid "The machine is restarting"
-msgstr ""
+msgstr "Uređaj se ponovo pokreće"
 
 #: ../pkg/shell/index.js:308
 msgid "Connecting to the machine"
-msgstr ""
+msgstr "Spajanje na uređaj"
 
 #: ../pkg/shell/index.js:311
 msgid "Couldn't connect to the machine"
-msgstr ""
+msgstr "Spajanje na uređaj neuspjelo"
 
 #: ../pkg/shell/index.js:313
 msgid "Cannot connect to an unknown machine"
@@ -95,29 +94,30 @@ msgstr ""
 #: ../pkg/shell/machine-dialogs.js:384
 #, fuzzy
 msgid "The IP address or host name cannot contain whitespace."
-msgstr "Endereço IP ou nome do host não pode conter espaços em branco."
+msgstr "IP adresa ili ime računala ne može sadržavati razmak."
 
 #: ../pkg/shell/machine-dialogs.js:410
 #, fuzzy
 msgid "Failed to add machine: $0"
-msgstr "Falha ao iniciar Docker: $0"
+msgstr "Pokretanje Docker-a neuspjelo: $0"
 
 #: ../pkg/shell/machine-dialogs.js:436
 msgid "Enter IP address or host name"
-msgstr "Digite o endereço IP ou nome de host"
+msgstr "Unesite IP adresu ili ime računala"
 
 #: ../pkg/shell/machine-dialogs.js:471
 #, fuzzy
 msgid "Failed to edit machine: $0"
-msgstr "Falha ao iniciar Docker: $0"
+msgstr "Pokretanje Docker-a neuspjelo: $0"
 
 #: ../pkg/shell/credentials.js:176
 msgid "No such file or directory"
 msgstr ""
 
 #: ../pkg/shell/credentials.js:180
+#, fuzzy
 msgid "The passwords do not match."
-msgstr ""
+msgstr "Lozinke(fraze) se ne podudaraju"
 
 #: ../pkg/shell/credentials.js:185
 msgid "Prompting via ssh-keygen timed out"
@@ -155,11 +155,11 @@ msgstr ""
 #: ../pkg/shell/base_index.js:637 ../pkg/users/local.js:1163
 #: ../pkg/docker/index.html.h:43 ../pkg/networkmanager/index.html.h:52
 msgid "Unexpected error"
-msgstr "Erro inesperado"
+msgstr "Neočekivana pogreška"
 
 #: ../pkg/shell/base_index.js:638
 msgid "Cockpit had an unexpected internal error. <br/><br/>"
-msgstr ""
+msgstr "Neočekivana interna greška <br/><br/>"
 
 #: ../pkg/shell/base_index.js:639
 msgid "You can try restarting Cockpit by pressing refresh in your browser. "
@@ -167,11 +167,11 @@ msgstr ""
 
 #: ../pkg/shell/base_index.js:640
 msgid "The javascript console contains details about this error "
-msgstr ""
+msgstr "Javascript konzola sadrži detalje ove greške"
 
 #: ../pkg/shell/base_index.js:641
 msgid "(<b>Ctrl-Shift-J</b> in most browsers)."
-msgstr ""
+msgstr "(<b>Ctrl-Shift-J</b> u većini preglednika)."
 
 #: ../pkg/users/local.js:44
 msgid "The user <b>$0</b> is not permitted to modify accounts"
@@ -252,7 +252,7 @@ msgstr ""
 #: ../pkg/storaged/details.js:914 ../pkg/storaged/devices.js:112
 #: ../pkg/systemd/services.html.h:13
 msgid "Error"
-msgstr "Erro"
+msgstr ""
 
 #: ../pkg/users/authorized-keys.js:99
 msgid "Validating key"
@@ -280,113 +280,113 @@ msgstr ""
 
 #: ../pkg/systemd/init.js:251
 msgid "Enabled"
-msgstr "Habilitado"
+msgstr ""
 
 #: ../pkg/systemd/init.js:252 ../pkg/networkmanager/interfaces.js:1586
 msgid "Disabled"
-msgstr "Desabilitado"
+msgstr "Onemogućen"
 
 #: ../pkg/systemd/init.js:253
 msgid "Static"
-msgstr "Estático"
+msgstr ""
 
 #: ../pkg/systemd/init.js:325 ../pkg/systemd/init.js:608
 msgid "$0 Template"
-msgstr "Modelo $0 "
+msgstr ""
 
 #. <method>:<mode>
 #: ../pkg/systemd/init.js:464 ../pkg/storaged/details.js:1455
 msgid "Start"
-msgstr "Iniciar"
+msgstr ""
 
 #: ../pkg/systemd/init.js:465 ../pkg/storaged/details.js:1456
 msgid "Stop"
-msgstr "Pare"
+msgstr ""
 
 #: ../pkg/systemd/init.js:466 ../pkg/systemd/host.js:193
 #: ../pkg/systemd/host.js:1222 ../pkg/systemd/host.js:1224
 msgid "Restart"
-msgstr "Reiniciar"
+msgstr ""
 
 #: ../pkg/systemd/init.js:467
 msgid "Reload"
-msgstr "Recarregar"
+msgstr ""
 
 #: ../pkg/systemd/init.js:468
 msgid "Reload or Restart"
-msgstr "Recarregar ou Reiniciar"
+msgstr ""
 
 #: ../pkg/systemd/init.js:469
 msgid "Try Restart"
-msgstr "Tente Reiniciar"
+msgstr ""
 
 #: ../pkg/systemd/init.js:470
 msgid "Reload or Try Restart"
-msgstr "Recarregue ou Tente Reiniciar"
+msgstr ""
 
 #: ../pkg/systemd/init.js:471
 msgid "Isolate"
-msgstr "Isolar"
+msgstr ""
 
 #. <method>:<force>
 #: ../pkg/systemd/init.js:489
 msgid "Enable"
-msgstr "Habilitar"
+msgstr ""
 
 #: ../pkg/systemd/init.js:490
 msgid "Enable Forcefully"
-msgstr "Habilite Forçosamente"
+msgstr ""
 
 #: ../pkg/systemd/init.js:491
 msgid "Disable"
-msgstr "Desabilitar"
+msgstr ""
 
 #: ../pkg/systemd/init.js:492
 msgid "Preset"
-msgstr "Preset"
+msgstr ""
 
 #: ../pkg/systemd/init.js:493
 msgid "Preset Forcefully"
-msgstr "Preset Forçado"
+msgstr ""
 
 #: ../pkg/systemd/init.js:494
 msgid "Mask"
-msgstr "Máscara"
+msgstr ""
 
 #: ../pkg/systemd/init.js:495
 msgid "Mask Forcefully"
-msgstr "Máscara forçada"
+msgstr ""
 
 #: ../pkg/systemd/init.js:496
 msgid "Unmask"
-msgstr "Sem Máscara"
+msgstr ""
 
 #: ../pkg/systemd/init.js:568
 msgid "Since $0"
-msgstr "Desde $0"
+msgstr ""
 
 #: ../pkg/systemd/init.js:586
 msgid "This unit is an instance of the $0 template."
-msgstr "Esta unidade é uma instância do modelo $0."
+msgstr ""
 
 #: ../pkg/systemd/renderer.js:57
 msgid "Reboot"
-msgstr "Reiniciar"
+msgstr ""
 
 #: ../pkg/systemd/renderer.js:121
 msgid "Load earlier entries"
-msgstr "Carregar logs anteriores"
+msgstr ""
 
 #: ../pkg/systemd/renderer.js:127 ../pkg/systemd/renderer.js:142
 #: ../pkg/systemd/renderer.js:186 ../pkg/systemd/renderer.js:227
 msgid "Loading..."
-msgstr "Carregando..."
+msgstr ""
 
 #. No visible day headers
 #.
 #: ../pkg/systemd/renderer.js:182
 msgid "Go to"
-msgstr "Ir para"
+msgstr ""
 
 #: ../pkg/systemd/host.js:49
 msgid "The user <b>$0</b> is not permitted to modify hostnames"
@@ -456,7 +456,7 @@ msgstr ""
 #: ../pkg/systemd/host.js:1291
 msgctxt "page-title"
 msgid "CPU Status"
-msgstr "Status de CPU"
+msgstr ""
 
 #: ../pkg/systemd/host.js:1324
 msgid "I/O Wait"
@@ -477,7 +477,7 @@ msgstr ""
 #: ../pkg/systemd/host.js:1377
 msgctxt "page-title"
 msgid "Memory"
-msgstr "Memória"
+msgstr ""
 
 #: ../pkg/systemd/host.js:1411
 msgid "Swap Used"
@@ -497,151 +497,149 @@ msgstr ""
 
 #: ../pkg/realmd/operation.js:90 ../pkg/realmd/operation.js:95
 msgid "page-title"
-msgstr ""
+msgstr "naslov-stranice"
 
 #: ../pkg/realmd/operation.js:91
 msgid "Join"
-msgstr ""
+msgstr "Pridruživanje"
 
 #: ../pkg/realmd/operation.js:96
 msgid "Leave"
-msgstr ""
+msgstr "Napusti"
 
 #: ../pkg/realmd/operation.js:143
 msgid "Domain $0 could not be contacted"
-msgstr ""
+msgstr "Domenu $0 nije moguće kontaktirati"
 
 #: ../pkg/realmd/operation.js:195
+#, fuzzy
 msgid "Domain $0 is not supported"
-msgstr ""
+msgstr "Inačica $0 naredbe 'atomic' nije podržana."
 
 #: ../pkg/realmd/operation.js:209 ../pkg/realmd/operation.js:215
 msgid "e.g. \"$0\""
-msgstr ""
+msgstr "npr. \"$0\""
 
 #: ../pkg/realmd/operation.js:241
 msgid "Administrator Password"
-msgstr ""
+msgstr "Administrativna Lozinka"
 
 #: ../pkg/realmd/operation.js:242 ../pkg/realmd/operation.html.h:5
 msgid "User Password"
-msgstr ""
+msgstr "Korisnička Lozinka"
 
 #: ../pkg/realmd/operation.js:243 ../pkg/realmd/operation.html.h:8
 msgid "One Time Password"
-msgstr ""
+msgstr "Jednokratna Lozinka"
 
 #: ../pkg/realmd/operation.js:244 ../pkg/networkmanager/interfaces.js:1591
 #: ../pkg/networkmanager/interfaces.js:2455
 #: ../pkg/networkmanager/interfaces.js:2459
 #: ../pkg/networkmanager/interfaces.js:2465
 msgid "Automatic"
-msgstr "Automático"
+msgstr "Automatski"
 
 #: ../pkg/realmd/operation.js:319
+#, fuzzy
 msgid "Joining this domain is not supported"
-msgstr ""
+msgstr "Inačica $0 naredbe 'atomic' nije podržana."
 
 #: ../pkg/realmd/operation.js:338
 msgid "More"
-msgstr ""
+msgstr "Više"
 
 #: ../pkg/realmd/operation.js:391
 msgid "Cannot join a domain because realmd is not available on this system"
-msgstr ""
+msgstr "Nije moguće pristupiti domeni jer realmd nije dostupan na ovom sustavu"
 
 #: ../pkg/realmd/operation.js:410
 msgid "The user <b>$0</b> is not permitted to modify realms"
-msgstr ""
+msgstr "Korisniku <b>$0</b> nije dozvoljeno da preinači oblasti"
 
 #: ../pkg/realmd/operation.js:427
 msgid "Join Domain"
-msgstr ""
+msgstr "Pridruživanje domeni"
 
 #: ../pkg/docker/overview.js:170
 msgid "Run image"
-msgstr "Execute imagem"
+msgstr "Pokreni presliku"
 
 #: ../pkg/docker/overview.js:273
-#, fuzzy
 msgid ""
 "WARNING: Docker may be reporting the size it has allocated to it's storage "
 "pool using sparse files, not the actual space available to the underlying "
 "storage device."
 msgstr ""
-"AVISO: Docker pode estar relatando o tamanho que atribuiu de seu espaço de "
-"armazenamento usando arquivos esparsos, não o espaço real disponível para o "
-"dispositivo de armazenamento subjacente."
 
 #: ../pkg/docker/util.js:71
 msgid "Up since $StartedAt"
-msgstr "Ativo desde $StartedAt"
+msgstr "Pokrenut od $StartedAt"
 
 #: ../pkg/docker/util.js:73
 msgid "Exited $ExitCode"
-msgstr "Encerrado $ExitCode"
+msgstr ""
 
 #: ../pkg/docker/util.js:82
 msgid "default"
-msgstr "padrão"
+msgstr "zadano"
 
 #: ../pkg/docker/util.js:83
 msgid "$0 shares"
-msgstr "$0 compartilhamentos"
+msgstr ""
 
 #: ../pkg/docker/util.js:187
 msgid "Stopped"
-msgstr "Parado"
+msgstr "Zaustavljeno "
 
 #: ../pkg/docker/util.js:286
 msgid "unlimited"
-msgstr "ilimitado"
+msgstr "neograničeno"
 
 #: ../pkg/docker/util.js:407
 msgid "Container is currently running."
-msgstr "Container está em execução."
+msgstr "Spremnik je pokrenut."
 
 #: ../pkg/docker/util.js:409
 msgid ""
 "Container is currently marked as not running, but regular stopping failed."
 msgstr ""
-"Container está atualmente marcado como parado, mas parada normal falhou."
+"Spremnik trenutno nije u pogonu, ali uredno zaustavljanje nije uspjelo."
 
 #: ../pkg/docker/util.js:410
 msgid "Error message from Docker:"
-msgstr "Mensagem de erro do Docker:"
+msgstr "Poruka greške od Docker-a:"
 
 #: ../pkg/docker/util.js:420
 msgid "Please confirm forced deletion of $0"
-msgstr "Por favor, confirme a exclusão forçada de $0"
+msgstr "Potvrdite prisilno brisanje $0"
 
 #: ../pkg/docker/util.js:422
 msgid "Force Delete"
-msgstr "Remoção forçada"
+msgstr "Prisilno brisanje"
 
 #: ../pkg/docker/util.js:463
 msgid "Failed to stop Docker scope: $0"
-msgstr "Falha ao parar Docker escopo: $0"
+msgstr ""
 
 #: ../pkg/docker/image.js:38 ../pkg/docker/details.js:40
 msgctxt "page-title"
 msgid "Containers"
-msgstr "Containers"
+msgstr "Spremnici"
 
 #: ../pkg/docker/image.js:70
 msgid "Image $0"
-msgstr "Imagem $0"
+msgstr "Preslika $0"
 
 #: ../pkg/docker/image.js:105 ../pkg/docker/details.js:205
 #: ../pkg/storaged/details.js:1650
 msgid "Not found"
-msgstr "Não encontrado"
+msgstr "Nije pronađeno"
 
 #: ../pkg/docker/image.js:148 ../pkg/docker/details.js:294
 #: ../pkg/storaged/details.js:554 ../pkg/storaged/details.js:717
 #: ../pkg/storaged/details.js:877
 msgid "Please confirm deletion of $0"
-msgstr "Por favor, confirme a remoção de $0"
+msgstr "Potvrdite brisanje $0"
 
 #: ../pkg/docker/image.js:149
 msgid ""
@@ -649,10 +647,6 @@ msgid ""
 "you need it later.  Unless this image has never been pushed to a repository, "
 "that is, in which case you probably can't download it again."
 msgstr ""
-"Apagar uma imagem irá excluí-la, mas provavelmente você pode baixá-la "
-"novamente se você precisar dela mais tarde. A menos que essa imagem nunca "
-"tem sido enviada para um repositório, ou seja, caso em que você "
-"provavelmente não pode baixá-la novamente."
 
 #: ../pkg/docker/image.js:150 ../pkg/docker/details.js:296
 #: ../pkg/storaged/details.js:559 ../pkg/storaged/details.js:723
@@ -663,7 +657,7 @@ msgstr ""
 #: ../pkg/registry/views/image-delete.html.h:4
 #: ../pkg/kubernetes/index.html.h:37
 msgid "Delete"
-msgstr "Excluir"
+msgstr "Izbriši"
 
 #: ../pkg/docker/details.js:177
 msgid "${hip}:${hport} -> $cport"
@@ -671,51 +665,51 @@ msgstr "${hip}:${hport} -> $cport"
 
 #: ../pkg/docker/details.js:295
 msgid "Deleting a container will erase all data in it."
-msgstr "A exclusão de um container irá apagar todos os dados nele."
+msgstr "Brisanjem svih spremnika ćete izbrisati sve podatke u njima."
 
 #: ../pkg/docker/run.js:194 ../pkg/registry/views/image-page.html.h:3
 #: ../pkg/registry/views/image-panel.html.h:2 ../pkg/docker/console.html.h:1
 #: ../pkg/kubernetes/views/container-body.html.h:1
 #: ../pkg/kubernetes/views/container-panel.html.h:1
 msgid "Container"
-msgstr "Container"
+msgstr "Spremnik"
 
 #: ../pkg/docker/run.js:196 ../pkg/kubernetes/views/route-panel.html.h:4
 #: ../pkg/kubernetes/views/details-page.html.h:14
 #: ../pkg/kubernetes/index.html.h:32
 msgid "Host"
-msgstr "Máquina"
+msgstr ""
 
 #: ../pkg/docker/run.js:228
 msgid "Invalid port"
-msgstr "Porta inválida"
+msgstr "Nepravilan port"
 
 #: ../pkg/docker/run.js:238
 msgid "Duplicate port"
-msgstr "Porta duplicada"
+msgstr "Dupliciran port"
 
 #. still valid if empty
 #: ../pkg/docker/run.js:326
 msgid "No alias specified"
-msgstr "Nenhum apelido especificado"
+msgstr "Alias nije naveden"
 
 #: ../pkg/docker/run.js:336
 msgid "Duplicate alias"
-msgstr "Apelido duplicado"
+msgstr ""
 
 #: ../pkg/docker/run.js:371
 msgid "No container specified"
-msgstr "Nenhum container especificado"
+msgstr "Nijedan spremnik nije naveden"
 
 #: ../pkg/docker/run.js:466
 msgid "to host port"
-msgstr "para porta do host"
+msgstr ""
 
 #: ../pkg/docker/run.js:467 ../pkg/docker/run.js:534
 #: ../pkg/kubernetes/views/route-panel.html.h:9
 #: ../pkg/kubernetes/views/node-panel.html.h:10
 msgid "none"
-msgstr "Nenhum"
+msgstr "nijedan"
 
 #: ../pkg/docker/run.js:499 ../pkg/docker/run.js:500
 msgid "UDP"
@@ -727,15 +721,15 @@ msgstr "TCP"
 
 #: ../pkg/docker/run.js:533
 msgid "alias"
-msgstr "apelido"
+msgstr "alias"
 
 #: ../pkg/docker/containers.js:57
 msgid "Failed to start Docker: $0"
-msgstr "Falha ao iniciar Docker: $0"
+msgstr "Pokretanje Docker-a neuspjelo: $0"
 
 #: ../pkg/docker/search.js:130
 msgid "Error downloading"
-msgstr "Erro ao baixar"
+msgstr "Greška prilikom preuzimanja"
 
 #: ../pkg/playground/test.js:14
 msgid "Translation"
@@ -748,39 +742,37 @@ msgstr ""
 
 #: ../pkg/dashboard/list.js:226
 msgid "The user <b>$0</b> is not permitted to manage servers"
-msgstr "Ao usuário <b>$0</b> não é permitido gerenciar servidores"
+msgstr "Korisniku <b>$0</b> nije dozvoljeno da upravlja poslužiteljima"
 
 #: ../pkg/dashboard/list.js:407
 msgid ""
 "You are currently connected directly to this server. You cannot delete it."
-msgstr ""
-"Você está conectado diretamente a este servidor. Você não pode excluí-lo."
+msgstr "Trenutno ste izravno spojeni na ovaj server. Ne možete ga izbrisati."
 
 #: ../pkg/kubernetes/node.js:63
 msgid "Please type an address"
-msgstr ""
+msgstr "Unesite adresu"
 
 #: ../pkg/kubernetes/node.js:65
 msgid "The address contains invalid characters"
-msgstr ""
+msgstr "Adresa sadrži neispravne znakove"
 
 #: ../pkg/kubernetes/node.js:72
 msgid "The name contains invalid charaters"
-msgstr ""
+msgstr "Naziv sadrži neispravne znakove"
 
 #: ../pkg/kubernetes/details.js:27
 msgid "Delete $0 $1?"
-msgstr ""
+msgstr "Izbriši $0 $1?"
 
 #: ../pkg/kubernetes/details.js:69
-#, fuzzy
 msgid "Not a valid value for Host"
-msgstr "Não é um número válido de réplicas"
+msgstr ""
 
 #: ../pkg/kubernetes/details.js:81 ../pkg/kubernetes/details.js:147
 #: ../pkg/kubernetes/adjust.js:123
 msgid "Updating $0..."
-msgstr "Atualizando $0..."
+msgstr "Ažuriranje $0..."
 
 #: ../pkg/kubernetes/details.js:90
 msgid "Unable to modify Routes"
@@ -788,25 +780,25 @@ msgstr ""
 
 #: ../pkg/kubernetes/details.js:133 ../pkg/kubernetes/adjust.js:107
 msgid "Not a valid number of replicas"
-msgstr "Não é um número válido de réplicas"
+msgstr ""
 
 #: ../pkg/kubernetes/details.js:135 ../pkg/kubernetes/adjust.js:109
 msgid "The maximum number of replicas is 128"
-msgstr "O número máximo de réplicas é 128"
+msgstr "Maksimalan broj replika je 128"
 
 #: ../pkg/kubernetes/details.js:331
 #: ../pkg/kubernetes/views/service-panel.html.h:1
 #: ../pkg/kubernetes/views/details-page.html.h:11
 #: ../pkg/kubernetes/views/node-panel.html.h:12
 msgid "Ready"
-msgstr "Pronto"
+msgstr "Spreman"
 
 #: ../pkg/kubernetes/details.js:331
 #: ../pkg/kubernetes/views/service-panel.html.h:2
 #: ../pkg/kubernetes/views/details-page.html.h:12
 #: ../pkg/kubernetes/views/node-panel.html.h:13
 msgid "Not Ready"
-msgstr "Não está pronto"
+msgstr ""
 
 #: ../pkg/kubernetes/details.js:348 ../pkg/networkmanager/interfaces.js:545
 #: ../pkg/networkmanager/interfaces.js:949
@@ -815,59 +807,56 @@ msgstr "Não está pronto"
 #: ../pkg/registry/views/image-body.html.h:4
 #: ../pkg/kubernetes/views/node-panel.html.h:14
 msgid "Unknown"
-msgstr "Desconhecido"
+msgstr "Nepoznato"
 
 #: ../pkg/kubernetes/client.js:523
 msgid "Couldn't find running kube-apiserver"
-msgstr "Não foi possível encontrar kube-apiserver em execução"
+msgstr ""
 
 #: ../pkg/kubernetes/client.js:1473
 msgid "Invalid kubernetes application manifest"
-msgstr "Manifesto do aplicativo kubernetes inválidos"
+msgstr ""
 
 #: ../pkg/kubernetes/client.js:1499
 msgid "Unsupported kubernetes object in data"
-msgstr "Kubernetes não suportados objeto em dados"
+msgstr ""
 
 #: ../pkg/kubernetes/client.js:1586
 msgid "Unsupported or incompatible kubernetes API server."
-msgstr "Kubernetes não suportados ou incompatíveis no servidor API ."
+msgstr ""
 
 #: ../pkg/kubernetes/client.js:1588
 msgid "Could not connect to kubernetes API server."
-msgstr "Não foi possível conectar a API do servidor kubernetes."
+msgstr ""
 
 #: ../pkg/kubernetes/deploy.js:78
 msgid "Please create another namespace for $0 \"$1\""
-msgstr "Por favor, crie outro namespace para $0 \"$1\""
+msgstr ""
 
 #: ../pkg/kubernetes/deploy.js:263 ../pkg/kubernetes/deploy.js:300
 msgid "Namespace cannot be empty."
-msgstr "Namespace não pode estar vazio ."
+msgstr ""
 
 #: ../pkg/kubernetes/deploy.js:265 ../pkg/kubernetes/deploy.js:302
 msgid "Please provide a valid namespace."
-msgstr "Por favor, forneça um namespace válido."
+msgstr ""
 
 #: ../pkg/kubernetes/deploy.js:315
 msgid ""
 "No metadata file was selected. Please select a Kubernetes metadata file."
 msgstr ""
-"Nenhum arquivo de metadados foi selecionado. Por favor, selecione um arquivo "
-"de metadados Kubernetes ."
 
 #: ../pkg/kubernetes/deploy.js:317
 msgid "The selected file is not a valid Kubernetes application manifest."
 msgstr ""
-"O arquivo selecionado não é um manifesto do aplicativo Kubernetes válido."
 
 #: ../pkg/kubernetes/deploy.js:332
 msgid "Unable to read the Kubernetes application manifest. Code $0."
-msgstr "Não é possível ler o manifesto do aplicativo Kubernetes . Código $0."
+msgstr ""
 
 #: ../pkg/kubernetes/deploy.js:349
 msgid "Nulecule field cannot be empty."
-msgstr "Nulecule campo não pode ficar vazio."
+msgstr ""
 
 #: ../pkg/kubernetes/deploy.js:413 ../pkg/kubernetes/views/route-panel.html.h:2
 #: ../pkg/kubernetes/views/containers-page.html.h:5
@@ -878,7 +867,7 @@ msgstr "Nulecule campo não pode ficar vazio."
 #: ../pkg/kubernetes/views/dashboard-page.html.h:9
 #: ../pkg/kubernetes/views/details-page.html.h:8
 msgid "Namespace"
-msgstr "Namespace"
+msgstr ""
 
 #: ../pkg/kubernetes/deploy.js:415
 #: ../pkg/registry/views/imagestream-modify.html.h:4
@@ -891,11 +880,11 @@ msgstr "Namespace"
 #: ../pkg/kubernetes/views/dashboard-page.html.h:8
 #: ../pkg/kubernetes/views/details-page.html.h:7
 msgid "Project"
-msgstr "Projeto"
+msgstr "Projekt"
 
 #: ../pkg/kubernetes/deploy.js:418 ../pkg/kubernetes/deploy.js:468
 msgid "Select Manifest File..."
-msgstr "Selecione Arquivo Manifest ..."
+msgstr "Odaberite manifest datoteku..."
 
 #: ../pkg/kubernetes/images.js:351
 msgid " + $0 more"
@@ -904,24 +893,24 @@ msgstr ""
 #: ../pkg/kubernetes/images.js:353
 #, fuzzy
 msgid "$0 image"
-msgstr "Execute imagem"
+msgstr "Pokreni presliku"
 
 #: ../pkg/kubernetes/images.js:353
 #, fuzzy
 msgid "$0 images"
-msgstr "Execute imagem"
+msgstr "Pokreni presliku"
 
 #: ../pkg/kubernetes/graphs.js:516
 msgid "CPU"
-msgstr ""
+msgstr "CPU"
 
 #: ../pkg/kubernetes/graphs.js:521
 msgid "Memory"
-msgstr ""
+msgstr "Memorija"
 
 #: ../pkg/kubernetes/graphs.js:526
 msgid "Network"
-msgstr ""
+msgstr "Mreža"
 
 #: ../pkg/kubernetes/nulecule.js:142
 msgid "The image is not a correctly labeled Nulecule image."
@@ -933,16 +922,16 @@ msgstr ""
 
 #: ../pkg/kubernetes/nulecule.js:177
 msgid "The 'atomic' command is not installed on the system."
-msgstr ""
+msgstr "Naredba 'atomic' nije dostupna na sustavu."
 
 #: ../pkg/kubernetes/nulecule.js:187
 msgid "The 'atomic' command version $0 is not supported."
-msgstr ""
+msgstr "Inačica $0 naredbe 'atomic' nije podržana."
 
 #: ../pkg/kubernetes/nulecule.js:210
 #, fuzzy
 msgid "Unable to start docker"
-msgstr "Falha ao iniciar Docker: $0"
+msgstr "Pokretanje Docker-a neuspjelo: $0"
 
 #: ../pkg/kubernetes/nulecule.js:233
 msgid "Unable to pull Nulecule app image."
@@ -954,11 +943,11 @@ msgstr ""
 
 #: ../pkg/kubernetes/nulecule.js:315
 msgid "Installing ..."
-msgstr ""
+msgstr "Instalacija ..."
 
 #: ../pkg/kubernetes/nulecule.js:322
 msgid "Running ..."
-msgstr ""
+msgstr "Izvršavanje ..."
 
 #: ../pkg/kubernetes/nulecule.js:371
 msgid "Image failed to "
@@ -985,8 +974,9 @@ msgid "atomicapp version $0 is not supported."
 msgstr ""
 
 #: ../pkg/kubernetes/nulecule.js:512
+#, fuzzy
 msgid "Only atomicapp version gretater than $0 is supported."
-msgstr ""
+msgstr "Inačica $0 naredbe 'atomic' nije podržana."
 
 #: ../pkg/kubernetes/nulecule.js:551
 msgid "Image failed to run."
@@ -995,120 +985,119 @@ msgstr ""
 #. NM_DEVICE_STATE_UNAVAILABLE
 #: ../pkg/networkmanager/interfaces.js:707
 msgid "Not available"
-msgstr "Indisponível"
+msgstr "Nije dostupno"
 
 #. NM_DEVICE_STATE_DISCONNECTED
 #: ../pkg/networkmanager/interfaces.js:709
 #: ../pkg/networkmanager/interfaces.js:1166
 #: ../pkg/networkmanager/interfaces.js:1888
 msgid "Inactive"
-msgstr "Inativo"
+msgstr "Neaktivan"
 
 #. NM_DEVICE_STATE_PREPARE
 #: ../pkg/networkmanager/interfaces.js:711
 msgid "Preparing"
-msgstr "Preparando"
+msgstr "Pripremanje"
 
 #. NM_DEVICE_STATE_CONFIG
 #: ../pkg/networkmanager/interfaces.js:713
 msgid "Configuring"
-msgstr "Configurando"
+msgstr "Podešavanje"
 
 #. NM_DEVICE_STATE_NEED_AUTH
 #: ../pkg/networkmanager/interfaces.js:715
 msgid "Authenticating"
-msgstr "Autenticando"
+msgstr "Autoriziranje"
 
 #. NM_DEVICE_STATE_IP_CONFIG
 #: ../pkg/networkmanager/interfaces.js:717
 msgid "Configuring IP"
-msgstr "Configurando IP"
+msgstr "Podešavanje IP"
 
 #. NM_DEVICE_STATE_IP_CHECK
 #: ../pkg/networkmanager/interfaces.js:719
 msgid "Checking IP"
-msgstr "Checando IP"
+msgstr "Provjera IP"
 
 #. NM_DEVICE_STATE_SECONDARIES
 #: ../pkg/networkmanager/interfaces.js:721
 msgid "Waiting"
-msgstr "Aguardando"
+msgstr "Čekanje"
 
 #. NM_DEVICE_STATE_ACTIVATED
 #: ../pkg/networkmanager/interfaces.js:723
 msgid "Active"
-msgstr "Ativo"
+msgstr "Aktivno"
 
 #. NM_DEVICE_STATE_DEACTIVATING
 #: ../pkg/networkmanager/interfaces.js:725
 msgid "Deactivating"
-msgstr "Desativando"
+msgstr "Deaktiviram"
 
 #. NM_DEVICE_STATE_FAILED
 #: ../pkg/networkmanager/interfaces.js:727 ../pkg/ostree/index.html.h:14
 msgid "Failed"
-msgstr "Falhou"
+msgstr "Neuspjelo"
 
 #: ../pkg/networkmanager/interfaces.js:1168
 msgid "No carrier"
-msgstr "Sem sinal"
+msgstr ""
 
 #: ../pkg/networkmanager/interfaces.js:1208
 msgid "Part of "
-msgstr "Parte de"
+msgstr "Dio"
 
 #: ../pkg/networkmanager/interfaces.js:1255
 msgid "The user <b>$0</b> is not permitted to modify network settings"
 msgstr ""
-"O usuário <b>$0</b> não tem permissão para modificar as configurações de rede"
 
 #: ../pkg/networkmanager/interfaces.js:1316
 #: ../pkg/networkmanager/interfaces.js:1630
 msgctxt "page-title"
 msgid "Networking"
-msgstr "Networking"
+msgstr "Mreža"
 
 #: ../pkg/networkmanager/interfaces.js:1582
 msgid "Automatic (DHCP)"
-msgstr "Automático (DHCP)"
+msgstr "Automatski (DHCP)"
 
 #: ../pkg/networkmanager/interfaces.js:1583
 #: ../pkg/networkmanager/interfaces.js:1593
 msgid "Link local"
-msgstr "Link Local"
+msgstr ""
 
 #: ../pkg/networkmanager/interfaces.js:1584
 #: ../pkg/networkmanager/interfaces.js:1594
 msgid "Manual"
-msgstr "Manual"
+msgstr "Ručno"
 
 #: ../pkg/networkmanager/interfaces.js:1585
 msgid "Shared"
-msgstr "Compartilhado"
+msgstr "Dijeljenje"
 
 #: ../pkg/networkmanager/interfaces.js:1592
 msgid "Automatic (DHCP only)"
-msgstr "Automático (apenas DHCP)"
+msgstr "Automatski (samo DHCP)"
 
 #: ../pkg/networkmanager/interfaces.js:1595
 msgid "Ignore"
-msgstr "Ignorar"
+msgstr "Ignoriraj"
 
 #: ../pkg/networkmanager/interfaces.js:1600
 msgid "Round Robin"
-msgstr "Round Robin"
+msgstr ""
 
 #: ../pkg/networkmanager/interfaces.js:1601
 msgid "Active Backup"
-msgstr "Backup Ativo"
+msgstr ""
 
 #: ../pkg/networkmanager/interfaces.js:1602
 msgid "XOR"
-msgstr "XOR"
+msgstr "XILI"
 
 #: ../pkg/networkmanager/interfaces.js:1603
 msgid "Broadcast"
-msgstr "Broadcast"
+msgstr "Emitiranje"
 
 #: ../pkg/networkmanager/interfaces.js:1604
 msgid "802.3ad"
@@ -1116,15 +1105,15 @@ msgstr "802.3ad"
 
 #: ../pkg/networkmanager/interfaces.js:1605
 msgid "Adaptive transmit load balancing"
-msgstr "Transmissão dinâmica de balanceamento de carga"
+msgstr ""
 
 #: ../pkg/networkmanager/interfaces.js:1606
 msgid "Adaptive load balancing"
-msgstr "Balanceamento de carga dinâmico"
+msgstr ""
 
 #: ../pkg/networkmanager/interfaces.js:1611
 msgid "MII (Recommended)"
-msgstr "MII (Recomendado)"
+msgstr ""
 
 #: ../pkg/networkmanager/interfaces.js:1612
 msgid "ARP"
@@ -1134,7 +1123,7 @@ msgstr "ARP"
 #: ../pkg/networkmanager/interfaces.js:1847
 #: ../pkg/networkmanager/interfaces.js:2043
 msgid "Bond"
-msgstr "Bond"
+msgstr ""
 
 #: ../pkg/networkmanager/interfaces.js:1841
 #: ../pkg/networkmanager/interfaces.js:1849
@@ -1146,19 +1135,19 @@ msgstr "VLAN"
 #: ../pkg/networkmanager/interfaces.js:1851
 #: ../pkg/networkmanager/interfaces.js:2069
 msgid "Bridge"
-msgstr "Bridge"
+msgstr ""
 
 #: ../pkg/networkmanager/interfaces.js:1872
 msgid "Carrier"
-msgstr "Sinal"
+msgstr "Nosioc"
 
 #: ../pkg/networkmanager/interfaces.js:1875
 msgid "Yes"
-msgstr "Sim"
+msgstr "Da"
 
 #: ../pkg/networkmanager/interfaces.js:1876
 msgid "No"
-msgstr "Não"
+msgstr "Ne"
 
 #: ../pkg/networkmanager/interfaces.js:1895
 #: ../pkg/kubernetes/views/containers-page.html.h:7
@@ -1166,60 +1155,60 @@ msgstr "Não"
 #: ../pkg/kubernetes/views/node-panel.html.h:11
 #: ../pkg/subscriptions/index.html.h:45
 msgid "Status"
-msgstr "Estado"
+msgstr "Stanje"
 
 #: ../pkg/networkmanager/interfaces.js:1928
 msgid "Unknown configuration"
-msgstr "Configuração desconhecida"
+msgstr "Nepoznata konfiguracija"
 
 #: ../pkg/networkmanager/interfaces.js:2002
 msgid "Configure"
-msgstr "Configurar"
+msgstr "Konfiguriranje"
 
 #: ../pkg/networkmanager/interfaces.js:2019
 msgid "Master"
-msgstr "Mestre"
+msgstr "Glavni"
 
 #: ../pkg/networkmanager/interfaces.js:2038
 msgid "ARP Monitoring"
-msgstr "ARP Monitoramento"
+msgstr "ARP nadziranje"
 
 #: ../pkg/networkmanager/interfaces.js:2058
 msgid "Spanning Tree Protocol"
-msgstr "Spanning Tree Protocol (STP)"
+msgstr "Spanning Tree Protokol"
 
 #: ../pkg/networkmanager/interfaces.js:2060
 #: ../pkg/networkmanager/interfaces.js:2084
 msgid "Priority $priority"
-msgstr "Prioridade $priority"
+msgstr "Prioritet $priority"
 
 #: ../pkg/networkmanager/interfaces.js:2062
 msgid "Forward delay $forward_delay"
-msgstr "Encaminhado Atraso $forward_delay"
+msgstr "Odgoda prosljeđivanja $forward_delay"
 
 #: ../pkg/networkmanager/interfaces.js:2064
 msgid "Hello time $hello_time"
-msgstr "Hello time $hello_time"
+msgstr "Hello vrijeme $hello_time"
 
 #: ../pkg/networkmanager/interfaces.js:2066
 msgid "Maximum message age $max_age"
-msgstr "Máxima permanência da mensagem $max_age"
+msgstr "Maksimalna starost poruke $max_age"
 
 #: ../pkg/networkmanager/interfaces.js:2086
 msgid "Path cost $path_cost"
-msgstr "Path cost $path_cost"
+msgstr "Trošak putanje $path_cost"
 
 #: ../pkg/networkmanager/interfaces.js:2088
 msgid "Hairpin mode"
-msgstr "Hairpin modo"
+msgstr ""
 
 #: ../pkg/networkmanager/interfaces.js:2090
 msgid "Bridge port"
-msgstr "Bridge porta"
+msgstr ""
 
 #: ../pkg/networkmanager/interfaces.js:2104
 msgid "Parent $parent"
-msgstr "Parent $parent"
+msgstr "Roditelj $parent"
 
 #: ../pkg/networkmanager/interfaces.js:2105
 msgid "Id $id"
@@ -1227,11 +1216,11 @@ msgstr "Id $id"
 
 #: ../pkg/networkmanager/interfaces.js:2113
 msgid "General"
-msgstr "Geral"
+msgstr "Općenito"
 
 #: ../pkg/networkmanager/interfaces.js:2122
 msgid "Connect automatically"
-msgstr "Conecte automaticamente"
+msgstr "Automatski uspostavi vezu"
 
 #: ../pkg/networkmanager/interfaces.js:2123
 msgid "IPv4"
@@ -1245,7 +1234,7 @@ msgstr "IPv6"
 #: ../pkg/registry/views/project-listing.html.h:5
 #: ../pkg/networkmanager/index.html.h:28
 msgid "Members"
-msgstr "Membros"
+msgstr "Članovi"
 
 #: ../pkg/networkmanager/interfaces.js:2209
 #: ../pkg/registry/views/image-config.html.h:6 ../pkg/docker/index.html.h:24
@@ -1253,7 +1242,7 @@ msgstr "Membros"
 #: ../pkg/kubernetes/views/service-panel.html.h:8
 #: ../pkg/networkmanager/index.html.h:19
 msgid "Ports"
-msgstr "Portas"
+msgstr "Portovi"
 
 #: ../pkg/networkmanager/interfaces.js:2429
 msgid "-"
@@ -1261,16 +1250,16 @@ msgstr "-"
 
 #: ../pkg/networkmanager/interfaces.js:2444
 msgid "Prefix length or Netmask"
-msgstr "Comprimento do prefixo ou máscara de rede"
+msgstr "Prefiks ili mrežna maska"
 
 #: ../pkg/networkmanager/interfaces.js:2444
 msgid "Prefix length"
-msgstr "Comprimento do prefixo"
+msgstr "Prefiks"
 
 #: ../pkg/networkmanager/interfaces.js:2447
 #: ../pkg/kubernetes/views/details-page.html.h:9
 msgid "Addresses"
-msgstr "Endereços"
+msgstr "Adresa"
 
 #: ../pkg/networkmanager/interfaces.js:2454
 msgid "DNS"
@@ -1278,24 +1267,25 @@ msgstr "DNS"
 
 #: ../pkg/networkmanager/interfaces.js:2458
 msgid "DNS Search Domains"
-msgstr "DNS Busca de Domínios"
+msgstr "DNS traži domene"
 
 #: ../pkg/networkmanager/interfaces.js:2463
 #: ../pkg/kubernetes/views/details-page.html.h:13
 msgid "Routes"
-msgstr "Rotas"
+msgstr "Putanje"
 
 #: ../pkg/networkmanager/interfaces.js:2497
 msgid "IPv4 Settings"
-msgstr "IPv4 Ajustes"
+msgstr "IPv4 Postavke"
 
 #: ../pkg/networkmanager/interfaces.js:2497
 msgid "IPv6 Settings"
-msgstr "IPv6 Ajustes"
+msgstr "IPv6 Postavke"
 
 #: ../pkg/ostree/client.js:60
+#, fuzzy
 msgid "Receiving delta parts"
-msgstr ""
+msgstr "Primanje"
 
 #: ../pkg/ostree/client.js:62
 msgid "Receiving metadata objects"
@@ -1316,17 +1306,17 @@ msgstr ""
 #: ../pkg/ostree/client.js:489
 #, fuzzy
 msgid "OS $0 not found"
-msgstr "Não encontrado"
+msgstr "Nije pronađeno"
 
 #: ../pkg/ostree/app.js:76
 #, fuzzy
 msgid "Not authorized to update software on this system"
-msgstr "Não autorizado para acessar Docker neste sistema"
+msgstr "Nemate dopuštenje da pristupite Docker-u na ovom sustavu"
 
 #: ../pkg/ostree/app.js:78
 #, fuzzy
 msgid "OSTree is not available on this system"
-msgstr "Docker não está instalado ou ativado no sistema"
+msgstr "Nije moguće pristupiti domeni jer realmd nije dostupan na ovom sustavu"
 
 #: ../pkg/ostree/app.js:96
 msgid "No OSTree deployments found"
@@ -1347,35 +1337,35 @@ msgstr ""
 #: ../pkg/storaged/overview.js:182
 msgctxt "storage"
 msgid "Hard Disk"
-msgstr "Hard Disk"
+msgstr "Tvrdi disk"
 
 #: ../pkg/storaged/overview.js:184
 msgctxt "storage"
 msgid "Solid-State Disk"
-msgstr "Solid-State Disk"
+msgstr "SSD disk"
 
 #: ../pkg/storaged/overview.js:187 ../pkg/storaged/overview.js:189
 msgctxt "storage"
 msgid "Removable Drive"
-msgstr "Removable Drive"
+msgstr ""
 
 #: ../pkg/storaged/overview.js:191
 msgctxt "storage"
 msgid "Optical Drive"
-msgstr "Optical Drive"
+msgstr "Optički pogon"
 
 #: ../pkg/storaged/overview.js:194 ../pkg/storaged/overview.js:196
 msgctxt "storage"
 msgid "Drive"
-msgstr "Drive"
+msgstr "Pogon"
 
 #: ../pkg/storaged/overview.js:255
 msgid "$0 Block Device"
-msgstr ""
+msgstr "$0 Blok uređaj"
 
 #: ../pkg/storaged/overview.js:410
 msgid "Create RAID Device"
-msgstr "Criar dispositivo RAID"
+msgstr "Stvori RAID uređaj"
 
 #: ../pkg/storaged/overview.js:413 ../pkg/storaged/overview.js:471
 #: ../pkg/storaged/overview.js:604 ../pkg/storaged/overview.js:682
@@ -1392,40 +1382,40 @@ msgstr "Criar dispositivo RAID"
 #: ../pkg/kubernetes/index.html.h:26 ../pkg/networkmanager/index.html.h:14
 #: ../pkg/storaged/index.html.h:18
 msgid "Name"
-msgstr "Nome"
+msgstr "Naziv"
 
 #: ../pkg/storaged/overview.js:416
 msgid "RAID Level"
-msgstr "Nível de RAID"
+msgstr "RAID razina"
 
 #: ../pkg/storaged/overview.js:418
 msgid "RAID 0 (Stripe)"
-msgstr "RAID 0 (Distribuição)"
+msgstr "RAID 0 (Stripe)"
 
 #: ../pkg/storaged/overview.js:419
 msgid "RAID 1 (Mirror)"
-msgstr "RAID 1 (Espelhamento)"
+msgstr "RAID 1 (Mirror)"
 
 #: ../pkg/storaged/overview.js:420
 msgid "RAID 4 (Dedicated Parity)"
-msgstr "RAID 4 (Paridade Dedicada)"
+msgstr "RAID 4 (Dedicated Parity)"
 
 #: ../pkg/storaged/overview.js:421
 msgid "RAID 5 (Distributed Parity)"
-msgstr "RAID 5 (Paridade Distribuída)"
+msgstr "RAID 5 (Distributed Parity)"
 
 #: ../pkg/storaged/overview.js:422
 msgid "RAID 6 (Double Distributed Parity)"
-msgstr "RAID 6 (Paridade Duplamente Distribuída)"
+msgstr "RAID 6 (Double Distributed Parity)"
 
 #: ../pkg/storaged/overview.js:423
 #, fuzzy
 msgid "RAID 10 (Stripe of Mirrors)"
-msgstr "RAID 0 (Distribuição)"
+msgstr "RAID 0 (Stripe)"
 
 #: ../pkg/storaged/overview.js:427
 msgid "Chunk Size"
-msgstr "Tamanho do Bloco"
+msgstr ""
 
 #: ../pkg/storaged/overview.js:429
 msgid "4 KB"
@@ -1467,11 +1457,11 @@ msgstr "2 MB"
 #: ../pkg/storaged/details.js:516 ../pkg/storaged/details.js:797
 #: ../pkg/storaged/index.html.h:56
 msgid "Disks"
-msgstr "Discos"
+msgstr ""
 
 #: ../pkg/storaged/overview.js:451
 msgid "At least $0 disks are needed."
-msgstr ""
+msgstr "Najmanje $0 diskova  je potrebno."
 
 #: ../pkg/storaged/overview.js:457 ../pkg/storaged/overview.js:486
 #: ../pkg/storaged/details.js:644 ../pkg/storaged/details.js:677
@@ -1480,11 +1470,11 @@ msgstr ""
 #: ../pkg/registry/views/add-project-dialog.html.h:6
 #: ../pkg/registry/views/add-group-dialog.html.h:6
 msgid "Create"
-msgstr ""
+msgstr "Izradi"
 
 #: ../pkg/storaged/overview.js:468
 msgid "Create Volume Group"
-msgstr "Criar Grupo de Volumes"
+msgstr ""
 
 #: ../pkg/storaged/overview.js:481 ../pkg/storaged/details.js:528
 #: ../pkg/storaged/details.js:812
@@ -1498,21 +1488,21 @@ msgstr ""
 #: ../pkg/storaged/overview.js:498
 #, fuzzy
 msgid "Server Address"
-msgstr "Endereço"
+msgstr "IP adresa"
 
 #: ../pkg/storaged/overview.js:501
 #, fuzzy
 msgid "Server address can not be empty."
-msgstr "Nome de usuário não pode ser vazio ."
+msgstr "Korisničko ime ne može biti prazno."
 
 #: ../pkg/storaged/overview.js:513 ../pkg/realmd/operation.html.h:11
 msgid "Next"
-msgstr "Próximo"
+msgstr "Sljedeće"
 
 #: ../pkg/storaged/overview.js:557 ../pkg/storaged/overview.js:648
 #, fuzzy
 msgid "Invalid username or password"
-msgstr "Usuário ou senha inválido."
+msgstr "Administrativna Lozinka"
 
 #: ../pkg/storaged/overview.js:562
 msgid "Unknown host name"
@@ -1528,7 +1518,7 @@ msgstr ""
 
 #: ../pkg/storaged/overview.js:603 ../pkg/systemd/services.html.h:2
 msgid "Targets"
-msgstr "Alvos"
+msgstr ""
 
 #: ../pkg/storaged/overview.js:604 ../pkg/shell/templates/add-machine.html.h:2
 #: ../pkg/kubernetes/views/dashboard-page.html.h:6
@@ -1536,12 +1526,12 @@ msgstr "Alvos"
 #: ../pkg/kubernetes/views/node-panel.html.h:2
 #: ../pkg/kubernetes/index.html.h:41
 msgid "Address"
-msgstr "Endereço"
+msgstr "Adresa"
 
 #: ../pkg/storaged/overview.js:604 ../pkg/shell/templates/change-port.html.h:5
 #, fuzzy
 msgid "Port"
-msgstr "Portas"
+msgstr "Portovi"
 
 #: ../pkg/storaged/overview.js:609 ../pkg/storaged/overview.js:637
 #: ../pkg/storaged/details.js:533 ../pkg/storaged/details.js:817
@@ -1549,11 +1539,12 @@ msgstr "Portas"
 #: ../pkg/registry/views/add-user-dialog.html.h:9
 #: ../pkg/kubernetes/index.html.h:44
 msgid "Add"
-msgstr "Adicionar"
+msgstr "Dodaj"
 
 #: ../pkg/storaged/overview.js:679
+#, fuzzy
 msgid "Change iSCSI Initiator Name"
-msgstr ""
+msgstr "Naziv Domenskog Administratora"
 
 #: ../pkg/storaged/overview.js:687
 msgid "Change"
@@ -1563,7 +1554,7 @@ msgstr ""
 #: ../pkg/storaged/utils.js:65
 msgctxt "format-bytes"
 msgid "bytes"
-msgstr "bytes"
+msgstr "bajtova"
 
 #: ../pkg/storaged/utils.js:106
 msgid "Name can not be empty."
@@ -1583,23 +1574,23 @@ msgstr ""
 
 #: ../pkg/storaged/utils.js:134
 msgid "$name (from $host)"
-msgstr "$nome(vindo de $host)"
+msgstr ""
 
 #: ../pkg/storaged/utils.js:143
 msgid "Pool for Thin Logical Volumes"
-msgstr "Buscando por  Thin Logical Volumes"
+msgstr ""
 
 #: ../pkg/storaged/utils.js:145
 msgid "Thin Logical Volume"
-msgstr "Thin Logical Volume"
+msgstr ""
 
 #: ../pkg/storaged/utils.js:147
 msgid "Logical Volume (Snapshot)"
-msgstr "Volume Lógico (Snapshot)"
+msgstr ""
 
 #: ../pkg/storaged/utils.js:149
 msgid "Logical Volume"
-msgstr "Volume Lógico"
+msgstr ""
 
 #: ../pkg/storaged/utils.js:189
 msgid "<span>Encrypted Logical Volume of $0</span>"
@@ -1623,7 +1614,7 @@ msgstr ""
 
 #: ../pkg/storaged/utils.js:210
 msgid "RAID Device $0"
-msgstr ""
+msgstr "RAID uređaj $0"
 
 #: ../pkg/storaged/utils.js:216
 msgid "Volume Group $0"
@@ -1635,7 +1626,7 @@ msgstr ""
 
 #: ../pkg/storaged/details.js:87
 msgid "Device $0 is a member of RAID Array $1"
-msgstr ""
+msgstr "Uređaj $0 je član RAID niza $1"
 
 #: ../pkg/storaged/details.js:93
 msgid "Device $0 is a physical volume of $1"
@@ -1647,7 +1638,7 @@ msgstr ""
 
 #: ../pkg/storaged/details.js:111
 msgid "Format $0"
-msgstr "Formate $0"
+msgstr "Format $0"
 
 #: ../pkg/storaged/details.js:125 ../pkg/storaged/details.js:581
 #: ../pkg/storaged/details.js:636 ../pkg/storaged/details.js:672
@@ -1655,23 +1646,23 @@ msgstr "Formate $0"
 #: ../pkg/kubernetes/views/imagerepository-panel.html.h:7
 #: ../pkg/storaged/index.html.h:20
 msgid "Size"
-msgstr ""
+msgstr "Veličina"
 
 #: ../pkg/storaged/details.js:133
 msgid "Size must be specified."
-msgstr ""
+msgstr "Veličina mora biti specificirana."
 
 #: ../pkg/storaged/details.js:135
 msgid "Size can not be zero."
-msgstr ""
+msgstr "Veličina ne može biti nula."
 
 #: ../pkg/storaged/details.js:139 ../pkg/storaged/details.js:288
 msgid "Erase"
-msgstr "Apagar"
+msgstr "Izbriši"
 
 #: ../pkg/storaged/details.js:141 ../pkg/storaged/details.js:290
 msgid "Don't overwrite existing data"
-msgstr ""
+msgstr "Ne piši preko postojećih podataka"
 
 #: ../pkg/storaged/details.js:142 ../pkg/storaged/details.js:291
 msgid "Overwrite existing data with zeros"
@@ -1680,7 +1671,7 @@ msgstr ""
 #: ../pkg/storaged/details.js:146 ../pkg/shell/index.html.h:3
 #: ../pkg/kubernetes/views/service-panel.html.h:7
 msgid "Type"
-msgstr "Tipo"
+msgstr "Tip"
 
 #: ../pkg/storaged/details.js:148
 msgid "XFS - Red Hat Enterprise Linux 7 default"
@@ -1692,27 +1683,27 @@ msgstr ""
 
 #: ../pkg/storaged/details.js:150
 msgid "Encrypted XFS (LUKS)"
-msgstr "Encriptado XFS (LUKS)"
+msgstr "Šifrirani XFS (LUKS)"
 
 #: ../pkg/storaged/details.js:151
 msgid "Encrypted EXT4 (LUKS)"
-msgstr "Encriptado EXT4 (LUKS)"
+msgstr "Šifrirani EXT4 (LUKS)"
 
 #: ../pkg/storaged/details.js:152
 msgid "VFAT - Compatible with all systems and devices"
-msgstr ""
+msgstr "VFAT - Kompatibilan sa svim sistemima i uređajima"
 
 #: ../pkg/storaged/details.js:153
 msgid "NTFS - Compatible with most systems"
-msgstr ""
+msgstr "NTFS - Kompatibilan sa većinom sistema"
 
 #: ../pkg/storaged/details.js:154
 msgid "Extended Partition"
-msgstr "Partição Extendida"
+msgstr "Proširena particija"
 
 #: ../pkg/storaged/details.js:157
 msgid "No Filesystem"
-msgstr "Nenhum Sistema de Arquivos"
+msgstr ""
 
 #: ../pkg/storaged/details.js:158
 msgid "Custom (Enter filesystem type)"
@@ -1724,72 +1715,72 @@ msgstr ""
 
 #: ../pkg/storaged/details.js:172 ../pkg/storaged/details.js:425
 msgid "Passphrase"
-msgstr "Frase-senha"
+msgstr "Lozinka(fraza)"
 
 #: ../pkg/storaged/details.js:175
 msgid "Passphrase can not be empty"
-msgstr ""
+msgstr "Lozinka(fraza) ne može biti prazna"
 
 #: ../pkg/storaged/details.js:180
 msgid "Confirm passphrase"
-msgstr ""
+msgstr "Potvrdi lozinku(frazu)"
 
 #: ../pkg/storaged/details.js:183
 msgid "Passphrases do not match"
-msgstr ""
+msgstr "Lozinke(fraze) se ne podudaraju"
 
 #: ../pkg/storaged/details.js:188
 msgid "Store passphrase"
-msgstr ""
+msgstr "Spremi lozinku(frazu)"
 
 #: ../pkg/storaged/details.js:192 ../pkg/storaged/details.js:473
 #: ../pkg/storaged/details.js:962
 msgid "Encryption Options"
-msgstr "Opções de Criptografia"
+msgstr "Opcije šifriranja"
 
 #: ../pkg/storaged/details.js:196 ../pkg/storaged/details.js:382
 msgid "Mounting"
-msgstr ""
+msgstr "Montiranje"
 
 #: ../pkg/storaged/details.js:198 ../pkg/storaged/details.js:384
 #: ../pkg/registry/views/image-config.html.h:2
 #: ../pkg/subscriptions/index.html.h:26
 msgid "Default"
-msgstr "Padrão"
+msgstr "Zadano"
 
 #: ../pkg/storaged/details.js:199 ../pkg/storaged/details.js:385
 msgid "Custom"
-msgstr "Personalizado"
+msgstr "Prilagođeno"
 
 #: ../pkg/storaged/details.js:204 ../pkg/storaged/details.js:389
 #: ../pkg/storaged/index.html.h:19
 msgid "Mount Point"
-msgstr "Ponto de Montagem"
+msgstr "Točka pristupa"
 
 #: ../pkg/storaged/details.js:210 ../pkg/storaged/details.js:396
 msgid "Mount Options"
-msgstr "Opções de Montagem"
+msgstr ""
 
 #: ../pkg/storaged/details.js:217
 msgid "Create partition"
-msgstr "Criar partição"
+msgstr "Načini particiju"
 
 #: ../pkg/storaged/details.js:217 ../pkg/storaged/details.js:306
 #: ../pkg/storaged/details.js:989
 msgid "Format"
-msgstr "Formate"
+msgstr ""
 
 #: ../pkg/storaged/details.js:219
 msgid "Formatting a storage device will erase all data on it."
-msgstr "Formatar esse dispositivo apagará todos os dados contidos nele."
+msgstr ""
 
 #: ../pkg/storaged/details.js:284
 msgid "Format Disk $0"
-msgstr "Formate Disco $0"
+msgstr ""
 
 #: ../pkg/storaged/details.js:295
 msgid "Partitioning"
-msgstr "Particionamento"
+msgstr ""
 
 #: ../pkg/storaged/details.js:297
 msgid "Compatible with all systems and devices (MBR)"
@@ -1805,11 +1796,11 @@ msgstr ""
 
 #: ../pkg/storaged/details.js:307
 msgid "Formatting a disk will erase all data on it."
-msgstr "A formatação de um disco apaga todos os dados do mesmo."
+msgstr ""
 
 #: ../pkg/storaged/details.js:375 ../pkg/storaged/details.js:956
 msgid "Filesystem Options"
-msgstr "Opções do Sistema de Arquivos"
+msgstr ""
 
 #: ../pkg/storaged/details.js:404 ../pkg/storaged/details.js:485
 msgid "Apply"
@@ -1818,15 +1809,15 @@ msgstr ""
 #: ../pkg/storaged/details.js:422 ../pkg/storaged/details.js:429
 #: ../pkg/storaged/details.js:961
 msgid "Unlock"
-msgstr "Destravar"
+msgstr ""
 
 #: ../pkg/storaged/details.js:476
 msgid "Stored Passphrase"
-msgstr "Frase-senha armazenada"
+msgstr ""
 
 #: ../pkg/storaged/details.js:480
 msgid "Options"
-msgstr "Opções"
+msgstr ""
 
 #: ../pkg/storaged/details.js:513 ../pkg/storaged/details.js:794
 msgid "Add Disks"
@@ -1846,7 +1837,7 @@ msgstr ""
 
 #: ../pkg/storaged/details.js:594 ../pkg/storaged/details.js:966
 msgid "Resize"
-msgstr "Re-dimensionar"
+msgstr ""
 
 #: ../pkg/storaged/details.js:609
 msgid "Renamee Logical Volume"
@@ -1855,15 +1846,15 @@ msgstr ""
 #: ../pkg/storaged/details.js:617 ../pkg/storaged/details.js:967
 #: ../pkg/storaged/details.js:1617
 msgid "Rename"
-msgstr "Renomear"
+msgstr ""
 
 #: ../pkg/storaged/details.js:629 ../pkg/storaged/details.js:971
 msgid "Create Snapshot"
-msgstr "Criar Snapshot"
+msgstr ""
 
 #: ../pkg/storaged/details.js:665 ../pkg/storaged/details.js:983
 msgid "Create Thin Volume"
-msgstr "Criar Thin Volume"
+msgstr ""
 
 #: ../pkg/storaged/details.js:691
 msgid "Rename Volume Group"
@@ -1871,7 +1862,7 @@ msgstr ""
 
 #: ../pkg/storaged/details.js:722
 msgid "Deleting a volume group will erase all data on it."
-msgstr "A exclusão de um grupo de volumes apaga todos os dados do mesmo."
+msgstr ""
 
 #: ../pkg/storaged/details.js:741
 msgid "Create Plain Volume"
@@ -1883,7 +1874,7 @@ msgstr ""
 
 #: ../pkg/storaged/details.js:770 ../pkg/storaged/details.js:1558
 msgid "Create Pool for Thin Logical Volumes"
-msgstr "Crie Demanda para  Volume Lógicos Pequenos"
+msgstr ""
 
 #: ../pkg/storaged/details.js:870
 msgid "Deleting a logical volume will delete all data in it."
@@ -1891,152 +1882,152 @@ msgstr ""
 
 #: ../pkg/storaged/details.js:873
 msgid "Deleting a partition will delete all data in it."
-msgstr "A exclusão de uma partição apaga todos os dados da mesma."
+msgstr ""
 
 #: ../pkg/storaged/details.js:954
 msgid "Mount"
-msgstr "Montar"
+msgstr ""
 
 #: ../pkg/storaged/details.js:955
 msgid "Unmount"
-msgstr "Desmontar"
+msgstr ""
 
 #: ../pkg/storaged/details.js:960
 msgid "Lock"
-msgstr "Travar"
+msgstr ""
 
 #: ../pkg/storaged/details.js:974
 msgid "Activate"
-msgstr "Ativar"
+msgstr ""
 
 #: ../pkg/storaged/details.js:977
 msgid "Deactivate"
-msgstr "Desativar"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1059
 msgctxt "storage-id-desc"
 msgid "$0 File System"
-msgstr "$0 Sistema de Arquivos"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1062
 msgctxt "storage-id-desc"
 msgid "Linux MD-RAID Component"
-msgstr "Linux MD-RAID Componente"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1064
 msgctxt "storage-id-desc"
 msgid "LVM2 Physical Volume"
-msgstr "LVM2 Volume Físico"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1066
 msgctxt "storage-id-desc"
 msgid "RAID Member"
-msgstr "RAID Membro"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1083
 msgctxt "storage-id-desc"
 msgid "LUKS Encrypted"
-msgstr "LUKS Encriptado"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1085
 msgctxt "storage-id-desc"
 msgid "Encrypted"
-msgstr "Encriptado"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1089
 msgctxt "storage-id-desc"
 msgid "Swap Space"
-msgstr "Swap Espaço"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1091
 msgctxt "storage-id-desc"
 msgid "Other Data"
-msgstr "Outros Dados"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1094
 msgctxt "storage-id-desc"
 msgid "Unrecognized Data"
-msgstr "Dados não reconhecidos"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1099 ../pkg/storaged/details.js:1105
 msgid "$size $partition"
-msgstr "$tamanho $partição"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1116
 msgid "mounted on $0"
-msgstr "montado em $0"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1118
 msgid "not mounted"
-msgstr "não montado"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1122
 msgid "unlocked"
-msgstr "desbloqueado"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1124
 msgid "locked"
-msgstr "bloqueado"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1193
 msgid "$0 Free Space for Logical Partitions"
-msgstr "$0 Espaço Livre para Partições Lógicas"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1196
 msgid "$0 Free Space for Primary Partitions"
-msgstr "$0 Espaço Livre para Partições Primarias"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1201
 msgid "$0 Free Space"
-msgstr "$0 Espaço Livre"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1205
 msgid "Create Partition"
-msgstr "Criar Partição"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1213
 msgid "$0 Extended Partition"
-msgstr "$0 Partição Extendida"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1250
 msgid "Logical Partition"
-msgstr "Partição Lógica"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1252
 msgid "Primary Partition"
-msgstr "Partição Primária"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1254
 msgid "Partition"
-msgstr "Partição"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1336 ../pkg/storaged/details.js:1480
 msgid "Content"
-msgstr "Conteúdo"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1354
 msgid "RAID 0"
-msgstr "RAID 0"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1355
 msgid "RAID 1"
-msgstr "RAID 1"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1356
 msgid "RAID 4"
-msgstr "RAID 4"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1357
 msgid "RAID 5"
-msgstr "RAID 5"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1358
 msgid "RAID 6"
-msgstr "RAID 6"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1359
 msgid "RAID 10"
-msgstr "RAID 10"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1360
 msgid "RAID ($0)"
@@ -2044,7 +2035,7 @@ msgstr ""
 
 #: ../pkg/storaged/details.js:1365
 msgid "$0 Disks"
-msgstr "$0 Discos"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1367
 msgid "$0 Chunk Size"
@@ -2052,7 +2043,7 @@ msgstr ""
 
 #: ../pkg/storaged/details.js:1378
 msgid "Data Scrubbing"
-msgstr "Dados Varridos"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1379
 msgid "Data Scrubbing and Repair"
@@ -2064,21 +2055,21 @@ msgstr ""
 
 #: ../pkg/storaged/details.js:1381
 msgid "Recovering "
-msgstr "Recuperando"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1382
 msgid "Frozen"
-msgstr "Congelado"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1389
 #, javascript-format
 msgid "$action, ${percent}% complete at $rate"
-msgstr "$action, ${percent}% completo em $rate"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1393
 #, javascript-format
 msgid "$action, ${percent}% complete"
-msgstr "$action, ${percent}% completo"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1398
 msgid ", $0 remaining"
@@ -2091,57 +2082,56 @@ msgstr ""
 #: ../pkg/storaged/details.js:1416 ../pkg/docker/index.html.h:11
 #: ../pkg/ostree/index.html.h:7
 msgid "Running"
-msgstr "Executando"
+msgstr "Pokrenuto"
 
 #: ../pkg/storaged/details.js:1416
 msgid "Not running"
-msgstr "Não está rodando"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1435
 msgid "FAILED"
-msgstr "FALHOU"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1436
 msgid "In Sync"
-msgstr "Em Sincronização"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1437
-#, fuzzy
 msgid "Spare"
-msgstr "Disponível"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1437
 msgid "Recovering"
-msgstr "Recuperação"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1438
 msgid "Write-mostly"
-msgstr "Maioria-Escrita"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1439
 msgid "Blocked"
-msgstr "Bloqueado"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1440
 msgid "Unknown ($0)"
-msgstr "Desconhecido ($0)"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1457
 msgid "Start Scrubbing"
-msgstr "Iniciando Scrubbing"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1458
 msgid "Stop Scrubbing"
-msgstr "Parando Scrubbing"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1492
 msgid "$size $desc"
-msgstr "$size $desc"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1508
 #, javascript-format
 msgid "$size $desc<br/>${percent}% full"
-msgstr "$size $desc<br/>${percent}% cheio"
+msgstr ""
 
 #. If we can't find the block for a active
 #. volume, Storaged or something below is
@@ -2149,35 +2139,35 @@ msgstr "$size $desc<br/>${percent}% cheio"
 #. "unsupported".
 #: ../pkg/storaged/details.js:1528
 msgid "$size $desc<br/>($state)"
-msgstr "$size $desc<br/>($state)"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1531
 msgid "active, but unsupported"
-msgstr "ativo, mas não suportado"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1531
 msgid "inactive"
-msgstr "inativo"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1550
 msgid "$0 Free Space for Logical Volumes"
-msgstr "$0 Espaço Livres Para Volumes Lógicos"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1552
 msgid "Create Plain Logical Volume"
-msgstr "Crie um Volume Lógico Plano"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1555
 msgid "Create RAID Logical Volume"
-msgstr "Crie RAID  Volume Lógico"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1598
 msgid "Remove"
-msgstr "Remover"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1599
 msgid "Empty"
-msgstr "Vazio"
+msgstr ""
 
 #: ../pkg/storaged/details.js:1605
 msgid "$0, $1 free"
@@ -2185,7 +2175,7 @@ msgstr ""
 
 #: ../pkg/storaged/details.js:1630
 msgid "Logical Volumes"
-msgstr "Volumes Lógicos"
+msgstr ""
 
 #: ../pkg/storaged/jobs.js:109
 msgid "SMART self-test of $target"
@@ -2226,11 +2216,11 @@ msgstr ""
 
 #: ../pkg/storaged/jobs.js:119
 msgid "Erasing $target"
-msgstr "Apagando $target"
+msgstr ""
 
 #: ../pkg/storaged/jobs.js:120
 msgid "Creating filesystem on $target"
-msgstr "Criando sistema de arquivos em $target"
+msgstr ""
 
 #: ../pkg/storaged/jobs.js:121
 msgid "Setting up loop device $target"
@@ -2306,7 +2296,7 @@ msgstr ""
 
 #: ../pkg/storaged/jobs.js:141
 msgid "Emptying $target"
-msgstr "Esvaziando $target"
+msgstr ""
 
 #: ../pkg/storaged/jobs.js:142
 msgid "Creating logical volume $target"
@@ -2330,7 +2320,7 @@ msgstr ""
 
 #: ../pkg/storaged/permissions.js:59
 msgid "The user <b>$0</b> is not permitted to manage storage"
-msgstr "Ao usuário <b>$0</b> não é permitido gerenciar o armazaenamento"
+msgstr ""
 
 #: ../pkg/subscriptions/subscriptions.js:50
 msgid "Login cannot be empty"
@@ -2356,19 +2346,19 @@ msgstr ""
 
 #: ../pkg/subscriptions/subscriptions.js:496
 msgid "Invalid login or password."
-msgstr "Usuário ou senha inválido."
+msgstr ""
 
 #: ../pkg/base1/patterns.js:235 ../pkg/shell/index.html.h:27
 #: ../pkg/systemd/index.html.h:16 ../pkg/playground/patterns.html.h:28
 #: ../pkg/networkmanager/index.html.h:39 ../pkg/storaged/index.html.h:52
 msgid "On"
-msgstr ""
+msgstr "Uključi"
 
 #: ../pkg/base1/patterns.js:235 ../pkg/shell/index.html.h:28
 #: ../pkg/systemd/index.html.h:17 ../pkg/playground/patterns.html.h:29
 #: ../pkg/networkmanager/index.html.h:40 ../pkg/storaged/index.html.h:53
 msgid "Off"
-msgstr ""
+msgstr "Isključi"
 
 #: ../pkg/base1/cockpit.js:1244
 msgid "$0 killed with signal $1"
@@ -2381,7 +2371,7 @@ msgstr ""
 #: ../pkg/base1/cockpit.js:1248
 #, fuzzy
 msgid "$0 failed"
-msgstr "Falhou"
+msgstr "Neuspjelo"
 
 #: ../pkg/base1/cockpit.js:2358
 msgid "Your session has been terminated."
@@ -2414,7 +2404,7 @@ msgstr ""
 #: ../pkg/base1/cockpit.js:2372
 #, fuzzy
 msgid "Internal error"
-msgstr "Erro inesperado"
+msgstr "Neočekivana pogreška"
 
 #: ../pkg/base1/cockpit.js:2374
 msgid "Connection has timed out."
@@ -2423,7 +2413,7 @@ msgstr ""
 #: ../pkg/base1/cockpit.js:2376
 #, fuzzy
 msgid "Cockpit is not installed on the system."
-msgstr "Docker não está instalado ou ativado no sistema"
+msgstr "Docker nije instaliran ili pokrenut na sustavu"
 
 #: ../pkg/base1/cockpit.js:2378
 msgid "Cannot forward login credentials"
@@ -2436,7 +2426,7 @@ msgstr ""
 #: ../pkg/base1/cockpit.js:2382
 #, fuzzy
 msgid "Cockpit is not compatible with the software on the system."
-msgstr "Docker não está instalado ou ativado no sistema"
+msgstr "Docker nije instaliran ili pokrenut na sustavu"
 
 #: ../pkg/base1/cockpit.js:2384
 msgid "Cockpit could not contact the given host."
@@ -2450,7 +2440,7 @@ msgstr ""
 #: ../pkg/shell/templates/auth-failed.html.h:7 ../pkg/shell/index.html.h:37
 #: ../pkg/systemd/services.html.h:12
 msgid "Close"
-msgstr "Fechar"
+msgstr "Zatvori"
 
 #: ../pkg/sosreport/index.js:56 ../pkg/tuned/dialog.html.h:2
 #: ../pkg/shell/templates/change-port.html.h:6
@@ -2466,7 +2456,7 @@ msgstr "Fechar"
 #: ../pkg/realmd/operation.html.h:10 ../pkg/dashboard/index.html.h:8
 #: ../pkg/kubernetes/index.html.h:27 ../pkg/storaged/index.html.h:22
 msgid "Cancel"
-msgstr "Cancelar"
+msgstr "Odustani"
 
 #: ../pkg/sosreport/index.js:116
 msgid "No archive has been created."
@@ -2487,19 +2477,19 @@ msgstr "Cockpit"
 
 #: ../pkg/shell/simple.html.h:2 ../pkg/shell/index.html.h:5
 msgid "Ooops!"
-msgstr ""
+msgstr "Uuups!"
 
 #: ../pkg/shell/simple.html.h:3 ../pkg/shell/index.html.h:6
 msgid "Display Language"
-msgstr ""
+msgstr "Jezik Prikaza"
 
 #: ../pkg/shell/simple.html.h:4 ../pkg/shell/index.html.h:7
 msgid "About Cockpit"
-msgstr ""
+msgstr "O Cockpit-u"
 
 #: ../pkg/shell/simple.html.h:5 ../pkg/shell/index.html.h:10
 msgid "Log out"
-msgstr ""
+msgstr "Odjavi se"
 
 #: ../pkg/shell/simple.html.h:6 ../pkg/shell/index.html.h:11
 msgid ""
@@ -2512,11 +2502,11 @@ msgstr ""
 #: ../pkg/systemd/index.html.h:9 ../pkg/ostree/index.html.h:19
 #: ../pkg/subscriptions/index.html.h:43
 msgid "Version"
-msgstr ""
+msgstr "Inačica"
 
 #: ../pkg/shell/simple.html.h:10 ../pkg/shell/index.html.h:15
 msgid "Choose the language to be used in the application"
-msgstr ""
+msgstr "Odaberite jezik koji će se koristiti u aplikaciji"
 
 #: ../pkg/shell/simple.html.h:11 ../pkg/shell/index.html.h:16
 #: ../pkg/storaged/index.html.h:66 ../pkg/subscriptions/index.html.h:34
@@ -2525,9 +2515,6 @@ msgid ""
 "              Cancel\n"
 "            "
 msgstr ""
-"\n"
-"              Cancelar\n"
-"            "
 
 #: ../pkg/shell/simple.html.h:14 ../pkg/shell/index.html.h:19
 msgid ""
@@ -2579,7 +2566,7 @@ msgstr ""
 #: ../pkg/shell/templates/sync-users.html.h:1 ../pkg/dashboard/index.html.h:7
 #, fuzzy
 msgid "Synchronize users"
-msgstr "Sincronize logins de administrador"
+msgstr "Uskladi administrativne logove"
 
 #: ../pkg/shell/templates/sync-users.html.h:2
 msgid ""
@@ -2601,24 +2588,24 @@ msgstr ""
 #: ../pkg/shell/templates/change-auth.html.h:4
 #, fuzzy
 msgid "User name"
-msgstr "Nome de Usuário"
+msgstr "Korisničko ime"
 
 #: ../pkg/shell/templates/sync-users.html.h:6
 #: ../pkg/shell/templates/change-auth.html.h:8
 #: ../pkg/shell/templates/auth-failed.html.h:3 ../pkg/shell/index.html.h:31
 #: ../pkg/users/index.html.h:13
 msgid "Password"
-msgstr "Senha"
+msgstr "Lozinka"
 
 #: ../pkg/shell/templates/sync-users.html.h:8
 #, fuzzy
 msgid "Synchronize"
-msgstr "Sincronize logins de administrador"
+msgstr "Uskladi administrativne logove"
 
 #: ../pkg/shell/templates/unknown-hostkey.html.h:1
 #, fuzzy
 msgid "Unknown Host Key"
-msgstr "Desconhecido"
+msgstr "Nepoznato"
 
 #: ../pkg/shell/templates/unknown-hostkey.html.h:2
 msgid ""
@@ -2631,8 +2618,9 @@ msgid "Fingerprint"
 msgstr ""
 
 #: ../pkg/shell/templates/unknown-hostkey.html.h:5
+#, fuzzy
 msgid "Connect"
-msgstr ""
+msgstr "Nepovezan"
 
 #: ../pkg/shell/templates/change-auth.html.h:1
 msgid "Log in to {{host}}"
@@ -2652,12 +2640,12 @@ msgstr ""
 #: ../pkg/shell/templates/change-auth.html.h:5 ../pkg/shell/index.html.h:9
 #: ../pkg/realmd/operation.html.h:3
 msgid "Authentication"
-msgstr ""
+msgstr "Autentifikacija"
 
 #: ../pkg/shell/templates/change-auth.html.h:6
 #, fuzzy
 msgid "Type a password"
-msgstr "Nova Senha"
+msgstr "Korisnička Lozinka"
 
 #: ../pkg/shell/templates/change-auth.html.h:7
 msgid "Using available credentials"
@@ -2666,12 +2654,12 @@ msgstr ""
 #: ../pkg/shell/templates/change-auth.html.h:9
 #, fuzzy
 msgid "Available"
-msgstr "Indisponível"
+msgstr "Nije dostupno"
 
 #: ../pkg/shell/templates/change-auth.html.h:10
 #, fuzzy
 msgid "Login Password"
-msgstr "Senha"
+msgstr "Lozinka"
 
 #: ../pkg/shell/templates/change-auth.html.h:11
 msgid "Kerberos Ticket"
@@ -2682,8 +2670,9 @@ msgid "Checking for public keys"
 msgstr ""
 
 #: ../pkg/shell/templates/change-auth.html.h:14
+#, fuzzy
 msgid "Log In"
-msgstr ""
+msgstr "Odjavi se"
 
 #: ../pkg/shell/templates/not-supported.html.h:1
 msgid "Cockpit is not installed"
@@ -2714,7 +2703,7 @@ msgstr ""
 #: ../pkg/shell/templates/auth-failed.html.h:1
 #, fuzzy
 msgid "Authentication Failed"
-msgstr "Autenticando"
+msgstr "Autentifikacija"
 
 #: ../pkg/shell/templates/auth-failed.html.h:2
 msgid ""
@@ -2755,11 +2744,11 @@ msgstr ""
 #: ../pkg/shell/index.html.h:2
 #, fuzzy
 msgid "Comment"
-msgstr "Comando"
+msgstr "Naredba"
 
 #: ../pkg/shell/index.html.h:8
 msgid "Account Settings"
-msgstr ""
+msgstr "Postavke Računa"
 
 #: ../pkg/shell/index.html.h:22
 msgid ""
@@ -2781,26 +2770,25 @@ msgid "Details"
 msgstr ""
 
 #: ../pkg/shell/index.html.h:32
-#, fuzzy
 msgid "Unlock Key"
-msgstr "Destravar"
+msgstr ""
 
 #: ../pkg/shell/index.html.h:33 ../pkg/users/index.html.h:27
 msgid "Old Password"
-msgstr "Senha Atual"
+msgstr ""
 
 #: ../pkg/shell/index.html.h:34 ../pkg/users/index.html.h:28
 msgid "New Password"
-msgstr "Nova Senha"
+msgstr ""
 
 #: ../pkg/shell/index.html.h:35 ../pkg/users/index.html.h:23
 msgid "Confirm"
-msgstr "Confirmar"
+msgstr ""
 
 #: ../pkg/shell/index.html.h:36
 #, fuzzy
 msgid "Change Password"
-msgstr "Nova Senha"
+msgstr "Korisnička Lozinka"
 
 #: ../pkg/shell/index.html.h:38
 msgid ""
@@ -2819,7 +2807,7 @@ msgstr ""
 
 #: ../pkg/users/index.html.h:2
 msgid "Create New Account"
-msgstr "Criar Nova Conta"
+msgstr ""
 
 #: ../pkg/users/index.html.h:3
 msgid "Account not available or cannot be edited."
@@ -2835,28 +2823,28 @@ msgstr ""
 
 #: ../pkg/users/index.html.h:7
 msgid "Full Name"
-msgstr "Nome Completo"
+msgstr ""
 
 #: ../pkg/users/index.html.h:8 ../pkg/realmd/operation.html.h:4
 msgid "User Name"
-msgstr "Nome de Usuário"
+msgstr "Korisničko ime"
 
 #: ../pkg/users/index.html.h:9 ../pkg/registry/views/project-panel.html.h:2
 #: ../pkg/registry/views/project-page.html.h:3
 msgid "Roles"
-msgstr "Papéis"
+msgstr ""
 
 #: ../pkg/users/index.html.h:10
 msgid "Last Login"
-msgstr "Último Login"
+msgstr ""
 
 #: ../pkg/users/index.html.h:11
 msgid "Access"
-msgstr "Acesso"
+msgstr ""
 
 #: ../pkg/users/index.html.h:12
 msgid "Lock Account"
-msgstr "Bloquear Conta"
+msgstr ""
 
 #: ../pkg/users/index.html.h:14
 msgid "Set Password"
@@ -2877,9 +2865,6 @@ msgid ""
 "            Cancel\n"
 "          "
 msgstr ""
-"\n"
-"            Cancelar\n"
-"          "
 
 #: ../pkg/users/index.html.h:20 ../pkg/docker/index.html.h:34
 msgid ""
@@ -2887,9 +2872,6 @@ msgid ""
 "            Change\n"
 "          "
 msgstr ""
-"\n"
-"            Modificar\n"
-"          "
 
 #: ../pkg/users/index.html.h:24
 msgid ""
@@ -2900,7 +2882,7 @@ msgstr ""
 
 #: ../pkg/users/index.html.h:29
 msgid "Confirm New Password"
-msgstr "Confirmar Nova Senha"
+msgstr ""
 
 #: ../pkg/users/index.html.h:30
 msgid ""
@@ -2911,7 +2893,7 @@ msgstr ""
 
 #: ../pkg/users/index.html.h:33
 msgid "Delete Files"
-msgstr "Excluir Arquivos"
+msgstr ""
 
 #: ../pkg/users/index.html.h:34 ../pkg/networkmanager/index.html.h:36
 msgid ""
@@ -2956,16 +2938,15 @@ msgstr ""
 #: ../pkg/registry/views/image-config.html.h:1
 #, fuzzy
 msgid "Run as"
-msgstr "Execute imagem"
+msgstr "Pokreni presliku"
 
 #: ../pkg/registry/views/image-config.html.h:3
 msgid "Directory"
 msgstr ""
 
 #: ../pkg/registry/views/image-config.html.h:4
-#, fuzzy
 msgid "Stop with"
-msgstr "Pare"
+msgstr ""
 
 #: ../pkg/registry/views/image-config.html.h:5
 #: ../pkg/kubernetes/views/container-body.html.h:9
@@ -2973,9 +2954,8 @@ msgid "Environment"
 msgstr ""
 
 #: ../pkg/registry/views/image-config.html.h:8
-#, fuzzy
 msgid "Volumes"
-msgstr "Volumes Lógicos"
+msgstr ""
 
 #: ../pkg/registry/views/imagestream-modify.html.h:1
 msgid "Create image stream"
@@ -2986,9 +2966,8 @@ msgid "Change image stream"
 msgstr ""
 
 #: ../pkg/registry/views/imagestream-modify.html.h:5
-#, fuzzy
 msgid "Populate"
-msgstr "Isolar"
+msgstr ""
 
 #: ../pkg/registry/views/imagestream-modify.html.h:6
 msgid "Pull from"
@@ -3003,7 +2982,7 @@ msgstr ""
 #: ../pkg/registry/views/image-panel.html.h:1 ../pkg/docker/index.html.h:17
 #: ../pkg/kubernetes/views/container-body.html.h:2
 msgid "Image"
-msgstr "Imagem"
+msgstr ""
 
 #: ../pkg/registry/views/image-page.html.h:4
 #: ../pkg/registry/views/image-panel.html.h:3
@@ -3015,17 +2994,17 @@ msgstr ""
 #: ../pkg/registry/views/project-listing.html.h:1
 #, fuzzy
 msgid "New Project"
-msgstr "Projeto"
+msgstr "Projekt"
 
 #: ../pkg/registry/views/add-project-dialog.html.h:3
+#, fuzzy
 msgid "Display name"
-msgstr ""
+msgstr "Jezik Prikaza"
 
 #: ../pkg/registry/views/add-project-dialog.html.h:4
 #: ../pkg/registry/views/project-listing.html.h:4
-#, fuzzy
 msgid "Description"
-msgstr "Partição"
+msgstr ""
 
 #: ../pkg/registry/views/filter-bar.html.h:1
 #: ../pkg/kubernetes/views/filter-bar.html.h:1
@@ -3046,13 +3025,13 @@ msgstr ""
 #: ../pkg/kubernetes/views/filter-bar.html.h:4
 #, fuzzy
 msgid "All Projects"
-msgstr "Projeto"
+msgstr "Projekt"
 
 #: ../pkg/registry/views/filter-bar.html.h:5
 #: ../pkg/kubernetes/views/filter-bar.html.h:5
 #, fuzzy
 msgid "Project:"
-msgstr "Projeto"
+msgstr "Projekt"
 
 #: ../pkg/registry/views/image-meta.html.h:1
 #: ../pkg/kubernetes/views/route-panel.html.h:8
@@ -3071,17 +3050,18 @@ msgstr ""
 #: ../pkg/registry/views/image-meta.html.h:3
 #: ../pkg/kubernetes/views/route-panel.html.h:10
 #: ../pkg/kubernetes/views/node-panel.html.h:19
+#, fuzzy
 msgid "Annotations"
-msgstr ""
+msgstr "Autentifikacija"
 
 #: ../pkg/registry/views/image-meta.html.h:4
+#, fuzzy
 msgid "Docker Version"
-msgstr ""
+msgstr "Inačica"
 
 #: ../pkg/registry/views/imagestream-delete.html.h:1
-#, fuzzy
 msgid "Delete image stream"
-msgstr "Excluir Arquivos"
+msgstr ""
 
 #: ../pkg/registry/views/imagestream-delete.html.h:2
 msgid ""
@@ -3093,13 +3073,13 @@ msgstr ""
 #: ../pkg/registry/views/project-page.html.h:2
 #, fuzzy
 msgid "Project Members"
-msgstr "Projeto"
+msgstr "Projekt"
 
 #: ../pkg/registry/views/project-panel.html.h:3
 #: ../pkg/registry/views/project-page.html.h:4
 #, fuzzy
 msgid "Add Member"
-msgstr "RAID Membro"
+msgstr "Članovi"
 
 #: ../pkg/registry/views/add-group-dialog.html.h:1
 msgid "Add Group"
@@ -3107,26 +3087,21 @@ msgstr ""
 
 #: ../pkg/registry/views/add-group-dialog.html.h:2
 #: ../pkg/registry/views/add-user-dialog.html.h:2
-#, fuzzy
 msgid ""
 "\n"
 "                        Name\n"
 "                    "
 msgstr ""
-"\n"
-"                  Tipo\n"
-"                  "
 
 #: ../pkg/registry/views/project-listing.html.h:2
 #: ../pkg/registry/views/dashboard-page.html.h:6
 #, fuzzy
 msgid "Projects"
-msgstr "Projeto"
+msgstr "Projekt"
 
 #: ../pkg/registry/views/project-listing.html.h:6
-#, fuzzy
 msgid "New Group"
-msgstr "Grupo de volumes"
+msgstr ""
 
 #: ../pkg/registry/views/project-listing.html.h:7
 #: ../pkg/registry/views/dashboard-page.html.h:8
@@ -3137,7 +3112,7 @@ msgstr ""
 #: ../pkg/registry/views/add-user-dialog.html.h:1
 #, fuzzy
 msgid "Add User"
-msgstr "Adicionar host"
+msgstr "Dodaj računalo"
 
 #: ../pkg/registry/views/project-listing.html.h:9
 #: ../pkg/registry/views/dashboard-page.html.h:7
@@ -3151,7 +3126,7 @@ msgstr ""
 #: ../pkg/registry/views/project-listing.html.h:11
 #, fuzzy
 msgid "Member of"
-msgstr "Membros"
+msgstr "Članovi"
 
 #: ../pkg/registry/views/imagestream-page.html.h:1
 msgid "Show all image streams"
@@ -3160,7 +3135,7 @@ msgstr ""
 #: ../pkg/registry/views/imagestream-page.html.h:2
 #, fuzzy
 msgid "Image Stream"
-msgstr "Imagem $0"
+msgstr "Preslika $0"
 
 #: ../pkg/registry/views/image-listing.html.h:1
 #: ../pkg/registry/views/dashboard-page.html.h:4
@@ -3172,7 +3147,7 @@ msgstr ""
 #: ../pkg/kubernetes/views/images-page.html.h:3
 #, fuzzy
 msgid "Images"
-msgstr "Imagem"
+msgstr "Preslika $0"
 
 #: ../pkg/registry/views/image-listing.html.h:3
 #: ../pkg/registry/views/image-body.html.h:1
@@ -3189,20 +3164,15 @@ msgstr "Autor"
 #: ../pkg/registry/views/image-listing.html.h:5
 #: ../pkg/kubernetes/views/images-page.html.h:4
 #: ../pkg/kubernetes/views/imagerepository-panel.html.h:8
-#, fuzzy
 msgid "Last Updated"
-msgstr "Últimos 7 dias"
+msgstr ""
 
 #: ../pkg/registry/views/add-user-dialog.html.h:5
-#, fuzzy
 msgid ""
 "\n"
 "                        Identity\n"
 "                    "
 msgstr ""
-"\n"
-"                  Tipo\n"
-"                  "
 
 #: ../pkg/registry/views/project-page.html.h:1
 msgid "{{ project().metadata.name }}"
@@ -3213,14 +3183,13 @@ msgid "Image streams"
 msgstr ""
 
 #: ../pkg/registry/views/dashboard-page.html.h:3
-#, fuzzy
 msgid "Last 30 Days"
-msgstr "Últimos 7 dias"
+msgstr ""
 
 #: ../pkg/registry/views/dashboard-page.html.h:5
 #, fuzzy
 msgid "Storage Space"
-msgstr "Swap Espaço"
+msgstr "Spremi lozinku(frazu)"
 
 #: ../pkg/registry/views/dashboard-page.html.h:9
 msgid "Images pushed recently"
@@ -3247,17 +3216,17 @@ msgstr ""
 #: ../pkg/registry/views/dashboard-page.html.h:15
 #, fuzzy
 msgid "Push an image:"
-msgstr "Execute imagem"
+msgstr "Pokreni presliku"
 
 #: ../pkg/registry/views/dashboard-page.html.h:16
 #, fuzzy
 msgid "Pull an image:"
-msgstr "Execute imagem"
+msgstr "Pokreni presliku"
 
 #: ../pkg/registry/views/imagestream-body.html.h:1
 #, fuzzy
 msgid "Pull repository"
-msgstr "Repositório"
+msgstr "Repozitorij"
 
 #: ../pkg/registry/views/imagestream-body.html.h:3
 msgid "Pull tags"
@@ -3266,12 +3235,12 @@ msgstr ""
 #: ../pkg/registry/views/imagestream-body.html.h:4 ../pkg/systemd/logs.html.h:9
 #: ../pkg/docker/index.html.h:10
 msgid "All"
-msgstr "Todos"
+msgstr "Sve"
 
 #: ../pkg/registry/views/imagestream-body.html.h:5
 #, fuzzy
 msgid "Image count"
-msgstr "Imagem $0"
+msgstr "Preslika $0"
 
 #: ../pkg/registry/views/imagestream-body.html.h:6
 msgid "{{stream.status.tags.length}}"
@@ -3292,8 +3261,9 @@ msgstr ""
 #: ../pkg/kubernetes/views/pod-body.html.h:3
 #: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:5
 #: ../pkg/kubernetes/views/node-panel.html.h:1
+#, fuzzy
 msgid "Created"
-msgstr ""
+msgstr "Izradi"
 
 #: ../pkg/registry/views/image-body.html.h:6
 msgid "Pushed"
@@ -3334,73 +3304,66 @@ msgstr ""
 #: ../pkg/registry/index.html.h:2 ../pkg/kubernetes/index.html.h:2
 #, fuzzy
 msgid "Connecting..."
-msgstr "Carregando..."
+msgstr "Povezujem se na Docker"
 
 #: ../pkg/registry/index.html.h:3 ../pkg/kubernetes/index.html.h:3
 #, fuzzy
 msgid "Couldn't connect to server"
-msgstr "Não foi possível conectar ao servidor Kubernetes"
+msgstr "Spajanje na uređaj neuspjelo"
 
 #: ../pkg/registry/index.html.h:4 ../pkg/kubernetes/index.html.h:4
-#, fuzzy
 msgid ""
 "\n"
 "                Reconnect\n"
 "            "
 msgstr ""
-"\n"
-"            Reconectar\n"
-"          "
 
 #: ../pkg/systemd/terminal.html.h:1
 msgid "Terminal"
-msgstr "Terminal"
+msgstr ""
 
 #: ../pkg/systemd/terminal.html.h:2
 msgid "Reset"
-msgstr "Redefinir"
+msgstr ""
 
 #: ../pkg/systemd/services.html.h:1
 #: ../pkg/kubernetes/views/details-page.html.h:6
 msgid "Services"
-msgstr "Serviços"
+msgstr ""
 
 #: ../pkg/systemd/services.html.h:3
 msgid "System Services"
-msgstr "Serviços do Sistema"
+msgstr ""
 
 #: ../pkg/systemd/services.html.h:4
 msgid "Sockets"
-msgstr "Sockets"
+msgstr ""
 
 #: ../pkg/systemd/services.html.h:5
 msgid "Timers"
-msgstr "Temporizadores"
+msgstr ""
 
 #: ../pkg/systemd/services.html.h:6
 msgid "Paths"
-msgstr "Caminhos"
+msgstr ""
 
 #: ../pkg/systemd/services.html.h:7
 msgid "Instantiate"
-msgstr "Instanciar"
+msgstr ""
 
 #: ../pkg/systemd/services.html.h:8
-#, fuzzy
 msgid "Service Logs"
-msgstr "Serviços"
+msgstr ""
 
 #: ../pkg/systemd/services.html.h:9
 msgid "Note"
-msgstr "Nota"
+msgstr ""
 
 #: ../pkg/systemd/services.html.h:10
 msgid ""
 "This unit is not designed to be enabled explicitly.\n"
 "          "
 msgstr ""
-"Esta unidade não foi projetada para ser habilitada explicitamente.\n"
-"          "
 
 #: ../pkg/systemd/index.html.h:2
 msgid "Synchronized with {{Server}}"
@@ -3409,7 +3372,7 @@ msgstr ""
 #: ../pkg/systemd/index.html.h:3
 #, fuzzy
 msgid "Synchronized"
-msgstr "Sincronize logins de administrador"
+msgstr "Uskladi administrativne logove"
 
 #: ../pkg/systemd/index.html.h:4
 msgid "Trying to synchronize with {{Server}}"
@@ -3435,20 +3398,20 @@ msgstr ""
 #: ../pkg/systemd/index.html.h:10 ../pkg/dashboard/index.html.h:3
 #, fuzzy
 msgid "Host Name"
-msgstr "Nome de Usuário"
+msgstr "Korisničko ime"
 
 #: ../pkg/systemd/index.html.h:11
+#, fuzzy
 msgid "Domain"
-msgstr ""
+msgstr "Pridruživanje domeni"
 
 #: ../pkg/systemd/index.html.h:12
-#, fuzzy
 msgid "System Time"
-msgstr "Serviços do Sistema"
+msgstr ""
 
 #: ../pkg/systemd/index.html.h:13
 msgid "Power Options"
-msgstr "Opções de Energia"
+msgstr ""
 
 #: ../pkg/systemd/index.html.h:14
 msgid "Performance Profile"
@@ -3496,7 +3459,7 @@ msgstr ""
 
 #: ../pkg/systemd/index.html.h:30
 msgid "Delay"
-msgstr "Atraso"
+msgstr ""
 
 #: ../pkg/systemd/logs.html.h:1
 msgid "Journal"
@@ -3504,27 +3467,27 @@ msgstr ""
 
 #: ../pkg/systemd/logs.html.h:2
 msgid "Recent"
-msgstr "Recente"
+msgstr ""
 
 #: ../pkg/systemd/logs.html.h:3
 msgid "Current boot"
-msgstr "Inicialização atual"
+msgstr ""
 
 #: ../pkg/systemd/logs.html.h:4
 msgid "Last 24 hours"
-msgstr "Últimas 24 horas"
+msgstr ""
 
 #: ../pkg/systemd/logs.html.h:5
 msgid "Last 7 days"
-msgstr "Últimos 7 dias"
+msgstr ""
 
 #: ../pkg/systemd/logs.html.h:6
 msgid "Errors"
-msgstr "Erros"
+msgstr ""
 
 #: ../pkg/systemd/logs.html.h:7
 msgid "Warnings"
-msgstr "Avisos"
+msgstr ""
 
 #: ../pkg/systemd/logs.html.h:8
 msgid "Notices"
@@ -3541,7 +3504,7 @@ msgstr ""
 
 #: ../pkg/realmd/operation.html.h:1
 msgid "Domain Address"
-msgstr ""
+msgstr "Domenska Adresa"
 
 #: ../pkg/realmd/operation.html.h:2
 msgid "Computer OU"
@@ -3549,45 +3512,45 @@ msgstr ""
 
 #: ../pkg/realmd/operation.html.h:6
 msgid "Domain Administrator Name"
-msgstr ""
+msgstr "Naziv Domenskog Administratora"
 
 #: ../pkg/realmd/operation.html.h:7
 msgid "Domain Administrator Password"
-msgstr ""
+msgstr "Lozinka Domenskog Administratora"
 
 #: ../pkg/realmd/operation.html.h:9
 msgid "This may take a while"
-msgstr ""
+msgstr "Ovo bi moglo potrajati"
 
 #: ../pkg/docker/index.html.h:1
 #: ../pkg/kubernetes/views/containers-page.html.h:1
 #: ../pkg/kubernetes/views/dashboard-page.html.h:7
 msgid "Containers"
-msgstr "Containers"
+msgstr "Spremnici"
 
 #: ../pkg/docker/index.html.h:2
 msgid "Connecting to Docker"
-msgstr "Conectando ao Docker"
+msgstr "Povezujem se na Docker"
 
 #: ../pkg/docker/index.html.h:3
 msgid "Not authorized to access Docker on this system"
-msgstr "Não autorizado para acessar Docker neste sistema"
+msgstr "Nemate dopuštenje da pristupite Docker-u na ovom sustavu"
 
 #: ../pkg/docker/index.html.h:4
 msgid "Docker is not installed or activated on the system"
-msgstr "Docker não está instalado ou ativado no sistema"
+msgstr "Docker nije instaliran ili pokrenut na sustavu"
 
 #: ../pkg/docker/index.html.h:5
 msgid "Can't connect to Docker"
-msgstr "Não é possível conectar ao Docker"
+msgstr "Uspostavljanje veze sa Docker-om nije moguće"
 
 #: ../pkg/docker/index.html.h:6
 msgid "Start Docker"
-msgstr "Iniciar Docker"
+msgstr "Pokreni Docker"
 
 #: ../pkg/docker/index.html.h:7
 msgid "Try again"
-msgstr "Tente novamente"
+msgstr "Pokušaj ponovo"
 
 #: ../pkg/docker/index.html.h:8
 msgid "Combined CPU usage"
@@ -3603,41 +3566,38 @@ msgid ""
 "              Get new image\n"
 "            "
 msgstr ""
-"\n"
-"              Obter nova imagem\n"
-"            "
 
 #: ../pkg/docker/index.html.h:15
 msgid "{{host_port_label}}"
-msgstr "{{host_port_label}}"
+msgstr ""
 
 #: ../pkg/docker/index.html.h:16
 msgid "{{alias_label}}"
-msgstr "{{alias_label}}"
+msgstr ""
 
 #: ../pkg/docker/index.html.h:18
 msgid "Container Name"
-msgstr "Nome do Container"
+msgstr "Ime spremnika"
 
 #: ../pkg/docker/index.html.h:19
 msgid "Command"
-msgstr "Comando"
+msgstr "Naredba"
 
 #: ../pkg/docker/index.html.h:20
 msgid "Memory limit"
-msgstr "Limite de Memória"
+msgstr ""
 
 #: ../pkg/docker/index.html.h:21
 msgid "CPU priority"
-msgstr "Prioridade de CPU"
+msgstr "CPU prioritet"
 
 #: ../pkg/docker/index.html.h:22
 msgid "With terminal"
-msgstr "Com o terminal"
+msgstr ""
 
 #: ../pkg/docker/index.html.h:23
 msgid "Links"
-msgstr "Links"
+msgstr "Linkovi"
 
 #: ../pkg/docker/index.html.h:28
 msgid ""
@@ -3645,9 +3605,6 @@ msgid ""
 "            Run\n"
 "          "
 msgstr ""
-"\n"
-"            Executar\n"
-"          "
 
 #: ../pkg/docker/index.html.h:31
 msgid ""
@@ -3655,28 +3612,21 @@ msgid ""
 "            Download\n"
 "          "
 msgstr ""
-"\n"
-"            Baixar\n"
-"          "
 
 #: ../pkg/docker/index.html.h:37
 msgid "Repository"
-msgstr "Repositório"
+msgstr "Repozitorij"
 
 #: ../pkg/docker/index.html.h:38
 msgid "Tag"
-msgstr "Marca"
+msgstr "Oznaka"
 
 #: ../pkg/docker/index.html.h:40
-#, fuzzy
 msgid ""
 "\n"
 "            Commit\n"
 "          "
 msgstr ""
-"\n"
-"            Commit\n"
-"          "
 
 #: ../pkg/playground/patterns.html.h:1
 msgid "Cockpit Pattern Usage"
@@ -3687,133 +3637,100 @@ msgid "Example Dialog"
 msgstr ""
 
 #: ../pkg/playground/patterns.html.h:3
-#, fuzzy
 msgid ""
 "\n"
 "                                Label\n"
 "                            "
 msgstr ""
-"\n"
-"                  Tipo\n"
-"                  "
 
 #: ../pkg/playground/patterns.html.h:6
-#, fuzzy
 msgid ""
 "\n"
 "                                Select\n"
 "                            "
 msgstr ""
-"\n"
-"                  Tipo\n"
-"                  "
 
 #: ../pkg/playground/patterns.html.h:9
+#, fuzzy
 msgid "One"
-msgstr ""
+msgstr "Uključi"
 
 #: ../pkg/playground/patterns.html.h:10
-#, fuzzy
 msgid ""
 "\n"
 "                    Cancel\n"
 "                "
 msgstr ""
-"\n"
-"              Cancelar\n"
-"              "
 
 #: ../pkg/playground/patterns.html.h:13
-#, fuzzy
 msgid ""
 "\n"
 "                    Clear\n"
 "                "
 msgstr ""
-"\n"
-"                  Tipo\n"
-"                  "
 
 #: ../pkg/playground/patterns.html.h:16
-#, fuzzy
 msgid ""
 "\n"
 "                    Invalid\n"
 "                "
 msgstr ""
-"\n"
-"                  Tipo\n"
-"                  "
 
 #: ../pkg/playground/patterns.html.h:19
-#, fuzzy
 msgid ""
 "\n"
 "                    Error\n"
 "                "
 msgstr ""
-"\n"
-"                  Tipo\n"
-"                  "
 
 #: ../pkg/playground/patterns.html.h:22
-#, fuzzy
 msgid ""
 "\n"
 "                    Wait\n"
 "                "
 msgstr ""
-"\n"
-"                  Tipo\n"
-"                  "
 
 #: ../pkg/playground/patterns.html.h:25
-#, fuzzy
 msgid ""
 "\n"
 "        Show Dialog\n"
 "    "
 msgstr ""
-"\n"
-"            Baixar\n"
-"          "
 
 #: ../pkg/playground/test.html.h:1
 #, fuzzy
 msgid "Cockpit terminal"
-msgstr "Com o terminal"
+msgstr "Cockpit"
 
 #: ../pkg/playground/test.html.h:2 ../pkg/networkmanager/index.html.h:1
 msgid "Networking"
-msgstr ""
+msgstr "Mreža"
 
 #: ../pkg/dashboard/index.html.h:2
 msgid "Lost connection. Trying to reconnect"
-msgstr "Conexão Perdida. Tentando reconectar."
+msgstr "Veza prekinuta.  Pokušavam ponovo uspostaviti vezu"
 
 #: ../pkg/dashboard/index.html.h:6
 msgid "Avatar"
 msgstr ""
 
 #: ../pkg/dashboard/index.html.h:9
-#, fuzzy
 msgid "Set"
-msgstr "Sockets"
+msgstr ""
 
 #: ../pkg/kubernetes/views/route-panel.html.h:5
-#, fuzzy
 msgid "TLS Termination"
-msgstr "Terminal"
+msgstr ""
 
 #: ../pkg/kubernetes/views/route-panel.html.h:6
 #, fuzzy
 msgid "yes"
-msgstr "bytes"
+msgstr "bajtova"
 
 #: ../pkg/kubernetes/views/route-panel.html.h:7
 #, fuzzy
 msgid "no"
-msgstr "Nenhum"
+msgstr "nijedan"
 
 #: ../pkg/kubernetes/views/containers-page.html.h:3
 #: ../pkg/kubernetes/views/topology-page.html.h:2
@@ -3828,8 +3745,9 @@ msgstr ""
 
 #: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:1
 #: ../pkg/kubernetes/views/topology-page.html.h:5
+#, fuzzy
 msgid "Replication Controller"
-msgstr ""
+msgstr "Prilagodi upravljač replikacija"
 
 #: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:2
 #: ../pkg/kubernetes/views/details-page.html.h:20
@@ -3838,21 +3756,20 @@ msgstr ""
 
 #: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:3
 #: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:2
-#, fuzzy
 msgid "Template"
-msgstr "Modelo $0 "
+msgstr ""
 
 #: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:7
 #: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:6
 #: ../pkg/kubernetes/views/details-page.html.h:19
 #: ../pkg/kubernetes/index.html.h:30
 msgid "Replicas"
-msgstr "Réplicas"
+msgstr "Replike"
 
 #: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:9
 #, fuzzy
 msgid "Pod Replicated"
-msgstr "Réplicas"
+msgstr "Replike"
 
 #: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:10
 msgid "No pods replicated"
@@ -3864,14 +3781,12 @@ msgid "Pod Selector"
 msgstr ""
 
 #: ../pkg/kubernetes/views/filter-bar.html.h:6
-#, fuzzy
 msgid "All Namespaces"
-msgstr "Namespace"
+msgstr ""
 
 #: ../pkg/kubernetes/views/filter-bar.html.h:7
-#, fuzzy
 msgid "Namespace:"
-msgstr "Namespace"
+msgstr ""
 
 #: ../pkg/kubernetes/views/topology-page.html.h:1
 msgid "Select an object to see more details."
@@ -3890,9 +3805,8 @@ msgid ""
 msgstr ""
 
 #: ../pkg/kubernetes/views/topology-page.html.h:8
-#, fuzzy
 msgid "Service"
-msgstr "Serviços"
+msgstr ""
 
 #: ../pkg/kubernetes/views/topology-page.html.h:9
 msgid ""
@@ -3908,28 +3822,26 @@ msgstr ""
 #: ../pkg/kubernetes/views/container-body.html.h:3
 #, fuzzy
 msgid "Image ID"
-msgstr "Imagem"
+msgstr "Preslika $0"
 
 #: ../pkg/kubernetes/views/container-body.html.h:4
 #, fuzzy
 msgid "Container ID"
-msgstr "Container"
+msgstr "Spremnik"
 
 #: ../pkg/kubernetes/views/container-body.html.h:6
 #: ../pkg/kubernetes/views/details-page.html.h:10
 #, fuzzy
 msgid "State"
-msgstr "Estado"
+msgstr "Stanje"
 
 #: ../pkg/kubernetes/views/container-body.html.h:7
-#, fuzzy
 msgid "Since"
-msgstr "Desde $0"
+msgstr ""
 
 #: ../pkg/kubernetes/views/container-body.html.h:8
-#, fuzzy
 msgid "Restart Count"
-msgstr "Reiniciar"
+msgstr ""
 
 #: ../pkg/kubernetes/views/service-panel.html.h:6
 #: ../pkg/kubernetes/views/node-panel.html.h:3
@@ -3952,26 +3864,24 @@ msgstr ""
 #: ../pkg/kubernetes/views/images-page.html.h:1
 #, fuzzy
 msgid "Image Repositories"
-msgstr "Repositório"
+msgstr "Repozitorij"
 
 #: ../pkg/kubernetes/views/images-page.html.h:2
 #, fuzzy
 msgid "Image Repository"
-msgstr "Repositório"
+msgstr "Repozitorij"
 
 #: ../pkg/kubernetes/views/images-page.html.h:5
 msgid "No image repositories are present."
 msgstr ""
 
 #: ../pkg/kubernetes/views/pod-body.html.h:4
-#, fuzzy
 msgid "Restart Policy"
-msgstr "Reiniciar"
+msgstr ""
 
 #: ../pkg/kubernetes/views/pod-body.html.h:5
-#, fuzzy
 msgid "Service Account"
-msgstr "Logs de Serviços"
+msgstr ""
 
 #: ../pkg/kubernetes/views/pod-body.html.h:6
 msgid "DNS Policy"
@@ -3984,7 +3894,7 @@ msgstr ""
 #: ../pkg/kubernetes/views/pod-body.html.h:9
 #, fuzzy
 msgid "Pod Address"
-msgstr "Endereço"
+msgstr "IP adresa"
 
 #: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:1
 msgid "Deployment Config"
@@ -3994,7 +3904,7 @@ msgstr ""
 #: ../pkg/kubernetes/views/details-page.html.h:16
 #, fuzzy
 msgid "Latest Version"
-msgstr "Versão do Firmware"
+msgstr "Inačica"
 
 #: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:8
 msgid "Deployment Causes"
@@ -4013,23 +3923,20 @@ msgid "Deploy"
 msgstr ""
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:2
-#, fuzzy
 msgid "Kubernetes Services"
-msgstr "Kubernetes Cluster"
+msgstr ""
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:3
-#, fuzzy
 msgid "Could not list services"
-msgstr "Não foi possível listar os usuários"
+msgstr ""
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:4
 msgid "You can deploy an application to your cluster."
 msgstr ""
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:10
-#, fuzzy
 msgid "Kubernetes Nodes"
-msgstr "Kubernetes Cluster"
+msgstr ""
 
 #: ../pkg/kubernetes/views/imagerepository-panel.html.h:1
 msgid "From:"
@@ -4038,12 +3945,12 @@ msgstr ""
 #: ../pkg/kubernetes/views/imagerepository-panel.html.h:2
 #, fuzzy
 msgid "Projects:"
-msgstr "Projeto"
+msgstr "Projekt"
 
 #: ../pkg/kubernetes/views/imagerepository-panel.html.h:5
 #, fuzzy
 msgid "Docker"
-msgstr "Iniciar Docker"
+msgstr "Pokreni Docker"
 
 #: ../pkg/kubernetes/views/details-page.html.h:1
 msgid "Nodes"
@@ -4058,31 +3965,32 @@ msgid "Not deployed"
 msgstr ""
 
 #: ../pkg/kubernetes/views/details-page.html.h:18
+#, fuzzy
 msgid "Replication Controllers"
-msgstr ""
+msgstr "Prilagodi upravljač replikacija"
 
 #: ../pkg/kubernetes/views/node-panel.html.h:4
 msgid "OS"
 msgstr ""
 
 #: ../pkg/kubernetes/views/node-panel.html.h:5
-#, fuzzy
 msgid "Machine ID"
-msgstr "Máquinas"
+msgstr ""
 
 #: ../pkg/kubernetes/views/node-panel.html.h:6
 #, fuzzy
 msgid "Container Runtime Version"
-msgstr "Nome do Container"
+msgstr "Ime spremnika"
 
 #: ../pkg/kubernetes/views/node-panel.html.h:7
+#, fuzzy
 msgid "Kubelet Version"
-msgstr ""
+msgstr "Inačica"
 
 #: ../pkg/kubernetes/views/node-panel.html.h:8
 #, fuzzy
 msgid "Proxy Version"
-msgstr "Versão do Firmware"
+msgstr "Inačica"
 
 #: ../pkg/kubernetes/views/node-panel.html.h:15
 msgid "Reason"
@@ -4110,11 +4018,11 @@ msgstr ""
 
 #: ../pkg/kubernetes/index.html.h:1
 msgid "Kubernetes Cluster"
-msgstr "Kubernetes Cluster"
+msgstr ""
 
 #: ../pkg/kubernetes/index.html.h:7
 msgid "Deploy Application"
-msgstr "Implantar aplicativo"
+msgstr "Stavi aplikaciju u pogon"
 
 #: ../pkg/kubernetes/index.html.h:8
 msgid ""
@@ -4122,9 +4030,6 @@ msgid ""
 "                  Type\n"
 "                  "
 msgstr ""
-"\n"
-"                  Tipo\n"
-"                  "
 
 #: ../pkg/kubernetes/index.html.h:11
 msgid "Kubernetes Manifest"
@@ -4154,9 +4059,6 @@ msgid ""
 "              Cancel\n"
 "              "
 msgstr ""
-"\n"
-"              Cancelar\n"
-"              "
 
 #: ../pkg/kubernetes/index.html.h:22
 msgid ""
@@ -4164,30 +4066,27 @@ msgid ""
 "              Deploy\n"
 "              "
 msgstr ""
-"\n"
-"              Implantar\n"
-"              "
 
 #: ../pkg/kubernetes/index.html.h:25
 msgid "Adjust Service"
-msgstr "Ajuste de serviço"
+msgstr ""
 
 #: ../pkg/kubernetes/index.html.h:28
 msgid "Adjust"
-msgstr "Ajustar"
+msgstr "Prilagodi"
 
 #: ../pkg/kubernetes/index.html.h:29
 msgid "Adjust Replication Controller"
-msgstr ""
+msgstr "Prilagodi upravljač replikacija"
 
 #: ../pkg/kubernetes/index.html.h:31
 #, fuzzy
 msgid "Adjust Route"
-msgstr "Ajustar"
+msgstr "Prilagodi"
 
 #: ../pkg/kubernetes/index.html.h:33
 msgid "Please Confirm Deletion"
-msgstr ""
+msgstr "Potvrdite brisanje"
 
 #: ../pkg/kubernetes/index.html.h:34
 msgid ""
@@ -4205,7 +4104,7 @@ msgstr ""
 
 #: ../pkg/kubernetes/index.html.h:40
 msgid "Add Cluster Node "
-msgstr ""
+msgstr "Dodaj čvor u skupinu"
 
 #: ../pkg/kubernetes/index.html.h:42
 msgid "Configure Kubelet and Proxy"
@@ -4221,63 +4120,63 @@ msgstr ""
 
 #: ../pkg/networkmanager/index.html.h:3 ../pkg/storaged/index.html.h:24
 msgid "5 minutes"
-msgstr ""
+msgstr "5 minuta"
 
 #: ../pkg/networkmanager/index.html.h:4 ../pkg/storaged/index.html.h:25
 msgid "1 hour"
-msgstr ""
+msgstr "1 sat"
 
 #: ../pkg/networkmanager/index.html.h:5 ../pkg/storaged/index.html.h:26
 msgid "6 hours"
-msgstr ""
+msgstr "6 sati"
 
 #: ../pkg/networkmanager/index.html.h:6 ../pkg/storaged/index.html.h:27
 msgid "1 day"
-msgstr ""
+msgstr "1 dan"
 
 #: ../pkg/networkmanager/index.html.h:7 ../pkg/storaged/index.html.h:28
 msgid "1 week"
-msgstr ""
+msgstr "1 tjedan"
 
 #: ../pkg/networkmanager/index.html.h:8
 msgid "Sending"
-msgstr ""
+msgstr "Slanje"
 
 #: ../pkg/networkmanager/index.html.h:9
 msgid "Receiving"
-msgstr ""
+msgstr "Primanje"
 
 #: ../pkg/networkmanager/index.html.h:10
 msgid "Interfaces"
-msgstr "Interfaces"
+msgstr "Sučelja"
 
 #: ../pkg/networkmanager/index.html.h:11
 msgid "Add Bond"
-msgstr ""
+msgstr "Dodaj Bond"
 
 #: ../pkg/networkmanager/index.html.h:12
 msgid "Add Bridge"
-msgstr ""
+msgstr "Dodaj Bridge"
 
 #: ../pkg/networkmanager/index.html.h:13
 msgid "Add VLAN"
-msgstr ""
+msgstr "Dodaj VLAN"
 
 #: ../pkg/networkmanager/index.html.h:15
 msgid "IP Address"
-msgstr ""
+msgstr "IP adresa"
 
 #: ../pkg/networkmanager/index.html.h:16
 msgid "Networking Logs"
-msgstr ""
+msgstr "Mrežni Logovi"
 
 #: ../pkg/networkmanager/index.html.h:17
 msgid "Parent"
-msgstr "Parente"
+msgstr "Roditelj"
 
 #: ../pkg/networkmanager/index.html.h:18
 msgid "VLAN Id"
-msgstr "VLAN Id"
+msgstr "VLAN id"
 
 #: ../pkg/networkmanager/index.html.h:20
 msgid "Spanning Tree Protocol (STP)"
@@ -4285,63 +4184,63 @@ msgstr "Spanning Tree Protocol (STP)"
 
 #: ../pkg/networkmanager/index.html.h:21
 msgid "STP Priority"
-msgstr "STP Prioridade"
+msgstr "STP Prioritet"
 
 #: ../pkg/networkmanager/index.html.h:22
 msgid "STP Forward delay"
-msgstr "STP Atraso de Redirecionamento "
+msgstr "STP odgoda prosljeđivanja"
 
 #: ../pkg/networkmanager/index.html.h:23
 msgid "STP Hello time"
-msgstr "STP Hello time"
+msgstr "STP hello vrijeme"
 
 #: ../pkg/networkmanager/index.html.h:24
 msgid "STP Maximum message age"
-msgstr "STP Máxima permanência de mensagem"
+msgstr "STP maksimalna starost poruke"
 
 #: ../pkg/networkmanager/index.html.h:25
 msgid "Priority"
-msgstr "Prioridade"
+msgstr "Prioritet"
 
 #: ../pkg/networkmanager/index.html.h:26
 msgid "Path cost"
-msgstr "Custo do Caminho"
+msgstr "Trošak putanje"
 
 #: ../pkg/networkmanager/index.html.h:27
 msgid "Hair Pin mode"
-msgstr "Hair Pin modo"
+msgstr ""
 
 #: ../pkg/networkmanager/index.html.h:29
 msgid "Mode"
-msgstr "Modo"
+msgstr "Način"
 
 #: ../pkg/networkmanager/index.html.h:30
 msgid "Primary"
-msgstr "Primário"
+msgstr "Primarni"
 
 #: ../pkg/networkmanager/index.html.h:31
 msgid "Link Monitoring"
-msgstr "Monitoramento de Link"
+msgstr "Nadziranje veze"
 
 #: ../pkg/networkmanager/index.html.h:32
 msgid "Monitoring Interval"
-msgstr "Monitorando Intervalo"
+msgstr "Interval nadziranja"
 
 #: ../pkg/networkmanager/index.html.h:33
 msgid "Monitoring Targets"
-msgstr "Alvod e Monitoramento"
+msgstr "Mete nadziranja"
 
 #: ../pkg/networkmanager/index.html.h:34
 msgid "Link up delay"
-msgstr "Link up atraso"
+msgstr "Odgoda podizanja linka"
 
 #: ../pkg/networkmanager/index.html.h:35
 msgid "Link down delay"
-msgstr "Link down atraso"
+msgstr "Odgoda gašenja linka"
 
 #: ../pkg/networkmanager/index.html.h:41
 msgid "IP Settings"
-msgstr ""
+msgstr "IP postavke"
 
 #: ../pkg/networkmanager/index.html.h:45
 msgid ""
@@ -4352,19 +4251,19 @@ msgstr ""
 
 #: ../pkg/networkmanager/index.html.h:48
 msgid "Bond Settings"
-msgstr ""
+msgstr "Bond Postavke"
 
 #: ../pkg/networkmanager/index.html.h:49
 msgid "Bridge Settings"
-msgstr ""
+msgstr "Bridge Postavke"
 
 #: ../pkg/networkmanager/index.html.h:50
 msgid "Bridge Port Settings"
-msgstr ""
+msgstr "Bridge Port Postavke"
 
 #: ../pkg/networkmanager/index.html.h:51
 msgid "VLAN Settings"
-msgstr ""
+msgstr "VLAN Postavke"
 
 #: ../pkg/ostree/index.html.h:1
 msgid "Software Updates"
@@ -4375,46 +4274,34 @@ msgid "Check for updates"
 msgstr ""
 
 #: ../pkg/ostree/index.html.h:3
-#, fuzzy
 msgid ""
 "\n"
 "                    Update and reboot\n"
 "                "
 msgstr ""
-"\n"
-"                  Tipo\n"
-"                  "
 
 #: ../pkg/ostree/index.html.h:6
 msgid "Roll back and reboot"
 msgstr ""
 
 #: ../pkg/ostree/index.html.h:8
-#, fuzzy
 msgid ""
 "\n"
 "                    Default\n"
 "                  "
 msgstr ""
-"\n"
-"                  Tipo\n"
-"                  "
 
 #: ../pkg/ostree/index.html.h:11
-#, fuzzy
 msgid ""
 "\n"
 "                    Available\n"
 "                  "
 msgstr ""
-"\n"
-"                  Tipo\n"
-"                  "
 
 #: ../pkg/ostree/index.html.h:15
 #, fuzzy
 msgid "Updating"
-msgstr "Atualizando $0..."
+msgstr "Ažuriranje $0..."
 
 #: ../pkg/ostree/index.html.h:16
 msgid "Tree"
@@ -4429,14 +4316,12 @@ msgid "Released"
 msgstr ""
 
 #: ../pkg/ostree/index.html.h:21
-#, fuzzy
 msgid "Additions"
-msgstr "Opções"
+msgstr ""
 
 #: ../pkg/ostree/index.html.h:22
-#, fuzzy
 msgid "Removals"
-msgstr "Remover"
+msgstr ""
 
 #: ../pkg/ostree/index.html.h:23
 msgid "Updates"
@@ -4461,7 +4346,7 @@ msgstr ""
 #: ../pkg/ostree/index.html.h:29
 #, fuzzy
 msgid "Connecting"
-msgstr "Conectando ao Docker"
+msgstr "Povezujem se na Docker"
 
 #: ../pkg/ostree/index.html.h:30
 msgid "Unable to communicate with OSTree"
@@ -4472,15 +4357,11 @@ msgid "No Deployments"
 msgstr ""
 
 #: ../pkg/ostree/index.html.h:32
-#, fuzzy
 msgid ""
 "\n"
 "                    Reconnect\n"
 "                "
 msgstr ""
-"\n"
-"                  Tipo\n"
-"                  "
 
 #: ../pkg/storaged/index.html.h:1
 msgid "Storage"
@@ -4519,9 +4400,8 @@ msgid "No volume groups created"
 msgstr ""
 
 #: ../pkg/storaged/index.html.h:11
-#, fuzzy
 msgid "iSCSI Targets"
-msgstr "Alvos"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:12
 msgid "{{Address}}:{{Port}}"
@@ -4533,7 +4413,7 @@ msgstr ""
 
 #: ../pkg/storaged/index.html.h:14
 msgid "Drives"
-msgstr "Unidades"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:15
 msgid "No drives attached"
@@ -4541,11 +4421,11 @@ msgstr ""
 
 #: ../pkg/storaged/index.html.h:16
 msgid "Other Devices"
-msgstr "Outros dispositivos"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:17
 msgid "Filesystems"
-msgstr "Sistema de Arquivos"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:21
 msgid "Jobs"
@@ -4566,40 +4446,40 @@ msgstr ""
 #: ../pkg/storaged/index.html.h:32
 #, fuzzy
 msgid "Create partition table"
-msgstr "Criar partição"
+msgstr "Načini particiju"
 
 #: ../pkg/storaged/index.html.h:33
 msgid "Drive"
-msgstr "Unidade"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:34
 msgid "Block Device"
-msgstr "Dispositivos de Bloco"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:35
 msgctxt "storage"
 msgid "Model"
-msgstr "Modelo"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:36
 msgctxt "storage"
 msgid "Firmware Version"
-msgstr "Versão do Firmware"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:37
 msgctxt "storage"
 msgid "Serial Number"
-msgstr "Número de Série"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:38
 msgctxt "storage"
 msgid "World Wide Name"
-msgstr "Nome Global"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:39
 msgctxt "storage"
 msgid "Capacity"
-msgstr "Capacidade"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:40
 msgid "No media inserted"
@@ -4608,7 +4488,7 @@ msgstr ""
 #: ../pkg/storaged/index.html.h:41
 msgctxt "storage"
 msgid "Assessment"
-msgstr "Avaliação"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:42
 msgid "DISK IS FAILING"
@@ -4621,51 +4501,50 @@ msgstr ""
 #: ../pkg/storaged/index.html.h:44
 msgctxt "storage"
 msgid "Device File"
-msgstr "Arquivo de Dispositivo"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:45
-#, fuzzy
 msgctxt "storage"
 msgid "Multipathed Devices"
-msgstr "Outros dispositivos"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:46
 msgid "RAID Device"
-msgstr "Dispositivo RAID"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:47
 msgctxt "storage"
 msgid "Device"
-msgstr "Dispositivo"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:48
 msgctxt "storage"
 msgid "Name"
-msgstr "Nome"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:49
 msgctxt "storage"
 msgid "UUID"
-msgstr "UUID"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:50
 msgctxt "storage"
 msgid "RAID Level"
-msgstr "Nível de RAID"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:51
 msgctxt "storage"
 msgid "Bitmap"
-msgstr "Bitmap"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:54
 msgctxt "storage"
 msgid "State"
-msgstr "Estado"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:55
 msgid "ARRAY IS DEGRADED"
-msgstr "ARRAY ESTÁ DEGRADADO"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:57
 msgid ""
@@ -4676,11 +4555,11 @@ msgstr ""
 
 #: ../pkg/storaged/index.html.h:60
 msgid "Volume Group"
-msgstr "Grupo de volumes"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:61
 msgid "Physical Volumes"
-msgstr "Volumes Físicos"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:62
 msgid ""
@@ -4691,7 +4570,7 @@ msgstr ""
 
 #: ../pkg/storaged/index.html.h:65
 msgid "Storage Log"
-msgstr "Log de armazenamento"
+msgstr ""
 
 #: ../pkg/subscriptions/index.html.h:1
 msgid "Subscriptions"
@@ -4829,7 +4708,7 @@ msgstr ""
 #: ../pkg/sosreport/index.html.h:10
 #, fuzzy
 msgid "Create report"
-msgstr "Criar Snapshot"
+msgstr "Načini particiju"
 
 #: ../pkg/sosreport/index.html.h:11
 msgid "Create diagnostic report"
@@ -4854,64 +4733,10 @@ msgid "Done!"
 msgstr ""
 
 #~ msgid "User name cannot contain whitespace."
-#~ msgstr "Nome de usuário não pode conter espaços em branco."
+#~ msgstr "Korisničko ime ne može sadržavati razmak."
 
 #~ msgid "IP address or host name cannot be empty."
-#~ msgstr "Endereço IP ou nome do host não pode estar vazio ."
+#~ msgstr "IP adresa ili ime računala ne može biti prazno."
 
-#~ msgid "Connecting to Kubernetes"
-#~ msgstr "Conectando a Kubernetes"
-
-#~ msgid "Unsupported setup mechanism: %s"
-#~ msgstr "Mecanismo de ajuste não suportado: %s"
-
-#~ msgid "Bad data passed for passwd1 mechanism"
-#~ msgstr "Dados corrompidos passaram por passwd1 mecanismo"
-
-#~ msgid "Couldn't load user data"
-#~ msgstr "Não foi possível carregar os dados do usuário"
-
-#~ msgid "Couldn't change user groups"
-#~ msgstr "Não foi possível alterar os grupos de usuários"
-
-#~ msgid "Couldn't change user password"
-#~ msgstr "Não foi possível alterar a senha do usuário"
-
-#~ msgid "Couldn't create new users"
-#~ msgstr "Não foi possível criar novos usuários"
-
-#~ msgid "Couldn't list local users"
-#~ msgstr "Não foi possível listar os usuários locais"
-
-#~ msgid ""
-#~ "Cockpit is a server manager that makes it easy to administer your Linux "
-#~ "servers via a web browser. Jumping between the terminal and the web tool "
-#~ "is no problem. A service started via Cockpit can be stopped via the "
-#~ "terminal. Likewise, if an error occurs in the terminal, it can be seen in "
-#~ "the Cockpit journal interface."
-#~ msgstr ""
-#~ "Cockpit é um gerenciador de Servidores que facilita a tarefa de "
-#~ "administrar seu servidor Linux via navegador web. Alternar entre o "
-#~ "terminal e a ferramenta web, não é dif[icil. Um serviço pode ser iniciado "
-#~ "pelo Cockpit e finalizado pelo Terminal. Da mesma forma, se um erro "
-#~ "ocorrer no terminal, este pode ser detectado via interface do Cockpit."
-
-#, fuzzy
-#~ msgid ""
-#~ "Cockpit is perfect for new sysadmins, allowing them to easily perform "
-#~ "simple tasks such as storage administration, inspecting journals and "
-#~ "starting and stopping services. You can monitor and administer several "
-#~ "servers at the same time. Just add them with a single click and your "
-#~ "machines will look after its buddies."
-#~ msgstr ""
-#~ "Cockpit é perfeito para novos administradores de sistemas, permitindo-"
-#~ "lhes facilmente realizar tarefas simples, como a administração de "
-#~ "armazenamento, inspecionando logs e iniciar/parar serviços. É possível "
-#~ "monitorar e administrar vários servidores ao mesmo tempo. Basta adicioná-"
-#~ "los com um único clique e suas máquinas vão cuidar de seus companheiros."
-
-#~ msgid "A user interface for GNU/Linux servers"
-#~ msgstr "A interface de usuário para servidores GNU/Linux"
-
-#~ msgid "Remote;Administration;"
-#~ msgstr "Remoto; Administração;"
+#~ msgid "Drop extra privileges"
+#~ msgstr "Odbaci dodatne privilegije"

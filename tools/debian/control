@@ -77,7 +77,8 @@ Description: Cockpit PCP integration
 Package: cockpit-ws
 Architecture: any
 Depends: ${misc:Depends},
-         ${shlibs:Depends}
+         ${shlibs:Depends},
+         glib-networking
 Description: Cockpit Web Service
  The Cockpit Web Service listens on the network, and authenticates
  users.

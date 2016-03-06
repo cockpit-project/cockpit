@@ -509,7 +509,7 @@ define([
                     } else {
                         var message = cockpit.format(_("atomicapp version $0 is not supported."), atomicapp_version);
                         console.warn(message);
-                        console.warn(cockpit.format(_("Only atomicapp version gretater than $0 is supported."), MINIMUM_SUPPORTED_ATOMICAPP_VERSION));
+                        console.warn(cockpit.format(_("Only atomicapp version greater than $0 is supported."), MINIMUM_SUPPORTED_ATOMICAPP_VERSION));
                         var err = new Error(message);
                         deferred.reject(err);
                     }

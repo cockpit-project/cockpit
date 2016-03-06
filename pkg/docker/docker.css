@@ -151,16 +151,6 @@
     text-overflow: ellipsis;
 }
 
-.panel .panel-heading > span {
-    float: right;
-}
-
-/* Display properly when there are several tags */
-#image-details .panel-heading {
-    min-height: 44px;
-    height: auto;
-}
-
 .image-col-tags {
     width: 40%;
 }
@@ -243,9 +233,10 @@
     height: 120px;
 }
 
-#image-details .panel-heading,
-#container-details .panel-heading {
-    height: 44px;
+/* Display properly when there are several tags */
+#image-details .panel-heading {
+    min-height: 44px;
+    height: auto;
 }
 
 #image-details .panel-heading .pull-right,

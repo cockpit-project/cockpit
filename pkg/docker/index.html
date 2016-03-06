@@ -107,7 +107,7 @@
       <br/>
       <div class="panel panel-default" id="containers-containers">
         <div class="panel-heading">
-          <span>
+          <span class="pull-right">
               <div class="btn-group dropdown" id="containers-containers-filter">
                   <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                       <span translatable="yes">All</span>
@@ -150,7 +150,7 @@
     <div class="col-md-12 col-lg-4">
       <div class="panel panel-default" id="containers-images">
         <div class="panel-heading">
-          <span>
+          <span class="pull-right">
             <button class="btn btn-primary" id="containers-images-search" translatable="yes">
               Get new image
             </button>
@@ -182,8 +182,6 @@
     </ol>
     <div class="panel-default panel">
       <div class="panel-heading col-sm-12">
-        Container:
-        <span id="container-details-names"></span>
         <div class="pull-right">
           <button class="btn btn-default" id="container-details-start">Start</button>
           <button class="btn btn-default" id="container-details-stop">Stop</button>
@@ -195,6 +193,8 @@
           </button>
           <div class="spinner" hidden></div>
         </div>
+        Container:
+        <span id="container-details-names"></span>
       </div>
       <div class="panel-body">
         <table class="cockpit-info-table col-sm-5">
@@ -273,12 +273,12 @@
     </ol>
     <div class="panel-default panel">
       <div class="panel-heading col-sm-12">
-        Image: <span id="image-details-tags"></span>
-        <div class="pull-right" style="height:25px" id="image-details-buttons">
+        <div class="pull-right" id="image-details-buttons">
           <button class="btn btn-default" id="image-details-run">Run</button>
           <button class="btn btn-danger" id="image-details-delete">Delete</button>
           <div class="spinner" hidden></div>
         </div>
+        Image: <span id="image-details-tags"></span>
       </div>
       <div class="panel-body">
         <table class="cockpit-info-table">

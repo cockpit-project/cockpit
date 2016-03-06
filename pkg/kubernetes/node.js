@@ -69,7 +69,7 @@ define([
         }
 
         if (name && !regex.test(name)) {
-            ex = new Error(_("The name contains invalid charaters"));
+            ex = new Error(_("The name contains invalid characters"));
             ex.target = "#node-name";
             failures.push(ex);
         }

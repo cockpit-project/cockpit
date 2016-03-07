@@ -17,7 +17,6 @@ libcockpit_stub_a_SOURCES = \
 	src/bridge/cockpitdbusjson.h \
 	src/bridge/cockpitdbusrules.c \
 	src/bridge/cockpitdbusrules.h \
-	src/bridge/cockpitdbustime.c \
 	src/bridge/cockpitdbusenvironment.c \
 	src/bridge/cockpitechochannel.c \
 	src/bridge/cockpitechochannel.h \

@@ -1370,7 +1370,37 @@
                 throw "no KubeWatchFactory set";
             };
         }
-    ]);
+    ])
 
+    .provider("KubeSettings", [
+        function() {
+            var self = this;
+
+            /* Until we come up with a good default implementation, must be provided */
+            self.KubeSettingsFactory = "MissingKubeSettings";
+
+            function load(injector, name) {
+                if (angular.isString(name))
+                    return injector.get(name, "KubeSettings");
+                else
+                    return injector.invoke(name);
+            }
+
+            self.$get = [
+                "$injector",
+                function($injector) {
+                    return load($injector, self.KubeSettingsFactory);
+                }
+            ];
+        }
+    ])
+
+    .factory("MissingKubeSettings", [
+        function() {
+            return function MissingKubeSettings(path, callback) {
+                throw "no KubeSettingsFactory set";
+            };
+        }
+    ]);
 
 }());

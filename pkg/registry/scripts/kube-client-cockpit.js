@@ -765,6 +765,43 @@
                 return defer.promise;
             };
         }
+    ])
+
+    .factory("CockpitKubeSettings", [
+        "$q",
+        function($q) {
+            var defer = $q.defer();
+            var settings = null;
+            return function cockpitKubeSettings() {
+                if (settings !== null)
+                    return defer.promise;
+                var channel = cockpit.channel({ payload: "dbus-json3", bus: "internal" });
+                channel.addEventListener("close", function(ev, options) {
+                    if (options.problem) {
+                        console.warn("couldn't retrieve environment:", options.problem);
+                        defer.reject(options);
+                    } else {
+                        defer.resolve(settings);
+                    }
+                });
+                channel.addEventListener("message", function(ev, data) {
+                    var result = JSON.parse(data);
+                    if (result.reply) {
+                        settings = result.reply[0][0].Variables.v;
+                        channel.close(null);
+                    } else if (result.error) {
+                        console.warn("error retrieving environment:", result.error);
+                        channel.close("internal-error");
+                    }
+                });
+                channel.send(JSON.stringify({
+                    id: "cookie",
+                    call: [ "/environment", "org.freedesktop.DBus.Properties", "GetAll",
+                                [ "cockpit.Environment" ] ]
+                }));
+                return defer.promise;
+            };
+        }
     ]);
 
 }());

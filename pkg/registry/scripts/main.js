@@ -31,16 +31,18 @@
     ])
 
     .config([
+        '$provide',
         '$routeProvider',
         'KubeWatchProvider',
         'KubeRequestProvider',
-        '$provide',
-        function($routeProvider, KubeWatchProvider, KubeRequestProvider, $provide) {
+        'KubeSettingsProvider',
+        function($provide, $routeProvider, KubeWatchProvider, KubeRequestProvider, KubeSettingsProvider) {
             $routeProvider.otherwise({ redirectTo: '/' });
 
             /* Tell the kube-client code to use cockpit watches and requests */
             KubeWatchProvider.KubeWatchFactory = "CockpitKubeWatch";
             KubeRequestProvider.KubeRequestFactory = "CockpitKubeRequest";
+            KubeSettingsProvider.KubeSettingsFactory = "CockpitKubeSettings";
 
             $provide.decorator("$exceptionHandler",
                 ['$delegate',
@@ -58,20 +60,17 @@
     ])
 
     .controller('MainCtrl', [
+        '$q',
         '$scope',
         '$location',
         '$rootScope',
         '$timeout',
         'kubeLoader',
-        'kubeSelect',
+        'registrySettings',
         'filterService',
         'cockpitKubeDiscover',
-        function($scope, $location, $rootScope, $timeout, loader, select, filter, discover) {
-            $scope.settings = {
-                registry: {
-                    host: "hostname"
-                }
-            };
+        function($q, $scope, $location, $rootScope, $timeout, loader, settings, filter, discover) {
+            $scope.settings = { };
 
             /* Used to set detect which route is active */
             $scope.viewActive = function(segment) {
@@ -113,38 +112,31 @@
             /* Show after some seconds whether ready or not */
             $timeout(visible, 1000);
 
-            function display(admin) {
-                $scope.curtains = null;
-                $scope.settings.admin = admin;
-                filter.globals(admin);
-                visible();
-            }
-
-            /* Curtains related logic */
+            /* Curtains and settings related logic */
             function connect() {
+                var admin = null;
                 $scope.curtains = { };
-                discover().then(function(options) {
-                    $scope.settings.registry.password = null;
-
-                    /* See if we have a bearer token to use */
-                    var authorization, pos;
-                    if (options.headers) {
-                        authorization = (options.headers['Authorization'] || "").trim();
-                        if (authorization.toLowerCase().indexOf("bearer ") === 0)
-                            $scope.settings.registry.password = authorization.substr(7).trim();
-                    }
-
-                    loader.watch("namespaces").then(function() {
-                        display(true);
+                var one = discover().then(function(options) {
+                    return loader.watch("namespaces").then(function() {
+                        $scope.curtains = null;
+                        $scope.settings.admin = true;
+                        filter.globals(true);
                     }, function() {
-                        display(false);
+                        $scope.curtains = null;
+                        $scope.settings.admin = false;
+                        filter.globals(false);
                     });
                 }, function(resp) {
                     $scope.curtains = { status: resp.status, message: resp.message || resp.statusText };
-                    $scope.settings.registry.password = null;
-
-                    visible();
+                    return $q.reject(resp);
                 });
+
+                var two = settings().then(function(data) {
+                    $scope.settings.registry = data;
+                });
+
+                /* Set to visible when all this stuff is done */
+                $q.all([one, two]).then(visible, visible);
             }
 
             /* Connect automatically initially */
@@ -157,38 +149,58 @@
                 connect();
             };
 
-            /*
-             * HACK: Because we don't have access to the information
-             * about the docker-registry Route, we cannot lookup its
-             * hostname information. So for now lets just look at an
-             * image stream.
-             */
-            var discoverHost = function() {
-                var host = null;
-                angular.forEach(select().kind("ImageStream"), function(stream) {
-                    var repo, status = stream.status || {};
-                    if (!host) {
-                        repo = status.dockerImageRepository || "";
-                        host = repo.split("/")[0];
-                    }
-                });
-                return host;
-            };
-
             /* When the loader changes digest */
             loader.listen(function() {
-                var host;
-
-                if (discoverHost) {
-                    host = discoverHost();
-                    if (host) {
-                        $scope.settings.registry.host = host;
-                        discoverHost = null;
-                    }
-                }
-
                 $rootScope.$applyAsync();
             });
+        }
+    ])
+
+    .factory('registrySettings', [
+        '$q',
+        'KubeSettings',
+        'cockpitKubeDiscover',
+        function($q, KubeSettings, discover) {
+            return function registrySettings() {
+                var data = { };
+
+                var one = discover().then(function(options) {
+                    data.password = null;
+
+                    /* See if we have a bearer token to use */
+                    var authorization, pos;
+                    if (options.headers) {
+                        authorization = (options.headers['Authorization'] || "").trim();
+                        if (authorization.toLowerCase().indexOf("bearer ") === 0)
+                            data.password = authorization.substr(7).trim();
+                    }
+                });
+
+                function processSettings(env) {
+                    /*
+                     * HACK: Because openshift doesn't give us the information we need
+                     * to look at where the registry is, we have to guess.
+                     *
+                     * We use an proper environment variable that comes in via KubeSettings.
+                     */
+
+                    var value = env["REGISTRY_HOST"];
+                    if (value)
+                        data.host = value;
+                }
+
+                var two = KubeSettings().then(function(result) {
+                    processSettings(result);
+                }, function() {
+                    processSettings({ });
+                });
+
+                return $q.all(one, two).then(function() {
+                    return data;
+                }, function() {
+                    return data;
+                });
+            };
         }
     ])
 

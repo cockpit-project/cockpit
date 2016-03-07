@@ -38,6 +38,7 @@ basedebug_DATA = \
 	pkg/base1/po.js \
 	pkg/base1/require.js \
 	pkg/base1/patterns.js \
+	pkg/base1/term.css \
 	pkg/base1/term.js \
 	pkg/base1/moment.js \
 	pkg/base1/mustache.js \
@@ -70,6 +71,8 @@ pkg/base1/jquery.min.js: pkg/base1/jquery.js
 pkg/base1/moment.min.js: pkg/base1/moment.js
 	$(MIN_JS_RULE)
 pkg/base1/mustache.min.js: pkg/base1/mustache.js
+	$(MIN_JS_RULE)
+pkg/base1/term.min.js: pkg/base1/term.js
 	$(MIN_JS_RULE)
 
 install-data-local::

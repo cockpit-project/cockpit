@@ -25,19 +25,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
     <link href="../shell/plot.css" type="text/css" rel="stylesheet">
-    <link href="docker.css" type="text/css" rel="stylesheet">
+    <link href="docker.css" type="text/css" rel="stylesheet" id="term-style">
     <script src="../base1/bundle.js"></script>
     <script src="../shell/shell.js"></script>
     <script src="bundle.js"></script>
-<script>
-    require([
-        "jquery",
-        "docker/containers",
-        "base1/bootstrap-select",
-    ], function($, containers) {
-        $(containers);
-    });
-</script>
+    <!-- debug:start -->
+    <script src="containers.js"></script>
+    <!-- debug:end -->
 </head>
 <body hidden>
 
@@ -101,19 +95,19 @@
           <div>
             <span class="plot-unit" id="containers-cpu-unit">%</span><span class="plot-title" translatable="yes">Combined CPU usage</span>
           </div>
-          <div style="height:120px" id="containers-cpu-graph"></div>
+          <div id="containers-cpu-graph"></div>
         </div>
         <div class="col-sm-6">
           <div>
             <span class="plot-unit" id="containers-mem-unit"></span><span class="plot-title" translatable="yes">Combined memory usage</span>
           </div>
-          <div style="height:120px" id="containers-mem-graph"></div>
+          <div id="containers-mem-graph"></div>
         </div>
       </div>
       <br/>
       <div class="panel panel-default" id="containers-containers">
         <div class="panel-heading">
-          <span style="float:right">
+          <span>
             <select class="selectpicker form-control" id="containers-containers-filter">
               <option value="all" selected="true" translatable="yes">All</option>
               <option value="running" translatable="yes">Running</option>
@@ -150,7 +144,7 @@
     <div class="col-md-12 col-lg-4">
       <div class="panel panel-default" id="containers-images">
         <div class="panel-heading">
-          <span style="float:right">
+          <span>
             <button class="btn btn-primary" id="containers-images-search" translatable="yes">
               Get new image
             </button>
@@ -181,11 +175,11 @@
       <li class="active"></li>
     </ol>
     <div class="panel-default panel">
-      <div class="panel-heading" style="height:44px">
+      <div class="panel-heading">
         <div class="col-sm-12">
           Container:
           <span id="container-details-names"></span>
-          <div class="pull-right" style="height:25px">
+          <div class="pull-right">
             <button class="btn btn-default" id="container-details-start">Start</button>
             <button class="btn btn-default" id="container-details-stop">Stop</button>
             <button class="btn btn-default" id="container-details-restart">Restart</button>
@@ -194,7 +188,7 @@
                     data-toggle="modal" data-target="#container-commit-dialog">
               Commit
             </button>
-            <div class="spinner" style="display: none;"></div>
+            <div class="spinner" hidden></div>
           </div>
         </div>
       </div>
@@ -220,11 +214,11 @@
             <td>State:</td>
             <td colspan="2" id="container-details-state"></td>
           </tr>
-          <tr id="container-details-ports-row" style="display: none;">
+          <tr id="container-details-ports-row" hidden>
             <td>Ports:</td>
             <td colspan="2" id="container-details-ports"></td>
           </tr>
-          <tr id="container-details-links-row" style="display: none;">
+          <tr id="container-details-links-row" hidden>
             <td>Links:</td>
             <td colspan="2" id="container-details-links"></td>
           </tr>
@@ -235,23 +229,23 @@
               <div class="bar-row hidden" graph="container-details" value="0/100000000"></div>
             </td>
           </tr>
-          <tr id="container-details-memory-row" class="interactive" style="display: none;">
+          <tr id="container-details-memory-row" class="interactive" hidden>
             <td>Memory usage:</td>
             <td colspan="2" id="container-details-memory">
               <div class="bar-row" graph="container-details"></div>
             </td>
-            <td class="shrink" id="container-details-memory-text" style="min-width: 8em; text-align: right;"></td>
+            <td class="shrink resource-value" id="container-details-memory-text"></td>
           </tr>
-          <tr id="container-details-cpu-row" class="interactive" style="display: none;">
+          <tr id="container-details-cpu-row" class="interactive" hidden>
             <td>CPU usage:</td>
             <td colspan="2">
               <span class="cpu-usage"></span>
             </td>
-            <td class="shrink" style="min-width: 8em; text-align: right;">
+            <td class="shrink resource-value">
               <span class="cpu-shares"></span>
             </td>
           </tr>
-          <tr id="container-details-resource-row" style="display: none;">
+          <tr id="container-details-resource-row" hidden>
             <td></td>
             <td>
               <button class="btn btn-default resource-button" data-toggle="modal"
@@ -261,7 +255,7 @@
             </td>
           </tr>
         </table>
-        <div id="container-terminal" style="display: none;"></div>
+        <div id="container-terminal" hidden></div>
       </div>
     </div>
   </div>
@@ -274,13 +268,13 @@
       <li class="active"></li>
     </ol>
     <div class="panel-default panel">
-      <div class="panel-heading" style="height:44px">
+      <div class="panel-heading">
         <div class="col-sm-12">
           Image: <span id="image-details-tags"></span>
-          <div class="pull-right" style="height:25px" id="image-details-buttons">
+          <div class="pull-right" id="image-details-buttons">
             <button class="btn btn-default" id="image-details-run">Run</button>
             <button class="btn btn-danger" id="image-details-delete">Delete</button>
-            <div class="spinner" style="display: none;"></div>
+            <div class="spinner" hidden></div>
           </div>
         </div>
       </div>
@@ -435,7 +429,7 @@
                   </div>
                 </div>
               </td>
-              <td class="shrink" style="min-width: 8em; text-align: right;">
+              <td class="shrink resource-value">
                 <span>unlimited</span>
               </td>
             </tr>
@@ -451,7 +445,7 @@
                   </div>
                 </div>
               </td>
-              <td class="shrink" style="min-width: 8em; text-align: right;">
+              <td class="shrink resource-value">
                 <span>default</span>
               </td>
             </tr>
@@ -567,7 +561,7 @@
                   </div>
                 </div>
               </td>
-              <td class="shrink" style="min-width: 8em; text-align: right;">
+              <td class="shrink resource-value">
                 <span>unlimited</span>
               </td>
             </tr>
@@ -583,7 +577,7 @@
                   </div>
                 </div>
               </td>
-              <td class="shrink" style="min-width: 8em; text-align: right;">
+              <td class="shrink resource-value">
                 <span>default</span>
               </td>
             </tr>

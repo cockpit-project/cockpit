@@ -553,6 +553,9 @@ class MachineCase(unittest.TestCase):
         'calling: info',
         'Sent message type=method_call sender=.*',
         'Got message type=method_return sender=.*',
+
+        # HACK: https://github.com/systemd/systemd/pull/1758
+        'Error was encountered while opening journal files:.*',
     ]
 
     def allow_journal_messages(self, *patterns):
@@ -581,9 +584,6 @@ class MachineCase(unittest.TestCase):
                                     'audit:.*denied.*systemd-logind.*nologin.*',
                                     'localhost: dropping message while waiting for child to exit',
                                     '.*: GDBus.Error:org.freedesktop.PolicyKit1.Error.Failed: .*',
-
-                                    # HACK: https://github.com/systemd/systemd/pull/1758
-                                    'Error was encountered while opening journal files:.*'
                                     )
 
     def allow_authorize_journal_messages(self):

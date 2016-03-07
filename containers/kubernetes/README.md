@@ -40,6 +40,8 @@ The ```openshift-template.json``` allows you to set the following environment va
  * ```KUBERNETES_INSECURE```: Set to 'true' to disable certificate verification when talking to the API.
  * ```KUBERNETES_CA_DATA```: PEM encoded certificate that should be treated as a trusted certificate authority when talking to the Kubernetes API.
  * ```OPENSHIFT_OAUTH_PROVIDER_URL```: The public url for the Openshift OAuth Provider. Users will be redirected here when they attempt to log into cockpit.
+ * ```REGISTRY_ONLY```: Only show the registry user interface.
+ * ```REGISTRY_HOST```: Tell the container about the accessible registry hostname in use.
 
 Only ```COCKPIT_KUBE_URL``` and ```OPENSHIFT_OAUTH_PROVIDER_URL``` are required.
 

@@ -151,6 +151,10 @@
     text-overflow: ellipsis;
 }
 
+.panel .panel-heading > span {
+    float: right;
+}
+
 .image-col-tags {
     width: 40%;
 }
@@ -226,6 +230,26 @@
 /* workaround: make text red for select if contained in has-error, not in patternfly */
 .has-error > .bootstrap-select > button > span {
     color: #A94442;
+}
+
+#containers-cpu-graph,
+#containers-mem-graph {
+    height: 120px;
+}
+
+#image-details .panel-heading,
+#container-details .panel-heading {
+    height: 44px;
+}
+
+#image-details .panel-heading .pull-right,
+#container-details .panel-heading .pull-right {
+    height: 25px;
+}
+
+.resource-value {
+    min-width: 8em;
+    text-align: right;
 }
 
 /*

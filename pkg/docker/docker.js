@@ -131,7 +131,9 @@ define([
         var term = new Terminal({
             cols: 80,
             rows: 24,
-            screenKeys: true
+            screenKeys: true,
+            useStyle: true,
+            inlineStyle: false,
         });
 
         var enable_input = true;

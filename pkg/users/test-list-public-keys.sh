@@ -8,7 +8,8 @@ echo "1..4"
 normalize()
 {
     sed -e 's/\([0-9]\+ \)[A-Za-z0-9:]\+ \+/\1FINGERPRINT /' \
-        -e 's/authorized_keys is not a public key file.//'
+        -e 's/authorized_keys is not a public key file.//' \
+        -e 's/FINGERPRINT authorized_keys (RSA)/FINGERPRINT no comment (RSA)/'
 }
 
 test_compare()

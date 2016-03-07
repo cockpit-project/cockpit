@@ -28,7 +28,6 @@ define([
     "shell/controls",
     "shell/shell",
     "shell/plot",
-    "base1/bootstrap-select",
 ], function($, cockpit, Mustache, util, run_image, search_image, docker, controls, shell) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
@@ -52,17 +51,16 @@ define([
                                      set_danger_enabled(!danger_enabled);
                                  });
 
-        $('#containers-containers-filter').on('change', function () {
-            var filter = $(this).val();
-            $("#containers-containers table").toggleClass("filter-unimportant", filter === "running");
+        $('#containers-containers-filter a').on('click', function() {
+            var el = $(this);
+            $("#containers-containers-filter button span").text(el.text());
+            $("#containers-containers table").toggleClass("filter-unimportant", el.attr('value') === "running");
         });
 
         $('#containers-images-search').on("click", function() {
             search_image(client);
             return false;
         });
-
-        $('.selectpicker').selectpicker();
 
         function highlight_container_row(event, id) {
             id = client.container_from_cgroup(id) || id;

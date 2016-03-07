@@ -108,10 +108,14 @@ class TestDocker(MachineCase):
         b.wait_visible("#select-linked-containers:empty");
         b.click("#link-containers");
         b.wait_visible("#select-linked-containers:parent");
-        b.set_val("#select-linked-containers form:last-child select.selectpicker", "PROBE1")
+        b.click("#select-linked-containers form:last-child .link-container button")
+        b.wait_visible("#select-linked-containers form:last-child .link-container a[value='PROBE1']")
+        b.click("#select-linked-containers form:last-child .link-container a[value='PROBE1']")
         b.set_val("#select-linked-containers form:last-child  input[name='alias']", "alias1")
         b.click("#select-linked-containers form:last-child  button.fa-plus");
-        b.set_val("#select-linked-containers form:last-child  select.selectpicker", "PROBE1")
+        b.click("#select-linked-containers form:last-child .link-container button")
+        b.wait_visible("#select-linked-containers form:last-child .link-container a[value='PROBE1']")
+        b.click("#select-linked-containers form:last-child .link-container a[value='PROBE1']")
         b.set_val("#select-linked-containers form:last-child  input[name='alias']", "alias2")
         b.click("#containers-run-image-run");
         b.wait_popdown("containers_run_image_dialog")

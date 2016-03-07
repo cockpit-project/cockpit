@@ -462,7 +462,6 @@ run_bridge (const gchar *interactive,
   pcp = cockpit_portal_new_pcp (transport);
 
   bridge = cockpit_bridge_new (transport, payload_types, init_received);
-  cockpit_dbus_time_startup ();
   cockpit_dbus_user_startup (pwd);
   cockpit_dbus_setup_startup ();
   cockpit_dbus_environment_startup ();

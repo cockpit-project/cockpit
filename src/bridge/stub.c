@@ -158,7 +158,6 @@ run_bridge (const gchar *interactive)
   cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
 
   bridge = cockpit_bridge_new (transport, payload_types, init_received);
-  cockpit_dbus_time_startup ();
   cockpit_dbus_environment_startup ();
 
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);

@@ -213,9 +213,9 @@ setup_transport (TestCase *tc,
   if (!command)
     command = "cat";
 
-    if (fixture->expect_key)
-      expect_knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)tc->ssh_port, fixture->expect_key);
-    ignore_key = fixture->ignore_key;
+  if (fixture->expect_key)
+    expect_knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)tc->ssh_port, fixture->expect_key);
+  ignore_key = fixture->ignore_key;
 
   if (tc->agent_transport != NULL)
     agent = cockpit_ssh_agent_new (tc->agent_transport, "ssh-tests", "ssh-agent");

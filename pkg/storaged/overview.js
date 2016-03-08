@@ -202,8 +202,8 @@ define([
                     Name: name,
                     Classification: classification,
                     Description: desc,
-                    ReadRate: io && cockpit.format_bytes_per_sec(io[0]),
-                    WriteRate: io && cockpit.format_bytes_per_sec(io[1]),
+                    ReadRate: io && utils.fmt_rate(io[0]),
+                    WriteRate: io && utils.fmt_rate(io[1]),
                     Highlight: dev == cur_highlight
                 };
             }

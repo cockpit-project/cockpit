@@ -117,6 +117,7 @@ func main() {
 	setupCertificates()
 
 	name := "kubernetes"
+	isRegistry, _ := strconv.ParseBool(os.Getenv("ATOMIC_REGISTRY_ONLY"))
 
 	oauth_url := os.Getenv("OPENSHIFT_OAUTH_PROVIDER_URL")
 	if oauth_url != "" {
@@ -136,7 +137,9 @@ func main() {
 		}
 	}
 
-	if isOpenShift {
+	if isRegistry {
+		name = "registry"
+	} else if isOpenShift {
 		name = "openshift"
 	}
 
@@ -144,11 +147,24 @@ func main() {
 	confData["login_command"] = "/usr/libexec/cockpit-kube-auth"
 	confData["oauth_url"] = oauth_url
 	confData["is_openshift"] = isOpenShift
+	confData["is_registry"] = isRegistry
 	writeConfigFile(confData)
 
 	override := path.Join(*confDir, fmt.Sprintf("%s-override.json", name))
 	brand := path.Join(*confDir, fmt.Sprintf("%s-brand", name))
 	linkFiles(override, "/usr/share/cockpit/shell/override.json")
 	linkFiles(brand, "/etc/os-release")
+
+	/* TODO: Once we combine kubernetes and registry packages
+	 * this will need to change */
+	remove_override := path.Join(*confDir, "remove-dashboard-override.json")
+	if isRegistry {
+		registry_override := path.Join(*confDir, "registry-dashboard-override.json")
+		linkFiles(registry_override, "/usr/share/cockpit/registry/override.json")
+		linkFiles(remove_override, "/usr/share/cockpit/kubernetes/override.json")
+	} else {
+		linkFiles(remove_override, "/usr/share/cockpit/registry/override.json")
+	}
+
 	syscall.Exec(args[0], args, os.Environ())
 }

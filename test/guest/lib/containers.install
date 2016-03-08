@@ -20,7 +20,7 @@ set -ex
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker
 
-for NAME in kubernetes registry
+for NAME in kubernetes
 do
     mkdir -p "/var/tmp/containers/$NAME/rpms"
     cp -f /var/tmp/build-results/*.rpm "/var/tmp/containers/$NAME/rpms/"

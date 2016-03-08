@@ -73,7 +73,7 @@ class TestStorage(StorageCase):
         b.click('[data-action="format_disk"]')
         self.dialog({})
 
-        b.wait_in_text("#content", "50 MB Free Space")
+        b.wait_in_text("#content", "50 MiB Free Space")
 
 if __name__ == '__main__':
     test_main()

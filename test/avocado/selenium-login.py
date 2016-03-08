@@ -120,7 +120,7 @@ class BasicTestSuite(SeleniumTest):
         self.wait_id('storage-detail')
         self.wait_text(other_discname, element="td")
         self.wait_text("Capacity", element="td")
-        self.wait_text("1000 MB", element="td")
+        self.wait_text("1000 MiB", element="td")
         self.click(self.wait_link('Storage', cond=clickable))
         self.wait_xpath("//*[@data-goto-block='%s']" % other_shortname)
         self.mainframe()

@@ -43,7 +43,7 @@ fi
 
 for package in $@
 do
-    rpm=$(/usr/bin/find /container/rpms -name "$package*.rpm" || true)
+    rpm=$(ls /container/rpms/$package*.rpm || true)
     if [ -z "$rpm" ] && [ -z "$OFFLINE" ]; then
         rpm="$COCKPIT_RPM_URL/$VERSION/$RELEASE.$OS/$arch/$package$VERSION-$RELEASE.$OS.$arch.rpm"
     fi

@@ -77,6 +77,7 @@ type Client struct {
 
 	caData   string
 	insecure bool
+	requireOpenshift bool
 
 	userAPI string
 	client      *http.Client
@@ -175,7 +176,9 @@ func (self *Client) fetchUserData(creds *Credentials) error {
 	 * we don't have any way to get a user object
 	 * so just make sure the api isn't open
 	 */
-	if resp.StatusCode == 404 && creds.UserName != "" {
+	if resp.StatusCode == 404 && self.requireOpenshift {
+		return errors.New("Couldn't connect: Incompatible API")
+	} else if resp.StatusCode == 404 && creds.UserName != "" {
 		return self.guessUserData(creds)
 	} else if resp.StatusCode != 200 {
 		return newAuthError(fmt.Sprintf("Couldn't get user data: %s", resp.Status))
@@ -291,6 +294,8 @@ func NewClient() *Client {
 	if ac.userAPI == "" {
 		ac.userAPI = "oapi"
 	}
+
+	ac.requireOpenshift, _ = strconv.ParseBool(os.Getenv("ATOMIC_REGISTRY_ONLY"))
 
 	ac.insecure, _ = strconv.ParseBool(os.Getenv("KUBERNETES_INSECURE"))
 	if !ac.insecure {

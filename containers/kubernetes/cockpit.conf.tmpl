@@ -1,5 +1,8 @@
 [WebService]
 Shell = /shell/simple.html
+{{if .is_registry }}
+LoginTitle = Atomic Registry
+{{else}}
 {{if .is_openshift }}
 LoginTitle = Cockpit Openshift
 {{else}}
@@ -8,6 +11,7 @@ LoginTitle = Cockpit Kubernetes
 [Negotiate]
 Action = spawn-login-with-decoded
 Command = {{.login_command}}
+{{end}}
 {{end}}
 
 [Basic]

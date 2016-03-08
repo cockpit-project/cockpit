@@ -131,9 +131,6 @@ oc patch --namespace=marmalade policybinding ':default' -p '{"roleBindings":[{"n
 # Wait for it to download
 wait images_has busybox
 
-# Setup basics for building images
-/var/lib/testvm/containers.setup
-
 # Print out the kubeconfig file for copy paste
 echo "---------------------------------------------------------------"
 cat /root/.kube/config

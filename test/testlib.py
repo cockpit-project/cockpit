@@ -556,6 +556,7 @@ class MachineCase(unittest.TestCase):
 
         # HACK: https://github.com/systemd/systemd/pull/1758
         'Error was encountered while opening journal files:.*',
+        'Failed to get data: Cannot assign requested address',
     ]
 
     def allow_journal_messages(self, *patterns):

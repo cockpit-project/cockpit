@@ -128,6 +128,9 @@ oc config use-context default/10-111-112-101:8443/system:admin
 # Some roles for testing against
 oc patch --namespace=marmalade policybinding ':default' -p '{"roleBindings":[{"name":"admin","roleBinding":{"metadata":{"name":"admin","namespace":"marmalade"},"userNames":["scruffy"],"groupNames":null,"subjects":[{"kind":"User","name":"scruffy"}],"roleRef":{"name":"admin"}}},{"name":"edit","roleBinding":{"metadata":{"name":"edit","namespace":"marmalade"},"userNames":["scruffy","amanda"],"groupNames":null,"subjects":[{"kind":"User","name":"scruffy"},{"kind":"User","name":"amanda"}],"roleRef":{"name":"edit"}}},{"name":"view","roleBinding":{"metadata":{"name":"view","namespace":"marmalade"},"userNames":["scruffy","tom","amanda"],"groupNames":["sports"],"subjects":[{"kind":"User","name":"scruffy"},{"kind":"User","name":"tom"},{"kind":"User","name":"amanda"},{"kind":"Group","name":"sports"}],"roleRef":{"name":"view"}}}]}'
 
+# For testing the Cockpit OAuth client
+printf '{"kind": "OAuthClient","apiVersion": "v1","metadata": {"name": "cockpit-oauth-devel"},"respondWithChallenges": false,"secret": "secret","redirectURIs":["http://localhost:9001"] }' | oc create -f -
+
 # Wait for it to download
 wait images_has busybox
 

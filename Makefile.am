@@ -319,3 +319,4 @@ include branding/fedora/Makefile.am
 include branding/kubernetes/Makefile.am
 include branding/registry/Makefile.am
 include branding/rhel/Makefile.am
+include containers/Makefile.am

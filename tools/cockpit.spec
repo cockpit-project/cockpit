@@ -12,12 +12,10 @@
 #  * tag 0.91
 #
 
-%define branding auto
 %define rev 1
 
 %if %{defined gitcommit}
 %define extra_flags CFLAGS='-O2 -Wall -Werror -fPIC -g -DWITH_DEBUG'
-%define branding default
 %endif
 
 %if 0%{?centos}
@@ -160,7 +158,7 @@ exec 2>&1
 %if %{defined gitcommit}
 env NOCONFIGURE=1 ./autogen.sh
 %endif
-%configure --disable-silent-rules --with-cockpit-user=cockpit-ws --with-branding=%{branding} --with-selinux-config-type=etc_t
+%configure --disable-silent-rules --with-cockpit-user=cockpit-ws --with-branding=auto --with-selinux-config-type=etc_t
 make -j4 %{?extra_flags} all
 
 %check

@@ -25,8 +25,6 @@ echo "{
     }
 }" > /usr/share/cockpit/registry/manifest.json
 
-ln -sf /container/branding /usr/share/cockpit/branding/cockpit-kubernetes
-
 rm -rf /container/scripts
 rm -rf /container/rpms
 

@@ -14,8 +14,6 @@ fi
 # Remove unwanted packages
 rm -rf /usr/share/cockpit/realmd/ /usr/share/cockpit/system/ /usr/share/cockpit/tuned/ /usr/share/cockpit/users/ /usr/share/cockpit/dashboard/
 
-ln -sf /container/branding /usr/share/cockpit/branding/cockpit-kubernetes
-
 rm -rf /container/scripts
 rm -rf /container/rpms
 

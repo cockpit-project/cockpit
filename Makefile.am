@@ -313,8 +313,10 @@ include src/reauthorize/Makefile-reauthorize.am
 include src/retest/Makefile.am
 include src/pam-ssh-add/Makefile.am
 include static/Makefile-static.am
+include branding/centos/Makefile.am
 include branding/default/Makefile.am
 include branding/fedora/Makefile.am
-include branding/centos/Makefile.am
+include branding/kubernetes/Makefile.am
+include branding/registry/Makefile.am
 include branding/rhel/Makefile.am
 include containers/shared/cockpit-kube/Makefile.am

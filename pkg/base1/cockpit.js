@@ -2314,9 +2314,8 @@ function full_scope(cockpit, $, po) {
     }
 
     var byte_suffixes = {
-        1024: [ null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ],
-        1000: [ null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ]
-        /* 1024: [ null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB" ] */
+        1000: [ null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ],
+        1024: [ null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB" ]
     };
 
     cockpit.format_bytes = function format_bytes(number, factor, separate) {
@@ -2326,7 +2325,7 @@ function full_scope(cockpit, $, po) {
     };
 
     var byte_sec_suffixes = {
-        1024: [ "B/s", "KB/s", "MB/s", "GB/s", "TB/s", "PB/s", "EB/s", "ZB/s" ]
+        1024: [ "B/s", "KiB/s", "MiB/s", "GiB/s", "TiB/s", "PiB/s", "EiB/s", "ZiB/s" ]
     };
 
     cockpit.format_bytes_per_sec = function format_bytes_per_sec(number, factor, separate) {

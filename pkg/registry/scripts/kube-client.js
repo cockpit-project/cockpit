@@ -970,39 +970,40 @@
                 }
             });
 
-            function selection(what, indexed) {
-                return cached(what).selection || mixinSelection(what, undefined, indexed);
-            }
+            var empty = { };
 
             function select(arg) {
-                var what, meta, i, len;
-                if (!arg) {
-                    return selection(loader.objects, true);
-
-                } else if (typeof arg == "object") {
-                    if (typeof arg.kind == "string") {
-                        if (arg.items) {
-                            arg = arg.items;
-                        } else {
-                            arg = [ arg ];
-                        }
-                    }
-
-                    if (typeof arg.length == "number") {
-                        what = { };
-                        for (i = 0, len = arg.length; i < len; i++) {
-                            meta = arg[i].metadata || { };
-                            what[meta.selfLink || i] = arg[i];
-                        }
-                        return selection(what);
-
-                    } else {
-                        return selection(arg);
-                    }
+                var cache, indexed = false;
+                if (arg === undefined) {
+                    arg = loader.objects;
+                    indexed = true;
+                } else if (!arg) {
+                    arg = empty;
                 }
 
-                console.warn("Pass resources or resource dicts or null to kubeSelect()");
-                return selection({ });
+                /* Next the specific object */
+                if (typeof arg !== "object") {
+                    console.warn("Pass resources or resource dicts or null to kubeSelect()");
+                    arg = empty;
+                }
+
+                cache = cached(arg);
+                if (cache.selection)
+                    return cache.selection;
+
+                /* A single resource object */
+                var meta, single;
+                if (typeof arg.kind === "string") {
+                    if (!cache.single) {
+                        meta = arg.meta || { };
+                        single = { };
+                        single[meta.selfLink || 1] = arg;
+                        cache.single = mixinSelection(single, undefined, false);
+                    }
+                    return cache.single;
+                }
+
+                return mixinSelection(arg, undefined, indexed);
             }
 
             /* A seldom used 'static' method */

@@ -26,6 +26,7 @@ import time
 import unittest
 import os
 import subprocess
+import re
 
 def kill_user_admin(machine):
     # logind from systemd 208 is buggy, so we use systemd directly if it fails
@@ -67,8 +68,10 @@ class TestMultiMachineKeyAuth(MachineCase):
         self.browser.eval_js("require('shell/credentials').keys_instance().load('{0}', '{1}')".format(name, password))
 
     def check_keys(self, keys):
-        self.assertEqual(self.browser.eval_js("require('base1/cockpit').spawn([ 'ssh-add', '-l' ])"),
-                         "\n".join(keys) + "\n")
+        def normalize(k):
+            return re.sub("/home/admin/\\.ssh/[^ ]*|pvolpe@pvolpe", "", k)
+        self.assertEqual(normalize(self.browser.eval_js("require('base1/cockpit').spawn([ 'ssh-add', '-l' ])")),
+                         normalize("\n".join(keys) + "\n"))
 
     def setUp(self):
         MachineCase.setUp(self)

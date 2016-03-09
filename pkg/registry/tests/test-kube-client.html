@@ -604,11 +604,23 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         }
     ]);
 
-    kubeTest("select", 10, FIXTURE_LARGE, [
+    kubeTest("select", 12, FIXTURE_LARGE, [
         "kubeLoader",
         "kubeSelect",
         function(loader, select) {
             return loader.watch("pods").then(function() {
+                var image = { kind: "Image" };
+
+                /* same thing twice */
+                var first = select(image);
+                var second = select(image);
+                strictEqual(first, second, "identical for single object");
+
+                /* null thing twice */
+                var first = select(null);
+                var second = select(null);
+                strictEqual(first, second, "identical for null object");
+
                 /* Select everything odd, 500 pods */
                 var results = select().namespace("default").label({ "type": "odd" });
                 equal(results.length, 500, "correct amount");

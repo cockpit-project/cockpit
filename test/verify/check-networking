@@ -101,13 +101,13 @@ class TestNetworking(MachineCase):
         # connection settings that might otherwise interfere.
 
         mac = "52:54:00:9e:00:F2"
-        m.execute("nmcli c a type ethernet ifname '*' con-name TEST mac %s" % mac)
-        m.execute("nmcli c a type ethernet ifname '*' con-name TEST2 mac %s" % mac)
-        m.execute("nmcli c m TEST ipv4.method link-local")
+        m.execute("nmcli connection add type ethernet ifname '*' con-name TEST mac %s" % mac)
+        m.execute("nmcli connection add type ethernet ifname '*' con-name TEST2 mac %s" % mac)
+        m.execute("nmcli connection modify TEST ipv4.method link-local")
 
         iface = self.add_iface(mac)
-        wait(lambda: m.execute('nmcli d | grep %s | grep -v unavailable' % iface))
-        m.execute('nmcli c up TEST')
+        wait(lambda: m.execute('nmcli device | grep %s | grep -v unavailable' % iface))
+        m.execute('nmcli connection up TEST')
 
         self.wait_for_iface(iface)
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)
@@ -141,10 +141,10 @@ class TestNetworking(MachineCase):
         # Switch it back to "auto" from the command line and bring it
         # up again
         #
-        m.execute("nmcli c m TEST ipv4.method auto")
-        m.execute("nmcli c m TEST ipv4.addresses ''")
+        m.execute("nmcli connection modify TEST ipv4.method auto")
+        m.execute("nmcli connection modify TEST ipv4.addresses ''")
         b.wait_in_text("tr:contains('IPv4')", "Automatic (DHCP)")
-        m.execute("nmcli c up TEST")
+        m.execute("nmcli connection up TEST")
         b.wait_in_text("tr:contains('Status')", "10.111.")
 
         # Switch off automatic DNS
@@ -157,7 +157,7 @@ class TestNetworking(MachineCase):
         b.click("#network-ip-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-ip-settings-dialog")
 
-        self.assertIn("yes", m.execute("nmcli -f ipv4.ignore-auto-dns c s TEST"))
+        self.assertIn("yes", m.execute("nmcli -f ipv4.ignore-auto-dns connection show TEST"))
 
     def testBond(self):
         b = self.browser

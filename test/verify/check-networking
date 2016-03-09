@@ -43,8 +43,10 @@ class TestNetworking(MachineCase):
     def add_iface(self, mac=None, vlan=0):
         m = self.machine
         mac = m.add_netiface(mac=mac, vlan=vlan)
-        # Wait for the interface to get its final name
-        m.execute("udevadm settle")
+        # Wait for the interface to show up
+        self.get_iface(m, mac)
+        # Trigger udev to make sure that it has been renamed to its final name
+        m.execute("udevadm trigger && udevadm settle")
         return self.get_iface(m, mac)
 
     def wait_for_iface(self, iface):

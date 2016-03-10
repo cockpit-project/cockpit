@@ -60,9 +60,10 @@ define([
     };
 
     utils.fmt_size_long = function fmt_size_long(bytes) {
-        var with_unit = cockpit.format_bytes(bytes, 1024);
-        /* Translators: Used in "42.5 KB (42399 bytes)" */
-        return with_unit + " (" + bytes + " " + C_("format-bytes", "bytes") + ")";
+        var with_binary_unit = cockpit.format_bytes(bytes, 1024);
+        var with_decimal_unit = cockpit.format_bytes(bytes, 1000);
+        /* Translators: Used in "..." */
+        return with_binary_unit + ", " + with_decimal_unit + ", " + bytes + " " + C_("format-bytes", "bytes");
     };
 
     utils.fmt_rate = function fmt_rate(bytes_per_sec) {

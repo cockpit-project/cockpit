@@ -39,7 +39,7 @@ define([
         // Convert initial values for SizeInput fields to MB.
         def.Fields.forEach(function (f) {
             if (f.SizeInput && f.Value)
-                f.ValueMB = (f.Value / (1024*1024)).toFixed(0);
+                f.ValueMB = (f.Value / (1000*1000)).toFixed(0);
         });
 
         function toggle_arrow(event) {
@@ -97,7 +97,7 @@ define([
                 else if (f.SelectOne)
                     vals[n] = $f.val();
                 else if (f.SizeInput)
-                    vals[n] = parseInt($f.val())*1024*1024;
+                    vals[n] = parseInt($f.val())*1000*1000;
                 else if (f.CheckBox)
                     vals[n] = $f.prop('checked');
                 else if (f.SelectMany) {

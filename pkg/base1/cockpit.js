@@ -2314,9 +2314,8 @@ function full_scope(cockpit, $, po) {
     }
 
     var byte_suffixes = {
-        1024: [ null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ],
-        1000: [ null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ]
-        /* 1024: [ null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB" ] */
+        1000: [ null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ],
+        1024: [ null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB" ]
     };
 
     cockpit.format_bytes = function format_bytes(number, factor, separate) {

@@ -202,8 +202,8 @@ define([
                     Name: name,
                     Classification: classification,
                     Description: desc,
-                    ReadRate: io && cockpit.format_bytes_per_sec(io[0]),
-                    WriteRate: io && cockpit.format_bytes_per_sec(io[1]),
+                    ReadRate: io && utils.fmt_rate(io[0]),
+                    WriteRate: io && utils.fmt_rate(io[1]),
                     Highlight: dev == cur_highlight
                 };
             }
@@ -426,15 +426,15 @@ define([
                               { SelectOne: "chunk",
                                 Title: _("Chunk Size"),
                                 Options: [
-                                    { value: "4", Title: _("4 KB") },
-                                    { value: "8", Title: _("8 KB") },
-                                    { value: "16", Title: _("16 KB") },
-                                    { value: "32", Title: _("32 KB") },
-                                    { value: "64", Title: _("64 KB") },
-                                    { value: "128", Title: _("128 KB") },
-                                    { value: "512", Title: _("512 KB"), selected: true },
-                                    { value: "1024", Title: _("1 MB") },
-                                    { value: "2048", Title: _("2 MB") }
+                                    { value: "4", Title: _("4 KiB") },
+                                    { value: "8", Title: _("8 KiB") },
+                                    { value: "16", Title: _("16 KiB") },
+                                    { value: "32", Title: _("32 KiB") },
+                                    { value: "64", Title: _("64 KiB") },
+                                    { value: "128", Title: _("128 KiB") },
+                                    { value: "512", Title: _("512 KiB"), selected: true },
+                                    { value: "1024", Title: _("1 MiB") },
+                                    { value: "2048", Title: _("2 MiB") }
                                 ],
                                 visible: function (vals) {
                                     return vals.level != "raid1";

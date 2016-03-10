@@ -55,18 +55,20 @@ define([
         return cockpit.base64_encode(cockpit.utf8_encoder().encode(decoded).concat([0]));
     };
 
+    var storage_unit_factor = 1000;
+
     utils.fmt_size = function fmt_size(bytes) {
-        return cockpit.format_bytes(bytes, 1024);
+        return cockpit.format_bytes(bytes, storage_unit_factor);
     };
 
     utils.fmt_size_long = function fmt_size_long(bytes) {
-        var with_unit = cockpit.format_bytes(bytes, 1024);
+        var with_unit = cockpit.format_bytes(bytes, storage_unit_factor);
         /* Translators: Used in "42.5 KB (42399 bytes)" */
         return with_unit + " (" + bytes + " " + C_("format-bytes", "bytes") + ")";
     };
 
     utils.fmt_rate = function fmt_rate(bytes_per_sec) {
-        return cockpit.format_bytes_per_sec(bytes_per_sec, 1024);
+        return cockpit.format_bytes_per_sec(bytes_per_sec, storage_unit_factor);
     };
 
     utils.format_temperature = function format_temperature(kelvin) {
@@ -77,7 +79,7 @@ define([
 
     utils.format_fsys_usage = function format_fsys_usage(used, total) {
         var text = "";
-        var units = 1024;
+        var units = storage_unit_factor;
         var parts = cockpit.format_bytes(total, units, true);
         text = " / " + parts.join(" ");
         units = parts[1];

@@ -193,11 +193,9 @@ class TestNetworking(MachineCase):
         b.wait_popdown("network-bond-settings-dialog")
         b.wait_in_text("#networking-interfaces", "tbond")
 
-        # Wait for the bond to be active.  We wont get an IP because
-        # neither vlan=1 nor vlan=2 are connected to anything.
+        # Check that the members are displayed
         b.click("#networking-interfaces td:first-child:contains('tbond')")
         b.wait_visible("#network-interface")
-        b.wait_in_text("tr:contains('Status')", "Configuring IP")
         b.wait_present("tr[data-interface='%s']" % iface1)
         b.wait_present("tr[data-interface='%s']" % iface2)
 
@@ -254,12 +252,9 @@ class TestNetworking(MachineCase):
         b.wait_popdown("network-bridge-settings-dialog")
         b.wait_in_text("#networking-interfaces", "tbridge")
 
-        # Wait for the bridge to be active.
+        # Delete the bridge
         b.click("#networking-interfaces td:first-child:contains('tbridge')")
         b.wait_visible("#network-interface")
-        b.wait_in_text("tr:contains('Status')", "10.111.")
-
-        # Delete the bridge
         b.click("#network-interface button:contains('Delete')")
         b.wait_visible("#networking")
         b.wait_not_in_text("#networking-interfaces", "tbridge")

@@ -50,9 +50,9 @@ define([
     var client = kubernetes.k8client();
 
     function debug(args) {
-        if (window.debugging == "all" || window.debugging == "nulecule")
-            console.debug.apply(console, arguments);
-
+/*        if (window.debugging == "all" || window.debugging == "nulecule")
+            console.debug.apply(console, arguments);*/
+            console.log(args);
     }
 
     /**
@@ -62,8 +62,8 @@ define([
     function NuleculeClient() {
         var self = this;
         self.answers = {};
-        var MINIMUM_SUPPORTED_ATOMIC_VERSION = 1.1;
-        var MINIMUM_SUPPORTED_ATOMICAPP_VERSION = "0.1.11";
+        var MINIMUM_SUPPORTED_ATOMIC_VERSION = 1.8;
+        var MINIMUM_SUPPORTED_ATOMICAPP_VERSION = "0.4";
         var install_dir = null;
 
         function create_tmp() {
@@ -105,7 +105,7 @@ define([
                 req.cancel();
                 file.close();
             };
-
+ 
             return promise;
         }
 
@@ -307,17 +307,13 @@ define([
             }
 
             if(ptype === "install") {
-                //atomic install --opt2=--answers-format=json <IMAGE> command
-                //internally calls...
-                //atomicapp --answers-format=json install <IMAGE>
-                process = cockpit.spawn(["/usr/bin/atomic", "install", "--opt2=--answers-format=json", image],{ err: "out", superuser: true , directory: install_dir, pty: true });
+                process = cockpit.spawn(["/usr/bin/atomic", "run", image, "--mode=fetch", "--destination=./", "--answers-format=json"],
+                    { err: "out", superuser: true , directory: install_dir, pty: true });
                 debug("Installing image: " + image + " in folder " + install_dir);
                 deferred.notify(_("Installing ..."));
             } else {
-                //atomic run --opt2=--answers="/tmp/answers.conf" <IMAGE>
-                //internally calls...
-                //atomicapp --answers=/tmp/answers.conf run <IMAGE>
-                process = cockpit.spawn(["/usr/bin/atomic", "run", "--opt2=--answers=/atomicapp/answers.conf", image],{ err: "out", superuser: true , directory: install_dir , pty: true});
+                process = cockpit.spawn(["/usr/bin/atomic", "run", image, "--destination=./", "--answers=./answers.conf"],
+                    { err: "out", superuser: true , directory: install_dir , pty: true});
                 debug("Running image: " + image + " in folder " + install_dir);
                 deferred.notify(_("Running ..."));
             }

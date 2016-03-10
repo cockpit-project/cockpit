@@ -97,6 +97,12 @@ apt-get -y autoremove || true
 # reduce image size
 apt-get clean
 /var/lib/testvm/zero-disk.setup
+# Pull docker images that we need for integration testing
+systemctl start docker
+docker pull busybox:latest
+docker pull busybox:buildroot-2014.02
+docker pull submod/helloapache:0.1.11
+docker pull gcr.io/google_containers/pause:0.8.0
 
 # Final tweaks
 

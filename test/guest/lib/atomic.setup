@@ -34,6 +34,12 @@ docker pull cockpit/ws
 
 # reduce image size
 /var/lib/testvm/zero-disk.setup
+# pull cockpit/ws so we don't need to download this for every test
+docker pull cockpit/ws
+docker pull busybox:latest
+docker pull busybox:buildroot-2014.02
+docker pull submod/helloapache:0.1.11
+docker pull gcr.io/google_containers/pause:0.8.0
 
 # Final tweaks
 

@@ -178,8 +178,6 @@ update-lib:: update-bower
 	    $(BOWER)/requirejs/require.js \
 	    $(srcdir)/pkg/base1/require-config.js \
 	    $(srcdir)/pkg/base1/require-loaders.js
-	$(JSMODULE) -m -a window.Terminal -o $(srcdir)/pkg/base1/term.js \
-	    $(BOWER)/term.js/src/term.js
 	$(JSMODULE) -o $(srcdir)/pkg/base1/angular.js \
 	    $(BOWER)/angular/angular.js \
 	    $(BOWER)/angular-route/angular-route.js \

@@ -6,26 +6,26 @@
          "kind":"ReplicationController",
          "apiVersion":"v1",
          "metadata":{
-            "name":"cockpit-kube",
+            "name":"kubernetes-cockpit",
             "labels":{
-               "name":"cockpit-kube"
+               "name":"kubernetes-cockpit"
             }
          },
          "spec":{
             "replicas":1,
             "selector":{
-               "name":"cockpit-kube"
+               "name":"kubernetes-cockpit"
             },
             "template":{
                "metadata":{
                   "labels":{
-                     "name":"cockpit-kube"
+                     "name":"kubernetes-cockpit"
                   }
                },
                "spec":{
                   "containers":[{
-                    "name": "cockpit-kube",
-                    "image": "cockpit/kubernetes",
+                    "name": "kubernetes-cockpit",
+                    "image": "cockpit/kubernetes:wip",
                     "ports":[{
                         "containerPort":9090,
                         "protocol":"TCP"
@@ -39,9 +39,9 @@
          "kind":"Service",
          "apiVersion":"v1",
          "metadata":{
-            "name":"cockpit-kube",
+            "name":"kubernetes-cockpit",
             "labels":{
-               "name":"cockpit-kube"
+               "name":"kubernetes-cockpit"
             }
          },
          "spec":{
@@ -52,7 +52,7 @@
                  "targetPort": 9090
              }],
             "selector":{
-               "name":"cockpit-kube"
+               "name":"kubernetes-cockpit"
             }
          }
       }

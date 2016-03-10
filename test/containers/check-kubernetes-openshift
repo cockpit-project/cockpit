@@ -120,7 +120,7 @@ class TestOpenshift(kubelib.KubernetesCase, kubelib.OpenshiftCommonTests):
         b.expect_load()
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'kuser')
-        b.wait_in_text("title", "Cockpit Openshift")
+        b.wait_in_text("title", "Openshift Cockpit")
         b.enter_page("/kubernetes")
         b.wait_present("#node-list")
 

@@ -50,25 +50,25 @@
          "kind":"ReplicationController",
          "apiVersion":"v1",
          "metadata":{
-            "name":"cockpit-kube",
+            "name":"openshift-cockpit",
             "labels":{
-               "name":"cockpit-kube"
+               "name":"openshift-cockpit"
             }
          },
          "spec":{
             "replicas":1,
             "selector":{
-               "name":"cockpit-kube"
+               "name":"openshift-cockpit"
             },
             "template":{
                "metadata":{
                   "labels":{
-                     "name":"cockpit-kube"
+                     "name":"openshift-cockpit"
                   }
                },
                "spec":{
                   "containers":[{
-                    "name": "cockpit-kube",
+                    "name": "openshift-cockpit",
                     "image": "cockpit/kubernetes",
                     "imagePullPolicy": "Never",
                     "ports":[{
@@ -105,9 +105,9 @@
          "kind":"Service",
          "apiVersion":"v1",
          "metadata":{
-            "name":"cockpit-kube",
+            "name":"openshift-cockpit",
             "labels":{
-               "name":"cockpit-kube"
+               "name":"openshift-cockpit"
             }
          },
          "spec":{
@@ -119,7 +119,7 @@
                  "nodePort": 30000
              }],
             "selector":{
-               "name":"cockpit-kube"
+               "name":"openshift-cockpit"
             }
          }
       },

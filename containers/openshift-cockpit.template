@@ -50,25 +50,25 @@
          "kind":"DeploymentConfig",
          "apiVersion":"v1",
          "metadata":{
-            "name":"cockpit-kube",
+            "name":"openshift-cockpit",
             "labels":{
-               "name":"cockpit-kube"
+               "name":"openshift-cockpit"
             }
          },
          "spec":{
             "replicas":1,
             "selector":{
-               "name":"cockpit-kube"
+               "name":"openshift-cockpit"
             },
             "template":{
                "metadata":{
                   "labels":{
-                     "name":"cockpit-kube"
+                     "name":"openshift-cockpit"
                   }
                },
                "spec":{
                   "containers":[{
-                    "name": "cockpit-kube",
+                    "name": "openshift-cockpit",
                     "image": "cockpit/kubernetes",
                     "ports":[{
                         "containerPort":9090,
@@ -104,9 +104,9 @@
          "kind":"Service",
          "apiVersion":"v1",
          "metadata":{
-            "name":"cockpit-kube",
+            "name":"openshift-cockpit",
             "labels":{
-               "name":"cockpit-kube"
+               "name":"openshift-cockpit"
             }
          },
          "spec":{
@@ -117,7 +117,7 @@
                  "targetPort": 9090
              }],
             "selector":{
-               "name":"cockpit-kube"
+               "name":"openshift-cockpit"
             }
          }
       },

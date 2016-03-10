@@ -1,5 +1,5 @@
-Cockpit Kubernetes Container
-===========================
+Kubernetes Container
+====================
 
 This container provides a version of cockpit that only contains the kubernetes UI. Unlike a standard Cockpit installation, Cockpit does not have access to and will not interact with the underlying host. This container is meant to be deployed as a service with either kubernetes or openshift.
 
@@ -16,7 +16,7 @@ WARNING: If you choose to deploy this container to communicate with an open kube
 kubectl create -f containers/kubernetes-cockpit.json
 ```
 
-This will create a cockpit-kube service, replication controller and pod.
+This will create a kubernetes-cockpit service, replication controller and pod.
 
 
 Deploy on Openshift or Origin or Atomic Platform
@@ -31,7 +31,7 @@ oc process -f containers/openshift-cockpit.template
     -v COCKPIT_KUBE_URL=https://ip-or-domain,OPENSHIFT_OAUTH_PROVIDER_URL=https://ip-or-domain:port | oc create -f -
 ```
 
-This will create an OAuth Client and a cockpit-kube service replication controller and pod.
+This will create an OAuth Client and a openshift-cockpit service replication controller and pod.
 
 The ```openshift-cockpit.template``` allows you to set the following environment variables:
  * ```COCKPIT_KUBE_URL```: The public url that users will use to access this service.

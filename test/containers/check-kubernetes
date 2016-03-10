@@ -74,7 +74,7 @@ class TestKubernetesLogin(KubernetesContainerCase):
         # Try to login, no api var
         b.open("/")
         b.wait_visible("#login")
-        b.wait_text("#server-name b", "Cockpit Kubernetes")
+        b.wait_text("#server-name b", "Kubernetes Cockpit")
         login("admin", "foobar")
         b.wait_in_text("#login-fatal-message", "No kubernetes")
         b.wait_not_visible('#login-button')
@@ -96,7 +96,7 @@ class TestKubernetesLogin(KubernetesContainerCase):
         b.reload()
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'Unauthenticated')
-        b.wait_in_text("title", "Cockpit Kubernetes")
+        b.wait_in_text("title", "Kubernetes Cockpit")
         b.enter_page("/kubernetes")
         b.wait_present("#node-list")
         b.switch_to_top()
@@ -121,7 +121,7 @@ class TestKubernetesLogin(KubernetesContainerCase):
         b.reload()
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'admin')
-        b.wait_in_text("title", "Cockpit Kubernetes")
+        b.wait_in_text("title", "Kubernetes Cockpit")
         b.enter_page("/kubernetes")
         b.wait_present("#node-list")
 

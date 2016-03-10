@@ -1589,6 +1589,12 @@ retrieve_properties (CockpitDBusCache *self,
 {
   GetAllData *gad;
 
+  /* Don't bother getting properties for this well known interface
+   * that doesn't have any.  Also, NetworkManager returns an error.
+   */
+  if (g_strcmp0 (iface->name, "org.freedesktop.DBus.Properties") == 0)
+    return;
+
   g_debug ("%s: calling GetAll() for %s at %s", self->logname, iface->name, path);
 
   gad = g_slice_new0 (GetAllData);

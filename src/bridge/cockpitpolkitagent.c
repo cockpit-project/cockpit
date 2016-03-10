@@ -450,7 +450,11 @@ cockpit_polkit_agent_register (CockpitTransport *transport,
   subject = polkit_unix_session_new_for_process_sync (getpid (), cancellable, &error);
   if (subject == NULL)
     {
-      g_warning ("couldn't create polkit session subject: %s", error->message);
+      /*
+       * This can happen if there's a race between the polkit request and closing of
+       * Cockpit. So it's not unheard of. We can complain, but not too loudly.
+       */
+      g_message ("couldn't create polkit session subject: %s", error->message);
       goto out;
     }
 

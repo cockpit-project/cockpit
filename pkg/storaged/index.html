@@ -586,8 +586,9 @@
           <td translatable="yes" context="storage">State</td>
           <td>
             {{#Degraded}}
-            <div>
-              <span style="color:red" translatable="yes">ARRAY IS DEGRADED</span> -- {{.}}
+            <div class="alert alert-danger">
+              <span class="pficon pficon-error-circle-o"></span>
+              <span translatable="yes">The RAID Array is in a degregated state</span> - {{.}}
             </div>
             {{/Degraded}}
             {{#SyncAction}}

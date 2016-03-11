@@ -136,6 +136,9 @@ if type "docker" >/dev/null 2>&1; then
     /var/lib/testvm/docker-images.setup
 fi
 
+# Configure kubernetes
+/var/lib/testvm/kubernetes.setup
+
 yum clean all
 /var/lib/testvm/zero-disk.setup --keep-mock-cache
 

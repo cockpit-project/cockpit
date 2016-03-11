@@ -35,7 +35,6 @@ class TestKubernetes(KubernetesCase, KubernetesCommonTests):
         KubernetesCase.setUp(self)
         m = self.machine
 
-        self.fix_apiserver_config()
         self.start_kubernetes()
 
         m.upload(["verify/files/mock-k8s-tiny-app.json"], "/tmp")
@@ -51,6 +50,7 @@ class TestConnection(KubernetesCase):
         # Connect without starting a kube server
         self.login_and_go("/kubernetes")
         b.wait_present(".curtains")
+        b.wait_visible(".curtains")
         b.wait_in_text(".curtains", "Couldn't connect to server")
         b.wait_in_text(".curtains", "Couldn't find running API server")
         self.assertIn("Reconnect", b.text(".blank-slate-pf-main-action button"))
@@ -58,9 +58,12 @@ class TestConnection(KubernetesCase):
         # Start a kube-apiserver with a 'wrong' http port, forcing use of https
         m.execute("echo 'KUBE_API_PORT=\"--port=1111\"' >> /etc/kubernetes/apiserver")
         m.execute("sed -i s/8080/1111/g /etc/kubernetes/*")
-        self.fix_apiserver_config()
         self.start_kubernetes()
         self.wait_api_server(port=6443, scheme='https')
+
+        # Setup the kube stuff in the right place
+        m.upload(["verify/files/mock-kube-config-basic.json"], "/tmp")
+        m.execute("mkdir -p /home/admin/.kube/ && mv /tmp/mock-kube-config-basic.json /home/admin/.kube/config")
 
         # Click the Reconnect button
         b.click(".blank-slate-pf-main-action button")
@@ -71,37 +74,11 @@ class TestConnection(KubernetesCase):
         output = m.execute("curl -sS http://localhost:8080/api 2>&1 || true")
         self.assertIn("Connection refused", output)
 
-        self.allow_journal_messages(".*: couldn't connect: Connection refused")
-
-    def testAuthConfig(self):
-        m = self.machine
-        b = self.browser
-
-        # Start a kube-apiserver with a 'wrong' http port, forcing use of https
-        m.execute("echo 'KUBE_API_PORT=\"--port=1111\"' >> /etc/kubernetes/apiserver")
-        m.execute("sed -i s/8080/1111/g /etc/kubernetes/*")
-
-        # Require authentication from kube
-        m.execute("echo 'KUBE_API_ARGS=\"--basic_auth_file=/etc/kubernetes/passwd --authorization_mode=ABAC --authorization_policy_file=/etc/kubernetes/authorization\"' >> /etc/kubernetes/apiserver")
-        m.execute("echo '{\"user\":\"admin\"}' > /etc/kubernetes/authorization")
-        m.execute("echo 'fubar,admin,10101' > /etc/kubernetes/passwd")
-
-        # Setup the kube stuff in the right place
-        m.upload(["verify/files/mock-kube-config-basic.json"], "/tmp")
-        m.execute("mkdir -p /home/admin/.kube/ && mv /tmp/mock-kube-config-basic.json /home/admin/.kube/config")
-
-        self.fix_apiserver_config()
-        m.execute("systemctl start etcd kube-apiserver")
-        self.wait_api_server(port=6443, scheme='https')
-
-        self.login_and_go("/kubernetes")
-        b.wait_present("#service-list")
-        b.wait_in_text("#service-list", "You can deploy an application to your cluster.")
-
         # Check that this failed as a double check
         output = m.execute("curl -k -sS https://localhost:6443/api 2>&1 || true")
         self.assertIn("Unauthorized", output)
 
+        self.allow_journal_messages(".*: couldn't connect: Connection refused")
 
 @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-nulecule on rhel-7.")
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
@@ -111,7 +88,6 @@ class TestNulecule(KubernetesCase):
         KubernetesCase.setUp(self)
         m = self.machine
 
-        self.fix_apiserver_config()
         self.start_kubernetes()
         self.wait_api_server()
 

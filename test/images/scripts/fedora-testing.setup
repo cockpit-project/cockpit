@@ -94,6 +94,9 @@ su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
 # docker images that we need for integration testing
 /var/lib/testvm/docker-images.setup
 
+# Configure kubernetes
+/var/lib/testvm/kubernetes.setup
+
 # reduce image size
 dnf clean all
 /var/lib/testvm/zero-disk.setup

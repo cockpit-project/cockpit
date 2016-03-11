@@ -78,6 +78,7 @@ class Browser:
         self.label = label
         self.phantom = Phantom("en_US.utf8")
         self.port = port
+        self.password = "foobar"
 
     def title(self):
         return self.phantom.eval('document.title')
@@ -353,7 +354,7 @@ class Browser:
         self.open(href)
         self.wait_visible("#login")
         self.set_val('#login-user-input', user)
-        self.set_val('#login-password-input', "foobar")
+        self.set_val('#login-password-input', self.password)
         self.click('#login-button')
         self.expect_load()
         self.wait_present('#content')
@@ -374,7 +375,7 @@ class Browser:
         self.logout()
         self.wait_visible("#login")
         self.set_val("#login-user-input", user)
-        self.set_val("#login-password-input", "foobar")
+        self.set_val("#login-password-input", self.password)
         self.click('#login-button')
         self.expect_load()
         self.wait_present('#content')

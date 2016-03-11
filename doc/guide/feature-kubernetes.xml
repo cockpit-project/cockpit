@@ -25,7 +25,7 @@ $ <command>wget https://raw.githubusercontent.com/cockpit-project/cockpit/master
 $ <command>kubectl create -f kubernetes-cockpit.json</command>
 </programlisting>
 
-    <para>The pod can be used on kubernetes that is configured with basic authentication. By
+    <para>This pod can be used on kubernetes that is configured with basic authentication. By
       default the pod tries to access the kubernetes API securely and expects that the kubernetes
       API server has been deployed with a CA, certificate files and service account key. In order
       to change this behavior, edit the <filename>kubernetes-cockpit.json</filename> and change the

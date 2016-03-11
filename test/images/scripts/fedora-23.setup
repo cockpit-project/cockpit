@@ -110,6 +110,9 @@ su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
 # Build and tag cockpit/base for container testing
 docker build -t cockpit/base /var/tmp/cockpit-base
 
+# Configure kubernetes
+/var/lib/testvm/kubernetes.setup
+
 # reduce image size
 dnf clean all
 /var/lib/testvm/zero-disk.setup

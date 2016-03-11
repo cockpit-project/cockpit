@@ -32,14 +32,6 @@ __all__ = (
 
 class KubernetesCase(MachineCase):
 
-    # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1243827
-    #
-    # HACK - https://github.com/GoogleCloudPlatform/kubernetes/issues/11222
-    # The default install of kubernetes does not let you start pods due to
-    # ServiceAccount admission control. So remove that.
-    def fix_apiserver_config(self):
-        self.machine.execute("sed -i /etc/kubernetes/apiserver -e 's/,ServiceAccount//'")
-
     def start_kubernetes(self):
         self.machine.execute("systemctl start etcd kube-apiserver kube-controller-manager kube-scheduler docker kube-proxy kubelet")
 

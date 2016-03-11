@@ -51,7 +51,7 @@ class OCBrowser(Browser):
         self.wait_visible("#inputPassword")
 
         self.set_val("#inputUsername", user)
-        self.set_val("#inputPassword", "foobar")
+        self.set_val("#inputPassword", "fubar")
         self.click('.btn-primary')
         self.expect_load()
         self.wait_present('#content')
@@ -114,7 +114,7 @@ class TestOpenshift(kubelib.KubernetesCase, kubelib.OpenshiftCommonTests):
         b.wait_in_text("title", "OpenShift Origin")
 
         b.set_val("#inputUsername", "kuser")
-        b.set_val("#inputPassword", "foobar")
+        b.set_val("#inputPassword", "fubar")
         b.click('.btn-primary')
 
         b.expect_load()

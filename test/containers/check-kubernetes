@@ -51,12 +51,6 @@ class KubernetesContainerMachine(VirtMachine):
 class KubernetesContainerCase(kubelib.KubernetesCase):
     machine_class = KubernetesContainerMachine
 
-    def setup_basic_auth(self):
-        self.machine.execute("systemctl stop kube-apiserver")
-        self.machine.execute("echo 'foobar,admin,admin' > /etc/kubernetes/basic")
-        self.machine.execute("sed -i 's#^KUBE_API_ARGS=.*#KUBE_API_ARGS=\"--basic-auth-file=/etc/kubernetes/basic\"#g' /etc/kubernetes/apiserver")
-        self.machine.execute("systemctl start kube-apiserver")
-
 class TestKubernetesLogin(KubernetesContainerCase):
 
     def testKubernetesLogin(self):
@@ -75,7 +69,7 @@ class TestKubernetesLogin(KubernetesContainerCase):
         b.open("/")
         b.wait_visible("#login")
         b.wait_text("#server-name b", "Kubernetes Cockpit")
-        login("admin", "foobar")
+        login("admin", "fubar")
         b.wait_in_text("#login-fatal-message", "No kubernetes")
         b.wait_not_visible('#login-button')
 
@@ -85,7 +79,7 @@ class TestKubernetesLogin(KubernetesContainerCase):
         b.open("/")
         b.wait_visible("#login")
         b.wait_text("#server-name b", "Cockpit Kubernetes")
-        login("admin", "foobar")
+        login("admin", "fubar")
         b.wait_in_text("#login-fatal-message", "Couldn't connect to the api")
         b.wait_not_visible('#login-button')
 
@@ -94,24 +88,11 @@ class TestKubernetesLogin(KubernetesContainerCase):
         self.wait_api_server(port=6443, scheme='https')
 
         b.reload()
-        b.wait_present("#content")
-        b.wait_text('#content-user-name', 'Unauthenticated')
-        b.wait_in_text("title", "Kubernetes Cockpit")
-        b.enter_page("/kubernetes")
-        b.wait_present("#node-list")
-        b.switch_to_top()
-        b.logout()
-
-        # Try to login as user with a wrong password
-        self.setup_basic_auth()
-        b.reload()
-        b.wait_visible("#login")
-        b.wait_text("#server-name b", "Cockpit Kubernetes")
         login("admin", "bad")
         b.wait_text_not("#login-error-message", "")
         b.wait_visible('#login-button')
 
-        login("admin", "foobar")
+        login("admin", "fubar")
         with b.wait_timeout(10) as r:
             b.expect_load()
         b.wait_present("#content")
@@ -124,6 +105,22 @@ class TestKubernetesLogin(KubernetesContainerCase):
         b.wait_in_text("title", "Kubernetes Cockpit")
         b.enter_page("/kubernetes")
         b.wait_present("#node-list")
+        b.logout()
+
+        # Remove authentication stuff
+        m.execute("systemctl stop kube-apiserver")
+        m.execute("sed -i '/KUBE_API_ARGS=/d' /etc/kubernetes/apiserver")
+        m.execute("systemctl start kube-apiserver")
+        b.reload()
+        b.wait_present("#content")
+        b.wait_text('#content-user-name', 'Unauthenticated')
+        b.wait_in_text("title", "Kubernetes Cockpit")
+        b.enter_page("/kubernetes")
+        b.wait_present("#node-list")
+        b.switch_to_top()
+        b.logout()
+
+        # Try to login as user with a wrong password
 
 class KubernetesCase(KubernetesContainerCase, kubelib.KubernetesCommonTests):
     machine_class = KubernetesContainerMachine
@@ -131,10 +128,8 @@ class KubernetesCase(KubernetesContainerCase, kubelib.KubernetesCommonTests):
     def setUp(self):
         super(KubernetesCase, self).setUp()
         self.start_kubernetes()
-        self.fix_apiserver_config()
-        self.setup_basic_auth()
-        self.start_kubernetes()
 
+        self.browser.password = "fubar"
         self.wait_api_server(port=6443, scheme='https')
         config = os.path.join(test_dir, "verify/files/mock-k8s-tiny-app.json")
         self.machine.upload([config], "/tmp")

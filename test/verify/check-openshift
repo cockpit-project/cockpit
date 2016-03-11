@@ -27,6 +27,10 @@ import time
 
 from kubelib import *
 
+# NOTE: Both TestOpenshift and TestRegistry are in this single file to
+# prevent them from being run concurrently.  Both use a 'openshift'
+# machine, and we can only run a single one of those at the same time.
+
 @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-openshift on rhel-7.")
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
 class TestOpenshift(MachineCase, OpenshiftCommonTests):
@@ -209,6 +213,141 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         b.wait_present("#content .details-listing")
         b.wait_present(".details-listing tbody[data-id='pods/default/helloapache'] th")
         self.assertEqual(b.text(".details-listing tbody[data-id='pods/default/helloapache'] th"), "helloapache")
+
+def wait_oc(machine):
+    i = 0
+    while True:
+        try:
+            machine.execute("oc status")
+            break
+        except:
+            if i > 20:
+                raise
+            i = i + 1
+            time.sleep(1)
+
+@unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-registry on rhel-7.")
+@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
+class TestRegistry(MachineCase):
+    def setUp(self):
+        super(TestRegistry, self).setUp()
+
+        # Start openshift machine
+        self.openshift = self.new_machine(image="openshift")
+        self.openshift.start()
+        self.openshift.wait_boot()
+
+        # Sync over the kube config file
+        tmpfile = os.path.join(self.tmpdir, "config")
+        self.openshift.download("/root/.kube/config", tmpfile)
+        with open(tmpfile, "r") as f:
+            self.machine.execute("mkdir -p /home/admin/.kube && cat > /home/admin/.kube/config", input=f.read())
+        wait_oc(self.openshift)
+
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+        o = self.openshift
+
+        self.login_and_go("/registry")
+        b.wait_present(".dashboard-summary")
+
+        b.wait_in_text(".card-pf-wide.dashboard-images", "default/busybox")
+        b.wait_in_text(".card-pf-wide.dashboard-images", "marmalade/busybee")
+        b.wait_in_text(".card-pf-wide.dashboard-images", "marmalade/juggs")
+        b.wait_in_text(".card-pf-wide.dashboard-images", "marmalade/origin")
+
+        # Lets navigate to an image stream
+        b.click("a[href='#/images/marmalade/busybee']")
+        b.wait_in_text(".content-filter h3", "marmalade/busybee")
+        b.click("tbody[data-id='marmalade/busybee:0.x'] tr td span.image-tag")
+        b.wait_present(".listing-head h3")
+        b.wait_in_text(".listing-head h3", "marmalade/busybee:0.x")
+
+        output = o.execute("oc get imagestream --namespace=marmalade --output=json busybee")
+        self.assertNotIn(output, "postgres")
+
+        # Add postgres into the stream
+        b.click(".pficon-edit")
+        b.wait_present("modal-dialog")
+        b.wait_visible("#imagestream-modify-populate")
+        b.click("#imagestream-modify-populate button")
+        b.wait_visible("#imagestream-modify-populate .dropdown-menu")
+        b.click("#imagestream-modify-populate a[value='pull']")
+        b.wait_visible("#imagestream-modify-pull")
+        b.set_val("#imagestream-modify-pull", "postgres")
+        b.click(".btn-primary")
+        b.wait_not_present("modal-dialog")
+        output = o.execute("oc get imagestream --namespace=marmalade --output=json busybee")
+        self.assertNotIn(output, "postgres")
+
+        # Remove postgres into the stream
+        b.click(".pficon-edit")
+        b.wait_present("modal-dialog")
+        b.wait_visible("#imagestream-modify-populate")
+        b.click("#imagestream-modify-populate button")
+        b.wait_visible("#imagestream-modify-populate .dropdown-menu")
+        b.click("#imagestream-modify-populate a[value='none']")
+        b.click(".btn-primary")
+        b.wait_not_present("modal-dialog")
+        output = o.execute("oc get imagestream --namespace=marmalade --output=json busybee")
+        self.assertNotIn(output, "postgres")
+
+        # Go to the images view and create a new imagestream
+        b.click("#content a[href='#/images/marmalade']")
+        b.wait_present("a i.pficon-add-circle-o")
+        b.click("a i.pficon-add-circle-o")
+        b.wait_present("modal-dialog")
+        b.wait_visible("#imagestream-modify-name")
+        b.set_val("#imagestream-modify-name", "zero")
+        b.wait_val("#imagestream-modify-project-text", "marmalade")
+        b.click("#imagestream-modify-project button")
+        b.wait_visible("#imagestream-modify-project .dropdown-menu")
+        b.click("#imagestream-modify-project a[value='default']")
+        b.wait_val("#imagestream-modify-project-text", "default")
+        b.set_val("#imagestream-modify-project-text", "###")
+        b.click(".btn-primary")
+        b.wait_visible(".dialog-error")
+        b.set_val("#imagestream-modify-project-text", "default")
+        b.click(".btn-primary")
+        b.wait_not_present("modal-dialog")
+
+        # Switch to the default namespace and look for what we created
+        b.click("filter-bar .namespace-filter button")
+        b.wait_visible("filter-bar .namespace-filter .dropdown-menu")
+        b.click("filter-bar .namespace-filter a[value='default']")
+        b.wait_visible("tbody[data-id='default/zero']")
+
+        # Go to the images view and check annotations
+        b.wait_present("tbody[data-id='default/busybox']")
+        b.click("tbody[data-id='default/busybox'] th")
+        b.wait_present(".content-filter h3")
+        b.wait_in_text(".content-filter h3", "default/busybox")
+        b.wait_in_text("#content", "Annotations")
+        b.wait_in_text("div[imagestream-meta]", "openshift.io/image.dockerRepositoryCheck")
+
+        # Delete the tagged image from its own screen
+        b.go("#/images/marmalade/busybee:0.x")
+        b.wait_in_text(".content-filter h3", "marmalade/busybee:0.x")
+        b.click(".pficon-delete")
+        b.wait_present("modal-dialog")
+        b.click("modal-dialog .btn-danger")
+        b.wait_not_present("modal-dialog")
+
+        # Should redirect to the imagestream page
+        b.wait_in_text(".content-filter", "Show all image streams")
+        b.wait_not_in_text("#content", "0.x")
+
+        # Delete via the main UI
+        b.wait_present("tbody[data-id='marmalade/busybee:latest']")
+        b.click("tbody[data-id='marmalade/busybee:latest'] tr:first-child td:first-child")
+        b.click("tbody[data-id='marmalade/busybee:latest'] .listing-head .pficon-delete")
+        b.wait_present("modal-dialog")
+        b.click("modal-dialog .btn-danger")
+        b.wait_not_present("modal-dialog")
+
+        # All tags here have been removed
+        b.wait_not_present(".image-tag")
 
 if __name__ == '__main__':
     test_main()

@@ -593,10 +593,29 @@ define([
                               Action: {
                                   Title: _("Resize"),
                                   action: function (vals) {
-                                      var options = { };
-                                      if (vals.fsys !== undefined)
-                                          options.resize_fsys = { t: 'b', v: vals.fsys };
-                                      return lvol.Resize(vals.size, options);
+
+                                      function doit(force) {
+                                          var options = { };
+                                          if (vals.fsys !== undefined)
+                                              options.resize_fsys = { t: 'b', v: vals.fsys };
+                                          if(force)
+                                              options.force = { t: 'b', v: true };
+                                          console.log("doit", vals.size, options);
+                                          return lvol.Resize(vals.size, options);
+                                      }
+
+                                      if (vals.size < lvol.Size && !vals.fsys) {
+                                          dialog.open({ Title: cockpit.format(_("Please confirm shrinking of $0"),
+                                                                              lvol.Name),
+                                                        Fields: [ ],
+                                                        Action: {
+                                                            Danger: _("Shrinking a logical volume might detroy data."),
+                                                            Title: _("Shrink"),
+                                                            action: function () { return doit(true); }
+                                                        }
+                                                      });
+                                      } else
+                                          doit(false);
                                   }
                               }
                             });

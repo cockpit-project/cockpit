@@ -255,6 +255,10 @@ rm -rf %{buildroot}/usr/src/debug
 cat subscriptions.list sosreport.list networkmanager.list >> shell.list
 %endif
 
+# dwz has trouble with the go binaries
+# https://fedoraproject.org/wiki/PackagingDrafts/Go
+%global _dwz_low_mem_die_limit 0
+
 # Only strip out debug info in non wip builds
 %if %{defined gitcommit}
 %define find_debug_info %{nil}

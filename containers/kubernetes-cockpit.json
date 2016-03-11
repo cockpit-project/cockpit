@@ -25,11 +25,15 @@
                "spec":{
                   "containers":[{
                     "name": "kubernetes-cockpit",
-                    "image": "cockpit/kubernetes:wip",
+                    "image": "cockpit/kubernetes:latest",
                     "ports":[{
                         "containerPort":9090,
                         "protocol":"TCP"
-                     }]
+                     }],
+                    "env":[{
+                        "name": "KUBE_INSECURE",
+                        "value": "false"
+                    }]
                   }]
                }
             }
@@ -48,7 +52,7 @@
              "type": "ClusterIP",
              "ports": [{
                  "protocol": "TCP",
-                 "port": 9000,
+                 "port": 443,
                  "targetPort": 9090
              }],
             "selector":{

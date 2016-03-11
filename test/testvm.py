@@ -274,7 +274,7 @@ class Machine:
         if not self._check_ssh_master():
             self._start_ssh_master()
 
-    def execute(self, command=None, script=None, input=None, environment={}, quiet=False):
+    def execute(self, command=None, script=None, input=None, environment={}, stdout=None, quiet=False):
         """Execute a shell command in the test machine and return its output.
 
         Either specify @command or @script
@@ -319,6 +319,10 @@ class Machine:
                 input += "export %s\n" % name
             input += script
             command = "<script>"
+
+        if stdout:
+            subprocess.call(cmd, stdout=stdout)
+            return
 
         output = ""
         proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -1327,4 +1331,3 @@ done;
 """ % (atomic_wait_for_host, port)
         with Timeout(seconds=30, error_message="Timeout while waiting for cockpit/ws to start"):
             self.execute(script=WAIT_COCKPIT_RUNNING)
-

@@ -635,21 +635,11 @@ class MachineCase(unittest.TestCase):
     def copy_journal(self, title, label=None):
         for m in self.machines:
             if m.address:
-                dir = "%s-%s-%s.journal" % (label or self.label(), m.address, title)
-                m.download_dir("/var/log/journal", dir)
-                if os.path.exists(dir):
-                    print "Journal database copied to %s" % (dir)
-                    log = "%s-%s-%s.log" % (label or self.label(), m.address, title)
-                    with open(log, "w") as fp:
-                        subprocess.call(["journalctl", "--directory", dir], stdout=fp)
+                log = "%s-%s-%s.log" % (label or self.label(), m.address, title)
+                with open(log, "w") as fp:
+                    m.execute("journalctl", stdout=fp)
                     print "Journal extracted to %s" % (log)
-                    # compress the journal and attach that
-                    archive = "{0}.tar.gz".format(dir)
-                    subprocess.call(["tar", "cfz", archive, dir])
-                    attach(archive)
                     attach(log)
-                else:
-                    print "Journal doesn't exist"
 
 some_failed = False
 

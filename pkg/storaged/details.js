@@ -575,27 +575,40 @@ define([
 
                 var block = client.lvols_block[path];
 
+                /* Resizing is only safe when lvol has a filesystem
+                   and that filesystem is resized at the same time.
+
+                   So we always resize the filesystem for lvols that
+                   have one, and refuse to shrink otherwise.
+
+                   Note that shrinking a filesystem will not always
+                   succeed, but it is never dangerous.
+                */
+
                 dialog.open({ Title: _("Resize Logical Volume"),
                               Fields: [
                                   { SizeInput: "size",
                                     Title: _("Size"),
                                     Value: lvol.Size,
                                     Max: "XXX"
-                                  },
-                                  { CheckBox: "fsys",
-                                    Title: _("Resize Filesystem"),
-                                    Value: block && block.IdUsage == "filesystem",
-                                    visible: function () {
-                                        return lvol.Type == "block";
-                                    }
                                   }
                               ],
                               Action: {
                                   Title: _("Resize"),
                                   action: function (vals) {
+
+                                      function error(msg) {
+                                          return $.Deferred().reject({ message: msg }).promise();
+                                      }
+
+                                      var fsys = (block && block.IdUsage == "filesystem");
+                                      if (!fsys && vals.size < lvol.Size)
+                                          return error(_("This logical volume can not be made smaller."));
+
                                       var options = { };
-                                      if (vals.fsys !== undefined)
-                                          options.resize_fsys = { t: 'b', v: vals.fsys };
+                                      if (fsys)
+                                          options.resize_fsys = { t: 'b', v: fsys };
+
                                       return lvol.Resize(vals.size, options);
                                   }
                               }

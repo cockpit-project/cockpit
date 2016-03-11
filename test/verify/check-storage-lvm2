@@ -119,6 +119,19 @@ class TestStorage(StorageCase):
                       "size": "20" })
         b.wait_in_text("#content", "Logical Volume \"one\"")
 
+        # try to shrink it without a filesystem.
+        self.content_action(1, "Resize")
+        self.dialog_wait_open()
+        self.dialog_wait_val("size", "20")
+        self.dialog_set_val("size", "10")
+        self.dialog_apply()
+        self.dialog_wait_error(None, "This logical volume can not be made smaller.")
+        self.dialog_cancel()
+
+        # grow it
+        self.content_action(1, "Resize")
+        self.dialog({ "size": "30" })
+
         # format and mount it
         self.content_default_action(1, "Format")
         self.dialog({ "type": "ext4",
@@ -132,6 +145,10 @@ class TestStorage(StorageCase):
         # unmount it
         self.content_default_action(1, "Unmount")
         b.wait_in_text("#content", "not mounted")
+
+        # shrink it, this time with a filesystem.
+        self.content_action(1, "Resize")
+        self.dialog({ "size": "10" })
 
         # delete it
         self.content_action(1, "Delete")

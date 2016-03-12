@@ -964,6 +964,114 @@ function basic_scope(cockpit) {
         options: { },
         uri: calculate_url,
     };
+
+
+    /* ---------------------------------------------------------------------
+     * Utilities
+     */
+
+    var fmt_re = /\$\{([^}]+)\}|\$([a-zA-Z0-9_]+)/g;
+    cockpit.format = function format(fmt, args) {
+        if (arguments.length != 2 || typeof args !== "object" || args === null)
+            args = Array.prototype.slice.call(arguments, 1);
+        return fmt.replace(fmt_re, function(m, x, y) { return args[x || y] || ""; });
+    };
+
+    function format_units(number, suffixes, factor, separate) {
+        var quotient;
+        var suffix = null;
+
+        /* Find that factor string */
+        if (typeof (factor) === "string") {
+            /* Prefer larger factors */
+            var keys = [];
+            for (var key in suffixes)
+                keys.push(key);
+            keys.sort().reverse();
+            for (var y = 0; y < keys.length; y++) {
+                for (var x = 0; x < suffixes[keys[y]].length; x++) {
+                    if (factor == suffixes[keys[y]][x]) {
+                        number = number / Math.pow(keys[y], x);
+                        suffix = factor;
+                        break;
+                    }
+                }
+                if (suffix)
+                    break;
+            }
+
+        /* @factor is a number */
+        } else if (factor in suffixes) {
+            var divisor = 1;
+            for (var i = 0; i < suffixes[factor].length; i++) {
+                quotient = number / divisor;
+                if (quotient < factor) {
+                    number = quotient;
+                    suffix = suffixes[factor][i];
+                    break;
+                }
+                divisor *= factor;
+            }
+        }
+
+        /* non-zero values should never appear zero */
+        if (number > 0 && number < 0.1)
+            number = 0.1;
+        else if (number < 0 && number > -0.1)
+            number = -0.1;
+
+        var ret;
+
+        /* TODO: Make the decimal separator translatable */
+        var string_representation;
+
+        /* only show as integer if we have a natural number */
+        if (number % 1 === 0)
+            string_representation = number.toString();
+        else
+            string_representation = number.toFixed(1);
+
+        if (suffix)
+            ret = [string_representation, suffix];
+        else
+            ret = [string_representation];
+
+        if (!separate)
+            ret = ret.join(" ");
+
+        return ret;
+    }
+
+    var byte_suffixes = {
+        1000: [ null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ],
+        1024: [ null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB" ]
+    };
+
+    cockpit.format_bytes = function format_bytes(number, factor, separate) {
+        if (factor === undefined)
+            factor = 1024;
+        return format_units(number, byte_suffixes, factor, separate);
+    };
+
+    var byte_sec_suffixes = {
+        1024: [ "B/s", "KiB/s", "MiB/s", "GiB/s", "TiB/s", "PiB/s", "EiB/s", "ZiB/s" ]
+    };
+
+    cockpit.format_bytes_per_sec = function format_bytes_per_sec(number, factor, separate) {
+        if (factor === undefined)
+            factor = 1024;
+        return format_units(number, byte_sec_suffixes, factor, separate);
+    };
+
+    var bit_suffixes = {
+        1000: [ "bps", "Kbps", "Mbps", "Gbps", "Tbps", "Pbps", "Ebps", "Zbps" ]
+    };
+
+    cockpit.format_bits_per_sec = function format_bits_per_sec(number, factor, separate) {
+        if (factor === undefined)
+            factor = 1000;
+        return format_units(number, bit_suffixes, factor, separate);
+    };
 }
 
 
@@ -2236,113 +2344,6 @@ function full_scope(cockpit, $, po) {
 
     /* Only for _() calls here in the cockpit code */
     var _ = cockpit.gettext;
-
-    /* ---------------------------------------------------------------------
-     * Utilities
-     */
-
-    var fmt_re = /\$\{([^}]+)\}|\$([a-zA-Z0-9_]+)/g;
-    cockpit.format = function format(fmt, args) {
-        if (arguments.length != 2 || typeof args !== "object" || args === null)
-            args = Array.prototype.slice.call(arguments, 1);
-        return fmt.replace(fmt_re, function(m, x, y) { return args[x || y] || ""; });
-    };
-
-    function format_units(number, suffixes, factor, separate) {
-        var quotient;
-        var suffix = null;
-
-        /* Find that factor string */
-        if (typeof (factor) === "string") {
-            /* Prefer larger factors */
-            var keys = [];
-            for (var key in suffixes)
-                keys.push(key);
-            keys.sort().reverse();
-            for (var y = 0; y < keys.length; y++) {
-                for (var x = 0; x < suffixes[keys[y]].length; x++) {
-                    if (factor == suffixes[keys[y]][x]) {
-                        number = number / Math.pow(keys[y], x);
-                        suffix = factor;
-                        break;
-                    }
-                }
-                if (suffix)
-                    break;
-            }
-
-        /* @factor is a number */
-        } else if (factor in suffixes) {
-            var divisor = 1;
-            for (var i = 0; i < suffixes[factor].length; i++) {
-                quotient = number / divisor;
-                if (quotient < factor) {
-                    number = quotient;
-                    suffix = suffixes[factor][i];
-                    break;
-                }
-                divisor *= factor;
-            }
-        }
-
-        /* non-zero values should never appear zero */
-        if (number > 0 && number < 0.1)
-            number = 0.1;
-        else if (number < 0 && number > -0.1)
-            number = -0.1;
-
-        var ret;
-
-        /* TODO: Make the decimal separator translatable */
-        var string_representation;
-
-        /* only show as integer if we have a natural number */
-        if (number % 1 === 0)
-            string_representation = number.toString();
-        else
-            string_representation = number.toFixed(1);
-
-        if (suffix)
-            ret = [string_representation, suffix];
-        else
-            ret = [string_representation];
-
-        if (!separate)
-            ret = ret.join(" ");
-
-        return ret;
-    }
-
-    var byte_suffixes = {
-        1000: [ null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ],
-        1024: [ null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB" ]
-    };
-
-    cockpit.format_bytes = function format_bytes(number, factor, separate) {
-        if (factor === undefined)
-            factor = 1024;
-        return format_units(number, byte_suffixes, factor, separate);
-    };
-
-    var byte_sec_suffixes = {
-        1024: [ "B/s", "KiB/s", "MiB/s", "GiB/s", "TiB/s", "PiB/s", "EiB/s", "ZiB/s" ]
-    };
-
-    cockpit.format_bytes_per_sec = function format_bytes_per_sec(number, factor, separate) {
-        if (factor === undefined)
-            factor = 1024;
-        return format_units(number, byte_sec_suffixes, factor, separate);
-    };
-
-    var bit_suffixes = {
-        1000: [ "bps", "Kbps", "Mbps", "Gbps", "Tbps", "Pbps", "Ebps", "Zbps" ]
-    };
-
-    cockpit.format_bits_per_sec = function format_bits_per_sec(number, factor, separate) {
-        if (factor === undefined)
-            factor = 1000;
-        return format_units(number, bit_suffixes, factor, separate);
-    };
 
     cockpit.message = function message(arg) {
         if (arg.message)

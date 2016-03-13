@@ -1,4 +1,4 @@
-<div class="listing-head" ng-click="select(id, $event)">
+<div class="listing-head" ng-click="listing.toggle(id)">
     <div class="listing-actions">
         <button class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
     </div>
@@ -26,7 +26,7 @@
                 <td>{{image.dockerImageMetadata.DockerVersion}}</td>
                 <td>{{image.dockerImageMetadata.Architecture}}</td>
                 <td>{{image.dockerImageMetadata.Size | formatBytes}}</td>
-                <td title="image.dockerImageMetadata.Created">{{image.dockerImageMetadata.Created | timeAgo}}</td>
+                <td title="image.dockerImageMetadata.Created">{{image.dockerImageMetadata.Created | dateRelative}}</td>
             </tr>
         </tbody>
     </table>

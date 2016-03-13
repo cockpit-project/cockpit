@@ -1,0 +1,19 @@
+<modal-dialog>
+    <div class="modal-header">
+        <h3 class="modal-title" translatable="yes">Adjust Route</h3>
+    </div>
+    <div class="modal-body">
+        <table class="cockpit-form-table">
+            <tr class="adjust-host-header">
+                <td class="top"><label class="control-label" translatable="yes">Host</label></td>
+                <td>
+                    <input class="form-control adjust-host" type="text" id="host-value" ng-model="fields.host">
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
+        <button class="btn btn-primary" translatable="yes" ng-click="complete(performModify())">Change</button>
+    </div>
+</modal-dialog>

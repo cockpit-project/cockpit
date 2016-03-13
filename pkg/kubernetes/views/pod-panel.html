@@ -1,13 +1,12 @@
-<div ng-init="containers = client.containers(item)">
-    <div class="listing-head" ng-click="select(id, $event)">
+<div>
+    <div class="listing-head" ng-click="listing.toggle(id)">
         <div class="listing-actions">
             <button title="Delete" class="delete-pod btn btn-danger btn-delete pficon pficon-delete"
-                data-toggle="modal" data-target="#delete-pod-dialog"
-                data-link="{{item.metadata.selfLink}}"></button>
+                ng-click="deleteItem(item)"></button>
         </div>
         <h3><i class="fa fa-cubes"></i>{{ item.metadata.name }}</h3>
         <div class="listing-status">
-            <span>{{item.status.phase}}</span>
+            <span>{{ podStatus(item) }}</span>
         </div>
         <ul class="nav nav-tabs nav-tabs-pf">
             <li ng-class="{active: tab('main')}"><a ng-click="tab('main', $event)">Pod</a></li>
@@ -23,18 +22,22 @@
         </kube-pod-body>
     </div>
     <div class="listing-body" ng-show="tab('containers')">
-        <kube-container-body ng-repeat="container in containers">
+        <kube-container-body ng-repeat="container in containers(item)">
         </kube-container-body>
     </div>
     <div class="listing-body" ng-show="tab('logs')">
-        <div class="container-fluid" ng-repeat="container in containers">
+        <div class="container-fluid" ng-repeat="container in containers(item)"
+            ng-class="{'container-more': !$first}">
+            <p ng-if="!($first && $last)">{{ container.spec.name }}</p>
             <kube-console pod="item" container="container.spec.name" prevent="!tabbed">
             </kube-console>
         </div>
     </div>
     <div class="listing-body" ng-show="tab('shell')">
-        <div class="container-fluid" ng-repeat="container in containers"
-            ng-if="item.status.phase == 'Running' && container.status.state.running">
+        <div class="container-fluid" ng-repeat="container in containers(item)"
+            ng-if="item.status.phase == 'Running' && container.status.state.running"
+            ng-class="{'container-more': !$first}">
+            <p ng-if="!($first && $last)">{{ container.spec.name }}</p>
             <kubernetes-container-terminal pod="item" container="container.spec.name" prevent="!tabbed">
             </kubernetes-container-terminal>
         </div>

@@ -65,24 +65,22 @@ class KubernetesCommonTests(object):
     def check_logs(self, b):
         # Check that container log output shows up
         b.click("#content .containers-listing tbody:first-of-type tr th")
-        b.wait_present(".listing-panel .listing-status:contains('running')")
-        b.click("#content .listing-panel li a:contains('Logs')")
-        b.wait_present(".listing-panel pre.logs")
-        b.wait_visible(".listing-panel pre.logs")
-        b.wait_in_text(".listing-panel pre.logs", "HelloMessage.")
+        b.wait_present("tbody.open .listing-panel .listing-head")
+        b.wait_in_text("tbody.open .listing-panel .listing-head .listing-status", "running")
+        b.click("tbody.open .listing-panel .listing-head li a.logs")
+        b.wait_present("tbody.open .listing-panel pre.logs")
+        b.wait_visible("tbody.open .listing-panel pre.logs")
+        b.wait_in_text("tbody.open .listing-panel pre.logs", "HelloMessage.")
 
     def check_shell(self, b):
-        def line_sel(i):
-            return '#terminal .terminal div:nth-child(%d)' % i
-
-        b.wait_present("#content .listing-panel li a:contains('Shell')")
-        b.click("#content .listing-panel li a:contains('Shell')")
-        b.wait_present(".listing-panel div.terminal")
-        b.wait_visible(".listing-panel div.terminal")
-        b.wait_in_text(".listing-panel .terminal div:nth-child(1)", "#")
-        b.focus('.listing-panel .terminal')
+        b.wait_present("tbody.open .listing-panel .listing-head li a.shell")
+        b.click("tbody.open .listing-panel .listing-head li a.shell")
+        b.wait_present("tbody.open .listing-panel div.terminal")
+        b.wait_visible("tbody.open .listing-panel div.terminal")
+        b.wait_in_text("tbody.open .listing-panel .terminal div:nth-child(1)", "#")
+        b.focus('tbody.open .listing-panel .terminal')
         b.key_press( [ 'w', 'h', 'o', 'a', 'm', 'i', 'Return' ] )
-        b.wait_in_text(".listing-panel .terminal div:nth-child(2)", "root")
+        b.wait_in_text("tbody.open .listing-panel .terminal div:nth-child(2)", "root")
 
     def testDelete(self):
         b = self.browser
@@ -100,7 +98,9 @@ class KubernetesCommonTests(object):
         podl = pods.split("|")
         b.click("a[href='#/list']")
         b.wait_present("#content .details-listing")
+        b.wait_present("#content .details-listing tbody[data-id='services/default/mock']")
         self.assertEqual(b.text(".details-listing tbody[data-id='services/default/mock'] th"), "mock")
+        b.wait_present("#content .details-listing tbody[data-id='replicationcontrollers/default/mock']")
         self.assertEqual(b.text(".details-listing tbody[data-id='replicationcontrollers/default/mock'] th"), "mock")
         b.wait_present(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] th")
         self.assertEqual(b.text(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] th"), podl[0])
@@ -108,25 +108,26 @@ class KubernetesCommonTests(object):
         b.click(".details-listing tbody[data-id='services/default/mock'] th")
         b.wait_visible(".details-listing tbody[data-id='services/default/mock'] .delete-entity")
         b.click(".details-listing tbody[data-id='services/default/mock'] .delete-entity")
-        b.wait_popup("delete-entity-dialog")
-        b.click("#delete-entity-button")
-        b.wait_popdown("delete-entity-dialog")
+        b.wait_present("modal-dialog")
+        b.click("modal-dialog .btn-danger")
+        b.wait_not_present("modal-dialog")
         b.wait_not_present(".details-listing tbody[data-id='services/default/mock']")
 
         b.click(".details-listing tbody[data-id='replicationcontrollers/default/mock'] th")
         b.wait_visible(".details-listing tbody[data-id='replicationcontrollers/default/mock'] .delete-entity")
         b.click(".details-listing tbody[data-id='replicationcontrollers/default/mock'] .delete-entity")
-        b.wait_popup("delete-entity-dialog")
-        b.click("#delete-entity-button")
-        b.wait_popdown("delete-entity-dialog")
+        b.wait_present("modal-dialog")
+        b.click("modal-dialog .btn-danger")
+        b.wait_not_present("modal-dialog")
         b.wait_not_present(".details-listing tbody[data-id='replicationcontrollers/default/mock']")
 
         b.click(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] th")
         b.wait_visible(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] .delete-pod")
         b.click(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] .delete-pod")
-        b.wait_popup("delete-pod-dialog")
-        b.click("#delete-pod-button")
-        b.wait_popdown("delete-pod-dialog")
+        b.wait_present("modal-dialog")
+        b.wait_in_text("modal-dialog .modal-body", "Deleting a Pod will")
+        b.click("modal-dialog .btn-danger")
+        b.wait_not_present("modal-dialog")
         b.wait_not_present(".details-listing tbody[data-id='pods/default/"+podl[0]+"']")
 
     def testDashboard(self):
@@ -142,39 +143,49 @@ class KubernetesCommonTests(object):
 
         # Successfully deploy via dialog
         b.click("#deploy-app")
-        b.wait_popup("deploy-app-dialog")
+        b.wait_present("modal-dialog")
         b.upload_file("#deploy-app-manifest-file", os.path.join(base_dir, "files/mock-k8s-tiny-app.json"))
         b.wait_val("#deploy-app-namespace", "")
         b.set_val("#deploy-app-namespace", "mynamespace1")
-        self.assertEqual(b.text("#deploy-app-namespace-group ul"), "default")
-        b.dialog_complete("#deploy-app-dialog")
+        b.wait_in_text("#deploy-app-namespace-group ul", "default")
+        b.click("modal-dialog .btn-primary")
+        b.wait_not_present("modal-dialog .dialog-wait")
+        b.wait_not_present("modal-dialog")
         b.wait_in_text("#service-list", "mynamespace1")
         b.wait_in_text("#service-list", "default")
 
         # Fail deploy via dialog
         b.click("#deploy-app")
-        b.wait_popup("deploy-app-dialog")
+        b.wait_present("modal-dialog")
         b.upload_file("#deploy-app-manifest-file", os.path.join(base_dir, "files/mock-k8s-tiny-app.json"))
         b.set_val("#deploy-app-namespace", "!!!!")
-        b.dialog_complete("#deploy-app-dialog", result="fail")
-        b.dialog_cancel("#deploy-app-dialog")
+        b.click("modal-dialog .btn-primary")
+        b.wait_not_present("modal-dialog .dialog-wait")
+        b.wait_present("modal-dialog .dialog-error")
+        b.click("modal-dialog .btn-cancel")
+        b.wait_not_present("modal-dialog")
 
         # Successfully add node via dialog
         b.click("#add-node")
-        b.wait_popup("node-dialog")
+        b.wait_present("modal-dialog")
         b.set_val("#node-name", "mynode")
         b.set_val("#node-address", "myaddress")
-        b.dialog_complete("#node-dialog")
+        b.click("modal-dialog .btn-primary")
+        b.wait_not_present("modal-dialog .dialog-wait")
+        b.wait_not_present("modal-dialog")
         b.wait_in_text("#node-list", "mynode")
         b.wait_in_text("#node-list", "myaddress")
 
         # Fail add node via dialog
         b.click("#add-node")
-        b.wait_popup("node-dialog")
+        b.wait_present("modal-dialog")
         b.set_val("#node-name", "!!!!")
         b.set_val("#node-address", "!!!!")
-        b.dialog_complete("#node-dialog", result="fail")
-        b.dialog_cancel("#node-dialog")
+        b.click("modal-dialog .btn-primary")
+        b.wait_not_present("modal-dialog .dialog-wait")
+        b.wait_present("modal-dialog .dialog-error")
+        b.click("modal-dialog .btn-cancel")
+        b.wait_not_present("modal-dialog")
 
         # Make sure pod has started
         with b.wait_timeout(120):
@@ -183,10 +194,11 @@ class KubernetesCommonTests(object):
         # Adjust the service
         b.click("#services-enable-change")
         b.click("#service-list tr[data-name='mock']:first-of-type button")
-        b.wait_popup("adjust-dialog")
-        b.set_val("#adjust-dialog input.adjust-replica", 2)
-        b.click("#adjust-dialog .btn-primary")
-        b.wait_popdown("adjust-dialog")
+        b.wait_present("modal-dialog")
+        b.set_val("modal-dialog input.adjust-replica", 2)
+        b.click("modal-dialog .btn-primary")
+        b.wait_not_present("modal-dialog .dialog-wait")
+        b.wait_not_present("modal-dialog")
         b.click("#services-enable-change")
         b.wait_in_text("#service-list tr[data-name='mock']:first-of-type td.containers", "2")
 
@@ -201,8 +213,9 @@ class KubernetesCommonTests(object):
         # Check that service shows up on listing view
         b.click("a[href='#/list']")
         b.wait_present("#content .details-listing")
+        b.wait_present(".details-listing tbody[data-id='services/default/mock']")
         self.assertEqual(b.text(".details-listing tbody[data-id='services/default/mock'] th"), "mock")
-        self.assertIn("Service:", b.attr(".details-listing tbody[data-id='services/default/mock']", "data-key"))
+        b.wait_present(".details-listing tbody[data-id='replicationcontrollers/default/mock']")
         self.assertEqual(b.text(".details-listing tbody[data-id='replicationcontrollers/default/mock'] th"), "mock")
         b.wait_not_present("#routes")
         b.wait_not_present("#deployment-configs")
@@ -229,12 +242,14 @@ class KubernetesCommonTests(object):
         # Now the header and other services should still be present, check filter menu state
         self.assertTrue(b.is_present(".details-listing thead th"))
         self.assertTrue(b.is_present(".details-listing tbody tr.listing-item"))
-        self.assertEqual(b.text(".filter-menu li.active"), " View all items ")
+        b.wait_not_present(".filter-menu li.active")
 
-        # Click the filter button to make only selected
-        b.wait_visible(".filter-menu .btn:first-child")
-        b.click(".filter-menu .btn:first-child")
-        b.wait_text(".filter-menu li.active", " Only selected items ")
+        # Click the first link to show make only selected
+        b.wait_visible(".filter-menu .btn.dropdown-toggle")
+        b.click(".filter-menu .btn.dropdown-toggle")
+        b.click(".filter-menu li:first-child a")
+        b.wait_present(".filter-menu li.checked")
+        b.wait_in_text(".filter-menu li.checked", "expanded items")
         self.assertFalse(b.is_present(".details-listing thead th"))
         self.assertFalse(b.is_present(".details-listing tbody tr.listing-item"))
         self.assertTrue(b.is_present(".details-listing tr.listing-panel"))
@@ -242,7 +257,7 @@ class KubernetesCommonTests(object):
         # Clear the selection via the menu
         b.click(".filter-menu .btn.dropdown-toggle")
         b.click(".filter-menu li:last-child a")
-        b.wait_text(".filter-menu li.active", " View all items ")
+        b.wait_not_present(".filter-menu li.checked")
         self.assertTrue(b.is_present(".details-listing thead th"))
         self.assertTrue(b.is_present(".details-listing tbody tr.listing-item"))
         self.assertFalse(b.is_present(".details-listing tr.listing-panel"))
@@ -259,11 +274,13 @@ class KubernetesCommonTests(object):
 
         # Deploy app in a namespace that isn't selected
         b.click("#deploy-app")
-        b.wait_popup("deploy-app-dialog")
+        b.wait_present("modal-dialog")
         b.upload_file("#deploy-app-manifest-file", os.path.join(base_dir, "files/mock-k8s-tiny-app.json"))
         b.wait_val("#deploy-app-namespace", "mynamespace1")
         b.set_val("#deploy-app-namespace", "mynamespace2")
-        b.dialog_complete("#deploy-app-dialog")
+        b.click("modal-dialog .btn-primary")
+        b.wait_not_present("modal-dialog .dialog-wait")
+        b.wait_not_present("modal-dialog")
 
         # mynamespace2 is now selected
         b.wait_in_text("#service-list", "mynamespace2")
@@ -290,7 +307,6 @@ class KubernetesCommonTests(object):
         # Assert that at least one link between Service and Pod has loaded
         b.wait_present("svg line.ServicePod")
 
-
 class OpenshiftCommonTests(object):
 
     def testBasic(self):
@@ -304,22 +320,6 @@ class OpenshiftCommonTests(object):
         b.wait_present("#service-list")
         b.wait_in_text("#service-list", "registry")
 
-        # Switch to images view
-        b.click("a[href='#/images']")
-        b.wait_present(".images-listing tr[data-id='library/busybox']")
-        self.assertEqual(b.text(".images-listing tr[data-id='library/busybox'] th"), "library/busybox")
-        b.click(".images-listing tr[data-id='library/busybox']")
-
-        self.assertEqual(b.text(".images-listing tr[data-id='library/busybox'] h3"), "library/busybox")
-
-        header = b.text(".images-listing tr[data-id='library/busybox'] div.listing-head")
-        self.assertIn("registry.hub.docker.com", header)
-
-        self.assertEqual(b.text(".images-listing tr[data-id='library/busybox'] h3"), "library/busybox")
-        b.wait_in_text(".images-listing tr[data-id='library/busybox'] div.listing-body", "latest")
-        b.wait_in_text(".images-listing tr[data-id='library/busybox'] div.listing-body", "amd64")
-        b.wait_in_text(".images-listing tr[data-id='library/busybox'] div.listing-body", "busybox@sha")
-
         # Switch to detail view
         b.click("a[href='#/list']")
         b.wait_present("#content .details-listing")
@@ -328,11 +328,13 @@ class OpenshiftCommonTests(object):
 
         b.wait_present(".details-listing tbody[data-id='deploymentconfigs/default/docker-registry'] th")
         self.assertEqual(b.text(".details-listing tbody[data-id='deploymentconfigs/default/docker-registry'] th"), "docker-registry")
-        self.assertIn("DeploymentConfig:", b.attr(".details-listing tbody[data-id='deploymentconfigs/default/docker-registry']", "data-key"))
 
         b.wait_present(".details-listing tbody[data-id='routes/default/docker-registry'] th")
         self.assertEqual(b.text(".details-listing tbody[data-id='routes/default/docker-registry'] th"), "docker-registry")
-        self.assertIn("Route:", b.attr(".details-listing tbody[data-id='routes/default/docker-registry']", "data-key"))
+
+        # Switch to images view
+        b.click("a[href='#/images']")
+        b.wait_present("tbody[data-id='marmalade/busybee:0.x']")
 
         # Switch to topology view
         b.click("a[href='#/topology']")
@@ -363,15 +365,17 @@ class OpenshiftCommonTests(object):
         b.click(".details-listing tbody[data-id='routes/default/mock'] th")
         b.wait_visible(".details-listing tbody[data-id='routes/default/mock'] .route-delete")
         b.click(".details-listing tbody[data-id='routes/default/mock'] .route-delete")
-        b.wait_popup("delete-entity-dialog")
-        b.click("#delete-entity-button")
-        b.wait_popdown("delete-entity-dialog")
+        b.wait_present("modal-dialog")
+        b.wait_in_text("modal-dialog .modal-header", "Delete Route")
+        b.wait_in_text("modal-dialog .modal-body", "Route 'mock'")
+        b.click(".modal-footer button.btn-danger")
+        b.wait_not_present("modal-dialog")
         b.wait_not_present(".details-listing tbody[data-id='routes/default/mock']")
 
         b.click(".details-listing tbody[data-id='deploymentconfigs/default/frontend'] th")
         b.wait_visible(".details-listing tbody[data-id='deploymentconfigs/default/frontend'] .deployment-delete")
         b.click(".details-listing tbody[data-id='deploymentconfigs/default/frontend'] .deployment-delete")
-        b.wait_popup("delete-entity-dialog")
-        b.click("#delete-entity-button")
-        b.wait_popdown("delete-entity-dialog")
+        b.wait_present("modal-dialog")
+        b.click(".modal-footer button.btn-danger")
+        b.wait_not_present("modal-dialog")
         b.wait_not_present(".details-listing tbody[data-id='deploymentconfigs/default/frontend']")

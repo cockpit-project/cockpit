@@ -1,46 +1,20 @@
-<div class="btn-group filter-menu pull-right" ng-class="{ hidden: !filter.listing }">
-    <button class="btn btn-default fa fa-filter" ng-class="{ active: filter.listing.quiet }"
-        ng-click="filter_click($event)"></button>
-    <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+<div class="btn-group filter-menu pull-right" ng-if="listing" dropdown>
+    <button class="btn btn-default fa fa-th-list"></button>
+    <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" dropdown-toggle>
         <span class="caret"></span>
     </button>
     <ul class="dropdown-menu">
-        <li ng-class="{active: !filter.listing.quiet}">
-            <a ng-click="filter.listing.quiet = false">View all items</a>
+        <li ng-if="!listing.forceInline" ng-class="{ checked: listing.expandable }">
+            <a ng-click="listing.expandable = !listing.expandable" translatable="yes">Expand items inline</a>
         </li>
-        <li ng-class="{active: filter.listing.quiet, disabled: !filter.listing.selected()}">
-            <a ng-click="filter.listing.quiet = true">Only selected items</a>
+        <li ng-class="{ checked: listing.only, disabled: !listing.expanded() }">
+            <a ng-click="listing.only = !listing.only" translatable="yes">Only expanded items</a>
         </li>
-        <li role="separator" class="divider"></li>
         <li>
-            <a ng-click="filter.listing.select()">Clear selection</a>
+            <a ng-click="listing.collapse()" translatable="yes">Collapse all</a>
         </li>
     </ul>
 </div>
 
-<div class="btn-group bootstrap-select namespace-filter">
-    <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">
-        <span ng-if="client.flavor == 'openshift'" class="pull-left">
-            <span ng-if="!filter.namespace" translatable="yes">All Projects</span>
-            <span ng-if="filter.namespace" translatable="yes">Project:
-                <span class="namespace-value">{{filter.namespace}}</span></span>
-        </span>
-        <span ng-if="client.flavor != 'openshift'" class="pull-left">
-            <span ng-if="!filter.namespace" translatable="yes">All Namespaces</span>
-            <span ng-if="filter.namespace" translatable="yes">Namespace:
-                <span class="namespace-value">{{filter.namespace}}</span></span>
-        </span>
-        <span class="caret"></span>
-    </button>
-    <ul class="dropdown-menu">
-        <li ng-if="client.flavor == 'openshift'" translatable="yes">
-            <a ng-click="filter.set_namespace('')">All Projects</a>
-        </li>
-        <li ng-if="client.flavor != 'openshift'" translatable="yes">
-            <a ng-click="filter.set_namespace('')">All Namespaces</a>
-         </li>
-        <li ng-repeat="namespace in namespaces | orderObjectBy:['metadata.name'] as filtered_result track by namespace.key">
-            <a ng-init="ns = namespace.metadata.name" ng-click="filter.set_namespace(ns)">{{ns}}</a>
-        </li>
-    </ul>
-</div>
+<filter-project>
+</filter-project>

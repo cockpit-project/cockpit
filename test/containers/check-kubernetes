@@ -83,6 +83,8 @@ class TestKubernetesLogin(KubernetesContainerCase):
         m.start_cockpit()
 
         b.open("/")
+        b.wait_visible("#login")
+        b.wait_text("#server-name b", "Cockpit Kubernetes")
         login("admin", "foobar")
         b.wait_in_text("#login-fatal-message", "Couldn't connect to the api")
         b.wait_not_visible('#login-button')
@@ -103,6 +105,8 @@ class TestKubernetesLogin(KubernetesContainerCase):
         # Try to login as user with a wrong password
         self.setup_basic_auth()
         b.reload()
+        b.wait_visible("#login")
+        b.wait_text("#server-name b", "Cockpit Kubernetes")
         login("admin", "bad")
         b.wait_text_not("#login-error-message", "")
         b.wait_visible('#login-button')

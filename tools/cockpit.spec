@@ -228,17 +228,14 @@ touch docker.list
 %endif
 
 %ifarch x86_64
-echo '%dir %{_datadir}/%{name}/kubernetes' > kubernetes.list
-find %{buildroot}%{_datadir}/%{name}/kubernetes -type f >> kubernetes.list
 %if %{defined gitcommit}
 %else
-mv %{buildroot}/%{_datadir}/%{name}/registry/manifest.json %{buildroot}/%{_datadir}/%{name}/registry/manifest.disabled
+rm %{buildroot}/%{_datadir}/%{name}/kubernetes/override.json
 %endif
-echo '%dir %{_datadir}/%{name}/registry' >> kubernetes.list
-find %{buildroot}%{_datadir}/%{name}/registry -type f >> kubernetes.list
+echo '%dir %{_datadir}/%{name}/kubernetes' > kubernetes.list
+find %{buildroot}%{_datadir}/%{name}/kubernetes -type f >> kubernetes.list
 %else
 rm -rf %{buildroot}/%{_datadir}/%{name}/kubernetes
-rm -rf %{buildroot}/%{_datadir}/%{name}/registry
 touch kubernetes.list
 %endif
 

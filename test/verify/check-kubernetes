@@ -51,8 +51,8 @@ class TestConnection(KubernetesCase):
         # Connect without starting a kube server
         self.login_and_go("/kubernetes")
         b.wait_present(".curtains")
-        b.wait_in_text(".curtains", "Couldn't connect to Kubernetes server")
-        b.wait_in_text(".curtains", "Couldn't find running kube-apiserver")
+        b.wait_in_text(".curtains", "Couldn't connect to server")
+        b.wait_in_text(".curtains", "Couldn't find running API server")
         self.assertIn("Reconnect", b.text(".blank-slate-pf-main-action button"))
 
         # Start a kube-apiserver with a 'wrong' http port, forcing use of https

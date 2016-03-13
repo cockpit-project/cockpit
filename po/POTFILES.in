@@ -32,14 +32,9 @@ pkg/docker/containers.js
 pkg/docker/search.js
 pkg/playground/test.js
 pkg/dashboard/list.js
-pkg/kubernetes/node.js
-pkg/kubernetes/details.js
-pkg/kubernetes/client.js
-pkg/kubernetes/deploy.js
-pkg/kubernetes/images.js
-pkg/kubernetes/graphs.js
-pkg/kubernetes/nulecule.js
-pkg/kubernetes/adjust.js
+pkg/kubernetes/scripts/kube-client-cockpit.js
+pkg/kubernetes/scripts/utils.js
+pkg/kubernetes/scripts/details.js
 pkg/networkmanager/interfaces.js
 pkg/ostree/client.js
 pkg/ostree/app.js
@@ -65,26 +60,6 @@ pkg/sosreport/index.js
 [type: gettext/glade] pkg/shell/templates/add-machine.html
 [type: gettext/glade] pkg/shell/index.html
 [type: gettext/glade] pkg/users/index.html
-[type: gettext/glade] pkg/registry/views/image-config.html
-[type: gettext/glade] pkg/registry/views/imagestream-modify.html
-[type: gettext/glade] pkg/registry/views/image-page.html
-[type: gettext/glade] pkg/registry/views/add-project-dialog.html
-[type: gettext/glade] pkg/registry/views/image-panel.html
-[type: gettext/glade] pkg/registry/views/filter-bar.html
-[type: gettext/glade] pkg/registry/views/image-meta.html
-[type: gettext/glade] pkg/registry/views/imagestream-delete.html
-[type: gettext/glade] pkg/registry/views/project-panel.html
-[type: gettext/glade] pkg/registry/views/add-group-dialog.html
-[type: gettext/glade] pkg/registry/views/project-listing.html
-[type: gettext/glade] pkg/registry/views/imagestream-page.html
-[type: gettext/glade] pkg/registry/views/image-listing.html
-[type: gettext/glade] pkg/registry/views/add-user-dialog.html
-[type: gettext/glade] pkg/registry/views/project-page.html
-[type: gettext/glade] pkg/registry/views/dashboard-page.html
-[type: gettext/glade] pkg/registry/views/imagestream-body.html
-[type: gettext/glade] pkg/registry/views/image-body.html
-[type: gettext/glade] pkg/registry/views/image-delete.html
-[type: gettext/glade] pkg/registry/index.html
 [type: gettext/glade] pkg/systemd/terminal.html
 [type: gettext/glade] pkg/systemd/services.html
 [type: gettext/glade] pkg/systemd/index.html
@@ -95,22 +70,44 @@ pkg/sosreport/index.js
 [type: gettext/glade] pkg/playground/patterns.html
 [type: gettext/glade] pkg/playground/test.html
 [type: gettext/glade] pkg/dashboard/index.html
+[type: gettext/glade] pkg/kubernetes/views/image-config.html
 [type: gettext/glade] pkg/kubernetes/views/route-panel.html
+[type: gettext/glade] pkg/kubernetes/views/imagestream-modify.html
+[type: gettext/glade] pkg/kubernetes/views/item-delete.html
 [type: gettext/glade] pkg/kubernetes/views/containers-page.html
 [type: gettext/glade] pkg/kubernetes/views/replicationcontroller-panel.html
+[type: gettext/glade] pkg/kubernetes/views/route-modify.html
+[type: gettext/glade] pkg/kubernetes/views/image-page.html
+[type: gettext/glade] pkg/kubernetes/views/add-project-dialog.html
+[type: gettext/glade] pkg/kubernetes/views/registry-dashboard-page.html
+[type: gettext/glade] pkg/kubernetes/views/image-panel.html
 [type: gettext/glade] pkg/kubernetes/views/filter-bar.html
+[type: gettext/glade] pkg/kubernetes/views/imagestream-meta.html
+[type: gettext/glade] pkg/kubernetes/views/image-meta.html
+[type: gettext/glade] pkg/kubernetes/views/imagestream-delete.html
 [type: gettext/glade] pkg/kubernetes/views/topology-page.html
+[type: gettext/glade] pkg/kubernetes/views/project-panel.html
 [type: gettext/glade] pkg/kubernetes/views/container-body.html
+[type: gettext/glade] pkg/kubernetes/views/replicationcontroller-modify.html
+[type: gettext/glade] pkg/kubernetes/views/add-group-dialog.html
 [type: gettext/glade] pkg/kubernetes/views/service-panel.html
-[type: gettext/glade] pkg/kubernetes/views/images-page.html
+[type: gettext/glade] pkg/kubernetes/views/project-listing.html
 [type: gettext/glade] pkg/kubernetes/views/pod-body.html
 [type: gettext/glade] pkg/kubernetes/views/deploymentconfig-panel.html
+[type: gettext/glade] pkg/kubernetes/views/imagestream-page.html
+[type: gettext/glade] pkg/kubernetes/views/image-listing.html
+[type: gettext/glade] pkg/kubernetes/views/add-user-dialog.html
 [type: gettext/glade] pkg/kubernetes/views/container-panel.html
+[type: gettext/glade] pkg/kubernetes/views/project-page.html
 [type: gettext/glade] pkg/kubernetes/views/dashboard-page.html
+[type: gettext/glade] pkg/kubernetes/views/imagestream-body.html
+[type: gettext/glade] pkg/kubernetes/views/image-body.html
+[type: gettext/glade] pkg/kubernetes/views/image-delete.html
 [type: gettext/glade] pkg/kubernetes/views/imagerepository-panel.html
 [type: gettext/glade] pkg/kubernetes/views/details-page.html
 [type: gettext/glade] pkg/kubernetes/views/node-panel.html
 [type: gettext/glade] pkg/kubernetes/index.html
+[type: gettext/glade] pkg/kubernetes/registry.html
 [type: gettext/glade] pkg/networkmanager/index.html
 [type: gettext/glade] pkg/ostree/index.html
 [type: gettext/glade] pkg/storaged/index.html

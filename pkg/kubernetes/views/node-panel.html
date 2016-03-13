@@ -1,4 +1,4 @@
-<div class="listing-head" ng-click="select(id, $event)">
+<div class="listing-head" ng-click="listing.toggle(id)">
     <div class="listing-actions">
     </div>
     <h3><i class="fa fa-server"></i>{{ item.metadata.name }}</h3>
@@ -15,7 +15,7 @@
         <div class="col-xs-12 col-md-6">
             <dl>
                 <dt translatable="yes">Created</dt>
-                <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | timeAgo }}</dd>
+                <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | dateRelative }}</dd>
                 <dt translatable="yes">Address</dt>
                 <dd>{{item.spec.externalID}}</dd>
                 <dt translatable="yes">IP</dt>
@@ -53,9 +53,9 @@
                 <dt translatable="yes" ng-if="ready.message">Message</dt>
                 <dd ng-if="ready.message">{{ready.reason }}</dd>
                 <dt translatable="yes" ng-if="ready.lastHeartbeatTime">Last Heartbeat</dt>
-                <dd ng-if="ready.lastHeartbeatTime">{{ready.lastHeartbeatTime | timeAgo }}</dd>
+                <dd ng-if="ready.lastHeartbeatTime">{{ready.lastHeartbeatTime | dateRelative }}</dd>
                 <dt translatable="yes" ng-if="ready.lastTransitionTime">Last Status Change</dt>
-                <dd ng-if="ready.lastTransitionTime">{{ready.lastTransitionTime | timeAgo }}</dd>
+                <dd ng-if="ready.lastTransitionTime">{{ready.lastTransitionTime | dateRelative }}</dd>
             </dl>
         </div>
         <div class="col-xs-12 col-md-6">
@@ -79,7 +79,7 @@
             <dl class="full-width" ng-init="pods = nodePods(item)">
                 <dt translatable="yes">Scheduled Pods</dt>
                 <dd ng-repeat="pod in pods">{{ pod.metadata.name }}</dd>
-                <dd ng-if="!pods.count" translatable="yes">No pods scheduled</dd>
+                <dd ng-if="!pods.length" translatable="yes">No pods scheduled</dd>
             </dl>
         </div>
     </div>

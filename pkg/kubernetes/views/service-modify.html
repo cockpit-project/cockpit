@@ -1,0 +1,28 @@
+<modal-dialog>
+    <div class="modal-header">
+        <h3 class="modal-title" translatable="yes">Adjust Service</h3>
+    </div>
+    <div class="modal-body">
+        <table class="cockpit-form-table">
+            <tr>
+                <!-- We can't edit the name for now -->
+                <td><label class="control-label" for="adjust-name" translatable="yes">Name</label></td>
+                <td><input id="adjust-name" type="text" class="form-control" disabled value="{{ service.metadata.name}}"></td>
+            </tr>
+            <tr class="adjust-replicas-header">
+                <td colspan="2" class="header">Replicas</td>
+            </tr>
+            <tr ng-repeat="item in fields track by item.name" class="adjust-replicas">
+                <td class="top"><label class="control-label" for="{{ item.name }}" translatable="yes">{{ item.name }}</label></td>
+                <td>
+                    <input class="form-control adjust-replica" type="text" id="{{ item.name }}" ng-model="item.replicas">
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
+        <button class="btn btn-primary" translatable="yes" ng-click="complete(performModify())"
+                ng-class="{disabled: rcs.length < 1}">Adjust</button>
+    </div>
+</modal-dialog>

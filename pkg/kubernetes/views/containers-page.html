@@ -1,37 +1,43 @@
+<filter-bar class="content-filter">
+</filter-bar>
+
 <div>
-    <table listing-table class="listing containers-listing">
-        <thead ng-if="!quiet">
-            <tr>
-                <td colspan="4">
-                    <h3 translatable="yes">Containers</h3>
-                </td>
-            </tr>
+<table listing-table class="listing containers-listing">
+    <thead>
+        <tr ng-if="!listing.only">
+            <td colspan="4">
+                <h3 translatable="yes">Containers</h3>
+            </td>
+        </tr>
+        <tr>
             <tr>
                 <th translatable="yes">Name</th>
                 <th translatable="yes">Pod</th>
-                <th translatable="yes" ng-if="client.flavor == 'openshift'">Project</th>
-                <th translatable="yes" ng-if="client.flavor != 'openshift'">Namespace</th>
+                <th translatable="yes" ng-if="settings.flavor == 'openshift'">Project</th>
+                <th translatable="yes" ng-if="settings.flavor != 'openshift'">Namespace</th>
                 <th translatable="yes">Node</th>
                 <th translatable="yes">Status</th>
             </tr>
-        </thead>
-        <tbody data-ng-rubbish="" ng-if="0"
-            ng-repeat-start="item in pods | orderObjectBy:['metadata.namespace', 'metadata.name'] track by item.key">
-        </tbody>
-        <tbody ng-repeat="(id, container) in containers(item) track by container.key"
-            class="active" ng-class="{open: selected(id)}">
-            <tr class="listing-item" ng-click="select(id)" ng-if="!quiet">
-                <th>{{container.spec.name}}</th>
-                <td>{{item.metadata.name}}</td>
-                <td>{{item.metadata.namespace}}</td>
-                <td>{{item.spec.nodeName}}</td>
-                <td><span ng-repeat="(name, value) in container.status.state">{{name}}</span></td>
-            </tr>
-            <tr class="listing-panel" ng-if="selected(id)">
-                <td listing-panel kind="Container" colspan="5"></td>
-            </tr>
-        </tbody>
-        <tbody data-ng-rubbish="" ng-if="0" ng-repeat-end>
-        </tbody>
-    </table>
+        </tr>
+    </thead>
+
+    <tbody data-ng-rubbish="" ng-if="0"
+        ng-repeat-start="item in pods | orderObjectBy:['metadata.namespace', 'metadata.name'] track by item.metadata.uid">
+    </tbody>
+    <tbody ng-repeat="container in containers(item) track by container.key"
+        class="active" ng-class="{open: listing.expanded(container.key)}">
+        <tr class="listing-item" ng-click="listing.toggle(container.key)" ng-if="!listing.only">
+            <th>{{container.spec.name}}</th>
+            <td>{{item.metadata.name}}</td>
+            <td>{{item.metadata.namespace}}</td>
+            <td>{{item.spec.nodeName}}</td>
+            <td><span ng-repeat="(name, value) in container.status.state">{{name}}</span></td>
+        </tr>
+        <tr class="listing-panel" ng-if="listing.expanded(id)">
+            <td listing-panel kind="Container" colspan="5" ng-init="id = container.key"></td>
+        </tr>
+    </tbody>
+    <tbody data-ng-rubbish="" ng-if="0" ng-repeat-end>
+    </tbody>
+</table>
 </div>

@@ -24,330 +24,94 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="../base1/cockpit.css">
-  <link rel="stylesheet" href="app.css">
-  <script src="../base1/bundle.js"></script>
-  <script src="../kubernetes/kubernetes.js"></script>
-</head>
-<body>
-    <div ng-controller="MainCtrl as main" ng-cloak>
-        <kubernetes-filter-bar id="content-filter" ng-if="!curtains">
-        </kubernetes-filter-bar>
+  <link rel="stylesheet" href="kubernetes.css">
+  <script src="../base1/angular.js"></script>
+  <script src="../base1/moment.js"></script>
+  <script src="../base1/cockpit.js"></script>
+  <script src="../base1/d3.js"></script>
+  <script src="../base1/term.js"></script>
+  <script src="kubernetes.js"></script>
 
+  <!-- debug:start -->
+  <link rel="stylesheet/less" type="text/css" href="styles/main.less" />
+  <script src="less.js" type="text/javascript"></script>
+  <script src="scripts/kube-client.js"></script>
+  <script src="scripts/kube-client-cockpit.js"></script>
+  <script src="scripts/container-terminal.js"></script>
+  <script src="scripts/object-describer.js"></script>
+  <script src="scripts/date.js"></script>
+  <script src="scripts/utils.js"></script>
+  <script src="scripts/app.js"></script>
+  <script src="scripts/main.js"></script>
+  <script src="scripts/graphs.js"></script>
+  <script src="scripts/dialog.js"></script>
+  <script src="scripts/listing.js"></script>
+  <script src="scripts/dashboard.js"></script>
+  <script src="scripts/containers.js"></script>
+  <script src="scripts/details.js"></script>
+  <script src="scripts/topology.js"></script>
+  <script src="scripts/topology-graph.js"></script>
+  <script src="scripts/registry/layers.js"></script>
+  <script src="scripts/registry/images.js"></script>
+  <script src="scripts/registry/projects.js"></script>
+  <!-- debug:end -->
+
+</head>
+<body ng-app='kubernetes' ng-controller="MainCtrl" ng-class="{'cards-pf': viewActive(null)}" hidden>
       <div class="kube-sidebar" ng-if="!curtains">
         <div>
           <ul>
-            <li ng-class="{ active: is_active('views/dashboard-page.html')}">
-              <a ng-href="#/">
+            <li ng-class="{ active: viewActive(null)}">
+              <a ng-href="#{{ viewUrl(null) }}">
                 <i class="fa fa-dashboard fa-fw"></i><br>Overview
               </a>
             </li>
-            <li ng-class="{ active: is_active('views/containers-page.html')}">
-              <a ng-href="#/pods">
+            <li ng-class="{ active: viewActive('pods')}">
+              <a ng-href="#{{ viewUrl('pods') }}">
                 <i class="fa fa-cubes fa-fw"></i><br>Containers
               </a>
             </li>
-            <li ng-class="{ active: is_active('views/topology-page.html')}">
-              <a ng-href="#/topology">
+            <li ng-class="{ active: viewActive('topology')}">
+              <a ng-href="#{{ viewUrl('topology') }}">
                 <i class="pficon pficon-topology fa-fw"></i><br>Topology
               </a>
             </li>
-            <li ng-class="{ active: is_active('views/details-page.html')}">
-              <a ng-href="#/list">
+            <li ng-class="{ active: viewActive('list')}">
+              <a ng-href="#{{ viewUrl('list') }}">
                 <i class="fa fa-list fa-fw"></i><br>Details
               </a>
             </li>
-            <li ng-class="{ active: is_active('views/images-page.html')}">
-              <a ng-href="#/images">
-                <!-- This icon needs manual tweaking to look the same size as others -->
-                <i class="pficon pficon-image fa-fw" style="font-size: 24px; line-height: 20px"></i><br>Images
-              </a>
+            <li ng-class="{ active: viewActive('images')}" ng-if="settings.flavor == 'openshift'">
+                <a ng-href="#{{ viewUrl('images') }}">
+                    <i class="pficon pficon-image fa-fw"></i><br>Images
+                </a>
+            </li>
+            <li ng-class="{ active: viewActive('projects')}" ng-if="settings.flavor == 'openshift'">
+                <a ng-href="#{{ viewUrl('projects') }}">
+                    <i class="pficon pficon-project fa-fw"></i><br>Projects
+                </a>
             </li>
           </ul>
         </div>
       </div>
 
-      <div id="content" class="container-fluid" ng-view ng-if="!curtains" data-flavor="{{client.flavor}}">
+      <div id="content" class="container-fluid" ng-view ng-if="!curtains" data-flavor="{{settings.flavor}}">
       </div>
 
-      <div class="curtains blank-slate-pf" ng-if="curtains && curtains.state != 'silent'">
+    <div class="curtains blank-slate-pf" ng-if="curtains">
         <div class="blank-slate-pf-icon">
-          <div class="spinner spinner-lg" ng-class="{hidden: curtains.state != 'connecting'}"></div>
-          <i class="fa fa-exclamation-circle" ng-if="curtains.state == 'failed' && curtains.failure.status != 403"></i>
-          <i class="fa fa-lock" ng-if="curtains.failure.status == 403"></i>
+            <div class="spinner spinner-lg" ng-show="!curtains.status"></div>
+            <i class="fa fa-exclamation-circle" ng-if="curtains.status && curtains.status != 403"></i>
+            <i class="fa fa-lock" ng-if="curtains.status == 403"></i>
         </div>
-        <h1 ng-if="curtains.state == 'connecting'" translatable="yes">Connecting to Kubernetes</h1>
-        <h1 ng-if="curtains.state == 'failed'" translatable="yes">Couldn't connect to Kubernetes server</h1>
-        <p ng-if="curtains.failure.message">{{curtains.failure.message}}</p>
-        <div class="blank-slate-pf-main-action" ng-if="curtains.state == 'failed'">
-          <button class="btn btn-primary btn-lg" translatable="yes" ng-click="reconnect()">
-            Reconnect
-          </button>
+        <h1 ng-if="!curtains.status" translatable="yes">Connecting...</h1>
+        <h1 ng-if="curtains.status" translatable="yes">Couldn't connect to server</h1>
+        <p ng-if="curtains.message">{{curtains.message}}</p>
+        <div class="blank-slate-pf-main-action" ng-if="curtains.status">
+            <button class="btn btn-primary btn-lg" translatable="yes" ng-click="reconnect()">
+                Reconnect
+            </button>
         </div>
-      </div>
     </div>
-
-<!-- App Entity Params -->
-
-  <script id="deploy-app-appentity-template" type="x-template/mustache">
-    {{#apps}}
-      <tr class="appentity">
-        <td >
-          <label class="app-name" for="{{app_name}}-label" >{{app_name}}</label>
-        </td>
-      </tr>
-    {{#app_params}}
-      <tr class="appentity">
-        <td class="top">
-          <label class="control-label" for="{{app_name}}-{{param_key}}-label" >{{param_key}}</label>
-        </td>
-        <td>
-          <input id="{{app_name}}-{{param_key}}-text" class="form-control" type="text" value={{param_value}}></input>
-        </td>
-      </tr>
-    {{/app_params}}
-    {{/apps}}
-  </script>
-
-  <!-- Dialogs -->
-
-    <div class="modal" id="deploy-app-dialog" tabindex="-1" role="dialog" data-backdrop="static">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title" translatable="yes">Deploy Application</h4>
-          </div>
-          <div class="modal-body">
-            <table class="cockpit-form-table">
-              <tr>
-                <td class="top">
-                  <label class="control-label" for="deploy-app-type-label" translatable="yes">
-                  Type
-                  </label>
-                </td>
-                <td id="deploy-app-type-field" class="dialog-wrapper">
-                  <div id="deploy-app-type-area">
-                    <select id="deploy-app-type" class="btn btn-default form-control selectpicker deploy-app-type-text">
-                      <option translatable="yes" class="deploy-app-type-text" value="manifest">Kubernetes Manifest</option>
-                      <option translatable="yes" class="deploy-app-type-text hidden" value="nulecule">Nulecule Application</option>
-                    </select>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="top">
-                  <label class="control-label" for="deploy-app-manifest" translatable="yes">
-                  Manifest
-                  </label>
-                  <label class="control-label" for="deploy-app-nulecule" translatable="yes" >
-                  Nulecule
-                  </label>
-                </td>
-                <input id="deploy-app-manifest-file" type="file">
-                <td class="dialog-wrapper">
-                  <button id="deploy-app-manifest-file-button" class="btn btn-default form-control" type="button">Select Manifest File...</button>
-                  <input id="deploy-app-nulecule-image" class="form-control" type="text" placeholder="eg: docker/image">
-                </td>
-              </tr>
-              <tr>
-                <td class="top">
-                  <label class="control-label top" for="deploy-app-namespace" id="deploy-app-namespace-label"></label>
-                </td>
-                <td class="dialog-wrapper">
-                  <div class="input-group" id="deploy-app-namespace-group">
-                    <input id="deploy-app-namespace" class="form-control" type="text"
-                        placeholder="eg: myapplication">
-                    <span class="input-group-btn" style="position: relative;">
-                      <button class="btn btn-default dropdown-toggle" type="button"
-                          data-toggle="dropdown"><span class="caret"></span></button>
-                      <ul class="dropdown-menu dropdown-menu-right" role="menu"></ul>
-                    </span>
-                  </div>
-                </td>
-              </tr>
-            </table>
-          </div>
-          <div class="modal-footer">
-            <div>
-              <button class="btn btn-default" id="deploy-app-stop" translatable="yes" data-dismiss="modal">
-              Cancel
-              </button>
-              <button class="btn btn-primary" id="deploy-app-start" translatable="yes">
-              Deploy
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal" id="adjust-dialog" tabindex="-1" role="dialog" data-backdrop="static">
-      <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title" translatable="yes">Adjust Service</h4>
-          </div>
-          <div class="modal-body">
-            <table class="cockpit-form-table">
-              <tr>
-                <td><label class="control-label" for="adjust-name" translatable="yes">Name</label></td>
-                <td><input id="adjust-name" type="text" class="form-control"></td>
-              </tr>
-              <tr class="adjust-replicas-header">
-                <td colspan="2" class="header">Replicas</td>
-              </tr>
-              <script id="adjust-template" type="x-template/mustache">
-                {{#replicas}}
-                  <tr class="adjust-replicas">
-                    <td class="top">
-                      <label class="control-label" for="{{ uid }}">{{ name }}</label>
-                    </td>
-                    <td class="top">
-                      <input class="form-control adjust-replica" type="text" id="{{ uid }}"
-                          value="{{ count }}" data-link="{{ link }}">
-                    </td>
-                  </tr>
-                {{/replicas}}
-              </script>
-            </table>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
-            <button class="btn btn-primary" translatable="yes">Adjust</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal" id="adjust-rc-dialog" tabindex="-1" role="dialog" data-backdrop="static">
-      <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title" translatable="yes">Adjust Replication Controller</h4>
-          </div>
-          <div class="modal-body">
-            <table class="cockpit-form-table">
-              <tr class="adjust-replicas-header">
-                <td class="top"><label class="control-label" translatable="yes">Replicas</label></td>
-                <td>
-                    <input class="form-control adjust-replica" type="text" id="replica-count" value="">
-                </td>
-              </tr>
-            </table>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
-            <button class="btn btn-primary" translatable="yes" id="adjust-rc-button">Adjust</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal" id="adjust-route-dialog" tabindex="-1" role="dialog" data-backdrop="static">
-      <div class="modal-dialog modal-md">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title" translatable="yes">Adjust Route</h4>
-          </div>
-          <div class="modal-body">
-            <table class="cockpit-form-table">
-              <tr class="adjust-host-header">
-                <td class="top"><label class="control-label" translatable="yes">Host</label></td>
-                <td>
-                    <input class="form-control adjust-host" type="text" id="host-value" value="">
-                </td>
-              </tr>
-            </table>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
-            <button class="btn btn-primary" translatable="yes" id="adjust-route-button">Adjust</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal" id="delete-pod-dialog" tabindex="-1" role="dialog" data-backdrop="static">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title" translatable="yes">Please Confirm Deletion</h4>
-          </div>
-          <div class="modal-body" translatable="yes">
-            Deleting a Pod will kill all associated containers. Pods may be automatically created again in some cases.
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
-            <button class="btn btn-primary" translatable="yes" id="delete-pod-button">Delete</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal" id="delete-entity-dialog" tabindex="-1" role="dialog" data-backdrop="static">
-      <div class="modal-dialog modal-md">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title" translatable="yes">Please Confirm Deletion</h4>
-          </div>
-          <div class="modal-body" translatable="yes">
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
-            <button class="btn btn-primary" translatable="yes" id="delete-entity-button">Delete</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal" id="node-dialog" tabindex="-1" role="dialog" data-backdrop="static">
-      <div class="modal-dialog modal-md">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title" translatable="yes">Add Cluster Node </h4>
-          </div>
-          <div class="modal-body">
-            <table class="cockpit-form-table">
-              <tr>
-                <td class="top"><label class="control-label" for="node-name" translatable="yes"
-                        placeholder="eg: 198.51.10.25">Address</label></td>
-                <td class="top"><input id="node-address" type="text" class="form-control"></td>
-              </tr>
-              <tr>
-                <td class="top"><label class="control-label" for="node-name" translatable="yes"
-                        placeholder="eg: node-1">Name</label></td>
-                <td class="top"><input id="node-name" type="text" class="form-control"></td>
-              </tr>
-              <tr class="node-configure-header">
-                <td colspan="2" class="header">Configuration</td>
-              </tr>
-              <tr class="configure-option">
-                <td></td>
-                <td>
-                  <label>
-                    <input type="checkbox">
-                    <span translatable="yes">Configure Kubelet and Proxy</span>
-                  </label>
-                </td>
-              </tr>
-              <tr class="configure-option">
-                <td></td>
-                <td>
-                  <label>
-                    <input type="checkbox">
-                    <span translatable="yes">Configure Flannel networking</span>
-                  </label>
-                </td>
-              </tr>
-            </table>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
-            <button class="btn btn-primary" translatable="yes">Add</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
 </body>
 </html>

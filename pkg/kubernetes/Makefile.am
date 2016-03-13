@@ -1,13 +1,94 @@
+# Shared files
 
-kubernetesdir = $(pkgdatadir)/kubernetes
-nodist_kubernetes_DATA = \
-	pkg/kubernetes/app.min.css.gz \
-	pkg/kubernetes/index.min.html.gz \
-	pkg/kubernetes/kubernetes.min.js.gz \
+shared_VIEWS = \
+	pkg/kubernetes/views/filter-bar.html \
+	pkg/kubernetes/views/filter-project.html \
+	pkg/kubernetes/views/image-body.html \
+	pkg/kubernetes/views/image-config.html \
+	pkg/kubernetes/views/image-delete.html \
+	pkg/kubernetes/views/image-meta.html \
+	pkg/kubernetes/views/image-listing.html \
+	pkg/kubernetes/views/image-page.html \
+	pkg/kubernetes/views/image-panel.html \
+	pkg/kubernetes/views/images-page.html \
+	pkg/kubernetes/views/imagestream-body.html \
+	pkg/kubernetes/views/imagestream-delete.html \
+	pkg/kubernetes/views/imagestream-meta.html \
+	pkg/kubernetes/views/imagestream-modify.html \
+	pkg/kubernetes/views/imagestream-page.html \
+	pkg/kubernetes/views/imagestream-panel.html \
+	pkg/kubernetes/views/add-group-dialog.html \
+	pkg/kubernetes/views/add-user-dialog.html \
+	pkg/kubernetes/views/add-project-dialog.html \
+	pkg/kubernetes/views/projects-page.html \
+	pkg/kubernetes/views/project-page.html \
+	pkg/kubernetes/views/project-panel.html \
+	pkg/kubernetes/views/project-listing.html \
 	$(NULL)
-kubernetes_DATA = \
-	pkg/kubernetes/manifest.json \
+
+shared_MODULES = \
+	pkg/kubernetes/scripts/kube-client.js \
+	pkg/kubernetes/scripts/kube-client-cockpit.js \
+	pkg/kubernetes/scripts/date.js \
+	pkg/kubernetes/scripts/dialog.js \
+	pkg/kubernetes/scripts/listing.js \
+	pkg/kubernetes/scripts/app.js \
+	pkg/kubernetes/scripts/utils.js \
+	pkg/kubernetes/scripts/registry/images.js \
+	pkg/kubernetes/scripts/registry/layers.js \
+	pkg/kubernetes/scripts/registry/projects.js \
 	$(NULL)
+
+shared_LESS = \
+	pkg/kubernetes/styles/variables-bootstrap.less \
+	pkg/kubernetes/styles/variables-patternfly.less \
+	pkg/kubernetes/styles/registry/images.less \
+	pkg/kubernetes/styles/registry/layers.less \
+	pkg/kubernetes/styles/registry/projects.less \
+	$(NULL)
+
+# Registry files
+
+registry_VIEWS = \
+	pkg/kubernetes/views/registry-dashboard-page.html \
+	$(NULL)
+
+registry_MODULES = \
+	pkg/kubernetes/scripts/registry/dashboard.js \
+	pkg/kubernetes/scripts/registry/main.js \
+	$(NULL)
+
+registry_LESS = \
+	pkg/kubernetes/styles/registry/main.less \
+	pkg/kubernetes/styles/registry/dashboard.less \
+	pkg/kubernetes/styles/registry/dropdown.less \
+	pkg/kubernetes/styles/registry/filter.less \
+	pkg/kubernetes/styles/registry/sidebar.less \
+	$(NULL)
+
+registry_MIN = \
+	$(shared_MODULES:.js=.min.js) \
+	$(registry_MODULES:.js=.min.js) \
+	$(NULL)
+
+registry_BUNDLE = \
+	$(registry_MIN) \
+	pkg/kubernetes/registry-templates.js \
+	$(NULL)
+
+# Bundles all the view templates into a $templateCache loadable
+pkg/kubernetes/registry-templates.js: $(shared_VIEWS) $(registry_VIEWS)
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/ngbundle -m registry -o $@ $^
+
+# Everything else into a nice big bundle
+pkg/kubernetes/registry.min.js: $(registry_BUNDLE)
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
+
+# Less is compiled correctly
+pkg/kubernetes/registry.min.css: $(registry_LESS)
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/lessc --verbose $< $@
+
+# Kubernetes files
 
 kubernetes_VIEWS = \
 	pkg/kubernetes/views/containers-page.html \
@@ -15,107 +96,157 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/container-panel.html \
 	pkg/kubernetes/views/dashboard-page.html \
 	pkg/kubernetes/views/default-panel.html \
+	pkg/kubernetes/views/deploy.html \
 	pkg/kubernetes/views/deploymentconfig-panel.html \
 	pkg/kubernetes/views/details-page.html \
-	pkg/kubernetes/views/filter-bar.html \
+	pkg/kubernetes/views/item-delete.html \
 	pkg/kubernetes/views/images-page.html \
 	pkg/kubernetes/views/imagerepository-panel.html \
 	pkg/kubernetes/views/pod-body.html \
 	pkg/kubernetes/views/pod-panel.html \
+	pkg/kubernetes/views/node-add.html \
 	pkg/kubernetes/views/node-panel.html \
 	pkg/kubernetes/views/replicationcontroller-panel.html \
+	pkg/kubernetes/views/replicationcontroller-modify.html \
 	pkg/kubernetes/views/route-panel.html \
+	pkg/kubernetes/views/route-modify.html \
+	pkg/kubernetes/views/service-modify.html \
 	pkg/kubernetes/views/service-panel.html \
 	pkg/kubernetes/views/topology-page.html \
 	$(NULL)
 
-kubernetesdebugdir = $(debugdir)$(kubernetesdir)
-kubernetesdebug_DATA = \
-	pkg/kubernetes/adjust.js \
-	pkg/kubernetes/app.css \
-	pkg/kubernetes/app.js \
-	pkg/kubernetes/client.js \
-	pkg/kubernetes/config.js \
-	pkg/kubernetes/containers.css \
-	pkg/kubernetes/containers.js \
-	pkg/kubernetes/container-terminal.js \
-	pkg/kubernetes/container-terminal.css \
-	pkg/kubernetes/dashboard.js \
-	pkg/kubernetes/details.css \
-	pkg/kubernetes/details.js \
-	pkg/kubernetes/graphs.js \
-	pkg/kubernetes/images.css \
-	pkg/kubernetes/images.js \
-	pkg/kubernetes/index.html \
-	pkg/kubernetes/kubernetes.js \
-	pkg/kubernetes/node.js \
-	pkg/kubernetes/object-describer.js \
-	pkg/kubernetes/deploy.js \
-	pkg/kubernetes/revealable.css \
-	pkg/kubernetes/topology.css \
-	pkg/kubernetes/topology.js \
-	pkg/kubernetes/topology-graph.css \
-	pkg/kubernetes/topology-graph.js \
-	pkg/kubernetes/nulecule.js \
+kubernetes_MODULES = \
+	pkg/kubernetes/scripts/containers.js \
+	pkg/kubernetes/scripts/container-terminal.js \
+	pkg/kubernetes/scripts/dashboard.js \
+	pkg/kubernetes/scripts/details.js \
+	pkg/kubernetes/scripts/graphs.js \
+	pkg/kubernetes/scripts/main.js \
+	pkg/kubernetes/scripts/object-describer.js \
+	pkg/kubernetes/scripts/topology.js \
+	pkg/kubernetes/scripts/topology-graph.js \
 	$(NULL)
-kubernetesviewsdebugdir = $(debugdir)$(kubernetesdir)/views
-kubernetesviewsdebug_DATA = \
-	$(kubernetes_VIEWS) \
+
+kubernetes_TESTS = \
+	pkg/kubernetes/tests/test-kube-client.html \
+	pkg/kubernetes/tests/test-images.html \
+	pkg/kubernetes/tests/test-projects.html \
+	$(NULL)
+
+kubernetes_LESS = \
+	pkg/kubernetes/styles/main.less \
+	pkg/kubernetes/styles/app.less \
+	pkg/kubernetes/styles/containers.less \
+	pkg/kubernetes/styles/container-terminal.less \
+	pkg/kubernetes/styles/details.less \
+	pkg/kubernetes/styles/revealable.less \
+	pkg/kubernetes/styles/topology.less \
+	pkg/kubernetes/styles/topology-graph.less \
+	$(NULL)
+
+kubernetes_MIN = \
+	$(shared_MODULES:.js=.min.js) \
+	$(kubernetes_MODULES:.js=.min.js) \
 	$(NULL)
 
 kubernetes_BUNDLE = \
-	pkg/kubernetes/adjust.min.js \
-	pkg/kubernetes/app.min.js \
-	pkg/kubernetes/client.min.js \
-	pkg/kubernetes/config.min.js \
-	pkg/kubernetes/containers.min.js \
-	pkg/kubernetes/dashboard.min.js \
-	pkg/kubernetes/deploy.min.js \
-	pkg/kubernetes/details.min.js \
-	pkg/kubernetes/graphs.min.js \
-	pkg/kubernetes/images.min.js \
-	pkg/kubernetes/nulecule.min.js \
-	pkg/kubernetes/node.min.js \
-	pkg/kubernetes/object-describer.min.js \
-	pkg/kubernetes/topology.min.js \
-	pkg/kubernetes/topology-graph.min.js \
-	pkg/kubernetes/container-terminal.min.js \
-	pkg/kubernetes/templates.js \
-	pkg/kubernetes/kubernetes.js \
+	$(kubernetes_MIN) \
+	pkg/kubernetes/kubernetes-templates.js \
 	$(NULL)
 
 # Bundles all the view templates into a $templateCache loadable
-pkg/kubernetes/templates.js: $(kubernetes_VIEWS)
-	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/ngbundle -d kubernetes/app -o $@ $^
+pkg/kubernetes/kubernetes-templates.js: $(shared_VIEWS) $(kubernetes_VIEWS)
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/ngbundle -m kubernetes -o $@ $^
 
 # Everything else into a nice big bundle
 pkg/kubernetes/kubernetes.min.js: $(kubernetes_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
-kubernetes_TESTS = \
-	pkg/kubernetes/test-kubernetes.html \
+# Less compiled correctly
+pkg/kubernetes/kubernetes.min.css: $(kubernetes_LESS)
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/lessc --verbose $< $@
+
+kubernetes_DATA = \
+	pkg/kubernetes/sparkle-placeholder.png \
+	pkg/kubernetes/donut-placeholder.png \
+	pkg/kubernetes/manifest.json \
+	pkg/kubernetes/override.json \
 	$(NULL)
+
+kubernetesdir = $(pkgdatadir)/kubernetes
+nodist_kubernetes_DATA = \
+	pkg/kubernetes/kubernetes.min.css.gz \
+	pkg/kubernetes/index.min.html.gz \
+	pkg/kubernetes/kubernetes.min.js.gz \
+	pkg/kubernetes/registry.min.html.gz \
+	pkg/kubernetes/registry.min.js.gz \
+	pkg/kubernetes/registry.min.css.gz \
+	$(NULL)
+
+kubernetesdebugdir = $(debugdir)$(kubernetesdir)
+kubernetesdebug_DATA = \
+	pkg/kubernetes/kubernetes.js \
+	pkg/kubernetes/kubernetes.css \
+	pkg/kubernetes/index.html \
+	pkg/kubernetes/registry.js \
+	pkg/kubernetes/registry.css \
+	pkg/kubernetes/registry.html \
+	pkg/kubernetes/less.js \
+	$(NULL)
+
+install-data-hook::
+	mkdir -p $(DESTDIR)$(kubernetesdebugdir)
+	tar -chf - -C $(srcdir) $(shared_LESS) $(shared_VIEWS) $(shared_MODULES) $(registry_VIEWS) $(registry_LESS) $(registry_MODULES) $(kubernetes_VIEWS) $(kubernetes_LESS) $(kubernetes_MODULES) | tar -xf - --strip-components=2 -C $(DESTDIR)$(kubernetesdebugdir)
+
+uninstall-hook:
+	rm -rf $(DESTDIR)$(kubernetesdebugdir)/scripts
+	rm -rf $(DESTDIR)$(kubernetesdebugdir)/views
+	rm -rf $(DESTDIR)$(kubernetesdebugdir)/styles
+
 
 TESTS += $(kubernetes_TESTS)
 
 CLEANFILES += \
-	pkg/kubernetes/app.min.css \
+	pkg/kubernetes/kubernetes.min.css\
 	pkg/kubernetes/index.min.html \
 	pkg/kubernetes/kubernetes.min.js \
-	$(kubernetes_BUNDLE) \
+	pkg/kubernetes/kubernetes-templates.js \
+	pkg/kubernetes/registry.min.css \
+	pkg/kubernetes/registry.min.html \
+	pkg/kubernetes/registry.min.js \
+	pkg/kubernetes/registry-templates.js \
+	$(kubernetes_MIN) \
+	$(registry_MIN) \
 	$(nodist_kubernetes_DATA) \
 	$(NULL)
 
 EXTRA_DIST += \
-	pkg/kubernetes/app.min.css \
+	pkg/kubernetes/kubernetes.min.css \
 	pkg/kubernetes/index.min.html \
 	pkg/kubernetes/kubernetes.min.js \
+	pkg/kubernetes/kubernetes-templates.js \
+	pkg/kubernetes/registry.min.css \
+	pkg/kubernetes/registry.min.html \
+	pkg/kubernetes/registry.min.js \
+	pkg/kubernetes/registry-templates.js \
+	pkg/kubernetes/scripts/kube-client-mock.js \
+	pkg/kubernetes/tests/fixture-basic.js \
+	pkg/kubernetes/tests/fixture-large.js \
 	$(kubernetes_BUNDLE) \
+	$(registry_BUNDLE) \
+	$(shared_VIEWS) \
+	$(shared_MODULES) \
+	$(registry_VIEWS) \
+	$(registry_LESS) \
+	$(registry_MODULES) \
+	$(kubernetes_VIEWS) \
+	$(kubernetes_LESS) \
+	$(kubernetes_MODULES) \
 	$(NULL)
 
 update-lib:: update-bower
-	$(JSMODULE) -m -d base1/angular -o $(srcdir)/pkg/kubernetes/object-describer.js \
-	    $(BOWER)/kubernetes-object-describer/dist/object-describer.js
+	$(JSMODULE) -o $(srcdir)/pkg/kubernetes/scripts/object-describer.js \
+		$(BOWER)/kubernetes-object-describer/dist/object-describer.js
 
 if WITH_GOLANG
 

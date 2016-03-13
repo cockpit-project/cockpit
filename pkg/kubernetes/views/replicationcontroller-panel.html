@@ -1,9 +1,9 @@
-<div class="listing-head" ng-click="select(id, $event)">
+<div class="listing-head" ng-click="listing.toggle(id)">
     <div class="listing-actions">
         <button title="Delete" class="delete-entity btn btn-danger btn-delete pficon pficon-delete"
-            data-toggle="modal" data-target="#delete-entity-dialog" data-key="{{item.key}}"></button>
+            ng-click="deleteItem(item)"></button>
         <button title="Adjust" class="adjust-entity btn btn-default pficon pficon-edit"
-            data-toggle="modal" data-target="#adjust-rc-dialog" data-key="{{item.key}}"></button>
+            ng-click="modifyRC(item)"></button>
     </div>
     <h3><i class="fa pficon-replicator"></i>{{ item.metadata.name }}</h3>
     <div class="listing-status">
@@ -24,11 +24,11 @@
     <div class="row">
         <div class="col-sm-6">
             <dl>
-                <dt ng-if="client.flavor == 'openshift'" translatable="yes">Project</dt>
-                <dt ng-if="client.flavor != 'openshift'" translatable="yes">Namespace</dt>
+                <dt ng-if="settings.flavor == 'openshift'" translatable="yes">Project</dt>
+                <dt ng-if="settings.flavor != 'openshift'" translatable="yes">Namespace</dt>
                 <dd>{{ item.metadata.namespace }}</dd>
                 <dt translatable="yes">Created</dt>
-                <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | timeAgo }}</dd>
+                <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | dateRelative }}</dd>
                 <dt translatable="yes">Replicas</dt>
                 <dd>{{ item.spec.replicas }}</dd>
             </dl>
@@ -47,7 +47,7 @@
             <dl class="full-width" ng-init="pods = replicationcontrollerPods(item)">
                 <dt translatable="yes">Pod Replicated</dt>
                 <dd ng-repeat="pod in pods">{{ pod.metadata.name }}</dd>
-                <dd ng-if="!pods.count" translatable="yes">No pods replicated</dd>
+                <dd ng-if="!pods.length" translatable="yes">No pods replicated</dd>
             </dl>
         </div>
         <div class="col-sm-6">
@@ -61,6 +61,6 @@
 <div class="listing-body" ng-show="tab('template')">
     <kube-pod-body ng-init="pod = item.spec.template">
     </kube-pod-body>
-    <kube-container-body ng-repeat="container in client.containers(item.spec.template)">
+    <kube-container-body ng-repeat="container in containers(item.spec.template)">
     </kube-container-body>
 </div>

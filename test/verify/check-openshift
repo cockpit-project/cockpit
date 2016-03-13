@@ -237,7 +237,7 @@ class TestRegistry(MachineCase):
         m = self.machine
         o = self.openshift
 
-        self.login_and_go("/registry")
+        self.login_and_go("/kubernetes/registry")
         b.wait_present(".dashboard-images")
 
         b.wait_in_text(".card-pf-wide.dashboard-images", "default/busybox")
@@ -372,7 +372,7 @@ class TestRegistry(MachineCase):
         with open(tmpfile, "r") as f:
             m.execute("mkdir -p /home/admin/.kube && cat > /home/admin/.kube/config", input=f.read())
 
-        self.login_and_go("/registry")
+        self.login_and_go("/kubernetes/registry")
 
         # Make sure the default view is not visible to non cluster admins
         b.wait_present(".dashboard-images")

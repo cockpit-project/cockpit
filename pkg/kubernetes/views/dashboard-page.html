@@ -1,13 +1,18 @@
-<kubernetes-service-graph id="graphs"></kubernetes-service-graph>
+<filter-bar class="content-filter">
+</filter-bar>
 
-<div class="row">
+<div class="dashboard">
+<kubernetes-service-graph id="graphs" ng-if="settings.flavor != 'openshift'"></kubernetes-service-graph>
+
+<div class="row" ng-class="{'dashboard-openshift': settings.flavor == 'openshift'}">
     <div class="col-md-8">
-        <div id="service-list" class="panel panel-default dashboard-list">
+        <div id="service-list" class="panel panel-default dashboard-list"
+            ng-class="{editable: editServices}">
             <div class="panel-heading">
                 <div style="float: right;">
-                    <button class="btn btn-default fa fa-check" id="services-enable-change" title="Change"></button>
-                    <button class="btn btn-primary" id="deploy-app" data-toggle="modal"
-                        data-target="#deploy-app-dialog" translatable="yes">Deploy</button>
+                    <button class="btn btn-default fa fa-check" id="services-enable-change" title="Change"
+                        ng-click="toggleServiceChange()" ng-class="{ active: editServices }"></button>
+                    <button class="btn btn-primary" id="deploy-app" ng-click="deploy(namespaces(), namespace)" translatable="yes">Deploy</button>
                 </div>
                 <span translatable="yes">Kubernetes Services</span>
             </div>
@@ -32,13 +37,13 @@
                         <th translatable="yes">Name</th>
                         <th translatable="yes">Address</th>
                         <th translatable="yes">Containers</th>
-                        <th translatable="yes" ng-if="client.flavor == 'openshift'">Project</th>
-                        <th translatable="yes" ng-if="client.flavor != 'openshift'">Namespace</th>
+                        <th translatable="yes" ng-if="settings.flavor == 'openshift'">Project</th>
+                        <th translatable="yes" ng-if="settings.flavor != 'openshift'">Namespace</th>
                         <th class="status"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="(id, service) in services"
+                    <tr ng-repeat="service in services track by service.metadata.uid"
                             data-name="{{service.metadata.name}}"
                             ng-class="{highlight: service.metadata.uid == highlighted}"
                             ng-click="jumpService($event, service)"
@@ -48,10 +53,9 @@
                         <td><kubernetes-address ng-init="item = service"></td>
                         <td class="containers">{{serviceContainers(service)}}</td>
                         <td>{{service.metadata.namespace}}</td>
-                        <td class="status" ng-init="item = service">
+                        <td class="status">
                             <button title="Adjust" class="btn btn-default adjust-service pficon pficon-edit"
-                                data-toggle="modal" data-target="#adjust-dialog"
-                                data-id="{{id}}"></button>
+                                data-id="{{id}}" ng-click="modifyService(service)"></button>
                             <span kubernetes-status-icon status="serviceStatus(service)"></span>
                         </td>
                     </tr>
@@ -65,7 +69,7 @@
             <div class="panel-heading">
                 <span style="float: right;">
                     <button title="Add Kubernetes Node" id="add-node" class="btn btn-primary fa fa-plus"
-                        data-toggle="modal" data-target="#node-dialog"></button>
+                        ng-click="addNode()"></button>
                 </span>
                 <span translatable="yes">Kubernetes Nodes</span>
             </div>
@@ -91,4 +95,5 @@
             </table>
         </div>
     </div>
+</div>
 </div>

@@ -1,0 +1,71 @@
+<modal-dialog>
+    <div class="modal-header">
+        <h3 class="modal-title" translatable="yes">Deploy Application</h3>
+    </div>
+    <div class="modal-body">
+        <table class="cockpit-form-table">
+            <tr>
+                <td class="top">
+                    <label class="control-label" for="deploy-app-type-label" translatable="yes">Type</label>
+                </td>
+                <td id="deploy-app-type-field" class="dialog-wrapper">
+                    <div class="btn-group bootstrap-select deploy-type" dropdown>
+                        <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
+                            <span class="pull-left">{{ selected.name }}</span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="type in types" ng-class="{ checked: selected.name == type.name }">
+                                <a ng-click="select(type)">{{type.name}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="top">
+                    <label class="control-label" for="deploy-app-file" translatable="yes">{{ selected.name }}</label>
+                </td>
+                <td class="dialog-wrapper">
+                    <div ng-if="selected.type == 'manifest'">
+                        <button id="deploy-app-manifest-file-button" class="btn btn-default form-control" type="button"
+                            ng-class="{manifest_file_default: !fields.filename, manifest_file: fields.filename}"
+                            ng-click="fileBtnClick($event)">
+                            <span ng-if="!fields.filename" translatable="yes">Select Manifest File...</span>
+                            <span ng-if="fields.filename" translatable="yes">{{ fields.filename }}</span>
+                        </button>
+                        <input id="deploy-app-manifest-file" type="file"
+                            onchange="angular.element(this).scope().fileSelected(this)">
+                    </div>
+                    <input id="deploy-app-nulecule-image" class="form-control" type="text" placeholder="eg: docker/image"
+                           ng-if="selected.type == 'nulecule'">
+                </td>
+            </tr>
+            <tr>
+                <td class="top">
+                    <label ng-if="flavor == 'openshift'" class="control-label top" for="deploy-app-namespace" id="deploy-app-namespace-label">Project</label>
+                    <label ng-if="flavor != 'openshift'" class="control-label top" for="deploy-app-namespace" id="deploy-app-namespace-label">Namespace</label>
+                </td>
+                <td class="dialog-wrapper">
+                    <div class="input-group bootstrap-select" id="deploy-app-namespace-group" dropdown>
+                        <input id="deploy-app-namespace" class="form-control" type="text" placeholder="eg: myapplication" ng-model="fields.namespace">
+                        <span class="input-group-btn" dropdown style="position: relative;">
+                            <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
+                            <span class="caret"></span></button>
+                            <ul span ng-if="!namespace" class="dropdown-menu dropdown-menu-right">
+                                <li ng-repeat="name in namespaces track by name" ng-class="{ checked: fields.namespace == name }">
+                                    <a ng-click="fields.namespace = name">{{name}}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
+        <button class="btn btn-primary" translatable="yes" ng-click="complete(performDeploy())">Deploy</button>
+    </div>
+</modal-dialog>

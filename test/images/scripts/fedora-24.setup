@@ -90,6 +90,9 @@ su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
 # docker images that we need for integration testing
 /var/lib/testvm/docker-images.setup
 
+# Setup basics for building images
+docker build -t cockpit/base /var/tmp/cockpit-base
+
 # reduce image size
 dnf clean all
 /var/lib/testvm/zero-disk.setup

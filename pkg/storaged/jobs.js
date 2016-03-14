@@ -144,6 +144,8 @@ define([
                 'lvm-vg-resize':               _("Resizing $target")
             };
 
+            var server_now = new Date().getTime() + client.time_offset;
+
             function make_description(job) {
                 var fmt = descriptions[job.Operation];
                 if (!fmt)
@@ -175,12 +177,19 @@ define([
                 return job(a).StartTime - job(b).StartTime;
             }
 
+            function job_is_stable(path) {
+                var j = job(path);
+
+                var age_ms = server_now - j.StartTime/1000;
+                return age_ms >= 2000;
+            }
+
             function make_job(path) {
                 var j = job(path);
 
                 var remaining = null;
                 if (j.ExpectedEndTime > 0) {
-                    var d = job.ExpectedEndTime/1000 - new Date().getTime() - client.time_offset;
+                    var d = j.ExpectedEndTime/1000 - server_now;
                     if (d > 0)
                         remaining = utils.format_delay (d);
                 }
@@ -194,7 +203,11 @@ define([
                 };
             }
 
-            var js = Object.keys(client.storaged_jobs).concat(Object.keys(client.udisks_jobs)).sort(cmp_job).map(make_job);
+            var js = (Object.keys(client.storaged_jobs).concat(Object.keys(client.udisks_jobs)).
+                      filter(job_is_stable).
+                      sort(cmp_job).
+                      map(make_job));
+
             return mustache.render(jobs_tmpl,
                                    { Jobs: js,
                                      HasJobs: js.length > 0

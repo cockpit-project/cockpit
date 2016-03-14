@@ -117,7 +117,7 @@ func main() {
 	setupCertificates()
 
 	name := "kubernetes"
-	isRegistry, _ := strconv.ParseBool(os.Getenv("ATOMIC_REGISTRY_ONLY"))
+	isRegistry, _ := strconv.ParseBool(os.Getenv("REGISTRY_ONLY"))
 
 	oauth_url := os.Getenv("OPENSHIFT_OAUTH_PROVIDER_URL")
 	if oauth_url != "" {

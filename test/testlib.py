@@ -581,8 +581,10 @@ class MachineCase(unittest.TestCase):
                                     ".*: failed to retrieve resource: terminated",
                                     # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1253319
                                     'audit:.*denied.*2F6D656D66643A73642D73797374656D642D636F726564756D202864656C.*',
-                                    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1285019
+                                    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1317389
                                     'audit:.*denied.*systemd-logind.*nologin.*',
+                                    'audit:.*denied.*comm="systemd-user-se".*nologin.*',
+
                                     'localhost: dropping message while waiting for child to exit',
                                     '.*: GDBus.Error:org.freedesktop.PolicyKit1.Error.Failed: .*',
                                     )

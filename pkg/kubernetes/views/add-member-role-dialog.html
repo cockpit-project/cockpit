@@ -1,0 +1,53 @@
+<modal-dialog>
+    <div class="modal-header">
+        <h4 class="modal-title" translatable="yes">Add Member</h4>
+    </div>
+    <div class="modal-body">
+        <table class="cockpit-form-table">
+            <tr>
+                <td class="top">
+                    <label class="control-label" for="add_member" translatable="yes">User or Group</label>
+                </td>
+                <td>
+                    <div id="add_member" class="btn-group bootstrap-select form-control" dropdown>
+                        <button class="btn btn-default dropdown-toggle" dropdown-toggle>
+                            <span class="pull-left">{{ select.member }}</span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="member in select.members" ng-class="{active: member.metadata.name == select.member}">
+                                <a ng-click="select.member = member.metadata.name; select.memberObj = member" value="{{ member.metadata.name }}">
+                                    {{ member.metadata.name }}
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="top">
+                    <label class="control-label" for="add_role" translatable="yes">Roles</label>
+                </td>
+                <td>
+                    <div id="add_role" class="btn-group bootstrap-select form-control" dropdown>
+                        <button class="btn btn-default dropdown-toggle" dropdown-toggle>
+                            <span class="pull-left">{{ select.displayRole }}</span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="roleMp in select.roles" ng-class="{active: roleMp.displayRole == select.displayRole}">
+                                <a ng-click="select.displayRole = roleMp.displayRole; select.ocRole = roleMp.ocRole" value="{{ roleMp.displayRole }}">
+                                    {{ roleMp.displayRole }}
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
+        <button class="btn btn-primary" ng-click="complete(performCreate())" translatable="yes">Add</button>
+    </div>
+</modal-dialog>

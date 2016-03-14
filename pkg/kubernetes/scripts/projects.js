@@ -52,7 +52,8 @@
         'projectData',
         'projectActions',
         'ListingState',
-        function($scope, $routeParams, $location, select, loader, projectData, projectAction, ListingState) {
+        'roleActions',
+        function($scope, $routeParams, $location, select, loader, projectData, projectAction, ListingState, roleAction) {
             loader.watch("users");
             loader.watch("groups");
             loader.watch("policybindings");
@@ -82,6 +83,7 @@
             }
 
             angular.extend($scope, projectData);
+            angular.extend($scope, roleAction);
             angular.extend($scope, projectAction);
 
             $scope.users = function() {
@@ -294,6 +296,103 @@
                 modifyProject: modifyProject,
                 createGroup: createGroup,
                 createUser: createUser,
+            };
+        }
+    ])
+
+    .factory('roleActions', [
+        '$modal',
+        function($modal) {
+            function addMember(namespace) {
+                return $modal.open({
+                    controller: 'MemberNewCtrl',
+                    templateUrl: 'views/add-member-role-dialog.html',
+                    resolve: {
+                        fields : function(){
+                            var fields = {};
+                            fields.namespace = namespace;
+                            return fields;
+                        }
+                    },
+                }).result;
+            }
+            return {
+                addMember: addMember,
+            };
+        }
+    ])
+ 
+    .controller('MemberNewCtrl', [
+        '$q',
+        '$scope',
+        'projectData',
+        'projectPolicy',
+        'kubeSelect',
+        'fields',
+        function($q, $scope, projectData, projectPolicy, kselect, fields) {
+            var registryRoles = [{ ocRole: "registry-admin", displayRole :"Admin"},
+                { ocRole:"registry-editor", displayRole :"Push" },
+                { ocRole:"registry-viewer", displayRole :"Pull" }];
+
+            $scope.select = {
+                member: 'Select Members',
+                members: getAllMembers(),
+                displayRole: 'Select Role',
+                roles: registryRoles,
+                kind: "",
+                ocRole: "",
+            };
+            
+            var namespace = fields.namespace;
+            function getPolicyBinding(namespace){
+                return kselect().kind("PolicyBinding").namespace(namespace).name(":default");
+            }
+            function getAllMembers() {
+                var users = kselect().kind("User");
+                var groups = kselect().kind("Groups");
+                var members = [];
+                angular.forEach(users, function(user) {
+                    members.push(user);
+                });
+                angular.forEach(groups, function(group) {
+                    members.push(group);
+                });
+                return members;
+            }
+            function validate() {
+                var defer = $q.defer();
+                var memberName = $scope.select.member;
+                var role = $scope.select.ocRole;
+                var ex;
+
+                if (!memberName || memberName === 'Select Members') {
+                    ex = new Error("Please select a valid Member.");
+                    ex.target = "#add_member";
+                    defer.reject(ex);
+                }
+                if (!role || role === 'Select Role') {
+                    ex = new Error("Please select a valid Role.");
+                    ex.target = "#add_role";
+                    defer.reject(ex);
+                }
+
+                if (!ex) {
+                    defer.resolve();
+                }
+
+                return defer.promise;
+            }            
+            $scope.performCreate = function performCreate() {
+                var role = $scope.select.ocRole;
+                var memberObj = $scope.select.memberObj;
+                return validate().then(function() {
+                    var patchObj = getPolicyBinding(namespace);
+                    var subject = {
+                        kind: memberObj.kind,
+                        name: memberObj.metadata.name,
+                    };
+                    return projectPolicy.addRoleToPolicyBinding(patchObj, namespace, role, subject);
+                });
             };
         }
     ])

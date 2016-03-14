@@ -10,7 +10,7 @@
             <th translatable="yes"></th>
         </tr>
     </thead>
-    <tbody colspan="3" ng-repeat="user in users()" ng-if="subjectIsMember(user, project().metadata.name)">
+    <tbody colspan="3" ng-repeat="user in users()" data-id="{{ user.metadata.name }}" ng-if="subjectIsMember(user, project().metadata.name)">
         <tr class="listing-item inner-project-listing">
             <td>{{ user.metadata.name }}</td>
             <td>
@@ -19,7 +19,7 @@
             <td></td>
         </tr>
     </tbody>
-    <tbody colspan="3" ng-repeat="group in groups()" ng-if="subjectIsMember(group, project().metadata.name)">
+    <tbody colspan="3" ng-repeat="group in groups()" data-id="{{ group.metadata.name }}" ng-if="subjectIsMember(group, project().metadata.name)">
         <tr class="listing-item inner-project-listing">
             <td>{{ group.metadata.name }}</td>
             <td>
@@ -31,7 +31,7 @@
     <thead>
         <tr>
             <td colspan="3">
-                <a class="pull-left" disabled>
+                <a class="pull-left" ng-click="addMember(project().metadata.name)">
                     <i translatable="yes" class="pficon pficon-add-circle-o"></i>
                     <span translatable="yes">Add Member</span>
                 </a>

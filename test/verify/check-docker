@@ -66,6 +66,11 @@ class TestDocker(MachineCase):
 
         message = "HelloMessage."
 
+        # show all containers to interact with stopped ones
+        b.click("#containers-containers-filter button")
+        b.wait_visible("#containers-containers-filter .dropdown-menu")
+        b.click("#containers-containers-filter a[value='all']")
+
         # Run it
         b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
         b.wait_popup("containers_run_image_dialog")

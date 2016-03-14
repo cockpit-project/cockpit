@@ -69,19 +69,24 @@ def download(link, force, stores):
 
     sys.stderr.write("{0}\n".format(source))
     (fd, temp) = tempfile.mkstemp(suffix=".partial", prefix=os.path.basename(dest), dir=DATA)
-    curl = subprocess.Popen(["curl", "-#", "-f", source], stdout=subprocess.PIPE)
-    unxz = subprocess.Popen(["unxz", "--stdout", "-"], stdin=curl.stdout, stdout=fd)
+    try:
+        curl = subprocess.Popen(["curl", "-#", "-f", source], stdout=subprocess.PIPE)
+        unxz = subprocess.Popen(["unxz", "--stdout", "-"], stdin=curl.stdout, stdout=fd)
 
-    curl.stdout.close()
-    ret = curl.wait()
-    if ret != 0:
-        sys.exit(ret)
-    ret = unxz.wait()
-    if ret != 0:
-        sys.exit(ret)
+        curl.stdout.close()
+        ret = curl.wait()
+        if ret != 0:
+            sys.exit(ret)
+        ret = unxz.wait()
+        if ret != 0:
+            sys.exit(ret)
 
-    os.close(fd)
-    shutil.move(temp, dest)
+        os.close(fd)
+        shutil.move(temp, dest)
+    finally:
+        # if we had an error and the temp file is left over, delete it
+        if os.path.exists(temp):
+            os.unlink(temp)
 
     # Handle alternate TEST_DATA
     image_file = os.path.join(IMAGES, os.readlink(link))

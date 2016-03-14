@@ -1445,7 +1445,7 @@ PageNetworking.prototype = {
             function has_master(iface) {
                 var connections =
                     (iface.Device ? iface.Device.AvailableConnections : iface.Connections);
-                return connections.some(function (c) { return c.Masters.length > 0; });
+                return connections.some(function (c) { return c.Masters && c.Masters.length > 0; });
             }
 
             // Skip slaves

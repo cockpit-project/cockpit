@@ -358,6 +358,9 @@ PageServer.prototype = {
                 data = "";
             }
 
+            if (!data)
+                data = "";
+
             var lines = data.split("\n");
             for (var i = 0; i < lines.length; i++) {
                 var parts = lines[i].split("=");

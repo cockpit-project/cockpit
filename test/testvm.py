@@ -279,7 +279,7 @@ class Machine:
         if not self._check_ssh_master():
             self._start_ssh_master()
 
-    def execute(self, command=None, script=None, input=None, environment={}, stdout=None, quiet=False):
+    def execute(self, command=None, script=None, input=None, environment={}, stdout=None, quiet=False, direct=False):
         """Execute a shell command in the test machine and return its output.
 
         Either specify @command or @script
@@ -295,15 +295,23 @@ class Machine:
         assert command or script
         assert self.address
 
-        self._ensure_ssh_master()
+        if not direct:
+            self._ensure_ssh_master()
 
         cmd = [
             "ssh",
             "-p", str(self.ssh_port),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
-            "-o", "BatchMode=yes",
-            "-o", "ControlPath=" + self.ssh_master,
+            "-o", "BatchMode=yes"
+        ]
+
+        if direct:
+            cmd += [ "-i", self._calc_identity() ]
+        else:
+            cmd += [ "-o", "ControlPath=" + self.ssh_master ]
+
+        cmd += [
             "-l", self.vm_username,
             self.address
         ]

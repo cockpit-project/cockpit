@@ -760,7 +760,7 @@ function NetworkManagerModel() {
             return;
 
         push_refresh();
-        cockpit.spawn(["udevadm", "info", obj.Udi]).
+        cockpit.spawn(["udevadm", "info", obj.Udi], { err: 'message' }).
             done(function(res) {
                 var props = { };
                 function snarf_prop(line, env, prop) {
@@ -776,7 +776,11 @@ function NetworkManagerModel() {
                 set_object_properties(obj, props);
             }).
             fail(function(ex) {
-                console.warn(ex);
+                /* udevadm info exits with 4 when device doesn't exist */
+                if (ex.exit_status !== 4) {
+                    console.warn(ex.message);
+                    console.warn(ex);
+                }
             }).
             always(pop_refresh);
     }

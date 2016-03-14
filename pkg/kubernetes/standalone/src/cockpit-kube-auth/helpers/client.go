@@ -295,7 +295,7 @@ func NewClient() *Client {
 		ac.userAPI = "oapi"
 	}
 
-	ac.requireOpenshift, _ = strconv.ParseBool(os.Getenv("ATOMIC_REGISTRY_ONLY"))
+	ac.requireOpenshift, _ = strconv.ParseBool(os.Getenv("REGISTRY_ONLY"))
 
 	ac.insecure, _ = strconv.ParseBool(os.Getenv("KUBERNETES_INSECURE"))
 	if !ac.insecure {

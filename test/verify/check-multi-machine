@@ -375,7 +375,7 @@ class TestMultiMachine(MachineCase):
         break_bridge(m2)
         self.login_and_go(None)
         b.go(machine_path)
-        with b.wait_timeout(120):
+        with b.wait_timeout(240):
             start_machine_troubleshoot(b)
 
         check_failed_state(b, "Cockpit is not installed")

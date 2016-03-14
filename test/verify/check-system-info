@@ -40,6 +40,9 @@ class TestSystemInfo(MachineCase):
 
         self.login_and_go("/system")
 
+        b.wait_present('#system_information_os_text')
+        b.wait_visible('#system_information_os_text')
+
         # /etc/os-release might be a symlink and file watching doesn't
         # follow symlinks, so we remove it and then create a regular
         # file.

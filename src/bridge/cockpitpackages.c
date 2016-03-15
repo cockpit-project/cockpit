@@ -447,18 +447,24 @@ maybe_add_package (GHashTable *listing,
   JsonObject *manifest = NULL;
   GHashTable *paths = NULL;
 
+  path = g_build_filename (parent, name, NULL);
+
+  manifest = read_package_manifest (path, name);
+  if (!manifest)
+    goto out;
+
+  /* Manifest could specify a different name */
+  name = read_package_name (manifest, name);
+  if (!name)
+    goto out;
+
+  /* In case the package is already present */
   package = g_hash_table_lookup (listing, name);
   if (package)
     {
       package = NULL;
       goto out;
     }
-
-  path = g_build_filename (parent, name, NULL);
-
-  manifest = read_package_manifest (path, name);
-  if (!manifest)
-    goto out;
 
   if (system)
     paths = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
@@ -468,11 +474,6 @@ maybe_add_package (GHashTable *listing,
       if (!package_walk_directory (checksum, paths, path, NULL))
         goto out;
     }
-
-  /* Manifest could specify a different name */
-  name = read_package_name (manifest, name);
-  if (!name)
-    goto out;
 
   package = cockpit_package_new (name);
   package->directory = path;

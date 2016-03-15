@@ -62,11 +62,6 @@ table.images-listing {
     tr.listing-item tt {
         color: @metadata-color;
     }
-
-    /* The following may need to go into the main listing pattern */
-    dt {
-        width: auto;
-    }
 }
 
 .listing-inline h3 {
@@ -88,17 +83,6 @@ dl.image-tags {
         white-space: pre;
     }
 }
-
-@media (min-width: @screen-md-min) {
-    dl.image-tags {
-        dt {
-            width: auto;
-            min-width: 0px;
-            padding: 0px 15px;
-        }
-    }
-}
-
 
 .image-tag {
     border: 2px solid @tag-border;

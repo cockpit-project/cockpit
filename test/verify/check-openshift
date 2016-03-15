@@ -344,6 +344,22 @@ class TestRegistry(MachineCase):
         # All tags here have been removed
         b.wait_not_present(".image-tag")
 
+        # Show the image on the right screen
+        b.go("#/images/marmalade/juggs")
+        b.wait_in_text(".content-filter h3", "marmalade/juggs")
+        b.wait_present("tbody[data-id='marmalade/juggs:2.9']")
+        b.click("tbody[data-id='marmalade/juggs:2.9'] tr:first-child td:first-child")
+
+        # Various labels should show up in this image
+        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] .listing-head h3", "Juggs Image")
+        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] div[image-body]", "This is a test description of an image. It can be as long as a paragraph, featuring a nice brogrammer sales pitch.")
+        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] div[image-body]", "http://hipsum.co")
+
+        # And some key labels shouldn't show up on the metadata
+        b.click("tbody[data-id='marmalade/juggs:2.9'] .listing-head li:last-child a")
+        b.wait_present("tbody[data-id='marmalade/juggs:2.9'] div[image-meta]")
+        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] div[image-meta]", "build-date=2016-03-04")
+
     def testProjectAdmin(self):
         o = self.openshift
         b = self.browser

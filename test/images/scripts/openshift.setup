@@ -115,6 +115,8 @@ printf "FROM registry:5000/marmalade/juggs:latest\nADD openshift /usr/bin\nUSER 
 docker build -t registry:5000/marmalade/juggs:2.5 .
 printf "FROM registry:5000/marmalade/juggs:2.5\nSTOPSIGNAL SIGKILL\nONBUILD ADD . /app/src\nARG hello=test\nARG simple\nLABEL Test=Value\nLABEL version=\"1.0\"" > Dockerfile
 docker build -t registry:5000/marmalade/juggs:2.8 .
+printf "FROM registry:5000/marmalade/juggs:2.8\nLABEL description=\"This is a test description of an image. It can be as long as a paragraph, featuring a nice brogrammer sales pitch.\"\nLABEL name=\"Juggs Image\"\nLABEL build-date=2016-03-04\nLABEL url=\"http://hipsum.co/\"" > Dockerfile
+docker build -t registry:5000/marmalade/juggs:2.9 .
 
 
 docker push registry:5000/marmalade/juggs

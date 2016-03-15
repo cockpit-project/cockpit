@@ -2,8 +2,10 @@
     <image-layers layers="imageLayers(image)">
     </image-layers>
     <dl>
-        <dt ng-if="config.Labels" translatable="yes">Labels</dt>
-        <dd ng-repeat="(name, value) in config.Labels"><tt>{{name}}={{value}}</tt></dd>
+        <dt ng-if="labels" translatable="yes">Labels</dt>
+        <dd ng-repeat="(name, value) in labels" ng-show="name != 'description' && name != 'name'">
+            <tt>{{name}}={{value}}</tt>
+        </dd>
         <dt ng-if="config.OnBuild.length" translatable="yes">On Build</dt>
         <dd ng-repeat="line in config.OnBuild"><tt>{{line}}</tt></dd>
         <dt ng-if="image.metadata.annotations" translatable="yes">Annotations</dt>

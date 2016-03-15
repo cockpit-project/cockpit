@@ -9,6 +9,9 @@
         <dd ng-if="!config.WorkingDir">/</dd>
         <dt ng-if="config.StopSignal" translatable="yes">Stop with</dt>
         <dd ng-if="config.StopSignal">{{config.StopSignal}}</dd>
+        <dt translatable="yes">Architecture</dt>
+        <dd ng-if="config.architecture">{{config.architecture}}</dd>
+        <dd ng-if="!config.architecture">{{image.dockerImageMetadata.Architecture}}</dd>
     </dl>
     <dl class="col-xs-12 col-sm-12 col-md-8 full-width">
         <dt ng-if="config.Env.length" translatable="yes">Environment</dt>

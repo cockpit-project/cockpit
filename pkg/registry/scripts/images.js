@@ -133,7 +133,7 @@
 
             var c = loader.listen(function() {
                 $scope.stream = select().kind("ImageStream").namespace(namespace).name(name).one();
-                $scope.image = $scope.config = $scope.layers = $scope.tag = null;
+                $scope.image = $scope.config = $scope.layers = $scope.labels = $scope.tag = null;
 
                 imagestreamEachTagItem($scope.stream || {}, function(tag, item) {
                     if (tag.tag === tagname)
@@ -147,6 +147,7 @@
                     $scope.names = data.imageTagNames($scope.image);
                     $scope.config = data.imageConfig($scope.image);
                     $scope.layers = data.imageLayers($scope.image);
+                    $scope.labels = data.imageLabels($scope.image);
                 }
             });
 
@@ -212,11 +213,12 @@
                     };
 
                     var c = loader.listen(function() {
-                        scope.names = scope.config = scope.layers = null;
+                        scope.names = scope.config = scope.layers = scope.labels = null;
                         if (scope.image) {
                             scope.names = data.imageTagNames(scope.image);
                             scope.config = data.imageConfig(scope.image);
                             scope.layers = data.imageLayers(scope.image);
+                            scope.labels = data.imageLabels(scope.image);
                         }
                     });
 
@@ -396,13 +398,46 @@
                 return select(results);
             });
 
-            function imagesByTag(tag) {
-                return select().kind("Image").taggedBy(tag);
-            }
+            /*
+             * Filter that gets the config object for a docker based
+             * image.
+             */
+            select.register("dockerImageConfig", function() {
+                var results = { };
+                angular.forEach(this, function(image, key) {
+                    var compat, layers = imageLayers(image) || { };
+                    if (layers[0]) {
+                        compat = layers[0].v1Compatibility;
+                        if (compat && compat.config) {
+                            results[key] = compat.config;
+                            return;
+                        }
+                    }
 
-            function listImagestreams() {
-                return select().kind("ImageStream");
-            }
+                    var meta = image.dockerImageMetadata || { };
+                    if (meta.Config)
+                        results[key] = meta.Config;
+                });
+
+                return select(results);
+            });
+
+            /*
+             * Filter that gets a dict of labels for a config
+             * image.
+             */
+            select.register("dockerConfigLabels", function() {
+                var results = { };
+                angular.forEach(this, function(config, key) {
+                    var labels;
+                    if (config)
+                        labels = config.Labels;
+                    if (labels)
+                        results[key] = labels;
+                });
+                return select(results);
+            });
+
 
             function imageLayers(image) {
                 if (!image)
@@ -413,23 +448,7 @@
                 return manifest.history;
             }
 
-            function imageConfig(image) {
-                var compat, layers = imageLayers(image) || { };
-                if (layers[0]) {
-                    compat = layers[0].v1Compatibility;
-                    if (compat && compat.config)
-                        return compat.config;
-                }
-
-                var meta = image.dockerImageMetadata || { };
-                return meta.Config || { };
-            }
-
             /* HACK: We really want a metadata index here */
-            function imageTagNames(image) {
-                return select().kind("ImageStream").listTagNames(image.metadata.name);
-            }
-
             function configCommand(config) {
                 var result = [ ];
                 if (!config)
@@ -447,11 +466,22 @@
 
             return {
                 watchImages: watchImages,
-                allStreams: listImagestreams,
-                imagesByTag: imagesByTag,
+                allStreams: function allStreams() {
+                    return select().kind("ImageStream");
+                },
+                imagesByTag: function imagesByTag(tag) {
+                    return select().kind("Image").taggedBy(tag);
+                },
                 imageLayers: imageLayers,
-                imageConfig: imageConfig,
-                imageTagNames: imageTagNames,
+                imageConfig: function imageConfig(image) {
+                    return select(image).dockerImageConfig().one() || { };
+                },
+                imageTagNames: function imageTagNames(image) {
+                    return select().kind("ImageStream").listTagNames(image.metadata.name);
+                },
+                imageLabels: function imageLabels(image) {
+                    return select(image).dockerImageConfig().dockerConfigLabels().one();
+                },
                 configCommand: configCommand,
             };
         }

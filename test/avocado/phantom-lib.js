@@ -1,1 +1,1 @@
-../phantom-lib.js
+../common/phantom-lib.js

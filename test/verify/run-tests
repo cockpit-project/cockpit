@@ -31,7 +31,7 @@ def check_valid(filename):
 def install(opts):
     try:
         sys.stderr.write("Building and installing Cockpit ...\n")
-        cmd = [ "./testsuite-prepare" ]
+        cmd = [ os.path.join(testinfra.TEST_DIR, "verify", "testsuite-prepare") ]
         if opts.clean:
             cmd.append("--clean")
         if opts.quick:

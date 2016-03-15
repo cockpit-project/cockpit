@@ -31,9 +31,9 @@ try:
 except:
     sys.path.append(test_dir)
 
-from testlib import *
-from testvm import VirtMachine
-import kubelib
+from common.testlib import *
+from common.testvm import VirtMachine
+from verify import kubelib
 
 class OCBrowser(Browser):
     def login_and_go(self, path=None, user=None, host=None):
@@ -74,7 +74,7 @@ class OCMachine(VirtMachine):
                 time.sleep(1)
 
     def start_cockpit(self, *args, **kwargs):
-        path = os.path.join(test_dir, "files", "cockpit-openshift-template.json")
+        path = os.path.join(base_dir, "verify", "files", cockpit-openshift-template.json")
         self.upload([path], "/tmp")
         self.wait_oc()
 

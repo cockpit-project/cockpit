@@ -1,1 +1,1 @@
-../testimagetask.py
+../common/testimagetask.py

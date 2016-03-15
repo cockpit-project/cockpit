@@ -35,7 +35,7 @@ def kill_user_admin(machine):
 
 def authorize_user(m, user):
     m.execute("mkdir -p /home/{0}/.ssh".format(user))
-    m.upload(["files/ssh/id_rsa.pub"], "/home/{0}/.ssh/authorized_keys".format(user))
+    m.upload(["verify/files/ssh/id_rsa.pub"], "/home/{0}/.ssh/authorized_keys".format(user))
     m.execute("chown -R {0}:{0} /home/{0}/.ssh/".format(user))
     m.execute("chmod 600 /home/{0}/.ssh/authorized_keys".format(user))
     m.execute("chmod 700 /home/{0}/.ssh".format(user))
@@ -98,9 +98,9 @@ class TestMultiMachineKeyAuth(MachineCase):
         # Load keys
         m1.execute("mkdir -p /home/admin/.ssh")
 
-        m1.upload(["files/ssh/{0}".format(k) for k in LOAD_KEYS],
+        m1.upload(["verify/files/ssh/{0}".format(k) for k in LOAD_KEYS],
                    "/home/admin/.ssh/")
-        m1.upload(["files/ssh/{0}.pub".format(k) for k in LOAD_KEYS],
+        m1.upload(["verify/files/ssh/{0}.pub".format(k) for k in LOAD_KEYS],
                    "/home/admin/.ssh/")
         m1.execute("chmod 400 /home/admin/.ssh/*")
         m1.execute("chown -R admin:admin /home/admin/.ssh")

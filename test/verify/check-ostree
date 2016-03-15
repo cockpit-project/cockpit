@@ -49,7 +49,7 @@ def generate_new_commit(m, pkg_to_remove):
     # Make one change of each type to a new rpm tree
     branch = m.execute("ostree refs --repo={0}".format(REPO_LOCATION))
 
-    m.upload(["files/{0}.rpm".format(k) for k in INSTALL_RPMS],
+    m.upload(["verify/files/{0}.rpm".format(k) for k in INSTALL_RPMS],
               "/home/admin/")
 
     # move /usr/etc to /etc, makes rpm installs easier

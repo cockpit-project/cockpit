@@ -24,9 +24,9 @@ import sys
 
 sys.dont_write_bytecode = True
 
-import testinfra
-import testpulltask
-import testimagetask
+from common import testinfra
+from common import testpulltask
+from common import testimagetask
 
 def main():
     parser = argparse.ArgumentParser(description='Perform next testing task from Github')

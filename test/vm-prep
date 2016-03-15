@@ -54,7 +54,7 @@ DEVICE=$NETWORK_NAME
 NM_CONTROLLED=no
 EOF
 
-    $VIRSH net-define $BASE/guest/network-cockpit.xml
+    $VIRSH net-define $BASE/common/network-cockpit.xml
 	$VIRSH net-autostart $NETWORK_NAME
 	$VIRSH net-start $NETWORK_NAME
 

@@ -38,24 +38,28 @@ class TestSystemInfo(MachineCase):
         m = self.machine
         b = self.browser
 
+        # /etc/os-release might be a symlink and file watching doesn't
+        # follow symlinks, so we remove it and then create a regular
+        # file.
+        #
+        # In addition hostnamed does not expect os-release to change so
+        # we force a restart. Usually any such changes to os-release are
+        # expected to happen during reboot, or picked up after a reboot.
+        #
+        # subscription-manager also screws with os-release so set it
+        # to immutable
+        #
+        m.execute("rm /etc/os-release")
+        m.write("/etc/os-release", os_release)
+        m.execute("chattr +i /etc/os-release && (systemctl restart systemd-hostnamed || systemctl restart hostnamed)")
+
         self.login_and_go("/system")
 
         b.wait_present('#system_information_os_text')
         b.wait_visible('#system_information_os_text')
 
-        # /etc/os-release might be a symlink and file watching doesn't
-        # follow symlinks, so we remove it and then create a regular
-        # file.
-        #
-        m.execute("rm /etc/os-release")
-        m.write("/etc/os-release", os_release)
-
         b.wait_text('#system_information_os_text',
                     "Foobar Adventure Linux Server 2.0 (Day of Doom)")
-
-        m.write("/etc/os-release", os_release.replace ("2.0", "2.1").replace("Day of Doom", "A New Morning"))
-        b.wait_text('#system_information_os_text',
-                    "Foobar Adventure Linux Server 2.1 (A New Morning)")
 
         m.execute("hostnamectl set-hostname --pretty 'Adventure Box'")
         b.wait_in_text('#system_information_hostname_button', "Adventure Box")

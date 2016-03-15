@@ -174,7 +174,6 @@ PageServer.prototype = {
     _init: function() {
         this.id = "server";
         this.server_time = null;
-        this.os_file_name = "/etc/os-release";
         this.client = null;
         this.hostname_proxy = null;
     },
@@ -349,35 +348,6 @@ PageServer.prototype = {
                                      '/org/freedesktop/hostname1');
         self.kernel_hostname = null;
 
-        // HACK: We really should use OperatingSystemPrettyName
-        // from hostname1 here. Once we require system > 211
-        // we should change this.
-        function parse_pretty_name(data, tag, ex) {
-            if (ex) {
-                console.warn("couldn't load os data: " + ex);
-                data = "";
-            }
-
-            if (!data)
-                data = "";
-
-            var lines = data.split("\n");
-            for (var i = 0; i < lines.length; i++) {
-                var parts = lines[i].split("=");
-                if (parts[0] === "PRETTY_NAME") {
-                    var text = parts[1];
-                    try {
-                        text = JSON.parse(text);
-                    } catch (e) {}
-                    $("#system_information_os_text").text(text);
-                    break;
-                }
-            }
-        }
-
-        self.os_file = cockpit.file(self.os_file_name);
-        self.os_file.watch(parse_pretty_name);
-
         var series;
 
         /* CPU graph */
@@ -545,6 +515,7 @@ PageServer.prototype = {
             if (!str)
                 str = _("Set Host name");
             $("#system_information_hostname_button").text(str);
+            $("#system_information_os_text").text(self.hostname_proxy.OperatingSystemPrettyName || "");
         }
 
         cockpit.spawn(["hostname"], { err: "ignore" })
@@ -573,9 +544,6 @@ PageServer.prototype = {
         self.memory_plot.destroy();
         self.disk_plot.destroy();
         self.network_plot.destroy();
-
-        self.os_file.close();
-        self.os_file = null;
 
         $(self.hostname_proxy).off();
         self.hostname_proxy = null;

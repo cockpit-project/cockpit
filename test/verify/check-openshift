@@ -341,6 +341,7 @@ class TestRegistry(MachineCase):
         # Delete via the main UI
         b.wait_present("tbody[data-id='marmalade/busybee:latest']")
         b.click("tbody[data-id='marmalade/busybee:latest'] tr:first-child td:first-child")
+        b.wait_in_text("tbody[data-id='marmalade/busybee:latest'] .listing-head h3", "marmalade/busybee:latest")
         b.click("tbody[data-id='marmalade/busybee:latest'] .listing-head .pficon-delete")
         b.wait_present("modal-dialog")
         b.click("modal-dialog .btn-danger")

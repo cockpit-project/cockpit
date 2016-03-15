@@ -42,8 +42,7 @@ class GithubPullTask(object):
             },
             "revision": self.revision,
             "link": "log.html",
-            "extras": [ "https://raw.githubusercontent.com/cockpit-project/cockpit/" +
-                        self.revision + "/test/files/log.html" ],
+            "extras": [ "https://raw.githubusercontent.com/cockpit-project/cockpit/master/test/files/log.html" ],
 
             "onaborted": {
                 "github": {

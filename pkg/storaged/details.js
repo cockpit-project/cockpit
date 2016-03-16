@@ -760,17 +760,57 @@ define([
                             });
             },
 
-            vgroup_create_plain: function vgroup_create_plain(path) {
+            vgroup_create_lvol: function vgroup_create_lvol(path) {
                 var vgroup = client.vgroups[path];
                 if (!vgroup)
                     return;
 
-                dialog.open({ Title: _("Create Plain Volume"),
+                dialog.open({ Title: _("Create Logical Volume"),
                               Fields: [
                                   { TextInput: "name",
                                     Title: _("Name"),
                                     validate: utils.validate_lvm2_name
                                   },
+                                  { SelectOne: "purpose",
+                                    Title: _("Purpose"),
+                                    Options: [
+                                        { value: "block", Title: _("Block device for filesystems"),
+                                          selected: true
+                                        },
+                                        { value: "pool", Title: _("Pool for thinly provisioned volumes") }
+                                        /* Not implemented
+                                           { value: "cache", Title: _("Cache") }
+                                        */
+                                    ]
+                                  },
+                                  /* Not Implemented
+                                  { SelectOne: "layout",
+                                    Title: _("Layout"),
+                                    Options: [
+                                        { value: "linear", Title: _("Linear"),
+                                          selected: true
+                                        },
+                                        { value: "striped", Title: _("Striped (RAID 0)"),
+                                          enabled: raid_is_possible
+                                        },
+                                        { value: "raid1", Title: _("Mirrored (RAID 1)"),
+                                          enabled: raid_is_possible
+                                        },
+                                        { value: "raid10", Title: _("Striped and mirrored (RAID 10)"),
+                                          enabled: raid_is_possible
+                                        },
+                                        { value: "raid4", Title: _("With dedicated parity (RAID 4)"),
+                                          enabled: raid_is_possible
+                                        },
+                                        { value: "raid5", Title: _("With distributed parity (RAID 5)"),
+                                          enabled: raid_is_possible
+                                        },
+                                        { value: "raid6", Title: _("With double distributed parity (RAID 6)"),
+                                          enabled: raid_is_possible
+                                        }
+                                    ],
+                                  },
+                                  */
                                   { SizeSlider: "size",
                                     Title: _("Size"),
                                     Max: vgroup.FreeSize,
@@ -780,37 +820,10 @@ define([
                               Action: {
                                   Title: _("Create"),
                                   action: function (vals) {
-                                      return vgroup.CreatePlainVolume(vals.name, vals.size, { });
-                                  }
-                              }
-                            });
-            },
-            vgroup_create_raid: function vgroup_create_raid(path) {
-                $('#error-popup-title').text(_("Sorry"));
-                $('#error-popup-message').text("Not yet.");
-                $('#error-popup').modal('show');
-            },
-            vgroup_create_thinpool: function vgroup_create_thinpool(path) {
-                var vgroup = client.vgroups[path];
-                if (!vgroup)
-                    return;
-
-                dialog.open({ Title: _("Create Pool for Thin Logical Volumes"),
-                              Fields: [
-                                  { TextInput: "name",
-                                    Title: _("Name"),
-                                    validate: utils.validate_lvm2_name
-                                  },
-                                  { SizeSlider: "size",
-                                    Title: _("Size"),
-                                    Max: vgroup.FreeSize,
-                                    Round: vgroup.ExtentSize
-                                  }
-                              ],
-                              Action: {
-                                  Title: _("Create"),
-                                  action: function (vals) {
-                                      return vgroup.CreateThinPoolVolume(vals.name, vals.size, { });
+                                      if (vals.purpose == "block")
+                                          return vgroup.CreatePlainVolume(vals.name, vals.size, { });
+                                      else if (vals.purpose == "pool")
+                                          return vgroup.CreateThinPoolVolume(vals.name, vals.size, { });
                                   }
                               }
                             });
@@ -1582,25 +1595,10 @@ define([
             });
 
             if (vgroup.FreeSize > 0) {
-                var btn, actions, desc;
+                var btn, desc;
 
                 desc = cockpit.format(_("$0 Free Space for Logical Volumes"), utils.fmt_size(vgroup.FreeSize));
-                actions = [
-                    { title: _("Create Plain Logical Volume"),
-                      action: 'vgroup_create_plain'
-                    },
-                    { title: _("Create RAID Logical Volume"),
-                      action: 'vgroup_create_raid'
-                    },
-                    { title: _("Create Pool for Thin Logical Volumes"),
-                      action: 'vgroup_create_thinpool'
-                    }
-                ];
-                btn = mustache.render(action_btn_tmpl,
-                                      { arg: vgroup.path,
-                                        def: actions[0],  // Create Plain Logical Volume
-                                        actions: actions
-                                      });
+                btn = create_simple_btn (_("Create Logical Volume"), "vgroup_create_lvol", [ vgroup.path ]);
                 append_entry (level, null, desc, btn, null);
             }
 

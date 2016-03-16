@@ -51,8 +51,9 @@ class TestStorage(StorageCase):
 
         b.click('#vgroups tr:contains("TEST")')
         b.wait_visible('#storage-detail')
-        self.content_default_action(1, "Create Plain Logical Volume")
-        self.dialog({ 'name': "lvol",
+        self.content_single_action(1, "Create Logical Volume")
+        self.dialog({ 'purpose': "block",
+                      'name': "lvol",
                       'size': 48 })
         b.wait_in_text("#content", "Logical Volume \"lvol\"")
 

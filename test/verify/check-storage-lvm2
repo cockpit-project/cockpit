@@ -110,8 +110,9 @@ class TestStorage(StorageCase):
         b.wait_visible('#storage-detail')
 
         # create a logical volume
-        self.content_default_action(1, "Create Plain Logical Volume")
-        self.dialog({ "name": "one",
+        self.content_single_action(1, "Create Logical Volume")
+        self.dialog({ "purpose": "block",
+                      "name": "one",
                       "size": 20 })
         b.wait_in_text("#content", "Logical Volume \"one\"")
 
@@ -161,9 +162,10 @@ class TestStorage(StorageCase):
 
         # create thin pool and volume
         # the pool will be maximum size, 48 MiB
-        self.content_action(1, "Create Pool for Thin Logical Volumes")
+        self.content_single_action(1, "Create Logical Volume")
         self.dialog(expect = { "size": 48 },
-                    values = { "name": "pool" })
+                    values = { "purpose": "pool",
+                               "name": "pool" })
         b.wait_in_text('#content', "Pool for Thin Logical Volumes \"pool\"")
 
         self.content_default_action(1, "Create Thin Volume")

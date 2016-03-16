@@ -817,7 +817,22 @@ function resolve_path_dots(parts) {
     return out;
 }
 
-function basic_scope(cockpit) {
+function basic_scope(cockpit, jquery) {
+
+    /* If jquery is available use it for now
+     * since it returns 0 durning testing to
+     * make tests stable
+     */
+    var now_func = function () {
+        return new Date().getTime();
+    };
+
+    if (jquery) {
+        now_func = function () {
+            return jquery.now();
+        };
+    }
+
     cockpit.channel = function channel(options) {
         return new Channel(options);
     };
@@ -1071,6 +1086,678 @@ function basic_scope(cockpit) {
         if (factor === undefined)
             factor = 1000;
         return format_units(number, bit_suffixes, factor, separate);
+    };
+
+    /* ---------------------------------------------------------------------
+     * Shared data cache.
+     *
+     * We cannot use sessionStorage when keeping lots of data in memory and
+     * sharing it between frames. It has a rather paltry limit on the amount
+     * of data it can hold ... so we use window properties instead.
+     */
+
+    function lookup_storage(win) {
+        var storage;
+        if (win.parent && win.parent !== win)
+            storage = lookup_storage(win.parent);
+        if (!storage) {
+            try {
+                storage = win["cv1-storage"];
+                if (!storage)
+                    win["cv1-storage"] = storage = { };
+            } catch(ex) { }
+        }
+        return storage;
+    }
+
+    function StorageCache(key, provider, consumer) {
+        var self = this;
+
+        /* For triggering events and ownership */
+        var trigger = window.sessionStorage;
+        var last;
+
+        var storage = lookup_storage(window);
+
+        var claimed = false;
+        var source;
+
+        function callback() {
+            /* Only run the callback if we have a result */
+            if (storage[key] !== undefined) {
+                if (consumer(storage[key], key) === false)
+                    self.close();
+            }
+        }
+
+        function result(value) {
+            if (source && !claimed)
+                claimed = true;
+            if (!claimed)
+                return;
+
+            // use a random number to avoid races by separate instances
+            var version = Math.floor(Math.random() * 10000000) + 1;
+
+            /* Event for the local window */
+            var ev = document.createEvent("StorageEvent");
+            ev.initStorageEvent("storage", false, false, key, null,
+                                version, window.location, trigger);
+
+            storage[key] = value;
+            trigger.setItem(key, version);
+            ev.self = self;
+            window.dispatchEvent(ev);
+        }
+
+        self.claim = function claim() {
+            if (!source)
+                source = provider(result, key);
+        };
+
+        function unclaim() {
+            if (source && source.close)
+                source.close();
+            source = null;
+
+            if (!claimed)
+                return;
+
+            claimed = false;
+
+            var current_value = trigger.getItem(key);
+            if (current_value)
+                current_value = parseInt(current_value, 10);
+            else
+                current_value = null;
+
+            if (last && last === current_value) {
+                var ev = document.createEvent("StorageEvent");
+                var version = trigger[key];
+                ev.initStorageEvent("storage", false, false, key, version,
+                                    null, window.location, trigger);
+                delete storage[key];
+                trigger.removeItem(key);
+                ev.self = self;
+                window.dispatchEvent(ev);
+            }
+        }
+
+        function changed(event) {
+            if (event.key !== key)
+                return;
+
+            /* check where the event came from
+               - it came from someone else:
+                   if it notifies their unclaim (new value null) and we haven't already claimed, do so
+               - it came from ourselves:
+                   if the new value doesn't match the actual value in the cache, and
+                   we tried to claim (from null to a number), cancel our claim
+             */
+            if (event.self !== self) {
+                if (!event.newValue && !claimed) {
+                    self.claim();
+                    return;
+                }
+            } else if (claimed && !event.oldValue && (event.newValue !== trigger.getItem(key))) {
+                unclaim();
+            }
+
+            var new_value = null;
+            if (event.newValue)
+                new_value = parseInt(event.newValue, 10);
+            if (last !== new_value) {
+                last = new_value;
+                callback();
+            }
+        }
+
+        self.close = function() {
+            window.removeEventListener("storage", changed, true);
+            unclaim();
+        };
+
+        window.addEventListener("storage", changed, true);
+
+        /* Always clear this data on unload */
+        window.addEventListener("beforeunload", function() {
+            self.close();
+        });
+        window.addEventListener("unload", function() {
+            self.close();
+        });
+
+        if (trigger.getItem(key))
+            callback();
+        else
+            self.claim();
+    }
+
+    cockpit.cache = function cache(key, provider, consumer) {
+        return new StorageCache(key, provider, consumer);
+    };
+
+    /* ---------------------------------------------------------------------
+     * Metrics
+     *
+     * Implements the cockpit.series and cockpit.grid. Part of the metrics
+     * implementations that do not require jquery.
+     */
+
+    function SeriesSink(interval, identifier, fetch_callback) {
+        var self = this;
+
+        self.interval = interval;
+        self.limit = identifier ? 64 * 1024 : 1024;
+
+        /*
+         * The cache sits on a window, either our own or a parent
+         * window whichever we can access properly.
+         *
+         * Entries in the index are:
+         *
+         * { beg: N, items: [], mapping: { }, next: item }
+         */
+        var index = setup_index(identifier);
+
+        /*
+         * A linked list through the index, that we use for expiry
+         * of the cache.
+         */
+        var count = 0;
+        var head = null;
+        var tail = null;
+
+        function setup_index(id) {
+            if (!id)
+                return [];
+
+            /* Try and find a good place to cache data */
+            var storage = lookup_storage(window);
+
+            var index = storage[id];
+            if (!index)
+                storage[id] = index = [];
+            return index;
+        }
+
+        function search(idx, beg) {
+            var low = 0;
+            var high = idx.length - 1;
+            var mid, val;
+
+            while (low <= high) {
+                mid = (low + high) / 2 | 0;
+                val = idx[mid].beg;
+                if (val < beg)
+                    low = mid + 1;
+                else if (val > beg)
+                    high = mid - 1;
+                else
+                    return mid; /* key found */
+            }
+            return low;
+        }
+
+        function fetch(beg, end, for_walking) {
+            if (fetch_callback) {
+                if (!for_walking) {
+                    /* Stash some fake data synchronously so that we don't ask
+                     * again for the same range while they are still fetching
+                     * it asynchronously.
+                     */
+                    stash(beg, new Array(end-beg), { });
+                }
+                fetch_callback(beg, end, for_walking);
+            }
+        }
+
+        self.load = function load(beg, end, for_walking) {
+            if (end <= beg)
+                return;
+
+            var at = search(index, beg);
+
+            var entry;
+            var b, e, eb, en, i, len = index.length;
+            var last = beg;
+
+            /* We do this in two phases: First, we walk the index to
+             * process what we already have and at the same time make
+             * notes about what we need to fetch.  Then we go over the
+             * notes and actually fetch what we need.  That way, the
+             * fetch callbacks in the second phase can modify the
+             * index data structure without disturbing the walk in the
+             * first phase.
+             */
+
+            var fetches = [ ];
+
+            /* Data relevant to this range can be at the found index, or earlier */
+            for (i = at > 0 ? at - 1 : at; i < len; i++) {
+                entry = index[i];
+                en = entry.items.length;
+                if (!en)
+                    continue;
+
+                eb = entry.beg;
+                b = Math.max(eb, beg);
+                e = Math.min(eb + en, end);
+
+                if (b < e) {
+                    if (b > last)
+                        fetches.push([ last, b ]);
+                    process(b, entry.items.slice(b - eb, e - eb), entry.mapping);
+                    last = e;
+                } else if (i >= at) {
+                    break; /* no further intersections */
+                }
+            }
+
+            for (i = 0; i < fetches.length; i++)
+                fetch(fetches[i][0], fetches[i][1], for_walking);
+
+            if (last != end)
+                fetch(last, end, for_walking);
+        };
+
+        function stash(beg, items, mapping) {
+            if (!items.length)
+                return;
+
+            var at = search(index, beg);
+
+            var end = beg + items.length;
+            var remove = [ ];
+            var entry;
+            var num;
+
+            var b, e, eb, en, i, len = index.length;
+            for (i = at > 0 ? at - 1 : at; i < len; i++) {
+                entry = index[i];
+                en = entry.items.length;
+                if (!en)
+                    continue;
+
+                eb = entry.beg;
+                b = Math.max(eb, beg);
+                e = Math.min(eb + en, end);
+
+                /*
+                 * We truncate blocks that intersect with this one
+                 *
+                 * We could adjust them, but in general the loaders are
+                 * intelligent enough to only load the required data, so
+                 * not doing this optimization yet.
+                 */
+
+                if (b < e) {
+                    num = e - b;
+                    entry.items.splice(b - eb, num);
+                    count -= num;
+                    if (b - eb === 0)
+                        entry.beg += (e - eb);
+                } else if (i >= at) {
+                    break; /* no further intersections */
+                }
+            }
+
+            /* Insert our item into the array */
+            entry = { beg: beg, items: items, mapping: mapping };
+            if (!head)
+                head = entry;
+            if (tail)
+                tail.next = entry;
+            tail = entry;
+            count += items.length;
+            index.splice(at, 0, entry);
+
+            /* Remove any items with zero length around insertion point */
+            for (at--; at <= i; at++) {
+                entry = index[at];
+                if (entry && !entry.items.length) {
+                    index.splice(at, 1);
+                    at--;
+                }
+            }
+
+            /* If our index has gotten too big, expire entries */
+            while (head && count > self.limit) {
+                count -= head.items.length;
+                head.items = [];
+                head.mapping = null;
+                head = head.next || null;
+            }
+
+            /* Remove any entries with zero length at beginning */
+            len = index.length;
+            for (i = 0; i < len; i++) {
+                if (index[i].items.length > 0)
+                    break;
+            }
+            index.splice(0, i);
+        }
+
+        /*
+         * Used to populate grids, the keys are grid ids and
+         * the values are objects: { grid, rows, notify }
+         *
+         * The rows field is an object indexed by paths
+         * container aliases, and the values are: [ row, path ]
+         */
+        var registered = { };
+
+        /* An undocumented function called by DataGrid */
+        self._register = function _register(grid, id) {
+            if (grid.interval != interval)
+                throw "mismatched metric interval between grid and sink";
+            var gdata = registered[id];
+            if (!gdata) {
+                gdata = registered[id] = { grid: grid, links: [ ] };
+                gdata.links.remove = function remove() {
+                    delete registered[id];
+                };
+            }
+            return gdata.links;
+        };
+
+        function process(beg, items, mapping) {
+            var i, j, jlen, k, klen;
+            var data, path, row, map;
+            var id, gdata, grid;
+            var f, t, n, b, e;
+
+            var end = beg + items.length;
+
+            for (id in registered) {
+                gdata = registered[id];
+                grid = gdata.grid;
+
+                b = Math.max(beg, grid.beg);
+                e = Math.min(end, grid.end);
+
+                /* Does this grid overlap the bounds of item? */
+                if (b < e) {
+
+                    /* Where in the items to take from */
+                    f = b - beg;
+
+                    /* Where and how many to place */
+                    t = b - grid.beg;
+
+                    /* How many to process */
+                    n = e - b;
+
+                    for (i = 0; i < n; i++) {
+                        klen = gdata.links.length;
+                        for (k = 0; k < klen; k++) {
+                            path = gdata.links[k][0];
+                            row = gdata.links[k][1];
+
+                            /* Calulate the data field to fill in */
+                            data = items[f + i];
+                            map = mapping;
+                            jlen = path.length;
+                            for (j = 0; data !== undefined && j < jlen; j++) {
+                                if (!data) {
+                                    data = undefined;
+                                } else if (map !== undefined && map !== null) {
+                                    map = map[path[j]];
+                                    if (map)
+                                        data = data[map[""]];
+                                    else
+                                        data = data[path[j]];
+                                } else {
+                                    data = data[path[j]];
+                                }
+                            }
+
+                            row[t + i] = data;
+                        }
+                    }
+
+                    /* Notify the grid, so it can call any functions */
+                    grid.notify(t, n);
+                }
+            }
+        }
+
+        self.input = function input(beg, items, mapping) {
+            process(beg, items, mapping);
+            stash(beg, items, mapping);
+        };
+    }
+
+    cockpit.series = function series(interval, cache, fetch) {
+        return new SeriesSink(interval, cache, fetch);
+    };
+
+    var unique = 1;
+
+    function SeriesGrid(interval, beg, end) {
+        var self = this;
+
+        /* We can trigger events */
+        event_mixin(self, { });
+
+        var rows = [];
+
+        self.interval = interval;
+        self.beg = 0;
+        self.end = 0;
+
+        /*
+         * Used to populate table data, the values are:
+         * [ callback, row ]
+         */
+        var callbacks = [ ];
+
+        var sinks = [ ];
+
+        var suppress = 0;
+
+        var id = "g1-" + unique;
+        unique += 1;
+
+        /* Used while walking */
+        var walking = null;
+        var offset = null;
+
+        self.notify = function notify(x, n) {
+            if (suppress)
+                return;
+            if (x + n > self.end - self.beg)
+                n = (self.end - self.beg) - x;
+            if (n <= 0)
+                return;
+            var j, jlen = callbacks.length;
+            var callback, row;
+            for (j = 0; j < jlen; j++) {
+                callback = callbacks[j][0];
+                row = callbacks[j][1];
+                callback.call(self, row, x, n);
+            }
+
+            var event = document.createEvent("CustomEvent");
+            event.initCustomEvent("notify", false, false, [ x, n ]);
+            self.dispatchEvent(event, x, n);
+        };
+
+        self.add = function add(/* sink, path */) {
+            var row = [];
+            rows.push(row);
+
+            var registered, sink, path, links, cb;
+
+            /* Called as add(sink, path) */
+            if (typeof (arguments[0]) === "object") {
+                sink = arguments[0];
+                sink = sink["series"] || sink;
+
+                /* The path argument can be an array, or a dot separated string */
+                path = arguments[1];
+                if (!path)
+                    path = [];
+                else if (typeof (path) === "string")
+                    path = path.split(".");
+
+                links = sink._register(self, id);
+                if (!links.length)
+                    sinks.push({ sink: sink, links: links });
+                links.push([path, row]);
+
+            /* Called as add(callback) */
+            } else if (typeof (arguments[0]) === "function") {
+                cb = [ arguments[0], row ];
+                if (arguments[1] === true)
+                    callbacks.unshift(cb);
+                else
+                    callbacks.push(cb);
+
+            /* Not called as add() */
+            } else if (arguments.length !== 0) {
+                throw "invalid args to grid.add()";
+            }
+
+            return row;
+        };
+
+        self.remove = function remove(row) {
+            var j, i, ilen, jlen;
+
+            /* Remove from the sinks */
+            ilen = sinks.length;
+            for (i = 0; i < ilen; i++) {
+                jlen = sinks[i].links.length;
+                for (j = 0; j < jlen; j++) {
+                    if (sinks[i].links[j][1] === row) {
+                        sinks[i].links.splice(j, 1);
+                        break;
+                    }
+                }
+            }
+
+            /* Remove from our list of rows */
+            ilen = rows.length;
+            for (i = 0; i < ilen; i++) {
+                if (rows[i] === row) {
+                    rows.splice(i, 1);
+                    break;
+                }
+            }
+        };
+
+        self.sync = function sync(for_walking) {
+            /* Suppress notifications */
+            suppress++;
+
+            /* Ask all sinks to load data */
+            var sink, i, len = sinks.length;
+            for (i = 0; i < len; i++) {
+                sink = sinks[i].sink;
+                sink.load(self.beg, self.end, for_walking);
+            }
+
+            suppress--;
+
+            /* Notify for all rows */
+            self.notify(0, self.end - self.beg);
+        };
+
+        /* Also works for negative zero */
+        function is_negative(n) {
+            return ((n = +n) || 1 / n) < 0;
+        }
+
+        function move_internal(beg, end, for_walking) {
+            if (end === undefined)
+                end = beg + (self.end - self.beg);
+
+            if (end < beg)
+                beg = end;
+
+            self.beg = beg;
+            self.end = end;
+
+            if (!rows.length)
+                return;
+
+            rows.forEach(function(row) {
+                row.length = 0;
+            });
+
+            self.sync(for_walking);
+        }
+
+        function stop_walking() {
+            window.clearInterval(walking);
+            walking = null;
+            offset = null;
+        }
+
+        self.move = function move(beg, end) {
+            stop_walking();
+            /* Some code paths use now twice.
+             * They should use the same value.
+             */
+            var now = null;
+
+            /* Treat negative numbers relative to now */
+            if (beg === undefined) {
+                beg = 0;
+            } else if (is_negative(beg)) {
+                now = now_func();
+                beg = Math.floor(now / self.interval) + beg;
+            }
+            if (end !== undefined && is_negative(end)) {
+                if (now === null)
+                    now = now_func();
+                end = Math.floor(now / self.interval) + end;
+            }
+
+            move_internal(beg, end, false);
+        };
+
+        self.walk = function walk() {
+            /* Don't overflow 32 signed bits with the interval since
+             * many browsers will mishandle it.  This means that plots
+             * that would make about one step every month don't walk
+             * at all, but I guess that is ok.
+             *
+             * For example,
+             * https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setTimeout
+             * says:
+             *
+             *    Browsers including Internet Explorer, Chrome,
+             *    Safari, and Firefox store the delay as a 32-bit
+             *    signed Integer internally. This causes an Integer
+             *    overflow when using delays larger than 2147483647,
+             *    resulting in the timeout being executed immediately.
+             */
+
+            var start = now_func();
+            if (self.interval > 2000000000)
+                return;
+
+            stop_walking();
+            offset = start - self.beg * self.interval;
+            walking = window.setInterval(function() {
+                var now = now_func();
+                move_internal(Math.floor((now - offset) / self.interval), undefined, true);
+            }, self.interval);
+        };
+
+        self.close = function close() {
+            stop_walking();
+            while (sinks.length)
+                (sinks.pop()).links.remove();
+        };
+
+        self.move(beg, end);
+    }
+
+    cockpit.grid = function grid(interval, beg, end) {
+        return new SeriesGrid(interval, beg, end);
     };
 }
 
@@ -2688,155 +3375,6 @@ function full_scope(cockpit, $, po) {
     };
 
     /* ---------------------------------------------------------------------
-     * Shared data cache.
-     *
-     * We cannot use sessionStorage when keeping lots of data in memory and
-     * sharing it between frames. It has a rather paltry limit on the amount
-     * of data it can hold ... so we use window properties instead.
-     */
-
-    function lookup_storage(win) {
-        var storage;
-        if (win.parent && win.parent !== win)
-            storage = lookup_storage(win.parent);
-        if (!storage) {
-            try {
-                storage = win["cv1-storage"];
-                if (!storage)
-                    win["cv1-storage"] = storage = { };
-            } catch(ex) { }
-        }
-        return storage;
-    }
-
-    function StorageCache(key, provider, consumer) {
-        var self = this;
-
-        /* For triggering events and ownership */
-        var trigger = window.sessionStorage;
-        var last;
-
-        var storage = lookup_storage(window);
-
-        var claimed = false;
-        var source;
-
-        function callback() {
-            /* Only run the callback if we have a result */
-            if (storage[key] !== undefined) {
-                if (consumer(storage[key], key) === false)
-                    self.close();
-            }
-        }
-
-        function result(value) {
-            if (source && !claimed)
-                claimed = true;
-            if (!claimed)
-                return;
-
-            // use a random number to avoid races by separate instances
-            var version = Math.floor(Math.random() * 10000000) + 1;
-
-            /* Event for the local window */
-            var ev = document.createEvent("StorageEvent");
-            ev.initStorageEvent("storage", false, false, key, null,
-                                version, window.location, trigger);
-
-            storage[key] = value;
-            trigger.setItem(key, version);
-            ev.self = self;
-            window.dispatchEvent(ev);
-        }
-
-        self.claim = function claim() {
-            if (!source)
-                source = provider(result, key);
-        };
-
-        function unclaim() {
-            if (source && source.close)
-                source.close();
-            source = null;
-
-            if (!claimed)
-                return;
-
-            claimed = false;
-
-            var current_value = trigger.getItem(key);
-            if (current_value)
-                current_value = parseInt(current_value, 10);
-            else
-                current_value = null;
-
-            if (last && last === current_value) {
-                var ev = document.createEvent("StorageEvent");
-                var version = trigger[key];
-                ev.initStorageEvent("storage", false, false, key, version,
-                                    null, window.location, trigger);
-                delete storage[key];
-                trigger.removeItem(key);
-                ev.self = self;
-                window.dispatchEvent(ev);
-            }
-        }
-
-        function changed(event) {
-            if (event.key !== key)
-                return;
-
-            /* check where the event came from
-               - it came from someone else:
-                   if it notifies their unclaim (new value null) and we haven't already claimed, do so
-               - it came from ourselves:
-                   if the new value doesn't match the actual value in the cache, and
-                   we tried to claim (from null to a number), cancel our claim
-             */
-            if (event.self !== self) {
-                if (!event.newValue && !claimed) {
-                    self.claim();
-                    return;
-                }
-            } else if (claimed && !event.oldValue && (event.newValue !== trigger.getItem(key))) {
-                unclaim();
-            }
-
-            var new_value = null;
-            if (event.newValue)
-                new_value = parseInt(event.newValue, 10);
-            if (last !== new_value) {
-                last = new_value;
-                callback();
-            }
-        }
-
-        self.close = function() {
-            window.removeEventListener("storage", changed, true);
-            unclaim();
-        };
-
-        window.addEventListener("storage", changed, true);
-
-        /* Always clear this data on unload */
-        window.addEventListener("beforeunload", function() {
-            self.close();
-        });
-        window.addEventListener("unload", function() {
-            self.close();
-        });
-
-        if (trigger.getItem(key))
-            callback();
-        else
-            self.claim();
-    }
-
-    cockpit.cache = function cache(key, provider, consumer) {
-        return new StorageCache(key, provider, consumer);
-    };
-
-    /* ---------------------------------------------------------------------
      * Metrics
      *
      */
@@ -3038,514 +3576,6 @@ function full_scope(cockpit, $, po) {
         return new MetricsChannel(interval, options);
     };
 
-    function SeriesSink(interval, identifier, fetch_callback) {
-        var self = this;
-
-        self.interval = interval;
-        self.limit = identifier ? 64 * 1024 : 1024;
-
-        /*
-         * The cache sits on a window, either our own or a parent
-         * window whichever we can access properly.
-         *
-         * Entries in the index are:
-         *
-         * { beg: N, items: [], mapping: { }, next: item }
-         */
-        var index = setup_index(identifier);
-
-        /*
-         * A linked list through the index, that we use for expiry
-         * of the cache.
-         */
-        var count = 0;
-        var head = null;
-        var tail = null;
-
-        function setup_index(id) {
-            if (!id)
-                return [];
-
-            /* Try and find a good place to cache data */
-            var storage = lookup_storage(window);
-
-            var index = storage[id];
-            if (!index)
-                storage[id] = index = [];
-            return index;
-        }
-
-        function search(idx, beg) {
-            var low = 0;
-            var high = idx.length - 1;
-            var mid, val;
-
-            while (low <= high) {
-                mid = (low + high) / 2 | 0;
-                val = idx[mid].beg;
-                if (val < beg)
-                    low = mid + 1;
-                else if (val > beg)
-                    high = mid - 1;
-                else
-                    return mid; /* key found */
-            }
-            return low;
-        }
-
-        function fetch(beg, end, for_walking) {
-            if (fetch_callback) {
-                if (!for_walking) {
-                    /* Stash some fake data synchronously so that we don't ask
-                     * again for the same range while they are still fetching
-                     * it asynchronously.
-                     */
-                    stash(beg, new Array(end-beg), { });
-                }
-                fetch_callback(beg, end, for_walking);
-            }
-        }
-
-        self.load = function load(beg, end, for_walking) {
-            if (end <= beg)
-                return;
-
-            var at = search(index, beg);
-
-            var entry;
-            var b, e, eb, en, i, len = index.length;
-            var last = beg;
-
-            /* We do this in two phases: First, we walk the index to
-             * process what we already have and at the same time make
-             * notes about what we need to fetch.  Then we go over the
-             * notes and actually fetch what we need.  That way, the
-             * fetch callbacks in the second phase can modify the
-             * index data structure without disturbing the walk in the
-             * first phase.
-             */
-
-            var fetches = [ ];
-
-            /* Data relevant to this range can be at the found index, or earlier */
-            for (i = at > 0 ? at - 1 : at; i < len; i++) {
-                entry = index[i];
-                en = entry.items.length;
-                if (!en)
-                    continue;
-
-                eb = entry.beg;
-                b = Math.max(eb, beg);
-                e = Math.min(eb + en, end);
-
-                if (b < e) {
-                    if (b > last)
-                        fetches.push([ last, b ]);
-                    process(b, entry.items.slice(b - eb, e - eb), entry.mapping);
-                    last = e;
-                } else if (i >= at) {
-                    break; /* no further intersections */
-                }
-            }
-
-            for (i = 0; i < fetches.length; i++)
-                fetch(fetches[i][0], fetches[i][1], for_walking);
-
-            if (last != end)
-                fetch(last, end, for_walking);
-        };
-
-        function stash(beg, items, mapping) {
-            if (!items.length)
-                return;
-
-            var at = search(index, beg);
-
-            var end = beg + items.length;
-            var remove = [ ];
-            var entry;
-            var num;
-
-            var b, e, eb, en, i, len = index.length;
-            for (i = at > 0 ? at - 1 : at; i < len; i++) {
-                entry = index[i];
-                en = entry.items.length;
-                if (!en)
-                    continue;
-
-                eb = entry.beg;
-                b = Math.max(eb, beg);
-                e = Math.min(eb + en, end);
-
-                /*
-                 * We truncate blocks that intersect with this one
-                 *
-                 * We could adjust them, but in general the loaders are
-                 * intelligent enough to only load the required data, so
-                 * not doing this optimization yet.
-                 */
-
-                if (b < e) {
-                    num = e - b;
-                    entry.items.splice(b - eb, num);
-                    count -= num;
-                    if (b - eb === 0)
-                        entry.beg += (e - eb);
-                } else if (i >= at) {
-                    break; /* no further intersections */
-                }
-            }
-
-            /* Insert our item into the array */
-            entry = { beg: beg, items: items, mapping: mapping };
-            if (!head)
-                head = entry;
-            if (tail)
-                tail.next = entry;
-            tail = entry;
-            count += items.length;
-            index.splice(at, 0, entry);
-
-            /* Remove any items with zero length around insertion point */
-            for (at--; at <= i; at++) {
-                entry = index[at];
-                if (entry && !entry.items.length) {
-                    index.splice(at, 1);
-                    at--;
-                }
-            }
-
-            /* If our index has gotten too big, expire entries */
-            while (head && count > self.limit) {
-                count -= head.items.length;
-                head.items = [];
-                head.mapping = null;
-                head = head.next || null;
-            }
-
-            /* Remove any entries with zero length at beginning */
-            len = index.length;
-            for (i = 0; i < len; i++) {
-                if (index[i].items.length > 0)
-                    break;
-            }
-            index.splice(0, i);
-        }
-
-        /*
-         * Used to populate grids, the keys are grid ids and
-         * the values are objects: { grid, rows, notify }
-         *
-         * The rows field is an object indexed by paths
-         * container aliases, and the values are: [ row, path ]
-         */
-        var registered = { };
-
-        /* An undocumented function called by DataGrid */
-        self._register = function _register(grid, id) {
-            if (grid.interval != interval)
-                throw "mismatched metric interval between grid and sink";
-            var gdata = registered[id];
-            if (!gdata) {
-                gdata = registered[id] = { grid: grid, links: [ ] };
-                gdata.links.remove = function remove() {
-                    delete registered[id];
-                };
-            }
-            return gdata.links;
-        };
-
-        function process(beg, items, mapping) {
-            var i, j, jlen, k, klen;
-            var data, path, row, map;
-            var id, gdata, grid;
-            var f, t, n, b, e;
-
-            var end = beg + items.length;
-
-            for (id in registered) {
-                gdata = registered[id];
-                grid = gdata.grid;
-
-                b = Math.max(beg, grid.beg);
-                e = Math.min(end, grid.end);
-
-                /* Does this grid overlap the bounds of item? */
-                if (b < e) {
-
-                    /* Where in the items to take from */
-                    f = b - beg;
-
-                    /* Where and how many to place */
-                    t = b - grid.beg;
-
-                    /* How many to process */
-                    n = e - b;
-
-                    for (i = 0; i < n; i++) {
-                        klen = gdata.links.length;
-                        for (k = 0; k < klen; k++) {
-                            path = gdata.links[k][0];
-                            row = gdata.links[k][1];
-
-                            /* Calulate the data field to fill in */
-                            data = items[f + i];
-                            map = mapping;
-                            jlen = path.length;
-                            for (j = 0; data !== undefined && j < jlen; j++) {
-                                if (!data) {
-                                    data = undefined;
-                                } else if (map !== undefined && map !== null) {
-                                    map = map[path[j]];
-                                    if (map)
-                                        data = data[map[""]];
-                                    else
-                                        data = data[path[j]];
-                                } else {
-                                    data = data[path[j]];
-                                }
-                            }
-
-                            row[t + i] = data;
-                        }
-                    }
-
-                    /* Notify the grid, so it can call any functions */
-                    grid.notify(t, n);
-                }
-            }
-        }
-
-        self.input = function input(beg, items, mapping) {
-            process(beg, items, mapping);
-            stash(beg, items, mapping);
-        };
-    }
-
-    cockpit.series = function series(interval, cache, fetch) {
-        return new SeriesSink(interval, cache, fetch);
-    };
-
-    var unique = 1;
-
-    function SeriesGrid(interval, beg, end) {
-        var self = this;
-
-        var rows = [];
-
-        self.interval = interval;
-        self.beg = 0;
-        self.end = 0;
-
-        /*
-         * Used to populate table data, the values are:
-         * [ callback, row ]
-         */
-        var callbacks = [ ];
-
-        var sinks = [ ];
-
-        var suppress = 0;
-
-        var id = "g1-" + unique;
-        unique += 1;
-
-        /* Used while walking */
-        var walking = null;
-        var offset = null;
-
-        self.notify = function notify(x, n) {
-            if (suppress)
-                return;
-            if (x + n > self.end - self.beg)
-                n = (self.end - self.beg) - x;
-            if (n <= 0)
-                return;
-            var j, jlen = callbacks.length;
-            var callback, row;
-            for (j = 0; j < jlen; j++) {
-                callback = callbacks[j][0];
-                row = callbacks[j][1];
-                callback.call(self, row, x, n);
-            }
-
-            $(self).triggerHandler("notify", [ x, n ]);
-        };
-
-        self.add = function add(/* sink, path */) {
-            var row = [];
-            rows.push(row);
-
-            var registered, sink, path, links, cb;
-
-            /* Called as add(sink, path) */
-            if (typeof (arguments[0]) === "object") {
-                sink = arguments[0];
-                sink = sink["series"] || sink;
-
-                /* The path argument can be an array, or a dot separated string */
-                path = arguments[1];
-                if (!path)
-                    path = [];
-                else if (typeof (path) === "string")
-                    path = path.split(".");
-
-                links = sink._register(self, id);
-                if (!links.length)
-                    sinks.push({ sink: sink, links: links });
-                links.push([path, row]);
-
-            /* Called as add(callback) */
-            } else if (typeof (arguments[0]) === "function") {
-                cb = [ arguments[0], row ];
-                if (arguments[1] === true)
-                    callbacks.unshift(cb);
-                else
-                    callbacks.push(cb);
-
-            /* Not called as add() */
-            } else if (arguments.length !== 0) {
-                throw "invalid args to grid.add()";
-            }
-
-            return row;
-        };
-
-        self.remove = function remove(row) {
-            var j, i, ilen, jlen;
-
-            /* Remove from the sinks */
-            ilen = sinks.length;
-            for (i = 0; i < ilen; i++) {
-                jlen = sinks[i].links.length;
-                for (j = 0; j < jlen; j++) {
-                    if (sinks[i].links[j][1] === row) {
-                        sinks[i].links.splice(j, 1);
-                        break;
-                    }
-                }
-            }
-
-            /* Remove from our list of rows */
-            ilen = rows.length;
-            for (i = 0; i < ilen; i++) {
-                if (rows[i] === row) {
-                    rows.splice(i, 1);
-                    break;
-                }
-            }
-        };
-
-        self.sync = function sync(for_walking) {
-            /* Suppress notifications */
-            suppress++;
-
-            /* Ask all sinks to load data */
-            var sink, i, len = sinks.length;
-            for (i = 0; i < len; i++) {
-                sink = sinks[i].sink;
-                sink.load(self.beg, self.end, for_walking);
-            }
-
-            suppress--;
-
-            /* Notify for all rows */
-            self.notify(0, self.end - self.beg);
-        };
-
-        /* Also works for negative zero */
-        function is_negative(n) {
-            return ((n = +n) || 1 / n) < 0;
-        }
-
-        function move_internal(beg, end, for_walking) {
-            if (end === undefined)
-                end = beg + (self.end - self.beg);
-
-            if (end < beg)
-                beg = end;
-
-            self.beg = beg;
-            self.end = end;
-
-            if (!rows.length)
-                return;
-
-            rows.forEach(function(row) {
-                row.length = 0;
-            });
-
-            self.sync(for_walking);
-        }
-
-        function stop_walking() {
-            window.clearInterval(walking);
-            walking = null;
-            offset = null;
-        }
-
-        self.move = function move(beg, end) {
-            stop_walking();
-            /* Some code paths use now twice.
-             * They should use the same value.
-             */
-            var now = null;
-
-            /* Treat negative numbers relative to now */
-            if (beg === undefined) {
-                beg = 0;
-            } else if (is_negative(beg)) {
-                now = $.now();
-                beg = Math.floor(now / self.interval) + beg;
-            }
-            if (end !== undefined && is_negative(end)) {
-                if (now === null)
-                    now = $.now();
-                end = Math.floor(now / self.interval) + end;
-            }
-
-            move_internal(beg, end, false);
-        };
-
-        self.walk = function walk() {
-            /* Don't overflow 32 signed bits with the interval since
-             * many browsers will mishandle it.  This means that plots
-             * that would make about one step every month don't walk
-             * at all, but I guess that is ok.
-             *
-             * For example,
-             * https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setTimeout
-             * says:
-             *
-             *    Browsers including Internet Explorer, Chrome,
-             *    Safari, and Firefox store the delay as a 32-bit
-             *    signed Integer internally. This causes an Integer
-             *    overflow when using delays larger than 2147483647,
-             *    resulting in the timeout being executed immediately.
-             */
-            if (self.interval > 2000000000)
-                return;
-
-            stop_walking();
-            offset = $.now() - self.beg * self.interval;
-            walking = window.setInterval(function() {
-                move_internal(Math.floor(($.now() - offset) / self.interval), undefined, true);
-            }, self.interval);
-        };
-
-        self.close = function close() {
-            stop_walking();
-            while (sinks.length)
-                (sinks.pop()).links.remove();
-        };
-
-        self.move(beg, end);
-    }
-
-    cockpit.grid = function grid(interval, beg, end) {
-        return new SeriesGrid(interval, beg, end);
-    };
-
     /* ---------------------------------------------------------------------
      * Ooops handling.
      *
@@ -3580,9 +3610,10 @@ function full_scope(cockpit, $, po) {
 var cockpit = { };
 var basics = false;
 var extra = false;
+
 function factory(jquery) {
     if (!basics) {
-        basic_scope(cockpit);
+        basic_scope(cockpit, jquery);
         basics = true;
     }
     if (!extra) {

@@ -62,7 +62,7 @@ def run_install_script(machine, do_build, do_install, skip, arg):
 def build_and_maybe_install(image, do_install=False, skip=None):
     """Build and maybe install Cockpit into a test image"""
     machine = testvm.VirtMachine(verbose=args.verbose, image=image, label="install")
-    source = subprocess.check_output([ "../tools/make-source" ]).strip()
+    source = subprocess.check_output([ os.path.join(testinfra.TEST_DIR, "..", "tools", "make-source") ]).strip()
     machine.start(maintain=do_install, memory_mb=4096, cpus=4)
     try:
         machine.wait_boot()

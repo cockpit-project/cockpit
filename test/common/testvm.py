@@ -818,7 +818,7 @@ class VirtMachine(Machine):
         self.image_base = os.path.join(testinfra.TEST_DIR, "images", self.image)
         self.image_file = os.path.join(self.run_dir, "%s.qcow2" % (self.image))
 
-        self._network_description = etree.parse(open(os.path.join(testinfra.TEST_DIR, "common/network-cockpit.xml")))
+        self._network_description = etree.parse(open(os.path.join(testinfra.TEST_DIR, "common", "network-cockpit.xml")))
 
         self.test_disk_desc_original = None
 

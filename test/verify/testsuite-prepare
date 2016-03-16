@@ -3,6 +3,7 @@
 set -e
 
 SELF=testsuite-prepare
+BASE="$(dirname $0)/.."
 
 vm_install_opts=
 
@@ -61,8 +62,8 @@ else
     BUILD_OS="$TEST_OS"
 fi
 
-./vm-reset
-./vm-download \
+$BASE/vm-reset
+$BASE/vm-download \
     $TEST_OS \
     $BUILD_OS \
     ipa \
@@ -70,14 +71,14 @@ fi
     fedora-stock
 
 install_failed=no
-if ! ./vm-install $vm_install_opts --build-image $BUILD_OS; then
+if ! $BASE/vm-install $vm_install_opts --build-image $BUILD_OS; then
     install_failed=yes
 fi
 
 # Upload the build logs if desired
 if [ -n "${TEST_ATTACHMENTS:-}" ]; then
     mkdir "$TEST_ATTACHMENTS"/build-results
-    cp -r ./tmp/build-results/*.log "$TEST_ATTACHMENTS"/build-results
+    cp -r $BASE/tmp/build-results/*.log "$TEST_ATTACHMENTS"/build-results
 fi
 
 if [ $install_failed == "yes" ]; then

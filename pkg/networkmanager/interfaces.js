@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
+require([
     "jquery",
     "base1/cockpit",
     "base1/mustache",
@@ -51,41 +51,40 @@ function show_unexpected_error(error) {
 }
 
 function select_btn(func, spec) {
-    var div, btn;
+    var choice = spec[0].choice;
 
     function option_mapper(opt) {
-        return $('<option>', { value: opt.choice }).text(opt.title);
+        return $('<li>', { value: opt.choice }).append($("<a>").text(opt.title));
     }
 
-    btn = $('<select class="form-control">').append(
-        spec.map(option_mapper)
+    var toggle = $('<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">').append(
+        $('<span class="pull-left"></span>'),
+        $('<div class="caret"></div>')
     );
 
-    btn.on('change', function () {
-        func(btn.val());
+    var btn = $('<div class="btn-group bootstrap-select dropdown form-control">').append(
+        toggle,
+        $('<ul class="dropdown-menu">').append(spec.map(option_mapper))
+    );
+
+    btn.on('click', 'li', function() {
+        choice = $(this).attr('value');
+        select(choice);
+        func(choice);
     });
 
-    function select (a) {
-        // Calling btn.selectpicker('val', a) would trigger the
-        // 'change' event, which we don't want.
-        btn.val(a);
-        btn.selectpicker('render');
+    function select(a) {
+        $("button span", btn).text($("li[value='" + a + "']", btn).text());
+        choice = a;
     }
 
-    function selected () {
-        return btn.val();
+    function selected() {
+        return choice;
     }
 
-    // The selectpicker is implemented by hiding the <select> element
-    // and creating new HTML as a sibling of it.  A standalone element
-    // like 'btn' can't have siblings (since it doesn't have a
-    // parent), so we have to wrap it into a <div>.
-
-    div = $('<div>').append(btn);
-    btn.selectpicker();
-
-    $.data(div[0], 'cockpit-select-btn-funcs', { select: select, selected: selected });
-    return div;
+    select(choice);
+    $.data(btn[0], 'cockpit-select-btn-funcs', { select: select, selected: selected });
+    return btn;
 }
 
 function select_btn_select(btn, choice) {
@@ -2046,7 +2045,7 @@ PageNetworkInterface.prototype = {
                         text(title).
                         css('vertical-align', rows.length > 1 ? "top" : "center"),
                     $('<td>').append(rows),
-                    $('<td style="text-align:right;vertical-align:top">').append(
+                    $('<td class="networking-configure">').append(
                         $('<button class="btn btn-default network-privileged">').
                             text(_("Configure")).
                             click(function () {
@@ -2160,9 +2159,9 @@ PageNetworkInterface.prototype = {
             return [ render_master(),
                      $('<tr>').append(
                          $('<td>').text(_("General")),
-                         $('<td>').append(
-                             $('<label style="font-weight:inherit">').append(
-                                 $('<input type="checkbox" style="margin-left:0px">').
+                         $('<td class="networking-controls">').append(
+                             $('<label>').append(
+                                 $('<input type="checkbox">').
                                      prop('checked', settings.connection.autoconnect).
                                      change(function () {
                                          settings.connection.autoconnect = $(this).prop('checked');
@@ -2274,7 +2273,7 @@ PageNetworkInterface.prototype = {
                                    (is_active?
                                     [ $('<td>').text(""), $('<td>').text("") ] :
                                     $('<td colspan="2">').text(device_state_text(dev))),
-                                   $('<td style="text-align:right">').append(
+                                   $('<td class="networking-row-configure">').append(
                                        switchbox(is_active, function(val) {
                                            if (val) {
                                                slave_con.activate(iface.Device).
@@ -2308,8 +2307,7 @@ PageNetworkInterface.prototype = {
                                     'data-toggle': 'dropdown'
                                   }).
                         text("+"),
-                    $('<ul>', { 'class': 'dropdown-menu',
-                                'style': 'right:0px;left:auto;min-width:0;text-align:left',
+                    $('<ul>', { 'class': 'dropdown-menu add-button',
                                 'role': 'menu'
                               }).
                         append(
@@ -2403,7 +2401,7 @@ PageNetworkIpSettings.prototype = {
         function inverted_switchbox(title, p) {
             var onoff;
             var btn = $('<span>').append(
-                $('<span style="margin-right:10px">').text(title),
+                $('<span class="inverted-switchbox">').text(title),
                 onoff = switchbox(!params[p], function(val) {
                     params[p] = !val;
                     self.update();
@@ -2454,10 +2452,10 @@ PageNetworkIpSettings.prototype = {
             var panel =
                 $('<div class="network-ip-settings-row">').append(
                     $('<div>').append(
-                        $('<span style="font-weight:bold">').text(title),
-                        $('<div style="float:right">').append(
+                        $('<strong>').text(title),
+                        $('<div class="pull-right">').append(
                             header_buttons,
-                            add_btn = $('<button class="btn btn-default" style="width:2em">').
+                            add_btn = $('<button class="btn btn-default">').
                                 text("+").
                                 css("margin-left", "10px").
                                 click(add()))),
@@ -2473,8 +2471,8 @@ PageNetworkIpSettings.prototype = {
                                                 set(i,j, $(event.target).val());
                                             }));
                                 }),
-                                $('<td style="text-align:right; padding-right: 0;">').append(
-                                    $('<button class="btn btn-default" style="width:2em">').
+                                $('<td>').append(
+                                    $('<button class="btn btn-default">').
                                         text(_("-")).
                                         click(remove(i)))));
                         })));
@@ -3320,6 +3318,6 @@ function init() {
     navigate();
 }
 
-return init;
+$(init);
 
 });

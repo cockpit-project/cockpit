@@ -31,24 +31,19 @@
     <script src="../system/bundle.js"></script>
     <script src="../shell/shell.js"></script>
     <script src="bundle.js"></script>
-<script>
-    require([
-        "jquery",
-        "network/interfaces"
-    ], function($, interfaces) {
-        $(interfaces);
-    });
-</script>
+    <!-- debug:start -->
+    <script src="interfaces.js"></script>
+    <!-- debug:end -->
 </head>
 <body hidden>
 
   <div id="networking" class="container-fluid page" hidden>
     <div class="row">
       <div id="networking-graph-toolbar" class="zoom-controls standard-zoom-controls">
-        <div class="dropdown" style="display:inline-block">
+        <div class="dropdown">
           <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-            <span style="width:6em;text-align:left;padding-left:5px;display:inline-block"></span>
-            <span class="caret"></span>
+            <span></span>
+            <div class="caret"></div>
           </button>
           <ul class="dropdown-menu" role="menu">
             <li role="presentation"><a role="menuitem" tabindex="-1" data-action="goto-now" translatable="yes">Go to now</a></li>
@@ -72,13 +67,13 @@
         <div>
           <span class="plot-unit" id="networking-tx-unit"></span><span class="plot-title" translatable="yes">Sending</span>
         </div>
-        <div style="height:120px" id="networking-tx-graph"></div>
+        <div id="networking-tx-graph"></div>
       </div>
       <div class="col-sm-6">
         <div>
           <span class="plot-unit" id="networking-rx-unit"></span><span class="plot-title" translatable="yes">Receiving</span>
         </div>
-        <div style="height:120px" id="networking-rx-graph"></div>
+        <div id="networking-rx-graph"></div>
       </div>
     </div>
     <br/>
@@ -86,7 +81,7 @@
          id="networking-interfaces">
       <div class="panel-heading">
         <span translatable="yes">Interfaces</span>
-        <div style="float:right">
+        <div class="pull-right">
           <button translatable="yes" id="networking-add-bond" class="btn btn-default network-privileged">Add Bond</button>
           <button translatable="yes" id="networking-add-bridge" class="btn btn-default network-privileged">Add Bridge</button>
           <button translatable="yes" id="networking-add-vlan" class="btn btn-default network-privileged">Add VLAN</button>
@@ -97,8 +92,8 @@
           <tr>
             <th translatable="yes">Name</th>
             <th translatable="yes">IP Address</th>
-            <th translatable="yes" style="width:20%">Sending</th>
-            <th translatable="yes" style="width:20%">Receiving</th>
+            <th translatable="yes" class="networking-speed">Sending</th>
+            <th translatable="yes" class="networking-speed">Receiving</th>
           </tr>
         </thead>
         <tbody>
@@ -330,10 +325,10 @@
     </ol>
     <div class="row">
       <div id="network-interface-graph-toolbar" class="zoom-controls standard-zoom-controls">
-        <div class="dropdown" style="display:inline-block">
+        <div class="dropdown">
           <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-            <span style="width:6em;text-align:left;padding-left:5px;display:inline-block"></span>
-            <span class="caret"></span>
+            <span></span>
+            <div class="caret"></div>
           </button>
           <ul class="dropdown-menu" role="menu">
             <li role="presentation"><a role="menuitem" tabindex="-1" data-action="goto-now" translatable="yes">Go to now</a></li>
@@ -357,24 +352,23 @@
         <div>
           <span class="plot-unit" id="network-interface-tx-unit"></span><span class="plot-title" translatable="yes">Sending</span>
         </div>
-        <div style="height:120px" id="network-interface-tx-graph"></div>
+        <div id="network-interface-tx-graph"></div>
       </div>
       <div class="col-sm-6">
         <div>
           <span class="plot-unit" id="network-interface-rx-unit"></span><span class="plot-title" translatable="yes">Receiving</span>
         </div>
-        <div style="height:120px" id="network-interface-rx-graph"></div>
+        <div id="network-interface-rx-graph"></div>
       </div>
     </div>
     <br/>
     <div class="panel panel-default">
       <div class="panel-heading">
         <span id="network-interface-name"></span>
-        <span style="margin-left:20px;margin-right:20px" id="network-interface-hw"></span>
+        <span id="network-interface-hw"></span>
         <span id="network-interface-mac"></span>
-        <div style="float:right">
-          <button class="btn btn-danger network-privileged" style="margin-right:20px"
-                  id="network-interface-delete" translatable="yes">
+        <div class="pull-right">
+          <button class="btn btn-danger network-privileged" id="network-interface-delete" translatable="yes">
             Delete
           </button>
           <div class="btn-group btn-onoff" id="network-interface-delete-switch" data-toggle="buttons">
@@ -399,10 +393,10 @@
         <thead>
           <tr>
             <th></th>
-            <th translatable="yes" style="width:20%">Sending</th>
-            <th translatable="yes" style="width:20%">Receiving</th>
-            <th style="width:10em"></th>
-            <th width="28px"></th>
+            <th translatable="yes" class="networking-speed">Sending</th>
+            <th translatable="yes" class="networking-speed">Receiving</th>
+            <th class="networking-spacer"></th>
+            <th class="networking-action"></th>
           </tr>
         </thead>
         <tbody>

@@ -377,7 +377,25 @@
                     <table>
                         <tr>
                             <td translatable="yes">Delay</td>
-                            <td id="shutdown-delay"></td>
+                            <td id="shutdown-delay">
+                                <div class="btn-group bootstrap-select dropdown form-control">
+                                    <button class="btn btn-default dropdown-toggle" type="button"
+                                        data-toggle="dropdown">
+                                        <span class="pull-left" translatable="yes">1 Minute</span>
+                                        <div class="caret"></div>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li value="1"><a translatable="yes">1 Minute</a></li>
+                                        <li value="5"><a translatable="yes">5 Minutes</a></li>
+                                        <li value="20"><a translatable="yes">20 Minutes</a></li>
+                                        <li value="40"><a translatable="yes">40 Minutes</a></li>
+                                        <li value="60"><a translatable="yes">60 Minutes</a></li>
+                                        <li role="separator" class="divider"></li>
+                                        <li value="0"><a translatable="yes">No Delay</a></li>
+                                        <li value="x"><a translatable="yes">Specific Time</a></li>
+                                    </ul>
+                                </div>
+                            </td>
                             <td>
                                 <div id="shutdown-time">
                                     <input class="form-control" style="width:3em;display:inline" value="18"/>

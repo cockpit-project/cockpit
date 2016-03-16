@@ -29,6 +29,7 @@
         'kubernetes.app',
         'registry.images',
         'registry.projects',
+        'registry.policy',
         'kubeClient',
         'kubeClient.cockpit'
     ])
@@ -77,9 +78,13 @@
         'imageData',
         'imageActions',
         'projectActions',
+        'projectData',
         'filterService',
-        function($scope, loader, select, imageData, imageActions, projectActions, filter) {
+        function($scope, loader, select, imageData, imageActions, projectActions, projectData, filter) {
             loader.load("projects");
+
+            /* Watch the policybindings for project access changes */
+            loader.watch("policybindings");
 
             /*
              * For now the dashboard  has to watch all images in
@@ -135,6 +140,7 @@
 
             $scope.createProject = projectActions.createProject;
             $scope.createImageStream = imageActions.createImageStream;
+            $scope.sharedProject = projectData.sharedProject;
 
             $scope.recentlyUpdated = function recentlyUpdated() {
                 return select().kind("ImageStream").buildRecentStreams();

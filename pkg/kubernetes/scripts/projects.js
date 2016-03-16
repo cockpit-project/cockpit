@@ -154,10 +154,28 @@
                 return mlist;
             }
 
+            function sharedProject(project) {
+                if (!project)
+                    return null;
+
+                var response = policy.whoCan(project, 'get', 'imagestreams/layers');
+                if (!response)
+                    return null;
+
+                var i, len, groups = response.groups || [];
+                for (i = 0, len = groups.length; i < len; i++) {
+                    if (groups[i] == "system:authenticated")
+                        return true;
+                }
+
+                return false;
+            }
+
             return {
                 subjectRoleBindings: subjectRoleBindings,
                 subjectIsMember: subjectIsMember,
                 formatMembers: formatMembers,
+                sharedProject: sharedProject,
             };
         }
     ])
@@ -180,25 +198,29 @@
                     };
 
                     var currProject = scope.id;
-                    loader.load("Project", null, null);
+                    loader.load("Project", null, currProject);
+
                     scope.project = function() {
                         return select().kind("Project").name(currProject).one();
                     };
-
                 },
                 templateUrl: "views/project-panel.html"
             };
         }
     ])
 
-    .directive('projectBody',
-        function() {
+    .directive('projectBody', [
+        'projectData',
+        function(data) {
             return {
                 restrict: 'A',
-                templateUrl: 'views/project-body.html'
+                templateUrl: 'views/project-body.html',
+                link: function(scope, element, attrs) {
+                    scope.sharedProject = data.sharedProject;
+                },
             };
         }
-    )
+    ])
 
     .directive('projectListing',
         function() {

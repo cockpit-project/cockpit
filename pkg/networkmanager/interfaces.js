@@ -1331,7 +1331,7 @@ PageNetworking.prototype = {
         function highlight_netdev_row(event, id) {
             $('#networking-interfaces tr').removeClass('highlight');
             if (id) {
-                $('#networking-interfaces tr[data-interface="' + shell.esc(id) + '"]').addClass('highlight');
+                $('#networking-interfaces tr[data-interface="' + encodeURIComponent(id) + '"]').addClass('highlight');
             }
         }
 
@@ -1396,7 +1396,7 @@ PageNetworking.prototype = {
                 var samples = usage_samples[iface];
                 var rx = samples[0][0];
                 var tx = samples[1][0];
-                var row = $('#networking-interfaces tr[data-sample-id="' + shell.esc(iface) + '"]');
+                var row = $('#networking-interfaces tr[data-sample-id="' + encodeURIComponent(iface) + '"]');
                 if (rx !== undefined && tx !== undefined && row.length > 0) {
                     row.find('td:nth-child(3)').text(cockpit.format_bits_per_sec(tx * 8));
                     row.find('td:nth-child(4)').text(cockpit.format_bits_per_sec(rx * 8));
@@ -1466,8 +1466,8 @@ PageNetworking.prototype = {
             self.tx_series.add_instance(iface.Name);
             add_usage_monitor(iface.Name);
 
-            tbody.append($('<tr>', { "data-interface": iface.Name,
-                                     "data-sample-id": is_active? iface.Name : null
+            tbody.append($('<tr>', { "data-interface": encodeURIComponent(iface.Name),
+                                     "data-sample-id": is_active? encodeURIComponent(iface.Name) : null
                                    }).
                          append($('<td>').text(iface.Name),
                                 $('<td>').html(render_active_connection(dev, false, true)),
@@ -1655,7 +1655,7 @@ PageNetworkInterface.prototype = {
         function highlight_netdev_row(event, id) {
             $('#network-interface-slaves tr').removeClass('highlight');
             if (id) {
-                $('#network-interface-slaves tr[data-interface="' + shell.esc(id) + '"]').addClass('highlight');
+                $('#network-interface-slaves tr[data-interface="' + encodeURIComponent(id) + '"]').addClass('highlight');
             }
         }
 
@@ -1717,7 +1717,7 @@ PageNetworkInterface.prototype = {
                 var samples = usage_samples[iface];
                 var rx = samples[0][0];
                 var tx = samples[1][0];
-                var row = $('#network-interface-slaves tr[data-sample-id="' + shell.esc(iface) + '"]');
+                var row = $('#network-interface-slaves tr[data-sample-id="' + encodeURIComponent(iface) + '"]');
                 if (row.length > 0) {
                     row.find('td:nth-child(2)').text(cockpit.format_bits_per_sec(tx * 8));
                     row.find('td:nth-child(3)').text(cockpit.format_bits_per_sec(rx * 8));
@@ -2222,8 +2222,8 @@ PageNetworkInterface.prototype = {
                     slave_ifaces[iface.Name] = true;
 
                     rows[iface.Name] =
-                        $('<tr>', { "data-interface": iface.Name,
-                                    "data-sample-id": is_active? iface.Name : null
+                        $('<tr>', { "data-interface": encodeURIComponent(iface.Name),
+                                    "data-sample-id": is_active? encodeURIComponent(iface.Name) : null
                                   }).
                             append($('<td>').text(iface.Name),
                                    (is_active?

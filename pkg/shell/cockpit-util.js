@@ -24,16 +24,6 @@ define([
     "base1/bootstrap-select",
 ], function($, cockpit, shell) {
 
-// Used for escaping things in HTML elements and attributes
-shell.esc = function esc(str) {
-    if (str === null || str === undefined)
-        return "";
-    var pre = document.createElement('pre');
-    var text = document.createTextNode(str);
-    pre.appendChild(text);
-    return pre.innerHTML.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-};
-
 shell.action_btn = function action_btn(func, spec, btn_classes) {
     var direct_btn, indirect_btns, btn;
     var direct_action, disabled;

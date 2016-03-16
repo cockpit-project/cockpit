@@ -79,7 +79,9 @@ echo foobar | passwd --stdin admin
 #     https://bugzilla.redhat.com/show_bug.cgi?id=1211547
 
 dnf -y upgrade dnf
-dnf -y upgrade
+
+# HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1318223
+dnf -y -v upgrade || dnf -y -v upgrade
 
 # We need avocado for some integration tests
 dnf -y -q copr enable lmr/Autotest

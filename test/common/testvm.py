@@ -416,6 +416,7 @@ class Machine:
         assert self.address
 
         self._ensure_ssh_master()
+        dest = os.path.join(testinfra.TEST_DIR, dest)
 
         cmd = [
             "scp", "-B",
@@ -441,6 +442,7 @@ class Machine:
         assert self.address
 
         self._ensure_ssh_master()
+        dest = os.path.join(testinfra.TEST_DIR, dest)
 
         cmd = [
             "scp", "-B",

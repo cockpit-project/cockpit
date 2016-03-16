@@ -52,7 +52,7 @@ class TestShutdownRestart(MachineCase):
         b.wait_popup("shutdown-dialog")
         b.wait_in_text("#shutdown-action", 'Restart')
         b.click("#shutdown-delay button")
-        b.click("a.opt span:contains('No Delay')")
+        b.click("a:contains('No Delay')")
         b.click("#shutdown-action")
         b.switch_to_top()
 
@@ -93,7 +93,7 @@ class TestShutdownRestart(MachineCase):
         b2.wait_popup("shutdown-dialog")
         b2.wait_in_text("#shutdown-action", 'Restart')
         b2.click("#shutdown-delay button")
-        b2.click("a.opt span:contains('No Delay')")
+        b2.click("a:contains('No Delay')")
         b2.click("#shutdown-action")
         b2.switch_to_top()
 
@@ -114,7 +114,7 @@ class TestShutdownRestart(MachineCase):
         b.wait_popup("shutdown-dialog")
         b.wait_in_text("#shutdown-action", 'Shutdown')
         b.click("#shutdown-delay button")
-        b.click("a.opt span:contains('No Delay')")
+        b.click("a:contains('No Delay')")
         b.click("#shutdown-action")
         b.switch_to_top()
         # we don't need to wait for the dialog to close here, just the disconnect

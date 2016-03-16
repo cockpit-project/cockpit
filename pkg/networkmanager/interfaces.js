@@ -24,7 +24,6 @@ define([
     "shell/controls",
     "shell/shell",
     "system/server",
-    "shell/cockpit-util",
     "shell/plot",
     "base1/patterns",
 ], function($, cockpit, Mustache, controls, shell, server) {
@@ -49,6 +48,52 @@ function show_unexpected_error(error) {
     $("#error-popup-message").text(error.message || error || "???");
     $('.modal[role="dialog"]').modal('hide');
     $('#error-popup').modal('show');
+}
+
+function select_btn(func, spec) {
+    var div, btn;
+
+    function option_mapper(opt) {
+        return $('<option>', { value: opt.choice }).text(opt.title);
+    }
+
+    btn = $('<select class="form-control">').append(
+        spec.map(option_mapper)
+    );
+
+    btn.on('change', function () {
+        func(btn.val());
+    });
+
+    function select (a) {
+        // Calling btn.selectpicker('val', a) would trigger the
+        // 'change' event, which we don't want.
+        btn.val(a);
+        btn.selectpicker('render');
+    }
+
+    function selected () {
+        return btn.val();
+    }
+
+    // The selectpicker is implemented by hiding the <select> element
+    // and creating new HTML as a sibling of it.  A standalone element
+    // like 'btn' can't have siblings (since it doesn't have a
+    // parent), so we have to wrap it into a <div>.
+
+    div = $('<div>').append(btn);
+    btn.selectpicker();
+
+    $.data(div[0], 'cockpit-select-btn-funcs', { select: select, selected: selected });
+    return div;
+}
+
+function select_btn_select(btn, choice) {
+    $.data(btn[0], 'cockpit-select-btn-funcs').select(choice);
+}
+
+function select_btn_selected(btn) {
+    return $.data(btn[0], 'cockpit-select-btn-funcs').selected();
 }
 
 /* NetworkManagerModel
@@ -2345,13 +2390,13 @@ PageNetworkIpSettings.prototype = {
         var auto_routes_btn, routes_table;
 
         function choicebox(p, choices) {
-            var btn = shell.select_btn(
+            var btn = select_btn(
                 function (choice) {
                     params[p] = choice;
                     self.update();
                 },
                 choices);
-            shell.select_btn_select(btn, params[p]);
+            select_btn_select(btn, params[p]);
             return btn;
         }
 
@@ -2617,7 +2662,7 @@ function slave_chooser_btn(change, slave_choices) {
         if ($(elt).prop('checked'))
             choices.push({ title: name, choice: name });
     });
-    return shell.select_btn(change, choices);
+    return select_btn(change, choices);
 }
 
 function free_slave_connection(con) {
@@ -2764,22 +2809,22 @@ PageNetworkBondSettings.prototype = {
             var btn = slave_chooser_btn(change_mode, slaves_element);
             primary_btn.replaceWith(btn);
             primary_btn = btn;
-            shell.select_btn_select(primary_btn, options.primary);
+            select_btn_select(primary_btn, options.primary);
             change_mode();
         }
 
         function change_mode() {
-            options.mode = shell.select_btn_selected(mode_btn);
+            options.mode = select_btn_selected(mode_btn);
 
             primary_btn.parents("tr").toggle(options.mode == "active-backup");
             if (options.mode == "active-backup")
-                options.primary = shell.select_btn_selected(primary_btn);
+                options.primary = select_btn_selected(primary_btn);
             else
                 delete options.primary;
         }
 
         function change_monitoring() {
-            var use_mii = shell.select_btn_selected(monitoring_btn) == "mii";
+            var use_mii = select_btn_selected(monitoring_btn) == "mii";
 
             targets_input.parents("tr").toggle(!use_mii);
             updelay_input.parents("tr").toggle(use_mii);
@@ -2817,11 +2862,11 @@ PageNetworkBondSettings.prototype = {
                       append(slaves_element = render_slave_interface_choices(model, master).
                              change(change_slaves));
         body.find('#network-bond-settings-mode-select').
-                      append(mode_btn = shell.select_btn(change_mode, bond_mode_choices));
+                      append(mode_btn = select_btn(change_mode, bond_mode_choices));
         body.find('#network-bond-settings-primary-select').
                       append(primary_btn = slave_chooser_btn(change_mode, slaves_element));
         body.find('#network-bond-settings-link-monitoring-select').
-                      append(monitoring_btn = shell.select_btn(change_monitoring, bond_monitoring_choices));
+                      append(monitoring_btn = select_btn(change_monitoring, bond_monitoring_choices));
 
         interval_input = body.find('#network-bond-settings-monitoring-interval-input');
         interval_input.change(change_monitoring);
@@ -2832,8 +2877,8 @@ PageNetworkBondSettings.prototype = {
         downdelay_input = body.find('#network-bond-settings-link-down-delay-input');
         downdelay_input.change(change_monitoring);
 
-        shell.select_btn_select(mode_btn, options.mode);
-        shell.select_btn_select(monitoring_btn, (options.miimon !== 0)? "mii" : "arp");
+        select_btn_select(mode_btn, options.mode);
+        select_btn_select(monitoring_btn, (options.miimon !== 0)? "mii" : "arp");
         change_slaves();
         change_mode();
         change_monitoring();
@@ -3114,7 +3159,7 @@ PageNetworkVlanSettings.prototype = {
 
         function change() {
             // XXX - parse errors
-            options.parent = shell.select_btn_selected(parent_btn);
+            options.parent = select_btn_selected(parent_btn);
             $("#network-vlan-settings-apply").toggleClass("disabled", !options.parent);
 
             options.id = parseInt(id_input.val(), 10);
@@ -3143,7 +3188,7 @@ PageNetworkVlanSettings.prototype = {
                        vlan_id: options.id || "1",
                        interface_name: options.interface_name
                    }));
-        parent_btn = shell.select_btn(change, parent_choices);
+        parent_btn = select_btn(change, parent_choices);
         body.find('#network-vlan-settings-parent-select').html(parent_btn);
         id_input = body.find('#network-vlan-settings-vlan-id-input').
                        change(change).
@@ -3152,7 +3197,7 @@ PageNetworkVlanSettings.prototype = {
                        change(change_name).
                        on('input', change_name);
 
-        shell.select_btn_select(parent_btn, (options.parent ||
+        select_btn_select(parent_btn, (options.parent ||
                                                (parent_choices[0] ?
                                                 parent_choices[0].choice :
                                                 "")));

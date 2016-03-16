@@ -21,7 +21,6 @@ define([
     "jquery",
     "base1/cockpit",
     "shell/shell",
-    "base1/bootstrap-select",
 ], function($, cockpit, shell) {
 
 shell.action_btn = function action_btn(func, spec, btn_classes) {
@@ -101,59 +100,6 @@ shell.action_btn_select = function action_btn_select(btn, action) {
 
 shell.action_btn_enable = function action_btn_enable(btn, action, val) {
     $.data(btn[0], 'cockpit-action-btn-funcs').enable(action, val);
-};
-
-shell.select_btn = function select_btn(func, spec) {
-    var div, btn;
-
-    function option_mapper(opt) {
-        if (opt.group && Array.isArray(opt.group)) {
-          var group = $('<optgroup>')
-              .attr('label', opt.title ? opt.title : "" )
-              .append(opt.group.map(option_mapper));
-          return group;
-        } else {
-          return $('<option>', { value: opt.choice }).text(opt.title);
-        }
-    }
-
-    btn = $('<select class="form-control">').append(
-        spec.map(option_mapper)
-    );
-
-    btn.on('change', function () {
-        func(btn.val());
-    });
-
-    function select (a) {
-        // Calling btn.selectpicker('val', a) would trigger the
-        // 'change' event, which we don't want.
-        btn.val(a);
-        btn.selectpicker('render');
-    }
-
-    function selected () {
-        return btn.val();
-    }
-
-    // The selectpicker is implemented by hiding the <select> element
-    // and creating new HTML as a sibling of it.  A standalone element
-    // like 'btn' can't have siblings (since it doesn't have a
-    // parent), so we have to wrap it into a <div>.
-
-    div = $('<div>').append(btn);
-    btn.selectpicker();
-
-    $.data(div[0], 'cockpit-select-btn-funcs', { select: select, selected: selected });
-    return div;
-};
-
-shell.select_btn_select = function select_btn_select(btn, choice) {
-    $.data(btn[0], 'cockpit-select-btn-funcs').select(choice);
-};
-
-shell.select_btn_selected = function select_btn_selected(btn) {
-    return $.data(btn[0], 'cockpit-select-btn-funcs').selected();
 };
 
 if (!shell.util)

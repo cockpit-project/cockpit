@@ -1159,31 +1159,30 @@ function PageSystemInformationChangeSystime() {
 PageShutdownDialog.prototype = {
     _init: function() {
         this.id = "shutdown-dialog";
+        this.delay = 0;
     },
 
     setup: function() {
-        $("#shutdown-delay").html(
-            this.delay_btn = shell.select_btn($.proxy(this, "update"),
-                                                [ { choice: "1",   title: _("1 Minute") },
-                                                  { choice: "5",   title: _("5 Minutes") },
-                                                  { choice: "20",  title: _("20 Minutes") },
-                                                  { choice: "40",  title: _("40 Minutes") },
-                                                  { choice: "60",  title: _("60 Minutes") },
-                                                  { group : [{ choice: "0",   title: _("No Delay") },
-                                                             { choice: "x",   title: _("Specific Time")}]}
-                                                ]).
-                css("display", "inline"));
+        var self = this;
 
-        $("#shutdown-time input").change($.proxy(this, "update"));
+        $("#shutdown-delay li").on("click", function(ev) {
+            self.delay = $(this).attr("value");
+            self.update();
+        });
+
+        $("#shutdown-time input").change($.proxy(self, "update"));
     },
 
     enter: function(event) {
+        var self = this;
+
         $("#shutdown-message").
             val("").
             attr("placeholder", _("Message to logged in users")).
             attr("rows", 5);
 
-        shell.select_btn_select(this.delay_btn, "1");
+        /* Track the value correctly */
+        self.delay = $("#shutdown-delay li:first-child").attr("value");
 
         if (PageShutdownDialog.type == 'shutdown') {
           $('#shutdown-dialog .modal-title').text(_("Shutdown"));
@@ -1204,11 +1203,11 @@ PageShutdownDialog.prototype = {
     },
 
     update: function() {
+        var self = this;
         var disabled = false;
 
-        var delay = shell.select_btn_selected(this.delay_btn);
-        $("#shutdown-time").toggle(delay == "x");
-        if (delay == "x") {
+        $("#shutdown-time").toggle(self.delay == "x");
+        if (self.delay == "x") {
             var h = parseInt($("#shutdown-time input:nth-child(1)").val(), 10);
             var m = parseInt($("#shutdown-time input:nth-child(3)").val(), 10);
             var valid = (h >= 0 && h < 24) && (m >= 0 && m < 60);
@@ -1217,19 +1216,20 @@ PageShutdownDialog.prototype = {
                 disabled = true;
         }
 
+        $("#shutdown-delay button span").text($("#shutdown-delay li[value='" + self.delay + "']").text());
         $("#shutdown-action").prop('disabled', disabled);
     },
 
     do_action: function(op) {
-        var delay = shell.select_btn_selected(this.delay_btn);
+        var self = this;
         var message = $("#shutdown-message").val();
         var when;
 
-        if (delay == "x")
+        if (self.delay == "x")
             when = ($("#shutdown-time input:nth-child(1)").val() + ":" +
                     $("#shutdown-time input:nth-child(3)").val());
         else
-            when = "+" + delay;
+            when = "+" + self.delay;
 
         var arg = (op == "shutdown") ? "--poweroff" : "--reboot";
 

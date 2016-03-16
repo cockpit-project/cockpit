@@ -205,10 +205,8 @@
     ])
 
     .directive('filterBar', [
-        'kubeLoader',
-        'kubeSelect',
         'filterService',
-        function(loader, select, filter) {
+        function(filter) {
             return {
                 restrict: 'E',
                 scope: true,
@@ -216,6 +214,20 @@
                     scope.filter =  filter;
                 },
                 templateUrl: 'views/filter-bar.html'
+            };
+        }
+    ])
+
+    .directive('filterProject', [
+        'filterService',
+        function(filter) {
+            return {
+                restrict: 'E',
+                scope: true,
+                link: function(scope, element, attrs) {
+                    scope.filter =  filter;
+                },
+                templateUrl: 'views/filter-project.html'
             };
         }
     ])
@@ -292,6 +304,10 @@
             }
 
             $rootScope.$on("$routeChangeSuccess", function (event, current, prev) {
+                loadNamespace(current);
+            });
+
+            $rootScope.$on("$routeUpdate", function (event, current, prev) {
                 loadNamespace(current);
             });
 

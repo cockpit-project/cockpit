@@ -9,11 +9,11 @@
     margin: 10px;
     display: flex;
     flex-direction: column;
-    flex-basis: 33%;
+    flex-basis: 25%;
 }
 
 .card-pf-wide {
-    flex-basis: ~"calc(66% + 20px)";
+    flex-basis: ~"calc(75% + 20px)";
 }
 
 .card-pf-heading {
@@ -25,11 +25,6 @@
         vertical-align: top;
         padding-right: 5px;
     }
-}
-
-.card-pf-body {
-    margin-top: 10px;
-    margin-bottom: auto;
 }
 
 .card-pf-utilization .card-pf-title {
@@ -46,45 +41,6 @@
 
 }
 
-.dashboard-summary {
-    min-width: 300px;
-
-    .card-pf-body {
-        padding-bottom: 5px;
-    }
-
-    i {
-        font-size: 40px;
-        float: left;
-        display: block;
-        margin: 10px 20px 110px 0;
-    }
-
-    img {
-        margin: 20px auto 0px auto;
-        display: block;
-    }
-
-    dl {
-        margin-left: 20px;
-    }
-
-    dt {
-        font-weight: 300;
-        float: right;
-        padding-top: 16px;
-        font-size: 12px;
-        width: 130px;
-        height: 26px;
-        margin-left: 10px;
-    }
-
-    dd {
-        font-size: 26px;
-        text-align: right;
-    }
-}
-
 .dashboard-storage {
     img {
         display: block;
@@ -94,8 +50,48 @@
 
 .dashboard-images {
     .card-pf-body {
-        margin: 10px -10px;
+        margin-top: 10px;
         padding-bottom: 0px;
+        margin-bottom: auto;
+
+        div {
+            padding: 7px 10px 10px 10px;
+            cursor: pointer;
+        }
+
+        div:hover {
+            background-color: @table-bg-hover;
+        }
+
+        ul {
+            background: linear-gradient(90deg, transparent 20px, @tag-border 20px, @tag-border 22px, transparent 22px);
+            background-size: 100% 20px;
+            background-repeat: no-repeat;
+            padding: 10px 0px 0px 20px;
+            margin-bottom: 0px;
+
+            li {
+                background: linear-gradient(180deg, transparent 8px, @tag-border 8px, @tag-border 10px, transparent 10px);
+                background-repeat: no-repeat;
+                padding-left: 7px;
+                display: inline;
+                list-style: none;
+            }
+
+            li:first-child {
+                padding-left: 15px;
+            }
+        }
+    }
+
+    .namespace-filter {
+        margin-top: -3px;
+    }
+
+    .all-images {
+        display: block;
+        float: right;
+        margin-bottom: 10px;
     }
 
     .table > tbody > tr > td {
@@ -108,23 +104,6 @@
         display: block;
         color: inherit;
         padding: 8px 15px;
-    }
-
-    .card-pf-body div {
-        padding: 7px 10px 10px 10px;
-        cursor: pointer;
-    }
-
-    .card-pf-footer {
-        background: none;
-        border: none;
-        padding: 0px 20px 10px 10px;
-        min-height: 0;
-        text-align: right;
-    }
-
-    .card-pf-body div:hover {
-        background-color: @table-bg-hover;
     }
 
     dt {
@@ -141,25 +120,6 @@
         margin-left: 20px;
     }
 
-    ul {
-        background: linear-gradient(90deg, transparent 20px, @tag-border 20px, @tag-border 22px, transparent 22px);
-        background-size: 100% 20px;
-        background-repeat: no-repeat;
-        padding: 10px 0px 0px 20px;
-        margin-bottom: 0px;
-
-        li {
-            background: linear-gradient(180deg, transparent 8px, @tag-border 8px, @tag-border 10px, transparent 10px);
-            background-repeat: no-repeat;
-            padding-left: 7px;
-            display: inline;
-            list-style: none;
-        }
-
-        li:first-child {
-            padding-left: 15px;
-        }
-    }
 }
 
 .dashboard-commands {

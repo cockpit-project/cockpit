@@ -1,6 +1,7 @@
 registry_VIEWS = \
 	pkg/registry/views/dashboard-page.html \
 	pkg/registry/views/filter-bar.html \
+	pkg/registry/views/filter-project.html \
 	pkg/registry/views/image-body.html \
 	pkg/registry/views/image-config.html \
 	pkg/registry/views/image-delete.html \

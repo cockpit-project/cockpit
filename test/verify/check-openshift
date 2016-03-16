@@ -238,7 +238,7 @@ class TestRegistry(MachineCase):
         o = self.openshift
 
         self.login_and_go("/registry")
-        b.wait_present(".dashboard-summary")
+        b.wait_present(".dashboard-images")
 
         b.wait_in_text(".card-pf-wide.dashboard-images", "default/busybox")
         b.wait_in_text(".card-pf-wide.dashboard-images", "marmalade/busybee")
@@ -374,10 +374,10 @@ class TestRegistry(MachineCase):
 
         self.login_and_go("/registry")
 
-        # Make sure the summary is not visible to non cluster admins
+        # Make sure the default view is not visible to non cluster admins
         b.wait_present(".dashboard-images")
         b.wait_visible(".dashboard-images:nth-child(1)")
-        b.wait_not_present(".dashboard-summary")
+        b.wait_not_in_text(".card-pf-wide.dashboard-images", "default/busybox")
 
 if __name__ == '__main__':
     test_main()

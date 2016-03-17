@@ -500,10 +500,6 @@
                 {
                     name: _("Kubernetes Manifest"),
                     type: "manifest",
-                },
-                {
-                    "name": _("Nulecule Application"),
-                    type: "nulecule",
                 }
             ];
 

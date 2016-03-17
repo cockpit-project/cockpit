@@ -76,7 +76,7 @@
             }
 
             /* Show after some seconds whether ready or not */
-            $timeout(visible, 1000);
+            $timeout(visible, 3000);
 
             /* Curtains related logic */
             function connect(force) {
@@ -85,7 +85,7 @@
                     $scope.settings = settings;
                     $scope.curtains = null;
                     filter.globals(settings.isAdmin);
-                    visible();
+                    filter.load().then(visible);
                 }, function(resp) {
                     $scope.curtains = { status: resp.status, message: resp.message || resp.statusText };
                     $scope.settings = null;
@@ -139,12 +139,13 @@
     ])
 
     .factory('filterService', [
+        '$q',
+        '$route',
+        '$rootScope',
         'kubeLoader',
         'kubeSelect',
         'KubeDiscoverSettings',
-        '$route',
-        '$rootScope',
-        function(loader, select, discoverSettings, $route, $rootScope) {
+        function($q, $route, $rootScope, loader, select, discoverSettings) {
             /*
              * We have the following cases to account for:
              *
@@ -161,12 +162,13 @@
 
             var globals = true;
 
-            discoverSettings().then(function(settings) {
+            var promise = discoverSettings().then(function(settings) {
+                var ret;
                 if (settings.flavor === "openshift")
-                    loader.load("projects");
-
+                    ret = loader.load("projects");
                 if (settings.isAdmin)
-                    loader.watch("namespaces");
+                    ret = loader.watch("namespaces");
+                return ret || $q.when([]);
             });
 
             /*
@@ -237,6 +239,9 @@
                 loadNamespace($route.current);
 
             return {
+                load: function() {
+                    return promise;
+                },
                 globals: function(value) {
                     if (arguments.length === 0)
                         return globals;

@@ -78,7 +78,7 @@
         'imageActions',
         'projectActions',
         'filterService',
-        function($scope, loader, select, imageData, imageActions, projectActions, filterService) {
+        function($scope, loader, select, imageData, imageActions, projectActions, filter) {
             loader.load("projects");
 
             /*
@@ -143,6 +143,8 @@
             $scope.projects = function projects() {
                 return select().kind("Project");
             };
+
+            $scope.filter = filter;
         }
     ]);
 

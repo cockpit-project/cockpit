@@ -46,5 +46,11 @@
     </tbody>
     <tbody data-ng-rubbish="" ng-if="0" ng-repeat-end>
     </tbody>
+    <thead class="listing-empty" ng-if="!quiet">
+        <tr>
+            <td colspan="3" ng-if="!failure" translatable="yes">No image streams are present.</td>
+            <td colspan="3" ng-if="failure">{{failure}}</td>
+        </tr>
+    </thead>
 </table>
 

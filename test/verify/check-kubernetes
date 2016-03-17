@@ -105,6 +105,7 @@ class TestConnection(KubernetesCase):
 
 @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-nulecule on rhel-7.")
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
+@unittest.skipIf(True, "Nulecule deploys temporarily removed.")
 class TestNulecule(KubernetesCase):
     def setUp(self):
         KubernetesCase.setUp(self)

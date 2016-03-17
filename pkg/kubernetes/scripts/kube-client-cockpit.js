@@ -949,7 +949,7 @@
                 step(loginOptions, loginOptions ? loginData : null);
 
                 defer.promise.cancel = function cancel() {
-                    if (kubectl)
+                    if (kubectl && kubectl.cancel)
                         kubectl.cancel("cancelled");
 
                     if (req)

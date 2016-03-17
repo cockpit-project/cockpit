@@ -28,14 +28,9 @@
     <script src="../base1/bundle.js"></script>
     <script src="../shell/shell.js"></script>
     <script src="bundle.js"></script>
-<script>
-    require([
-        "jquery",
-        "users/local"
-    ], function($, local) {
-        $(local);
-    });
-</script>
+    <!-- debug:start -->
+    <script src="local.js"></script>
+    <!-- debug:end -->
 </head>
 <body class="page" hidden>
 
@@ -63,7 +58,7 @@
 
     <div class="panel panel-default" id="account-details">
       <div class="panel-heading">
-        <div style="float:right">
+        <div class="pull-right">
           <button translatable="yes" class="btn btn-default accounts-privileged" id="account-logout">Terminate Session</button>
           <button translatable="yes" class="btn btn-danger accounts-privileged" id="account-delete">Delete</button>
         </div>
@@ -73,15 +68,14 @@
         <table class="cockpit-info-table col-sm-3">
           <tr>
             <td translatable="yes">Full Name</td>
-            <td style="vertical-align:bottom" class="accounts-privileged" id="account-real-name-wrapper"><input id="account-real-name" class="form-control" data-container="body"></td>
+            <td class="accounts-privileged" id="account-real-name-wrapper"><input id="account-real-name" class="form-control" data-container="body"></td>
           </tr>
           <tr>
             <td translatable="yes">User Name</td>
             <td id="account-user-name"></td>
           </tr>
           <tr>
-            <td translatable="yes"
-                style="vertical-align:top">Roles</td>
+            <td translatable="yes" class="align-top">Roles</td>
             <td id="account-roles">
               <div id="account-change-roles-roles">
               </div>
@@ -114,41 +108,12 @@
 
     <div class="panel panel-default" id="account-authorized-keys">
       <div class="panel-heading">
-        <div style="float:right">
+        <div class="pull-right">
           <button data-toggle="modal" data-target="#add-authorized-key-dialog" data-original-title="Add Public Key" class="btn btn-primary accounts-self-privileged fa fa-plus" id="authorized-key-add" title=""></button>
         </div>
         <span translatable="yes">Authorized Public SSH Keys</span>
       </div>
       <div class="list-group" id="account-authorized-keys-list">
-      </div>
-    </div>
-  </div>
-
-  <div class="modal" id="account-change-avatar-dialog"
-       tabindex="-1" role="dialog"
-       data-backdrop="static">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">Change Picture</h4>
-        </div>
-        <div class="modal-body">
-          <center>
-            <div style="position:relative;width:256px;height:256px">
-              <canvas id="account-change-avatar-canvas"></canvas>
-              <canvas id="account-change-avatar-overlay"
-                      style="position:absolute;top:0px;left:0px;z-index:10"></canvas>
-            </div>
-          </center>
-        </div>
-        <div class="modal-footer">
-          <button translatable="yes" class="btn btn-default" data-dismiss="modal">
-            Cancel
-          </button>
-          <button translatable="yes" class="btn btn-primary" id="account-change-avatar-apply">
-            Change
-          </button>
-        </div>
       </div>
     </div>
   </div>
@@ -370,7 +335,8 @@
           <h4 class="modal-title" translatable="yes">Add public key</h4>
         </div>
         <div class="modal-body">
-          <textarea id="authorized-keys-text" placeholder="Paste the contents of your public SSH key file here" class="form-control" style="resize:none;margin-bottom:10px"></textarea>
+          <textarea id="authorized-keys-text" placeholder="Paste the contents of your public SSH key file here"
+              class="form-control"></textarea>
         </div>
         <div class="modal-footer">
           <button class="btn btn-default" translatable="yes" id="cancel-authorized-key" data-dismiss="modal">

@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
+require([
     "jquery",
     "base1/cockpit",
     "base1/mustache",
@@ -1225,6 +1225,6 @@ function init() {
     navigate();
 }
 
-return init;
+$(init);
 
 });

@@ -1,4 +1,17 @@
-<div class="container-cards-pf dashboard-cards">
+<div class="blank-slate-pf" ng-show="!filter.namespaces().length">
+    <div class="blank-slate-pf-icon">
+        <i class="pficon pficon-add-circle-o"></i>
+    </div>
+    <h1 translatable="yes">Welcome to the Image Registry</h1>
+    <p translatable="yes">In order to begin pushing images to the registry, you need to create a project.</p>
+    <div class="blank-slate-pf-main-action">
+        <a ng-click="createProject()" class="card-pf-link-with-icon">
+            <i class="pficon pficon-add-circle-o"></i><span translatable="yes">New project</span>
+        </a>
+    </div>
+</div>
+
+<div class="container-cards-pf dashboard-cards" ng-show="filter.namespaces().length">
     <div class="card-pf dashboard-images">
         <div class="card-pf-heading">
             <h2 class="card-pf-title" translatable="yes">Images by project</h2>
@@ -24,7 +37,7 @@
         <div class="card-pf-heading">
             <h2 class="card-pf-title" translatable="yes">Images pushed recently</h2>
         </div>
-        <div class="card-pf-body">
+        <div class="card-pf-body" ng-if="recentlyUpdated().length">
             <div ng-repeat="data in recentlyUpdated()">
                 <dd title="{{ data.tags[0].items[0].created }}">
                     {{ data.tags[0].items[0].created | dateRelative }}</dd>
@@ -41,6 +54,13 @@
                 </ul>
             </div>
             <a href="#/images" class="all-images" translatable="yes">All images</a>
+        </div>
+        <div class="card-pf-body blank-slate-pf" ng-if="!recentlyUpdated().length">
+            <div class="blank-slate-pf-icon">
+                <i class="pficon pficon-add-circle-o"></i>
+            </div>
+            <h1 translatable="yes">No images pushed</h1>
+            <p translatable="yes">In order to begin pushing images to the registry, use the commands below.</p>
         </div>
         <div class="card-pf-footer">
             <filter-project class="pull-right">

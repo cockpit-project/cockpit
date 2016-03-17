@@ -20,6 +20,9 @@
 (function() {
     "use strict";
 
+    var MAX_RECENT_STREAMS = 15;
+    var MAX_RECENT_TAGS = 8;
+
     angular.module('registry', [
         'ngRoute',
         'ui.bootstrap',
@@ -77,8 +80,6 @@
         'filterService',
         function($scope, loader, select, imageData, imageActions, projectActions, filterService) {
             loader.load("projects");
-            loader.watch("users");
-            loader.watch("groups");
 
             /*
              * For now the dashboard  has to watch all images in
@@ -89,20 +90,59 @@
              */
             imageData.watchImages();
 
-            var c = loader.listen(function() {
-                $scope.projects = select().kind("Project");
-                $scope.users = select().kind("Project");
-                $scope.groups = select().kind("Group");
-                $scope.images = select().kind("Image");
-                $scope.imagestreams = select().kind("ImageStream");
-            });
+            function compareVersion(a, b) {
+                a = (a.metadata || { }).resourceVersion || 0;
+                b = (b.metadata || { }).resourceVersion || 0;
+                return b - a;
+            }
+            function compareCreated(a, b) {
+                a = (a.items[0] || { }).created || "";
+                b = (b.items[0] || { }).created || "";
+                return (b < a ? -1 : (b > a ? 1 : 0));
+            }
 
-            $scope.$on("$destroy", function() {
-                c.cancel();
+            function recentTags(data) {
+                var status = data.stream.status || { };
+                var tags = (status.tags || []).slice();
+                tags.sort(compareCreated);
+                tags.splice(MAX_RECENT_TAGS);
+            }
+
+            select.register("buildRecentStreams", function() {
+                var link, array = [];
+                for (link in this)
+                    array.push(this[link]);
+                array.sort(compareVersion);
+                array.splice(MAX_RECENT_STREAMS);
+
+                var result = [];
+                var status, tags, stream, i, len, total;
+                for (i = 0, len = array.length; i < len; i++) {
+                    stream = array[i];
+
+                    status = stream.status || { };
+                    tags = (status.tags || []).slice();
+                    tags.sort(compareCreated);
+                    total = tags.length;
+                    tags.splice(MAX_RECENT_TAGS);
+
+                    if (tags.length > 0)
+                        result.push({ stream: stream, tags: tags, truncated: total > tags.length });
+                }
+
+                return result;
             });
 
             $scope.createProject = projectActions.createProject;
             $scope.createImageStream = imageActions.createImageStream;
+
+            $scope.recentlyUpdated = function recentlyUpdated() {
+                return select().kind("ImageStream").buildRecentStreams();
+            };
+
+            $scope.projects = function projects() {
+                return select().kind("Project");
+            };
         }
     ]);
 

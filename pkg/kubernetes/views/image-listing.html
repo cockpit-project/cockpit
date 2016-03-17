@@ -38,8 +38,7 @@
             <td></td>
             <td ng-if="conf.author">{{ conf.author }}</td>
             <td ng-if="!conf.author">{{ image.dockerImageMetadata.Author }}</td>
-            <td ng-if="layer.v1Compatibility.created">{{ layer.v1Compatibility.created | dateRelative  }}</td>
-            <td ng-if="!layer.v1Compatibility.created">{{ image.dockerImageMetadata.Created | dateRelative }}</td>
+            <td title="{{ tag.items[0].created }}">{{ tag.items[0].created | dateRelative }}</td>
         </tr>
         <tr class="listing-panel" ng-if="listing.expanded(iid)" ng-init="id = iid" ng-repeat-end="">
             <td image-panel colspan="3"></td>

@@ -31,20 +31,20 @@ shared_MODULES = \
 	pkg/kubernetes/scripts/kube-client-cockpit.js \
 	pkg/kubernetes/scripts/date.js \
 	pkg/kubernetes/scripts/dialog.js \
+	pkg/kubernetes/scripts/images.js \
+	pkg/kubernetes/scripts/layers.js \
 	pkg/kubernetes/scripts/listing.js \
+	pkg/kubernetes/scripts/projects.js \
 	pkg/kubernetes/scripts/app.js \
 	pkg/kubernetes/scripts/utils.js \
-	pkg/kubernetes/scripts/registry/images.js \
-	pkg/kubernetes/scripts/registry/layers.js \
-	pkg/kubernetes/scripts/registry/projects.js \
 	$(NULL)
 
 shared_LESS = \
 	pkg/kubernetes/styles/variables-bootstrap.less \
 	pkg/kubernetes/styles/variables-patternfly.less \
-	pkg/kubernetes/styles/registry/images.less \
-	pkg/kubernetes/styles/registry/layers.less \
-	pkg/kubernetes/styles/registry/projects.less \
+	pkg/kubernetes/styles/images.less \
+	pkg/kubernetes/styles/layers.less \
+	pkg/kubernetes/styles/projects.less \
 	$(NULL)
 
 # Registry files
@@ -54,16 +54,14 @@ registry_VIEWS = \
 	$(NULL)
 
 registry_MODULES = \
-	pkg/kubernetes/scripts/registry/dashboard.js \
-	pkg/kubernetes/scripts/registry/main.js \
+	pkg/kubernetes/scripts/registry.js \
 	$(NULL)
 
 registry_LESS = \
-	pkg/kubernetes/styles/registry/main.less \
-	pkg/kubernetes/styles/registry/dashboard.less \
-	pkg/kubernetes/styles/registry/dropdown.less \
-	pkg/kubernetes/styles/registry/filter.less \
-	pkg/kubernetes/styles/registry/sidebar.less \
+	pkg/kubernetes/styles/registry.less \
+	pkg/kubernetes/styles/dropdown.less \
+	pkg/kubernetes/styles/filter.less \
+	pkg/kubernetes/styles/sidebar.less \
 	$(NULL)
 
 registry_MIN = \

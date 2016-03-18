@@ -137,6 +137,8 @@ CLEANFILES += \
 	pkg/base1/patterns.min.js \
 	pkg/base1/moment.min.js \
 	pkg/base1/mustache.min.js \
+	pkg/base1/react.min.js \
+	pkg/base1/react-dom.min.js \
 	pkg/base1/require.min.js \
 	pkg/base1/term.min.js \
 	$(base_GEN) \

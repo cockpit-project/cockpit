@@ -31,12 +31,12 @@ shared_MODULES = \
 	pkg/kubernetes/scripts/kube-client-cockpit.js \
 	pkg/kubernetes/scripts/date.js \
 	pkg/kubernetes/scripts/dialog.js \
+	pkg/kubernetes/scripts/images.js \
+	pkg/kubernetes/scripts/layers.js \
 	pkg/kubernetes/scripts/listing.js \
+	pkg/kubernetes/scripts/projects.js \
 	pkg/kubernetes/scripts/app.js \
 	pkg/kubernetes/scripts/utils.js \
-	pkg/kubernetes/scripts/registry/images.js \
-	pkg/kubernetes/scripts/registry/layers.js \
-	pkg/kubernetes/scripts/registry/projects.js \
 	$(NULL)
 
 shared_LESS = \
@@ -54,8 +54,7 @@ registry_VIEWS = \
 	$(NULL)
 
 registry_MODULES = \
-	pkg/kubernetes/scripts/registry/dashboard.js \
-	pkg/kubernetes/scripts/registry/main.js \
+	pkg/kubernetes/scripts/registry.js \
 	$(NULL)
 
 registry_LESS = \

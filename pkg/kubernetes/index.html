@@ -58,7 +58,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 </head>
 <body ng-app='kubernetes' ng-controller="MainCtrl" ng-class="{'cards-pf': viewActive(null)}" hidden>
-      <div class="kube-sidebar" ng-if="!curtains">
+    <div ng-cloak ng-if="!curtains">
+      <div class="icon-sidebar">
         <div>
           <ul>
             <li ng-class="{ active: viewActive(null)}">
@@ -94,6 +95,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           </ul>
         </div>
       </div>
+    </div>
 
       <div id="content" class="container-fluid" ng-view ng-if="!curtains" data-flavor="{{settings.flavor}}">
       </div>

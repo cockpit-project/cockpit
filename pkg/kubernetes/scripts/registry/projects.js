@@ -290,10 +290,10 @@
                 var display = fields.display.trim();
                 var description = fields.description.trim();
 
-                var project = {
-                    kind: "Project",
-                    apiVersion: "v1",
-                    metadata: {
+                var request = {
+                    kind: "ProjectRequest",
+                    apiVersion:"v1",
+                    metadata:{
                         name: fields.name.trim(),
                         annotations: {
                             "openshift.io/description": description,
@@ -302,9 +302,9 @@
                     }
                 };
 
-                return methods.check(project, { "metadata.name": "#project-new-name" })
+                return methods.check(request, { "metadata.name": "#project-new-name" })
                     .then(function() {
-                        return methods.create(project);
+                        return methods.create(request);
                     });
             };
         }

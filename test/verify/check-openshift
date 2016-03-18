@@ -261,7 +261,7 @@ class TestRegistry(MachineCase):
 
         # Add postgres into the stream
         output = o.execute("oc get imagestream --namespace=marmalade --output=json busybee")
-        self.assertNotIn(output, "postgres")
+        self.assertNotIn("postgres", output)
         b.click(".pficon-edit")
         b.wait_present("modal-dialog")
         b.wait_visible("#imagestream-modify-populate")
@@ -273,7 +273,7 @@ class TestRegistry(MachineCase):
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
         output = o.execute("oc get imagestream --namespace=marmalade --output=json busybee")
-        self.assertNotIn(output, "postgres")
+        self.assertIn("postgres", output)
 
         # Remove postgres into the stream
         b.click(".pficon-edit")
@@ -285,7 +285,7 @@ class TestRegistry(MachineCase):
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
         output = o.execute("oc get imagestream --namespace=marmalade --output=json busybee")
-        self.assertNotIn(output, "postgres")
+        self.assertNotIn("postgres", output)
 
         # Go to the images view and create a new imagestream
         b.click("#content a[href='#/images/marmalade']")

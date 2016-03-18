@@ -25,6 +25,7 @@
         'ui.cockpit',
         'kubeClient',
         'kubernetes.listing',
+        'ui.cockpit',
     ])
 
     .config(['$routeProvider',

@@ -155,15 +155,9 @@ func main() {
 	linkFiles(override, "/usr/share/cockpit/shell/override.json")
 	linkFiles(brand, "/etc/os-release")
 
-	/* TODO: Once we combine kubernetes and registry packages
-	 * this will need to change */
-	remove_override := path.Join(*confDir, "remove-dashboard-override.json")
 	if isRegistry {
 		registry_override := path.Join(*confDir, "registry-dashboard-override.json")
-		linkFiles(registry_override, "/usr/share/cockpit/registry/override.json")
-		linkFiles(remove_override, "/usr/share/cockpit/kubernetes/override.json")
-	} else {
-		linkFiles(remove_override, "/usr/share/cockpit/registry/override.json")
+		linkFiles(registry_override, "/usr/share/cockpit/kubernetes/override.json")
 	}
 
 	syscall.Exec(args[0], args, os.Environ())

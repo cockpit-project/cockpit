@@ -1,9 +1,8 @@
-<div class="listing-head" ng-click="select(id, $event)">
+<div class="listing-head" ng-click="listing.toggle(id)">
     <div class="listing-actions">
-        <button title="Adjust"  class="btn btn-default pficon pficon-edit"  data-toggle="modal" 
-            data-target="#adjust-route-dialog"  data-key="{{item.key}}"></button>
-        <button title="Delete" class="route-delete btn btn-danger btn-delete pficon pficon-delete " 
-            data-toggle="modal" data-target="#delete-entity-dialog" data-key="{{item.key}}">
+        <button title="Adjust"  class="btn btn-default pficon pficon-edit" ng-click="modifyRoute(item)"></button>
+        <button title="Delete" class="route-delete btn btn-danger btn-delete pficon pficon-delete "
+            ng-click="deleteItem(item)">
         </button>
     </div>
     <h3><i class="pficon pficon-route"></i>{{ item.metadata.name }}</h3>
@@ -15,11 +14,11 @@
     <div class="row">
         <div class="col-sm-6">
             <dl>
-                <dt ng-if="client.flavor == 'openshift'" translatable="yes">Project</dt>
-                <dt ng-if="client.flavor != 'openshift'" translatable="yes">Namespace</dt>
+                <dt ng-if="settings.flavor == 'openshift'" translatable="yes">Project</dt>
+                <dt ng-if="settings.flavor != 'openshift'" translatable="yes">Namespace</dt>
                 <dd>{{ item.metadata.namespace }}</dd>
                 <dt translatable="yes">Created</dt>
-                <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | timeAgo }}</dd>
+                <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | dateRelative }}</dd>
                 <dt translatable="yes">Host</dt>
                 <dd>{{ item.spec.host }}</dd>
 

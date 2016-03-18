@@ -1,33 +1,5 @@
-<div ng-if="state">
-    <table listing-table class="listing images-listing">
-        <thead ng-if="!quiet">
-            <tr>
-                <td colspan="4">
-                    <h3 translatable="yes">Image Repositories</h3>
-                </td>
-            </tr>
-            <tr>
-                <th translatable="yes">Image Repository</th>
-                <th translatable="yes">Images</th>
-                <th translatable="yes">Last Updated</th>
-            </tr>
-        </thead>
-        <tbody ng-class="{open: selected(id)}" class="active" ng-repeat="(id, item) in items">
-            <tr ng-init="latest = item.latest()" ng-click="select(item.repo)"
-                ng-if="!quiet && is_visible(item)" data-id="{{ id }}" class="listing-item">
-                <th>{{item.name}}</th>
-                <td>{{item.tags() | imagesTags }}</td>
-                <td title="{{ latest }}">{{latest | timeAgo }}</td>
-            </tr>
-            <tr class="listing-panel" ng-if="selected(item.repo)" data-id="{{ id }}">
-                <td listing-panel kind="ImageRepository" colspan="3"></td>
-            </tr>
-        </tbody>
-        <thead class="listing-empty" ng-if="!quiet">
-            <tr>
-                <td colspan="3" ng-if="!failure" translatable="yes">No image repositories are present.</td>
-                <td colspan="3" ng-if="failure">{{failure}}</td>
-            </tr>
-        </thead>
-    </table>
+<filter-bar class="content-filter">
+</filter-bar>
+
+<div image-listing>
 </div>

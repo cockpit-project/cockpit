@@ -1,12 +1,12 @@
 <div class="row">
     <div class="col-sm-6">
         <dl>
-            <dt ng-if="item === pod && client.flavor == 'openshift'" translatable="yes">Project</dt>
-            <dt ng-if="item === pod && client.flavor != 'openshift'" translatable="yes">Namespace</dt>
+            <dt ng-if="item === pod && settings.flavor == 'openshift'" translatable="yes">Project</dt>
+            <dt ng-if="item === pod && settings.flavor != 'openshift'" translatable="yes">Namespace</dt>
             <dd ng-if="item === pod">{{ pod.metadata.namespace }}</dd>
             <dt ng-if="pod.metadata.creationTimestamp" translatable="yes">Created</dt>
             <dd ng-if="pod.metadata.creationTimestamp"
-                title="{{ pod.metadata.creationTimestamp }}">{{ pod.metadata.creationTimestamp | timeAgo }}</dd>
+                title="{{ pod.metadata.creationTimestamp }}">{{ pod.metadata.creationTimestamp | dateRelative }}</dd>
             <dt translatable="yes">Restart Policy</dt>
             <dd>{{ pod.spec.restartPolicy }}</dd>
             <dt translatable="yes">Service Account</dt>

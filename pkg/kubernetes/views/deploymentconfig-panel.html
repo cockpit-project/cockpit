@@ -1,8 +1,7 @@
-<div class="listing-head" ng-click="select(id, $event)">
+<div class="listing-head" ng-click="listing.toggle(id)">
     <div class="listing-actions">
-        <button title="Delete" class="deployment-delete btn btn-danger btn-delete pficon pficon-delete delete-entity " 
-            data-toggle="modal" data-target="#delete-entity-dialog" data-link="{{ item.metadata.selfLink }}" 
-            data-key="{{item.key}}"></button>
+        <button title="Delete" class="deployment-delete btn btn-danger btn-delete pficon pficon-delete delete-entity "
+            ng-click="deleteItem(item)"></button>
     </div>
     <h3><i class="fa fa-gear"></i>{{ item.metadata.name }}</h3>
     <div class="listing-status">
@@ -19,11 +18,11 @@
     <div class="row">
         <div class="col-sm-6">
             <dl>
-                <dt ng-if="client.flavor == 'openshift'" translatable="yes">Project</dt>
-                <dt ng-if="client.flavor != 'openshift'" translatable="yes">Namespace</dt>
+                <dt ng-if="settings.flavor == 'openshift'" translatable="yes">Project</dt>
+                <dt ng-if="settings.flavor != 'openshift'" translatable="yes">Namespace</dt>
                 <dd>{{ item.metadata.namespace }}</dd>
                 <dt translatable="yes">Created</dt>
-                <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | timeAgo }}</dd>
+                <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | dateRelative }}</dd>
                 <dt translatable="yes">Replicas</dt>
                 <dd>{{ item.spec.replicas }}</dd>
 
@@ -66,6 +65,6 @@
 <div class="listing-body" ng-show="tab('template')" ng-if="item.spec.template">
     <kube-pod-body ng-init="pod = item.spec.template">
     </kube-pod-body>
-    <kube-container-body ng-repeat="container in client.containers(item.spec.template)">
+    <kube-container-body ng-repeat="container in containers(item.spec.template)">
     </kube-container-body>
 </div>

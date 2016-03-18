@@ -27,4 +27,3 @@ chmod 775 /etc/cockpit
 chmod 775 /etc/os-release
 chmod 775 /usr/share/cockpit/shell
 chmod 775 /usr/share/cockpit/kubernetes
-chmod 775 /usr/share/cockpit/registry

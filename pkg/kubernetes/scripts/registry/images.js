@@ -36,10 +36,11 @@
 
     angular.module('registry.images', [
         'ngRoute',
+        'ui.cockpit',
         'kubeClient',
         'kubernetes.date',
         'kubernetes.listing',
-        'registry.layers'
+        'registry.layers',
     ])
 
     .config([

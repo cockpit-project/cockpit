@@ -22,6 +22,7 @@
 
     angular.module('registry.projects', [
         'ngRoute',
+        'ui.cockpit',
         'kubeClient',
         'kubernetes.listing',
     ])

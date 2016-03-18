@@ -1060,8 +1060,8 @@
                 var wantNs = false;
 
                 objects.forEach(function(resource) {
-                    var meta = resource.metadata;
-                    if (resource.kind == "Namespace" && meta && meta.name === namespace)
+                    var meta = resource.metadata || { };
+                    if ((resource.kind == "Namespace" || resource.kind == "Project") && meta.name === namespace)
                         haveNs = true;
                     var schema = SCHEMA[resource.kind] || SCHEMA[""];
                     if (!schema.global)
@@ -1101,7 +1101,7 @@
                             var resp = response.data;
 
                             /* Ignore failures creating the namespace if it already exists */
-                            if (resource.kind == "Namespace" && resp && resp.code === 409) {
+                            if (resource.kind == "Namespace" && resp && (resp.code === 409 || resp.code === 403)) {
                                 debug("skipping namespace creation");
                                 step();
                             } else {

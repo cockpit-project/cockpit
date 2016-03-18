@@ -42,9 +42,9 @@ shared_MODULES = \
 shared_LESS = \
 	pkg/kubernetes/styles/variables-bootstrap.less \
 	pkg/kubernetes/styles/variables-patternfly.less \
-	pkg/kubernetes/styles/registry/images.less \
-	pkg/kubernetes/styles/registry/layers.less \
-	pkg/kubernetes/styles/registry/projects.less \
+	pkg/kubernetes/styles/images.less \
+	pkg/kubernetes/styles/layers.less \
+	pkg/kubernetes/styles/projects.less \
 	$(NULL)
 
 # Registry files
@@ -58,11 +58,10 @@ registry_MODULES = \
 	$(NULL)
 
 registry_LESS = \
-	pkg/kubernetes/styles/registry/main.less \
-	pkg/kubernetes/styles/registry/dashboard.less \
-	pkg/kubernetes/styles/registry/dropdown.less \
-	pkg/kubernetes/styles/registry/filter.less \
-	pkg/kubernetes/styles/registry/sidebar.less \
+	pkg/kubernetes/styles/registry.less \
+	pkg/kubernetes/styles/dropdown.less \
+	pkg/kubernetes/styles/filter.less \
+	pkg/kubernetes/styles/sidebar.less \
 	$(NULL)
 
 registry_MIN = \

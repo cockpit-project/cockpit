@@ -1,0 +1,20 @@
+#!/bin/sh -eu
+
+# This is the startup script for cockpit-ws when run in a privileged container
+#
+# The host file system must be mounted at /host
+#
+
+cd /
+PATH="/bin:/sbin"
+
+# Run the install command just to be sure
+/container/atomic-install || exit $?
+
+set +x
+
+/bin/mount --bind /host/usr/share/pixmaps /usr/share/pixmaps
+/bin/mount --bind /host/var /var
+
+# And run cockpit-ws
+exec /usr/bin/nsenter --net=/container/target-namespace/ns/net --uts=/container/target-namespace/ns/uts -- /usr/libexec/cockpit-ws "$@"

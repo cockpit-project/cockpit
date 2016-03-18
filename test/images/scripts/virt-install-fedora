@@ -59,7 +59,7 @@ autopart
 %post
 mkdir /root/.ssh
 chmod 700 /root/.ssh
-echo "$(cat $base/identity.pub)" > /root/.ssh/authorized_keys
+echo "$(cat $base/../../common/identity.pub)" > /root/.ssh/authorized_keys
 chmod 600 /root/.ssh/authorized_keys
 %end
 EOF

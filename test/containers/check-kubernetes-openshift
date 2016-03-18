@@ -102,6 +102,9 @@ class TestOpenshift(kubelib.KubernetesCase, kubelib.OpenshiftCommonTests):
         self.openshift = self.machine
         self.machine.wait_oc()
 
+        # Expect the default container user limitations during testing
+        self.openshift.execute("oc patch scc restricted -p '{ \"runAsUser\": { \"type\": \"MustRunAsRange\" } }'")
+
     def testLogin(self):
         b = self.browser
         self.machine.start_cockpit()

@@ -61,6 +61,10 @@ cp /openshift.local.config/master/admin.kubeconfig /root/.kube/config
 # Check if we can connect to openshift
 wait oc get namespaces
 
+# Tell openshift to allow root containers by default. Otherwise most
+# development examples just plain fail to work
+oc patch scc restricted -p '{ "runAsUser": { "type": "RunAsAny" } }'
+
 # Deploy the registry
 oadm registry --credentials=/openshift.local.config/master/openshift-registry.kubeconfig
 

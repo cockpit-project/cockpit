@@ -20,20 +20,50 @@
 (function() {
     "use strict";
 
-    angular.module('registry.dashboard', [
+    angular.module('registry', [
         'ngRoute',
-        'ui.cockpit',
+        'ui.bootstrap',
+        'kubernetes.app',
         'registry.images',
         'registry.projects',
+        'kubeClient',
+        'kubeClient.cockpit'
     ])
 
-    .config(['$routeProvider',
-        function($routeProvider) {
-            $routeProvider.when('/', {
-                templateUrl: 'views/registry-dashboard-page.html',
-                controller: 'DashboardCtrl',
-                reloadOnSearch: false,
-            });
+    .config([
+        '$routeProvider',
+        'KubeWatchProvider',
+        'KubeRequestProvider',
+        'KubeDiscoverSettingsProvider',
+        '$provide',
+        function($routeProvider, KubeWatchProvider, KubeRequestProvider,
+                 KubeDiscoverSettingsProvider, $provide) {
+
+            $routeProvider
+                .when('/', {
+                    templateUrl: 'views/registry-dashboard-page.html',
+                    controller: 'DashboardCtrl',
+                    reloadOnSearch: false,
+                })
+                .otherwise({ redirectTo: '/' });
+
+            /* Tell the kube-client code to use cockpit watches and requests */
+            KubeWatchProvider.KubeWatchFactory = "CockpitKubeWatch";
+            KubeRequestProvider.KubeRequestFactory = "CockpitKubeRequest";
+            KubeDiscoverSettingsProvider.KubeDiscoverSettingsFactory = "cockpitKubeDiscoverSettings";
+
+            $provide.decorator("$exceptionHandler",
+                ['$delegate',
+                 '$log',
+                 function($delegate, $log) {
+                    return function (exception, cause) {
+                        /* Displays an oops if we're running in cockpit */
+                        if (window.parent !== window && window.name.indexOf("cockpit1:") === 0)
+                            window.parent.postMessage("\n{ \"command\": \"oops\" }", "*");
+
+                        $delegate(exception, cause);
+                    };
+              }]);
         }
     ])
 

@@ -1,0 +1,47 @@
+#!/bin/sh -eu
+
+# This is the install script for cockpit-ws when run in a privileged container
+# We expect that cockpit-bridge and related stuff is already in the host.
+#
+# The host file system must be mounted at /host
+
+cd /
+PATH="/bin:/sbin"
+
+if [ ! -d /host/etc -o ! -d /host/proc -o ! -d /host/var/run ]; then
+    echo "cockpit-run: host file system is not mounted at /host" >&2
+    exit 1
+fi
+if [ ! -f /host/usr/bin/cockpit-bridge ]; then
+    echo "cockpit-run: cockpit-bridge must be installed in the host" >&2
+    exit 1
+fi
+if [ ! -d /host/usr/share/cockpit ]; then
+    echo "cockpit-run: cockpit-shell and other resources must be installed in the host" >&2
+    exit 1
+fi
+if [ -f /host/usr/libexec/cockpit-ws ]; then
+    echo "cockpit-ws must not be installed in the host" >&2
+    exit 1
+fi
+
+set -x
+
+# Copy the cockpit pam file into the host, since the PAM stack is gonna run
+# on the host with host PAM modules, and the host files, such as /etc/shadow
+# However we must ensure that it doesn't have selinux stuff ... because well,
+# containers and SELinux don't mix (yet?)
+sed -e '/pam_selinux/d' -e '/pam_sepermit/d' /etc/pam.d/cockpit > /host/etc/pam.d/cockpit
+
+# Make sure that we have required directories in the host
+mkdir -p /host/etc/cockpit/ws-certs.d
+chmod 755 /host/etc/cockpit/ws-certs.d
+chown root:root /host/etc/cockpit/ws-certs.d
+
+mkdir -p /host/var/lib/cockpit
+chmod 775 /host/var/lib/cockpit
+chown root:wheel /host/var/lib/cockpit
+
+# Ensure we have certificates
+/bin/mount --bind /host/etc/cockpit /etc/cockpit
+/usr/sbin/remotectl certificate --ensure

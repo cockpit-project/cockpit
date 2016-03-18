@@ -52,6 +52,7 @@
         { kind: "RoleBinding", type: "rolebindings", api: OPENSHIFT },
         { kind: "Route", type: "routes", api: OPENSHIFT },
         { kind: "Project", type: "projects", api: OPENSHIFT, global: true, create: -90 },
+        { kind: "ProjectRequest", type: "projectrequests", api: OPENSHIFT, global: true, create: -90 },
         { kind: "ReplicationController", type: "replicationcontrollers", api: KUBE, create: -60 },
         { kind: "Service", type: "services", api: KUBE, create: -80 },
         { kind: "User", type: "users", api: OPENSHIFT, global: true },

@@ -188,8 +188,10 @@ class AtomicCockpitInstaller:
         subprocess.check_call(["rm", "-rf", "/var/lib/dhcp"])
 
     def run(self):
-        # Delete previous deployment
-        subprocess.check_call(["ostree", "admin", "undeploy", "1"])
+        # Delete previous deployment if it's present
+        output = subprocess.check_output(["ostree", "admin", "status"])
+        if output.count("origin refspec") != 1:
+            subprocess.check_call(["ostree", "admin", "undeploy", "1"])
 
         self.setup_dirs()
 

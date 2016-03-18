@@ -379,5 +379,27 @@ class TestRegistry(MachineCase):
         b.wait_visible(".dashboard-images:nth-child(1)")
         b.wait_not_in_text(".card-pf-wide.dashboard-images", "default/busybox")
 
+        output = o.execute("oc get projects")
+        self.assertNotIn("llama", output)
+        b.wait_not_in_text(".dashboard-images:first-child", "llama")
+
+        # Create a new project
+        b.click(".new-project-link")
+        b.wait_present("modal-dialog")
+        b.wait_visible("#project-new-name")
+        b.set_val("#project-new-name", "invalid...!")
+        b.click(".btn-primary")
+        b.wait_visible(".dialog-error")
+        b.set_val("#project-new-name", "llama")
+        b.set_val("#project-new-display", "Display llama")
+        b.set_val("#project-new-description", "Description goes here")
+        b.click(".btn-primary")
+        b.wait_not_present("modal-dialog")
+
+        # Check that the projcet exists
+        output = o.execute("oc get projects")
+        self.assertIn("llama", output)
+        b.wait_in_text(".dashboard-images:first-child", "llama")
+
 if __name__ == '__main__':
     test_main()

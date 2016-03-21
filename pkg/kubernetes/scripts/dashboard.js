@@ -508,26 +508,12 @@
             $scope.namespaces = filter.namespaces();
             $scope.namespace = filter.namespace();
 
-            $scope.fileBtnClick = function(event) {
-                var parent = angular.element(event.target).parent()[0];
-                var file_input;
-                if (parent)
-                    file_input = parent.querySelector('#deploy-app-manifest-file');
-
-                if (file_input) {
-                    $timeout(function () {
-                        file_input.click();
-                    });
-                }
-            };
-
-            $scope.fileSelected = function(element) {
+            $scope.$on("file", function(ev, newFile) {
                 $scope.$applyAsync(function() {
-                    var files = element.files || [];
-                    file = files[0];
+                    file = newFile;
                     fields.filename = file ? file.name : "";
                 });
-            };
+            });
 
             $scope.performDeploy = function performDeploy() {
                 if ($scope.selected.type == 'manifest') {
@@ -539,5 +525,35 @@
                 $scope.selected = type;
             };
         }
-    ]);
+    ])
+
+    .directive('fileButton', function() {
+        return {
+            templateUrl: 'views/file-button.html',
+            restrict: 'A',
+            link: function($scope, element, attributes) {
+                var button, file_input;
+                if (element[0].children.length == 2) {
+                    button = element[0].children[1];
+                    file_input = element[0].children[0];
+                    button.onclick = function () {
+                        file_input.click();
+                    };
+                    file_input.onchange = function () {
+                        var files = file_input.files || [];
+                        $scope.$emit('file', files[0]);
+                    };
+                }
+
+                element.on('$destroy', function() {
+                    if (file_input)
+                        file_input.onchange = null;
+
+                    if (button)
+                        button.onclick = null;
+                });
+            }
+        };
+    });
+
 }());

@@ -1,19 +1,28 @@
-<filter-bar class="content-filter">
-</filter-bar>
-<div>
+<div class="content-filter">
+    <div class="listing-actions">
+        <button class="btn btn-danger btn-delete pficon pficon-delete"
+            disabled></button>
+        <button class="btn btn-default pficon pficon-edit"
+            disabled></button>
+    </div>
+    <h3>
+        <i class="pficon pficon-project"></i>
+        <span ng-if="project().metadata.annotations['openshift.io/display-name']">
+            {{ project().metadata.annotations['openshift.io/display-name'] }} ({{ project().metadata.name }})
+        </span>
+        <span ng-if="!project().metadata.annotations['openshift.io/display-name']">
+            {{ project().metadata.name }}
+        </span>
+    </h3>
+    <a ng-href="#/projects" translatable="yes">Show all projects</a>
+</div>
+<div class="listing-inline">
+    <p class="project-description" ng-if="project().metadata.annotations['openshift.io/description']">
+        {{ project().metadata.annotations['openshift.io/description'] }}
+    </p>
+    <h3 translatable="yes">Membership</h3>
     <table listing-table class="listing projects-listing">
         <thead>
-            <tr>
-                <td colspan="3">
-                    <a class="pull-right">
-                        <button class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
-                        <button class="btn btn-default pficon pficon-edit" disabled></button>
-                    </a>
-                    <h3 translatable="yes">{{ project().metadata.name }}</h3>
-                    <h4 translatable="yes">{{ project().metadata.annotations["openshift.io/description"] }}
-                    </h3>
-                </td>
-            </tr>
             <tr>
                 <th translatable="yes">Project Members</th>
                 <th translatable="yes">Roles</th>

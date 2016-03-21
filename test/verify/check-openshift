@@ -400,9 +400,28 @@ class TestRegistry(MachineCase):
         b.wait_not_present("modal-dialog")
 
         # Check that the projcet exists
+        b.wait_in_text(".dashboard-images:first-child", "llama")
+
+        # Go and modify the project
+        b.go("#/projects")
+        b.wait_present("tbody[data-id='llama']")
+        b.click("tbody[data-id='llama'] tr:first-child th:first-child")
+        b.wait_in_text(".content-filter h3", "Display llama (llama)")
+        b.wait_in_text("#content", "Description goes here")
+        b.click(".pficon-edit")
+        b.wait_present("modal-dialog")
+        b.wait_visible("#project-new-display")
+        b.set_val("#project-new-display", "What the llama say")
+        b.wait_visible("#project-new-description")
+        b.set_val("#project-new-description", "Blearrrrrrrrgh")
+        b.click(".btn-primary")
+        b.wait_not_present("modal-dialog")
+        b.wait_in_text(".content-filter h3", "What the llama say (llama)")
+        b.wait_in_text("#content", "Blearrrrrrrrgh")
+
+        # Make sure it showed up in the console
         output = o.execute("oc get projects")
         self.assertIn("llama", output)
-        b.wait_in_text(".dashboard-images:first-child", "llama")
 
 if __name__ == '__main__':
     test_main()

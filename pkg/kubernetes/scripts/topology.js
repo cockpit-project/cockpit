@@ -127,14 +127,16 @@
             var c = loader.listen(function(changed, removed) {
                 var selected_meta;
                 var relations = [];
+                var item;
                 var key;
 
                 $scope.items = select();
                 if ($scope.selected) {
                     selected_meta = $scope.selected.metadata || {};
-                    $scope.selected = select().kind($scope.selected.kind)
-                                              .namespace(selected_meta.namespace)
-                                              .name(selected_meta.name).one();
+                    item = select().kind($scope.selected.kind).name(selected_meta.name);
+                    if (selected_meta.namespace)
+                        item = item.namespace(selected_meta.namespace);
+                    $scope.selected = item.one();
                 }
 
                 for (key in $scope.items) {

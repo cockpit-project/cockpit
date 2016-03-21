@@ -121,7 +121,7 @@
             /* When the loader changes digest */
             loader.listen(function() {
                 $rootScope.$applyAsync();
-            });
+            }, $rootScope);
 
             $scope.changeAuth = function(ex) {
                 var promise = $modal.open({
@@ -202,7 +202,7 @@
                 if (settings.flavor === "openshift")
                     ret.push(loader.load("projects"));
                 if (settings.isAdmin)
-                    ret.push(loader.watch("namespaces"));
+                    ret.push(loader.watch("namespaces", $rootScope));
                 return $q.all(ret);
             });
 

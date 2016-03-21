@@ -73,9 +73,9 @@
         'ListingState',
         'roleActions',
         function($scope, $routeParams, $location, select, loader, projectData, projectAction, ListingState, roleAction) {
-            loader.watch("users");
-            loader.watch("groups");
-            loader.watch("policybindings");
+            loader.watch("users", $scope);
+            loader.watch("groups", $scope);
+            loader.watch("policybindings", $scope);
             var namespace = $routeParams["namespace"] || "";
             $scope.projName = namespace;
             if (namespace) {
@@ -121,8 +121,8 @@
         'roleActions',
         'ListingState',
         function($scope, $routeParams, $location, select, loader, projectData, projectAction, roleActions, ListingState) {
-            loader.watch("users");
-            loader.watch("groups");
+            loader.watch("users", $scope);
+            loader.watch("groups", $scope);
             var user = $routeParams["user"] || "";
             $scope.userName = user;
             if (user) {
@@ -169,8 +169,8 @@
         'roleActions',
         'ListingState',
         function($scope, $routeParams, $location, select, loader, projectData, projectAction, roleActions, ListingState) {
-            loader.watch("users");
-            loader.watch("groups");
+            loader.watch("users", $scope);
+            loader.watch("groups", $scope);
             var group = $routeParams["group"] || "";
             $scope.groupName = group;
             if (group) {
@@ -297,7 +297,7 @@
                     angular.forEach(projects, function(project) {
                         if (project && subjectIsMember(member, project.metadata.name))
                             projList.push(project);
-                    });                    
+                    });
                 }
                 return projList;
             }
@@ -642,7 +642,7 @@
                 return $modal.open({
                     controller: 'GroupNewCtrl',
                     templateUrl: 'views/add-group-dialog.html',
-                });                    
+                });
             }
             function addUserToGroup(groupObj) {
                 return $modal.open({
@@ -1140,7 +1140,7 @@
                     var idList = fields.identities.trim().split(",");
                     identities.push.apply(identities, idList);
                 }
-                    
+
                 return methods.check(data, { })
                     .then(function() {
                         return $q.all([
@@ -1185,7 +1185,7 @@
                         name: member.metadata.name,
                     };
                     chain = chain.then(function() {
-                        return projectPolicy.removeMemberFromPolicyBinding(policyBinding, 
+                        return projectPolicy.removeMemberFromPolicyBinding(policyBinding,
                             project.metadata.name, subjectRoleBindings, subject);
                     });
                 });
@@ -1209,15 +1209,15 @@
                         name: memberObj.metadata.name,
                     };
                     return projectPolicy.addToRole(project, role, subject);
-                   
+
                 } else if ($scope.selected.parentObj.kind === "Group") {
                     return memberActions.addUserToGroup($scope.fields.memberObj, $scope.selected.parentObj);
-                }            
+                }
             };
 
             $scope.removeMemberFromParent = function removeMemberFromParent() {
                 if ($scope.fields.parentObj.kind === "Group") {
-                    return memberActions.removeUserFromGroup($scope.fields.memberObj, $scope.fields.parentObj);              
+                    return memberActions.removeUserFromGroup($scope.fields.memberObj, $scope.fields.parentObj);
                 } else {
                     //Project
                     var member = $scope.fields.memberObj;

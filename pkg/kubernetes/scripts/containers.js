@@ -67,7 +67,7 @@
                     selector[key] = qs[key];
             }
 
-            var c = loader.listen(function() {
+            loader.listen(function() {
                 var pods = select().kind("Pod");
                 if ($routeParams.pod_namespace)
                     pods.namespace($routeParams.pod_namespace);
@@ -75,13 +75,9 @@
                     pods.label(selector);
 
                 $scope.pods = pods;
-            });
+            }, $scope);
 
-            $scope.$on("$destroy", function() {
-                c.cancel();
-            });
-
-            loader.watch("Pod");
+            loader.watch("Pod", $scope);
 
             $scope.listing = new ListingState($scope);
 
@@ -113,7 +109,7 @@
             var target = $routeParams["container_name"] || "";
             $scope.target = target;
 
-            var c = loader.listen(function() {
+            loader.listen(function() {
                 $scope.pod = select().kind("Pod")
                                    .namespace($routeParams.pod_namespace || "")
                                    .name($routeParams.pod_name  || "").one();
@@ -123,13 +119,9 @@
                             $scope.container = con;
                      });
                 }
-            });
+            }, $scope);
 
-            $scope.$on("$destroy", function() {
-                c.cancel();
-            });
-
-            loader.watch("Pod");
+            loader.watch("Pod", $scope);
 
             $scope.back = function() {
                 $route.updateParams({ "container_name" : undefined });

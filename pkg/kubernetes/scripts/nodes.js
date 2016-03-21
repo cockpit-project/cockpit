@@ -78,8 +78,8 @@
 
             $scope.stats = statsSummary.newNodeStatsSummary();
 
-            var c = loader.listen(function() {
-                var timer, selection;
+            loader.listen(function() {
+                var selection;
                 $scope.nodes = select().kind("Node");
                 if (target) {
                     selection = select().kind("Node").name(target);
@@ -87,13 +87,13 @@
                 } else {
                     selection = $scope.nodes;
                 }
-                $scope.stats.trackNodes(selection);
-            });
+                if ($scope.stats)
+                    $scope.stats.trackNodes(selection);
+            }, $scope);
 
-            loader.watch("Node");
+            loader.watch("Node", $scope);
 
             $scope.$on("$destroy", function() {
-                c.cancel();
                 if ($scope.stats)
                     $scope.stats.close();
                 $scope.stats = null;

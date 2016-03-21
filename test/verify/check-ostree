@@ -29,7 +29,7 @@ import testinfra
 INSTALL_RPMS = [
     "empty-1-0.noarch",
     "cockpit-ostree-wip-0.1.noarch",
-    "cockpit-networkmanager-wip-2.noarch",
+    "cockpit-kubernetes-wip-2.noarch",
 ]
 
 REPO_LOCATION = "/var/local-repo"
@@ -74,7 +74,6 @@ def generate_new_commit(m, pkg_to_remove):
     m.execute(command.format(*commit_args))
 
 @unittest.skipIf("atomic" not in os.environ.get("TEST_OS", ""), "Skipping check-ostree on non atomic systems.")
-@unittest.skipIf(testinfra.DEFAULT_IMAGE == "rhel-atomic", "rpm-ostree too old")
 class OstreeRestartCase(MachineCase):
 
     def setUp(self):
@@ -98,27 +97,37 @@ class OstreeRestartCase(MachineCase):
         b = self.browser
         m = self.machine
 
-        sos_pkg = m.execute("rpm -qa | grep cockpit-sosreport").strip()
+        docker_pkg = m.execute("rpm -qa | grep cockpit-docker").strip()
+
+        # HACK: https://github.com/candlepin/subscription-manager/issues/1404
+        m.execute("systemctl disable rhsmcertd || true")
+        m.execute("systemctl stop rhsmcertd || true")
+
         cockpit_shell = m.execute("rpm -qa | grep cockpit-ostree").strip()
-        cockpit_nm = m.execute("rpm -qa | grep cockpit-networkmanager").strip()
+        cockpit_kube = m.execute("rpm -qa | grep cockpit-kubernetes").strip()
 
         self.login_and_go("/updates")
         b.enter_page("/updates")
 
+        if "rhel-atomic" in m.image:
+            name = "rhel-atomic-host"
+        else:
+            name = "fedora-atomic"
+
         # Check current and rollback target
         b.wait_present('table.listing-ct')
-        b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', "fedora-atomic cockpit-base.1")
+        b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " cockpit-base.1")
         b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-check-circle-o')
         b.wait_present('table.listing-ct tbody:nth-child(3).active')
         b.wait_in_text('table.listing-ct tbody:nth-child(3) div.listing-ct-status', "Running")
         b.wait_not_present("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button")
 
         b.wait_visible("table.listing-ct tbody:nth-child(3) div.tree")
-        b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.os", "fedora-atomic")
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.os", name)
         b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.version", "cockpit-base.1")
         self.switch_to_packages(b, "table.listing-ct tbody:nth-child(3)",
                                 ['rpms-col1', 'rpms-col2'])
-        b.wait_in_text("table.listing-ct tbody:nth-child(3) div.packages", sos_pkg)
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) div.packages", docker_pkg)
         for pkg in INSTALL_RPMS:
             b.wait_not_in_text("table.listing-ct tbody:nth-child(3) div.packages", pkg)
 
@@ -126,7 +135,7 @@ class OstreeRestartCase(MachineCase):
         b.wait_present('table.listing-ct tbody:nth-child(4) i.fa-circle')
         b.wait_in_text('table.listing-ct tbody:nth-child(4) div.listing-ct-status', "Available")
         b.wait_in_text("table.listing-ct tbody:nth-child(4) div.listing-ct-actions button", "Roll back")
-        b.wait_in_text("table.listing-ct tbody:nth-child(4) dd.os", "fedora-atomic")
+        b.wait_in_text("table.listing-ct tbody:nth-child(4) dd.os", name)
         b.wait_visible("table.listing-ct tbody:nth-child(4) div.tree")
         b.wait_not_visible("table.listing-ct tbody:nth-child(4) div.packages")
 
@@ -147,7 +156,7 @@ class OstreeRestartCase(MachineCase):
         b.wait_present("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button:not('.disabled')")
 
         # Generate new commit
-        generate_new_commit(m, sos_pkg)
+        generate_new_commit(m, docker_pkg)
 
         # Check again have update data
         b.click("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button")
@@ -158,7 +167,7 @@ class OstreeRestartCase(MachineCase):
 
         # Check update data
         b.wait_visible("table.listing-ct tbody:nth-child(3) div.tree")
-        b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.os", "fedora-atomic")
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.os", name)
         b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.version", "cockpit-base.2")
         b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.timestamp", "seconds ago")
         self.check_change_counts(b, "table.listing-ct tbody:nth-child(3)")
@@ -167,10 +176,10 @@ class OstreeRestartCase(MachineCase):
                                 ['upgrades', 'downgrades',
                                  'additions', 'removals'])
 
-        b.wait_text("table.listing-ct tbody:nth-child(3) dl.upgrades dd", "cockpit-networkmanager-wip-2.noarch")
+        b.wait_text("table.listing-ct tbody:nth-child(3) dl.upgrades dd", "cockpit-kubernetes-wip-2.noarch")
         b.wait_text("table.listing-ct tbody:nth-child(3) dl.downgrades dd", "cockpit-ostree-wip-0.1.noarch")
         b.wait_text("table.listing-ct tbody:nth-child(3) dl.additions dd", "empty-1-0.noarch")
-        b.wait_text("table.listing-ct tbody:nth-child(3) dl.removals dd", sos_pkg)
+        b.wait_text("table.listing-ct tbody:nth-child(3) dl.removals dd", docker_pkg)
 
         # Force an error
         pid = m.execute('ps -C ostree -o pid h')
@@ -200,30 +209,30 @@ class OstreeRestartCase(MachineCase):
 
         # After reboot, check commit
         b.wait_present('table.listing-ct')
-        b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', "fedora-atomic cockpit-base.2")
+        b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " cockpit-base.2")
         b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-check-circle-o')
         b.wait_present('table.listing-ct tbody:nth-child(3) div.listing-ct-panel,active')
         b.wait_in_text('table.listing-ct tbody:nth-child(3) div.listing-ct-status', "Running")
         b.wait_not_present("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button")
         self.switch_to_packages(b, "table.listing-ct tbody:nth-child(3)",
                                 ['rpms-col1', 'rpms-col2'])
-        b.wait_not_in_text("table.listing-ct tbody:nth-child(3) div.packages", sos_pkg)
+        b.wait_not_in_text("table.listing-ct tbody:nth-child(3) div.packages", docker_pkg)
         for pkg in INSTALL_RPMS:
             b.wait_in_text("table.listing-ct tbody:nth-child(3) div.packages", pkg)
 
-        b.wait_text('table.listing-ct tbody:nth-child(4) div.listing-ct-head h3', "fedora-atomic cockpit-base.1")
+        b.wait_text('table.listing-ct tbody:nth-child(4) div.listing-ct-head h3', name + " cockpit-base.1")
         b.wait_present('table.listing-ct tbody:nth-child(4) i.fa-circle')
         b.wait_in_text('table.listing-ct tbody:nth-child(4) div.listing-ct-status', "Available")
         b.wait_in_text("table.listing-ct tbody:nth-child(4) div.listing-ct-actions button", "Roll back")
-        b.wait_in_text("table.listing-ct tbody:nth-child(4) dd.os", "fedora-atomic")
+        b.wait_in_text("table.listing-ct tbody:nth-child(4) dd.os", name)
         self.check_change_counts(b, "table.listing-ct tbody:nth-child(4)")
         self.switch_to_packages(b, "table.listing-ct tbody:nth-child(4)",
                                 ['upgrades', 'downgrades',
                                  'additions', 'removals'])
 
         b.wait_text("table.listing-ct tbody:nth-child(4) dl.upgrades dd", cockpit_shell)
-        b.wait_text("table.listing-ct tbody:nth-child(4) dl.downgrades dd", cockpit_nm)
-        b.wait_text("table.listing-ct tbody:nth-child(4) dl.additions dd", sos_pkg)
+        b.wait_text("table.listing-ct tbody:nth-child(4) dl.downgrades dd", cockpit_kube)
+        b.wait_text("table.listing-ct tbody:nth-child(4) dl.additions dd", docker_pkg)
         b.wait_text("table.listing-ct tbody:nth-child(4) dl.removals dd", "empty-1-0.noarch")
 
         # Rollback
@@ -253,12 +262,15 @@ class OstreeRestartCase(MachineCase):
 
 
 @unittest.skipIf("atomic" not in os.environ.get("TEST_OS", ""), "Skipping check-ostree on non atomic systems.")
-@unittest.skipIf(testinfra.DEFAULT_IMAGE == "rhel-atomic", "rpm-ostree too old")
 class OstreeCase(MachineCase):
 
     def testPermission(self):
         m = self.machine
         b = self.browser
+
+        # HACK: https://github.com/candlepin/subscription-manager/issues/1404
+        m.execute("systemctl disable rhsmcertd || true")
+        m.execute("systemctl stop rhsmcertd || true")
 
         # Create a user
         m.execute("useradd user -c 'User' || true")

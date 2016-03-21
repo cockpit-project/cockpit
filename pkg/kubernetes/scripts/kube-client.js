@@ -1093,9 +1093,17 @@
                     var path = resourcePath([resource.kind, null, namespace || "default"]);
                     request = new KubeRequest("POST", path, JSON.stringify(resource))
                         .then(function(response) {
+                            var meta;
+
                             debug("created resource:", path, response.data);
-                            if (response.data.kind)
+                            if (response.data.kind) {
+                                /* HACK: https://github.com/openshift/origin/issues/8167 */
+                                if (response.data.kind == "Project") {
+                                    meta = response.data.metadata || { };
+                                    delete meta.selfLink;
+                                }
                                 loader.handle(response.data);
+                            }
                             step();
                         }, function(response) {
                             var resp = response.data;

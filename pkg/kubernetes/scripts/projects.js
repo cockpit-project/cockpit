@@ -249,8 +249,8 @@
         function($modal) {
             function createProject() {
                 return $modal.open({
-                    controller: 'ProjectNewCtrl',
-                    templateUrl: 'views/add-project-dialog.html',
+                    controller: 'ProjectModifyCtrl',
+                    templateUrl: 'views/project-modify.html',
                 });
             }
             function createUser() {
@@ -273,7 +273,7 @@
         }
     ])
 
-    .controller('ProjectNewCtrl', [
+    .controller('ProjectModifyCtrl', [
         '$q',
         '$scope',
         "kubeMethods",

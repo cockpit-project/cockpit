@@ -517,6 +517,16 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         }
     ]);
 
+    kubeTest("check resource name missing", 1, null, [
+        "kubeMethods",
+        function(methods) {
+            var data = { kind: "Blah", metadata: {  } };
+            return methods.check(data).then(function() {
+                ok(true, "passed check");
+            }, null);
+        }
+    ]);
+
     kubeTest("check resource name namespace bad", 6, null, [
         "kubeMethods",
         function(methods) {

@@ -1159,10 +1159,12 @@
                 var meta = resource.metadata;
                 if (meta) {
                     ex = null;
-                    if (!meta.name)
-                        ex = new Error("The name cannot be empty");
-                    else if (!NAME_RE.test(meta.name))
-                        ex = new Error("The name contains invalid characters");
+                    if (meta.name !== undefined) {
+                        if (!meta.name)
+                            ex = new Error("The name cannot be empty");
+                        else if (!NAME_RE.test(meta.name))
+                            ex = new Error("The name contains invalid characters");
+                    }
                     if (ex) {
                         ex.target = targets["metadata.name"];
                         exs.push(ex);

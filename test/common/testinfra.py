@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import datetime
 import errno
 import httplib
 import json
@@ -345,6 +346,19 @@ class GitHub(object):
             raise Exception("GitHub API problem: {0}".format(response['reason'] or status))
         return json.loads(response['data'])
 
+    def issue_comments(self, number):
+        result = [ ]
+        page = 1
+        count = 100
+        while count == 100:
+            comments = self.get("issues/{0}/comments?page={1}&per_page={2}".format(number, page, count))
+            count = 0
+            page += 1
+            if comments:
+                result += comments
+                count = len(comments)
+        return result
+
     def statuses(self, revision):
         result = { }
         page = 1
@@ -578,6 +592,84 @@ class GitHub(object):
         random.seed()
         task_entries = filter(filter_entries, task_entries)
         return sorted(task_entries, key=sort_key, reverse=True)
+
+    # Update a known issue thread on GitHub
+    #
+    # The idea is to combine repeated errors into fewer commits by
+    # editing them and keeping all relevant information.
+    #
+    # For this we keep one comment per context (e.g. 'verify/fedora-24')
+    # and divide that into sections, one each per error description / trace.
+    # In each section, we keep the error description / trace as well as
+    # the number of recorded events, the first occurrence and the last 10
+    # occurrences.
+    # For each (listed) occurrence we display the timestamp and some details
+    # provided by the caller, such as a revision or link to log files.
+    # The details can't contain newline characters and should be brief
+
+    def update_known_issue(self, number, err, details, context, timestamp=None):
+        timestamp = timestamp or datetime.datetime.now().isoformat()
+
+        link = timestamp
+        if details:
+            link = "{0} | {1}".format(timestamp, details)
+
+        comments = self.issue_comments(number)
+
+        # try to find an existing comment to update
+        comment_key = "{0}\n".format(context)
+        err_key = """
+```
+{0}
+```""".format(err.strip())
+        latest_occurrences = "Latest occurrences:\n\n"
+        for comment in reversed(comments):
+            if 'body' in comment and comment['body'].startswith(comment_key):
+                parts = comment['body'].split("<hr>")
+                updated = False
+                for part_idx, part in enumerate(parts):
+                    if part.startswith(err_key):
+                        latest = part.split(latest_occurrences)
+                        if len(latest) < 2:
+                            sys.stderr.write("Error while parsing latest occurrences\n")
+                        else:
+                            # number of times this error was recorded
+                            header = latest[0].split("\n")
+                            for header_idx, entry in enumerate(header):
+                                if entry.startswith("Times recorded: "):
+                                    rec_entries = entry.split(" ")
+                                    rec_entries[-1] = str(int(rec_entries[-1]) + 1)
+                                    header[header_idx] = " ".join(rec_entries)
+                            latest[0] = "\n".join(header)
+                            # list of recent occurrences
+                            occurrences = filter(None, latest[1].split("\n"))
+                            occurrences.append("- {0}\n".format(link))
+                            # only keep the last 10
+                            if len(occurrences) > 10:
+                                occurrences.pop(0)
+                            parts[part_idx] = "{0}{1}{2}".format(latest[0], latest_occurrences, "\n".join(occurrences))
+                            updated = True
+                        break
+                if not updated:
+                    parts.append("""{0}
+First occurrence: {1}
+Times recorded: 1
+{2}- {1}
+""".format(err_key, link, latest_occurrences))
+                    updated = True
+
+                # update comment, no need to check others
+                return self.patch("issues/comments/{0}".format(comment['id']), { "body": "<hr>".join(parts) })
+
+        # create a new comment, since we didn't find one to update
+
+        data = { "body": """{0}\nOoops, it happened again<hr>{1}
+First occurrence: {2}
+Times recorded: 1
+{3}- {2}
+""".format(context, err_key, link, latest_occurrences) }
+        return self.post("issues/{0}/comments".format(number), data)
+
 
 def eintr_retry_call(func, *args):
     while True:

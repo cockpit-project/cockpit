@@ -731,21 +731,20 @@ class Naughty(object):
         if not github.available:
             return False
 
+        context = "verify/{0}".format(testinfra.DEFAULT_IMAGE)
+
         # Lookup the link being logged to
-        context = testinfra.DEFAULT_IMAGE
-        link = ""
+        link = None
         revision = os.environ.get("TEST_REVISION", None)
         if revision:
+            link = "revision {0}".format(revision)
             statuses = github.get("commits/{0}/statuses".format(revision))
             if statuses:
                 for status in statuses:
                     if status["context"] == context:
-                        link = status["target_url"]
+                        link = "revision {0}, [logs]({1})".format(revision, status["target_url"])
                         break
-
-        # Build a lovely little message
-        data = { "body": "Ooops, it happened again\n```\n{0}\n```\n{1}\n".format(err.strip(), link) }
-        github.post("issues/{0}/comments".format(number), data)
+        github.update_known_issue(number, err, link, context)
         return True
 
     def check_issue(self, trace):

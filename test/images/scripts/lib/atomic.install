@@ -85,6 +85,10 @@ class AtomicCockpitInstaller:
                                "http://127.0.0.1:{0}".format(port.strip()),
                                "--no-gpg-verify"])
 
+        # HACK: https://github.com/candlepin/subscription-manager/issues/1404
+        subprocess.call(["systemctl", "disable", "rhsmcertd"])
+        subprocess.call(["systemctl", "stop", "rhsmcertd"])
+
         status = subprocess.check_output(["rpm-ostree", "status"])
         if "local:" in status:
             subprocess.check_call(["rpm-ostree", "upgrade"])

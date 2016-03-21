@@ -98,7 +98,7 @@ def build_and_install(install_image, build_image, args):
     args.setdefault("address", None)
     try:
         skip = "cockpit-ostree"
-        if install_image and "fedora-atomic" in install_image:
+        if install_image and "atomic" in install_image:
             skip = None
 
         if not args["address"] and build_image and build_image == install_image:

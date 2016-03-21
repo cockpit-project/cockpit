@@ -3,8 +3,17 @@
         <button class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
         <button class="btn btn-default pficon pficon-edit" disabled></button>
     </div>
-    <h3><i class="pficon pficon-project"></i>{{ project().metadata.name }}</h3>
-    <h4>{{ project().metadata.annotations["openshift.io/description"] }}</h4>
+    <h3><i class="pficon pficon-project"></i>
+        <span ng-if="project().metadata.annotations['openshift.io/description']">
+            {{ project().metadata.annotations['openshift.io/display-name'] }} ({{ project().metadata.name }})
+        </span>
+        <span ng-if="!project().metadata.annotations['openshift.io/description']">
+            {{ project().metadata.name }}
+        </span>
+        <span class="project-description" ng-if="project().metadata.annotations['openshift.io/description']">
+            <br>{{ project().metadata.annotations['openshift.io/description'] }}
+        </span>
+    </h3>
 </div>
 <div class="listing-body project-panel" ng-show="tab('main')">
     <div>

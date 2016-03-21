@@ -44,7 +44,11 @@ docker pull openshift/origin
 container=$(docker create openshift/origin)
 docker cp $container:/usr/bin - | tar -C /usr -xf - bin/openshift bin/oc bin/oadm bin/kubectl
 
-printf "[Unit]\nDescription=Openshift\n[Service]\nExecStart=/usr/bin/openshift start --master=10.111.112.101\n[Install]\nWantedBy=multi-user.target\n" > /etc/systemd/system/openshift.service
+# Runs a master if on the right address, otherwise runs a node
+printf '#!/bin/sh -ex\nif /usr/sbin/ip addr | /usr/bin/grep -i "52:54:00:9e:00:f1"; then\n/usr/bin/openshift start --master=10.111.112.101\nelse\n/usr/bin/hostnamectl set-hostname node-$(/usr/bin/cat /etc/machine-id)\n/usr/bin/openshift start node --kubeconfig=/openshift.local.config/node-f1.cockpit.lan/node.kubeconfig\nfi\n' > /openshift-run
+chmod +x /openshift-run
+
+printf '[Unit]\nDescription=Openshift\n[Service]\nExecStart=/openshift-run\n[Install]\nWantedBy=multi-user.target\n' > /etc/systemd/system/openshift.service
 
 systemctl daemon-reload
 systemctl enable openshift

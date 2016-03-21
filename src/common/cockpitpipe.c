@@ -171,6 +171,8 @@ close_immediately (CockpitPipe *self,
     stop_input (self);
   if (self->priv->out_source)
     stop_output (self);
+  if (self->priv->err_source)
+    stop_error (self);
 
   if (self->priv->in_fd != -1)
     {

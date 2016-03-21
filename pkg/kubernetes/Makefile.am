@@ -97,6 +97,7 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/deploy.html \
 	pkg/kubernetes/views/deploymentconfig-panel.html \
 	pkg/kubernetes/views/details-page.html \
+	pkg/kubernetes/views/file-button.html \
 	pkg/kubernetes/views/item-delete.html \
 	pkg/kubernetes/views/images-page.html \
 	pkg/kubernetes/views/imagerepository-panel.html \

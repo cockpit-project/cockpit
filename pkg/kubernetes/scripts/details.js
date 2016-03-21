@@ -138,16 +138,16 @@
         "kubeLoader",
         "KubeDiscoverSettings",
         function (loader, settings) {
-            return function() {
-                loader.watch("Pod");
-                loader.watch("Service");
-                loader.watch("ReplicationController");
-                loader.watch("Endpoints");
-                loader.watch("PersistentVolumeClaim");
+            return function(until) {
+                loader.watch("Pod", until);
+                loader.watch("Service", until);
+                loader.watch("ReplicationController", until);
+                loader.watch("Endpoints", until);
+                loader.watch("PersistentVolumeClaim", until);
                 settings().then(function(settings) {
                     if (settings.flavor === "openshift") {
-                        loader.watch("DeploymentConfig");
-                        loader.watch("Route");
+                        loader.watch("DeploymentConfig", until);
+                        loader.watch("Route", until);
                     }
                 });
             };
@@ -242,19 +242,15 @@
         function($scope, loader, select, discoverSettings, ListingState,
                  $location, actions, detailsData, detailsWatch) {
 
-            var c = loader.listen(function() {
+            loader.listen(function() {
                 $scope.pods = select().kind("Pod");
                 $scope.services = select().kind("Service");
                 $scope.replicationcontrollers = select().kind("ReplicationController");
                 $scope.deploymentconfigs = select().kind("DeploymentConfig");
                 $scope.routes = select().kind("Route");
-            });
+            }, $scope);
 
-            $scope.$on("$destroy", function() {
-                c.cancel();
-            });
-
-            detailsWatch();
+            detailsWatch($scope);
             $scope.listing = new ListingState($scope);
             $scope.showAll = true;
 
@@ -287,7 +283,7 @@
             $scope.target = target;
             $scope.name = detailsData.names[kindData.type].name;
 
-            var c = loader.listen(function() {
+            loader.listen(function() {
                 if (kindData.type)
                     $scope[kindData.type] = select().kind(kindData.kind);
 
@@ -297,13 +293,9 @@
                                           .name(target)
                                           .one();
                 }
-            });
+            }, $scope);
 
-            $scope.$on("$destroy", function() {
-                c.cancel();
-            });
-
-            detailsWatch();
+            detailsWatch($scope);
             $scope.listing = new ListingState($scope);
             $scope.listing.inline = true;
 

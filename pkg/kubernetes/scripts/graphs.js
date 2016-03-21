@@ -271,7 +271,7 @@
         "kubeSelect",
         "kubeLoader",
         function ServiceGrid(CAdvisorSeries, CockpitMetrics, select, loader) {
-            function CockpitServiceGrid() {
+            function CockpitServiceGrid(until) {
                 var self = CockpitMetrics.grid(10000, 0, 0);
 
                 /* All the cadvisors that have been opened, one per host */
@@ -299,7 +299,7 @@
                 var container_tx = { };
 
                 /* Track Pods and Services */
-                var c = loader.listen(function() {
+                loader.listen(function() {
                     var changed = false;
                     var seen_services = {};
                     var seen_hosts = {};
@@ -371,10 +371,10 @@
                     /* Notify for all rows */
                     if (changed)
                         self.sync();
-                });
+                }, until);
 
-                loader.watch("Pod");
-                loader.watch("Service");
+                loader.watch("Pod", until);
+                loader.watch("Service", until);
 
                 function add_container(cadvisor, id) {
                     var cpu = self.add(cadvisor, [ id, "cpu", "usage", "total" ]);
@@ -555,7 +555,6 @@
                             cadvisor = null;
                         }
                     }
-                    c.cancel();
                     base_close.apply(self);
                 };
 
@@ -570,8 +569,8 @@
             }
 
             return {
-                new_grid: function () {
-                    return new CockpitServiceGrid();
+                new_grid: function (until) {
+                    return new CockpitServiceGrid(until);
                 }
             };
         }
@@ -584,8 +583,8 @@
         function kubernetesServiceGraph(ServiceGrid, KubeTranslate, KubeFormat) {
             var _ = KubeTranslate.gettext;
 
-            function service_graph(selector, highlighter) {
-                var grid = ServiceGrid.new_grid();
+            function service_graph($scope, selector, highlighter) {
+                var grid = ServiceGrid.new_grid($scope);
                 var outer = d3.select(selector);
 
                 var highlighted = null;
@@ -834,7 +833,7 @@
             return {
                 restrict: 'E',
                 link: function($scope, element, attributes) {
-                    var graph = service_graph(element[0], function(uid) {
+                    var graph = service_graph($scope, element[0], function(uid) {
                         $scope.$broadcast('highlight', uid);
                         $scope.$digest();
                     });

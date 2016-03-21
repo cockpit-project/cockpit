@@ -50,7 +50,7 @@
         function($scope, loader, select, data, actions, itemActions,
                  nodeActions, nodeData, $location) {
 
-        var c = loader.listen(function() {
+        loader.listen(function() {
             $scope.services = select().kind("Service");
             $scope.nodes = select().kind("Node");
             $scope.pods = select().kind("Pod");
@@ -77,18 +77,14 @@
                     Failed: $scope.volumes.statusPhase("Failed"),
                 },
             };
-        });
+        }, $scope);
 
-        $scope.$on("$destroy", function() {
-            c.cancel();
-        });
-
-        loader.watch("Node");
-        loader.watch("Service");
-        loader.watch("ReplicationController");
-        loader.watch("Pod");
-        loader.watch("PersistentVolume");
-        loader.watch("PersistentVolumeClaim");
+        loader.watch("Node", $scope);
+        loader.watch("Service", $scope);
+        loader.watch("ReplicationController", $scope);
+        loader.watch("Pod", $scope);
+        loader.watch("PersistentVolume", $scope);
+        loader.watch("PersistentVolumeClaim", $scope);
 
         $scope.editServices = false;
         $scope.toggleServiceChange = function toggleServiceChange() {

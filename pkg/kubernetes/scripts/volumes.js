@@ -65,27 +65,22 @@
             $scope.target = target;
             $scope.pvFailure = null;
 
-            var c = loader.listen(function() {
-                var timer;
+            loader.listen(function() {
                 $scope.pending = select().kind("PersistentVolumeClaim")
                                          .statusPhase("Pending");
                 $scope.pvs = select().kind("PersistentVolume");
                 if (target)
                     $scope.item = select().kind("PersistentVolume").name(target).one();
-            });
+            }, $scope);
 
-            loader.watch("PersistentVolume")
+            loader.watch("PersistentVolume", $scope)
                 .catch(function (ex) {
                     $scope.pvFailure = ex.message;
                 });
 
-            loader.watch("PersistentVolumeClaim");
-            loader.watch("Endpoints");
-            loader.watch("Pod");
-
-            $scope.$on("$destroy", function() {
-                c.cancel();
-            });
+            loader.watch("PersistentVolumeClaim", $scope);
+            loader.watch("Endpoints", $scope);
+            loader.watch("Pod", $scope);
 
             $scope.listing = new ListingState($scope);
 
@@ -142,18 +137,14 @@
                 restrict: 'A',
                 templateUrl: 'views/pv-claim.html',
                 link: function(scope, element, attrs) {
-                    var c = loader.listen(function() {
+                    loader.listen(function() {
                         scope.pvc = volumeData.claimForVolume(scope.item);
                         scope.pods = volumeData.podsForClaim(scope.pvc);
-                    });
+                    }, scope);
 
-                    loader.watch("PersistentVolume");
-                    loader.watch("PersistentVolumeClaim");
-                    loader.watch("Pod");
-
-                    scope.$on("$destroy", function() {
-                        c.cancel();
-                    });
+                    loader.watch("PersistentVolume", scope);
+                    loader.watch("PersistentVolumeClaim", scope);
+                    loader.watch("Pod", scope);
                 },
             };
         }
@@ -716,14 +707,10 @@
         function($scope, $instance, dialogData, volumeData, methods, loader) {
             angular.extend($scope, dialogData);
 
-            var c = loader.listen(function() {
+            loader.listen(function() {
                 if ($scope.pvc)
                     $scope.pods = volumeData.podsForClaim($scope.pvc);
-            });
-
-            $scope.$on("$destroy", function() {
-                c.cancel();
-            });
+            }, $scope);
 
             $scope.performDelete = function performDelete() {
                 return methods.delete($scope.item);

@@ -223,7 +223,7 @@
                 var patchData = {"roleBindings": roleBindings};
                 angular.forEach(subjectRoleBindings, function(o) {
                     angular.forEach(roleBindings, function(role) {
-                        //Since we only added registry roles 
+                        //Since we only added registry roles
                         //remove ONLY registry roles
                         if (( indexOf(registryRoles, role.name) !== -1) && role.name === o.metadata.name) {
                             chain = chain.then(function() {
@@ -276,8 +276,8 @@
             }
 
             return {
-                watch: function watch() {
-                    loader.watch("policybindings");
+                watch: function watch(until) {
+                    loader.watch("policybindings", until);
                 },
                 whoCan: function whoCan(project, verb, resource) {
                     return lookupWhoCan(toName(project), verb, resource);

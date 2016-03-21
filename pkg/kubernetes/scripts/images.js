@@ -132,10 +132,10 @@
             }
 
             /* There's no way to watch a single item ... so watch them all :( */
-            data.watchImages();
+            data.watchImages($scope);
 
 
-            var c = loader.listen(function() {
+            loader.listen(function() {
                 $scope.stream = select().kind("ImageStream").namespace(namespace).name(name).one();
                 $scope.image = $scope.config = $scope.layers = $scope.labels = $scope.tag = null;
 
@@ -153,7 +153,7 @@
                     $scope.layers = data.imageLayers($scope.image);
                     $scope.labels = data.imageLabels($scope.image);
                 }
-            });
+            }, $scope);
 
             $scope.listing = new ListingState($scope);
             $scope.listing.inline = true;
@@ -164,10 +164,6 @@
                     return { "/": $scope.stream };
                 return { };
             };
-
-            $scope.$on("$destroy", function() {
-                c.cancel();
-            });
 
             /* All the data actions available on the $scope */
             angular.extend($scope, data);
@@ -222,7 +218,7 @@
                         return tab === name;
                     };
 
-                    var c = loader.listen(function() {
+                    loader.listen(function() {
                         scope.names = scope.config = scope.layers = scope.labels = null;
                         if (scope.image) {
                             scope.names = data.imageTagNames(scope.image);
@@ -230,11 +226,8 @@
                             scope.layers = data.imageLayers(scope.image);
                             scope.labels = data.imageLabels(scope.image);
                         }
-                    });
+                    }, scope);
 
-                    scope.$on("$destroy", function() {
-                        c.cancel();
-                    });
                 },
                 templateUrl: "views/image-panel.html"
             };
@@ -368,12 +361,18 @@
             }
 
             /* Load images, but fallback to loading individually */
-            var watching = null;
-            function watchImages() {
-                loader.watch("images");
-                if (!watching)
-                    watching = loader.watch("imagestreams");
-                return watching;
+            var watching = false;
+            function watchImages(until) {
+                watching = true;
+                var a = loader.watch("images", until);
+                var b = loader.watch("imagestreams", until);
+
+                return {
+                    cancel: function() {
+                        a.cancel();
+                        b.cancel();
+                    }
+                };
             }
 
             /*

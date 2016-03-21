@@ -84,9 +84,8 @@
         'filterService',
         function($scope, loader, select, imageData, imageActions, projectActions, projectData, filter) {
             loader.load("projects");
-
             /* Watch the policybindings for project access changes */
-            loader.watch("policybindings");
+            loader.watch("policybindings", $scope);
 
             /*
              * For now the dashboard  has to watch all images in
@@ -95,7 +94,7 @@
              * In the future we want to have a metadata or filtering
              * service that we can query for that data.
              */
-            imageData.watchImages();
+            imageData.watchImages($scope);
 
             function compareVersion(a, b) {
                 a = (a.metadata || { }).resourceVersion || 0;

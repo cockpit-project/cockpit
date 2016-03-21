@@ -498,7 +498,7 @@
 
             $scope.types = [
                 {
-                    name: _("Kubernetes Manifest"),
+                    name: _("Manifest"),
                     type: "manifest",
                 }
             ];

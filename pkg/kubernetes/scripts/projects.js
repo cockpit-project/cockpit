@@ -251,8 +251,27 @@
                 return $modal.open({
                     controller: 'ProjectModifyCtrl',
                     templateUrl: 'views/project-modify.html',
-                });
+                    resolve: {
+                        dialogData: function() {
+                            return { };
+                        }
+                    },
+                }).result;
             }
+
+            function modifyProject(project) {
+                return $modal.open({
+                    animation: false,
+                    controller: 'ProjectModifyCtrl',
+                    templateUrl: 'views/project-modify.html',
+                    resolve: {
+                        dialogData: function() {
+                            return { project: project };
+                        }
+                    },
+                }).result;
+            }
+
             function createUser() {
                 return $modal.open({
                     controller: 'UserNewCtrl',
@@ -267,6 +286,7 @@
             }
             return {
                 createProject: createProject,
+                modifyProject: modifyProject,
                 createGroup: createGroup,
                 createUser: createUser,
             };
@@ -276,12 +296,20 @@
     .controller('ProjectModifyCtrl', [
         '$q',
         '$scope',
+        "dialogData",
         "kubeMethods",
-        function($q, $scope, methods) {
+        function($q, $scope, dialogData, methods) {
+            var project = dialogData.project || { };
+            var meta = project.metadata || { };
+            var annotations = meta.annotations || { };
+
+            var DISPLAY = "openshift.io/display-name";
+            var DESCRIPTION = "openshift.io/description";
+
             var fields = {
-                name: "",
-                display: "",
-                description: ""
+                name: meta.name || "",
+                display: annotations[DISPLAY] || "",
+                description: annotations[DESCRIPTION] || "",
             };
 
             $scope.fields = fields;
@@ -302,6 +330,25 @@
                         return methods.create(request);
                     });
             };
+
+            $scope.performModify = function performModify() {
+                var anno = { };
+                var data = { metadata: { annotations: anno } };
+
+                var value = fields.display.trim();
+                if (value !== annotations[DISPLAY])
+                    anno[DISPLAY] = value;
+                value = fields.description.trim();
+                if (value !== annotations[DESCRIPTION])
+                    anno[DESCRIPTION] = value;
+
+                return methods.check(data, { })
+                    .then(function() {
+                        return methods.patch(project, data);
+                    });
+            };
+
+            angular.extend($scope, dialogData);
         }
     ])
 

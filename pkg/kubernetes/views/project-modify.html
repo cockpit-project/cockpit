@@ -1,6 +1,7 @@
 <modal-dialog>
     <div class="modal-header">
-        <h4 class="modal-title" translatable="yes">New Project</h4>
+        <h4 class="modal-title" ng-if="!project" translatable="yes">New project</h4>
+        <h3 class="modal-title" ng-if="project" translatable="yes">Change project</h3>
     </div>
     <div class="modal-body">
         <table class="cockpit-form-table">
@@ -10,7 +11,8 @@
                 </td>
                 <td>
                     <input id="project-new-name" class="form-control" type="text"
-                        ng-model="fields.name" autofocus>
+                        ng-if="!project" ng-model="fields.name" autofocus>
+                    <span id="project-new-name" ng-if="project">{{ fields.name }}</span>
                 </td>
             </tr>
             <tr>
@@ -35,6 +37,9 @@
     </div>
     <div class="modal-footer">
         <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
-        <button class="btn btn-primary" ng-click="complete(performCreate())" translatable="yes">Create</button>
+        <button class="btn btn-primary" ng-if="!project" ng-click="complete(performCreate())"
+            translatable="yes">Create</button>
+        <button class="btn btn-primary" ng-if="project" ng-click="complete(performModify())"
+            translatable="yes">Change</button>
     </div>
 </modal-dialog>

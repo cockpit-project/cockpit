@@ -417,6 +417,10 @@ define([
 
             dialog.run(try_to_connect(dialog.address), function (ex) {
                 if (ex.problem == "no-host") {
+                    var host_id_port = dialog.address;
+                    if (dialog.address.indexOf(":") == -1)
+                        host_id_port = dialog.address + ":22";
+                    ex.message = cockpit.format(_("Cockpit could not contact the given host $0. Make sure it has ssh running on port 22, or specify another port in the address."), host_id_port);
                     ex = cockpit.message(ex);
                     run_error = ex;
                 }

@@ -288,19 +288,13 @@
 
             $scope.performCreate = function performCreate() {
                 var defer;
-                var display = fields.display.trim();
-                var description = fields.description.trim();
 
                 var request = {
                     kind: "ProjectRequest",
                     apiVersion:"v1",
-                    metadata:{
-                        name: fields.name.trim(),
-                        annotations: {
-                            "openshift.io/description": description,
-                            "openshift.io/display-name": display,
-                        }
-                    }
+                    metadata:{ name: fields.name.trim(), },
+                    displayName: fields.display.trim(),
+                    description: fields.description.trim()
                 };
 
                 return methods.check(request, { "metadata.name": "#project-new-name" })

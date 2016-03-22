@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+var url_root = window.localStorage.getItem('url-root');
+
 var mock = mock || { };
 
 var phantom_checkpoint = phantom_checkpoint || function () { };
@@ -253,9 +255,12 @@ function calculate_url() {
         return window.mock.url;
     var window_loc = window.location.toString();
     var path = window.location.pathname || "/";
-    if (path.indexOf("/cockpit") !== 0)
+    if (path.indexOf("/cockpit/") !== 0 && path.indexOf("/cockpit+") !== 0)
         path = "/cockpit";
     var prefix = path.split("/")[1];
+    if (url_root)
+        prefix = url_root + "/" + prefix;
+
     if (window_loc.indexOf('http:') === 0) {
         return "ws://" + window.location.host + "/" + prefix + "/socket";
     } else if (window_loc.indexOf('https:') === 0) {
@@ -2235,7 +2240,11 @@ function basic_scope(cockpit, jquery) {
 
         function decode_path(input) {
             var parts = input.split('/').map(decodeURIComponent);
-            var result;
+            var result, i, pre_parts = [];
+
+            if (url_root)
+                pre_parts = url_root.split('/').map(decodeURIComponent);
+
             if (input && input[0] !== "/") {
                 result = [].concat(path);
                 result.pop();
@@ -2243,13 +2252,25 @@ function basic_scope(cockpit, jquery) {
             } else {
                 result = parts;
             }
-            return resolve_path_dots(result);
+
+            result = resolve_path_dots(result);
+            for (i = 0; i < pre_parts.length; i++) {
+                if (pre_parts[i] !== result[i])
+                    break;
+            }
+            if (i == pre_parts.length)
+                result.splice(0, pre_parts.length);
+
+            return result;
         }
 
-        function encode(path, options) {
+        function encode(path, options, with_root) {
             if (typeof path == "string")
                 path = decode_path(path, self.path);
+
             var href = "/" + path.map(encodeURIComponent).join("/");
+            if (with_root && url_root && href.indexOf("/" + url_root + "/" !== 0))
+                href = "/" + url_root + href;
 
             /* Undo unnecessary encoding of these */
             href = href.replace("%40", "@");

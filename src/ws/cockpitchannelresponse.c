@@ -64,7 +64,7 @@ cockpit_channel_inject_perform (CockpitChannelInject *inject,
   static const gchar *marker = "<head>";
   CockpitWebFilter *filter;
   CockpitCreds *creds;
-  const gchar *application;
+  gchar *prefixed_application = NULL;
   const gchar *checksum;
   const gchar *host;
   GString *str;
@@ -76,17 +76,29 @@ cockpit_channel_inject_perform (CockpitChannelInject *inject,
     return;
 
   creds = cockpit_web_service_get_creds (inject->service);
-  application = cockpit_creds_get_application (creds);
+  if (cockpit_web_response_get_url_root (response))
+    {
+      prefixed_application = g_strdup_printf ("%s/%s",
+                                              cockpit_web_response_get_url_root (response),
+                                              cockpit_creds_get_application (creds));
+    }
+  else
+    {
+      prefixed_application = g_strdup_printf ("/%s", cockpit_creds_get_application (creds));
+    }
 
   checksum = cockpit_web_service_get_checksum (inject->service, transport);
   if (checksum)
     {
-      g_string_printf (str, "\n    <base href=\"/%s/$%s%s\">", application, checksum, inject->base_path);
+      g_string_printf (str, "\n    <base href=\"%s/$%s%s\">",
+                       prefixed_application,
+                       checksum, inject->base_path);
     }
   else
     {
       host = cockpit_web_service_get_host (inject->service, transport);
-      g_string_printf (str, "\n    <base href=\"/%s/@%s%s\">", application, host, inject->base_path);
+      g_string_printf (str, "\n    <base href=\"%s/@%s%s\">",
+                       prefixed_application, host, inject->base_path);
     }
 
   base = g_string_free_to_bytes (str);
@@ -95,6 +107,7 @@ cockpit_channel_inject_perform (CockpitChannelInject *inject,
 
   cockpit_web_response_add_filter (response, filter);
   g_object_unref (filter);
+  g_free (prefixed_application);
 }
 
 typedef struct {
@@ -128,9 +141,20 @@ redirect_to_checksum_path (CockpitWebService *service,
   gsize length;
 
   creds = cockpit_web_service_get_creds (service);
-  location = g_strdup_printf ("/%s/$%s%s",
-                              cockpit_creds_get_application (creds),
-                              checksum, path);
+  if (cockpit_web_response_get_url_root (response))
+    {
+      location = g_strdup_printf ("%s/%s/$%s%s",
+                                  cockpit_web_response_get_url_root (response),
+                                  cockpit_creds_get_application (creds),
+                                  checksum, path);
+    }
+  else
+    {
+      location = g_strdup_printf ("/%s/$%s%s",
+                                  cockpit_creds_get_application (creds),
+                                  checksum, path);
+    }
+
 
   body = "<html><head><title>Temporary redirect</title></head>"
          "<body>Access via checksum</body></html>";

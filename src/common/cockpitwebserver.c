@@ -52,6 +52,7 @@ struct _CockpitWebServer {
   GTlsCertificate *certificate;
   gchar **document_roots;
   GString *ssl_exception_prefix;
+  GString *url_root;
   gint request_timeout;
   gint request_max;
   gboolean redirect_tls;
@@ -65,6 +66,7 @@ struct _CockpitWebServerClass {
   GObjectClass parent_class;
 
   gboolean (* handle_stream)   (CockpitWebServer *server,
+                                const gchar *original_path,
                                 const gchar *path,
                                 GIOStream *io_stream,
                                 GHashTable *headers,
@@ -84,7 +86,8 @@ enum
   PROP_DOCUMENT_ROOTS,
   PROP_SSL_EXCEPTION_PREFIX,
   PROP_SOCKET_ACTIVATED,
-  PROP_REDIRECT_TLS
+  PROP_REDIRECT_TLS,
+  PROP_URL_ROOT,
 };
 
 static gint sig_handle_stream = 0;
@@ -110,6 +113,7 @@ cockpit_web_server_init (CockpitWebServer *server)
                                             cockpit_request_free, NULL);
   server->main_context = g_main_context_ref_thread_default ();
   server->ssl_exception_prefix = g_string_new ("");
+  server->url_root = g_string_new ("");
   server->redirect_tls = TRUE;
 }
 
@@ -146,6 +150,7 @@ cockpit_web_server_finalize (GObject *object)
   if (server->main_context)
     g_main_context_unref (server->main_context);
   g_string_free (server->ssl_exception_prefix, TRUE);
+  g_string_free (server->url_root, TRUE);
   g_clear_object (&server->socket_service);
 
   G_OBJECT_CLASS (cockpit_web_server_parent_class)->finalize (object);
@@ -175,6 +180,14 @@ cockpit_web_server_get_property (GObject *object,
 
     case PROP_SSL_EXCEPTION_PREFIX:
       g_value_set_string (value, server->ssl_exception_prefix->str);
+      break;
+
+    case PROP_URL_ROOT:
+      if (server->url_root->len)
+        g_value_set_string (value, server->url_root->str);
+      else
+        g_value_set_string (value, NULL);
+      break;
 
     case PROP_SOCKET_ACTIVATED:
       g_value_set_boolean (value, server->socket_activated);
@@ -241,6 +254,7 @@ cockpit_web_server_set_property (GObject *object,
                                  GParamSpec *pspec)
 {
   CockpitWebServer *server = COCKPIT_WEB_SERVER (object);
+  GString *str;
 
   switch (prop_id)
     {
@@ -258,6 +272,26 @@ cockpit_web_server_set_property (GObject *object,
 
     case PROP_SSL_EXCEPTION_PREFIX:
       g_string_assign (server->ssl_exception_prefix, g_value_get_string (value));
+      break;
+
+    case PROP_URL_ROOT:
+      str = g_string_new (g_value_get_string (value));
+
+      while (str->str[0] == '/')
+        g_string_erase (str, 0, 1);
+
+      if (str->len)
+        {
+          while (str->str[str->len - 1] == '/')
+            g_string_truncate (str, str->len - 1);
+        }
+
+      if (str->len)
+        g_string_printf (server->url_root, "/%s", str->str);
+      else
+        g_string_assign (server->url_root, str->str);
+
+      g_string_free (str, TRUE);
       break;
 
     case PROP_REDIRECT_TLS:
@@ -308,6 +342,7 @@ on_web_response_done (CockpitWebResponse *response,
 
 static gboolean
 cockpit_web_server_default_handle_stream (CockpitWebServer *self,
+                                          const gchar *original_path,
                                           const gchar *path,
                                           GIOStream *io_stream,
                                           GHashTable *headers,
@@ -328,7 +363,7 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
     }
 
   /* TODO: Correct HTTP version for response */
-  response = cockpit_web_response_new (io_stream, path, pos, headers);
+  response = cockpit_web_response_new (io_stream, original_path, path, pos, headers);
   g_signal_connect_data (response, "done", G_CALLBACK (on_web_response_done),
                          g_object_ref (self), (GClosureNotify)g_object_unref, 0);
 
@@ -433,6 +468,10 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
                                    g_param_spec_string ("ssl-exception-prefix", NULL, NULL, "",
                                                         G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property (gobject_class, PROP_URL_ROOT,
+                                   g_param_spec_string ("url-root", NULL, NULL, "",
+                                                        G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
   g_object_class_install_property (gobject_class, PROP_SOCKET_ACTIVATED,
                                    g_param_spec_boolean ("socket-activated", NULL, NULL, FALSE,
                                                         G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
@@ -449,7 +488,8 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
                                     NULL, /* accu_data */
                                     g_cclosure_marshal_generic,
                                     G_TYPE_BOOLEAN,
-                                    4,
+                                    5,
+                                    G_TYPE_STRING,
                                     G_TYPE_STRING,
                                     G_TYPE_IO_STREAM,
                                     G_TYPE_HASH_TABLE,
@@ -813,7 +853,7 @@ process_delayed_reply (CockpitRequest *request,
 
   g_assert (request->delayed_reply > 299);
 
-  response = cockpit_web_response_new (request->io, NULL, NULL, headers);
+  response = cockpit_web_response_new (request->io, NULL, NULL, NULL, headers);
   g_signal_connect_data (response, "done", G_CALLBACK (on_web_response_done),
                          g_object_ref (request->web_server), (GClosureNotify)g_object_unref, 0);
 
@@ -858,6 +898,13 @@ process_request (CockpitRequest *request,
                  GHashTable *headers)
 {
   gboolean claimed = FALSE;
+  const gchar *actual_path;
+
+  if (request->web_server->url_root->len &&
+      !path_has_prefix (path, request->web_server->url_root))
+    {
+      request->delayed_reply = 404;
+    }
 
   /*
    * If redirecting to TLS, check the path. Certain paths
@@ -875,17 +922,20 @@ process_request (CockpitRequest *request,
       return;
     }
 
+  actual_path = path + request->web_server->url_root->len;
+
   /* See if we have any takers... */
   g_signal_emit (request->web_server,
                  sig_handle_stream, 0,
                  path,
+                 actual_path,
                  request->io,
                  headers,
                  request->buffer,
                  &claimed);
 
   if (!claimed)
-    g_critical ("no handler responded to request: %s", path);
+    g_critical ("no handler responded to request: %s", actual_path);
 }
 
 static gboolean

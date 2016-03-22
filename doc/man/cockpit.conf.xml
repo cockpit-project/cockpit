@@ -93,6 +93,16 @@ Origins = https://somedomain1.com https://somedomain2.com:9090
             false.</para>
         </listitem>
       </varlistentry>
+      <varlistentry>
+        <term><option>UrlRoot</option></term>
+        <listitem>
+          <para>The root URL where you will be serving cockpit. When provided cockpit will expect all
+          requests to be prefixed with the given url. This is mostly useful when you are using
+          cockpit behind a reverse proxy, such as nginx. <code>/cockpit/</code> and <code>/cockpit+</code>
+          are reserved and should not be used. For example <code>/cockpit-new/</code> is ok.
+          <code>/cockpit/</code> and <code>/cockpit+new/</code> are not.</para>
+        </listitem>
+      </varlistentry>
     </variablelist>
   </refsect1>
 

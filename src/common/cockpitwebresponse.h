@@ -53,6 +53,7 @@ extern const gchar *  cockpit_web_failure_resource;
 GType                 cockpit_web_response_get_type      (void) G_GNUC_CONST;
 
 CockpitWebResponse *  cockpit_web_response_new           (GIOStream *io,
+                                                          const gchar *original_path,
                                                           const gchar *path,
                                                           const gchar *query,
                                                           GHashTable *in_headers);
@@ -130,6 +131,9 @@ gboolean     cockpit_web_response_is_header_value        (const gchar *string);
 
 void         cockpit_web_response_set_cache_type         (CockpitWebResponse *self,
                                                           CockpitCacheType cache_type);
+
+const gchar *  cockpit_web_response_get_url_root         (CockpitWebResponse *response);
+
 
 G_END_DECLS
 

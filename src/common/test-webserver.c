@@ -694,6 +694,114 @@ test_webserver_host_header (TestCase *tc,
   g_free (resp);
 }
 
+
+static void
+test_url_root (TestCase *tc,
+                 gconstpointer unused)
+{
+  gchar *url_root = NULL;
+
+  g_object_get (tc->web_server, "url-root", &url_root, NULL);
+  g_assert (url_root == NULL);
+
+  g_object_set (tc->web_server, "url-root", "/", NULL);
+  g_object_get (tc->web_server, "url-root", &url_root, NULL);
+  g_assert (url_root == NULL);
+
+  g_object_set (tc->web_server, "url-root", "/path/", NULL);
+  g_object_get (tc->web_server, "url-root", &url_root, NULL);
+  g_assert_cmpstr (url_root, ==, "/path");
+  g_free (url_root);
+  url_root = NULL;
+
+  g_object_set (tc->web_server, "url-root", "//path//", NULL);
+  g_object_get (tc->web_server, "url-root", &url_root, NULL);
+  g_assert_cmpstr (url_root, ==, "/path");
+  g_free (url_root);
+  url_root = NULL;
+
+  g_object_set (tc->web_server, "url-root", "path/", NULL);
+  g_object_get (tc->web_server, "url-root", &url_root, NULL);
+  g_assert_cmpstr (url_root, ==, "/path");
+  g_free (url_root);
+  url_root = NULL;
+
+  g_object_set (tc->web_server, "url-root", "path", NULL);
+  g_object_get (tc->web_server, "url-root", &url_root, NULL);
+  g_assert_cmpstr (url_root, ==, "/path");
+  g_free (url_root);
+  url_root = NULL;
+}
+
+
+static void
+test_handle_resource_url_root (TestCase *tc,
+                                 gconstpointer unused)
+{
+  const gchar *invoked = NULL;
+  gchar *resp;
+
+  g_object_set (tc->web_server, "url-root", "/path/", NULL);
+
+  g_signal_connect (tc->web_server, "handle-resource::/oh/",
+                    G_CALLBACK (on_oh_resource), &invoked);
+  g_signal_connect (tc->web_server, "handle-resource::/scruffy",
+                    G_CALLBACK (on_scruffy_resource), &invoked);
+  g_signal_connect (tc->web_server, "handle-resource::/",
+                    G_CALLBACK (on_index_resource), &invoked);
+  g_signal_connect (tc->web_server, "handle-resource",
+                    G_CALLBACK (on_default_resource), &invoked);
+
+  /* Should call the /oh/ handler */
+  resp = perform_http_request (tc->localport, "GET /path/oh/marmalade HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+  g_assert_cmpstr (invoked, ==, "oh");
+  invoked = NULL;
+  cockpit_assert_strmatch (resp, "*Scruffy says: /oh/marmalade");
+  g_free (resp);
+
+  /* Should call the /oh/ handler */
+  resp = perform_http_request (tc->localport, "GET /path/oh/ HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+  g_assert_cmpstr (invoked, ==, "oh");
+  cockpit_assert_strmatch (resp, "*Scruffy says: /oh/");
+  invoked = NULL;
+  g_free (resp);
+
+  /* Should call the default handler */
+  g_free (perform_http_request (tc->localport, "GET /path/oh HTTP/1.0\r\nHost:test\r\n\r\n", NULL));
+  g_assert_cmpstr (invoked, ==, "default");
+  invoked = NULL;
+
+  /* Should call the scruffy handler */
+  resp = perform_http_request (tc->localport, "GET /path/scruffy HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+  g_assert_cmpstr (invoked, ==, "scruffy");
+  invoked = NULL;
+  cockpit_assert_strmatch (resp, "*Scruffy is here");
+  g_free (resp);
+
+  /* Should call the default handler */
+  g_free (perform_http_request (tc->localport, "GET /path/scruffy/blah HTTP/1.0\r\nHost:test\r\n\r\n", NULL));
+  g_assert_cmpstr (invoked, ==, "default");
+  invoked = NULL;
+
+  /* Should call the index handler */
+  resp = perform_http_request (tc->localport, "GET /path/ HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+  g_assert_cmpstr (invoked, ==, "index");
+  invoked = NULL;
+  cockpit_assert_strmatch (resp, "*Yello from index");
+  g_free (resp);
+
+  /* Should call the default handler */
+  g_free (perform_http_request (tc->localport, "GET /path/oooo HTTP/1.0\r\nHost:test\r\n\r\n", NULL));
+  g_assert_cmpstr (invoked, ==, "default");
+  invoked = NULL;
+
+  /* Should fail */
+  resp = perform_http_request (tc->hostport, "GET /oooo HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+  cockpit_assert_strmatch (resp, "HTTP/* 404 *\r\n");
+  g_free (resp);
+  g_assert (invoked == NULL);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -745,5 +853,9 @@ main (int argc,
   g_test_add ("/web-server/handle-resource", TestCase, NULL,
               setup, test_handle_resource, teardown);
 
+  g_test_add ("/web-server/url-root", TestCase, NULL,
+              setup, test_url_root, teardown);
+  g_test_add ("/web-server/url-root-handlers", TestCase, NULL,
+              setup, test_handle_resource_url_root, teardown);
   return g_test_run ();
 }

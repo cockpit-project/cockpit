@@ -2,12 +2,14 @@
 <html>
   <head>
     <title>Cockpit starting...</title>
+    <base href="/">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>
 	/* Login page is standalone without external JS/CSS */
 
         var phantom_checkpoint = phantom_checkpoint || function () { };
+        var url_root;
 
         (function(console) {
             window.localStorage.removeItem('login-data');
@@ -47,7 +49,8 @@
                 console = function() { };
 
             /* Determine if we are nested or not, and switch styles */
-            if (window.location.pathname.indexOf("/cockpit") === 0)
+            if (window.location.pathname.indexOf("/cockpit/") === 0 ||
+                window.location.pathname.indexOf("/cockpit+") === 0)
                 document.documentElement.setAttribute("class", "inline");
 
             function id(name) {
@@ -133,17 +136,24 @@
                 if (!requisites())
                     return;
 
-                var path = window.location.pathname || "/";
-                if (path.indexOf("/cockpit") !== 0)
-                    path = "/cockpit";
-                login_path = "/" + path.split("/")[1] + "/login";
-
                 var os_release = JSON.stringify(environment["os-release"]);
                 var logout_intent = sessionStorage.getItem("logout-intent") == "explicit";
                 if (logout_intent)
                     sessionStorage.removeItem("logout-intent");
-
                 localStorage.setItem('os-release', os_release);
+
+                var path = window.location.pathname || "/";
+                if (path.indexOf("/cockpit/") !== 0 && path.indexOf("/cockpit+") !== 0)
+                    path = "/cockpit";
+                login_path = "/" + path.split("/")[1] + "/login";
+
+                var parser = document.createElement('a');
+                parser.href = document.baseURI;
+                if (parser.pathname != "/") {
+                    url_root = parser.pathname.replace(/^\/+|\/+$/g, '');
+                    login_path = "/" + url_root + login_path;
+                    localStorage.setItem('url-root', url_root);
+                }
 
                 /* Try automatic/kerberos authentication? */
                 if (oauth) {
@@ -468,6 +478,9 @@
                         console.warn("Error storing login-data:", ex);
                     }
                 }
+
+                if (url_root)
+                    localStorage.setItem('url-root', url_root);
 
                 if (wanted && wanted != window.location.href)
                     window.location = wanted;
@@ -830,13 +843,13 @@ label {
   font-family: 'Open Sans';
   font-style: normal;
   font-weight: 400;
-  src: url('/cockpit/static/fonts/OpenSans-Regular-webfont.woff') format('woff');
+  src: url('cockpit/static/fonts/OpenSans-Regular-webfont.woff') format('woff');
 }
 @font-face {
   font-family: 'Open Sans';
   font-style: normal;
   font-weight: 700;
-  src: url('/cockpit/static/fonts/OpenSans-Bold-webfont.woff') format('woff');
+  src: url('cockpit/static/fonts/OpenSans-Bold-webfont.woff') format('woff');
 }
 .form-control:hover {
   border-color: #7BB2DD;
@@ -992,7 +1005,7 @@ label {
           }
         }
     </style>
-    <link href="/cockpit/static/branding.css" type="text/css" rel="stylesheet">
+    <link href="cockpit/static/branding.css" type="text/css" rel="stylesheet">
   </head>
   <body class="login-pf">
     <span id="badge">

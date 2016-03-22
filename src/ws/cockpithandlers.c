@@ -69,11 +69,8 @@ handle_noauth_socket (GIOStream *io_stream,
                       GByteArray *input_buffer)
 {
   WebSocketConnection *connection;
-  gchar *application;
 
-  application = cockpit_auth_parse_application (path);
-  connection = cockpit_web_service_create_socket (NULL, application, io_stream, headers, input_buffer);
-  g_free (application);
+  connection = cockpit_web_service_create_socket (NULL, path, io_stream, headers, input_buffer);
 
   g_signal_connect (connection, "open", G_CALLBACK (on_web_socket_noauth), NULL);
 
@@ -84,6 +81,7 @@ handle_noauth_socket (GIOStream *io_stream,
 /* Called by @server when handling HTTP requests to /cockpit/socket */
 gboolean
 cockpit_handler_socket (CockpitWebServer *server,
+                        const gchar *original_path,
                         const gchar *path,
                         GIOStream *io_stream,
                         GHashTable *headers,
@@ -123,6 +121,7 @@ cockpit_handler_socket (CockpitWebServer *server,
 
 gboolean
 cockpit_handler_external (CockpitWebServer *server,
+                          const gchar *original_path,
                           const gchar *path,
                           GIOStream *io_stream,
                           GHashTable *headers,
@@ -196,7 +195,7 @@ cockpit_handler_external (CockpitWebServer *server,
 
   if (!open)
     {
-      response = cockpit_web_response_new (io_stream, path, NULL, headers);
+      response = cockpit_web_response_new (io_stream, original_path, path, NULL, headers);
       cockpit_web_response_error (response, 400, NULL, NULL);
       g_object_unref (response);
     }
@@ -205,11 +204,11 @@ cockpit_handler_external (CockpitWebServer *server,
       upgrade = g_hash_table_lookup (headers, "Upgrade");
       if (upgrade && g_ascii_strcasecmp (upgrade, "websocket") == 0)
         {
-          cockpit_channel_socket_open (service, open, path, io_stream, headers, input);
+          cockpit_channel_socket_open (service, open, original_path, path, io_stream, headers, input);
         }
       else
         {
-          response = cockpit_web_response_new (io_stream, path, NULL, headers);
+          response = cockpit_web_response_new (io_stream, original_path, path, NULL, headers);
           cockpit_channel_response_open (service, headers, response, open);
           g_object_unref (response);
         }
@@ -293,17 +292,36 @@ send_login_html (CockpitWebResponse *response,
                  CockpitHandlerData *ws)
 {
   static const gchar *marker = "<head>";
+
   CockpitWebFilter *filter;
   GBytes *environment;
+
+  GBytes *url_bytes = NULL;
+  CockpitWebFilter *filter2 = NULL;
+  const gchar *url_root = NULL;
+  gchar *base;
 
   environment = build_environment (ws->os_release);
   filter = cockpit_web_inject_new (marker, environment, 1);
   g_bytes_unref (environment);
-
   cockpit_web_response_add_filter (response, filter);
+
+  url_root = cockpit_web_response_get_url_root (response);
+  if (url_root)
+    base = g_strdup_printf ("<base href=\"%s/\">", url_root);
+  else
+    base = g_strdup ("<base href=\"/\">");
+
+  url_bytes = g_bytes_new_take (base, strlen(base));
+  filter2 = cockpit_web_inject_new (marker, url_bytes, 1);
+  g_bytes_unref (url_bytes);
+  cockpit_web_response_add_filter (response, filter2);
+
   cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
   cockpit_web_response_file (response, "/login.html", ws->static_roots);
   g_object_unref (filter);
+  if (filter2)
+    g_object_unref (filter2);
 }
 
 static gchar *

@@ -182,7 +182,8 @@ on_socket_close (WebSocketConnection *connection,
 }
 
 static void
-respond_with_error (const gchar *path,
+respond_with_error (const gchar *original_path,
+                    const gchar *path,
                     GIOStream *io_stream,
                     GHashTable *headers,
                     guint status,
@@ -190,7 +191,7 @@ respond_with_error (const gchar *path,
 {
   CockpitWebResponse *response;
 
-  response = cockpit_web_response_new (io_stream, path, NULL, headers);
+  response = cockpit_web_response_new (io_stream, original_path, path, NULL, headers);
   cockpit_web_response_error (response, status, NULL, "%s", message);
   g_object_unref (response);
 }
@@ -198,6 +199,7 @@ respond_with_error (const gchar *path,
 void
 cockpit_channel_socket_open (CockpitWebService *service,
                              JsonObject *open,
+                             const gchar *original_path,
                              const gchar *path,
                              GIOStream *io_stream,
                              GHashTable *headers,
@@ -211,14 +213,14 @@ cockpit_channel_socket_open (CockpitWebService *service,
   if (!cockpit_web_service_parse_external (open, NULL, NULL, &protocols) ||
       !cockpit_web_service_parse_binary (open, &data_type))
     {
-      respond_with_error (path, io_stream, headers, 400, "Bad channel request");
+      respond_with_error (original_path, path, io_stream, headers, 400, "Bad channel request");
       goto out;
     }
 
   transport = cockpit_web_service_ensure_transport (service, open);
   if (!transport)
     {
-      respond_with_error (path, io_stream, headers, 502, "Failed to open channel transport");
+      respond_with_error (original_path, path, io_stream, headers, 502, "Failed to open channel transport");
       goto out;
     }
 
@@ -230,7 +232,7 @@ cockpit_channel_socket_open (CockpitWebService *service,
   json_object_set_string_member (open, "command", "open");
   json_object_set_string_member (open, "channel", chock->channel);
 
-  chock->socket = cockpit_web_service_create_socket ((const gchar **)protocols, path,
+  chock->socket = cockpit_web_service_create_socket ((const gchar **)protocols, original_path,
                                                      io_stream, headers, input_buffer);
   chock->socket_open = g_signal_connect (chock->socket, "open", G_CALLBACK (on_socket_open), chock);
   chock->socket_message = g_signal_connect (chock->socket, "message", G_CALLBACK (on_socket_message), chock);

@@ -62,6 +62,7 @@ struct _CockpitWebResponse {
   const gchar *path;
   gchar *full_path;
   gchar *query;
+  CockpitCacheType cache_type;
 
   /* The output queue */
   GPollableOutputStream *out;
@@ -92,6 +93,7 @@ static void
 cockpit_web_response_init (CockpitWebResponse *self)
 {
   self->queue = g_queue_new ();
+  self->cache_type = COCKPIT_WEB_RESPONSE_CACHE_UNSET;
 }
 
 static void
@@ -641,6 +643,8 @@ cockpit_web_response_is_header_value (const gchar *string)
 enum {
     HEADER_CONTENT_TYPE = 1 << 0,
     HEADER_CONTENT_ENCODING = 1 << 1,
+    HEADER_VARY = 1 << 2,
+    HEADER_CACHE_CONTROL = 1 << 3,
 };
 
 static GString *
@@ -669,6 +673,10 @@ append_header (GString *string,
     }
   if (g_ascii_strcasecmp ("Content-Type", name) == 0)
     return HEADER_CONTENT_TYPE;
+  if (g_ascii_strcasecmp ("Cache-Control", name) == 0)
+    return HEADER_CACHE_CONTROL;
+  if (g_ascii_strcasecmp ("Vary", name) == 0)
+    return HEADER_VARY;
   if (g_ascii_strcasecmp ("Content-Encoding", name) == 0)
     return HEADER_CONTENT_ENCODING;
   else if (g_ascii_strcasecmp ("Content-Length", name) == 0)
@@ -751,11 +759,40 @@ finish_headers (CockpitWebResponse *self,
         }
     }
 
+  if ((seen & HEADER_CACHE_CONTROL) == 0 && status >= 200 && status <= 299)
+    {
+      if (self->cache_type == COCKPIT_WEB_RESPONSE_CACHE_FOREVER)
+        g_string_append (string, "Cache-Control: max-age=31556926, public\r\n");
+      else if (self->cache_type == COCKPIT_WEB_RESPONSE_NO_CACHE)
+        g_string_append (string, "Cache-Control: no-cache, no-store\r\n");
+      else if (self->cache_type == COCKPIT_WEB_RESPONSE_CACHE_PRIVATE)
+        g_string_append (string, "Cache-Control: max-age=86400, private\r\n");
+    }
+
+  if ((seen & HEADER_VARY) == 0 && status >= 200 && status <= 299 &&
+      self->cache_type == COCKPIT_WEB_RESPONSE_CACHE_PRIVATE)
+    {
+      g_string_append (string, "Vary: Cookie\r\n");
+    }
+
   if (!self->keep_alive)
     g_string_append (string, "Connection: close\r\n");
   g_string_append (string, "\r\n");
 
   return g_string_free_to_bytes (string);
+}
+
+/**
+ * cockpit_web_response_set_cache_type:
+ * @self: the response
+ * @cache_type: Ensures the apropriate cache headers are returned for
+   the given cache type.
+ */
+void
+cockpit_web_response_set_cache_type (CockpitWebResponse *self,
+                                     CockpitCacheType cache_type)
+{
+  self->cache_type = cache_type;
 }
 
 /**
@@ -1104,10 +1141,8 @@ path_has_prefix (const gchar *path,
 void
 cockpit_web_response_file (CockpitWebResponse *response,
                            const gchar *escaped,
-                           gboolean cache_forever,
                            const gchar **roots)
 {
-  const gchar *cache_control;
   const gchar *csp_header;
   GError *error = NULL;
   gchar *unescaped = NULL;
@@ -1190,9 +1225,7 @@ again:
   if (g_str_has_suffix (unescaped, ".html"))
     csp_header = "Content-Security-Policy";
 
-  cache_control = cache_forever ? "max-age=31556926, public" : NULL;
   cockpit_web_response_headers (response, 200, "OK", g_bytes_get_size (body),
-                                "Cache-Control", cache_control,
                                 csp_header, "default-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:",
                                 NULL);
 

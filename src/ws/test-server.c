@@ -504,8 +504,8 @@ on_handle_resource (CockpitWebServer *server,
   inject_address (response, "bus_address", bus_address);
   inject_address (response, "direct_address", direct_address);
 
-  cockpit_web_response_file (response, rebuilt, FALSE,
-                             cockpit_web_server_get_document_roots (server));
+  cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
+  cockpit_web_response_file (response, rebuilt,  cockpit_web_server_get_document_roots (server));
 
   g_strfreev (parts);
   g_free (rebuilt);

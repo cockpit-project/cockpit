@@ -477,14 +477,21 @@ define([
          * given state, then we try to find one that would show a sidebar.
          */
 
-        /* Encode navigate state into a string */
-        function encode(state, sidebar) {
+        /* Encode navigate state into a string
+         * If with_root is true the configured
+         * url root will be added to the generated
+         * url. with_root should be used when
+         * navigating to a new url or updating
+         * history, but is not needed when simply
+         * generating a string for a link.
+         */
+        function encode(state, sidebar, with_root) {
             var path = [];
             if (state.host && (sidebar || state.host !== "localhost"))
                 path.push("@" + state.host);
             if (state.component)
                 path.push.apply(path, state.component.split("/"));
-            var string = cockpit.location.encode(path);
+            var string = cockpit.location.encode(path, null, with_root);
             if (state.hash && state.hash !== "/")
                 string += "#" + state.hash;
             return string;
@@ -588,7 +595,8 @@ define([
             if (shell_embedded)
                 target = window.location;
             else
-                target = encode(state);
+                target = encode(state, null, true);
+
             if (replace) {
                 history.replaceState(state, "", target);
                 return false;

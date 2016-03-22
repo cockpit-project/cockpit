@@ -86,7 +86,7 @@ setup (TestCase *tc,
       g_hash_table_insert (headers, g_strdup (fixture->header), g_strdup (fixture->value));
     }
 
-  tc->response = cockpit_web_response_new (io, path, NULL, headers);
+  tc->response = cockpit_web_response_new (io, path, path, NULL, headers);
 
   if (headers)
     g_hash_table_unref (headers);
@@ -927,9 +927,11 @@ test_pop_path (TestPlain *tc,
 {
   CockpitWebResponse *response;
   gchar *part;
+  const gchar *start = "/cockpit/@localhost/another/test.html";
 
-  response = cockpit_web_response_new (tc->io, "/cockpit/@localhost/another/test.html", NULL, tc->headers);
-  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/cockpit/@localhost/another/test.html");
+  response = cockpit_web_response_new (tc->io, start, start, NULL, tc->headers);
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, start);
+  g_assert_cmpstr (cockpit_web_response_get_url_root (response), ==, NULL);
 
   part = cockpit_web_response_pop_path (response);
   g_assert_cmpstr (part, ==, "cockpit");
@@ -967,7 +969,7 @@ test_pop_path_root (TestPlain *tc,
   CockpitWebResponse *response;
   gchar *part;
 
-  response = cockpit_web_response_new (tc->io, "/", NULL, tc->headers);
+  response = cockpit_web_response_new (tc->io, "/", "/", NULL, tc->headers);
   g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/");
 
   part = cockpit_web_response_pop_path (response);
@@ -984,8 +986,9 @@ test_skip_path (TestPlain *tc,
                 gconstpointer unused)
 {
   CockpitWebResponse *response;
+  const gchar *start = "/cockpit/@localhost/another/test.html";
 
-  response = cockpit_web_response_new (tc->io, "/cockpit/@localhost/another/test.html", NULL, tc->headers);
+  response = cockpit_web_response_new (tc->io, start, start, NULL, tc->headers);
   g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/cockpit/@localhost/another/test.html");
 
   g_assert (cockpit_web_response_skip_path (response) == TRUE);
@@ -1013,7 +1016,7 @@ test_skip_path_root (TestPlain *tc,
 {
   CockpitWebResponse *response;
 
-  response = cockpit_web_response_new (tc->io, "/", NULL, tc->headers);
+  response = cockpit_web_response_new (tc->io, "/", "/", NULL, tc->headers);
   g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/");
 
   g_assert (cockpit_web_response_skip_path (response) == FALSE);
@@ -1021,6 +1024,43 @@ test_skip_path_root (TestPlain *tc,
 
   cockpit_web_response_abort (response);
   g_object_unref (response);
+}
+
+static void
+test_removed_prefix (TestPlain *tc,
+                     gconstpointer unused)
+{
+  CockpitWebResponse *response;
+
+  response = cockpit_web_response_new (tc->io, "/", "/", NULL, tc->headers);
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/");
+  g_assert_cmpstr (cockpit_web_response_get_url_root (response), ==, NULL);
+  cockpit_web_response_abort (response);
+  g_clear_object (&response);
+
+  response = cockpit_web_response_new (tc->io, "/path/", "/path/", NULL, tc->headers);
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/path/");
+  g_assert_cmpstr (cockpit_web_response_get_url_root (response), ==, NULL);
+  cockpit_web_response_abort (response);
+  g_clear_object (&response);
+
+  response = cockpit_web_response_new (tc->io, "/path/path2/", "/path2/", NULL, tc->headers);
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/path2/");
+  g_assert_cmpstr (cockpit_web_response_get_url_root (response), ==, "/path");
+  cockpit_web_response_abort (response);
+  g_clear_object (&response);
+
+  response = cockpit_web_response_new (tc->io, "/mis/", "/match/", NULL, tc->headers);
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/match/");
+  g_assert_cmpstr (cockpit_web_response_get_url_root (response), ==, NULL);
+  cockpit_web_response_abort (response);
+  g_clear_object (&response);
+
+  response = cockpit_web_response_new (tc->io, NULL, NULL, NULL, tc->headers);
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, NULL);
+  g_assert_cmpstr (cockpit_web_response_get_url_root (response), ==, NULL);
+  cockpit_web_response_abort (response);
+  g_clear_object (&response);
 }
 
 static void
@@ -1298,6 +1338,8 @@ main (int argc,
               setup_plain, test_skip_path, teardown_plain);
   g_test_add ("/web-response/path/skip-root", TestPlain, NULL,
               setup_plain, test_skip_path_root, teardown_plain);
+  g_test_add ("/web-response/path/removed-prefix", TestPlain, NULL,
+              setup_plain, test_removed_prefix, teardown_plain);
 
   g_test_add_func ("/web-response/gunzip/small", test_gunzip_small);
   g_test_add_func ("/web-response/gunzip/large", test_gunzip_large);

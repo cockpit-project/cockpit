@@ -189,6 +189,12 @@ main (int argc,
 
   cockpit_web_server_set_redirect_tls (server, !cockpit_conf_bool ("WebService", "AllowUnencrypted", FALSE));
 
+  if (cockpit_conf_string ("WebService", "UrlRoot"))
+    {
+      g_object_set (server, "url-root",
+                    cockpit_conf_string ("WebService", "UrlRoot"),
+                    NULL);
+    }
   if (cockpit_web_server_get_socket_activated (server))
     g_signal_connect_swapped (data.auth, "idling", G_CALLBACK (g_main_loop_quit), loop);
 

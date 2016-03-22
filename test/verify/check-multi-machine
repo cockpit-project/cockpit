@@ -198,6 +198,66 @@ class TestMultiMachine(MachineCase):
                 self.check_journal_messages(self.machine3)
         MachineCase.tearDown(self)
 
+    def testUrlRoot(self):
+        b = self.browser
+        m = self.machine
+        m2 = self.machine2
+
+        m.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot = cockpit-new" > /etc/cockpit/cockpit.conf')
+        m.start_cockpit()
+
+        # Make sure normal urls don't work.
+        output = m.execute('curl -s -o /dev/null -w "%{http_code}" http://localhost:9090/cockpit/socket')
+        self.assertIn('404', output)
+
+        output = m.execute('curl -s -o /dev/null -w "%{http_code}" http://localhost:9090/cockpit/socket')
+        self.assertIn('404', output)
+
+        b.open("/cockpit-new/system")
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+        b.click('#login-button')
+        b.expect_load()
+        b.enter_page("/system")
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname == "/cockpit-new/system"')
+
+        b.click("a[href='/dashboard']")
+        b.enter_page("/dashboard")
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname == "/cockpit-new/dashboard"')
+        b.enter_page("/dashboard")
+        b.wait_present("a[data-address='localhost']")
+        b.click("a[data-address='localhost']")
+        b.enter_page("/system")
+        b.switch_to_top()
+
+        # Test 2nd machine
+        b.click("a[href='/dashboard']")
+        b.enter_page("/dashboard")
+        add_machine(b, m2.address)
+        b.enter_page("/system", host=m2.address)
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname == "/cockpit-new/@%s/system"' % m2.address)
+
+        # Test subnav
+        b.wait_visible('a[data-target="#tools-panel"]')
+        b.click('a[data-target="#tools-panel"]')
+        b.wait_present('a[href="/@{}/users"]'.format(m2.address))
+        b.wait_visible('a[href="/@{}/users"]'.format(m2.address))
+        b.click('a[href="/@{}/users"]'.format(m2.address))
+        b.enter_page("/users", host=m2.address)
+        b.wait_present("#accounts-list")
+        b.wait_present("#accounts-list div.cockpit-account:first-child")
+        b.click("#accounts-list div.cockpit-account:first-child")
+        b.wait_text("#account-user-name", "admin")
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname == "/cockpit-new/@%s/users"' % m2.address)
+        b.wait_js_cond('window.location.hash == "#/admin"')
+
+        self.allow_hostkey_messages()
+
     def testExternalPage(self):
         b = self.browser
         m1 = self.machine

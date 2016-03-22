@@ -245,6 +245,7 @@ static CockpitPipe *bridge;
 
 static gboolean
 on_handle_stream_socket (CockpitWebServer *server,
+                         const gchar *original_path,
                          const gchar *path,
                          GIOStream *io_stream,
                          GHashTable *headers,
@@ -360,6 +361,7 @@ on_echo_socket_close (WebSocketConnection *ws,
 
 static gboolean
 on_handle_stream_external (CockpitWebServer *server,
+                           const gchar *original_path,
                            const gchar *path,
                            GIOStream *io_stream,
                            GHashTable *headers,
@@ -438,12 +440,12 @@ on_handle_stream_external (CockpitWebServer *server,
           upgrade = g_hash_table_lookup (headers, "Upgrade");
           if (upgrade && g_ascii_strcasecmp (upgrade, "websocket") == 0)
             {
-              cockpit_channel_socket_open (service, open, path, io_stream, headers, input);
+              cockpit_channel_socket_open (service, open, path, path, io_stream, headers, input);
               handled = TRUE;
             }
           else
             {
-              response = cockpit_web_response_new (io_stream, path, NULL, headers);
+              response = cockpit_web_response_new (io_stream, path, path, NULL, headers);
               cockpit_channel_response_open (service, headers, response, open);
               g_object_unref (response);
               handled = TRUE;

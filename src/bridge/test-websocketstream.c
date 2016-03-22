@@ -84,6 +84,7 @@ on_socket_close (WebSocketConnection *ws,
 
 static gboolean
 handle_socket (CockpitWebServer *server,
+               const gchar *original_path,
                const gchar *path,
                GIOStream *io_stream,
                GHashTable *headers,

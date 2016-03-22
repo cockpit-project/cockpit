@@ -62,6 +62,8 @@ struct _CockpitWebResponse {
   const gchar *path;
   gchar *full_path;
   gchar *query;
+  gchar *url_root;
+
   CockpitCacheType cache_type;
 
   /* The output queue */
@@ -153,6 +155,7 @@ cockpit_web_response_finalize (GObject *object)
 
   g_free (self->full_path);
   g_free (self->query);
+  g_free (self->url_root);
   g_assert (self->io == NULL);
   g_assert (self->out == NULL);
   g_queue_free_full (self->queue, (GDestroyNotify)g_bytes_unref);
@@ -191,6 +194,7 @@ cockpit_web_response_class_init (CockpitWebResponseClass *klass)
  */
 CockpitWebResponse *
 cockpit_web_response_new (GIOStream *io,
+                          const gchar *original_path,
                           const gchar *path,
                           const gchar *query,
                           GHashTable *in_headers)
@@ -198,6 +202,7 @@ cockpit_web_response_new (GIOStream *io,
   CockpitWebResponse *self;
   GOutputStream *out;
   const gchar *connection;
+  gint offset;
 
   /* Trying to be a somewhat performant here, avoiding properties */
   self = g_object_new (COCKPIT_TYPE_WEB_RESPONSE, NULL);
@@ -214,8 +219,17 @@ cockpit_web_response_new (GIOStream *io,
                   G_OBJECT_TYPE_NAME (out));
     }
 
+  self->url_root = NULL;
   self->full_path = g_strdup (path);
   self->path = self->full_path;
+
+  if (path && original_path)
+    {
+      offset = strlen (original_path) - strlen (path);
+      if (offset > 0 && g_strcmp0 (original_path + offset, path) == 0)
+        self->url_root = g_strndup (original_path, offset);
+    }
+
   self->query = g_strdup (query);
   if (self->path)
     self->logname = self->path;
@@ -244,6 +258,17 @@ cockpit_web_response_get_path (CockpitWebResponse *self)
 {
   g_return_val_if_fail (COCKPIT_IS_WEB_RESPONSE (self), NULL);
   return self->path;
+}
+
+/**
+ * cockpit_web_response_get_url_root:
+ * @self: the response
+ *
+ * Returns: The url root portion of the original path that was removed
+ */
+const gchar *
+cockpit_web_response_get_url_root (CockpitWebResponse *self) {
+  return self->url_root;
 }
 
 /**

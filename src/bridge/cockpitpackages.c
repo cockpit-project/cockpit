@@ -640,18 +640,6 @@ handle_package_checksum (CockpitWebServer *server,
   return TRUE;
 }
 
-static void
-add_cache_header (GHashTable *headers,
-                  CockpitPackages *packages,
-                  GHashTable *out_headers)
-{
-  const gchar *pragma;
-
-  pragma = g_hash_table_lookup (headers, "Pragma");
-  if (packages->checksum && (!pragma || !strstr (pragma, "no-cache")))
-    g_hash_table_insert (out_headers, g_strdup ("Cache-Control"), g_strdup ("max-age=31556926, public"));
-}
-
 static gboolean
 handle_package_manifests_js (CockpitWebServer *server,
                              const gchar *path,
@@ -669,7 +657,6 @@ handle_package_manifests_js (CockpitWebServer *server,
   suffix = g_bytes_new_static (");", 2);
 
   out_headers = cockpit_web_server_new_table ();
-  add_cache_header (headers, packages, out_headers);
 
   cockpit_web_response_content (response, out_headers, prefix, content, suffix, NULL);
 
@@ -691,7 +678,6 @@ handle_package_manifests_json (CockpitWebServer *server,
   GBytes *content;
 
   out_headers = cockpit_web_server_new_table ();
-  add_cache_header (headers, packages, out_headers);
 
   content = cockpit_json_write_bytes (packages->json);
 
@@ -737,8 +723,6 @@ handle_packages (CockpitWebServer *server,
       cockpit_web_response_error (response, 404, NULL, NULL);
       goto out;
     }
-
-  add_cache_header (headers, packages, out_headers);
 
   bytes = cockpit_web_response_negotiation (filename, package->paths, &chosen, &error);
   if (error)

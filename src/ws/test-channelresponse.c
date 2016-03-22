@@ -151,6 +151,8 @@ test_resource_simple (TestResourceCase *tc,
                            "Content-Security-Policy: default-src 'self'; connect-src 'self' ws: wss:\r\n"
                            "Content-Type: text/html\r\n"
                            "Transfer-Encoding: chunked\r\n"
+                           "Cache-Control: max-age=86400, private\r\n"
+                           "Vary: Cookie\r\n"
                            "\r\n"
                            "52\r\n"
                            "<html>\n"
@@ -331,8 +333,8 @@ test_resource_checksum (TestResourceCase *tc,
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
                            "ETag: \"$386257ed81a663cdd7ee12633056dee18d60ddca\"\r\n"
-                           "Cache-Control: max-age=31556926, public\r\n"
                            "Transfer-Encoding: chunked\r\n"
+                           "Cache-Control: max-age=31556926, public\r\n"
                            "\r\n"
                            "32\r\n"
                            "These are the contents of file.ext\nOh marmalaaade\n"
@@ -518,6 +520,8 @@ test_resource_language_suffix (TestResourceCase *tc,
                            "Content-Security-Policy: default-src 'self'; connect-src 'self' ws: wss:\r\n"
                            "Content-Type: text/html\r\n"
                            "Transfer-Encoding: chunked\r\n"
+                           "Cache-Control: max-age=86400, private\r\n"
+                           "Vary: Cookie\r\n"
                            "\r\n"
                            "62\r\n"
                            "<html>\n"
@@ -557,6 +561,8 @@ test_resource_language_fallback (TestResourceCase *tc,
                            "Content-Security-Policy: default-src 'self'; connect-src 'self' ws: wss:\r\n"
                            "Content-Type: text/html\r\n"
                            "Transfer-Encoding: chunked\r\n"
+                           "Cache-Control: max-age=86400, private\r\n"
+                           "Vary: Cookie\r\n"
                            "\r\n"
                            "52\r\n"
                            "<html>\n"
@@ -595,11 +601,13 @@ test_resource_gzip_encoding (TestResourceCase *tc,
                            "Content-Encoding: gzip\r\n"
                            "Content-Type: text/plain\r\n"
                            "Transfer-Encoding: chunked\r\n"
+                           "Cache-Control: max-age=86400, private\r\n"
+                           "Vary: Cookie\r\n"
                            "\r\n"
                            "34\r\n"
                            "\x1F\x8B\x08\x08N1\x03U\x00\x03test-file.txt\x00sT(\xCEM\xCC\xC9Q(I-"
                            ".QH\xCB\xCCI\xE5\x02\x00>PjG\x12\x00\x00\x00\x0D\x0A" "0\x0D\x0A\x0D\x0A",
-                           160);
+                           213);
   g_bytes_unref (bytes);
   g_object_unref (response);
 }

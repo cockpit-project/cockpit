@@ -485,7 +485,9 @@ cockpit_channel_response_serve (CockpitWebService *service,
 {
   CockpitChannelResponse *chesp = NULL;
   CockpitTransport *transport = NULL;
+  CockpitCacheType cache_type = COCKPIT_WEB_RESPONSE_CACHE_PRIVATE;
   const gchar *host = NULL;
+  const gchar *pragma;
   gchar *quoted_etag = NULL;
   GHashTable *out_headers = NULL;
   gchar *val = NULL;
@@ -514,9 +516,12 @@ cockpit_channel_response_serve (CockpitWebService *service,
   else if (where[0] == '$')
     {
       quoted_etag = g_strdup_printf ("\"%s\"", where);
+      cache_type = COCKPIT_WEB_RESPONSE_CACHE_FOREVER;
+      pragma = g_hash_table_lookup (in_headers, "Pragma");
 
-      if (g_strcmp0 (g_hash_table_lookup (in_headers, "If-None-Match"), where) == 0 ||
-          g_strcmp0 (g_hash_table_lookup (in_headers, "If-None-Match"), quoted_etag) == 0)
+      if ((!pragma || !strstr (pragma, "no-cache")) &&
+          (g_strcmp0 (g_hash_table_lookup (in_headers, "If-None-Match"), where) == 0 ||
+           g_strcmp0 (g_hash_table_lookup (in_headers, "If-None-Match"), quoted_etag) == 0))
         {
           cockpit_web_response_headers (response, 304, "Not Modified", 0, "ETag", quoted_etag, NULL);
           cockpit_web_response_complete (response);
@@ -540,6 +545,7 @@ cockpit_channel_response_serve (CockpitWebService *service,
       goto out;
     }
 
+  cockpit_web_response_set_cache_type (response, cache_type);
   object = cockpit_transport_build_json ("command", "open",
                                          "payload", "http-stream1",
                                          "internal", "packages",

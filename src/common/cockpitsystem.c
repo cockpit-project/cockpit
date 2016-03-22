@@ -19,7 +19,14 @@
 
 #include "cockpitsystem.h"
 
+#include <glib/gstdio.h>
+
+#include <sys/types.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 GHashTable *
 cockpit_system_load_os_release (void)
@@ -83,3 +90,43 @@ cockpit_system_load_os_release (void)
   return result;
 }
 
+GBytes *
+cockpit_system_random_nonce (gsize length)
+{
+  GByteArray *key;
+  gint fd;
+  gint read_bytes;
+  gint read_result;
+
+  fd = g_open ("/dev/urandom", O_RDONLY, 0);
+  if (fd < 0)
+    return NULL;
+
+  key = g_byte_array_new ();
+  g_byte_array_set_size (key, length);
+  read_bytes = 0;
+  do
+    {
+      errno = 0;
+      read_result = read (fd, key->data + read_bytes, key->len - read_bytes);
+      if (read_result <= 0)
+        {
+          if (errno == EAGAIN || errno == EINTR)
+              continue;
+          break;
+        }
+      read_bytes += read_result;
+    }
+  while (read_bytes < key->len);
+  close (fd);
+
+  if (read_bytes < length)
+    {
+      g_byte_array_free (key, TRUE);
+      return NULL;
+    }
+  else
+    {
+      return g_byte_array_free_to_bytes (key);
+    }
+}

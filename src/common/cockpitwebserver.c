@@ -381,7 +381,7 @@ cockpit_web_server_default_handle_resource (CockpitWebServer *self,
                                             CockpitWebResponse *response)
 {
   if (self->document_roots)
-    cockpit_web_response_file (response, path, FALSE, (const gchar **)self->document_roots);
+    cockpit_web_response_file (response, path, (const gchar **)self->document_roots);
   else
     cockpit_web_response_error (response, 404, NULL, NULL);
   return TRUE;

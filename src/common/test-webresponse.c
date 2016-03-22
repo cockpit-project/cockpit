@@ -48,6 +48,7 @@ typedef struct {
     const gchar *path;
     const gchar *header;
     const gchar *value;
+    CockpitCacheType cache;
 } TestFixture;
 
 static void
@@ -234,7 +235,7 @@ test_return_error_resource (TestCase *tc,
 {
   const gchar *roots[] = { srcdir, NULL };
   cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
-  cockpit_web_response_file (tc->response, "/non-existant", FALSE, roots);
+  cockpit_web_response_file (tc->response, "/non-existant", roots);
   cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 404 Not Found*<img*Not Found*");
   cockpit_web_failure_resource = NULL;
 }
@@ -244,7 +245,7 @@ test_file_not_found (TestCase *tc,
                      gconstpointer user_data)
 {
   const gchar *roots[] = { srcdir, NULL };
-  cockpit_web_response_file (tc->response, "/non-existant", FALSE, roots);
+  cockpit_web_response_file (tc->response, "/non-existant", roots);
   cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 404 Not Found*");
 }
 
@@ -253,7 +254,7 @@ test_file_directory_denied (TestCase *tc,
                             gconstpointer user_data)
 {
   const gchar *roots[] = { srcdir, NULL };
-  cockpit_web_response_file (tc->response, "/src", FALSE, roots);
+  cockpit_web_response_file (tc->response, "/src", roots);
   cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 403 Directory Listing Denied*");
 }
 
@@ -267,7 +268,7 @@ test_file_access_denied (TestCase *tc,
   if (!g_mkdtemp_full (templ, 0000))
     g_assert_not_reached ();
 
-  cockpit_web_response_file (tc->response, templ + 4, FALSE, roots);
+  cockpit_web_response_file (tc->response, templ + 4, roots);
   cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 403*");
 
   g_unlink (templ);
@@ -284,7 +285,7 @@ test_file_breakout_denied (TestCase *tc,
   g_assert (root);
   g_assert (g_file_test (check, G_FILE_TEST_EXISTS));
   g_free (check);
-  cockpit_web_response_file (tc->response, breakout, FALSE, roots);
+  cockpit_web_response_file (tc->response, breakout, roots);
   cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 404*");
   free (root);
 }
@@ -300,7 +301,7 @@ test_file_breakout_non_existant (TestCase *tc,
   g_assert (root);
   g_assert (!g_file_test (check, G_FILE_TEST_EXISTS));
   g_free (check);
-  cockpit_web_response_file (tc->response, breakout, FALSE, roots);
+  cockpit_web_response_file (tc->response, breakout, roots);
   cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 404*");
   free (root);
 }
@@ -322,7 +323,7 @@ test_content_type (TestCase *tc,
 
   g_assert (user_data == &content_type_fixture);
 
-  cockpit_web_response_file (tc->response, NULL, FALSE, roots);
+  cockpit_web_response_file (tc->response, NULL, roots);
 
   resp = output_as_string (tc);
   length = strlen (resp);
@@ -336,6 +337,67 @@ test_content_type (TestCase *tc,
 
   g_assert_cmpstr (g_hash_table_lookup (headers, "Content-Type"), ==, "text/html");
 
+  g_hash_table_unref (headers);
+}
+
+static const TestFixture cache_forever_fixture = {
+  .path = "/pkg/shell/index.html",
+  .cache = COCKPIT_WEB_RESPONSE_CACHE_FOREVER,
+};
+
+static const TestFixture cache_none_fixture = {
+  .path = "/pkg/shell/index.html",
+  .cache = COCKPIT_WEB_RESPONSE_NO_CACHE
+};
+
+static const TestFixture cache_private_fixture = {
+  .path = "/pkg/shell/index.html",
+  .cache = COCKPIT_WEB_RESPONSE_CACHE_PRIVATE
+};
+
+static const TestFixture cache_unset_fixture = {
+  .path = "/pkg/shell/index.html",
+  .cache = COCKPIT_WEB_RESPONSE_CACHE_UNSET
+};
+
+static void
+test_cache (TestCase *tc,
+            gconstpointer user_data)
+{
+  const TestFixture *fixture = user_data;
+  const gchar *roots[] = { srcdir, NULL };
+  GHashTable *headers;
+  const gchar *resp;
+  gsize length;
+  guint status;
+  gssize off;
+
+  cockpit_web_response_set_cache_type (tc->response, fixture->cache);
+  cockpit_web_response_file (tc->response, NULL, roots);
+
+  resp = output_as_string (tc);
+  length = strlen (resp);
+
+  off = web_socket_util_parse_status_line (resp, length, NULL, &status, NULL);
+  g_assert_cmpuint (off, >, 0);
+  g_assert_cmpint (status, ==, 200);
+
+  off = web_socket_util_parse_headers (resp + off, length - off, &headers);
+  g_assert_cmpuint (off, >, 0);
+
+  if (fixture->cache == COCKPIT_WEB_RESPONSE_CACHE_PRIVATE)
+    g_assert_cmpstr (g_hash_table_lookup (headers, "Vary"), ==, "Cookie");
+  else
+    g_assert_null (g_hash_table_lookup (headers, "Vary"));
+
+  if (fixture->cache == COCKPIT_WEB_RESPONSE_CACHE_FOREVER)
+    g_assert_cmpstr (g_hash_table_lookup (headers, "Cache-Control"), ==, "max-age=31556926, public");
+  else if (fixture->cache == COCKPIT_WEB_RESPONSE_NO_CACHE)
+    g_assert_cmpstr (g_hash_table_lookup (headers, "Cache-Control"), ==, "no-cache, no-store");
+  else if (fixture->cache == COCKPIT_WEB_RESPONSE_CACHE_PRIVATE)
+    g_assert_cmpstr (g_hash_table_lookup (headers, "Cache-Control"), ==, "max-age=86400, private");
+  else
+    g_assert_null (g_hash_table_lookup (headers, "Cache-Control"));
   g_hash_table_unref (headers);
 }
 
@@ -1091,6 +1153,15 @@ main (int argc,
               setup, test_abort, teardown);
   g_test_add ("/web-response/connection-close", TestCase, &fixture_connection_close,
               setup, test_connection_close, teardown);
+
+  g_test_add ("/web-response/cache-forever", TestCase, &cache_forever_fixture,
+              setup, test_cache, teardown);
+  g_test_add ("/web-response/cache-private", TestCase, &cache_private_fixture,
+              setup, test_cache, teardown);
+  g_test_add ("/web-response/cache-none", TestCase, &cache_none_fixture,
+              setup, test_cache, teardown);
+  g_test_add ("/web-response/cache-unset", TestCase, &cache_unset_fixture,
+              setup, test_cache, teardown);
 
   g_test_add ("/web-response/filter/simple", TestCase, NULL,
               setup, test_web_filter_simple, teardown);

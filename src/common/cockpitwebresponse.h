@@ -37,6 +37,13 @@ typedef enum {
   COCKPIT_WEB_RESPONSE_SENT,
 } CockpitWebResponding;
 
+typedef enum {
+  COCKPIT_WEB_RESPONSE_CACHE_UNSET,
+  COCKPIT_WEB_RESPONSE_NO_CACHE,
+  COCKPIT_WEB_RESPONSE_CACHE_FOREVER,
+  COCKPIT_WEB_RESPONSE_CACHE_PRIVATE,
+} CockpitCacheType;
+
 typedef struct _CockpitWebResponse        CockpitWebResponse;
 
 extern const gchar *  cockpit_web_exception_escape_root;
@@ -101,7 +108,6 @@ void                  cockpit_web_response_gerror        (CockpitWebResponse *se
 
 void                  cockpit_web_response_file          (CockpitWebResponse *response,
                                                           const gchar *escaped,
-                                                          gboolean cache_forever,
                                                           const gchar **roots);
 
 GBytes *              cockpit_web_response_gunzip        (GBytes *bytes,
@@ -120,6 +126,9 @@ gboolean     cockpit_web_should_suppress_output_error    (const gchar *logname,
 gboolean     cockpit_web_response_is_simple_token        (const gchar *string);
 
 gboolean     cockpit_web_response_is_header_value        (const gchar *string);
+
+void         cockpit_web_response_set_cache_type         (CockpitWebResponse *self,
+                                                          CockpitCacheType cache_type);
 
 G_END_DECLS
 

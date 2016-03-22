@@ -301,7 +301,8 @@ send_login_html (CockpitWebResponse *response,
   g_bytes_unref (environment);
 
   cockpit_web_response_add_filter (response, filter);
-  cockpit_web_response_file (response, "/login.html", FALSE, ws->static_roots);
+  cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
+  cockpit_web_response_file (response, "/login.html", ws->static_roots);
   g_object_unref (filter);
 }
 
@@ -528,7 +529,8 @@ cockpit_handler_default (CockpitWebServer *server,
       else if (g_str_has_prefix (remainder, "/static/"))
         {
           /* Static stuff is served without authentication */
-          cockpit_web_response_file (response, remainder + 8, TRUE, data->static_roots);
+          cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_CACHE_FOREVER);
+          cockpit_web_response_file (response, remainder + 8, data->static_roots);
           return TRUE;
         }
     }
@@ -565,7 +567,7 @@ cockpit_handler_root (CockpitWebServer *server,
                       CockpitHandlerData *ws)
 {
   /* Don't cache forever */
-  cockpit_web_response_file (response, path, FALSE, ws->static_roots);
+  cockpit_web_response_file (response, path, ws->static_roots);
   return TRUE;
 }
 

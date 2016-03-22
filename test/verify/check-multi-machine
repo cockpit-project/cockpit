@@ -355,7 +355,14 @@ class TestMultiMachine(MachineCase):
         # Bad hostkey
         break_hostkey(m1, m2.address)
         start_machine_troubleshoot(b, True, True)
-        check_failed_state(b, "Incorrect Host Key")
+        b.wait_present("#troubleshoot-dialog .btn-default:not([disabled])")
+        b.wait_in_text('#troubleshoot-dialog .btn-default', "Close")
+        b.wait_in_text('#troubleshoot-dialog h4', "Incorrect Host Key")
+        b.wait_present("#troubleshoot-dialog pre")
+        b.wait_in_text("#troubleshoot-dialog pre", m2.address)
+        b.wait_in_text("#troubleshoot-dialog pre", "ssh-keygen")
+        b.click("#troubleshoot-dialog .btn-default")
+        b.wait_popdown('troubleshoot-dialog')
         fix_hostkey(m1)
 
         # Bad cockpit
@@ -463,7 +470,7 @@ class TestMultiMachine(MachineCase):
 
         self.allow_hostkey_messages()
         self.allow_journal_messages('.*: couldn\'t connect: Connection refused',
-                                    '.* failed to retrieve resource: hostkey-changed',
+                                    '.* failed to retrieve resource: invalid-hostkey',
                                     '.* host key for server has changed to: .*',
                                     '.* spawning remote bridge failed .*',
                                     '.*: received truncated .*',

@@ -123,7 +123,7 @@ define([
                 current_instance = new SyncUsers(self);
             else if (template == "unknown-hostkey")
                 current_instance = new HostKey(self, template);
-            else if (template == "changed-hostkey")
+            else if (template == "invalid-hostkey")
                 current_instance = new HostKey(self, template);
             else if (template == "change-auth")
                 current_instance = new ChangeAuth(self);

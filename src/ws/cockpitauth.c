@@ -35,23 +35,15 @@
 #include "common/cockpitpipetransport.h"
 #include "common/cockpitmemory.h"
 #include "common/cockpitunixfd.h"
+#include "common/cockpitsystem.h"
 #include "common/cockpitwebserver.h"
 
-#include <glib/gstdio.h>
+#include <security/pam_appl.h>
 
-#include <sys/types.h>
 #include <sys/socket.h>
-#include <fcntl.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <pwd.h>
-#include <grp.h>
-
-#include <security/pam_appl.h>
-#include <stdlib.h>
 
 #define ACTION_SPAWN_HEADER "spawn-login-with-header"
 #define ACTION_SPAWN_DECODE "spawn-login-with-decoded"
@@ -134,7 +126,7 @@ cockpit_auth_finalize (GObject *object)
   CockpitAuth *self = COCKPIT_AUTH (object);
   if (self->timeout_tag)
     g_source_remove (self->timeout_tag);
-  g_byte_array_unref (self->key);
+  g_bytes_unref (self->key);
   g_hash_table_destroy (self->authenticated);
 
   G_OBJECT_CLASS (cockpit_auth_parent_class)->finalize (object);
@@ -158,30 +150,9 @@ on_process_timeout (gpointer data)
 static void
 cockpit_auth_init (CockpitAuth *self)
 {
-  gint fd;
-  gint read_bytes;
-  gint read_result;
-
-  self->key = g_byte_array_new ();
-  g_byte_array_set_size (self->key, 128);
-  fd = g_open ("/dev/urandom", O_RDONLY, 0);
-  if (fd < 0)
+  self->key = cockpit_system_random_nonce (128);
+  if (!self->key)
     g_error ("couldn't read random key, startup aborted");
-  read_bytes = 0;
-  do
-    {
-      errno = 0;
-      read_result = read (fd, self->key->data + read_bytes, self->key->len - read_bytes);
-      if (read_result <= 0)
-        {
-          if (errno == EAGAIN || errno == EINTR)
-              continue;
-          g_error ("couldn't read random key, startup aborted");
-        }
-      read_bytes += read_result;
-    }
-  while (read_bytes < self->key->len);
-  close (fd);
 
   self->authenticated = g_hash_table_new_full (g_str_hash, g_str_equal,
                                                NULL, cockpit_authenticated_free);
@@ -198,11 +169,13 @@ cockpit_auth_init (CockpitAuth *self)
 gchar *
 cockpit_auth_nonce (CockpitAuth *self)
 {
+  const guchar *key;
+  gsize len;
   guint64 seed;
 
   seed = self->nonce_seed++;
-  return g_compute_hmac_for_data (G_CHECKSUM_SHA256,
-                                  self->key->data, self->key->len,
+  key = g_bytes_get_data (self->key, &len);
+  return g_compute_hmac_for_data (G_CHECKSUM_SHA256, key, len,
                                   (guchar *)&seed, sizeof (seed));
 }
 

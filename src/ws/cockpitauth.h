@@ -46,7 +46,7 @@ struct _CockpitAuth
 {
   GObject parent_instance;
 
-  GByteArray *key;
+  GBytes *key;
   GHashTable *authenticated;
   guint64 nonce_seed;
   gboolean login_loopback;

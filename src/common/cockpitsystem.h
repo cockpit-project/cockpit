@@ -26,6 +26,8 @@ G_BEGIN_DECLS
 
 GHashTable *         cockpit_system_load_os_release            (void);
 
+GBytes *             cockpit_system_random_nonce               (gsize length);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_SYSTEM_H__ */

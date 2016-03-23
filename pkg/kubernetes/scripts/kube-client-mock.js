@@ -121,7 +121,7 @@
         }
 
         if (!ret)
-            req.mockRespond(404, "Not found");
+            req.mockRespond(404, "Not found", { "Content-Type": "application/json" }, { code: 404, message: "Not found here" });
     }
 
     function kubeUpdate(key, object) {

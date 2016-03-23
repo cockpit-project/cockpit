@@ -497,6 +497,29 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             });
         }
     ]);
+
+    kubeTest("post", 1, FIXTURE_BASIC, [
+        "kubeLoader",
+        "kubeMethods",
+        function(loader, methods) {
+            return methods.post("/api/v1/namespaces/namespace1/pods", CREATE_ITEMS[0]).then(function(response) {
+                equal(response.metadata.name, "pod1", "pod object");
+            });
+        }
+    ]);
+
+    kubeTest("post fail", 1, FIXTURE_BASIC, [
+        "kubeLoader",
+        "kubeMethods",
+        function(loader, methods) {
+            return methods.post("/api/v1/nodes", FIXTURE_BASIC["nodes/127.0.0.1"]).then(function() {
+                ok(false, "shouldn't succeed");
+            }, function(response) {
+                deepEqual(response, { "code": 409, "message": "Already exists" }, "got failure code");
+            });
+        }
+    ]);
+
     kubeTest("check resource ok", 0, null, [
         "kubeMethods",
         function(methods) {

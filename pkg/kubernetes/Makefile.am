@@ -20,6 +20,7 @@ shared_VIEWS = \
 	pkg/kubernetes/views/add-group-dialog.html \
 	pkg/kubernetes/views/add-user-dialog.html \
 	pkg/kubernetes/views/projects-page.html \
+	pkg/kubernetes/views/project-body.html \
 	pkg/kubernetes/views/project-modify.html \
 	pkg/kubernetes/views/project-page.html \
 	pkg/kubernetes/views/project-panel.html \

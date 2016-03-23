@@ -60,6 +60,9 @@
 
     var NAME_RE = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
 
+    /* Timeout for non-GET requests */
+    var REQ_TIMEOUT = "120s";
+
     function debug() {
         if (window.debugging == "all" || window.debugging == "kube")
             console.debug.apply(console, arguments);
@@ -1091,6 +1094,8 @@
                     }
 
                     var path = resourcePath([resource.kind, null, namespace || "default"]);
+                    path += "?timeout=" + REQ_TIMEOUT;
+
                     request = new KubeRequest("POST", path, JSON.stringify(resource))
                         .then(function(response) {
                             var meta;
@@ -1131,8 +1136,10 @@
             function deleteResource(/* ... */) {
                 var path = resourcePath(arguments);
                 var resource = loader.objects[path];
+                path += "?timeout=" + REQ_TIMEOUT;
                 var promise = new KubeRequest("DELETE", path);
                 return promise.then(function() {
+                    debug("deleted resource:", path, resource);
                     if (resource)
                         loader.handle(resource, true);
                 }, function(response) {
@@ -1143,6 +1150,7 @@
 
             function patchResource(resource, patch) {
                 var path = resourcePath([resource]);
+                path += "?timeout=" + REQ_TIMEOUT;
                 var body = JSON.stringify(patch);
                 var config = { headers: { "Content-Type": "application/strategic-merge-patch+json" } };
                 var promise = new KubeRequest("PATCH", path, body, config);

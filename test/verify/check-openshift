@@ -397,6 +397,34 @@ class TestRegistry(MachineCase):
         b.wait_visible(".dashboard-images:nth-child(1)")
         b.wait_not_in_text(".card-pf-wide.dashboard-images", "default/busybox")
 
+        # Show that the project displays shared access data
+        b.wait_present("tr[data-name='marmalade']")
+        b.wait_present("tr[data-name='marmalade'] .fa-lock")
+        o.execute("oc policy add-role-to-group system:image-puller system:authenticated -n marmalade")
+        b.wait_present("tr[data-name='marmalade'] .fa-unlock")
+        output = o.execute("oc policy who-can get --namespace=marmalade imagestreams/layers")
+        self.assertIn("system:authenticated", output)
+
+        # Change the project access
+        b.go("#/projects/marmalade")
+        b.wait_in_text(".content-filter h3", "marmalade")
+        b.wait_in_text(".listing-body", "This project allows non-members to pull images.")
+        b.click(".content-filter .pficon-edit")
+        b.wait_present("modal-dialog")
+        b.wait_visible("#project-access-policy")
+        b.wait_in_text("#project-access-policy button", "Allow non-members to pull images")
+        b.click("#project-access-policy button")
+        b.wait_visible("#project-access-policy .dropdown-menu")
+        b.click("#project-access-policy a[value='private']")
+        b.click(".btn-primary")
+        b.wait_not_present("modal-dialog")
+        b.wait_not_in_text(".listing-body", "This project allows non-members to pull images.")
+        output = o.execute("oc policy who-can get --namespace=marmalade imagestreams/layers")
+        self.assertNotIn("system:authenticated", output)
+
+        # New project doesn't exist
+        b.go("#/")
+        b.wait_present(".dashboard-images")
         output = o.execute("oc get projects")
         self.assertNotIn("llama", output)
         b.wait_not_in_text(".dashboard-images:first-child", "llama")

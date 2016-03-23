@@ -23,10 +23,11 @@
     angular.module('registry.policy', [ ])
 
     .factory("projectPolicy", [
+        '$q',
         '$rootScope',
         'kubeLoader',
         'kubeMethods',
-        function($rootScope, loader, methods) {
+        function($q, $rootScope, loader, methods) {
 
             /*
              * Data loading hacks:
@@ -159,17 +160,106 @@
                 return result;
             }
 
+            /*
+             * HACK: There's no way to PATCH subjects in or out
+             * of a role, so we have to use this race prone mechanism.
+             */
+            function modifyRole(namespace, role, callback) {
+                var path = loader.resolve("RoleBinding", role, namespace);
+                return loader.load(path)
+                    .then(function(resource) {
+                        callback(resource);
+                        return methods.put(path, resource);
+                    });
+            }
+
+            function createRole(namespace, role, subjects) {
+                var name = toName(role);
+                var binding = {
+                    kind: "RoleBinding",
+                    apiVersion: "v1",
+                    metadata: {
+                        name: name,
+                        namespace: namespace,
+                        subjects: subjects,
+                    },
+                    roleRef: {
+                        name: name
+                    }
+                };
+
+                return methods.create([binding], namespace);
+            }
+
+            function indexOf(array, value) {
+                var i, len;
+                for (i = 0, len = array.length; i < len; i++) {
+                    if (angular.equals(array[i], value))
+                        return i;
+                }
+                return -1;
+            }
+
+            function addToArray(array, value) {
+                var index = indexOf(array, value);
+                if (index < 0)
+                    array.push(value);
+            }
+
+            function removeFromArray(array, value) {
+                var index = indexOf(array, value);
+                if (index >= 0)
+                    array.splice(index, 1);
+            }
+
+            function roleArray(data, field) {
+                var array = data[field] || [];
+                data[field] = array;
+                return array;
+            }
+
+            function roleArrayKind(data, kind) {
+                if (kind == "Group" || kind == "SystemGroup")
+                    return roleArray(data, "groupNames");
+                else
+                    return roleArray(data, "userNames");
+            }
+
+            function toName(object) {
+                if (typeof object == "object")
+                    return object.metadata.name;
+                else
+                    return object;
+            }
+
             return {
                 watch: function watch() {
                     loader.watch("policybindings");
                 },
                 whoCan: function whoCan(project, verb, resource) {
-                    var namespace;
-                    if (typeof project == "object")
-                        namespace = project.metadata.name;
-                    else
-                        namespace = project;
-                    return lookupWhoCan(namespace, verb, resource);
+                    return lookupWhoCan(toName(project), verb, resource);
+                },
+                addToRole: function addToRole(project, role, subject) {
+                    var namespace = toName(project);
+                    return modifyRole(namespace, role, function(data) {
+                        addToArray(roleArray(data, "subjects"), subject);
+                        addToArray(roleArrayKind(data, subject.kind), subject.name);
+                    }).catch(function(resp) {
+                        /* If the role doesn't exist create it */
+                        if (resp.code === 404)
+                            return createRole(namespace, role, [ subject ]);
+                        return $q.reject(resp);
+                    });
+                },
+                removeFromRole: function removeFromRole(project, role, subject) {
+                    return modifyRole(toName(project), role, function(data) {
+                        removeFromArray(roleArray(data, "subjects"), subject);
+                        removeFromArray(roleArrayKind(data, subject.kind), subject.name);
+                    }).catch(function(resp) {
+                        /* If the role doesn't exist consider removed to work */
+                        if (resp.code !== 404)
+                            return $q.reject(resp);
+                    });
                 }
             };
         }

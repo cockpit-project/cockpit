@@ -154,17 +154,34 @@
                 return mlist;
             }
 
-            function sharedProject(project) {
+            var sharedVerb = "get";
+            var sharedResource = "imagestreams/layers";
+            var sharedRole = "system:image-puller";
+            var sharedKind = "SystemGroup";
+            var sharedSubject = "system:authenticated";
+
+            function shareImages(project, shared) {
+                var subject = {
+                    kind: sharedKind,
+                    name: sharedSubject,
+                };
+                if (shared)
+                    return policy.addToRole(project, sharedRole, subject);
+                else
+                    return policy.removeFromRole(project, sharedRole, subject);
+            }
+
+            function sharedImages(project) {
                 if (!project)
                     return null;
 
-                var response = policy.whoCan(project, 'get', 'imagestreams/layers');
+                var response = policy.whoCan(project, sharedVerb, sharedResource);
                 if (!response)
                     return null;
 
                 var i, len, groups = response.groups || [];
                 for (i = 0, len = groups.length; i < len; i++) {
-                    if (groups[i] == "system:authenticated")
+                    if (groups[i] == sharedSubject)
                         return true;
                 }
 
@@ -175,7 +192,8 @@
                 subjectRoleBindings: subjectRoleBindings,
                 subjectIsMember: subjectIsMember,
                 formatMembers: formatMembers,
-                sharedProject: sharedProject,
+                shareImages: shareImages,
+                sharedImages: sharedImages,
             };
         }
     ])
@@ -216,7 +234,7 @@
                 restrict: 'A',
                 templateUrl: 'views/project-body.html',
                 link: function(scope, element, attrs) {
-                    scope.sharedProject = data.sharedProject;
+                    scope.sharedImages = data.sharedImages;
                 },
             };
         }
@@ -284,8 +302,9 @@
         '$q',
         '$scope',
         "dialogData",
+        "projectData",
         "kubeMethods",
-        function($q, $scope, dialogData, methods) {
+        function($q, $scope, dialogData, projectData, methods) {
             var project = dialogData.project || { };
             var meta = project.metadata || { };
             var annotations = meta.annotations || { };
@@ -293,28 +312,43 @@
             var DISPLAY = "openshift.io/display-name";
             var DESCRIPTION = "openshift.io/description";
 
+            var shared = false;
+            if (meta.name)
+                shared = projectData.sharedImages(meta.name);
+
             var fields = {
                 name: meta.name || "",
                 display: annotations[DISPLAY] || "",
                 description: annotations[DESCRIPTION] || "",
+                access: shared ? "shared" : "private",
             };
 
             $scope.fields = fields;
+            $scope.labels = {
+                access: {
+                    "private": "Only allow members to pull images",
+                    "shared": "Allow non-members to pull images",
+                }
+            };
 
             $scope.performCreate = function performCreate() {
                 var defer;
 
+                var name = fields.name.trim();
                 var request = {
                     kind: "ProjectRequest",
                     apiVersion:"v1",
-                    metadata:{ name: fields.name.trim(), },
+                    metadata:{ name: name, },
                     displayName: fields.display.trim(),
                     description: fields.description.trim()
                 };
 
                 return methods.check(request, { "metadata.name": "#project-new-name" })
                     .then(function() {
-                        return methods.create(request);
+                        return methods.create(request)
+                            .then(function() {
+                                return projectData.shareImages(name, fields.access === "shared");
+                            });
                     });
             };
 
@@ -331,7 +365,10 @@
 
                 return methods.check(data, { })
                     .then(function() {
-                        return methods.patch(project, data);
+                        return $q.all([
+                            methods.patch(project, data),
+                            projectData.shareImages(project, fields.access === "shared")
+                        ]);
                     });
             };
 

@@ -111,14 +111,15 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         }
     ]);
 
-    kubeTest("loader load fail", 2, FIXTURE_BASIC, [
+    kubeTest("loader load fail", 3, FIXTURE_BASIC, [
         "kubeLoader",
         function(loader) {
             var promise = loader.load("nonexistant");
             return promise.then(function(data) {
                 ok(!true, "successfully loaded");
             }, function(response) {
-                equal(response.status, 404, "not found");
+                equal(response.code, 404, "not found");
+                equal(response.message, "Not found here", "not found message");
                 ok(true, "not sucessfully loaded");
             });
         }

@@ -527,7 +527,8 @@
                     }
                 }, function(response) {
                     req = null;
-                    return $q.reject(response);
+                    var resp = response.data;
+                    return $q.reject(resp || response);
                 });
                 promise.cancel = function cancel(ex) {
                     req.cancel(ex);

@@ -166,8 +166,6 @@ pkg/kubernetes/kubernetes.min.css: $(kubernetes_LESS)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/lessc --verbose $< $@
 
 kubernetes_DATA = \
-	pkg/kubernetes/sparkle-placeholder.png \
-	pkg/kubernetes/donut-placeholder.png \
 	pkg/kubernetes/manifest.json \
 	pkg/kubernetes/override.json \
 	$(NULL)

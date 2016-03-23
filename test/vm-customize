@@ -83,7 +83,7 @@ def install_packages(machine_instance, packagelist, install_command):
         machine_instance.execute(install_command + " " + ' '.join(allpackages))
 
 current_image = args.image
-if args.commandlist or args.packagelist or args.scriptlist:
+if args.commandlist or args.packagelist or args.scriptlist or args.uploadlist:
     machine = testvm.VirtMachine(
         verbose=args.verbose, image=current_image, label="install")
     machine.start(maintain=True)

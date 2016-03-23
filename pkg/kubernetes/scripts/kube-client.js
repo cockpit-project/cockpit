@@ -1166,9 +1166,9 @@
                 });
             }
 
-            function postResource(resource, body, config) {
+            function generalMethodRequest(method, resource, body, config) {
                 var path = resourcePath([resource]);
-                var promise = new KubeRequest("POST", path, JSON.stringify(body), config);
+                var promise = new KubeRequest(method, path, JSON.stringify(body), config);
                 return promise.then(function(response) {
                     var resp = response.data;
                     return resp || response;
@@ -1176,6 +1176,14 @@
                     var resp = response.data;
                     return $q.reject(resp || response);
                 });
+            }
+
+            function putResource(resource, body, config) {
+                return generalMethodRequest("PUT", resource, body, config);
+            }
+
+            function postResource(resource, body, config) {
+                return generalMethodRequest("POST", resource, body, config);
             }
 
             function checkResource(resource, targets) {
@@ -1226,6 +1234,7 @@
                 "check": checkResource,
                 "patch": patchResource,
                 post: postResource,
+                put: putResource,
             };
         }
     ])

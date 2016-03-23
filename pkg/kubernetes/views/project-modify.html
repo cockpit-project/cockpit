@@ -33,6 +33,27 @@
                         ng-model="fields.description">
                 </td>
             </tr>
+            <tr>
+                <td>
+                    <label class="control-label" for="project-access-policy"
+                        translatable="yes">Access Policy</label>
+                </td>
+                <td>
+                    <div class="btn-group bootstrap-select form-control" dropdown
+                        id="project-access-policy">
+                        <button class="btn btn-default dropdown-toggle" dropdown-toggle>
+                            <span class="pull-left">{{ labels.access[fields.access] }}</span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="(value, label) in labels.access"
+                                ng-class="{checked: value == fields.access}">
+                                <a ng-click="fields.access = value" value="{{value}}">{{ label }}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
         </table>
     </div>
     <div class="modal-footer">

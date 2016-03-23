@@ -140,7 +140,7 @@
 
             $scope.createProject = projectActions.createProject;
             $scope.createImageStream = imageActions.createImageStream;
-            $scope.sharedProject = projectData.sharedProject;
+            $scope.sharedImages = projectData.sharedImages;
 
             $scope.recentlyUpdated = function recentlyUpdated() {
                 return select().kind("ImageStream").buildRecentStreams();

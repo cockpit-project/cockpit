@@ -1165,6 +1165,18 @@
                 });
             }
 
+            function postResource(resource, body, config) {
+                var path = resourcePath([resource]);
+                var promise = new KubeRequest("POST", path, JSON.stringify(body), config);
+                return promise.then(function(response) {
+                    var resp = response.data;
+                    return resp || response;
+                }, function(response) {
+                    var resp = response.data;
+                    return $q.reject(resp || response);
+                });
+            }
+
             function checkResource(resource, targets) {
                 var defer = $q.defer();
                 var ex, exs = [];
@@ -1212,6 +1224,7 @@
                 "delete": deleteResource,
                 "check": checkResource,
                 "patch": patchResource,
+                post: postResource,
             };
         }
     ])

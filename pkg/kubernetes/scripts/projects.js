@@ -191,6 +191,15 @@
         }
     ])
 
+    .directive('projectBody',
+        function() {
+            return {
+                restrict: 'A',
+                templateUrl: 'views/project-body.html'
+            };
+        }
+    )
+
     .directive('projectListing',
         function() {
             return {

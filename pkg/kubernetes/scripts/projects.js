@@ -25,7 +25,7 @@
         'ui.cockpit',
         'kubeClient',
         'kubernetes.listing',
-        'ui.cockpit',
+        'registry.policy',
     ])
 
     .config(['$routeProvider',
@@ -97,52 +97,8 @@
     .factory("projectData", [
         'kubeSelect',
         'kubeLoader',
-        function(select, loader) {
-
-            /*
-             * Data loading hacks:
-             *
-             * We would like to watch rolebindings, but sadly that's not supported
-             * by origin. So we have to watch policybindings and then infer the
-             * rolebindings from there.
-             *
-             * In addition we would like to be able to load User and Group objects,
-             * even if only for a certain project. However, non-cluster admins
-             * fail to do this, so we simulate these objects from the role bindings.
-             */
-            loader.listen(function(present, removed) {
-                var link;
-                for (link in removed) {
-                    if (removed[link].kind == "PolicyBinding")
-                        update_rolebindings(removed[link].roleBindings, true);
-                }
-                for (link in present) {
-                    if (present[link].kind == "PolicyBinding")
-                        update_rolebindings(present[link].roleBindings, false);
-                    else if (present[link].kind == "RoleBinding")
-                        ensure_subjects(present[link].subjects || []);
-                }
-            });
-
-            function update_rolebindings(bindings, removed) {
-                angular.forEach(bindings || [], function(wrapper) {
-                    loader.handle(wrapper.roleBinding, removed, "RoleBinding");
-                });
-            }
-
-            function ensure_subjects(subjects) {
-                angular.forEach(subjects, function(subject) {
-                    var link = loader.resolve(subject.kind, subject.name, subject.namespace);
-                    if (link in loader.objects)
-                        return;
-
-                    /* An interim object, until perhaps the real thing can be loaded */
-                    var interim = { kind: subject.kind, apiVersion: "v1", metadata: { name: subject.name } };
-                    if (subject.namespace)
-                        interim.metadata.namespace = subject.namespace;
-                    loader.handle(interim);
-                });
-            }
+        'projectPolicy',
+        function(select, loader, policy) {
 
             /*
              * To use this you would have a user or group, and do:

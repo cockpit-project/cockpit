@@ -32,6 +32,7 @@
         'kubernetes.details',
         'kubernetes.topology',
         'registry.images',
+        'registry.policy',
         'registry.projects',
         'kubernetesUI'
     ])

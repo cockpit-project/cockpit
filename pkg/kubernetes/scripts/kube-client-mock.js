@@ -109,6 +109,8 @@
         var ret = false;
         if (req.method === "POST") {
             ret = kubeApiPost(req, parts, query, baseUri);
+        } else if (req.method === "PUT") {
+            ret = kubeApiPut(req, parts, query, baseUri);
         } else if (req.method === "GET") {
             ret = kubeApiGet(req, parts, query, baseUri);
         } else if (req.method === "DELETE") {
@@ -327,6 +329,21 @@
             return true;
         }
 
+        kubeUpdate(key, object);
+        req.mockRespond(200, "OK", { "Content-Type": "application/json" }, JSON.stringify(object));
+        return true;
+    }
+
+    function kubeApiPut(req, parts, query, baseUri) {
+        var object;
+        try {
+            object = JSON.parse(req.body);
+        } catch(ex) {
+            req.mockRespond(400, "Bad JSON");
+            return true;
+        }
+
+        var key = parts.join("/");
         kubeUpdate(key, object);
         req.mockRespond(200, "OK", { "Content-Type": "application/json" }, JSON.stringify(object));
         return true;

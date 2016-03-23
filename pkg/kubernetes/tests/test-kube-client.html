@@ -521,6 +521,17 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         }
     ]);
 
+    kubeTest("put", 1, FIXTURE_BASIC, [
+        "kubeLoader",
+        "kubeMethods",
+        function(loader, methods) {
+            var node = { "kind": "Node", "metadata": { "name": "127.0.0.1", labels: { "test": "value" } } }
+            return methods.put("/api/v1/nodes/127.0.0.1", node).then(function(response) {
+                deepEqual(response.metadata.labels, { "test": "value" }, "put returned object");
+            });
+        }
+    ]);
+
     kubeTest("check resource ok", 0, null, [
         "kubeMethods",
         function(methods) {

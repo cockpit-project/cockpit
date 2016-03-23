@@ -34,6 +34,7 @@ shared_MODULES = \
 	pkg/kubernetes/scripts/images.js \
 	pkg/kubernetes/scripts/layers.js \
 	pkg/kubernetes/scripts/listing.js \
+	pkg/kubernetes/scripts/policy.js \
 	pkg/kubernetes/scripts/projects.js \
 	pkg/kubernetes/scripts/app.js \
 	pkg/kubernetes/scripts/utils.js \

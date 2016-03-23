@@ -37,6 +37,8 @@ parser.add_argument('-r', '--run-command', action='append', dest="commandlist",
                                            default=[], help='Run command inside virtual machine')
 parser.add_argument('-s', '--script', action='append', dest="scriptlist",
                                       default=[], help='Run selected script inside virtual machine')
+parser.add_argument('-u', '--upload', action='append', dest="uploadlist",
+                    default=[], help='Upload file/dir to destination file/dir separated by ":" example: -u file.txt:/var/lib')
 parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to use')
 args = parser.parse_args()
 
@@ -58,6 +60,14 @@ def run_script(machine_instance, scriptlist):
         else:
             print >> sys.stderr, "Bad path to script:", foo
 
+def upload_files(machine_instance, uploadfiles):
+    """Upload files/directories inside image"""
+    for foo in uploadfiles:
+        srcfile, dest = foo.split(":")
+        # machine_instance.upload tries to interpret relative paths in relation to testinfra.TEST_DIR
+        src_absolute = os.path.join(os.getcwd(), srcfile)
+        machine_instance.upload([src_absolute], dest)
+
 def install_packages(machine_instance, packagelist, install_command):
     """Install packages into a test image
     It could be done via local rpms or normal package installation
@@ -76,7 +86,7 @@ def install_packages(machine_instance, packagelist, install_command):
         machine_instance.execute(install_command + " " + ' '.join(allpackages))
 
 current_image = args.image
-if args.commandlist or args.packagelist or args.scriptlist:
+if args.commandlist or args.packagelist or args.scriptlist or args.uploadlist:
     machine = testvm.VirtMachine(
         verbose=args.verbose, image=current_image, label="install")
     machine.start(maintain=True)
@@ -88,5 +98,7 @@ if args.commandlist or args.packagelist or args.scriptlist:
             install_packages(machine, args.packagelist, args.installcommand)
         if args.scriptlist:
             run_script(machine, args.scriptlist)
+        if args.uploadlist:
+            upload_files(machine, args.uploadlist)
     finally:
         machine.stop()

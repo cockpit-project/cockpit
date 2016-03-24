@@ -33,7 +33,8 @@ __all__ = (
 class KubernetesCase(MachineCase):
 
     def start_kubernetes(self):
-        self.machine.execute("systemctl start etcd kube-apiserver kube-controller-manager kube-scheduler docker kube-proxy kubelet")
+        self.machine.execute("systemctl start docker || journalctl -u docker")
+        self.machine.execute("systemctl start etcd kube-apiserver kube-controller-manager kube-scheduler kube-proxy kubelet")
 
     # HACK: https://github.com/GoogleCloudPlatform/kubernetes/issues/8311
     # Work around for the fact that kube-apiserver doesn't notify about startup

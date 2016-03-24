@@ -18,6 +18,17 @@ kubernetes-container-shell:
 		--env=COCKPIT_KUBE_INSECURE=true \
 		cockpit/kubernetes /bin/bash
 
+registry-container-shell:
+	sudo docker run -ti --rm --publish=9001:9090 \
+		--env KUBERNETES_SERVICE_HOST=10.111.112.101 \
+		--env KUBERNETES_SERVICE_PORT=8443 \
+		--env OPENSHIFT_OAUTH_PROVIDER_URL=https://10.111.112.101:8443 \
+		--env OPENSHIFT_OAUTH_CLIENT_ID=cockpit-oauth-devel \
+		--env KUBERNETES_INSECURE=true \
+		--env=COCKPIT_KUBE_INSECURE=true \
+		--env=REGISTRY_ONLY=true \
+		cockpit/kubernetes /bin/bash
+
 WS_DIR = $(srcdir)/containers/ws
 
 CLEANFILES += $(WS_DIR)/rpms

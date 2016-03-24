@@ -1,0 +1,59 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2016 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import glob
+import os
+import subprocess
+import sys
+import shutil
+import tempfile
+
+sys.dont_write_bytecode = True
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from common import testinfra
+
+def main():
+    parser = argparse.ArgumentParser(description='Run cockpit build and unit tests in Koji')
+    opts = parser.parse_args()
+
+    directory = tempfile.mkdtemp(prefix="koji-dist.", dir=os.path.join(testinfra.TEST_DIR, "tmp"))
+    os.chdir(directory)
+
+    # Converts fedora-23 to f23
+    system = testinfra.DEFAULT_IMAGE[0] + testinfra.DEFAULT_IMAGE.split("-")[-1]
+
+    # Make a distribution
+    try:
+        subprocess.check_call(["../../../autogen.sh && make dist"], shell=True)
+        with open(os.path.join(directory, "GNUmakefile"), "w") as f:
+            f.write('include Makefile\nprint-DIST_ARCHIVES:\n\t@echo $(DIST_ARCHIVES)')
+        dist = subprocess.check_output(["make", "-s", "print-DIST_ARCHIVES"]).strip()
+
+        # Do a build
+        subprocess.check_call(["../../../tools/make-srpm", dist])
+        cmd = ["koji", "build", "--scratch", system, glob.glob("*.src.rpm")[0]]
+        subprocess.check_call(cmd)
+    finally:
+        shutil.rmtree(directory)
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -61,6 +61,8 @@ DEFAULT_VERIFY = {
     'selenium/firefox': [ 'master', 'pulls' ],
     'selenium/chrome': [ 'master', 'pulls' ],
     'container/kubernetes': [ ],
+    'koji/fedora-23': [ ],
+    'koji/fedora-24': [ ],
 }
 
 TESTING = "Testing in progress"

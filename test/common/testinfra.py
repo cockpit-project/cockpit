@@ -25,6 +25,7 @@ import json
 import urllib
 import os
 import random
+import re
 import shutil
 import socket
 import subprocess
@@ -163,6 +164,28 @@ def read_whitelist():
 
     # remove duplicate entries
     return set(whitelist)
+
+def redact_audit_variables(message):
+    """ Reformat audit events so that the same error recorded at different
+        times will match when using string comparison
+        Match lines like
+        Error: audit: type=1400 audit(1458739098.632:268): avc:  denied  { read } for  pid=1290 comm="ssh-transport-c" \
+            name="unix" dev="proc" ino=4026532021 scontext=system_u:system_r:cockpit_ws_t:s0 \
+            tcontext=system_u:object_r:proc_net_t:s0 tclass=file permissive=0
+        It will ignore changed timestamp, pid and ino entries
+    """
+    audit_re = re.compile(r"""(^\s*Error: audit:.+audit\()([0-9\.\:]+)(\).+pid=)([0-9]+)(.+ino=)([0-9]+)(.*)""")
+    lines = message.split("\n")
+    for line_idx, line in enumerate(lines):
+        if line.strip().startswith("Error: audit:"):
+            m = audit_re.match(line)
+            if len(m.groups()) == 7:
+                fields = list(m.groups())
+                fields[1] = "[timestamp]"
+                fields[3] = "[pid]"
+                fields[5] = "[ino]"
+                lines[line_idx] = "".join(fields)
+    return "\n".join(lines)
 
 class Sink(object):
     def __init__(self, host, identifier, status=None):
@@ -624,13 +647,14 @@ class GitHub(object):
 ```
 {0}
 ```""".format(err.strip())
+        redacted_err_key = redact_audit_variables(err_key)
         latest_occurrences = "Latest occurrences:\n\n"
         for comment in reversed(comments):
             if 'body' in comment and comment['body'].startswith(comment_key):
                 parts = comment['body'].split("<hr>")
                 updated = False
                 for part_idx, part in enumerate(parts):
-                    if part.startswith(err_key):
+                    if redact_audit_variables(part).startswith(redacted_err_key):
                         latest = part.split(latest_occurrences)
                         if len(latest) < 2:
                             sys.stderr.write("Error while parsing latest occurrences\n")

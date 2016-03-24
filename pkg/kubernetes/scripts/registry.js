@@ -101,8 +101,10 @@
                 return b - a;
             }
             function compareCreated(a, b) {
-                a = (a.items[0] || { }).created || "";
-                b = (b.items[0] || { }).created || "";
+                a = a.items && a.items[0] || {};
+                b = b.items && b.items[0] || {};
+                a = a.created || "";
+                b = b.created || "";
                 return (b < a ? -1 : (b > a ? 1 : 0));
             }
 

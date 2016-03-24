@@ -163,12 +163,12 @@
             var globals = true;
 
             var promise = discoverSettings().then(function(settings) {
-                var ret;
+                var ret = [];
                 if (settings.flavor === "openshift")
-                    ret = loader.load("projects");
+                    ret.push(loader.load("projects"));
                 if (settings.isAdmin)
-                    ret = loader.watch("namespaces");
-                return ret || $q.when([]);
+                    ret.push(loader.watch("namespaces"));
+                return $q.all(ret);
             });
 
             /*

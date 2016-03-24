@@ -216,6 +216,10 @@ define([
             console.warn("unknown dialog action: " + action);
     };
 
+    window.addEventListener("hashchange", function() {
+        $(".modal").modal("hide");
+    });
+
     /*
      * OnOff switch pattern
      */

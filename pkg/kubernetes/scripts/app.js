@@ -222,7 +222,7 @@
                         value = null;
                 }
 
-                if (!angular.equals(value, loader.limit.namespaces)) {
+                if (!angular.equals(value, loader.limits.namespaces)) {
                     loader.limit({ namespace: value });
                 }
             }

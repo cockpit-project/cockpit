@@ -476,7 +476,7 @@ define([
                     row = rows[id];
                     key = keys.items[id];
                     if (key) {
-                        text(row, ".credential-label", key.name);
+                        text(row, ".credential-label", key.name || key.comment);
                         text(row, ".credential-type", key.type);
                         text(row, ".credential-fingerprint", key.fingerprint);
                         text(row, ".credential-comment", key.comment);

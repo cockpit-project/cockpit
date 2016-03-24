@@ -113,6 +113,7 @@
 
                     var cancel = queryFirst(element, ".btn-cancel");
                     cancel.on("click", dismissDialog);
+                    scope.$on("$routeChangeStart", dismissDialog);
 
                     scope.$on("$destroy", function() {
                         cancel.off("click", dismissDialog);

@@ -174,6 +174,8 @@ class GithubPullTask(object):
             cmd = [ "timeout", "120m", "./verify/run-tests", "--install", "--jobs", str(opts.jobs) ]
         elif prefix == "avocado":
             cmd = [ "timeout", "60m", "./avocado/run-tests", "--install", "--quick", "--tests" ]
+        elif prefix == "koji":
+            cmd = [ "timeout", "120m", "./koji/run-build" ]
         elif prefix == "selenium":
             if value not in ['firefox', 'chrome']:
                 ret = "Unknown browser for selenium test"

@@ -361,12 +361,11 @@
 
     .factory("kubeLoader", [
         "$q",
-        "$exceptionHandler",
         "$timeout",
         "KubeWatch",
         "KubeRequest",
         "KUBE_SCHEMA",
-        function($q, $exceptionHandler, $timeout, KubeWatch, KubeRequest, KUBE_SCHEMA) {
+        function($q, $timeout, KubeWatch, KubeRequest, KUBE_SCHEMA) {
             var callbacks = [];
             var limits = { namespace: null };
 
@@ -455,12 +454,8 @@
                 var i, len, func;
                 for (i = 0, len = callbacks.length; i < len; i++) {
                     func = callbacks[i];
-                    try {
-                        if (func)
-                            func.apply(self, arguments);
-                    } catch (e) {
-                        $exceptionHandler(e);
-                    }
+                    if (func)
+                        func.apply(self, arguments);
                 }
             }
 
@@ -1274,7 +1269,7 @@
     .factory("MissingKubeRequest", [
         function() {
             return function MissingKubeRequest(path, callback) {
-                throw "no KubeRequestFactory set";
+                throw new Error("no KubeRequestFactory set");
             };
         }
     ])
@@ -1332,7 +1327,7 @@
     .factory("MissingKubeSocket", [
         function() {
             return function MissingKubeSocket(path, callback) {
-                throw "no KubeSocketFactory set";
+                throw Error("no KubeSocketFactory set");
             };
         }
     ])
@@ -1389,7 +1384,7 @@
     .factory("MissingKubeWatch", [
         function() {
             return function MissingKubeWatch(path, callback) {
-                throw "no KubeWatchFactory set";
+                throw Error("no KubeWatchFactory set");
             };
         }
     ])
@@ -1420,7 +1415,7 @@
     .factory("MissingKubeDiscoverSettings", [
         function() {
             return function MissingKubeDiscoverSettings(path, callback) {
-                throw "no KubeDiscoverSettingsFactory set";
+                throw Error("no KubeDiscoverSettingsFactory set");
             };
         }
     ]);

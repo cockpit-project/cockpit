@@ -312,6 +312,9 @@
                         var interim = { kind: "Image", apiVersion: "v1", metadata: { name: item.image } };
                         loader.handle(interim);
 
+                        if (!watching)
+                            return;
+
                         var name = meta.name + "@" + item.image;
                         loader.load("ImageStreamImage", name, meta.namespace).then(function(resource) {
                             var image = resource.image;

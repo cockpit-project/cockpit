@@ -9,7 +9,7 @@
         <div id="service-list" class="panel panel-default dashboard-list"
             ng-class="{editable: editServices}">
             <div class="panel-heading">
-                <div style="float: right;">
+                <div class="pull-right">
                     <button class="btn btn-default fa fa-check" id="services-enable-change" title="Change"
                         ng-click="toggleServiceChange()" ng-class="{ active: editServices }"></button>
                     <button class="btn btn-primary" id="deploy-app" ng-click="deploy(namespaces(), namespace)" translatable="yes">Deploy</button>
@@ -67,7 +67,7 @@
     <div class="col-md-4">
         <div id="node-list" class="panel panel-default dashboard-list">
             <div class="panel-heading">
-                <span style="float: right;">
+                <span class="pull-right">
                     <button title="Add Kubernetes Node" id="add-node" class="btn btn-primary fa fa-plus"
                         ng-click="addNode()"></button>
                 </span>

@@ -658,6 +658,9 @@ handle_package_manifests_js (CockpitWebServer *server,
 
   out_headers = cockpit_web_server_new_table ();
 
+  if (!packages->checksum)
+    cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
+
   cockpit_web_response_content (response, out_headers, prefix, content, suffix, NULL);
 
   g_hash_table_unref (out_headers);
@@ -680,6 +683,9 @@ handle_package_manifests_json (CockpitWebServer *server,
   out_headers = cockpit_web_server_new_table ();
 
   content = cockpit_json_write_bytes (packages->json);
+
+  if (!packages->checksum)
+    cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
 
   cockpit_web_response_content (response, out_headers, content, NULL);
 
@@ -759,6 +765,9 @@ handle_packages (CockpitWebServer *server,
                                g_strdup (package->content_security_policy));
         }
     }
+
+  if (!packages->checksum)
+    cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
 
   cockpit_web_response_headers_full (response, 200, "OK", -1, out_headers);
 

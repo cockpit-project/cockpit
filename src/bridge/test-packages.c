@@ -164,7 +164,7 @@ test_simple (TestCase *tc,
   g_assert_cmpstr (tc->problem, ==, NULL);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);
-  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{}}"
+  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Cache-Control\":\"no-cache, no-store\"}}"
                            "These are the contents of file.ext\nOh marmalaaade\n", -1);
   g_assert_cmpuint (count, ==, 2);
   g_bytes_unref (data);
@@ -200,7 +200,7 @@ test_large (TestCase *tc,
 
   /* Should not have been sent as one block */
   g_assert_cmpuint (count, ==, 8);
-  prefix = "{\"status\":200,\"reason\":\"OK\",\"headers\":{}}";
+  prefix = "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Cache-Control\":\"no-cache, no-store\"}}";
   g_assert_cmpuint (g_bytes_get_size (data), >, strlen (prefix));
   g_assert (strncmp (g_bytes_get_data (data, NULL), prefix, strlen (prefix)) == 0);
   sub = g_bytes_new_from_bytes (data, strlen (prefix), g_bytes_get_size (data) - strlen (prefix));
@@ -233,7 +233,7 @@ test_listing (TestCase *tc,
   object = cockpit_json_parse_bytes (message, &error);
   g_assert_no_error (error);
   cockpit_assert_json_eq (object,
-                          "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Content-Type\":\"application/json\"}}");
+                          "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Cache-Control\":\"no-cache, no-store\",\"Content-Type\":\"application/json\"}}");
   json_object_unref (object);
 
   message = mock_transport_pop_channel (tc->transport, "444");

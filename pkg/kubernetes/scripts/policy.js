@@ -244,7 +244,10 @@
                     return modifyRole(namespace, role, function(data) {
                         addToArray(roleArray(data, "subjects"), subject);
                         addToArray(roleArrayKind(data, subject.kind), subject.name);
-                    }).catch(function(resp) {
+                    }).then(function() {
+                        expireWhoCan(namespace);
+                        $rootScope.$applyAsync();
+                    }, function(resp) {
                         /* If the role doesn't exist create it */
                         if (resp.code === 404)
                             return createRole(namespace, role, [ subject ]);
@@ -252,10 +255,14 @@
                     });
                 },
                 removeFromRole: function removeFromRole(project, role, subject) {
-                    return modifyRole(toName(project), role, function(data) {
+                    var namespace = toName(project);
+                    return modifyRole(namespace, role, function(data) {
                         removeFromArray(roleArray(data, "subjects"), subject);
                         removeFromArray(roleArrayKind(data, subject.kind), subject.name);
-                    }).catch(function(resp) {
+                    }).then(function() {
+                        expireWhoCan(namespace);
+                        $rootScope.$applyAsync();
+                    }, function(resp) {
                         /* If the role doesn't exist consider removed to work */
                         if (resp.code !== 404)
                             return $q.reject(resp);

@@ -238,7 +238,7 @@ AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE],["$GETTEXT_PACKAGE"],[gettext domain])
 
 # phantomjs
 
-AC_PATH_PROG([PHANTOMJS], [phantomjs])
+AC_PATH_PROG([PHANTOMJS], [phantomjs], [], [$PATH$PATH_SEPARATOR$srcdir/node_modules/.bin/])
 AM_CONDITIONAL([WITH_PHANTOMJS], [test -n "$PHANTOMJS"])
 
 # go

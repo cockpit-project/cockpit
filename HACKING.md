@@ -61,7 +61,7 @@ In addition for testing the following dependencies are required:
          curl libvirt-client libvirt-python libvirt python-lxml \
          krb5-workstation krb5-server selinux-policy-devel
 
-    $ sudo npm install -g phantomjs
+    $ npm install phantomjs-prebuilt
 
 ## Building and Installing RPMs
 

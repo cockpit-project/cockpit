@@ -557,7 +557,6 @@
                     channel.addEventListener("message", function(ev, data) {
                         if (base64)
                             data = "1" + window.btoa(data);
-                        /* It's because of phantomjs */
                         var mev = document.createEvent('MessageEvent');
                         if (!mev.initMessageEvent)
                             mev = new window.MessageEvent('message', { 'data': data });
@@ -697,7 +696,6 @@
                     });
 
                     channel.addEventListener("message", function(ev, data) {
-                        /* It's because of phantomjs */
                         var mev = document.createEvent('MessageEvent');
                         if (!mev.initMessageEvent)
                             mev = new window.MessageEvent('message', { 'data': data });

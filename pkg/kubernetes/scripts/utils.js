@@ -22,6 +22,41 @@
 
     angular.module("kubeUtils", [])
 
+    .factory("KubeStringToBytes", [
+        function() {
+            return function (byte_string) {
+                var valid_suffixes = {
+                    "E": 1000000000000000000,
+                    "P": 1000000000000000,
+                    "T": 1000000000000,
+                    "G": 1000000000,
+                    "M": 1000000,
+                    "K": 1000,
+                    "m": 0.001,
+                    "Ei": 1152921504606846976,
+                    "Pi": 1125899906842624,
+                    "Ti": 1099511627776,
+                    "Gi": 1073741824,
+                    "Mi": 1048576,
+                    "Ki": 1024,
+                };
+
+                if (!byte_string)
+                    return;
+
+                byte_string = byte_string.trim();
+                for (var key in valid_suffixes) {
+                    if (byte_string.length > key.length &&
+                        byte_string.slice(-key.length) === key) {
+                        var number = Number(byte_string.slice(0, -key.length));
+                        if (!isNaN(number))
+                            return number * valid_suffixes[key];
+                    }
+                }
+            };
+        }
+    ])
+
     .provider('KubeFormat', [
         function() {
             var self = this;

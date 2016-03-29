@@ -1,3 +1,5 @@
+export PATH := $(PATH):$(abs_srcdir)/node_modules/.bin
+
 NULL =
 man_MANS =
 BUILT_SOURCES =
@@ -29,7 +31,6 @@ DISTCLEANFILES = \
 EXTRA_DIST = \
 	bower.json \
 	branding \
-	node_modules \
 	README.md \
 	$(NULL)
 
@@ -248,6 +249,7 @@ COMMITTED_DIST = \
 dist-hook: dist-doc-hook
 	( git -C $(srcdir) ls-tree HEAD --name-only -r $(COMMITTED_DIST) || echo $(COMMITTED_DIST) ) | \
 		tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xvf -
+	tar -C $(srcdir) -cf - --exclude='phantomjs*' node_modules/ | tar -C $(distdir) -xvf -
 	echo $(VERSION) > $(distdir)/.tarball
 	$(srcdir)/tools/build-copying $(srcdir)/node_modules > $(distdir)/COPYING.node
 	$(srcdir)/tools/build-copying $(BOWER) > $(distdir)/COPYING.bower

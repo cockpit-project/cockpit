@@ -33,7 +33,7 @@ cd $base/..
 if [ -d .git ]; then
     git archive HEAD --prefix cockpit-wip/ --output $outdir/cockpit-wip.tar
     if [ -d node_modules ]; then
-        tar -rf $outdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' node_modules
+        tar -rf $outdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' --exclude='phantomjs*' node_modules
     fi
 else
     tar -cf $outdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' .

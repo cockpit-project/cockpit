@@ -31,3 +31,5 @@ You can monitor and administer several servers at the same time. Just add them w
 ### Warning
 Unless you got Cockpit via a stable release of an OS, treat it as pre-release
 software. We recommend installing pre-release versions in a virtual machine.
+
+Test a change

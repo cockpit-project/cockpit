@@ -2,6 +2,7 @@
 
 shared_VIEWS = \
 	pkg/kubernetes/views/filter-bar.html \
+	pkg/kubernetes/views/filter-listing.html \
 	pkg/kubernetes/views/filter-project.html \
 	pkg/kubernetes/views/image-body.html \
 	pkg/kubernetes/views/image-config.html \

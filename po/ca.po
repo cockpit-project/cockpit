@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-04 15:39-0800\n"
-"PO-Revision-Date: 2016-01-26 07:43-0500\n"
+"POT-Creation-Date: 2016-03-29 08:19-0700\n"
+"PO-Revision-Date: 2016-03-10 04:17-0500\n"
 "Last-Translator: Robert Antoni Buj Gelonch <rbuj@fedoraproject.org>\n"
 "Language-Team: Catalan\n"
 "Language: ca\n"
@@ -15,47 +15,139 @@ msgstr ""
 "X-Generator: Zanata 3.8.2\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: ../pkg/tuned/dialog.js:99
+#: ../src/bridge/cockpitdbussetup.c:221 ../src/bridge/cockpitdbussetup.c:359
+#, c-format
+msgid "Unsupported setup mechanism: %s"
+msgstr ""
+
+#: ../src/bridge/cockpitdbussetup.c:235
 #, fuzzy
+msgid "Couldn't list users"
+msgstr "No es van poder llistar els serveis"
+
+#: ../src/bridge/cockpitdbussetup.c:365
+msgid "Bad data passed for passwd1 mechanism"
+msgstr ""
+
+#: ../src/bridge/cockpitdbussetup.c:380
+msgid "Couldn't load user data"
+msgstr ""
+
+#: ../src/bridge/cockpitdbussetup.c:465
+#, fuzzy
+msgid "Couldn't change user groups"
+msgstr "No s'ha pogut connectar al servidor"
+
+#: ../src/bridge/cockpitdbussetup.c:518
+#, fuzzy
+msgid "Couldn't change user password"
+msgstr "Ha fallat el canvi de contrasenya"
+
+#: ../src/bridge/cockpitdbussetup.c:542
+#, fuzzy
+msgid "Couldn't create new users"
+msgstr "No s'ha pogut connectar al servidor"
+
+#: ../src/bridge/cockpitdbussetup.c:639
+#, fuzzy
+msgid "Couldn't list local users"
+msgstr "No es van poder llistar els serveis"
+
+#: ../src/common/cockpitcertificate.c:349
+msgid "Cannot decrypt PEM-encoded private key"
+msgstr ""
+
+#: ../src/common/cockpitcertificate.c:354
+msgid "No PEM-encoded private key found"
+msgstr ""
+
+#: ../src/common/cockpitcertificate.c:364
+msgid "Could not parse PEM-encoded private key"
+msgstr ""
+
+#: ../src/common/cockpitcertificate.c:388
+msgid "No PEM-encoded certificate found"
+msgstr ""
+
+#: ../src/common/cockpitcertificate.c:397
+msgid "Could not parse PEM-encoded certificate"
+msgstr ""
+
+#: ../src/common/cockpitconnect.c:283
+#, c-format
+msgid "No addresses found"
+msgstr ""
+
+#: ../src/ws/cockpit.appdata.xml.in.h:1
+msgid ""
+"Cockpit is a server manager that makes it easy to administer your Linux "
+"servers via a web browser. Jumping between the terminal and the web tool is "
+"no problem. A service started via Cockpit can be stopped via the terminal. "
+"Likewise, if an error occurs in the terminal, it can be seen in the Cockpit "
+"journal interface."
+msgstr ""
+
+#: ../src/ws/cockpit.appdata.xml.in.h:2
+msgid ""
+"Cockpit is perfect for new sysadmins, allowing them to easily perform simple "
+"tasks such as storage administration, inspecting journals and starting and "
+"stopping services. You can monitor and administer several servers at the "
+"same time. Just add them with a single click and your machines will look "
+"after its buddies."
+msgstr ""
+
+#: ../src/ws/cockpit.desktop.in.h:1 ../pkg/shell/simple.html.h:1
+#: ../pkg/shell/index.html.h:1 ../pkg/systemd/index.html.h:1
+#: ../pkg/dashboard/index.html.h:1
+msgid "Cockpit"
+msgstr "Cockpit"
+
+#: ../src/ws/cockpit.desktop.in.h:2
+msgid "A user interface for GNU/Linux servers"
+msgstr ""
+
+#: ../src/ws/cockpit.desktop.in.h:3
+#, fuzzy
+msgid "Remote;Administration;"
+msgstr "Administrador del servidor"
+
+#: ../pkg/tuned/dialog.js:99
 msgid "Tuned is not available"
-msgstr "No disponible"
+msgstr "Tuned no està disponible"
 
 #: ../pkg/tuned/dialog.js:101
-#, fuzzy
 msgid "Tuned is not running"
-msgstr "Sense execució"
+msgstr "Tuned no s'està executant"
 
 #: ../pkg/tuned/dialog.js:103
 msgid "Tuned is off"
-msgstr ""
+msgstr "Tuned no està aturat"
 
 #: ../pkg/tuned/dialog.js:105
 msgid "This system is using the recommended profile"
-msgstr ""
+msgstr "El sistema està utilitzant el perfil recomanat"
 
 #: ../pkg/tuned/dialog.js:107
 msgid "This system is using a custom profile"
-msgstr ""
+msgstr "El sistema està utilitzant un perfil personalitzat"
 
 #: ../pkg/tuned/dialog.js:117
 msgid "Communication with tuned has failed"
-msgstr ""
+msgstr "Ha fallat la comunicació amb tuned"
 
-#: ../pkg/tuned/dialog.js:174 ../pkg/registry/views/image-config.html.h:7
-#: ../pkg/registry/views/imagestream-body.html.h:2
+#: ../pkg/tuned/dialog.js:174 ../pkg/kubernetes/views/image-config.html.h:8
 #: ../pkg/kubernetes/views/service-panel.html.h:9
+#: ../pkg/kubernetes/views/imagestream-body.html.h:2
 msgid "None"
-msgstr ""
+msgstr "Cap"
 
 #: ../pkg/tuned/dialog.js:174
-#, fuzzy
 msgid "Disable tuned"
-msgstr "Inhabilitat"
+msgstr "Inhabilita tuned"
 
 #: ../pkg/tuned/dialog.js:236
-#, fuzzy
 msgid "Tuned has failed to start"
-msgstr "La imatge no s'ha pogut instal·lar."
+msgstr "Tuned ha fallat en iniciar-se"
 
 #: ../pkg/shell/index.js:134 ../pkg/shell/simple-index.js:83
 #: ../pkg/shell/simple.html.h:17
@@ -84,46 +176,49 @@ msgstr "No es pot connectar a una màquina desconeguda"
 
 #: ../pkg/shell/machine-dialogs.js:362
 msgid "This machine has already been added."
-msgstr ""
+msgstr "La màquina ja ha estat afegida."
 
 #: ../pkg/shell/machine-dialogs.js:378
 msgid ""
 "This version of cockpit-ws does not support connecting to a host with an "
 "alternate user or port"
 msgstr ""
+"Aquesta versió decockpit-ws no és compatible amb la connexió a un amfitrió "
+"amb un usuari o port alternatius"
 
 #: ../pkg/shell/machine-dialogs.js:384
-#, fuzzy
 msgid "The IP address or host name cannot contain whitespace."
-msgstr "L'adreça IP o el nom de l'amfitrió no poden contenir espais en blanc."
+msgstr "L'adreça IP o el nom d'amfitrió no poden contenir espais en blanc."
 
 #: ../pkg/shell/machine-dialogs.js:410
-#, fuzzy
 msgid "Failed to add machine: $0"
-msgstr "Ha fallat l'inici del Docker: $0"
+msgstr "No s'ha pogut afegir la màquina: $0"
 
-#: ../pkg/shell/machine-dialogs.js:436
+#: ../pkg/shell/machine-dialogs.js:423
+msgid ""
+"Cockpit could not contact the given host $0. Make sure it has ssh running on "
+"port 22, or specify another port in the address."
+msgstr ""
+
+#: ../pkg/shell/machine-dialogs.js:440
 msgid "Enter IP address or host name"
 msgstr "Introduïu l'adreça IP o el nom de l'amfitrió"
 
-#: ../pkg/shell/machine-dialogs.js:471
-#, fuzzy
+#: ../pkg/shell/machine-dialogs.js:475
 msgid "Failed to edit machine: $0"
-msgstr "Ha fallat l'inici del Docker: $0"
+msgstr "No s'ha pogut editar la màquina: $0"
 
 #: ../pkg/shell/credentials.js:176
 msgid "No such file or directory"
-msgstr ""
+msgstr "El fitxer o directori no existeix"
 
 #: ../pkg/shell/credentials.js:180
-#, fuzzy
 msgid "The passwords do not match."
-msgstr "Les contrasenyes no coincideixen"
+msgstr "Les contrasenyes no coincideixen."
 
 #: ../pkg/shell/credentials.js:185
-#, fuzzy
 msgid "Prompting via ssh-keygen timed out"
-msgstr "Expiració de temps en la deferència a través passwd"
+msgstr ""
 
 #: ../pkg/shell/credentials.js:207 ../pkg/users/local.js:83
 msgid "Old password not accepted"
@@ -140,25 +235,22 @@ msgstr "No s'ha acceptat la nova contrasenya"
 
 #: ../pkg/shell/credentials.js:242
 msgid "Not a valid private key"
-msgstr ""
+msgstr "No és una clau privada vàlida"
 
 #: ../pkg/shell/credentials.js:245
-#, fuzzy
 msgid "Prompting via ssh-add timed out"
-msgstr "Expiració de temps en la deferència a través passwd"
+msgstr ""
 
 #: ../pkg/shell/credentials.js:268
-#, fuzzy
 msgid "Invalid file permissions"
-msgstr "format d'hora no vàlid"
+msgstr "Permisos de fitxer no vàlids"
 
 #: ../pkg/shell/credentials.js:272
-#, fuzzy
 msgid "Password not accepted"
-msgstr "Contrasenya antiga no acceptada"
+msgstr "Contrasenya no acceptada"
 
 #: ../pkg/shell/base_index.js:637 ../pkg/users/local.js:1163
-#: ../pkg/docker/index.html.h:43 ../pkg/networkmanager/index.html.h:52
+#: ../pkg/docker/index.html.h:45 ../pkg/networkmanager/index.html.h:52
 msgid "Unexpected error"
 msgstr "Error inesperat"
 
@@ -215,24 +307,21 @@ msgstr "Les contrasenyes no coincideixen"
 
 #: ../pkg/users/local.js:405
 msgid "No user name specified"
-msgstr "No s'ha especificat cap nom d'usuari"
+msgstr "Sense especificar el nom d'usuari"
 
 #: ../pkg/users/local.js:410
 msgid "No real name specified"
-msgstr "No s'ha especificat cap nom real"
+msgstr "Sense especificar el nom real"
 
 #: ../pkg/users/local.js:434 ../pkg/users/local.js:1105
 msgid "Excellent password"
 msgstr "Contrasenya excel·lent"
 
 #: ../pkg/users/local.js:506
-#, fuzzy
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
 msgstr ""
-"El nom d'usuari només pot contenir lletres de l'a-z, dígits, punts, guions i "
-"guions baixos."
 
 #: ../pkg/users/local.js:514
 msgid "This user name already exists"
@@ -259,7 +348,7 @@ msgid "Delete $0"
 msgstr "Suprimeix $0"
 
 #: ../pkg/users/local.js:1154 ../pkg/storaged/overview.js:669
-#: ../pkg/storaged/details.js:914 ../pkg/storaged/devices.js:112
+#: ../pkg/storaged/details.js:927 ../pkg/storaged/devices.js:113
 #: ../pkg/systemd/services.html.h:13
 msgid "Error"
 msgstr "Error"
@@ -292,7 +381,7 @@ msgstr "Entrada no trobada de les publicacions"
 msgid "Enabled"
 msgstr "Habilitat"
 
-#: ../pkg/systemd/init.js:252 ../pkg/networkmanager/interfaces.js:1586
+#: ../pkg/systemd/init.js:252 ../pkg/networkmanager/interfaces.js:1634
 msgid "Disabled"
 msgstr "Inhabilitat"
 
@@ -305,16 +394,16 @@ msgid "$0 Template"
 msgstr "Plantilla $0"
 
 #. <method>:<mode>
-#: ../pkg/systemd/init.js:464 ../pkg/storaged/details.js:1455
+#: ../pkg/systemd/init.js:464 ../pkg/storaged/details.js:1468
 msgid "Start"
 msgstr "Inicia"
 
-#: ../pkg/systemd/init.js:465 ../pkg/storaged/details.js:1456
+#: ../pkg/systemd/init.js:465 ../pkg/storaged/details.js:1469
 msgid "Stop"
 msgstr "Atura"
 
-#: ../pkg/systemd/init.js:466 ../pkg/systemd/host.js:193
-#: ../pkg/systemd/host.js:1222 ../pkg/systemd/host.js:1224
+#: ../pkg/systemd/init.js:466 ../pkg/systemd/host.js:192
+#: ../pkg/systemd/host.js:1192 ../pkg/systemd/host.js:1194
 msgid "Restart"
 msgstr "Reinicia"
 
@@ -379,22 +468,34 @@ msgstr "Des de $0"
 msgid "This unit is an instance of the $0 template."
 msgstr "Aquesta unitat és una instantània de la plantilla $0."
 
-#: ../pkg/systemd/renderer.js:57
-msgid "Reboot"
-msgstr "Reinicia"
+#: ../pkg/systemd/renderer.js:40
+msgid "[no data]"
+msgstr ""
 
-#: ../pkg/systemd/renderer.js:121
+#: ../pkg/systemd/renderer.js:44
+msgid "[$0 bytes of binary data]"
+msgstr ""
+
+#: ../pkg/systemd/renderer.js:46
+msgid "[binary data]"
+msgstr ""
+
+#: ../pkg/systemd/renderer.js:70
+msgid "Reboot"
+msgstr "Rearrencada"
+
+#: ../pkg/systemd/renderer.js:134
 msgid "Load earlier entries"
 msgstr "Carrega les entrades anteriors"
 
-#: ../pkg/systemd/renderer.js:127 ../pkg/systemd/renderer.js:142
-#: ../pkg/systemd/renderer.js:186 ../pkg/systemd/renderer.js:227
+#: ../pkg/systemd/renderer.js:140 ../pkg/systemd/renderer.js:155
+#: ../pkg/systemd/renderer.js:199 ../pkg/systemd/renderer.js:240
 msgid "Loading..."
 msgstr "S'està carregant..."
 
 #. No visible day headers
 #.
-#: ../pkg/systemd/renderer.js:182
+#: ../pkg/systemd/renderer.js:195
 msgid "Go to"
 msgstr "Vés a"
 
@@ -402,106 +503,78 @@ msgstr "Vés a"
 msgid "The user <b>$0</b> is not permitted to modify hostnames"
 msgstr "A l'usuari <b>$0</b> no se li permet modificar el noms dels amfitrions"
 
-#: ../pkg/systemd/host.js:194 ../pkg/systemd/host.js:1218
-#: ../pkg/systemd/host.js:1220
+#: ../pkg/systemd/host.js:193 ../pkg/systemd/host.js:1188
+#: ../pkg/systemd/host.js:1190
 msgid "Shutdown"
 msgstr "Atura"
 
-#: ../pkg/systemd/host.js:543
+#: ../pkg/systemd/host.js:516
 msgid "Set Host name"
 msgstr "Estableix el nom de l'amfitrió"
 
-#: ../pkg/systemd/host.js:1029
+#: ../pkg/systemd/host.js:1000
 msgid "Need at least one NTP server"
-msgstr ""
+msgstr "Com a mínim es necessita un servidor NTP"
 
-#: ../pkg/systemd/host.js:1105
+#: ../pkg/systemd/host.js:1076
 msgid "Invalid date format and invalid time format"
 msgstr "format no vàlid de la data i l'hora"
 
-#: ../pkg/systemd/host.js:1107
+#: ../pkg/systemd/host.js:1078
 msgid "Invalid time format"
 msgstr "format d'hora no vàlid"
 
-#: ../pkg/systemd/host.js:1109
+#: ../pkg/systemd/host.js:1080
 msgid "Invalid date format"
 msgstr "format de data no vàlid"
 
-#: ../pkg/systemd/host.js:1160
+#: ../pkg/systemd/host.js:1131
 msgid "NTP Server"
-msgstr ""
+msgstr "Servidor NTP"
 
-#: ../pkg/systemd/host.js:1196
-msgid "1 Minute"
-msgstr "1 minut"
-
-#: ../pkg/systemd/host.js:1197
-msgid "5 Minutes"
-msgstr "5 minuts"
-
-#: ../pkg/systemd/host.js:1198
-msgid "20 Minutes"
-msgstr "20 minuts"
-
-#: ../pkg/systemd/host.js:1199
-msgid "40 Minutes"
-msgstr "40 minuts"
-
-#: ../pkg/systemd/host.js:1200
-msgid "60 Minutes"
-msgstr "60 minuts"
-
-#: ../pkg/systemd/host.js:1201
-msgid "No Delay"
-msgstr "Sense retard"
-
-#: ../pkg/systemd/host.js:1202
-msgid "Specific Time"
-msgstr "Temps específic"
-
-#: ../pkg/systemd/host.js:1212
+#: ../pkg/systemd/host.js:1181
 msgid "Message to logged in users"
 msgstr "Missatge als usuaris que hagin iniciat la sessió"
 
-#: ../pkg/systemd/host.js:1291
+#: ../pkg/systemd/host.js:1262
 msgctxt "page-title"
 msgid "CPU Status"
 msgstr "Estat de la CPU"
 
-#: ../pkg/systemd/host.js:1324
+#: ../pkg/systemd/host.js:1295
 msgid "I/O Wait"
 msgstr "Espera d'E/S"
 
-#: ../pkg/systemd/host.js:1325
+#: ../pkg/systemd/host.js:1296
 msgid "Kernel"
 msgstr "Nucli del sistema operatiu"
 
-#: ../pkg/systemd/host.js:1326 ../pkg/dashboard/index.html.h:4
+#: ../pkg/systemd/host.js:1297 ../pkg/dashboard/index.html.h:4
 msgid "User"
 msgstr "Usuari"
 
-#: ../pkg/systemd/host.js:1327
+#: ../pkg/systemd/host.js:1298
 msgid "Nice"
 msgstr "Nice"
 
-#: ../pkg/systemd/host.js:1377
+#: ../pkg/systemd/host.js:1348
 msgctxt "page-title"
 msgid "Memory"
 msgstr "Memòria"
 
-#: ../pkg/systemd/host.js:1411
+#: ../pkg/systemd/host.js:1382
 msgid "Swap Used"
 msgstr "Intercanvi utilitzat"
 
-#: ../pkg/systemd/host.js:1412
+#: ../pkg/systemd/host.js:1383
 msgid "Cached"
 msgstr "Emmagatzemat temporalment"
 
-#: ../pkg/systemd/host.js:1413
+#: ../pkg/systemd/host.js:1384
 msgid "Used"
 msgstr "Utilitzat"
 
-#: ../pkg/systemd/host.js:1414
+#: ../pkg/systemd/host.js:1385
 msgid "Free"
 msgstr "Lliure"
 
@@ -522,9 +595,8 @@ msgid "Domain $0 could not be contacted"
 msgstr "No s'ha pogut contactar amb el domini $0"
 
 #: ../pkg/realmd/operation.js:195
-#, fuzzy
 msgid "Domain $0 is not supported"
-msgstr "la versió $0 d'atomicapp no està admesa."
+msgstr "El domini $0 no és compatible"
 
 #: ../pkg/realmd/operation.js:209 ../pkg/realmd/operation.js:215
 msgid "e.g. \"$0\""
@@ -542,17 +614,16 @@ msgstr "Contrasenya d'usuari"
 msgid "One Time Password"
 msgstr "Contrasenya d'un sol cop"
 
-#: ../pkg/realmd/operation.js:244 ../pkg/networkmanager/interfaces.js:1591
-#: ../pkg/networkmanager/interfaces.js:2455
-#: ../pkg/networkmanager/interfaces.js:2459
-#: ../pkg/networkmanager/interfaces.js:2465
+#: ../pkg/realmd/operation.js:244 ../pkg/networkmanager/interfaces.js:1639
+#: ../pkg/networkmanager/interfaces.js:2502
+#: ../pkg/networkmanager/interfaces.js:2506
+#: ../pkg/networkmanager/interfaces.js:2512
 msgid "Automatic"
 msgstr "Automàtic"
 
 #: ../pkg/realmd/operation.js:319
-#, fuzzy
 msgid "Joining this domain is not supported"
-msgstr "la versió $0 d'atomicapp no està admesa."
+msgstr "La unió a aquest domini no està admesa"
 
 #: ../pkg/realmd/operation.js:338
 msgid "More"
@@ -571,11 +642,11 @@ msgstr "A l'usuari <b>$0</b> no se li permet modificar els reialmes"
 msgid "Join Domain"
 msgstr "Uneix-te al domini"
 
-#: ../pkg/docker/overview.js:170
+#: ../pkg/docker/overview.js:168
 msgid "Run image"
 msgstr "Executa la imatge"
 
-#: ../pkg/docker/overview.js:273
+#: ../pkg/docker/overview.js:271
 msgid ""
 "WARNING: Docker may be reporting the size it has allocated to it's storage "
 "pool using sparse files, not the actual space available to the underlying "
@@ -643,13 +714,13 @@ msgid "Image $0"
 msgstr "Imatge $0"
 
 #: ../pkg/docker/image.js:105 ../pkg/docker/details.js:205
-#: ../pkg/storaged/details.js:1650
+#: ../pkg/storaged/details.js:1663
 msgid "Not found"
 msgstr "No s'ha trobat"
 
 #: ../pkg/docker/image.js:148 ../pkg/docker/details.js:294
-#: ../pkg/storaged/details.js:554 ../pkg/storaged/details.js:717
-#: ../pkg/storaged/details.js:877
+#: ../pkg/storaged/details.js:554 ../pkg/storaged/details.js:730
+#: ../pkg/storaged/details.js:890
 msgid "Please confirm deletion of $0"
 msgstr "Si us plau, confirmeu la supressió de $0"
 
@@ -665,13 +736,12 @@ msgstr ""
 "ho de nou."
 
 #: ../pkg/docker/image.js:150 ../pkg/docker/details.js:296
-#: ../pkg/storaged/details.js:559 ../pkg/storaged/details.js:723
-#: ../pkg/storaged/details.js:883 ../pkg/storaged/details.js:993
-#: ../pkg/storaged/details.js:1459 ../pkg/storaged/details.js:1618
-#: ../pkg/users/index.html.h:6
-#: ../pkg/registry/views/imagestream-delete.html.h:4
-#: ../pkg/registry/views/image-delete.html.h:4
-#: ../pkg/kubernetes/index.html.h:37
+#: ../pkg/storaged/details.js:559 ../pkg/storaged/details.js:736
+#: ../pkg/storaged/details.js:896 ../pkg/storaged/details.js:1006
+#: ../pkg/storaged/details.js:1472 ../pkg/storaged/details.js:1631
+#: ../pkg/users/index.html.h:6 ../pkg/kubernetes/views/item-delete.html.h:5
+#: ../pkg/kubernetes/views/imagestream-delete.html.h:4
+#: ../pkg/kubernetes/views/image-delete.html.h:4
 msgid "Delete"
 msgstr "Suprimeix"
 
@@ -683,59 +753,52 @@ msgstr "${hip}:${hport} -> $cport"
 msgid "Deleting a container will erase all data in it."
 msgstr "La supressió d'un contenidor n'esborrarà totes les dades."
 
-#: ../pkg/docker/run.js:194 ../pkg/registry/views/image-page.html.h:3
-#: ../pkg/registry/views/image-panel.html.h:2 ../pkg/docker/console.html.h:1
+#: ../pkg/docker/run.js:192 ../pkg/docker/console.html.h:1
+#: ../pkg/kubernetes/views/image-page.html.h:3
+#: ../pkg/kubernetes/views/image-panel.html.h:2
 #: ../pkg/kubernetes/views/container-body.html.h:1
 #: ../pkg/kubernetes/views/container-panel.html.h:1
 msgid "Container"
 msgstr "Contenidor"
 
-#: ../pkg/docker/run.js:196 ../pkg/kubernetes/views/route-panel.html.h:4
+#: ../pkg/docker/run.js:194 ../pkg/kubernetes/views/route-panel.html.h:4
+#: ../pkg/kubernetes/views/route-modify.html.h:2
 #: ../pkg/kubernetes/views/details-page.html.h:14
-#: ../pkg/kubernetes/index.html.h:32
 msgid "Host"
 msgstr "Amfitrió"
 
-#: ../pkg/docker/run.js:228
+#: ../pkg/docker/run.js:226
 msgid "Invalid port"
 msgstr "Port no vàlid"
 
-#: ../pkg/docker/run.js:238
+#: ../pkg/docker/run.js:236
 msgid "Duplicate port"
 msgstr "Port duplicat"
 
 #. still valid if empty
-#: ../pkg/docker/run.js:326
+#: ../pkg/docker/run.js:324
 msgid "No alias specified"
-msgstr "No s'ha especificat l'àlies"
+msgstr "Sense especificar l'àlies"
 
-#: ../pkg/docker/run.js:336
+#: ../pkg/docker/run.js:334
 msgid "Duplicate alias"
 msgstr "Àlies duplicat"
 
-#: ../pkg/docker/run.js:371
+#: ../pkg/docker/run.js:370
 msgid "No container specified"
-msgstr "No s'ha especificat el contenidor"
+msgstr "Sense especificar el contenidor"
 
-#: ../pkg/docker/run.js:466
+#: ../pkg/docker/run.js:465
 msgid "to host port"
 msgstr "al port de l'amfitrió"
 
-#: ../pkg/docker/run.js:467 ../pkg/docker/run.js:534
+#: ../pkg/docker/run.js:466 ../pkg/docker/run.js:532
 #: ../pkg/kubernetes/views/route-panel.html.h:9
 #: ../pkg/kubernetes/views/node-panel.html.h:10
 msgid "none"
 msgstr "cap"
 
-#: ../pkg/docker/run.js:499 ../pkg/docker/run.js:500
-msgid "UDP"
-msgstr "UDP"
-
-#: ../pkg/docker/run.js:502
-msgid "TCP"
-msgstr "TCP"
-
-#: ../pkg/docker/run.js:533
+#: ../pkg/docker/run.js:531
 msgid "alias"
 msgstr "àlies"
 
@@ -749,12 +812,12 @@ msgstr "Error en la baixada"
 
 #: ../pkg/playground/test.js:14
 msgid "Translation"
-msgstr ""
+msgstr "Traducció"
 
 #: ../pkg/playground/test.js:15
 msgctxt "reverse"
 msgid "Translation"
-msgstr ""
+msgstr "Traducció"
 
 #: ../pkg/dashboard/list.js:226
 msgid "The user <b>$0</b> is not permitted to manage servers"
@@ -767,595 +830,457 @@ msgstr ""
 "Actualment esteu connectat directament a aquest servidor. No podeu suprimir-"
 "ho."
 
-#: ../pkg/kubernetes/node.js:63
-msgid "Please type an address"
-msgstr "Si us plau, introduïu una adreça"
-
-#: ../pkg/kubernetes/node.js:65
-msgid "The address contains invalid characters"
-msgstr "L'adreça conté caràcters no vàlids"
-
-#: ../pkg/kubernetes/node.js:72
-msgid "The name contains invalid charaters"
-msgstr "El nom conté caràcters no vàlids"
-
-#: ../pkg/kubernetes/details.js:27
-msgid "Delete $0 $1?"
-msgstr "Suprimeix $0 $1?"
-
-#: ../pkg/kubernetes/details.js:69
-#, fuzzy
-msgid "Not a valid value for Host"
-msgstr "No és un nombre vàlid de rèpliques"
-
-#: ../pkg/kubernetes/details.js:81 ../pkg/kubernetes/details.js:147
-#: ../pkg/kubernetes/adjust.js:123
-msgid "Updating $0..."
-msgstr "S'està actualitzant $0..."
-
-#: ../pkg/kubernetes/details.js:90
-#, fuzzy
-msgid "Unable to modify Routes"
-msgstr "No es pot reanomenar el compte de root"
-
-#: ../pkg/kubernetes/details.js:133 ../pkg/kubernetes/adjust.js:107
-msgid "Not a valid number of replicas"
-msgstr "No és un nombre vàlid de rèpliques"
-
-#: ../pkg/kubernetes/details.js:135 ../pkg/kubernetes/adjust.js:109
-msgid "The maximum number of replicas is 128"
-msgstr "El nombre màxim de rèpliques és 128"
-
-#: ../pkg/kubernetes/details.js:331
+#: ../pkg/kubernetes/scripts/details.js:213
 #: ../pkg/kubernetes/views/service-panel.html.h:1
 #: ../pkg/kubernetes/views/details-page.html.h:11
 #: ../pkg/kubernetes/views/node-panel.html.h:12
 msgid "Ready"
 msgstr "A punt"
 
-#: ../pkg/kubernetes/details.js:331
+#: ../pkg/kubernetes/scripts/details.js:213
 #: ../pkg/kubernetes/views/service-panel.html.h:2
 #: ../pkg/kubernetes/views/details-page.html.h:12
 #: ../pkg/kubernetes/views/node-panel.html.h:13
 msgid "Not Ready"
 msgstr "No a punt"
 
-#: ../pkg/kubernetes/details.js:348 ../pkg/networkmanager/interfaces.js:545
-#: ../pkg/networkmanager/interfaces.js:949
-#: ../pkg/networkmanager/interfaces.js:1853
-#: ../pkg/networkmanager/interfaces.js:1855
-#: ../pkg/registry/views/image-body.html.h:4
+#: ../pkg/kubernetes/scripts/details.js:234
+#: ../pkg/networkmanager/interfaces.js:589
+#: ../pkg/networkmanager/interfaces.js:997
+#: ../pkg/networkmanager/interfaces.js:1901
+#: ../pkg/networkmanager/interfaces.js:1903
+#: ../pkg/kubernetes/views/image-body.html.h:5
 #: ../pkg/kubernetes/views/node-panel.html.h:14
 msgid "Unknown"
 msgstr "Desconegut"
 
-#: ../pkg/kubernetes/client.js:523
-msgid "Couldn't find running kube-apiserver"
-msgstr "No s'ha pogut trobar el kube-apiserver en execució"
+#: ../pkg/kubernetes/scripts/details.js:382
+#: ../pkg/kubernetes/scripts/details.js:505
+msgid "Not a valid number of replicas"
+msgstr "No és un nombre vàlid de rèpliques"
 
-#: ../pkg/kubernetes/client.js:1473
-msgid "Invalid kubernetes application manifest"
-msgstr "manifest d'aplicació de Kubernetes no vàlid"
+#: ../pkg/kubernetes/scripts/details.js:384
+#: ../pkg/kubernetes/scripts/details.js:507
+msgid "The maximum number of replicas is 128"
+msgstr "El nombre màxim de rèpliques és 128"
 
-#: ../pkg/kubernetes/client.js:1499
-msgid "Unsupported kubernetes object in data"
-msgstr "objecte Kubernetes no admès a les dades"
+#: ../pkg/kubernetes/scripts/details.js:433
+msgid "Not a valid value for Host"
+msgstr "No és un valor vàlid per a l'amfitrió"
 
-#: ../pkg/kubernetes/client.js:1586
-msgid "Unsupported or incompatible kubernetes API server."
-msgstr "Servidor de l'API del Kubernetes no admès o incompatible."
+#: ../pkg/kubernetes/scripts/details.js:542
+msgid "Updating $0..."
+msgstr "S'està actualitzant $0..."
 
-#: ../pkg/kubernetes/client.js:1588
-msgid "Could not connect to kubernetes API server."
-msgstr "No s'ha pogut connectar al servidor de l'API del Kubernetes."
+#: ../pkg/kubernetes/scripts/dashboard.js:336
+msgid "Please type an address"
+msgstr "Si us plau, introduïu una adreça"
 
-#: ../pkg/kubernetes/deploy.js:78
-msgid "Please create another namespace for $0 \"$1\""
-msgstr "Si us plau, creeu un altre espai de noms per a $0 \"$1\""
+#: ../pkg/kubernetes/scripts/dashboard.js:338
+msgid "The address contains invalid characters"
+msgstr "L'adreça conté caràcters no vàlids"
 
-#: ../pkg/kubernetes/deploy.js:263 ../pkg/kubernetes/deploy.js:300
+#: ../pkg/kubernetes/scripts/dashboard.js:346
+#, fuzzy
+msgid "The name contains invalid characters"
+msgstr "El nom conté caràcters no vàlids"
+
+#: ../pkg/kubernetes/scripts/dashboard.js:415
 msgid "Namespace cannot be empty."
 msgstr "L'espai de noms no pot estar en blanc."
 
-#: ../pkg/kubernetes/deploy.js:265 ../pkg/kubernetes/deploy.js:302
+#: ../pkg/kubernetes/scripts/dashboard.js:417
 msgid "Please provide a valid namespace."
 msgstr "Si us plau, un espai de noms vàlid."
 
-#: ../pkg/kubernetes/deploy.js:315
+#: ../pkg/kubernetes/scripts/dashboard.js:425
 msgid ""
 "No metadata file was selected. Please select a Kubernetes metadata file."
 msgstr ""
-"No s'ha seleccionat cap fitxer de metadades. Si us plau, seleccioneu un "
-"fitxer de metadades del Kubernetes."
+"Sense seleccionar el fitxer de metadades. Si us plau, seleccioneu un fitxer "
+"de metadades del Kubernetes."
 
-#: ../pkg/kubernetes/deploy.js:317
+#: ../pkg/kubernetes/scripts/dashboard.js:427
 msgid "The selected file is not a valid Kubernetes application manifest."
 msgstr "El fitxer seleccionat no és un manifest d'aplicació Kubernetes vàlid."
 
-#: ../pkg/kubernetes/deploy.js:332
+#: ../pkg/kubernetes/scripts/dashboard.js:442
 msgid "Unable to read the Kubernetes application manifest. Code $0."
 msgstr "No es pot llegir el fitxer del manifest del Kubernetes. Codi $0."
 
-#: ../pkg/kubernetes/deploy.js:349
-msgid "Nulecule field cannot be empty."
-msgstr "El camp del Nulecule no pot estar en blanc."
+#: ../pkg/kubernetes/scripts/dashboard.js:454
+#, fuzzy
+msgid "Unable to decode Kubernetes application manifest."
+msgstr "No es pot llegir el fitxer del manifest del Kubernetes. Codi $0."
 
-#: ../pkg/kubernetes/deploy.js:413 ../pkg/kubernetes/views/route-panel.html.h:2
-#: ../pkg/kubernetes/views/containers-page.html.h:5
-#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:5
-#: ../pkg/kubernetes/views/service-panel.html.h:4
-#: ../pkg/kubernetes/views/pod-body.html.h:2
-#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:4
-#: ../pkg/kubernetes/views/dashboard-page.html.h:9
-#: ../pkg/kubernetes/views/details-page.html.h:8
-msgid "Namespace"
-msgstr "Espai de noms"
+#: ../pkg/kubernetes/scripts/dashboard.js:482
+msgid "Please create another namespace for $0 \"$1\""
+msgstr "Si us plau, creeu un altre espai de noms per a $0 \"$1\""
 
-#: ../pkg/kubernetes/deploy.js:415
-#: ../pkg/registry/views/imagestream-modify.html.h:4
-#: ../pkg/kubernetes/views/route-panel.html.h:1
-#: ../pkg/kubernetes/views/containers-page.html.h:4
-#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:4
-#: ../pkg/kubernetes/views/service-panel.html.h:3
-#: ../pkg/kubernetes/views/pod-body.html.h:1
-#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:3
-#: ../pkg/kubernetes/views/dashboard-page.html.h:8
-#: ../pkg/kubernetes/views/details-page.html.h:7
-msgid "Project"
-msgstr "Projecte"
-
-#: ../pkg/kubernetes/deploy.js:418 ../pkg/kubernetes/deploy.js:468
-msgid "Select Manifest File..."
-msgstr "Selecciona el fitxer del manifest..."
-
-#: ../pkg/kubernetes/images.js:351
-msgid " + $0 more"
+#: ../pkg/kubernetes/scripts/dashboard.js:501
+msgid "Manifest"
 msgstr ""
 
-#: ../pkg/kubernetes/images.js:353
-#, fuzzy
-msgid "$0 image"
-msgstr "Executa la imatge"
-
-#: ../pkg/kubernetes/images.js:353
-#, fuzzy
-msgid "$0 images"
-msgstr "Executa la imatge"
-
-#: ../pkg/kubernetes/graphs.js:516
+#: ../pkg/kubernetes/scripts/graphs.js:597
 msgid "CPU"
 msgstr "CPU"
 
-#: ../pkg/kubernetes/graphs.js:521
+#: ../pkg/kubernetes/scripts/graphs.js:602
 msgid "Memory"
 msgstr "Memòria"
 
-#: ../pkg/kubernetes/graphs.js:526
+#: ../pkg/kubernetes/scripts/graphs.js:607
 msgid "Network"
 msgstr "Xarxa"
 
-#: ../pkg/kubernetes/nulecule.js:142
-msgid "The image is not a correctly labeled Nulecule image."
-msgstr "La imatge no està etiquetada correctament com a imatge de Nulecule."
-
-#: ../pkg/kubernetes/nulecule.js:156
-msgid "This image is not a supported Nulecule image"
-msgstr "Aquesta imatge no és una imatge admesa del Nulecule"
-
-#: ../pkg/kubernetes/nulecule.js:177
-msgid "The 'atomic' command is not installed on the system."
-msgstr "L'ordre «atomic» no està instal·lada al sistema."
-
-#: ../pkg/kubernetes/nulecule.js:187
-msgid "The 'atomic' command version $0 is not supported."
-msgstr "La versió $0 de l'ordre «atomic» no està admesa."
-
-#: ../pkg/kubernetes/nulecule.js:210
-#, fuzzy
-msgid "Unable to start docker"
-msgstr "Ha fallat l'inici del Docker: $0"
-
-#: ../pkg/kubernetes/nulecule.js:233
-msgid "Unable to pull Nulecule app image."
-msgstr "No es pot atraure la imatge d'aplicació de Nulecule."
-
-#: ../pkg/kubernetes/nulecule.js:281
-msgid "No supported providers found."
-msgstr ""
-
-#: ../pkg/kubernetes/nulecule.js:315
-msgid "Installing ..."
-msgstr "S'està instal·lant..."
-
-#: ../pkg/kubernetes/nulecule.js:322
-msgid "Running ..."
-msgstr "S'està executant..."
-
-#: ../pkg/kubernetes/nulecule.js:371
-msgid "Image failed to "
-msgstr ""
-
-#: ../pkg/kubernetes/nulecule.js:394
-msgid "Reading answers file ..."
-msgstr ""
-
-#: ../pkg/kubernetes/nulecule.js:405
-msgid "Unable to read answer.conf.sample file."
-msgstr "No s'ha pogut llegir el fitxer answer.conf.sample."
-
-#: ../pkg/kubernetes/nulecule.js:496
-msgid "Image failed to install."
-msgstr "La imatge no s'ha pogut instal·lar."
-
-#: ../pkg/kubernetes/nulecule.js:503
-msgid "Temporary folder was not created"
-msgstr "No s'ha creat el directori temporal"
-
-#: ../pkg/kubernetes/nulecule.js:510
-msgid "atomicapp version $0 is not supported."
-msgstr "la versió $0 d'atomicapp no està admesa."
-
-#: ../pkg/kubernetes/nulecule.js:512
-#, fuzzy
-msgid "Only atomicapp version gretater than $0 is supported."
-msgstr "la versió $0 d'atomicapp no està admesa."
-
-#: ../pkg/kubernetes/nulecule.js:551
-msgid "Image failed to run."
-msgstr "La imatge no s'ha pogut executar."
-
 #. NM_DEVICE_STATE_UNAVAILABLE
-#: ../pkg/networkmanager/interfaces.js:707
+#: ../pkg/networkmanager/interfaces.js:751
 msgid "Not available"
 msgstr "No disponible"
 
 #. NM_DEVICE_STATE_DISCONNECTED
-#: ../pkg/networkmanager/interfaces.js:709
-#: ../pkg/networkmanager/interfaces.js:1166
-#: ../pkg/networkmanager/interfaces.js:1888
+#: ../pkg/networkmanager/interfaces.js:753
+#: ../pkg/networkmanager/interfaces.js:1214
+#: ../pkg/networkmanager/interfaces.js:1936
 msgid "Inactive"
 msgstr "Inactiu"
 
 #. NM_DEVICE_STATE_PREPARE
-#: ../pkg/networkmanager/interfaces.js:711
+#: ../pkg/networkmanager/interfaces.js:755
 msgid "Preparing"
 msgstr "S'està preparant"
 
 #. NM_DEVICE_STATE_CONFIG
-#: ../pkg/networkmanager/interfaces.js:713
+#: ../pkg/networkmanager/interfaces.js:757
 msgid "Configuring"
 msgstr "S'està configurant"
 
 #. NM_DEVICE_STATE_NEED_AUTH
-#: ../pkg/networkmanager/interfaces.js:715
+#: ../pkg/networkmanager/interfaces.js:759
 msgid "Authenticating"
 msgstr "S'està autenticant"
 
 #. NM_DEVICE_STATE_IP_CONFIG
-#: ../pkg/networkmanager/interfaces.js:717
+#: ../pkg/networkmanager/interfaces.js:761
 msgid "Configuring IP"
 msgstr "S'està configurant la IP"
 
 #. NM_DEVICE_STATE_IP_CHECK
-#: ../pkg/networkmanager/interfaces.js:719
+#: ../pkg/networkmanager/interfaces.js:763
 msgid "Checking IP"
 msgstr "S'està comprovant la IP"
 
 #. NM_DEVICE_STATE_SECONDARIES
-#: ../pkg/networkmanager/interfaces.js:721
+#: ../pkg/networkmanager/interfaces.js:765
 msgid "Waiting"
 msgstr "S'està esperant"
 
 #. NM_DEVICE_STATE_ACTIVATED
-#: ../pkg/networkmanager/interfaces.js:723
+#: ../pkg/networkmanager/interfaces.js:767
 msgid "Active"
 msgstr "Activa"
 
 #. NM_DEVICE_STATE_DEACTIVATING
-#: ../pkg/networkmanager/interfaces.js:725
+#: ../pkg/networkmanager/interfaces.js:769
 msgid "Deactivating"
 msgstr "S'està desactivant"
 
 #. NM_DEVICE_STATE_FAILED
-#: ../pkg/networkmanager/interfaces.js:727 ../pkg/ostree/index.html.h:14
+#: ../pkg/networkmanager/interfaces.js:771 ../pkg/ostree/index.html.h:14
 msgid "Failed"
 msgstr "Ha fallat"
 
-#: ../pkg/networkmanager/interfaces.js:1168
+#: ../pkg/networkmanager/interfaces.js:1216
 msgid "No carrier"
 msgstr "Sense portadora"
 
-#: ../pkg/networkmanager/interfaces.js:1208
+#: ../pkg/networkmanager/interfaces.js:1256
 msgid "Part of "
 msgstr "Part de"
 
-#: ../pkg/networkmanager/interfaces.js:1255
+#: ../pkg/networkmanager/interfaces.js:1303
 msgid "The user <b>$0</b> is not permitted to modify network settings"
 msgstr "A l'usuari <b>$0</b> no se li permet modificar els ajustos de xarxa"
 
-#: ../pkg/networkmanager/interfaces.js:1316
-#: ../pkg/networkmanager/interfaces.js:1630
+#: ../pkg/networkmanager/interfaces.js:1364
+#: ../pkg/networkmanager/interfaces.js:1678
 msgctxt "page-title"
 msgid "Networking"
 msgstr "Xarxa"
 
-#: ../pkg/networkmanager/interfaces.js:1582
+#: ../pkg/networkmanager/interfaces.js:1630
 msgid "Automatic (DHCP)"
 msgstr "Automàtica (DHCP)"
 
-#: ../pkg/networkmanager/interfaces.js:1583
-#: ../pkg/networkmanager/interfaces.js:1593
+#: ../pkg/networkmanager/interfaces.js:1631
+#: ../pkg/networkmanager/interfaces.js:1641
 msgid "Link local"
 msgstr "Enllaça localment"
 
-#: ../pkg/networkmanager/interfaces.js:1584
-#: ../pkg/networkmanager/interfaces.js:1594
+#: ../pkg/networkmanager/interfaces.js:1632
+#: ../pkg/networkmanager/interfaces.js:1642
 msgid "Manual"
 msgstr "Manual"
 
-#: ../pkg/networkmanager/interfaces.js:1585
+#: ../pkg/networkmanager/interfaces.js:1633
 msgid "Shared"
 msgstr "Compartida"
 
-#: ../pkg/networkmanager/interfaces.js:1592
+#: ../pkg/networkmanager/interfaces.js:1640
 msgid "Automatic (DHCP only)"
 msgstr "Automàtica, tan sols DHCP"
 
-#: ../pkg/networkmanager/interfaces.js:1595
+#: ../pkg/networkmanager/interfaces.js:1643
 msgid "Ignore"
 msgstr "Ignora"
 
-#: ../pkg/networkmanager/interfaces.js:1600
+#: ../pkg/networkmanager/interfaces.js:1648
 msgid "Round Robin"
 msgstr "Round Robin"
 
-#: ../pkg/networkmanager/interfaces.js:1601
+#: ../pkg/networkmanager/interfaces.js:1649
 msgid "Active Backup"
 msgstr "Activa la còpia de seguretat"
 
-#: ../pkg/networkmanager/interfaces.js:1602
+#: ../pkg/networkmanager/interfaces.js:1650
 msgid "XOR"
 msgstr "XOR"
 
-#: ../pkg/networkmanager/interfaces.js:1603
+#: ../pkg/networkmanager/interfaces.js:1651
 msgid "Broadcast"
 msgstr "Difusió"
 
-#: ../pkg/networkmanager/interfaces.js:1604
+#: ../pkg/networkmanager/interfaces.js:1652
 msgid "802.3ad"
 msgstr "802.3ad"
 
-#: ../pkg/networkmanager/interfaces.js:1605
+#: ../pkg/networkmanager/interfaces.js:1653
 msgid "Adaptive transmit load balancing"
 msgstr "Balanceig de càrrega de transmissió adaptativa"
 
-#: ../pkg/networkmanager/interfaces.js:1606
+#: ../pkg/networkmanager/interfaces.js:1654
 msgid "Adaptive load balancing"
 msgstr "Balanceig de càrrega adaptativa"
 
-#: ../pkg/networkmanager/interfaces.js:1611
+#: ../pkg/networkmanager/interfaces.js:1659
 msgid "MII (Recommended)"
 msgstr "MII (recomanat)"
 
-#: ../pkg/networkmanager/interfaces.js:1612
+#: ../pkg/networkmanager/interfaces.js:1660
 msgid "ARP"
 msgstr "ARP"
 
-#: ../pkg/networkmanager/interfaces.js:1839
-#: ../pkg/networkmanager/interfaces.js:1847
-#: ../pkg/networkmanager/interfaces.js:2043
+#: ../pkg/networkmanager/interfaces.js:1887
+#: ../pkg/networkmanager/interfaces.js:1895
+#: ../pkg/networkmanager/interfaces.js:2091
 msgid "Bond"
 msgstr "Enllaç"
 
-#: ../pkg/networkmanager/interfaces.js:1841
-#: ../pkg/networkmanager/interfaces.js:1849
-#: ../pkg/networkmanager/interfaces.js:2107
+#: ../pkg/networkmanager/interfaces.js:1889
+#: ../pkg/networkmanager/interfaces.js:1897
+#: ../pkg/networkmanager/interfaces.js:2155
 msgid "VLAN"
 msgstr "VLAN"
 
-#: ../pkg/networkmanager/interfaces.js:1843
-#: ../pkg/networkmanager/interfaces.js:1851
-#: ../pkg/networkmanager/interfaces.js:2069
+#: ../pkg/networkmanager/interfaces.js:1891
+#: ../pkg/networkmanager/interfaces.js:1899
+#: ../pkg/networkmanager/interfaces.js:2117
 msgid "Bridge"
 msgstr "Pont"
 
-#: ../pkg/networkmanager/interfaces.js:1872
+#: ../pkg/networkmanager/interfaces.js:1920
 msgid "Carrier"
 msgstr "Portadora"
 
-#: ../pkg/networkmanager/interfaces.js:1875
+#: ../pkg/networkmanager/interfaces.js:1923
 msgid "Yes"
 msgstr "Sí"
 
-#: ../pkg/networkmanager/interfaces.js:1876
+#: ../pkg/networkmanager/interfaces.js:1924
 msgid "No"
 msgstr "No"
 
-#: ../pkg/networkmanager/interfaces.js:1895
+#: ../pkg/networkmanager/interfaces.js:1943
 #: ../pkg/kubernetes/views/containers-page.html.h:7
+#: ../pkg/kubernetes/views/pvc-body.html.h:7
 #: ../pkg/kubernetes/views/details-page.html.h:5
 #: ../pkg/kubernetes/views/node-panel.html.h:11
 #: ../pkg/subscriptions/index.html.h:45
 msgid "Status"
 msgstr "Estat"
 
-#: ../pkg/networkmanager/interfaces.js:1928
+#: ../pkg/networkmanager/interfaces.js:1976
 msgid "Unknown configuration"
 msgstr "Configuració desconeguda"
 
-#: ../pkg/networkmanager/interfaces.js:2002
+#: ../pkg/networkmanager/interfaces.js:2050
 msgid "Configure"
 msgstr "Configura"
 
-#: ../pkg/networkmanager/interfaces.js:2019
+#: ../pkg/networkmanager/interfaces.js:2067
 msgid "Master"
 msgstr "Màster"
 
-#: ../pkg/networkmanager/interfaces.js:2038
+#: ../pkg/networkmanager/interfaces.js:2086
 msgid "ARP Monitoring"
 msgstr "Monitoratge ARP"
 
-#: ../pkg/networkmanager/interfaces.js:2058
+#: ../pkg/networkmanager/interfaces.js:2106
 msgid "Spanning Tree Protocol"
 msgstr "STP (Spanning Tree Protocol)"
 
-#: ../pkg/networkmanager/interfaces.js:2060
-#: ../pkg/networkmanager/interfaces.js:2084
+#: ../pkg/networkmanager/interfaces.js:2108
+#: ../pkg/networkmanager/interfaces.js:2132
 msgid "Priority $priority"
 msgstr "Prioritat $priority"
 
-#: ../pkg/networkmanager/interfaces.js:2062
+#: ../pkg/networkmanager/interfaces.js:2110
 msgid "Forward delay $forward_delay"
 msgstr "Retard del reenviament $forward_delay"
 
-#: ../pkg/networkmanager/interfaces.js:2064
+#: ../pkg/networkmanager/interfaces.js:2112
 msgid "Hello time $hello_time"
 msgstr "Hello time $hello_time"
 
-#: ../pkg/networkmanager/interfaces.js:2066
+#: ../pkg/networkmanager/interfaces.js:2114
 msgid "Maximum message age $max_age"
 msgstr "Envelliment màxim del missatge $max_age"
 
-#: ../pkg/networkmanager/interfaces.js:2086
+#: ../pkg/networkmanager/interfaces.js:2134
 msgid "Path cost $path_cost"
 msgstr "Cost del camí $path_cost"
 
-#: ../pkg/networkmanager/interfaces.js:2088
+#: ../pkg/networkmanager/interfaces.js:2136
 msgid "Hairpin mode"
 msgstr "Mode hairpin"
 
-#: ../pkg/networkmanager/interfaces.js:2090
+#: ../pkg/networkmanager/interfaces.js:2138
 msgid "Bridge port"
 msgstr "Port del pont"
 
-#: ../pkg/networkmanager/interfaces.js:2104
+#: ../pkg/networkmanager/interfaces.js:2152
 msgid "Parent $parent"
 msgstr "Pare $parent"
 
-#: ../pkg/networkmanager/interfaces.js:2105
+#: ../pkg/networkmanager/interfaces.js:2153
 msgid "Id $id"
 msgstr "Id. $id"
 
-#: ../pkg/networkmanager/interfaces.js:2113
+#: ../pkg/networkmanager/interfaces.js:2161
 msgid "General"
 msgstr "General"
 
-#: ../pkg/networkmanager/interfaces.js:2122
+#: ../pkg/networkmanager/interfaces.js:2170
 msgid "Connect automatically"
 msgstr "Connecta automàticament"
 
-#: ../pkg/networkmanager/interfaces.js:2123
+#: ../pkg/networkmanager/interfaces.js:2171
 msgid "IPv4"
 msgstr "IPv4"
 
-#: ../pkg/networkmanager/interfaces.js:2124
+#: ../pkg/networkmanager/interfaces.js:2172
 msgid "IPv6"
 msgstr "IPv6"
 
-#: ../pkg/networkmanager/interfaces.js:2209
-#: ../pkg/registry/views/project-listing.html.h:5
+#: ../pkg/networkmanager/interfaces.js:2257
+#: ../pkg/kubernetes/views/project-listing.html.h:5
 #: ../pkg/networkmanager/index.html.h:28
 msgid "Members"
 msgstr "Membres"
 
-#: ../pkg/networkmanager/interfaces.js:2209
-#: ../pkg/registry/views/image-config.html.h:6 ../pkg/docker/index.html.h:24
+#: ../pkg/networkmanager/interfaces.js:2257 ../pkg/docker/index.html.h:26
+#: ../pkg/kubernetes/views/image-config.html.h:7
 #: ../pkg/kubernetes/views/container-body.html.h:5
 #: ../pkg/kubernetes/views/service-panel.html.h:8
 #: ../pkg/networkmanager/index.html.h:19
 msgid "Ports"
 msgstr "Ports"
 
-#: ../pkg/networkmanager/interfaces.js:2429
+#: ../pkg/networkmanager/interfaces.js:2476
 msgid "-"
 msgstr "-"
 
-#: ../pkg/networkmanager/interfaces.js:2444
+#: ../pkg/networkmanager/interfaces.js:2491
 msgid "Prefix length or Netmask"
 msgstr "Longitud del prefix o Màscara de xarxa"
 
-#: ../pkg/networkmanager/interfaces.js:2444
+#: ../pkg/networkmanager/interfaces.js:2491
 msgid "Prefix length"
 msgstr "Longitud del prefix"
 
-#: ../pkg/networkmanager/interfaces.js:2447
+#: ../pkg/networkmanager/interfaces.js:2494
 #: ../pkg/kubernetes/views/details-page.html.h:9
 msgid "Addresses"
 msgstr "Adreces"
 
-#: ../pkg/networkmanager/interfaces.js:2454
+#: ../pkg/networkmanager/interfaces.js:2501
 msgid "DNS"
 msgstr "DNS"
 
-#: ../pkg/networkmanager/interfaces.js:2458
+#: ../pkg/networkmanager/interfaces.js:2505
 msgid "DNS Search Domains"
 msgstr "Dominis de cerca DNS"
 
-#: ../pkg/networkmanager/interfaces.js:2463
+#: ../pkg/networkmanager/interfaces.js:2510
 #: ../pkg/kubernetes/views/details-page.html.h:13
 msgid "Routes"
 msgstr "Rutes"
 
-#: ../pkg/networkmanager/interfaces.js:2497
+#: ../pkg/networkmanager/interfaces.js:2544
 msgid "IPv4 Settings"
 msgstr "Ajustos d'IPv4"
 
-#: ../pkg/networkmanager/interfaces.js:2497
+#: ../pkg/networkmanager/interfaces.js:2544
 msgid "IPv6 Settings"
 msgstr "Ajustos d'IPv6"
 
 #: ../pkg/ostree/client.js:60
-#, fuzzy
 msgid "Receiving delta parts"
-msgstr "Recepció"
+msgstr "S'estan rebent les parts de deltes"
 
 #: ../pkg/ostree/client.js:62
 msgid "Receiving metadata objects"
-msgstr ""
+msgstr "S'estan rebent els objectes de metadades"
 
 #: ../pkg/ostree/client.js:65
 msgid "Receiving objects: $0%"
-msgstr ""
+msgstr "S'estan rebent objectes: $0%"
 
 #: ../pkg/ostree/client.js:68
-#, fuzzy
 msgid "Writing objects"
-msgstr "Escriptura"
+msgstr "S'estan escrivint els objectes"
 
 #: ../pkg/ostree/client.js:70
 msgid "Scanning metadata"
-msgstr ""
+msgstr "S'estan escanejant les metadades"
 
 #: ../pkg/ostree/client.js:489
-#, fuzzy
 msgid "OS $0 not found"
-msgstr "No s'ha trobat"
+msgstr "SO $0 no trobat"
 
 #: ../pkg/ostree/app.js:76
-#, fuzzy
 msgid "Not authorized to update software on this system"
-msgstr "No s'autoritza l'accés Docker en aquest sistema"
+msgstr "No autoritzat per actualitzar el programari en aquest sistema"
 
 #: ../pkg/ostree/app.js:78
-#, fuzzy
 msgid "OSTree is not available on this system"
-msgstr "L'API «storaged» no està disponible en aquest sistema."
+msgstr "OSTree no està disponible en aquest sistema"
 
 #: ../pkg/ostree/app.js:96
 msgid "No OSTree deployments found"
-msgstr ""
+msgstr "No s'ha trobat desplegaments OSTree"
 
 #: ../pkg/ostree/app.js:214
 msgid "Checking for updates"
-msgstr ""
+msgstr "S'està comprovant si hi ha actualitzacions"
 
 #: ../pkg/ostree/app.js:300
 msgid "$0 package"
-msgstr ""
+msgstr "$0 paquet"
 
 #: ../pkg/ostree/app.js:300
 msgid "$0 packages"
-msgstr ""
+msgstr "$0 paquets"
 
 #: ../pkg/storaged/overview.js:182
 msgctxt "storage"
@@ -1393,17 +1318,19 @@ msgstr "Crea un dispositiu RAID"
 #: ../pkg/storaged/overview.js:413 ../pkg/storaged/overview.js:471
 #: ../pkg/storaged/overview.js:604 ../pkg/storaged/overview.js:682
 #: ../pkg/storaged/details.js:162 ../pkg/storaged/details.js:378
-#: ../pkg/storaged/details.js:612 ../pkg/storaged/details.js:632
-#: ../pkg/storaged/details.js:668 ../pkg/storaged/details.js:694
-#: ../pkg/storaged/details.js:744 ../pkg/storaged/details.js:773
-#: ../pkg/registry/views/imagestream-modify.html.h:3
-#: ../pkg/registry/views/add-project-dialog.html.h:2
-#: ../pkg/registry/views/project-listing.html.h:3
+#: ../pkg/storaged/details.js:625 ../pkg/storaged/details.js:645
+#: ../pkg/storaged/details.js:681 ../pkg/storaged/details.js:707
+#: ../pkg/storaged/details.js:757 ../pkg/storaged/details.js:786
+#: ../pkg/kubernetes/views/imagestream-modify.html.h:3
 #: ../pkg/kubernetes/views/containers-page.html.h:2
+#: ../pkg/kubernetes/views/node-add.html.h:3
+#: ../pkg/kubernetes/views/project-listing.html.h:3
+#: ../pkg/kubernetes/views/project-modify.html.h:3
 #: ../pkg/kubernetes/views/dashboard-page.html.h:5
+#: ../pkg/kubernetes/views/pvc-body.html.h:1
+#: ../pkg/kubernetes/views/service-modify.html.h:2
 #: ../pkg/kubernetes/views/details-page.html.h:2
-#: ../pkg/kubernetes/index.html.h:26 ../pkg/networkmanager/index.html.h:14
-#: ../pkg/storaged/index.html.h:18
+#: ../pkg/networkmanager/index.html.h:14 ../pkg/storaged/index.html.h:18
 msgid "Name"
 msgstr "Nom"
 
@@ -1432,52 +1359,57 @@ msgid "RAID 6 (Double Distributed Parity)"
 msgstr "RAID 5 (doble paritat distribuïda)"
 
 #: ../pkg/storaged/overview.js:423
-#, fuzzy
 msgid "RAID 10 (Stripe of Mirrors)"
-msgstr "RAID 10 (fraccionament de rèpliques)"
+msgstr "RAID 10 (segmentació de rèpliques)"
 
 #: ../pkg/storaged/overview.js:427
 msgid "Chunk Size"
 msgstr "Mida del tros"
 
 #: ../pkg/storaged/overview.js:429
-msgid "4 KB"
-msgstr "4 KB"
+msgid "4 KiB"
+msgstr ""
 
 #: ../pkg/storaged/overview.js:430
-msgid "8 KB"
-msgstr "8 KB"
+msgid "8 KiB"
+msgstr ""
 
 #: ../pkg/storaged/overview.js:431
-msgid "16 KB"
+#, fuzzy
+msgid "16 KiB"
 msgstr "16 KB"
 
 #: ../pkg/storaged/overview.js:432
-msgid "32 KB"
+#, fuzzy
+msgid "32 KiB"
 msgstr "32 KB"
 
 #: ../pkg/storaged/overview.js:433
-msgid "64 KB"
+#, fuzzy
+msgid "64 KiB"
 msgstr "64 KB"
 
 #: ../pkg/storaged/overview.js:434
-msgid "128 KB"
+#, fuzzy
+msgid "128 KiB"
 msgstr "128 KB"
 
 #: ../pkg/storaged/overview.js:435
-msgid "512 KB"
+#, fuzzy
+msgid "512 KiB"
 msgstr "512 KB"
 
 #: ../pkg/storaged/overview.js:436
-msgid "1 MB"
-msgstr "1 MB"
+#, fuzzy
+msgid "1 MiB"
+msgstr "1 minut"
 
 #: ../pkg/storaged/overview.js:437
-msgid "2 MB"
-msgstr "2 MB"
+msgid "2 MiB"
+msgstr ""
 
 #: ../pkg/storaged/overview.js:444 ../pkg/storaged/overview.js:475
-#: ../pkg/storaged/details.js:516 ../pkg/storaged/details.js:797
+#: ../pkg/storaged/details.js:516 ../pkg/storaged/details.js:810
 #: ../pkg/storaged/index.html.h:56
 msgid "Disks"
 msgstr "Discs"
@@ -1487,11 +1419,11 @@ msgid "At least $0 disks are needed."
 msgstr "Com a mínim es necessiten $0 discs."
 
 #: ../pkg/storaged/overview.js:457 ../pkg/storaged/overview.js:486
-#: ../pkg/storaged/details.js:644 ../pkg/storaged/details.js:677
-#: ../pkg/storaged/details.js:700 ../pkg/storaged/details.js:753
-#: ../pkg/storaged/details.js:782
-#: ../pkg/registry/views/add-project-dialog.html.h:6
-#: ../pkg/registry/views/add-group-dialog.html.h:6
+#: ../pkg/storaged/details.js:657 ../pkg/storaged/details.js:690
+#: ../pkg/storaged/details.js:713 ../pkg/storaged/details.js:766
+#: ../pkg/storaged/details.js:795
+#: ../pkg/kubernetes/views/add-group-dialog.html.h:6
+#: ../pkg/kubernetes/views/project-modify.html.h:8
 msgid "Create"
 msgstr "Crea"
 
@@ -1500,148 +1432,144 @@ msgid "Create Volume Group"
 msgstr "Crea un grup de volums"
 
 #: ../pkg/storaged/overview.js:481 ../pkg/storaged/details.js:528
-#: ../pkg/storaged/details.js:812
+#: ../pkg/storaged/details.js:825
 msgid "At least one disk is needed."
 msgstr "Com a mínim es necessita un disc."
 
 #: ../pkg/storaged/overview.js:495
 msgid "Add iSCSI Portal"
-msgstr ""
+msgstr "Afegeix un portal iSCSI"
 
 #: ../pkg/storaged/overview.js:498
-#, fuzzy
 msgid "Server Address"
-msgstr "Adreça IP"
+msgstr "Adreça del servidor"
 
 #: ../pkg/storaged/overview.js:501
-#, fuzzy
 msgid "Server address can not be empty."
-msgstr "El nom d'usuari no pot estar en blanc."
+msgstr "L'adreça del servidor no pot estar en blanc."
 
 #: ../pkg/storaged/overview.js:513 ../pkg/realmd/operation.html.h:11
 msgid "Next"
 msgstr "Següent"
 
 #: ../pkg/storaged/overview.js:557 ../pkg/storaged/overview.js:648
-#, fuzzy
 msgid "Invalid username or password"
-msgstr "El nom d'usuari o la contrasenya no són vàlids. "
+msgstr "El nom d'usuari o la contrasenya no són vàlids"
 
 #: ../pkg/storaged/overview.js:562
-#, fuzzy
 msgid "Unknown host name"
-msgstr "objectiu desconegut"
+msgstr "Nom d'amfitrió desconegut"
 
 #: ../pkg/storaged/overview.js:566
 msgid "Unable to reach server"
-msgstr ""
+msgstr "No es pot arribar al servidor"
 
 #: ../pkg/storaged/overview.js:599
 msgid "Available targets on $0"
-msgstr ""
+msgstr "Objectius disponibles en $0"
 
 #: ../pkg/storaged/overview.js:603 ../pkg/systemd/services.html.h:2
 msgid "Targets"
 msgstr "Objectius"
 
 #: ../pkg/storaged/overview.js:604 ../pkg/shell/templates/add-machine.html.h:2
+#: ../pkg/kubernetes/views/node-add.html.h:2
 #: ../pkg/kubernetes/views/dashboard-page.html.h:6
 #: ../pkg/kubernetes/views/details-page.html.h:4
 #: ../pkg/kubernetes/views/node-panel.html.h:2
-#: ../pkg/kubernetes/index.html.h:41
 msgid "Address"
 msgstr "Adreça"
 
 #: ../pkg/storaged/overview.js:604 ../pkg/shell/templates/change-port.html.h:5
-#, fuzzy
 msgid "Port"
-msgstr "Ports"
+msgstr "Port"
 
 #: ../pkg/storaged/overview.js:609 ../pkg/storaged/overview.js:637
-#: ../pkg/storaged/details.js:533 ../pkg/storaged/details.js:817
+#: ../pkg/storaged/details.js:533 ../pkg/storaged/details.js:830
 #: ../pkg/shell/templates/add-machine.html.h:6
-#: ../pkg/registry/views/add-user-dialog.html.h:9
-#: ../pkg/kubernetes/index.html.h:44
+#: ../pkg/kubernetes/views/node-add.html.h:8
+#: ../pkg/kubernetes/views/add-user-dialog.html.h:9
 msgid "Add"
 msgstr "Afegeix"
 
 #: ../pkg/storaged/overview.js:679
-#, fuzzy
 msgid "Change iSCSI Initiator Name"
-msgstr "Nom de l'administrador del domini"
+msgstr "Canvia el nom d'iniciador iSCSI"
 
 #: ../pkg/storaged/overview.js:687
-#, fuzzy
+#: ../pkg/kubernetes/views/route-modify.html.h:4
+#: ../pkg/kubernetes/views/replicationcontroller-modify.html.h:4
+#: ../pkg/kubernetes/views/project-modify.html.h:9
 msgid "Change"
-msgstr "Canvia la foto"
+msgstr "Canvia"
 
-#. Translators: Used in "42.5 KB (42399 bytes)"
-#: ../pkg/storaged/utils.js:65
+#. Translators: Used in "..."
+#: ../pkg/storaged/utils.js:66
 msgctxt "format-bytes"
 msgid "bytes"
 msgstr "bytes"
 
-#: ../pkg/storaged/utils.js:106
+#: ../pkg/storaged/utils.js:107
 msgid "Name can not be empty."
 msgstr "El nom no pot estar en blanc."
 
-#: ../pkg/storaged/utils.js:108
+#: ../pkg/storaged/utils.js:109
 msgid "Name can not be longer than 127 characters."
 msgstr "El nom no pot ser superior als 127 caràcters."
 
-#: ../pkg/storaged/utils.js:112
+#: ../pkg/storaged/utils.js:113
 msgid "Name can not contain the character '$0'."
 msgstr "El nom no pot contenir el caràcter «$0»."
 
-#: ../pkg/storaged/utils.js:114
+#: ../pkg/storaged/utils.js:115
 msgid "Name can not contain whitespace."
 msgstr "El nom no pot contenir cap espai en blanc."
 
-#: ../pkg/storaged/utils.js:134
+#: ../pkg/storaged/utils.js:135
 msgid "$name (from $host)"
 msgstr "$name (de $host)"
 
-#: ../pkg/storaged/utils.js:143
+#: ../pkg/storaged/utils.js:144
 msgid "Pool for Thin Logical Volumes"
 msgstr "Agrupació per als volums lògics disgregats"
 
-#: ../pkg/storaged/utils.js:145
+#: ../pkg/storaged/utils.js:146
 msgid "Thin Logical Volume"
 msgstr "Volums lògics disgregats"
 
-#: ../pkg/storaged/utils.js:147
+#: ../pkg/storaged/utils.js:148
 msgid "Logical Volume (Snapshot)"
 msgstr "Volum lògic (instantània)"
 
-#: ../pkg/storaged/utils.js:149
+#: ../pkg/storaged/utils.js:150
 msgid "Logical Volume"
 msgstr "Volum lògic"
 
-#: ../pkg/storaged/utils.js:189
+#: ../pkg/storaged/utils.js:190
 msgid "<span>Encrypted Logical Volume of $0</span>"
 msgstr "<span>Volum lògic xifrat de $0</span>"
 
-#: ../pkg/storaged/utils.js:191
+#: ../pkg/storaged/utils.js:192
 msgid "<span>Encrypted Partition of $0</span>"
 msgstr "<span>Partició xifrada de $0</span>"
 
-#: ../pkg/storaged/utils.js:193
+#: ../pkg/storaged/utils.js:194
 msgid "<span>Logical Volume of $0</span>"
 msgstr "<span>Volum lògic de $0</span>"
 
-#: ../pkg/storaged/utils.js:195
+#: ../pkg/storaged/utils.js:196
 msgid "<span>Partition of $0</span>"
 msgstr "<span>Partició de $0</span>"
 
-#: ../pkg/storaged/utils.js:197
+#: ../pkg/storaged/utils.js:198
 msgid "<span>Encrypted $0</span>"
 msgstr "<span>Xifrat $0</span>"
 
-#: ../pkg/storaged/utils.js:210
+#: ../pkg/storaged/utils.js:211
 msgid "RAID Device $0"
 msgstr "Dispositiu RAID $0"
 
-#: ../pkg/storaged/utils.js:216
+#: ../pkg/storaged/utils.js:217
 msgid "Volume Group $0"
 msgstr "Grup de volums $0"
 
@@ -1665,9 +1593,9 @@ msgstr "Crea una partició a $0"
 msgid "Format $0"
 msgstr "Formata $0"
 
-#: ../pkg/storaged/details.js:125 ../pkg/storaged/details.js:581
-#: ../pkg/storaged/details.js:636 ../pkg/storaged/details.js:672
-#: ../pkg/storaged/details.js:748 ../pkg/storaged/details.js:777
+#: ../pkg/storaged/details.js:125 ../pkg/storaged/details.js:591
+#: ../pkg/storaged/details.js:649 ../pkg/storaged/details.js:685
+#: ../pkg/storaged/details.js:761 ../pkg/storaged/details.js:790
 #: ../pkg/kubernetes/views/imagerepository-panel.html.h:7
 #: ../pkg/storaged/index.html.h:20
 msgid "Size"
@@ -1678,8 +1606,8 @@ msgid "Size must be specified."
 msgstr "S'ha d'especificar la mida."
 
 #: ../pkg/storaged/details.js:135
-msgid "Size can not be zero."
-msgstr "La mida no pot ser 0."
+msgid "Size must be greater than zero."
+msgstr ""
 
 #: ../pkg/storaged/details.js:139 ../pkg/storaged/details.js:288
 msgid "Erase"
@@ -1695,6 +1623,7 @@ msgstr "Sobreescriu les dades existents amb zeros"
 
 #: ../pkg/storaged/details.js:146 ../pkg/shell/index.html.h:3
 #: ../pkg/kubernetes/views/service-panel.html.h:7
+#: ../pkg/kubernetes/views/deploy.html.h:2
 msgid "Type"
 msgstr "Tipus"
 
@@ -1759,7 +1688,7 @@ msgid "Store passphrase"
 msgstr "Emmagatzema la contrasenya"
 
 #: ../pkg/storaged/details.js:192 ../pkg/storaged/details.js:473
-#: ../pkg/storaged/details.js:962
+#: ../pkg/storaged/details.js:975
 msgid "Encryption Options"
 msgstr "Opcions de xifrat"
 
@@ -1768,7 +1697,7 @@ msgid "Mounting"
 msgstr "Muntatge"
 
 #: ../pkg/storaged/details.js:198 ../pkg/storaged/details.js:384
-#: ../pkg/registry/views/image-config.html.h:2
+#: ../pkg/kubernetes/views/image-config.html.h:2
 #: ../pkg/subscriptions/index.html.h:26
 msgid "Default"
 msgstr "Predeterminat"
@@ -1791,7 +1720,7 @@ msgid "Create partition"
 msgstr "Crea una partició"
 
 #: ../pkg/storaged/details.js:217 ../pkg/storaged/details.js:306
-#: ../pkg/storaged/details.js:989
+#: ../pkg/storaged/details.js:1002
 msgid "Format"
 msgstr "Formata"
 
@@ -1825,7 +1754,7 @@ msgstr "Sense particionatge"
 msgid "Formatting a disk will erase all data on it."
 msgstr "La formatació d'un disc eliminarà totes les dades contingudes."
 
-#: ../pkg/storaged/details.js:375 ../pkg/storaged/details.js:956
+#: ../pkg/storaged/details.js:375 ../pkg/storaged/details.js:969
 msgid "Filesystem Options"
 msgstr "Opcions del sistema de fitxers"
 
@@ -1834,7 +1763,7 @@ msgid "Apply"
 msgstr "Aplica"
 
 #: ../pkg/storaged/details.js:422 ../pkg/storaged/details.js:429
-#: ../pkg/storaged/details.js:961
+#: ../pkg/storaged/details.js:974
 msgid "Unlock"
 msgstr "Desbloqueja"
 
@@ -1846,7 +1775,7 @@ msgstr "Contrasenya emmagatzemada"
 msgid "Options"
 msgstr "Opcions"
 
-#: ../pkg/storaged/details.js:513 ../pkg/storaged/details.js:794
+#: ../pkg/storaged/details.js:513 ../pkg/storaged/details.js:807
 msgid "Add Disks"
 msgstr "Afegeix discs"
 
@@ -1854,308 +1783,317 @@ msgstr "Afegeix discs"
 msgid "Deleting a RAID device will erase all data on it."
 msgstr "La supressió d'un dispositiu RAID n'esborrarà totes les dades."
 
-#: ../pkg/storaged/details.js:578
+#. Resizing is only safe when lvol has a filesystem
+#. and that filesystem is resized at the same time.
+#.
+#. So we always resize the filesystem for lvols that
+#. have one, and refuse to shrink otherwise.
+#.
+#. Note that shrinking a filesystem will not always
+#. succeed, but it is never dangerous.
+#.
+#: ../pkg/storaged/details.js:588
 msgid "Resize Logical Volume"
 msgstr "Redimensiona el volum lògic"
 
-#: ../pkg/storaged/details.js:586
-msgid "Resize Filesystem"
-msgstr "Redimensiona el sistema de fitxers"
-
-#: ../pkg/storaged/details.js:594 ../pkg/storaged/details.js:966
+#: ../pkg/storaged/details.js:597 ../pkg/storaged/details.js:979
 msgid "Resize"
 msgstr "Redimensiona"
 
-#: ../pkg/storaged/details.js:609
+#: ../pkg/storaged/details.js:606
+msgid "This logical volume can not be made smaller."
+msgstr ""
+
+#: ../pkg/storaged/details.js:622
 msgid "Renamee Logical Volume"
 msgstr "Reanomena el volum lògic"
 
-#: ../pkg/storaged/details.js:617 ../pkg/storaged/details.js:967
-#: ../pkg/storaged/details.js:1617
+#: ../pkg/storaged/details.js:630 ../pkg/storaged/details.js:980
+#: ../pkg/storaged/details.js:1630
 msgid "Rename"
 msgstr "Reanomena"
 
-#: ../pkg/storaged/details.js:629 ../pkg/storaged/details.js:971
+#: ../pkg/storaged/details.js:642 ../pkg/storaged/details.js:984
 msgid "Create Snapshot"
 msgstr "Crea una instantània"
 
-#: ../pkg/storaged/details.js:665 ../pkg/storaged/details.js:983
+#: ../pkg/storaged/details.js:678 ../pkg/storaged/details.js:996
 msgid "Create Thin Volume"
 msgstr "Crea un volum disgregat"
 
-#: ../pkg/storaged/details.js:691
+#: ../pkg/storaged/details.js:704
 msgid "Rename Volume Group"
 msgstr "Reanomena un grup de volums"
 
-#: ../pkg/storaged/details.js:722
+#: ../pkg/storaged/details.js:735
 msgid "Deleting a volume group will erase all data on it."
 msgstr "La supressió d'un grup de volums n'esborrarà totes les dades."
 
-#: ../pkg/storaged/details.js:741
+#: ../pkg/storaged/details.js:754
 msgid "Create Plain Volume"
 msgstr "Crea un volum pla"
 
-#: ../pkg/storaged/details.js:761
+#: ../pkg/storaged/details.js:774
 msgid "Sorry"
 msgstr "Ho sentim"
 
-#: ../pkg/storaged/details.js:770 ../pkg/storaged/details.js:1558
+#: ../pkg/storaged/details.js:783 ../pkg/storaged/details.js:1571
 msgid "Create Pool for Thin Logical Volumes"
 msgstr "Crea una agrupació per als volums lògics disgregats"
 
-#: ../pkg/storaged/details.js:870
+#: ../pkg/storaged/details.js:883
 msgid "Deleting a logical volume will delete all data in it."
 msgstr "La supressió d'un volum lògic n'esborrarà totes les dades."
 
-#: ../pkg/storaged/details.js:873
+#: ../pkg/storaged/details.js:886
 msgid "Deleting a partition will delete all data in it."
 msgstr "La supressió d'una partició n'esborrarà totes les dades."
 
-#: ../pkg/storaged/details.js:954
+#: ../pkg/storaged/details.js:967
 msgid "Mount"
 msgstr "Munta"
 
-#: ../pkg/storaged/details.js:955
+#: ../pkg/storaged/details.js:968
 msgid "Unmount"
 msgstr "Desmunta"
 
-#: ../pkg/storaged/details.js:960
+#: ../pkg/storaged/details.js:973
 msgid "Lock"
 msgstr "Bloqueja"
 
-#: ../pkg/storaged/details.js:974
+#: ../pkg/storaged/details.js:987
 msgid "Activate"
 msgstr "Activa"
 
-#: ../pkg/storaged/details.js:977
+#: ../pkg/storaged/details.js:990
 msgid "Deactivate"
 msgstr "Desactiva"
 
-#: ../pkg/storaged/details.js:1059
+#: ../pkg/storaged/details.js:1072
 msgctxt "storage-id-desc"
 msgid "$0 File System"
 msgstr "sistema de fitxers $0"
 
-#: ../pkg/storaged/details.js:1062
+#: ../pkg/storaged/details.js:1075
 msgctxt "storage-id-desc"
 msgid "Linux MD-RAID Component"
 msgstr "Component MD-RAID de Linux"
 
-#: ../pkg/storaged/details.js:1064
+#: ../pkg/storaged/details.js:1077
 msgctxt "storage-id-desc"
 msgid "LVM2 Physical Volume"
 msgstr "Volum físic LVM2"
 
-#: ../pkg/storaged/details.js:1066
+#: ../pkg/storaged/details.js:1079
 msgctxt "storage-id-desc"
 msgid "RAID Member"
 msgstr "Membre RAID"
 
-#: ../pkg/storaged/details.js:1083
+#: ../pkg/storaged/details.js:1096
 msgctxt "storage-id-desc"
 msgid "LUKS Encrypted"
 msgstr "LUKS xifrat"
 
-#: ../pkg/storaged/details.js:1085
+#: ../pkg/storaged/details.js:1098
 msgctxt "storage-id-desc"
 msgid "Encrypted"
 msgstr "Xifrat"
 
-#: ../pkg/storaged/details.js:1089
+#: ../pkg/storaged/details.js:1102
 msgctxt "storage-id-desc"
 msgid "Swap Space"
 msgstr "espai d'intercanvi"
 
-#: ../pkg/storaged/details.js:1091
+#: ../pkg/storaged/details.js:1104
 msgctxt "storage-id-desc"
 msgid "Other Data"
 msgstr "Altres dades"
 
-#: ../pkg/storaged/details.js:1094
+#: ../pkg/storaged/details.js:1107
 msgctxt "storage-id-desc"
 msgid "Unrecognized Data"
 msgstr "Dades no reconegudes"
 
-#: ../pkg/storaged/details.js:1099 ../pkg/storaged/details.js:1105
+#: ../pkg/storaged/details.js:1112 ../pkg/storaged/details.js:1118
 msgid "$size $partition"
 msgstr "$partition de $size"
 
-#: ../pkg/storaged/details.js:1116
+#: ../pkg/storaged/details.js:1129
 msgid "mounted on $0"
 msgstr "s'ha muntat a $0"
 
-#: ../pkg/storaged/details.js:1118
+#: ../pkg/storaged/details.js:1131
 msgid "not mounted"
 msgstr "no muntat"
 
-#: ../pkg/storaged/details.js:1122
+#: ../pkg/storaged/details.js:1135
 msgid "unlocked"
 msgstr "desbloquejat"
 
-#: ../pkg/storaged/details.js:1124
+#: ../pkg/storaged/details.js:1137
 msgid "locked"
 msgstr "bloquejat"
 
-#: ../pkg/storaged/details.js:1193
+#: ../pkg/storaged/details.js:1206
 msgid "$0 Free Space for Logical Partitions"
 msgstr "$0 d'espai lliure per a les particions lògiques"
 
-#: ../pkg/storaged/details.js:1196
+#: ../pkg/storaged/details.js:1209
 msgid "$0 Free Space for Primary Partitions"
 msgstr "$0 d'espai lliure per a les particions primàries"
 
-#: ../pkg/storaged/details.js:1201
+#: ../pkg/storaged/details.js:1214
 msgid "$0 Free Space"
 msgstr "$0 d'espai lliure"
 
-#: ../pkg/storaged/details.js:1205
+#: ../pkg/storaged/details.js:1218
 msgid "Create Partition"
 msgstr "Crea una partició"
 
-#: ../pkg/storaged/details.js:1213
+#: ../pkg/storaged/details.js:1226
 msgid "$0 Extended Partition"
 msgstr "Partició estesa $0"
 
-#: ../pkg/storaged/details.js:1250
+#: ../pkg/storaged/details.js:1263
 msgid "Logical Partition"
 msgstr "Partició lògica"
 
-#: ../pkg/storaged/details.js:1252
+#: ../pkg/storaged/details.js:1265
 msgid "Primary Partition"
 msgstr "Partició primària"
 
-#: ../pkg/storaged/details.js:1254
+#: ../pkg/storaged/details.js:1267
 msgid "Partition"
 msgstr "Partició"
 
-#: ../pkg/storaged/details.js:1336 ../pkg/storaged/details.js:1480
+#: ../pkg/storaged/details.js:1349 ../pkg/storaged/details.js:1493
 msgid "Content"
 msgstr "Contingut"
 
-#: ../pkg/storaged/details.js:1354
+#: ../pkg/storaged/details.js:1367
 msgid "RAID 0"
 msgstr "RAID 0"
 
-#: ../pkg/storaged/details.js:1355
+#: ../pkg/storaged/details.js:1368
 msgid "RAID 1"
 msgstr "RAID 1"
 
-#: ../pkg/storaged/details.js:1356
+#: ../pkg/storaged/details.js:1369
 msgid "RAID 4"
 msgstr "RAID 4"
 
-#: ../pkg/storaged/details.js:1357
+#: ../pkg/storaged/details.js:1370
 msgid "RAID 5"
 msgstr "RAID 5"
 
-#: ../pkg/storaged/details.js:1358
+#: ../pkg/storaged/details.js:1371
 msgid "RAID 6"
 msgstr "RAID 6"
 
-#: ../pkg/storaged/details.js:1359
+#: ../pkg/storaged/details.js:1372
 msgid "RAID 10"
 msgstr "RAID 10"
 
-#: ../pkg/storaged/details.js:1360
+#: ../pkg/storaged/details.js:1373
 msgid "RAID ($0)"
 msgstr "RAID ($0)"
 
-#: ../pkg/storaged/details.js:1365
+#: ../pkg/storaged/details.js:1378
 msgid "$0 Disks"
 msgstr "$0 discs"
 
-#: ../pkg/storaged/details.js:1367
+#: ../pkg/storaged/details.js:1380
 msgid "$0 Chunk Size"
 msgstr "$0 de mida del tros"
 
-#: ../pkg/storaged/details.js:1378
+#: ../pkg/storaged/details.js:1391
 msgid "Data Scrubbing"
 msgstr "Tractament de neteja de les dades"
 
-#: ../pkg/storaged/details.js:1379
+#: ../pkg/storaged/details.js:1392
 msgid "Data Scrubbing and Repair"
 msgstr "Tractament de neteja i de correcció de les dades"
 
-#: ../pkg/storaged/details.js:1380
+#: ../pkg/storaged/details.js:1393
 msgid "Resyncing"
 msgstr "En re-sincronització"
 
-#: ../pkg/storaged/details.js:1381
+#: ../pkg/storaged/details.js:1394
 msgid "Recovering "
 msgstr "En recuperació"
 
-#: ../pkg/storaged/details.js:1382
+#: ../pkg/storaged/details.js:1395
 msgid "Frozen"
 msgstr "Congelat"
 
-#: ../pkg/storaged/details.js:1389
+#: ../pkg/storaged/details.js:1402
 #, javascript-format
 msgid "$action, ${percent}% complete at $rate"
 msgstr "$action, ${percent}% completat de $rate"
 
-#: ../pkg/storaged/details.js:1393
+#: ../pkg/storaged/details.js:1406
 #, javascript-format
 msgid "$action, ${percent}% complete"
 msgstr "$action, ${percent}% completat"
 
-#: ../pkg/storaged/details.js:1398
+#: ../pkg/storaged/details.js:1411
 msgid ", $0 remaining"
 msgstr ", $0 restants"
 
-#: ../pkg/storaged/details.js:1415
+#: ../pkg/storaged/details.js:1428
 msgid "$0 disks are missing"
 msgstr "falten $0 discs"
 
-#: ../pkg/storaged/details.js:1416 ../pkg/docker/index.html.h:11
+#: ../pkg/storaged/details.js:1429 ../pkg/docker/index.html.h:11
 #: ../pkg/ostree/index.html.h:7
 msgid "Running"
 msgstr "En execució"
 
-#: ../pkg/storaged/details.js:1416
+#: ../pkg/storaged/details.js:1429
 msgid "Not running"
-msgstr "Sense execució"
+msgstr "No s'està executant"
 
-#: ../pkg/storaged/details.js:1435
+#: ../pkg/storaged/details.js:1448
 msgid "FAILED"
 msgstr "FALLAT"
 
-#: ../pkg/storaged/details.js:1436
+#: ../pkg/storaged/details.js:1449
 msgid "In Sync"
 msgstr "En sincronització"
 
-#: ../pkg/storaged/details.js:1437
+#: ../pkg/storaged/details.js:1450
 msgid "Spare"
 msgstr "Recanvi"
 
-#: ../pkg/storaged/details.js:1437
+#: ../pkg/storaged/details.js:1450
 msgid "Recovering"
 msgstr "Recuperació"
 
-#: ../pkg/storaged/details.js:1438
+#: ../pkg/storaged/details.js:1451
 msgid "Write-mostly"
 msgstr "Escriptura-majoritària"
 
-#: ../pkg/storaged/details.js:1439
+#: ../pkg/storaged/details.js:1452
 msgid "Blocked"
 msgstr "Bloquejat"
 
-#: ../pkg/storaged/details.js:1440
+#: ../pkg/storaged/details.js:1453
 msgid "Unknown ($0)"
 msgstr "Desconegut ($0)"
 
-#: ../pkg/storaged/details.js:1457
+#: ../pkg/storaged/details.js:1470
 msgid "Start Scrubbing"
 msgstr "Inicia el tractament de neteja"
 
-#: ../pkg/storaged/details.js:1458
+#: ../pkg/storaged/details.js:1471
 msgid "Stop Scrubbing"
 msgstr "Atura el tractament de neteja"
 
-#: ../pkg/storaged/details.js:1492
+#: ../pkg/storaged/details.js:1505
 msgid "$size $desc"
 msgstr "$desc de $size"
 
-#: ../pkg/storaged/details.js:1508
+#: ../pkg/storaged/details.js:1521
 #, javascript-format
 msgid "$size $desc<br/>${percent}% full"
 msgstr ""
@@ -2164,43 +2102,43 @@ msgstr ""
 #. volume, Storaged or something below is
 #. probably misbehaving, and we show it as
 #. "unsupported".
-#: ../pkg/storaged/details.js:1528
+#: ../pkg/storaged/details.js:1541
 msgid "$size $desc<br/>($state)"
 msgstr "$desc de $size<br/>($state)"
 
-#: ../pkg/storaged/details.js:1531
+#: ../pkg/storaged/details.js:1544
 msgid "active, but unsupported"
 msgstr "actiu, però no suportat"
 
-#: ../pkg/storaged/details.js:1531
+#: ../pkg/storaged/details.js:1544
 msgid "inactive"
 msgstr "inactiu"
 
-#: ../pkg/storaged/details.js:1550
+#: ../pkg/storaged/details.js:1563
 msgid "$0 Free Space for Logical Volumes"
 msgstr "$0 d'espai lliure per als volums lògics"
 
-#: ../pkg/storaged/details.js:1552
+#: ../pkg/storaged/details.js:1565
 msgid "Create Plain Logical Volume"
 msgstr "Crea un volum lògic pla"
 
-#: ../pkg/storaged/details.js:1555
+#: ../pkg/storaged/details.js:1568
 msgid "Create RAID Logical Volume"
 msgstr "Crea un volum lògic RAID"
 
-#: ../pkg/storaged/details.js:1598
+#: ../pkg/storaged/details.js:1611
 msgid "Remove"
 msgstr "Elimina"
 
-#: ../pkg/storaged/details.js:1599
+#: ../pkg/storaged/details.js:1612
 msgid "Empty"
 msgstr "Buida"
 
-#: ../pkg/storaged/details.js:1605
+#: ../pkg/storaged/details.js:1618
 msgid "$0, $1 free"
 msgstr "$0 amb $1 lliures"
 
-#: ../pkg/storaged/details.js:1630
+#: ../pkg/storaged/details.js:1643
 msgid "Logical Volumes"
 msgstr "Volums lògics"
 
@@ -2337,11 +2275,11 @@ msgstr "S'està reanomenant $target"
 msgid "Resizing $target"
 msgstr "S'està redimensionant $target"
 
-#: ../pkg/storaged/jobs.js:150
+#: ../pkg/storaged/jobs.js:152
 msgid "Operation '$operation' on $target"
 msgstr "L'operació '$operation' en $target"
 
-#: ../pkg/storaged/jobs.js:164
+#: ../pkg/storaged/jobs.js:166
 msgid "unknown target"
 msgstr "objectiu desconegut"
 
@@ -2378,88 +2316,85 @@ msgstr ""
 msgid "Invalid login or password."
 msgstr "El nom d'usuari o la contrasenya no són vàlids. "
 
-#: ../pkg/base1/patterns.js:235 ../pkg/shell/index.html.h:27
+#: ../pkg/base1/patterns.js:239 ../pkg/shell/index.html.h:27
 #: ../pkg/systemd/index.html.h:16 ../pkg/playground/patterns.html.h:28
 #: ../pkg/networkmanager/index.html.h:39 ../pkg/storaged/index.html.h:52
 msgid "On"
 msgstr "Engegat"
 
-#: ../pkg/base1/patterns.js:235 ../pkg/shell/index.html.h:28
+#: ../pkg/base1/patterns.js:239 ../pkg/shell/index.html.h:28
 #: ../pkg/systemd/index.html.h:17 ../pkg/playground/patterns.html.h:29
 #: ../pkg/networkmanager/index.html.h:40 ../pkg/storaged/index.html.h:53
 msgid "Off"
 msgstr "Apagat"
 
-#: ../pkg/base1/cockpit.js:1244
+#: ../pkg/base1/cockpit.js:2039
 msgid "$0 killed with signal $1"
-msgstr ""
+msgstr "$0 es va matar amb el senyal $1"
 
-#: ../pkg/base1/cockpit.js:1246
+#: ../pkg/base1/cockpit.js:2041
 msgid "$0 exited with code $1"
-msgstr ""
+msgstr "$0 va sortir amb el codi $1"
 
-#: ../pkg/base1/cockpit.js:1248
-#, fuzzy
+#: ../pkg/base1/cockpit.js:2043
 msgid "$0 failed"
-msgstr "Ha fallat"
+msgstr "$0 ha fallat"
 
-#: ../pkg/base1/cockpit.js:2358
+#: ../pkg/base1/cockpit.js:3045
 msgid "Your session has been terminated."
-msgstr ""
+msgstr "La vostra sessió ha estat finalitzada."
 
-#: ../pkg/base1/cockpit.js:2360
+#: ../pkg/base1/cockpit.js:3047
 msgid "Your session has expired. Please log in again."
-msgstr ""
+msgstr "La vostra sessió ha vençut. Si us plau, torneu a iniciar la sessió."
 
-#: ../pkg/base1/cockpit.js:2362
+#: ../pkg/base1/cockpit.js:3049
 msgid "Not permitted to perform this action."
-msgstr ""
+msgstr "No es permet realitzar aquesta acció."
 
-#: ../pkg/base1/cockpit.js:2364
+#: ../pkg/base1/cockpit.js:3051
 msgid "Login failed"
-msgstr ""
+msgstr "Ha fallat l'inici de sessió"
 
-#: ../pkg/base1/cockpit.js:2366
+#: ../pkg/base1/cockpit.js:3053
 msgid "The server refused to authenticate using any supported methods."
 msgstr ""
+"El servidor ha refusat l'autenticació mitjançant qualsevol dels mètodes "
+"compatibles."
 
-#: ../pkg/base1/cockpit.js:2368
+#: ../pkg/base1/cockpit.js:3055
 msgid "Untrusted host"
 msgstr ""
 
-#: ../pkg/base1/cockpit.js:2370
+#: ../pkg/base1/cockpit.js:3057
 msgid "Host key is incorrect"
-msgstr ""
+msgstr "La clau d'amfitrió és incorrecta"
 
-#: ../pkg/base1/cockpit.js:2372
-#, fuzzy
+#: ../pkg/base1/cockpit.js:3059
 msgid "Internal error"
-msgstr "Error inesperat"
+msgstr "Error intern"
 
-#: ../pkg/base1/cockpit.js:2374
-#, fuzzy
+#: ../pkg/base1/cockpit.js:3061
 msgid "Connection has timed out."
-msgstr "Expiració de temps en la deferència a través passwd"
+msgstr "La connexió ha excedit el temps."
 
-#: ../pkg/base1/cockpit.js:2376
-#, fuzzy
+#: ../pkg/base1/cockpit.js:3063
 msgid "Cockpit is not installed on the system."
-msgstr "Docker no està activat o instal·lat al sistema"
+msgstr "Cockpit no està instal·lat al sistema."
 
-#: ../pkg/base1/cockpit.js:2378
+#: ../pkg/base1/cockpit.js:3065
 msgid "Cannot forward login credentials"
 msgstr ""
 
-#: ../pkg/base1/cockpit.js:2380
+#: ../pkg/base1/cockpit.js:3067
 msgid "Server has closed the connection."
 msgstr ""
 
-#: ../pkg/base1/cockpit.js:2382
-#, fuzzy
+#: ../pkg/base1/cockpit.js:3069
 msgid "Cockpit is not compatible with the software on the system."
-msgstr "Docker no està activat o instal·lat al sistema"
+msgstr ""
 
-#: ../pkg/base1/cockpit.js:2384
+#: ../pkg/base1/cockpit.js:3071
 msgid "Cockpit could not contact the given host."
 msgstr ""
 
@@ -2478,14 +2413,20 @@ msgstr "Tanca"
 #: ../pkg/shell/templates/sync-users.html.h:7
 #: ../pkg/shell/templates/change-auth.html.h:13
 #: ../pkg/shell/templates/add-machine.html.h:5
-#: ../pkg/registry/views/imagestream-modify.html.h:7
-#: ../pkg/registry/views/add-project-dialog.html.h:5
-#: ../pkg/registry/views/imagestream-delete.html.h:3
-#: ../pkg/registry/views/add-group-dialog.html.h:5
-#: ../pkg/registry/views/add-user-dialog.html.h:8
-#: ../pkg/registry/views/image-delete.html.h:3
 #: ../pkg/realmd/operation.html.h:10 ../pkg/dashboard/index.html.h:8
-#: ../pkg/kubernetes/index.html.h:27 ../pkg/storaged/index.html.h:22
+#: ../pkg/kubernetes/views/imagestream-modify.html.h:7
+#: ../pkg/kubernetes/views/item-delete.html.h:4
+#: ../pkg/kubernetes/views/route-modify.html.h:3
+#: ../pkg/kubernetes/views/node-add.html.h:7
+#: ../pkg/kubernetes/views/imagestream-delete.html.h:3
+#: ../pkg/kubernetes/views/replicationcontroller-modify.html.h:3
+#: ../pkg/kubernetes/views/add-group-dialog.html.h:5
+#: ../pkg/kubernetes/views/deploy.html.h:4
+#: ../pkg/kubernetes/views/add-user-dialog.html.h:8
+#: ../pkg/kubernetes/views/project-modify.html.h:7
+#: ../pkg/kubernetes/views/image-delete.html.h:3
+#: ../pkg/kubernetes/views/service-modify.html.h:4
+#: ../pkg/storaged/index.html.h:22
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -2498,14 +2439,8 @@ msgid "Change Performance Profile"
 msgstr ""
 
 #: ../pkg/tuned/dialog.html.h:3
-#, fuzzy
 msgid "Change Profile"
-msgstr "Canvia la foto"
-
-#: ../pkg/shell/simple.html.h:1 ../pkg/shell/index.html.h:1
-#: ../pkg/systemd/index.html.h:1 ../pkg/dashboard/index.html.h:1
-msgid "Cockpit"
-msgstr "Cockpit"
+msgstr "Canvia el perfil"
 
 #: ../pkg/shell/simple.html.h:2 ../pkg/shell/index.html.h:5
 msgid "Ooops!"
@@ -2591,11 +2526,11 @@ msgstr "Torna a connectar"
 
 #: ../pkg/shell/templates/change-port.html.h:1
 msgid "Could not contact {{host}}"
-msgstr ""
+msgstr "No s'ha pogut contactar amb {{host}}"
 
 #: ../pkg/shell/templates/change-port.html.h:2
 msgid "Cockpit was unable to contact {{#strong}}{{host}}{{/strong}}."
-msgstr ""
+msgstr "Cockpit no ha pogut contactar amb {{#strong}}{{host}}{{/strong}}."
 
 #: ../pkg/shell/templates/change-port.html.h:3
 msgid ""
@@ -2605,26 +2540,27 @@ msgstr ""
 
 #: ../pkg/shell/templates/change-port.html.h:4
 msgid "Is sshd running on a different port?"
-msgstr ""
+msgstr "S'està executant sshd en un port diferent?"
 
 #: ../pkg/shell/templates/change-port.html.h:7
 msgid "Update"
-msgstr ""
+msgstr "Actualitza"
 
 #: ../pkg/shell/templates/sync-users.html.h:1 ../pkg/dashboard/index.html.h:7
-#, fuzzy
 msgid "Synchronize users"
-msgstr "Sincronitza els inicis de sessions dels administradors"
+msgstr "Sincronitza els usuaris"
 
 #: ../pkg/shell/templates/sync-users.html.h:2
 msgid ""
 "Select the users that you would like to be synchronized with {{#strong}}"
 "{{host}}{{/strong}}"
 msgstr ""
+"Seleccioneu els usuaris que vulgueu que estiguin sincronitzats amb "
+"{{#strong}}{{host}}{{/strong}}"
 
 #: ../pkg/shell/templates/sync-users.html.h:3
 msgid "Error loading users: {{perm_failed}}"
-msgstr ""
+msgstr "S'ha produït un error en carregar els usuaris: {{perm_failed}}"
 
 #: ../pkg/shell/templates/sync-users.html.h:4
 msgid ""
@@ -2634,7 +2570,6 @@ msgstr ""
 
 #: ../pkg/shell/templates/sync-users.html.h:5
 #: ../pkg/shell/templates/change-auth.html.h:4
-#, fuzzy
 msgid "User name"
 msgstr "Nom d'usuari"
 
@@ -2646,14 +2581,12 @@ msgid "Password"
 msgstr "Contrasenya"
 
 #: ../pkg/shell/templates/sync-users.html.h:8
-#, fuzzy
 msgid "Synchronize"
-msgstr "Sincronitza els inicis de sessions dels administradors"
+msgstr "Sincronitza"
 
 #: ../pkg/shell/templates/unknown-hostkey.html.h:1
-#, fuzzy
 msgid "Unknown Host Key"
-msgstr "Desconegut"
+msgstr "Clau desconeguda d'amfitrió"
 
 #: ../pkg/shell/templates/unknown-hostkey.html.h:2
 msgid ""
@@ -2663,20 +2596,20 @@ msgstr ""
 
 #: ../pkg/shell/templates/unknown-hostkey.html.h:3 ../pkg/shell/index.html.h:4
 msgid "Fingerprint"
-msgstr ""
+msgstr "Empremta"
 
 #: ../pkg/shell/templates/unknown-hostkey.html.h:5
-#, fuzzy
 msgid "Connect"
-msgstr "Torna a connectar"
+msgstr "Connecta"
 
 #: ../pkg/shell/templates/change-auth.html.h:1
 msgid "Log in to {{host}}"
-msgstr ""
+msgstr "Inicia la sessió a {{host}}"
 
 #: ../pkg/shell/templates/change-auth.html.h:2
 msgid "Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}."
 msgstr ""
+"Cockpit no ha pogut iniciar la sessió a {{#strong}}{{host}}{{/strong}}."
 
 #: ../pkg/shell/templates/change-auth.html.h:3
 msgid ""
@@ -2691,50 +2624,48 @@ msgid "Authentication"
 msgstr "Autenticació"
 
 #: ../pkg/shell/templates/change-auth.html.h:6
-#, fuzzy
 msgid "Type a password"
-msgstr "Estableix la contrasenya"
+msgstr "Teclegeu una contrasenya"
 
 #: ../pkg/shell/templates/change-auth.html.h:7
 msgid "Using available credentials"
-msgstr ""
+msgstr "S'estan utilitzant les credencials disponibles"
 
 #: ../pkg/shell/templates/change-auth.html.h:9
-#, fuzzy
 msgid "Available"
-msgstr "No disponible"
+msgstr "Disponible"
 
 #: ../pkg/shell/templates/change-auth.html.h:10
-#, fuzzy
 msgid "Login Password"
-msgstr "Contrasenya"
+msgstr "Contrasenya d'inici de sessió"
 
 #: ../pkg/shell/templates/change-auth.html.h:11
 msgid "Kerberos Ticket"
-msgstr ""
+msgstr "Tiquet de Kerberos"
 
 #: ../pkg/shell/templates/change-auth.html.h:12
 msgid "Checking for public keys"
-msgstr ""
+msgstr "S'està comprovant si hi ha claus públiques"
 
 #: ../pkg/shell/templates/change-auth.html.h:14
-#, fuzzy
 msgid "Log In"
-msgstr "Tanca la sessió"
+msgstr "Inici de la sessió"
 
 #: ../pkg/shell/templates/not-supported.html.h:1
 msgid "Cockpit is not installed"
-msgstr ""
+msgstr "Cockpit no està instal·lat"
 
 #: ../pkg/shell/templates/not-supported.html.h:2
 msgid ""
 "A compatible version of Cockpit is not installed on {{#strong}}{{host}}{{/"
 "strong}}."
 msgstr ""
+"Una versió compatible de Cockpit no està instal·lada a {{#strong}}{{host}}{{/"
+"strong}}."
 
 #: ../pkg/shell/templates/invalid-hostkey.html.h:1
 msgid "Incorrect Host Key"
-msgstr ""
+msgstr "Clau d'amfitrió incorrecta"
 
 #: ../pkg/shell/templates/invalid-hostkey.html.h:2
 msgid ""
@@ -2747,11 +2678,12 @@ msgstr ""
 msgid ""
 "You can remove the previously stored key by running the following command"
 msgstr ""
+"Podeu suprimir la clau prèviament emmagatzemada amb l'execució de la següent "
+"ordre"
 
 #: ../pkg/shell/templates/auth-failed.html.h:1
-#, fuzzy
 msgid "Authentication Failed"
-msgstr "Autenticació"
+msgstr "L'autenticació ha fallat"
 
 #: ../pkg/shell/templates/auth-failed.html.h:2
 msgid ""
@@ -2761,9 +2693,8 @@ msgid ""
 msgstr ""
 
 #: ../pkg/shell/templates/auth-failed.html.h:4 ../pkg/shell/index.html.h:30
-#, fuzzy
 msgid "Public Key"
-msgstr "Afegeix una clau pública"
+msgstr "Clau pública"
 
 #: ../pkg/shell/templates/auth-failed.html.h:5
 msgid "Kerberos Based SSO"
@@ -2783,7 +2714,7 @@ msgstr ""
 
 #: ../pkg/shell/templates/add-machine.html.h:3 ../pkg/dashboard/index.html.h:5
 msgid "Color"
-msgstr ""
+msgstr "Color"
 
 #: ../pkg/shell/templates/add-machine.html.h:4
 msgid ""
@@ -2791,9 +2722,8 @@ msgid ""
 msgstr ""
 
 #: ../pkg/shell/index.html.h:2
-#, fuzzy
 msgid "Comment"
-msgstr "Ordre"
+msgstr "Comentari"
 
 #: ../pkg/shell/index.html.h:8
 msgid "Account Settings"
@@ -2819,29 +2749,27 @@ msgstr ""
 
 #: ../pkg/shell/index.html.h:29
 msgid "Details"
-msgstr ""
+msgstr "Detalls"
 
 #: ../pkg/shell/index.html.h:32
-#, fuzzy
 msgid "Unlock Key"
-msgstr "Desbloqueja"
+msgstr ""
 
-#: ../pkg/shell/index.html.h:33 ../pkg/users/index.html.h:27
+#: ../pkg/shell/index.html.h:33 ../pkg/users/index.html.h:20
 msgid "Old Password"
 msgstr "Contrasenya antiga"
 
-#: ../pkg/shell/index.html.h:34 ../pkg/users/index.html.h:28
+#: ../pkg/shell/index.html.h:34 ../pkg/users/index.html.h:21
 msgid "New Password"
 msgstr "Contrasenya nova"
 
-#: ../pkg/shell/index.html.h:35 ../pkg/users/index.html.h:23
+#: ../pkg/shell/index.html.h:35 ../pkg/users/index.html.h:16
 msgid "Confirm"
 msgstr "Confirmació"
 
 #: ../pkg/shell/index.html.h:36
-#, fuzzy
 msgid "Change Password"
-msgstr "Estableix la contrasenya"
+msgstr "Canvia la contrasenya"
 
 #: ../pkg/shell/index.html.h:38
 msgid ""
@@ -2855,7 +2783,7 @@ msgstr ""
 
 #: ../pkg/shell/index.html.h:42
 msgid "Troubleshoot"
-msgstr ""
+msgstr "Soluciona el problema"
 
 #: ../pkg/users/index.html.h:1
 msgid "Local Accounts"
@@ -2885,14 +2813,13 @@ msgstr "Nom complet"
 msgid "User Name"
 msgstr "Nom d'usuari"
 
-#: ../pkg/users/index.html.h:9 ../pkg/registry/views/project-panel.html.h:2
-#: ../pkg/registry/views/project-page.html.h:3
+#: ../pkg/users/index.html.h:9 ../pkg/kubernetes/views/project-body.html.h:3
 msgid "Roles"
 msgstr "Rols"
 
 #: ../pkg/users/index.html.h:10
 msgid "Last Login"
-msgstr "Darrer inici de sessió"
+msgstr "Últim inici de sessió"
 
 #: ../pkg/users/index.html.h:11
 msgid "Access"
@@ -2910,11 +2837,21 @@ msgstr "Estableix la contrasenya"
 msgid "Authorized Public SSH Keys"
 msgstr "Claus SSH públiques autoritzades"
 
-#: ../pkg/users/index.html.h:16
-msgid "Change Picture"
-msgstr "Canvia la foto"
+#: ../pkg/users/index.html.h:17
+msgid ""
+"\n"
+"            Create\n"
+"          "
+msgstr ""
+"\n"
+"            Crea\n"
+"          "
 
-#: ../pkg/users/index.html.h:17 ../pkg/docker/index.html.h:25
+#: ../pkg/users/index.html.h:22
+msgid "Confirm New Password"
+msgstr "Confirmació de la nova contrasenya"
+
+#: ../pkg/users/index.html.h:23 ../pkg/docker/index.html.h:27
 #: ../pkg/networkmanager/index.html.h:42
 msgid ""
 "\n"
@@ -2925,31 +2862,7 @@ msgstr ""
 "            Cancel·la\n"
 "          "
 
-#: ../pkg/users/index.html.h:20 ../pkg/docker/index.html.h:34
-msgid ""
-"\n"
-"            Change\n"
-"          "
-msgstr ""
-"\n"
-"            Canvia\n"
-"          "
-
-#: ../pkg/users/index.html.h:24
-msgid ""
-"\n"
-"            Create\n"
-"          "
-msgstr ""
-"\n"
-"            Crea\n"
-"          "
-
-#: ../pkg/users/index.html.h:29
-msgid "Confirm New Password"
-msgstr "Confirmació de la nova contrasenya"
-
-#: ../pkg/users/index.html.h:30
+#: ../pkg/users/index.html.h:26
 msgid ""
 "\n"
 "            Set\n"
@@ -2959,11 +2872,11 @@ msgstr ""
 "            Estableix\n"
 "          "
 
-#: ../pkg/users/index.html.h:33
+#: ../pkg/users/index.html.h:29
 msgid "Delete Files"
 msgstr "Suprimeix els fitxers"
 
-#: ../pkg/users/index.html.h:34 ../pkg/networkmanager/index.html.h:36
+#: ../pkg/users/index.html.h:30 ../pkg/networkmanager/index.html.h:36
 msgid ""
 "\n"
 "            Delete\n"
@@ -2973,19 +2886,19 @@ msgstr ""
 "            Suprimeix\n"
 "          "
 
-#: ../pkg/users/index.html.h:37
+#: ../pkg/users/index.html.h:33
 msgid "Unnamed"
 msgstr "Sense nom"
 
-#: ../pkg/users/index.html.h:38
+#: ../pkg/users/index.html.h:34
 msgid "Invalid key"
 msgstr "Clau no vàlida"
 
-#: ../pkg/users/index.html.h:39
+#: ../pkg/users/index.html.h:35
 msgid "There are no authorized public keys for this account."
 msgstr "No hi ha cap clau pública autoritzada per aquest compte."
 
-#: ../pkg/users/index.html.h:40
+#: ../pkg/users/index.html.h:36
 msgid ""
 "You do not have permission to view the authorized public keys for this "
 "account."
@@ -2993,15 +2906,15 @@ msgstr ""
 "No teniu el permís per visualitzar les claus públiques autoritzades per "
 "aquest compte."
 
-#: ../pkg/users/index.html.h:41
+#: ../pkg/users/index.html.h:37
 msgid "Failed to load authorized keys."
 msgstr "Ha fallat la càrrega de les claus autoritzades."
 
-#: ../pkg/users/index.html.h:42
+#: ../pkg/users/index.html.h:38
 msgid "Add public key"
 msgstr "Afegeix una clau pública"
 
-#: ../pkg/users/index.html.h:43
+#: ../pkg/users/index.html.h:39
 msgid ""
 "\n"
 "            Add key\n"
@@ -3009,413 +2922,6 @@ msgid ""
 msgstr ""
 "\n"
 "            Afegeix una clau\n"
-"          "
-
-#: ../pkg/registry/views/image-config.html.h:1
-#, fuzzy
-msgid "Run as"
-msgstr "Executa la imatge"
-
-#: ../pkg/registry/views/image-config.html.h:3
-msgid "Directory"
-msgstr ""
-
-#: ../pkg/registry/views/image-config.html.h:4
-#, fuzzy
-msgid "Stop with"
-msgstr "Atura"
-
-#: ../pkg/registry/views/image-config.html.h:5
-#: ../pkg/kubernetes/views/container-body.html.h:9
-msgid "Environment"
-msgstr ""
-
-#: ../pkg/registry/views/image-config.html.h:8
-#, fuzzy
-msgid "Volumes"
-msgstr "Grups de volums"
-
-#: ../pkg/registry/views/imagestream-modify.html.h:1
-msgid "Create image stream"
-msgstr ""
-
-#: ../pkg/registry/views/imagestream-modify.html.h:2
-#, fuzzy
-msgid "Change image stream"
-msgstr "Canvia la foto"
-
-#: ../pkg/registry/views/imagestream-modify.html.h:5
-#, fuzzy
-msgid "Populate"
-msgstr "Aïlla"
-
-#: ../pkg/registry/views/imagestream-modify.html.h:6
-msgid "Pull from"
-msgstr ""
-
-#: ../pkg/registry/views/image-page.html.h:1
-#: ../pkg/registry/views/dashboard-page.html.h:10
-msgid "Show all images"
-msgstr ""
-
-#: ../pkg/registry/views/image-page.html.h:2
-#: ../pkg/registry/views/image-panel.html.h:1 ../pkg/docker/index.html.h:17
-#: ../pkg/kubernetes/views/container-body.html.h:2
-msgid "Image"
-msgstr "Imatge"
-
-#: ../pkg/registry/views/image-page.html.h:4
-#: ../pkg/registry/views/image-panel.html.h:3
-#: ../pkg/registry/views/imagestream-page.html.h:3
-msgid "Metadata"
-msgstr ""
-
-#: ../pkg/registry/views/add-project-dialog.html.h:1
-#: ../pkg/registry/views/project-listing.html.h:1
-#, fuzzy
-msgid "New Project"
-msgstr "Projecte"
-
-#: ../pkg/registry/views/add-project-dialog.html.h:3
-#, fuzzy
-msgid "Display name"
-msgstr "Idioma de la pantalla"
-
-#: ../pkg/registry/views/add-project-dialog.html.h:4
-#: ../pkg/registry/views/project-listing.html.h:4
-#, fuzzy
-msgid "Description"
-msgstr "Subscripcions"
-
-#: ../pkg/registry/views/filter-bar.html.h:1
-#: ../pkg/kubernetes/views/filter-bar.html.h:1
-msgid "Expand items inline"
-msgstr ""
-
-#: ../pkg/registry/views/filter-bar.html.h:2
-#: ../pkg/kubernetes/views/filter-bar.html.h:2
-msgid "Only expanded items"
-msgstr ""
-
-#: ../pkg/registry/views/filter-bar.html.h:3
-#: ../pkg/kubernetes/views/filter-bar.html.h:3
-msgid "Collapse all"
-msgstr ""
-
-#: ../pkg/registry/views/filter-bar.html.h:4
-#: ../pkg/kubernetes/views/filter-bar.html.h:4
-#, fuzzy
-msgid "All Projects"
-msgstr "Projecte"
-
-#: ../pkg/registry/views/filter-bar.html.h:5
-#: ../pkg/kubernetes/views/filter-bar.html.h:5
-#, fuzzy
-msgid "Project:"
-msgstr "Projecte"
-
-#: ../pkg/registry/views/image-meta.html.h:1
-#: ../pkg/kubernetes/views/route-panel.html.h:8
-#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:8
-#: ../pkg/kubernetes/views/service-panel.html.h:11
-#: ../pkg/kubernetes/views/pod-body.html.h:10
-#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:10
-#: ../pkg/kubernetes/views/node-panel.html.h:9
-msgid "Labels"
-msgstr ""
-
-#: ../pkg/registry/views/image-meta.html.h:2
-msgid "On Build"
-msgstr ""
-
-#: ../pkg/registry/views/image-meta.html.h:3
-#: ../pkg/kubernetes/views/route-panel.html.h:10
-#: ../pkg/kubernetes/views/node-panel.html.h:19
-#, fuzzy
-msgid "Annotations"
-msgstr "Autenticació"
-
-#: ../pkg/registry/views/image-meta.html.h:4
-#, fuzzy
-msgid "Docker Version"
-msgstr "Versió"
-
-#: ../pkg/registry/views/imagestream-delete.html.h:1
-#, fuzzy
-msgid "Delete image stream"
-msgstr "Suprimeix els fitxers"
-
-#: ../pkg/registry/views/imagestream-delete.html.h:2
-msgid ""
-"Do you want to delete the '{{stream.metadata.namespace}}/{{stream.metadata."
-"name}}' image stream?"
-msgstr ""
-
-#: ../pkg/registry/views/project-panel.html.h:1
-#: ../pkg/registry/views/project-page.html.h:2
-#, fuzzy
-msgid "Project Members"
-msgstr "Projecte"
-
-#: ../pkg/registry/views/project-panel.html.h:3
-#: ../pkg/registry/views/project-page.html.h:4
-#, fuzzy
-msgid "Add Member"
-msgstr "Membre RAID"
-
-#: ../pkg/registry/views/add-group-dialog.html.h:1
-msgid "Add Group"
-msgstr ""
-
-#: ../pkg/registry/views/add-group-dialog.html.h:2
-#: ../pkg/registry/views/add-user-dialog.html.h:2
-#, fuzzy
-msgid ""
-"\n"
-"                        Name\n"
-"                    "
-msgstr ""
-"\n"
-"                        Cancel·la\n"
-"                    "
-
-#: ../pkg/registry/views/project-listing.html.h:2
-#: ../pkg/registry/views/dashboard-page.html.h:6
-#, fuzzy
-msgid "Projects"
-msgstr "Projecte"
-
-#: ../pkg/registry/views/project-listing.html.h:6
-#, fuzzy
-msgid "New Group"
-msgstr "Grup de volums"
-
-#: ../pkg/registry/views/project-listing.html.h:7
-#: ../pkg/registry/views/dashboard-page.html.h:8
-#, fuzzy
-msgid "Groups"
-msgstr "Grups de volums"
-
-#: ../pkg/registry/views/project-listing.html.h:8
-#: ../pkg/registry/views/add-user-dialog.html.h:1
-#, fuzzy
-msgid "Add User"
-msgstr "Usuari"
-
-#: ../pkg/registry/views/project-listing.html.h:9
-#: ../pkg/registry/views/dashboard-page.html.h:7
-#, fuzzy
-msgid "Users"
-msgstr "Usuari"
-
-#: ../pkg/registry/views/project-listing.html.h:10
-msgid "Identity"
-msgstr ""
-
-#: ../pkg/registry/views/project-listing.html.h:11
-#, fuzzy
-msgid "Member of"
-msgstr "Membres"
-
-#: ../pkg/registry/views/imagestream-page.html.h:1
-msgid "Show all image streams"
-msgstr ""
-
-#: ../pkg/registry/views/imagestream-page.html.h:2
-#, fuzzy
-msgid "Image Stream"
-msgstr "Imatge $0"
-
-#: ../pkg/registry/views/image-listing.html.h:1
-#: ../pkg/registry/views/dashboard-page.html.h:4
-msgid "New image stream"
-msgstr ""
-
-#: ../pkg/registry/views/image-listing.html.h:2
-#: ../pkg/registry/views/dashboard-page.html.h:1
-#: ../pkg/kubernetes/views/images-page.html.h:3
-#, fuzzy
-msgid "Images"
-msgstr "Imatge"
-
-#: ../pkg/registry/views/image-listing.html.h:3
-#: ../pkg/registry/views/image-body.html.h:1
-#: ../pkg/kubernetes/views/imagerepository-panel.html.h:3
-msgid "Tags"
-msgstr ""
-
-#: ../pkg/registry/views/image-listing.html.h:4
-#: ../pkg/registry/views/image-body.html.h:3 ../pkg/docker/index.html.h:39
-#: ../pkg/kubernetes/views/imagerepository-panel.html.h:4
-msgid "Author"
-msgstr "Autor"
-
-#: ../pkg/registry/views/image-listing.html.h:5
-#: ../pkg/kubernetes/views/images-page.html.h:4
-#: ../pkg/kubernetes/views/imagerepository-panel.html.h:8
-#, fuzzy
-msgid "Last Updated"
-msgstr "Els darrers 7 dies"
-
-#: ../pkg/registry/views/add-user-dialog.html.h:5
-#, fuzzy
-msgid ""
-"\n"
-"                        Identity\n"
-"                    "
-msgstr ""
-"\n"
-"                        Cancel·la\n"
-"                    "
-
-#: ../pkg/registry/views/project-page.html.h:1
-msgid "{{ project().metadata.name }}"
-msgstr ""
-
-#: ../pkg/registry/views/dashboard-page.html.h:2
-msgid "Image streams"
-msgstr ""
-
-#: ../pkg/registry/views/dashboard-page.html.h:3
-#, fuzzy
-msgid "Last 30 Days"
-msgstr "Els darrers 7 dies"
-
-#: ../pkg/registry/views/dashboard-page.html.h:5
-#, fuzzy
-msgid "Storage Space"
-msgstr "Emmagatzematge"
-
-#: ../pkg/registry/views/dashboard-page.html.h:9
-msgid "Images pushed recently"
-msgstr ""
-
-#: ../pkg/registry/views/dashboard-page.html.h:11
-msgid "Images by project"
-msgstr ""
-
-#: ../pkg/registry/views/dashboard-page.html.h:12
-msgid "Docker commands"
-msgstr ""
-
-#: ../pkg/registry/views/dashboard-page.html.h:13
-msgid "Log into the registry:"
-msgstr ""
-
-#: ../pkg/registry/views/dashboard-page.html.h:14
-msgid ""
-"Your login credentials do not give you access to use the docker registry "
-"from the command line."
-msgstr ""
-
-#: ../pkg/registry/views/dashboard-page.html.h:15
-#, fuzzy
-msgid "Push an image:"
-msgstr "Executa la imatge"
-
-#: ../pkg/registry/views/dashboard-page.html.h:16
-#, fuzzy
-msgid "Pull an image:"
-msgstr "Executa la imatge"
-
-#: ../pkg/registry/views/imagestream-body.html.h:1
-#, fuzzy
-msgid "Pull repository"
-msgstr "Dipòsit"
-
-#: ../pkg/registry/views/imagestream-body.html.h:3
-msgid "Pull tags"
-msgstr ""
-
-#: ../pkg/registry/views/imagestream-body.html.h:4 ../pkg/systemd/logs.html.h:9
-#: ../pkg/docker/index.html.h:10
-msgid "All"
-msgstr "Tots"
-
-#: ../pkg/registry/views/imagestream-body.html.h:5
-#, fuzzy
-msgid "Image count"
-msgstr "Imatge $0"
-
-#: ../pkg/registry/views/imagestream-body.html.h:6
-msgid "{{stream.status.tags.length}}"
-msgstr ""
-
-#: ../pkg/registry/views/imagestream-body.html.h:7
-msgid "To push to an image to this image stream:"
-msgstr ""
-
-#: ../pkg/registry/views/image-body.html.h:2
-#, fuzzy
-msgid "Change tags"
-msgstr "Canvia la foto"
-
-#: ../pkg/registry/views/image-body.html.h:5
-#: ../pkg/kubernetes/views/route-panel.html.h:3
-#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:6
-#: ../pkg/kubernetes/views/service-panel.html.h:5
-#: ../pkg/kubernetes/views/pod-body.html.h:3
-#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:5
-#: ../pkg/kubernetes/views/node-panel.html.h:1
-#, fuzzy
-msgid "Created"
-msgstr "Crea"
-
-#: ../pkg/registry/views/image-body.html.h:6
-msgid "Pushed"
-msgstr ""
-
-#: ../pkg/registry/views/image-body.html.h:7
-#: ../pkg/kubernetes/views/imagerepository-panel.html.h:6
-#: ../pkg/subscriptions/index.html.h:44
-msgid "Architecture"
-msgstr "Arquitectura"
-
-#: ../pkg/registry/views/image-body.html.h:8
-msgid "Digest"
-msgstr ""
-
-#: ../pkg/registry/views/image-body.html.h:9
-msgid "Identifier"
-msgstr ""
-
-#: ../pkg/registry/views/image-body.html.h:10
-msgid "To pull this image:"
-msgstr ""
-
-#: ../pkg/registry/views/image-delete.html.h:1
-msgid "Remove image tag"
-msgstr ""
-
-#: ../pkg/registry/views/image-delete.html.h:2
-msgid ""
-"Do you want to remove the image tagged as '{{stream.metadata.namespace}}/"
-"{{stream.metadata.name}}:{{tag.tag}}'?"
-msgstr ""
-
-#: ../pkg/registry/index.html.h:1
-msgid "Image Registry"
-msgstr ""
-
-#: ../pkg/registry/index.html.h:2 ../pkg/kubernetes/index.html.h:2
-#, fuzzy
-msgid "Connecting..."
-msgstr "S'està carregant..."
-
-#: ../pkg/registry/index.html.h:3 ../pkg/kubernetes/index.html.h:3
-#, fuzzy
-msgid "Couldn't connect to server"
-msgstr "No s'ha pogut connectar al servidor Kubernetes"
-
-#: ../pkg/registry/index.html.h:4 ../pkg/kubernetes/index.html.h:4
-#, fuzzy
-msgid ""
-"\n"
-"                Reconnect\n"
-"            "
-msgstr ""
-"\n"
-"            Torna a connectar\n"
 "          "
 
 #: ../pkg/systemd/terminal.html.h:1
@@ -3452,9 +2958,8 @@ msgid "Instantiate"
 msgstr "Instancia"
 
 #: ../pkg/systemd/services.html.h:8
-#, fuzzy
 msgid "Service Logs"
-msgstr "Serveis"
+msgstr "Registres del servei"
 
 #: ../pkg/systemd/services.html.h:9
 msgid "Note"
@@ -3470,48 +2975,44 @@ msgstr ""
 
 #: ../pkg/systemd/index.html.h:2
 msgid "Synchronized with {{Server}}"
-msgstr ""
+msgstr "Sincronitzat amb {{Server}}"
 
 #: ../pkg/systemd/index.html.h:3
-#, fuzzy
 msgid "Synchronized"
-msgstr "Sincronitza els inicis de sessions dels administradors"
+msgstr "Sincronitzat"
 
 #: ../pkg/systemd/index.html.h:4
 msgid "Trying to synchronize with {{Server}}"
-msgstr ""
+msgstr "S'està intentant la sincronització amb {{Server}}"
 
 #: ../pkg/systemd/index.html.h:5
 msgid "Not synchronized"
-msgstr ""
+msgstr "No sincronitzat"
 
 #: ../pkg/systemd/index.html.h:6
 msgid "Hardware"
-msgstr ""
+msgstr "Maquinari"
 
 #: ../pkg/systemd/index.html.h:7
 msgid "Asset Tag"
-msgstr ""
+msgstr "Etiqueta de recurs"
 
 #: ../pkg/systemd/index.html.h:8 ../pkg/kubernetes/views/details-page.html.h:3
 #: ../pkg/ostree/index.html.h:18
 msgid "Operating System"
-msgstr ""
+msgstr "Sistema operatiu"
 
 #: ../pkg/systemd/index.html.h:10 ../pkg/dashboard/index.html.h:3
-#, fuzzy
 msgid "Host Name"
-msgstr "Nom real de l'amfitrió"
+msgstr "Nom d'amfitrió"
 
 #: ../pkg/systemd/index.html.h:11
-#, fuzzy
 msgid "Domain"
-msgstr "Uneix-te al domini"
+msgstr "Domini"
 
 #: ../pkg/systemd/index.html.h:12
-#, fuzzy
 msgid "System Time"
-msgstr "Serveis del sistema"
+msgstr "Hora del sistema"
 
 #: ../pkg/systemd/index.html.h:13
 msgid "Power Options"
@@ -3519,12 +3020,11 @@ msgstr "Opcions d'energia"
 
 #: ../pkg/systemd/index.html.h:14
 msgid "Performance Profile"
-msgstr ""
+msgstr "Perfil de rendiment"
 
 #: ../pkg/systemd/index.html.h:15
-#, fuzzy
 msgid "Store Performance Data"
-msgstr "Emmagatzema les dades del rendiment"
+msgstr "Emmagatzema dades de rendiment"
 
 #: ../pkg/systemd/index.html.h:18
 msgid "Pretty Host Name"
@@ -3574,6 +3074,34 @@ msgstr ""
 msgid "Delay"
 msgstr "Retard"
 
+#: ../pkg/systemd/index.html.h:31
+msgid "1 Minute"
+msgstr "1 minut"
+
+#: ../pkg/systemd/index.html.h:32
+msgid "5 Minutes"
+msgstr "5 minuts"
+
+#: ../pkg/systemd/index.html.h:33
+msgid "20 Minutes"
+msgstr "20 minuts"
+
+#: ../pkg/systemd/index.html.h:34
+msgid "40 Minutes"
+msgstr "40 minuts"
+
+#: ../pkg/systemd/index.html.h:35
+msgid "60 Minutes"
+msgstr "60 minuts"
+
+#: ../pkg/systemd/index.html.h:36
+msgid "No Delay"
+msgstr "Sense retard"
+
+#: ../pkg/systemd/index.html.h:37
+msgid "Specific Time"
+msgstr "Temps específic"
+
 #: ../pkg/systemd/logs.html.h:1
 msgid "Journal"
 msgstr "Publicacions"
@@ -3588,11 +3116,11 @@ msgstr "Arrencada actual"
 
 #: ../pkg/systemd/logs.html.h:4
 msgid "Last 24 hours"
-msgstr "Les darreres 24 hores"
+msgstr "Les últimes 24 hores"
 
 #: ../pkg/systemd/logs.html.h:5
 msgid "Last 7 days"
-msgstr "Els darrers 7 dies"
+msgstr "Els últims 7 dies"
 
 #: ../pkg/systemd/logs.html.h:6
 msgid "Errors"
@@ -3606,10 +3134,14 @@ msgstr "Advertències"
 msgid "Notices"
 msgstr "Anuncis"
 
+#: ../pkg/systemd/logs.html.h:9 ../pkg/docker/index.html.h:10
+msgid "All"
+msgstr "Tots"
+
 #: ../pkg/systemd/logs.html.h:10
 #: ../pkg/kubernetes/views/container-panel.html.h:2
 msgid "Logs"
-msgstr ""
+msgstr "Registres"
 
 #: ../pkg/systemd/logs.html.h:11
 msgid "Entry"
@@ -3659,7 +3191,7 @@ msgstr "No es pot connectar a Docker"
 
 #: ../pkg/docker/index.html.h:6
 msgid "Start Docker"
-msgstr "Inicia el Docker"
+msgstr "Inicia Docker"
 
 #: ../pkg/docker/index.html.h:7
 msgid "Try again"
@@ -3667,11 +3199,11 @@ msgstr "Torna-ho a intentar"
 
 #: ../pkg/docker/index.html.h:8
 msgid "Combined CPU usage"
-msgstr ""
+msgstr "Ús combinat de CPU"
 
 #: ../pkg/docker/index.html.h:9
 msgid "Combined memory usage"
-msgstr ""
+msgstr "Ús combinat de memòria"
 
 #: ../pkg/docker/index.html.h:12
 msgid ""
@@ -3684,38 +3216,53 @@ msgstr ""
 "            "
 
 #: ../pkg/docker/index.html.h:15
+msgid "TCP"
+msgstr "TCP"
+
+#: ../pkg/docker/index.html.h:16
 msgid "{{host_port_label}}"
 msgstr "{{host_port_label}}"
 
-#: ../pkg/docker/index.html.h:16
+#: ../pkg/docker/index.html.h:17
+#, fuzzy
+msgid "select container"
+msgstr "Contenidor"
+
+#: ../pkg/docker/index.html.h:18
 msgid "{{alias_label}}"
 msgstr "{{alias_label}}"
 
-#: ../pkg/docker/index.html.h:18
+#: ../pkg/docker/index.html.h:19 ../pkg/kubernetes/views/image-page.html.h:2
+#: ../pkg/kubernetes/views/image-panel.html.h:1
+#: ../pkg/kubernetes/views/container-body.html.h:2
+msgid "Image"
+msgstr "Imatge"
+
+#: ../pkg/docker/index.html.h:20
 msgid "Container Name"
 msgstr "Nom del contenidor"
 
-#: ../pkg/docker/index.html.h:19
+#: ../pkg/docker/index.html.h:21
 msgid "Command"
 msgstr "Ordre"
 
-#: ../pkg/docker/index.html.h:20
+#: ../pkg/docker/index.html.h:22
 msgid "Memory limit"
 msgstr "Límit de memòria"
 
-#: ../pkg/docker/index.html.h:21
+#: ../pkg/docker/index.html.h:23
 msgid "CPU priority"
 msgstr "Prioritat de CPU"
 
-#: ../pkg/docker/index.html.h:22
+#: ../pkg/docker/index.html.h:24
 msgid "With terminal"
 msgstr "Amb el terminal"
 
-#: ../pkg/docker/index.html.h:23
+#: ../pkg/docker/index.html.h:25
 msgid "Links"
 msgstr "Enllaços"
 
-#: ../pkg/docker/index.html.h:28
+#: ../pkg/docker/index.html.h:30
 msgid ""
 "\n"
 "            Run\n"
@@ -3725,7 +3272,7 @@ msgstr ""
 "            Executa\n"
 "          "
 
-#: ../pkg/docker/index.html.h:31
+#: ../pkg/docker/index.html.h:33
 msgid ""
 "\n"
 "            Download\n"
@@ -3735,15 +3282,31 @@ msgstr ""
 "            Baixa\n"
 "          "
 
-#: ../pkg/docker/index.html.h:37
+#: ../pkg/docker/index.html.h:36
+msgid ""
+"\n"
+"            Change\n"
+"          "
+msgstr ""
+"\n"
+"            Canvia\n"
+"          "
+
+#: ../pkg/docker/index.html.h:39
 msgid "Repository"
 msgstr "Dipòsit"
 
-#: ../pkg/docker/index.html.h:38
+#: ../pkg/docker/index.html.h:40
 msgid "Tag"
 msgstr "Tag"
 
-#: ../pkg/docker/index.html.h:40
+#: ../pkg/docker/index.html.h:41 ../pkg/kubernetes/views/image-listing.html.h:4
+#: ../pkg/kubernetes/views/image-body.html.h:4
+#: ../pkg/kubernetes/views/imagerepository-panel.html.h:4
+msgid "Author"
+msgstr "Autor"
+
+#: ../pkg/docker/index.html.h:42
 msgid ""
 "\n"
 "            Commit\n"
@@ -3759,105 +3322,95 @@ msgstr ""
 
 #: ../pkg/playground/patterns.html.h:2
 msgid "Example Dialog"
-msgstr ""
+msgstr "Exemple de diàleg"
 
 #: ../pkg/playground/patterns.html.h:3
-#, fuzzy
 msgid ""
 "\n"
 "                                Label\n"
 "                            "
 msgstr ""
 "\n"
-"                                    Zona horària no vàlida\n"
-"                                "
+"                                Etiqueta\n"
+"                            "
 
 #: ../pkg/playground/patterns.html.h:6
-#, fuzzy
 msgid ""
 "\n"
 "                                Select\n"
 "                            "
 msgstr ""
 "\n"
-"                                    Zona horària no vàlida\n"
-"                                "
+"                                Selecciona\n"
+"                            "
 
 #: ../pkg/playground/patterns.html.h:9
-#, fuzzy
 msgid "One"
-msgstr "Engegat"
+msgstr "Un"
 
 #: ../pkg/playground/patterns.html.h:10
-#, fuzzy
 msgid ""
 "\n"
 "                    Cancel\n"
 "                "
 msgstr ""
 "\n"
-"                        Cancel·la\n"
-"                    "
+"                    Cancel·la\n"
+"                "
 
 #: ../pkg/playground/patterns.html.h:13
-#, fuzzy
 msgid ""
 "\n"
 "                    Clear\n"
 "                "
 msgstr ""
 "\n"
-"                    URL\n"
-"                  "
+"                    Neteja\n"
+"                "
 
 #: ../pkg/playground/patterns.html.h:16
-#, fuzzy
 msgid ""
 "\n"
 "                    Invalid\n"
 "                "
 msgstr ""
 "\n"
-"                    Usuari\n"
-"                  "
+"                    No vàlid\n"
+"                "
 
 #: ../pkg/playground/patterns.html.h:19
-#, fuzzy
 msgid ""
 "\n"
 "                    Error\n"
 "                "
 msgstr ""
 "\n"
-"                    Usuari\n"
-"                  "
+"                    Error\n"
+"                "
 
 #: ../pkg/playground/patterns.html.h:22
-#, fuzzy
 msgid ""
 "\n"
 "                    Wait\n"
 "                "
 msgstr ""
 "\n"
-"                    Usuari\n"
-"                  "
+"                    Espera\n"
+"                "
 
 #: ../pkg/playground/patterns.html.h:25
-#, fuzzy
 msgid ""
 "\n"
 "        Show Dialog\n"
 "    "
 msgstr ""
 "\n"
-"            Baixa\n"
-"          "
+"        Mostra el diàleg\n"
+"    "
 
 #: ../pkg/playground/test.html.h:1
-#, fuzzy
 msgid "Cockpit terminal"
-msgstr "Amb el terminal"
+msgstr "Terminal de Cockpit"
 
 #: ../pkg/playground/test.html.h:2 ../pkg/networkmanager/index.html.h:1
 msgid "Networking"
@@ -3869,67 +3422,173 @@ msgstr "S'ha perdut la connexió. S'intenta connectar de nou"
 
 #: ../pkg/dashboard/index.html.h:6
 msgid "Avatar"
-msgstr ""
+msgstr "Avatar"
 
 #: ../pkg/dashboard/index.html.h:9
-#, fuzzy
 msgid "Set"
-msgstr "Sockets"
+msgstr "Estableix"
+
+#: ../pkg/kubernetes/views/image-config.html.h:1
+msgid "Run as"
+msgstr "Executa com"
+
+#: ../pkg/kubernetes/views/image-config.html.h:3
+msgid "Directory"
+msgstr "Directori"
+
+#: ../pkg/kubernetes/views/image-config.html.h:4
+msgid "Stop with"
+msgstr "Atura amb"
+
+#: ../pkg/kubernetes/views/image-config.html.h:5
+#: ../pkg/kubernetes/views/imagerepository-panel.html.h:6
+#: ../pkg/subscriptions/index.html.h:44
+msgid "Architecture"
+msgstr "Arquitectura"
+
+#: ../pkg/kubernetes/views/image-config.html.h:6
+#: ../pkg/kubernetes/views/container-body.html.h:9
+msgid "Environment"
+msgstr "Entorn"
+
+#: ../pkg/kubernetes/views/image-config.html.h:9
+msgid "Volumes"
+msgstr "Volums"
+
+#: ../pkg/kubernetes/views/route-panel.html.h:1
+#: ../pkg/kubernetes/views/imagestream-modify.html.h:4
+#: ../pkg/kubernetes/views/containers-page.html.h:4
+#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:4
+#: ../pkg/kubernetes/views/service-panel.html.h:3
+#: ../pkg/kubernetes/views/pod-body.html.h:1
+#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:3
+#: ../pkg/kubernetes/views/dashboard-page.html.h:8
+#: ../pkg/kubernetes/views/details-page.html.h:7
+msgid "Project"
+msgstr "Projecte"
+
+#: ../pkg/kubernetes/views/route-panel.html.h:2
+#: ../pkg/kubernetes/views/containers-page.html.h:5
+#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:5
+#: ../pkg/kubernetes/views/service-panel.html.h:4
+#: ../pkg/kubernetes/views/pod-body.html.h:2
+#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:4
+#: ../pkg/kubernetes/views/dashboard-page.html.h:9
+#: ../pkg/kubernetes/views/pvc-body.html.h:2
+#: ../pkg/kubernetes/views/details-page.html.h:8
+msgid "Namespace"
+msgstr "Espai de noms"
+
+#: ../pkg/kubernetes/views/route-panel.html.h:3
+#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:6
+#: ../pkg/kubernetes/views/service-panel.html.h:5
+#: ../pkg/kubernetes/views/pod-body.html.h:3
+#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:5
+#: ../pkg/kubernetes/views/node-panel.html.h:1
+msgid "Created"
+msgstr ""
 
 #: ../pkg/kubernetes/views/route-panel.html.h:5
-#, fuzzy
 msgid "TLS Termination"
-msgstr "Acaba la sessió"
+msgstr "Finalització TLS"
 
 #: ../pkg/kubernetes/views/route-panel.html.h:6
-#, fuzzy
 msgid "yes"
-msgstr "bytes"
+msgstr "sí"
 
 #: ../pkg/kubernetes/views/route-panel.html.h:7
-#, fuzzy
 msgid "no"
-msgstr "cap"
+msgstr "no"
+
+#: ../pkg/kubernetes/views/route-panel.html.h:8
+#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:8
+#: ../pkg/kubernetes/views/image-meta.html.h:1
+#: ../pkg/kubernetes/views/service-panel.html.h:11
+#: ../pkg/kubernetes/views/pod-body.html.h:10
+#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:10
+#: ../pkg/kubernetes/views/node-panel.html.h:9
+msgid "Labels"
+msgstr "Etiquetes"
+
+#: ../pkg/kubernetes/views/route-panel.html.h:10
+#: ../pkg/kubernetes/views/imagestream-meta.html.h:1
+#: ../pkg/kubernetes/views/image-meta.html.h:3
+#: ../pkg/kubernetes/views/node-panel.html.h:19
+msgid "Annotations"
+msgstr "Anotacions"
+
+#: ../pkg/kubernetes/views/imagestream-modify.html.h:1
+msgid "Create image stream"
+msgstr ""
+
+#: ../pkg/kubernetes/views/imagestream-modify.html.h:2
+msgid "Change image stream"
+msgstr ""
+
+#: ../pkg/kubernetes/views/imagestream-modify.html.h:5
+msgid "Populate"
+msgstr "Pobla"
+
+#: ../pkg/kubernetes/views/imagestream-modify.html.h:6
+msgid "Pull from"
+msgstr ""
+
+#: ../pkg/kubernetes/views/item-delete.html.h:1
+msgid "Delete {{ item.kind }}"
+msgstr ""
+
+#: ../pkg/kubernetes/views/item-delete.html.h:2
+msgid "Do you want to delete the {{ item.kind }} '{{item.metadata.name}}'?"
+msgstr ""
+
+#: ../pkg/kubernetes/views/item-delete.html.h:3
+#, fuzzy
+msgid ""
+"Deleting a Pod will kill all associated containers. Pods may be "
+"automatically created again in some cases."
+msgstr ""
+"\n"
+"            La supressió d'un Pod matarà tots els contenidors associats. En "
+"alguns casos, potser es tornen a crear automàticament els pods.\n"
+"          "
 
 #: ../pkg/kubernetes/views/containers-page.html.h:3
 #: ../pkg/kubernetes/views/topology-page.html.h:2
 msgid "Pod"
-msgstr ""
+msgstr "Pod"
 
 #: ../pkg/kubernetes/views/containers-page.html.h:6
 #: ../pkg/kubernetes/views/topology-page.html.h:11
 #: ../pkg/kubernetes/views/pod-body.html.h:8
 msgid "Node"
-msgstr ""
+msgstr "Node"
 
 #: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:1
 #: ../pkg/kubernetes/views/topology-page.html.h:5
-#, fuzzy
 msgid "Replication Controller"
-msgstr "Ajusta el controlador de replicació"
+msgstr "Controlador de replicació"
 
 #: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:2
+#: ../pkg/kubernetes/views/pvc-body.html.h:9
 #: ../pkg/kubernetes/views/details-page.html.h:20
 msgid "Pods"
-msgstr ""
+msgstr "Pods"
 
 #: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:3
 #: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:2
-#, fuzzy
 msgid "Template"
-msgstr "Plantilla $0"
+msgstr "Plantilla"
 
 #: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:7
+#: ../pkg/kubernetes/views/replicationcontroller-modify.html.h:2
 #: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:6
 #: ../pkg/kubernetes/views/details-page.html.h:19
-#: ../pkg/kubernetes/index.html.h:30
 msgid "Replicas"
 msgstr "Rèpliques"
 
 #: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:9
-#, fuzzy
 msgid "Pod Replicated"
-msgstr "Rèpliques"
+msgstr ""
 
 #: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:10
 msgid "No pods replicated"
@@ -3940,19 +3599,158 @@ msgstr ""
 msgid "Pod Selector"
 msgstr ""
 
-#: ../pkg/kubernetes/views/filter-bar.html.h:6
-#, fuzzy
-msgid "All Namespaces"
-msgstr "Espai de noms"
+#: ../pkg/kubernetes/views/route-modify.html.h:1
+msgid "Adjust Route"
+msgstr "Ajusta la ruta"
 
-#: ../pkg/kubernetes/views/filter-bar.html.h:7
+#: ../pkg/kubernetes/views/image-page.html.h:1
+msgid "Show all images"
+msgstr "Mostra totes les imatges"
+
+#: ../pkg/kubernetes/views/image-page.html.h:4
+#: ../pkg/kubernetes/views/image-panel.html.h:3
+#: ../pkg/kubernetes/views/imagestream-page.html.h:4
+msgid "Metadata"
+msgstr "Metadades"
+
+#: ../pkg/kubernetes/views/node-add.html.h:1
 #, fuzzy
-msgid "Namespace:"
-msgstr "Espai de noms"
+msgid "Add Cluster Node"
+msgstr "Afegeix un node de clúster"
+
+#: ../pkg/kubernetes/views/node-add.html.h:4
+#, fuzzy
+msgid "Configuration"
+msgstr "S'està configurant"
+
+#: ../pkg/kubernetes/views/node-add.html.h:5
+msgid "Configure Kubelet and Proxy"
+msgstr "Configura el Kubelet i el servidor intermediari"
+
+#: ../pkg/kubernetes/views/node-add.html.h:6
+msgid "Configure Flannel networking"
+msgstr "Configura la xarxa Flannel"
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:1
+msgid "Welcome to the Image Registry"
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:2
+msgid ""
+"In order to begin pushing images to the registry, you need to create a "
+"project."
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:3
+#: ../pkg/kubernetes/views/project-modify.html.h:1
+#, fuzzy
+msgid "New project"
+msgstr "Nou projecte"
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:4
+msgid "Images by project"
+msgstr "Imatges per projecte"
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:5
+msgid "Images pushed recently"
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:6
+#, fuzzy
+msgid "All images"
+msgstr "$0 imatges"
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:7
+msgid "No images pushed"
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:8
+msgid ""
+"In order to begin pushing images to the registry, use the commands below."
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:9
+#: ../pkg/kubernetes/views/image-listing.html.h:1
+msgid "New image stream"
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:10
+msgid "Docker commands"
+msgstr "Ordres  de Docker"
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:11
+msgid "Log into the registry:"
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:12
+msgid ""
+"Your login credentials do not give you access to use the docker registry "
+"from the command line."
+msgstr ""
+"Les vostres credencials d'inici de sessió no us donen accés a utilitzar el "
+"registre de docker des de la línia d'ordres."
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:13
+msgid "Push an image:"
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:14
+msgid "Pull an image:"
+msgstr ""
+
+#: ../pkg/kubernetes/views/filter-project.html.h:1
+msgid "All Projects"
+msgstr "Tots els projectes"
+
+#: ../pkg/kubernetes/views/filter-project.html.h:2
+msgid "Project:"
+msgstr "Projecte:"
+
+#: ../pkg/kubernetes/views/filter-bar.html.h:1
+msgid "Expand items inline"
+msgstr ""
+
+#: ../pkg/kubernetes/views/filter-bar.html.h:2
+msgid "Only expanded items"
+msgstr ""
+
+#: ../pkg/kubernetes/views/filter-bar.html.h:3
+msgid "Collapse all"
+msgstr "Contreu-ho tot"
+
+#: ../pkg/kubernetes/views/project-body.html.h:1
+msgid "This project allows non-members to pull images."
+msgstr ""
+
+#: ../pkg/kubernetes/views/project-body.html.h:2
+msgid "Project Members"
+msgstr "Membres del projecte"
+
+#: ../pkg/kubernetes/views/project-body.html.h:4
+msgid "Add Member"
+msgstr "Afegeix un membre"
+
+#: ../pkg/kubernetes/views/image-meta.html.h:2
+msgid "On Build"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-meta.html.h:4
+msgid "Docker Version"
+msgstr "Versió de Docker"
+
+#: ../pkg/kubernetes/views/imagestream-delete.html.h:1
+msgid "Delete image stream"
+msgstr ""
+
+#: ../pkg/kubernetes/views/imagestream-delete.html.h:2
+msgid ""
+"Do you want to delete the '{{stream.metadata.namespace}}/{{stream.metadata."
+"name}}' image stream?"
+msgstr ""
 
 #: ../pkg/kubernetes/views/topology-page.html.h:1
 msgid "Select an object to see more details."
-msgstr ""
+msgstr "Seleccioneu un objecte per veure'n més detalls. "
 
 #: ../pkg/kubernetes/views/topology-page.html.h:3
 msgid ""
@@ -3967,9 +3765,8 @@ msgid ""
 msgstr ""
 
 #: ../pkg/kubernetes/views/topology-page.html.h:8
-#, fuzzy
 msgid "Service"
-msgstr "Serveis"
+msgstr "Servei"
 
 #: ../pkg/kubernetes/views/topology-page.html.h:9
 msgid ""
@@ -3980,39 +3777,53 @@ msgstr ""
 
 #: ../pkg/kubernetes/views/topology-page.html.h:12
 msgid "Nodes are the machines that run your containers."
-msgstr ""
+msgstr "Els nodes són les màquines que executen els vostres contenidors."
 
 #: ../pkg/kubernetes/views/container-body.html.h:3
-#, fuzzy
 msgid "Image ID"
-msgstr "Imatge"
+msgstr "Id. d'imatge"
 
 #: ../pkg/kubernetes/views/container-body.html.h:4
-#, fuzzy
 msgid "Container ID"
-msgstr "Contenidor"
+msgstr "Id. de contenidor"
 
 #: ../pkg/kubernetes/views/container-body.html.h:6
 #: ../pkg/kubernetes/views/details-page.html.h:10
-#, fuzzy
 msgid "State"
 msgstr "Estat"
 
 #: ../pkg/kubernetes/views/container-body.html.h:7
-#, fuzzy
 msgid "Since"
-msgstr "Des de $0"
+msgstr "Des de"
 
 #: ../pkg/kubernetes/views/container-body.html.h:8
-#, fuzzy
 msgid "Restart Count"
-msgstr "Reinicia"
+msgstr "Reinicia el compte"
+
+#: ../pkg/kubernetes/views/replicationcontroller-modify.html.h:1
+#, fuzzy
+msgid "Adjust Replication Controller {{ item.metadata.name }}"
+msgstr "Ajusta el controlador de replicació"
+
+#: ../pkg/kubernetes/views/add-group-dialog.html.h:1
+msgid "Add Group"
+msgstr "Afegeix un grup"
+
+#: ../pkg/kubernetes/views/add-group-dialog.html.h:2
+#: ../pkg/kubernetes/views/add-user-dialog.html.h:2
+msgid ""
+"\n"
+"                        Name\n"
+"                    "
+msgstr ""
+"\n"
+"                        Nom\n"
+"                    "
 
 #: ../pkg/kubernetes/views/service-panel.html.h:6
 #: ../pkg/kubernetes/views/node-panel.html.h:3
-#, fuzzy
 msgid "IP"
-msgstr "IPv4"
+msgstr "IP"
 
 #: ../pkg/kubernetes/views/service-panel.html.h:10
 msgid "Session Affinity"
@@ -4026,150 +3837,321 @@ msgstr ""
 msgid "No pods selected"
 msgstr ""
 
-#: ../pkg/kubernetes/views/images-page.html.h:1
-#, fuzzy
-msgid "Image Repositories"
-msgstr "Dipòsit"
+#: ../pkg/kubernetes/views/project-listing.html.h:1
+msgid "New Project"
+msgstr "Nou projecte"
 
-#: ../pkg/kubernetes/views/images-page.html.h:2
-#, fuzzy
-msgid "Image Repository"
-msgstr "Dipòsit"
+#: ../pkg/kubernetes/views/project-listing.html.h:2
+msgid "Projects"
+msgstr "Projectes"
 
-#: ../pkg/kubernetes/views/images-page.html.h:5
-msgid "No image repositories are present."
+#: ../pkg/kubernetes/views/project-listing.html.h:4
+#: ../pkg/kubernetes/views/project-modify.html.h:5
+#: ../pkg/kubernetes/views/image-body.html.h:2
+msgid "Description"
+msgstr "Descripció"
+
+#: ../pkg/kubernetes/views/project-listing.html.h:6
+msgid "New Group"
+msgstr "Nou grup"
+
+#: ../pkg/kubernetes/views/project-listing.html.h:7
+msgid "Groups"
+msgstr "Grups"
+
+#: ../pkg/kubernetes/views/project-listing.html.h:8
+#: ../pkg/kubernetes/views/add-user-dialog.html.h:1
+msgid "Add User"
+msgstr "Afegeix un usuari"
+
+#: ../pkg/kubernetes/views/project-listing.html.h:9
+msgid "Users"
+msgstr "Usuaris"
+
+#: ../pkg/kubernetes/views/project-listing.html.h:10
+msgid "Identity"
+msgstr "Identitat"
+
+#: ../pkg/kubernetes/views/project-listing.html.h:11
+msgid "Member of"
+msgstr "Membre de"
+
+#: ../pkg/kubernetes/views/deploy.html.h:1
+msgid "Deploy Application"
+msgstr "Desplega l'aplicació"
+
+#: ../pkg/kubernetes/views/deploy.html.h:3
+msgid "{{ selected.name }}"
 msgstr ""
 
+#: ../pkg/kubernetes/views/deploy.html.h:5
+#: ../pkg/kubernetes/views/dashboard-page.html.h:1
+msgid "Deploy"
+msgstr "Desplega"
+
 #: ../pkg/kubernetes/views/pod-body.html.h:4
-#, fuzzy
 msgid "Restart Policy"
-msgstr "Reinicia"
+msgstr "Reinicia la política"
 
 #: ../pkg/kubernetes/views/pod-body.html.h:5
-#, fuzzy
 msgid "Service Account"
-msgstr "Publicacions del servei"
+msgstr "Compte del servei"
 
 #: ../pkg/kubernetes/views/pod-body.html.h:6
 msgid "DNS Policy"
-msgstr ""
+msgstr "Política del DNS"
 
 #: ../pkg/kubernetes/views/pod-body.html.h:7
 msgid "Phase"
-msgstr ""
+msgstr "Fase"
 
 #: ../pkg/kubernetes/views/pod-body.html.h:9
-#, fuzzy
 msgid "Pod Address"
-msgstr "Adreça IP"
+msgstr ""
 
 #: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:1
 msgid "Deployment Config"
-msgstr ""
+msgstr "Configuració de desplegament"
 
 #: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:7
 #: ../pkg/kubernetes/views/details-page.html.h:16
-#, fuzzy
 msgid "Latest Version"
-msgstr "Versió"
+msgstr "Última versió"
 
 #: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:8
 msgid "Deployment Causes"
-msgstr ""
+msgstr "Causes del desplegament"
 
 #: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:9
 msgid "Triggers"
+msgstr "Disparadors"
+
+#: ../pkg/kubernetes/views/imagestream-page.html.h:1
+msgid "Show all image streams"
 msgstr ""
+
+#: ../pkg/kubernetes/views/imagestream-page.html.h:2
+msgid "Image Stream"
+msgstr ""
+
+#: ../pkg/kubernetes/views/imagestream-page.html.h:3
+#: ../pkg/kubernetes/views/image-listing.html.h:2
+msgid "Images"
+msgstr "Imatges"
+
+#: ../pkg/kubernetes/views/image-listing.html.h:3
+#: ../pkg/kubernetes/views/image-body.html.h:9
+#: ../pkg/kubernetes/views/imagerepository-panel.html.h:3
+msgid "Tags"
+msgstr "Etiquetes"
+
+#: ../pkg/kubernetes/views/image-listing.html.h:5
+#: ../pkg/kubernetes/views/imagerepository-panel.html.h:8
+msgid "Last Updated"
+msgstr "Últim cop actualitzat"
+
+#: ../pkg/kubernetes/views/image-listing.html.h:6
+msgid "No image streams are present."
+msgstr ""
+
+#: ../pkg/kubernetes/views/add-user-dialog.html.h:5
+msgid ""
+"\n"
+"                        Identity\n"
+"                    "
+msgstr ""
+"\n"
+"                        Identitat\n"
+"                    "
 
 #: ../pkg/kubernetes/views/container-panel.html.h:3
 msgid "Shell"
-msgstr ""
+msgstr "Shell"
 
-#: ../pkg/kubernetes/views/dashboard-page.html.h:1
-msgid "Deploy"
-msgstr ""
+#: ../pkg/kubernetes/views/project-modify.html.h:2
+#, fuzzy
+msgid "Change project"
+msgstr "Canvia el perfil"
+
+#: ../pkg/kubernetes/views/project-modify.html.h:4
+msgid "Display name"
+msgstr "Nom a mostrar"
+
+#: ../pkg/kubernetes/views/project-modify.html.h:6
+#, fuzzy
+msgid "Access Policy"
+msgstr "Reinicia la política"
+
+#: ../pkg/kubernetes/views/project-page.html.h:1
+#, fuzzy
+msgid "Show all projects"
+msgstr "Tots els projectes"
+
+#: ../pkg/kubernetes/views/project-page.html.h:2
+#, fuzzy
+msgid "Membership"
+msgstr "Membres"
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:2
-#, fuzzy
 msgid "Kubernetes Services"
-msgstr "Manifest Kubernetes"
+msgstr "Serveis del Kubernetes"
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:3
-#, fuzzy
 msgid "Could not list services"
-msgstr "No s'han pogut llistar els usuaris"
+msgstr "No es van poder llistar els serveis"
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:4
 msgid "You can deploy an application to your cluster."
-msgstr ""
+msgstr "Podeu desplegar una aplicació al vostre clúster."
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:10
-#, fuzzy
 msgid "Kubernetes Nodes"
-msgstr "Manifest Kubernetes"
+msgstr "Nodes Kubernetes"
+
+#: ../pkg/kubernetes/views/imagestream-body.html.h:1
+msgid "Pull repository"
+msgstr ""
+
+#: ../pkg/kubernetes/views/imagestream-body.html.h:3
+msgid "Image count"
+msgstr ""
+
+#: ../pkg/kubernetes/views/imagestream-body.html.h:4
+msgid "{{stream.status.tags.length}}"
+msgstr ""
+
+#: ../pkg/kubernetes/views/imagestream-body.html.h:5
+msgid "To push to an image to this image stream:"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-body.html.h:1
+msgid "Summary"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-body.html.h:3
+msgid "Source URL"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-body.html.h:6
+msgid "Built"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-body.html.h:7
+msgid "Digest"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-body.html.h:8
+msgid "Identifier"
+msgstr "Identificador"
+
+#: ../pkg/kubernetes/views/image-body.html.h:10
+msgid "To pull this image:"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-delete.html.h:1
+msgid "Remove image tag"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-delete.html.h:2
+msgid ""
+"Do you want to remove the image tagged as '{{stream.metadata.namespace}}/"
+"{{stream.metadata.name}}:{{tag.tag}}'?"
+msgstr ""
+
+#: ../pkg/kubernetes/views/pvc-body.html.h:3
+msgid "Requested Access Modes"
+msgstr ""
+
+#: ../pkg/kubernetes/views/pvc-body.html.h:4
+msgid "Volume Access Modes"
+msgstr ""
+
+#: ../pkg/kubernetes/views/pvc-body.html.h:5
+#, fuzzy
+msgid "Requested Capacity"
+msgstr "Capacitat"
+
+#: ../pkg/kubernetes/views/pvc-body.html.h:6
+#, fuzzy
+msgid "Volume Capacity"
+msgstr "Capacitat"
+
+#: ../pkg/kubernetes/views/pvc-body.html.h:8
+#: ../pkg/kubernetes/views/node-panel.html.h:16
+msgid "Message"
+msgstr "Missatge"
+
+#: ../pkg/kubernetes/views/pvc-body.html.h:10
+msgid "No Pods are using this claim"
+msgstr ""
+
+#: ../pkg/kubernetes/views/service-modify.html.h:1
+msgid "Adjust Service"
+msgstr "Ajusta el servei"
+
+#: ../pkg/kubernetes/views/service-modify.html.h:3
+msgid "{{ item.name }}"
+msgstr ""
+
+#: ../pkg/kubernetes/views/service-modify.html.h:5
+msgid "Adjust"
+msgstr "Ajusta"
 
 #: ../pkg/kubernetes/views/imagerepository-panel.html.h:1
 msgid "From:"
-msgstr ""
+msgstr "De:"
 
 #: ../pkg/kubernetes/views/imagerepository-panel.html.h:2
-#, fuzzy
 msgid "Projects:"
-msgstr "Projecte"
+msgstr "Projectes:"
 
 #: ../pkg/kubernetes/views/imagerepository-panel.html.h:5
-#, fuzzy
 msgid "Docker"
-msgstr "Inicia el Docker"
+msgstr "Docker"
+
+#: ../pkg/kubernetes/views/file-button.html.h:1
+msgid "Select Manifest File..."
+msgstr "Selecciona el fitxer del manifest..."
 
 #: ../pkg/kubernetes/views/details-page.html.h:1
 msgid "Nodes"
-msgstr ""
+msgstr "Nodes"
 
 #: ../pkg/kubernetes/views/details-page.html.h:15
 msgid "Deployment Configs"
-msgstr ""
+msgstr "Configuracions del desplegament"
 
 #: ../pkg/kubernetes/views/details-page.html.h:17
 msgid "Not deployed"
-msgstr ""
+msgstr "No desplegat"
 
 #: ../pkg/kubernetes/views/details-page.html.h:18
-#, fuzzy
 msgid "Replication Controllers"
-msgstr "Ajusta el controlador de replicació"
+msgstr "Controladors de replicació"
 
 #: ../pkg/kubernetes/views/node-panel.html.h:4
 msgid "OS"
-msgstr ""
+msgstr "SO"
 
 #: ../pkg/kubernetes/views/node-panel.html.h:5
-#, fuzzy
 msgid "Machine ID"
-msgstr "Màquines"
+msgstr "Id. de màquina"
 
 #: ../pkg/kubernetes/views/node-panel.html.h:6
-#, fuzzy
 msgid "Container Runtime Version"
-msgstr "Nom del contenidor"
+msgstr "Versió de l'entorn d'execució del contenidor"
 
 #: ../pkg/kubernetes/views/node-panel.html.h:7
-#, fuzzy
 msgid "Kubelet Version"
-msgstr "Versió"
+msgstr "Versió de Kubelet"
 
 #: ../pkg/kubernetes/views/node-panel.html.h:8
-#, fuzzy
 msgid "Proxy Version"
-msgstr "Versió"
+msgstr "Versió del servidor intermediari"
 
 #: ../pkg/kubernetes/views/node-panel.html.h:15
 msgid "Reason"
-msgstr ""
-
-#: ../pkg/kubernetes/views/node-panel.html.h:16
-msgid "Message"
-msgstr ""
+msgstr "Raó"
 
 #: ../pkg/kubernetes/views/node-panel.html.h:17
 msgid "Last Heartbeat"
@@ -4191,120 +4173,27 @@ msgstr ""
 msgid "Kubernetes Cluster"
 msgstr "Clúster Kubernetes"
 
-#: ../pkg/kubernetes/index.html.h:7
-msgid "Deploy Application"
-msgstr "Desplega l'aplicació"
+#: ../pkg/kubernetes/index.html.h:2 ../pkg/kubernetes/registry.html.h:2
+msgid "Connecting..."
+msgstr "S'està connectant..."
 
-#: ../pkg/kubernetes/index.html.h:8
+#: ../pkg/kubernetes/index.html.h:3 ../pkg/kubernetes/registry.html.h:3
+msgid "Couldn't connect to server"
+msgstr "No s'ha pogut connectar al servidor"
+
+#: ../pkg/kubernetes/index.html.h:4 ../pkg/kubernetes/registry.html.h:4
 msgid ""
 "\n"
-"                  Type\n"
-"                  "
+"                Reconnect\n"
+"            "
 msgstr ""
 "\n"
-"                  Tipus\n"
-"                  "
+"                Torna a connectar\n"
+"            "
 
-#: ../pkg/kubernetes/index.html.h:11
-msgid "Kubernetes Manifest"
-msgstr "Manifest Kubernetes"
-
-#: ../pkg/kubernetes/index.html.h:12
-msgid "Nulecule Application"
-msgstr "Aplicació Nulecule"
-
-#: ../pkg/kubernetes/index.html.h:13
-msgid ""
-"\n"
-"                  Manifest\n"
-"                  "
+#: ../pkg/kubernetes/registry.html.h:1
+msgid "Image Registry"
 msgstr ""
-"\n"
-"                  Manifest\n"
-"                  "
-
-#: ../pkg/kubernetes/index.html.h:16
-msgid ""
-"\n"
-"                  Nulecule\n"
-"                  "
-msgstr ""
-"\n"
-"                  Nulecule\n"
-"                  "
-
-#: ../pkg/kubernetes/index.html.h:19
-msgid ""
-"\n"
-"              Cancel\n"
-"              "
-msgstr ""
-"\n"
-"              Cancel·la\n"
-"              "
-
-#: ../pkg/kubernetes/index.html.h:22
-msgid ""
-"\n"
-"              Deploy\n"
-"              "
-msgstr ""
-"\n"
-"              Desplega\n"
-"              "
-
-#: ../pkg/kubernetes/index.html.h:25
-msgid "Adjust Service"
-msgstr "Ajusta el servei"
-
-#: ../pkg/kubernetes/index.html.h:28
-msgid "Adjust"
-msgstr "Ajusta"
-
-#: ../pkg/kubernetes/index.html.h:29
-msgid "Adjust Replication Controller"
-msgstr "Ajusta el controlador de replicació"
-
-#: ../pkg/kubernetes/index.html.h:31
-#, fuzzy
-msgid "Adjust Route"
-msgstr "Ajusta"
-
-#: ../pkg/kubernetes/index.html.h:33
-msgid "Please Confirm Deletion"
-msgstr "Si us plau, confirmeu la supressió"
-
-#: ../pkg/kubernetes/index.html.h:34
-msgid ""
-"\n"
-"            Deleting a Pod will kill all associated containers. Pods may be "
-"automatically created again in some cases.\n"
-"          "
-msgstr ""
-"\n"
-"            La supressió d'un Pod matarà tots els contenidors associats. En "
-"alguns casos, potser es tornen a crear automàticament els pods.\n"
-"          "
-
-#: ../pkg/kubernetes/index.html.h:38
-msgid ""
-"\n"
-"          "
-msgstr ""
-"\n"
-"          "
-
-#: ../pkg/kubernetes/index.html.h:40
-msgid "Add Cluster Node "
-msgstr "Afegeix un node del clúster"
-
-#: ../pkg/kubernetes/index.html.h:42
-msgid "Configure Kubelet and Proxy"
-msgstr "Configura el Kubelet i el servidor intermediari"
-
-#: ../pkg/kubernetes/index.html.h:43
-msgid "Configure Flannel networking"
-msgstr "Configura la xarxa Flannel"
 
 #: ../pkg/networkmanager/index.html.h:2 ../pkg/storaged/index.html.h:23
 msgid "Go to now"
@@ -4462,83 +4351,77 @@ msgstr "Ajusts de la VLAN"
 
 #: ../pkg/ostree/index.html.h:1
 msgid "Software Updates"
-msgstr ""
+msgstr "Actualitzacions de programari"
 
 #: ../pkg/ostree/index.html.h:2
 msgid "Check for updates"
-msgstr ""
+msgstr "Comprova si hi ha actualitzacions"
 
 #: ../pkg/ostree/index.html.h:3
-#, fuzzy
 msgid ""
 "\n"
 "                    Update and reboot\n"
 "                "
 msgstr ""
 "\n"
-"                    URL\n"
-"                  "
+"                    Actualitza i reinicia\n"
+"                "
 
 #: ../pkg/ostree/index.html.h:6
 msgid "Roll back and reboot"
 msgstr ""
 
 #: ../pkg/ostree/index.html.h:8
-#, fuzzy
 msgid ""
 "\n"
 "                    Default\n"
 "                  "
 msgstr ""
 "\n"
-"                    URL\n"
+"                    Per defecte\n"
 "                  "
 
 #: ../pkg/ostree/index.html.h:11
-#, fuzzy
 msgid ""
 "\n"
 "                    Available\n"
 "                  "
 msgstr ""
 "\n"
-"                    Usuari\n"
+"                    Disponible\n"
 "                  "
 
 #: ../pkg/ostree/index.html.h:15
-#, fuzzy
 msgid "Updating"
-msgstr "S'està actualitzant $0..."
+msgstr "S'està actualitzant"
 
 #: ../pkg/ostree/index.html.h:16
 msgid "Tree"
-msgstr ""
+msgstr "Arbre"
 
 #: ../pkg/ostree/index.html.h:17
 msgid "Packages"
-msgstr ""
+msgstr "Paquets"
 
 #: ../pkg/ostree/index.html.h:20
 msgid "Released"
 msgstr ""
 
 #: ../pkg/ostree/index.html.h:21
-#, fuzzy
 msgid "Additions"
-msgstr "Opcions"
+msgstr "Addicions"
 
 #: ../pkg/ostree/index.html.h:22
-#, fuzzy
 msgid "Removals"
-msgstr "Elimina"
+msgstr "Supressions"
 
 #: ../pkg/ostree/index.html.h:23
 msgid "Updates"
-msgstr ""
+msgstr "Actualitzacions"
 
 #: ../pkg/ostree/index.html.h:24
 msgid "Downgrades"
-msgstr ""
+msgstr "Reversions"
 
 #: ../pkg/ostree/index.html.h:25
 msgid ""
@@ -4547,34 +4430,35 @@ msgid ""
 "currently booted system\n"
 "                "
 msgstr ""
+"\n"
+"                    Aquest desplegament conté els mateixos paquets que el "
+"sistema arrencat actualment\n"
+"                "
 
 #: ../pkg/ostree/index.html.h:28
 msgid "Operating System Updates"
-msgstr ""
+msgstr "Actualitzacions del sistema operatiu"
 
 #: ../pkg/ostree/index.html.h:29
-#, fuzzy
 msgid "Connecting"
-msgstr "S'està connectant al Docker"
+msgstr "S'està connectant"
 
 #: ../pkg/ostree/index.html.h:30
 msgid "Unable to communicate with OSTree"
-msgstr ""
+msgstr "No es pot comunicar amb OSTree"
 
 #: ../pkg/ostree/index.html.h:31
-#, fuzzy
 msgid "No Deployments"
-msgstr "Sense retard"
+msgstr "Sense desplegaments"
 
 #: ../pkg/ostree/index.html.h:32
-#, fuzzy
 msgid ""
 "\n"
 "                    Reconnect\n"
 "                "
 msgstr ""
 "\n"
-"                  Elimina\n"
+"                    Torna a connectar\n"
 "                "
 
 #: ../pkg/storaged/index.html.h:1
@@ -4607,29 +4491,27 @@ msgstr "Dispositius RAID"
 
 #: ../pkg/storaged/index.html.h:8
 msgid "No storage set up as RAID"
-msgstr ""
+msgstr "Cap emmagatgematge preparat com a RAID"
 
 #: ../pkg/storaged/index.html.h:9
 msgid "Volume Groups"
 msgstr "Grups de volums"
 
 #: ../pkg/storaged/index.html.h:10
-#, fuzzy
 msgid "No volume groups created"
-msgstr "S'està creant el grup de volums $target"
+msgstr "Cap grup de volums creat"
 
 #: ../pkg/storaged/index.html.h:11
-#, fuzzy
 msgid "iSCSI Targets"
-msgstr "Objectius"
+msgstr "Destinacions iSCSI"
 
 #: ../pkg/storaged/index.html.h:12
 msgid "{{Address}}:{{Port}}"
-msgstr ""
+msgstr "{{Address}}:{{Port}}"
 
 #: ../pkg/storaged/index.html.h:13
 msgid "No iSCSI targets set up"
-msgstr ""
+msgstr "Sense destinacions iSCSI preparades"
 
 #: ../pkg/storaged/index.html.h:14
 msgid "Drives"
@@ -4637,7 +4519,7 @@ msgstr "Unitats"
 
 #: ../pkg/storaged/index.html.h:15
 msgid "No drives attached"
-msgstr ""
+msgstr "Sense unitats connectades"
 
 #: ../pkg/storaged/index.html.h:16
 msgid "Other Devices"
@@ -4664,9 +4546,8 @@ msgid "Storage Logs"
 msgstr "Registres de l'emmagatzematge"
 
 #: ../pkg/storaged/index.html.h:32
-#, fuzzy
 msgid "Create partition table"
-msgstr "Crea una partició"
+msgstr "Crea la taula de particions"
 
 #: ../pkg/storaged/index.html.h:33
 msgid "Drive"
@@ -4703,7 +4584,7 @@ msgstr "Capacitat"
 
 #: ../pkg/storaged/index.html.h:40
 msgid "No media inserted"
-msgstr "Cap mitjà inserit"
+msgstr "Sense mitjans inserits"
 
 #: ../pkg/storaged/index.html.h:41
 msgctxt "storage"
@@ -4724,10 +4605,9 @@ msgid "Device File"
 msgstr "Fitxer de dispositiu"
 
 #: ../pkg/storaged/index.html.h:45
-#, fuzzy
 msgctxt "storage"
 msgid "Multipathed Devices"
-msgstr "Dispositius multicamí"
+msgstr "Dispositius amb multicamí"
 
 #: ../pkg/storaged/index.html.h:46
 msgid "RAID Device"
@@ -4875,7 +4755,7 @@ msgstr "Productes instal·lats"
 
 #: ../pkg/subscriptions/index.html.h:21
 msgid "No subscriptions on the system."
-msgstr "No hi ha subscripcions al sistema."
+msgstr "Sense subscripcions al sistema."
 
 #: ../pkg/subscriptions/index.html.h:22
 msgid "Register system"
@@ -4947,7 +4827,7 @@ msgstr "Acaba"
 
 #: ../pkg/sosreport/index.html.h:1
 msgid "Diagnostic reports"
-msgstr ""
+msgstr "Informes de diagnòstic"
 
 #: ../pkg/sosreport/index.html.h:2
 msgid ""
@@ -4966,13 +4846,12 @@ msgid ""
 msgstr ""
 
 #: ../pkg/sosreport/index.html.h:10
-#, fuzzy
 msgid "Create report"
-msgstr "Crea una instantània"
+msgstr "Crea l'informe"
 
 #: ../pkg/sosreport/index.html.h:11
 msgid "Create diagnostic report"
-msgstr ""
+msgstr "Crea l'informe de diagnòstic"
 
 #: ../pkg/sosreport/index.html.h:12
 msgid ""
@@ -4985,89 +4864,193 @@ msgid ""
 msgstr ""
 
 #: ../pkg/sosreport/index.html.h:18
-#, fuzzy
 msgid "Generating report"
-msgstr "S'està suprimint $target"
+msgstr "S'està generant l'informe"
 
 #: ../pkg/sosreport/index.html.h:19
 msgid "Done!"
-msgstr ""
+msgstr "Fet!"
 
-#~ msgid "User name cannot contain whitespace."
-#~ msgstr "El nom d'usuari no pot contenir espais en blanc."
+#~ msgid "UDP"
+#~ msgstr "UDP"
 
-#~ msgid "Add host"
-#~ msgstr "Afegeix un amfitrió"
+#~ msgid "Delete $0 $1?"
+#~ msgstr "Suprimeix $0 $1?"
 
-#~ msgid "IP address or host name cannot be empty."
-#~ msgstr "L'adreça IP o el nom de l'amfitrió no poden estar en blanc."
+#~ msgid "Unable to modify Routes"
+#~ msgstr "No es poden modificar les rutes"
 
-#~ msgid "Connecting to Kubernetes"
-#~ msgstr "S'està connectant al Kubernetes"
+#~ msgid "Couldn't find running kube-apiserver"
+#~ msgstr "No s'ha pogut trobar el kube-apiserver en execució"
 
-#~ msgid "Drop extra privileges"
-#~ msgstr "Treu els privilegis extres"
+#~ msgid "Invalid kubernetes application manifest"
+#~ msgstr "manifest d'aplicació de Kubernetes no vàlid"
+
+#~ msgid "Unsupported kubernetes object in data"
+#~ msgstr "objecte Kubernetes no admès a les dades"
+
+#~ msgid "Unsupported or incompatible kubernetes API server."
+#~ msgstr "Servidor de l'API del Kubernetes no admès o incompatible."
+
+#~ msgid "Could not connect to kubernetes API server."
+#~ msgstr "No s'ha pogut connectar al servidor de l'API del Kubernetes."
+
+#~ msgid "Nulecule field cannot be empty."
+#~ msgstr "El camp del Nulecule no pot estar en blanc."
+
+#~ msgid " + $0 more"
+#~ msgstr " + $0 més"
+
+#~ msgid "$0 image"
+#~ msgstr "$0 imatge"
+
+#~ msgid "The image is not a correctly labeled Nulecule image."
+#~ msgstr "La imatge no està etiquetada correctament com a imatge de Nulecule."
+
+#~ msgid "This image is not a supported Nulecule image"
+#~ msgstr "Aquesta imatge no és una imatge admesa del Nulecule"
+
+#~ msgid "The 'atomic' command is not installed on the system."
+#~ msgstr "L'ordre «atomic» no està instal·lada al sistema."
+
+#~ msgid "The 'atomic' command version $0 is not supported."
+#~ msgstr "La versió $0 de l'ordre «atomic» no està admesa."
+
+#~ msgid "Unable to start docker"
+#~ msgstr "No es pot iniciar docker"
+
+#~ msgid "Unable to pull Nulecule app image."
+#~ msgstr "No es pot atraure la imatge d'aplicació de Nulecule."
+
+#~ msgid "No supported providers found."
+#~ msgstr "No s'ha trobat cap proveïdor compatible."
+
+#~ msgid "Installing ..."
+#~ msgstr "S'està instal·lant..."
+
+#~ msgid "Running ..."
+#~ msgstr "S'està executant..."
+
+#~ msgid "Reading answers file ..."
+#~ msgstr "S'està llegint el fitxer de respostes..."
+
+#~ msgid "Unable to read answer.conf.sample file."
+#~ msgstr "No es pot llegir el fitxer answer.conf.sample."
+
+#~ msgid "Image failed to install."
+#~ msgstr "La imatge no s'ha pogut instal·lar."
+
+#~ msgid "Temporary folder was not created"
+#~ msgstr "No s'ha creat el directori temporal"
+
+#~ msgid "atomicapp version $0 is not supported."
+#~ msgstr "la versió $0 d'atomicapp no està admesa."
+
+#~ msgid "Only atomicapp version gretater than $0 is supported."
+#~ msgstr "Únicament és compatible una versió d'atomicapp més gran que $0."
+
+#~ msgid "Image failed to run."
+#~ msgstr "La imatge no s'ha pogut executar."
+
+#~ msgid "4 KB"
+#~ msgstr "4 KB"
+
+#~ msgid "8 KB"
+#~ msgstr "8 KB"
+
+#~ msgid "1 MB"
+#~ msgstr "1 MB"
+
+#~ msgid "2 MB"
+#~ msgstr "2 MB"
+
+#~ msgid "Size can not be zero."
+#~ msgstr "La mida no pot ser 0."
+
+#~ msgid "Resize Filesystem"
+#~ msgstr "Redimensiona el sistema de fitxers"
+
+#~ msgid "Change Picture"
+#~ msgstr "Canvia la foto"
+
+#~ msgid "Last 30 Days"
+#~ msgstr "Els últims 30 dies"
+
+#~ msgid "Storage Space"
+#~ msgstr "Espai d'emmagatzematge"
+
+#~ msgid "Change tags"
+#~ msgstr "Canvia les etiquetes"
+
+#~ msgid "All Namespaces"
+#~ msgstr "Tots els espais de noms"
+
+#~ msgid "Namespace:"
+#~ msgstr "Espai de noms:"
+
+#~ msgid "Image Repositories"
+#~ msgstr "Dipòsits de la imatge"
+
+#~ msgid "Image Repository"
+#~ msgstr "Dipòsit de la imatge"
 
 #~ msgid ""
 #~ "\n"
-#~ "          Format\n"
-#~ "        "
+#~ "                  Type\n"
+#~ "                  "
 #~ msgstr ""
 #~ "\n"
-#~ "          Formata\n"
-#~ "        "
+#~ "                  Tipus\n"
+#~ "                  "
 
-#~ msgid "Unsupported setup mechanism: %s"
-#~ msgstr "Mecanisme de configuració no suportat: %s"
+#~ msgid "Kubernetes Manifest"
+#~ msgstr "Manifest Kubernetes"
 
-#~ msgid "Bad data passed for passwd1 mechanism"
-#~ msgstr "S'han passat dades dolentes al mecanisme del passwd1"
-
-#~ msgid "Couldn't load user data"
-#~ msgstr "No s'han pogut carregar les dades de l'usuari"
-
-#~ msgid "Couldn't change user groups"
-#~ msgstr "No s'han pogut canviar els grups de l'usuari"
-
-#~ msgid "Couldn't change user password"
-#~ msgstr "No s'ha pogut canviar la contrasenya de l'usuari"
-
-#~ msgid "Couldn't create new users"
-#~ msgstr "No s'han pogut crear els nous usuaris"
-
-#~ msgid "Couldn't list local users"
-#~ msgstr "No s'han pogut llistar els usuaris locals"
+#~ msgid "Nulecule Application"
+#~ msgstr "Aplicació Nulecule"
 
 #~ msgid ""
-#~ "Cockpit is a server manager that makes it easy to administer your Linux "
-#~ "servers via a web browser. Jumping between the terminal and the web tool "
-#~ "is no problem. A service started via Cockpit can be stopped via the "
-#~ "terminal. Likewise, if an error occurs in the terminal, it can be seen in "
-#~ "the Cockpit journal interface."
+#~ "\n"
+#~ "                  Manifest\n"
+#~ "                  "
 #~ msgstr ""
-#~ "Cockpit és una eina de gestió de servidors que facilita l'administració "
-#~ "dels vostres servidors Linux a través d'un navegador web. Saltar entre el "
-#~ "terminal i l'eina web no és cap problema. Un servei iniciat a través de "
-#~ "Cockpit es pot aturar a través del terminal. De la mateixa manera, si es "
-#~ "produeix un error en el terminal, es pot observar en la interfície de les "
-#~ "publicacions de Cockpit."
+#~ "\n"
+#~ "                  Manifest\n"
+#~ "                  "
 
 #~ msgid ""
-#~ "Cockpit is perfect for new sysadmins, allowing them to easily perform "
-#~ "simple tasks such as storage administration, inspecting journals and "
-#~ "starting and stopping services. You can monitor and administer several "
-#~ "servers at the same time. Just add them with a single click and your "
-#~ "machines will look after its buddies."
+#~ "\n"
+#~ "                  Nulecule\n"
+#~ "                  "
 #~ msgstr ""
-#~ "Cockpit és perfecte per als nous administradors de sistemes, els permet "
-#~ "realitzar fàcilment les tasques senzilles com ara l'administració de "
-#~ "l'emmagatzematge, la inspecció de les publicacions i iniciar i aturar els "
-#~ "serveis. Podeu monitorar i administrar diversos servidors a la vegada. "
-#~ "Només heu d'afegir-los amb tan sols un clic i les vostres màquines es "
-#~ "veuran al cantó de les altres."
+#~ "\n"
+#~ "                  Nulecule\n"
+#~ "                  "
 
-#~ msgid "A user interface for GNU/Linux servers"
-#~ msgstr "Una interfície d'usuari per als servidors GNU/Linux"
+#~ msgid ""
+#~ "\n"
+#~ "              Cancel\n"
+#~ "              "
+#~ msgstr ""
+#~ "\n"
+#~ "              Cancel·la\n"
+#~ "              "
 
-#~ msgid "Remote;Administration;"
-#~ msgstr "Remot;Administració;"
+#~ msgid ""
+#~ "\n"
+#~ "              Deploy\n"
+#~ "              "
+#~ msgstr ""
+#~ "\n"
+#~ "              Desplega\n"
+#~ "              "
+
+#~ msgid "Please Confirm Deletion"
+#~ msgstr "Si us plau, confirmeu la supressió"
+
+#~ msgid ""
+#~ "\n"
+#~ "          "
+#~ msgstr ""
+#~ "\n"
+#~ "          "

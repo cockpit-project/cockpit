@@ -2338,6 +2338,17 @@ string = cockpit.format(template, [arg, ...])
         and interpolated as as numeric fields in the <code>template</code>.</para>
     </refsection>
 
+    <refsection id="cockpit-format-number">
+      <title>cockpit.format_number()</title>
+<programlisting>
+string = cockpit.format_number(number)
+</programlisting>
+      <para>Formats <code>number</code> into a short displayable
+      <code>string</code>.  The <code>cockpit.format_bytes</code>
+      function and its relatives use this function to format the
+      numeric part of their results, for example.
+    </refsection>
+
     <refsection id="cockpit-format-bytes">
       <title>cockpit.format_bytes()</title>
 <programlisting>
@@ -2355,6 +2366,27 @@ array = cockpit.format_bytes(number, [factor, separate])
       <para>If the <code>number</code> is less than the <code>factor</code> or an unknown factor
         was passed in, then the formatted number is returned without a suffix. If <code>separate</code>
         is true, returns an array of <code>[formatted_number, suffix]</code> unless no suffix is returned.</para>
+    </refsection>
+
+    <refsection id="cockpit-get-byte-units">
+      <title>cockpit.get_byte_units()</title>
+<programlisting>
+array = cockpit.get_byte_units(guide_number, [factor])
+</programlisting>
+      <para>Returns an array that describes suitable units to put into
+      a UI dropdown for storage sizes. The array has one element per
+      unit, and each element is a object with <code>factor</code>,
+      <code>name</code> fields.  The factor gves the size of the unit
+      (for example 1024 for kibibytes), and the name is the localized
+      text to show in the UI (for example "KiB").
+
+      Exactly one of the elements of the returned array has its
+      <code>selected</code> field set to <code>true</code>.  This is
+      the unit that best matches the given <code>guide_number</code>.
+
+      The optional <code>factor</code> parameter can be wither 1000 or
+      1024 and determines whether to use SI or IEC units.  You should
+      usually accept the default.
     </refsection>
 
     <refsection>

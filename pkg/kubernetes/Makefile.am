@@ -114,6 +114,7 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/pv-modify.html \
 	pkg/kubernetes/views/pv-page.html \
 	pkg/kubernetes/views/pv-panel.html \
+	pkg/kubernetes/views/pvc-body.html \
 	pkg/kubernetes/views/node-add.html \
 	pkg/kubernetes/views/node-panel.html \
 	pkg/kubernetes/views/replicationcontroller-panel.html \

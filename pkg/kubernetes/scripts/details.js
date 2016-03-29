@@ -53,6 +53,7 @@
         'kubeClient',
         'kubernetes.listing',
         'kubernetes.date',
+        'kubernetes.storage',
     ])
 
     .config([
@@ -78,8 +79,9 @@
         '$routeParams',
         '$location',
         'itemActions',
+        'storageData',
         function($scope, containers, loader, select, discoverSettings,
-                 ListingState, $routeParams, $location, actions) {
+                 ListingState, $routeParams, $location, actions, storageData) {
 
             var c = loader.listen(function() {
                 $scope.pods = select().kind("Pod");
@@ -95,6 +97,7 @@
             loader.watch("Node");
             loader.watch("ReplicationController");
             loader.watch("Endpoints");
+            loader.watch("PersistentVolumeClaim");
 
             $scope.$on("$destroy", function() {
                 c.cancel();
@@ -160,6 +163,9 @@
                 else
                     return status.phase;
             };
+
+            $scope.volumesForPod = storageData.volumesForPod;
+            $scope.claimFromVolumeSource = storageData.claimFromVolumeSource;
 
             /* All the actions available on the $scope */
             angular.extend($scope, actions);

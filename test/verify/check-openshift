@@ -290,6 +290,7 @@ class TestRegistry(MachineCase):
         b.set_val("#imagestream-modify-pull", "postgres")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
+        b.wait_in_text ("#content", "postgres")
         output = o.execute("oc get imagestream --namespace=marmalade --output=json busybee")
         self.assertIn("postgres", output)
 
@@ -302,6 +303,7 @@ class TestRegistry(MachineCase):
         b.click("#imagestream-modify-populate a[value='none']")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
+        b.wait_not_in_text ("#content", "postgres")
         output = o.execute("oc get imagestream --namespace=marmalade --output=json busybee")
         self.assertNotIn("postgres", output)
 

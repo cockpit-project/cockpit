@@ -87,30 +87,15 @@
     ])
 
     /**
-     * containers
-     * Register 'containers' on kubeSelect.
-     * They look like this:
+     * Build an array of container objects where each object contains the data from both
+     * the spec and status sections of the pod. Looks like this:
      *   { id: id, spec: pod.spec.containers[n], status: pod.status.containerStatuses[n] }
      *
      * The returned array will not change once created for a given pod item.
      */
     .factory('KubeContainers', [
-        'kubeSelect',
-        function(select) {
-            /*
-             * Maps an array of objects with a name property to a
-             * map with the name as the key.
-             */
-            function mapNamedArray(array) {
-                var result = { };
-                var i, len;
-                if (array) {
-                    for (i = 0, len = array.length; i < len; i++)
-                        result[array[i].name] = array[i];
-                }
-                return result;
-            }
-
+        'KubeMapNamedArray',
+        function(mapNamedArray) {
             return function (item) {
                 var specs, statuses, pod_id;
                 if (!item.containers) {

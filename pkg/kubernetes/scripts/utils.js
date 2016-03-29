@@ -22,6 +22,20 @@
 
     angular.module("kubeUtils", [])
 
+    .factory("KubeMapNamedArray", [
+        function () {
+            return function mapNamedArray(array) {
+                var result = { };
+                var i, len;
+                if (array) {
+                    for (i = 0, len = array.length; i < len; i++)
+                        result[array[i].name] = array[i];
+                }
+                return result;
+            };
+        }
+    ])
+
     .factory("KubeStringToBytes", [
         function() {
             return function (byte_string) {

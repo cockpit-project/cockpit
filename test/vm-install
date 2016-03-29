@@ -26,6 +26,7 @@ from common import testinfra
 
 parser = argparse.ArgumentParser(description='Install Cockpit on a virtual machine')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
+parser.add_argument('-s', '--sit', action='store_true', help='Sit and wait if install script fails')
 parser.add_argument('-q', '--quick', action='store_true', help='Build faster')
 parser.add_argument('-b', '--build-image', action='store', help='Build in this image')
 parser.add_argument('-B', '--build-only', action='store_true', help='Only build and download results')
@@ -64,12 +65,17 @@ def build_and_maybe_install(image, do_install=False, skip=None):
     machine = testvm.VirtMachine(verbose=args.verbose, image=image, label="install")
     source = subprocess.check_output([ os.path.join(testinfra.TEST_DIR, "..", "tools", "make-source") ]).strip()
     machine.start(maintain=do_install, memory_mb=4096, cpus=4)
+    completed = False
     try:
         machine.wait_boot()
         upload_scripts(machine)
         machine.upload([ source ], "/var/tmp")
         run_install_script(machine, True, do_install, skip, os.path.basename(source))
+        completed = True
     finally:
+        if not completed and args.sit:
+            sys.stderr.write("ADDRESS: {0}\n".format(machine.address))
+            raw_input ("Press RET to continue... ")
         try:
             machine.download_dir("/var/tmp/build-results", "tmp/build-results")
         finally:

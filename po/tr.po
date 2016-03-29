@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-04 15:39-0800\n"
+"POT-Creation-Date: 2016-03-29 08:19-0700\n"
 "PO-Revision-Date: 2015-09-10 06:33-0400\n"
 "Last-Translator: Akın Ömeroğlu <akinomeroglu@gmail.com>\n"
 "Language-Team: Turkish\n"
@@ -14,14 +14,107 @@ msgstr ""
 "X-Generator: Zanata 3.8.2\n"
 "Plural-Forms: nplurals=2; plural=(n>1)\n"
 
+#: ../src/bridge/cockpitdbussetup.c:221 ../src/bridge/cockpitdbussetup.c:359
+#, c-format
+msgid "Unsupported setup mechanism: %s"
+msgstr ""
+
+#: ../src/bridge/cockpitdbussetup.c:235
+#, fuzzy
+msgid "Couldn't list users"
+msgstr "Servisler listelenemedi"
+
+#: ../src/bridge/cockpitdbussetup.c:365
+msgid "Bad data passed for passwd1 mechanism"
+msgstr ""
+
+#: ../src/bridge/cockpitdbussetup.c:380
+msgid "Couldn't load user data"
+msgstr ""
+
+#: ../src/bridge/cockpitdbussetup.c:465
+msgid "Couldn't change user groups"
+msgstr ""
+
+#: ../src/bridge/cockpitdbussetup.c:518
+#, fuzzy
+msgid "Couldn't change user password"
+msgstr "Parola değişimi başarısız oldu"
+
+#: ../src/bridge/cockpitdbussetup.c:542
+msgid "Couldn't create new users"
+msgstr ""
+
+#: ../src/bridge/cockpitdbussetup.c:639
+#, fuzzy
+msgid "Couldn't list local users"
+msgstr "Servisler listelenemedi"
+
+#: ../src/common/cockpitcertificate.c:349
+msgid "Cannot decrypt PEM-encoded private key"
+msgstr ""
+
+#: ../src/common/cockpitcertificate.c:354
+msgid "No PEM-encoded private key found"
+msgstr ""
+
+#: ../src/common/cockpitcertificate.c:364
+msgid "Could not parse PEM-encoded private key"
+msgstr ""
+
+#: ../src/common/cockpitcertificate.c:388
+msgid "No PEM-encoded certificate found"
+msgstr ""
+
+#: ../src/common/cockpitcertificate.c:397
+msgid "Could not parse PEM-encoded certificate"
+msgstr ""
+
+#: ../src/common/cockpitconnect.c:283
+#, c-format
+msgid "No addresses found"
+msgstr ""
+
+#: ../src/ws/cockpit.appdata.xml.in.h:1
+msgid ""
+"Cockpit is a server manager that makes it easy to administer your Linux "
+"servers via a web browser. Jumping between the terminal and the web tool is "
+"no problem. A service started via Cockpit can be stopped via the terminal. "
+"Likewise, if an error occurs in the terminal, it can be seen in the Cockpit "
+"journal interface."
+msgstr ""
+
+#: ../src/ws/cockpit.appdata.xml.in.h:2
+msgid ""
+"Cockpit is perfect for new sysadmins, allowing them to easily perform simple "
+"tasks such as storage administration, inspecting journals and starting and "
+"stopping services. You can monitor and administer several servers at the "
+"same time. Just add them with a single click and your machines will look "
+"after its buddies."
+msgstr ""
+
+#: ../src/ws/cockpit.desktop.in.h:1 ../pkg/shell/simple.html.h:1
+#: ../pkg/shell/index.html.h:1 ../pkg/systemd/index.html.h:1
+#: ../pkg/dashboard/index.html.h:1
+msgid "Cockpit"
+msgstr "Kokpit"
+
+#: ../src/ws/cockpit.desktop.in.h:2
+msgid "A user interface for GNU/Linux servers"
+msgstr ""
+
+#: ../src/ws/cockpit.desktop.in.h:3
+#, fuzzy
+msgid "Remote;Administration;"
+msgstr "Sunucu Yöneticisi"
+
 #: ../pkg/tuned/dialog.js:99
 msgid "Tuned is not available"
 msgstr ""
 
 #: ../pkg/tuned/dialog.js:101
-#, fuzzy
 msgid "Tuned is not running"
-msgstr "Çalışmıyor"
+msgstr ""
 
 #: ../pkg/tuned/dialog.js:103
 msgid "Tuned is off"
@@ -39,21 +132,19 @@ msgstr ""
 msgid "Communication with tuned has failed"
 msgstr ""
 
-#: ../pkg/tuned/dialog.js:174 ../pkg/registry/views/image-config.html.h:7
-#: ../pkg/registry/views/imagestream-body.html.h:2
+#: ../pkg/tuned/dialog.js:174 ../pkg/kubernetes/views/image-config.html.h:8
 #: ../pkg/kubernetes/views/service-panel.html.h:9
+#: ../pkg/kubernetes/views/imagestream-body.html.h:2
 msgid "None"
 msgstr ""
 
 #: ../pkg/tuned/dialog.js:174
-#, fuzzy
 msgid "Disable tuned"
-msgstr "Etkin değil"
+msgstr ""
 
 #: ../pkg/tuned/dialog.js:236
-#, fuzzy
 msgid "Tuned has failed to start"
-msgstr "Kalıp yüklemesi başarısız oldu"
+msgstr ""
 
 #: ../pkg/shell/index.js:134 ../pkg/shell/simple-index.js:83
 #: ../pkg/shell/simple.html.h:17
@@ -91,20 +182,24 @@ msgid ""
 msgstr ""
 
 #: ../pkg/shell/machine-dialogs.js:384
-#, fuzzy
 msgid "The IP address or host name cannot contain whitespace."
-msgstr "IP adresi ya da host ismi boşluk barındıramaz"
+msgstr ""
 
 #: ../pkg/shell/machine-dialogs.js:410
-#, fuzzy
 msgid "Failed to add machine: $0"
-msgstr "Yetkilendirilmiş anahtarların yüklemesi başarısız oldu."
+msgstr ""
 
-#: ../pkg/shell/machine-dialogs.js:436
+#: ../pkg/shell/machine-dialogs.js:423
+msgid ""
+"Cockpit could not contact the given host $0. Make sure it has ssh running on "
+"port 22, or specify another port in the address."
+msgstr ""
+
+#: ../pkg/shell/machine-dialogs.js:440
 msgid "Enter IP address or host name"
 msgstr ""
 
-#: ../pkg/shell/machine-dialogs.js:471
+#: ../pkg/shell/machine-dialogs.js:475
 msgid "Failed to edit machine: $0"
 msgstr ""
 
@@ -113,9 +208,8 @@ msgid "No such file or directory"
 msgstr ""
 
 #: ../pkg/shell/credentials.js:180
-#, fuzzy
 msgid "The passwords do not match."
-msgstr "Parolalar eşleşmişyor"
+msgstr ""
 
 #: ../pkg/shell/credentials.js:185
 msgid "Prompting via ssh-keygen timed out"
@@ -143,17 +237,15 @@ msgid "Prompting via ssh-add timed out"
 msgstr ""
 
 #: ../pkg/shell/credentials.js:268
-#, fuzzy
 msgid "Invalid file permissions"
-msgstr "Geçersiz zaman biçimi"
+msgstr ""
 
 #: ../pkg/shell/credentials.js:272
-#, fuzzy
 msgid "Password not accepted"
-msgstr "Eski parola kabul edilmedi"
+msgstr ""
 
 #: ../pkg/shell/base_index.js:637 ../pkg/users/local.js:1163
-#: ../pkg/docker/index.html.h:43 ../pkg/networkmanager/index.html.h:52
+#: ../pkg/docker/index.html.h:45 ../pkg/networkmanager/index.html.h:52
 msgid "Unexpected error"
 msgstr "Beklenmeyen hata"
 
@@ -249,7 +341,7 @@ msgid "Delete $0"
 msgstr "Sil: $0"
 
 #: ../pkg/users/local.js:1154 ../pkg/storaged/overview.js:669
-#: ../pkg/storaged/details.js:914 ../pkg/storaged/devices.js:112
+#: ../pkg/storaged/details.js:927 ../pkg/storaged/devices.js:113
 #: ../pkg/systemd/services.html.h:13
 msgid "Error"
 msgstr "Hata"
@@ -282,7 +374,7 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
-#: ../pkg/systemd/init.js:252 ../pkg/networkmanager/interfaces.js:1586
+#: ../pkg/systemd/init.js:252 ../pkg/networkmanager/interfaces.js:1634
 msgid "Disabled"
 msgstr "Etkin değil"
 
@@ -295,16 +387,16 @@ msgid "$0 Template"
 msgstr ""
 
 #. <method>:<mode>
-#: ../pkg/systemd/init.js:464 ../pkg/storaged/details.js:1455
+#: ../pkg/systemd/init.js:464 ../pkg/storaged/details.js:1468
 msgid "Start"
 msgstr "Başlat"
 
-#: ../pkg/systemd/init.js:465 ../pkg/storaged/details.js:1456
+#: ../pkg/systemd/init.js:465 ../pkg/storaged/details.js:1469
 msgid "Stop"
 msgstr "Durdur"
 
-#: ../pkg/systemd/init.js:466 ../pkg/systemd/host.js:193
-#: ../pkg/systemd/host.js:1222 ../pkg/systemd/host.js:1224
+#: ../pkg/systemd/init.js:466 ../pkg/systemd/host.js:192
+#: ../pkg/systemd/host.js:1192 ../pkg/systemd/host.js:1194
 msgid "Restart"
 msgstr "Yeniden başlat"
 
@@ -369,22 +461,34 @@ msgstr ""
 msgid "This unit is an instance of the $0 template."
 msgstr ""
 
-#: ../pkg/systemd/renderer.js:57
+#: ../pkg/systemd/renderer.js:40
+msgid "[no data]"
+msgstr ""
+
+#: ../pkg/systemd/renderer.js:44
+msgid "[$0 bytes of binary data]"
+msgstr ""
+
+#: ../pkg/systemd/renderer.js:46
+msgid "[binary data]"
+msgstr ""
+
+#: ../pkg/systemd/renderer.js:70
 msgid "Reboot"
 msgstr ""
 
-#: ../pkg/systemd/renderer.js:121
+#: ../pkg/systemd/renderer.js:134
 msgid "Load earlier entries"
 msgstr ""
 
-#: ../pkg/systemd/renderer.js:127 ../pkg/systemd/renderer.js:142
-#: ../pkg/systemd/renderer.js:186 ../pkg/systemd/renderer.js:227
+#: ../pkg/systemd/renderer.js:140 ../pkg/systemd/renderer.js:155
+#: ../pkg/systemd/renderer.js:199 ../pkg/systemd/renderer.js:240
 msgid "Loading..."
 msgstr ""
 
 #. No visible day headers
 #.
-#: ../pkg/systemd/renderer.js:182
+#: ../pkg/systemd/renderer.js:195
 msgid "Go to"
 msgstr ""
 
@@ -392,106 +496,78 @@ msgstr ""
 msgid "The user <b>$0</b> is not permitted to modify hostnames"
 msgstr ""
 
-#: ../pkg/systemd/host.js:194 ../pkg/systemd/host.js:1218
-#: ../pkg/systemd/host.js:1220
+#: ../pkg/systemd/host.js:193 ../pkg/systemd/host.js:1188
+#: ../pkg/systemd/host.js:1190
 msgid "Shutdown"
 msgstr "Kapat"
 
-#: ../pkg/systemd/host.js:543
+#: ../pkg/systemd/host.js:516
 msgid "Set Host name"
 msgstr "Host ismi ayarla"
 
-#: ../pkg/systemd/host.js:1029
+#: ../pkg/systemd/host.js:1000
 msgid "Need at least one NTP server"
 msgstr ""
 
-#: ../pkg/systemd/host.js:1105
+#: ../pkg/systemd/host.js:1076
 msgid "Invalid date format and invalid time format"
 msgstr "Geçersiz tarih ve geçersiz zaman biçimi"
 
-#: ../pkg/systemd/host.js:1107
+#: ../pkg/systemd/host.js:1078
 msgid "Invalid time format"
 msgstr "Geçersiz zaman biçimi"
 
-#: ../pkg/systemd/host.js:1109
+#: ../pkg/systemd/host.js:1080
 msgid "Invalid date format"
 msgstr "Geçersiz tarih biçimi"
 
-#: ../pkg/systemd/host.js:1160
+#: ../pkg/systemd/host.js:1131
 msgid "NTP Server"
 msgstr ""
 
-#: ../pkg/systemd/host.js:1196
-msgid "1 Minute"
-msgstr "1 dakika"
-
-#: ../pkg/systemd/host.js:1197
-msgid "5 Minutes"
-msgstr "5 dakika"
-
-#: ../pkg/systemd/host.js:1198
-msgid "20 Minutes"
-msgstr "20 dakika"
-
-#: ../pkg/systemd/host.js:1199
-msgid "40 Minutes"
-msgstr "40 dakika"
-
-#: ../pkg/systemd/host.js:1200
-msgid "60 Minutes"
-msgstr "60 dakika"
-
-#: ../pkg/systemd/host.js:1201
-msgid "No Delay"
-msgstr "Gecikme yok"
-
-#: ../pkg/systemd/host.js:1202
-msgid "Specific Time"
-msgstr "Özel Bir Zamanda"
-
-#: ../pkg/systemd/host.js:1212
+#: ../pkg/systemd/host.js:1181
 msgid "Message to logged in users"
 msgstr "Giriş yapmış kullanıcılara mesaj"
 
-#: ../pkg/systemd/host.js:1291
+#: ../pkg/systemd/host.js:1262
 msgctxt "page-title"
 msgid "CPU Status"
 msgstr "CPU Durumu"
 
-#: ../pkg/systemd/host.js:1324
+#: ../pkg/systemd/host.js:1295
 msgid "I/O Wait"
 msgstr "I/O Beklemesi"
 
-#: ../pkg/systemd/host.js:1325
+#: ../pkg/systemd/host.js:1296
 msgid "Kernel"
 msgstr "Çekirdek"
 
-#: ../pkg/systemd/host.js:1326 ../pkg/dashboard/index.html.h:4
+#: ../pkg/systemd/host.js:1297 ../pkg/dashboard/index.html.h:4
 msgid "User"
 msgstr "Kullanıcı"
 
-#: ../pkg/systemd/host.js:1327
+#: ../pkg/systemd/host.js:1298
 msgid "Nice"
 msgstr "Nice"
 
-#: ../pkg/systemd/host.js:1377
+#: ../pkg/systemd/host.js:1348
 msgctxt "page-title"
 msgid "Memory"
 msgstr "Bellek"
 
-#: ../pkg/systemd/host.js:1411
+#: ../pkg/systemd/host.js:1382
 msgid "Swap Used"
 msgstr "Kullanılan Swap"
 
-#: ../pkg/systemd/host.js:1412
+#: ../pkg/systemd/host.js:1383
 msgid "Cached"
 msgstr "Belleklenmiş"
 
-#: ../pkg/systemd/host.js:1413
+#: ../pkg/systemd/host.js:1384
 msgid "Used"
 msgstr "Kullanılmış"
 
-#: ../pkg/systemd/host.js:1414
+#: ../pkg/systemd/host.js:1385
 msgid "Free"
 msgstr "Boş"
 
@@ -531,10 +607,10 @@ msgstr "Kullanıcı Parolası"
 msgid "One Time Password"
 msgstr "Tek Seferlik Parola"
 
-#: ../pkg/realmd/operation.js:244 ../pkg/networkmanager/interfaces.js:1591
-#: ../pkg/networkmanager/interfaces.js:2455
-#: ../pkg/networkmanager/interfaces.js:2459
-#: ../pkg/networkmanager/interfaces.js:2465
+#: ../pkg/realmd/operation.js:244 ../pkg/networkmanager/interfaces.js:1639
+#: ../pkg/networkmanager/interfaces.js:2502
+#: ../pkg/networkmanager/interfaces.js:2506
+#: ../pkg/networkmanager/interfaces.js:2512
 msgid "Automatic"
 msgstr "Otomatik"
 
@@ -558,11 +634,11 @@ msgstr ""
 msgid "Join Domain"
 msgstr ""
 
-#: ../pkg/docker/overview.js:170
+#: ../pkg/docker/overview.js:168
 msgid "Run image"
 msgstr ""
 
-#: ../pkg/docker/overview.js:273
+#: ../pkg/docker/overview.js:271
 msgid ""
 "WARNING: Docker may be reporting the size it has allocated to it's storage "
 "pool using sparse files, not the actual space available to the underlying "
@@ -628,13 +704,13 @@ msgid "Image $0"
 msgstr "Kalıp $0"
 
 #: ../pkg/docker/image.js:105 ../pkg/docker/details.js:205
-#: ../pkg/storaged/details.js:1650
+#: ../pkg/storaged/details.js:1663
 msgid "Not found"
 msgstr "Bulunamadı"
 
 #: ../pkg/docker/image.js:148 ../pkg/docker/details.js:294
-#: ../pkg/storaged/details.js:554 ../pkg/storaged/details.js:717
-#: ../pkg/storaged/details.js:877
+#: ../pkg/storaged/details.js:554 ../pkg/storaged/details.js:730
+#: ../pkg/storaged/details.js:890
 msgid "Please confirm deletion of $0"
 msgstr ""
 
@@ -646,13 +722,12 @@ msgid ""
 msgstr ""
 
 #: ../pkg/docker/image.js:150 ../pkg/docker/details.js:296
-#: ../pkg/storaged/details.js:559 ../pkg/storaged/details.js:723
-#: ../pkg/storaged/details.js:883 ../pkg/storaged/details.js:993
-#: ../pkg/storaged/details.js:1459 ../pkg/storaged/details.js:1618
-#: ../pkg/users/index.html.h:6
-#: ../pkg/registry/views/imagestream-delete.html.h:4
-#: ../pkg/registry/views/image-delete.html.h:4
-#: ../pkg/kubernetes/index.html.h:37
+#: ../pkg/storaged/details.js:559 ../pkg/storaged/details.js:736
+#: ../pkg/storaged/details.js:896 ../pkg/storaged/details.js:1006
+#: ../pkg/storaged/details.js:1472 ../pkg/storaged/details.js:1631
+#: ../pkg/users/index.html.h:6 ../pkg/kubernetes/views/item-delete.html.h:5
+#: ../pkg/kubernetes/views/imagestream-delete.html.h:4
+#: ../pkg/kubernetes/views/image-delete.html.h:4
 msgid "Delete"
 msgstr "Sil"
 
@@ -664,59 +739,52 @@ msgstr ""
 msgid "Deleting a container will erase all data in it."
 msgstr "Bir konteyneri silmek içindeki veriyi de silecektir."
 
-#: ../pkg/docker/run.js:194 ../pkg/registry/views/image-page.html.h:3
-#: ../pkg/registry/views/image-panel.html.h:2 ../pkg/docker/console.html.h:1
+#: ../pkg/docker/run.js:192 ../pkg/docker/console.html.h:1
+#: ../pkg/kubernetes/views/image-page.html.h:3
+#: ../pkg/kubernetes/views/image-panel.html.h:2
 #: ../pkg/kubernetes/views/container-body.html.h:1
 #: ../pkg/kubernetes/views/container-panel.html.h:1
 msgid "Container"
 msgstr "Konteyner"
 
-#: ../pkg/docker/run.js:196 ../pkg/kubernetes/views/route-panel.html.h:4
+#: ../pkg/docker/run.js:194 ../pkg/kubernetes/views/route-panel.html.h:4
+#: ../pkg/kubernetes/views/route-modify.html.h:2
 #: ../pkg/kubernetes/views/details-page.html.h:14
-#: ../pkg/kubernetes/index.html.h:32
 msgid "Host"
 msgstr "Host"
 
-#: ../pkg/docker/run.js:228
+#: ../pkg/docker/run.js:226
 msgid "Invalid port"
 msgstr "Geçersiz port"
 
-#: ../pkg/docker/run.js:238
+#: ../pkg/docker/run.js:236
 msgid "Duplicate port"
 msgstr ""
 
 #. still valid if empty
-#: ../pkg/docker/run.js:326
+#: ../pkg/docker/run.js:324
 msgid "No alias specified"
 msgstr ""
 
-#: ../pkg/docker/run.js:336
+#: ../pkg/docker/run.js:334
 msgid "Duplicate alias"
 msgstr ""
 
-#: ../pkg/docker/run.js:371
+#: ../pkg/docker/run.js:370
 msgid "No container specified"
 msgstr ""
 
-#: ../pkg/docker/run.js:466
+#: ../pkg/docker/run.js:465
 msgid "to host port"
 msgstr ""
 
-#: ../pkg/docker/run.js:467 ../pkg/docker/run.js:534
+#: ../pkg/docker/run.js:466 ../pkg/docker/run.js:532
 #: ../pkg/kubernetes/views/route-panel.html.h:9
 #: ../pkg/kubernetes/views/node-panel.html.h:10
 msgid "none"
 msgstr "hiç biri"
 
-#: ../pkg/docker/run.js:499 ../pkg/docker/run.js:500
-msgid "UDP"
-msgstr "UDP"
-
-#: ../pkg/docker/run.js:502
-msgid "TCP"
-msgstr "TCP"
-
-#: ../pkg/docker/run.js:533
+#: ../pkg/docker/run.js:531
 msgid "alias"
 msgstr "takma ad"
 
@@ -746,534 +814,404 @@ msgid ""
 "You are currently connected directly to this server. You cannot delete it."
 msgstr "Şu an bu sunucuya doğrudan bağlısınız. Silme işlemi yapamazsınız."
 
-#: ../pkg/kubernetes/node.js:63
-msgid "Please type an address"
-msgstr "Bir adres girin"
-
-#: ../pkg/kubernetes/node.js:65
-msgid "The address contains invalid characters"
-msgstr "Adres geçersiz karakterler içeriyor"
-
-#: ../pkg/kubernetes/node.js:72
-msgid "The name contains invalid charaters"
-msgstr "İsim geçersiz karakterler içeriyor"
-
-#: ../pkg/kubernetes/details.js:27
-msgid "Delete $0 $1?"
-msgstr ""
-
-#: ../pkg/kubernetes/details.js:69
-msgid "Not a valid value for Host"
-msgstr ""
-
-#: ../pkg/kubernetes/details.js:81 ../pkg/kubernetes/details.js:147
-#: ../pkg/kubernetes/adjust.js:123
-msgid "Updating $0..."
-msgstr ""
-
-#: ../pkg/kubernetes/details.js:90
-#, fuzzy
-msgid "Unable to modify Routes"
-msgstr "Root hesabı yeniden isimlendirilemiyor"
-
-#: ../pkg/kubernetes/details.js:133 ../pkg/kubernetes/adjust.js:107
-msgid "Not a valid number of replicas"
-msgstr ""
-
-#: ../pkg/kubernetes/details.js:135 ../pkg/kubernetes/adjust.js:109
-msgid "The maximum number of replicas is 128"
-msgstr ""
-
-#: ../pkg/kubernetes/details.js:331
+#: ../pkg/kubernetes/scripts/details.js:213
 #: ../pkg/kubernetes/views/service-panel.html.h:1
 #: ../pkg/kubernetes/views/details-page.html.h:11
 #: ../pkg/kubernetes/views/node-panel.html.h:12
 msgid "Ready"
 msgstr "Hazır"
 
-#: ../pkg/kubernetes/details.js:331
+#: ../pkg/kubernetes/scripts/details.js:213
 #: ../pkg/kubernetes/views/service-panel.html.h:2
 #: ../pkg/kubernetes/views/details-page.html.h:12
 #: ../pkg/kubernetes/views/node-panel.html.h:13
 msgid "Not Ready"
 msgstr "Hazır değil"
 
-#: ../pkg/kubernetes/details.js:348 ../pkg/networkmanager/interfaces.js:545
-#: ../pkg/networkmanager/interfaces.js:949
-#: ../pkg/networkmanager/interfaces.js:1853
-#: ../pkg/networkmanager/interfaces.js:1855
-#: ../pkg/registry/views/image-body.html.h:4
+#: ../pkg/kubernetes/scripts/details.js:234
+#: ../pkg/networkmanager/interfaces.js:589
+#: ../pkg/networkmanager/interfaces.js:997
+#: ../pkg/networkmanager/interfaces.js:1901
+#: ../pkg/networkmanager/interfaces.js:1903
+#: ../pkg/kubernetes/views/image-body.html.h:5
 #: ../pkg/kubernetes/views/node-panel.html.h:14
 msgid "Unknown"
 msgstr "Bilinmiyor"
 
-#: ../pkg/kubernetes/client.js:523
-msgid "Couldn't find running kube-apiserver"
+#: ../pkg/kubernetes/scripts/details.js:382
+#: ../pkg/kubernetes/scripts/details.js:505
+msgid "Not a valid number of replicas"
 msgstr ""
 
-#: ../pkg/kubernetes/client.js:1473
-msgid "Invalid kubernetes application manifest"
+#: ../pkg/kubernetes/scripts/details.js:384
+#: ../pkg/kubernetes/scripts/details.js:507
+msgid "The maximum number of replicas is 128"
 msgstr ""
 
-#: ../pkg/kubernetes/client.js:1499
-msgid "Unsupported kubernetes object in data"
+#: ../pkg/kubernetes/scripts/details.js:433
+msgid "Not a valid value for Host"
 msgstr ""
 
-#: ../pkg/kubernetes/client.js:1586
-msgid "Unsupported or incompatible kubernetes API server."
+#: ../pkg/kubernetes/scripts/details.js:542
+msgid "Updating $0..."
 msgstr ""
 
-#: ../pkg/kubernetes/client.js:1588
-msgid "Could not connect to kubernetes API server."
-msgstr ""
+#: ../pkg/kubernetes/scripts/dashboard.js:336
+msgid "Please type an address"
+msgstr "Bir adres girin"
 
-#: ../pkg/kubernetes/deploy.js:78
-msgid "Please create another namespace for $0 \"$1\""
-msgstr ""
+#: ../pkg/kubernetes/scripts/dashboard.js:338
+msgid "The address contains invalid characters"
+msgstr "Adres geçersiz karakterler içeriyor"
 
-#: ../pkg/kubernetes/deploy.js:263 ../pkg/kubernetes/deploy.js:300
+#: ../pkg/kubernetes/scripts/dashboard.js:346
+#, fuzzy
+msgid "The name contains invalid characters"
+msgstr "İsim geçersiz karakterler içeriyor"
+
+#: ../pkg/kubernetes/scripts/dashboard.js:415
 msgid "Namespace cannot be empty."
 msgstr ""
 
-#: ../pkg/kubernetes/deploy.js:265 ../pkg/kubernetes/deploy.js:302
+#: ../pkg/kubernetes/scripts/dashboard.js:417
 msgid "Please provide a valid namespace."
 msgstr ""
 
-#: ../pkg/kubernetes/deploy.js:315
+#: ../pkg/kubernetes/scripts/dashboard.js:425
 msgid ""
 "No metadata file was selected. Please select a Kubernetes metadata file."
 msgstr ""
 
-#: ../pkg/kubernetes/deploy.js:317
+#: ../pkg/kubernetes/scripts/dashboard.js:427
 msgid "The selected file is not a valid Kubernetes application manifest."
 msgstr ""
 
-#: ../pkg/kubernetes/deploy.js:332
+#: ../pkg/kubernetes/scripts/dashboard.js:442
 msgid "Unable to read the Kubernetes application manifest. Code $0."
 msgstr ""
 
-#: ../pkg/kubernetes/deploy.js:349
-msgid "Nulecule field cannot be empty."
+#: ../pkg/kubernetes/scripts/dashboard.js:454
+msgid "Unable to decode Kubernetes application manifest."
 msgstr ""
 
-#: ../pkg/kubernetes/deploy.js:413 ../pkg/kubernetes/views/route-panel.html.h:2
-#: ../pkg/kubernetes/views/containers-page.html.h:5
-#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:5
-#: ../pkg/kubernetes/views/service-panel.html.h:4
-#: ../pkg/kubernetes/views/pod-body.html.h:2
-#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:4
-#: ../pkg/kubernetes/views/dashboard-page.html.h:9
-#: ../pkg/kubernetes/views/details-page.html.h:8
-msgid "Namespace"
+#: ../pkg/kubernetes/scripts/dashboard.js:482
+msgid "Please create another namespace for $0 \"$1\""
 msgstr ""
 
-#: ../pkg/kubernetes/deploy.js:415
-#: ../pkg/registry/views/imagestream-modify.html.h:4
-#: ../pkg/kubernetes/views/route-panel.html.h:1
-#: ../pkg/kubernetes/views/containers-page.html.h:4
-#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:4
-#: ../pkg/kubernetes/views/service-panel.html.h:3
-#: ../pkg/kubernetes/views/pod-body.html.h:1
-#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:3
-#: ../pkg/kubernetes/views/dashboard-page.html.h:8
-#: ../pkg/kubernetes/views/details-page.html.h:7
-msgid "Project"
+#: ../pkg/kubernetes/scripts/dashboard.js:501
+msgid "Manifest"
 msgstr ""
 
-#: ../pkg/kubernetes/deploy.js:418 ../pkg/kubernetes/deploy.js:468
-msgid "Select Manifest File..."
-msgstr ""
-
-#: ../pkg/kubernetes/images.js:351
-msgid " + $0 more"
-msgstr ""
-
-#: ../pkg/kubernetes/images.js:353
-#, fuzzy
-msgid "$0 image"
-msgstr "Kalıp"
-
-#: ../pkg/kubernetes/images.js:353
-msgid "$0 images"
-msgstr ""
-
-#: ../pkg/kubernetes/graphs.js:516
+#: ../pkg/kubernetes/scripts/graphs.js:597
 msgid "CPU"
 msgstr "CPU"
 
-#: ../pkg/kubernetes/graphs.js:521
+#: ../pkg/kubernetes/scripts/graphs.js:602
 msgid "Memory"
 msgstr "Bellek"
 
-#: ../pkg/kubernetes/graphs.js:526
+#: ../pkg/kubernetes/scripts/graphs.js:607
 msgid "Network"
 msgstr "Ağ"
 
-#: ../pkg/kubernetes/nulecule.js:142
-msgid "The image is not a correctly labeled Nulecule image."
-msgstr ""
-
-#: ../pkg/kubernetes/nulecule.js:156
-msgid "This image is not a supported Nulecule image"
-msgstr ""
-
-#: ../pkg/kubernetes/nulecule.js:177
-msgid "The 'atomic' command is not installed on the system."
-msgstr ""
-
-#: ../pkg/kubernetes/nulecule.js:187
-msgid "The 'atomic' command version $0 is not supported."
-msgstr ""
-
-#: ../pkg/kubernetes/nulecule.js:210
-msgid "Unable to start docker"
-msgstr ""
-
-#: ../pkg/kubernetes/nulecule.js:233
-msgid "Unable to pull Nulecule app image."
-msgstr ""
-
-#: ../pkg/kubernetes/nulecule.js:281
-msgid "No supported providers found."
-msgstr ""
-
-#: ../pkg/kubernetes/nulecule.js:315
-msgid "Installing ..."
-msgstr "Yükleniyor..."
-
-#: ../pkg/kubernetes/nulecule.js:322
-msgid "Running ..."
-msgstr "Çalışıyor..."
-
-#: ../pkg/kubernetes/nulecule.js:371
-msgid "Image failed to "
-msgstr ""
-
-#: ../pkg/kubernetes/nulecule.js:394
-msgid "Reading answers file ..."
-msgstr ""
-
-#: ../pkg/kubernetes/nulecule.js:405
-msgid "Unable to read answer.conf.sample file."
-msgstr ""
-
-#: ../pkg/kubernetes/nulecule.js:496
-msgid "Image failed to install."
-msgstr "Kalıp yüklemesi başarısız oldu"
-
-#: ../pkg/kubernetes/nulecule.js:503
-msgid "Temporary folder was not created"
-msgstr "Geçici klasör yaratılamadı"
-
-#: ../pkg/kubernetes/nulecule.js:510
-msgid "atomicapp version $0 is not supported."
-msgstr ""
-
-#: ../pkg/kubernetes/nulecule.js:512
-msgid "Only atomicapp version gretater than $0 is supported."
-msgstr ""
-
-#: ../pkg/kubernetes/nulecule.js:551
-msgid "Image failed to run."
-msgstr "Kalıp çalıştırılması başarısız oldu"
-
 #. NM_DEVICE_STATE_UNAVAILABLE
-#: ../pkg/networkmanager/interfaces.js:707
+#: ../pkg/networkmanager/interfaces.js:751
 msgid "Not available"
 msgstr ""
 
 #. NM_DEVICE_STATE_DISCONNECTED
-#: ../pkg/networkmanager/interfaces.js:709
-#: ../pkg/networkmanager/interfaces.js:1166
-#: ../pkg/networkmanager/interfaces.js:1888
+#: ../pkg/networkmanager/interfaces.js:753
+#: ../pkg/networkmanager/interfaces.js:1214
+#: ../pkg/networkmanager/interfaces.js:1936
 msgid "Inactive"
 msgstr "Aktif değil"
 
 #. NM_DEVICE_STATE_PREPARE
-#: ../pkg/networkmanager/interfaces.js:711
+#: ../pkg/networkmanager/interfaces.js:755
 msgid "Preparing"
 msgstr "Hazırlanıyor"
 
 #. NM_DEVICE_STATE_CONFIG
-#: ../pkg/networkmanager/interfaces.js:713
+#: ../pkg/networkmanager/interfaces.js:757
 msgid "Configuring"
 msgstr "Ayarlanıyor"
 
 #. NM_DEVICE_STATE_NEED_AUTH
-#: ../pkg/networkmanager/interfaces.js:715
+#: ../pkg/networkmanager/interfaces.js:759
 msgid "Authenticating"
 msgstr "Yetkilendiriliyor"
 
 #. NM_DEVICE_STATE_IP_CONFIG
-#: ../pkg/networkmanager/interfaces.js:717
+#: ../pkg/networkmanager/interfaces.js:761
 msgid "Configuring IP"
 msgstr "IP ayarlanıyor"
 
 #. NM_DEVICE_STATE_IP_CHECK
-#: ../pkg/networkmanager/interfaces.js:719
+#: ../pkg/networkmanager/interfaces.js:763
 msgid "Checking IP"
 msgstr "IP kontrol ediliyor"
 
 #. NM_DEVICE_STATE_SECONDARIES
-#: ../pkg/networkmanager/interfaces.js:721
+#: ../pkg/networkmanager/interfaces.js:765
 msgid "Waiting"
 msgstr "Bekleniyor"
 
 #. NM_DEVICE_STATE_ACTIVATED
-#: ../pkg/networkmanager/interfaces.js:723
+#: ../pkg/networkmanager/interfaces.js:767
 msgid "Active"
 msgstr "Aktif"
 
 #. NM_DEVICE_STATE_DEACTIVATING
-#: ../pkg/networkmanager/interfaces.js:725
+#: ../pkg/networkmanager/interfaces.js:769
 msgid "Deactivating"
 msgstr "Deaktif ediliyor"
 
 #. NM_DEVICE_STATE_FAILED
-#: ../pkg/networkmanager/interfaces.js:727 ../pkg/ostree/index.html.h:14
+#: ../pkg/networkmanager/interfaces.js:771 ../pkg/ostree/index.html.h:14
 msgid "Failed"
 msgstr ""
 
-#: ../pkg/networkmanager/interfaces.js:1168
+#: ../pkg/networkmanager/interfaces.js:1216
 msgid "No carrier"
 msgstr "Taşıyıcı yok"
 
-#: ../pkg/networkmanager/interfaces.js:1208
+#: ../pkg/networkmanager/interfaces.js:1256
 msgid "Part of "
 msgstr "Parçası: "
 
-#: ../pkg/networkmanager/interfaces.js:1255
+#: ../pkg/networkmanager/interfaces.js:1303
 msgid "The user <b>$0</b> is not permitted to modify network settings"
 msgstr ""
 
-#: ../pkg/networkmanager/interfaces.js:1316
-#: ../pkg/networkmanager/interfaces.js:1630
+#: ../pkg/networkmanager/interfaces.js:1364
+#: ../pkg/networkmanager/interfaces.js:1678
 msgctxt "page-title"
 msgid "Networking"
 msgstr ""
 
-#: ../pkg/networkmanager/interfaces.js:1582
+#: ../pkg/networkmanager/interfaces.js:1630
 msgid "Automatic (DHCP)"
 msgstr "Otomatik (DHCP)"
 
-#: ../pkg/networkmanager/interfaces.js:1583
-#: ../pkg/networkmanager/interfaces.js:1593
+#: ../pkg/networkmanager/interfaces.js:1631
+#: ../pkg/networkmanager/interfaces.js:1641
 msgid "Link local"
 msgstr ""
 
-#: ../pkg/networkmanager/interfaces.js:1584
-#: ../pkg/networkmanager/interfaces.js:1594
+#: ../pkg/networkmanager/interfaces.js:1632
+#: ../pkg/networkmanager/interfaces.js:1642
 msgid "Manual"
 msgstr "Elle"
 
-#: ../pkg/networkmanager/interfaces.js:1585
+#: ../pkg/networkmanager/interfaces.js:1633
 msgid "Shared"
 msgstr "Paylaşılan"
 
-#: ../pkg/networkmanager/interfaces.js:1592
+#: ../pkg/networkmanager/interfaces.js:1640
 msgid "Automatic (DHCP only)"
 msgstr "Otomatik (Sadece DHCP)"
 
-#: ../pkg/networkmanager/interfaces.js:1595
+#: ../pkg/networkmanager/interfaces.js:1643
 msgid "Ignore"
 msgstr "Yoksay"
 
-#: ../pkg/networkmanager/interfaces.js:1600
+#: ../pkg/networkmanager/interfaces.js:1648
 msgid "Round Robin"
 msgstr "Round Robin"
 
-#: ../pkg/networkmanager/interfaces.js:1601
+#: ../pkg/networkmanager/interfaces.js:1649
 msgid "Active Backup"
 msgstr "Aktif Yedekleme"
 
-#: ../pkg/networkmanager/interfaces.js:1602
+#: ../pkg/networkmanager/interfaces.js:1650
 msgid "XOR"
 msgstr "XOR"
 
-#: ../pkg/networkmanager/interfaces.js:1603
+#: ../pkg/networkmanager/interfaces.js:1651
 msgid "Broadcast"
 msgstr "Broadcast"
 
-#: ../pkg/networkmanager/interfaces.js:1604
+#: ../pkg/networkmanager/interfaces.js:1652
 msgid "802.3ad"
 msgstr "802.3ad"
 
-#: ../pkg/networkmanager/interfaces.js:1605
+#: ../pkg/networkmanager/interfaces.js:1653
 msgid "Adaptive transmit load balancing"
 msgstr ""
 
-#: ../pkg/networkmanager/interfaces.js:1606
+#: ../pkg/networkmanager/interfaces.js:1654
 msgid "Adaptive load balancing"
 msgstr ""
 
-#: ../pkg/networkmanager/interfaces.js:1611
+#: ../pkg/networkmanager/interfaces.js:1659
 msgid "MII (Recommended)"
 msgstr ""
 
-#: ../pkg/networkmanager/interfaces.js:1612
+#: ../pkg/networkmanager/interfaces.js:1660
 msgid "ARP"
 msgstr "ARP"
 
-#: ../pkg/networkmanager/interfaces.js:1839
-#: ../pkg/networkmanager/interfaces.js:1847
-#: ../pkg/networkmanager/interfaces.js:2043
+#: ../pkg/networkmanager/interfaces.js:1887
+#: ../pkg/networkmanager/interfaces.js:1895
+#: ../pkg/networkmanager/interfaces.js:2091
 msgid "Bond"
 msgstr "Bond"
 
-#: ../pkg/networkmanager/interfaces.js:1841
-#: ../pkg/networkmanager/interfaces.js:1849
-#: ../pkg/networkmanager/interfaces.js:2107
+#: ../pkg/networkmanager/interfaces.js:1889
+#: ../pkg/networkmanager/interfaces.js:1897
+#: ../pkg/networkmanager/interfaces.js:2155
 msgid "VLAN"
 msgstr "VLAN"
 
-#: ../pkg/networkmanager/interfaces.js:1843
-#: ../pkg/networkmanager/interfaces.js:1851
-#: ../pkg/networkmanager/interfaces.js:2069
+#: ../pkg/networkmanager/interfaces.js:1891
+#: ../pkg/networkmanager/interfaces.js:1899
+#: ../pkg/networkmanager/interfaces.js:2117
 msgid "Bridge"
 msgstr "Köprü"
 
-#: ../pkg/networkmanager/interfaces.js:1872
+#: ../pkg/networkmanager/interfaces.js:1920
 msgid "Carrier"
 msgstr "Taşıyıcı"
 
-#: ../pkg/networkmanager/interfaces.js:1875
+#: ../pkg/networkmanager/interfaces.js:1923
 msgid "Yes"
 msgstr "Evet"
 
-#: ../pkg/networkmanager/interfaces.js:1876
+#: ../pkg/networkmanager/interfaces.js:1924
 msgid "No"
 msgstr "Hayır"
 
-#: ../pkg/networkmanager/interfaces.js:1895
+#: ../pkg/networkmanager/interfaces.js:1943
 #: ../pkg/kubernetes/views/containers-page.html.h:7
+#: ../pkg/kubernetes/views/pvc-body.html.h:7
 #: ../pkg/kubernetes/views/details-page.html.h:5
 #: ../pkg/kubernetes/views/node-panel.html.h:11
 #: ../pkg/subscriptions/index.html.h:45
 msgid "Status"
 msgstr "Durum"
 
-#: ../pkg/networkmanager/interfaces.js:1928
+#: ../pkg/networkmanager/interfaces.js:1976
 msgid "Unknown configuration"
 msgstr "Bilinmeyen konfigrasyon"
 
-#: ../pkg/networkmanager/interfaces.js:2002
+#: ../pkg/networkmanager/interfaces.js:2050
 msgid "Configure"
 msgstr "Ayarla"
 
-#: ../pkg/networkmanager/interfaces.js:2019
+#: ../pkg/networkmanager/interfaces.js:2067
 msgid "Master"
 msgstr "Ana"
 
-#: ../pkg/networkmanager/interfaces.js:2038
+#: ../pkg/networkmanager/interfaces.js:2086
 msgid "ARP Monitoring"
 msgstr "ARP İzleme"
 
-#: ../pkg/networkmanager/interfaces.js:2058
+#: ../pkg/networkmanager/interfaces.js:2106
 msgid "Spanning Tree Protocol"
 msgstr "Spanning Tree Protocol"
 
-#: ../pkg/networkmanager/interfaces.js:2060
-#: ../pkg/networkmanager/interfaces.js:2084
+#: ../pkg/networkmanager/interfaces.js:2108
+#: ../pkg/networkmanager/interfaces.js:2132
 msgid "Priority $priority"
 msgstr "Öncelik $priority"
 
-#: ../pkg/networkmanager/interfaces.js:2062
+#: ../pkg/networkmanager/interfaces.js:2110
 msgid "Forward delay $forward_delay"
 msgstr ""
 
-#: ../pkg/networkmanager/interfaces.js:2064
+#: ../pkg/networkmanager/interfaces.js:2112
 msgid "Hello time $hello_time"
 msgstr ""
 
-#: ../pkg/networkmanager/interfaces.js:2066
+#: ../pkg/networkmanager/interfaces.js:2114
 msgid "Maximum message age $max_age"
 msgstr ""
 
-#: ../pkg/networkmanager/interfaces.js:2086
+#: ../pkg/networkmanager/interfaces.js:2134
 msgid "Path cost $path_cost"
 msgstr ""
 
-#: ../pkg/networkmanager/interfaces.js:2088
+#: ../pkg/networkmanager/interfaces.js:2136
 msgid "Hairpin mode"
 msgstr ""
 
-#: ../pkg/networkmanager/interfaces.js:2090
+#: ../pkg/networkmanager/interfaces.js:2138
 msgid "Bridge port"
 msgstr ""
 
-#: ../pkg/networkmanager/interfaces.js:2104
+#: ../pkg/networkmanager/interfaces.js:2152
 msgid "Parent $parent"
 msgstr ""
 
-#: ../pkg/networkmanager/interfaces.js:2105
+#: ../pkg/networkmanager/interfaces.js:2153
 msgid "Id $id"
 msgstr ""
 
-#: ../pkg/networkmanager/interfaces.js:2113
+#: ../pkg/networkmanager/interfaces.js:2161
 msgid "General"
 msgstr "Genel"
 
-#: ../pkg/networkmanager/interfaces.js:2122
+#: ../pkg/networkmanager/interfaces.js:2170
 msgid "Connect automatically"
 msgstr "Otomatik bağlan"
 
-#: ../pkg/networkmanager/interfaces.js:2123
+#: ../pkg/networkmanager/interfaces.js:2171
 msgid "IPv4"
 msgstr "IPv4"
 
-#: ../pkg/networkmanager/interfaces.js:2124
+#: ../pkg/networkmanager/interfaces.js:2172
 msgid "IPv6"
 msgstr "IPv6"
 
-#: ../pkg/networkmanager/interfaces.js:2209
-#: ../pkg/registry/views/project-listing.html.h:5
+#: ../pkg/networkmanager/interfaces.js:2257
+#: ../pkg/kubernetes/views/project-listing.html.h:5
 #: ../pkg/networkmanager/index.html.h:28
 msgid "Members"
 msgstr "Üyeler"
 
-#: ../pkg/networkmanager/interfaces.js:2209
-#: ../pkg/registry/views/image-config.html.h:6 ../pkg/docker/index.html.h:24
+#: ../pkg/networkmanager/interfaces.js:2257 ../pkg/docker/index.html.h:26
+#: ../pkg/kubernetes/views/image-config.html.h:7
 #: ../pkg/kubernetes/views/container-body.html.h:5
 #: ../pkg/kubernetes/views/service-panel.html.h:8
 #: ../pkg/networkmanager/index.html.h:19
 msgid "Ports"
 msgstr "Portlar"
 
-#: ../pkg/networkmanager/interfaces.js:2429
+#: ../pkg/networkmanager/interfaces.js:2476
 msgid "-"
 msgstr "-"
 
-#: ../pkg/networkmanager/interfaces.js:2444
+#: ../pkg/networkmanager/interfaces.js:2491
 msgid "Prefix length or Netmask"
 msgstr "Ön ek uzunluğu ya da ağ maskesi"
 
-#: ../pkg/networkmanager/interfaces.js:2444
+#: ../pkg/networkmanager/interfaces.js:2491
 msgid "Prefix length"
 msgstr "Ön ek uzunluğu"
 
-#: ../pkg/networkmanager/interfaces.js:2447
+#: ../pkg/networkmanager/interfaces.js:2494
 #: ../pkg/kubernetes/views/details-page.html.h:9
 msgid "Addresses"
 msgstr "Adresler"
 
-#: ../pkg/networkmanager/interfaces.js:2454
+#: ../pkg/networkmanager/interfaces.js:2501
 msgid "DNS"
 msgstr "DNS"
 
-#: ../pkg/networkmanager/interfaces.js:2458
+#: ../pkg/networkmanager/interfaces.js:2505
 msgid "DNS Search Domains"
 msgstr "DNS Search Domains"
 
-#: ../pkg/networkmanager/interfaces.js:2463
+#: ../pkg/networkmanager/interfaces.js:2510
 #: ../pkg/kubernetes/views/details-page.html.h:13
 msgid "Routes"
 msgstr "Yönlendirmeler"
 
-#: ../pkg/networkmanager/interfaces.js:2497
+#: ../pkg/networkmanager/interfaces.js:2544
 msgid "IPv4 Settings"
 msgstr "IPv4 Ayarları"
 
-#: ../pkg/networkmanager/interfaces.js:2497
+#: ../pkg/networkmanager/interfaces.js:2544
 msgid "IPv6 Settings"
 msgstr "IPv6 Ayarları"
 
@@ -1290,28 +1228,24 @@ msgid "Receiving objects: $0%"
 msgstr ""
 
 #: ../pkg/ostree/client.js:68
-#, fuzzy
 msgid "Writing objects"
-msgstr "Yazılıyor"
+msgstr ""
 
 #: ../pkg/ostree/client.js:70
 msgid "Scanning metadata"
 msgstr ""
 
 #: ../pkg/ostree/client.js:489
-#, fuzzy
 msgid "OS $0 not found"
-msgstr "Bulunamadı"
+msgstr ""
 
 #: ../pkg/ostree/app.js:76
-#, fuzzy
 msgid "Not authorized to update software on this system"
-msgstr "Bu sistem üzerinde Docker'e erişim yetkisi yok"
+msgstr ""
 
 #: ../pkg/ostree/app.js:78
-#, fuzzy
 msgid "OSTree is not available on this system"
-msgstr "Docker sistemde yüklü ya da aktif değil"
+msgstr ""
 
 #: ../pkg/ostree/app.js:96
 msgid "No OSTree deployments found"
@@ -1365,17 +1299,19 @@ msgstr "RAID Yarat"
 #: ../pkg/storaged/overview.js:413 ../pkg/storaged/overview.js:471
 #: ../pkg/storaged/overview.js:604 ../pkg/storaged/overview.js:682
 #: ../pkg/storaged/details.js:162 ../pkg/storaged/details.js:378
-#: ../pkg/storaged/details.js:612 ../pkg/storaged/details.js:632
-#: ../pkg/storaged/details.js:668 ../pkg/storaged/details.js:694
-#: ../pkg/storaged/details.js:744 ../pkg/storaged/details.js:773
-#: ../pkg/registry/views/imagestream-modify.html.h:3
-#: ../pkg/registry/views/add-project-dialog.html.h:2
-#: ../pkg/registry/views/project-listing.html.h:3
+#: ../pkg/storaged/details.js:625 ../pkg/storaged/details.js:645
+#: ../pkg/storaged/details.js:681 ../pkg/storaged/details.js:707
+#: ../pkg/storaged/details.js:757 ../pkg/storaged/details.js:786
+#: ../pkg/kubernetes/views/imagestream-modify.html.h:3
 #: ../pkg/kubernetes/views/containers-page.html.h:2
+#: ../pkg/kubernetes/views/node-add.html.h:3
+#: ../pkg/kubernetes/views/project-listing.html.h:3
+#: ../pkg/kubernetes/views/project-modify.html.h:3
 #: ../pkg/kubernetes/views/dashboard-page.html.h:5
+#: ../pkg/kubernetes/views/pvc-body.html.h:1
+#: ../pkg/kubernetes/views/service-modify.html.h:2
 #: ../pkg/kubernetes/views/details-page.html.h:2
-#: ../pkg/kubernetes/index.html.h:26 ../pkg/networkmanager/index.html.h:14
-#: ../pkg/storaged/index.html.h:18
+#: ../pkg/networkmanager/index.html.h:14 ../pkg/storaged/index.html.h:18
 msgid "Name"
 msgstr "İsim"
 
@@ -1412,43 +1348,49 @@ msgid "Chunk Size"
 msgstr ""
 
 #: ../pkg/storaged/overview.js:429
-msgid "4 KB"
-msgstr "4 KB"
+msgid "4 KiB"
+msgstr ""
 
 #: ../pkg/storaged/overview.js:430
-msgid "8 KB"
-msgstr "8 KB"
+msgid "8 KiB"
+msgstr ""
 
 #: ../pkg/storaged/overview.js:431
-msgid "16 KB"
+#, fuzzy
+msgid "16 KiB"
 msgstr "16 KB"
 
 #: ../pkg/storaged/overview.js:432
-msgid "32 KB"
+#, fuzzy
+msgid "32 KiB"
 msgstr "32 KB"
 
 #: ../pkg/storaged/overview.js:433
-msgid "64 KB"
+#, fuzzy
+msgid "64 KiB"
 msgstr "64 KB"
 
 #: ../pkg/storaged/overview.js:434
-msgid "128 KB"
+#, fuzzy
+msgid "128 KiB"
 msgstr "128 KB"
 
 #: ../pkg/storaged/overview.js:435
-msgid "512 KB"
+#, fuzzy
+msgid "512 KiB"
 msgstr "512 KB"
 
 #: ../pkg/storaged/overview.js:436
-msgid "1 MB"
-msgstr "1 MB"
+#, fuzzy
+msgid "1 MiB"
+msgstr "1 dakika"
 
 #: ../pkg/storaged/overview.js:437
-msgid "2 MB"
-msgstr "2 MB"
+msgid "2 MiB"
+msgstr ""
 
 #: ../pkg/storaged/overview.js:444 ../pkg/storaged/overview.js:475
-#: ../pkg/storaged/details.js:516 ../pkg/storaged/details.js:797
+#: ../pkg/storaged/details.js:516 ../pkg/storaged/details.js:810
 #: ../pkg/storaged/index.html.h:56
 msgid "Disks"
 msgstr "Diskler"
@@ -1458,11 +1400,11 @@ msgid "At least $0 disks are needed."
 msgstr ""
 
 #: ../pkg/storaged/overview.js:457 ../pkg/storaged/overview.js:486
-#: ../pkg/storaged/details.js:644 ../pkg/storaged/details.js:677
-#: ../pkg/storaged/details.js:700 ../pkg/storaged/details.js:753
-#: ../pkg/storaged/details.js:782
-#: ../pkg/registry/views/add-project-dialog.html.h:6
-#: ../pkg/registry/views/add-group-dialog.html.h:6
+#: ../pkg/storaged/details.js:657 ../pkg/storaged/details.js:690
+#: ../pkg/storaged/details.js:713 ../pkg/storaged/details.js:766
+#: ../pkg/storaged/details.js:795
+#: ../pkg/kubernetes/views/add-group-dialog.html.h:6
+#: ../pkg/kubernetes/views/project-modify.html.h:8
 msgid "Create"
 msgstr "Yarat"
 
@@ -1471,7 +1413,7 @@ msgid "Create Volume Group"
 msgstr "Volume Grubu Yarat"
 
 #: ../pkg/storaged/overview.js:481 ../pkg/storaged/details.js:528
-#: ../pkg/storaged/details.js:812
+#: ../pkg/storaged/details.js:825
 msgid "At least one disk is needed."
 msgstr "En azından bir disk gerekli"
 
@@ -1480,14 +1422,12 @@ msgid "Add iSCSI Portal"
 msgstr ""
 
 #: ../pkg/storaged/overview.js:498
-#, fuzzy
 msgid "Server Address"
-msgstr "Adres"
+msgstr ""
 
 #: ../pkg/storaged/overview.js:501
-#, fuzzy
 msgid "Server address can not be empty."
-msgstr "Kullanıcı adı boş olamaz"
+msgstr ""
 
 #: ../pkg/storaged/overview.js:513 ../pkg/realmd/operation.html.h:11
 msgid "Next"
@@ -1498,9 +1438,8 @@ msgid "Invalid username or password"
 msgstr ""
 
 #: ../pkg/storaged/overview.js:562
-#, fuzzy
 msgid "Unknown host name"
-msgstr "Host ismi ayarla"
+msgstr ""
 
 #: ../pkg/storaged/overview.js:566
 msgid "Unable to reach server"
@@ -1515,23 +1454,22 @@ msgid "Targets"
 msgstr ""
 
 #: ../pkg/storaged/overview.js:604 ../pkg/shell/templates/add-machine.html.h:2
+#: ../pkg/kubernetes/views/node-add.html.h:2
 #: ../pkg/kubernetes/views/dashboard-page.html.h:6
 #: ../pkg/kubernetes/views/details-page.html.h:4
 #: ../pkg/kubernetes/views/node-panel.html.h:2
-#: ../pkg/kubernetes/index.html.h:41
 msgid "Address"
 msgstr "Adres"
 
 #: ../pkg/storaged/overview.js:604 ../pkg/shell/templates/change-port.html.h:5
-#, fuzzy
 msgid "Port"
-msgstr "Portlar"
+msgstr ""
 
 #: ../pkg/storaged/overview.js:609 ../pkg/storaged/overview.js:637
-#: ../pkg/storaged/details.js:533 ../pkg/storaged/details.js:817
+#: ../pkg/storaged/details.js:533 ../pkg/storaged/details.js:830
 #: ../pkg/shell/templates/add-machine.html.h:6
-#: ../pkg/registry/views/add-user-dialog.html.h:9
-#: ../pkg/kubernetes/index.html.h:44
+#: ../pkg/kubernetes/views/node-add.html.h:8
+#: ../pkg/kubernetes/views/add-user-dialog.html.h:9
 msgid "Add"
 msgstr "Ekle"
 
@@ -1540,76 +1478,79 @@ msgid "Change iSCSI Initiator Name"
 msgstr ""
 
 #: ../pkg/storaged/overview.js:687
+#: ../pkg/kubernetes/views/route-modify.html.h:4
+#: ../pkg/kubernetes/views/replicationcontroller-modify.html.h:4
+#: ../pkg/kubernetes/views/project-modify.html.h:9
 msgid "Change"
 msgstr ""
 
-#. Translators: Used in "42.5 KB (42399 bytes)"
-#: ../pkg/storaged/utils.js:65
+#. Translators: Used in "..."
+#: ../pkg/storaged/utils.js:66
 msgctxt "format-bytes"
 msgid "bytes"
 msgstr ""
 
-#: ../pkg/storaged/utils.js:106
+#: ../pkg/storaged/utils.js:107
 msgid "Name can not be empty."
 msgstr "İsim boş olamaz"
 
-#: ../pkg/storaged/utils.js:108
+#: ../pkg/storaged/utils.js:109
 msgid "Name can not be longer than 127 characters."
 msgstr "İsim 127 karakterden uzun olamaz"
 
-#: ../pkg/storaged/utils.js:112
+#: ../pkg/storaged/utils.js:113
 msgid "Name can not contain the character '$0'."
 msgstr ""
 
-#: ../pkg/storaged/utils.js:114
+#: ../pkg/storaged/utils.js:115
 msgid "Name can not contain whitespace."
 msgstr ""
 
-#: ../pkg/storaged/utils.js:134
+#: ../pkg/storaged/utils.js:135
 msgid "$name (from $host)"
 msgstr ""
 
-#: ../pkg/storaged/utils.js:143
+#: ../pkg/storaged/utils.js:144
 msgid "Pool for Thin Logical Volumes"
 msgstr ""
 
-#: ../pkg/storaged/utils.js:145
+#: ../pkg/storaged/utils.js:146
 msgid "Thin Logical Volume"
 msgstr ""
 
-#: ../pkg/storaged/utils.js:147
+#: ../pkg/storaged/utils.js:148
 msgid "Logical Volume (Snapshot)"
 msgstr ""
 
-#: ../pkg/storaged/utils.js:149
+#: ../pkg/storaged/utils.js:150
 msgid "Logical Volume"
 msgstr "Mantıksal Bölüm"
 
-#: ../pkg/storaged/utils.js:189
+#: ../pkg/storaged/utils.js:190
 msgid "<span>Encrypted Logical Volume of $0</span>"
 msgstr ""
 
-#: ../pkg/storaged/utils.js:191
+#: ../pkg/storaged/utils.js:192
 msgid "<span>Encrypted Partition of $0</span>"
 msgstr ""
 
-#: ../pkg/storaged/utils.js:193
+#: ../pkg/storaged/utils.js:194
 msgid "<span>Logical Volume of $0</span>"
 msgstr ""
 
-#: ../pkg/storaged/utils.js:195
+#: ../pkg/storaged/utils.js:196
 msgid "<span>Partition of $0</span>"
 msgstr ""
 
-#: ../pkg/storaged/utils.js:197
+#: ../pkg/storaged/utils.js:198
 msgid "<span>Encrypted $0</span>"
 msgstr ""
 
-#: ../pkg/storaged/utils.js:210
+#: ../pkg/storaged/utils.js:211
 msgid "RAID Device $0"
 msgstr ""
 
-#: ../pkg/storaged/utils.js:216
+#: ../pkg/storaged/utils.js:217
 msgid "Volume Group $0"
 msgstr ""
 
@@ -1633,9 +1574,9 @@ msgstr ""
 msgid "Format $0"
 msgstr ""
 
-#: ../pkg/storaged/details.js:125 ../pkg/storaged/details.js:581
-#: ../pkg/storaged/details.js:636 ../pkg/storaged/details.js:672
-#: ../pkg/storaged/details.js:748 ../pkg/storaged/details.js:777
+#: ../pkg/storaged/details.js:125 ../pkg/storaged/details.js:591
+#: ../pkg/storaged/details.js:649 ../pkg/storaged/details.js:685
+#: ../pkg/storaged/details.js:761 ../pkg/storaged/details.js:790
 #: ../pkg/kubernetes/views/imagerepository-panel.html.h:7
 #: ../pkg/storaged/index.html.h:20
 msgid "Size"
@@ -1646,8 +1587,8 @@ msgid "Size must be specified."
 msgstr "Boyut belirtilmeli"
 
 #: ../pkg/storaged/details.js:135
-msgid "Size can not be zero."
-msgstr "Boyut sıfır olamaz"
+msgid "Size must be greater than zero."
+msgstr ""
 
 #: ../pkg/storaged/details.js:139 ../pkg/storaged/details.js:288
 msgid "Erase"
@@ -1663,6 +1604,7 @@ msgstr "Mevcut veriyi sıfırlarla tekrar yaz"
 
 #: ../pkg/storaged/details.js:146 ../pkg/shell/index.html.h:3
 #: ../pkg/kubernetes/views/service-panel.html.h:7
+#: ../pkg/kubernetes/views/deploy.html.h:2
 msgid "Type"
 msgstr "Tip"
 
@@ -1727,7 +1669,7 @@ msgid "Store passphrase"
 msgstr "Parolayı sakla"
 
 #: ../pkg/storaged/details.js:192 ../pkg/storaged/details.js:473
-#: ../pkg/storaged/details.js:962
+#: ../pkg/storaged/details.js:975
 msgid "Encryption Options"
 msgstr "Şifreleme seçenekleri"
 
@@ -1736,7 +1678,7 @@ msgid "Mounting"
 msgstr ""
 
 #: ../pkg/storaged/details.js:198 ../pkg/storaged/details.js:384
-#: ../pkg/registry/views/image-config.html.h:2
+#: ../pkg/kubernetes/views/image-config.html.h:2
 #: ../pkg/subscriptions/index.html.h:26
 msgid "Default"
 msgstr "Ön tanımlı"
@@ -1759,7 +1701,7 @@ msgid "Create partition"
 msgstr ""
 
 #: ../pkg/storaged/details.js:217 ../pkg/storaged/details.js:306
-#: ../pkg/storaged/details.js:989
+#: ../pkg/storaged/details.js:1002
 msgid "Format"
 msgstr "Biçimlendir"
 
@@ -1791,7 +1733,7 @@ msgstr ""
 msgid "Formatting a disk will erase all data on it."
 msgstr "Bir diski biçimlendirmek üstünde yer alan veriyi silecektir."
 
-#: ../pkg/storaged/details.js:375 ../pkg/storaged/details.js:956
+#: ../pkg/storaged/details.js:375 ../pkg/storaged/details.js:969
 msgid "Filesystem Options"
 msgstr "Dosya Sistemi Seçenekleri"
 
@@ -1800,7 +1742,7 @@ msgid "Apply"
 msgstr "Uygula"
 
 #: ../pkg/storaged/details.js:422 ../pkg/storaged/details.js:429
-#: ../pkg/storaged/details.js:961
+#: ../pkg/storaged/details.js:974
 msgid "Unlock"
 msgstr "Kilidi Aç"
 
@@ -1812,7 +1754,7 @@ msgstr "Saklı Parolalar"
 msgid "Options"
 msgstr "Seçenekler"
 
-#: ../pkg/storaged/details.js:513 ../pkg/storaged/details.js:794
+#: ../pkg/storaged/details.js:513 ../pkg/storaged/details.js:807
 msgid "Add Disks"
 msgstr "Disk Ekle"
 
@@ -1820,308 +1762,317 @@ msgstr "Disk Ekle"
 msgid "Deleting a RAID device will erase all data on it."
 msgstr "Bir RAID cihazını silmek üstündeki tüm veriyi silecektir."
 
-#: ../pkg/storaged/details.js:578
+#. Resizing is only safe when lvol has a filesystem
+#. and that filesystem is resized at the same time.
+#.
+#. So we always resize the filesystem for lvols that
+#. have one, and refuse to shrink otherwise.
+#.
+#. Note that shrinking a filesystem will not always
+#. succeed, but it is never dangerous.
+#.
+#: ../pkg/storaged/details.js:588
 msgid "Resize Logical Volume"
 msgstr "Mantıksal Bölümü Yeniden Boyurlandır"
 
-#: ../pkg/storaged/details.js:586
-msgid "Resize Filesystem"
-msgstr "Dosya Sistemini Yeniden Boyutlandır"
-
-#: ../pkg/storaged/details.js:594 ../pkg/storaged/details.js:966
+#: ../pkg/storaged/details.js:597 ../pkg/storaged/details.js:979
 msgid "Resize"
 msgstr "Yeniden Boyutlandır"
 
-#: ../pkg/storaged/details.js:609
+#: ../pkg/storaged/details.js:606
+msgid "This logical volume can not be made smaller."
+msgstr ""
+
+#: ../pkg/storaged/details.js:622
 msgid "Renamee Logical Volume"
 msgstr "Mantıksal Bölümü Yeniden İsimlendir"
 
-#: ../pkg/storaged/details.js:617 ../pkg/storaged/details.js:967
-#: ../pkg/storaged/details.js:1617
+#: ../pkg/storaged/details.js:630 ../pkg/storaged/details.js:980
+#: ../pkg/storaged/details.js:1630
 msgid "Rename"
 msgstr "Yeniden İsimlendir"
 
-#: ../pkg/storaged/details.js:629 ../pkg/storaged/details.js:971
+#: ../pkg/storaged/details.js:642 ../pkg/storaged/details.js:984
 msgid "Create Snapshot"
 msgstr ""
 
-#: ../pkg/storaged/details.js:665 ../pkg/storaged/details.js:983
+#: ../pkg/storaged/details.js:678 ../pkg/storaged/details.js:996
 msgid "Create Thin Volume"
 msgstr ""
 
-#: ../pkg/storaged/details.js:691
+#: ../pkg/storaged/details.js:704
 msgid "Rename Volume Group"
 msgstr ""
 
-#: ../pkg/storaged/details.js:722
+#: ../pkg/storaged/details.js:735
 msgid "Deleting a volume group will erase all data on it."
 msgstr ""
 
-#: ../pkg/storaged/details.js:741
+#: ../pkg/storaged/details.js:754
 msgid "Create Plain Volume"
 msgstr ""
 
-#: ../pkg/storaged/details.js:761
+#: ../pkg/storaged/details.js:774
 msgid "Sorry"
 msgstr "Pardon"
 
-#: ../pkg/storaged/details.js:770 ../pkg/storaged/details.js:1558
+#: ../pkg/storaged/details.js:783 ../pkg/storaged/details.js:1571
 msgid "Create Pool for Thin Logical Volumes"
 msgstr ""
 
-#: ../pkg/storaged/details.js:870
+#: ../pkg/storaged/details.js:883
 msgid "Deleting a logical volume will delete all data in it."
 msgstr ""
 
-#: ../pkg/storaged/details.js:873
+#: ../pkg/storaged/details.js:886
 msgid "Deleting a partition will delete all data in it."
 msgstr ""
 
-#: ../pkg/storaged/details.js:954
+#: ../pkg/storaged/details.js:967
 msgid "Mount"
 msgstr "Bağla"
 
-#: ../pkg/storaged/details.js:955
+#: ../pkg/storaged/details.js:968
 msgid "Unmount"
 msgstr "Çöz"
 
-#: ../pkg/storaged/details.js:960
+#: ../pkg/storaged/details.js:973
 msgid "Lock"
 msgstr "Kilitle"
 
-#: ../pkg/storaged/details.js:974
+#: ../pkg/storaged/details.js:987
 msgid "Activate"
 msgstr "Aktifleştir"
 
-#: ../pkg/storaged/details.js:977
+#: ../pkg/storaged/details.js:990
 msgid "Deactivate"
 msgstr "Deaktifleştir"
 
-#: ../pkg/storaged/details.js:1059
+#: ../pkg/storaged/details.js:1072
 msgctxt "storage-id-desc"
 msgid "$0 File System"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1062
+#: ../pkg/storaged/details.js:1075
 msgctxt "storage-id-desc"
 msgid "Linux MD-RAID Component"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1064
+#: ../pkg/storaged/details.js:1077
 msgctxt "storage-id-desc"
 msgid "LVM2 Physical Volume"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1066
+#: ../pkg/storaged/details.js:1079
 msgctxt "storage-id-desc"
 msgid "RAID Member"
 msgstr "RAID Üyesi"
 
-#: ../pkg/storaged/details.js:1083
+#: ../pkg/storaged/details.js:1096
 msgctxt "storage-id-desc"
 msgid "LUKS Encrypted"
 msgstr "LUKS Şifreli"
 
-#: ../pkg/storaged/details.js:1085
+#: ../pkg/storaged/details.js:1098
 msgctxt "storage-id-desc"
 msgid "Encrypted"
 msgstr "Şifreli"
 
-#: ../pkg/storaged/details.js:1089
+#: ../pkg/storaged/details.js:1102
 msgctxt "storage-id-desc"
 msgid "Swap Space"
 msgstr "Swap Alanı"
 
-#: ../pkg/storaged/details.js:1091
+#: ../pkg/storaged/details.js:1104
 msgctxt "storage-id-desc"
 msgid "Other Data"
 msgstr "Diğer Veri"
 
-#: ../pkg/storaged/details.js:1094
+#: ../pkg/storaged/details.js:1107
 msgctxt "storage-id-desc"
 msgid "Unrecognized Data"
 msgstr "Tanımlanamayan Veri"
 
-#: ../pkg/storaged/details.js:1099 ../pkg/storaged/details.js:1105
+#: ../pkg/storaged/details.js:1112 ../pkg/storaged/details.js:1118
 msgid "$size $partition"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1116
+#: ../pkg/storaged/details.js:1129
 msgid "mounted on $0"
 msgstr "$0 noktasında bağlı"
 
-#: ../pkg/storaged/details.js:1118
+#: ../pkg/storaged/details.js:1131
 msgid "not mounted"
 msgstr "bağlı değil"
 
-#: ../pkg/storaged/details.js:1122
+#: ../pkg/storaged/details.js:1135
 msgid "unlocked"
 msgstr "kilidi açıldı"
 
-#: ../pkg/storaged/details.js:1124
+#: ../pkg/storaged/details.js:1137
 msgid "locked"
 msgstr "kilitlendi"
 
-#: ../pkg/storaged/details.js:1193
+#: ../pkg/storaged/details.js:1206
 msgid "$0 Free Space for Logical Partitions"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1196
+#: ../pkg/storaged/details.js:1209
 msgid "$0 Free Space for Primary Partitions"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1201
+#: ../pkg/storaged/details.js:1214
 msgid "$0 Free Space"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1205
+#: ../pkg/storaged/details.js:1218
 msgid "Create Partition"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1213
+#: ../pkg/storaged/details.js:1226
 msgid "$0 Extended Partition"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1250
+#: ../pkg/storaged/details.js:1263
 msgid "Logical Partition"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1252
+#: ../pkg/storaged/details.js:1265
 msgid "Primary Partition"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1254
+#: ../pkg/storaged/details.js:1267
 msgid "Partition"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1336 ../pkg/storaged/details.js:1480
+#: ../pkg/storaged/details.js:1349 ../pkg/storaged/details.js:1493
 msgid "Content"
 msgstr "İçerik"
 
-#: ../pkg/storaged/details.js:1354
+#: ../pkg/storaged/details.js:1367
 msgid "RAID 0"
 msgstr "RAID 0"
 
-#: ../pkg/storaged/details.js:1355
+#: ../pkg/storaged/details.js:1368
 msgid "RAID 1"
 msgstr "RAID 1"
 
-#: ../pkg/storaged/details.js:1356
+#: ../pkg/storaged/details.js:1369
 msgid "RAID 4"
 msgstr "RAID 4"
 
-#: ../pkg/storaged/details.js:1357
+#: ../pkg/storaged/details.js:1370
 msgid "RAID 5"
 msgstr "RAID 5"
 
-#: ../pkg/storaged/details.js:1358
+#: ../pkg/storaged/details.js:1371
 msgid "RAID 6"
 msgstr "RAID 6"
 
-#: ../pkg/storaged/details.js:1359
+#: ../pkg/storaged/details.js:1372
 msgid "RAID 10"
 msgstr "RAID 10"
 
-#: ../pkg/storaged/details.js:1360
+#: ../pkg/storaged/details.js:1373
 msgid "RAID ($0)"
 msgstr "RAID ($0)"
 
-#: ../pkg/storaged/details.js:1365
+#: ../pkg/storaged/details.js:1378
 msgid "$0 Disks"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1367
+#: ../pkg/storaged/details.js:1380
 msgid "$0 Chunk Size"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1378
+#: ../pkg/storaged/details.js:1391
 msgid "Data Scrubbing"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1379
+#: ../pkg/storaged/details.js:1392
 msgid "Data Scrubbing and Repair"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1380
+#: ../pkg/storaged/details.js:1393
 msgid "Resyncing"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1381
+#: ../pkg/storaged/details.js:1394
 msgid "Recovering "
 msgstr ""
 
-#: ../pkg/storaged/details.js:1382
+#: ../pkg/storaged/details.js:1395
 msgid "Frozen"
 msgstr "Dondurulmuş"
 
-#: ../pkg/storaged/details.js:1389
+#: ../pkg/storaged/details.js:1402
 #, javascript-format
 msgid "$action, ${percent}% complete at $rate"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1393
+#: ../pkg/storaged/details.js:1406
 #, javascript-format
 msgid "$action, ${percent}% complete"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1398
+#: ../pkg/storaged/details.js:1411
 msgid ", $0 remaining"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1415
+#: ../pkg/storaged/details.js:1428
 msgid "$0 disks are missing"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1416 ../pkg/docker/index.html.h:11
+#: ../pkg/storaged/details.js:1429 ../pkg/docker/index.html.h:11
 #: ../pkg/ostree/index.html.h:7
 msgid "Running"
 msgstr "Çalışıyor"
 
-#: ../pkg/storaged/details.js:1416
+#: ../pkg/storaged/details.js:1429
 msgid "Not running"
 msgstr "Çalışmıyor"
 
-#: ../pkg/storaged/details.js:1435
+#: ../pkg/storaged/details.js:1448
 msgid "FAILED"
 msgstr "OLMADI"
 
-#: ../pkg/storaged/details.js:1436
+#: ../pkg/storaged/details.js:1449
 msgid "In Sync"
 msgstr "Eş zamanlanıyor"
 
-#: ../pkg/storaged/details.js:1437
+#: ../pkg/storaged/details.js:1450
 msgid "Spare"
 msgstr "Yedek"
 
-#: ../pkg/storaged/details.js:1437
+#: ../pkg/storaged/details.js:1450
 msgid "Recovering"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1438
+#: ../pkg/storaged/details.js:1451
 msgid "Write-mostly"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1439
+#: ../pkg/storaged/details.js:1452
 msgid "Blocked"
 msgstr "Bloklanmış"
 
-#: ../pkg/storaged/details.js:1440
+#: ../pkg/storaged/details.js:1453
 msgid "Unknown ($0)"
 msgstr "Bilinmiyor ($)"
 
-#: ../pkg/storaged/details.js:1457
+#: ../pkg/storaged/details.js:1470
 msgid "Start Scrubbing"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1458
+#: ../pkg/storaged/details.js:1471
 msgid "Stop Scrubbing"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1492
+#: ../pkg/storaged/details.js:1505
 msgid "$size $desc"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1508
+#: ../pkg/storaged/details.js:1521
 #, javascript-format
 msgid "$size $desc<br/>${percent}% full"
 msgstr ""
@@ -2130,43 +2081,43 @@ msgstr ""
 #. volume, Storaged or something below is
 #. probably misbehaving, and we show it as
 #. "unsupported".
-#: ../pkg/storaged/details.js:1528
+#: ../pkg/storaged/details.js:1541
 msgid "$size $desc<br/>($state)"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1531
+#: ../pkg/storaged/details.js:1544
 msgid "active, but unsupported"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1531
+#: ../pkg/storaged/details.js:1544
 msgid "inactive"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1550
+#: ../pkg/storaged/details.js:1563
 msgid "$0 Free Space for Logical Volumes"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1552
+#: ../pkg/storaged/details.js:1565
 msgid "Create Plain Logical Volume"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1555
+#: ../pkg/storaged/details.js:1568
 msgid "Create RAID Logical Volume"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1598
+#: ../pkg/storaged/details.js:1611
 msgid "Remove"
 msgstr "Kaldır"
 
-#: ../pkg/storaged/details.js:1599
+#: ../pkg/storaged/details.js:1612
 msgid "Empty"
 msgstr "Boş"
 
-#: ../pkg/storaged/details.js:1605
+#: ../pkg/storaged/details.js:1618
 msgid "$0, $1 free"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1630
+#: ../pkg/storaged/details.js:1643
 msgid "Logical Volumes"
 msgstr "Mantıksal Bölümler"
 
@@ -2303,11 +2254,11 @@ msgstr ""
 msgid "Resizing $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:150
+#: ../pkg/storaged/jobs.js:152
 msgid "Operation '$operation' on $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:164
+#: ../pkg/storaged/jobs.js:166
 msgid "unknown target"
 msgstr ""
 
@@ -2341,86 +2292,83 @@ msgstr ""
 msgid "Invalid login or password."
 msgstr ""
 
-#: ../pkg/base1/patterns.js:235 ../pkg/shell/index.html.h:27
+#: ../pkg/base1/patterns.js:239 ../pkg/shell/index.html.h:27
 #: ../pkg/systemd/index.html.h:16 ../pkg/playground/patterns.html.h:28
 #: ../pkg/networkmanager/index.html.h:39 ../pkg/storaged/index.html.h:52
 msgid "On"
 msgstr "Açık"
 
-#: ../pkg/base1/patterns.js:235 ../pkg/shell/index.html.h:28
+#: ../pkg/base1/patterns.js:239 ../pkg/shell/index.html.h:28
 #: ../pkg/systemd/index.html.h:17 ../pkg/playground/patterns.html.h:29
 #: ../pkg/networkmanager/index.html.h:40 ../pkg/storaged/index.html.h:53
 msgid "Off"
 msgstr "Kapalı"
 
-#: ../pkg/base1/cockpit.js:1244
+#: ../pkg/base1/cockpit.js:2039
 msgid "$0 killed with signal $1"
 msgstr ""
 
-#: ../pkg/base1/cockpit.js:1246
+#: ../pkg/base1/cockpit.js:2041
 msgid "$0 exited with code $1"
 msgstr ""
 
-#: ../pkg/base1/cockpit.js:1248
+#: ../pkg/base1/cockpit.js:2043
 msgid "$0 failed"
 msgstr ""
 
-#: ../pkg/base1/cockpit.js:2358
+#: ../pkg/base1/cockpit.js:3045
 msgid "Your session has been terminated."
 msgstr ""
 
-#: ../pkg/base1/cockpit.js:2360
+#: ../pkg/base1/cockpit.js:3047
 msgid "Your session has expired. Please log in again."
 msgstr ""
 
-#: ../pkg/base1/cockpit.js:2362
+#: ../pkg/base1/cockpit.js:3049
 msgid "Not permitted to perform this action."
 msgstr ""
 
-#: ../pkg/base1/cockpit.js:2364
+#: ../pkg/base1/cockpit.js:3051
 msgid "Login failed"
 msgstr ""
 
-#: ../pkg/base1/cockpit.js:2366
+#: ../pkg/base1/cockpit.js:3053
 msgid "The server refused to authenticate using any supported methods."
 msgstr ""
 
-#: ../pkg/base1/cockpit.js:2368
+#: ../pkg/base1/cockpit.js:3055
 msgid "Untrusted host"
 msgstr ""
 
-#: ../pkg/base1/cockpit.js:2370
+#: ../pkg/base1/cockpit.js:3057
 msgid "Host key is incorrect"
 msgstr ""
 
-#: ../pkg/base1/cockpit.js:2372
-#, fuzzy
+#: ../pkg/base1/cockpit.js:3059
 msgid "Internal error"
-msgstr "Beklenmeyen hata"
+msgstr ""
 
-#: ../pkg/base1/cockpit.js:2374
+#: ../pkg/base1/cockpit.js:3061
 msgid "Connection has timed out."
 msgstr ""
 
-#: ../pkg/base1/cockpit.js:2376
-#, fuzzy
+#: ../pkg/base1/cockpit.js:3063
 msgid "Cockpit is not installed on the system."
-msgstr "Docker sistemde yüklü ya da aktif değil"
+msgstr ""
 
-#: ../pkg/base1/cockpit.js:2378
+#: ../pkg/base1/cockpit.js:3065
 msgid "Cannot forward login credentials"
 msgstr ""
 
-#: ../pkg/base1/cockpit.js:2380
+#: ../pkg/base1/cockpit.js:3067
 msgid "Server has closed the connection."
 msgstr ""
 
-#: ../pkg/base1/cockpit.js:2382
-#, fuzzy
+#: ../pkg/base1/cockpit.js:3069
 msgid "Cockpit is not compatible with the software on the system."
-msgstr "Docker sistemde yüklü ya da aktif değil"
+msgstr ""
 
-#: ../pkg/base1/cockpit.js:2384
+#: ../pkg/base1/cockpit.js:3071
 msgid "Cockpit could not contact the given host."
 msgstr ""
 
@@ -2439,14 +2387,20 @@ msgstr "Kapat"
 #: ../pkg/shell/templates/sync-users.html.h:7
 #: ../pkg/shell/templates/change-auth.html.h:13
 #: ../pkg/shell/templates/add-machine.html.h:5
-#: ../pkg/registry/views/imagestream-modify.html.h:7
-#: ../pkg/registry/views/add-project-dialog.html.h:5
-#: ../pkg/registry/views/imagestream-delete.html.h:3
-#: ../pkg/registry/views/add-group-dialog.html.h:5
-#: ../pkg/registry/views/add-user-dialog.html.h:8
-#: ../pkg/registry/views/image-delete.html.h:3
 #: ../pkg/realmd/operation.html.h:10 ../pkg/dashboard/index.html.h:8
-#: ../pkg/kubernetes/index.html.h:27 ../pkg/storaged/index.html.h:22
+#: ../pkg/kubernetes/views/imagestream-modify.html.h:7
+#: ../pkg/kubernetes/views/item-delete.html.h:4
+#: ../pkg/kubernetes/views/route-modify.html.h:3
+#: ../pkg/kubernetes/views/node-add.html.h:7
+#: ../pkg/kubernetes/views/imagestream-delete.html.h:3
+#: ../pkg/kubernetes/views/replicationcontroller-modify.html.h:3
+#: ../pkg/kubernetes/views/add-group-dialog.html.h:5
+#: ../pkg/kubernetes/views/deploy.html.h:4
+#: ../pkg/kubernetes/views/add-user-dialog.html.h:8
+#: ../pkg/kubernetes/views/project-modify.html.h:7
+#: ../pkg/kubernetes/views/image-delete.html.h:3
+#: ../pkg/kubernetes/views/service-modify.html.h:4
+#: ../pkg/storaged/index.html.h:22
 msgid "Cancel"
 msgstr "İptal"
 
@@ -2461,11 +2415,6 @@ msgstr ""
 #: ../pkg/tuned/dialog.html.h:3
 msgid "Change Profile"
 msgstr ""
-
-#: ../pkg/shell/simple.html.h:1 ../pkg/shell/index.html.h:1
-#: ../pkg/systemd/index.html.h:1 ../pkg/dashboard/index.html.h:1
-msgid "Cockpit"
-msgstr "Kokpit"
 
 #: ../pkg/shell/simple.html.h:2 ../pkg/shell/index.html.h:5
 msgid "Ooops!"
@@ -2577,9 +2526,8 @@ msgstr ""
 
 #: ../pkg/shell/templates/sync-users.html.h:5
 #: ../pkg/shell/templates/change-auth.html.h:4
-#, fuzzy
 msgid "User name"
-msgstr "Kullanıcı Adı"
+msgstr ""
 
 #: ../pkg/shell/templates/sync-users.html.h:6
 #: ../pkg/shell/templates/change-auth.html.h:8
@@ -2593,9 +2541,8 @@ msgid "Synchronize"
 msgstr ""
 
 #: ../pkg/shell/templates/unknown-hostkey.html.h:1
-#, fuzzy
 msgid "Unknown Host Key"
-msgstr "Bilinmiyor"
+msgstr ""
 
 #: ../pkg/shell/templates/unknown-hostkey.html.h:2
 msgid ""
@@ -2608,9 +2555,8 @@ msgid "Fingerprint"
 msgstr ""
 
 #: ../pkg/shell/templates/unknown-hostkey.html.h:5
-#, fuzzy
 msgid "Connect"
-msgstr "Bağlantı kesildi"
+msgstr ""
 
 #: ../pkg/shell/templates/change-auth.html.h:1
 msgid "Log in to {{host}}"
@@ -2633,9 +2579,8 @@ msgid "Authentication"
 msgstr "Yetkilendirme"
 
 #: ../pkg/shell/templates/change-auth.html.h:6
-#, fuzzy
 msgid "Type a password"
-msgstr "Parola Belirle"
+msgstr ""
 
 #: ../pkg/shell/templates/change-auth.html.h:7
 msgid "Using available credentials"
@@ -2646,9 +2591,8 @@ msgid "Available"
 msgstr ""
 
 #: ../pkg/shell/templates/change-auth.html.h:10
-#, fuzzy
 msgid "Login Password"
-msgstr "Parola"
+msgstr ""
 
 #: ../pkg/shell/templates/change-auth.html.h:11
 msgid "Kerberos Ticket"
@@ -2659,9 +2603,8 @@ msgid "Checking for public keys"
 msgstr ""
 
 #: ../pkg/shell/templates/change-auth.html.h:14
-#, fuzzy
 msgid "Log In"
-msgstr "Çıkış Yap"
+msgstr ""
 
 #: ../pkg/shell/templates/not-supported.html.h:1
 msgid "Cockpit is not installed"
@@ -2690,9 +2633,8 @@ msgid ""
 msgstr ""
 
 #: ../pkg/shell/templates/auth-failed.html.h:1
-#, fuzzy
 msgid "Authentication Failed"
-msgstr "Yetkilendirme"
+msgstr ""
 
 #: ../pkg/shell/templates/auth-failed.html.h:2
 msgid ""
@@ -2702,9 +2644,8 @@ msgid ""
 msgstr ""
 
 #: ../pkg/shell/templates/auth-failed.html.h:4 ../pkg/shell/index.html.h:30
-#, fuzzy
 msgid "Public Key"
-msgstr "Açık anahtar ekle"
+msgstr ""
 
 #: ../pkg/shell/templates/auth-failed.html.h:5
 msgid "Kerberos Based SSO"
@@ -2732,9 +2673,8 @@ msgid ""
 msgstr ""
 
 #: ../pkg/shell/index.html.h:2
-#, fuzzy
 msgid "Comment"
-msgstr "Komut"
+msgstr ""
 
 #: ../pkg/shell/index.html.h:8
 msgid "Account Settings"
@@ -2760,26 +2700,24 @@ msgid "Details"
 msgstr ""
 
 #: ../pkg/shell/index.html.h:32
-#, fuzzy
 msgid "Unlock Key"
-msgstr "Kilidi Aç"
+msgstr ""
 
-#: ../pkg/shell/index.html.h:33 ../pkg/users/index.html.h:27
+#: ../pkg/shell/index.html.h:33 ../pkg/users/index.html.h:20
 msgid "Old Password"
 msgstr "Eski Parola"
 
-#: ../pkg/shell/index.html.h:34 ../pkg/users/index.html.h:28
+#: ../pkg/shell/index.html.h:34 ../pkg/users/index.html.h:21
 msgid "New Password"
 msgstr "Yeni Parola"
 
-#: ../pkg/shell/index.html.h:35 ../pkg/users/index.html.h:23
+#: ../pkg/shell/index.html.h:35 ../pkg/users/index.html.h:16
 msgid "Confirm"
 msgstr "Onayla"
 
 #: ../pkg/shell/index.html.h:36
-#, fuzzy
 msgid "Change Password"
-msgstr "Parola Belirle"
+msgstr ""
 
 #: ../pkg/shell/index.html.h:38
 msgid ""
@@ -2820,8 +2758,7 @@ msgstr "Tam İsim"
 msgid "User Name"
 msgstr "Kullanıcı Adı"
 
-#: ../pkg/users/index.html.h:9 ../pkg/registry/views/project-panel.html.h:2
-#: ../pkg/registry/views/project-page.html.h:3
+#: ../pkg/users/index.html.h:9 ../pkg/kubernetes/views/project-body.html.h:3
 msgid "Roles"
 msgstr "Roller"
 
@@ -2845,11 +2782,18 @@ msgstr "Parola Belirle"
 msgid "Authorized Public SSH Keys"
 msgstr "Yetkilendirilmiş Açık SSH Anahtarları"
 
-#: ../pkg/users/index.html.h:16
-msgid "Change Picture"
+#: ../pkg/users/index.html.h:17
+msgid ""
+"\n"
+"            Create\n"
+"          "
 msgstr ""
 
-#: ../pkg/users/index.html.h:17 ../pkg/docker/index.html.h:25
+#: ../pkg/users/index.html.h:22
+msgid "Confirm New Password"
+msgstr "Yeni Parolayı Onayla"
+
+#: ../pkg/users/index.html.h:23 ../pkg/docker/index.html.h:27
 #: ../pkg/networkmanager/index.html.h:42
 msgid ""
 "\n"
@@ -2857,454 +2801,56 @@ msgid ""
 "          "
 msgstr ""
 
-#: ../pkg/users/index.html.h:20 ../pkg/docker/index.html.h:34
-msgid ""
-"\n"
-"            Change\n"
-"          "
-msgstr ""
-
-#: ../pkg/users/index.html.h:24
-msgid ""
-"\n"
-"            Create\n"
-"          "
-msgstr ""
-
-#: ../pkg/users/index.html.h:29
-msgid "Confirm New Password"
-msgstr "Yeni Parolayı Onayla"
-
-#: ../pkg/users/index.html.h:30
+#: ../pkg/users/index.html.h:26
 msgid ""
 "\n"
 "            Set\n"
 "          "
 msgstr ""
 
-#: ../pkg/users/index.html.h:33
+#: ../pkg/users/index.html.h:29
 msgid "Delete Files"
 msgstr "Dosyaları Sil"
 
-#: ../pkg/users/index.html.h:34 ../pkg/networkmanager/index.html.h:36
+#: ../pkg/users/index.html.h:30 ../pkg/networkmanager/index.html.h:36
 msgid ""
 "\n"
 "            Delete\n"
 "          "
 msgstr ""
 
-#: ../pkg/users/index.html.h:37
+#: ../pkg/users/index.html.h:33
 msgid "Unnamed"
 msgstr "İsimsiz"
 
-#: ../pkg/users/index.html.h:38
+#: ../pkg/users/index.html.h:34
 msgid "Invalid key"
 msgstr "Geçersiz anahtar"
 
-#: ../pkg/users/index.html.h:39
+#: ../pkg/users/index.html.h:35
 msgid "There are no authorized public keys for this account."
 msgstr "Bu hesap için yetkilendirilmiş açık anahtar yok."
 
-#: ../pkg/users/index.html.h:40
+#: ../pkg/users/index.html.h:36
 msgid ""
 "You do not have permission to view the authorized public keys for this "
 "account."
 msgstr ""
 "Bu hesabın yetkilendirilmiş açık anahtarlarını görmeniz için izniniz yok."
 
-#: ../pkg/users/index.html.h:41
+#: ../pkg/users/index.html.h:37
 msgid "Failed to load authorized keys."
 msgstr "Yetkilendirilmiş anahtarların yüklemesi başarısız oldu."
 
-#: ../pkg/users/index.html.h:42
+#: ../pkg/users/index.html.h:38
 msgid "Add public key"
 msgstr "Açık anahtar ekle"
 
-#: ../pkg/users/index.html.h:43
+#: ../pkg/users/index.html.h:39
 msgid ""
 "\n"
 "            Add key\n"
 "          "
-msgstr ""
-
-#: ../pkg/registry/views/image-config.html.h:1
-msgid "Run as"
-msgstr ""
-
-#: ../pkg/registry/views/image-config.html.h:3
-msgid "Directory"
-msgstr ""
-
-#: ../pkg/registry/views/image-config.html.h:4
-#, fuzzy
-msgid "Stop with"
-msgstr "Durdur"
-
-#: ../pkg/registry/views/image-config.html.h:5
-#: ../pkg/kubernetes/views/container-body.html.h:9
-msgid "Environment"
-msgstr ""
-
-#: ../pkg/registry/views/image-config.html.h:8
-#, fuzzy
-msgid "Volumes"
-msgstr "Mantıksal Bölümler"
-
-#: ../pkg/registry/views/imagestream-modify.html.h:1
-msgid "Create image stream"
-msgstr ""
-
-#: ../pkg/registry/views/imagestream-modify.html.h:2
-msgid "Change image stream"
-msgstr ""
-
-#: ../pkg/registry/views/imagestream-modify.html.h:5
-msgid "Populate"
-msgstr ""
-
-#: ../pkg/registry/views/imagestream-modify.html.h:6
-msgid "Pull from"
-msgstr ""
-
-#: ../pkg/registry/views/image-page.html.h:1
-#: ../pkg/registry/views/dashboard-page.html.h:10
-msgid "Show all images"
-msgstr ""
-
-#: ../pkg/registry/views/image-page.html.h:2
-#: ../pkg/registry/views/image-panel.html.h:1 ../pkg/docker/index.html.h:17
-#: ../pkg/kubernetes/views/container-body.html.h:2
-msgid "Image"
-msgstr "Kalıp"
-
-#: ../pkg/registry/views/image-page.html.h:4
-#: ../pkg/registry/views/image-panel.html.h:3
-#: ../pkg/registry/views/imagestream-page.html.h:3
-msgid "Metadata"
-msgstr ""
-
-#: ../pkg/registry/views/add-project-dialog.html.h:1
-#: ../pkg/registry/views/project-listing.html.h:1
-msgid "New Project"
-msgstr ""
-
-#: ../pkg/registry/views/add-project-dialog.html.h:3
-msgid "Display name"
-msgstr ""
-
-#: ../pkg/registry/views/add-project-dialog.html.h:4
-#: ../pkg/registry/views/project-listing.html.h:4
-msgid "Description"
-msgstr ""
-
-#: ../pkg/registry/views/filter-bar.html.h:1
-#: ../pkg/kubernetes/views/filter-bar.html.h:1
-msgid "Expand items inline"
-msgstr ""
-
-#: ../pkg/registry/views/filter-bar.html.h:2
-#: ../pkg/kubernetes/views/filter-bar.html.h:2
-msgid "Only expanded items"
-msgstr ""
-
-#: ../pkg/registry/views/filter-bar.html.h:3
-#: ../pkg/kubernetes/views/filter-bar.html.h:3
-msgid "Collapse all"
-msgstr ""
-
-#: ../pkg/registry/views/filter-bar.html.h:4
-#: ../pkg/kubernetes/views/filter-bar.html.h:4
-msgid "All Projects"
-msgstr ""
-
-#: ../pkg/registry/views/filter-bar.html.h:5
-#: ../pkg/kubernetes/views/filter-bar.html.h:5
-msgid "Project:"
-msgstr ""
-
-#: ../pkg/registry/views/image-meta.html.h:1
-#: ../pkg/kubernetes/views/route-panel.html.h:8
-#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:8
-#: ../pkg/kubernetes/views/service-panel.html.h:11
-#: ../pkg/kubernetes/views/pod-body.html.h:10
-#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:10
-#: ../pkg/kubernetes/views/node-panel.html.h:9
-msgid "Labels"
-msgstr ""
-
-#: ../pkg/registry/views/image-meta.html.h:2
-msgid "On Build"
-msgstr ""
-
-#: ../pkg/registry/views/image-meta.html.h:3
-#: ../pkg/kubernetes/views/route-panel.html.h:10
-#: ../pkg/kubernetes/views/node-panel.html.h:19
-#, fuzzy
-msgid "Annotations"
-msgstr "Yetkilendirme"
-
-#: ../pkg/registry/views/image-meta.html.h:4
-#, fuzzy
-msgid "Docker Version"
-msgstr "Sürüm"
-
-#: ../pkg/registry/views/imagestream-delete.html.h:1
-#, fuzzy
-msgid "Delete image stream"
-msgstr "Dosyaları Sil"
-
-#: ../pkg/registry/views/imagestream-delete.html.h:2
-msgid ""
-"Do you want to delete the '{{stream.metadata.namespace}}/{{stream.metadata."
-"name}}' image stream?"
-msgstr ""
-
-#: ../pkg/registry/views/project-panel.html.h:1
-#: ../pkg/registry/views/project-page.html.h:2
-#, fuzzy
-msgid "Project Members"
-msgstr "Üyeler"
-
-#: ../pkg/registry/views/project-panel.html.h:3
-#: ../pkg/registry/views/project-page.html.h:4
-#, fuzzy
-msgid "Add Member"
-msgstr "RAID Üyesi"
-
-#: ../pkg/registry/views/add-group-dialog.html.h:1
-msgid "Add Group"
-msgstr ""
-
-#: ../pkg/registry/views/add-group-dialog.html.h:2
-#: ../pkg/registry/views/add-user-dialog.html.h:2
-msgid ""
-"\n"
-"                        Name\n"
-"                    "
-msgstr ""
-
-#: ../pkg/registry/views/project-listing.html.h:2
-#: ../pkg/registry/views/dashboard-page.html.h:6
-msgid "Projects"
-msgstr ""
-
-#: ../pkg/registry/views/project-listing.html.h:6
-msgid "New Group"
-msgstr ""
-
-#: ../pkg/registry/views/project-listing.html.h:7
-#: ../pkg/registry/views/dashboard-page.html.h:8
-msgid "Groups"
-msgstr ""
-
-#: ../pkg/registry/views/project-listing.html.h:8
-#: ../pkg/registry/views/add-user-dialog.html.h:1
-#, fuzzy
-msgid "Add User"
-msgstr "Kullanıcı"
-
-#: ../pkg/registry/views/project-listing.html.h:9
-#: ../pkg/registry/views/dashboard-page.html.h:7
-#, fuzzy
-msgid "Users"
-msgstr "Kullanıcı"
-
-#: ../pkg/registry/views/project-listing.html.h:10
-msgid "Identity"
-msgstr ""
-
-#: ../pkg/registry/views/project-listing.html.h:11
-#, fuzzy
-msgid "Member of"
-msgstr "Üyeler"
-
-#: ../pkg/registry/views/imagestream-page.html.h:1
-msgid "Show all image streams"
-msgstr ""
-
-#: ../pkg/registry/views/imagestream-page.html.h:2
-#, fuzzy
-msgid "Image Stream"
-msgstr "Kalıp $0"
-
-#: ../pkg/registry/views/image-listing.html.h:1
-#: ../pkg/registry/views/dashboard-page.html.h:4
-msgid "New image stream"
-msgstr ""
-
-#: ../pkg/registry/views/image-listing.html.h:2
-#: ../pkg/registry/views/dashboard-page.html.h:1
-#: ../pkg/kubernetes/views/images-page.html.h:3
-#, fuzzy
-msgid "Images"
-msgstr "Kalıp"
-
-#: ../pkg/registry/views/image-listing.html.h:3
-#: ../pkg/registry/views/image-body.html.h:1
-#: ../pkg/kubernetes/views/imagerepository-panel.html.h:3
-msgid "Tags"
-msgstr ""
-
-#: ../pkg/registry/views/image-listing.html.h:4
-#: ../pkg/registry/views/image-body.html.h:3 ../pkg/docker/index.html.h:39
-#: ../pkg/kubernetes/views/imagerepository-panel.html.h:4
-msgid "Author"
-msgstr "Yazar"
-
-#: ../pkg/registry/views/image-listing.html.h:5
-#: ../pkg/kubernetes/views/images-page.html.h:4
-#: ../pkg/kubernetes/views/imagerepository-panel.html.h:8
-msgid "Last Updated"
-msgstr ""
-
-#: ../pkg/registry/views/add-user-dialog.html.h:5
-msgid ""
-"\n"
-"                        Identity\n"
-"                    "
-msgstr ""
-
-#: ../pkg/registry/views/project-page.html.h:1
-msgid "{{ project().metadata.name }}"
-msgstr ""
-
-#: ../pkg/registry/views/dashboard-page.html.h:2
-msgid "Image streams"
-msgstr ""
-
-#: ../pkg/registry/views/dashboard-page.html.h:3
-msgid "Last 30 Days"
-msgstr ""
-
-#: ../pkg/registry/views/dashboard-page.html.h:5
-#, fuzzy
-msgid "Storage Space"
-msgstr "Depolama"
-
-#: ../pkg/registry/views/dashboard-page.html.h:9
-msgid "Images pushed recently"
-msgstr ""
-
-#: ../pkg/registry/views/dashboard-page.html.h:11
-msgid "Images by project"
-msgstr ""
-
-#: ../pkg/registry/views/dashboard-page.html.h:12
-msgid "Docker commands"
-msgstr ""
-
-#: ../pkg/registry/views/dashboard-page.html.h:13
-msgid "Log into the registry:"
-msgstr ""
-
-#: ../pkg/registry/views/dashboard-page.html.h:14
-msgid ""
-"Your login credentials do not give you access to use the docker registry "
-"from the command line."
-msgstr ""
-
-#: ../pkg/registry/views/dashboard-page.html.h:15
-msgid "Push an image:"
-msgstr ""
-
-#: ../pkg/registry/views/dashboard-page.html.h:16
-#, fuzzy
-msgid "Pull an image:"
-msgstr "Tam İsim"
-
-#: ../pkg/registry/views/imagestream-body.html.h:1
-#, fuzzy
-msgid "Pull repository"
-msgstr "Depo"
-
-#: ../pkg/registry/views/imagestream-body.html.h:3
-msgid "Pull tags"
-msgstr ""
-
-#: ../pkg/registry/views/imagestream-body.html.h:4 ../pkg/systemd/logs.html.h:9
-#: ../pkg/docker/index.html.h:10
-msgid "All"
-msgstr "Hepsi"
-
-#: ../pkg/registry/views/imagestream-body.html.h:5
-#, fuzzy
-msgid "Image count"
-msgstr "Kalıp $0"
-
-#: ../pkg/registry/views/imagestream-body.html.h:6
-msgid "{{stream.status.tags.length}}"
-msgstr ""
-
-#: ../pkg/registry/views/imagestream-body.html.h:7
-msgid "To push to an image to this image stream:"
-msgstr ""
-
-#: ../pkg/registry/views/image-body.html.h:2
-msgid "Change tags"
-msgstr ""
-
-#: ../pkg/registry/views/image-body.html.h:5
-#: ../pkg/kubernetes/views/route-panel.html.h:3
-#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:6
-#: ../pkg/kubernetes/views/service-panel.html.h:5
-#: ../pkg/kubernetes/views/pod-body.html.h:3
-#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:5
-#: ../pkg/kubernetes/views/node-panel.html.h:1
-#, fuzzy
-msgid "Created"
-msgstr "Yarat"
-
-#: ../pkg/registry/views/image-body.html.h:6
-msgid "Pushed"
-msgstr ""
-
-#: ../pkg/registry/views/image-body.html.h:7
-#: ../pkg/kubernetes/views/imagerepository-panel.html.h:6
-#: ../pkg/subscriptions/index.html.h:44
-msgid "Architecture"
-msgstr ""
-
-#: ../pkg/registry/views/image-body.html.h:8
-msgid "Digest"
-msgstr ""
-
-#: ../pkg/registry/views/image-body.html.h:9
-msgid "Identifier"
-msgstr ""
-
-#: ../pkg/registry/views/image-body.html.h:10
-msgid "To pull this image:"
-msgstr ""
-
-#: ../pkg/registry/views/image-delete.html.h:1
-msgid "Remove image tag"
-msgstr ""
-
-#: ../pkg/registry/views/image-delete.html.h:2
-msgid ""
-"Do you want to remove the image tagged as '{{stream.metadata.namespace}}/"
-"{{stream.metadata.name}}:{{tag.tag}}'?"
-msgstr ""
-
-#: ../pkg/registry/index.html.h:1
-msgid "Image Registry"
-msgstr ""
-
-#: ../pkg/registry/index.html.h:2 ../pkg/kubernetes/index.html.h:2
-#, fuzzy
-msgid "Connecting..."
-msgstr "Docker'a bağlanılıyor"
-
-#: ../pkg/registry/index.html.h:3 ../pkg/kubernetes/index.html.h:3
-#, fuzzy
-msgid "Couldn't connect to server"
-msgstr "Kubernetes sunucusuna bağlanılamadı"
-
-#: ../pkg/registry/index.html.h:4 ../pkg/kubernetes/index.html.h:4
-msgid ""
-"\n"
-"                Reconnect\n"
-"            "
 msgstr ""
 
 #: ../pkg/systemd/terminal.html.h:1
@@ -3341,9 +2887,8 @@ msgid "Instantiate"
 msgstr ""
 
 #: ../pkg/systemd/services.html.h:8
-#, fuzzy
 msgid "Service Logs"
-msgstr "Servisler"
+msgstr ""
 
 #: ../pkg/systemd/services.html.h:9
 msgid "Note"
@@ -3385,9 +2930,8 @@ msgid "Operating System"
 msgstr ""
 
 #: ../pkg/systemd/index.html.h:10 ../pkg/dashboard/index.html.h:3
-#, fuzzy
 msgid "Host Name"
-msgstr "Gerçek Host İsmi"
+msgstr ""
 
 #: ../pkg/systemd/index.html.h:11
 msgid "Domain"
@@ -3406,9 +2950,8 @@ msgid "Performance Profile"
 msgstr ""
 
 #: ../pkg/systemd/index.html.h:15
-#, fuzzy
 msgid "Store Performance Data"
-msgstr "Performans verisini depola"
+msgstr ""
 
 #: ../pkg/systemd/index.html.h:18
 msgid "Pretty Host Name"
@@ -3450,6 +2993,34 @@ msgstr ""
 msgid "Delay"
 msgstr "Gecikme"
 
+#: ../pkg/systemd/index.html.h:31
+msgid "1 Minute"
+msgstr "1 dakika"
+
+#: ../pkg/systemd/index.html.h:32
+msgid "5 Minutes"
+msgstr "5 dakika"
+
+#: ../pkg/systemd/index.html.h:33
+msgid "20 Minutes"
+msgstr "20 dakika"
+
+#: ../pkg/systemd/index.html.h:34
+msgid "40 Minutes"
+msgstr "40 dakika"
+
+#: ../pkg/systemd/index.html.h:35
+msgid "60 Minutes"
+msgstr "60 dakika"
+
+#: ../pkg/systemd/index.html.h:36
+msgid "No Delay"
+msgstr "Gecikme yok"
+
+#: ../pkg/systemd/index.html.h:37
+msgid "Specific Time"
+msgstr "Özel Bir Zamanda"
+
 #: ../pkg/systemd/logs.html.h:1
 msgid "Journal"
 msgstr ""
@@ -3481,6 +3052,10 @@ msgstr ""
 #: ../pkg/systemd/logs.html.h:8
 msgid "Notices"
 msgstr ""
+
+#: ../pkg/systemd/logs.html.h:9 ../pkg/docker/index.html.h:10
+msgid "All"
+msgstr "Hepsi"
 
 #: ../pkg/systemd/logs.html.h:10
 #: ../pkg/kubernetes/views/container-panel.html.h:2
@@ -3557,60 +3132,88 @@ msgid ""
 msgstr ""
 
 #: ../pkg/docker/index.html.h:15
+msgid "TCP"
+msgstr "TCP"
+
+#: ../pkg/docker/index.html.h:16
 msgid "{{host_port_label}}"
 msgstr ""
 
-#: ../pkg/docker/index.html.h:16
+#: ../pkg/docker/index.html.h:17
+#, fuzzy
+msgid "select container"
+msgstr "Konteyner"
+
+#: ../pkg/docker/index.html.h:18
 msgid "{{alias_label}}"
 msgstr ""
 
-#: ../pkg/docker/index.html.h:18
+#: ../pkg/docker/index.html.h:19 ../pkg/kubernetes/views/image-page.html.h:2
+#: ../pkg/kubernetes/views/image-panel.html.h:1
+#: ../pkg/kubernetes/views/container-body.html.h:2
+msgid "Image"
+msgstr "Kalıp"
+
+#: ../pkg/docker/index.html.h:20
 msgid "Container Name"
 msgstr "Konteyner İsmi"
 
-#: ../pkg/docker/index.html.h:19
+#: ../pkg/docker/index.html.h:21
 msgid "Command"
 msgstr "Komut"
 
-#: ../pkg/docker/index.html.h:20
+#: ../pkg/docker/index.html.h:22
 msgid "Memory limit"
 msgstr "Bellek limiti"
 
-#: ../pkg/docker/index.html.h:21
+#: ../pkg/docker/index.html.h:23
 msgid "CPU priority"
 msgstr "CPU önceliği"
 
-#: ../pkg/docker/index.html.h:22
+#: ../pkg/docker/index.html.h:24
 msgid "With terminal"
 msgstr "Terminal ile"
 
-#: ../pkg/docker/index.html.h:23
+#: ../pkg/docker/index.html.h:25
 msgid "Links"
 msgstr "Linkler"
 
-#: ../pkg/docker/index.html.h:28
+#: ../pkg/docker/index.html.h:30
 msgid ""
 "\n"
 "            Run\n"
 "          "
 msgstr ""
 
-#: ../pkg/docker/index.html.h:31
+#: ../pkg/docker/index.html.h:33
 msgid ""
 "\n"
 "            Download\n"
 "          "
 msgstr ""
 
-#: ../pkg/docker/index.html.h:37
+#: ../pkg/docker/index.html.h:36
+msgid ""
+"\n"
+"            Change\n"
+"          "
+msgstr ""
+
+#: ../pkg/docker/index.html.h:39
 msgid "Repository"
 msgstr "Depo"
 
-#: ../pkg/docker/index.html.h:38
+#: ../pkg/docker/index.html.h:40
 msgid "Tag"
 msgstr "Etiket"
 
-#: ../pkg/docker/index.html.h:40
+#: ../pkg/docker/index.html.h:41 ../pkg/kubernetes/views/image-listing.html.h:4
+#: ../pkg/kubernetes/views/image-body.html.h:4
+#: ../pkg/kubernetes/views/imagerepository-panel.html.h:4
+msgid "Author"
+msgstr "Yazar"
+
+#: ../pkg/docker/index.html.h:42
 msgid ""
 "\n"
 "            Commit\n"
@@ -3640,9 +3243,8 @@ msgid ""
 msgstr ""
 
 #: ../pkg/playground/patterns.html.h:9
-#, fuzzy
 msgid "One"
-msgstr "Açık"
+msgstr ""
 
 #: ../pkg/playground/patterns.html.h:10
 msgid ""
@@ -3687,9 +3289,8 @@ msgid ""
 msgstr ""
 
 #: ../pkg/playground/test.html.h:1
-#, fuzzy
 msgid "Cockpit terminal"
-msgstr "Terminal ile"
+msgstr ""
 
 #: ../pkg/playground/test.html.h:2 ../pkg/networkmanager/index.html.h:1
 msgid "Networking"
@@ -3707,37 +3308,143 @@ msgstr ""
 msgid "Set"
 msgstr ""
 
+#: ../pkg/kubernetes/views/image-config.html.h:1
+msgid "Run as"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-config.html.h:3
+msgid "Directory"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-config.html.h:4
+msgid "Stop with"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-config.html.h:5
+#: ../pkg/kubernetes/views/imagerepository-panel.html.h:6
+#: ../pkg/subscriptions/index.html.h:44
+msgid "Architecture"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-config.html.h:6
+#: ../pkg/kubernetes/views/container-body.html.h:9
+msgid "Environment"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-config.html.h:9
+msgid "Volumes"
+msgstr ""
+
+#: ../pkg/kubernetes/views/route-panel.html.h:1
+#: ../pkg/kubernetes/views/imagestream-modify.html.h:4
+#: ../pkg/kubernetes/views/containers-page.html.h:4
+#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:4
+#: ../pkg/kubernetes/views/service-panel.html.h:3
+#: ../pkg/kubernetes/views/pod-body.html.h:1
+#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:3
+#: ../pkg/kubernetes/views/dashboard-page.html.h:8
+#: ../pkg/kubernetes/views/details-page.html.h:7
+msgid "Project"
+msgstr ""
+
+#: ../pkg/kubernetes/views/route-panel.html.h:2
+#: ../pkg/kubernetes/views/containers-page.html.h:5
+#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:5
+#: ../pkg/kubernetes/views/service-panel.html.h:4
+#: ../pkg/kubernetes/views/pod-body.html.h:2
+#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:4
+#: ../pkg/kubernetes/views/dashboard-page.html.h:9
+#: ../pkg/kubernetes/views/pvc-body.html.h:2
+#: ../pkg/kubernetes/views/details-page.html.h:8
+msgid "Namespace"
+msgstr ""
+
+#: ../pkg/kubernetes/views/route-panel.html.h:3
+#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:6
+#: ../pkg/kubernetes/views/service-panel.html.h:5
+#: ../pkg/kubernetes/views/pod-body.html.h:3
+#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:5
+#: ../pkg/kubernetes/views/node-panel.html.h:1
+msgid "Created"
+msgstr ""
+
 #: ../pkg/kubernetes/views/route-panel.html.h:5
 msgid "TLS Termination"
 msgstr ""
 
 #: ../pkg/kubernetes/views/route-panel.html.h:6
-#, fuzzy
 msgid "yes"
-msgstr "Evet"
+msgstr ""
 
 #: ../pkg/kubernetes/views/route-panel.html.h:7
-#, fuzzy
 msgid "no"
-msgstr "hiç biri"
+msgstr ""
+
+#: ../pkg/kubernetes/views/route-panel.html.h:8
+#: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:8
+#: ../pkg/kubernetes/views/image-meta.html.h:1
+#: ../pkg/kubernetes/views/service-panel.html.h:11
+#: ../pkg/kubernetes/views/pod-body.html.h:10
+#: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:10
+#: ../pkg/kubernetes/views/node-panel.html.h:9
+msgid "Labels"
+msgstr "Etiketler"
+
+#: ../pkg/kubernetes/views/route-panel.html.h:10
+#: ../pkg/kubernetes/views/imagestream-meta.html.h:1
+#: ../pkg/kubernetes/views/image-meta.html.h:3
+#: ../pkg/kubernetes/views/node-panel.html.h:19
+msgid "Annotations"
+msgstr ""
+
+#: ../pkg/kubernetes/views/imagestream-modify.html.h:1
+msgid "Create image stream"
+msgstr ""
+
+#: ../pkg/kubernetes/views/imagestream-modify.html.h:2
+msgid "Change image stream"
+msgstr ""
+
+#: ../pkg/kubernetes/views/imagestream-modify.html.h:5
+msgid "Populate"
+msgstr ""
+
+#: ../pkg/kubernetes/views/imagestream-modify.html.h:6
+msgid "Pull from"
+msgstr ""
+
+#: ../pkg/kubernetes/views/item-delete.html.h:1
+msgid "Delete {{ item.kind }}"
+msgstr ""
+
+#: ../pkg/kubernetes/views/item-delete.html.h:2
+msgid "Do you want to delete the {{ item.kind }} '{{item.metadata.name}}'?"
+msgstr ""
+
+#: ../pkg/kubernetes/views/item-delete.html.h:3
+msgid ""
+"Deleting a Pod will kill all associated containers. Pods may be "
+"automatically created again in some cases."
+msgstr ""
 
 #: ../pkg/kubernetes/views/containers-page.html.h:3
 #: ../pkg/kubernetes/views/topology-page.html.h:2
 msgid "Pod"
-msgstr ""
+msgstr "Pod"
 
 #: ../pkg/kubernetes/views/containers-page.html.h:6
 #: ../pkg/kubernetes/views/topology-page.html.h:11
 #: ../pkg/kubernetes/views/pod-body.html.h:8
 msgid "Node"
-msgstr ""
+msgstr "Düğüm"
 
 #: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:1
 #: ../pkg/kubernetes/views/topology-page.html.h:5
 msgid "Replication Controller"
-msgstr ""
+msgstr "Replikasyon Kontrolörü"
 
 #: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:2
+#: ../pkg/kubernetes/views/pvc-body.html.h:9
 #: ../pkg/kubernetes/views/details-page.html.h:20
 msgid "Pods"
 msgstr ""
@@ -3748,9 +3455,9 @@ msgid "Template"
 msgstr ""
 
 #: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:7
+#: ../pkg/kubernetes/views/replicationcontroller-modify.html.h:2
 #: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:6
 #: ../pkg/kubernetes/views/details-page.html.h:19
-#: ../pkg/kubernetes/index.html.h:30
 msgid "Replicas"
 msgstr ""
 
@@ -3767,18 +3474,154 @@ msgstr ""
 msgid "Pod Selector"
 msgstr ""
 
-#: ../pkg/kubernetes/views/filter-bar.html.h:6
-#, fuzzy
-msgid "All Namespaces"
-msgstr "Tam İsim"
+#: ../pkg/kubernetes/views/route-modify.html.h:1
+msgid "Adjust Route"
+msgstr ""
 
-#: ../pkg/kubernetes/views/filter-bar.html.h:7
-msgid "Namespace:"
+#: ../pkg/kubernetes/views/image-page.html.h:1
+msgid "Show all images"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-page.html.h:4
+#: ../pkg/kubernetes/views/image-panel.html.h:3
+#: ../pkg/kubernetes/views/imagestream-page.html.h:4
+msgid "Metadata"
+msgstr ""
+
+#: ../pkg/kubernetes/views/node-add.html.h:1
+#, fuzzy
+msgid "Add Cluster Node"
+msgstr "Küme Düğümü Ekle"
+
+#: ../pkg/kubernetes/views/node-add.html.h:4
+#, fuzzy
+msgid "Configuration"
+msgstr "Ayarlanıyor"
+
+#: ../pkg/kubernetes/views/node-add.html.h:5
+msgid "Configure Kubelet and Proxy"
+msgstr ""
+
+#: ../pkg/kubernetes/views/node-add.html.h:6
+msgid "Configure Flannel networking"
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:1
+msgid "Welcome to the Image Registry"
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:2
+msgid ""
+"In order to begin pushing images to the registry, you need to create a "
+"project."
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:3
+#: ../pkg/kubernetes/views/project-modify.html.h:1
+msgid "New project"
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:4
+msgid "Images by project"
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:5
+msgid "Images pushed recently"
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:6
+msgid "All images"
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:7
+msgid "No images pushed"
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:8
+msgid ""
+"In order to begin pushing images to the registry, use the commands below."
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:9
+#: ../pkg/kubernetes/views/image-listing.html.h:1
+msgid "New image stream"
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:10
+msgid "Docker commands"
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:11
+msgid "Log into the registry:"
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:12
+msgid ""
+"Your login credentials do not give you access to use the docker registry "
+"from the command line."
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:13
+msgid "Push an image:"
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:14
+msgid "Pull an image:"
+msgstr ""
+
+#: ../pkg/kubernetes/views/filter-project.html.h:1
+msgid "All Projects"
+msgstr ""
+
+#: ../pkg/kubernetes/views/filter-project.html.h:2
+msgid "Project:"
+msgstr ""
+
+#: ../pkg/kubernetes/views/filter-bar.html.h:1
+msgid "Expand items inline"
+msgstr ""
+
+#: ../pkg/kubernetes/views/filter-bar.html.h:2
+msgid "Only expanded items"
+msgstr ""
+
+#: ../pkg/kubernetes/views/filter-bar.html.h:3
+msgid "Collapse all"
+msgstr ""
+
+#: ../pkg/kubernetes/views/project-body.html.h:1
+msgid "This project allows non-members to pull images."
+msgstr ""
+
+#: ../pkg/kubernetes/views/project-body.html.h:2
+msgid "Project Members"
+msgstr ""
+
+#: ../pkg/kubernetes/views/project-body.html.h:4
+msgid "Add Member"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-meta.html.h:2
+msgid "On Build"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-meta.html.h:4
+msgid "Docker Version"
+msgstr ""
+
+#: ../pkg/kubernetes/views/imagestream-delete.html.h:1
+msgid "Delete image stream"
+msgstr ""
+
+#: ../pkg/kubernetes/views/imagestream-delete.html.h:2
+msgid ""
+"Do you want to delete the '{{stream.metadata.namespace}}/{{stream.metadata."
+"name}}' image stream?"
 msgstr ""
 
 #: ../pkg/kubernetes/views/topology-page.html.h:1
 msgid "Select an object to see more details."
-msgstr ""
+msgstr "Daha fazla ayrıntı için bir obje seçin."
 
 #: ../pkg/kubernetes/views/topology-page.html.h:3
 msgid ""
@@ -3793,9 +3636,8 @@ msgid ""
 msgstr ""
 
 #: ../pkg/kubernetes/views/topology-page.html.h:8
-#, fuzzy
 msgid "Service"
-msgstr "Servisler"
+msgstr "Servis"
 
 #: ../pkg/kubernetes/views/topology-page.html.h:9
 msgid ""
@@ -3806,38 +3648,49 @@ msgstr ""
 
 #: ../pkg/kubernetes/views/topology-page.html.h:12
 msgid "Nodes are the machines that run your containers."
-msgstr ""
+msgstr "Düğümler, konteynerlerinizi çalıştıran makinelerdir."
 
 #: ../pkg/kubernetes/views/container-body.html.h:3
-#, fuzzy
 msgid "Image ID"
-msgstr "Kalıp"
+msgstr ""
 
 #: ../pkg/kubernetes/views/container-body.html.h:4
-#, fuzzy
 msgid "Container ID"
-msgstr "Konteyner"
+msgstr ""
 
 #: ../pkg/kubernetes/views/container-body.html.h:6
 #: ../pkg/kubernetes/views/details-page.html.h:10
-#, fuzzy
 msgid "State"
-msgstr "Durum"
+msgstr ""
 
 #: ../pkg/kubernetes/views/container-body.html.h:7
 msgid "Since"
 msgstr ""
 
 #: ../pkg/kubernetes/views/container-body.html.h:8
-#, fuzzy
 msgid "Restart Count"
-msgstr "Yeniden başlat"
+msgstr ""
+
+#: ../pkg/kubernetes/views/replicationcontroller-modify.html.h:1
+msgid "Adjust Replication Controller {{ item.metadata.name }}"
+msgstr ""
+
+#: ../pkg/kubernetes/views/add-group-dialog.html.h:1
+msgid "Add Group"
+msgstr ""
+
+#: ../pkg/kubernetes/views/add-group-dialog.html.h:2
+#: ../pkg/kubernetes/views/add-user-dialog.html.h:2
+msgid ""
+"\n"
+"                        Name\n"
+"                    "
+msgstr ""
 
 #: ../pkg/kubernetes/views/service-panel.html.h:6
 #: ../pkg/kubernetes/views/node-panel.html.h:3
-#, fuzzy
 msgid "IP"
-msgstr "IPv4"
+msgstr ""
 
 #: ../pkg/kubernetes/views/service-panel.html.h:10
 msgid "Session Affinity"
@@ -3851,29 +3704,65 @@ msgstr ""
 msgid "No pods selected"
 msgstr ""
 
-#: ../pkg/kubernetes/views/images-page.html.h:1
-#, fuzzy
-msgid "Image Repositories"
-msgstr "Depo"
-
-#: ../pkg/kubernetes/views/images-page.html.h:2
-#, fuzzy
-msgid "Image Repository"
-msgstr "Depo"
-
-#: ../pkg/kubernetes/views/images-page.html.h:5
-msgid "No image repositories are present."
+#: ../pkg/kubernetes/views/project-listing.html.h:1
+msgid "New Project"
 msgstr ""
 
+#: ../pkg/kubernetes/views/project-listing.html.h:2
+msgid "Projects"
+msgstr ""
+
+#: ../pkg/kubernetes/views/project-listing.html.h:4
+#: ../pkg/kubernetes/views/project-modify.html.h:5
+#: ../pkg/kubernetes/views/image-body.html.h:2
+msgid "Description"
+msgstr ""
+
+#: ../pkg/kubernetes/views/project-listing.html.h:6
+msgid "New Group"
+msgstr ""
+
+#: ../pkg/kubernetes/views/project-listing.html.h:7
+msgid "Groups"
+msgstr ""
+
+#: ../pkg/kubernetes/views/project-listing.html.h:8
+#: ../pkg/kubernetes/views/add-user-dialog.html.h:1
+msgid "Add User"
+msgstr ""
+
+#: ../pkg/kubernetes/views/project-listing.html.h:9
+msgid "Users"
+msgstr ""
+
+#: ../pkg/kubernetes/views/project-listing.html.h:10
+msgid "Identity"
+msgstr ""
+
+#: ../pkg/kubernetes/views/project-listing.html.h:11
+msgid "Member of"
+msgstr ""
+
+#: ../pkg/kubernetes/views/deploy.html.h:1
+msgid "Deploy Application"
+msgstr "Uygulamayı Devreye Al"
+
+#: ../pkg/kubernetes/views/deploy.html.h:3
+msgid "{{ selected.name }}"
+msgstr ""
+
+#: ../pkg/kubernetes/views/deploy.html.h:5
+#: ../pkg/kubernetes/views/dashboard-page.html.h:1
+msgid "Deploy"
+msgstr "Devreye Al"
+
 #: ../pkg/kubernetes/views/pod-body.html.h:4
-#, fuzzy
 msgid "Restart Policy"
-msgstr "Yeniden başlat"
+msgstr ""
 
 #: ../pkg/kubernetes/views/pod-body.html.h:5
-#, fuzzy
 msgid "Service Account"
-msgstr "Hesabı Kilitle"
+msgstr ""
 
 #: ../pkg/kubernetes/views/pod-body.html.h:6
 msgid "DNS Policy"
@@ -3884,9 +3773,8 @@ msgid "Phase"
 msgstr ""
 
 #: ../pkg/kubernetes/views/pod-body.html.h:9
-#, fuzzy
 msgid "Pod Address"
-msgstr "Adres"
+msgstr ""
 
 #: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:1
 msgid "Deployment Config"
@@ -3894,9 +3782,8 @@ msgstr ""
 
 #: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:7
 #: ../pkg/kubernetes/views/details-page.html.h:16
-#, fuzzy
 msgid "Latest Version"
-msgstr "Sürüm"
+msgstr ""
 
 #: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:8
 msgid "Deployment Causes"
@@ -3906,31 +3793,171 @@ msgstr ""
 msgid "Triggers"
 msgstr ""
 
+#: ../pkg/kubernetes/views/imagestream-page.html.h:1
+msgid "Show all image streams"
+msgstr ""
+
+#: ../pkg/kubernetes/views/imagestream-page.html.h:2
+msgid "Image Stream"
+msgstr ""
+
+#: ../pkg/kubernetes/views/imagestream-page.html.h:3
+#: ../pkg/kubernetes/views/image-listing.html.h:2
+msgid "Images"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-listing.html.h:3
+#: ../pkg/kubernetes/views/image-body.html.h:9
+#: ../pkg/kubernetes/views/imagerepository-panel.html.h:3
+msgid "Tags"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-listing.html.h:5
+#: ../pkg/kubernetes/views/imagerepository-panel.html.h:8
+msgid "Last Updated"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-listing.html.h:6
+msgid "No image streams are present."
+msgstr ""
+
+#: ../pkg/kubernetes/views/add-user-dialog.html.h:5
+msgid ""
+"\n"
+"                        Identity\n"
+"                    "
+msgstr ""
+
 #: ../pkg/kubernetes/views/container-panel.html.h:3
 msgid "Shell"
 msgstr ""
 
-#: ../pkg/kubernetes/views/dashboard-page.html.h:1
-msgid "Deploy"
+#: ../pkg/kubernetes/views/project-modify.html.h:2
+msgid "Change project"
 msgstr ""
 
-#: ../pkg/kubernetes/views/dashboard-page.html.h:2
+#: ../pkg/kubernetes/views/project-modify.html.h:4
+msgid "Display name"
+msgstr ""
+
+#: ../pkg/kubernetes/views/project-modify.html.h:6
 #, fuzzy
+msgid "Access Policy"
+msgstr "Erişim"
+
+#: ../pkg/kubernetes/views/project-page.html.h:1
+msgid "Show all projects"
+msgstr ""
+
+#: ../pkg/kubernetes/views/project-page.html.h:2
+#, fuzzy
+msgid "Membership"
+msgstr "Üyeler"
+
+#: ../pkg/kubernetes/views/dashboard-page.html.h:2
 msgid "Kubernetes Services"
-msgstr "Kubernetes kümesi"
+msgstr "Kubernetes Servisleri"
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:3
 msgid "Could not list services"
-msgstr ""
+msgstr "Servisler listelenemedi"
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:4
 msgid "You can deploy an application to your cluster."
 msgstr ""
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:10
-#, fuzzy
 msgid "Kubernetes Nodes"
-msgstr "Kubernetes kümesi"
+msgstr "Kubernetes Düğümleri"
+
+#: ../pkg/kubernetes/views/imagestream-body.html.h:1
+msgid "Pull repository"
+msgstr ""
+
+#: ../pkg/kubernetes/views/imagestream-body.html.h:3
+msgid "Image count"
+msgstr ""
+
+#: ../pkg/kubernetes/views/imagestream-body.html.h:4
+msgid "{{stream.status.tags.length}}"
+msgstr ""
+
+#: ../pkg/kubernetes/views/imagestream-body.html.h:5
+msgid "To push to an image to this image stream:"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-body.html.h:1
+msgid "Summary"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-body.html.h:3
+msgid "Source URL"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-body.html.h:6
+msgid "Built"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-body.html.h:7
+msgid "Digest"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-body.html.h:8
+msgid "Identifier"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-body.html.h:10
+msgid "To pull this image:"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-delete.html.h:1
+msgid "Remove image tag"
+msgstr ""
+
+#: ../pkg/kubernetes/views/image-delete.html.h:2
+msgid ""
+"Do you want to remove the image tagged as '{{stream.metadata.namespace}}/"
+"{{stream.metadata.name}}:{{tag.tag}}'?"
+msgstr ""
+
+#: ../pkg/kubernetes/views/pvc-body.html.h:3
+msgid "Requested Access Modes"
+msgstr ""
+
+#: ../pkg/kubernetes/views/pvc-body.html.h:4
+msgid "Volume Access Modes"
+msgstr ""
+
+#: ../pkg/kubernetes/views/pvc-body.html.h:5
+#, fuzzy
+msgid "Requested Capacity"
+msgstr "Kapasite"
+
+#: ../pkg/kubernetes/views/pvc-body.html.h:6
+#, fuzzy
+msgid "Volume Capacity"
+msgstr "Kapasite"
+
+#: ../pkg/kubernetes/views/pvc-body.html.h:8
+#: ../pkg/kubernetes/views/node-panel.html.h:16
+msgid "Message"
+msgstr ""
+
+#: ../pkg/kubernetes/views/pvc-body.html.h:10
+msgid "No Pods are using this claim"
+msgstr ""
+
+#: ../pkg/kubernetes/views/service-modify.html.h:1
+msgid "Adjust Service"
+msgstr "Servisi Ayarla"
+
+#: ../pkg/kubernetes/views/service-modify.html.h:3
+msgid "{{ item.name }}"
+msgstr ""
+
+#: ../pkg/kubernetes/views/service-modify.html.h:5
+msgid "Adjust"
+msgstr "Ayarla"
 
 #: ../pkg/kubernetes/views/imagerepository-panel.html.h:1
 msgid "From:"
@@ -3941,13 +3968,16 @@ msgid "Projects:"
 msgstr ""
 
 #: ../pkg/kubernetes/views/imagerepository-panel.html.h:5
-#, fuzzy
 msgid "Docker"
-msgstr "Docker'ı Başlat"
+msgstr ""
+
+#: ../pkg/kubernetes/views/file-button.html.h:1
+msgid "Select Manifest File..."
+msgstr ""
 
 #: ../pkg/kubernetes/views/details-page.html.h:1
 msgid "Nodes"
-msgstr ""
+msgstr "Düğümler"
 
 #: ../pkg/kubernetes/views/details-page.html.h:15
 msgid "Deployment Configs"
@@ -3959,38 +3989,30 @@ msgstr ""
 
 #: ../pkg/kubernetes/views/details-page.html.h:18
 msgid "Replication Controllers"
-msgstr ""
+msgstr "Replikasyon Kontrolörleri"
 
 #: ../pkg/kubernetes/views/node-panel.html.h:4
 msgid "OS"
 msgstr ""
 
 #: ../pkg/kubernetes/views/node-panel.html.h:5
-#, fuzzy
 msgid "Machine ID"
-msgstr "Makineler"
+msgstr ""
 
 #: ../pkg/kubernetes/views/node-panel.html.h:6
-#, fuzzy
 msgid "Container Runtime Version"
-msgstr "Konteyner İsmi"
+msgstr ""
 
 #: ../pkg/kubernetes/views/node-panel.html.h:7
-#, fuzzy
 msgid "Kubelet Version"
-msgstr "Sürüm"
+msgstr ""
 
 #: ../pkg/kubernetes/views/node-panel.html.h:8
-#, fuzzy
 msgid "Proxy Version"
-msgstr "Sürüm"
+msgstr ""
 
 #: ../pkg/kubernetes/views/node-panel.html.h:15
 msgid "Reason"
-msgstr ""
-
-#: ../pkg/kubernetes/views/node-panel.html.h:16
-msgid "Message"
 msgstr ""
 
 #: ../pkg/kubernetes/views/node-panel.html.h:17
@@ -4013,98 +4035,23 @@ msgstr ""
 msgid "Kubernetes Cluster"
 msgstr "Kubernetes kümesi"
 
-#: ../pkg/kubernetes/index.html.h:7
-msgid "Deploy Application"
-msgstr "Uygulamayı Devreye Al"
+#: ../pkg/kubernetes/index.html.h:2 ../pkg/kubernetes/registry.html.h:2
+msgid "Connecting..."
+msgstr ""
 
-#: ../pkg/kubernetes/index.html.h:8
+#: ../pkg/kubernetes/index.html.h:3 ../pkg/kubernetes/registry.html.h:3
+msgid "Couldn't connect to server"
+msgstr ""
+
+#: ../pkg/kubernetes/index.html.h:4 ../pkg/kubernetes/registry.html.h:4
 msgid ""
 "\n"
-"                  Type\n"
-"                  "
+"                Reconnect\n"
+"            "
 msgstr ""
 
-#: ../pkg/kubernetes/index.html.h:11
-msgid "Kubernetes Manifest"
-msgstr ""
-
-#: ../pkg/kubernetes/index.html.h:12
-msgid "Nulecule Application"
-msgstr ""
-
-#: ../pkg/kubernetes/index.html.h:13
-msgid ""
-"\n"
-"                  Manifest\n"
-"                  "
-msgstr ""
-
-#: ../pkg/kubernetes/index.html.h:16
-msgid ""
-"\n"
-"                  Nulecule\n"
-"                  "
-msgstr ""
-
-#: ../pkg/kubernetes/index.html.h:19
-msgid ""
-"\n"
-"              Cancel\n"
-"              "
-msgstr ""
-
-#: ../pkg/kubernetes/index.html.h:22
-msgid ""
-"\n"
-"              Deploy\n"
-"              "
-msgstr ""
-
-#: ../pkg/kubernetes/index.html.h:25
-msgid "Adjust Service"
-msgstr "Servisi Ayarla"
-
-#: ../pkg/kubernetes/index.html.h:28
-msgid "Adjust"
-msgstr "Ayarla"
-
-#: ../pkg/kubernetes/index.html.h:29
-msgid "Adjust Replication Controller"
-msgstr ""
-
-#: ../pkg/kubernetes/index.html.h:31
-#, fuzzy
-msgid "Adjust Route"
-msgstr "Ayarla"
-
-#: ../pkg/kubernetes/index.html.h:33
-msgid "Please Confirm Deletion"
-msgstr ""
-
-#: ../pkg/kubernetes/index.html.h:34
-msgid ""
-"\n"
-"            Deleting a Pod will kill all associated containers. Pods may be "
-"automatically created again in some cases.\n"
-"          "
-msgstr ""
-
-#: ../pkg/kubernetes/index.html.h:38
-msgid ""
-"\n"
-"          "
-msgstr ""
-
-#: ../pkg/kubernetes/index.html.h:40
-msgid "Add Cluster Node "
-msgstr "Küme Düğümü Ekle"
-
-#: ../pkg/kubernetes/index.html.h:42
-msgid "Configure Kubelet and Proxy"
-msgstr ""
-
-#: ../pkg/kubernetes/index.html.h:43
-msgid "Configure Flannel networking"
+#: ../pkg/kubernetes/registry.html.h:1
+msgid "Image Registry"
 msgstr ""
 
 #: ../pkg/networkmanager/index.html.h:2 ../pkg/storaged/index.html.h:23
@@ -4292,9 +4239,8 @@ msgid ""
 msgstr ""
 
 #: ../pkg/ostree/index.html.h:15
-#, fuzzy
 msgid "Updating"
-msgstr "Bekleniyor"
+msgstr ""
 
 #: ../pkg/ostree/index.html.h:16
 msgid "Tree"
@@ -4309,14 +4255,12 @@ msgid "Released"
 msgstr ""
 
 #: ../pkg/ostree/index.html.h:21
-#, fuzzy
 msgid "Additions"
-msgstr "Seçenekler"
+msgstr ""
 
 #: ../pkg/ostree/index.html.h:22
-#, fuzzy
 msgid "Removals"
-msgstr "Kaldır"
+msgstr ""
 
 #: ../pkg/ostree/index.html.h:23
 msgid "Updates"
@@ -4339,18 +4283,16 @@ msgid "Operating System Updates"
 msgstr ""
 
 #: ../pkg/ostree/index.html.h:29
-#, fuzzy
 msgid "Connecting"
-msgstr "Docker'a bağlanılıyor"
+msgstr ""
 
 #: ../pkg/ostree/index.html.h:30
 msgid "Unable to communicate with OSTree"
 msgstr ""
 
 #: ../pkg/ostree/index.html.h:31
-#, fuzzy
 msgid "No Deployments"
-msgstr "Gecikme yok"
+msgstr ""
 
 #: ../pkg/ostree/index.html.h:32
 msgid ""
@@ -4499,10 +4441,9 @@ msgid "Device File"
 msgstr "Aygıt dosyası"
 
 #: ../pkg/storaged/index.html.h:45
-#, fuzzy
 msgctxt "storage"
 msgid "Multipathed Devices"
-msgstr "Diğer Aygıtlar"
+msgstr ""
 
 #: ../pkg/storaged/index.html.h:46
 msgid "RAID Device"
@@ -4702,9 +4643,8 @@ msgid ""
 msgstr ""
 
 #: ../pkg/sosreport/index.html.h:10
-#, fuzzy
 msgid "Create report"
-msgstr "Yeni Hesap Yarat"
+msgstr ""
 
 #: ../pkg/sosreport/index.html.h:11
 msgid "Create diagnostic report"
@@ -4728,8 +4668,38 @@ msgstr ""
 msgid "Done!"
 msgstr ""
 
-#~ msgid "IP address or host name cannot be empty."
-#~ msgstr "IP adresi ya da host ismi boş olamaz"
+#~ msgid "UDP"
+#~ msgstr "UDP"
 
-#~ msgid "Connecting to Kubernetes"
-#~ msgstr "Kubernetes'e bağlanılıyor"
+#~ msgid "Installing ..."
+#~ msgstr "Yükleniyor..."
+
+#~ msgid "Running ..."
+#~ msgstr "Çalışıyor..."
+
+#~ msgid "Image failed to install."
+#~ msgstr "Kalıp yüklemesi başarısız oldu"
+
+#~ msgid "Temporary folder was not created"
+#~ msgstr "Geçici klasör yaratılamadı"
+
+#~ msgid "Image failed to run."
+#~ msgstr "Kalıp çalıştırılması başarısız oldu"
+
+#~ msgid "4 KB"
+#~ msgstr "4 KB"
+
+#~ msgid "8 KB"
+#~ msgstr "8 KB"
+
+#~ msgid "1 MB"
+#~ msgstr "1 MB"
+
+#~ msgid "2 MB"
+#~ msgstr "2 MB"
+
+#~ msgid "Size can not be zero."
+#~ msgstr "Boyut sıfır olamaz"
+
+#~ msgid "Resize Filesystem"
+#~ msgstr "Dosya Sistemini Yeniden Boyutlandır"

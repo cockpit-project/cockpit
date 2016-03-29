@@ -170,21 +170,10 @@ class TestStorage(StorageCase):
 
         self.content_default_action(1, "Create Thin Volume")
         self.dialog({ "name": "thin",
-                      "size": "80" })
+                      "size": "50" })
         b.wait_in_text('#content', "Thin Logical Volume \"thin\"")
 
-        # cause the pool to overflow by erasing the thin volume
-        self.content_default_action(2, "Format")
-        self.dialog({ "erase": "zero",
-                      "type": "ext4",
-                      "mounting": "custom",
-                      "mount_point": mount_point_thin })
-        b.wait_in_text('#content', "100% full")
-
-        # There should be a stuck job now
-        b.wait_in_text("#jobs", "Erasing")
-
-        # add a disk, resize the pool and let the operation finish
+        # add a disk and resize the pool
         b.click('[data-action="vgroup_add_disk"]')
         self.dialog_wait_open()
         self.dialog_select('disks', "DISK2", True)
@@ -193,12 +182,16 @@ class TestStorage(StorageCase):
         b.wait_in_text("#pvols", "DISK2")
 
         self.content_action(1, "Resize")
-        self.dialog({ "size": "80" })
+        self.dialog({ "size": "70" })
+
+        # use almost all of the pool by erasing the thin volume
+        self.content_default_action(2, "Format")
+        self.dialog({ "erase": "zero",
+                      "type": "ext4",
+                      "mounting": "custom",
+                      "mount_point": mount_point_thin })
         b.wait_in_text("#content", "(ext4 File System)")
         self.wait_in_storaged_configuration(mount_point_thin)
-
-        # The job should be gone
-        b.wait_not_in_text("#jobs", "Erasing")
 
         # remove volume group
         b.click_action_btn('.panel-heading:contains("Volume Group") .btn-group', "Delete")

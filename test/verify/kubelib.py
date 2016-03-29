@@ -178,6 +178,32 @@ class StorageTests(object):
         b.wait_in_text("{} .listing-panel".format(base_sel), "mock-volume-claim")
         b.wait_in_text("{} .listing-panel ".format(base_sel), "default / mock-volume")
 
+        pods = m.execute('kubectl get pods --output=template -t="{{ range .items }}{{.metadata.name}}|{{ end }}"')
+        pod = [ x for x in pods.split("|") if x.startswith("mock-volume")][0]
+        pod_id = "pods/default/{}".format(pod)
+
+        b.click("a[href='#/list']")
+        b.wait_present("#content .details-listing")
+        b.wait_present("#content .details-listing tbody[data-id='{}']".format(pod_id))
+        b.click("#content .details-listing tbody[data-id='{}'] th".format(pod_id))
+        b.wait_present(".listing-panel ul.nav-tabs")
+        b.click(".listing-panel ul.nav-tabs li:last-child a".format(pod_id))
+        b.wait_present(".listing-body")
+        b.wait_js_func("ph_count_check", ".listing-body div.well", 2)
+
+        volumes = m.execute('kubectl get pods/%s --output=template -t="{{ range .spec.volumes }}{{.name}}|{{ end }}"' % pod)
+        secret = [ x for x in volumes.split("|") if x.startswith("default-token")][0]
+
+        b.wait_in_text(".listing-body div[data-id='{}']".format(secret), "Secret")
+        b.wait_in_text(".listing-body div[data-id='{}']".format(secret), "mock-volume-container")
+        b.wait_in_text(".listing-body div[data-id='{}']".format(secret), "/var/run/secrets/kubernetes.io/serviceaccount")
+        b.wait_present(".listing-body div[data-id='host-tmp']")
+        b.wait_in_text(".listing-body div[data-id='host-tmp']", "Persistent Volume Claim")
+        b.wait_in_text(".listing-body div[data-id='host-tmp']", "mock-volume-claim")
+        b.wait_in_text(".listing-body div[data-id='host-tmp']", "mock-volume-container")
+        b.wait_in_text(".listing-body div[data-id='host-tmp']", "/mount-path-tmp")
+        b.wait_present(".listing-body div[data-id='host-tmp'] a[href='#/storage/{}']".format(pv_id))
+
 class KubernetesCommonTests(StorageTests):
 
     def check_logs(self, b):

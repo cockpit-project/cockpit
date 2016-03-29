@@ -15,6 +15,8 @@
                 <a ng-click="tab('logs', $event); tabbed = true">Logs</a></li>
             <li ng-class="{active: tab('shell')}">
                 <a ng-click="tab('shell', $event); tabbed = true">Shell</a></li>
+            <li ng-class="{active: tab('volumes')}">
+                <a ng-click="tab('volumes', $event); tabbed = true">Volumes</a></li>
         </ul>
     </div>
     <div class="listing-body" ng-show="tab('main')">
@@ -40,6 +42,25 @@
             <p ng-if="!($first && $last)">{{ container.spec.name }}</p>
             <kubernetes-container-terminal pod="item" container="container.spec.name" prevent="!tabbed">
             </kubernetes-container-terminal>
+        </div>
+    </div>
+
+    <div class="listing-body" ng-show="tab('volumes')">
+        <div class="container-fluid well" ng-repeat="podVolume in volumesForPod(item)"
+            data-id="{{ podVolume.name }}">
+            <dl ng-if="!podVolume.persistentVolumeClaim" volume-body volume="podVolume"></dl>
+            <dl ng-if="podVolume.persistentVolumeClaim" pvc-body settings="settings"
+                item="claimFromVolumeSource(podVolume.persistentVolumeClaim, item.metadata.namespace)"></dl>
+            <dl>
+                <dt translatable="yes">Mount Location</dt>
+                <dd>
+                    <span ng-if="!podVolume.mounts" translatable="yes">None</span>
+                    <dl class="full-width" ng-if="podVolume.mounts">
+                        <dt ng-repeat-start="(name, data) in podVolume.mounts">{{ name }}</dt>
+                        <dd ng-repeat-end>{{ data.mountPath }}</dd>
+                    </dl>
+                </dd>
+            </dl>
         </div>
     </div>
 </div>

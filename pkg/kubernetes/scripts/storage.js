@@ -132,6 +132,19 @@
         }
     )
 
+    .directive('pvcBody',
+        function() {
+            return {
+                restrict: 'A',
+                templateUrl: 'views/pvc-body.html',
+                scope: {
+                      item: '=item',
+                      settings: '=settings'
+                },
+            };
+        }
+    )
+
     .directive('pvClaim', [
         'storageData',
         'kubeLoader',
@@ -172,7 +185,8 @@
     .factory("storageData", [
         'kubeSelect',
         "KubeTranslate",
-        function (select, translate) {
+        "KubeMapNamedArray",
+        function (select, translate, mapNamedArray) {
             var _ = translate.gettext;
 
             var KNOWN_VOLUME_TYPES = {
@@ -274,8 +288,40 @@
                                .claim(meta.name || "");
             }
 
+            function volumesForPod(item) {
+                var volumes, mounts;
+                var i, j, container, volumeMounts, name;
+                if (item && !item.volumes) {
+                    if (item.spec)
+                        volumes = mapNamedArray(item.spec.volumes);
+                    else
+                        volumes = { };
+
+                    if (item.spec && item.spec.containers) {
+                        for (i = 0; i < item.spec.containers.length; i++) {
+                            container = item.spec.containers[i];
+                            volumeMounts = container.volumeMounts || [];
+                            for (j = 0; j < volumeMounts.length; j++) {
+                                name = volumeMounts[j].name;
+                                if (!volumes[name])
+                                    volumes[name] = {};
+
+                                if (!volumes[name]['mounts'])
+                                    volumes[name]['mounts'] = {};
+
+                                volumes[name]['mounts'][container.name] = volumeMounts[j];
+                            }
+                        }
+                    }
+
+                    item.volumes = volumes;
+                }
+                return item ? item.volumes : { };
+            }
+
             return {
                 podsForClaim: podsForClaim,
+                volumesForPod: volumesForPod,
                 claimFromVolumeSource: claimFromVolumeSource,
                 claimForVolume: claimForVolume,
                 getVolumeType: getVolumeType,

@@ -24,6 +24,8 @@ pcp \
 policykit-1 \
 realmd \
 selinux-basics \
+storaged \
+storaged-lvm2 \
 xdg-utils \
 "
 
@@ -75,6 +77,10 @@ curl \
 
 useradd -m -U -c Administrator -G sudo -s /bin/bash admin
 echo admin:foobar | chpasswd
+
+# For storaged
+echo "deb http://ftp.uk.debian.org/debian experimental main" >/etc/apt/sources.list.d/experimental.list
+apt-get -y update
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES

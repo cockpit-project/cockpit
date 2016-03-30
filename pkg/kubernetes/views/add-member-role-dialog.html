@@ -9,18 +9,22 @@
                     <label class="control-label" for="add_member" translatable="yes">User or Group</label>
                 </td>
                 <td>
-                    <div id="add_member" class="btn-group bootstrap-select form-control" dropdown>
-                        <button class="btn btn-default dropdown-toggle" dropdown-toggle>
-                            <span class="pull-left">{{ select.member }}</span>
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li ng-repeat="member in select.members" ng-class="{active: member.metadata.name == select.member}">
-                                <a ng-click="select.member = member.metadata.name; select.memberObj = member" value="{{ member.metadata.name }}">
-                                    {{ member.metadata.name }}
-                                </a>
-                            </li>
-                        </ul>
+                    <div id="add_member_group" class="input-group bootstrap-select input-combo form-control" dropdown>
+                        <input id="add_member_name" class="form-control" type="text" placeholder="Select Member"
+                            ng-model="select.memberName">
+                        <span class="input-group-btn" dropdown="">
+                            <button class="btn btn-default dropdown-toggle" dropdown-toggle>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-left">
+                                <li ng-repeat="member in select.members" ng-class="{active: member.name == select.member}">
+                                    <a ng-click="select.member = member.name; select.memberName = member.name; select.memberObj = member" 
+                                        value="{{ member.name }}">
+                                        {{ member.name }}
+                                    </a>
+                                </li>
+                            </ul>
+                        </span>
                     </div>
                 </td>
             </tr>

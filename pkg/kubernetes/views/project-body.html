@@ -10,20 +10,54 @@
             <th translatable="yes"></th>
         </tr>
     </thead>
-    <tbody colspan="3" ng-repeat="user in users()" data-id="{{ user.metadata.name }}" ng-if="subjectIsMember(user, project().metadata.name)">
+    <tbody colspan="3" ng-repeat="user in users()" data-id="{{ user.metadata.name }}" ng-if="subjectIsMember(user, project())">
         <tr class="listing-item inner-project-listing">
             <td>{{ user.metadata.name }}</td>
             <td>
-                <span ng-repeat="role in subjectRoleBindings(user, project().metadata.name)">{{ role.metadata.name }} </span>
+                <div class="btn-group bootstrap-select namespace-filter" dropdown>
+                        <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
+                            <span class="pull-left">
+                                <span ng-if="isRoles(user, project())" translatable="yes">
+                                    {{ getRegistryRoles(user, project()).join() }}
+                                </span>
+                            </span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="roleMp in getRegistryRolesMap()"
+                                ng-class="{ checked: isRegistryRole(user, roleMp.displayRole, project()) }">
+                                <a ng-click="changeRole(user, roleMp, getRegistryRoles(user, project()), project())">
+                                    {{ roleMp.displayRole }}
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
             </td>
             <td></td>
         </tr>
     </tbody>
-    <tbody colspan="3" ng-repeat="group in groups()" data-id="{{ group.metadata.name }}" ng-if="subjectIsMember(group, project().metadata.name)">
+    <tbody colspan="3" ng-repeat="group in groups()" data-id="{{ group.metadata.name }}" ng-if="subjectIsMember(group, project())">
         <tr class="listing-item inner-project-listing">
             <td>{{ group.metadata.name }}</td>
             <td>
-                <span ng-repeat="role in subjectRoleBindings(group, project().metadata.name)">{{ role.metadata.name }} </span>
+                <div class="btn-group bootstrap-select namespace-filter" dropdown>
+                        <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
+                            <span class="pull-left">
+                                <span ng-if="isRoles(group, project())" translatable="yes">
+                                    {{ getRegistryRoles(group, project()).join() }}
+                                </span>
+                            </span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="roleMp in getRegistryRolesMap()"
+                                ng-class="{ checked: isRegistryRole(group, displayRole, project()) }">
+                                <a ng-click="changeRole(group, roleMp, getRegistryRoles(user, project()), project())">
+                                    {{ roleMp.displayRole }}
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
             </td>
             <td></td>
         </tr>
@@ -31,7 +65,7 @@
     <thead>
         <tr>
             <td colspan="3">
-                <a class="pull-left" ng-click="addMember(project().metadata.name)">
+                <a class="pull-left" ng-click="addMember(project())">
                     <i translatable="yes" class="pficon pficon-add-circle-o"></i>
                     <span translatable="yes">Add Member</span>
                 </a>

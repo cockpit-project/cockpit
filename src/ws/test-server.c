@@ -470,7 +470,7 @@ inject_address (CockpitWebResponse *response,
       line = g_strconcat ("\nvar ", name, " = '", value, "';\n", NULL);
 
       inject = g_bytes_new (line, strlen (line));
-      filter = cockpit_web_inject_new ("<script id='dbus-tests'>", inject);
+      filter = cockpit_web_inject_new ("<script id='dbus-tests'>", inject, 1);
       g_bytes_unref (inject);
 
       cockpit_web_response_add_filter (response, filter);

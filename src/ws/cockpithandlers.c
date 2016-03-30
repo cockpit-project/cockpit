@@ -297,7 +297,7 @@ send_login_html (CockpitWebResponse *response,
   GBytes *environment;
 
   environment = build_environment (ws->os_release);
-  filter = cockpit_web_inject_new (marker, environment);
+  filter = cockpit_web_inject_new (marker, environment, 1);
   g_bytes_unref (environment);
 
   cockpit_web_response_add_filter (response, filter);

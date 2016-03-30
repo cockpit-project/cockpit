@@ -567,7 +567,7 @@ test_web_filter_simple (TestCase *tc,
   GBytes *inject;
 
   inject = bytes_static ("<meta inject>");
-  filter = cockpit_web_inject_new ("<head>", inject);
+  filter = cockpit_web_inject_new ("<head>", inject, 1);
   cockpit_web_response_add_filter (tc->response, filter);
   g_object_unref (filter);
   g_bytes_unref (inject);
@@ -599,19 +599,25 @@ test_web_filter_multiple (TestCase *tc,
   GBytes *inject;
 
   inject = bytes_static ("<meta inject>");
-  filter = cockpit_web_inject_new ("<head>", inject);
+  filter = cockpit_web_inject_new ("<head>", inject, 1);
   cockpit_web_response_add_filter (tc->response, filter);
   g_object_unref (filter);
   g_bytes_unref (inject);
 
   inject = bytes_static ("<body>Body</body>");
-  filter = cockpit_web_inject_new ("</head>", inject);
+  filter = cockpit_web_inject_new ("</head>", inject, 1);
   cockpit_web_response_add_filter (tc->response, filter);
   g_object_unref (filter);
   g_bytes_unref (inject);
 
   inject = bytes_static ("Prefix ");
-  filter = cockpit_web_inject_new ("<title>", inject);
+  filter = cockpit_web_inject_new ("<title>", inject, 1);
+  cockpit_web_response_add_filter (tc->response, filter);
+  g_object_unref (filter);
+  g_bytes_unref (inject);
+
+  inject = bytes_static (" ");
+  filter = cockpit_web_inject_new (">", inject, 3);
   cockpit_web_response_add_filter (tc->response, filter);
   g_object_unref (filter);
   g_bytes_unref (inject);
@@ -627,8 +633,12 @@ test_web_filter_multiple (TestCase *tc,
   g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
 
   g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n"
-                   "c\r\n<html><head>\r\n"
+                   "6\r\n<html>\r\n"
+                   "1\r\n \r\n"
+                   "6\r\n<head>\r\n"
+                   "1\r\n \r\n"
                    "d\r\n<meta inject>\r\n"
+                   "1\r\n \r\n"
                    "7\r\n<title>\r\n"
                    "7\r\nPrefix \r\n"
                    "18\r\nThe Title</title></head>\r\n"
@@ -649,19 +659,19 @@ test_web_filter_split (TestCase *tc,
   gsize i, x, len;
 
   inject = bytes_static ("<meta inject>");
-  filter = cockpit_web_inject_new ("<head>", inject);
+  filter = cockpit_web_inject_new ("<head>", inject, 1);
   cockpit_web_response_add_filter (tc->response, filter);
   g_object_unref (filter);
   g_bytes_unref (inject);
 
   inject = bytes_static ("<body>Body</body>");
-  filter = cockpit_web_inject_new ("</head>", inject);
+  filter = cockpit_web_inject_new ("</head>", inject, 1);
   cockpit_web_response_add_filter (tc->response, filter);
   g_object_unref (filter);
   g_bytes_unref (inject);
 
   inject = bytes_static ("Prefix ");
-  filter = cockpit_web_inject_new ("<title>", inject);
+  filter = cockpit_web_inject_new ("<title>", inject, 1);
   cockpit_web_response_add_filter (tc->response, filter);
   g_object_unref (filter);
   g_bytes_unref (inject);
@@ -718,7 +728,7 @@ test_web_filter_passthrough (TestCase *tc,
   GBytes *inject;
 
   inject = bytes_static ("<meta inject>");
-  filter = cockpit_web_inject_new ("<unknown>", inject);
+  filter = cockpit_web_inject_new ("<unknown>", inject, 1);
   cockpit_web_response_add_filter (tc->response, filter);
   g_object_unref (filter);
   g_bytes_unref (inject);

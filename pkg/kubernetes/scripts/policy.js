@@ -190,49 +190,7 @@
 
                 return methods.create([binding], namespace);
             }
-            function addRoleToPolicyBinding(policyBinding, project, role, subject) {
-                var roleBinding, i, defaultPolicybinding, roleBindings;
-                var namespace = toName(project);
-                var roleBindingDefault = {
-                    kind: "RoleBinding",
-                    apiVersion: "v1",
-                    metadata: {
-                        name: role,
-                        namespace: namespace,
-                        creationTimestamp: null,
-                    },
-                    userNames: [],
-                    groupNames: [],
-                    subjects: [],
-                    roleRef: {
-                        name: role
-                    }
-                };
 
-                if(policyBinding && policyBinding.one()){
-                    defaultPolicybinding = policyBinding.one();
-                    roleBindings = defaultPolicybinding.roleBindings;
-                } 
-
-                var patchData = { "roleBindings": roleBindings };
-                for (i = roleBindings.length - 1; i >= 0; i--) {
-                    if(roleBindings[i].name === role) {
-                        roleBinding = roleBindings[i].roleBinding;
-                        break;
-                    }
-                }
-                if (!roleBinding) {
-                    //If roleBinding doesn't exists, then create.
-                    addToArray(roleArray(roleBindingDefault, "subjects"), subject);
-                    addToArray(roleArrayKind(roleBindingDefault, subject.kind), subject.name);
-                    return methods.create(roleBindingDefault, namespace);   
-                } else {
-                    //If roleBinding exists, then patch.
-                    addToArray(roleArray(roleBinding, "subjects"), subject);
-                    addToArray(roleArrayKind(roleBinding, subject.kind), subject.name);
-                    return methods.patch(defaultPolicybinding, patchData);
-                }   
-            }
             function indexOf(array, value) {
                 var i, len;
                 for (i = 0, len = array.length; i < len; i++) {
@@ -310,7 +268,6 @@
                             return $q.reject(resp);
                     });
                 },
-                addRoleToPolicyBinding: addRoleToPolicyBinding,
             };
         }
     ]);

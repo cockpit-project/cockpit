@@ -20,6 +20,13 @@
 (function() {
     "use strict";
 
+    function toName(object) {
+        if (object && typeof object == "object")
+            return object.metadata.name;
+        else
+            return object;
+    }
+
     angular.module('registry.projects', [
         'ngRoute',
         'ui.cockpit',
@@ -101,7 +108,75 @@
         'kubeLoader',
         'projectPolicy',
         function(select, loader, policy) {
+            var registryRoles = [{ ocRole: "registry-admin", displayRole :"Admin"},
+                { ocRole:"registry-editor", displayRole :"Push" },
+                { ocRole:"registry-viewer", displayRole :"Pull" }];
 
+            function getRegistryRolesMap() {
+                return registryRoles;
+            }
+            function getDisplayRole(ocRole) {
+                var i;
+                var displayRole;
+                for (i = registryRoles.length - 1; i >= 0; i--) {
+                    if(registryRoles[i].ocRole === ocRole) {
+                        displayRole = registryRoles[i].displayRole;
+                        break;
+                    }
+                }
+                return displayRole;
+            }
+            function getOcRolesList() {
+                var ocRoles = [];
+                angular.forEach(registryRoles, function(r) {
+                    ocRoles.push(r.ocRole);
+                });
+                return ocRoles;
+            }
+            function getAllRoles(member, project) {
+                if (!member && !project)
+                    return [];
+                var projectName = toName(project);
+                var roleBinds = subjectRoleBindings(member, projectName);
+                var roleBind, meta, ret = [];
+                angular.forEach(roleBinds, function(roleBind) {
+                    meta = roleBind.metadata || { };
+                    if (meta.name)
+                        ret.push(meta.name);
+                });
+                return ret;
+            }
+            function getRegistryRoles(member, project) {
+                if (!member && !project)
+                    return [];
+                var projectName = toName(project);
+                var roleBinds = subjectRoleBindings(member, projectName);
+                var ocRegistryRoles = getOcRolesList();
+                var roles = [];
+                var roleBind, meta;
+                angular.forEach(roleBinds, function(roleBind) {
+                    meta = roleBind.metadata || { };
+                    if (meta.name && ocRegistryRoles.indexOf(meta.name)!== -1) {
+                        roles.push(getDisplayRole(meta.name));
+                    }
+                        
+                });
+                return roles;
+            }
+            function isRegistryRole(member, displayRole, project) {
+                var oc_roles = getRegistryRoles(member, project);
+                if(oc_roles.indexOf(displayRole) !== -1) {
+                    return true;
+                }
+                return false;
+            }
+            function isRoles(member, namespace) {
+                var oc_roles = getAllRoles(member, namespace);
+                if(oc_roles.length === 0) {
+                    return false;
+                }
+                return true;
+            }
             /*
              * To use this you would have a user or group, and do:
              *
@@ -134,6 +209,7 @@
             }
 
             function subjectIsMember(subject, namespace) {
+                namespace = toName(namespace);
                 return subjectRoleBindings(subject, namespace).one() ? true : false;
             }
 
@@ -196,6 +272,11 @@
                 formatMembers: formatMembers,
                 shareImages: shareImages,
                 sharedImages: sharedImages,
+                getAllRoles: getAllRoles,
+                isRegistryRole: isRegistryRole,
+                isRoles: isRoles,
+                getRegistryRolesMap: getRegistryRolesMap,
+                getRegistryRoles: getRegistryRoles,
             };
         }
     ])
@@ -203,7 +284,9 @@
     .directive('projectPanel', [
         'kubeLoader',
         'kubeSelect',
-        function(loader, select) {
+        'projectData',
+        'roleActions',
+        function(loader, select, projectData, roleActions) {
             return {
                 restrict: 'A',
                 scope: true,
@@ -216,10 +299,10 @@
                         }
                         return tab === name;
                     };
-
                     var currProject = scope.id;
+                    angular.extend(scope, projectData);
+                    angular.extend(scope, roleActions);
                     loader.load("Project", null, currProject);
-
                     scope.project = function() {
                         return select().kind("Project").name(currProject).one();
                     };
@@ -303,25 +386,82 @@
     .factory('roleActions', [
         '$modal',
         function($modal) {
-            function addMember(namespace) {
+            function addMember(project) {
                 return $modal.open({
                     controller: 'MemberNewCtrl',
                     templateUrl: 'views/add-member-role-dialog.html',
                     resolve: {
                         fields : function(){
                             var fields = {};
-                            fields.namespace = namespace;
+                            fields.namespace = toName(project);
                             return fields;
                         }
                     },
-                }).result;
+                });
+            }
+            function changeRole(member, roleMp, roles, project) {
+                return $modal.open({
+                    controller: 'ChangeRoleCtrl',
+                    templateUrl: function() {
+                        if(roles.indexOf(roleMp.displayRole) >= 0) {
+                            return 'views/remove-role-dialog.html';
+                        } else {
+                            return 'views/add-role-dialog.html';
+                        }
+                    },
+                    resolve: {
+                        fields: function(){
+                            var fields = {};
+                            fields.member = member;
+                            fields.ocRole = roleMp.ocRole;
+                            fields.displayRole = roleMp.displayRole;
+                            fields.roles = roles;
+                            fields.namespace = toName(project);
+                            return fields;
+                        }
+                    },
+                });
             }
             return {
                 addMember: addMember,
+                changeRole: changeRole,
             };
         }
     ])
- 
+
+    .controller('ChangeRoleCtrl', [
+        '$q',
+        '$scope',
+        'projectPolicy',
+        'kubeLoader',
+        'kubeSelect',
+        'fields',
+        function($q, $scope, projectPolicy, loader, kselect, fields) {
+            $scope.fields = fields;
+            var namespace = $scope.fields.namespace;
+
+            $scope.performCreate = function performCreate() {
+                var role = $scope.fields.ocRole;
+                var memberObj = $scope.fields.member;
+                var subject = {
+                    kind: memberObj.kind,
+                    name: memberObj.metadata.name,
+                };
+                return projectPolicy.addToRole(namespace, role, subject);  
+            };
+
+            $scope.performRemove = function performRemove() {
+                var role = $scope.fields.ocRole;
+                var memberObj = $scope.fields.member;
+                var subject = {
+                    kind: memberObj.kind,
+                    name: memberObj.metadata.name,
+                };
+                return projectPolicy.removeFromRole(namespace, role, subject);
+            };
+        }
+    ])
+
     .controller('MemberNewCtrl', [
         '$q',
         '$scope',
@@ -330,47 +470,59 @@
         'kubeSelect',
         'fields',
         function($q, $scope, projectData, projectPolicy, kselect, fields) {
+            var selectMember = 'Select Member';
+            var NAME_RE = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
+            var selectRole = 'Select Role';
             var registryRoles = [{ ocRole: "registry-admin", displayRole :"Admin"},
                 { ocRole:"registry-editor", displayRole :"Push" },
                 { ocRole:"registry-viewer", displayRole :"Pull" }];
 
             $scope.select = {
-                member: 'Select Members',
-                members: getAllMembers(),
-                displayRole: 'Select Role',
+                member: selectMember,
+                members: getAllMembers(fields.namespace),
+                displayRole: selectRole,
                 roles: registryRoles,
                 kind: "",
                 ocRole: "",
             };
             
             var namespace = fields.namespace;
-            function getPolicyBinding(namespace){
-                return kselect().kind("PolicyBinding").namespace(namespace).name(":default");
-            }
+
             function getAllMembers() {
                 var users = kselect().kind("User");
                 var groups = kselect().kind("Groups");
                 var members = [];
                 angular.forEach(users, function(user) {
-                    members.push(user);
+                    members.push({
+                        kind: user.kind,
+                        name: user.metadata.name,
+                    });
                 });
                 angular.forEach(groups, function(group) {
-                    members.push(group);
+                    members.push({
+                        kind: group.kind,
+                        name: group.metadata.name,
+                    });
                 });
                 return members;
             }
-            function validate() {
+            function validate(memberName, role) {
                 var defer = $q.defer();
-                var memberName = $scope.select.member;
-                var role = $scope.select.ocRole;
                 var ex;
+                if (memberName !== undefined) {
+                    if (!memberName)
+                        ex = new Error("The member name cannot be empty.");
+                    else if (memberName === selectMember)
+                        ex = new Error("Please select a valid Member.");
+                    else if (!NAME_RE.test(memberName))
+                        ex = new Error("The member name contains invalid characters.");
 
-                if (!memberName || memberName === 'Select Members') {
-                    ex = new Error("Please select a valid Member.");
-                    ex.target = "#add_member";
-                    defer.reject(ex);
+                    if(ex) {
+                        ex.target = "#add_member_group";
+                        defer.reject(ex);                        
+                    }
                 }
-                if (!role || role === 'Select Role') {
+                if (!role || role === selectRole) {
                     ex = new Error("Please select a valid Role.");
                     ex.target = "#add_role";
                     defer.reject(ex);
@@ -384,14 +536,29 @@
             }            
             $scope.performCreate = function performCreate() {
                 var role = $scope.select.ocRole;
-                var memberObj = $scope.select.memberObj;
-                return validate().then(function() {
-                    var patchObj = getPolicyBinding(namespace);
+                var memberName = $scope.select.memberName;
+                var member = $scope.select.member;
+                var memberObj, kind;
+                if (memberName && memberName === member) {
+                    //dropdown value selected
+                    memberObj = $scope.select.memberObj;
+                    memberName = memberObj.name;
+                    kind = memberObj.kind;
+                } else if(memberName && member === selectMember) {
+                    //input field has value
+                    kind = "User";
+                } else if(!memberName && member === selectMember) {
+                    //nothing selected
+                    memberName = selectMember;
+                    kind = null;
+                }
+                
+                return validate(memberName, role).then(function() {
                     var subject = {
-                        kind: memberObj.kind,
-                        name: memberObj.metadata.name,
+                        kind: kind,
+                        name: memberName,
                     };
-                    return projectPolicy.addRoleToPolicyBinding(patchObj, namespace, role, subject);
+                    return projectPolicy.addToRole(namespace, role, subject);
                 });
             };
         }

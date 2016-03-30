@@ -15,7 +15,7 @@
             <th translatable="yes">Last Updated</th>
         </tr>
     </thead>
-    <tbody ng-repeat-start="stream in imagestreams() track by stream.metadata.name"
+    <tbody ng-repeat-start="(link, stream) in imagestreams() track by link"
            ng-init="sid = stream.metadata.namespace + '/' + stream.metadata.name"
            data-id="{{ sid }}" class="active" ng-class="{open: listing.expanded(sid)}">
         <tr class="listing-item imagestream-item" ng-click="listing.toggle(sid)">

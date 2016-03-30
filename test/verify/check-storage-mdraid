@@ -109,13 +109,21 @@ class TestStorage(StorageCase):
         def info_field(name):
             return '#detail tr:contains("%s") td:nth-child(2)' % name
 
+        def wait_degraded_state(is_degraded):
+            degraded_selector = ".alert span:contains('The RAID Array is in a degraded state')"
+            if is_degraded:
+                b.wait_present(degraded_selector)
+                b.wait_visible(degraded_selector)
+            else:
+                b.wait_not_present(degraded_selector)
+
         dev = b.text(info_field("Device"))
         m.execute("mdadm --quiet %s --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 --remove /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1" % dev)
-        b.wait_in_text(info_field("State"), "DEGRADED")
+        wait_degraded_state(True)
         m.execute("wipefs -a /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
         m.execute("mdadm --quiet %s --add /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1" % dev)
         b.wait_in_text(info_field("State"), "Recovering")
-        b.wait_not_in_text(info_field("State"), "DEGRADED")
+        wait_degraded_state(False)
 
         # Turn it off and on again
         self.raid_default_action("Stop")
@@ -164,12 +172,12 @@ class TestStorage(StorageCase):
         # Remove DISK4.  The array degrades.
         self.raid_remove_disk("DISK4")
         b.wait_not_in_text('#disks', "DISK4")
-        b.wait_in_text(info_field("State"), "DEGRADED")
+        wait_degraded_state(True)
 
         # Add DISK1.  The array recovers.
         self.raid_add_disk("DISK1")
         b.wait_in_text('#disks', "DISK1")
-        b.wait_not_in_text(info_field("State"), "DEGRADED")
+        wait_degraded_state(False)
 
         # Stop the array, destroy a disk, and start the array
         self.raid_default_action("Stop")
@@ -178,12 +186,12 @@ class TestStorage(StorageCase):
         b.wait_not_in_text('#disks', "DISK1")
         self.raid_default_action("Start")
         b.wait_in_text(info_field("State"), "Running")
-        b.wait_in_text(info_field("State"), "DEGRADED")
+        wait_degraded_state(True)
 
         # Add DISK1.  The array recovers.
         self.raid_add_disk("DISK1")
         b.wait_in_text('#disks', "DISK1")
-        b.wait_not_in_text(info_field("State"), "DEGRADED")
+        wait_degraded_state(False)
 
         # Delete the array.  We are back on the storage page.
         self.raid_action("Delete")

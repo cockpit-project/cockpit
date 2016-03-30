@@ -537,6 +537,12 @@
   </script>
 
   <script id="mdraid-detail-tmpl" type="x-template/mustache">
+    {{#MDRaid.Degraded}}
+    <div class="alert alert-danger">
+      <span class="pficon pficon-error-circle-o"></span>
+      <span translatable="yes">The RAID Array is in a degraded state</span> - {{.}}
+    </div>
+    {{/MDRaid.Degraded}}
     <div class="panel panel-default">
       <div class="panel-heading">
         <span translatable="yes">RAID Device</span>
@@ -579,12 +585,6 @@
         <tr>
           <td translatable="yes" context="storage">State</td>
           <td>
-            {{#Degraded}}
-            <div class="alert alert-danger">
-              <span class="pficon pficon-error-circle-o"></span>
-              <span translatable="yes">The RAID Array is in a degraded state</span> - {{.}}
-            </div>
-            {{/Degraded}}
             {{#SyncAction}}
             <div>
               {{Progress}}

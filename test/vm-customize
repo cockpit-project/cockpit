@@ -64,7 +64,9 @@ def upload_files(machine_instance, uploadfiles):
     """Upload files/directories inside image"""
     for foo in uploadfiles:
         srcfile, dest = foo.split(":")
-        machine_instance.upload([srcfile], dest)
+        # machine_instance.upload tries to interpret relative paths in relation to testinfra.TEST_DIR
+        src_absolute = os.path.join(os.getcwd(), srcfile)
+        machine_instance.upload([src_absolute], dest)
 
 def install_packages(machine_instance, packagelist, install_command):
     """Install packages into a test image

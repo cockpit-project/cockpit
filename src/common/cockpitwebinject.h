@@ -33,7 +33,8 @@ typedef struct _CockpitWebInject CockpitWebInject;
 GType               cockpit_web_inject_get_type     (void) G_GNUC_CONST;
 
 CockpitWebFilter *  cockpit_web_inject_new          (const gchar *marker,
-                                                     GBytes *inject);
+                                                     GBytes *inject,
+                                                     guint count);
 
 G_END_DECLS
 

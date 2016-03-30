@@ -90,7 +90,7 @@ cockpit_channel_inject_perform (CockpitChannelInject *inject,
     }
 
   base = g_string_free_to_bytes (str);
-  filter = cockpit_web_inject_new (marker, base);
+  filter = cockpit_web_inject_new (marker, base, 1);
   g_bytes_unref (base);
 
   cockpit_web_response_add_filter (response, filter);

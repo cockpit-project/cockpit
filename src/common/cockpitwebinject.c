@@ -28,13 +28,16 @@
  *
  * This is a CockpitWebFilter which looks for a marker data
  * and inject additional data after that point. The data is
- * not injected more than once.
+ * not injected more than the specified number of times.
  */
 struct _CockpitWebInject {
   GObject parent;
   goffset partial;
   GBytes *marker;
   GBytes *inject;
+
+  guint maximum;
+  guint injected;
 };
 
 typedef struct _CockpitInjectClass {
@@ -84,62 +87,68 @@ cockpit_web_inject_push (CockpitWebFilter *filter,
   const gchar *mark, *data, *pos;
   gsize mark_len, data_len, at;
   GBytes *bytes;
+  gsize written;
 
   /* Stop searching once injected */
-  if (self->inject)
+  mark = g_bytes_get_data (self->marker, &mark_len);
+  data = g_bytes_get_data (block, &data_len);
+  written = at = 0;
+
+  while (self->injected < self->maximum && at < data_len)
     {
-      mark = g_bytes_get_data (self->marker, &mark_len);
-      data = g_bytes_get_data (block, &data_len);
-      at = 0;
+      if (self->partial)
+        pos = data + at;
+      else
+        pos = memchr (data + at, mark[0], data_len - at);
 
-      while (at < data_len)
+      /* Couldn't find the character anywhere? */
+      if (!pos)
+        break;
+
+      for (at = (pos - data); self->partial < mark_len && at < data_len; self->partial++, at++)
         {
-          if (self->partial)
-            pos = data + at;
-          else
-            pos = memchr (data + at, mark[0], data_len - at);
-
-          /* Couldn't find the character anywhere? */
-          if (!pos)
+          if (mark[self->partial] != data[at])
             break;
+        }
 
-          for (at = (pos - data); self->partial < mark_len && at < data_len; self->partial++, at++)
+      /* Found a match */
+      if (self->partial == mark_len)
+        {
+          self->partial = 0;
+
+          if (written < at)
             {
-              if (mark[self->partial] != data[at])
-                break;
-            }
-
-          /* Found a match */
-          if (self->partial == mark_len)
-            {
-              self->partial = 0;
-
-              bytes = g_bytes_new_from_bytes (block, 0, at);
+              bytes = g_bytes_new_from_bytes (block, written, at - written);
               function (func_data, bytes);
               g_bytes_unref (bytes);
-
-              function (func_data, self->inject);
-              g_bytes_unref (self->inject);
-              self->inject = NULL;
-
-              bytes = g_bytes_new_from_bytes (block, at, data_len - at);
-              function (func_data, bytes);
-              g_bytes_unref (bytes);
-
-              block = NULL;
-              break;
             }
 
-          /* Incomplete match, and more data */
-          else if (at < data_len)
-            {
-              self->partial = 0;
-            }
+          function (func_data, self->inject);
+          self->injected++;
+
+          written = at;
+        }
+
+      /* Incomplete match, and more data */
+      else if (at < data_len)
+        {
+          self->partial = 0;
         }
     }
 
-  if (block)
-    function (func_data, block);
+  if (written < data_len)
+    {
+      if (written == 0)
+        {
+          function (func_data, block);
+        }
+      else
+        {
+          bytes = g_bytes_new_from_bytes (block, written, data_len - written);
+          function (func_data, bytes);
+          g_bytes_unref (bytes);
+        }
+    }
 }
 
 static void
@@ -152,6 +161,7 @@ cockpit_web_filter_inject_iface (CockpitWebFilterIface *iface)
  * cockpit_web_filter_new:
  * @marker: marker to search for
  * @inject: bytes to inject after marker
+ * @count: number of times to inject
  *
  * Create a new CockpitWebFilter which injects @inject bytes
  * after the @marker. It injects the data once.
@@ -160,7 +170,8 @@ cockpit_web_filter_inject_iface (CockpitWebFilterIface *iface)
  */
 CockpitWebFilter *
 cockpit_web_inject_new (const gchar *marker,
-                        GBytes *inject)
+                        GBytes *inject,
+                        guint count)
 {
   CockpitWebInject *self;
   gsize len;
@@ -174,6 +185,7 @@ cockpit_web_inject_new (const gchar *marker,
   self = g_object_new (COCKPIT_TYPE_WEB_INJECT, NULL);
   self->marker = g_bytes_new (marker, len);
   self->inject = g_bytes_ref (inject);
+  self->maximum = count;
 
   return COCKPIT_WEB_FILTER (self);
 }

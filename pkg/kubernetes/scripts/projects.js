@@ -330,47 +330,59 @@
         'kubeSelect',
         'fields',
         function($q, $scope, projectData, projectPolicy, kselect, fields) {
+            var selectMember = 'Select Member';
+            var NAME_RE = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
+            var selectRole = 'Select Role';
             var registryRoles = [{ ocRole: "registry-admin", displayRole :"Admin"},
                 { ocRole:"registry-editor", displayRole :"Push" },
                 { ocRole:"registry-viewer", displayRole :"Pull" }];
 
             $scope.select = {
-                member: 'Select Members',
-                members: getAllMembers(),
-                displayRole: 'Select Role',
+                member: selectMember,
+                members: getAllMembers(fields.namespace),
+                displayRole: selectRole,
                 roles: registryRoles,
                 kind: "",
                 ocRole: "",
             };
             
             var namespace = fields.namespace;
-            function getPolicyBinding(namespace){
-                return kselect().kind("PolicyBinding").namespace(namespace).name(":default");
-            }
+
             function getAllMembers() {
                 var users = kselect().kind("User");
                 var groups = kselect().kind("Groups");
                 var members = [];
                 angular.forEach(users, function(user) {
-                    members.push(user);
+                    members.push({
+                        kind: user.kind,
+                        name: user.metadata.name,
+                    });
                 });
                 angular.forEach(groups, function(group) {
-                    members.push(group);
+                    members.push({
+                        kind: group.kind,
+                        name: group.metadata.name,
+                    });
                 });
                 return members;
             }
-            function validate() {
+            function validate(memberName, role) {
                 var defer = $q.defer();
-                var memberName = $scope.select.member;
-                var role = $scope.select.ocRole;
                 var ex;
+                if (memberName !== undefined) {
+                    if (!memberName)
+                        ex = new Error("The member name cannot be empty.");
+                    else if (memberName === selectMember)
+                        ex = new Error("Please select a valid Member.");
+                    else if (!NAME_RE.test(memberName))
+                        ex = new Error("The member name contains invalid characters.");
 
-                if (!memberName || memberName === 'Select Members') {
-                    ex = new Error("Please select a valid Member.");
-                    ex.target = "#add_member";
-                    defer.reject(ex);
+                    if(ex) {
+                        ex.target = "#add_member_group";
+                        defer.reject(ex);                        
+                    }
                 }
-                if (!role || role === 'Select Role') {
+                if (!role || role === selectRole) {
                     ex = new Error("Please select a valid Role.");
                     ex.target = "#add_role";
                     defer.reject(ex);
@@ -384,14 +396,29 @@
             }            
             $scope.performCreate = function performCreate() {
                 var role = $scope.select.ocRole;
-                var memberObj = $scope.select.memberObj;
-                return validate().then(function() {
-                    var patchObj = getPolicyBinding(namespace);
+                var memberName = $scope.select.memberName;
+                var member = $scope.select.member;
+                var memberObj, kind;
+                if (memberName && memberName === member) {
+                    //dropdown value selected
+                    memberObj = $scope.select.memberObj;
+                    memberName = memberObj.name;
+                    kind = memberObj.kind;
+                } else if(memberName && member === selectMember) {
+                    //input field has value
+                    kind = "User";
+                } else if(!memberName && member === selectMember) {
+                    //nothing selected
+                    memberName = selectMember;
+                    kind = null;
+                }
+                
+                return validate(memberName, role).then(function() {
                     var subject = {
-                        kind: memberObj.kind,
-                        name: memberObj.metadata.name,
+                        kind: kind,
+                        name: memberName,
                     };
-                    return projectPolicy.addRoleToPolicyBinding(patchObj, namespace, role, subject);
+                    return projectPolicy.addToRole(namespace, role, subject);
                 });
             };
         }

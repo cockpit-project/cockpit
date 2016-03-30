@@ -974,6 +974,17 @@
                 }
             });
 
+            /* The namespace filter */
+            registerFilter({
+                name: "uid",
+                digest: function(arg) {
+                    if (typeof arg === "string")
+                        return arg;
+                    var meta = arg.metadata;
+                    return meta ? meta.uid : null;
+                }
+            });
+
             var empty = { };
 
             function select(arg) {

@@ -592,6 +592,26 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         }
     ]);
 
+    kubeTest("lookup uid", 3, FIXTURE_BASIC, [
+        "kubeLoader",
+        "kubeSelect",
+        function(loader, select) {
+            return loader.watch("pods").then(function() {
+                /* Get the item */
+                var item = select().kind("Pod").one();
+                var uid = item.metadata.uid;
+                ok(uid, "Have uid");
+
+                var by_uid_item = select().uid(uid).one();
+                strictEqual(item, by_uid_item, "load uid");
+
+                /* Shouldn't match */
+                item = select().uid("bad").one();
+                strictEqual(item, null, "mismatch uid");
+            });
+        }
+    ]);
+
     kubeTest("lookup host", 2, FIXTURE_BASIC, [
         "kubeLoader",
         "kubeSelect",

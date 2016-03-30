@@ -134,6 +134,7 @@ kubernetes_TESTS = \
 	pkg/kubernetes/tests/test-kube-client.html \
 	pkg/kubernetes/tests/test-images.html \
 	pkg/kubernetes/tests/test-projects.html \
+	pkg/kubernetes/tests/test-utils.html \
 	$(NULL)
 
 kubernetes_LESS = \

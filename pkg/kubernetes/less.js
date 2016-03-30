@@ -1,1 +1,1 @@
-../../bower_components/less/dist/less.js
+../../bower_components/less-cockpit/dist/less.js

@@ -431,7 +431,7 @@ angular.module('kubernetesUI').run(['$templateCache', function($templateCache) {
     "    <dd>\n" +
     "      <div ng-if=\"!resource.spec.ports.length\">None</div>\n" +
     "      <div ng-repeat=\"portMapping in resource.spec.ports | orderBy:'port'\">\n" +
-    "        {{portMapping.port}} &#8594; {{portMapping.targetPort}} ({{portMapping.protocol}})\n" +
+    "        {{portMapping.port}}/{{portMapping.protocol}} &#8594; {{portMapping.nodePort || portMapping.targetPort}}\n" +
     "      </div>\n" +
     "    </dd>\n" +
     "    <dt>Session affinity</dt>\n" +

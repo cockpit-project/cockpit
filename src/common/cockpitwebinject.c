@@ -32,7 +32,10 @@
  */
 struct _CockpitWebInject {
   GObject parent;
-  goffset partial;
+  /* partial_matches stores the lengths of partial matches, size is (marker length) - 1
+   * e.g. "ABA" with marker "ABAC" will result in [TRUE, FALSE, TRUE]
+   */
+  GArray *partial_matches;
   GBytes *marker;
   GBytes *inject;
 
@@ -61,6 +64,8 @@ cockpit_web_inject_finalize (GObject *object)
 {
   CockpitWebInject *self = COCKPIT_WEB_INJECT (object);
 
+  if (self->partial_matches)
+    g_array_unref (self->partial_matches);
   if (self->marker)
     g_bytes_unref (self->marker);
   if (self->inject)
@@ -84,70 +89,100 @@ cockpit_web_inject_push (CockpitWebFilter *filter,
                          gpointer func_data)
 {
   CockpitWebInject *self = (CockpitWebInject *)filter;
-  const gchar *mark, *data, *pos;
+  const gchar *mark, *data, *pos = NULL;
   gsize mark_len, data_len, at;
   GBytes *bytes;
   gsize written;
+  gint partial_len, remaining_len;
 
-  /* Stop searching once injected */
   mark = g_bytes_get_data (self->marker, &mark_len);
   data = g_bytes_get_data (block, &data_len);
+
+  if (data_len == 0)
+    return;
+
   written = at = 0;
 
-  while (self->injected < self->maximum && at < data_len)
+  /* look at our partial matches first
+   * longest partial matches have precedence (they either get longer or don't pan out)
+   * only do this if we haven't reached the maximum yet
+   */
+  if (self->injected < self->maximum)
     {
-      if (self->partial)
-        pos = data + at;
-      else
-        pos = memchr (data + at, mark[0], data_len - at);
-
-      /* Couldn't find the character anywhere? */
-      if (!pos)
-        break;
-
-      for (at = (pos - data); self->partial < mark_len && at < data_len; self->partial++, at++)
+      for (partial_len = self->partial_matches->len - 1; partial_len >= 0; --partial_len)
         {
-          if (mark[self->partial] != data[at])
-            break;
-        }
-
-      /* Found a match */
-      if (self->partial == mark_len)
-        {
-          self->partial = 0;
-
-          if (written < at)
+          if (g_array_index (self->partial_matches, gboolean, partial_len))
             {
-              bytes = g_bytes_new_from_bytes (block, written, at - written);
-              function (func_data, bytes);
-              g_bytes_unref (bytes);
+              /* our match can only grow longer */
+              g_array_index (self->partial_matches, gboolean, partial_len) = FALSE;
+              remaining_len = mark_len - partial_len;
+              /* our current block might be too short */
+              if (remaining_len > data_len)
+                {
+                  if (memcmp (mark + partial_len, data, data_len) == 0)
+                    g_array_index (self->partial_matches, gboolean, partial_len + data_len) = TRUE;
+                }
+              else if (memcmp (mark + partial_len, data, remaining_len) == 0)
+                {
+                  /* we have a match */
+                  at = remaining_len;
+                  pos = data + at;
+                  /* reset partials */
+                  g_array_set_size(self->partial_matches, 0);
+                  g_array_set_size(self->partial_matches, mark_len);
+                  break;
+                }
             }
-
-          function (func_data, self->inject);
-          self->injected++;
-
-          written = at;
-        }
-
-      /* Incomplete match, and more data */
-      else if (at < data_len)
-        {
-          self->partial = 0;
         }
     }
 
-  if (written < data_len)
+  /* keep searching until we have found the maximum number of allowed matches or reached the end */
+  for(;;)
+  {
+    if (at != written)
     {
-      if (written == 0)
+      bytes = g_bytes_new_from_bytes (block, written, at - written);
+      function (func_data, bytes);
+      g_bytes_unref (bytes);
+      written = at;
+
+      /* did we have a match? */
+      if (pos == (data + at) && self->injected < self->maximum)
         {
-          function (func_data, block);
+          function (func_data, self->inject);
+          self->injected++;
         }
-      else
-        {
-          bytes = g_bytes_new_from_bytes (block, written, data_len - written);
-          function (func_data, bytes);
-          g_bytes_unref (bytes);
-        }
+    }
+
+    if (at >= data_len)
+      break;
+
+    /* if there are enough chars left, try to find a complete match */
+    if (self->injected < self->maximum &&
+        data_len >= (at + mark_len) &&
+        (pos = memmem (data + at, data_len - at, mark, mark_len)))
+      {
+        /* we found a match, but we want to write out the mark also before we inject */
+        pos += mark_len;
+        at = pos - data;
+      }
+    else
+      {
+        /* nothing found, forward */
+        at = data_len;
+        pos = NULL;
+      }
+  }
+
+  /* if we haven't reached our max number of injections, look for partial matches at the end */
+  partial_len = mark_len - 1;
+  if (partial_len > data_len)
+    partial_len = data_len;
+  while (partial_len > 0)
+    {
+      if (memcmp (mark, data + data_len - partial_len, partial_len) == 0)
+        g_array_index (self->partial_matches, gboolean, partial_len) = TRUE;
+      partial_len--;
     }
 }
 
@@ -184,6 +219,8 @@ cockpit_web_inject_new (const gchar *marker,
 
   self = g_object_new (COCKPIT_TYPE_WEB_INJECT, NULL);
   self->marker = g_bytes_new (marker, len);
+  self->partial_matches = g_array_sized_new(FALSE, TRUE, sizeof(gboolean), len);
+  g_array_set_size(self->partial_matches, len);
   self->inject = g_bytes_ref (inject);
   self->maximum = count;
 

@@ -719,6 +719,92 @@ test_web_filter_split (TestCase *tc,
 }
 
 static void
+test_web_filter_shift (TestCase *tc,
+                       gconstpointer data)
+{
+  CockpitWebFilter *filter;
+  const gchar *resp;
+  GBytes *block;
+  GBytes *inject;
+
+  inject = bytes_static ("injected");
+  filter = cockpit_web_inject_new ("foofn", inject, 1);
+  cockpit_web_response_add_filter (tc->response, filter);
+  g_object_unref (filter);
+  g_bytes_unref (inject);
+
+  cockpit_web_response_headers_full (tc->response, 200, "OK", -1, NULL);
+
+  /* Total content is foofoofn and split after the first 4 characters */
+  block = bytes_static ("foof");
+  g_assert (cockpit_web_response_queue (tc->response, block) == TRUE);
+  g_bytes_unref (block);
+  block = bytes_static ("oofn");
+  g_assert (cockpit_web_response_queue (tc->response, block) == TRUE);
+  g_bytes_unref (block);
+  cockpit_web_response_complete (tc->response);
+
+  while (cockpit_web_response_get_state (tc->response) != COCKPIT_WEB_RESPONSE_COMPLETE)
+    g_main_context_iteration (NULL, TRUE);
+
+  resp = output_as_string (tc);
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
+
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n"
+                   "4\r\nfoof\r\n"
+                   "4\r\noofn\r\n"
+                   "8\r\ninjected\r\n"
+                   "0\r\n\r\n");
+}
+
+static void
+test_web_filter_shift_three (TestCase *tc,
+                             gconstpointer data)
+{
+  CockpitWebFilter *filter;
+  const gchar *resp;
+  GBytes *block;
+  GBytes *inject;
+
+  inject = bytes_static ("injected");
+  filter = cockpit_web_inject_new ("foofn", inject, 1);
+  cockpit_web_response_add_filter (tc->response, filter);
+  g_object_unref (filter);
+  g_bytes_unref (inject);
+
+  cockpit_web_response_headers_full (tc->response, 200, "OK", -1, NULL);
+
+  /* Total content is foofoofn and split across multiple packets after the first 4 characters */
+  block = bytes_static ("foof");
+  g_assert (cockpit_web_response_queue (tc->response, block) == TRUE);
+  g_bytes_unref (block);
+  block = bytes_static ("o");
+  g_assert (cockpit_web_response_queue (tc->response, block) == TRUE);
+  g_bytes_unref (block);
+  block = bytes_static ("of");
+  g_assert (cockpit_web_response_queue (tc->response, block) == TRUE);
+  g_bytes_unref (block);
+  block = bytes_static ("n");
+  g_assert (cockpit_web_response_queue (tc->response, block) == TRUE);
+  g_bytes_unref (block);
+  cockpit_web_response_complete (tc->response);
+
+  while (cockpit_web_response_get_state (tc->response) != COCKPIT_WEB_RESPONSE_COMPLETE)
+    g_main_context_iteration (NULL, TRUE);
+
+  resp = output_as_string (tc);
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
+
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n"
+                   "4\r\nfoof\r\n"
+                   "1\r\no\r\n"
+                   "2\r\nof\r\n"
+                   "1\r\nn\r\n"
+                   "8\r\ninjected\r\n"
+                   "0\r\n\r\n");
+}
+
+static void
 test_web_filter_passthrough (TestCase *tc,
                              gconstpointer data)
 {
@@ -1181,6 +1267,10 @@ main (int argc,
               setup, test_web_filter_passthrough, teardown);
   g_test_add ("/web-response/filter/split", TestCase, NULL,
               setup, test_web_filter_split, teardown);
+  g_test_add ("/web-response/filter/shift", TestCase, NULL,
+              setup, test_web_filter_shift, teardown);
+  g_test_add ("/web-response/filter/shift_three", TestCase, NULL,
+              setup, test_web_filter_shift_three, teardown);
 
   g_test_add ("/web-response/path/pop", TestPlain, NULL,
               setup_plain, test_pop_path, teardown_plain);

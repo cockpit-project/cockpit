@@ -20,10 +20,9 @@
 require([
     "base1/cockpit",
     "react",
-    "react-dom",
     "selinux/setroubleshoot-client",
     "selinux/views/setroubleshoot-view",
-], function(cockpit, React, ReactDOM, troubleshoot_client, troubleshoot_view) {
+], function(cockpit, React, troubleshoot_client, troubleshoot_view) {
 
 "use strict";
 
@@ -88,7 +87,7 @@ var init_store = function(root_element) {
     };
 
     var render = function() {
-        ReactDOM.render(React.createElement(troubleshoot_view.SETroubleshootPage, {
+        React.render(React.createElement(troubleshoot_view.SETroubleshootPage, {
                 connected: data_store.connected,
                 connecting: data_store.connecting,
                 error: data_store.error,

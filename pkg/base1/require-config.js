@@ -5,7 +5,6 @@
         paths: {
             "jquery": "base1/jquery",
             "react": "base1/react",
-            "react-dom": "base1/react-dom",
         }
     });
 })(require);

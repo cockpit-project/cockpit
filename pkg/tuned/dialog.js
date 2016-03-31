@@ -23,10 +23,10 @@ define([
     "base1/mustache",
     "system/service",
     "data!./button.html",
-    "data!./dialog.html",
-    "base1/patterns",
-    "base1/bootstrap-select",
-], function($, cockpit, mustache, service, button_html, dialog_tmpl) {
+    "performance/dialog-view",
+    "performance/change-profile",
+    "react",
+], function($, cockpit, mustache, service, button_html, dialog_view, change_profile_template, React) {
     "use strict";
 
     var module = { };
@@ -118,36 +118,72 @@ define([
                 });
         }
 
-        var dialog = null;
-
-        function create_dialog(profiles) {
-            if (dialog)
-                dialog.remove();
-            dialog = $(mustache.render(dialog_tmpl, { Profiles: profiles }));
-            dialog.appendTo("body");
-            dialog.on('hide.bs.modal', function() {
-                dialog.remove();
-                dialog = null;
-            });
-            return dialog;
-        }
-
         function open_dialog() {
             var tuned;
+            var dialog_selected;
 
-            function set_profile(profile) {
+            function set_profile(set_progress_message) {
+                var dfd = $.Deferred();
+
+                // no need to check input here, all states are valid
+                set_progress_message(_("Switching performance profile"));
+
+                var profile = dialog_selected;
                 if (profile == "none") {
-                    return tuned.call('/Tuned', 'com.redhat.tuned.control', 'stop', []);
+                    tuned.call('/Tuned', 'com.redhat.tuned.control', 'stop', [])
+                        .done(function() {
+                            update_button();
+                            dfd.resolve();
+                        })
+                        .fail(function(ex) {
+                            dfd.reject(ex);
+                        });
                 } else {
-                    return (tuned.call('/Tuned', 'com.redhat.tuned.control', 'switch_profile',
-                                       [ profile ])
-                            .then(function (results) {
-                                if (!results[0][0])
-                                    return [ false, results[0][1] ];
-                                else
-                                    return tuned.call('/Tuned', 'com.redhat.tuned.control', 'start', []);
-                            }));
+                    tuned.call('/Tuned', 'com.redhat.tuned.control', 'switch_profile', [ profile ])
+                        .then(function(results) {
+                            if (!results[0][0]) {
+                                dfd.reject(results[0][1] || _("Failed to switch profile"));
+                            } else {
+                                set_progress_message(_("Activating performance profile"));
+                                tuned.call('/Tuned', 'com.redhat.tuned.control', 'start', [])
+                                    .done(function(results) {
+                                        if (!results[0]) {
+                                            console.warn("tuned set_profile failed: " + JSON.stringify(results));
+                                            dfd.reject(results[1] || _("Failed to activate profile"));
+                                        } else {
+                                            update_button();
+                                            dfd.resolve();
+                                        }
+                                    })
+                                    .fail(function(ex) {
+                                        dfd.reject(ex);
+                                    });
+                            }
+                        });
                 }
+                return dfd.promise();
+            }
+
+            function update_selected_item(selected) {
+                dialog_selected = selected;
+            }
+
+            function create_dialog(profiles, active_profile, primary_disabled, static_error) {
+                dialog_selected = active_profile;
+                var dialog_props = {
+                    'title': _("Change Performance Profile"),
+                    'body': React.createElement(change_profile_template, {
+                            'active_profile': active_profile,
+                            'change_selected': update_selected_item,
+                            'profiles': profiles,
+                        }),
+                };
+                var footer_props = {
+                    'primary_clicked': set_profile,
+                    'primary_caption': _("Change Profile"),
+                    'static_error': static_error,
+                };
+                dialog_view.show_modal_dialog(dialog_props, footer_props);
             }
 
             function with_info(active, recommended, profiles) {
@@ -163,59 +199,28 @@ define([
                     }
                     if (name != "none") {
                         model.push({
-                            profile: name,
-                            Title: name,
-                            Description: desc,
-                            recommended: name == recommended
+                            name: name,
+                            title: name,
+                            description: desc,
+                            active: name == active,
+                            recommended: name == recommended,
                         });
                     }
                 });
 
-                model.unshift({ profile: "none", Title: _("None"), Description: _("Disable tuned") });
-
-                dialog = create_dialog(model);
-                dialog.find('[data-profile="' + active + '"]').addClass('active');
-                dialog.find('[data-profile]').on('click', function () {
-                    dialog.dialog('failure', null);
-                    dialog.find('[data-profile]').removeClass('active');
-                    $(this).addClass('active');
+                model.unshift({
+                    name: "none",
+                    title: _("None"),
+                    description: _("Disable tuned"),
+                    active: "none" == active,
+                    recommended: "none" == recommended,
                 });
 
-                dialog.find('.cancel').on('click', function () {
-                    dialog.modal('hide');
-                });
-
-                dialog.find('.apply').on('click', function () {
-                    var requested_profile = dialog.find('[data-profile].active').attr('data-profile');
-                    var promise = set_profile(requested_profile)
-                        .done(function (results) {
-                            if (!results[0]) {
-                                console.warn("tuned set_profile failed: " + JSON.stringify(results));
-                                dialog.dialog('failure', results[1] || "Failed to switch profile");
-                            } else {
-                                update_button();
-                                dialog.modal('hide');
-                            }
-                        })
-                        .fail(function (ex) {
-                            dialog.dialog('failure', ex);
-                        });
-                    dialog.dialog('wait', promise);
-                });
-
-                dialog.modal('show');
+                create_dialog(model, active);
             }
 
             function show_error(error) {
-                dialog = create_dialog([ ]);
-                dialog.dialog('failure', error);
-
-                dialog.find('.cancel').on('click', function () {
-                    dialog.modal('hide');
-                });
-
-                dialog.find('.apply').prop('disabled', true);
-                dialog.modal('show');
+                create_dialog([ ], "none", true, error);
             }
 
             function tuned_profiles() {

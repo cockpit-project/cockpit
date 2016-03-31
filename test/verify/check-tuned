@@ -59,14 +59,20 @@ class TestTuned(MachineCase):
         # Switch the profile
 
         b.click('#system-info-performance button')
-        b.wait_present('#tuned-dialog')
-        b.wait_visible('#tuned-dialog')
-        b.wait_in_text('#tuned-dialog .list-group-item.active p', recommended_profile)
-        b.wait_in_text('#tuned-dialog .list-group-item.active .badge', "recommended")
-        b.click('#tuned-dialog [data-profile="balanced"]')
-        b.wait_in_text('#tuned-dialog .list-group-item.active p', "balanced")
-        b.click('#tuned-dialog button.apply')
-        b.wait_not_present('#tuned-dialog')
+        title_selector = "h4.modal-title:contains('Change Performance Profile')"
+        b.wait_present(title_selector)
+        body_selector = ".modal-dialog:contains('Change Performance Profile')"
+        b.wait_present("{0} .list-group-item.active p".format(body_selector))
+
+        # Make sure we see the recommended profile and its badge
+        b.wait_in_text("{0} .list-group-item.active p".format(body_selector), recommended_profile)
+        b.wait_present("{0} .list-group-item.active span.badge:contains('recommended')".format(body_selector))
+
+        b.click("{0} .list-group-item p:contains('balanced')".format(body_selector))
+        b.wait_present("{0} .list-group-item.active p:contains('balanced')".format(body_selector))
+
+        b.click("{0} button.apply".format(body_selector))
+        b.wait_not_present(title_selector)
 
         b.wait_text('#system-info-performance button', "balanced")
         b.wait_attr('#system-info-performance [data-toggle="popover"]', 'data-content',

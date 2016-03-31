@@ -52,6 +52,8 @@
         { kind: "PolicyBinding", type: "policybindings", api: OPENSHIFT },
         { kind: "RoleBinding", type: "rolebindings", api: OPENSHIFT },
         { kind: "Route", type: "routes", api: OPENSHIFT },
+        { kind: "PersistentVolume", type: "persistentvolumes", api: KUBE, global: true, create: -100 },
+        { kind: "PersistentVolumeClaim", type: "persistentvolumeclaims", api: KUBE, create: -50 },
         { kind: "Project", type: "projects", api: OPENSHIFT, global: true, create: -90 },
         { kind: "ProjectRequest", type: "projectrequests", api: OPENSHIFT, global: true, create: -90 },
         { kind: "ReplicationController", type: "replicationcontrollers", api: KUBE, create: -60 },
@@ -301,6 +303,13 @@
      */
 
     .value("KUBE_SCHEMA", SCHEMA)
+
+    /**
+     * KUBE_NAME_RE
+     *
+     * Regular Expression that names in kubernetes must match.
+     */
+    .value("KUBE_NAME_RE", NAME_RE)
 
     /**
      * kubeLoader

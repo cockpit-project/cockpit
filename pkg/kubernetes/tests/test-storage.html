@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<!--
+This file is part of Cockpit.
+
+Copyright (C) 2016 Red Hat, Inc.
+
+Cockpit is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or
+(at your option) any later version.
+
+Cockpit is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Projects tests</title>
+    <link rel="stylesheet" href="../../../tools/qunit.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="../../../tools/qunit.js"></script>
+
+    <script src="../../base1/angular.js"></script>
+    <script src="../../base1/cockpit.js"></script>
+    <script src="../scripts/kube-client.js"></script>
+    <script src="../scripts/kube-client-cockpit.js"></script>
+    <script src="../scripts/listing.js"></script>
+    <script src="../scripts/dialog.js"></script>
+    <script src="../scripts/storage.js"></script>
+    <script src="../scripts/utils.js"></script>
+</head>
+<body>
+    <h1 id="qunit-header">Projects tests</h1>
+    <h2 id="qunit-banner"></h2>
+    <div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+    <div id="qunit-fixture">test markup, will be hidden</div>
+    <div id="done-flag" style="display:none">Done</div>
+<script>
+function suite(fixtures) {
+    "use strict";
+
+    /* Filled in with a function */
+    var inject;
+
+    var module = angular.module("kubernetes.storage.tests", [
+        "kubeClient",
+        'kubeClient.cockpit',
+        "kubernetes.storage",
+    ])
+
+    .config([
+        'KubeTranslateProvider',
+        'KubeFormatProvider',
+        function(KubeTranslateProvider, KubeFormatProvider) {
+            KubeTranslateProvider.KubeTranslateFactory = "CockpitTranslate";
+            KubeFormatProvider.KubeFormatFactory = "CockpitFormat";
+        }
+    ])
+
+    function storageTest(name, count, fixtures, func) {
+        test(name, function() {
+            expect(count);
+            inject([
+                "kubeLoader",
+                function(loader, data) {
+                    loader.reset(true);
+                    if (fixtures)
+                        loader.handle(fixtures);
+                }
+            ]);
+            inject(func);
+        });
+    }
+
+    storageTest("pods for Claim", 4, fixtures, [
+        "storageData",
+        'kubeSelect',
+        function(storageData, select) {
+            var claim = select().kind("PersistentVolumeClaim").name("bound-claim").one();
+            var pods = storageData.podsForClaim(claim);
+            equal(pods.length, 1, "number of pods");
+            equal(pods.one().metadata.name, "mock-pod", "correct pod");
+
+            pods = storageData.podsForClaim();
+            deepEqual(pods.length, 0, "null claim pods");
+
+            pods = storageData.podsForClaim({});
+            deepEqual(pods.length, 0, "empty claim pods");
+        }
+    ]);
+
+    storageTest("volumes for Pod", 4, fixtures, [
+        "storageData",
+        'kubeSelect',
+        function(storageData, select) {
+            var pod = select().kind("Pod").one();
+            var volumes = storageData.volumesForPod(pod);
+            deepEqual(volumes, {
+              "default-token-luvqo": {
+                "name": "default-token-luvqo",
+                "secret": {
+                    "secretName": "default-token-luvqo"
+                },
+                "mounts": {
+                  "mock-volume-container": {
+                    "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                    "name": "default-token-luvqo",
+                    "readOnly": true
+                  },
+                  "mock-volume-container1": {
+                    "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                    "name": "default-token-luvqo",
+                    "readOnly": true
+                  }
+                }
+              },
+              "host-tmp": {
+                "mounts": {
+                  "mock-volume-container": {
+                    "mountPath": "/other",
+                    "name": "host-tmp"
+                  },
+                  "mock-volume-container1": {
+                    "mountPath": "/tmp",
+                    "name": "host-tmp"
+                  }
+                },
+                "name": "host-tmp",
+                "persistentVolumeClaim": {
+                  "claimName": "bound-claim"
+                }
+              },
+              "missing-claim": {
+                "mounts": {
+                  "mock-volume-container": {
+                    "mountPath": "/tmp",
+                    "name": "missing-claim"
+                  }
+                },
+                "name": "missing-claim",
+                "persistentVolumeClaim": {
+                  "claimName": "missing-claim"
+                }
+              },
+              "missing-claim2": {
+                "name": "missing-claim2",
+                "persistentVolumeClaim": {
+                  "claimName": "missing-claim2"
+                }
+              }
+            });
+            equal(volumes, storageData.volumesForPod(pod), "same object");
+
+            deepEqual(storageData.volumesForPod(), {}, "No null volumes");
+            deepEqual(storageData.volumesForPod({}), {}, "No empty volumes");
+        }
+    ]);
+
+    storageTest("claim From Volume Source", 4, fixtures, [
+        "storageData",
+        'kubeSelect',
+        function(storageData, select) {
+            var pod = select().kind("Pod").one();
+            var volumes = storageData.volumesForPod(pod);
+            var source = volumes["host-tmp"]["persistentVolumeClaim"];
+            var claim = storageData.claimFromVolumeSource(source, "default");
+            equal(claim.metadata.name, "bound-claim", "correct claim");
+            equal(claim.kind, "PersistentVolumeClaim", "correct type");
+
+            deepEqual(storageData.claimFromVolumeSource(), null, "No null volumes");
+            deepEqual(storageData.claimFromVolumeSource({}), null, "No empty volumes");
+        }
+    ]);
+
+    storageTest("claim For Volume", 5, fixtures, [
+        "storageData",
+        'kubeSelect',
+        function(storageData, select) {
+            var bound = select().kind("PersistentVolume").name("bound").one();
+            var claim = storageData.claimForVolume(bound);
+
+            equal(claim.metadata.name, "bound-claim", "correct claim");
+            equal(claim.kind, "PersistentVolumeClaim", "correct claim");
+
+            var unbound = select().kind("PersistentVolume").name("unbound").one();
+            equal(storageData.claimForVolume(unbound), null, "no claim");
+
+            equal(storageData.claimForVolume(), null, "null volume");
+            equal(storageData.claimForVolume(), null, "empty volume");
+        }
+    ]);
+
+
+    storageTest("volume Types", 4, fixtures, [
+        "storageData",
+        'kubeSelect',
+        function(storageData, select) {
+            var pv = select().kind("PersistentVolume").name("bound").one();
+            var volumes = storageData.volumesForPod(select().kind("Pod").one());
+            equal(storageData.getVolumeType(pv.spec), "hostPath", "correct type");
+            equal(storageData.getVolumeType(volumes["default-token-luvqo"]), "secret", "secret volume");
+            equal(storageData.getVolumeType(), undefined, "null volume");
+            equal(storageData.getVolumeType({}), undefined, "empty volume");
+        }
+    ]);
+
+    storageTest("volume Labels", 3, fixtures, [
+        "storageData",
+        'kubeSelect',
+        function(storageData, select) {
+            var pv = select().kind("PersistentVolume").name("bound").one();
+            equal(storageData.getVolumeLabel(), "Unknown", "null volume");
+            equal(storageData.getVolumeLabel({}), "Unknown", "empty volume");
+            equal(storageData.getVolumeLabel(pv.spec), "Host Path", "volume label");
+        }
+    ]);
+
+    angular.module('exceptionOverride', []).factory('$exceptionHandler', function() {
+        return function(exception, cause) {
+            exception.message += ' (caused by "' + cause + '")';
+            throw exception;
+        };
+    });
+
+    module.run([
+        '$injector',
+        function($injector) {
+            inject = function inject(func) {
+                return $injector.invoke(func);
+            };
+            QUnit.start();
+        }
+    ]);
+
+    angular.bootstrap(document, ['kubernetes.storage.tests']);
+}
+
+/* Invoke the test suite with this data */
+suite([
+{
+    "kind": "PersistentVolume",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "available",
+        "selfLink": "/api/v1/persistentvolumes/available",
+        "uid": "3b2e0dc2-f6a4-11e5-9e36-5254009e00f1",
+        "resourceVersion": "1325",
+        "creationTimestamp": "2016-03-30T18:21:33Z"
+    },
+    "spec": {
+        "capacity": {
+            "storage": "2Gi"
+        },
+        "hostPath": {
+            "path": "/tmp"
+        },
+        "accessModes": [
+            "ReadWriteMany"
+        ],
+        "persistentVolumeReclaimPolicy": "Retain"
+    },
+    "status": {
+        "phase": "Available"
+    }
+},
+{
+    "kind": "PersistentVolume",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "bound",
+        "selfLink": "/api/v1/persistentvolumes/bound",
+        "uid": "ae3133fc-f6a4-11e5-9e36-5254009e00f1",
+        "resourceVersion": "1388",
+        "creationTimestamp": "2016-03-30T18:24:46Z"
+    },
+    "spec": {
+        "capacity": {
+            "storage": "5Gi"
+        },
+        "hostPath": {
+            "path": "/tmp"
+        },
+        "accessModes": [
+            "ReadWriteMany"
+        ],
+        "claimRef": {
+            "kind": "PersistentVolumeClaim",
+            "namespace": "default",
+            "name": "bound-claim",
+            "uid": "43dfbea5-f6a4-11e5-9e36-5254009e00f1",
+            "apiVersion": "v1",
+            "resourceVersion": "1331"
+        },
+        "persistentVolumeReclaimPolicy": "Retain"
+    },
+    "status": {
+        "phase": "Bound"
+    }
+},
+{
+    "kind": "PersistentVolumeClaim",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "unbound-claim",
+        "namespace": "default",
+        "selfLink": "/api/v1/namespaces/default/persistentvolumeclaims/unbound-claim",
+        "uid": "3d474220-f6b3-11e5-ab0c-3b97187a9955",
+        "resourceVersion": "1331",
+        "creationTimestamp": "2016-03-30T18:21:47Z"
+    },
+    "spec": {
+        "accessModes": [
+            "ReadWriteMany"
+        ],
+        "resources": {
+            "requests": {
+                "storage": "5Gi"
+            }
+        }
+    },
+    "status": {
+        "phase": "Pending"
+    }
+},
+{
+    "kind": "PersistentVolumeClaim",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "bound-claim",
+        "namespace": "default",
+        "selfLink": "/api/v1/namespaces/default/persistentvolumeclaims/bound-claim",
+        "uid": "43dfbea5-f6a4-11e5-9e36-5254009e00f1",
+        "resourceVersion": "1387",
+        "creationTimestamp": "2016-03-30T18:21:47Z"
+    },
+    "spec": {
+        "accessModes": [
+            "ReadWriteMany"
+        ],
+        "resources": {
+            "requests": {
+                "storage": "5Gi"
+            }
+        },
+        "volumeName": "available"
+    },
+    "status": {
+        "phase": "Bound",
+        "accessModes": [
+            "ReadWriteMany"
+        ],
+        "capacity": {
+            "storage": "5Gi"
+        }
+    }
+},
+{
+    "kind": "Pod",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "mock-pod",
+        "namespace": "default",
+        "selfLink": "/api/v1/namespaces/default/pods/mock-pod",
+        "uid": "43d38e8e-f6a4-11e5-9e36-5254009e00f1",
+        "resourceVersion": "1328",
+        "creationTimestamp": "2016-03-30T18:21:47Z"
+    },
+    "spec": {
+        "volumes": [
+            {
+                "name": "missing-claim",
+                "persistentVolumeClaim": {
+                    "claimName": "missing-claim"
+                }
+            },
+            {
+                "name": "host-tmp",
+                "persistentVolumeClaim": {
+                    "claimName": "bound-claim"
+                }
+            },
+            {
+                "name": "missing-claim2",
+                "persistentVolumeClaim": {
+                    "claimName": "missing-claim2"
+                }
+            },
+            {
+                "name": "default-token-luvqo",
+                "secret": {
+                    "secretName": "default-token-luvqo"
+                }
+            }
+        ],
+        "containers": [
+            {
+                "name": "mock-volume-container1",
+                "image": "busybox:buildroot-2014.02",
+                "command": [
+                    "/bin/sh",
+                    "-c",
+                    "for x in $(seq 1 1000); do echo 'HelloMessage.' \u003e\u00262; sleep 1; done"
+                ],
+                "ports": [
+                    {
+                        "containerPort": 9949,
+                        "protocol": "TCP"
+                    }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                    {
+                        "name": "host-tmp",
+                        "mountPath": "/tmp"
+                    },
+                    {
+                        "name": "default-token-luvqo",
+                        "readOnly": true,
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+                    }
+                ]
+            },
+            {
+                "name": "mock-volume-container",
+                "image": "busybox:buildroot-2014.02",
+                "command": [
+                    "/bin/sh",
+                    "-c",
+                    "for x in $(seq 1 1000); do echo 'HelloMessage.' \u003e\u00262; sleep 1; done"
+                ],
+                "ports": [
+                    {
+                        "containerPort": 9949,
+                        "protocol": "TCP"
+                    }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                    {
+                        "name": "host-tmp",
+                        "mountPath": "/other"
+                    },
+                    {
+                        "name": "missing-claim",
+                        "mountPath": "/tmp"
+                    },
+                    {
+                        "name": "default-token-luvqo",
+                        "readOnly": true,
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+                    }
+                ]
+            }
+        ]
+    },
+    "status": {
+        "phase": "Pending"
+    }
+}
+]);
+
+</script>
+</body>
+</html>

@@ -107,6 +107,13 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/imagerepository-panel.html \
 	pkg/kubernetes/views/pod-body.html \
 	pkg/kubernetes/views/pod-panel.html \
+	pkg/kubernetes/views/pv-body.html \
+	pkg/kubernetes/views/pv-claim.html \
+	pkg/kubernetes/views/pv-delete.html \
+	pkg/kubernetes/views/pv-listing.html \
+	pkg/kubernetes/views/pv-modify.html \
+	pkg/kubernetes/views/pv-page.html \
+	pkg/kubernetes/views/pv-panel.html \
 	pkg/kubernetes/views/node-add.html \
 	pkg/kubernetes/views/node-panel.html \
 	pkg/kubernetes/views/replicationcontroller-panel.html \
@@ -116,6 +123,7 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/service-modify.html \
 	pkg/kubernetes/views/service-panel.html \
 	pkg/kubernetes/views/topology-page.html \
+	pkg/kubernetes/views/volume-body.html \
 	$(NULL)
 
 kubernetes_MODULES = \
@@ -126,6 +134,7 @@ kubernetes_MODULES = \
 	pkg/kubernetes/scripts/graphs.js \
 	pkg/kubernetes/scripts/main.js \
 	pkg/kubernetes/scripts/object-describer.js \
+	pkg/kubernetes/scripts/storage.js \
 	pkg/kubernetes/scripts/topology.js \
 	pkg/kubernetes/scripts/topology-graph.js \
 	$(NULL)
@@ -134,6 +143,7 @@ kubernetes_TESTS = \
 	pkg/kubernetes/tests/test-kube-client.html \
 	pkg/kubernetes/tests/test-images.html \
 	pkg/kubernetes/tests/test-projects.html \
+	pkg/kubernetes/tests/test-storage.html \
 	pkg/kubernetes/tests/test-utils.html \
 	$(NULL)
 
@@ -146,6 +156,7 @@ kubernetes_LESS = \
 	pkg/kubernetes/styles/revealable.less \
 	pkg/kubernetes/styles/topology.less \
 	pkg/kubernetes/styles/topology-graph.less \
+	pkg/kubernetes/styles/storage.less \
 	$(NULL)
 
 kubernetes_MIN = \

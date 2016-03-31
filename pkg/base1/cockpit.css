@@ -158,6 +158,7 @@ a {
     padding: 20px 0 10px 0;
 }
 
+.cockpit-form-table label input[type='radio'],
 .cockpit-form-table label input[type='checkbox'] {
     margin-right: 4px;
 }
@@ -784,6 +785,7 @@ tbody.active .listing-head {
     margin: 0;
 }
 
+.listing-body dl dd dl.inline-dl dt,
 .listing-body dt {
     clear: left;
     float: left;
@@ -792,9 +794,16 @@ tbody.active .listing-head {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    text-align: right;
     color: #888;
     font-weight: normal;
+}
+
+.listing-body dt {
+    text-align: right;
+}
+
+.listing-body dl dd dl dt {
+    text-align: left;
 }
 
 .listing-body dd {

@@ -1435,13 +1435,21 @@ define([
                 };
             }
 
+            var degraded_message = null;
+            if (mdraid.Degraded > 0) {
+                degraded_message = cockpit.format(
+                                       cockpit.ngettext("$0 disk is missing", "$0 disks are missing", mdraid.Degraded),
+                                       mdraid.Degraded
+                                   );
+            }
+
             var mdraid_model = {
                 dbus: mdraid,
                 Name: utils.mdraid_name(mdraid),
                 Size: utils.fmt_size_long(mdraid.Size),
                 Level: level,
                 Bitmap: bitmap,
-                Degraded: mdraid.Degraded > 0 && cockpit.format(_("$0 disks are missing"), mdraid.Degraded),
+                Degraded: degraded_message,
                 State: mdraid.Running? _("Running") : _("Not running"),
                 SyncAction: sync_action
             };

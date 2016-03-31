@@ -45,10 +45,12 @@ container=$(docker create openshift/origin)
 docker cp $container:/usr/bin - | tar -C /usr -xf - bin/openshift bin/oc bin/oadm bin/kubectl
 
 # Runs a master if on the right address, otherwise runs a node
-printf '#!/bin/sh -ex\nif /usr/sbin/ip addr | /usr/bin/grep -i "52:54:00:9e:00:f1"; then\n/usr/bin/openshift start --master=10.111.112.101\nelse\n/usr/bin/hostnamectl set-hostname node-$(/usr/bin/cat /etc/machine-id)\n/usr/bin/openshift start node --kubeconfig=/openshift.local.config/node-f1.cockpit.lan/node.kubeconfig\nfi\n' > /openshift-run
+printf '#!/bin/sh -ex\nif /usr/sbin/ip addr | /usr/bin/grep -i "52:54:00:9e:00:f1"; then\n/usr/bin/hostnamectl set-hostname f1.cockpit.lan\n/usr/bin/systemctl enable rpcbind\n/usr/bin/systemctl start rpcbind\n/usr/bin/systemctl start nfs-server\ncmd=\"/usr/bin/openshift start --master=10.111.112.101\"\nelse\n/usr/bin/hostnamectl set-hostname node-$(/usr/bin/cat /etc/machine-id)\ncmd=\"/usr/bin/openshift start node --kubeconfig=/openshift.local.config/node-f1.cockpit.lan/node.kubeconfig\"\nfi\necho "#!/bin/sh -ex\n$cmd" > /openshift-run\n' > /openshift-prep
+chmod +x /openshift-prep
+touch /openshift-run
 chmod +x /openshift-run
 
-printf '[Unit]\nDescription=Openshift\n[Service]\nExecStart=/openshift-run\n[Install]\nWantedBy=multi-user.target\n' > /etc/systemd/system/openshift.service
+printf '[Unit]\nDescription=Openshift\nWants=network-online.target\nAfter=network-online.target\n[Service]\nExecStartPre=/openshift-prep\nExecStart=/openshift-run\n[Install]\nWantedBy=multi-user.target\n' > /etc/systemd/system/openshift.service
 
 systemctl daemon-reload
 systemctl enable openshift
@@ -70,7 +72,8 @@ wait oc get namespaces
 oc patch scc restricted -p '{ "runAsUser": { "type": "RunAsAny" } }'
 
 # Deploy the registry
-oadm registry --credentials=/openshift.local.config/master/openshift-registry.kubeconfig
+# --credentials deprecated
+oadm registry
 
 function endpoint_has_address() {
     oc get endpoints $1 --template='{{.subsets}}' | grep -q addresses

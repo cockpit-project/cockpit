@@ -55,6 +55,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   <script src="scripts/images.js"></script>
   <script src="scripts/policy.js"></script>
   <script src="scripts/projects.js"></script>
+  <script src="scripts/storage.js"></script>
   <!-- debug:end -->
 
 </head>
@@ -82,6 +83,12 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
               <a ng-href="#{{ viewUrl('list') }}">
                 <i class="fa fa-list fa-fw"></i><br>Details
               </a>
+            </li>
+            <li ng-if="settings.isAdmin" ng-class="{ active: viewActive('storage')}">
+                <!-- Directly to avoid any namespace filtering -->
+                <a id="kubernetes-storage" ng-href="#/storage">
+                    <i class="fa fa-database fa-fw"></i><br>Storage
+                </a>
             </li>
             <li ng-class="{ active: viewActive('images')}" ng-if="settings.flavor == 'openshift'">
                 <a ng-href="#{{ viewUrl('images') }}">

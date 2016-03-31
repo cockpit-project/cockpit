@@ -31,6 +31,7 @@
         'kubernetes.containers',
         'kubernetes.details',
         'kubernetes.topology',
+        'kubernetes.storage',
         'registry.images',
         'registry.policy',
         'registry.projects',

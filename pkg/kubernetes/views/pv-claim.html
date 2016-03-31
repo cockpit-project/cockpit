@@ -1,0 +1,42 @@
+<div class="row">
+    <div class="col-sm-6">
+        <dl ng-if="pvc">
+            <dt translatable="yes">Name</dt>
+            <dd>{{ pvc.metadata.name }}</dd>
+            <dt translatable="yes">Namespace</dt>
+            <dd>{{ pvc.metadata.namespace }}</dd>
+
+            <dt ng-if="pvc.spec.accessModes" translatable="yes">Access Modes</dt>
+            <dd ng-if="pvc.spec.accessModes">
+                <span ng-repeat="mode in pvc.spec.accessModes">{{ mode | accessModeLabel }}<span ng-if="!$last">, </span></span>
+            </dd>
+            <dt ng-if="pvc.spec.resources.requests" translatable="yes">Requests</dt>
+            <dd ng-if="pvc.spec.resources.requests">
+                <dl>
+                    <dt ng-repeat-start="(key, value) in pvc.spec.resources.requests">{{ key | formatCapacityName }}</dt>
+                    <dd ng-repeat-end>{{ value | formatCapacityValue:key  }}</dd>
+                </dl>
+            <dd>
+        </dl>
+
+        <dl class="full-width" ng-if="!pvc">
+            <dd translatable="yes">This volume has not been claimed</dd>
+        </dl>
+    </div>
+
+    <div class="col-sm-6">
+        <dl ng-if="pvc" class="full-width">
+            <dt ng-if="target" translatable="yes">Status</dt>
+            <dd ng-if="target && pvc.status.phase">{{ pvc.status.phase }}</dd>
+            <dd ng-if="target && !pvc.status.phase" translatable="yes">Unknown</dd>
+            <dt ng-if="pvc.status.message" translatable="yes">Message</dt>
+            <dd ng-if="pvc.status.message">{{ pvc.status.message }}</dd>
+        </dl>
+
+        <dl class="full-width" ng-if="pvc">
+            <dt translatable="yes">Pods</dt>
+            <dd ng-repeat="pod in pods">{{ pod.metadata.namespace }} / {{ pod.metadata.name }}</dd>
+            <dd ng-if="!pods.length" translatable="yes">No Pods are using this claim</dd>
+        </dl>
+    </div>
+</div>

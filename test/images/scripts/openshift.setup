@@ -31,6 +31,11 @@ function wait() {
 
 hostnamectl set-hostname f1.cockpit.lan
 
+# Setup a nfs server
+dnf install -y nfs-utils
+mkdir /nfsexport
+echo "/nfsexport *(rw,sync)" > /etc/exports
+
 # This name is put into /etc/hosts later
 echo "INSECURE_REGISTRY='--insecure-registry registry:5000'" >> /etc/sysconfig/docker
 systemctl enable docker

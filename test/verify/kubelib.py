@@ -53,7 +53,132 @@ class KubernetesCase(MachineCase):
         """ % (port, timeout * 2, scheme)
         self.machine.execute(script=waiter)
 
-class KubernetesCommonTests(object):
+class StorageTests(object):
+    def testStorage(self):
+        b = self.browser
+        m = self.machine
+
+        # If openshift use, nfs pv for tests
+        # Otherwise use hostPath
+        pv_id = "pv2"
+        pv1_size = "1Gi"
+        pv2_size = "5Gi"
+        if hasattr(self, "openshift"):
+            pv_id = "pv1"
+            pv1_size = "5Gi"
+            pv2_size = "1Gi"
+            m = self.openshift
+
+        self.login_and_go("/kubernetes")
+        b.wait_present("#kubernetes-storage")
+        b.click("#kubernetes-storage")
+        b.wait_present(".pv-listing")
+
+        b.wait_present("#register-volume")
+        b.click("#register-volume")
+        b.wait_present("modal-dialog")
+        b.click("modal-dialog #storage-type button ")
+        b.click("#storage-type #storage-type-nfs")
+        b.wait_in_text("modal-dialog #storage-type button", "NFS")
+
+        b.set_val("modal-dialog #modify-name", "A Bad Name")
+        b.set_val("modal-dialog #modify-capacity", "invalid")
+        b.set_val("modal-dialog #nfs-modify-server", "a bad server")
+        b.set_val("modal-dialog #modify-path", "tmp")
+        b.set_val("modal-dialog #modify-read-only", "tmp")
+        b.click("modal-dialog .modal-footer button.btn-primary")
+
+        b.wait_present("modal-dialog tr:nth-child(2) div.dialog-error")
+        b.wait_present("modal-dialog tr:nth-child(3) div.dialog-error")
+        b.wait_present("modal-dialog tr:nth-child(5) div.dialog-error")
+        b.wait_present("modal-dialog tr:nth-child(6) div.dialog-error")
+        b.wait_present("modal-dialog tr:nth-child(7) div.dialog-error")
+
+        b.set_val("modal-dialog #modify-name", "pv1")
+        b.set_val("modal-dialog #modify-capacity", pv1_size)
+        b.set_val("modal-dialog #nfs-modify-server", "10.111.112.101")
+        b.set_val("modal-dialog #modify-path", "/nfsexport")
+        b.set_val("modal-dialog #modify-policy-Retain", "Retain");
+        b.click("modal-dialog #modify-policy-Retain")
+        b.click("modal-dialog #modify-access-ReadWriteMany")
+
+        b.click("modal-dialog .modal-footer button.btn-primary")
+        b.wait_not_present("modal-dialog")
+        b.wait_present(".pv-listing tbody[data-id='pv1']")
+
+        b.click("#register-volume")
+        b.wait_present("modal-dialog")
+        b.click("modal-dialog #storage-type button ")
+        b.click("#storage-type #storage-type-hostPath")
+        b.wait_in_text("modal-dialog #storage-type button", "Host Path")
+
+        b.set_val("modal-dialog #modify-name", "pv2")
+        b.set_val("modal-dialog #modify-capacity", pv2_size)
+        b.wait_not_present("modal-dialog #nfs-modify-server")
+        b.set_val("modal-dialog #modify-path", "/tmp")
+        b.click("modal-dialog #modify-policy-Retain")
+        b.click("modal-dialog #modify-access-ReadWriteMany")
+
+        b.click("modal-dialog .modal-footer button.btn-primary")
+        b.wait_not_present("modal-dialog")
+        b.wait_present(".pv-listing tbody[data-id='pv2']")
+
+        m.upload(["verify/files/glusterfs-volume.json"], "/tmp")
+        m.execute("kubectl create -f /tmp/glusterfs-volume.json")
+        b.wait_present(".pv-listing tbody[data-id='gluster-volume']")
+
+        b.click(".pv-listing tbody[data-id='pv2'] th")
+        b.wait_present(".content-filter")
+        b.wait_in_text(".listing-inline", "/tmp")
+        b.wait_in_text(".listing-inline", "This volume has not been claimed")
+        b.wait_present(".content-filter button.pficon-edit")
+        b.click(".content-filter button.pficon-edit")
+        b.wait_present("modal-dialog")
+
+        b.wait_not_present("modal-dialog input#modify-name")
+        b.wait_in_text("modal-dialog span#modify-name", "pv2")
+        b.wait_not_present("modal-dialog input#modify-capacity")
+        b.wait_in_text("modal-dialog span#modify-capacity", pv2_size)
+
+        if m.image == "openshift":
+            b.set_val("modal-dialog #modify-path", "/not-tmp")
+            b.click("modal-dialog .modal-footer button.btn-primary")
+            b.wait_not_present("modal-dialog")
+            b.wait_in_text(".listing-inline", "/not-tmp")
+        else:
+            b.click("modal-dialog button.btn-default")
+            b.wait_not_present("modal-dialog")
+
+        b.click("a.hidden-xs")
+        b.wait_present(".pv-listing tbody[data-id='gluster-volume']")
+        b.click(".pv-listing tbody[data-id='gluster-volume'] th")
+        b.wait_present(".content-filter")
+        b.wait_present(".content-filter button.btn-delete")
+        b.wait_not_present(".content-filter button.pficon-edit")
+        b.click(".content-filter button.btn-delete")
+        b.wait_present("modal-dialog")
+        b.wait_present("modal-dialog .modal-footer button.btn-danger")
+        b.click("modal-dialog .modal-footer button.btn-danger")
+        b.wait_present(".pv-listing")
+        b.wait_not_present(".pv-listing tbody[data-id='gluster-volume']")
+
+        base_sel = ".pv-listing tbody[data-id='{}']".format(pv_id)
+        b.click(".filter-menu button.dropdown-toggle")
+        b.click(".filter-menu li:first-child a")
+        b.wait_present(base_sel)
+        b.click("{} th".format(base_sel))
+        b.wait_present("{} .listing-status".format(base_sel))
+        b.wait_in_text("{} .listing-status".format(base_sel), "Available")
+
+        m.upload(["verify/files/mock-volume-tiny-app.json"], "/tmp")
+        m.execute("kubectl create -f /tmp/mock-volume-tiny-app.json")
+
+        b.wait_in_text("{} .listing-status".format(base_sel), "Bound")
+        b.click("{} .listing-panel ul.nav-tabs li:nth-child(2) a".format(base_sel))
+        b.wait_in_text("{} .listing-panel".format(base_sel), "mock-volume-claim")
+        b.wait_in_text("{} .listing-panel ".format(base_sel), "default / mock-volume")
+
+class KubernetesCommonTests(StorageTests):
 
     def check_logs(self, b):
         # Check that container log output shows up
@@ -300,7 +425,7 @@ class KubernetesCommonTests(object):
         # Assert that at least one link between Service and Pod has loaded
         b.wait_present("svg line.ServicePod")
 
-class OpenshiftCommonTests(object):
+class OpenshiftCommonTests(StorageTests):
 
     def testBasic(self):
         m = self.machine

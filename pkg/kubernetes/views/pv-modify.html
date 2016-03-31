@@ -1,0 +1,120 @@
+<modal-dialog>
+    <div class="modal-header">
+        <h3 class="modal-title" translatable="yes" ng-if="item">Adjust Persistent Volume '{{ item.metadata.name }}'</h3>
+        <h3 class="modal-title" translatable="yes" ng-if="!item">Register Persistent Volume</h3>
+    </div>
+    <div class="modal-body">
+        <table class="cockpit-form-table">
+            <tr>
+                <td class="top">
+                    <label class="control-label" translatable="yes">Type</label>
+                </td>
+                <td ng-if="!item" class="dialog-wrapper">
+                    <div id="storage-type" class="btn-group bootstrap-select form-control" dropdown>
+                        <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
+                            <span class="pull-left">{{ selected.name }}</span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="type in types" ng-class="{ checked: selected.name == type.name }">
+                                <a id="storage-type-{{type.type}}" ng-click="select(type)">{{type.name}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="help-block" ng-if="current_type == 'hostPath'"><strong  translatable="yes">Warning:</strong> <span translatable="yes">This option is for single node testing only – local storage will not work in a multi-node cluster</span></div>
+                </td>
+                <td ng-if="item" class="dialog-wrapper">
+                    <span>{{ item.spec | formatVolumeType }}</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="top">
+                    <label class="control-label" for="modify-name"
+                        translatable="yes">Name</label>
+                </td>
+                <td>
+                    <input id="modify-name" class="form-control" type="text"
+                        ng-if="!item" ng-model="fields.name" placeholder="eg: my-volume-name" autofocus>
+                    <span id="modify-name" ng-if="item">{{ item.metadata.name }}</span>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="top">
+                    <label class="control-label" for="modify-capacity"
+                        translatable="yes">Capacity</label>
+                </td>
+                <td>
+                    <input id="modify-capacity" class="form-control" type="text"
+                        ng-if="!item" ng-model="fields.capacity" placeholder="eg: 2Gi" autofocus>
+                    <span id="modify-capacity" ng-if="item">{{ item.spec.capacity.storage }}</span>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="top">
+                    <label class="control-label"  translatable="yes">Reclaim Policy</label>
+                </td>
+                <td>
+                    <label class="inline" ng-repeat="(key, value) in reclaimPolicies">
+                        <input id="modify-policy-{{key}}" type="radio" ng-model="fields.policy" value="{{key}}">
+                        <span translatable="yes">{{ value }}</span>
+                    </label>
+                    <span id="last-policy"></span>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="top">
+                    <label class="control-label"  translatable="yes">Access Modes</label>
+                </td>
+                <td>
+                    <label class="inline" ng-repeat="(key, value) in accessModes">
+                        <input id="modify-access-{{key}}" type="checkbox" ng-model="fields[key]">
+                        <span translatable="yes">{{ value }}</span>
+                    </label>
+                    <span id="last-access"></span>
+                </td>
+            </tr>
+
+            <tr ng-if="current_type == 'nfs'">
+                <td class="top">
+                    <label class="control-label" for="nfs-modify-server"
+                        translatable="yes">Server</label>
+                </td>
+                <td>
+                    <input id="nfs-modify-server" class="form-control" type="text"
+                        ng-model="fields.server" placeholder="Hostname or IP address">
+                </td>
+            </tr>
+            <tr ng-if="current_type == 'nfs' || current_type == 'hostPath'">
+                <td>
+                    <label class="control-label" for="modify-path"
+                        translatable="yes">Path</label>
+                </td>
+                <td>
+                    <input id="modify-path" class="form-control" type="text"
+                        ng-model="fields.path">
+                </td>
+            </tr>
+
+            <tr ng-if="needsReadOnly()">
+                <td></td>
+                <td>
+                    <label>
+                        <input id="modify-read-only" type="checkbox" ng-model="fields.readOnly">
+                        <span translatable="yes">Read Only</span>
+                    </label>
+                </td>
+            </tr>
+
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
+        <button class="btn btn-primary" ng-click="complete(performModify())">
+            <span translatable="yes" ng-if="item">Change</span>
+            <span translatable="yes" ng-if="!item">Register</span>
+        </button>
+    </div>
+</modal-dialog>

@@ -53,6 +53,11 @@ chcon -t admin_home_t /etc/ssh/ssh_host_ecdsa_key
 systemctl restart sshd || true
 """
 
+# There can be a delay between the denial and setroubleshoot message
+# this command forces a flush
+# HACK https://bugzilla.redhat.com/show_bug.cgi?id=1322771
+FLUSH_ALERTS = "setenforce 0 && setenforce 1"
+
 @unittest.skipIf("rhel" in os.environ.get("TEST_OS", ""), "DBUS API of setroubleshoot too old.")
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No setroubleshoot on debian.")
 @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "No setroubleshoot on atomic systems.")
@@ -71,6 +76,7 @@ class TestSelinux(MachineCase):
         #########################################################
         # trigger an alert
         self.machine.execute(script=SELINUX_ALERT_SCRIPT)
+        self.machine.execute(command=FLUSH_ALERTS)
 
         # wait for the alert to appear
         b.wait_present("td:contains('SELinux is preventing ls from read access on the directory')")
@@ -98,6 +104,7 @@ class TestSelinux(MachineCase):
         #########################################################
         # trigger a more serious, but fixable, alert
         self.machine.execute(script=SELINUX_SERIOUS_ALERT_SCRIPT)
+        self.machine.execute(command=FLUSH_ALERTS)
 
         # wait for the alert to appear
         b.wait_present("td:contains('SELinux is preventing sshd from read access on the file')")

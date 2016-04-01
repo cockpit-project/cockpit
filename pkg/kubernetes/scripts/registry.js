@@ -26,6 +26,7 @@
     angular.module('registry', [
         'ngRoute',
         'ui.bootstrap',
+        'ui.bootstrap.popover',
         'kubernetes.app',
         'registry.images',
         'registry.projects',

@@ -87,7 +87,15 @@
             </h2>
         </div>
         <div class="card-pf-body">
-            <p translatable="yes">Log into the registry:</p>
+            <p translatable="yes">Log into the registry:
+                <a ng-if="settings.registry.password"
+                    tabindex="0" role="button" popover-trigger="focus"
+                    popover="The docker login command shown
+                    here is usually time limited. Come back to
+                    get another one when necessary.">
+                    <span class="fa fa-lg fa-info-circle"></span>
+                </a>
+            </p>
             <div class="alert alert-warning" ng-if="!settings.registry.password">
                 <span class="pficon pficon-warning-triangle-o"></span>
                 <span translatable="yes">Your login credentials do not give you access to use the docker registry from the command line.</span>

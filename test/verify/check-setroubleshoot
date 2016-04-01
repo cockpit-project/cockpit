@@ -79,7 +79,9 @@ class TestSelinux(MachineCase):
         self.machine.execute(command=FLUSH_ALERTS)
 
         # wait for the alert to appear
-        b.wait_present("td:contains('SELinux is preventing ls from read access on the directory')")
+        # HACK https://bugzilla.redhat.com/show_bug.cgi?id=1322771
+        with b.wait_timeout(120):
+            b.wait_present("td:contains('SELinux is preventing ls from read access on the directory')")
 
         # expand it to see details
         row_selector = "td:contains('SELinux is preventing ls from read access on the directory'):parent"
@@ -107,7 +109,9 @@ class TestSelinux(MachineCase):
         self.machine.execute(command=FLUSH_ALERTS)
 
         # wait for the alert to appear
-        b.wait_present("td:contains('SELinux is preventing sshd from read access on the file')")
+        # HACK https://bugzilla.redhat.com/show_bug.cgi?id=1322771
+        with b.wait_timeout(120):
+            b.wait_present("td:contains('SELinux is preventing sshd from read access on the file')")
 
         # expand it to see details
         row_selector = "td:contains('SELinux is preventing sshd from read access on the file'):parent"

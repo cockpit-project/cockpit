@@ -40,11 +40,17 @@ define([
     var cur_dialog;
 
     function dialog_open(def) {
-        // Convert initial values for SizeInput fields to MB.
+
         def.Fields.forEach(function (f) {
+            // Convert initial values for SizeInput fields to MB.
             if (f.SizeInput && f.Value)
                 f.ValueMB = (f.Value / (1024*1024)).toFixed(0);
+
+            // Put in the Units for SizeSliders
+            if (f.SizeSlider && !f.Units)
+                f.Units = cockpit.get_byte_units(f.Value || f.Max);
         });
+
 
         function toggle_arrow(event) {
             var collapsed = $(this).hasClass('collapsed');
@@ -80,6 +86,33 @@ define([
         $dialog.find('.dialog-select-row-table tbody').on('click', select_row);
         $dialog.find('.dialog-select-row-table tbody tr:first-child').addClass('highlight');
 
+        /* Dropdowns
+         */
+
+        function dropdown_option_clicked(target) {
+            if (target.hasClass("disabled"))
+                return false;
+            var parent = target.parents(".dropdown");
+            parent.find("button span").first().text(target.text());
+            parent.val(target.attr("value"));
+            parent.find("li.selected").removeClass("selected");
+            target.addClass("selected");
+            parent.trigger("change", [ ]);
+        }
+
+        $dialog.on("click", ".dropdown li[value]", function(ev) {
+            return dropdown_option_clicked($(this));
+        });
+
+        $dialog.find(".dropdown").each(function (i, parent) {
+            var selected;
+            $(parent).find("li[value]").each(function (i, target) {
+                if (!selected || $(target).attr("selected"))
+                    selected = $(target);
+            });
+            dropdown_option_clicked(selected);
+        });
+
         /* Size sliders
          */
 
@@ -87,14 +120,10 @@ define([
             var value = field.Value || field.Max;
             var parent = $dialog.find('[data-field="' + field.SizeSlider + '"]');
             var slider = controls.Slider();
-            var units = cockpit.get_byte_units(value);
 
             parent.data('max', field.Max);
             parent.data('round', field.Round);
             parent.find('.slider').replaceWith(slider);
-            parent.find('.size-unit').append(units.map(function (u) {
-                return $('<option>', { value: u.factor, selected: u.selected }).text(u.name);
-            }));
 
             $(slider).on('change', size_slider_changed);
             parent.find('.size-text').on('change', size_text_changed);
@@ -301,8 +330,6 @@ define([
                 }
             }
         });
-
-        $dialog.find('.selectpicker').selectpicker();
 
         update_visibility();
         $dialog.modal('show');

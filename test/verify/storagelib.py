@@ -80,8 +80,8 @@ class StorageCase(MachineCase):
                 self.dialog_select(field, label, val[label])
         elif isinstance(val, int):
             # size slider
-            self.browser.set_val(self.dialog_field(field) + " select.size-unit", "1048576")
-            self.browser.set_val(self.dialog_field(field) + " input.size-text", str(val))
+            self.browser.set_val(self.dialog_field(field) + " .size-unit", "1048576")
+            self.browser.set_val(self.dialog_field(field) + " .size-text", str(val))
         else:
             self.browser.set_val(self.dialog_field(field), val)
 
@@ -102,8 +102,8 @@ class StorageCase(MachineCase):
     def dialog_wait_val(self, field, val):
         if isinstance(val, int):
             # size slider
-            self.browser.wait_val(self.dialog_field(field) + " select.size-unit", "1048576")
-            self.browser.wait_val(self.dialog_field(field) + " input.size-text", str(val))
+            self.browser.wait_val(self.dialog_field(field) + " .size-unit", "1048576")
+            self.browser.wait_val(self.dialog_field(field) + " .size-text", str(val))
         else:
             self.browser.wait_val(self.dialog_field(field), val)
 

@@ -777,8 +777,18 @@
                             <input class="form-control size-text">
                           </td>
                           <td>
-                            <select class="form-control selectpicker size-unit">
-                            </select>
+                            <div class="btn-group bootstrap-select dropdown form-control size-unit">
+                              <button class="btn btn-default dropdown-toggle" type="button"
+                                      data-toggle="dropdown">
+                                <span class="pull-left" translatable="yes"></span>
+                                <span class="caret"></span>
+                              </button>
+                              <ul class="dropdown-menu">
+                                {{#Units}}
+                                <li value="{{factor}}" {{#selected}}selected{{/selected}}><a>{{name}}</a></li>
+                                {{/Units}}
+                              </ul>
+                            </div>
                           </td>
                         </tr>
                       </table>
@@ -799,12 +809,20 @@
                 {{#SelectOne}}
                 <td class="top">{{Title}}</td>
                 <td>
-                  <select class="form-control selectpicker" data-field={{.}}>
-                    {{#Options}}
-                    <option value="{{value}}" {{#selected}}selected="true"{{/selected}}
-                            {{#disabled}}disabled="disabled"{{/disabled}}>{{Title}}</option>
-                    {{/Options}}
-                  </select>
+                  <div class="btn-group bootstrap-select dropdown form-control" data-field={{.}}>
+                    <button class="btn btn-default dropdown-toggle" type="button"
+                            data-toggle="dropdown">
+                      <span class="pull-left" translatable="yes"></span>
+                      <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                      {{#Options}}
+                      <li value="{{value}}"
+                          {{#selected}}selected{{/selected}}
+                          {{#disabled}}class="disabled"{{/disabled}}><a>{{Title}}</a></li>
+                      {{/Options}}
+                    </ul>
+                  </div>
                 </td>
                 {{/SelectOne}}
                 {{#SelectMany}}

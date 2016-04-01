@@ -60,7 +60,7 @@ class TestStorage(StorageCase):
         # Open dialog for formatting the primary partition and check that "dos-extended" is not offered.
         self.content_action(1, "Format")
         self.dialog_wait_open()
-        self.assertEqual(b.attr("option[value='dos-extended']", "disabled"), "disabled")
+        self.assertEqual(b.attr("[value='dos-extended']", "class"), "disabled")
         self.dialog_cancel()
         self.dialog_wait_close()
 
@@ -69,7 +69,7 @@ class TestStorage(StorageCase):
         # Create a extended partition to fill the rest of the disk
         self.content_single_action(2, "Create Partition")
         self.dialog_wait_open()
-        b.wait_not_attr("option[value='dos-extended']", "disabled", "disabled")
+        b.wait_not_attr("[value='dos-extended']", "class", "disabled")
         self.dialog_set_val("type", "dos-extended")
         self.dialog_wait_not_visible("name")
         self.dialog_wait_not_visible("mounting")
@@ -85,7 +85,7 @@ class TestStorage(StorageCase):
         # "dos-extended" is not offered.
         self.content_single_action(3, "Create Partition")
         self.dialog_wait_open()
-        self.assertEqual(b.attr("option[value='dos-extended']", "disabled"), "disabled")
+        self.assertEqual(b.attr("[value='dos-extended']", "class"), "disabled")
         self.dialog_cancel()
         self.dialog_wait_close()
 

@@ -3,7 +3,6 @@ PKGDIR=pkg/selinux
 setroubleshoot_MODULES = \
 	$(PKGDIR)/setroubleshoot.js \
 	$(PKGDIR)/setroubleshoot-client.js \
-	$(PKGDIR)/views/setroubleshoot-view.js \
 	$(NULL)
 
 setroubleshoot_TESTS = \
@@ -28,21 +27,16 @@ setroubleshootdebug_DATA = \
 	$(PKGDIR)/setroubleshoot.html \
 	$(PKGDIR)/setroubleshoot.js \
 	$(PKGDIR)/setroubleshoot-client.js \
-	$(PKGDIR)/views/setroubleshoot-view.js \
+	$(PKGDIR)/setroubleshoot-view.jsx \
+	$(PKGDIR)/setroubleshoot-view.js \
 	$(NULL)
 
-install-data-hook::
-	mkdir -p $(DESTDIR)$(setroubleshootdebugdir)
-	tar -chf - -C $(srcdir) $(setroubleshoot_MODULES) | tar -xf - --strip-components=2 -C $(DESTDIR)$(setroubleshootdebugdir)
-
-uninstall-hook::
-	rm -rf $(DESTDIR)$(setroubleshootdebugdir)/views
-
-setroubleshoot_MIN = $(setroubleshoot_MODULES:.js=.min.js)
-
-setroubleshoot_BUNDLE = \
-	$(setroubleshoot_MIN) \
+setroubleshoot_MIN = \
+	$(setroubleshoot_MODULES:.js=.min.js) \
+	$(PKGDIR)/setroubleshoot-view.min.js \
 	$(NULL)
+
+setroubleshoot_BUNDLE = $(setroubleshoot_MIN)
 
 # Everything else into a nice big bundle
 $(PKGDIR)/bundle.min.js: $(setroubleshoot_BUNDLE)

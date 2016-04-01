@@ -992,6 +992,22 @@ function basic_scope(cockpit, jquery) {
         return fmt.replace(fmt_re, function(m, x, y) { return args[x || y] || ""; });
     };
 
+    cockpit.format_number = function format_number(number) {
+        /* non-zero values should never appear zero */
+        if (number > 0 && number < 0.1)
+            number = 0.1;
+        else if (number < 0 && number > -0.1)
+            number = -0.1;
+
+        /* TODO: Make the decimal separator translatable */
+
+        /* only show as integer if we have a natural number */
+        if (number % 1 === 0)
+            return number.toString();
+        else
+            return number.toFixed(1);
+    };
+
     function format_units(number, suffixes, factor, separate) {
         var quotient;
         var suffix = null;
@@ -1029,22 +1045,9 @@ function basic_scope(cockpit, jquery) {
             }
         }
 
-        /* non-zero values should never appear zero */
-        if (number > 0 && number < 0.1)
-            number = 0.1;
-        else if (number < 0 && number > -0.1)
-            number = -0.1;
+        var string_representation = cockpit.format_number(number);
 
         var ret;
-
-        /* TODO: Make the decimal separator translatable */
-        var string_representation;
-
-        /* only show as integer if we have a natural number */
-        if (number % 1 === 0)
-            string_representation = number.toString();
-        else
-            string_representation = number.toFixed(1);
 
         if (suffix)
             ret = [string_representation, suffix];
@@ -1066,6 +1069,31 @@ function basic_scope(cockpit, jquery) {
         if (factor === undefined)
             factor = 1024;
         return format_units(number, byte_suffixes, factor, separate);
+    };
+
+    cockpit.get_byte_units = function get_byte_units(guide_value, factor) {
+        if (factor === undefined || ! (factor in byte_suffixes))
+            factor = 1024;
+
+        function unit(index) {
+            return { name: byte_suffixes[factor][index],
+                     factor: Math.pow(factor, index)
+                   };
+        }
+
+        var units = [ unit(2), unit(3), unit(4) ];
+
+        // The default unit is the largest one that gives us at least
+        // two decimal digits in front of the comma.
+
+        for (var i = units.length-1; i >= 0; i--) {
+            if (i === 0 || (guide_value / units[i].factor) >= 10) {
+                units[i].selected = true;
+                break;
+            }
+        }
+
+        return units;
     };
 
     var byte_sec_suffixes = {

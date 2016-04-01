@@ -44,7 +44,7 @@ class TestStorage(StorageCase):
 
         # Format it with luks
         self.content_single_action(1, "Create Partition")
-        self.dialog({ "size": "10",
+        self.dialog({ "size": 10,
                       "type": "luks+ext4",
                       "name": "ENCRYPTED",
                       "passphrase": "vainu-reku-toma-rolle-kaja",
@@ -97,4 +97,3 @@ class TestStorage(StorageCase):
 
 if __name__ == '__main__':
     test_main()
-

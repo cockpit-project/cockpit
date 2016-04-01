@@ -121,18 +121,12 @@ define([
             dialog.open({ Title: title,
                           Alerts: get_usage_alerts(path),
                           Fields: [
-                              { SizeInput: "size",
+                              { SizeSlider: "size",
                                 Title: _("Size"),
                                 Value: size,
                                 Max: size,
                                 visible: function () {
                                     return create_partition;
-                                },
-                                validate: function (size) {
-                                    if (isNaN(size))
-                                        return _("Size must be specified.");
-                                    if (size <= 0)
-                                        return _("Size must be greater than zero.");
                                 }
                               },
                               { SelectOne: "erase",
@@ -574,6 +568,8 @@ define([
                     return;
 
                 var block = client.lvols_block[path];
+                var vgroup = client.vgroups[lvol.VolumeGroup];
+                var pool = client.lvols[lvol.ThinPool];
 
                 /* Resizing is only safe when lvol has a filesystem
                    and that filesystem is resized at the same time.
@@ -587,10 +583,21 @@ define([
 
                 dialog.open({ Title: _("Resize Logical Volume"),
                               Fields: [
-                                  { SizeInput: "size",
+                                  { SizeSlider: "size",
                                     Title: _("Size"),
                                     Value: lvol.Size,
-                                    Max: "XXX"
+                                    Max: (pool ?
+                                          pool.Size * 3 :
+                                          lvol.Size + vgroup.FreeSize),
+                                    AllowInfinite: !!pool,
+                                    Round: vgroup.ExtentSize
+                                  },
+                                  { CheckBox: "fsys",
+                                    Title: _("Resize Filesystem"),
+                                    Value: block && block.IdUsage == "filesystem",
+                                    visible: function () {
+                                        return lvol.Type == "block";
+                                    }
                                   }
                               ],
                               Action: {
@@ -639,15 +646,19 @@ define([
                 if (!lvol)
                     return;
 
+                var vgroup = client.vgroups[lvol.VolumeGroup];
+
                 dialog.open({ Title: _("Create Snapshot"),
                               Fields: [
                                   { TextInput: "name",
                                     Title: _("Name"),
                                     validate: utils.validate_lvm2_name
                                   },
-                                  { SizeInput: "size",
+                                  { SizeSlider: "size",
                                     Title: _("Size"),
-                                    Max: "XXX",
+                                    Value: lvol.Size * 0.2,
+                                    Max: lvol.Size,
+                                    Round: vgroup.ExtentSize,
                                     visible: function () {
                                         return lvol.ThinPool == "/";
                                     }
@@ -681,9 +692,12 @@ define([
                                     Title: _("Name"),
                                     validate: utils.validate_lvm2_name
                                   },
-                                  { SizeInput: "size",
+                                  { SizeSlider: "size",
                                     Title: _("Size"),
-                                    Max: undefined
+                                    Value: pool.Size,
+                                    Max: pool.Size * 3,
+                                    AllowInfinite: true,
+                                    Round: vgroup.ExtentSize
                                   }
                               ],
                               Action: {
@@ -757,9 +771,10 @@ define([
                                     Title: _("Name"),
                                     validate: utils.validate_lvm2_name
                                   },
-                                  { SizeInput: "size",
+                                  { SizeSlider: "size",
                                     Title: _("Size"),
-                                    Max: vgroup.FreeSize
+                                    Max: vgroup.FreeSize,
+                                    Round: vgroup.ExtentSize
                                   }
                               ],
                               Action: {
@@ -786,9 +801,10 @@ define([
                                     Title: _("Name"),
                                     validate: utils.validate_lvm2_name
                                   },
-                                  { SizeInput: "size",
+                                  { SizeSlider: "size",
                                     Title: _("Size"),
-                                    Max: vgroup.FreeSize
+                                    Max: vgroup.FreeSize,
+                                    Round: vgroup.ExtentSize
                                   }
                               ],
                               Action: {

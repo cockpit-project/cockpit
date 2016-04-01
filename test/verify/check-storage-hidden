@@ -53,7 +53,7 @@ class TestStorage(StorageCase):
         b.wait_visible('#storage-detail')
         self.content_default_action(1, "Create Plain Logical Volume")
         self.dialog({ 'name': "lvol",
-                      'size': "48" })
+                      'size': 48 })
         b.wait_in_text("#content", "Logical Volume \"lvol\"")
 
         self.content_default_action(1, "Format")

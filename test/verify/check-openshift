@@ -278,7 +278,7 @@ class TestRegistry(MachineCase):
         b.wait_in_text(".listing-body image-layers", "Image layers")
 
         # Add postgres into the stream
-        output = o.execute("oc get imagestream --namespace=marmalade --output=json busybee")
+        output = o.execute("oc get imagestream --namespace=marmalade --template='{{.spec}}' busybee")
         self.assertNotIn("postgres", output)
         b.click(".pficon-edit")
         b.wait_present("modal-dialog")
@@ -291,10 +291,10 @@ class TestRegistry(MachineCase):
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
         b.wait_in_text ("#content", "postgres")
-        output = o.execute("oc get imagestream --namespace=marmalade --output=json busybee")
+        output = o.execute("oc get imagestream --namespace=marmalade --template='{{.spec}}' busybee")
         self.assertIn("postgres", output)
 
-        # Remove postgres into the stream
+        # Remove postgres from the stream
         b.click(".pficon-edit")
         b.wait_present("modal-dialog")
         b.wait_visible("#imagestream-modify-populate")
@@ -304,7 +304,7 @@ class TestRegistry(MachineCase):
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
         b.wait_not_in_text ("#content", "postgres")
-        output = o.execute("oc get imagestream --namespace=marmalade --output=json busybee")
+        output = o.execute("oc get imagestream --namespace=marmalade --template='{{.spec}}' busybee")
         self.assertNotIn("postgres", output)
 
         # Go to the images view and create a new imagestream

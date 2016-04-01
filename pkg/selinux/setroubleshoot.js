@@ -21,7 +21,7 @@ require([
     "base1/cockpit",
     "react",
     "selinux/setroubleshoot-client",
-    "selinux/views/setroubleshoot-view",
+    "selinux/setroubleshoot-view",
 ], function(cockpit, React, troubleshoot_client, troubleshoot_view) {
 
 "use strict";

@@ -34,7 +34,7 @@ EXTRA_DIST = \
 	README.md \
 	$(NULL)
 
-SUFFIXES = .css .min.css .min.css.gz .js .js.gz .min.js .min.js.gz .html .min.html .min.html.gz .woff .woff.gz .1 .8 .5
+SUFFIXES = .css .min.css .min.css.gz .js .js.gz .min.js .min.js.gz .jsx .html .min.html .min.html.gz .woff .woff.gz .1 .8 .5
 
 V_CHECK = $(V_CHECK_$(V))
 V_CHECK_ = $(V_CHECK_$(AM_DEFAULT_VERBOSITY))
@@ -70,6 +70,13 @@ GZ_RULE = \
 .js.min.js:
 	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $<
 	$(MIN_JS_RULE)
+.jsx.js:
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+		$(srcdir)/tools/missing $(srcdir)/tools/jsx < $< > $@.tmp && $(MV) $@.tmp $@
+.jsx.min.js:
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+		$(srcdir)/tools/missing $(srcdir)/tools/jsx < $< | \
+		$(srcdir)/tools/missing $(srcdir)/tools/uglifyjs --mangle > $@.tmp && $(MV) $@.tmp $@
 .html.min.html:
 	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint --extract=always $<
 	$(MIN_HTML_RULE)

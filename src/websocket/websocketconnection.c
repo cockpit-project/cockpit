@@ -550,6 +550,20 @@ _web_socket_connection_error_and_close (WebSocketConnection *self,
   else
     code = WEB_SOCKET_CLOSE_GOING_AWAY;
 
+  if (!self->pv->server_side && error && error->domain == G_TLS_ERROR)
+    {
+      self->pv->peer_close_code = WEB_SOCKET_CLOSE_TLS_HANDSHAKE;
+      if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_NOT_TLS) ||
+          g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_MISC))
+        {
+          self->pv->peer_close_data = g_strdup ("protocol-error");
+        }
+      else if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_BAD_CERTIFICATE))
+        {
+          self->pv->peer_close_data = g_strdup ("unknown-hostkey");
+        }
+    }
+
   if (!_web_socket_connection_error (self, error))
     return;
 

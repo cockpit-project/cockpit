@@ -503,17 +503,6 @@ teardown_tls (TestTls *test,
 }
 
 static void
-on_closed_get_problem (CockpitChannel *channel,
-                       const gchar *problem,
-                       gpointer user_data)
-{
-  gchar **result = user_data;
-  g_assert (problem != NULL);
-  g_assert (*result == NULL);
-  *result = g_strdup (problem);
-}
-
-static void
 test_tls_basic (TestTls *test,
                 gconstpointer unused)
 {
@@ -799,8 +788,14 @@ test_tls_authority_bad (TestTls *test,
   JsonObject *tls;
   GError *error = NULL;
   const gchar *control;
-  gchar *problem = NULL;
   GBytes *bytes;
+  JsonObject *resp;
+  gchar *expected_pem = NULL;
+  gchar *expected_json = NULL;
+  const gchar *expected_fmt;
+
+  g_object_get (test->certificate, "certificate-pem", &expected_pem, NULL);
+  g_assert_true (expected_pem != NULL);
 
   tls = cockpit_json_parse_object (json, -1, &error);
   g_assert_no_error (error);
@@ -820,6 +815,8 @@ test_tls_authority_bad (TestTls *test,
 
   cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE,
                       "*Unacceptable TLS certificate:*untrusted-issuer*");
+  cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE,
+                      "*Unacceptable TLS certificate");
 
   json_object_unref (options);
 
@@ -829,17 +826,22 @@ test_tls_authority_bad (TestTls *test,
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (test->transport), NULL, bytes);
   g_bytes_unref (bytes);
 
-  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
-
-  while (problem == NULL)
+  while (mock_transport_count_sent (test->transport) < 2)
     g_main_context_iteration (NULL, TRUE);
 
-  g_assert_cmpstr (problem, ==, "unknown-hostkey");
-  g_free (problem);
+  resp = mock_transport_pop_control (test->transport);
+  cockpit_assert_json_eq (resp, "{\"command\":\"ready\",\"channel\":\"444\"}");
+
+  resp = mock_transport_pop_control (test->transport);
+  expected_fmt = "{\"command\":\"close\",\"channel\":\"444\",\"problem\":\"unknown-hostkey\", \"rejected-certificate\":\"%s\"}";
+  expected_json = g_strdup_printf (expected_fmt, expected_pem);
+  cockpit_assert_json_eq (resp, expected_json);
 
   g_object_add_weak_pointer (G_OBJECT (channel), (gpointer *)&channel);
   g_object_unref (channel);
   g_assert (channel == NULL);
+  g_free (expected_pem);
+  g_free (expected_json);
 }
 
 /* Declared in cockpitwebserver.c */

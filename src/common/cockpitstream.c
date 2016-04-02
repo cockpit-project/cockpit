@@ -56,11 +56,13 @@ struct _CockpitStreamPrivate {
   GSource *in_source;
   GByteArray *in_buffer;
   gboolean received;
+  gulong sig_accept_cert;
 };
 
 static guint cockpit_stream_sig_open;
 static guint cockpit_stream_sig_read;
 static guint cockpit_stream_sig_close;
+static guint cockpit_stream_sig_rejected_cert;
 
 static void  cockpit_close_later (CockpitStream *self);
 
@@ -132,6 +134,12 @@ close_immediately (CockpitStream *self,
       io = self->priv->io;
       self->priv->io = NULL;
 
+      if (self->priv->sig_accept_cert)
+        {
+          g_signal_handler_disconnect (io, self->priv->sig_accept_cert);
+          self->priv->sig_accept_cert = 0;
+        }
+
       g_io_stream_close (io, NULL, &error);
       if (error)
         {
@@ -201,15 +209,9 @@ close_output (CockpitStream *self)
 #endif
 
 static gchar *
-describe_certificate_errors (GIOStream *io)
+describe_certificate_errors (GTlsCertificateFlags flags)
 {
-  GTlsCertificateFlags flags;
   GString *str;
-
-  if (!G_IS_TLS_CONNECTION (io))
-    return NULL;
-
-  flags = g_tls_connection_get_peer_certificate_errors (G_TLS_CONNECTION (io));
   if (flags == 0)
     return NULL;
 
@@ -259,6 +261,27 @@ describe_certificate_errors (GIOStream *io)
   return g_string_free (str, FALSE);
 }
 
+static gboolean
+on_rejected_certificate (GTlsConnection *conn,
+                         GTlsCertificate *peer_cert,
+                         GTlsCertificateFlags errors,
+                         gpointer user_data)
+{
+  CockpitStream *self = (CockpitStream *)user_data;
+  gchar *details = describe_certificate_errors (errors);
+  gchar *pem_data = NULL;
+
+  g_return_val_if_fail (peer_cert != NULL, FALSE);
+
+  g_message ("%s: Unacceptable TLS certificate: %s", self->priv->name, details);
+  g_object_get (peer_cert, "certificate-pem", &pem_data, NULL);
+
+  g_signal_emit (self, cockpit_stream_sig_rejected_cert, 0, pem_data);
+  g_free (details);
+  g_free (pem_data);
+  return FALSE;
+}
+
 const gchar *
 cockpit_stream_problem (GError *error,
                         const gchar *name,
@@ -266,7 +289,6 @@ cockpit_stream_problem (GError *error,
                         GIOStream *io)
 {
   const gchar *problem = NULL;
-  gchar *details = NULL;
 
   if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
     problem = "access-denied";
@@ -294,14 +316,11 @@ cockpit_stream_problem (GError *error,
   else if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_BAD_CERTIFICATE))
     {
       problem = "unknown-hostkey";
-      if (io != NULL)
-        details = describe_certificate_errors (io);
     }
 
   if (problem)
     {
-      g_message ("%s: %s: %s%s%s", name, summary, error->message,
-                 details ? ": " : "", details ? details : "");
+      g_message ("%s: %s: %s", name, summary, error->message);
     }
   else
     {
@@ -309,7 +328,6 @@ cockpit_stream_problem (GError *error,
       problem = "internal-error";
     }
 
-  g_free (details);
   return problem;
 }
 
@@ -518,6 +536,18 @@ initialize_io (CockpitStream *self)
   g_source_set_callback (self->priv->in_source, (GSourceFunc)dispatch_input, self, NULL);
   g_source_attach (self->priv->in_source, self->priv->context);
 
+  if (G_IS_TLS_CONNECTION (self->priv->io))
+    {
+      self->priv->sig_accept_cert =  g_signal_connect (G_TLS_CONNECTION (self->priv->io),
+                                                       "accept-certificate",
+                                                       G_CALLBACK (on_rejected_certificate),
+                                                       self);
+    }
+  else
+    {
+      self->priv->sig_accept_cert = 0;
+    }
+
   start_output (self);
 
   g_signal_emit (self, cockpit_stream_sig_open, 0);
@@ -704,6 +734,17 @@ cockpit_stream_class_init (CockpitStreamClass *klass)
                                          G_STRUCT_OFFSET (CockpitStreamClass, close),
                                          NULL, NULL, NULL,
                                          G_TYPE_NONE, 1, G_TYPE_STRING);
+
+  /**
+   * CockpitStream::rejected-cert:
+   * @pem: PEM data as a string
+   *
+   * Emitted when the pipe will close because a certificate is rejected
+   */
+  cockpit_stream_sig_rejected_cert = g_signal_new ("rejected-cert", COCKPIT_TYPE_STREAM, G_SIGNAL_RUN_FIRST,
+                                                   G_STRUCT_OFFSET (CockpitStreamClass, close),
+                                                   NULL, NULL, NULL,
+                                                   G_TYPE_NONE, 1, G_TYPE_STRING);
 
   g_type_class_add_private (klass, sizeof (CockpitStreamPrivate));
 }

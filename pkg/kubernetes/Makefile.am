@@ -21,6 +21,8 @@ shared_VIEWS = \
 	pkg/kubernetes/views/add-group-dialog.html \
 	pkg/kubernetes/views/add-user-dialog.html \
 	pkg/kubernetes/views/add-member-role-dialog.html \
+	pkg/kubernetes/views/add-role-dialog.html \
+	pkg/kubernetes/views/remove-role-dialog.html \
 	pkg/kubernetes/views/projects-page.html \
 	pkg/kubernetes/views/project-body.html \
 	pkg/kubernetes/views/project-modify.html \

@@ -203,6 +203,7 @@ typedef struct _CockpitHttpStream {
   CockpitStream *stream;
   gulong sig_open;
   gulong sig_read;
+  gulong sig_rejected_cert;
   gulong sig_close;
 
   gint state;
@@ -635,6 +636,22 @@ on_stream_read (CockpitStream *stream,
 }
 
 static void
+on_rejected_cert (CockpitStream *stream,
+                  const gchar *pem_data,
+                  gpointer user_data)
+{
+  CockpitHttpStream *self = user_data;
+  CockpitChannel *channel = user_data;
+  JsonObject *close_options = NULL; // owned by channel
+
+  if (self->state != FINISHED)
+    {
+      close_options = cockpit_channel_close_options (channel);
+      json_object_set_string_member (close_options, "rejected-certificate", pem_data);
+    }
+}
+
+static void
 on_stream_close (CockpitStream *stream,
                  const gchar *problem,
                  gpointer user_data)
@@ -925,6 +942,7 @@ cockpit_http_stream_close (CockpitChannel *channel,
             g_signal_handler_disconnect (self->stream, self->sig_open);
           g_signal_handler_disconnect (self->stream, self->sig_read);
           g_signal_handler_disconnect (self->stream, self->sig_close);
+          g_signal_handler_disconnect (self->stream, self->sig_rejected_cert);
           cockpit_http_client_checkin (self->client, self->stream);
           g_object_unref (self->stream);
           self->stream = NULL;
@@ -1023,6 +1041,8 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
 
   self->sig_read = g_signal_connect (self->stream, "read", G_CALLBACK (on_stream_read), self);
   self->sig_close = g_signal_connect (self->stream, "close", G_CALLBACK (on_stream_close), self);
+  self->sig_rejected_cert = g_signal_connect (self->stream, "rejected-cert",
+                                              G_CALLBACK (on_rejected_cert), self);
 
   /* If not waiting for open */
   if (!self->sig_open)
@@ -1044,6 +1064,7 @@ cockpit_http_stream_dispose (GObject *object)
         g_signal_handler_disconnect (self->stream, self->sig_open);
       g_signal_handler_disconnect (self->stream, self->sig_read);
       g_signal_handler_disconnect (self->stream, self->sig_close);
+      g_signal_handler_disconnect (self->stream, self->sig_rejected_cert);
       cockpit_stream_close (self->stream, NULL);
       g_object_unref (self->stream);
     }

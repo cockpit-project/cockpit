@@ -54,6 +54,7 @@ typedef struct _CockpitWebSocketStream {
   gulong sig_closing;
   gulong sig_close;
   gulong sig_error;
+  gulong sig_accept_cert;
 
   gboolean binary;
   gboolean closed;
@@ -125,6 +126,25 @@ static void
 cockpit_web_socket_stream_init (CockpitWebSocketStream *self)
 {
 
+}
+
+static gboolean
+on_rejected_certificate (GTlsConnection *conn,
+                         GTlsCertificate *peer_cert,
+                         GTlsCertificateFlags errors,
+                         gpointer user_data)
+{
+  CockpitChannel *channel = user_data;
+  JsonObject *close_options = NULL; // owned by channel
+  gchar *pem_data = NULL;
+
+  g_return_val_if_fail (peer_cert != NULL, FALSE);
+  g_object_get (peer_cert, "certificate-pem", &pem_data, NULL);
+  close_options = cockpit_channel_close_options (channel);
+  json_object_set_string_member (close_options, "rejected-certificate", pem_data);
+
+  g_free (pem_data);
+  return FALSE;
 }
 
 static void
@@ -266,6 +286,18 @@ on_socket_connect (GObject *object,
       goto out;
     }
 
+  if (G_IS_TLS_CONNECTION (io))
+    {
+      self->sig_accept_cert =  g_signal_connect (G_TLS_CONNECTION (io),
+                                                 "accept-certificate",
+                                                 G_CALLBACK (on_rejected_certificate),
+                                                 self);
+    }
+  else
+    {
+      self->sig_accept_cert = 0;
+    }
+
   self->client = web_socket_client_new_for_stream (self->url, self->origin, (const gchar **)protocols, io);
 
   node = json_object_get_member (options, "headers");
@@ -365,6 +397,7 @@ static void
 cockpit_web_socket_stream_dispose (GObject *object)
 {
   CockpitWebSocketStream *self = COCKPIT_WEB_SOCKET_STREAM (object);
+  GIOStream *io = NULL; // Owned by self->client;
 
   if (self->client)
     {
@@ -375,6 +408,11 @@ cockpit_web_socket_stream_dispose (GObject *object)
       g_signal_handler_disconnect (self->client, self->sig_closing);
       g_signal_handler_disconnect (self->client, self->sig_close);
       g_signal_handler_disconnect (self->client, self->sig_error);
+
+      io = web_socket_connection_get_io_stream (self->client);
+      if (io != NULL && self->sig_accept_cert)
+        g_signal_handler_disconnect (io, self->sig_accept_cert);
+
       g_object_unref (self->client);
       self->client = NULL;
     }

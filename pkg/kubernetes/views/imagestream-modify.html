@@ -17,7 +17,7 @@
                 </td>
             </tr>
             <tr>
-                <td>
+                <td class="top">
                     <label class="control-label" for="imagestream-modify-project-text"
                         translatable="yes">Project</label>
                 </td>
@@ -41,7 +41,7 @@
                 </td>
             </tr>
             <tr>
-                <td>
+                <td class="top">
                     <label class="control-label" for="imagestream-modify-populate"
                         translatable="yes">Populate</label>
                 </td>
@@ -62,13 +62,23 @@
                 </td>
             </tr>
             <tr ng-show="fields.populate != 'none'">
-                <td>
+                <td class="top">
                     <label class="control-label" for="imagestream-modify-pull"
                         translatable="yes">Pull from</label>
                 </td>
                 <td>
                     <input id="imagestream-modify-pull" class="form-control" type="text"
                         ng-model="fields.pull" placeholder="eg: docker.io/library/fedora">
+                </td>
+            </tr>
+            <tr ng-show="fields.populate == 'tags'">
+                <td class="top">
+                    <label class="control-label" for="imagestream-modify-tags"
+                        translatable="yes">Tags</label>
+                </td>
+                <td>
+                    <div image-tag-editor id="imagestream-modify-tags" tags="fields.tags">
+                    </div>
                 </td>
             </tr>
         </table>

@@ -45,6 +45,7 @@ shared_MODULES = \
 	pkg/kubernetes/scripts/policy.js \
 	pkg/kubernetes/scripts/projects.js \
 	pkg/kubernetes/scripts/app.js \
+	pkg/kubernetes/scripts/tags.js \
 	pkg/kubernetes/scripts/utils.js \
 	$(NULL)
 
@@ -57,6 +58,7 @@ shared_LESS = \
 	pkg/kubernetes/styles/images.less \
 	pkg/kubernetes/styles/layers.less \
 	pkg/kubernetes/styles/projects.less \
+	pkg/kubernetes/styles/tags.less \
 	$(NULL)
 
 # Registry files
@@ -171,6 +173,7 @@ kubernetes_TESTS = \
 	pkg/kubernetes/tests/test-kube-client.html \
 	pkg/kubernetes/tests/test-images.html \
 	pkg/kubernetes/tests/test-projects.html \
+	pkg/kubernetes/tests/test-tags.html \
 	pkg/kubernetes/tests/test-volumes.html \
 	pkg/kubernetes/tests/test-utils.html \
 	pkg/kubernetes/tests/test-connection.html \

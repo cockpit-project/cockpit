@@ -1,0 +1,54 @@
+
+.image-tag {
+    border: 2px solid @tag-border;
+    border-radius: 7px;
+    padding: 3px 5px;
+    white-space: nowrap;
+    background-color: @listing-hover;
+}
+
+a.image-tag {
+    color: inherit;
+}
+
+.image-tag-editor {
+    -moz-appearance: textfield;
+    -webkit-appearance: textfield;
+    background-color: white;
+    background-color: -moz-field;
+    border: 1px solid darkgray;
+    box-shadow: 1px 1px 1px 0 lightgray inset;
+    font: -moz-field;
+    font: -webkit-small-control;
+    padding: 4px;
+    font-size: 13px;
+    max-width: 500px;
+}
+
+.image-tag-editor:focus {
+  border-color: #66afe9;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
+}
+
+.image-tag-editor .image-tag {
+    padding: 1px 5px;
+    margin: 2px 1px 2px 1px;
+    cursor: default;
+    display: inline-block;
+}
+
+.image-tag a {
+    color: #999;
+    position: relative;
+    padding-left: 4px;
+    font-size: 12px;
+    top: 1px;
+}
+
+.image-tag a:hover {
+    color: black;
+    text-decoration: none;
+}
+

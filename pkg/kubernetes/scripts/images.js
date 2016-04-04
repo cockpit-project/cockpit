@@ -41,6 +41,7 @@
         'kubernetes.date',
         'kubernetes.listing',
         'registry.layers',
+        'registry.tags',
     ])
 
     .config([
@@ -578,33 +579,48 @@
         "$scope",
         "$modalInstance",
         "dialogData",
+        "imageTagData",
         "kubeMethods",
         "filterService",
-        function($scope, $instance, dialogData, methods, filter) {
+        function($scope, $instance, dialogData, tagData, methods, filter) {
             var stream = dialogData.stream || { };
             var meta = stream.metadata || { };
             var spec = stream.spec || { };
 
+            var populate = "none";
+            if (spec.dockerImageRepository)
+                populate = "pull";
+            if (spec.tags)
+                populate = "tags";
+
             var fields = {
                 name: meta.name || "",
                 project: meta.namespace || filter.namespace() || "",
-                populate: spec.dockerImageRepository ? "pull" : "none",
+                populate: populate,
                 pull: spec.dockerImageRepository || "",
+                tags: tagData.parseSpec(spec),
             };
 
             $scope.fields = fields;
             $scope.labels = {
                 populate: {
                     none: "Don't pull images automatically",
-                    pull: "Pull all tags from another image repository",
+                    pull: "Sync all tags from a remote image repository",
+                    tags: "Pull specific tags from another image repository",
                 }
             };
+
+            /* During creation we have a different label */
+            if (!dialogData.stream)
+                $scope.labels.populate.none = "Create empty image stream";
 
             function performModify() {
                 var data = { spec: { dockerImageRepository: null, tags: null } };
 
                 if (fields.populate != "none")
                     data.spec.dockerImageRepository = fields.pull.trim();
+                if (fields.populate == "tags")
+                    tagData.buildSpec(fields.tags, data.spec);
 
                 return methods.patch(stream, data);
             }
@@ -618,11 +634,10 @@
                     }
                 };
 
-                if (fields.populate != "none") {
-                    data.spec = {
-                        dockerImageRepository: fields.pull.trim(),
-                    };
-                }
+                if (fields.populate != "none")
+                    data.spec = { dockerImageRepository: fields.pull.trim(), };
+                if (fields.populate == "tags")
+                    data.spec = tagData.buildSpec(fields.tags, data.spec);
 
                 return methods.check(data, {
                     "metadata.name": "#imagestream-modify-name",

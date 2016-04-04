@@ -191,7 +191,7 @@
                 return methods.create([binding], namespace);
             }
             function addRoleToPolicyBinding(policyBinding, project, role, subject) {
-                var roleBinding, i, defaultPolicybinding, roleBindings;
+                var roleBinding, i, defaultPolicybinding, roleBindings, patchData;
                 var namespace = toName(project);
                 var roleBindingDefault = {
                     kind: "RoleBinding",
@@ -209,29 +209,31 @@
                     }
                 };
 
-                if(policyBinding && policyBinding.one()){
+                if (policyBinding && policyBinding.one()){
                     defaultPolicybinding = policyBinding.one();
                     roleBindings = defaultPolicybinding.roleBindings;
-                } 
+                }
 
-                var patchData = { "roleBindings": roleBindings };
+                roleBindings = roleBindings || [];
                 for (i = roleBindings.length - 1; i >= 0; i--) {
                     if(roleBindings[i].name === role) {
                         roleBinding = roleBindings[i].roleBinding;
                         break;
                     }
                 }
+
                 if (!roleBinding) {
                     //If roleBinding doesn't exists, then create.
                     addToArray(roleArray(roleBindingDefault, "subjects"), subject);
                     addToArray(roleArrayKind(roleBindingDefault, subject.kind), subject.name);
-                    return methods.create(roleBindingDefault, namespace);   
+                    return methods.create(roleBindingDefault, namespace);
                 } else {
                     //If roleBinding exists, then patch.
+                    patchData = { "roleBindings": roleBindings };
                     addToArray(roleArray(roleBinding, "subjects"), subject);
                     addToArray(roleArrayKind(roleBinding, subject.kind), subject.name);
                     return methods.patch(defaultPolicybinding, patchData);
-                }   
+                }
             }
             function indexOf(array, value) {
                 var i, len;

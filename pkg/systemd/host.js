@@ -186,13 +186,10 @@ PageServer.prototype = {
         var self = this;
         update_hostname_privileged();
 
-        $('#shutdown-group').append(
-              shell.action_btn(
-                  function (op) { self.shutdown(op); },
-                  [ { title: _("Restart"),         action: 'default' },
-                    { title: _("Shutdown"),        action: 'shutdown' },
-                  ])
-        );
+        $('#shutdown-group [data-action]').on("click", function() {
+            self.shutdown($(this).attr('data-action'));
+        });
+
         $('#system-ostree-version-link').on('click', function () {
             cockpit.jump("/updates", cockpit.transport.host);
         });

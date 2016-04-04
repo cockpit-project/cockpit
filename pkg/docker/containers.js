@@ -25,9 +25,10 @@ require([
     "docker/overview",
     "docker/details",
     "docker/image",
+    "docker/storage",
     "docker/service",
     "shell/po",
-], function($, cockpit, Mustache, client, overview, container_details, image_details, service, po) {
+], function($, cockpit, Mustache, client, overview, container_details, image_details, storage, service, po) {
     cockpit.locale(po);
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
@@ -100,6 +101,7 @@ require([
         var overview_page;
         var container_details_page;
         var image_details_page;
+        var storage_page;
 
         function navigate() {
             var path = cockpit.location.path;
@@ -109,14 +111,22 @@ require([
             if (path.length === 0) {
                 container_details_page.hide();
                 image_details_page.hide();
+                storage_page.hide();
                 overview_page.show();
+            } else if (path.length === 1 && path[0] == "storage") {
+                overview_page.hide();
+                container_details_page.hide();
+                image_details_page.hide();
+                storage_page.show();
             } else if (path.length === 1) {
                 overview_page.hide();
                 image_details_page.hide();
+                storage_page.hide();
                 container_details_page.show(path[0]);
             } else if (path.length === 2 && path[0] == "image") {
                 overview_page.hide();
                 container_details_page.hide();
+                storage_page.hide();
                 image_details_page.show(path[1]);
             } else { /* redirect */
                 console.warn("not a containers location: " + path);
@@ -131,6 +141,7 @@ require([
         overview_page = overview.init(docker_client);
         container_details_page = container_details.init(docker_client);
         image_details_page = image_details.init(docker_client);
+        storage_page = storage.init(docker_client, docker_service);
 
         show_curtain(null);
         docker_client.connect().done(navigate);

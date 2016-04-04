@@ -456,6 +456,7 @@ The Cockpit component for managing networking.  This package uses NetworkManager
 Summary: Cockpit user interface for Docker containers
 Requires: %{name}-shell = %{version}-%{release}
 Requires: docker >= 1.3.0
+Requires: python
 
 %description docker
 The Cockpit components for interacting with Docker and user interface.

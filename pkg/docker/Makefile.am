@@ -9,6 +9,7 @@ nodist_docker_DATA = \
 	$(NULL)
 docker_DATA = \
 	pkg/docker/manifest.json \
+	pkg/docker/cockpit-atomic-storage \
 	$(NULL)
 
 dockerdebugdir = $(debugdir)$(dockerdir)
@@ -16,6 +17,7 @@ dockerdebug_DATA = \
 	pkg/docker/bundle.js \
 	pkg/docker/bar.js \
 	pkg/docker/client.js \
+	pkg/docker/cockpit-components-dialog.js \
 	pkg/docker/details.js \
 	pkg/docker/docker.css \
 	pkg/docker/docker.js \
@@ -23,6 +25,9 @@ dockerdebug_DATA = \
 	pkg/docker/containers.js \
 	pkg/docker/flot.js \
 	pkg/docker/image.js \
+	pkg/docker/react.js \
+	pkg/docker/storage.js \
+	pkg/docker/storage.jsx \
 	pkg/docker/index.html \
 	pkg/docker/mustache.js \
 	pkg/docker/patterns.js \
@@ -40,6 +45,7 @@ dockerdebug_DATA = \
 docker_BUNDLE = \
 	pkg/docker/bar.min.js \
 	pkg/docker/client.min.js \
+	pkg/docker/cockpit-components-dialog.js \
 	pkg/docker/details.min.js \
 	pkg/docker/docker.min.js \
 	pkg/docker/containers.min.js \
@@ -48,6 +54,8 @@ docker_BUNDLE = \
 	pkg/docker/mustache.min.js \
 	pkg/docker/patterns.min.js \
 	pkg/docker/plot.min.js \
+	pkg/docker/react.js \
+	pkg/docker/storage.min.js \
 	pkg/docker/overview.min.js \
 	pkg/docker/run.min.js \
 	pkg/docker/search.min.js \
@@ -66,6 +74,11 @@ pkg/docker/mustache.min.js: pkg/docker/mustache.js
 	$(MIN_JS_RULE)
 pkg/docker/term.min.js: pkg/docker/term.js
 	$(MIN_JS_RULE)
+
+dockerimagesdir = $(pkgdatadir)/docker/images
+dockerimages_DATA = \
+	pkg/docker/images/drive-harddisk-symbolic.svg \
+	$(NULL)
 
 docker_TESTS = \
 	pkg/docker/test-docker.html \
@@ -89,5 +102,7 @@ EXTRA_DIST += \
 	pkg/docker/docker.min.css \
 	pkg/docker/index.min.html \
 	pkg/docker/plot.min.css \
+	pkg/docker/cockpit-atomic-storage \
+	pkg/docker/storage.js \
 	$(docker_BUNDLE) \
 	$(NULL)

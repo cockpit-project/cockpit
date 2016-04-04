@@ -21,14 +21,16 @@ define([
     "jquery",
     "base1/cockpit",
     "./mustache",
+    "./react",
     "./util",
     "./run",
     "./search",
     "./docker",
+    "./storage",
     "./bar",
     "./plot",
-    "./flot",
-], function($, cockpit, Mustache, util, run_image, search_image, docker, bar, plot) {
+    "./flot"
+], function($, cockpit, Mustache, React, util, run_image, search_image, docker, storage, bar, plot) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 
@@ -232,58 +234,10 @@ define([
             render_image(id, client.images[id]);
         }
 
-        // Render storage, throttle update on events
-
-        $(client).on("info", function render_storage() {
-            if (client.info['Driver'] !== "devicemapper") {
-                // TODO: None of the other graphdrivers currently
-                // report size information.
-                $('#containers-storage .bar').html();
-                $('#containers-storage .data').html("Unknown");
-            }
-
-            var used;
-            var total;
-            var available;
-            $.each(client.info['DriverStatus'], function (index, value) {
-                if (value && value[0] == "Data Space Total")
-                    total = value[1];
-                else if (value && value[0] == "Data Space Used")
-                    used = value[1];
-                else if (value && value[0] == "Data Space Available")
-                    available = value[1];
-            });
-
-            if (used && total && docker) {
-
-                var b_used = docker.bytes_from_format(used);
-                var b_total = docker.bytes_from_format(total);
-
-                // Prefer available if present as that will be accurate for
-                // sparse file based devices
-                if (available) {
-                    $('#containers-storage').tooltip('destroy');
-                    b_total = b_used + docker.bytes_from_format(available);
-                    total = cockpit.format_bytes(b_total);
-                } else {
-                    var warning = _("WARNING: Docker may be reporting the size it has allocated to it's storage pool using sparse files, not the actual space available to the underlying storage device.");
-                    $('#containers-storage').tooltip({ title : warning, placement : "auto" });
-                }
-
-                var formated = used + " / " + total;
-                var bar_row = bar.create();
-                bar_row.attr("value", b_used + "/" + b_total);
-                bar_row.toggleClass("bar-row-danger", used > 0.95 * total);
-
-                $('#containers-storage .bar').html(bar_row);
-                $('#containers-storage .data').html(formated);
-            } else {
-                $('#containers-storage .bar').html();
-                $('#containers-storage .data').html("Unknown");
-            }
-
-            bar.update();
-        });
+        React.render(React.createElement(storage.OverviewBox,
+                                         { model: storage.get_storage_model(),
+                                           small: true }),
+                     $("#containers-storage-details")[0]);
 
         function hide() {
             $('#containers').hide();

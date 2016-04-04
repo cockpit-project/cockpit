@@ -138,10 +138,9 @@
     </div>
     <div class="col-md-12 col-lg-4">
       <div class="panel panel-default" id="containers-storage">
-        <div class="storage-label">Storage space</div>
-        <div class="bar-group">
-          <div class="data"></div>
-          <div class="bar"></div>
+        <div class="panel-body">
+          <div id="containers-storage-details">
+          </div>
         </div>
       </div>
     </div>
@@ -332,6 +331,38 @@
         </tbody>
       </table>
     </div>
+  </div>
+
+  <!-- STORAGE -->
+
+  <div id="storage" class="container-fluid" hidden>
+    <ol class="breadcrumb">
+      <li><a translatable="yes">Containers</a></li>
+      <li class="active">Storage</li>
+    </ol>
+
+    <div class="blank-slate-pf" id="storage-unsupported" hidden>
+      <h1 id="storage-unsupported-message"></h1>
+    </div>
+
+    <div id="storage-details">
+      <div class="col-sm-6">
+        <h3 translatable="yes">Overview</h3>
+        <div id="storage-overview">
+        </div>
+
+        <button id="storage-reset" class="btn btn-default pull-right" translatable="yes">Reset</button>
+        <h3 translatable="yes">Storage pool</h3>
+        <div id="storage-pool">
+        </div>
+      </div>
+      <div class="col-sm-offset-1 col-sm-5" id="storage-drives-panel">
+        <h3 translatable="yes">Additional Storage</h3>
+        <div id="storage-drives">
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- RUN DIALOG -->

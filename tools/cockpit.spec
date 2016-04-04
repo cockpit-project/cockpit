@@ -472,6 +472,7 @@ Summary: Cockpit user interface for Docker containers
 Requires: %{name}-bridge >= %{stable_api}
 Requires: %{name}-shell >= %{stable_api}
 Requires: docker >= 1.3.0
+Requires: python
 
 %description docker
 The Cockpit components for interacting with Docker and user interface.

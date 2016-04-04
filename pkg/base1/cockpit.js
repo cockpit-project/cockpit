@@ -152,31 +152,63 @@ function transport_debug() {
         console.debug.apply(console, arguments);
 }
 
+/*
+ * Extends an object to have the standard DOM style addEventListener
+ * removeEventListener and dispatchEvent methods. The dispatchEvent
+ * method has the additional capability to create a new event from a type
+ * string and arguments.
+ */
 function event_mixin(obj, handlers) {
-    obj.addEventListener = function addEventListener(type, handler) {
-        if (handlers[type] === undefined)
-            handlers[type] = [ ];
-        handlers[type].push(handler);
-    };
-    obj.removeEventListener = function removeEventListener(type, handler) {
-        var length = handlers[type] ? handlers[type].length : 0;
-        for (var i = 0; i < length; i++) {
-            if (handlers[type][i] === handler) {
-                handlers[type][i] = null;
-                break;
+    Object.defineProperties(obj, {
+        addEventListener: {
+            enumerable: false,
+            value: function addEventListener(type, handler) {
+                if (handlers[type] === undefined)
+                    handlers[type] = [ ];
+                handlers[type].push(handler);
+            }
+        },
+        removeEventListener: {
+            enumerable: false,
+            value: function removeEventListener(type, handler) {
+                var length = handlers[type] ? handlers[type].length : 0;
+                for (var i = 0; i < length; i++) {
+                    if (handlers[type][i] === handler) {
+                        handlers[type][i] = null;
+                        break;
+                    }
+                }
+            }
+        },
+        dispatchEvent: {
+            enumerable: false,
+            value: function dispatchEvent(event) {
+                var type, args;
+                if (typeof event === "string") {
+                    type = event;
+                    args = Array.prototype.slice.call(arguments, 1);
+                    event = document.createEvent("CustomEvent");
+                    if (arguments.length == 2)
+                        event.initCustomEvent(type, false, false, arguments[1]);
+                    else if (arguments.length > 2)
+                        event.initCustomEvent(type, false, false, args);
+                    else
+                        event.initCustomEvent(type, false, false, null);
+                    args.unshift(event);
+                } else {
+                    type = event.type;
+                    args = arguments;
+                }
+                if (typeof obj['on' + type] === "function")
+                    obj['on' + type].apply(obj, args);
+                var length = handlers[type] ? handlers[type].length : 0;
+                for (var i = 0; i < length; i++) {
+                    if (handlers[type][i])
+                        handlers[type][i].apply(obj, args);
+                }
             }
         }
-    };
-    obj.dispatchEvent = function dispatchEvent(event) {
-        var type = event.type;
-        if (typeof obj['on' + type] === "function")
-            obj['on' + type].apply(obj, arguments);
-        var length = handlers[type] ? handlers[type].length : 0;
-        for (var i = 0; i < length; i++) {
-            if (handlers[type][i])
-                handlers[type][i].apply(obj, arguments);
-        }
-    };
+    });
 }
 
 function calculate_url() {
@@ -345,9 +377,7 @@ function Transport() {
     function ready_for_channels() {
         if (!self.ready) {
             self.ready = true;
-            var event = document.createEvent("CustomEvent");
-            event.initCustomEvent("ready", false, false, null);
-            self.dispatchEvent(event);
+            self.dispatchEvent("ready");
         }
     }
 
@@ -624,9 +654,7 @@ function Channel(options) {
         } else {
             if (base64)
                 payload = base64_decode(payload, window.Uint8Array || Array);
-            var event = document.createEvent("CustomEvent");
-            event.initCustomEvent("message", false, false, payload);
-            self.dispatchEvent(event, payload);
+            self.dispatchEvent("message", payload);
         }
     }
 
@@ -634,9 +662,7 @@ function Channel(options) {
         self.valid = valid = false;
         if (transport && id)
             transport.unregister(id);
-        var event = document.createEvent("CustomEvent");
-        event.initCustomEvent("close", false, false, data);
-        self.dispatchEvent(event, data);
+        self.dispatchEvent("close", data);
     }
 
     function on_control(data) {
@@ -653,9 +679,7 @@ function Channel(options) {
         } else {
             if (done)
                 received_done = true;
-            var event = document.createEvent("CustomEvent");
-            event.initCustomEvent("control", false, false, data);
-            self.dispatchEvent(event, data);
+            self.dispatchEvent("control", data);
         }
     }
 
@@ -764,7 +788,7 @@ function Channel(options) {
             return join_data(buffers, binary);
         };
 
-        self.addEventListener("message", function(event, data) {
+        function on_message(event, data) {
             var consumed, block;
             buffers.push(data);
             if (buffers.callback) {
@@ -787,7 +811,15 @@ function Channel(options) {
                     }
                 }
             }
-        });
+        }
+
+        function on_close() {
+            self.removeEventListener("message", on_message);
+            self.removeEventListener("close", on_close);
+        }
+
+        self.addEventListener("message", on_message);
+        self.addEventListener("close", on_close);
 
         return buffers;
     };
@@ -1606,9 +1638,7 @@ function basic_scope(cockpit, jquery) {
                 callback.call(self, row, x, n);
             }
 
-            var event = document.createEvent("CustomEvent");
-            event.initCustomEvent("notify", false, false, [ x, n ]);
-            self.dispatchEvent(event, x, n);
+            self.dispatchEvent("notify", x, n);
         };
 
         self.add = function add(/* sink, path */) {
@@ -1822,15 +1852,19 @@ function full_scope(cockpit, $, po) {
      */
 
     cockpit.info = { };
+    event_mixin(cockpit.info, { });
+
     init_callback = function(options) {
         if (options.system)
             $.extend(cockpit.info, options.system);
         if (options.system)
-            $(cockpit.info).trigger("changed");
+            cockpit.info.dispatchEvent("changed");
     };
 
     function User() {
         var self = this;
+        event_mixin(self, { });
+
         self["user"] = null;
         self["name"] = null;
 
@@ -1852,7 +1886,7 @@ function full_scope(cockpit, $, po) {
             })
             .always(function() {
                 dbus.close();
-                $(self).triggerHandler("changed");
+                self.dispatchEvent("changed");
             });
     }
 
@@ -2026,9 +2060,9 @@ function full_scope(cockpit, $, po) {
         }
     });
 
-    $(window).on("hashchange", function() {
+    window.addEventListener("hashchange", function() {
         last_loc = null;
-        $(cockpit).triggerHandler("locationchanged");
+        cockpit.dispatchEvent("locationchanged");
     });
 
     /* ------------------------------------------------------------------------
@@ -2264,6 +2298,7 @@ function full_scope(cockpit, $, po) {
 
     function DBusProxy(client, cache, iface, path, options) {
         var self = this;
+        event_mixin(self, { });
 
         var valid = false;
         var defined = false;
@@ -2348,16 +2383,19 @@ function full_scope(cockpit, $, po) {
             } else {
                 valid = false;
             }
-            $(self).triggerHandler("changed", [ props ]);
+            self.dispatchEvent("changed", props);
         }
 
         cache.connect(path, iface, update, true);
         update(cache.lookup(path, iface));
 
         function signal(path, iface, name, args) {
-            $(self).triggerHandler("signal", [name, args]);
-            if (name[0].toLowerCase() != name[0])
-                $(self).triggerHandler(name, args);
+            self.dispatchEvent("signal", name, args);
+            if (name[0].toLowerCase() != name[0]) {
+                args = args.slice();
+                args.unshift(name);
+                self.dispatchEvent.apply(self, args);
+            }
         }
 
         client.subscribe({ "path": path, "interface": iface }, signal, options.subscribe !== false);
@@ -2371,6 +2409,7 @@ function full_scope(cockpit, $, po) {
 
     function DBusProxies(client, cache, iface, path_namespace, options) {
         var self = this;
+        event_mixin(self, { });
 
         var waits = $.Callbacks("once memory");
 
@@ -2407,13 +2446,13 @@ function full_scope(cockpit, $, po) {
                 return;
             } else if (!props && proxy) {
                 delete self[path];
-                $(self).triggerHandler("removed", [ proxy ]);
+                self.dispatchEvent("removed", proxy);
             } else if (props) {
                 if (!proxy) {
                     proxy = self[path] = client.proxy(iface, path, options);
-                    $(self).triggerHandler("added", [ proxy ]);
+                    self.dispatchEvent("added", proxy);
                 }
-                $(self).triggerHandler("changed", [ proxy ]);
+                self.dispatchEvent("changed", proxy);
             }
         }
 
@@ -2423,6 +2462,8 @@ function full_scope(cockpit, $, po) {
 
     function DBusClient(name, options) {
         var self = this;
+        event_mixin(self, { });
+
         var args = { };
         var track = false;
         var owner = null;
@@ -2469,7 +2510,7 @@ function full_scope(cockpit, $, po) {
             return true;
         }
 
-        $(channel).on("message", function(event, payload) {
+        function on_message(event, payload) {
             dbus_debug("dbus:", payload);
             var msg;
             try {
@@ -2512,7 +2553,7 @@ function full_scope(cockpit, $, po) {
                 ensure_cache();
                 $.extend(cache.meta, msg.meta);
             } else if (msg.owner !== undefined) {
-                $(self).triggerHandler("owner", [ msg.owner ]);
+                self.dispatchEvent("owner", msg.owner);
 
                 // We won't get this signal with the same
                 // owner twice so if we've seen an owner
@@ -2524,7 +2565,7 @@ function full_scope(cockpit, $, po) {
             } else {
                 dbus_debug("received unexpected dbus json message:", payload);
             }
-        });
+        }
 
         function notify(data) {
             ensure_cache();
@@ -2536,7 +2577,7 @@ function full_scope(cockpit, $, po) {
                         cache.update(path, iface, props);
                 });
             });
-            $(self).triggerHandler("notify", [ data ]);
+            self.dispatchEvent("notify", data);
         }
 
         this.notify = notify;
@@ -2548,7 +2589,7 @@ function full_scope(cockpit, $, po) {
             $.each(outstanding, function(id, dfd) {
                 dfd.reject(new DBusError(closed));
             });
-            $(self).triggerHandler("close", [ options ]);
+            self.dispatchEvent("close", options);
         }
 
         this.close = function close(options) {
@@ -2562,12 +2603,16 @@ function full_scope(cockpit, $, po) {
                 close_perform(options);
         };
 
-        $(channel).on("close", function(event, options) {
+        function on_close(event, options) {
             dbus_debug("dbus close:", options);
-            $(channel).off();
+            channel.removeEventListener("message", on_message);
+            channel.removeEventListener("close", on_close);
             channel = null;
             close_perform(options);
-        });
+        }
+
+        channel.addEventListener("message", on_message);
+        channel.addEventListener("close", on_close);
 
         var last_cookie = 1;
 
@@ -2766,10 +2811,10 @@ function full_scope(cockpit, $, po) {
             function try_read() {
                 read_channel = cockpit.channel(opts);
                 var content_parts = [ ];
-                $(read_channel).on("message", function (event, message) {
+                read_channel.addEventListener("message", function (event, message) {
                     content_parts.push(message);
                 });
-                $(read_channel).on("close", function (event, message) {
+                read_channel.addEventListener("close", function (event, message) {
                     read_channel = null;
 
                     if (message.problem == "change-conflict") {
@@ -2837,7 +2882,7 @@ function full_scope(cockpit, $, po) {
             });
             replace_channel = cockpit.channel(opts);
 
-            $(replace_channel).on("close", function (event, message) {
+            replace_channel.addEventListener("close", function (event, message) {
                 replace_channel = null;
                 if (message.problem) {
                     dfd.reject(new BasicError(message.problem, message.message));
@@ -2921,7 +2966,7 @@ function full_scope(cockpit, $, po) {
                     path: path
                 });
                 watch_channel = cockpit.channel(opts);
-                $(watch_channel).on("message", function (event, message_string) {
+                watch_channel.addEventListener("message", function (event, message_string) {
                     var message;
                     try      { message = JSON.parse(message_string); }
                     catch(e) { message = null; }
@@ -3230,7 +3275,7 @@ function full_scope(cockpit, $, po) {
                 return 0;
             });
 
-            $(channel).on("close", function(event, options) {
+            function on_close(event, options) {
                 if (options.problem) {
                     http_debug("http problem: ", options.problem);
                     dfd.reject(new BasicError(options.problem));
@@ -3255,8 +3300,10 @@ function full_scope(cockpit, $, po) {
                     }
                 }
 
-                $(channel).off();
-            });
+                channel.removeEventListener("close", on_close);
+            }
+
+            channel.addEventListener("close", on_close);
 
             var jpromise = dfd.promise;
             dfd.promise = function mypromise() {
@@ -3285,7 +3332,6 @@ function full_scope(cockpit, $, po) {
                     close: function(problem) {
                         http_debug("http closing:", problem);
                         channel.close(problem);
-                        $(channel).off("message");
                         return this;
                     },
                     promise: this.promise
@@ -3345,6 +3391,8 @@ function full_scope(cockpit, $, po) {
 
     function Permission(options) {
         var self = this;
+        event_mixin(self, { });
+
         self.allowed = null;
 
         var user = cockpit.user;
@@ -3386,15 +3434,15 @@ function full_scope(cockpit, $, po) {
             var allowed = decide();
             if (self.allowed !== allowed) {
                 self.allowed = allowed;
-                $(self).triggerHandler("changed");
+                self.dispatchEvent("changed");
             }
         }
 
-        $(user).on("changed", user_changed);
+        user.addEventListener("changed", user_changed);
         user_changed();
 
         self.close = function close() {
-            $(user).off("changed", user_changed);
+            user.removeEventListener("changed", user_changed);
         };
     }
 
@@ -3420,6 +3468,7 @@ function full_scope(cockpit, $, po) {
 
     function MetricsChannel(interval, options_list, cache) {
         var self = this;
+        event_mixin(self, { });
 
         if (options_list.length === undefined)
             options_list = [ options_list ];
@@ -3461,85 +3510,85 @@ function full_scope(cockpit, $, po) {
             var last = null;
             var beg;
 
-            $(channel)
-                .on("close", function(ev, close_options) {
-                    if (!is_archive)
-                        following = false;
+            channel.addEventListener("close", function(ev, close_options) {
+                if (!is_archive)
+                    following = false;
 
-                    if (options_list.length > 1 &&
-                        (close_options.problem == "not-supported" || close_options.problem == "not-found")) {
-                        transfer(options_list.slice(1), callback);
-                    } else if (close_options.problem) {
-                        if (close_options.problem != "terminated" &&
-                            close_options.problem != "disconnected" &&
-                            close_options.problem != "authentication-failed" &&
-                            (close_options.problem != "not-found" || !is_archive) &&
-                            (close_options.problem != "not-supported" || !is_archive)) {
-                            console.warn("metrics channel failed: " + close_options.problem);
-                        }
-                    } else if (is_archive) {
-                        if (!self.archives) {
-                            self.archives = true;
-                            $(self).triggerHandler('changed');
-                        }
+                if (options_list.length > 1 &&
+                    (close_options.problem == "not-supported" || close_options.problem == "not-found")) {
+                    transfer(options_list.slice(1), callback);
+                } else if (close_options.problem) {
+                    if (close_options.problem != "terminated" &&
+                        close_options.problem != "disconnected" &&
+                        close_options.problem != "authentication-failed" &&
+                        (close_options.problem != "not-found" || !is_archive) &&
+                        (close_options.problem != "not-supported" || !is_archive)) {
+                        console.warn("metrics channel failed: " + close_options.problem);
                     }
-                })
-                .on("message", function(ev, payload) {
-                    var message = JSON.parse(payload);
+                } else if (is_archive) {
+                    if (!self.archives) {
+                        self.archives = true;
+                        self.dispatchEvent('changed');
+                    }
+                }
+            });
 
-                    var data, data_len, last_len, dataj, dataj_len, lastj, lastj_len;
-                    var i, j, k;
-                    var timestamp;
+            channel.addEventListener("message", function(ev, payload) {
+                var message = JSON.parse(payload);
 
-                    /* A meta message? */
-                    var message_len = message.length;
-                    if (message_len === undefined) {
-                        meta = message;
-                        timestamp = 0;
-                        if (meta.now && meta.timestamp)
-                            timestamp = meta.timestamp + ($.now() - meta.now);
-                        beg = Math.floor(timestamp / interval);
-                        callback(beg, meta, null, options_list[0]);
+                var data, data_len, last_len, dataj, dataj_len, lastj, lastj_len;
+                var i, j, k;
+                var timestamp;
 
-                    /* A data message */
-                    } else if (meta) {
+                /* A meta message? */
+                var message_len = message.length;
+                if (message_len === undefined) {
+                    meta = message;
+                    timestamp = 0;
+                    if (meta.now && meta.timestamp)
+                        timestamp = meta.timestamp + ($.now() - meta.now);
+                    beg = Math.floor(timestamp / interval);
+                    callback(beg, meta, null, options_list[0]);
 
-                        /* Data decompression */
-                        for (i = 0; i < message_len; i++) {
-                            data = message[i];
-                            if (last) {
-                                data_len = data.length;
-                                last_len = last.length;
-                                for (j = 0; j < last_len; j++) {
-                                    dataj = data[j];
-                                    if (dataj === null || dataj === undefined) {
-                                        data[j] = last[j];
-                                    } else {
-                                        dataj_len = dataj.length;
-                                        if (dataj_len !== undefined) {
-                                            lastj = last[j];
-                                            lastj_len = last[j].length;
-                                            for (k = 0; k < dataj_len; k++) {
-                                                if (dataj[k] === null)
-                                                    dataj[k] = lastj[k];
-                                            }
-                                            for (; k < lastj_len; k++)
+                /* A data message */
+                } else if (meta) {
+
+                    /* Data decompression */
+                    for (i = 0; i < message_len; i++) {
+                        data = message[i];
+                        if (last) {
+                            data_len = data.length;
+                            last_len = last.length;
+                            for (j = 0; j < last_len; j++) {
+                                dataj = data[j];
+                                if (dataj === null || dataj === undefined) {
+                                    data[j] = last[j];
+                                } else {
+                                    dataj_len = dataj.length;
+                                    if (dataj_len !== undefined) {
+                                        lastj = last[j];
+                                        lastj_len = last[j].length;
+                                        for (k = 0; k < dataj_len; k++) {
+                                            if (dataj[k] === null)
                                                 dataj[k] = lastj[k];
                                         }
+                                        for (; k < lastj_len; k++)
+                                            dataj[k] = lastj[k];
                                     }
                                 }
                             }
-                            last = data;
                         }
-
-                        /* Return the data */
-                        callback(beg, meta, message, options_list[0]);
-
-                        /* Bump timestamp for the next message */
-                        beg += message_len;
-                        meta.timestamp += (interval * message_len);
+                        last = data;
                     }
-                });
+
+                    /* Return the data */
+                    callback(beg, meta, message, options_list[0]);
+
+                    /* Bump timestamp for the next message */
+                    beg += message_len;
+                    meta.timestamp += (interval * message_len);
+                }
+            });
         }
 
         function drain(beg, meta, message, options) {
@@ -3636,6 +3685,8 @@ function full_scope(cockpit, $, po) {
  */
 
 var cockpit = { };
+event_mixin(cockpit, { });
+
 var basics = false;
 var extra = false;
 

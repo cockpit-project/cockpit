@@ -62,7 +62,7 @@ function MockPeer() {
         if (!channel)
             console.log("dropping message before open");
         else if (channel.valid)
-            $(channel).trigger("message", [payload]);
+            channel.dispatchEvent("message", payload);
         else
             console.log("dropping message after close");
     }
@@ -77,7 +77,7 @@ function MockPeer() {
         console.assert(channel);
         if (channel.valid) {
             channel.valid = false;
-            $(channel).trigger("close", [options || { }]);
+            channel.dispatchEvent("close", options || { });
         }
     }
 
@@ -85,6 +85,7 @@ function MockPeer() {
     var last_channel = 0;
 
     function MockChannel(options) {
+        cockpit.event_target(this);
         this.number = last_channel++;
         this.options = options;
         this.valid = true;

@@ -599,6 +599,7 @@ maybe_add_package (GHashTable *listing,
     {
       cockpit_package_free (package);
       package = NULL;
+      goto out;
     }
 
   g_hash_table_replace (listing, package->name, package);

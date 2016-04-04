@@ -40,7 +40,7 @@ class TestStorage(StorageCase):
         self.dialog({ "type": "gpt" })
         b.wait_in_text("#content", "Free Space")
 
-        assert m.execute("cat /etc/crypttab").strip() == ""
+        assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
 
         # Format it with luks
         self.content_single_action(1, "Create Partition")
@@ -92,7 +92,7 @@ class TestStorage(StorageCase):
         b.wait_in_text("#content", "Free Space")
         b.wait_not_in_text("#content", "ENCRYPTED")
 
-        assert m.execute("cat /etc/crypttab").strip() == ""
+        assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
         assert m.execute("grep %s /etc/fstab || true" % mount_point_secret) == ""
 
 if __name__ == '__main__':

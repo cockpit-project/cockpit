@@ -32,7 +32,8 @@
                         <div ng-if="!item.spec.ports.length" translatable="yes">None</div>
                         <div ng-repeat="portMapping in item.spec.ports | orderBy:'port'">
                             {{portMapping.port}} &#8594; {{portMapping.targetPort}}
-                            ({{portMapping.protocol}})</div>
+                            ({{portMapping.protocol}}) {{portMapping.nodePort?"NodePort: "+portMapping.nodePort:""}}
+                        </div>
                     </dd>
                     <dt translatable="yes">Session Affinity</dt>
                     <dd>{{ item.spec.sessionAffinity }}</dd>

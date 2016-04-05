@@ -36,6 +36,7 @@ olddir=$(pwd)
 cd $srcdir
 
 npm install # see package.json
+cp package.json node_modules # for tools/make-source
 find node_modules -name test | xargs rm -rf
 
 rm -rf autom4te.cache

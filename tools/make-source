@@ -33,7 +33,8 @@ cd $base/..
 if [ -d .git ]; then
     git archive HEAD --prefix cockpit-wip/ --output $outdir/cockpit-wip.tar
     if ! diff -qN package.json node_modules/package.json > /dev/null; then
-        npm install --silent
+        # this needs to be really quiet on stdout, since output is used to install packages
+        npm install --silent 1>&2
         cp package.json node_modules/package.json
     fi
     tar -rf $outdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' --exclude='phantomjs*' node_modules

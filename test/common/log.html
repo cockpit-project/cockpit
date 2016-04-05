@@ -37,10 +37,6 @@
             background-color: #F2DEDE;
             border-color: #EBCCD1;
         }
-        .preformatted {
-            font-family: monospace;
-            white-space: pre;
-        }
         </style>
         <script id="Tests" type="text/template">
             <div class="panel-group" id="accordion">
@@ -83,12 +79,12 @@
                     </h4>
                 </div>
                 <div id="collapse{{id}}" class="panel-collapse collapse {{^collapsed}}in{{/collapsed}}">
-                    <div class="panel-body preformatted">{{text}}</div>
+                    <pre class="panel-body">{{text}}</pre>
                 </div>
             </div>
         </script>
         <script id="TextOnly" type="text/template">
-            <div class="panel-body preformatted">{{text}}</div>
+            <pre class="panel-body">{{text}}</pre>
         </script>
         <script id="TestProgress" type="text/template">
             <div class="progress" style="width: 40%">

@@ -32,9 +32,11 @@ cd $base/..
 
 if [ -d .git ]; then
     git archive HEAD --prefix cockpit-wip/ --output $outdir/cockpit-wip.tar
-    if [ -d node_modules ]; then
-        tar -rf $outdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' --exclude='phantomjs*' node_modules
+    if ! diff -qN package.json node_modules/package.json > /dev/null; then
+        npm install --silent
+        cp package.json node_modules/package.json
     fi
+    tar -rf $outdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' --exclude='phantomjs*' node_modules
 else
     tar -cf $outdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' .
 fi

@@ -138,6 +138,8 @@ client.init = function() {
                 dfd_result.resolve(details);
             })
             .fail(function(ex) {
+                console.warn("Unable to get alert for id " + local_id);
+                console.warn(ex);
                 dfd_result.reject(new Error(_("Unable to get alert") + ": " + local_id));
             });
         return dfd_result.promise();

@@ -98,7 +98,8 @@ var init_store = function(root_element) {
     data_store.render = render;
 
     /* Update an alert entry if it exists, otherwise create one
-       Details are only stored if a non-null value is passed
+       Details: if undefined, we don't have info on them yet,
+       while null means an error occurred while retrieving them
        The function doesn't trigger a render
     */
     var maybe_update_alert = function(local_id, description, count, details) {
@@ -108,6 +109,10 @@ var init_store = function(root_element) {
         // if we receive an alert multiple times, this is where it will be
         for (idx = data_store.entries.length - 1; idx >= 0; --idx) {
             if (data_store.entries[idx].key == local_id) {
+                if (description === undefined || count === undefined) {
+                    data_store.entries[idx].details = details;
+                    return;
+                }
                 // don't update newer information
                 // this can happen in cases of highly frequent updates
                 if (data_store.entries[idx].count <= count) {
@@ -116,7 +121,7 @@ var init_store = function(root_element) {
                     // to lose the progress or result
 
                     // only allow details to be null if the count has increased
-                    if ((details !== null) || (data_store.entries[idx].count < count)) {
+                    if ((details !== undefined) || (data_store.entries[idx].count < count)) {
                         data_store.entries[idx].details = details;
                     }
                     data_store.entries[idx].description = description;
@@ -137,7 +142,7 @@ var init_store = function(root_element) {
         var entry;
         for (idx_entry = 0; idx_entry != entries.length; ++idx_entry) {
             entry = entries[idx_entry];
-            maybe_update_alert(entry.local_id, entry.summary, entry.report_count, null);
+            maybe_update_alert(entry.local_id, entry.summary, entry.report_count, undefined);
             data_store.get_alert_details(entry.local_id);
         }
         // make sure we render
@@ -158,8 +163,8 @@ var init_store = function(root_element) {
                 render();
             })
             .fail(function(error) {
-                console.error("Unable to get setroubleshoot alert " + id + ": " + error);
-                // TODO: should this result in a failing page / empty state + error page?
+                maybe_update_alert(id, undefined, undefined, null);
+                render();
             });
     };
     data_store.get_alert_details = get_alert_details;

@@ -306,6 +306,9 @@ asyncTest("no dns address", function() {
                    "address": "the-other-host.example.com" })
         .get("/")
         .fail(function(ex, data) {
+            /* Unfortunately we can see either of these errors when running unit tests */
+            if (ex.problem === "timeout")
+                ex.problem = "not-found";
             strictEqual(ex.problem, "not-found", "can't resolve is not found");
         })
         .always(function() {

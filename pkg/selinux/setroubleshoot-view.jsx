@@ -24,12 +24,6 @@ define([
 "use strict";
 
 /* Show details for an alert, including possible solutions */
-  /* running solution entry.fix
-                      plugin: analysis_id,
-                    running: true,
-                    result: null,
-                    success: false,
-  */
 var SELinuxEventDetails = React.createClass({
     getInitialState: function() {
         var expanded;
@@ -62,10 +56,11 @@ var SELinuxEventDetails = React.createClass({
     render: function() {
         if (!this.props.details) {
             // details should be requested by default, so we just need to wait for them
+            var waiting = (this.props.details === undefined);
             return (
                 <EmptyState
-                    icon={ <div className="spinner spinner-lg" /> }
-                    description="Waiting for details..."
+                    icon={ waiting ? 'waiting' : 'error' }
+                    description={ waiting ? 'Waiting for details...' : 'Unable to get alert details.' }
                     message={ null }
                     relative={ true }/>
             );
@@ -155,10 +150,11 @@ var SELinuxEventLog = React.createClass({
     render: function() {
         if (!this.props.details) {
             // details should be requested by default, so we just need to wait for them
+            var waiting = (this.props.details === undefined);
             return (
                 <EmptyState
-                    icon={ <div className="spinner spinner-lg" /> }
-                    description="Waiting for details..."
+                    icon={ waiting ? 'waiting' : 'error' }
+                    description={ waiting ? 'Waiting for details...' : 'Unable to get alert details.' }
                     message={ null }
                     relative={ true }/>
             );
@@ -261,6 +257,9 @@ var SELinuxEvent = React.createClass({
 
 /* Implements a subset of the PatternFly Empty State pattern
  * https://www.patternfly.org/patterns/empty-state/
+ * Special values for icon property:
+ *   - 'waiting' - display spinner
+ *   - 'error'   - display error icon
  */
 var EmptyState = React.createClass({
     render: function() {
@@ -275,10 +274,16 @@ var EmptyState = React.createClass({
         var curtains = "curtains";
         if (this.props.relative)
             curtains = "curtains-relative";
+
+        var icon = this.props.icon;
+        if (icon == 'waiting')
+            icon = <div className="spinner spinner-lg"></div>;
+        else if (icon == 'error')
+            icon = <div className="pficon pficon-error-circle-o"></div>;
         return (
-            <div className={curtains + "blank-slate-pf"}>
+            <div className={curtains + " blank-slate-pf"}>
                 <div className="blank-slate-pf-icon">
-                    { this.props.icon }
+                    { icon }
                 </div>
                 { description }
                 { message }

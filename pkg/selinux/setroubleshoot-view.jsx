@@ -66,7 +66,8 @@ var SELinuxEventDetails = React.createClass({
                 <EmptyState
                     icon={ <div className="spinner spinner-lg" /> }
                     description="Waiting for details..."
-                    message={ null } />
+                    message={ null }
+                    relative={ true }/>
             );
         }
         var self = this;
@@ -152,6 +153,16 @@ var SELinuxEventDetails = React.createClass({
 /* Show the audit log events for an alert */
 var SELinuxEventLog = React.createClass({
     render: function() {
+        if (!this.props.details) {
+            // details should be requested by default, so we just need to wait for them
+            return (
+                <EmptyState
+                    icon={ <div className="spinner spinner-lg" /> }
+                    description="Waiting for details..."
+                    message={ null }
+                    relative={ true }/>
+            );
+        }
         var self = this;
         var log_entries = this.props.details.audit_event.map(function(itm, idx) {
             // use the alert id and index in the event log array as the data key for react
@@ -261,8 +272,11 @@ var EmptyState = React.createClass({
         if (this.props.message)
             message = <p>{this.props.message}</p>;
 
+        var curtains = "curtains";
+        if (this.props.relative)
+            curtains = "curtains-relative";
         return (
-            <div className="curtains blank-slate-pf">
+            <div className={curtains + "blank-slate-pf"}>
                 <div className="blank-slate-pf-icon">
                     { this.props.icon }
                 </div>

@@ -32,7 +32,7 @@ from common import testvm
 image_list="ipa openshift fedora-stock"
 
 parser = argparse.ArgumentParser(
-        description='Run command inside or install packages into a Cockpit virtual machine',
+        description='Prepare testig environment, download images and build and cinstall cockpit',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
@@ -41,12 +41,12 @@ parser.add_argument('-f', '--force', action='store_true', help='Force update of 
 parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to use')
 args = parser.parse_args()
 
-test_os = os.environ["TEST_OS"] if os.environ.has_key("TEST_OS") else args.image
+test_os = args.image
 build_os = test_os
 
-if os.environ.has_key("TEST_OS") and os.environ["TEST_OS"] == "fedora-atomic":
+if test_os == "fedora-atomic":
     build_os = "fedora-23"
-elif os.environ.has_key("TEST_OS") and os.environ["TEST_OS"] == "rhel-atomic":
+elif test_os == "rhel-atomic":
     build_os = "rhel-7"
 
 def check_cockpit():

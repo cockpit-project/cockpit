@@ -1,87 +1,75 @@
-#!/bin/bash
-
-set -e
-
-SELF=testsuite-prepare
-BASE="$(dirname $0)/.."
-
-vm_install_opts=
-
-# TODO: This really needs to be migrated to python and use testinfra
-TEST_OS=${TEST_OS:-fedora-24}
-
-warning()
-{
-       echo >&2 "$SELF: $@"
-}
-
-silent()
-{
-       "$@" > /dev/null 2> /dev/null
-       return $?
-}
-
-usage()
-{
-    echo "usage: testsuite-prepare [--clean] [--quick] [--verbose]"
-}
-
-
-args=$(getopt -o "h,v,q" -l "help,verbose,quick" -- "$@")
-eval set -- "$args"
-while [ $# -gt 0 ]; do
-    case $1 in
-    -q|--quick)
-        vm_install_opts="$vm_install_opts --quick"
-        ;;
-    -v|--verbose)
-        vm_install_opts="$vm_install_opts --verbose"
-        ;;
-    -h|--help)
-        usage
-        exit 0
-        ;;
-    --)
-        shift
-        break
-        ;;
-    esac
-    shift
-done
-
-# The Atomic variants can't build their own packages, so we build in
-# their non-Atomic siblings.  For example, fedora-atomic is build
-# in fedora-23
+#!/usr/bin/env python
+# This file is part of Cockpit.
 #
-if [ "$TEST_OS" = "fedora-atomic" ]; then
-    BUILD_OS="fedora-23"
-elif [ "$TEST_OS" = "rhel-atomic" ]; then
-    BUILD_OS="rhel-7"
-else
-    BUILD_OS="$TEST_OS"
-fi
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-$BASE/vm-reset
-$BASE/vm-download \
-    $TEST_OS \
-    $BUILD_OS \
-    ipa \
-    openshift \
-    fedora-stock
+import argparse
+import os
+import re
+import sys
+import subprocess
 
-install_failed=no
-if ! $BASE/vm-install $vm_install_opts --build-image $BUILD_OS; then
-    install_failed=yes
-fi
+basepath = os.path.join(os.path.dirname(os.path.abspath(__file__)),"..")
+if not basepath in sys.path:
+    sys.path.insert(1, basepath)
+from common import testinfra
+from common import testvm
 
-# Upload the build logs if desired
-if [ -n "${TEST_ATTACHMENTS:-}" ]; then
-    mkdir "$TEST_ATTACHMENTS"/build-results
-    cp -r $BASE/tmp/build-results/*.log "$TEST_ATTACHMENTS"/build-results
-fi
+build_os = ""
+if os.environ.has_key("TEST_OS") and os.environ["TEST_OS"] == "fedora-atomic":
+    build_os = "fedora-23"
+elif os.environ.has_key("TEST_OS") and os.environ["TEST_OS"] == "rhel-atomic":
+    build_os = "rhel-7"
+test_os = os.environ["TEST_OS"] if os.environ.has_key("TEST_OS") else None
 
-if [ $install_failed == "yes" ]; then
-  exit 1
-fi
+image_list="ipa openshift fedora-stock"
 
-exit 0
+parser = argparse.ArgumentParser(
+        description='Run command inside or install packages into a Cockpit virtual machine',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
+parser.add_argument('-c', '--check', action='store_true', help='Check if cockpit is installed on machine')
+parser.add_argument('-f', '--force', action='store_true', help='Force update of images')
+parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to use')
+args = parser.parse_args()
+
+current_image = args.image
+install_image = current_image
+build_image = None
+
+def check_cockpit():
+    try:
+        machine = testvm.VirtMachine(verbose=args.verbose, image=current_image, label="install")
+        machine.start(maintain=True)
+        machine.wait_boot()
+        machine.execute('test -f /usr/bin/cockpit-bridge')
+        machine.execute('test -f /usr/libexec/cockpit-ws')
+    except Exception as e:
+        return False
+    finally:
+        machine.stop()
+    return True
+
+
+os.system("%s/vm-reset" % basepath)
+if args.check and check_cockpit():
+    print "cockpit already installed on testing image"
+else:
+    os.system("%s/vm-download %s %s" % (basepath, test_os, build_os))
+    os.system("%s/vm-install --build-image %s" % (basepath, build_os))
+os.system("%s/vm-download %s" % (basepath, image_list))
+

@@ -28,12 +28,6 @@ if not basepath in sys.path:
 from common import testinfra
 from common import testvm
 
-build_os = ""
-if os.environ.has_key("TEST_OS") and os.environ["TEST_OS"] == "fedora-atomic":
-    build_os = "fedora-23"
-elif os.environ.has_key("TEST_OS") and os.environ["TEST_OS"] == "rhel-atomic":
-    build_os = "rhel-7"
-test_os = os.environ["TEST_OS"] if os.environ.has_key("TEST_OS") else None
 
 image_list="ipa openshift fedora-stock"
 
@@ -47,13 +41,17 @@ parser.add_argument('-f', '--force', action='store_true', help='Force update of 
 parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to use')
 args = parser.parse_args()
 
-current_image = args.image
-install_image = current_image
-build_image = None
+test_os = os.environ["TEST_OS"] if os.environ.has_key("TEST_OS") else args.image
+build_os = test_os
+
+if os.environ.has_key("TEST_OS") and os.environ["TEST_OS"] == "fedora-atomic":
+    build_os = "fedora-23"
+elif os.environ.has_key("TEST_OS") and os.environ["TEST_OS"] == "rhel-atomic":
+    build_os = "rhel-7"
 
 def check_cockpit():
     try:
-        machine = testvm.VirtMachine(verbose=args.verbose, image=current_image, label="install")
+        machine = testvm.VirtMachine(verbose=args.verbose, image=test_os, label="install")
         machine.start(maintain=True)
         machine.wait_boot()
         machine.execute('test -f /usr/bin/cockpit-bridge')

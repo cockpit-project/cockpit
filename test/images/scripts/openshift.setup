@@ -16,7 +16,7 @@ systemctl stop firewalld
 dnf -y remove firewalld
 iptables -F
 
-dnf -y install docker
+dnf -y install docker python libselinux-python
 
 # Wait for x for many minutes
 function wait() {
@@ -50,14 +50,42 @@ container=$(docker create openshift/origin)
 docker cp $container:/usr/bin - | tar -C /usr -xf - bin/openshift bin/oc bin/oadm bin/kubectl
 
 # Runs a master if on the right address, otherwise runs a node
-printf '#!/bin/sh -ex\nif /usr/sbin/ip addr | /usr/bin/grep -i "52:54:00:9e:00:f1"; then\n/usr/bin/hostnamectl set-hostname f1.cockpit.lan\n/usr/bin/systemctl enable rpcbind\n/usr/bin/systemctl start rpcbind\n/usr/bin/systemctl start nfs-server\ncmd=\"/usr/bin/openshift start --master=10.111.112.101\"\nelse\n/usr/bin/hostnamectl set-hostname node-$(/usr/bin/cat /etc/machine-id)\ncmd=\"/usr/bin/openshift start node --kubeconfig=/openshift.local.config/node-f1.cockpit.lan/node.kubeconfig\"\nfi\necho "#!/bin/sh -ex\n$cmd" > /openshift-run\n' > /openshift-prep
+cat > /openshift-prep <<EOF
+#!/bin/sh -ex
+if /usr/sbin/ip addr | /usr/bin/grep -i "52:54:00:9e:00:f1"; then
+    /usr/bin/hostnamectl set-hostname f1.cockpit.lan
+    /usr/bin/systemctl enable rpcbind
+    /usr/bin/systemctl start rpcbind
+    /usr/bin/systemctl start nfs-server
+    cmd="/usr/bin/openshift start --master=10.111.112.101"
+else
+    /usr/bin/hostnamectl set-hostname node-$(/usr/bin/cat /etc/machine-id)
+    cmd="/usr/bin/openshift start node --kubeconfig=/openshift.local.config/node-f1.cockpit.lan/node.kubeconfig"
+fi
+echo "#!/bin/sh -ex
+\$cmd" > /openshift-run
+EOF
+
 chmod +x /openshift-prep
 touch /openshift-run
 chmod +x /openshift-run
 
-printf '[Unit]\nDescription=Openshift\nWants=network-online.target\nAfter=network-online.target\n[Service]\nExecStartPre=/openshift-prep\nExecStart=/openshift-run\n[Install]\nWantedBy=multi-user.target\n' > /etc/systemd/system/openshift.service
+cat > /etc/systemd/system/openshift.service <<EOF
+[Unit]
+Description=Openshift
+Wants=network-online.target
+After=network-online.target
+[Service]
+ExecStartPre=/openshift-prep
+ExecStart=/openshift-run
+Restart=always
+RestartSec=60
+[Install]
+WantedBy=multi-user.target
+EOF
 
 systemctl daemon-reload
+systemctl enable systemd-networkd-wait-online
 systemctl enable openshift
 systemctl start openshift || journalctl -u openshift
 
@@ -179,6 +207,14 @@ cat /root/.kube/config
 
 # Wait a bit in case an operator wants to copy some info
 sleep 20
+
+# Use standard locations for kubelet kubeconfig. f1.cockpit.lan is the master hostname, which
+# is its own node and we just copy that for the others
+mkdir -p /var/lib/kubelet
+cp /openshift.local.config/node-f1.cockpit.lan/node.kubeconfig /var/lib/kubelet/kubeconfig
+
+# Turn this on in sshd_config, not in use until binary is in place
+printf 'AuthorizedKeysCommand /usr/local/bin/authorized-kube-keys --kubeconfig=/var/lib/kubelet/kubeconfig\nAuthorizedKeysCommandUser root' >> /etc/ssh/sshd_config
 
 # reduce image size
 dnf clean all

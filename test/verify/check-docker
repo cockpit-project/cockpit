@@ -127,6 +127,8 @@ class TestDocker(MachineCase):
         b.wait_in_text("#containers-containers", "PROBE2")
 
         # Wait for PROBE2 to Exit
+        b.wait_present('#containers-containers tr:contains("PROBE2")')
+        b.wait_visible('#containers-containers tr:contains("PROBE2")')
         b.click('#containers-containers tr:contains("PROBE2")')
         b.wait_visible("#container-details")
         b.wait_in_text("#container-details-state", "Exited")
@@ -234,6 +236,8 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         b.wait_in_text("#containers-containers", "PROBE2")
 
         # Check output of the probe
+        b.wait_present('#containers-containers tr:contains("PROBE2")')
+        b.wait_visible('#containers-containers tr:contains("PROBE2")')
         b.click('#containers-containers tr:contains("PROBE2")')
         b.wait_visible("#container-details")
         b.wait_in_text("#container-details-ports", ":%d -> %d/tcp" % (port, port))

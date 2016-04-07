@@ -360,9 +360,15 @@ define([
         function prepare() {
             /* Nothing to prepare? Connect diretly to container? */
             if (!exec) {
-                return attach("POST /v1.15/containers/" + encodeURIComponent(container_id) +
-                              "/attach?logs=1&stream=1&stdin=1&stdout=1&stderr=1 HTTP/1.0\r\n" +
-                              "Content-Length: 0\r\n\r\n");
+                if (tty === false) {
+                    return attach("GET /v1.15/containers/" + encodeURIComponent(container_id) +
+                                  "/logs?follow=1&stdout=1&stderr=1&tail=1000&timestamps=0 HTTP/1.0\r\n" +
+                                  "Content-Length: 0\r\n\r\n");
+                } else {
+                    return attach("POST /v1.15/containers/" + encodeURIComponent(container_id) +
+                                  "/attach?logs=1&stream=1&stdin=1&stdout=1&stderr=1 HTTP/1.0\r\n" +
+                                  "Content-Length: 0\r\n\r\n");
+                }
             }
 
             /* Prepare the command to be executed */

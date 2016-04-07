@@ -67,7 +67,7 @@ def build_and_maybe_install(image, do_install=False, skip=None, args=None):
         finally:
             machine.stop()
 
-def only_install(image, skip=None, args={}):
+def only_install(image, skip=None, args=None):
     """Install Cockpit into a test image"""
     machine = testvm.VirtMachine(verbose=args.verbose, image=image, label="install")
     machine.start(maintain=True)

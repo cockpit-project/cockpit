@@ -189,6 +189,23 @@ define([
             return check();
         }
 
+        /*
+         * The realmd dbus interface has an a(ss) Details
+         * property. Lookup the right value for the given
+         * field key.
+         */
+        function find_detail(realm, field) {
+            var result = null;
+            if (realm && realm.Details) {
+                realm.Details.forEach(function(value) {
+                    if (value[0] === field)
+                        result = value[1];
+                });
+            }
+            return result;
+        }
+
+
         function update() {
             var have_one = 0;
             var message;
@@ -197,6 +214,9 @@ define([
             $(".realms-op-wait-message").toggle(!!operation);
             $(".realms-op-field").prop('disabled', !!operation);
             $(".realms-op-apply").prop('disabled', !!operation);
+
+            var server = find_detail(realm, "server-software");
+            $(".realm-active-directory-only").toggle(!server || server == "active-directory");
 
             if (realm && kerberos && !kerberos.valid) {
                 message = cockpit.format(_("Domain $0 is not supported"), realm.Name);
@@ -309,7 +329,6 @@ define([
                     var diagnostics = "";
                     var sub = realmd.subscribe({ member: "Diagnostics" }, function(path, iface, signal, args) {
                         if (args[1] === id) {
-                            console.log(String(args[0]).trim());
                             diagnostics += args[0];
                         }
                     });

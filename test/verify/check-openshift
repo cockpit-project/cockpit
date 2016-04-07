@@ -44,10 +44,10 @@ def wait_oc(machine):
                 raise Exception(output)
             break
         except:
-            if i > 20:
+            if i > 60:
                 raise
             i = i + 1
-            time.sleep(1)
+            time.sleep(2)
 
 @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-openshift on rhel-7.")
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")

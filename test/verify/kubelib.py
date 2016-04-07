@@ -32,6 +32,12 @@ __all__ = (
 
 class KubernetesCase(MachineCase):
 
+    def setUp(self):
+        MachineCase.setUp(self)
+
+        # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1324456
+        self.allow_journal_messages("(audit: )?type=1401 .*op=security_compute_av.*")
+
     def start_kubernetes(self):
         self.machine.execute("systemctl start docker || journalctl -u docker")
         self.machine.execute("systemctl start etcd kube-apiserver kube-controller-manager kube-scheduler kube-proxy kubelet")

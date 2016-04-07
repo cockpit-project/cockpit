@@ -143,6 +143,13 @@ def every():
             result.append(filename)
     return result
 
+def download_images(image_list, force, store):
+    for image in image_list:
+        link = os.path.join(IMAGES, image)
+        if not os.path.islink(link):
+            parser.error("image link does not exist: " + image)
+        download(link, force, store)
+
 def main():
     parser = argparse.ArgumentParser(description='Download a virtual machine')
     parser.add_argument("--force", action="store_true", help="Force unnecessary downloads, delete images even if they aren't old")
@@ -158,11 +165,7 @@ def main():
 
     if args.prune:
         prune(args.force, args.dryrun)
-    for image in args.image:
-        link = os.path.join(IMAGES, image)
-        if not os.path.islink(link):
-            parser.error("image link does not exist: " + image)
-        download(link, args.force, args.store)
+    download_images(args.image, args.force, args.store)
 
 if __name__ == '__main__':
     sys.exit(main())

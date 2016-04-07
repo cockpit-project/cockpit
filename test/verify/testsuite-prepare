@@ -18,16 +18,17 @@
 
 import argparse
 import os
-import re
+import shutil
 import sys
-import subprocess
+import imp
 
 basepath = os.path.join(os.path.dirname(os.path.abspath(__file__)),"..")
 if not basepath in sys.path:
     sys.path.insert(1, basepath)
 from common import testinfra
 from common import testvm
-
+vminstall = imp.load_source('vminstall', os.path.join(basepath,"vm-install"))
+vmdownload = imp.load_source('vmdownload', os.path.join(basepath,"vm-download"))
 
 image_list="ipa openshift fedora-stock"
 
@@ -62,12 +63,21 @@ def check_cockpit():
         machine.stop()
     return True
 
+#vm-reset
+shutil.rmtree("%s/tmp/run" % basepath)
+os.makedirs("%s/tmp/run" % basepath)
 
-os.system("%s/vm-reset" % basepath)
 if args.check and check_cockpit():
     print "cockpit already installed on testing image"
 else:
-    os.system("%s/vm-download %s %s" % (basepath, test_os, build_os))
-    os.system("%s/vm-install --build-image %s" % (basepath, build_os))
-os.system("%s/vm-download %s" % (basepath, image_list))
+    #os.system("%s/vm-download %s %s" % (basepath, test_os, build_os))
+    vmdownload.download_images(set((test_os, build_os)), args.force, [])
+    #os.system("%s/vm-install --build-image %s" % (basepath, build_os))
+    args.sit = False
+    args.containers = False
+    args.quick = False
+    vminstall.build_and_install(test_os, build_os, args)
+        
+#os.system("%s/vm-download %s" % (basepath, image_list))
+vmdownload.download_images(image_list.split(" "), args.force, [])
 

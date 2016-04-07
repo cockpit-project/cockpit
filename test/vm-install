@@ -73,7 +73,7 @@ def only_install(image, skip=None, args=None):
     machine.start(maintain=True)
     try:
         machine.wait_boot()
-        upload_scripts(machine)
+        upload_scripts(machine,args=args)
         machine.execute("rm -rf /var/tmp/build-results");
         machine.upload([ "tmp/build-results" ], "/var/tmp")
         run_install_script(machine, False, True, skip, None)

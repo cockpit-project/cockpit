@@ -63,8 +63,11 @@ define([
             }
         });
 
-        $("select.realms-op-auth").selectpicker().on('change', function() {
-            var parts = ($("select.realms-op-auth").val() || "").split("/");
+        var auth = null;
+        function auth_changed(item) {
+            auth = item.attr('data-value');
+            $(".realms-op-auth span").text(item.text());
+            var parts = (auth || "").split("/");
             var type = parts[0];
             var owner = parts[1];
 
@@ -83,6 +86,10 @@ define([
             } else if (type == "secret") {
                 $(".realms-op-otp-row").show();
             }
+        }
+
+        $(".realms-op-auth").on('click', 'li', function() {
+            auth_changed($(this));
         });
 
         var title, label;
@@ -182,6 +189,23 @@ define([
             return check();
         }
 
+        /*
+         * The realmd dbus interface has an a(ss) Details
+         * property. Lookup the right value for the given
+         * field key.
+         */
+        function find_detail(realm, field) {
+            var result = null;
+            if (realm && realm.Details) {
+                realm.Details.forEach(function(value) {
+                    if (value[0] === field)
+                        result = value[1];
+                });
+            }
+            return result;
+        }
+
+
         function update() {
             var have_one = 0;
             var message;
@@ -191,10 +215,16 @@ define([
             $(".realms-op-field").prop('disabled', !!operation);
             $(".realms-op-apply").prop('disabled', !!operation);
 
+            var server = find_detail(realm, "server-software");
+            console.log(server, realm ? realm.Details : "X");
+            $(".realm-active-directory-only").toggle(!server || server == "active-directory");
+
             if (realm && kerberos && !kerberos.valid) {
                 message = cockpit.format(_("Domain $0 is not supported"), realm.Name);
                 $(".realms-op-address-spinner").hide();
                 $(".realms-op-address-error").show().attr('title', message);
+            } else {
+                $(".realms-op-address-error").hide();
             }
 
             if (operation)
@@ -216,43 +246,43 @@ define([
             }
             $(".realms-op-admin")[0].placeholder = placeholder;
 
-            var sel = $("select.realms-op-auth");
+            var list = $(".realms-op-auth .dropdown-menu");
             var supported = (kerberos && kerberos.SupportedJoinCredentials) || [ ];
             supported.push(["password", "administrator"]);
 
-            var first = null;
+            var first = true;
             var count = 0;
 
             function add_choice(owner, type, text) {
-                var choice, i, length = supported.length;
+                var item, choice, i, length = supported.length;
                 for (i = 0; i < length; i++) {
                     if ((!owner || owner == supported[i][1]) && type == supported[i][0]) {
                         choice = type + "/" + supported[i][1];
-                        sel.append($("<option>").attr("value", choice).text(text));
-                        if (!first)
-                            first = choice;
+                        item = $("<li>").attr("data-value", choice).append($("<a>").text(text));
+                        list.append(item);
+                        if (first) {
+                            auth_changed(item);
+                            first = false;
+                        }
                         count += 1;
                         break;
                     }
                 }
             }
 
-            sel.empty();
+            list.empty();
             add_choice('administrator', "password", _('Administrator Password'));
             add_choice('user', "password", _('User Password'));
             add_choice(null, "secret", _('One Time Password'));
             add_choice(null, "automatic", _('Automatic'));
             $(".realms-authentification-row").toggle(count > 1);
-
-            sel.prop('disabled', !!operation).val(first);
-            sel.triggerHandler("change");
-            sel.selectpicker("refresh");
+            list.prop('disabled', !!operation).val(!first);
         }
 
         function credentials() {
             var creds, secret;
 
-            var parts = ($("select.realms-op-auth").val() || "").split("/");
+            var parts = (auth || "").split("/");
             var type = parts[0];
             var owner = parts[1];
 

@@ -24,7 +24,7 @@
             <tr class="realms-op-join-only-row">
               <td class="header"></td>
             </tr>
-            <tr class="realms-op-join-only-row">
+            <tr class="realms-op-join-only-row realm-active-directory-only">
               <td><label class="control-label" translatable="yes">Computer OU</label></td>
               <td>
                 <input class="realms-op-field form-control realms-op-computer-ou" type="text" value=""/>
@@ -33,8 +33,14 @@
             <tr class="realms-op-join-only-row realms-authentification-row">
               <td><label class="control-label" translatable="yes">Authentication</label></td>
               <td>
-                <select class="form-control realms-op-auth">
-                </select>
+                  <div class="btn-group bootstrap-select dropdown form-control realms-op-auth">
+                      <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                          <span class="pull-left" translatable="yes"></span>
+                          <div class="caret"></div>
+                      </button>
+                      <ul class="dropdown-menu">
+                      </ul>
+                  </div>
               </td>
             </tr>
             <tr class="realms-op-join-only-row realms-op-user-row">

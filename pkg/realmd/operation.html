@@ -33,8 +33,14 @@
             <tr class="realms-op-join-only-row realms-authentification-row">
               <td><label class="control-label" translatable="yes">Authentication</label></td>
               <td>
-                <select class="form-control realms-op-auth">
-                </select>
+                  <div class="btn-group bootstrap-select dropdown form-control realms-op-auth">
+                      <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                          <span class="pull-left" translatable="yes"></span>
+                          <div class="caret"></div>
+                      </button>
+                      <ul class="dropdown-menu">
+                      </ul>
+                  </div>
               </td>
             </tr>
             <tr class="realms-op-join-only-row realms-op-user-row">

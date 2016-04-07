@@ -18,10 +18,14 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import unittest
+
 import parent
 from testlib import *
 from storagelib import *
 
+@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No multipath on Debian (yet).")
 class TestStorage(StorageCase):
     def testBasic(self):
         m = self.machine

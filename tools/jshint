@@ -1,4 +1,9 @@
 #!/bin/sh
 
 base=$(dirname $0)
-$base/../node_modules/.bin/jshint --config=$base/jshint.conf --reporter=$base/reporter.js "$@"
+
+# We cannot distribute jshint due to its non-free (only for good) license
+# So once in a tarball don't do any more jshint based validation
+if [ ! -f "$base/../.tarball" ]; then
+    exec $base/../node_modules/.bin/jshint --config=$base/jshint.conf --reporter=$base/reporter.js "$@"
+fi

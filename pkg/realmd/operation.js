@@ -223,6 +223,8 @@ define([
                 message = cockpit.format(_("Domain $0 is not supported"), realm.Name);
                 $(".realms-op-address-spinner").hide();
                 $(".realms-op-address-error").show().attr('title', message);
+            } else {
+                $(".realms-op-address-error").hide();
             }
 
             if (operation)

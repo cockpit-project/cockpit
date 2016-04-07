@@ -26,7 +26,6 @@ basepath = os.path.join(os.path.dirname(os.path.abspath(__file__)),"..")
 if not basepath in sys.path:
     sys.path.insert(1, basepath)
 from common import testinfra
-from common import testvm
 vminstall = imp.load_source('vminstall', os.path.join(basepath,"vm-install"))
 vmdownload = imp.load_source('vmdownload', os.path.join(basepath,"vm-download"))
 
@@ -37,7 +36,7 @@ parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
-parser.add_argument('-c', '--check', action='store_true', help='Check if cockpit is installed on machine')
+parser.add_argument('-n', '--noinstall', action='store_true', help='Do not install cockpit to base image')
 parser.add_argument('-f', '--force', action='store_true', help='Force update of images')
 parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to use')
 args = parser.parse_args()
@@ -50,34 +49,18 @@ if test_os == "fedora-atomic":
 elif test_os == "rhel-atomic":
     build_os = "rhel-7"
 
-def check_cockpit():
-    try:
-        machine = testvm.VirtMachine(verbose=args.verbose, image=test_os, label="install")
-        machine.start(maintain=True)
-        machine.wait_boot()
-        machine.execute('test -f /usr/bin/cockpit-bridge')
-        machine.execute('test -f /usr/libexec/cockpit-ws')
-    except Exception as e:
-        return False
-    finally:
-        machine.stop()
-    return True
-
-#vm-reset
+# vm-reset replacement
 shutil.rmtree("%s/tmp/run" % basepath)
 os.makedirs("%s/tmp/run" % basepath)
 
-if args.check and check_cockpit():
-    print "cockpit already installed on testing image"
+vmdownload.download_images(set((test_os, build_os)), args.force, [])
+vmdownload.download_images(image_list.split(" "), args.force, [])
+
+if args.noinstall:
+    print "Not installing cockpit to base image"
 else:
-    #os.system("%s/vm-download %s %s" % (basepath, test_os, build_os))
-    vmdownload.download_images(set((test_os, build_os)), args.force, [])
-    #os.system("%s/vm-install --build-image %s" % (basepath, build_os))
     args.sit = False
     args.containers = False
     args.quick = False
     vminstall.build_and_install(test_os, build_os, args)
-        
-#os.system("%s/vm-download %s" % (basepath, image_list))
-vmdownload.download_images(image_list.split(" "), args.force, [])
 

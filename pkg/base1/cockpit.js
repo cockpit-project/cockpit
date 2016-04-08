@@ -3591,7 +3591,7 @@ function full_scope(cockpit, $, po) {
                     meta = message;
                     timestamp = 0;
                     if (meta.now && meta.timestamp)
-                        timestamp = meta.timestamp + ($.now() - meta.now);
+                        timestamp = meta.timestamp + (Date.now() - meta.now);
                     beg = Math.floor(timestamp / interval);
                     callback(beg, meta, null, options_list[0]);
 
@@ -3666,7 +3666,7 @@ function full_scope(cockpit, $, po) {
         }
 
         self.fetch = function fetch(beg, end) {
-            var timestamp = beg * interval - $.now();
+            var timestamp = beg * interval - Date.now();
             var limit = end - beg;
 
             var archive_options_list = [ ];

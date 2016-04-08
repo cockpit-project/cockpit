@@ -2347,9 +2347,11 @@ function full_scope(cockpit, $, po) {
             "data": { value: { }, enumerable: false }
         });
 
-        Object.defineProperty(self, $.expando, {
-            value: { }, writable: true, enumerable: false
-        });
+        if (typeof $ === "function") {
+            Object.defineProperty(self, $.expando, {
+                value: { }, writable: true, enumerable: false
+            });
+        }
 
         if (!options)
             options = { };
@@ -2452,9 +2454,11 @@ function full_scope(cockpit, $, po) {
                       enumerable: false, writable: false }
         });
 
-        Object.defineProperty(self, $.expando, {
-            value: { }, writable: true, enumerable: false
-        });
+        if (typeof $ === "function") {
+            Object.defineProperty(self, $.expando, {
+                value: { }, writable: true, enumerable: false
+            });
+        }
 
         /* Subscribe to signals once for all proxies */
         var match = { "interface": iface, "path_namespace": path_namespace };

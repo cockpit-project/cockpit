@@ -2133,7 +2133,7 @@ function full_scope(cockpit, $, po) {
             else
                 this.message = cockpit.format(_("$0 failed"), name);
         } else {
-            this.message = $.trim(this.message);
+            this.message = this.message.trim();
         }
 
         this.toString = function() {

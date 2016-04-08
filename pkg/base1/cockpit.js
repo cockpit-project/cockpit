@@ -2137,24 +2137,23 @@ function full_scope(cockpit, $, po) {
         /* Callback that wants a stream response, see below */
         var buffer = channel.buffer(null);
 
-        $(channel).
-            on("close", function(event, options) {
-                var data = buffer.squash();
-                spawn_debug("process closed:", JSON.stringify(options));
-                if (data)
-                    spawn_debug("process output:", data);
-                if (options.message !== undefined)
-                    spawn_debug("process error:", options.message);
+        channel.addEventListener("close", function(event, options) {
+            var data = buffer.squash();
+            spawn_debug("process closed:", JSON.stringify(options));
+            if (data)
+                spawn_debug("process output:", data);
+            if (options.message !== undefined)
+                spawn_debug("process error:", options.message);
 
-                if (options.problem)
-                    dfd.reject(new ProcessError(options, name));
-                else if (options["exit-status"] || options["exit-signal"])
-                    dfd.reject(new ProcessError(options, name), data);
-                else if (options.message !== undefined)
-                    dfd.resolve(data, options.message);
-                else
-                    dfd.resolve(data);
-            });
+            if (options.problem)
+                dfd.reject(new ProcessError(options, name));
+            else if (options["exit-status"] || options["exit-signal"])
+                dfd.reject(new ProcessError(options, name), data);
+            else if (options.message !== undefined)
+                dfd.resolve(data, options.message);
+            else
+                dfd.resolve(data);
+        });
 
         var jpromise = dfd.promise;
         dfd.promise = function() {

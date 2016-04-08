@@ -511,7 +511,7 @@ define([
                                     Options: (utils.get_free_blockdevs(client).
                                               filter(function (b) {
                                                   if (client.blocks_part[b.path])
-                                                      b = client.blocks[client.blocks_part[b.path].PartitionTable];
+                                                      b = client.blocks[client.blocks_part[b.path].Table];
                                                   return b && client.blocks[b.path].MDRaid != path;
                                               }).
                                               map(function (b) {
@@ -840,7 +840,7 @@ define([
                                     Options: (utils.get_free_blockdevs(client).
                                               filter(function (b) {
                                                   if (client.blocks_part[b.path])
-                                                      b = client.blocks[client.blocks_part[b.path].PartitionTable];
+                                                      b = client.blocks[client.blocks_part[b.path].Table];
                                                   var lvol = (b &&
                                                               client.blocks_lvm2[b.path] &&
                                                               client.lvols[client.blocks_lvm2[b.path].LogicalVolume]);

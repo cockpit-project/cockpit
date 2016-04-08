@@ -76,7 +76,7 @@ function MockPeer() {
             payload = String(payload);
         window.setTimeout(function() {
             if (channel.valid)
-                $(channel).trigger("message", [payload]);
+                channel.dispatchEvent("message", payload);
             else
                 console.log("dropping message after close from MockPeer");
         }, 5);
@@ -88,7 +88,7 @@ function MockPeer() {
         window.setTimeout(function() {
             if (channel.valid) {
                 channel.valid = false;
-                $(channel).trigger("close", [options || { }]);
+                channel.dispatchEvent("close", options || { });
             }
         }, 5);
     }
@@ -97,6 +97,7 @@ function MockPeer() {
     var last_channel = 0;
 
     function MockChannel(options) {
+        cockpit.event_target(this);
         this.number = last_channel++;
         this.options = options;
         this.valid = true;
@@ -117,7 +118,7 @@ function MockPeer() {
             console.assert(arguments.length <= 1);
             this.valid = false;
             window.setTimeout(function() { $(peer).trigger("closed", [channel, options || { }]); }, 5);
-            $(this).triggerHandler("close", [options || { }]);
+            this.dispatchEvent("close", options || { });
         };
 
         this.buffer = function(callback) {

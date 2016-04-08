@@ -3,10 +3,7 @@
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 %:
-	dh $@ --with autoreconf
-
-override_dh_autoreconf:
-	NOCONFIGURE=t dh_autoreconf ./autogen.sh
+	dh $@
 
 override_dh_auto_configure:
 	dh_auto_configure -- \
@@ -17,6 +14,13 @@ override_dh_auto_install:
 	dh_auto_install -- install-test-assets
 	mkdir -p debian/tmp/etc/pam.d
 	install -p -m 644 tools/cockpit.debian.pam debian/tmp/etc/pam.d/cockpit
+
+override_dh_systemd_enable:
+	dh_systemd_enable -p cockpit-ws --name=cockpit cockpit.socket
+
+override_dh_systemd_start:
+	dh_systemd_start -p cockpit-ws cockpit.socket
+	dh_systemd_start -p cockpit-ws --no-start --restart-after-upgrade cockpit.service
 
 override_dh_install:
 	dh_install --list-missing -Xusr/src/debug

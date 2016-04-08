@@ -36,7 +36,6 @@ olddir=$(pwd)
 cd $srcdir
 
 npm install # see package.json
-cp package.json node_modules # for tools/make-source
 find node_modules -name test | xargs rm -rf
 
 rm -rf autom4te.cache
@@ -68,7 +67,7 @@ rm -f $srcdir/Makefile
 $srcdir/configure --enable-maintainer-mode ${AUTOGEN_CONFIGURE_ARGS:-} "$@" || exit $?
 
 # Put a redirect makefile here
-if [ ! -f $srcdir/Makefile ]; then
+if [ -z "${NOREDIRECTMAKEFILE:-}" -a ! -f $srcdir/Makefile ]; then
     cat $srcdir/tools/Makefile.redirect > $srcdir/Makefile
     printf "\nREDIRECT = %s\n" "$(realpath $olddir)" >> $srcdir/Makefile
 fi

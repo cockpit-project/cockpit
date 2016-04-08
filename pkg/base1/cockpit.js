@@ -3239,6 +3239,12 @@ function full_scope(cockpit, $, po) {
             options.capabilities.push("address");
         }
 
+        function param(obj) {
+            return Object.keys(obj).map(function(k) {
+                return encodeURIComponent(k) + '=' + encodeURIComponent(obj[k]);
+            }).join('&').split('%20').join('+'); /* split/join because phantomjs */
+        }
+
         self.request = function request(req) {
             var dfd = new $.Deferred();
 
@@ -3248,9 +3254,9 @@ function full_scope(cockpit, $, po) {
                 req.method = "GET";
             if (req.params) {
                 if (req.path.indexOf("?") === -1)
-                    req.path += "?" + $.param(req.params);
+                    req.path += "?" + param(req.params);
                 else
-                    req.path += "&" + $.param(req.params);
+                    req.path += "&" + param(req.params);
             }
             delete req.params;
 

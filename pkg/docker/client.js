@@ -467,13 +467,14 @@ define([
         };
 
         this.create = function create(name, options) {
-            util.docker_debug("creating:", name);
+            var body = JSON.stringify(options || { });
+            util.docker_debug("creating:", name, body);
             return http.request({
                 method: "POST",
                 path: "/v1.12/containers/create",
                 params: { "name": name },
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(options || { })
+                body: body,
             })
                 .fail(function(ex) {
                     util.docker_debug("create failed:", name, ex);

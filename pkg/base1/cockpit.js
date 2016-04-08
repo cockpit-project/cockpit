@@ -43,6 +43,18 @@ function is_array(it) {
     return Object.prototype.toString.call(it) === '[object Array]';
 }
 
+function is_function(x) {
+    return typeof x === 'function';
+}
+
+function is_object(x) {
+    return x !== null && typeof x === 'object';
+}
+
+function is_plain_object(x) {
+    return is_object(x) && Object.prototype.toString.call(x) === '[object Object]';
+}
+
 /* -------------------------------------------------------------------------
  * Channels
  *
@@ -199,7 +211,7 @@ function event_mixin(obj, handlers) {
                     type = event.type;
                     args = arguments;
                 }
-                if (typeof obj['on' + type] === "function")
+                if (is_function(obj['on' + type]))
                     obj['on' + type].apply(obj, args);
                 var length = handlers[type] ? handlers[type].length : 0;
                 for (var i = 0; i < length; i++) {
@@ -1019,7 +1031,7 @@ function basic_scope(cockpit, jquery) {
 
     var fmt_re = /\$\{([^}]+)\}|\$([a-zA-Z0-9_]+)/g;
     cockpit.format = function format(fmt, args) {
-        if (arguments.length != 2 || typeof args !== "object" || args === null)
+        if (arguments.length != 2 || !is_object(args) || args === null)
             args = Array.prototype.slice.call(arguments, 1);
         return fmt.replace(fmt_re, function(m, x, y) { return args[x || y] || ""; });
     };
@@ -1648,7 +1660,7 @@ function basic_scope(cockpit, jquery) {
             var registered, sink, path, links, cb;
 
             /* Called as add(sink, path) */
-            if (typeof (arguments[0]) === "object") {
+            if (is_object(arguments[0])) {
                 sink = arguments[0];
                 sink = sink["series"] || sink;
 
@@ -1665,7 +1677,7 @@ function basic_scope(cockpit, jquery) {
                 links.push([path, row]);
 
             /* Called as add(callback) */
-            } else if (typeof (arguments[0]) === "function") {
+            } else if (is_function(arguments[0])) {
                 cb = [ arguments[0], row ];
                 if (arguments[1] === true)
                     callbacks.unshift(cb);
@@ -1905,7 +1917,7 @@ function full_scope(cockpit, $, po) {
      */
 
     document.addEventListener("click", function(ev) {
-        if ($(ev.target).hasClass('disabled'))
+        if (in_array(ev.target.classList, 'disabled'))
           ev.stopPropagation();
     }, true);
 
@@ -1953,15 +1965,18 @@ function full_scope(cockpit, $, po) {
             /* Undo unnecessary encoding of these */
             href = href.replace("%40", "@");
 
+            var i, opt, value, query = [];
+            function push_option(v) {
+                query.push(encodeURIComponent(opt) + "=" + encodeURIComponent(v));
+            }
+
             if (options) {
-                var query = [];
-                $.each(options, function(opt, value) {
-                    if (!$.isArray(value))
+                for (opt in options) {
+                    value = options[opt];
+                    if (!is_array(value))
                         value = [ value ];
-                    value.forEach(function(v) {
-                        query.push(encodeURIComponent(opt) + "=" + encodeURIComponent(v));
-                    });
-                });
+                    value.forEach(push_option);
+                }
                 if (query.length > 0)
                     href += "?" + query.join("&");
             }
@@ -1980,13 +1995,13 @@ function full_scope(cockpit, $, po) {
                 first = href.substr(0, pos);
             var path = decode_path(first);
             if (pos !== -1 && options) {
-                $.each(href.substring(pos + 1).split("&"), function(i, opt) {
+                href.substring(pos + 1).split("&").forEach(function(opt) {
                     var last, parts = opt.split('=');
                     var name = decodeURIComponent(parts[0]);
                     var value = decodeURIComponent(parts[1]);
                     if (options.hasOwnProperty(name)) {
                         last = options[name];
-                        if (!$.isArray(value))
+                        if (!is_array(value))
                             last = options[name] = [ last ];
                         last.push(value);
                     } else {
@@ -2070,7 +2085,7 @@ function full_scope(cockpit, $, po) {
      */
 
     cockpit.jump = function jump(path, host) {
-        if ($.isArray(path))
+        if (is_array(path))
             path = "/" + path.map(encodeURIComponent).join("/").replace("%40", "@");
         else
             path = "" + path;
@@ -2186,7 +2201,7 @@ function full_scope(cockpit, $, po) {
 
     /* public */
     cockpit.script = function(script, args, options) {
-        if (!options && $.isPlainObject(args)) {
+        if (!options && is_plain_object(args)) {
             options = args;
             args = [];
         }
@@ -2278,11 +2293,13 @@ function full_scope(cockpit, $, po) {
         };
 
         self.each = function each(iface, callback) {
-            $.each(self.data, function(path, ifaces) {
-                $.each(ifaces, function(iface, props) {
-                    callback(props, path);
-                });
-            });
+            var path, ifa;
+            for (path in self.data) {
+                for (iface in self.data[path]) {
+                    if (ifa == iface)
+                        callback(self.data[path][iface], path);
+                }
+            }
         };
 
         self.close = function close() {
@@ -2330,7 +2347,7 @@ function full_scope(cockpit, $, po) {
             var meta = cache.meta[iface];
             defined = true;
 
-            $.each(meta.methods || { }, function(name) {
+            Object.keys(meta.methods || { }).forEach(function(name) {
                 if (name[0].toLowerCase() == name[0])
                     return; /* Only map upper case */
 
@@ -2347,7 +2364,7 @@ function full_scope(cockpit, $, po) {
                 });
             });
 
-            $.each(meta.properties || { }, function(name, prop) {
+            Object.keys(meta.properties || { }).forEach(function(name) {
                 if (name[0].toLowerCase() == name[0])
                     return; /* Only map upper case */
 
@@ -2357,6 +2374,7 @@ function full_scope(cockpit, $, po) {
                     set: function(v) { throw name + "is not writable"; }
                 };
 
+                var prop = meta.properties[name];
                 if (prop.flags && prop.flags.indexOf('w') !== -1) {
                     config.set = function(v) {
                         client.call(path, "org.freedesktop.DBus.Properties", "Set",
@@ -2521,12 +2539,12 @@ function full_scope(cockpit, $, po) {
                 channel.close({"problem": "protocol-error"});
                 return;
             }
-            var dfd;
+            var dfd, options, id, subscription;
             if (msg.id !== undefined)
                 dfd = calls[msg.id];
             if (msg.reply) {
                 if (dfd) {
-                    var options = { };
+                    options = { };
                     if (msg.type)
                         options.type = msg.type;
                     if (msg.flags)
@@ -2540,12 +2558,13 @@ function full_scope(cockpit, $, po) {
                     delete calls[msg.id];
                 }
             } else if (msg.signal) {
-                $.each(subscribers, function(id, subscription) {
+                for (id in subscribers) {
+                    subscription = subscribers[id];
                     if (subscription.callback) {
                         if (matches(msg.signal, subscription.match))
                             subscription.callback.apply(self, msg.signal);
                     }
-                });
+                }
             } else if (msg.notify) {
                 notify(msg.notify);
             } else if (msg.meta) {
@@ -2568,14 +2587,16 @@ function full_scope(cockpit, $, po) {
 
         function notify(data) {
             ensure_cache();
-            $.each(data, function(path, ifaces) {
-                $.each(ifaces, function(iface, props) {
+            var path, iface, props;
+            for (path in data) {
+                for (iface in data[path]) {
+                    props = data[path][iface];
                     if (!props)
                         cache.remove(path, iface);
                     else
                         cache.update(path, iface, props);
-                });
-            });
+                }
+            }
             self.dispatchEvent("notify", data);
         }
 
@@ -2583,11 +2604,11 @@ function full_scope(cockpit, $, po) {
 
         function close_perform(options) {
             closed = options.problem || "disconnected";
-            var outstanding = calls;
+            var id, outstanding = calls;
             calls = { };
-            $.each(outstanding, function(id, dfd) {
-                dfd.reject(new DBusError(closed));
-            });
+            for (id in outstanding) {
+                outstanding[id].reject(new DBusError(closed));
+            }
             self.dispatchEvent("close", options);
         }
 
@@ -2681,7 +2702,7 @@ function full_scope(cockpit, $, po) {
 
         self.watch = function watch(path) {
             var match;
-            if ($.isPlainObject(path))
+            if (is_plain_object(path))
                 match = path;
             else
                 match = { path: String(path) };
@@ -3354,7 +3375,7 @@ function full_scope(cockpit, $, po) {
         self.post = function post(path, body, headers) {
             headers = headers || { };
 
-            if ($.isPlainObject(body) || $.isArray(body)) {
+            if (is_plain_object(body) || is_array(body)) {
                 body = JSON.stringify(body);
                 if (find_header(headers, "Content-Type") === undefined)
                     headers["Content-Type"] = "application/json";
@@ -3375,7 +3396,7 @@ function full_scope(cockpit, $, po) {
 
     /* public */
     cockpit.http = function(endpoint, options) {
-        if ($.isPlainObject(endpoint) && options === undefined) {
+        if (is_plain_object(endpoint) && options === undefined) {
             options = endpoint;
             endpoint = undefined;
         }
@@ -3410,7 +3431,7 @@ function full_scope(cockpit, $, po) {
 
             if (user.groups) {
                 var allowed = false;
-                $.each(user.groups, function(i, name) {
+                user.groups.forEach(function(name) {
                     if (name == group) {
                         allowed = true;
                         return false;

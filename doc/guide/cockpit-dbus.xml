@@ -341,14 +341,16 @@ invocation = proxy.call(method, args, [options])
   <refsection id="cockpit-dbus-proxy-wait">
     <title>proxy.wait()</title>
 <programlisting>
+promise = proxy.wait()
 proxy.wait(function() {
     ...
 });
 </programlisting>
-    <para>Wait for a proxy to finish loading, and invoke the callback function when ready.
-      If this method is called after a proxy has already loaded, then the callback will
-      be invoked immediately. Use <code>proxy.valid</code> to determine whether the proxy
-      loading resulting in a valid proxy.</para>
+  <para>Wait for a proxy to finish loading. This function returns a promise. If a callback function
+      is passed as an argument then that function will be invoked when the proxy is ready.
+      If this method is called after a proxy has already loaded, then the promise will be
+      resolved immediately, and any callback will be invoked immediately. Use the promise or
+      <code>proxy.valid</code> to determine whether the proxy is valid.</para>
   </refsection>
 
   <refsection id="cockpit-dbus-proxy-onchanged">
@@ -436,13 +438,17 @@ for (proxy in proxies) {
   <refsection id="cockpit-dbus-proxies-wait">
     <title>proxies.wait()</title>
 <programlisting>
+promise = proxies.wait()
 proxies.wait(function() {
     ...
 });
 </programlisting>
     <para>Wait for a <code>proxies</code> object to populate its initial set of proxies.
-      If this method is called after the proxies have populated, the callback will be
-      invoked immediately.</para>
+      This function returns a promise. If a callback function is passed as an argument then
+      that function will be invoked when the proxies are ready. If this method is called after
+      the proxies have populated, then the promise will be resolved immediately, and any callback
+      will be invoked immediately.</para>
+
   </refsection>
 
   <refsection id="cockpit-dbus-proxies-client">

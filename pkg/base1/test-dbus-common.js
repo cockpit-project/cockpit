@@ -779,7 +779,7 @@ function common_dbus_tests(channel_options, bus_name)
         var dbus = cockpit.dbus(bus_name, channel_options);
         var proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
 
-        proxy.wait(function() {
+        proxy.wait().done(function() {
             $(proxy).on("changed", function () {
                 equal(proxy.FinallyNormalName, "externally injected");
                 $(proxy).off("changed");
@@ -806,7 +806,7 @@ function common_dbus_tests(channel_options, bus_name)
                 equal(this.state(), "resolved", "deleted stray objects");
 
                 var proxies = dbus.proxies("com.redhat.Cockpit.DBusTests.Frobber");
-                proxies.wait(function() {
+                proxies.wait().always(function() {
                     var added;
                     $(proxies).on("added", function(event, proxy) {
                         added = proxy;

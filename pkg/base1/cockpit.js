@@ -2302,7 +2302,7 @@ function full_scope(cockpit, $, po) {
 
         var valid = false;
         var defined = false;
-        var waits = $.Callbacks("once memory");
+        var waits = $.Deferred();
 
         /* No enumeration on these properties */
         Object.defineProperties(self, {
@@ -2310,8 +2310,13 @@ function full_scope(cockpit, $, po) {
             "path": { value: path, enumerable: false, writable: false },
             "iface": { value: iface, enumerable: false, writable: false },
             "valid": { get: function() { return valid; }, enumerable: false },
-            "wait": { value: function(func) { waits.add(func); return this; },
-                      enumerable: false, writable: false },
+            "wait": { enumerable: false, writable: false,
+                value: function(func) {
+                    if (func)
+                        waits.always(func);
+                    return waits.promise();
+                }
+            },
             "call": { value: function(name, args) { return client.call(path, iface, name, args); },
                       enumerable: false, writable: false },
             "data": { value: { }, enumerable: false }
@@ -2400,25 +2405,37 @@ function full_scope(cockpit, $, po) {
 
         client.subscribe({ "path": path, "interface": iface }, signal, options.subscribe !== false);
 
+        function waited() {
+            if (valid)
+                waits.resolve();
+            else
+                waits.reject();
+        }
+
         /* If watching then do a proper watch, otherwise object is done */
         if (options.watch !== false)
-            client.watch({ "path": path, "interface": iface }).always(function() { waits.fireWith(self); });
+            client.watch({ "path": path, "interface": iface }).always(waited);
         else
-            waits.fireWith(self);
+            waited();
     }
 
     function DBusProxies(client, cache, iface, path_namespace, options) {
         var self = this;
         event_mixin(self, { });
 
-        var waits = $.Callbacks("once memory");
+        var waits;
 
         Object.defineProperties(self, {
             "client": { value: client, enumerable: false, writable: false },
             "iface": { value: iface, enumerable: false, writable: false },
             "path_namespace": { value: path_namespace, enumerable: false, writable: false },
-            "wait": { value: function(func) { waits.add(func); return this; },
-                      enumerable: false, writable: false }
+            "wait": { enumerable: false, writable: false,
+                value: function(func) {
+                    if (func)
+                        waits.always(func);
+                    return waits.promise();
+                }
+            }
         });
 
         Object.defineProperty(self, $.expando, {
@@ -2432,10 +2449,12 @@ function full_scope(cockpit, $, po) {
         client.subscribe(match);
 
         /* Watch for property changes */
-        if (options.watch !== false)
-            client.watch(match).always(function() { waits.fireWith(self); });
-        else
-            waits.fireWith(self);
+        if (options.watch !== false) {
+            waits = client.watch(match);
+        } else {
+            waits = $.Deferred();
+            waits.resolve();
+        }
 
         /* Already added watch/subscribe, tell proxies not to */
         options = $.extend({ watch: false, subscribe: false }, options);

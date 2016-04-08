@@ -495,6 +495,21 @@
                 </div>
               </td>
             </tr>
+            <tr>
+              <td><label class="control-label" for="restart-policy" translatable="yes">Restart Policy</label></td>
+              <td colspan="2">
+                <div class="form-inline form-group">
+                  <select name="restart-policy" id="restart-policy-select" class="form-control">
+                    <option value="no">No</option>
+                    <option value="on-failure">On Failure</option>
+                    <option value="always">Always</option>
+                    <option value="unless-stopped">Unless Stopped</option>
+                  </select>
+                  <label class="control-label" for="restart-policy-retries" translatable="yes">Retries:</label>
+                  <input class="form-control" type="number" name="restart-policy-retries" id="restart-policy-retries" disabled="true">
+                </div>
+              </td>
+            </tr>
 
           </table>
         </div>

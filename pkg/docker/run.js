@@ -75,6 +75,16 @@ define([
                 self.update('changeFocus', 'links');
             });
 
+            $("#restart-policy-select").change(function() {
+                var selected = $(this).find("option:selected")[0];
+
+                if (selected.value === "on-failure") {
+                    $("#restart-policy-retries").prop('disabled', false);
+                } else {
+                    $("#restart-policy-retries").prop('disabled', true);
+                }
+            });
+
             this.validator = this.configuration_validator();
         },
 
@@ -593,6 +603,7 @@ define([
             $("#containers_run_image_dialog").modal('hide');
 
             var tty = $("#containers-run-image-with-terminal").prop('checked');
+
             var options = {
                 "Cmd": util.unquote_cmdline(cmd),
                 "Image": PageRunImage.image_info.Id,
@@ -602,8 +613,12 @@ define([
                 "Tty": tty,
                 "ExposedPorts": exposed_ports,
                 "HostConfig": {
+                    "PortBindings": port_bindings,
                     "Links": links,
-                    "PortBindings": port_bindings
+                    "RestartPolicy": {
+                      "Name": $("#restart-policy-select").val(),
+                      "MaximumRetryCount": parseInt($("#restart-policy-retries").val()) || 0
+                    }
                 }
             };
 

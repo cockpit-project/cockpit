@@ -602,7 +602,8 @@ define([
                 "Tty": tty,
                 "ExposedPorts": exposed_ports,
                 "HostConfig": {
-                    "Links": links
+                    "Links": links,
+                    "PortBindings": port_bindings,
                 }
             };
 
@@ -621,7 +622,7 @@ define([
                     util.show_unexpected_error(ex);
                 }).
                 done(function(result) {
-                    PageRunImage.client.start(result.Id, { "PortBindings": port_bindings }).
+                    PageRunImage.client.start(result.Id).
                         fail(function(ex) {
                             util.show_unexpected_error(ex);
                         });

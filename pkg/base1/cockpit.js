@@ -55,6 +55,20 @@ function is_plain_object(x) {
     return is_object(x) && Object.prototype.toString.call(x) === '[object Object]';
 }
 
+function extend(to/* , from ... */) {
+    var j, len, key, from;
+    for (j = 1, len = arguments.length; j < len; j++) {
+        from = arguments[j];
+        if (from) {
+            for (key in from) {
+                if (from[key] !== undefined)
+                    to[key] = from[key];
+            }
+        }
+    }
+    return to;
+}
+
 /* -------------------------------------------------------------------------
  * Channels
  *
@@ -1868,7 +1882,7 @@ function full_scope(cockpit, $, po) {
 
     init_callback = function(options) {
         if (options.system)
-            $.extend(cockpit.info, options.system);
+            extend(cockpit.info, options.system);
         if (options.system)
             cockpit.info.dispatchEvent("changed");
     };
@@ -2144,7 +2158,7 @@ function full_scope(cockpit, $, po) {
             args["spawn"].push(String(command));
         }
         if (options !== undefined)
-            $.extend(args, options);
+            extend(args, options);
 
         var name = args["spawn"][0] || "process";
         var channel = cockpit.channel(args);
@@ -2172,7 +2186,7 @@ function full_scope(cockpit, $, po) {
 
         var jpromise = dfd.promise;
         dfd.promise = function() {
-            return $.extend(jpromise.apply(this, arguments), {
+            return extend(jpromise.apply(this, arguments), {
                 stream: function(callback) {
                     buffer.callback = callback;
                     return this;
@@ -2275,7 +2289,7 @@ function full_scope(cockpit, $, po) {
             if (!self.data[path][iface])
                 self.data[path][iface] = props;
             else
-                props = $.extend(self.data[path][iface], props);
+                props = extend(self.data[path][iface], props);
             emit(path, iface, props);
         };
 
@@ -2393,7 +2407,7 @@ function full_scope(cockpit, $, po) {
 
         function update(props) {
             if (props) {
-                $.extend(self.data, props);
+                extend(self.data, props);
                 if (!defined)
                     define();
                 valid = true;
@@ -2455,7 +2469,7 @@ function full_scope(cockpit, $, po) {
             waits.fireWith(self);
 
         /* Already added watch/subscribe, tell proxies not to */
-        options = $.extend({ watch: false, subscribe: false }, options);
+        options = extend({ watch: false, subscribe: false }, options);
 
         function update(props, path) {
             var proxy = self[path];
@@ -2490,7 +2504,7 @@ function full_scope(cockpit, $, po) {
                 track = true;
 
             delete options['track'];
-            $.extend(args, options);
+            extend(args, options);
         }
         args.payload = "dbus-json3";
         args.name = name;
@@ -2569,7 +2583,7 @@ function full_scope(cockpit, $, po) {
                 notify(msg.notify);
             } else if (msg.meta) {
                 ensure_cache();
-                $.extend(cache.meta, msg.meta);
+                extend(cache.meta, msg.meta);
             } else if (msg.owner !== undefined) {
                 self.dispatchEvent("owner", msg.owner);
 
@@ -2723,7 +2737,7 @@ function full_scope(cockpit, $, po) {
 
             var jpromise = dfd.promise;
             dfd.promise = function() {
-                return $.extend(jpromise.apply(this, arguments), {
+                return extend(jpromise.apply(this, arguments), {
                     remove: function remove() {
                         delete calls[id];
                         if (channel && channel.valid) {
@@ -2798,7 +2812,7 @@ function full_scope(cockpit, $, po) {
             close: close
         };
 
-        var base_channel_options = $.extend({ }, options);
+        var base_channel_options = extend({ }, options);
         delete base_channel_options.syntax;
 
         function parse(str) {
@@ -2823,7 +2837,7 @@ function full_scope(cockpit, $, po) {
                 return read_promise;
 
             var dfd = $.Deferred();
-            var opts = $.extend({ }, base_channel_options, {
+            var opts = extend({ }, base_channel_options, {
                 payload: "fsread1",
                 path: path
             });
@@ -2895,7 +2909,7 @@ function full_scope(cockpit, $, po) {
             if (replace_channel)
                 replace_channel.close("abort");
 
-            var opts = $.extend({ }, base_channel_options, {
+            var opts = extend({ }, base_channel_options, {
                 payload: "fsreplace1",
                 path: path,
                 tag: expected_tag
@@ -2981,7 +2995,7 @@ function full_scope(cockpit, $, po) {
                 if (watch_channel)
                     return;
 
-                var opts = $.extend({ }, base_channel_options, {
+                var opts = extend({ }, base_channel_options, {
                     payload: "fswatch1",
                     path: path
                 });
@@ -3051,7 +3065,7 @@ function full_scope(cockpit, $, po) {
         var header;
 
         if (po) {
-            $.extend(po_data, po);
+            extend(po_data, po);
             header = po[""];
         } else {
             po_data = { };
@@ -3241,11 +3255,11 @@ function full_scope(cockpit, $, po) {
             var headers = req.headers;
             delete req.headers;
 
-            $.extend(req, options);
+            extend(req, options);
 
             /* Combine the headers */
             if (options.headers && headers)
-                req.headers = $.extend({ }, options.headers, headers);
+                req.headers = extend({ }, options.headers, headers);
             else if (options.headers)
                 req.headers = options.headers;
             else
@@ -3327,7 +3341,7 @@ function full_scope(cockpit, $, po) {
 
             var jpromise = dfd.promise;
             dfd.promise = function mypromise() {
-                var ret = $.extend(jpromise.apply(this, arguments), {
+                var ret = extend(jpromise.apply(this, arguments), {
                     stream: function(callback) {
                         streamer = callback;
                         return this;
@@ -3515,7 +3529,7 @@ function full_scope(cockpit, $, po) {
                 following = true;
             }
 
-            var options = $.extend({
+            var options = extend({
                 payload: "metrics1",
                 interval: interval,
                 source: "internal"
@@ -3647,7 +3661,7 @@ function full_scope(cockpit, $, po) {
             var archive_options_list = [ ];
             for (var i = 0; i < options_list.length; i++) {
                 if (options_list[i].archive_source) {
-                    archive_options_list.push($.extend({}, options_list[i],
+                    archive_options_list.push(extend({}, options_list[i],
                                                        { "source": options_list[i].archive_source,
                                                          timestamp: timestamp,
                                                          limit: limit

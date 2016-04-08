@@ -603,7 +603,7 @@ define([
                 "ExposedPorts": exposed_ports,
                 "HostConfig": {
                     "Links": links,
-                    "PortBindings": port_bindings,
+                    "PortBindings": port_bindings
                 }
             };
 

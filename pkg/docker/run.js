@@ -617,7 +617,7 @@ define([
                     "Links": links,
                     "RestartPolicy": {
                       "Name": $("#restart-policy-select").val(),
-                      "MaximumRetryCount": parseInt($("#restart-policy-retries").val()) || 0
+                      "MaximumRetryCount": parseInt($("#restart-policy-retries").val(), 10) || 0
                     }
                 }
             };

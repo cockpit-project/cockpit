@@ -76,7 +76,7 @@ define([
             });
 
             var restart_policy_dropdown = $("#restart-policy-dropdown");
-            var restart_policy_dropdown_selected = $("#restart-policy-select > button span.pull-left")
+            var restart_policy_dropdown_selected = $("#restart-policy-select > button span.pull-left");
 
             restart_policy_dropdown.find("a").on('click', function () {
                 restart_policy_dropdown_selected.text($(this).text());

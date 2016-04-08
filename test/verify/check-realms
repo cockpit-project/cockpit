@@ -195,11 +195,11 @@ ipa-getkeytab -q -s f0.cockpit.lan -p HTTP/x0.cockpit.lan -k /etc/krb5.keytab
 @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "atomic: missing bind-utils")
 class TestKerberos(MachineCase):
     def setUp(self):
+        MachineCase.setUp(self)
+
         self.ipa = self.new_machine(image="ipa")
         self.ipa.start()
         self.ipa.wait_boot()
-
-        MachineCase.setUp(self)
 
     def configure_kerberos(self):
         # Setup a place for kerberos caches

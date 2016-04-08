@@ -54,12 +54,12 @@ def wait_oc(machine):
 class TestOpenshift(MachineCase, OpenshiftCommonTests):
 
     def setUp(self):
+        super(TestOpenshift, self).setUp()
+
         self.openshift = self.new_machine(image="openshift")
         self.openshift.start()
         self.openshift.wait_boot()
         self.openshift.upload(["verify/files/mock-app-openshift.json"], "/tmp")
-        super(TestOpenshift, self).setUp()
-
         tmpfile = os.path.join(self.tmpdir, "config")
         self.openshift.download("/root/.kube/config", tmpfile)
 

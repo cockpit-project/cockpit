@@ -73,6 +73,23 @@ define([
             return cockpit.format(_("Exited $ExitCode"), state);
     };
 
+    util.render_container_restart_policy = function render_restart_policy(policy) {
+      switch (policy.Name) {
+        case "":
+          return "None";
+          break;
+        case "on-failure":
+          var singular = policy.MaximumRetryCount == 1;
+          return "On Failure, retry " + policy.MaximumRetryCount + (singular ? ' time' : ' times');
+          break;
+        default: /* http://stackoverflow.com/a/4878800 */
+          return policy.Name.replace('-', ' ').replace(/\w\S*/g, function(txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+          });
+          break;
+      }
+    }
+
     util.multi_line = function multi_line(strings) {
         return strings.map(function (str) { return Mustache.render("{{.}}", str); }).join('<br/>');
     };

@@ -69,6 +69,14 @@ function extend(to/* , from ... */) {
     return to;
 }
 
+function invoke_functions(functions, self, args) {
+    var length = functions ? functions.length : 0;
+    for (var i = 0; i < length; i++) {
+        if (functions[i])
+            functions[i].apply(self, args);
+    }
+}
+
 /* -------------------------------------------------------------------------
  * Channels
  *
@@ -227,11 +235,7 @@ function event_mixin(obj, handlers) {
                 }
                 if (is_function(obj['on' + type]))
                     obj['on' + type].apply(obj, args);
-                var length = handlers[type] ? handlers[type].length : 0;
-                for (var i = 0; i < length; i++) {
-                    if (handlers[type][i])
-                        handlers[type][i].apply(obj, args);
-                }
+                invoke_functions(handlers[type], obj, args);
             }
         }
     });
@@ -2988,7 +2992,7 @@ function full_scope(cockpit, $, po) {
             return dfd.promise();
         }
 
-        var watch_callbacks = $.Callbacks();
+        var watch_callbacks = [];
         var n_watch_callbacks = 0;
 
         var watch_channel = null;
@@ -3021,12 +3025,12 @@ function full_scope(cockpit, $, po) {
 
         function fire_watch_callbacks(/* content, tag, error */) {
             watch_tag = arguments[1] || null;
-            watch_callbacks.fireWith(self, arguments);
+            invoke_functions(watch_callbacks, self, arguments);
         }
 
         function watch(callback) {
             if (callback)
-                watch_callbacks.add(callback);
+                watch_callbacks.push(callback);
             n_watch_callbacks += 1;
             ensure_watch_channel();
 
@@ -3035,8 +3039,12 @@ function full_scope(cockpit, $, po) {
 
             return {
                 remove: function () {
-                    if (callback)
-                        watch_callbacks.remove(callback);
+                    var index;
+                    if (callback) {
+                        index = watch_callbacks.indexOf(callback);
+                        if (index > -1)
+                            watch_callbacks[index] = null;
+                    }
                     n_watch_callbacks -= 1;
                     ensure_watch_channel();
                 }
@@ -3312,7 +3320,7 @@ function full_scope(cockpit, $, po) {
                     /* Anyone looking for response details? */
                     if (responsers) {
                         resp.headers = resp.headers || { };
-                        responsers.fire(resp.status, resp.headers);
+                        invoke_functions(responsers, self, [resp.status, resp.headers]);
                     }
                     return true;
                 }
@@ -3363,8 +3371,8 @@ function full_scope(cockpit, $, po) {
                     },
                     response: function(callback) {
                         if (responsers === null)
-                            responsers = $.Callbacks("" /* no flags */);
-                        responsers.add(callback);
+                            responsers = [];
+                        responsers.push(callback);
                         return this;
                     },
                     input: function(message, stream) {

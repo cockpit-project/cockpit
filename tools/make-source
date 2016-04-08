@@ -24,28 +24,22 @@ if [ $# != 0 ]; then
 fi
 
 base=$(cd $(dirname $0); pwd -P)
-outdir=$(pwd -P)
-
-# Make a .tar.gz with the source code
 
 cd $base/..
 
-if [ -d .git ]; then
-    git archive HEAD --prefix cockpit-wip/ --output $outdir/cockpit-wip.tar
-    if ! diff -qN package.json node_modules/package.json > /dev/null; then
-        # this needs to be really quiet on stdout, since output is used to install packages
-        npm install --silent 1>&2
-        cp package.json node_modules/package.json
-    fi
-    tar -rf $outdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' --exclude='phantomjs*' node_modules
+# Configure the source for making a tarball in a temporary directory, unless
+# the source has already been configured in-tree (a Makefile that is not the
+# redirect Makefile exists).
+if test ! -f Makefile || grep --quiet --no-messages "^REDIRECT" Makefile; then
+  if [ ! -f tmp-dist/Makefile ]; then
+      mkdir -p tmp-dist
+      (cd tmp-dist && NOREDIRECTMAKEFILE=t ../autogen.sh) 1>&2
+  fi
+  builddir=tmp-dist
 else
-    tar -cf $outdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' .
+  builddir=.
 fi
 
-# Make sure to include the .tarball in our tarball
-echo "wip" > $outdir/.tarball
-tar -rf $outdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' -C $outdir .tarball
-rm $outdir/.tarball
+make -C $builddir --silent dist-gzip distdir=cockpit-wip 1>&2
 
-gzip -f --fast $outdir/cockpit-wip.tar
-echo $outdir/cockpit-wip.tar.gz
+echo $PWD/$builddir/cockpit-wip.tar.gz

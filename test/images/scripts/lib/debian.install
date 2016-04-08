@@ -39,22 +39,27 @@ if [ -n "$do_build" ]; then
     rm -rf build-results
     mkdir build-results
     resultdir=$PWD/build-results
-    ( cd $(dirname "$tar")
-      rm -rf cockpit-wip
-      tar xzf "$tar"
-      mv cockpit-wip/tools/debian cockpit-wip/debian
-      dpkg-source --compression=gzip -b cockpit-wip
 
-      # Some unit tests want a real network interface
-      echo USENETWORK=yes     >>~/.pbuilderrc
+    ln -sf cockpit-wip.tar.gz cockpit_0.orig.tar.gz
 
-      # Pbuilder doesn't seem to give enough rights to its default
-      # build user (anymore) to run the unit tests
-      echo BUILDUSERID=0      >>~/.pbuilderrc
-      echo BUILDUSERNAME=root >>~/.pbuilderrc
-
-      pbuilder --build --buildresult "$resultdir" --logfile "$resultdir/build.log" cockpit_0.dsc >$stdout_dest
+    rm -rf cockpit-wip
+    tar -xzf cockpit-wip.tar.gz
+    ( cd cockpit-wip
+      mv tools/debian .
+      debuild -S -uc -us
     )
+
+    # Some unit tests want a real network interface
+    echo USENETWORK=yes     >>~/.pbuilderrc
+
+    # Pbuilder doesn't seem to give enough rights to its default
+    # build user (anymore) to run the unit tests
+    echo BUILDUSERID=0      >>~/.pbuilderrc
+    echo BUILDUSERNAME=root >>~/.pbuilderrc
+
+    pbuilder build --buildresult "$resultdir" \
+                   --logfile "$resultdir/build.log" \
+                   cockpit_0-1.dsc >$stdout_dest
 fi
 
 # Install

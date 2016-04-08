@@ -194,6 +194,7 @@ define([
             $('#container-details-image').text("");
             $('#container-details-command').text("");
             $('#container-details-state').text("");
+            $('#container-details-restart-policy').text("");
             $('#container-details-ports-row').hide();
             $('#container-details-links-row').hide();
             $('#container-details-resource-row').hide();
@@ -232,6 +233,7 @@ define([
             $('#container-details-image').text(info.Image);
             $('#container-details-command').text(util.render_container_cmdline(info));
             $('#container-details-state').text(util.render_container_state(info.State));
+            $('#container-details-restart-policy').text(util.render_container_restart_policy(info.HostConfig.RestartPolicy));
 
             $('#container-details-ports-row').toggle(port_bindings.length > 0);
             $('#container-details-ports').html(util.multi_line(port_bindings));

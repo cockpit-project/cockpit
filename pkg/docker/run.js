@@ -183,7 +183,11 @@ define([
                 $('#expose-ports').prop('checked', false);
             }
 
-
+            var restart_policy_select_button = $('#restart-policy-select > button span.pull-left');
+            restart_policy_select_button.text('No');
+            restart_policy_select_button.data('name', 'no');
+            $('#restart-policy-retries').val('0');
+            $('#restart-policy-retries-container').addClass('hidden');
         },
 
         configuration_validator: function() {

@@ -1727,12 +1727,12 @@ translated = cockpit.ngettext([context], string1, stringN, number)
     <refsection id="cockpit-locale-translate">
       <title>cockpit.translate()</title>
 <programlisting>
-cockpit.translate([sel])
+cockpit.translate([el])
 </programlisting>
 
       <para>The document will be scanned for translatable tags and they will be translated according
-        to the strings in loaded locale data. If <code>sel</code> is specified, this should be a jQuery
-        selector for the specific part of the document to translate.</para>
+        to the strings in loaded locale data. If <code>el</code> is specified, this should be a DOM
+        element for the specific part of the document to translate.</para>
     </refsection>
 
   </refsection>

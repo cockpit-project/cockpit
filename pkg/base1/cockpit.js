@@ -3081,12 +3081,17 @@ function full_scope(cockpit, $, po) {
         cockpit.language = lang;
     };
 
-    cockpit.translate = function translate(sel) {
-        $("[translatable=\"yes\"]", sel).each(function(i, e) {
-            var $e = $(e);
-            var translated = cockpit.gettext(e.getAttribute("context"), $e.text());
-            $(e).removeAttr("translatable").text(translated);
-        });
+    cockpit.translate = function translate(el) {
+        var list = (el || document).querySelectorAll("[translatable=\"yes\"]");
+        var e, translated, i, len;
+        if (list) {
+            for (i = 0, len = list.length; i < len; i++) {
+                e = list[i];
+                translated = cockpit.gettext(e.getAttribute("context"), e.textContent);
+                e.removeAttribute("translatable");
+                e.textContent = translated;
+            }
+        }
     };
 
     cockpit.gettext = function gettext(context, string) {

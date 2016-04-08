@@ -499,14 +499,22 @@
               <td><label class="control-label" for="restart-policy" translatable="yes">Restart Policy</label></td>
               <td colspan="2">
                 <div class="form-inline form-group">
-                  <select name="restart-policy" id="restart-policy-select" class="form-control">
-                    <option value="no">No</option>
-                    <option value="on-failure">On Failure</option>
-                    <option value="always">Always</option>
-                    <option value="unless-stopped">Unless Stopped</option>
-                  </select>
-                  <label class="control-label" for="restart-policy-retries" translatable="yes">Retries:</label>
-                  <input class="form-control" type="number" name="restart-policy-retries" id="restart-policy-retries" disabled="true">
+                  <div class="btn-group bootstrap-select dropdown form-control" id="restart-policy-select">
+                    <button aria-expanded="false" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                      <span class="pull-left" translatable="yes" data-value="no">No</span>
+                      <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" id="restart-policy-dropdown">
+                      <li><a data-value="no">No</a></li>
+                      <li><a data-value="on-failure">On Failure</a></li>
+                      <li><a data-value="always">Always</a></li>
+                      <li><a data-value="unless-stopped">Unless Stopped</a></li>
+                    </ul>
+                  </div>
+                  <div id="restart-policy-retries-container" class="hidden">
+                    <label class="control-label" for="restart-policy-retries" translatable="yes">Retries:</label>
+                    <input id="restart-policy-retries" class="form-control" type="text" value="0" name="restart-policy-retries">
+                  </div>
                 </div>
               </td>
             </tr>

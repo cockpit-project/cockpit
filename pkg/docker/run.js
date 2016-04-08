@@ -75,13 +75,18 @@ define([
                 self.update('changeFocus', 'links');
             });
 
-            $("#restart-policy-select").change(function() {
-                var selected = $(this).find("option:selected")[0];
+            var restart_policy_dropdown = $("#restart-policy-dropdown");
+            var restart_policy_dropdown_selected = $("#restart-policy-select > button span.pull-left")
 
-                if (selected.value === "on-failure") {
-                    $("#restart-policy-retries").prop('disabled', false);
+            restart_policy_dropdown.find("a").on('click', function () {
+                restart_policy_dropdown_selected.text($(this).text());
+
+                var name = $(this).data('value');
+                restart_policy_dropdown_selected.data('name', name);
+                if (name === 'on-failure') {
+                  $("#restart-policy-retries-container").removeClass('hidden');
                 } else {
-                    $("#restart-policy-retries").prop('disabled', true);
+                  $("#restart-policy-retries-container").addClass('hidden');
                 }
             });
 
@@ -177,6 +182,8 @@ define([
             } else {
                 $('#expose-ports').prop('checked', false);
             }
+
+
         },
 
         configuration_validator: function() {
@@ -616,7 +623,7 @@ define([
                     "PortBindings": port_bindings,
                     "Links": links,
                     "RestartPolicy": {
-                      "Name": $("#restart-policy-select").val(),
+                      "Name": $("#restart-policy-select > button span.pull-left").data('name'),
                       "MaximumRetryCount": parseInt($("#restart-policy-retries").val(), 10) || 0
                     }
                 }

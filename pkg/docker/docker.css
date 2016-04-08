@@ -210,12 +210,32 @@
 }
 
 @media (min-width: 768px) {
-  #select-linked-containers .form-group {
-      width: 40%;
-  }
-  #select-linked-containers input {
-      max-width: 73%;
-  }
+    #select-linked-containers .form-group {
+        width: 40%;
+    }
+    #select-linked-containers input {
+        max-width: 73%;
+    }
+}
+
+#restart-policy-select {
+    max-width: 150px;
+}
+
+#restart-policy-select > button > span.pull-left {
+    overflow: hidden;
+    width: 100%;
+    text-align: left;
+}
+
+#restart-policy-retries-container {
+    display: inline;
+    margin-left: 4px;
+}
+
+#restart-policy-retries {
+    max-width: 50px;
+    display: inline;
 }
 
 /* Hack to remove size column */

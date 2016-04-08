@@ -218,6 +218,10 @@
             <td>State:</td>
             <td colspan="2" id="container-details-state"></td>
           </tr>
+          <tr>
+            <td>Restart Policy:</td>
+            <td colspan="2" id="container-details-restart-policy"></td>
+          </tr>
           <tr id="container-details-ports-row" hidden>
             <td>Ports:</td>
             <td colspan="2" id="container-details-ports"></td>
@@ -488,6 +492,29 @@
                   Expose container ports
                 </label>
                 <div id="select-exposed-ports" class="containers-run-portmapping containers-run-inline">
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="control-label" for="restart-policy" translatable="yes">Restart Policy</label></td>
+              <td colspan="2">
+                <div class="form-inline form-group">
+                  <div class="btn-group bootstrap-select dropdown form-control" id="restart-policy-select">
+                    <button aria-expanded="false" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                      <span class="pull-left" translatable="yes" data-value="no">No</span>
+                      <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" id="restart-policy-dropdown">
+                      <li><a translatable="yes" data-value="no">No</a></li>
+                      <li><a translatable="yes" data-value="on-failure">On Failure</a></li>
+                      <li><a translatable="yes" data-value="always">Always</a></li>
+                      <li><a translatable="yes" data-value="unless-stopped">Unless Stopped</a></li>
+                    </ul>
+                  </div>
+                  <div id="restart-policy-retries-container" class="hidden">
+                    <label class="control-label" for="restart-policy-retries" translatable="yes">Retries:</label>
+                    <input id="restart-policy-retries" class="form-control" type="number" value="0" min="0" name="restart-policy-retries">
+                  </div>
                 </div>
               </td>
             </tr>

@@ -73,6 +73,24 @@ define([
             return cockpit.format(_("Exited $ExitCode"), state);
     };
 
+    util.render_container_restart_policy = function render_restart_policy(policy) {
+        switch (policy.Name) {
+            case "no":
+                return _("No");
+            case "on-failure":
+                var text = cockpit.ngettext("On failure, retry $0 time", "On failure, retry $0 times", policy.MaximumRetryCount);
+                return cockpit.format(text, policy.MaximumRetryCount);
+            case "always":
+                return _("Always");
+            case "unless-stopped":
+                return _("Unless Stopped");
+            default: /* Keeping this here just in case. http://stackoverflow.com/a/4878800 */
+                return policy.Name.replace('-', ' ').replace(/\w\S*/g, function(txt) {
+                    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+                });
+        }
+    };
+
     util.multi_line = function multi_line(strings) {
         return strings.map(function (str) { return Mustache.render("{{.}}", str); }).join('<br/>');
     };

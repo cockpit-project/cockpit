@@ -75,6 +75,21 @@ define([
                 self.update('changeFocus', 'links');
             });
 
+            var restart_policy_dropdown = $("#restart-policy-dropdown");
+            var restart_policy_dropdown_selected = $("#restart-policy-select > button span.pull-left");
+
+            restart_policy_dropdown.find("a").on('click', function () {
+                restart_policy_dropdown_selected.text($(this).text());
+
+                var name = $(this).data('value');
+                restart_policy_dropdown_selected.data('name', name);
+                if (name === 'on-failure') {
+                    $("#restart-policy-retries-container").removeClass('hidden');
+                } else {
+                    $("#restart-policy-retries-container").addClass('hidden');
+                }
+            });
+
             this.validator = this.configuration_validator();
         },
 
@@ -167,6 +182,12 @@ define([
             } else {
                 $('#expose-ports').prop('checked', false);
             }
+
+            var restart_policy_select_button = $('#restart-policy-select > button span.pull-left');
+            restart_policy_select_button.text(_("No"));
+            restart_policy_select_button.data('name', 'no');
+            $('#restart-policy-retries').val('0');
+            $('#restart-policy-retries-container').addClass('hidden');
         },
 
         configuration_validator: function() {
@@ -593,6 +614,7 @@ define([
             $("#containers_run_image_dialog").modal('hide');
 
             var tty = $("#containers-run-image-with-terminal").prop('checked');
+
             var options = {
                 "Cmd": util.unquote_cmdline(cmd),
                 "Image": PageRunImage.image_info.Id,
@@ -602,8 +624,12 @@ define([
                 "Tty": tty,
                 "ExposedPorts": exposed_ports,
                 "HostConfig": {
+                    "PortBindings": port_bindings,
                     "Links": links,
-                    "PortBindings": port_bindings
+                    "RestartPolicy": {
+                        "Name": $("#restart-policy-select > button span.pull-left").data('name'),
+                        "MaximumRetryCount": parseInt($("#restart-policy-retries").val(), 10) || 0
+                    }
                 }
             };
 

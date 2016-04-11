@@ -1,0 +1,48 @@
+<div class="content-filter">
+    <div class="listing-actions" ng-if="group()">
+        <button class="btn btn-danger btn-delete pficon pficon-delete"
+            ng-click="removeGroup(projects(), group())"></button>
+    </div>
+    <h3 ng-if="group()">
+        <i class="pficon pficon-users"></i>
+        <span>{{ group().metadata.name }}</span>
+    </h3>
+    <h3 ng-if="!group()">
+        <i class="pficon pficon-users"></i>
+        <span>{{ groupName }}</span>
+    </h3>
+    <a ng-href="#/projects" translatable="yes">Show all Projects</a>
+</div>
+<div class="project-panel" ng-if="group()">
+    <div>
+        <table listing-table class="listing project-body" >
+            <thead>
+                <tr>
+                    <th translatable="yes">Group Members</th>
+                    <th translatable="yes"></th>
+                </tr>
+            </thead>
+            <tbody colspan="3" ng-repeat="user in group().users" data-id="{{ user }}">
+                <tr class="listing-item inner-project-listing">
+                    <td ng-click="listing.activate('/users/' + user)"><i class=" pficon-user"></i>  {{ user }}</span></td>
+                    <td><a class="pull-right close-icon" ng-click="removeUserFromGroup(user, group())">
+                        <i translatable="yes" class="pficon-close"></i>
+                    </a></td>
+                </tr>
+            </tbody>
+            <thead>
+                <tr>
+                    <td colspan="3">
+                        <a class="pull-left" ng-click="addUserToGroup(group())">
+                            <i translatable="yes" class="pficon pficon-add-circle-o"></i>
+                            <span translatable="yes">Add Member</span>
+                        </a>
+                    </td>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+<div class="listing-inline" ng-if="!group()">
+    <h3 translatable="yes">The group '{{ groupName }}' does not exist.</h3>
+</div>

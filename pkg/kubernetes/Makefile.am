@@ -28,6 +28,12 @@ shared_VIEWS = \
 	pkg/kubernetes/views/user-delete.html \
 	pkg/kubernetes/views/user-modify.html \
 	pkg/kubernetes/views/user-body.html \
+	pkg/kubernetes/views/user-group-remove.html \
+	pkg/kubernetes/views/project-delete.html \
+	pkg/kubernetes/views/group-panel.html \
+	pkg/kubernetes/views/group-page.html \
+	pkg/kubernetes/views/group-delete.html \
+	pkg/kubernetes/views/user-group-add.html \
 	pkg/kubernetes/views/user-remove-membership.html \
 	pkg/kubernetes/views/user-add-membership.html \
 	pkg/kubernetes/views/add-role-dialog.html \

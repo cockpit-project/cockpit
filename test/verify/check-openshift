@@ -436,6 +436,62 @@ class TestRegistry(MachineCase):
         b.wait_present("tbody[data-id='marmalade/juggs:2.9'] div[image-meta]")
         b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] div[image-meta]", "build-date=2016-03-04")
 
+    def testProjectGroups(self):
+        o = self.openshift
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/kubernetes/registry")
+        b.go("#/projects")
+        b.wait_present("tbody[data-id='marmalade']")
+
+        # Create a new group
+        b.click("#add-group")
+        b.wait_present("modal-dialog")
+        b.wait_visible(".modal-body")
+        b.set_val("#group_name", "production")
+        b.click(".btn-primary")
+        b.wait_not_present("modal-dialog")
+        b.wait_present("tbody[data-id='marmalade']")
+
+        #group page
+        b.click("tbody[data-id='production'] tr:first-child td:nth-of-type(2)")
+        b.wait_in_text(".content-filter h3", "production")
+
+        #add member
+        b.click("a i.pficon-add-circle-o")
+        b.wait_present("modal-dialog")
+        b.wait_visible("#add_user_to_group")
+        b.click("#add_user_to_group button")
+        b.wait_visible("#add_user_to_group .dropdown-menu")
+        b.click(".dropdown-menu a[value='scruffy']")
+        b.click(".btn-primary")
+        b.wait_not_present("modal-dialog")
+
+        #delete member
+        b.click("tbody[data-id='scruffy'] tr td:last-child a i.pficon-close")
+        b.wait_present("modal-dialog")
+        b.wait_visible(".modal-body")
+        b.click(".btn-primary")
+        b.wait_not_present("modal-dialog")
+
+        b.click("a i.pficon-add-circle-o")
+        b.wait_present("modal-dialog")
+        b.wait_visible("#add_user_to_group")
+        b.click("#add_user_to_group button")
+        b.wait_visible("#add_user_to_group .dropdown-menu")
+        b.click(".dropdown-menu a[value='scruffy']")
+        b.click(".btn-primary")
+        b.wait_not_present("modal-dialog")
+
+        #delete user
+        b.wait_in_text(".content-filter h3", "production")
+        b.click(".content-filter .pficon-delete")
+        b.wait_present("modal-dialog")
+        b.click(".btn-primary")
+        b.wait_not_present("modal-dialog")
+        b.wait_not_present("tbody[data-id='production']")
+
     def testProjectUsers(self):
         o = self.openshift
         b = self.browser
@@ -518,8 +574,11 @@ class TestRegistry(MachineCase):
 
         self.login_and_go("/kubernetes/registry")
 
-        b.go("#/projects/marmalade")
-        b.wait_present("a i.pficon-add-circle-o")
+        b.go("#/projects")
+        b.wait_present("tbody[data-id='default']")
+        b.click("tbody[data-id='marmalade'] tr:first-child td:nth-of-type(2)")
+        b.wait_in_text(".content-filter h3", "marmalade")
+
         # wait for all users to show
         b.wait_present(".inner-project-listing")
         b.wait_present("a i.pficon-add-circle-o")

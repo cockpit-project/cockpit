@@ -1,0 +1,34 @@
+<modal-dialog>
+    <div class="modal-header">
+        <h4 class="modal-title" translatable="yes">Add Member</h4>
+    </div>
+    <div class="modal-body">
+        <table class="cockpit-form-table">
+            <tr>
+                <td class="top">
+                    <label class="control-label" for="group_name" translatable="yes">
+                        User
+                    </label>
+                </td>
+                <td>
+                    <div id="add_user_to_group" class="btn-group bootstrap-select form-control" dropdown>
+                        <button class="btn btn-default dropdown-toggle" dropdown-toggle>
+                            <span class="pull-left">{{ select.member }}</span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="member in select.members" ng-class="{active: member.metadata.name == select.member}">
+                                <a ng-click="select.member = member.metadata.name; select.kind = member.kind"
+                                    value="{{ member.metadata.name }}">{{ member.metadata.name }}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
+        <button class="btn btn-primary" translatable="yes" ng-click="complete(addUserToGroup())">Add</button>
+    </div>
+</modal-dialog>

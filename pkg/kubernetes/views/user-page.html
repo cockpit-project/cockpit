@@ -1,18 +1,22 @@
 <div class="content-filter">
-    <div class="listing-actions">
+    <div class="listing-actions" ng-if="user()">
         <button class="btn btn-danger btn-delete pficon pficon-delete"
             ng-click="removeUser(projects(), groups(), user())"></button>
         <button class="btn btn-default pficon pficon-edit"
             ng-click="modifyUser(user())"></button>
     </div>
-    <h3>
+    <h3 ng-if="user()">
         <i class="pficon pficon-user"></i>
         <span>{{ user().metadata.name }}</span>
+    </h3>
+    <h3 ng-if="!user()">
+        <i class="pficon pficon-user"></i>
+        <span>{{ userName }}</span>
     </h3>
     <a ng-href="#/projects"
         translatable="yes" class="hidden-xs">Show all Projects</a>
 </div>
-<div class="listing-body user-body">
+<div class="listing-body user-body" ng-if="user()">
     <p>
     </p>
     <dl>
@@ -20,4 +24,7 @@
         <dd>{{ user().identities }}</dd>
     </dl>
     <div user-body></div>
+</div>
+<div class="listing-inline" ng-if="!user()">
+    <h3 translatable="yes">The user '{{ userName }}' does not exist.</h3>
 </div>

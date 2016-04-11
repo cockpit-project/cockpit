@@ -10,9 +10,14 @@
             <th translatable="yes"></th>
         </tr>
     </thead>
-    <tbody colspan="3" ng-repeat="user in users()" data-id="{{ user.metadata.name }}" ng-if="subjectIsMember(user, project())">
+    <tbody colspan="3" ng-repeat="user in users()" data-id="{{ user.metadata.name }}" ng-if="user && project() && subjectIsMember(user, project())">
         <tr class="listing-item inner-project-listing">
-            <td>{{ user.metadata.name }}</td>
+            <td ng-click="listing.activate('/users/' + user.metadata.name)">
+                <div>
+                    <i class="user-page-icons pficon pficon-user"></i>
+                    {{ user.metadata.name }}
+                </div>
+            </td>
             <td>
                 <div class="btn-group bootstrap-select namespace-filter" dropdown>
                         <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
@@ -34,12 +39,20 @@
                         </ul>
                     </div>
             </td>
-            <td></td>
+            <td><a class="pull-right close-icon">
+                    <i translatable="yes" class=" pficon-close" ng-click="removeMemberFromParent(user, project())"></i>
+                </a>
+            </td>
         </tr>
     </tbody>
-    <tbody colspan="3" ng-repeat="group in groups()" data-id="{{ group.metadata.name }}" ng-if="subjectIsMember(group, project())">
+    <tbody colspan="3" ng-repeat="group in groups()" data-id="{{ group.metadata.name }}" ng-if="group && project() && subjectIsMember(group, project())">
         <tr class="listing-item inner-project-listing">
-            <td>{{ group.metadata.name }}</td>
+            <td ng-click="listing.activate('/groups/' + group.metadata.name)">
+                <div>
+                    <i class="user-page-icons pficon pficon-users"></i>
+                    {{ group.metadata.name }}
+                </div>
+            </td>
             <td>
                 <div class="btn-group bootstrap-select namespace-filter" dropdown>
                         <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
@@ -53,7 +66,7 @@
                         <ul class="dropdown-menu">
                             <li ng-repeat="roleMp in getRegistryRolesMap()"
                                 ng-class="{ checked: isRegistryRole(group, displayRole, project()) }">
-                                <a ng-click="changeRole(group, roleMp, getRegistryRoles(user, project()), project())" 
+                                <a ng-click="changeRole(group, roleMp, getRegistryRoles(group, project()), project())"
                                     value="{{ roleMp.displayRole }}">
                                     {{ roleMp.displayRole }}
                                 </a>
@@ -61,7 +74,10 @@
                         </ul>
                     </div>
             </td>
-            <td></td>
+            <td><a class="pull-right close-icon">
+                    <i translatable="yes" class=" pficon-close" ng-click="removeMemberFromParent(group, project())"></i>
+                </a>
+            </td>
         </tr>
     </tbody>
     <thead>

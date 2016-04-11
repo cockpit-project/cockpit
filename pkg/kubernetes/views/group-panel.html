@@ -1,0 +1,36 @@
+<div class="listing-head" ng-click="listing.collapse(id, $event)">
+    <div class="listing-actions">
+        <button class="btn btn-danger btn-delete pficon pficon-delete" ng-click="removeGroup(projects(), group())"></button>
+    </div>
+    <h3><i class="pficon pficon-users"></i>{{ group().metadata.name }}</h3>
+</div>
+<div class="listing-body project-panel" ng-show="tab('main')">
+    <div>
+        <table listing-table class="listing project-body">
+            <thead >
+                <tr >
+                    <th translatable="yes">Group Members</th>
+                    <th translatable="yes"></th>
+                </tr>
+            </thead>
+            <tbody colspan="3" ng-repeat="user in group().users">
+                <tr class="listing-item inner-project-listing">
+                    <td><i class=" pficon-user"></i>  {{ user }}</span></td>
+                    <td><a class="pull-right close-icon">
+                        <i translatable="yes" class="pficon-close " ng-click="removeUserFromGroup(user, group())"></i>
+                    </a></td>
+                </tr>
+            </tbody>
+            <thead>
+                <tr>
+                    <td colspan="3">
+                        <a class="pull-left" disabled>
+                            <i translatable="yes" class="pficon pficon-add-circle-o"></i>
+                            <span translatable="yes" ng-click="addUserToGroup(group())">Add Member</span>
+                        </a>
+                    </td>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>

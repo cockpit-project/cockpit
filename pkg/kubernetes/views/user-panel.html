@@ -1,0 +1,83 @@
+<div class="listing-actions project-panel-actions">
+    <button class="btn btn-danger btn-delete pficon pficon-delete" ng-click="removeUser(projects(), groups(), user())"></button>
+    <button class="btn btn-default pficon pficon-edit" ng-click="modifyUser(user())"></button>
+</div>
+<div class="listing-head" >
+    <h3><i class="pficon pficon-user"></i>{{ user().metadata.name }}</h3>
+    <ul class="nav nav-tabs nav-tabs-pf">
+        <li ng-class="{active: tab('main')}">
+        <a ng-click="tab('main', $event)" translatable="yes">User</a></li>
+        <li ng-class="{active: tab('membership')}">
+        <a ng-click="tab('membership', $event); tabbed = true" translatable="yes">Membership</a></li>
+    </ul>
+</div>
+
+<div class="listing-body project-panel">
+<div ng-show="tab('main')">
+    <div class="user-body">
+    <dl>
+        <dt translatable="yes">Identities</dt>
+        <dd>{{ user().identities }}</dd>
+    </dl>
+    </div>
+</div>
+<div class="project-panel" ng-show="tab('membership')">
+    <table listing-table class="listing project-body">
+        <thead >
+            <tr >
+                <th translatable="yes">Membership</th>
+                <th translatable="yes"></th>
+                <th translatable="yes"></th>
+            </tr>
+        </thead>
+        <tbody colspan="3" ng-repeat="member in getProjectsWithMember(projects(), user().metadata.name) track by member.metadata.name">
+        <tr class="listing-item inner-project-listing">
+            <td>{{ member.metadata.name }}</td>
+            <td>                
+                <div ng-if='member.kind == "Project"' class="btn-group bootstrap-select namespace-filter" dropdown>
+                    <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
+                        <span class="pull-left">
+                            <span ng-if="isRoles(user(), member)" translatable="yes">
+                                {{ getRegistryRoles(user(), member).join() }}
+                            </span>
+                        </span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li ng-repeat="roleMp in getRegistryRolesMap() track by roleMp.displayRole"
+                            ng-class="{ checked: isRegistryRole(user(), roleMp.displayRole, member) }">
+                            <a ng-click="changeRole(user(), roleMp, getRegistryRoles(user(), member), member)">
+                                {{ roleMp.displayRole }}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </td>
+            <td><a class="pull-right close-icon">
+                    <i translatable="yes" class=" pficon-close" ng-click="removeMemberFromParent(user(), member)"></i>
+                </a>
+            </td>
+        </tr>
+        </tbody>
+        <tbody colspan="3" ng-repeat="member in getGroupsWithMember(groups(), user().metadata.name) track by member.metadata.name">
+            <tr class="listing-item inner-project-listing">
+                <td>{{ member.metadata.name }}</td>
+                <td></td>
+                <td><a class="pull-right close-icon" ng-click="removeMemberFromParent(user(), member)">
+                        <i translatable="yes" class=" pficon-close"></i>
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+        <thead>
+            <tr>
+                <td colspan="3">
+                    <a class="pull-left" ng-click="addMemberToParent(user())">
+                        <i translatable="yes" class="pficon pficon-add-circle-o"></i>
+                        <span translatable="yes">Add Membership</span>
+                    </a>
+                </td>
+            </tr>
+        </thead>
+    </table>
+</div>

@@ -26,7 +26,8 @@
                         <ul class="dropdown-menu">
                             <li ng-repeat="roleMp in getRegistryRolesMap()"
                                 ng-class="{ checked: isRegistryRole(user, roleMp.displayRole, project()) }">
-                                <a ng-click="changeRole(user, roleMp, getRegistryRoles(user, project()), project())">
+                                <a ng-click="changeRole(user, roleMp, getRegistryRoles(user, project()), project())"
+                                    value="{{ roleMp.displayRole }}">
                                     {{ roleMp.displayRole }}
                                 </a>
                             </li>
@@ -52,7 +53,8 @@
                         <ul class="dropdown-menu">
                             <li ng-repeat="roleMp in getRegistryRolesMap()"
                                 ng-class="{ checked: isRegistryRole(group, displayRole, project()) }">
-                                <a ng-click="changeRole(group, roleMp, getRegistryRoles(user, project()), project())">
+                                <a ng-click="changeRole(group, roleMp, getRegistryRoles(user, project()), project())" 
+                                    value="{{ roleMp.displayRole }}">
                                     {{ roleMp.displayRole }}
                                 </a>
                             </li>

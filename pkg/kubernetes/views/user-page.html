@@ -1,0 +1,23 @@
+<div class="content-filter">
+    <div class="listing-actions">
+        <button class="btn btn-danger btn-delete pficon pficon-delete"
+            ng-click="removeUser(projects(), groups(), user())"></button>
+        <button class="btn btn-default pficon pficon-edit"
+            ng-click="modifyUser(user())"></button>
+    </div>
+    <h3>
+        <i class="pficon pficon-user"></i>
+        <span>{{ user().metadata.name }}</span>
+    </h3>
+    <a ng-href="#/projects"
+        translatable="yes" class="hidden-xs">Show all Projects</a>
+</div>
+<div class="listing-body user-body">
+    <p>
+    </p>
+    <dl>
+        <dt translatable="yes">Identities</dt>
+        <dd>{{ user().identities }}</dd>
+    </dl>
+    <div user-body></div>
+</div>

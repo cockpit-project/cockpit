@@ -1,0 +1,55 @@
+<modal-dialog>
+    <div class="modal-header">
+        <h4 class="modal-title" translatable="yes">Add membership</h4>
+    </div>
+    <div class="modal-body">
+        <table class="cockpit-form-table">
+            <tr>
+                <td class="top">
+                    <label class="control-label" for="user_name" translatable="yes">
+                        Group or Project
+                    </label>
+                </td>
+                <td>
+                    <div id="add_parent_for_user" class="btn-group bootstrap-select form-control" dropdown>
+                        <button class="btn btn-default dropdown-toggle" dropdown-toggle>
+                            <span class="pull-left">{{ selected.member }}</span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="member in selected.members() track by member.metadata.name" ng-class="{active: member.metadata.name == selected.member}">
+                                <a ng-click="selected.member = member.metadata.name; selected.parentObj = member" 
+                                    value="{{ member.metadata.name }}">{{ member.metadata.name }}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            <tr ng-if='selected.parentObj.kind && selected.parentObj.kind === "Project"'>
+                <td class="top">
+                    <label class="control-label" for="role" translatable="yes">
+                        Role
+                    </label>
+                </td>
+                <td>
+                    <div id="add_role_for_user" class="btn-group bootstrap-select form-control" dropdown>
+                        <button class="btn btn-default dropdown-toggle" dropdown-toggle>
+                            <span class="pull-left">{{ selected.role }}</span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="role in selected.roles() track by role.displayRole" ng-class="{active: role.displayRole == selected.role}">
+                                <a ng-click="selected.role = role.displayRole; selected.ocRole=role.ocRole" 
+                                    value="{{ role.displayRole }}">{{ role.displayRole }}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
+        <button class="btn btn-primary" translatable="yes" ng-click="complete(addMemberToParent())">Add</button>
+    </div>
+</modal-dialog>

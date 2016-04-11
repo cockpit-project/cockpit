@@ -125,6 +125,17 @@ html, body {
     float: right;
 }
 
+#dashboard-toolbar > div.dropdown {
+    display: inline-block;
+}
+
+#dashboard-toolbar .dropdown-toggle span {
+    display: inline-block;
+    width: 6em;
+    text-align: left;
+    padding-left: 5px;
+}
+
 @media (max-width: 400px) {
     #dashboard-hosts .list-group-item div.os {
         display: none;
@@ -149,6 +160,12 @@ html, body {
 
 .dashboard-plot {
     margin-bottom: 10px;
+    height: 250px;
+}
+
+#host-edit-color {
+    width:100px;
+    height:26px;
 }
 
 #host-edit-color-popover .popover-content {
@@ -162,6 +179,10 @@ html, body {
     margin: 2px;
 }
 
+#host-edit-avatar {
+    margin-top: 10px;
+}
+
 #host-edit-avatar canvas:hover,
 #host-edit-color:hover,
 #host-edit-color-popover .color-cell:hover {
@@ -171,6 +192,10 @@ html, body {
 
 #host-edit-apply {
     min-width: 55px;
+}
+
+#host-edit-file-input {
+    display: none;
 }
 
 /* Make the time range buttons equal width */

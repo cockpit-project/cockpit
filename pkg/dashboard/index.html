@@ -29,6 +29,9 @@
     <script src="../shell/bundle.js"></script>
     <script src="../shell/shell.js"></script>
     <script src="bundle.js"></script>
+    <!-- debug:start -->
+    <script src="list.js"></script>
+    <!-- debug:end -->
 </head>
 <body hidden>
 
@@ -36,10 +39,10 @@
         <div class="row">
             <div class="col-md-12">
                 <div id="dashboard-toolbar" class="pull-right zoom-controls">
-                    <div class="dropdown" style="display:inline-block">
+                    <div class="dropdown">
                         <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                            <span style="width:6em;text-align:left;padding-left:5px;display:inline-block"></span>
-                            <span class="caret"></span>
+                            <span></span>
+                            <div class="caret"></div>
                         </button>
                         <ul class="dropdown-menu" role="menu">
                             <li role="presentation"><a role="menuitem" tabindex="-1"
@@ -72,10 +75,10 @@
                     <li data-monitor-id="3"><a>Disk I/O</a></li>
                 </ul>
                 <br>
-                <div class="dashboard-plot zoomable-plot" id="dashboard-plot-0" style="height:250px"></div>
-                <div class="dashboard-plot zoomable-plot" id="dashboard-plot-1" style="height:250px"></div>
-                <div class="dashboard-plot zoomable-plot" id="dashboard-plot-2" style="height:250px"></div>
-                <div class="dashboard-plot zoomable-plot" id="dashboard-plot-3" style="height:250px"></div>
+                <div class="dashboard-plot zoomable-plot" id="dashboard-plot-0"></div>
+                <div class="dashboard-plot zoomable-plot" id="dashboard-plot-1"></div>
+                <div class="dashboard-plot zoomable-plot" id="dashboard-plot-2"></div>
+                <div class="dashboard-plot zoomable-plot" id="dashboard-plot-3"></div>
             </div>
         </div>
         <div class="row">
@@ -99,7 +102,7 @@
         {{#machines}}
             {{! state can be 'failed' or 'connected' }}
             <a data-address="{{address}}" class="list-group-item {{state}}"
-                style="border-left-color: {{ color }};" target="_parent" href="/@{{address}}">
+                data-color="{{ color }}" target="_parent" href="/@{{address}}">
                 <button class="btn btn-danger edit-button servers-privileged pficon btn-delete pficon-delete delete-{{address}}"></button>
                 <button class="btn btn-default edit-button servers-privileged pficon pficon-edit"></button>
                 <img class="host-avatar {{avatar_display}}" src="{{render_avatar}}">
@@ -144,8 +147,7 @@
                 </div>
                 <div class="modal-body">
                 <div>
-                    <input data-role="none" type="file" id="host-edit-file-input"
-                        style="display:none"/>
+                    <input data-role="none" type="file" id="host-edit-file-input" hidden/>
                     <table class="cockpit-form-table">
                         <tr>
                             <td class="top" translatable="yes">Host Name</td>
@@ -176,7 +178,7 @@
                         <tr>
                             <td class="top" translatable="yes">Avatar</td>
                             <td>
-                                <div id="host-edit-avatar" style="margin-top:10px"></div>
+                                <div id="host-edit-avatar"></div>
                                 <div id="host-edit-fail"></div>
                             </td>
                             <td></td>
@@ -192,13 +194,5 @@
             </div>
         </div>
     </div>
-    <script>
-        require([
-            "jquery",
-            "dashboard/list"
-        ], function($, list) {
-            $(list);
-        });
-    </script>
 </body>
 </html>

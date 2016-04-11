@@ -17,14 +17,14 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
+require([
     "jquery",
     "base1/cockpit",
     "base1/mustache",
     "shell/controls",
     "shell/shell",
     "shell/machines",
-    "./image-editor",
+    "dashboard/image-editor",
     "shell/machine-dialogs",
     "base1/patterns",
     "shell/plot",
@@ -403,6 +403,9 @@ PageDashboard.prototype = {
                 });
 
                 target.html(text);
+                $("[data-color]", target).each(function() {
+                    $(this).css("border-left-color", $(this).attr("data-color"));
+                });
                 $(".delete-localhost").tooltip({
                       title : _("You are currently connected directly to this server. You cannot delete it.")
                 });
@@ -582,6 +585,5 @@ function init() {
     navigate();
 }
 
-return init;
-
+init();
 });

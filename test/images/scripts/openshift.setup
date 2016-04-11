@@ -74,7 +74,8 @@ cat > /etc/systemd/system/openshift.service <<EOF
 [Unit]
 Description=Openshift
 Wants=network-online.target
-After=network-online.target
+After=network-online.target docker.service
+Requires=docker.service
 [Service]
 ExecStartPre=/openshift-prep
 ExecStart=/openshift-run

@@ -46,6 +46,12 @@
                         else
                             return 'views/project-page.html';
                     }
+                })
+                .when('/users/:user', {
+                    controller: 'UserCtrl',
+                    templateUrl: function(params) {
+                        return 'views/user-page.html';
+                    }
                 });
         }
     ])
@@ -83,7 +89,7 @@
 
                 $scope.$on("activate", function(ev, id) {
                     ev.preventDefault();
-                    $location.path('/projects/' + id);
+                    $location.path(id);
                 });
             }
 
@@ -98,6 +104,54 @@
             $scope.groups = function() {
                 return select().kind("Group");
             };
+        }
+    ])
+
+
+    .controller('UserCtrl', [
+        '$scope',
+        '$routeParams',
+        '$location',
+        'kubeSelect',
+        'kubeLoader',
+        'projectData',
+        'projectActions',
+        'roleActions',
+        'ListingState',
+        function($scope, $routeParams, $location, select, loader, projectData, projectAction, roleActions, ListingState) {
+            loader.watch("users");
+            loader.watch("groups");
+            var user = $routeParams["user"] || "";
+            $scope.userName = user;
+            if (user) {
+
+                var userObj = select().kind("User").name(user);
+                if(!userObj || userObj.length < 1) {
+                    $location.path("/projects");
+                    return;
+                }
+
+                $scope.user = function() {
+                    return select().kind("User").name(user).one();
+                };
+                $scope.listing = new ListingState($scope);
+
+            } else {
+                $scope.listing = new ListingState($scope);
+                $location.path("/projects");
+            }
+            $scope.projects = function() {
+                return select().kind("Project");
+            };
+            $scope.groups = function() {
+                return select().kind("Group");
+            };
+            $scope.users = function() {
+                return select().kind("User");
+            };
+            angular.extend($scope, projectData);
+            angular.extend($scope, projectAction);
+            angular.extend($scope, roleActions);
         }
     ])
 
@@ -173,6 +227,46 @@
                     return false;
                 }
                 return true;
+            }
+            function getProjectsWithMember(projects, member) {
+                if (!projects && !member)
+                    return [];
+                var projList = [];
+                if(member) {
+                    angular.forEach(projects, function(project) {
+                        if (project && subjectIsMember(member, project.metadata.name))
+                            projList.push(project);
+                    });                    
+                }
+                return projList;
+            }
+
+            function getGroupsWithMember(groups, member) {
+                if (!groups && !member)
+                    return [];
+                var grpList = [];
+                if(member) {
+                    angular.forEach(groups, function(group) {
+                        if (group && group.users && group.users.indexOf(member) != -1)
+                            grpList.push(group);
+                    });
+                }
+                return grpList;
+            }
+            function userHasMembers(projects, groups, user) {
+
+            }
+            function getMembershipOfUser(projects, groups, user) {
+                var members = [];
+                var userProjects = getProjectsWithMember(projects, user);
+                angular.forEach(userProjects, function(project) {
+                    members.push(project.metadata.name);
+                });
+                var userGroups = getGroupsWithMember(groups, user);
+                angular.forEach(userGroups, function(group) {
+                    members.push(group.metadata.name);
+                });
+                return members;
             }
             /*
              * To use this you would have a user or group, and do:
@@ -274,6 +368,9 @@
                 isRoles: isRoles,
                 getRegistryRolesMap: getRegistryRolesMap,
                 getRegistryRoles: getRegistryRoles,
+                getGroupsWithMember: getGroupsWithMember,
+                getProjectsWithMember: getProjectsWithMember,
+                getMembershipOfUser: getMembershipOfUser,
             };
         }
     ])
@@ -322,6 +419,55 @@
         }
     ])
 
+    .directive('userBody', [
+        function() {
+            return {
+                restrict: 'A',
+                templateUrl: 'views/user-body.html',
+                link: function(scope, element, attrs) {
+                },
+            };
+        }
+    ])
+    .directive('userPanel', [
+        'kubeLoader',
+        'kubeSelect',
+        'projectData',
+        'projectActions',
+        function(loader, select, projectData, projectAction) {
+            return {
+                restrict: 'A',
+                scope: true,
+                link: function(scope, element, attrs) {
+                    var tab = 'main';
+                    scope.tab = function(name, ev) {
+                        if (ev) {
+                            tab = name;
+                            ev.stopPropagation();
+                        }
+                        return tab === name;
+                    };
+
+                    var currUser = scope.id;
+                    loader.load("Users");
+                    angular.extend(scope, projectData);
+                    angular.extend(scope, projectAction);
+                    scope.user = function() {
+                        return select().kind("User").name(currUser).one();
+                    };
+                    scope.groups = function() {
+                        return select().kind("Group");
+                    };
+                    scope.projects = function() {
+                        return select().kind("Project");
+                    };
+
+                },
+                templateUrl: "views/user-panel.html"
+            };
+        }
+    ])
+
     .directive('projectListing',
         function() {
             return {
@@ -333,7 +479,8 @@
 
     .factory('projectActions', [
         '$modal',
-        function($modal) {
+        'projectData',
+        function($modal, projectData) {
             function createProject() {
                 return $modal.open({
                     controller: 'ProjectModifyCtrl',
@@ -358,17 +505,70 @@
                     },
                 }).result;
             }
-
+            function createGroup() {
+                return $modal.open({
+                    controller: 'GroupNewCtrl',
+                    templateUrl: 'views/add-group-dialog.html',
+                });                    
+            }
             function createUser() {
                 return $modal.open({
                     controller: 'UserNewCtrl',
                     templateUrl: 'views/add-user-dialog.html',
                 });
             }
-            function createGroup() {
+            function modifyUser(userObj) {
                 return $modal.open({
-                    controller: 'GroupNewCtrl',
-                    templateUrl: 'views/add-group-dialog.html',
+                    animation: false,
+                    controller: 'UserChangeCtrl',
+                    templateUrl: 'views/user-modify.html',
+                    resolve: {
+                        fields: function() {
+                            var fields = { user: userObj };
+                            return fields;
+                        }
+                    },
+                }).result;
+            }
+            function addMemberToParent(memberObj) {
+                return $modal.open({
+                    controller: 'UserChangeCtrl',
+                    templateUrl: 'views/user-add-membership.html',
+                    resolve:{
+                        fields: function() {
+                            var fields = { memberObj: memberObj };
+                            return fields;
+                        }
+                    }
+                });
+            }
+            function removeMemberFromParent(memberObj, parentObj) {
+                return $modal.open({
+                    controller: 'UserChangeCtrl',
+                    templateUrl: 'views/user-remove-membership.html',
+                    resolve:{
+                        fields: function() {
+                            var fields = { parentObj: parentObj,
+                                memberObj: memberObj };
+                            return fields;
+                        }
+                    }
+                });
+            }
+            function removeUser(projects, groups, userObj) {
+                return $modal.open({
+                    controller: 'UserChangeCtrl',
+                    templateUrl: 'views/user-delete.html',
+                    resolve:{
+                        fields: function() {
+                            var members = projectData.getMembershipOfUser(projects, groups, userObj.metadata.name);
+                            var fields = { user: userObj,
+                                projects: projects,
+                                groups: groups ,
+                                members: members };
+                            return fields;
+                        }
+                    }
                 });
             }
             return {
@@ -376,6 +576,10 @@
                 modifyProject: modifyProject,
                 createGroup: createGroup,
                 createUser: createUser,
+                removeUser: removeUser,
+                modifyUser: modifyUser,
+                addMemberToParent: addMemberToParent,
+                removeMemberFromParent: removeMemberFromParent,
             };
         }
     ])
@@ -389,8 +593,7 @@
                     templateUrl: 'views/add-member-role-dialog.html',
                     resolve: {
                         fields : function(){
-                            var fields = {};
-                            fields.namespace = toName(project);
+                            var fields = { namespace: toName(project) };
                             return fields;
                         }
                     },
@@ -408,12 +611,11 @@
                     },
                     resolve: {
                         fields: function(){
-                            var fields = {};
-                            fields.member = member;
-                            fields.ocRole = roleMp.ocRole;
-                            fields.displayRole = roleMp.displayRole;
-                            fields.roles = roles;
-                            fields.namespace = toName(project);
+                            var fields = { member: member,
+                                ocRole: roleMp.ocRole,
+                                displayRole: roleMp.displayRole,
+                                roles: roles,
+                                namespace: toName(project) };
                             return fields;
                         }
                     },
@@ -470,15 +672,11 @@
             var selectMember = 'Select Member';
             var NAME_RE = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
             var selectRole = 'Select Role';
-            var registryRoles = [{ ocRole: "registry-admin", displayRole :"Admin"},
-                { ocRole:"registry-editor", displayRole :"Push" },
-                { ocRole:"registry-viewer", displayRole :"Pull" }];
-
-            $scope.select = {
+            $scope.selected = {
                 member: selectMember,
-                members: getAllMembers(fields.namespace),
+                members: getAllMembers(),
                 displayRole: selectRole,
-                roles: registryRoles,
+                roles: projectData.getRegistryRolesMap(),
                 kind: "",
                 ocRole: "",
             };
@@ -487,7 +685,7 @@
 
             function getAllMembers() {
                 var users = kselect().kind("User");
-                var groups = kselect().kind("Groups");
+                var groups = kselect().kind("Group");
                 var members = [];
                 angular.forEach(users, function(user) {
                     members.push({
@@ -532,13 +730,13 @@
                 return defer.promise;
             }
             $scope.performCreate = function performCreate() {
-                var role = $scope.select.ocRole;
-                var memberName = $scope.select.memberName;
-                var member = $scope.select.member;
+                var role = $scope.selected.ocRole;
+                var memberName = $scope.selected.memberName;
+                var member = $scope.selected.member;
                 var memberObj, kind;
                 if (memberName && memberName === member) {
                     //dropdown value selected
-                    memberObj = $scope.select.memberObj;
+                    memberObj = $scope.selected.memberObj;
                     memberName = memberObj.name;
                     kind = memberObj.kind;
                 } else if(memberName && member === selectMember) {
@@ -585,7 +783,7 @@
                 description: annotations[DESCRIPTION] || "",
                 access: shared ? "shared" : "private",
             };
-
+            angular.extend($scope, projectData);
             $scope.fields = fields;
             $scope.labels = {
                 access: {
@@ -671,6 +869,184 @@
                         return methods.create(user);
                     });
             };
+        }
+    ])
+
+    .factory('memberActions', [
+        "kubeMethods",
+        function(methods) {
+            function removeUserFromGroup(user, group) {
+                var userName = toName(user);
+                var users = group.users || [];
+                var index = users.indexOf(userName);
+                if (index >= 0)
+                    users.splice(index, 1);
+                var patchData = { "users": users };
+                return methods.patch(group, patchData);
+            }
+            function addUserToGroup(user, group) {
+                var userName = toName(user);
+                var users = group.users || [];
+                var index = users.indexOf(userName);
+                if (index == -1)
+                    users.push(userName);
+                var patchData = { "users": users };
+                return methods.patch(group, patchData);
+            }
+            return {
+                removeUserFromGroup: removeUserFromGroup,
+                addUserToGroup: addUserToGroup,
+            };
+        }
+    ])
+
+    .controller('UserChangeCtrl', [
+        '$q',
+        '$scope',
+        'kubeSelect',
+        'kubeLoader',
+        "kubeMethods",
+        'projectData',
+        'projectPolicy',
+        '$location',
+        'memberActions',
+        "fields",
+        function($q, $scope, kselect, loader, methods, projectData, projectPolicy, $location, memberActions, fields) {
+            function getPolicyBinding(namespace){
+                return kselect().kind("PolicyBinding").namespace(namespace).name(":default");
+            }
+            function getMembers() {
+                var members = [];
+                var groups = getGroups();
+                var projects = getProjects();
+                angular.forEach(groups, function(group) {
+                    members.push(group);
+                });
+                angular.forEach(projects, function(project) {
+                    members.push(project);
+                });
+                return members;
+            }
+            function getProjects() {
+                return kselect().kind("Project");
+            }
+            function getGroups() {
+                return kselect().kind("Group");
+            }
+            $scope.selected = {
+                member: 'Select Member',
+                members: getMembers,
+                roles: projectData.getRegistryRolesMap,
+                role: 'Select Role',
+            };
+            angular.extend($scope, projectData);
+            $scope.fields = fields;
+            if (fields.user && fields.user.identities)
+                $scope.fields.identities = fields.user.identities.toString();
+            else
+                $scope.fields.identities = '';
+
+            $scope.performModify = function performModify() {
+                var identities = [];
+                var user = $scope.fields.user;
+                var data = {"identities": identities };
+
+                if (fields.identities.trim() !== "") {
+                    var idList = fields.identities.trim().split(",");
+                    identities.push.apply(identities, idList);
+                }
+                    
+                return methods.check(data, { })
+                    .then(function() {
+                        return $q.all([
+                            methods.patch(user, data),
+                        ]);
+                    });
+            };
+
+            $scope.performDelete = function performDelete(user) {
+                var chain = $q.when();
+                var fail = false;
+
+                chain = removeMemberFromParents(user);
+                var promise = chain.then(function() {
+                        $location.path("/projects");
+                    }, function(ex) {
+                        if (ex.code === 404) {
+                            loader.handle(user, true, "User");
+                            $location.path("/projects");
+                        } else {
+                            return $q.reject(ex);
+                        }
+                });
+
+                return promise;
+            };
+            function removeMemberFromParents(member) {
+                var chain = $q.when();
+                var policyBinding;
+                var groups = projectData.getGroupsWithMember(getGroups(), member.metadata.name);
+                angular.forEach(groups, function(g) {
+                    chain = chain.then(function() {
+                        return memberActions.removeUserFromGroup(member, g);
+                    });
+                });
+                var projects = projectData.getProjectsWithMember(getProjects(), member.metadata.name);
+                angular.forEach(projects, function(project) {
+                    policyBinding = getPolicyBinding(project.metadata.name);
+                    var subjectRoleBindings = projectData.subjectRoleBindings(member.metadata.name, project.metadata.name);
+                    var subject = {
+                        kind: member.kind,
+                        name: member.metadata.name,
+                    };
+                    chain = chain.then(function() {
+                        return projectPolicy.removeMemberFromPolicyBinding(policyBinding, 
+                            project.metadata.name, subjectRoleBindings, subject);
+                    });
+                });
+                chain = chain.then(function() {
+                    return methods.delete(member);
+                });
+                return chain;
+            }
+
+            $scope.addMemberToParent = function addMemberToParent() {
+                var patchData;
+                var users;
+                var patchObj;
+                if ($scope.selected.parentObj.kind === "Project") {
+                    var project = $scope.selected.parentObj.metadata.name;
+                    var policyBinding = getPolicyBinding(project);
+                    var memberObj = $scope.fields.memberObj;
+                    var role = $scope.selected.ocRole;
+                    var subject = {
+                        kind: memberObj.kind,
+                        name: memberObj.metadata.name,
+                    };
+                    return projectPolicy.addToRole(project, role, subject);
+                   
+                } else if ($scope.selected.parentObj.kind === "Group") {
+                    return memberActions.addUserToGroup($scope.fields.memberObj, $scope.selected.parentObj);
+                }            
+            };
+
+            $scope.removeMemberFromParent = function removeMemberFromParent() {
+                if ($scope.fields.parentObj.kind === "Group") {
+                    return memberActions.removeUserFromGroup($scope.fields.memberObj, $scope.fields.parentObj);              
+                } else {
+                    //Project
+                    var member = $scope.fields.memberObj;
+                    var project = $scope.fields.parentObj.metadata.name;
+                    var policyBinding = getPolicyBinding(project);
+                    var subjectRoleBindings = projectData.subjectRoleBindings(member.metadata.name, project);
+                    var subject = {
+                        kind: member.kind,
+                        name: member.metadata.name,
+                    };
+                    return projectPolicy.removeMemberFromPolicyBinding(policyBinding, project, subjectRoleBindings, subject);
+                }
+            };
+
         }
     ])
 

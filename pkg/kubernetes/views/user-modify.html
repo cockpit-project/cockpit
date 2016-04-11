@@ -1,6 +1,6 @@
 <modal-dialog>
     <div class="modal-header">
-        <h4 class="modal-title" translatable="yes">Add User</h4>
+        <h4 class="modal-title" translatable="yes">Change User</h4>
     </div>
     <div class="modal-body">
         <table class="cockpit-form-table">
@@ -11,7 +11,7 @@
                     </label>
                 </td>
                 <td>
-                    <input id="user_name" ng-model="fields.name" class="form-control" type="text" autofocus>
+                    <span id="user_name">{{ fields.user.metadata.name }}</span>
                 </td>
             </tr>
             <tr>
@@ -28,6 +28,6 @@
     </div>
     <div class="modal-footer">
         <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
-        <button class="btn btn-primary" translatable="yes" ng-click="complete(performCreate())">Add</button>
+        <button class="btn btn-primary" translatable="yes" ng-click="complete(performModify(fields.user))">Modify</button>
     </div>
 </modal-dialog>

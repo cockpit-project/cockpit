@@ -179,18 +179,40 @@
                     kind: "RoleBinding",
                     apiVersion: "v1",
                     metadata: {
-                        name: name,
+                        name: role,
                         namespace: namespace,
-                        subjects: subjects,
+                        creationTimestamp: null,
                     },
+                    userNames: [],
+                    groupNames: [],
+                    subjects: [],
                     roleRef: {
-                        name: name
+                        name: role
                     }
                 };
-
-                return methods.create([binding], namespace);
+                addToArray(roleArray(binding, "subjects"), subjects);
+                addToArray(roleArrayKind(binding, subjects.kind), subjects.name);
+                return methods.create(binding, namespace);
             }
+            function removeMemberFromPolicyBinding(policyBinding, project, subjectRoleBindings, subject) {
+                var roleBinding, i, defaultPolicybinding;
+                var roleBindings = [];
 
+                if(policyBinding && policyBinding.one()){
+                    defaultPolicybinding = policyBinding.one();
+                    roleBindings = defaultPolicybinding.roleBindings;
+                }
+                var patchData = {"roleBindings": roleBindings};
+                angular.forEach(subjectRoleBindings, function(o) {
+                    angular.forEach(roleBindings, function(role) {
+                        if (role.name === o.metadata.name) {
+                            removeFromArray(roleArray(role.roleBinding, "subjects"), subject);
+                            removeFromArray(roleArrayKind(role.roleBinding, subject.kind), subject.name);
+                        }
+                    });
+                });
+                return methods.patch(defaultPolicybinding, patchData);
+            }
             function indexOf(array, value) {
                 var i, len;
                 for (i = 0, len = array.length; i < len; i++) {
@@ -250,7 +272,7 @@
                     }, function(resp) {
                         /* If the role doesn't exist create it */
                         if (resp.code === 404)
-                            return createRole(namespace, role, [ subject ]);
+                            return createRole(namespace, role, subject);
                         return $q.reject(resp);
                     });
                 },
@@ -268,6 +290,7 @@
                             return $q.reject(resp);
                     });
                 },
+                removeMemberFromPolicyBinding: removeMemberFromPolicyBinding,
             };
         }
     ]);

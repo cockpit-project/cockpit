@@ -17,9 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* global jQuery   */
-
-define([
+require([
     "jquery",
     "base1/cockpit",
     "translated!base1/po",
@@ -579,11 +577,7 @@ define([
         }
     }
 
-    subscriptions.register = function() {
-        $('#subscriptions-register-dialog').modal('show');
-    };
-
-    subscriptions.init = function(retrieve_current) {
+    function init(retrieve_current) {
         if (retrieve_current === undefined)
             retrieve_current = true;
 
@@ -596,7 +590,7 @@ define([
         register_url = "default";
         register_url_changed();
         subscriptions.manager = subscription_manager(retrieve_current);
-    };
+    }
 
-    return subscriptions;
+    init();
 });

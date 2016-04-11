@@ -84,9 +84,9 @@ define([
                 var name = $(this).data('value');
                 restart_policy_dropdown_selected.data('name', name);
                 if (name === 'on-failure') {
-                  $("#restart-policy-retries-container").removeClass('hidden');
+                    $("#restart-policy-retries-container").removeClass('hidden');
                 } else {
-                  $("#restart-policy-retries-container").addClass('hidden');
+                    $("#restart-policy-retries-container").addClass('hidden');
                 }
             });
 
@@ -627,8 +627,8 @@ define([
                     "PortBindings": port_bindings,
                     "Links": links,
                     "RestartPolicy": {
-                      "Name": $("#restart-policy-select > button span.pull-left").data('name'),
-                      "MaximumRetryCount": parseInt($("#restart-policy-retries").val(), 10) || 0
+                        "Name": $("#restart-policy-select > button span.pull-left").data('name'),
+                        "MaximumRetryCount": parseInt($("#restart-policy-retries").val(), 10) || 0
                     }
                 }
             };

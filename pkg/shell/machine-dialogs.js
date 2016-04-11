@@ -273,11 +273,6 @@ define([
 
     function MachineColorPicker() {
         var self = this;
-        var colors = [];
-        for (var i = 0; i < machines.colors.length; i += 6) {
-            var part = machines.colors.slice(i, i+6);
-            colors.push({"list" : part});
-        }
 
         function switch_color() {
             /*jshint validthis: true */
@@ -297,13 +292,21 @@ define([
             if (!selected_color)
                 selected_color = machines_ins.unused_color();
 
-            var text = mustache.render(templates["color-picker"], {
-                'colors' : colors,
-                'selected_color' : selected_color
+            var part, colors = [];
+            for (var i = 0; i < machines.colors.length; i += 6) {
+                part = machines.colors.slice(i, i+6);
+                colors.push({"list" : part});
+            }
+
+            var text = mustache.render(templates["color-picker"], { 'colors' : colors, });
+            $(selector).html(text);
+
+            $("#host-edit-color", selector).css("background-color", selected_color);
+            $(".color-cell", selector).each(function(index) {
+                $(this).css("background-color", machines.colors[index]);
             });
 
-            $(selector).html(text);
-            $('#host-edit-color-popover .popover-content .color-cell').click(switch_color);
+            $('#host-edit-color-popover .popover-content .color-cell', selector).click(switch_color);
 
             $("#host-edit-color").parent().
                 on('show.bs.dropdown', function () {

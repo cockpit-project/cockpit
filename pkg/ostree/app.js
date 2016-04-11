@@ -1,13 +1,17 @@
-define([
+require([
     "jquery",
     "base1/cockpit",
     "base1/angular",
     "base1/moment",
+    "translated!base1/po",
     "updates/client",
-], function($, cockpit, angular, moment, client) {
+], function($, cockpit, angular, moment, po, client) {
     'use strict';
 
     var _ = cockpit.gettext;
+    cockpit.locale(po);
+    cockpit.translate();
+
     var phantom_checkpoint = phantom_checkpoint || function () { };
 
     function track_id(item) {
@@ -43,8 +47,7 @@ define([
             });
     }
 
-
-    return angular.module('ostree', [
+    angular.module('ostree', [
             'ngRoute',
         ])
         .config([
@@ -334,4 +337,11 @@ define([
                 return formated;
             };
         });
+
+    /* Initialize once document is loaded */
+    $(function() {
+        angular.bootstrap(document, ["ostree"], {
+            strictDi: true
+        });
+    });
 });

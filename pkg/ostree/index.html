@@ -17,7 +17,7 @@ Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 -->
-<html>
+<html ng-csp>
 
 <head>
   <title translatable="yes">Software Updates</title>
@@ -26,8 +26,13 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   <link href="ostree.css" rel="stylesheet">
   <script src="../base1/bundle.js"></script>
   <script src="ostree.js"></script>
+
+  <!-- debug:start -->
+  <script src="app.js"></script>
+  <!-- debug:end -->
+
 </head>
-<body style="display: none">
+<body hidden>
 
 <script type="text/ng-template" id="ostree-check.html">
 <div class="timeline timeline-end">
@@ -37,10 +42,10 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     <i ng-if="!isRunning" class="fa fa-caret-up timeline-point timeline-md"></i>
     <div class="listing-panel listing-maybe">
         <div class="listing-head">
-            <div ng-if="isRunning" style="display: inline" >
+            <div ng-if="isRunning" class="display-inline">
                 {{ progressMsg }}
             </div>
-            <div style="display: inline" class="alert" ng-if="error">
+            <div class="display-inline alert" ng-if="error">
                 <span class="pficon pficon-warning-triangle-o"></span>
                 {{ error }}
             </div>
@@ -205,21 +210,6 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     </tbody>
 </table>
 </script>
-
-    <script>
-        require([
-            "base1/cockpit",
-            "translated!base1/po",
-            "base1/angular",
-            "updates/app"
-        ], function (cockpit, po, angular) {
-            cockpit.locale(po);
-            cockpit.translate();
-            angular.bootstrap(document, ["ostree"], {
-                strictDi: true
-            });
-        });
-    </script>
 
     <div id="ostree-software-update" ng-controller="mainController" ng-cloak>
         <div class="container-fluid" ng-view ng-if="!curtains">

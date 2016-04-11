@@ -693,7 +693,7 @@
                 if (errors.length > 0) {
                     defer.reject(errors);
                 } else {
-                    main_resp.data.spec[$scope.current_type] = resp.data;
+                    main_resp.data.spec[$scope.current_type] = resp ? resp.data : null;
                     defer.resolve(main_resp.data);
                 }
 

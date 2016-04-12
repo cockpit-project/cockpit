@@ -22,8 +22,9 @@ define([
     "base1/cockpit",
     "base1/mustache",
     "docker/docker",
+    "docker/bar",
     "shell/controls",
-], function($, cockpit, Mustache, docker, controls) {
+], function($, cockpit, Mustache, docker, bar) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 
@@ -243,7 +244,7 @@ define([
                 $('<td class="container-col-image">'),
                 $('<td class="container-col-command">'),
                 $('<td class="container-col-cpu">'),
-                $('<td class="container-col-memory-graph">').append(controls.BarRow("containers-containers")),
+                $('<td class="container-col-memory-graph">').append(bar.create("containers-containers")),
                 $('<td class="container-col-memory-text">'),
                 $('<td class="container-col-danger cell-buttons">').append(btn_delete, img_waiting),
                 $('<td class="container-col-actions cell-buttons">').append(btn_play, btn_stop, img_waiting.clone()));

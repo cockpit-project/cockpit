@@ -158,17 +158,6 @@ define([
             data('bar-progress', progress).
             data('bar-progress-bar', progress_bar);
 
-        /* see attrchange.js: http://meetselva.github.io/attrchange/ */
-        $(div).attrchange({
-            trackValues: false,
-            callback: function(event) {
-                if (event.attributeName == "graph" ||
-                    event.attributeName == "value") {
-                    reflow_bar_graph_soon(this.getAttribute("graph"), this);
-                }
-            }
-        });
-
         /* Public API */
         div.reflow = function() {
             reflow_bar_graph(this.getAttribute("graph"), this);
@@ -192,5 +181,10 @@ define([
             setup_bar_graph(div);
             return div;
         },
+        update: function update() {
+            $("div.bar-row").each(function() {
+                reflow_bar_graph_soon(this.getAttribute("graph"), this);
+            });
+        }
     };
 });

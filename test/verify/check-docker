@@ -297,5 +297,51 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         self.allow_authorize_journal_messages()
         self.allow_journal_messages("cannot reauthorize identity.*:.*unix-user:root.*")
 
+    def testRestart(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("systemctl start docker")
+
+        self.login_and_go("/docker")
+        b.wait_in_text("#containers-images", "busybox:latest")
+
+        # Run one container without restarting
+        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
+        b.wait_popup("containers_run_image_dialog")
+        b.set_val("#containers-run-image-name", "NORESTART")
+        b.set_val("#containers-run-image-command", "/bin/sh -c 'echo \"no-restart\"; sleep 10000'")
+        b.click("#containers-run-image-with-terminal");
+        b.click("#containers-run-image-run");
+        b.wait_popdown("containers_run_image_dialog")
+
+        # Run another container with restarting
+        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
+        b.wait_popup("containers_run_image_dialog")
+        b.set_val("#containers-run-image-name", "YAYRESTART")
+        b.set_val("#containers-run-image-command", "/bin/sh -c 'echo \"yay-restart\"; sleep 10000'")
+        b.click("#containers-run-image-with-terminal");
+        b.click("#restart-policy-select button");
+        b.click("#restart-policy-select a[data-value=always]");
+        b.wait_in_text("#restart-policy-select button", "Always");
+        b.click("#containers-run-image-run");
+        b.wait_popdown("containers_run_image_dialog")
+
+        # Make sure they've started
+        b.wait_in_text("#containers-containers", "NORESTART")
+        b.wait_in_text("#containers-containers", "YAYRESTART")
+
+        # Now restart docker
+        b.logout()
+        m.execute("systemctl restart docker")
+        self.login_and_go("/docker")
+
+        # Now check that one restarts
+        b.wait_in_text("#containers-images", "busybox:latest")
+        b.wait_present("#containers-containers tr:contains(\"YAYRESTART\")")
+        b.wait_visible("#containers-containers tr:contains(\"YAYRESTART\")")
+        b.wait_not_visible("#containers-containers tr:contains(\"NORESTART\")")
+
+
 if __name__ == '__main__':
     test_main()

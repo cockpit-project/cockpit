@@ -265,8 +265,8 @@ define([
                     // sparse file based devices
                     if (avail) {
                         $('#containers-storage').tooltip('destroy');
-                        b_total = docker.bytes_from_format(avail);
-                        total = cockpit.format_bytes(b_used + b_total);
+                        b_total = b_used + docker.bytes_from_format(avail);
+                        total = cockpit.format_bytes(b_total);
                     } else {
                         var warning = _("WARNING: Docker may be reporting the size it has allocated to it's storage pool using sparse files, not the actual space available to the underlying storage device.");
                         $('#containers-storage').tooltip({ title : warning, placement : "auto" });

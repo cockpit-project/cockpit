@@ -77,10 +77,16 @@ define([
       switch (policy.Name) {
         case "":
           return "None";
+        case "no":
+          return "No";
         case "on-failure":
           var singular = policy.MaximumRetryCount == 1;
           return "On Failure, retry " + policy.MaximumRetryCount + (singular ? ' time' : ' times');
-        default: /* http://stackoverflow.com/a/4878800 */
+        case "always":
+          return "Always";
+        case "unless-stopped":
+          return "Unless Stopped";
+        default: /* Keeping this here just in case. http://stackoverflow.com/a/4878800 */
           return policy.Name.replace('-', ' ').replace(/\w\S*/g, function(txt) {
             return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
           });

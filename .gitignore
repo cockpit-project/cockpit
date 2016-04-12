@@ -61,6 +61,7 @@ depcomp
 /test/run
 /test/kdc
 /cockpit-session
+/cockpit-stub
 /test-session
 /cockpit-bridge
 /remotectl
@@ -94,6 +95,8 @@ depcomp
 *.min.html
 /src/ws/cockpit.appdata.xml
 /src/ws/cockpit.desktop
+src/common/cockpitassets.c
+src/common/cockpitassets.h
 /po/.intltool-merge-cache
 !/test-avocado
 /test-avocado/lib/var.env
@@ -101,23 +104,35 @@ depcomp
 /test-avocado/out*.xml
 cockpit-pcp
 cockpitd
+/doc/man/cockpit.1
 /doc/man/cockpit-bridge.1
 /doc/man/cockpit-ws.8
 /doc/man/cockpit.conf.5
 /doc/man/cockpitd.8
 /doc/man/remotectl.8
+/doc/man/pam_ssh_add.8
 /doc/version
+/doc/guide/html
+/doc/guide/version
 /guide/
 org.freedesktop.UDisks2.c
 org.freedesktop.UDisks2.h
+/pkg/**/*.min.js
+/pkg/**/*.min.css
+/pkg/**/*.min.html
 /pkg/*/*.min.js.gz
 /pkg/*/*.min.css.gz
 /pkg/*/*.min.html.gz
 /pkg/base1/fonts/*.gz
+/pkg/base1/po.js.gz
 /po/po.*.js
 /po/po.*.js.gz
-/pkg/storaged/index.min.html.gz
 /.vagrant
+/test_rsa_key
+
+/pkg/kubernetes/kubernetes-templates.js
+/pkg/kubernetes/registry-templates.js
+/pkg/selinux/setroubleshoot-view.js
 
 # Test output
 Test*.log

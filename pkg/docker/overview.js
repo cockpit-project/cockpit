@@ -283,6 +283,8 @@ define([
                     $('#containers-storage .bar').html();
                     $('#containers-storage .data').html("Unknown");
                 }
+
+                bar.update();
             });
         }
 

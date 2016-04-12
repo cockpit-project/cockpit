@@ -273,6 +273,8 @@ define([
 
         if (added)
             util.insert_table_sorted($panel.find('table'), tr);
+
+        bar.update();
     };
 
     /* Memory limit slider/checkbox interaction happens here */

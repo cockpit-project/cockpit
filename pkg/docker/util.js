@@ -309,6 +309,7 @@ define([
                 $(slider).attr("disabled", !this.checked);
                 $(desc).toggleClass("disabled", !this.checked);
                 $(desc).text(update_limit());
+                $(slider).trigger("change");
             })[0];
 
         Object.defineProperty(this, "value", {

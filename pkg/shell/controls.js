@@ -19,8 +19,7 @@
 
 define([
     "jquery",
-    "base1/cockpit",
-], function($, cockpit) {
+], function($) {
 "use strict";
 
 var module = { };
@@ -113,15 +112,9 @@ function setup_slider(slider) {
     update_value(slider);
     check_overflow(slider);
 
-    /* see attrchange.js: http://meetselva.github.io/attrchange/ */
-    $(slider).attrchange({
-        trackValues: true,
-        callback: function(event) {
-            if (event.attributeName == "value" && event.oldValue !== event.newValue)
-                update_value(slider);
-            if (event.attributeName == "disabled")
-                $(slider).toggleClass("slider-disabled", slider.disabled);
-        }
+    $(slider).on("change", function() {
+        update_value(slider);
+        $(slider).toggleClass("slider-disabled", slider.disabled);
     });
 
     if (slider.disabled)

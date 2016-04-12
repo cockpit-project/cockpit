@@ -37,7 +37,6 @@ shelltemplatesdebug_DATA = \
 shelldebugdir = $(debugdir)$(shelldir)
 shelldebug_DATA = \
 	pkg/shell/shell.js \
-	pkg/shell/attrchange.js \
 	pkg/shell/base_index.js \
 	pkg/shell/bundle.js \
 	pkg/shell/credentials.js \
@@ -76,7 +75,6 @@ pkg/shell/bundle.min.js: $(shell_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
 shell_MINFILES = \
-	pkg/shell/attrchange.min.js \
 	pkg/shell/controls.min.js \
 	pkg/shell/plot.min.js \
 	pkg/shell/cockpit-util.min.js \

@@ -14,6 +14,7 @@ docker_DATA = \
 dockerdebugdir = $(debugdir)$(dockerdir)
 dockerdebug_DATA = \
 	pkg/docker/bundle.js \
+	pkg/docker/bar.js \
 	pkg/docker/client.js \
 	pkg/docker/details.js \
 	pkg/docker/docker.css \
@@ -29,6 +30,7 @@ dockerdebug_DATA = \
 	$(NULL)
 
 docker_BUNDLE = \
+	pkg/docker/bar.min.js \
 	pkg/docker/client.min.js \
 	pkg/docker/details.min.js \
 	pkg/docker/docker.min.js \

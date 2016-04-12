@@ -25,10 +25,10 @@ define([
     "docker/run",
     "docker/search",
     "docker/docker",
-    "shell/controls",
+    "docker/bar",
     "shell/shell",
     "shell/plot",
-], function($, cockpit, Mustache, util, run_image, search_image, docker, controls, shell) {
+], function($, cockpit, Mustache, util, run_image, search_image, docker, bar, shell) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 
@@ -273,7 +273,7 @@ define([
                     }
 
                     var formated = used + " / " + total;
-                    var bar_row = controls.BarRow();
+                    var bar_row = bar.create();
                     bar_row.attr("value", b_used + "/" + b_total);
                     bar_row.toggleClass("bar-row-danger", used > 0.95 * total);
 

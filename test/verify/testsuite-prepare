@@ -64,7 +64,7 @@ if __name__ == "__main__":
         print "Not installing cockpit to base image"
     else:
         try:
-            vmmanage.build_and_install(test_os, build_os, {"verbose":args.verbose, "force": args.force}):
+            vmmanage.build_and_install(test_os, build_os, {"verbose":args.verbose, "force": args.force})
         except Exception as e:
             print e
             retvalue=2

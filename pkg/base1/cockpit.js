@@ -887,20 +887,6 @@ function resolve_path_dots(parts) {
 
 function basic_scope(cockpit, jquery) {
 
-    /* If jquery is available use it for now
-     * since it returns 0 durning testing to
-     * make tests stable
-     */
-    var now_func = function () {
-        return new Date().getTime();
-    };
-
-    if (jquery) {
-        now_func = function () {
-            return jquery.now();
-        };
-    }
-
     cockpit.channel = function channel(options) {
         return new Channel(options);
     };
@@ -1795,12 +1781,12 @@ function basic_scope(cockpit, jquery) {
             if (beg === undefined) {
                 beg = 0;
             } else if (is_negative(beg)) {
-                now = now_func();
+                now = Date.now();
                 beg = Math.floor(now / self.interval) + beg;
             }
             if (end !== undefined && is_negative(end)) {
                 if (now === null)
-                    now = now_func();
+                    now = Date.now();
                 end = Math.floor(now / self.interval) + end;
             }
 
@@ -1824,14 +1810,14 @@ function basic_scope(cockpit, jquery) {
              *    resulting in the timeout being executed immediately.
              */
 
-            var start = now_func();
+            var start = Date.now();
             if (self.interval > 2000000000)
                 return;
 
             stop_walking();
             offset = start - self.beg * self.interval;
             walking = window.setInterval(function() {
-                var now = now_func();
+                var now = Date.now();
                 move_internal(Math.floor((now - offset) / self.interval), undefined, true);
             }, self.interval);
         };

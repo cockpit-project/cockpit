@@ -248,8 +248,8 @@
                 return runCommand(args).then(function (r) {
                     console.log(r);
                     return kubectlData().then(function (data) {
-                            return loadConfigData(data);
-                        });
+                        return loadConfigData(data);
+                    });
                 }).catch(kubectlError);
             }
 
@@ -293,9 +293,9 @@
                         });
                     }
                 }).then(kubectlData).then(function () {
-                    return kubectlData().then(function (data) {
-                            return loadConfigData(data);
-                        });
+                    return kubectlData().then(function(data) {
+                        return loadConfigData(data);
+                    });
                 }).catch(kubectlError);
             }
 

@@ -1,87 +1,79 @@
-#!/bin/bash
-
-set -e
-
-SELF=testsuite-prepare
-BASE="$(dirname $0)/.."
-
-vm_install_opts=
-
-# TODO: This really needs to be migrated to python and use testinfra
-TEST_OS=${TEST_OS:-fedora-24}
-
-warning()
-{
-       echo >&2 "$SELF: $@"
-}
-
-silent()
-{
-       "$@" > /dev/null 2> /dev/null
-       return $?
-}
-
-usage()
-{
-    echo "usage: testsuite-prepare [--clean] [--quick] [--verbose]"
-}
-
-
-args=$(getopt -o "h,v,q" -l "help,verbose,quick" -- "$@")
-eval set -- "$args"
-while [ $# -gt 0 ]; do
-    case $1 in
-    -q|--quick)
-        vm_install_opts="$vm_install_opts --quick"
-        ;;
-    -v|--verbose)
-        vm_install_opts="$vm_install_opts --verbose"
-        ;;
-    -h|--help)
-        usage
-        exit 0
-        ;;
-    --)
-        shift
-        break
-        ;;
-    esac
-    shift
-done
-
-# The Atomic variants can't build their own packages, so we build in
-# their non-Atomic siblings.  For example, fedora-atomic is build
-# in fedora-23
+#!/usr/bin/env python
+# This file is part of Cockpit.
 #
-if [ "$TEST_OS" = "fedora-atomic" ]; then
-    BUILD_OS="fedora-23"
-elif [ "$TEST_OS" = "rhel-atomic" ]; then
-    BUILD_OS="rhel-7"
-else
-    BUILD_OS="$TEST_OS"
-fi
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-$BASE/vm-reset
-$BASE/vm-download \
-    $TEST_OS \
-    $BUILD_OS \
-    ipa \
-    openshift \
-    fedora-stock
+import argparse
+import os
+import sys
+import glob
+import shutil
 
-install_failed=no
-if ! $BASE/vm-install $vm_install_opts --build-image $BUILD_OS; then
-    install_failed=yes
-fi
+import parent
+from common import testinfra
+from common import vmimages
+from common import vmmanage
 
-# Upload the build logs if desired
-if [ -n "${TEST_ATTACHMENTS:-}" ]; then
-    mkdir "$TEST_ATTACHMENTS"/build-results
-    cp -r $BASE/tmp/build-results/*.log "$TEST_ATTACHMENTS"/build-results
-fi
+image_list=["ipa", "openshift", "fedora-stock"]
 
-if [ $install_failed == "yes" ]; then
-  exit 1
-fi
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+            description='Prepare testig environment, download images and build and cinstall cockpit',
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        )
+    parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
+    parser.add_argument('-n', '--noinstall', action='store_true', help='Do not install cockpit to base image')
+    parser.add_argument('-f', '--force', action='store_true', help='Force update of images')
+    parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to use')
+    args = parser.parse_args()
 
-exit 0
+    test_os = args.image
+    build_os = test_os
+
+    # The Atomic variants can't build their own packages, so we build in
+    # their non-Atomic siblings.  For example, fedora-atomic is build
+    # in fedora-23
+    if test_os == "fedora-atomic":
+        build_os = "fedora-23"
+    elif test_os == "rhel-atomic":
+        build_os = "rhel-7"
+
+    os.system(os.path.join(testinfra.TEST_DIR,"vm-reset"))
+    try:
+        vmimages.download_images(set((test_os, build_os)), args.force, [])
+        vmimages.download_images(image_list, args.force, [])
+    except Exception as e:
+        print "unable to download all necessary images", e
+        sys.exit(1)
+
+    retvalue=0
+    if args.noinstall:
+        print "Not installing cockpit to base image"
+    else:
+        try:
+            vmmanage.build_and_install(test_os, build_os, {"verbose":args.verbose, "force": args.force})
+        except Exception as e:
+            print e
+            retvalue=2
+        if os.environ.has_key("TEST_ATTACHMENTS"):
+            attachement_dir = os.environ["TEST_ATTACHMENTS"]
+            try:
+                os.makedirs(os.path.join(attachement_dir, "build-results"))
+            except Exception as e:
+                pass
+            for cpfile in glob.glob(os.path.join(testinfra.TEST_DIR,"tmp","build-results","*.log")):
+                shutil.copy(cpfile, os.path.join(attachement_dir ,"build-results"))
+    sys.exit(retvalue)

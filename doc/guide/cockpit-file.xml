@@ -49,7 +49,7 @@ cockpit.file("/path/to/file").read()
     });
 </programlisting>
     <para>The <code>read()</code> method returns a
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>.</para>
+      <ulink url="https://www.promisejs.org/">promise</ulink>.</para>
     <para>When successful, the promise will be resolved with the content of the
       file. Unless you specify options to change this (see below), the file
       is assumed to be text in the UTF-8 encoding, and <code>content</code>
@@ -72,7 +72,7 @@ cockpit.file("/path/to/file").replace("my new content\n")
 </programlisting>
     </para>
     <para>The <code>replace()</code> method returns a
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>.</para>
+      <ulink url="https://www.promisejs.org/">promise</ulink>.</para>
     <para>When the promise is resolved, the file has been atomically replaced
       (via the <code>rename()</code> syscall) with the new content. As with
       <code>read()</code>, by default the new content is a string and will
@@ -157,7 +157,7 @@ new_content = callback (old_content)
       callbacks. Returning <code>undefined</code> from the proxy is the
       same as returning <code>old_content</code>.</para>
     <para>The <code>modify()</code> method returns a
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>.</para>
+      <ulink url="https://www.promisejs.org/">promise</ulink>.</para>
     <para>The promise will be resolved with the new content and its tag, like so
 <programlisting>
 function shout(old_content) {

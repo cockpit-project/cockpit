@@ -55,13 +55,13 @@ define([
         function poll(tuned) {
             var dfd = $.Deferred();
 
-            $.when(tuned.call('/Tuned', 'com.redhat.tuned.control', 'is_running', []),
-                   tuned.call('/Tuned', 'com.redhat.tuned.control', 'active_profile', []),
-                   tuned.call('/Tuned', 'com.redhat.tuned.control', 'recommend_profile', []))
+            cockpit.all(tuned.call('/Tuned', 'com.redhat.tuned.control', 'is_running', []),
+                        tuned.call('/Tuned', 'com.redhat.tuned.control', 'active_profile', []),
+                        tuned.call('/Tuned', 'com.redhat.tuned.control', 'recommend_profile', []))
                 .done(function(is_running_result, active_result, recommended_result) {
-                    var is_running = is_running_result[0][0];
-                    var active = is_running? active_result[0][0] : "none";
-                    var recommended = recommended_result[0][0];
+                    var is_running = is_running_result[0];
+                    var active = is_running? active_result[0] : "none";
+                    var recommended = recommended_result[0];
 
                     dfd.resolve("running", active, recommended);
                 })

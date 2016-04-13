@@ -293,7 +293,7 @@ PageServer.prototype = {
             var val = $(this).onoff('value');
             if (pmlogger_service.exists) {
                 if (val) {
-                    pmlogger_promise = $.when(pmcd_service.enable(),
+                    pmlogger_promise = cockpit.all(pmcd_service.enable(),
                            pmcd_service.start(),
                            pmlogger_service.enable(),
                            pmlogger_service.start()).
@@ -301,7 +301,7 @@ PageServer.prototype = {
                             console.warn("Enabling pmlogger failed", error);
                         });
                 } else {
-                    pmlogger_promise = $.when(pmlogger_service.disable(),
+                    pmlogger_promise = cockpit.all(pmlogger_service.disable(),
                            pmlogger_service.stop()).
                         fail(function (error) {
                             console.warn("Disabling pmlogger failed", error);
@@ -638,7 +638,7 @@ PageSystemInformationChangeHostname.prototype = {
 
         var one = self.hostname_proxy.call("SetStaticHostname", [new_name, true]);
         var two = self.hostname_proxy.call("SetPrettyHostname", [new_full_name, true]);
-        $("#system_information_change_hostname").dialog("promise", $.when(one, two));
+        $("#system_information_change_hostname").dialog("promise", cockpit.all(one, two));
     },
 
     _on_full_name_changed: function(event) {
@@ -1047,7 +1047,7 @@ PageSystemInformationChangeSystime.prototype = {
                     }));
         }
 
-        $("#system_information_change_systime").dialog("promise", $.when.apply($, promises));
+        $("#system_information_change_systime").dialog("promise", cockpit.all(promises));
     },
 
     check_input: function() {

@@ -247,7 +247,7 @@ define([
                 });
 
             if (call)
-                return $.when(call, mod);
+                return cockpit.all(call, mod);
 
             return mod;
         };

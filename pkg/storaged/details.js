@@ -397,8 +397,8 @@ define([
                               Action: {
                                   Title: _("Apply"),
                                   action: function (vals) {
-                                      return $.when(maybe_change_name(vals.name),
-                                                    maybe_update_config(vals.mounting == "custom",
+                                      return cockpit.all(maybe_change_name(vals.name),
+                                                         maybe_update_config(vals.mounting == "custom",
                                                                         vals.mount_point, vals.mount_options));
                                   }
                               }
@@ -526,7 +526,7 @@ define([
                               Action: {
                                   Title: _("Add"),
                                   action: function (vals) {
-                                      return $.when.apply(null, vals.disks.map(function (p) {
+                                      return cockpit.all(vals.disks.map(function (p) {
                                           return mdraid.AddDevice(p, {});
                                       }));
                                   }
@@ -858,7 +858,7 @@ define([
                               Action: {
                                   Title: _("Add"),
                                   action: function (vals) {
-                                      return $.when.apply(null, vals.disks.map(function (p) {
+                                      return cockpit.all(vals.disks.map(function (p) {
                                           return vgroup.AddDevice(p, {});
                                       }));
                                   }

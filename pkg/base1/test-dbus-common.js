@@ -475,7 +475,7 @@ function common_dbus_tests(channel_options, bus_name)
 
         var dbus = cockpit.dbus(bus_name, channel_options);
         $(dbus).on("notify", function(event, data) {
-            $.extend(cache, data);
+            $.extend(true, cache, data);
         });
 
         dbus.watch("/otree/frobber").

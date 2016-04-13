@@ -442,7 +442,7 @@ PageAccountsCreate.prototype = {
                 ex.target = "#accounts-create-user-name";
             });
 
-        return $.when(dfd, promise_password, promise_username);
+        return cockpit.all(dfd, promise_password, promise_username);
     },
 
     cancel: function() {
@@ -1108,7 +1108,7 @@ PageAccountSetPassword.prototype = {
                 }
             });
 
-        return $.when(dfd, promise);
+        return cockpit.all(dfd, promise);
     },
 
     apply: function() {

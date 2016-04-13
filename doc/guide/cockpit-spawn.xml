@@ -88,9 +88,9 @@ process = cockpit.spawn(args, [options])
     </variablelist>
 
     <para>The spawned process is a
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      <ulink url="https://www.promisejs.org/">promise</ulink>
       that will complete if the process exits successfully, or fail if there's a problem.
-      Some additional methods besides the standard jQuery promise methods are documented
+      Some additional methods besides the standard promise methods are documented
       below.</para>
 
     <para>The standard output of the process is made available via the spawned process
@@ -118,9 +118,9 @@ process = cockpit.script(script, [args], [options])
       <link linkend="cockpit-spawn-spawn"><code>cockpit.spawn()</code></link> function.</para>
 
     <para>The spawned process is a
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      <ulink url="https://www.promisejs.org/">promise</ulink>
       that will complete if the script exits successfully, or fail if there's a problem.
-      Some additional methods besides the standard jQuery promise methods are documented
+      Some additional methods besides the standard promise methods are documented
       below.</para>
 
     <para>The standard output of the process is made available via the spawned process
@@ -135,7 +135,7 @@ process = cockpit.script(script, [args], [options])
 process.done(function(data[, message]) { ... })
 </programlisting>
     <para>This is a standard
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      <ulink url="https://www.promisejs.org/">promise</ulink>
       method. It sets up a handler to be called when the process finishes successfully.</para>
     <para>The <code>data</code> argument contains the standard output of the process.
       If it a string, unless the process was opened in binary mode, in which case the

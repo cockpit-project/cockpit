@@ -525,7 +525,7 @@ asyncTest("walk", function() {
 
 /* mock $.now() function that returns a constant value to avoid races
  */
-$.now = function() {
+$.now = Date.now = function() {
     return 0;
 }
 

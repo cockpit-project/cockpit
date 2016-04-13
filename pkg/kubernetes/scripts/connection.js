@@ -33,10 +33,11 @@
         "cockpitKubectlConfig",
         "cockpitRunCommand",
         "cockpitConnectionInfo",
+        "CockpitKubeRequest",
         "KubeMapNamedArray",
         "KubeTranslate",
         function($q, cockpitKubeDiscover, kubectl, runCommand,
-                 cockpitConnectionInfo, mapNamedArray, translate) {
+                 cockpitConnectionInfo, CockpitKubeRequest, mapNamedArray, translate) {
 
             var DEFAULT_ADDRESS = "http://localhost:8080";
             var _ = translate.gettext;
@@ -242,6 +243,73 @@
                 };
             }
 
+            /* Openshift returns token information in the hash of a Location URL */
+            function parseBearerToken(url) {
+                var token = null;
+                var parser = document.createElement('a');
+                parser.href = url;
+                var hash = parser.hash;
+                if (hash[0] == "#")
+                    hash = hash.substr(1);
+                hash.split("&").forEach(function(part) {
+                    var item = part.split("=");
+                    if (item.shift() == "access_token")
+                        token = item.join("=");
+                });
+                return token;
+            }
+
+            /* Retrieve a bearer token using basic auth if possible */
+            function populateBearerToken(cluster, user) {
+                /* The user data without any token */
+                var data = angular.extend({ }, user.user);
+                delete data.token;
+
+                /* If no password is set, just skip this step */
+                if (!data.password)
+                    return $q.resolve();
+
+                /* Build an Openshift OAuth WWW-Authenticate request */
+                var config = kubectl.generateKubeOptions(cluster.cluster, data);
+                if (!config.headers)
+                    config.headers = { };
+                config.headers["X-CSRF-Token"] = "1"; /* Any value will do */
+                var path = '/oauth/authorize?response_type=token&client_id=openshift-challenging-client';
+                var request = new CockpitKubeRequest("GET", path, "", config);
+
+                return request.then(function(response) {
+                    /* Shouldn't return success. Not OAuth capable */
+                    return "";
+                }, function(response) {
+                    var result;
+                    if (response.status == 302) {
+                        var token, header = response.headers["Location"];
+                        if (header) {
+
+                            /*
+                             * When OAuth is in play (ie: Openshift, Origin, Atomic, then
+                             * user/password basic auth doesn't work for accessing the API.
+                             *
+                             * Unfortunately kubectl won't let us save both user/password and
+                             * the token (if we wanted it for future use). So we have to remove
+                             * the user and password data.
+                             */
+                            token = parseBearerToken(header);
+                            if (token) {
+                                delete user.user.username;
+                                delete user.user.password;
+                                user.user.token = token;
+                            }
+                        }
+                        return "";
+                    } else if (response.status == 404) {
+                        return ""; /* Not OAuth capable */
+                    } else {
+                        return $q.reject(new Error(response.statusText));
+                    }
+                });
+            }
+
             function writeKubectlClusterCA(cluster, pem) {
                 var SCRIPT = 'f=$(mktemp); echo "$2" > "$f"; kubectl config set-cluster $1 --certificate-authority="$f" --embed-certs=true; rm "$f"';
                 var args = [ "/bin/sh", "-c", SCRIPT, "--", cluster.name, pem ];
@@ -260,10 +328,15 @@
                 var user_args;
 
                 if (user && user.user) {
-                    user_args = [ "kubectl", "config", "set-credentials",
-                                  user.name, "--username=" + (user.user.username || "") ];
-                    if (user.user.password)
-                        user_args.push("--password=" + (user.user.password || ""));
+                    user_args = [
+                        "kubectl",
+                        "config",
+                        "set-credentials",
+                        user.name,
+                        "--username=" + (user.user.username || ""),
+                        "--password=" + (user.user.password || ""),
+                        "--token=" + (user.user.token || "")
+                    ];
                     promises.push(runCommand(user_args));
                 }
 
@@ -303,7 +376,8 @@
                 prepareData: prepareData,
                 load: load,
                 writeKubectlClusterCA: writeKubectlClusterCA,
-                writeKubectlConfig: writeKubectlConfig
+                writeKubectlConfig: writeKubectlConfig,
+                populateBearerToken: populateBearerToken,
             };
         }
     ])
@@ -406,7 +480,7 @@
                 }
 
                 function validate() {
-                    var defer = $q.defer();
+                    var defer;
                     var errors = [];
                     var ex;
                     var address_re = /^[a-z0-9\:\/.-]+$/i;
@@ -451,14 +525,21 @@
                             delete user.user.username;
                             delete user.user.password;
                         }
+                        if ($scope.fields.token)
+                            user.user.token = $scope.fields.token;
+                        else
+                            delete user.user.token;
                     }
 
-                    if (errors.length > 0)
+                    if (errors.length > 0) {
+                        defer = $q.defer();
                         defer.reject(errors);
-                    else
-                        defer.resolve(connectionActions.prepareData($scope.config, cluster, user));
+                        return defer.promise;
+                    }
 
-                    return defer.promise;
+                    return connectionActions.populateBearerToken(cluster, user).then(function() {
+                        return connectionActions.prepareData($scope.config, cluster, user);
+                    });
                 }
 
                 $scope.selectCluster = function selectCluster(cluster) {
@@ -472,6 +553,7 @@
                     var inner = user && user.user ? user.user : {};
                     $scope.fields.username = inner.username;
                     $scope.fields.password = inner.password;
+                    $scope.fields.token = inner.token;
                     $scope.$emit("selectUser", user);
                 };
 

@@ -443,9 +443,14 @@
                     cluster.cluster.server = address;
                     cluster.cluster["insecure-skip-tls-verify"] = !!$scope.fields.skipVerify;
 
-                    if (user && $scope.fields.username) {
-                        user.user.username = $scope.fields.username;
-                        user.user.password = $scope.fields.password;
+                    if (user) {
+                        if ($scope.fields.username) {
+                            user.user.username = $scope.fields.username;
+                            user.user.password = $scope.fields.password;
+                        } else {
+                            delete user.user.username;
+                            delete user.user.password;
+                        }
                     }
 
                     if (errors.length > 0)

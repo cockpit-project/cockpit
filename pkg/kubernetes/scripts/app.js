@@ -23,7 +23,8 @@
     angular.module('kubernetes.app', [
         'ui.bootstrap',
         'kubeClient',
-        'kubeClient.cockpit'
+        'kubeClient.cockpit',
+        'kubernetes.connection'
     ])
 
     .controller('MainCtrl', [
@@ -31,11 +32,14 @@
         '$location',
         '$rootScope',
         '$timeout',
+        '$modal',
         'kubeLoader',
         'kubeSelect',
         'KubeDiscoverSettings',
         'filterService',
-        function($scope, $location, $rootScope, $timeout, loader, select, discoverSettings, filter) {
+        'connectionActions',
+        function($scope, $location, $rootScope, $timeout, $modal,
+                 loader, select, discoverSettings, filter, connectionActions) {
             $scope.settings = { };
 
             /* Used to set detect which route is active */
@@ -87,7 +91,11 @@
                     filter.globals(settings.isAdmin);
                     filter.load().then(visible);
                 }, function(resp) {
-                    $scope.curtains = { status: resp.status, message: resp.message || resp.statusText };
+                    $scope.curtains = {
+                        status: resp.status,
+                        resp: resp,
+                        message: resp.message || resp.statusText,
+                    };
                     $scope.settings = null;
                     visible();
                 });
@@ -97,8 +105,11 @@
             connect();
 
             /* Used by reconnect buttons */
-            $scope.reconnect = function() {
-                discoverSettings(true);
+            $scope.reconnect = function(force) {
+                if (force === undefined)
+                    force = true;
+
+                discoverSettings(force);
                 loader.reset();
                 connect();
             };
@@ -107,6 +118,25 @@
             loader.listen(function() {
                 $rootScope.$applyAsync();
             });
+
+            $scope.changeAuth = function(ex) {
+                var promise = $modal.open({
+                    animation: false,
+                    controller: 'ChangeAuthCtrl',
+                    templateUrl: 'views/auth-dialog.html',
+                    resolve: {
+                        dialogData: function() {
+                            return connectionActions.load(ex);
+                        }
+                    },
+                }).result;
+
+                /* If the change is successful, reconnect */
+                promise.then(function(force) {
+                    $scope.reconnect(force);
+                });
+                return promise;
+            };
         }
     ])
 

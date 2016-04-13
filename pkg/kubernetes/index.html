@@ -38,6 +38,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   <script src="scripts/kube-client.js"></script>
   <script src="scripts/kube-client-cockpit.js"></script>
   <script src="scripts/container-terminal.js"></script>
+  <script src="scripts/connection.js"></script>
   <script src="scripts/object-describer.js"></script>
   <script src="scripts/date.js"></script>
   <script src="scripts/utils.js"></script>
@@ -120,6 +121,9 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         <div class="blank-slate-pf-main-action" ng-if="curtains.status">
             <button class="btn btn-primary btn-lg" translatable="yes" ng-click="reconnect()">
                 Reconnect
+            </button>
+            <button class="btn btn-primary btn-lg" translatable="yes" ng-click="changeAuth(curtains.resp)">
+                Troubleshoot
             </button>
         </div>
     </div>

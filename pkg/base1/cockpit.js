@@ -60,6 +60,7 @@ function is_negative(n) {
     return ((n = +n) || 1 / n) < 0;
 }
 
+/* Object.assign() workalike */
 function extend(to/* , from ... */) {
     var j, len, key, from;
     for (j = 1, len = arguments.length; j < len; j++) {

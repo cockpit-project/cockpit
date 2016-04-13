@@ -1,0 +1,36 @@
+<div class="modal-body">
+    <p translatable="yes">Could not verify certificate for {{ address }}</span>.
+    </p>
+
+    <table class="cockpit-form-table">
+        <tr>
+            <td></td>
+            <td>
+                <label>
+                    <input type="radio" ng-model="action" value="skip">
+                    <span translatable="yes">Skip Certificate Verification</span>
+                </label>
+            </td>
+        </tr>
+
+        <tr ng-class="{hidden: !details}">
+            <td></td>
+            <td>
+                <label >
+                    <input type="radio" ng-model="action" value="pem">
+                    <span translatable="yes" ng-if="haveKubectl">Trust this certificate</span>
+                    <span translatable="yes" ng-if="!haveKubectl">Trust this certificate for this session</span>
+                </label>
+                <pre  class="dialog">{{ details }}</pre>
+            </td>
+        </tr>
+
+    </table>
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-default btn-cancel" ng-click="$dismiss()" translatable="yes">Cancel</button>
+    <button ng-if="error.problem != 'untrusted-host'" class="btn btn-primary" ng-click="complete(update())">
+        <span translatable="yes">Connect</span>
+    </button>
+</div>

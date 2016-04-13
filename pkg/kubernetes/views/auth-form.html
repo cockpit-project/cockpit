@@ -1,0 +1,133 @@
+<div class="modal-body">
+    <table class="cockpit-form-table" ng-if="fields">
+        <tr ng-if="haveKubectl">
+            <td class="top">
+                <label class="control-label" translatable="yes">Cluster</label>
+            </td>
+            <td class="dialog-wrapper">
+                <div id="kubernetes-cluster" class="btn-group bootstrap-select form-control" dropdown>
+                    <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
+                        <span class="pull-left" ng-if="currentCluster">{{ currentCluster.name }}</span>
+                        <span class="pull-left" ng-if="!currentCluster" translatable="yes">Add New Cluster</span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li ng-repeat="cluster in clusters" ng-class="{ checked: currentCluster.name == cluster.name }">
+                            <a ng-click="selectCluster(cluster)">{{cluster.name}}</a>
+                        </li>
+                        <li role="separator" class="divider"></li>
+                        <li ng-class="{ checked: !currentCluster }">
+                            <a ng-click="selectCluster()" translatable="yes">Add New Cluster</a>
+                        </li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="top">
+                <label class="control-label" for="kubernetes-address"
+                    translatable="yes">Address</label>
+            </td>
+            <td>
+                <input id="kubernetes-address" class="form-control" type="text"
+                    ng-model="fields.address" placeholder="eg: https://localhost:6443">
+            </td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td>
+                <label>
+                    <input id="kubernetes-skip-verify" type="checkbox" ng-model="fields.skipVerify">
+                    <span translatable="yes">Skip Certificate Verification</span>
+                </label>
+            </td>
+        </tr>
+
+        <tr >
+            <td class="top">
+            </td>
+            <td>
+                <label>
+                    <input id="kubernetes-requires-auth" type="checkbox" ng-checked="useAuth" ng-click="toggleAuth()">
+                    <span translatable="yes">Requires Authentication</span>
+                </label>
+            </td>
+        </tr>
+
+        <tr ng-if="haveKubectl && useAuth">
+            <td class="top">
+                <label class="control-label" translatable="yes">User</label>
+            </td>
+            <td class="dialog-wrapper">
+                <div id="kubernetes-user" class="btn-group bootstrap-select form-control" dropdown>
+                    <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
+                        <span class="pull-left" ng-if="currentUser">{{ currentUser.name }}</span>
+                        <span class="pull-left" ng-if="!currentUser" translatable="yes">Add New User</span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li ng-repeat="user in users" ng-class="{ checked: currentUser.name == user.name }">
+                            <a ng-click="selectUser(user)">{{user.name}}</a>
+                        </li>
+                        <li role="separator" class="divider"></li>
+                        <li ng-class="{ checked: !currentUser }">
+                            <a ng-click="selectUser()" translatable="yes">Add New User</a>
+                        </li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+
+        <tr ng-if="useAuth && (currentUser.user.token || hasCert(currentUser))">
+            <td class="top">
+                <label class="control-label" translatable="yes">Authentication</label>
+            </td>
+            <td>
+                <span ng-if="currentUser.user.token" translatable="yes">Token</span>
+                <span ng-if="hasCert(currentUser)" translatable="yes">Client Certificate</span>
+            </td>
+        </tr>
+
+        <tr ng-if="useAuth && (!currentUser || currentUser.user.username)">
+            <td class="top">
+                <label class="control-label" for="kubernetes-username"
+                    translatable="yes">Username</label>
+            </td>
+            <td>
+                <input id="kubernetes-username" class="form-control" type="text"
+                    ng-model="fields.username">
+            </td>
+        </tr>
+
+        <tr ng-if="useAuth && (!currentUser || currentUser.user.username)">
+            <td class="top">
+                <label class="control-label" for="kubernetes-password"
+                    translatable="yes">Password</label>
+            </td>
+            <td>
+                <input id="kubernetes-password" class="form-control" type="password"
+                    ng-model="fields.password">
+            </td>
+        </tr>
+
+        <tr ng-if="useAuth && (!currentUser || currentUser.user.token)">
+            <td class="top">
+                <label class="control-label" for="kubernetes-token"
+                    translatable="yes">Token</label>
+            </td>
+            <td>
+                <input id="kubernetes-token" class="form-control" type="text"
+                    ng-model="fields.token">
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-default btn-cancel" ng-click="$dismiss()" translatable="yes">Cancel</button>
+    <button ng-if="error.problem != 'untrusted-host'" class="btn btn-primary" ng-click="complete(update())">
+        <span translatable="yes">Connect</span>
+    </button>
+</div>

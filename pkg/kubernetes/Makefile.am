@@ -32,6 +32,7 @@ shared_VIEWS = \
 	$(NULL)
 
 shared_MODULES = \
+	pkg/kubernetes/scripts/connection.js \
 	pkg/kubernetes/scripts/kube-client.js \
 	pkg/kubernetes/scripts/kube-client-cockpit.js \
 	pkg/kubernetes/scripts/date.js \

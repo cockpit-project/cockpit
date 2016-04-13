@@ -55,6 +55,11 @@ function is_plain_object(x) {
     return is_object(x) && Object.prototype.toString.call(x) === '[object Object]';
 }
 
+/* Also works for negative zero */
+function is_negative(n) {
+    return ((n = +n) || 1 / n) < 0;
+}
+
 function extend(to/* , from ... */) {
     var j, len, key, from;
     for (j = 1, len = arguments.length; j < len; j++) {
@@ -1751,11 +1756,6 @@ function basic_scope(cockpit, jquery) {
             /* Notify for all rows */
             self.notify(0, self.end - self.beg);
         };
-
-        /* Also works for negative zero */
-        function is_negative(n) {
-            return ((n = +n) || 1 / n) < 0;
-        }
 
         function move_internal(beg, end, for_walking) {
             if (end === undefined)

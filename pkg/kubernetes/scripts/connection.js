@@ -264,6 +264,78 @@
                 };
             }
 
+            /* Openshift returns token information in the hash of a Location URL */
+            function parseBearerToken(url) {
+                var token = null;
+                var parser = document.createElement('a');
+                parser.href = url;
+                var hash = parser.hash;
+                if (hash[0] == "#")
+                    hash = hash.substr(1);
+                hash.split("&").forEach(function(part) {
+                    var item = part.split("=");
+                    if (item.shift() == "access_token")
+                        token = item.join("=");
+                });
+                return token;
+            }
+
+            /* Retrieve a bearer token using basic auth if possible */
+            function populateBearerToken(cluster, user) {
+                /* The user data without any token */
+                var data = angular.extend({ }, user ? user.user : null);
+
+                /* If no password is set, just skip this step */
+                if (!data.password)
+                    return $q.when();
+
+                delete data.token;
+
+                /* Build an Openshift OAuth WWW-Authenticate request */
+                var config = kubectl.generateKubeOptions(cluster.cluster, data);
+                var trust = sessionCertificates.getCert(config.address);
+                if (config.tls && trust)
+                    config.tls["authority"] = { data: trust };
+
+                if (!config.headers)
+                    config.headers = { };
+                config.headers["X-CSRF-Token"] = "1"; /* Any value will do */
+                var path = '/oauth/authorize?response_type=token&client_id=openshift-challenging-client';
+                var request = new CockpitKubeRequest("GET", path, "", config);
+
+                return request.then(function(response) {
+                    /* Shouldn't return success. Not OAuth capable */
+                    return "";
+                }, function(response) {
+                    var result;
+                    if (response.status == 302) {
+                        var token, header = response.headers["Location"];
+                        if (header) {
+
+                            /*
+                             * When OAuth is in play (ie: Openshift, Origin, Atomic, then
+                             * user/password basic auth doesn't work for accessing the API.
+                             *
+                             * Unfortunately kubectl won't let us save both user/password and
+                             * the token (if we wanted it for future use). So we have to remove
+                             * the user and password data.
+                             */
+                            token = parseBearerToken(header);
+                            if (token) {
+                                delete user.user.username;
+                                delete user.user.password;
+                                user.user.token = token;
+                            }
+                        }
+                        return "";
+                    } else if (response.status == 404) {
+                        return ""; /* Not OAuth capable */
+                    } else {
+                        return $q.reject(response);
+                    }
+                });
+            }
+
             function writeKubectlConfig(cluster, user, context) {
                 var defer = $q.defer();
                 var cluster_args, user_args, cmd_args;
@@ -278,6 +350,9 @@
                         user_args.push("--username=" + user.user.username);
                         user_args.push("--password=" + (user.user.password || ""));
                     }
+
+                    if (user.user.token)
+                        user_args.push("--token=" + user.user.token);
 
                     commands.push(user_args);
                 }
@@ -318,7 +393,8 @@
             return {
                 prepareData: prepareData,
                 load: load,
-                writeKubectlConfig: writeKubectlConfig
+                writeKubectlConfig: writeKubectlConfig,
+                populateBearerToken: populateBearerToken
             };
         }
     ])
@@ -480,6 +556,10 @@
                                 delete user.user.username;
                                 delete user.user.password;
                             }
+                            if ($scope.fields.token)
+                                user.user.token = $scope.fields.token;
+                            else
+                                delete user.user.token;
                         }
 
                         if (errors.length > 0)
@@ -500,6 +580,7 @@
                         var inner = user && user.user ? user.user : {};
                         $scope.fields.username = inner.username;
                         $scope.fields.password = inner.password;
+                        $scope.fields.token = inner.token;
                         $scope.$emit("selectUser", user);
                     };
 

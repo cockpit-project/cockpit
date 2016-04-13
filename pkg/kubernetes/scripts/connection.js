@@ -370,7 +370,7 @@
                     $scope.$broadcast("loadData");
                     defer.reject([]);
 
-                    return defer.promise
+                    return defer.promise;
                 });
             };
         }

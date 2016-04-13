@@ -261,10 +261,9 @@
 
                 if (user && user.user) {
                     user_args = [ "kubectl", "config", "set-credentials",
-                                  user.name, "--username=" + user.user.username ];
-                    console.log(user_args);
+                                  user.name, "--username=" + (user.user.username || "") ];
                     if (user.user.password)
-                        user_args.push("--password=" + user.user.password);
+                        user_args.push("--password=" + (user.user.password || ""));
                     promises.push(runCommand(user_args));
                 }
 

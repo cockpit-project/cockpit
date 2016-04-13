@@ -20,7 +20,8 @@
 
 import argparse
 import sys
-from common import vmcommon
+from common import vmimages
+
 
 def main():
     parser = argparse.ArgumentParser(description='Download a virtual machine')
@@ -33,11 +34,11 @@ def main():
 
     # By default download all links
     if not args.image and not args.prune:
-        args.image = vmcommon.every_image()
+        args.image = vmimages.every_image()
 
     if args.prune:
-        vmcommon.prune_images(args.force, args.dryrun)
-    vmcommon.download_images(args.image, args.force, args.store)
+        vmimages.prune_images(args.force, args.dryrun)
+    vmimages.download_images(args.image, args.force, args.store)
 
 if __name__ == '__main__':
     sys.exit(main())

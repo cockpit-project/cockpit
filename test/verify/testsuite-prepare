@@ -24,7 +24,8 @@ import shutil
 
 import parent
 from common import testinfra
-from common import vmcommon
+from common import vmimages
+from common import vmmanage
 
 image_list=["ipa", "openshift", "fedora-stock"]
 
@@ -51,14 +52,22 @@ if __name__ == "__main__":
         build_os = "rhel-7"
 
     os.system(os.path.join(testinfra.TEST_DIR,"vm-reset"))
+    try:
+        vmimages.download_images(set((test_os, build_os)), args.force, [])
+        vmimages.download_images(image_list, args.force, [])
+    except Exception as e:
+        print "unable to download all necessary images", e
+        sys.exit(1)
 
-    vmcommon.download_images(set((test_os, build_os)), args.force, [])
-    vmcommon.download_images(image_list, args.force, [])
-
+    retvalue=0
     if args.noinstall:
         print "Not installing cockpit to base image"
     else:
-        vmcommon.build_and_install(test_os, build_os, {"verbose":args.verbose, "force": args.force})
+        try:
+            vmmanage.build_and_install(test_os, build_os, {"verbose":args.verbose, "force": args.force}):
+        except Exception as e:
+            print e
+            retvalue=2
         if os.environ.has_key("TEST_ATTACHMENTS"):
             attachement_dir = os.environ["TEST_ATTACHMENTS"]
             try:
@@ -67,3 +76,4 @@ if __name__ == "__main__":
                 pass
             for cpfile in glob.glob(os.path.join(testinfra.TEST_DIR,"tmp","build-results","*.log")):
                 shutil.copy(cpfile, os.path.join(attachement_dir ,"build-results"))
+    sys.exit(retvalue)

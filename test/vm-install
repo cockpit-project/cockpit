@@ -22,7 +22,7 @@ import sys
 import subprocess
 
 from common import testinfra
-from common import vmcommon
+from common import vmmanage
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Install Cockpit on a virtual machine')
@@ -38,5 +38,9 @@ if __name__ == "__main__":
 
     install_image = not args.build_only and args.image
     build_image = not args.install_only and (args.build_image or args.image)
-    vmcommon.build_and_install(install_image, build_image, args={"verbose": args.verbose, "sit": args.sit, "quick": args.quick, "build_image": args.build_image,
-                                                        "build_only": args.build_only, "install_only": args.install_only, "containers": args.containers})
+    try:
+        vmmanage.build_and_install(install_image, build_image, args={"verbose": args.verbose, "sit": args.sit, "quick": args.quick, "build_image": args.build_image,
+                                                            "build_only": args.build_only, "install_only": args.install_only, "containers": args.containers})
+    except Exception as e:
+        print e
+        sys.exit(1)

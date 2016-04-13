@@ -57,7 +57,7 @@ request = http.get(path, [params, [headers]])
     <para>Optionally a plain javascript object containing headers can be included in the
       <code>headers</code> argument.</para>
     <para>The return value is a
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      <ulink url="https://www.promisejs.org/">promise</ulink>
       that will complete if the request happens successfully, or fail if there's a problem.</para>
   </refsection>
 
@@ -73,7 +73,7 @@ request = http.post(path, body, [headers])
     <para>Optionally a plain javascript object containing headers can be included in the
       <code>headers</code> argument.</para>
     <para>The return value is a
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      <ulink url="https://www.promisejs.org/">promise</ulink>
       that will complete if the request happens successfully, or fail if there's a problem.</para>
   </refsection>
 
@@ -110,7 +110,7 @@ request = http.request(options)
     </variablelist>
 
     <para>The return value is a
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      <ulink url="https://www.promisejs.org/">promise</ulink>
       that will complete if the request happens successfully, or fail if there's a problem.</para>
   </refsection>
 
@@ -120,7 +120,7 @@ request = http.request(options)
 request.done(function(data) { ... })
 </programlisting>
     <para>This is a standard
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      <ulink url="https://www.promisejs.org/">promise</ulink>
       method. It sets up a handler to be called when the request finishes successfully.</para>
     <para>The <code>data</code> argument contains the body result of the request.
       If it a string, unless the process was opened in binary mode, in which case the

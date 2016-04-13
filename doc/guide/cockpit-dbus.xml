@@ -244,7 +244,7 @@ proxy.Method(arg1, arg2)
     <para>All DBus methods on the <code>interface</code> that start with an upper case
       letter (as is convention) will be automatically defined on this proxy. These
       methods are called with arguments as normal javascript arguments. A
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      <ulink url="https://www.promisejs.org/">promise</ulink>
       that will complete successfully when the method returns, or fail if an error occurs.
       The return values from the DBus method will be passed to the <code>done</code> handler
       function directly.</para>
@@ -334,7 +334,7 @@ invocation = proxy.call(method, args, [options])
 
     <para>The returned value is identical to the one returned from
       <link linkend="cockpit-dbus-call">client.call()</link>. It is a
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      <ulink url="https://www.promisejs.org/">promise</ulink>
       that will complete successfully when the method returns, or fail if an error occurs.</para>
   </refsection>
 
@@ -515,7 +515,7 @@ invocation = client.call(path, interface, method, args, [options])
       <code>args</code> may be <code>null</code> if no arguments are to be sent.</para>
 
     <para>The returned value is a
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      <ulink url="https://www.promisejs.org/">promise</ulink>
       that will complete successfully when the method returns, or fail if an error occurs.</para>
 
     <para>If <code>options</code> is specified it should be a plain javascript object,
@@ -542,7 +542,7 @@ invocation = client.call(path, interface, method, args, [options])
 invocation.done(function(args, options) { ... })
 </programlisting>
     <para>This is a standard
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      <ulink url="https://www.promisejs.org/">promise</ulink>
       method. It sets up a handler to be called when the DBus method call finishes
       successfully.</para>
     <para>The <code>args</code> argument is an array of return values from the DBus method.
@@ -720,7 +720,7 @@ watch = client.watch({ "path_namespace": path_namespace, "interface": interface 
     </variablelist>
 
     <para>The returned value is a
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      <ulink url="https://www.promisejs.org/">promise</ulink>
       that will complete successfully when the watch has populated its initial set of properties
       and interfaces, and these have been notified via
       <link linkend="cockpit-dbus-onnotify"><code>client.onnotify</code></link>.</para>
@@ -737,7 +737,7 @@ watch = client.watch({ "path_namespace": path_namespace, "interface": interface 
 watch.done(function() { ... })
 </programlisting>
     <para>This is a standard
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      <ulink url="https://www.promisejs.org/">promise</ulink>
       method. It sets up a handler to be called when the watch has populated its initial
       properties and interfaces.</para>
   </refsection>

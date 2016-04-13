@@ -1806,14 +1806,14 @@ PageNetworkInterface.prototype = {
         var self = this;
 
         function delete_connection_and_slaves(con) {
-            return $.when(con.delete_(),
-                          $.when.apply($, con.Slaves.map(function (s) {
-                              return free_slave_connection(s);
-                          })));
+            return cockpit.all(con.delete_(),
+                               cockpit.all(con.Slaves.map(function (s) {
+                                    return free_slave_connection(s);
+                               })));
         }
 
         function delete_connections(cons) {
-            return $.when.apply($, cons.map(delete_connection_and_slaves));
+            return cockpit.all(cons.map(delete_connection_and_slaves));
         }
 
         function delete_iface_connections(iface) {
@@ -2745,7 +2745,7 @@ function apply_master_slave(choices, model, master_connection, master_settings, 
             return set_slave(model, master_connection, master_settings, slave_type,
                              $(elt).attr("data-iface"), $(elt).prop('checked'));
         });
-        return $.when.apply($, deferreds.get());
+        return cockpit.all(deferreds.get());
     }
 
     function update_master() {

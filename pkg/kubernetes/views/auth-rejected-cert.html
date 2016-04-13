@@ -1,0 +1,35 @@
+<div class="modal-body">
+    <p translatable="yes">The server uses a certificate signed by an unknown authority.</p>
+    <p translatable="yes">You can bypass the certificate check, but any data you send to the server could be intercepted by others.</p>
+
+    <table class="cockpit-form-table">
+        <tr>
+            <td></td>
+            <td>
+                <label>
+                    <input type="radio" ng-model="action" value="skip">
+                    <span translatable="yes">Skip Certificate Verification</span>
+                </label>
+            </td>
+        </tr>
+
+        <tr ng-class="{hidden: !details}">
+            <td></td>
+            <td>
+                <label >
+                    <input type="radio" ng-model="action" value="pem">
+                    <span translatable="yes">Trust this certificate for this connection</span>
+                </label>
+                <pre class="dialog">{{ details }}</pre>
+            </td>
+        </tr>
+
+    </table>
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-default btn-cancel" ng-click="$dismiss()" translatable="yes">Cancel</button>
+    <button ng-if="error.problem != 'untrusted-host'" class="btn btn-primary" ng-click="complete(update())">
+        <span translatable="yes">Connect</span>
+    </button>
+</div>

@@ -1,6 +1,9 @@
 # Shared files
 
 shared_VIEWS = \
+	pkg/kubernetes/views/auth-dialog.html \
+	pkg/kubernetes/views/auth-form.html \
+	pkg/kubernetes/views/auth-rejected-cert.html \
 	pkg/kubernetes/views/filter-bar.html \
 	pkg/kubernetes/views/filter-listing.html \
 	pkg/kubernetes/views/filter-project.html \
@@ -32,6 +35,7 @@ shared_VIEWS = \
 	$(NULL)
 
 shared_MODULES = \
+	pkg/kubernetes/scripts/connection.js \
 	pkg/kubernetes/scripts/kube-client.js \
 	pkg/kubernetes/scripts/kube-client-cockpit.js \
 	pkg/kubernetes/scripts/date.js \
@@ -148,6 +152,7 @@ kubernetes_TESTS = \
 	pkg/kubernetes/tests/test-projects.html \
 	pkg/kubernetes/tests/test-storage.html \
 	pkg/kubernetes/tests/test-utils.html \
+	pkg/kubernetes/tests/test-connection.html \
 	$(NULL)
 
 kubernetes_LESS = \

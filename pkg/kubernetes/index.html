@@ -38,6 +38,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   <script src="scripts/kube-client.js"></script>
   <script src="scripts/kube-client-cockpit.js"></script>
   <script src="scripts/container-terminal.js"></script>
+  <script src="scripts/connection.js"></script>
   <script src="scripts/object-describer.js"></script>
   <script src="scripts/date.js"></script>
   <script src="scripts/utils.js"></script>
@@ -118,8 +119,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         <h1 ng-if="curtains.status" translatable="yes">Couldn't connect to server</h1>
         <p ng-if="curtains.message">{{curtains.message}}</p>
         <div class="blank-slate-pf-main-action" ng-if="curtains.status">
-            <button class="btn btn-primary btn-lg" translatable="yes" ng-click="reconnect()">
+            <button id="kubernetes-reconnect" class="btn btn-primary btn-lg" translatable="yes" ng-click="reconnect()">
                 Reconnect
+            </button>
+            <button id="kubernetes-connection-tb" class="btn btn-primary btn-lg" translatable="yes" ng-click="changeAuth(curtains.resp)">
+                Troubleshoot
             </button>
         </div>
     </div>

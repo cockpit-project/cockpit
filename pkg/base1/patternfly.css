@@ -9001,6 +9001,64 @@ fieldset[disabled] .btn-primary.active {
 .open .dropdown-submenu.active > .dropdown-menu {
   display: block;
 }
+.dropdown-kebab-pf .btn-link {
+  color: #222222;
+  font-size: 16px;
+  line-height: 1;
+  padding: 4px 0;
+}
+.dropdown-kebab-pf .btn-link:active,
+.dropdown-kebab-pf .btn-link:focus,
+.dropdown-kebab-pf .btn-link:hover {
+  color: #0099d3;
+}
+.dropdown-kebab-pf .dropdown-menu {
+  left: -15px;
+  margin-top: 11px;
+}
+.dropdown-kebab-pf .dropdown-menu.dropdown-menu-right {
+  left: auto;
+  right: -15px;
+}
+.dropdown-kebab-pf .dropdown-menu.dropdown-menu-right:after,
+.dropdown-kebab-pf .dropdown-menu.dropdown-menu-right:before {
+  left: auto;
+  right: 6px;
+}
+.dropdown-kebab-pf .dropdown-menu:after,
+.dropdown-kebab-pf .dropdown-menu:before {
+  border-bottom-color: #b6b6b6;
+  border-bottom-style: solid;
+  border-bottom-width: 10px;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  content: "";
+  display: inline-block;
+  left: 6px;
+  position: absolute;
+  top: -11px;
+}
+.dropdown-kebab-pf .dropdown-menu:after {
+  border-bottom-color: #ffffff;
+  top: -10px;
+}
+.dropdown-kebab-pf.dropup .dropdown-menu {
+  margin-bottom: 11px;
+  margin-top: 0;
+}
+.dropdown-kebab-pf.dropup .dropdown-menu:after,
+.dropdown-kebab-pf.dropup .dropdown-menu:before {
+  border-bottom: none;
+  border-top-color: #b6b6b6;
+  border-top-style: solid;
+  border-top-width: 10px;
+  bottom: -11px;
+  top: auto;
+}
+.dropdown-kebab-pf.dropup .dropdown-menu:after {
+  border-top-color: #ffffff;
+  bottom: -10px;
+}
 .chars-remaining-pf span {
   font-weight: 600;
   padding-right: 5px;
@@ -9059,7 +9117,7 @@ h6 .label {
   border-right: 0;
 }
 .list-group-item-heading {
-  font-weight: 700;
+  font-weight: 600;
 }
 .modal-header {
   background-color: #f8f8f8;
@@ -9642,6 +9700,24 @@ td > .progress:first-child:last-child {
 .table-hover > tbody > tr:hover > th {
   background-color: #d5ecf9;
   border-bottom-color: #a7cadf;
+}
+.table-treegrid span.indent {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+.table-treegrid span.icon {
+  display: inline-block;
+  font-size: 13px;
+  margin-right: 5px;
+  min-width: 10px;
+  text-align: center;
+}
+.table-treegrid span.expand-icon,
+.table-treegrid span.collapse-icon {
+  cursor: pointer;
+}
+.table-treegrid > tbody > tr.odd {
+  background-color: #f5f5f5;
 }
 .nav-tabs {
   font-size: 14px;

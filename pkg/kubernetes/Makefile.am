@@ -46,6 +46,7 @@ shared_MODULES = \
 	$(NULL)
 
 shared_LESS = \
+	pkg/kubernetes/styles/color-variables.less \
 	pkg/kubernetes/styles/variables-bootstrap.less \
 	pkg/kubernetes/styles/variables-patternfly.less \
 	pkg/kubernetes/styles/images.less \

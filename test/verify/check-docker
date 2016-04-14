@@ -340,6 +340,7 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         b.wait_in_text("#containers-images", "busybox:latest")
         b.wait_present("#containers-containers tr:contains(\"YAYRESTART\")")
         b.wait_visible("#containers-containers tr:contains(\"YAYRESTART\")")
+        b.wait_present("#containers-containers tr:contains(\"NORESTART\")")
         b.wait_not_visible("#containers-containers tr:contains(\"NORESTART\")")
 
 

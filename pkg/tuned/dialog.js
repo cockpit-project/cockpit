@@ -189,9 +189,10 @@ define([
                     var requested_profile = dialog.find('[data-profile].active').attr('data-profile');
                     var promise = set_profile(requested_profile)
                         .done(function (results) {
-                            if (!results[0])
+                            if (!results[0]) {
+                                console.warn("tuned set_profile failed: " + JSON.stringify(results));
                                 dialog.dialog('failure', results[1] || "Failed to switch profile");
-                            else {
+                            } else {
                                 update_button();
                                 dialog.modal('hide');
                             }

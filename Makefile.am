@@ -285,12 +285,15 @@ download-po:
 BOWER = $(srcdir)/bower_components
 
 BOWER_CLEAN = \
-	$(BOWER)/patternfly/components/bootstrap-treeview \
-	$(BOWER)/patternfly/components/google-code-prettify \
-	$(BOWER)/patternfly/components/datatables* \
-	$(BOWER)/patternfly/components/?3 \
-	$(BOWER)/patternfly/components/jquery \
-	$(BOWER)/patternfly/components/matchHeight \
+	$(BOWER)/bootstrap-switch/ \
+	$(BOWER)/bootstrap-touchspin/ \
+	$(BOWER)/bootstrap-treeview \
+	$(BOWER)/c3 \
+	$(BOWER)/datatables* \
+	$(BOWER)/google-code-prettify \
+	$(BOWER)/matchHeight \
+	$(BOWER)/patternfly/less/lib \
+	$(BOWER)/term.js \
 	$(NULL)
 
 update-bower:

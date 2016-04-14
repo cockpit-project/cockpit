@@ -171,7 +171,7 @@ update-lib:: update-bower
 		$(BOWER)/angular-patternfly/dist/styles/angular-patternfly.css > $(srcdir)/pkg/base1/angular-patternfly.css
 	$(JSMODULE) -o $(srcdir)/pkg/base1/jquery.js \
 	    $(BOWER)/jquery/dist/jquery.js \
-	    $(BOWER)/patternfly/components/bootstrap/dist/js/bootstrap.js \
+	    $(BOWER)/bootstrap/dist/js/bootstrap.js \
 	    $(BOWER)/patternfly/dist/js/patternfly.js \
 	    $(BOWER)/jquery-flot/jquery.flot.js \
 	    $(BOWER)/jquery-flot/jquery.flot.selection.js \
@@ -179,9 +179,9 @@ update-lib:: update-bower
 	    $(BOWER)/jquery-amend/jquery-amend.js \
 	    $(NULL)
 	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-datepicker.js \
-	    $(BOWER)/patternfly/components/bootstrap-datepicker/dist/js/bootstrap-datepicker.js
+	    $(BOWER)/bootstrap-datepicker/dist/js/bootstrap-datepicker.js
 	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-combobox.js \
-	    $(BOWER)/patternfly/components/bootstrap-combobox/js/bootstrap-combobox.js
+	    $(BOWER)/bootstrap-combobox/js/bootstrap-combobox.js
 	$(JSMODULE) -o $(srcdir)/pkg/base1/require.js \
 	    $(BOWER)/requirejs/require.js \
 	    $(srcdir)/pkg/base1/require-config.js \

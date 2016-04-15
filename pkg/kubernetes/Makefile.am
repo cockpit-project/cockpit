@@ -54,6 +54,7 @@ shared_LESS = \
 	pkg/kubernetes/styles/variables-bootstrap.less \
 	pkg/kubernetes/styles/variables-patternfly.less \
 	pkg/kubernetes/styles/variables.less \
+	pkg/kubernetes/styles/dashboard.less \
 	pkg/kubernetes/styles/images.less \
 	pkg/kubernetes/styles/layers.less \
 	pkg/kubernetes/styles/projects.less \

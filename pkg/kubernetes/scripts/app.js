@@ -146,6 +146,7 @@
             return {
                 restrict: 'E',
                 scope: true,
+                transclude: true,
                 link: function(scope, element, attrs) {
                     scope.filter =  filter;
                 },

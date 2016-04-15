@@ -18,25 +18,25 @@
             <p class="card-pf-aggregate-status-notifications">
                 <span class="card-pf-aggregate-status-notification" ng-if="status.pods.Pending.length"
                     title="Pending pods">
-                    <a href="#"><span class="spinner spinner-sm"></span>{{status.pods.Pending.length}}</a>
+                    <span class="spinner spinner-sm"></span>{{status.pods.Pending.length}}
                 </span>
                 <span class="card-pf-aggregate-status-notification" ng-if="status.pods.Failed.length"
                     title="Failed pods">
-                    <a href="#"><span class="pficon pficon-error-circle-o"></span>{{status.pods.Failed.length}}</a>
+                    <span class="pficon pficon-error-circle-o"></span>{{status.pods.Failed.length}}
                 </span>
                 <span class="card-pf-aggregate-status-notification" ng-if="status.pods.Unknown.length"
                     title="Pods with unknown status">
-                    <a href="#"><span class="pficon pficon-warning-triangle-o"></span>{{status.pods.Unknown.length}}</a>
+                    <span class="pficon pficon-warning-triangle-o"></span>{{status.pods.Unknown.length}}
                 </span>
                 <span class="card-pf-aggregate-status-notification"
                     ng-if="!status.pods.Pending.length && !status.pods.Failed.length && !status.pods.Unknown.length">
-                    <a href="#" ng-if="pods.length > 0">
+                    <span ng-if="pods.length > 0">
                         <span class="pficon pficon-ok"></span>
                         <span class="card-pf-aggregate-status-text" translatable="yes">All running</span>
-                    </a>
-                    <a href="#" ng-if="pods.length == 0">
+                    </span>
+                    <span ng-if="pods.length == 0">
                         <span class="card-pf-aggregate-status-text" translatable="yes">No pods deployed</span>
-                    </a>
+                    </span>
                 </span>
             </p>
         </div>
@@ -47,30 +47,30 @@
             <p class="card-pf-aggregate-status-notifications">
                 <span class="card-pf-aggregate-status-notification" ng-if="status.volumes.Pending.length"
                     title="Pending volumes">
-                    <a href="#"><span class="spinner spinner-sm"></span>{{status.volumes.Pending.length}}</a>
+                    <span class="spinner spinner-sm"></span>{{status.volumes.Pending.length}}
                 </span>
                 <span class="card-pf-aggregate-status-notification" ng-if="status.volumes.Released.length"
                     title="Released volumes awaiting cleanup">
-                    <a href="#"><span class="pficon pficon-warning-triangle-o"></span>{{status.volumes.Released.length}}</a>
+                    <span class="pficon pficon-warning-triangle-o"></span>{{status.volumes.Released.length}}
                 </span>
                 <span class="card-pf-aggregate-status-notification" ng-if="status.volumes.Failed.length"
                     title="Volumes that have failed">
-                    <a href="#"><span class="pficon pficon-error-circle-o"></span>{{status.volumes.Failed.length}}</a>
+                    <span class="pficon pficon-error-circle-o"></span>{{status.volumes.Failed.length}}
                 </span>
                 <span class="card-pf-aggregate-status-notification" ng-if="status.volumes.Available.length"
                     title="Available volumes not yet in use">
-                    <a href="#"><span class="pficon pficon-ok"></span>{{status.volumes.Available.length}}</a>
+                    <span class="pficon pficon-ok"></span>{{status.volumes.Available.length}}
                 </span>
                 <span class="card-pf-aggregate-status-notification"
                     ng-if="!status.volumes.Pending.length && !status.volumes.Released.length && !status.volumes.Failed.length && !status.volumes.Available.length">
-                    <a href="#" ng-if="volumes.length > 0">
+                    <span ng-if="volumes.length > 0">
                         <span class="pficon pficon-ok"></span><span class="card-pf-aggregate-status-text"
                             translatable="yes">All in use</span>
-                    </a>
-                    <a href="#" ng-if="volumes.length == 0">
+                    </span>
+                    <span ng-if="volumes.length == 0">
                         <span class="card-pf-aggregate-status-text"
                             translatable="yes">No volumes in use</span>
-                    </a>
+                    </span>
                 </span>
             </p>
         </div>
@@ -81,51 +81,48 @@
             <p class="card-pf-aggregate-status-notifications">
                 <span class="card-pf-aggregate-status-notification" ng-if="status.nodes.Pending.length"
                     title="Pending nodes">
-                    <a href="#"><span class="spinner spinner-sm"></span>{{status.nodes.Pending.length}}</a>
+                    <span class="spinner spinner-sm"></span>{{status.nodes.Pending.length}}
                 </span>
                 <span class="card-pf-aggregate-status-notification" ng-if="status.nodes.Terminated.length"
                     title="Terminated nodes">
-                    <a href="#"><span class="pficon pficon-warning-triangle-o"></span>{{status.nodes.Terminated.length}}</a>
+                    <span class="pficon pficon-warning-triangle-o"></span>{{status.nodes.Terminated.length}}
                 </span>
                 <span class="card-pf-aggregate-status-notification" ng-if="status.nodes.NotReady.length"
                     title="Nodes that are not ready">
-                    <a href="#"><span class="pficon pficon-error-circle-o"></span>{{status.nodes.NotReady.length}}</a>
+                    <span class="pficon pficon-error-circle-o"></span>{{status.nodes.NotReady.length}}
                 </span>
                 <span class="card-pf-aggregate-status-notification" ng-if="status.nodes.OutOfDisk.length"
                     title="Out of disk space">
-                    <a href="#"><span class="pficon pficon-volume"></span>{{status.nodes.OutOfDisk.length}}</a>
+                    <span class="pficon pficon-volume"></span>{{status.nodes.OutOfDisk.length}}
                 </span>
                 <span class="card-pf-aggregate-status-notification"
                     ng-if="!status.nodes.Pending.length && !status.nodes.Terminated.length && !status.nodes.NotReady.length && !status.nodes.OutofDisk.length">
-                    <a href="#" ng-if="nodes.length > 0">
+                    <span ng-if="nodes.length > 0">
                         <span class="pficon pficon-ok"></span><span class="card-pf-aggregate-status-text"
                             translatable="yes">All healthy</span>
-                    </a>
-                    <a href="#" ng-if="pods.length == 0">
+                    </span>
+                    <span ng-if="pods.length == 0">
                         <span class="pficon pficon-warning-triangle-o"></span>
                         <span class="card-pf-aggregate-status-text" translatable="yes">No nodes in cluster</span>
-                    </a>
+                    </span>
                 </span>
             </p>
         </div>
     </div>
 </div>
 
-<div class="dashboard">
-<kubernetes-service-graph id="graphs" ng-if="settings.flavor != 'openshift'"></kubernetes-service-graph>
-
-<div class="row" ng-class="{'dashboard-openshift': settings.flavor == 'openshift'}">
-    <div class="col-md-8">
-        <div id="service-list" class="panel panel-default dashboard-list"
-            ng-class="{editable: editServices}">
-            <div class="panel-heading">
-                <div class="pull-right">
-                    <button class="btn btn-default fa fa-check" id="services-enable-change" title="Change"
-                        ng-click="toggleServiceChange()" ng-class="{ active: editServices }"></button>
-                    <button class="btn btn-primary" id="deploy-app" ng-click="deploy(namespaces(), namespace)" translatable="yes">Deploy</button>
-                </div>
-                <span translatable="yes">Kubernetes Services</span>
+<div class="container-cards-pf dashboard-cards">
+    <div class="card-pf card-pf-double" id="service-list">
+        <div class="card-pf-heading">
+            <div class="pull-right">
+                <button class="btn btn-default fa fa-check" id="services-enable-change" title="Change"
+                    ng-click="toggleServiceChange()" ng-class="{ active: editServices }"></button>
+                <button class="btn btn-primary" id="deploy-app" ng-click="deploy(namespaces(), namespace)"
+                    translatable="yes">Deploy</button>
             </div>
+            <h2 class="card-pf-title" translatable="yes">Services</h2>
+        </div>
+        <div class="card-pf-body">
             <div class="well blank-slate-pf spacious" ng-if="servicesState() == 'failed'">
                 <div class="blank-slate-pf-icon">
                     <i ng-if="failure.status == 403" class="fa fa-lock"></i>
@@ -141,7 +138,8 @@
                 <h3>No services present</h3>
                 <p translatable="yes">You can deploy an application to your cluster.</p>
             </div>
-            <table class="table table-hover" ng-if="servicesState() == 'ready'">
+            <table class="listing dashboard-list" ng-if="servicesState() == 'ready'"
+                ng-class="{editable: editServices}">
                 <thead>
                     <tr>
                         <th translatable="yes">Name</th>
@@ -153,7 +151,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="service in services track by service.metadata.uid"
+                    <tr class="listing-item"
+                            ng-repeat="service in services track by service.metadata.uid"
                             data-name="{{service.metadata.name}}"
                             ng-class="{highlight: service.metadata.uid == highlighted}"
                             ng-click="jumpService($event, service)"
@@ -173,29 +172,26 @@
             </table>
         </div>
     </div>
-
-    <div class="col-md-4">
-        <div id="node-list" class="panel panel-default dashboard-list">
-            <div class="panel-heading">
-                <span class="pull-right">
-                    <button title="Add Kubernetes Node" id="add-node" class="btn btn-primary fa fa-plus"
-                        ng-click="addNode()"></button>
-                </span>
-                <span translatable="yes">Kubernetes Nodes</span>
+    <div class="card-pf" id="node-list">
+        <div class="card-pf-heading">
+            <div class="pull-right">
+                <button title="Add Kubernetes Node" id="add-node" class="btn btn-primary fa fa-plus"
+                    ng-click="addNode()"></button>
             </div>
-            <table class="table table-hover">
+            <h2 class="card-pf-title" translatable="yes">Nodes</h2>
+        </div>
+        <div class="card-pf-body">
+            <table class="listing dashboard-list">
                 <thead>
                     <tr>
-                        <th translatable="yes">Machines</th>
-                        <th translatable="yes">Address</th>
+                        <th translatable="yes">Name</th>
                         <th translatable="yes">Containers</th>
                         <th class="status"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-click="navigateNode(node)" ng-repeat="node in nodes">
+                    <tr ng-click="navigateNode(node)" ng-repeat="node in nodes" class="listing-item">
                         <td>{{node.metadata.name}}</td>
-                        <td>{{node.spec.externalID}}</td>
                         <td class="containers">{{nodeContainers(node)}}</td>
                         <td class="status">
                             <span kubernetes-status-icon status="nodeStatus(node)"></span>
@@ -205,5 +201,4 @@
             </table>
         </div>
     </div>
-</div>
 </div>

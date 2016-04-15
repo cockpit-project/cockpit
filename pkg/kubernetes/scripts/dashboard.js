@@ -138,7 +138,7 @@
                 $scope.$watch(attributes["status"], function(status) {
                     element
                         .toggleClass("spinner spinner-sm", status == "wait")
-                        .toggleClass("fa fa-exclamation-triangle fa-failed", status == "fail");
+                        .toggleClass("pficon pficon-error-circle-o", status == "fail");
                 });
             }
         };

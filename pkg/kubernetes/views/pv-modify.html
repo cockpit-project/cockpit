@@ -10,14 +10,14 @@
                     <label class="control-label" translatable="yes">Type</label>
                 </td>
                 <td ng-if="!item" class="dialog-wrapper">
-                    <div id="storage-type" class="btn-group bootstrap-select form-control" dropdown>
+                    <div id="volume-type" class="btn-group bootstrap-select form-control" dropdown>
                         <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
                             <span class="pull-left">{{ selected.name }}</span>
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
                             <li ng-repeat="type in types" ng-class="{ checked: selected.name == type.name }">
-                                <a id="storage-type-{{type.type}}" ng-click="select(type)">{{type.name}}</a>
+                                <a id="volume-type-{{type.type}}" ng-click="select(type)">{{type.name}}</a>
                             </li>
                         </ul>
                     </div>

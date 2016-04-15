@@ -30,7 +30,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     <script src="../scripts/kube-client-cockpit.js"></script>
     <script src="../scripts/listing.js"></script>
     <script src="../scripts/dialog.js"></script>
-    <script src="../scripts/storage.js"></script>
+    <script src="../scripts/volumes.js"></script>
     <script src="../scripts/utils.js"></script>
 </head>
 <body>
@@ -48,10 +48,10 @@ function suite(fixtures) {
     /* Filled in with a function */
     var inject;
 
-    var module = angular.module("kubernetes.storage.tests", [
+    var module = angular.module("kubernetes.volumes.tests", [
         "kubeClient",
         'kubeClient.cockpit',
-        "kubernetes.storage",
+        "kubernetes.volumes",
     ])
 
     .config([
@@ -63,7 +63,7 @@ function suite(fixtures) {
         }
     ])
 
-    function storageTest(name, count, fixtures, func) {
+    function volumesTest(name, count, fixtures, func) {
         test(name, function() {
             expect(count);
             inject([
@@ -78,29 +78,29 @@ function suite(fixtures) {
         });
     }
 
-    storageTest("pods for Claim", 4, fixtures, [
-        "storageData",
+    volumesTest("pods for Claim", 4, fixtures, [
+        "volumeData",
         'kubeSelect',
-        function(storageData, select) {
+        function(volumeData, select) {
             var claim = select().kind("PersistentVolumeClaim").name("bound-claim").one();
-            var pods = storageData.podsForClaim(claim);
+            var pods = volumeData.podsForClaim(claim);
             equal(pods.length, 1, "number of pods");
             equal(pods.one().metadata.name, "mock-pod", "correct pod");
 
-            pods = storageData.podsForClaim();
+            pods = volumeData.podsForClaim();
             deepEqual(pods.length, 0, "null claim pods");
 
-            pods = storageData.podsForClaim({});
+            pods = volumeData.podsForClaim({});
             deepEqual(pods.length, 0, "empty claim pods");
         }
     ]);
 
-    storageTest("volumes for Pod", 4, fixtures, [
-        "storageData",
+    volumesTest("volumes for Pod", 4, fixtures, [
+        "volumeData",
         'kubeSelect',
-        function(storageData, select) {
+        function(volumeData, select) {
             var pod = select().kind("Pod").one();
-            var volumes = storageData.volumesForPod(pod);
+            var volumes = volumeData.volumesForPod(pod);
             deepEqual(volumes, {
               "default-token-luvqo": {
                 "name": "default-token-luvqo",
@@ -155,69 +155,69 @@ function suite(fixtures) {
                 }
               }
             });
-            equal(volumes, storageData.volumesForPod(pod), "same object");
+            equal(volumes, volumeData.volumesForPod(pod), "same object");
 
-            deepEqual(storageData.volumesForPod(), {}, "No null volumes");
-            deepEqual(storageData.volumesForPod({}), {}, "No empty volumes");
+            deepEqual(volumeData.volumesForPod(), {}, "No null volumes");
+            deepEqual(volumeData.volumesForPod({}), {}, "No empty volumes");
         }
     ]);
 
-    storageTest("claim From Volume Source", 4, fixtures, [
-        "storageData",
+    volumesTest("claim From Volume Source", 4, fixtures, [
+        "volumeData",
         'kubeSelect',
-        function(storageData, select) {
+        function(volumeData, select) {
             var pod = select().kind("Pod").one();
-            var volumes = storageData.volumesForPod(pod);
+            var volumes = volumeData.volumesForPod(pod);
             var source = volumes["host-tmp"]["persistentVolumeClaim"];
-            var claim = storageData.claimFromVolumeSource(source, "default");
+            var claim = volumeData.claimFromVolumeSource(source, "default");
             equal(claim.metadata.name, "bound-claim", "correct claim");
             equal(claim.kind, "PersistentVolumeClaim", "correct type");
 
-            deepEqual(storageData.claimFromVolumeSource(), null, "No null volumes");
-            deepEqual(storageData.claimFromVolumeSource({}), null, "No empty volumes");
+            deepEqual(volumeData.claimFromVolumeSource(), null, "No null volumes");
+            deepEqual(volumeData.claimFromVolumeSource({}), null, "No empty volumes");
         }
     ]);
 
-    storageTest("claim For Volume", 5, fixtures, [
-        "storageData",
+    volumesTest("claim For Volume", 5, fixtures, [
+        "volumeData",
         'kubeSelect',
-        function(storageData, select) {
+        function(volumeData, select) {
             var bound = select().kind("PersistentVolume").name("bound").one();
-            var claim = storageData.claimForVolume(bound);
+            var claim = volumeData.claimForVolume(bound);
 
             equal(claim.metadata.name, "bound-claim", "correct claim");
             equal(claim.kind, "PersistentVolumeClaim", "correct claim");
 
             var unbound = select().kind("PersistentVolume").name("unbound").one();
-            equal(storageData.claimForVolume(unbound), null, "no claim");
+            equal(volumeData.claimForVolume(unbound), null, "no claim");
 
-            equal(storageData.claimForVolume(), null, "null volume");
-            equal(storageData.claimForVolume(), null, "empty volume");
+            equal(volumeData.claimForVolume(), null, "null volume");
+            equal(volumeData.claimForVolume(), null, "empty volume");
         }
     ]);
 
 
-    storageTest("volume Types", 4, fixtures, [
-        "storageData",
+    volumesTest("volume Types", 4, fixtures, [
+        "volumeData",
         'kubeSelect',
-        function(storageData, select) {
+        function(volumeData, select) {
             var pv = select().kind("PersistentVolume").name("bound").one();
-            var volumes = storageData.volumesForPod(select().kind("Pod").one());
-            equal(storageData.getVolumeType(pv.spec), "hostPath", "correct type");
-            equal(storageData.getVolumeType(volumes["default-token-luvqo"]), "secret", "secret volume");
-            equal(storageData.getVolumeType(), undefined, "null volume");
-            equal(storageData.getVolumeType({}), undefined, "empty volume");
+            var volumes = volumeData.volumesForPod(select().kind("Pod").one());
+            equal(volumeData.getVolumeType(pv.spec), "hostPath", "correct type");
+            equal(volumeData.getVolumeType(volumes["default-token-luvqo"]), "secret", "secret volume");
+            equal(volumeData.getVolumeType(), undefined, "null volume");
+            equal(volumeData.getVolumeType({}), undefined, "empty volume");
         }
     ]);
 
-    storageTest("volume Labels", 3, fixtures, [
-        "storageData",
+    volumesTest("volume Labels", 3, fixtures, [
+        "volumeData",
         'kubeSelect',
-        function(storageData, select) {
+        function(volumeData, select) {
             var pv = select().kind("PersistentVolume").name("bound").one();
-            equal(storageData.getVolumeLabel(), "Unknown", "null volume");
-            equal(storageData.getVolumeLabel({}), "Unknown", "empty volume");
-            equal(storageData.getVolumeLabel(pv.spec), "Host Path", "volume label");
+            equal(volumeData.getVolumeLabel(), "Unknown", "null volume");
+            equal(volumeData.getVolumeLabel({}), "Unknown", "empty volume");
+            equal(volumeData.getVolumeLabel(pv.spec), "Host Path", "volume label");
         }
     ]);
 
@@ -238,7 +238,7 @@ function suite(fixtures) {
         }
     ]);
 
-    angular.bootstrap(document, ['kubernetes.storage.tests']);
+    angular.bootstrap(document, ['kubernetes.volumes.tests']);
 }
 
 /* Invoke the test suite with this data */

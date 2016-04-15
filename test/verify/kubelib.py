@@ -53,8 +53,8 @@ class KubernetesCase(MachineCase):
         """ % (port, timeout * 2, scheme)
         self.machine.execute(script=waiter)
 
-class StorageTests(object):
-    def testStorage(self):
+class VolumeTests(object):
+    def testVolumes(self):
         b = self.browser
         m = self.machine
 
@@ -70,16 +70,16 @@ class StorageTests(object):
             m = self.openshift
 
         self.login_and_go("/kubernetes")
-        b.wait_present("#kubernetes-storage")
-        b.click("#kubernetes-storage")
+        b.wait_present("#kubernetes-volumes")
+        b.click("#kubernetes-volumes")
         b.wait_present(".pv-listing")
 
         b.wait_present("#register-volume")
         b.click("#register-volume")
         b.wait_present("modal-dialog")
-        b.click("modal-dialog #storage-type button ")
-        b.click("#storage-type #storage-type-nfs")
-        b.wait_in_text("modal-dialog #storage-type button", "NFS")
+        b.click("modal-dialog #volume-type button ")
+        b.click("#volume-type #volume-type-nfs")
+        b.wait_in_text("modal-dialog #volume-type button", "NFS")
 
         b.set_val("modal-dialog #modify-name", "A Bad Name")
         b.set_val("modal-dialog #modify-capacity", "invalid")
@@ -108,9 +108,9 @@ class StorageTests(object):
 
         b.click("#register-volume")
         b.wait_present("modal-dialog")
-        b.click("modal-dialog #storage-type button ")
-        b.click("#storage-type #storage-type-hostPath")
-        b.wait_in_text("modal-dialog #storage-type button", "Host Path")
+        b.click("modal-dialog #volume-type button ")
+        b.click("#volume-type #volume-type-hostPath")
+        b.wait_in_text("modal-dialog #volume-type button", "Host Path")
 
         b.set_val("modal-dialog #modify-name", "pv2")
         b.set_val("modal-dialog #modify-capacity", pv2_size)
@@ -202,9 +202,9 @@ class StorageTests(object):
         b.wait_in_text(".listing-body div[data-id='host-tmp']", "mock-volume-claim")
         b.wait_in_text(".listing-body div[data-id='host-tmp']", "mock-volume-container")
         b.wait_in_text(".listing-body div[data-id='host-tmp']", "/mount-path-tmp")
-        b.wait_present(".listing-body div[data-id='host-tmp'] a[href='#/storage/{}']".format(pv_id))
+        b.wait_present(".listing-body div[data-id='host-tmp'] a[href='#/volumes/{}']".format(pv_id))
 
-class KubernetesCommonTests(StorageTests):
+class KubernetesCommonTests(VolumeTests):
 
     def check_logs(self, b):
         # Check that container log output shows up
@@ -451,7 +451,7 @@ class KubernetesCommonTests(StorageTests):
         # Assert that at least one link between Service and Pod has loaded
         b.wait_present("svg line.ServicePod")
 
-class OpenshiftCommonTests(StorageTests):
+class OpenshiftCommonTests(VolumeTests):
 
     def testBasic(self):
         m = self.machine

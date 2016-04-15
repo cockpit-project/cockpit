@@ -19,12 +19,9 @@
 
     <refsection>
       <title>Loading cockpit.js</title>
-      <para><code>cockpit.js</code> should be loaded via a script tag. In general jQuery should
-        be loaded before <code>cockpit.js</code> as in the example below. If jQuery is not loaded
-        then only the <link linkend="cockpit-channels">raw channel API</link> will be defined.</para>
+      <para><code>cockpit.js</code> should be loaded via a script tag.</para>
 
 <programlisting><![CDATA[
-<script src="../base1/jquery.js">
 <script src="../base1/cockpit.js">
 ]]></programlisting>
     </refsection>
@@ -126,9 +123,9 @@
       <para>To use <ulink url="http://mustache.github.io/">Mustache</ulink> in your package include
         the above script.</para>
 
-      <para>The current jQuery version is 0.8. In the <code>latest</code> package we may
-        track relatively recent versions of jQuery. Other packages may provide more stable versions
-        of jQuery in the future.</para>
+      <para>The current mustache version is 0.8. In the <code>latest</code> package we may
+        track relatively recent versions of mustache. Other packages may provide more stable versions
+        of mustache in the future.</para>
     </refsection>
   </refentry>
 

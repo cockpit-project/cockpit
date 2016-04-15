@@ -6,6 +6,11 @@
     </div>
 </filter-bar>
 
+<div>
+    <kubernetes-service-graph id="graphs" ng-if="settings.flavor != 'openshift'">
+    </kubernetes-service-graph>
+</div>
+
 <div class="container-cards-pf dashboard-cards">
     <div class="card-pf card-pf-aggregate-status card-pf-accented dashboard-status">
         <h2 class="card-pf-title">{{pods.length}} <span translatable="yes">Pods</span></h2>

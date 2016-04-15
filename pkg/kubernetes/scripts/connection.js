@@ -572,7 +572,7 @@
                     $scope.selectCluster = function selectCluster(cluster) {
                         var inner = cluster && cluster.cluster ? cluster.cluster : {};
                         $scope.fields.address = inner.server;
-                        $scope.fields.skipVerify = inner["insecure-skip-tls-verify"];
+                        $scope.fields.skipVerify = !!inner["insecure-skip-tls-verify"];
                         $scope.$emit("selectCluster", cluster);
                     };
 

@@ -141,7 +141,7 @@ kubernetes_MODULES = \
 	pkg/kubernetes/scripts/graphs.js \
 	pkg/kubernetes/scripts/main.js \
 	pkg/kubernetes/scripts/object-describer.js \
-	pkg/kubernetes/scripts/storage.js \
+	pkg/kubernetes/scripts/volumes.js \
 	pkg/kubernetes/scripts/topology.js \
 	pkg/kubernetes/scripts/topology-graph.js \
 	$(NULL)
@@ -150,7 +150,7 @@ kubernetes_TESTS = \
 	pkg/kubernetes/tests/test-kube-client.html \
 	pkg/kubernetes/tests/test-images.html \
 	pkg/kubernetes/tests/test-projects.html \
-	pkg/kubernetes/tests/test-storage.html \
+	pkg/kubernetes/tests/test-volumes.html \
 	pkg/kubernetes/tests/test-utils.html \
 	pkg/kubernetes/tests/test-connection.html \
 	$(NULL)
@@ -164,7 +164,7 @@ kubernetes_LESS = \
 	pkg/kubernetes/styles/revealable.less \
 	pkg/kubernetes/styles/topology.less \
 	pkg/kubernetes/styles/topology-graph.less \
-	pkg/kubernetes/styles/storage.less \
+	pkg/kubernetes/styles/volumes.less \
 	$(NULL)
 
 kubernetes_MIN = \

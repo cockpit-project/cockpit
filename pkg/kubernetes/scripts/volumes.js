@@ -22,7 +22,7 @@
 
     var VOLUME_FACTORY_SUFFIX = "VolumeFields";
 
-    angular.module('kubernetes.storage', [
+    angular.module('kubernetes.volumes', [
         'ngRoute',
         'kubeClient',
         'kubernetes.listing',
@@ -33,22 +33,22 @@
         '$routeProvider',
         function($routeProvider) {
             $routeProvider
-                .when('/storage', {
+                .when('/volumes', {
                     templateUrl: 'views/pv-listing.html',
-                    controller: 'StorageCtrl'
+                    controller: 'VolumeCtrl'
                 })
 
-                .when('/storage/:target', {
-                    controller: 'StorageCtrl',
+                .when('/volumes/:target', {
+                    controller: 'VolumeCtrl',
                     templateUrl: 'views/pv-page.html'
                 });
         }
     ])
 
     /*
-     * The controller for the storage view.
+     * The controller for the volumes view.
      */
-    .controller('StorageCtrl', [
+    .controller('VolumeCtrl', [
         '$scope',
         'kubeLoader',
         'kubeSelect',
@@ -56,7 +56,7 @@
         'filterService',
         '$routeParams',
         '$location',
-        'storageActions',
+        'volumeActions',
         '$timeout',
         function($scope, loader, select,  ListingState, filterService,
                  $routeParams, $location, actions, $timeout) {
@@ -89,7 +89,7 @@
                 /* If the promise is successful, redirect to another page */
                 promise.then(function() {
                     if ($scope.target)
-                        $location.path($scope.viewUrl('storage'));
+                        $location.path($scope.viewUrl('volumes'));
                 });
 
                 return promise;
@@ -98,7 +98,7 @@
             $scope.$on("activate", function(ev, id) {
                 if (!$scope.listing.expandable) {
                     ev.preventDefault();
-                    $location.path('/storage/' + id);
+                    $location.path('/volumes/' + id);
                 }
             });
         }
@@ -146,16 +146,16 @@
     )
 
     .directive('pvClaim', [
-        'storageData',
+        'volumeData',
         'kubeLoader',
-        function(storageData, loader) {
+        function(volumeData, loader) {
             return {
                 restrict: 'A',
                 templateUrl: 'views/pv-claim.html',
                 link: function(scope, element, attrs) {
                     var c = loader.listen(function() {
-                        scope.pvc = storageData.claimForVolume(scope.item);
-                        scope.pods = storageData.podsForClaim(scope.pvc);
+                        scope.pvc = volumeData.claimForVolume(scope.item);
+                        scope.pods = volumeData.podsForClaim(scope.pvc);
                     });
 
                     loader.watch("PersistentVolume");
@@ -182,7 +182,7 @@
         }
     )
 
-    .factory("storageData", [
+    .factory("volumeData", [
         'kubeSelect',
         "KubeTranslate",
         "KubeMapNamedArray",
@@ -332,15 +332,15 @@
         }
     ])
 
-    .factory('storageActions', [
+    .factory('volumeActions', [
         '$modal',
         '$injector',
-        'storageData',
-        function($modal, $injector, storageData) {
+        'volumeData',
+        function($modal, $injector, volumeData) {
 
             function canEdit(item) {
                 var spec = item ? item.spec : {};
-                var type = storageData.getVolumeType(spec);
+                var type = volumeData.getVolumeType(spec);
                 if (type)
                     return $injector.has(type + VOLUME_FACTORY_SUFFIX);
                 return true;
@@ -395,11 +395,11 @@
     ])
 
     .factory("defaultVolumeFields", [
-        "storageData",
+        "volumeData",
         "KubeStringToBytes",
         "KubeTranslate",
         "KUBE_NAME_RE",
-        function (storageData, stringToBytes, translate, NAME_RE) {
+        function (volumeData, stringToBytes, translate, NAME_RE) {
             var _ = translate.gettext;
             function build (item) {
                 if (!item) {
@@ -429,7 +429,7 @@
                     data: null,
                 };
 
-                validModes = Object.keys(storageData.accessModes);
+                validModes = Object.keys(volumeData.accessModes);
                 for (i = 0; i < validModes.length; i++) {
                     var mode = validModes[i];
                     if (fields[mode])
@@ -460,7 +460,7 @@
                 }
 
                 policy = fields.policy ? fields.policy.trim() : fields.policy;
-                if (!storageData.reclaimPolicies[policy]) {
+                if (!volumeData.reclaimPolicies[policy]) {
                     ex = new Error(_("Please select a valid policy option."));
                     ex.target = "#last-policy";
                     ret.errors.push(ex);
@@ -628,19 +628,19 @@
         "$injector",
         "$modalInstance",
         "dialogData",
-        "storageData",
+        "volumeData",
         "defaultVolumeFields",
         "kubeMethods",
         "KubeTranslate",
-        function($q, $scope, $injector, $instance, dialogData, storageData,
+        function($q, $scope, $injector, $instance, dialogData, volumeData,
                  defaultVolumeFields, methods, translate) {
             var _ = translate.gettext;
             var volumeFields, valName;
 
             angular.extend($scope, dialogData);
             $scope.fields = defaultVolumeFields.build($scope.item);
-            $scope.reclaimPolicies = storageData.reclaimPolicies;
-            $scope.accessModes = storageData.accessModes;
+            $scope.reclaimPolicies = volumeData.reclaimPolicies;
+            $scope.accessModes = volumeData.accessModes;
 
             $scope.types = [
                 {
@@ -654,7 +654,7 @@
             ];
 
             if ($scope.item) {
-                $scope.current_type = storageData.getVolumeType($scope.item.spec);
+                $scope.current_type = volumeData.getVolumeType($scope.item.spec);
                 valName = $scope.current_type+VOLUME_FACTORY_SUFFIX;
                 if ($injector.has(valName)) {
                     volumeFields = $injector.get(valName, "PVModifyCtrl");
@@ -744,29 +744,29 @@
     ])
 
     .filter("formatVolumeType", [
-        'storageData',
-        function(storageData) {
+        'volumeData',
+        function(volumeData) {
             return function(volume) {
-                return storageData.getVolumeLabel(volume || {});
+                return volumeData.getVolumeLabel(volume || {});
             };
         }
     ])
 
     .filter("reclaimLabel", [
-        'storageData',
-        function(storageData) {
+        'volumeData',
+        function(volumeData) {
             return function(policy) {
-                var label = storageData.reclaimPolicies[policy || ""];
+                var label = volumeData.reclaimPolicies[policy || ""];
                 return label ? label : policy;
             };
         }
     ])
 
     .filter("accessModeLabel", [
-        'storageData',
-        function(storageData) {
+        'volumeData',
+        function(volumeData) {
             return function(mode) {
-                var label = storageData.accessModes[mode || ""];
+                var label = volumeData.accessModes[mode || ""];
                 return label ? label : mode;
             };
         }

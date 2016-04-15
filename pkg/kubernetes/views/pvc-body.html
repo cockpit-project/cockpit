@@ -5,7 +5,7 @@
     <dd>{{ item.metadata.name }}</dd>
     <dt translatable="yes">Volume</dt>
     <dd>
-        <a ng-if="item.spec.volumeName && settings.isAdmin" href="#/storage/{{ item.spec.volumeName }}">{{ item.spec.volumeName }}</a>
+        <a ng-if="item.spec.volumeName && settings.isAdmin" href="#/volumes/{{ item.spec.volumeName }}">{{ item.spec.volumeName }}</a>
         <span ng-if="item.spec.volumeName && !settings.isAdmin">{{ item.spec.volumeName }}</span>
         <span ng-if="!item.spec.volumeName" translatable="yes">No Volume Bound</span>
     </dd>

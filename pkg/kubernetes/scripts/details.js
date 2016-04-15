@@ -53,7 +53,7 @@
         'kubeClient',
         'kubernetes.listing',
         'kubernetes.date',
-        'kubernetes.storage',
+        'kubernetes.volumes',
     ])
 
     .config([
@@ -79,9 +79,9 @@
         '$routeParams',
         '$location',
         'itemActions',
-        'storageData',
+        'volumeData',
         function($scope, containers, loader, select, discoverSettings,
-                 ListingState, $routeParams, $location, actions, storageData) {
+                 ListingState, $routeParams, $location, actions, volumeData) {
 
             var c = loader.listen(function() {
                 $scope.pods = select().kind("Pod");
@@ -164,8 +164,8 @@
                     return status.phase;
             };
 
-            $scope.volumesForPod = storageData.volumesForPod;
-            $scope.claimFromVolumeSource = storageData.claimFromVolumeSource;
+            $scope.volumesForPod = volumeData.volumesForPod;
+            $scope.claimFromVolumeSource = volumeData.claimFromVolumeSource;
 
             /* All the actions available on the $scope */
             angular.extend($scope, actions);

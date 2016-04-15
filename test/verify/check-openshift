@@ -82,7 +82,7 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
 
         b.wait_present("#service-list")
         b.wait_in_text("#service-list", "docker-registry")
-        b.wait_present("a[href='#/storage']")
+        b.wait_present("a[href='#/volumes']")
 
         b.wait_present("#kubernetes-change-connection")
         b.click("#kubernetes-change-connection")
@@ -112,7 +112,7 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
         # scruffy isn't a admin
         b.wait_present("#service-list")
         b.wait_not_in_text("#service-list", "docker-registry")
-        b.wait_not_present("a[href='#/storage']")
+        b.wait_not_present("a[href='#/volumes']")
 
         b.wait_present("#kubernetes-change-connection")
         b.click("#kubernetes-change-connection")

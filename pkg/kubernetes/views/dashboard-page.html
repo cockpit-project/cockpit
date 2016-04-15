@@ -1,5 +1,106 @@
 <filter-bar class="content-filter">
 </filter-bar>
+
+<div class="container-cards-pf dashboard-cards">
+    <div class="card-pf card-pf-aggregate-status card-pf-accented dashboard-status">
+        <h2 class="card-pf-title">{{pods.length}} <span translatable="yes">Pods</span></h2>
+        <div class="card-pf-body">
+            <p class="card-pf-aggregate-status-notifications">
+                <span class="card-pf-aggregate-status-notification" ng-if="status.pods.Pending.length"
+                    title="Pending pods">
+                    <a href="#"><span class="spinner spinner-sm"></span>{{status.pods.Pending.length}}</a>
+                </span>
+                <span class="card-pf-aggregate-status-notification" ng-if="status.pods.Failed.length"
+                    title="Failed pods">
+                    <a href="#"><span class="pficon pficon-error-circle-o"></span>{{status.pods.Failed.length}}</a>
+                </span>
+                <span class="card-pf-aggregate-status-notification" ng-if="status.pods.Unknown.length"
+                    title="Pods with unknown status">
+                    <a href="#"><span class="pficon pficon-warning-triangle-o"></span>{{status.pods.Unknown.length}}</a>
+                </span>
+                <span class="card-pf-aggregate-status-notification"
+                    ng-if="!status.pods.Pending.length && !status.pods.Failed.length && !status.pods.Unknown.length">
+                    <a href="#" ng-if="pods.length > 0">
+                        <span class="pficon pficon-ok"></span>
+                        <span class="card-pf-aggregate-status-text" translatable="yes">All running</span>
+                    </a>
+                    <a href="#" ng-if="pods.length == 0">
+                        <span class="card-pf-aggregate-status-text" translatable="yes">No pods deployed</span>
+                    </a>
+                </span>
+            </p>
+        </div>
+    </div>
+    <div class="card-pf card-pf-aggregate-status card-pf-accented dashboard-status">
+        <h2 class="card-pf-title">{{volumes.length}} <span translatable="yes">Volumes</span></h2>
+        <div class="card-pf-body">
+            <p class="card-pf-aggregate-status-notifications">
+                <span class="card-pf-aggregate-status-notification" ng-if="status.volumes.Pending.length"
+                    title="Pending volumes">
+                    <a href="#"><span class="spinner spinner-sm"></span>{{status.volumes.Pending.length}}</a>
+                </span>
+                <span class="card-pf-aggregate-status-notification" ng-if="status.volumes.Released.length"
+                    title="Released volumes awaiting cleanup">
+                    <a href="#"><span class="pficon pficon-warning-triangle-o"></span>{{status.volumes.Released.length}}</a>
+                </span>
+                <span class="card-pf-aggregate-status-notification" ng-if="status.volumes.Failed.length"
+                    title="Volumes that have failed">
+                    <a href="#"><span class="pficon pficon-error-circle-o"></span>{{status.volumes.Failed.length}}</a>
+                </span>
+                <span class="card-pf-aggregate-status-notification" ng-if="status.volumes.Available.length"
+                    title="Available volumes not yet in use">
+                    <a href="#"><span class="pficon pficon-ok"></span>{{status.volumes.Available.length}}</a>
+                </span>
+                <span class="card-pf-aggregate-status-notification"
+                    ng-if="!status.volumes.Pending.length && !status.volumes.Released.length && !status.volumes.Failed.length && !status.volumes.Available.length">
+                    <a href="#" ng-if="volumes.length > 0">
+                        <span class="pficon pficon-ok"></span><span class="card-pf-aggregate-status-text"
+                            translatable="yes">All in use</span>
+                    </a>
+                    <a href="#" ng-if="volumes.length == 0">
+                        <span class="card-pf-aggregate-status-text"
+                            translatable="yes">No volumes in use</span>
+                    </a>
+                </span>
+            </p>
+        </div>
+    </div>
+    <div class="card-pf card-pf-aggregate-status card-pf-accented dashboard-status">
+        <h2 class="card-pf-title">{{nodes.length}} <span translatable="yes">Nodes</span></h2>
+        <div class="card-pf-body">
+            <p class="card-pf-aggregate-status-notifications">
+                <span class="card-pf-aggregate-status-notification" ng-if="status.nodes.Pending.length"
+                    title="Pending nodes">
+                    <a href="#"><span class="spinner spinner-sm"></span>{{status.nodes.Pending.length}}</a>
+                </span>
+                <span class="card-pf-aggregate-status-notification" ng-if="status.nodes.Terminated.length"
+                    title="Terminated nodes">
+                    <a href="#"><span class="pficon pficon-warning-triangle-o"></span>{{status.nodes.Terminated.length}}</a>
+                </span>
+                <span class="card-pf-aggregate-status-notification" ng-if="status.nodes.NotReady.length"
+                    title="Nodes that are not ready">
+                    <a href="#"><span class="pficon pficon-error-circle-o"></span>{{status.nodes.NotReady.length}}</a>
+                </span>
+                <span class="card-pf-aggregate-status-notification" ng-if="status.nodes.OutOfDisk.length"
+                    title="Out of disk space">
+                    <a href="#"><span class="pficon pficon-volume"></span>{{status.nodes.OutOfDisk.length}}</a>
+                </span>
+                <span class="card-pf-aggregate-status-notification"
+                    ng-if="!status.nodes.Pending.length && !status.nodes.Terminated.length && !status.nodes.NotReady.length && !status.nodes.OutofDisk.length">
+                    <a href="#" ng-if="nodes.length > 0">
+                        <span class="pficon pficon-ok"></span><span class="card-pf-aggregate-status-text"
+                            translatable="yes">All healthy</span>
+                    </a>
+                    <a href="#" ng-if="pods.length == 0">
+                        <span class="pficon pficon-warning-triangle-o"></span>
+                        <span class="card-pf-aggregate-status-text" translatable="yes">No nodes in cluster</span>
+                    </a>
+                </span>
+            </p>
+        </div>
+    </div>
+</div>
+
 <div class="dashboard">
 <p align="right" ng-if="settings.canChangeConnection"><a id="kubernetes-change-connection" ng-click="changeAuth()" translatable="yes">Connection Settings</a></p>
 <kubernetes-service-graph id="graphs" ng-if="settings.flavor != 'openshift'"></kubernetes-service-graph>

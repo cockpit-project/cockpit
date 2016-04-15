@@ -41,17 +41,38 @@
         '$scope',
         'kubeLoader',
         'kubeSelect',
-        'dashboardActions',
         'dashboardData',
+        'dashboardActions',
         'itemActions',
         'nodeActions',
         '$location',
-        function($scope, loader, select, actions, data, itemActions, nodeActions, $location) {
+        function($scope, loader, select, data, actions, itemActions, nodeActions, $location) {
 
         var c = loader.listen(function() {
             $scope.services = select().kind("Service");
             $scope.nodes = select().kind("Node");
             $scope.pods = select().kind("Pod");
+            $scope.volumes = select().kind("PersistentVolume");
+
+            $scope.status = {
+                pods: {
+                    Pending: $scope.pods.statusPhase("Pending"),
+                    Failed: $scope.pods.statusPhase("Failed"),
+                    Unknown: $scope.pods.statusPhase("Unknown"),
+                },
+                nodes: {
+                    Pending: $scope.nodes.statusPhase("Pending"),
+                    Terminated: $scope.nodes.statusPhase("Terminated"),
+                    NotReady: $scope.nodes.conditionNotTrue("Ready"),
+                    OutOfDisk: $scope.nodes.conditionTrue("OutOfDisk"),
+                },
+                volumes: {
+                    Pending: $scope.volumes.statusPhase("Pending"),
+                    Available: $scope.volumes.statusPhase("Available"),
+                    Released: $scope.volumes.statusPhase("Released"),
+                    Failed: $scope.volumes.statusPhase("Failed"),
+                },
+            };
         });
 
         $scope.$on("$destroy", function() {
@@ -195,6 +216,47 @@
     .factory('dashboardData', [
         'kubeSelect',
         function(select) {
+            select.register({
+                name: "statusPhase",
+                digest: function(arg) {
+                    var status;
+                    if (typeof arg == "string") {
+                        return arg;
+                    } else {
+                        status = arg.status || { };
+                        return status.phase ? status.phase : null;
+                    }
+                }
+            });
+
+            function conditionDigest(arg, match) {
+                if (typeof arg == "string")
+                    return [ arg ];
+                var conditions = (arg.status || { }).conditions || [ ];
+                var result = [ ];
+                conditions.forEach(function(condition) {
+                    if ((match && condition.status == "True") ||
+                        (!match && condition.status != "True")) {
+                        result.push(condition.type);
+                    }
+                });
+                return result;
+            }
+
+            select.register({
+                name: "conditionTrue",
+                digests: function(arg) {
+                    return conditionDigest(arg, true);
+                }
+            });
+
+            select.register({
+                name: "conditionNotTrue",
+                digests: function(arg) {
+                    return conditionDigest(arg, false);
+                }
+            });
+
             return {
                 nodeStatus: function nodeStatus(node) {
                     var status = node.status || { };

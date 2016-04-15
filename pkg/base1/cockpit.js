@@ -2083,10 +2083,10 @@ function basic_scope(cockpit, jquery) {
     cockpit.grid = function grid(interval, beg, end) {
         return new SeriesGrid(interval, beg, end);
     };
-}
 
-
-function full_scope(cockpit, $, po) {
+    /* --------------------------------------------------------------------
+     * Basic utilities.
+     */
 
     function BasicError(problem, message) {
         this.problem = problem;
@@ -2589,8 +2589,8 @@ function full_scope(cockpit, $, po) {
             "data": { value: { }, enumerable: false }
         });
 
-        if (typeof $ === "function") {
-            Object.defineProperty(self, $.expando, {
+        if (typeof window.$ === "function") {
+            Object.defineProperty(self, window.$.expando, {
                 value: { }, writable: true, enumerable: false
             });
         }
@@ -2708,8 +2708,8 @@ function full_scope(cockpit, $, po) {
             }
         });
 
-        if (typeof $ === "function") {
-            Object.defineProperty(self, $.expando, {
+        if (typeof window.$ === "function") {
+            Object.defineProperty(self, window.$.expando, {
                 value: { }, writable: true, enumerable: false
             });
         }
@@ -3972,7 +3972,7 @@ function full_scope(cockpit, $, po) {
         };
     }
 
-} /* full_scope */
+} /* scope end */
 
 /*
  * Register this script as a module and/or with globals
@@ -3982,18 +3982,10 @@ var cockpit = { };
 event_mixin(cockpit, { });
 
 var basics = false;
-var extra = false;
-
-function factory(jquery) {
+function factory() {
     if (!basics) {
-        basic_scope(cockpit, jquery);
+        basic_scope(cockpit);
         basics = true;
-    }
-    if (!extra) {
-        if (jquery) {
-            full_scope(cockpit, jquery);
-            extra = true;
-        }
     }
     return cockpit;
 }
@@ -4011,15 +4003,15 @@ if (pos !== -1)
 /* cockpit.js is being loaded as a <script>  and no other loader around? */
 if (pos !== -1) {
     self_module_id = last.substring(pos + 1, last.indexOf(".", pos + 1));
-    window.cockpit = factory(window.jQuery);
+    window.cockpit = factory();
 }
 
 /* Cockpit loaded via AMD loader */
-if (typeof define === 'function' && define.amd) {
+if (is_function(window.define) && window.define.amd) {
     if (self_module_id)
-        define(self_module_id, ['jquery'], window.cockpit);
+        define(self_module_id, [], window.cockpit);
     else
-        define(['jquery'], factory);
+        define([], factory);
 }
 
 })();

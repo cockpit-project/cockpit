@@ -32,7 +32,7 @@
         test.assert(typeof $ === "undefined", "$ is not defined");
         test.assert(typeof cockpit === "object", "cockpit is defined");
         test.assert(cockpit.channel !== undefined, "cockpit.channel is defined");
-        test.assert(cockpit.spawn === undefined, "cockpit.spawn is undefined");
+        test.assert(cockpit.spawn !== undefined, "cockpit.spawn is defined");
 
         /* Actually try to do something useful */
         var got_message = false;

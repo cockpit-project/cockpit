@@ -69,6 +69,7 @@ class TestConnection(KubernetesCase):
         b.click("#kubernetes-reconnect")
         b.wait_present("#node-list")
         b.wait_in_text("#node-list", "127.0.0.1")
+        b.logout()
 
         # Check that this failed as a double check
         output = m.execute("curl -sS http://localhost:8080/api 2>&1 || true")
@@ -78,7 +79,153 @@ class TestConnection(KubernetesCase):
         output = m.execute("curl -k -sS https://localhost:6443/api 2>&1 || true")
         self.assertIn("Unauthorized", output)
 
-        self.allow_journal_messages(".*: couldn't connect: Connection refused")
+        m.execute("rm -r /home/admin/.kube")
+        self.login_and_go("/kubernetes")
+
+        b.wait_present(".curtains")
+        b.wait_present("#kubernetes-connection-tb")
+        b.click("#kubernetes-connection-tb")
+
+        b.wait_present("modal-dialog")
+        b.wait_in_text("div.modal-footer div.dialog-error", "Connection Error: Unauthorized")
+        b.wait_present("#kubernetes-address")
+        b.wait_present("#kubernetes-cluster")
+        b.wait_not_present("#kubernetes-user")
+
+        b.wait_present("#kubernetes-cluster ul.dropdown-menu")
+        b.wait_in_text("#kubernetes-cluster button", "Add New Cluster")
+
+        b.click("#kubernetes-requires-auth")
+        b.wait_present("#kubernetes-user")
+        b.wait_present("#kubernetes-username")
+        b.wait_in_text("#kubernetes-user button", "Add New User")
+        b.set_val("#kubernetes-address", "")
+        b.click("modal-dialog div.modal-footer button.btn-primary")
+        b.wait_present("#kubernetes-address + div.dialog-error")
+        b.wait_present("#kubernetes-username + div.dialog-error")
+
+        b.set_val("#kubernetes-address", "https://127.0.0.1:6443")
+        b.set_val("#kubernetes-username", "bad")
+        b.set_val("#kubernetes-password", "password")
+
+        b.click("modal-dialog div.modal-footer button.btn-primary")
+        b.wait_present("modal-dialog input[value='pem']")
+        b.wait_present("modal-dialog input[value='skip']")
+        b.wait_in_text("modal-dialog pre", "Certificate:")
+        b.click("modal-dialog input[value='pem']")
+        b.click("modal-dialog div.modal-footer button.btn-primary")
+
+        b.wait_present("#kubernetes-address")
+        b.wait_present("#kubernetes-user")
+        b.wait_in_text("div.modal-footer div.dialog-error", "Connection Error: Unauthorized")
+
+        # Data not saved
+        b.wait_in_text("#kubernetes-cluster button", "Add New Cluster")
+        b.wait_in_text("#kubernetes-user button", "Add New User")
+
+        # Form is
+        b.wait_val("#kubernetes-address", "https://127.0.0.1:6443")
+        b.wait_present("#kubernetes-requires-auth:checked")
+        b.wait_val("#kubernetes-username", "bad")
+
+        b.set_val("#kubernetes-username", "admin")
+        b.set_val("#kubernetes-password", "fubar")
+        b.click("modal-dialog div.modal-footer button.btn-primary")
+        b.wait_not_present("modal-dialog")
+
+        b.wait_present("#node-list")
+        b.wait_in_text("#node-list", "127.0.0.1")
+
+        b.wait_not_present("#kubernetes-change-connection")
+
+        # Temp certificate isn't saved
+        b.reload()
+        b.enter_page("/kubernetes")
+        b.wait_present(".curtains")
+        b.wait_present("#kubernetes-connection-tb")
+        b.click("#kubernetes-connection-tb")
+
+        b.wait_present("modal-dialog input[value='pem']")
+        b.wait_present("modal-dialog input[value='skip']")
+        b.click("modal-dialog input[value='skip']")
+        b.click("modal-dialog div.modal-footer button.btn-primary")
+        b.wait_not_present("modal-dialog")
+
+        b.wait_present("#node-list")
+        b.wait_in_text("#node-list", "127.0.0.1")
+
+        # Reload works
+        b.reload()
+        b.enter_page("/kubernetes")
+        b.wait_present("#node-list")
+        b.wait_in_text("#node-list", "127.0.0.1")
+
+        # Changing works
+        b.wait_present("#kubernetes-change-connection")
+        b.click("#kubernetes-change-connection")
+        b.wait_present("modal-dialog")
+        b.wait_present("#kubernetes-cluster")
+        b.wait_present("#kubernetes-user")
+
+        b.wait_in_text("#kubernetes-cluster button", "127-0-0-1:6443")
+        b.wait_in_text("#kubernetes-user button", "admin/127-0-0-1:6443")
+
+        b.wait_val("#kubernetes-address", "https://127.0.0.1:6443")
+        b.wait_present("#kubernetes-requires-auth:checked")
+        b.wait_val("#kubernetes-username", "admin")
+        b.wait_present("#kubernetes-skip-verify:checked")
+
+        b.set_val("#kubernetes-address", "https://localhost:6443")
+        b.set_val("#kubernetes-username", "scruffy")
+        b.set_val("#kubernetes-password", "scruffy")
+        b.click("modal-dialog div.modal-footer button.btn-primary")
+        b.wait_not_present("modal-dialog")
+
+        # Changes took and dropdowns work
+        b.wait_present("#kubernetes-change-connection")
+        b.click("#kubernetes-change-connection")
+        b.wait_present("modal-dialog")
+        b.wait_present("#kubernetes-cluster")
+        b.wait_present("#kubernetes-user")
+
+        b.wait_in_text("#kubernetes-cluster button", "127-0-0-1:6443")
+        b.click("#kubernetes-cluster button")
+        b.click("#kubernetes-cluster ul li:last-child a")
+        b.wait_in_text("#kubernetes-cluster button", "Add New Cluster")
+        b.wait_val("#kubernetes-address", "")
+        b.wait_present("#kubernetes-skip-verify:not(:checked)")
+
+        b.click("#kubernetes-cluster button")
+        b.click("#kubernetes-cluster ul li:first-child a")
+        b.wait_in_text("#kubernetes-cluster button", "127-0-0-1:6443")
+        b.wait_val("#kubernetes-address", "https://localhost:6443")
+        b.wait_present("#kubernetes-requires-auth:checked")
+        b.wait_present("#kubernetes-skip-verify:checked")
+
+        b.wait_in_text("#kubernetes-user button", "admin/127-0-0-1:6443")
+        b.wait_val("#kubernetes-username", "scruffy")
+        b.click("#kubernetes-user button")
+        b.click("#kubernetes-user ul li:last-child a")
+        b.wait_in_text("#kubernetes-user button", "Add New User")
+        b.wait_val("#kubernetes-username", "")
+        b.wait_val("#kubernetes-password", "")
+        b.click("#kubernetes-user button")
+        b.click("#kubernetes-user ul li:first-child a")
+        b.wait_in_text("#kubernetes-user button", "admin/127-0-0-1:6443")
+        b.wait_val("#kubernetes-username", "scruffy")
+        b.wait_val("#kubernetes-password", "scruffy")
+
+        b.click("modal-dialog div.modal-footer button.btn-cancel")
+        b.wait_not_present("modal-dialog")
+
+        b.wait_present("#node-list")
+        b.wait_in_text("#node-list", "127.0.0.1")
+
+        self.allow_journal_messages(".*: couldn't connect: Connection refused",
+                                    ".*: Unacceptable TLS certificate.*",
+                                    ".*: Connection reset by peer.*",
+                                    "connection unexpectedly closed by peer",
+                                    ".*: Error sending data: Broken pipe.*")
 
 @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-nulecule on rhel-7.")
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")

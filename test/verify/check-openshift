@@ -72,6 +72,62 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
         # Expect the default container user limitations during testing
         self.openshift.execute("oc patch scc restricted -p '{ \"runAsUser\": { \"type\": \"MustRunAsRange\" } }'")
 
+    def testConnect(self):
+        m = self.machine
+        b = self.browser
+
+        # Make sure we can write to kubeconfig
+        m.execute("chown -R admin:admin /home/admin/.kube")
+        self.login_and_go("/kubernetes")
+
+        b.wait_present("#service-list")
+        b.wait_in_text("#service-list", "docker-registry")
+        b.wait_present("a[href='#/storage']")
+
+        b.wait_present("#kubernetes-change-connection")
+        b.click("#kubernetes-change-connection")
+        b.wait_present("modal-dialog")
+        b.wait_present("#kubernetes-cluster")
+        b.wait_present("#kubernetes-user")
+        b.wait_not_present("#kubernetes-username")
+        b.wait_not_present("#kubernetes-password")
+        b.wait_not_present("#kubernetes-token")
+
+        b.wait_in_text("#kubernetes-cluster button", "10-111-112-101:8443")
+        b.wait_in_text("#kubernetes-user button", "system:admin/10-111-112-101:8443")
+        b.wait_in_text("modal-dialog", "Client Certificate")
+
+        b.click("#kubernetes-user button")
+        b.click("#kubernetes-user ul li:last-child a")
+        b.wait_in_text("#kubernetes-user button", "Add New User")
+        b.wait_not_present("#kubernetes-token")
+        b.wait_val("#kubernetes-username", "")
+        b.wait_val("#kubernetes-password", "")
+        b.set_val("#kubernetes-username", "new-user")
+        b.set_val("#kubernetes-password", "new-user")
+
+        b.click("modal-dialog div.modal-footer button.btn-primary")
+        b.wait_not_present("modal-dialog")
+
+        # scruffy isn't a admin
+        b.wait_present("#service-list")
+        b.wait_not_in_text("#service-list", "docker-registry")
+        b.wait_not_present("a[href='#/storage']")
+
+        b.wait_present("#kubernetes-change-connection")
+        b.click("#kubernetes-change-connection")
+        b.wait_present("modal-dialog")
+        b.wait_present("#kubernetes-cluster")
+        b.wait_present("#kubernetes-user")
+        b.wait_not_present("#kubernetes-username")
+        b.wait_not_present("#kubernetes-password")
+        b.wait_present("#kubernetes-token")
+
+        b.wait_in_text("#kubernetes-cluster button", "10-111-112-101:8443")
+        b.wait_in_text("#kubernetes-user button", "new-user/10-111-112-101:8443")
+        b.wait_not_in_text("modal-dialog", "Client Certificate")
+        self.assertFalse(b.val("#kubernetes-token") == "")
+
     @unittest.skipIf(True, "Nulecule deploys temporarily removed.")
     def testDeployDialog(self):
         b = self.browser

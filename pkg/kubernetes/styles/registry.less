@@ -1,5 +1,8 @@
 @import "variables.less";
 
+/* Depends on number of items in the sidebar */
+@sidebar-height-lg: 250px;
+
 @import "sidebar.less";
 @import "filter.less";
 @import "dropdown.less";
@@ -10,7 +13,6 @@
 @import "projects.less";
 
 #content {
-    margin-left: unit(@sidebar-width + 10, px);
     margin-right: 0px;
     min-height: 100%;
 }

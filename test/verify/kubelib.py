@@ -321,7 +321,6 @@ class KubernetesCommonTests(VolumeTests):
         b.click("#add-node")
         self.add_node(b, "mynode", "myaddress")
         b.wait_in_text("#node-list", "mynode")
-        b.wait_in_text("#node-list", "myaddress")
 
         # Fail add node via dialog
         b.click("#add-node")

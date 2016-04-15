@@ -1,4 +1,9 @@
 <filter-bar class="content-filter">
+    <div class="content-filter-link pull-right" ng-if="settings.canChangeConnection">
+        <a id="kubernetes-change-connection" ng-click="changeAuth()" title="Connection Settings">
+            <i class="fa fa-wrench"></i>
+        </a>
+    </div>
 </filter-bar>
 
 <div class="container-cards-pf dashboard-cards">
@@ -102,7 +107,6 @@
 </div>
 
 <div class="dashboard">
-<p align="right" ng-if="settings.canChangeConnection"><a id="kubernetes-change-connection" ng-click="changeAuth()" translatable="yes">Connection Settings</a></p>
 <kubernetes-service-graph id="graphs" ng-if="settings.flavor != 'openshift'"></kubernetes-service-graph>
 
 <div class="row" ng-class="{'dashboard-openshift': settings.flavor == 'openshift'}">

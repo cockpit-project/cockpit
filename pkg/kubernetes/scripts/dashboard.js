@@ -25,7 +25,8 @@
         'ui.cockpit',
         'kubernetes.details',
         'kubernetes.app',
-        'kubernetes.graph'
+        'kubernetes.graph',
+        'kubernetes.nodes'
     ])
 
     .config(['$routeProvider', function($routeProvider) {
@@ -42,8 +43,9 @@
         'kubeSelect',
         'dashboardActions',
         'itemActions',
+        'nodeActions',
         '$location',
-        function($scope, loader, select, actions, itemActions, $location) {
+        function($scope, loader, select, actions, itemActions, nodeActions, $location) {
 
         var c = loader.listen(function() {
             $scope.services = select().kind("Service");
@@ -191,9 +193,16 @@
                 $location.path("/pods/" + encodeURIComponent(meta.namespace)).search(spec.selector);
         };
 
+        $scope.navigateNode = function(node) {
+            var meta = node.metadata || {};
+            if (meta.name)
+                $location.path("/nodes/" + encodeURIComponent(meta.name));
+        };
+
         /* All the actions available on the $scope */
         angular.extend($scope, actions);
         $scope.modifyService = itemActions.modifyService;
+        $scope.addNode = nodeActions.addNode;
 
         /* Highlighting */
 
@@ -291,99 +300,8 @@
                 }).result;
             }
 
-            function addNode() {
-                return $modal.open({
-                    animation: false,
-                    controller: 'AddNodeCtrl',
-                    templateUrl: 'views/node-add.html',
-                    resolve: {},
-                }).result;
-            }
-
             return {
-                addNode: addNode,
                 deploy: deploy,
-            };
-        }
-    ])
-
-    .controller("AddNodeCtrl", [
-        "$q",
-        "$scope",
-        "$modalInstance",
-        "kubeMethods",
-        "KubeTranslate",
-        function($q, $scope, $instance, methods, translate) {
-            var _ = translate.gettext;
-            var fields = {
-                "address" : "",
-                "name" : "",
-            };
-            var dirty = false;
-
-            $scope.fields = fields;
-
-            function validate() {
-                var regex = /^[a-z0-9.-]+$/i;
-                var defer = $q.defer();
-                var address = fields.address.trim();
-                var name = fields.name.trim();
-                var ex;
-                var failures = [];
-                var item;
-
-                if (!address)
-                    ex = new Error(_("Please type an address"));
-                else if (!regex.test(address))
-                    ex = new Error(_("The address contains invalid characters"));
-
-                if (ex) {
-                    ex.target = "#node-address";
-                    failures.push(ex);
-                }
-
-                if (name && !regex.test(name)) {
-                    ex = new Error(_("The name contains invalid characters"));
-                    ex.target = "#node-name";
-                    failures.push(ex);
-                }
-
-                if (failures.length > 0) {
-                    defer.reject(failures);
-                } else {
-                    item = {
-                        "kind": "Node",
-                        "apiVersion": "v1",
-                        "metadata": {
-                            "name": name ? name : address,
-                        },
-                        "spec": {
-                            "externalID": address
-                        }
-                    };
-                    defer.resolve(item);
-                }
-
-                return defer.promise;
-            }
-
-            $scope.nameKeyUp = function nameKeyUp(event) {
-                dirty = true;
-                if (event.keyCode == 13)
-                    $scope.performAdd();
-            };
-
-            $scope.addressKeyUp = function addressKeyUp(event) {
-                if (event.keyCode == 13)
-                    $scope.performAdd();
-                else if (!dirty)
-                    fields.name = event.target.value;
-            };
-
-            $scope.performAdd = function performAdd() {
-                return validate().then(function(item) {
-                    return methods.create(item);
-                });
             };
         }
     ])

@@ -83,7 +83,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="node in nodes">
+                    <tr ng-click="navigateNode(node)" ng-repeat="node in nodes">
                         <td>{{node.metadata.name}}</td>
                         <td>{{node.spec.externalID}}</td>
                         <td class="containers">{{nodeContainers(node)}}</td>

@@ -10,77 +10,11 @@
         <li ng-class="{active: tab('capacity')}"><a ng-click="tab('capacity', $event)">Capacity</a></li>
     </ul>
 </div>
+
 <div class="listing-body" ng-show="tab('main')">
-    <div class="row">
-        <div class="col-xs-12 col-md-6">
-            <dl>
-                <dt translatable="yes">Created</dt>
-                <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | dateRelative }}</dd>
-                <dt translatable="yes">Address</dt>
-                <dd>{{item.spec.externalID}}</dd>
-                <dt translatable="yes">IP</dt>
-                <dd>{{item.status.addresses | nodeExternalIP }}</dd>
-                <dt ng-if="item.status.nodeInfo.osImage" translatable="yes">OS</dt>
-                <dd ng-if="item.status.nodeInfo.osImage">{{item.status.nodeInfo.osImage}}</dd>
-                <dt ng-if="item.status.nodeInfo.machineID" translatable="yes">Machine ID</dt>
-                <dd ng-if="item.status.nodeInfo.machineID"><tt>{{item.status.nodeInfo.machineID}}</tt></dd>
-                <dt ng-if="item.status.nodeInfo.containerRuntimeVersion" translatable="yes">Container Runtime Version</dt>
-                <dd ng-if="item.status.nodeInfo.containerRuntimeVersion">{{item.status.nodeInfo.containerRuntimeVersion}}</dd>
-                <dt ng-if="item.status.nodeInfo.kubeletVersion" translatable="yes">Kubelet Version</dt>
-                <dd ng-if="item.status.nodeInfo.kubeletVersion">{{item.status.nodeInfo.kubeletVersion}}</dd>
-                <dt ng-if="item.status.nodeInfo.kubeProxyVersion" translatable="yes">Proxy Version</dt>
-                <dd ng-if="item.status.nodeInfo.kubeProxyVersion">{{item.status.nodeInfo.kubeProxyVersion}}</dd>
-            </dl>
-        </div>
-        <div class="col-xs-12 col-md-6">
-            <dl class="full-width">
-                <dt translatable="yes">Labels</dt>
-                <dd ng-repeat="(key, value) in item.metadata.labels">{{key}}={{value}}</dd>
-                <dd ng-if="!item.metadata.labels" translatable="yes">none</dd>
-            </dl>
-        </div>
-        <div class="clearfix visible-md-block"></div>
-        <div class="col-xs-12 col-md-6">
-            <dl ng-init="ready = nodeReadyCondition(item.status.conditions)">
-                <dt translatable="yes">Status</dt>
-                <dd class="status" ng-switch="ready.status">
-                    <span ng-switch-when="True" translatable="yes">Ready</span>
-                    <span ng-switch-when="False" translatable="yes">Not Ready</span>
-                    <span ng-switch-default translatable="yes">Unknown</span>
-                </dd>
-                <dt translatable="yes" ng-if="ready.reason">Reason</dt>
-                <dd ng-if="ready.reason">{{ready.reason }}</dd>
-                <dt translatable="yes" ng-if="ready.message">Message</dt>
-                <dd ng-if="ready.message">{{ready.reason }}</dd>
-                <dt translatable="yes" ng-if="ready.lastHeartbeatTime">Last Heartbeat</dt>
-                <dd ng-if="ready.lastHeartbeatTime">{{ready.lastHeartbeatTime | dateRelative }}</dd>
-                <dt translatable="yes" ng-if="ready.lastTransitionTime">Last Status Change</dt>
-                <dd ng-if="ready.lastTransitionTime">{{ready.lastTransitionTime | dateRelative }}</dd>
-            </dl>
-        </div>
-        <div class="col-xs-12 col-md-6">
-            <dl class="full-width">
-                <dt translatable="yes">Annotations</dt>
-                <dd ng-repeat="(key, value) in item.metadata.annotations">{{key}}={{value}}</dd>
-                <dd ng-if="!item.metadata.annotations" translatable="yes">none</dd>
-            </dl>
-        </div>
-    </div>
+    <div class="row" node-body></div>
+
 </div>
 <div class="listing-body" ng-show="tab('capacity')">
-    <div class="row">
-        <div class="col-sm-6">
-            <dl>
-                <dt ng-repeat-start="(key, value) in item.status.capacity">{{ key | formatCapacityName }}</dt>
-                <dd ng-repeat-end>{{ value | formatCapacityValue:key  }}</dd>
-            </dl>
-        </div>
-        <div class="col-sm-6">
-            <dl class="full-width" ng-init="pods = nodePods(item)">
-                <dt translatable="yes">Scheduled Pods</dt>
-                <dd ng-repeat="pod in pods">{{ pod.metadata.name }}</dd>
-                <dd ng-if="!pods.length" translatable="yes">No pods scheduled</dd>
-            </dl>
-        </div>
-    </div>
+    <div class="row" node-capacity></div>
 </div>

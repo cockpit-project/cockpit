@@ -1,0 +1,39 @@
+<div class="content-filter">
+    <filter-listing>
+    </filter-listing>
+</div>
+<div>
+<table listing-table class="listing nodes-listing">
+    <thead ng-if="!listing.only">
+        <tr>
+            <td colspan="4">
+                <a id="add-node" class="pull-right" ng-click="addNode()">
+                    <i translatable="yes" class="pficon pficon-add-circle-o"></i>
+                    <span translatable="yes">Add Kubernetes Node</span>
+                </a>
+                <h3 translatable="yes">Nodes</h3>
+            </td>
+        </tr>
+        <tr>
+            <th translatable="yes">Name</th>
+            <th translatable="yes">Operating System</th>
+            <th translatable="yes">Address</th>
+            <th translatable="yes">Status</th>
+        </tr>
+    </thead>
+    <tbody ng-repeat="item in nodes track by item.metadata.name" class="active"
+        ng-init="id = item.metadata.name" ng-class="{open: listing.expanded(id)}" data-id="{{id}}">
+        <tr ng-click="listing.toggle(id)" ng-if="!listing.only" class="listing-item">
+            <th>{{item.metadata.name}}</th>
+            <td>
+                <div ng-if="item.status.nodeInfo.osImage">{{item.status.nodeInfo.osImage}}</div>
+            </td>
+            <td>{{item.spec.externalID}}</td>
+            <td>{{item.status.conditions | nodeStatus}}</td>
+        </tr>
+        <tr class="listing-panel" ng-if="listing.expanded(id)">
+            <td node-panel colspan="4"></td>
+        </tr>
+    </tbody>
+</table>
+</div>

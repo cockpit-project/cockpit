@@ -136,6 +136,35 @@
                 ngettext: error_func
             };
         }
+    ])
+
+    .filter('formatCapacityName', function() {
+        return function(key) {
+            var data;
+            if (key == "cpu") {
+                data = "CPUs";
+            } else {
+                key = key.replace(/-/g, " ");
+                data = key.charAt(0).toUpperCase() + key.substr(1);
+            }
+            return data;
+        };
+    })
+
+    .filter('formatCapacityValue', [
+        "KubeFormat",
+        "KubeStringToBytes",
+        function (format, stringToBytes) {
+            return function(value, key) {
+                var data;
+                if (key == "memory") {
+                    var raw = stringToBytes(value);
+                    if (raw)
+                        value = format.formatBytes(raw);
+                }
+                return value;
+            };
+        }
     ]);
 
 }());

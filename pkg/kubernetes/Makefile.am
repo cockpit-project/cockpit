@@ -123,7 +123,11 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/pv-panel.html \
 	pkg/kubernetes/views/pvc-body.html \
 	pkg/kubernetes/views/node-add.html \
+	pkg/kubernetes/views/node-body.html \
+	pkg/kubernetes/views/node-capacity.html \
+	pkg/kubernetes/views/node-page.html \
 	pkg/kubernetes/views/node-panel.html \
+	pkg/kubernetes/views/nodes-page.html \
 	pkg/kubernetes/views/replicationcontroller-panel.html \
 	pkg/kubernetes/views/replicationcontroller-modify.html \
 	pkg/kubernetes/views/route-panel.html \
@@ -141,6 +145,7 @@ kubernetes_MODULES = \
 	pkg/kubernetes/scripts/details.js \
 	pkg/kubernetes/scripts/graphs.js \
 	pkg/kubernetes/scripts/main.js \
+	pkg/kubernetes/scripts/nodes.js \
 	pkg/kubernetes/scripts/object-describer.js \
 	pkg/kubernetes/scripts/volumes.js \
 	pkg/kubernetes/scripts/topology.js \

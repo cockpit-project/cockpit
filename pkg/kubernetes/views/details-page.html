@@ -6,35 +6,6 @@
         <thead ng-if="!listing.only">
             <tr>
                 <td colspan="4">
-                    <h3 translatable="yes">Nodes</h3>
-                </td>
-            </tr>
-            <tr>
-                <th translatable="yes">Name</th>
-                <th translatable="yes">Operating System</th>
-                <th translatable="yes">Address</th>
-                <th translatable="yes">Status</th>
-            </tr>
-        </thead>
-        <tbody ng-repeat="item in nodes track by itemIdentifier(item)" class="active"
-            ng-init="id = itemIdentifier(item)" ng-class="{open: listing.expanded(id)}"
-            data-id="{{id}}">
-            <tr ng-click="listing.toggle(id)" ng-if="!listing.only" class="listing-item">
-                <th>{{item.metadata.name}}</th>
-                <td>
-                    <div ng-if="item.status.nodeInfo.osImage">{{item.status.nodeInfo.osImage}}</div>
-                </td>
-                <td>{{item.spec.externalID}}</td>
-                <td>{{item.status.conditions | nodeStatus}}</td>
-            </tr>
-            <tr class="listing-panel" ng-if="listing.expanded(id)">
-                <td listing-panel kind="Node" colspan="4"></td>
-            </tr>
-        </tbody>
-
-        <thead ng-if="!listing.only">
-            <tr>
-                <td colspan="4">
                     <h3 translatable="yes">Services</h3>
                 </td>
             </tr>

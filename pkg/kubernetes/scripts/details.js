@@ -51,6 +51,7 @@
         'ui.cockpit',
         'kubernetesUI',
         'kubeClient',
+        'kubeUtils',
         'kubernetes.listing',
         'kubernetes.date',
         'kubernetes.volumes',
@@ -86,7 +87,6 @@
             var c = loader.listen(function() {
                 $scope.pods = select().kind("Pod");
                 $scope.services = select().kind("Service");
-                $scope.nodes = select().kind("Node");
                 $scope.replicationcontrollers = select().kind("ReplicationController");
                 $scope.deploymentconfigs = select().kind("DeploymentConfig");
                 $scope.routes = select().kind("Route");
@@ -94,7 +94,6 @@
 
             loader.watch("Pod");
             loader.watch("Service");
-            loader.watch("Node");
             loader.watch("ReplicationController");
             loader.watch("Endpoints");
             loader.watch("PersistentVolumeClaim");
@@ -136,24 +135,6 @@
                                .label(spec.selector || {});
             };
 
-            $scope.nodePods = function node_pods(item) {
-                var meta = item.metadata || {};
-                return select().kind("Pod").host(meta.name);
-            };
-
-            $scope.nodeReadyCondition = function node_read_condition(conditions) {
-                var ret = {};
-                if (conditions) {
-                    conditions.forEach(function(condition) {
-                        if (condition.type == "Ready") {
-                            ret = condition;
-                            return false;
-                        }
-                    });
-                }
-                return ret;
-            };
-
             $scope.podStatus = function (item) {
                 var status = item.status || {};
                 var meta = item.metadata || {};
@@ -169,77 +150,6 @@
 
             /* All the actions available on the $scope */
             angular.extend($scope, actions);
-        }
-    ])
-
-    .filter('nodeStatus', [
-        "KubeTranslate",
-        function(KubeTranslate) {
-            return function(conditions) {
-                var ready = false;
-                var _ = KubeTranslate.gettext;
-
-                /* If no status.conditions then it hasn't even started */
-                if (conditions) {
-                    conditions.forEach(function(condition) {
-                        if (condition.type == "Ready") {
-                            ready = condition.status == "True";
-                            return false;
-                        }
-                    });
-                }
-                return ready ? _("Ready") : _("Not Ready");
-            };
-        }
-    ])
-
-    .filter('nodeExternalIP', [
-        "KubeTranslate",
-        function(KubeTranslate) {
-            return function(addresses) {
-                var address = null;
-                var _ = KubeTranslate.gettext;
-
-                /* If no status.conditions then it hasn't even started */
-                if (addresses) {
-                    addresses.forEach(function(a) {
-                        if (a.type == "LegacyHostIP" || address.type == "ExternalIP") {
-                            address = a.address;
-                            return false;
-                        }
-                    });
-                }
-                return address ? address : _("Unknown");
-            };
-        }
-    ])
-
-    .filter('formatCapacityName', function() {
-        return function(key) {
-            var data;
-            if (key == "cpu") {
-                data = "CPUs";
-            } else {
-                key = key.replace(/-/g, " ");
-                data = key.charAt(0).toUpperCase() + key.substr(1);
-            }
-            return data;
-        };
-    })
-
-    .filter('formatCapacityValue', [
-        "KubeFormat",
-        "KubeStringToBytes",
-        function (format, stringToBytes) {
-            return function(value, key) {
-                var data;
-                if (key == "memory") {
-                    var raw = stringToBytes(value);
-                    if (raw)
-                        value = format.formatBytes(raw);
-                }
-                return value;
-            };
         }
     ])
 

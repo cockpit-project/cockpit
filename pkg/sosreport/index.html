@@ -24,17 +24,10 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     <link href="../base1/cockpit.css" rel="stylesheet">
     <link href="sosreport.css" rel="stylesheet">
     <script type="text/javascript" src="../base1/bundle.js"></script>
+    <script type="text/javascript" src="index.js"></script>
   </head>
   <body hidden>
-    <script>
-      require([
-        "sosreport/index"
-      ], function(sosreport) {
-        sosreport.init();
-      });
-    </script>
-
-    <div class="page" style="text-align:center;">
+    <div class="page">
       <img src="sosreport.png">
       <p translatable="yes">
         This tool will collect system configuration and diagnostic
@@ -68,15 +61,15 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             </div>
             <div id="sos-progress">
               <center>
-                <div translatable="yes" style="margin-bottom:5px">Generating report</div>
+                <div translatable="yes">Generating report</div>
                 <div class="progress">
-                  <div class="progress-bar" role="progressbar" style="width: 0%;"></div>
+                  <div class="progress-bar" role="progressbar"></div>
                 </div>
               </center>
             </div>
             <div id="sos-download">
               <center>
-                <div translatable="yes" style="margin-bottom:5px">Done!</div>
+                <div translatable="yes">Done!</div>
                 <button class="btn btn-primary">Download report</button>
               </center>
             </div>

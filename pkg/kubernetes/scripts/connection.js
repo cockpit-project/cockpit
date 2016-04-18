@@ -141,7 +141,7 @@
                         if (options.tls)
                             result.defaultAddress = "https://" + address + ":" + options.port;
                         else
-                            result.defaultAddress = "https://" + address + ":" + options.port;
+                            result.defaultAddress = "http://" + address + ":" + options.port;
 
                         return kubectlData();
                     }, function(ex) {
@@ -232,7 +232,7 @@
                     cluster.name = generateClusterName(cluster);
 
                 if (user && !user.name)
-                    user.name = generateUserName(user, cluster ? cluster.name : "");
+                    user.name = generateUserName(user, cluster.name);
 
                 contexts = config.contexts || [];
                 for (i = 0; i < contexts.length; i++) {

@@ -24,24 +24,15 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   <meta charset="utf-8">
   <link href="../base1/cockpit.css" rel="stylesheet">
   <link href="journal.css" rel="stylesheet">
-  <script type="text/javascript" src="../base1/bundle.js"></script>
+  <script type="text/javascript" data-main="system/journal" src="../base1/bundle.js"></script>
   <script type="text/javascript" src="bundle.js"></script>
 </head>
-
-<script>
-    require([
-    "jquery",
-    "system/journal"
-    ], function($, journal) {
-        $(journal);
-    });
-</script>
 
 <body>
   <div id="journal">
     <div class="content-header-extra">
       <div class="btn-group" id="journal-current-day-menu">
-        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="padding-left:10px">
+        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
           <span id="journal-current-day"></span>
           <span class="caret"></span>
         </button>
@@ -60,7 +51,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
       </div>
     </div>
 
-    <div id="journal-box" class="container-fluid" style="margin-top: 5em;"></div>
+    <div id="journal-box" class="container-fluid"></div>
   </div>
 
   <div id="journal-entry" class="container-fluid" hidden>
@@ -71,10 +62,10 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     <div class="panel panel-default">
       <div class="panel-heading">
         <span id="journal-entry-id"></span>
-        <span id="journal-entry-date" style="float:right"></span>
+        <span id="journal-entry-date" class="pull-right"></span>
       </div>
-      <div id="journal-entry-message" style="margin:10px"></div>
-      <table class="cockpit-info-table" style="margin-bottom:10px" id="journal-entry-fields">
+      <div id="journal-entry-message"></div>
+      <table class="cockpit-info-table" id="journal-entry-fields">
       </table>
     </div>
   </div>

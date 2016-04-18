@@ -1534,6 +1534,6 @@ function init() {
     navigate();
 }
 
-return init;
+$(init);
 
 });

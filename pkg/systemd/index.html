@@ -8,20 +8,12 @@
     <link href="../shell/shell.css" rel="stylesheet">
     <link href="../shell/plot.css" rel="stylesheet">
     <link href="../system/host.css" rel="stylesheet">
-    <script src="../base1/bundle.js"></script>
+    <script data-main="system/host" src="../base1/bundle.js"></script>
     <script src="../shell/bundle.js"></script>
     <script src="../shell/shell.js"></script>
     <script src="../system/bundle.js"></script>
     <script src="../domain/bundle.js"></script>
     <script src="../performance/bundle.js"></script>
-    <script>
-        require([
-            "jquery",
-            "system/host",
-        ], function($, host) {
-            $(host);
-        });
-    </script>
 </head>
 <body hidden>
 
@@ -34,7 +26,7 @@
       <span class="spinner spinner-xs spinner-inline"></span>
       {{/Server}}
       {{^Server}}
-      <span class="fa fa-lg fa-exclamation-circle" style="color:red"></span>
+      <span class="fa fa-lg fa-exclamation-circle fa-red"></span>
       {{/Server}}
       {{/Synched}}
     </script>
@@ -55,12 +47,12 @@
       {{^Server}}
       <div translatable="yes">Not synchronized</div>
       {{#service}}
-      <a data-goto-service="{{.}}" style="font-size:smaller">Log messages</a>
+      <a data-goto-service="{{.}}" class="small-messages">Log messages</a>
       {{/service}}
       {{/Server}}
       {{/Synched}}
       {{#SubStatus}}
-      <div style="font-size:smaller">{{SubStatus}}</div>
+      <div class="small-messages">{{SubStatus}}</div>
       {{/SubStatus}}
     </script>
 
@@ -148,10 +140,10 @@
         </div>
         <div id="server-graph-columns" class="col-md-8 col-lg-9">
             <div id="server-graph-toolbar" class="zoom-controls standard-zoom-controls">
-                <div class="dropdown" style="display:inline-block">
+                <div class="dropdown">
                     <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                        <span style="width:6em;text-align:left;padding-left:5px;display:inline-block"></span>
-                        <span class="caret"></span>
+                        <span></span>
+                        <div class="caret"></div>
                     </button>
                     <ul class="dropdown-menu" role="menu">
                         <li role="presentation"><a role="menuitem" tabindex="-1"
@@ -180,31 +172,31 @@
             <div>
               <span class="plot-unit" id="server_cpu_unit">%</span><a id="link-cpu">CPU</a>
             </div>
-            <div style="height:120px" id="server_cpu_graph" class="server-graph zoomable-plot"></div>
+            <div id="server_cpu_graph" class="server-graph zoomable-plot"></div>
             <br/>
             <div>
               <span class="plot-unit" id="server_memory_unit"></span><a id="link-memory">Memory</a>
             </div>
-            <div style="height:120px" id="server_memory_graph" class="server-graph zoomable-plot"></div>
+            <div id="server_memory_graph" class="server-graph zoomable-plot"></div>
             <br/>
             <div>
               <span class="plot-unit" id="server_disk_io_unit"></span><a id="link-disk">Disk I/O</a>
             </div>
-            <div style="height:120px" id="server_disk_io_graph" class="server-graph zoomable-plot"></div>
+            <div id="server_disk_io_graph" class="server-graph zoomable-plot"></div>
             <br/>
             <div>
               <span class="plot-unit" id="server_network_traffic_unit"></span><a id="link-network">Network Traffic</a>
             </div>
-            <div style="height:120px" id="server_network_traffic_graph" class="server-graph zoomable-plot"></div>
+            <div id="server_network_traffic_graph" class="server-graph zoomable-plot"></div>
         </div>
     </div>
 
     <div id="cpu_status" hidden>
-        <div id="cpu_status_graph" style="height:400px;padding:20px"></div>
+        <div id="cpu_status_graph"></div>
     </div>
 
     <div id="memory_status" hidden>
-        <div id="memory_status_graph" style="height:400px;padding:20px"></div>
+        <div id="memory_status_graph"></div>
     </div>
 
     <div class="modal" id="error-popup" tabindex="-1" role="dialog" data-backdrop="static">
@@ -256,7 +248,7 @@
                             <td></td>
                             <td>
                                 <div class="has-error">
-                                    <span id="sich-note-1" class="help-block" style="margin: 0"></span>
+                                    <span id="sich-note-1" class="help-block"></span>
                                 </div>
                             </td>
                         </tr>
@@ -264,7 +256,7 @@
                             <td></td>
                             <td>
                                 <div class="has-error">
-                                    <span id="sich-note-2" class="help-block" style="margin: 0"></span>
+                                    <span id="sich-note-2" class="help-block"></span>
                                 </div>
                             </td>
                         </tr>
@@ -374,8 +366,7 @@
                     <h4 class="modal-title"></h4>
                 </div>
                 <div class="modal-body">
-                    <textarea class="form-control"
-                        style="resize:none;margin-bottom:10px" id="shutdown-message">
+                    <textarea class="form-control" id="shutdown-message">
                     </textarea>
                     <table>
                         <tr>
@@ -401,9 +392,9 @@
                             </td>
                             <td>
                                 <div id="shutdown-time">
-                                    <input class="form-control" style="width:3em;display:inline" value="18"/>
-                                    <span style="font-weight:bold">:</span>
-                                    <input class="form-control" style="width:3em;display:inline" value="00"/>
+                                    <input class="form-control" value="18"/>
+                                    <span>:</span>
+                                    <input class="form-control" value="00"/>
                                 </div>
                             </td>
                         </tr>

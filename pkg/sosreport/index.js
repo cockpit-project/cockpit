@@ -17,10 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
+require([
     "jquery",
     "base1/cockpit",
-    "data!./run-sosreport.sh",
+    "data!sosreport/run-sosreport.sh",
     "translated!base1/po"
 ], function($, cockpit, run_sosreport_sh, po) {
     "use strict";
@@ -169,5 +169,5 @@ define([
         });
     }
 
-    return { init: init };
+    init();
 });

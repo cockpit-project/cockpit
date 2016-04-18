@@ -322,11 +322,18 @@
                             <td><label class="control-label" for="change_systime"
                                        translatable="yes">Set time</label></td>
                             <td>
-                                <select class="form-control selectpicker" id="change_systime">
-                                    <option value="manual_time">Manually</option>
-                                    <option value="ntp_time">Automatically using NTP</option>
-                                    <option value="ntp_time_custom">Automatically using specific NTP servers</option>
-                                </select>
+                                <div class="btn-group bootstrap-select dropdown form-control" id="change_systime">
+                                    <button class="btn btn-default dropdown-toggle" type="button"
+                                        data-toggle="dropdown">
+                                        <span class="pull-left" translatable="yes">Manually</span>
+                                        <div class="caret"></div>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li value="manual_time"><a translatable="yes">Manually</a></li>
+                                        <li value="ntp_time"><a translatable="yes">Automatically using NTP</a></li>
+                                        <li value="ntp_time_custom"><a translatable="yes">Automatically using specific NTP servers</a></li>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                         <tr id="systime-manual-row">

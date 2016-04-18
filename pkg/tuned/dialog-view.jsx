@@ -77,7 +77,7 @@ var DialogFooter = React.createClass({
     },
     primary_click: function(e) {
         // only consider clicks with the primary button
-        if (e !== undefined && e.button !== 0)
+        if (e && e.button !== 0)
             return;
         var self = this;
         this.setState({ action_in_progress: true });
@@ -92,17 +92,18 @@ var DialogFooter = React.createClass({
                 if (self.props.dialog_done)
                     self.props.dialog_done(false);
             });
-        e.stopPropagation();
+        if (e)
+            e.stopPropagation();
     },
     cancel_click: function(e) {
         // only consider clicks with the primary button
-        if (e !== undefined && e.button !== 0)
+        if (e && e.button !== 0)
             return;
         if (this.props.cancel_clicked)
             this.props.cancel_clicked();
         if (this.props.dialog_done)
             this.props.dialog_done(false);
-        if (e !== undefined)
+        if (e)
             e.stopPropagation();
     },
     render: function() {

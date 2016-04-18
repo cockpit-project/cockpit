@@ -29,7 +29,6 @@ basedebug_DATA = \
 	pkg/base1/angular-csp.css \
 	pkg/base1/angular-patternfly.css \
 	pkg/base1/bootstrap-datepicker.js \
-	pkg/base1/bootstrap-select.js \
 	pkg/base1/bootstrap-combobox.js \
 	pkg/base1/bundle.js \
 	pkg/base1/cockpit.css \
@@ -53,15 +52,12 @@ base_BUNDLE = \
 	pkg/base1/cockpit.min.js \
 	pkg/base1/jquery.min.js \
 	pkg/base1/bootstrap-datepicker.min.js \
-	pkg/base1/bootstrap-select.min.js \
 	pkg/base1/bootstrap-combobox.min.js \
 	pkg/base1/mustache.min.js \
 	pkg/base1/patterns.min.js \
 	$(NULL)
 
 pkg/base1/angular.min.js: pkg/base1/angular.js
-	$(MIN_JS_RULE)
-pkg/base1/bootstrap-select.min.js: pkg/base1/bootstrap-select.js
 	$(MIN_JS_RULE)
 pkg/base1/bundle.min.js: $(base_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
@@ -124,7 +120,6 @@ TESTS += $(base_TESTS)
 CLEANFILES += \
 	pkg/base1/angular.min.js \
 	pkg/base1/bootstrap-datepicker.min.js \
-	pkg/base1/bootstrap-select.min.js \
 	pkg/base1/bootstrap-combobox.min.js \
 	pkg/base1/bundle.min.js \
 	pkg/base1/cockpit.min.js \
@@ -144,7 +139,6 @@ CLEANFILES += \
 
 EXTRA_DIST += \
 	pkg/base1/angular.min.js \
-	pkg/base1/bootstrap-select.min.js \
 	pkg/base1/bootstrap-datepicker.min.js \
 	pkg/base1/bootstrap-combobox.min.js \
 	pkg/base1/bundle.min.js \

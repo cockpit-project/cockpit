@@ -746,6 +746,7 @@ PageSystemInformationChangeSystime.prototype = {
     _init: function() {
         this.id = "system_information_change_systime";
         this.date = "";
+        this.ntp_type = null;
     },
 
     setup: function() {
@@ -755,8 +756,15 @@ PageSystemInformationChangeSystime.prototype = {
             $('#systime-apply-button').prop('disabled', false);
         }
 
+
         $("#systime-apply-button").on("click", $.proxy(this._on_apply_button, this));
-        $('#change_systime').on('change', $.proxy(this, "update"));
+
+        self.ntp_type = "manual_time";
+        $('#change_systime li').on('click', function() {
+            self.ntp_type = $(this).attr("value");
+            self.update();
+        });
+
         $('#systime-time-minutes').on('focusout', $.proxy(this, "update_minutes"));
         $('#systime-date-input').datepicker({
             autoclose: true,
@@ -807,14 +815,13 @@ PageSystemInformationChangeSystime.prototype = {
         $('#systime-date-input').val(self.server_time.format());
         $('#systime-time-minutes').val(self.server_time.now.getUTCMinutes());
         $('#systime-time-hours').val(self.server_time.now.getUTCHours());
-        $('#change_systime').val(self.server_time.timedate.NTP ?
-                                 (self.custom_ntp_enabled ? 'ntp_time_custom' : 'ntp_time')
-                                 : 'manual_time');
+
+        self.ntp_type = self.server_time.timedate.NTP ?
+                        (self.custom_ntp_enabled ? 'ntp_time_custom' : 'ntp_time') : 'manual_time';
         $('#change_systime [value="ntp_time"]').
-            attr("disabled", !self.server_time.timedate.CanNTP? "disabled" : null);
+            toggleClass("disabled", !self.server_time.timedate.CanNTP);
         $('#change_systime [value="ntp_time_custom"]').
-            attr("disabled", !(self.server_time.timedate.CanNTP && self.custom_ntp_supported)? "disabled" : null);
-        $('#change_systime').selectpicker('refresh');
+            toggleClass("disabled", !(self.server_time.timedate.CanNTP && self.custom_ntp_supported));
         $('#systime-parse-error').parents('tr').hide();
         $('#systime-timezone-error').parents('tr').hide();
         $('#systime-apply-button').prop('disabled', false);
@@ -981,8 +988,8 @@ PageSystemInformationChangeSystime.prototype = {
         if (!self.check_input())
             return;
 
-        var manual_time = $('#change_systime').val() == 'manual_time';
-        var ntp_time_custom = $('#change_systime').val() == 'ntp_time_custom';
+        var manual_time = self.ntp_type == 'manual_time';
+        var ntp_time_custom = self.ntp_type == 'ntp_time_custom';
 
         self.sync_ntp_servers();
         var servers = self.custom_ntp_servers.filter(function (val) { return val !== ""; });
@@ -1101,8 +1108,11 @@ PageSystemInformationChangeSystime.prototype = {
     },
 
     update: function() {
-        var manual_time = $('#change_systime').val() === 'manual_time';
-        var ntp_time_custom = $('#change_systime').val() === 'ntp_time_custom';
+        var self = this;
+        var manual_time = self.ntp_type === 'manual_time';
+        var ntp_time_custom = self.ntp_type === 'ntp_time_custom';
+        var text = $("#change_systime li[value=" + self.ntp_type + "]").text();
+        $("#change_systime button span").text(text);
         $('#systime-manual-row, #systime-manual-error-row').toggle(manual_time);
         $('#systime-ntp-servers-row').toggle(ntp_time_custom);
     },

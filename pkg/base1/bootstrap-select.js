@@ -1,1 +1,0 @@
-../../bower_components/bootstrap-select/dist/js/bootstrap-select.js

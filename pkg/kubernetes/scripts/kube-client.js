@@ -855,7 +855,7 @@
             }
 
             function digestsFilter(filter, what, criteria) {
-                var keys, keyn, keyo, k, link, match, object, possible;
+                var keys, keyn, keyo, k, link, matches, object, possible;
                 var p, pl, j, jl;
                 var results = { }, count = 0;
 

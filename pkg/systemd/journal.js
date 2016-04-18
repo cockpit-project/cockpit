@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* global jQuery   */
-
 define([
     "jquery",
     "base1/cockpit",
@@ -96,9 +94,8 @@ define([
                 if (key != "MESSAGE") {
                     out.append(
                         $('<tr>').append(
-                            $('<td style="text-align:right">').
-                                text(key),
-                            $('<td style="text-align:left">').
+                            $('<td>').css("text-align", "right").text(key),
+                            $('<td>').css("text-align", "left").
                                 text(journal_renderer.make_printable(entry[key]))));
                 }
             });
@@ -167,5 +164,5 @@ define([
         cockpit.location.go('/');
     });
 
-    return update;
+    $(update);
 });

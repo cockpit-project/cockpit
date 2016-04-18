@@ -6,16 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
     <link href="journal.css" type="text/css" rel="stylesheet">
-    <script src="../base1/bundle.js"></script>
-    <script src="../system/bundle.js"></script>
-<script>
-    require([
-        "jquery",
-        "system/init"
-    ], function($, init) {
-        $(init);
-    });
-</script>
+    <script data-main="system/init" src="../base1/bundle.js"></script>
+    <script src="bundle.js"></script>
 </head>
 <body hidden>
 
@@ -25,9 +17,9 @@
       <table class="table table-hover">
         {{#units}}
         <tr data-goto-unit="{{Id}}">
-          <td style="font-weight:bold">{{Description}}</td>
+          <td class="service-unit-description">{{Description}}</td>
           <td>{{Id}}</td>
-          <td style="text-align:right;white-space:nowrap;{{#HasFailed}}color:red;{{/HasFailed}}">
+          <td class="service-unit-data {{#HasFailed}}service-unit-failed{{/HasFailed}}">
             {{CombinedState}}
           </td>
         {{/units}}
@@ -46,7 +38,7 @@
       </div>
     </div>
 
-    <div class="container-fluid" style="margin-top: 5em">
+    <div class="container-fluid">
       <div id="services-list-enabled"></div>
       <div id="services-list-disabled"></div>
       <div id="services-list-static"></div>
@@ -54,14 +46,12 @@
   </div>
 
   <script id="action-btn-tmpl"  type="x-template/mustache">
-    <div class="btn-group" id="{{id}}">
+    <div class="btn-group service-action-btn" id="{{id}}">
       <button data-action="{{def.action}}" data-container="body" class="btn btn-default">{{def.title}}</button>
       <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
         <span class="caret"></span>
       </button>
-      <ul class="dropdown-menu"
-          style="right:0px;left:auto;min-width:0;text-align:left"
-          role="menu">
+      <ul class="dropdown-menu" role="menu">
         {{#actions}}
         <li class="presentation">
           <a data-action="{{action}}" role="menuitem">{{title}}</a>
@@ -72,28 +62,28 @@
   </script>
 
   <script id="service-unit-tmpl" type="x-template/mustache">
-    <div class="panel panel-default">
+    <div class="panel panel-default service-panel">
       <div class="panel-heading">{{Unit.Description}}</div>
       <div class="list-group">
         <div class="list-group-item">
-          <table style="width:100%">
+          <table>
             <tr>
-              <td style="text-align:left">
-                <span style="font-weight:bold">{{Unit.ActiveState}}</span>
+              <td>
+                <span>{{Unit.ActiveState}}</span>
                 ({{Unit.SubState}})
                 <br/>
                 {{Since}}
               </td>
-              <td style="text-align:right">
+              <td>
                 {{{UnitButton}}}
               </td>
             </tr>
           </table>
         </div>
         <div class="list-group-item">
-          <table style="width:100%">
+          <table>
             <tr>
-              <td style="text-align:left">
+              <td>
                 {{#HasLoadError}}
                 {{Unit.LoadState}} (Reason: {{LoadError}})
                 {{/HasLoadError}}
@@ -101,7 +91,7 @@
                 {{Unit.LoadState}} ({{Unit.FragmentPath}}; {{Unit.UnitFileState}})
                 {{/HasLoadError}}
               </td>
-              <td style="text-align:right">
+              <td>
                 {{{FileButton}}}
               </td>
             </tr>
@@ -117,11 +107,11 @@
   </script>
 
   <script id="service-template-tmpl" type="x-template/mustache">
-    <div class="panel panel-default">
+    <div class="panel panel-default service-template">
       <div class="panel-heading">{{Description}}</div>
       <div class="list-group">
         <div class="list-group-item">
-          <input style="width:50em"></input>
+          <input></input>
           <button translatable="yes">Instantiate</button>
         </div>
       </div>

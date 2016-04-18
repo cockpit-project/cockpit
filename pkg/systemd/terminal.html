@@ -5,18 +5,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
-    <script src="../base1/bundle.js"></script>
-    <script src="../system/bundle.js"></script>
-<script>
-    require([
-        "jquery",
-        "system/terminal"
-    ], function($, terminal) {
-        $(terminal);
-    });
+    <script data-main="system/terminal" src="../base1/bundle.js"></script>
+    <script src="bundle.js"></script>
 </script>
 </head>
-<body style="display: none;">
+<body hidden>
     <div class="panel panel-default console-container">
         <div class="panel-heading">
             <tt id="terminal-title" translatable="yes">Terminal</tt>

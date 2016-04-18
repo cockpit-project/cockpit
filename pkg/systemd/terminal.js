@@ -94,5 +94,5 @@ define([
         $("body").show();
     }
 
-    return show;
+    $(show);
 });

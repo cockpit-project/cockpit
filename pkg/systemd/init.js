@@ -780,5 +780,5 @@ define([
         unit_instantiate($('#service-template input').val());
     });
 
-    return init;
+    $(init);
 });

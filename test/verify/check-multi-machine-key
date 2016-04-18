@@ -146,8 +146,8 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.wait_present("#login-custom-user")
         self.assertEqual(b.val("#login-custom-user"), "")
         b.set_val("#login-custom-user", "user")
-        self.assertEqual(b.val("#login-type"), "stored")
-        b.wait_not_in_text("#login-type", "Password")
+        self.assertEqual(b.text("#login-type button span"), "Using available credentials")
+        b.wait_not_present("#login-type li[value=password] a");
         b.wait_visible("#login-available")
         b.wait_not_in_text("#login-available", "Login Password")
         b.wait_in_text("#login-available", "id_rsa")

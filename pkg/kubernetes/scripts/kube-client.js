@@ -874,22 +874,16 @@
                     if (object) {
                         keyo = filter.digests.call(null, object);
                         keyo.sort();
-                        match = false;
+                        matches = 0;
 
-                        /* Search for first key */
-                        for (j = 0, jl = keyo.length; !match && j < jl; j++) {
-                            if (keys[0] === keyo[j]) {
-                                match = true;
-                                for (k = 0; match && k < keyn; k++) {
-                                    if (keys[k] !== keyo[j + k])
-                                        match = false;
-                                }
-                            }
-                        }
+                        for (k = 0; k < keyn; k++)
+                            for (j = 0; j < keyo.length; j++)
+                                if (keys[k] === keyo[j])
+                                    matches++;
 
-                        if (match) {
+                        if (matches == keys.length) {
                             results[link] = object;
-                            count += 1;
+                            count += matches;
                         }
                     }
                 }

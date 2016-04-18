@@ -77,7 +77,7 @@ var DialogFooter = React.createClass({
     },
     primary_click: function(e) {
         // only consider clicks with the primary button
-        if (e !== undefined && e.button !== 0)
+        if (!e || e.button !== 0)
             return;
         var self = this;
         this.setState({ action_in_progress: true });

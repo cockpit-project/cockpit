@@ -421,14 +421,18 @@ class TestMultiMachine(MachineCase):
         b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
         b.wait_visible("#login-diff-password")
         b.wait_not_visible("#login-available")
-        self.assertEqual(b.val("#login-type"), "password")
-        b.set_val("#login-type", "stored")
+        self.assertEqual(b.text("#login-type button span"), "Type a password")
+        b.click("#login-type button");
+        b.click("#login-type li[value=stored] a");
+        b.wait_in_text("#login-type button span", "Using available credentials");
         b.wait_not_visible("#login-diff-password")
         b.wait_visible("#login-available")
         b.wait_in_text("#login-available", "Login Password")
         fail_login(b)
 
-        b.set_val("#login-type", "password")
+        b.click("#login-type button");
+        b.click("#login-type li[value=password] a");
+        b.wait_in_text("#login-type button span", "Type a password");
         b.wait_visible("#login-diff-password")
         b.wait_not_visible("#login-available")
         self.assertEqual(b.val("#login-custom-password"), "")

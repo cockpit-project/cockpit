@@ -35,7 +35,6 @@ define([
     "data!shell/templates/unknown-hostkey.html",
     'translated!base1/po',
     "base1/patterns",
-    "base1/bootstrap-select",
 ], function($, cockpit, mustache, machines, credentials, local_manifests,
             add_tmpl, auth_failed_tmpl, change_auth_tmpl,
             change_port_tmpl, color_picker_tmpl, invalid_hostkey_tmpl,
@@ -633,8 +632,10 @@ define([
             dialog.run(dfp.promise());
         }
 
-        function toggle_rows() {
-            var stored = $("#login-type").val() == 'stored';
+        function change_login_type(value) {
+            var stored = value != 'password';
+            var text = $("#login-type li[value=" + value + "]").text();
+            $("#login-type button span").text(text);
             $("#login-available").toggle(stored);
             $("#login-diff-password").toggle(!stored);
         }
@@ -699,9 +700,10 @@ define([
 
                 dialog.get_sel().dialog("wait", promise);
             } else if (!$.isEmptyObject(available)) {
-                $("#login-type").selectpicker('refresh');
-                $("#login-type").on('change', toggle_rows);
-                toggle_rows();
+                $("#login-type li").on('click', function() {
+                    change_login_type($(this).attr("value"));
+                });
+                change_login_type($("#login-type li:first-child").attr("value"));
                 dialog.get_sel(".btn-primary").on("click", login);
                 dialog.get_sel("a[data-content]").popover();
 

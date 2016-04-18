@@ -31,12 +31,19 @@
             <tr>
                 <td translatable="yes">Authentication</td>
                 <td>
-                    <select class="form-control" id="login-type" type="text">
-                        {{#allows_password}}
-                        <option value="password" translatable="yes">Type a password</option>
-                        {{/allows_password}}
-                        <option value="stored" translatable="yes">Using available credentials</option>
-                    </select>
+                    <div class="btn-group bootstrap-select dropdown form-control" id="login-type">
+                        <button class="btn btn-default dropdown-toggle" type="button"
+                            data-toggle="dropdown">
+                            <span class="pull-left" translatable="yes"></span>
+                            <div class="caret"></div>
+                        </button>
+                        <ul class="dropdown-menu">
+                            {{#allows_password}}
+                            <li value="password"><a>Type a password</a></li>
+                            {{/allows_password}}
+                            <li value="stored"><a>Using available credentials</a></li>
+                        </ul>
+                    </div>
                 </td>
             </tr>
 

@@ -116,7 +116,7 @@ def prune_images(force, dryrun):
         if os.path.isfile(path) and (path.endswith(".qcow2") or path.endswith(".partial")) and path not in targets:
             sys.stderr.write("Pruning {0}\n".format(filename))
             if not dryrun:
-                os.unlink(path)
+                os.unlink(filename)
 
     # now prune broken links
     for filename in os.listdir(IMAGES):

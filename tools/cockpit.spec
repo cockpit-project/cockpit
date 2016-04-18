@@ -371,6 +371,7 @@ This package contains the Cockpit shell UI assets.
 
 %package storaged
 Summary: Cockpit user interface for storage, using Storaged
+Requires: %{name}-shell = %{version}-%{release}
 Requires: storaged >= 2.1.1
 Requires: storaged-lvm2 >= 2.1.1
 Requires: device-mapper-multipath
@@ -383,6 +384,7 @@ The Cockpit component for managing storage.  This package uses Storaged.
 
 %package ostree
 Summary: Cockpit user interface for rpm-ostree
+Requires: %{name}-shell = %{version}-%{release}
 %if 0%{?fedora} > 0 && 0%{?fedora} < 24
 Requires: rpm-ostree >= 2015.10-1
 %else
@@ -400,6 +402,7 @@ The Cockpit components for managing software updates for ostree based systems.
 
 %package sosreport
 Summary: Cockpit user interface for diagnostic reports
+Requires: %{name}-shell = %{version}-%{release}
 Requires: sos
 BuildArch: noarch
 
@@ -411,6 +414,7 @@ sosreport tool.
 
 %package subscriptions
 Summary: Cockpit subscription user interface package
+Requires: %{name}-shell = %{version}-%{release}
 Requires: subscription-manager >= 1.13
 BuildArch: noarch
 
@@ -422,6 +426,7 @@ subscription management.
 
 %package selinux
 Summary: Cockpit SELinux package
+Requires: %{name}-shell = %{version}-%{release}
 Requires: setroubleshoot-server >= 3.3.3
 BuildArch: noarch
 
@@ -433,6 +438,7 @@ utility setroubleshoot to diagnose and resolve SELinux issues.
 
 %package networkmanager
 Summary: Cockpit user interface for networking, using NetworkManager
+Requires: %{name}-shell = %{version}-%{release}
 Requires: NetworkManager
 BuildArch: noarch
 
@@ -447,6 +453,7 @@ The Cockpit component for managing networking.  This package uses NetworkManager
 
 %package docker
 Summary: Cockpit user interface for Docker containers
+Requires: %{name}-shell = %{version}-%{release}
 Requires: docker >= 1.3.0
 
 %description docker
@@ -480,6 +487,7 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 
 %package test-assets
 Summary: Additional stuff for testing Cockpit
+Requires: %{name}-shell = %{version}-%{release}
 Requires: openssh-clients
 
 %description test-assets

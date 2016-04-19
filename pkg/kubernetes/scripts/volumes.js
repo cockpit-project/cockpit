@@ -209,13 +209,14 @@
             };
 
             var ACCESS_MODES = {
-                "ReadWriteOnce" : _("Read Write Once"),
-                "ReadOnlyMany" : _("Read Only"),
-                "ReadWriteMany" : _("Read and Write"),
+                "ReadWriteOnce" : _("Read and write from a single node"),
+                "ReadOnlyMany" : _("Read only from multiple nodes"),
+                "ReadWriteMany" : _("Read and write from multiple nodes"),
             };
 
             var RECLAIM_POLICIES = {
                 "Retain" : _("Retain"),
+                "Delete" : _("Delete"),
                 "Recycle" : _("Recycle")
             };
 
@@ -401,22 +402,23 @@
         "KUBE_NAME_RE",
         function (volumeData, stringToBytes, translate, NAME_RE) {
             var _ = translate.gettext;
-            function build (item) {
-                if (!item) {
-                    return {
-                        policy: "Retain"
-                    };
-                }
+
+            function build (item, type) {
+                if (!item)
+                    item = {};
 
                 var spec = item.spec || {};
+
                 var fields = {
                     "capacity" : spec.capacity ? spec.capacity.storage : "",
-                    "policy" : spec.persistentVolumeReclaimPolicy
+                    "policy" : spec.persistentVolumeReclaimPolicy || "Retain",
+                    "accessModes": volumeData.accessModes,
+                    "reclaimPolicies": volumeData.reclaimPolicies,
                 };
 
                 var i;
-                for (i in item.spec.accessModes || []) {
-                    fields[item.spec.accessModes[i]] = true;
+                for (i in spec.accessModes || []) {
+                    fields[spec.accessModes[i]] = true;
                 }
 
                 return fields;
@@ -429,7 +431,7 @@
                     data: null,
                 };
 
-                validModes = Object.keys(volumeData.accessModes);
+                validModes = Object.keys(fields.accessModes);
                 for (i = 0; i < validModes.length; i++) {
                     var mode = validModes[i];
                     if (fields[mode])
@@ -460,7 +462,7 @@
                 }
 
                 policy = fields.policy ? fields.policy.trim() : fields.policy;
-                if (!volumeData.reclaimPolicies[policy]) {
+                if (!fields.reclaimPolicies[policy]) {
                     ex = new Error(_("Please select a valid policy option."));
                     ex.target = "#last-policy";
                     ret.errors.push(ex);
@@ -500,19 +502,25 @@
     ])
 
     .factory("nfs"+VOLUME_FACTORY_SUFFIX, [
+        "volumeData",
         "KubeTranslate",
-        function (translate) {
+        function (volumeData, translate) {
             var _ = translate.gettext;
+
             function build(item) {
                 if (!item)
-                    return;
+                    item = {};
 
                 var spec = item.spec || {};
                 var nfs = spec.nfs || {};
                 return {
                     server: nfs.server,
                     path: nfs.path,
-                    readOnly: nfs.readOnly
+                    readOnly: nfs.readOnly,
+                    reclaimPolicies: {
+                        "Recycle" : volumeData.reclaimPolicies["Recycle"],
+                        "Retain" : volumeData.reclaimPolicies["Retain"],
+                    },
                 };
             }
 
@@ -560,18 +568,24 @@
     ])
 
     .factory("hostPath"+VOLUME_FACTORY_SUFFIX, [
+        "volumeData",
         "KubeTranslate",
-        function (translate) {
+        function (volumeData, translate) {
             var _ = translate.gettext;
 
             function build(item) {
                 if (!item)
-                    return;
+                    item = {};
 
                 var spec = item.spec || {};
                 var hp = spec.hostPath || {};
                 return {
                     path: hp.path,
+                    readOnly: hp.readOnly,
+                    reclaimPolicies: {
+                        "Recycle" : volumeData.reclaimPolicies["Recycle"],
+                        "Retain" : volumeData.reclaimPolicies["Retain"],
+                    },
                 };
             }
 
@@ -638,9 +652,6 @@
             var volumeFields, valName;
 
             angular.extend($scope, dialogData);
-            $scope.fields = defaultVolumeFields.build($scope.item);
-            $scope.reclaimPolicies = volumeData.reclaimPolicies;
-            $scope.accessModes = volumeData.accessModes;
 
             $scope.types = [
                 {
@@ -653,9 +664,10 @@
                 },
             ];
 
-            if ($scope.item) {
-                $scope.current_type = volumeData.getVolumeType($scope.item.spec);
+            function selectType(type) {
+                $scope.current_type = type;
                 valName = $scope.current_type+VOLUME_FACTORY_SUFFIX;
+                $scope.fields = defaultVolumeFields.build($scope.item);
                 if ($injector.has(valName)) {
                     volumeFields = $injector.get(valName, "PVModifyCtrl");
                     angular.extend($scope.fields, volumeFields.build($scope.item));
@@ -663,11 +675,15 @@
                     $scope.$applyAsync(function () {
                         $scope.$dismiss();
                     });
-                    return;
                 }
+            }
+
+            if ($scope.item) {
+                $scope.current_type = volumeData.getVolumeType($scope.item.spec);
+                selectType(volumeData.getVolumeType($scope.item.spec));
             } else {
                 $scope.selected = $scope.types[0];
-                $scope.current_type = $scope.types[0].type;
+                selectType($scope.selected.type);
             }
 
             function validate() {
@@ -700,13 +716,13 @@
                 return defer.promise;
             }
 
-            $scope.needsReadOnly = function() {
-                return $scope.current_type !== "flocker" && $scope.current_type !== "hostPath";
-            };
-
             $scope.select = function(type) {
                 $scope.selected = type;
-                $scope.current_type = type.type;
+                selectType(type.type);
+            };
+
+            $scope.hasField = function(name) {
+                return $scope.fields.hasOwnProperty(name);
             };
 
             $scope.performModify = function performModify() {

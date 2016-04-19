@@ -97,6 +97,60 @@
                         ng-model="fields.path">
                 </td>
             </tr>
+            <tr ng-if="hasField('target')">
+                <td class="top">
+                    <label class="control-label" for="modify-iscsi-target"
+                        translatable="yes">Target</label>
+                </td>
+                <td>
+                    <input id="modify-iscsi-target" class="form-control" type="text"
+                        ng-model="fields.target">
+                </td>
+            </tr>
+
+            <tr ng-if="hasField('iqn')">
+                <td class="top">
+                    <label class="control-label" for="modify-iscsi-iqn"
+                        translatable="yes">Qualified Name</label>
+                </td>
+                <td>
+                    <input id="modify-iscsi-iqn" class="form-control" type="text"
+                        ng-model="fields.iqn">
+                </td>
+            </tr>
+
+            <tr ng-if="hasField('lun')">
+                <td class="top">
+                    <label class="control-label" for="modify-iscsi-lun"
+                        translatable="yes">Logical Unit Number</label>
+                </td>
+                <td>
+                    <input id="modify-iscsi-lun" class="form-control" type="text"
+                        ng-model="fields.lun">
+                </td>
+            </tr>
+
+            <tr ng-if="hasField('iface')">
+                <td class="top">
+                    <label class="control-label" for="modify-iscsi-iface"
+                        translatable="yes">Interface</label>
+                </td>
+                <td>
+                    <input id="modify-iscsi-iface" class="form-control" type="text"
+                        ng-model="fields.iface">
+                </td>
+            </tr>
+
+            <tr ng-if="hasField('fstype')">
+                <td class="top">
+                    <label class="control-label" for="modify-fstype"
+                        translatable="yes">Filesystem Type</label>
+                </td>
+                <td>
+                    <input id="modify-fstype" class="form-control" type="text"
+                        ng-model="fields.fstype">
+                </td>
+            </tr>
 
             <tr ng-if="hasField('readOnly')">
                 <td></td>

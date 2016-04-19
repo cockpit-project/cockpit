@@ -106,25 +106,6 @@
         }
     ])
 
-    .directive('nodePanel',
-        function() {
-            return {
-                restrict: 'A',
-                link: function(scope, element, attrs) {
-                    var tab = 'main';
-                    scope.tab = function(name, ev) {
-                        if (ev) {
-                            tab = name;
-                            ev.stopPropagation();
-                        }
-                        return tab === name;
-                    };
-                },
-                templateUrl: 'views/node-panel.html'
-            };
-        }
-    )
-
     .directive('nodeBody',
         function() {
             return {

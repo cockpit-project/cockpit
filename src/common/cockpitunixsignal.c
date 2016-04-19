@@ -67,7 +67,9 @@ struct signv {
   { "PIPE",     SIGPIPE },      /* 13 */
   { "ALRM",     SIGALRM },      /* 14 */
   { "TERM",     SIGTERM },      /* 15 */
+#ifndef _MIPS_ARCH
   { "STKFLT",   SIGSTKFLT },    /* 16 (arm,i386,m68k,ppc) */
+#endif
   { "CHLD",     SIGCHLD },      /* 17 (arm,i386,m68k,ppc), 20 (alpha,sparc*), 18 (mips) */
   { "CLD",      SIGCLD },       /* same as SIGCHLD (mips) */
   { "CONT",     SIGCONT },      /* 18 (arm,i386,m68k,ppc), 19 (alpha,sparc*), 25 (mips) */
@@ -90,7 +92,9 @@ struct signv {
   { "LOST",     SIGLOST },      /* 29 (arm,i386,m68k,ppc,sparc*) */
 #endif
   { "PWR",      SIGPWR },       /* 30 (arm,i386,m68k,ppc), 29 (alpha,sparc*), 19 (mips) */
+#ifndef _MIPS_ARCH
   { "UNUSED",   SIGUNUSED },    /* 31 (arm,i386,m68k,ppc) */
+#endif
   { "SYS",      SIGSYS },       /* 31 (mips,alpha,sparc*) */
 };
 

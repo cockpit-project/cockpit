@@ -431,7 +431,7 @@
                     data: null,
                 };
 
-                validModes = Object.keys(fields.accessModes);
+                validModes = Object.keys(fields.accessModes || {});
                 for (i = 0; i < validModes.length; i++) {
                     var mode = validModes[i];
                     if (fields[mode])
@@ -462,7 +462,7 @@
                 }
 
                 policy = fields.policy ? fields.policy.trim() : fields.policy;
-                if (!fields.reclaimPolicies[policy]) {
+                if (!fields.reclaimPolicies || !fields.reclaimPolicies[policy]) {
                     ex = new Error(_("Please select a valid policy option."));
                     ex.target = "#last-policy";
                     ret.errors.push(ex);
@@ -525,7 +525,7 @@
             }
 
             function validate (item, fields) {
-                var regex = /^[a-z0-9.-]+$/i;
+                var regex = /^[a-z0-9.:-]+$/i;
 
                 var data, ex, server, path;
                 var ret = {

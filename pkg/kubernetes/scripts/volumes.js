@@ -104,25 +104,6 @@
         }
     ])
 
-    .directive('pvPanel',
-        function() {
-            return {
-                restrict: 'A',
-                link: function(scope, element, attrs) {
-                    var tab = 'main';
-                    scope.tab = function(name, ev) {
-                        if (ev) {
-                            tab = name;
-                            ev.stopPropagation();
-                        }
-                        return tab === name;
-                    };
-                },
-                templateUrl: 'views/pv-panel.html'
-            };
-        }
-    )
-
     .directive('pvBody',
         function() {
             return {

@@ -56,7 +56,7 @@
                     <label class="control-label"  translatable="yes">Reclaim Policy</label>
                 </td>
                 <td>
-                    <label class="inline" ng-repeat="(key, value) in reclaimPolicies">
+                    <label class="inline" ng-repeat="(key, value) in fields.reclaimPolicies">
                         <input id="modify-policy-{{key}}" type="radio" ng-model="fields.policy" value="{{key}}">
                         <span translatable="yes">{{ value }}</span>
                     </label>
@@ -69,7 +69,7 @@
                     <label class="control-label"  translatable="yes">Access Modes</label>
                 </td>
                 <td>
-                    <label class="inline" ng-repeat="(key, value) in accessModes">
+                    <label class="inline" ng-repeat="(key, value) in fields.accessModes">
                         <input id="modify-access-{{key}}" type="checkbox" ng-model="fields[key]">
                         <span translatable="yes">{{ value }}</span>
                     </label>
@@ -77,7 +77,7 @@
                 </td>
             </tr>
 
-            <tr ng-if="current_type == 'nfs'">
+            <tr ng-if="hasField('server')">
                 <td class="top">
                     <label class="control-label" for="nfs-modify-server"
                         translatable="yes">Server</label>
@@ -87,8 +87,8 @@
                         ng-model="fields.server" placeholder="Hostname or IP address">
                 </td>
             </tr>
-            <tr ng-if="current_type == 'nfs' || current_type == 'hostPath'">
-                <td>
+            <tr ng-if="hasField('path')">
+                <td class="top">
                     <label class="control-label" for="modify-path"
                         translatable="yes">Path</label>
                 </td>
@@ -98,7 +98,7 @@
                 </td>
             </tr>
 
-            <tr ng-if="needsReadOnly()">
+            <tr ng-if="hasField('readOnly')">
                 <td></td>
                 <td>
                     <label>

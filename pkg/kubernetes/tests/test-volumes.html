@@ -203,7 +203,7 @@ function suite(fixtures) {
         function(volumeData, select) {
             var pv = select().kind("PersistentVolume").name("bound").one();
             var volumes = volumeData.volumesForPod(select().kind("Pod").one());
-            equal(volumeData.getVolumeType(pv.spec), "hostPath", "correct type");
+            equal(volumeData.getVolumeType(pv.spec), "nfs", "correct type");
             equal(volumeData.getVolumeType(volumes["default-token-luvqo"]), "secret", "secret volume");
             equal(volumeData.getVolumeType(), undefined, "null volume");
             equal(volumeData.getVolumeType({}), undefined, "empty volume");
@@ -217,7 +217,168 @@ function suite(fixtures) {
             var pv = select().kind("PersistentVolume").name("bound").one();
             equal(volumeData.getVolumeLabel(), "Unknown", "null volume");
             equal(volumeData.getVolumeLabel({}), "Unknown", "empty volume");
-            equal(volumeData.getVolumeLabel(pv.spec), "Host Path", "volume label");
+            equal(volumeData.getVolumeLabel(pv.spec), "NFS Mount", "volume label");
+        }
+    ]);
+
+    volumesTest("default volume build", 3, fixtures, [
+        "defaultVolumeFields",
+        "kubeSelect",
+        function(volumeFields, select) {
+            var blank_fields = {
+              "accessModes": {
+                "ReadOnlyMany": "Read only from multiple nodes",
+                "ReadWriteMany": "Read and write from multiple nodes",
+                "ReadWriteOnce": "Read and write from a single node"
+              },
+              "capacity": "",
+              "policy": "Retain",
+              "reclaimPolicies": {
+                "Delete": "Delete",
+                "Recycle": "Recycle",
+                "Retain": "Retain"
+              }
+            };
+
+            deepEqual(blank_fields, volumeFields.build(), "default fields");
+            deepEqual(blank_fields, volumeFields.build({}), "empty fields");
+            deepEqual({
+              "accessModes": {
+                "ReadOnlyMany": "Read only from multiple nodes",
+                "ReadWriteMany": "Read and write from multiple nodes",
+                "ReadWriteOnce": "Read and write from a single node"
+              },
+              "capacity": "2Gi",
+              "policy": "Retain",
+              "ReadWriteMany": true,
+              "reclaimPolicies": {
+                "Delete": "Delete",
+                "Recycle": "Recycle",
+                "Retain": "Retain"
+              }
+            }, volumeFields.build(select().name("available").one()), "default fields");
+        }
+    ]);
+
+    volumesTest("default volume validate", 15, fixtures, [
+        "defaultVolumeFields",
+        "kubeSelect",
+        function(volumeFields, select) {
+            var result = volumeFields.validate(null, {})
+            equal(result.data, null, "blank fields blank data");
+            equal(result.errors.length, 4);
+            equal(result.errors[0].target, "#last-access", "blank fields access error");
+            equal(result.errors[1].target, "#modify-name", "blank fields name error");
+            equal(result.errors[2].target, "#modify-capacity", "blank fields capacity error");
+            equal(result.errors[3].target, "#last-policy", "blank fields policy error");
+
+            var invalid = {
+                "reclaimPolicies": { "policy1": "policy2" },
+                "accessModes": { "mode1": "mode1" },
+                "mode2": true,
+                "policy" : "policy2",
+                "name": "a name",
+                "capacity": "invalid"
+            };
+            result = volumeFields.validate(null, invalid);
+            equal(result.data, null, "invalid fields invalid data");
+            equal(result.errors.length, 4);
+            equal(result.errors[0].target, "#last-access", "invalid fields access error");
+            equal(result.errors[1].target, "#modify-name", "invalid fields name error");
+            equal(result.errors[2].target, "#modify-capacity", "invalid fields capacity error");
+            equal(result.errors[3].target, "#last-policy", "invalid fields policy error");
+
+            var valid = {
+                "reclaimPolicies": { "policy1": "policy2" },
+                "accessModes": { "mode1": "mode1" },
+                "mode1": true,
+                "policy" : "policy1",
+                "name": "  name ",
+                "capacity": " 2Gi "
+            };
+            var spec = {
+                "accessModes": [
+                  "mode1"
+                ],
+                "capacity": {
+                  "storage": "2Gi"
+                },
+                "persistentVolumeReclaimPolicy": "policy1"
+            }
+            result = volumeFields.validate(null, valid);
+            deepEqual(result.data, {
+              "kind": "PersistentVolume",
+              "metadata": {
+                "name": "name"
+              },
+              "spec": spec
+            }, "no item full object");
+            equal(result.errors.length, 0);
+
+            result = volumeFields.validate({}, valid);
+            deepEqual(result.data, { "spec": spec }, "with item only spec");
+        }
+    ]);
+
+    volumesTest("nfs volume build", 3, fixtures, [
+        "nfsVolumeFields",
+        "kubeSelect",
+        function(nfsVolumeFields, select) {
+            var blank_fields = {
+              "path": undefined,
+              "readOnly": undefined,
+              "reclaimPolicies": {
+                "Recycle": "Recycle",
+                "Retain": "Retain"
+              },
+              "server": undefined
+            };
+
+            deepEqual(blank_fields, nfsVolumeFields.build(), "default nfs fields");
+            deepEqual(blank_fields, nfsVolumeFields.build({}), "empty nfs fields");
+            deepEqual({
+              "path": "/tmp",
+              "readOnly": true,
+              "reclaimPolicies": {
+                "Recycle": "Recycle",
+                "Retain": "Retain"
+              },
+              "server": "host-or.ip:port",
+            }, nfsVolumeFields.build(select().name("bound").one()), "nfs fields");
+        }
+    ]);
+
+    volumesTest("nfs volume validate", 10, fixtures, [
+        "nfsVolumeFields",
+        function(nfsVolumeFields) {
+            var result = nfsVolumeFields.validate(null, {})
+            equal(result.data, null, "blank fields blank data");
+            equal(result.errors.length, 2);
+            equal(result.errors[0].target, "#nfs-modify-server", "blank fields server error");
+            equal(result.errors[1].target, "#modify-path", "blank fields path error");
+
+            var invalid = {
+                "server": "server/bad",
+                "path": "bad",
+            };
+            result = nfsVolumeFields.validate(null, invalid);
+            equal(result.data, null, "invalid fields invalid data");
+            equal(result.errors.length, 2);
+            equal(result.errors[0].target, "#nfs-modify-server", "invalid fields server error");
+            equal(result.errors[1].target, "#modify-path", "invalid fields path error");
+
+            var valid = {
+                "server": "host.or-ip:port",
+                "path": "/tmp",
+            };
+            var source = {
+                "server": "host.or-ip:port",
+                "path": "/tmp",
+                "readOnly": false
+            };
+            result = nfsVolumeFields.validate(null, valid);
+            deepEqual(result.data, source, "valid source result");
+            equal(result.errors.length, 0, "no errors when valid");
         }
     ]);
 
@@ -243,6 +404,35 @@ function suite(fixtures) {
 
 /* Invoke the test suite with this data */
 suite([
+{
+    "kind": "PersistentVolume",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "iscsi-vol",
+        "selfLink": "/api/v1/persistentvolumes/iscsi-vol",
+        "uid": "3b2e0dc2-f6a4-11e5-9e36-5254009e00f2",
+        "resourceVersion": "1325",
+        "creationTimestamp": "2016-03-30T18:21:33Z"
+    },
+    "spec": {
+        "capacity": {
+            "storage": "2Gi"
+        },
+        "iscsi":{
+            "targetPortal": "host-or.ip:port",
+            "iqn": "iqn.1994-05.t.com.redhat:83ba4072bb9c",
+            "lun": 10,
+            "iscsiInterface": "custom-iface",
+            "fsType":"ext3",
+            "readOnly": true,
+        },
+        "accessModes":["ReadWriteOnce"],
+        "persistentVolumeReclaimPolicy": "Retain"
+    },
+    "status": {
+        "phase": "Available"
+    }
+},
 {
     "kind": "PersistentVolume",
     "apiVersion": "v1",
@@ -283,8 +473,10 @@ suite([
         "capacity": {
             "storage": "5Gi"
         },
-        "hostPath": {
-            "path": "/tmp"
+        "nfs": {
+            "path": "/tmp",
+            "server": "host-or.ip:port",
+            "readOnly": true
         },
         "accessModes": [
             "ReadWriteMany"

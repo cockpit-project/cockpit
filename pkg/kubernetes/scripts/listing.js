@@ -49,9 +49,6 @@
                     return !(ev && inClassOrTag(ev.target, "btn", "li"));
                 }
 
-                self.forceInline = false;
-                self.only = false;
-
                 self.expanded = function expanded(id) {
                     if (angular.isUndefined(id)) {
                         for (id in data)
@@ -91,7 +88,6 @@
                             Object.keys(data).forEach(function(old) {
                                 delete data[old];
                             });
-                            self.only = false;
                         }
                     }
                 };

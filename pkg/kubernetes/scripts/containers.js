@@ -76,7 +76,6 @@
             loader.watch("Pod");
 
             $scope.listing = new ListingState($scope);
-            $scope.listing.forceInline = true;
 
             $scope.containers = containers;
 

@@ -155,16 +155,6 @@
         }
     ])
 
-    .directive('filterListing', [
-        function() {
-            return {
-                restrict: 'E',
-                scope: true,
-                templateUrl: 'views/filter-listing.html'
-            };
-        }
-    ])
-
     .directive('filterProject', [
         'filterService',
         function(filter) {

@@ -1280,6 +1280,10 @@ function basic_scope(cockpit, jquery) {
         return deferred.promise;
     };
 
+    cockpit.reject = function reject(ex) {
+        return cockpit.defer().reject(ex).promise;
+    };
+
     cockpit.defer = function() {
         return new Deferred();
     };

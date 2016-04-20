@@ -39,7 +39,7 @@ var _ = cockpit.gettext;
  *  - primary_caption optional, defaults to 'Ok'
  *  - primary_disabled optional, defaults to false
  *  - static_error optional, always show this error
- *  - dialog_done optional, callback when dialog is finished (param true if success, false on failure or cancel)
+ *  - dialog_done optional, callback when dialog is finished (param true if success, false on cancel)
  */
 var DialogFooter = React.createClass({
     propTypes: {
@@ -89,8 +89,6 @@ var DialogFooter = React.createClass({
             })
             .fail(function(error) {
                 self.setState({ action_in_progress: false, error_message: error });
-                if (self.props.dialog_done)
-                    self.props.dialog_done(false);
             });
         if (e)
             e.stopPropagation();

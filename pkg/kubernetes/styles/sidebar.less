@@ -1,3 +1,6 @@
+/*
+ * Full large size sidebar.
+ */
 .icon-sidebar {
     width: unit(@sidebar-width-xl, px);
     height: 100%;
@@ -23,7 +26,10 @@
     left: unit(@sidebar-width-xl, px);
 }
 
-@media (max-width: @screen-sm-min), (max-height: @sidebar-height-lg) {
+/*
+ * Very small. Only icons
+ */
+@media (max-width: @screen-sm-min) {
     .icon-sidebar {
         width: unit(@sidebar-width-sm, px);
         .list-group-item-value {
@@ -45,21 +51,24 @@
     }
 }
 
-@media (min-width: @screen-sm-min) and (max-width: @screen-lg-min) and (min-height: @sidebar-height-lg) {
+/*
+ * Short window. Text next to icons.
+ */
+@media (min-width: @screen-sm-min) and (max-width: @screen-lg-min), (min-width: @screen-sm-min) and (max-height: @sidebar-height-lg) {
     .icon-sidebar {
         width: unit(@sidebar-width-md, px);
-        i {
-            float: none !important;
-            display: inline;
-            font-size: 20px !important;
-            line-height: 20px !important;
-            margin-right: 0 !important;
-        }
         a {
+            padding: 8px !important;
+            height: 40px !important;
             width: unit(@sidebar-width-md, px) !important;
-            height: auto !important;
-            padding: 15px 20px !important;
-            text-align: center;
+            i {
+                float: none !important;
+                margin-right: 0px !important;
+            }
+            span {
+                display: inline !important;
+                font-size: 12px;
+            }
         }
     }
 
@@ -70,4 +79,5 @@
     .content-filter {
         left: unit(@sidebar-width-md, px);
     }
+
 }

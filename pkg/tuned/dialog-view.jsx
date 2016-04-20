@@ -35,7 +35,7 @@ var _ = cockpit.gettext;
  *  - cancel_caption optional, defaults to 'Cancel'
  *  - primary_clicked
  *     Callback function that is expected to return a promise.
- *     parameter: callback to set the progress text (will be displayed next to spinner)
+ *     the progress/update feature of the promise will be used to update the progress text next to spinner
  *  - primary_caption optional, defaults to 'Ok'
  *  - primary_disabled optional, defaults to false
  *  - static_error optional, always show this error
@@ -73,6 +73,7 @@ var DialogFooter = React.createClass({
         document.removeEventListener('keyup', this.keyUpHandler.bind(this));
     },
     update_progress: function(msg) {
+        console.log("progress: " + msg);
         this.setState({ action_progress_message: msg });
     },
     primary_click: function(e) {
@@ -81,7 +82,7 @@ var DialogFooter = React.createClass({
             return;
         var self = this;
         this.setState({ action_in_progress: true });
-        this.props.primary_clicked(this.update_progress.bind(this))
+        this.props.primary_clicked()
             .done(function() {
                 self.setState({ action_in_progress: false, error_message: null });
                 if (self.props.dialog_done)
@@ -91,7 +92,8 @@ var DialogFooter = React.createClass({
                 self.setState({ action_in_progress: false, error_message: error });
                 if (self.props.dialog_done)
                     self.props.dialog_done(false);
-            });
+            })
+            .progress(this.update_progress.bind(this));
         if (e)
             e.stopPropagation();
     },

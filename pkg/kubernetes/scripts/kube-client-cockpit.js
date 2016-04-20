@@ -1046,7 +1046,10 @@
                     return promise;
 
                 var settings = {
-                    registry: {},
+                    registry: {
+                        host: "registry",
+                        host_explicit: false
+                    },
                     flavor: "kubernetes",
                     isAdmin: false,
                     canChangeConnection: false,
@@ -1055,8 +1058,10 @@
                 var env_p = CockpitEnvironment()
                     .then(function(result) {
                         var value = result["REGISTRY_HOST"];
-                        if (value)
+                        if (value) {
                             settings.registry.host = value;
+                            settings.registry.host_explicit = true;
+                        }
 
                     }, function(ex) {});
 

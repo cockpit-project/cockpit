@@ -100,12 +100,12 @@
                 <span class="pficon pficon-warning-triangle-o"></span>
                 <span translatable="yes">Your login credentials do not give you access to use the docker registry from the command line.</span>
             </div>
-<pre ng-if="settings.registry.password">$ sudo docker login -p {{settings.registry.password}} -e unused -u unused <span ng-class="{ placeholder: !settings.registry.host.explicit }">{{settings.registry.host}}</span></pre>
+<pre ng-if="settings.registry.password">$ sudo docker login -p {{settings.registry.password}} -e unused -u unused <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span></pre>
             <p translatable="yes">Push an image:</p>
-<pre>$ sudo docker tag <em>myimage</em> <span ng-class="{ placeholder: !settings.registry.host.explicit }">{{settings.registry.host}}</span>/<em>project</em>/<em>name:tag</em>
-$ sudo docker push <span ng-class="{ placeholder: !settings.registry.host.explicit }">{{settings.registry.host}}</span>/<em>project</em>/<em>name</em></pre>
+<pre>$ sudo docker tag <em>myimage</em> <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/<em>project</em>/<em>name:tag</em>
+$ sudo docker push <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/<em>project</em>/<em>name</em></pre>
             <p translatable="yes">Pull an image:</p>
-<pre ng-if="settings.registry.host">$ sudo docker pull <span ng-class="{ placeholder: !settings.registry.host.explicit }">{{settings.registry.host}}</span>/<em>project</em>/<em>name:tag</em></pre>
+<pre ng-if="settings.registry.host">$ sudo docker pull <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/<em>project</em>/<em>name:tag</em></pre>
         </div>
     </div>
 </div>

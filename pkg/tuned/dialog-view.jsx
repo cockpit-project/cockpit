@@ -138,8 +138,8 @@ var DialogFooter = React.createClass({
         else
             error_message = this.state.error_message;
         if (error_message) {
-            error_element = <div class="alert alert-danger dialog-error">
-                                <span class="fa fa-exclamation-triangle"></span>
+            error_element = <div className="alert alert-danger dialog-error">
+                                <span className="fa fa-exclamation-triangle"></span>
                                 <span>{ error_message }</span>
                             </div>;
         }

@@ -60,8 +60,11 @@ asyncTest("simple request", function() {
             deepEqual(JSON.parse(data), {
                 version: 0,
                 tools: {
-                    patterns: {
+                    'patterns': {
                         label: "Design Patterns"
+                    },
+                    'react-patterns': {
+                        label: "React Patterns"
                     }
                 }
             }, "returned right data");

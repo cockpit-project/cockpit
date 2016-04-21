@@ -123,45 +123,33 @@ define([
             var dialog_selected;
 
             function set_profile() {
-                var dfd = cockpit.defer();
-
                 // no need to check input here, all states are valid
-                dfd.notify(_("Switching performance profile"));
-
                 var profile = dialog_selected;
                 if (profile == "none") {
-                    tuned.call('/Tuned', 'com.redhat.tuned.control', 'stop', [])
-                        .done(function() {
+                    return tuned.call('/Tuned', 'com.redhat.tuned.control', 'stop', [])
+                        .then(function() {
                             update_button();
-                            dfd.resolve();
-                        })
-                        .fail(function(ex) {
-                            dfd.reject(ex);
+                            return null;
                         });
                 } else {
-                    tuned.call('/Tuned', 'com.redhat.tuned.control', 'switch_profile', [ profile ])
+                    return tuned.call('/Tuned', 'com.redhat.tuned.control', 'switch_profile', [ profile ])
                         .then(function(results) {
                             if (!results[0][0]) {
-                                dfd.reject(results[0][1] || _("Failed to switch profile"));
+                                return cockpit.reject(results[0][1] || _("Failed to switch profile"));
                             } else {
-                                dfd.notify(_("Activating performance profile"));
-                                tuned.call('/Tuned', 'com.redhat.tuned.control', 'start', [])
-                                    .done(function(results) {
+                                return tuned.call('/Tuned', 'com.redhat.tuned.control', 'start', [])
+                                    .then(function(results) {
                                         if (!results[0]) {
                                             console.warn("tuned set_profile failed: " + JSON.stringify(results));
-                                            dfd.reject(results[1] || _("Failed to activate profile"));
+                                            return cockpit.reject(results[1] || _("Failed to activate profile"));
                                         } else {
                                             update_button();
-                                            dfd.resolve();
+                                            return null;
                                         }
-                                    })
-                                    .fail(function(ex) {
-                                        dfd.reject(ex);
                                     });
                             }
                         });
                 }
-                return dfd.promise;
             }
 
             function update_selected_item(selected) {

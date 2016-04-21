@@ -1,20 +1,7 @@
-<div class="listing-head" ng-click="listing.collapse(id, $event)">
-    <div class="listing-actions">
-        <button class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
-        <button class="btn btn-default pficon pficon-edit"
-            ng-click="modifyProject(project())"></button>
-    </div>
-    <h3><i class="pficon pficon-project"></i>
-        <span ng-if="project().metadata.annotations['openshift.io/description']">
-            {{ project().metadata.annotations['openshift.io/display-name'] }} ({{ project().metadata.name }})
-        </span>
-        <span ng-if="!project().metadata.annotations['openshift.io/description']">
-            {{ project().metadata.name }}
-        </span>
-        <span class="project-description" ng-if="project().metadata.annotations['openshift.io/description']">
-            <br>{{ project().metadata.annotations['openshift.io/description'] }}
-        </span>
-    </h3>
+<div class="listing-actions project-panel-actions">
+    <button class="btn btn-danger btn-delete pficon pficon-delete" disabled></button>
+    <button class="btn btn-default pficon pficon-edit"
+        ng-click="modifyProject(project())"></button>
 </div>
 <div class="listing-body project-panel">
     <p class="project-description" ng-if="project().metadata.annotations['openshift.io/description']">

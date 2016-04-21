@@ -80,10 +80,7 @@
             angular.extend($scope, actions);
 
             $scope.$on("activate", function(ev, id) {
-                if (!$scope.listing.expandable) {
-                    ev.preventDefault();
-                    $location.path('/nodes/' + encodeURIComponent(id));
-                }
+                $location.path('/nodes/' + encodeURIComponent(id));
             });
 
             $scope.nodePods = function node_pods(item) {

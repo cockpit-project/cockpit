@@ -82,10 +82,8 @@
                 };
 
                 $scope.$on("activate", function(ev, id) {
-                    if (!$scope.listing.expandable) {
-                        ev.preventDefault();
-                        $location.path('/projects/' + id);
-                    }
+                    ev.preventDefault();
+                    $location.path('/projects/' + id);
                 });
             }
 
@@ -446,7 +444,7 @@
                     kind: memberObj.kind,
                     name: memberObj.metadata.name,
                 };
-                return projectPolicy.addToRole(namespace, role, subject);  
+                return projectPolicy.addToRole(namespace, role, subject);
             };
 
             $scope.performRemove = function performRemove() {
@@ -484,7 +482,7 @@
                 kind: "",
                 ocRole: "",
             };
-            
+
             var namespace = fields.namespace;
 
             function getAllMembers() {
@@ -518,7 +516,7 @@
 
                     if(ex) {
                         ex.target = "#add_member_group";
-                        defer.reject(ex);                        
+                        defer.reject(ex);
                     }
                 }
                 if (!role || role === selectRole) {
@@ -532,7 +530,7 @@
                 }
 
                 return defer.promise;
-            }            
+            }
             $scope.performCreate = function performCreate() {
                 var role = $scope.select.ocRole;
                 var memberName = $scope.select.memberName;
@@ -551,7 +549,7 @@
                     memberName = selectMember;
                     kind = null;
                 }
-                
+
                 return validate(memberName, role).then(function() {
                     var subject = {
                         kind: kind,

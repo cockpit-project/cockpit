@@ -323,9 +323,8 @@ class TestRegistry(MachineCase):
         # Lets navigate to an image stream
         b.click("a[href='#/images/marmalade/busybee']")
         b.wait_in_text(".content-filter h3", "marmalade/busybee")
-        b.click("tbody[data-id='marmalade/busybee:0.x'] tr td span.image-tag")
-        b.wait_present(".listing-head h3")
-        b.wait_in_text(".listing-head h3", "marmalade/busybee:0.x")
+        b.click("tbody[data-id='marmalade/busybee:0.x'] tr td.listing-toggle")
+        b.wait_in_text("tbody[data-id='marmalade/busybee:0.x'] .listing-panel dl.image-tags", "marmalade/busybee:0.x")
 
         # Look at the image layers
         b.click(".listing-head li:last-child a")
@@ -411,8 +410,8 @@ class TestRegistry(MachineCase):
 
         # Delete via the main UI
         b.wait_present("tbody[data-id='marmalade/busybee:latest']")
-        b.click("tbody[data-id='marmalade/busybee:latest'] tr:first-child td:first-child")
-        b.wait_in_text("tbody[data-id='marmalade/busybee:latest'] .listing-head h3", "marmalade/busybee:latest")
+        b.click("tbody[data-id='marmalade/busybee:latest'] tr.listing-item td.listing-toggle")
+        b.wait_in_text("tbody[data-id='marmalade/busybee:latest'] .listing-panel dl.image-tags", "marmalade/busybee:latest")
         b.click("tbody[data-id='marmalade/busybee:latest'] .listing-head .pficon-delete")
         b.wait_present("modal-dialog")
         b.click("modal-dialog .btn-danger")
@@ -425,10 +424,10 @@ class TestRegistry(MachineCase):
         b.go("#/images/marmalade/juggs")
         b.wait_in_text(".content-filter h3", "marmalade/juggs")
         b.wait_present("tbody[data-id='marmalade/juggs:2.9']")
-        b.click("tbody[data-id='marmalade/juggs:2.9'] tr:first-child td:first-child")
+        b.click("tbody[data-id='marmalade/juggs:2.9'] tr.listing-item td.listing-toggle")
 
         # Various labels should show up in this image
-        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] .listing-head h3", "Juggs Image")
+        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] .listing-panel", "Juggs Image")
         b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] div[image-body]", "This is a test description of an image. It can be as long as a paragraph, featuring a nice brogrammer sales pitch.")
         b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] div[image-body]", "http://hipsum.co")
 
@@ -585,7 +584,8 @@ class TestRegistry(MachineCase):
         # Go and modify the project
         b.go("#/projects")
         b.wait_present("tbody[data-id='llama']")
-        b.click("tbody[data-id='llama'] tr:first-child th:first-child")
+        b.wait_present("tbody[data-id='llama'] tr.listing-item")
+        b.click("tbody[data-id='llama'] tr.listing-item th")
         b.wait_in_text(".content-filter h3", "Display llama (llama)")
         b.wait_in_text("#content", "Description goes here")
         b.click(".pficon-edit")

@@ -1,10 +1,4 @@
-<div class="listing-head" ng-click="listing.toggle(container.key)">
-    <div class="listing-actions">
-    </div>
-    <h3><i class="fa fa-cube"></i>{{container.spec.name}}</h3>
-    <div class="listing-status">
-        <span ng-repeat="(state, value) in container.status.state">{{state}}</span>
-    </div>
+<div class="listing-head">
     <ul class="nav nav-tabs nav-tabs-pf">
         <li ng-class="{active: tab('main')}">
             <a ng-click="tab('main', $event)" translatable="yes">Container</a></li>

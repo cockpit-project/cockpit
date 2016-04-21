@@ -81,10 +81,8 @@
             data.watchImages();
 
             $scope.$on("activate", function(ev, id) {
-                if (!$scope.listing.expandable) {
-                    ev.preventDefault();
-                    $location.path('/images/' + id);
-                }
+                ev.preventDefault();
+                $location.path('/images/' + id);
             });
 
             /* All the actions available on the $scope */
@@ -181,6 +179,11 @@
 
                 return promise;
             };
+
+            $scope.$on("activate", function(ev, id) {
+                ev.preventDefault();
+                $location.path('/images/' + id);
+            });
 
             $scope.deleteTag = function(stream, tag) {
                 var promise = actions.deleteTag(stream, tag);

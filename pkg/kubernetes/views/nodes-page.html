@@ -1,12 +1,8 @@
-<div class="content-filter">
-    <filter-listing>
-    </filter-listing>
-</div>
 <div>
 <table listing-table class="listing nodes-listing">
-    <thead ng-if="!listing.only">
+    <thead>
         <tr>
-            <td colspan="4">
+            <td colspan="5">
                 <a id="add-node" class="pull-right" ng-click="addNode()">
                     <i translatable="yes" class="pficon pficon-add-circle-o"></i>
                     <span translatable="yes">Add Kubernetes Node</span>
@@ -15,15 +11,21 @@
             </td>
         </tr>
         <tr>
+            <th></th>
             <th translatable="yes">Name</th>
             <th translatable="yes">Operating System</th>
             <th translatable="yes">Address</th>
             <th translatable="yes">Status</th>
         </tr>
     </thead>
-    <tbody ng-repeat="item in nodes track by item.metadata.name" class="active"
-        ng-init="id = item.metadata.name" ng-class="{open: listing.expanded(id)}" data-id="{{id}}">
-        <tr ng-click="listing.toggle(id)" ng-if="!listing.only" class="listing-item">
+    <tbody ng-repeat="item in nodes track by item.metadata.name"
+        ng-init="id = item.metadata.name" data-id="{{id}}"
+            ng-class="{open: listing.expanded(id)}">
+        <tr ng-click="listing.activate(id)" class="listing-item">
+            <td ng-click="listing.toggle(id, $event)"
+                class="listing-toggle">
+                <i class="fa fa-fw"></i>
+            </td>
             <th>{{item.metadata.name}}</th>
             <td>
                 <div ng-if="item.status.nodeInfo.osImage">{{item.status.nodeInfo.osImage}}</div>
@@ -32,7 +34,7 @@
             <td>{{item.status.conditions | nodeStatus}}</td>
         </tr>
         <tr class="listing-panel" ng-if="listing.expanded(id)">
-            <td listing-panel kind="node" colspan="4"></td>
+            <td listing-panel kind="node" colspan="5"></td>
         </tr>
     </tbody>
 </table>

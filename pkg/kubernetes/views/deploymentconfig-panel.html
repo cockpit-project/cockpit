@@ -1,11 +1,7 @@
-<div class="listing-head" ng-click="listing.toggle(id)">
+<div class="listing-head">
     <div class="listing-actions">
         <button title="Delete" class="deployment-delete btn btn-danger btn-delete pficon pficon-delete delete-entity "
             ng-click="deleteItem(item)"></button>
-    </div>
-    <h3><i class="fa fa-gear"></i>{{ item.metadata.name }}</h3>
-    <div class="listing-status">
-        {{item.status.conditions | nodeStatus}}
     </div>
     <ul class="nav nav-tabs nav-tabs-pf">
         <li ng-class="{active: tab('main')}">

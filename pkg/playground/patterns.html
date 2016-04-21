@@ -115,11 +115,12 @@
     <table class="listing">
         <thead>
             <tr>
-                <td colspan="4">
+                <td colspan="5">
                     <h3>Listing with Panels</h3>
                 </td>
             </tr>
             <tr>
+                <th class="listing-toggle"></th>
                 <th>Name</th>
                 <th>Project</th>
                 <th>Address</th>
@@ -128,23 +129,19 @@
         </thead>
         <tbody>
             <tr class="listing-item">
+                <td class="listing-toggle">
+                    <i class="fa fa-fw"></i>
+                </td>
                 <th>frontend</th>
                 <td>aoeuaoeu</td>
                 <td>127.30.168.10</td>
                 <td>Running</td>
             </tr>
             <tr class="listing-panel">
-                <td colspan="4">
+                <td colspan="5">
                     <div class="listing-head">
                         <div class="listing-actions">
                             <button title="Adjust" class="btn btn-default pficon pficon-edit"></button>
-                        </div>
-                        <h3>
-                            <i class="fa fa-cubes"></i>
-                            frontend
-                        </h3>
-                        <div class="listing-status">
-                            Running
                         </div>
                         <ul class="nav nav-tabs nav-tabs-pf">
                             <li class="active"><a href="#">Pod</a></li>
@@ -189,23 +186,19 @@
         </tbody>
         <tbody>
             <tr class="listing-item">
+                <td class="listing-toggle">
+                    <i class="fa fa-fw"></i>
+                </td>
                 <th>redis-master</th>
                 <td>aoeuaoeu</td>
                 <td>127.30.173.79:6379</td>
                 <td>Ready</td>
             </tr>
             <tr class="listing-panel">
-                <td colspan="4">
+                <td colspan="5">
                     <div class="listing-head">
                         <div class="listing-actions">
                             <button title="Adjust" class="btn btn-default pficon pficon-edit"></button>
-                        </div>
-                        <h3>
-                            <i class="fa fa-cubes"></i>
-                            redis-master
-                        </h3>
-                        <div class="listing-status">
-                            Running
                         </div>
                         <ul class="nav nav-tabs nav-tabs-pf">
                             <li class="active"><a href="#">Pod</a></li>
@@ -286,7 +279,7 @@
                     </div>
                 </td>
             </tr>
-            <tr class="listing-head">
+            <tr class="listing-panel">
                 <td colspan="3">
                     <ul class="nav nav-tabs nav-tabs-pf">
                         <li><a href="#">Tree</a></li>

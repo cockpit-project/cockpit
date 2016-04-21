@@ -28,17 +28,38 @@ require([
 
 var _ = cockpit.gettext;
 
-var on_dialog_standard_clicked = function() {
+var last_action = "";
+
+var on_dialog_standard_clicked = function(mode) {
+    last_action = mode;
     var dfd = cockpit.defer();
-    dfd.notify(_("Status message"));
-    dfd.resolve();
-    // dfd.reject();
+    dfd.notify(_("Starting something long"));
+    if (mode == 'steps') {
+        var interval, count = 0;
+        window.setInterval(function() {
+            count += 1;
+            dfd.notify("Step " + count);
+        }, 500);
+        window.setTimeout(function() {
+            window.clearTimeout(interval);
+            dfd.resolve();
+        }, 5000);
+        dfd.promise.cancel = function() {
+            window.clearTimeout(interval);
+            dfd.reject(_("Action canceled"));
+        };
+    } else if (mode == 'reject') {
+        dfd.reject(_("Some error occurred"));
+    } else {
+        dfd.resolve();
+    }
     return dfd.promise;
 };
 
 var on_dialog_done = function(success) {
     var result = success?"successful":"Canceled";
-    document.getElementById("demo-dialog-result").textContent = "Dialog closed: " + result;
+    var action = success?last_action:"no action";
+    document.getElementById("demo-dialog-result").textContent = "Dialog closed: " + result + "(" + action + ")";
 };
 
 var on_standard_demo_clicked = function(static_error) {
@@ -47,8 +68,24 @@ var on_standard_demo_clicked = function(static_error) {
         'body': React.createElement(demo_dialog),
     };
     var footer_props = {
-        'primary_clicked': on_dialog_standard_clicked,
-        'primary_caption': _("OK"),
+        'actions': [
+              { 'clicked': on_dialog_standard_clicked.bind(null, 'standard action'),
+                'caption': _("OK"),
+                'style': 'primary',
+              },
+              { 'clicked': on_dialog_standard_clicked.bind(null, 'dangerous action'),
+                'caption': _("Danger"),
+                'style': 'danger',
+              },
+              { 'clicked': on_dialog_standard_clicked.bind(null, 'steps'),
+                'caption': _("Wait"),
+                'style': 'primary',
+              },
+              { 'clicked': on_dialog_standard_clicked.bind(null, 'reject'),
+                'caption': _("Error"),
+                'style': 'primary',
+              },
+          ],
         'static_error': static_error,
         'dialog_done': on_dialog_done,
     };

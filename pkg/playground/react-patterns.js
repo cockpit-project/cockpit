@@ -23,11 +23,17 @@ require([
     "performance/dialog-view",
     "playground/react-demo-dialog",
     "base1/cockpit-components-terminal",
-], function(cockpit, React, dialog_pattern, demo_dialog, cockpit_terminal) {
+    "playground/react-demo-listing",
+], function(cockpit, React, dialog_pattern, demo_dialog, cockpit_terminal, demo_listing) {
 
 "use strict";
 
 var _ = cockpit.gettext;
+
+/*-----------------------------------------------------------------------------
+  Modal Dialog
+  -----------------------------------------------------------------------------
+ */
 
 var last_action = "";
 
@@ -96,7 +102,6 @@ var on_standard_demo_clicked = function(static_error) {
 document.getElementById('demo-show-dialog').addEventListener("click", on_standard_demo_clicked.bind(null, null), false);
 document.getElementById('demo-show-error-dialog').addEventListener("click", on_standard_demo_clicked.bind(null, 'Some static error'), false);
 
-
 cockpit.user.addEventListener('changed', function (user) {
     var channel = cockpit.channel({
         "payload": "stream",
@@ -113,5 +118,14 @@ cockpit.user.addEventListener('changed', function (user) {
         channel: channel,
     }), document.getElementById('demo-react-terminal'));
 });
+
+
+/*-----------------------------------------------------------------------------
+  Listing Pattern
+  -----------------------------------------------------------------------------
+ */
+// create the listing
+demo_listing.demo(document.getElementById('demo-listing'));
+
 
 });

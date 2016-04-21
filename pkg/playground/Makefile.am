@@ -13,6 +13,7 @@ playground_DATA = \
 	pkg/playground/react-patterns.html \
 	pkg/playground/react-patterns.js \
 	pkg/playground/react-demo-dialog.js \
+	pkg/playground/react-demo-listing.js \
 	pkg/playground/service.html \
 	pkg/playground/service.min.html \
 	pkg/playground/service.js \
@@ -29,6 +30,7 @@ playground_NOINST = \
 	pkg/playground/patterns.min.js \
 	pkg/playground/react-patterns.min.js \
 	pkg/playground/react-demo-dialog.min.js \
+	pkg/playground/react-demo-listing.min.js \
 	pkg/playground/service.min.js \
 	$(NULL)
 
@@ -45,6 +47,7 @@ CLEANFILES += \
 	pkg/playground/react-patterns.min.html \
 	pkg/playground/react-patterns.min.js \
 	pkg/playground/react-demo-dialog.min.js \
+	pkg/playground/react-demo-listing.min.js \
 	pkg/playground/service.min.html \
 	pkg/playground/service.min.js \
 	$(NULL)

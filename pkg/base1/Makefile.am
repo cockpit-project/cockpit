@@ -25,6 +25,7 @@ base_DATA = \
 	$(NULL)
 
 REACT_COMPONENTS = \
+	pkg/base1/cockpit-components-listing.js \
 	pkg/base1/cockpit-components-terminal.js \
 	$(NULL)
 

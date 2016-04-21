@@ -567,11 +567,17 @@ table.listing {
     min-width: 65%;
 }
 
+table.listing > caption,
 table.listing > thead h3 {
     font-size: 22px;
     padding: 10px 0px 10px;
     font-weight: 300;
     margin-top: 0px;
+}
+
+table.listing > .cockpit-caption {
+    color: inherit;
+    line-height: 1.1;
 }
 
 table.listing > thead td {
@@ -660,6 +666,11 @@ tbody.open tr.listing-panel td div.listing-head {
 tbody.open tr.listing-item:not(.cockpit-nonavigate):hover,
 tr.listing-item:not(.cockpit-nonavigate):hover {
     background-color: #d4edfa;
+}
+
+/* use gray for a row if navigation isn't available */
+tr.listing-item.cockpit-nonavigate:hover {
+    background-color: #ededed;
 }
 
 /* if we can't navigate to a row but expand is available, highlight the caret */

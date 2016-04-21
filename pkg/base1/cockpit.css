@@ -622,14 +622,90 @@ table.listing tbody.open + thead {
     border-top: none;
 }
 
+tbody.open tr.listing-item {
+    background-color: #ededed;
+    border-bottom: none;
+    border-top: none;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+}
+
+tbody.open tr.listing-item td,
+tbody.open tr.listing-item th {
+    border-top: 1px solid #ccc;
+}
+
+tbody.open td div.listing-head {
+    background-color: white;
+}
+
+tbody.open .listing-panel {
+    border: 1px solid #ccc;
+}
+
+tbody.open .listing-panel .listing-body {
+    border: none;
+}
+
+tbody.open tr.listing-panel + tr.listing-body {
+    border-top: none;
+}
+
+tbody.open tr.listing-panel td div.listing-head {
+    border: none;
+    border-bottom: 1px solid #ccc;
+}
+
+tbody.open tr.listing-item:hover,
 tr.listing-item:hover {
     background-color: #d4edfa;
 }
 
-tr.listing-item + tr.listing-panel .listing-head:hover {
-    cursor: pointer;
-    background-color: #d4edfa;
+tr.listing-item .listing-toggle {
+    padding: 0 !important;
+    width: 35px;
+    color: #000000;
 }
+
+table.listing thead .listing-toggle + th,
+tr.listing-item .listing-toggle + td,
+tr.listing-item .listing-toggle + th {
+    padding-left: 0;
+}
+
+td.listing-toggle:hover {
+    color: #65bedf;
+    background-color: #ededed;
+}
+
+td.listing-toggle i {
+    font-size: 24px;
+    visibility: hidden;
+}
+
+tr.listing-item:hover td.listing-toggle i,
+tr.listing-item td.listing-toggle:hover i {
+    visibility: visible;
+}
+
+td.listing-toggle i:before {
+    content: "\f105";
+}
+
+tbody.open td.listing-toggle i {
+    visibility: visible;
+}
+
+tbody.open td.listing-toggle i:before {
+    content: "\f107";
+}
+
+td.listing-toggle:hover ~ td,
+td.listing-toggle:hover ~ th
+{
+    background-color: #ededed;
+}
+
 
 /* Listing items have decent padding ... */
 tr.listing-item td {
@@ -646,6 +722,10 @@ td.listing-actions {
     padding: 5px 10px;
     text-align: right;
     float: none;
+}
+
+.listing-head .listing-actions {
+    margin-top: -7px;
 }
 
 tr.listing-item td:first-child {
@@ -684,11 +764,6 @@ div.listing-maybe div.listing-head,
 div.listing-maybe div.listing-body {
     background-color: white;
     border: none;
-}
-
-/* When panel is a row of a table: head is white */
-tr.listing-item + tr.listing-panel div.listing-head {
-    border-top: 3px solid #0099d3;
 }
 
 tbody.active .listing-head {
@@ -839,24 +914,16 @@ table.listing tbody.open {
 }
 
 /* By default these thincgs are hidden */
-tbody.open tr.listing-item,
-tbody tr.listing-head,
 tbody tr.listing-panel,
-tbody tr.listing-body,
-tbody .listing-open {
+tbody tr.listing-body {
     display: none;
 }
 
 /* ... unless they are in the right state */
-tbody tr.listing-item.listing-head,
 tbody.open tr.listing-head,
 tbody.open tr.listing-panel,
 tbody.open tr.listing-body {
     display: table-row;
-}
-
-tbody.open .listing-open {
-    display: block;
 }
 
 tbody.open tr.listing-head {

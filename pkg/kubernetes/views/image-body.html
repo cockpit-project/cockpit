@@ -1,4 +1,6 @@
 <dl>
+    <dt ng-if="labels.name" translatable="yes">Name</dt>
+    <dd ng-if="labels.name">{{ labels.name }}</dd>
     <dt ng-if="labels.summary" translatable="yes">Summary</dt>
     <dd ng-if="labels.summary">{{ labels.summary }}</dd>
     <dt ng-if="labels.description" translatable="yes">Description</dt>

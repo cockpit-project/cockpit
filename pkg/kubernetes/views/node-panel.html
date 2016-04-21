@@ -1,10 +1,4 @@
-<div class="listing-head" ng-click="listing.toggle(id)">
-    <div class="listing-actions">
-    </div>
-    <h3><i class="fa fa-server"></i>{{ item.metadata.name }}</h3>
-    <div class="listing-status">
-        {{item.status.conditions | nodeStatus}}
-    </div>
+<div class="listing-head">
     <ul class="nav nav-tabs nav-tabs-pf">
         <li ng-class="{active: tab('main')}"><a ng-click="tab('main', $event)">Node</a></li>
         <li ng-class="{active: tab('capacity')}"><a ng-click="tab('capacity', $event)">Capacity</a></li>

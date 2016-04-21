@@ -96,10 +96,8 @@
             };
 
             $scope.$on("activate", function(ev, id) {
-                if (!$scope.listing.expandable) {
-                    ev.preventDefault();
-                    $location.path('/volumes/' + id);
-                }
+                ev.preventDefault();
+                $location.path('/volumes/' + id);
             });
         }
     ])

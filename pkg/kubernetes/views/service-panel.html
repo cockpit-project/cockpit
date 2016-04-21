@@ -1,13 +1,8 @@
 <div>
-    <div class="listing-head" ng-click="listing.toggle(id)">
+    <div class="listing-head">
         <div class="listing-actions">
             <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete delete-entity"
                 ng-click="deleteItem(item)"></button>
-        </div>
-        <h3><i class="fa pficon-service"></i>{{ item.metadata.name }}</h3>
-        <div class="listing-status">
-            <span ng-if="serviceEndpoint(item).subsets.length !== 0" translatable="yes">Ready</span>
-            <span ng-if="serviceEndpoint(item).subsets.length === 0" translatable="yes">Not Ready</span>
         </div>
         <ul class="nav nav-tabs nav-tabs-pf">
             <li ng-class="{active: tab('main')}"><a ng-click="tab('main', $event)">Service</a></li>

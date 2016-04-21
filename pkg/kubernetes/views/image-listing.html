@@ -10,6 +10,7 @@
             </td>
         </tr>
         <tr>
+            <th></th>
             <th translatable="yes">Tags</th>
             <th translatable="yes">Author</th>
             <th translatable="yes">Last Updated</th>
@@ -18,39 +19,48 @@
     <tbody ng-repeat-start="(link, stream) in imagestreams() track by link"
            ng-init="sid = stream.metadata.namespace + '/' + stream.metadata.name"
            data-id="{{ sid }}" class="active" ng-class="{open: listing.expanded(sid)}">
-        <tr class="listing-item imagestream-item" ng-click="listing.toggle(sid)">
-            <th ng-if="!listing.inline" colspan="4">{{ sid }}</th>
+        <tr ng-if="!listing.inline" ng-click="listing.activate(sid)" class="listing-item imagestream-item">
+            <td ng-click="listing.toggle(sid, $event)"
+                class="listing-toggle">
+                <i class="fa fa-fw"></i>
+            </td>
+            <th colspan="4">{{ sid }}</th>
         </tr>
         <tr class="listing-panel" ng-if="listing.expanded(sid)" ng-init="id = sid">
-            <td listing-panel kind="ImageStream" colspan="3"></td>
+            <td listing-panel kind="ImageStream" colspan="4"></td>
         </tr>
     </tbody>
     <tbody ng-repeat="tag in stream.status.tags track by tag.tag"
            ng-init="iid = sid + ':' + tag.tag" data-id="{{ iid }}"
-           class="active" ng-class="{open: listing.expanded(iid), last: $last, first: $first}">
-        <tr class="listing-item tag-item" ng-click="listing.toggle(iid)"
+           ng-class="{open: listing.expanded(iid), last: $last, first: $first}">
+        <tr ng-click="listing.activate(iid)" class="listing-item tag-item"
             ng-repeat-start="image in imagesByTag(tag) track by image.metadata.name">
-            <td><span class="image-tag">:{{ tag.tag }}</span></td>
-            <td colspan="3"><tt>{{ image.metadata.name }}</tt></td>
-        </tr>
-        <tr class="listing-item image-item" ng-click="listing.toggle(iid)"
-            ng-init="conf = imageConfig(image); layer = imageLayers(image)[0]">
-            <td></td>
-            <td ng-if="conf.author">{{ conf.author }}</td>
-            <td ng-if="!conf.author">{{ image.dockerImageMetadata.Author }}</td>
-            <td title="{{ tag.items[0].created }}">{{ tag.items[0].created | dateRelative }}</td>
+            <td ng-click="listing.toggle(iid, $event)"
+                class="listing-toggle">
+                <i class="fa fa-fw"></i>
+            </td>
+            <td class="tag-label"><span class="image-tag">:{{ tag.tag }}</span></td>
+            <td colspan="3" class="container">
+                <div class="row">
+                    <div class="col col-xs-12"><tt>{{ image.metadata.name }}</tt></div>
+                </div>
+                <div class="row">
+                    <div class="col col-xs-6 text-left" ng-if="conf.author">{{ conf.author }}</div>
+                    <div class="col col-xs-6 text-left" ng-if="!conf.author">sdfasdfas {{ image.dockerImageMetadata.Author }}</div>
+                    <div class="col col-xs-6" title="{{ tag.items[0].created }}">{{ tag.items[0].created | dateRelative }}</div>
+                </div>
+            </td>
         </tr>
         <tr class="listing-panel" ng-if="listing.expanded(iid)" ng-init="id = iid" ng-repeat-end="">
-            <td image-panel colspan="3"></td>
+            <td image-panel colspan="4"></td>
         </tr>
     </tbody>
     <tbody data-ng-rubbish="" ng-if="0" ng-repeat-end>
     </tbody>
     <thead class="listing-empty" ng-if="!quiet">
         <tr>
-            <td colspan="3" ng-if="!failure" translatable="yes">No image streams are present.</td>
-            <td colspan="3" ng-if="failure">{{failure}}</td>
+            <td colspan="4" ng-if="!failure" translatable="yes">No image streams are present.</td>
+            <td colspan="4" ng-if="failure">{{failure}}</td>
         </tr>
     </thead>
 </table>
-

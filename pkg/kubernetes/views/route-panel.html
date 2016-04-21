@@ -1,11 +1,10 @@
-<div class="listing-head" ng-click="listing.toggle(id)">
+<div class="listing-head">
     <div class="listing-actions">
         <button title="Adjust"  class="btn btn-default pficon pficon-edit" ng-click="modifyRoute(item)"></button>
         <button title="Delete" class="route-delete btn btn-danger btn-delete pficon pficon-delete "
             ng-click="deleteItem(item)">
         </button>
     </div>
-    <h3><i class="pficon pficon-route"></i>{{ item.metadata.name }}</h3>
     <ul class="nav nav-tabs nav-tabs-pf">
         <li ng-class="{active: tab('main')}"><a ng-click="tab('main', $event)">Route</a></li>
     </ul>

@@ -4,11 +4,6 @@
             <button class="btn btn-danger btn-delete pficon pficon-delete"
                 ng-click="deleteTag(stream, tag)"></button>
         </div>
-        <h3>
-            <i class="pficon pficon-image"></i>
-            <span ng-if="labels.name">{{ labels.name }}</span>
-            <span ng-if="!labels.name">{{ names[0] }}</span>
-        </h3>
         <ul class="nav nav-tabs nav-tabs-pf">
             <li ng-class="{active: tab('main')}">
                 <a ng-click="tab('main', $event)" translatable="yes">Image</a>

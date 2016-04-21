@@ -112,7 +112,6 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/file-button.html \
 	pkg/kubernetes/views/item-delete.html \
 	pkg/kubernetes/views/images-page.html \
-	pkg/kubernetes/views/imagerepository-panel.html \
 	pkg/kubernetes/views/pod-body.html \
 	pkg/kubernetes/views/pod-panel.html \
 	pkg/kubernetes/views/pv-body.html \

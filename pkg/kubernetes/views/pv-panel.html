@@ -1,14 +1,9 @@
 <div>
-    <div class="listing-head" ng-click="listing.collapse(id, $event)">
+    <div class="listing-head">
         <div class="listing-actions">
             <button class="btn btn-danger btn-delete pficon pficon-delete" ng-click="deletePV(item)"></button>
             <button class="btn btn-default pficon pficon-edit"
                 ng-if="canEdit(item)" ng-click="modifyPV(item)"></button>
-        </div>
-        <h3><i class="fa fa-database fa-fw"></i>{{ item.metadata.name }}</h3>
-        <div class="listing-status">
-            <span ng-if="item.status.phase">{{ item.status.phase }}</span>
-            <span ng-if="!item.status.phase" translatable="yes">Unknown</span>
         </div>
         <ul class="nav nav-tabs nav-tabs-pf">
             <li ng-class="{active: tab('main')}">

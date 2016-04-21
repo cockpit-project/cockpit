@@ -33,11 +33,13 @@ var _ = cockpit.gettext;
  *  - cancel_clicked optional
  *     Callback called when the dialog is canceled
  *  - cancel_caption optional, defaults to 'Cancel'
- *  - primary_clicked
- *     Callback function that is expected to return a promise.
- *     parameter: callback to set the progress text (will be displayed next to spinner)
- *  - primary_caption optional, defaults to 'Ok'
- *  - primary_disabled optional, defaults to false
+ *  - list of actions, each an object with:
+ *      - clicked
+ *         Callback function that is expected to return a promise.
+ *         parameter: callback to set the progress text (will be displayed next to spinner)
+ *      - caption optional, defaults to 'Ok'
+ *      - disabled optional, defaults to false
+ *      - style defaults to 'default', other options: 'primary', 'danger'
  *  - static_error optional, always show this error
  *  - dialog_done optional, callback when dialog is finished (param true if success, false on cancel)
  */
@@ -45,15 +47,14 @@ var DialogFooter = React.createClass({
     propTypes: {
         cancel_clicked: React.PropTypes.func,
         cancel_caption: React.PropTypes.string,
-        primary_clicked: React.PropTypes.func.isRequired,
-        primary_caption: React.PropTypes.string,
-        primary_disabled: React.PropTypes.bool,
+        actions: React.PropTypes.array,
         static_error: React.PropTypes.string,
         dialog_done: React.PropTypes.func,
     },
     getInitialState: function() {
         return {
             action_in_progress: false,
+            action_in_progress_promise: null,
             action_progress_message: '',
             error_message: null,
         };
@@ -75,13 +76,13 @@ var DialogFooter = React.createClass({
     update_progress: function(msg) {
         this.setState({ action_progress_message: msg });
     },
-    primary_click: function(e) {
+    action_click: function(handler, e) {
         // only consider clicks with the primary button
         if (e && e.button !== 0)
             return;
         var self = this;
-        this.setState({ action_in_progress: true });
-        this.props.primary_clicked(this.update_progress.bind(this))
+        this.setState({ error_message: null, action_progress_message: '', action_in_progress: true });
+        this.state.action_in_progress_promise = handler(this.update_progress.bind(this))
             .done(function() {
                 self.setState({ action_in_progress: false, error_message: null });
                 if (self.props.dialog_done)
@@ -89,7 +90,8 @@ var DialogFooter = React.createClass({
             })
             .fail(function(error) {
                 self.setState({ action_in_progress: false, error_message: error });
-            });
+            })
+            .progress(this.update_progress.bind(this));
         if (e)
             e.stopPropagation();
     },
@@ -97,6 +99,12 @@ var DialogFooter = React.createClass({
         // only consider clicks with the primary button
         if (e && e.button !== 0)
             return;
+        // an action might be in progress, let that handler decide what to do if they added a cancel function
+        if (this.state.action_in_progress && 'cancel' in this.state.action_in_progress_promise) {
+            this.state.action_in_progress_promise.cancel();
+            return;
+        }
+
         if (this.props.cancel_clicked)
             this.props.cancel_clicked();
         if (this.props.dialog_done)
@@ -111,29 +119,44 @@ var DialogFooter = React.createClass({
         else
             cancel_caption = _("Cancel");
 
-        var primary_caption;
-        if ('primary_caption' in this.props)
-            primary_caption = this.props.primary_caption;
-        else
-            primary_caption = _("Ok");
-
-        // If an action is in progress, show the spinner with its message and siable the primary action
+        // If an action is in progress, show the spinner with its message and disable all actions except cancel
         var wait_element;
-        var primary_disabled;
+        var actions_disabled;
         if (this.state.action_in_progress) {
-            primary_disabled = 'disabled';
+            actions_disabled = 'disabled';
             wait_element = <div className="dialog-wait pull-left">
                                <div className="spinner spinner-sm"></div>
                                <span>{ this.state.action_progress_message }</span>
                            </div>;
-        } else {
-            primary_disabled = this.props.primary_disabled || null;
         }
+
+        var self = this;
+        var action_buttons = this.props.actions.map(function(action) {
+            var caption;
+            if ('caption' in action)
+                caption = action.caption;
+            else
+                caption = _("Ok");
+
+            var button_style = "btn-default";
+            var button_style_mapping = { 'primary': 'btn-primary', 'danger': 'btn-danger' };
+            if ('style' in action && action.style in button_style_mapping)
+                button_style = button_style_mapping[action.style];
+            button_style = "btn " + button_style + " apply";
+            var action_disabled = actions_disabled || ('disabled' in action && action.disabled);
+            return (<button
+                    key={ caption }
+                    className={ button_style }
+                    onClick={ self.action_click.bind(self, action.clicked) }
+                    disabled={ action_disabled }
+                    >{ caption }</button>
+            );
+        });
 
         // If we have an error message, display the error
         var error_element;
         var error_message;
-        if (this.props.static_error !== undefined)
+        if (this.props.static_error !== undefined && this.props.static_error !== null)
             error_message = this.props.static_error;
         else
             error_message = this.state.error_message;
@@ -151,11 +174,7 @@ var DialogFooter = React.createClass({
                     className="btn btn-default cancel"
                     onClick={ this.cancel_click.bind(this) }
                     >{ cancel_caption }</button>
-                <button
-                    className="btn btn-primary apply"
-                    onClick={ this.primary_click.bind(this) }
-                    disabled={ primary_disabled }
-                    >{ primary_caption }</button>
+                { action_buttons }
             </div>
         );
     }

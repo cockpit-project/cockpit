@@ -122,11 +122,11 @@ define([
             var tuned;
             var dialog_selected;
 
-            function set_profile(set_progress_message) {
-                var dfd = $.Deferred();
+            function set_profile() {
+                var dfd = cockpit.defer();
 
                 // no need to check input here, all states are valid
-                set_progress_message(_("Switching performance profile"));
+                dfd.notify(_("Switching performance profile"));
 
                 var profile = dialog_selected;
                 if (profile == "none") {
@@ -144,7 +144,7 @@ define([
                             if (!results[0][0]) {
                                 dfd.reject(results[0][1] || _("Failed to switch profile"));
                             } else {
-                                set_progress_message(_("Activating performance profile"));
+                                dfd.notify(_("Activating performance profile"));
                                 tuned.call('/Tuned', 'com.redhat.tuned.control', 'start', [])
                                     .done(function(results) {
                                         if (!results[0]) {
@@ -161,7 +161,7 @@ define([
                             }
                         });
                 }
-                return dfd.promise();
+                return dfd.promise;
             }
 
             function update_selected_item(selected) {
@@ -179,8 +179,11 @@ define([
                         }),
                 };
                 var footer_props = {
-                    'primary_clicked': set_profile,
-                    'primary_caption': _("Change Profile"),
+                    'actions': [ { 'clicked': set_profile,
+                                   'caption': _("Change Profile"),
+                                   'style': 'primary',
+                                  }
+                                ],
                     'static_error': static_error,
                 };
                 dialog_view.show_modal_dialog(dialog_props, footer_props);

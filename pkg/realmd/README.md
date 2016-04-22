@@ -21,4 +21,5 @@ Make sure this works:
 
     $ realm discover cockpit.lan
 
-And now you're ready to use the feature.
+And now you're ready to use the feature. There's an account called
+"admin" with the password "foobarfoo".

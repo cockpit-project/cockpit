@@ -12,7 +12,7 @@
               <td>
                 <input class="realms-op-field form-control realms-op-address" type="text" value=""/>
               </td>
-              <td style="width:0px">
+              <td class="realms-op-zero-width">
                 <div class="realms-op-address-spinner" hidden>
                   <span class="spinner spinner-xs spinner-inline"></span>
                 </div>
@@ -73,10 +73,10 @@
                 <input class="realms-op-field form-control realms-op-ot-password" type="password" value=""/>
               </td>
             </tr>
-            <tr style="height:50px">
+            <tr>
               <td colspan="3">
-                <div class="realms-op-error" style="text-align:left;font-weight:bold" hidden></div>
-                  <pre class="realms-op-diagnostics" style="text-align:left;" hidden>
+                <div class="realms-op-error" hidden></div>
+                  <pre class="realms-op-diagnostics" hidden>
                   </pre>
                 </div>
               </td>
@@ -85,9 +85,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <div class="realms-op-spinner spinner" style="float: left"></div>
-        <span class="realms-op-wait-message" style="float: left; margin-top: 3px;"
-            translatable="yes" hidden>This may take a while</span>
+        <div class="realms-op-spinner spinner pull-left"></div>
+        <span class="realms-op-wait-message" translatable="yes" hidden>This may take a while</span>
         <button class="btn btn-default realms-op-cancel" translatable="yes">Cancel</button>
         <button class="btn btn-primary realms-op-apply" translatable="yes">Next</button>
       </div>

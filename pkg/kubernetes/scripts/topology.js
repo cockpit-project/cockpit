@@ -38,7 +38,7 @@
 
     .config(['$routeProvider',
         function($routeProvider) {
-            $routeProvider.when('/topology', {
+            $routeProvider.when('/topology/:namespace?', {
                 templateUrl: 'views/topology-page.html',
                 controller: 'TopologyCtrl'
             });

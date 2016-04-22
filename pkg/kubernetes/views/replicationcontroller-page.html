@@ -1,0 +1,31 @@
+<div class="content-filter">
+    <div class="listing-actions">
+        <button title="Delete" class="delete-entity btn btn-danger btn-delete pficon pficon-delete"
+            ng-click="deleteItem(item)"></button>
+        <button title="Adjust" class="adjust-entity btn btn-default pficon pficon-edit"
+            ng-click="modifyRC(item)"></button>
+    </div>
+    <h3 ng-if="item"><i class="fa pficon-replicator"></i>{{ item.metadata.name }}</h3>
+    <h3 ng-if="!item"><i class="fa pficon-replicator"></i>{{ target }}</h3>
+    <a ng-click="navigate(type)" translatable="yes" class="hidden-xs">Show all Replication Controllers</a>
+</div>
+
+<div class="listing-inline" ng-if="item">
+    <h3 translatable="yes">Replication Controller</h3>
+    <div class="listing-body container-fluid" replicationcontroller-body></div>
+
+    <h3 translatable="yes">Pods</h3>
+    <div class="listing-body container-fluid" replicationcontroller-pods></div>
+
+    <h3 translatable="yes">Template</h3>
+    <div class="listing-body container-fluid">
+        <kube-pod-body ng-init="pod = item.spec.template">
+        </kube-pod-body>
+        <kube-container-body ng-repeat="container in containers(item.spec.template)">
+        </kube-container-body>
+    </div>
+</div>
+
+<div class="listing-inline" ng-if="!item">
+    <h3 translatable="yes">The replication controller '{{ target }}' does not exist.</h3>
+</div>

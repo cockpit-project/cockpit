@@ -1,0 +1,41 @@
+<div class="content-filter">
+        <div class="listing-actions" ng-if="item">
+            <button title="Delete" class="delete-pod btn btn-danger btn-delete pficon pficon-delete"
+                ng-click="deleteItem(item)"></button>
+        </div>
+    <h3 ng-if="item"><i class="fa fa-cubes"></i>{{ item.metadata.name }}</h3>
+    <h3 ng-if="!item"><i class="fa fa-cubes"></i>{{ target }}</h3>
+    <a ng-click="navigate(type)" translatable="yes" class="hidden-xs">Show all Pods</a>
+</div>
+
+<div class="listing-inline" ng-if="item">
+    <h3 translatable="yes">Pod</h3>
+    <div class="listing-body container-fluid">
+        <kube-pod-body ng-init="pod = item">
+        </kube-pod-body>
+    </div>
+
+    <h3 translatable="yes">Volumes</h3>
+    <div class="listing-body container-fluid" ng-repeat="podVolume in volumesForPod(item)" data-id="{{ podVolume.name }}">
+        <h4>{{ podVolume.name }}</h4>
+        <dl ng-if="!podVolume.persistentVolumeClaim" volume-body volume="podVolume"></dl>
+        <dl ng-if="podVolume.persistentVolumeClaim" pvc-body settings="settings"
+            item="claimFromVolumeSource(podVolume.persistentVolumeClaim, item.metadata.namespace)"></dl>
+        <dl>
+            <dt translatable="yes">Mount Location</dt>
+            <dd>
+                <span ng-if="!podVolume.mounts" translatable="yes">None</span>
+                <dl class="full-width" ng-if="podVolume.mounts">
+                    <dt ng-repeat-start="(name, data) in podVolume.mounts">{{ name }}</dt>
+                    <dd ng-repeat-end>{{ data.mountPath }}</dd>
+                </dl>
+            </dd>
+        </dl>
+    </div>
+
+    <h3 translatable="yes">Containers</h3>
+    <div class="listing-body" containers-listing></div>
+
+<div class="listing-inline" ng-if="!item">
+    <h3 translatable="yes">The pod '{{ target }}' does not exist.</h3>
+</div>

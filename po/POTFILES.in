@@ -35,8 +35,11 @@ pkg/dashboard/list.js
 pkg/kubernetes/scripts/kube-client-cockpit.js
 pkg/kubernetes/scripts/utils.js
 pkg/kubernetes/scripts/details.js
+pkg/kubernetes/scripts/volumes.js
+pkg/kubernetes/scripts/connection.js
 pkg/kubernetes/scripts/dashboard.js
 pkg/kubernetes/scripts/graphs.js
+pkg/kubernetes/scripts/nodes.js
 pkg/networkmanager/interfaces.js
 pkg/ostree/client.js
 pkg/ostree/app.js
@@ -71,47 +74,79 @@ pkg/sosreport/index.js
 [type: gettext/glade] pkg/playground/patterns.html
 [type: gettext/glade] pkg/playground/test.html
 [type: gettext/glade] pkg/dashboard/index.html
+[type: gettext/glade] pkg/kubernetes/views/volume-body.html
 [type: gettext/glade] pkg/kubernetes/views/image-config.html
+[type: gettext/glade] pkg/kubernetes/views/replicationcontroller-page.html
 [type: gettext/glade] pkg/kubernetes/views/route-panel.html
 [type: gettext/glade] pkg/kubernetes/views/imagestream-modify.html
 [type: gettext/glade] pkg/kubernetes/views/item-delete.html
-[type: gettext/glade] pkg/kubernetes/views/containers-page.html
 [type: gettext/glade] pkg/kubernetes/views/replicationcontroller-panel.html
 [type: gettext/glade] pkg/kubernetes/views/route-modify.html
+[type: gettext/glade] pkg/kubernetes/views/deploymentconfig-body.html
+[type: gettext/glade] pkg/kubernetes/views/auth-rejected-cert.html
+[type: gettext/glade] pkg/kubernetes/views/replicationcontroller-body.html
 [type: gettext/glade] pkg/kubernetes/views/image-page.html
 [type: gettext/glade] pkg/kubernetes/views/node-add.html
 [type: gettext/glade] pkg/kubernetes/views/registry-dashboard-page.html
+[type: gettext/glade] pkg/kubernetes/views/pv-delete.html
 [type: gettext/glade] pkg/kubernetes/views/filter-project.html
 [type: gettext/glade] pkg/kubernetes/views/image-panel.html
-[type: gettext/glade] pkg/kubernetes/views/filter-bar.html
 [type: gettext/glade] pkg/kubernetes/views/project-body.html
 [type: gettext/glade] pkg/kubernetes/views/imagestream-meta.html
 [type: gettext/glade] pkg/kubernetes/views/image-meta.html
 [type: gettext/glade] pkg/kubernetes/views/imagestream-delete.html
+[type: gettext/glade] pkg/kubernetes/views/auth-dialog.html
 [type: gettext/glade] pkg/kubernetes/views/topology-page.html
+[type: gettext/glade] pkg/kubernetes/views/auth-form.html
 [type: gettext/glade] pkg/kubernetes/views/container-body.html
 [type: gettext/glade] pkg/kubernetes/views/replicationcontroller-modify.html
 [type: gettext/glade] pkg/kubernetes/views/add-group-dialog.html
+[type: gettext/glade] pkg/kubernetes/views/pv-body.html
+[type: gettext/glade] pkg/kubernetes/views/service-page.html
+[type: gettext/glade] pkg/kubernetes/views/add-member-role-dialog.html
+[type: gettext/glade] pkg/kubernetes/views/container-page-inline.html
+[type: gettext/glade] pkg/kubernetes/views/pod-page.html
+[type: gettext/glade] pkg/kubernetes/views/pv-claim.html
+[type: gettext/glade] pkg/kubernetes/views/pv-page.html
 [type: gettext/glade] pkg/kubernetes/views/service-panel.html
 [type: gettext/glade] pkg/kubernetes/views/project-listing.html
+[type: gettext/glade] pkg/kubernetes/views/replicationcontroller-pods.html
 [type: gettext/glade] pkg/kubernetes/views/deploy.html
 [type: gettext/glade] pkg/kubernetes/views/pod-body.html
+[type: gettext/glade] pkg/kubernetes/views/container-page.html
 [type: gettext/glade] pkg/kubernetes/views/deploymentconfig-panel.html
+[type: gettext/glade] pkg/kubernetes/views/node-capacity.html
+[type: gettext/glade] pkg/kubernetes/views/add-role-dialog.html
 [type: gettext/glade] pkg/kubernetes/views/imagestream-page.html
+[type: gettext/glade] pkg/kubernetes/views/node-page.html
 [type: gettext/glade] pkg/kubernetes/views/image-listing.html
+[type: gettext/glade] pkg/kubernetes/views/remove-role-dialog.html
 [type: gettext/glade] pkg/kubernetes/views/add-user-dialog.html
 [type: gettext/glade] pkg/kubernetes/views/container-panel.html
+[type: gettext/glade] pkg/kubernetes/views/pv-listing.html
 [type: gettext/glade] pkg/kubernetes/views/project-modify.html
 [type: gettext/glade] pkg/kubernetes/views/project-page.html
 [type: gettext/glade] pkg/kubernetes/views/dashboard-page.html
 [type: gettext/glade] pkg/kubernetes/views/imagestream-body.html
+[type: gettext/glade] pkg/kubernetes/views/deploymentconfig-page.html
 [type: gettext/glade] pkg/kubernetes/views/image-body.html
+[type: gettext/glade] pkg/kubernetes/views/node-body.html
+[type: gettext/glade] pkg/kubernetes/views/pv-panel.html
+[type: gettext/glade] pkg/kubernetes/views/route-body.html
+[type: gettext/glade] pkg/kubernetes/views/service-body.html
 [type: gettext/glade] pkg/kubernetes/views/image-delete.html
+[type: gettext/glade] pkg/kubernetes/views/pod-panel.html
+[type: gettext/glade] pkg/kubernetes/views/pvc-body.html
 [type: gettext/glade] pkg/kubernetes/views/service-modify.html
-[type: gettext/glade] pkg/kubernetes/views/imagerepository-panel.html
 [type: gettext/glade] pkg/kubernetes/views/file-button.html
+[type: gettext/glade] pkg/kubernetes/views/containers-listing.html
 [type: gettext/glade] pkg/kubernetes/views/details-page.html
+[type: gettext/glade] pkg/kubernetes/views/pod-container.html
+[type: gettext/glade] pkg/kubernetes/views/pv-modify.html
+[type: gettext/glade] pkg/kubernetes/views/route-page.html
 [type: gettext/glade] pkg/kubernetes/views/node-panel.html
+[type: gettext/glade] pkg/kubernetes/views/service-endpoint.html
+[type: gettext/glade] pkg/kubernetes/views/nodes-page.html
 [type: gettext/glade] pkg/kubernetes/index.html
 [type: gettext/glade] pkg/kubernetes/registry.html
 [type: gettext/glade] pkg/networkmanager/index.html

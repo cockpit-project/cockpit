@@ -101,18 +101,25 @@ pkg/kubernetes/registry.min.css: $(registry_LESS)
 # Kubernetes files
 
 kubernetes_VIEWS = \
+	pkg/kubernetes/views/containers-listing.html \
 	pkg/kubernetes/views/containers-page.html \
 	pkg/kubernetes/views/container-body.html \
 	pkg/kubernetes/views/container-panel.html \
+	pkg/kubernetes/views/container-page.html \
+	pkg/kubernetes/views/container-page-inline.html \
 	pkg/kubernetes/views/dashboard-page.html \
 	pkg/kubernetes/views/default-panel.html \
 	pkg/kubernetes/views/deploy.html \
+	pkg/kubernetes/views/deploymentconfig-body.html \
+	pkg/kubernetes/views/deploymentconfig-page.html \
 	pkg/kubernetes/views/deploymentconfig-panel.html \
 	pkg/kubernetes/views/details-page.html \
 	pkg/kubernetes/views/file-button.html \
 	pkg/kubernetes/views/item-delete.html \
 	pkg/kubernetes/views/images-page.html \
 	pkg/kubernetes/views/pod-body.html \
+	pkg/kubernetes/views/pod-container.html \
+	pkg/kubernetes/views/pod-page.html \
 	pkg/kubernetes/views/pod-panel.html \
 	pkg/kubernetes/views/pv-body.html \
 	pkg/kubernetes/views/pv-claim.html \
@@ -128,11 +135,19 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/node-page.html \
 	pkg/kubernetes/views/node-panel.html \
 	pkg/kubernetes/views/nodes-page.html \
+	pkg/kubernetes/views/replicationcontroller-body.html \
+	pkg/kubernetes/views/replicationcontroller-page.html \
 	pkg/kubernetes/views/replicationcontroller-panel.html \
+	pkg/kubernetes/views/replicationcontroller-pods.html \
 	pkg/kubernetes/views/replicationcontroller-modify.html \
+	pkg/kubernetes/views/route-body.html \
+	pkg/kubernetes/views/route-page.html \
 	pkg/kubernetes/views/route-panel.html \
 	pkg/kubernetes/views/route-modify.html \
+	pkg/kubernetes/views/service-body.html \
+	pkg/kubernetes/views/service-endpoint.html \
 	pkg/kubernetes/views/service-modify.html \
+	pkg/kubernetes/views/service-page.html \
 	pkg/kubernetes/views/service-panel.html \
 	pkg/kubernetes/views/topology-page.html \
 	pkg/kubernetes/views/volume-body.html \

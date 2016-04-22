@@ -274,12 +274,6 @@ define([
     function MachineColorPicker() {
         var self = this;
 
-        function switch_color() {
-            /*jshint validthis: true */
-            var color = $(this).css('background-color');
-            $('#host-edit-color').css('background-color', color);
-        }
-
         self.render = function(selector, address, selected_color) {
             var machine;
 
@@ -306,12 +300,16 @@ define([
                 $(this).css("background-color", machines.colors[index]);
             });
 
-            $('#host-edit-color-popover .popover-content .color-cell', selector).click(switch_color);
+            $('#host-edit-color-popover .popover-content .color-cell', selector)
+                .click(function() {
+                    var color = $(this).css('background-color');
+                    $('#host-edit-color', selector).css('background-color', color);
+                });
 
-            $("#host-edit-color").parent().
+            $("#host-edit-color", selector).parent().
                 on('show.bs.dropdown', function () {
-                    var $div = $('#host-edit-color');
-                    var $pop = $('#host-edit-color-popover');
+                    var $div = $('#host-edit-color', selector);
+                    var $pop = $('#host-edit-color-popover', selector);
                     var div_pos = $div.position();
                     var div_width = $div.width();
                     var div_height = $div.height();
@@ -332,7 +330,7 @@ define([
                     $pop.show();
                 }).
                 on('hide.bs.dropdown', function () {
-                    $('#host-edit-color-popover').hide();
+                    $('#host-edit-color-popover', selector).hide();
                 });
         };
     }
@@ -400,7 +398,7 @@ define([
         function add_machine() {
             run_error = null;
             dialog.address = $('#add-machine-address').val();
-            color = $.color.parse($('#host-edit-color').css('background-color')).toString();
+            color = $.color.parse($('#add-machine-color-picker #host-edit-color').css('background-color')).toString();
             if (existing_error(dialog.address))
                 return;
 

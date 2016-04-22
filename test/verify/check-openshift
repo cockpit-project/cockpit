@@ -315,6 +315,7 @@ class TestRegistry(MachineCase):
         # Filter the dashboard to marmalide project
         b.click(".dashboard-images .namespace-filter button")
         b.wait_visible(".dashboard-images .namespace-filter .dropdown-menu")
+        b.wait_present(".dashboard-images .namespace-filter a[value='marmalade']")
         b.click(".dashboard-images .namespace-filter a[value='marmalade']")
         b.wait_not_in_text(".card-pf-wide.dashboard-images", "pizzazz/")
         b.wait_in_text(".card-pf-wide.dashboard-images", "marmalade/busybee")

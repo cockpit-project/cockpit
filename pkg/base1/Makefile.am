@@ -181,8 +181,8 @@ update-lib:: update-bower
 	    $(BOWER)/jquery-flot/jquery.flot.time.js \
 	    $(NULL)
 	$(JSMODULE) -o $(srcdir)/pkg/base1/require.js \
-	    $(BOWER)/requirejs/require.js \
 	    $(srcdir)/pkg/base1/require-config.js \
+	    $(BOWER)/requirejs/require.js \
 	    $(srcdir)/pkg/base1/require-loaders.js
 	$(JSMODULE) -o $(srcdir)/pkg/base1/angular.js \
 	    $(BOWER)/angular/angular.js \

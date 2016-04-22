@@ -1,5 +1,27 @@
 /* DO NOT EDIT. Automatically generated file */
 /* jshint ignore:start */
+/* This config is built as a prefix to require.js */
+var require = {
+    baseUrl: "../",
+    waitSeconds: 30,
+    skipDataMain: true,
+    paths: {
+        "jquery": "base1/jquery",
+        "react": "base1/react",
+    }
+};
+
+/* We skip data-main above and handle it ourselves here */
+(function() {
+    var script = document.scripts[document.scripts.length - 1];
+    var main = script.getAttribute("data-main");
+    if (main) {
+        document.addEventListener("DOMContentLoaded", function() {
+            require([main], function() { });
+        });
+    }
+}());
+
 /** vim: et:ts=4:sw=4:sts=4
  * @license RequireJS 2.1.16 Copyright (c) 2010-2015, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
@@ -2083,18 +2105,6 @@ var requirejs, require, define;
     //Set up with config info.
     req(cfg);
 }(this));
-
-(function(require) {
-    require.config({
-        baseUrl: "../",
-        waitSeconds: 30,
-        paths: {
-            "jquery": "base1/jquery",
-            "react": "base1/react",
-        }
-    });
-})(require);
-
 
 define('translated', function() {
     var module = { };

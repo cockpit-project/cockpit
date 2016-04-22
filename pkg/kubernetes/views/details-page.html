@@ -1,9 +1,29 @@
-<filter-bar class="content-filter">
-</filter-bar>
+<div class="content-filter">
+    <filter-project></filter-project>
+    <div class="btn-group bootstrap-select type-filter" dropdown>
+        <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
+            <span class="pull-left">
+                <span ng-if="showAll" translatable="yes">All Types</span>
+                <span ng-if="name"><span class="namespace-meta" translatable="yes">Type:</span> {{ name }}</span>
+            </span>
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li ng-class="{ checked: !type }">
+                <a ng-click="navigate()" value="">All Types</a>
+            </li>
+            <li ng-repeat="(k, v) in names"
+                ng-class="{ checked: type == k }"
+                ng-if="!v.flavor || v.flavor == settings.flavor">
+                <a ng-click="navigate(k)">{{ v.name }}</a>
+            </li>
+        </ul>
+    </div>
+</div>
 
 <div>
     <table listing-table class="listing details-listing">
-        <thead>
+        <thead id="services" ng-if="showAll || services">
             <tr>
                 <td colspan="5">
                     <h3 translatable="yes">Services</h3>
@@ -39,7 +59,7 @@
             </tr>
         </tbody>
 
-        <thead id="routes" ng-if="settings.flavor == 'openshift'">
+        <thead id="routes" ng-if="(showAll || routes) && settings.flavor == 'openshift'">
             <tr>
                 <td colspan="5">
                     <h3 translatable="yes">Routes</h3>
@@ -72,7 +92,7 @@
             </tr>
         </tbody>
 
-        <thead id="deployment-configs" ng-if="settings.flavor == 'openshift'">
+        <thead id="deployment-configs" ng-if="(showAll || deploymentconfigs) && settings.flavor == 'openshift'">
             <tr>
                 <td colspan="5">
                     <h3 translatable="yes">Deployment Configs</h3>
@@ -106,7 +126,7 @@
             </tr>
         </tbody>
 
-        <thead>
+        <thead id="replication-controllers" ng-if="showAll || replicationcontrollers">
             <tr>
                 <td colspan="5">
                     <h3 translatable="yes">Replication Controllers</h3>
@@ -140,7 +160,7 @@
             </tr>
         </tbody>
 
-        <thead>
+        <thead id="pods" ng-if="showAll || pods">
             <tr>
                 <td colspan="5">
                     <h3 translatable="yes">Pods</h3>

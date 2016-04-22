@@ -1,0 +1,20 @@
+<div class="content-filter">
+    <div class="listing-actions">
+        <button title="Adjust"  class="btn btn-default pficon pficon-edit" ng-click="modifyRoute(item)"></button>
+        <button title="Delete" class="route-delete btn btn-danger btn-delete pficon pficon-delete "
+            ng-click="deleteItem(item)">
+        </button>
+    </div>
+    <h3 ng-if="item"><i class="pficon pficon-route"></i>{{ item.metadata.name }}</h3>
+    <h3 ng-if="!item"><i class="pficon pficon-route"></i>{{ target }}</h3>
+    <a ng-click="navigate(type)" translatable="yes" class="hidden-xs">Show all Routes</a>
+</div>
+
+<div class="listing-inline" ng-if="item">
+    <h3 translatable="yes">Route</h3>
+    <div class="listing-body container-fluid" route-body></div>
+</div>
+
+<div class="listing-inline" ng-if="!item">
+    <h3 translatable="yes">The route '{{ target }}' does not exist.</h3>
+</div>

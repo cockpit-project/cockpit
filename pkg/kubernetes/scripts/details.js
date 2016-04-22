@@ -55,15 +55,174 @@
         'kubernetes.listing',
         'kubernetes.date',
         'kubernetes.volumes',
+        'kubernetes.containers',
     ])
 
     .config([
         '$routeProvider',
         function($routeProvider) {
-            $routeProvider.when('/list', {
-                templateUrl: 'views/details-page.html',
-                controller: 'DetailsCtrl'
-            });
+            $routeProvider
+                .when('/list/:namespace?', {
+                    templateUrl: 'views/details-page.html',
+                    controller: 'DetailsCtrl'
+                })
+                .when('/l/pods/:pod_namespace/:pod_name/:container_name', {
+                        templateUrl: 'views/pod-container.html',
+                        controller: 'ContainerCtrl',
+                })
+                .when('/l/:target_type/:target_namespace/:target', {
+                        templateUrl: function (params) {
+                            var re = /s$/;
+                            var kind = params.target_type || "";
+
+                            return 'views/' + kind.replace(re, "") + "-page.html";
+                        },
+                        controller: 'DetailCtrl',
+                        resolve: {
+                            'kindData': [
+                                'kindData',
+                                function (kindData) {
+                                    return kindData();
+                                }
+                            ]
+                        }
+                })
+                .when('/l/:target_type', {
+                    templateUrl: 'views/details-page.html',
+                    controller: 'DetailCtrl',
+                    resolve: {
+                        'kindData': [
+                            'kindData',
+                            function (kindData) {
+                                return kindData();
+                            }
+                        ]
+                    }
+                });
+        }
+    ])
+
+    .factory("kindData", [
+        "$q",
+        "$route",
+        "$location",
+        function($q, $route, $location) {
+            var typesToKinds = {
+                'services': 'Service',
+                'routes': 'Route',
+                'deploymentconfigs': 'DeploymentConfig',
+                'replicationcontrollers': 'ReplicationController',
+                'pods': 'Pod',
+            };
+
+            return function() {
+                var current = $route.current.params['target_type'];
+                var kind;
+                if (current)
+                    kind = typesToKinds[current];
+
+                if (!kind) {
+                    $location.path('/');
+                    return $q.reject();
+                }
+
+                return $q.when({
+                    'kind' : kind,
+                    'type' : current,
+                });
+            };
+        }
+    ])
+
+    .factory("detailsWatch", [
+        "kubeLoader",
+        "KubeDiscoverSettings",
+        function (loader, settings) {
+            return function() {
+                loader.watch("Pod");
+                loader.watch("Service");
+                loader.watch("ReplicationController");
+                loader.watch("Endpoints");
+                loader.watch("PersistentVolumeClaim");
+                settings().then(function(settings) {
+                    if (settings.flavor === "openshift") {
+                        loader.watch("DeploymentConfig");
+                        loader.watch("Route");
+                    }
+                });
+            };
+        }
+    ])
+
+    .factory("detailsData", [
+        'kubeSelect',
+        'volumeData',
+        'KubeContainers',
+        "KubeTranslate",
+        function (select, volumeData, containers, translate) {
+            var _ = translate.gettext;
+            var names = {
+                'services': {
+                    'name' : _('Services')
+                },
+                'routes': {
+                    'name' : _('Routes'),
+                    'flavor': "openshift"
+                },
+                'deploymentconfigs': {
+                    'name': _('Deployment Configs'),
+                    'flavor': "openshift"
+                },
+                'replicationcontrollers': {
+                     'name' : _('Replication Controllers')
+                },
+                'pods': {
+                    'name' : _('Pods')
+                }
+            };
+
+            function item_identifier(item) {
+                var meta = item.metadata || { };
+                var id = item.kind.toLowerCase() + "s/";
+                if (meta.namespace)
+                    id = id + meta.namespace + "/";
+                return id + meta.name;
+            }
+
+            function service_endpoint(service) {
+                return select().kind("Endpoints")
+                               .namespace(service.metadata.namespace)
+                               .name(service.metadata.name).one();
+            }
+
+            function replicationcontroller_pods(item) {
+                var meta = item.metadata || {};
+                var spec = item.spec || {};
+                return select().kind("Pod")
+                               .namespace(meta.namespace || "")
+                               .label(spec.selector || {});
+            }
+
+            function podStatus(item) {
+                var status = item.status || {};
+                var meta = item.metadata || {};
+
+                if (meta.deletionTimestamp)
+                    return "Terminating";
+                else
+                    return status.phase;
+            }
+
+            return {
+                itemIdentifier: item_identifier,
+                serviceEndpoint: service_endpoint,
+                replicationcontrollerPods: replicationcontroller_pods,
+                podStatus: podStatus,
+                volumesForPod: volumeData.volumesForPod,
+                claimFromVolumeSource: volumeData.claimFromVolumeSource,
+                containers: containers,
+                names: names
+            };
         }
     ])
 
@@ -72,17 +231,16 @@
      */
     .controller('DetailsCtrl', [
         '$scope',
-        'KubeContainers',
         'kubeLoader',
         'kubeSelect',
         'KubeDiscoverSettings',
         'ListingState',
-        '$routeParams',
         '$location',
         'itemActions',
-        'volumeData',
-        function($scope, containers, loader, select, discoverSettings,
-                 ListingState, $routeParams, $location, actions, volumeData) {
+        'detailsData',
+        'detailsWatch',
+        function($scope, loader, select, discoverSettings, ListingState,
+                 $location, actions, detailsData, detailsWatch) {
 
             var c = loader.listen(function() {
                 $scope.pods = select().kind("Pod");
@@ -92,63 +250,72 @@
                 $scope.routes = select().kind("Route");
             });
 
-            loader.watch("Pod");
-            loader.watch("Service");
-            loader.watch("ReplicationController");
-            loader.watch("Endpoints");
-            loader.watch("PersistentVolumeClaim");
+            $scope.$on("$destroy", function() {
+                c.cancel();
+            });
+
+            detailsWatch();
+            $scope.listing = new ListingState($scope);
+            $scope.showAll = true;
+
+            $scope.$on("activate", function(ev, id) {
+                ev.preventDefault();
+                actions.navigate(id);
+            });
+
+            /* All the data and actions available on the $scope */
+            angular.extend($scope, detailsData);
+            angular.extend($scope, actions);
+        }
+    ])
+
+    .controller('DetailCtrl', [
+        '$scope',
+        'kindData',
+        'kubeLoader',
+        'kubeSelect',
+        'ListingState',
+        '$routeParams',
+        '$location',
+        'itemActions',
+        'detailsData',
+        'detailsWatch',
+        function($scope, kindData, loader, select, ListingState, $routeParams,
+                 $location, actions, detailsData, detailsWatch) {
+
+            var target = $routeParams["target"] || "";
+            $scope.target = target;
+            $scope.name = detailsData.names[kindData.type].name;
+
+            var c = loader.listen(function() {
+                if (kindData.type)
+                    $scope[kindData.type] = select().kind(kindData.kind);
+
+                if (target && $routeParams.target_namespace) {
+                    $scope.item = select().kind(kindData.kind)
+                                          .namespace($routeParams.target_namespace)
+                                          .name(target)
+                                          .one();
+                }
+            });
 
             $scope.$on("$destroy", function() {
                 c.cancel();
             });
 
-            discoverSettings().then(function(settings) {
-                if (settings.flavor === "openshift") {
-                    loader.watch("DeploymentConfig");
-                    loader.watch("Route");
-                }
+            detailsWatch();
+            $scope.listing = new ListingState($scope);
+            $scope.listing.inline = true;
+
+            $scope.$on("activate", function(ev, id) {
+                ev.preventDefault();
+                actions.navigate(id);
             });
 
-            $scope.listing = new ListingState($scope);
-            $scope.containers = containers;
-
-            $scope.itemIdentifier = function item_identifier(item) {
-                var meta = item.metadata || { };
-                var id = item.kind.toLowerCase() + "s/";
-                if (meta.namespace)
-                    id = id + meta.namespace + "/";
-                return id + meta.name;
-            };
-
-            $scope.serviceEndpoint = function service_endpoint(service) {
-                return select().kind("Endpoints")
-                               .namespace(service.metadata.namespace)
-                               .name(service.metadata.name).one();
-            };
-
-            $scope.replicationcontrollerPods = function replicationcontroller_pods(item) {
-                var meta = item.metadata || {};
-                var spec = item.spec || {};
-                return select().kind("Pod")
-                               .namespace(meta.namespace || "")
-                               .label(spec.selector || {});
-            };
-
-            $scope.podStatus = function (item) {
-                var status = item.status || {};
-                var meta = item.metadata || {};
-
-                if (meta.deletionTimestamp)
-                    return "Terminating";
-                else
-                    return status.phase;
-            };
-
-            $scope.volumesForPod = volumeData.volumesForPod;
-            $scope.claimFromVolumeSource = volumeData.claimFromVolumeSource;
-
-            /* All the actions available on the $scope */
+            /* All the data and actions available on the $scope */
+            angular.extend($scope, detailsData);
             angular.extend($scope, actions);
+            angular.extend($scope, kindData);
         }
     ])
 
@@ -168,7 +335,8 @@
 
     .factory('itemActions', [
         '$modal',
-        function($modal) {
+        '$location',
+        function($modal, $location) {
             function deleteItem(item) {
                 return $modal.open({
                     animation: false,
@@ -221,11 +389,24 @@
                 }).result;
             }
 
+            function navigate(path) {
+                var prefix = '/l';
+                path = path ? path : "";
+                if (!path)
+                    prefix = "/list";
+
+                if (path && path.indexOf('/') !== 0)
+                    prefix = prefix + '/';
+
+                $location.path(prefix + path);
+            }
+
             return {
                 modifyRC: modifyRC,
                 modifyRoute: modifyRoute,
                 deleteItem: deleteItem,
                 modifyService: modifyService,
+                navigate: navigate,
             };
         }
     ])
@@ -455,5 +636,59 @@
                 return promise;
             };
         }
-    ]);
+    ])
+
+    .directive('deploymentconfigBody',
+        function() {
+            return {
+                restrict: 'A',
+                templateUrl: 'views/deploymentconfig-body.html'
+            };
+        }
+    )
+
+    .directive('replicationcontrollerPods',
+        function() {
+            return {
+                restrict: 'A',
+                templateUrl: 'views/replicationcontroller-pods.html'
+            };
+        }
+    )
+
+    .directive('replicationcontrollerBody',
+        function() {
+            return {
+                restrict: 'A',
+                templateUrl: 'views/replicationcontroller-body.html'
+            };
+        }
+    )
+
+    .directive('routeBody',
+        function() {
+            return {
+                restrict: 'A',
+                templateUrl: 'views/route-body.html'
+            };
+        }
+    )
+
+    .directive('serviceBody',
+        function() {
+            return {
+                restrict: 'A',
+                templateUrl: 'views/service-body.html'
+            };
+        }
+    )
+
+    .directive('serviceEndpoint',
+        function() {
+            return {
+                restrict: 'A',
+                templateUrl: 'views/service-endpoint.html'
+            };
+        }
+    );
 }());

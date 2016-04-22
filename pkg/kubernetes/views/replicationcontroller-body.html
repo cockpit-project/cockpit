@@ -1,0 +1,21 @@
+<div class="row">
+    <div class="col-sm-6">
+        <dl>
+            <dt ng-if="settings.flavor == 'openshift'" translatable="yes">Project</dt>
+            <dt ng-if="settings.flavor != 'openshift'" translatable="yes">Namespace</dt>
+            <dd>{{ item.metadata.namespace }}</dd>
+            <dt translatable="yes">Created</dt>
+            <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | dateRelative }}</dd>
+            <dt translatable="yes">Replicas</dt>
+            <dd ng-if="item.spec.replicas === item.status.replicas">{{ item.spec.replicas }}</dd>
+            <dd ng-if="item.spec.replicas !== item.status.replicas">{{ item.status.replicas }}
+                of {{ item.spec.replicas }}</dd>
+        </dl>
+    </div>
+    <div class="col-sm-6">
+        <dl class="full-width">
+            <dt translatable="yes">Labels</dt>
+            <dd ng-repeat="(key, value) in item.metadata.labels">{{key}}={{value}}</dd>
+        </dl>
+    </div>
+</div>

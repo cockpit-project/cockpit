@@ -372,6 +372,24 @@ class KubernetesCommonTests(VolumeTests):
         # Other services should still be present
         self.assertTrue(b.is_present(".details-listing tbody:not(.open) tr.listing-item"))
 
+        # Click into service
+        b.click(".details-listing tbody[data-id='services/default/mock'] tr.listing-item")
+        b.wait_in_text(".listing-inline", "Service")
+        b.wait_in_text(".listing-inline", "Endpoints")
+        b.wait_present(".content-filter h3")
+        b.wait_text(".content-filter h3", "mock")
+        b.click("a.hidden-xs")
+        b.wait_present("#content .details-listing")
+        b.wait_present(".details-listing tbody[data-id='services/default/mock']")
+        b.wait_not_present("#pods")
+        b.wait_not_present("#replication-controllers")
+
+        b.wait_in_text(".type-filter button", "Services")
+        b.click(".type-filter .btn.dropdown-toggle")
+        b.click(".type-filter li:first-child a")
+        b.wait_present("#pods")
+        b.wait_present("#replication-controllers")
+
         # Back to dashboard
         b.click("a[href='#/']")
         b.wait_in_text("#service-list", "mock")

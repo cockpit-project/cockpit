@@ -32,10 +32,18 @@
     .config([
         '$routeProvider',
         function($routeProvider) {
-            $routeProvider.when('/pods/:pod_namespace?', {
-                templateUrl: 'views/containers-page.html',
-                controller: 'ContainersCtrl'
-            });
+            $routeProvider
+                .when('/pods/:pod_namespace/:pod_name/:container_name', {
+                    templateUrl: 'views/container-page.html',
+                    controller: 'ContainerCtrl'
+                })
+                .when('/pods/:pod_namespace/:pod_name', {
+                    redirectTo: '/pods'
+                })
+                .when('/pods/:pod_namespace?', {
+                    templateUrl: 'views/containers-page.html',
+                    controller: 'ContainersCtrl'
+                });
         }
     ])
 
@@ -79,6 +87,54 @@
 
             $scope.containers = containers;
 
+            $scope.$on("activate", function(ev, id) {
+                ev.preventDefault();
+                $location.path(id);
+            });
+
+            $scope.should_mask = function(name) {
+                return name.toLowerCase().indexOf("password") !== -1;
+            };
+        }
+    ])
+
+    /*
+     * The controller for the containers view.
+     */
+    .controller('ContainerCtrl', [
+        '$scope',
+        'KubeContainers',
+        'kubeLoader',
+        'kubeSelect',
+        '$routeParams',
+        '$route',
+        function($scope, containers, loader, select, $routeParams, $route) {
+
+            var target = $routeParams["container_name"] || "";
+            $scope.target = target;
+
+            var c = loader.listen(function() {
+                $scope.pod = select().kind("Pod")
+                                   .namespace($routeParams.pod_namespace || "")
+                                   .name($routeParams.pod_name  || "").one();
+                if ($scope.pod) {
+                     angular.forEach(containers($scope.pod) || [], function (con) {
+                        if (con.spec && con.spec.name === target)
+                            $scope.container = con;
+                     });
+                }
+            });
+
+            $scope.$on("$destroy", function() {
+                c.cancel();
+            });
+
+            loader.watch("Pod");
+
+            $scope.back = function() {
+                $route.updateParams({ "container_name" : undefined });
+            };
+
             $scope.should_mask = function(name) {
                 return name.toLowerCase().indexOf("password") !== -1;
             };
@@ -98,7 +154,7 @@
             return function (item) {
                 var specs, statuses, pod_id;
                 if (!item.containers) {
-                    pod_id = item.metadata.namespace + "/pod/" + item.metadata.name;
+                    pod_id = "pods/" + item.metadata.namespace + "/" + item.metadata.name;
                     if (item.spec)
                         specs = mapNamedArray(item.spec.containers);
                     else
@@ -118,6 +174,24 @@
             };
         }
     ])
+
+    .directive('containersListing',
+        function() {
+            return {
+                restrict: 'A',
+                templateUrl: 'views/containers-listing.html'
+            };
+        }
+    )
+
+    .directive('containerPageInline',
+        function() {
+            return {
+                restrict: 'A',
+                templateUrl: 'views/container-page-inline.html'
+            };
+        }
+    )
 
     .directive('kubeContainerBody',
         function() {

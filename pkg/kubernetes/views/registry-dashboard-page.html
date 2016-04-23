@@ -41,7 +41,9 @@
     </div>
     <div class="card-pf card-pf-wide dashboard-images">
         <div class="card-pf-heading">
-            <h2 class="card-pf-title" translatable="yes">Images pushed recently</h2>
+            <h2 class="card-pf-title pull-left" translatable="yes">Images pushed recently</h2>
+            <filter-project class="pull-right">
+            </filter-project>
         </div>
         <div class="card-pf-body" ng-if="recentlyUpdated().length">
             <div ng-repeat="data in recentlyUpdated()">
@@ -69,8 +71,6 @@
             <p translatable="yes">In order to begin pushing images to the registry, use the commands below.</p>
         </div>
         <div class="card-pf-footer">
-            <filter-project class="pull-right">
-            </filter-project>
             <a class="card-pf-link-with-icon" ng-click="createImageStream()">
                 <span translatable="yes" class="pficon pficon-add-circle-o"></span>
                 <span translatable="yes">New image stream</span>

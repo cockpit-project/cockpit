@@ -361,6 +361,19 @@
                 }).result;
             }
 
+            function deleteProject(project) {
+                return $modal.open({
+                    animation: false,
+                    controller: 'ProjectDeleteCtrl',
+                    templateUrl: 'views/project-delete.html',
+                    resolve: {
+                        dialogData: function() {
+                            return { project: project };
+                        }
+                    },
+                }).result;
+            }
+
             function createUser() {
                 return $modal.open({
                     controller: 'UserNewCtrl',
@@ -376,6 +389,7 @@
             return {
                 createProject: createProject,
                 modifyProject: modifyProject,
+                deleteProject: deleteProject,
                 createGroup: createGroup,
                 createUser: createUser,
             };
@@ -446,7 +460,7 @@
                     kind: memberObj.kind,
                     name: memberObj.metadata.name,
                 };
-                return projectPolicy.addToRole(namespace, role, subject);  
+                return projectPolicy.addToRole(namespace, role, subject);
             };
 
             $scope.performRemove = function performRemove() {
@@ -484,7 +498,7 @@
                 kind: "",
                 ocRole: "",
             };
-            
+
             var namespace = fields.namespace;
 
             function getAllMembers() {
@@ -518,7 +532,7 @@
 
                     if(ex) {
                         ex.target = "#add_member_group";
-                        defer.reject(ex);                        
+                        defer.reject(ex);
                     }
                 }
                 if (!role || role === selectRole) {
@@ -532,7 +546,7 @@
                 }
 
                 return defer.promise;
-            }            
+            }
             $scope.performCreate = function performCreate() {
                 var role = $scope.select.ocRole;
                 var memberName = $scope.select.memberName;
@@ -551,7 +565,7 @@
                     memberName = selectMember;
                     kind = null;
                 }
-                
+
                 return validate(memberName, role).then(function() {
                     var subject = {
                         kind: kind,
@@ -638,6 +652,41 @@
             };
 
             angular.extend($scope, dialogData);
+        }
+    ])
+
+    .controller("ProjectDeleteCtrl", [
+        "$scope",
+        "$modalInstance",
+        "dialogData",
+        "kubeMethods",
+        "$location",
+        //"projectActions",
+        function($scope, $instance, dialogData, methods, $location) {
+            angular.extend($scope, dialogData);
+            //angular.extend($scope, actions);
+
+
+            $scope.performDelete = function performDelete() {
+                return methods.delete(dialogData.project);
+            };
+            console.debug($scope.performDelete)
+            console.debug($scope)
+            if ($scope.complete) {
+              window.location = "/projects";
+              //$location.path("/projects");
+            }
+
+            /*
+            var promise = actions.deleteProject(dialogData.project);
+            console.debug($location.path)
+            console.debug($scope)
+            promise.then(function() {
+              $location.path("/projects");
+            });
+
+            return promise;
+            */
         }
     ])
 

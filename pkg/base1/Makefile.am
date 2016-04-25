@@ -17,6 +17,7 @@ nodist_base_DATA = \
 	pkg/base1/cockpit.min.js.gz \
 	pkg/base1/bundle.min.js.gz \
 	pkg/base1/react.min.js.gz \
+	pkg/base1/cockpit-components.min.js.gz \
 	$(base_GEN:.js=.min.js.gz) \
 	$(NULL)
 base_DATA = \
@@ -44,6 +45,7 @@ basedebug_DATA = \
 	pkg/base1/mustache.js \
 	pkg/base1/jquery.js \
 	pkg/base1/cockpit.js \
+	pkg/base1/cockpit-components.js \
 	$(base_GEN) \
 	$(NULL)
 
@@ -73,6 +75,14 @@ pkg/base1/term.min.js: pkg/base1/term.js
 	$(MIN_JS_RULE)
 pkg/base1/react.min.js: pkg/base1/react.js
 	$(MIN_JS_RULE)
+pkg/base1/cockpit-components.min.js: pkg/base1/cockpit-components.js
+	$(MIN_JS_RULE)
+
+REACT_COMPONENTS = \
+	pkg/base1/cockpit-components-terminal.js
+
+pkg/base1/cockpit-components.js: $(REACT_COMPONENTS)
+	$(JSMODULE) -o pkg/base1/cockpit-components.js $(REACT_COMPONENTS)
 
 install-data-local::
 	$(MKDIR_P) $(DESTDIR)$(basedebugdir)
@@ -132,6 +142,10 @@ CLEANFILES += \
 	pkg/base1/react.min.js \
 	pkg/base1/require.min.js \
 	pkg/base1/term.min.js \
+	pkg/base1/cockpit-components.js \
+	pkg/base1/cockpit-components.min.js \
+	pkg/base1/cockpit-components-terminal.js \
+	$(REACT_COMPONENTS) \
 	$(base_GEN) \
 	$(base_GEN:.js=.min.js) \
 	$(nodist_base_DATA) \
@@ -150,7 +164,10 @@ EXTRA_DIST += \
 	pkg/base1/moment.min.js \
 	pkg/base1/react.min.js \
 	pkg/base1/term.min.js \
+	pkg/base1/cockpit-components.js \
+	pkg/base1/cockpit-components.min.js \
 	pkg/base1/test-dbus-common.js \
+	$(REACT_COMPONENTS) \
 	$(base_BUNDLE) \
 	$(base_GEN) \
 	$(base_GEN:.js=.min.js) \

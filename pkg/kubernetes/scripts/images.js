@@ -146,7 +146,7 @@
 
 
                 if ($scope.tag)
-                    $scope.image = select().kind("Image").taggedBy($scope.tag).one();
+                    $scope.image = select().kind("Image").taggedFirst($scope.tag).one();
                 if ($scope.image) {
                     $scope.names = data.imageTagNames($scope.image);
                     $scope.config = data.imageConfig($scope.image);
@@ -351,13 +351,24 @@
             loader.listen(handle_imagestreams);
 
             /*
-             * Filters selection to those with names that are
+             * Filters selection to those with names that is
              * in the given TagEvent.
              */
             select.register("taggedBy", function(tag) {
                 var i, len, results = { };
                 for (i = 0, len = tag.items.length; i < len; i++)
                     this.name(tag.items[i].image).extend(results);
+                return select(results);
+            });
+
+            /*
+             * Filters selection to those with names that is in the first
+             * item in the given TagEvent.
+             */
+            select.register("taggedFirst", function(tag) {
+                var len, results = { };
+                if (tag.items.length)
+                    this.name(tag.items[0].image).extend(results);
                 return select(results);
             });
 
@@ -482,8 +493,8 @@
                 allStreams: function allStreams() {
                     return select().kind("ImageStream");
                 },
-                imagesByTag: function imagesByTag(tag) {
-                    return select().kind("Image").taggedBy(tag);
+                imageByTag: function imageByTag(tag) {
+                    return select().kind("Image").taggedFirst(tag);
                 },
                 imageLayers: imageLayers,
                 imageConfig: function imageConfig(image) {

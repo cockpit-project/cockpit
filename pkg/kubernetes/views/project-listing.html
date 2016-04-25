@@ -19,7 +19,10 @@
     <tbody ng-repeat-start="item in projects() track by item.metadata.name"  ng-init="sid = item.metadata.name" 
            data-id="{{ sid }}" ng-class="{ open: listing.expanded('/projects/' + sid) }">
         <tr ng-click="listing.activate('/projects/' + sid)" class="listing-item">
-            <td class="listing-toggle"></td>
+            <td ng-click="listing.toggle('/projects/' + sid, $event)"
+                class="listing-toggle">
+                <i class="fa fa-fw"></i>
+            </td>
             <td>{{ item.metadata.name }}</td>
             <td>{{ item.metadata.annotations["openshift.io/description"] }}</td>
             <td></td>
@@ -75,7 +78,10 @@
     <tbody ng-repeat="item in users() track by item.metadata.name"  ng-init="sid = item.metadata.name" 
            data-id="{{ sid }}" ng-class="{ open: listing.expanded('/users/' + sid) }">
         <tr ng-click="listing.activate('/users/' + sid)" class="listing-item">
-            <td class="listing-toggle"></td>
+            <td ng-click="listing.toggle('/users/' + sid, $event)"
+                class="listing-toggle">
+                <i class="fa fa-fw"></i>
+            </td>
             <td>{{ item.metadata.name }}</td>
             <td>{{ formatMembers(item.identities, 'Identities') }}</td>
             <td>{{ formatMembers(getMembershipOfUser(projects(),groups(),item.metadata.name), 'Groups') }}</td>

@@ -660,7 +660,7 @@ class TestRegistry(MachineCase):
         b.go("#/projects")
         b.wait_present("tbody[data-id='llama']")
         b.wait_present("tbody[data-id='llama'] tr.listing-item")
-        b.click("tbody[data-id='llama'] tr.listing-item th")
+        b.click("tbody[data-id='llama'] tr.listing-item td:nth-of-type(2)")
         b.wait_in_text(".content-filter h3", "Display llama (llama)")
         b.wait_in_text("#content", "Description goes here")
         b.click(".pficon-edit")

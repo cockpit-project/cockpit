@@ -34,7 +34,7 @@
            ng-init="iid = sid + ':' + tag.tag" data-id="{{ iid }}"
            ng-class="{open: listing.expanded(iid), last: $last, first: $first}">
         <tr ng-click="listing.activate(iid)" class="listing-item tag-item"
-            ng-repeat-start="image in imagesByTag(tag) track by image.metadata.name">
+            ng-repeat-start="image in imageByTag(tag)">
             <td ng-click="listing.toggle(iid, $event)"
                 class="listing-toggle">
                 <i class="fa fa-fw"></i>

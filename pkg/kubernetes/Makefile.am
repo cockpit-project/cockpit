@@ -97,7 +97,7 @@ pkg/kubernetes/registry.min.js: $(registry_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
 # Less is compiled correctly
-pkg/kubernetes/registry.min.css: $(registry_LESS)
+pkg/kubernetes/registry.min.css: $(registry_LESS) $(shared_LESS)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/lessc --verbose $< $@
 
 # Kubernetes files
@@ -210,7 +210,7 @@ pkg/kubernetes/kubernetes.min.js: $(kubernetes_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
 # Less compiled correctly
-pkg/kubernetes/kubernetes.min.css: $(kubernetes_LESS)
+pkg/kubernetes/kubernetes.min.css: $(kubernetes_LESS) $(shared_LESS)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/lessc --verbose $< $@
 
 kubernetes_DATA = \

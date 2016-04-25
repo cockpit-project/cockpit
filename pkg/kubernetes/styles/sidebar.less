@@ -1,7 +1,7 @@
 /*
  * Full large size sidebar.
  */
-.icon-sidebar {
+.nav-sidebar {
     width: unit(@sidebar-width-xl, px);
     height: 100%;
     position: fixed;
@@ -30,7 +30,7 @@
  * Very small. Only icons
  */
 @media (max-width: @screen-sm-min) {
-    .icon-sidebar {
+    .nav-sidebar {
         width: unit(@sidebar-width-sm, px);
         .list-group-item-value {
             display: none !important;
@@ -55,7 +55,7 @@
  * Short window. Text next to icons.
  */
 @media (min-width: @screen-sm-min) and (max-width: @screen-lg-min), (min-width: @screen-sm-min) and (max-height: @sidebar-height-lg) {
-    .icon-sidebar {
+    .nav-sidebar {
         width: unit(@sidebar-width-md, px);
         a {
             padding: 5px 8px !important;

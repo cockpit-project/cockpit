@@ -64,7 +64,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 </head>
 <body ng-app='kubernetes' ng-controller="MainCtrl" ng-class="{'cards-pf': viewActive(null)}" hidden>
     <div ng-cloak ng-if="!curtains">
-        <div class="nav-pf-vertical icon-sidebar">
+        <div class="nav-pf-vertical nav-sidebar">
             <ul class="list-group">
                 <li class="list-group-item" ng-class="{ active: viewActive(null)}">
                     <a ng-href="#{{ viewUrl(null) }}">

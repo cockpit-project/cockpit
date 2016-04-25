@@ -75,7 +75,6 @@ registry_LESS = \
 	pkg/kubernetes/styles/registry.less \
 	pkg/kubernetes/styles/dropdown.less \
 	pkg/kubernetes/styles/filter.less \
-	pkg/kubernetes/styles/sidebar.less \
 	$(NULL)
 
 registry_MIN = \
@@ -186,6 +185,7 @@ kubernetes_LESS = \
 	pkg/kubernetes/styles/container-terminal.less \
 	pkg/kubernetes/styles/details.less \
 	pkg/kubernetes/styles/revealable.less \
+	pkg/kubernetes/styles/sidebar.less \
 	pkg/kubernetes/styles/topology.less \
 	pkg/kubernetes/styles/topology-graph.less \
 	pkg/kubernetes/styles/volumes.less \

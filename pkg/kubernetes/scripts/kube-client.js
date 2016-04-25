@@ -931,7 +931,10 @@
             registerFilter({
                 name: "label",
                 digests: function(arg) {
-                    var i, ret = [], meta = arg.metadata;
+                    var ret = [];
+                    if (!arg)
+                        return ret;
+                    var i, meta = arg.metadata;
                     var labels = meta ? meta.labels : arg;
                     for (i in labels || [])
                         ret.push(i + "=" + labels[i]);
@@ -943,6 +946,8 @@
             registerFilter({
                 name: "namespace",
                 digest: function(arg) {
+                    if (!arg)
+                        return null;
                     if (typeof arg === "string")
                         return arg;
                     var meta = arg.metadata;
@@ -954,6 +959,8 @@
             registerFilter({
                 name: "name",
                 digest: function(arg) {
+                    if (!arg)
+                        return null;
                     if (typeof arg === "string")
                         return arg;
                     var meta = arg.metadata;
@@ -965,6 +972,8 @@
             registerFilter({
                 name: "kind",
                 digest: function(arg) {
+                    if (!arg)
+                        return null;
                     if (typeof arg === "string")
                         return arg;
                     return arg.kind;
@@ -975,9 +984,10 @@
             registerFilter({
                 name: "host",
                 digest: function(arg) {
+                    if (!arg)
+                        return null;
                     if (typeof arg === "string")
                         return arg;
-
                     var spec = arg.spec;
                     return spec ? spec.nodeName : null;
                 }
@@ -987,6 +997,8 @@
             registerFilter({
                 name: "uid",
                 digest: function(arg) {
+                    if (!arg)
+                        return null;
                     if (typeof arg === "string")
                         return arg;
                     var meta = arg.metadata;

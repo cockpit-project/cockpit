@@ -10,7 +10,7 @@
             </td>
         </tr>
         <tr>
-            <th></th>
+            <th class="listing-toggle"></th>
             <th translatable="yes">Name</th>
             <th translatable="yes">Description</th>
             <th translatable="yes">Members</th>
@@ -19,10 +19,7 @@
     <tbody ng-repeat-start="item in projects() track by item.metadata.name"  ng-init="sid = item.metadata.name"
            data-id="{{ sid }}" ng-class="{ open: listing.expanded(sid) }">
         <tr ng-click="listing.activate(sid)" class="listing-item">
-            <td ng-click="listing.toggle(sid, $event)"
-                class="listing-toggle">
-                <i class="fa fa-fw"></i>
-            </td>
+            <td class="listing-toggle"></td>
             <th>{{ item.metadata.name }}</th>
             <td>{{ item.metadata.annotations["openshift.io/description"] }}</td>
             <td></td>
@@ -43,7 +40,7 @@
             </td>
         </tr>
         <tr>
-            <th></th>
+            <th class="listing-toggle"></th>
             <th translatable="yes">Name</th>
             <th translatable="yes">Description</th>
             <th translatable="yes">Members</th>
@@ -51,7 +48,7 @@
     </thead>
     <tbody ng-repeat="item in groups()">
         <tr class="listing-item">
-            <th></th>
+            <td class="listing-toggle"></td>
             <th>{{ item.metadata.name }}</th>
             <td></td>
             <td>{{ formatMembers(item.users, 'Users') }}</td>
@@ -68,7 +65,7 @@
             </td>
         </tr>
         <tr>
-            <th></th>
+            <td class="listing-toggle"></td>
             <th translatable="yes">Name</th>
             <th translatable="yes">Identity</th>
             <th translatable="yes">Member of</th>
@@ -76,7 +73,7 @@
     </thead>
     <tbody ng-repeat="item in users()">
         <tr class="listing-item">
-            <th></th>
+            <td class="listing-toggle"></td>
             <th>{{ item.metadata.name }}</th>
             <td>{{ formatMembers(item.identities, 'Identities') }}</td>
             <td>{{ formatMembers(item.groups, 'Groups') }}</td>

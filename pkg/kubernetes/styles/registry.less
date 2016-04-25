@@ -1,9 +1,7 @@
 @import "variables.less";
 
-/* Depends on number of items in the sidebar */
-@sidebar-height-lg: 250px;
+@icon-sidebar-width: 100px;
 
-@import "sidebar.less";
 @import "filter.less";
 @import "dropdown.less";
 @import "dashboard.less";
@@ -130,3 +128,87 @@
     border: none;
 }
 
+#content {
+    margin-left: unit(@icon-sidebar-width, px);
+}
+
+.content-filter {
+    left: unit(@icon-sidebar-width - 10, px);
+}
+
+/* A different sidebar */
+.icon-sidebar {
+    width: unit(@icon-sidebar-width, px);
+
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        width: unit(@icon-sidebar-width - 10, px);
+        height: 100%;
+        position: fixed;
+        background-color: @nav-pf-vertical-bg-color;
+        top: 0px;
+        z-index: 1;
+
+        li {
+            border-bottom: 1px solid @nav-pf-vertical-item-border-color;
+            display: block;
+            font-size: 13px;
+
+            a {
+                border-bottom: 0;
+                color: @nav-pf-vertical-color;
+                background-color: @nav-pf-vertical-bg-color;
+                padding: 15px 11px 15px 9px;
+                text-align: center;
+                display: block;
+                text-decoration: none;
+                position: relative;
+
+                i {
+                    display: inline;
+                    font-size: 20px;
+                    line-height: 20px;
+                    color: @nav-pf-vertical-icon-color;
+                }
+
+                i.pficon-image {
+                    font-size: 24px;
+                    line-height: 20px;
+                }
+            }
+
+            a:hover {
+                color: @nav-pf-vertical-active-color;
+                background-color: @nav-pf-vertical-active-bg-color;
+
+                i {
+                    color: @nav-pf-vertical-active-icon-color;
+                }
+            }
+        }
+
+        li.active {
+            a  {
+                color: @nav-pf-vertical-active-color;
+                background-color: @nav-pf-vertical-active-bg-color;
+
+		i {
+			color: @link-color;
+		}
+            }
+
+            a:after {
+                content: '';
+                width: 4px;
+                height: 100%;
+                left: 0;
+                top: 0;
+                display: block;
+                position: absolute;
+                background-color: @link-color;
+            }
+        }
+    }
+}

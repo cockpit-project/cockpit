@@ -56,23 +56,23 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 <body ng-app='registry' ng-controller="MainCtrl" ng-class="{'cards-pf': viewActive(null)}" hidden>
     <div ng-cloak ng-if="!curtains">
-        <div class="nav-pf-vertical icon-sidebar">
-            <ul class="list-group">
-                <li class="list-group-item" ng-class="{ active: viewActive(null)}">
+        <div class="icon-sidebar">
+            <ul>
+                <li ng-class="{ active: viewActive(null)}">
                     <a ng-href="#{{ viewUrl(null) }}">
-                        <i class="fa fa-dashboard fa-fw" title="Overview"></i>
+                        <i class="fa fa-dashboard fa-fw" title="Overview"></i><br>
                         <span class="list-group-item-value" translatable="yes">Overview</span>
                     </a>
                 </li>
-                <li class="list-group-item" ng-class="{ active: viewActive('images')}">
+                <li ng-class="{ active: viewActive('images')}">
                     <a ng-href="#{{ viewUrl('images') }}">
-                        <i class="pficon pficon-image fa-fw" title="Images"></i>
+                        <i class="pficon pficon-image fa-fw" title="Images"></i><br>
                         <span class="list-group-item-value" translatable="yes">Images</span>
                     </a>
                 </li>
-                <li class="list-group-item" ng-class="{ active: viewActive('projects')}">
+                <li ng-class="{ active: viewActive('projects')}">
                     <a ng-href="#{{ viewUrl('projects') }}">
-                        <i class="pficon pficon-project fa-fw" title="Projects"></i>
+                        <i class="pficon pficon-project fa-fw" title="Projects"></i><br>
                         <span class="list-group-item-value" translatable="yes">Projects</span>
                     </a>
                 </li>

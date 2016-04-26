@@ -26,20 +26,28 @@ table.project-body {
     color: #000000;
 }
 .user-membership-body {
-    overflow: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
-}
-.user-membership-body table.listing thead th {
-    border-bottom: 0px;
-    border-bottom: 1px solid color("#eee");
-    padding: 0px;
-}
-.user-membership-body-item {
-    padding-top: 2px;
-    padding-bottom: 2px;
+    max-height: 200px;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+    h4 {
+        color: #888;
+        margin-top: 0px;
+        margin-bottom: 5px;
+        font-size: 14px;
+    }
+
+    span {
+        display: block;
+        margin-left: 20px;
+    }
 }
 
-.user-body{
+.user-body {
     border: 0px;
 
     table.listing thead th {

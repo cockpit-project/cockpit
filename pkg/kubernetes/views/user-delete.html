@@ -6,21 +6,14 @@
         <div ng-if="fields.members.length != 0"> 
             <p>The user '{{ fields.user.metadata.name }}' will be removed from the following: </p>
             <div class="user-membership-body">
-            <table listing-table class="listing projects-listing">
-            <thead>
-                    <tr><th></th></tr>
-            </thead>
-                <tbody ng-repeat="member in getProjectsWithMember(fields.projects, fields.user.metadata.name) track by member.metadata.name">
-                    <tr><td class="user-membership-body-item">
-                        {{ member.metadata.name }}
-                    </td></tr>
-                </tbody>
-                <tbody ng-repeat="member in getGroupsWithMember(fields.groups, fields.user.metadata.name) track by member.metadata.name">
-                    <tr><td class="user-membership-body-item">
-                        {{ member.metadata.name }}
-                    </td></tr>
-                </tbody>
-            </table>
+                <div ng-repeat="member in getProjectsWithMember(fields.projects, fields.user.metadata.name) track by member.metadata.name">
+                    <h4 translatable="yes" ng-if="$first">Projects</h4>
+                    <span>{{ member.metadata.name }}</span>
+                </div>
+                <div ng-repeat="member in getGroupsWithMember(fields.groups, fields.user.metadata.name) track by member.metadata.name">
+                    <h4 translatable="yes" ng-if="$first">Groups</h4>
+                    <span>{{ member.metadata.name }}</span>
+                </div>
             </div>
         </div>
         <div ng-if="fields.members.length == 0">

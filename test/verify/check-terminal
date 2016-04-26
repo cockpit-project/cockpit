@@ -37,7 +37,7 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         self.login_and_go("/system/terminal")
 
         def line_sel(i):
-            return '#terminal .terminal div:nth-child(%d)' % i
+            return '.terminal div:nth-child(%d)' % i
 
         def line_text(t):
             return t + u'\xa0'*(80-len(t))
@@ -45,8 +45,8 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         def wait_line(i,t):
             b.wait_text(line_sel(i), line_text(t))
 
-        b.wait_present('#terminal .terminal')
-        b.focus('#terminal .terminal')
+        b.wait_present('.terminal')
+        b.focus('.terminal')
 
         # wait for prompt in first line and remember it
         b.wait_text_not(line_sel(1), line_text(""))
@@ -68,12 +68,12 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         wait_line(4, u'äöü')
 
         # The '@' sign is in the default prompt
-        b.wait_in_text("#terminal-title", '@')
+        b.wait_in_text(".terminal-title", '@')
 
         # now reset terminal
-        b.click('#terminal-reset')
+        b.click('.btn:contains("Reset")')
 
-        b.focus('#terminal .terminal')
+        b.focus('.terminal')
 
         # terminal should be empty, so we look at lines 1 and 2 again
         wait_line(1, prompt)

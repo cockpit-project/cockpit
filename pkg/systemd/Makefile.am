@@ -26,6 +26,7 @@ systemddebug_DATA = \
 	pkg/systemd/server.js \
 	pkg/systemd/service.js \
 	pkg/systemd/terminal.js \
+	pkg/systemd/terminal.jsx \
 	pkg/systemd/terminal.html \
 	pkg/systemd/logs.html \
 	pkg/systemd/journal.js \
@@ -75,6 +76,7 @@ CLEANFILES += \
 	pkg/systemd/logs.min.html \
 	pkg/systemd/services.min.html \
 	pkg/systemd/terminal.min.html \
+	pkg/systemd/terminal.js \
 	$(systemd_MIN) \
 	$(nodist_systemd_DATA) \
 	$(NULL)
@@ -90,6 +92,8 @@ EXTRA_DIST += \
 	pkg/systemd/service.min.js \
 	pkg/systemd/services.min.html \
 	pkg/systemd/terminal.min.html \
+	pkg/systemd/terminal.jsx \
+	pkg/systemd/terminal.js \
 	$(systemd_BUNDLE) \
 	$(NULL)
 

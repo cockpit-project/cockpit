@@ -1,6 +1,13 @@
 <modal-dialog>
     <div class="modal-header">
-        <h4 class="modal-title" translatable="yes">Add Member</h4>
+        <h4 class="modal-title">
+          <span translatable="yes"></span>
+          Add Member
+          <a tabindex="0" role="button" popover-trigger="focus"
+              popover="A member is a user or group.">
+              <span class="fa fa-lg fa-info-circle"></span>
+          </a>
+        </h4>
     </div>
     <div class="modal-body">
         <table class="cockpit-form-table">
@@ -10,8 +17,8 @@
                 </td>
                 <td>
                     <div id="add_member_group" class="input-group bootstrap-select input-combo form-control" dropdown>
-                        <input id="add_member_name" class="form-control" type="text" placeholder="Select Member"
-                            ng-model="selected.memberName">
+                        <input id="add_member_name" class="form-control" type="text" placeholder="Select or type a member"
+                            ng-model="select.memberName">
                         <span class="input-group-btn" dropdown="">
                             <button class="btn btn-default dropdown-toggle" dropdown-toggle>
                                 <span class="caret"></span>

@@ -1,25 +1,22 @@
 <modal-dialog>
     <div class="modal-header">
-        <span translatable="yes">
-          <h4 class="modal-title" ng-if="!project">
-            New project
-            <a tabindex="0" role="button" popover-placement="right" popover-trigger="focus"
-                popover="A repository namespace for images">
-              <span class="fa fa-lg fa-info-circle"></span>
-            </a>
-          </h4>
-        </span>
+        <h4 class="modal-title" ng-if="!project">
+          <span translatable="yes"></span>
+          New project
+          <a tabindex="0" role="button" popover-placement="right" popover-trigger="focus"
+              popover="A repository namespace for images">
+            <span class="fa fa-lg fa-info-circle"></span>
+          </a>
+        </h4>
         <h3 class="modal-title" ng-if="project" translatable="yes">Change project</h3>
     </div>
     <div class="modal-body">
         <table class="cockpit-form-table">
             <tr>
                 <td class="top">
-                  <span translatable="yes">
-                    <label class="control-label" for="project-new-name">
-                      Name
-                    </label>
-                  </span>
+                  <label translatable="yes" class="control-label" for="project-new-name">
+                    Name
+                  </label>
                 </td>
                 <td>
                     <a class="input-icon" ng-if="!project" popover-placement="left"
@@ -52,8 +49,9 @@
             </tr>
             <tr>
                 <td>
-                    <label class="control-label" for="project-access-policy"
-                        translatable="yes">Access Policy</label>
+                    <label class="control-label" for="project-access-policy" translatable="yes">
+                      Access Policy
+                    </label>
                 </td>
                 <td>
                     <div class="btn-group bootstrap-select form-control" dropdown

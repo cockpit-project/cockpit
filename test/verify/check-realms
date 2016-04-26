@@ -115,9 +115,6 @@ class TestRealms(MachineCase):
         b.click(".realms-op-cancel")
         b.wait_popdown("realms-op")
 
-        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1256636
-        self.allow_journal_messages(".*type=1400 audit.*denied.*nsupdate.*nsswitch.conf.*realmd_var_lib_t.*")
-
     def testNotSupported(self):
         m = self.machine
         b = self.browser

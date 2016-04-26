@@ -64,7 +64,7 @@
         return names;
     }
 
-    function buildSpec(names, spec) {
+    function buildSpec(names, spec, insecure) {
         var already = { };
         if (!spec)
             spec = { };
@@ -76,7 +76,7 @@
             if (name in already)
                 tags.push(already[name]);
             else
-                tags.push({ name: name });
+                tags.push({ name: name, importPolicy: { insecure: insecure } });
         });
         spec.tags = tags;
         return spec;

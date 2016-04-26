@@ -656,9 +656,15 @@ tbody.open tr.listing-panel td div.listing-head {
     border-bottom: 1px solid #ccc;
 }
 
-tbody.open tr.listing-item:hover,
-tr.listing-item:hover {
+/* only highlight the row if navigation is available */
+tbody.open tr.listing-item:not(.cockpit-nonavigate):hover,
+tr.listing-item:not(.cockpit-nonavigate):hover {
     background-color: #d4edfa;
+}
+
+/* if we can't navigate to a row but expand is available, highlight the caret */
+tr.listing-item.cockpit-nonavigate:hover td.listing-toggle {
+    color: #65bedf;
 }
 
 tr.listing-item .listing-toggle {

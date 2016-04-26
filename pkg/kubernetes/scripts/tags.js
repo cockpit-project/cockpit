@@ -64,7 +64,7 @@
         return names;
     }
 
-    function buildSpec(names, spec) {
+    function buildSpec(names, spec, insecure) {
         var already = { };
         if (!spec)
             spec = { };
@@ -73,10 +73,12 @@
         });
         var tags = [ ];
         angular.forEach(names, function(name) {
-            if (name in already)
+            if (name in already) {
+                already[name].importPolicy = { "insecure": insecure };
                 tags.push(already[name]);
-            else
-                tags.push({ name: name });
+            } else {
+                tags.push({ name: name, "importPolicy": { "insecure": insecure } });
+            }
         });
         spec.tags = tags;
         return spec;

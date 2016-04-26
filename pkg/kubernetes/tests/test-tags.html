@@ -66,14 +66,14 @@ function suite() {
         "imageTagData",
         function(data) {
             var spec = angular.extend({ }, specData);
-            spec = data.buildSpec(["2.5", "latest", "second"], spec);
+            spec = data.buildSpec(["2.5", "latest", "second"], spec, true);
             deepEqual(spec, {
                 "dockerImageRepository": "busybox",
                 "tags": [
-                    { "name": "2.5" },
+                    { "name": "2.5", "importPolicy": { "insecure": true } },
                     { "annotations": null, "from": { "kind": "DockerImage", "name": "busybox:latest" },
-                        "generation": 2, "importPolicy": {}, "name": "latest" },
-                    { "name": "second" }
+                        "generation": 2, "importPolicy": { "insecure": true }, "name": "latest" },
+                    { "name": "second", "importPolicy": { "insecure": true } }
                 ]
             }, "build spec correctly");
         }
@@ -150,7 +150,9 @@ var specData = {
                 "name": "busybox:latest"
             },
             "generation": 2,
-            "importPolicy": {}
+            "importPolicy": {
+                "insecure": false
+            }
         }
     ]
 };

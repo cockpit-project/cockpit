@@ -607,6 +607,7 @@
                 populate: populate,
                 pull: spec.dockerImageRepository || "",
                 tags: tagData.parseSpec(spec),
+                insecure: hasInsecureTag(spec),
             };
 
             $scope.fields = fields;
@@ -628,7 +629,7 @@
                 if (fields.populate != "none")
                     data.spec.dockerImageRepository = fields.pull.trim();
                 if (fields.populate == "tags")
-                    tagData.buildSpec(fields.tags, data.spec);
+                    tagData.buildSpec(fields.tags, data.spec, fields.insecure);
 
                 return methods.patch(stream, data);
             }
@@ -645,7 +646,7 @@
                 if (fields.populate != "none")
                     data.spec = { dockerImageRepository: fields.pull.trim(), };
                 if (fields.populate == "tags")
-                    data.spec = tagData.buildSpec(fields.tags, data.spec);
+                    data.spec = tagData.buildSpec(fields.tags, data.spec, fields.insecure);
 
                 return methods.check(data, {
                     "metadata.name": "#imagestream-modify-name",
@@ -655,8 +656,24 @@
                 });
             }
 
+            function hasInsecureTag(spec) {
+                // loop through tags, check importPolicy.insecure boolean
+                // if one tag is insecure the intent is the imagestream is insecure
+                var insecure;
+                if (spec) {
+                    for (var tag in spec.tags) {
+                        if (spec.tags[tag].importPolicy.insecure) {
+                            insecure = spec.tags[tag].importPolicy.insecure;
+                            break;
+                        }
+                    }
+                }
+                return insecure;
+            }
+
             $scope.performCreate = performCreate;
             $scope.performModify = performModify;
+            $scope.hasInsecureTag = hasInsecureTag;
 
             $scope.projects = filter.namespaces;
             angular.extend($scope, dialogData);

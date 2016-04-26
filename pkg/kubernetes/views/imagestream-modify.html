@@ -81,6 +81,15 @@
                     </div>
                 </td>
             </tr>
+            <tr ng-show="fields.populate == 'tags'">
+                <td></td>
+                <td>
+                    <label>
+                        <input type="checkbox" ng-checked="hasInsecureTag(stream.spec)" ng-model="fields.insecure">
+                        <span translatable="yes">Remote registry is insecure</span>
+                    </label>
+                </td>
+            </tr>
         </table>
     </div>
     <div class="modal-footer">

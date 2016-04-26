@@ -440,14 +440,14 @@ class KubernetesCommonTests(VolumeTests):
         self.assertTrue(b.is_present(".details-listing tbody:not(.open) tr.listing-ct-item"))
 
         # Click into service
-        b.click(".details-listing tbody[data-id='services/default/mock'] tr.listing-ct-item")
+        b.click(".details-listing tbody[data-id='services/mynamespace1/mock'] tr.listing-ct-item")
         b.wait_in_text(".listing-ct-inline", "Service")
         b.wait_in_text(".listing-ct-inline", "Endpoints")
         b.wait_present(".content-filter h3")
         b.wait_text(".content-filter h3", "mock")
         b.click("a.hidden-xs")
         b.wait_present("#content .details-listing")
-        b.wait_present(".details-listing tbody[data-id='services/default/mock']")
+        b.wait_present(".details-listing tbody[data-id='services/mynamespace1/mock']")
         b.wait_not_present("#pods")
         b.wait_not_present("#replication-controllers")
 

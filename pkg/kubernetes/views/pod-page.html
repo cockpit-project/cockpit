@@ -34,7 +34,7 @@
     </div>
 
     <h3 translatable="yes">Containers</h3>
-    <div class="listing-body" containers-listing></div>
+    <div class="listing-body" ng-init="pods=[item]" containers-listing></div>
 
 <div class="listing-inline" ng-if="!item">
     <h3 translatable="yes">The pod '{{ target }}' does not exist.</h3>

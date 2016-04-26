@@ -478,7 +478,7 @@ class TestRegistry(MachineCase):
         b.wait_visible(".modal-body")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
-        
+
         #add member
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
@@ -619,7 +619,7 @@ class TestRegistry(MachineCase):
         # Change the project access
         b.go("#/projects/marmalade")
         b.wait_in_text(".content-filter h3", "marmalade")
-        b.wait_in_text(".listing-body", "This project allows non-members to pull images.")
+        b.wait_in_text(".listing-body", "This project allows authenticated non-members to pull images.")
         b.click(".content-filter .pficon-edit")
         b.wait_present("modal-dialog")
         b.wait_visible("#project-access-policy")
@@ -629,7 +629,7 @@ class TestRegistry(MachineCase):
         b.click("#project-access-policy a[value='private']")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
-        b.wait_not_in_text(".listing-body", "This project allows non-members to pull images.")
+        b.wait_not_in_text(".listing-body", "This project allows authenticated non-members to pull images.")
         output = o.execute("oc policy who-can get --namespace=marmalade imagestreams/layers")
         self.assertNotIn("system:authenticated", output)
 
@@ -641,7 +641,8 @@ class TestRegistry(MachineCase):
         b.wait_not_in_text(".dashboard-images:first-child", "llama")
 
         # Create a new project
-        b.click(".new-project-link")
+        b.wait_visible("a.new-project-link")
+        b.click("a.new-project-link")
         b.wait_present("modal-dialog")
         b.wait_visible("#project-new-name")
         b.set_val("#project-new-name", "invalid...!")

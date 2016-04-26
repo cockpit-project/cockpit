@@ -1,4 +1,18 @@
 <dl>
+    <dt translatable="yes">Access Policy</dt>
+    <dd>
+      <div ng-if="sharedImages(stream.metadata.namespace)" >
+        <a translatable="yes" ng-href="#/projects/{{ stream.metadata.namespace }}">
+          Images shared with authenticated non-members
+        </a>
+        <i title="Images shared with non-members" class="fa fa-unlock imagestream-lock"></i>
+      </div>
+      <div ng-if="!sharedImages(stream.metadata.namespace)">
+        <a translatable="yes" ng-href="#/projects/{{ stream.metadata.namespace }}">
+          Images only accessible to members
+        </a>
+        <i title="Images only accessible to members" class="fa fa-lock imagestream-lock"></i>
+      </div>
     <dt translatable="yes">Pull repository</dt>
     <dd ng-if="stream.spec.dockerImageRepository"><tt>{{stream.spec.dockerImageRepository}}</tt></dd>
     <dd ng-if="!stream.spec.dockerImageRepository"><em translatable="yes">None</em></dd>

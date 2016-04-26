@@ -71,9 +71,12 @@
         'imageData',
         'imageActions',
         'ListingState',
+        'projectData',
         'filterService',
-        function($scope, $location, data, actions, ListingState) {
+        function($scope, $location, data, actions, ListingState, projectData) {
             $scope.imagestreams = data.allStreams;
+            $scope.sharedImages = projectData.sharedImages;
+
             angular.extend($scope, data);
 
             $scope.listing = new ListingState($scope);
@@ -110,7 +113,8 @@
         'imageData',
         'imageActions',
         'ListingState',
-        function($scope, $location, $routeParams, select, loader, data, actions, ListingState) {
+        'projectData',
+        function($scope, $location, $routeParams, select, loader, data, actions, ListingState, projectData) {
             var target = $routeParams["target"] || "";
             var pos = target.indexOf(":");
 
@@ -168,6 +172,7 @@
             /* All the data actions available on the $scope */
             angular.extend($scope, data);
             angular.extend($scope, actions);
+            $scope.sharedImages = projectData.sharedImages;
 
             /* But special case a few */
             $scope.deleteImageStream = function(stream) {

@@ -88,10 +88,13 @@
                         ev.stopPropagation();
                 };
 
-                self.activate = function expand(id, ev) {
-                    var emitted;
-                    if (checkBrowserEvent(ev))
-                        emitted = scope.$emit("activate", id);
+                self.activate = function activate(id, ev) {
+                    if (checkBrowserEvent(ev)) {
+                        if (self.expanded(id))
+                            self.collapse(id);
+                        else
+                            scope.$emit("activate", id);
+                    }
                 };
 
                 self.collapse = function collapse(id, ev) {

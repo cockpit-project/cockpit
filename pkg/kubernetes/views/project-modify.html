@@ -1,25 +1,32 @@
 <modal-dialog>
     <div class="modal-header">
-        <h4 class="modal-title" ng-if="!project" translatable="yes">
-          New project
-          <a tabindex="0" role="button" popover-trigger="focus"
-              popover="A namespace for images"<span class="fa fa-lg fa-info-circle"></span>
-          </a>
-        </h4>
+        <span translatable="yes">
+          <h4 class="modal-title" ng-if="!project">
+            New project
+            <a tabindex="0" role="button" popover-placement="right" popover-trigger="focus"
+                popover="A repository namespace for images">
+              <span class="fa fa-lg fa-info-circle"></span>
+            </a>
+          </h4>
+        </span>
         <h3 class="modal-title" ng-if="project" translatable="yes">Change project</h3>
     </div>
     <div class="modal-body">
         <table class="cockpit-form-table">
             <tr>
                 <td class="top">
-                    <label class="control-label" for="project-new-name" translatable="yes">
-                      <a tabindex="0" role="button" popover-trigger="focus"
-                          popover="The project name is used as the repository name when referencing images, registry/project/image:[tag]"<span class="fa fa-lg fa-info-circle"></span>
-                      </a>
+                  <span translatable="yes">
+                    <label class="control-label" for="project-new-name">
                       Name
                     </label>
+                  </span>
                 </td>
                 <td>
+                    <a class="input-icon" ng-if="!project" popover-placement="left"
+                       tabindex="0" role="button" popover-trigger="focus"
+                       popover="The project name is used as the repository name when referencing images, registry/project/image:[tag]">
+                       <span class="fa fa-lg fa-info-circle"></span>
+                    </a>
                     <input id="project-new-name" class="form-control" type="text"
                         ng-if="!project" ng-model="fields.name" autofocus>
                     <span id="project-new-name" ng-if="project">{{ fields.name }}</span>

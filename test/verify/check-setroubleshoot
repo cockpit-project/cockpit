@@ -78,27 +78,33 @@ class TestSelinux(MachineCase):
         self.machine.execute(script=SELINUX_ALERT_SCRIPT)
         self.machine.execute(command=FLUSH_ALERTS)
 
+        row_selector = "tbody:contains('SELinux is preventing ls from read access on the directory')"
+
         # wait for the alert to appear
         # HACK https://bugzilla.redhat.com/show_bug.cgi?id=1322771
         with b.wait_timeout(120):
-            b.wait_present("td:contains('SELinux is preventing ls from read access on the directory')")
+            b.wait_present(row_selector)
 
         # expand it to see details
-        row_selector = "td:contains('SELinux is preventing ls from read access on the directory'):parent"
-        b.click(row_selector)
+        toggle_selector = row_selector + " .listing-toggle"
+        b.wait_present(toggle_selector)
+        b.click(toggle_selector)
 
         # this should have two alerts, but there seems to be a known issue that some messages are delayed
         # b.wait_in_text(row_selector, "2 occurrences")
 
+        panel_selector = row_selector + " tr.listing-panel"
+
         # a solution is present
-        b.wait_in_text(row_selector, "You must tell SELinux about this by enabling the 'httpd_read_user_content' boolean.")
+        b.wait_present(panel_selector)
+        b.wait_in_text(panel_selector, "You must tell SELinux about this by enabling the 'httpd_read_user_content' boolean.")
 
         # ... but we can't apply it automatically
         # there are several solutions this can match against - that's ok, we want at least one to have this message
-        b.wait_in_text(row_selector, "Unable to apply this solution automatically")
+        b.wait_in_text(panel_selector, "Unable to apply this solution automatically")
 
         # collapse again
-        b.click("tbody.open .listing-head")
+        b.click(toggle_selector)
 
         # wait until it is collapsed
         b.wait_not_in_text(row_selector, "You must tell SELinux about this by enabling the 'httpd_read_user_content' boolean.")
@@ -108,17 +114,22 @@ class TestSelinux(MachineCase):
         self.machine.execute(script=SELINUX_SERIOUS_ALERT_SCRIPT)
         self.machine.execute(command=FLUSH_ALERTS)
 
+        row_selector = "tbody:contains('SELinux is preventing sshd from read access on the file')"
         # wait for the alert to appear
         # HACK https://bugzilla.redhat.com/show_bug.cgi?id=1322771
         with b.wait_timeout(120):
-            b.wait_present("td:contains('SELinux is preventing sshd from read access on the file')")
+            b.wait_present(row_selector)
 
         # expand it to see details
-        row_selector = "td:contains('SELinux is preventing sshd from read access on the file'):parent"
-        b.click(row_selector)
+        toggle_selector = row_selector + " .listing-toggle"
+        b.wait_present(toggle_selector)
+        b.click(toggle_selector)
+
+        panel_selector = row_selector + " tr.listing-panel"
 
         # a solution is present
-        b.wait_in_text(row_selector, "you must fix the labels")
+        b.wait_present(panel_selector)
+        b.wait_in_text(panel_selector, "you must fix the labels")
 
         # and it can be applied
         btn_sel = "div.list-group-item:contains('you must fix the labels') button"

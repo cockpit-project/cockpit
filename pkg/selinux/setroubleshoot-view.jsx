@@ -200,11 +200,10 @@ var SELinuxEvent = React.createClass({
     },
     render: function() {
         var self = this;
-        var bodyProps = {className: '', onClick: this.handleClick};
         var count_display = null;
+        if (this.props.count > 1)
+            count_display = <span className="badge">{ this.props.count }</span>;
         if (this.state.expanded) {
-            if (this.props.count > 1)
-                count_display = <span className="pull-right">{ this.props.count + " occurrences"}</span>;
             var links = this.tab_renderers.map(function(itm, idx) {
                 return (
                     <li key={ idx } className={ (idx === self.state.active_tab) ? "active" : ""} >
@@ -215,10 +214,16 @@ var SELinuxEvent = React.createClass({
             var active_renderer = this.tab_renderers[this.state.active_tab].renderer;
             return (
                 <tbody className="open">
-                    <tr className="listing-item" onClick={ this.handleClick } />
+                    <tr className="listing-item cockpit-nonavigate" onClick={ this.handleClick }>
+                        <td className="listing-toggle">
+                            <i className="fa fa-fw"></i>
+                        </td>
+                        <th>{ this.props.description }</th>
+                        <td>{ count_display }</td>
+                    </tr>
                     <tr className="listing-panel">
-                        <td colSpan="2">
-                            <div className="listing-head"  onClick={ this.handleClick }>
+                        <td colSpan="3">
+                            <div className="listing-head">
                                 <div className="listing-actions">
                                      <button title="Dismiss"
                                             className="pficon pficon-delete btn btn-danger"
@@ -226,8 +231,6 @@ var SELinuxEvent = React.createClass({
                                             onClick={ this.handleDismissClick }>
                                     </button>
                                 </div>
-                                <h3>{this.props.description}</h3>
-                                { count_display }
                                 <ul className="nav nav-tabs nav-tabs-pf">
                                     { links }
                                 </ul>
@@ -240,15 +243,16 @@ var SELinuxEvent = React.createClass({
                 </tbody>
             );
         } else {
-            if (this.props.count > 1)
-                count_display = <span className="badge">{ this.props.count }</span>;
             return (
                 <tbody>
-                    <tr className="listing-item" onClick={ this.handleClick }>
-                        <td>{ this.props.description }</td>
+                    <tr className="listing-item cockpit-nonavigate" onClick={ this.handleClick }>
+                        <td className="listing-toggle">
+                            <i className="fa fa-fw"></i>
+                        </td>
+                        <th>{ this.props.description }</th>
                         <td>{ count_display }</td>
                     </tr>
-                    <tr className="listing-panel" onClick={ this.handleClick } />
+                    <tr className="listing-panel"/>
                 </tbody>
             );
         }

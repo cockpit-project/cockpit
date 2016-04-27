@@ -34,6 +34,24 @@
 </head>
 <body class="page" hidden>
 
+  <div class="modal" id="error-popup" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="error-popup-title"></h4>
+        </div>
+        <div class="modal-body">
+          <p id="error-popup-message"></p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" data-dismiss="modal" translatable="yes">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="accounts" class="container-fluid" hidden>
     <button class="btn btn-default accounts-privileged" id="accounts-create" translatable="yes" data-container="body">Create New Account</button>
     <div id="accounts-list">

@@ -308,21 +308,21 @@ define([
     $("#credentials-dialog")
 
         /* Show and hide panels */
-        .on("click", "tr.listing-item, tr.listing-head", function(ev) {
+        .on("click", "tr.listing-item", function(ev) {
             var body, open;
             if ($(ev.target).parents(".listing-actions, ul").length === 0) {
-                body = $(this).parents("tbody");
+                body = $(ev.target).parents("tbody");
                 body.toggleClass("open").removeClass("unlock");
                 body.find(".alert").hide();
             }
         })
 
         /* Highlighting */
-        .on("mouseenter", ".listing-head", function(ev) {
-            $(ev.target).parents("tbody").find(".listing-head").addClass("highlight");
+        .on("mouseenter", ".listing-item", function(ev) {
+            $(ev.target).parents("tbody").find(".listing-item").addClass("highlight");
         })
-        .on("mouseleave", ".listing-head", function(ev) {
-            $(ev.target).parents("tbody").find(".listing-head").removeClass("highlight");
+        .on("mouseleave", ".listing-item", function(ev) {
+            $(ev.target).parents("tbody").find(".listing-item").removeClass("highlight");
         })
 
         /* Load and unload keys */
@@ -417,7 +417,7 @@ define([
         })
 
         /* Change tabs */
-        .on("click", "tr.listing-head ul > li > a", function() {
+        .on("click", "tr.credential-panel ul > li > a", function() {
             var li = $(this).parent();
             var index = li.index();
             li.parent().children().removeClass("active");

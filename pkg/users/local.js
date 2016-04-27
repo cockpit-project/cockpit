@@ -458,7 +458,7 @@ PageAccountsCreate.prototype = {
                     prog.push($('#accounts-create-real-name').val());
                 }
                 prog.push($('#accounts-create-user-name').val());
-                return cockpit.spawn(prog, { "superuser": "require" });
+                return cockpit.spawn(prog, { "superuser": "require", err: "message" });
             }
         ];
 
@@ -468,7 +468,7 @@ PageAccountsCreate.prototype = {
                     "/usr/sbin/usermod",
                     $('#accounts-create-user-name').val(),
                     "--lock"
-                ], { superuser: "require" });
+                ], { superuser: "require", err: "message" });
             });
         }
 
@@ -907,11 +907,11 @@ PageAccount.prototype = {
 
         if ($(ev.target).prop('checked')) {
             cockpit.spawn(["/usr/sbin/usermod", this.account["name"],
-                           "-G", id, "-a"], { "superuser": "require" })
+                           "-G", id, "-a"], { "superuser": "require", err: "message" })
                .fail(show_unexpected_error);
         } else {
             cockpit.spawn(["/usr/bin/gpasswd", "-d", this.account["name"],
-                           name], { "superuser": "require" })
+                           name], { "superuser": "require", err: "message" })
                    .fail(show_unexpected_error);
         }
     },
@@ -940,7 +940,7 @@ PageAccount.prototype = {
         var value = name.val();
 
         cockpit.spawn(["/usr/sbin/usermod", self.account["name"], "--comment", value],
-                      { "superuser": "try"})
+                      { "superuser": "try", err: "message"})
            .done(function(data) {
                self.account["gecos"] = value;
                self.update();
@@ -955,7 +955,7 @@ PageAccount.prototype = {
         var self = this;
         cockpit.spawn(["/usr/sbin/usermod",
                        this.account["name"],
-                       desired_lock_state ? "--lock" : "--unlock"], { "superuser": "require"})
+                       desired_lock_state ? "--lock" : "--unlock"], { "superuser": "require", err: "message"})
             .done(function() {
                 self.get_locked(false)
                     .done(function(locked) {
@@ -991,7 +991,8 @@ PageAccount.prototype = {
     },
 
     logout_account: function() {
-        cockpit.spawn(["/usr/bin/loginctl", "kill-user", this.account["name"]], { "superuser": "try"})
+        cockpit.spawn(["/usr/bin/loginctl", "kill-user", this.account["name"]],
+                      { "superuser": "try", err: "message"})
            .done($.proxy (this, "get_logged"))
            .fail(show_unexpected_error);
 
@@ -1032,7 +1033,7 @@ PageAccountConfirmDelete.prototype = {
 
         prog.push(PageAccountConfirmDelete.user_name);
 
-        cockpit.spawn(prog, { "superuser": "require" })
+        cockpit.spawn(prog, { "superuser": "require", err: "message" })
            .done(function () {
               $('#account-confirm-delete-dialog').modal('hide');
                cockpit.location.go("/");

@@ -58,6 +58,10 @@ class TestSystemInfo(MachineCase):
         b.wait_present('#system_information_os_text')
         b.wait_visible('#system_information_os_text')
 
+        mid = m.execute("cat /etc/machine-id")
+        b.wait_present('#system_machine_id')
+        b.wait_text('#system_machine_id', mid)
+
         b.wait_text('#system_information_os_text',
                     "Foobar Adventure Linux Server 2.0 (Day of Doom)")
 

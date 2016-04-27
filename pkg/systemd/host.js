@@ -364,6 +364,16 @@ PageServer.prototype = {
     enter: function() {
         var self = this;
 
+        var machine_id = cockpit.file("/etc/machine-id");
+        machine_id.read().done(function (content) {
+            $("#system_machine_id").text(content);
+            $("#system_machine_id").attr("title", content);
+        }).fail(function (ex) {
+            console.error("Error reading machine id", ex);
+        }).always(function () {
+            machine_id.close();
+        });
+
         self.ostree_client = cockpit.dbus('org.projectatomic.rpmostree1',
                                           {"superuser" : true});
         $(self.ostree_client).on("close", function () {

@@ -24,6 +24,10 @@ base_DATA = \
 	pkg/base1/manifest.json \
 	$(NULL)
 
+REACT_COMPONENTS = \
+	pkg/base1/cockpit-components-terminal.js \
+	$(NULL)
+
 basedebugdir = $(debugdir)$(basedir)
 basedebug_DATA = \
 	pkg/base1/angular.js \
@@ -44,6 +48,7 @@ basedebug_DATA = \
 	pkg/base1/jquery.js \
 	pkg/base1/cockpit.js \
 	pkg/base1/cockpit-components.js \
+	$(REACT_COMPONENTS) \
 	$(base_GEN) \
 	$(NULL)
 
@@ -71,14 +76,9 @@ pkg/base1/term.min.js: pkg/base1/term.js
 	$(MIN_JS_RULE)
 pkg/base1/react.min.js: pkg/base1/react.js
 	$(MIN_JS_RULE)
-pkg/base1/cockpit-components.min.js: pkg/base1/cockpit-components.js
-	$(MIN_JS_RULE)
-
-REACT_COMPONENTS = \
-	pkg/base1/cockpit-components-terminal.js
 
 pkg/base1/cockpit-components.js: $(REACT_COMPONENTS)
-	$(JSMODULE) -o pkg/base1/cockpit-components.js $(REACT_COMPONENTS)
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
 install-data-local::
 	$(MKDIR_P) $(DESTDIR)$(basedebugdir)
@@ -138,7 +138,6 @@ CLEANFILES += \
 	pkg/base1/term.min.js \
 	pkg/base1/cockpit-components.js \
 	pkg/base1/cockpit-components.min.js \
-	pkg/base1/cockpit-components-terminal.js \
 	$(REACT_COMPONENTS) \
 	$(base_GEN) \
 	$(base_GEN:.js=.min.js) \

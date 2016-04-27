@@ -22,8 +22,8 @@ require([
     "react",
     "performance/dialog-view",
     "playground/react-demo-dialog",
-    "base1/cockpit-components",
-], function(cockpit, React, dialog_pattern, demo_dialog, components) {
+    "base1/cockpit-components-terminal",
+], function(cockpit, React, dialog_pattern, demo_dialog, cockpit_terminal) {
 
 "use strict";
 
@@ -109,7 +109,7 @@ cockpit.user.addEventListener('changed', function (user) {
         "pty": true
     });
 
-    React.render(React.createElement(components.Terminal, {
+    React.render(React.createElement(cockpit_terminal.Terminal, {
         channel: channel,
     }), document.getElementById('demo-react-terminal'));
 });

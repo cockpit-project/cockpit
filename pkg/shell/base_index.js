@@ -605,8 +605,12 @@ define([
             return current_frame;
         };
 
-        self.start = function (messages) {
-            self.router.start(messages);
+        self.start = function() {
+            /* window.messages is initialized in shell/bundle.js */
+            var messages = window.messages;
+            if (messages)
+                messages.cancel();
+            self.router.start(messages || []);
         };
 
         self.ready = function () {
@@ -801,6 +805,27 @@ define([
             }
         };
     }
+
+    function follow(arg) {
+        /* A promise of some sort */
+        if (arguments.length == 1 && typeof arg.then == "function") {
+            arg.then(function() { console.log.apply(console, arguments); },
+                     function() { console.error.apply(console, arguments); });
+            if (typeof arg.stream == "function")
+                arg.stream(function() { console.log.apply(console,arguments); });
+        }
+    }
+
+    var zz_value;
+
+    /* For debugging utility in the index window */
+    Object.defineProperties(window, {
+        cockpit: { value: cockpit },
+        zz: {
+            get: function() { return zz_value; },
+            set: function(val) { zz_value = val; follow(val); }
+        }
+    });
 
     return {
         new_index_from_proto: function (proto) {

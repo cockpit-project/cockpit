@@ -7,8 +7,7 @@
     <link href="../base1/cockpit.css" rel="stylesheet">
     <link href="../../static/branding.css" rel="stylesheet">
     <link href="shell.css" rel="stylesheet">
-    <script src="../base1/require.js"></script>
-    <script src="../base1/bundle.js"></script>
+    <script data-main="shell/simple-index" src="../base1/bundle.js"></script>
     <script src="bundle.js"></script>
   </head>
   <body hidden>
@@ -132,36 +131,6 @@
         </div>
       </div>
     </div>
-
-    <script>
-        /* Indicates to child frames that we are a cockpit1 router frame */
-        window.name = "cockpit1";
-
-        /* The same thing as above, but compatibility with old cockpit */
-        window.options = { sink: true, protocol: "cockpit1" };
-
-        /* While the index is initializing, snag any messages we receive from frames */
-        var messages = [ ];
-        function message_queue(event) {
-            messages.push(event);
-        }
-        window.addEventListener("message", message_queue, false);
-
-        require([
-            "base1/cockpit",
-            "shell/simple-index"
-        ], function(cockpit, index) {
-            /* For debugging and such */
-            window.cockpit = cockpit;
-
-            /* Drain any initial messages we receive into the router */
-            cockpit.transport.wait(function() {
-                window.removeEventListener("message", message_queue, false);
-                index.start(messages);
-                messages = null;
-            });
-        });
-    </script>
 
     <div class="curtains blank-slate-pf" hidden>
       <div class="blank-slate-pf-icon">

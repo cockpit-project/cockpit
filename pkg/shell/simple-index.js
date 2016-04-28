@@ -160,5 +160,7 @@ define([
         phantom_checkpoint();
     }
 
-    return index;
+    cockpit.transport.wait(function() {
+        index.start();
+    });
 });

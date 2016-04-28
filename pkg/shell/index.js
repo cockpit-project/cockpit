@@ -446,5 +446,7 @@ define([
         return compiled;
     }
 
-    return index;
+    cockpit.transport.wait(function() {
+        index.start();
+    });
 });

@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html>
-  <head class="index-page">
+<html class="index-page">
+  <head>
     <title>Cockpit</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/cockpit.css" rel="stylesheet">
     <link href="../../static/branding.css" rel="stylesheet">
     <link href="shell.css" rel="stylesheet">
-    <script src="../base1/bundle.js"></script>
+    <script data-main="shell/index" src="../base1/bundle.js"></script>
     <script src="bundle.js"></script>
   </head>
   <body hidden>
@@ -327,54 +327,6 @@
         <button id="machine-troubleshoot" class="btn btn-primary btn-lg" translatable="yes">Troubleshoot</button>
       </div>
     </div>
-
-    <script>
-        /* Indicates to child frames that we are a cockpit1 router frame */
-        window.name = "cockpit1";
-
-        /* The same thing as above, but compatibility with old cockpit */
-        window.options = { sink: true, protocol: "cockpit1" };
-
-        /* While the index is initializing, snag any messages we receive from frames */
-        var messages = [ ];
-        function message_queue(event) {
-            messages.push(event);
-        }
-        window.addEventListener("message", message_queue, false);
-
-        require([
-            "base1/cockpit",
-            "shell/index"
-        ], function(cockpit, index) {
-            function follow(arg) {
-                /* A promise of some sort */
-                if (arguments.length == 1 && typeof arg.then == "function") {
-                    arg.then(function() { console.log.apply(console, arguments); },
-                             function() { console.error.apply(console, arguments); });
-                    if (typeof arg.stream == "function")
-                        arg.stream(function() { console.log.apply(console,arguments); });
-                }
-            }
-
-            var zz_value;
-
-            /* For debugging utility */
-            Object.defineProperties(window, {
-                cockpit: { value: cockpit },
-                zz: {
-                    get: function() { return zz_value; },
-                    set: function(val) { zz_value = val; follow(val); }
-                }
-            });
-
-            /* Drain any initial messages we receive into the router */
-            cockpit.transport.wait(function() {
-                window.removeEventListener("message", message_queue, false);
-                index.start(messages);
-                messages = null;
-            });
-        });
-    </script>
 
     <div id="content">
       <!-- Initially populate these frames -->

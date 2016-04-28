@@ -30,7 +30,7 @@ define([
     "shell/plot",
     "shell/cockpit-plot",
     "shell/cockpit-util",
-    "base1/bootstrap-datepicker",
+    "system/bootstrap-datepicker",
     "base1/bootstrap-combobox",
     "base1/patterns",
 ], function($, cockpit, Mustache, domain, performance, controls, shell, server, service) {

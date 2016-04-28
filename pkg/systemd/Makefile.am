@@ -16,6 +16,7 @@ systemd_DATA = \
 systemddebugdir = $(debugdir)$(systemddir)
 systemddebug_DATA = \
 	pkg/systemd/bootstrap-datepicker.js \
+	pkg/systemd/bootstrap-combobox.js \
 	pkg/systemd/host.css \
 	pkg/systemd/host.js \
 	pkg/systemd/index.html \
@@ -38,6 +39,7 @@ systemddebug_DATA = \
 
 systemd_MIN = \
 	pkg/systemd/bootstrap-datepicker.min.js \
+	pkg/systemd/bootstrap-combobox.min.js \
 	pkg/systemd/host.min.js \
 	pkg/systemd/init.min.js \
 	pkg/systemd/server.min.js \
@@ -65,6 +67,7 @@ TESTS += $(systemd_TESTS)
 
 CLEANFILES += \
 	pkg/systemd/bootstrap-datepicker.min.js \
+	pkg/systemd/bootstrap-combobox.min.js \
 	pkg/systemd/bundle.min.js \
 	pkg/systemd/host.min.css \
 	pkg/systemd/index.min.html \
@@ -77,6 +80,7 @@ CLEANFILES += \
 	$(NULL)
 
 EXTRA_DIST += \
+	pkg/systemd/bootstrap-combobox.min.js \
 	pkg/systemd/bootstrap-datepicker.min.js \
 	pkg/systemd/bundle.min.js \
 	pkg/systemd/host.min.css \
@@ -92,3 +96,5 @@ EXTRA_DIST += \
 update-lib:: update-bower
 	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/systemd/bootstrap-datepicker.js \
 	    $(BOWER)/bootstrap-datepicker/dist/js/bootstrap-datepicker.js
+	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/systemd/bootstrap-combobox.js \
+	    $(BOWER)/bootstrap-combobox/js/bootstrap-combobox.js

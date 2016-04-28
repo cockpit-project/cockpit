@@ -187,7 +187,6 @@ update-lib:: update-bower
 	    $(BOWER)/jquery-flot/jquery.flot.js \
 	    $(BOWER)/jquery-flot/jquery.flot.selection.js \
 	    $(BOWER)/jquery-flot/jquery.flot.time.js \
-	    $(BOWER)/jquery-amend/jquery-amend.js \
 	    $(NULL)
 	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-datepicker.js \
 	    $(BOWER)/bootstrap-datepicker/dist/js/bootstrap-datepicker.js

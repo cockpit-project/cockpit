@@ -19,7 +19,8 @@
 
 define([
     "react",
-], function(React) {
+    "base1/cockpit-components-listing",
+], function(React, cockpitListing) {
 
 "use strict";
 
@@ -171,94 +172,6 @@ var SELinuxEventLog = React.createClass({
     }
 });
 
-/* entry for an alert in the listing, can be expanded (with details) or standard */
-var SELinuxEvent = React.createClass({
-    tab_renderers: [
-        { name: "Solutions",
-          renderer: SELinuxEventDetails,
-        },
-        { name: "Audit log",
-          renderer: SELinuxEventLog,
-        },
-    ],
-    getInitialState: function() {
-        return {
-            expanded: false, // show extended info, one line summary if false
-            active_tab: 0, // currently active tab in expanded mode, defaults to first tab
-        };
-    },
-    handleClick: function() {
-        this.setState( {expanded: !this.state.expanded });
-    },
-    handleDismissClick: function(e) {
-        e.stopPropagation();
-    },
-    handleTabClick: function(tab_idx, e) {
-        this.setState( {active_tab: tab_idx } );
-        e.stopPropagation();
-        e.preventDefault();
-    },
-    render: function() {
-        var self = this;
-        var count_display = null;
-        if (this.props.count > 1)
-            count_display = <span className="badge">{ this.props.count }</span>;
-        if (this.state.expanded) {
-            var links = this.tab_renderers.map(function(itm, idx) {
-                return (
-                    <li key={ idx } className={ (idx === self.state.active_tab) ? "active" : ""} >
-                        <a href="#" onClick={ self.handleTabClick.bind(self, idx) }>{ itm.name }</a>
-                    </li>
-                );
-            });
-            var active_renderer = this.tab_renderers[this.state.active_tab].renderer;
-            return (
-                <tbody className="open">
-                    <tr className="listing-item cockpit-nonavigate" onClick={ this.handleClick }>
-                        <td className="listing-toggle">
-                            <i className="fa fa-fw"></i>
-                        </td>
-                        <th>{ this.props.description }</th>
-                        <td>{ count_display }</td>
-                    </tr>
-                    <tr className="listing-panel">
-                        <td colSpan="3">
-                            <div className="listing-head">
-                                <div className="listing-actions">
-                                     <button title="Dismiss"
-                                            className="pficon pficon-delete btn btn-danger"
-                                            disabled
-                                            onClick={ this.handleDismissClick }>
-                                    </button>
-                                </div>
-                                <ul className="nav nav-tabs nav-tabs-pf">
-                                    { links }
-                                </ul>
-                            </div>
-                            <div className="listing-body">
-                                { React.createElement(active_renderer, this.props) }
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            );
-        } else {
-            return (
-                <tbody>
-                    <tr className="listing-item cockpit-nonavigate" onClick={ this.handleClick }>
-                        <td className="listing-toggle">
-                            <i className="fa fa-fw"></i>
-                        </td>
-                        <th>{ this.props.description }</th>
-                        <td>{ count_display }</td>
-                    </tr>
-                    <tr className="listing-panel"/>
-                </tbody>
-            );
-        }
-    }
-});
-
 /* Implements a subset of the PatternFly Empty State pattern
  * https://www.patternfly.org/patterns/empty-state/
  * Special values for icon property:
@@ -331,20 +244,40 @@ var SETroubleshootPage = React.createClass({
             }
             var entries = this.props.entries.map(function(itm) {
                 itm.run_fix = self.props.run_fix;
-                return <SELinuxEvent { ...itm } />;
+                var dismiss_action = (
+                    <button
+                        title="Dismiss"
+                        className="pficon pficon-delete btn btn-danger"
+                        disabled />
+                );
+                var tabRenderers = [
+                    {
+                        name: 'Solutions',
+                        renderer: SELinuxEventDetails,
+                        data: itm,
+                    },
+                    {
+                        name: 'Audit log',
+                        renderer: SELinuxEventLog,
+                        data: itm,
+                    },
+                ];
+                var columns = [ { name: itm.description, 'header': true } ];
+                if (itm.count > 1)
+                    columns.push(<span className="badge">{itm.count}</span>);
+                return (
+                    <cockpitListing.ListingRow
+                        columns={columns}
+                        tabRenderers={tabRenderers}
+                        listingActions={ [ dismiss_action ] } />
+                );
             });
+
             return (
                 <div className="container-fluid setroubleshoot-page">
-                    <table className="listing setroubleshoot-listing">
-                        <thead>
-                            <tr>
-                                <td colSpan="2">
-                                    <h3>SELinux Access Control errors</h3>
-                                </td>
-                            </tr>
-                        </thead>
+                    <cockpitListing.Listing title="SELinux Access Control errors">
                         {entries}
-                    </table>
+                    </cockpitListing.Listing>
                 </div>
             );
         }

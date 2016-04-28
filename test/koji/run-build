@@ -54,7 +54,7 @@ def main():
 
         # Do a build
         subprocess.check_call(["../../../tools/make-srpm", dist])
-        cmd = ["koji", "build", "--scratch", system, glob.glob("*.src.rpm")[0]]
+        cmd = ["koji", "build", "--wait", "--scratch", system, glob.glob("*.src.rpm")[0]]
         subprocess.check_call(cmd)
     finally:
         shutil.rmtree(directory)

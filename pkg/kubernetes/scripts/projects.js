@@ -325,8 +325,8 @@
 
             var sharedVerb = "get";
             var sharedResource = "imagestreams/layers";
-            var sharedRole = "system:image-puller";
-            var sharedKind = "SystemGroup";
+            var sharedRole = "registry-viewer";
+            var sharedKind = "Group";
             var sharedSubject = "system:authenticated";
 
             function shareImages(project, shared) {
@@ -787,8 +787,8 @@
             $scope.fields = fields;
             $scope.labels = {
                 access: {
-                    "private": "Only allow members to pull images",
-                    "shared": "Allow non-members to pull images",
+                    "private": "Allow only specific users or groups to pull images",
+                    "shared": "Allow any authenticated user to pull images",
                 }
             };
 

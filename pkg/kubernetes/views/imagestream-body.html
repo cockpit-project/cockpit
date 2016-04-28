@@ -3,13 +3,13 @@
     <dd>
       <div ng-if="sharedImages(stream.metadata.namespace)" >
         <a translatable="yes" ng-href="#/projects/{{ stream.metadata.namespace }}">
-          Images shared with authenticated non-members
+          Images may be pulled by any authenticated user or group
         </a>
         <i title="Images shared with non-members" class="fa fa-unlock imagestream-lock"></i>
       </div>
       <div ng-if="!sharedImages(stream.metadata.namespace)">
         <a translatable="yes" ng-href="#/projects/{{ stream.metadata.namespace }}">
-          Images only accessible to members
+          Images may only be pulled by specific users or groups
         </a>
         <i title="Images only accessible to members" class="fa fa-lock imagestream-lock"></i>
       </div>

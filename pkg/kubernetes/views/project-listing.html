@@ -49,14 +49,19 @@
             <th translatable="yes">Members</th>
         </tr>
     </thead>
-    <tbody ng-repeat="item in groups()" class="active">
-        <tr class="listing-item">
-            <td class="listing-toggle"></td>
-            <td>{{ item.metadata.name }}</td>
+    <tbody ng-repeat="item in groups() track by item.metadata.name"  ng-init="gid = item.metadata.name"  class="active"
+        data-id="{{ gid }}" class="active" ng-class="{ open: listing.expanded('/groups/' + gid) }">
+        <tr ng-click="listing.activate('/groups/' + gid)" class="listing-item">
+            <td ng-click="listing.toggle('/groups/' + gid, $event)"
+                class="listing-toggle">
+                <i class="fa fa-fw"></i>
+            </td>
+	    <td>{{ item.metadata.name }}</td>
             <td></td>
             <td>{{ formatMembers(item.users, 'Users') }}</td>
         </tr>
-        <tr class="listing-panel" ng-if="selected(id)"></tr>
+        <tr class="listing-panel" ng-if="listing.expanded('/groups/' + gid)" ng-init="id = gid">
+            <td group-panel colspan="4"></td></tr>
     </tbody>
     <thead>
         <tr>

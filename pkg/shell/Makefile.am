@@ -66,6 +66,7 @@ shell_MINIFIED = \
 	$(NULL)
 
 shell_BUNDLE = \
+	pkg/shell/bundle.js \
 	$(shell_MINIFIED) \
 	$(shell_SCRIPTS) \
 	$(shell_TEMPLATES) \

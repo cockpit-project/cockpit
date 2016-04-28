@@ -29,7 +29,6 @@ basedebug_DATA = \
 	pkg/base1/angular.js \
 	pkg/base1/angular-csp.css \
 	pkg/base1/angular-patternfly.css \
-	pkg/base1/bootstrap-combobox.js \
 	pkg/base1/bundle.js \
 	pkg/base1/cockpit.css \
 	pkg/base1/d3.js \
@@ -52,7 +51,6 @@ base_BUNDLE = \
 	pkg/base1/require.min.js \
 	pkg/base1/cockpit.min.js \
 	pkg/base1/jquery.min.js \
-	pkg/base1/bootstrap-combobox.min.js \
 	pkg/base1/mustache.min.js \
 	pkg/base1/patterns.min.js \
 	$(NULL)
@@ -127,7 +125,6 @@ TESTS += $(base_TESTS)
 
 CLEANFILES += \
 	pkg/base1/angular.min.js \
-	pkg/base1/bootstrap-combobox.min.js \
 	pkg/base1/bundle.min.js \
 	pkg/base1/cockpit.min.js \
 	pkg/base1/cockpit.min.css \
@@ -150,7 +147,6 @@ CLEANFILES += \
 
 EXTRA_DIST += \
 	pkg/base1/angular.min.js \
-	pkg/base1/bootstrap-combobox.min.js \
 	pkg/base1/bundle.min.js \
 	pkg/base1/cockpit.min.css \
 	pkg/base1/d3.min.js \
@@ -185,8 +181,6 @@ update-lib:: update-bower
 	    $(BOWER)/jquery-flot/jquery.flot.time.js \
 	    $(BOWER)/jquery-amend/jquery-amend.js \
 	    $(NULL)
-	$(JSMODULE) -m -d jquery -o $(srcdir)/pkg/base1/bootstrap-combobox.js \
-	    $(BOWER)/bootstrap-combobox/js/bootstrap-combobox.js
 	$(JSMODULE) -o $(srcdir)/pkg/base1/require.js \
 	    $(BOWER)/requirejs/require.js \
 	    $(srcdir)/pkg/base1/require-config.js \

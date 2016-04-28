@@ -31,7 +31,7 @@ define([
     "shell/cockpit-plot",
     "shell/cockpit-util",
     "system/bootstrap-datepicker",
-    "base1/bootstrap-combobox",
+    "system/bootstrap-combobox",
     "base1/patterns",
 ], function($, cockpit, Mustache, domain, performance, controls, shell, server, service) {
 "use strict";

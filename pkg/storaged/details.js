@@ -1179,7 +1179,7 @@ define([
         var entries = [ ];
 
         function append_entry (level, name, desc, button, job_object) {
-            entries.push({ LevelWidth: 30*level,
+            entries.push({ Level: level,
                            Name: name,
                            Description: desc,
                            Button: button,

@@ -179,7 +179,6 @@ update-lib:: update-bower
 	    $(BOWER)/jquery-flot/jquery.flot.js \
 	    $(BOWER)/jquery-flot/jquery.flot.selection.js \
 	    $(BOWER)/jquery-flot/jquery.flot.time.js \
-	    $(BOWER)/jquery-amend/jquery-amend.js \
 	    $(NULL)
 	$(JSMODULE) -o $(srcdir)/pkg/base1/require.js \
 	    $(BOWER)/requirejs/require.js \

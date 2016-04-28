@@ -24,7 +24,7 @@ define([
 
 /* entry for an alert in the listing, can be expanded (with details) or standard
  * columns list of columns to show in the header
- *     columns to show, can be a string or object with { name: 'name', 'header': false }
+ *     columns to show, can be a string, react component or object with { name: 'name', 'header': false }
  *     'header' (or if simple string) defaults to false
  *     in case 'header' is true, <th> is used for the entries, otherwise <td>
  * tabRenderers optional: list of tab renderers for inline expansion, array of objects with
@@ -128,7 +128,7 @@ var ListingRow = React.createClass({
         var count_display = null;
 
         var header_entries = this.props.columns.map(function(itm) {
-            if (typeof itm === 'string' || itm instanceof String)
+            if (typeof itm === 'string' || itm instanceof String || React.isValidElement(itm))
                 return (<td>{itm}</td>);
             else if ('header' in itm && itm.header)
                 return (<th>{itm.name}</th>);

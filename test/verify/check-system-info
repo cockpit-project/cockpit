@@ -23,6 +23,7 @@ from testlib import *
 import time
 import unittest
 import os
+import subprocess
 
 os_release = """
 NAME="Foobar Adventure Linux Server"
@@ -31,6 +32,19 @@ ID="foobar"
 VERSION_ID="2.0"
 PRETTY_NAME="Foobar Adventure Linux Server 2.0 (Day of Doom)"
 """
+
+def ssh_reconnect(machine, timeout_sec=120):
+    start_time = time.time()
+    error = None
+    while (time.time() - start_time) < timeout_sec:
+        try:
+            machine.execute("true", quiet=True)
+            return
+        except Exception, e:
+            error = e
+        time.sleep(0.5)
+
+    raise error
 
 class TestSystemInfo(MachineCase):
 
@@ -61,6 +75,72 @@ class TestSystemInfo(MachineCase):
         mid = m.execute("cat /etc/machine-id")
         b.wait_present('#system_machine_id')
         b.wait_text('#system_machine_id', mid)
+
+        # Generate a new rsa key and change the config
+        m.execute("ssh-keygen -f /etc/ssh/weirdname -t rsa -N ''")
+        m.execute("chmod 600 /etc/ssh/weirdname")
+        m.execute("restorecon /etc/ssh/weirdname || true")
+
+        supports_alt = False
+        try:
+            m.execute("ssh-keygen -l -f /etc/ssh/weirdname -E md5")
+            supports_alt = True
+        except subprocess.CalledProcessError:
+            pass
+
+        if supports_alt:
+            new_default = m.execute("ssh-keygen -l -f /etc/ssh/weirdname -E md5 | cut -d' ' -f2")
+            new_alt = m.execute("ssh-keygen -l -f /etc/ssh/weirdname -E sha256 | cut -d' ' -f2")
+            old_default = m.execute("ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key -E md5 | cut -d' ' -f2")
+            old_alt = m.execute("ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key -E sha256 | cut -d' ' -f2")
+        else:
+            new_default = m.execute("ssh-keygen -l -f /etc/ssh/weirdname | cut -d' ' -f2")
+            new_alt = None
+            old_default = m.execute("ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key | cut -d' ' -f2")
+            old_alt = None
+
+        b.wait_present("#system-ssh-keys-link")
+        b.click("#system-ssh-keys-link")
+        b.wait_popup("system_information_ssh_keys")
+        b.wait_present("#system_information_ssh_keys .spinner")
+        b.wait_not_visible("#system_information_ssh_keys .spinner")
+        b.wait_visible("#system_information_ssh_keys .content")
+        b.wait_present("#system_information_ssh_keys .list-group")
+        b.wait_in_text("#system_information_ssh_keys .list-group", "ED25519")
+        b.wait_in_text("#system_information_ssh_keys .list-group", "RSA")
+        b.wait_in_text("#system_information_ssh_keys .list-group", "ECDSA")
+        b.wait_not_in_text("#system_information_ssh_keys .list-group", new_default)
+        b.wait_in_text("#system_information_ssh_keys .list-group", old_default)
+        if supports_alt:
+            b.wait_not_in_text("#system_information_ssh_keys .list-group", new_alt)
+            b.wait_in_text("#system_information_ssh_keys .list-group", old_alt)
+
+        b.click("#system_information_ssh_keys button")
+        b.wait_popdown("system_information_ssh_keys")
+
+        # Change ssh config and restart
+        m.execute("sed -i 's,.*HostKey *,#,' /etc/ssh/sshd_config")
+        m.execute("echo '' >> /etc/ssh/sshd_config")
+        m.execute("echo 'HostKey /etc/ssh/weirdname' >> /etc/ssh/sshd_config")
+
+        # Restart sshd but stop socket so we can make sure we are restarted
+        m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
+        ssh_reconnect(m)
+
+        b.click("#system-ssh-keys-link")
+        b.wait_popup("system_information_ssh_keys")
+        b.wait_present("#system_information_ssh_keys .spinner")
+        b.wait_not_visible("#system_information_ssh_keys .spinner")
+        b.wait_visible("#system_information_ssh_keys .content")
+        b.wait_present("#system_information_ssh_keys .list-group")
+        b.wait_not_in_text("#system_information_ssh_keys .list-group", "ED25519")
+        b.wait_in_text("#system_information_ssh_keys .list-group", "RSA")
+        b.wait_not_in_text("#system_information_ssh_keys .list-group", "ECDSA")
+        b.wait_in_text("#system_information_ssh_keys .list-group", new_default)
+        b.wait_not_in_text("#system_information_ssh_keys .list-group", old_default)
+        if supports_alt:
+            b.wait_not_in_text("#system_information_ssh_keys .list-group", old_alt)
+            b.wait_in_text("#system_information_ssh_keys .list-group", new_alt)
 
         b.wait_text('#system_information_os_text',
                     "Foobar Adventure Linux Server 2.0 (Day of Doom)")

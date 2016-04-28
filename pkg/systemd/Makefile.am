@@ -12,6 +12,10 @@ systemd_DATA = \
 	pkg/systemd/manifest.json \
 	$(NULL)
 
+systemd_SCRIPTS = \
+	pkg/systemd/ssh-list-host-keys.sh \
+	$(NULL)
+
 systemddebugdir = $(debugdir)$(systemddir)
 systemddebug_DATA = \
 	pkg/systemd/react.js \
@@ -45,6 +49,7 @@ systemddebug_DATA = \
 	pkg/systemd/journal_day_header.mustache \
 	pkg/systemd/journal_line.mustache \
 	pkg/systemd/journal_reboot.mustache \
+	$(systemd_SCRIPTS) \
 	$(NULL)
 
 systemd_MIN = \
@@ -71,6 +76,7 @@ systemd_BUNDLE = \
 	pkg/systemd/journal_day_header.mustache \
 	pkg/systemd/journal_line.mustache \
 	pkg/systemd/journal_reboot.mustache \
+	$(systemd_SCRIPTS) \
 	$(systemd_MIN) \
 	$(NULL)
 

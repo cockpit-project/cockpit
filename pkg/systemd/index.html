@@ -15,6 +15,24 @@
 </head>
 <body hidden>
 
+    <script id="ssh-host-keys-tmpl" type="x-template/mustache">
+        <div class="list-group dialog-list-ct">
+            {{#keys}}
+                <div class="list-group-item">
+                    <p>{{ title }}</p>
+                    {{#fps}}
+                    <small>{{.}}</small>
+                    {{/fps}}
+                </div>
+            {{/keys}}
+            {{^keys}}
+                <div class="list-group-item">
+                    <p translatable="yes">No host keys found.</p>
+                </div>
+            {{/keys}}
+        </div>
+    </script>
+
     <script id="ntp-status-icon-tmpl" type="x-template/mustache">
       {{#Synched}}
       <span class="fa fa-lg fa-info-circle"></span>
@@ -69,9 +87,14 @@
                     <td translatable="yes">Machine ID</td>
                     <td id="system_machine_id"></td>
                 </tr>
-                <tr>
+                <tr id="system_information_os">
                     <td translatable="yes">Operating System</td>
                     <td id="system_information_os_text"></td>
+                </tr>
+                <tr id="system-ssh-keys">
+                    <td translatable="yes">Host Key</td>
+                    <td><a id="system-ssh-keys-link" translatable="yes" data-toggle="modal"
+                           data-target="#system_information_ssh_keys">Show Keys</a></td>
                 </tr>
                 <tr id="system-ostree-version" class="hidden">
                     <td translatable="yes">Version</td>
@@ -248,6 +271,28 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="system_information_ssh_keys" tabindex="-1"
+        role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" translatable="yes">Host Keys</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="spinner spinner-lg"></div>
+                    <div class="alert alert-danger" hidden>
+                      <span class="pficon pficon-error-circle-o"></span>
+                      <strong></strong>
+                    </div>
+                    <div class="content" hidden></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>

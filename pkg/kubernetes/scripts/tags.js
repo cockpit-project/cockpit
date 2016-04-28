@@ -73,10 +73,12 @@
         });
         var tags = [ ];
         angular.forEach(names, function(name) {
-            if (name in already)
+            if (name in already) {
+                already[name].importPolicy = { "insecure": insecure };
                 tags.push(already[name]);
+            }
             else
-                tags.push({ name: name, importPolicy: { insecure: insecure } });
+                tags.push({ name: name });
         });
         spec.tags = tags;
         return spec;

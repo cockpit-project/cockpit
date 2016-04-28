@@ -1,5 +1,12 @@
 <p ng-if="sharedImages(project()) == true">
-    <span translatable="yes">This project allows authenticated non-members to pull images.</span>
+    <span translatable="yes">
+        <a ng-click="modifyProject(project())">Project access policy</a> allows all authenticated users to pull images. Grant additional access to specific members below.
+    </span>
+</p>
+<p ng-if="sharedImages(project()) == false">
+    <span translatable="yes">
+        <a ng-click="modifyProject(project())">Project access policy</a> only allows specific members to access images. Grant access to specific members below.
+    </span>
 </p>
 
 <table listing-table class="listing project-body">

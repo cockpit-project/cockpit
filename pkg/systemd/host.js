@@ -26,11 +26,12 @@ define([
     "system/server",
     "./service",
     "./plot",
+    "data!./ssh-list-host-keys.sh",
     "system/bootstrap-datepicker",
     "system/bootstrap-combobox",
     "./patterns",
     "./flot",
-], function($, cockpit, Mustache, domain, performance, server, service, plot) {
+], function($, cockpit, Mustache, domain, performance, server, service, plot, host_keys_script) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -253,6 +254,13 @@ PageServer.prototype = {
 
         self.ntp_status_icon_tmpl = $("#ntp-status-icon-tmpl").html();
         Mustache.parse(this.ntp_status_icon_tmpl);
+
+        self.ssh_host_keys_tmpl = $("#ssh-host-keys-tmpl").html();
+        Mustache.parse(this.ssh_host_keys_tmpl);
+
+        $("#system_information_ssh_keys").on("show.bs.modal", function() {
+            self.host_keys_show();
+        });
 
         function update_ntp_status() {
             var $elt = $('#system_information_systime_ntp_status');
@@ -603,6 +611,68 @@ PageServer.prototype = {
             self.ostree_client.close();
             self.ostree_client = null;
         }
+    },
+
+    host_keys_show: function() {
+        var self = this;
+        var parenthesis = /^\((.*)\)$/;
+        var spinner = $("#system_information_ssh_keys .spinner");
+        var content = $("#system_information_ssh_keys .content");
+        var error = $("#system_information_ssh_keys .alert");
+
+        content.toggle(false);
+        error.toggle(false);
+        spinner.toggle(true);
+
+        cockpit.script(host_keys_script, [],{ "superuser": "try",
+                                              "err": "message" })
+            .done(function(data) {
+                var seen = {};
+                var arr = [];
+                var keys = {};
+
+                var i, tmp, m;
+                var full = data.trim().split("\n");
+                for (i = 0; i < full.length; i++) {
+                    var line = full[i];
+                    if (!line)
+                        continue;
+
+                    var parts = line.trim().split(" ");
+                    var title, fp = parts[1];
+                    if (!seen[fp]) {
+                        seen[fp] = fp;
+                        title = parts[parts.length - 1];
+                        if (title) {
+                            m = title.match(parenthesis);
+                            if (m && m[1])
+                                title = m[1];
+                        }
+                        if (!keys[title])
+                            keys[title] = [];
+                        keys[title].push(fp);
+                    }
+                }
+
+                arr = Object.keys(keys);
+                arr.sort();
+                arr = arr.map(function (k) {
+                    return { title: k, fps: keys[k] };
+                });
+
+                tmp = Mustache.render(self.ssh_host_keys_tmpl, { keys: arr });
+                content.html(tmp);
+                spinner.toggle(false);
+                error.toggle(false);
+                content.toggle(true);
+            })
+            .fail(function(ex) {
+                var msg = cockpit.format(_("failed to list ssh host keys: $0"), ex.message);
+                content.toggle(false);
+                spinner.toggle(false);
+                $("#system_information_ssh_keys .alert strong").text(msg);
+                error.toggle(true);
+            });
     },
 
     sysroot_changed: function() {

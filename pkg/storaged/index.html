@@ -72,7 +72,7 @@
       <table class="table table-hover">
         {{#MDRaids}}
         <tr data-goto-mdraid={{UUID}}>
-          <td style="width: 48px">
+          <td class="storage-icon">
             <div><img  src="images/storage-array.png"></div>
           </td>
           <td class="row">
@@ -80,9 +80,8 @@
             <br>
             <span class="col-md-12 col-lg-5 storage-disk-size">{{Size}}</span>
           </td>
-          <td style="width: 48px">
-            <div class="spinner spinner-sm" data-job-object="{{path}}"
-                 style="visibility:hidden;margin-top:5px"></div>
+          <td class="storage-icon">
+            <div class="spinner spinner-sm" data-job-object="{{path}}"></div>
           </td>
         </tr>
         {{/MDRaids}}
@@ -106,7 +105,7 @@
       <table class="table table-hover">
         {{#VGroups}}
         <tr data-goto-vgroup={{Name}}>
-          <td style="width: 48px">
+          <td class="storage-icon">
             <div><img  src="images/storage-array.png"></div>
           </td>
           <td class="row">
@@ -114,9 +113,8 @@
             <br>
             <span class="col-md-12 col-lg-5 storage-disk-size">{{Size}}</span>
           </td>
-          <td style="width: 48px">
-            <div class="spinner spinner-sm" data-job-object="{{path}}"
-                 style="visibility:hidden;margin-top:5px"></div>
+          <td class="storage-icon">
+            <div class="spinner spinner-sm" data-job-object="{{path}}"></div>
           </td>
         </tr>
         {{/VGroups}}
@@ -144,7 +142,7 @@
       <table class="table">
         {{#Sessions}}
         <tr>
-          <td style="width: 48px">
+          <td class="storage-icon">
             <div><img  src="images/storage-array.png"></div>
           </td>
           <td class="row">
@@ -152,7 +150,7 @@
             <br>
             <span class="col-md-12 col-lg-5" translatable="yes">{{Address}}:{{Port}}</span>
           </td>
-          <td style="width: 48px">
+          <td class="storage-icon">
             <button class="btn btn-danger pficon pficon-delete btn-delete needs-arming"
                     data-iscsi-session-remove="{{path}}">
           </td>
@@ -175,7 +173,7 @@
       <table class="table table-hover">
         {{#Drives}}
         <tr data-goto-block={{dev}} {{#Highlight}}class="highlight"{{/Highlight}}>
-          <td style="width: 48px">
+          <td class="storage-icon">
             <div><img  src="images/storage-disk.png"></div>
           </td>
           <td class="row">
@@ -184,13 +182,12 @@
             <span class="col-md-12 col-lg-5 storage-disk-size">{{Description}}</span>
             <span class="col-md-12 col-lg-7">
               <span>R: {{ReadRate}}</span>
-              <span style="display:inline-block;width:1em"></span>
+              <span class="rate-gap"></span>
               <span>W: {{WriteRate}}</span>
             </span>
           </td>
-          <td style="width: 48px">
-            <div class="spinner spinner-sm" data-job-object="{{path}}"
-                 style="visibility:hidden;margin-top:5px"></div>
+          <td class="storage-icon">
+            <div class="spinner spinner-sm" data-job-object="{{path}}"></div>
           </td>
         </tr>
         {{/Drives}}
@@ -211,9 +208,8 @@
       <table class="table table-hover">
         {{#Others}}
         <tr data-goto-block={{dev}}>
-          <td style="width: 48px">
-            <div class="spinner spinner-sm" data-job-object="{{path}}"
-                 style="visibility:hidden;margin-top:5px"></div>
+          <td class="storage-icon">
+            <div class="spinner spinner-sm" data-job-object="{{path}}"></div>
           </td>
           <td class="row">
             <span class="col-md-12 storage-disk-name">{{Name}}</span>
@@ -254,13 +250,13 @@
               {{/MountPoints}}
             </td>
             <td>
-              <div class="progress" style="width:100%">
+              <div class="progress">
                 <div class="progress-bar {{#UsageCritical}}progress-bar-danger{{/UsageCritical}}"
-                     style="width:{{UsagePercent}}%">
+                     data-width="{{UsagePercent}}%">
                 </div>
               </div>
             </td>
-            <td style="text-align:right">
+            <td class="usage-text">
               {{UsageText}}
             </td>
             {{/IsMounted}}
@@ -270,7 +266,7 @@
             </td>
             <td>
             </td>
-            <td style="text-align:right">
+            <td class="usage-text">
               {{DeviceSize}}
             </td>
             {{/IsMounted}}
@@ -290,10 +286,10 @@
       <table class="table">
         {{#Jobs}}
         <tr>
-          <td style="width:50%">{{Description}}</td>
-          <td style="width:15%;text-align:right">{{#Progress}}{{.}}{{/Progress}}</td>
-          <td style="width:15%;text-align:right">{{#RemainingTime}}{{.}}{{/RemainingTime}}</td>
-          <td style="text-align:right">
+          <td class="job-description">{{Description}}</td>
+          <td class="job-status">{{#Progress}}{{.}}{{/Progress}}</td>
+          <td class="job-status">{{#RemainingTime}}{{.}}{{/RemainingTime}}</td>
+          <td class="job-action">
             {{#Cancelable}}<button translatable="yes" class="btn btn-default" data-action="job_cancel" data-arg="{{path}}">Cancel</button>{{/Cancelable}}
           </td>
         </tr>
@@ -306,10 +302,10 @@
   <div id="storage" hidden>
     <div class="col-md-8 col-lg-9 page">
       <div id="storage-graph-toolbar" class="zoom-controls standard-zoom-controls">
-        <div class="dropdown" style="display:inline-block">
+        <div class="dropdown">
           <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-            <span style="width:6em;text-align:left;padding-left:5px;display:inline-block"></span>
-            <span class="caret"></span>
+            <span></span>
+            <div class="caret"></div>
           </button>
           <ul class="dropdown-menu" role="menu">
             <li role="presentation"><a role="menuitem" tabindex="-1" data-action="goto-now" translatable="yes">Go to now</a></li>
@@ -334,13 +330,13 @@
           <div>
             <span class="plot-unit" id="storage-reading-unit"></span><span class="plot-title" translatable="yes">Reading</span>
           </div>
-          <div style="height:120px" id="storage-reading-graph" class="zoomable-plot"></div>
+          <div id="storage-reading-graph" class="zoomable-plot"></div>
         </div>
         <div class="col-sm-6 storage-writing-graph-container">
           <div>
             <span class="plot-unit" id="storage-writing-unit"></span><span class="plot-title" translatable="yes">Writing</span>
           </div>
-          <div style="height:120px" id="storage-writing-graph" class="zoomable-plot"></div>
+          <div id="storage-writing-graph" class="zoomable-plot"></div>
         </div>
       </div>
       <br/>
@@ -370,9 +366,7 @@
       <button class="btn btn-default dropdown-toggle storage-privileged" data-toggle="dropdown">
         <span class="caret"></span>
       </button>
-      <ul class="dropdown-menu"
-          style="right:0px;left:auto;min-width:0;text-align:left"
-          role="menu">
+      <ul class="dropdown-menu action-dropdown-menu" role="menu">
         {{#actions}}
         <li class="presentation {{#disabled}}disabled{{/disabled}}">
           <a class=" storage-privileged" data-action="{{action}}" data-arg="{{arg}}" role="menuitem">{{title}}</a>
@@ -393,17 +387,16 @@
       </div>
       <ul class="list-group">
         {{#Entries}}
-        <li class="list-group-item">
-          <table style="width:100%">
+        <li class="list-group-item content-item">
+          <table>
             <tr>
-              <td width="50%" style="padding-left:{{LevelWidth}}px">
+              <td width="50%" class="content-level-{{Level}}">
                 {{{Description}}}
               </td>
-              <td style="text-align:left">{{Name}}</td>
-              <td style="text-align:right">
-                <div style="display:inline-block;margin-right:5px;vertical-align:middle">
-                  <div class="spinner spinner-sm" data-job-object="{{job_object}}"
-                       style="visibility:hidden"></div>
+              <td class="content-name">{{Name}}</td>
+              <td class="content-action">
+                <div>
+                  <div class="spinner spinner-sm" data-job-object="{{job_object}}"></div>
                 </div>
                 {{{Button}}}
               </td>
@@ -546,7 +539,7 @@
     <div class="panel panel-default">
       <div class="panel-heading">
         <span translatable="yes">RAID Device</span>
-        <span style="float:right">{{{MDRaidButton}}}</span>
+        <span class="pull-right">{{{MDRaidButton}}}</span>
       </div>
       {{#MDRaid}}
       <table class="cockpit-info-table">
@@ -602,7 +595,7 @@
       <div class="panel-heading">
         <span translatable="yes">Disks</span>
         {{#DynamicMembers}}
-        <button style="float:right" class="btn btn-default storage-privileged"
+        <button class="btn btn-default storage-privileged pull-right"
                 data-action="mdraid_add_disk" data-arg="{{MDRaid.dbus.path}}">
           Add
         </button>
@@ -611,17 +604,17 @@
       <ul class="list-group">
         {{#Members}}
         <li class="list-group-item">
-          <table style="width:100%">
+          <table class="mdraid-item">
             <tr>
-              <td style="width:20px;text-align:center">{{#Slot}}{{.}}{{/Slot}}{{^Slot}}-{{/Slot}}</td>
+              <td class="mdraid-slot">{{#Slot}}{{.}}{{/Slot}}{{^Slot}}-{{/Slot}}</td>
               <td>{{#LinkTarget}}{{{html}}}{{/LinkTarget}}</td>
-              <td style="width:100px;text-align:right">
+              <td class="mdraid-states">
                 {{#States}}
-                <div {{#Danger}}style="color:red"{{/Danger}}>{{Description}}</div>
+                <div {{#Danger}}class="state-danger"{{/Danger}}>{{Description}}</div>
                 {{/States}}
               </td>
               {{#DynamicMembers}}
-              <td style="text-align:right;width:10em">
+              <td class="mdraid-action">
                 <button translatable="yes" class="btn btn-default storage-privileged"
                         data-action="mdraid_remove_disk" data-arg="{{path}}">
                   Remove
@@ -641,7 +634,7 @@
     <div class="panel panel-default">
       <div class="panel-heading">
         <span translatable="yes">Volume Group</span>
-        <span style="float:right">{{{VGroupButton}}}</span>
+        <span class="pull-right">{{{VGroupButton}}}</span>
       </div>
       {{#VGroup}}
       <table class="cockpit-info-table">
@@ -663,7 +656,7 @@
     <div class="panel panel-default" id="pvols">
       <div class="panel-heading">
         <span translatable="yes">Physical Volumes</span>
-        <button style="float:right" class="btn btn-default storage-privileged"
+        <button class="btn btn-default storage-privileged pull-right"
                 data-action="vgroup_add_disk" data-arg="{{VGroup.dbus.path}}"
                 translatable="yes">
           Add
@@ -672,13 +665,13 @@
       <ul class="list-group">
         {{#PVols}}
         <li class="list-group-item">
-          <table style="width:100%">
+          <table class="vgroup-item">
             <tr>
               <td>
                 <div>{{#LinkTarget}}{{{html}}}{{/LinkTarget}}</div>
                 <div>{{Sizes}}</div>
               </td>
-              <td style="text-align:right">{{{Button}}}</td>
+              <td class="vgroup-action">{{{Button}}}</td>
             </tr>
           </table>
         </li>
@@ -831,7 +824,7 @@
                   <ul class="list-group available-disks-group dialog-list" data-field={{.}}>
                     {{#Options}}
                     <li class="list-group-item">
-                      <div class="checkbox" style="margin:0px">
+                      <div class="checkbox">
                         <label><input type="checkbox"><span>{{Title}}</span></label>
                       </div>
                     </li>
@@ -859,10 +852,8 @@
                 {{/SelectRow}}
                 {{#Arrow}}
                 <td colspan="2">
-                  <div data-field={{.}} class="dialog-arrow {{^Value}}collapsed{{/Value}}"
-                       style="color:black;cursor:pointer">
-                    <span class="fa {{^Value}}fa-angle-right{{/Value}}{{#Value}}fa-angle-down{{/Value}}"
-                          style="width:1em"></span>
+                  <div data-field={{.}} class="dialog-arrow {{^Value}}collapsed{{/Value}}">
+                    <span class="fa {{^Value}}fa-angle-right{{/Value}}{{#Value}}fa-angle-down{{/Value}}"></span>
                     <span>{{Title}}</span>
                   </div>
                 </td>
@@ -873,7 +864,7 @@
           </div>
           <div class="modal-footer">
             {{#Action}}
-            {{#Danger}}<div style="margin-bottom:10px">{{.}}</div>{{/Danger}}
+            {{#Danger}}<div class="modal-footer-danger">{{.}}</div>{{/Danger}}
             <div class="spinner spinner-sm pull-left" hidden></div>
             <button class="btn btn-default" translatable="yes" data-dismiss="modal">
               Cancel

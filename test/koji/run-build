@@ -41,9 +41,13 @@ def main():
     # Converts fedora-23 to f23
     system = testinfra.DEFAULT_IMAGE[0] + testinfra.DEFAULT_IMAGE.split("-")[-1]
 
+    # Don't overwrite a Makefile in autogen.sh
+    env = os.environ.copy()
+    env["NOREDIRECTMAKEFILE"] = "1"
+
     # Make a distribution
     try:
-        subprocess.check_call(["../../../autogen.sh && make dist"], shell=True)
+        subprocess.check_call(["../../../autogen.sh && make dist"], shell=True, env=env)
         with open(os.path.join(directory, "GNUmakefile"), "w") as f:
             f.write('include Makefile\nprint-DIST_ARCHIVES:\n\t@echo $(DIST_ARCHIVES)')
         dist = subprocess.check_output(["make", "-s", "print-DIST_ARCHIVES"]).strip()

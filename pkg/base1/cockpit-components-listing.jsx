@@ -213,14 +213,23 @@ var ListingRow = React.createClass({
  * https://www.patternfly.org/list-view/
  * Properties:
  * - title
+ * - fullWidth optional: set width to 100% of parent, defaults to true
  */
 var Listing = React.createClass({
     propTypes: {
         title: React.PropTypes.string.isRequired,
     },
+    getDefaultProps: function () {
+        return {
+            fullWidth: true,
+        };
+    },
     render: function() {
+        var bodyClasses = ["listing"];
+        if (this.props.fullWidth)
+            bodyClasses.push("table-listing-ct");
         return (
-            <table className="listing">
+            <table className={ bodyClasses.join(" ") }>
                 <caption className="cockpit-caption">{this.props.title}</caption>
                 <thead>
                     <tr>

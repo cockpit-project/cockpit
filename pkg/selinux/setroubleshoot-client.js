@@ -27,19 +27,19 @@ var _ = cockpit.gettext;
 
 var client = {};
 
-var bus_name = "org.fedoraproject.Setroubleshootd";
-var dbus_interface = "org.fedoraproject.SetroubleshootdIface";
-var dbus_path = "/org/fedoraproject/Setroubleshootd";
+var busName = "org.fedoraproject.Setroubleshootd";
+var dbusInterface = "org.fedoraproject.SetroubleshootdIface";
+var dbusPath = "/org/fedoraproject/Setroubleshootd";
 
-var bus_name_fixit = "org.fedoraproject.SetroubleshootFixit";
-var dbus_interface_fixit = bus_name_fixit;
-var dbus_path_fixit = "/org/fedoraproject/SetroubleshootFixit/object";
+var busNameFixit = "org.fedoraproject.SetroubleshootFixit";
+var dbusInterfaceFixit = busNameFixit;
+var dbusPathFixit = "/org/fedoraproject/SetroubleshootFixit/object";
 
 client.init = function() {
     client.connected = false;
-    client.proxy = cockpit.dbus(bus_name).proxy(dbus_interface, dbus_path);
+    client.proxy = cockpit.dbus(busName).proxy(dbusInterface, dbusPath);
 
-    client.proxy_fixit = cockpit.dbus(bus_name_fixit).proxy(dbus_interface_fixit, dbus_path_fixit);
+    client.proxyFixit = cockpit.dbus(busNameFixit).proxy(dbusInterfaceFixit, dbusPathFixit);
 
     var dfd = $.Deferred();
 
@@ -55,29 +55,29 @@ client.init = function() {
             });
     });
 
-    client.alert_callback = null;
+    client.alertCallback = null;
 
-    function handle_signal(event, name, args) {
-        if (client.alert_callback && name == "alert") {
+    function handleSignal(event, name, args) {
+        if (client.alertCallback && name == "alert") {
             var level = args[0];
-            var local_id = args[1];
-            client.alert_callback(level, local_id);
+            var localId = args[1];
+            client.alertCallback(level, localId);
         }
     }
 
     // register to receive calls whenever a new alert becomes available
-    // signature for the alert callback: (level, local_id)
-    client.handle_alert = function(callback) {
+    // signature for the alert callback: (level, localId)
+    client.handleAlert = function(callback) {
         // if we didn't listen to events before, do so now
-        if (!client.alert_callback) {
-            $(client.proxy).on("signal", handle_signal);
+        if (!client.alertCallback) {
+            $(client.proxy).on("signal", handleSignal);
         }
-        client.alert_callback = callback;
+        client.alertCallback = callback;
     };
 
     // returns a jquery promise
-    client.get_alerts = function(since) {
-        var dfd_result = $.Deferred();
+      client.getAlerts = function(since) {
+        var dfdResult = $.Deferred();
         var call;
         if (since !== undefined)
             call = client.proxy.call("get_all_alerts_since", [since]);
@@ -85,79 +85,79 @@ client.init = function() {
             call = client.proxy.call("get_all_alerts", []);
         call
             .done(function(result) {
-                dfd_result.resolve(result[0].map(function(entry) {
+                dfdResult.resolve(result[0].map(function(entry) {
                     return {
-                        local_id: entry[0],
+                        localId: entry[0],
                         summary: entry[1],
-                        report_count: entry[2],
+                        reportCount: entry[2],
                     };
                 }));
             })
             .fail(function(ex) {
-                dfd_result.reject(ex);
+                dfdResult.reject(ex);
             });
-        return dfd_result;
+        return dfdResult;
     };
 
     /* Return an alert with summary, audit events, fix suggestions (by id)
-      local_id: an alert id
+      localId: an alert id
       summary: a brief description of an alert. E.g.
                   "SELinux is preventing /usr/bin/bash from ioctl access on the unix_stream_socket unix_stream_socket."
-      report_count: count of reports of this alert
-      audit_event: an array of audit events (AVC, SYSCALL) connected to the alert
-      plugin_analysis: an array of plugin analysis structure
-          if_text
-          then_text
-          do_text
-          analysis_id: plugin id. It can be used in org.fedoraproject.SetroubleshootFixit.run_fix()
+      reportCount: count of reports of this alert
+      auditEvent: an array of audit events (AVC, SYSCALL) connected to the alert
+      pluginAnalysis: an array of plugin analysis structure
+          ifText
+          thenText
+          doText
+          analysisId: plugin id. It can be used in org.fedoraproject.SetroubleshootFixit.run_fix()
           fixable: True when an alert is fixable by a plugin
-          report_bug: True when an alert should be reported to bugzilla
+          reportBug: True when an alert should be reported to bugzilla
     */
-    client.get_alert = function(local_id) {
-        var dfd_result = $.Deferred();
-        client.proxy.call("get_alert", [local_id])
+    client.getAlert = function(localId) {
+        var dfdResult = $.Deferred();
+        client.proxy.call("get_alert", [localId])
             .done(function(result) {
                 var details = {
-                  local_id: result[0],
+                  localId: result[0],
                   summary: result[1],
-                  report_count: result[2],
-                  audit_event: result[3],
-                  plugin_analysis: result[4],
+                  reportCount: result[2],
+                  auditEvent: result[3],
+                  pluginAnalysis: result[4],
                 };
                 // cleanup analysis
-                details.plugin_analysis = details.plugin_analysis.map(function(itm) {
+                details.pluginAnalysis = details.pluginAnalysis.map(function(itm) {
                     return {
-                        if_text: itm[0],
-                        then_text: itm[1],
-                        do_text: itm[2],
-                        analysis_id: itm[3],
+                        ifText: itm[0],
+                        thenText: itm[1],
+                        doText: itm[2],
+                        analysisId: itm[3],
                         fixable: itm[4],
-                        report_bug: itm[5],
+                        reportBug: itm[5],
                     };
                 });
-                dfd_result.resolve(details);
+                dfdResult.resolve(details);
             })
             .fail(function(ex) {
-                console.warn("Unable to get alert for id " + local_id);
+                console.warn("Unable to get alert for id " + localId);
                 console.warn(ex);
-                dfd_result.reject(new Error(_("Unable to get alert") + ": " + local_id));
+                dfdResult.reject(new Error(_("Unable to get alert") + ": " + localId));
             });
-        return dfd_result.promise();
+        return dfdResult.promise();
     };
 
     /* Run a fix via SetroubleshootFixit
-       The analysis_id is given as part of plugin_analysis entries in alert details
+       The analysisId is given as part of pluginAnalysis entries in alert details
      */
-    client.run_fix = function(alert_id, analysis_id) {
-        var dfd_result = $.Deferred();
-        client.proxy_fixit.call("run_fix", [alert_id, analysis_id])
+    client.runFix = function(alertId, analysisId) {
+        var dfdResult = $.Deferred();
+        client.proxyFixit.call("run_fix", [alertId, analysisId])
             .done(function(result) {
-                dfd_result.resolve(result[0]);
+                dfdResult.resolve(result[0]);
             })
             .fail(function(ex) {
-                dfd_result.reject(new Error(_("Unable to run fix") + ": " + ex));
+                dfdResult.reject(new Error(_("Unable to run fix") + ": " + ex));
             });
-        return dfd_result.promise();
+        return dfdResult.promise();
     };
 
     // connect to dbus and start setroubleshootd

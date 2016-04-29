@@ -47,17 +47,12 @@ SELINUX_FIXABLE_ALERT_SCRIPT = """
 set -e
 mkdir -p ~/.ssh
 ssh-keygen -t rsa -f ~/.ssh/test-avc-rsa -N ""
-mv ~/.ssh/authorized_keys ~/.ssh/authorized_keys.test-avc
+mv -f ~/.ssh/authorized_keys ~/.ssh/authorized_keys.test-avc
 cat .ssh/test-avc-rsa.pub >> ~/.ssh/authorized_keys
 chcon -t tmp_t ~/.ssh/authorized_keys
 ssh -o StrictHostKeyChecking=no -o 'BatchMode=yes' -i ~/.ssh/test-avc-rsa localhost || true
 mv -f ~/.ssh/authorized_keys.test-avc ~/.ssh/authorized_keys
 """
-
-# There can be a delay between the denial and setroubleshoot message
-# this command forces a flush
-# HACK https://bugzilla.redhat.com/show_bug.cgi?id=1322771
-FLUSH_ALERTS = "setenforce 0 && setenforce 1"
 
 @unittest.skipIf("rhel" in os.environ.get("TEST_OS", ""), "DBUS API of setroubleshoot too old.")
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No setroubleshoot on debian.")
@@ -77,14 +72,11 @@ class TestSelinux(MachineCase):
         #########################################################
         # trigger an alert
         self.machine.execute(script=SELINUX_ALERT_SCRIPT)
-        self.machine.execute(command=FLUSH_ALERTS)
 
         row_selector = "tbody:contains('SELinux is preventing ls from read access on the directory')"
 
         # wait for the alert to appear
-        # HACK https://bugzilla.redhat.com/show_bug.cgi?id=1322771
-        with b.wait_timeout(120):
-            b.wait_present(row_selector)
+        b.wait_present(row_selector)
 
         # expand it to see details
         toggle_selector = row_selector + " .listing-toggle"
@@ -113,13 +105,10 @@ class TestSelinux(MachineCase):
         #########################################################
         # trigger a fixable alert
         self.machine.execute(script=SELINUX_FIXABLE_ALERT_SCRIPT)
-        self.machine.execute(command=FLUSH_ALERTS)
 
         row_selector = "tbody:contains('SELinux is preventing sshd from open access on the file')"
         # wait for the alert to appear
-        # HACK https://bugzilla.redhat.com/show_bug.cgi?id=1322771
-        with b.wait_timeout(120):
-            b.wait_present(row_selector)
+        b.wait_present(row_selector)
 
         # expand it to see details
         toggle_selector = row_selector + " .listing-toggle"

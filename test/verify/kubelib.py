@@ -19,8 +19,10 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import os
-
-from common.testlib import *
+try:
+    import testlib
+except ImportError:
+    from common import testlib
 
 base_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -30,7 +32,7 @@ __all__ = (
     'OpenshiftCommonTests',
 )
 
-class KubernetesCase(MachineCase):
+class KubernetesCase(testlib.MachineCase):
 
     def start_kubernetes(self):
         self.machine.execute("systemctl start docker || journalctl -u docker")

@@ -1119,7 +1119,7 @@
                 if (info.type == "kubectl")
                     return kubectlSocket(url, protocols);
                 else
-                    return socket(url, protocols);
+                    return socket(url, { protocols: protocols });
             };
         }
     ])

@@ -52,22 +52,23 @@ __all__ = (
     'MachineCase',
 
     'sit',
-
-    'wait'
-    )
+    'wait',
+    'opts',
+)
 
 # Command line options
-
-arg_sit_on_failure = False
-arg_trace = False
-arg_attachments = None
-arg_revision = None
-arg_address = None
+opts = argparse.Namespace()
+opts.sit = False
+opts.trace = False
+opts.attachments = None
+opts.revision = None
+opts.address = None
+opts.jobs = 1
 
 def attach(filename):
-    if not arg_attachments:
+    if not opts.attachments:
         return
-    dest = os.path.join(arg_attachments, os.path.basename(filename))
+    dest = os.path.join(opts.attachments, os.path.basename(filename))
     if os.path.exists(filename) and not os.path.exists(dest):
         shutil.move(filename, dest)
 
@@ -438,17 +439,17 @@ class MachineCase(unittest.TestCase):
     def new_machine(self, image=None):
         import testvm
         machine_class = self.machine_class
-        if arg_address:
+        if opts.address:
             if machine_class:
                 raise unittest.SkipTest("Cannot run this test when specific machine address is specified")
             if len(self.machines) != 0:
                 raise unittest.SkipTest("Cannot run multiple machines if a specific machine address is specified")
-            machine = testvm.Machine(address=arg_address, image=image, verbose=arg_trace, label=self.label())
+            machine = testvm.Machine(address=opts.address, image=image, verbose=opts.trace, label=self.label())
             self.addCleanup(lambda: machine.disconnect())
         else:
             if not machine_class:
                 machine_class = testvm.VirtMachine
-            machine = machine_class(verbose=arg_trace, image=image, label=self.label())
+            machine = machine_class(verbose=opts.trace, image=image, label=self.label())
             self.addCleanup(lambda: machine.kill())
 
         self.machines.append(machine)
@@ -473,7 +474,7 @@ class MachineCase(unittest.TestCase):
             self.failed = True
             self.snapshot("FAIL")
             self.copy_journal("FAIL")
-            if arg_sit_on_failure:
+            if opts.sit:
                 print >> sys.stderr, err
                 if self.machine:
                     print >> sys.stderr, "ADDRESS: %s" % self.machine.address
@@ -492,8 +493,8 @@ class MachineCase(unittest.TestCase):
         self.machines = [ ]
         self.machine = self.new_machine()
         self.machine.start(macaddr=macaddr, memory_mb=memory_mb, cpus=cpus)
-        if not arg_address:
-            if arg_trace:
+        if not opts.address:
+            if opts.trace:
                 print "starting machine %s" % (self.machine.address)
             self.machine.wait_boot()
         self.browser = self.new_browser()
@@ -662,7 +663,7 @@ class Phantom:
     def _invoke(self, name, *args):
         if not self._driver:
             self.start()
-        if arg_trace:
+        if opts.trace:
             print "-> {0}({1})".format(name, repr(args)[1:-2])
         line = json.dumps({
             "cmd": name,
@@ -677,11 +678,11 @@ class Phantom:
             print line.strip()
             raise
         if 'error' in res:
-            if arg_trace:
+            if opts.trace:
                 print "<- raise", res['error']
             raise Error(res['error'])
         if 'result' in res:
-            if arg_trace:
+            if opts.trace:
                 print "<-", repr(res['result'])
             return res['result']
         raise Error("unexpected: " + line.strip())
@@ -990,7 +991,7 @@ def arg_parser():
     parser.set_defaults(verbosity=1)
     return parser
 
-def test_main(opts=None, suite=None, attachments=None, **kwargs):
+def test_main(options=None, suite=None, attachments=None, **kwargs):
     """
     Run all test cases, as indicated by arguments.
 
@@ -998,33 +999,31 @@ def test_main(opts=None, suite=None, attachments=None, **kwargs):
     executed.  Otherwise only the given test cases are run.
     """
 
-    global arg_trace
-    global arg_sit_on_failure
-    global arg_attachments
-    global arg_address
+    global opts
 
     # Turn off python stdout buffering
     sys.stdout.flush()
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
 
-    standalone = opts is None
+    standalone = options is None
     parser = arg_parser()
     parser.add_argument('--machine', dest="address", action="store",
                         default=None, help="Run this test against an already running machine")
 
     if standalone:
-        opts = parser.parse_args()
+        options = parser.parse_args()
+
+    # Have to copy into opts due to python globals across modules
+    for (key, value) in vars(options).items():
+        setattr(opts, key, value);
 
     if opts.sit and opts.jobs > 1:
         parser.error("the -s or --sit argument not avalible with multiple jobs")
 
-    arg_trace = opts.trace
-    arg_sit_on_failure = opts.sit
-    arg_address = getattr(opts, "address", None)
-
-    arg_attachments = os.environ.get("TEST_ATTACHMENTS", attachments)
-    if arg_attachments and not os.path.exists(arg_attachments):
-        os.makedirs(arg_attachments)
+    opts.address = getattr(opts, "address", None)
+    opts.attachments = os.environ.get("TEST_ATTACHMENTS", attachments)
+    if opts.attachments and not os.path.exists(opts.attachments):
+        os.makedirs(opts.attachments)
 
     import __main__
     if len(opts.tests) > 0:

@@ -30,36 +30,25 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 <body>
     <script id="subscription-notification-success-template" type="x-template/mustache">
-      <div class="container-fluid alert alert-success alert-dismissible" role="alert">
-        <span class="pficon pficon-ok"></span>
-        <span class="subscriptions-emphasize" translatable="yes">
-          System successfully subscribed.
-        </span>
-        <span translatable="yes">
-          You will now receive software updates.
-        </span>
-        <button type="button" class="close" data-dismiss="alert">
-          <span class="pficon pficon-close"></span>
-        </button>
-      </div>
+        <div class="container-fluid alert alert-success alert-dismissable">
+            <span class="pficon pficon-ok"></span>
+            <strong translatable="yes">System successfully subscribed.</strong>
+            <span translatable="yes">You will now receive software updates.</span>
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
+                <span class="pficon pficon-close"></span>
+            </button>
+        </div>
     </script>
 
     <script id="subscription-notification-failure-template" type="x-template/mustache">
-      <div class="container-fluid alert alert-danger alert-dismissible" role="alert">
-        <span class="pficon-layered">
-          <span class="pficon pficon-error-octagon"></span>
-          <span class="pficon pficon-error-exclamation"></span>
-        </span>
-        <span class="subscriptions-emphasize">
-          {{message}}
-        </span>
-        <span>
-          {{message_detail}}
-        </span>
-        <button type="button" class="close" data-dismiss="alert">
-          <span class="pficon pficon-close"/>
-        </button>
-      </div>
+        <div class="container-fluid alert alert-danger alert-dismissable">
+            <span class="pficon pficon-error-circle-o"></span>
+            <strong>{{message}}</strong>
+            <span>{{message_detail}}</span>
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
+                <span class="pficon pficon-close"></span>
+            </button>
+        </div>
     </script>
 
     <div id="subscription-manager-not-found" class="container-fluid page" hidden>

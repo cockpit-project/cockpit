@@ -9,6 +9,7 @@ shared_VIEWS = \
 	pkg/kubernetes/views/image-body.html \
 	pkg/kubernetes/views/image-config.html \
 	pkg/kubernetes/views/image-delete.html \
+	pkg/kubernetes/views/image-layers.html \
 	pkg/kubernetes/views/image-meta.html \
 	pkg/kubernetes/views/image-listing.html \
 	pkg/kubernetes/views/image-page.html \

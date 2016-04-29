@@ -1,34 +1,60 @@
 image-layers {
     border: 1px solid @sidebar-pf-border-color;
-    box-sizing: border-box;
-    padding: 10px 15px;
-    margin-bottom: 15px;
+    display: block;
+    overflow-y: auto;
+    max-height: 200px;
 }
 
-.image-layers {
-    overflow: hidden;
+ul.image-layers {
+    list-style: none;
+    border-left: 2px solid #d3d3d3;
+    margin: 15px;
+    padding-left: 0px;
+    font-size: 13px;
 
-    .column {
-        fill-opacity: 0;
-        cursor: pointer;
+    li {
+        clear: both;
     }
 
-    .layer {
-        fill: #4d4d4d;
+    li:before {
+        content: "\f111"; /* circle */
+        font-family: FontAwesome;
+        font-size: 18px;
+        line-height: 18px;
+        float: left;
+        display: block;
+        color: #0099ff;
+        position: relative;
+        left: -9px;
+        padding-bottom: 9px;
     }
 
-    .selected .layer {
-        fill: @link-color;
+    li.hint-add:before {
+        color: #555753;
     }
 
-    .line {
-        stroke: @link-color;
-        stroke-width: 1px;
-        fill: transparent;
+    li.hint-run:before {
+        color: #4e9a06;
     }
 
-    .label {
+    li:first-child:before {
+        content: "\f0ab"; /* fa-circle-arrow */
+    }
+
+    li:last-child:before {
+        top: 2px;
+    }
+
+    span {
+        display: block;
+        float: right;
+    }
+
+    p {
         font-family: monospace;
-        font-weight: normal;
+        margin-bottom: 0px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-right: 15px;
     }
 }

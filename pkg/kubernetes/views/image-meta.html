@@ -1,6 +1,4 @@
 <div>
-    <image-layers layers="imageLayers(image)">
-    </image-layers>
     <dl>
         <dt ng-if="labels" translatable="yes">Labels</dt>
         <dd ng-repeat="(name, value) in labels" ng-show="name != 'description' && name != 'name'">
@@ -13,4 +11,10 @@
         <dt translatable="yes">Docker Version</dt>
         <dd>{{image.dockerImageMetadata.DockerVersion}}</dd>
     </dl>
+
+    <div ng-if="layers.length" class="image-metadata-layers">
+        <p>{{ layers.length }} <span translatable="yes">Image Layers</span></p>
+        <image-layers layers="layers">
+        </image-layers>
+    </div>
 </div>

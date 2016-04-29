@@ -332,6 +332,7 @@ class TestRegistry(MachineCase):
         b.wait_visible(".listing-ct-body image-layers")
         b.wait_in_text(".listing-ct-body image-layers", "ADD file:")
         b.wait_in_text(".listing-ct-body image-layers", "Image layers")
+        b.wait_in_text(".listing-ct-body .image-metadata-layers > p", "2 Image Layers")
 
         # Add postgres into the stream
         output = o.execute("oc get imagestream --namespace=marmalade --template='{{.spec}}' busybee")

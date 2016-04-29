@@ -356,6 +356,9 @@
              */
             select.register("taggedBy", function(tag) {
                 var i, len, results = { };
+                // catch condition when tag.items is null due to imagestream import error
+                if (!tag.items)
+                    tag.items = [];
                 for (i = 0, len = tag.items.length; i < len; i++)
                     this.name(tag.items[i].image).extend(results);
                 return select(results);

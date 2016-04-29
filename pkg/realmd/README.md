@@ -3,15 +3,17 @@ Developing the realmd component
 
 This adds functionality to Cockpit to join an AD or IPA domain.
 
-Running a test domain
----------------------
+Some features of Cockpit require a domain to test. Cockpit should work
+with either Active Directory or IPA.
 
-To contribute to this component, and run a test domain which ends
+### Running a test domain
+
+To contribute to this component, run a test domain which ends
 up being rather easy. Install the stuff in ```test/README``` near the
 top. And then do the following:
 
     $ sudo test/vm-prep
-    $ sudo test/vm-run ipa
+    $ test/vm-run ipa
 
 That runs an IPA domain. Now in another terminal do the following:
 
@@ -23,3 +25,65 @@ Make sure this works:
 
 And now you're ready to use the feature. There's an account called
 "admin" with the password "foobarfoo".
+
+To test your DNS, the following should succeed without any error messages
+on your server with cockpit:
+
+    $ host cockpit.lan
+
+Now verify that you can authenticate against the IPA server. See password
+above.
+
+    $ kinit admin@COCKPIT.LAN
+    Password for admin@COCKPIT.LAN:
+
+**BUG:** IPA sometimes fails to start up correctly on system boot. You may
+have to log into the IPA server and run `systemctl start ipa`.
+[ipa bug](https://bugzilla.redhat.com/show_bug.cgi?id=1071356)
+
+## Setting up Single Sign on
+
+Cockpit can perform single sign on authentication via Kerberos. To test and
+work on this feature, you must have a domain on your network. See section
+above if you do not.
+
+Use the following guide to configure things, with more troubleshooting advice
+below:
+
+http://files.cockpit-project.org/guide/latest/sso.html
+
+**BUG:** The host name of the computer Cockpit is running on should end with
+the domain name. If it does not, then rename the computer Cockpit is running on:
+[realmd bug](https://bugzilla.redhat.com/show_bug.cgi?id=1144343)
+
+    $ sudo hostnamectl set-hostname my-server.domain.com
+
+**BUG:** If your domain is an IPA domain, then you need to explictly add a service
+before Cockpit can be used with Single Sign on. The following must be done on
+the computer running Cockpit.
+[realmd bug](https://bugzilla.redhat.com/show_bug.cgi?id=1144292)
+
+    $ sudo -s
+    # kinit admin@COCKPIT.LAN
+    # curl -s --negotiate -u : https://f0.cockpit.lan/ipa/json \
+            --header 'Referer: https://f0.cockpit.lan/ipa' \
+            --header "Content-Type: application/json" \
+            --header "Accept: application/json" \
+            --data '{"params": [["HTTP/my-server.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false}], "method": "service_add", "id": 0}'
+    # ipa-getkeytab -q -s f0.cockpit.lan -p HTTP/my-server.cockpit.lan \
+            -k /etc/krb5.keytab
+
+Now when you go to your cockpit instance you should be able to log in without
+authenticating. Make sure to use the full hostname that you set above, the one
+that includes the domain name.
+
+If you want to use Cockpit to connect to a second server make sure that second
+server is joined to a domain, and that you can ssh into it using GSSAPI authentication
+with the domain user:
+
+    $ ssh -o PreferredAuthentications=gssapi-with-mic admin@my-server2.domain.com
+
+If you thought that was nasty and tiresome, it's because it is at present :S
+
+
+

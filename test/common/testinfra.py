@@ -179,7 +179,7 @@ def redact_audit_variables(message):
     for line_idx, line in enumerate(lines):
         if line.strip().startswith("Error: audit:"):
             m = audit_re.match(line)
-            if len(m.groups()) == 7:
+            if m and len(m.groups()) == 7:
                 fields = list(m.groups())
                 fields[1] = "[timestamp]"
                 fields[3] = "[pid]"

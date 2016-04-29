@@ -102,9 +102,7 @@ require([
         var is_updating = $('#subscriptions-updating');
 
         var subcription_notification_success = $('#subscription-notification-success-template').html();
-        var subcription_notification_failure = $('#subscription-notification-failure-template').html();
         Mustache.parse(subcription_notification_success);
-        Mustache.parse(subcription_notification_failure);
 
         /* keep track of calls to subscription-manager in progress so we don't call it concurrently
          * status_update_requested: refresh necessary after current action has finished

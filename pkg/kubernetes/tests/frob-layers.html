@@ -4,27 +4,60 @@
     <meta charset="utf-8">
     <title>Image Layers Example</title>
     <meta name="viewport" content="width=device-width">
+    <link href="../../base1/cockpit.css" rel="stylesheet" type="text/css">
+    <script src="../../base1/cockpit.js"></script>
     <script src="../../base1/angular.js"></script>
-    <script src="../../base1/d3.js"></script>
     <script src="../scripts/layers.js"></script>
     <style>
-        .image-layers {
+        image-layers {
+        }
+
+        ul.image-layers {
+            list-style: none;
+            border-left: 2px solid #d3d3d3;
+            margin: 15px;
+            padding-left: 0px;
+        }
+
+        .image-layers li {
+            clear: both;
+        }
+        .image-layers li:before {
+            content: "\f111";
+            font-family: FontAwesome;
+            font-size: 18px;
+            line-height: 18px;
+            float: left;
+            display: block;
+            color: #0099ff;
+            position: relative;
+            left: -9px;
+            padding-bottom: 9px;
+        }
+
+        .image-layers li.hint-add:before {
+            color: #555753;
+        }
+
+        .image-layers li.hint-run:before {
+            color: #4e9a06;
+        }
+
+        .image-layers li:first-child:before {
+            content: "\f0ab"
+        }
+
+        .image-layers span {
+            display: block;
+            float: right;
+        }
+        .image-layers p {
             font-family: monospace;
-        }
-        .image-layers .column {
-            fill-opacity: 0;
-            cursor: pointer;
-        }
-        .image-layers .layer {
-            fill: #4d4d4d;
-        }
-        .image-layers .selected .layer {
-            fill: #0099d3;
-        }
-        .image-layers .line {
-            stroke: #0099d3;
-            stroke-width: 1px;
-            fill: transparent;
+            margin-bottom: 0px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 15px;
         }
     </style>
 </head>

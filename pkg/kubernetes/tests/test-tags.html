@@ -70,10 +70,10 @@ function suite() {
             deepEqual(spec, {
                 "dockerImageRepository": "busybox",
                 "tags": [
-                    { "name": "2.5" },
+                    { "name": "2.5", "importPolicy": { "insecure": true } },
                     { "annotations": null, "from": { "kind": "DockerImage", "name": "busybox:latest" },
                         "generation": 2, "importPolicy": { "insecure": true }, "name": "latest" },
-                    { "name": "second" }
+                    { "name": "second", "importPolicy": { "insecure": true } }
                 ]
             }, "build spec correctly");
         }

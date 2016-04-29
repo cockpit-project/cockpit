@@ -656,7 +656,7 @@
             function hasInsecureTag(spec) {
                 // loop through tags, check importPolicy.insecure boolean
                 // if one tag is insecure the intent is the imagestream is insecure
-                var insecure = false;
+                var insecure;
                 if (spec) {
                     for (var tag in spec.tags) {
                         if (spec.tags[tag].importPolicy.insecure) {

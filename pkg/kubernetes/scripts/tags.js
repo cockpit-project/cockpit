@@ -78,7 +78,7 @@
                 tags.push(already[name]);
             }
             else
-                tags.push({ name: name });
+                tags.push({ name: name, "importPolicy": { "insecure": insecure } });
         });
         spec.tags = tags;
         return spec;

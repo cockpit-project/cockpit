@@ -56,7 +56,7 @@ def run(opts):
             suite.addTest(loader.loadTestsFromModule(module))
 
     # And now load new testlib, and run all the tests we got
-    return testlib.test_main(opts=opts, suite=suite)
+    return testlib.test_main(options=opts, suite=suite)
 
 def main():
     parser = testlib.arg_parser()

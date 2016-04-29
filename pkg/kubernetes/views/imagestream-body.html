@@ -1,3 +1,12 @@
+<div ng-repeat="statustags in stream.status.tags">
+  <div ng-repeat="condition in statustags.conditions"
+      ng-if="condition.type == 'ImportSuccess' && condition.status == 'False'"
+      class="alert alert-danger">
+    <span class="pficon pficon-error-circle-o"></span>
+    {{ condition.message }}. Timestamp: {{ condition.lastTransitionTime }} Error count: {{ condition.generation }}
+    <a translateable="yes" ng-click="modifyImageStream(stream)" class="alert-link">Edit imagestream</a>
+  </div>
+</div>
 <dl>
     <dt translatable="yes">Access Policy</dt>
     <dd>

@@ -24,7 +24,15 @@
                 class="listing-ct-toggle">
                 <i class="fa fa-fw"></i>
             </td>
-            <th colspan="4">{{ sid }}</th>
+            <th colspan="4">
+              {{ sid }}
+              <div class="listing-status" ng-repeat="statustags in stream.status.tags">
+                <span ng-repeat="condition in statustags.conditions"
+                    ng-if="condition.type == 'ImportSuccess' && condition.status == 'False'"
+                    class="pficon pficon-warning-triangle-o"></span>
+                </div>
+              </div>
+            </th>
         </tr>
         <tr class="listing-ct-panel" ng-if="listing.expanded(sid)" ng-init="id = sid">
             <td listing-panel kind="ImageStream" colspan="4"></td>

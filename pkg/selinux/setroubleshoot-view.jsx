@@ -233,7 +233,7 @@ var SETroubleshootPage = React.createClass({
                 description = _("Connecting...");
             } else {
                 icon = <i className="fa fa-exclamation-circle" />;
-                description = _("Couldn't connect to SETroubleshoot daemon");
+                description = _("Couldn't connect to SETroubleshoot daemon. Please ensure that setroubleshoot-server is installed.");
             }
 
             return (

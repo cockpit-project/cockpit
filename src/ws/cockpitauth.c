@@ -44,11 +44,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 #define ACTION_SPAWN_HEADER "spawn-login-with-header"
 #define ACTION_SPAWN_DECODE "spawn-login-with-decoded"
 #define ACTION_SSH "remote-login-ssh"
 #define ACTION_NONE "none"
+
+#define MAX_AUTH_TIMEOUT 900
+#define MIN_AUTH_TIMEOUT 1
 
 /* Timeout of authenticated session when no connections */
 guint cockpit_ws_service_idle = 15;
@@ -56,8 +60,12 @@ guint cockpit_ws_service_idle = 15;
 /* Timeout of everything when noone is connected */
 guint cockpit_ws_process_idle = 90;
 
+/* The amount of time a spawned process has to complete authentication */
+guint cockpit_ws_auth_process_timeout = 30;
+
 /* Maximum number of pending authentication requests */
 const gchar *cockpit_ws_max_startups = NULL;
+
 static guint max_startups = 10;
 
 static guint sig__idling = 0;
@@ -307,6 +315,32 @@ type_option (const gchar *type,
   return default_str;
 }
 
+static guint
+timeout_option (const gchar *type)
+{
+  guint timeout = cockpit_ws_auth_process_timeout;
+  guint64 conf_timeout;
+  const gchar* conf = type_option (type, "timeout", NULL);
+
+  if (conf)
+    {
+      conf_timeout = g_ascii_strtoull (conf, NULL, 10);
+      if (errno == ERANGE || errno == EINVAL)
+        timeout = cockpit_ws_auth_process_timeout;
+      else if (conf_timeout > MAX_AUTH_TIMEOUT || conf_timeout > UINT_MAX)
+        timeout = (MAX_AUTH_TIMEOUT > UINT_MAX) ? UINT_MAX : MAX_AUTH_TIMEOUT;
+      else if (conf_timeout < MIN_AUTH_TIMEOUT)
+        timeout = MIN_AUTH_TIMEOUT;
+      else
+        timeout = (guint)conf_timeout;
+
+      if (conf_timeout != timeout)
+        g_message ("Invalid %s timeout value '%s', setting to %u", type, conf, timeout);
+    }
+
+  return timeout;
+}
+
 /* ------------------------------------------------------------------------
  *  Login by spawning a new command
  */
@@ -321,6 +355,7 @@ typedef struct {
   gchar *auth_type;
   gchar *application;
   const gchar *command;
+  guint timeout;
 } SpawnLoginData;
 
 static void
@@ -337,10 +372,31 @@ spawn_login_data_free (gpointer data)
     g_object_unref (sl->auth_pipe);
   if (sl->authorization)
     g_bytes_unref (sl->authorization);
+
+  if (sl->timeout)
+    g_source_remove (sl->timeout);
+
   g_free (sl->auth_type);
   g_free (sl->application);
   g_free (sl->remote_peer);
   g_free (sl);
+}
+
+static gboolean
+on_spawn_timeout_cleanup (gpointer user_data)
+{
+  SpawnLoginData *sl = user_data;
+
+  g_warning ("spawn login timed out during auth");
+
+  sl->timeout = 0;
+  if (sl->auth_pipe)
+    cockpit_pipe_close (sl->auth_pipe, "timeout");
+
+  if (sl->process_pid)
+    kill (sl->process_pid, SIGTERM);
+
+  return FALSE;
 }
 
 static void
@@ -370,12 +426,26 @@ on_spawn_login_done (CockpitPipe *pipe,
                      gpointer user_data)
 {
   GSimpleAsyncResult *result = G_SIMPLE_ASYNC_RESULT (user_data);
+  SpawnLoginData *sl;
+  const gchar *msg;
+
+  sl = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
+  if (sl->timeout)
+    {
+      g_source_remove (sl->timeout);
+      sl->timeout = 0;
+    }
 
   if (problem)
     {
       g_warning ("spawn login failed during auth: %s", problem);
-      g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
-                                       "Internal error in login process");
+      if (g_strcmp0 (problem, "timeout") == 0)
+        msg = "Authentication failed: Timeout";
+      else
+        msg = "Internal error in login process";
+
+      g_simple_async_result_set_error (result, COCKPIT_ERROR,
+                                       COCKPIT_ERROR_FAILED, "%s", msg);
     }
 
   g_simple_async_result_complete (result);
@@ -617,6 +687,7 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
   SpawnLoginData *sl;
   GBytes *input = NULL;
   const gchar *command;
+  guint timeout_secs;
   int pwfds[2] = { -1, -1 };
   GError *error = NULL;
 
@@ -630,7 +701,9 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
   result = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
                                       cockpit_auth_spawn_login_async);
 
-  command = type_option(type, "command", cockpit_ws_session_program);
+  command = type_option (type, "command", cockpit_ws_session_program);
+  timeout_secs = timeout_option(type);
+
   input = cockpit_auth_parse_authorization (headers, decode_header);
   if (!input && !gssapi_not_avail && g_strcmp0 (type, "negotiate") == 0)
     input = g_bytes_new_static ("", 0);
@@ -645,6 +718,7 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
       argv[0] = sl->command = command;
       sl->process_in = -1;
       sl->process_out = -1;
+      sl->timeout = g_timeout_add_seconds (timeout_secs, on_spawn_timeout_cleanup, sl);
 
       g_simple_async_result_set_op_res_gpointer (result, sl, spawn_login_data_free);
 

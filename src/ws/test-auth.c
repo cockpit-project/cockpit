@@ -432,6 +432,15 @@ test_custom_fail (Test *test,
 }
 
 static void
+test_custom_timeout (Test *test,
+                     gconstpointer data)
+{
+  cockpit_expect_warning ("*spawn login timed out during auth");
+  cockpit_expect_warning ("*spawn login failed during auth: timeout*");
+  test_custom_fail (test, data);
+}
+
+static void
 test_bad_command (Test *test,
                   gconstpointer data)
 {
@@ -544,6 +553,11 @@ static const ErrorFixture fixture_auth_no_write = {
   .error_message = "Authentication failed: no results",
   .header = "testscheme no-write",
   .warning = "*JSON data was empty"
+};
+
+static const ErrorFixture fixture_auth_timeout = {
+  .error_message = "Authentication failed: Timeout",
+  .header = "timeout-scheme too-slow",
 };
 
 typedef struct {
@@ -689,6 +703,8 @@ main (int argc,
               setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/custom-no-write", Test, &fixture_auth_no_write,
               setup_normal, test_custom_fail, teardown_normal);
+  g_test_add ("/auth/custom-timeout", Test, &fixture_auth_timeout,
+              setup_normal, test_custom_timeout, teardown_normal);
   g_test_add ("/auth/none", Test, &fixture_auth_none,
               setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/bad-command", Test, &fixture_bad_command,

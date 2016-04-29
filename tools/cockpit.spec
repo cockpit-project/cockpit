@@ -377,9 +377,15 @@ This package contains the Cockpit shell UI assets.
 Summary: Cockpit user interface for storage, using Storaged
 Requires: %{name}-shell = %{version}-%{release}
 Requires: storaged >= 2.1.1
+%if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
+Recommends: storaged-lvm2 >= 2.1.1
+Recommends: storaged-iscsi >= 2.1.1
+Recommends: device-mapper-multipath
+%else
 Requires: storaged-lvm2 >= 2.1.1
 Requires: storaged-iscsi >= 2.1.1
 Requires: device-mapper-multipath
+%endif
 BuildArch: noarch
 
 %description storaged

@@ -493,7 +493,10 @@
                     return select().kind("ImageStream").listTagNames(image.metadata.name);
                 },
                 imageLabels: function imageLabels(image) {
-                    return select(image).dockerImageConfig().dockerConfigLabels().one();
+                    var labels = select(image).dockerImageConfig().dockerConfigLabels().one();
+                    if (labels && angular.equals({ }, labels))
+                        labels = null;
+                    return labels;
                 },
                 configCommand: configCommand,
             };

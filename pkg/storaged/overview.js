@@ -305,6 +305,12 @@ define([
                                                { Mounts: m,
                                                  HasMounts: m.length > 0
                                                }));
+
+            /* Apply these styles */
+            $('#mounts [data-width]').each(function() {
+                $(this).css("width", $(this).attr("data-width"));
+            });
+
             permissions.update();
             jobs.update('#mounts');
         }

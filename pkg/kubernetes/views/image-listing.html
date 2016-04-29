@@ -46,7 +46,7 @@
                 </div>
                 <div class="row">
                     <div class="col col-xs-6 text-left" ng-if="conf.author">{{ conf.author }}</div>
-                    <div class="col col-xs-6 text-left" ng-if="!conf.author">sdfasdfas {{ image.dockerImageMetadata.Author }}</div>
+                    <div class="col col-xs-6 text-left" ng-if="!conf.author">{{ image.dockerImageMetadata.Author }}</div>
                     <div class="col col-xs-6" title="{{ tag.items[0].created }}">{{ tag.items[0].created | dateRelative }}</div>
                 </div>
             </td>

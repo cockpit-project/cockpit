@@ -44,10 +44,17 @@
                 var self = this;
                 var data = { };
 
+                self.selected = { };
+                self.enableActions = false;
+
                 /* Check that either .btn or li were not clicked */
                 function checkBrowserEvent(ev) {
                     return !(ev && inClassOrTag(ev.target, "btn", "li"));
                 }
+
+                self.hasSelected = function hasSelected(id) {
+                    return !angular.equals({}, self.selected);
+                };
 
                 self.expanded = function expanded(id) {
                     if (angular.isUndefined(id)) {
@@ -61,6 +68,11 @@
 
                 self.toggle = function toggle(id, ev) {
                     var value;
+                    if (self.enableActions) {
+                        ev.stopPropagation();
+                        return;
+                    }
+
                     if (id) {
                         value = !(id in data);
                         if (value)
@@ -93,7 +105,6 @@
                     if (ev)
                         ev.stopPropagation();
                 };
-
             };
         }
     ])

@@ -1,0 +1,17 @@
+<modal-dialog>
+    <div class="modal-header">
+        <h3 class="modal-title" ng-if="nodes.length > 1" translatable="yes">Delete Nodes</h3>
+        <h3 class="modal-title" ng-if="nodes.length == 1" translatable="yes">Delete Node</h3>
+    </div>
+    <div class="modal-body">
+        <p translatable="yes" ng-if="nodes.length == 1">Do you want to delete this Node?</p>
+        <p translatable="yes" ng-if="nodes.length > 1">Do you want to delete the following Nodes?</p>
+        <ul ng-repeat="node in nodes">
+            <li>{{ node.metadata.name }}</li>
+        </ul>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
+        <button class="btn btn-danger" translatable="yes" ng-click="complete(performDelete())">Delete</button>
+    </div>
+</modal-dialog>

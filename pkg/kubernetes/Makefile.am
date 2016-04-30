@@ -146,6 +146,7 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/node-add.html \
 	pkg/kubernetes/views/node-body.html \
 	pkg/kubernetes/views/node-capacity.html \
+	pkg/kubernetes/views/node-delete.html \
 	pkg/kubernetes/views/node-page.html \
 	pkg/kubernetes/views/node-panel.html \
 	pkg/kubernetes/views/nodes-page.html \

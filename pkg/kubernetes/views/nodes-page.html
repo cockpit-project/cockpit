@@ -1,3 +1,15 @@
+<div class="content-filter">
+<div class="action-menu">
+    <button class="btn btn-danger" translatable="yes"
+        ng-class="{ disabled: !listing.hasSelected() }"
+        ng-if="listing.enableActions"
+        ng-click="deleteSelectedNodes()">Delete Selected</button>
+    <button class="btn btn-default fa fa-check" id="listing-enable-change" title="Change"
+        ng-click="listing.enableActions = !listing.enableActions" ng-class="{ active: listing.enableActions }">
+    </button>
+</div>
+</div>
+
 <div>
 <table listing-table class="listing nodes-listing">
     <thead>
@@ -18,13 +30,17 @@
             <th translatable="yes">Status</th>
         </tr>
     </thead>
-    <tbody ng-repeat="item in nodes track by item.metadata.name"
+    <tbody ng-repeat="(link, item) in nodes track by item.metadata.name"
         ng-init="id = item.metadata.name" data-id="{{id}}"
             ng-class="{open: listing.expanded(id)}">
         <tr ng-click="listing.activate(id)" class="listing-item">
             <td ng-click="listing.toggle(id, $event)"
                 class="listing-toggle">
-                <i class="fa fa-fw"></i>
+                <i class="fa fa-fw" ng-if="!listing.enableActions"></i>
+                <div class="text-center" ng-if="listing.enableActions">
+                    <input type="checkbox" ng-false-value="undefined"
+                        ng-model="listing.selected[link]"></input>
+                </div>
             </td>
             <th>{{item.metadata.name}}</th>
             <td>

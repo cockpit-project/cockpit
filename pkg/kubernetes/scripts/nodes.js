@@ -100,6 +100,34 @@
                 }
                 return ret;
             };
+
+            $scope.deleteSelectedNodes = function() {
+                var k, selected = [];
+                for (k in $scope.listing.selected) {
+                    if ($scope.nodes[k] && $scope.listing.selected[k])
+                        selected.push($scope.nodes[k]);
+                }
+
+                if (!selected.length)
+                    return;
+
+                return actions.deleteNodes(selected).then(function() {
+                    $scope.listing.selected = {};
+                });
+            };
+
+            /* Redirect after a delete */
+            $scope.deleteNode = function(val) {
+                var promise = actions.deleteNodes(val);
+
+                /* If the promise is successful, redirect to another page */
+                promise.then(function() {
+                    if ($scope.target)
+                        $location.path("/nodes");
+                });
+
+                return promise;
+            };
         }
     ])
 
@@ -133,8 +161,65 @@
                 }).result;
             }
 
+            function deleteNodes(val) {
+                var nodes;
+                if (angular.isArray(val))
+                    nodes = val;
+                else
+                    nodes = [ val ];
+
+                return $modal.open({
+                    animation: false,
+                    controller: 'NodeDeleteCtrl',
+                    templateUrl: 'views/node-delete.html',
+                    resolve: {
+                        dialogData: function() {
+                            return { nodes: nodes };
+                        }
+                    },
+                }).result;
+            }
+
             return {
-                addNode: addNode
+                addNode: addNode,
+                deleteNodes: deleteNodes
+            };
+        }
+    ])
+
+    .controller("NodeDeleteCtrl", [
+        "$q",
+        "$scope",
+        "$modalInstance",
+        "dialogData",
+        "kubeMethods",
+        "kubeSelect",
+        function($q, $scope, $instance, dialogData, methods, select) {
+
+            angular.extend($scope, dialogData);
+
+            $scope.performDelete = function performDelete() {
+                var k;
+                var errors = [];
+                var nodes = {};
+                var promises = [];
+
+                function handleError(ex) {
+                    errors.push(ex.message || ex.statusText);
+                    nodes[k] = $scope.nodes[k];
+                    return $q.reject();
+                }
+
+                for (k in $scope.nodes) {
+                    var p = methods.delete($scope.nodes[k])
+                        .catch(handleError);
+                    promises.push(p);
+                }
+
+                return $q.all(promises).catch(function () {
+                    $scope.nodes = select(nodes);
+                    return $q.reject(errors);
+                });
             };
         }
     ])

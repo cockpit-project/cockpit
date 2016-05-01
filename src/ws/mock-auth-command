@@ -51,6 +51,11 @@ case $auth in
     "with-error")
         echo "{ \"error\": \"unknown\", \"message\": \"detail for error\" }" >&3
         ;;
+    "too-slow")
+        sleep 10
+        echo "{\"user\": \"me\", \"login-data\": { \"login\": \"data\"} }" >&3
+        success=1
+        ;;
     *)
         ;;
 esac

@@ -2,7 +2,7 @@
     <thead>
         <tr>
             <td colspan="4">
-                <a class="pull-right" ng-click="createProject()">
+                <a class="pull-right" id="add-project" ng-click="createProject(settings.currentUser)">
                     <i translatable="yes" class="pficon pficon-add-circle-o"></i>
                     <span translatable="yes">New Project</span>
                 </a>
@@ -32,6 +32,12 @@
         </tr>
     </tbody>
     <tbody data-ng-rubbish="" ng-if="0" ng-repeat-end></tbody>
+    <thead class="listing-ct-empty">
+        <tr>
+            <td colspan="4" ng-if="!failure" translatable="yes">No projects are present.</td>
+            <td colspan="4" ng-if="failure">{{failure}}</td>
+        </tr>
+    </thead>
     <thead>
         <tr>
             <td colspan="4">
@@ -63,6 +69,12 @@
         <tr class="listing-ct-panel" ng-if="listing.expanded('/groups/' + gid)" ng-init="id = gid">
             <td group-panel colspan="4"></td></tr>
     </tbody>
+    <thead class="listing-ct-empty">
+        <tr>
+            <td colspan="4" ng-if="!failure" translatable="yes">No groups are present.</td>
+            <td colspan="4" ng-if="failure">{{failure}}</td>
+        </tr>
+    </thead>
     <thead>
         <tr>
             <td colspan="4">
@@ -95,4 +107,10 @@
             <td user-panel colspan="4"></td>
         </tr>
     </tbody>
+    <thead class="listing-ct-empty">
+        <tr>
+            <td colspan="4" ng-if="!failure" translatable="yes">No users are present.</td>
+            <td colspan="4" ng-if="failure">{{failure}}</td>
+        </tr>
+    </thead>
 </table>

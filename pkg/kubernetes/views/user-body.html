@@ -8,7 +8,7 @@
         </thead>
         <tbody ng-repeat="member in getProjectsWithMember(projects(), user().metadata.name) track by member.metadata.name"
             data-id="{{ member.metadata.name }}">
-            <tr class="listing-ct-item">
+            <tr ng-if="hasRegistryRole(user().metadata.name, member)" class="listing-ct-item">
                 <td ng-click="listing.activate('/projects/' + member.metadata.name)">
                     <div>
                     <i class="user-page-icons pficon pficon-project"></i>

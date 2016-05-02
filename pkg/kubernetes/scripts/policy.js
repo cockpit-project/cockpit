@@ -194,7 +194,25 @@
                 addToArray(roleArrayKind(binding, subjects.kind), subjects.name);
                 return methods.create(binding, namespace);
             }
+
+            function removeFromRole(project, role, subject) {
+                var namespace = toName(project);
+                return modifyRole(namespace, role, function(data) {
+                    removeFromArray(roleArray(data, "subjects"), subject);
+                    removeFromArray(roleArrayKind(data, subject.kind), subject.name);
+                }).then(function() {
+                    expireWhoCan(namespace);
+                    $rootScope.$applyAsync();
+                }, function(resp) {
+                    /* If the role doesn't exist consider removed to work */
+                    if (resp.code !== 404)
+                        return $q.reject(resp);
+                });
+            }
+
             function removeMemberFromPolicyBinding(policyBinding, project, subjectRoleBindings, subject) {
+                var registryRoles = ["registry-admin", "registry-edit", "registry-view"];
+                var chain = $q.when();
                 var roleBinding, i, defaultPolicybinding;
                 var roleBindings = [];
 
@@ -205,13 +223,16 @@
                 var patchData = {"roleBindings": roleBindings};
                 angular.forEach(subjectRoleBindings, function(o) {
                     angular.forEach(roleBindings, function(role) {
-                        if (role.name === o.metadata.name) {
-                            removeFromArray(roleArray(role.roleBinding, "subjects"), subject);
-                            removeFromArray(roleArrayKind(role.roleBinding, subject.kind), subject.name);
+                        //Since we only added registry roles 
+                        //remove ONLY registry roles
+                        if (( indexOf(registryRoles, role.name) !== -1) && role.name === o.metadata.name) {
+                            chain = chain.then(function() {
+                                return removeFromRole(project, role.name, subject);
+                            });
                         }
                     });
                 });
-                return methods.patch(defaultPolicybinding, patchData);
+                return chain;
             }
             function indexOf(array, value) {
                 var i, len;
@@ -276,20 +297,7 @@
                         return $q.reject(resp);
                     });
                 },
-                removeFromRole: function removeFromRole(project, role, subject) {
-                    var namespace = toName(project);
-                    return modifyRole(namespace, role, function(data) {
-                        removeFromArray(roleArray(data, "subjects"), subject);
-                        removeFromArray(roleArrayKind(data, subject.kind), subject.name);
-                    }).then(function() {
-                        expireWhoCan(namespace);
-                        $rootScope.$applyAsync();
-                    }, function(resp) {
-                        /* If the role doesn't exist consider removed to work */
-                        if (resp.code !== 404)
-                            return $q.reject(resp);
-                    });
-                },
+                removeFromRole: removeFromRole,
                 removeMemberFromPolicyBinding: removeMemberFromPolicyBinding,
             };
         }

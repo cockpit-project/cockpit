@@ -80,7 +80,7 @@
             $scope.projName = namespace;
             if (namespace) {
                 var projObj = select().kind("Project").name(namespace);
-                if(!projObj || projObj.length < 1) {
+                if (!projObj || projObj.length < 1) {
                     $scope.project = null;
                     return;
                 }
@@ -127,7 +127,7 @@
             $scope.userName = user;
             if (user) {
                 var userObj = select().kind("User").name(user);
-                if(!userObj || userObj.length < 1) {
+                if (!userObj || userObj.length < 1) {
                     $scope.user = null;
                     return;
                 }
@@ -175,7 +175,7 @@
             $scope.groupName = group;
             if (group) {
                 var groupObj = select().kind("Group").name(group);
-                if(!groupObj || groupObj.length < 1) {
+                if (!groupObj || groupObj.length < 1) {
                      $scope.group = null;
                     return;
                 }
@@ -208,10 +208,11 @@
     ])
 
     .factory("projectData", [
+        '$q',
         'kubeSelect',
         'kubeLoader',
         'projectPolicy',
-        function(select, loader, policy) {
+        function($q, select, loader, policy) {
             var registryRoles = [{ ocRole: "registry-admin", displayRole :"Admin"},
                 { ocRole:"registry-editor", displayRole :"Push" },
                 { ocRole:"registry-viewer", displayRole :"Pull" }];
@@ -223,7 +224,7 @@
                 var i;
                 var displayRole;
                 for (i = registryRoles.length - 1; i >= 0; i--) {
-                    if(registryRoles[i].ocRole === ocRole) {
+                    if (registryRoles[i].ocRole === ocRole) {
                         displayRole = registryRoles[i].displayRole;
                         break;
                     }
@@ -261,21 +262,29 @@
                 angular.forEach(roleBinds, function(roleBind) {
                     meta = roleBind.metadata || { };
                     if (meta.name && ocRegistryRoles.indexOf(meta.name)!== -1) {
-                        roles.push(getDisplayRole(meta.name));
+                        if (roles.indexOf(getDisplayRole(meta.name) === -1))
+                            roles.push(getDisplayRole(meta.name));
                     }
                 });
                 return roles;
             }
             function isRegistryRole(member, displayRole, project) {
                 var oc_roles = getRegistryRoles(member, project);
-                if(oc_roles.indexOf(displayRole) !== -1) {
+                if (oc_roles.indexOf(displayRole) !== -1) {
                     return true;
                 }
                 return false;
             }
+            function hasRegistryRole(member, project) {
+                var oc_roles = getRegistryRoles(member, project);
+                if (oc_roles.length === 0) {
+                    return false;
+                }
+                return true;
+            }
             function isRoles(member, namespace) {
                 var oc_roles = getAllRoles(member, namespace);
-                if(oc_roles.length === 0) {
+                if (oc_roles.length === 0) {
                     return false;
                 }
                 return true;
@@ -284,7 +293,7 @@
                 if (!projects && !member)
                     return [];
                 var projList = [];
-                if(member) {
+                if (member) {
                     angular.forEach(projects, function(project) {
                         if (project && subjectIsMember(member, project.metadata.name))
                             projList.push(project);
@@ -297,7 +306,7 @@
                 if (!groups && !member)
                     return [];
                 var grpList = [];
-                if(member) {
+                if (member) {
                     angular.forEach(groups, function(group) {
                         if (group && group.users && group.users.indexOf(member) != -1)
                             grpList.push(group);
@@ -349,6 +358,8 @@
             }
 
             function subjectIsMember(subject, namespace) {
+                if (!subject || !namespace)
+                    return null;
                 namespace = toName(namespace);
                 return subjectRoleBindings(subject, namespace).one() ? true : false;
             }
@@ -377,6 +388,7 @@
             var sharedRole = "registry-viewer";
             var sharedKind = "Group";
             var sharedSubject = "system:authenticated";
+            var registryAdmin = "registry-admin";
 
             function shareImages(project, shared) {
                 var subject = {
@@ -406,6 +418,29 @@
                 return false;
             }
 
+            function makeRegistryAdmin(project, currentUser) {
+                var subject = {
+                    kind: 'User',
+                    name: toName(currentUser),
+                };
+                //if system:admin then return
+                if (currentUser && currentUser.groups &&
+                    currentUser.groups.indexOf("system:cluster-admins") !== -1) {
+                    return $q.when({ });
+                }
+                var oc_roles = getRegistryRoles(currentUser, project);
+                if (oc_roles.indexOf(registryAdmin) !== -1) {
+                    //for templates with registryAdmin
+                    //if registryAdmin role exists then return
+                    return $q.when({ });
+                }
+                return policy.addToRole(project, registryAdmin, subject);
+            }
+
+            function isSameUser(currUser, userName) {
+                return currUser ? toName(currUser) === toName(userName) : false;
+            }
+
             return {
                 subjectRoleBindings: subjectRoleBindings,
                 subjectIsMember: subjectIsMember,
@@ -420,6 +455,9 @@
                 getGroupsWithMember: getGroupsWithMember,
                 getProjectsWithMember: getProjectsWithMember,
                 getMembershipOfUser: getMembershipOfUser,
+                isSameUser: isSameUser,
+                makeRegistryAdmin: makeRegistryAdmin,
+                hasRegistryRole: hasRegistryRole,
             };
         }
     ])
@@ -564,13 +602,13 @@
         '$modal',
         'projectData',
         function($modal, projectData) {
-            function createProject() {
+            function createProject(currentUser) {
                 return $modal.open({
                     controller: 'ProjectModifyCtrl',
                     templateUrl: 'views/project-modify.html',
                     resolve: {
                         dialogData: function() {
-                            return { };
+                            return { currUser: currentUser };
                         }
                     },
                 }).result;
@@ -728,7 +766,7 @@
                 return $modal.open({
                     controller: 'ChangeRoleCtrl',
                     templateUrl: function() {
-                        if(roles.indexOf(roleMp.displayRole) >= 0) {
+                        if (roles.indexOf(roleMp.displayRole) >= 0) {
                             return 'views/remove-role-dialog.html';
                         } else {
                             return 'views/add-role-dialog.html';
@@ -836,7 +874,7 @@
                     else if (!NAME_RE.test(memberName))
                         ex = new Error("The member name contains invalid characters.");
 
-                    if(ex) {
+                    if (ex) {
                         ex.target = "#add_member_group";
                         defer.reject(ex);
                     }
@@ -863,10 +901,10 @@
                     memberObj = $scope.selected.memberObj;
                     memberName = memberObj.name;
                     kind = memberObj.kind;
-                } else if(memberName && member === selectMember) {
+                } else if (memberName && member === selectMember) {
                     //input field has value
                     kind = "User";
-                } else if(!memberName && member === selectMember) {
+                } else if (!memberName && member === selectMember) {
                     //nothing selected
                     memberName = selectMember;
                     kind = null;
@@ -886,11 +924,12 @@
     .controller('ProjectModifyCtrl', [
         '$q',
         '$scope',
+        'kubeSelect',
         "dialogData",
         "projectData",
         '$location',
         "kubeMethods",
-        function($q, $scope, dialogData, projectData, $location, methods) {
+        function($q, $scope, kselect, dialogData, projectData, $location, methods) {
             var project = dialogData.project || { };
             var meta = project.metadata || { };
             var annotations = meta.annotations || { };
@@ -916,6 +955,12 @@
                     "shared": "Allow any authenticated user to pull images",
                 }
             };
+            function getProjects() {
+                return kselect().kind("Project");
+            }
+            function getGroups() {
+                return kselect().kind("Group");
+            }
             $scope.performDelete = function performDelete(project) {
                 var promise = methods.delete(project)
                     .then(function() {
@@ -940,10 +985,13 @@
 
                 return methods.check(request, { "metadata.name": "#project-new-name" })
                     .then(function() {
-                        return methods.create(request)
-                            .then(function() {
-                                return projectData.shareImages(name, fields.access === "shared");
-                            });
+                        return methods.create(request);
+                    })
+                    .then(function(){
+                        return projectData.shareImages(name, fields.access === "shared");
+                    })
+                    .then(function(){
+                        return projectData.makeRegistryAdmin(name, dialogData.currUser);
                     });
             };
 
@@ -1243,7 +1291,7 @@
                 var promise = chain.then(function() {
                         $location.path("/projects");
                     }, function(ex) {
-                        if(ex.code === 404){
+                        if (ex.code === 404){
                             $location.path("/projects");
                         } else {
                             return $q.reject(ex);

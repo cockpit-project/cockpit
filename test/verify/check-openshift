@@ -500,27 +500,55 @@ class TestRegistry(MachineCase):
         self.login_and_go("/kubernetes/registry")
         b.go("#/projects")
         output = o.execute("oc get projects")
-        print output
-        b.wait_present("tbody[data-id='scruffy']")
-        b.click("tbody[data-id='scruffy'] tr:first-child td:nth-of-type(2)")
-        b.wait_in_text(".content-filter h3", "scruffy")
+        output = o.execute("oc get rolebinding -n marmalade")
+        b.wait_present("tbody[data-id='default']")
+
+        # Create a new project
+        b.click("#add-project")
+        b.wait_present("modal-dialog")
+        b.wait_visible(".modal-body")
+        b.wait_visible("#project-new-name")
+        b.set_val("#project-new-name", "testprojectuserproj")
+        b.click(".btn-primary")
+        b.wait_not_present("modal-dialog")
+
+        #wait for it
+        b.wait_present("tbody[data-id='testprojectuserproj']")
+        output = o.execute("oc get projects")
+
+        # Create a new user
+        b.click("#add-user")
+        b.wait_present("modal-dialog")
+        b.wait_visible(".modal-body")
+        b.wait_visible("#identities")
+        b.set_val("#user_name", "testprojectuser")
+        b.set_val("#identities", "anypassword:abc123")
+        b.click(".btn-primary")
+        b.wait_not_present("modal-dialog")
+
+        #wait for it
+        b.wait_present("tbody[data-id='testprojectuser']")
+
+        #goto user page
+        b.click("tbody[data-id='testprojectuser'] tr:first-child td:nth-of-type(2)")
+        b.wait_in_text(".content-filter h3", "testprojectuser")
 
         #modify user
         b.click(".content-filter .pficon-edit")
         b.wait_present("modal-dialog")
         b.wait_visible("#identities")
-        b.set_val("#identities", "anypassword:abc123")
+        b.set_val("#identities", "anypassword:abc1234")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
-        b.wait_in_text(".user-body dd", "anypassword:abc123")
+        b.wait_in_text(".user-body dd", "anypassword:abc1234")
 
-        #add member
+        #add project member
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
         b.wait_visible("#add_parent_for_user")
         b.click("#add_parent_for_user button")
         b.wait_visible("#add_parent_for_user .dropdown-menu")
-        b.click(".dropdown-menu a[value='marmalade']")
+        b.click(".dropdown-menu a[value='testprojectuserproj']")
         b.wait_visible("#add_role_for_user")
         b.click("#add_role_for_user button")
         b.wait_visible("#add_role_for_user .dropdown-menu")
@@ -528,20 +556,20 @@ class TestRegistry(MachineCase):
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
 
-        #delete member
-        b.click("tbody[data-id='marmalade'] tr td:last-child a i.pficon-close")
+        #delete project member X
+        b.click("tbody[data-id='testprojectuserproj'] tr td:last-child a i.pficon-close")
         b.wait_present("modal-dialog")
         b.wait_visible(".modal-body")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
 
-        #add member
+        #add project member again
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
         b.wait_visible("#add_parent_for_user")
         b.click("#add_parent_for_user button")
         b.wait_visible("#add_parent_for_user .dropdown-menu")
-        b.click(".dropdown-menu a[value='marmalade']")
+        b.click(".dropdown-menu a[value='testprojectuserproj']")
         b.wait_visible("#add_role_for_user")
         b.click("#add_role_for_user button")
         b.wait_visible("#add_role_for_user .dropdown-menu")
@@ -549,23 +577,22 @@ class TestRegistry(MachineCase):
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
 
-        #add role
-        b.wait_visible("tbody[data-id='marmalade'] tr .btn-group")
-        b.click("tbody[data-id='marmalade'] tr .btn-group button")
-        b.wait_visible("tbody[data-id='marmalade'] tr .btn-group .dropdown-menu")
-        b.click("tbody[data-id='marmalade'] tr .dropdown-menu a[value='Push']")
+        #add another role to project member
+        b.wait_visible("tbody[data-id='testprojectuserproj'] tr .btn-group")
+        b.click("tbody[data-id='testprojectuserproj'] tr .btn-group button")
+        b.wait_visible("tbody[data-id='testprojectuserproj'] tr .btn-group .dropdown-menu")
+        b.click("tbody[data-id='testprojectuserproj'] tr .dropdown-menu a[value='Push']")
         b.wait_present("modal-dialog")
         b.wait_visible(".modal-body")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
 
         #delete user
-        b.wait_in_text(".content-filter h3", "scruffy")
+        b.wait_in_text(".content-filter h3", "testprojectuser")
         b.click(".content-filter .pficon-delete")
         b.wait_present("modal-dialog")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
-        b.wait_not_present("tbody[data-id='scruffy']")
 
     def testProjectPolicy(self):
         o = self.openshift
@@ -573,14 +600,30 @@ class TestRegistry(MachineCase):
         m = self.machine
 
         self.login_and_go("/kubernetes/registry")
-
+        b.wait_present(".dashboard-images")
         b.go("#/projects")
-        b.wait_present("tbody[data-id='default']")
-        b.click("tbody[data-id='marmalade'] tr:first-child td:nth-of-type(2)")
-        b.wait_in_text(".content-filter h3", "marmalade")
 
-        # wait for all users to show
-        b.wait_present(".inner-project-listing")
+        #wait for it
+        b.wait_present("tbody[data-id='default']")
+
+        # Create a new project
+        b.click("#add-project")
+        b.wait_present("modal-dialog")
+        b.wait_visible(".modal-body")
+        b.wait_visible("#project-new-name")
+        b.set_val("#project-new-name", "testprojectpolicyproj")
+        b.click(".btn-primary")
+        b.wait_not_present("modal-dialog")
+
+        #wait for it
+        b.wait_present("tbody[data-id='testprojectpolicyproj']")
+        output = o.execute("oc get projects")
+
+        #goto project page
+        b.click("tbody[data-id='testprojectpolicyproj'] tr:first-child td:nth-of-type(2)")
+        b.wait_in_text(".content-filter h3", "testprojectpolicyproj")
+
+        #add user with role
         b.wait_present("a i.pficon-add-circle-o")
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")

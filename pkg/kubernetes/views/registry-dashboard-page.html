@@ -5,7 +5,7 @@
     <h1 translatable="yes">Welcome to the Image Registry</h1>
     <p translatable="yes">In order to begin pushing images to the registry, you need to create a project.</p>
     <div class="blank-slate-pf-main-action">
-        <a ng-click="createProject()" class="card-pf-link-with-icon">
+        <a ng-click="createProject(settings.currentUser)" class="card-pf-link-with-icon">
             <i class="pficon pficon-add-circle-o"></i><span translatable="yes">New project</span>
         </a>
     </div>
@@ -16,7 +16,7 @@
         <div class="card-pf-heading">
             <h2 class="pull-left card-pf-title" translatable="yes">Images by project</h2>
             <h2 class="pull-right card-pf-link-with-icon new-project-link">
-              <a ng-click="createProject()">
+              <a ng-click="createProject(settings.currentUser)">
                 <i class="pficon pficon-add-circle-o"></i>
               </a>
             </h2>
@@ -39,7 +39,7 @@
             </table>
         </div>
         <div class="card-pf-footer">
-            <a ng-click="createProject()" class="card-pf-link-with-icon new-project-link">
+            <a ng-click="createProject(settings.currentUser)" class="card-pf-link-with-icon new-project-link">
                 <i class="pficon pficon-add-circle-o"></i><span translatable="yes">New project</span>
             </a>
         </div>

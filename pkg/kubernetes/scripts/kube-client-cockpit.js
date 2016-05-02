@@ -1052,6 +1052,7 @@
                     },
                     flavor: "kubernetes",
                     isAdmin: false,
+                    currentUser: null,
                     canChangeConnection: false,
                 };
 
@@ -1067,9 +1068,11 @@
 
                 var discover_p = cockpitKubeDiscover(force)
                     .then(function(options) {
-                        var req = new CockpitKubeRequest("GET", "/oapi", "", options)
-                            .then(function() {
+                        var req = new CockpitKubeRequest("GET", "/oapi/v1/users/~", "", options)
+                            .then(function(response) {
                                 settings.flavor = "openshift";
+                                if (response)
+                                    settings.currentUser = response.data;
                             }, function () {
                                 settings.flavor = "kubernetes";
                             });

@@ -6,7 +6,9 @@
     </button>
     <span class="pficon pficon-error-circle-o"></span>
     <strong>{{ condition.reason }} on {{ condition.type }}:</strong> {{ condition.message }} {{ condition.lastTransitionTime }}
-      <a href="#" ng-click="modifyImageStream(stream)" class="alert-link">Edit imagestream</a>.
+    <p ng-if='$first'>
+      <a translateable="yes" ng-click="modifyImageStream(stream)" class="alert-link">Edit imagestream</a>
+    </p>
   </div>
 </div>
 <dl>

@@ -45,8 +45,10 @@
         'dashboardActions',
         'itemActions',
         'nodeActions',
+        'nodeData',
         '$location',
-        function($scope, loader, select, data, actions, itemActions, nodeActions, $location) {
+        function($scope, loader, select, data, actions, itemActions,
+                 nodeActions, nodeData, $location) {
 
         var c = loader.listen(function() {
             $scope.services = select().kind("Service");
@@ -108,6 +110,7 @@
         /* All the actions available on the $scope */
         angular.extend($scope, actions);
         angular.extend($scope, data);
+        angular.extend($scope, nodeData);
         $scope.modifyService = itemActions.modifyService;
         $scope.addNode = nodeActions.addNode;
 
@@ -130,19 +133,6 @@
             return service ? 'ready' : 'empty';
         };
     }])
-
-    .directive('kubernetesStatusIcon', function() {
-        return {
-            restrict: 'A',
-            link: function($scope, element, attributes) {
-                $scope.$watch(attributes["status"], function(status) {
-                    element
-                        .toggleClass("spinner spinner-sm", status == "wait")
-                        .toggleClass("pficon pficon-error-circle-o", status == "fail");
-                });
-            }
-        };
-    })
 
     .directive('kubernetesAddress', function() {
         return {
@@ -258,25 +248,6 @@
             });
 
             return {
-                nodeStatus: function nodeStatus(node) {
-                    var status = node.status || { };
-                    var conditions = status.conditions;
-                    var state = "";
-
-                    /* If no status.conditions then it hasn't even started */
-                    if (!conditions) {
-                        state = "wait";
-                    } else {
-                        conditions.forEach(function(condition) {
-                            if (condition.type == "Ready") {
-                                if (condition.status != "True")
-                                    state = "fail";
-                            }
-                        });
-                    }
-                    return state;
-                },
-
                 nodeContainers: function nodeContainers(node) {
                     var count = 0;
                     var meta = node.metadata || { };

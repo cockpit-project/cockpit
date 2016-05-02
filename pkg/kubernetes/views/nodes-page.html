@@ -47,7 +47,10 @@
                 <div ng-if="item.status.nodeInfo.osImage">{{item.status.nodeInfo.osImage}}</div>
             </td>
             <td>{{item.spec.externalID}}</td>
-            <td>{{item.status.conditions | nodeStatus}}</td>
+            <td>
+                <span class="spinner-inline node-status" kubernetes-status-icon status="nodeStatusIcon(item)"></span>
+                {{ nodeStatus(item) }}
+            </td>
         </tr>
         <tr class="listing-panel" ng-if="listing.expanded(id)">
             <td listing-panel kind="node" colspan="5"></td>

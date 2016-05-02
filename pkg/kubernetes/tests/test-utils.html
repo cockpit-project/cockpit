@@ -54,30 +54,48 @@ function suite() {
         });
     }
 
-    utilsTest("map Named Array", 3, [
+    utilsTest("map Named Array", 4, [
         "KubeMapNamedArray",
-        function(mapNamedArray) {
+        function lala(mapNamedArray) {
             var target = {
                 "one": {
                     "name": "one",
+                    "other": "other1",
                     "value": 1
                 },
                 "two": {
                     "name": "two",
+                    "other": "other2",
                     "value": 2
                 }
             };
+            var target2 = {
+                "other1": {
+                    "name": "one",
+                    "other": "other1",
+                    "value": 1
+                },
+                "other2": {
+                    "name": "two",
+                    "other": "other2",
+                    "value": 2
+                }
+            };
+
             var source = [{
                 "name": "one",
+                "other": "other1",
                 "value": 1
             },{
                 "name": "two",
+                "other": "other2",
                 "value": 2
             }];
 
             deepEqual(mapNamedArray(), {});
             deepEqual(mapNamedArray([]), {});
             deepEqual(mapNamedArray(source), target);
+            deepEqual(mapNamedArray(source, "other"), target2);
         }
     ]);
 

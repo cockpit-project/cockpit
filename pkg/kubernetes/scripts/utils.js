@@ -24,12 +24,15 @@
 
     .factory("KubeMapNamedArray", [
         function () {
-            return function mapNamedArray(array) {
+            return function mapNamedArray(array, attr) {
+                if (!attr)
+                    attr = "name";
+
                 var result = { };
                 var i, len;
                 if (array) {
                     for (i = 0, len = array.length; i < len; i++)
-                        result[array[i].name] = array[i];
+                        result[array[i][attr]] = array[i];
                 }
                 return result;
             };

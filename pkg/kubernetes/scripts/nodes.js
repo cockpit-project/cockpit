@@ -24,6 +24,7 @@
         'ngRoute',
         'kubeClient',
         'kubernetes.listing',
+        'kubeUtils',
         'ui.cockpit',
     ])
 
@@ -55,9 +56,10 @@
         '$routeParams',
         '$location',
         'nodeActions',
+        'nodeData',
         '$timeout',
         function($scope, loader, select,  ListingState, filterService,
-                 $routeParams, $location, actions, $timeout) {
+                 $routeParams, $location, actions, nodeData, $timeout) {
             var target = $routeParams["target"] || "";
             $scope.target = target;
 
@@ -78,6 +80,7 @@
 
             /* All the actions available on the $scope */
             angular.extend($scope, actions);
+            angular.extend($scope, nodeData);
 
             $scope.$on("activate", function(ev, id) {
                 $location.path('/nodes/' + encodeURIComponent(id));
@@ -86,19 +89,6 @@
             $scope.nodePods = function node_pods(item) {
                 var meta = item.metadata || {};
                 return select().kind("Pod").host(meta.name);
-            };
-
-            $scope.nodeReadyCondition = function node_read_condition(conditions) {
-                var ret = {};
-                if (conditions) {
-                    conditions.forEach(function(condition) {
-                        if (condition.type == "Ready") {
-                            ret = condition;
-                            return false;
-                        }
-                    });
-                }
-                return ret;
             };
 
             $scope.deleteSelectedNodes = function() {
@@ -224,6 +214,68 @@
         }
     ])
 
+    .factory('nodeData', [
+        "KubeMapNamedArray",
+        "KubeTranslate",
+        function (mapNamedArray, translate) {
+            var _ = translate.gettext;
+
+            function nodeConditions(node) {
+                var status;
+                if (!node)
+                    return;
+
+                if (!node.conditions) {
+                    status = node.status || { };
+                    node.conditions = mapNamedArray(status.conditions, "type");
+                }
+                return node.conditions;
+            }
+
+            function nodeCondition(node, type) {
+                var conditions = nodeConditions(node) || {};
+                return conditions[type] || {};
+            }
+
+            function nodeStatus(node) {
+                var spec = node ? node.spec : {};
+                if (!nodeCondition(node, "Ready").status)
+                    return _("Unknown");
+
+                if (nodeCondition(node, "Ready").status != 'True')
+                    return _("Not Ready");
+
+                if (spec && spec.unschedulable)
+                    return _("Scheduling Disabled");
+
+                return _("Ready");
+            }
+
+            function nodeStatusIcon(node) {
+                var state = "";
+                /* If no status.conditions then it hasn't even started */
+                if (!nodeCondition(node, "Ready").status) {
+                    state = "wait";
+                } else {
+                    if (nodeCondition(node, "Ready").status != 'True') {
+                        state = "fail";
+                    } else if (nodeCondition(node, "OutOfDisk").status == "True" ||
+                             nodeCondition(node, "OutOfMemory").status == "True") {
+                        state = "warn";
+                    }
+                }
+                return state;
+            }
+
+            return {
+                nodeStatusIcon: nodeStatusIcon,
+                nodeCondition: nodeCondition,
+                nodeConditions: nodeConditions,
+                nodeStatus: nodeStatus,
+            };
+        }
+    ])
+
     .controller("AddNodeCtrl", [
         "$q",
         "$scope",
@@ -305,27 +357,6 @@
         }
     ])
 
-    .filter('nodeStatus', [
-        "KubeTranslate",
-        function(KubeTranslate) {
-            return function(conditions) {
-                var ready = false;
-                var _ = KubeTranslate.gettext;
-
-                /* If no status.conditions then it hasn't even started */
-                if (conditions) {
-                    conditions.forEach(function(condition) {
-                        if (condition.type == "Ready") {
-                            ready = condition.status == "True";
-                            return false;
-                        }
-                    });
-                }
-                return ready ? _("Ready") : _("Not Ready");
-            };
-        }
-    ])
-
     .filter('nodeExternalIP', [
         "KubeTranslate",
         function(KubeTranslate) {
@@ -333,7 +364,7 @@
                 var address = null;
                 var _ = KubeTranslate.gettext;
 
-                /* If no status.conditions then it hasn't even started */
+                /* If no addresses then it hasn't even started */
                 if (addresses) {
                     addresses.forEach(function(a) {
                         if (a.type == "LegacyHostIP" || address.type == "ExternalIP") {
@@ -345,6 +376,27 @@
                 return address ? address : _("Unknown");
             };
         }
-    ]);
+    ])
+
+    .directive('kubernetesStatusIcon', function() {
+        return {
+            restrict: 'A',
+            link: function($scope, element, attributes) {
+                $scope.$watch(attributes["status"], function(status) {
+                    element
+                        .toggleClass("spinner spinner-xs", status == "wait")
+                        .toggleClass("pficon pficon-error-circle-o", status == "fail")
+                        .toggleClass("pficon pficon-warning-triangle-o", status == "warn");
+                });
+            }
+        };
+    })
+
+    .directive('nodeAlerts', function() {
+        return {
+            restrict: 'A',
+            templateUrl: 'views/node-alerts.html'
+        };
+    });
 
 }());

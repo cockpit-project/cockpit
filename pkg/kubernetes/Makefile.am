@@ -144,6 +144,7 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/pv-panel.html \
 	pkg/kubernetes/views/pvc-body.html \
 	pkg/kubernetes/views/node-add.html \
+	pkg/kubernetes/views/node-alerts.html \
 	pkg/kubernetes/views/node-body.html \
 	pkg/kubernetes/views/node-capacity.html \
 	pkg/kubernetes/views/node-delete.html \
@@ -185,6 +186,7 @@ kubernetes_MODULES = \
 kubernetes_TESTS = \
 	pkg/kubernetes/tests/test-kube-client.html \
 	pkg/kubernetes/tests/test-images.html \
+	pkg/kubernetes/tests/test-nodes.html \
 	pkg/kubernetes/tests/test-projects.html \
 	pkg/kubernetes/tests/test-tags.html \
 	pkg/kubernetes/tests/test-volumes.html \
@@ -198,6 +200,7 @@ kubernetes_LESS = \
 	pkg/kubernetes/styles/containers.less \
 	pkg/kubernetes/styles/container-terminal.less \
 	pkg/kubernetes/styles/details.less \
+	pkg/kubernetes/styles/nodes.less \
 	pkg/kubernetes/styles/revealable.less \
 	pkg/kubernetes/styles/sidebar.less \
 	pkg/kubernetes/styles/topology.less \

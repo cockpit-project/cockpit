@@ -19,7 +19,7 @@
 
 require([
     "base1/cockpit",
-    "react",
+    "base1/react",
     "performance/dialog-view",
     "playground/react-demo-dialog",
     "base1/cockpit-components-terminal",

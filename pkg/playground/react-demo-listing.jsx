@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 define([
-    "react",
+    "base1/react",
     "base1/cockpit-components-listing",
 ], function(React, cockpitListing) {
 

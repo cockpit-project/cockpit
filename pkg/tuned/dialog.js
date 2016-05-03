@@ -25,7 +25,7 @@ define([
     "data!./button.html",
     "performance/dialog-view",
     "performance/change-profile",
-    "react",
+    "base1/react",
 ], function($, cockpit, mustache, service, button_html, dialog_view, change_profile_template, React) {
     "use strict";
 

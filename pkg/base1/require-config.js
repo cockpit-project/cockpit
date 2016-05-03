@@ -5,7 +5,6 @@ var require = {
     skipDataMain: true,
     paths: {
         "jquery": "base1/jquery",
-        "react": "base1/react",
     }
 };
 

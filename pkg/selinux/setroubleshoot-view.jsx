@@ -18,7 +18,7 @@
  */
 
 define([
-    "react",
+    "base1/react",
     "base1/cockpit",
     "base1/cockpit-components-listing",
 ], function(React, cockpit, cockpitListing) {

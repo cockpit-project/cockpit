@@ -18,7 +18,7 @@
  */
 
 define([
-    "react",
+    "base1/react",
     "base1/term",
 ], function(React, Term) {
 

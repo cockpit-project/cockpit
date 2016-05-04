@@ -11,6 +11,28 @@
     width: 5px;
 }
 
+/*
+ * For showing and filtering disabled unimportant rows in a table
+ *
+ * Set .unimportant on things, and then .filter-unimportant on
+ * ancestor when you want to filter them.
+ */
+.filter-unimportant .unimportant {
+    display: none;
+}
+
+/*
+ * Used to make a table cell that containts buttons have less padding
+ * HACK: Because CSS has no parant selector.
+ */
+.cell-buttons,
+.table > tbody > tr > .cell-buttons {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    width: 30px;
+    padding-right: 15px;
+}
+
 /* Align with the top of the graphs
   only when not wrapped
 */

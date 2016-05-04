@@ -192,7 +192,7 @@ define([
     function DockerLogs(parent, channel) {
         var self = this;
 
-        var pre = $("<pre>").addClass("logs");
+        var pre = $("<pre>");
         parent.empty();
         parent.append(pre);
 
@@ -304,7 +304,7 @@ define([
      * cons.close(): disconnect and close
      */
     docker.console = function console_(container_id, command, options) {
-        var self = $("<div>").addClass("console");
+        var self = $("<div>").addClass("console-ct");
         var want_typeable = false;
         var focused = false;
         var channel = null;

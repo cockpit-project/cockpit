@@ -93,7 +93,7 @@ var Terminal = React.createClass({
 
     render: function () {
         // ensure react never reuses this div by keying it with the terminal widget
-        return <div ref="terminal" className="console" key={this.state.terminal} />;
+        return <div ref="terminal" className="console-ct" key={this.state.terminal} />;
     },
 
     componentWillUnmount: function () {

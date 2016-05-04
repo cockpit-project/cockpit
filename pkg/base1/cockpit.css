@@ -316,12 +316,7 @@ a {
 }
 
 /* Our terminal or logs */
-.console-container {
-    display: table;
-    margin: 1em auto;
-}
-
-.console {
+.console-ct {
     font-family: Menlo, Monaco, Consolas, monospace;
     margin-top: 0;
     margin-bottom: 0;
@@ -331,12 +326,12 @@ a {
 }
 
 @media (min-width: 568px) {
-    .console {
+    .console-ct {
         font-size: 12px;
     }
 }
 
-.console > .logs {
+.console-ct > pre {
     padding: 10px;
     text-align: left;
     display: block;
@@ -349,7 +344,7 @@ a {
     margin: 0 auto;
 }
 
-.console > .terminal {
+.console-ct > .terminal {
     color: #F0F0F0;
     text-align: left;
     outline: medium none;
@@ -359,11 +354,14 @@ a {
     display: inline-block; /* size DIV to contents */
 }
 
-.console .terminal-cursor {
+.console-ct .terminal-cursor {
     color: #000;
     background: #f0f0f0;
 }
 
+.console-ct-container {
+    display: table;
+    margin: 1em auto;
 }
 
 /* On/off switch */

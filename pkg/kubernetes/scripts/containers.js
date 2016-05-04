@@ -231,10 +231,9 @@
                     var limit = 64 * 1024;
 
                     var outer = angular.element("<div>");
-                    outer.addClass("console");
+                    outer.addClass("console-ct");
                     element.append(outer);
                     var pre = angular.element("<pre>");
-                    pre.addClass("logs");
                     outer.append(pre);
                     var wait = null;
                     var ws = null;

@@ -1034,6 +1034,31 @@ function basic_scope(cockpit, jquery) {
         uri: calculate_url,
     };
 
+    /* ------------------------------------------------------------------------------------
+     * An ordered queue of functions that should be called later.
+     */
+
+    var later_queue = [];
+    var later_timeout = null;
+
+    function later_drain() {
+        var func, queue = later_queue;
+        later_timeout = null;
+        later_queue = [];
+        for (;;) {
+            func = queue.shift();
+            if (!func)
+                break;
+            func();
+        }
+    }
+
+    function later_invoke(func) {
+        if (func)
+            later_queue.push(func);
+        if (later_timeout === null)
+            later_timeout = window.setTimeout(later_drain, 0);
+    }
 
     /* ------------------------------------------------------------------------------------
      * Promises.
@@ -1146,9 +1171,7 @@ function basic_scope(cockpit, jquery) {
         if (state.process_scheduled || !state.pending)
             return;
         state.process_scheduled = true;
-        window.setTimeout(function() {
-            process_queue(state);
-        }, 0);
+        later_invoke(function() { process_queue(state); });
     }
 
     function deferred_resolve(state, values) {
@@ -1186,7 +1209,7 @@ function basic_scope(cockpit, jquery) {
     function deferred_notify(state, values) {
         var callbacks = state.pending;
         if ((state.status <= 0) && callbacks && callbacks.length) {
-            window.setTimeout(function() {
+            later_invoke(function() {
                 var callback, result;
                 for (var i = 0, ii = callbacks.length; i < ii; i++) {
                     result = callbacks[i][0];
@@ -1196,7 +1219,7 @@ function basic_scope(cockpit, jquery) {
                     else
                         result.notify.apply(result, values);
                 }
-            }, 0);
+            });
         }
     }
 
@@ -2816,7 +2839,7 @@ function basic_scope(cockpit, jquery) {
                 channel.close({"problem": "protocol-error"});
                 return;
             }
-            var dfd, options, id, subscription;
+            var dfd, options;
             if (msg.id !== undefined)
                 dfd = calls[msg.id];
             if (msg.reply) {
@@ -2829,37 +2852,52 @@ function basic_scope(cockpit, jquery) {
                     dfd.resolve(msg.reply[0] || [], options);
                     delete calls[msg.id];
                 }
+                return;
+
             } else if (msg.error) {
                 if (dfd) {
                     dfd.reject(new DBusError(msg.error));
                     delete calls[msg.id];
                 }
-            } else if (msg.signal) {
-                for (id in subscribers) {
-                    subscription = subscribers[id];
-                    if (subscription.callback) {
-                        if (matches(msg.signal, subscription.match))
-                            subscription.callback.apply(self, msg.signal);
-                    }
-                }
-            } else if (msg.notify) {
-                notify(msg.notify);
-            } else if (msg.meta) {
-                ensure_cache();
-                extend(cache.meta, msg.meta);
-            } else if (msg.owner !== undefined) {
-                self.dispatchEvent("owner", msg.owner);
-
-                // We won't get this signal with the same
-                // owner twice so if we've seen an owner
-                // before that means it has changed.
-                if (track && owner)
-                    self.close();
-
-                owner = msg.owner;
-            } else {
-                dbus_debug("received unexpected dbus json message:", payload);
+                return;
             }
+
+            /*
+             * The above promise resolutions or failures are triggered via
+             * later_invoke(). In order to preserve ordering guarantees we
+             * also have to process other events that way too.
+             */
+            later_invoke(function() {
+                var id, subscription;
+                if (msg.signal) {
+                    for (id in subscribers) {
+                        subscription = subscribers[id];
+                        if (subscription.callback) {
+                            if (matches(msg.signal, subscription.match))
+                                subscription.callback.apply(self, msg.signal);
+                        }
+                    }
+                } else if (msg.notify) {
+                    notify(msg.notify);
+                } else if (msg.meta) {
+                    ensure_cache();
+                    extend(cache.meta, msg.meta);
+                } else if (msg.owner !== undefined) {
+                    self.dispatchEvent("owner", msg.owner);
+
+                    /*
+                     * We won't get this signal with the same
+                     * owner twice so if we've seen an owner
+                     * before that means it has changed.
+                     */
+                    if (track && owner)
+                        self.close();
+
+                    owner = msg.owner;
+                } else {
+                    dbus_debug("received unexpected dbus json message:", payload);
+                }
+            });
         }
 
         function notify(data) {

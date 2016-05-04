@@ -101,7 +101,7 @@ var PatternDialogBody = React.createClass({
                              ];
         return (
             <div className="modal-body">
-                <table className="cockpit-form-table">
+                <table className="form-table-ct">
                     <tr>
                         <td className="top">
                             <label className="control-label" for="control-1">

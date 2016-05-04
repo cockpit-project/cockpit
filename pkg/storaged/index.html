@@ -418,7 +418,7 @@
         {{/Drive}}
       </div>
       <div class="panel-body">
-        <table class="cockpit-info-table">
+        <table class="info-table-ct">
           {{#Drive}}
           <tr>
             <td translatable="yes" context="storage">Model</td>
@@ -542,7 +542,7 @@
         <span class="pull-right">{{{MDRaidButton}}}</span>
       </div>
       {{#MDRaid}}
-      <table class="cockpit-info-table">
+      <table class="info-table-ct">
         <tr>
           <td translatable="yes" context="storage">Device</td>
           <td>{{Block.Device}}</td>
@@ -637,7 +637,7 @@
         <span class="pull-right">{{{VGroupButton}}}</span>
       </div>
       {{#VGroup}}
-      <table class="cockpit-info-table">
+      <table class="info-table-ct">
         <tr>
           <td translatable="yes" context="storage">Name</td>
           <td>{{dbus.Name}}</td>
@@ -735,7 +735,7 @@
               <span class="alert-message">{{Message}}</span>
             </div>
             {{/Alerts}}
-            <table class="cockpit-form-table">
+            <table class="form-table-ct">
               {{#Fields}}
               <tr>
                 {{#TextInput}}

@@ -1281,6 +1281,7 @@ dispatch_queue (CockpitSshTransport *self)
 {
   GBytes *block;
   const guchar *data;
+  const gchar *msg;
   gsize length;
   gsize want;
   int rc;
@@ -1303,16 +1304,20 @@ dispatch_queue (CockpitSshTransport *self)
       rc = ssh_channel_write (self->data->channel, data + self->partial, want);
       if (rc < 0)
         {
+          msg = ssh_get_error (self->data->session);
           if (ssh_get_error_code (self->data->session) == SSH_REQUEST_DENIED)
             {
-              g_debug ("%s: couldn't write: %s", self->logname,
-                       ssh_get_error (self->data->session));
+              g_debug ("%s: couldn't write: %s", self->logname, msg);
               return FALSE;
+            }
+          else if (ssh_msg_is_disconnected (msg))
+            {
+              g_message ("%s: couldn't write: %s", self->logname, msg);
+              close_immediately (self, "terminated");
             }
           else
             {
-              g_warning ("%s: couldn't write: %s", self->logname,
-                         ssh_get_error (self->data->session));
+              g_warning ("%s: couldn't write: %s", self->logname, msg);
               close_immediately (self, "internal-error");
             }
           break;

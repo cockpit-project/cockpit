@@ -308,9 +308,9 @@ define([
     $("#credentials-dialog")
 
         /* Show and hide panels */
-        .on("click", "tr.listing-item", function(ev) {
+        .on("click", "tr.listing-ct-item", function(ev) {
             var body, open;
-            if ($(ev.target).parents(".listing-actions, ul").length === 0) {
+            if ($(ev.target).parents(".listing-ct-actions, ul").length === 0) {
                 body = $(ev.target).parents("tbody");
                 body.toggleClass("open").removeClass("unlock");
                 body.find(".alert").hide();
@@ -318,11 +318,11 @@ define([
         })
 
         /* Highlighting */
-        .on("mouseenter", ".listing-item", function(ev) {
-            $(ev.target).parents("tbody").find(".listing-item").addClass("highlight");
+        .on("mouseenter", ".listing-ct-item", function(ev) {
+            $(ev.target).parents("tbody").find(".listing-ct-item").addClass("highlight");
         })
-        .on("mouseleave", ".listing-item", function(ev) {
-            $(ev.target).parents("tbody").find(".listing-item").removeClass("highlight");
+        .on("mouseleave", ".listing-ct-item", function(ev) {
+            $(ev.target).parents("tbody").find(".listing-ct-item").removeClass("highlight");
         })
 
         /* Load and unload keys */

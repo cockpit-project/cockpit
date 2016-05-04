@@ -1,5 +1,5 @@
 <div class="content-filter">
-    <div class="listing-actions">
+    <div class="listing-ct-actions">
         <button class="btn btn-danger btn-delete pficon pficon-delete"
             ng-click="deleteImageStream(stream)"></button>
         <button class="btn btn-default pficon pficon-edit"
@@ -12,12 +12,12 @@
     <a ng-href="#{{ viewUrl('images') }}" translatable="yes">Show all image streams</a>
 </div>
 
-<div class="listing-inline">
+<div class="listing-ct-inline">
     <h3 translatable="yes">Image Stream</h3>
-    <div class="listing-body" imagestream-body></div>
+    <div class="listing-ct-body" imagestream-body></div>
     <h3 translatable="yes">Images</h3>
     <div image-listing>
     </div>
     <h3 translatable="yes" ng-if="stream.metadata.annotations">Metadata</h3>
-    <div class="listing-body" imagestream-meta></div>
+    <div class="listing-ct-body" imagestream-meta></div>
 </div>

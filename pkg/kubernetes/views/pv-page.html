@@ -1,5 +1,5 @@
 <div class="content-filter">
-    <div class="listing-actions" ng-if="item">
+    <div class="listing-ct-actions" ng-if="item">
         <button class="btn btn-danger btn-delete pficon pficon-delete" ng-click="deletePV(item)"></button>
         <button class="btn btn-default pficon pficon-edit"
             ng-if="canEdit(item)" ng-click="modifyPV(item)"></button>
@@ -9,14 +9,14 @@
     <a ng-href="#/volumes" translatable="yes" class="hidden-xs">Show all Persistent Volumes</a>
 </div>
 
-<div class="listing-inline" ng-if="item">
+<div class="listing-ct-inline" ng-if="item">
     <h3 translatable="yes">Volume</h3>
-    <div class="listing-body container-fluid" pv-body></div>
+    <div class="listing-ct-body container-fluid" pv-body></div>
 
     <h3 translatable="yes">Claim</h3>
-    <div class="listing-body container-fluid" pv-claim></div>
+    <div class="listing-ct-body container-fluid" pv-claim></div>
 </div>
 
-<div class="listing-inline" ng-if="!item">
+<div class="listing-ct-inline" ng-if="!item">
     <h3 translatable="yes">The persistent volume '{{ target }}' does not exist.</h3>
 </div>

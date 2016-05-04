@@ -1,5 +1,5 @@
-<div class="listing-head">
-    <div class="listing-actions">
+<div class="listing-ct-head">
+    <div class="listing-ct-actions">
         <button title="Delete" class="delete-entity btn btn-danger btn-delete pficon pficon-delete"
             ng-click="deleteItem(item)"></button>
         <button title="Adjust" class="adjust-entity btn btn-default pficon pficon-edit"
@@ -14,13 +14,13 @@
             <a ng-click="tab('template', $event)" translatable="yes">Template</a></li>
     </ul>
 </div>
-<div class="listing-body" replicationcontroller-body ng-show="tab('main')">
+<div class="listing-ct-body" replicationcontroller-body ng-show="tab('main')">
 
 </div>
-<div class="listing-body" replicationcontroller-pods ng-show="tab('pods')">
+<div class="listing-ct-body" replicationcontroller-pods ng-show="tab('pods')">
 
 </div>
-<div class="listing-body" ng-show="tab('template')">
+<div class="listing-ct-body" ng-show="tab('template')">
     <kube-pod-body ng-init="pod = item.spec.template">
     </kube-pod-body>
     <kube-container-body ng-repeat="container in containers(item.spec.template)">

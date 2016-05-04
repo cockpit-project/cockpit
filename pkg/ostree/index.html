@@ -35,13 +35,13 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 <body hidden>
 
 <script type="text/ng-template" id="ostree-check.html">
-<div class="timeline timeline-end">
-    <div class="timeline-point timeline-md" ng-if="isRunning">
+<div class="timeline-ct timeline-ct-end">
+    <div class="timeline-ct-point timeline-ct-md" ng-if="isRunning">
         <div class="spinner"></div>
     </div>
-    <i ng-if="!isRunning" class="fa fa-caret-up timeline-point timeline-md"></i>
-    <div class="listing-panel listing-maybe">
-        <div class="listing-head">
+    <i ng-if="!isRunning" class="fa fa-caret-up timeline-ct-point timeline-ct-md"></i>
+    <div class="listing-ct-panel listing-ct-maybe">
+        <div class="listing-ct-head">
             <div ng-if="isRunning" class="display-inline">
                 {{ progressMsg }}
             </div>
@@ -49,7 +49,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 <span class="pficon pficon-warning-triangle-o"></span>
                 {{ error }}
             </div>
-            <div class="listing-actions">
+            <div class="listing-ct-actions">
                 <button class="btn btn-default" ng-class="{ disabled: runningMethod }" ng-click="checkForUpgrades()" translatable="yes">Check for updates</button>
             </div>
         </div>
@@ -58,17 +58,17 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 </script>
 
 <script type="text/ng-template" id="ostree-item.html">
-<div class="timeline">
-    <div class="timeline-point timeline-md" ng-if="isRunning">
+<div class="timeline-ct">
+    <div class="timeline-ct-point timeline-ct-md" ng-if="isRunning">
         <div class="spinner"></div>
     </div>
-    <i class="fa fa-circle timeline-point"
+    <i class="fa fa-circle timeline-ct-point"
        ng-if="!matches('DefaultDeployment') && !isRunning"></i>
-    <i class="fa timeline-point timeline-lg active fa-check-circle-o"
+    <i class="fa timeline-ct-point timeline-ct-lg active fa-check-circle-o"
        ng-if="matches('DefaultDeployment') && !isRunning"></i>
-    <div class="listing-panel">
-        <div class="listing-head">
-            <div class="listing-actions">
+    <div class="listing-ct-panel">
+        <div class="listing-ct-head">
+            <div class="listing-ct-actions">
                 <button ng-class="{ disabled: runningMethod }"
                         ng-click="doUpgrade(item.osname.v, item.checksum.v)"
                         ng-if="matches('CachedUpdate') && !matches('DefaultDeployment')"
@@ -81,7 +81,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                         translatable="yes" class="btn btn-default">Roll back and reboot</button>
             </div>
             <h3>{{ item | releaseName }}</h3>
-            <div ng-if="!isRunning" class="listing-status">
+            <div ng-if="!isRunning" class="listing-ct-status">
               <span ng-if="!error">
                   <span ng-if="matches('BootedDeployment')">
                     <i class="pficon pficon-ok"></i>
@@ -96,7 +96,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
               </span>
               <span ng-if="error" translatable="yes">Failed</span>
             </div>
-            <div ng-if="isRunning" class="listing-status">
+            <div ng-if="isRunning" class="listing-ct-status">
                 <div class="ostree-progress" ng-if="progressMsg">{{ progressMsg }}</div>
                 <div class="ostree-progress" ng-if="!progressMsg" translatable="yes">Updating</div>
             </div>
@@ -105,11 +105,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 <li ng-class="{active: activeTab('packages') }"><a translatable="yes" ng-click="switchTab('packages')">Packages</a></li>
             </ul>
         </div>
-        <div class="listing-error alert" ng-if="error">
+        <div class="listing-ct-error alert" ng-if="error">
             <span class="pficon pficon-warning-triangle-o"></span>
             {{ error }}
         </div>
-        <div class="listing-body hidden tree" ng-class="{active: activeTab('tree')}">
+        <div class="listing-ct-body hidden tree" ng-class="{active: activeTab('tree')}">
             <div class="row">
                 <div class="col-sm-6">
                     <dl>
@@ -135,7 +135,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 </div>
             </div>
         </div>
-        <div class="listing-body hidden packages" ng-class="{active: activeTab('packages')}">
+        <div class="listing-ct-body hidden packages" ng-class="{active: activeTab('packages')}">
             <div class="row">
                 <div class="col-sm-6" ng-if="packages.empty" translatable="yes">
                     This deployment contains the same packages as your currently booted system
@@ -182,7 +182,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 </script>
 
 <script type="text/ng-template" id="index.html">
-<table class="listing" ng-repeat="os in os_list"
+<table class="listing-ct" ng-repeat="os in os_list"
     ng-init="first = $first"
     ng-class="{ listingtop: first}">
     <thead>

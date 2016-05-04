@@ -1,5 +1,5 @@
 <div>
-<table listing-table class="listing pv-listing">
+<table listing-table class="listing-ct pv-listing">
     <thead>
         <tr>
             <td colspan="4">
@@ -11,7 +11,7 @@
             </td>
         </tr>
         <tr>
-            <th class="listing-toggle"></th>
+            <th class="listing-ct-toggle"></th>
             <th translatable="yes">Name</th>
             <th translatable="yes">Type</th>
             <th translatable="yes">Status</th>
@@ -20,9 +20,9 @@
     <tbody ng-repeat-start="item in pvs track by item.metadata.name"
            ng-init="sid = item.metadata.name"
            data-id="{{ sid }}" ng-class="{ open: listing.expanded(sid) }">
-        <tr ng-click="listing.activate(sid)" class="listing-item">
+        <tr ng-click="listing.activate(sid)" class="listing-ct-item">
             <td ng-click="listing.toggle(sid, $event)"
-                class="listing-toggle">
+                class="listing-ct-toggle">
                 <i class="fa fa-fw"></i>
             </td>
             <th>{{ item.metadata.name }}</th>
@@ -30,7 +30,7 @@
             <td ng-if="item.status.phase">{{ item.status.phase}}</td>
             <td ng-if="!item.status.phase"  translatable="yes">Unknown</td>
         </tr>
-        <tr class="listing-panel" ng-if="listing.expanded(sid)" ng-init="id = sid">
+        <tr class="listing-ct-panel" ng-if="listing.expanded(sid)" ng-init="id = sid">
             <td listing-panel kind="pv" colspan="4"></td>
         </tr>
     </tbody>

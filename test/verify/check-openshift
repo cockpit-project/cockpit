@@ -323,15 +323,15 @@ class TestRegistry(MachineCase):
         # Lets navigate to an image stream
         b.click("a[href='#/images/marmalade/busybee']")
         b.wait_in_text(".content-filter h3", "marmalade/busybee")
-        b.click("tbody[data-id='marmalade/busybee:0.x'] tr td.listing-toggle")
-        b.wait_in_text("tbody[data-id='marmalade/busybee:0.x'] .listing-panel dl.image-tags", "marmalade/busybee:0.x")
+        b.click("tbody[data-id='marmalade/busybee:0.x'] tr td.listing-ct-toggle")
+        b.wait_in_text("tbody[data-id='marmalade/busybee:0.x'] .listing-ct-panel dl.image-tags", "marmalade/busybee:0.x")
 
         # Look at the image layers
-        b.click(".listing-head li:last-child a")
-        b.wait_present(".listing-body image-layers")
-        b.wait_visible(".listing-body image-layers")
-        b.wait_in_text(".listing-body image-layers", "ADD file:")
-        b.wait_in_text(".listing-body image-layers", "Image layers")
+        b.click(".listing-ct-head li:last-child a")
+        b.wait_present(".listing-ct-body image-layers")
+        b.wait_visible(".listing-ct-body image-layers")
+        b.wait_in_text(".listing-ct-body image-layers", "ADD file:")
+        b.wait_in_text(".listing-ct-body image-layers", "Image layers")
 
         # Add postgres into the stream
         output = o.execute("oc get imagestream --namespace=marmalade --template='{{.spec}}' busybee")
@@ -410,9 +410,9 @@ class TestRegistry(MachineCase):
 
         # Delete via the main UI
         b.wait_present("tbody[data-id='marmalade/busybee:latest']")
-        b.click("tbody[data-id='marmalade/busybee:latest'] tr.listing-item td.listing-toggle")
-        b.wait_in_text("tbody[data-id='marmalade/busybee:latest'] .listing-panel dl.image-tags", "marmalade/busybee:latest")
-        b.click("tbody[data-id='marmalade/busybee:latest'] .listing-head .pficon-delete")
+        b.click("tbody[data-id='marmalade/busybee:latest'] tr.listing-ct-item td.listing-ct-toggle")
+        b.wait_in_text("tbody[data-id='marmalade/busybee:latest'] .listing-ct-panel dl.image-tags", "marmalade/busybee:latest")
+        b.click("tbody[data-id='marmalade/busybee:latest'] .listing-ct-head .pficon-delete")
         b.wait_present("modal-dialog")
         b.click("modal-dialog .btn-danger")
         b.wait_not_present("modal-dialog")
@@ -424,15 +424,15 @@ class TestRegistry(MachineCase):
         b.go("#/images/marmalade/juggs")
         b.wait_in_text(".content-filter h3", "marmalade/juggs")
         b.wait_present("tbody[data-id='marmalade/juggs:2.9']")
-        b.click("tbody[data-id='marmalade/juggs:2.9'] tr.listing-item td.listing-toggle")
+        b.click("tbody[data-id='marmalade/juggs:2.9'] tr.listing-ct-item td.listing-ct-toggle")
 
         # Various labels should show up in this image
-        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] .listing-panel", "Juggs Image")
+        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] .listing-ct-panel", "Juggs Image")
         b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] div[image-body]", "This is a test description of an image. It can be as long as a paragraph, featuring a nice brogrammer sales pitch.")
         b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] div[image-body]", "http://hipsum.co")
 
         # And some key labels shouldn't show up on the metadata
-        b.click("tbody[data-id='marmalade/juggs:2.9'] .listing-head li:last-child a")
+        b.click("tbody[data-id='marmalade/juggs:2.9'] .listing-ct-head li:last-child a")
         b.wait_present("tbody[data-id='marmalade/juggs:2.9'] div[image-meta]")
         b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] div[image-meta]", "build-date=2016-03-04")
 
@@ -678,7 +678,7 @@ class TestRegistry(MachineCase):
         # Change the project access
         b.go("#/projects/marmalade")
         b.wait_in_text(".content-filter h3", "marmalade")
-        b.wait_in_text(".listing-body", "Project access policy allows all authenticated users to pull images. Grant additional access to specific members below.")
+        b.wait_in_text(".listing-ct-body", "Project access policy allows all authenticated users to pull images. Grant additional access to specific members below.")
         b.click(".content-filter .pficon-edit")
         b.wait_present("modal-dialog")
         b.wait_visible("#project-access-policy")
@@ -688,7 +688,7 @@ class TestRegistry(MachineCase):
         b.click("#project-access-policy a[value='private']")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
-        b.wait_not_in_text(".listing-body", "Project access policy only allows specific members to access images. Grant access to specific members below.")
+        b.wait_not_in_text(".listing-ct-body", "Project access policy only allows specific members to access images. Grant access to specific members below.")
         output = o.execute("oc policy who-can get --namespace=marmalade imagestreams/layers")
         self.assertNotIn("system:authenticated", output)
 
@@ -719,8 +719,8 @@ class TestRegistry(MachineCase):
         # Go and modify the project
         b.go("#/projects")
         b.wait_present("tbody[data-id='llama']")
-        b.wait_present("tbody[data-id='llama'] tr.listing-item")
-        b.click("tbody[data-id='llama'] tr.listing-item td:nth-of-type(2)")
+        b.wait_present("tbody[data-id='llama'] tr.listing-ct-item")
+        b.click("tbody[data-id='llama'] tr.listing-ct-item td:nth-of-type(2)")
         b.wait_in_text(".content-filter h3", "Display llama (llama)")
         b.wait_in_text("#content", "Description goes here")
         b.click(".pficon-edit")

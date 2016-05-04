@@ -1,4 +1,4 @@
-<div class="listing-head">
+<div class="listing-ct-head">
     <ul class="nav nav-tabs nav-tabs-pf">
         <li ng-class="{active: tab('main')}">
             <a ng-click="tab('main', $event)" translatable="yes">Container</a></li>
@@ -9,14 +9,14 @@
                 <a class="shell" ng-click="tab('shell', $event); tabbed = true" translatable="yes">Shell</a></li>
     </ul>
 </div>
-<div class="listing-body" ng-show="tab('main')">
+<div class="listing-ct-body" ng-show="tab('main')">
     <kube-container-body></kube-container-body>
 </div>
-<div class="listing-body" ng-show="tab('logs')">
+<div class="listing-ct-body" ng-show="tab('logs')">
     <kube-console pod="item" container="container.spec.name" prevent="!tabbed">
     </kube-console>
 </div>
-<div class="listing-body" ng-show="tab('shell')"
+<div class="listing-ct-body" ng-show="tab('shell')"
     ng-if="item.status.phase == 'Running' && container.status.state.running">
     <kubernetes-container-terminal pod="item" container="container.spec.name" prevent="!tabbed">
     </kubernetes-container-terminal>

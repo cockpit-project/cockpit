@@ -1,5 +1,5 @@
 <div class="content-filter">
-        <div class="listing-actions" ng-if="item">
+        <div class="listing-ct-actions" ng-if="item">
             <button title="Delete" class="delete-pod btn btn-danger btn-delete pficon pficon-delete"
                 ng-click="deleteItem(item)"></button>
         </div>
@@ -8,15 +8,15 @@
     <a ng-click="navigate(type)" translatable="yes" class="hidden-xs">Show all Pods</a>
 </div>
 
-<div class="listing-inline" ng-if="item">
+<div class="listing-ct-inline" ng-if="item">
     <h3 translatable="yes">Pod</h3>
-    <div class="listing-body container-fluid">
+    <div class="listing-ct-body container-fluid">
         <kube-pod-body ng-init="pod = item">
         </kube-pod-body>
     </div>
 
     <h3 translatable="yes">Volumes</h3>
-    <div class="listing-body container-fluid" ng-repeat="podVolume in volumesForPod(item)" data-id="{{ podVolume.name }}">
+    <div class="listing-ct-body container-fluid" ng-repeat="podVolume in volumesForPod(item)" data-id="{{ podVolume.name }}">
         <h4>{{ podVolume.name }}</h4>
         <dl ng-if="!podVolume.persistentVolumeClaim" volume-body volume="podVolume"></dl>
         <dl ng-if="podVolume.persistentVolumeClaim" pvc-body settings="settings"
@@ -34,8 +34,8 @@
     </div>
 
     <h3 translatable="yes">Containers</h3>
-    <div class="listing-body" ng-init="pods=[item]" containers-listing></div>
+    <div class="listing-ct-body" ng-init="pods=[item]" containers-listing></div>
 
-<div class="listing-inline" ng-if="!item">
+<div class="listing-ct-inline" ng-if="!item">
     <h3 translatable="yes">The pod '{{ target }}' does not exist.</h3>
 </div>

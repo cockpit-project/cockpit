@@ -138,13 +138,13 @@ var ListingRow = React.createClass({
 
         var expand_toggle = null;
         if (this.props.tabRenderers.length > 0) {
-            expand_toggle = <td className="listing-toggle" onClick={ allow_navigate?this.handleExpandClick:undefined }>
+            expand_toggle = <td className="listing-ct-toggle" onClick={ allow_navigate?this.handleExpandClick:undefined }>
                                 <i className="fa fa-fw"></i>
                             </td>;
         }
-        var listing_item_classes = ["listing-item"];
+        var listing_item_classes = ["listing-ct-item"];
         if (!allow_navigate)
-            listing_item_classes.push("cockpit-nonavigate");
+            listing_item_classes.push("listing-ct-nonavigate");
         var listing_item = (
             <tr className={ listing_item_classes.join(' ') }
                 onClick={ allow_navigate?this.handleNavigateClick:this.handleExpandClick }>
@@ -175,18 +175,18 @@ var ListingRow = React.createClass({
                     continue;
                 row = <Renderer key={ this.props.tabRenderers[tabIdx].name } hidden={ (tabIdx !== this.state.activeTab) } {...renderer_data} />;
                 if (tabIdx === this.state.activeTab)
-                    tabs.push(<div className="listing-body" key={tabIdx}>{row}</div>);
+                    tabs.push(<div className="listing-ct-body" key={tabIdx}>{row}</div>);
                 else
-                    tabs.push(<div className="listing-body" key={tabIdx} hidden>{row}</div>);
+                    tabs.push(<div className="listing-ct-body" key={tabIdx} hidden>{row}</div>);
             }
 
             return (
                 <tbody className="open">
                     {listing_item}
-                    <tr className="listing-panel">
+                    <tr className="listing-ct-panel">
                         <td colSpan={ header_entries.length + (expand_toggle?1:0) }>
-                            <div className="listing-head">
-                                <div className="listing-actions">
+                            <div className="listing-ct-head">
+                                <div className="listing-ct-actions">
                                     {this.props.listingActions}
                                 </div>
                                 <ul className="nav nav-tabs nav-tabs-pf">
@@ -202,7 +202,7 @@ var ListingRow = React.createClass({
             return (
                 <tbody>
                     {listing_item}
-                    <tr className="listing-panel"/>
+                    <tr className="listing-ct-panel"/>
                 </tbody>
             );
         }
@@ -225,9 +225,9 @@ var Listing = React.createClass({
         };
     },
     render: function() {
-        var bodyClasses = ["listing"];
+        var bodyClasses = ["listing", "listing-ct"];
         if (this.props.fullWidth)
-            bodyClasses.push("table-listing-ct");
+            bodyClasses.push("listing-ct-wide");
         return (
             <table className={ bodyClasses.join(" ") }>
                 <caption className="cockpit-caption">{this.props.title}</caption>

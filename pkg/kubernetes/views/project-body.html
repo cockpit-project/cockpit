@@ -9,7 +9,7 @@
     </span>
 </p>
 
-<table listing-table class="listing project-body">
+<table listing-table class="listing-ct project-body">
     <thead >
         <tr >
             <th translatable="yes">Project Members</th>
@@ -18,7 +18,7 @@
         </tr>
     </thead>
     <tbody colspan="3" ng-repeat="user in users()" data-id="{{ user.metadata.name }}" ng-if="user && project() && subjectIsMember(user, project())">
-        <tr class="listing-item inner-project-listing">
+        <tr class="listing-ct-item inner-project-listing">
             <td ng-click="listing.activate('/users/' + user.metadata.name)">
                 <div>
                     <i class="user-page-icons pficon pficon-user"></i>
@@ -53,7 +53,7 @@
         </tr>
     </tbody>
     <tbody colspan="3" ng-repeat="group in groups()" data-id="{{ group.metadata.name }}" ng-if="group && project() && subjectIsMember(group, project())">
-        <tr class="listing-item inner-project-listing">
+        <tr class="listing-ct-item inner-project-listing">
             <td ng-click="listing.activate('/groups/' + group.metadata.name)">
                 <div>
                     <i class="user-page-icons pficon pficon-users"></i>

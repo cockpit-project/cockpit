@@ -131,8 +131,8 @@ class VolumeTests(object):
 
         b.click(".pv-listing tbody[data-id='pv2'] th")
         b.wait_present(".content-filter")
-        b.wait_in_text(".listing-inline", "/tmp")
-        b.wait_in_text(".listing-inline", "This volume has not been claimed")
+        b.wait_in_text(".listing-ct-inline", "/tmp")
+        b.wait_in_text(".listing-ct-inline", "This volume has not been claimed")
         b.wait_present(".content-filter button.pficon-edit")
         b.click(".content-filter button.pficon-edit")
         b.wait_present("modal-dialog")
@@ -146,7 +146,7 @@ class VolumeTests(object):
             b.set_val("modal-dialog #modify-path", "/not-tmp")
             b.click("modal-dialog .modal-footer button.btn-primary")
             b.wait_not_present("modal-dialog")
-            b.wait_in_text(".listing-inline", "/not-tmp")
+            b.wait_in_text(".listing-ct-inline", "/not-tmp")
         else:
             b.click("modal-dialog button.btn-default")
             b.wait_not_present("modal-dialog")
@@ -166,16 +166,16 @@ class VolumeTests(object):
 
         base_sel = ".pv-listing tbody[data-id='{}']".format(pv_id)
         b.wait_present(base_sel)
-        b.click("{} td.listing-toggle".format(base_sel))
-        b.wait_in_text("{} tr.listing-item td:last-child".format(base_sel), "Available")
+        b.click("{} td.listing-ct-toggle".format(base_sel))
+        b.wait_in_text("{} tr.listing-ct-item td:last-child".format(base_sel), "Available")
 
         m.upload(["verify/files/mock-volume-tiny-app.json"], "/tmp")
         m.execute("kubectl create -f /tmp/mock-volume-tiny-app.json")
 
-        b.wait_in_text("{} tr.listing-item td:last-child".format(base_sel), "Bound")
-        b.click("{} .listing-panel ul.nav-tabs li:nth-child(2) a".format(base_sel))
-        b.wait_in_text("{} .listing-panel".format(base_sel), "mock-volume-claim")
-        b.wait_in_text("{} .listing-panel ".format(base_sel), "default / mock-volume")
+        b.wait_in_text("{} tr.listing-ct-item td:last-child".format(base_sel), "Bound")
+        b.click("{} .listing-ct-panel ul.nav-tabs li:nth-child(2) a".format(base_sel))
+        b.wait_in_text("{} .listing-ct-panel".format(base_sel), "mock-volume-claim")
+        b.wait_in_text("{} .listing-ct-panel ".format(base_sel), "default / mock-volume")
 
         pods = m.execute('kubectl get pods --output=template -t="{{ range .items }}{{.metadata.name}}|{{ end }}"')
         pod = [ x for x in pods.split("|") if x.startswith("mock-volume")][0]
@@ -184,24 +184,24 @@ class VolumeTests(object):
         b.click("a[href='#/list']")
         b.wait_present("#content .details-listing")
         b.wait_present("#content .details-listing tbody[data-id='{}']".format(pod_id))
-        b.click("#content .details-listing tbody[data-id='{}'] td.listing-toggle".format(pod_id))
-        b.wait_present(".listing-panel ul.nav-tabs")
-        b.click(".listing-panel ul.nav-tabs li:last-child a".format(pod_id))
-        b.wait_present(".listing-body")
-        b.wait_js_func("ph_count_check", ".listing-body div.well", 2)
+        b.click("#content .details-listing tbody[data-id='{}'] td.listing-ct-toggle".format(pod_id))
+        b.wait_present(".listing-ct-panel ul.nav-tabs")
+        b.click(".listing-ct-panel ul.nav-tabs li:last-child a".format(pod_id))
+        b.wait_present(".listing-ct-body")
+        b.wait_js_func("ph_count_check", ".listing-ct-body div.well", 2)
 
         volumes = m.execute('kubectl get pods/%s --output=template -t="{{ range .spec.volumes }}{{.name}}|{{ end }}"' % pod)
         secret = [ x for x in volumes.split("|") if x.startswith("default-token")][0]
 
-        b.wait_in_text(".listing-body div[data-id='{}']".format(secret), "Secret")
-        b.wait_in_text(".listing-body div[data-id='{}']".format(secret), "mock-volume-container")
-        b.wait_in_text(".listing-body div[data-id='{}']".format(secret), "/var/run/secrets/kubernetes.io/serviceaccount")
-        b.wait_present(".listing-body div[data-id='host-tmp']")
-        b.wait_in_text(".listing-body div[data-id='host-tmp']", "Persistent Volume Claim")
-        b.wait_in_text(".listing-body div[data-id='host-tmp']", "mock-volume-claim")
-        b.wait_in_text(".listing-body div[data-id='host-tmp']", "mock-volume-container")
-        b.wait_in_text(".listing-body div[data-id='host-tmp']", "/mount-path-tmp")
-        b.wait_present(".listing-body div[data-id='host-tmp'] a[href='#/volumes/{}']".format(pv_id))
+        b.wait_in_text(".listing-ct-body div[data-id='{}']".format(secret), "Secret")
+        b.wait_in_text(".listing-ct-body div[data-id='{}']".format(secret), "mock-volume-container")
+        b.wait_in_text(".listing-ct-body div[data-id='{}']".format(secret), "/var/run/secrets/kubernetes.io/serviceaccount")
+        b.wait_present(".listing-ct-body div[data-id='host-tmp']")
+        b.wait_in_text(".listing-ct-body div[data-id='host-tmp']", "Persistent Volume Claim")
+        b.wait_in_text(".listing-ct-body div[data-id='host-tmp']", "mock-volume-claim")
+        b.wait_in_text(".listing-ct-body div[data-id='host-tmp']", "mock-volume-container")
+        b.wait_in_text(".listing-ct-body div[data-id='host-tmp']", "/mount-path-tmp")
+        b.wait_present(".listing-ct-body div[data-id='host-tmp'] a[href='#/volumes/{}']".format(pv_id))
 
 class KubernetesCommonTests(VolumeTests):
 
@@ -215,23 +215,23 @@ class KubernetesCommonTests(VolumeTests):
 
     def check_logs(self, b):
         # Check that container log output shows up
-        b.click("#content .containers-listing tbody:first-of-type tr.listing-item td.listing-toggle")
-        b.wait_in_text("#content .containers-listing tbody.open tr.listing-item td:last-child", "running")
-        b.wait_present("tbody.open .listing-panel")
-        b.click("tbody.open .listing-panel .listing-head li a.logs")
-        b.wait_present("tbody.open .listing-panel pre.logs")
-        b.wait_visible("tbody.open .listing-panel pre.logs")
-        b.wait_in_text("tbody.open .listing-panel pre.logs", "HelloMessage.")
+        b.click("#content .containers-listing tbody:first-of-type tr.listing-ct-item td.listing-ct-toggle")
+        b.wait_in_text("#content .containers-listing tbody.open tr.listing-ct-item td:last-child", "running")
+        b.wait_present("tbody.open .listing-ct-panel")
+        b.click("tbody.open .listing-ct-panel .listing-ct-head li a.logs")
+        b.wait_present("tbody.open .listing-ct-panel pre")
+        b.wait_visible("tbody.open .listing-ct-panel pre")
+        b.wait_in_text("tbody.open .listing-ct-panel pre", "HelloMessage.")
 
     def check_shell(self, b):
-        b.wait_present("tbody.open .listing-panel .listing-head li a.shell")
-        b.click("tbody.open .listing-panel .listing-head li a.shell")
-        b.wait_present("tbody.open .listing-panel div.terminal")
-        b.wait_visible("tbody.open .listing-panel div.terminal")
-        b.wait_in_text("tbody.open .listing-panel .terminal div:nth-child(1)", "#")
-        b.focus('tbody.open .listing-panel .terminal')
+        b.wait_present("tbody.open .listing-ct-panel .listing-ct-head li a.shell")
+        b.click("tbody.open .listing-ct-panel .listing-ct-head li a.shell")
+        b.wait_present("tbody.open .listing-ct-panel div.terminal")
+        b.wait_visible("tbody.open .listing-ct-panel div.terminal")
+        b.wait_in_text("tbody.open .listing-ct-panel .terminal div:nth-child(1)", "#")
+        b.focus('tbody.open .listing-ct-panel .terminal')
         b.key_press( [ 'w', 'h', 'o', 'a', 'm', 'i', 'Return' ] )
-        b.wait_in_text("tbody.open .listing-panel .terminal div:nth-child(2)", "root")
+        b.wait_in_text("tbody.open .listing-ct-panel .terminal div:nth-child(2)", "root")
 
     def testDelete(self):
         b = self.browser
@@ -256,7 +256,7 @@ class KubernetesCommonTests(VolumeTests):
         b.wait_present(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] th")
         self.assertEqual(b.text(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] th"), podl[0])
 
-        b.click(".details-listing tbody[data-id='services/default/mock'] td.listing-toggle")
+        b.click(".details-listing tbody[data-id='services/default/mock'] td.listing-ct-toggle")
         b.wait_visible(".details-listing tbody[data-id='services/default/mock'] .delete-entity")
         b.click(".details-listing tbody[data-id='services/default/mock'] .delete-entity")
         b.wait_present("modal-dialog")
@@ -264,7 +264,7 @@ class KubernetesCommonTests(VolumeTests):
         b.wait_not_present("modal-dialog")
         b.wait_not_present(".details-listing tbody[data-id='services/default/mock']")
 
-        b.click(".details-listing tbody[data-id='replicationcontrollers/default/mock'] td.listing-toggle")
+        b.click(".details-listing tbody[data-id='replicationcontrollers/default/mock'] td.listing-ct-toggle")
         b.wait_visible(".details-listing tbody[data-id='replicationcontrollers/default/mock'] .delete-entity")
         b.click(".details-listing tbody[data-id='replicationcontrollers/default/mock'] .delete-entity")
         b.wait_present("modal-dialog")
@@ -272,7 +272,7 @@ class KubernetesCommonTests(VolumeTests):
         b.wait_not_present("modal-dialog")
         b.wait_not_present(".details-listing tbody[data-id='replicationcontrollers/default/mock']")
 
-        b.click(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] td.listing-toggle")
+        b.click(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] td.listing-ct-toggle")
         b.wait_visible(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] .delete-pod")
         b.click(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] .delete-pod")
         b.wait_present("modal-dialog")
@@ -361,23 +361,23 @@ class KubernetesCommonTests(VolumeTests):
         b.wait_present(".details-listing tbody[data-id='services/default/mock']")
         self.assertEqual(b.text(".details-listing tbody[data-id='services/default/mock'] th"), "mock")
         b.wait_present(".details-listing tbody[data-id='replicationcontrollers/default/mock']")
-        self.assertEqual(b.text(".details-listing tbody[data-id='replicationcontrollers/default/mock'] tr.listing-item th"), "mock")
+        self.assertEqual(b.text(".details-listing tbody[data-id='replicationcontrollers/default/mock'] tr.listing-ct-item th"), "mock")
         b.wait_not_present("#routes")
         b.wait_not_present("#deployment-configs")
 
         # Click on the service to expand into a panel
-        b.click(".details-listing tbody[data-id='services/default/mock'] td.listing-toggle")
-        b.wait_present(".details-listing tbody[data-id='services/default/mock'] tr.listing-panel")
-        b.wait_visible(".details-listing tbody[data-id='services/default/mock'] tr.listing-panel")
-        b.wait_in_text(".details-listing tbody[data-id='services/default/mock'] tr.listing-panel", "mock")
+        b.click(".details-listing tbody[data-id='services/default/mock'] td.listing-ct-toggle")
+        b.wait_present(".details-listing tbody[data-id='services/default/mock'] tr.listing-ct-panel")
+        b.wait_visible(".details-listing tbody[data-id='services/default/mock'] tr.listing-ct-panel")
+        b.wait_in_text(".details-listing tbody[data-id='services/default/mock'] tr.listing-ct-panel", "mock")
 
         # Other services should still be present
-        self.assertTrue(b.is_present(".details-listing tbody:not(.open) tr.listing-item"))
+        self.assertTrue(b.is_present(".details-listing tbody:not(.open) tr.listing-ct-item"))
 
         # Click into service
-        b.click(".details-listing tbody[data-id='services/default/mock'] tr.listing-item")
-        b.wait_in_text(".listing-inline", "Service")
-        b.wait_in_text(".listing-inline", "Endpoints")
+        b.click(".details-listing tbody[data-id='services/default/mock'] tr.listing-ct-item")
+        b.wait_in_text(".listing-ct-inline", "Service")
+        b.wait_in_text(".listing-ct-inline", "Endpoints")
         b.wait_present(".content-filter h3")
         b.wait_text(".content-filter h3", "mock")
         b.click("a.hidden-xs")
@@ -429,9 +429,9 @@ class KubernetesCommonTests(VolumeTests):
 
         b.click("#node-list tbody tr:first-child")
 
-        b.wait_present(".listing-inline")
-        b.wait_in_text(".listing-inline", "Node")
-        b.wait_in_text(".listing-inline", "Capacity")
+        b.wait_present(".listing-ct-inline")
+        b.wait_in_text(".listing-ct-inline", "Node")
+        b.wait_in_text(".listing-ct-inline", "Capacity")
         b.wait_present(".content-filter h3")
         b.wait_text(".content-filter h3", "127.0.0.1")
         b.click("a.hidden-xs")
@@ -446,16 +446,16 @@ class KubernetesCommonTests(VolumeTests):
             b.wait_present(".nodes-listing tbody[data-id='{}-mynode']".format(l))
 
         # Check inner page
-        b.wait_present(".nodes-listing tbody[data-id='a-mynode'] tr.listing-item")
-        b.click(".nodes-listing tbody[data-id='a-mynode'] tr.listing-item")
+        b.wait_present(".nodes-listing tbody[data-id='a-mynode'] tr.listing-ct-item")
+        b.click(".nodes-listing tbody[data-id='a-mynode'] tr.listing-ct-item")
         b.wait_present(".content-filter h3")
         b.wait_text(".content-filter h3", "a-mynode")
         b.click("a.hidden-xs")
 
         # Delete from inner page
         b.wait_present(".nodes-listing")
-        b.wait_present(".nodes-listing tbody[data-id='a-mynode'] tr.listing-item")
-        b.click(".nodes-listing tbody[data-id='a-mynode'] tr.listing-item")
+        b.wait_present(".nodes-listing tbody[data-id='a-mynode'] tr.listing-ct-item")
+        b.click(".nodes-listing tbody[data-id='a-mynode'] tr.listing-ct-item")
         b.wait_present(".content-filter button.btn-danger")
         b.click(".content-filter button.btn-danger")
         b.wait_present("modal-dialog")
@@ -468,18 +468,18 @@ class KubernetesCommonTests(VolumeTests):
         b.wait_not_present(".nodes-listing tbody[data-id='a-mynode']")
 
         # Check panel
-        b.click(".nodes-listing tbody[data-id='127.0.0.1'] tr.listing-item td.listing-toggle")
-        b.wait_present(".nodes-listing tbody[data-id='127.0.0.1'] tr.listing-panel")
-        self.assertTrue(b.is_visible(".nodes-listing tbody[data-id='127.0.0.1'] tr.listing-panel"))
-        b.wait_in_text("tbody[data-id='127.0.0.1'] tr.listing-panel", "Ready")
+        b.click(".nodes-listing tbody[data-id='127.0.0.1'] tr.listing-ct-item td.listing-ct-toggle")
+        b.wait_present(".nodes-listing tbody[data-id='127.0.0.1'] tr.listing-ct-panel")
+        self.assertTrue(b.is_visible(".nodes-listing tbody[data-id='127.0.0.1'] tr.listing-ct-panel"))
+        b.wait_in_text("tbody[data-id='127.0.0.1'] tr.listing-ct-panel", "Ready")
 
         # Delete from panel
         b.wait_present(".nodes-listing tbody[data-id='b-mynode']")
-        b.click(".nodes-listing tbody[data-id='b-mynode'] tr.listing-item td.listing-toggle")
-        b.wait_present(".nodes-listing tbody[data-id='b-mynode'] tr.listing-panel")
-        self.assertTrue(b.is_visible(".nodes-listing tbody[data-id='b-mynode'] tr.listing-panel"))
-        b.wait_in_text("tbody[data-id='b-mynode'] tr.listing-panel", "Unknown")
-        b.click("tbody[data-id='b-mynode'] .listing-actions button.btn-delete")
+        b.click(".nodes-listing tbody[data-id='b-mynode'] tr.listing-ct-item td.listing-ct-toggle")
+        b.wait_present(".nodes-listing tbody[data-id='b-mynode'] tr.listing-ct-panel")
+        self.assertTrue(b.is_visible(".nodes-listing tbody[data-id='b-mynode'] tr.listing-ct-panel"))
+        b.wait_in_text("tbody[data-id='b-mynode'] tr.listing-ct-panel", "Unknown")
+        b.click("tbody[data-id='b-mynode'] .listing-ct-actions button.btn-delete")
         b.wait_present("modal-dialog")
         b.wait_in_text("modal-dialog", "b-mynode")
         b.click("modal-dialog .btn-danger")
@@ -493,15 +493,15 @@ class KubernetesCommonTests(VolumeTests):
         b.click(".content-filter button.fa-check")
         b.wait_present(".content-filter button.fa-check.active")
         b.wait_present(".content-filter button.btn-danger.disabled")
-        b.wait_present("tbody[data-id='c-mynode'] td.listing-toggle input[type=checkbox]")
-        b.click("tbody[data-id='c-mynode'] td.listing-toggle input[type=checkbox]")
+        b.wait_present("tbody[data-id='c-mynode'] td.listing-ct-toggle input[type=checkbox]")
+        b.click("tbody[data-id='c-mynode'] td.listing-ct-toggle input[type=checkbox]")
         b.wait_not_present(".content-filter button.btn-danger.disabled")
         b.wait_present(".content-filter button.btn-danger")
-        b.click("tbody[data-id='c-mynode'] td.listing-toggle input[type=checkbox]")
+        b.click("tbody[data-id='c-mynode'] td.listing-ct-toggle input[type=checkbox]")
         b.wait_present(".content-filter button.btn-danger.disabled")
-        b.click("tbody[data-id='c-mynode'] td.listing-toggle input[type=checkbox]")
-        b.wait_present("tbody[data-id='d-mynode'] td.listing-toggle input[type=checkbox]")
-        b.click("tbody[data-id='d-mynode'] td.listing-toggle input[type=checkbox]")
+        b.click("tbody[data-id='c-mynode'] td.listing-ct-toggle input[type=checkbox]")
+        b.wait_present("tbody[data-id='d-mynode'] td.listing-ct-toggle input[type=checkbox]")
+        b.click("tbody[data-id='d-mynode'] td.listing-ct-toggle input[type=checkbox]")
         b.click(".content-filter button.btn-danger")
         b.wait_present("modal-dialog")
         b.wait_in_text("modal-dialog", "c-mynode")
@@ -594,7 +594,7 @@ class OpenshiftCommonTests(VolumeTests):
         self.assertEqual(b.is_present(".details-listing tbody[data-id='routes/default/mock'] th"), True)
         self.assertEqual(b.is_present(".details-listing tbody[data-id='deploymentconfigs/default/frontend'] th"), True)
 
-        b.click(".details-listing tbody[data-id='routes/default/mock'] td.listing-toggle")
+        b.click(".details-listing tbody[data-id='routes/default/mock'] td.listing-ct-toggle")
         b.wait_visible(".details-listing tbody[data-id='routes/default/mock'] .route-delete")
         b.click(".details-listing tbody[data-id='routes/default/mock'] .route-delete")
         b.wait_present("modal-dialog")
@@ -604,7 +604,7 @@ class OpenshiftCommonTests(VolumeTests):
         b.wait_not_present("modal-dialog")
         b.wait_not_present(".details-listing tbody[data-id='routes/default/mock']")
 
-        b.click(".details-listing tbody[data-id='deploymentconfigs/default/frontend']  td.listing-toggle")
+        b.click(".details-listing tbody[data-id='deploymentconfigs/default/frontend']  td.listing-ct-toggle")
         b.wait_visible(".details-listing tbody[data-id='deploymentconfigs/default/frontend'] .deployment-delete")
         b.click(".details-listing tbody[data-id='deploymentconfigs/default/frontend'] .deployment-delete")
         b.wait_present("modal-dialog")

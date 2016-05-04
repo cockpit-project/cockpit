@@ -1,4 +1,4 @@
-<table listing-table class="listing containers-listing">
+<table listing-table class="listing-ct containers-listing">
     <thead>
         <tr ng-if="!listing.inline">
             <td colspan="6">
@@ -23,9 +23,9 @@
     </tbody>
     <tbody ng-repeat="container in containers(item) track by container.key"
         ng-class="{open: listing.expanded(container.key)}">
-        <tr ng-click="listing.activate(container.key)" class="listing-item">
+        <tr ng-click="listing.activate(container.key)" class="listing-ct-item">
             <td ng-click="listing.toggle(container.key, $event)"
-                class="listing-toggle">
+                class="listing-ct-toggle">
                 <i class="fa fa-fw"></i>
             </td>
             <th>{{container.spec.name}}</th>
@@ -34,7 +34,7 @@
             <td>{{item.spec.nodeName}}</td>
             <td><span ng-repeat="(name, value) in container.status.state">{{name}}</span></td>
         </tr>
-        <tr class="listing-panel" ng-if="listing.expanded(container.key)">
+        <tr class="listing-ct-panel" ng-if="listing.expanded(container.key)">
             <td listing-panel kind="Container" colspan="6" ng-init="id = container.key"></td>
         </tr>
     </tbody>

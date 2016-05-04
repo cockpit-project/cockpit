@@ -1,4 +1,4 @@
-<table listing-table class="listing projects-listing">
+<table listing-table class="listing-ct projects-listing">
     <thead>
         <tr>
             <td colspan="4">
@@ -10,7 +10,7 @@
             </td>
         </tr>
         <tr>
-            <th class="listing-toggle"></th>
+            <th class="listing-ct-toggle"></th>
             <th translatable="yes">Name</th>
             <th translatable="yes">Description</th>
             <th translatable="yes">Members</th>
@@ -18,16 +18,16 @@
     </thead>
     <tbody ng-repeat-start="item in projects() track by item.metadata.name"  ng-init="sid = item.metadata.name" 
            data-id="{{ sid }}" ng-class="{ open: listing.expanded('/projects/' + sid) }">
-        <tr ng-click="listing.activate('/projects/' + sid)" class="listing-item">
+        <tr ng-click="listing.activate('/projects/' + sid)" class="listing-ct-item">
             <td ng-click="listing.toggle('/projects/' + sid, $event)"
-                class="listing-toggle">
+                class="listing-ct-toggle">
                 <i class="fa fa-fw"></i>
             </td>
             <td>{{ item.metadata.name }}</td>
             <td>{{ item.metadata.annotations["openshift.io/description"] }}</td>
             <td></td>
         </tr>
-        <tr class="listing-panel" ng-if="listing.expanded('/projects/' + sid)" ng-init="id = sid">
+        <tr class="listing-ct-panel" ng-if="listing.expanded('/projects/' + sid)" ng-init="id = sid">
             <td project-panel colspan="4"></td>
         </tr>
     </tbody>
@@ -43,7 +43,7 @@
             </td>
         </tr>
         <tr>
-            <th class="listing-toggle"></th>
+            <th class="listing-ct-toggle"></th>
             <th translatable="yes">Name</th>
             <th translatable="yes">Description</th>
             <th translatable="yes">Members</th>
@@ -51,16 +51,16 @@
     </thead>
     <tbody ng-repeat="item in groups() track by item.metadata.name"  ng-init="gid = item.metadata.name"  class="active"
         data-id="{{ gid }}" class="active" ng-class="{ open: listing.expanded('/groups/' + gid) }">
-        <tr ng-click="listing.activate('/groups/' + gid)" class="listing-item">
+        <tr ng-click="listing.activate('/groups/' + gid)" class="listing-ct-item">
             <td ng-click="listing.toggle('/groups/' + gid, $event)"
-                class="listing-toggle">
+                class="listing-ct-toggle">
                 <i class="fa fa-fw"></i>
             </td>
 	    <td>{{ item.metadata.name }}</td>
             <td></td>
             <td>{{ formatMembers(item.users, 'Users') }}</td>
         </tr>
-        <tr class="listing-panel" ng-if="listing.expanded('/groups/' + gid)" ng-init="id = gid">
+        <tr class="listing-ct-panel" ng-if="listing.expanded('/groups/' + gid)" ng-init="id = gid">
             <td group-panel colspan="4"></td></tr>
     </tbody>
     <thead>
@@ -74,7 +74,7 @@
             </td>
         </tr>
         <tr>
-            <th class="listing-toggle"></th>
+            <th class="listing-ct-toggle"></th>
             <th translatable="yes">Name</th>
             <th translatable="yes">Identity</th>
             <th translatable="yes">Member of</th>
@@ -82,16 +82,16 @@
     </thead>
     <tbody ng-repeat="item in users() track by item.metadata.name"  ng-init="sid = item.metadata.name" 
            data-id="{{ sid }}" ng-class="{ open: listing.expanded('/users/' + sid) }">
-        <tr ng-click="listing.activate('/users/' + sid)" class="listing-item">
+        <tr ng-click="listing.activate('/users/' + sid)" class="listing-ct-item">
             <td ng-click="listing.toggle('/users/' + sid, $event)"
-                class="listing-toggle">
+                class="listing-ct-toggle">
                 <i class="fa fa-fw"></i>
             </td>
             <td>{{ item.metadata.name }}</td>
             <td>{{ formatMembers(item.identities, 'Identities') }}</td>
             <td>{{ formatMembers(getMembershipOfUser(projects(),groups(),item.metadata.name), 'Groups') }}</td>
         </tr>
-        <tr class="listing-panel" ng-if="listing.expanded('/users/' + sid)" ng-init="id = sid">
+        <tr class="listing-ct-panel" ng-if="listing.expanded('/users/' + sid)" ng-init="id = sid">
             <td user-panel colspan="4"></td>
         </tr>
     </tbody>

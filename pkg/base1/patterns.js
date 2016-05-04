@@ -225,7 +225,7 @@ define([
      */
 
     function onoff_refresh(sel) {
-        sel = sel.find(".btn-onoff").andSelf().filter(".btn-onoff");
+        sel = sel.find(".btn-onoff-ct").andSelf().filter(".btn-onoff-ct");
         sel.each(function(x, el) {
             var self = $(el)
                 .attr("data-toggle", "buttons")

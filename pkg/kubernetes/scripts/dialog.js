@@ -163,7 +163,7 @@
 
         /* The wait field elements */
         var disabled = [];
-        var wait = angular.element("<div class='dialog-wait pull-left'>");
+        var wait = angular.element("<div class='dialog-wait-ct pull-left'>");
         wait.append(angular.element("<div class='spinner spinner-sm'>"));
         var notify = angular.element("<span>");
         wait.append(notify);

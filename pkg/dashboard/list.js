@@ -336,7 +336,7 @@ PageDashboard.prototype = {
         }
 
         function highlight(item, val) {
-            item.toggleClass("highlight", val);
+            item.toggleClass("highlight-ct", val);
             var ser = series[item.attr("data-address")];
             if (ser) {
                 ser.forEach(function (s) {

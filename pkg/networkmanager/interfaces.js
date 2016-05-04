@@ -1373,9 +1373,9 @@ PageNetworking.prototype = {
         $("#networking-add-vlan").click($.proxy(this, "add_vlan"));
 
         function highlight_netdev_row(event, id) {
-            $('#networking-interfaces tr').removeClass('highlight');
+            $('#networking-interfaces tr').removeClass('highlight-ct');
             if (id) {
-                $('#networking-interfaces tr[data-interface="' + encodeURIComponent(id) + '"]').addClass('highlight');
+                $('#networking-interfaces tr[data-interface="' + encodeURIComponent(id) + '"]').addClass('highlight-ct');
             }
         }
 
@@ -1697,9 +1697,9 @@ PageNetworkInterface.prototype = {
             });
 
         function highlight_netdev_row(event, id) {
-            $('#network-interface-slaves tr').removeClass('highlight');
+            $('#network-interface-slaves tr').removeClass('highlight-ct');
             if (id) {
-                $('#network-interface-slaves tr[data-interface="' + encodeURIComponent(id) + '"]').addClass('highlight');
+                $('#network-interface-slaves tr[data-interface="' + encodeURIComponent(id) + '"]').addClass('highlight-ct');
             }
         }
 

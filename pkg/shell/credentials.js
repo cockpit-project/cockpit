@@ -319,10 +319,10 @@ define([
 
         /* Highlighting */
         .on("mouseenter", ".listing-ct-item", function(ev) {
-            $(ev.target).parents("tbody").find(".listing-ct-item").addClass("highlight");
+            $(ev.target).parents("tbody").find(".listing-ct-item").addClass("highlight-ct");
         })
         .on("mouseleave", ".listing-ct-item", function(ev) {
-            $(ev.target).parents("tbody").find(".listing-ct-item").removeClass("highlight");
+            $(ev.target).parents("tbody").find(".listing-ct-item").removeClass("highlight-ct");
         })
 
         /* Load and unload keys */

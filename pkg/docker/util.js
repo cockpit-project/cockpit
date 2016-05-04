@@ -158,7 +158,7 @@ define([
     };
 
     util.setup_danger_button = function setup_danger_button(id, parent_id, callback) {
-        var danger_button = $('<button class="btn btn-default btn-control fa fa-check enable-danger">')
+        var danger_button = $('<button class="btn btn-default btn-control-ct fa fa-check enable-danger">')
             .toggle(false)
             .on("click", callback);
         $(id + ' th.container-col-actions').append(danger_button);
@@ -219,7 +219,7 @@ define([
                     util.docker_container_delete(client, id, function() { }, function () { $(self).show().siblings("div.spinner").hide(); });
                     return false;
                 });
-            var btn_play = $('<button class="btn btn-default btn-control fa fa-play">').
+            var btn_play = $('<button class="btn btn-default btn-control-ct fa fa-play">').
                 on("click", function() {
                     $(this).hide().
                         siblings("div.spinner").show();
@@ -229,7 +229,7 @@ define([
                         });
                     return false;
                 });
-            var btn_stop = $('<button class="btn btn-default btn-control fa fa-stop">').
+            var btn_stop = $('<button class="btn btn-default btn-control-ct fa fa-stop">').
                 on("click", function() {
                     $(this).hide().
                         siblings("div.spinner").show();

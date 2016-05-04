@@ -164,7 +164,7 @@ define([
 
             var added = false;
             if (!tr.length) {
-                var button = $('<button class="btn btn-default btn-control fa fa-play">').
+                var button = $('<button class="btn btn-default btn-control-ct fa fa-play">').
                     attr("title", _("Run image")).
                     on("click", function() {
                         run_image(client, id);

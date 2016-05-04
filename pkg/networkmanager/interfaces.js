@@ -2284,7 +2284,7 @@ PageNetworkInterface.prototype = {
                                            }
                                        }, "network-privileged")),
                                    $('<td width="28px">').append(
-                                       $('<button class="btn btn-default btn-control network-privileged">').
+                                       $('<button class="btn btn-default btn-control-ct network-privileged">').
                                            text("-").
                                            click(function () {
                                                slave_con.delete_().
@@ -2303,7 +2303,7 @@ PageNetworkInterface.prototype = {
 
             var add_btn =
                 $('<div>', { 'class': 'dropdown' }).append(
-                    $('<button>', { 'class': 'network-privileged btn btn-default btn-control dropdown-toggle',
+                    $('<button>', { 'class': 'network-privileged btn btn-default btn-control-ct dropdown-toggle',
                                     'data-toggle': 'dropdown'
                                   }).
                         text("+"),

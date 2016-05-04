@@ -483,7 +483,7 @@ define([
                         text(row, ".credential-data", key.data);
                         row.attr("data-name", key.name)
                             .attr("data-loaded", key.loaded ? "1" : "0")
-                            .find(".btn-onoff")
+                            .find(".btn-onoff-ct")
                                 .onoff("value", key.loaded)
                                 .onoff("disabled", !key.name);
                     } else {

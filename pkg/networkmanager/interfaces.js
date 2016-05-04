@@ -2344,7 +2344,7 @@ function PageNetworkInterface(model) {
 }
 
 function switchbox(val, callback) {
-    var onoff = $('<div class="btn-onoff">').onoff();
+    var onoff = $('<div class="btn-onoff-ct">').onoff();
     onoff.onoff("value", val);
     onoff.on("change", function () {
         callback(onoff.onoff("value"));

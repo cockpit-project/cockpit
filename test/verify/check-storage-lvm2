@@ -158,7 +158,7 @@ class TestStorage(StorageCase):
         b.wait_action_btn('#pvols li:nth-child(2) .btn-group', "Remove")
         b.click_action_btn('#pvols li:nth-child(2) .btn-group')
         b.wait_not_in_text("#pvols", "DISK2")
-        b.wait_in_text("#detail .cockpit-info-table", "48 MiB")
+        b.wait_in_text("#detail .info-table-ct", "48 MiB")
 
         # create thin pool and volume
         # the pool will be maximum size, 48 MiB
@@ -180,7 +180,7 @@ class TestStorage(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
         b.wait_in_text("#pvols", "DISK2")
-        b.wait_in_text("#detail .cockpit-info-table", "96 MiB")
+        b.wait_in_text("#detail .info-table-ct", "96 MiB")
 
         self.content_action(1, "Resize")
         self.dialog({ "size": 70 })

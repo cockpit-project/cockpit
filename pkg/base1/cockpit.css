@@ -78,13 +78,13 @@ a {
 /* Break up sidebar in columns in smaller sizes*/
 
 @media (min-width: 992px) {
-    .cockpit-info-table-container .cockpit-info-table {
+    .info-table-ct-container .info-table-ct {
         table-layout: fixed;
         width: 100%;
     }
 }
 
-.cockpit-info-table td {
+.info-table-ct td {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -94,80 +94,67 @@ a {
     line-height: 26px;
 }
 
-.cockpit-info-table td:first-child {
+.info-table-ct td:first-child {
     text-align: right;
     color: #888888;
 }
 
-.cockpit-info-table td:not(:first-child) {
+.info-table-ct td:not(:first-child) {
     color: black;
 }
 
-.cockpit-info-table td button {
+.info-table-ct td button {
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-/* For table rows containing interactive controls like bars */
-.cockpit-info-table tr.interactive td {
-    line-height: 26px;
-    padding-top: 0px;
-    vertical-align: center;
-}
-
-.cockpit-form-table {
+.form-table-ct {
     width: 100%;
 }
 
-.cockpit-form-table td {
+.form-table-ct td {
     padding-left: 0.75em;
     padding-top: 0.25em;
     line-height: 26px;
 }
 
-.cockpit-form-table td.top {
+.form-table-ct td.top {
     vertical-align: top;
 }
 
-.cockpit-form-table td:first-child {
+.form-table-ct td:first-child {
     text-align: right;
     white-space: nowrap;
     color: #888888;
     width: 5px; /* will be expanded by nowrap */
 }
 
-.cockpit-form-table td[colspan] {
+.form-table-ct td[colspan] {
     text-align: inherit;
 }
 
-.cockpit-form-table td {
+.form-table-ct td {
     height: 26px;
 }
 
-.cockpit-info-table .shrink,
-.cockpit-form-table .shrink {
-    white-space: nowrap;
-    width: 5px;
-}
-
-.cockpit-form-table td.header {
+.form-table-ct td.header {
     font-weight: bold;
     text-align: left;
     color: #4D5258;
     padding: 20px 0 10px 0;
 }
 
-.cockpit-form-table label input[type='radio'],
-.cockpit-form-table label input[type='checkbox'] {
+.form-table-ct label input[type='radio'],
+.form-table-ct label input[type='checkbox'] {
     margin-right: 4px;
 }
 
-.cockpit-form-table label {
+.form-table-ct label {
     margin-bottom: 0px;
 }
 
-.cockpit-form-table label span {
+.form-table-ct label span {
     vertical-align: super;
 }
 

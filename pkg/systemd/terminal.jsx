@@ -89,7 +89,7 @@ define([
                 terminal = <span>Loading...</span>;
 
             return (
-                <div className="panel panel-default console-container">
+                <div className="panel panel-default console-ct-container">
                     <div className="panel-heading">
                         <tt className="terminal-title">{this.state.title}</tt>
                         <button ref="resetButton"

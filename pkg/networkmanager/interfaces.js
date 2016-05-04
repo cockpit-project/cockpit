@@ -2639,7 +2639,7 @@ function slave_interface_choices(model, master) {
 }
 
 function render_slave_interface_choices(model, master) {
-    return $('<ul class="list-group available-interfaces-group dialog-list">').append(
+    return $('<ul class="list-group available-interfaces-group dialog-list-ct">').append(
         slave_interface_choices(model, master).map(function (iface) {
             return $('<li class="list-group-item">').append(
                 $('<div class="checkbox">').

@@ -100,7 +100,7 @@ var TunedDialogBody = React.createClass({
         });
         return (
             <div className="modal-body">
-                <div className="list-group dialog-list">
+                <div className="list-group dialog-list-ct">
                     { profiles }
                 </div>
             </div>

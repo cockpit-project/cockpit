@@ -275,7 +275,7 @@ class Browser:
 
     def dialog_complete(self, sel, button=".btn-primary", result="hide"):
         self.click(sel + " " + button)
-        self.wait_not_present(sel + " .dialog-wait")
+        self.wait_not_present(sel + " .dialog-wait-ct")
 
         dialog_visible = self.call_js_func('ph_is_visible', sel)
         if result == "hide":

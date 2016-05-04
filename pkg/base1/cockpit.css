@@ -65,8 +65,14 @@ a {
     border-bottom: none;
 }
 
-.panel-heading-tr {
+.panel-heading {
     background: #F5F5F5;
+    height: 44px;
+}
+
+/* Vertically center dropdown buttons in panel headers */
+.panel-heading .btn {
+    margin-top: -3px;
 }
 
 /* HACK: Workaround for https://github.com/patternfly/patternfly/issues/174*/
@@ -158,36 +164,6 @@ a {
     vertical-align: super;
 }
 
-.cockpit-graph {
-    position: relative;
-    height: 70px;
-    margin-top: 20px;
-}
-
-.cockpit-graph-label {
-    position: absolute;
-    left: 0px;
-    top: -20px;
-    text-align: left;
-}
-
-.cockpit-graph-text {
-    position: absolute;
-    right: 0px;
-    top: -20px;
-    text-align: right;
-}
-
-/*
- * For showing and filtering disabled unimportant rows in a table
- *
- * Set .unimportant on things, and then .filter-unimportant on
- * ancestor when you want to filter them.
- */
-.filter-unimportant .unimportant {
-    display: none;
-}
-
 /*
  * Control buttons such as play and stop
  * Used with .btn .btn-default
@@ -215,14 +191,6 @@ a {
    background-color: #e0e0e0;
 }
 
-/* TODO: Use spinner, highlight as red until then */
-.waiting {
-    color: red;
-    background-color: red;
-    height: 28px;
-    width: 28px;
-}
-
 .highlight {
     background-color: #d4edfa;
 }
@@ -242,18 +210,6 @@ a {
 .table-hover > tbody > tr:hover > th,
 .dialog-list-ct .list-group-item:hover:not(.active) {
     background-color: #d4edfa;
-}
-
-/*
- * Used to make a table cell that containts buttons have less padding
- * HACK: Because CSS has no parant selector.
- */
-.cell-buttons,
-.table > tbody > tr > .cell-buttons {
-    padding-top: 4px;
-    padding-bottom: 4px;
-    width: 30px;
-    padding-right: 15px;
 }
 
 /* Override patternfly to fit buttons and such */
@@ -277,15 +233,6 @@ a {
 .table tbody tr td:last-child,
 .table thead tr th:last-child {
     padding-right: 15px;
-}
-
-.panel-heading {
-   height: 44px;
-}
-
-/* Vertically center dropdown buttons in panel headers */
-.panel-heading .btn {
-    margin-top: -3px;
 }
 
 /* Ensure that btn-default is at least as wide as tall
@@ -328,13 +275,6 @@ a {
 .blank-slate-pf .spinner-lg {
     height: 58px;
     width: 58px;
-}
-
-.spinner-white {
-  border-bottom: 4px solid rgba(255, 255, 255, 0.25);
-  border-left: 4px solid rgba(255, 255, 255, 0.25);
-  border-right: 4px solid rgba(255, 255, 255, 0.25);
-  border-top: 4px solid rgba(255, 255, 255, 0.75);
 }
 
 /* Alert fixups */
@@ -424,88 +364,6 @@ a {
     background: #f0f0f0;
 }
 
-/* Extra content header */
-
-.content-header-extra {
-    background: #f5f5f5;
-    border-bottom: 1px solid #ddd;
-    padding: 10px 20px;
-    width: 100%;
-    position: fixed;
-    z-index: 900;
-    top: 0;
-}
-
-.content-header-extra .btn-group:not(:first-child) {
-    padding-left: 20px;
-}
-
-/* Server stuff, not enough for own CSS yet */
-
-/* HACK: Need to update patternfly to work with latest bootstrap-select */
-.bootstrap-select.btn-group .dropdown-menu li a span.check-mark {
-  display: none;
-}
-
-@media (min-width: 500px) {
-  .cockpit-modal-md {
-    width: 400px;
-  }
-}
-
-/* Scrollable modal body, needs max-height set elsewhere */
-.modal-scrollable {
-    overflow-y: auto;
-    margin-right: 7px;
-    padding-right: 8px;
-    margin-top: 15px;
-    padding-top: 0px;
-}
-
-/* Password strength meter */
-
-.password-strength-meter {
-    height: 5px;
-    margin-top: 5px;
-    margin-bottom: 0;
-}
-
-.password-strength-meter div {
-    width: 25%;
-    border-right: 3px solid #fff;
-    background-color: transparent;
-}
-
-.password-strength-meter div:last-child {
-    border-right: none;
-}
-
-.password-strength-meter.weak div:first-child {
-    background-color: #C00;
-}
-
-.password-strength-meter.okay div:nth-child(-n+2) {
-    background-color: #EC7A08;
-}
-
-.password-strength-meter.good div:nth-child(-n+3) {
-    background-color: #3F9C35;
-}
-
-.password-strength-meter.excellent div:nth-child(-n+4) {
-    background-color: #3F9C35;
-}
-
-/* allow text only branding */
-.navbar-pf .navbar-brand {
-    text-transform: uppercase;
-    margin: 0 8px;
-    height: 25px;
-    padding: 2px 0;
-}
-
-.navbar-pf .navbar-brand:hover {
-    color: #F1F1F1;
 }
 
 /* On/off switch */
@@ -1076,17 +934,6 @@ div.timeline.timeline-end .timeline-md {
     overflow-x: auto;
     border: 1px solid #CCC;
     margin-bottom: 0px;
-}
-
-/* Input combo replacement */
-
-.input-combo .input-group-btn {
-    position: static;
-}
-
-.input-combo .dropdown-menu {
-    left: 0;
-    right: 0;
 }
 
 /* HACK: https://github.com/patternfly/patternfly/issues/255 */

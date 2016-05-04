@@ -358,7 +358,7 @@
                 var i, len, results = { };
                 // catch condition when tag.items is null due to imagestream import error
                 if (!tag.items)
-                    tag.items = [];
+                    return select(null);
                 for (i = 0, len = tag.items.length; i < len; i++)
                     this.name(tag.items[i].image).extend(results);
                 return select(results);
@@ -370,6 +370,8 @@
              */
             select.register("taggedFirst", function(tag) {
                 var len, results = { };
+                if (!tag.items)
+                    return select(null);
                 if (tag.items.length)
                     this.name(tag.items[0].image).extend(results);
                 return select(results);

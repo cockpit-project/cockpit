@@ -51,8 +51,8 @@ class TestConnection(MachineCase):
         # take cockpit-ws down on the server page
         m.stop_cockpit()
         b.switch_to_top()
-        b.wait_visible(".curtains")
-        b.wait_in_text(".curtains h1", "Disconnected")
+        b.wait_visible(".curtains-ct")
+        b.wait_in_text(".curtains-ct h1", "Disconnected")
 
         m.start_cockpit()
         b.click("#machine-reconnect")
@@ -79,10 +79,10 @@ class TestConnection(MachineCase):
         m.execute("iptables -I INPUT 1 -p tcp --dport 9090 -j REJECT")
         b.switch_to_top()
         with b.wait_timeout(60):
-            b.wait_visible(".curtains")
+            b.wait_visible(".curtains-ct")
 
-        b.wait_in_text(".curtains h1", "Disconnected")
-        b.wait_in_text('.curtains p', "Connection has timed out.")
+        b.wait_in_text(".curtains-ct h1", "Disconnected")
+        b.wait_in_text('.curtains-ct p', "Connection has timed out.")
         m.execute("iptables -D INPUT 1")
         b.click("#machine-reconnect")
         b.expect_load()

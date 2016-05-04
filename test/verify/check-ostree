@@ -189,9 +189,9 @@ class OstreeRestartCase(MachineCase):
 
         b.switch_to_top()
         with b.wait_timeout(120):
-            b.wait_visible(".curtains")
+            b.wait_visible(".curtains-ct")
 
-        b.wait_in_text(".curtains h1", "Disconnected")
+        b.wait_in_text(".curtains-ct h1", "Disconnected")
         m.wait_reboot()
         m.start_cockpit()
         b.reload()
@@ -233,9 +233,9 @@ class OstreeRestartCase(MachineCase):
 
         b.switch_to_top()
         with b.wait_timeout(120):
-            b.wait_visible(".curtains")
+            b.wait_visible(".curtains-ct")
 
-        b.wait_in_text(".curtains h1", "Disconnected")
+        b.wait_in_text(".curtains-ct h1", "Disconnected")
         m.wait_reboot()
         m.start_cockpit()
         b.reload()
@@ -274,8 +274,8 @@ class OstreeCase(MachineCase):
 
         b.enter_page("/updates")
 
-        b.wait_present(".curtains")
-        b.wait_in_text(".curtains", "Not authorized")
+        b.wait_present(".curtains-ct")
+        b.wait_in_text(".curtains-ct", "Not authorized")
         self.assertIn("Reconnect", b.text(".blank-slate-pf-main-action button"))
         self.allow_authorize_journal_messages()
 

@@ -127,13 +127,13 @@ define([
         if (current_frame)
             $(current_frame).hide();
 
-        $(".curtains .spinner").toggle(false);
+        $(".curtains-ct .spinner").toggle(false);
         $("#machine-reconnect").toggle(true);
         $("#machine-troubleshoot").toggle(false);
-        $(".curtains i").toggle(true);
-        $(".curtains h1").text(_("Disconnected"));
-        $(".curtains p").text(cockpit.message(watchdog_problem));
-        $(".curtains").show();
+        $(".curtains-ct i").toggle(true);
+        $(".curtains-ct h1").text(_("Disconnected"));
+        $(".curtains-ct p").text(cockpit.message(watchdog_problem));
+        $(".curtains-ct").show();
         $("#navbar-dropdown").addClass("disabled");
         phantom_checkpoint();
     }
@@ -331,12 +331,12 @@ define([
             }
 
             restarting = !!machine.restarting;
-            $(".curtains").show();
-            $(".curtains .spinner").toggle(connecting || restarting);
+            $(".curtains-ct").show();
+            $(".curtains-ct .spinner").toggle(connecting || restarting);
             $("#machine-reconnect").toggle(!connecting && machine.problem != "not-found");
-            $(".curtains i").toggle(!connecting && !restarting);
-            $(".curtains h1").text(title);
-            $(".curtains p").text(message);
+            $(".curtains-ct i").toggle(!connecting && !restarting);
+            $(".curtains-ct h1").text(title);
+            $(".curtains-ct p").text(message);
 
             $("#machine-spinner").hide();
 
@@ -370,7 +370,7 @@ define([
 
         var label, item;
         if (machine.state == "connected") {
-            $(".curtains").hide();
+            $(".curtains-ct").hide();
             $("#machine-spinner").toggle(frame && !$(frame).attr("data-ready"));
             $(frame).css('display', 'block');
             item = compiled.items[state.component];

@@ -239,8 +239,8 @@ class TestMultiMachine(MachineCase):
         m2.execute('passwd -l admin')
         kill_user_admin(m2)
 
-        b.wait_present(".curtains");
-        b.wait_text(".curtains h1", "Couldn't connect to the machine")
+        b.wait_present(".curtains-ct");
+        b.wait_text(".curtains-ct h1", "Couldn't connect to the machine")
         self.assertEqual(b.text("#machine-reconnect"), "Reconnect")
 
         b.go(dashboard_path)
@@ -250,8 +250,8 @@ class TestMultiMachine(MachineCase):
 
         # navigating there again will fail
         b.go(m2_path)
-        b.wait_present(".curtains");
-        b.wait_text(".curtains h1", "Couldn't connect to the machine")
+        b.wait_present(".curtains-ct");
+        b.wait_text(".curtains-ct h1", "Couldn't connect to the machine")
         self.assertEqual(b.text("#machine-reconnect"), "Reconnect")
         self.assertTrue(b.is_present("#machine-reconnect:not(.disabled)"))
 
@@ -279,9 +279,9 @@ class TestMultiMachine(MachineCase):
 
         # Bad host also bounces
         b.go("/@10.0.0.0/playground/test")
-        b.wait_present(".curtains");
-        b.wait_text(".curtains h1", "Couldn't connect to the machine")
-        self.assertEqual(b.text(".curtains p"), "Cannot connect to an unknown machine")
+        b.wait_present(".curtains-ct");
+        b.wait_text(".curtains-ct h1", "Couldn't connect to the machine")
+        self.assertEqual(b.text(".curtains-ct p"), "Cannot connect to an unknown machine")
 
         self.allow_restart_journal_messages()
         self.allow_hostkey_messages()
@@ -386,7 +386,7 @@ class TestMultiMachine(MachineCase):
             start_machine_troubleshoot(b)
 
         check_failed_state(b, "Cockpit is not installed")
-        b.wait_visible(".curtains div.spinner")
+        b.wait_visible(".curtains-ct div.spinner")
         b.wait_visible("#machine-reconnect")
         fix_bridge(m2)
 
@@ -401,7 +401,7 @@ class TestMultiMachine(MachineCase):
         b.wait_popdown('troubleshoot-dialog')
 
         # Reconnect
-        b.wait_not_visible(".curtains")
+        b.wait_not_visible(".curtains-ct")
         b.enter_page('/system', m2.address)
 
         b.logout()
@@ -412,7 +412,7 @@ class TestMultiMachine(MachineCase):
         self.login_and_go(None)
         b.go(machine_path)
 
-        b.wait_visible(".curtains div.spinner")
+        b.wait_visible(".curtains-ct div.spinner")
         with b.wait_timeout(120):
             b.wait_visible("#machine-reconnect")
         start_machine_troubleshoot(b)
@@ -445,7 +445,7 @@ class TestMultiMachine(MachineCase):
         b.wait_popdown('troubleshoot-dialog')
 
         # Reconnect
-        b.wait_not_visible(".curtains")
+        b.wait_not_visible(".curtains-ct")
         b.enter_page('/system', "admin@{0}".format(m2.address))
         b.logout()
         b.wait_visible("#login")
@@ -455,7 +455,7 @@ class TestMultiMachine(MachineCase):
         m2.disconnect()
         self.login_and_go(None)
         b.go(machine_path)
-        b.wait_visible(".curtains div.spinner")
+        b.wait_visible(".curtains-ct div.spinner")
         with b.wait_timeout(120):
             b.wait_visible("#machine-reconnect")
         start_machine_troubleshoot(b)
@@ -469,7 +469,7 @@ class TestMultiMachine(MachineCase):
         b.click('#troubleshoot-dialog .btn-primary')
         b.wait_popdown('troubleshoot-dialog')
 
-        b.wait_not_visible(".curtains")
+        b.wait_not_visible(".curtains-ct")
         b.enter_page('/system', "admin@{0}:2222".format(m2.address))
 
         self.allow_hostkey_messages()

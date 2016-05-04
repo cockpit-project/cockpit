@@ -164,7 +164,7 @@ class TestMultiOS(MachineCase):
         stock_b.wait_present("iframe.container-frame[name='%s/shell/shell']" % dev_m.address)
         stock_b.wait_present("iframe.container-frame[name='%s/shell/shell'][data-loaded]" % dev_m.address)
         stock_b.switch_to_frame('%s/shell/shell' % dev_m.address)
-        stock_b.wait_present(".curtains")
+        stock_b.wait_present(".curtains-ct")
 
         # Messages from previous versions of cockpit
         self.allow_journal_messages("g_hash_table_iter_next: assertion 'ri->version == ri->hash_table->version' failed")

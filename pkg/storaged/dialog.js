@@ -67,8 +67,8 @@ define([
         function select_row(event) {
             var tbody = $(this);
             var row = $(event.target).parent('tr');
-            tbody.find('tr').removeClass('highlight');
-            row.addClass('highlight');
+            tbody.find('tr').removeClass('highlight-ct');
+            row.addClass('highlight-ct');
         }
 
         if (cur_dialog)
@@ -84,7 +84,7 @@ define([
 
         $dialog.find('.dialog-arrow').on('click', toggle_arrow);
         $dialog.find('.dialog-select-row-table tbody').on('click', select_row);
-        $dialog.find('.dialog-select-row-table tbody tr:first-child').addClass('highlight');
+        $dialog.find('.dialog-select-row-table tbody tr:first-child').addClass('highlight-ct');
 
         /* Dropdowns
          */
@@ -226,7 +226,7 @@ define([
                     });
                 } else if (f.SelectRow) {
                     $f.find('tbody tr').each(function (i, e) {
-                        if ($(e).hasClass('highlight'))
+                        if ($(e).hasClass('highlight-ct'))
                             vals[n] = f.Rows[i].value;
                     });
                 } else if (f.Arrow) {

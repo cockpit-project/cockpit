@@ -154,7 +154,7 @@
                     <tr class="listing-ct-item"
                             ng-repeat="service in services track by service.metadata.uid"
                             data-name="{{service.metadata.name}}"
-                            ng-class="{highlight: service.metadata.uid == highlighted}"
+                            ng-class="{'highlight-ct': service.metadata.uid == highlighted}"
                             ng-click="jumpService($event, service)"
                             ng-mouseover="highlight(service.metadata.uid)" ng-mouseout="highlight(null)"
                             ng-if="!(service.metadata.namespace == 'default' && service.metadata.name == 'kubernetes')">

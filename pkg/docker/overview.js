@@ -64,8 +64,8 @@ define([
 
         function highlight_container_row(event, id) {
             id = client.container_from_cgroup(id) || id;
-            $('#containers-containers tr').removeClass('highlight');
-            $('#' + id).addClass('highlight');
+            $('#containers-containers tr').removeClass('highlight-ct');
+            $('#' + id).addClass('highlight-ct');
         }
 
         var cpu_data = {

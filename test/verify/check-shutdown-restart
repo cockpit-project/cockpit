@@ -56,8 +56,8 @@ class TestShutdownRestart(MachineCase):
         b.click("#shutdown-action")
         b.switch_to_top()
 
-        b.wait_visible(".curtains")
-        b.wait_in_text(".curtains h1", "Disconnected")
+        b.wait_visible(".curtains-ct")
+        b.wait_in_text(".curtains-ct h1", "Disconnected")
 
         m.wait_reboot()
         m.start_cockpit()
@@ -97,13 +97,13 @@ class TestShutdownRestart(MachineCase):
         b2.click("#shutdown-action")
         b2.switch_to_top()
 
-        b2.wait_visible(".curtains")
-        b2.wait_visible(".curtains .spinner")
-        b2.wait_in_text(".curtains h1", "restarting")
+        b2.wait_visible(".curtains-ct")
+        b2.wait_visible(".curtains-ct .spinner")
+        b2.wait_in_text(".curtains-ct h1", "restarting")
 
         m.wait_reboot()
 
-        b2.wait_not_visible(".curtains")
+        b2.wait_not_visible(".curtains-ct")
         b2.enter_page("/system", host=m.address, reconnect=False)
 
         # Poweroff
@@ -118,8 +118,8 @@ class TestShutdownRestart(MachineCase):
         b.click("#shutdown-action")
         b.switch_to_top()
         # we don't need to wait for the dialog to close here, just the disconnect
-        b.wait_visible(".curtains")
-        b.wait_in_text(".curtains h1", "Disconnected")
+        b.wait_visible(".curtains-ct")
+        b.wait_in_text(".curtains-ct h1", "Disconnected")
 
         m.wait_poweroff()
 

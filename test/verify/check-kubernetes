@@ -49,10 +49,10 @@ class TestConnection(kubelib.KubernetesCase):
 
         # Connect without starting a kube server
         self.login_and_go("/kubernetes")
-        b.wait_present(".curtains")
-        b.wait_visible(".curtains")
-        b.wait_in_text(".curtains", "Couldn't connect to server")
-        b.wait_in_text(".curtains", "Couldn't find running API server")
+        b.wait_present(".curtains-ct")
+        b.wait_visible(".curtains-ct")
+        b.wait_in_text(".curtains-ct", "Couldn't connect to server")
+        b.wait_in_text(".curtains-ct", "Couldn't find running API server")
         self.assertIn("Reconnect", b.text("#kubernetes-reconnect"))
 
         # Start a kube-apiserver with a 'wrong' http port, forcing use of https
@@ -82,7 +82,7 @@ class TestConnection(kubelib.KubernetesCase):
         m.execute("rm -r /home/admin/.kube")
         self.login_and_go("/kubernetes")
 
-        b.wait_present(".curtains")
+        b.wait_present(".curtains-ct")
         b.wait_present("#kubernetes-connection-tb")
         b.click("#kubernetes-connection-tb")
 
@@ -141,7 +141,7 @@ class TestConnection(kubelib.KubernetesCase):
         # Temp certificate isn't saved
         b.reload()
         b.enter_page("/kubernetes")
-        b.wait_present(".curtains")
+        b.wait_present(".curtains-ct")
         b.wait_present("#kubernetes-connection-tb")
         b.click("#kubernetes-connection-tb")
 

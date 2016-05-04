@@ -77,12 +77,12 @@ define([
         if (current_frame)
             $(current_frame).hide();
 
-        $(".curtains .spinner").toggle(false);
+        $(".curtains-ct .spinner").toggle(false);
         $("#machine-reconnect").toggle(true);
-        $(".curtains i").toggle(true);
-        $(".curtains h1").text(_("Disconnected"));
-        $(".curtains p").text(cockpit.message(watchdog_problem));
-        $(".curtains").show();
+        $(".curtains-ct i").toggle(true);
+        $(".curtains-ct h1").text(_("Disconnected"));
+        $(".curtains-ct p").text(cockpit.message(watchdog_problem));
+        $(".curtains-ct").show();
         $("#navbar-dropdown").addClass("disabled");
         phantom_checkpoint();
     }

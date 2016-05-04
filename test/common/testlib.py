@@ -313,7 +313,7 @@ class Browser:
         while True:
             try:
                 self.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
-                self.wait_not_visible(".curtains")
+                self.wait_not_visible(".curtains-ct")
                 self.wait_visible("iframe.container-frame[name='%s']" % frame)
                 break
             except Error, ex:
@@ -321,7 +321,7 @@ class Browser:
                     reconnect = False
                     if self.is_present("#machine-reconnect"):
                         self.click("#machine-reconnect", True)
-                        self.wait_not_visible(".curtains")
+                        self.wait_not_visible(".curtains-ct")
                         continue
                 exc_info = sys.exc_info()
                 raise exc_info[0], exc_info[1], exc_info[2]

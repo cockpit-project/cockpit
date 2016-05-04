@@ -197,7 +197,7 @@ var EmptyState = React.createClass({
         if (this.props.message)
             message = <p>{this.props.message}</p>;
 
-        var curtains = "curtains";
+        var curtains = "curtains-ct";
         if (this.props.relative)
             curtains = "curtains-relative";
 

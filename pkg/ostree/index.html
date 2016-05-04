@@ -215,7 +215,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         <div class="container-fluid" ng-view ng-if="!curtains">
         </div>
 
-        <div class="curtains blank-slate-pf" ng-if="curtains && curtains.state != 'silent'">
+        <div class="curtains-ct blank-slate-pf" ng-if="curtains && curtains.state != 'silent'">
             <div class="blank-slate-pf-icon">
                 <div class="spinner spinner-lg" ng-if="curtains.state == 'connecting'"></div>
                 <i class="fa fa-exclamation-circle" ng-if="curtains.failure"></i>

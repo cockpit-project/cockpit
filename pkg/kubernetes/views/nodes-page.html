@@ -11,7 +11,7 @@
 </div>
 
 <div>
-<table listing-table class="listing nodes-listing">
+<table listing-table class="listing-ct nodes-listing">
     <thead>
         <tr>
             <td colspan="5">
@@ -33,9 +33,9 @@
     <tbody ng-repeat="(link, item) in nodes track by item.metadata.name"
         ng-init="id = item.metadata.name" data-id="{{id}}"
             ng-class="{open: listing.expanded(id)}">
-        <tr ng-click="listing.activate(id)" class="listing-item">
+        <tr ng-click="listing.activate(id)" class="listing-ct-item">
             <td ng-click="listing.toggle(id, $event)"
-                class="listing-toggle">
+                class="listing-ct-toggle">
                 <i class="fa fa-fw" ng-if="!listing.enableActions"></i>
                 <div class="text-center" ng-if="listing.enableActions">
                     <input type="checkbox" ng-false-value="undefined"
@@ -52,7 +52,7 @@
                 {{ nodeStatus(item) }}
             </td>
         </tr>
-        <tr class="listing-panel" ng-if="listing.expanded(id)">
+        <tr class="listing-ct-panel" ng-if="listing.expanded(id)">
             <td listing-panel kind="node" colspan="5"></td>
         </tr>
     </tbody>

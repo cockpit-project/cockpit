@@ -1,5 +1,5 @@
 <div class="content-filter">
-    <div class="listing-actions" ng-if="item">
+    <div class="listing-ct-actions" ng-if="item">
         <button title="Delete" class="delete-pod btn btn-danger btn-delete pficon pficon-delete"
             ng-click="deleteNode(item)"></button>
     </div>
@@ -10,14 +10,14 @@
 
 <div node-alerts></div>
 
-<div class="listing-inline" ng-if="item">
+<div class="listing-ct-inline" ng-if="item">
     <h3 translatable="yes">Node</h3>
-    <div class="listing-body container-fluid" node-body></div>
+    <div class="listing-ct-body container-fluid" node-body></div>
 
     <h3 translatable="yes">Capacity</h3>
-    <div class="listing-body container-fluid" node-capacity></div>
+    <div class="listing-ct-body container-fluid" node-capacity></div>
 </div>
 
-<div class="listing-inline" ng-if="!item">
+<div class="listing-ct-inline" ng-if="!item">
     <h3 translatable="yes">The node '{{ target }}' does not exist.</h3>
 </div>

@@ -138,7 +138,7 @@
                 <h3>No services present</h3>
                 <p translatable="yes">You can deploy an application to your cluster.</p>
             </div>
-            <table class="listing dashboard-list" ng-if="servicesState() == 'ready'"
+            <table class="listing-ct dashboard-list" ng-if="servicesState() == 'ready'"
                 ng-class="{editable: editServices}">
                 <thead>
                     <tr>
@@ -151,7 +151,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="listing-item"
+                    <tr class="listing-ct-item"
                             ng-repeat="service in services track by service.metadata.uid"
                             data-name="{{service.metadata.name}}"
                             ng-class="{highlight: service.metadata.uid == highlighted}"
@@ -181,7 +181,7 @@
             <h2 class="card-pf-title" translatable="yes">Nodes</h2>
         </div>
         <div class="card-pf-body">
-            <table class="listing dashboard-list">
+            <table class="listing-ct dashboard-list">
                 <thead>
                     <tr>
                         <th translatable="yes">Name</th>
@@ -190,7 +190,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-click="navigateNode(node)" ng-repeat="node in nodes" class="listing-item">
+                    <tr ng-click="navigateNode(node)" ng-repeat="node in nodes" class="listing-ct-item">
                         <td>{{node.metadata.name}}</td>
                         <td class="containers">{{nodeContainers(node)}}</td>
                         <td class="status">

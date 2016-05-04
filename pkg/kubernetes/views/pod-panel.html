@@ -1,6 +1,6 @@
 <div>
-    <div class="listing-head">
-        <div class="listing-actions">
+    <div class="listing-ct-head">
+        <div class="listing-ct-actions">
             <button title="Delete" class="delete-pod btn btn-danger btn-delete pficon pficon-delete"
                 ng-click="deleteItem(item)"></button>
         </div>
@@ -15,15 +15,15 @@
                 <a ng-click="tab('volumes', $event); tabbed = true">Volumes</a></li>
         </ul>
     </div>
-    <div class="listing-body" ng-show="tab('main')">
+    <div class="listing-ct-body" ng-show="tab('main')">
         <kube-pod-body ng-init="pod = item">
         </kube-pod-body>
     </div>
-    <div class="listing-body" ng-show="tab('containers')">
+    <div class="listing-ct-body" ng-show="tab('containers')">
         <kube-container-body ng-repeat="container in containers(item)">
         </kube-container-body>
     </div>
-    <div class="listing-body" ng-show="tab('logs')">
+    <div class="listing-ct-body" ng-show="tab('logs')">
         <div class="container-fluid" ng-repeat="container in containers(item)"
             ng-class="{'container-more': !$first}">
             <p ng-if="!($first && $last)">{{ container.spec.name }}</p>
@@ -31,7 +31,7 @@
             </kube-console>
         </div>
     </div>
-    <div class="listing-body" ng-show="tab('shell')">
+    <div class="listing-ct-body" ng-show="tab('shell')">
         <div class="container-fluid" ng-repeat="container in containers(item)"
             ng-if="item.status.phase == 'Running' && container.status.state.running"
             ng-class="{'container-more': !$first}">
@@ -41,7 +41,7 @@
         </div>
     </div>
 
-    <div class="listing-body" ng-show="tab('volumes')">
+    <div class="listing-ct-body" ng-show="tab('volumes')">
         <div class="container-fluid well" ng-repeat="podVolume in volumesForPod(item)"
             data-id="{{ podVolume.name }}">
             <dl ng-if="!podVolume.persistentVolumeClaim" volume-body volume="podVolume"></dl>

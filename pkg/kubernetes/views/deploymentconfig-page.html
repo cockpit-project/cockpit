@@ -1,5 +1,5 @@
 <div class="content-filter">
-    <div class="listing-actions" ng-if="item">
+    <div class="listing-ct-actions" ng-if="item">
         <button title="Delete" ng-click="deleteItem(item)"
             class="deployment-delete btn btn-danger btn-delete pficon pficon-delete delete-entity"></button>
     </div>
@@ -8,12 +8,12 @@
     <a ng-click="navigate(type)" translatable="yes" class="hidden-xs">Show all Deployment Configs</a>
 </div>
 
-<div class="listing-inline" ng-if="item">
+<div class="listing-ct-inline" ng-if="item">
     <h3 translatable="yes">Deployment Config</h3>
-    <div class="listing-body container-fluid" deploymentconfig-body></div>
+    <div class="listing-ct-body container-fluid" deploymentconfig-body></div>
 
     <h3 translatable="yes">Template</h3>
-    <div class="listing-body container-fluid">
+    <div class="listing-ct-body container-fluid">
         <kube-pod-body ng-init="pod = item.spec.template">
         </kube-pod-body>
         <kube-container-body ng-repeat="container in containers(item.spec.template)">
@@ -21,6 +21,6 @@
     </div>
 </div>
 
-<div class="listing-inline" ng-if="!item">
+<div class="listing-ct-inline" ng-if="!item">
     <h3 translatable="yes">The deployment config '{{ target }}' does not exist.</h3>
 </div>

@@ -1,5 +1,5 @@
-<div class="listing-head">
-    <div class="listing-actions">
+<div class="listing-ct-head">
+    <div class="listing-ct-actions">
         <button title="Adjust"  class="btn btn-default pficon pficon-edit" ng-click="modifyRoute(item)"></button>
         <button title="Delete" class="route-delete btn btn-danger btn-delete pficon pficon-delete "
             ng-click="deleteItem(item)">
@@ -9,5 +9,5 @@
         <li ng-class="{active: tab('main')}"><a ng-click="tab('main', $event)" translatable="yes">Route</a></li>
     </ul>
 </div>
-<div class="listing-body" route-body ng-show="tab('main')">
+<div class="listing-ct-body" route-body ng-show="tab('main')">
 </div>

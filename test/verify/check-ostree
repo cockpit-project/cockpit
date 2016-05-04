@@ -106,86 +106,86 @@ class OstreeRestartCase(MachineCase):
         b.enter_page("/updates")
 
         # Check current and rollback target
-        b.wait_present('table.listing')
-        b.wait_text('table.listing tbody:nth-child(3) div.listing-head h3', "fedora-atomic cockpit-base.1")
-        b.wait_present('table.listing tbody:nth-child(3) i.fa-check-circle-o')
-        b.wait_present('table.listing tbody:nth-child(3).active')
-        b.wait_in_text('table.listing tbody:nth-child(3) div.listing-status', "Running")
-        b.wait_not_present("table.listing tbody:nth-child(3) div.listing-actions button")
+        b.wait_present('table.listing-ct')
+        b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', "fedora-atomic cockpit-base.1")
+        b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-check-circle-o')
+        b.wait_present('table.listing-ct tbody:nth-child(3).active')
+        b.wait_in_text('table.listing-ct tbody:nth-child(3) div.listing-ct-status', "Running")
+        b.wait_not_present("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button")
 
-        b.wait_visible("table.listing tbody:nth-child(3) div.tree")
-        b.wait_in_text("table.listing tbody:nth-child(3) dd.os", "fedora-atomic")
-        b.wait_in_text("table.listing tbody:nth-child(3) dd.version", "cockpit-base.1")
-        self.switch_to_packages(b, "table.listing tbody:nth-child(3)",
+        b.wait_visible("table.listing-ct tbody:nth-child(3) div.tree")
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.os", "fedora-atomic")
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.version", "cockpit-base.1")
+        self.switch_to_packages(b, "table.listing-ct tbody:nth-child(3)",
                                 ['rpms-col1', 'rpms-col2'])
-        b.wait_in_text("table.listing tbody:nth-child(3) div.packages", sos_pkg)
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) div.packages", sos_pkg)
         for pkg in INSTALL_RPMS:
-            b.wait_not_in_text("table.listing tbody:nth-child(3) div.packages", pkg)
+            b.wait_not_in_text("table.listing-ct tbody:nth-child(3) div.packages", pkg)
 
-        b.wait_not_in_text('table.listing tbody:nth-child(4) div.listing-head h3', "cockpit")
-        b.wait_present('table.listing tbody:nth-child(4) i.fa-circle')
-        b.wait_in_text('table.listing tbody:nth-child(4) div.listing-status', "Available")
-        b.wait_in_text("table.listing tbody:nth-child(4) div.listing-actions button", "Roll back")
-        b.wait_in_text("table.listing tbody:nth-child(4) dd.os", "fedora-atomic")
-        b.wait_visible("table.listing tbody:nth-child(4) div.tree")
-        b.wait_not_visible("table.listing tbody:nth-child(4) div.packages")
+        b.wait_not_in_text('table.listing-ct tbody:nth-child(4) div.listing-ct-head h3', "cockpit")
+        b.wait_present('table.listing-ct tbody:nth-child(4) i.fa-circle')
+        b.wait_in_text('table.listing-ct tbody:nth-child(4) div.listing-ct-status', "Available")
+        b.wait_in_text("table.listing-ct tbody:nth-child(4) div.listing-ct-actions button", "Roll back")
+        b.wait_in_text("table.listing-ct tbody:nth-child(4) dd.os", "fedora-atomic")
+        b.wait_visible("table.listing-ct tbody:nth-child(4) div.tree")
+        b.wait_not_visible("table.listing-ct tbody:nth-child(4) div.packages")
 
         # Check for new commit, get error
-        b.wait_present('table.listing tbody:nth-child(2) i.fa-caret-up')
-        b.wait_in_text("table.listing tbody:nth-child(2) div.listing-actions button", "Check for updates")
-        b.wait_not_present('table.listing tbody:nth-child(2) div.alert')
-        b.click("table.listing tbody:nth-child(2) div.listing-actions button")
-        b.wait_present('table.listing tbody:nth-child(2) div.alert')
-        b.wait_present("table.listing tbody:nth-child(2) div.listing-actions button:not('.disabled')")
+        b.wait_present('table.listing-ct tbody:nth-child(2) i.fa-caret-up')
+        b.wait_in_text("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button", "Check for updates")
+        b.wait_not_present('table.listing-ct tbody:nth-child(2) div.alert')
+        b.click("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button")
+        b.wait_present('table.listing-ct tbody:nth-child(2) div.alert')
+        b.wait_present("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button:not('.disabled')")
 
         # Serve repo
         start_trivial_httpd(m)
 
         # Check for new commit
-        b.click("table.listing tbody:nth-child(2) div.listing-actions button")
-        b.wait_present("table.listing tbody:nth-child(2) div.listing-actions button.disabled")
-        b.wait_present("table.listing tbody:nth-child(2) div.listing-actions button:not('.disabled')")
+        b.click("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button")
+        b.wait_present("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button.disabled")
+        b.wait_present("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button:not('.disabled')")
 
         # Generate new commit
         generate_new_commit(m, sos_pkg)
 
         # Check again have update data
-        b.click("table.listing tbody:nth-child(2) div.listing-actions button")
-        b.wait_present('table.listing tbody:nth-child(3) i.fa-circle')
-        b.wait_in_text('table.listing tbody:nth-child(3) div.listing-status', "Available")
-        b.wait_in_text("table.listing tbody:nth-child(3) div.listing-actions button", "Update")
-        b.wait_present('table.listing tbody:nth-child(4) i.fa-check-circle-o')
+        b.click("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button")
+        b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-circle')
+        b.wait_in_text('table.listing-ct tbody:nth-child(3) div.listing-ct-status', "Available")
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button", "Update")
+        b.wait_present('table.listing-ct tbody:nth-child(4) i.fa-check-circle-o')
 
         # Check update data
-        b.wait_visible("table.listing tbody:nth-child(3) div.tree")
-        b.wait_in_text("table.listing tbody:nth-child(3) dd.os", "fedora-atomic")
-        b.wait_in_text("table.listing tbody:nth-child(3) dd.version", "cockpit-base.2")
-        b.wait_in_text("table.listing tbody:nth-child(3) dd.timestamp", "seconds ago")
-        self.check_change_counts(b, "table.listing tbody:nth-child(3)")
+        b.wait_visible("table.listing-ct tbody:nth-child(3) div.tree")
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.os", "fedora-atomic")
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.version", "cockpit-base.2")
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.timestamp", "seconds ago")
+        self.check_change_counts(b, "table.listing-ct tbody:nth-child(3)")
 
-        self.switch_to_packages(b, "table.listing tbody:nth-child(3)",
+        self.switch_to_packages(b, "table.listing-ct tbody:nth-child(3)",
                                 ['upgrades', 'downgrades',
                                  'additions', 'removals'])
 
-        b.wait_text("table.listing tbody:nth-child(3) dl.upgrades dd", "cockpit-networkmanager-wip-2.noarch")
-        b.wait_text("table.listing tbody:nth-child(3) dl.downgrades dd", "cockpit-ostree-wip-0.1.noarch")
-        b.wait_text("table.listing tbody:nth-child(3) dl.additions dd", "empty-1-0.noarch")
-        b.wait_text("table.listing tbody:nth-child(3) dl.removals dd", sos_pkg)
+        b.wait_text("table.listing-ct tbody:nth-child(3) dl.upgrades dd", "cockpit-networkmanager-wip-2.noarch")
+        b.wait_text("table.listing-ct tbody:nth-child(3) dl.downgrades dd", "cockpit-ostree-wip-0.1.noarch")
+        b.wait_text("table.listing-ct tbody:nth-child(3) dl.additions dd", "empty-1-0.noarch")
+        b.wait_text("table.listing-ct tbody:nth-child(3) dl.removals dd", sos_pkg)
 
         # Force an error
         pid = m.execute('ps -C ostree -o pid h')
         m.execute('kill {0}'.format(pid))
-        b.wait_not_present('table.listing tbody:nth-child(3) div.listing-error')
-        b.click("table.listing tbody:nth-child(3) div.listing-actions button")
-        b.wait_present("table.listing tbody:nth-child(3) div.listing-actions button.disabled")
-        b.wait_present("table.listing tbody:nth-child(3) div.listing-actions button:not('.disabled')")
-        b.wait_present('table.listing tbody:nth-child(3) div.listing-error')
+        b.wait_not_present('table.listing-ct tbody:nth-child(3) div.listing-ct-error')
+        b.click("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button")
+        b.wait_present("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button.disabled")
+        b.wait_present("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button:not('.disabled')")
+        b.wait_present('table.listing-ct tbody:nth-child(3) div.listing-ct-error')
         start_trivial_httpd(m)
 
         # Apply update
-        b.click("table.listing tbody:nth-child(3) div.listing-actions button")
-        b.wait_present("table.listing tbody:nth-child(3) div.ostree-progress")
-        b.wait_not_present('table.listing tbody:nth-child(3) div.listing-error')
+        b.click("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button")
+        b.wait_present("table.listing-ct tbody:nth-child(3) div.ostree-progress")
+        b.wait_not_present('table.listing-ct tbody:nth-child(3) div.listing-ct-error')
 
         b.switch_to_top()
         with b.wait_timeout(120):
@@ -199,37 +199,37 @@ class OstreeRestartCase(MachineCase):
         m.reset_reboot_flag()
 
         # After reboot, check commit
-        b.wait_present('table.listing')
-        b.wait_text('table.listing tbody:nth-child(3) div.listing-head h3', "fedora-atomic cockpit-base.2")
-        b.wait_present('table.listing tbody:nth-child(3) i.fa-check-circle-o')
-        b.wait_present('table.listing tbody:nth-child(3) div.listing-panel,active')
-        b.wait_in_text('table.listing tbody:nth-child(3) div.listing-status', "Running")
-        b.wait_not_present("table.listing tbody:nth-child(3) div.listing-actions button")
-        self.switch_to_packages(b, "table.listing tbody:nth-child(3)",
+        b.wait_present('table.listing-ct')
+        b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', "fedora-atomic cockpit-base.2")
+        b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-check-circle-o')
+        b.wait_present('table.listing-ct tbody:nth-child(3) div.listing-ct-panel,active')
+        b.wait_in_text('table.listing-ct tbody:nth-child(3) div.listing-ct-status', "Running")
+        b.wait_not_present("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button")
+        self.switch_to_packages(b, "table.listing-ct tbody:nth-child(3)",
                                 ['rpms-col1', 'rpms-col2'])
-        b.wait_not_in_text("table.listing tbody:nth-child(3) div.packages", sos_pkg)
+        b.wait_not_in_text("table.listing-ct tbody:nth-child(3) div.packages", sos_pkg)
         for pkg in INSTALL_RPMS:
-            b.wait_in_text("table.listing tbody:nth-child(3) div.packages", pkg)
+            b.wait_in_text("table.listing-ct tbody:nth-child(3) div.packages", pkg)
 
-        b.wait_text('table.listing tbody:nth-child(4) div.listing-head h3', "fedora-atomic cockpit-base.1")
-        b.wait_present('table.listing tbody:nth-child(4) i.fa-circle')
-        b.wait_in_text('table.listing tbody:nth-child(4) div.listing-status', "Available")
-        b.wait_in_text("table.listing tbody:nth-child(4) div.listing-actions button", "Roll back")
-        b.wait_in_text("table.listing tbody:nth-child(4) dd.os", "fedora-atomic")
-        self.check_change_counts(b, "table.listing tbody:nth-child(4)")
-        self.switch_to_packages(b, "table.listing tbody:nth-child(4)",
+        b.wait_text('table.listing-ct tbody:nth-child(4) div.listing-ct-head h3', "fedora-atomic cockpit-base.1")
+        b.wait_present('table.listing-ct tbody:nth-child(4) i.fa-circle')
+        b.wait_in_text('table.listing-ct tbody:nth-child(4) div.listing-ct-status', "Available")
+        b.wait_in_text("table.listing-ct tbody:nth-child(4) div.listing-ct-actions button", "Roll back")
+        b.wait_in_text("table.listing-ct tbody:nth-child(4) dd.os", "fedora-atomic")
+        self.check_change_counts(b, "table.listing-ct tbody:nth-child(4)")
+        self.switch_to_packages(b, "table.listing-ct tbody:nth-child(4)",
                                 ['upgrades', 'downgrades',
                                  'additions', 'removals'])
 
-        b.wait_text("table.listing tbody:nth-child(4) dl.upgrades dd", cockpit_shell)
-        b.wait_text("table.listing tbody:nth-child(4) dl.downgrades dd", cockpit_nm)
-        b.wait_text("table.listing tbody:nth-child(4) dl.additions dd", sos_pkg)
-        b.wait_text("table.listing tbody:nth-child(4) dl.removals dd", "empty-1-0.noarch")
+        b.wait_text("table.listing-ct tbody:nth-child(4) dl.upgrades dd", cockpit_shell)
+        b.wait_text("table.listing-ct tbody:nth-child(4) dl.downgrades dd", cockpit_nm)
+        b.wait_text("table.listing-ct tbody:nth-child(4) dl.additions dd", sos_pkg)
+        b.wait_text("table.listing-ct tbody:nth-child(4) dl.removals dd", "empty-1-0.noarch")
 
         # Rollback
         b.wait_present("button:contains('Roll back')");
-        b.click("table.listing tbody:nth-child(4) div.listing-actions button")
-        b.wait_present("table.listing tbody:nth-child(4) div.ostree-progress")
+        b.click("table.listing-ct tbody:nth-child(4) div.listing-ct-actions button")
+        b.wait_present("table.listing-ct tbody:nth-child(4) div.ostree-progress")
 
         b.switch_to_top()
         with b.wait_timeout(120):
@@ -243,10 +243,10 @@ class OstreeRestartCase(MachineCase):
         m.reset_reboot_flag()
 
         # After reboot upgrade but no rollback target
-        b.wait_present('table.listing tbody:nth-child(3) i.fa-circle')
-        b.wait_in_text("table.listing tbody:nth-child(3) div.listing-actions button", "Update")
-        b.wait_present('table.listing tbody:nth-child(4) i.fa-check-circle-o')
-        b.wait_not_present('table.listing tbody:nth-child(5)')
+        b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-circle')
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button", "Update")
+        b.wait_present('table.listing-ct tbody:nth-child(4) i.fa-check-circle-o')
+        b.wait_not_present('table.listing-ct tbody:nth-child(5)')
         b.wait_not_present("button:contains('Roll back')");
 
         self.allow_restart_journal_messages()

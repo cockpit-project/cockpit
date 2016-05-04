@@ -79,14 +79,14 @@ class TestSelinux(MachineCase):
         b.wait_present(row_selector)
 
         # expand it to see details
-        toggle_selector = row_selector + " .listing-toggle"
+        toggle_selector = row_selector + " .listing-ct-toggle"
         b.wait_present(toggle_selector)
         b.click(toggle_selector)
 
         # this should have two alerts, but there seems to be a known issue that some messages are delayed
         # b.wait_in_text(row_selector, "2 occurrences")
 
-        panel_selector = row_selector + " tr.listing-panel"
+        panel_selector = row_selector + " tr.listing-ct-panel"
 
         # a solution is present
         b.wait_present(panel_selector)
@@ -111,11 +111,11 @@ class TestSelinux(MachineCase):
         b.wait_present(row_selector)
 
         # expand it to see details
-        toggle_selector = row_selector + " .listing-toggle"
+        toggle_selector = row_selector + " .listing-ct-toggle"
         b.wait_present(toggle_selector)
         b.click(toggle_selector)
 
-        panel_selector = row_selector + " tr.listing-panel"
+        panel_selector = row_selector + " tr.listing-ct-panel"
 
         # a solution is present
         b.wait_present(panel_selector)

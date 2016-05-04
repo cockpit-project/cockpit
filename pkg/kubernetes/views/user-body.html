@@ -1,4 +1,4 @@
-    <table listing-table class="listing projects-listing">
+    <table listing-table class="listing-ct projects-listing">
         <thead>
             <tr>
                 <th translatable="yes">Membership</th>
@@ -8,7 +8,7 @@
         </thead>
         <tbody ng-repeat="member in getProjectsWithMember(projects(), user().metadata.name) track by member.metadata.name"
             data-id="{{ member.metadata.name }}">
-            <tr class="listing-item">
+            <tr class="listing-ct-item">
                 <td ng-click="listing.activate('/projects/' + member.metadata.name)">
                     <div>
                     <i class="user-page-icons pficon pficon-project"></i>
@@ -44,7 +44,7 @@
         </tbody>
         <tbody ng-repeat="member in getGroupsWithMember(groups(), user().metadata.name) track by member.metadata.name" 
             data-id="{{ member.metadata.name }}">
-            <tr class="listing-item">
+            <tr class="listing-ct-item">
                 <td ng-click="listing.activate('/groups/' + member.metadata.name)">
                     <div>
                     <i class="pficon pficon-users"></i>

@@ -1,5 +1,5 @@
 <div class="content-filter">
-    <div class="listing-actions" ng-if="group()">
+    <div class="listing-ct-actions" ng-if="group()">
         <button class="btn btn-danger btn-delete pficon pficon-delete"
             ng-click="removeGroup(projects(), group())"></button>
     </div>
@@ -15,7 +15,7 @@
 </div>
 <div class="project-panel" ng-if="group()">
     <div>
-        <table listing-table class="listing project-body" >
+        <table listing-table class="listing-ct project-body" >
             <thead>
                 <tr>
                     <th translatable="yes">Group Members</th>
@@ -23,7 +23,7 @@
                 </tr>
             </thead>
             <tbody colspan="3" ng-repeat="user in group().users" data-id="{{ user }}">
-                <tr class="listing-item inner-project-listing">
+                <tr class="listing-ct-item inner-project-listing">
                     <td ng-click="listing.activate('/users/' + user)"><i class=" pficon-user"></i>  {{ user }}</span></td>
                     <td><a class="pull-right close-icon" ng-click="removeUserFromGroup(user, group())">
                         <i translatable="yes" class="pficon-close"></i>
@@ -43,6 +43,6 @@
         </table>
     </div>
 </div>
-<div class="listing-inline" ng-if="!group()">
+<div class="listing-ct-inline" ng-if="!group()">
     <h3 translatable="yes">The group '{{ groupName }}' does not exist.</h3>
 </div>

@@ -1,5 +1,5 @@
 <div class="content-filter">
-    <div class="listing-actions">
+    <div class="listing-ct-actions">
         <button title="Delete" class="btn btn-danger btn-delete pficon pficon-delete delete-entity"
             ng-click="deleteItem(item)"></button>
     </div>
@@ -8,13 +8,13 @@
     <a ng-click="navigate(type)" translatable="yes" class="hidden-xs">Show all Services</a>
 </div>
 
-<div class="listing-inline" ng-if="item">
+<div class="listing-ct-inline" ng-if="item">
     <h3 translatable="yes">Service</h3>
-    <div class="listing-body container-fluid" service-body></div>
+    <div class="listing-ct-body container-fluid" service-body></div>
     <h3 translatable="yes">Endpoints</h3>
-    <div class="listing-body container-fluid" service-endpoint></div>
+    <div class="listing-ct-body container-fluid" service-endpoint></div>
 </div>
 
-<div class="listing-inline" ng-if="!item">
+<div class="listing-ct-inline" ng-if="!item">
     <h3 translatable="yes">The service '{{ target }}' does not exist.</h3>
 </div>

@@ -407,73 +407,73 @@ a {
 
 /* Listing pattern */
 
-table.listing {
+table.listing-ct {
     margin-top: 15px;
     min-width: 65%;
 }
 
-table.listing > caption,
-table.listing > thead h3 {
+table.listing-ct > caption,
+table.listing-ct > thead h3 {
     font-size: 22px;
     padding: 10px 0px 10px;
     font-weight: 300;
     margin-top: 0px;
 }
 
-table.listing > .cockpit-caption {
+table.listing-ct > caption {
     color: inherit;
     line-height: 1.1;
 }
 
-table.listing > thead td {
+table.listing-ct > thead td {
     padding-top: 20px;
 }
 
-table.listing > thead:first-child td {
+table.listing-ct > thead:first-child td {
     padding-top: 0px;
 }
 
-table.listing > thead td > a {
+table.listing-ct > thead td > a {
     line-height: 30px;
     padding: 10px 0px 10px;
 }
 
-table.listing thead th {
+table.listing-ct thead th {
     border-top: 1px solid #eee;
     font-weight: normal;
     padding: 10px;
     color: #888;
 }
 
-table.listing thead th:first-child {
+table.listing-ct thead th:first-child {
     padding-left: 20px;
 }
 
-table.listing thead th:last-child {
+table.listing-ct thead th:last-child {
     text-align: right;
 }
 
 /* A listing item is a row in the table */
-tbody tr.listing-item {
+tbody tr.listing-ct-item {
     border-top: 1px solid #eee;
     border-bottom: 1px solid #eee;
     cursor: pointer;
 }
 
-table.listing tbody:last-child {
+table.listing-ct tbody:last-child {
     border-bottom: 1px solid #eee;
 }
-table.listing tbody + thead {
+table.listing-ct tbody + thead {
     border-top: 1px solid #eee;
 }
-table.listing tbody.open:last-child {
+table.listing-ct tbody.open:last-child {
     border-bottom: none;
 }
-table.listing tbody.open + thead {
+table.listing-ct tbody.open + thead {
     border-top: none;
 }
 
-tbody.open tr.listing-item {
+tbody.open tr.listing-ct-item {
     background-color: #ededed;
     border-bottom: none;
     border-top: none;
@@ -481,135 +481,135 @@ tbody.open tr.listing-item {
     border-right: 1px solid #ccc;
 }
 
-tbody.open tr.listing-item td,
-tbody.open tr.listing-item th {
+tbody.open tr.listing-ct-item td,
+tbody.open tr.listing-ct-item th {
     border-top: 1px solid #ccc;
 }
 
-tbody.open td div.listing-head {
+tbody.open td div.listing-ct-head {
     background-color: white;
 }
 
-tbody.open .listing-panel {
+tbody.open .listing-ct-panel {
     border: 1px solid #ccc;
 }
 
-tbody.open .listing-panel .listing-body {
+tbody.open .listing-ct-panel .listing-ct-body {
     border: none;
 }
 
-tbody.open tr.listing-panel + tr.listing-body {
+tbody.open tr.listing-ct-panel + tr.listing-ct-body {
     border-top: none;
 }
 
-tbody.open tr.listing-panel td div.listing-head {
+tbody.open tr.listing-ct-panel td div.listing-ct-head {
     border: none;
     border-bottom: 1px solid #ccc;
 }
 
 /* only highlight the row if navigation is available */
-tbody.open tr.listing-item:not(.cockpit-nonavigate):hover,
-tr.listing-item:not(.cockpit-nonavigate):hover {
+tbody.open tr.listing-ct-item:not(.listing-ct-nonavigate):hover,
+tr.listing-ct-item:not(.listing-ct-nonavigate):hover {
     background-color: #d4edfa;
 }
 
 /* use gray for a row if navigation isn't available */
-tr.listing-item.cockpit-nonavigate:hover {
+tr.listing-ct-item.listing-ct-nonavigate:hover {
     background-color: #ededed;
 }
 
 /* if we can't navigate to a row but expand is available, highlight the caret */
-tr.listing-item.cockpit-nonavigate:hover td.listing-toggle {
+tr.listing-ct-item.listing-ct-nonavigate:hover td.listing-ct-toggle {
     color: #65bedf;
 }
 
-tr.listing-item .listing-toggle {
+tr.listing-ct-item .listing-ct-toggle {
     padding: 0 !important;
     width: 35px;
     color: #000000;
 }
 
-table.listing thead .listing-toggle + th,
-tr.listing-item .listing-toggle + td,
-tr.listing-item .listing-toggle + th {
+table.listing-ct thead .listing-ct-toggle + th,
+tr.listing-ct-item .listing-ct-toggle + td,
+tr.listing-ct-item .listing-ct-toggle + th {
     padding-left: 0;
 }
 
-td.listing-toggle:hover {
+td.listing-ct-toggle:hover {
     color: #65bedf;
     background-color: #ededed;
 }
 
-td.listing-toggle i {
+td.listing-ct-toggle i {
     font-size: 24px;
     visibility: hidden;
 }
 
-tr.listing-item:hover td.listing-toggle i,
-tr.listing-item td.listing-toggle:hover i {
+tr.listing-ct-item:hover td.listing-ct-toggle i,
+tr.listing-ct-item td.listing-ct-toggle:hover i {
     visibility: visible;
 }
 
-td.listing-toggle i:before {
+td.listing-ct-toggle i:before {
     content: "\f105";
 }
 
-tbody.open td.listing-toggle i {
+tbody.open td.listing-ct-toggle i {
     visibility: visible;
 }
 
-tbody.open td.listing-toggle i:before {
+tbody.open td.listing-ct-toggle i:before {
     content: "\f107";
 }
 
-td.listing-toggle:hover ~ td,
-td.listing-toggle:hover ~ th
+td.listing-ct-toggle:hover ~ td,
+td.listing-ct-toggle:hover ~ th
 {
     background-color: #ededed;
 }
 
 
 /* Listing items have decent padding ... */
-tr.listing-item td {
+tr.listing-ct-item td {
     padding: 10px;
 }
 
-tr.listing-item th {
+tr.listing-ct-item th {
     padding: 10px 10px 10px 15px;
 }
 
 /* Listing actions can be used directly as a cell */
-tr.listing-item td.listing-actions,
-td.listing-actions {
+tr.listing-ct-item td.listing-ct-actions,
+td.listing-ct-actions {
     padding: 5px 10px;
     text-align: right;
     float: none;
 }
 
-.listing-head .listing-actions {
+.listing-ct-head .listing-ct-actions {
     margin-top: -7px;
 }
 
-tr.listing-item td:first-child {
+tr.listing-ct-item td:first-child {
     padding-left: 20px;
 }
 
 /* The last column of a listing is always right aligned */
-tr.listing-item td:last-child {
+tr.listing-ct-item td:last-child {
     text-align: right;
 }
 
-div.listing-panel {
+div.listing-ct-panel {
     box-shadow: 1px 1px 1px 1px #f5f5f5;
     margin-bottom: 15px;
 }
 
-div.listing-maybe {
+div.listing-ct-maybe {
     border: 1px dashed #ddd;
     box-shadow: none;
 }
 
-div.listing-head {
+div.listing-ct-head {
     padding: 10px 10px 0px 10px;
     background-color: #f6f6f6;
     border-color: #ccc;
@@ -618,21 +618,21 @@ div.listing-head {
     overflow: hidden;
 }
 
-div.listing-head:last-child {
+div.listing-ct-head:last-child {
     padding-bottom: 10px;
 }
 
-div.listing-maybe div.listing-head,
-div.listing-maybe div.listing-body {
+div.listing-ct-maybe div.listing-ct-head,
+div.listing-ct-maybe div.listing-ct-body {
     background-color: white;
     border: none;
 }
 
-tbody.active .listing-head {
+tbody.active .listing-ct-head {
     border-top: 3px solid #0099d3;
 }
 
-.listing-head h3 {
+.listing-ct-head h3 {
     font-weight: normal;
     font-size: 18px;
     margin-top: 0px;
@@ -640,26 +640,26 @@ tbody.active .listing-head {
     margin-bottom: 10px;
 }
 
-.listing-head h3 i {
+.listing-ct-head h3 i {
     float: left;
     padding-right: 7px;
 }
 
-.listing-head .nav li a {
+.listing-ct-head .nav li a {
     padding-top: 0px;
     font-size: 13px;
 }
 
-.listing-head .nav-tabs {
+.listing-ct-head .nav-tabs {
     border-bottom: none;
 }
 
-.listing-head .nav-tabs-pf {
+.listing-ct-head .nav-tabs-pf {
     margin-left: -10px;
 }
 
 /* To display info instead of tabs */
-.listing-head dl {
+.listing-ct-head dl {
     display: inline-block;
     height: 1.6em;
     margin-bottom: 5px;
@@ -668,74 +668,74 @@ tbody.active .listing-head {
     margin-left: 5px;
 }
 
-.listing-head dt {
+.listing-ct-head dt {
     font-weight: normal;
     display: inline;
     margin-right: 0.5em;
     color: #888;
 }
 
-.listing-head dd {
+.listing-ct-head dd {
     display: inline;
     color: black;
 }
 
-.listing-body {
+.listing-ct-body {
     padding: 20px 25px;
     font-size: 13px;
     border: 1px solid #ccc;
     background-color: white;
 }
 
-.listing-inline > .listing-body {
+.listing-ct-inline > .listing-ct-body {
     border: none;
     padding-top: 0px;
     padding-left: 20px;
     padding-bottom: 0px;
 }
 
-.listing-inline > h3 {
+.listing-ct-inline > h3 {
     border-top: 1px solid #ccc;
     padding-top: 20px;
     margin-top: 30px;
 }
 
-.listing-inline > h3:first-child {
+.listing-ct-inline > h3:first-child {
     border-top: none;
     padding-top: 0px;
     margin-top: 20px;
 }
 
-.listing-actions {
+.listing-ct-actions {
     float: right;
     min-height: 26px;
 }
 
-.listing-status {
+.listing-ct-status {
     float: right;
     clear: right;
 }
 
-.listing-error {
+.listing-ct-error {
     border-top: 1px solid #ccc;
     border-left: 1px solid #ccc;
     border-right: 1px solid #ccc;
 }
 
-.listing-error.alert {
+.listing-ct-error.alert {
     margin-bottom: 0;
 }
 
-.listing-body tt {
+.listing-ct-body tt {
     font-size: 12px
 }
 
-.listing-body dl {
+.listing-ct-body dl {
     margin: 0;
 }
 
-.listing-body dl dd dl.inline-dl dt,
-.listing-body dt {
+.listing-ct-body dl dd dl.inline-dl dt,
+.listing-ct-body dt {
     clear: left;
     float: left;
     width: 100px;
@@ -747,15 +747,15 @@ tbody.active .listing-head {
     font-weight: normal;
 }
 
-.listing-body dt {
+.listing-ct-body dt {
     text-align: right;
 }
 
-.listing-body dl dd dl dt {
+.listing-ct-body dl dd dl dt {
     text-align: left;
 }
 
-.listing-body dd {
+.listing-ct-body dd {
     margin-left: 110px;
     min-height: 26px;
     max-width: 1000px;
@@ -763,7 +763,7 @@ tbody.active .listing-head {
     text-overflow: ellipsis;
 }
 
-.listing-body dl.full-width dt {
+.listing-ct-body dl.full-width dt {
     text-align: left;
     min-width: none;
     max-width: none;
@@ -771,36 +771,28 @@ tbody.active .listing-head {
     width: auto;
 }
 
-.listing-body dl.full-width dd {
+.listing-ct-body dl.full-width dd {
     margin-left: 0px;
 }
 
-.listing-body dl.wide-terms dt {
-    width: 180px;
-}
-
-.listing-body dl.wide-terms dd {
-    margin-left: 190px;
-}
-
-table.listing tbody.open {
+table.listing-ct tbody.open {
     box-shadow: 1px 1px 1px 1px #f5f5f5;
 }
 
 /* By default these thincgs are hidden */
-tbody tr.listing-panel,
-tbody tr.listing-body {
+tbody tr.listing-ct-panel,
+tbody tr.listing-ct-body {
     display: none;
 }
 
 /* ... unless they are in the right state */
-tbody.open tr.listing-head,
-tbody.open tr.listing-panel,
-tbody.open tr.listing-body {
+tbody.open tr.listing-ct-head,
+tbody.open tr.listing-ct-panel,
+tbody.open tr.listing-ct-body {
     display: table-row;
 }
 
-tbody.open tr.listing-head {
+tbody.open tr.listing-ct-head {
     border-color: #ccc;
     border-style: solid;
     border-width: 1px 1px 0px 1px;
@@ -808,20 +800,20 @@ tbody.open tr.listing-head {
     background-color: #f6f6f6;
 }
 
-tr.listing-head + tr.listing-head {
+tr.listing-ct-head + tr.listing-ct-head {
     border-top: none;
 }
 
-tr.listing-head + tr.listing-head td {
+tr.listing-ct-head + tr.listing-ct-head td {
     padding: 0px 10px 0px 10px;
 }
 
-tr.listing-body td {
+tr.listing-ct-body td {
     padding: 20px 25px;
     font-size: 13px;
 }
 
-.listing-empty {
+.listing-ct-empty {
     color: #888;
     text-align: center;
     border-top: 1px solid #eee;
@@ -829,18 +821,23 @@ tr.listing-body td {
 }
 
 /* Used at the end of a group of tbody to show an 'empty' message */
-thead.listing-empty td,
-table.listing > thead.listing-empty td {
+thead.listing-ct-empty td,
+table.listing-ct > thead.listing-ct-empty td {
     padding: 10px;
 }
 
-tbody + thead.listing-empty {
+tbody + thead.listing-ct-empty {
     display: none;
+}
+
+/* Listing pattern defaults to using full width of parent */
+.listing-ct-wide {
+    width: 100%;
 }
 
 /* Timelines */
 
-div.timeline {
+div.timeline-ct {
     border-left: 6px solid #ccc;
     position: relative;
     margin-left: 25px;
@@ -849,7 +846,7 @@ div.timeline {
     padding-bottom: 15px;
 }
 
-div.timeline .timeline-point {
+div.timeline-ct .timeline-ct-point {
     position: absolute;
     left: -13.5px;
     font-size: 21px;
@@ -863,11 +860,11 @@ div.timeline .timeline-point {
     color: #ccc;
 }
 
-div.timeline .timeline-point.active {
+div.timeline-ct .timeline-ct-point.active {
     color: #3f9c35;
 }
 
-div.timeline .timeline-md {
+div.timeline-ct .timeline-ct-md {
     font-size: 24px;
     width: 24px;
     height: 32px;
@@ -876,7 +873,7 @@ div.timeline .timeline-md {
     left: -16px;
 }
 
-div.timeline .timeline-lg {
+div.timeline-ct .timeline-ct-lg {
     font-size: 40px;
     width: 40px;
     height: 44px;
@@ -885,17 +882,17 @@ div.timeline .timeline-lg {
     padding: 2px 0px;
 }
 
-div.timeline .fa-caret-up {
+div.timeline-ct .fa-caret-up {
     font-size: 30px;
     line-height: 20px;
     height: 24px;
 }
 
-div.timeline div.listing-panel {
+div.timeline-ct div.listing-ct-panel {
     margin-bottom: 0px;
 }
 
-div.timeline.timeline-end {
+div.timeline-ct.timeline-ct-end {
     min-height: 30px;
     padding-left: 36px;
     background-repeat: repeat-y;
@@ -905,7 +902,7 @@ div.timeline.timeline-end {
     border-left: none;
 }
 
-div.timeline.timeline-end .timeline-md {
+div.timeline-ct.timeline-ct-end .timeline-ct-md {
     left: -10px;
 }
 
@@ -942,11 +939,7 @@ input[type=number] {
 }
 
 /* Make a dialog visible */
-.dialog-visible {
+.dialog-ct-visible {
     display: block;
 }
 
-/* Listing pattern defaults to using full width of parent */
-.table-listing-ct {
-    width: 100%;
-}

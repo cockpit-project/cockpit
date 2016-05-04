@@ -1,4 +1,4 @@
-<table listing-table class="listing images-listing">
+<table listing-table class="listing-ct images-listing">
     <thead>
         <tr ng-if="!listing.inline">
             <td colspan="4">
@@ -10,7 +10,7 @@
             </td>
         </tr>
         <tr>
-            <th class="listing-toggle"></th>
+            <th class="listing-ct-toggle"></th>
             <th translatable="yes">Tags</th>
             <th translatable="yes">Author</th>
             <th translatable="yes">Last Updated</th>
@@ -19,24 +19,24 @@
     <tbody ng-repeat-start="(link, stream) in imagestreams() track by link"
            ng-init="sid = stream.metadata.namespace + '/' + stream.metadata.name"
            data-id="{{ sid }}" class="active" ng-class="{open: listing.expanded(sid)}">
-        <tr ng-if="!listing.inline" ng-click="listing.activate(sid)" class="listing-item imagestream-item">
+        <tr ng-if="!listing.inline" ng-click="listing.activate(sid)" class="listing-ct-item imagestream-item">
             <td ng-click="listing.toggle(sid, $event)"
-                class="listing-toggle">
+                class="listing-ct-toggle">
                 <i class="fa fa-fw"></i>
             </td>
             <th colspan="4">{{ sid }}</th>
         </tr>
-        <tr class="listing-panel" ng-if="listing.expanded(sid)" ng-init="id = sid">
+        <tr class="listing-ct-panel" ng-if="listing.expanded(sid)" ng-init="id = sid">
             <td listing-panel kind="ImageStream" colspan="4"></td>
         </tr>
     </tbody>
     <tbody ng-repeat="tag in stream.status.tags track by tag.tag"
            ng-init="iid = sid + ':' + tag.tag" data-id="{{ iid }}"
            ng-class="{open: listing.expanded(iid), last: $last, first: $first}">
-        <tr ng-click="listing.activate(iid)" class="listing-item tag-item"
+        <tr ng-click="listing.activate(iid)" class="listing-ct-item tag-item"
             ng-repeat-start="image in imageByTag(tag)">
             <td ng-click="listing.toggle(iid, $event)"
-                class="listing-toggle">
+                class="listing-ct-toggle">
                 <i class="fa fa-fw"></i>
             </td>
             <td class="tag-label"><span class="image-tag">:{{ tag.tag }}</span></td>
@@ -51,13 +51,13 @@
                 </div>
             </td>
         </tr>
-        <tr class="listing-panel" ng-if="listing.expanded(iid)" ng-init="id = iid" ng-repeat-end="">
+        <tr class="listing-ct-panel" ng-if="listing.expanded(iid)" ng-init="id = iid" ng-repeat-end="">
             <td image-panel colspan="4"></td>
         </tr>
     </tbody>
     <tbody data-ng-rubbish="" ng-if="0" ng-repeat-end>
     </tbody>
-    <thead class="listing-empty" ng-if="!quiet">
+    <thead class="listing-ct-empty" ng-if="!quiet">
         <tr>
             <td colspan="4" ng-if="!failure" translatable="yes">No image streams are present.</td>
             <td colspan="4" ng-if="failure">{{failure}}</td>

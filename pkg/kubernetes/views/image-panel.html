@@ -1,6 +1,6 @@
 <div>
-    <div class="listing-head" ng-click="listing.collapse(id, $event)">
-        <div class="listing-actions">
+    <div class="listing-ct-head" ng-click="listing.collapse(id, $event)">
+        <div class="listing-ct-actions">
             <button class="btn btn-danger btn-delete pficon pficon-delete"
                 ng-click="deleteTag(stream, tag)"></button>
         </div>
@@ -17,12 +17,12 @@
         </ul>
     </div>
 
-    <div image-body class="listing-body" ng-show="tab('main')">
+    <div image-body class="listing-ct-body" ng-show="tab('main')">
     </div>
 
-    <div image-config class="listing-body" ng-show="tab('config')">
+    <div image-config class="listing-ct-body" ng-show="tab('config')">
     </div>
 
-    <div image-meta class="listing-body" ng-if="tab('meta')">
+    <div image-meta class="listing-ct-body" ng-if="tab('meta')">
     </div>
 </div>

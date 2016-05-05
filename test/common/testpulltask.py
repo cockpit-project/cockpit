@@ -147,7 +147,7 @@ class GithubPullTask(object):
 
         if self.ref:
             subprocess.check_call([ "git", "fetch", "origin", self.ref ])
-            subprocess.check_call([ "git", "checkout", self.revision ])
+            subprocess.check_call([ "git", "checkout", "-f", self.revision ])
 
         # Split a value like verify/fedora-23
         (prefix, unused, value) = self.context.partition("/")

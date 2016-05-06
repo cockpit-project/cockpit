@@ -73,10 +73,10 @@ def download(link, force, stores):
         curl.stdout.close()
         ret = curl.wait()
         if ret != 0:
-            raise("curl: unable to download image (returned: %s)" % ret)
+            raise Exception("curl: unable to download image (returned: %s)" % ret)
         ret = unxz.wait()
         if ret != 0:
-            raise("unxz: unable to unpack image (returned: %s)" % ret)
+            raise Exception("unxz: unable to unpack image (returned: %s)" % ret)
 
         os.close(fd)
         shutil.move(temp, dest)
@@ -144,5 +144,5 @@ def download_images(image_list, force, store):
     for image in image_list:
         link = os.path.join(IMAGES, image)
         if not os.path.islink(link):
-            BaseException("image link does not exist: " + image)
+            raise Exception("image link does not exist: " + image)
         download(link, force, store)

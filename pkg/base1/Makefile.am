@@ -45,6 +45,7 @@ basedebug_DATA = \
 	pkg/base1/moment.js \
 	pkg/base1/mustache.js \
 	pkg/base1/jquery.js \
+	pkg/base1/react.js \
 	pkg/base1/cockpit.js \
 	$(REACT_COMPONENTS) \
 	$(base_GEN) \

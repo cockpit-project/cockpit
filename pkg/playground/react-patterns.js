@@ -22,9 +22,8 @@ require([
     "base1/react",
     "performance/dialog-view",
     "playground/react-demo-dialog",
-    "base1/cockpit-components-terminal",
     "playground/react-demo-listing",
-], function(cockpit, React, dialog_pattern, demo_dialog, cockpit_terminal, demo_listing) {
+], function(cockpit, React, dialog_pattern, demo_dialog, demo_listing) {
 
 "use strict";
 
@@ -101,24 +100,6 @@ var on_standard_demo_clicked = function(static_error) {
 
 document.getElementById('demo-show-dialog').addEventListener("click", on_standard_demo_clicked.bind(null, null), false);
 document.getElementById('demo-show-error-dialog').addEventListener("click", on_standard_demo_clicked.bind(null, 'Some static error'), false);
-
-cockpit.user.addEventListener('changed', function (user) {
-    var channel = cockpit.channel({
-        "payload": "stream",
-        "spawn": [cockpit.user.shell || '/bin/bash', "-i"],
-        "environ": [
-            "TERM=xterm-256color",
-            "PATH=/sbin:/bin:/usr/sbin:/usr/bin"
-        ],
-        "directory": cockpit.user.home || '/',
-        "pty": true
-    });
-
-    React.render(React.createElement(cockpit_terminal.Terminal, {
-        channel: channel,
-    }), document.getElementById('demo-react-terminal'));
-});
-
 
 /*-----------------------------------------------------------------------------
   Listing Pattern

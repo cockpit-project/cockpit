@@ -23,74 +23,74 @@ define([
     "base1/cockpit-components-select",
 ], function(React, cockpit, Select) {
 
-"use strict";
-var _ = cockpit.gettext;
+    "use strict";
+    var _ = cockpit.gettext;
 
-/* Sample dialog body
- */
-var PatternDialogBody = React.createClass({
-    selectChanged: function(value) {
-        console.log("new value: " + value);
-    },
-    render: function() {
-        return (
-            <div className="modal-body">
-                <table className="form-table-ct">
-                    <tr>
-                        <td className="top">
-                            <label className="control-label" for="control-1">
-                                {_("Label")}
-                            </label>
-                        </td>
-                        <td>
-                            <input id="control-1" className="form-control" type="text"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="top">
-                            <label className="control-label">
-                                {_("Select")}
-                            </label>
-                        </td>
-                        <td>
-                            <Select.Select onChange={this.selectChanged} id="primary-select">
-                                <Select.SelectEntry data='one'>{_("One")}</Select.SelectEntry>
-                                <Select.SelectEntry data='two'>{_("Two")}</Select.SelectEntry>
-                                <Select.SelectEntry>{_("Three")}</Select.SelectEntry>
-                                <Select.SelectEntry data='four'></Select.SelectEntry>
-                                <Select.SelectEntry></Select.SelectEntry>
-                            </Select.Select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="top">
-                            <label className="control-label">
-                                {_("Preselected")}
-                            </label>
-                        </td>
-                        <td>
-                            <Select.Select initial={_("Two")}>
-                                <Select.SelectEntry>{_("One")}</Select.SelectEntry>
-                                <Select.SelectEntry>{_("Two")}</Select.SelectEntry>
-                                <Select.SelectEntry>{_("Three")}</Select.SelectEntry>
-                            </Select.Select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="top">
-                            <label className="control-label">
-                                {_("Empty Select")}
-                            </label>
-                        </td>
-                        <td>
-                            <Select.Select />
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        );
-    }
-});
+    /* Sample dialog body
+     */
+    var PatternDialogBody = React.createClass({
+        selectChanged: function(value) {
+            console.log("new value: " + value);
+        },
+        render: function() {
+            return (
+                <div className="modal-body">
+                    <table className="form-table-ct">
+                        <tr>
+                            <td className="top">
+                                <label className="control-label" for="control-1">
+                                    {_("Label")}
+                                </label>
+                            </td>
+                            <td>
+                                <input id="control-1" className="form-control" type="text"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td className="top">
+                                <label className="control-label">
+                                    {_("Select")}
+                                </label>
+                            </td>
+                            <td>
+                                <Select.Select onChange={this.selectChanged} id="primary-select">
+                                    <Select.SelectEntry data='one'>{_("One")}</Select.SelectEntry>
+                                    <Select.SelectEntry data='two'>{_("Two")}</Select.SelectEntry>
+                                    <Select.SelectEntry>{_("Three")}</Select.SelectEntry>
+                                    <Select.SelectEntry data='four'></Select.SelectEntry>
+                                    <Select.SelectEntry></Select.SelectEntry>
+                                </Select.Select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td className="top">
+                                <label className="control-label">
+                                    {_("Preselected")}
+                                </label>
+                            </td>
+                            <td>
+                                <Select.Select initial={_("Two")}>
+                                    <Select.SelectEntry>{_("One")}</Select.SelectEntry>
+                                    <Select.SelectEntry>{_("Two")}</Select.SelectEntry>
+                                    <Select.SelectEntry>{_("Three")}</Select.SelectEntry>
+                                </Select.Select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td className="top">
+                                <label className="control-label">
+                                    {_("Empty Select")}
+                                </label>
+                            </td>
+                            <td>
+                                <Select.Select />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            );
+        }
+    });
 
-return PatternDialogBody;
+    return PatternDialogBody;
 });

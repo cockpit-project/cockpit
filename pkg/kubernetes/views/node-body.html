@@ -31,7 +31,7 @@
 </div>
 <div class="clearfix visible-md-block visible-lg-block"></div>
 <div class="col-xs-12 col-md-6">
-    <dl ng-init="ready = nodeCondition(item, 'Ready')">
+    <dl ng-repeat="ready in nodeConditions(item)" ng-if="ready.type == 'Ready'">
         <dt translatable="yes">Status</dt>
         <dd class="status" ng-switch="ready.status">
             <span ng-switch-when="True" translatable="yes">Ready</span>

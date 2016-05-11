@@ -133,3 +133,11 @@ EXTRA_DIST += \
 	$(shell_MINFILES) \
 	$(shell_BUNDLE) \
 	$(NULL)
+
+update-lib:: update-bower
+	$(JSMODULE) -m -a '{ /* legacy shell dict */ }' \
+	    -o $(srcdir)/pkg/shell/shell.js \
+	    $(BOWER)/jquery-flot/jquery.flot.js \
+	    $(BOWER)/jquery-flot/jquery.flot.selection.js \
+	    $(BOWER)/jquery-flot/jquery.flot.time.js \
+	    $(NULL)

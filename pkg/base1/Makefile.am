@@ -170,9 +170,6 @@ update-lib:: update-bower
 	    $(BOWER)/jquery/dist/jquery.js \
 	    $(BOWER)/bootstrap/dist/js/bootstrap.js \
 	    $(BOWER)/patternfly/dist/js/patternfly.js \
-	    $(BOWER)/jquery-flot/jquery.flot.js \
-	    $(BOWER)/jquery-flot/jquery.flot.selection.js \
-	    $(BOWER)/jquery-flot/jquery.flot.time.js \
 	    $(NULL)
 	$(JSMODULE) -o $(srcdir)/pkg/base1/require.js \
 	    $(srcdir)/pkg/base1/require-config.js \

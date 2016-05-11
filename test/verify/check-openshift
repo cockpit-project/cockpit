@@ -580,6 +580,8 @@ class TestRegistry(MachineCase):
         b.wait_not_present("modal-dialog")
 
         #add another role to project member
+        b.wait_present("tbody[data-id='testprojectuserproj']")
+        b.wait_present("tbody[data-id='testprojectuserproj'] tr .btn-group")
         b.wait_visible("tbody[data-id='testprojectuserproj'] tr .btn-group")
         b.click("tbody[data-id='testprojectuserproj'] tr .btn-group button")
         b.wait_visible("tbody[data-id='testprojectuserproj'] tr .btn-group .dropdown-menu")

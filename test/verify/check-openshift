@@ -328,10 +328,11 @@ class TestRegistry(MachineCase):
 
         # Look at the image layers
         b.click(".listing-ct-head li:last-child a")
-        b.wait_present(".listing-ct-body image-layers")
-        b.wait_visible(".listing-ct-body image-layers")
-        b.wait_in_text(".listing-ct-body image-layers", "ADD file:")
-        b.wait_in_text(".listing-ct-body image-layers", "Image layers")
+        b.wait_present(".listing-ct-body .image-layers")
+        b.wait_visible(".listing-ct-body .image-layers")
+        b.wait_in_text(".listing-ct-body .image-layers", "ADD file:")
+        b.wait_present(".listing-ct-body .image-metadata-layers")
+        b.wait_visible(".listing-ct-body .image-metadata-layers")
         b.wait_in_text(".listing-ct-body .image-metadata-layers > p", "2 Image Layers")
 
         # Add postgres into the stream

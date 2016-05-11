@@ -226,26 +226,32 @@ var Dialog = React.createClass({
 
 /* Create and show a dialog
  * For this, create a containing DOM node at the body level
+ * returns a function that the caller can use to update the body (footer will remain unchanged)
  */
-var show_modal_dialog = function(dialog_props, footer_props) {
+var show_modal_dialog = function(dialogProps, footerProps) {
     // create an element to render into
-    var root_element = document.createElement("div");
-    document.body.appendChild(root_element);
+    var rootElement = document.createElement("div");
+    document.body.appendChild(rootElement);
 
     // register our own on-close callback
-    var orig_callback = null;
-    if (typeof(footer_props) === 'object' && 'dialog_done' in footer_props)
-        orig_callback = footer_props.dialog_done;
-    var close_callback = function(args) {
-        if (orig_callback)
-            orig_callback.apply(this, arguments);
-        root_element.remove();
+    var origCallback = null;
+    if (typeof(footerProps) === 'object' && 'dialog_done' in footerProps)
+        origCallback = footerProps.dialog_done;
+    var closeCallback = function(args) {
+        if (origCallback)
+            origCallback.apply(this, arguments);
+        rootElement.remove();
     };
-    footer_props.dialog_done = close_callback;
-    dialog_props.footer = React.createElement(DialogFooter, footer_props);
 
+    var renderDialog = function(dialogProps, footerProps) {
+        footerProps.dialog_done = closeCallback;
+        dialogProps.footer = <DialogFooter {...footerProps} />;
+        React.render(<Dialog {...dialogProps} />, rootElement);
+    };
     // create the dialog
-    React.render(React.createElement(Dialog, dialog_props), root_element);
+    renderDialog(dialogProps, footerProps);
+
+    return renderDialog;
 };
 
 return {

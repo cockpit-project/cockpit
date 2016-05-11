@@ -27,7 +27,8 @@
             <th colspan="4">
               {{ sid }}
               <div class="listing-status" ng-repeat="statustags in stream.status.tags">
-                <span ng-repeat="condition in statustags.conditions" ng-if='condition.status == "False"'
+                <span ng-repeat="condition in statustags.conditions"
+                    ng-if='condition.status == "False"'
                     class="pficon pficon-warning-triangle-o"></span>
                 </div>
               </div>

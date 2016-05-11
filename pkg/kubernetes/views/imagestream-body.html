@@ -1,14 +1,10 @@
 <div ng-repeat="statustags in stream.status.tags">
-  <div ng-repeat="condition in statustags.conditions" ng-if='condition.status == "False"'
-      class="alert alert-danger alert-dismissable">
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
-      <span class="pficon pficon-close"></span>
-    </button>
+  <div ng-repeat="condition in statustags.conditions"
+      ng-if="condition.type == 'ImportSuccess' && condition.status == 'False'"
+      class="alert alert-danger">
     <span class="pficon pficon-error-circle-o"></span>
-    <strong>{{ condition.reason }} on {{ condition.type }}:</strong> {{ condition.message }} {{ condition.lastTransitionTime }}
-    <p ng-if='$first'>
-      <a translateable="yes" ng-click="modifyImageStream(stream)" class="alert-link">Edit imagestream</a>
-    </p>
+    {{ condition.message }}. Timestamp: {{ condition.lastTransitionTime }} Error count: {{ condition.generation }}
+    <a translateable="yes" ng-click="modifyImageStream(stream)" class="alert-link">Edit imagestream</a>
   </div>
 </div>
 <dl>

@@ -242,8 +242,8 @@ load_cert_from_dir (const gchar *dir_name,
 
   if (p->len > 0)
     {
-      ret = p->pdata[p->len - 1];
-      p->pdata[p->len - 1] = NULL;
+      ret = p->pdata[0];
+      p->pdata[0] = NULL;
     }
 
 out:

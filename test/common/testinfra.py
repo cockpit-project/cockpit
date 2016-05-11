@@ -172,19 +172,32 @@ def redact_audit_variables(message):
         Error: audit: type=1400 audit(1458739098.632:268): avc:  denied  { read } for  pid=1290 comm="ssh-transport-c" \
             name="unix" dev="proc" ino=4026532021 scontext=system_u:system_r:cockpit_ws_t:s0 \
             tcontext=system_u:object_r:proc_net_t:s0 tclass=file permissive=0
+        Error: audit: type=1401 audit(1461925292.392:293): op=security_compute_av reason=bounds \
+            scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:docker_t:s0 tclass=process perms=siginh
         It will ignore changed timestamp, pid and ino entries
     """
-    audit_re = re.compile(r"""(^\s*Error: audit:.+audit\()([0-9\.\:]+)(\).+pid=)([0-9]+)(.+ino=)([0-9]+)(.*)""")
+    audit_timestamp_re = re.compile(r"""(^\s*Error: audit:.+audit\()([0-9\.\:]+)(.*)""")
+    audit_pid_re = re.compile(r"""(.*pid=)([0-9]+)(.*)""")
+    audit_ino_re = re.compile(r"""(.*ino=)([0-9]+)(.*)""")
     lines = message.split("\n")
     for line_idx, line in enumerate(lines):
         if line.strip().startswith("Error: audit:"):
-            m = audit_re.match(line)
-            if m and len(m.groups()) == 7:
+            m = audit_timestamp_re.match(line)
+            if m and len(m.groups()) == 3:
                 fields = list(m.groups())
                 fields[1] = "[timestamp]"
-                fields[3] = "[pid]"
-                fields[5] = "[ino]"
-                lines[line_idx] = "".join(fields)
+                line = "".join(fields)
+            m = audit_pid_re.match(line)
+            if m and len(m.groups()) == 3:
+                fields = list(m.groups())
+                fields[1] = "[pid]"
+                line = "".join(fields)
+            m = audit_ino_re.match(line)
+            if m and len(m.groups()) == 3:
+                fields = list(m.groups())
+                fields[1] = "[ino]"
+                line = "".join(fields)
+            lines[line_idx] = line
     return "\n".join(lines)
 
 class Sink(object):

@@ -584,6 +584,13 @@ define([
         "#024848"
     ];
 
+    module.colors.parse = function parse_color(input) {
+        var div = document.createElement('div');
+        div.style.color = input;
+        var style = window.getComputedStyle(div, null);
+        return style.getPropertyValue("color") || div.style.color;
+    };
+
     module.known_hosts_path = known_hosts_path;
 
     cockpit.transport.wait(function() {

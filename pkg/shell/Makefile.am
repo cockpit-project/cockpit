@@ -102,6 +102,7 @@ shellimages_DATA = \
 shell_TESTS = \
 	pkg/shell/test-dummy.html \
 	pkg/shell/test-controls.html \
+	pkg/shell/test-machines.html \
 	$(NULL)
 
 TESTS += $(shell_TESTS)

@@ -33,7 +33,11 @@ cd $base/..
 if test ! -f Makefile || grep --quiet --no-messages "^REDIRECT" Makefile; then
   if [ ! -f tmp-dist/Makefile ]; then
       mkdir -p tmp-dist
-      (cd tmp-dist && NOREDIRECTMAKEFILE=t ../autogen.sh) 1>&2
+      if [ -f .tarball ]; then
+        (cd tmp-dist && ../configure) 1>&2
+      else
+        (cd tmp-dist && NOREDIRECTMAKEFILE=t ../autogen.sh) 1>&2
+      fi
   fi
   builddir=tmp-dist
 else

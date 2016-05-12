@@ -480,20 +480,40 @@ inject_address (CockpitWebResponse *response,
   g_free (line);
 }
 
-static gboolean
-on_handle_resource (CockpitWebServer *server,
-                    const gchar *path,
-                    GHashTable *headers,
-                    CockpitWebResponse *response,
-                    gpointer user_data)
+static void
+handle_raw_data (CockpitWebResponse *response,
+                 const gchar *data)
 {
-  gchar **parts;
+  GBytes *block;
+
+  /* For testing code that uses "manifests" return empty manifests for now */
+  block = g_bytes_new_static (data, strlen (data));
+  cockpit_web_response_content (response, NULL, block, NULL);
+  g_bytes_unref (block);
+}
+
+static void
+handle_manifests_js (CockpitWebResponse *response)
+{
+  /* For testing code that uses "manifests" return empty manifests for now */
+  handle_raw_data (response, "define({ });");
+}
+
+static void
+handle_manifests_json (CockpitWebResponse *response)
+{
+  /* For testing code that uses "/pkg/manifests.json" return empty manifests for now */
+  handle_raw_data (response, "{ }");
+}
+
+static void
+handle_package_file (CockpitWebServer *server,
+                     CockpitWebResponse *response,
+                     gchar **parts)
+{
   gchar *rebuilt;
 
-  g_assert (g_str_has_prefix (path, "/pkg"));
-
   /* TODO: This needs a better implementation later, when the tests aren't all broken */
-  parts = g_strsplit (path, "/", -1);
   if (g_strcmp0 (parts[2], "system") == 0)
     {
       g_free (parts[2]);
@@ -504,11 +524,32 @@ on_handle_resource (CockpitWebServer *server,
   inject_address (response, "bus_address", bus_address);
   inject_address (response, "direct_address", direct_address);
 
-  cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
   cockpit_web_response_file (response, rebuilt,  cockpit_web_server_get_document_roots (server));
+  g_free (rebuilt);
+}
+
+static gboolean
+on_handle_resource (CockpitWebServer *server,
+                    const gchar *path,
+                    GHashTable *headers,
+                    CockpitWebResponse *response,
+                    gpointer user_data)
+{
+  gchar **parts;
+
+  g_assert (g_str_has_prefix (path, "/pkg"));
+
+  cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
+
+  parts = g_strsplit (path, "/", -1);
+  if (g_strcmp0 (parts[2], "manifests.js") == 0 && !parts[3])
+    handle_manifests_js (response);
+  else if (g_strcmp0 (parts[2], "manifests.json") == 0 && !parts[3])
+    handle_manifests_json (response);
+  else
+    handle_package_file (server, response, parts);
 
   g_strfreev (parts);
-  g_free (rebuilt);
   return TRUE;
 }
 

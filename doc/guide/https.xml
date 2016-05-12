@@ -29,7 +29,7 @@
     <title>Certificates</title>
 
     <para>Cockpit will load a certificate from the <code>/etc/cockpit/ws-certs.d</code>
-      directory. It will use the first file with a <code>.cert</code> extension in
+      directory. It will use the last file with a <code>.cert</code> extension in
       alphabetical order. The <literal>.cert</literal> file should contain at least two
       OpenSSL style PEM blocks. First one or more <literal>BEGIN CERTIFICATE</literal>
       blocks for the server certificate and the intermediate certificate authorities

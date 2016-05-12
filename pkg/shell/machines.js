@@ -181,10 +181,10 @@ define([
         };
 
         function color_in_use(color) {
-            var key, machine, norm = $.color.parse(color).toString();
+            var key, machine, norm = module.colors.parse(color);
             for (key in machines) {
                 machine = machines[key];
-                if (machine.color && $.color.parse(machine.color).toString() == norm)
+                if (machine.color && module.colors.parse(machine.color) == norm)
                     return true;
             }
             return false;

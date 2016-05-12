@@ -398,7 +398,7 @@ define([
         function add_machine() {
             run_error = null;
             dialog.address = $('#add-machine-address').val();
-            color = $.color.parse($('#add-machine-color-picker #host-edit-color').css('background-color')).toString();
+            color = machines.colors.parse($('#add-machine-color-picker #host-edit-color').css('background-color'));
             if (existing_error(dialog.address))
                 return;
 

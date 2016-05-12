@@ -170,7 +170,7 @@ function host_edit_dialog(machine_manager, host) {
         dlg.dialog('failure', null);
         var values = {
             avatar: avatar_editor.changed ? avatar_editor.get_data(128, 128, "image/png") : null,
-            color: $.color.parse($('#host-edit-colorpicker #host-edit-color').css('background-color')).toString(),
+            color: machines.colors.parse($('#host-edit-colorpicker #host-edit-color').css('background-color')),
             label: $('#host-edit-name').val(),
         };
 

@@ -23,14 +23,25 @@
         <i title="Images only accessible to members" class="fa fa-lock imagestream-lock"></i>
       </div>
     <dt translatable="yes">Pull repository</dt>
-    <dd ng-if="stream.spec.dockerImageRepository"><tt>{{stream.spec.dockerImageRepository}}</tt></dd>
-    <dd ng-if="!stream.spec.dockerImageRepository"><em translatable="yes">None</em></dd>
+    <dd ng-if="stream.status.dockerImageRepository"><tt>{{stream.status.dockerImageRepository}}</tt></dd>
+    <dd ng-if="!stream.status.dockerImageRepository"><em translatable="yes">None</em></dd>
     <dt translatable="yes">Image count</dt>
     <dd translatable="yes">{{stream.status.tags.length}}</dd>
 </dl>
-<p>
-    <i class="fa fa-info-circle"></i>
-    <span translatable="yes">To push to an image to this image stream:</span>
-</p>
-<pre>$ sudo docker tag <em>myimage</em> <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/{{ stream.metadata.namespace }}/{{ stream.metadata.name}}:<em>tag</em>
+<div ng-if="!stream.spec.tags">
+  <p>
+      <i class="fa fa-info-circle"></i>
+      <span translatable="yes">To push to an image to this image stream:</span>
+  </p>
+  <pre>$ sudo docker tag <em>myimage</em> <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/{{ stream.metadata.namespace }}/{{ stream.metadata.name}}:<em>tag</em>
 $ sudo docker push <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/{{ stream.metadata.namespace }}/{{ stream.metadata.name}}</pre>
+</div>
+<div ng-if="stream.spec.tags">
+  <p>
+      <i class="fa fa-info-circle"></i>
+      <span translatable="yes">These image tags are synced from a remote registry:</span>
+  </p>
+  <p>
+    <samp ng-repeat="spectags in stream.spec.tags">{{spectags.from.name}} </samp>
+  </p>
+</div>

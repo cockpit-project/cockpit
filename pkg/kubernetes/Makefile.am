@@ -155,6 +155,7 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/node-delete.html \
 	pkg/kubernetes/views/node-page.html \
 	pkg/kubernetes/views/node-panel.html \
+	pkg/kubernetes/views/node-stats.html \
 	pkg/kubernetes/views/nodes-page.html \
 	pkg/kubernetes/views/replicationcontroller-body.html \
 	pkg/kubernetes/views/replicationcontroller-page.html \
@@ -176,6 +177,7 @@ kubernetes_VIEWS = \
 	$(NULL)
 
 kubernetes_MODULES = \
+	pkg/kubernetes/scripts/charts.js \
 	pkg/kubernetes/scripts/containers.js \
 	pkg/kubernetes/scripts/container-terminal.js \
 	pkg/kubernetes/scripts/dashboard.js \

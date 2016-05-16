@@ -139,11 +139,11 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/pv-body.html \
 	pkg/kubernetes/views/pv-claim.html \
 	pkg/kubernetes/views/pv-delete.html \
-	pkg/kubernetes/views/pv-listing.html \
 	pkg/kubernetes/views/pv-modify.html \
 	pkg/kubernetes/views/pv-page.html \
 	pkg/kubernetes/views/pv-panel.html \
 	pkg/kubernetes/views/pvc-body.html \
+	pkg/kubernetes/views/pvc-delete.html \
 	pkg/kubernetes/views/node-add.html \
 	pkg/kubernetes/views/node-alerts.html \
 	pkg/kubernetes/views/node-body.html \
@@ -168,6 +168,7 @@ kubernetes_VIEWS = \
 	pkg/kubernetes/views/service-panel.html \
 	pkg/kubernetes/views/topology-page.html \
 	pkg/kubernetes/views/volume-body.html \
+	pkg/kubernetes/views/volumes-page.html \
 	$(NULL)
 
 kubernetes_MODULES = \

@@ -96,9 +96,9 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                         <span class="list-group-item-value" translatable="yes">Details</span>
                     </a>
                 </li>
-                <li class="list-group-item" ng-if="settings.isAdmin" ng-class="{ active: viewActive('volumes')}">
+                <li class="list-group-item" ng-class="{ active: viewActive('volumes')}">
                     <!-- Directly to avoid any namespace filtering -->
-                    <a id="kubernetes-volumes" ng-href="#/volumes">
+                    <a id="kubernetes-volumes" ng-href="#{{ viewUrl('volumes', true) }}">
                         <i class="fa fa-database fa-fw" title="Volumes"></i>
                         <span class="list-group-item-value" translatable="yes">Volumes</span>
                     </a>

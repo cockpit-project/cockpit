@@ -87,6 +87,40 @@
                         ng-model="fields.server" placeholder="Hostname or IP address">
                 </td>
             </tr>
+
+            <tr ng-if="hasField('endpoint')">
+                <td class="top">
+                    <label class="control-label" for="modify-endpoint"
+                        translatable="yes">Endpoint</label>
+                </td>
+                <td>
+                    <div id="modify-endpoint" class="btn-group bootstrap-select form-control" dropdown>
+                        <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
+                            <span class="pull-left">
+                                <span ng-if="fields.endpoint">{{ fields.endpoint }}</span>
+                            </span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="endpoint in fields.endpointOptions">
+                                <a ng-click="setField('endpoint', endpoint.metadata.name)">{{ endpoint.metadata.name }}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+
+            <tr ng-if="hasField('glusterfsPath')">
+                <td class="top">
+                    <label class="control-label" for="modify-glusterfs-path"
+                        translatable="yes">Volume Name</label>
+                </td>
+                <td>
+                    <input id="modify-glusterfs-path" class="form-control" type="text"
+                        ng-model="fields.glusterfsPath">
+                </td>
+            </tr>
+
             <tr ng-if="hasField('path')">
                 <td class="top">
                     <label class="control-label" for="modify-path"

@@ -206,18 +206,6 @@
     .factory('dashboardData', [
         'kubeSelect',
         function(select) {
-            select.register({
-                name: "statusPhase",
-                digest: function(arg) {
-                    var status;
-                    if (typeof arg == "string") {
-                        return arg;
-                    } else {
-                        status = arg.status || { };
-                        return status.phase ? status.phase : null;
-                    }
-                }
-            });
 
             function conditionDigest(arg, match) {
                 if (typeof arg == "string")

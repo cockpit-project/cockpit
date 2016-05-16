@@ -196,6 +196,17 @@ function suite(fixtures) {
         }
     ]);
 
+    volumesTest("claim phases", 2, fixtures, [
+        "volumeData",
+        'kubeSelect',
+        function(volumeData, select) {
+            var claim = select().kind("PersistentVolumeClaim").statusPhase("Bound").one();
+            equal(claim.metadata.name, "bound-claim", "select bound claims");
+
+            var pending = select().kind("PersistentVolumeClaim").statusPhase("Pending").one();
+            equal(pending.metadata.name, "unbound-claim", "select unbound claims");
+        }
+    ]);
 
     volumesTest("volume Types", 4, fixtures, [
         "volumeData",

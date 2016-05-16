@@ -62,6 +62,7 @@
                  $routeParams, $location, actions, $timeout) {
             var target = $routeParams["target"] || "";
             $scope.target = target;
+            $scope.pvFailure = null;
 
             var c = loader.listen(function() {
                 var timer;
@@ -70,7 +71,11 @@
                     $scope.item = select().kind("PersistentVolume").name(target).one();
             });
 
-            loader.watch("PersistentVolume");
+            loader.watch("PersistentVolume")
+                .catch(function (ex) {
+                    $scope.pvFailure = ex.message;
+                });
+
             loader.watch("PersistentVolumeClaim");
             loader.watch("Endpoints");
 
@@ -90,7 +95,7 @@
                 /* If the promise is successful, redirect to another page */
                 promise.then(function() {
                     if ($scope.target)
-                        $location.path($scope.viewUrl('volumes'));
+                        $location.path('/volumes/');
                 });
 
                 return promise;

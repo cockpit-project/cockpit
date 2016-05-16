@@ -1006,6 +1006,20 @@
                 }
             });
 
+            /* The statusPhase filter */
+            registerFilter({
+                name: "statusPhase",
+                digest: function(arg) {
+                    var status;
+                    if (typeof arg == "string") {
+                        return arg;
+                    } else {
+                        status = arg.status || { };
+                        return status.phase ? status.phase : null;
+                    }
+                }
+            });
+
             var empty = { };
 
             function select(arg) {

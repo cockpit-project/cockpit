@@ -320,6 +320,68 @@ function suite(fixtures) {
         }
     ]);
 
+    volumesTest("gluster volume build", 3, fixtures, [
+        "glusterfsVolumeFields",
+        "kubeSelect",
+        function(gfs, select) {
+            var endpoints = select().kind("Endpoints");;
+            var blank_fields = {
+              "glusterfsPath": undefined,
+              "endpoint": undefined,
+              "endpointOptions": endpoints,
+              "readOnly": undefined,
+              "reclaimPolicies": {
+                "Retain": "Retain"
+              }
+            };
+
+            deepEqual(blank_fields, gfs.build(), "default gluster fields");
+            deepEqual(blank_fields, gfs.build({}), "empty gluster fields");
+            deepEqual({
+              "glusterfsPath": "kube_vo",
+              "endpointOptions": endpoints,
+              "readOnly": undefined,
+              "reclaimPolicies": {
+                "Retain": "Retain"
+              },
+              "endpoint": "my-gluster-endpoint",
+            }, gfs.build(select().name("gfs-volume").one()), "gluster fields");
+        }
+    ]);
+
+    volumesTest("gfs volume validate", 9, fixtures, [
+        "glusterfsVolumeFields",
+        function(nfsVolumeFields) {
+            var result = nfsVolumeFields.validate(null, {})
+            equal(result.data, null, "blank fields blank data");
+            equal(result.errors.length, 2);
+            equal(result.errors[0].target, "#modify-endpoint", "blank fields endpoint error");
+            equal(result.errors[1].target, "#modify-glusterfs-path", "blank fields path error");
+
+            var invalid = {
+                "endpoint": "bad",
+                "glusterfsPath": "name"
+            };
+            result = nfsVolumeFields.validate(null, invalid);
+            equal(result.data, null, "invalid fields invalid data");
+            equal(result.errors.length, 1);
+            equal(result.errors[0].target, "#modify-endpoint", "invalid endpoint error");
+
+            var valid = {
+                "endpoint": "my-gluster-endpoint",
+                "glusterfsPath": "name",
+            };
+            var source = {
+                "endpoints": "my-gluster-endpoint",
+                "path": "name",
+                "readOnly": false
+            };
+            result = nfsVolumeFields.validate(null, valid);
+            deepEqual(result.data, source, "valid source result");
+            equal(result.errors.length, 0, "no errors when valid");
+        }
+    ]);
+
     volumesTest("nfs volume build", 3, fixtures, [
         "nfsVolumeFields",
         "kubeSelect",
@@ -496,6 +558,33 @@ suite([
     }
 },
 {
+    "kind": "PersistentVolume",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "gfs-volume",
+        "selfLink": "/api/v1/persistentvolumes/gfs-volume",
+        "uid": "ae3133fc-f6a4-11e5-9e36-5254009e00cc",
+        "resourceVersion": "1388",
+        "creationTimestamp": "2016-03-30T18:24:46Z"
+    },
+    "spec": {
+        "capacity": {
+            "storage": "5Gi"
+        },
+        "glusterfs": {
+            "path": "kube_vo",
+            "endpoints": "my-gluster-endpoint"
+        },
+        "accessModes": [
+            "ReadWriteMany"
+        ],
+        "persistentVolumeReclaimPolicy": "Retain"
+    },
+    "status": {
+        "phase": "Pending"
+    }
+},
+{
     "kind": "PersistentVolumeClaim",
     "apiVersion": "v1",
     "metadata": {
@@ -654,7 +743,35 @@ suite([
     "status": {
         "phase": "Pending"
     }
+},
+{
+    "kind": "Endpoints",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "my-gluster-endpoint",
+        "namespace": "default",
+        "selfLink": "/api/v1/namespaces/default/endpoints/my-gluster-endpoint",
+        "uid": "498cac38-ffc0-11e5-8098-5254009e00dd",
+        "resourceVersion": "1078",
+        "creationTimestamp": "2016-04-11T08:35:03Z"
+    },
+    "subsets": [
+        {
+            "addresses": [
+                {
+                    "ip": "172.17.0.2"
+                }
+            ],
+            "ports": [
+                {
+                    "port": 1,
+                    "protocol": "TCP"
+                }
+            ]
+        }
+    ]
 }
+
 ]);
 
 </script>

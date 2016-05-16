@@ -72,6 +72,7 @@
 
             loader.watch("PersistentVolume");
             loader.watch("PersistentVolumeClaim");
+            loader.watch("Endpoints");
 
             $scope.$on("$destroy", function() {
                 c.cancel();
@@ -480,6 +481,73 @@
         }
     ])
 
+    .factory("glusterfs"+VOLUME_FACTORY_SUFFIX, [
+        "volumeData",
+        "KubeTranslate",
+        "kubeSelect",
+        function (volumeData, translate, select) {
+            var _ = translate.gettext;
+
+            function build(item) {
+                if (!item)
+                    item = {};
+
+                var spec = item.spec || {};
+                var glusterfs = spec.glusterfs || {};
+
+                return {
+                    endpoint: glusterfs.endpoints,
+                    endpointOptions: select().kind("Endpoints"),
+                    glusterfsPath: glusterfs.path,
+                    readOnly: glusterfs.readOnly,
+                    reclaimPolicies: {
+                        "Retain" : volumeData.reclaimPolicies["Retain"]
+                    },
+                };
+            }
+
+            function validate (item, fields) {
+                var data, ex, endpoint, path;
+                var ret = {
+                    errors: [],
+                    data: null,
+                };
+
+                endpoint = fields.endpoint ? fields.endpoint.trim() : fields.endpoint;
+                if (!select().kind("Endpoints").name(endpoint).one()) {
+                    ex = new Error(_("Please select a valid endpoint"));
+                    ex.target = "#modify-endpoint";
+                    ret.errors.push(ex);
+                    ex = null;
+                }
+
+                // The API calls glusterfs volume name, path.
+                path = fields.glusterfsPath ? fields.glusterfsPath.trim() : fields.glusterfsPath;
+                if (!path) {
+                    ex = new Error(_("Please provide a GlusterFS volume name"));
+                    ex.target = "#modify-glusterfs-path";
+                    ret.errors.push(ex);
+                    ex = null;
+                }
+
+                if (ret.errors.length < 1) {
+                    ret.data = {
+                        endpoints: endpoint,
+                        path: path,
+                        readOnly: !!fields.readOnly
+                    };
+                }
+
+                return ret;
+            }
+
+            return {
+                build: build,
+                validate: validate,
+            };
+        }
+    ])
+
     .factory("nfs"+VOLUME_FACTORY_SUFFIX, [
         "volumeData",
         "KubeTranslate",
@@ -746,6 +814,10 @@
                     name: _("ISCSI"),
                     type: "iscsi",
                 },
+                {
+                    name: _("GlusterFS"),
+                    type: "glusterfs",
+                },
             ];
 
             function selectType(type) {
@@ -803,6 +875,10 @@
             $scope.select = function(type) {
                 $scope.selected = type;
                 selectType(type.type);
+            };
+
+            $scope.setField = function(name, value) {
+                $scope.fields[name] = value;
             };
 
             $scope.hasField = function(name) {

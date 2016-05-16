@@ -2,15 +2,16 @@
     "kind": "PersistentVolume",
     "apiVersion": "v1",
     "metadata": {
-        "name": "gluster-volume"
+        "name": "fc-volume"
     },
     "spec": {
         "capacity": {
             "storage": "5Gi"
         },
-        "glusterfs": {
-            "endpoints": "endpoint",
-            "path": "/path"
+        "fc": {
+            "targetWWNs": ["target1"],
+            "fsType": "ext4",
+            "lun": 1
         },
         "accessModes": [
             "ReadWriteMany"

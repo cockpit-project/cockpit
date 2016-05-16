@@ -125,9 +125,9 @@ class VolumeTests(object):
         b.wait_not_present("modal-dialog")
         b.wait_present(".pv-listing tbody[data-id='pv2']")
 
-        m.upload(["verify/files/glusterfs-volume.json"], "/tmp")
-        m.execute("kubectl create -f /tmp/glusterfs-volume.json")
-        b.wait_present(".pv-listing tbody[data-id='gluster-volume']")
+        m.upload(["verify/files/fc-volume.json"], "/tmp")
+        m.execute("kubectl create -f /tmp/fc-volume.json")
+        b.wait_present(".pv-listing tbody[data-id='fc-volume']")
 
         b.click(".pv-listing tbody[data-id='pv2'] th")
         b.wait_present(".content-filter")
@@ -152,8 +152,8 @@ class VolumeTests(object):
             b.wait_not_present("modal-dialog")
 
         b.click("a.hidden-xs")
-        b.wait_present(".pv-listing tbody[data-id='gluster-volume']")
-        b.click(".pv-listing tbody[data-id='gluster-volume'] th")
+        b.wait_present(".pv-listing tbody[data-id='fc-volume']")
+        b.click(".pv-listing tbody[data-id='fc-volume'] th")
         b.wait_present(".content-filter")
         b.wait_present(".content-filter button.btn-delete")
         b.wait_not_present(".content-filter button.pficon-edit")
@@ -162,7 +162,7 @@ class VolumeTests(object):
         b.wait_present("modal-dialog .modal-footer button.btn-danger")
         b.click("modal-dialog .modal-footer button.btn-danger")
         b.wait_present(".pv-listing")
-        b.wait_not_present(".pv-listing tbody[data-id='gluster-volume']")
+        b.wait_not_present(".pv-listing tbody[data-id='fc-volume']")
 
         base_sel = ".pv-listing tbody[data-id='{}']".format(pv_id)
         b.wait_present(base_sel)

@@ -19,6 +19,8 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import subprocess
+
 try:
     import testlib
 except ImportError:
@@ -56,6 +58,63 @@ class KubernetesCase(testlib.MachineCase):
         self.machine.execute(script=waiter)
 
 class VolumeTests(object):
+
+    def testPendingClaim(self):
+        b = self.browser
+        m = self.machine
+
+        if hasattr(self, "openshift"):
+            m = self.openshift
+
+        self.login_and_go("/kubernetes")
+        b.wait_present(".dashboard-status:nth-child(2)")
+        b.wait_in_text(".dashboard-status:nth-child(2)", "No volumes in use")
+        b.wait_not_present(".pvc-notice a")
+
+        m.upload(["verify/files/mock-volume-tiny-app.json"], "/tmp")
+        m.execute("kubectl create -f /tmp/mock-volume-tiny-app.json")
+
+        b.wait_present(".pvc-notice a")
+        b.click(".pvc-notice a")
+        b.wait_present(".pvc-listing")
+
+        b.wait_present("tbody[data-id='default/mock-volume-claim']")
+        b.wait_present("tbody[data-id='default/mock-volume-claim'] td:last-child button.btn-danger")
+        b.click("tbody[data-id='default/mock-volume-claim'] td:last-child button.btn-danger", force=True)
+
+        b.wait_present("modal-dialog")
+        b.wait_in_text("modal-dialog .modal-body", "mock-volume-claim")
+        b.wait_present("modal-dialog .modal-body ul")
+        b.wait_in_text("modal-dialog .modal-body ul", "mock-volume-")
+        b.wait_not_in_text("modal-dialog .modal-body ul", "mock-volume-claim")
+        b.click("modal-dialog button.btn-danger")
+        b.wait_not_present("modal-dialog")
+        b.wait_not_present(".pvc-listing")
+
+        m.execute("kubectl delete rc/mock-volume")
+        m.upload(["verify/files/mock-volume-tiny-app.json"], "/tmp")
+        m.execute("kubectl create -f /tmp/mock-volume-tiny-app.json")
+
+        b.wait_present(".pvc-listing")
+        b.wait_present("tbody[data-id='default/mock-volume-claim']")
+        b.wait_in_text("tbody[data-id='default/mock-volume-claim']", "5Gi")
+        b.click("tbody[data-id='default/mock-volume-claim'] tr")
+
+        b.wait_present("modal-dialog")
+        b.wait_present("modal-dialog #modify-access-ReadWriteMany:checked")
+        b.wait_present("modal-dialog #modify-access-ReadWriteOnce:not(:checked)")
+        b.wait_present("modal-dialog #modify-access-ReadOnlyMany:not(:checked)")
+        b.wait_val("modal-dialog #modify-capacity", "5Gi")
+        b.set_val("modal-dialog #modify-name", "pv1")
+        b.set_val("modal-dialog #nfs-modify-server", "10.111.112.101")
+        b.set_val("modal-dialog #modify-path", "/nfsexport")
+        b.set_val("modal-dialog #modify-policy-Retain", "Retain");
+        b.click("modal-dialog .modal-footer button.btn-primary")
+        b.wait_not_present("modal-dialog")
+
+        b.wait_present(".pv-listing tbody[data-id='pv1']")
+        b.wait_not_present(".pvc-listing")
+
     def testVolumes(self):
         b = self.browser
         m = self.machine

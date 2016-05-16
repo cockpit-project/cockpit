@@ -6,7 +6,7 @@
     </div>
     <h3 ng-if="item"><i class="fa fa-database fa-fw"></i>{{ item.metadata.name }}</h3>
     <h3 ng-if="!item"><i class="fa fa-database fa-fw"></i>{{ target }}</h3>
-    <a ng-href="#/volumes" translatable="yes" class="hidden-xs">Show all Persistent Volumes</a>
+    <a ng-href="#{{ viewUrl('volumes', true) }}" translatable="yes" class="hidden-xs">Show all Persistent Volumes</a>
 </div>
 
 <div class="listing-ct-inline" ng-if="item">

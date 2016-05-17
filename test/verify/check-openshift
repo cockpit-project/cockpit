@@ -83,6 +83,10 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
         b.wait_present("#service-list")
         b.wait_in_text("#service-list", "docker-registry")
         b.wait_present("a[href='#/volumes']")
+        b.click("a[href='#/volumes']")
+        b.wait_present(".pv-listing")
+        b.wait_in_text(".pv-listing", "No volumes are present")
+        b.click("a[href='#/']")
 
         b.wait_present("#kubernetes-change-connection")
         b.click("#kubernetes-change-connection")
@@ -112,7 +116,11 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
         # scruffy isn't a admin
         b.wait_present("#service-list")
         b.wait_not_in_text("#service-list", "docker-registry")
-        b.wait_not_present("a[href='#/volumes']")
+        b.wait_present("a[href='#/volumes']")
+        b.click("a[href='#/volumes']")
+        b.wait_present(".pv-listing")
+        b.wait_in_text(".pv-listing", "cannot list all")
+        b.click("a[href='#/']")
 
         b.wait_present("#kubernetes-change-connection")
         b.click("#kubernetes-change-connection")

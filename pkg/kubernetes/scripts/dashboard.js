@@ -55,6 +55,7 @@
             $scope.nodes = select().kind("Node");
             $scope.pods = select().kind("Pod");
             $scope.volumes = select().kind("PersistentVolume");
+            $scope.pvcs = select().kind("PersistentVolumeClaim");
 
             $scope.status = {
                 pods: {
@@ -70,6 +71,7 @@
                 },
                 volumes: {
                     Pending: $scope.volumes.statusPhase("Pending"),
+                    PendingClaims: $scope.pvcs.statusPhase("Pending"),
                     Available: $scope.volumes.statusPhase("Available"),
                     Released: $scope.volumes.statusPhase("Released"),
                     Failed: $scope.volumes.statusPhase("Failed"),
@@ -85,6 +87,8 @@
         loader.watch("Service");
         loader.watch("ReplicationController");
         loader.watch("Pod");
+        loader.watch("PersistentVolume");
+        loader.watch("PersistentVolumeClaim");
 
         $scope.editServices = false;
         $scope.toggleServiceChange = function toggleServiceChange() {
@@ -206,18 +210,6 @@
     .factory('dashboardData', [
         'kubeSelect',
         function(select) {
-            select.register({
-                name: "statusPhase",
-                digest: function(arg) {
-                    var status;
-                    if (typeof arg == "string") {
-                        return arg;
-                    } else {
-                        status = arg.status || { };
-                        return status.phase ? status.phase : null;
-                    }
-                }
-            });
 
             function conditionDigest(arg, match) {
                 if (typeof arg == "string")

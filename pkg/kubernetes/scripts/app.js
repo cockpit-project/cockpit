@@ -54,21 +54,25 @@
             };
 
             /* Used to build simple route URLs */
-            $scope.viewUrl = function(segment) {
-                var parts, namespace = loader.limits.namespace;
+            $scope.viewUrl = function(segment, forceQS) {
+                var namespace = loader.limits.namespace;
+                var path, parts = [];
                 if (angular.isArray(namespace))
                     namespace = null;
-                if (!segment) {
-                    if (namespace)
-                        return "/?namespace=" + encodeURIComponent(namespace);
-                    else
-                        return "/";
-                } else {
-                    parts = [ segment ];
-                    if (namespace)
-                        parts.push(namespace);
-                    return "/" + parts.map(encodeURIComponent).join("/");
-                }
+
+                if (segment)
+                    parts.push(segment);
+                else
+                    forceQS = true;
+
+                if (!forceQS && namespace)
+                    parts.push(namespace);
+
+                path = "/" + parts.map(encodeURIComponent).join("/");
+                if (namespace && forceQS)
+                    return path + "?namespace=" + encodeURIComponent(namespace);
+                else
+                    return path;
             };
 
             /* Used while debugging */

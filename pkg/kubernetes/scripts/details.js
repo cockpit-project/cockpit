@@ -434,14 +434,17 @@
         "KubeTranslate",
         function($q, $scope, $instance, dialogData, methods, translate) {
             var _ = translate.gettext;
+            var item = dialogData.item;
             var fields = {};
 
-            if (!validItem(dialogData.item, "ReplicationController")) {
+            if (!validItem(item, "ReplicationController")) {
                 $scope.$applyAsync(function () {
                     $scope.$dismiss();
                 });
                 return;
             }
+
+            fields.replicas = item.spec ? item.spec.replicas : 1;
 
             function validate() {
                 var defer = $q.defer();
@@ -464,7 +467,7 @@
             }
 
             $scope.fields = fields;
-            angular.extend($scope, dialogData);
+            $scope.item = item;
 
             $scope.performModify = function performModify() {
                 return validate().then(function(data) {

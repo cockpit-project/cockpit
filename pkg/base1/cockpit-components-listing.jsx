@@ -38,6 +38,7 @@ define([
      *     if tabRenderers isn't set, item can't be expanded inline
      * navigateToItem optional: callback triggered when a row is clicked, pattern suggests navigation
      *     to view expanded item details, if not set, navigation isn't available
+     * listingDetail optional: text rendered next to action buttons, similar style to the tab headers
      * listingActions optional: buttons that are presented as actions for the expanded item
      */
     var ListingRow = React.createClass({
@@ -180,6 +181,15 @@ define([
                         tabs.push(<div className="listing-ct-body" key={tabIdx} hidden>{row}</div>);
                 }
 
+                var listingDetail;
+                if ('listingDetail' in this.props) {
+                    listingDetail = (
+                        <span className="listing-ct-caption">
+                            {this.props.listingDetail}
+                        </span>
+                    );
+                }
+
                 return (
                     <tbody className="open">
                         {listing_item}
@@ -187,6 +197,7 @@ define([
                             <td colSpan={ header_entries.length + (expand_toggle?1:0) }>
                                 <div className="listing-ct-head">
                                     <div className="listing-ct-actions">
+                                        {listingDetail}
                                         {this.props.listingActions}
                                     </div>
                                     <ul className="nav nav-tabs nav-tabs-pf">

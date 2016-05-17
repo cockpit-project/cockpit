@@ -129,7 +129,7 @@ define([
             var count_display = null;
 
             var header_entries = this.props.columns.map(function(itm) {
-                if (typeof itm === 'string' || itm instanceof String || React.isValidElement(itm))
+                if (typeof itm === 'string' || itm === null || itm instanceof String || React.isValidElement(itm))
                     return (<td>{itm}</td>);
                 else if ('header' in itm && itm.header)
                     return (<th>{itm.name}</th>);

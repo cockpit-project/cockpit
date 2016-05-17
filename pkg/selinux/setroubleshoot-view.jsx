@@ -254,6 +254,13 @@ var SETroubleshootPage = React.createClass({
             }
             var entries = this.props.entries.map(function(itm) {
                 itm.runFix = self.props.runFix;
+                var listingDetail;
+                if (itm.details && 'firstSeen' in itm.details) {
+                    if (itm.details.reportCount >= 2)
+                        listingDetail = cockpit.format(_("Occurred between $0 and $1"), itm.details.firstSeen, itm.details.lastSeen);
+                    else
+                        listingDetail = cockpit.format(_("Occurred $0"), itm.details.firstSeen);
+                }
                 var dismissAction = (
                     <button
                         title="Dismiss"
@@ -279,7 +286,8 @@ var SETroubleshootPage = React.createClass({
                     <cockpitListing.ListingRow
                         columns={columns}
                         tabRenderers={tabRenderers}
-                        listingActions={ [ dismissAction ] } />
+                        listingDetail={listingDetail}
+                        listingActions={ [dismissAction] } />
                 );
             });
 

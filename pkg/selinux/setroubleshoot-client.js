@@ -111,7 +111,10 @@ client.init = function() {
           doText
           analysisId: plugin id. It can be used in org.fedoraproject.SetroubleshootFixit.run_fix()
           fixable: True when an alert is fixable by a plugin
-          reportBug: True when an alert should be reported to bugzilla
+          reportBug: True when an alert should be reported
+      firstSeen: when the alert was seen for the first time, iso8601 format is used - '%Y-%m-%dT%H:%M:%SZ'
+      lastSeen: when the alert was seen for the last time, iso8601 format is used - '%Y-%m-%dT%H:%M:%SZ'
+      level: "green", "yellow" or "red"
     */
     client.getAlert = function(localId) {
         var dfdResult = $.Deferred();
@@ -124,6 +127,13 @@ client.init = function() {
                   auditEvent: result[3],
                   pluginAnalysis: result[4],
                 };
+                // these values are available starting setroubleshoot-3.2.25
+                // HACK https://bugzilla.redhat.com/show_bug.cgi?id=1306700
+                if (result.length >= 8) {
+                    details.firstSeen = result[5];
+                    details.lastSeen = result[6];
+                    details.level = result[7];
+                }
                 // cleanup analysis
                 details.pluginAnalysis = details.pluginAnalysis.map(function(itm) {
                     return {

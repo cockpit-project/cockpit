@@ -2880,8 +2880,7 @@ function basic_scope(cockpit, jquery) {
                 } else if (msg.notify) {
                     notify(msg.notify);
                 } else if (msg.meta) {
-                    ensure_cache();
-                    extend(cache.meta, msg.meta);
+                    meta(msg.meta);
                 } else if (msg.owner !== undefined) {
                     self.dispatchEvent("owner", msg.owner);
 
@@ -2898,6 +2897,12 @@ function basic_scope(cockpit, jquery) {
                     dbus_debug("received unexpected dbus json message:", payload);
                 }
             });
+        }
+
+        function meta(data) {
+            ensure_cache();
+            extend(cache.meta, data);
+            self.dispatchEvent("meta", data);
         }
 
         function notify(data) {

@@ -49,3 +49,22 @@
     height: 100%;
     width: 100%;
 }
+
+/* warning icon for critical (level "red") setroubleshoot alerts */
+.listing-ct-item .fa-exclamation-triangle {
+    color: #c00;
+    vertical-align: middle;
+    font-size: 150%;
+}
+
+/* make sure the other columns don't spread out too much
+ * the warning icon might not even be present at all
+ */
+.listing-ct-item > th {
+    width: 100%;
+}
+
+/* remove padding from warning icon column */
+.listing-ct-item :nth-child(2) {
+    padding: 0;
+}

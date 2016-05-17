@@ -279,7 +279,14 @@ var SETroubleshootPage = React.createClass({
                         data: itm,
                     },
                 ];
-                var columns = [ { name: itm.description, 'header': true } ];
+                // if the alert has level "red", it's critical
+                var criticalAlert = null;
+                if (itm.details && 'level' in itm.details && itm.details.level == "red")
+                    criticalAlert = <span className="fa fa-exclamation-triangle" />;
+                var columns = [
+                    criticalAlert,
+                    { name: itm.description, 'header': true }
+                ];
                 if (itm.count > 1)
                     columns.push(<span className="badge">{itm.count}</span>);
                 return (

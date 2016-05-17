@@ -43,7 +43,7 @@ var initStore = function(rootElement) {
     dataStore.connecting = null;
 
     // did we have a connection error?
-    dataStore.error = false;
+    dataStore.error = null;
 
     dataStore.client = troubleshootClient;
 
@@ -86,13 +86,45 @@ var initStore = function(rootElement) {
             });
     };
 
+    /* Delete an alert via the client
+     * if it goes wrong, show an error
+     * remove the entry if successful
+     * This function will only be called if the backend functionality is actually present
+     */
+    var deleteAlert = function(alertId) {
+        dataStore.client.capabilities.deleteAlert(alertId)
+            .done(function() {
+                var idx;
+                for (idx = dataStore.entries.length - 1; idx >= 0; --idx) {
+                    if (dataStore.entries[idx].key == alertId)
+                        break;
+                }
+                if (idx < 0)
+                    return;
+                dataStore.entries.splice(idx, 1);
+                dataStore.render();
+            })
+            .fail(function(error) {
+                dataStore.error = error;
+                dataStore.render();
+            });
+    };
+
+    var dismissError = function() {
+        dataStore.error = null;
+        dataStore.render();
+    };
+
     var render = function() {
+        var enableDeleteAlert = ('capabilities' in dataStore.client && 'deleteAlert' in dataStore.client.capabilities);
         React.render(React.createElement(troubleshootView.SETroubleshootPage, {
                 connected: dataStore.connected,
                 connecting: dataStore.connecting,
                 error: dataStore.error,
+                dismissError: dismissError,
                 entries: dataStore.entries,
                 runFix: runFix,
+                deleteAlert: enableDeleteAlert?deleteAlert:undefined,
             }), rootElement);
     };
     dataStore.render = render;
@@ -177,11 +209,16 @@ var initStore = function(rootElement) {
     var setErrorIfNotConnected = function() {
         if (dataStore.connecting === null)
             return;
-        dataStore.error = true;
+        dataStore.error = _("Not connected");
         render();
     };
 
     dataStore.connectionTimeout = 5000;
+
+    function capablitiesChanged(capabilities) {
+        dataStore.capabilities = capabilities;
+        render();
+    }
 
     // try to connect
     dataStore.tryConnect = function() {
@@ -189,8 +226,8 @@ var initStore = function(rootElement) {
             dataStore.connecting = window.setTimeout(setErrorIfNotConnected, dataStore.connectionTimeout);
             render();
             // initialize our setroubleshootd client
-            dataStore.client.init()
-                .done(function() {
+            dataStore.client.init(capablitiesChanged)
+                .done(function(capablitiesChanged) {
                     dataStore.connected = true;
                     window.clearTimeout(dataStore.connecting);
                     dataStore.connecting = null;
@@ -209,7 +246,7 @@ var initStore = function(rootElement) {
                     dataStore.connected = false;
                     window.clearTimeout(dataStore.connecting);
                     dataStore.connecting = null;
-                    dataStore.error = true;
+                    dataStore.error = _("Error while connecting.");
                     render();
                     // TODO: should we propagate the error message here?
                 });

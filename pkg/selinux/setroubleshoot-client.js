@@ -35,9 +35,10 @@ var busNameFixit = "org.fedoraproject.SetroubleshootFixit";
 var dbusInterfaceFixit = busNameFixit;
 var dbusPathFixit = "/org/fedoraproject/SetroubleshootFixit/object";
 
-client.init = function() {
+client.init = function(capabilitiesChangedCallback) {
     client.connected = false;
-    client.proxy = cockpit.dbus(busName).proxy(dbusInterface, dbusPath);
+    var dbusClientSeTroubleshoot = cockpit.dbus(busName);
+    client.proxy = dbusClientSeTroubleshoot.proxy(dbusInterface, dbusPath);
 
     client.proxyFixit = cockpit.dbus(busNameFixit).proxy(dbusInterfaceFixit, dbusPathFixit);
 
@@ -169,6 +170,42 @@ client.init = function() {
             });
         return dfdResult.promise();
     };
+
+    /* Delete an alert from the database (will be removed for all users), returns true on success
+     * Only assign this to the client variable if the dbus interface actually supports the operation
+     */
+    var deleteAlert = function(localId) {
+        var dfdResult = $.Deferred();
+        client.proxy.call("delete_alert", [localId])
+            .done(function(success) {
+                if (success)
+                    dfdResult.resolve();
+                else
+                    dfdResult.reject(new Error(_("Failed to delete alert") + ": " + localId));
+            })
+            .fail(function(ex) {
+                console.warn("Unable to delete alert with id " + localId);
+                console.warn(ex);
+                dfdResult.reject(new Error(_("Error while deleting alert") + ": " + localId));
+            });
+        return dfdResult.promise();
+    };
+
+    // earlier versions of the dbus interface don't support alert deletion/dismissal
+    // HACK https://bugzilla.redhat.com/show_bug.cgi?id=1306700
+    // once every client we ship to handles these features, we can remove the capabilities check
+    client.capabilities = { deleteAlert: undefined };
+
+    // wait for metadata - if this has the method delete_alert, we can use that
+    $(dbusClientSeTroubleshoot).on("meta", function(event, meta) {
+        if (dbusInterface in meta && 'methods' in meta[dbusInterface] && 'delete_alert' in meta[dbusInterface].methods)
+            client.capabilities.deleteAlert = deleteAlert;
+        else
+            client.capabilities.deleteAlert = undefined;
+
+        if (capabilitiesChangedCallback)
+            capabilitiesChangedCallback(client.capabilities);
+    });
 
     // connect to dbus and start setroubleshootd
     return dfd.promise();

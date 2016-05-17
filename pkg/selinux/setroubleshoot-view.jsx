@@ -221,8 +221,34 @@ var EmptyState = React.createClass({
 
 /* The listing only shows if we have a connection to the dbus API
  * Otherwise we have blank slate: trying to connect, error
+ * Expected properties:
+ * connected    true if the client is connected to setroubleshoot-server via dbus
+ * error        error message to show (in EmptyState if not connected, as a dismissable alert otherwise
+ * dismissError callback, triggered for the dismissable error in connected state
+ * deleteAlert  callback, triggered with an alert id as parameter to trigger deletion
+ * entries   setroubleshoot entries
+ *  - runFix      function to run fix
+ *  - details     fix details as provided by the setroubleshoot client
+ *  - description brief description of the error
+ *  - count       how many times (>= 1) this alert occurred
  */
 var SETroubleshootPage = React.createClass({
+    handleDeleteAlert: function(alertId, e) {
+        // only consider primary mouse button
+        if (!e || e.button !== 0)
+            return;
+        if (this.props.deleteAlert)
+            this.props.deleteAlert(alertId);
+        e.stopPropagation();
+    },
+    handleDismissError: function(e) {
+        // only consider primary mouse button
+        if (!e || e.button !== 0)
+            return;
+        if (this.props.dismissError)
+            this.props.dismissError();
+        e.stopPropagation();
+    },
     render: function() {
         var self = this;
         if (!this.props.connected) {
@@ -261,11 +287,15 @@ var SETroubleshootPage = React.createClass({
                     else
                         listingDetail = cockpit.format(_("Occurred $0"), itm.details.firstSeen);
                 }
+                var onDeleteClick;
+                if (itm.details)
+                    onDeleteClick = self.handleDeleteAlert.bind(self, itm.details.localId);
                 var dismissAction = (
                     <button
                         title="Dismiss"
                         className="pficon pficon-delete btn btn-danger"
-                        disabled />
+                        onClick={onDeleteClick}
+                        disabled={ !onDeleteClick || !self.props.deleteAlert } />
                 );
                 var tabRenderers = [
                     {
@@ -298,8 +328,22 @@ var SETroubleshootPage = React.createClass({
                 );
             });
 
+            var errorMessage;
+            if (this.props.error) {
+                errorMessage = (
+                    <div className="alert alert-danger alert-dismissable alert-ct-top">
+                        <span className="pficon pficon-error-circle-o" />
+                        <span>{this.props.error}</span>
+                        <button type="button" className="close" aria-hidden="true" onClick={this.handleDismissError}>
+                            <span className="pficon pficon-close"/>
+                        </button>
+                    </div>
+                );
+            }
+
             return (
                 <div className="container-fluid setroubleshoot-page">
+                    {errorMessage}
                     <cockpitListing.Listing title={ _("SELinux Access Control errors") }>
                         {entries}
                     </cockpitListing.Listing>

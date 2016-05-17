@@ -444,6 +444,8 @@ define([
         /* Dialog is shown */
         .on("show.bs.modal", function() {
             keys = new Keys();
+            $("#credential-keys").toggleClass("hidden",
+                                              $.isEmptyObject(keys.items));
 
             $(keys).on("changed", function() {
                 var key, id, row, rows = { };
@@ -489,6 +491,8 @@ define([
                     } else {
                         row.remove();
                     }
+                    $("#credential-keys").toggleClass("hidden",
+                                                      $.isEmptyObject(keys.items));
                 }
             });
         });

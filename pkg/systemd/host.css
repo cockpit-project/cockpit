@@ -98,6 +98,49 @@
     height: 120px;
 }
 
+.server-graph-legend {
+    list-style-type: none;
+    padding: 30px 40px;
+    float: right;
+}
+
+.server-graph-legend i {
+    padding-right: 3px;
+    font-size: 14px;
+}
+
+.server-graph-legend .cpu-io-wait i {
+    color: #e41a1c;
+}
+
+.server-graph-legend .cpu-kernel i {
+    color: #ff7f00;
+}
+
+.server-graph-legend .cpu-user i {
+    color: #377eb8;
+}
+
+.server-graph-legend .cpu-nice i {
+    color: #4daf4a;
+}
+
+.server-graph-legend .memory-swap i {
+    color: #e41a1c;
+}
+
+.server-graph-legend .memory-cached i {
+    color: #ff7f00;
+}
+
+.server-graph-legend .memory-used i {
+    color: #377eb8;
+}
+
+.server-graph-legend .memory-free i {
+    color: #4daf4a;
+}
+
 #cpu_status_graph,
 #memory_status_graph {
     height: 400px;

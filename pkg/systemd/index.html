@@ -192,10 +192,46 @@
     </div>
 
     <div id="cpu_status" hidden>
+        <ul class="server-graph-legend">
+            <li class="cpu-io-wait">
+                <i class="fa fa-square"></i>
+                <span translatable="yes">I/O Wait</span>
+            </li>
+            <li class="cpu-kernel">
+                <i class="fa fa-square"></i>
+                <span translatable="yes">Kernel</span>
+            </li>
+            <li class="cpu-user">
+                <i class="fa fa-square"></i>
+                <span translatable="yes">User</span>
+            </li>
+            <li class="cpu-nice">
+                <i class="fa fa-square"></i>
+                <span translatable="yes">Nice</span>
+            </li>
+        </ul>
         <div id="cpu_status_graph"></div>
     </div>
 
     <div id="memory_status" hidden>
+        <ul class="server-graph-legend">
+            <li class="memory-swap">
+                <i class="fa fa-square"></i>
+                <span translatable="yes">Swap Used</span>
+            </li>
+            <li class="memory-cached">
+                <i class="fa fa-square"></i>
+                <span translatable="yes">Cached</span>
+            </li>
+            <li class="memory-used">
+                <i class="fa fa-square"></i>
+                <span translatable="yes">Used</span>
+            </li>
+            <li class="memory-free">
+                <i class="fa fa-square"></i>
+                <span translatable="yes">Free</span>
+            </li>
+        </ul>
         <div id="memory_status_graph"></div>
     </div>
 

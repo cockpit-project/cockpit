@@ -1287,7 +1287,6 @@ PageCpuStatus.prototype = {
                             [2.0*60, "3 min"],
                             [3.0*60, "2 min"],
                             [4.0*60, "1 min"]]},
-            legend: { show: true },
             x_rh_stack_graphs: true
         };
 
@@ -1374,7 +1373,6 @@ PageMemoryStatus.prototype = {
                             [2.0*60, "3 min"],
                             [3.0*60, "2 min"],
                             [4.0*60, "1 min"]]},
-            legend: { show: true },
             x_rh_stack_graphs: true
         };
 

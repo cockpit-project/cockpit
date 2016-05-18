@@ -811,7 +811,7 @@ $(client).on("notify", function(data) { ... })
   </refsection>
 
   <refsection id="cockpit-dbus-notify">
-    <title>client.notify</title>
+    <title>client.notify()</title>
 <programlisting>
 client.notify(data)
 </programlisting>
@@ -819,6 +819,41 @@ client.notify(data)
   linkend="cockpit-dbus-onnotify"><code>notify</code></link> event.
   The <code>data</code> argument should follow the same layout as
   described for the <code>notify</code> event.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-onmeta">
+    <title>client.onmeta</title>
+<programlisting>
+client.onmeta = function(ev, data) { ... }
+</programlisting>
+    <para>An event triggered when the meta data about
+      <link linkend="cockpit-dbus-watch">watched</link> interfaces is loaded.</para>
+
+    <para>The <link linkend="cockpit-dbus-proxy"><code>client.proxy()</code></link> and
+        <link linkend="cockpit-dbus-proxies"><code>client.proxies()</code></link> functions and
+        the objects they return are high level wrappers around the <code>data</code> provided
+        by this event.</para>
+
+    <para>The <code>data</code> has the following form:</para>
+
+<programlisting>
+{
+      "org.Interface": {
+          "methods": {
+              "Method1": { },
+              "Method2": { }
+          },
+          "properties": {
+              "Prop1": { "flags": "rw" },
+              "Prop2": { "flags": "r" }
+          }
+      }
+}
+</programlisting>
+
+    <para>Multiple interfaces may be present, each of which may have methods and properties.
+      This is emitted before the first <link linkend="cockpit-dbus-proxy"><code>client.onnotify</code></link>
+      event for the relevant interface.</para>
   </refsection>
 
   <refsection id="cockpit-dbus-variant">

@@ -351,6 +351,7 @@
                 var resolve = {
                     dialogData: function() {
                         return { item: item,
+                                 pvc: item,
                                  pods: volumeData.podsForClaim(item) };
                     }
                 };
@@ -708,9 +709,20 @@
         "$scope",
         "$modalInstance",
         "dialogData",
+        "volumeData",
         "kubeMethods",
-        function($scope, $instance, dialogData, methods) {
+        "kubeLoader",
+        function($scope, $instance, dialogData, volumeData, methods, loader) {
             angular.extend($scope, dialogData);
+
+            var c = loader.listen(function() {
+                if ($scope.pvc)
+                    $scope.pods = volumeData.podsForClaim($scope.pvc);
+            });
+
+            $scope.$on("$destroy", function() {
+                c.cancel();
+            });
 
             $scope.performDelete = function performDelete() {
                 return methods.delete($scope.item);

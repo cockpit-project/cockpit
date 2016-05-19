@@ -336,16 +336,32 @@ on_timeout_fail (gpointer data)
 #define BUILD_INTS GINT_TO_POINTER(1)
 
 static GBytes *
+builder_to_bytes (JsonBuilder *builder)
+{
+  GBytes *bytes;
+  gchar *data;
+  gsize length;
+  JsonNode *node;
+
+  json_builder_end_object (builder);
+  node = json_builder_get_root (builder);
+  data = cockpit_json_write (node, &length);
+  data = g_realloc (data, length + 1);
+  memmove (data + 1, data, length);
+  memcpy (data, "\n", 1);
+  bytes = g_bytes_new_take (data, length + 1);
+  json_node_free (node);
+  return bytes;
+}
+
+static GBytes *
 build_control_va (const gchar *command,
                   const gchar *channel,
                   va_list va)
 {
-  JsonBuilder *builder;
-  gchar *data;
-  gsize length;
-  const gchar *option;
   GBytes *bytes;
-  JsonNode *node;
+  JsonBuilder *builder;
+  const gchar *option;
   gboolean strings = TRUE;
 
   builder = json_builder_new ();
@@ -375,14 +391,7 @@ build_control_va (const gchar *command,
         json_builder_add_int_value (builder, va_arg (va, gint));
     }
 
-  json_builder_end_object (builder);
-  node = json_builder_get_root (builder);
-  data = cockpit_json_write (node, &length);
-  data = g_realloc (data, length + 1);
-  memmove (data + 1, data, length);
-  memcpy (data, "\n", 1);
-  bytes = g_bytes_new_take (data, length + 1);
-  json_node_free (node);
+  bytes = builder_to_bytes (builder);
   g_object_unref (builder);
 
   return bytes;
@@ -1143,11 +1152,13 @@ test_expect_host_key (TestCase *test,
   CockpitWebService *service;
   GBytes *received = NULL;
   GBytes *message;
+  gulong handler;
 
   gchar *knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)test->ssh_port, MOCK_RSA_KEY);
 
   /* No known hosts */
   cockpit_ws_known_hosts = "/dev/null";
+  cockpit_ws_session_timeout = 1;
 
   start_web_service_and_create_client (test, data, &ws, &service);
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
@@ -1159,30 +1170,122 @@ test_expect_host_key (TestCase *test,
                         "host-key", knownhosts,
                         NULL);
 
+  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
   message = g_bytes_new ("4\ntest", 6);
   web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, message);
-  g_bytes_unref (message);
 
-  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
-
-  /* Should get an init message */
   while (received == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  expect_control_message (received, "init", NULL, NULL);
-  g_bytes_unref (received);
-  received = NULL;
-
-  /* Should close right after opening */
-  while (received == NULL && web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CLOSED)
     g_main_context_iteration (NULL, TRUE);
 
   /* And we should have received the echo even though no known hosts */
-  g_assert (received != NULL);
+  g_assert (g_bytes_equal (received, message));
+  g_bytes_unref (message);
   g_bytes_unref (received);
   received = NULL;
 
-  g_signal_handlers_disconnect_by_func (ws, on_message_get_bytes, &received);
+  /* Make sure that a new channel doesn't
+   * reuse the same connection. Open a new
+   * channel (5) while 4 is still open.
+   */
+  send_control_message (ws, "open", "5",
+                        "payload", "test-text",
+                        NULL);
 
+  /* Close the initial channel so mock-sshd dies */
+  send_control_message (ws, "close", "4", NULL);
+
+  g_signal_handler_disconnect (ws, handler);
+  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+
+  while (received == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  /*
+   * Because our mock sshd only deals with one connection
+   * channel 5 should be trying to connect to it instead of
+   * reusing the same transport. When channel 4 closes and it's
+   * transport get cleaned up mock-ssh will go away and channel
+   * 5 will fail with a no-host error.
+   */
+  expect_control_message (received, "close", "5", "problem", "no-host", NULL);
+  g_bytes_unref (received);
+  received = NULL;
+
+  g_signal_handler_disconnect (ws, handler);
+  close_client_and_stop_web_service (test, ws, service);
+  g_free (knownhosts);
+}
+
+static void
+test_expect_host_key_public (TestCase *test,
+                             gconstpointer data)
+{
+  WebSocketConnection *ws;
+  CockpitWebService *service;
+  GBytes *received = NULL;
+  GBytes *message;
+  GBytes *payload;
+  JsonBuilder *builder;
+  gulong handler;
+
+  gchar *knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)test->ssh_port, MOCK_RSA_KEY);
+
+  /* No known hosts */
+  cockpit_ws_known_hosts = "/dev/null";
+
+  start_web_service_and_create_client (test, data, &ws, &service);
+  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
+  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
+
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
+
+  builder = json_builder_new ();
+  json_builder_begin_object (builder);
+  json_builder_set_member_name (builder, "command");
+  json_builder_add_string_value (builder, "open");
+  json_builder_set_member_name (builder, "channel");
+  json_builder_add_string_value (builder, "4");
+  json_builder_set_member_name (builder, "payload");
+  json_builder_add_string_value (builder, "test-text");
+  json_builder_set_member_name (builder, "host-key");
+  json_builder_add_string_value (builder, knownhosts);
+  json_builder_set_member_name (builder, "temp-session");
+  json_builder_add_boolean_value (builder, FALSE);
+  payload = builder_to_bytes (builder);
+  g_object_unref (builder);
+
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, payload);
+  g_bytes_unref (payload);
+
+  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
+  message = g_bytes_new ("4\ntest", 6);
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, message);
+
+  while (received == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* And we should have received the echo even though no known hosts */
+  g_assert (g_bytes_equal (received, message));
+  g_bytes_unref (received);
+  received = NULL;
+  g_bytes_unref (message);
+  message = NULL;
+
+  /* Open another channel without the host-key */
+  send_control_message (ws, "open", "a", "payload", "echo", NULL);
+  message = g_bytes_new ("a\ntest", 6);
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, message);
+
+  while (received == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* And we should have received the echo even though no known hosts */
+  g_assert (g_bytes_equal (received, message));
+  g_bytes_unref (message);
+  g_bytes_unref (received);
+  received = NULL;
+
+  g_signal_handler_disconnect (ws, handler);
   close_client_and_stop_web_service (test, ws, service);
   g_free (knownhosts);
 }
@@ -1863,6 +1966,9 @@ main (int argc,
   g_test_add ("/web-service/expect-host-key", TestCase,
               NULL, setup_for_socket,
               test_expect_host_key, teardown_for_socket);
+  g_test_add ("/web-service/expect-host-key-public", TestCase,
+              NULL, setup_for_socket,
+              test_expect_host_key_public, teardown_for_socket);
   g_test_add ("/web-service/no-init", TestCase, NULL,
               setup_for_socket, test_no_init, teardown_for_socket);
   g_test_add ("/web-service/wrong-init-version", TestCase, NULL,

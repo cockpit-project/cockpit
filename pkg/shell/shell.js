@@ -1,6 +1,6 @@
 /* DO NOT EDIT. Automatically generated file */
 /* jshint ignore:start */
-define([], function() {
+define("shell/shell", [], function() {
 /* Javascript plotting library for jQuery, version 0.8.3.
 
 Copyright (c) 2007-2014 IOLA and Ole Laursen.

@@ -91,8 +91,10 @@ define([
 
                     $(commit).find(".container-tag").attr('value', "");
 
-                    var author = cockpit.user["name"] || cockpit.user["user"];
-                    $(commit).find(".container-author").attr('value', author);
+                    cockpit.user().done(function (user) {
+                        var author = user.full_name || user.name;
+                        $(commit).find(".container-author").attr('value', author);
+                    });
 
                     var command = "";
                     if (info.Config)

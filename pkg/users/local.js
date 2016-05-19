@@ -42,7 +42,7 @@ function update_accounts_privileged() {
         ".accounts-privileged:not('.accounts-current-account')",
         cockpit.format(
             _("The user <b>$0</b> is not permitted to modify accounts"),
-            cockpit.user.name)
+            permission.user ? permission.user.name : '')
     );
     $(".accounts-privileged").find("input")
         .attr('disabled', permission.allowed === false ||
@@ -581,7 +581,7 @@ function PageAccountsCreate() {
 }
 
 PageAccount.prototype = {
-    _init: function() {
+    _init: function(user) {
         this.id = "account";
         this.section_id = "accounts";
         this.roles = [];
@@ -591,6 +591,8 @@ PageAccount.prototype = {
         this.keys_template = $("#authorized-keys-tmpl").html();
         Mustache.parse(this.keys_template);
         this.authorized_keys = null;
+
+        this.user = user;
     },
 
     getTitle: function() {
@@ -884,7 +886,7 @@ PageAccount.prototype = {
             // check accounts-self-privileged whether account is the same as currently logged in user
             $(".accounts-self-privileged").
                 toggleClass("accounts-current-account",
-                            cockpit.user.id == this.account["uid"]);
+                            this.user.id == this.account["uid"]);
 
         } else {
             $('#account').hide();
@@ -921,7 +923,7 @@ PageAccount.prototype = {
     },
 
     check_role_for_self_mod: function () {
-        return (this.account["name"] == cockpit.user["user"] ||
+        return (this.account["name"] == this.user.name ||
                 permission.allowed !== false);
     },
 
@@ -999,8 +1001,8 @@ PageAccount.prototype = {
     },
 };
 
-function PageAccount() {
-    this._init();
+function PageAccount(user) {
+    this._init(user);
 }
 
 var crop_handle_width = 20;
@@ -1047,12 +1049,13 @@ function PageAccountConfirmDelete() {
 }
 
 PageAccountSetPassword.prototype = {
-    _init: function() {
+    _init: function(user) {
         this.id = "account-set-password-dialog";
+        this.user = user;
     },
 
     show: function() {
-        if (cockpit.user["user"] !== PageAccountSetPassword.user_name) {
+        if (this.user.name !== PageAccountSetPassword.user_name) {
             $('#account-set-password-old').parents('tr').toggle(false);
             $('#account-set-password-pw1').focus();
         } else {
@@ -1113,12 +1116,14 @@ PageAccountSetPassword.prototype = {
     },
 
     apply: function() {
+        var self = this;
+
         var promise = this.validate()
             .done(function() {
                 var user = PageAccountSetPassword.user_name;
                 var password = $('#account-set-password-pw1').val();
 
-                if (cockpit.user["user"] === user)
+                if (self.user.name === user)
                     promise = passwd_self($('#account-set-password-old').val(), password);
                 else
                     promise = passwd_change(user, password);
@@ -1133,8 +1138,8 @@ PageAccountSetPassword.prototype = {
     }
 };
 
-function PageAccountSetPassword() {
-    this._init();
+function PageAccountSetPassword(user) {
+    this._init(user);
 }
 
 /* INITIALIZATION AND NAVIGATION
@@ -1193,37 +1198,39 @@ function init() {
     var overview_page;
     var account_page;
 
-    function navigate() {
-        var path = cockpit.location.path;
+    cockpit.user().done(function (user) {
+        function navigate() {
+            var path = cockpit.location.path;
 
-        if (path.length === 0) {
-            page_hide(account_page);
-            page_show(overview_page);
-        } else if (path.length === 1) {
-            page_hide(overview_page);
-            page_show(account_page, path[0]);
-        } else { /* redirect */
-            console.warn("not a users location: " + path);
-            cockpit.location = '';
+            if (path.length === 0) {
+                page_hide(account_page);
+                page_show(overview_page);
+            } else if (path.length === 1) {
+                page_hide(overview_page);
+                page_show(account_page, path[0]);
+            } else { /* redirect */
+                console.warn("not a users location: " + path);
+                cockpit.location = '';
+            }
+
+            $("body").show();
         }
 
-        $("body").show();
-    }
+        cockpit.translate();
 
-    cockpit.translate();
+        overview_page = new PageAccounts();
+        overview_page.setup();
 
-    overview_page = new PageAccounts();
-    overview_page.setup();
+        account_page = new PageAccount(user);
+        account_page.setup();
 
-    account_page = new PageAccount();
-    account_page.setup();
+        dialog_setup(new PageAccountsCreate());
+        dialog_setup(new PageAccountConfirmDelete());
+        dialog_setup(new PageAccountSetPassword(user));
 
-    dialog_setup(new PageAccountsCreate());
-    dialog_setup(new PageAccountConfirmDelete());
-    dialog_setup(new PageAccountSetPassword());
-
-    $(cockpit).on("locationchanged", navigate);
-    navigate();
+        $(cockpit).on("locationchanged", navigate);
+        navigate();
+    });
 }
 
 $(init);

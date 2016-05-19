@@ -85,45 +85,46 @@
                 "CIMObject": "root/cimv2"
             };
 
-            var user = cockpit.user.user;
-            var auth = "Local \"" + user;
-            if (token)
-                auth += ":" + token;
-            auth += "\"";
-            headers["PegasusAuthorization"] = auth;
+            cockpit.user().done(function (user) {
+                var auth = "Local \"" + user;
+                if (token)
+                    auth += ":" + token;
+                auth += "\"";
+                headers["PegasusAuthorization"] = auth;
 
-            body = '<?xml version="1.0" encoding="utf-8" ?>\n' +
-                   '<CIM CIMVERSION="2.0" DTDVERSION="2.0"><MESSAGE ID="' + message_id +
-                   '" PROTOCOLVERSION="1.0"><SIMPLEREQ><IMETHODCALL NAME="' + method + '">' +
-                   '<LOCALNAMESPACEPATH><NAMESPACE NAME="root"/><NAMESPACE NAME="cimv2"/></LOCALNAMESPACEPATH>' +
-                   params + '</IMETHODCALL></SIMPLEREQ></MESSAGE></CIM>\n';
-            message_id += 1;
+                body = '<?xml version="1.0" encoding="utf-8" ?>\n' +
+                       '<CIM CIMVERSION="2.0" DTDVERSION="2.0"><MESSAGE ID="' + message_id +
+                       '" PROTOCOLVERSION="1.0"><SIMPLEREQ><IMETHODCALL NAME="' + method + '">' +
+                       '<LOCALNAMESPACEPATH><NAMESPACE NAME="root"/><NAMESPACE NAME="cimv2"/></LOCALNAMESPACEPATH>' +
+                       params + '</IMETHODCALL></SIMPLEREQ></MESSAGE></CIM>\n';
+                message_id += 1;
 
-            var authenticating = false;
-            http.post("/cimom", body, headers)
-                .response(function(status, headers) {
-                    if (token)
-                        return;
-                    var header = headers["WWW-Authenticate"];
-                    if (!header || header.indexOf("Local ") !== 0) {
-                        message("Missing header WWW-Authenticate: Local ...");
-                    } else {
-                        authenticating = true;
-                        var filename = header.substring(7, header.length - 1);
-                        cockpit.file(filename).read()
-                            .done(function(data) {
-                                request(method, params, filename + ":" + $.trim(data));
-                            })
-                            .fail(function(ex) {
-                                message(filename + ": " + ex.message);
-                            });
-                    };
-                })
-                .done(display)
-                .fail(function(ex) {
-                    if (!authenticating)
-                        message(method + ": " + ex.message);
-                });
+                var authenticating = false;
+                http.post("/cimom", body, headers)
+                    .response(function(status, headers) {
+                        if (token)
+                            return;
+                        var header = headers["WWW-Authenticate"];
+                        if (!header || header.indexOf("Local ") !== 0) {
+                            message("Missing header WWW-Authenticate: Local ...");
+                        } else {
+                            authenticating = true;
+                            var filename = header.substring(7, header.length - 1);
+                            cockpit.file(filename).read()
+                                .done(function(data) {
+                                    request(method, params, filename + ":" + $.trim(data));
+                                })
+                                .fail(function(ex) {
+                                    message(filename + ": " + ex.message);
+                                });
+                        };
+                    })
+                    .done(display)
+                    .fail(function(ex) {
+                        if (!authenticating)
+                            message(method + ": " + ex.message);
+                    });
+            });
         }
 
     </script>

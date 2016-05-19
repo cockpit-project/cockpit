@@ -483,8 +483,8 @@ asyncTest("info", function() {
     var info_changed = false;
 
     $(cockpit.info).on("changed", function() {
-        strictEqual(cockpit.info.version, "zero.point.zero", "cockpit.user.user");
-        strictEqual(cockpit.info.build, "nasty stuff", "cockpit.user.name");
+        strictEqual(cockpit.info.version, "zero.point.zero", "cockpit.info.version");
+        strictEqual(cockpit.info.build, "nasty stuff", "cockpit.info.build");
         info_changed = true;
     });
 

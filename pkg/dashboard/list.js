@@ -152,7 +152,9 @@ function host_edit_dialog(machine_manager, machine_dialogs, host) {
     $('#host-edit-user-row').toggle(machines.allow_connection_string);
 
     if (machines.allow_connection_string) {
-        $('#host-edit-user').attr('placeholder', cockpit.user.user);
+        cockpit.user().done(function (user) {
+            $('#host-edit-user').attr('placeholder', user.name);
+        });
         $('#host-edit-user').prop('disabled', !can_change_user);
         $('#host-edit-user').val(machine.user);
         $("#host-edit-dialog a[data-content]").popover();
@@ -208,7 +210,7 @@ function update_servers_privileged() {
         permission, ".servers-privileged",
         cockpit.format(
             _("The user <b>$0</b> is not permitted to manage servers"),
-            cockpit.user.name)
+            permission.user ? permission.user.name : '')
     );
 }
 

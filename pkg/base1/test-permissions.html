@@ -38,31 +38,22 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 var root_user = {
     name: "weird-root",
-    user: "weird-root",
     id: 0,
     groups: null
 };
 
 var priv_user = {
     name: "user",
-    user: "user",
     id: 1000,
     groups: ["user", "agroup"]
 };
 
 var limited_user = {
     name: "limited",
-    user: "limited",
     id: 1001,
     groups: ["limited"]
 };
 
-
-function setup_user(user) {
-    for(var attr in user) {
-        cockpit.user[attr] = user[attr];
-    }
-}
 
 QUnit.module("Permission tests", {
     setup: function() {
@@ -70,48 +61,40 @@ QUnit.module("Permission tests", {
     },
     teardown: function() {
         cockpit.dbus = this.old_dbus;
-        $(cockpit.user).off("changed");
     }
 });
 
 
 test("root-all-permissions", function() {
     expect(2);
-    setup_user(priv_user);
 
-    var p1 = cockpit.permission();
+    var p1 = cockpit.permission({ user: priv_user });
     equal(p1.allowed, false, "not root, not allowed");
 
-    setup_user(root_user);
-    var p2 = cockpit.permission();
+    var p2 = cockpit.permission({ user: root_user });
     equal(p2.allowed, true, "is root, allowed");
 });
 
 test("group-permissions", function() {
     expect(4);
-    setup_user(priv_user);
 
-    var p1 = cockpit.permission({ group: "badgroup" });
+    var p1 = cockpit.permission({ user: priv_user, group: "badgroup" });
     equal(p1.allowed, false, "no group, not allowed");
 
-    var p2 = cockpit.permission({ group: "agroup" });
+    var p2 = cockpit.permission({ user: priv_user, group: "agroup" });
     equal(p2.allowed, true, "has group, allowed");
 
-    setup_user(root_user);
-    var p3 = cockpit.permission({ group: "agroup" });
+    var p3 = cockpit.permission({ user: root_user, group: "agroup" });
     equal(p3.allowed, true, "no group but root, allowed");
 
-    setup_user({ "groups" : ["other"]});
-    var p4 = cockpit.permission({ group: "agroup" });
+    var p4 = cockpit.permission({ user: { id: 0, groups: ["other"] }, group: "agroup" });
     equal(p4.allowed, true, "no group match but root, allowed");
 });
 
 // Start tests after we have a user object
-function start_tests() {
-    $(cockpit.user).off("changed", start_tests);
+cockpit.user().done(function (user) {
     QUnit.start();
-}
-$(cockpit.user).on("changed", start_tests);
+});
 
 </script>
 </body>

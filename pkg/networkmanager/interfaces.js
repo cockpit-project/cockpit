@@ -1301,7 +1301,7 @@ function update_network_privileged() {
         permission, ".network-privileged",
         cockpit.format(
             _("The user <b>$0</b> is not permitted to modify network settings"),
-            cockpit.user.name)
+            permission.user ? permission.user.name : '')
     );
 }
 

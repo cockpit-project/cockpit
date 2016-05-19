@@ -620,6 +620,8 @@ define([
         var keys = null;
         var machine = dialog.machines_ins.lookup(dialog.address);
 
+        self.user = null;
+
         function update_keys() {
             var loaded_keys = [];
             var txt;
@@ -655,7 +657,7 @@ define([
                      * so we pass current user as an option, but make sure the
                      * session isn't private
                      */
-                    options["user"] = cockpit.user.user;
+                    options["user"] = self.user.name;
                     options["temp-session"] = false;
                 }
             }
@@ -720,7 +722,7 @@ define([
                 'supported' : methods,
                 'available' : available,
                 'machine_user' : machine_user,
-                'user' : cockpit.user.user,
+                'user' : self.user.name,
                 'allows_password' : allows_password,
                 'can_sync': !!dialog.codes['sync-users'],
                 'machines.allow_connection_string' : machines.allow_connection_string,
@@ -766,7 +768,13 @@ define([
                 keys = credentials.keys_instance();
                 $(keys).on("changed", update_keys);
             }
-            render();
+            cockpit.user()
+                .done(function (user) {
+                    self.user = user;
+                })
+                .always(function (user) {
+                    render();
+                });
         };
 
         self.close = function(ex) {

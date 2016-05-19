@@ -718,27 +718,19 @@ define([
         }
 
         /* Account link */
-        function setup_account(id) {
+        function setup_account(id, user) {
             $(id).on("click", function() {
-                self.jump({ host: "localhost", component: "users", hash: "/" + cockpit.user["user"] });
+                self.jump({ host: "localhost", component: "users", hash: "/" + user.name });
             });
         }
 
         /* User information */
-        function setup_user(id) {
-            function update_user(first) {
-                var str = cockpit.user["name"] || cockpit.user["user"];
-                if (!str)
-                    str = first ? "" : "???";
-                $(id).text(str);
+        function setup_user(id, user) {
+            $(id).text(user.full_name || user.name || '???');
 
-                var is_root = (cockpit.user["user"] == "root");
-                var is_not_root = (cockpit.user["user"] && !is_root);
-                $('#deauthorize-item').toggle(is_not_root);
-            }
-
-            $(cockpit.user).on("changed", update_user);
-            update_user(true);
+            var is_root = (user.name == "root");
+            var is_not_root = (user.name && !is_root);
+            $('#deauthorize-item').toggle(is_not_root);
         }
 
         if (self.oops_sel)
@@ -756,12 +748,14 @@ define([
         if (self.about_sel)
             setup_about(self.about_sel);
 
-        if (self.user_sel)
-            setup_user(self.user_sel);
-
-        if (self.account_sel)
-            setup_account(self.account_sel);
-
+        if (self.user_sel || self.account_sel) {
+            cockpit.user().done(function (user) {
+                if (self.user_sel)
+                    setup_user(self.user_sel, user);
+                if (self.account_sel)
+                    setup_account(self.account_sel, user);
+            });
+        }
     }
 
     function CompiledComponants() {

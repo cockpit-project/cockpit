@@ -417,6 +417,7 @@ class TestMultiMachine(MachineCase):
             b.wait_visible("#machine-reconnect")
         start_machine_troubleshoot(b)
 
+        b.wait_present('#troubleshoot-dialog h4')
         b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
         b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
         b.wait_visible("#login-diff-password")

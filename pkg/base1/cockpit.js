@@ -2158,44 +2158,37 @@ function basic_scope(cockpit, jquery) {
             cockpit.info.dispatchEvent("changed");
     };
 
-    function User() {
-        var self = this;
-        event_mixin(self, { });
-
-        self["user"] = null;
-        self["name"] = null;
-
-        var dbus = cockpit.dbus(null, { "bus": "internal" });
-        dbus.call("/user", "org.freedesktop.DBus.Properties",
-                  "GetAll", [ "cockpit.User" ],
-                  { "type": "s" })
-            .done(function(reply) {
-                var user = reply[0];
-                self["user"] = user.Name.v;
-                self["name"] = user.Full.v;
-                self["id"] = user.Id.v;
-                self["groups"] = user.Groups.v;
-                self["home"] = user.Home.v;
-                self["shell"] = user.Shell.v;
-            })
-            .fail(function(ex) {
-                console.warn("couldn't load user info: " + ex.message);
-            })
-            .always(function() {
-                dbus.close();
-                self.dispatchEvent("changed");
-            });
-    }
-
     var the_user = null;
-    Object.defineProperty(cockpit, "user", {
-        enumerable: true,
-        get: function user_get() {
-            if (!the_user)
-                the_user = new User();
-            return the_user;
+    cockpit.user = function () {
+        var dfd = cockpit.defer();
+        var dbus;
+        if (!the_user) {
+            dbus = cockpit.dbus(null, { "bus": "internal" });
+            dbus.call("/user", "org.freedesktop.DBus.Properties", "GetAll",
+                      [ "cockpit.User" ], { "type": "s" })
+                .done(function(reply) {
+                    var user = reply[0];
+                    dfd.resolve({
+                        id: user.Id.v,
+                        name: user.Name.v,
+                        full_name: user.Full.v,
+                        groups: user.Groups.v,
+                        home: user.Home.v,
+                        shell: user.Shell.v
+                    });
+                })
+                .fail(function(ex) {
+                    dfd.reject(ex);
+                })
+                .always(function() {
+                    dbus.close();
+                });
+        } else {
+            dfd.resolve(the_user);
         }
-    });
+
+        return dfd.promise;
+    };
 
     /* ------------------------------------------------------------------------
      * Override for broken browser behavior
@@ -3739,8 +3732,8 @@ function basic_scope(cockpit, jquery) {
         event_mixin(self, { });
 
         self.allowed = null;
+        self.user = options ? options.user : null;
 
-        var user = cockpit.user;
         var group = null;
         var admin = false;
 
@@ -3750,7 +3743,7 @@ function basic_scope(cockpit, jquery) {
         if (options && options.admin)
             admin = true;
 
-        function decide() {
+        function decide(user) {
             if (user.id === 0)
                 return true;
 
@@ -3775,19 +3768,21 @@ function basic_scope(cockpit, jquery) {
             return false;
         }
 
-        function user_changed() {
-            var allowed = decide();
-            if (self.allowed !== allowed) {
-                self.allowed = allowed;
-                self.dispatchEvent("changed");
-            }
+        if (self.user) {
+            self.allowed = decide(self.user);
+        } else {
+            cockpit.user().done(function (user) {
+                self.user = user;
+                var allowed = decide(user);
+                if (self.allowed !== allowed) {
+                    self.allowed = allowed;
+                    self.dispatchEvent("changed");
+                }
+            });
         }
 
-        user.addEventListener("changed", user_changed);
-        user_changed();
-
         self.close = function close() {
-            user.removeEventListener("changed", user_changed);
+            /* no-op for now */
         };
     }
 

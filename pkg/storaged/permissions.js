@@ -57,7 +57,7 @@ define([
         update_privileged_ui(permission, ".storage-privileged",
                              cockpit.format(
                                  _("The user <b>$0</b> is not permitted to manage storage"),
-                                 cockpit.user.name));
+                                 permission.user ? permission.user.name : ''));
     }
 
     $(permission).on("changed", update_storage_privileged);

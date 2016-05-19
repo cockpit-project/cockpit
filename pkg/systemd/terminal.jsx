@@ -10,18 +10,6 @@ define([
     cockpit.locale(po);
     cockpit.translate();
 
-    function getUser(fn) {
-        if (cockpit.user.user) {
-            fn();
-        }
-        else {
-            cockpit.user.addEventListener('changed', function userChanged() {
-                cockpit.user.removeEventListener('changed', userChanged);
-                fn();
-            });
-        }
-    }
-
     /*
      * A terminal component for the cockpit user.
      *
@@ -31,15 +19,15 @@ define([
      * Spawns the user's shell in the user's home directory.
      */
     var UserTerminal = React.createClass({displayName: "UserTerminal",
-        createChannel: function () {
+        createChannel: function (user) {
             return cockpit.channel({
                 "payload": "stream",
-                "spawn": [cockpit.user.shell || "/bin/bash", "-i"],
+                "spawn": [ user.shell || "/bin/bash", "-i"],
                 "environ": [
                     "TERM=xterm-256color",
                     "PATH=/sbin:/bin:/usr/sbin:/usr/bin"
                 ],
-                "directory": cockpit.user.home || "/",
+                "directory": user.home || "/",
                 "pty": true
             });
         },
@@ -51,13 +39,9 @@ define([
         },
 
         componentWillMount: function () {
-            getUser(function () {
-                this.setState({ channel: this.createChannel() });
+            cockpit.user().done(function (user) {
+                this.setState({ user: user, channel: this.createChannel(user) });
             }.bind(this));
-        },
-
-        componentWillUnmount: function () {
-            cockpit.user.removeEventListener('changed', this.createChannel);
         },
 
         onTitleChanged: function (title) {
@@ -68,11 +52,11 @@ define([
             if (event.button !== 0)
                 return;
 
-            // only reset if we had a channel before (cockpit.user is filled in)
-            if (this.state.channel) {
+            if (this.state.channel)
                 this.state.channel.close();
-                this.setState({ channel: this.createChannel() });
-            }
+
+            if (this.state.user)
+                this.setState({ channel: this.createChannel(this.state.user) });
 
             // don't focus the button, but keep it on the terminal
             this.refs.resetButton.blur();

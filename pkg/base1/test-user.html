@@ -63,10 +63,9 @@ asyncTest("load user info", function() {
 asyncTest("user object", function() {
     expect(6);
 
-    var user = cockpit.user;
-    $(user).on("changed", function() {
+    cockpit.user().done(function (user) {
         equal(typeof user.name, "string", "user name")
-        equal(typeof user.user, "string", "user full name");
+        equal(typeof user.full_name, "string", "user full name")
         equal(typeof user.shell, "string", "user shell");
         equal(typeof user.home, "string", "user home");
         equal(typeof user.id, "number", "user id");

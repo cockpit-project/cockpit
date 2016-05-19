@@ -30,14 +30,17 @@ define([
     function Keys() {
         var self = this;
 
-        self.path = cockpit.user["home"] + "/.ssh";
+        self.path = null;
         self.items = { };
 
         var watch = null;
         var proc = null;
         var timeout = null;
 
-        refresh();
+        cockpit.user().done(function (user) {
+            self.path = user.home + '/.ssh';
+            refresh();
+        });
 
         function refresh() {
             if (watch === null) {

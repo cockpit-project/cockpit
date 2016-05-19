@@ -47,7 +47,7 @@ function update_hostname_privileged() {
         permission, ".hostname-privileged",
         cockpit.format(
             _("The user <b>$0</b> is not permitted to modify hostnames"),
-            cockpit.user.name)
+            permission.user ? permission.user.name : '')
     );
 }
 

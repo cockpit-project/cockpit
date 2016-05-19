@@ -437,7 +437,7 @@ define([
             function update_realm_privileged() {
                 controls.update_privileged_ui(permission, element,
                         cockpit.format(_("The user <b>$0</b> is not permitted to modify realms"),
-                            cockpit.user.name));
+                            permission.user ? permission.user.name : ''));
             }
 
             $(permission).on("changed", update_realm_privileged);

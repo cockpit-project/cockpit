@@ -135,7 +135,7 @@ EXTRA_DIST += \
 	$(NULL)
 
 update-lib:: update-bower
-	$(JSMODULE) -m -n 'shell/shell' -a '{ /* legacy shell dict */ }' \
+	$(JSMODULE) -m -n 'shell/shell' -d 'jquery' -a '{ /* legacy shell dict */ }' \
 	    -o $(srcdir)/pkg/shell/shell.js \
 	    $(BOWER)/jquery-flot/jquery.flot.js \
 	    $(BOWER)/jquery-flot/jquery.flot.selection.js \

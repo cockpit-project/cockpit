@@ -428,7 +428,7 @@ class TestRegistry(MachineCase):
         b.wait_not_present("modal-dialog")
 
         # All tags here have been removed
-        b.wait_not_present(".image-tag")
+        b.wait_not_in_text("#content", "latest")
 
         # Show the image on the right screen
         b.go("#/images/marmalade/juggs")

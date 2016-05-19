@@ -39,6 +39,19 @@ ListenStream=
 ListenStream=443
 </programlisting>
 
+    <para>NOTE: The first empty line is intentional. <code>systemd</code> allows multiple <code>Listen</code> directives to be declared in a single socket unit. To change the activation port instead of adding a second port, use a full override unit instead of a snippet.</para>
+
+    <para>Cockpit can actually listen on multiple ports, also:</para>
+
+<programlisting>
+[Socket]
+ListenStream=
+ListenStream=443
+ListenStream=7777
+</programlisting>
+
+    <para>As above, it's recommended to start with an override unit, otherwise it's possible one of your multiple listen addresses might conflict.</para>
+
     <para>In order for the changes to take effect, run the following commands:</para>
 
 <programlisting>

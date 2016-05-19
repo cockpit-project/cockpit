@@ -21,6 +21,7 @@ if (process.argv.length < 4) {
 
 var ops = stdio.getopt({
     amd: { key: "m", description: "Define an AMD module" },
+    name: { key: "n", args: 1, description: "Optional named module" },
     api: { key: "a", args: 1, description: "Module API object" },
     output: { key: "o", args: 1, description: "Output file" },
     dependency: { key: "d", multiple: true, description: "Module dependency" }
@@ -39,7 +40,10 @@ function begin() {
     if (ops.amd) {
         if (!Array.isArray(deps))
             deps = [ deps ];
-        result += "define(" + JSON.stringify(deps) + ", function() {\n";
+        result += "define(";
+        if (ops.name)
+            result += '"' + ops.name + '", ';
+        result += JSON.stringify(deps) + ", function() {\n";
     }
     step(result);
 }

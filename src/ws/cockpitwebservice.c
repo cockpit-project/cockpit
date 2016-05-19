@@ -1097,7 +1097,10 @@ lookup_or_open_session (CockpitWebService *self,
 
   if (!cockpit_json_get_string (options, "host-key", NULL, &host_key))
     host_key = NULL;
-  if (host_key)
+
+  /* Forcing a host-key means a private session, unless otherwise specified */
+  if (host_key && !cockpit_json_get_bool (options, "temp-session",
+                                          TRUE, &private))
     private = TRUE;
 
   if (!private)

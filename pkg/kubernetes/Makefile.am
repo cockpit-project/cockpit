@@ -75,6 +75,9 @@ shared_LESS = \
 	pkg/kubernetes/styles/tags.less \
 	$(NULL)
 
+pkg/kubernetes/d3.min.js: pkg/kubernetes/d3.js
+	$(MIN_JS_RULE)
+
 # Registry files
 
 registry_VIEWS = \
@@ -97,6 +100,7 @@ registry_MIN = \
 	$(NULL)
 
 registry_BUNDLE = \
+	pkg/kubernetes/d3.min.js \
 	$(registry_MIN) \
 	pkg/kubernetes/registry-templates.js \
 	$(NULL)
@@ -216,6 +220,7 @@ kubernetes_MIN = \
 	$(NULL)
 
 kubernetes_BUNDLE = \
+	pkg/kubernetes/d3.min.js \
 	$(kubernetes_MIN) \
 	pkg/kubernetes/kubernetes-templates.js \
 	$(NULL)
@@ -249,6 +254,7 @@ nodist_kubernetes_DATA = \
 
 kubernetesdebugdir = $(debugdir)$(kubernetesdir)
 kubernetesdebug_DATA = \
+	pkg/kubernetes/d3.js \
 	pkg/kubernetes/kubernetes.js \
 	pkg/kubernetes/kubernetes.css \
 	pkg/kubernetes/index.html \
@@ -271,6 +277,7 @@ uninstall-hook::
 TESTS += $(kubernetes_TESTS)
 
 CLEANFILES += \
+	pkg/kubernetes/d3.min.js \
 	pkg/kubernetes/kubernetes.min.css\
 	pkg/kubernetes/index.min.html \
 	pkg/kubernetes/kubernetes.min.js \
@@ -285,6 +292,7 @@ CLEANFILES += \
 	$(NULL)
 
 EXTRA_DIST += \
+	pkg/kubernetes/d3.min.js \
 	pkg/kubernetes/kubernetes.min.css \
 	pkg/kubernetes/index.min.html \
 	pkg/kubernetes/kubernetes.min.js \

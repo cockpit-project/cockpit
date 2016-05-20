@@ -19,7 +19,7 @@
 
 (function(root, factory) {
     if (typeof(define) === 'function' && define.amd)
-        define(["base1/angular", "base1/term" ], factory);
+        define(["angular", "term" ], factory);
     else
         factory(root.angular, root.Terminal);
 }(this, function(angular, Terminal) {

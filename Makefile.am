@@ -51,7 +51,7 @@ CSSBUNDLE = $(srcdir)/tools/missing $(srcdir)/tools/cssbundle
 
 MIN_JS_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $< --mangle > $@.tmp && $(MV) $@.tmp $@
+	$(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $^ --mangle > $@.tmp && $(MV) $@.tmp $@
 
 MIN_CSS_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \

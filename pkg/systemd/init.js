@@ -3,7 +3,7 @@ define([
     "base1/cockpit",
     "base1/mustache",
     "system/server",
-    "translated!base1/po"
+    "translated!shell/po"
 ], function($, cockpit, mustache, server, po) {
     cockpit.locale(po);
     cockpit.translate();

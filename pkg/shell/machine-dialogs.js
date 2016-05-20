@@ -358,7 +358,7 @@ define([
         function existing_error(address) {
             var ex = null;
             var machine = machines_ins.lookup(address);
-            if (machine && machine.visible) {
+            if (machine && machine.visible && machine.on_disk) {
                 ex = new Error(_("This machine has already been added."));
                 ex.target = "#add-machine-address";
             }

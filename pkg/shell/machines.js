@@ -23,6 +23,11 @@ define([
      * This is the sessionStorage key at which the data is placed.
      */
     var key = "v2-machines.json";
+    var session_prefix = "v1-session-machine";
+
+    function generate_session_key(host) {
+        return session_prefix + "/" + host;
+    }
 
     function Machines() {
         var self = this;
@@ -137,6 +142,7 @@ define([
                 if (!(host in hosts)) {
                     machine = machines[host];
                     delete machines[host];
+                    delete overlay[host];
                     events.push(["removed", [machine, host]]);
                 }
             }
@@ -149,6 +155,42 @@ define([
                 $(self).triggerHandler("ready");
         }
 
+        function update_session_machine(machine, host, values) {
+            /* We don't save the whole machine object */
+            var skey = generate_session_key(host);
+            var data = $.extend({}, machine, values);
+            window.sessionStorage.setItem(skey, JSON.stringify(data));
+            self.overlay(host, values);
+            return cockpit.when([]);
+        }
+
+        function update_saved_machine(host, values) {
+            function mutate(data) {
+                if (!data)
+                    data = { };
+                var item = data[host];
+                if (!item)
+                    item = data[host] = { };
+                merge(item, values);
+                return data;
+            }
+
+            /* Update the JSON file */
+            var local = cockpit.file(path, { syntax: JSON, superuser: "try" });
+            var mod = local.modify(mutate, last.content, last.tag)
+                .done(function(data, tag) {
+                    var prop, over = { };
+                    for (prop in values)
+                        over[prop] = null;
+                    self.data(data, tag); /* an optimization */
+                    self.overlay(host, over);
+                })
+                .always(function() {
+                    local.close();
+                });
+
+            return mod;
+        }
 
         self.add_key = function(host_key) {
             var known_hosts = cockpit.file(known_hosts_path, { superuser: "try" });
@@ -163,12 +205,18 @@ define([
 
         self.add = function add(connection_string, color) {
             var values = self.split_connection_string(connection_string);
-            return self.change(values['address'],
-                               $.extend({
-                                    visible: true,
-                                    color: color || self.unused_color(),
-                                }, values)
-            );
+            var host = values['address'];
+
+            values = $.extend({
+                        visible: true,
+                        color: color || self.unused_color(),
+                    }, values);
+
+            var machine = self.lookup(host);
+            if (machine)
+                machine.on_disk = true;
+
+            return self.change(values['address'], values);
         };
 
         self.unused_color = function unused_color() {
@@ -200,7 +248,7 @@ define([
         }
 
         self.change = function change(host, values) {
-            var hostnamed, call;
+            var mod, hostnamed, call;
             var machine = self.lookup(host);
 
             if (values.label) {
@@ -222,29 +270,10 @@ define([
                 }
             }
 
-            function mutate(data) {
-                if (!data)
-                    data = { };
-                var item = data[host];
-                if (!item)
-                    item = data[host] = { };
-                merge(item, values);
-                return data;
-            }
-
-            /* Update the JSON file */
-            var local = cockpit.file(path, { syntax: JSON, superuser: "try" });
-            var mod = local.modify(mutate, last.content, last.tag)
-                .done(function(data, tag) {
-                    var prop, over = { };
-                    for (prop in values)
-                        over[prop] = null;
-                    self.data(data, tag); /* an optimization */
-                    self.overlay(host, over);
-                })
-                .always(function() {
-                    local.close();
-                });
+            if (machine && !machine.on_disk)
+                mod = update_session_machine(machine, host, values);
+            else
+                mod = update_saved_machine(host, values);
 
             if (call)
                 return cockpit.all(call, mod);
@@ -253,7 +282,25 @@ define([
         };
 
         self.data = function data(content, tag) {
-            refresh({ content: content, tag: tag, overlay: last.overlay }, true);
+            var host, changes = {};
+
+            for (host in content) {
+                changes[host] = $.extend({ }, last.overlay[host] || { });
+                merge(changes[host], { on_disk: true });
+            }
+
+            /* It's a full reload, so data not
+             * present is no longer from disk
+             */
+            for (host in machines) {
+                if (content && !content[host]) {
+                    changes[host] = $.extend({ }, last.overlay[host] || { });
+                    merge(changes[host], { on_disk: null });
+                }
+            }
+
+            refresh({ content: content, tag: tag,
+                      overlay: $.extend({ }, last.overlay, changes) }, true);
         };
 
         self.overlay = function overlay(host, values) {
@@ -344,6 +391,9 @@ define([
     function Loader(machines) {
         var self = this;
 
+        /* Have we loaded from cockpit session */
+        var session_loaded = false;
+
         /* File we are watching */
         var file;
 
@@ -358,7 +408,42 @@ define([
             if (ex)
                 console.warn("couldn't load machines data: " + ex);
             machines.data(data, tag);
+            if (!session_loaded)
+                load_from_session_storage();
         });
+
+        function process_session_key(key, value) {
+            var host, values, machine;
+            var parts = key.split("/");
+            if (parts[0] == session_prefix &&
+                parts.length === 2) {
+                    host = parts[1];
+                    if (value) {
+                        values = JSON.parse(value);
+                        machine = machines.lookup(host);
+                        if (!machine || !machine.on_disk)
+                            machines.overlay(host, values);
+                        else if (!machine.visible)
+                            machines.change(host, { visible: true });
+                        self.connect(host);
+                    }
+            }
+        }
+
+        function load_from_session_storage() {
+            var i;
+            session_loaded = true;
+            for (i = 0; i < window.sessionStorage.length; i++) {
+                var k = window.sessionStorage.key(i);
+                process_session_key(k, window.sessionStorage.getItem(k));
+            }
+        }
+
+        function process_session_machines(ev) {
+            if (ev.storageArea === window.sessionStorage)
+                process_session_key(ev.key || "", ev.newValue);
+        }
+        window.addEventListener("storage", process_session_machines);
 
         function state(host, value, problem) {
             var values = { state: value, problem: problem };
@@ -544,6 +629,7 @@ define([
                 file.close();
             file = null;
 
+            window.removeEventListener("storage", process_session_machines);
             var hosts = Object.keys(channels);
             hosts.forEach(self.disconnect);
         };

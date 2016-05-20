@@ -75,6 +75,15 @@ shared_LESS = \
 	pkg/kubernetes/styles/tags.less \
 	$(NULL)
 
+shared_ANGULAR = \
+	pkg/kubernetes/angular.js \
+	pkg/kubernetes/angular-route.js \
+	pkg/kubernetes/ui-bootstrap.js \
+	pkg/kubernetes/ui-bootstrap-tpls.js \
+	$(NULL)
+
+pkg/kubernetes/angular.min.js: $(shared_ANGULAR)
+	$(MIN_JS_RULE)
 pkg/kubernetes/d3.min.js: pkg/kubernetes/d3.js
 	$(MIN_JS_RULE)
 
@@ -100,6 +109,7 @@ registry_MIN = \
 	$(NULL)
 
 registry_BUNDLE = \
+	pkg/kubernetes/angular.min.js \
 	pkg/kubernetes/d3.min.js \
 	$(registry_MIN) \
 	pkg/kubernetes/registry-templates.js \
@@ -222,6 +232,7 @@ kubernetes_MIN = \
 	$(NULL)
 
 kubernetes_BUNDLE = \
+	pkg/kubernetes/angular.min.js \
 	pkg/kubernetes/d3.min.js \
 	$(kubernetes_MIN) \
 	pkg/kubernetes/kubernetes-templates.js \
@@ -279,6 +290,7 @@ uninstall-hook::
 TESTS += $(kubernetes_TESTS)
 
 CLEANFILES += \
+	pkg/kubernetes/angular.min.js \
 	pkg/kubernetes/d3.min.js \
 	pkg/kubernetes/kubernetes.min.css\
 	pkg/kubernetes/index.min.html \
@@ -294,6 +306,7 @@ CLEANFILES += \
 	$(NULL)
 
 EXTRA_DIST += \
+	pkg/kubernetes/angular.min.js \
 	pkg/kubernetes/d3.min.js \
 	pkg/kubernetes/kubernetes.min.css \
 	pkg/kubernetes/index.min.html \
@@ -308,6 +321,7 @@ EXTRA_DIST += \
 	pkg/kubernetes/tests/fixture-large.js \
 	$(kubernetes_BUNDLE) \
 	$(registry_BUNDLE) \
+	$(shared_ANGULAR) \
 	$(shared_VIEWS) \
 	$(shared_MODULES) \
 	$(registry_VIEWS) \

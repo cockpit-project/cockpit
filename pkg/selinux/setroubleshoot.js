@@ -21,8 +21,9 @@ require([
     "base1/cockpit",
     "base1/react",
     "selinux/setroubleshoot-client",
+    "selinux/selinux-client",
     "selinux/setroubleshoot-view",
-], function(cockpit, React, troubleshootClient, troubleshootView) {
+], function(cockpit, React, troubleshootClient, selinuxClient, troubleshootView) {
 
 "use strict";
 
@@ -46,6 +47,32 @@ var initStore = function(rootElement) {
     dataStore.error = null;
 
     dataStore.client = troubleshootClient;
+
+    dataStore.selinuxStatusError = undefined;
+
+    var selinuxStatusChanged = function(status, errorMessage) {
+        dataStore.selinuxStatus = status;
+        if (errorMessage !== undefined)
+            dataStore.selinuxStatusError = errorMessage;
+        dataStore.render();
+    };
+    var selinuxStatusDismissError = function() {
+        dataStore.selinuxStatusError = undefined;
+        dataStore.render();
+    };
+    var selinuxChangeMode = function(newMode) {
+        selinuxClient.setEnforcing(newMode).then(
+            function() {
+                dataStore.selinuxStatus.enforcing = newMode;
+                dataStore.render();
+            },
+            function(error) {
+                dataStore.selinuxStatusError = cockpit.format(_("Error while setting SELinux mode: '$0'"), error.message);
+                dataStore.render();
+            }
+        );
+    };
+    dataStore.selinuxStatus = selinuxClient.init(selinuxStatusChanged);
 
     // run a fix and update the entries accordingly
     var runFix = function(alertId, analysisId) {
@@ -125,6 +152,10 @@ var initStore = function(rootElement) {
                 entries: dataStore.entries,
                 runFix: runFix,
                 deleteAlert: enableDeleteAlert?deleteAlert:undefined,
+                selinuxStatus: dataStore.selinuxStatus,
+                selinuxStatusError: dataStore.selinuxStatusError,
+                changeSelinuxMode: selinuxChangeMode,
+                dismissStatusError: selinuxStatusDismissError,
             }), rootElement);
     };
     dataStore.render = render;

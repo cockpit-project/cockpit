@@ -1,10 +1,15 @@
 shelldir = $(pkgdatadir)/shell
+shell_PO = \
+	$(addprefix po/po.,$(addsuffix .js,$(LINGUAS))) \
+	$(NULL)
 nodist_shell_DATA = \
 	pkg/shell/shell.min.js.gz \
 	pkg/shell/bundle.min.js.gz \
+	pkg/shell/po.js.gz \
 	pkg/shell/plot.min.css.gz \
 	pkg/shell/shell.min.css.gz \
 	pkg/shell/shell.min.html.gz \
+	$(shell_PO:.js=.min.js.gz) \
 	$(NULL)
 
 shell_TEMPLATES = \
@@ -44,6 +49,7 @@ shelldebug_DATA = \
 	pkg/shell/index.js \
 	pkg/shell/machines.js \
 	pkg/shell/plot.css \
+	pkg/shell/po.js \
 	pkg/shell/machine-dialogs.js \
 	pkg/shell/shell.css \
 	pkg/shell/shell.html \
@@ -54,6 +60,7 @@ shelldebug_DATA = \
 	pkg/shell/cockpit-util.js \
 	pkg/shell/cockpit-plot.js \
 	$(shell_SCRIPTS) \
+	$(shell_PO) \
 	$(NULL)
 
 shell_MINIFIED = \
@@ -120,6 +127,8 @@ CLEANFILES += \
 	$(shell_MINIFIED) \
 	$(nodist_shell_DATA) \
 	$(shell_MINFILES) \
+	$(shell_PO) \
+	$(shell_PO:.js=.min.js) \
 	$(NULL)
 
 EXTRA_DIST += \
@@ -132,6 +141,8 @@ EXTRA_DIST += \
 	pkg/shell/simple.min.html \
 	$(shell_MINFILES) \
 	$(shell_BUNDLE) \
+	$(shell_PO) \
+	$(shell_PO:.js=.min.js) \
 	$(NULL)
 
 update-lib:: update-bower

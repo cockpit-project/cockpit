@@ -25,7 +25,7 @@ define([
     "shell/base_index",
     "shell/machines",
     "shell/credentials",
-    'translated!base1/po',
+    'translated!shell/po',
     "shell/machine-dialogs",
 ], function($, cockpit, base_index, machis, credentials, po, mdialogs) {
     "use strict";

@@ -1,13 +1,9 @@
 LINGUAS = ca de da pl pt_BR tr uk
 
 basedir = $(pkgdatadir)/base1
-base_GEN = \
-	$(addprefix po/po.,$(addsuffix .js,$(LINGUAS))) \
-	$(NULL)
 nodist_base_DATA = \
 	pkg/base1/angular.min.js.gz \
 	pkg/base1/cockpit.min.css.gz \
-	pkg/base1/po.js.gz \
 	pkg/base1/require.min.js.gz \
 	pkg/base1/term.min.js.gz \
 	pkg/base1/moment.min.js.gz \
@@ -15,7 +11,6 @@ nodist_base_DATA = \
 	pkg/base1/jquery.min.js.gz \
 	pkg/base1/cockpit.min.js.gz \
 	pkg/base1/bundle.min.js.gz \
-	$(base_GEN:.js=.min.js.gz) \
 	$(NULL)
 base_DATA = \
 	pkg/base1/manifest.json \
@@ -36,7 +31,6 @@ basedebug_DATA = \
 	pkg/base1/cockpit.css \
 	pkg/base1/patternfly.css \
 	pkg/base1/patternfly-additions.css \
-	pkg/base1/po.js \
 	pkg/base1/require.js \
 	pkg/base1/patterns.js \
 	pkg/base1/term.css \
@@ -47,7 +41,6 @@ basedebug_DATA = \
 	pkg/base1/react.js \
 	pkg/base1/cockpit.js \
 	$(REACT_COMPONENTS) \
-	$(base_GEN) \
 	$(NULL)
 
 base_BUNDLE = \
@@ -131,8 +124,6 @@ CLEANFILES += \
 	pkg/base1/require.min.js \
 	pkg/base1/term.min.js \
 	$(REACT_COMPONENTS) \
-	$(base_GEN) \
-	$(base_GEN:.js=.min.js) \
 	$(nodist_base_DATA) \
 	$(NULL)
 
@@ -149,8 +140,6 @@ EXTRA_DIST += \
 	pkg/base1/test-dbus-common.js \
 	$(REACT_COMPONENTS) \
 	$(base_BUNDLE) \
-	$(base_GEN) \
-	$(base_GEN:.js=.min.js) \
 	$(NULL)
 
 update-lib:: update-bower

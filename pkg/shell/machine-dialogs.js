@@ -33,7 +33,7 @@ define([
     "data!shell/templates/not-supported.html",
     "data!shell/templates/sync-users.html",
     "data!shell/templates/unknown-hostkey.html",
-    'translated!base1/po',
+    'translated!shell/po',
     "base1/patterns",
 ], function($, cockpit, mustache, machines, credentials, local_manifests,
             add_tmpl, auth_failed_tmpl, change_auth_tmpl,

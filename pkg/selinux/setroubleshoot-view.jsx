@@ -220,6 +220,122 @@ var EmptyState = React.createClass({
     }
 });
 
+/* Component to show a dismissable error, message as child text
+ * dismissError callback function triggered when the close button is pressed
+ */
+var DismissableError = React.createClass({
+    handleDismissError: function(e) {
+        // only consider primary mouse button
+        if (!e || e.button !== 0)
+            return;
+        if (this.props.dismissError)
+            this.props.dismissError();
+        e.stopPropagation();
+    },
+    render: function() {
+        return (
+            <div className="alert alert-danger alert-dismissable alert-ct-top">
+                <span className="pficon pficon-error-circle-o" />
+                <span>{this.props.children}</span>
+                <button type="button" className="close" aria-hidden="true" onClick={this.handleDismissError}>
+                    <span className="pficon pficon-close"/>
+                </button>
+            </div>
+        );
+    }
+});
+
+/* Component to show an on/off switch
+ * state      boolean value (off or on)
+ * captionOff optional string, default 'Off'
+ * captionOn  optional string, default 'On'
+ * onChange   triggered when the switch is flipped, parameter: new state
+ */
+var OnOffSwitch = React.createClass({
+    getDefaultProps: function() {
+        return {
+            captionOff: _('Off'),
+            captionOn: _('On'),
+        };
+    },
+    handleOnOffClick: function(newState, e) {
+        // only consider primary mouse button
+        if (!e || e.button !== 0)
+            return;
+        if (this.props.onChange)
+            this.props.onChange(newState);
+        e.stopPropagation();
+    },
+    render: function() {
+        var onClasses = ["btn"];
+        var offClasses = ["btn"];
+        if (this.props.state)
+            onClasses.push("active");
+        else
+            offClasses.push("active");
+        var clickHandler = this.handleOnOffClick.bind(this, !this.props.state);
+        return (
+            <div className="btn-group btn-onoff-ct">
+                <label className={ onClasses.join(" ") }>
+                    <input className="toggle-ct" type="radio" />
+                    <span onClick={clickHandler}>{this.props.captionOn}</span>
+                </label>
+                <label className={ offClasses.join(" ") }>
+                    <input className="toggle-ct" type="radio" />
+                    <span onClick={clickHandler}>{this.props.captionOff}</span>
+                </label>
+            </div>
+        );
+    }
+});
+
+/* Component to show selinux status and offer an option to change it
+ * selinuxStatus      status of selinux on the system, properties as defined in selinux-client.js
+ * selinuxStatusError error message from reading or setting selinux status/mode
+ * changeSelinuxMode  function to use for changing the selinux enforcing mode
+ * dismissError       function to dismiss the error message
+ */
+var SELinuxStatus = React.createClass({
+    render: function() {
+        var errorMessage;
+        if (this.props.selinuxStatusError) {
+            errorMessage = (
+                <DismissableError dismissError={this.props.dismissError}>{this.props.selinuxStatusError}</DismissableError>
+            );
+        }
+
+        if (this.props.selinuxStatus.enabled === undefined) {
+            // we don't know the current state
+            return (
+                <div>
+                    {errorMessage}
+                    <h3>{_("SELinux system status is unknown.")}</h3>
+                </div>
+            );
+        } else if (!this.props.selinuxStatus.enabled) {
+            // selinux is disabled on the system, not much we can do
+            return (
+                <div>
+                    {errorMessage}
+                    <h3>{_("SELinux is disabled on the system.")}</h3>
+                </div>
+            );
+        }
+        var note;
+        if (this.props.selinuxStatus.enforcing !== this.props.selinuxStatus.configEnforcing)
+            note = <span> {_("Setting deviates from the configured state and will revert on the next boot.")}</span>;
+
+        return (
+            <div>
+                {errorMessage}
+                <span className="title-ct-selinux">{_("Enforced security mode")} </span>
+                <OnOffSwitch state={this.props.selinuxStatus.enforcing} onChange={this.props.changeSelinuxMode} />
+                {note}
+            </div>
+        );
+    }
+});
+
 /* The listing only shows if we have a connection to the dbus API
  * Otherwise we have blank slate: trying to connect, error
  * Expected properties:
@@ -232,6 +348,10 @@ var EmptyState = React.createClass({
  *  - details     fix details as provided by the setroubleshoot client
  *  - description brief description of the error
  *  - count       how many times (>= 1) this alert occurred
+ * selinuxStatus      status of selinux on the system, properties as defined in selinux-client.js
+ * selinuxStatusError error message from reading or setting selinux status/mode
+ * changeSelinuxMode  function to use for changing the selinux enforcing mode
+ * dismissStatusError function that is triggered to dismiss the selinux status error
  */
 var SETroubleshootPage = React.createClass({
     handleDeleteAlert: function(alertId, e) {
@@ -348,6 +468,12 @@ var SETroubleshootPage = React.createClass({
 
             return (
                 <div className="container-fluid setroubleshoot-page">
+                    <SELinuxStatus
+                        selinuxStatus={this.props.selinuxStatus}
+                        selinuxStatusError={this.props.selinuxStatusError}
+                        changeSelinuxMode={this.props.changeSelinuxMode}
+                        dismissError={this.props.dismissStatusError}
+                    />
                     {errorMessage}
                     <cockpitListing.Listing title={ _("SELinux Access Control errors") }>
                         {entries}

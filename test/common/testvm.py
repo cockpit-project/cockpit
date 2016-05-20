@@ -278,6 +278,19 @@ class Machine:
         if not self._check_ssh_master():
             self._start_ssh_master()
 
+    def debug_shell(self):
+        """Run an interactive shell"""
+        cmd = [
+            "ssh",
+            "-p", str(self.ssh_port),
+            "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null",
+            "-i", self._calc_identity(),
+            "-l", self.vm_username,
+            self.address
+        ]
+        subprocess.call(cmd)
+
     def execute(self, command=None, script=None, input=None, environment={}, stdout=None, quiet=False, direct=False):
         """Execute a shell command in the test machine and return its output.
 

@@ -3,7 +3,7 @@ require([
     "base1/cockpit",
     "base1/angular",
     "base1/moment",
-    "translated!base1/po",
+    "translated!shell/po",
     "updates/client",
 ], function($, cockpit, angular, moment, po, client) {
     'use strict';

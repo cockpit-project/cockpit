@@ -23,7 +23,7 @@ define([
     "jquery",
     "base1/cockpit",
     "shell/base_index",
-    'translated!base1/po',
+    'translated!shell/po',
     "manifests",
 ], function($, cockpit, base_index, po, manifests) {
     "use strict";

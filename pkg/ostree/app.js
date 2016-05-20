@@ -1,11 +1,12 @@
+/* global angular */
+
 require([
     "jquery",
     "base1/cockpit",
-    "base1/angular",
     "base1/moment",
     "translated!shell/po",
     "updates/client",
-], function($, cockpit, angular, moment, po, client) {
+], function($, cockpit, moment, po, client) {
     'use strict';
 
     var _ = cockpit.gettext;

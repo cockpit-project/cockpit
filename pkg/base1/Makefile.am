@@ -2,7 +2,6 @@ LINGUAS = ca de da pl pt_BR tr uk
 
 basedir = $(pkgdatadir)/base1
 nodist_base_DATA = \
-	pkg/base1/angular.min.js.gz \
 	pkg/base1/cockpit.min.css.gz \
 	pkg/base1/require.min.js.gz \
 	pkg/base1/term.min.js.gz \
@@ -24,8 +23,6 @@ REACT_COMPONENTS = \
 
 basedebugdir = $(debugdir)$(basedir)
 basedebug_DATA = \
-	pkg/base1/angular.js \
-	pkg/base1/angular-patternfly.css \
 	pkg/base1/bundle.js \
 	pkg/base1/cockpit.css \
 	pkg/base1/patternfly.css \
@@ -52,8 +49,6 @@ base_BUNDLE = \
 	$(REACT_COMPONENTS:.js=.min.js) \
 	$(NULL)
 
-pkg/base1/angular.min.js: pkg/base1/angular.js
-	$(MIN_JS_RULE)
 pkg/base1/bundle.min.js: $(base_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 pkg/base1/jquery.min.js: pkg/base1/jquery.js
@@ -111,7 +106,6 @@ base_TESTS = \
 TESTS += $(base_TESTS)
 
 CLEANFILES += \
-	pkg/base1/angular.min.js \
 	pkg/base1/bundle.min.js \
 	pkg/base1/cockpit.min.js \
 	pkg/base1/cockpit.min.css \
@@ -127,7 +121,6 @@ CLEANFILES += \
 	$(NULL)
 
 EXTRA_DIST += \
-	pkg/base1/angular.min.js \
 	pkg/base1/bundle.min.js \
 	pkg/base1/cockpit.min.css \
 	pkg/base1/jquery.min.js \
@@ -146,8 +139,6 @@ update-lib:: update-bower
 		$(BOWER)/patternfly/dist/css/patternfly.css > $(srcdir)/pkg/base1/patternfly.css
 	sed -f $(srcdir)/tools/patternfly.sed \
 		$(BOWER)/patternfly/dist/css/patternfly-additions.css > $(srcdir)/pkg/base1/patternfly-additions.css
-	sed -f $(srcdir)/tools/patternfly.sed \
-		$(BOWER)/angular-patternfly/dist/styles/angular-patternfly.css > $(srcdir)/pkg/base1/angular-patternfly.css
 	$(JSMODULE) -o $(srcdir)/pkg/base1/jquery.js \
 	    $(BOWER)/jquery/dist/jquery.js \
 	    $(BOWER)/bootstrap/dist/js/bootstrap.js \
@@ -157,11 +148,3 @@ update-lib:: update-bower
 	    $(srcdir)/pkg/base1/require-config.js \
 	    $(BOWER)/requirejs/require.js \
 	    $(srcdir)/pkg/base1/require-loaders.js
-	$(JSMODULE) -o $(srcdir)/pkg/base1/angular.js \
-	    $(BOWER)/angular/angular.js \
-	    $(BOWER)/angular-route/angular-route.js \
-	    $(BOWER)/angular-animate/angular-animate.js \
-	    $(BOWER)/angular-bootstrap/ui-bootstrap.js \
-	    $(BOWER)/angular-bootstrap/ui-bootstrap-tpls.js \
-	    $(BOWER)/angular-patternfly/dist/angular-patternfly.js \
-	    $(srcdir)/pkg/base1/angular-config.js

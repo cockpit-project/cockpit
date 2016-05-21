@@ -3,9 +3,13 @@
         <dt translatable="yes">Created</dt>
         <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | dateRelative }}</dd>
         <dt translatable="yes">Address</dt>
-        <dd>{{item.spec.externalID}}</dd>
+        <dd>
+            <a class="machine-jump" ng-if="item.status.addresses" ng-click="jump(item)">{{item.spec.externalID}}</a>
+            <span ng-if="!item.status.addresses">{{item.spec.externalID}}</span>
+        </dd>
         <dt translatable="yes">IP</dt>
-        <dd>{{item.status.addresses | nodeExternalIP }}</dd>
+        <dd ng-if="item.status.addresses">{{ nodeExternalIP(item) }}</dd>
+        <dd ng-if="!item.status.addresses" translatable="yes">Unknown</dd>
         <dt ng-if="item.status.nodeInfo.osImage" translatable="yes">OS</dt>
         <dd ng-if="item.status.nodeInfo.osImage">{{item.status.nodeInfo.osImage}}</dd>
         <dt ng-if="item.status.nodeInfo.machineID" translatable="yes">Machine ID</dt>

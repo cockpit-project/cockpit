@@ -531,6 +531,12 @@ class KubernetesCommonTests(VolumeTests):
         b.wait_present(".nodes-listing tbody[data-id='127.0.0.1'] tr.listing-ct-panel")
         self.assertTrue(b.is_visible(".nodes-listing tbody[data-id='127.0.0.1'] tr.listing-ct-panel"))
         b.wait_in_text("tbody[data-id='127.0.0.1'] tr.listing-ct-panel", "Ready")
+        b.wait_present(".nodes-listing tbody[data-id='127.0.0.1'] tr.listing-ct-panel a.machine-jump")
+        b.click(".nodes-listing tbody[data-id='127.0.0.1'] tr.listing-ct-panel a.machine-jump")
+        b.enter_page("/system")
+        b.switch_to_top()
+        b.click("li.dashboard-link a[href='/kubernetes']")
+        b.enter_page("/kubernetes")
 
         # Delete from panel
         b.wait_present(".nodes-listing tbody[data-id='b-mynode']")
@@ -670,3 +676,27 @@ class OpenshiftCommonTests(VolumeTests):
         b.click(".modal-footer button.btn-danger")
         b.wait_not_present("modal-dialog")
         b.wait_not_present(".details-listing tbody[data-id='deploymentconfigs/default/frontend']")
+
+    def testNodeNavigation(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/kubernetes")
+        b.wait_present("a[href='#/nodes']")
+        b.click("a[href='#/nodes']")
+
+        b.wait_present(".nodes-listing tbody[data-id='f1.cockpit.lan']")
+
+        b.click(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-item td.listing-ct-toggle")
+        b.wait_present(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-panel")
+        self.assertTrue(b.is_visible(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-panel"))
+        b.wait_present(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-panel a.machine-jump")
+        b.click(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-panel a.machine-jump")
+
+        # For now, just checking that we got a host key dialog
+        b.switch_to_top()
+        b.wait_visible("#machine-troubleshoot")
+        b.click('#machine-troubleshoot')
+        b.wait_popup('troubleshoot-dialog')
+        b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
+        self.allow_journal_messages('.* host key for server is not known: .*')

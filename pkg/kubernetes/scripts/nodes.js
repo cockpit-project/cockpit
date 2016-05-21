@@ -19,6 +19,12 @@
 
 /* globals d3 */
 
+/* This is here to support cockpit.jump
+ * If this ever needs to be used outsite of cockpit
+ * then we'll need abstract this away in kube-client-cockpit
+ */
+/* globals cockpit */
+
 (function() {
     "use strict";
 
@@ -62,8 +68,10 @@
         'nodeData',
         'nodeStatsSummary',
         '$timeout',
+        '$window',
         function($scope, loader, select,  ListingState, filterService,
-                 $routeParams, $location, actions, nodeData, statsSummary, $timeout) {
+                 $routeParams, $location, actions, nodeData, statsSummary,
+                 $timeout, $window) {
             var target = $routeParams["target"] || "";
             $scope.target = target;
 
@@ -133,6 +141,28 @@
 
                 return promise;
             };
+
+            $scope.jump = function (node) {
+                var host, key, ip;
+                if (!node || !node.spec)
+                    return;
+
+                host = node.spec.externalID;
+                ip = nodeData.nodeExternalIP(node);
+
+                if (ip == "127.0.0.1" || ip == "::1") {
+                    ip = "localhost";
+                } else {
+                    $window.sessionStorage.setItem(
+                        "v1-session-machine/" + ip,
+                        JSON.stringify({"address": ip,
+                                        "label": host,
+                                        visible: true })
+                    );
+                }
+
+                cockpit.jump("/", ip);
+            };
         }
     ])
 
@@ -140,7 +170,7 @@
         function() {
             return {
                 restrict: 'A',
-                templateUrl: 'views/node-body.html'
+                templateUrl: 'views/node-body.html',
             };
         }
     )
@@ -291,11 +321,30 @@
                 return state;
             }
 
+            function nodeExternalIP(node) {
+                if (!node || !node.status)
+                    return;
+
+                var addresses = node.status.addresses;
+                var address;
+                /* If no addresses then it hasn't even started */
+                if (addresses) {
+                    addresses.forEach(function(a) {
+                        if (a.type == "LegacyHostIP" || address.type == "ExternalIP") {
+                            address = a.address;
+                            return false;
+                        }
+                    });
+                }
+                return address;
+            }
+
             return {
                 nodeStatusIcon: nodeStatusIcon,
                 nodeCondition: nodeCondition,
                 nodeConditions: nodeConditions,
                 nodeStatus: nodeStatus,
+                nodeExternalIP: nodeExternalIP
             };
         }
     ])
@@ -377,27 +426,6 @@
                 return validate().then(function(item) {
                     return methods.create(item);
                 });
-            };
-        }
-    ])
-
-    .filter('nodeExternalIP', [
-        "KubeTranslate",
-        function(KubeTranslate) {
-            return function(addresses) {
-                var address = null;
-                var _ = KubeTranslate.gettext;
-
-                /* If no addresses then it hasn't even started */
-                if (addresses) {
-                    addresses.forEach(function(a) {
-                        if (a.type == "LegacyHostIP" || address.type == "ExternalIP") {
-                            address = a.address;
-                            return false;
-                        }
-                    });
-                }
-                return address ? address : _("Unknown");
             };
         }
     ])

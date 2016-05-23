@@ -64,7 +64,9 @@ test("format_number", function () {
         [ 123.0, "123" ],
         [ 123.01, "123.0" ],
         [ -123.0, "-123" ],
-        [ -123.01, "-123.0" ]
+        [ -123.01, "-123.0" ],
+        [ null, "" ],
+        [ undefined, "" ],
     ];
 
     expect(checks.length);
@@ -94,6 +96,8 @@ test("format_bytes", function() {
         [ 2000000, "KiB", "1953.1 KiB" ],
         [ 1, "KB", "0.1 KB" ],
         [ 0, "KB", "0 KB" ],
+        [ undefined, "KB", "" ],
+        [ null, "KB", "" ],
     ];
 
     var i, split;

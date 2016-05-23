@@ -42,6 +42,9 @@ array = cockpit.format_bytes(number, [factor, separate])
       was passed in, then the formatted number is returned without a suffix. If <code>separate</code>
       is true, returns an array of <code>[formatted_number, suffix]</code> or
       <code>[formatted_number]</code> if returned without a suffix.</para>
+
+    <para>If <code>number</code> is <code>null</code> or <code>undefined</code> an empty string or
+      an array without a suffix will be returned.</para>
   </refsection>
 
   <refsection id="cockpit-format-number">
@@ -52,6 +55,9 @@ string = cockpit.format_number(number)
     <para>Formats <code>number</code> into a displayable <code>string</code>. If the number is not
       an integer, it is rounded to a single decimal place precision. If the number is near zero, but
       not quite zero it is rounded up or down to a single decimal place.</para>
+
+    <para>If <code>number</code> is <code>null</code> or <code>undefined</code> an empty string
+      will be returned.</para>
   </refsection>
 
   <refsection>
@@ -70,6 +76,9 @@ string = cockpit.format_number(number)
       was passed in, then the formatted number is returned without a suffix. If <code>separate</code>
       is true, returns an array of <code>[formatted_number, suffix]</code> or
       <code>[formatted_number]</code> if returned without a suffix.</para>
+
+    <para>If <code>number</code> is <code>null</code> or <code>undefined</code> an empty string or array
+      will be returned.</para>
   </refsection>
 
   <refsection>
@@ -88,6 +97,9 @@ string = cockpit.format_number(number)
       was passed in, then the formatted number is returned without a suffix. If <code>separate</code>
       is true, returns an array of <code>[formatted_number, suffix]</code> or
       <code>[formatted_number]</code> if returned without a suffix.</para>
+
+    <para>If <code>number</code> is <code>null</code> or <code>undefined</code> an empty string or array
+      will be returned.</para>
   </refsection>
 
   <refsection id="cockpit-info">

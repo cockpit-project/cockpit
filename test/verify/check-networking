@@ -191,10 +191,10 @@ class TestNetworking(MachineCase):
         b.set_checked("input[data-iface='%s']" % iface2, True)
         b.click("#network-bond-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bond-settings-dialog")
-        b.wait_in_text("#networking-interfaces", "tbond")
+        b.wait_present("#networking-interfaces tr[data-interface='tbond']")
 
         # Check that the members are displayed
-        b.click("#networking-interfaces td:first-child:contains('tbond')")
+        b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
         b.wait_visible("#network-interface")
         b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface1)
         b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface2)
@@ -214,7 +214,7 @@ class TestNetworking(MachineCase):
         # Delete the bond
         b.click("#network-interface button:contains('Delete')")
         b.wait_visible("#networking")
-        b.wait_not_in_text("#networking-interfaces", "tbond")
+        b.wait_not_present("#networking-interfaces tr[data-interface='tbond']")
 
         # Due to above reload
         self.allow_journal_messages(".*Connection reset by peer.*",
@@ -249,14 +249,14 @@ class TestNetworking(MachineCase):
         b.set_checked("input[data-iface='%s']" % iface2, True)
         b.click("#network-bridge-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bridge-settings-dialog")
-        b.wait_in_text("#networking-interfaces", "tbridge")
+        b.wait_present("#networking-interfaces tr[data-interface='tbridge']")
 
         # Delete the bridge
-        b.click("#networking-interfaces td:first-child:contains('tbridge')")
+        b.click("#networking-interfaces tr[data-interface='tbridge'] td:first-child")
         b.wait_visible("#network-interface")
         b.click("#network-interface button:contains('Delete')")
         b.wait_visible("#networking")
-        b.wait_not_in_text("#networking-interfaces", "tbridge")
+        b.wait_not_present("#networking-interfaces tr[data-interface='tbridge']")
 
 if __name__ == '__main__':
     test_main()

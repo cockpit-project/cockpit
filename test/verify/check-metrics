@@ -106,7 +106,7 @@ class TestMetrics(MachineCase):
 
         print "Measured CPU", cpu_percentage
         self.assertTrue(b.call_js_func("ph_flot_data_plateau", "#server_cpu_graph",
-                                       cpu_percentage*0.95, cpu_percentage*1.05, 15, "cpu"));
+                                       cpu_percentage*0.50, cpu_percentage*1.50, 15, "cpu"));
 
         # Memory.  We assume that the machine has had a reasonably
         # stable memory situation for the last 20 seconds and we just

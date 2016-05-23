@@ -31,17 +31,16 @@ cd $base/..
 # the source has already been configured in-tree (a Makefile that is not the
 # redirect Makefile exists).
 if test ! -f Makefile || grep --quiet --no-messages "^REDIRECT" Makefile; then
-  if [ ! -f tmp-dist/Makefile ]; then
-      mkdir -p tmp-dist
-      if [ -f .tarball ]; then
+    rm -rf tmp-dist
+    mkdir -p tmp-dist
+    if [ -f .tarball ]; then
         (cd tmp-dist && ../configure) 1>&2
-      else
+    else
         (cd tmp-dist && NOREDIRECTMAKEFILE=t ../autogen.sh) 1>&2
-      fi
-  fi
-  builddir=tmp-dist
+    fi
+    builddir=tmp-dist
 else
-  builddir=.
+    builddir=.
 fi
 
 make -C $builddir --silent dist-gzip distdir=cockpit-wip 1>&2

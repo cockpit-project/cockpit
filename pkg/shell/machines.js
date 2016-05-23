@@ -33,7 +33,7 @@ define([
         var self = this;
 
         var flat = null;
-        var ready = false;
+        self.ready = false;
 
         /* parsed machine data */
         var machines = { };
@@ -59,7 +59,7 @@ define([
 
         window.setTimeout(function() {
             var value = window.sessionStorage.getItem(key);
-            if (!ready && value)
+            if (!self.ready && value)
                 refresh(JSON.parse(value));
         });
 
@@ -80,9 +80,9 @@ define([
         }
 
         function refresh(shared, push) {
-            var emit_ready = !ready;
+            var emit_ready = !self.ready;
 
-            ready = true;
+            self.ready = true;
             last = shared;
             flat = null;
 
@@ -388,7 +388,7 @@ define([
         };
     }
 
-    function Loader(machines) {
+    function Loader(machines, session_only) {
         var self = this;
 
         /* Have we loaded from cockpit session */
@@ -402,15 +402,6 @@ define([
 
         /* hostnamed proxies to each machine, if hostnamed available */
         var proxies = { };
-
-        file = cockpit.file(path, { syntax: JSON });
-        file.watch(function(data, tag, ex) {
-            if (ex)
-                console.warn("couldn't load machines data: " + ex);
-            machines.data(data, tag);
-            if (!session_loaded)
-                load_from_session_storage();
-        });
 
         function process_session_key(key, value) {
             var host, values, machine;
@@ -633,14 +624,28 @@ define([
             var hosts = Object.keys(channels);
             hosts.forEach(self.disconnect);
         };
+
+        if (!session_only) {
+            file = cockpit.file(path, { syntax: JSON });
+            file.watch(function(data, tag, ex) {
+                if (ex)
+                    console.warn("couldn't load machines data: " + ex);
+                machines.data(data, tag);
+                if (!session_loaded)
+                    load_from_session_storage();
+            });
+        } else {
+            load_from_session_storage();
+            machines.data({});
+        }
     }
 
     module.instance = function instance(loader) {
         return new Machines();
     };
 
-    module.loader = function loader(machines) {
-        return new Loader(machines);
+    module.loader = function loader(machines, session_only) {
+        return new Loader(machines, session_only);
     };
 
     module.colors = [

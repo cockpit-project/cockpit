@@ -377,6 +377,7 @@ Summary: Cockpit user interface for storage, using Storaged
 Requires: %{name}-shell = %{version}-%{release}
 Requires: storaged >= 2.1.1
 Requires: storaged-lvm2 >= 2.1.1
+Requires: storaged-iscsi >= 2.1.1
 Requires: device-mapper-multipath
 BuildArch: noarch
 

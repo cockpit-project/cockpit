@@ -40,23 +40,54 @@ array = cockpit.format_bytes(number, [factor, separate])
 
     <para>If the <code>number</code> is less than the <code>factor</code> or an unknown factor
       was passed in, then the formatted number is returned without a suffix. If <code>separate</code>
-      is true, returns an array of <code>[formatted_number, suffix]</code> unless no suffix is returned.</para>
+      is true, returns an array of <code>[formatted_number, suffix]</code> or
+      <code>[formatted_number]</code> if returned without a suffix.</para>
+  </refsection>
+
+  <refsection id="cockpit-format-number">
+    <title>cockpit.format_number()</title>
+<programlisting>
+string = cockpit.format_number(number)
+</programlisting>
+    <para>Formats <code>number</code> into a displayable <code>string</code>. If the number is not
+      an integer, it is rounded to a single decimal place precision. If the number is near zero, but
+      not quite zero it is rounded up or down to a single decimal place.</para>
   </refsection>
 
   <refsection>
     <title>cockpit.format_bytes_per_sec()</title>
 <programlisting>
- string = cockpit.format_bytes_per_sec(number)
+ string = cockpit.format_bytes_per_sec(number, [factor])
+ array = cockpit.format_bytes_per_sec(number, [factor, separate])
 </programlisting>
     <para>Format <code>number</code> of bytes into a displayable speed <code>string</code>.</para>
+
+    <para>If specifying 1000 or 1024 is specified as a <code>factor</code> then an appropriate suffix
+      will be chosen. By default the <code>factor</code> is 1024.  You can pass a string suffix as a
+      <code>factor</code> in which case the resulting number will be formatted with the same suffix.</para>
+
+    <para>If the <code>number</code> is less than the <code>factor</code> or an unknown factor
+      was passed in, then the formatted number is returned without a suffix. If <code>separate</code>
+      is true, returns an array of <code>[formatted_number, suffix]</code> or
+      <code>[formatted_number]</code> if returned without a suffix.</para>
   </refsection>
 
   <refsection>
     <title>cockpit.format_bits_per_sec()</title>
 <programlisting>
-  string = cockpit.format_bits_per_sec(number)
+  string = cockpit.format_bits_per_sec(number, [factor])
+ array = cockpit.format_bytes_per_sec(number, [factor, separate])
 </programlisting>
     <para>Format <code>number</code> of bits into a displayable speed <code>string</code>.</para>
+
+    <para>If specifying 1000 or 1024 is specified as a <code>factor</code> then an appropriate suffix
+      will be chosen. By default the <code>factor</code> is 1024.  You can pass a string suffix as a
+      <code>factor</code> in which case the resulting number will be formatted with the same suffix.</para>
+
+    <para>If the <code>number</code> is less than the <code>factor</code> or an unknown factor
+      was passed in, then the formatted number is returned without a suffix. If <code>separate</code>
+      is true, returns an array of <code>[formatted_number, suffix]</code> or
+      <code>[formatted_number]</code> if returned without a suffix.</para>
   </refsection>
 
   <refsection id="cockpit-info">

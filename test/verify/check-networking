@@ -157,7 +157,7 @@ class TestNetworking(MachineCase):
         b.click("#network-ip-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-ip-settings-dialog")
 
-        self.assertIn("yes", m.execute("nmcli -f ipv4.ignore-auto-dns connection show TEST"))
+        wait(lambda: "yes" in m.execute("nmcli -f ipv4.ignore-auto-dns connection show TEST"))
 
     def testBond(self):
         b = self.browser

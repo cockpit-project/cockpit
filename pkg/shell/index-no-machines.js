@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2015 Red Hat, Inc.
+ * Copyright (C) 2016 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -17,38 +17,36 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+var phantom_checkpoint = phantom_checkpoint || function () { };
+
 define([
     "jquery",
     "base1/cockpit",
     "shell/indexes",
-    "shell/machines",
-    "shell/credentials",
     'translated!shell/po',
-    "shell/machine-dialogs",
-], function($, cockpit, indexes, machis, credentials, po, mdialogs) {
+    "manifests",
+], function($, cockpit, indexes, po, manifests) {
     "use strict";
 
     cockpit.locale(po);
 
-    var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
+    var default_title = "Cockpit";
+    var manifest = manifests["shell"] || { };
+    if (manifest.title)
+        default_title = manifest.title;
 
-    var machines = machis.instance();
-    var loader = machis.loader(machines);
-    var dialogs = mdialogs.new_manager(machines);
-
-    credentials.setup();
-
-    var options = {
+    indexes.simple_index({
         brand_sel: "#index-brand",
         logout_sel: "#go-logout",
         oops_sel: "#navbar-oops",
         language_sel: "#display-language",
         about_sel: "#about-version",
-        account_sel: "#go-account",
-        user_sel: "#content-user-name",
-        default_title: "Cockpit"
-    };
+        default_title: default_title
+    });
 
-    indexes.machines_index(options, machines, loader, dialogs);
-
+    var login_data = window.sessionStorage.getItem('login-data');
+    if (login_data) {
+        var data = JSON.parse(login_data);
+        $("#content-user-name").text(data["displayName"]);
+    }
 });

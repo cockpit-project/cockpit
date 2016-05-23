@@ -571,15 +571,17 @@ define([
                 });
             }
 
-            var proxy = cockpit.dbus("org.freedesktop.hostname1",
-                                     { host: machine.connection_string }).proxy();
-            proxies[host] = proxy;
-            proxy.wait(function() {
-                $(proxy).on("changed", function() {
+            if (!machine.static_hostname) {
+                var proxy = cockpit.dbus("org.freedesktop.hostname1",
+                                         { host: machine.connection_string }).proxy();
+                proxies[host] = proxy;
+                proxy.wait(function() {
+                    $(proxy).on("changed", function() {
+                        updated(null, null, host);
+                    });
                     updated(null, null, host);
                 });
-                updated(null, null, host);
-            });
+            }
 
             /* In case already ready, for example when local */
             whirl();

@@ -533,10 +533,19 @@ class KubernetesCommonTests(VolumeTests):
         b.wait_in_text("tbody[data-id='127.0.0.1'] tr.listing-ct-panel", "Ready")
         b.wait_present(".nodes-listing tbody[data-id='127.0.0.1'] tr.listing-ct-panel a.machine-jump")
         b.click(".nodes-listing tbody[data-id='127.0.0.1'] tr.listing-ct-panel a.machine-jump")
-        b.enter_page("/system")
-        b.switch_to_top()
-        b.click("li.dashboard-link a[href='/kubernetes']")
-        b.enter_page("/kubernetes")
+
+        is_docker = m.execute("docker ps | grep 'cockpit/kubernetes' || true")
+        # When running as a container, localhost only has kubernetes
+        if is_docker:
+            b.wait_present(".dashboard-cards")
+            b.wait_present("a[href='#/nodes']")
+            b.click("a[href='#/nodes']")
+        # Normally it goes to system
+        else:
+            b.enter_page("/system")
+            b.switch_to_top()
+            b.click("li.dashboard-link a[href='/kubernetes']")
+            b.enter_page("/kubernetes")
 
         # Delete from panel
         b.wait_present(".nodes-listing tbody[data-id='b-mynode']")

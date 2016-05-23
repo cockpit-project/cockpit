@@ -505,8 +505,17 @@ define([
             if (channel)
                 return;
 
-            channel = cockpit.channel({ host: machine.connection_string,
-                                        payload: "echo" });
+            var options = {
+                host: machine.connection_string,
+                payload: "echo"
+            };
+
+            if (!machine.on_disk && machine.host_key) {
+                options['temp-session'] = false;
+                options['host-key'] = machine.host_key;
+            }
+
+            channel = cockpit.channel(options);
             channels[host] = channel;
 
             var local = host === "localhost";
@@ -516,6 +525,14 @@ define([
             var open = local;
             var problem = null;
 
+            var url;
+            if (!machine.manifests) {
+                if (machine.checksum)
+                    url = "../../" + machine.checksum + "/manifests.json";
+                else
+                    url = "../../@" + encodeURI(machine.connection_string) + "/manifests.json";
+            }
+
             function whirl() {
                 if (!request && open)
                     state(host, "connected", null);
@@ -523,14 +540,8 @@ define([
                     state(host, "connecting", null);
             }
 
-            var url;
-
             /* Here we load the machine manifests, and expect them before going to "connected" */
-            if (!machine.manifests) {
-                if (machine.checksum)
-                    url = "../../" + machine.checksum + "/manifests.json";
-                else
-                    url = "../../@" + encodeURI(machine.connection_string) + "/manifests.json";
+            function request_manifest() {
                 request = $.ajax({ url: url, dataType: "json", cache: true})
                     .done(function(manifests) {
                         var overlay = { manifests: manifests };
@@ -548,6 +559,20 @@ define([
                     });
             }
 
+            function request_hostname() {
+                if (!machine.static_hostname) {
+                    var proxy = cockpit.dbus("org.freedesktop.hostname1",
+                                             { host: machine.connection_string }).proxy();
+                    proxies[host] = proxy;
+                    proxy.wait(function() {
+                        $(proxy).on("changed", function() {
+                            updated(null, null, host);
+                        });
+                        updated(null, null, host);
+                    });
+                }
+            }
+
             /* Send a message to the server and get back a message once connected */
             if (!local) {
                 channel.send("x");
@@ -555,6 +580,9 @@ define([
                 $(channel)
                     .on("message", function() {
                         open = true;
+                        if (url)
+                            request_manifest();
+                        request_hostname();
                         whirl();
                     })
                 .on("close", function(ev, options) {
@@ -569,18 +597,9 @@ define([
                     }
                     self.disconnect(host);
                 });
-            }
-
-            if (!machine.static_hostname) {
-                var proxy = cockpit.dbus("org.freedesktop.hostname1",
-                                         { host: machine.connection_string }).proxy();
-                proxies[host] = proxy;
-                proxy.wait(function() {
-                    $(proxy).on("changed", function() {
-                        updated(null, null, host);
-                    });
-                    updated(null, null, host);
-                });
+            } else if (url) {
+                request_manifest();
+                request_hostname();
             }
 
             /* In case already ready, for example when local */

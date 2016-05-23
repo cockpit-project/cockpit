@@ -141,6 +141,32 @@ define([
             old_instance = null;
         }
 
+        self.try_to_connect = function(address, options) {
+            var dfd = $.Deferred();
+            var conn_options = $.extend({ "payload": "echo",
+                                          "host": address },
+                                        options);
+
+            var machine = self.machines_ins.lookup(address);
+            if (machine && machine.host_key && !machine.on_disk) {
+                conn_options['temp-session'] = false;
+                conn_options['host-key'] = machine.host_key;
+            }
+            var client = cockpit.channel(conn_options);
+            client.send("x");
+            $(client)
+               .on("message", function() {
+                    $(client).off();
+                    client.close();
+                    dfd.resolve();
+                })
+                .on("close", function(event, options) {
+                    dfd.reject(options);
+                });
+
+            return dfd.promise();
+        };
+
         self.get_sel = function(child_selector) {
             var ret_txt = selector;
             if (child_selector)
@@ -240,26 +266,6 @@ define([
 
             next(0);
         };
-    }
-
-    function try_to_connect(address, options) {
-        var dfd = $.Deferred();
-        var conn_options = $.extend({ "payload": "echo",
-                                      "host": address },
-                                    options);
-        var client = cockpit.channel(conn_options);
-        client.send("x");
-        $(client)
-           .on("message", function() {
-                $(client).off();
-                client.close();
-                dfd.resolve();
-            })
-            .on("close", function(event, options) {
-                dfd.reject(options);
-            });
-
-        return dfd.promise();
     }
 
     function is_method_supported(methods, method) {
@@ -416,7 +422,7 @@ define([
                 return dfp.promise();
             });
 
-            dialog.run(try_to_connect(dialog.address), function (ex) {
+            dialog.run(dialog.try_to_connect(dialog.address), function (ex) {
                 if (ex.problem == "no-host") {
                     var host_id_port = dialog.address;
                     var port_index = host_id_port.lastIndexOf(":");
@@ -484,7 +490,7 @@ define([
                     });
             }
 
-            try_to_connect(address)
+            dialog.try_to_connect(address)
                 .done(update_host)
                 .fail(function (ex) {
                     /* any other error means progress, so save */
@@ -515,15 +521,35 @@ define([
         var allow_change = problem == "unknown-hostkey";
 
         function add_key() {
-            var dfp = $.Deferred();
-            dialog.machines_ins.add_key(key)
-                .done(function() {
-                    try_to_connect(dialog.address)
-                        .done(dfp.resolve)
-                        .fail(dfp.reject);
-                })
-                .fail(dfp.reject);
-            dialog.run(dfp.promise());
+            var q;
+            var machine = dialog.machines_ins.lookup(dialog.address);
+            if (!machine || machine.on_disk) {
+                q = dialog.machines_ins.add_key(key);
+            } else {
+                /* When machine isn't saved to disk
+                   don't save the key either */
+                q = dialog.machines_ins.change(dialog.address, {
+                    'host_key': key
+                });
+            }
+
+            var promise = q.then(function () {
+                var inner = dialog.try_to_connect(dialog.address);
+
+                inner.fail(function(ex) {
+                    if ((ex.problem == "invalid-hostkey" ||
+                        ex.problem == "unknown-hostkey") &&
+                        !machine.on_disk) {
+                            dialog.machines_ins.change(dialog.address, {
+                                'host_key': null
+                            });
+                        }
+                    });
+
+                return inner;
+            });
+
+            dialog.run(promise);
         }
 
         function render() {
@@ -543,7 +569,7 @@ define([
             });
 
             if (!key) {
-                promise = try_to_connect(dialog.address)
+                promise = dialog.try_to_connect(dialog.address)
                     .fail(function(ex) {
                         if (ex.problem != problem) {
                             dialog.render_error(ex);
@@ -619,7 +645,7 @@ define([
                 }
             }
 
-            try_to_connect(address, options)
+            dialog.try_to_connect(address, options)
                 .done(function () {
                     dialog.address = address;
                     if (machine) {
@@ -691,7 +717,7 @@ define([
             }, template);
 
             if (methods === null && machines.has_auth_results) {
-                promise = try_to_connect(dialog.address)
+                promise = dialog.try_to_connect(dialog.address)
                     .fail(function(ex) {
                         error_options = ex;
                         render();
@@ -915,7 +941,7 @@ define([
                 methods = error_options['auth-method-results'];
 
             render();
-            try_to_connect(dialog.address, remote_options).fail(function(ex) {
+            dialog.try_to_connect(dialog.address, remote_options).fail(function(ex) {
                 needs_auth = true;
                 if (ex.problem == "access-denied") {
                     needs_root = true;
@@ -925,7 +951,7 @@ define([
                          * closes. Passing an invalid username should
                          * open new transport that fails.
                          */
-                        try_to_connect(dialog.address, { "user" : "1" })
+                        dialog.try_to_connect(dialog.address, { "user" : "1" })
                             .fail(function(ex) {
                                 methods = ex['auth-method-results'];
                             })

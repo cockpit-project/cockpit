@@ -86,6 +86,8 @@ pkg/kubernetes/angular.min.js: $(shared_ANGULAR)
 	$(MIN_JS_RULE)
 pkg/kubernetes/d3.min.js: pkg/kubernetes/d3.js
 	$(MIN_JS_RULE)
+pkg/kubernetes/moment.min.js: pkg/kubernetes/moment.js
+	$(MIN_JS_RULE)
 
 # Registry files
 
@@ -111,6 +113,7 @@ registry_MIN = \
 registry_BUNDLE = \
 	pkg/kubernetes/angular.min.js \
 	pkg/kubernetes/d3.min.js \
+	pkg/kubernetes/moment.min.js \
 	$(registry_MIN) \
 	pkg/kubernetes/registry-templates.js \
 	$(NULL)
@@ -234,6 +237,7 @@ kubernetes_MIN = \
 kubernetes_BUNDLE = \
 	pkg/kubernetes/angular.min.js \
 	pkg/kubernetes/d3.min.js \
+	pkg/kubernetes/moment.min.js \
 	$(kubernetes_MIN) \
 	pkg/kubernetes/kubernetes-templates.js \
 	$(NULL)
@@ -271,6 +275,7 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/kubernetes.js \
 	pkg/kubernetes/kubernetes.css \
 	pkg/kubernetes/index.html \
+	pkg/kubernetes/moment.js \
 	pkg/kubernetes/registry.js \
 	pkg/kubernetes/registry.css \
 	pkg/kubernetes/registry.html \
@@ -294,6 +299,7 @@ CLEANFILES += \
 	pkg/kubernetes/d3.min.js \
 	pkg/kubernetes/kubernetes.min.css\
 	pkg/kubernetes/index.min.html \
+	pkg/kubernetes/moment.min.js \
 	pkg/kubernetes/kubernetes.min.js \
 	pkg/kubernetes/kubernetes-templates.js \
 	pkg/kubernetes/registry.min.css \
@@ -312,6 +318,7 @@ EXTRA_DIST += \
 	pkg/kubernetes/index.min.html \
 	pkg/kubernetes/kubernetes.min.js \
 	pkg/kubernetes/kubernetes-templates.js \
+	pkg/kubernetes/moment.min.js \
 	pkg/kubernetes/registry.min.css \
 	pkg/kubernetes/registry.min.html \
 	pkg/kubernetes/registry.min.js \

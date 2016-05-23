@@ -12,7 +12,7 @@
     {{/supported}}
 
     {{^supported}}
-    <p translatable="yes">Cockpit was unable to log in to {{#strong}}{{host}}{{/strong}}. You may want to try to {{#sync_link}}synchronize users{{/sync_link}}. For more authentication options and troubleshooting support please upgrade cockpit-ws to a newer version.</p>
+    <p translatable="yes">Cockpit was unable to log in to {{#strong}}{{host}}{{/strong}}. {{#can_sync}}You may want to try to {{#sync_link}}synchronize users{{/sync_link}}.{{/can_sync}} For more authentication options and troubleshooting support please upgrade cockpit-ws to a newer version.</p>
     {{/supported}}
 
 </div>

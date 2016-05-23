@@ -10,7 +10,7 @@
     {{/available}}
 
     {{#available}}
-    <p translatable="yes">Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}. You can change your authentication credentials below. You may prefer to {{#sync_link}}synchronize accounts and passwords{{/sync_link}}.</p>
+    <p translatable="yes">Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}. You can change your authentication credentials below. {{#can_sync}}You may prefer to {{#sync_link}}synchronize accounts and passwords{{/sync_link}}.{{/can_sync}}</p>
 
     <div>
         <table class="form-table-ct">

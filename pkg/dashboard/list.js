@@ -139,7 +139,7 @@ $(function () {
     avatar_editor = image_editor($('#host-edit-avatar'), 256, 256);
 });
 
-function host_edit_dialog(machine_manager, host) {
+function host_edit_dialog(machine_manager, machine_dialogs, host) {
     var machine = machine_manager.lookup(host);
     if (!machine)
         return;
@@ -158,11 +158,13 @@ function host_edit_dialog(machine_manager, host) {
         $("#host-edit-dialog a[data-content]").popover();
     }
 
-    mdialogs.render_color_picker("#host-edit-colorpicker", machine.address);
+    machine_dialogs.render_color_picker("#host-edit-colorpicker", machine.address);
     $('#host-edit-sync-users').off('click');
     $("#host-edit-sync-users").on('click', function () {
         $("#host-edit-dialog").modal('hide');
-        mdialogs.render_dialog("sync-users", "dashboard_setup_server_dialog", machine.address);
+        machine_dialogs.render_dialog("sync-users",
+                                      "dashboard_setup_server_dialog",
+                                      machine.address);
     });
 
     $('#host-edit-apply').off('click');
@@ -232,12 +234,13 @@ PageDashboard.prototype = {
         var self = this;
 
         self.machines = machines.instance();
-        mdialogs.setup_machines(self.machines);
+
+        self.mdialogs = mdialogs.new_manager(self.machines);
 
         var current_monitor = 0;
 
         $('#dashboard-add').click(function () {
-            mdialogs.render_dialog("add-machine", "dashboard_setup_server_dialog");
+            self.mdialogs.render_dialog("add-machine", "dashboard_setup_server_dialog");
         });
         $('#dashboard-enable-edit').click(function () {
             self.toggle_edit(!self.edit_enabled);
@@ -282,7 +285,7 @@ PageDashboard.prototype = {
                 var item = $(this).parent(".list-group-item");
                 var host = item.attr("data-address");
                 self.toggle_edit(false);
-                host_edit_dialog(self.machines, host);
+                host_edit_dialog(self.machines, self.mdialogs, host);
                 return false;
             })
             .on("mouseenter", "a.list-group-item", function() {

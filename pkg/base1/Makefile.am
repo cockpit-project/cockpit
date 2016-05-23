@@ -5,7 +5,6 @@ nodist_base_DATA = \
 	pkg/base1/cockpit.min.css.gz \
 	pkg/base1/require.min.js.gz \
 	pkg/base1/term.min.js.gz \
-	pkg/base1/moment.min.js.gz \
 	pkg/base1/mustache.min.js.gz \
 	pkg/base1/jquery.min.js.gz \
 	pkg/base1/cockpit.min.js.gz \
@@ -31,7 +30,6 @@ basedebug_DATA = \
 	pkg/base1/patterns.js \
 	pkg/base1/term.css \
 	pkg/base1/term.js \
-	pkg/base1/moment.js \
 	pkg/base1/mustache.js \
 	pkg/base1/jquery.js \
 	pkg/base1/react.js \
@@ -52,8 +50,6 @@ base_BUNDLE = \
 pkg/base1/bundle.min.js: $(base_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 pkg/base1/jquery.min.js: pkg/base1/jquery.js
-	$(MIN_JS_RULE)
-pkg/base1/moment.min.js: pkg/base1/moment.js
 	$(MIN_JS_RULE)
 pkg/base1/mustache.min.js: pkg/base1/mustache.js
 	$(MIN_JS_RULE)
@@ -111,7 +107,6 @@ CLEANFILES += \
 	pkg/base1/cockpit.min.css \
 	pkg/base1/jquery.min.js \
 	pkg/base1/patterns.min.js \
-	pkg/base1/moment.min.js \
 	pkg/base1/mustache.min.js \
 	pkg/base1/react.min.js \
 	pkg/base1/require.min.js \
@@ -126,7 +121,6 @@ EXTRA_DIST += \
 	pkg/base1/jquery.min.js \
 	pkg/base1/require.min.js \
 	pkg/base1/mustache.min.js \
-	pkg/base1/moment.min.js \
 	pkg/base1/react.min.js \
 	pkg/base1/term.min.js \
 	pkg/base1/test-dbus-common.js \

@@ -79,7 +79,13 @@ class OCMachine(VirtMachine):
         self.wait_oc()
 
         # TODO: For now we only support cluster admins
-        self.execute("oadm policy add-cluster-role-to-user cluster-admin admin")
+        # This sometimes fails if openshift is still modifying the clusterpolicybinding
+        cmd = "oadm policy add-cluster-role-to-user cluster-admin admin"
+        try:
+            self.execute(cmd)
+        except:
+            self.execute(cmd)
+
         self.execute("oc process -f /tmp/cockpit-openshift-template.json -v COCKPIT_KUBE_INSECURE=true,COCKPIT_KUBE_URL=http://{0}:30000,OPENSHIFT_OAUTH_PROVIDER_URL=https://{0}:8443 > out.json".format(self.address))
         self.execute("oc create -f out.json")
         self.wait_for_cockpit_running(self.address, port=30000)

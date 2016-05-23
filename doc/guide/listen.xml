@@ -31,12 +31,18 @@
       you should place the following content in the
       <code>/etc/systemd/system/cockpit.socket.d/listen.conf</code> file. Create the file
       and directories in that path which not already exist. The <code>ListenStream</code>
-      option specifies the desired TCP port.</para>
+      option specifies the desired address and TCP port.</para>
 
 <programlisting>
 [Socket]
 ListenStream=
 ListenStream=443
+</programlisting>
+
+<programlisting>
+[Socket]
+ListenStream=
+ListenStream=192.168.1.1:443
 </programlisting>
 
     <para>NOTE: The first empty line is intentional. <code>systemd</code> allows multiple <code>Listen</code> directives to be declared in a single socket unit. To change the activation port instead of adding a second port, use a full override unit instead of a snippet.</para>
@@ -94,8 +100,8 @@ $ sudo semanage port -m -t websm_port_t -p tcp 443
       options specify the desired TCP port.</para>
 
 <programlisting>
-$ sudo firewall-cmd --add-port=443/tcp
-$ sudo firewall-cmd --permanent --add-port=443/tcp
+$ sudo firewall-cmd [--zone=ZONE] --add-port=443/tcp
+$ sudo firewall-cmd --permanent [--zone=ZONE] --add-port=443/tcp
 </programlisting>
 
   </section>

@@ -97,7 +97,7 @@ class TestStorage(StorageCase):
         self.dialog_wait_close()
         b.wait_in_text("#mdraids", "ARR")
 
-        b.click('tr:contains("ARR")')
+        b.click('#mdraids tr:contains("ARR")')
         b.wait_visible('#storage-detail')
 
         self.wait_states({ "QEMU QEMU HARDDISK (DISK1)": "In Sync",

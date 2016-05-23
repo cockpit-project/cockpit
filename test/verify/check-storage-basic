@@ -49,6 +49,9 @@ class TestStorage(StorageCase):
         m.execute('parted -s /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL mkpart primary ext2 1M 8M')
         b.wait_in_text("#content", "Partition")
 
+        # Sometimes it takes a while for the kernel to make this file show up
+        wait(lambda: m.execute("test -e /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL-part1") == "")
+
         m.execute('mke2fs -q /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL-part1')
         b.wait_in_text("#content", "File System")
 

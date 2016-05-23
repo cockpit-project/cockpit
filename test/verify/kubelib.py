@@ -702,10 +702,28 @@ class OpenshiftCommonTests(VolumeTests):
         b.wait_present(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-panel a.machine-jump")
         b.click(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-panel a.machine-jump")
 
-        # For now, just checking that we got a host key dialog
         b.switch_to_top()
         b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
         b.wait_popup('troubleshoot-dialog')
         b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
-        self.allow_journal_messages('.* host key for server is not known: .*')
+
+        # We can accept the key
+        b.click("#troubleshoot-dialog .btn-primary")
+        b.wait_in_text("#troubleshoot-dialog", 'Log in to')
+        b.wait_present("#troubleshoot-dialog .modal-footer .btn-default")
+        b.click("#troubleshoot-dialog .modal-footer .btn-default")
+        b.wait_in_text(".curtains-ct", "Login failed")
+
+        # Refreshing keeps our key
+        b.reload()
+        b.wait_visible("#machine-troubleshoot")
+        b.wait_in_text(".curtains-ct", "Login failed")
+
+        # Nothing was saved
+        self.assertFalse(m.execute("grep 10.111.112.101 /var/lib/cockpit/known_hosts || true"))
+        self.assertFalse(m.execute("grep 10.111.112.101 /var/lib/cockpit/machines.json || true"))
+
+        self.allow_hostkey_messages()
+        self.allow_journal_messages('.* host key for server is not known: .*',
+                                    'connection unexpectedly closed by peer')

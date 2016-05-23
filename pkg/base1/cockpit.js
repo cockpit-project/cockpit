@@ -1336,7 +1336,9 @@ function basic_scope(cockpit, jquery) {
         /* TODO: Make the decimal separator translatable */
 
         /* only show as integer if we have a natural number */
-        if (number % 1 === 0)
+        if (!number && number !== 0)
+            return "";
+        else if (number % 1 === 0)
             return number.toString();
         else
             return number.toFixed(1);
@@ -1345,16 +1347,22 @@ function basic_scope(cockpit, jquery) {
     function format_units(number, suffixes, factor, separate) {
         var quotient;
         var suffix = null;
+        var key, keys;
+        var divisor;
+        var y, x, i;
 
         /* Find that factor string */
-        if (typeof (factor) === "string") {
+        if (!number && number !== 0) {
+            suffix = null;
+
+        } else if (typeof (factor) === "string") {
             /* Prefer larger factors */
-            var keys = [];
-            for (var key in suffixes)
+            keys = [];
+            for (key in suffixes)
                 keys.push(key);
             keys.sort().reverse();
-            for (var y = 0; y < keys.length; y++) {
-                for (var x = 0; x < suffixes[keys[y]].length; x++) {
+            for (y = 0; y < keys.length; y++) {
+                for (x = 0; x < suffixes[keys[y]].length; x++) {
                     if (factor == suffixes[keys[y]][x]) {
                         number = number / Math.pow(keys[y], x);
                         suffix = factor;
@@ -1367,8 +1375,8 @@ function basic_scope(cockpit, jquery) {
 
         /* @factor is a number */
         } else if (factor in suffixes) {
-            var divisor = 1;
-            for (var i = 0; i < suffixes[factor].length; i++) {
+            divisor = 1;
+            for (i = 0; i < suffixes[factor].length; i++) {
                 quotient = number / divisor;
                 if (quotient < factor) {
                     number = quotient;
@@ -1380,10 +1388,9 @@ function basic_scope(cockpit, jquery) {
         }
 
         var string_representation = cockpit.format_number(number);
-
         var ret;
 
-        if (suffix)
+        if (string_representation && suffix)
             ret = [string_representation, suffix];
         else
             ret = [string_representation];

@@ -15,6 +15,7 @@ ostreedebug_DATA = \
 	pkg/ostree/ostree.css \
 	pkg/ostree/app.js \
 	pkg/ostree/client.js \
+	pkg/ostree/moment.js \
 	pkg/ostree/ostree.js \
 	pkg/ostree/index.html \
 	$(NULL)
@@ -32,9 +33,12 @@ pkg/ostree/angular.min.js: $(ostree_ANGULAR)
 ostree_BUNDLE = \
 	pkg/ostree/angular.min.js \
 	pkg/ostree/client.min.js \
+	pkg/ostree/moment.min.js \
 	pkg/ostree/app.min.js \
 	$(NULL)
 
+pkg/ostree/moment.min.js: pkg/ostree/moment.js
+	$(MIN_JS_RULE)
 pkg/ostree/ostree.min.js: $(ostree_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
@@ -42,6 +46,7 @@ CLEANFILES += \
 	pkg/ostree/angular.min.js \
 	pkg/ostree/ostree.min.css \
 	pkg/ostree/index.min.html \
+	pkg/ostree/moment.min.js \
 	pkg/ostree/ostree.min.js \
 	$(ostree_BUNDLE) \
 	$(nodist_ostree_DATA) \
@@ -50,6 +55,7 @@ CLEANFILES += \
 EXTRA_DIST += \
 	pkg/ostree/angular.min.js \
 	pkg/ostree/index.min.html \
+	pkg/ostree/moment.min.js \
 	pkg/ostree/ostree.min.js \
 	pkg/ostree/ostree.min.css \
 	$(ostree_BUNDLE) \

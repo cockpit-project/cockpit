@@ -3,7 +3,7 @@
 require([
     "jquery",
     "base1/cockpit",
-    "base1/moment",
+    "updates/moment",
     "translated!shell/po",
     "updates/client",
 ], function($, cockpit, moment, po, client) {

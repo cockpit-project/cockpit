@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2015 Red Hat, Inc.
+ * Copyright (C) 2016 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -22,21 +22,18 @@ define([
     "base1/cockpit",
     "shell/indexes",
     "shell/machines",
-    "shell/credentials",
     'translated!shell/po',
     "shell/machine-dialogs",
-], function($, cockpit, indexes, machis, credentials, po, mdialogs) {
+    "manifests",
+], function($, cockpit, indexes, machis, po, mdialogs, manifests) {
     "use strict";
 
     cockpit.locale(po);
 
-    var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
-
-    var machines = machis.instance();
-    var loader = machis.loader(machines);
-    var dialogs = mdialogs.new_manager(machines);
-
-    credentials.setup();
+    var default_title = "Cockpit";
+    var manifest = manifests["shell"] || { };
+    if (manifest.title)
+        default_title = manifest.title;
 
     var options = {
         brand_sel: "#index-brand",
@@ -44,11 +41,30 @@ define([
         oops_sel: "#navbar-oops",
         language_sel: "#display-language",
         about_sel: "#about-version",
-        account_sel: "#go-account",
-        user_sel: "#content-user-name",
-        default_title: "Cockpit"
+        default_title: default_title
     };
+    var machines = machis.instance();
+    machines.overlay("localhost", { "label": default_title,
+                                    "static_hostname": true });
+
+    var loader = machis.loader(machines, true);
+    var dialogs = mdialogs.new_manager(machines, {
+        "no-cockpit": "not-supported",
+        "not-supported": "not-supported",
+        "protocol-error": "not-supported",
+        "authentication-not-supported": "change-auth",
+        "authentication-failed": "change-auth",
+        "no-forwarding": "change-auth",
+        "unknown-hostkey": "unknown-hostkey",
+        "invalid-hostkey": "invalid-hostkey",
+        "no-host": "change-port",
+    });
 
     indexes.machines_index(options, machines, loader, dialogs);
 
+    var login_data = window.sessionStorage.getItem('login-data');
+    if (login_data) {
+        var data = JSON.parse(login_data);
+        $("#content-user-name").text(data["displayName"]);
+    }
 });

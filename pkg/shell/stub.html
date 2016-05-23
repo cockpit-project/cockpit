@@ -7,7 +7,7 @@
     <link href="../base1/cockpit.css" rel="stylesheet">
     <link href="../../static/branding.css" rel="stylesheet">
     <link href="shell.css" rel="stylesheet">
-    <script data-main="shell/index-no-machines" src="../base1/bundle.js"></script>
+    <script data-main="shell/index-stub" src="../base1/bundle.js"></script>
     <script src="bundle.js"></script>
   </head>
   <body hidden>
@@ -22,7 +22,7 @@
       </div>
       <div class="collapse navbar-collapse navbar-collapse-1">
         <ul class="nav navbar-nav navbar-utility">
-          <li id="navbar-oops" hidden>
+          <li id="navbar-oops">
             <a><span class="oops-status" translatable="yes">Ooops!</span></a>
           </li>
           <li class="dropdown">
@@ -46,6 +46,10 @@
           </li>
         </ul>
         <ul class="nav navbar-nav navbar-primary" id="content-navbar">
+          <li id="machine-spinner" hidden>
+            <div class="spinner spinner-md spinner-white">
+            </div>
+          </li>
           <li class="dropdown" id="machine-dropdown">
             <a id="machine-color"></a>
             <a id="machine-link" class="dropdown-toggle" data-toggle="dropdown"
@@ -53,6 +57,8 @@
                <img src="../shell/images/server-small.png" id="machine-avatar" class="machine-avatar"><span>Machines</span>
                <b class="caret"></b>
             </a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="machine-link">
+            </ul>
           </li>
         </ul>
       </div>
@@ -65,7 +71,7 @@
             <h4 class="modal-title" translatable="yes">About Cockpit</h4>
           </div>
           <div class="modal-body">
-            <div id="about-desciption" translatable="yes">
+            <div translatable="yes">
               Cockpit is an interactive Linux server admin interface.
             </div>
             <div translatable="yes">
@@ -86,6 +92,14 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="modal" id="troubleshoot-dialog" tabindex="-1" role="dialog"
+        data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            </div>
+        </div>
     </div>
 
     <div class="modal" id="display-language" tabindex="-1" role="dialog" data-backdrop="static">
@@ -111,22 +125,43 @@
       </div>
     </div>
 
-    <div class="modal" id="disconnected-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal" id="error-popup" tabindex="-1" role="dialog" data-backdrop="static">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h4 class="modal-title" translatable="yes">Disconnected</h4>
+            <h4 class="modal-title" id="error-popup-title"></h4>
           </div>
           <div class="modal-body">
-            <div id="disconnected-error"></div>
+            <p id="error-popup-message"></p>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-default" id="disconnected-reconnect" translatable="yes">
-              Try to reconnect
+            <button class="btn btn-primary" data-dismiss="modal" translatable="yes">
+              Close
             </button>
-            <button class="btn btn-default" id="disconnected-logout" translatable="yes">
-              Log in again
-            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sidebar" class="sidebar-pf sidebar-pf-left" hidden>
+      <div class="nav-category">
+        <ul id="sidebar-menu" class="nav nav-pills nav-stacked">
+        </ul>
+      </div>
+      <div id="tools-menu" class="panel-group">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-target="#tools-panel" class="collapsed" translatable="yes">
+                Tools
+              </a>
+            </h4>
+          </div>
+          <div id="tools-panel" class="panel-collapse collapse">
+            <div class="panel-body">
+              <ul id="sidebar-tools" class="nav nav-pills nav-stacked">
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -134,12 +169,14 @@
 
     <div class="curtains-ct blank-slate-pf" hidden>
       <div class="blank-slate-pf-icon">
+        <div class="spinner spinner-lg" hidden></div>
         <i class="fa fa-exclamation-circle"></i>
       </div>
       <h1 translatable="yes"></h1>
       <p></p>
       <div class="blank-slate-pf-main-action">
         <button id="machine-reconnect" class="btn btn-primary btn-lg" translatable="yes">Reconnect</button>
+        <button id="machine-troubleshoot" class="btn btn-primary btn-lg" translatable="yes">Troubleshoot</button>
       </div>
     </div>
 

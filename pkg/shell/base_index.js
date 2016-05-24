@@ -686,7 +686,6 @@ define([
             var manifest = local_manifests["shell"] || { };
             $(".display-language-menu").toggle(!!manifest.linguas);
             var language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-            console.log("language", language);
             $.each(manifest.linguas || { }, function(code, name) {
                 var el = $("<option>").text(name).val(code);
                 if (code == language)

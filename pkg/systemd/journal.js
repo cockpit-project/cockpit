@@ -20,7 +20,7 @@
 define([
     "jquery",
     "base1/cockpit",
-    "translated!shell/po",
+    "shell/po",
     "base1/mustache",
     "system/journalctl",
     "system/renderer"

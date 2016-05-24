@@ -4,7 +4,7 @@ require([
     "jquery",
     "base1/cockpit",
     "updates/moment",
-    "translated!shell/po",
+    "shell/po",
     "updates/client",
 ], function($, cockpit, moment, po, client) {
     'use strict';

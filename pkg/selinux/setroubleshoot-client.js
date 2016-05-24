@@ -20,7 +20,8 @@
 define([
     "jquery",
     "base1/cockpit",
-], function($, cockpit) {
+    "selinux/moment",
+], function($, cockpit, moment) {
 
 "use strict";
 var _ = cockpit.gettext;
@@ -113,8 +114,8 @@ client.init = function(capabilitiesChangedCallback) {
           analysisId: plugin id. It can be used in org.fedoraproject.SetroubleshootFixit.run_fix()
           fixable: True when an alert is fixable by a plugin
           reportBug: True when an alert should be reported
-      firstSeen: when the alert was seen for the first time, iso8601 format is used - '%Y-%m-%dT%H:%M:%SZ'
-      lastSeen: when the alert was seen for the last time, iso8601 format is used - '%Y-%m-%dT%H:%M:%SZ'
+      firstSeen: when the alert was seen for the first time, momentjs object
+      lastSeen: when the alert was seen for the last time, momentjs object
       level: "green", "yellow" or "red"
     */
     client.getAlert = function(localId) {
@@ -131,8 +132,8 @@ client.init = function(capabilitiesChangedCallback) {
                 // these values are available starting setroubleshoot-3.2.25
                 // HACK https://bugzilla.redhat.com/show_bug.cgi?id=1306700
                 if (result.length >= 8) {
-                    details.firstSeen = result[5];
-                    details.lastSeen = result[6];
+                    details.firstSeen = moment(result[5]);
+                    details.lastSeen = moment(result[6]);
                     details.level = result[7];
                 }
                 // cleanup analysis

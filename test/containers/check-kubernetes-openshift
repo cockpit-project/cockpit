@@ -59,8 +59,9 @@ class OCBrowser(Browser):
         if path:
             self.enter_page(path.split("#")[0], host=host)
 
-
 class OCMachine(VirtMachine):
+    run_registry = False
+
     def wait_oc(self):
         i = 0
         while True:
@@ -86,13 +87,23 @@ class OCMachine(VirtMachine):
         except:
             self.execute(cmd)
 
-        self.execute("oc process -f /tmp/cockpit-openshift-template.json -v COCKPIT_KUBE_INSECURE=true,COCKPIT_KUBE_URL=http://{0}:30000,OPENSHIFT_OAUTH_PROVIDER_URL=https://{0}:8443 > out.json".format(self.address))
+        args = [
+            "COCKPIT_KUBE_INSECURE=true",
+            "COCKPIT_KUBE_URL=http://{0}:30000".format(self.address),
+            "OPENSHIFT_OAUTH_PROVIDER_URL=https://{0}:8443".format(self.address)
+        ]
+
+        if self.run_registry:
+            args.append("REGISTRY_ONLY=true")
+
+        self.execute("oc process -f /tmp/cockpit-openshift-template.json -v {0} > out.json".format(','.join(args)))
         self.execute("oc create -f out.json")
         self.wait_for_cockpit_running(self.address, port=30000)
 
-class TestOpenshift(kubelib.KubernetesCase, kubelib.OpenshiftCommonTests):
-    machine_class = OCMachine
+class RegistryMachine(OCMachine):
+    run_registry = True
 
+class OCCase(kubelib.KubernetesCase):
     def setUp(self, macaddr=None, memory_mb=None, cpus=None):
         self.machine = self.new_machine(image='openshift')
         self.machine.start(macaddr=macaddr, memory_mb=memory_mb, cpus=cpus)
@@ -110,6 +121,9 @@ class TestOpenshift(kubelib.KubernetesCase, kubelib.OpenshiftCommonTests):
 
         # Expect the default container user limitations during testing
         self.openshift.execute("oc patch scc restricted -p '{ \"runAsUser\": { \"type\": \"MustRunAsRange\" } }'")
+
+class TestOpenshift(OCCase, kubelib.OpenshiftCommonTests):
+    machine_class = OCMachine
 
     def testLogin(self):
         b = self.browser
@@ -130,8 +144,55 @@ class TestOpenshift(kubelib.KubernetesCase, kubelib.OpenshiftCommonTests):
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'kuser')
         b.wait_in_text("title", "Openshift Cockpit")
+        b.wait_in_text("#index-brand", "Openshift")
         b.enter_page("/kubernetes")
         b.wait_present("#node-list")
+
+        b.logout()
+        b.wait_in_text("#login-fatal-message", "Logout Successful")
+        b.wait_not_visible('#login-button')
+
+        b.open("/#error_description=AError")
+        b.wait_not_visible('#login-button')
+        b.wait_in_text("#login-fatal-message", "AError")
+        b.click("#login-again")
+        b.expect_load()
+
+        b.set_val("#inputUsername", "kuser")
+        b.set_val("#inputPassword", "foobar")
+        b.click('.btn-primary')
+
+        b.expect_load()
+        b.wait_present("#content")
+
+class TestRegistry(OCCase):
+    machine_class = RegistryMachine
+
+    def testLogin(self):
+        b = self.browser
+        self.machine.start_cockpit()
+
+        b.open("/")
+        b.expect_load()
+
+        b.wait_visible("#inputUsername")
+        b.wait_visible("#inputPassword")
+        b.wait_in_text("title", "OpenShift Origin")
+
+        b.set_val("#inputUsername", "kuser")
+        b.set_val("#inputPassword", "fubar")
+        b.click('.btn-primary')
+
+        b.expect_load()
+        b.wait_present("#content")
+        b.wait_text('#content-user-name', 'kuser')
+        b.wait_in_text("title", "Image Registry")
+        b.wait_in_text("#index-brand", "Atomic Registry")
+        b.enter_page("/registry")
+        b.wait_present(".dashboard-commands")
+
+        b.switch_to_top()
+        b.wait_not_visible("#content-navbar")
 
         b.logout()
         b.wait_in_text("#login-fatal-message", "Logout Successful")

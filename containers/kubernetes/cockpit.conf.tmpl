@@ -1,8 +1,10 @@
 [WebService]
-Shell = /shell/stub.html
+
 {{if .is_registry }}
 LoginTitle = Atomic Registry
+Shell = /shell/simple.html
 {{else}}
+Shell = /shell/stub.html
 {{if .is_openshift }}
 LoginTitle = Openshift Cockpit
 {{else}}

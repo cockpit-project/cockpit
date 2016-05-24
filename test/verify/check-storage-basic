@@ -49,7 +49,9 @@ class TestStorage(StorageCase):
         m.execute('parted -s /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL mkpart primary ext2 1M 8M')
         b.wait_in_text("#content", "Partition")
 
-        m.execute('mke2fs -q /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL-part1')
+        # HACK - the block device might disappear briefly when udevd does its BLKRRPART.
+        wait(lambda: m.execute('mke2fs /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL-part1'),
+             delay=1, tries=5)
         b.wait_in_text("#content", "File System")
 
         b.go("#/")

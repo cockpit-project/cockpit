@@ -21,7 +21,8 @@ define([
     "base1/react",
     "base1/cockpit",
     "base1/cockpit-components-listing",
-], function(React, cockpit, cockpitListing) {
+    "selinux/moment",
+], function(React, cockpit, cockpitListing, moment) {
 
 "use strict";
 
@@ -282,10 +283,14 @@ var SETroubleshootPage = React.createClass({
                 itm.runFix = self.props.runFix;
                 var listingDetail;
                 if (itm.details && 'firstSeen' in itm.details) {
-                    if (itm.details.reportCount >= 2)
-                        listingDetail = cockpit.format(_("Occurred between $0 and $1"), itm.details.firstSeen, itm.details.lastSeen);
-                    else
-                        listingDetail = cockpit.format(_("Occurred $0"), itm.details.firstSeen);
+                    if (itm.details.reportCount >= 2) {
+                        listingDetail = cockpit.format(_("Occurred between $0 and $1"),
+                                                       itm.details.firstSeen.calendar(),
+                                                       itm.details.lastSeen.calendar()
+                                                      );
+                    } else {
+                        listingDetail = cockpit.format(_("Occurred $0"), itm.details.firstSeen.calendar());
+                    }
                 }
                 var onDeleteClick;
                 if (itm.details)

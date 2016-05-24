@@ -22,7 +22,7 @@ define([
     "base1/cockpit",
     "shell/indexes",
     "shell/machines",
-    'translated!shell/po',
+    "shell/po",
     "shell/machine-dialogs",
     "manifests",
 ], function($, cockpit, indexes, machis, po, mdialogs, manifests) {

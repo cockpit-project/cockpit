@@ -20,7 +20,7 @@
 require([
     "jquery",
     "base1/cockpit",
-    "translated!shell/po",
+    "shell/po",
     "base1/mustache",
     "base1/patterns",
 ], function($, cockpit, po, Mustache) {

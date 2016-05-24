@@ -1,7 +1,7 @@
 require([
     'jquery',
     'base1/cockpit',
-    'translated!playground/po'
+    'playground/po'
 ], function($, cockpit, po) {
     cockpit.locale(po);
     var _ = cockpit.gettext;

@@ -22,7 +22,7 @@ playground_DATA = \
 	pkg/playground/manifest.json \
 	pkg/playground/hammer.gif \
 	pkg/playground/po.de.js \
-	pkg/playground/po.en.js \
+	pkg/playground/po.js \
 	$(NULL)
 
 playground_NOINST = \

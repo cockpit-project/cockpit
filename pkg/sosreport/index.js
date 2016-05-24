@@ -21,7 +21,7 @@ require([
     "jquery",
     "base1/cockpit",
     "data!sosreport/run-sosreport.sh",
-    "translated!shell/po"
+    "shell/po"
 ], function($, cockpit, run_sosreport_sh, po) {
     "use strict";
 

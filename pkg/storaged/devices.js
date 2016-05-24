@@ -25,7 +25,7 @@ require([
     "storage/overview",
     "storage/details",
     "storage/utils",
-    "translated!shell/po",
+    "shell/po",
 ], function($, cockpit, client, jobs, overview, details, utils, po) {
     cockpit.locale(po);
     var _ = cockpit.gettext;

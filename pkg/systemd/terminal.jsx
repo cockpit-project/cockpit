@@ -2,7 +2,7 @@ define([
     "base1/react",
     "base1/cockpit",
     "base1/cockpit-components-terminal",
-    "translated!shell/po",
+    "shell/po",
 ], function(React, cockpit, componentsTerminal, po) {
 
     "use strict";

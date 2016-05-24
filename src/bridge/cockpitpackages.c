@@ -831,6 +831,7 @@ handle_packages (CockpitWebServer *server,
   gchar *chosen = NULL;
   GBytes *nonce = NULL;
   gchar *policy = NULL;
+  gchar **languages = NULL;
 
   name = cockpit_web_response_pop_path (response);
   path = cockpit_web_response_get_path (response);
@@ -850,7 +851,9 @@ handle_packages (CockpitWebServer *server,
       goto out;
     }
 
-  bytes = cockpit_web_response_negotiation (filename, package->paths, &chosen, &error);
+  languages = cockpit_web_server_parse_languages (headers, NULL);
+
+  bytes = cockpit_web_response_negotiation (filename, package->paths, languages[0], &chosen, &error);
   if (error)
     {
       if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ACCES) ||
@@ -915,6 +918,7 @@ handle_packages (CockpitWebServer *server,
 out:
   if (out_headers)
     g_hash_table_unref (out_headers);
+  g_strfreev (languages);
   g_free (name);
   g_free (chosen);
   g_clear_error (&error);

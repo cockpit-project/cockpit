@@ -497,6 +497,7 @@ cockpit_channel_response_serve (CockpitWebService *service,
   JsonObject *object = NULL;
   JsonObject *heads;
   gchar *channel = NULL;
+  gchar *language = NULL;
   gpointer key;
   gpointer value;
 
@@ -625,6 +626,11 @@ cockpit_channel_response_serve (CockpitWebService *service,
       g_free (val);
     }
 
+  /* Parse the language out of the CockpitLang cookie */
+  language = cockpit_web_server_parse_cookie (in_headers, "CockpitLang");
+  if (language)
+    json_object_set_string_member (heads, "Accept-Language", language);
+
   json_object_set_string_member (heads, "Host", host);
   json_object_set_object_member (object, "headers", heads);
 
@@ -638,6 +644,7 @@ cockpit_channel_response_serve (CockpitWebService *service,
   handled = TRUE;
 
 out:
+  g_free (language);
   if (object)
     json_object_unref (object);
   g_free (quoted_etag);

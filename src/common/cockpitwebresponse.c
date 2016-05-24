@@ -1426,7 +1426,8 @@ load_file (const gchar *filename,
  *
  * Find a file to serve based on the suffixes. We prune off extra
  * extensions while looking for a file that's present. We append
- * .min and .gz when looking for files.
+ * .min and .gz when looking for files. We also check for the language
+ * before the extensions if set.
  *
  * The @existing may be NULL, if non-null it'll be used to check if
  * files exist.
@@ -1434,6 +1435,7 @@ load_file (const gchar *filename,
 GBytes *
 cockpit_web_response_negotiation (const gchar *path,
                                   GHashTable *existing,
+                                  const gchar *language,
                                   gchar **actual,
                                   GError **error)
 {
@@ -1458,21 +1460,31 @@ cockpit_web_response_negotiation (const gchar *path,
 
   while (!bytes)
     {
-      for (i = 0; i < 4; i++)
+      if (language)
+        i = 0;
+      else
+        i = 2;
+      for (; i < 6; i++)
         {
           g_free (name);
           switch (i)
             {
             case 0:
-              name = g_strconcat (base, ext, NULL);
+              name = g_strconcat (base, ".", language, ext, NULL);
               break;
             case 1:
-              name = g_strconcat (base, ".min", ext, NULL);
+              name = g_strconcat (base, ".", language, ext, ".gz", NULL);
               break;
             case 2:
-              name = g_strconcat (base, ext, ".gz", NULL);
+              name = g_strconcat (base, ext, NULL);
               break;
             case 3:
+              name = g_strconcat (base, ".min", ext, NULL);
+              break;
+            case 4:
+              name = g_strconcat (base, ext, ".gz", NULL);
+              break;
+            case 5:
               name = g_strconcat (base, ".min", ext, ".gz", NULL);
               break;
             default:

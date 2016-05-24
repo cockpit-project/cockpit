@@ -168,6 +168,88 @@ test_resource_simple (TestResourceCase *tc,
 }
 
 static void
+test_resource_language (TestResourceCase *tc,
+                        gconstpointer data)
+{
+  CockpitWebResponse *response;
+  GError *error = NULL;
+  GBytes *bytes;
+
+  response = cockpit_web_response_new (tc->io, "/@localhost/another/test.html", NULL, NULL);
+
+  g_hash_table_insert (tc->headers, g_strdup ("Accept-Language"), g_strdup ("pig, blah"));
+  cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/another/test.html");
+
+  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
+  g_assert_no_error (error);
+
+  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
+  cockpit_assert_bytes_eq (bytes,
+                           "HTTP/1.1 200 OK\r\n"
+                           "Content-Security-Policy: default-src 'self'; connect-src 'self' ws: wss:\r\n"
+                           "Content-Type: text/html\r\n"
+                           "Cache-Control: no-cache, no-store\r\n"
+                           "Transfer-Encoding: chunked\r\n"
+                           "Vary: Cookie\r\n"
+                           "\r\n"
+                           "60\r\n"
+                           "<html>\n"
+                           "<head>\n"
+                           "<title>Inlay omehay irday</title>\n"
+                           "</head>\n"
+                           "<body>Inlay omehay irday</body>\n"
+                           "</html>\n"
+                           "\r\n"
+                           "0\r\n\r\n", -1);
+  g_bytes_unref (bytes);
+  g_object_unref (response);
+}
+
+static void
+test_resource_cookie (TestResourceCase *tc,
+                      gconstpointer data)
+{
+  CockpitWebResponse *response;
+  GError *error = NULL;
+  GBytes *bytes;
+
+  response = cockpit_web_response_new (tc->io, "/@localhost/another/test.html", NULL, NULL);
+
+  g_hash_table_insert (tc->headers, g_strdup ("Cookie"), g_strdup ("CockpitLang=pig"));
+  cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/another/test.html");
+
+  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
+  g_assert_no_error (error);
+
+  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
+  cockpit_assert_bytes_eq (bytes,
+                           "HTTP/1.1 200 OK\r\n"
+                           "Content-Security-Policy: default-src 'self'; connect-src 'self' ws: wss:\r\n"
+                           "Content-Type: text/html\r\n"
+                           "Cache-Control: no-cache, no-store\r\n"
+                           "Transfer-Encoding: chunked\r\n"
+                           "Vary: Cookie\r\n"
+                           "\r\n"
+                           "60\r\n"
+                           "<html>\n"
+                           "<head>\n"
+                           "<title>Inlay omehay irday</title>\n"
+                           "</head>\n"
+                           "<body>Inlay omehay irday</body>\n"
+                           "</html>\n"
+                           "\r\n"
+                           "0\r\n\r\n", -1);
+  g_bytes_unref (bytes);
+  g_object_unref (response);
+}
+
+static void
 test_resource_not_found (TestResourceCase *tc,
                          gconstpointer data)
 {
@@ -642,6 +724,10 @@ main (int argc,
 
   g_test_add ("/web-channel/resource/simple", TestResourceCase, NULL,
               setup_resource, test_resource_simple, teardown_resource);
+  g_test_add ("/web-channel/resource/language", TestResourceCase, NULL,
+              setup_resource, test_resource_language, teardown_resource);
+  g_test_add ("/web-channel/resource/cookie", TestResourceCase, NULL,
+              setup_resource, test_resource_cookie, teardown_resource);
   g_test_add ("/web-channel/resource/not-found", TestResourceCase, NULL,
               setup_resource, test_resource_not_found, teardown_resource);
   g_test_add ("/web-channel/resource/no-path", TestResourceCase, NULL,

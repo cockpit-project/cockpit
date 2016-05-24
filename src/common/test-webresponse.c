@@ -1096,7 +1096,7 @@ test_negotiation_first (void)
   GBytes *bytes;
 
   bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/test-file.txt",
-                                            NULL, &chosen, &error);
+                                            NULL, NULL, &chosen, &error);
 
   cockpit_assert_bytes_eq (bytes, "A small test file\n", -1);
   g_assert_no_error (error);
@@ -1115,7 +1115,7 @@ test_negotiation_last (void)
   GBytes *bytes;
 
   bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/large.js",
-                                            NULL, &chosen, &error);
+                                            NULL, NULL, &chosen, &error);
 
   g_assert_no_error (error);
   g_assert_cmpstr (chosen, ==, SRCDIR "/src/common/mock-content/large.min.js.gz");
@@ -1136,7 +1136,7 @@ test_negotiation_prune (void)
   GBytes *bytes;
 
   bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/test-file.extra.extension.txt",
-                                            NULL, &chosen, &error);
+                                            NULL, NULL, &chosen, &error);
 
   cockpit_assert_bytes_eq (bytes, "A small test file\n", -1);
   g_assert_no_error (error);
@@ -1158,7 +1158,7 @@ test_negotiation_with_listing (void)
   g_hash_table_add (existing, SRCDIR "/src/common/mock-content/test-file.txt.gz");
 
   bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/test-file.txt",
-                                            existing, NULL, &error);
+                                            existing, NULL, NULL, &error);
 
   cockpit_assert_bytes_eq (bytes, "\x1F\x8B\x08\x08N1\x03U\x00\x03test-file.txt\x00"
                            "sT(\xCEM\xCC\xC9Q(I-.QH\xCB\xCCI\xE5\x02\x00>PjG\x12\x00\x00\x00", 52);
@@ -1176,7 +1176,7 @@ test_negotiation_notfound (void)
   GBytes *bytes;
 
   bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/non-existant",
-                                            NULL, &chosen, &error);
+                                            NULL, NULL, &chosen, &error);
 
   g_assert_no_error (error);
   g_assert (bytes == NULL);
@@ -1192,7 +1192,7 @@ test_negotiation_failure (void)
   GBytes *bytes;
 
   bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/directory",
-                                            NULL, &chosen, &error);
+                                            NULL, NULL, &chosen, &error);
 
   g_assert (error != NULL);
   g_error_free (error);

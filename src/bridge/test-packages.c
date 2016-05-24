@@ -170,6 +170,54 @@ test_simple (TestCase *tc,
   g_bytes_unref (data);
 }
 
+static const Fixture fixture_pig = {
+  .path = "/another/test.html",
+  .accept = { "pig" },
+};
+
+static void
+test_localized_translated (TestCase *tc,
+                           gconstpointer fixture)
+{
+  GBytes *data;
+  guint count;
+
+  g_assert (fixture == &fixture_pig);
+
+  while (tc->closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (tc->problem, ==, NULL);
+
+  data = mock_transport_combine_output (tc->transport, "444", &count);
+  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Content-Security-Policy\":\"default-src 'self'; connect-src 'self' ws: wss:\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}<html>\n<head>\n<title>Inlay omehay irday</title>\n</head>\n<body>Inlay omehay irday</body>\n</html>\n", -1);
+  g_assert_cmpuint (count, ==, 2);
+  g_bytes_unref (data);
+}
+
+static const Fixture fixture_unknown = {
+  .path = "/another/test.html",
+  .accept = { "unknown" },
+};
+
+static void
+test_localized_unknown (TestCase *tc,
+                        gconstpointer fixture)
+{
+  GBytes *data;
+  guint count;
+
+  g_assert (fixture == &fixture_unknown);
+
+  while (tc->closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (tc->problem, ==, NULL);
+
+  data = mock_transport_combine_output (tc->transport, "444", &count);
+  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Content-Security-Policy\":\"default-src 'self'; connect-src 'self' ws: wss:\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}<html>\n<head>\n<title>In home dir</title>\n</head>\n<body>In home dir</body>\n</html>\n", -1);
+  g_assert_cmpuint (count, ==, 2);
+  g_bytes_unref (data);
+}
+
 static const Fixture fixture_large = {
   .path = "/test/sub/COPYING",
 };
@@ -501,6 +549,10 @@ main (int argc,
 
   g_test_add ("/packages/simple", TestCase, &fixture_simple,
               setup, test_simple, teardown);
+  g_test_add ("/packages/localized-translated", TestCase, &fixture_pig,
+              setup, test_localized_translated, teardown);
+  g_test_add ("/packages/localized-unknown", TestCase, &fixture_unknown,
+              setup, test_localized_unknown, teardown);
   g_test_add ("/packages/large", TestCase, &fixture_large,
               setup, test_large, teardown);
   g_test_add ("/packages/listing", TestCase, &fixture_listing,

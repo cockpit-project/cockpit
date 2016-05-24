@@ -685,15 +685,20 @@ define([
              */
             var manifest = local_manifests["shell"] || { };
             $(".display-language-menu").toggle(!!manifest.linguas);
+            var language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+            console.log("language", language);
             $.each(manifest.linguas || { }, function(code, name) {
                 var el = $("<option>").text(name).val(code);
-                if (code == cockpit.language)
+                if (code == language)
                     el.attr("selected", "true");
                 $("#display-language-list").append(el);
             });
 
             $("#display-language-select-button").on("click", function(event) {
                 var code_to_select = $("#display-language-list").val();
+                var cookie = "CockpitLang=" + encodeURIComponent(code_to_select) +
+                             "; path=/; expires=Sun, 16 Jul 3567 06:23:41 GMT";
+                document.cookie = cookie;
                 window.localStorage.setItem("cockpit.lang", code_to_select);
                 window.location.reload(true);
                 return false;

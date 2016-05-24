@@ -43,6 +43,16 @@
          "description": "PEM Encoded certificate to use for CA verification",
          "name": "KUBERNETES_CA_DATA",
          "value": ""
+      },
+      {
+         "description": "Host name that the registry is accessible at",
+         "name": "REGISTRY_HOST",
+         "value": ""
+      },
+      {
+         "description": "Show only the registry interface",
+         "name": "REGISTRY_ONLY",
+         "value": "false"
       }
    ],
    "objects": [
@@ -95,6 +105,14 @@
                       {
                         "name": "COCKPIT_KUBE_INSECURE",
                         "value": "${COCKPIT_KUBE_INSECURE}"
+                      },
+                      {
+                        "name": "REGISTRY_HOST",
+                        "value": "${REGISTRY_HOST}"
+                      },
+                      {
+                        "name": "REGISTRY_ONLY",
+                        "value": "${REGISTRY_ONLY}"
                       }]
                   }]
                }

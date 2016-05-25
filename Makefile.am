@@ -44,10 +44,18 @@ V_GZIP = $(V_GZIP_$(V))
 V_GZIP_ = $(V_GZIP_$(AM_DEFAULT_VERBOSITY))
 V_GZIP_0 = @echo "  GZIP    " $@;
 
+V_COPY = $(V_COPY_$(V))
+V_COPY_ = $(V_COPY_$(AM_DEFAULT_VERBOSITY))
+V_COPY_0 = @echo "  COPY    " $@;
+
 MV = mv -f
 
 JSMODULE = $(srcdir)/tools/missing $(srcdir)/tools/jsmodule
 CSSBUNDLE = $(srcdir)/tools/missing $(srcdir)/tools/cssbundle
+
+COPY_RULE = \
+        $(V_COPY) $(MKDIR_P) $(dir $@) && \
+	cp -L $< $@.tmp && $(MV) $@.tmp $@
 
 MIN_JS_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \

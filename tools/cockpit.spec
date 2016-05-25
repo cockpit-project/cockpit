@@ -345,6 +345,7 @@ test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 
 %postun ws
 %systemd_postun_with_restart cockpit.socket
+%systemd_postun_with_restart cockpit.service
 
 %package shell
 Summary: Cockpit Shell user interface package

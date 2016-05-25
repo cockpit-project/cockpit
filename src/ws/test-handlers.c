@@ -93,7 +93,7 @@ setup (Test *test,
 
   user = g_get_user_name ();
   test->auth = mock_auth_new (user, PASSWORD);
-  test->roots = cockpit_web_server_resolve_roots (SRCDIR "/static", SRCDIR "/branding/default", NULL);
+  test->roots = cockpit_web_server_resolve_roots (SRCDIR "/src/static", SRCDIR "/branding/default", NULL);
 
   test->data.auth = test->auth;
   test->data.static_roots = (const gchar **)test->roots;

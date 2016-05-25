@@ -38,7 +38,7 @@ pkg/base1/bundle.min.js: $(base_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 pkg/base1/jquery.min.js: pkg/base1/jquery.js
 	$(MIN_JS_RULE)
-pkg/base1/mustache.js: bower_components/mustache/mustache.js
+pkg/base1/mustache.js: lib/mustache/mustache.js
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && cp $^ $@.tmp && mv $@.tmp $@
 pkg/base1/mustache.min.js: pkg/base1/mustache.js
 	$(MIN_JS_RULE)

@@ -18,11 +18,11 @@
  */
 
 define([
-    "base1/react",
     "base1/cockpit",
-    "base1/cockpit-components-listing",
+    "./react",
+    "./cockpit-components-listing",
     "selinux/moment",
-], function(React, cockpit, cockpitListing, moment) {
+], function(cockpit, React, cockpitListing, moment) {
 
 "use strict";
 

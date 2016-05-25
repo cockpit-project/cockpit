@@ -1,5 +1,9 @@
 playgrounddir = $(pkgdatadir)/playground
 playground_DATA = \
+	pkg/playground/react.js \
+	pkg/playground/cockpit-components-listing.js \
+	pkg/playground/cockpit-components-select.js \
+	pkg/playground/cockpit-components-dialog.js \
 	pkg/playground/test.html \
 	pkg/playground/test.min.html \
 	pkg/playground/test.js \
@@ -34,6 +38,10 @@ playground_NOINST = \
 	pkg/playground/service.min.js \
 	$(NULL)
 
+# Ugliness to be solved by webpack in the future
+pkg/playground/react.min.js: pkg/playground/react.js
+	$(MIN_JS_RULE)
+
 noinst_DATA += $(playground_NOINST)
 
 CLEANFILES += \
@@ -50,9 +58,21 @@ CLEANFILES += \
 	pkg/playground/react-demo-listing.min.js \
 	pkg/playground/service.min.html \
 	pkg/playground/service.min.js \
+	pkg/playground/react.min.js \
+	pkg/playground/cockpit-components-listing.js \
+	pkg/playground/cockpit-components-select.js \
+	pkg/playground/cockpit-components-dialog.js \
 	$(NULL)
 
 EXTRA_DIST += \
+	pkg/playground/react.js \
+	pkg/playground/react.min.js \
+	pkg/playground/cockpit-components-listing.jsx \
+	pkg/playground/cockpit-components-select.jsx \
+	pkg/playground/cockpit-components-dialog.jsx \
+	pkg/playground/cockpit-components-listing.js \
+	pkg/playground/cockpit-components-select.js \
+	pkg/playground/cockpit-components-dialog.js \
 	$(playground_DATA) \
 	$(playground_NOINST) \
 	$(NULL)

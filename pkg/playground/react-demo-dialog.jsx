@@ -18,10 +18,10 @@
  */
 
 define([
-    "base1/react",
     "base1/cockpit",
-    "base1/cockpit-components-select",
-], function(React, cockpit, Select) {
+    "playground/react",
+    "playground/cockpit-components-select",
+], function(cockpit, React, Select) {
 
     "use strict";
     var _ = cockpit.gettext;

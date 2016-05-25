@@ -14,12 +14,6 @@ base_DATA = \
 	pkg/base1/manifest.json \
 	$(NULL)
 
-REACT_COMPONENTS = \
-	pkg/base1/cockpit-components-listing.js \
-	pkg/base1/cockpit-components-select.js \
-	pkg/base1/cockpit-components-terminal.js \
-	$(NULL)
-
 basedebugdir = $(debugdir)$(basedir)
 basedebug_DATA = \
 	pkg/base1/bundle.js \
@@ -32,9 +26,7 @@ basedebug_DATA = \
 	pkg/base1/term.js \
 	pkg/base1/mustache.js \
 	pkg/base1/jquery.js \
-	pkg/base1/react.js \
 	pkg/base1/cockpit.js \
-	$(REACT_COMPONENTS) \
 	$(NULL)
 
 base_BUNDLE = \
@@ -43,8 +35,6 @@ base_BUNDLE = \
 	pkg/base1/jquery.min.js \
 	pkg/base1/mustache.min.js \
 	pkg/base1/patterns.min.js \
-	pkg/base1/react.min.js \
-	$(REACT_COMPONENTS:.js=.min.js) \
 	$(NULL)
 
 pkg/base1/bundle.min.js: $(base_BUNDLE)
@@ -54,8 +44,6 @@ pkg/base1/jquery.min.js: pkg/base1/jquery.js
 pkg/base1/mustache.min.js: pkg/base1/mustache.js
 	$(MIN_JS_RULE)
 pkg/base1/term.min.js: pkg/base1/term.js
-	$(MIN_JS_RULE)
-pkg/base1/react.min.js: pkg/base1/react.js
 	$(MIN_JS_RULE)
 
 install-data-local::
@@ -108,10 +96,8 @@ CLEANFILES += \
 	pkg/base1/jquery.min.js \
 	pkg/base1/patterns.min.js \
 	pkg/base1/mustache.min.js \
-	pkg/base1/react.min.js \
 	pkg/base1/require.min.js \
 	pkg/base1/term.min.js \
-	$(REACT_COMPONENTS) \
 	$(nodist_base_DATA) \
 	$(NULL)
 
@@ -121,10 +107,8 @@ EXTRA_DIST += \
 	pkg/base1/jquery.min.js \
 	pkg/base1/require.min.js \
 	pkg/base1/mustache.min.js \
-	pkg/base1/react.min.js \
 	pkg/base1/term.min.js \
 	pkg/base1/test-dbus-common.js \
-	$(REACT_COMPONENTS) \
 	$(base_BUNDLE) \
 	$(NULL)
 

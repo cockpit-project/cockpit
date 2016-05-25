@@ -1,0 +1,1 @@
+../../lib/cockpit-components-listing.jsx

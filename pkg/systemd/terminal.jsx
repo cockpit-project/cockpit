@@ -1,9 +1,9 @@
 define([
-    "base1/react",
     "base1/cockpit",
-    "base1/cockpit-components-terminal",
+    "./react",
+    "./cockpit-components-terminal",
     "shell/po",
-], function(React, cockpit, componentsTerminal, po) {
+], function(cockpit, React, componentsTerminal, po) {
 
     "use strict";
 

@@ -18,9 +18,9 @@
  */
 
 define([
-    "base1/react",
     "base1/cockpit",
-], function(React, cockpit) {
+    "./react",
+], function(cockpit, React) {
 
 "use strict";
 var _ = cockpit.gettext;

@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 define([
-    "base1/react",
+    "./react",
 ], function(React) {
 
     "use strict";

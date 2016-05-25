@@ -15,8 +15,10 @@ systemd_DATA = \
 
 systemddebugdir = $(debugdir)$(systemddir)
 systemddebug_DATA = \
+	pkg/systemd/react.js \
 	pkg/systemd/bootstrap-datepicker.js \
 	pkg/systemd/bootstrap-combobox.js \
+	pkg/systemd/cockpit-components-terminal.js \
 	pkg/systemd/host.css \
 	pkg/systemd/host.js \
 	pkg/systemd/index.html \
@@ -51,6 +53,8 @@ systemd_MIN = \
 	pkg/systemd/service.min.js \
 	$(NULL)
 systemd_BUNDLE = \
+	pkg/systemd/react.min.js \
+	pkg/systemd/cockpit-components-terminal.min.js \
 	pkg/systemd/journal_day_header.mustache \
 	pkg/systemd/journal_line.mustache \
 	pkg/systemd/journal_reboot.mustache \
@@ -59,6 +63,10 @@ systemd_BUNDLE = \
 
 pkg/systemd/bundle.min.js: $(systemd_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
+
+# Ugliness to be solved by webpack in the future
+pkg/systemd/react.min.js: pkg/systemd/react.js
+	$(MIN_JS_RULE)
 
 systemd_TESTS = \
 	pkg/systemd/test-journal-renderer.html \
@@ -69,11 +77,14 @@ TESTS += $(systemd_TESTS)
 CLEANFILES += \
 	pkg/systemd/bootstrap-datepicker.min.js \
 	pkg/systemd/bootstrap-combobox.min.js \
+	pkg/systemd/cockpit-components-terminal.min.js \
+	pkg/systemd/cockpit-components-terminal.js \
 	pkg/systemd/bundle.min.js \
 	pkg/systemd/host.min.css \
 	pkg/systemd/index.min.html \
 	pkg/systemd/journal.min.css \
 	pkg/systemd/logs.min.html \
+	pkg/systemd/react.min.js \
 	pkg/systemd/services.min.html \
 	pkg/systemd/terminal.min.html \
 	pkg/systemd/terminal.js \
@@ -82,6 +93,11 @@ CLEANFILES += \
 	$(NULL)
 
 EXTRA_DIST += \
+	pkg/systemd/react.js \
+	pkg/systemd/react.min.js \
+	pkg/systemd/cockpit-components-terminal.jsx \
+	pkg/systemd/cockpit-components-terminal.min.js \
+	pkg/systemd/cockpit-components-terminal.js \
 	pkg/systemd/bootstrap-combobox.min.js \
 	pkg/systemd/bootstrap-datepicker.min.js \
 	pkg/systemd/bundle.min.js \

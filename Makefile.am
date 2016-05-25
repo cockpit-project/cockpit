@@ -303,6 +303,7 @@ update-bower:
 	cd $(srcdir) && bower update
 	rm -rf $(BOWER_CLEAN)
 
+include lib/Makefile.am
 include pkg/base1/Makefile.am
 include pkg/dashboard/Makefile.am
 include pkg/docker/Makefile.am

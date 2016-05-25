@@ -19,7 +19,7 @@
 
 require([
     "base1/cockpit",
-    "base1/react",
+    "selinux/react",
     "selinux/setroubleshoot-client",
     "selinux/selinux-client",
     "selinux/setroubleshoot-view",

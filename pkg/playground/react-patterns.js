@@ -19,8 +19,8 @@
 
 require([
     "base1/cockpit",
-    "base1/react",
-    "performance/dialog-view",
+    "playground/react",
+    "playground/cockpit-components-dialog",
     "playground/react-demo-dialog",
     "playground/react-demo-listing",
 ], function(cockpit, React, dialog_pattern, demo_dialog, demo_listing) {

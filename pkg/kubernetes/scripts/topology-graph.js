@@ -1,1 +1,1 @@
-../../../bower_components/kubernetes-topology-graph/dist/topology-graph.js
+../../../lib/kubernetes-topology-graph/dist/topology-graph.js

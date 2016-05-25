@@ -1,1 +1,1 @@
-../../bower_components/term.js-cockpit/src/term.js
+../../lib/term.js-cockpit/src/term.js

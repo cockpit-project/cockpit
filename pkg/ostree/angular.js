@@ -1,1 +1,1 @@
-../../bower_components/angular/angular.js
+../../lib/angular/angular.js

@@ -1,1 +1,1 @@
-../../../bower_components/kubernetes-container-terminal/dist/container-terminal.js
+../../../lib/kubernetes-container-terminal/dist/container-terminal.js

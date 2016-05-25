@@ -249,7 +249,7 @@ print-%:
 
 # Subdirectories to distribute everything that's committed to git
 COMMITTED_DIST = \
-	bower_components/ \
+	lib/ \
 	pkg/ \
 	lib/ \
 	po/ \
@@ -286,7 +286,7 @@ upload-pot:
 download-po:
 	zanata-cli -B pull --min-doc-percent 30 --project-config "$(srcdir)/tools/zanata.xml" -s "$(builddir)/po" -t "$(srcdir)/po"
 
-BOWER = $(srcdir)/bower_components
+BOWER = $(srcdir)/lib
 
 BOWER_CLEAN = \
 	$(BOWER)/bootstrap-switch/ \

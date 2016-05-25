@@ -1,1 +1,1 @@
-../../bower_components/mustache/mustache.js
+../../lib/mustache/mustache.js

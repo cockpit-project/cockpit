@@ -28,6 +28,7 @@
         'ui.bootstrap',
         'ui.bootstrap.popover',
         'kubernetes.app',
+        'kubernetes.date',
         'registry.images',
         'registry.projects',
         'registry.policy',

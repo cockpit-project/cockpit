@@ -22,15 +22,46 @@
 (function() {
     "use strict";
 
-    angular.module('kubernetes.date', [])
+    angular.module('kubernetes.date', [
+        "kubeClient"
+    ])
 
-    .filter('dateRelative', function() {
-        return function(timestamp) {
-            if (!timestamp) {
-                return timestamp;
+    .factory('refreshEveryMin', [
+        "$rootScope",
+        "$window",
+        "kubeLoader",
+        function($rootScope, $window, loader) {
+            var last = 0;
+            var interval = 60000;
+            var tol = 500;
+
+            loader.listen(function() {
+                last = (new Date()).getTime();
+            });
+
+            $window.setInterval(function() {
+                var now = (new Date()).getTime();
+                if ((now - last) + tol >= interval)
+                    $rootScope.$applyAsync();
+                last = now;
+            }, interval);
+
+            return {};
+        }
+    ])
+
+    .filter('dateRelative', [
+        "refreshEveryMin",
+        function() {
+            function dateRelative(timestamp) {
+                if (!timestamp) {
+                    return timestamp;
+                }
+                return moment(timestamp).fromNow();
             }
-            return moment(timestamp).fromNow();
-        };
-    });
+            dateRelative.$stateful = true;
+            return dateRelative;
+        }
+    ]);
 
 }());

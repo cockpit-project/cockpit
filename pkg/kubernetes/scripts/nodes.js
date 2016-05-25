@@ -25,6 +25,7 @@
     angular.module('kubernetes.nodes', [
         'ngRoute',
         'kubeClient',
+        'kubernetes.date',
         'kubernetes.listing',
         'kubeUtils',
         'ui.cockpit',

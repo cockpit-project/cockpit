@@ -47,13 +47,23 @@
     }
 
     function getPadding(el) {
+        // May return null on FF when iframe is hidden.
         var style = window.getComputedStyle(el, null);
-        return {
-            left: parsePXVal(style.getPropertyValue('padding-left')),
-            right: parsePXVal(style.getPropertyValue('padding-right')),
-            top: parsePXVal(style.getPropertyValue('padding-top')),
-            bottom: parsePXVal(style.getPropertyValue('padding-bottom'))
-        };
+        if (style) {
+            return {
+                left: parsePXVal(style.getPropertyValue('padding-left')),
+                right: parsePXVal(style.getPropertyValue('padding-right')),
+                top: parsePXVal(style.getPropertyValue('padding-top')),
+                bottom: parsePXVal(style.getPropertyValue('padding-bottom'))
+            };
+        } else {
+            return {
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0
+            };
+        }
     }
 
     function getSize(el) {
@@ -378,8 +388,14 @@
                         var width = this.getComputedTextLength();
                         var inner = parseInt(g.attr("data-innersize"), 10);
                         var style = window.getComputedStyle(this, null);
-                        var ratio = inner / width;
-                        var size = style.getPropertyValue('font-size');
+                        var size, ratio;
+
+                        if (style && width) {
+                            size = style.getPropertyValue('font-size');
+                            ratio = inner / width;
+                        } else {
+                            width = 0;
+                        }
 
                         if (!isNaN(inner) && width > inner)
                             return "calc(" + size + " * " + ratio + ")";

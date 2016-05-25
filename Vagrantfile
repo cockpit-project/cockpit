@@ -14,7 +14,9 @@ Vagrant.configure(2) do |config|
     config.vm.post_up_message = "You can now access Cockpit at http://localhost:9090 (login as 'admin' with password 'foobar')"
 
     config.vm.provider "libvirt" do |libvirt|
-        libvirt.memory = 1024
+        libvirt.memory = 2048 # or 1024 if nested virtualization is not needed
+        libvirt.nested = true
+        libvirt.cpu_mode = "host-model"
     end
 
     config.vm.provider "virtualbox" do |virtualbox|
@@ -41,7 +43,7 @@ Vagrant.configure(2) do |config|
 
         dnf copr enable -y @cockpit/cockpit-preview
         dnf install -y docker kubernetes atomic subscription-manager etcd pcp realmd \
-		NetworkManager storaged storaged-lvm2 git yum-utils tuned
+		NetworkManager storaged storaged-lvm2 git yum-utils tuned libvirt virt-install qemu
         dnf install -y cockpit-*
         debuginfo-install -y cockpit cockpit-pcp
 
@@ -49,6 +51,11 @@ Vagrant.configure(2) do |config|
         systemctl start cockpit.socket
 
         printf "[WebService]\nAllowUnencrypted=true\n" > /etc/cockpit/cockpit.conf
+
+        sudo sh -c "rmmod kvm_intel && modprobe kvm_intel nested=1 && echo 'options kvm_intel nested=1' >> /etc/modprobe.d/kvm.conf" | true
+        sudo sh -c "rmmod kvm_amd && modprobe kvm_amd nested=1 && echo 'options kvm_amd nested=1' >> /etc/modprobe.d/kvm.conf" | true
+        echo Nested virtualization: && cat /sys/module/kvm_intel/parameters/nested
+        sudo systemctl start libvirtd
 
         systemctl daemon-reload
     SHELL

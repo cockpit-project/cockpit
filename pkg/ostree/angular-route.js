@@ -1,1 +1,1 @@
-../../bower_components/angular-route/angular-route.js
+../../lib/angular-route/angular-route.js

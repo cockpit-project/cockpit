@@ -1,1 +1,1 @@
-../../bower_components/angular-bootstrap/ui-bootstrap-tpls.js
+../../lib/angular-bootstrap/ui-bootstrap-tpls.js

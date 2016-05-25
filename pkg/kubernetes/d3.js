@@ -1,1 +1,1 @@
-../../bower_components/d3/d3.js
+../../lib/d3/d3.js

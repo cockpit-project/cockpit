@@ -10,6 +10,13 @@ ostree_DATA = \
 	pkg/ostree/manifest.json \
 	$(NULL)
 
+ostree_ANGULAR = \
+	pkg/ostree/angular.js \
+	pkg/ostree/angular-route.js \
+	pkg/ostree/ui-bootstrap.js \
+	pkg/ostree/ui-bootstrap-tpls.js \
+	$(NULL)
+
 ostreedebugdir = $(debugdir)$(ostreedir)
 ostreedebug_DATA = \
 	pkg/ostree/ostree.css \
@@ -18,13 +25,7 @@ ostreedebug_DATA = \
 	pkg/ostree/moment.js \
 	pkg/ostree/ostree.js \
 	pkg/ostree/index.html \
-	$(NULL)
-
-ostree_ANGULAR = \
-	pkg/ostree/angular.js \
-	pkg/ostree/angular-route.js \
-	pkg/ostree/ui-bootstrap.js \
-	pkg/ostree/ui-bootstrap-tpls.js \
+	$(ostree_ANGULAR) \
 	$(NULL)
 
 pkg/ostree/angular.min.js: $(ostree_ANGULAR)

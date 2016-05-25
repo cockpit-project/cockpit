@@ -64,6 +64,7 @@ shared_MODULES = \
 	$(NULL)
 
 shared_LESS = \
+	pkg/kubernetes/styles/angular-csp.less \
 	pkg/kubernetes/styles/color-variables.less \
 	pkg/kubernetes/styles/variables-bootstrap.less \
 	pkg/kubernetes/styles/variables-patternfly.less \
@@ -280,6 +281,7 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/registry.css \
 	pkg/kubernetes/registry.html \
 	pkg/kubernetes/less.js \
+	$(shared_ANGULAR) \
 	$(NULL)
 
 install-data-hook::

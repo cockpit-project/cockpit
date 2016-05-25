@@ -60,7 +60,7 @@ function step() {
 
     var dir = output_parts[output_parts.length - 2];
     var dir_idx = parts.indexOf(dir)
-    if (dir_idx !== last)
+    if (dir_idx !== -1 && dir_idx !== last)
         dir = parts.slice(dir_idx, last).join('/');
     dir = maps[dir] || dir;
 

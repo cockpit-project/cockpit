@@ -229,4 +229,14 @@ request.close([problem])
       standard <link linkend="cockpit-problems">problem code</link> string.</para>
   </refsection>
 
+  <refsection id="cockpit-http-close-all">
+    <title>http.close()</title>
+    <programlisting>
+http.close([problem])
+    </programlisting>
+    <para>Cancel all outstanding requests with the given problem code.  This is useful when
+    you know that the server is going down soon.
+    </para>
+  </refsection>
+
 </refentry>

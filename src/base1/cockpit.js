@@ -3578,6 +3578,8 @@ function basic_scope(cockpit, jquery) {
         self.options = options;
         options.payload = "http-stream1";
 
+        var active_requests = [ ];
+
         if (endpoint !== undefined) {
             if (endpoint.indexOf && endpoint.indexOf("/") === 0) {
                 options.unix = endpoint;
@@ -3678,6 +3680,10 @@ function basic_scope(cockpit, jquery) {
             });
 
             function on_close(event, options) {
+                var pos = active_requests.indexOf(ret);
+                if (pos >= 0)
+                    active_requests.splice(pos, 1);
+
                 if (options.problem) {
                     http_debug("http problem: ", options.problem);
                     dfd.reject(new BasicError(options.problem));
@@ -3734,6 +3740,8 @@ function basic_scope(cockpit, jquery) {
                 channel.close(problem);
                 return ret;
             };
+
+            active_requests.push(ret);
             return ret;
         };
 
@@ -3767,6 +3775,13 @@ function basic_scope(cockpit, jquery) {
                 "headers": headers
             });
         };
+
+        self.close = function close(problem) {
+            var reqs = active_requests.slice();
+            for (var i = 0; i < reqs.length; i++)
+                reqs[i].close(problem);
+        };
+
     }
 
     /* public */

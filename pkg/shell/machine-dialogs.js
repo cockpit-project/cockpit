@@ -479,10 +479,22 @@ define([
             var address = dialog.machines_ins.generate_connection_string(parts.user,
                                                                   parts.port,
                                                                   parts.address);
-            function update_host() {
+            function update_host(ex) {
                 dialog.address = address;
                 dialog.machines_ins.change(parts.address, { "port": parts.port })
-                    .done(dfp.resolve)
+                    .done(function () {
+                        // We failed before so try to connect again
+                        // now that the machine is saved.
+                        if (ex) {
+                            dialog.try_to_connect(address)
+                                .done(dialog.complete)
+                                .fail(function (e) {
+                                    dfp.reject(e);
+                                });
+                        } else {
+                            dfp.resolve();
+                        }
+                    })
                     .fail(function (ex) {
                         var msg = cockpit.format(_("Failed to edit machine: $0"),
                                                  cockpit.message(ex));
@@ -491,12 +503,15 @@ define([
             }
 
             dialog.try_to_connect(address)
-                .done(update_host)
+                .done(function () {
+                    update_host();
+                })
                 .fail(function (ex) {
                     /* any other error means progress, so save */
                     if (ex.problem != 'no-host')
-                        update_host();
-                    dfp.reject(ex);
+                        update_host(ex);
+                    else
+                        dfp.reject(ex);
                 });
 
             dialog.run(dfp.promise());

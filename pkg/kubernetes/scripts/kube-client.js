@@ -395,7 +395,7 @@
                 if (!schema.global && namespace)
                     path += "/namespaces/" + namespace;
                 path += "/" + schema.type;
-                if (!(what in watches)) {
+                if (!(path in watches)) {
                     watches[path] = new KubeWatch(path, handleFrames);
                     watches[path].params = { what: what, global: schema.global, namespace: namespace };
                 }
@@ -582,6 +582,7 @@
                     if ((!only && watch.params.namespace) ||
                         (only && !watch.params.global && !(watch.params.namespace in only))) {
                         watches[path].cancel();
+                        delete watches[path];
                         reconnect.push(watch);
                     }
                 }

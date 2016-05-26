@@ -41,8 +41,8 @@
                 /* called when containers changed */
                 var callbacks = [];
 
-                /* cAdvisor has second intervals */
-                var interval = 1000;
+                /* cAdvisor has 10 second intervals */
+                var interval = 10000;
 
                 var last = { };
 
@@ -272,7 +272,7 @@
         "kubeLoader",
         function ServiceGrid(CAdvisorSeries, CockpitMetrics, select, loader) {
             function CockpitServiceGrid() {
-                var self = CockpitMetrics.grid(1000, 0, 0);
+                var self = CockpitMetrics.grid(10000, 0, 0);
 
                 /* All the cadvisors that have been opened, one per host */
                 var cadvisors = { };
@@ -595,8 +595,8 @@
                 var tabs = {
                     cpu: {
                         label: _("CPU"),
-                        step: 1000 * 1000 * 1000,
-                        formatter: function(v) { return (v / (10 * 1000 * 1000)) + "%"; }
+                        step: 1000 * 1000 * 1000 * 10,
+                        formatter: function(v) { return (v / (100 * 1000 * 1000)) + "%"; }
                     },
                     memory: {
                         label: _("Memory"),
@@ -605,8 +605,8 @@
                     },
                     network: {
                         label: _("Network"),
-                        step: 1000 * 1000,
-                        formatter: function(v) { return KubeFormat.formatBitsPerSec(v, "Mbps"); }
+                        step: 1000 * 1000 * 10,
+                        formatter: function(v) { return KubeFormat.formatBitsPerSec((v / 10), "Mbps"); }
                     }
                 };
 
@@ -669,7 +669,7 @@
                     .x(function(d, i) { return x((grid.beg + i) - offset); })
                     .y(function(d, i) { return y(d); });
 
-                /* Initial display: 1024 px is 5 minutes of data */
+                /* Initial display: 1024 px, 5 minutes of data */
                 var factor = 300000 / 1024;
                 var width = 300;
                 var height = 300;
@@ -692,7 +692,6 @@
                 function jump() {
                     var interval = grid.interval;
                     var w = (width - margins.right) - margins.left;
-
                     /* This doesn't yet work for an arbitary ponit in time */
                     var now = new Date().getTime();
                     var end = Math.floor(now / interval);
@@ -737,7 +736,7 @@
 
                     /* Calculate ticks every 60 seconds in past */
                     var ticks = [];
-                    for (i = 60; i < end; i += 60)
+                    for (i = 6; i < end; i += 6)
                         ticks.push(Math.round(tsc(i)));
 
                     /* Make x-axis ticks into grid of right width */
@@ -746,7 +745,7 @@
                         .tickSize(-h, -h)
                         .tickFormat(function(d) {
                             d = Math.round(tsc.invert(d));
-                            return (d / 60) + " min";
+                            return (d / 6) + " min";
                         });
 
                     /* Re-render the X axis. Note that we also
@@ -811,7 +810,12 @@
                 window.addEventListener('resize', resized);
                 resized();
 
-                var timer = window.setInterval(jump, grid.interval);
+                var timer = window.setInterval(function () {
+                    if (!width)
+                        resized();
+                    else
+                        jump();
+                }, grid.interval);
 
                 return {
                     highlight: function highlight(uid) {

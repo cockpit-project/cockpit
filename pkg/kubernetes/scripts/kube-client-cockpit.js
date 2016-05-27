@@ -703,7 +703,8 @@
                         }
 
                         var headers = response.headers || { };
-                        if (headers[CONTENT_TYPE] == JSON_TYPE) {
+                        var content_type = headers[CONTENT_TYPE] || headers[CONTENT_TYPE.toLowerCase()] || "";
+                        if (content_type.lastIndexOf(JSON_TYPE, 0) === 0) {
                             try {
                                 response.data = JSON.parse(response.data);
                             } catch (ex) {

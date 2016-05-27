@@ -90,6 +90,16 @@ WantedBy=default.target
         b.switch_to_top()
         b.wait_js_cond("window.location.hash == '#/0/1?length=1'")
 
+        # This should be visible now
+        b.switch_to_frame("cockpit1:localhost/playground/test")
+        b.wait_text("#hidden", "visible")
+
+        # This should now say invisible
+        b.switch_to_top()
+        b.go("/@localhost/system/services")
+        b.switch_to_frame("cockpit1:localhost/playground/test")
+        b.wait_text("#hidden", "hidden")
+
         self.allow_journal_messages("Failed to get realtime timestamp: Cannot assign requested address")
 
     def testFrameReload(self):

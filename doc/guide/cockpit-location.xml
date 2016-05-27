@@ -155,5 +155,32 @@ cockpit.jump(path, [ host ])
         currently displayed, then the jump will not happen, and this function has no effect.</para>
     </refsection>
 
+    <refsection id="cockpit-jump-hidden">
+      <title>cockpit.hidden</title>
+
+      <para>A boolean property that indicates if the current component page is visible or hidden.
+        When the code or user jumps to another component, the prior one remains loaded and initialized
+        but is hidden. Use this property together with the
+        <link linkend="cockpit-jump-visibilitychange"><code>cockpit.onvisibilitychange</code></link>
+        event to decide whether or not to perform expensive tasks to update the interface.</para>
+
+      <para>This property is analogous to the <code>document.hidden</code> page visibility API, but
+        works with the document and frame implementation of Cockpit.</para>
+    </refsection>
+
+    <refsection id="cockpit-jump-visibilitychange">
+      <title>cockpit.onvisibilitychange</title>
+
+<programlisting>
+cockpit.onvisibilitychange = function() { ... }
+</programlisting>
+
+      <para>This event is emitted when the
+        <link linkend="cockpit-jump-hidden"><code>cockpit.hidden</code></link> property changes.
+        This event is similar to the <code>document.onvisibilitychange</code> API, but works with
+        the document and frame implementation of Cockpit.</para>
+
+    </refsection>
+
   </refsection>
 </refentry>

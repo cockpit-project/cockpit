@@ -4,7 +4,7 @@
         <title>Cockpit Integration Tests</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="//code.jquery.com/jquery-1.12.4.min.js" type="text/javascript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.min.js"></script>
@@ -279,31 +279,40 @@ function extract(text) {
 var interval_id;
 
 function poll() {
-    $.get("log", "text").
-        done(function (text) {
-            var amended_text = extract(text);
-            $('#log').html(amended_text);
-        });
+    $.ajax({
+        mimeType: 'text/plain; charset=x-user-defined',
+        url:      'log',
+        type:      'GET',
+        dataType:  'text',
+        cache:     false,
+    }).done(function (text) {
+        var amended_text = extract(text);
+        $('#log').html(amended_text);
+    });
 
-    $.get("status", "json").
-        done(function (text) {
-            var status = JSON.parse(text);
-            $('#message').text(status.message);
-            if ((status.message == "Install failed") ||
-                (status.message == "Rebase failed")) {
-                $('#testing-progress').html(Mustache.render(progress_template,
-                                                        { percentage_passed: 0,
-                                                          percentage_skipped: 0,
-                                                          percentage_failed: 100,
-                                                          num_passed: 0,
-                                                          num_skipped: 0,
-                                                          num_failed: status.message
-                                                        })
-                                            );
-            }
-            $('#status').show();
-            clearInterval(interval_id);
-        });
+    $.ajax({
+        mimeType: 'application/json; charset=x-user-defined',
+        url:      'status',
+        type:      'GET',
+        dataType:  'json',
+        cache:     false,
+    }).done(function (status) {
+        $('#message').text(status.message);
+        if ((status.message == "Install failed") ||
+            (status.message == "Rebase failed")) {
+            $('#testing-progress').html(Mustache.render(progress_template,
+                                                    { percentage_passed: 0,
+                                                      percentage_skipped: 0,
+                                                      percentage_failed: 100,
+                                                      num_passed: 0,
+                                                      num_skipped: 0,
+                                                      num_failed: status.message
+                                                    })
+                                        );
+        }
+        $('#status').show();
+        clearInterval(interval_id);
+    });
 }
 
 $(function () {

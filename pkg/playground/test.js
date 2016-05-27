@@ -119,5 +119,12 @@ require([
         });
 
         $("body").show();
+
+        function show_hidden() {
+            $("#hidden").text(cockpit.hidden ? "hidden" : "visible");
+        }
+
+        $(cockpit).on("visibilitychange", show_hidden);
+        show_hidden();
     });
 });

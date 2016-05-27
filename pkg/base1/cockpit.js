@@ -95,6 +95,7 @@ var reload_after_disconnect = false;
 var expect_disconnect = false;
 var init_callback = null;
 var default_host = null;
+var process_hints = null;
 var filters = [ ];
 
 var have_array_buffer = !!window.ArrayBuffer;
@@ -567,24 +568,23 @@ function Transport() {
         /* Init message received */
         if (data.command == "init") {
             process_init(data);
-            return;
-        }
 
-        if (waiting_for_init) {
+        } else if (waiting_for_init) {
             waiting_for_init = false;
-            if (data.command != "close" || data.channel) {
+            if (data.command != "close" || channel) {
                 console.error("received message before init: ", data.command);
                 data = { "problem": "protocol-error" };
             }
             self.close(data);
-            return;
-        }
 
-        /* 'ping' messages are ignored */
-        if (data.command == "ping")
-            return;
+        } else if (data.command == "ping") {
+            /* 'ping' messages are ignored */
 
-        if (channel !== undefined) {
+        } else if (data.command == "hint") {
+            if (process_hints)
+                process_hints(data);
+
+        } else if (channel !== undefined) {
             func = control_cbs[channel];
             if (func)
                 func.apply(null, [data]);
@@ -2377,6 +2377,56 @@ function basic_scope(cockpit, jquery) {
         var options = { command: "jump", location: path, host: host };
         cockpit.transport.inject("\n" + JSON.stringify(options));
     };
+
+    /* ---------------------------------------------------------------------
+     * Cockpit Page Visibility
+     */
+
+    (function() {
+        var hiddenProp;
+        var hiddenHint = false;
+
+        function visibility_change() {
+            var value = document[hiddenProp];
+            if (!hiddenProp || typeof value === "undefined")
+                value = false;
+            if (value === false)
+                value = hiddenHint;
+            if (cockpit.hidden !== value) {
+                cockpit.hidden = value;
+                cockpit.dispatchEvent("visibilitychange");
+            }
+        }
+
+        if (typeof document.hidden !== "undefined") {
+            hiddenProp = "hidden";
+            document.addEventListener("visibilitychange", visibility_change);
+        } else if (typeof document.mozHidden !== "undefined") {
+            hiddenProp = "mozHidden";
+            document.addEventListener("mozvisibilitychange", visibility_change);
+        } else if (typeof document.msHidden !== "undefined") {
+            hiddenProp = "msHidden";
+            document.addEventListener("msvisibilitychange", visibility_change);
+        } else if (typeof document.webkitHidden !== "undefined") {
+            hiddenProp = "webkitHidden";
+            document.addEventListener("webkitvisibilitychange", visibility_change);
+        }
+
+        /*
+         * Wait for changes in visibility of just our iframe. These are delivered
+         * via a hint message from the parent. For now we are the only handler of
+         * hint messages, so this is implemented rather simply on purpose.
+         */
+        process_hints = function(data) {
+            if ("hidden" in data) {
+                hiddenHint = data.hidden;
+                visibility_change();
+            }
+        };
+
+        /* The first time */
+        visibility_change();
+    }());
 
     /* ---------------------------------------------------------------------
      * Spawning

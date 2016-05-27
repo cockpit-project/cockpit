@@ -295,7 +295,8 @@ define([
                 name: name,
                 window: child,
                 channel_seed: seed,
-                default_host: host
+                default_host: host,
+                inited: false,
             };
             source_by_seed[seed] = source;
             source_by_name[name] = source;
@@ -349,6 +350,11 @@ define([
                             { command: "init", "host": source.default_host, "channel-seed": source.channel_seed }
                         );
                         child.postMessage("\n" + JSON.stringify(reply), origin);
+                        source.inited = true;
+
+                        /* If this new frame is not the current one, tell it */
+                        if (child.frameElement != index.current_frame())
+                            self.hint(child.frameElement.contentWindow, { "hidden": true });
                     }
 
                 } else if (control.command === "jump") {
@@ -389,6 +395,15 @@ define([
             window.addEventListener("message", message_handler, false);
             for (var i = 0, len = messages.length; i < len; i++)
                 message_handler(messages[i]);
+        };
+
+        self.hint = function hint(child, data) {
+            var message, source = source_by_name[child.name];
+            if (source && source.inited) {
+                data.command = "hint";
+                message = "\n" + JSON.stringify(data);
+                source.window.postMessage(message, origin);
+            }
         };
     }
 
@@ -600,8 +615,15 @@ define([
         };
 
         self.current_frame = function (frame) {
-            if (frame !== undefined)
+            if (frame !== undefined) {
+                if (current_frame !== frame) {
+                    if (current_frame && current_frame.contentWindow)
+                        self.router.hint(current_frame.contentWindow, { "hidden": true });
+                    if (frame && frame.contentWindow)
+                        self.router.hint(frame.contentWindow, { "hidden": false });
+                }
                 current_frame = frame;
+            }
             return current_frame;
         };
 

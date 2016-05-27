@@ -12078,7 +12078,7 @@ if (typeof jQuery === 'undefined') {
       '</table>';
   };
 
-  $.fn.pGetUtilizationDonutTooltipContentsFn = function (units) {
+  $.fn.pfGetUtilizationDonutTooltipContentsFn = function (units) {
     return function (d) {
       return '<span class="donut-tooltip-pf" style="white-space: nowrap;">' +
         (Math.round(d[0].ratio * 1000) / 10) + '%' + ' ' + units + ' ' + d[0].name +
@@ -12183,8 +12183,8 @@ if (typeof jQuery === 'undefined') {
       },
       getDefaultDonutSize = function () {
         return {
-          height: 171, // produces a diameter of 150 and a centered chart when there is no legend
-          width: 171 // produces a diameter of 150 and a centered chart
+          height: 171 // produces a diameter of 150 and a centered chart when there is no legend
+          // Don't set a width here, the default is to center horizontally in the parent container
         };
       },
       getDefaultDonutColors = function () {
@@ -12224,8 +12224,8 @@ if (typeof jQuery === 'undefined') {
       },
       getDefaultPieSize = function () {
         return {
-          height: 171, // produces a diameter of 150 and a centered chart when there is no legend
-          width: 171 // produces a diameter of 150 and a centered chart
+          height: 171 // produces a diameter of 150 and a centered chart when there is no legend
+          // Don't set a width here, default is to center horizontally in the parent container
         };
       },
       getDefaultPieColors = function () {
@@ -12575,6 +12575,10 @@ if (typeof jQuery === 'undefined') {
 
       // Set up an event listener for the node
       node.children('.treegrid-node').on('click', function (e) {
+        if (options && typeof options.callback === 'function') {
+          options.callback(e);
+        }
+
         var icon = node.find('span.expand-icon');
         if (icon.hasClass('fa-angle-right')) {
           node.removeClass('collapsed');
@@ -12949,6 +12953,5 @@ if (typeof jQuery === 'undefined') {
     init(handleItemSelections);
   };
 }(jQuery));
-
 
 /* jshint ignore:end */

@@ -29,6 +29,7 @@ systemddebug_DATA = \
 	pkg/systemd/plot.js \
 	pkg/systemd/bundle.js \
 	pkg/systemd/init.js \
+	pkg/systemd/moment.js \
 	pkg/systemd/services.html \
 	pkg/systemd/server.js \
 	pkg/systemd/service.js \
@@ -56,6 +57,7 @@ systemd_MIN = \
 	pkg/systemd/mustache.min.js \
 	pkg/systemd/patterns.min.js \
 	pkg/systemd/plot.min.js \
+	pkg/systemd/moment.min.js \
 	pkg/systemd/server.min.js \
 	pkg/systemd/term.min.js \
 	pkg/systemd/terminal.min.js \
@@ -84,6 +86,8 @@ pkg/systemd/mustache.min.js: pkg/systemd/mustache.js
 pkg/systemd/react.min.js: pkg/systemd/react.js
 	$(MIN_JS_RULE)
 pkg/systemd/term.min.js: pkg/systemd/term.js
+	$(MIN_JS_RULE)
+pkg/systemd/moment.min.js: pkg/systemd/moment.js
 	$(MIN_JS_RULE)
 
 systemd_TESTS = \

@@ -3,8 +3,9 @@ define([
     "base1/cockpit",
     "./mustache",
     "system/server",
-    "shell/po"
-], function($, cockpit, mustache, server, po) {
+    "shell/po",
+    "system/moment"
+], function($, cockpit, mustache, server, po, moment) {
     cockpit.locale(po);
     cockpit.translate();
     var _ = cockpit.gettext;
@@ -200,6 +201,17 @@ define([
                 active_state = load_state + " / " + active_state;
 
             unit.CombinedState = active_state;
+
+            if (unit.Id.slice(-5) == "timer") {
+                unit.is_timer = true;
+                if (unit.ActiveState == "active") {
+                    var timer_unit = systemd_client.proxy('org.freedesktop.systemd1.Timer', unit.path);
+                    timer_unit.wait(function() {
+                        if (timer_unit.valid)
+                            add_timer_properties(timer_unit, unit);
+                    });
+                }
+            }
         }
 
         function refresh_properties(path, tweak_callback) {
@@ -218,6 +230,26 @@ define([
                 });
         }
 
+        function add_timer_properties(timer_unit,unit) {
+            unit.LastTriggerTime = moment(timer_unit.LastTriggerUSec/1000).calendar();
+            if (timer_unit.LastTriggerUSec === -1 || timer_unit.LastTriggerUSec === 0)
+                unit.LastTriggerTime = _("unknown");
+            var next_run_time = 0;
+            if (timer_unit.NextElapseUSecRealtime === 0)
+                next_run_time = timer_unit.NextElapseUSecMonotonic + systemd_manager.GeneratorsStartTimestamp;
+            else if (timer_unit.NextElapseUSecMonotonic === 0)
+                next_run_time = timer_unit.NextElapseUSecRealtime;
+            else {
+                if (timer_unit.NextElapseUSecMonotonic + systemd_manager.GeneratorsStartTimestamp < timer_unit.NextElapseUSecRealtime)
+                    next_run_time = timer_unit.NextElapseUSecMonotonic + systemd_manager.GeneratorsStartTimestamp;
+                else
+                    next_run_time = timer_unit.NextElapseUSecRealtime;
+            }
+            unit.NextRunTime = moment(next_run_time/1000).calendar();
+            if (timer_unit.NextElapseUSecMonotonic <= 0 && timer_unit.NextElapseUSecRealtime <= 0)
+                unit.NextRunTime = _("unknown");
+        }
+
         var units_template = $("#services-units-tmpl").html();
         mustache.parse(units_template);
 
@@ -227,6 +259,14 @@ define([
             function cmp_path(a, b) { return units_by_path[a].Id.localeCompare(units_by_path[b].Id); }
             var sorted_keys = Object.keys(units_by_path).sort(cmp_path);
             var enabled = [ ], disabled = [ ], statics = [ ];
+            var header = {
+                Description: _("Description"),
+                Id: _("Id"),
+                is_timer: (~pattern.indexOf("timer")),
+                Next_Run_Time: _("Next Run"),
+                Last_Trigger_Time: _("Last Trigger"),
+                Current_State: _("State")
+            };
 
             sorted_keys.forEach(function (path) {
                 var unit = units_by_path[path];
@@ -243,6 +283,7 @@ define([
             function fill_table(parent, heading, units) {
                 var text = mustache.render(units_template, {
                     heading: heading,
+                    table_head: header,
                     units: units
                 });
                 parent.html(text);
@@ -323,7 +364,8 @@ define([
                     units_by_path[name] = {
                         Id: name,
                         Description: cockpit.format(_("$0 Template"), name),
-                        UnitFileState: state[1]
+                        UnitFileState: state[1],
+                        is_timer: (name.slice(-5) == "timer")
                     };
                     path_by_id[name] = name;
                     return;

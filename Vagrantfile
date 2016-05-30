@@ -5,7 +5,7 @@
 
 Vagrant.configure(2) do |config|
 
-    config.vm.box = "fedora-23-cloud-base"
+    config.vm.box = "fedora/24-cloud-base"
     config.vm.synced_folder ".", "/vagrant", disabled: true
     config.vm.synced_folder ".", "/cockpit", type: "rsync", rsync__exclude: ['/src/', '/test/', '/node_modules/', '/doc/', '/examples/', '/containers/', '/build/', '/x86_64/' ]
     config.vm.network "private_network", ip: "192.168.50.10"
@@ -13,18 +13,19 @@ Vagrant.configure(2) do |config|
     config.vm.hostname = "cockpit-devel"
     config.vm.post_up_message = "You can now access Cockpit at http://localhost:9090 (login as 'admin' with password 'foobar')"
 
-    config.vm.provider "libvirt" do |libvirt, override|
-        override.vm.box_url = "https://download.fedoraproject.org/pub/fedora/linux/releases/23/Cloud/x86_64/Images/Fedora-Cloud-Base-Vagrant-23-20151030.x86_64.vagrant-libvirt.box"
+    config.vm.provider "libvirt" do |libvirt|
         libvirt.memory = 1024
     end
 
-    config.vm.provider "virtualbox" do |virtualbox, override|
-        override.vm.box_url = "https://download.fedoraproject.org/pub/fedora/linux/releases/23/Cloud/x86_64/Images/Fedora-Cloud-Base-Vagrant-23-20151030.x86_64.vagrant-virtualbox.box"
+    config.vm.provider "virtualbox" do |virtualbox|
         virtualbox.memory = 1024
     end
 
     config.vm.provision "shell", inline: <<-SHELL
         set -eu
+
+        dnf update -y
+        dnf install -y util-linux-user   # for chfn
 
         echo foobar | passwd --stdin root
         getent passwd admin >/dev/null || useradd -u 1000 -c Administrator -G wheel admin
@@ -46,10 +47,6 @@ Vagrant.configure(2) do |config|
 
         systemctl enable cockpit.socket
         systemctl start cockpit.socket
-
-        mkdir -p /etc/systemd/system/cockpit.service.d
-        printf "[Service]\nExecStartPre=/cockpit/tools/git-version-check\n" > \
-            /etc/systemd/system/cockpit.service.d/version.conf
 
         printf "[WebService]\nAllowUnencrypted=true\n" > /etc/cockpit/cockpit.conf
 

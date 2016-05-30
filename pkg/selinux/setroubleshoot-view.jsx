@@ -446,6 +446,8 @@ var SETroubleshootPage = React.createClass({
                 ];
                 if (itm.count > 1)
                     columns.push(<span className="badge">{itm.count}</span>);
+                else
+                    columns.push(<span></span>);
                 return (
                     <cockpitListing.ListingRow
                         columns={columns}

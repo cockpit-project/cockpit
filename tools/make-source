@@ -28,9 +28,8 @@ base=$(cd $(dirname $0); pwd -P)
 cd $base/..
 
 # Configure the source for making a tarball in a temporary directory, unless
-# the source has already been configured in-tree (a Makefile that is not the
-# redirect Makefile exists).
-if test ! -f Makefile || grep --quiet --no-messages "^REDIRECT" Makefile; then
+# the source has already been configured
+if test ! -f Makefile; then
     rm -rf tmp-dist
     mkdir -p tmp-dist
     if [ -f .tarball ]; then
@@ -44,5 +43,5 @@ else
 fi
 
 make -C $builddir --silent dist-gzip distdir=cockpit-wip 1>&2
-
-echo $PWD/$builddir/cockpit-wip.tar.gz
+directory=$(make -C $builddir --silent print-abs_builddir)
+echo $directory/cockpit-wip.tar.gz

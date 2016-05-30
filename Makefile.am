@@ -244,6 +244,9 @@ endif
 install-data-local:: install-doc-local
 	@true
 
+print-%:
+	@echo $($*)
+
 # Subdirectories to distribute everything that's committed to git
 COMMITTED_DIST = \
 	bower_components/ \

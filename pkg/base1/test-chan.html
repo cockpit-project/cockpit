@@ -163,7 +163,7 @@ test("public api", function() {
     equal(typeof channel.close, "function", "channel.close() is a function");
     strictEqual(channel.valid, true, "channel.valid is set");
     equal(typeof cockpit.logout, "function", "cockpit.logout is a function");
-    equal(typeof cockpit.transport, "object", "cockpit.transport is a function");
+    equal(typeof cockpit.transport, "object", "cockpit.transport is an object");
     equal(typeof cockpit.transport.close, "function", "cockpit.transport.close is a function");
     equal(typeof cockpit.transport.options, "object", "cockpit.transport.options is a object");
 

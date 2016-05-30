@@ -2284,8 +2284,7 @@ PageNetworkInterface.prototype = {
                                            }
                                        }, "network-privileged")),
                                    $('<td width="28px">').append(
-                                       $('<button class="btn btn-default btn-control-ct network-privileged">').
-                                           text("-").
+                                       $('<button class="btn btn-default btn-control-ct network-privileged fa fa-minus">').
                                            click(function () {
                                                slave_con.delete_().
                                                    fail(show_unexpected_error);
@@ -2303,10 +2302,9 @@ PageNetworkInterface.prototype = {
 
             var add_btn =
                 $('<div>', { 'class': 'dropdown' }).append(
-                    $('<button>', { 'class': 'network-privileged btn btn-default btn-control-ct dropdown-toggle',
+                    $('<button>', { 'class': 'network-privileged btn btn-default btn-control-ct dropdown-toggle fa fa-plus',
                                     'data-toggle': 'dropdown'
-                                  }).
-                        text("+"),
+                                  }),
                     $('<ul>', { 'class': 'dropdown-menu add-button',
                                 'role': 'menu'
                               }).
@@ -2455,8 +2453,7 @@ PageNetworkIpSettings.prototype = {
                         $('<strong>').text(title),
                         $('<div class="pull-right">').append(
                             header_buttons,
-                            add_btn = $('<button class="btn btn-default">').
-                                text("+").
+                            add_btn = $('<button class="btn btn-default fa fa-plus">').
                                 css("margin-left", "10px").
                                 click(add()))),
                     $('<table width="100%">').append(
@@ -2472,8 +2469,7 @@ PageNetworkIpSettings.prototype = {
                                             }));
                                 }),
                                 $('<td>').append(
-                                    $('<button class="btn btn-default">').
-                                        text(_("-")).
+                                    $('<button class="btn btn-default fa fa-minus">').
                                         click(remove(i)))));
                         })));
 

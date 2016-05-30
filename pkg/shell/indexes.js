@@ -227,6 +227,14 @@ define([
                 el.toggleClass("active", el.attr("data-component") === state.component);
             });
 
+            var hide;
+            if (machine && machine.static_hostname) {
+                hide = $(".dashboard-link").length < 2 && machines.list.length < 2;
+                $('#content-navbar').toggleClass("hidden", hide);
+            } else {
+                $('#content-navbar').toggleClass("hidden", false);
+            }
+
             var item = compiled.items[state.component];
             if (item && item.section == "dashboard") {
                 delete state.sidebar;
@@ -254,14 +262,6 @@ define([
             $("#machine-color").css("border-left-color", color);
 
             $("#machine-dropdown").toggleClass("active", !!machine);
-
-            var hide;
-            if (machine && machine.static_hostname) {
-                hide = $(".dashboard-link").length < 2 && $(".machine-link").length < 2;
-                $('#content-navbar').toggleClass("hidden", hide);
-            } else {
-                $('#content-navbar').toggleClass("hidden", false);
-            }
 
             /* Decide when to show the sidebar */
             var sidebar = $("#sidebar");

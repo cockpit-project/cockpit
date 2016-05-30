@@ -726,4 +726,5 @@ class OpenshiftCommonTests(VolumeTests):
 
         self.allow_hostkey_messages()
         self.allow_journal_messages('.* host key for server is not known: .*',
-                                    'connection unexpectedly closed by peer')
+                                    'connection unexpectedly closed by peer',
+                                    'Error receiving data: Connection reset by peer')

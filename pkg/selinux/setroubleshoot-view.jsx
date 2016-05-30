@@ -444,10 +444,14 @@ var SETroubleshootPage = React.createClass({
                     criticalAlert,
                     { name: itm.description, 'header': true }
                 ];
-                if (itm.count > 1)
-                    columns.push(<span className="badge">{itm.count}</span>);
-                else
+                var title;
+                if (itm.count > 1) {
+                    title = cockpit.format(cockpit.ngettext("$0 occurrence", "$1 occurrences", itm.count),
+                            itm.count);
+                    columns.push(<span className="badge" title="{title}">{itm.count}</span>);
+                } else {
                     columns.push(<span></span>);
+                }
                 return (
                     <cockpitListing.ListingRow
                         columns={columns}

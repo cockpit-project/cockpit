@@ -326,10 +326,12 @@ var SELinuxStatus = React.createClass({
             note = <span> {_("Setting deviates from the configured state and will revert on the next boot.")}</span>;
 
         return (
-            <div>
+            <div className="selinux-policy-ct">
+                <h2>{_("SELinux Policy")}</h2>
                 {errorMessage}
-                <span className="title-ct-selinux">{_("Enforced security mode")} </span>
+                <label>{_("Enforce policy:")}
                 <OnOffSwitch state={this.props.selinuxStatus.enforcing} onChange={this.props.changeSelinuxMode} />
+                </label>
                 {note}
             </div>
         );

@@ -255,7 +255,7 @@ COMMITTED_DIST = \
 
 # Build up the distribution using $COMMITTED_DIST and include node_modules and bower licenses
 dist-hook: dist-doc-hook
-	( cd $(srcdir); git ls-tree HEAD --name-only -r $(COMMITTED_DIST) || echo $(COMMITTED_DIST) ) | \
+	( cd $(srcdir); git ls-tree HEAD --name-only -r $(COMMITTED_DIST) || (echo $(COMMITTED_DIST) | tr ' ' '\n' ) ) | \
 		tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xf -
 	tar -C $(srcdir) -cf - --exclude='phantomjs*' --exclude='jshint*' node_modules/ | tar -C $(distdir) -xf -
 	echo $(VERSION) > $(distdir)/.tarball

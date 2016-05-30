@@ -479,7 +479,7 @@ var SETroubleshootPage = React.createClass({
                         dismissError={this.props.dismissStatusError}
                     />
                     {errorMessage}
-                    <cockpitListing.Listing title={ _("SELinux Access Control errors") }>
+                    <cockpitListing.Listing title={ _("SELinux Access Control Errors") }>
                         {entries}
                     </cockpitListing.Listing>
                 </div>

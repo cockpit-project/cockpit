@@ -366,34 +366,38 @@ a {
 
 .btn-onoff-ct {
     margin: 1px 0px;
-}
-
-.btn-onoff-ct .btn {
-    border-color: #B7B7B7;
-    padding: 2px 6px 1px 6px;
-    background-color: white;
+    text-transform: uppercase;
 }
 
 .btn-onoff-ct .btn {
     color: transparent;
+    border-color: #B7B7B7;
+    padding: 2px 6px 1px 6px;
+    background-color: white;
+    background-image: linear-gradient(to bottom, rgb(250, 250, 250) 0px, rgb(237, 237, 237) 100%);
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    width: 37px;
 }
 
 .btn-onoff-ct .btn:first-child {
-    border-bottom-left-radius: 3px;
-    border-top-left-radius: 3px;
     border-right: #00435F;
 }
 
 .btn-onoff-ct .btn:last-child {
-    border-bottom-right-radius: 3px;
-    border-top-right-radius: 3px;
     border-left: #00435F;
     padding-left: 5px;
 }
 
+.btn-onoff-ct .btn:last-child:hover {
+    border-left: red;
+}
+
 .btn-onoff-ct .btn.active {
     background-color: #0086CF;
+    background-image: none;
     color: white;
+    width: 36px;
 }
 
 .btn-onoff-ct .btn.disabled {

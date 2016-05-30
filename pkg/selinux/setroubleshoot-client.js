@@ -195,14 +195,14 @@ client.init = function(capabilitiesChangedCallback) {
     // earlier versions of the dbus interface don't support alert deletion/dismissal
     // HACK https://bugzilla.redhat.com/show_bug.cgi?id=1306700
     // once every client we ship to handles these features, we can remove the capabilities check
-    client.capabilities = { deleteAlert: undefined };
+    client.capabilities = { };
 
     // wait for metadata - if this has the method delete_alert, we can use that
     $(dbusClientSeTroubleshoot).on("meta", function(event, meta) {
         if (dbusInterface in meta && 'methods' in meta[dbusInterface] && 'delete_alert' in meta[dbusInterface].methods)
             client.capabilities.deleteAlert = deleteAlert;
         else
-            client.capabilities.deleteAlert = undefined;
+            delete client.capabilities.deleteAlert;
 
         if (capabilitiesChangedCallback)
             capabilitiesChangedCallback(client.capabilities);

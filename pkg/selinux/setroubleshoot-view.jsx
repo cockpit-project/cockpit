@@ -471,7 +471,7 @@ var SETroubleshootPage = React.createClass({
             }
 
             return (
-                <div className="container-fluid setroubleshoot-page">
+                <div className="container-fluid">
                     <SELinuxStatus
                         selinuxStatus={this.props.selinuxStatus}
                         selinuxStatusError={this.props.selinuxStatusError}

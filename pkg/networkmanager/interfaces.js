@@ -62,7 +62,7 @@ function select_btn(func, spec) {
         $('<div class="caret"></div>')
     );
 
-    var btn = $('<div class="btn-group bootstrap-select dropdown form-control">').append(
+    var btn = $('<div class="btn-group bootstrap-select dropdown">').append(
         toggle,
         $('<ul class="dropdown-menu">').append(spec.map(option_mapper))
     );
@@ -2392,6 +2392,7 @@ PageNetworkIpSettings.prototype = {
                     self.update();
                 },
                 choices);
+            btn.addClass("col-left");
             select_btn_select(btn, params[p]);
             return btn;
         }

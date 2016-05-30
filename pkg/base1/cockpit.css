@@ -389,15 +389,20 @@ a {
     padding-left: 5px;
 }
 
-.btn-onoff-ct .btn:last-child:hover {
-    border-left: red;
+.btn-onoff-ct .btn.active {
+    background-image: none;
+    width: 36px;
 }
 
-.btn-onoff-ct .btn.active {
+.btn-onoff-ct .btn.active:first-child {
     background-color: #0086CF;
-    background-image: none;
     color: white;
-    width: 36px;
+    border-right: 1px solid #0071b0;
+}
+
+.btn-onoff-ct .btn.active:last-child {
+    color: #000;
+    border-left: 1px solid #d6d6d6;
 }
 
 .btn-onoff-ct .btn.disabled {

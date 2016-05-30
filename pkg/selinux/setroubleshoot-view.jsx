@@ -277,11 +277,11 @@ var OnOffSwitch = React.createClass({
         return (
             <div className="btn-group btn-onoff-ct">
                 <label className={ onClasses.join(" ") }>
-                    <input className="toggle-ct" type="radio" />
+                    <input type="radio" />
                     <span onClick={clickHandler}>{this.props.captionOn}</span>
                 </label>
                 <label className={ offClasses.join(" ") }>
-                    <input className="toggle-ct" type="radio" />
+                    <input type="radio" />
                     <span onClick={clickHandler}>{this.props.captionOff}</span>
                 </label>
             </div>

@@ -2167,7 +2167,10 @@ PageNetworkInterface.prototype = {
                                          settings.connection.autoconnect = $(this).prop('checked');
                                          apply();
                                      }),
-                                 _("Connect automatically")))),
+                                    $('<span>').text(_("Connect automatically"))
+                                 )
+                             )
+                         ),
                      render_ip_settings_row("ipv4", _("IPv4")),
                      render_ip_settings_row("ipv6", _("IPv6")),
                      render_vlan_settings_row(),

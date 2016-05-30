@@ -366,34 +366,43 @@ a {
 
 .btn-onoff-ct {
     margin: 1px 0px;
-}
-
-.btn-onoff-ct .btn {
-    border-color: #B7B7B7;
-    padding: 2px 6px 1px 6px;
-    background-color: white;
+    text-transform: uppercase;
 }
 
 .btn-onoff-ct .btn {
     color: transparent;
+    border-color: #B7B7B7;
+    padding: 2px 6px 1px 6px;
+    background-color: white;
+    background-image: linear-gradient(to bottom, rgb(250, 250, 250) 0px, rgb(237, 237, 237) 100%);
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    width: 37px;
 }
 
 .btn-onoff-ct .btn:first-child {
-    border-bottom-left-radius: 3px;
-    border-top-left-radius: 3px;
     border-right: #00435F;
 }
 
 .btn-onoff-ct .btn:last-child {
-    border-bottom-right-radius: 3px;
-    border-top-right-radius: 3px;
     border-left: #00435F;
     padding-left: 5px;
 }
 
 .btn-onoff-ct .btn.active {
+    background-image: none;
+    width: 36px;
+}
+
+.btn-onoff-ct .btn.active:first-child {
     background-color: #0086CF;
     color: white;
+    border-right: 1px solid #0071b0;
+}
+
+.btn-onoff-ct .btn.active:last-child {
+    color: #000;
+    border-left: 1px solid #d6d6d6;
 }
 
 .btn-onoff-ct .btn.disabled {

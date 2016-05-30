@@ -273,7 +273,8 @@
                             })
                             .on("mouseout", function (d, i) {
                                 svg.selectAll('rect').classed(focusResetClasses);
-                            });
+                            })
+                            .append("title");
 
                         blocks
                             .attr('x', function (d, i) {
@@ -293,6 +294,9 @@
                             .on('click', function (d) {
                                 if (d && d.name)
                                     $scope.$emit("boxClick", d.name);
+                            })
+                            .select("title").text(function(d) {
+                               return d.tooltip;
                             });
 
                         blocks.exit().remove();
@@ -496,7 +500,8 @@
                             .on("mouseover", function(i) {
                                 select(this.getAttribute('data-id'));
                             })
-                            .on("mouseout", unselect);
+                            .on("mouseout", unselect)
+                            .append("title");
 
                         path.attr("fill", function(d, i) {
                                 if (d.data && d.data.color)
@@ -507,6 +512,10 @@
                             .attr("d", arc)
                             .attr("data-id", function (d, i) {
                                 return i;
+                            })
+                            .select("title").text(function(d) {
+                               if (d.data && d.data.tooltip)
+                                   return d.data.tooltip;
                             });
 
                         path.exit().remove();

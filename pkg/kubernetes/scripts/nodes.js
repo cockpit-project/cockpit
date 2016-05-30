@@ -691,12 +691,15 @@
                     var tabs = {
                         cpu: {
                             label: _("CPU"),
+                            tooltip: function(r) { return format.format(_("CPU Utilization: $0%"), Math.round((r.used / r.total) * 100)); }
                         },
                         memory: {
                             label: _("Memory"),
+                            tooltip: function(r) { return format.format(_("Memory Utilization: $0%"), Math.round((r.used / r.total) * 100)); }
                         },
                         fs: {
                             label: _("Disk"),
+                            tooltip: function(r) { return format.format(_("Disk Utilization: $0%"), Math.round((r.used / r.total) * 100)); }
                         }
                     };
 
@@ -729,7 +732,7 @@
 
                         angular.forEach(nodes, function(node) {
                             var result, value, name;
-
+                            var tooltip = _("Unknown");
                             if (node && node.metadata)
                                 name = node.metadata.name;
 
@@ -742,8 +745,11 @@
 
                             if (value === undefined)
                                 value = -1;
+                            else
+                                tooltip = tabs[currentTab].tooltip(result);
 
-                            data.push({ value: value, name: name });
+                            data.push({ value: value, name: name,
+                                        tooltip: tooltip });
                         });
 
                         data.sort(function (a, b) {
@@ -841,9 +847,14 @@
                             $scope.$applyAsync(function() {
                                 $scope.smallTitle = types[type].smallTitle(result);
                                 $scope.largeTitle = types[type].largeTitle(result);
+                                var u = Math.round((result.used / result.total) * 100);
+                                var l = 100 - u;
                                 $scope.data = [
-                                    { value: result.total - result.used, color: "#bbbbbb" },
+                                    { value: result.total - result.used,
+                                      tooltip : format.format(_("$0% Free"), l),
+                                      color: "#bbbbbb"},
                                     { value: result.used,
+                                      tooltip : format.format(_("$0% Used"), u),
                                       color: colorFunc(result.used / result.total) }
                                 ];
                             });

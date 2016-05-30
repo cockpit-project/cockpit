@@ -133,11 +133,11 @@ var SELinuxEventDetails = React.createClass({
             }
             return (
                 <div className="list-group-item" key={itm.analysisId}>
-                    {fixit}
                     <div>
                         <div>
                             <span>{itm.ifText}</span>
                         </div>
+                        {fixit}
                         <div>
                             {itm.thenText}
                         </div>

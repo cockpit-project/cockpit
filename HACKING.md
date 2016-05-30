@@ -16,7 +16,7 @@ disks or network adapters.
 It's possible to test and work on Cockpit web assets by just using
 Vagrant. In the top level directory of the repository, you can run:
 
-    $ sudo vagrant up
+    $ vagrant up
 
 Cockpit will listen on port 9090 of the vagrant VM started, and also
 port 9090 of localhost if cockpit is not running locally. Access Cockpit
@@ -31,8 +31,8 @@ You can edit files in the `pkg/` subdirectory of the Cockpit sources
 and the changes should take effect after syncing them to the Vagrant
 VM. Use one of the folowing commands to sync:
 
-    $ sudo vagrant rsync
-    $ sudo vagrant rsync-auto
+    $ vagrant rsync
+    $ vagrant rsync-auto
 
 The Vagrant VM is in debug mode, which means that resources will load
 into your web browser more slowly than in a production install of
@@ -40,8 +40,8 @@ Cockpit.
 
 You may need to rebuild the Vagrant VM periodically, by running:
 
-    $ sudo vagrant destroy
-    $ sudo vagrant up
+    $ vagrant destroy
+    $ vagrant up
 
 ## Development Dependencies
 

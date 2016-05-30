@@ -66,18 +66,26 @@ def build_and_maybe_install(image, do_install=False, skip=None, args=None):
         finally:
             machine.stop()
 
-def only_install(image, skip=None, args=None):
+def only_install(image, skip=None, args=None, address=None):
     """Install Cockpit into a test image"""
-    machine = testvm.VirtMachine(verbose=args["verbose"], image=image, label="install")
-    machine.start(maintain=True)
+    verbose = args["verbose"]
+    started = False
+    if args["address"]:
+        machine = testvm.Machine(address=args["address"], verbose=verbose, image=image, label="install")
+    else:
+        machine = testvm.VirtMachine(verbose=verbose, image=image, label="install")
+        machine.start(maintain=True)
+        started = True
     try:
-        machine.wait_boot()
+        if started:
+            machine.wait_boot()
         upload_scripts(machine,args=args)
         machine.execute("rm -rf /var/tmp/build-results");
         machine.upload([ "tmp/build-results" ], "/var/tmp")
         run_install_script(machine, False, True, skip, None, args)
     finally:
-        machine.stop()
+        if started:
+            machine.stop()
 
 def build_and_install(install_image, build_image, args):
     args.setdefault("verbose", False)
@@ -87,12 +95,13 @@ def build_and_install(install_image, build_image, args):
     args.setdefault("build_only", False)
     args.setdefault("install_only", False)
     args.setdefault("containers", False)
+    args.setdefault("address", None)
     try:
         skip = "cockpit-ostree"
         if install_image and "fedora-atomic" in install_image:
             skip = None
 
-        if build_image and build_image == install_image:
+        if not args["address"] and build_image and build_image == install_image:
             build_and_maybe_install(build_image, do_install=True, skip=skip, args=args)
         else:
             if build_image:

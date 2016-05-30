@@ -15,10 +15,28 @@
     <div class="panel panel-default">
       <div class="panel-heading">{{heading}}</div>
       <table class="table table-hover">
+        {{#table_head}}
+          <thead>
+            <tr>
+              <th class="service-unit-description">{{Description}}</th>
+              <th>{{Id}}</th>
+              {{#is_timer}}
+                <th>{{Next_Run_Time}}</th>
+                <th>{{Last_Trigger_Time}}</th>
+              {{/is_timer}}
+              <th class="service-unit-data {{#HasFailed}}service-unit-failed{{/HasFailed}}">{{Current_State}}</th>
+            </tr>
+          </thead>
+        {{/table_head}}
+
         {{#units}}
         <tr data-goto-unit="{{Id}}">
           <td class="service-unit-description">{{Description}}</td>
           <td>{{Id}}</td>
+          {{#is_timer}}
+            <td>{{#NextRunTime}}{{NextRunTime}}{{/NextRunTime}}</td>
+            <td>{{#LastTriggerTime}}{{LastTriggerTime}}{{/LastTriggerTime}}</td>
+          {{/is_timer}}
           <td class="service-unit-data {{#HasFailed}}service-unit-failed{{/HasFailed}}">
             {{CombinedState}}
           </td>

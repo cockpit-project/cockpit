@@ -200,24 +200,9 @@ class TestKerberos(MachineCase):
 
     def configure_kerberos(self):
         # Setup a place for kerberos caches
-        ccache = "%s/krb5cc" % self.tmpdir
-        os.environ['KRB5CCNAME'] = ccache
-        config = "%s/krb5.conf" % self.tmpdir
-
-        args = { "addr": self.ipa.address, "dir": self.tmpdir, "password": "foobarfoo" }
-
-        # Setup a kerberos config that doesn't require DNS
-        os.environ['KRB5_CONFIG'] = config
-        with open(config, "w") as f:
-            data = KRB5_TEMPLATE % args
-            f.write(data)
-
+        args = { "addr": self.ipa.address, "password": "foobarfoo" }
         prepare_resolv(self.machine, self.ipa.address)
         self.machine.execute(script=JOIN_SCRIPT % args)
-        env = os.environ.copy()
-        proc = subprocess.Popen(["kinit", "admin@COCKPIT.LAN"], env=env, stdin=subprocess.PIPE)
-        proc.communicate(args['password'])
-        self.assertEqual(proc.wait(), 0)
 
     def tearDown(self):
         if 'KRB5CCNAME' in os.environ:
@@ -232,18 +217,18 @@ class TestKerberos(MachineCase):
         # Make sure negotiate auth is not offered first
         self.machine.start_cockpit()
 
-        output = subprocess.check_output(['/usr/bin/curl', '-v', '-s',
-                                          '--resolve', 'x0.cockpit.lan:9090:%s' % self.machine.address,
-                                          'http://x0.cockpit.lan:9090/cockpit/login'], stderr=subprocess.STDOUT)
+        output = self.machine.execute(['/usr/bin/curl -v -s',
+                                       '--resolve', 'x0.cockpit.lan:9090:%s' % self.machine.address,
+                                       'http://x0.cockpit.lan:9090/cockpit/login', '2>&1'])
         self.assertIn("HTTP/1.1 401", output)
         self.assertNotIn("WWW-Authenticate: Negotiate", output)
 
         self.configure_kerberos()
         self.machine.restart_cockpit()
 
-        output = subprocess.check_output(['/usr/bin/curl', '-s', '--negotiate', '-u', ':', "-D", "-",
-                                          '--resolve', 'x0.cockpit.lan:9090:%s' % self.machine.address,
-                                          'http://x0.cockpit.lan:9090/cockpit/login'])
+        output = self.machine.execute(['/usr/bin/curl', '-s', '--negotiate', '-u', ':', "-D", "-",
+                                       '--resolve', 'x0.cockpit.lan:9090:%s' % self.machine.address,
+                                       'http://x0.cockpit.lan:9090/cockpit/login'])
         self.assertIn("HTTP/1.1 200 OK", output)
         self.assertIn('"admin@cockpit.lan"', output)
 

@@ -1,10 +1,8 @@
-PKGDIR=pkg/selinux
-
 setroubleshoot_MODULES = \
-	$(PKGDIR)/setroubleshoot.js \
-	$(PKGDIR)/selinux-client.js \
-	$(PKGDIR)/setroubleshoot-client.js \
-	$(PKGDIR)/moment.js \
+	pkg/selinux/setroubleshoot.js \
+	pkg/selinux/selinux-client.js \
+	pkg/selinux/setroubleshoot-client.js \
+	pkg/selinux/moment.js \
 	$(NULL)
 
 setroubleshoot_TESTS = \
@@ -14,53 +12,53 @@ setroubleshoot_TESTS = \
 
 setroubleshootdir = $(pkgdatadir)/selinux
 nodist_setroubleshoot_DATA = \
-	$(PKGDIR)/setroubleshoot.min.html.gz \
-	$(PKGDIR)/bundle.min.js.gz \
-	$(PKGDIR)/setroubleshoot.min.css.gz \
+	pkg/selinux/setroubleshoot.min.html.gz \
+	pkg/selinux/bundle.min.js.gz \
+	pkg/selinux/setroubleshoot.min.css.gz \
 	$(NULL)
 setroubleshoot_DATA = \
-	$(PKGDIR)/manifest.json \
+	pkg/selinux/manifest.json \
 	$(NULL)
 
 setroubleshootdebugdir = $(debugdir)$(setroubleshootdir)
 setroubleshootdebug_DATA = \
-	$(PKGDIR)/react.js \
-	$(PKGDIR)/bundle.js \
-	$(PKGDIR)/setroubleshoot.css \
-	$(PKGDIR)/setroubleshoot.html \
-	$(PKGDIR)/setroubleshoot-view.jsx \
-	$(PKGDIR)/setroubleshoot-view.js \
-	$(PKGDIR)/cockpit-components-listing.js \
+	pkg/selinux/react.js \
+	pkg/selinux/bundle.js \
+	pkg/selinux/setroubleshoot.css \
+	pkg/selinux/setroubleshoot.html \
+	pkg/selinux/setroubleshoot-view.jsx \
+	pkg/selinux/setroubleshoot-view.js \
+	pkg/selinux/cockpit-components-listing.js \
 	$(setroubleshoot_MODULES) \
 	$(NULL)
 
 # Ugliness to be solved by webpack in the future
-$(PKGDIR)/moment.min.js: $(PKGDIR)/moment.js
+pkg/selinux/moment.min.js: pkg/selinux/moment.js
 	$(MIN_JS_RULE)
-$(PKGDIR)/react.min.js: $(PKGDIR)/react.js
+pkg/selinux/react.min.js: pkg/selinux/react.js
 	$(MIN_JS_RULE)
 
 setroubleshoot_MIN = \
 	$(setroubleshoot_MODULES:.js=.min.js) \
-	$(PKGDIR)/setroubleshoot-view.min.js \
+	pkg/selinux/setroubleshoot-view.min.js \
 	$(NULL)
 
 setroubleshoot_BUNDLE = \
-	$(PKGDIR)/react.min.js \
-	$(PKGDIR)/cockpit-components-listing.min.js \
+	pkg/selinux/react.min.js \
+	pkg/selinux/cockpit-components-listing.min.js \
 	$(setroubleshoot_MIN) \
 	$(NULL)
 
 # Everything else into a nice big bundle
-$(PKGDIR)/bundle.min.js: $(setroubleshoot_BUNDLE)
+pkg/selinux/bundle.min.js: $(setroubleshoot_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
 TESTS += $(setroubleshoot_TESTS)
 
 CLEANFILES += \
-	$(PKGDIR)/setroubleshoot.min.css \
-	$(PKGDIR)/setroubleshoot.min.html \
-	$(PKGDIR)/bundle.min.js \
+	pkg/selinux/setroubleshoot.min.css \
+	pkg/selinux/setroubleshoot.min.html \
+	pkg/selinux/bundle.min.js \
 	$(setroubleshoot_MIN) \
 	$(nodist_setroubleshoot_DATA) \
 	pkg/selinux/react.min.js \
@@ -74,9 +72,9 @@ EXTRA_DIST += \
 	pkg/selinux/cockpit-components-listing.jsx \
 	pkg/selinux/cockpit-components-listing.min.js \
 	pkg/selinux/cockpit-components-listing.js \
-	$(PKGDIR)/setroubleshoot.min.css \
-	$(PKGDIR)/setroubleshoot.min.html \
-	$(PKGDIR)/bundle.min.js \
+	pkg/selinux/setroubleshoot.min.css \
+	pkg/selinux/setroubleshoot.min.html \
+	pkg/selinux/bundle.min.js \
 	$(setroubleshoot_BOWER) \
 	$(setroubleshoot_BUNDLE) \
 	$(setroubleshoot_MODULES) \

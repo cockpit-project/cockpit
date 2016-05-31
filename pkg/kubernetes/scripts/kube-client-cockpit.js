@@ -1152,6 +1152,19 @@
                 else
                     return context;
             },
+            ngettext: function ngettext(context, string1, stringN, num) {
+                /* Missing first parameter */
+                if (arguments.length == 3) {
+                    num = stringN;
+                    stringN = string1;
+                    string1 = context;
+                    context = undefined;
+                }
+
+                if (num == 1)
+                    return string1;
+                return stringN;
+            }
         };
     });
 }());

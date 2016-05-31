@@ -849,12 +849,16 @@
                                 $scope.largeTitle = types[type].largeTitle(result);
                                 var u = Math.round((result.used / result.total) * 100);
                                 var l = 100 - u;
+                                var freeText = translate.ngettext("$0% Free",
+                                                                  "$0% Free", u);
+                                var usedText = translate.ngettext("$0% Used",
+                                                                  "$0% Used", u);
                                 $scope.data = [
                                     { value: result.total - result.used,
-                                      tooltip : format.format(_("$0% Free"), l),
+                                      tooltip : format.format(freeText, l),
                                       color: "#bbbbbb"},
                                     { value: result.used,
-                                      tooltip : format.format(_("$0% Used"), u),
+                                      tooltip : format.format(usedText, u),
                                       color: colorFunc(result.used / result.total) }
                                 ];
                             });

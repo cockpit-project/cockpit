@@ -226,7 +226,8 @@ class VolumeTests(object):
         base_sel = ".pv-listing tbody[data-id='{}']".format(pv_id)
         b.wait_present(base_sel)
         b.click("{} td.listing-ct-toggle".format(base_sel))
-        b.wait_in_text("{} tr.listing-ct-item td:last-child".format(base_sel), "Available")
+        with b.wait_timeout(120):
+            b.wait_in_text("{} tr.listing-ct-item td:last-child".format(base_sel), "Available")
 
         m.upload(["verify/files/mock-volume-tiny-app.json"], "/tmp")
         m.execute("kubectl create -f /tmp/mock-volume-tiny-app.json")

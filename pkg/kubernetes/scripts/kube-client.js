@@ -432,6 +432,15 @@
                 handleFlush(invokeCallbacks);
             }
 
+            function resourceVersion(resource) {
+                var version;
+                if (resource && resource.metadata)
+                    version = parseInt(resource.metadata.resourceVersion, 10);
+
+                if (!isNaN(version))
+                    return version;
+            }
+
             function handleFlush(invoke) {
                 var drain = batch;
                 batch = null;
@@ -442,6 +451,7 @@
                 var present = { };
                 var removed = { };
                 var i, len, frame, link, resource, key;
+                var cVersion, lVersion;
                 for (i = 0, len = drain.length; i < len; i++) {
                     resource = drain[i].object;
                     if (resource) {
@@ -449,6 +459,21 @@
                         if (drain[i].type == "DELETED") {
                             delete objects[link];
                             removed[link] = resource;
+                        } else if (drain[i].checkResourceVersion) {
+                            /* There is a race between items loaded from
+                             * watchers and items loaded other ways such as
+                             * from KubeMethods callbacks, where we might
+                             * end up saving the older item if loader.load is
+                             * called after the watcher has already loaded fresher
+                             * data. Look at the resourceVersion and only add
+                             * if it is the same or newer than what we already have.
+                             */
+                            cVersion = resourceVersion(resource);
+                            lVersion = resourceVersion(objects[link]);
+                            if (!cVersion || !lVersion || cVersion >= lVersion) {
+                                present[link] = resource;
+                                objects[link] = resource;
+                            }
                         } else {
                             present[link] = resource;
                             objects[link] = resource;
@@ -508,7 +533,8 @@
 
                     return {
                         type: removed ? "DELETED" : "ADDED",
-                        object: resource
+                        object: resource,
+                        checkResourceVersion: true
                     };
                 }));
                 handleFlush(invokeCallbacks);

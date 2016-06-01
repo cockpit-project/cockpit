@@ -184,8 +184,8 @@ echo '{ "linguas": null, "machine-limit": 5 }' > %{buildroot}%{_datadir}/%{name}
 %endif
 
 # Build the package lists for resource packages
-echo '%dir %{_datadir}/%{name}/base1' > shell.list
-find %{buildroot}%{_datadir}/%{name}/base1 -type f >> shell.list
+echo '%dir %{_datadir}/%{name}/base1' > base.list
+find %{buildroot}%{_datadir}/%{name}/base1 -type f >> base.list
 
 echo '%dir %{_datadir}/%{name}/dashboard' >> shell.list
 find %{buildroot}%{_datadir}/%{name}/dashboard -type f >> shell.list
@@ -288,7 +288,7 @@ cat subscriptions.list sosreport.list networkmanager.list >> shell.list
 %{_datadir}/pixmaps/cockpit.png
 %doc %{_mandir}/man1/cockpit.1.gz
 
-%files bridge
+%files bridge -f base.list
 %doc %{_mandir}/man1/cockpit-bridge.1.gz
 %{_bindir}/cockpit-bridge
 %attr(4755, -, -) %{_libexecdir}/cockpit-polkit

@@ -32,12 +32,15 @@ define([
      *  - initial (optional) initial value to display, default: first entry
      *  - onChange (optional) callback (parameter data) when the selection has changed
      *  - id (optional) html id of the top level node
+     *  - disabled (optional) if true, disables the control
+     *  - title (optional) title to add to the control
      */
     var Select = React.createClass({
         propTypes: {
             initial: React.PropTypes.string,
             onChange: React.PropTypes.func,
             id: React.PropTypes.string,
+            disabled: React.PropTypes.bool,
         },
         getInitialState: function() {
             return {
@@ -87,7 +90,6 @@ define([
                     if (currentValue === undefined) {
                         currentValue = value;
                         self.setState({ currentValue: currentValue, currentData: data });
-                        self.props.onChange(data);
                     }
                     return <li data-value={value} data-data={data}>{itm}</li>;
                 });
@@ -99,7 +101,8 @@ define([
             // use onMouseDown here instead of onClick so we catch a click on the items before we lose focus and close
             return (
                 <div className={classes} onMouseDown={this.clickHandler} id={this.props.id}>
-                    <button className="btn btn-default dropdown-toggle" type="button" onBlur={this.loseFocus}>
+                    <button className="btn btn-default dropdown-toggle" type="button"
+                            onBlur={this.loseFocus} disabled={this.props.disabled} title={this.props.title}>
                         <span className="pull-left">{currentValue}</span>
                         <span className="caret"></span>
                     </button>

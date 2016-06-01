@@ -24,6 +24,7 @@ dockerdebug_DATA = \
 	pkg/docker/image.js \
 	pkg/docker/index.html \
 	pkg/docker/overview.js \
+	pkg/docker/run.jsx \
 	pkg/docker/run.js \
 	pkg/docker/search.js \
 	pkg/docker/util.js \

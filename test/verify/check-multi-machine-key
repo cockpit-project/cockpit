@@ -71,7 +71,7 @@ class TestMultiMachineKeyAuth(MachineCase):
 
     def check_keys(self, keys):
         def normalize(k):
-            return re.sub("/home/admin/\\.ssh/[^ ]*|pvolpe@pvolpe", "", k)
+            return re.sub("/home/admin/\\.ssh/[^ ]*|test@test", "", k)
         self.assertEqual(normalize(self.browser.eval_js("require('base1/cockpit').spawn([ 'ssh-add', '-l' ])")),
                          normalize("\n".join(keys) + "\n"))
 

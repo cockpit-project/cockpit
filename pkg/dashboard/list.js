@@ -20,7 +20,7 @@
 require([
     "jquery",
     "base1/cockpit",
-    "base1/mustache",
+    "dashboard/mustache",
     "shell/controls",
     "shell/shell",
     "shell/machines",

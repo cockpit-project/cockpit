@@ -20,7 +20,7 @@
 define([
     "jquery",
     "base1/cockpit",
-    "base1/mustache",
+    "./mustache",
     "domain/operation",
     "performance/dialog",
     "shell/controls",

@@ -130,6 +130,7 @@ define([
                 'md-raid-fault-device':        _("Marking $target as faulty"),
                 'md-raid-remove-device':       _("Removing $target from RAID Device"),
                 'md-raid-create':              _("Creating RAID Device $target"),
+                'mdraid-sync-job':             _("Synchronizing RAID Device $target"),
                 'lvm-lvol-delete':             _("Deleting $target"),
                 'lvm-lvol-activate':           _("Activating $target"),
                 'lvm-lvol-deactivate':         _("Deactivating $target"),

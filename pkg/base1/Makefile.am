@@ -6,7 +6,6 @@ basedir = $(pkgdatadir)/base1
 nodist_base_DATA = \
 	pkg/base1/cockpit.min.css.gz \
 	pkg/base1/require.min.js.gz \
-	pkg/base1/term.min.js.gz \
 	pkg/base1/mustache.min.js.gz \
 	pkg/base1/jquery.min.js.gz \
 	pkg/base1/cockpit.min.js.gz \
@@ -42,8 +41,6 @@ pkg/base1/jquery.min.js: pkg/base1/jquery.js
 pkg/base1/mustache.js: bower_components/mustache/mustache.js
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && cp $^ $@.tmp && mv $@.tmp $@
 pkg/base1/mustache.min.js: pkg/base1/mustache.js
-	$(MIN_JS_RULE)
-pkg/base1/term.min.js: pkg/base1/term.js
 	$(MIN_JS_RULE)
 
 install-data-local::
@@ -96,7 +93,6 @@ CLEANFILES += \
 	pkg/base1/jquery.min.js \
 	pkg/base1/mustache.min.js \
 	pkg/base1/require.min.js \
-	pkg/base1/term.min.js \
 	$(nodist_base_DATA) \
 	$(NULL)
 
@@ -107,7 +103,6 @@ EXTRA_DIST += \
 	pkg/base1/require.min.js \
 	pkg/base1/mustache.js \
 	pkg/base1/mustache.min.js \
-	pkg/base1/term.min.js \
 	pkg/base1/test-dbus-common.js \
 	$(base_BUNDLE) \
 	$(NULL)

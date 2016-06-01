@@ -19,7 +19,7 @@
 
 define([
     "./react",
-    "base1/term",
+    "./term",
 ], function(React, Term) {
 
     "use strict";

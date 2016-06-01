@@ -65,9 +65,15 @@ class TestMultiMachineKeyAuth(MachineCase):
 
     def load_key(self, name, password):
         self.browser.switch_to_top()
-        self.browser.wait_present('#content-user-name')
-        self.browser.wait_text('#content-user-name', 'Administrator')
-        self.browser.eval_js("require('shell/credentials').keys_instance().load('{0}', '{1}')".format(name, password))
+        self.browser.eval_js("loaded = false")
+        self.browser.eval_js("""
+            load = function (user) {{
+                var k = require('shell/credentials').keys_instance();
+                k.path = user.home + '/.ssh';
+                k.load('{0}', '{1}').done(function () {{ loaded = true; }}).fail(function (ex) {{ console.log(ex); }});
+            }}
+        """.format(name, password))
+        self.browser.eval_js("require('base1/cockpit').user().done(load)")
 
     def check_keys(self, keys):
         def normalize(k):
@@ -117,6 +123,7 @@ class TestMultiMachineKeyAuth(MachineCase):
         # pam-ssh-add isn't used on atomic
         if 'atomic' in m1.image:
             self.load_key('id_rsa', 'foobar')
+            b.wait_js_cond('loaded === true');
             if 'rhel' in m1.image:
                 self.check_keys([
                     "2048 93:40:9e:67:82:78:a8:99:89:39:d5:ba:e0:50:70:e1 id_rsa (RSA)"])

@@ -64,9 +64,9 @@ KEY_IDS_MD5 = [
 class TestMultiMachineKeyAuth(MachineCase):
 
     def load_key(self, name, password):
+        self.browser.switch_to_top()
         self.browser.wait_present('#content-user-name')
         self.browser.wait_text('#content-user-name', 'Administrator')
-        self.browser.switch_to_top()
         self.browser.eval_js("require('shell/credentials').keys_instance().load('{0}', '{1}')".format(name, password))
 
     def check_keys(self, keys):

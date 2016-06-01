@@ -108,7 +108,7 @@ function suite(fixtures) {
             rolesArray = projectUtil.getAllRoles();
             equal(rolesArray.length, 0, "no values passed 2");
             rolesArray = projectUtil.getAllRoles(user.one(), "financeprj")
-            equal(rolesArray.length, 2, "values passed");
+            equal(rolesArray.length, 3, "values passed");
 
             var regRolesArray = projectUtil.getRegistryRoles(user.one(), "financeprj")
             equal(regRolesArray[0], "Admin", "getRegistryRoles displayRole values");

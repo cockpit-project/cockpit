@@ -57,7 +57,8 @@ define([
             var term = new Term({
                 cols: this.props.cols,
                 rows: this.props.rows,
-                screenKeys: true
+                screenKeys: true,
+                useStyle: true
             });
 
             term.on('data', function(data) {

@@ -11,9 +11,9 @@ playground_DATA = \
 	pkg/playground/speed.min.html \
 	pkg/playground/metrics.html \
 	pkg/playground/metrics.min.html \
-	pkg/playground/patterns.html \
 	pkg/playground/patterns.js \
-	pkg/playground/patterns.min.html \
+	pkg/playground/jquery-patterns.html \
+	pkg/playground/jquery-patterns.js \
 	pkg/playground/react-patterns.html \
 	pkg/playground/react-patterns.js \
 	pkg/playground/react-demo-dialog.js \
@@ -32,6 +32,7 @@ playground_DATA = \
 playground_NOINST = \
 	pkg/playground/test.min.js \
 	pkg/playground/patterns.min.js \
+	pkg/playground/jquery-patterns.min.js \
 	pkg/playground/react-patterns.min.js \
 	pkg/playground/react-demo-dialog.min.js \
 	pkg/playground/react-demo-listing.min.js \
@@ -49,9 +50,10 @@ CLEANFILES += \
 	pkg/playground/test.min.js \
 	pkg/playground/speed.min.html \
 	pkg/playground/metrics.min.html \
-	pkg/playground/patterns.min.html \
+	pkg/playground/jquery-patterns.min.html \
 	pkg/playground/patterns.min.js \
 	pkg/playground/plot.min.html \
+	pkg/playground/jquery-patterns.min.js \
 	pkg/playground/react-patterns.min.html \
 	pkg/playground/react-patterns.min.js \
 	pkg/playground/react-demo-dialog.min.js \

@@ -25,7 +25,7 @@ require([
     "shell/shell",
     "system/server",
     "shell/plot",
-    "base1/patterns",
+    "network/patterns",
 ], function($, cockpit, Mustache, controls, shell, server) {
 "use strict";
 

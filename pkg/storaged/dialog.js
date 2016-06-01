@@ -21,9 +21,9 @@ define([
     "jquery",
     "base1/cockpit",
     "base1/mustache",
-    "base1/patterns",
-    "shell/controls"
-], function($, cockpit, mustache, patterns, controls) {
+    "shell/controls",
+    "./patterns",
+], function($, cockpit, mustache, controls) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 

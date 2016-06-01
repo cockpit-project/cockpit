@@ -132,6 +132,12 @@ client.init = function(capabilitiesChangedCallback) {
                 // these values are available starting setroubleshoot-3.2.25
                 // HACK https://bugzilla.redhat.com/show_bug.cgi?id=1306700
                 if (result.length >= 8) {
+                    // there was an API change: if the timestamps are numbers, divide by 1000
+                    // so moment.js can parse them correctly by default
+                    if (typeof(result[5]) === "number") {
+                        result[5] /= 1000;
+                        result[6] /= 1000;
+                    }
                     details.firstSeen = moment(result[5]);
                     details.lastSeen = moment(result[6]);
                     details.level = result[7];

@@ -54,17 +54,26 @@ function suite(fixtures) {
     ])
 
     function projectsTest(name, count, fixtures, func) {
-        test(name, function() {
+        asyncTest(name, function() {
             expect(count);
+
             inject([
                 "kubeLoader",
-                function(loader, data) {
+                "kubeSelect",
+                "projectPolicy",
+                function(loader, select, pol, data) {
                     loader.reset(true);
                     if (fixtures)
                         loader.handle(fixtures);
+
+                    var interval = window.setInterval(function () {
+                        if (select().kind("RoleBinding").length == 6) {
+                            window.clearInterval(interval);
+                            inject(func);
+                        }
+                    }, 10);
                 }
             ]);
-            inject(func);
         });
     }
 
@@ -82,6 +91,7 @@ function suite(fixtures) {
             var group = select().kind("Group").name("finance");
             equal(projectUtil.formatMembers(user.one().groups, 'Users'),
                 "4 Users", "number of users");
+            start();
         }
     ]);
 
@@ -106,9 +116,10 @@ function suite(fixtures) {
             equal(regRolesArray.length, 0, "no values passed 3 ");
             regRolesArray = projectUtil.getRegistryRoles();
             equal(regRolesArray.length, 0, "no values passed 4");
-         
+
             equal(projectUtil.isRegistryRole(user.one(), "Admin", "financeprj"), true, "check if registry role");
             equal(projectUtil.isRoles(user.one(), "financeprj"), true, "check if any role exist");
+            start();
         }
     ]);
 
@@ -214,7 +225,7 @@ suite([
             "userNames": null,
             "groupNames": null,
             "subjects": [
-              
+
             ],
             "roleRef": {
               "name": "admin"
@@ -351,7 +362,7 @@ suite([
             "userNames": null,
             "groupNames": null,
             "subjects": [
-              
+
             ],
             "roleRef": {
               "name": "view"

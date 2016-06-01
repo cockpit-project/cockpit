@@ -14,11 +14,13 @@ dashboarddebug_DATA = \
 	pkg/dashboard/list.js \
 	pkg/dashboard/image-editor.js \
 	pkg/dashboard/index.html \
+	pkg/dashboard/patterns.js \
 	$(NULL)
 
 dashboard_BUNDLE = \
 	pkg/dashboard/list.min.js \
 	pkg/dashboard/image-editor.min.js \
+	pkg/dashboard/patterns.min.js \
 	$(NULL)
 
 pkg/dashboard/bundle.min.js: $(dashboard_BUNDLE)

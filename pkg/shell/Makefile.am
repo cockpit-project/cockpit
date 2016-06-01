@@ -52,6 +52,7 @@ shelldebug_DATA = \
 	pkg/shell/index-no-machines.js \
 	pkg/shell/index-stub.js \
 	pkg/shell/machines.js \
+	pkg/shell/patterns.js \
 	pkg/shell/plot.css \
 	pkg/shell/po.js \
 	pkg/shell/machine-dialogs.js \
@@ -76,6 +77,7 @@ shell_MINIFIED = \
 	pkg/shell/index-stub.min.js \
 	pkg/shell/machines.min.js \
 	pkg/shell/machine-dialogs.min.js \
+	pkg/shell/patterns.min.js \
 	$(NULL)
 
 shell_BUNDLE = \

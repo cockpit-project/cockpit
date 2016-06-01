@@ -89,6 +89,8 @@ pkg/kubernetes/d3.min.js: pkg/kubernetes/d3.js
 	$(MIN_JS_RULE)
 pkg/kubernetes/moment.min.js: pkg/kubernetes/moment.js
 	$(MIN_JS_RULE)
+pkg/kubernetes/term.min.js: pkg/kubernetes/term.js
+	$(MIN_JS_RULE)
 
 # Registry files
 
@@ -239,6 +241,7 @@ kubernetes_BUNDLE = \
 	pkg/kubernetes/angular.min.js \
 	pkg/kubernetes/d3.min.js \
 	pkg/kubernetes/moment.min.js \
+	pkg/kubernetes/term.js \
 	$(kubernetes_MIN) \
 	pkg/kubernetes/kubernetes-templates.js \
 	$(NULL)
@@ -281,6 +284,7 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/registry.css \
 	pkg/kubernetes/registry.html \
 	pkg/kubernetes/less.js \
+	pkg/kubernetes/term.js \
 	$(shared_ANGULAR) \
 	$(NULL)
 
@@ -308,6 +312,7 @@ CLEANFILES += \
 	pkg/kubernetes/registry.min.html \
 	pkg/kubernetes/registry.min.js \
 	pkg/kubernetes/registry-templates.js \
+	pkg/kubernetes/term.min.js \
 	$(kubernetes_MIN) \
 	$(registry_MIN) \
 	$(nodist_kubernetes_DATA) \
@@ -325,6 +330,7 @@ EXTRA_DIST += \
 	pkg/kubernetes/registry.min.html \
 	pkg/kubernetes/registry.min.js \
 	pkg/kubernetes/registry-templates.js \
+	pkg/kubernetes/term.min.js \
 	pkg/kubernetes/scripts/kube-client-mock.js \
 	pkg/kubernetes/tests/fixture-basic.js \
 	pkg/kubernetes/tests/fixture-large.js \

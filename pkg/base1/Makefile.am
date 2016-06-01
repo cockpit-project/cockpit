@@ -1,5 +1,7 @@
 LINGUAS = ca de da pl pt_BR tr uk
 
+# Mustache is distributed for compat reasons
+
 basedir = $(pkgdatadir)/base1
 nodist_base_DATA = \
 	pkg/base1/cockpit.min.css.gz \
@@ -18,12 +20,11 @@ basedebugdir = $(debugdir)$(basedir)
 basedebug_DATA = \
 	pkg/base1/bundle.js \
 	pkg/base1/cockpit.css \
+	pkg/base1/mustache.js \
 	pkg/base1/patternfly.css \
 	pkg/base1/patternfly-additions.css \
 	pkg/base1/require.js \
 	pkg/base1/term.css \
-	pkg/base1/term.js \
-	pkg/base1/mustache.js \
 	pkg/base1/jquery.js \
 	pkg/base1/cockpit.js \
 	$(NULL)
@@ -32,13 +33,14 @@ base_BUNDLE = \
 	pkg/base1/require.min.js \
 	pkg/base1/cockpit.min.js \
 	pkg/base1/jquery.min.js \
-	pkg/base1/mustache.min.js \
 	$(NULL)
 
 pkg/base1/bundle.min.js: $(base_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 pkg/base1/jquery.min.js: pkg/base1/jquery.js
 	$(MIN_JS_RULE)
+pkg/base1/mustache.js: bower_components/mustache/mustache.js
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && cp $^ $@.tmp && mv $@.tmp $@
 pkg/base1/mustache.min.js: pkg/base1/mustache.js
 	$(MIN_JS_RULE)
 pkg/base1/term.min.js: pkg/base1/term.js
@@ -103,6 +105,7 @@ EXTRA_DIST += \
 	pkg/base1/cockpit.min.css \
 	pkg/base1/jquery.min.js \
 	pkg/base1/require.min.js \
+	pkg/base1/mustache.js \
 	pkg/base1/mustache.min.js \
 	pkg/base1/term.min.js \
 	pkg/base1/test-dbus-common.js \

@@ -20,10 +20,10 @@
 define([
     "jquery",
     "base1/cockpit",
-    "base1/mustache",
-    "docker/docker",
-    "docker/util",
-    "docker/run"
+    "./mustache",
+    "./docker",
+    "./util",
+    "./run"
 ], function($, cockpit, Mustache, docker, util, run_image) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;

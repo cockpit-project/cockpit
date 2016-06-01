@@ -20,7 +20,7 @@
 define([
     "jquery",
     "base1/cockpit",
-    "base1/mustache",
+    "./mustache",
     "system/service"
 ], function($, cockpit, mustache, service) {
     var _ = cockpit.gettext;

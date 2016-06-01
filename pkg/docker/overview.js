@@ -20,12 +20,12 @@
 define([
     "jquery",
     "base1/cockpit",
-    "base1/mustache",
-    "docker/util",
-    "docker/run",
-    "docker/search",
-    "docker/docker",
-    "docker/bar",
+    "./mustache",
+    "./util",
+    "./run",
+    "./search",
+    "./docker",
+    "./bar",
     "shell/shell",
     "shell/plot",
 ], function($, cockpit, Mustache, util, run_image, search_image, docker, bar, shell) {

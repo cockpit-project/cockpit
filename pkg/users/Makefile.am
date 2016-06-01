@@ -19,6 +19,7 @@ usersdebug_DATA = \
 	pkg/users/bundle.js \
 	pkg/users/index.html \
 	pkg/users/local.js \
+	pkg/users/mustache.js \
 	pkg/users/patterns.js \
 	pkg/users/users.css \
 	$(users_SCRIPTS) \
@@ -27,6 +28,7 @@ usersdebug_DATA = \
 users_BUNDLEFILES = \
 	pkg/users/authorized-keys.min.js \
 	pkg/users/local.min.js \
+	pkg/users/mustache.min.js \
 	pkg/users/patterns.min.js \
 	$(NULL)
 
@@ -37,6 +39,10 @@ users_BUNDLE = \
 
 pkg/users/bundle.min.js: $(users_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
+
+# Ugliness to be solved by webpack in the future
+pkg/users/mustache.min.js: pkg/users/mustache.js
+	$(MIN_JS_RULE)
 
 users_TESTS = \
 	pkg/users/test-list-public-keys.sh \

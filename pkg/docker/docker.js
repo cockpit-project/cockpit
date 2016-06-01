@@ -20,7 +20,7 @@
 define([
     "jquery",
     "base1/cockpit",
-    "base1/term"
+    "./term"
 ], function($, cockpit, Terminal) {
     "use strict";
 

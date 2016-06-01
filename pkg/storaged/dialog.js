@@ -20,7 +20,7 @@
 define([
     "jquery",
     "base1/cockpit",
-    "base1/mustache",
+    "./mustache",
     "shell/controls",
     "./patterns",
 ], function($, cockpit, mustache, controls) {

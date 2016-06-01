@@ -11,6 +11,7 @@ tuneddebug_DATA = \
 	pkg/tuned/react.js \
 	pkg/tuned/bundle.js \
 	pkg/tuned/dialog.js \
+	pkg/tuned/mustache.js \
 	pkg/tuned/change-profile.js \
 	pkg/tuned/change-profile.jsx \
 	pkg/tuned/button.html \
@@ -19,6 +20,7 @@ tuneddebug_DATA = \
 
 tuned_BUNDLE = \
 	pkg/tuned/dialog.min.js \
+	pkg/tuned/mustache.min.js \
 	pkg/tuned/react.min.js \
 	pkg/tuned/cockpit-components-dialog.min.js \
 	pkg/tuned/change-profile.min.js \
@@ -30,6 +32,8 @@ pkg/tuned/bundle.min.js: $(tuned_BUNDLE)
 
 # Ugliness to be solved by webpack in the future
 pkg/tuned/react.min.js: pkg/tuned/react.js
+	$(MIN_JS_RULE)
+pkg/tuned/mustache.min.js: pkg/tuned/mustache.js
 	$(MIN_JS_RULE)
 
 tuned_TESTS = \

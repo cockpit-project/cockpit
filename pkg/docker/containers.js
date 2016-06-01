@@ -20,7 +20,7 @@
 require([
     "jquery",
     "base1/cockpit",
-    "base1/mustache",
+    "docker/mustache",
     "docker/client",
     "docker/overview",
     "docker/details",

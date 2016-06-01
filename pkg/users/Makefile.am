@@ -19,6 +19,7 @@ usersdebug_DATA = \
 	pkg/users/bundle.js \
 	pkg/users/index.html \
 	pkg/users/local.js \
+	pkg/users/patterns.js \
 	pkg/users/users.css \
 	$(users_SCRIPTS) \
 	$(NULL)
@@ -26,6 +27,7 @@ usersdebug_DATA = \
 users_BUNDLEFILES = \
 	pkg/users/authorized-keys.min.js \
 	pkg/users/local.min.js \
+	pkg/users/patterns.min.js \
 	$(NULL)
 
 users_BUNDLE = \

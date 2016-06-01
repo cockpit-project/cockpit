@@ -26,7 +26,7 @@ require([
     "shell/machines",
     "dashboard/image-editor",
     "shell/machine-dialogs",
-    "base1/patterns",
+    "dashboard/patterns",
     "shell/plot",
 ], function($, cockpit, Mustache, controls, shell, machines, image_editor, mdialogs) {
 "use strict";

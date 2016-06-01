@@ -206,7 +206,7 @@ class TestKeys(MachineCase):
         assert b.is_visible("tbody[data-name=id_rsa] .listing-ct-body")
         assert b.is_visible("tbody[data-name=id_rsa] ul")
         assert b.is_present("tbody[data-name=id_rsa] li.active:contains('Details')")
-        self.assertEqual(b.text("tbody[data-name=id_rsa] .credential-comment"), "pvolpe@pvolpe")
+        self.assertEqual(b.text("tbody[data-name=id_rsa] .credential-comment"), "test@test")
         self.assertEqual(b.text("tbody[data-name=id_rsa] .credential-type"), "RSA")
         text = b.text("tbody[data-name=id_rsa] .credential-fingerprint");
         if "SHA256" in text:
@@ -222,7 +222,7 @@ class TestKeys(MachineCase):
                          "nT3LZwD5DPsvHFKhOLghbiFzSI0uEL4NFFcZOMo5tGLrM5LsZsaIkkv5QkAE0tHIy" +
                          "eYinK6dQ2d8ZsfmgqxHDUQUWnz1T75X9fWQsUugSWI+8xAe0cfa4qZRz/IC+K7DEB" +
                          "3x4Ot5pl8FBuydJj/gb+Lwo2Vs27/d87W/0KHCqOHNwaVC8RBb1WcmXRDDetLGH1A" +
-                         "9m5x7Ip/KU/cyvWWxw8S4VKZkTIcrGUhFYJDnjtE3Axz+D7agtps41t pvolpe@pvolpe\n")
+                         "9m5x7Ip/KU/cyvWWxw8S4VKZkTIcrGUhFYJDnjtE3Axz+D7agtps41t test@test\n")
         b.click("tbody[data-name=id_rsa] tr.listing-ct-item")
         assert not b.is_visible("tbody[data-name=id_rsa] .listing-ct-body")
 

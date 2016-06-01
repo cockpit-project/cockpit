@@ -23,6 +23,7 @@ dockerdebug_DATA = \
 	pkg/docker/containers.js \
 	pkg/docker/image.js \
 	pkg/docker/index.html \
+	pkg/docker/mustache.js \
 	pkg/docker/overview.js \
 	pkg/docker/run.js \
 	pkg/docker/search.js \
@@ -36,6 +37,7 @@ docker_BUNDLE = \
 	pkg/docker/docker.min.js \
 	pkg/docker/containers.min.js \
 	pkg/docker/image.min.js \
+	pkg/docker/mustache.min.js \
 	pkg/docker/overview.min.js \
 	pkg/docker/run.min.js \
 	pkg/docker/search.min.js \
@@ -44,6 +46,10 @@ docker_BUNDLE = \
 
 pkg/docker/bundle.min.js: $(docker_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
+
+# Ugliness to be solved by webpack in the future
+pkg/docker/mustache.min.js: pkg/docker/mustache.js
+	$(MIN_JS_RULE)
 
 docker_TESTS = \
 	pkg/docker/test-docker.html \

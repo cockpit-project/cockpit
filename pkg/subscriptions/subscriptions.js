@@ -21,7 +21,7 @@ require([
     "jquery",
     "base1/cockpit",
     "shell/po",
-    "base1/mustache",
+    "subscriptions/mustache",
     "subscriptions/patterns",
 ], function($, cockpit, po, Mustache) {
     "use strict";

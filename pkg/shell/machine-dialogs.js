@@ -20,9 +20,9 @@
 define([
     "jquery",
     "base1/cockpit",
-    "base1/mustache",
-    "shell/machines",
-    "shell/credentials",
+    "./mustache",
+    "./machines",
+    "./credentials",
     "manifests",
     "data!shell/templates/add-machine.html",
     "data!shell/templates/auth-failed.html",

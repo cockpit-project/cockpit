@@ -14,6 +14,7 @@ dashboarddebug_DATA = \
 	pkg/dashboard/list.js \
 	pkg/dashboard/image-editor.js \
 	pkg/dashboard/index.html \
+	pkg/dashboard/mustache.js \
 	pkg/dashboard/patterns.js \
 	$(NULL)
 
@@ -21,10 +22,15 @@ dashboard_BUNDLE = \
 	pkg/dashboard/list.min.js \
 	pkg/dashboard/image-editor.min.js \
 	pkg/dashboard/patterns.min.js \
+	pkg/dashboard/mustache.min.js \
 	$(NULL)
 
 pkg/dashboard/bundle.min.js: $(dashboard_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
+
+# Ugliness to be solved by webpack in the future
+pkg/dashboard/mustache.min.js: pkg/dashboard/mustache.js
+	$(MIN_JS_RULE)
 
 CLEANFILES += \
 	pkg/dashboard/bundle.min.js \

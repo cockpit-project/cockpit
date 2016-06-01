@@ -21,7 +21,6 @@ basedebug_DATA = \
 	pkg/base1/patternfly.css \
 	pkg/base1/patternfly-additions.css \
 	pkg/base1/require.js \
-	pkg/base1/patterns.js \
 	pkg/base1/term.css \
 	pkg/base1/term.js \
 	pkg/base1/mustache.js \
@@ -34,7 +33,6 @@ base_BUNDLE = \
 	pkg/base1/cockpit.min.js \
 	pkg/base1/jquery.min.js \
 	pkg/base1/mustache.min.js \
-	pkg/base1/patterns.min.js \
 	$(NULL)
 
 pkg/base1/bundle.min.js: $(base_BUNDLE)
@@ -94,7 +92,6 @@ CLEANFILES += \
 	pkg/base1/cockpit.min.js \
 	pkg/base1/cockpit.min.css \
 	pkg/base1/jquery.min.js \
-	pkg/base1/patterns.min.js \
 	pkg/base1/mustache.min.js \
 	pkg/base1/require.min.js \
 	pkg/base1/term.min.js \

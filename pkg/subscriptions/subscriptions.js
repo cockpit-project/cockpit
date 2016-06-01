@@ -22,7 +22,7 @@ require([
     "base1/cockpit",
     "shell/po",
     "base1/mustache",
-    "base1/patterns",
+    "subscriptions/patterns",
 ], function($, cockpit, po, Mustache) {
     "use strict";
 

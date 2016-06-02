@@ -133,11 +133,11 @@ var SELinuxEventDetails = React.createClass({
             }
             return (
                 <div className="list-group-item" key={itm.analysisId}>
-                    {fixit}
                     <div>
                         <div>
                             <span>{itm.ifText}</span>
                         </div>
+                        {fixit}
                         <div>
                             {itm.thenText}
                         </div>
@@ -277,11 +277,11 @@ var OnOffSwitch = React.createClass({
         return (
             <div className="btn-group btn-onoff-ct">
                 <label className={ onClasses.join(" ") }>
-                    <input className="toggle-ct" type="radio" />
+                    <input type="radio" />
                     <span onClick={clickHandler}>{this.props.captionOn}</span>
                 </label>
                 <label className={ offClasses.join(" ") }>
-                    <input className="toggle-ct" type="radio" />
+                    <input type="radio" />
                     <span onClick={clickHandler}>{this.props.captionOff}</span>
                 </label>
             </div>
@@ -326,10 +326,12 @@ var SELinuxStatus = React.createClass({
             note = <span> {_("Setting deviates from the configured state and will revert on the next boot.")}</span>;
 
         return (
-            <div>
+            <div className="selinux-policy-ct">
+                <h2>{_("SELinux Policy")}</h2>
                 {errorMessage}
-                <span className="title-ct-selinux">{_("Enforced security mode")} </span>
+                <label>{_("Enforce policy:")}
                 <OnOffSwitch state={this.props.selinuxStatus.enforcing} onChange={this.props.changeSelinuxMode} />
+                </label>
                 {note}
             </div>
         );
@@ -442,8 +444,14 @@ var SETroubleshootPage = React.createClass({
                     criticalAlert,
                     { name: itm.description, 'header': true }
                 ];
-                if (itm.count > 1)
-                    columns.push(<span className="badge">{itm.count}</span>);
+                var title;
+                if (itm.count > 1) {
+                    title = cockpit.format(cockpit.ngettext("$0 occurrence", "$1 occurrences", itm.count),
+                            itm.count);
+                    columns.push(<span className="badge" title="{title}">{itm.count}</span>);
+                } else {
+                    columns.push(<span></span>);
+                }
                 return (
                     <cockpitListing.ListingRow
                         columns={columns}
@@ -467,7 +475,7 @@ var SETroubleshootPage = React.createClass({
             }
 
             return (
-                <div className="container-fluid setroubleshoot-page">
+                <div className="container-fluid">
                     <SELinuxStatus
                         selinuxStatus={this.props.selinuxStatus}
                         selinuxStatusError={this.props.selinuxStatusError}
@@ -475,7 +483,7 @@ var SETroubleshootPage = React.createClass({
                         dismissError={this.props.dismissStatusError}
                     />
                     {errorMessage}
-                    <cockpitListing.Listing title={ _("SELinux Access Control errors") }>
+                    <cockpitListing.Listing title={ _("SELinux Access Control Errors") }>
                         {entries}
                     </cockpitListing.Listing>
                 </div>

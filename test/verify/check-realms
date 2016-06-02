@@ -178,6 +178,9 @@ for x in 1 2 3 4 5 6 7 8 9 10; do
         sleep $x
     fi
 done
+
+ntpdate %(addr)s
+
 if ! echo '%(password)s' | realm join -U admin cockpit.lan; then
     journalctl -u realmd.service
 fi

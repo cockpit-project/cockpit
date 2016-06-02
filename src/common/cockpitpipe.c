@@ -1195,11 +1195,12 @@ cockpit_pipe_pty (const gchar **argv,
   const gchar *path = NULL;
   GPid pid = 0;
   int fd;
+  struct winsize winsz = { 24, 80, 0, 0 };
 
   if (env)
     path = g_environ_getenv ((gchar **)env, "PATH");
 
-  pid = forkpty (&fd, NULL, NULL, NULL);
+  pid = forkpty (&fd, NULL, NULL, &winsz);
   if (pid == 0)
     {
       if (cockpit_unix_fd_close_all (3, -1) < 0)

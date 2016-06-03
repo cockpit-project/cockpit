@@ -34,7 +34,7 @@ define([
     "data!shell/templates/sync-users.html",
     "data!shell/templates/unknown-hostkey.html",
     'shell/po',
-    "base1/patterns",
+    "./patterns",
 ], function($, cockpit, mustache, machines, credentials, local_manifests,
             add_tmpl, auth_failed_tmpl, change_auth_tmpl,
             change_port_tmpl, color_picker_tmpl, invalid_hostkey_tmpl,

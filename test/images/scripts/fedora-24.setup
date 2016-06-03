@@ -69,7 +69,12 @@ echo 'NETWORKING=yes' > /etc/sysconfig/network
 useradd -c Administrator -G wheel admin
 echo foobar | passwd --stdin admin
 
+# HACK - we have to enable updates-testing twice because the upgrade
+# might switch it off again.
+dnf config-manager --set-enabled updates-testing
 dnf $DNF_OPTS -y upgrade
+dnf config-manager --set-enabled updates-testing
+
 dnf $DNF_OPTS -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # Prepare for building

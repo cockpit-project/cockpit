@@ -21,7 +21,7 @@ define([
     "jquery",
     "base1/cockpit",
     "shell/po",
-    "base1/mustache",
+    "./mustache",
     "system/journalctl",
     "system/renderer"
 ], function($, cockpit, po, Mustache, journalctl, journal_renderer) {

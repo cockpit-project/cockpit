@@ -20,11 +20,11 @@
 require([
     "jquery",
     "base1/cockpit",
-    "base1/mustache",
+    "users/mustache",
     "shell/controls",
     "shell/shell",
     "users/authorized-keys",
-    "base1/patterns",
+    "users/patterns",
 ], function($, cockpit, Mustache, controls, shell, authorized_keys) {
 "use strict";
 

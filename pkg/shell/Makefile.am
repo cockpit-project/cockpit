@@ -52,6 +52,8 @@ shelldebug_DATA = \
 	pkg/shell/index-no-machines.js \
 	pkg/shell/index-stub.js \
 	pkg/shell/machines.js \
+	pkg/shell/mustache.js \
+	pkg/shell/patterns.js \
 	pkg/shell/plot.css \
 	pkg/shell/po.js \
 	pkg/shell/machine-dialogs.js \
@@ -76,6 +78,8 @@ shell_MINIFIED = \
 	pkg/shell/index-stub.min.js \
 	pkg/shell/machines.min.js \
 	pkg/shell/machine-dialogs.min.js \
+	pkg/shell/mustache.min.js \
+	pkg/shell/patterns.min.js \
 	$(NULL)
 
 shell_BUNDLE = \
@@ -87,6 +91,10 @@ shell_BUNDLE = \
 
 pkg/shell/bundle.min.js: $(shell_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
+
+# Ugliness to be solved by webpack in the future
+pkg/shell/mustache.min.js: pkg/shell/mustache.js
+	$(MIN_JS_RULE)
 
 shell_MINFILES = \
 	pkg/shell/controls.min.js \

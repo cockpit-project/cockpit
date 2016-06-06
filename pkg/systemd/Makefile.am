@@ -22,11 +22,14 @@ systemddebug_DATA = \
 	pkg/systemd/host.css \
 	pkg/systemd/host.js \
 	pkg/systemd/index.html \
+	pkg/systemd/mustache.js \
+	pkg/systemd/patterns.js \
 	pkg/systemd/bundle.js \
 	pkg/systemd/init.js \
 	pkg/systemd/services.html \
 	pkg/systemd/server.js \
 	pkg/systemd/service.js \
+	pkg/systemd/term.js \
 	pkg/systemd/terminal.js \
 	pkg/systemd/terminal.jsx \
 	pkg/systemd/terminal.html \
@@ -45,7 +48,10 @@ systemd_MIN = \
 	pkg/systemd/bootstrap-combobox.min.js \
 	pkg/systemd/host.min.js \
 	pkg/systemd/init.min.js \
+	pkg/systemd/mustache.min.js \
+	pkg/systemd/patterns.min.js \
 	pkg/systemd/server.min.js \
+	pkg/systemd/term.min.js \
 	pkg/systemd/terminal.min.js \
 	pkg/systemd/journal.min.js \
 	pkg/systemd/journalctl.min.js \
@@ -66,6 +72,10 @@ pkg/systemd/bundle.min.js: $(systemd_BUNDLE)
 
 # Ugliness to be solved by webpack in the future
 pkg/systemd/react.min.js: pkg/systemd/react.js
+	$(MIN_JS_RULE)
+pkg/systemd/mustache.min.js: pkg/systemd/mustache.js
+	$(MIN_JS_RULE)
+pkg/systemd/term.min.js: pkg/systemd/term.js
 	$(MIN_JS_RULE)
 
 systemd_TESTS = \

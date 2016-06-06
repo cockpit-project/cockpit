@@ -22,7 +22,7 @@
 define([
     "jquery",
     "base1/cockpit",
-    "base1/mustache",
+    "./mustache",
     "system/journalctl",
     "data!./journal_day_header.mustache",
     "data!./journal_line.mustache",

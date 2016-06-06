@@ -251,6 +251,7 @@ print-%:
 COMMITTED_DIST = \
 	bower_components/ \
 	pkg/ \
+	lib/ \
 	po/ \
 	tools/ \
 	test/ \

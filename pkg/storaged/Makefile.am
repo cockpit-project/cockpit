@@ -17,7 +17,9 @@ storageddebug_DATA = \
 	pkg/storaged/client.js \
 	pkg/storaged/index.html \
 	pkg/storaged/jobs.js \
+	pkg/storaged/mustache.js \
 	pkg/storaged/overview.js \
+	pkg/storaged/patterns.js \
 	pkg/storaged/permissions.js \
 	pkg/storaged/storage.css \
 	pkg/storaged/utils.js \
@@ -29,13 +31,19 @@ storaged_BUNDLE = \
 	pkg/storaged/dialog.min.js \
 	pkg/storaged/client.min.js \
 	pkg/storaged/jobs.min.js \
+	pkg/storaged/mustache.min.js \
 	pkg/storaged/overview.min.js \
+	pkg/storaged/patterns.min.js \
 	pkg/storaged/permissions.min.js \
 	pkg/storaged/utils.min.js \
 	$(NULL)
 
 pkg/storaged/bundle.min.js: $(storaged_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
+
+# Ugliness to be solved by webpack in the future
+pkg/storaged/mustache.min.js: pkg/storaged/mustache.js
+	$(MIN_JS_RULE)
 
 storagedimagesdir = $(pkgdatadir)/storage/images
 storagedimages_DATA = \

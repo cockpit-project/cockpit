@@ -1,7 +1,7 @@
 define([
     "jquery",
     "base1/cockpit",
-    "base1/mustache",
+    "./mustache",
     "system/server",
     "shell/po"
 ], function($, cockpit, mustache, server, po) {

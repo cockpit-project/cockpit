@@ -14,14 +14,22 @@ networkmanagerdebug_DATA = \
 	pkg/networkmanager/interfaces.js \
 	pkg/networkmanager/index.html \
 	pkg/networkmanager/networking.css \
+	pkg/networkmanager/mustache.js \
+	pkg/networkmanager/patterns.js \
 	$(NULL)
 
 networkmanager_BUNDLE = \
 	pkg/networkmanager/interfaces.min.js \
+	pkg/networkmanager/mustache.min.js \
+	pkg/networkmanager/patterns.min.js \
 	$(NULL)
 
 pkg/networkmanager/bundle.min.js: $(networkmanager_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
+
+# Ugliness to be solved by webpack in the future
+pkg/networkmanager/mustache.min.js: pkg/networkmanager/mustache.js
+	$(MIN_JS_RULE)
 
 networkmanager_TESTS = \
 	$(NULL)
@@ -32,6 +40,7 @@ CLEANFILES += \
 	pkg/networkmanager/bundle.min.js \
 	pkg/networkmanager/index.min.html \
 	pkg/networkmanager/networking.min.css \
+	pkg/networkmanager/patterns.min.js \
 	$(networkmanager_BUNDLE) \
 	$(nodist_networkmanager_DATA) \
 	$(NULL)
@@ -40,5 +49,6 @@ EXTRA_DIST += \
 	pkg/networkmanager/bundle.min.js \
 	pkg/networkmanager/index.min.html \
 	pkg/networkmanager/networking.min.css \
+	pkg/networkmanager/patterns.min.js \
 	$(networkmanager_BUNDLE) \
 	$(NULL)

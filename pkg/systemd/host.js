@@ -20,7 +20,7 @@
 define([
     "jquery",
     "base1/cockpit",
-    "base1/mustache",
+    "./mustache",
     "domain/operation",
     "performance/dialog",
     "shell/controls",
@@ -32,7 +32,7 @@ define([
     "shell/cockpit-util",
     "system/bootstrap-datepicker",
     "system/bootstrap-combobox",
-    "base1/patterns",
+    "./patterns",
 ], function($, cockpit, Mustache, domain, performance, controls, shell, server, service) {
 "use strict";
 

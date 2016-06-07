@@ -1,3 +1,20 @@
+# This file is part of Cockpit.
+#
+# Copyright (C) 2016 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
 import os
 import subprocess
 import sys
@@ -100,10 +117,11 @@ class GithubPullTask(object):
             return False
         return True
 
-    def rebase(self):
+    def rebase(self, offline=False):
         try:
             sys.stderr.write("Rebasing onto origin/master ...\n")
-            subprocess.check_call([ "git", "fetch", "origin", "master" ])
+            if not offline:
+                subprocess.check_call([ "git", "fetch", "origin", "master" ])
             if self.sink:
                 master = subprocess.check_output([ "git", "rev-parse", "origin/master" ]).strip()
                 self.sink.status["master"] = master
@@ -188,7 +206,8 @@ class GithubPullTask(object):
         if cmd and opts.verbose:
             cmd.append("--verbose")
 
-        ret = ret or self.rebase()
+        offline = ('offline' in opts) and opts.offline
+        ret = ret or self.rebase(offline)
 
         # Actually run the tests
         if not ret:
@@ -200,3 +219,5 @@ class GithubPullTask(object):
         # All done
         if self.sink:
             self.stop_publishing(ret)
+
+        return ret

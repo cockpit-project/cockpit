@@ -42,19 +42,26 @@ def main():
                         help='Instead of choosing from GitHub, refresh the given image')
     parser.add_argument('--except', dest='except_context', action='store_true',
                         help='Choose tasks from any context except the one specified')
+    parser.add_argument('-n', '--name', dest='name',
+                        default='pull', help='Name of the testing task, used for the identifier. Examples: "master", "pull-1234"')
+    parser.add_argument('-o', '--offline', action='store_true',
+                        help='Work offline, don''t fetch new data from origin for rebase')
     parser.add_argument('context', action='store', nargs='?',
                         help='The test context to choose tasks from')
     opts = parser.parse_args()
 
     os.chdir(os.path.dirname(__file__))
-    github = testinfra.GitHub()
+
+    # only instantiate a GitHub object if we aren't working offline
+    github = None if opts.offline else testinfra.GitHub()
 
     # When letting github decide what to test
     if opts.head:
         name = "test"
         revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
         context = opts.context or "verify/" + testinfra.DEFAULT_IMAGE
-        task = testpulltask.GithubPullTask("test", revision, None, context)
+        name = opts.name or "test"
+        task = testpulltask.GithubPullTask(name, revision, None, context)
     elif opts.refresh:
         image = opts.refresh
         config = testinfra.DEFAULT_IMAGE_REFRESH.get(image, None)
@@ -63,6 +70,9 @@ def main():
             return 1
         task = testimagetask.GithubImageTask("refresh-" + image, image, config, None)
     else:
+        if opts.offline:
+            print "Unable to contact GitHub in offline mode"
+            return 1
         sys.stderr.write("Talking to GitHub ...\n")
         task_entries = github.scan(opts.publish, opts.context, opts.except_context)
         if len(task_entries) > 0:
@@ -70,9 +80,11 @@ def main():
         else: # Nothing to test
             return 1
 
-    task.run(opts, github)
-
-    return 0
+    ret = task.run(opts, github)
+    if isinstance(ret, basestring):
+        print ret
+        return 1
+    return ret
 
 if __name__ == '__main__':
     sys.exit(main())

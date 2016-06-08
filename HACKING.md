@@ -14,8 +14,9 @@ disks or network adapters.
 ## Using Vagrant
 
 It's possible to test and work on Cockpit web assets by just using
-Vagrant. In the top level directory of the repository, you can run:
+Vagrant. After cloning the Git repository, run in its top level directory:
 
+    $ npm install
     $ vagrant up
 
 Cockpit will listen on port 9090 of the vagrant VM started, and also
@@ -26,6 +27,21 @@ at:
 
 and login with user `admin` and password `foobar`. Any changes you
 make to the system in the Vagrant VM won't affect the host machine.
+
+If instead of the Cockpit login prompt you see a message about
+incompatibility between Cockpit and the sources, you can checkout a
+matching version.  This command shows the installed version of
+Cockpit:
+
+    $ vagrant ssh -c "cockpit-bridge --version"
+    Version: 0.108
+    ...
+
+To switch the sources to the same version, check out the corresponding
+tag (and sync the sources again with the VM):
+
+    $ git checkout 0.108
+    $ vagrant rsync
 
 You can edit files in the `pkg/` subdirectory of the Cockpit sources
 and the changes should take effect after syncing them to the Vagrant

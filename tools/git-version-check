@@ -26,5 +26,5 @@ if [ "${VERSION%.x}" = "${TAG%.x}" ]; then
 else
     echo "git-version-check: installed cockpit does not match sources: $VERSION != $TAG"
     MESSAGE="The installed version of cockpit is incompatible with the sources"
-    sed "s/@@message@@/$MESSAGE/g" "$BASE/../src/common/fail.html" > $OVERRIDE
+    sed "s/@@message@@/$MESSAGE/g" "$BASE/fail.html" > $OVERRIDE
 fi

@@ -41,6 +41,8 @@ parser.add_argument('-v', '--verbose', action='store_true', help='Display verbos
 parser.add_argument('-s', '--sit', action='store_true', help='Sit and wait if setup script fails')
 parser.add_argument('-n', '--no-save', action='store_true', help='Don\'t save the new image')
 parser.add_argument('-u', '--upload', action='store_true', help='Upload the image after creation')
+parser.add_argument('--no-build', action='store_true', dest='no_build',
+                    help='Don''t build packages and create the vm without build capabilities')
 parser.add_argument("--store", default=None, help="Where to send images")
 parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to create')
 args = parser.parse_args()
@@ -74,7 +76,8 @@ class MachineBuilder:
             self.machine.wait_boot(wait_for_running_timeout=120)
             self.machine.upload([ os.path.join(testinfra.TEST_DIR, "images", "scripts", "lib") ], "/var/lib/testvm")
             self.machine.upload([script], "/var/tmp/SETUP")
-            self.machine.upload([source], "/var/tmp")
+            if source:
+                self.machine.upload([source], "/var/tmp")
             self.machine.upload([ os.path.join(testinfra.TEST_DIR, "images", "scripts", "lib", "base") ],
                                 "/var/tmp/cockpit-base")
 
@@ -82,9 +85,10 @@ class MachineBuilder:
                 self.machine.upload([ os.path.expanduser("~/.rhel") ], "/root/")
 
             env = {
-                "TEST_OS": self.machine.image,
-                "TEST_SOURCE": os.path.join("/var/tmp", os.path.basename(source))
+                "TEST_OS": self.machine.image
             }
+            if source:
+                env["TEST_SOURCE"]: os.path.join("/var/tmp", os.path.basename(source))
             self.machine.message("run setup script on guest")
 
             try:
@@ -123,7 +127,10 @@ class MachineBuilder:
             raise testvm.Failure("Unsupported image %s: %s not found." % (self.machine.image, script))
 
         self.machine.message("Running setup script %s" % (script))
-        source = subprocess.check_output([ "../tools/make-source" ]).strip()
+        if no_build:
+            source = None
+        else:
+            source = subprocess.check_output([ "../tools/make-source" ]).strip()
         self.run_setup_script(script, source)
 
         tries_left = 3

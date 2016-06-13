@@ -9,16 +9,11 @@
 #
 # Globals that may be defined elsewhere
 #  * Version 122
-#  * gitcommit xxxx
+#  * wip 1
 #
 
-%if %{defined gitcommit}
-%define extra_flags CFLAGS='-O2 -Wall -Werror -fPIC -g -DWITH_DEBUG'
-%define required_base %{gitcommit}
-%else
 # earliest base that the subpackages work on
 %define required_base 122
-%endif
 
 %if 0%{?centos}
 %define rhel 0
@@ -32,20 +27,17 @@
 %endif
 
 Name:           cockpit
-%if %{defined gitcommit}
-Version:        %{gitcommit}
-%else
-Version:        wip
-%endif
-Release:        1%{?dist}
 Summary:        A user interface for Linux servers
 
 License:        LGPLv2+
 URL:            http://cockpit-project.org/
 
-%if %{defined gitcommit}
+Version:        0
+%if %{defined wip}
+Release:        1.%{wip}%{?dist}
 Source0:        cockpit-%{version}.tar.gz
 %else
+Release:        1%{?dist}
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 %endif
 
@@ -71,11 +63,8 @@ BuildRequires: glib2-devel >= 2.37.4
 BuildRequires: systemd-devel
 BuildRequires: polkit
 BuildRequires: pcp-libs-devel
-BuildRequires: gdb
-
-%if %{defined gitcommit}
 BuildRequires: krb5-server
-%endif
+BuildRequires: gdb
 
 # For documentation
 BuildRequires: xmlto
@@ -174,7 +163,7 @@ make -j4 check
 
 %install
 make install DESTDIR=%{buildroot}
-%if %{defined gitcommit} || 0%{?rhel}
+%if %{defined wip} || 0%{?rhel}
 make install-test-assets DESTDIR=%{buildroot}
 %else
 rm -rf %{buildroot}/%{_datadir}/%{name}/playground
@@ -246,7 +235,7 @@ touch docker.list
 %endif
 
 %ifarch x86_64
-%if %{defined gitcommit}
+%if %{defined wip}
 %else
 rm %{buildroot}/%{_datadir}/%{name}/kubernetes/override.json
 %endif
@@ -278,12 +267,7 @@ cat subscriptions.list sosreport.list networkmanager.list selinux.list >> shell.
 # https://fedoraproject.org/wiki/PackagingDrafts/Go
 %global _dwz_low_mem_die_limit 0
 
-# Only strip out debug info in non wip builds
-%if %{defined gitcommit}
-%define find_debug_info %{nil}
-%else
 %define find_debug_info %{_rpmconfigdir}/find-debuginfo.sh %{?_missing_build_ids_terminate_build:--strict-build-id} %{?_include_minidebuginfo:-m} %{?_find_debuginfo_dwz_opts} %{?_find_debuginfo_opts} "%{_builddir}/%{?buildsubdir}"
-%endif
 
 # Redefine how debug info is built to slip in our extra debug files
 %define __debug_install_post   \
@@ -543,7 +527,7 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 %endif
 
 # we only build test assets on rhel or if we're building from a specific commit
-%if %{defined gitcommit} || 0%{?rhel}
+%if %{defined wip} || 0%{?rhel}
 
 %package test-assets
 Summary: Additional stuff for testing Cockpit

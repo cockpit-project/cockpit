@@ -44,5 +44,6 @@ CLEANFILES += \
 EXTRA_DIST += \
 	pkg/subscriptions/index.min.html \
 	pkg/subscriptions/subscriptions.min.css \
+	pkg/subscriptions/bundle.min.js \
 	$(subscriptions_BUNDLE) \
 	$(NULL)

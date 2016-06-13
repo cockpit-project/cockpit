@@ -36,27 +36,15 @@ def main():
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output (unsupported)')
     opts = parser.parse_args()
 
-    directory = tempfile.mkdtemp(prefix="koji-dist.", dir=os.path.join(testinfra.TEST_DIR, "tmp"))
-    os.chdir(directory)
-
     # Converts fedora-23 to f23
     system = testinfra.DEFAULT_IMAGE[0] + testinfra.DEFAULT_IMAGE.split("-")[-1]
 
-    # Don't overwrite a Makefile in autogen.sh
-    env = os.environ.copy()
-    env["NOREDIRECTMAKEFILE"] = "1"
+    make_srpm = os.path.join(testinfra.TEST_DIR, "..", "tools", "make-srpm")
+    srpm = subprocess.check_output([make_srpm], shell=True).strip()
 
-    # Make a distribution
-    try:
-        subprocess.check_call(["../../../autogen.sh && make dist"], shell=True, env=env)
-        archives = subprocess.check_output(["make", "-s", "print-DIST_ARCHIVES"]).strip().split(" ")
-
-        # Do a build
-        subprocess.check_call(["../../../tools/make-srpm", archives[0]])
-        cmd = ["koji", "build", "--wait", "--scratch", system, glob.glob("*.src.rpm")[0]]
-        subprocess.check_call(cmd)
-    finally:
-        shutil.rmtree(directory)
+    # Do a build
+    cmd = ["koji", "build", "--wait", "--scratch", system, srpm]
+    subprocess.check_call(cmd)
 
 if __name__ == '__main__':
     sys.exit(main())

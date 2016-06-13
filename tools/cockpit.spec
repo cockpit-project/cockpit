@@ -71,12 +71,6 @@ BuildRequires: pcp-libs-devel
 BuildRequires: gdb
 
 %if %{defined gitcommit}
-# on fedora 24, nodejs provides npm
-%if 0%{?fedora} > 0 && 0%{?fedora} < 24
-BuildRequires: npm
-%endif
-BuildRequires: nodejs
-# For kerberos tests
 BuildRequires: krb5-server
 %endif
 

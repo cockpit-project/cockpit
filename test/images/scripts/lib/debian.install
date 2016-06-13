@@ -40,11 +40,11 @@ if [ -n "$do_build" ]; then
     mkdir build-results
     resultdir=$PWD/build-results
 
-    ln -sf cockpit-wip.tar.gz cockpit_0.orig.tar.gz
+    ln -sf cockpit-*.tar.gz cockpit_0.orig.tar.gz
 
-    rm -rf cockpit-wip
-    tar -xzf cockpit-wip.tar.gz
-    ( cd cockpit-wip
+    rm -rf cockpit-*/
+    tar -xzf cockpit-*.tar.gz
+    ( cd cockpit-*/
       cp -rp tools/debian debian
       debuild -S -uc -us
     )

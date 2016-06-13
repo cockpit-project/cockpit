@@ -27,6 +27,10 @@ base=$(cd $(dirname $0); pwd -P)
 
 cd $base/..
 
+dump_dist_gzip() {
+    make -C "$1" -s dump-dist-gzip
+}
+
 # Configure the source for making a tarball in a temporary directory, unless
 # the source has already been configured
 if test ! -f Makefile; then
@@ -42,6 +46,5 @@ else
     builddir=.
 fi
 
-make -j8 -C $builddir --silent V=1 dist-gzip distdir=cockpit-wip 1>&2
-directory=$(make -C $builddir --silent print-abs_builddir)
-echo $directory/cockpit-wip.tar.gz
+make -j8 -C $builddir --silent dist-gzip 1>&2
+make -C "$builddir" --silent dump-dist-gzip

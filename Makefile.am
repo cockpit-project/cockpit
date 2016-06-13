@@ -317,8 +317,9 @@ install-data-local:: doc/guide/html/index.html
 uninstall-local::
 	rm -rf $(DESTDIR)$(htmldir)
 
-print-%:
-	@echo $($*)
+# See tools/make-source
+dump-dist-gzip:
+	@echo "$(abs_builddir)/$(distdir).tar.gz"
 
 # Subdirectories to distribute everything that's committed to git
 COMMITTED_DIST = \

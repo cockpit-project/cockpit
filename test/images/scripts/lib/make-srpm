@@ -11,20 +11,13 @@ if [ -z "$version" ]; then
 fi
 
 modify_spec() {
-case $version in
-wip)
-sed '1i\
-%define gitcommit wip'
-;;
-*)
-sed "1i\
-Version: $version"
-esac
+sed -e "1i\
+%define wip wip\nVersion: $version\n"
+    -e "/^Version:.*/d"
 }
 
 tmpdir=$(mktemp -d $PWD/srpm-build.XXXXXX)
 tar xaf "$1" -O cockpit-$version/tools/cockpit.spec | modify_spec > $tmpdir/cockpit.spec
-
 
 rpmbuild -bs \
          --quiet \

@@ -33,6 +33,7 @@ from common import testinfra
 
 def main():
     parser = argparse.ArgumentParser(description='Run cockpit build and unit tests in Koji')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output (unsupported)')
     opts = parser.parse_args()
 
     directory = tempfile.mkdtemp(prefix="koji-dist.", dir=os.path.join(testinfra.TEST_DIR, "tmp"))

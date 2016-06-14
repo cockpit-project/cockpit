@@ -256,6 +256,62 @@ class TestNetworking(MachineCase):
         self.allow_journal_messages(".*Connection reset by peer.*",
                                     "connection unexpectedly closed by peer")
 
+    def testTeam(self):
+        b = self.browser
+        m = self.machine
+
+        self.switch_off_rp_filter(m)
+
+        self.login_and_go("/network")
+
+        # Add interfaces and wait for them to be active or not (as
+        # appropriate for the OS).
+
+        # The interfaces are connected each to their own outside
+        # network to avoid any issues related to multi-homing.
+
+        iface1 = self.add_iface(vlan=1)
+        iface2 = self.add_iface(vlan=2)
+        self.wait_for_iface(iface1)
+        self.wait_for_iface(iface2)
+
+        # team them
+        b.click("button:contains('Add Team')")
+        b.wait_popup("network-team-settings-dialog")
+        b.set_val("#network-team-settings-dialog tr:contains('Name') input", "tteam")
+        b.set_checked("input[data-iface='%s']" % iface1, True)
+        b.set_checked("input[data-iface='%s']" % iface2, True)
+        b.click("#network-team-settings-dialog button:contains('Apply')")
+        b.wait_popdown("network-team-settings-dialog")
+        b.wait_present("#networking-interfaces tr[data-interface='tteam']")
+
+        # Check that the members are displayed
+        b.click("#networking-interfaces tr[data-interface='tteam'] td:first-child")
+        b.wait_visible("#network-interface")
+        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface1)
+        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface2)
+
+        # Deactivate the team and make sure it is still there after a
+        # reload.
+        b.click(".panel-heading:contains('tteam') .btn:contains('Off')")
+        b.wait_in_text("tr:contains('Status')", "Inactive")
+        b.reload()
+        b.enter_page("/network")
+        b.wait_present("#network-interface-name")
+        b.wait_text("#network-interface-name", "tteam")
+        b.wait_text("#network-interface-hw", "Team")
+        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface1)
+        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface2)
+
+        # Delete the team
+        b.click("#network-interface button:contains('Delete')")
+        b.wait_visible("#networking")
+        b.wait_not_present("#networking-interfaces tr[data-interface='tteam']")
+
+        # Due to above reload
+        self.allow_journal_messages(".*Connection reset by peer.*",
+                                    "connection unexpectedly closed by peer")
+
     def testBridge(self):
         b = self.browser
         m = self.machine

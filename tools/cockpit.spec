@@ -360,6 +360,10 @@ Provides: %{name}-subscriptions = %{version}-%{release}
 Requires: subscription-manager >= 1.13
 Provides: %{name}-networkmanager = %{version}-%{release}
 Requires: NetworkManager
+# Optional components (only when soft deps are supported)
+%if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
+Recommends: NetworkManager-team
+%endif
 %endif
 Provides: %{name}-assets
 Obsoletes: %{name}-assets < 0.32
@@ -441,6 +445,10 @@ Summary: Cockpit user interface for networking, using NetworkManager
 Requires: %{name}-bridge >= %{stable_api}
 Requires: %{name}-shell >= %{stable_api}
 Requires: NetworkManager
+# Optional components (only when soft deps are supported)
+%if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
+Recommends: NetworkManager-team
+%endif
 BuildArch: noarch
 
 %description networkmanager

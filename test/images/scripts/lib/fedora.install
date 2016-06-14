@@ -60,7 +60,9 @@ if [ -n "$do_install" ]; then
     packages=$(find build-results -name "*.rpm" -not -name "*.src.rpm" | grep -vF "$skip")
     rpm -U --force $packages
 
-    firewall-cmd --add-service=cockpit --permanent
+    if type firewall-cmd > /dev/null 2> /dev/null; then
+        firewall-cmd --add-service=cockpit --permanent
+    fi
 
     rm -rf /var/log/journal/*
     rm -rf /var/lib/NetworkManager/dhclient-*.lease

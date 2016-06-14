@@ -129,5 +129,28 @@ class TestSelinux(MachineCase):
         #b.wait_in_text(row_selector, "Successfully ran /sbin/restorecon /etc/ssh/ssh_host_ecdsa_key")
         b.wait_in_text(row_selector, "Solution applied successfully:")
 
+    def testEnforcing(self):
+        b = self.browser
+        m = self.machine
+
+        # HACK: http://bugzilla.redhat.com/show_bug.cgi?id=1346364
+        # This issue happens when selinux item is in kickstart
+        # as happens in our virt-builder and virt-install usage
+        m.execute("chmod ugo+r /etc/selinux/config")
+
+        self.login_and_go("/selinux/setroubleshoot")
+
+        b.wait_present(".selinux-policy-ct")
+        b.wait_in_text(".selinux-policy-ct .btn.active", "On")
+        b.wait_not_in_text("Setting deviates from the configured state")
+
+        b.click(".selinux-policy-ct .btn:not(.active)")
+        b.wait_in_text(".selinux-policy-ct .btn.active", "Off")
+        b.wait_in_text("Setting deviates from the configured state")
+
+        m.execute("setenforce 1")
+        b.wait_in_text(".selinux-policy-ct .btn.active", "On")
+        b.wait_not_in_text("Setting deviates from the configured state")
+
 if __name__ == '__main__':
     test_main()

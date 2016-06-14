@@ -554,7 +554,7 @@ define([
                 inner.fail(function(ex) {
                     if ((ex.problem == "invalid-hostkey" ||
                         ex.problem == "unknown-hostkey") &&
-                        !machine.on_disk) {
+                        machine && !machine.on_disk) {
                             dialog.machines_ins.change(dialog.address, {
                                 'host_key': null
                             });

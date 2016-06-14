@@ -619,6 +619,26 @@ function NetworkManagerModel() {
                           };
         }
 
+        function JSON_parse_carefully(str) {
+            try {
+                return JSON.parse(str);
+            }
+            catch (e) {
+                return { };
+            }
+        }
+
+        if (settings.team) {
+            result.team = { config:         JSON_parse_carefully(get("team", "config", "{}")),
+                            interface_name: get("team", "interface-name")
+                          };
+        }
+
+        if (settings["team-port"] || result.connection.slave_type == "team") {
+            result.team_port = { config:       JSON_parse_carefully(get("team-port", "config", "{}")),
+                               };
+        }
+
         if (settings.bridge) {
             result.bridge = { interface_name: get("bridge", "interface-name"),
                               stp:            get("bridge", "stp", true),
@@ -700,6 +720,17 @@ function NetworkManagerModel() {
             set("bond", "interface-name", 's', settings.bond.interface_name);
         }
 
+        delete result.team;
+        if (settings.team) {
+            set("team", "config", 's', JSON.stringify(settings.team.config));
+            set("team", "interface-name", 's', settings.team.interface_name);
+        }
+
+        delete result["team-port"];
+        if (settings.team_port) {
+            set("team-port", "config", 's', JSON.stringify(settings.team_port.config));
+        }
+
         delete result.bridge;
         if (settings.bridge) {
             set("bridge", "interface-name", 's', settings.bridge.interface_name);
@@ -749,6 +780,7 @@ function NetworkManagerModel() {
         case 11: return 'vlan';
         case 12: return 'adsl';
         case 13: return 'bridge';
+        case 15: return 'team';
         default: return '';
         }
     }
@@ -1010,6 +1042,7 @@ function NetworkManagerModel() {
             "org.freedesktop.NetworkManager.Device",
             "org.freedesktop.NetworkManager.Device.Wired",
             "org.freedesktop.NetworkManager.Device.Bond",
+            "org.freedesktop.NetworkManager.Device.Team",
             "org.freedesktop.NetworkManager.Device.Bridge",
             "org.freedesktop.NetworkManager.Device.Vlan"
         ],
@@ -1140,6 +1173,8 @@ function NetworkManagerModel() {
                         if (con.Settings) {
                             if (con.Settings.bond)
                                 add_to_interface(con.Settings.bond.interface_name);
+                            if (con.Settings.team)
+                                add_to_interface(con.Settings.team.interface_name);
                             if (con.Settings.bridge)
                                 add_to_interface(con.Settings.bridge.interface_name);
                             if (con.Settings.vlan)
@@ -1395,6 +1430,7 @@ PageNetworking.prototype = {
 
         update_network_privileged();
         $("#networking-add-bond").click($.proxy(this, "add_bond"));
+        $("#networking-add-team").click($.proxy(this, "add_team"));
         $("#networking-add-bridge").click($.proxy(this, "add_bridge"));
         $("#networking-add-vlan").click($.proxy(this, "add_vlan"));
 
@@ -1525,6 +1561,7 @@ PageNetworking.prototype = {
             // Skip everything that is not ethernet, bond, or bridge
             if (iface.Device && iface.Device.DeviceType != 'ethernet' &&
                 iface.Device.DeviceType != 'bond' &&
+                iface.Device.DeviceType != 'team' &&
                 iface.Device.DeviceType != 'vlan' &&
                 iface.Device.DeviceType != 'bridge')
                 return;
@@ -1587,6 +1624,37 @@ PageNetworking.prototype = {
             };
 
         $('#network-bond-settings-dialog').modal('show');
+    },
+
+    add_team: function () {
+        var iface, i, uuid;
+
+        uuid = generate_uuid();
+        for (i = 0; i < 100; i++) {
+            iface = "team" + i;
+            if (!this.model.find_interface(iface))
+                break;
+        }
+
+        PageNetworkTeamSettings.model = this.model;
+        PageNetworkTeamSettings.done = null;
+        PageNetworkTeamSettings.connection = null;
+        PageNetworkTeamSettings.settings =
+            {
+                connection: {
+                    id: uuid,
+                    autoconnect: false,
+                    type: "team",
+                    uuid: uuid,
+                    interface_name: iface
+                },
+                team: {
+                    config: { },
+                    interface_name: iface
+                }
+            };
+
+        $('#network-team-settings-dialog').modal('show');
     },
 
     add_bridge: function () {
@@ -1690,6 +1758,28 @@ var bond_monitoring_choices =
     [
         { choice: 'mii',    title: _("MII (Recommended)") },
         { choice: 'arp',    title: _("ARP") }
+    ];
+
+var team_runner_choices =
+    [
+        { choice: 'roundrobin',    title: _("Round Robin") },
+        { choice: 'activebackup',  title: _("Active Backup") },
+        { choice: 'loadbalance',   title: _("Load Balancing") },
+        { choice: 'broadcast',     title: _("Broadcast") },
+        { choice: 'lacp',          title: _("802.3ad LACP") },
+    ];
+
+var team_balancer_choices =
+    [
+        { choice: 'none',    title: _("Passive") },
+        { choice: 'basic',   title: _("Active") }
+    ];
+
+var team_watch_choices =
+    [
+        { choice: 'ethtool',       title: _("Ethtool") },
+        { choice: 'arp-ping',      title: _("ARP Ping") },
+        { choice: 'nsna-ping',     title: _("NSNA Ping") }
     ];
 
 function choice_title(choices, choice, def) {
@@ -1917,6 +2007,8 @@ PageNetworkInterface.prototype = {
                 desc = cockpit.format("$IdVendor $IdModel $Driver)", dev);
             } else if (dev.DeviceType == 'bond') {
                 desc = _("Bond");
+            } else if (dev.DeviceType == 'team') {
+                desc = _("Team");
             } else if (dev.DeviceType == 'vlan') {
                 desc = _("VLAN");
             } else if (dev.DeviceType == 'bridge') {
@@ -1926,6 +2018,8 @@ PageNetworkInterface.prototype = {
             cs = connection_settings(iface.Connections[0]);
             if (cs.type == "bond")
                 desc = _("Bond");
+            else if (cs.type == "team")
+                desc = _("Team");
             else if (cs.type == "vlan")
                 desc = _("VLAN");
             else if (cs.type == "bridge")
@@ -1944,7 +2038,10 @@ PageNetworkInterface.prototype = {
 
         $('#network-interface-disconnect').prop('disabled', !dev || !dev.ActiveConnection);
 
-        var is_deletable = (iface && !dev) || (dev && (dev.DeviceType == 'bond' || dev.DeviceType == 'vlan' || dev.DeviceType == 'bridge'));
+        var is_deletable = (iface && !dev) || (dev && (dev.DeviceType == 'bond' ||
+                                                       dev.DeviceType == 'team' ||
+                                                       dev.DeviceType == 'vlan' ||
+                                                       dev.DeviceType == 'bridge'));
         $('#network-interface-delete').toggle(!!is_deletable);
 
         function render_carrier_status_row() {
@@ -1983,6 +2080,10 @@ PageNetworkInterface.prototype = {
         function render_connection_settings_rows(con, settings) {
             if (!settings)
                 return [ ];
+
+            var master_settings = null;
+            if (con && con.Masters.length > 0)
+                master_settings = con.Masters[0].Settings;
 
             function apply() {
                 if (con)
@@ -2046,6 +2147,23 @@ PageNetworkInterface.prototype = {
                 PageNetworkBondSettings.settings = settings;
                 PageNetworkBondSettings.done = reactivate_connection;
                 $('#network-bond-settings-dialog').modal('show');
+            }
+
+            function configure_team_settings() {
+                PageNetworkTeamSettings.model = self.model;
+                PageNetworkTeamSettings.connection = con;
+                PageNetworkTeamSettings.settings = settings;
+                PageNetworkTeamSettings.done = reactivate_connection;
+                $('#network-team-settings-dialog').modal('show');
+            }
+
+            function configure_team_port_settings() {
+                PageNetworkTeamPortSettings.model = self.model;
+                PageNetworkTeamPortSettings.connection = con;
+                PageNetworkTeamPortSettings.settings = settings;
+                PageNetworkTeamPortSettings.master_settings = master_settings;
+                PageNetworkTeamPortSettings.done = reactivate_connection;
+                $('#network-teamport-settings-dialog').modal('show');
             }
 
             function configure_bridge_settings() {
@@ -2157,6 +2275,46 @@ PageNetworkInterface.prototype = {
                 return render_settings_row(_("Bond"), rows, configure_bond_settings);
             }
 
+            function render_team_settings_row() {
+                var parts = [ ];
+                var rows = [ ];
+
+                if (!settings.team)
+                    return null;
+
+                var config = settings.team.config;
+
+                if (config.runner)
+                    parts.push(choice_title(team_runner_choices, config.runner.name, config.runner.name));
+                if (config.link_watch && config.link_watch.name != "ethtool")
+                    parts.push(choice_title(team_watch_choices, config.link_watch.name, config.link_watch.name));
+
+                if (parts.length > 0)
+                    rows.push(parts.join (", "));
+                return render_settings_row(_("Team"), rows, configure_team_settings);
+            }
+
+            function render_team_port_settings_row() {
+                var parts = [ ];
+                var rows = [ ];
+
+                if (!settings.team_port)
+                    return null;
+
+                /* Only "activebackup" and "lacp" team ports have
+                 * something to configure.
+                 */
+                if (!master_settings ||
+                    !master_settings.team ||
+                    !master_settings.team.config ||
+                    !master_settings.team.config.runner ||
+                    !(master_settings.team.config.runner.name == "activebackup" ||
+                      master_settings.team.config.runner.name == "lacp"))
+                    return null;
+
+                return render_settings_row(_("Team Port"), rows, configure_team_port_settings);
+            }
+
             function render_bridge_settings_row() {
                 var rows = [ ];
                 var options = settings.bridge;
@@ -2243,7 +2401,9 @@ PageNetworkInterface.prototype = {
                      render_vlan_settings_row(),
                      render_bridge_settings_row(),
                      render_bridge_port_settings_row(),
-                     render_bond_settings_row()
+                     render_bond_settings_row(),
+                     render_team_settings_row(),
+                     render_team_port_settings_row()
                    ];
         }
 
@@ -2317,7 +2477,7 @@ PageNetworkInterface.prototype = {
             tbody.empty();
 
             var cs = connection_settings(con);
-            if (!con || (cs.type != "bond" && cs.type != "bridge")) {
+            if (!con || (cs.type != "bond" && cs.type != "team" && cs.type != "bridge")) {
                 self.rx_series.add_instance(self.dev_name);
                 self.tx_series.add_instance(self.dev_name);
                 $('#network-interface-slaves').hide();
@@ -2991,6 +3151,268 @@ function PageNetworkBondSettings() {
     this._init();
 }
 
+PageNetworkTeamSettings.prototype = {
+    _init: function () {
+        this.id = "network-team-settings-dialog";
+        this.team_settings_template = $("#network-team-settings-template").html();
+        Mustache.parse(this.team_settings_template);
+    },
+
+    setup: function () {
+        $('#network-team-settings-cancel').click($.proxy(this, "cancel"));
+        $('#network-team-settings-apply').click($.proxy(this, "apply"));
+    },
+
+    enter: function () {
+        $('#network-team-settings-error').text("");
+        if (PageNetworkTeamSettings.connection)
+            PageNetworkTeamSettings.connection.freeze();
+        this.update();
+    },
+
+    show: function() {
+    },
+
+    leave: function() {
+    },
+
+    find_slave_con: function(iface) {
+        if (!PageNetworkTeamSettings.connection)
+            return null;
+
+        return array_find(PageNetworkTeamSettings.connection.Slaves, function (s) {
+            return s.Interfaces.indexOf(iface) >= 0;
+        }) || null;
+    },
+
+    update: function() {
+        var self = this;
+        var model = PageNetworkTeamSettings.model;
+        var master =  PageNetworkTeamSettings.connection;
+        var settings = PageNetworkTeamSettings.settings;
+        var config = settings.team.config;
+
+        var runner_btn, balancer_btn, watch_btn;
+        var interval_input, target_input, updelay_input, downdelay_input;
+
+        if (!config.runner)
+            config.runner = { };
+        if (!config.runner.name)
+            config.runner.name = "activebackup";
+        if (!config.link_watch)
+            config.link_watch = { };
+        if (!config.link_watch.name)
+            config.link_watch.name = "ethtool";
+        if (config.link_watch.interval === undefined)
+            config.link_watch.interval = 100;
+        if (config.link_watch.delay_up === undefined)
+            config.link_watch.delay_up = 0;
+        if (config.link_watch.delay_down === undefined)
+            config.link_watch.delay_down = 0;
+
+        function change_runner() {
+            config.runner.name = select_btn_selected(runner_btn);
+            balancer_btn.parents("tr").toggle(config.runner.name == "loadbalance" ||
+                                              config.runner.name == "lacp");
+        }
+
+        function change_balancer() {
+            var balancer = select_btn_selected(balancer_btn);
+            if (balancer == "none") {
+                if (config.runner.tx_balancer)
+                    delete config.runner.tx_balancer.name;
+            } else {
+                if (!config.runner.tx_balancer)
+                    config.runner.tx_balancer = { };
+                config.runner.tx_balancer.name = balancer;
+            }
+        }
+
+        function change_watch() {
+            var name = select_btn_selected(watch_btn);
+
+            interval_input.parents("tr").toggle(name != "ethtool");
+            target_input.parents("tr").toggle(name != "ethtool");
+            updelay_input.parents("tr").toggle(name == "ethtool");
+            downdelay_input.parents("tr").toggle(name == "ethtool");
+
+            config.link_watch = { "name": name };
+
+            if (name == "ethtool") {
+                config.link_watch.delay_up = updelay_input.val();
+                config.link_watch.delay_down = downdelay_input.val();
+            } else {
+                config.link_watch.interval = interval_input.val();
+                config.link_watch.target_host = target_input.val();
+            }
+        }
+
+        var body = $(Mustache.render(self.team_settings_template,
+                                     {
+                                         interface_name: settings.team.interface_name,
+                                         config: config
+                                     }));
+        body.find('#network-team-settings-interface-name-input').
+                    change(function (event) {
+                        var val = $(event.target).val();
+                        settings.team.interface_name = val;
+                        settings.connection.interface_name = val;
+                    });
+        body.find('#network-team-settings-members').
+            append(render_slave_interface_choices(model, master));
+        body.find('#network-team-settings-runner-select').
+            append(runner_btn = select_btn(change_runner, team_runner_choices, "form-control"));
+        body.find('#network-team-settings-balancer-select').
+            append(balancer_btn = select_btn(change_balancer, team_balancer_choices, "form-control"));
+        body.find('#network-team-settings-link-watch-select').
+            append(watch_btn = select_btn(change_watch, team_watch_choices, "form-control"));
+
+        interval_input = body.find('#network-team-settings-ping-interval-input');
+        interval_input.change(change_watch);
+        target_input = body.find('#network-team-settings-ping-target-input');
+        target_input.change(change_watch);
+        updelay_input = body.find('#network-team-settings-link-up-delay-input');
+        updelay_input.change(change_watch);
+        downdelay_input = body.find('#network-team-settings-link-down-delay-input');
+        downdelay_input.change(change_watch);
+
+        select_btn_select(runner_btn, config.runner.name);
+        select_btn_select(balancer_btn, (config.runner.tx_balancer && config.runner.tx_balancer.name) || "none");
+        select_btn_select(watch_btn, config.link_watch.name);
+        change_runner();
+        change_watch();
+
+        $('#network-team-settings-body').html(body);
+    },
+
+    cancel: function() {
+        if (PageNetworkTeamSettings.connection)
+            PageNetworkTeamSettings.connection.reset();
+        $('#network-team-settings-dialog').modal('hide');
+    },
+
+    apply: function() {
+        apply_master_slave($('#network-team-settings-body'),
+                           PageNetworkTeamSettings.model,
+                           PageNetworkTeamSettings.connection,
+                           PageNetworkTeamSettings.settings,
+                           "team").
+            done(function() {
+                $('#network-team-settings-dialog').modal('hide');
+                if (PageNetworkTeamSettings.done)
+                    PageNetworkTeamSettings.done();
+            }).
+            fail(function (error) {
+                $('#network-team-settings-error').text(error.message || error.toString());
+            });
+    }
+
+};
+
+function PageNetworkTeamSettings() {
+    this._init();
+}
+
+PageNetworkTeamPortSettings.prototype = {
+    _init: function () {
+        this.id = "network-teamport-settings-dialog";
+        this.team_port_settings_template = $("#network-team-port-settings-template").html();
+        Mustache.parse(this.team_port_settings_template);
+    },
+
+    setup: function () {
+        $('#network-teamport-settings-cancel').click($.proxy(this, "cancel"));
+        $('#network-teamport-settings-apply').click($.proxy(this, "apply"));
+    },
+
+    enter: function () {
+        $('#network-teamport-settings-error').text("");
+        if (PageNetworkTeamPortSettings.connection)
+            PageNetworkTeamPortSettings.connection.freeze();
+        this.update();
+    },
+
+    show: function() {
+    },
+
+    leave: function() {
+    },
+
+    update: function() {
+        var self = this;
+        var model = PageNetworkTeamPortSettings.model;
+        var settings = PageNetworkTeamPortSettings.settings;
+        var master_config = PageNetworkTeamPortSettings.master_settings.team.config;
+        var config = settings.team_port.config;
+
+        var ab_prio_input, ab_sticky_input, lacp_prio_input, lacp_key_input;
+
+        function change() {
+            // XXX - handle parse errors
+            if (master_config.runner.name == "activebackup") {
+                config.prio = parseInt(ab_prio_input.val(), 10);
+                config.sticky = ab_sticky_input.prop('checked');
+            } else if (master_config.runner.name == "lacp") {
+                config.lacp_prio = parseInt(lacp_prio_input.val(), 10);
+                config.lacp_key = parseInt(lacp_key_input.val(), 10);
+            }
+        }
+
+        var body = $(Mustache.render(self.team_port_settings_template, config));
+        ab_prio_input = body.find('#network-team-port-settings-ab-prio-input');
+        ab_prio_input.change(change);
+        ab_sticky_input = body.find('#network-team-port-settings-ab-sticky-input');
+        ab_sticky_input.change(change);
+        lacp_prio_input = body.find('#network-team-port-settings-lacp-prio-input');
+        lacp_prio_input.change(change);
+        lacp_key_input = body.find('#network-team-port-settings-lacp-key-input');
+        lacp_key_input.change(change);
+
+        ab_prio_input.parents("tr").toggle(master_config.runner.name == "activebackup");
+        ab_sticky_input.parents("tr").toggle(master_config.runner.name == "activebackup");
+        lacp_prio_input.parents("tr").toggle(master_config.runner.name == "lacp");
+        lacp_key_input.parents("tr").toggle(master_config.runner.name == "lacp");
+
+        $('#network-teamport-settings-body').html(body);
+    },
+
+    cancel: function() {
+        if (PageNetworkTeamPortSettings.connection)
+            PageNetworkTeamPortSettings.connection.reset();
+        $('#network-teamport-settings-dialog').modal('hide');
+    },
+
+    apply: function() {
+        var self = this;
+        var model = PageNetworkTeamPortSettings.model;
+        var port_settings = PageNetworkTeamPortSettings.settings;
+        var settings_manager = model.get_settings();
+
+        function show_error(error) {
+            $('#network-teamport-settings-error').text(error.message || error.toString());
+        }
+
+        function update_port() {
+            if (PageNetworkTeamPortSettings.connection)
+                return PageNetworkTeamPortSettings.connection.apply();
+            else
+                return settings_manager.add_connection(port_settings);
+        }
+
+        update_port().
+            done(function () {
+                $('#network-teamport-settings-dialog').modal('hide');
+                if (PageNetworkTeamPortSettings.done)
+                    PageNetworkTeamPortSettings.done();
+            }).
+            fail(show_error);
+    }
+};
+
+function PageNetworkTeamPortSettings() {
+    this._init();
+}
+
 PageNetworkBridgeSettings.prototype = {
     _init: function () {
         this.id = "network-bridge-settings-dialog";
@@ -3477,6 +3899,8 @@ function init() {
 
     dialog_setup(new PageNetworkIpSettings());
     dialog_setup(new PageNetworkBondSettings());
+    dialog_setup(new PageNetworkTeamSettings());
+    dialog_setup(new PageNetworkTeamPortSettings());
     dialog_setup(new PageNetworkBridgeSettings());
     dialog_setup(new PageNetworkBridgePortSettings());
     dialog_setup(new PageNetworkVlanSettings());

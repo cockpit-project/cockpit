@@ -50,7 +50,7 @@ function show_unexpected_error(error) {
     $('#error-popup').modal('show');
 }
 
-function select_btn(func, spec) {
+function select_btn(func, spec, klass) {
     var choice = spec[0].choice;
 
     function option_mapper(opt) {
@@ -84,6 +84,9 @@ function select_btn(func, spec) {
 
     select(choice);
     $.data(btn[0], 'cockpit-select-btn-funcs', { select: select, selected: selected });
+    if (klass)
+        btn.addClass(klass);
+
     return btn;
 }
 
@@ -2660,7 +2663,7 @@ function slave_chooser_btn(change, slave_choices) {
         if ($(elt).prop('checked'))
             choices.push({ title: name, choice: name });
     });
-    return select_btn(change, choices);
+    return select_btn(change, choices, "form-control");
 }
 
 function free_slave_connection(con) {
@@ -2860,11 +2863,11 @@ PageNetworkBondSettings.prototype = {
                       append(slaves_element = render_slave_interface_choices(model, master).
                              change(change_slaves));
         body.find('#network-bond-settings-mode-select').
-                      append(mode_btn = select_btn(change_mode, bond_mode_choices));
+                      append(mode_btn = select_btn(change_mode, bond_mode_choices, "form-control"));
         body.find('#network-bond-settings-primary-select').
-                      append(primary_btn = slave_chooser_btn(change_mode, slaves_element));
+                      append(primary_btn = slave_chooser_btn(change_mode, slaves_element, "form-control"));
         body.find('#network-bond-settings-link-monitoring-select').
-                      append(monitoring_btn = select_btn(change_monitoring, bond_monitoring_choices));
+                      append(monitoring_btn = select_btn(change_monitoring, bond_monitoring_choices, "form-control"));
 
         interval_input = body.find('#network-bond-settings-monitoring-interval-input');
         interval_input.change(change_monitoring);
@@ -3186,7 +3189,7 @@ PageNetworkVlanSettings.prototype = {
                        vlan_id: options.id || "1",
                        interface_name: options.interface_name
                    }));
-        parent_btn = select_btn(change, parent_choices);
+        parent_btn = select_btn(change, parent_choices, "form-control");
         body.find('#network-vlan-settings-parent-select').html(parent_btn);
         id_input = body.find('#network-vlan-settings-vlan-id-input').
                        change(change).

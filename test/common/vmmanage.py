@@ -30,22 +30,23 @@ def upload_scripts(machine, args):
     if args["containers"]:
         machine.upload([os.path.join(testinfra.TEST_DIR,"..", "containers")], "/var/tmp")
 
-def run_install_script(machine, do_build, do_install, skip, arg, args):
+def run_install_script(machine, do_build, do_install, skips, arg, args):
     install = do_install
     if args["containers"]:
         do_install = False
 
+    skip_args = map(lambda skip: " --skip '%s'" % skip, skips or [])
     machine.execute("cd /var/tmp; ./%s.install%s%s%s%s%s%s" % (machine.image,
                                                          " --verbose" if args["verbose"] else "",
                                                          " --quick" if args["quick"] else "",
                                                          " --build" if do_build else "",
                                                          " --install" if do_install else "",
-                                                         " --skip '%s'" % skip if skip else "",
+                                                         " ".join(skip_args),
                                                          " '%s'" % arg if arg else ""))
     if install and args["containers"]:
         machine.execute("/var/lib/testvm/containers.install")
 
-def build_and_maybe_install(image, do_install=False, skip=None, args=None):
+def build_and_maybe_install(image, do_install=False, skips=None, args=None):
     """Build and maybe install Cockpit into a test image"""
     machine = testvm.VirtMachine(verbose=args["verbose"], image=image, label="install")
     source = subprocess.check_output([ os.path.join(testinfra.TEST_DIR, "..", "tools", "make-source") ]).strip()
@@ -61,7 +62,7 @@ def build_and_maybe_install(image, do_install=False, skip=None, args=None):
         machine.wait_boot()
         upload_scripts(machine, args=args)
         machine.upload([ source ], "/var/tmp")
-        run_install_script(machine, True, do_install, skip, os.path.basename(source), args)
+        run_install_script(machine, True, do_install, skips, os.path.basename(source), args)
         completed = True
     finally:
         if not completed and args["sit"]:
@@ -72,7 +73,7 @@ def build_and_maybe_install(image, do_install=False, skip=None, args=None):
         finally:
             machine.stop()
 
-def only_install(image, skip=None, args=None, address=None):
+def only_install(image, skips=None, args=None, address=None):
     """Install Cockpit into a test image"""
     verbose = args["verbose"]
     started = False
@@ -89,7 +90,7 @@ def only_install(image, skip=None, args=None, address=None):
         upload_scripts(machine,args=args)
         machine.execute("rm -rf /var/tmp/build-results");
         machine.upload([ "tmp/build-results" ], "/var/tmp")
-        run_install_script(machine, False, True, skip, None, args)
+        run_install_script(machine, False, True, skips, None, args)
         completed = True
     finally:
         if not completed and args["sit"]:
@@ -107,18 +108,22 @@ def build_and_install(install_image, build_image, args):
     args.setdefault("install_only", False)
     args.setdefault("containers", False)
     args.setdefault("address", None)
+
+    skips = [ ]
+    if install_image and "atomic" not in install_image:
+        skips.append("cockpit-ostree")
+    if args["address"]:
+        skips.append("cockpit-test-assets")
+
     try:
-        skip = "cockpit-ostree"
-        if install_image and "atomic" in install_image:
-            skip = None
 
         if not args["address"] and build_image and build_image == install_image:
-            build_and_maybe_install(build_image, do_install=True, skip=skip, args=args)
+            build_and_maybe_install(build_image, do_install=True, skips=skips, args=args)
         else:
             if build_image:
-                build_and_maybe_install(build_image, do_install=False, skip=skip, args=args)
+                build_and_maybe_install(build_image, do_install=False, skips=skips, args=args)
             if install_image:
-                only_install(install_image, skip, args=args)
+                only_install(install_image, skips, args=args)
     except testvm.Failure, ex:
         raise ("Unable to build and install cockpit package", ex)
     return True

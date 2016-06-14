@@ -2296,7 +2296,11 @@ PageNetworkInterface.prototype = {
                                                    fail(show_unexpected_error);
                                                return false;
                                            }))).
-                        click(function () {
+                        click(function (event) {
+                            // Somehow the clicks on the switchbox
+                            // bubble up to here.  Let's catch them.
+                            if ($(event.target).hasClass("btn"))
+                                return;
                             cockpit.location.go([ iface.Name ]);
                         });
                 });

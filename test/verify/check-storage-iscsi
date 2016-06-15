@@ -38,7 +38,7 @@ class TestStorage(StorageCase):
         # Setup a iSCSI target with authentication for discovery and join
         #
         m.execute("""
-                  targetcli /backstores/ramdisk create test 10M nullio=true
+                  targetcli /backstores/ramdisk create test 50M
                   targetcli /iscsi set discovery_auth enable=1 userid=admin password=foobar
                   targetcli /iscsi create %(tgt)s
                   targetcli /iscsi/%(tgt)s/tpg1/luns create /backstores/ramdisk/test
@@ -86,6 +86,18 @@ class TestStorage(StorageCase):
 
         b.wait_in_text('#iscsi-sessions', target_iqn)
         b.wait_in_text('#drives', "LIO-ORG test")
+
+        # Make a filesystem on it to prove that the disk really works.
+
+        b.click('#drives tr:contains("LIO-ORG test")')
+        b.wait_visible('#storage-detail')
+        b.wait_in_text('#content', "Unrecognized Data")
+        self.content_default_action(1, "Format")
+        self.dialog({ "type": "ext4",
+                      "name": "FILESYSTEM" })
+        b.wait_in_text("#content", "FILESYSTEM")
+        b.click('#storage-detail .breadcrumb a')
+        b.wait_visible('#storage')
 
         b.click('#iscsi-sessions .arm-button')
         b.wait_visible('#iscsi-sessions button[data-iscsi-session-remove]')

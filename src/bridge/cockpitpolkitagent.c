@@ -426,10 +426,16 @@ cockpit_polkit_agent_class_init (CockpitPolkitAgentClass *klass)
                                   G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 }
 
+typedef struct {
+    PolkitAgentListener *listener;
+    gpointer registration_handle;
+} CockpitPolkitRegistered;
+
 gpointer
 cockpit_polkit_agent_register (CockpitTransport *transport,
                                GCancellable *cancellable)
 {
+  CockpitPolkitRegistered *registered;
   PolkitAgentListener *listener = NULL;
   PolkitAuthority *authority = NULL;
   PolkitSubject *subject = NULL;
@@ -505,22 +511,43 @@ out:
     g_object_unref (subject);
   if (authority)
     g_object_unref (authority);
-  if (listener)
-    g_object_unref (listener);
   g_clear_error (&error);
-  return handle;
+
+  if (handle)
+    {
+      registered = g_new0 (CockpitPolkitRegistered, 1);
+      registered->registration_handle = handle;
+      registered->listener = listener;
+      return registered;
+    }
+  else
+    {
+      if (listener)
+        g_object_unref (listener);
+      return NULL;
+    }
 }
 
 void
-cockpit_polkit_agent_unregister (gpointer handle)
+cockpit_polkit_agent_unregister (gpointer data)
 {
+  CockpitPolkitRegistered *registered = data;
   guint handler = 0;
+
+  if (!registered)
+    return;
+
+  /* Explicitly cancel all pending operations */
+  g_object_run_dispose (G_OBJECT (registered->listener));
+  g_object_unref (registered->listener);
 
   /* Everything is shutting down at this point, prevent polkit from complaining */
   handler = g_log_set_handler (NULL, G_LOG_LEVEL_WARNING, cockpit_null_log_handler, NULL);
 
-  if (handle)
-    polkit_agent_listener_unregister (handle);
+  /* Now unregister with polkit */
+  polkit_agent_listener_unregister (registered->registration_handle);
 
   g_log_remove_handler (NULL, handler);
+
+  g_free (registered);
 }

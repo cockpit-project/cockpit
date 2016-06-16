@@ -61,7 +61,7 @@ DEFAULT_VERIFY = {
     'avocado/fedora-23': [ 'master', 'pulls' ],
     'selenium/firefox': [ 'master', 'pulls' ],
     'selenium/chrome': [ 'master', 'pulls' ],
-    'container/kubernetes': [ ],
+    'container/kubernetes': [ 'master', 'pulls' ],
     'koji/fedora-23': [ ],
     'koji/fedora-24': [ ],
 }

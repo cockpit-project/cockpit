@@ -102,6 +102,17 @@ class TestSelinux(MachineCase):
         # wait until it is collapsed
         b.wait_not_in_text(row_selector, "You must tell SELinux about this by enabling the 'httpd_read_user_content' boolean.")
 
+        # now expand again so we can dismiss the alert
+        b.click(toggle_selector)
+        b.wait_present(row_selector + " button.pficon-delete")
+
+        # HACK: we need updated test images for delete to work
+        # dismiss the alert
+        #b.click(row_selector + " button.pficon-delete")
+        #b.wait_not_present(row_selector)
+
+        #b.wait_in_text("body", "No SELinux alerts.")
+
         #########################################################
         # trigger a fixable alert
         self.machine.execute(script=SELINUX_FIXABLE_ALERT_SCRIPT)
@@ -125,9 +136,58 @@ class TestSelinux(MachineCase):
         btn_sel = "div.list-group-item:contains('you can run restorecon') button"
         b.click(btn_sel)
 
-        # there's a known issue where setroubleshoot is unable to run the fix
-        #b.wait_in_text(row_selector, "Successfully ran /sbin/restorecon /etc/ssh/ssh_host_ecdsa_key")
+        # HACK there's a known issue where setroubleshoot is unable to run the fix
+        # the fix should be applied
         b.wait_in_text(row_selector, "Solution applied successfully:")
+        # b.wait_in_text(row_selector, "Successfully ran /sbin/restorecon")
+
+        # HACK: we need updated test images for delete to work
+        # dismiss the alert
+        #b.click(row_selector + " button.pficon-delete")
+        #b.wait_not_present(row_selector)
+
+        #b.wait_in_text("body", "No SELinux alerts.")
+
+    def testEnforcingToggle(self):
+        b = self.browser
+        m = self.machine
+
+        # HACK: http://bugzilla.redhat.com/show_bug.cgi?id=1346364
+        # This issue happens when selinux item is in kickstart
+        # as happens in our virt-builder and virt-install usage
+        m.execute("chmod ugo+r /etc/selinux/config")
+
+        # fix audit events first
+        m.execute(script=FIX_AUDITD)
+
+        self.login_and_go("/selinux/setroubleshoot")
+
+        # at the beginning, there should be no entries
+        b.wait_in_text("body", "No SELinux alerts.")
+
+        #########################################################
+        # wait for the page to be present
+        b.wait_in_text("body", "SELinux Policy")
+
+        # SELinux should be enabled and enforcing at the beginning
+        on_off_selector_active = "div.btn-onoff-ct label.active"
+        b.wait_in_text(on_off_selector_active, "On")
+        m.execute("getenforce | grep -q 'Enforcing'")
+
+        # now set to permissive using the ui button
+        b.click("div.btn-onoff-ct label.active span")
+        b.wait_in_text(on_off_selector_active, "Off")
+        m.execute("getenforce | grep -q 'Permissive'")
+
+        # when in permissive mode, expect a warning
+        b.wait_in_text("div.selinux-policy-ct", "Setting deviates")
+
+        # switch back using cli, ui should react
+        m.execute("setenforce 1")
+        b.wait_in_text(on_off_selector_active, "On")
+
+        # warning should disappear
+        b.wait_not_in_text("div.selinux-policy-ct", "Setting deviates")
 
 if __name__ == '__main__':
     test_main()

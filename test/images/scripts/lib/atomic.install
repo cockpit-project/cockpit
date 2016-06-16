@@ -32,9 +32,7 @@ class AtomicCockpitInstaller:
     checkout_location = "/var/local-tree"
     repo_location = "/var/local-repo"
     rpm_location = "/usr/share/rpm"
-
-    # Support installing random packages if needed.
-    external_packages = {}
+    external_packages_dir = "/var/external-packages"
 
     packages_force_install = [ "cockpit-kubernetes",
                                "cockpit-docker",
@@ -198,6 +196,18 @@ class AtomicCockpitInstaller:
         installed_packages = self.get_installed_cockpit_packages()
         self.remove_packages(installed_packages)
 
+        if os.path.exists(self.external_packages_dir):
+            externals = [ ]
+            for f in os.listdir(self.external_packages_dir):
+                if f.endswith(".rpm"):
+                    externals.append(os.path.join(self.external_packages_dir, f))
+            if self.verbose:
+                print "external packages to install:"
+                print externals
+            self.install_packages(externals, replace=True)
+            for f in externals:
+                os.remove(f)
+
         packages_to_install = self.package_basenames(installed_packages)
         for p in self.packages_force_install:
             if not p in packages_to_install:
@@ -210,21 +220,6 @@ class AtomicCockpitInstaller:
         if self.verbose:
             print "packages to install:"
             print packages_to_install
-
-        if self.external_packages:
-            names = self.external_packages.keys()
-            if self.verbose:
-                print "external packages to install:"
-                print names
-
-            downloader = urllib.URLopener()
-            for name, url in self.external_packages.items():
-                downloader.retrieve(url, name)
-
-            self.install_packages(names, replace=True)
-
-            for name in names:
-                os.remove(name)
 
         self.install_packages(packages_to_install)
         test_assets = [x for x in self.rpms \

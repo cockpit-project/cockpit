@@ -763,6 +763,8 @@ define([
         self.items = {};
 
         self.load = function(manifests, section) {
+            var overrides = [];
+
             $.each(manifests || { }, function(name, manifest) {
                 $.each(manifest[section] || { }, function(prop, info) {
                     var item = {
@@ -779,8 +781,20 @@ define([
                         item.path = name + "/" + item.path;
                     if (item.path.slice(-6) == "/index")
                         item.path = item.path.slice(0, -6);
+
+                    if(info.override) {
+                        overrides.push(info.override);
+                    }
+
                     self.items[item.path] = item;
                 });
+            });
+
+            // override menu entries, mark them
+            $.each(overrides, function(index, path) {
+                if(self.items[path]) {
+                    self.items[path].hide = true;
+                }
             });
         };
 

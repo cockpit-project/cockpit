@@ -276,6 +276,7 @@ define([
             function links(component) {
                 return $("<li>")
                     .toggleClass("active", state.component === component.path)
+                    .toggleClass("hide", !!component.hide)
                     .append($("<a>")
                         .attr("href", index.href({ host: machine.address, component: component.path }))
                         .text(component.label));

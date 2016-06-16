@@ -255,9 +255,5 @@ if args.install:
                                  and not f.endswith(".src.rpm")
                                  and not any(f.startswith(s) for s in args.skip)),
                       os.listdir(".")))
-    try:
-        cockpit_installer = AtomicCockpitInstaller(rpms=rpms, verbose=args.verbose)
-        cockpit_installer.run()
-    except Exception, ex:
-        print >> sys.stderr, "Atomic cockpit installation failed:", ex
-        sys.exit(1)
+    cockpit_installer = AtomicCockpitInstaller(rpms=rpms, verbose=args.verbose)
+    cockpit_installer.run()

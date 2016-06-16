@@ -88,7 +88,7 @@ class MachineBuilder:
                 "TEST_OS": self.machine.image
             }
             if source:
-                env["TEST_SOURCE"]: os.path.join("/var/tmp", os.path.basename(source))
+                env["TEST_SOURCE"] = os.path.join("/var/tmp", os.path.basename(source))
             self.machine.message("run setup script on guest")
 
             try:
@@ -127,7 +127,7 @@ class MachineBuilder:
             raise testvm.Failure("Unsupported image %s: %s not found." % (self.machine.image, script))
 
         self.machine.message("Running setup script %s" % (script))
-        if no_build:
+        if args.no_build:
             source = None
         else:
             source = subprocess.check_output([ "../tools/make-source" ]).strip()

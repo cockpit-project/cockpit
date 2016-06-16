@@ -573,7 +573,7 @@ function Transport() {
         if (waiting_for_init) {
             waiting_for_init = false;
             if (data.command != "close" || data.channel) {
-                console.error ("received message before init");
+                console.error("received message before init: ", data.command);
                 data = { "problem": "protocol-error" };
             }
             self.close(data);

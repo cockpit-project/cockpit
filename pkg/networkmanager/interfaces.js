@@ -788,6 +788,13 @@ function NetworkManagerModel() {
 
     function refresh_settings(obj) {
         push_refresh();
+
+        /* Make sure that there always is a skeleton Settings
+         * property.  This simplifies the rest of the code.
+         */
+        if (!obj.Settings)
+            obj.Settings = { connection: { } };
+
         client.call(objpath(obj), "org.freedesktop.NetworkManager.Settings.Connection", "GetSettings").
             always(pop_refresh).
             fail(complain).

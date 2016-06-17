@@ -33,9 +33,6 @@ class AtomicCockpitInstaller:
     repo_location = "/var/local-repo"
     rpm_location = "/usr/share/rpm"
 
-    # Support installing random packages if needed.
-    external_packages = {}
-
     packages_force_install = [ "cockpit-kubernetes",
                                "cockpit-docker",
                                "cockpit-networkmanager",
@@ -210,21 +207,6 @@ class AtomicCockpitInstaller:
         if self.verbose:
             print "packages to install:"
             print packages_to_install
-
-        if self.external_packages:
-            names = self.external_packages.keys()
-            if self.verbose:
-                print "external packages to install:"
-                print names
-
-            downloader = urllib.URLopener()
-            for name, url in self.external_packages.items():
-                downloader.retrieve(url, name)
-
-            self.install_packages(names, replace=True)
-
-            for name in names:
-                os.remove(name)
 
         self.install_packages(packages_to_install)
         test_assets = [x for x in self.rpms \

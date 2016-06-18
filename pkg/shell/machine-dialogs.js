@@ -620,7 +620,7 @@ define([
         var keys = null;
         var machine = dialog.machines_ins.lookup(dialog.address);
 
-        self.user = null;
+        self.user = { };
 
         function update_keys() {
             var loaded_keys = [];
@@ -657,7 +657,8 @@ define([
                      * so we pass current user as an option, but make sure the
                      * session isn't private
                      */
-                    options["user"] = self.user.name;
+                    if (self.user.name)
+                        options["user"] = self.user.name;
                     options["temp-session"] = false;
                 }
             }
@@ -722,7 +723,7 @@ define([
                 'supported' : methods,
                 'available' : available,
                 'machine_user' : machine_user,
-                'user' : self.user.name,
+                'user' : self.user.name || "",
                 'allows_password' : allows_password,
                 'can_sync': !!dialog.codes['sync-users'],
                 'machines.allow_connection_string' : machines.allow_connection_string,

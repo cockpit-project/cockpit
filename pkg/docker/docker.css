@@ -75,30 +75,32 @@
     padding-right: 8px;
 }
 
-.container-column-name {
-    width: 20%;
-}
-
-.container-column-image {
-    width: 20%;
-}
-
-.container-column-command {
-    width: 15%;
-}
-
-.container-column-cpu {
-    width: 10%;
-    text-align: right;
-}
-
-.container-column-memory-graph {
-    width: 15%;
-}
-
+.container-column-cpu,
+.container-column-memory-graph,
 .container-column-memory-text {
-    width: 10%;
-    text-align: right;
+    display: none;
+}
+
+/* The columns are displayed differently here */
+@media (min-width: 768px) {
+    .container-column-name,
+    .container-column-image {
+        width: 20%;
+        display: table-cell;
+    }
+
+    .container-column-command,
+    .container-column-memory-graph {
+        width: 15%;
+        display: table-cell;
+    }
+
+    .container-column-cpu,
+    .container-column-memory-text {
+        width: 10%;
+        text-align: right;
+        display: table-cell;
+    }
 }
 
 #image-details-containers .container-column-actions,
@@ -106,13 +108,6 @@
     vertical-align: top;
     padding-top: 4px;
     padding-bottom: 4px;
-}
-
-#image-details-containers .cell-buttons,
-#image-details-containers .table > tbody > tr > .cell-buttons,
-#containers .cell-buttons,
-#containers .table > tbody > tr > .cell-buttons {
-    width: auto;
 }
 
 #image-details-containers .cell-buttons button,
@@ -196,16 +191,24 @@
     text-overflow: ellipsis;
 }
 
-.image-column-tags {
-    width: 40%;
-}
-
-.image-column-created {
-    width: 30%;
-}
-
+.image-column-created,
 .image-column-size-text {
-    width: 15%;
+    display: none;
+}
+
+/* The columns are displayed differently here */
+@media (min-width: 768px) {
+    .image-column-created {
+        width: 30%;
+        display: table-cell;
+    }
+    .image-column-size-text {
+        width: 15%;
+        display: table-cell;
+    }
+    .image-column-tags {
+        width: 40%;
+    }
 }
 
 #containers_run_image_dialog td {

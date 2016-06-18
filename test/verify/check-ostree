@@ -169,7 +169,6 @@ class OstreeRestartCase(MachineCase):
         b.wait_visible("table.listing-ct tbody:nth-child(3) div.tree")
         b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.os", name)
         b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.version", "cockpit-base.2")
-        b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.timestamp", "seconds ago")
         self.check_change_counts(b, "table.listing-ct tbody:nth-child(3)")
 
         self.switch_to_packages(b, "table.listing-ct tbody:nth-child(3)",

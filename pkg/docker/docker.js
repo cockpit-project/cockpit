@@ -134,6 +134,7 @@ define([
             screenKeys: true,
             useStyle: true,
             inlineStyle: false,
+            useFocus: false,
         });
 
         var enable_input = true;
@@ -151,6 +152,10 @@ define([
                 term.showCursor();
             term.refresh(term.y, term.y);
             enable_input = yes;
+        };
+
+        self.focus = function focus() {
+            term.focus();
         };
 
         /* Allows caller to cleanup nicely */
@@ -248,6 +253,10 @@ define([
             }
 
             return at;
+        };
+
+        self.focus = function() {
+            /* Nothing to do */
         };
 
         /*
@@ -503,6 +512,7 @@ define([
             .on("focusin", function() {
                 focused = true;
                 update_typeable();
+                view.focus();
             })
             .on("focusout", function() {
                 focused = false;

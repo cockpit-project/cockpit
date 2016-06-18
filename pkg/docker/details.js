@@ -22,7 +22,8 @@ define([
     "base1/cockpit",
     "./mustache",
     "./docker",
-    "./util"
+    "./util",
+    "./patterns",
 ], function($, cockpit, Mustache, docker, util) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
@@ -68,12 +69,9 @@ define([
                     self.cpu_priority.value = info.CpuPriority || undefined;
                 }).
                 find(".btn-primary").on("click", function() {
-                    self.client.change_memory_limit(self.container_id, self.memory_limit.value);
-                    var swap = self.memory_limit.value;
-                    if (!isNaN(swap))
-                        swap *= 2;
-                    self.client.change_swap_limit(self.container_id, swap);
-                    self.client.change_cpu_priority(self.container_id, self.cpu_priority.value);
+                    var mem = self.client.change_memory_limit(self.container_id, self.memory_limit.value);
+                    var cpu = self.client.change_cpu_priority(self.container_id, self.cpu_priority.value);
+                    $('#container-resources-dialog').dialog('promise', cockpit.all(mem, cpu));
                 });
 
             var commit = $('#container-commit-dialog')[0];

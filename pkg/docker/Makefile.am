@@ -24,6 +24,7 @@ dockerdebug_DATA = \
 	pkg/docker/image.js \
 	pkg/docker/index.html \
 	pkg/docker/mustache.js \
+	pkg/docker/patterns.js \
 	pkg/docker/overview.js \
 	pkg/docker/run.js \
 	pkg/docker/search.js \
@@ -39,6 +40,7 @@ docker_BUNDLE = \
 	pkg/docker/containers.min.js \
 	pkg/docker/image.min.js \
 	pkg/docker/mustache.min.js \
+	pkg/docker/patterns.min.js \
 	pkg/docker/overview.min.js \
 	pkg/docker/run.min.js \
 	pkg/docker/search.min.js \

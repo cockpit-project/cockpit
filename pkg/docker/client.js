@@ -573,26 +573,26 @@ define([
             var command = "echo '" + value.toFixed(0) + "' > " + path;
             util.docker_debug("changing cgroup:", command);
 
-            /*
-             * TODO: We need a sane UI for showing that the resources can't be changed
-             * Showing unexpected error isn't it.
-             */
-            cockpit.spawn(["sh", "-c", command]).
-                fail(function(ex) {
-                    console.warn(ex);
-                });
+            return cockpit.spawn(["sh", "-c", command], { "superuser": "try", "err": "message" });
         }
 
         this.change_memory_limit = function change_memory_limit(id, value) {
+            var cgroup = this.containers[id].CGroup;
             if (value === undefined || value <= 0)
                 value = -1;
-            return change_cgroup("memory", this.containers[id].CGroup, "memory.limit_in_bytes", value);
-        };
 
-        this.change_swap_limit = function change_swap_limit(id, value) {
-            if (value === undefined || value <= 0)
-                value = -1;
-            return change_cgroup("memory", this.containers[id].CGroup, "memory.memsw.limit_in_bytes", value);
+            /* The order in which we set memory.memsw and memory is important. */
+            if (value === -1) {
+                return change_cgroup("memory", cgroup, "memory.memsw.limit_in_bytes", -1)
+                    .then(function() {
+                        return change_cgroup("memory", cgroup, "memory.limit_in_bytes", -1);
+                    });
+            } else {
+                return change_cgroup("memory", cgroup, "memory.limit_in_bytes", value)
+                    .then(function() {
+                        return change_cgroup("memory", cgroup, "memory.memsw.limit_in_bytes", value * 2);
+                    });
+            }
         };
 
         this.change_cpu_priority = function change_cpu_priority(id, value) {

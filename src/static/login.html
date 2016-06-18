@@ -816,7 +816,7 @@ label {
   border-radius: 100%;
   border-top: 4px solid rgba(0, 0, 0, 0.75);
   height: 24px;
-  margin: 0 auto;
+  margin: 4px 0 0 0;
   position: relative;
   width: 24px;
 }
@@ -833,7 +833,6 @@ label {
             font-size: 13px;
         }
         .spinner {
-            margin-top: 4px;
             border-color: rgba(255, 255, 255, 0.75) rgba(255, 255, 255, 0.25) rgba(255, 255, 255, 0.25)
         }
 
@@ -884,12 +883,12 @@ label {
               </div>
             </div>
             <div class="form-group login-form">
-              <div class=" col-xs-12 col-sm-offset-2 col-sm-6">
-                <span class="help-block" id="login-error-message"></span>
-              </div>
-              <div class="col-sm-1">
+              <div class="col-sm-2">
                 <div class="spinner col-xs-15" id="login-spinner" hidden>
                 </div>
+              </div>
+              <div class="col-xs-12 col-sm-7">
+                <span class="help-block" id="login-error-message"></span>
               </div>
               <div class="col-sm-3 login-button-container">
                 <button class="btn btn-primary btn-lg col-xs-12" id="login-button" tabindex="3">

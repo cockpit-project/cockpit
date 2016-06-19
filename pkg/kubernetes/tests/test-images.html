@@ -154,24 +154,17 @@ function suite(fixtures) {
         }
     ]);
 
-    imagesTest("filter dockerImageManifest", 5, fixtures, [
+    imagesTest("split dockerImageManifest", 3, fixtures, [
         "kubeSelect",
         "imageData",
         function(select, data) {
-            var manifests = select().kind("Image").dockerImageManifest();
-            equal(manifests.length, 1, "only manifest returned");
+            var items = select().kind("DockerImageManifest").name("sha256:63da16dc866fa7bfca4dd9d45b70feda28aa383c9ca1f1766c127ccc715a8cb7");
+            equal(items.length, 1, "only manifest returned");
 
-            var manifest = manifests["/oapi/v1/images/sha256:63da16dc866fa7bfca4dd9d45b70feda28aa383c9ca1f1766c127ccc715a8cb7"];
-            ok(!!manifest, "got right manifest");
+            var item = items["/internal/manifests/sha256:63da16dc866fa7bfca4dd9d45b70feda28aa383c9ca1f1766c127ccc715a8cb7"];
+            ok(!!item, "got right manifest");
 
-            equal(manifest.history[0].v1Compatibility.config.Hostname, "13709f13afe1", "parsed manifest and compat");
-
-            var second = select().kind("Image").dockerImageManifest();
-            strictEqual(manifests, second, "should return exactly the same");
-
-            manifests = select(null).dockerImageManifest();
-            second = select(null).dockerImageManifest();
-            strictEqual(manifests, second, "null should return exactly the same");
+            equal(item.manifest.history[0].v1Compatibility.config.Hostname, "13709f13afe1", "parsed manifest and compat");
         }
     ]);
 

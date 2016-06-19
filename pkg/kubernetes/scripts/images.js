@@ -301,12 +301,14 @@
         function(select, loader) {
 
             /* Called when we have to load images via imagestreams */
-            function handle_imagestreams(objects) {
+            loader.listen(function(objects) {
                 for (var link in objects) {
                     if (objects[link].kind === "ImageStream")
                         handle_imagestream(objects[link]);
+                    if (objects[link].kind === "Image")
+                        handle_image(objects[link]);
                 }
-            }
+            });
 
             function handle_imagestream(imagestream) {
                 var meta = imagestream.metadata || { };
@@ -330,6 +332,7 @@
                             if (image) {
                                 image.kind = "Image";
                                 loader.handle(image);
+                                handle_image(image);
                             }
                         }, function(response) {
                             console.warn("couldn't load image: " + response.statusText);
@@ -337,6 +340,31 @@
                         });
                     });
                 });
+            }
+
+            /*
+             * Create a pseudo-item with kind DockerImageManifest for
+             * each image with a dockerImageManifest that we see. Identical
+             * name to the image itself.
+             */
+            function handle_image(image) {
+                var item, history, manifest = image.dockerImageManifest;
+                if (manifest) {
+                    manifest = JSON.parse(manifest);
+                    angular.forEach(manifest.history || [], function(item) {
+                        if (typeof item.v1Compatibility == "string")
+                            item.v1Compatibility = JSON.parse(item.v1Compatibility);
+                    });
+                    item = {
+                        kind: "DockerImageManifest",
+                        metadata: {
+                            name: image.metadata.name,
+                            selfLink: "/internal/manifests/" + image.metadata.name
+                        },
+                        manifest: manifest,
+                    };
+                    loader.handle(item);
+                }
             }
 
             /* Load images, but fallback to loading individually */
@@ -347,8 +375,6 @@
                     watching = loader.watch("imagestreams");
                 return watching;
             }
-
-            loader.listen(handle_imagestreams);
 
             /*
              * Filters selection to those with names that is
@@ -407,27 +433,6 @@
             });
 
             /*
-             * Filter that gets docker image manifests for each of the
-             * images selected. Objects without a manifest will be
-             * dropped from the results.
-             */
-            select.register("dockerImageManifest", function() {
-                var results = { };
-                angular.forEach(this, function(image, key) {
-                    var history, manifest = image.dockerImageManifest;
-                    if (manifest) {
-                        manifest = JSON.parse(manifest);
-                        angular.forEach(manifest.history || [], function(item) {
-                            if (typeof item.v1Compatibility == "string")
-                                item.v1Compatibility = JSON.parse(item.v1Compatibility);
-                        });
-                        results[key] = manifest;
-                    }
-                });
-                return select(results);
-            });
-
-            /*
              * Filter that gets the config object for a docker based
              * image.
              */
@@ -471,10 +476,12 @@
             function imageLayers(image) {
                 if (!image)
                     return null;
-                var manifest = select(image).dockerImageManifest().one();
-                if (!manifest || manifest.schemaVersion !== 1)
-                    return null;
-                return manifest.history;
+                var item = select().kind("DockerImageManifest").name(image.metadata.name).one();
+                if (item && item.manifest && item.manifest.schemaVersion === 1)
+                    return item.manifest.history;
+                if (image.dockerImageLayers)
+                    return image.dockerImageLayers;
+                return null;
             }
 
             /* HACK: We really want a metadata index here */

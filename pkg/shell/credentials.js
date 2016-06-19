@@ -490,7 +490,7 @@ define([
                             row.attr("data-name", key.name)
                                 .attr("data-loaded", key.loaded ? "1" : "0")
                                 .find(".btn-onoff-ct")
-                                    .onoff("value", key.loaded)
+                                    .onoff("value", key.loaded || row.hasClass("unlock"))
                                     .onoff("disabled", !key.name);
                         } else {
                             row.remove();

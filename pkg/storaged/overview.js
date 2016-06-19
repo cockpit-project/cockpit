@@ -521,27 +521,44 @@ define([
                                   var dfd = $.Deferred();
 
                                   var options = { };
-                                  if (vals.username || vals.password) {
-                                      options.username = { t: 's', v: vals.username };
-                                      options.password = { t: 's', v: vals.password };
+                                  var cancelled = false;
+
+                                  /*
+                                   * Storaged broke API in one of its releases.
+                                   *
+                                   * HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1340359
+                                   * HACK: https://github.com/storaged-project/storaged/issues/24
+                                   */
+
+                                  var method;
+                                  if ('DiscoverSendTargetsNoAuth' in client.manager_iscsi) {
+                                      if (vals.username || vals.password) {
+                                          method = client.manager_iscsi.call('DiscoverSendTargetsChap',
+                                                                    [ vals.address, 0,
+                                                                      vals.username, vals.password, "", "",
+                                                                      options ]);
+                                      } else {
+                                          method = client.manager_iscsi.call('DiscoverSendTargetsNoAuth',
+                                                                    [ vals.address, 0, options ]);
+                                      }
+                                  } else {
+                                      if (vals.username || vals.password) {
+                                          options.username = { t: 's', v: vals.username };
+                                          options.password = { t: 's', v: vals.password };
+                                      }
+                                      method = client.manager_iscsi.call('DiscoverSendTargets',
+                                                                    [ vals.address, 0, options ]);
                                   }
 
-                                  var cancelled = false;
-                                  client.manager_iscsi.call('DiscoverSendTargets',
-                                                            [ vals.address,
-                                                              0,
-                                                              options
-                                                            ]).
-                                      done(function (results) {
-                                          if (!cancelled) {
-                                              dfd.resolve();
-                                              iscsi_add(vals, results[0]);
-                                          }
-                                      }).
-                                      fail(function (error) {
-                                          if (!cancelled)
-                                              dfd.reject(error);
-                                      });
+                                  method.then(function(results) {
+                                      if (!cancelled) {
+                                          dfd.resolve();
+                                          iscsi_add(vals, results[0]);
+                                      }
+                                  }, function (error) {
+                                      if (!cancelled)
+                                          dfd.reject(error);
+                                  });
 
                                   var promise = dfd.promise();
                                   promise.cancel = function () {

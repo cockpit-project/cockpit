@@ -393,7 +393,7 @@ function Transport() {
                 self.close({ "problem": "timeout" });
             }
             got_message = false;
-        }, 10000);
+        }, 30000);
     }
 
     if (!ws) {

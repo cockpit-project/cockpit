@@ -12,13 +12,19 @@
   <para>The actual <code>cockpit.service</code> and <code>cockpit-ws</code> process will start on
     demand when a browser accesses the <code>cockpit.socket</code>,
     <link linkend="listen">usually on port 9090</link>. Once a user logs in then
-    a <code>cockpit-bridge</code> process will be started in a Linux user login session. The
-    bridge will exit when the user logs out. In addition, after 10 minutes of inactivity, the
-    <code>cockpit-ws</code> process will exit on its own.</para>
+    a <code>cockpit-bridge</code> process will be started in a Linux user login session.</para>
 
   <para>Only systems that you connect to with your browser need to have the <code>cockpit.socket</code>
     enabled. For systems that you add to the dashboard of another Cockpit instance, the bridge is started
     via SSH on demand.</para>
+
+  <section id="startup-shutdown">
+    <title>Process exit</title>
+    <para>The <code>cockpit-bridge</code> process will exit when the user logs out. In addition,
+      after 10 minutes of inactivity, the <code>cockpit-ws</code> process will exit on its own.
+      The browser will automatically disconnect if it fails to hear from the the
+      <code>cockpit-ws</code> process for 30 seconds.</para>
+  </section>
 
   <section id="startup-boot">
     <title>Boot start up</title>

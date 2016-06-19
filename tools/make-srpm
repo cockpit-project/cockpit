@@ -23,6 +23,13 @@ if [ $# -gt 1 ]; then
     exit 2
 fi
 
+# When running in an external make this breaks our use
+# of make in the make-srpm lib tool and make-source
+
+export MAKEFLAGS=
+export MAKELEVEL=
+export MFLAGS=
+
 base=$(cd $(dirname $0); pwd -P)
 
 if [ -z ${1-} ]; then

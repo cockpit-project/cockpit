@@ -99,14 +99,6 @@
                             return bytes + " B";
                     };
 
-                    /*
-                    element.css("display", "block");
-
-                    var outer = angular.element("<div/>");
-                    element.append(outer);
-
-                    var graph;
-                    */
                     $scope.$watch('data', function(layers) {
                         if (layers && layers.length)
                             layers = layers.map(prepareLayer).reverse();

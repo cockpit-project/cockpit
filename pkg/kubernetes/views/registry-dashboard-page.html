@@ -14,7 +14,10 @@
 <div class="container-cards-pf dashboard-cards" ng-show="filter.namespaces().length">
     <div class="card-pf dashboard-images">
         <div class="card-pf-heading">
-            <h2 class="pull-left card-pf-title" translatable="yes">Images by project</h2>
+            <h2 class="pull-left card-pf-title hidden-sm hidden-xs"
+                translatable="yes">Images by project</h2>
+            <h2 class="pull-left card-pf-title hidden-md hidden-lg"
+                translatable="yes">Images</h2>
             <h2 class="pull-right card-pf-link-with-icon new-project-link">
               <a ng-click="createProject(settings.currentUser)">
                 <i class="pficon pficon-add-circle-o"></i>

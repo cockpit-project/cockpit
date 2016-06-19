@@ -353,9 +353,11 @@ define([
             set: function(v) {
                 var old_max = max;
                 max = v;
-                $(slider).
-                    prop("value", (slider.value*old_max) / max).
-                    trigger("change");
+                if (slider) {
+                    $(slider).
+                        prop("value", (slider.value * old_max) / max).
+                        trigger("change");
+                }
             }
         });
 

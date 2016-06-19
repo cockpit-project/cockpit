@@ -289,6 +289,8 @@ test_commit_passwd1 (TestCase *tc,
   gchar *contents;
 
   cockpit_bridge_path_passwd = SRCDIR "/src/bridge/mock-setup/remote-passwd";
+  cockpit_bridge_path_group = SRCDIR "/src/bridge/mock-setup/remote-group";
+  cockpit_bridge_path_shadow = SRCDIR "/src/bridge/mock-setup/remote-shadow";
   cockpit_bridge_path_newusers = SRCDIR "/src/bridge/mock-setup/newusers";
   cockpit_bridge_path_chpasswd = SRCDIR "/src/bridge/mock-setup/chpasswd";
   cockpit_bridge_path_usermod = SRCDIR "/src/bridge/mock-setup/usermod";
@@ -354,6 +356,8 @@ test_commit_passwd1_no_crypt_method (TestCase *tc,
    */
 
   cockpit_bridge_path_passwd = SRCDIR "/src/bridge/mock-setup/remote-passwd";
+  cockpit_bridge_path_group = SRCDIR "/src/bridge/mock-setup/remote-group";
+  cockpit_bridge_path_shadow = SRCDIR "/src/bridge/mock-setup/remote-shadow";
   cockpit_bridge_path_newusers = SRCDIR "/src/bridge/mock-setup/newusers";
   cockpit_bridge_path_chpasswd = SRCDIR "/src/bridge/mock-setup/chpasswd";
   cockpit_bridge_path_usermod = SRCDIR "/src/bridge/mock-setup/usermod";

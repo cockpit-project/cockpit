@@ -244,14 +244,14 @@ define([
 
             var used;
             var total;
-            var avail;
+            var available;
             $.each(client.info['DriverStatus'], function (index, value) {
                 if (value && value[0] == "Data Space Total")
                     total = value[1];
                 else if (value && value[0] == "Data Space Used")
                     used = value[1];
                 else if (value && value[0] == "Data Space Available")
-                    avail = value[1];
+                    available = value[1];
             });
 
             if (used && total && docker) {
@@ -261,9 +261,9 @@ define([
 
                 // Prefer available if present as that will be accurate for
                 // sparse file based devices
-                if (avail) {
+                if (available) {
                     $('#containers-storage').tooltip('destroy');
-                    b_total = b_used + docker.bytes_from_format(avail);
+                    b_total = b_used + docker.bytes_from_format(available);
                     total = cockpit.format_bytes(b_total);
                 } else {
                     var warning = _("WARNING: Docker may be reporting the size it has allocated to it's storage pool using sparse files, not the actual space available to the underlying storage device.");

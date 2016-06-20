@@ -63,15 +63,25 @@ define([
                 on("show.bs.modal", function() {
                     var info = self.client.containers[self.container_id];
 
+                    /* This slider is only visible if docker says this option is available */
+                    $("#container-resources-dialog .memory-slider")
+                        .toggle(!!self.client.info.MemoryLimit);
+
+                    if (self.client.info.MemTotal)
+                       self.memory_limit.max = self.client.info.MemTotal;
+
                     /* Fill in the resource dialog */
                     $(this).find(".container-name").text(self.name);
                     self.memory_limit.value = info.MemoryLimit || undefined;
                     self.cpu_priority.value = info.CpuPriority || undefined;
                 }).
                 find(".btn-primary").on("click", function() {
-                    var mem = self.client.change_memory_limit(self.container_id, self.memory_limit.value);
-                    var cpu = self.client.change_cpu_priority(self.container_id, self.cpu_priority.value);
-                    $('#container-resources-dialog').dialog('promise', cockpit.all(mem, cpu));
+                    var mem, prom = self.client.change_cpu_priority(self.container_id, self.cpu_priority.value);
+                    if (self.client.info.MemoryLimit) {
+                        mem = self.client.change_memory_limit(self.container_id, self.memory_limit.value);
+                        prom = cockpit.all(mem, prom);
+                    }
+                    $('#container-resources-dialog').dialog('promise', prom);
                 });
 
             var commit = $('#container-commit-dialog')[0];
@@ -134,11 +144,6 @@ define([
 
             this.container_id = container_id;
             this.name = this.container_id.slice(0,12);
-
-            this.client.machine_info().
-                done(function(info) {
-                    self.memory_limit.max = info.memory;
-                });
 
             $(this.client).on('container.container-details', function (event, id, container) {
                 if (id == self.container_id)

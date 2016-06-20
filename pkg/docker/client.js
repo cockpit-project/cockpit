@@ -55,8 +55,6 @@ define([
             events = http.get("/v1.12/events");
             events.stream(function(resp) {
                 util.docker_debug("event:", resp);
-                if (connected.state() == "pending")
-                    connected.resolve();
                 trigger_event();
             }).
 
@@ -147,8 +145,6 @@ define([
             http.get("/v1.12/containers/json", { all: 1 }).
                 done(function(data) {
                     var containers = JSON.parse(data);
-                    if (connected.state() == "pending")
-                        connected.resolve();
                     alive = true;
 
                     var seen = {};
@@ -188,8 +184,6 @@ define([
                     });
                 }).
                 fail(function(ex) {
-                    if (connected.state() == "pending")
-                        connected.reject(ex);
                     got_failure = true;
                     $(self).trigger("failure", [ex]);
                 });
@@ -251,8 +245,6 @@ define([
             http.get("/v1.12/images/json").
                 done(function(data) {
                     var images = JSON.parse(data);
-                    if (connected.state() == "pending")
-                        connected.resolve();
                     alive = true;
 
                     var seen = {};
@@ -283,8 +275,6 @@ define([
                     });
                 }).
                 fail(function(ex) {
-                    if (connected.state() == "pending")
-                        connected.reject(ex);
                     got_failure = true;
                     $(self).trigger("failure", [ex]);
                 });
@@ -294,11 +284,19 @@ define([
             http.get("/v1.12/info")
                 .fail(function(ex) {
                     util.docker_debug("info failed:", ex);
+
+                    /* Failed to connect */
+                    if (connected.state() == "pending")
+                        connected.reject(ex);
                 })
                 .done(function(data) {
                     util.docker_debug("info:", data);
                     self.info = data && JSON.parse(data);
                     $(self).triggerHandler("info", self.info);
+
+                    /* Ready to display stuff */
+                    if (connected.state() == "pending")
+                        connected.resolve();
                 });
         }
 
@@ -318,7 +316,7 @@ define([
             if (watch && watch.valid)
                 watch.close();
 
-            function start_watch() {
+            function got_info() {
                 watch = cockpit.channel({ payload: "fslist1", path: self.info["DockerRootDir"], superuser: "try" });
                 $(watch)
                     .on("message", function(event, data) {
@@ -328,10 +326,10 @@ define([
                         if (options.problem && options.problem != "not-found")
                             console.warn("monitor for docker directory failed: " + options.problem);
                     });
-                $(self).off("info", start_watch);
+                $(self).off("info", got_info);
             }
 
-            $(self).on("info", start_watch);
+            $(self).on("info", got_info);
 
             /* Starts fetching things */
             $(self).triggerHandler("event");
@@ -612,10 +610,6 @@ define([
             if (value === undefined || value <= 0)
                 value = 1024;
             return change_cgroup("cpuacct", this.containers[id].CGroup, "cpu.shares", value);
-        };
-
-        this.machine_info = function machine_info() {
-            return shell.util.machine_info();
         };
 
         this.close = function close() {

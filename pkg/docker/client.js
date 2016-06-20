@@ -290,9 +290,22 @@ define([
                 });
         }
 
+        function fetch_info() {
+            http.get("/v1.12/info")
+                .fail(function(ex) {
+                    util.docker_debug("info failed:", ex);
+                })
+                .done(function(data) {
+                    util.docker_debug("info:", data);
+                    self.info = data && JSON.parse(data);
+                    $(self).triggerHandler("info", self.info);
+                });
+        }
+
         $(self).on("event", function() {
             fetch_containers();
             fetch_images();
+            fetch_info();
         });
 
         function perform_connect() {
@@ -305,23 +318,23 @@ define([
             if (watch && watch.valid)
                 watch.close();
 
-            http.get("/v1.12/info").done(function(data) {
-                var info = data && JSON.parse(data);
-                watch = cockpit.channel({ payload: "fslist1", path: info["DockerRootDir"], superuser: "try" });
-                $(watch).on("message", function(event, data) {
-                    trigger_event();
-                });
-                $(watch).on("close", function(event, options) {
-                    if (options.problem && options.problem != "not-found")
-                        console.warn("monitor for docker directory failed: " + options.problem);
-                });
+            function start_watch() {
+                watch = cockpit.channel({ payload: "fslist1", path: self.info["DockerRootDir"], superuser: "try" });
+                $(watch)
+                    .on("message", function(event, data) {
+                        trigger_event();
+                    })
+                    .on("close", function(event, options) {
+                        if (options.problem && options.problem != "not-found")
+                            console.warn("monitor for docker directory failed: " + options.problem);
+                    });
+                $(self).off("info", start_watch);
+            }
 
-                $(self).triggerHandler("event");
-            }).fail(function(err) {
-                if (err != "not-found")
-                    console.warn("monitor for docker directory failed: " + err);
-                $(self).triggerHandler("event");
-            });
+            $(self).on("info", start_watch);
+
+            /* Starts fetching things */
+            $(self).triggerHandler("event");
 
             usage_metrics_channel = cockpit.metrics(1000,
                                                     { source: "internal",
@@ -605,16 +618,6 @@ define([
             return shell.util.machine_info();
         };
 
-        this.info = function info() {
-            return http.get("/v1.12/info")
-                .fail(function(ex) {
-                    util.docker_debug("info failed:", ex);
-                })
-                .done(function(resp) {
-                    util.docker_debug("info:", resp);
-                });
-        };
-
         this.close = function close() {
             if (usage_metrics_channel) {
                 usage_metrics_channel.close();
@@ -636,6 +639,9 @@ define([
             }
             return connected.promise();
         };
+
+        /* Initially empty info data */
+        self.info = { };
     }
 
     return {

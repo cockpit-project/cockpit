@@ -121,8 +121,6 @@ define([
             var name = container_to_name(container);
             if (name)
                 containers_by_name[name] = id;
-            if (!container.CGroup)
-                container.CGroup = cgroup_from_container(id);
         }
 
         function remove_container(id) {
@@ -160,17 +158,10 @@ define([
                                 var container = JSON.parse(data);
                                 populate_container(id, container);
                                 self.containers[id] = container;
-                                usage_samples[id] = [ usage_grid.add(usage_metrics_channel,
-                                                                     [ "cgroup.memory.usage", container.CGroup ]),
-                                                      usage_grid.add(usage_metrics_channel,
-                                                                     [ "cgroup.cpu.usage", container.CGroup ]),
-                                                      usage_grid.add(usage_metrics_channel,
-                                                                     [ "cgroup.memory.limit", container.CGroup ]),
-                                                      usage_grid.add(usage_metrics_channel,
-                                                                     [ "cgroup.cpu.shares", container.CGroup ])
-                                                    ];
+                                update_usage_grid();
                                 $(self).trigger("container", [id, container]);
                             });
+
                     });
 
                     var removed = [];
@@ -187,6 +178,50 @@ define([
                     got_failure = true;
                     $(self).trigger("failure", [ex]);
                 });
+        }
+
+        /* Various versions of docker + systemd use different scopes and cgroups */
+        var cgroup_prefixes = [
+            "system.slice/docker-",
+            "system.slice/docker/",
+            "init.scope/system.slice/docker-"
+        ];
+
+        function update_usage_grid() {
+            var meta = usage_metrics_channel.meta || { };
+            var metrics = meta.metrics || [ ];
+
+            var cgroups = { };
+            metrics.forEach(function(metric) {
+                var instances = metric.instances || [ ];
+
+                /*
+                 * Take a look at all the cgroups and map them to all the
+                 * containers.
+                 */
+                instances.forEach(function(cgroup) {
+                    cgroup_prefixes.forEach(function(prefix) {
+                        if (cgroup.indexOf(prefix) === 0)
+                            cgroups[cgroup] = cgroup.substr(prefix.length, 64);
+                    });
+                });
+            });
+
+            Object.keys(cgroups).forEach(function(cgroup) {
+                var id = cgroups[cgroup];
+                if (self.containers[id]) {
+                    self.containers[id].CGroup = cgroup;
+
+                    if (!usage_samples[id]) {
+                        usage_samples[id] = [
+                            usage_grid.add(usage_metrics_channel, [ "cgroup.memory.usage", cgroup ]),
+                            usage_grid.add(usage_metrics_channel, [ "cgroup.cpu.usage", cgroup ]),
+                            usage_grid.add(usage_metrics_channel, [ "cgroup.memory.limit", cgroup ]),
+                            usage_grid.add(usage_metrics_channel, [ "cgroup.cpu.shares", cgroup ])
+                        ];
+                    }
+                }
+            });
         }
 
         function handle_usage_samples() {
@@ -351,39 +386,19 @@ define([
                                                                  }
                                                                ]
                                                     });
+
+            $(usage_metrics_channel).on("changed", function() {
+                update_usage_grid();
+            });
+
             usage_grid = cockpit.grid(1000, -1, -0);
+
+            usage_metrics_channel.follow();
             usage_grid.walk();
 
             $(usage_grid).on('notify', function (event, index, count) {
                 handle_usage_samples();
             });
-        }
-
-        var regex_docker_cgroup = /docker-([A-Fa-f0-9]{64})\.scope/;
-        var regex_geard_cgroup = /.*\/ctr-(.+).service/;
-        this.container_from_cgroup = container_from_cgroup;
-        function container_from_cgroup (cgroup) {
-            /*
-             * TODO: When we move to showing resources for systemd units
-             * instead of containers then we'll get rid of all this
-             * nastiness.
-             */
-
-            /* Docker created cgroups */
-            var match = regex_docker_cgroup.exec(cgroup);
-            if (match)
-                return match[1];
-
-            /* geard created cgroups */
-            match = regex_geard_cgroup.exec(cgroup);
-            if (match)
-                return containers_by_name[match[1]];
-            return null;
-        }
-
-        this.cgroup_from_container = cgroup_from_container;
-        function cgroup_from_container(id) {
-            return "system.slice/docker-" + id + ".scope";
         }
 
         function trigger_id(id) {
@@ -615,7 +630,11 @@ define([
         this.close = function close() {
             if (usage_metrics_channel) {
                 usage_metrics_channel.close();
+                $(usage_metrics_channel).off();
+                usage_metrics_channel = null;
                 usage_grid.close();
+                $(usage_grid).off();
+                usage_grid = null;
             }
             connected = null;
         };

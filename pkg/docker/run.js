@@ -108,10 +108,11 @@ define([
             var checked;
             var value;
 
-            PageRunImage.client.machine_info().
-                done(function (info) {
-                    page.memory_slider.max = info.memory;
-                });
+            /* This slider is only visible if docker says this option is available */
+            $("#containers-run-image-memory").toggle(!!PageRunImage.client.info.MemoryLimit);
+
+            if (PageRunImage.client.info.MemTotal)
+                page.memory_slider.max = PageRunImage.client.info.MemTotal;
 
             page.containers = [];
             var id;
@@ -618,8 +619,6 @@ define([
             var options = {
                 "Cmd": util.unquote_cmdline(cmd),
                 "Image": PageRunImage.image_info.Id,
-                "Memory": this.memory_slider.value || 0,
-                "MemorySwap": (this.memory_slider.value * 2) || 0,
                 "CpuShares": this.cpu_slider.value || 0,
                 "Tty": tty,
                 "ExposedPorts": exposed_ports,
@@ -632,6 +631,12 @@ define([
                     }
                 }
             };
+
+            /* Only set these fields if supported by docker */
+            if (PageRunImage.client.info.MemoryLimit) {
+                options.Memory = this.memory_slider.value || 0;
+                options.MemorySwap = (this.memory_slider.value * 2) || 0;
+            }
 
             if (tty) {
                 $.extend(options, {

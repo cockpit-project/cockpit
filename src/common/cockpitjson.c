@@ -21,6 +21,7 @@
 
 #include "cockpitjson.h"
 
+#include <math.h>
 #include <string.h>
 
 gboolean
@@ -720,11 +721,17 @@ dump_value (const gchar   *name,
     }
   else if (type == G_TYPE_DOUBLE)
     {
-        gchar buf[G_ASCII_DTOSTR_BUF_SIZE];
+      gchar buf[G_ASCII_DTOSTR_BUF_SIZE];
+      gdouble d = json_node_get_double (node);
 
-        g_string_append (buffer,
-                         g_ascii_dtostr (buf, sizeof (buf),
-                                         json_node_get_double (node)));
+      if (fpclassify (d) == FP_NAN || fpclassify (d) == FP_INFINITE)
+        {
+          g_string_append (buffer, "null");
+        }
+      else
+        {
+          g_string_append (buffer, g_ascii_dtostr (buf, sizeof (buf), d));
+        }
     }
   else if (type == G_TYPE_BOOLEAN)
     {

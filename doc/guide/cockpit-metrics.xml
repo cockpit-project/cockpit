@@ -110,4 +110,17 @@ metrics.close()
     <para>The series sink where data retrieved data will be processed.</para>
   </refsection>
 
+  <refsection id="cockpit-metrics-meta">
+    <title>metrics.meta</title>
+    <para>The metrics meta data last received.</para>
+  </refsection>
+
+  <refsection id="cockpit-metrics-onchanged">
+    <title>metrics.onchanged</title>
+<programlisting>
+metrics.onchanged = function() { }
+</programlisting>
+    <para>An event triggered when one of the properties on this metrics object changes.</para>
+  </refsection>
+
 </refentry>

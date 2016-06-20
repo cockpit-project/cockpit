@@ -411,21 +411,21 @@
             <tr>
               <td><label class="control-label"
                          translatable="yes">Image</label></td>
-              <td colspan="3">
+              <td colspan="4">
                 <span id="containers-run-image"/>
               </td>
             </tr>
             <tr>
               <td><label class="control-label" for="containers-run-image-name"
                          translatable="yes">Container Name</label></td>
-              <td colspan="3">
+              <td colspan="4">
                 <input class="form-control" type="text" id="containers-run-image-name"/>
               </td>
             </tr>
             <tr>
               <td><label class="control-label" for="containers-run-image-command"
                          translatable="yes">Command</label></td>
-              <td colspan="3">
+              <td colspan="4">
                 <input class="form-control" type="text" id="containers-run-image-command"/>
                 <div id="containers-run-image-command-note" hidden>
                   <span class="help-block">
@@ -440,15 +440,16 @@
                 <input type="checkbox" />
               </td>
               <td>
-                <div class="slider" disabled='true' value="0.2">
+                <div class="slider" disabled='true' value="2">
                   <div class="slider-bar">
                     <div class="slider-thumb"></div>
                   </div>
                 </div>
               </td>
-              <td class="shrink resource-value">
-                <span>unlimited</span>
+              <td class="shrink">
+                <input class="form-control size-text-ct" type='text'></input>
               </td>
+              <td class="shrink" translatable="yes">MiB</td>
             </tr>
             <tr id="containers-run-image-cpu">
               <td><label class="control-label" translatable="yes">CPU priority</label></td>
@@ -456,15 +457,16 @@
                 <input type="checkbox" />
               </td>
               <td>
-                <div class="slider" disabled='true' value="0.2">
+                <div class="slider" disabled='true' value="1024">
                   <div class="slider-bar">
                     <div class="slider-thumb"></div>
                   </div>
                 </div>
               </td>
-              <td class="shrink resource-value">
-                <span>default</span>
+              <td class="shrink">
+                <input class="form-control size-text-ct" type='text'></input>
               </td>
+              <td  class="shrink" translatable="yes">shares</td>
             </tr>
             <tr>
               <td><label class="control-label" for="containers-run-image-with-terminal"
@@ -475,7 +477,7 @@
             </tr>
             <tr>
               <td><label class="control-label" for="link-containers" translatable="yes">Links</label></td>
-              <td colspan="3">
+              <td colspan="4">
                 <label>
                   <input type="checkbox" name="link-containers" id="link-containers" checked="false"/>
                   Link to another container
@@ -486,7 +488,7 @@
             </tr>
             <tr>
               <td><label class="control-label" for="expose-ports" translatable="yes">Ports</label></td>
-              <td colspan="3">
+              <td colspan="4">
                 <label>
                   <input type="checkbox" name="expose-ports" id="expose-ports" checked="false"/>
                   Expose container ports
@@ -497,7 +499,7 @@
             </tr>
             <tr>
               <td><label class="control-label" for="restart-policy" translatable="yes">Restart Policy</label></td>
-              <td colspan="2">
+              <td colspan="3">
                 <div class="form-inline form-group">
                   <div class="btn-group bootstrap-select dropdown form-control" id="restart-policy-select">
                     <button aria-expanded="false" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
@@ -595,15 +597,16 @@
                 <input type="checkbox" />
               </td>
               <td>
-                <div class="slider" disabled='true' value="0.2">
+                <div class="slider" disabled='true' value="2">
                   <div class="slider-bar">
                     <div class="slider-thumb"></div>
                   </div>
                 </div>
               </td>
-              <td class="shrink resource-value">
-                <span>unlimited</span>
+              <td class="shrink">
+                <input class="form-control size-text-ct" type='text'></input>
               </td>
+              <td class="shrink" translatable="yes">MiB</td>
             </tr>
             <tr class="cpu-slider">
               <td><label class="control-label" translatable="yes">CPU priority</label></td>
@@ -611,15 +614,16 @@
                 <input type="checkbox" />
               </td>
               <td>
-                <div class="slider" disabled='true' value="0.2">
+                <div class="slider" disabled='true' value="1024">
                   <div class="slider-bar">
                     <div class="slider-thumb"></div>
                   </div>
                 </div>
               </td>
-              <td class="shrink resource-value">
-                <span>default</span>
+              <td class="shrink">
+                <input class="form-control size-text-ct" type='text'></input>
               </td>
+              <td  class="shrink" translatable="yes">shares</td>
             </tr>
           </table>
         </div>

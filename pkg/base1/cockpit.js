@@ -3874,6 +3874,8 @@ function basic_scope(cockpit, jquery) {
         var following = false;
 
         self.series = cockpit.series(interval, cache, fetch_for_series);
+        self.archives = null;
+        self.meta = null;
 
         function fetch_for_series(beg, end, for_walking) {
             if (!for_walking)
@@ -3946,6 +3948,10 @@ function basic_scope(cockpit, jquery) {
                         timestamp = meta.timestamp + (Date.now() - meta.now);
                     beg = Math.floor(timestamp / interval);
                     callback(beg, meta, null, options_list[0]);
+
+                    /* Trigger to outside interest that meta changed */
+                    self.meta = meta;
+                    self.dispatchEvent('changed');
 
                 /* A data message */
                 } else if (meta) {

@@ -343,6 +343,61 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         b.wait_present("#containers-containers tr:contains(\"NORESTART\")")
         b.wait_not_visible("#containers-containers tr:contains(\"NORESTART\")")
 
+    def testResources(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("systemctl start docker")
+
+        self.login_and_go("/docker")
+        b.wait_in_text("#containers-images", "busybox:latest")
+
+        # Run one container without restarting
+        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
+        b.wait_popup("containers_run_image_dialog")
+        b.set_val("#containers-run-image-name", "RESOURCE")
+        b.set_val("#containers-run-image-command", "/bin/sleep 1000000")
+        b.click("#containers-run-image-with-terminal");
+        b.click("#containers-run-image-memory input[type='checkbox']");
+        b.set_val("#containers-run-image-memory input.size-text", "236");
+        b.click("#containers-run-image-cpu input[type='checkbox']");
+        b.set_val("#containers-run-image-cpu input.size-text", "512");
+        b.click("#containers-run-image-run");
+        b.wait_popdown("containers_run_image_dialog")
+
+        # Make sure they've started
+        b.wait_in_text("#containers-containers", "RESOURCE")
+
+        # Check output of PROBE1
+        b.wait_visible('#containers-containers tr:contains("RESOURCE")')
+        b.click('#containers-containers tr:contains("RESOURCE")')
+        b.wait_visible("#container-details")
+        b.wait_in_text("#container-details-memory-row", "/ 236 MiB")
+        b.wait_in_text("#container-details-cpu-row", "512 shares")
+
+        # Now adjust things
+        b.click("#container-details-resource-row button")
+        b.wait_popup("container-resources-dialog")
+        b.set_val(".memory-slider input.size-text", "246");
+        b.set_val(".cpu-slider input.size-text", "256");
+        b.click("#container-resources-dialog .btn-primary")
+        b.wait_popdown("container-resources-dialog")
+
+        # This should be updated
+        b.wait_in_text("#container-details-memory-row", "/ 246 MiB")
+        b.wait_in_text("#container-details-cpu-row", "256 shares")
+
+        # Remove the restrictions
+        b.click("#container-details-resource-row button")
+        b.wait_popup("container-resources-dialog")
+        b.click(".memory-slider input[type='checkbox']");
+        b.click(".cpu-slider input[type='checkbox']");
+        b.click("#container-resources-dialog .btn-primary")
+        b.wait_popdown("container-resources-dialog")
+
+        # This should be updated
+        b.wait_not_in_text("#container-details-memory-row", "/")
+        b.wait_in_text("#container-details-cpu-row", "1024 shares")
 
 if __name__ == '__main__':
     test_main()

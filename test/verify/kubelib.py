@@ -237,7 +237,7 @@ class VolumeTests(object):
         b.wait_in_text("{} .listing-ct-panel".format(base_sel), "mock-volume-claim")
         b.wait_in_text("{} .listing-ct-panel ".format(base_sel), "default / mock-volume")
 
-        pods = m.execute('kubectl get pods --output=template -t="{{ range .items }}{{.metadata.name}}|{{ end }}"')
+        pods = m.execute('kubectl get pods --output=template --template="{{ range .items }}{{.metadata.name}}|{{ end }}"')
         pod = [ x for x in pods.split("|") if x.startswith("mock-volume")][0]
         pod_id = "pods/default/{}".format(pod)
 
@@ -250,7 +250,7 @@ class VolumeTests(object):
         b.wait_present(".listing-ct-body")
         b.wait_js_func("ph_count_check", ".listing-ct-body div.well", 2)
 
-        volumes = m.execute('kubectl get pods/%s --output=template -t="{{ range .spec.volumes }}{{.name}}|{{ end }}"' % pod)
+        volumes = m.execute('kubectl get pods/%s --output=template --template="{{ range .spec.volumes }}{{.name}}|{{ end }}"' % pod)
         secret = [ x for x in volumes.split("|") if x.startswith("default-token")][0]
 
         b.wait_in_text(".listing-ct-body div[data-id='{}']".format(secret), "Secret")
@@ -305,7 +305,7 @@ class KubernetesCommonTests(VolumeTests):
         m.execute("kubectl create -f /tmp/mock-k8s-tiny-app.json")
         b.wait_in_text("#service-list", "mock")
 
-        pods = m.execute('kubectl get pods --output=template -t="{{ range .items }}{{.metadata.name}}|{{ end }}"')
+        pods = m.execute('kubectl get pods --output=template --template="{{ range .items }}{{.metadata.name}}|{{ end }}"')
         podl = pods.split("|")
         b.click("a[href='#/list']")
         b.wait_present("#content .details-listing")

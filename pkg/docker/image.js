@@ -42,8 +42,8 @@ define([
             var self = this;
             self.danger_enabled = val;
             $('#image-details-containers button.enable-danger').toggleClass('active', self.danger_enabled);
-            $("#image-details-containers td.container-col-actions").toggle(!self.danger_enabled);
-            $("#image-details-containers td.container-col-danger").toggle(self.danger_enabled);
+            $("#image-details-containers td.container-column-actions").toggle(!self.danger_enabled);
+            $("#image-details-containers td.container-column-danger").toggle(self.danger_enabled);
 
         },
 

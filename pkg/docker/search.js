@@ -88,18 +88,18 @@ define([
             $('#containers-search-download').prop('disabled', true);
 
             var tr = $('<tr id="imagedl_' + repo.replace("/", "_") + '">').append(
-                $('<td class="container-col-tags">').text(repo + ':' + tag),
-                $('<td class="container-col-created">').text('Downloading'),
-                $('<td class="image-col-size-graph">').append(
+                $('<td class="container-column-tags">').text(repo + ':' + tag),
+                $('<td class="container-column-created">').text('Downloading'),
+                $('<td class="image-column-size-graph">').append(
                     $('<div class="progress progress-striped active">').append(
                         $('<div class="progress-bar" role="progressbar" aria-valuenow="1" aria-valuemin="0" aria-valuemax="1" style="width: 100%">'))),
-                $('<td class="image-col-size-text">'),
+                $('<td class="image-column-size-text">'),
                 $('<td class="cell-buttons">'));
 
             util.insert_table_sorted($('#containers-images table'), tr);
 
-            var created = tr.children('td.container-col-created');
-            var size = tr.children('td.image-col-size-text');
+            var created = tr.children('td.container-column-created');
+            var size = tr.children('td.image-column-size-text');
 
             var failed = false;
             var layers = {};

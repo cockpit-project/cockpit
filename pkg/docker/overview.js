@@ -42,8 +42,8 @@ define([
         function set_danger_enabled(val) {
             danger_enabled = val;
             $('#containers-containers button.enable-danger').toggleClass('active', danger_enabled);
-            $("#containers-containers td.container-col-actions").toggle(!danger_enabled);
-            $("#containers-containers td.container-col-danger").toggle(danger_enabled);
+            $("#containers-containers td.container-column-actions").toggle(!danger_enabled);
+            $("#containers-containers td.container-column-danger").toggle(danger_enabled);
         }
 
         util.setup_danger_button('#containers-containers', "#containers",
@@ -171,10 +171,10 @@ define([
                         return false;
                     });
                 tr = $('<tr>', { 'id': id }).append(
-                    $('<td class="image-col-tags">'),
-                    $('<td class="image-col-created">'),
-                    $('<td class="image-col-size-graph">'),
-                    $('<td class="image-col-size-text">'),
+                    $('<td class="image-column-tags">'),
+                    $('<td class="image-column-created">'),
+                    $('<td class="image-column-size-graph">'),
+                    $('<td class="image-column-size-text">'),
                     $('<td class="cell-buttons">').append(button));
                 tr.on('click', function(event) {
                     cockpit.location.go([ 'image', id ]);

@@ -161,7 +161,7 @@ define([
         var danger_button = $('<button class="btn btn-default btn-control-ct fa fa-check enable-danger">')
             .toggle(false)
             .on("click", callback);
-        $(id + ' th.container-col-actions').append(danger_button);
+        $(id + ' th.container-column-actions').append(danger_button);
         $(parent_id)[0].addEventListener("click", function(ev) {
             if ($(ev.target).parents(id).length === 0 &&
                 $(id + ' button.enable-danger').hasClass('active'))
@@ -240,14 +240,14 @@ define([
                     return false;
                 });
             tr = $('<tr>', { 'id': prefix + id }).append(
-                $('<td class="container-col-name">'),
-                $('<td class="container-col-image">'),
-                $('<td class="container-col-command">'),
-                $('<td class="container-col-cpu">'),
-                $('<td class="container-col-memory-graph">').append(bar.create("containers-containers")),
-                $('<td class="container-col-memory-text">'),
-                $('<td class="container-col-danger cell-buttons">').append(btn_delete, img_waiting),
-                $('<td class="container-col-actions cell-buttons">').append(btn_play, btn_stop, img_waiting.clone()));
+                $('<td class="container-column-name">'),
+                $('<td class="container-column-image">'),
+                $('<td class="container-column-command">'),
+                $('<td class="container-column-cpu">'),
+                $('<td class="container-column-memory-graph">').append(bar.create("containers-containers")),
+                $('<td class="container-column-memory-text">'),
+                $('<td class="container-column-danger cell-buttons">').append(btn_delete, img_waiting),
+                $('<td class="container-column-actions cell-buttons">').append(btn_play, btn_stop, img_waiting.clone()));
 
             tr.on('click', function(event) {
                 cockpit.location.go([ id ]);

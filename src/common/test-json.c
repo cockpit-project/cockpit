@@ -23,7 +23,8 @@
 
 #include "common/cockpittest.h"
 
-#include "string.h"
+#include <math.h>
+#include <string.h>
 
 static const gchar *test_data =
   "{"
@@ -590,6 +591,28 @@ test_patch (gconstpointer data)
   json_object_unref (with);
 }
 
+static void
+test_write_infinite_nan (void)
+{
+  JsonArray *array;
+  gchar *string;
+  JsonNode *node;
+
+  array = json_array_new ();
+  json_array_add_double_element (array, 3.0); /* number */
+  json_array_add_double_element (array, 1.0/0.0); /* INFINITY */
+  json_array_add_double_element (array, sqrt (-1)); /* NaN */
+
+  node = json_node_new (JSON_NODE_ARRAY);
+  json_node_take_array (node, array);
+  string = cockpit_json_write (node, NULL);
+
+  g_assert_cmpstr (string, ==, "[3,null,null]");
+
+  json_node_free (node);
+  g_free (string);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -645,6 +668,8 @@ main (int argc,
       g_test_add_data_func (name, patch_fixtures + i, test_patch);
       g_free (name);
     }
+
+  g_test_add_func ("/json/write/infinite-nan", test_write_infinite_nan);
 
 
   return g_test_run ();

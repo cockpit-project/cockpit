@@ -27,6 +27,7 @@ registry-container-shell:
 		--env KUBERNETES_INSECURE=true \
 		--env=COCKPIT_KUBE_INSECURE=true \
 		--env=REGISTRY_ONLY=true \
+		--env=REGISTRY_HOST=10.111.112.101:5000 \
 		cockpit/kubernetes /bin/bash
 
 WS_DIR = $(srcdir)/containers/ws

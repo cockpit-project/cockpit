@@ -37,7 +37,16 @@ def download(link, force, stores):
     if not os.path.exists(DATA):
         os.makedirs(DATA)
 
-    dest = os.path.join(DATA, os.readlink(link))
+    dest = os.readlink(link)
+    relative_dir = os.path.dirname(os.path.abspath(link))
+    full_dest = os.path.join(relative_dir, dest)
+    while not ".qcow2" in dest and os.path.islink(full_dest):
+        link = full_dest
+        dest = os.readlink(link)
+        relative_dir = os.path.dirname(os.path.abspath(link))
+        full_dest = os.path.join(relative_dir, dest)
+
+    dest = os.path.join(DATA, dest)
 
     # we have the file but there is not valid link
     if os.path.exists(dest) and not os.path.exists(link):

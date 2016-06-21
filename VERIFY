@@ -1,9 +1,0 @@
-#!/bin/sh
-
-set -e
-
-if ! ip address show dev cockpit1 > /dev/null 2> /dev/null; then
-  sudo $(dirname $0)/test/vm-prep
-fi
-
-$(dirname $0)/test/check-verify --install "$@"

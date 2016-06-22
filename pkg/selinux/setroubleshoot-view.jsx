@@ -322,7 +322,10 @@ var SELinuxStatus = React.createClass({
             );
         }
         var note;
-        if (this.props.selinuxStatus.enforcing !== this.props.selinuxStatus.configEnforcing)
+        var configUnknown = (this.props.selinuxStatus.configEnforcing === undefined);
+        if (configUnknown)
+            note = <span> {_("The configured state is unknown, it might change on the next boot.")}</span>;
+        else if (!configUnknown && this.props.selinuxStatus.enforcing !== this.props.selinuxStatus.configEnforcing)
             note = <span> {_("Setting deviates from the configured state and will revert on the next boot.")}</span>;
 
         return (

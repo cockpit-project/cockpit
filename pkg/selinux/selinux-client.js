@@ -75,12 +75,17 @@ client.init = function(statusChangedCallback) {
                         return;
                     var key = items[0].trim();
                     var value = items[1].trim();
-                    if (key == "SELinux status")
+                    if (key == "SELinux status") {
                         status.enabled = (value == "enabled");
-                    else if (key == "Current mode")
+                    } else if (key == "Current mode") {
                         status.enforcing = (value == "enforcing");
-                    else if (key == "Mode from config file")
-                        status.configEnforcing = (value == "enforcing");
+                    } else if (key == "Mode from config file") {
+                        if (value == 'error (Permission denied)') {
+                            status.configEnforcing = undefined;
+                        } else {
+                            status.configEnforcing = (value == "enforcing");
+                        }
+                    }
                 });
                 if (statusChangedCallback)
                     statusChangedCallback(status, undefined);

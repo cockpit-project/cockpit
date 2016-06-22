@@ -23,15 +23,14 @@ define([
     "./mustache",
     "domain/operation",
     "performance/dialog",
-    "shell/shell",
     "system/server",
     "system/service",
-    "shell/plot",
-    "shell/cockpit-plot",
+    "./plot",
     "system/bootstrap-datepicker",
     "system/bootstrap-combobox",
     "./patterns",
-], function($, cockpit, Mustache, domain, performance, shell, server, service) {
+    "./flot",
+], function($, cockpit, Mustache, domain, performance, server, service, plot) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -318,7 +317,7 @@ PageServer.prototype = {
             cockpit.jump("/system/services/#/" + window.encodeURIComponent(service));
         });
 
-        self.plot_controls = shell.setup_plot_controls($('#server'), $('#server-graph-toolbar'));
+        self.plot_controls = plot.setup_plot_controls($('#server'), $('#server-graph-toolbar'));
 
         var pmcd_service = service.proxy("pmcd");
         var pmlogger_service = service.proxy("pmlogger");
@@ -392,11 +391,11 @@ PageServer.prototype = {
             factor: 0.1  // millisec / sec -> percent
         };
 
-        var cpu_options = shell.plot_simple_template();
+        var cpu_options = plot.plot_simple_template();
         $.extend(cpu_options.yaxis, { tickFormatter: function(v) { return v.toFixed(0); },
                                       max: 100
                                     });
-        self.cpu_plot = shell.plot($("#server_cpu_graph"), 300);
+        self.cpu_plot = plot.plot($("#server_cpu_graph"), 300);
         self.cpu_plot.set_options(cpu_options);
         series = self.cpu_plot.add_metrics_sum_series(cpu_data, { });
 
@@ -408,16 +407,16 @@ PageServer.prototype = {
             units: "bytes"
         };
 
-        var memory_options = shell.plot_simple_template();
-        $.extend(memory_options.yaxis, { ticks: shell.memory_ticks,
-                                         tickFormatter: shell.format_bytes_tick_no_unit
+        var memory_options = plot.plot_simple_template();
+        $.extend(memory_options.yaxis, { ticks: plot.memory_ticks,
+                                         tickFormatter: plot.format_bytes_tick_no_unit
                                        });
-        memory_options.setup_hook = function memory_setup_hook(plot) {
-            var axes = plot.getAxes();
-            $('#server_memory_unit').text(shell.bytes_tick_unit(axes.yaxis));
+        memory_options.setup_hook = function memory_setup_hook(pl) {
+            var axes = pl.getAxes();
+            $('#server_memory_unit').text(plot.bytes_tick_unit(axes.yaxis));
         };
 
-        self.memory_plot = shell.plot($("#server_memory_graph"), 300);
+        self.memory_plot = plot.plot($("#server_memory_graph"), 300);
         self.memory_plot.set_options(memory_options);
         series = self.memory_plot.add_metrics_sum_series(memory_data, { });
 
@@ -430,21 +429,21 @@ PageServer.prototype = {
             derive: "rate"
         };
 
-        var network_options = shell.plot_simple_template();
-        $.extend(network_options.yaxis, { tickFormatter: shell.format_bits_per_sec_tick_no_unit
+        var network_options = plot.plot_simple_template();
+        $.extend(network_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit
                                         });
-        network_options.setup_hook = function network_setup_hook(plot) {
-            var axes = plot.getAxes();
+        network_options.setup_hook = function network_setup_hook(pl) {
+            var axes = pl.getAxes();
             if (axes.yaxis.datamax < 100000)
                 axes.yaxis.options.max = 100000;
             else
                 axes.yaxis.options.max = null;
             axes.yaxis.options.min = 0;
 
-            $('#server_network_traffic_unit').text(shell.bits_per_sec_tick_unit(axes.yaxis));
+            $('#server_network_traffic_unit').text(plot.bits_per_sec_tick_unit(axes.yaxis));
         };
 
-        self.network_plot = shell.plot($("#server_network_traffic_graph"), 300);
+        self.network_plot = plot.plot($("#server_network_traffic_graph"), 300);
         self.network_plot.set_options(network_options);
         series = self.network_plot.add_metrics_sum_series(network_data, { });
 
@@ -457,22 +456,22 @@ PageServer.prototype = {
             derive: "rate"
         };
 
-        var disk_options = shell.plot_simple_template();
-        $.extend(disk_options.yaxis, { ticks: shell.memory_ticks,
-                                       tickFormatter: shell.format_bytes_per_sec_tick_no_unit
+        var disk_options = plot.plot_simple_template();
+        $.extend(disk_options.yaxis, { ticks: plot.memory_ticks,
+                                       tickFormatter: plot.format_bytes_per_sec_tick_no_unit
                                      });
-        disk_options.setup_hook = function disk_setup_hook(plot) {
-            var axes = plot.getAxes();
+        disk_options.setup_hook = function disk_setup_hook(pl) {
+            var axes = pl.getAxes();
             if (axes.yaxis.datamax < 100000)
                 axes.yaxis.options.max = 100000;
             else
                 axes.yaxis.options.max = null;
             axes.yaxis.options.min = 0;
 
-            $('#server_disk_io_unit').text(shell.bytes_per_sec_tick_unit(axes.yaxis));
+            $('#server_disk_io_unit').text(plot.bytes_per_sec_tick_unit(axes.yaxis));
         };
 
-        self.disk_plot = shell.plot($("#server_disk_io_graph"), 300);
+        self.disk_plot = plot.plot($("#server_disk_io_graph"), 300);
         self.disk_plot.set_options(disk_options);
         series = self.disk_plot.add_metrics_sum_series(disk_data, { });
 
@@ -1357,7 +1356,7 @@ PageCpuStatus.prototype = {
         self.channel.follow();
         self.grid.walk();
 
-        this.plot = shell.setup_complicated_plot("#cpu_status_graph", self.grid, series, options);
+        this.plot = plot.setup_complicated_plot("#cpu_status_graph", self.grid, series, options);
 
         machine_info().
             done(function (info) {
@@ -1443,7 +1442,7 @@ PageMemoryStatus.prototype = {
         self.channel.follow();
         self.grid.walk();
 
-        this.plot = shell.setup_complicated_plot("#memory_status_graph", self.grid, series, options);
+        this.plot = plot.setup_complicated_plot("#memory_status_graph", self.grid, series, options);
     },
 
     show: function() {

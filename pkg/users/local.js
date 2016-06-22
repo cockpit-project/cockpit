@@ -21,10 +21,9 @@ require([
     "jquery",
     "base1/cockpit",
     "users/mustache",
-    "shell/shell",
     "users/authorized-keys",
     "users/patterns",
-], function($, cockpit, Mustache, shell, authorized_keys) {
+], function($, cockpit, Mustache, authorized_keys) {
 "use strict";
 
 var _ = cockpit.gettext;

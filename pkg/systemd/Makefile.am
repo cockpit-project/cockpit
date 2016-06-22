@@ -19,11 +19,14 @@ systemddebug_DATA = \
 	pkg/systemd/bootstrap-datepicker.js \
 	pkg/systemd/bootstrap-combobox.js \
 	pkg/systemd/cockpit-components-terminal.js \
+	pkg/systemd/flot.js \
 	pkg/systemd/host.css \
 	pkg/systemd/host.js \
 	pkg/systemd/index.html \
 	pkg/systemd/mustache.js \
 	pkg/systemd/patterns.js \
+	pkg/systemd/plot.css \
+	pkg/systemd/plot.js \
 	pkg/systemd/bundle.js \
 	pkg/systemd/init.js \
 	pkg/systemd/services.html \
@@ -47,10 +50,12 @@ systemddebug_DATA = \
 systemd_MIN = \
 	pkg/systemd/bootstrap-datepicker.min.js \
 	pkg/systemd/bootstrap-combobox.min.js \
+	pkg/systemd/flot.min.js \
 	pkg/systemd/host.min.js \
 	pkg/systemd/init.min.js \
 	pkg/systemd/mustache.min.js \
 	pkg/systemd/patterns.min.js \
+	pkg/systemd/plot.min.js \
 	pkg/systemd/server.min.js \
 	pkg/systemd/term.min.js \
 	pkg/systemd/terminal.min.js \
@@ -72,9 +77,11 @@ pkg/systemd/bundle.min.js: $(systemd_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
 # Ugliness to be solved by webpack in the future
-pkg/systemd/react.min.js: pkg/systemd/react.js
+pkg/systemd/flot.min.js: pkg/systemd/flot.js
 	$(MIN_JS_RULE)
 pkg/systemd/mustache.min.js: pkg/systemd/mustache.js
+	$(MIN_JS_RULE)
+pkg/systemd/react.min.js: pkg/systemd/react.js
 	$(MIN_JS_RULE)
 pkg/systemd/term.min.js: pkg/systemd/term.js
 	$(MIN_JS_RULE)
@@ -95,6 +102,7 @@ CLEANFILES += \
 	pkg/systemd/index.min.html \
 	pkg/systemd/journal.min.css \
 	pkg/systemd/logs.min.html \
+	pkg/systemd/plot.min.css \
 	pkg/systemd/react.min.js \
 	pkg/systemd/services.min.html \
 	pkg/systemd/terminal.min.html \
@@ -116,6 +124,7 @@ EXTRA_DIST += \
 	pkg/systemd/index.min.html \
 	pkg/systemd/journal.min.css \
 	pkg/systemd/logs.min.html \
+	pkg/systemd/plot.min.css \
 	pkg/systemd/service.min.js \
 	pkg/systemd/services.min.html \
 	pkg/systemd/terminal.min.html \

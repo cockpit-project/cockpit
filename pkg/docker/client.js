@@ -21,9 +21,7 @@ define([
     "jquery",
     "base1/cockpit",
     "docker/util",
-    "shell/shell",
-    "shell/cockpit-plot",
-], function($, cockpit, util, shell) {
+], function($, cockpit, util) {
 
     /* DOCKER CLIENT
      */

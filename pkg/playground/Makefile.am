@@ -23,6 +23,8 @@ playground_DATA = \
 	pkg/playground/service.js \
 	pkg/playground/plot.html \
 	pkg/playground/plot.min.html \
+	pkg/playground/plot.js \
+	pkg/playground/flot.js \
 	pkg/playground/manifest.json \
 	pkg/playground/hammer.gif \
 	pkg/playground/po.de.js \

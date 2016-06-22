@@ -16,11 +16,14 @@ storageddebug_DATA = \
 	pkg/storaged/dialog.js \
 	pkg/storaged/client.js \
 	pkg/storaged/index.html \
+	pkg/storaged/flot.js \
 	pkg/storaged/jobs.js \
 	pkg/storaged/mustache.js \
 	pkg/storaged/overview.js \
 	pkg/storaged/patterns.js \
 	pkg/storaged/permissions.js \
+	pkg/storaged/plot.css \
+	pkg/storaged/plot.js \
 	pkg/storaged/storage.css \
 	pkg/storaged/utils.js \
 	$(NULL)
@@ -30,11 +33,13 @@ storaged_BUNDLE = \
 	pkg/storaged/devices.min.js \
 	pkg/storaged/dialog.min.js \
 	pkg/storaged/client.min.js \
+	pkg/storaged/flot.min.js \
 	pkg/storaged/jobs.min.js \
 	pkg/storaged/mustache.min.js \
 	pkg/storaged/overview.min.js \
 	pkg/storaged/patterns.min.js \
 	pkg/storaged/permissions.min.js \
+	pkg/storaged/plot.min.js \
 	pkg/storaged/utils.min.js \
 	$(NULL)
 
@@ -42,6 +47,8 @@ pkg/storaged/bundle.min.js: $(storaged_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
 # Ugliness to be solved by webpack in the future
+pkg/storaged/flot.min.js: pkg/storaged/flot.js
+	$(MIN_JS_RULE)
 pkg/storaged/mustache.min.js: pkg/storaged/mustache.js
 	$(MIN_JS_RULE)
 
@@ -60,6 +67,7 @@ TESTS += $(storaged_TESTS)
 CLEANFILES += \
 	pkg/storaged/bundle.min.js \
 	pkg/storaged/index.min.html \
+	pkg/storaged/plot.min.css \
 	pkg/storaged/storage.min.css \
 	$(storaged_BUNDLE) \
 	$(nodist_storaged_DATA) \
@@ -68,6 +76,7 @@ CLEANFILES += \
 EXTRA_DIST += \
 	pkg/storaged/bundle.min.js \
 	pkg/storaged/index.min.html \
+	pkg/storaged/plot.min.css \
 	pkg/storaged/storage.min.css \
 	$(storaged_BUNDLE) \
 	$(NULL)

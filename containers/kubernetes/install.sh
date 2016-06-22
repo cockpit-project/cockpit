@@ -7,12 +7,18 @@ if [ -z "$VERSION" ] && [ -z "$OFFLINE" ]; then
     eval $(/container/scripts/get-version-env.sh)
 fi
 
-/container/scripts/install-rpms.sh -a noarch --nodeps cockpit-bridge- cockpit-shell-
+/container/scripts/install-rpms.sh --nodeps cockpit-bridge-
+/container/scripts/install-rpms.sh -a noarch --nodeps cockpit-shell-
 /container/scripts/install-rpms.sh cockpit-ws-
 /container/scripts/install-rpms.sh --nodeps cockpit-kubernetes-
 
 # Remove unwanted packages
 rm -rf /usr/share/cockpit/realmd/ /usr/share/cockpit/system/ /usr/share/cockpit/tuned/ /usr/share/cockpit/users/ /usr/share/cockpit/dashboard/
+
+# Remove unwanted cockpit-bridge binaries
+rm -rf /usr/bin/cockpit-bridge
+rm -rf /usr/lib64/security/pam_reauthorize.so
+rm -rf /usr/libexec/cockpit-polkit
 
 rm -rf /container/scripts
 rm -rf /container/rpms

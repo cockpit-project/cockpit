@@ -225,10 +225,13 @@ define([
      * Properties:
      * - title
      * - fullWidth optional: set width to 100% of parent, defaults to true
+     * - emptyCaption header caption to show if list is empty, defaults to "No entries"
      */
     var Listing = React.createClass({
         propTypes: {
             title: React.PropTypes.string.isRequired,
+            fullWidth: React.PropTypes.bool,
+            emptyCaption: React.PropTypes.string.isRequired,
         },
         getDefaultProps: function () {
             return {
@@ -239,12 +242,17 @@ define([
             var bodyClasses = ["listing", "listing-ct"];
             if (this.props.fullWidth)
                 bodyClasses.push("listing-ct-wide");
+            var headerClasses;
+            var headerRow = <tr/>;
+            if (!this.props.children || this.props.children.length === 0) {
+                headerClasses = "listing-ct-empty";
+                headerRow = <tr><td>{this.props.emptyCaption}</td></tr>;
+            }
             return (
                 <table className={ bodyClasses.join(" ") }>
                     <caption className="cockpit-caption">{this.props.title}</caption>
-                    <thead>
-                        <tr>
-                        </tr>
+                    <thead className={headerClasses}>
+                        {headerRow}
                     </thead>
                     {this.props.children}
                 </table>

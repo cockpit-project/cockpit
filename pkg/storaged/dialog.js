@@ -21,9 +21,8 @@ define([
     "jquery",
     "base1/cockpit",
     "./mustache",
-    "shell/controls",
     "./patterns",
-], function($, cockpit, mustache, controls) {
+], function($, cockpit, mustache) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 
@@ -119,7 +118,10 @@ define([
         function setup_size_slider(field) {
             var value = field.Value || field.Max;
             var parent = $dialog.find('[data-field="' + field.SizeSlider + '"]');
-            var slider = controls.Slider();
+            var slider = $("<div class='slider'>").
+                append($("<div class='slider-bar'>").
+                    append($("<div class='slider-thumb'>")));
+            $(slider).slider();
 
             parent.data('max', field.Max);
             parent.data('round', field.Round);

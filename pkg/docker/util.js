@@ -23,7 +23,7 @@ define([
     "./mustache",
     "./docker",
     "./bar",
-    "shell/controls",
+    "./patterns",
 ], function($, cockpit, Mustache, docker, bar) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;

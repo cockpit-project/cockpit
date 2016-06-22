@@ -23,7 +23,6 @@ define([
     "docker/util",
     "shell/shell",
     "shell/cockpit-plot",
-    "shell/cockpit-util",
 ], function($, cockpit, util, shell) {
 
     /* DOCKER CLIENT

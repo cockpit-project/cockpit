@@ -29,7 +29,6 @@ define([
     "system/service",
     "shell/plot",
     "shell/cockpit-plot",
-    "shell/cockpit-util",
     "system/bootstrap-datepicker",
     "system/bootstrap-combobox",
     "./patterns",
@@ -54,6 +53,44 @@ function update_hostname_privileged() {
 function debug() {
     if (window.debugging == "all" || window.debugging == "system")
         console.debug.apply(console, arguments);
+}
+
+/* machine_info(address).done(function (info) { })
+ *
+ * Get information about the machine at ADDRESS.  The returned object
+ * has these fields:
+ *
+ * memory  -  amount of physical memory
+ */
+
+var machine_info_promises = { };
+
+function machine_info() {
+    var pr = machine_info_promises[address];
+    var dfd;
+    if (!pr) {
+        dfd = $.Deferred();
+        machine_info_promises[address] = pr = dfd.promise();
+
+        cockpit.spawn(["cat", "/proc/meminfo", "/proc/cpuinfo"]).
+            done(function(text) {
+                var info = { };
+                var match = text.match(/MemTotal:[^0-9]*([0-9]+) [kK]B/);
+                var total_kb = match && parseInt(match[1], 10);
+                if (total_kb)
+                    info.memory = total_kb*1024;
+
+                info.cpus = 0;
+                var re = new RegExp("^processor", "gm");
+                while (re.test(text))
+                    info.cpus += 1;
+                dfd.resolve(info);
+            }).
+            fail(function() {
+                dfd.reject();
+            });
+    }
+    return pr;
 }
 
 function ServerTime() {
@@ -441,7 +478,7 @@ PageServer.prototype = {
         self.disk_plot.set_options(disk_options);
         series = self.disk_plot.add_metrics_sum_series(disk_data, { });
 
-        shell.util.machine_info(null).
+        machine_info().
             done(function (info) {
                 cpu_options.yaxis.max = info.cpus * 100;
                 self.cpu_plot.set_options(cpu_options);
@@ -1324,7 +1361,7 @@ PageCpuStatus.prototype = {
 
         this.plot = shell.setup_complicated_plot("#cpu_status_graph", self.grid, series, options);
 
-        shell.util.machine_info().
+        machine_info().
             done(function (info) {
                 self.plot.set_yaxis_max(info.cpus * 1000);
             });

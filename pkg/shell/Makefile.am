@@ -63,7 +63,6 @@ shelldebug_DATA = \
 	pkg/shell/stub.html \
 	pkg/shell/controls.js \
 	pkg/shell/plot.js \
-	pkg/shell/cockpit-util.js \
 	pkg/shell/cockpit-plot.js \
 	$(shell_SCRIPTS) \
 	$(shell_PO) \
@@ -99,7 +98,6 @@ pkg/shell/mustache.min.js: pkg/shell/mustache.js
 shell_MINFILES = \
 	pkg/shell/controls.min.js \
 	pkg/shell/plot.min.js \
-	pkg/shell/cockpit-util.min.js \
 	pkg/shell/cockpit-plot.min.js \
 	$(NULL)
 

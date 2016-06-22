@@ -3,10 +3,8 @@ shell_PO = \
 	$(addprefix po/po.,$(addsuffix .js,$(LINGUAS))) \
 	$(NULL)
 nodist_shell_DATA = \
-	pkg/shell/shell.min.js.gz \
 	pkg/shell/bundle.min.js.gz \
 	pkg/shell/po.js.gz \
-	pkg/shell/plot.min.css.gz \
 	pkg/shell/shell.min.css.gz \
 	pkg/shell/shell.min.html.gz \
 	$(shell_PO:.js=.min.js.gz) \
@@ -42,7 +40,6 @@ shelltemplatesdebug_DATA = \
 
 shelldebugdir = $(debugdir)$(shelldir)
 shelldebug_DATA = \
-	pkg/shell/shell.js \
 	pkg/shell/base_index.js \
 	pkg/shell/bundle.js \
 	pkg/shell/credentials.js \
@@ -54,15 +51,12 @@ shelldebug_DATA = \
 	pkg/shell/machines.js \
 	pkg/shell/mustache.js \
 	pkg/shell/patterns.js \
-	pkg/shell/plot.css \
 	pkg/shell/po.js \
 	pkg/shell/machine-dialogs.js \
 	pkg/shell/shell.css \
 	pkg/shell/shell.html \
 	pkg/shell/simple.html \
 	pkg/shell/stub.html \
-	pkg/shell/plot.js \
-	pkg/shell/cockpit-plot.js \
 	$(shell_SCRIPTS) \
 	$(shell_PO) \
 	$(NULL)
@@ -94,19 +88,6 @@ pkg/shell/bundle.min.js: $(shell_BUNDLE)
 pkg/shell/mustache.min.js: pkg/shell/mustache.js
 	$(MIN_JS_RULE)
 
-shell_MINFILES = \
-	pkg/shell/plot.min.js \
-	pkg/shell/cockpit-plot.min.js \
-	$(NULL)
-
-shell_SHELL = \
-	pkg/shell/shell.js \
-	$(shell_MINFILES) \
-	$(NULL)
-
-pkg/shell/shell.min.js: $(shell_SHELL)
-	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
-
 shellimagesdir = $(pkgdatadir)/shell/images
 shellimages_DATA = \
 	pkg/shell/images/server-large.png \
@@ -126,9 +107,7 @@ TESTS += $(shell_TESTS)
 # ----------------------------------------------------------------------------------------------------
 
 CLEANFILES += \
-	pkg/shell/plot.min.css \
 	pkg/shell/shell.min.css \
-	pkg/shell/shell.min.js \
 	pkg/shell/bundle.min.js \
 	pkg/shell/index.min.html \
 	pkg/shell/shell.min.html \
@@ -142,9 +121,7 @@ CLEANFILES += \
 	$(NULL)
 
 EXTRA_DIST += \
-	pkg/shell/plot.min.css \
 	pkg/shell/shell.min.css \
-	pkg/shell/shell.min.js \
 	pkg/shell/bundle.min.js \
 	pkg/shell/index.min.html \
 	pkg/shell/shell.min.html \
@@ -155,11 +132,3 @@ EXTRA_DIST += \
 	$(shell_PO) \
 	$(shell_PO:.js=.min.js) \
 	$(NULL)
-
-update-lib:: update-bower
-	$(JSMODULE) -m -n 'shell/shell' -d 'jquery' -a '{ /* legacy shell dict */ }' \
-	    -o $(srcdir)/pkg/shell/shell.js \
-	    $(BOWER)/jquery-flot/jquery.flot.js \
-	    $(BOWER)/jquery-flot/jquery.flot.selection.js \
-	    $(BOWER)/jquery-flot/jquery.flot.time.js \
-	    $(NULL)

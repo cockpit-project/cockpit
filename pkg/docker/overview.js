@@ -26,9 +26,9 @@ define([
     "./search",
     "./docker",
     "./bar",
-    "shell/shell",
-    "shell/plot",
-], function($, cockpit, Mustache, util, run_image, search_image, docker, bar, shell) {
+    "./plot",
+    "./flot",
+], function($, cockpit, Mustache, util, run_image, search_image, docker, bar, plot) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 
@@ -75,7 +75,7 @@ define([
             factor: 0.1  // millisec / sec -> percent
         };
 
-        var cpu_options = shell.plot_simple_template();
+        var cpu_options = plot.plot_simple_template();
         $.extend(cpu_options.yaxis, { tickFormatter: function(v) { return v.toFixed(0); }
                                     });
         $.extend(cpu_options.grid,  { hoverable: true,
@@ -92,7 +92,7 @@ define([
             axes.yaxis.options.min = 0;
         };
 
-        var cpu_plot = shell.plot($("#containers-cpu-graph"), 300);
+        var cpu_plot = plot.plot($("#containers-cpu-graph"), 300);
         cpu_plot.set_options(cpu_options);
         var cpu_series = cpu_plot.add_metrics_stacked_instances_series(cpu_data, { });
         $(cpu_series).on("value", function(ev, value) {
@@ -106,9 +106,9 @@ define([
             units: "bytes"
         };
 
-        var mem_options = shell.plot_simple_template();
-        $.extend(mem_options.yaxis, { ticks: shell.memory_ticks,
-                                      tickFormatter: shell.format_bytes_tick_no_unit
+        var mem_options = plot.plot_simple_template();
+        $.extend(mem_options.yaxis, { ticks: plot.memory_ticks,
+                                      tickFormatter: plot.format_bytes_tick_no_unit
                                     });
         $.extend(mem_options.grid,  { hoverable: true,
                                       autoHighlight: false
@@ -121,10 +121,10 @@ define([
                 axes.yaxis.options.max = null;
             axes.yaxis.options.min = 0;
 
-            $("#containers-mem-unit").text(shell.bytes_tick_unit(axes.yaxis));
+            $("#containers-mem-unit").text(plot.bytes_tick_unit(axes.yaxis));
         };
 
-        var mem_plot = shell.plot($("#containers-mem-graph"), 300);
+        var mem_plot = plot.plot($("#containers-mem-graph"), 300);
         mem_plot.set_options(mem_options);
         var mem_series = mem_plot.add_metrics_stacked_instances_series(mem_data, { });
         $(mem_series).on("value", function(ev, value) {

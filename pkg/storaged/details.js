@@ -22,11 +22,10 @@ define([
     "base1/cockpit",
     "./mustache",
     "system/server",
-    "shell/shell",
     "./utils",
     "./dialog",
     "./permissions"
-], function($, cockpit, mustache, server, shell, utils, dialog, permissions) {
+], function($, cockpit, mustache, server, utils, dialog, permissions) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 

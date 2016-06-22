@@ -42,20 +42,20 @@
 require([
     'jquery',
     'base1/cockpit',
-    'shell/shell',
-    'shell/plot'
-], function($, cockpit, shell) {
+    'playground/plot',
+    'playground/flot',
+], function($, cockpit, plot) {
 
-    var plot = shell.plot($('#plot'), 300);
-    plot.set_options(shell.plot_simple_template());
-    plot.add_metrics_sum_series({ direct: [ "mem.util.used" ]
+    var pl = plot.plot($('#plot'), 300);
+    pl.set_options(plot.plot_simple_template());
+    pl.add_metrics_sum_series({ direct: [ "mem.util.used" ]
                                 }, { });
     $(function () {
         $("body").show();
-        plot.resize();
+        pl.resize();
 
-        var plot_controls = shell.setup_plot_controls($('body'), $('#toolbar'));
-        plot_controls.reset([ plot ]);
+        var plot_controls = plot.setup_plot_controls($('body'), $('#toolbar'));
+        plot_controls.reset([ pl ]);
     });
 
 });

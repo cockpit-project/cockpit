@@ -21,13 +21,13 @@ define([
     "jquery",
     "base1/cockpit",
     "./mustache",
+    "./plot",
     "system/server",
-    "shell/shell",
     "storage/utils",
     "storage/dialog",
     "storage/permissions",
-    "shell/plot"
-], function($, cockpit, mustache, server, shell, utils, dialog, permissions) {
+    "./flot",
+], function($, cockpit, mustache, plot, server, utils, dialog, permissions) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 
@@ -334,7 +334,7 @@ define([
                     axes.yaxis.options.max = null;
                 axes.yaxis.options.min = 0;
 
-                $(unit).text(shell.bytes_per_sec_tick_unit(axes.yaxis));
+                $(unit).text(plot.bytes_per_sec_tick_unit(axes.yaxis));
             };
         }
 
@@ -351,15 +351,15 @@ define([
             threshold: 1000
         };
 
-        var read_plot_options = shell.plot_simple_template();
-        $.extend(read_plot_options.yaxis, { ticks: shell.memory_ticks,
-                                            tickFormatter: shell.format_bytes_per_sec_tick_no_unit
+        var read_plot_options = plot.plot_simple_template();
+        $.extend(read_plot_options.yaxis, { ticks: plot.memory_ticks,
+                                            tickFormatter: plot.format_bytes_per_sec_tick_no_unit
                                           });
         $.extend(read_plot_options.grid,  { hoverable: true,
                                             autoHighlight: false
                                           });
         read_plot_options.setup_hook = make_plot_setup("#storage-reading-unit");
-        var read_plot = shell.plot($("#storage-reading-graph"), 300);
+        var read_plot = plot.plot($("#storage-reading-graph"), 300);
         read_plot.set_options(read_plot_options);
         var read_series = read_plot.add_metrics_stacked_instances_series(read_plot_data, { });
         read_plot.start_walking();
@@ -373,15 +373,15 @@ define([
             threshold: 1000
         };
 
-        var write_plot_options = shell.plot_simple_template();
-        $.extend(write_plot_options.yaxis, { ticks: shell.memory_ticks,
-                                             tickFormatter: shell.format_bytes_per_sec_tick_no_unit
+        var write_plot_options = plot.plot_simple_template();
+        $.extend(write_plot_options.yaxis, { ticks: plot.memory_ticks,
+                                             tickFormatter: plot.format_bytes_per_sec_tick_no_unit
                                            });
         $.extend(write_plot_options.grid,  { hoverable: true,
                                              autoHighlight: false
                                            });
         write_plot_options.setup_hook = make_plot_setup("#storage-writing-unit");
-        var write_plot = shell.plot($("#storage-writing-graph"), 300);
+        var write_plot = plot.plot($("#storage-writing-graph"), 300);
         write_plot.set_options(write_plot_options);
         var write_series = write_plot.add_metrics_stacked_instances_series(write_plot_data, { });
         write_plot.start_walking();
@@ -392,7 +392,7 @@ define([
             write_plot.resize();
         });
 
-        var plot_controls = shell.setup_plot_controls($('#storage'), $('#storage-graph-toolbar'));
+        var plot_controls = plot.setup_plot_controls($('#storage'), $('#storage-graph-toolbar'));
         plot_controls.reset([ read_plot, write_plot ]);
 
         render_mdraids();

@@ -21,11 +21,11 @@ require([
     "jquery",
     "base1/cockpit",
     "network/mustache",
-    "shell/shell",
+    "network/plot",
     "system/server",
-    "shell/plot",
     "network/patterns",
-], function($, cockpit, Mustache, shell, server) {
+    "network/flot",
+], function($, cockpit, Mustache, plot, server) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -1294,15 +1294,15 @@ function render_active_connection(dev, with_link, hide_link_local) {
 }
 
 function make_network_plot_setup_hook(unit) {
-    return function (plot) {
-        var axes = plot.getAxes();
+    return function (pl) {
+        var axes = pl.getAxes();
         if (axes.yaxis.datamax < 100000)
             axes.yaxis.options.max = 100000;
         else
             axes.yaxis.options.max = null;
         axes.yaxis.options.min = 0;
 
-        $(unit).text(shell.bits_per_sec_tick_unit(axes.yaxis));
+        $(unit).text(plot.bits_per_sec_tick_unit(axes.yaxis));
     };
 }
 
@@ -1399,14 +1399,14 @@ PageNetworking.prototype = {
             threshold: 200
         };
 
-        var rx_plot_options = shell.plot_simple_template();
-        $.extend(rx_plot_options.yaxis, { tickFormatter: shell.format_bits_per_sec_tick_no_unit
+        var rx_plot_options = plot.plot_simple_template();
+        $.extend(rx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit
                                         });
         $.extend(rx_plot_options.grid,  { hoverable: true,
                                           autoHighlight: false
                                         });
         rx_plot_options.setup_hook = make_network_plot_setup_hook("#networking-rx-unit");
-        this.rx_plot = shell.plot($("#networking-rx-graph"), 300);
+        this.rx_plot = plot.plot($("#networking-rx-graph"), 300);
         this.rx_plot.set_options(rx_plot_options);
         this.rx_series = this.rx_plot.add_metrics_stacked_instances_series(rx_plot_data, { });
         this.rx_plot.start_walking();
@@ -1420,14 +1420,14 @@ PageNetworking.prototype = {
             threshold: 200
         };
 
-        var tx_plot_options = shell.plot_simple_template();
-        $.extend(tx_plot_options.yaxis, { tickFormatter: shell.format_bits_per_sec_tick_no_unit
+        var tx_plot_options = plot.plot_simple_template();
+        $.extend(tx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit
                                         });
         $.extend(tx_plot_options.grid,  { hoverable: true,
                                           autoHighlight: false
                                         });
         tx_plot_options.setup_hook = make_network_plot_setup_hook("#networking-tx-unit");
-        this.tx_plot = shell.plot($("#networking-tx-graph"), 300);
+        this.tx_plot = plot.plot($("#networking-tx-graph"), 300);
         this.tx_plot.set_options(tx_plot_options);
         this.tx_series = this.tx_plot.add_metrics_stacked_instances_series(tx_plot_data, { });
         this.tx_plot.start_walking();
@@ -1438,7 +1438,7 @@ PageNetworking.prototype = {
             self.tx_plot.resize();
         });
 
-        var plot_controls = shell.setup_plot_controls($('#networking'), $('#networking-graph-toolbar'));
+        var plot_controls = plot.setup_plot_controls($('#networking'), $('#networking-graph-toolbar'));
         plot_controls.reset([ this.rx_plot, this.tx_plot ]);
 
         ensure_usage_monitor();
@@ -1728,14 +1728,14 @@ PageNetworkInterface.prototype = {
             derive: "rate"
         };
 
-        var rx_plot_options = shell.plot_simple_template();
-        $.extend(rx_plot_options.yaxis, { tickFormatter: shell.format_bits_per_sec_tick_no_unit
+        var rx_plot_options = plot.plot_simple_template();
+        $.extend(rx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit
                                         });
         $.extend(rx_plot_options.grid,  { hoverable: true,
                                           autoHighlight: false
                                         });
         rx_plot_options.setup_hook = make_network_plot_setup_hook("#network-interface-rx-unit");
-        this.rx_plot = shell.plot($("#network-interface-rx-graph"), 300);
+        this.rx_plot = plot.plot($("#network-interface-rx-graph"), 300);
         this.rx_plot.set_options(rx_plot_options);
         this.rx_series = this.rx_plot.add_metrics_stacked_instances_series(rx_plot_data, { });
         this.rx_plot.start_walking();
@@ -1748,14 +1748,14 @@ PageNetworkInterface.prototype = {
             derive: "rate"
         };
 
-        var tx_plot_options = shell.plot_simple_template();
-        $.extend(tx_plot_options.yaxis, { tickFormatter: shell.format_bits_per_sec_tick_no_unit
+        var tx_plot_options = plot.plot_simple_template();
+        $.extend(tx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit
                                         });
         $.extend(tx_plot_options.grid,  { hoverable: true,
                                           autoHighlight: false
                                         });
         tx_plot_options.setup_hook = make_network_plot_setup_hook("#network-interface-tx-unit");
-        this.tx_plot = shell.plot($("#network-interface-tx-graph"), 300);
+        this.tx_plot = plot.plot($("#network-interface-tx-graph"), 300);
         this.tx_plot.set_options(tx_plot_options);
         this.tx_series = this.tx_plot.add_metrics_stacked_instances_series(tx_plot_data, { });
         this.tx_plot.start_walking();
@@ -1766,7 +1766,7 @@ PageNetworkInterface.prototype = {
             self.tx_plot.resize();
         });
 
-        var plot_controls = shell.setup_plot_controls($('#network-interface'), $('#network-interface-graph-toolbar'));
+        var plot_controls = plot.setup_plot_controls($('#network-interface'), $('#network-interface-graph-toolbar'));
         plot_controls.reset([ this.rx_plot, this.tx_plot ]);
 
         ensure_usage_monitor();

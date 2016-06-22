@@ -21,10 +21,13 @@ dockerdebug_DATA = \
 	pkg/docker/docker.js \
 	pkg/docker/console.html \
 	pkg/docker/containers.js \
+	pkg/docker/flot.js \
 	pkg/docker/image.js \
 	pkg/docker/index.html \
 	pkg/docker/mustache.js \
 	pkg/docker/patterns.js \
+	pkg/docker/plot.css \
+	pkg/docker/plot.js \
 	pkg/docker/overview.js \
 	pkg/docker/run.js \
 	pkg/docker/search.js \
@@ -39,9 +42,11 @@ docker_BUNDLE = \
 	pkg/docker/details.min.js \
 	pkg/docker/docker.min.js \
 	pkg/docker/containers.min.js \
+	pkg/docker/flot.min.js \
 	pkg/docker/image.min.js \
 	pkg/docker/mustache.min.js \
 	pkg/docker/patterns.min.js \
+	pkg/docker/plot.min.js \
 	pkg/docker/overview.min.js \
 	pkg/docker/run.min.js \
 	pkg/docker/search.min.js \
@@ -53,6 +58,8 @@ pkg/docker/bundle.min.js: $(docker_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
 # Ugliness to be solved by webpack in the future
+pkg/docker/flot.min.js: pkg/docker/flot.js
+	$(MIN_JS_RULE)
 pkg/docker/mustache.min.js: pkg/docker/mustache.js
 	$(MIN_JS_RULE)
 pkg/docker/term.min.js: pkg/docker/term.js
@@ -69,6 +76,7 @@ CLEANFILES += \
 	pkg/docker/console.min.html \
 	pkg/docker/docker.min.css \
 	pkg/docker/index.min.html \
+	pkg/docker/plot.min.css \
 	$(docker_BUNDLE) \
 	$(nodist_docker_DATA) \
 	$(NULL)
@@ -78,5 +86,6 @@ EXTRA_DIST += \
 	pkg/docker/console.min.html \
 	pkg/docker/docker.min.css \
 	pkg/docker/index.min.html \
+	pkg/docker/plot.min.css \
 	$(docker_BUNDLE) \
 	$(NULL)

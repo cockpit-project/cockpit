@@ -21,13 +21,13 @@ require([
     "jquery",
     "base1/cockpit",
     "dashboard/mustache",
-    "shell/shell",
+    "dashboard/plot",
     "shell/machines",
     "dashboard/image-editor",
     "shell/machine-dialogs",
     "dashboard/patterns",
-    "shell/plot",
-], function($, cockpit, Mustache, shell, machines, image_editor, mdialogs) {
+    "dashboard/flot",
+], function($, cockpit, Mustache, plot, machines, image_editor, mdialogs) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -42,7 +42,7 @@ $(document).on("click", "a[data-address]", function(ev) {
 var common_plot_options = {
     legend: { show: false },
     series: { shadowSize: 0 },
-    xaxis: { tickColor: "#d1d1d1", mode: "time", tickFormatter: shell.format_date_tick, minTickSize: [ 1, 'minute' ] },
+    xaxis: { tickColor: "#d1d1d1", mode: "time", tickFormatter: plot.format_date_tick, minTickSize: [ 1, 'minute' ] },
     // The point radius influences the margin around the grid even if
     // no points are plotted.  We don't want any margin, so we set the
     // radius to zero.
@@ -85,9 +85,9 @@ var resource_monitors = [
           ],
           units: "bytes",
       },
-      options: { yaxis: { ticks: shell.memory_ticks,
+      options: { yaxis: { ticks: plot.memory_ticks,
                           tickColor: "#e1e6ed",
-                          tickFormatter: shell.format_bytes_tick
+                          tickFormatter: plot.format_bytes_tick
                         }
                },
       ymax_unit: 100000000
@@ -106,7 +106,7 @@ var resource_monitors = [
           derive: "rate"
       },
       options: { yaxis: { tickColor: "#e1e6ed",
-                          tickFormatter: shell.format_bits_per_sec_tick
+                          tickFormatter: plot.format_bits_per_sec_tick
                         }
                },
       ymax_min: 100000
@@ -123,9 +123,9 @@ var resource_monitors = [
           units: "bytes",
           derive: "rate"
       },
-      options: { yaxis: { ticks: shell.memory_ticks,
+      options: { yaxis: { ticks: plot.memory_ticks,
                           tickColor: "#e1e6ed",
-                          tickFormatter: shell.format_bytes_per_sec_tick
+                          tickFormatter: plot.format_bytes_per_sec_tick
                         }
                },
       ymax_min: 100000
@@ -266,7 +266,7 @@ PageDashboard.prototype = {
 
         plot_init();
         set_monitor(current_monitor);
-        shell.setup_plot_controls($('#dashboard'), $('#dashboard-toolbar'), self.plots);
+        plot.setup_plot_controls($('#dashboard'), $('#dashboard-toolbar'), self.plots);
 
         $("#dashboard-hosts")
             .on("click", "a.list-group-item", function() {
@@ -476,9 +476,9 @@ PageDashboard.prototype = {
                 var options = $.extend({ setup_hook: setup_hook },
                                        common_plot_options,
                                        rm.options);
-                var plot = shell.plot($(rm.selector));
-                plot.set_options(options);
-                self.plots.push(plot);
+                var pl = plot.plot($(rm.selector));
+                pl.set_options(options);
+                self.plots.push(pl);
             });
 
             series = {};

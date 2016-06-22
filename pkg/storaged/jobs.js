@@ -22,9 +22,8 @@ define([
     "base1/cockpit",
     "./mustache",
     "system/server",
-    "shell/shell",
     "storage/utils"
-], function($, cockpit, mustache, server, shell, utils) {
+], function($, cockpit, mustache, server, utils) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 

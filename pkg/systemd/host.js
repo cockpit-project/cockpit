@@ -65,7 +65,7 @@ function debug() {
 
 var machine_info_promises = { };
 
-function machine_info() {
+function machine_info(address) {
     var pr = machine_info_promises[address];
     var dfd;
     if (!pr) {

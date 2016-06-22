@@ -21,11 +21,10 @@ require([
     "jquery",
     "base1/cockpit",
     "users/mustache",
-    "shell/controls",
     "shell/shell",
     "users/authorized-keys",
     "users/patterns",
-], function($, cockpit, Mustache, controls, shell, authorized_keys) {
+], function($, cockpit, Mustache, shell, authorized_keys) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -37,10 +36,8 @@ $(permission).on("changed", update_accounts_privileged);
 function update_accounts_privileged() {
     $(".accounts-self-privileged").addClass("accounts-privileged");
 
-    controls.update_privileged_ui(
-        permission,
-        ".accounts-privileged:not('.accounts-current-account')",
-        cockpit.format(
+    $(".accounts-privileged:not('.accounts-current-account')").update_privileged(
+        permission, cockpit.format(
             _("The user <b>$0</b> is not permitted to modify accounts"),
             permission.user ? permission.user.name : ''),
         "right"
@@ -50,18 +47,16 @@ function update_accounts_privileged() {
                           $('#account-user-name').text() === 'root');
 
     // enable fields for current account.
-    controls.update_privileged_ui(
-        {allowed: true}, ".accounts-current-account", ""
+    $(".accounts-current-account").update_privileged(
+        {allowed: true}, ""
     );
     $(".accounts-current-account").find("input")
         .attr('disabled', false);
 
     if ($('#account-user-name').text() === 'root' && permission.allowed) {
-        controls.update_privileged_ui({allowed: false},
-                                      "#account-delete",
+        $("#account-delete").update_privileged({allowed: false},
                                       _("Unable to delete root account"));
-        controls.update_privileged_ui({allowed: false},
-                                      "#account-real-name-wrapper",
+        $("#account-real-name-wrapper").update_privileged({allowed: false},
                                       _("Unable to rename root account"));
     }
 }

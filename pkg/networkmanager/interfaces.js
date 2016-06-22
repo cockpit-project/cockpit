@@ -21,12 +21,11 @@ require([
     "jquery",
     "base1/cockpit",
     "network/mustache",
-    "shell/controls",
     "shell/shell",
     "system/server",
     "shell/plot",
     "network/patterns",
-], function($, cockpit, Mustache, controls, shell, server) {
+], function($, cockpit, Mustache, shell, server) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -1311,9 +1310,8 @@ var permission = cockpit.permission({ admin: true });
 $(permission).on("changed", update_network_privileged);
 
 function update_network_privileged() {
-    controls.update_privileged_ui(
-        permission, ".network-privileged",
-        cockpit.format(
+    $(".network-privileged").update_privileged(
+        permission, cockpit.format(
             _("The user <b>$0</b> is not permitted to modify network settings"),
             permission.user ? permission.user.name : '')
     );

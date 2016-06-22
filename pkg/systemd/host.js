@@ -23,7 +23,6 @@ define([
     "./mustache",
     "domain/operation",
     "performance/dialog",
-    "shell/controls",
     "shell/shell",
     "system/server",
     "system/service",
@@ -32,7 +31,7 @@ define([
     "system/bootstrap-datepicker",
     "system/bootstrap-combobox",
     "./patterns",
-], function($, cockpit, Mustache, domain, performance, controls, shell, server, service) {
+], function($, cockpit, Mustache, domain, performance, shell, server, service) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -42,9 +41,8 @@ var permission = cockpit.permission({ admin: true });
 $(permission).on("changed", update_hostname_privileged);
 
 function update_hostname_privileged() {
-    controls.update_privileged_ui(
-        permission, ".hostname-privileged",
-        cockpit.format(
+    $(".hostname-privileged").update_privileged(
+        permission, cockpit.format(
             _("The user <b>$0</b> is not permitted to modify hostnames"),
             permission.user ? permission.user.name : '')
     );

@@ -8,3 +8,9 @@ REACT_COMPONENTS = \
 EXTRA_DIST += \
 	$(REACT_COMPONENTS) \
 	$(NULL)
+
+lib_TESTS = \
+	lib/test-patterns.html \
+	$(NULL)
+
+TESTS += $(lib_TESTS)

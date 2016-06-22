@@ -67,6 +67,7 @@ class TestDocker(MachineCase):
         message = "HelloMessage."
 
         # show all containers to interact with stopped ones
+        b.wait_visible("#containers-containers")
         b.click("#containers-containers-filter button")
         b.wait_visible("#containers-containers-filter .dropdown-menu")
         b.click("#containers-containers-filter a[value='all']")
@@ -209,6 +210,7 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         m.execute("rm -rf /var/tmp/container-probe")
 
         # Wait for it to appear
+        b.wait_visible("#containers-images")
         b.wait_in_text("#containers-images", image_name)
 
         nport = port + 1;
@@ -307,6 +309,7 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         b.wait_in_text("#containers-images", "busybox:latest")
 
         # Run one container without restarting
+        b.wait_visible("#containers-images")
         b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "NORESTART")
@@ -409,7 +412,6 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         b.wait_popdown("container-resources-dialog")
 
         # This should be updated
-        b.wait_not_in_text("#container-details-memory-row", "/")
         b.wait_in_text("#container-details-cpu-row", "1024 shares")
 
 if __name__ == '__main__':

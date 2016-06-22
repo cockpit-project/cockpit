@@ -21,14 +21,13 @@ require([
     "jquery",
     "base1/cockpit",
     "dashboard/mustache",
-    "shell/controls",
     "shell/shell",
     "shell/machines",
     "dashboard/image-editor",
     "shell/machine-dialogs",
     "dashboard/patterns",
     "shell/plot",
-], function($, cockpit, Mustache, controls, shell, machines, image_editor, mdialogs) {
+], function($, cockpit, Mustache, shell, machines, image_editor, mdialogs) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -206,9 +205,8 @@ var permission = cockpit.permission({ admin: true });
 $(permission).on("changed", update_servers_privileged);
 
 function update_servers_privileged() {
-    controls.update_privileged_ui(
-        permission, ".servers-privileged",
-        cockpit.format(
+    $(".servers-priviliged").update_privileged(
+        permission, cockpit.format(
             _("The user <b>$0</b> is not permitted to manage servers"),
             permission.user ? permission.user.name : '')
     );

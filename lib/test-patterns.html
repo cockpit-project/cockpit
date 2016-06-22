@@ -22,10 +22,10 @@
   <head>
     <title>Controls Tests</title>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="../../tools/qunit.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="../../tools/qunit.js"></script>
-
-    <script type="text/javascript" src="../base1/require.js"></script>
+    <link rel="stylesheet" href="../tools/qunit.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="../tools/qunit.js"></script>
+    <script type="text/javascript" src="../pkg/base1/jquery.js"></script>
+    <script type="text/javascript" src="patterns.js"></script>
   </head>
   <body>
     <h1 id="qunit-header">Controls Tests</h1>
@@ -36,11 +36,7 @@
   </body>
 <script type="text/javascript">
 
-require([
-    "shell/controls"
-], function(controls) {
-
-test("update_privileged_ui", function() {
+test("update_privileged", function() {
     p_true = { 'allowed' : true };
     p_false = { 'allowed' : false };
     p_unknown = { };
@@ -49,7 +45,7 @@ test("update_privileged_ui", function() {
     b2 = $('<button class="btn" id="b2" title="A Real title">');
 
     $('#testing').append(b1, b2);
-    controls.update_privileged_ui(p_true, ".btn", "disabled message");
+    $(".btn").update_privileged(p_true, "disabled message");
 
     equal($("#b1").attr('data-original-title'), "", 'b1 true, normal blank title');
     equal($("#b2").attr('data-original-title'), "A Real title", 'b2 true, normal title');
@@ -58,7 +54,7 @@ test("update_privileged_ui", function() {
     ok(!$("#b1").attr("disabled"), 'b1 true, not disabled');
     ok(!$("#b2").attr("disabled"), 'b2 true, not disabled');
 
-    controls.update_privileged_ui(p_false, ".btn", "disabled message");
+    $(".btn").update_privileged(p_false, "disabled message");
 
     equal($("#b1").attr('data-original-title'), "disabled message", 'b1 false, disabled title');
     equal($("#b2").attr('data-original-title'), "disabled message", 'b2 false, disabled title');
@@ -67,7 +63,7 @@ test("update_privileged_ui", function() {
     ok(!$("#b1").attr("disabled"), 'b1 false, not disabled');
     ok(!$("#b2").attr("disabled"), 'b2 false, not disabled');
 
-    controls.update_privileged_ui(p_unknown, ".btn", "disabled message");
+    $(".btn").update_privileged(p_unknown, "disabled message");
 
     equal($("#b1").attr('data-original-title'), "", 'b1 unknown, back to normal blank title');
     equal($("#b2").attr('data-original-title'), "A Real title", 'b2 unknown, back to normal title');
@@ -78,8 +74,6 @@ test("update_privileged_ui", function() {
 });
 
 QUnit.start();
-
-});
 
 </script>
 </html>

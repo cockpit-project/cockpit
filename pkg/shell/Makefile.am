@@ -61,7 +61,6 @@ shelldebug_DATA = \
 	pkg/shell/shell.html \
 	pkg/shell/simple.html \
 	pkg/shell/stub.html \
-	pkg/shell/controls.js \
 	pkg/shell/plot.js \
 	pkg/shell/cockpit-plot.js \
 	$(shell_SCRIPTS) \
@@ -96,7 +95,6 @@ pkg/shell/mustache.min.js: pkg/shell/mustache.js
 	$(MIN_JS_RULE)
 
 shell_MINFILES = \
-	pkg/shell/controls.min.js \
 	pkg/shell/plot.min.js \
 	pkg/shell/cockpit-plot.min.js \
 	$(NULL)
@@ -120,7 +118,6 @@ shellimages_DATA = \
 
 shell_TESTS = \
 	pkg/shell/test-dummy.html \
-	pkg/shell/test-controls.html \
 	pkg/shell/test-machines.html \
 	$(NULL)
 

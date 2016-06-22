@@ -1,9 +1,8 @@
 define([
     "jquery",
     "base1/cockpit",
-    "shell/controls",
     "data!./operation.html",
-], function(jQuery, cockpit, controls, html) {
+], function(jQuery, cockpit, html) {
     var module = { };
 
     var _ = cockpit.gettext;
@@ -435,7 +434,7 @@ define([
             permission = cockpit.permission({ admin: true });
 
             function update_realm_privileged() {
-                controls.update_privileged_ui(permission, element,
+                $(element).update_privileged(permission,
                         cockpit.format(_("The user <b>$0</b> is not permitted to modify realms"),
                             permission.user ? permission.user.name : ''));
             }

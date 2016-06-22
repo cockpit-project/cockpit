@@ -392,15 +392,6 @@ var SETroubleshootPage = React.createClass({
                     message={this.props.error} />
             );
         } else {
-            // if we don't have any entries, show a sane message instead of an empty page */
-            if (this.props.entries.length === 0) {
-                return (
-                    <EmptyState
-                        icon={ <i className="fa fa-check" /> }
-                        description={ _("No SELinux alerts.") }
-                        message={null} />
-                );
-            }
             var entries = this.props.entries.map(function(itm) {
                 itm.runFix = self.props.runFix;
                 var listingDetail;

@@ -106,7 +106,7 @@ require([
       -----------------------------------------------------------------------------
      */
     // create the listing
-    demo_listing.demo(document.getElementById('demo-listing'));
+    demo_listing.demo(document.getElementById('demo-listing'), document.getElementById('demo-listing-empty'));
 
 
 });

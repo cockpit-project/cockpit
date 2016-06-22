@@ -45,7 +45,7 @@ define([
         },
     });
 
-    var showListingDemo = function(rootElement) {
+    var showListingDemo = function(rootElement, rootElementEmptyList) {
         var navigateToItem = function(msg) {
             window.alert("navigated to item: " + msg);
         };
@@ -89,6 +89,9 @@ define([
              </cockpitListing.Listing>
         );
         React.render(listing, rootElement);
+
+        var emptyListing = <cockpitListing.Listing title="Demo Empty Listing Pattern" emptyCaption="No Entries"/>;
+        React.render(emptyListing, rootElementEmptyList);
     };
 
     return {

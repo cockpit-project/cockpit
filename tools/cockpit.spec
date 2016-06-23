@@ -156,7 +156,7 @@ The Cockpit Web Service listens on the network, and authenticates users.
 
 %build
 exec 2>&1
-%configure --disable-silent-rules --with-cockpit-user=cockpit-ws --with-branding=auto --with-selinux-config-type=etc_t
+%configure --disable-silent-rules --with-cockpit-user=cockpit-ws --with-branding=auto --with-selinux-config-type=etc_t %{?rhel:--without-storaged-iscsi-sessions}
 make -j4 %{?extra_flags} all
 
 %check

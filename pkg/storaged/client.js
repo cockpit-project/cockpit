@@ -20,11 +20,16 @@
 define([
     "jquery",
     "base1/cockpit",
-    "storage/utils"
-], function($, cockpit, utils) {
+    "storage/utils",
+    "manifests"
+], function($, cockpit, utils, manifests) {
 
     /* STORAGED CLIENT
      */
+
+    var config = { };
+    if (manifests["storage"] && manifests["storage"]["config"])
+        config = manifests["storage"]["config"];
 
     var client = { };
 
@@ -359,7 +364,7 @@ define([
                                          wait_all([ client.manager_lvm2, client.manager_iscsi],
                                                   function () {
                                                       client.features = { lvm2: client.manager_lvm2.valid,
-                                                                          iscsi: client.manager_iscsi.valid
+                                                                          iscsi: config.with_storaged_iscsi_sessions == "yes" && client.manager_iscsi.valid
                                                                         };
                                                       callback();
                                                   });

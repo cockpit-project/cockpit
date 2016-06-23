@@ -170,7 +170,8 @@ module.Slider = function Slider() {
 
 $(document).ready(setup_sliders);
 
-module.update_privileged_ui = function update_privileged_ui(perm, selector, denied_message) {
+// placement is optional, "top", "left", "bottom", "right"
+module.update_privileged_ui = function update_privileged_ui(perm, selector, denied_message, placement) {
     var allowed = (perm.allowed !== false);
     $(selector).each(function() {
         // preserve old title first time to use when allowed
@@ -180,16 +181,22 @@ module.update_privileged_ui = function update_privileged_ui(perm, selector, deni
                $(this).data(allowed_key) === false)
             $(this).data(allowed_key, $(this).attr('title') || "");
 
-        $(this).tooltip({ html: true });
-        if ($(this).hasClass("disabled") === allowed) {
-          $(this).toggleClass("disabled", !allowed)
-               .attr('data-original-title', null);
+        var options = { html: true };
+        if (placement)
+            options['placement'] = placement;
 
-          if (allowed)
-              $(this).attr('title', $(this).data(allowed_key));
-          else
-              $(this).attr('title', denied_message);
-          $(this).tooltip('fixTitle');
+        $(this).tooltip(options);
+
+        if ($(this).hasClass("disabled") === allowed) {
+            $(this).toggleClass("disabled", !allowed)
+                 .attr('data-original-title', null);
+
+            if (allowed)
+                $(this).attr('title', $(this).data(allowed_key));
+            else
+                $(this).attr('title', denied_message);
+
+            $(this).tooltip('fixTitle');
         }
     });
 };

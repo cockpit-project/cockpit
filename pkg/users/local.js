@@ -42,7 +42,8 @@ function update_accounts_privileged() {
         ".accounts-privileged:not('.accounts-current-account')",
         cockpit.format(
             _("The user <b>$0</b> is not permitted to modify accounts"),
-            permission.user ? permission.user.name : '')
+            permission.user ? permission.user.name : ''),
+        "right"
     );
     $(".accounts-privileged").find("input")
         .attr('disabled', permission.allowed === false ||

@@ -159,6 +159,26 @@ class TestNetworking(MachineCase):
 
         wait(lambda: "yes" in m.execute("nmcli -f ipv4.ignore-auto-dns connection show TEST"))
 
+        # Go back to main page
+        b.click("#network-interface ol.breadcrumb li:first-child a")
+        b.wait_visible("#networking-interfaces")
+
+        # Check that an unmanaged NIC doesn't show up
+        unmanaged = self.add_iface(mac="52:54:00:9e:00:F8")
+        self.wait_for_iface(unmanaged)
+        b.wait_present("#networking-interfaces tr[data-interface='" + unmanaged + "']")
+        b.logout()
+
+        # Now mark this interface as unmanaged
+        m.execute("echo -e 'NM_CONTROLLED=no\\nDEVICE=\"{0}\"\\n' >> /etc/sysconfig/network-scripts/ifcfg-{0}".format(unmanaged))
+        m.execute("systemctl restart NetworkManager")
+
+        # Log in and make sure it doesn't show up
+        self.login_and_go("/network")
+        self.wait_for_iface(iface)
+        b.wait_not_present("#networking-interfaces tr[data-interface='" + unmanaged + "']")
+
+
     def testBond(self):
         b = self.browser
         m = self.machine

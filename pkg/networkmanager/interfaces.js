@@ -1014,7 +1014,8 @@ function NetworkManagerModel() {
             IdModel:              { def: "" },
             Driver:               { def: "" },
             Carrier:              { def: true },
-            Speed:                { }
+            Speed:                { },
+            Managed:              { def: true },
             // See below for "Slaves"
         },
 
@@ -1143,7 +1144,10 @@ function NetworkManagerModel() {
         ],
 
         props: {
-            Devices:            { conv: conv_Array(conv_Object(type_Device)),           def: [] },
+            Devices: {
+                conv: conv_Array(conv_Object(type_Device)),
+                def: []
+            },
             ActiveConnections:  { conv: conv_Array(conv_Object(type_ActiveConnection)), def: [] }
         },
 
@@ -1512,6 +1516,12 @@ PageNetworking.prototype = {
                 iface.Device.DeviceType != 'vlan' &&
                 iface.Device.DeviceType != 'bridge')
                 return;
+
+            // Skip everything that's not Managed
+            if (iface.Device && iface.Device.Managed === false) {
+                console.log("Hiding unmanaged interface:", iface.Device.Interface);
+                return;
+            }
 
             var dev = iface.Device;
             var is_active = (dev && dev.State == 100 && dev.Carrier === true);
@@ -2273,6 +2283,10 @@ PageNetworkInterface.prototype = {
                 slave_con.Interfaces.forEach(function(iface) {
                     var dev = iface.Device;
                     var is_active = (dev && dev.State == 100 && dev.Carrier === true);
+
+                    // Don't show Unmanaged slaves
+                    if (dev && dev.Managed === false)
+                        return;
 
                     self.rx_series.add_instance(iface.Name);
                     self.tx_series.add_instance(iface.Name);

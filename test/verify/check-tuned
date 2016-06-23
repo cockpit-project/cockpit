@@ -37,6 +37,7 @@ class TestTuned(MachineCase):
         # Stop tuned in case it is running by default, as on RHEL.
 
         m.execute("systemctl stop tuned")
+        m.execute("systemctl disable tuned")
 
         # Login and check initial state
 
@@ -77,6 +78,38 @@ class TestTuned(MachineCase):
         b.wait_text('#system-info-performance button', "balanced")
         b.wait_attr('#system-info-performance [data-toggle="popover"]', 'data-content',
                     "This system is using a custom profile")
+
+        # Check the status of tuned, it should show the profile
+        output = m.execute("tuned-adm active 2>&1 || true")
+        self.assertIn("balanced", output)
+        output = m.execute("systemctl status tuned")
+        self.assertIn("enabled;", output)
+
+        # Now disable tuned
+        b.click('#system-info-performance button')
+        b.wait_present(title_selector)
+        b.wait_present("{0} .list-group-item.active p".format(body_selector))
+
+        b.click("{0} .list-group-item p:contains('None')".format(body_selector))
+        b.wait_present("{0} .list-group-item.active p:contains('None')".format(body_selector))
+        b.click("{0} button.apply".format(body_selector))
+        b.wait_not_present(title_selector)
+
+        b.wait_text('#system-info-performance button', "none")
+
+        # Check the status of tuned, it should show disabled
+        output = m.execute("tuned-adm active 2>&1 || true")
+        self.assertIn("No current active profile", output)
+        output = m.execute("systemctl status tuned")
+        self.assertIn("disabled;", output)
+
+        # Click on the button again
+        b.click('#system-info-performance button')
+        b.wait_present(title_selector)
+
+        # Tuned should still be disabled
+        output = m.execute("systemctl status tuned")
+        self.assertIn("disabled;", output)
 
 if __name__ == '__main__':
     test_main()

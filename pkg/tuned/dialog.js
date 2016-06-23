@@ -125,31 +125,63 @@ define([
             function set_profile() {
                 // no need to check input here, all states are valid
                 var profile = dialog_selected;
+                var promise;
+
                 if (profile == "none") {
-                    return tuned.call('/Tuned', 'com.redhat.tuned.control', 'stop', [])
-                        .then(function() {
+                    promise = tuned.call("/Tuned", 'com.redhat.tuned.control', 'disable', [])
+                        .then(function(results) {
+                            /* Yup this is how tuned returns failures */
+                            if (!results[0]) {
+                                console.warn("Failed to disable tuned profile:", results);
+                                return cockpit.reject(_("Failed to disable tuned profile"));
+                            }
+
                             update_button();
-                            return null;
                         });
                 } else {
-                    return tuned.call('/Tuned', 'com.redhat.tuned.control', 'switch_profile', [ profile ])
+                    promise = tuned.call('/Tuned', 'com.redhat.tuned.control', 'switch_profile', [ profile ])
                         .then(function(results) {
+
+                            /* Yup this is how tuned returns failures */
                             if (!results[0][0]) {
+                                console.warn("Failed to switch profile:", results);
                                 return cockpit.reject(results[0][1] || _("Failed to switch profile"));
-                            } else {
-                                return tuned.call('/Tuned', 'com.redhat.tuned.control', 'start', [])
-                                    .then(function(results) {
-                                        if (!results[0]) {
-                                            console.warn("tuned set_profile failed: " + JSON.stringify(results));
-                                            return cockpit.reject(results[1] || _("Failed to activate profile"));
-                                        } else {
-                                            update_button();
-                                            return null;
-                                        }
-                                    });
                             }
+
+                            update_button();
                         });
                 }
+
+                return promise.then(set_service);
+            }
+
+            function set_service() {
+                /* When the profile is none we disable tuned */
+                var enable = (dialog_selected != "none");
+                var action = enable ? "start" : "stop";
+                return tuned.call('/Tuned', 'com.redhat.tuned.control', action, [])
+                    .then(function(results) {
+                        var msg;
+
+                        /* Yup this is how tuned returns failures */
+                        if (!results[0]) {
+                            console.warn("Failed to " + action + " tuned:", results);
+                            if (results[1])
+                                return cockpit.reject(results[1]);
+                            else if (enable)
+                                return cockpit.reject(cockpit.format(_("Failed to enable tuned")));
+                            else
+                                return cockpit.reject(cockpit.format(_("Failed to disable tuned")));
+                        }
+
+                        /* Now tell systemd about this change */
+                        if (enable && !tuned_service.enabled)
+                            return tuned_service.enable();
+                        else if (!enable && tuned_service.enabled)
+                            return tuned_service.disable();
+                        else
+                            return null;
+                    });
             }
 
             function update_selected_item(selected) {
@@ -247,9 +279,6 @@ define([
                     with_tuned();
                 })
                 .fail(show_error);
-
-            if (!tuned_service.enabled)
-                tuned_service.enable();
         }
 
         button.on('click', open_dialog);

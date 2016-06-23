@@ -3,6 +3,7 @@ nodist_storaged_DATA = \
 	pkg/storaged/bundle.min.js.gz \
 	pkg/storaged/index.min.html.gz \
 	pkg/storaged/storage.min.css.gz \
+	pkg/storaged/override.json \
 	$(NULL)
 storaged_DATA = \
 	pkg/storaged/manifest.json \
@@ -81,5 +82,6 @@ EXTRA_DIST += \
 	pkg/storaged/index.min.html \
 	pkg/storaged/plot.min.css \
 	pkg/storaged/storage.min.css \
+	pkg/storaged/override.json.in \
 	$(storaged_BUNDLE) \
 	$(NULL)

@@ -304,6 +304,20 @@ changequote([,])dnl
 
 AC_CHECK_FUNCS(fdwalk)
 
+# Storaged
+
+# HACK - Storaged before 2.5.3 doesn't tell us when it supports
+#        sessions, so we allow it to be switched off explicitly.
+#
+# https://github.com/storaged-project/storaged/pull/68
+
+AC_ARG_WITH(storaged-iscsi-sessions,
+            AC_HELP_STRING([--with-storaged-iscsi-sessions=yes/no],
+                           [Whether storaged supports listing iSCSI sessions]),
+            [],
+            [with_storaged_iscsi_sessions=yes])
+AC_SUBST(with_storaged_iscsi_sessions)
+
 # Address sanitizer
 
 AC_MSG_CHECKING([for asan flags])
@@ -481,6 +495,7 @@ AC_SUBST([INCLUDE_WEBPACK_DEPS], ["-include Makefile-webpack.deps"])
 
 AC_OUTPUT([
 Makefile
+pkg/storaged/override.json
 doc/guide/version
 po/Makefile.in
 ])

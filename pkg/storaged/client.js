@@ -128,8 +128,6 @@ define([
     client.storaged_client.watch({ path_namespace: STORAGED_OPATH_PFX });
 
     client.manager = proxy("Manager", "Manager");
-    client.manager_lvm2 = proxy("Manager.LVM2", "Manager");
-    client.manager_iscsi = proxy("Manager.ISCSI.Initiator", "Manager");
 
     client.mdraids = proxies("MDRaid");
     client.vgroups = proxies("VolumeGroup");
@@ -349,31 +347,23 @@ define([
                          client.features = false;
                          callback();
                      } else {
-                         client.features = { lvm2: client.manager_lvm2.valid,
-                                             iscsi: client.manager_iscsi.valid
-                                           };
-
-                         // Additional interfaces like the LVM2
-                         // manager might appear asynchronously some
-                         // time after the modules are loaded, so we
-                         // have to watch them and react dynamically.
-
-                         $(client.manager_lvm2).on("changed", function () {
-                             client.features.lvm2 = client.manager_lvm2.valid;
-                             $(client.features).triggerHandler("changed");
-                         });
-
-                         $(client.manager_iscsi).on("changed", function () {
-                             client.features.iscsi = client.manager_iscsi.valid;
-                             $(client.features).triggerHandler("changed");
-                         });
-
                          cockpit.spawn(["date", "+%s"])
                              .done(function (now) {
                                  client.time_offset = parseInt(now)*1000 - new Date().getTime();
                              })
                              .always(function () {
                                  client.manager.EnableModules(true)
+                                     .always(function () {
+                                         client.manager_lvm2 = proxy("Manager.LVM2", "Manager");
+                                         client.manager_iscsi = proxy("Manager.ISCSI.Initiator", "Manager");
+                                         wait_all([ client.manager_lvm2, client.manager_iscsi],
+                                                  function () {
+                                                      client.features = { lvm2: client.manager_lvm2.valid,
+                                                                          iscsi: client.manager_iscsi.valid
+                                                                        };
+                                                      callback();
+                                                  });
+                                     })
                                      .fail(function (error) {
                                          console.warn("Can't enable storaged modules", error.toString());
                                      });
@@ -385,7 +375,6 @@ define([
                                      $(client).triggerHandler('changed');
                                  });
                                  update_indices();
-                                 callback();
                              });
                      }
                  });

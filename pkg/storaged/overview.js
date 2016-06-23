@@ -36,13 +36,8 @@ define([
 
     function init_overview(client, jobs) {
 
-        function update_features() {
-            $('#vgroups').toggle(client.features.lvm2);
-            $('#iscsi-sessions').toggle(client.features.iscsi);
-        }
-
-        $(client.features).on("changed", update_features);
-        update_features();
+        $('#vgroups').toggle(client.features.lvm2);
+        $('#iscsi-sessions').toggle(client.features.iscsi);
 
         var mdraids_tmpl = $("#mdraids-tmpl").html();
         mustache.parse(mdraids_tmpl);

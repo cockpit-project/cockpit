@@ -103,8 +103,24 @@ client.init = function(statusChangedCallback) {
         );
     };
 
-    refreshInfo();
-    window.setInterval(refreshInfo, pollingInterval);
+    var polling = null;
+
+    function setupPolling() {
+        if (cockpit.hidden) {
+            window.clearInterval(polling);
+            polling = null;
+        } else if (polling === null) {
+            polling = window.setInterval(refreshInfo, pollingInterval);
+            refreshInfo();
+        }
+    }
+
+    cockpit.addEventListener("visibilitychange", setupPolling);
+    setupPolling();
+
+    /* The first time */
+    if (polling === null)
+        refreshInfo();
 
     return status;
 };

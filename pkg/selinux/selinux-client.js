@@ -50,10 +50,12 @@ var status = {
  *   - enforcing:       boolean (current selinux mode of the system, false if permissive or selinux disabled)
  *   - configEnforcing: boolean (mode the system is configured to boot in, may differ from current mode)
  * errorMessage:    optional, if getting the status failed, here will be additional info
+ *
+ * Since we're screenscraping we need to run this in LC_ALL=C mode
  */
 client.init = function(statusChangedCallback) {
     var refreshInfo = function() {
-        cockpit.spawn(statusCommand, { err: 'message' }).then(
+        cockpit.spawn(statusCommand, { err: 'message', environ: [ "LC_ALL=C" ] }).then(
             function(output) {
                 /* parse output that looks like this:
                  *   SELinux status:                 enabled

@@ -30,7 +30,7 @@ DISTCLEANFILES = \
 
 EXTRA_DIST = \
 	bower.json \
-	branding \
+	src/branding \
 	README.md \
 	$(NULL)
 
@@ -329,6 +329,12 @@ include pkg/storaged/Makefile.am
 include pkg/tuned/Makefile.am
 include pkg/users/Makefile.am
 include src/base1/Makefile.am
+include src/branding/centos/Makefile.am
+include src/branding/default/Makefile.am
+include src/branding/fedora/Makefile.am
+include src/branding/kubernetes/Makefile.am
+include src/branding/registry/Makefile.am
+include src/branding/rhel/Makefile.am
 include src/bridge/Makefile.am
 include src/common/Makefile-common.am
 include src/websocket/Makefile-websocket.am
@@ -339,10 +345,4 @@ include src/reauthorize/Makefile-reauthorize.am
 include src/retest/Makefile.am
 include src/pam-ssh-add/Makefile.am
 include src/static/Makefile-static.am
-include branding/centos/Makefile.am
-include branding/default/Makefile.am
-include branding/fedora/Makefile.am
-include branding/kubernetes/Makefile.am
-include branding/registry/Makefile.am
-include branding/rhel/Makefile.am
 include containers/Makefile.am

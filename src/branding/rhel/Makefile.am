@@ -1,8 +1,8 @@
 rhelbrandingdir = $(datadir)/cockpit/branding/rhel
 
 rhelbranding_DATA = \
-	branding/rhel/branding.css \
-	branding/rhel/bg-login.jpg \
+	src/branding/rhel/branding.css \
+	src/branding/rhel/bg-login.jpg \
 	$(NULL)
 
 # Opportunistically use redhat-logos ... yes they're called 'fedora'

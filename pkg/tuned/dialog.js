@@ -22,7 +22,7 @@ define([
     "base1/cockpit",
     "./mustache",
     "system/service",
-    "data!./button.html",
+    "raw!./button.html",
     "performance/cockpit-components-dialog",
     "performance/change-profile",
     "performance/react",

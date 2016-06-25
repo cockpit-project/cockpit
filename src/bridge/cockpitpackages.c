@@ -548,6 +548,34 @@ setup_package_manifest (CockpitPackage *package,
   return TRUE;
 }
 
+static gchar *
+calc_package_directory (JsonObject *manifest,
+                        const gchar *name,
+                        const gchar *path)
+{
+  const gchar *base = NULL;
+
+  /* See if the module override the base directory */
+  if (!cockpit_json_get_string (manifest, "base", NULL, &base))
+    {
+      g_warning ("%s: invalid 'base' field in manifest", name);
+      return NULL;
+    }
+
+  if (!base)
+    {
+      return g_strdup (path);
+    }
+  else if (g_path_is_absolute (base))
+    {
+      return g_strdup (base);
+    }
+  else
+    {
+      return g_build_filename (path, base, NULL);
+    }
+}
+
 static CockpitPackage *
 maybe_add_package (GHashTable *listing,
                    const gchar *parent,
@@ -557,6 +585,7 @@ maybe_add_package (GHashTable *listing,
 {
   CockpitPackage *package = NULL;
   gchar *path = NULL;
+  gchar *directory = NULL;
   JsonObject *manifest = NULL;
   GHashTable *paths = NULL;
 
@@ -579,18 +608,20 @@ maybe_add_package (GHashTable *listing,
       goto out;
     }
 
+  directory = calc_package_directory (manifest, name, path);
+
   if (system)
     paths = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
   if (checksum || paths)
     {
-      if (!package_walk_directory (checksum, paths, path, NULL))
+      if (!package_walk_directory (checksum, paths, directory, NULL))
         goto out;
     }
 
   package = cockpit_package_new (name);
-  package->directory = path;
-  path = NULL;
+  package->directory = directory;
+  directory = NULL;
 
   if (paths)
     package->paths = g_hash_table_ref (paths);
@@ -606,6 +637,7 @@ maybe_add_package (GHashTable *listing,
   g_debug ("%s: added package at %s", package->name, package->directory);
 
 out:
+  g_free (directory);
   g_free (path);
   if (manifest)
     json_object_unref (manifest);

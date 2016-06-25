@@ -479,6 +479,9 @@ doc/guide/version
 po/Makefile.in
 ])
 
+# Create a link for development work
+ln -snf $PWD $srcdir/build
+
 dnl ==========================================================================
 echo "
                Cockpit $VERSION

@@ -34,7 +34,7 @@ EXTRA_DIST = \
 	README.md \
 	$(NULL)
 
-SUFFIXES = .css .min.css .min.css.gz .js .js.gz .min.js .min.js.gz .jsx .html .min.html .min.html.gz .woff .woff.gz .1 .8 .5
+SUFFIXES = .css .min.css .min.css.gz .js .js.gz .min.js .min.js.gz .js.map .jsx .html .min.html .min.html.gz .woff .woff.gz .1 .8 .5
 
 V_CHECK = $(V_CHECK_$(V))
 V_CHECK_ = $(V_CHECK_$(AM_DEFAULT_VERBOSITY))
@@ -71,6 +71,18 @@ MIN_HTML_RULE = \
 GZ_RULE = \
 	$(V_GZIP) $(MKDIR_P) $(dir $@) && \
 	gzip -n -c $< > $@.tmp && $(MV) $@.tmp $@
+
+WEBPACK_RULE = \
+        $(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	SRCDIR=$(srcdir) BUILDDIR=$(builddir) $(srcdir)/tools/missing $(srcdir)/tools/webpack \
+		--config=$(srcdir)/webpack.config.js --output-filename=$@.tmp \
+		--output-source-map-filename=$@.tmp.map --devtool=source-map $< && \
+	mv $@.tmp $@ && mv $@.tmp.map $@.map
+
+.min.js.js.map:
+	echo $@ $< && false yyy
+.js.js.map:
+	xxxx
 
 .css.min.css:
 	$(MIN_CSS_RULE)
@@ -321,7 +333,6 @@ include pkg/playground/Makefile.am
 include pkg/realmd/Makefile.am
 include pkg/selinux/Makefile.am
 include pkg/shell/Makefile.am
-include pkg/sosreport/Makefile.am
 include pkg/subscriptions/Makefile.am
 include pkg/systemd/Makefile.am
 include pkg/storaged/Makefile.am

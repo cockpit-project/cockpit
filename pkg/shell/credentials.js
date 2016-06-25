@@ -20,7 +20,7 @@
 define([
     "jquery",
     "base1/cockpit",
-    "data!shell/ssh-list-private-keys.sh",
+    "raw!shell/ssh-list-private-keys.sh",
     "./patterns",
 ], function($, cockpit, lister) {
     "use strict";

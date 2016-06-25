@@ -20,7 +20,7 @@
 require([
     "jquery",
     "base1/cockpit",
-    "data!sosreport/run-sosreport.sh",
+    "raw!sosreport/run-sosreport.sh",
     "shell/po"
 ], function($, cockpit, run_sosreport_sh, po) {
     "use strict";

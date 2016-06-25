@@ -1,8 +1,8 @@
 define([
     "jquery",
     "base1/cockpit",
-    "data!./ssh-list-public-keys.sh",
-    "data!./ssh-add-public-key.sh"
+    "raw!./ssh-list-public-keys.sh",
+    "raw!./ssh-add-public-key.sh"
 ], function($, cockpit, lister, adder) {
     var module = { };
     var _ = cockpit.gettext;

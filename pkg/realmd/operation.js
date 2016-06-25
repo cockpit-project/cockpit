@@ -1,7 +1,7 @@
 define([
     "jquery",
     "base1/cockpit",
-    "data!./operation.html",
+    "raw!./operation.html",
 ], function(jQuery, cockpit, html) {
     var module = { };
 

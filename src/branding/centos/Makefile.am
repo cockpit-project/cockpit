@@ -1,8 +1,8 @@
 centosbrandingdir = $(datadir)/cockpit/branding/centos
 
 centosbranding_DATA = \
-	branding/centos/branding.css \
-	branding/centos/bg-login.jpg \
+	src/branding/centos/branding.css \
+	src/branding/centos/bg-login.jpg \
 	$(NULL)
 
 # Opportunistically use fedora-logos

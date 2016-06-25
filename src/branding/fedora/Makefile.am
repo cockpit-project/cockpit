@@ -1,8 +1,8 @@
 fedorabrandingdir = $(datadir)/cockpit/branding/fedora
 
 fedorabranding_DATA = \
-	branding/fedora/branding.css \
-	branding/fedora/bg-login.jpg \
+	src/branding/fedora/branding.css \
+	src/branding/fedora/bg-login.jpg \
 	$(NULL)
 
 # Opportunistically use fedora-logos

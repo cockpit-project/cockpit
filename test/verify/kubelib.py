@@ -74,7 +74,11 @@ class VolumeTests(object):
         m.upload(["verify/files/mock-volume-tiny-app.json"], "/tmp")
         m.execute("kubectl create -f /tmp/mock-volume-tiny-app.json")
 
+        # By adding another volume claim more issues are found
+        m.execute("kubectl create namespace another && kubectl create --namespace=another -f /tmp/mock-volume-tiny-app.json")
+
         b.wait_present(".pvc-notice a")
+        b.wait_in_text(".pvc-notice a", "2 pending volume claims")
         b.click(".pvc-notice a")
         b.wait_present(".pvc-listing")
 
@@ -89,13 +93,12 @@ class VolumeTests(object):
         b.wait_not_in_text("modal-dialog .modal-body ul", "mock-volume-claim")
         b.click("modal-dialog button.btn-danger")
         b.wait_not_present("modal-dialog")
-        b.wait_not_present(".pvc-listing")
+        b.wait_not_present("tbody[data-id='default/mock-volume-claim']")
 
         m.execute("kubectl delete rc/mock-volume")
         m.upload(["verify/files/mock-volume-tiny-app.json"], "/tmp")
         m.execute("kubectl create -f /tmp/mock-volume-tiny-app.json")
 
-        b.wait_present(".pvc-listing")
         b.wait_present("tbody[data-id='default/mock-volume-claim']")
         b.wait_in_text("tbody[data-id='default/mock-volume-claim']", "5Gi")
         b.click("tbody[data-id='default/mock-volume-claim'] tr")
@@ -113,6 +116,8 @@ class VolumeTests(object):
         b.wait_not_present("modal-dialog")
 
         b.wait_present(".pv-listing tbody[data-id='pv1']")
+
+        m.execute("kubectl delete namespace another")
         b.wait_not_present(".pvc-listing")
 
     def testVolumes(self):

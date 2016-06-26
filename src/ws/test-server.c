@@ -519,11 +519,13 @@ handle_package_file (CockpitWebServer *server,
       g_free (parts[2]);
       parts[2] = g_strdup ("systemd");
     }
+  if (g_strcmp0 (parts[2], "base1") == 0)
+    {
+      g_free (parts[1]);
+      parts[1] = g_strdup ("src");
+    }
 
   rebuilt = g_strjoinv ("/", parts);
-  inject_address (response, "bus_address", bus_address);
-  inject_address (response, "direct_address", direct_address);
-
   cockpit_web_response_file (response, rebuilt,  cockpit_web_server_get_document_roots (server));
   g_free (rebuilt);
 }
@@ -550,6 +552,20 @@ on_handle_resource (CockpitWebServer *server,
     handle_package_file (server, response, parts);
 
   g_strfreev (parts);
+  return TRUE;
+}
+
+static gboolean
+on_handle_source (CockpitWebServer *server,
+                  const gchar *path,
+                  GHashTable *headers,
+                  CockpitWebResponse *response,
+                  gpointer user_data)
+{
+  cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
+  inject_address (response, "bus_address", bus_address);
+  inject_address (response, "direct_address", direct_address);
+  cockpit_web_response_file (response, path,  cockpit_web_server_get_document_roots (server));
   return TRUE;
 }
 
@@ -581,9 +597,10 @@ server_ready (void)
                     G_CALLBACK (on_handle_stream_socket), NULL);
   g_signal_connect (server, "handle-stream",
                     G_CALLBACK (on_handle_stream_external), NULL);
-  g_signal_connect (server,
-                    "handle-resource::/pkg/",
+  g_signal_connect (server, "handle-resource::/pkg/",
                     G_CALLBACK (on_handle_resource), NULL);
+  g_signal_connect (server, "handle-resource::/src/",
+                    G_CALLBACK (on_handle_source), NULL);
   g_signal_connect (server, "handle-resource::/mock/",
                     G_CALLBACK (on_handle_mock), NULL);
 
@@ -599,7 +616,7 @@ server_ready (void)
       g_print ("**********************************************************************\n"
            "Please connect a supported web browser to\n"
            "\n"
-           " %s/pkg/base1/test-dbus.html\n"
+           " %s/src/base1/test-dbus.html\n"
            "\n"
            "and check that the test suite passes. Press Ctrl+C to exit.\n"
            "**********************************************************************\n"

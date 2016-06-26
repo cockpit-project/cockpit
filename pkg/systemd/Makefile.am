@@ -29,6 +29,7 @@ systemddebug_DATA = \
 	pkg/systemd/services.html \
 	pkg/systemd/server.js \
 	pkg/systemd/service.js \
+	pkg/systemd/term.css \
 	pkg/systemd/term.js \
 	pkg/systemd/terminal.js \
 	pkg/systemd/terminal.jsx \

@@ -227,6 +227,7 @@ kubernetes_LESS = \
 	pkg/kubernetes/styles/nodes.less \
 	pkg/kubernetes/styles/revealable.less \
 	pkg/kubernetes/styles/sidebar.less \
+	pkg/kubernetes/styles/term.less \
 	pkg/kubernetes/styles/topology.less \
 	pkg/kubernetes/styles/topology-graph.less \
 	pkg/kubernetes/styles/volumes.less \

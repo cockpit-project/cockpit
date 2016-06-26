@@ -23,7 +23,6 @@ basedebug_DATA = \
 	pkg/base1/patternfly.css \
 	pkg/base1/patternfly-additions.css \
 	pkg/base1/require.js \
-	pkg/base1/term.css \
 	pkg/base1/jquery.js \
 	pkg/base1/cockpit.js \
 	$(NULL)

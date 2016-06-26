@@ -93,8 +93,11 @@ class TestStorage(StorageCase):
         b.wait_in_text("#storage_mounts", mount_point_bar)
         bar_selector = '#storage_mounts tr:contains("%s") td:nth-child(4)' % mount_point_bar
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
-        m.execute("dd if=/dev/zero of=%s/zero bs=1M count=30 status=none" % mount_point_bar)
+        # start writing in the background
+        dd_pid = m.spawn("dd if=/dev/zero of=%s/zero bs=1M count=30 status=none" % mount_point_bar, "dd_log")
         wait_ratio_in_range(bar_selector, 0.5, 1.0)
+        # kill process if it hasn't finished yet
+        m.execute("kill %d 2>&1 >/dev/null || true" % dd_pid)
         m.execute("rm %s/zero" % mount_point_bar)
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
         m.execute("umount %s" % mount_point_bar)

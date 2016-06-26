@@ -29,6 +29,7 @@ dockerdebug_DATA = \
 	pkg/docker/run.js \
 	pkg/docker/search.js \
 	pkg/docker/term.js \
+	pkg/docker/term.css \
 	pkg/docker/util.js \
 	$(NULL)
 

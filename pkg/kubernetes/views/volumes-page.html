@@ -21,7 +21,7 @@
             <th translatable="yes">Status</th>
         </tr>
     </thead>
-    <tbody ng-repeat-start="item in pvs track by item.metadata.name"
+    <tbody ng-repeat-start="item in pvs track by item.metadata.uid"
            ng-init="sid = item.metadata.name"
            data-id="{{ sid }}" ng-class="{ open: listing.expanded(sid) }">
         <tr ng-click="listing.activate(sid)" class="listing-ct-item">
@@ -62,7 +62,7 @@
             <th></th>
         </tr>
     </thead>
-    <tbody ng-repeat-start="item in pending track by item.metadata.name"
+    <tbody ng-repeat-start="item in pending track by item.metadata.uid"
            ng-init="sid = item.metadata.namespace + '/' + item.metadata.name"
            data-id="{{ sid }}">
         <tr ng-click="createPV(item)" class="listing-ct-item">

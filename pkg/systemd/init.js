@@ -4,7 +4,9 @@ define([
     "./mustache",
     "system/server",
     "shell/po",
-    "system/moment"
+    "system/moment",
+    "./patterns",
+    "system/bootstrap-datepicker"
 ], function($, cockpit, mustache, server, po, moment) {
     cockpit.locale(po);
     cockpit.translate();
@@ -823,4 +825,430 @@ define([
     });
 
     $(init);
+
+    // Timer Creation
+    // The following are variables that keeps the count of each repeat times.
+    $("#create-timer").on("click", function() {
+        $("#timer-dialog").modal("show");
+    });
+
+    $("#timer-dialog").on("click", "#save-button", function() {
+        var close_modal = create_timer();
+        if (close_modal)
+            $("#timer-dialog").modal("toggle");
+    });
+
+    $("#add_button").hide();
+    var timer_unit = {
+        Calendar_or_Boot : "Boot",
+        time_unit :"sec",
+        repeat : "Don't Repeat"
+    };
+    var repeat_array = [];
+    var repeat_hourly_template = $("#repeat-hourly-tmpl").html();
+    mustache.parse(repeat_hourly_template);
+    var repeat_daily_template = $("#repeat-daily-tmpl").html();
+    mustache.parse(repeat_daily_template);
+    var repeat_weekly_template = $("#repeat-weekly-tmpl").html();
+    mustache.parse(repeat_weekly_template);
+    var repeat_monthly_template = $("#repeat-monthly-tmpl").html();
+    mustache.parse(repeat_monthly_template);
+    var repeat_yearly_template = $("#repeat-yearly-tmpl").html();
+    mustache.parse(repeat_yearly_template);
+
+    $(".form-table-ct ").on("click", "[value]",".btn-group.bootstrap-select.dropdown.form-control", function(ev) {
+        var target = $(this).closest(".btn-group.bootstrap-select.dropdown.form-control");
+        $("span", target).first().text(ev.target.text);
+        $("span", target).first().attr("value",ev.currentTarget.value);
+        switch(target.attr('id')) {
+            case "boot_specific" : set_calendar_or_boot(Number(ev.currentTarget.value));
+            break;
+            case "drop_time" : set_boottime_unit(Number(ev.currentTarget.value));
+            break;
+            case "drop_repeat" : repeat_options(Number(ev.currentTarget.value));
+            break;
+        }
+    });
+
+    function repeat_options(val) {
+        switch(val) {
+            case 0 : $("#specific_time_without_repeat").show();
+                $("#specific_time_for_repeat").hide();
+                $("#add_button").hide();
+                $("#close_button").hide();
+                timer_unit.repeat = "Don't Repeat";
+                break;
+            case 60 : timer_unit.repeat = "Repeat Hourly";
+                break;
+            case 1440 : timer_unit.repeat = "Repeat Daily";
+                break;
+            case 10080 : timer_unit.repeat = "Repeat Weekly";
+                break;
+            case 44640 : timer_unit.repeat = "Repeat Monthly";
+                break;
+            case 525600 : timer_unit.repeat = "Repeat Yearly";
+                break;
+        }
+        if (val) {
+            $("#specific_time_without_repeat").hide();
+            $("#specific_time_for_repeat").show();
+            $("#add_button").show();
+            repeat_array = [];
+            $("#add_button").click();
+        }
+    }
+
+    $("#add_button").on("click",function() {
+        var close = "enabled";
+        if (repeat_array.length === 0)
+            close = "disabled";
+
+        var repeat_contents = {
+            index:repeat_array.length,
+            close:close,
+            hours:"00",
+            minutes:"00",
+            days_value:"1",
+            days_text:"Monday",
+            date:moment().format("YYYY-MM-DD")
+        };
+
+        if (timer_unit.repeat == "Repeat Hourly") {
+            sync_repeat();
+            repeat_array.push(repeat_contents);
+            if (repeat_array.length === 2)
+                repeat_array[0].close = close;
+            display_repeat();
+        } else if (timer_unit.repeat == "Repeat Daily") {
+            sync_repeat();
+            repeat_array.push(repeat_contents);
+            if (repeat_array.length === 2)
+                repeat_array[0].close = close;
+            display_repeat();
+        } else if (timer_unit.repeat == "Repeat Weekly") {
+            sync_repeat();
+            repeat_array.push(repeat_contents);
+            if (repeat_array.length === 2)
+                repeat_array[0].close = close;
+            display_repeat();
+        } else if (timer_unit.repeat == "Repeat Monthly") {
+            sync_repeat();
+            repeat_contents.days_text = "1st";
+            repeat_array.push(repeat_contents);
+            if (repeat_array.length === 2)
+                repeat_array[0].close = close;
+            display_repeat();
+        } else if (timer_unit.repeat == "Repeat Yearly") {
+            sync_repeat();
+            repeat_array.push(repeat_contents);
+            if (repeat_array.length === 2)
+                repeat_array[0].close = close;
+            display_repeat();
+        }
+    });
+
+    $(".form-table-ct").on( "click",".btn.btn-default.dropdown-toggle.pficon-close",function() {
+        sync_repeat();
+        repeat_array.splice($(this).attr('data-index'),1);
+        for (var i = 0; i < repeat_array.length; i++) {
+            repeat_array[i].index = i;
+            repeat_array[i].close = "enabled";
+        }
+        if (repeat_array.length === 1)
+            repeat_array[0].close = "disabled";
+        display_repeat();
+    });
+
+    function display_repeat() {
+        if(timer_unit.repeat == "Repeat Hourly") {
+            var repeat_hourly_text = mustache.render(repeat_hourly_template, {
+                repeat: repeat_array
+            });
+            $("#repeat_time").html(repeat_hourly_text);
+        } else if (timer_unit.repeat == "Repeat Daily") {
+            var repeat_daily_text = mustache.render(repeat_daily_template, {
+                repeat: repeat_array
+            });
+            $("#repeat_time").html(repeat_daily_text);
+        } else if (timer_unit.repeat == "Repeat Weekly") {
+            var repeat_weekly_text = mustache.render(repeat_weekly_template, {
+                repeat: repeat_array
+            });
+            $("#repeat_time").html(repeat_weekly_text);
+        } else if (timer_unit.repeat == "Repeat Monthly") {
+            var repeat_monthly_text = mustache.render(repeat_monthly_template, {
+                repeat: repeat_array
+            });
+            $("#repeat_time").html(repeat_monthly_text);
+        } else if (timer_unit.repeat == "Repeat Yearly") {
+            var repeat_yearly_text = mustache.render(repeat_yearly_template, {
+                repeat: repeat_array
+            });
+            $("#repeat_time").html(repeat_yearly_text);
+            for (var i = 0; i < repeat_array.length; i++) {
+                $("[data-index='"+i+"'][data-provide='datepicker']").datepicker({
+                    autoclose: true,
+                    todayHighlight: true,
+                    format: 'yyyy-mm-dd'
+                });
+            }
+        }
+    }
+
+    function sync_repeat() {
+        var i = 0;
+        if( timer_unit.repeat == "Repeat Hourly" ) {
+            for (; i < repeat_array.length; i++) {
+                repeat_array[i].minutes = $("[data-index='"+i+"'][data-content='minutes']").val().trim();
+            }
+        } else if( timer_unit.repeat == "Repeat Daily" ) {
+            for (; i < repeat_array.length; i++) {
+                repeat_array[i].minutes = $("[data-index='"+i+"'][data-content='minutes']").val().trim();
+                repeat_array[i].hours = $("[data-index='"+i+"'][data-content='hours']").val().trim();
+            }
+        } else if( timer_unit.repeat == "Repeat Weekly" ) {
+            for (; i < repeat_array.length; i++) {
+                repeat_array[i].minutes = $("[data-index='"+i+"'][data-content='minutes']").val().trim();
+                repeat_array[i].hours = $("[data-index='"+i+"'][data-content='hours']").val().trim();
+                repeat_array[i].days_text = $("span", $("[data-content='week-days'][data-index='"+i+"']")).first().text();
+            }
+        } else if( timer_unit.repeat == "Repeat Monthly" ) {
+            for (; i < repeat_array.length; i++) {
+                repeat_array[i].minutes = $("[data-index='"+i+"'][data-content='minutes']").val().trim();
+                repeat_array[i].hours = $("[data-index='"+i+"'][data-content='hours']").val().trim();
+                repeat_array[i].days_text = $("span", $("[data-content='month-days'][data-index='"+i+"']")).first().text();
+                repeat_array[i].days_value = $("span", $("[data-content='month-days'][data-index='"+i+"']")).first().attr("value");
+            }
+        } else if( timer_unit.repeat == "Repeat Yearly" ) {
+            for (; i < repeat_array.length; i++) {
+                repeat_array[i].minutes = $("[data-index='"+i+"'][data-content='minutes']").val().trim();
+                repeat_array[i].hours = $("[data-index='"+i+"'][data-content='hours']").val().trim();
+                repeat_array[i].date_to_parse = new Date($("[data-index='"+i+"'][data-provide='datepicker']").val());
+                repeat_array[i].date = moment(repeat_array[i].date_to_parse).format('YYYY-MM-DD');
+            }
+        }
+    }
+
+    function set_calendar_or_boot(value) {
+        if (value == 1) {
+            $("#boot").show();
+            $("#repeat").hide();
+            $("#specific_time_for_repeat").hide();
+            $("#specific_time_without_repeat").hide();
+            timer_unit.Calendar_or_Boot = "Boot";
+        } else if (value == 2) {
+            $("#boot").hide();
+            $("#repeat").show();
+            $("#add_button").hide();
+            $("#close_button").hide();
+            $("#specific_time_without_repeat").show();
+            $("#specific_time_for_repeat").hide();
+            $("span", $("#drop_repeat")).first().text("Don't Repeat");
+            timer_unit.Calendar_or_Boot = "Calendar";
+        }
+    }
+
+    function set_boottime_unit(value) {
+        value = Number(value);
+        switch (value) {
+            case 1 : timer_unit.time_unit = "sec";
+                break;
+            case 60 : timer_unit.time_unit = "min"; //60sec
+                break;
+            case 3600 : timer_unit.time_unit = "hr"; //60*60sec
+                break;
+            case 604800 : timer_unit.time_unit = "week";//7*24*60*60sec
+                break;
+        }
+    }
+
+    function check_inputs() {
+        var ex1, ex2, ex3, ex4, ex6, ex7 = null;
+        var ex5 = {};
+        var errors = [];
+        var str = $("#filename").val().replace(/\s/g, ''); //  filename no spaces allowed
+        if ( str.length < 1 ) {
+            timer_unit.name = null;
+            ex1 = new Error("This field cannot be empty.");
+            ex1.target = "#filename";
+            errors.push(ex1);
+        }
+        str = $("#description").val();
+        if ( str.length < 1 ) {
+            timer_unit.Description = null;
+            ex2 = new Error("This field cannot be empty.");
+            ex2.target = "#description";
+            errors.push(ex2);
+        }
+        str = $("#command").val();
+        if ( str.length < 1 ) {
+            timer_unit.Command = null;
+            ex3 = new Error("This field cannot be empty.");
+            ex3.target = "#command";
+            errors.push(ex3);
+        }
+
+        if ( timer_unit.Calendar_or_Boot == "Boot" ) {
+            str = $("#boot_time").val();
+            if (!/^[0-9]+$/.test(str.trim())) {
+                timer_unit.boot_time = null;
+                ex4 = new Error("Invalid number");
+                ex4.target = "#boot_time";
+                errors.push(ex4);
+            }
+        } else {
+            //Calendar timer cases
+            var i = 0;
+            if (timer_unit.repeat == "Don't Repeat") {
+                var hr = $("#hr").val();
+                var min = $("#min").val();
+                if (!(/^[0-9]+$/.test(hr.trim()) && hr.trim() <= 23 && hr.trim() >= 0)) {
+                    ex6 = new Error("within 0-23");
+                    ex6.target = "#hr";
+                    errors.push(ex6);
+                }
+                if (!(/^[0-9]+$/.test(min.trim()) && min.trim() <= 59 && min.trim() >= 0)) {
+                    ex7 = new Error("within 0-59");
+                    ex7.target = "#min";
+                    errors.push(ex7);
+                }
+            } else if (timer_unit.repeat == "Repeat Hourly") {
+                for (; i < repeat_array.length; i++) {
+                    if (!(/^[0-9]+$/.test(repeat_array[i].minutes.trim()) && repeat_array[i].minutes.trim() <= 59 && repeat_array[i].minutes.trim() >= 0)) {
+                        ex5[ex5.length] = new Error("within 0-59");
+                        ex5[ex5.length].target = "[data-index='" + i + "'][data-content='minutes']";
+                        errors.push(ex5[ex5.length]);
+                    }
+                }
+            } else {
+                for (; i < repeat_array.length; i++) {
+                    if (!(/^[0-9]+$/.test(repeat_array[i].minutes.trim()) && repeat_array[i].minutes.trim() <= 59 && repeat_array[i].minutes.trim() >= 0)) {
+                        ex5[ex5.length] = new Error("within 0-59");
+                        ex5[ex5.length].target = "[data-index='" + i + "'][data-content='minutes']";
+                        errors.push(ex5[ex5.length]);
+                    }
+                    if (!(/^[0-9]+$/.test(repeat_array[i].hours.trim()) && repeat_array[i].hours.trim() <= 23 && repeat_array[i].hours.trim() >= 0)) {
+                        ex5[ex5.length] = new Error("within 0-23");
+                        ex5[ex5.length].target = "[data-index='" + i + "'][data-content='hours']";
+                        errors.push(ex5[ex5.length]);
+                    }
+                }
+            }
+        }
+        if ( errors.length === 0 )
+            return true;
+        $("div#timer-dialog").dialog("failure", errors);
+        return false;
+    }
+
+    function create_timer() {
+        sync_repeat();
+        var valid_inputs = check_inputs();
+        if (!valid_inputs)
+            return false;
+        var i = 0;
+        timer_unit.name = $("#filename").val().replace(/\s/g, '');
+        timer_unit.Description = $("#description").val();
+        timer_unit.Command = $("#command").val();
+        timer_unit.boot_time = $("#boot_time").val();
+
+        if (timer_unit.repeat == "Don't Repeat") {
+            timer_unit.repeat_hour = $("#hr").val().trim();
+            timer_unit.repeat_minute = $("#min").val().trim();
+            timer_unit.OnCalendar = "*-*-* "+timer_unit.repeat_hour+":"+timer_unit.repeat_minute+":00";
+        } else if (timer_unit.repeat == "Repeat Hourly") {
+            timer_unit.repeat_minute = repeat_array.map(function (item) {
+                return item.minutes;
+            });
+            timer_unit.repeat_hour = "*";
+            timer_unit.repeat_days = "";
+            timer_unit.OnCalendar = timer_unit.repeat_days + "*-*-* "+timer_unit.repeat_hour+":"+timer_unit.repeat_minute+":00";
+
+        } else if(timer_unit.repeat == "Repeat Daily") {
+            timer_unit.repeat_minute = repeat_array.map(function (item) {
+                return Number(item.minutes);
+            });
+            timer_unit.repeat_hour = repeat_array.map(function (item) {
+                return Number(item.hours);
+            });
+            timer_unit.repeat_days = "";
+            timer_unit.OnCalendar = timer_unit.repeat_days + "*-*-* "+timer_unit.repeat_hour+":"+timer_unit.repeat_minute+":00";
+
+        } else if(timer_unit.repeat == "Repeat Weekly") {
+            timer_unit.repeat_minute = repeat_array.map(function (item) {
+                return Number(item.minutes);
+            });
+            timer_unit.repeat_hour = repeat_array.map(function (item) {
+                return Number(item.hours);
+            });
+            timer_unit.repeat_days = repeat_array.map(function (item) {
+                return item.days_text.slice(0,3);
+            });
+            timer_unit.OnCalendar = timer_unit.repeat_days + " *-*-* "+timer_unit.repeat_hour+":"+timer_unit.repeat_minute+":00";
+
+        } else if(timer_unit.repeat == "Repeat Monthly") {
+            timer_unit.repeat_minute = repeat_array.map(function (item) {
+                return Number(item.minutes);
+            });
+            timer_unit.repeat_hour = repeat_array.map(function (item) {
+                return Number(item.hours);
+            });
+            timer_unit.repeat_days = repeat_array.map(function (item) {
+                return item.days_value;
+            });
+            timer_unit.OnCalendar = "*-*-"+timer_unit.repeat_days+" "+timer_unit.repeat_hour+":"+timer_unit.repeat_minute+":00";
+        } else if(timer_unit.repeat == "Repeat Yearly") {
+            timer_unit.repeat_minute = repeat_array.map(function (item) {
+                return Number(item.minutes);
+            });
+            timer_unit.repeat_hour = repeat_array.map(function (item) {
+                return Number(item.hours);
+            });
+
+            var array_year = repeat_array.map(function (item) {
+                return moment(item.date_to_parse).format('YYYY');
+            });
+            var array_month = repeat_array.map(function (item) {
+                return moment(item.date_to_parse).format('MM');
+            });
+            var array_day = repeat_array.map(function (item) {
+                return moment(item.date_to_parse).format('DD');
+            });
+            timer_unit.OnCalendar = array_year.toString()+"-"+array_month.toString()+"-"+array_day.toString()+" "+timer_unit.repeat_hour+":"+timer_unit.repeat_minute+":00";
+        }
+        create_timer_file();
+        init_units(); // for displaying updated timer
+        return true;
+    }
+
+    function create_timer_file() {
+        var unit = "[Unit]\nDescription=";
+        var service = "\n[Service]\nType=oneshot\nExecStart=";
+        var timer = "\n[Timer]\n";
+        var service_file = unit+timer_unit.Description+service+timer_unit.Command;
+        var timer_file = "";
+        if(timer_unit.Calendar_or_Boot == "Boot" ) {
+            var boottimer = timer +"OnBootSec=" +timer_unit.boot_time + timer_unit.time_unit;
+            timer_file=unit+timer_unit.Description+boottimer;
+        }
+        else if (timer_unit.Calendar_or_Boot == "Calendar") {
+            var calendartimer = timer + "OnCalendar=" + timer_unit.OnCalendar;
+            timer_file=unit+timer_unit.Description+calendartimer;
+        }
+        // writing to file
+        var service_path = "/etc/systemd/system/"+timer_unit.name+".service";
+        var file = cockpit.file(service_path,{superuser:'try'});
+        file.replace(service_file).
+        fail(function(error) {
+            console.log(error);
+        });
+        console.log("#Service file#\n"+service_file);
+        var timer_path = "/etc/systemd/system/"+timer_unit.name+".timer";
+        file = cockpit.file(timer_path,{superuser:'try'});
+        file.replace(timer_file).
+        fail(function(error) {
+            console.log(error);
+        });
+        console.log("#Timer file#\n"+timer_file);
+    }
 });

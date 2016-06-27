@@ -54,6 +54,7 @@
         <button class="btn btn-default" data-pattern="\.timer$" translatable="yes">Timers</button>
         <button class="btn btn-default" data-pattern="\.path$" translatable="yes">Paths</button>
       </div>
+      <button id="create-timer" data-toggle="#timer-dialog" data-target="#timer-dialog" class="btn btn-primary pull-right">Create Timer</button>
     </div>
 
     <div class="container-fluid">
@@ -136,6 +137,116 @@
     </div>
   </script>
 
+  <script id="repeat-hourly-tmpl" type="x-template/mustache">
+  {{#repeat}}
+  <div class="form-inline">
+    <input type="text" value="{{hours}}" data-index="{{index}}" data-content="hours" class="form-control" disabled>
+    <div class="position-colon">:</div>
+    <input type="text" value="{{minutes}}" data-index="{{index}}" data-content="minutes" class="form-control">
+    <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
+  </div>
+  {{/repeat}}
+  </script>
+
+  <script id="repeat-daily-tmpl" type="x-template/mustache">
+  {{#repeat}}
+    <div class="form-inline">
+      <input type="text" value="{{hours}}" data-index="{{index}}" data-content="hours" class="form-control" >
+      <div class="position-colon">:</div>
+      <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
+      <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
+    </div>
+  {{/repeat}}
+  </script>
+
+  <script id="repeat-weekly-tmpl" type="x-template/mustache">
+  {{#repeat}}
+    <div class="form-inline">
+      <div class="btn-group bootstrap-select form-control dropdown " data-index="{{index}}" data-content="week-days">
+        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+          <span class="pull-left" value="{{days_value}}" translatable="yes">{{days_text}}</span>
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li value="1"><a>Monday</a></li>
+          <li value="2"><a>Tuesday</a></li>
+          <li value="3"><a>Wednesday</a></li>
+          <li value="4"><a>Thursday</a></li>
+          <li value="5"><a>Friday</a></li>
+          <li value="6"><a>Saturday</a></li>
+          <li value="7"><a>Sunday</a></li>
+        </ul>
+      </div>
+      <input type="text" value="{{hours}}" data-index="{{index}}" data-content="hours" class="form-control" >
+      <div class="position-colon">:</div>
+      <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
+      <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
+    </div>
+  {{/repeat}}
+  </script>
+
+  <script id="repeat-monthly-tmpl" type="x-template/mustache">
+  {{#repeat}}
+    <div class="form-inline">
+      <div class="btn-group bootstrap-select dropdown form-control" data-index="{{index}}" data-content="month-days">
+        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+          <span class="pull-left" value="{{days_value}}" translatable="yes">{{days_text}}</span>
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu vertical-scroll">
+          <li value="1"><a>1st</a></li>
+          <li value="2"><a>2nd</a></li>
+          <li value="3"><a>3rd</a></li>
+          <li value="4"><a>4th</a></li>
+          <li value="5"><a>5th</a></li>
+          <li value="6"><a>6th</a></li>
+          <li value="7"><a>7th</a></li>
+          <li value="8"><a>8th</a></li>
+          <li value="9"><a>9th</a></li>
+          <li value="10"><a>10th</a></li>
+          <li value="11"><a>11th</a></li>
+          <li value="12"><a>12th</a></li>
+          <li value="13"><a>13th</a></li>
+          <li value="14"><a>14th</a></li>
+          <li value="15"><a>15th</a></li>
+          <li value="16"><a>16th</a></li>
+          <li value="17"><a>17th</a></li>
+          <li value="18"><a>18th</a></li>
+          <li value="19"><a>19th</a></li>
+          <li value="20"><a>20th</a></li>
+          <li value="21"><a>21st</a></li>
+          <li value="22"><a>22nd</a></li>
+          <li value="23"><a>23rd</a></li>
+          <li value="24"><a>24th</a></li>
+          <li value="25"><a>25th</a></li>
+          <li value="26"><a>26th</a></li>
+          <li value="27"><a>27th</a></li>
+          <li value="28"><a>28th</a></li>
+          <li value="29"><a>29th</a></li>
+          <li value="30"><a>30th</a></li>
+          <li value="31"><a>31st</a></li>
+        </ul>
+      </div>
+      <input type="text" value="{{hours}}" data-index="{{index}}" data-content="hours" class="form-control" >
+      <div class="position-colon">:</div>
+      <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
+      <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
+    </div>
+  {{/repeat}}
+  </script>
+
+  <script id="repeat-yearly-tmpl" type="x-template/mustache">
+  {{#repeat}}
+    <div class="form-inline">
+      <input type="text" class="input-group form-control date datepicker" value="{{date}}" data-provide="datepicker" data-index="{{index}}">
+      <input type="text" value="{{hours}}" data-index="{{index}}" data-content="hours" class="form-control" >
+      <div class="position-colon">:</div>
+      <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
+      <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
+    </div>
+  {{/repeat}}
+  </script>
+
   <div id="service" class="container-fluid" hidden>
     <ol class="breadcrumb">
       <li><a id="service-navigate-home" translatable="yes">Services</a></li>
@@ -191,6 +302,116 @@
         </div>
         <div class="modal-footer">
           <button class="btn btn-primary" data-dismiss="modal" translatable="yes">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="timer-dialog" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="Labelmodal" aria-hidden="true">
+    <div class="modal-dialog cockpit-modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="Labelmodal">Create Timers</h4>
+        </div>
+        <div class="modal-body">
+          <table class="form-table-ct">
+            <tr>
+              <td>
+                <label class="control-label" for="filename">Service name</label>
+              </td>
+              <td>
+                <input type="text" id="filename" class="form-control"></div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label class="control-label" for="description">Desciption</label>
+              </td>
+              <td>
+                <input type="text" id="description" class="form-control"></div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label class="control-label" for="command">Command</label>
+              </td>
+              <td>
+                <input type="text" data-placement="bottom" id="command" class="form-control">
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label class="control-label">Run</label>
+              </td>
+              <td>
+                <div class="btn-group bootstrap-select dropdown form-control" id="boot_specific">
+                  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                    <span class="pull-left" value="1" translatable="yes">After system boot</span>
+                    <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li value="1"><a>After system boot</a></li>
+                    <li value="2"><a>At specific time</a></li>
+                  </ul>
+                </div>
+                <div id="boot" >
+                  <label class="control-label" for="boot_time">At</label>
+                  <input type="text" id="boot_time" class="move-top form-control">
+                  <div class="btn-group bootstrap-select dropdown form-control" id="drop_time">
+                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                      <span class="pull-left" value="1" translatable="yes">Seconds</span>
+                      <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li value="1"><a>Seconds</a></li>
+                      <li value="60"><a>Minutes</a></li>
+                      <li value="3600"><a>Hours</a></li>
+                      <li value="604800"><a>Weeks</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr id="repeat" hidden>
+              <td></td>
+              <td>
+                <div class="btn-group bootstrap-select dropdown form-control" id="drop_repeat">
+                  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                    <span class="pull-left" value="0" translatable="yes">Don't Repeat</span>
+                    <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li value="0"><a>Don't Repeat</a></li>
+                    <li value="60"><a>Repeat Hourly</a></li>
+                    <li value="1440"><a>Repeat Daily</a></li>
+                    <li value="10080"><a>Repeat Weekly</a></li>
+                    <li value="44640"><a>Repeat Monthly</a></li>
+                    <li value="525600"><a>Repeat Yearly</a></li>
+                  </ul>
+                </div>
+                <button class="btn btn-default dropdown-toggle fa fa-plus" id="add_button" type="button" ></button>
+              </td>
+            </tr>
+            <tr id="specific_time_without_repeat" hidden>
+              <td>
+                <label class="control-label" >Hour : Minute</label>
+              </td>
+              <td>
+                <input type="text" value="00" id="hr" class="hr form-control">
+                <div class="position-colon">:</div>
+                <input type="text" value="00" id="min" class="min form-control">
+              </td>
+            </tr>
+            <tr id="specific_time_for_repeat">
+              <td></td>
+              <td id="repeat_time">
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="cancel-button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" id="save-button" class="btn btn-primary">Save</button>
         </div>
       </div>
     </div>

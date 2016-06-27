@@ -118,13 +118,13 @@ Password for user@EXAMPLE.COM:
           with the contents:
 <programlisting>
 {
-  "AuthServerWhitelist": "*example.com"
-  "AuthServerDelegateWhitelist": "*example.com"
+  "AuthServerWhitelist": "*example.com",
+  "AuthNegotiateDelegateWhitelist": "*example.com"
 }
 </programlisting>
           and restart the browser. On other platforms, exit your browser
           completely, and start it with a command line like this:
-          <code>google-chrome --auth-server-whitelist=*example.com --auth-server-delegate-whitelist=*example.com</code>
+          <code>google-chrome --auth-server-whitelist=*example.com --auth-negotiate-delegate-whitelist=*example.com</code>
           </para></listitem>
       </varlistentry>
     </variablelist>

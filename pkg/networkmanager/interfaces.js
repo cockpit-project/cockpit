@@ -1707,7 +1707,7 @@ PageNetworkInterface.prototype = {
 
         $('#network-interface-delete').click($.proxy(this, "delete_connections"));
 
-        this.device_onoff = $("#network-interface-delete-switch")
+        this.device_onoff = $("#network-interface-delete-switch").onoff()
             .on("change", function() {
                 var val = $(this).onoff("value");
                 if (val)
@@ -1926,7 +1926,7 @@ PageNetworkInterface.prototype = {
         $('#network-interface-hw').text(desc);
         $('#network-interface-mac').text(dev? dev.HwAddress : "");
 
-        this.device_onoff.prop('disabled', !dev);
+        this.device_onoff.onoff("disabled", !dev);
         this.device_onoff.onoff("value", !!(dev && dev.ActiveConnection));
 
         $('#network-interface-disconnect').prop('disabled', !dev || !dev.ActiveConnection);

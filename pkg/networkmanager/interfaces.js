@@ -1926,7 +1926,7 @@ PageNetworkInterface.prototype = {
         $('#network-interface-hw').text(desc);
         $('#network-interface-mac').text(dev? dev.HwAddress : "");
 
-        this.device_onoff.onoff("disabled", !dev);
+        this.device_onoff.onoff("disabled", !iface);
         this.device_onoff.onoff("value", !!(dev && dev.ActiveConnection));
 
         $('#network-interface-disconnect').prop('disabled', !dev || !dev.ActiveConnection);

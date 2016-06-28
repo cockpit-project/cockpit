@@ -523,10 +523,13 @@ PageServer.prototype = {
                       { directory: "/sys/devices/virtual/dmi/id", superuser: "try", err: "ignore" })
             .done(function(output) {
                 var fields = parse_lines(output);
+                var present = !!(fields.product_serial || fields.chassis_serial);
                 $("#system_information_asset_tag_text").text(fields.product_serial ||
                                                              fields.chassis_serial);
+                $("#system-info-asset-row").toggle(present);
             })
             .fail(function(ex) {
+                $("#system-info-asset-row").toggle(false);
                 debug("couldn't read serial dmi info: " + ex);
             });
 

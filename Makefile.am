@@ -313,7 +313,6 @@ update-bower:
 	rm -rf $(BOWER_CLEAN)
 
 include lib/Makefile.am
-include pkg/base1/Makefile.am
 include pkg/dashboard/Makefile.am
 include pkg/docker/Makefile.am
 include pkg/kubernetes/Makefile.am
@@ -329,6 +328,7 @@ include pkg/systemd/Makefile.am
 include pkg/storaged/Makefile.am
 include pkg/tuned/Makefile.am
 include pkg/users/Makefile.am
+include src/base1/Makefile.am
 include src/bridge/Makefile.am
 include src/common/Makefile-common.am
 include src/websocket/Makefile-websocket.am

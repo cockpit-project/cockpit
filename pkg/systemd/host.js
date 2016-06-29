@@ -815,6 +815,7 @@ PageSystemInformationChangeSystime.prototype = {
         $('#systime-time-hours').on('input', enable_apply_button);
         $('#systime-date-input').on('input', enable_apply_button);
         $('#systime-timezones').on('change', enable_apply_button);
+        $('#change_systime').on('click', enable_apply_button);
         $('#systime-date-input').on('focusin', $.proxy(this, "store_date"));
         $('#systime-date-input').on('focusout', $.proxy(this, "restore_date"));
 
@@ -1095,17 +1096,18 @@ PageSystemInformationChangeSystime.prototype = {
     },
 
     check_input: function() {
-        var time_error = false;
         var date_error = false;
         var timezone_error = false;
         var new_date;
 
-        var hours = parseInt($('#systime-time-hours').val(), 10);
-        var minutes = parseInt($('#systime-time-minutes').val(), 10);
+        var hours = $('#systime-time-hours').val();
+        var minutes = $('#systime-time-minutes').val();
+        var time_error = !/^[0-9]+$/.test(hours.trim()) || !/^[0-9]+$/.test(minutes.trim());
 
-        if (isNaN(hours) || hours < 0 || hours > 23  ||
-            isNaN(minutes) || minutes < 0 || minutes > 59) {
-           time_error = true;
+        if (!time_error) {
+            hours = Number(hours);
+            minutes = Number(minutes);
+            time_error = hours < 0 || hours > 23 || minutes < 0 || minutes > 59;
         }
 
         new_date = new Date($("#systime-date-input").val());
@@ -1132,7 +1134,8 @@ PageSystemInformationChangeSystime.prototype = {
         $('#systime-time-minutes').toggleClass("has-error", ! time_error);
         $('#systime-date-input').toggleClass("has-error", ! date_error);
 
-        $('#systime-parse-error').parents('tr').toggle(time_error || date_error);
+        $('#systime-parse-error').parents('tr').toggleClass("has-error", time_error || date_error);
+        $('#systime-parse-error').toggle(time_error || date_error);
         $('#systime-timezone-error').parents('tr').toggle(timezone_error);
 
         if (time_error || date_error || timezone_error) {
@@ -1152,6 +1155,7 @@ PageSystemInformationChangeSystime.prototype = {
         $("#change_systime button span").text(text);
         $('#systime-manual-row, #systime-manual-error-row').toggle(manual_time);
         $('#systime-ntp-servers-row').toggle(ntp_time_custom);
+        $('#systime-parse-error').hide();
     },
 
     sync_ntp_servers: function() {

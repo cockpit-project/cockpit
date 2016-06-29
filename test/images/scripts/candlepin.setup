@@ -1,0 +1,110 @@
+#!/bin/bash
+
+set -ex
+
+# HACK - virt-resize might not be able to resize our xfs rootfs,
+# depending on how it was compiled and which plugins are installed,
+# and will just silently not do it.  So we do it here.
+#
+xfs_growfs /
+df -h /
+
+# Install all candlepin dependencies
+#
+CANDLEPIN_DEPS="\
+gcc \
+git \
+gettext \
+java-1.8.0-openjdk-devel \
+libxml2-python \
+liquibase \
+make \
+openssl \
+postgresql-jdbc \
+ruby \
+rubygem-bundler \
+rubygems \
+ruby-devel \
+tomcat \
+wget \
+"
+
+rm -rf /etc/sysconfig/iptables
+
+echo 'NETWORKING=yes' > /etc/sysconfig/network
+
+# Let's upgrade dnf first and then use the new dnf to upgrade
+# the rest. This helps avoid things like:
+#
+#     https://bugzilla.redhat.com/show_bug.cgi?id=1211547
+
+dnf -y upgrade dnf
+
+# HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1318223
+dnf -y -v upgrade || dnf -y -v upgrade
+
+dnf -y install $CANDLEPIN_DEPS
+
+# reconfigure java to use lower entropy /dev/urandom
+sed -i -e 's/#JAVACMD_OPTS=/JAVACMD_OPTS=-Djava.security.egd=file:\/dev\/.\/urandom/g' /etc/java/java.conf
+
+maybe() { if type "$1" >/dev/null 2>&1; then "$@"; fi; }
+
+# For the tomcat server
+maybe firewall-cmd --permanent --add-port 8443/tcp
+systemctl enable tomcat
+systemctl start tomcat
+
+gem update --system
+gem install bundler
+
+ln -s /usr/local/bin/buildr /usr/bin/
+
+git clone git://github.com/candlepin/candlepin.git
+cd candlepin/
+
+export JAVA_HOME=/usr/lib/jvm/java-1.8.0/
+bundle install
+
+# build
+buildr clean test=no package
+
+# configure database
+dnf -y install postgresql-server postgresql
+postgresql-setup initdb
+
+systemctl enable postgresql
+systemctl start postgresql
+
+# adjust database permissions
+
+cat  << xxEOFxx > /var/lib/pgsql/data/pg_hba.conf
+local   all             all       trust
+host    all             all       127.0.0.1/32    trust
+xxEOFxx
+
+systemctl restart postgresql
+
+su - postgres -c 'createuser -dls candlepin'
+
+export TERM=linux
+
+# deploy
+TESTDATA=1 GENDB=1 FORCECERT=1 ./server/bin/deploy
+
+# reduce image size
+dnf clean all
+/var/lib/testvm/zero-disk.setup
+
+# Final tweaks
+echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
+printf "[Coredump]\nStorage=journal\n" > /etc/systemd/coredump.conf
+
+ln -sf ../selinux/config /etc/sysconfig/selinux
+printf "SELINUX=enforcing\nSELINUXTYPE=targeted\n" > /etc/selinux/config
+
+touch /.autorelabel
+
+# Audit events to the journal
+rm -f '/etc/systemd/system/multi-user.target.wants/auditd.service'
+rm -rf /var/log/audit/

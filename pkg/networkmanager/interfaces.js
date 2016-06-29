@@ -600,6 +600,11 @@ function NetworkManagerModel() {
             result.ipv6 = get_ip("ipv6", ip6_address_from_nm, ip6_route_from_nm, ip6_to_text);
         }
 
+        if (settings["802-3-ethernet"]) {
+            result.ethernet = { mtu: get("802-3-ethernet", "mtu")
+                              };
+        }
+
         if (settings.bond) {
             /* Options are documented as part of the Linux bonding driver.
                https://www.kernel.org/doc/Documentation/networking/bonding.txt
@@ -715,10 +720,10 @@ function NetworkManagerModel() {
             set("vlan", "interface-name", 's', settings.vlan.interface_name);
         }
 
-        if (settings["802-3-ethernet"]) {
-            if (!result["802-3-ethernet"])
-                result["802-3-ethernet"] = { };
-        }
+        if (settings.ethernet) {
+            set("802-3-ethernet", "mtu", 'u', settings.ethernet.mtu);
+        } else
+            delete result["802-3-ethernet"];
 
         return result;
     }
@@ -2057,6 +2062,14 @@ PageNetworkInterface.prototype = {
                 $('#network-vlan-settings-dialog').modal('show');
             }
 
+            function configure_ethernet_settings() {
+                PageNetworkEthernetSettings.model = self.model;
+                PageNetworkEthernetSettings.connection = con;
+                PageNetworkEthernetSettings.settings = con.Settings;
+                PageNetworkEthernetSettings.done = reactivate_connection;
+                $('#network-ethernet-settings-dialog').modal('show');
+            }
+
             function render_settings_row(title, rows, configure) {
                 return $('<tr>').append(
                     $('<td>').
@@ -2077,6 +2090,23 @@ PageNetworkInterface.prototype = {
 
                 return render_settings_row(title, render_ip_settings(topic),
                                            function () { configure_ip_settings(topic); });
+            }
+
+            function render_ethernet_settings_row() {
+                var rows = [ ];
+                var options = settings.ethernet;
+
+                if (!options)
+                    return null;
+
+                function add_row(fmt, args) {
+                    rows.push($('<div>').text(cockpit.format(fmt, args)));
+                }
+
+                if (options.mtu)
+                    add_row(_("MTU $mtu"), options);
+
+                return render_settings_row(_("Ethernet"), rows, configure_ethernet_settings);
             }
 
             function render_master() {
@@ -2191,6 +2221,7 @@ PageNetworkInterface.prototype = {
                          ),
                      render_ip_settings_row("ipv4", _("IPv4")),
                      render_ip_settings_row("ipv6", _("IPv6")),
+                     render_ethernet_settings_row(),
                      render_vlan_settings_row(),
                      render_bridge_settings_row(),
                      render_bridge_port_settings_row(),
@@ -2208,7 +2239,7 @@ PageNetworkInterface.prototype = {
                     type: "802-3-ethernet",
                     interface_name: iface.Name
                 },
-                "802-3-ethernet": {
+                ethernet: {
                 },
                 ipv4: {
                     method: "auto",
@@ -2736,7 +2767,7 @@ function set_slave(model, master_connection, master_settings, slave_type,
                                                            slave_type: slave_type,
                                                            master: master_settings.connection.uuid
                                                          },
-                                                         "802-3-ethernet":
+                                                         ethernet:
                                                          {
                                                          }
                                                        });
@@ -3267,6 +3298,91 @@ function PageNetworkVlanSettings() {
     this._init();
 }
 
+PageNetworkEthernetSettings.prototype = {
+    _init: function () {
+        this.id = "network-ethernet-settings-dialog";
+        this.ethernet_settings_template = $("#network-ethernet-settings-template").html();
+        Mustache.parse(this.ethernet_settings_template);
+    },
+
+    setup: function () {
+        $('#network-ethernet-settings-cancel').click($.proxy(this, "cancel"));
+        $('#network-ethernet-settings-apply').click($.proxy(this, "apply"));
+    },
+
+    enter: function () {
+        $('#network-ethernet-settings-error').text("");
+        if (PageNetworkEthernetSettings.connection)
+            PageNetworkEthernetSettings.connection.freeze();
+        this.update();
+    },
+
+    show: function() {
+    },
+
+    leave: function() {
+    },
+
+    update: function() {
+        var self = this;
+        var model = PageNetworkEthernetSettings.model;
+        var settings = PageNetworkEthernetSettings.settings;
+        var options = settings.ethernet;
+
+        var body = $(Mustache.render(self.ethernet_settings_template, settings.ethernet));
+        $('#network-ethernet-settings-body').html(body);
+        $("#network-ethernet-settings-mtu-input").attr("placeholder", _("Automatic"));
+    },
+
+    cancel: function() {
+        if (PageNetworkEthernetSettings.connection)
+            PageNetworkEthernetSettings.connection.reset();
+        $('#network-ethernet-settings-dialog').modal('hide');
+    },
+
+    apply: function() {
+        var self = this;
+        var model = PageNetworkEthernetSettings.model;
+        var master_settings = PageNetworkEthernetSettings.settings;
+        var settings_manager = model.get_settings();
+
+        function show_error(error) {
+            $('#network-ethernet-settings-error').text(error.message || error.toString());
+        }
+
+        function update_master() {
+            if (PageNetworkEthernetSettings.connection)
+                return PageNetworkEthernetSettings.connection.apply();
+            else
+                return settings_manager.add_connection(master_settings);
+        }
+
+        var mtu = $("#network-ethernet-settings-mtu-input").val();
+
+        if (mtu === "")
+            master_settings.ethernet.mtu = 0;
+        else if (/^[0-9]*$/.test(mtu))
+            master_settings.ethernet.mtu = parseInt(mtu, 10);
+        else {
+            show_error(_("MTU must be a positive number"));
+            return;
+        }
+
+        update_master().
+            done(function () {
+                $('#network-ethernet-settings-dialog').modal('hide');
+                if (PageNetworkEthernetSettings.done)
+                    PageNetworkEthernetSettings.done();
+            }).
+            fail(show_error);
+    }
+
+};
+
+function PageNetworkEthernetSettings() {
+    this._init();
+}
+
 /* INITIALIZATION AND NAVIGATION
  *
  * The code above still uses the legacy 'Page' abstraction for both
@@ -3339,6 +3455,7 @@ function init() {
     dialog_setup(new PageNetworkBridgeSettings());
     dialog_setup(new PageNetworkBridgePortSettings());
     dialog_setup(new PageNetworkVlanSettings());
+    dialog_setup(new PageNetworkEthernetSettings());
 
     $(cockpit).on("locationchanged", navigate);
     navigate();

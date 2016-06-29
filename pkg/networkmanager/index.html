@@ -135,6 +135,20 @@
     </table>
   </script>
 
+  <script id="network-ethernet-settings-template" type="x-template/mustache">
+    <table class="form-table-ct">
+      <tr>
+        <td>
+          <label class="control-label" translatable="yes">MTU</label>
+        </td>
+        <td>
+          <input id="network-ethernet-settings-mtu-input" class="form-control" type="text"
+                 value="{{mtu}}"></input>
+        </td>
+      </tr>
+    </table>
+  </script>
+
   <script id="network-bridge-settings-template" type="x-template/mustache">
     <table class="form-table-ct">
       <tr>
@@ -518,6 +532,32 @@
             Cancel
           </button>
           <button class="btn btn-primary" translatable="yes" id="network-vlan-settings-apply">
+            Apply
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="network-ethernet-settings-dialog"
+       tabindex="-1" role="dialog"
+       data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" translatable="yes">Ethernet Settings</h4>
+        </div>
+        <div class="modal-body">
+          <div id="network-ethernet-settings-body">
+          </div>
+          <center id="network-ethernet-settings-error">
+          </center>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-default" translatable="yes" id="network-ethernet-settings-cancel">
+            Cancel
+          </button>
+          <button class="btn btn-primary" translatable="yes" id="network-ethernet-settings-apply">
             Apply
           </button>
         </div>

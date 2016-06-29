@@ -26,7 +26,7 @@
 # We also want to keep cracklib since otherwise password quality
 # checks break on Debian.
 
-keep="! -path /var/cache/pbuilder ! -path /var/cache/cracklib"
+keep="! -path /var/cache/pbuilder ! -path /var/cache/cracklib ! -path /var/cache/tomcat"
 while [ $# -gt 0 ]; do
     case $1 in
 	--keep-mock-cache)

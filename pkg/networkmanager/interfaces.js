@@ -1566,7 +1566,7 @@ PageNetworking.prototype = {
                 },
                 bond: {
                     options: {
-                        mode: "balance-rr"
+                        mode: "active-backup"
                     },
                     interface_name: iface
                 }

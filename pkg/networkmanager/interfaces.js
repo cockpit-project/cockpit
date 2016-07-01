@@ -715,6 +715,11 @@ function NetworkManagerModel() {
             set("vlan", "interface-name", 's', settings.vlan.interface_name);
         }
 
+        // We don't support teams yet, but we need to clean away their
+        // settings if a interface changes from a team port to a bond port, say.
+        delete result.team;
+        delete result["team-port"];
+
         if (settings["802-3-ethernet"]) {
             if (!result["802-3-ethernet"])
                 result["802-3-ethernet"] = { };

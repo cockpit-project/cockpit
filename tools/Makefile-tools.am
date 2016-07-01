@@ -1,6 +1,6 @@
 
 update-lib:: update-bower
-	$(srcdir)/tools/jsmodule -o $(srcdir)/tools/qunit.js \
+	$(JSMODULE) -o $(srcdir)/tools/qunit.js \
 	    $(BOWER)/jquery/dist/jquery.js \
 	    $(BOWER)/qunit/qunit/qunit.js \
 	    $(BOWER)/qunit-tap/lib/qunit-tap.js \

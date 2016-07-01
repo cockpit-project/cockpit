@@ -726,9 +726,9 @@ class TestRegistry(MachineCase):
         b.wait_present("tr[data-name='marmalade']")
         b.wait_present("tr[data-name='marmalade'] .fa-lock")
         o.execute("oc policy add-role-to-group registry-viewer system:authenticated -n marmalade")
-        b.wait_present("tr[data-name='marmalade'] .fa-unlock")
         output = o.execute("oc policy who-can get --namespace=marmalade imagestreams/layers")
         self.assertIn("system:authenticated", output)
+        b.wait_present("tr[data-name='marmalade'] .fa-unlock")
 
         # Change the project access
         b.go("#/projects/marmalade")

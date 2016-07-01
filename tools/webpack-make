@@ -1,0 +1,106 @@
+#!/usr/bin/env node
+
+var webpack = require("webpack");
+var path = require("path");
+var stdio = require("stdio");
+var fs = require("fs");
+
+var ops = stdio.getopt({
+    deps: { key: "d", args: 1, description: "Output dependencies in Makefile format" }
+});
+
+if (!ops.args || ops.args.length !== 1) {
+    console.log("usage: webpack config");
+    process.exit(2);
+}
+
+var cwd = process.cwd();
+var config = require(path.join(cwd, ops.args[0]));
+
+var srcdir = process.env.SRCDIR;
+
+webpack(config, function(err, stats) {
+    // process.stdout.write(stats.toString({colors: true}) + "\n");
+
+    if (err) {
+        console.log(JSON.stringify(err));
+        process.exit(1);
+        return;
+    }
+
+    // Failure exit code when compilation fails
+    if (stats.hasErrors() || stats.hasWarnings()) {
+        console.log(stats.toString("normal"));
+        process.exit(1);
+        return;
+    }
+
+    var makefile = ops.deps;
+    if (makefile)
+        generateDeps(makefile, stats);
+});
+
+function generateDeps(makefile, stats) {
+    var inputs = { };
+    stats.compilation.modules.forEach(function(module) {
+        var parts = module.identifier().split("!");
+        parts.concat(module.fileDependencies || []).forEach(function(part) {
+            var input = part.split("?")[0];
+            maybePushInput(inputs, input);
+        });
+    });
+
+    stats.compilation.fileDependencies.forEach(function(file) {
+        maybePushInput(inputs, file);
+    });
+
+    // That was a cheap way of doing a set
+    inputs = Object.keys(inputs);
+
+    // All the dependent files
+    var outputs = [];
+    var installs = [];
+    var asset, output;
+    var now = Math.floor(Date.now() / 1000);
+
+    for(asset in stats.compilation.assets) {
+        output = path.join(stats.compilation.outputOptions.path, asset);
+        fs.utimesSync(output, now, now);
+        outputs.push(output)
+	if (!endsWith(output, "manifest.json") && !endsWith(output, ".png"))
+            output += ".gz";
+        installs.push(output);
+    }
+
+    // Output a makefile
+
+    var lines = [
+        "WEBPACK_INPUTS += " + inputs.join(" "),
+        "WEBPACK_OUTPUTS += " + outputs.join(" "),
+        "WEBPACK_INSTALL += " + installs.join(" "),
+	"",
+    ];
+
+    outputs.forEach(function(name) {
+        lines.push(name + ": $(WEBPACK_CONFIG) $(WEBPACK_INPUTS)");
+        lines.push("\t$(WEBPACK_RULE)");
+    });
+
+    data = lines.join("\n");
+    fs.writeFileSync(makefile, data);
+}
+
+function maybePushInput(inputs, input) {
+    // Don't include node_modules files or external refs
+    if (input.split(path.sep).indexOf("node_modules") === -1 &&
+        input.indexOf("external ") !== 0 && input.indexOf("multi ") !== 0) {
+        input = path.relative(cwd, input);
+	if (srcdir && input.indexOf(srcdir) === 0)
+		input = "$(srcdir)" + input.substr(srcdir.length);
+        inputs[input] = true;
+    }
+}
+
+function endsWith(string, suffix) {
+    return (string.indexOf(suffix) === (string.length - suffix.length))
+}

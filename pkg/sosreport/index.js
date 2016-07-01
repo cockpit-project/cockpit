@@ -23,9 +23,6 @@
     var cockpit = require("cockpit");
     var $ = require("jquery");
 
-    /* Loads the stylesheet */
-    require("./sosreport.css");
-
     cockpit.locale(require("shell/po"));
     cockpit.translate();
     var _ = cockpit.gettext;

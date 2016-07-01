@@ -34,7 +34,11 @@ EXTRA_DIST = \
 	README.md \
 	$(NULL)
 
-SUFFIXES = .css .min.css .min.css.gz .js .js.gz .min.js .min.js.gz .js.map .jsx .html .min.html .min.html.gz .woff .woff.gz .1 .8 .5
+clean-local:
+	find $(builddir) -name '*.gc??' -delete
+	find $(srcdir) -name '*.pyc' -delete
+
+SUFFIXES = .css .css.gz .min.css .min.css.gz .js .js.gz .min.js .min.js.gz .map .map.gz .jsx .html .html.gz .min.html .min.html.gz .woff .woff.gz .1 .8 .5
 
 V_CHECK = $(V_CHECK_$(V))
 V_CHECK_ = $(V_CHECK_$(AM_DEFAULT_VERBOSITY))
@@ -72,18 +76,6 @@ GZ_RULE = \
 	$(V_GZIP) $(MKDIR_P) $(dir $@) && \
 	gzip -n -c $< > $@.tmp && $(MV) $@.tmp $@
 
-WEBPACK_RULE = \
-        $(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	SRCDIR=$(srcdir) BUILDDIR=$(builddir) $(srcdir)/tools/missing $(srcdir)/tools/webpack \
-		--config=$(srcdir)/webpack.config.js --output-filename=$@.tmp \
-		--output-source-map-filename=$@.tmp.map --devtool=source-map $< && \
-	mv $@.tmp $@ && mv $@.tmp.map $@.map
-
-.min.js.js.map:
-	echo $@ $< && false yyy
-.js.js.map:
-	xxxx
-
 .css.min.css:
 	$(MIN_CSS_RULE)
 .js.min.js:
@@ -100,7 +92,11 @@ WEBPACK_RULE = \
 	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint --extract=always $<
 	$(MIN_HTML_RULE)
 
+.css.css.gz:
+	$(GZ_RULE)
 .min.css.min.css.gz:
+	$(GZ_RULE)
+.html.html.gz:
 	$(GZ_RULE)
 .min.html.min.html.gz:
 	$(GZ_RULE)
@@ -108,12 +104,49 @@ WEBPACK_RULE = \
 	$(GZ_RULE)
 .min.js.min.js.gz:
 	$(GZ_RULE)
+.map.map.gz:
+	$(GZ_RULE)
 .woff.woff.gz:
 	$(GZ_RULE)
 
 po/po.%.js: po/%.po
 	@$(MKDIR_P) $(dir $@)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/po2json --module $^ $@
+
+# Webpack related
+
+V_WEBPACK = $(V_WEBPACK_$(V))
+V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))
+V_WEBPACK_0 = @echo "  WEBPACK  dist/";
+
+WEBPACK_INPUTS =
+WEBPACK_OUTPUTS =
+WEBPACK_CONFIG = webpack.config.js
+
+noinst_SCRIPTS += Makefile-webpack.deps $(WEBPACK_INSTALL)
+CLEANFILES += Makefile-webpack.deps $(WEBPACK_OUTPUTS)
+EXTRA_DIST += Makefile-webpack.deps $(WEBPACK_CONFIG)
+
+@INCLUDE_WEBPACK_DEPS@
+
+WEBPACK_RULE = $(V_WEBPACK) SRCDIR=$(srcdir) BUILDDIR=$(builddir) \
+	       $(srcdir)/tools/missing $(srcdir)/tools/webpack-make -d $@ $<
+
+Makefile-webpack.deps: $(WEBPACK_CONFIG) tools/webpack-make $(WEBPACK_INPUTS)
+	$(WEBPACK_RULE)
+
+all-local:: Makefile-webpack.deps $(WEBPACK_OUTPUTS) $(WEBPACK_INSTALL)
+	@true
+distclean-local::
+	rm -rf dist/
+install-data-local:: $(WEBPACK_INSTALL)
+	tar -cf - $^ | tar -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
+uninstall-local::
+	rm -rf $(DESTDIR)$(pkgdatadir)
+dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS)
+	tar -cf - $^ | tar -C $(distdir) -xvf -
+
+#
 
 ACLOCAL_AMFLAGS = -I tools ${ACLOCAL_FLAGS}
 
@@ -216,14 +249,6 @@ install-test-assets: $(testassets_programs) $(testassets_data) $(testassets_syst
 	cd $(srcdir); for d in $(testassets_data); do $(INSTALL_DATA) -D $$d $(DESTDIR)$(testassetsdir)/$$d; done
 	for d in $(testassets_systemdunit_data); do $(INSTALL_DATA) $$d $(DESTDIR)$(systemdunitdir); done
 
-clean-local:
-	find $(builddir) -name '*.gc??' -delete
-	find $(srcdir) -name '*.pyc' -delete
-	rm -rf mock-archives
-
-uninstall-local:: uninstall-doc-local
-	@true
-
 install-data-hook::
 	mkdir -p $(DESTDIR)$(localstatedir)/lib/cockpit
 	chgrp wheel $(DESTDIR)$(localstatedir)/lib/cockpit || true
@@ -239,29 +264,25 @@ include doc/man/Makefile-man.am
 
 noinst_DATA += doc/guide/html
 
-install-doc-local: doc/guide/html/index.html
-	$(MKDIR_P) $(DESTDIR)$(htmldir)
-	$(INSTALL_DATA) `dirname $<`/* $(DESTDIR)$(htmldir)
-
-uninstall-doc-local:
-	rm -rf $(DESTDIR)$(htmldir)
-
 dist-doc-hook:
 	@true
 
 else
 
-install-doc-local:
-	@true
-uninstall-doc-local:
-	@true
 dist-doc-hook:
 	@echo "*** doc must be enabled (ie: --enable-doc) in order to make dist or distcheck"
 
 endif
 
-install-data-local:: install-doc-local
+dist-hook:: dist-doc-hook
 	@true
+distcheck-hook:: dist-doc-hook
+	@true
+install-data-local:: doc/guide/html/index.html
+	$(MKDIR_P) $(DESTDIR)$(htmldir)
+	$(INSTALL_DATA) `dirname $<`/* $(DESTDIR)$(htmldir)
+uninstall-local::
+	rm -rf $(DESTDIR)$(htmldir)
 
 print-%:
 	@echo $($*)
@@ -277,7 +298,7 @@ COMMITTED_DIST = \
 	$(NULL)
 
 # Build up the distribution using $COMMITTED_DIST and include node_modules and bower licenses
-dist-hook: dist-doc-hook
+dist-hook::
 	( cd $(srcdir); git ls-tree HEAD --name-only -r $(COMMITTED_DIST) || (echo $(COMMITTED_DIST) | tr ' ' '\n' ) ) | \
 		tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xf -
 	tar -C $(srcdir) -cf - --exclude='phantomjs*' --exclude='jshint*' node_modules/ | tar -C $(distdir) -xf -
@@ -289,7 +310,7 @@ dist-xz: distdir
 	tar --format=posix -cf - "$(distdir)" | xz -ec > $(distdir).tar.xz
 	find "$(distdir)" -type d ! -perm -200 -exec chmod u+w {} ';' && rm -rf "$(distdir)"
 
-distcheck-hook: dist-doc-hook
+distcheck-hook::
 	$(srcdir)/tools/check-dist $(distdir)
 
 update-pofiles:

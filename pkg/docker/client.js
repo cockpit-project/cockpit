@@ -154,6 +154,14 @@ define([
                             done(function(data) {
                                 var container = JSON.parse(data);
                                 populate_container(id, container);
+                                if (self.containers[id]) {
+                                    /* We need to rescue the CGroup
+                                     * from the old instance since we
+                                     * only set it once per ID in
+                                     * update_usage_grid below.
+                                     */
+                                    container.CGroup = self.containers[id].CGroup;
+                                }
                                 self.containers[id] = container;
                                 update_usage_grid();
                                 $(self).trigger("container", [id, container]);
@@ -177,18 +185,21 @@ define([
                 });
         }
 
-        /* Various versions of docker + systemd use different scopes and cgroups */
+        /* Various versions of docker + systemd use different scopes
+         * and cgroups.  The order matters: earlier ones are
+         * preferred, and that in turn matters for containers that
+         * have more than one cgroup.
+         */
         var cgroup_prefixes = [
-            "system.slice/docker-",
+            "init.scope/system.slice/docker-",
             "system.slice/docker/",
-            "init.scope/system.slice/docker-"
+            "system.slice/docker-"
         ];
 
         function update_usage_grid() {
             var meta = usage_metrics_channel.meta || { };
             var metrics = meta.metrics || [ ];
 
-            var cgroups = { };
             metrics.forEach(function(metric) {
                 var instances = metric.instances || [ ];
 
@@ -196,28 +207,22 @@ define([
                  * Take a look at all the cgroups and map them to all the
                  * containers.
                  */
-                instances.forEach(function(cgroup) {
-                    cgroup_prefixes.forEach(function(prefix) {
-                        if (cgroup.indexOf(prefix) === 0)
-                            cgroups[cgroup] = cgroup.substr(prefix.length, 64);
+                cgroup_prefixes.forEach(function(prefix) {
+                    instances.forEach(function(cgroup) {
+                        if (cgroup.indexOf(prefix) === 0) {
+                            var id = cgroup.substr(prefix.length, 64);
+                            if (self.containers[id] && !usage_samples[id]) {
+                                self.containers[id].CGroup = cgroup;
+                                usage_samples[id] = [
+                                    usage_grid.add(usage_metrics_channel, [ "cgroup.memory.usage", cgroup ]),
+                                    usage_grid.add(usage_metrics_channel, [ "cgroup.cpu.usage", cgroup ]),
+                                    usage_grid.add(usage_metrics_channel, [ "cgroup.memory.limit", cgroup ]),
+                                    usage_grid.add(usage_metrics_channel, [ "cgroup.cpu.shares", cgroup ])
+                                ];
+                            }
+                        }
                     });
                 });
-            });
-
-            Object.keys(cgroups).forEach(function(cgroup) {
-                var id = cgroups[cgroup];
-                if (self.containers[id]) {
-                    self.containers[id].CGroup = cgroup;
-
-                    if (!usage_samples[id]) {
-                        usage_samples[id] = [
-                            usage_grid.add(usage_metrics_channel, [ "cgroup.memory.usage", cgroup ]),
-                            usage_grid.add(usage_metrics_channel, [ "cgroup.cpu.usage", cgroup ]),
-                            usage_grid.add(usage_metrics_channel, [ "cgroup.memory.limit", cgroup ]),
-                            usage_grid.add(usage_metrics_channel, [ "cgroup.cpu.shares", cgroup ])
-                        ];
-                    }
-                }
             });
         }
 

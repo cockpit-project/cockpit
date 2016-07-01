@@ -51,7 +51,6 @@ V_COPY_0 = @echo "  COPY    " $@;
 MV = mv -f
 
 JSMODULE = $(srcdir)/tools/missing $(srcdir)/tools/jsmodule
-CSSBUNDLE = $(srcdir)/tools/missing $(srcdir)/tools/cssbundle
 
 COPY_RULE = \
         $(V_COPY) $(MKDIR_P) $(dir $@) && \

@@ -2,9 +2,6 @@
 
 set -ex
 
-# HACK - While the repos and mirrors settle down
-DNF_OPTS="--allowerasing --nogpgcheck"
-
 # HACK - virt-resize might not be able to resize our xfs rootfs,
 # depending on how it was compiled and which plugins are installed,
 # and will just silently not do it.  So we do it here.

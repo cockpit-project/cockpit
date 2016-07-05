@@ -20,11 +20,13 @@
 require([
     "jquery",
     "base1/cockpit",
-    "users/mustache",
-    "users/authorized-keys",
-    "users/patterns",
+    "mustache",
+    "./authorized-keys",
+    "patterns",
 ], function($, cockpit, Mustache, authorized_keys) {
 "use strict";
+
+require('./users.css');
 
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;

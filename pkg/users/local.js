@@ -17,14 +17,16 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-require([
-    "jquery",
-    "base1/cockpit",
-    "users/mustache",
-    "users/authorized-keys",
-    "users/patterns",
-], function($, cockpit, Mustache, authorized_keys) {
+(function() {
 "use strict";
+
+var $ = require("jquery");
+var cockpit = require("cockpit");
+
+var Mustache = require("mustache");
+var authorized_keys = require("./authorized-keys");
+
+require("patterns");
 
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
@@ -1230,4 +1232,4 @@ function init() {
 
 $(init);
 
-});
+}());

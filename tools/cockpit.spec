@@ -245,8 +245,10 @@ touch kubernetes.list
 sed -i "s|%{buildroot}||" *.list
 
 # Build the package lists for debug package, and move debug files to installed locations
-find %{buildroot}/usr/src/debug%{_datadir}/%{name} -type f -o -type l > debug.list
-sed -i "s|%{buildroot}/usr/src/debug||" debug.list
+find %{buildroot}/usr/src/debug%{_datadir}/%{name} -type f -o -type l > debug.partial
+sed -i "s|%{buildroot}/usr/src/debug||" debug.partial
+sed -n 's/\.map\(\.gz\)\?$/\0/p' *.list >> debug.partial
+sed -i '/\.map\(\.gz\)\?$/d' *.list
 tar -C %{buildroot}/usr/src/debug -cf - . | tar -C %{buildroot} -xf -
 rm -rf %{buildroot}/usr/src/debug
 
@@ -269,7 +271,7 @@ cat subscriptions.list sosreport.list networkmanager.list >> shell.list
 # Redefine how debug info is built to slip in our extra debug files
 %define __debug_install_post   \
    %{find_debug_info} \
-   cat debug.list >> %{_builddir}/%{?buildsubdir}/debugfiles.list \
+   cat debug.partial >> %{_builddir}/%{?buildsubdir}/debugfiles.list \
 %{nil}
 
 %files

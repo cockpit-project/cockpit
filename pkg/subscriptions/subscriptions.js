@@ -55,9 +55,12 @@ require([
             ex.target = "#subscription-register-password";
             errors.push(ex);
         }
+        var org = $('#subscription-register-org').val();
+
         $("#subscriptions-register-dialog").dialog("failure", errors);
+
         if (!errors.length)
-          subscriptions.manager.register_system(url, username, password);
+            subscriptions.manager.register_system(url, username, password, org);
     }
 
     function register_dialog_initialize() {
@@ -375,7 +378,7 @@ require([
             return Mustache.render("{{text}}", { 'text': message });
         }
 
-        function perform_register(url, username, password) {
+        function perform_register(url, username, password, org) {
             var deferred = $.Deferred();
 
             var args = ['subscription-manager', 'register', '--auto-attach'];
@@ -386,6 +389,10 @@ require([
              */
             args.push('--username=' + username);
             args.push('--password=' + password);
+
+            // only pass org info if user provided it
+            if (org)
+                args.push('--org=' + org);
 
             deferred.notify(_("Registering system..."));
 
@@ -433,6 +440,9 @@ require([
                     } else if (buffer.indexOf('Unable to reach the server at') === 0) {
                         reason = "server";
                         message = buffer.trim();
+                    } else if ((buffer.indexOf('EOF') === 0) && (buffer.indexOf('Organization: ') !== -1)) {
+                        reason = "organization";
+                        message = _("Server expects an organization.");
                     } else if (buffer.indexOf('The system has been registered') === 0) {
                         /*
                          * Currently we don't separate registration & subscription
@@ -463,7 +473,7 @@ require([
             return promise;
         }
 
-        function register_system(url, username, password) {
+        function register_system(url, username, password, org) {
             if (action_in_progress()) {
                 console.log(_('Unable to register at this time because a call to subscription manager ' +
                   'is already in progress. Please try again.'));
@@ -472,8 +482,9 @@ require([
 
             system_unregistered.hide();
             $('#subscriptions-register-password-note-details').hide();
+            $('#subscriptions-register-org-note-details').hide();
 
-            var promise = perform_register(url, username, password);
+            var promise = perform_register(url, username, password, org);
             $("#subscriptions-register-dialog").dialog("wait", promise);
 
             promise
@@ -500,6 +511,10 @@ require([
                         break;
                     case "server":
                         ex.target = "#subscription-register-url";
+                        $("#subscriptions-register-dialog").dialog("failure", ex);
+                        break;
+                    case "organization":
+                        ex.target = "#subscription-register-org";
                         $("#subscriptions-register-dialog").dialog("failure", ex);
                         break;
                     default:

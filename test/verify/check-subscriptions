@@ -1,0 +1,124 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2016 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+import os
+import unittest
+import time
+
+
+@unittest.skipIf("rhel-7" != os.environ.get("TEST_OS", ""), "Only testing subscriptions on RHEL systems.")
+class TestSubscriptions(MachineCase):
+    def setUp(self):
+        MachineCase.setUp(self)
+        self.candlepin = self.new_machine(image="candlepin")
+        self.candlepin.start()
+        self.candlepin.wait_boot()
+
+        # wait for candlepin to be active and verify
+        self.candlepin.execute("systemctl start tomcat")
+
+        # download product info from the candlepin machine
+        product_file_one = os.path.join(self.tmpdir, "6050.pem")
+        product_file_two = os.path.join(self.tmpdir, "88888.pem")
+        self.candlepin.download("/root/candlepin/generated_certs/6050.pem", product_file_one)
+        self.candlepin.download("/root/candlepin/generated_certs/88888.pem", product_file_two)
+
+        # upload product info to the test machine
+        m = self.machine
+        m.upload([product_file_one, product_file_two], "/etc/pki/product")
+
+        # make sure that rhsm skips certificate checks for the server
+        m.execute("sed -i -e 's/insecure = 0/insecure = 1/g' /etc/rhsm/rhsm.conf")
+
+    def testRegister(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/subscriptions")
+
+        # wait until we can open the registration dialog
+        b.wait_present("#subscriptions-register")
+        b.wait_visible("#subscriptions-register")
+        b.click("#subscriptions-register")
+
+        b.wait_present("#subscription-register-url")
+        b.wait_visible("#subscription-register-url")
+
+        # optionally: check custom url
+        b.click("#subscription-register-url .dropdown-toggle")
+        b.wait_present("#subscription-register-url.open")
+        custom_url_selector = "#subscription-register-url li[value=custom] a"
+        b.wait_present(custom_url_selector)
+        b.wait_visible(custom_url_selector)
+        b.click(custom_url_selector)
+        b.wait_not_present("#subscription-register-url.open")
+
+        # enter server and incorrect login data
+        b.wait_present("#subscription-register-url-custom")
+        b.wait_visible("#subscription-register-url-custom")
+        b.set_val("#subscription-register-url-custom", "{0}:8443/candlepin".format(self.candlepin.address))
+        b.set_val("#subscription-register-username", "doc")
+        b.set_val("#subscription-register-password", "wrongpass")
+
+        # try to register
+        b.click("#account-register-start")
+
+        # wait for message that we used wrong credentials
+        b.wait_in_text("body", "Invalid login or password.")
+
+        # enter correct login data and try again, old error should disappear
+        b.set_val("#subscription-register-password", "password")
+        b.click("#account-register-start")
+
+        b.wait_not_in_text("#subscriptions-register-dialog", "Invalid login or password.")
+
+        # wait for message that we need to specify our org
+        b.wait_in_text("#subscriptions-register-dialog", "Server expects an organization.")
+
+        # now specify the org
+        b.set_val("#subscription-register-org", "admin")
+
+        # try to register again
+        b.click("#account-register-start")
+
+        # old error should disappear
+        b.wait_not_in_text("#subscriptions-register-dialog", "Server expects an organization.")
+
+        # dialog should disappear
+        b.wait_not_visible("#subscriptions-register")
+
+        # make sure this product isn't subscribed
+        product_selector = ".panel-default:contains('Installed Product (Snowy OS Premium Architecture Bits)')"
+        b.wait_present(product_selector)
+        b.wait_in_text(product_selector, "6050")
+        b.wait_in_text(product_selector, "Not Subscribed")
+
+        # find another one that is subscribed
+        product_selector = ".panel-default:contains('Installed Product (Shared File System Bits)')"
+        b.wait_present(product_selector)
+        b.wait_in_text(product_selector, "88888")
+        b.wait_not_in_text(product_selector, "Not Subscribed")
+
+
+if __name__ == '__main__':
+    test_main()

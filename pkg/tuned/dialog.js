@@ -20,7 +20,7 @@
 define([
     "jquery",
     "base1/cockpit",
-    "system/service",
+    "./service",
     "raw!./button.html",
     "performance/cockpit-components-dialog",
     "performance/change-profile",

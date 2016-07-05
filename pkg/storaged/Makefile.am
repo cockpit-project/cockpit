@@ -24,6 +24,7 @@ storageddebug_DATA = \
 	pkg/storaged/permissions.js \
 	pkg/storaged/plot.css \
 	pkg/storaged/plot.js \
+	pkg/storaged/service.js \
 	pkg/storaged/storage.css \
 	pkg/storaged/utils.js \
 	$(NULL)
@@ -40,6 +41,7 @@ storaged_BUNDLE = \
 	pkg/storaged/patterns.min.js \
 	pkg/storaged/permissions.min.js \
 	pkg/storaged/plot.min.js \
+	pkg/storaged/service.min.js \
 	pkg/storaged/utils.min.js \
 	$(NULL)
 

@@ -24,7 +24,7 @@ define([
     "domain/operation",
     "performance/dialog",
     "system/server",
-    "system/service",
+    "./service",
     "./plot",
     "system/bootstrap-datepicker",
     "system/bootstrap-combobox",

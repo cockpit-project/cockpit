@@ -5,7 +5,6 @@ nodist_systemd_DATA = \
 	pkg/systemd/index.min.html.gz \
 	pkg/systemd/journal.min.css.gz \
 	pkg/systemd/logs.min.html.gz \
-	pkg/systemd/service.min.js.gz \
 	pkg/systemd/services.min.html.gz \
 	pkg/systemd/terminal.min.html.gz \
 	$(NULL)

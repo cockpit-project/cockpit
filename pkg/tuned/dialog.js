@@ -20,13 +20,12 @@
 define([
     "jquery",
     "base1/cockpit",
-    "./mustache",
     "system/service",
     "raw!./button.html",
     "performance/cockpit-components-dialog",
     "performance/change-profile",
     "performance/react",
-], function($, cockpit, mustache, service, button_html, dialog_view, change_profile_template, React) {
+], function($, cockpit, service, button_html, dialog_view, change_profile_template, React) {
     "use strict";
 
     var module = { };

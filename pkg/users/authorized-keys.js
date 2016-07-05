@@ -1,10 +1,10 @@
-define([
-    "jquery",
-    "base1/cockpit",
-    "data!./ssh-list-public-keys.sh",
-    "data!./ssh-add-public-key.sh"
-], function($, cockpit, lister, adder) {
-    var module = { };
+(function() {
+    var $ = require("jquery");
+    var cockpit = require("cockpit");
+
+    var lister = require("raw!./ssh-list-public-keys.sh");
+    var adder = require("raw!./ssh-add-public-key.sh");
+
     var _ = cockpit.gettext;
 
     function AuthorizedKeys (user_name, home_dir) {
@@ -151,9 +151,9 @@ define([
         watch = file.watch(parse_keys);
     }
 
-    module.instance = function instance(user_name, home_dir) {
-        return new AuthorizedKeys(user_name, home_dir);
+    module.exports = {
+        instance: function instance(user_name, home_dir) {
+            return new AuthorizedKeys(user_name, home_dir);
+        }
     };
-
-    return module;
-});
+}());

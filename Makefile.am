@@ -13,10 +13,13 @@ sbin_PROGRAMS =
 noinst_LIBRARIES =
 noinst_DATA =
 nodist_noinst_DATA =
-TESTS =
 
 dist_systemdunit_DATA   =
 nodist_systemdunit_DATA =
+
+TESTS = \
+	pkg/users/test-list-public-keys.sh \
+	$(NULL)
 
 CLEANFILES = \
 	$(man_MANS) \
@@ -358,7 +361,6 @@ include pkg/subscriptions/Makefile.am
 include pkg/systemd/Makefile.am
 include pkg/storaged/Makefile.am
 include pkg/tuned/Makefile.am
-include pkg/users/Makefile.am
 include src/base1/Makefile.am
 include src/branding/centos/Makefile.am
 include src/branding/default/Makefile.am

@@ -54,6 +54,7 @@
                         expire[present[link].metadata.namespace] = true;
                     } else if (present[link].kind == "RoleBinding") {
                         ensure_subjects(present[link].subjects || []);
+                        expire[present[link].metadata.namespace] = true;
                     }
                 }
 
@@ -104,8 +105,13 @@
             }
 
             function expireWhoCan(namespace) {
-                expired[namespace] = angular.extend({ }, cached[namespace]);
-                delete cached[namespace];
+                if (namespace) {
+                    expired[namespace] = angular.extend({ }, cached[namespace]);
+                    delete cached[namespace];
+                } else {
+                    expired = cached;
+                    cached = { };
+                }
             }
 
             function lookupWhoCan(namespace, verb, resource) {
@@ -277,7 +283,10 @@
 
             return {
                 watch: function watch(until) {
-                    loader.watch("policybindings", until);
+                    loader.watch("policybindings", until).then(function() {
+                        expireWhoCan(null);
+                        $rootScope.$applyAsync();
+                    });
                 },
                 whoCan: function whoCan(project, verb, resource) {
                     return lookupWhoCan(toName(project), verb, resource);

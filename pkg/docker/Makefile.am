@@ -31,6 +31,7 @@ dockerdebug_DATA = \
 	pkg/docker/overview.js \
 	pkg/docker/run.js \
 	pkg/docker/search.js \
+	pkg/docker/service.js \
 	pkg/docker/term.js \
 	pkg/docker/term.css \
 	pkg/docker/util.js \
@@ -50,6 +51,7 @@ docker_BUNDLE = \
 	pkg/docker/overview.min.js \
 	pkg/docker/run.min.js \
 	pkg/docker/search.min.js \
+	pkg/docker/service.min.js \
 	pkg/docker/term.min.js \
 	pkg/docker/util.min.js \
 	$(NULL)

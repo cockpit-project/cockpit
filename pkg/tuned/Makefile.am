@@ -15,6 +15,7 @@ tuneddebug_DATA = \
 	pkg/tuned/change-profile.jsx \
 	pkg/tuned/button.html \
 	pkg/tuned/cockpit-components-dialog.js \
+	pkg/tuned/service.js \
 	$(NULL)
 
 tuned_BUNDLE = \
@@ -23,6 +24,7 @@ tuned_BUNDLE = \
 	pkg/tuned/cockpit-components-dialog.min.js \
 	pkg/tuned/change-profile.min.js \
 	pkg/tuned/button.html \
+	pkg/tuned/service.min.js \
 	$(NULL)
 
 pkg/tuned/bundle.min.js: $(tuned_BUNDLE)

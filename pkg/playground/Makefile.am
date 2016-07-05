@@ -14,6 +14,7 @@ playground_DATA = \
 	pkg/playground/patterns.js \
 	pkg/playground/jquery-patterns.html \
 	pkg/playground/jquery-patterns.js \
+	pkg/playground/jquery-service.js \
 	pkg/playground/react-patterns.html \
 	pkg/playground/react-patterns.js \
 	pkg/playground/react-demo-dialog.js \
@@ -35,6 +36,7 @@ playground_NOINST = \
 	pkg/playground/test.min.js \
 	pkg/playground/patterns.min.js \
 	pkg/playground/jquery-patterns.min.js \
+	pkg/playground/jquery-service.min.js \
 	pkg/playground/react-patterns.min.js \
 	pkg/playground/react-demo-dialog.min.js \
 	pkg/playground/react-demo-listing.min.js \
@@ -56,12 +58,12 @@ CLEANFILES += \
 	pkg/playground/patterns.min.js \
 	pkg/playground/plot.min.html \
 	pkg/playground/jquery-patterns.min.js \
+	pkg/playground/jquery-service.min.js \
 	pkg/playground/react-patterns.min.html \
 	pkg/playground/react-patterns.min.js \
 	pkg/playground/react-demo-dialog.min.js \
 	pkg/playground/react-demo-listing.min.js \
 	pkg/playground/service.min.html \
-	pkg/playground/service.min.js \
 	pkg/playground/react.min.js \
 	pkg/playground/cockpit-components-listing.js \
 	pkg/playground/cockpit-components-select.js \

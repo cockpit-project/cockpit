@@ -25,7 +25,7 @@ require([
     "docker/overview",
     "docker/details",
     "docker/image",
-    "system/service",
+    "docker/service",
     "shell/po",
 ], function($, cockpit, Mustache, client, overview, container_details, image_details, service, po) {
     cockpit.locale(po);

@@ -6,6 +6,10 @@ var entries = {
     "sosreport/sosreport": [
         "sosreport/index.js",
         "sosreport/sosreport.css",
+    ],
+    "users/users": [
+        "users/local.js",
+        "users/users.css",
     ]
 };
 
@@ -13,6 +17,9 @@ var files = [
     "sosreport/index.html",
     "sosreport/sosreport.png",
     "sosreport/manifest.json",
+
+    "users/index.html",
+    "users/manifest.json",
 ];
 
 var externals = {

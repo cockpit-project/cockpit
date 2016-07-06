@@ -18,6 +18,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+# The docker pool should grow automatically as needed, but we grow it
+# explicitly here anyway.  This is hopefully more reliable.
+systemctl start docker
+lvresize atomicos/root        -l+50%FREE -r
+lvresize atomicos/docker-pool -l+100%FREE
+
 # Configure kubernetes. Since this writes to /etc have to do before upgrade
 /var/lib/testvm/kubernetes.setup
 

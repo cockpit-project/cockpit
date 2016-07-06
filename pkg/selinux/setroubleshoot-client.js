@@ -18,10 +18,9 @@
  */
 
 define([
-    "jquery",
     "base1/cockpit",
     "selinux/moment",
-], function($, cockpit, moment) {
+], function(cockpit, moment) {
 
 "use strict";
 var _ = cockpit.gettext;
@@ -43,7 +42,7 @@ client.init = function(capabilitiesChangedCallback) {
 
     client.proxyFixit = cockpit.dbus(busNameFixit).proxy(dbusInterfaceFixit, dbusPathFixit);
 
-    var dfd = $.Deferred();
+    var dfd = cockpit.defer();
 
     client.proxy.wait(function() {
         // HACK setroubleshootd seems to drop connections if we don't start explicitly
@@ -72,14 +71,14 @@ client.init = function(capabilitiesChangedCallback) {
     client.handleAlert = function(callback) {
         // if we didn't listen to events before, do so now
         if (!client.alertCallback) {
-            $(client.proxy).on("signal", handleSignal);
+            client.proxy.addEventListener("signal", handleSignal);
         }
         client.alertCallback = callback;
     };
 
     // returns a jquery promise
       client.getAlerts = function(since) {
-        var dfdResult = $.Deferred();
+        var dfdResult = cockpit.defer();
         var call;
         if (since !== undefined)
             call = client.proxy.call("get_all_alerts_since", [since]);
@@ -98,7 +97,7 @@ client.init = function(capabilitiesChangedCallback) {
             .fail(function(ex) {
                 dfdResult.reject(ex);
             });
-        return dfdResult;
+        return dfdResult.promise();
     };
 
     /* Return an alert with summary, audit events, fix suggestions (by id)
@@ -119,7 +118,7 @@ client.init = function(capabilitiesChangedCallback) {
       level: "green", "yellow" or "red"
     */
     client.getAlert = function(localId) {
-        var dfdResult = $.Deferred();
+        var dfdResult = cockpit.defer();
         client.proxy.call("get_alert", [localId])
             .done(function(result) {
                 var details = {
@@ -167,7 +166,7 @@ client.init = function(capabilitiesChangedCallback) {
        The analysisId is given as part of pluginAnalysis entries in alert details
      */
     client.runFix = function(alertId, analysisId) {
-        var dfdResult = $.Deferred();
+        var dfdResult = cockpit.defer();
         client.proxyFixit.call("run_fix", [alertId, analysisId])
             .done(function(result) {
                 dfdResult.resolve(result[0]);
@@ -182,7 +181,7 @@ client.init = function(capabilitiesChangedCallback) {
      * Only assign this to the client variable if the dbus interface actually supports the operation
      */
     var deleteAlert = function(localId) {
-        var dfdResult = $.Deferred();
+        var dfdResult = cockpit.defer();
         client.proxy.call("delete_alert", [localId])
             .done(function(success) {
                 if (success)
@@ -204,7 +203,7 @@ client.init = function(capabilitiesChangedCallback) {
     client.capabilities = { };
 
     // wait for metadata - if this has the method delete_alert, we can use that
-    $(dbusClientSeTroubleshoot).on("meta", function(event, meta) {
+    dbusClientSeTroubleshoot.addEventListener("meta", function(event, meta) {
         if (dbusInterface in meta && 'methods' in meta[dbusInterface] && 'delete_alert' in meta[dbusInterface].methods)
             client.capabilities.deleteAlert = deleteAlert;
         else

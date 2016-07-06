@@ -219,33 +219,45 @@
     overflow-y: scroll;
 }
 
-.position-colon, div#boot {
+.position-colon {
     display: inline-block;
 }
+
+div#boot {
+    display: inline-block;
+    float: right;
+}
+
 div#boot_specific {
     width: 170px;
     display: inline-block;
 }
+
 div#drop_repeat {
     width: 250px;
     display: inline-block;
 }
+
 div#drop_time {
     width: 100px;
     display: inline-block;
 }
+
 input#boot_time {
-    width: 30px;
+    width: 50px;
     display: inline-block;
 }
+
 .move-top {
     position: relative;
     top: 2px;
 }
+
 .hr, .min {
     width:30px;
     display: inline-block;
 }
+
 .form-inline {
     background: #f4f4f4;
     border-width: 0 1px 1px 1px;
@@ -253,27 +265,47 @@ input#boot_time {
     border-color: #bababa;
     padding: 4px;
 }
-
+#boot_label {
+    position: relative;
+    right: 8px;
+}
 #repeat_time .form-inline:first-of-type {
     border-top: 1px solid #bababa;
 }
+
 #repeat_time [data-content="month-days"] {
     width: 75px;
 }
+
 #repeat_time [data-content="week-days"] {
     width: 100px;
 }
+
 #repeat_time [data-content="close"] {
     position: relative;
     float: right;
+    right: 8px;
+    top: 2px;
+}
+#repeat_time [data-content="add"] {
+    position: relative;
+    float: right;
+    right: 4px;
+    top: 2px;
 }
 #repeat_time [data-provide="datepicker"] {
     width: 120px;
 }
+
 .form-min {
     display: inline-block;
     vertical-align: middle;
     width: 30px;
+}
+
+.label-postion-on-error {
+    position: relative;
+    bottom: 12px;
 }
 @media (min-width: 500px) {
     .cockpit-modal-md {
@@ -292,5 +324,12 @@ input#boot_time {
     }
     #repeat_time .dialog-wrapper {
         display: inline-table;
+    }
+    #specific_time_without_repeat .dialog-wrapper {
+        display: inline-table;
+    }
+    #boot .dialog-wrapper {
+        display: inline-table;
+        width: 50px;
     }
 }

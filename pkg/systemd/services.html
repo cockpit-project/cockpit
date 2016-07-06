@@ -54,7 +54,7 @@
         <button class="btn btn-default" data-pattern="\.timer$" translatable="yes">Timers</button>
         <button class="btn btn-default" data-pattern="\.path$" translatable="yes">Paths</button>
       </div>
-      <button id="create-timer" data-toggle="#timer-dialog" data-target="#timer-dialog" class="btn btn-primary pull-right">Create Timer</button>
+      <button id="create-timer" data-toggle="#timer-dialog" data-target="#timer-dialog" class="btn btn-primary pull-right" hidden>Create Timer</button>
     </div>
 
     <div class="container-fluid">
@@ -139,12 +139,13 @@
 
   <script id="repeat-hourly-tmpl" type="x-template/mustache">
   {{#repeat}}
-  <div class="form-inline">
-    <input type="text" value="{{hours}}" data-index="{{index}}" data-content="hours" class="form-control" disabled>
-    <div class="position-colon">:</div>
-    <input type="text" value="{{minutes}}" data-index="{{index}}" data-content="minutes" class="form-control">
-    <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
-  </div>
+    <div class="form-inline">
+      <input type="text" value="{{hours}}" data-index="{{index}}" data-content="hours" class="form-control" disabled>
+      <div class="position-colon">:</div>
+      <input type="text" value="{{minutes}}" data-index="{{index}}" data-content="minutes" class="form-control">
+      <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
+      <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
+    </div>
   {{/repeat}}
   </script>
 
@@ -154,6 +155,7 @@
       <input type="text" value="{{hours}}" data-index="{{index}}" data-content="hours" class="form-control" >
       <div class="position-colon">:</div>
       <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
+      <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
       <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
     </div>
   {{/repeat}}
@@ -180,6 +182,7 @@
       <input type="text" value="{{hours}}" data-index="{{index}}" data-content="hours" class="form-control" >
       <div class="position-colon">:</div>
       <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
+      <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
       <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
     </div>
   {{/repeat}}
@@ -230,6 +233,7 @@
       <input type="text" value="{{hours}}" data-index="{{index}}" data-content="hours" class="form-control" >
       <div class="position-colon">:</div>
       <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
+      <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
       <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
     </div>
   {{/repeat}}
@@ -242,6 +246,7 @@
       <input type="text" value="{{hours}}" data-index="{{index}}" data-content="hours" class="form-control" >
       <div class="position-colon">:</div>
       <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
+      <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
       <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
     </div>
   {{/repeat}}
@@ -341,7 +346,7 @@
             </tr>
             <tr>
               <td>
-                <label class="control-label">Run</label>
+                <label class="control-label" for="boot_specific">Run</label>
               </td>
               <td>
                 <div class="btn-group bootstrap-select dropdown form-control" id="boot_specific">
@@ -355,8 +360,8 @@
                   </ul>
                 </div>
                 <div id="boot" >
-                  <label class="control-label" for="boot_time">At</label>
-                  <input type="text" id="boot_time" class="move-top form-control">
+                  <label class="control-label" id="boot_label" for="boot_time">After</label>
+                  <input type="text" id="boot_time" value="00" class="move-top form-control">
                   <div class="btn-group bootstrap-select dropdown form-control" id="drop_time">
                     <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
                       <span class="pull-left" value="1" translatable="yes">Seconds</span>
@@ -389,7 +394,6 @@
                     <li value="525600"><a>Repeat Yearly</a></li>
                   </ul>
                 </div>
-                <button class="btn btn-default dropdown-toggle fa fa-plus" id="add_button" type="button" ></button>
               </td>
             </tr>
             <tr id="specific_time_without_repeat" hidden>

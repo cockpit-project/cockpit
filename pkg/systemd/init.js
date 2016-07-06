@@ -269,7 +269,10 @@ define([
                 Last_Trigger_Time: _("Last Trigger"),
                 Current_State: _("State")
             };
-
+            if (~pattern.indexOf("timer"))
+                $('#create-timer').show();
+            else
+                $('#create-timer').hide();
             sorted_keys.forEach(function (path) {
                 var unit = units_by_path[path];
                 if (!(unit.Id && pattern && unit.Id.match(pattern)))
@@ -838,7 +841,6 @@ define([
             $("#timer-dialog").modal("toggle");
     });
 
-    $("#add_button").hide();
     var timer_unit = {
         Calendar_or_Boot : "Boot",
         time_unit :"sec",
@@ -874,7 +876,6 @@ define([
         switch(val) {
             case 0 : $("#specific_time_without_repeat").show();
                 $("#specific_time_for_repeat").hide();
-                $("#add_button").hide();
                 $("#close_button").hide();
                 timer_unit.repeat = "Don't Repeat";
                 break;
@@ -892,13 +893,12 @@ define([
         if (val) {
             $("#specific_time_without_repeat").hide();
             $("#specific_time_for_repeat").show();
-            $("#add_button").show();
             repeat_array = [];
-            $("#add_button").click();
+            add_repeat_option();
         }
     }
 
-    $("#add_button").on("click",function() {
+    function add_repeat_option() {
         var close = "enabled";
         if (repeat_array.length === 0)
             close = "disabled";
@@ -945,7 +945,9 @@ define([
                 repeat_array[0].close = close;
             display_repeat();
         }
-    });
+    }
+
+    $("#specific_time_for_repeat").on("click", ".btn.btn-default.dropdown-toggle.fa.fa-plus", add_repeat_option);
 
     $(".form-table-ct").on( "click",".btn.btn-default.dropdown-toggle.pficon-close",function() {
         sync_repeat();
@@ -1030,6 +1032,7 @@ define([
     }
 
     function set_calendar_or_boot(value) {
+        $("label[for=boot_specific]").toggleClass("label-postion-on-error",false);
         if (value == 1) {
             $("#boot").show();
             $("#repeat").hide();
@@ -1039,7 +1042,6 @@ define([
         } else if (value == 2) {
             $("#boot").hide();
             $("#repeat").show();
-            $("#add_button").hide();
             $("#close_button").hide();
             $("#specific_time_without_repeat").show();
             $("#specific_time_for_repeat").hide();
@@ -1073,6 +1075,8 @@ define([
             ex1.target = "#filename";
             errors.push(ex1);
         }
+        $("label[for=filename]").toggleClass("label-postion-on-error",!!ex1);
+
         str = $("#description").val();
         if ( str.length < 1 ) {
             timer_unit.Description = null;
@@ -1080,6 +1084,8 @@ define([
             ex2.target = "#description";
             errors.push(ex2);
         }
+        $("label[for=description]").toggleClass("label-postion-on-error",!!ex2);
+
         str = $("#command").val();
         if ( str.length < 1 ) {
             timer_unit.Command = null;
@@ -1087,6 +1093,7 @@ define([
             ex3.target = "#command";
             errors.push(ex3);
         }
+        $("label[for=command]").toggleClass("label-postion-on-error",!!ex3);
 
         if ( timer_unit.Calendar_or_Boot == "Boot" ) {
             str = $("#boot_time").val();
@@ -1096,6 +1103,7 @@ define([
                 ex4.target = "#boot_time";
                 errors.push(ex4);
             }
+            $("label[for=boot_specific]").toggleClass("label-postion-on-error",!!ex4);
         } else {
             //Calendar timer cases
             var i = 0;

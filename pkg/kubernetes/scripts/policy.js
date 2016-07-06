@@ -102,6 +102,8 @@
                         delete expired[namespace][key];
                     }
                 }
+
+                $rootScope.$applyAsync();
             }
 
             function expireWhoCan(namespace) {
@@ -112,6 +114,8 @@
                     expired = cached;
                     cached = { };
                 }
+
+                $rootScope.$applyAsync();
             }
 
             function lookupWhoCan(namespace, verb, resource) {
@@ -157,7 +161,6 @@
                 methods.post(path, request)
                     .then(function(response) {
                         fillWhoCan(namespace, verb, resource, response);
-                        $rootScope.$applyAsync();
                     }, function(response) {
                         console.warn("failed to lookup access:", namespace, verb, resource + ":",
                                 response.message || JSON.stringify(response));
@@ -208,7 +211,6 @@
                     removeFromArray(roleArrayKind(data, subject.kind), subject.name);
                 }).then(function() {
                     expireWhoCan(namespace);
-                    $rootScope.$applyAsync();
                 }, function(resp) {
                     /* If the role doesn't exist consider removed to work */
                     if (resp.code !== 404)
@@ -285,7 +287,6 @@
                 watch: function watch(until) {
                     loader.watch("policybindings", until).then(function() {
                         expireWhoCan(null);
-                        $rootScope.$applyAsync();
                     });
                 },
                 whoCan: function whoCan(project, verb, resource) {
@@ -298,7 +299,6 @@
                         addToArray(roleArrayKind(data, subject.kind), subject.name);
                     }).then(function() {
                         expireWhoCan(namespace);
-                        $rootScope.$applyAsync();
                     }, function(resp) {
                         /* If the role doesn't exist create it */
                         if (resp.code === 404)

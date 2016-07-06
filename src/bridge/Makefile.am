@@ -290,7 +290,10 @@ BRIDGE_CHECKS += \
 
 noinst_DATA += mock-pmda.so
 
-CLEANFILES += mock-pmda.so
+CLEANFILES += \
+	mock-pmda.so \
+	mock-archives/* \
+	$(NULL)
 
 # This is non-portable, but I don't feel like dragging in libtool just
 # for this.

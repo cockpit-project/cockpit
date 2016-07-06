@@ -17,16 +17,13 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-    "base1/cockpit",
-    "./react",
-    "./cockpit-components-listing",
-    "selinux/moment",
-], function(cockpit, React, cockpitListing, moment) {
-
-"use strict";
-
+var cockpit = require("cockpit");
 var _ = cockpit.gettext;
+
+var React = require("react");
+var moment = require("moment");
+
+var cockpitListing = require("cockpit-components-listing.jsx");
 
 /* Show details for an alert, including possible solutions
  * Props correspond to an item in the setroubleshoot dataStore
@@ -489,9 +486,6 @@ var SETroubleshootPage = React.createClass({
     }
 });
 
-return {
+module.exports = {
     SETroubleshootPage: SETroubleshootPage,
 };
-
-});
-

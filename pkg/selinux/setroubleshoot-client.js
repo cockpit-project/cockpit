@@ -17,13 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-    "base1/cockpit",
-    "selinux/moment",
-], function(cockpit, moment) {
-
-"use strict";
+var cockpit = require("cockpit");
 var _ = cockpit.gettext;
+
+var moment = require("moment");
 
 var client = {};
 
@@ -217,6 +214,4 @@ client.init = function(capabilitiesChangedCallback) {
     return dfd.promise();
 };
 
-return client;
-
-});
+module.exports = client;

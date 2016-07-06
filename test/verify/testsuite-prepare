@@ -27,8 +27,6 @@ from common import testinfra
 from common import vmimages
 from common import vmmanage
 
-image_list=["ipa", "openshift", "fedora-stock"]
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
             description='Prepare testig environment, download images and build and install cockpit',
@@ -53,8 +51,7 @@ if __name__ == "__main__":
 
     os.system(os.path.join(testinfra.TEST_DIR,"vm-reset"))
     try:
-        vmimages.download_images(set((test_os, build_os)), args.force, [])
-        vmimages.download_images(image_list, args.force, [])
+        vmimages.download_images([build_os], args.force, [])
     except Exception as e:
         print "unable to download all necessary images", e
         sys.exit(1)

@@ -64,6 +64,7 @@ opts.attachments = None
 opts.revision = None
 opts.address = None
 opts.jobs = 1
+opts.network = True
 
 def attach(filename):
     if not opts.attachments:
@@ -449,7 +450,7 @@ class MachineCase(unittest.TestCase):
         else:
             if not machine_class:
                 machine_class = testvm.VirtMachine
-            machine = machine_class(verbose=opts.trace, image=image, label=self.label())
+            machine = machine_class(verbose=opts.trace, image=image, label=self.label(), fetch=opts.network)
             self.addCleanup(lambda: machine.kill())
 
         self.machines.append(machine)
@@ -990,9 +991,11 @@ def arg_parser():
                         help='Thorough mode, no skipping known issues')
     parser.add_argument('-s', "--sit", dest='sit', action='store_true',
                         help="Sit and wait after test failure")
+    parser.add_argument('--nonet', dest="network", action="store_false",
+                        help="Don't go online to download images or data")
     parser.add_argument('tests', nargs='*')
 
-    parser.set_defaults(verbosity=1)
+    parser.set_defaults(verbosity=1, network=True)
     return parser
 
 def test_main(options=None, suite=None, attachments=None, **kwargs):

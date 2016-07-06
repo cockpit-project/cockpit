@@ -355,8 +355,8 @@ function Transport() {
         window.mock.last_transport = self;
 
     var ws;
-    var check_health_timer;
-    var got_message = false;
+    var health_timeout;
+    var health_last;
 
     /* See if we should communicate via parent */
     if (window.parent !== window && window.name.indexOf("cockpit1:") === 0)
@@ -373,6 +373,28 @@ function Transport() {
        /* permission access errors */
     }
 
+    function health_fail() {
+        console.warn("health check failed");
+        self.close({ "problem": "timeout" });
+    }
+
+    function health_check() {
+        var now;
+
+        /*
+         * When health_timeout is not setup then no health checks. Note we wait at least
+         * ten times as long as the last control message, or 30 seconds.
+         */
+
+        if (!health_timeout)
+            return;
+
+        now = Date.now();
+        window.clearTimeout(health_timeout);
+        health_timeout = window.setTimeout(health_fail, Math.max((now - health_last) * 10, 30000));
+        health_last = now;
+    }
+
     if (!ws) {
         var ws_loc = calculate_url();
         transport_debug("connecting to " + ws_loc);
@@ -387,13 +409,8 @@ function Transport() {
             }
         }
 
-        check_health_timer = window.setInterval(function () {
-            if (!got_message) {
-                console.log("health check failed");
-                self.close({ "problem": "timeout" });
-            }
-            got_message = false;
-        }, 30000);
+        health_last = Date.now();
+        health_timeout = window.setTimeout(health_fail, 30000);
     }
 
     if (!ws) {
@@ -441,7 +458,6 @@ function Transport() {
     };
 
     ws.onmessage = function(event) {
-        got_message = true;
 
         /* The first line of a message is the channel */
         var data = event.data;
@@ -510,7 +526,7 @@ function Transport() {
         if (!options)
             options = { "problem": "disconnected" };
         options.command = "close";
-        window.clearInterval(check_health_timer);
+        window.clearTimeout(health_timeout);
         var ows = ws;
         ws = null;
         if (ows)
@@ -564,6 +580,8 @@ function Transport() {
     function process_control(data) {
         var channel = data.channel;
         var func;
+
+        health_check();
 
         /* Init message received */
         if (data.command == "init") {

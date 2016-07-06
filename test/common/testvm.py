@@ -38,6 +38,7 @@ import threading
 import time
 
 import testinfra
+import vmimages
 
 import xml.etree.ElementTree as etree
 
@@ -89,7 +90,7 @@ class RepeatableFailure(Failure):
     pass
 
 class Machine:
-    def __init__(self, address=None, image=None, verbose=False, label=None):
+    def __init__(self, address=None, image=None, verbose=False, label=None, fetch=True):
         self.verbose = verbose
 
         # Currently all images are x86_64. When that changes we will have
@@ -97,6 +98,7 @@ class Machine:
         self.arch = "x86_64"
 
         self.image = image or testinfra.DEFAULT_IMAGE
+        self.fetch = fetch
         self.vm_username = "root"
         self.address = address
         self.label = label or "UNKNOWN"
@@ -557,6 +559,7 @@ class Machine:
         Cockpit is not running when the test virtual machine starts up, to
         allow you to make modifications before it starts.
         """
+
         if "atomic" in self.image:
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1228776
             # we want to run:
@@ -1058,6 +1061,9 @@ class VirtMachine(Machine):
             self._cleanup()
 
     def start(self, maintain=False, macaddr=None, memory_mb=None, cpus=None, wait_for_ip=True):
+        if self.fetch:
+            vmimages.download_images([self.image], False, [])
+
         tries = 0
         while True:
             try:

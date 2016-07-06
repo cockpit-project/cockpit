@@ -97,7 +97,7 @@ client.init = function(capabilitiesChangedCallback) {
             .fail(function(ex) {
                 dfdResult.reject(ex);
             });
-        return dfdResult;
+        return dfdResult.promise();
     };
 
     /* Return an alert with summary, audit events, fix suggestions (by id)

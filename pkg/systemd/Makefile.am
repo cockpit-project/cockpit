@@ -58,7 +58,6 @@ systemd_MIN = \
 	pkg/systemd/host.min.js \
 	pkg/systemd/init.min.js \
 	pkg/systemd/mustache.min.js \
-	pkg/systemd/moment.min.js \
 	pkg/systemd/patterns.min.js \
 	pkg/systemd/plot.min.js \
 	pkg/systemd/moment.min.js \

@@ -828,7 +828,6 @@ define([
     });
 
     $(init);
-
     // Timer Creation
     // The following are variables that keeps the count of each repeat times.
     $("#create-timer").on("click", function() {
@@ -858,10 +857,10 @@ define([
     var repeat_yearly_template = $("#repeat-yearly-tmpl").html();
     mustache.parse(repeat_yearly_template);
 
-    $(".form-table-ct ").on("click", "[value]",".btn-group.bootstrap-select.dropdown.form-control", function(ev) {
+    $(".form-table-ct").on("click", "[value]", ".btn-group.bootstrap-select.dropdown.form-control", function(ev) {
         var target = $(this).closest(".btn-group.bootstrap-select.dropdown.form-control");
         $("span", target).first().text(ev.target.text);
-        $("span", target).first().attr("value",ev.currentTarget.value);
+        $("span", target).first().attr("value", ev.currentTarget.value);
         switch(target.attr('id')) {
             case "boot_specific" : set_calendar_or_boot(Number(ev.currentTarget.value));
             break;
@@ -879,15 +878,15 @@ define([
                 $("#close_button").hide();
                 timer_unit.repeat = "Don't Repeat";
                 break;
-            case 60 : timer_unit.repeat = "Repeat Hourly";
+            case 60 : timer_unit.repeat = "Repeat Hourly";// 60min
                 break;
-            case 1440 : timer_unit.repeat = "Repeat Daily";
+            case 1440 : timer_unit.repeat = "Repeat Daily";// 60*24min
                 break;
-            case 10080 : timer_unit.repeat = "Repeat Weekly";
+            case 10080 : timer_unit.repeat = "Repeat Weekly";// 60*24*7min
                 break;
-            case 44640 : timer_unit.repeat = "Repeat Monthly";
+            case 44640 : timer_unit.repeat = "Repeat Monthly";// 60*24*31min
                 break;
-            case 525600 : timer_unit.repeat = "Repeat Yearly";
+            case 525600 : timer_unit.repeat = "Repeat Yearly";// 60*24*365min
                 break;
         }
         if (val) {
@@ -949,9 +948,9 @@ define([
 
     $("#specific_time_for_repeat").on("click", ".btn.btn-default.dropdown-toggle.fa.fa-plus", add_repeat_option);
 
-    $(".form-table-ct").on( "click",".btn.btn-default.dropdown-toggle.pficon-close",function() {
-        sync_repeat();
+    $(".form-table-ct").on("click", ".btn.btn-default.dropdown-toggle.pficon-close", function() {
         repeat_array.splice($(this).attr('data-index'),1);
+        sync_repeat();
         for (var i = 0; i < repeat_array.length; i++) {
             repeat_array[i].index = i;
             repeat_array[i].close = "enabled";
@@ -1032,7 +1031,7 @@ define([
     }
 
     function set_calendar_or_boot(value) {
-        $("label[for=boot_specific]").toggleClass("label-postion-on-error",false);
+        $("label[for=boot_specific]").toggleClass("label-postion-on-error", false);
         if (value == 1) {
             $("#boot").show();
             $("#repeat").hide();
@@ -1066,8 +1065,8 @@ define([
 
     function check_inputs() {
         var ex1, ex2, ex3, ex4, ex6, ex7 = null;
-        var ex5 = {};
-        var errors = [];
+        var ex5 = { };
+        var errors = [ ];
         var str = $("#filename").val().replace(/\s/g, ''); //  filename no spaces allowed
         if ( str.length < 1 ) {
             timer_unit.name = null;
@@ -1075,7 +1074,7 @@ define([
             ex1.target = "#filename";
             errors.push(ex1);
         }
-        $("label[for=filename]").toggleClass("label-postion-on-error",!!ex1);
+        $("label[for=filename]").toggleClass("label-postion-on-error", !!ex1);
 
         str = $("#description").val();
         if ( str.length < 1 ) {
@@ -1084,7 +1083,7 @@ define([
             ex2.target = "#description";
             errors.push(ex2);
         }
-        $("label[for=description]").toggleClass("label-postion-on-error",!!ex2);
+        $("label[for=description]").toggleClass("label-postion-on-error", !!ex2);
 
         str = $("#command").val();
         if ( str.length < 1 ) {
@@ -1093,7 +1092,7 @@ define([
             ex3.target = "#command";
             errors.push(ex3);
         }
-        $("label[for=command]").toggleClass("label-postion-on-error",!!ex3);
+        $("label[for=command]").toggleClass("label-postion-on-error", !!ex3);
 
         if ( timer_unit.Calendar_or_Boot == "Boot" ) {
             str = $("#boot_time").val();
@@ -1103,7 +1102,7 @@ define([
                 ex4.target = "#boot_time";
                 errors.push(ex4);
             }
-            $("label[for=boot_specific]").toggleClass("label-postion-on-error",!!ex4);
+            $("label[for=boot_specific]").toggleClass("label-postion-on-error", !!ex4);
         } else {
             //Calendar timer cases
             var i = 0;
@@ -1154,75 +1153,51 @@ define([
         var valid_inputs = check_inputs();
         if (!valid_inputs)
             return false;
-        var i = 0;
         timer_unit.name = $("#filename").val().replace(/\s/g, '');
         timer_unit.Description = $("#description").val();
         timer_unit.Command = $("#command").val();
         timer_unit.boot_time = $("#boot_time").val();
 
         if (timer_unit.repeat == "Don't Repeat") {
-            timer_unit.repeat_hour = $("#hr").val().trim();
-            timer_unit.repeat_minute = $("#min").val().trim();
-            timer_unit.OnCalendar = "*-*-* "+timer_unit.repeat_hour+":"+timer_unit.repeat_minute+":00";
-        } else if (timer_unit.repeat == "Repeat Hourly") {
-            timer_unit.repeat_minute = repeat_array.map(function (item) {
-                return item.minutes;
-            });
-            timer_unit.repeat_hour = "*";
-            timer_unit.repeat_days = "";
-            timer_unit.OnCalendar = timer_unit.repeat_days + "*-*-* "+timer_unit.repeat_hour+":"+timer_unit.repeat_minute+":00";
-
-        } else if(timer_unit.repeat == "Repeat Daily") {
+            timer_unit.repeat_hour = Number($("#hr").val().trim());
+            timer_unit.repeat_minute = Number($("#min").val().trim());
+            timer_unit.OnCalendar = "*-*-* " + timer_unit.repeat_hour + ":" + timer_unit.repeat_minute + ":00";
+        } else {
             timer_unit.repeat_minute = repeat_array.map(function (item) {
                 return Number(item.minutes);
             });
             timer_unit.repeat_hour = repeat_array.map(function (item) {
                 return Number(item.hours);
             });
-            timer_unit.repeat_days = "";
-            timer_unit.OnCalendar = timer_unit.repeat_days + "*-*-* "+timer_unit.repeat_hour+":"+timer_unit.repeat_minute+":00";
-
-        } else if(timer_unit.repeat == "Repeat Weekly") {
-            timer_unit.repeat_minute = repeat_array.map(function (item) {
-                return Number(item.minutes);
-            });
-            timer_unit.repeat_hour = repeat_array.map(function (item) {
-                return Number(item.hours);
-            });
-            timer_unit.repeat_days = repeat_array.map(function (item) {
-                return item.days_text.slice(0,3);
-            });
-            timer_unit.OnCalendar = timer_unit.repeat_days + " *-*-* "+timer_unit.repeat_hour+":"+timer_unit.repeat_minute+":00";
-
-        } else if(timer_unit.repeat == "Repeat Monthly") {
-            timer_unit.repeat_minute = repeat_array.map(function (item) {
-                return Number(item.minutes);
-            });
-            timer_unit.repeat_hour = repeat_array.map(function (item) {
-                return Number(item.hours);
-            });
-            timer_unit.repeat_days = repeat_array.map(function (item) {
-                return item.days_value;
-            });
-            timer_unit.OnCalendar = "*-*-"+timer_unit.repeat_days+" "+timer_unit.repeat_hour+":"+timer_unit.repeat_minute+":00";
-        } else if(timer_unit.repeat == "Repeat Yearly") {
-            timer_unit.repeat_minute = repeat_array.map(function (item) {
-                return Number(item.minutes);
-            });
-            timer_unit.repeat_hour = repeat_array.map(function (item) {
-                return Number(item.hours);
-            });
-
-            var array_year = repeat_array.map(function (item) {
-                return moment(item.date_to_parse).format('YYYY');
-            });
-            var array_month = repeat_array.map(function (item) {
-                return moment(item.date_to_parse).format('MM');
-            });
-            var array_day = repeat_array.map(function (item) {
-                return moment(item.date_to_parse).format('DD');
-            });
-            timer_unit.OnCalendar = array_year.toString()+"-"+array_month.toString()+"-"+array_day.toString()+" "+timer_unit.repeat_hour+":"+timer_unit.repeat_minute+":00";
+            if (timer_unit.repeat == "Repeat Hourly") {
+                timer_unit.repeat_hour = "*";
+                timer_unit.repeat_days = "";
+                timer_unit.OnCalendar = timer_unit.repeat_days + "*-*-* "+ timer_unit.repeat_hour + ":" + timer_unit.repeat_minute + ":00";
+            } else if(timer_unit.repeat == "Repeat Daily") {
+                timer_unit.repeat_days = "";
+                timer_unit.OnCalendar = timer_unit.repeat_days + "*-*-* " + timer_unit.repeat_hour + ":" + timer_unit.repeat_minute + ":00";
+            } else if(timer_unit.repeat == "Repeat Weekly") {
+                timer_unit.repeat_days = repeat_array.map(function (item) {
+                    return item.days_text.slice(0,3);
+                });
+                timer_unit.OnCalendar = timer_unit.repeat_days + " *-*-* " + timer_unit.repeat_hour + ":" + timer_unit.repeat_minute + ":00";
+            } else if(timer_unit.repeat == "Repeat Monthly") {
+                timer_unit.repeat_days = repeat_array.map(function (item) {
+                    return item.days_value;
+                });
+                timer_unit.OnCalendar = "*-*-" + timer_unit.repeat_days + " " + timer_unit.repeat_hour + ":" + timer_unit.repeat_minute + ":00";
+            } else if(timer_unit.repeat == "Repeat Yearly") {
+                var array_year = repeat_array.map(function (item) {
+                    return moment(item.date_to_parse).format('YYYY');
+                });
+                var array_month = repeat_array.map(function (item) {
+                    return moment(item.date_to_parse).format('MM');
+                });
+                var array_day = repeat_array.map(function (item) {
+                    return moment(item.date_to_parse).format('DD');
+                });
+                timer_unit.OnCalendar = array_year.toString() + "-" + array_month.toString() + "-" + array_day.toString() + " " + timer_unit.repeat_hour + ":" + timer_unit.repeat_minute + ":00";
+            }
         }
         create_timer_file();
         init_units(); // for displaying updated timer

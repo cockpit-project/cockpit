@@ -3,6 +3,10 @@
  */
 
 var entries = {
+    "selinux/selinux": [
+        "selinux/setroubleshoot.js",
+        "selinux/setroubleshoot.css",
+    ],
     "sosreport/sosreport": [
         "sosreport/index.js",
         "sosreport/sosreport.css",
@@ -18,6 +22,9 @@ var entries = {
 };
 
 var files = [
+    "selinux/manifest.json",
+    "selinux/setroubleshoot.html",
+
     "sosreport/index.html",
     "sosreport/sosreport.png",
     "sosreport/manifest.json",
@@ -90,6 +97,8 @@ module.exports = {
     resolve: {
         alias: {
             "mustache": "mustache/mustache.js",
+            "react": "react-lite-cockpit/dist/react-lite.js",
+            "moment": "momentjs/moment.js",
         },
         modulesDirectories: [ srcdir + path.sep + "lib" ]
     },
@@ -123,6 +132,10 @@ module.exports = {
             {
                 test: /\.css$/,
                 loader: extract.extract("style-loader", "css-loader")
+            },
+            {
+                test: /\.jsx$/,
+                loader: "jsx-loader"
             }
         ]
     },

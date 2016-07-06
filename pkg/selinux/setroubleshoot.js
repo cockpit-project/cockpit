@@ -17,19 +17,14 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-require([
-    "base1/cockpit",
-    "selinux/react",
-    "selinux/setroubleshoot-client",
-    "selinux/selinux-client",
-    "selinux/setroubleshoot-view",
-], function(cockpit, React, troubleshootClient, selinuxClient, troubleshootView) {
-
-"use strict";
-
+var cockpit = require("cockpit");
 var _ = cockpit.gettext;
 
-var setroubleshoot = { };
+var React = require("react");
+
+var troubleshootClient = require("./setroubleshoot-client");
+var selinuxClient = require("./selinux-client");
+var troubleshootView = require("./setroubleshoot-view.jsx");
 
 var initStore = function(rootElement) {
     var dataStore = { };
@@ -293,10 +288,6 @@ var initStore = function(rootElement) {
     return dataStore;
 };
 
-setroubleshoot.init = function (app) {
-    setroubleshoot.dataStore = initStore(app);
-};
-
-setroubleshoot.init(document.getElementById('app'));
+document.addEventListener("DOMContentLoaded", function() {
+    initStore(document.getElementById('app'));
 });
-

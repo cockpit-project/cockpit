@@ -355,7 +355,6 @@ include pkg/networkmanager/Makefile.am
 include pkg/ostree/Makefile.am
 include pkg/playground/Makefile.am
 include pkg/realmd/Makefile.am
-include pkg/selinux/Makefile.am
 include pkg/shell/Makefile.am
 include pkg/systemd/Makefile.am
 include pkg/storaged/Makefile.am

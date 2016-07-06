@@ -17,12 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-    "base1/cockpit",
-], function(cockpit) {
-
-"use strict";
-var _ = cockpit.gettext;
+var cockpit = require("cockpit");
 
 var client = {};
 
@@ -131,6 +126,4 @@ client.setEnforcing = function(enforcingMode) {
     return cockpit.spawn(command, { superuser: true, err: "message" });
 };
 
-return client;
-
-});
+module.exports = client;

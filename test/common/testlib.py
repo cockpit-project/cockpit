@@ -537,17 +537,17 @@ class MachineCase(unittest.TestCase):
         "(audit: )?type=1404 audit.*",
 
         # https://bugzilla.redhat.com/show_bug.cgi?id=1298157
-        "type=1400 .*granted.*comm=\"tuned\".*",
+        "(audit: )?type=1400 .*granted.*comm=\"tuned\".*",
 
         # https://bugzilla.redhat.com/show_bug.cgi?id=1298171
-        "type=1400 .*denied.*comm=\"iptables\".*name=\"xtables.lock\".*",
+        "(audit: )?type=1400 .*denied.*comm=\"iptables\".*name=\"xtables.lock\".*",
 
         # https://bugzilla.redhat.com/show_bug.cgi?id=1242656
-        "type=1400 .*denied.*comm=\"cockpit-ws\".*name=\"unix\".*dev=\"proc\".*",
-        "type=1400 .*denied.*comm=\"ssh-transport-c\".*name=\"unix\".*dev=\"proc\".*",
+        "(audit: )?type=1400 .*denied.*comm=\"cockpit-ws\".*name=\"unix\".*dev=\"proc\".*",
+        "(audit: )?type=1400 .*denied.*comm=\"ssh-transport-c\".*name=\"unix\".*dev=\"proc\".*",
 
         # https://bugzilla.redhat.com/show_bug.cgi?id=1299054
-        "type=1400 .*denied.*comm=\"rhsmcertd-worke\".*name=\".dbenv.lock\".*",
+        "(audit: )?type=1400 .*denied.*comm=\"rhsmcertd-worke\".*name=\".dbenv.lock\".*",
 
         # SELinux fighting with systemd: https://bugzilla.redhat.com/show_bug.cgi?id=1253319
         "(audit: )?type=1400 audit.*systemd-journal.*path=2F6D656D66643A73642D73797374656D642D636F726564756D202864656C6574656429",

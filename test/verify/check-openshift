@@ -31,13 +31,13 @@ from kubelib import *
 # prevent them from being run concurrently.  Both use a 'openshift'
 # machine, and we can only run a single one of those at the same time.
 
-def wait_oc(machine):
+def wait_project(machine, project):
     i = 0
     found = True
     while True:
         try:
             output = machine.execute("oc get projects")
-            if "marmalade" not in output:
+            if project not in output:
                 if not found:
                     print >> sys.stderr, output
                 found = True
@@ -67,7 +67,7 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
         with open(tmpfile, "r") as f:
             m.execute("mkdir -p /home/admin/.kube && cat > /home/admin/.kube/config", input=f.read())
 
-        wait_oc(self.openshift)
+        wait_project(self.openshift, "marmalade")
 
         # Expect the default container user limitations during testing
         self.openshift.execute("oc patch scc restricted -p '{ \"runAsUser\": { \"type\": \"MustRunAsRange\" } }'")
@@ -303,7 +303,7 @@ class TestRegistry(MachineCase):
         self.openshift.download("/root/.kube/config", tmpfile)
         with open(tmpfile, "r") as f:
             self.machine.execute("mkdir -p /home/admin/.kube && cat > /home/admin/.kube/config", input=f.read())
-        wait_oc(self.openshift)
+        wait_project(self.openshift, "marmalade")
 
     def testImages(self):
         b = self.browser
@@ -790,8 +790,7 @@ class TestRegistry(MachineCase):
         b.wait_in_text("#content", "Blearrrrrrrrgh")
 
         # Make sure it showed up in the console
-        output = o.execute("oc get projects")
-        self.assertIn("llama", output)
+        wait_project(o, "llama");
 
 if __name__ == '__main__':
     test_main()

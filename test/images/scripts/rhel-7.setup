@@ -6,8 +6,18 @@ set -e
 # depending on how it was compiled and which plugins are installed,
 # and will just silently not do it.  So we do it here.
 #
-xfs_growfs /
-df -h /
+df --output=source,fstype / | tail -n1 | while read source fstype; do
+    case $fstype in
+    ext*)
+	    resize2fs $source
+	    ;;
+    xfs*)
+	    xfs_growfs /
+	    ;;
+    esac
+done
+
+df -Th /
 
 # If the file /root/.skip_repos is present on the machine,
 # all actions regarding the repositories will be skipped:

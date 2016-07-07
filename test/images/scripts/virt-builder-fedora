@@ -27,11 +27,15 @@ fi
 
 subscription_args=""
 
+# If we have subscription details as an arg, upload those into the vm
+# Otherwise ensure subscription is skipped during setup
 if [ "$#" -gt 3 ]; then
     subscription_path=$4
     subscription_args="--mkdir /root/.rhel \
       --upload $subscription_path/login:/root/.rhel/login \
       --upload $subscription_path/pass:/root/.rhel/pass"
+else
+    subscription_args="--touch /root/.skip_repos"
 fi
 
 BASE=$(dirname $0)

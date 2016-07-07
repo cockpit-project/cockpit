@@ -32,10 +32,15 @@ lvresize atomicos/docker-pool -l+100%FREE
 # fully upgrade host first
 atomic host upgrade
 
-# Checkout current os branch
-# we'll use it every time we build a new tree
+# Checkout the just upgraded os branch since we'll use it every time
+# we build a new tree.
+#
+# HACK - Find a better way to compute the ref.
+# https://lists.projectatomic.io/projectatomic-archives/atomic-devel/2016-July/msg00015.html
+
+remote=$(ostree remote list)
 ref=$(python -c 'import json; print json.load(open("/usr/share/rpm-ostree/treefile.json"))["ref"]')
-ostree checkout "$ref" /var/local-tree
+ostree checkout "$remote:$ref" /var/local-tree
 
 # docker images that we need for integration testing
 /var/lib/testvm/docker-images.setup

@@ -3424,7 +3424,7 @@ function basic_scope(cockpit, jquery) {
         if (po) {
             extend(po_data, po);
             header = po[""];
-        } else {
+        } else if (po === null) {
             po_data = { };
         }
 

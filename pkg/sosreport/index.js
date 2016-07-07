@@ -23,7 +23,6 @@
     var cockpit = require("cockpit");
     var $ = require("jquery");
 
-    cockpit.locale(require("shell/po"));
     cockpit.translate();
     var _ = cockpit.gettext;
 

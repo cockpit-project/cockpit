@@ -170,11 +170,11 @@ var month_names = [         'January',
                           ];
 
 require([
-    "system/renderer"
-], function(journal_renderer) {
+    "system/journal"
+], function(journal) {
     QUnit.testStart(function() {
         output = [ ];
-        renderer = journal_renderer.journal_renderer(funcs);
+        renderer = journal.renderer(funcs);
         var d = new Date(time);
         expected_day = month_names[d.getMonth()] + ' ' + d.getDate().toFixed() + ', ' + d.getFullYear().toFixed();
     });

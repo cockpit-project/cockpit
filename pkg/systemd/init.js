@@ -2,12 +2,12 @@ define([
     "jquery",
     "base1/cockpit",
     "./mustache",
-    "system/server",
+    "system/journal",
     "shell/po",
     "system/moment",
     "system/bootstrap-datepicker",
     "./patterns"
-], function($, cockpit, mustache, server, po, moment) {
+], function($, cockpit, mustache, journal, po, moment) {
     cockpit.locale(po);
     cockpit.translate();
     var _ = cockpit.gettext;
@@ -710,7 +710,7 @@ define([
 
         refresh_unit_file_state();
 
-        cur_journal_watcher = server.logbox([ "_SYSTEMD_UNIT=" + cur_unit_id, "+",
+        cur_journal_watcher = journal.logbox([ "_SYSTEMD_UNIT=" + cur_unit_id, "+",
                                               "COREDUMP_UNIT=" + cur_unit_id, "+",
                                               "UNIT=" + cur_unit_id ], 10);
         $('#service-log').empty().append(cur_journal_watcher);

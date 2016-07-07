@@ -21,11 +21,11 @@ define([
     "jquery",
     "base1/cockpit",
     "./mustache",
-    "system/server",
+    "system/journal",
     "./utils",
     "./dialog",
     "./permissions"
-], function($, cockpit, mustache, server, utils, dialog, permissions) {
+], function($, cockpit, mustache, journal, utils, dialog, permissions) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 
@@ -1719,7 +1719,7 @@ define([
         $(client).on('changed', render);
 
         $('#storage-detail-log').append(
-            server.logbox([ "_SYSTEMD_UNIT=storaged.service", "+",
+            journal.logbox([ "_SYSTEMD_UNIT=storaged.service", "+",
                             "_SYSTEMD_UNIT=udisks2.service", "+",
                             "_SYSTEMD_UNIT=dm-event.service", "+",
                             "_SYSTEMD_UNIT=smartd.service", "+",

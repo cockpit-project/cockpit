@@ -22,10 +22,10 @@ require([
     "base1/cockpit",
     "network/mustache",
     "network/plot",
-    "system/server",
+    "system/journal",
     "network/patterns",
     "network/flot",
-], function($, cockpit, Mustache, plot, server) {
+], function($, cockpit, Mustache, plot, journal) {
 "use strict";
 
 var _ = cockpit.gettext;
@@ -1530,7 +1530,7 @@ PageNetworking.prototype = {
     enter: function () {
         var self = this;
 
-        this.log_box = server.logbox([ "_SYSTEMD_UNIT=NetworkManager.service",
+        this.log_box = journal.logbox([ "_SYSTEMD_UNIT=NetworkManager.service",
                                        "_SYSTEMD_UNIT=firewalld.service" ], 10);
         $('#networking-log').empty().append(this.log_box);
 

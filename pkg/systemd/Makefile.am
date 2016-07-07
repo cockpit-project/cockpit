@@ -33,7 +33,6 @@ systemddebug_DATA = \
 	pkg/systemd/init.js \
 	pkg/systemd/moment.js \
 	pkg/systemd/services.html \
-	pkg/systemd/server.js \
 	pkg/systemd/service.js \
 	pkg/systemd/term.css \
 	pkg/systemd/timer.css \
@@ -42,10 +41,9 @@ systemddebug_DATA = \
 	pkg/systemd/terminal.jsx \
 	pkg/systemd/terminal.html \
 	pkg/systemd/logs.html \
-	pkg/systemd/journal.js \
+	pkg/systemd/logs.js \
 	pkg/systemd/journal.css \
-	pkg/systemd/journalctl.js \
-	pkg/systemd/renderer.js \
+	pkg/systemd/journal.js \
 	pkg/systemd/journal_day_header.mustache \
 	pkg/systemd/journal_line.mustache \
 	pkg/systemd/journal_reboot.mustache \
@@ -62,11 +60,10 @@ systemd_MIN = \
 	pkg/systemd/patterns.min.js \
 	pkg/systemd/plot.min.js \
 	pkg/systemd/moment.min.js \
-	pkg/systemd/server.min.js \
 	pkg/systemd/term.min.js \
 	pkg/systemd/terminal.min.js \
 	pkg/systemd/journal.min.js \
-	pkg/systemd/journalctl.min.js \
+	pkg/systemd/logs.min.js \
 	pkg/systemd/renderer.min.js \
 	pkg/systemd/service.min.js \
 	$(NULL)

@@ -24,7 +24,6 @@ define([
     "shell/po",
     "domain/operation",
     "performance/dialog",
-    "system/server",
     "./service",
     "./plot",
     "data!./ssh-list-host-keys.sh",
@@ -32,7 +31,7 @@ define([
     "system/bootstrap-combobox",
     "./patterns",
     "./flot",
-], function($, cockpit, Mustache, po, domain, performance, server, service, plot, host_keys_script) {
+], function($, cockpit, Mustache, po, domain, performance, service, plot, host_keys_script) {
 "use strict";
 
 cockpit.locale(po);

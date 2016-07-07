@@ -18,6 +18,7 @@ storageddebug_DATA = \
 	pkg/storaged/index.html \
 	pkg/storaged/flot.js \
 	pkg/storaged/jobs.js \
+	pkg/storaged/journal.css \
 	pkg/storaged/mustache.js \
 	pkg/storaged/overview.js \
 	pkg/storaged/patterns.js \

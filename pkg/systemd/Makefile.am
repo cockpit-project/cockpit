@@ -3,7 +3,6 @@ nodist_systemd_DATA = \
 	pkg/systemd/bundle.min.js.gz \
 	pkg/systemd/host.min.css.gz \
 	pkg/systemd/index.min.html.gz \
-	pkg/systemd/journal.min.css.gz \
 	pkg/systemd/logs.min.html.gz \
 	pkg/systemd/service.min.js.gz \
 	pkg/systemd/services.min.html.gz \
@@ -104,7 +103,6 @@ CLEANFILES += \
 	pkg/systemd/bundle.min.js \
 	pkg/systemd/host.min.css \
 	pkg/systemd/index.min.html \
-	pkg/systemd/journal.min.css \
 	pkg/systemd/logs.min.html \
 	pkg/systemd/plot.min.css \
 	pkg/systemd/react.min.js \
@@ -126,7 +124,6 @@ EXTRA_DIST += \
 	pkg/systemd/bundle.min.js \
 	pkg/systemd/host.min.css \
 	pkg/systemd/index.min.html \
-	pkg/systemd/journal.min.css \
 	pkg/systemd/logs.min.html \
 	pkg/systemd/plot.min.css \
 	pkg/systemd/service.min.js \

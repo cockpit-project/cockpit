@@ -29,8 +29,6 @@ define([
 
     var server = { };
 
-    server.journal = journalctl;
-
     server.logbox = function logbox(match, max_entries) {
         var entries = [ ];
         var box = $("<div>");
@@ -47,7 +45,7 @@ define([
 
         render();
 
-        var promise = server.journal(match, { count: max_entries }).
+        var promise = journalctl(match, { count: max_entries }).
             stream(function(tail) {
                 entries = entries.concat(tail);
                 if (entries.length > max_entries)

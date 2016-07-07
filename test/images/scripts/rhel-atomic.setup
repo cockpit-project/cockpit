@@ -6,6 +6,7 @@ set -e
 # subscribe
 subscription-manager register --auto-attach --username=`cat ~/.rhel/login` --password=`cat ~/.rhel/pass`
 rm -rf ~/.rhel
+trap "subscription-manager unregister" EXIT
 
 /var/lib/testvm/atomic.setup
 

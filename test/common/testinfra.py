@@ -53,6 +53,7 @@ BASELINE_PRIORITY = 10
 DEFAULT_VERIFY = {
     'verify/fedora-23': [ 'master' ],
     'verify/fedora-24': [ 'master', 'pulls' ],
+    'verify/centos-7': [ 'master', 'pulls' ],
     'verify/rhel-7': [ 'master', 'pulls' ],
     'verify/fedora-atomic': [ 'master', 'pulls' ],
     'verify/rhel-atomic': [ 'master', 'pulls' ],
@@ -93,6 +94,9 @@ DEFAULT_IMAGE_REFRESH = {
     },
     'fedora-testing': {
         'triggers': [ "verify/fedora-testing" ]
+    },
+    'centos-7': {
+        'triggers': [ "verify/centos-7", ]
     }
 }
 

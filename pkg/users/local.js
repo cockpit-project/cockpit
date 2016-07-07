@@ -28,6 +28,7 @@ var authorized_keys = require("./authorized-keys");
 
 require("patterns");
 
+cockpit.translate();
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 

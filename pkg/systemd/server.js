@@ -18,14 +18,10 @@
  */
 define([
     "jquery",
-    "base1/cockpit",
     "system/journalctl",
     "system/renderer"
-], function($, cockpit, journalctl, journal_renderer) {
+], function($, journalctl, journal_renderer) {
     "use strict";
-
-    var _ = cockpit.gettext;
-    var C_ = cockpit.gettext;
 
     var server = { };
 

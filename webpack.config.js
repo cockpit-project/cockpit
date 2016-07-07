@@ -7,6 +7,10 @@ var entries = {
         "sosreport/index.js",
         "sosreport/sosreport.css",
     ],
+    "subscriptions/subscriptions": [
+        "subscriptions/main.js",
+        "subscriptions/subscriptions.css",
+    ],
     "users/users": [
         "users/local.js",
         "users/users.css",
@@ -20,6 +24,9 @@ var files = [
 
     "users/index.html",
     "users/manifest.json",
+
+    "subscriptions/index.html",
+    "subscriptions/manifest.json",
 ];
 
 var externals = {

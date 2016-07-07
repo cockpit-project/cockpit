@@ -43,7 +43,7 @@ class TestTuned(MachineCase):
 
         self.login_and_go("/system")
 
-        b.wait_text('#system-info-performance button', "none")
+        b.wait_text('#system-info-performance a.action-trigger', "none")
         b.wait_attr('#system-info-performance [data-toggle="popover"]', 'data-content',
                     "Tuned is not running")
 
@@ -53,13 +53,13 @@ class TestTuned(MachineCase):
 
         m.execute("systemctl start tuned")
         b.click('#system-info-performance [data-toggle="popover"]')
-        b.wait_text('#system-info-performance button', recommended_profile)
+        b.wait_text('#system-info-performance a.action-trigger', recommended_profile)
         b.wait_attr('#system-info-performance [data-toggle="popover"]', 'data-content',
                     "This system is using the recommended profile")
 
         # Switch the profile
 
-        b.click('#system-info-performance button')
+        b.click('#system-info-performance a.action-trigger')
         title_selector = "h4.modal-title:contains('Change Performance Profile')"
         b.wait_present(title_selector)
         body_selector = ".modal-dialog:contains('Change Performance Profile')"
@@ -75,7 +75,7 @@ class TestTuned(MachineCase):
         b.click("{0} button.apply".format(body_selector))
         b.wait_not_present(title_selector)
 
-        b.wait_text('#system-info-performance button', "balanced")
+        b.wait_text('#system-info-performance a.action-trigger', "balanced")
         b.wait_attr('#system-info-performance [data-toggle="popover"]', 'data-content',
                     "This system is using a custom profile")
 
@@ -86,7 +86,7 @@ class TestTuned(MachineCase):
         self.assertIn("enabled;", output)
 
         # Now disable tuned
-        b.click('#system-info-performance button')
+        b.click('#system-info-performance a.action-trigger')
         b.wait_present(title_selector)
         b.wait_present("{0} .list-group-item.active p".format(body_selector))
 
@@ -95,7 +95,7 @@ class TestTuned(MachineCase):
         b.click("{0} button.apply".format(body_selector))
         b.wait_not_present(title_selector)
 
-        b.wait_text('#system-info-performance button', "none")
+        b.wait_text('#system-info-performance a.action-trigger', "none")
 
         # Check the status of tuned, it should show disabled
         output = m.execute("tuned-adm active 2>&1 || true")
@@ -104,7 +104,7 @@ class TestTuned(MachineCase):
         self.assertIn("disabled;", output)
 
         # Click on the button again
-        b.click('#system-info-performance button')
+        b.click('#system-info-performance a.action-trigger')
         b.wait_present(title_selector)
 
         # Tuned should still be disabled

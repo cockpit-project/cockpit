@@ -396,7 +396,7 @@ define([
         return dialog;
     }
 
-    module.button = function button() {
+    function setup(element) {
         var $ = jQuery;
 
         var realmd = cockpit.dbus("org.freedesktop.realmd");
@@ -408,10 +408,6 @@ define([
         var joined = null;
 
         var permission = null;
-
-        var element = $("<button>")
-            .addClass("btn btn-default")
-            .attr("id", "system_information_realms_button");
 
         $(realmd).on("close", function(ev, options) {
             var message;
@@ -488,6 +484,13 @@ define([
         };
 
         return element;
+    }
+
+    module.link = function button() {
+        var $ = jQuery;
+        var element = $("<a>")
+            .attr("id", "system_information_realms_button");
+        return setup(element);
     };
 
     return module;

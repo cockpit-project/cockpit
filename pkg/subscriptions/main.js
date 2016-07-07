@@ -17,23 +17,17 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-require([
-    "jquery",
-    "base1/cockpit",
-    "shell/po",
-    "subscriptions/mustache",
-    "subscriptions/patterns",
-], function($, cockpit, po, Mustache) {
+(function() {
     "use strict";
 
-    cockpit.locale(po);
+    var $ = require("jquery");
+    var cockpit = require("cockpit");
+
+    var Mustache = require("mustache");
+    require("patterns");
+
     cockpit.translate();
     var _ = cockpit.gettext;
-
-    function debug() {
-        if (window.debugging == "all" || window.debugging == "subscriptions")
-            console.debug.apply(console, arguments);
-    }
 
     var subscriptions = { };
     var register_url = "default";
@@ -589,8 +583,6 @@ require([
         };
     }
 
-    register_dialog_initialize();
-
     function register_url_changed() {
         var custom_url = $('#subscription-register-url-custom');
         if (register_url === "default") {
@@ -606,6 +598,8 @@ require([
         if (retrieve_current === undefined)
             retrieve_current = true;
 
+        register_dialog_initialize();
+
         $("#subscription-register-url").on("click", "li", function() {
             register_url = $(this).attr("value");
             $("#subscription-register-url button span").text($(this).text());
@@ -617,5 +611,5 @@ require([
         subscriptions.manager = subscription_manager(retrieve_current);
     }
 
-    init();
-});
+    $(init);
+}());

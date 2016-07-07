@@ -7,6 +7,10 @@ var entries = {
         "sosreport/index.js",
         "sosreport/sosreport.css",
     ],
+    "subscriptions/subscriptions": [
+        "subscriptions/main.js",
+        "subscriptions/subscriptions.css",
+    ],
     "users/users": [
         "users/local.js",
         "users/users.css",
@@ -60,7 +64,12 @@ files = files.map(function(value) {
 module.exports = {
     resolve: {
         alias: {
+<<<<<<< HEAD
             "mustache": "mustache/mustache.js",
+=======
+            mustache: "mustache/mustache.js",
+            react: "react-lite-cockpit/dist/react-lite.js",
+>>>>>>> d16f903... subscriptions: Migrate to webpack
         },
         modulesDirectories: [ path.join(srcdir, "lib") ]
     },

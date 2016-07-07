@@ -12,6 +12,10 @@ var info = {
             "kubernetes/styles/registry.less",
             "kubernetes/scripts/registry.js",
         ],
+        "networkmanager/network": [
+            "networkmanager/interfaces.js",
+            "networkmanager/networking.css",
+        ],
         "ostree/ostree": [
             "ostree/app.js",
             "ostree/ostree.css",
@@ -39,6 +43,9 @@ var info = {
         "kubernetes/override.json",
         "kubernetes/index.html",
         "kubernetes/registry.html",
+
+        "networkmanager/index.html",
+        "networkmanager/manifest.json",
 
         "ostree/manifest.json",
         "ostree/index.html",

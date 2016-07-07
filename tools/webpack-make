@@ -15,7 +15,7 @@ if (!ops.args || ops.args.length !== 1) {
 }
 
 var cwd = process.cwd();
-var config = require(path.join(cwd, ops.args[0]));
+var config = require(path.resolve(cwd, ops.args[0]));
 
 var srcdir = process.env.SRCDIR;
 

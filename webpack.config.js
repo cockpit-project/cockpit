@@ -69,6 +69,9 @@ module.exports = {
         },
         modulesDirectories: [ srcdir + path.sep + "lib" ]
     },
+    resolveLoader: {
+        root: path.resolve(srcdir, 'node_modules')
+    },
     entry: entries,
     output: {
         path: distdir,

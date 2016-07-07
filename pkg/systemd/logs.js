@@ -22,7 +22,7 @@ define([
     "base1/cockpit",
     "shell/po",
     "./mustache",
-    "system/journal"
+    "./journal"
 ], function($, cockpit, po, Mustache, journal) {
     "use strict";
 
@@ -78,7 +78,7 @@ define([
                 var count = 0;
                 var stopped = null;
                 start_box.text(_("Loading..."));
-                procs.push(journal(match, { follow: false, reverse: true, cursor: first }).
+                procs.push(journal.journalctl(match, { follow: false, reverse: true, cursor: first }).
                     fail(query_error).
                     stream(function(entries) {
                         if (entries[0]["__CURSOR"] == first)
@@ -180,10 +180,10 @@ define([
                 if (start_box.text() == _("Loading..."))
                     start_box.empty();
                 if (!last) {
-                    procs.push(journal(match, { follow: true, count: 0,
-                                                       boot: options["boot"],
-                                                       since: options["since"]
-                                                     }).
+                    procs.push(journal.journalctl(match, { follow: true, count: 0,
+                                                           boot: options["boot"],
+                                                           since: options["since"]
+                                                         }).
                         fail(query_error).
                         stream(function(entries) {
                             prepend_entries(entries);

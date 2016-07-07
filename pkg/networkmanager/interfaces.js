@@ -22,7 +22,7 @@ require([
     "base1/cockpit",
     "network/mustache",
     "network/plot",
-    "system/journal",
+    "network/journal",
     "network/patterns",
     "network/flot",
 ], function($, cockpit, Mustache, plot, journal) {

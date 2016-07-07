@@ -22,7 +22,7 @@ define([
     "base1/cockpit",
     "./mustache",
     "./plot",
-    "system/journal",
+    "./journal",
     "storage/utils",
     "storage/dialog",
     "storage/permissions",

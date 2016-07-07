@@ -20,6 +20,7 @@ storageddebug_DATA = \
 	pkg/storaged/flot.js \
 	pkg/storaged/jobs.js \
 	pkg/storaged/journal.css \
+	pkg/storaged/journal.js \
 	pkg/storaged/mustache.js \
 	pkg/storaged/overview.js \
 	pkg/storaged/patterns.js \
@@ -29,6 +30,9 @@ storageddebug_DATA = \
 	pkg/storaged/service.js \
 	pkg/storaged/storage.css \
 	pkg/storaged/utils.js \
+	pkg/storaged/journal_day_header.mustache \
+	pkg/storaged/journal_line.mustache \
+	pkg/storaged/journal_reboot.mustache \
 	$(NULL)
 
 storaged_BUNDLE = \
@@ -38,6 +42,7 @@ storaged_BUNDLE = \
 	pkg/storaged/client.min.js \
 	pkg/storaged/flot.min.js \
 	pkg/storaged/jobs.min.js \
+	pkg/storaged/journal.min.js \
 	pkg/storaged/mustache.min.js \
 	pkg/storaged/overview.min.js \
 	pkg/storaged/patterns.min.js \
@@ -45,6 +50,9 @@ storaged_BUNDLE = \
 	pkg/storaged/plot.min.js \
 	pkg/storaged/service.min.js \
 	pkg/storaged/utils.min.js \
+	pkg/storaged/journal_day_header.mustache \
+	pkg/storaged/journal_line.mustache \
+	pkg/storaged/journal_reboot.mustache \
 	$(NULL)
 
 pkg/storaged/bundle.min.js: $(storaged_BUNDLE)

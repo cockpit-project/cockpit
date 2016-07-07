@@ -2,7 +2,7 @@ define([
     "jquery",
     "base1/cockpit",
     "./mustache",
-    "system/journal",
+    "./journal",
     "shell/po",
     "system/moment",
     "system/bootstrap-datepicker",

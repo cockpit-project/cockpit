@@ -64,7 +64,6 @@ systemd_MIN = \
 	pkg/systemd/terminal.min.js \
 	pkg/systemd/journal.min.js \
 	pkg/systemd/logs.min.js \
-	pkg/systemd/renderer.min.js \
 	pkg/systemd/service.min.js \
 	$(NULL)
 systemd_BUNDLE = \

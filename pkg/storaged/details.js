@@ -21,7 +21,7 @@ define([
     "jquery",
     "base1/cockpit",
     "./mustache",
-    "system/journal",
+    "./journal",
     "./utils",
     "./dialog",
     "./permissions"

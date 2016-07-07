@@ -15,19 +15,27 @@ networkmanagerdebug_DATA = \
 	pkg/networkmanager/interfaces.js \
 	pkg/networkmanager/index.html \
 	pkg/networkmanager/journal.css \
+	pkg/networkmanager/journal.js \
 	pkg/networkmanager/networking.css \
 	pkg/networkmanager/mustache.js \
 	pkg/networkmanager/plot.css \
 	pkg/networkmanager/plot.js \
 	pkg/networkmanager/patterns.js \
+	pkg/networkmanager/journal_day_header.mustache \
+	pkg/networkmanager/journal_line.mustache \
+	pkg/networkmanager/journal_reboot.mustache \
 	$(NULL)
 
 networkmanager_BUNDLE = \
 	pkg/networkmanager/interfaces.min.js \
 	pkg/networkmanager/flot.min.js \
+	pkg/networkmanager/journal.min.js \
 	pkg/networkmanager/mustache.min.js \
 	pkg/networkmanager/patterns.min.js \
 	pkg/networkmanager/plot.min.js \
+	pkg/networkmanager/journal_day_header.mustache \
+	pkg/networkmanager/journal_line.mustache \
+	pkg/networkmanager/journal_reboot.mustache \
 	$(NULL)
 
 pkg/networkmanager/bundle.min.js: $(networkmanager_BUNDLE)

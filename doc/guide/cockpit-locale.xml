@@ -29,7 +29,8 @@ cockpit.locale(po)
       be JSON data in the <ulink url="https://www.npmjs.org/package/po2json">po2json</ulink>
       format. The data will be loaded globally. If <code>po</code> data has already been
       loaded, then this will extend that loaded data with additional strings. Any identical
-      translations strings will be replaced with the new strings.</para>
+      translations strings will be replaced with the new strings. A <code>null</code> argument
+      clears all the locale information previously loaded.</para>
 
     <para>Various methods such as
       <link linkend="cockpit-locale-gettext"><code>cockpit.gettext()</code></link> make use

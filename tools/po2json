@@ -90,7 +90,7 @@ po2json.parseFile(input, { "fuzzy": true }, function(err, jsonData) {
     }
 
     if (module)
-	data = "(function (root, data) { if (typeof define === 'function' && define.amd) { define(data); } else { root.po = data; } }(this, " + data + "));";
+	data = "/* global cockpit */\n(function (root, data) { if (typeof define === 'function' && define.amd) { define(data); } else if(typeof cockpit === 'object') { cockpit.locale(data); } else { root.po = data; } }(this, " + data + "));";
 
     fs.writeFile(output, data, function(err) {
         if (err)

@@ -25,7 +25,6 @@ var files = [
 var externals = {
     "jquery": "$",
     "cockpit": "cockpit",
-    "shell/po": "po",
 };
 
 /* ---------------------------------------------------------------------

@@ -97,6 +97,11 @@ function select_btn_selected(btn) {
     return $.data(btn[0], 'cockpit-select-btn-funcs').selected();
 }
 
+function connection_settings(c) {
+    var settings = (c || { }).Settings || { };
+    return settings.connection || { };
+}
+
 /* NetworkManagerModel
  *
  * The NetworkManager model maintains a mostly-read-only data
@@ -778,11 +783,13 @@ function NetworkManagerModel() {
     var connections_by_uuid = { };
 
     function set_settings(obj, settings) {
-        if (obj.Settings && obj.Settings.connection && obj.Settings.connection.uuid)
-            delete connections_by_uuid[obj.Settings.connection.uuid];
+        var cs = connection_settings(obj);
+        if (cs.uuid)
+            delete connections_by_uuid[cs.uuid];
         obj.Settings = settings;
-        if (obj.Settings && obj.Settings.connection && obj.Settings.connection.uuid)
-            connections_by_uuid[obj.Settings.connection.uuid] = obj;
+        cs = connection_settings(obj);
+        if (cs.uuid)
+            connections_by_uuid[cs.uuid] = obj;
     }
 
     function refresh_settings(obj) {
@@ -942,21 +949,23 @@ function NetworkManagerModel() {
                 // TODO - Nail down how NM really handles this.
 
                 function check_con(con) {
-                    if (con.Settings.connection.type == obj.Settings.connection.slave_type) {
+                    var cs = connection_settings(con);
+                    if (cs.type == cs.slave_type) {
                         obj.Masters.push(con);
                         con.Slaves.push(obj);
                     }
                 }
 
                 obj.Masters = [ ];
-                if (obj.Settings && obj.Settings.connection && obj.Settings.connection.slave_type) {
-                    master = connections_by_uuid[obj.Settings.connection.master];
+                var cs = connection_settings(obj);
+                if (cs.slave_type) {
+                    master = connections_by_uuid[cs.master];
                     if (master) {
                         obj.Masters.push(master);
                         master.Slaves.push(obj);
                     } else {
 
-                        iface = peek_interface(obj.Settings.connection.master);
+                        iface = peek_interface(cs.master);
                         if (iface) {
                             if (iface.Device)
                                 iface.Device.AvailableConnections.forEach(check_con);
@@ -1897,7 +1906,7 @@ PageNetworkInterface.prototype = {
         self.iface = iface;
         self.dev = dev;
 
-        var desc;
+        var desc, cs;
         if (dev) {
             if (dev.DeviceType == 'ethernet') {
                 desc = cockpit.format("$IdVendor $IdModel $Driver)", dev);
@@ -1909,11 +1918,12 @@ PageNetworkInterface.prototype = {
                 desc = _("Bridge");
             }
         } else if (iface) {
-            if (iface.Connections[0] && iface.Connections[0].Settings.connection.type == "bond")
+            cs = connection_settings(iface.Connections[0]);
+            if (cs.type == "bond")
                 desc = _("Bond");
-            else if (iface.Connections[0] && iface.Connections[0].Settings.connection.type == "vlan")
+            else if (cs.type == "vlan")
                 desc = _("VLAN");
-            else if (iface.Connections[0] && iface.Connections[0].Settings.connection.type == "bridge")
+            else if (cs.type == "bridge")
                 desc = _("Bridge");
             else
                 desc = _("Unknown");
@@ -2234,8 +2244,9 @@ PageNetworkInterface.prototype = {
         function find_main_connection(cons) {
             cons.forEach(function(c) {
                 if (!self.main_connection ||
-                    self.main_connection.Settings.connection.timestamp < c.Settings.connection.timestamp)
+                    connection_settings(self.main_connection).timestamp < connection_settings(c).timestamp) {
                     self.main_connection = c;
+                }
             });
             if (self.main_connection) {
                 self.connection_settings = self.main_connection.Settings;
@@ -2266,8 +2277,8 @@ PageNetworkInterface.prototype = {
 
             tbody.empty();
 
-            if (!con || (con.Settings.connection.type != "bond" &&
-                         con.Settings.connection.type != "bridge")) {
+            var cs = connection_settings(con);
+            if (!con || (cs.type != "bond" && cs.type != "bridge")) {
                 self.rx_series.add_instance(self.dev_name);
                 self.tx_series.add_instance(self.dev_name);
                 $('#network-interface-slaves').hide();
@@ -2275,7 +2286,7 @@ PageNetworkInterface.prototype = {
             }
 
             $('#network-interface-slaves thead th:first-child').
-                text(con.Settings.connection.type == "bond"? _("Members") : _("Ports"));
+                text(cs.type == "bond"? _("Members") : _("Ports"));
 
             con.Slaves.forEach(function (slave_con) {
                 slave_con.Interfaces.forEach(function(iface) {
@@ -2346,9 +2357,9 @@ PageNetworkInterface.prototype = {
                                         $('<a role="menuitem" class="network-privileged">').
                                             text(iface.Name).
                                             click(function () {
+                                                var cs = connection_settings(con);
                                                 set_slave(self.model, con, con.Settings,
-                                                          con.Settings.connection.type, iface.Name,
-                                                          true).
+                                                          cs.type, iface.Name, true).
                                                     fail(show_unexpected_error);
                                             }));
                                 }
@@ -2690,9 +2701,10 @@ function slave_chooser_btn(change, slave_choices) {
 }
 
 function free_slave_connection(con) {
-    if (con.Settings.connection.slave_type) {
-        delete con.Settings.connection.slave_type;
-        delete con.Settings.connection.master;
+    var cs = connection_settings(con);
+    if (cs.slave_type) {
+        delete cs.slave_type;
+        delete cs.master;
         return con.apply();
     }
 }
@@ -2709,8 +2721,9 @@ function set_slave(model, master_connection, master_settings, slave_type,
     function find_main_connection(cons) {
         cons.forEach(function(c) {
             if (!main_connection ||
-                main_connection.Settings.connection.timestamp < c.Settings.connection.timestamp)
+                connection_settings(main_connection).timestamp < connection_settings(c).timestamp) {
                 main_connection = c;
+            }
         });
     }
 
@@ -2719,6 +2732,7 @@ function set_slave(model, master_connection, master_settings, slave_type,
     else
         find_main_connection(iface.Connections);
 
+    var cs = connection_settings(main_connection);
     if (val) {
         /* Turn the main_connection into a slave for master, if
          * necessary.  If there is no main_connection, we assume that
@@ -2740,9 +2754,9 @@ function set_slave(model, master_connection, master_settings, slave_type,
                                                          {
                                                          }
                                                        });
-        } else if (main_connection.Settings.connection.master != master_settings.connection.uuid) {
-            main_connection.Settings.connection.slave_type = slave_type;
-            main_connection.Settings.connection.master = master_settings.connection.uuid;
+        } else if (cs.master != master_settings.connection.uuid) {
+            cs.slave_type = slave_type;
+            cs.master = master_settings.connection.uuid;
             delete main_connection.Settings.ipv4;
             delete main_connection.Settings.ipv6;
             return main_connection.apply().then(function () {
@@ -2755,7 +2769,7 @@ function set_slave(model, master_connection, master_settings, slave_type,
         /* Free the main_connection from being a slave if it is our slave.  If there is
          * no main_connection, we don't need to do anything.
          */
-        if (main_connection && main_connection.Settings.connection.master == master_settings.connection.uuid) {
+        if (main_connection && cs.master == master_settings.connection.uuid) {
             free_slave_connection(main_connection);
         }
     }

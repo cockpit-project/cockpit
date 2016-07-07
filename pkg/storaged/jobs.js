@@ -21,9 +21,8 @@ define([
     "jquery",
     "base1/cockpit",
     "./mustache",
-    "system/server",
     "storage/utils"
-], function($, cockpit, mustache, server, utils) {
+], function($, cockpit, mustache, utils) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 

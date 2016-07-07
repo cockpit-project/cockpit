@@ -21,11 +21,11 @@ define([
     "jquery",
     "base1/cockpit",
     "./service",
-    "data!./button.html",
+    "data!./link.html",
     "performance/cockpit-components-dialog",
     "performance/change-profile",
     "performance/react",
-], function($, cockpit, service, button_html, dialog_view, change_profile_template, React) {
+], function($, cockpit, service, link_html, dialog_view, change_profile_template, React) {
     "use strict";
 
     var module = { };
@@ -37,11 +37,10 @@ define([
             console.debug.apply(console, arguments);
     }
 
-    module.button = function button() {
+    function setup(element, click_target_selector) {
         var tuned_service = service.proxy('tuned.service');
-        var element = $(button_html);
 
-        var button = element.find("button");
+        var button = element.find(click_target_selector);
         var popover = element.find("[data-toggle=popover]");
 
         /* Tuned doesn't implement the DBus.Properties interface, so
@@ -107,12 +106,14 @@ define([
 
                     button.text(state == "running"? active : "none");
                     button.prop('disabled', state == "not-installed");
+                    button.toggleClass('disabled', state == "not-installed");
                     set_status(status);
                 })
                 .fail(function (ex) {
                     console.warn("failed to poll tuned", ex);
                     button.text("error");
                     button.prop('disabled', true);
+                    button.toggleClass('disabled', true);
                     set_status(_("Communication with tuned has failed"));
                 });
         }
@@ -286,6 +287,11 @@ define([
         update_button();
 
         return element;
+    }
+
+    module.link = function button() {
+        var element = $(link_html);
+        return setup(element, "a.action-trigger");
     };
 
     return module;

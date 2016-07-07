@@ -238,11 +238,11 @@ PageServer.prototype = {
             change_systime_dialog.display(self.server_time);
         });
 
-        self.domain_button = domain.button();
-        $("#system-info-realms td.button-location").append(self.domain_button);
+        self.domain_link = domain.link();
+        $("#system-info-realms td.button-location").append(self.domain_link);
 
-        self.performance_button = performance.button();
-        $("#system-info-performance td.button-location").append(self.performance_button);
+        self.performance_link = performance.link();
+        $("#system-info-performance td.button-location").append(self.performance_link);
 
         self.server_time = new ServerTime();
         $(self.server_time).on("changed", function() {

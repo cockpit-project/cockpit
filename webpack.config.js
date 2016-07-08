@@ -122,6 +122,10 @@ module.exports = {
                 test: /\.js$/, // include .js files
                 exclude: /lib\/.*\/|\/node_modules\//, // exclude external dependencies
                 loader: "jshint-loader"
+            },
+            {
+                test: /\.es6$/, // include .js files
+                loader: "jshint-loader?esversion=6"
             }
         ],
         loaders: [
@@ -135,7 +139,11 @@ module.exports = {
             },
             {
                 test: /\.jsx$/,
-                loader: "jsx-loader"
+                loader: "babel-loader"
+            },
+            {
+                test: /\.es6$/,
+                loader: "babel-loader"
             }
         ]
     },

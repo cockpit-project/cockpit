@@ -23,7 +23,7 @@ var _ = cockpit.gettext;
 var React = require("react");
 
 var troubleshootClient = require("./setroubleshoot-client");
-var selinuxClient = require("./selinux-client");
+var selinuxClient = require("./selinux-client.es6");
 var troubleshootView = require("./setroubleshoot-view.jsx");
 
 var initStore = function(rootElement) {

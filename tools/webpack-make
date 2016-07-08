@@ -92,7 +92,7 @@ function generateDeps(makefile, stats) {
 
 function maybePushInput(inputs, input) {
     // Don't include node_modules files or external refs
-    if (input.split(path.sep).indexOf("node_modules") === -1 &&
+    if (input.split(path.sep).indexOf("node_modules") === -1 && !endsWith(input, '/') &&
         input.indexOf("external ") !== 0 && input.indexOf("multi ") !== 0) {
         input = path.relative(cwd, input);
 	if (srcdir && input.indexOf(srcdir) === 0)
@@ -102,5 +102,5 @@ function maybePushInput(inputs, input) {
 }
 
 function endsWith(string, suffix) {
-    return (string.indexOf(suffix) === (string.length - suffix.length))
+    return (string.lastIndexOf(suffix) === (string.length - suffix.length))
 }

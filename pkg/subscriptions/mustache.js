@@ -1,1 +1,0 @@
-../../lib/mustache/mustache.js

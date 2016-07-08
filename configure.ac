@@ -473,11 +473,15 @@ AC_MSG_RESULT($enable_strict)
 AC_SUBST(REAUTHORIZE_LIBS)
 AC_SUBST(PAM_LIBS)
 
+# So that we can enforce this include to be evaluated at make runtime
+AC_SUBST([INCLUDE_WEBPACK_DEPS], ["-include Makefile-webpack.deps"])
+
 AC_OUTPUT([
 Makefile
 doc/guide/version
 po/Makefile.in
 ])
+
 
 dnl ==========================================================================
 echo "

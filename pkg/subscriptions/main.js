@@ -17,23 +17,17 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-require([
-    "jquery",
-    "base1/cockpit",
-    "shell/po",
-    "subscriptions/mustache",
-    "subscriptions/patterns",
-], function($, cockpit, po, Mustache) {
+(function() {
     "use strict";
 
-    cockpit.locale(po);
+    var $ = require("jquery");
+    var cockpit = require("cockpit");
+
+    var Mustache = require("mustache");
+    var patterns = require("patterns");
+
     cockpit.translate();
     var _ = cockpit.gettext;
-
-    function debug() {
-        if (window.debugging == "all" || window.debugging == "subscriptions")
-            console.debug.apply(console, arguments);
-    }
 
     var subscriptions = { };
     var register_url = "default";
@@ -591,4 +585,4 @@ require([
     }
 
     init();
-});
+}());

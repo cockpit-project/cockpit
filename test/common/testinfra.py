@@ -412,6 +412,19 @@ class GitHub(object):
                 count = len(statuses)
         return result
 
+    def pulls(self):
+        result = [ ]
+        page = 1
+        count = 100
+        while count == 100:
+            pulls = self.get("pulls?page={0}&per_page={1}".format(page, count))
+            count = 0
+            page += 1
+            if pulls:
+                result += pulls
+                count = len(pulls)
+        return result
+
     def labels(self, issue):
         result = [ ]
         for label in self.get("issues/{0}/labels".format(issue)):
@@ -514,8 +527,7 @@ class GitHub(object):
                 if update_status(revision, context, status, changes):
                     results.append(GitHub.TaskEntry(priority, GithubPullTask("master", revision, "master", context)))
 
-        pulls = self.get("pulls")
-        for pull in pulls:
+        for pull in self.pulls():
             number = pull["number"]
             labels = self.labels(number)
             revision = pull["head"]["sha"]

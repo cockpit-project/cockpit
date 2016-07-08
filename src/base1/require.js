@@ -2105,7 +2105,7 @@ var requirejs, require, define;
     req(cfg);
 }(this));
 
-define('raw', function() {
+(function() {
     var module = { };
 
     module.load = function load(name, parentRequire, onload, config) {
@@ -2136,7 +2136,9 @@ define('raw', function() {
         xhr.send();
     };
 
-    return module;
-});
+    /* Define this under two names, one of which is more webpack compatible */
+    define('raw', module);
+    define('data', module);
+}());
 
 /* jshint ignore:end */

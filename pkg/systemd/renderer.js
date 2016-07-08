@@ -24,9 +24,9 @@ define([
     "base1/cockpit",
     "./mustache",
     "system/journalctl",
-    "raw!./journal_day_header.mustache",
-    "raw!./journal_line.mustache",
-    "raw!./journal_reboot.mustache"
+    "data!./journal_day_header.mustache",
+    "data!./journal_line.mustache",
+    "data!./journal_reboot.mustache"
 ], function($, cockpit, Mustache, journal, day_header_template, line_template, reboot_template) {
     "use strict";
 

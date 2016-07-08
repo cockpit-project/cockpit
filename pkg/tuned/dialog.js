@@ -21,7 +21,7 @@ define([
     "jquery",
     "base1/cockpit",
     "./service",
-    "raw!./button.html",
+    "data!./button.html",
     "performance/cockpit-components-dialog",
     "performance/change-profile",
     "performance/react",

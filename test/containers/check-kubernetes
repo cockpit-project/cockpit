@@ -46,7 +46,7 @@ class KubernetesContainerMachine(VirtMachine):
             iptables -I INPUT 4 -i docker0 -j ACCEPT
             /usr/bin/docker run -d -e COCKPIT_KUBE_INSECURE=true -e KUBERNETES_INSECURE=true -e KUBERNETES_SERVICE_PORT=6443 -e KUBERNETES_SERVICE_HOST={0} -p 9090:9090 cockpit/kubernetes
             """.format(host))
-        self.wait_for_cockpit_running(self.address)
+        self.wait_for_cockpit_running(self.address, seconds=180)
 
 class KubernetesContainerCase(kubelib.KubernetesCase):
     machine_class = KubernetesContainerMachine

@@ -239,7 +239,7 @@ function parse_group_content(content) {
 function password_quality(password) {
     var dfd = $.Deferred();
 
-    cockpit.spawn('/usr/bin/pwscore', { "environ": ["LC_ALL=C"] })
+    cockpit.spawn('/usr/bin/pwscore', { "err": "message" })
        .input(password)
        .done(function(content) {
            var quality = parseInt(content, 10);
@@ -255,8 +255,8 @@ function password_quality(password) {
                dfd.resolve("excellent");
            }
        })
-       .fail(function() {
-           dfd.reject(new Error(_("Password is not acceptable")));
+       .fail(function(ex) {
+           dfd.reject(new Error(ex.message || _("Password is not acceptable")));
        });
 
     return dfd.promise();

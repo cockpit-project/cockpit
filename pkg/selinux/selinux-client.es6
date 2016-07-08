@@ -17,9 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = require("cockpit");
-
-var client = {};
+import cockpit from 'cockpit';
 
 /* until we have a good dbus interface to get selinux status updates,
  * we resort to polling
@@ -48,7 +46,7 @@ var status = {
  *
  * Since we're screenscraping we need to run this in LC_ALL=C mode
  */
-client.init = function(statusChangedCallback) {
+export function init(statusChangedCallback) {
     var refreshInfo = function() {
         cockpit.spawn(statusCommand, { err: 'message', environ: [ "LC_ALL=C" ] }).then(
             function(output) {
@@ -118,12 +116,10 @@ client.init = function(statusChangedCallback) {
         refreshInfo();
 
     return status;
-};
+}
 
 // returns a promise of the command used to set enforcing mode
-client.setEnforcing = function(enforcingMode) {
+export function setEnforcing(enforcingMode) {
     var command = ["setenforce", (enforcingMode?"1":"0")];
     return cockpit.spawn(command, { superuser: true, err: "message" });
-};
-
-module.exports = client;
+}

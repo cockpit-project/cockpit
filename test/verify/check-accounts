@@ -107,7 +107,7 @@ class TestAccounts(MachineCase):
         b.set_val("#account-set-password-pw2", 'a')
         b.click('#account-set-password-apply')
         b.wait_present(".check-passwords.has-error")
-        self.assertEqual(b.text(".check-passwords.has-error .dialog-error.help-block"), "Password is not acceptable")
+        b.wait_in_text(".check-passwords.has-error .dialog-error.help-block", "Password quality check failed:")
 
         good_password_2 = "cEwghLY§X9R&m8RLwk4Xfed9Bw="
         # Now set to something valid

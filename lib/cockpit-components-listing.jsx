@@ -16,10 +16,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-define([
-    "./react",
-], function(React) {
 
+(function (root, factory) {
+    /* globals module */
+    if (typeof exports === 'object') {
+        module.exports = factory(require('react'));
+    } else if (typeof define === 'function' && define.amd) {
+        define(['./react'], factory);
+    }
+}(this, function(React) {
     "use strict";
 
     /* entry for an alert in the listing, can be expanded (with details) or standard
@@ -265,4 +270,4 @@ define([
         Listing: Listing,
     };
 
-});
+}));

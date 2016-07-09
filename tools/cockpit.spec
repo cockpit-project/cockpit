@@ -215,7 +215,7 @@ echo '%dir %{_datadir}/%{name}/ostree' > ostree.list
 find %{buildroot}%{_datadir}/%{name}/ostree -type f >> ostree.list
 
 # on RHEL systems we don't have the required setroubleshoot-server packages
-%if 0%{?rhel}
+%if 0%{?rhel}%{?centos}
 rm -rf %{buildroot}%{_datadir}/%{name}/selinux
 %else
 echo '%dir %{_datadir}/%{name}/selinux' > selinux.list
@@ -425,6 +425,21 @@ subscription management.
 
 %files subscriptions -f subscriptions.list
 
+%package networkmanager
+Summary: Cockpit user interface for networking, using NetworkManager
+Requires: %{name}-shell = %{version}-%{release}
+Requires: NetworkManager
+BuildArch: noarch
+
+%description networkmanager
+The Cockpit component for managing networking.  This package uses NetworkManager.
+
+%files networkmanager -f networkmanager.list
+
+%endif
+
+%if 0%{?rhel}%{?centos} == 0
+
 %package selinux
 Summary: Cockpit SELinux package
 Requires: %{name}-shell = %{version}-%{release}
@@ -436,17 +451,6 @@ This package contains the Cockpit user interface integration with the
 utility setroubleshoot to diagnose and resolve SELinux issues.
 
 %files selinux -f selinux.list
-
-%package networkmanager
-Summary: Cockpit user interface for networking, using NetworkManager
-Requires: %{name}-shell = %{version}-%{release}
-Requires: NetworkManager
-BuildArch: noarch
-
-%description networkmanager
-The Cockpit component for managing networking.  This package uses NetworkManager.
-
-%files networkmanager -f networkmanager.list
 
 %endif
 

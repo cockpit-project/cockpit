@@ -49,6 +49,7 @@ def wait_project(machine, project):
             i = i + 1
             time.sleep(2)
 
+@unittest.skipIf("centos" == os.environ.get("TEST_OS", ""), "Skipping check-openshift on centos.")
 @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-openshift on rhel-7.")
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
 class TestOpenshift(MachineCase, OpenshiftCommonTests):

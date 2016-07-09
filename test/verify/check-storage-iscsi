@@ -26,6 +26,7 @@ from testlib import *
 from storagelib import *
 
 @unittest.skipIf("rhel-7" in os.environ.get("TEST_OS", ""), "No storaged-iscsi on RHEL-7.")
+@unittest.skipIf("centos" in os.environ.get("TEST_OS", ""), "No storaged-iscsi on CentOS.")
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No storaged-iscsi on Debian.")
 class TestStorage(StorageCase):
     def testISCSI(self):

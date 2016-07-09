@@ -55,6 +55,7 @@ mv -f ~/.ssh/authorized_keys.test-avc ~/.ssh/authorized_keys
 """
 
 @unittest.skipIf("rhel" in os.environ.get("TEST_OS", ""), "DBUS API of setroubleshoot too old.")
+@unittest.skipIf("centos" in os.environ.get("TEST_OS", ""), "DBUS API of setroubleshoot too old.")
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No setroubleshoot on debian.")
 @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "No setroubleshoot on atomic systems.")
 class TestSelinux(MachineCase):

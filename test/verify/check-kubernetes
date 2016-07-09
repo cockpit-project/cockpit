@@ -27,6 +27,7 @@ import unittest
 from testlib import *
 import kubelib
 
+@unittest.skipIf("centos" == os.environ.get("TEST_OS", ""), "Skipping check-kubernetes on centos.")
 @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "Skipping check-kubernetes on rhel-7.")
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
 class TestKubernetes(kubelib.KubernetesCase, kubelib.KubernetesCommonTests):

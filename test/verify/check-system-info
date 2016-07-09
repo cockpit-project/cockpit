@@ -182,7 +182,7 @@ class TestSystemInfo(MachineCase):
         b = self.browser
 
         network_time_prefix = "Network time on"
-        if m.image in {"rhel-7", "rhel-atomic"}:
+        if m.image in {"rhel-7", "centos-7", "rhel-atomic"}:
             network_time_prefix = "NTP enabled"
 
         # make sure system is on expected timezone EEST
@@ -244,6 +244,7 @@ class TestSystemInfo(MachineCase):
         self.assertIn("EEST 2018\n", m.execute("LC_ALL=C date"))
 
     @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "No NTP servers config on rhel-7.")
+    @unittest.skipIf("centos" in os.environ.get("TEST_OS", ""), "No NTP servers config on centos.")
     @unittest.skipIf("rhel-atomic" == os.environ.get("TEST_OS", ""), "No NTP servers config on rhel-atomic.")
     def testTimeServers(self):
         m = self.machine

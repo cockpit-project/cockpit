@@ -165,7 +165,8 @@ class TestStorage(StorageCase):
         self.content_single_action(1, "Create Logical Volume")
         self.dialog(expect = { "size": 48 },
                     values = { "purpose": "pool",
-                               "name": "pool" })
+                               "name": "pool",
+                               "size": 38 })
         b.wait_in_text('#content', "Pool for Thin Logical Volumes \"pool\"")
 
         self.content_default_action(1, "Create Thin Volume")

@@ -2018,7 +2018,7 @@ PageNetworkInterface.prototype = {
                     parts.push(cockpit.format(dns_is_extra ? "Additional DNS Search Domains $val" : "DNS Search Domains $val",
                                  { val: params.dns_search.join(", ") }));
 
-                return parts.map(function (p) { return $('<div>').text(p); });
+                return parts;
             }
 
             function configure_ip_settings(topic) {
@@ -2071,17 +2071,23 @@ PageNetworkInterface.prototype = {
             }
 
             function render_settings_row(title, rows, configure) {
+                var link_text = [ ];
+                for (var i = 0; i < rows.length; i++) {
+                    link_text.push(rows[i]);
+                    if (i < rows.length -1)
+                        link_text.push($('<br>'));
+                }
+                if (link_text.length === 0)
+                    link_text.push(_("Configure"));
+
                 return $('<tr>').append(
                     $('<td>').
                         text(title).
                         css('vertical-align', rows.length > 1 ? "top" : "center"),
-                    $('<td>').append(rows),
-                    $('<td class="networking-configure">').append(
-                        $('<button class="btn btn-default network-privileged">').
-                            text(_("Configure")).
-                            click(function () {
-                                configure();
-                            })));
+                    $('<td>').append(
+                        $('<a class="network-privileged">').
+                            append(link_text).
+                            click(function () { configure(); })));
             }
 
             function render_ip_settings_row(topic, title) {
@@ -2134,7 +2140,7 @@ PageNetworkInterface.prototype = {
                     parts.push(_("ARP Monitoring"));
 
                 if (parts.length > 0)
-                    rows.push($('<div>').text(parts.join (", ")));
+                    rows.push(parts.join (", "));
 
                 return render_settings_row(_("Bond"), rows, configure_bond_settings);
             }
@@ -2147,7 +2153,7 @@ PageNetworkInterface.prototype = {
                     return null;
 
                 function add_row(fmt, args) {
-                    rows.push($('<div>').text(cockpit.format(fmt, args)));
+                    rows.push(cockpit.format(fmt, args));
                 }
 
                 if (options.stp) {
@@ -2173,7 +2179,7 @@ PageNetworkInterface.prototype = {
                     return null;
 
                 function add_row(fmt, args) {
-                    rows.push($('<div>').text(cockpit.format(fmt, args)));
+                    rows.push(cockpit.format(fmt, args));
                 }
 
                 if (options.priority != 32)
@@ -2194,7 +2200,7 @@ PageNetworkInterface.prototype = {
                     return null;
 
                 function add_row(fmt, args) {
-                    rows.push($('<div>').text(cockpit.format(fmt, args)));
+                    rows.push(cockpit.format(fmt, args));
                 }
 
                 add_row(_("Parent $parent"), options);

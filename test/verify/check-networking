@@ -120,7 +120,7 @@ class TestNetworking(MachineCase):
 
         # Configure a manual IP address
         #
-        b.click("tr:contains('IPv4') button")
+        b.click("tr:contains('IPv4') a")
         b.wait_popup("network-ip-settings-dialog")
         b.click("#network-ip-settings-dialog .btn.dropdown-toggle")
         b.click("#network-ip-settings-dialog a:contains('Manual')")
@@ -148,7 +148,7 @@ class TestNetworking(MachineCase):
         b.wait_in_text("tr:contains('Status')", "10.111.")
 
         # Switch off automatic DNS
-        b.click("tr:contains('IPv4') button")
+        b.click("tr:contains('IPv4') a")
         b.wait_popup("network-ip-settings-dialog")
         b.wait_text("#network-ip-settings-dialog [data-field='dns'] .btn.active", "On")
         b.click("#network-ip-settings-dialog [data-field='dns'] .btn:contains('Off')")
@@ -160,7 +160,7 @@ class TestNetworking(MachineCase):
         wait(lambda: "yes" in m.execute("nmcli -f ipv4.ignore-auto-dns connection show TEST"))
 
         # Change MTU
-        b.click("tr:contains('Ethernet') button")
+        b.click("tr:contains('Ethernet') a")
         b.wait_popup("network-ethernet-settings-dialog")
         b.set_val('#network-ethernet-settings-mtu-input', "1400")
         b.click("#network-ethernet-settings-apply")

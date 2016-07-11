@@ -5,7 +5,6 @@ define([
     "system/server",
     "shell/po",
     "system/moment",
-    "./patterns",
     "system/bootstrap-datepicker"
 ], function($, cockpit, mustache, server, po, moment) {
     cockpit.locale(po);
@@ -831,6 +830,7 @@ define([
     // Timer Creation
     // The following are variables that keeps the count of each repeat times.
     $("#create-timer").on("click", function() {
+        timer_init();
         $("#timer-dialog").modal("show");
     });
 
@@ -846,6 +846,7 @@ define([
         repeat : "Don't Repeat"
     };
     var repeat_array = [];
+    var error = false;
     var repeat_hourly_template = $("#repeat-hourly-tmpl").html();
     mustache.parse(repeat_hourly_template);
     var repeat_daily_template = $("#repeat-daily-tmpl").html();
@@ -856,6 +857,27 @@ define([
     mustache.parse(repeat_monthly_template);
     var repeat_yearly_template = $("#repeat-yearly-tmpl").html();
     mustache.parse(repeat_yearly_template);
+    // Removes error notification when user inputs error-field
+    $("#timer-dialog").on("keypress", ".form-control", function() {
+        $(this).removeClass("has-errors");
+        if ($(this).attr("id") == "hr")
+            $(this).siblings("#hr_error_specific").text("");
+        else if ($(this).attr("id") == "min")
+            $(this).siblings("#min_error_specific").text("");
+        else if ($(this).attr("data-content") == "hours")
+            $(this).siblings("[data-content='hr_error']").text("");
+        else if ($(this).attr("data-content") == "minutes")
+            $(this).siblings("[data-content='min_error']").text("");
+        else
+            $(this).siblings(".error_text").text("");
+    });
+    // HACK - bootstrap datepicker gives wrong position on long modals (having scrollbar)
+    $("#timer-dialog").on('click', "[data-content='datepicker']", function() {
+        $(".datepicker-dropdown").css("margin-top", $("#timer-dialog").scrollTop());
+        $(".datepicker-dropdown").css("visibility", "visible");
+        $(".datepicker-dropdown .prev").css("visibility", "visible");
+        $(".datepicker-dropdown .next").css("visibility", "visible");
+    });
 
     $(".form-table-ct").on("click", "[value]", ".btn-group.bootstrap-select.dropdown.form-control", function(ev) {
         var target = $(this).closest(".btn-group.bootstrap-select.dropdown.form-control");
@@ -870,12 +892,33 @@ define([
             break;
         }
     });
+    // Initialises timer display to default options
+    function timer_init() {
+        $("#command").val("");
+        $("#description").val("");
+        $("#filename").val("");
+        $("#boot_time").val("00");
+        $("#hr").val("00");
+        $("#min").val("00");
+        set_calendar_or_boot(1);
+        $("span", $("#boot_specific")).first().text("After system boot");
+        repeat_array = [ ];
+        $(".form-control").removeClass("has-errors");
+        $(".control-label").removeClass("label-postion-on-error");
+        $(".error_text").text("");
+    }
 
     function repeat_options(val) {
         switch(val) {
             case 0 : $("#specific_time_without_repeat").show();
-                $("#specific_time_for_repeat").hide();
+                $("#repeat_time_options").hide();
                 $("#close_button").hide();
+                $("#hr").val("00");
+                $("#min").val("00");
+                $("#hr").removeClass("has-errors");
+                $("#min").removeClass("has-errors");
+                $("#hr_error_specific").text("");
+                $("#min_error_specific").text("");
                 timer_unit.repeat = "Don't Repeat";
                 break;
             case 60 : timer_unit.repeat = "Repeat Hourly";// 60min
@@ -891,13 +934,13 @@ define([
         }
         if (val) {
             $("#specific_time_without_repeat").hide();
-            $("#specific_time_for_repeat").show();
+            $("#repeat_time_options").show();
             repeat_array = [];
-            add_repeat_option();
+            repeat_selected_element();
         }
     }
 
-    function add_repeat_option() {
+    function repeat_selected_element() {
         var close = "enabled";
         if (repeat_array.length === 0)
             close = "disabled";
@@ -944,13 +987,15 @@ define([
                 repeat_array[0].close = close;
             display_repeat();
         }
+        if (error)
+            check_inputs();
     }
 
-    $("#specific_time_for_repeat").on("click", ".btn.btn-default.dropdown-toggle.fa.fa-plus", add_repeat_option);
+    $("#repeat_time_options").on("click", ".btn.btn-default.dropdown-toggle.fa.fa-plus", repeat_selected_element);
 
     $(".form-table-ct").on("click", ".btn.btn-default.dropdown-toggle.pficon-close", function() {
-        repeat_array.splice($(this).attr('data-index'),1);
         sync_repeat();
+        repeat_array.splice($(this).attr('data-index'),1);
         for (var i = 0; i < repeat_array.length; i++) {
             repeat_array[i].index = i;
             repeat_array[i].close = "enabled";
@@ -958,6 +1003,8 @@ define([
         if (repeat_array.length === 1)
             repeat_array[0].close = "disabled";
         display_repeat();
+        if (error)
+            check_inputs();
     });
 
     function display_repeat() {
@@ -986,11 +1033,16 @@ define([
                 repeat: repeat_array
             });
             $("#repeat_time").html(repeat_yearly_text);
+            var nowDate = new Date();
+            var today = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), 0, 0, 0, 0);
             for (var i = 0; i < repeat_array.length; i++) {
-                $("[data-index='"+i+"'][data-provide='datepicker']").datepicker({
+                $("[data-index='"+i+"'][data-content='datepicker']").datepicker({
                     autoclose: true,
                     todayHighlight: true,
-                    format: 'yyyy-mm-dd'
+                    format: 'yyyy-mm-dd',
+                    orientation:"top auto",
+                    container:'#timer-dialog',
+                    startDate: today
                 });
             }
         }
@@ -1024,7 +1076,7 @@ define([
             for (; i < repeat_array.length; i++) {
                 repeat_array[i].minutes = $("[data-index='"+i+"'][data-content='minutes']").val().trim();
                 repeat_array[i].hours = $("[data-index='"+i+"'][data-content='hours']").val().trim();
-                repeat_array[i].date_to_parse = new Date($("[data-index='"+i+"'][data-provide='datepicker']").val());
+                repeat_array[i].date_to_parse = new Date($("[data-index='"+i+"'] .bootstrap-datepicker").val());
                 repeat_array[i].date = moment(repeat_array[i].date_to_parse).format('YYYY-MM-DD');
             }
         }
@@ -1034,16 +1086,19 @@ define([
         $("label[for=boot_specific]").toggleClass("label-postion-on-error", false);
         if (value == 1) {
             $("#boot").show();
-            $("#repeat").hide();
-            $("#specific_time_for_repeat").hide();
+            $("#repeat_options").hide();
+            $("#repeat_time_options").hide();
             $("#specific_time_without_repeat").hide();
+            $("#boot_time").val("00");
+            $("#boot_time_error").text("");
+            $("#boot_time").removeClass("has-errors");
             timer_unit.Calendar_or_Boot = "Boot";
         } else if (value == 2) {
             $("#boot").hide();
-            $("#repeat").show();
+            $("#repeat_options").show();
             $("#close_button").hide();
             $("#specific_time_without_repeat").show();
-            $("#specific_time_for_repeat").hide();
+            $("#repeat_time_options").hide();
             $("span", $("#drop_repeat")).first().text("Don't Repeat");
             timer_unit.Calendar_or_Boot = "Calendar";
         }
@@ -1062,96 +1117,86 @@ define([
                 break;
         }
     }
-
+    // Validation of Inputs
     function check_inputs() {
-        var ex1, ex2, ex3, ex4, ex6, ex7 = null;
-        var ex5 = { };
-        var errors = [ ];
-        var str = $("#filename").val().replace(/\s/g, ''); //  filename no spaces allowed
+        error = false; // made global to show existing errors when + and x are clicked.
+        var str = $("#filename").val().replace(/\s/g, ''); // no spaces allowed in filename
         if ( str.length < 1 ) {
-            timer_unit.name = null;
-            ex1 = new Error("This field cannot be empty.");
-            ex1.target = "#filename";
-            errors.push(ex1);
+            $("#filename_error").text(_("This field cannot be empty."));
+            $("#filename").addClass('has-errors');
+            error = true;
+            $("label[for=filename]").toggleClass("label-postion-on-error", error);
         }
-        $("label[for=filename]").toggleClass("label-postion-on-error", !!ex1);
-
-        str = $("#description").val();
+        str = $("#description").val().trim();
         if ( str.length < 1 ) {
-            timer_unit.Description = null;
-            ex2 = new Error("This field cannot be empty.");
-            ex2.target = "#description";
-            errors.push(ex2);
+            $("#description_error").text(_("This field cannot be empty."));
+            $("#description").addClass('has-errors');
+            error = true;
+            $("label[for=description]").toggleClass("label-postion-on-error", error);
         }
-        $("label[for=description]").toggleClass("label-postion-on-error", !!ex2);
-
-        str = $("#command").val();
+        str = $("#command").val().trim();
         if ( str.length < 1 ) {
-            timer_unit.Command = null;
-            ex3 = new Error("This field cannot be empty.");
-            ex3.target = "#command";
-            errors.push(ex3);
+            $("#command_error").text(_("This field cannot be empty."));
+            $("#command").addClass('has-errors');
+            error = true;
+            $("label[for=command]").toggleClass("label-postion-on-error", error);
         }
-        $("label[for=command]").toggleClass("label-postion-on-error", !!ex3);
-
         if ( timer_unit.Calendar_or_Boot == "Boot" ) {
             str = $("#boot_time").val();
             if (!/^[0-9]+$/.test(str.trim())) {
-                timer_unit.boot_time = null;
-                ex4 = new Error("Invalid number");
-                ex4.target = "#boot_time";
-                errors.push(ex4);
+                $("#boot_time_error").text(_("Invalid number."));
+                $("#boot_time").addClass('has-errors');
+                error = true;
+                $("label[for=boot_specific]").toggleClass("label-postion-on-error", error);
             }
-            $("label[for=boot_specific]").toggleClass("label-postion-on-error", !!ex4);
         } else {
             //Calendar timer cases
             var i = 0;
             if (timer_unit.repeat == "Don't Repeat") {
-                var hr = $("#hr").val();
-                var min = $("#min").val();
-                if (!(/^[0-9]+$/.test(hr.trim()) && hr.trim() <= 23 && hr.trim() >= 0)) {
-                    ex6 = new Error("within 0-23");
-                    ex6.target = "#hr";
-                    errors.push(ex6);
+                var hr = $("#hr").val().trim();
+                var min = $("#min").val().trim();
+                if (!(/^[0-9]+$/.test(hr) && hr <= 23 && hr >= 0)) {
+                    $("#hr_error_specific").text(_("Hour needs to be a number between 0-23"));
+                    $("#hr").addClass('has-errors');
+                    error = true;
+                    $("label[for=specific_time_without_repeat]").toggleClass("label-postion-on-error", error);
                 }
-                if (!(/^[0-9]+$/.test(min.trim()) && min.trim() <= 59 && min.trim() >= 0)) {
-                    ex7 = new Error("within 0-59");
-                    ex7.target = "#min";
-                    errors.push(ex7);
+                if (!(/^[0-9]+$/.test(min) && min <= 59 && min >= 0)) {
+                    $("#min_error_specific").text(_("Minute needs to be a number between 0-59"));
+                    $("#min").addClass('has-errors');
+                    error = true;
+                    $("label[for=specific_time_without_repeat]").toggleClass("label-postion-on-error", error);
                 }
             } else if (timer_unit.repeat == "Repeat Hourly") {
                 for (; i < repeat_array.length; i++) {
                     if (!(/^[0-9]+$/.test(repeat_array[i].minutes.trim()) && repeat_array[i].minutes.trim() <= 59 && repeat_array[i].minutes.trim() >= 0)) {
-                        ex5[ex5.length] = new Error("within 0-59");
-                        ex5[ex5.length].target = "[data-index='" + i + "'][data-content='minutes']";
-                        errors.push(ex5[ex5.length]);
+                        $("[data-index='" + i + "'][data-content='minutes']").addClass('has-errors');
+                        $("[data-index='" + i + "'][data-content='min_error']").text(_("Minute needs to be a number between 0-59"));
+                        error = true;
                     }
                 }
             } else {
                 for (; i < repeat_array.length; i++) {
                     if (!(/^[0-9]+$/.test(repeat_array[i].minutes.trim()) && repeat_array[i].minutes.trim() <= 59 && repeat_array[i].minutes.trim() >= 0)) {
-                        ex5[ex5.length] = new Error("within 0-59");
-                        ex5[ex5.length].target = "[data-index='" + i + "'][data-content='minutes']";
-                        errors.push(ex5[ex5.length]);
+                        error = true;
+                        $("[data-index='" + i + "'][data-content='minutes']").addClass('has-errors');
+                        $("[data-index='" + i + "'][data-content='min_error']").text(_("Minute needs to be a number between 0-59"));
                     }
                     if (!(/^[0-9]+$/.test(repeat_array[i].hours.trim()) && repeat_array[i].hours.trim() <= 23 && repeat_array[i].hours.trim() >= 0)) {
-                        ex5[ex5.length] = new Error("within 0-23");
-                        ex5[ex5.length].target = "[data-index='" + i + "'][data-content='hours']";
-                        errors.push(ex5[ex5.length]);
+                        error = true;
+                        $("[data-index='" + i + "'][data-content='hours']").addClass('has-errors');
+                        $("[data-index='" + i + "'][data-content='hr_error']").text(_("Hour needs to be a number between 0-23"));
                     }
                 }
             }
         }
-        if ( errors.length === 0 )
-            return true;
-        $("div#timer-dialog").dialog("failure", errors);
-        return false;
+        return error;
     }
 
     function create_timer() {
         sync_repeat();
-        var valid_inputs = check_inputs();
-        if (!valid_inputs)
+        var error = check_inputs();
+        if (error)
             return false;
         timer_unit.name = $("#filename").val().replace(/\s/g, '');
         timer_unit.Description = $("#description").val();
@@ -1225,13 +1270,13 @@ define([
         fail(function(error) {
             console.log(error);
         });
-        console.log("#Service file#\n"+service_file);
+        console.log("Service file\n"+service_file);
         var timer_path = "/etc/systemd/system/"+timer_unit.name+".timer";
         file = cockpit.file(timer_path,{superuser:'try'});
         file.replace(timer_file).
         fail(function(error) {
             console.log(error);
         });
-        console.log("#Timer file#\n"+timer_file);
+        console.log("Timer file\n"+timer_file);
     }
 });

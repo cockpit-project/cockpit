@@ -145,6 +145,8 @@
       <input type="text" value="{{minutes}}" data-index="{{index}}" data-content="minutes" class="form-control">
       <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
       <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
+      <div data-content="hr_error" class="repeat_error" data-index="{{index}}"></div>
+      <div data-content="min_error" class="repeat_error" data-index="{{index}}"></div>
     </div>
   {{/repeat}}
   </script>
@@ -157,6 +159,8 @@
       <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
       <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
       <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
+      <div data-content="hr_error" class="repeat_error" data-index="{{index}}"></div>
+      <div data-content="min_error" class="repeat_error" data-index="{{index}}"></div>
     </div>
   {{/repeat}}
   </script>
@@ -184,6 +188,8 @@
       <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
       <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
       <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
+      <div data-content="hr_error" class="repeat_error" data-index="{{index}}"></div>
+      <div data-content="min_error" class="repeat_error" data-index="{{index}}"></div>
     </div>
   {{/repeat}}
   </script>
@@ -235,6 +241,8 @@
       <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
       <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
       <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
+      <div data-content="hr_error" class="repeat_error" data-index="{{index}}"></div>
+      <div data-content="min_error" class="repeat_error" data-index="{{index}}"></div>
     </div>
   {{/repeat}}
   </script>
@@ -242,12 +250,17 @@
   <script id="repeat-yearly-tmpl" type="x-template/mustache">
   {{#repeat}}
     <div class="form-inline">
-      <input type="text" class="input-group form-control date datepicker" value="{{date}}" data-provide="datepicker" data-index="{{index}}">
+      <div data-content="datepicker" data-index="{{index}}" class="input-group date">
+        <input type="text" value="{{date}}" data-index="{{index}}" class="form-control bootstrap-datepicker" readonly>
+        <span class="input-group-addon"><span class="fa fa-calendar"></span></span>
+      </div>
       <input type="text" value="{{hours}}" data-index="{{index}}" data-content="hours" class="form-control" >
       <div class="position-colon">:</div>
       <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
       <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
       <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
+      <div data-content="hr_error" class="repeat_error" data-index="{{index}}"></div>
+      <div data-content="min_error" class="repeat_error" data-index="{{index}}"></div>
     </div>
   {{/repeat}}
   </script>
@@ -326,6 +339,7 @@
               </td>
               <td>
                 <input type="text" id="filename" class="form-control"></div>
+                <div id="filename_error" class="error_text"></div>
               </td>
             </tr>
             <tr>
@@ -334,6 +348,7 @@
               </td>
               <td>
                 <input type="text" id="description" class="form-control"></div>
+                <div id="description_error" class="error_text"></div>
               </td>
             </tr>
             <tr>
@@ -342,6 +357,7 @@
               </td>
               <td>
                 <input type="text" data-placement="bottom" id="command" class="form-control">
+                <div id="command_error" class="error_text"></div>
               </td>
             </tr>
             <tr>
@@ -374,10 +390,11 @@
                       <li value="604800"><a>Weeks</a></li>
                     </ul>
                   </div>
+                  <div id="boot_time_error" class="error_text"></div>
                 </div>
               </td>
             </tr>
-            <tr id="repeat" hidden>
+            <tr id="repeat_options" hidden>
               <td></td>
               <td>
                 <div class="btn-group bootstrap-select dropdown form-control" id="drop_repeat">
@@ -398,15 +415,17 @@
             </tr>
             <tr id="specific_time_without_repeat" hidden>
               <td>
-                <label class="control-label" >Hour : Minute</label>
+                <label for="specific_time_without_repeat" class="control-label" >Hour : Minute</label>
               </td>
-              <td>
+              <td id="specific_time">
                 <input type="text" value="00" id="hr" class="hr form-control">
                 <div class="position-colon">:</div>
                 <input type="text" value="00" id="min" class="min form-control">
+                <div id="hr_error_specific" class="error_text"></div>
+                <div id="min_error_specific" class="error_text"></div>
               </td>
             </tr>
-            <tr id="specific_time_for_repeat">
+            <tr id="repeat_time_options">
               <td></td>
               <td id="repeat_time">
               </td>

@@ -25,6 +25,29 @@ import os
 import unittest
 import time
 
+# The candlepin image has a lot of demo data preloaded
+# useful info/commands:
+#    Login: doc      password: password
+#    org:   snowwhite
+#
+#    Login: admin    password: admin
+#    org:   admin
+#
+# if you download product files onto the test machine, these will show up as installed products
+# local directory: /etc/pki/product
+# sample products used in the tests (different subscription results for doc and admin):
+# /root/candlepin/generated_certs/6050.pem
+# /root/candlepin/generated_certs/88888.pem
+#
+# to use the candlepin image on a test machine, either add the certificate or
+# allow insecure connections (/etc/rhsm/rhsm.conf -> "insecure = 1")
+#
+# $IP is the ip of the candlepin machine
+#
+# add an activation key to a pool:
+# curl --insecure --request POST --user admin:admin https://$IP:8443/candlepin/activation_keys/ff80808155ca50b10155ca50cd280010/pools/ff80808155ca50b10155ca51f04607e5
+# register with: activation key "awesome_os_pool" and org "admin"
+# or: subscription-manager register --activationkey awesome_os_pool --org admin --serverurl https://$IP:8443/candlepin
 
 @unittest.skipIf("rhel-7" != os.environ.get("TEST_OS", ""), "Only testing subscriptions on RHEL systems.")
 class TestSubscriptions(MachineCase):
@@ -97,6 +120,13 @@ class TestSubscriptions(MachineCase):
 
         # now specify the org
         b.set_val("#subscription-register-org", "admin")
+
+        # use an activation key
+        self.candlepin.execute("curl --insecure --request POST --user admin:admin https://localhost:8443/candlepin/activation_keys/ff80808155ca50b10155ca50cd280010/pools/ff80808155ca50b10155ca51f04607e5")
+        b.set_val("#subscription-register-username", "")
+        b.set_val("#subscription-register-password", "")
+        b.set_val("#subscription-register-password", "")
+        b.set_val("#subscription-register-key", "awesome_os_pool")
 
         # try to register again
         b.click("#account-register-start")

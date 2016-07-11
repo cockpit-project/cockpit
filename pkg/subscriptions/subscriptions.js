@@ -491,7 +491,7 @@ require([
                 .done(function() {
                     $('#subscriptions-register-dialog').modal('hide');
                     /* trigger update just in case */
-                    update_subscriptions();
+                    get_subscription_details();
                 })
                 .fail(function(ex) {
                     if (ex.problem == "cancelled")

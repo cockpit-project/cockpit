@@ -723,27 +723,27 @@ class TestRegistry(MachineCase):
         # Show that the project displays shared access data
         b.wait_present("tr[data-name='marmalade']")
         b.wait_present("tr[data-name='marmalade'] .fa-lock")
-        o.execute("oc policy add-role-to-group registry-viewer system:authenticated -n marmalade")
-        output = o.execute("oc policy who-can get --namespace=marmalade imagestreams/layers")
-        self.assertIn("system:authenticated", output)
-        b.wait_present("tr[data-name='marmalade'] .fa-unlock")
 
         # Change the project access
         b.go("#/projects/marmalade")
         b.wait_in_text(".content-filter h3", "marmalade")
-        b.wait_in_text(".listing-ct-body", "Project access policy allows all authenticated users to pull images. Grant additional access to specific members below.")
+        b.wait_in_text(".listing-ct-body", "Project access policy only allows specific members to access images. Grant access to specific members below.")
         b.click(".content-filter .pficon-edit")
         b.wait_present("modal-dialog")
         b.wait_visible("#project-access-policy")
-        b.wait_in_text("#project-access-policy button", "Allow any authenticated user to pull images")
+        b.wait_in_text("#project-access-policy button", "Allow only specific users or groups to pull images")
         b.click("#project-access-policy button")
         b.wait_visible("#project-access-policy .dropdown-menu")
-        b.click("#project-access-policy a[value='private']")
+        b.click("#project-access-policy a[value='shared']")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
-        b.wait_not_in_text(".listing-ct-body", "Project access policy only allows specific members to access images. Grant access to specific members below.")
+        b.wait_not_in_text(".listing-ct-body", "Project access policy allows all authenticated users to pull images. Grant additional access to specific members below.")
         output = o.execute("oc policy who-can get --namespace=marmalade imagestreams/layers")
-        self.assertNotIn("system:authenticated", output)
+        self.assertIn("system:authenticated", output)
+
+        # Change it from the terminal
+        b.go("#/")
+        b.wait_present("tr[data-name='marmalade'] .fa-unlock")
 
         # New project doesn't exist
         b.go("#/")

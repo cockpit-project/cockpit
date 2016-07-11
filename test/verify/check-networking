@@ -160,12 +160,14 @@ class TestNetworking(MachineCase):
         wait(lambda: "yes" in m.execute("nmcli -f ipv4.ignore-auto-dns connection show TEST"))
 
         # Change MTU
-        b.click("tr:contains('Ethernet') a")
+
+        b.click("tr:contains('MTU') a")
         b.wait_popup("network-ethernet-settings-dialog")
+        b.set_checked('#network-ethernet-settings-mtu-custom', True)
         b.set_val('#network-ethernet-settings-mtu-input', "1400")
         b.click("#network-ethernet-settings-apply")
         b.wait_popdown("network-ethernet-settings-dialog")
-        b.wait_in_text("tr:contains('Ethernet')", "MTU 1400")
+        b.wait_in_text("tr:contains('MTU')", "1400")
         wait(lambda: "mtu 1400" in m.execute("ip link show %s" % iface))
 
         # Go back to main page

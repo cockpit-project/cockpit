@@ -135,17 +135,21 @@
   </script>
 
   <script id="network-ethernet-settings-template" type="x-template/mustache">
-    <table class="form-table-ct">
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">MTU</label>
-        </td>
-        <td>
-          <input id="network-ethernet-settings-mtu-input" class="form-control" type="text"
-                 value="{{mtu}}"></input>
-        </td>
-      </tr>
-    </table>
+    <div>
+      <label>
+        <input id="network-ethernet-settings-mtu-auto" {{^mtu}}checked="checked"{{/mtu}}
+               type="radio" name="ethernet-mtu-mode"></input>
+        <span translatable="yes">Automatic</span>
+      </label>
+    </div>
+    <div>
+      <label>
+        <input id="network-ethernet-settings-mtu-custom"  {{#mtu}}checked="checked"{{/mtu}}
+               type="radio" name="ethernet-mtu-mode"></input>
+        <span translatable="yes">Set to</span>
+        <input id="network-ethernet-settings-mtu-input" type="text" value="{{mtu}}"></input>
+      </label>
+    </div>
   </script>
 
   <script id="network-bridge-settings-template" type="x-template/mustache">
@@ -544,7 +548,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">Ethernet Settings</h4>
+          <h4 class="modal-title" translatable="yes">Ethernet MTU</h4>
         </div>
         <div class="modal-body">
           <div id="network-ethernet-settings-body">

@@ -2116,13 +2116,15 @@ PageNetworkInterface.prototype = {
                     return null;
 
                 function add_row(fmt, args) {
-                    rows.push($('<div>').text(cockpit.format(fmt, args)));
+                    rows.push(cockpit.format(fmt, args));
                 }
 
                 if (options.mtu)
-                    add_row(_("MTU $mtu"), options);
+                    add_row(_("$mtu"), options);
+                else
+                    add_row(_("Automatic"), options);
 
-                return render_settings_row(_("Ethernet"), rows, configure_ethernet_settings);
+                return render_settings_row(_("MTU"), rows, configure_ethernet_settings);
             }
 
             function render_master() {
@@ -3351,7 +3353,9 @@ PageNetworkEthernetSettings.prototype = {
 
         var body = $(Mustache.render(self.ethernet_settings_template, settings.ethernet));
         $('#network-ethernet-settings-body').html(body);
-        $("#network-ethernet-settings-mtu-input").attr("placeholder", _("Automatic"));
+        $('#network-ethernet-settings-mtu-input').focus(function () {
+            $('#network-ethernet-settings-mtu-custom').prop('checked', true);
+        });
     },
 
     cancel: function() {
@@ -3377,15 +3381,16 @@ PageNetworkEthernetSettings.prototype = {
                 return settings_manager.add_connection(master_settings);
         }
 
-        var mtu = $("#network-ethernet-settings-mtu-input").val();
-
-        if (mtu === "")
+        if ($("#network-ethernet-settings-mtu-auto").prop('checked'))
             master_settings.ethernet.mtu = 0;
-        else if (/^[0-9]*$/.test(mtu))
-            master_settings.ethernet.mtu = parseInt(mtu, 10);
         else {
-            show_error(_("MTU must be a positive number"));
-            return;
+            var mtu = $("#network-ethernet-settings-mtu-input").val();
+            if (/^[0-9]+$/.test(mtu))
+                master_settings.ethernet.mtu = parseInt(mtu, 10);
+            else {
+                show_error(_("MTU must be a positive number"));
+                return;
+            }
         }
 
         update_master().

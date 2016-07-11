@@ -383,16 +383,15 @@ require([
 
             var args = ['subscription-manager', 'register', '--auto-attach'];
             if (url !== null)
-                args.push('--serverurl=' + url);
+                args.push('--serverurl', url);
             /* if username or password are empty, subscription-manager will prompt for them
              * so we always need to pass them
              */
-            args.push('--username=' + username);
-            args.push('--password=' + password);
+            args.push('--username', username, '--password', password);
 
             // only pass org info if user provided it
             if (org)
-                args.push('--org=' + org);
+                args.push('--org', org);
 
             deferred.notify(_("Registering system..."));
 

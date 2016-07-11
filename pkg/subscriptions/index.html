@@ -2,7 +2,7 @@
 <!--
 This file is part of Cockpit.
 
-Copyright (C) 2015 Red Hat, Inc.
+Copyright (C) 2016 Red Hat, Inc.
 
 Cockpit is free software; you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License as published by
@@ -17,194 +17,21 @@ Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 -->
-<html>
-
+<html lang="en">
 <head>
-  <title>Subscriptions</title>
-  <meta charset="utf-8">
-  <link href="../base1/cockpit.css" rel="stylesheet">
-  <link href="subscriptions.css" rel="stylesheet">
-  <script type="text/javascript" src="../base1/jquery.js"></script>
-  <script type="text/javascript" src="../base1/cockpit.js"></script>
-  <script type="text/javascript" src="../shell/po.js"></script>
-  <script type="text/javascript" src="subscriptions.js"></script>
+    <title translatable="yes">Subscriptions</title>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="../base1/cockpit.css">
+    <link href="subscriptions.css" rel="stylesheet">
+
+    <script type="text/javascript" src="../base1/cockpit.js"></script>
+    <script type="text/javascript" src="subscriptions.js"></script>
 </head>
 
 <body>
-    <script id="subscription-notification-success-template" type="x-template/mustache">
-        <div class="container-fluid alert alert-success alert-dismissable">
-            <span class="pficon pficon-ok"></span>
-            <strong translatable="yes">System successfully subscribed.</strong>
-            <span translatable="yes">You will now receive software updates.</span>
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
-                <span class="pficon pficon-close"></span>
-            </button>
-        </div>
-    </script>
-
-    <div id="subscription-manager-not-found" class="container-fluid page-ct" hidden>
-      <br/>
-      <span class="subscriptions-block-center" translatable="yes">
-        In order to manage this system's subscriptions, please verify subscription-manager is installed.
-      </span>
-    </div>
-
-    <div id="subscription-manager-not-accessible" class="container-fluid" hidden>
-      <br/>
-      <span class="subscriptions-block-center" translatable="yes">
-        Current user isn't authorized to manage subscriptions on this system.
-      </span>
-    </div>
-
-    <div id="subscriptions-updating" class="container-fluid" hidden>
-      <br/>
-      <center>
-        <span id="subscriptions-update-message" class="subscriptions-block-center"></span>
-        <br/>
-        <div class="spinner spinner-sm"></div>
-      </center>
-    </div>
-
-    <div id="subscriptions-unregistered" class="container-fluid" hidden>
-      <br/>
-      <span class="subscriptions-block-center" translatable="yes">
-        In order for your system to receive updates, your system must be registered.
-      </span>
-      <br/>
-      <button class="btn btn-default btn-primary" id="subscriptions-register" translatable="yes">
-        Register system
-      </button>
-    </div>
-
-    <div id="subscriptions-system-status" class="container-fluid page-ct" hidden>
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <span translatable="yes">Installed Products</span>
-        </div>
-        <div class="panel-body">
-          <table class="form-table-ct">
-            <tbody>
-              <tr>
-                <td></td>
-                <td><span translatable="yes">No subscriptions on the system.</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal" id="subscriptions-register-dialog" tabindex="-1" role="dialog" data-backdrop="static">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title" translatable="yes">Register system</h4>
-          </div>
-          <div class="modal-body">
-            <table class="form-table-ct">
-              <tr>
-                <td class="top">
-                  <label class="control-label top" for="subscription-register-url" translatable="yes">
-                    URL
-                  </label>
-                </td>
-                <td id="registration-url-field" class="dialog-wrapper">
-                    <div class="btn-group bootstrap-select dropdown form-control" id="subscription-register-url">
-                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                            <span class="pull-left" translatable="yes">Default</span>
-                            <div class="caret"></div>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li value="default"><a>Default</a></li>
-                            <li value="custom"><a>Custom URL</a></li>
-                        </ul>
-                    </div>
-                    <input id="subscription-register-url-custom" class="form-control" type="text"
-                           value="subscription.rhn.redhat.com" hidden>
-                </td>
-              </tr>
-              <tr>
-                <td class="top">
-                  <label class="control-label" for="subscription-register-username" translatable="yes">
-                    Login
-                  </label>
-                </td>
-                <td>
-                  <input id="subscription-register-username" class="form-control" type="text">
-                </td>
-              </tr>
-              <tr>
-                <td class="top">
-                  <label class="control-label" for="subscription-register-password" translatable="yes">
-                    Password
-                  </label>
-                </td>
-                <td>
-                  <input id="subscription-register-password" class="form-control" type="password">
-                  <span id="subscriptions-register-password-note-details"></span>
-                </td>
-              </tr>
-              <tr>
-                <td class="top">
-                  <label class="control-label" for="subscription-register-key" translatable="yes">
-                    Activation Key
-                  </label>
-                </td>
-                <td>
-                  <input id="subscription-register-key" class="form-control" type="text" placeholder="key_one,key_two">
-                  <span id="subscriptions-register-key-note-details"></span>
-                </td>
-              </tr>
-              <tr>
-                <td class="top">
-                  <label class="control-label" for="subscription-register-org" translatable="yes">
-                    Organization
-                  </label>
-                </td>
-                <td>
-                  <input id="subscription-register-org" class="form-control" type="text" placeholder="usually optional">
-                  <span id="subscriptions-register-org-note-details"></span>
-                </td>
-              </tr>
-            </table>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
-              Cancel
-            </button>
-            <button class="btn btn-primary" id="account-register-start" translatable="yes">
-              Register
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <script id="subscription-template" type="x-template/mustache">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <span translatable="yes">Installed Product ({{product_name}})</span>
-        </div>
-        <div class="panel-body">
-          <table class="form-table-ct">
-            <tbody>
-              <tr><td translatable="yes">Product name</td><td><span>{{product_name}}</span></td></tr>
-              <tr><td translatable="yes">Product ID</td><td><span>{{product_id}}</span></td></tr>
-              <tr><td translatable="yes">Version</td><td><span>{{version}}</span></td></tr>
-              <tr><td translatable="yes">Architecture</td><td><span>{{arch}}</span></td></tr>
-              <tr><td translatable="yes">Status</td><td><span>{{status}}</span></td></tr>
-              <tr><td translatable="yes">Starts</td><td><span>{{starts}}</span></td></tr>
-              <tr><td translatable="yes">Ends</td><td><span>{{ends}}</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </script>
-
-    <div id="subscriptions-subscribed" class="container-fluid" hidden>
-
-    </div>
+    <div id="app"></div>
 </body>
-
 </html>
-

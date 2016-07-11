@@ -82,17 +82,18 @@ class TestSubscriptions(MachineCase):
         self.login_and_go("/subscriptions")
 
         # wait until we can open the registration dialog
-        b.wait_present("#subscriptions-register")
-        b.wait_visible("#subscriptions-register")
-        b.click("#subscriptions-register")
+        register_button_sel = "button.btn-primary:contains('Register')"
+        b.wait_present(register_button_sel)
+        b.wait_visible(register_button_sel)
+        b.click(register_button_sel)
 
         b.wait_present("#subscription-register-url")
         b.wait_visible("#subscription-register-url")
 
         # optionally: check custom url
-        b.click("#subscription-register-url .dropdown-toggle")
-        b.wait_present("#subscription-register-url.open")
-        custom_url_selector = "#subscription-register-url li[value=custom] a"
+        b.click("#subscription-register-url button")
+        b.wait_visible("#subscription-register-url .dropdown-menu")
+        custom_url_selector = "#subscription-register-url a:contains('Custom')"
         b.wait_present(custom_url_selector)
         b.wait_visible(custom_url_selector)
         b.click(custom_url_selector)
@@ -106,19 +107,20 @@ class TestSubscriptions(MachineCase):
         b.set_val("#subscription-register-password", "wrongpass")
 
         # try to register
-        b.click("#account-register-start")
+        dialog_register_button_sel = "div.modal-footer .btn-primary"
+        b.click(dialog_register_button_sel)
 
         # wait for message that we used wrong credentials
-        b.wait_in_text("body", "Invalid login or password.")
+        b.wait_in_text("body", "Invalid credentials")
 
         # enter correct login data and try again, old error should disappear
         b.set_val("#subscription-register-password", "password")
-        b.click("#account-register-start")
+        b.click(dialog_register_button_sel)
 
-        b.wait_not_in_text("#subscriptions-register-dialog", "Invalid login or password.")
+        b.wait_not_in_text("body", "Invalid credentials")
 
         # wait for message that we need to specify our org
-        b.wait_in_text("#subscriptions-register-dialog", "Server expects an organization.")
+        b.wait_in_text("body", "'Organization' required to register.")
 
         # now specify the org
         b.set_val("#subscription-register-org", "admin")
@@ -131,26 +133,86 @@ class TestSubscriptions(MachineCase):
         b.set_val("#subscription-register-key", "awesome_os_pool")
 
         # try to register again
-        b.click("#account-register-start")
+        b.click(dialog_register_button_sel)
 
         # old error should disappear
-        b.wait_not_in_text("#subscriptions-register-dialog", "Server expects an organization.")
+        b.wait_not_in_text("body", "'Organization' required to register.")
 
         # dialog should disappear
-        b.wait_not_visible("#subscriptions-register")
+        b.wait_not_present(dialog_register_button_sel)
 
         # make sure this product isn't subscribed
-        product_selector = ".panel-default:contains('Installed Product (Snowy OS Premium Architecture Bits)')"
+        product_selector = "tr.listing-ct-item:contains('Snowy OS Premium Architecture Bits')"
         b.wait_present(product_selector)
-        b.wait_in_text(product_selector, "6050")
-        b.wait_in_text(product_selector, "Not Subscribed")
+        # expand
+        b.click(product_selector)
+        details_selector = "tr.listing-ct-panel:contains('Snowy OS Premium Architecture Bits')"
+        b.wait_in_text(details_selector, "6050")
+        b.wait_in_text(details_selector, "Not Subscribed")
+        # collapse again
+        b.click(product_selector)
 
         # find another one that is subscribed
-        product_selector = ".panel-default:contains('Installed Product (Shared File System Bits)')"
+        product_selector = "tr.listing-ct-item:contains('Shared File System Bits')"
         b.wait_present(product_selector)
-        b.wait_in_text(product_selector, "88888")
-        b.wait_not_in_text(product_selector, "Not Subscribed")
+        # expand
+        b.click(product_selector)
+        details_selector = "tr.listing-ct-panel:contains('Shared File System Bits')"
+        b.wait_in_text(details_selector, "88888")
+        b.wait_not_in_text(details_selector, "Not Subscribed")
+        # collapse again
+        b.click(product_selector)
 
+        # unregister
+        unregister_button_sel = "button.btn-primary:contains('Unregister')"
+        b.wait_present(unregister_button_sel)
+        b.wait_visible(unregister_button_sel)
+        b.click(unregister_button_sel)
+
+        # wait until we can register again and open the dialog
+        # wait until we can open the registration dialog
+        b.wait_present(register_button_sel)
+        b.wait_visible(register_button_sel)
+        b.click(register_button_sel)
+
+        b.wait_present("#subscription-register-url")
+        b.wait_visible("#subscription-register-url")
+
+        # check custom url
+        b.click("#subscription-register-url button")
+        b.wait_visible("#subscription-register-url .dropdown-menu")
+        custom_url_selector = "#subscription-register-url a:contains('Custom')"
+        b.wait_present(custom_url_selector)
+        b.wait_visible(custom_url_selector)
+        b.click(custom_url_selector)
+        b.wait_not_present("#subscription-register-url.open")
+
+        # enter server data
+        b.wait_present("#subscription-register-url-custom")
+        b.wait_visible("#subscription-register-url-custom")
+        b.set_val("#subscription-register-url-custom", "{0}:8443/candlepin".format(self.candlepin.address))
+
+        # make sure we have an activation key on the target machine
+        self.candlepin.execute("curl --insecure --request POST --user admin:admin https://localhost:8443/candlepin/activation_keys/ff80808155ca50b10155ca50cd280010/pools/ff80808155ca50b10155ca51f04607e5")
+
+        # enter key and org
+        b.set_val("#subscription-register-key", "awesome_os_pool")
+        b.set_val("#subscription-register-org", "admin")
+        b.click(dialog_register_button_sel)
+
+        # dialog should disappear
+        b.wait_not_present(dialog_register_button_sel)
+
+        # make sure this product isn't subscribed
+        product_selector = "tr.listing-ct-item:contains('Snowy OS Premium Architecture Bits')"
+        b.wait_present(product_selector)
+        # expand
+        b.click(product_selector)
+        details_selector = "tr.listing-ct-panel:contains('Snowy OS Premium Architecture Bits')"
+        b.wait_in_text(details_selector, "6050")
+        b.wait_not_in_text(details_selector, "Not Subscribed")
+        # collapse again
+        b.click(product_selector)
 
 if __name__ == '__main__':
     test_main()

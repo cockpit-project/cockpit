@@ -136,7 +136,7 @@ require([
 
         cockpit.translate();
 
-        docker_client = client.init();
+        docker_client = client.instance();
         init_curtain(docker_client, navigate);
         overview_page = overview.init(docker_client);
         container_details_page = container_details.init(docker_client);

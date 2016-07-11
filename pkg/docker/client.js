@@ -668,9 +668,13 @@ define([
         self.info = { };
     }
 
+    var client;
+
     return {
-        init: function () {
-            return new DockerClient();
+        instance: function() {
+            if (!client)
+                client = new DockerClient();
+            return client;
         }
     };
 

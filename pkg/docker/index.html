@@ -291,7 +291,8 @@
     <div class="panel-default panel">
       <div class="panel-heading">
         <div class="pull-right" id="image-details-buttons">
-          <button class="btn btn-default" id="image-details-run">Run</button>
+          <button class="btn btn-default" id="image-details-run"
+              data-toggle="modal" data-target="#containers_run_image_dialog">Run</button>
           <button class="btn btn-danger" id="image-details-delete">Delete</button>
           <div class="spinner" hidden></div>
         </div>
@@ -384,7 +385,7 @@
   <!-- RUN DIALOG -->
 
   <script id="port-expose-tmpl" type="x-template/mustache">
-    <form class="form-inline">
+    <form class="form-inline dialog-wrapper">
       <button type="button" class="btn btn-default fa fa-plus"/>
       <button type="button" class="btn btn-default pficon-close"/>
       <div class="form-group">
@@ -405,12 +406,6 @@
       <div class="form-group">
         <label translatable="yes">{{host_port_label}}</label>
         <input type="text" name="host" class="form-control" placeholder="{{placeholder}}">
-      </div>
-      <div hidden>
-        <span class="help-block"/>
-      </div>
-      <div hidden>
-        <span class="help-block"/>
       </div>
     </form>
   </script>
@@ -470,7 +465,7 @@
   </script>
 
   <script id="container-link-tmpl" type="x-template/mustache">
-    <form class="form-inline">
+    <form class="form-inline dialog-wrapper">
       <button type="button" class="btn btn-default fa fa-plus"/>
       <button type="button" class="btn btn-default pficon-close"/>
       <div class="form-group">
@@ -487,12 +482,6 @@
       <div class="form-group">
         <label translatable="yes">{{alias_label}}</label>
         <input type="text" name="alias" class="form-control" placeholder="{{placeholder}}">
-      </div>
-      <div hidden>
-        <span class="help-block"/>
-      </div>
-      <div hidden>
-        <span class="help-block"/>
       </div>
     </form>
   </script>
@@ -526,11 +515,6 @@
                          translatable="yes">Command</label></td>
               <td colspan="4">
                 <input class="form-control" type="text" id="containers-run-image-command"/>
-                <div id="containers-run-image-command-note" hidden>
-                  <span class="help-block">
-                    Command can't be empty
-                  </span>
-                </div>
               </td>
             </tr>
             <tr id="containers-run-image-memory">

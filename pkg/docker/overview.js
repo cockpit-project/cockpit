@@ -23,14 +23,13 @@ define([
     "./mustache",
     "./react",
     "./util",
-    "./run",
     "./search",
     "./docker",
     "./storage",
     "./bar",
     "./plot",
     "./flot"
-], function($, cockpit, Mustache, React, util, run_image, search_image, docker, storage, bar, plot) {
+], function($, cockpit, Mustache, React, util, search_image, docker, storage, bar, plot) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 
@@ -165,20 +164,20 @@ define([
 
             var added = false;
             if (!tr.length) {
-                var button = $('<button class="btn btn-default btn-control-ct fa fa-play">').
-                    attr("title", _("Run image")).
-                    on("click", function() {
-                        run_image(client, id);
-                        return false;
-                    });
+                var button = $('<button class="btn btn-default btn-control-ct fa fa-play">')
+                    .attr("title", _("Run image"))
+                    .attr("data-target", "#containers_run_image_dialog")
+                    .attr("data-toggle", "modal")
+                    .attr("data-image", id);
                 tr = $('<tr>', { 'id': id }).append(
                     $('<td class="image-column-tags">'),
                     $('<td class="image-column-created">'),
                     $('<td class="image-column-size-graph">'),
                     $('<td class="image-column-size-text">'),
                     $('<td class="cell-buttons">').append(button));
-                tr.on('click', function(event) {
-                    cockpit.location.go([ 'image', id ]);
+                tr.on('click', function(ev) {
+                    if (ev.target.tagName !== 'BUTTON')
+                        cockpit.location.go([ 'image', id ]);
                 });
 
                 added = true;

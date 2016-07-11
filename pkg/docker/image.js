@@ -24,7 +24,7 @@ define([
     "./docker",
     "./util",
     "./run"
-], function($, cockpit, Mustache, docker, util, run_image) {
+], function($, cockpit, Mustache, docker, util) {
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 
@@ -59,12 +59,14 @@ define([
                                          self.toggle_danger(!self.danger_enabled);
                                      });
 
-            $('#image-details-run').on('click', $.proxy(this, "run_image"));
             $('#image-details-delete').on('click', $.proxy(this, "delete_image"));
         },
 
         enter: function(image_id) {
             var self = this;
+
+            /* Tells the image run dialog which image we're working with */
+            $('#image-details-run').attr("data-image", image_id);
 
             this.image_id = image_id;
             this.name = cockpit.format(_("Image $0"), this.image_id.slice(0,12));
@@ -136,10 +138,6 @@ define([
         render_container: function (id, container) {
             util.render_container(this.client, $('#image-details-containers'), "I",
                                   id, container, this.danger_enabled);
-        },
-
-        run_image: function () {
-            run_image(this.client, this.image_id);
         },
 
         delete_image: function () {

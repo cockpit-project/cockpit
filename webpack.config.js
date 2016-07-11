@@ -93,6 +93,10 @@ var info = {
         "tuned/performance": [
             "tuned/dialog.js",
         ],
+        "machines/machines": [
+            "machines/index.js",
+            "machines/machines.css",
+        ],
         "users/users": [
             "users/local.js",
             "users/users.css",
@@ -166,6 +170,9 @@ var info = {
 
         "subscriptions/index.html",
         "subscriptions/manifest.json",
+
+        "machines/index.html",
+        "machines/manifest.json"
     ]
 };
 

@@ -275,6 +275,7 @@ require([
             }
             /* if output isn't as expected, maybe not properly installed? */
             if (text.indexOf('Overall Status:') === -1) {
+                console.log(text);
                 $('#subscription-manager-not-found').show();
                 $('#subscription-manager-not-accessible').hide();
                 return;
@@ -354,11 +355,14 @@ require([
         /* request update via DBus */
         function update_subscriptions() {
             status_update_requested = false;
-            var call = service.call(
+            service.call(
                 '/EntitlementStatus',
                 'com.redhat.SubscriptionManager.EntitlementStatus',
                 'check_status',
-                []);
+                []).catch(function(ex) {
+                console.warn("EntitlementStatus.check_status() failed:", ex);
+            });
+
             /* TODO: Don't use a timeout here. Needs better API */
             update_timeout = window.setTimeout(status_update_failed, 30000);
         }

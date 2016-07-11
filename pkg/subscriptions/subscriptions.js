@@ -359,7 +359,8 @@ require([
                 'com.redhat.SubscriptionManager.EntitlementStatus',
                 'check_status',
                 []);
-            update_timeout = window.setTimeout(status_update_failed, 10000);
+            /* TODO: Don't use a timeout here. Needs better API */
+            update_timeout = window.setTimeout(status_update_failed, 30000);
         }
 
         function linkify_message(message) {

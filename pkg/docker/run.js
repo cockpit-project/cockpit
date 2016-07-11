@@ -21,905 +21,697 @@ define([
     "jquery",
     "base1/cockpit",
     "./mustache",
+    "./client",
     "./util",
-], function($, cockpit, Mustache, util) {
+    "./patterns",
+], function($, cockpit, Mustache, client, util) {
     var _ = cockpit.gettext;
 
     /* RUN IMAGE DIALOG */
 
-    PageRunImage.prototype = {
-        _init: function() {
-            this.error_timeout = null;
-            this.id = "containers_run_image_dialog";
-        },
+    var memory_slider = new util.MemorySlider($("#containers-run-image-memory"),
+                                              10*1024*1024, 2*1024*1024*1024);
+    var cpu_slider = new util.CpuSlider($("#containers-run-image-cpu"), 2, 1000000);
 
-        setup: function() {
-            $("#containers-run-image-run").on('click', $.proxy(this, "run"));
-            $('#containers-run-image-command').on('keydown', $.proxy(this, "update", "keydown", "command"));
-            $('#containers-run-image-command').on('input', $.proxy(this, "update", "input", "command"));
-            $('#containers-run-image-command').on('focusout change', $.proxy(this, "update", "changeFocus", "command"));
+    var container_names = [];
+    var image = null;
 
-            this.memory_slider = new util.MemorySlider($("#containers-run-image-memory"),
-                                                       10*1024*1024, 2*1024*1024*1024);
-            this.cpu_slider = new util.CpuSlider($("#containers-run-image-cpu"), 2, 1000000);
+    (function() {
+        var table = $('#containers_run_image_dialog .modal-body table');
 
-            var table = $('#containers_run_image_dialog .modal-body table');
+        var prenderer = port_renderer();
+        $('#expose-ports').on('change', function() {
+            var items = $('#select-exposed-ports');
+            if ($(this).prop('checked')) {
+                if (items.children().length === 0)
+                    prenderer();
+                items.show();
+            } else {
+                items.hide();
+            }
+        });
 
-            var port_renderer = this.port_renderer();
-            var self = this;
-            $('#expose-ports').on('change', function() {
-                var items = $('#select-exposed-ports');
-                if ($(this).prop('checked')) {
-                    if (items.children().length === 0) {
-                        port_renderer();
-                    }
-                    items.show();
-                }
-                else {
-                    items.hide();
-                }
-                self.update('changeFocus', 'ports');
-            });
+        var vrenderer = volume_renderer();
+        $('#mount-volumes').on('change', function() {
+            var items = $('#select-mounted-volumes');
+            if ($(this).prop('checked')) {
+                if (items.children().length === 0)
+                    vrenderer();
+                items.show();
+            } else {
+                items.hide();
+            }
+        });
 
-            var volume_renderer = this.volume_renderer();
-            $('#mount-volumes').on('change', function() {
-                var items = $('#select-mounted-volumes');
-                if ($(this).prop('checked')) {
-                    if (items.children().length === 0) {
-                        volume_renderer();
-                    }
-                    items.show();
-                }
-                else {
-                    items.hide();
-                }
-                self.update('changeFocus', 'volumes');
-            });
+        var erenderer = envvar_renderer();
+        $('#claim-envvars').on('change', function() {
+            var items = $('#select-claimed-envvars');
+            if ($(this).prop('checked')) {
+                if (items.children().length === 0)
+                    erenderer();
+                items.show();
+            } else {
+                items.hide();
+            }
+        });
 
-            var envvar_renderer = this.envvar_renderer();
-            $('#claim-envvars').on('change', function() {
-                var items = $('#select-claimed-envvars');
-                if ($(this).prop('checked')) {
-                    if (items.children().length === 0) {
-                        envvar_renderer();
-                    }
-                    items.show();
-                }
-                else {
-                    items.hide();
-                }
-                self.update('changeFocus', 'envvars');
-            });
+        var lrenderer = link_renderer();
+        $("#link-containers").change(function() {
+            var items = $('#select-linked-containers');
+            if ($(this).prop('checked')) {
+                if (items.children().length === 0 )
+                    lrenderer();
+                items.show();
+            } else {
+                items.hide();
+            }
+        });
 
-            var renderer = this.link_renderer();
-            $("#link-containers").change(function() {
-                var items = $('#select-linked-containers');
-                if ($(this).prop('checked')) {
-                    if (items.children().length === 0 ) {
-                        renderer();
-                    }
-                    items.show();
-                } else {
-                    items.hide();
-                }
-                self.update('changeFocus', 'links');
-            });
+        var restart_policy_dropdown = $("#restart-policy-dropdown");
+        var restart_policy_dropdown_selected = $("#restart-policy-select > button span.pull-left");
 
-            var restart_policy_dropdown = $("#restart-policy-dropdown");
-            var restart_policy_dropdown_selected = $("#restart-policy-select > button span.pull-left");
+        restart_policy_dropdown.find("a").on('click', function () {
+            restart_policy_dropdown_selected.text($(this).text());
 
-            restart_policy_dropdown.find("a").on('click', function () {
-                restart_policy_dropdown_selected.text($(this).text());
+            var name = $(this).data('value');
+            restart_policy_dropdown_selected.data('name', name);
+            if (name === 'on-failure')
+                $("#restart-policy-retries-container").removeClass('hidden');
+            else
+                $("#restart-policy-retries-container").addClass('hidden');
+        });
+    }());
 
-                var name = $(this).data('value');
-                restart_policy_dropdown_selected.data('name', name);
-                if (name === 'on-failure') {
-                    $("#restart-policy-retries-container").removeClass('hidden');
-                } else {
-                    $("#restart-policy-retries-container").addClass('hidden');
-                }
-            });
+    /* When a duplicated field changes clear all related */
+    $("#containers_run_image_dialog").on("change keypress", "input[duplicate]", function() {
+        $(this)
+            .removeAttr("duplicate")
+            .closest(".containers-run-inline").find("input[duplicate]")
+                .trigger("change");
+    });
 
-            this.validator = this.configuration_validator();
-        },
+    $("#containers_run_image_dialog").on("show.bs.modal", function(ev) {
+        var docker = client.instance();
 
-        update: function(behavior, section) {
-            if ((this.perform_checks !== true) && (behavior !== 'clear'))
+        /* The image id this dialog was triggered for */
+        var image_id = $(ev.relatedTarget).attr("data-image");
+        image = docker.images[image_id];
+
+        util.docker_debug("run-image", image);
+
+        var checked;
+        var value;
+
+        /* This slider is only visible if docker says this option is available */
+        $("#containers-run-image-memory").toggle(!!docker.info.MemoryLimit);
+
+        if (docker.info.MemTotal)
+            memory_slider.max = docker.info.MemTotal;
+
+        var id;
+        for (id in docker.containers)
+            container_names.push(util.render_container_name(docker.containers[id].Name));
+
+        $('#select-linked-containers').empty();
+        $("#link-containers").prop("checked", false);
+
+        /* Memory slider defaults */
+        if (image.ContainerConfig.Memory) {
+            memory_slider.value = image.ContainerConfig.Memory;
+        } else {
+            /* First call sets the position of slider */
+            memory_slider.value = 512*1024*1024;
+            memory_slider.value = undefined;
+        }
+
+        /* CPU slider defaults */
+        if (image.ContainerConfig.CpuShares) {
+            cpu_slider.value = image.ContainerConfig.CpuShares;
+        } else {
+            cpu_slider.value = 1024;
+            cpu_slider.value = undefined;
+        }
+
+        // from https://github.com/dotcloud/docker/blob/master/pkg/namesgenerator/names-generator.go
+
+        var left = [ "happy", "jolly", "dreamy", "sad", "angry", "pensive", "focused", "sleepy", "grave", "distracted", "determined", "stoic", "stupefied", "sharp", "agitated", "cocky", "tender", "goofy", "furious", "desperate", "hopeful", "compassionate", "silly", "lonely", "condescending", "naughty", "kickass", "drunk", "boring", "nostalgic", "ecstatic", "insane", "cranky", "mad", "jovial", "sick", "hungry", "thirsty", "elegant", "backstabbing", "clever", "trusting", "loving", "suspicious", "berserk", "high", "romantic", "prickly", "evil" ];
+
+        var right = [ "lovelace", "franklin", "tesla", "einstein", "bohr", "davinci", "pasteur", "nobel", "curie", "darwin", "turing", "ritchie", "torvalds", "pike", "thompson", "wozniak", "galileo", "euclid", "newton", "fermat", "archimedes", "poincare", "heisenberg", "feynman", "hawking", "fermi", "pare", "mccarthy", "engelbart", "babbage", "albattani", "ptolemy", "bell", "wright", "lumiere", "morse", "mclean", "brown", "bardeen", "brattain", "shockley" ];
+
+        function make_name() {
+            function ranchoice(array) {
+                return array[Math.round(Math.random() * (array.length-1))];
+            }
+            return ranchoice(left) + "_" + ranchoice(right);
+        }
+
+        $("#containers-run-image").text(image.RepoTags[0]);
+        $("#containers-run-image-name").val(make_name());
+        var command_input = $("#containers-run-image-command");
+        command_input.val(util.quote_cmdline(image.Config.Cmd));
+
+        /* delete any old port mapping entries */
+        var portmapping = $('#select-exposed-ports');
+        portmapping.empty();
+
+        /* show ports exposed by container image */
+        var renderer = port_renderer();
+        for (var p in image.Config.ExposedPorts)
+            renderer(parseInt(p, 10), p.slice(-3), false);
+
+        if (portmapping.children().length > 0) {
+            $('#expose-ports').prop('checked', true);
+            /* make sure the ports are visible */
+            portmapping.show();
+        } else {
+            $('#expose-ports').prop('checked', false);
+        }
+
+        /* delete any old volume binding entries */
+        var volume_binding = $('#select-mounted-volumes');
+        volume_binding.empty();
+
+        /* show volumes mounted by container image */
+        var vrenderer = volume_renderer();
+        for (var v in image.Config.Volumes)
+            vrenderer(v, false);
+
+        if (volume_binding.children().length > 0) {
+            $('#mount-volumes').prop('checked', true);
+            /* make sure the volumes are visible */
+            volume_binding.show();
+        } else {
+            $('#mount-volumes').prop('checked', false);
+        }
+
+        /* delete any old env var claiming entries */
+        var envvar_claiming = $('#select-claimed-envvars');
+        envvar_claiming.empty();
+
+        /* show envvars claimed by container image */
+        var erenderer = envvar_renderer();
+        for (var i=0, e; image.Config.Env && ( e = image.Config.Env[i++]);) {
+            if (e && e.length > 0 && e.indexOf('=') > 0)
+                erenderer(e.substr(0, e.indexOf('=')), e.substr(e.indexOf('=') + 1, e.length), false);
+        }
+
+        if (envvar_claiming.children().length > 0) {
+            $('#claim-envvars').prop('checked', true);
+            /* make sure the volumes are visible */
+            envvar_claiming.show();
+        } else {
+            $('#claim-envvars').prop('checked', false);
+        }
+
+        var restart_policy_select_button = $('#restart-policy-select > button span.pull-left');
+        restart_policy_select_button.text(_("No"));
+        restart_policy_select_button.data('name', 'no');
+        $('#restart-policy-retries').val('0');
+        $('#restart-policy-retries-container').addClass('hidden');
+    });
+
+    $("#containers_run_image_dialog").on("hide.bs.modal", function(ev) {
+        image = null;
+    });
+
+    function validate() {
+        var exs = [];
+
+        function port_prefix(is_container) {
+            if (is_container)
+                return _("Container") + ": ";
+            else
+                return _("Host") + ": ";
+        }
+
+        function add_port_message(port, message, is_container) {
+            var ex = new Error(message);
+            ex.target = port.parent();
+            exs.push(ex);
+        }
+
+        /* check all exposed ports for duplicate port entries, invalid port numbers and empty fields */
+        function check_port(ports, protocols, port_index, is_container) {
+            var exposed_port = ports[port_index];
+            var port_value = exposed_port.val();
+
+            /* skip if empty */
+            if (port_value === "")
                 return;
-            this.validator(behavior, section);
-        },
 
-        enter: function() {
-            var page = this;
-
-            var info = PageRunImage.image_info;
-            util.docker_debug("run-image", info);
-
-            var checked;
-            var value;
-
-            /* This slider is only visible if docker says this option is available */
-            $("#containers-run-image-memory").toggle(!!PageRunImage.client.info.MemoryLimit);
-
-            if (PageRunImage.client.info.MemTotal)
-                page.memory_slider.max = PageRunImage.client.info.MemTotal;
-
-            page.containers = [];
-            var id;
-            for (id in PageRunImage.client.containers) {
-                page.containers.push(
-                    util.render_container_name(
-                        PageRunImage.client.containers[id].Name
-                    )
-                );
+            /* check for invalid port number */
+            if (/\D/.test(port_value) || (port_value < 0) || (port_value > 65535)) {
+                add_port_message(exposed_port, _("Invalid port"), is_container);
+                return;
             }
 
-            this.perform_checks = false;
-
-            /* make sure errors are cleared */
-            this.update('clear');
-
-            $('#select-linked-containers').empty();
-            $("#link-containers").prop("checked", false);
-
-            /* Memory slider defaults */
-            if (info.ContainerConfig.Memory) {
-                this.memory_slider.value = info.ContainerConfig.Memory;
-            } else {
-                /* First call sets the position of slider */
-                this.memory_slider.value = 512*1024*1024;
-                this.memory_slider.value = undefined;
-            }
-
-            /* CPU slider defaults */
-            if (info.ContainerConfig.CpuShares) {
-                this.cpu_slider.value = info.ContainerConfig.CpuShares;
-            } else {
-                this.cpu_slider.value = 1024;
-                this.cpu_slider.value = undefined;
-            }
-
-            // from https://github.com/dotcloud/docker/blob/master/pkg/namesgenerator/names-generator.go
-
-            var left = [ "happy", "jolly", "dreamy", "sad", "angry", "pensive", "focused", "sleepy", "grave", "distracted", "determined", "stoic", "stupefied", "sharp", "agitated", "cocky", "tender", "goofy", "furious", "desperate", "hopeful", "compassionate", "silly", "lonely", "condescending", "naughty", "kickass", "drunk", "boring", "nostalgic", "ecstatic", "insane", "cranky", "mad", "jovial", "sick", "hungry", "thirsty", "elegant", "backstabbing", "clever", "trusting", "loving", "suspicious", "berserk", "high", "romantic", "prickly", "evil" ];
-
-            var right = [ "lovelace", "franklin", "tesla", "einstein", "bohr", "davinci", "pasteur", "nobel", "curie", "darwin", "turing", "ritchie", "torvalds", "pike", "thompson", "wozniak", "galileo", "euclid", "newton", "fermat", "archimedes", "poincare", "heisenberg", "feynman", "hawking", "fermi", "pare", "mccarthy", "engelbart", "babbage", "albattani", "ptolemy", "bell", "wright", "lumiere", "morse", "mclean", "brown", "bardeen", "brattain", "shockley" ];
-
-            function make_name() {
-                function ranchoice(array) {
-                    return array[Math.round(Math.random() * (array.length-1))];
-                }
-                return ranchoice(left) + "_" + ranchoice(right);
-            }
-
-            $("#containers-run-image").text(PageRunImage.image_info.RepoTags[0]);
-            $("#containers-run-image-name").val(make_name());
-            var command_input = $("#containers-run-image-command");
-            command_input.val(util.quote_cmdline(PageRunImage.image_info.Config.Cmd));
-
-            /* delete any old port mapping entries */
-            var portmapping = $('#select-exposed-ports');
-            portmapping.empty();
-
-            /* show ports exposed by container image */
-            var port_renderer = this.port_renderer();
-            for (var p in PageRunImage.image_info.Config.ExposedPorts)
-                port_renderer(parseInt(p), p.slice(-3), false);
-
-            if (portmapping.children().length > 0) {
-                $('#expose-ports').prop('checked', true);
-                /* make sure the ports are visible */
-                portmapping.show();
-            } else {
-                $('#expose-ports').prop('checked', false);
-            }
-
-            /* delete any old volume binding entries */
-            var volume_binding = $('#select-mounted-volumes');
-            volume_binding.empty();
-
-            /* show volumes mounted by container image */
-            var volume_renderer = this.volume_renderer();
-            for (var v in PageRunImage.image_info.Config.Volumes) {
-                volume_renderer(v, false);
-            }
-
-            if (volume_binding.children().length > 0) {
-                $('#mount-volumes').prop('checked', true);
-                /* make sure the volumes are visible */
-                volume_binding.show();
-            } else {
-                $('#mount-volumes').prop('checked', false);
-            }
-
-            /* delete any old env var claiming entries */
-            var envvar_claiming = $('#select-claimed-envvars');
-            envvar_claiming.empty();
-
-            /* show envvars claimed by container image */
-            var envvar_renderer = this.envvar_renderer();
-            for (var i=0, e; PageRunImage.image_info.Config.Env && ( e = PageRunImage.image_info.Config.Env[i++]);) {
-                if (e && e.length > 0 && e.indexOf('=') > 0)
-                    envvar_renderer(e.substr(0, e.indexOf('=')), e.substr(e.indexOf('=') + 1, e.length), false);
-            }
-
-            if (envvar_claiming.children().length > 0) {
-                $('#claim-envvars').prop('checked', true);
-                /* make sure the volumes are visible */
-                envvar_claiming.show();
-            } else {
-                $('#claim-envvars').prop('checked', false);
-            }
-            
-            var restart_policy_select_button = $('#restart-policy-select > button span.pull-left');
-            restart_policy_select_button.text(_("No"));
-            restart_policy_select_button.data('name', 'no');
-            $('#restart-policy-retries').val('0');
-            $('#restart-policy-retries-container').addClass('hidden');
-        },
-
-        configuration_validator: function() {
-            var self = this;
-
-            function check_entries_valid() {
-                /* disable run button if there are any errors on the page */
-                $('#containers-run-image-run').prop('disabled',
-                                                    $('#containers_run_image_dialog').find('.has-error').length > 0);
-            }
-
-            function help_item_for_control(control, help_index) {
-                if (help_index === undefined)
-                    return $(control.closest('.form-inline').find('.help-block'));
-                else
-                    return $(control.closest('.form-inline').find('.help-block')[help_index]);
-            }
-
-            function message_prefix(help_index) {
-                if (help_index === undefined)
-                    return "";
-                else if (help_index === 0)
-                    return _("Container") + ": ";
-                else
-                    return _("Host") + ": ";
-            }
-
-            function show_port_message(port, message_type, message, help_index) {
-                port.parent().addClass(message_type);
-                var help_item = help_item_for_control(port, help_index);
-                help_item.text(message_prefix(help_index) + message);
-                var err_item = help_item.parent();
-                err_item.addClass(message_type);
-                err_item.show();
-            }
-
-            function clear_control_error(control, help_index) {
-                control.parent().removeClass('has-error');
-                var err_item = help_item_for_control(control, help_index).parent();
-                err_item.removeClass('has-error');
-                err_item.hide();
-            }
-
-            /* check all exposed ports for duplicate port entries, invalid port numbers and empty fields */
-            function check_port(ports, protocols, port_index, help_index) {
-                var exposed_port = ports[port_index];
-                var port_value = exposed_port.val();
-
-                clear_control_error(exposed_port, help_index);
-
-                /* skip if empty */
-                if (port_value === "")
-                    return;
-
-                /* check for invalid port number */
-                if (/\D/.test(port_value) || (port_value < 0) || (port_value > 65535)) {
-                    show_port_message(exposed_port, 'has-error', _("Invalid port"), help_index);
+            /* check for duplicate entries */
+            for (var i = 0; i < ports.length; ++i) {
+                if (i === port_index)
+                    continue;
+                var second_port = ports[i];
+                if ((port_value === second_port.val()) && (protocols[port_index] === protocols[i])) {
+                    add_port_message(exposed_port, _("Duplicate port"), is_container);
+                    exposed_port.attr("duplicate", "true");
                     return;
                 }
+            }
+        }
 
-                /* check for duplicate entries */
-                for (var i = 0; i < ports.length; ++i) {
-                    if (i === port_index)
-                        continue;
-                    var second_port = ports[i];
-                    if ((port_value === second_port.val()) && (protocols[port_index] === protocols[i])) {
-                        show_port_message(exposed_port, 'has-error', _("Duplicate port"), help_index);
-                        return;
-                    }
+        function check_ports() {
+            /* if #expose-ports isn't checked, then don't check for errors */
+            if (!$('#expose-ports').prop('checked'))
+                return;
+
+            var exposed_ports = { 'container': [], 'host': [], 'protocol': [] };
+            /* gather all ports */
+            $('#select-exposed-ports').children('form').each(function() {
+                var element = $(this);
+                var input_ports = element.find('input');
+                input_ports = [ $(input_ports[0]),  $(input_ports[1]) ];
+                if ((input_ports[0].val() !== "") || (input_ports[1].val() !== "")) {
+                    exposed_ports.container.push(input_ports[0]);
+                    exposed_ports.host.push(input_ports[1]);
+                    exposed_ports.protocol.push(element.find('button span').text().toLowerCase());
                 }
+            });
+
+            $("#select-exposed-ports input").removeAttr("duplicate");
+
+            /* check ports */
+            for (var port_index = 0; port_index < exposed_ports.container.length; ++port_index) {
+                check_port(exposed_ports.container, exposed_ports.protocol, port_index, true);
+                check_port(exposed_ports.host, exposed_ports.protocol, port_index, false);
+            }
+        }
+
+        function check_command() {
+            var ex;
+
+            /* if command is empty, show error */
+            if ($('#containers-run-image-command').val() === "") {
+                ex = new Error(_("Command can't be empty"));
+                ex.target = "#containers-run-image-command";
+            }
+        }
+
+        function add_link_message(control, message) {
+            var ex = new Error(message);
+            ex.target = control.parent();
+            exs.push(ex);
+        }
+
+        function check_alias(aliases, alias_index) {
+            var alias = aliases[alias_index];
+            var alias_value = alias.val();
+
+            /* check for empty field */
+            if (alias_value === "") {
+                /* still valid if empty */
+                add_link_message(alias, _("No alias specified"));
+                return;
             }
 
-            function clear_port_errors() {
-                $('#select-exposed-ports').children('form').each(function() {
-                    var element = $(this);
-                    var input_ports = element.find('input');
-                    input_ports = [ $(input_ports[0]),  $(input_ports[1]) ];
-                    clear_control_error(input_ports[0], 0);
-                    clear_control_error(input_ports[1], 1);
-                });
-            }
-
-
-            function check_ports() {
-                /* if #expose-ports isn't checked, then don't check for errors - but make sure errors are cleared */
-                if (!$('#expose-ports').prop('checked')) {
-                    clear_port_errors();
-                    check_entries_valid();
+            /* check for duplicate entries */
+            for (var i = 0; i < aliases.length; ++i) {
+                if (i === alias_index)
+                    continue;
+                var second_alias = aliases[i];
+                if ((alias_value === second_alias.val())) {
+                    add_link_message(alias, _("Duplicate alias"));
+                    alias.attr("duplicate", "true");
                     return;
                 }
+            }
+        }
 
-                var exposed_ports = { 'container': [], 'host': [], 'protocol': [] };
-                /* gather all ports */
-                $('#select-exposed-ports').children('form').each(function() {
-                    var element = $(this);
-                    var input_ports = element.find('input');
-                    input_ports = [ $(input_ports[0]),  $(input_ports[1]) ];
-                    if ((input_ports[0].val() !== "") || (input_ports[1].val() !== "")) {
-                        exposed_ports.container.push(input_ports[0]);
-                        exposed_ports.host.push(input_ports[1]);
-                        exposed_ports.protocol.push(element.find('button span').text().toLowerCase());
-                    } else {
-                        /* if they are empty, make sure they are both cleared of errors */
-                        clear_control_error(input_ports[0], 0);
-                        clear_control_error(input_ports[1], 1);
-                    }
-                });
+        function check_links() {
+            /* if #link-containers isn't checked, then don't check for errors */
+            if (!$('#link-containers').prop('checked'))
+                return;
 
-                /* check ports */
-                for (var port_index = 0; port_index < exposed_ports.container.length; ++port_index) {
-                    check_port(exposed_ports.container, exposed_ports.protocol, port_index, 0);
-                    check_port(exposed_ports.host, exposed_ports.protocol, port_index, 1);
+            var aliases = [];
+            var containers = [];
+
+            /* gather all aliases */
+            $('#select-linked-containers').children('form').each(function() {
+                var element = $(this);
+                var container = element.find('button span');
+                var containername = container[0].nodeValue;
+                var alias = element.find('input[name="alias"]');
+
+                if ((alias.val() !== "") || (containername !== "")) {
+                    if (containername === "")
+                        add_link_message(container, _("No container specified"));
+                    aliases.push(alias);
                 }
+            });
 
-                /* update run status */
-                check_entries_valid();
-            }
+            $("#select-linked-containers input").removeAttr("duplicate");
 
-            function clear_command_error() {
-                $('#containers-run-image-command-note').hide();
-                $('#containers-run-image-command').parent().removeClass('has-error');
-            }
+            /* check aliases */
+            for (var alias_index = 0; alias_index < aliases.length; ++alias_index)
+                check_alias(aliases, alias_index);
+        }
 
-            function check_command() {
-                /* if command is empty, show error */
-                if ($('#containers-run-image-command').val() === "") {
-                    $('#containers-run-image-command-note').show();
-                    $('#containers-run-image-command').parent().addClass('has-error');
-                } else {
-                    clear_command_error();
-                }
+        check_ports();
+        check_command();
+        check_links();
 
-                /* update run status */
-                check_entries_valid();
-            }
+        return exs.length ? exs : null;
+    }
 
-            function show_link_message(control, message_type, message, help_index) {
-                control.parent().addClass(message_type);
-                var help_item = help_item_for_control(control, help_index);
-                help_item.text(message);
-                var err_item = help_item.parent();
-                err_item.addClass(message_type);
-                err_item.show();
-            }
+    function port_renderer() {
+        var template = $("#port-expose-tmpl").html();
+        Mustache.parse(template);
 
-            function check_alias(aliases, alias_index ) {
-                var alias = aliases[alias_index];
-                var alias_value = alias.val();
+        function add_row() {
+            render();
+        }
 
-                clear_control_error(alias, 1);
+        function remove_row(e) {
+            var parent = $(e.target).closest("form");
+            parent.remove();
+            var children = $('#select-exposed-ports').children();
+            if (children.length === 0)
+                $("#expose-ports").attr("checked", false);
+            else
+                children.find("input[duplicate]").trigger("change");
+        }
 
-                /* check for empty field */
-                if (alias_value === "") {
-                    /* still valid if empty */
-                    show_link_message(alias, 'has-error', _("No alias specified"), 1);
-                    return;
-                }
+        function render(port_internal, port_protocol, port_internal_editable) {
+            if (port_internal === undefined)
+                port_internal = '';
+            if (port_protocol === undefined)
+                port_protocol = 'TCP';
+            if (port_internal_editable === undefined)
+                port_internal_editable = true;
 
-                /* check for duplicate entries */
-                for (var i = 0; i < aliases.length; ++i) {
-                    if (i === alias_index)
-                        continue;
-                    var second_alias = aliases[i];
-                    if ((alias_value === second_alias.val())) {
-                        show_link_message(alias, 'has-error', _("Duplicate alias"), 1);
-                        return;
-                    }
-                }
-            }
-
-            function clear_link_errors() {
-                $('#select-linked-containers').children('form').each(function() {
-                    var element = $(this);
-                    var container = element.find('select');
-                    var alias = element.find('input[name="alias"]');
-
-                    clear_control_error(container, 0);
-                    clear_control_error(alias, 1);
-                });
-            }
-
-            function check_links() {
-                /* if #link-containers isn't checked, then don't check for errors - but make sure errors are cleared */
-                if (!$('#link-containers').prop('checked')) {
-                    clear_link_errors();
-                    check_entries_valid();
-                    return;
-                }
-
-                var aliases = [];
-                var containers = [];
-                /* gather all aliases */
-                $('#select-linked-containers').children('form').each(function() {
-                    var element = $(this);
-                    var container = element.find('button span');
-                    var containername = container[0].nodeValue;
-                    var alias = element.find('input[name="alias"]');
-
-                    if ((alias.val() !== "") || (containername !== "")) {
-                        if (containername === "")
-                            show_link_message(container, 'has-error', _("No container specified"), 0);
-                        else
-                            clear_control_error(container, 0);
-                        aliases.push(alias);
-                    } else {
-                        /* if they are empty, make sure all errors are cleared */
-                        clear_control_error(container, 0);
-                        clear_control_error(alias, 1);
-                    }
-                });
-
-                /* check aliases */
-                for (var alias_index = 0; alias_index < aliases.length; ++alias_index)
-                    check_alias(aliases, alias_index);
-
-                /* update run status */
-                check_entries_valid();
-            }
-
-            /*
-             * validation functionality for the run image dialog
-             *
-             * error:
-             *   - a port is used more than once (same port/protocol exposed on container, same port/protocol used on host)
-             *   - a port number is invalid
-             *   - an alias for a linked container is used more than once
-             *   - a linked container has no alias or an alias is given for no link
-             *
-             * any errors will result in a disabled 'run' button
-             */
-            function update(behavior, section) {
-                /* while typing, delay check */
-                window.clearTimeout(self.error_timeout);
-                self.error_timeout = null;
-
-                if (behavior === "clear") {
-                    clear_command_error();
-                    clear_port_errors();
-                    clear_link_errors();
-
-                    /* update run status */
-                    check_entries_valid();
-                } else if (behavior === "all") {
-                    check_command();
-                    check_ports();
-                    check_links();
-                } else if ((behavior === "changeFocus") || (behavior === "changeOption")) {
-                    if (section === "command")
-                        check_command();
-                    else if (section === "ports")
-                        check_ports();
-                    else if (section === "links")
-                        check_links();
-                } else if ((behavior === "input") || (behavior === "keydown")) {
-                    if (section === "command")
-                        self.error_timeout = window.setTimeout(check_command, 2000);
-                    else if (section === "ports")
-                        self.error_timeout = window.setTimeout(check_ports, 2000);
-                    else if (section === "links")
-                        self.error_timeout = window.setTimeout(check_links, 2000);
-                    self.setTimeout = null;
-                }
-            }
-
-            return update;
-        },
-
-        port_renderer: function() {
-            var self = this;
-            var template = $("#port-expose-tmpl").html();
-            Mustache.parse(template);
-
-            function add_row() {
-                render();
-            }
-
-            function remove_row(e) {
-                var parent = $(e.target).closest("form");
-                parent.remove();
-                if ($('#select-exposed-ports').children().length === 0 ) {
-                    $("#expose-ports").attr("checked", false);
-                }
-                /* update run button, this may have removed an error */
-                self.validator("changeFocus", "ports");
-            }
-
-            function render(port_internal, port_protocol, port_internal_editable) {
-                if (port_internal === undefined)
-                    port_internal = '';
-                if (port_protocol === undefined)
-                    port_protocol = 'TCP';
-                if (port_internal_editable === undefined)
-                    port_internal_editable = true;
-
-                var row = $(Mustache.render(template, {
-                    host_port_label: _('to host port'),
-                    placeholder: _('none')
-                }));
-                row.children("button.fa-plus").on('click', add_row);
-                if (port_internal_editable) {
-                    row.children("button.pficon-close").on('click', remove_row);
-                } else {
-                    row.children("button.pficon-close").attr('disabled', true);
-                }
-
-                var row_container_input = row.find('input[name="container"]');
-                row_container_input.val(port_internal);
-                if (port_internal_editable) {
-                    row_container_input.on('keydown', $.proxy(self, "update", "keydown", "ports"));
-                    row_container_input.on('input', $.proxy(self, "update", "input", "ports"));
-                    row_container_input.on('focusout change', $.proxy(self, "update", "changeFocus", "ports"));
-                } else {
-                    row_container_input.attr('disabled', true);
-                }
-
-                var row_host_input = row.find('input[name="host"]');
-                row_host_input.on('keydown', $.proxy(self, "update", "keydown", "ports"));
-                row_host_input.on('input', $.proxy(self, "update", "input", "ports"));
-                row_host_input.on('focusout change', $.proxy(self, "update", "changeFocus", "ports"));
-
-                var protocol_select = row.find("div .port-expose-protocol");
-                if (port_internal_editable) {
-                    protocol_select.find("a").on('click', function() {
-                        protocol_select.find("button span").text($(this).text());
-                        self.update("changeOption", "ports");
-                    });
-                } else {
-                    protocol_select.attr('disabled', true);
-                }
-
-                protocol_select.find("button span").text(port_protocol.toUpperCase());
-
-                $("#select-exposed-ports").append(row);
-            }
-
-            return render;
-        },
-
-        volume_renderer: function() {
-            var self = this;
-            var template = $("#volume-mount-tmpl").html();
-            Mustache.parse(template);
-
-            function add_row() {
-                render();
-            }
-
-            function remove_row(e) {
-                var parent = $(e.target).closest("form");
-                parent.remove();
-                if ($('#select-mounted-volumes').children().length === 0 ) {
-                    $("#mount-volumes").attr("checked", false);
-                }
-                /* update run button, this may have removed an error */
-                self.validator("changeFocus", "volumes");
-            }
-
-            function render(volume_internal, volume_internal_editable) {
-                if (volume_internal === undefined)
-                    volume_internal = '';
-                if (volume_internal_editable === undefined)
-                    volume_internal_editable = true;
-
-                var row = $(Mustache.render(template, {
-                    host_volume_label: _('to host path'),
-                    placeholder: _('none')
-                }));
-                row.children("button.fa-plus").on('click', add_row);
-                if (volume_internal_editable) {
-                    row.children("button.pficon-close").on('click', remove_row);
-                } else {
-                    row.children("button.pficon-close").attr('disabled', true);
-                }
-
-                var row_container_input = row.find('input[name="container"]');
-                row_container_input.val(volume_internal);
-                if (volume_internal_editable) {
-                    row_container_input.on('keydown', $.proxy(self, "update", "keydown", "volumes"));
-                    row_container_input.on('input', $.proxy(self, "update", "input", "volumes"));
-                    row_container_input.on('focusout change', $.proxy(self, "update", "changeFocus", "volumes"));
-                } else {
-                    row_container_input.attr('disabled', true);
-                }
-
-                var row_host_input = row.find('input[name="host"]');
-                row_host_input.on('keydown', $.proxy(self, "update", "keydown", "volumes"));
-                row_host_input.on('input', $.proxy(self, "update", "input", "volumes"));
-                row_host_input.on('focusout change', $.proxy(self, "update", "changeFocus", "volumes"));
-                var mount_mode_select = row.find("div .mount-mode");
-                mount_mode_select.find('a').on('click', function() {
-                    mount_mode_select.find("button span").text($(this).text());
-                    self.update("changeOption", "volumes");
-                });
-
-                $("#select-mounted-volumes").append(row);
-            }
-
-            return render;
-        },
-
-        envvar_renderer: function() {
-            var self = this;
-            var template = $("#envvar-claim-tmpl").html();
-            Mustache.parse(template);
-
-            function add_row() {
-                render();
-            }
-
-            function remove_row(e) {
-                var parent = $(e.target).closest("form");
-                parent.remove();
-                if ($('#select-claimed-envvars').children().length === 0 ) {
-                    $("#claim-envvars").attr("checked", false);
-                }
-                /* update run button, this may have removed an error */
-                self.validator("changeFocus", "envvars");
-            }
-
-            function render(envvar_key_internal, envvar_value_internal, envvar_internal_editable) {
-                if (envvar_key_internal === undefined)
-                    envvar_key_internal = '';
-                if (envvar_value_internal === undefined)
-                    envvar_value_internal = '';
-                if (envvar_internal_editable === undefined)
-                    envvar_internal_editable = true;
-
-                var row = $(Mustache.render(template, {
-                    envvar_key_label: _('key'),
-                    envvar_value_label: _('value'),
-                    placeholder: _('none')
-                }));
-                row.children("button.fa-plus").on('click', add_row);
-                if (envvar_internal_editable) {
-                    row.children("button.pficon-close").on('click', remove_row);
-                } else {
-                    row.children("button.pficon-close").attr('disabled', true);
-                }
-
-                var row_envvar_key_input = row.find('input[name="envvar_key"]');
-                row_envvar_key_input.val(envvar_key_internal);
-                if (envvar_internal_editable) {
-                    row_envvar_key_input.on('keydown', $.proxy(self, "update", "keydown", "envvars"));
-                    row_envvar_key_input.on('input', $.proxy(self, "update", "input", "envvars"));
-                    row_envvar_key_input.on('focusout change', $.proxy(self, "update", "changeFocus", "envvars"));
-                } else {
-                    row_envvar_key_input.attr('disabled', true);
-                }
-
-                var row_envvar_value_input = row.find('input[name="envvar_value"]');
-                row_envvar_value_input.val(envvar_value_internal);
-                if (envvar_internal_editable) {
-                    row_envvar_value_input.on('keydown', $.proxy(self, "update", "keydown", "envvars"));
-                    row_envvar_value_input.on('input', $.proxy(self, "update", "input", "envvars"));
-                    row_envvar_value_input.on('focusout change', $.proxy(self, "update", "changeFocus", "envvars"));
-                } else {
-                    row_envvar_value_input.attr('disabled', true);
-                }
-
-                $("#select-claimed-envvars").append(row);
-            }
-
-            return render;
-        },
-
-        link_renderer: function() {
-            var self = this;
-            var template = $("#container-link-tmpl").html();
-            Mustache.parse(template);
-
-            function add_row() {
-                render();
-            }
-
-            function remove_row(e) {
-                var parent = $(e.target).closest("form");
-                parent.remove();
-                if ($('#select-linked-containers').children().length === 0 ) {
-                    $("#link-containers").attr("checked", false);
-                }
-
-                /* update run button, this may have removed an error */
-                self.update("changeFocus", "links");
-            }
-
-            function render() {
-                var row = $(Mustache.render(template, {
-                    containers: self.containers,
-                    alias_label: _('alias'),
-                    placeholder: _('none')
-                }));
-                row.children("button.fa-plus").on('click', add_row);
+            var row = $(Mustache.render(template, {
+                host_port_label: _('to host port'),
+                placeholder: _('none'),
+            }));
+            row.children("button.fa-plus").on('click', add_row);
+            if (port_internal_editable) {
                 row.children("button.pficon-close").on('click', remove_row);
-                var row_input = row.find('input');
-                row_input.on('keydown', $.proxy(self, "update", "keydown", "links"));
-                row_input.on('input', $.proxy(self, "update", "input", "links"));
-                row_input.on('focusout change', $.proxy(self, "update", "changeFocus", "links"));
-                var container_select = row.find("div .link-container");
-                container_select.find('a').on('click', function() {
-                    container_select.find("button span").text($(this).text());
-                    self.update("changeOption", "links");
-                });
-                $("#select-linked-containers").append(row);
+            } else {
+                row.children("button.pficon-close").attr('disabled', true);
             }
 
-            return render;
-        },
+            var row_container_input = row.find('input[name="container"]');
+            row_container_input.val(port_internal);
+            if (!port_internal_editable)
+                row_container_input.attr('disabled', true);
 
-        run: function() {
-            this.perform_checks = true;
-            /* validate input, abort on error */
-            this.update('all');
-            if ($('#containers-run-image-run').prop('disabled'))
-                return;
-            var name = $("#containers-run-image-name").val();
-            var cmd = $("#containers-run-image-command").val();
-            var port_bindings = { };
-            var volume_bindings = [ ];
-            var p, mapping;
-            var map_from, map_to, map_protocol;
-            var mount_from, mount_to, mount_mode;
-            var links = [];
-            var exposed_ports = { };
-            var claimed_envvars = [ ];
-            if ($('#expose-ports').prop('checked')) {
-                $('#select-exposed-ports').children('form').each(function() {
-                    var input_ports = $(this).find('input').map(function(idx, elem) {
-                        return $(elem).val();
-                    }).get();
-                    map_from = input_ports[0];
-                    map_to = input_ports[1];
-                    map_protocol = $(this).find('button span').text().toLowerCase();
+            var protocol_select = row.find("div .port-expose-protocol");
+            if (port_internal_editable) {
+                protocol_select.find("a").on('click', function() {
+                    protocol_select.find("button span").text($(this).text());
+                });
+            } else {
+                protocol_select.attr('disabled', true);
+            }
 
-                    if (map_from === '' || map_to === '')
-                        return;
+            protocol_select.find("button span").text(port_protocol.toUpperCase());
+            $("#select-exposed-ports").append(row);
+        }
 
+        return render;
+    }
+
+    function volume_renderer() {
+        var template = $("#volume-mount-tmpl").html();
+        Mustache.parse(template);
+
+        function add_row() {
+            render();
+        }
+
+        function remove_row(e) {
+            var parent = $(e.target).closest("form");
+            parent.remove();
+            var children = $('#select-mounted-volumes').children();
+            if (children.length === 0)
+                $("#mount-volumes").attr("checked", false);
+            else
+                children.find("input[duplicate]").trigger("change");
+        }
+
+        function render(volume_internal, volume_internal_editable) {
+            if (volume_internal === undefined)
+                volume_internal = '';
+            if (volume_internal_editable === undefined)
+                volume_internal_editable = true;
+
+            var row = $(Mustache.render(template, {
+                host_volume_label: _('to host path'),
+                placeholder: _('none')
+            }));
+            row.children("button.fa-plus").on('click', add_row);
+            if (volume_internal_editable) {
+                row.children("button.pficon-close").on('click', remove_row);
+            } else {
+                row.children("button.pficon-close").attr('disabled', true);
+            }
+
+            var row_container_input = row.find('input[name="container"]');
+            row_container_input.val(volume_internal);
+            if (!volume_internal_editable)
+                row_container_input.attr('disabled', true);
+
+            var mount_mode_select = row.find("div .mount-mode");
+            mount_mode_select.find('a').on('click', function() {
+                mount_mode_select.find("button span").text($(this).text());
+            });
+
+            $("#select-mounted-volumes").append(row);
+        }
+
+        return render;
+    }
+
+    function envvar_renderer() {
+        var template = $("#envvar-claim-tmpl").html();
+        Mustache.parse(template);
+
+        function add_row() {
+            render();
+        }
+
+        function remove_row(e) {
+            var parent = $(e.target).closest("form");
+            parent.remove();
+            var children = $('#select-claimed-envvars').children();
+            if (children.length === 0)
+                $("#claim-envvars").attr("checked", false);
+            else
+                children.find("input[duplicate]").trigger("change");
+        }
+
+        function render(envvar_key_internal, envvar_value_internal, envvar_internal_editable) {
+            if (envvar_key_internal === undefined)
+                envvar_key_internal = '';
+            if (envvar_value_internal === undefined)
+                envvar_value_internal = '';
+            if (envvar_internal_editable === undefined)
+                envvar_internal_editable = true;
+
+            var row = $(Mustache.render(template, {
+                envvar_key_label: _('key'),
+                envvar_value_label: _('value'),
+                placeholder: _('none')
+            }));
+            row.children("button.fa-plus").on('click', add_row);
+            if (envvar_internal_editable) {
+                row.children("button.pficon-close").on('click', remove_row);
+            } else {
+                row.children("button.pficon-close").attr('disabled', true);
+            }
+
+            var row_envvar_key_input = row.find('input[name="envvar_key"]');
+            row_envvar_key_input.val(envvar_key_internal);
+            if (!envvar_internal_editable)
+                row_envvar_key_input.attr('disabled', true);
+
+            var row_envvar_value_input = row.find('input[name="envvar_value"]');
+            row_envvar_value_input.val(envvar_value_internal);
+            if (!envvar_internal_editable)
+                row_envvar_value_input.attr('disabled', true);
+
+            $("#select-claimed-envvars").append(row);
+        }
+
+        return render;
+    }
+
+    function link_renderer() {
+        var template = $("#container-link-tmpl").html();
+        Mustache.parse(template);
+
+        function add_row() {
+            render();
+        }
+
+        function remove_row(e) {
+            var parent = $(e.target).closest("form");
+            parent.remove();
+            var children = $('#select-linked-containers').children();
+            if (children.length === 0)
+                $("#link-containers").attr("checked", false);
+            else
+                children.find("input[duplicate]").trigger("change");
+        }
+
+        function render(containers) {
+            var row = $(Mustache.render(template, {
+                containers: container_names,
+                alias_label: _('alias'),
+                placeholder: _('none')
+            }));
+            row.children("button.fa-plus").on('click', add_row);
+            row.children("button.pficon-close").on('click', remove_row);
+            var container_select = row.find("div .link-container");
+            container_select.find('a').on('click', function() {
+                container_select.find("button span").text($(this).text());
+            });
+            $("#select-linked-containers").append(row);
+        }
+
+        return render;
+    }
+
+    $("#containers-run-image-run").on('click', function() {
+        var exs = validate();
+        if (exs) {
+            $("#containers_run_image_dialog").dialog('failure', exs);
+            return;
+        }
+
+        var name = $("#containers-run-image-name").val();
+        var cmd = $("#containers-run-image-command").val();
+        var port_bindings = { };
+        var volume_bindings = [ ];
+        var p, mapping;
+        var map_from, map_to, map_protocol;
+        var mount_from, mount_to, mount_mode;
+        var links = [];
+        var exposed_ports = { };
+        var claimed_envvars = [ ];
+        if ($('#expose-ports').prop('checked')) {
+            $('#select-exposed-ports').children('form').each(function() {
+                var input_ports = $(this).find('input').map(function(idx, elem) {
+                    return $(elem).val();
+                }).get();
+                map_from = input_ports[0];
+                map_to = input_ports[1];
+                map_protocol = $(this).find('button span').text().toLowerCase();
+
+                if (map_from !== '' && map_to !== '') {
                     port_bindings[map_from + '/' + map_protocol] = [ { "HostPort": map_to } ];
                     exposed_ports[map_from + '/' + map_protocol] = { };
-                });
-            }
-
-            if ($('#mount-volumes').prop('checked')) {
-                $('#select-mounted-volumes').children('form').each(function() {
-                    var input_volumes = $(this).find('input').map(function(idx, elem) {
-                        return $(elem).val();
-                    }).get();
-                    mount_from = input_volumes[0];
-                    mount_to = input_volumes[1];
-                    var mount_mode_text = $(this).find('button span').text();
-                    switch (mount_mode_text) {
-                        case 'ReadOnly':
-                            mount_mode = 'ro';
-                            break;
-                        case 'ReadWrite':
-                            mount_mode = 'rw';
-                            break;
-                        default:
-                            mount_mode = '';
-                            break;
-                    }
-
-                    if (mount_from === '' || mount_to === '')
-                        return;
-
-                    if (mount_mode === '') {
-                        volume_bindings.push(mount_to + ':' + mount_from);
-                    } else {
-                        volume_bindings.push(mount_to + ':' + mount_from + ':' + mount_mode);
-                    }
-                });
-            }
-
-            if ($('#claim-envvars').prop('checked')) {
-                $('#select-claimed-envvars').children('form').each(function() {
-                    var input_envvars = $(this).find('input').map(function(idx, elem) {
-                        return $(elem).val();
-                    }).get();
-                    var claim_key = input_envvars[0];
-                    var claim_value = input_envvars[1];
-
-                    if (claim_key === '' || claim_value === '')
-                        return;
-
-                    claimed_envvars.push(claim_key + '=' + claim_value);
-                });
-            }
-
-            if ($("#link-containers").prop('checked')) {
-                $("#select-linked-containers form").each(function() {
-                    var element = $(this);
-                    var container = element.find('button span').text();
-                    var alias = element.find('input[name="alias"]').val();
-                    if (!container || !alias) {
-                        return;
-                    }
-                    links.push(container + ':' + alias);
-                });
-            }
-
-            $("#containers_run_image_dialog").modal('hide');
-
-            var tty = $("#containers-run-image-with-terminal").prop('checked');
-
-            var options = {
-                "Cmd": util.unquote_cmdline(cmd),
-                "Image": PageRunImage.image_info.Id,
-                "CpuShares": this.cpu_slider.value || 0,
-                "Tty": tty,
-                "ExposedPorts": exposed_ports,
-                "Env": claimed_envvars,
-                "HostConfig": {
-                    "PortBindings": port_bindings,
-                    "Binds": volume_bindings,
-                    "Links": links,
-                    "RestartPolicy": {
-                        "Name": $("#restart-policy-select > button span.pull-left").data('name'),
-                        "MaximumRetryCount": parseInt($("#restart-policy-retries").val(), 10) || 0
-                    }
                 }
-            };
-
-            /* Only set these fields if supported by docker */
-            if (PageRunImage.client.info.MemoryLimit) {
-                options.Memory = this.memory_slider.value || 0;
-                options.MemorySwap = (this.memory_slider.value * 2) || 0;
-            }
-
-            if (tty) {
-                $.extend(options, {
-                    "AttachStderr": true,
-                    "AttachStdin": true,
-                    "AttachStdout": true,
-                    "OpenStdin": true,
-                    "StdinOnce": true
-                });
-            }
-
-            PageRunImage.client.create(name, options).
-                fail(function(ex) {
-                    util.show_unexpected_error(ex);
-                }).
-                done(function(result) {
-                    PageRunImage.client.start(result.Id).
-                        fail(function(ex) {
-                            util.show_unexpected_error(ex);
-                        });
-                });
+            });
         }
-    };
 
-    function PageRunImage() {
-        this._init();
-    }
+        if ($('#mount-volumes').prop('checked')) {
+            $('#select-mounted-volumes').children('form').each(function() {
+                var input_volumes = $(this).find('input').map(function(idx, elem) {
+                    return $(elem).val();
+                }).get();
+                mount_from = input_volumes[0];
+                mount_to = input_volumes[1];
+                var mount_mode_text = $(this).find('button span').text();
+                switch (mount_mode_text) {
+                    case 'ReadOnly':
+                        mount_mode = 'ro';
+                        break;
+                    case 'ReadWrite':
+                        mount_mode = 'rw';
+                        break;
+                    default:
+                        mount_mode = '';
+                        break;
+                }
 
-    var dialog = new PageRunImage();
-    dialog.setup();
+                if (mount_from === '' || mount_to === '')
+                    return;
 
-    function run(client, id) {
-        PageRunImage.image_info = client.images[id];
-        PageRunImage.client = client;
-        dialog.enter();
-        $("#containers_run_image_dialog").modal('show');
-    }
+                if (mount_mode === '') {
+                    volume_bindings.push(mount_to + ':' + mount_from);
+                } else {
+                    volume_bindings.push(mount_to + ':' + mount_from + ':' + mount_mode);
+                }
+            });
+        }
 
-    return run;
+        if ($('#claim-envvars').prop('checked')) {
+            $('#select-claimed-envvars').children('form').each(function() {
+                var input_envvars = $(this).find('input').map(function(idx, elem) {
+                    return $(elem).val();
+                }).get();
+                var claim_key = input_envvars[0];
+                var claim_value = input_envvars[1];
 
+                if (claim_key === '' || claim_value === '')
+                    return;
+
+                claimed_envvars.push(claim_key + '=' + claim_value);
+            });
+        }
+
+        if ($("#link-containers").prop('checked')) {
+            $("#select-linked-containers form").each(function() {
+                var element = $(this);
+                var container = element.find('button span').text();
+                var alias = element.find('input[name="alias"]').val();
+                if (container && alias)
+                    links.push(container + ':' + alias);
+            });
+        }
+
+        var tty = $("#containers-run-image-with-terminal").prop('checked');
+
+        var options = {
+            "Cmd": util.unquote_cmdline(cmd),
+            "Image": image.Id,
+            "CpuShares": cpu_slider.value || 0,
+            "Tty": tty,
+            "ExposedPorts": exposed_ports,
+            "Env": claimed_envvars,
+            "HostConfig": {
+                "PortBindings": port_bindings,
+                "Binds": volume_bindings,
+                "Links": links,
+                "RestartPolicy": {
+                    "Name": $("#restart-policy-select > button span.pull-left").data('name'),
+                    "MaximumRetryCount": parseInt($("#restart-policy-retries").val(), 10) || 0
+                }
+            }
+        };
+
+        var docker = client.instance();
+
+        /* Only set these fields if supported by docker */
+        if (docker.info.MemoryLimit) {
+            options.Memory = memory_slider.value || 0;
+            options.MemorySwap = (memory_slider.value * 2) || 0;
+        }
+
+        if (tty) {
+            $.extend(options, {
+                "AttachStderr": true,
+                "AttachStdin": true,
+                "AttachStdout": true,
+                "OpenStdin": true,
+                "StdinOnce": true
+            });
+        }
+
+        var promise = docker.create(name, options).
+            then(function(result) {
+                return docker.start(result.Id);
+            });
+
+        $("#containers_run_image_dialog").dialog("promise", promise);
+    });
 });

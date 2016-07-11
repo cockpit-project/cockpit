@@ -571,8 +571,6 @@ require([
         }
 
         return {
-            'update_subscriptions': update_subscriptions,
-            'get_status':           get_overall_status,
             'register_system':      register_system
         };
     }

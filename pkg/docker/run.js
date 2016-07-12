@@ -61,6 +61,36 @@ define([
                 self.update('changeFocus', 'ports');
             });
 
+            var volume_renderer = this.volume_renderer();
+            $('#mount-volumes').on('change', function() {
+                var items = $('#select-mounted-volumes');
+                if ($(this).prop('checked')) {
+                    if (items.children().length === 0) {
+                        volume_renderer();
+                    }
+                    items.show();
+                }
+                else {
+                    items.hide();
+                }
+                self.update('changeFocus', 'volumes');
+            });
+
+            var envvar_renderer = this.envvar_renderer();
+            $('#claim-envvars').on('change', function() {
+                var items = $('#select-claimed-envvars');
+                if ($(this).prop('checked')) {
+                    if (items.children().length === 0) {
+                        envvar_renderer();
+                    }
+                    items.show();
+                }
+                else {
+                    items.hide();
+                }
+                self.update('changeFocus', 'envvars');
+            });
+
             var renderer = this.link_renderer();
             $("#link-containers").change(function() {
                 var items = $('#select-linked-containers');
@@ -184,6 +214,43 @@ define([
                 $('#expose-ports').prop('checked', false);
             }
 
+            /* delete any old volume binding entries */
+            var volume_binding = $('#select-mounted-volumes');
+            volume_binding.empty();
+
+            /* show volumes mounted by container image */
+            var volume_renderer = this.volume_renderer();
+            for (var v in PageRunImage.image_info.Config.Volumes) {
+                volume_renderer(v, false);
+            }
+
+            if (volume_binding.children().length > 0) {
+                $('#mount-volumes').prop('checked', true);
+                /* make sure the volumes are visible */
+                volume_binding.show();
+            } else {
+                $('#mount-volumes').prop('checked', false);
+            }
+
+            /* delete any old env var claiming entries */
+            var envvar_claiming = $('#select-claimed-envvars');
+            envvar_claiming.empty();
+
+            /* show envvars claimed by container image */
+            var envvar_renderer = this.envvar_renderer();
+            for (var i=0, e; PageRunImage.image_info.Config.Env && ( e = PageRunImage.image_info.Config.Env[i++]);) {
+                if (e && e.length > 0 && e.indexOf('=') > 0)
+                    envvar_renderer(e.substr(0, e.indexOf('=')), e.substr(e.indexOf('=') + 1, e.length), false);
+            }
+
+            if (envvar_claiming.children().length > 0) {
+                $('#claim-envvars').prop('checked', true);
+                /* make sure the volumes are visible */
+                envvar_claiming.show();
+            } else {
+                $('#claim-envvars').prop('checked', false);
+            }
+            
             var restart_policy_select_button = $('#restart-policy-select > button span.pull-left');
             restart_policy_select_button.text(_("No"));
             restart_policy_select_button.data('name', 'no');
@@ -527,6 +594,133 @@ define([
             return render;
         },
 
+        volume_renderer: function() {
+            var self = this;
+            var template = $("#volume-mount-tmpl").html();
+            Mustache.parse(template);
+
+            function add_row() {
+                render();
+            }
+
+            function remove_row(e) {
+                var parent = $(e.target).closest("form");
+                parent.remove();
+                if ($('#select-mounted-volumes').children().length === 0 ) {
+                    $("#mount-volumes").attr("checked", false);
+                }
+                /* update run button, this may have removed an error */
+                self.validator("changeFocus", "volumes");
+            }
+
+            function render(volume_internal, volume_internal_editable) {
+                if (volume_internal === undefined)
+                    volume_internal = '';
+                if (volume_internal_editable === undefined)
+                    volume_internal_editable = true;
+
+                var row = $(Mustache.render(template, {
+                    host_volume_label: _('to host path'),
+                    placeholder: _('none')
+                }));
+                row.children("button.fa-plus").on('click', add_row);
+                if (volume_internal_editable) {
+                    row.children("button.pficon-close").on('click', remove_row);
+                } else {
+                    row.children("button.pficon-close").attr('disabled', true);
+                }
+
+                var row_container_input = row.find('input[name="container"]');
+                row_container_input.val(volume_internal);
+                if (volume_internal_editable) {
+                    row_container_input.on('keydown', $.proxy(self, "update", "keydown", "volumes"));
+                    row_container_input.on('input', $.proxy(self, "update", "input", "volumes"));
+                    row_container_input.on('focusout change', $.proxy(self, "update", "changeFocus", "volumes"));
+                } else {
+                    row_container_input.attr('disabled', true);
+                }
+
+                var row_host_input = row.find('input[name="host"]');
+                row_host_input.on('keydown', $.proxy(self, "update", "keydown", "volumes"));
+                row_host_input.on('input', $.proxy(self, "update", "input", "volumes"));
+                row_host_input.on('focusout change', $.proxy(self, "update", "changeFocus", "volumes"));
+                var mount_mode_select = row.find("div .mount-mode");
+                mount_mode_select.find('a').on('click', function() {
+                    mount_mode_select.find("button span").text($(this).text());
+                    self.update("changeOption", "volumes");
+                });
+
+                $("#select-mounted-volumes").append(row);
+            }
+
+            return render;
+        },
+
+        envvar_renderer: function() {
+            var self = this;
+            var template = $("#envvar-claim-tmpl").html();
+            Mustache.parse(template);
+
+            function add_row() {
+                render();
+            }
+
+            function remove_row(e) {
+                var parent = $(e.target).closest("form");
+                parent.remove();
+                if ($('#select-claimed-envvars').children().length === 0 ) {
+                    $("#claim-envvars").attr("checked", false);
+                }
+                /* update run button, this may have removed an error */
+                self.validator("changeFocus", "envvars");
+            }
+
+            function render(envvar_key_internal, envvar_value_internal, envvar_internal_editable) {
+                if (envvar_key_internal === undefined)
+                    envvar_key_internal = '';
+                if (envvar_value_internal === undefined)
+                    envvar_value_internal = '';
+                if (envvar_internal_editable === undefined)
+                    envvar_internal_editable = true;
+
+                var row = $(Mustache.render(template, {
+                    envvar_key_label: _('key'),
+                    envvar_value_label: _('value'),
+                    placeholder: _('none')
+                }));
+                row.children("button.fa-plus").on('click', add_row);
+                if (envvar_internal_editable) {
+                    row.children("button.pficon-close").on('click', remove_row);
+                } else {
+                    row.children("button.pficon-close").attr('disabled', true);
+                }
+
+                var row_envvar_key_input = row.find('input[name="envvar_key"]');
+                row_envvar_key_input.val(envvar_key_internal);
+                if (envvar_internal_editable) {
+                    row_envvar_key_input.on('keydown', $.proxy(self, "update", "keydown", "envvars"));
+                    row_envvar_key_input.on('input', $.proxy(self, "update", "input", "envvars"));
+                    row_envvar_key_input.on('focusout change', $.proxy(self, "update", "changeFocus", "envvars"));
+                } else {
+                    row_envvar_key_input.attr('disabled', true);
+                }
+
+                var row_envvar_value_input = row.find('input[name="envvar_value"]');
+                row_envvar_value_input.val(envvar_value_internal);
+                if (envvar_internal_editable) {
+                    row_envvar_value_input.on('keydown', $.proxy(self, "update", "keydown", "envvars"));
+                    row_envvar_value_input.on('input', $.proxy(self, "update", "input", "envvars"));
+                    row_envvar_value_input.on('focusout change', $.proxy(self, "update", "changeFocus", "envvars"));
+                } else {
+                    row_envvar_value_input.attr('disabled', true);
+                }
+
+                $("#select-claimed-envvars").append(row);
+            }
+
+            return render;
+        },
+
         link_renderer: function() {
             var self = this;
             var template = $("#container-link-tmpl").html();
@@ -579,10 +773,13 @@ define([
             var name = $("#containers-run-image-name").val();
             var cmd = $("#containers-run-image-command").val();
             var port_bindings = { };
+            var volume_bindings = [ ];
             var p, mapping;
             var map_from, map_to, map_protocol;
+            var mount_from, mount_to, mount_mode;
             var links = [];
             var exposed_ports = { };
+            var claimed_envvars = [ ];
             if ($('#expose-ports').prop('checked')) {
                 $('#select-exposed-ports').children('form').each(function() {
                     var input_ports = $(this).find('input').map(function(idx, elem) {
@@ -597,6 +794,52 @@ define([
 
                     port_bindings[map_from + '/' + map_protocol] = [ { "HostPort": map_to } ];
                     exposed_ports[map_from + '/' + map_protocol] = { };
+                });
+            }
+
+            if ($('#mount-volumes').prop('checked')) {
+                $('#select-mounted-volumes').children('form').each(function() {
+                    var input_volumes = $(this).find('input').map(function(idx, elem) {
+                        return $(elem).val();
+                    }).get();
+                    mount_from = input_volumes[0];
+                    mount_to = input_volumes[1];
+                    var mount_mode_text = $(this).find('button span').text();
+                    switch (mount_mode_text) {
+                        case 'ReadOnly':
+                            mount_mode = 'ro';
+                            break;
+                        case 'ReadWrite':
+                            mount_mode = 'rw';
+                            break;
+                        default:
+                            mount_mode = '';
+                            break;
+                    }
+
+                    if (mount_from === '' || mount_to === '')
+                        return;
+
+                    if (mount_mode === '') {
+                        volume_bindings.push(mount_to + ':' + mount_from);
+                    } else {
+                        volume_bindings.push(mount_to + ':' + mount_from + ':' + mount_mode);
+                    }
+                });
+            }
+
+            if ($('#claim-envvars').prop('checked')) {
+                $('#select-claimed-envvars').children('form').each(function() {
+                    var input_envvars = $(this).find('input').map(function(idx, elem) {
+                        return $(elem).val();
+                    }).get();
+                    var claim_key = input_envvars[0];
+                    var claim_value = input_envvars[1];
+
+                    if (claim_key === '' || claim_value === '')
+                        return;
+
+                    claimed_envvars.push(claim_key + '=' + claim_value);
                 });
             }
 
@@ -622,8 +865,10 @@ define([
                 "CpuShares": this.cpu_slider.value || 0,
                 "Tty": tty,
                 "ExposedPorts": exposed_ports,
+                "Env": claimed_envvars,
                 "HostConfig": {
                     "PortBindings": port_bindings,
+                    "Binds": volume_bindings,
                     "Links": links,
                     "RestartPolicy": {
                         "Name": $("#restart-policy-select > button span.pull-left").data('name'),

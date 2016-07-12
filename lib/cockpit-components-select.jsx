@@ -39,15 +39,26 @@ define([
             onChange: React.PropTypes.func,
             id: React.PropTypes.string,
         },
+        handleDocumentClick: function(node, ev) {
+            // clicking outside the select control should ensure it's closed
+            if (!node.contains(ev.target))
+                this.setState({ open: false });
+        },
+        componentDidMount: function() {
+            var handler = this.handleDocumentClick.bind(this, React.findDOMNode(this));
+            this.setState({ documentClickHandler: handler });
+            document.addEventListener('click', handler, false);
+        },
+        componentWillUnmount: function() {
+            document.removeEventListener('click', this.state.documentClickHandler, false);
+        },
         getInitialState: function() {
             return {
                 open: false,
                 currentData: undefined,
                 currentValue: undefined,
+                documentClickHandler: undefined,
             };
-        },
-        loseFocus: function(ev) {
-            this.setState({ open: false });
         },
         clickHandler: function(ev) {
             // only consider clicks with the primary button
@@ -96,10 +107,9 @@ define([
             if (this.state.open)
                 classes += " open";
 
-            // use onMouseDown here instead of onClick so we catch a click on the items before we lose focus and close
             return (
-                <div className={classes} onMouseDown={this.clickHandler} id={this.props.id}>
-                    <button className="btn btn-default dropdown-toggle" type="button" onBlur={this.loseFocus}>
+                <div className={classes} onClick={this.clickHandler} id={this.props.id}>
+                    <button className="btn btn-default dropdown-toggle" type="button">
                         <span className="pull-left">{currentValue}</span>
                         <span className="caret"></span>
                     </button>

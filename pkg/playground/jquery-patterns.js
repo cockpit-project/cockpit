@@ -53,19 +53,22 @@ require([
     /* A mock operation, cancellable with progress */
     function operation() {
         var deferred = $.Deferred();
-        var interval, count = 0;
-        window.setInterval(function() {
+        var count = 0;
+        var interval = window.setInterval(function() {
             count += 1;
             deferred.notify("Step " + count);
         }, 500);
         window.setTimeout(function() {
-            window.clearTimeout(interval);
+            window.clearInterval(interval);
             deferred.resolve();
         }, 5000);
         var promise = deferred.promise();
         promise.cancel = function() {
-            window.clearTimeout(interval);
-            deferred.reject();
+            window.clearInterval(interval);
+            deferred.notify("Cancelling...");
+            window.setTimeout(function() {
+                deferred.reject();
+            }, 1000);
         };
         return promise;
     }

@@ -72,7 +72,7 @@ function passwd_self(old_pass, new_pass) {
         /.*BAD PASSWORD:.*/
     ];
 
-    var dfd = $.Deferred();
+    var dfd = cockpit.defer();
     var buffer = "";
     var sent_new = false;
     var failure = _("Old password not accepted");
@@ -128,7 +128,7 @@ function passwd_self(old_pass, new_pass) {
 }
 
 function passwd_change(user, new_pass) {
-    var dfd = $.Deferred();
+    var dfd = cockpit.defer();
 
     cockpit.spawn([ "chpasswd" ], {superuser: "require", err: "out" })
         .input(user + ":" + new_pass)
@@ -154,7 +154,7 @@ function passwd_change(user, new_pass) {
  * that return promises
  */
 function chain(functions) {
-    var dfd = $.Deferred();
+    var dfd = cockpit.defer();
     var i = 0;
 
     /* Either an array or functions passed */
@@ -237,7 +237,7 @@ function parse_group_content(content) {
 }
 
 function password_quality(password) {
-    var dfd = $.Deferred();
+    var dfd = cockpit.defer();
 
     cockpit.spawn('/usr/bin/pwscore', { "err": "message" })
        .input(password)
@@ -408,7 +408,7 @@ PageAccountsCreate.prototype = {
         }
 
         /* The first check is immediately complete */
-        var dfd = $.Deferred();
+        var dfd = cockpit.defer();
         if (fails.length)
             dfd.reject(fails);
         else
@@ -492,7 +492,7 @@ PageAccountsCreate.prototype = {
     },
 
     check_username: function() {
-        var dfd = $.Deferred();
+        var dfd = cockpit.defer();
         var username = $('#accounts-create-user-name').val();
 
         for (var i = 0; i < username.length; i++) {
@@ -740,7 +740,7 @@ PageAccount.prototype = {
 
     get_locked: function(update_display) {
         update_display = typeof update_display !== 'undefined' ? update_display : true;
-        var dfd = $.Deferred();
+        var dfd = cockpit.defer();
         var self = this;
 
         function parse_locked(content) {
@@ -1081,7 +1081,7 @@ PageAccountSetPassword.prototype = {
             ex.target = "#account-set-password-pw2";
         }
 
-        var dfd = $.Deferred();
+        var dfd = cockpit.defer();
         if (ex)
             dfd.reject(ex);
         else

@@ -186,7 +186,7 @@ class MachineBuilder:
 try:
     os.chdir(BASE)
     testvm.VirtMachine.memory_mb = 2048
-    machine = testvm.VirtMachine(verbose=args.verbose, image=args.image)
+    machine = testvm.VirtMachine(verbose=args.verbose, image=args.image, fetch=False)
     builder = MachineBuilder(machine)
     builder.build()
     if not args.no_save:

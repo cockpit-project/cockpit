@@ -49,7 +49,7 @@
         var PUBKEY_RE = /^(\S+)\s+(\S+)\s+(.*)\((\S+)\)$/;
 
         function parse_pubkeys(input) {
-            var df = $.Deferred();
+            var df = cockpit.defer();
             var keys = [];
 
             cockpit.script(lister)
@@ -99,7 +99,7 @@
         }
 
         self.add_key = function(key) {
-            var df = $.Deferred();
+            var df = cockpit.defer();
             df.notify(_("Validating key"));
             parse_pubkeys(key)
                 .done(function(keys) {

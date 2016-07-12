@@ -94,12 +94,7 @@ dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES $AVOCADO_TEST_D
 npm -g install phantomjs-prebuilt
 
 # Prepare for building
-
-# HACK - pin mock to a version that doesn't include this bug:
-#
-#    https://bugzilla.redhat.com/show_bug.cgi?id=1327594
-
-dnf -y install mock-1.2.13-2.fc23 dnf-plugins-core rpm-build
+dnf -y install mock dnf-plugins-core rpm-build
 useradd -c Builder -G mock builder
 
 # HACK - mock --installdeps with yum is broken, it seems that it can't

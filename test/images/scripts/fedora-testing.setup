@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 set -ex
 
@@ -8,6 +8,8 @@ set -ex
 #
 xfs_growfs /
 df -h /
+
+echo foobar | passwd --stdin root
 
 # We install all dependencies of the cockpit packages since we want
 # them to not spontaneously change from one test run to the next when
@@ -65,20 +67,12 @@ echo 'NETWORKING=yes' > /etc/sysconfig/network
 useradd -c Administrator -G wheel admin
 echo foobar | passwd --stdin admin
 
-# Let's upgrade dnf first and then use the new dnf to upgrade
-# the rest. This helps avoid things like:
-#
-#     https://bugzilla.redhat.com/show_bug.cgi?id=1211547
-
 dnf config-manager --set-enabled updates-testing
-
-dnf -y upgrade dnf
-dnf -y upgrade
-
-dnf -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+dnf $DNF_OPTS -y upgrade
+dnf $DNF_OPTS -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # Prepare for building
-dnf -y install mock dnf-plugins-core rpm-build
+dnf $DNF_OPTS -y install mock dnf-plugins-core rpm-build
 useradd -c Builder -G mock builder
 
 # HACK - mock --installdeps with yum is broken, it seems that it can't
@@ -96,6 +90,9 @@ su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
 # docker images that we need for integration testing
 /var/lib/testvm/docker-images.setup
 
+# Setup basics for building images
+docker build -t cockpit/base /var/tmp/cockpit-base
+
 # Configure kubernetes
 /var/lib/testvm/kubernetes.setup
 
@@ -104,8 +101,6 @@ dnf clean all
 /var/lib/testvm/zero-disk.setup
 
 # Final tweaks
-
-rm -rf /var/log/journal/*
 echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
 printf "[Coredump]\nStorage=journal\n" > /etc/systemd/coredump.conf
 

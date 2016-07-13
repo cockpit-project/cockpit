@@ -517,18 +517,23 @@ tbody.open tr.listing-ct-panel td div.listing-ct-head {
 }
 
 /* only highlight the row if navigation is available */
-tbody.open tr.listing-ct-item:not(.listing-ct-nonavigate):hover,
-tr.listing-ct-item:not(.listing-ct-nonavigate):hover {
+tbody:not(.open) tr.listing-ct-item:not(.listing-ct-nonavigate):hover {
     background-color: #d4edfa;
 }
 
-/* use gray for a row if navigation isn't available */
+/* if we can't navigate to a row but expand is available, highlight the caret */
+tbody:not(.open) tr.listing-ct-item.listing-ct-nonavigate:hover td.listing-ct-toggle {
+    color: #65bedf;
+}
+
+/* use gray for a row that's expanded or if navigation isn't available */
+tbody.open tr.listing-ct-item:hover,
 tr.listing-ct-item.listing-ct-nonavigate:hover {
     background-color: #ededed;
 }
 
-/* if we can't navigate to a row but expand is available, highlight the caret */
-tr.listing-ct-item.listing-ct-nonavigate:hover td.listing-ct-toggle {
+/* always highlight caret when hovering over an expanded row */
+tbody.open tr.listing-ct-item:hover td.listing-ct-toggle {
     color: #65bedf;
 }
 

@@ -621,6 +621,7 @@ define([
 
                 var row = $(Mustache.render(template, {
                     host_volume_label: _('to host path'),
+                    mount_mode_label: _('mode'),
                     placeholder: _('none')
                 }));
                 row.children("button.fa-plus").on('click', add_row);

@@ -363,18 +363,12 @@ static const TestResourceFixture checksum_fixture = {
 };
 
 static void
-test_resource_checksum (TestResourceCase *tc,
-                        gconstpointer data)
+request_checksum (TestResourceCase *tc)
 {
   CockpitWebResponse *response;
   GInputStream *input;
   GOutputStream *output;
   GIOStream *io;
-  GError *error = NULL;
-  GBytes *bytes;
-
-  /* We require that no user packages are loaded, so we have a checksum */
-  g_assert (data == &checksum_fixture);
 
   input = g_memory_input_stream_new_from_data ("", 0, NULL);
   output = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
@@ -399,6 +393,20 @@ test_resource_checksum (TestResourceCase *tc,
 
   g_object_unref (output);
   g_object_unref (response);
+}
+
+static void
+test_resource_checksum (TestResourceCase *tc,
+                        gconstpointer data)
+{
+  CockpitWebResponse *response;
+  GError *error = NULL;
+  GBytes *bytes;
+
+  /* We require that no user packages are loaded, so we have a checksum */
+  g_assert (data == &checksum_fixture);
+
+  request_checksum (tc);
 
   response = cockpit_web_response_new (tc->io, "/unused", NULL, NULL);
   cockpit_channel_response_serve (tc->service, tc->headers, response,
@@ -414,7 +422,7 @@ test_resource_checksum (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
-                           "ETag: \"$386257ed81a663cdd7ee12633056dee18d60ddca\"\r\n"
+                           "ETag: \"$386257ed81a663cdd7ee12633056dee18d60ddca-c\"\r\n"
                            "Transfer-Encoding: chunked\r\n"
                            "Cache-Control: max-age=31556926, public\r\n"
                            "\r\n"
@@ -487,12 +495,14 @@ test_resource_not_modified (TestResourceCase *tc,
   GError *error = NULL;
   GBytes *bytes;
 
+  request_checksum (tc);
+
   g_hash_table_insert (tc->headers, g_strdup ("If-None-Match"),
-                       g_strdup ("\"$3dccaa0e86f6cb47294825bc3fdf7435ff6b04c3\""));
+                       g_strdup ("\"$386257ed81a663cdd7ee12633056dee18d60ddca-c\""));
 
   response = cockpit_web_response_new (tc->io, "/unused", NULL, tc->headers);
   cockpit_channel_response_serve (tc->service, tc->headers, response,
-                                "$3dccaa0e86f6cb47294825bc3fdf7435ff6b04c3",
+                                "$386257ed81a663cdd7ee12633056dee18d60ddca",
                                 "/test/sub/file.ext");
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -504,8 +514,91 @@ test_resource_not_modified (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 304 Not Modified\r\n"
-                           "ETag: \"$3dccaa0e86f6cb47294825bc3fdf7435ff6b04c3\"\r\n"
+                           "ETag: \"$386257ed81a663cdd7ee12633056dee18d60ddca-c\"\r\n"
                            "\r\n", -1);
+  g_bytes_unref (bytes);
+  g_object_unref (response);
+}
+
+static void
+test_resource_not_modified_new_language (TestResourceCase *tc,
+                                         gconstpointer data)
+{
+  CockpitWebResponse *response;
+  GError *error = NULL;
+  GBytes *bytes;
+
+  request_checksum (tc);
+
+  g_hash_table_insert (tc->headers, g_strdup ("If-None-Match"),
+                       g_strdup ("\"$386257ed81a663cdd7ee12633056dee18d60ddca-c\""));
+  g_hash_table_insert (tc->headers, g_strdup ("Accept-Language"), g_strdup ("de"));
+
+  response = cockpit_web_response_new (tc->io, "/unused", NULL, tc->headers);
+  cockpit_channel_response_serve (tc->service, tc->headers, response,
+                                "$386257ed81a663cdd7ee12633056dee18d60ddca",
+                                "/test/sub/file.ext");
+
+  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
+  g_assert_no_error (error);
+
+  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
+  cockpit_assert_bytes_eq (bytes,
+                           "HTTP/1.1 200 OK\r\n"
+                           "ETag: \"$386257ed81a663cdd7ee12633056dee18d60ddca-de\"\r\n"
+                           "Transfer-Encoding: chunked\r\n"
+                           "Cache-Control: max-age=31556926, public\r\n"
+                           "\r\n"
+                           "32\r\n"
+                           "These are the contents of file.ext\nOh marmalaaade\n"
+                           "\r\n"
+                           "0\r\n\r\n", -1);
+  g_bytes_unref (bytes);
+  g_object_unref (response);
+}
+
+static void
+test_resource_not_modified_cookie_language (TestResourceCase *tc,
+                                            gconstpointer data)
+{
+  CockpitWebResponse *response;
+  GError *error = NULL;
+  GBytes *bytes;
+  gchar *cookie;
+
+  request_checksum (tc);
+
+  g_hash_table_insert (tc->headers, g_strdup ("If-None-Match"),
+                       g_strdup ("\"$386257ed81a663cdd7ee12633056dee18d60ddca-c\""));
+
+  cookie = g_strdup_printf ("%s; CockpitLang=fr", (gchar *)g_hash_table_lookup (tc->headers, "Cookie"));
+  g_hash_table_insert (tc->headers, g_strdup ("Cookie"), cookie);
+
+  response = cockpit_web_response_new (tc->io, "/unused", NULL, tc->headers);
+  cockpit_channel_response_serve (tc->service, tc->headers, response,
+                                "$386257ed81a663cdd7ee12633056dee18d60ddca",
+                                "/test/sub/file.ext");
+
+  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
+  g_assert_no_error (error);
+
+  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
+  cockpit_assert_bytes_eq (bytes,
+                           "HTTP/1.1 200 OK\r\n"
+                           "ETag: \"$386257ed81a663cdd7ee12633056dee18d60ddca-fr\"\r\n"
+                           "Transfer-Encoding: chunked\r\n"
+                           "Cache-Control: max-age=31556926, public\r\n"
+                           "\r\n"
+                           "32\r\n"
+                           "These are the contents of file.ext\nOh marmalaaade\n"
+                           "\r\n"
+                           "0\r\n\r\n", -1);
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -740,6 +833,10 @@ main (int argc,
               setup_resource, test_resource_redirect_checksum, teardown_resource);
   g_test_add ("/web-channel/resource/not-modified", TestResourceCase, &checksum_fixture,
               setup_resource, test_resource_not_modified, teardown_resource);
+  g_test_add ("/web-channel/resource/not-modified-new-language", TestResourceCase, &checksum_fixture,
+              setup_resource, test_resource_not_modified_new_language, teardown_resource);
+  g_test_add ("/web-channel/resource/not-modified-cookie-language", TestResourceCase, &checksum_fixture,
+              setup_resource, test_resource_not_modified_cookie_language, teardown_resource);
   g_test_add ("/web-channel/resource/no-checksum", TestResourceCase, NULL,
               setup_resource, test_resource_no_checksum, teardown_resource);
   g_test_add ("/web-channel/resource/bad-checksum", TestResourceCase, NULL,

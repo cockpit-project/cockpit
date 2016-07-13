@@ -363,8 +363,11 @@ define([
                                          client.manager_iscsi = proxy("Manager.ISCSI.Initiator", "Manager");
                                          wait_all([ client.manager_lvm2, client.manager_iscsi],
                                                   function () {
+                                                      var iscsi = (config.with_storaged_iscsi_sessions == "yes" &&
+                                                                   client.manager_iscsi.valid &&
+                                                                   client.manager_iscsi.SessionsSupported !== false);
                                                       client.features = { lvm2: client.manager_lvm2.valid,
-                                                                          iscsi: config.with_storaged_iscsi_sessions == "yes" && client.manager_iscsi.valid
+                                                                          iscsi: iscsi
                                                                         };
                                                       callback();
                                                   });

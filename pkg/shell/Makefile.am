@@ -7,7 +7,7 @@ nodist_shell_DATA = \
 	pkg/shell/po.js.gz \
 	pkg/shell/shell.min.css.gz \
 	pkg/shell/shell.min.html.gz \
-	$(shell_PO:.js=.min.js.gz) \
+	$(shell_PO:.js=.js.gz) \
 	$(NULL)
 
 shell_TEMPLATES = \

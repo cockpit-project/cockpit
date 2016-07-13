@@ -14,6 +14,7 @@ networkmanagerdebug_DATA = \
 	pkg/networkmanager/flot.js \
 	pkg/networkmanager/interfaces.js \
 	pkg/networkmanager/index.html \
+	pkg/networkmanager/journal.css \
 	pkg/networkmanager/networking.css \
 	pkg/networkmanager/mustache.js \
 	pkg/networkmanager/plot.css \

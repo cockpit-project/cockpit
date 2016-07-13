@@ -1,0 +1,134 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2015 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+
+.cockpit-log-panel {
+    border: 0;
+}
+
+.cockpit-log-panel .panel-heading {
+    background-color: #333;
+    border-color: #333;
+    color: #fff;
+    padding-left: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    height: auto;
+}
+
+.cockpit-log-panel .panel-body {
+    padding: 0;
+    border-bottom: 1px #ddd solid;
+}
+
+.cockpit-log-panel .panel-body .panel-heading {
+    border-left: 1px #ddd solid;
+    border-right: 1px #ddd solid;
+    border-top: 0;
+    border-bottom: 1px #ddd solid;
+    background-color: #f5f5f5;
+    font-weight: bold;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    width: auto;
+    color: #333;
+}
+
+.cockpit-log-panel > .panel-heading {
+    margin-top: 15px;
+}
+
+.cockpit-log-panel .cockpit-logline {
+    border-left: 1px #ddd solid;
+    border-right: 1px #ddd solid;
+    background-color: #f5f5f5;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 10px;
+}
+
+.cockpit-logline {
+    font-family: monospace;
+    min-width: 310px;
+    border-bottom: 1px solid #DDD;
+    border-top: none;
+}
+
+.cockpit-logline > .row > div:first-child {
+    padding-left: 20px;
+}
+
+.cockpit-log-panel .cockpit-logline:hover {
+    background-color: #d4edfa;
+}
+
+.cockpit-log-panel > .cockpit-logline:hover {
+    cursor: pointer;
+}
+
+.cockpit-logmsg-reboot {
+    font-style: italic;
+}
+
+.cockpit-log-warning {
+    display: inline-block;
+    width: 20px;
+    vertical-align: middle;
+}
+
+.cockpit-log-warning > i {
+    color: black;
+}
+
+.cockpit-log-time {
+    display: inline-block;
+    width: 40px;
+    vertical-align: middle;
+}
+
+.cockpit-log-service {
+    width: 200px;
+    margin-left: 10px;
+}
+
+.cockpit-log-service-container {
+    display: inline-block;
+    width: 200px;
+    margin-left: 10px;
+}
+
+.cockpit-log-service-reduced {
+    width: -moz-calc(100% - 70px);
+    width: -webkit-calc(100% - 70px);
+    width: calc(100% - 70px);
+}
+
+.cockpit-log-message {
+    width: -moz-calc(100% - 300px);
+    width: -webkit-calc(100% - 300px);
+    width: calc(100% - 300px);
+}
+
+.cockpit-log-message,  .cockpit-log-service, .cockpit-log-service-reduced {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: inline-block;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+

@@ -42,11 +42,14 @@ remote=$(ostree remote list)
 ref=$(python -c 'import json; print json.load(open("/usr/share/rpm-ostree/treefile.json"))["ref"]')
 ostree checkout "$remote:$ref" /var/local-tree
 
-# docker images that we need for integration testing
-/var/lib/testvm/docker-images.setup
+# HACK: docker falls over regularly, print its log if it does
+systemctl start docker || journalctl -u docker
 
 # we need cockpit/ws as well
 docker pull cockpit/ws
+
+# docker images that we need for integration testing
+/var/lib/testvm/docker-images.setup
 
 # reduce image size
 /var/lib/testvm/zero-disk.setup

@@ -143,13 +143,18 @@ echo foobar | passwd --stdin admin
 # To enable persistent logging
 mkdir -p /var/log/journal
 
+# Configure kubernetes
+/var/lib/testvm/kubernetes.setup
+
 if type "docker" >/dev/null 2>&1; then
+    # HACK: docker falls over regularly, print its log if it does
+    systemctl start docker || journalctl -u docker
+
+    docker pull registry.access.redhat.com/rhel7/pod-infrastructure:latest
+
     # docker images that we need for integration testing
     /var/lib/testvm/docker-images.setup
 fi
-
-# Configure kubernetes
-/var/lib/testvm/kubernetes.setup
 
 yum clean all
 /var/lib/testvm/zero-disk.setup --keep-mock-cache

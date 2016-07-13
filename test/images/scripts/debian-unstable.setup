@@ -97,6 +97,9 @@ pbuilder --execute --save-after-exec debian-8.install-build-deps
 # Disable build-dep installation for the real builds
 echo PBUILDERSATISFYDEPENDSCMD=true >~/.pbuilderrc
 
+# HACK: docker falls over regularly, print its log if it does
+systemctl start docker || journalctl -u docker
+
 # docker images that we need for integration testing
 /var/lib/testvm/docker-images.setup
 

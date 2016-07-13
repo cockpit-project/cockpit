@@ -530,7 +530,7 @@
               <td colspan="4">
                 <label>
                   <input type="checkbox" name="expose-ports" id="expose-ports" checked="false"/>
-                  Expose container ports
+                  <span translatable="yes">Expose container ports</span>
                 </label>
                 <div id="select-exposed-ports" class="containers-run-portmapping containers-run-inline">
                 </div>
@@ -541,18 +541,18 @@
               <td colspan="4">
                 <label>
                   <input type="checkbox" name="mount-volumes" id="mount-volumes" checked="false"/>
-                  Mount container volumes
+                  <span translatable="yes">Mount container volumes</span>
                 </label>
                 <div id="select-mounted-volumes" class="containers-run-volumemount containers-run-inline">
                 </div>
               </td>
             </tr>
             <tr>
-              <td><label class="control-label" for="claim-envvars" translatable="yes">Env Vars</label></td>
+              <td><label class="control-label" for="claim-envvars" translatable="yes">Environment</label></td>
               <td colspan="4">
                 <label>
                   <input type="checkbox" name="claim-envvars" id="claim-envvars" checked="false"/>
-                  Claim container environment variables
+                  <span translatable="yes">Set container environment variables</span>
                 </label>
                 <div id="select-claimed-envvars" class="containers-run-envvarclaim containers-run-inline">
                 </div>

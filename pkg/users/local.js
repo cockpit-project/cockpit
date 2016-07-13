@@ -17,9 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function() {
-"use strict";
-
 var $ = require("jquery");
 var cockpit = require("cockpit");
 
@@ -1232,5 +1229,3 @@ function init() {
 }
 
 $(init);
-
-}());

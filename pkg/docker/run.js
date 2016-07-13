@@ -771,7 +771,7 @@ define([
             var volume_bindings = [ ];
             var p, mapping;
             var map_from, map_to, map_protocol;
-            var mount_from, mount_to;
+            var mount_from, mount_to, mount_mode;
             var links = [];
             var exposed_ports = { };
             var claimed_envvars = [ ];
@@ -799,11 +799,16 @@ define([
                     }).get();
                     mount_from = input_volumes[0];
                     mount_to = input_volumes[1];
+                    mount_mode = input_volumes[2];
 
                     if (mount_from === '' || mount_to === '')
                         return;
 
-                    volume_bindings.push(mount_to + ':' + mount_from);
+                    if (mount_mode) {
+                        volume_bindings.push(mount_to + ':' + mount_from + ':' + mount_mode);
+                    } else {
+                        volume_bindings.push(mount_to + ':' + mount_from);
+                    }
                 });
             }
 

@@ -479,7 +479,7 @@ cockpit_channel_response_create (CockpitWebService *service,
 static gboolean
 is_resource_a_package_file (const gchar *path)
 {
-  return path && path[0] && strchr (path, '/') != NULL;
+  return path && path[0] && strchr (path + 1, '/') != NULL;
 }
 
 static gboolean
@@ -535,7 +535,7 @@ parse_host_and_etag (CockpitWebService *service,
     {
       languages = cockpit_web_server_parse_languages (headers, "C");
       *etag = g_strdup_printf ("\"%s-%s\"", where, languages[0]);
-      g_free (languages);
+      g_strfreev (languages);
     }
   else
     {

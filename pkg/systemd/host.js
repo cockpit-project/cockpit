@@ -21,6 +21,7 @@ define([
     "jquery",
     "base1/cockpit",
     "./mustache",
+    "shell/po",
     "domain/operation",
     "performance/dialog",
     "system/server",
@@ -31,9 +32,10 @@ define([
     "system/bootstrap-combobox",
     "./patterns",
     "./flot",
-], function($, cockpit, Mustache, domain, performance, server, service, plot, host_keys_script) {
+], function($, cockpit, Mustache, po, domain, performance, server, service, plot, host_keys_script) {
 "use strict";
 
+cockpit.locale(po);
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 

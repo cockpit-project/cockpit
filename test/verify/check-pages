@@ -100,6 +100,22 @@ WantedBy=default.target
         b.switch_to_frame("cockpit1:localhost/playground/test")
         b.wait_text("#hidden", "hidden")
 
+        # Lets try changing the language
+        # Translations are not ready for RHEL yet
+        if "rhel" not in m.image:
+            b.switch_to_top()
+            b.click("#content-user-name")
+            b.click(".display-language-menu a")
+            b.wait_popup('display-language')
+            b.set_val("#display-language select", "de")
+            b.click("#display-language-select-button")
+            b.expect_load()
+            b.wait_present("#content")
+            b.go("/system")
+            b.enter_page("/system")
+            b.wait_present("#server")
+            b.wait_in_text("#server", "Neustarten")
+
         self.allow_journal_messages("Failed to get realtime timestamp: Cannot assign requested address")
 
     def testFrameReload(self):

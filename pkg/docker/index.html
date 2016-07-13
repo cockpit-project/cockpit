@@ -368,6 +368,47 @@
     </form>
   </script>
 
+  <script id="volume-mount-tmpl" type="x-template/mustache">
+    <form class="form-inline">
+      <button type="button" class="btn btn-default fa fa-plus"/>
+      <button type="button" class="btn btn-default pficon-close"/>
+      <div class="form-group">
+        <input type="text" name="container" class="form-control" placeholder="{{placeholder}}">
+      </div>
+      <div class="form-group">
+        <label translatable="yes">{{host_volume_label}}</label>
+        <input type="text" name="host" class="form-control" placeholder="{{placeholder}}">
+      </div>
+      <div hidden>
+        <span class="help-block"/>
+      </div>
+      <div hidden>
+        <span class="help-block"/>
+      </div>
+    </form>
+  </script>
+
+  <script id="envvar-claim-tmpl" type="x-template/mustache">
+    <form class="form-inline">
+      <button type="button" class="btn btn-default fa fa-plus"/>
+      <button type="button" class="btn btn-default pficon-close"/>
+      <div class="form-group">
+        <label translatable="yes">{{envvar_key_label}}</label>
+        <input type="text" name="envvar_key" class="form-control" placeholder="{{placeholder}}">
+      </div>
+      <div class="form-group">
+        <label translatable="yes">{{envvar_value_label}}</label>
+        <input type="text" name="envvar_value" class="form-control" placeholder="{{placeholder}}">
+      </div>
+      <div hidden>
+        <span class="help-block"/>
+      </div>
+      <div hidden>
+        <span class="help-block"/>
+      </div>
+    </form>
+  </script>
+
   <script id="container-link-tmpl" type="x-template/mustache">
     <form class="form-inline">
       <button type="button" class="btn btn-default fa fa-plus"/>
@@ -492,6 +533,28 @@
                   Expose container ports
                 </label>
                 <div id="select-exposed-ports" class="containers-run-portmapping containers-run-inline">
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="control-label" for="mount-volumes" translatable="yes">Volumes</label></td>
+              <td colspan="4">
+                <label>
+                  <input type="checkbox" name="mount-volumes" id="mount-volumes" checked="false"/>
+                  Mount container volumes
+                </label>
+                <div id="select-mounted-volumes" class="containers-run-volumemount containers-run-inline">
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="control-label" for="claim-envvars" translatable="yes">Env Vars</label></td>
+              <td colspan="4">
+                <label>
+                  <input type="checkbox" name="claim-envvars" id="claim-envvars" checked="false"/>
+                  Claim container environment variables
+                </label>
+                <div id="select-claimed-envvars" class="containers-run-envvarclaim containers-run-inline">
                 </div>
               </td>
             </tr>

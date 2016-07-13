@@ -92,6 +92,22 @@ define([
         }
     };
 
+    util.render_container_ipaddr = function render_ipaddr(ipaddr) {
+        return cockpit.format(ipaddr);
+    };
+
+    util.render_container_ipprefixlen = function render_ipprefixlen(len) {
+        return cockpit.format(len);
+    };
+
+    util.render_container_gateway = function render_gateway(gateway) {
+        return cockpit.format(gateway);
+    };
+
+    util.render_container_macaddr = function render_macaddr(macaddr) {
+        return cockpit.format(macaddr);
+    };
+
     util.multi_line = function multi_line(strings) {
         return strings.map(function (str) { return Mustache.render("{{.}}", str); }).join('<br/>');
     };

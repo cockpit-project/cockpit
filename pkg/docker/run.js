@@ -770,8 +770,8 @@ define([
                     var input_envvars = $(this).find('input').map(function(idx, elem) {
                         return $(elem).val();
                     }).get();
-                    claim_key = input_envvars[0];
-                    claim_value = input_envvars[1];
+                    var claim_key = input_envvars[0];
+                    var claim_value = input_envvars[1];
 
                     if (claim_key === '' || claim_value === '')
                         return;

@@ -239,7 +239,7 @@ test_languages_cookie (void)
   g_assert (result != NULL);
 
   string = g_strjoinv (", ", result);
-  g_assert_cmpstr (string, ==, "pig, en-us, en, de, en");
+  g_assert_cmpstr (string, ==, "en-us, en, de, pig, en");
 
   g_free (string);
   g_strfreev (result);

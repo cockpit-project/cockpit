@@ -608,7 +608,7 @@ cockpit_web_server_parse_languages (GHashTable *headers,
   if (defawlt)
     {
       lang = g_new0 (Language, 1);
-      lang->qvalue = 1;
+      lang->qvalue = 0.1;
       lang->value = defawlt;
       g_ptr_array_add (langs, lang);
     }

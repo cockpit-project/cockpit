@@ -220,8 +220,8 @@ define([
 
             /* show volumes mounted by container image */
             var volume_renderer = this.volume_renderer();
-            for (var p in PageRunImage.image_info.Config.Volumes) {
-                volume_renderer(p, false);
+            for (var v in PageRunImage.image_info.Config.Volumes) {
+                volume_renderer(v, false);
             }
 
             if (volumebinding.children().length > 0) {
@@ -238,9 +238,9 @@ define([
 
             /* show envvars claimed by container image */
             var envvar_renderer = this.envvar_renderer();
-            for (var i=0, p; PageRunImage.image_info.Config.Env && ( p = PageRunImage.image_info.Config.Env[i++]);) {
-                if (p && p.length > 0 && p.indexOf('=') > 0)
-                    envvar_renderer(p.substr(0, p.indexOf('=')), p.substr(p.indexOf('=') + 1, p.length), false);
+            for (var i=0, e; PageRunImage.image_info.Config.Env && ( e = PageRunImage.image_info.Config.Env[i++]);) {
+                if (e && e.length > 0 && e.indexOf('=') > 0)
+                    envvar_renderer(e.substr(0, e.indexOf('=')), e.substr(e.indexOf('=') + 1, e.length), false);
             }
 
             if (envvarclaiming.children().length > 0) {

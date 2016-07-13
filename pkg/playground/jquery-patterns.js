@@ -101,8 +101,11 @@ require([
 
     $("body")
         .on("click", ".listing-ct-item:not(.listing-ct-head)", function(ev) {
+            /* If expanded or can't navigate, collapse - otherwise navigate */
+            if ($(this).parents("tbody.open").length)
+                $(this).parents("tbody.open").toggleClass("open");
             /* Only proceed if a .btn a li or .timeline-ct was not clicked on */
-            if($(ev.target).parents().addBack().filter(".btn, a, li, .timeline-ct").length === 0)
+            else if($(ev.target).parents().addBack().filter(".btn, a, li, .timeline-ct").length === 0)
                 window.alert("Navigate to details page");
         })
         .on("click", "tr.listing-ct-head", function(ev) {

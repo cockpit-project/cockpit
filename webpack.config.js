@@ -110,6 +110,10 @@ module.exports = {
         ],
         loaders: [
             {
+                test: /\.js$/,
+                loader: 'strict' // Adds "use strict"
+            },
+            {
                 test: /\.css$/,
                 loader: extract.extract("style-loader", "css-loader")
             }

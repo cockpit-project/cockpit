@@ -426,11 +426,14 @@ if test "$enable_debug" = "yes"; then
 elif test "$enable_debug" = "no"; then
   debug_status="no"
   CFLAGS="$CFLAGS -O2"
+  NODE_ENV="production"
 else
   debug_status="default"
+  NODE_ENV="production"
 fi
 AM_CONDITIONAL(WITH_DEBUG, test "$enable_debug" = "yes")
 AC_MSG_RESULT($debug_status)
+AC_SUBST(NODE_ENV)
 AC_SUBST(debugdir)
 
 # Coverage

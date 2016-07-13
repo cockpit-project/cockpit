@@ -132,7 +132,7 @@ EXTRA_DIST += Makefile-webpack.deps $(WEBPACK_CONFIG)
 
 @INCLUDE_WEBPACK_DEPS@
 
-WEBPACK_RULE = $(V_WEBPACK) SRCDIR=$(srcdir) BUILDDIR=$(builddir) \
+WEBPACK_RULE = $(V_WEBPACK) NODE_ENV=$(NODE_ENV) SRCDIR=$(srcdir) BUILDDIR=$(builddir) \
 	       $(srcdir)/tools/missing $(srcdir)/tools/webpack-make -d $@ $<
 
 Makefile-webpack.deps: $(WEBPACK_CONFIG) tools/webpack-make $(WEBPACK_INPUTS)

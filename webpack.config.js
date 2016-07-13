@@ -45,6 +45,9 @@ var srcdir = process.env.SRCDIR || __dirname;
 var pkgdir = srcdir + path.sep + "pkg";
 var distdir = (process.env.BUILDDIR || __dirname) + path.sep + "dist";
 
+/* A standard nodejs and webpack pattern */
+var production = process.env.NODE_ENV === 'production';
+
 /*
  * Note that we're avoiding the use of path.join as webpack and nodejs
  * want relative paths that start with ./ explicitly.
@@ -61,6 +64,20 @@ Object.keys(entries).forEach(function(key) {
 files = files.map(function(value) {
     return { from: pkgdir + path.sep + value, to: value };
 });
+
+var plugins = [
+    new copy(files),
+    new extract("[name].css")
+];
+
+/* Only minimize when in production mode */
+if (production) {
+    plugins.unshift(new webpack.optimize.UglifyJsPlugin({
+        compress: {
+            warnings: false
+        },
+    }));
+}
 
 module.exports = {
     resolve: {
@@ -79,18 +96,7 @@ module.exports = {
         sourceMapFilename: "[file].map",
     },
     externals: externals,
-    plugins: [
-        new webpack.optimize.UglifyJsPlugin({
-            compress: {
-                warnings: false
-            },
-            exclude: [
-                "/\.css$/",
-            ]
-        }),
-        new copy(files),
-        new extract("[name].css")
-    ],
+    plugins: plugins,
 
     devtool: "source-map",
 

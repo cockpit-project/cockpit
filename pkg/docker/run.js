@@ -214,8 +214,43 @@ define([
                 $('#expose-ports').prop('checked', false);
             }
 
-            $('#mount-volumes').prop('checked', false);
-            $('#claim-envvars').prop('checked', false);
+            /* delete any old volume binding entries */
+            var volumebinding = $('#select-mounted-volumes');
+            volumebinding.empty();
+
+            /* show volumes mounted by container image */
+            var volume_renderer = this.volume_renderer();
+            for (var p in PageRunImage.image_info.Config.Volumes) {
+                volume_renderer(p, false);
+            }
+
+            if (volumebinding.children().length > 0) {
+                $('#mount-volumes').prop('checked', true);
+                /* make sure the volumes are visible */
+                volumebinding.show();
+            } else {
+                $('#mount-volumes').prop('checked', false);
+            }
+
+            /* delete any old env var claiming entries */
+            var envvarclaiming = $('#select-claimed-envvars');
+            envvarclaiming.empty();
+
+            /* show envvars claimed by container image */
+            var envvar_renderer = this.envvar_renderer();
+            for (var i=0, p; PageRunImage.image_info.Config.Env && ( p = PageRunImage.image_info.Config.Env[i++]);) {
+                if (p && p.length > 0 && p.indexOf('=') > 0)
+                    envvar_renderer(p.substr(0, p.indexOf('=')), p.substr(p.indexOf('=') + 1, p.length), false);
+            }
+
+            if (envvarclaiming.children().length > 0) {
+                $('#claim-envvars').prop('checked', true);
+                /* make sure the volumes are visible */
+                envvarclaiming.show();
+            } else {
+                $('#claim-envvars').prop('checked', false);
+            }
+            
             var restart_policy_select_button = $('#restart-policy-select > button span.pull-left');
             restart_policy_select_button.text(_("No"));
             restart_policy_select_button.data('name', 'no');
@@ -635,9 +670,11 @@ define([
                 self.validator("changeFocus", "envvars");
             }
 
-            function render(envvar_internal, envvar_internal_editable) {
-                if (envvar_internal === undefined)
-                    envvar_internal = '';
+            function render(envvar_key_internal, envvar_value_internal, envvar_internal_editable) {
+                if (envvar_key_internal === undefined)
+                    envvar_key_internal = '';
+                if (envvar_value_internal === undefined)
+                    envvar_value_internal = '';
                 if (envvar_internal_editable === undefined)
                     envvar_internal_editable = true;
 
@@ -654,7 +691,7 @@ define([
                 }
 
                 var row_envvar_key_input = row.find('input[name="envvar_key"]');
-                row_envvar_key_input.val(envvar_internal);
+                row_envvar_key_input.val(envvar_key_internal);
                 if (envvar_internal_editable) {
                     row_envvar_key_input.on('keydown', $.proxy(self, "update", "keydown", "envvars"));
                     row_envvar_key_input.on('input', $.proxy(self, "update", "input", "envvars"));
@@ -664,9 +701,14 @@ define([
                 }
 
                 var row_envvar_value_input = row.find('input[name="envvar_value"]');
-                row_envvar_value_input.on('keydown', $.proxy(self, "update", "keydown", "envvars"));
-                row_envvar_value_input.on('input', $.proxy(self, "update", "input", "envvars"));
-                row_envvar_value_input.on('focusout change', $.proxy(self, "update", "changeFocus", "envvars"));
+                row_envvar_value_input.val(envvar_value_internal);
+                if (envvar_internal_editable) {
+                    row_envvar_value_input.on('keydown', $.proxy(self, "update", "keydown", "envvars"));
+                    row_envvar_value_input.on('input', $.proxy(self, "update", "input", "envvars"));
+                    row_envvar_value_input.on('focusout change', $.proxy(self, "update", "changeFocus", "envvars"));
+                } else {
+                    row_envvar_value_input.attr('disabled', true);
+                }
 
                 $("#select-claimed-envvars").append(row);
             }

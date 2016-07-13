@@ -33,11 +33,13 @@ rpm-ostree rebase centos-atomic-continuous:centos-atomic-host/7/x86_64/devel/con
 
 ostree checkout centos-atomic-continuous:centos-atomic-host/7/x86_64/devel/continuous /var/local-tree
 
-# docker images that we need for integration testing
-/var/lib/testvm/docker-images.setup
+systemctl start docker || journalctl -u docker
 
 # we need cockpit/ws as well
 docker pull cockpit/ws
+
+# docker images that we need for integration testing
+/var/lib/testvm/docker-images.setup
 
 # reduce image size
 /var/lib/testvm/zero-disk.setup

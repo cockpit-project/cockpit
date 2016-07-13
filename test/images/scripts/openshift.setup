@@ -217,6 +217,9 @@ cp /openshift.local.config/node-f1.cockpit.lan/node.kubeconfig /var/lib/kubelet/
 # Turn this on in sshd_config, not in use until binary is in place
 printf 'AuthorizedKeysCommand /usr/local/bin/authorized-kube-keys --kubeconfig=/var/lib/kubelet/kubeconfig\nAuthorizedKeysCommandUser root' >> /etc/ssh/sshd_config
 
+# Pull down remaining images
+/var/lib/testvm/docker-images.setup
+
 # reduce image size
 dnf clean all
 /var/lib/testvm/zero-disk.setup

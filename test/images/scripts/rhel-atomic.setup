@@ -8,6 +8,9 @@ subscription-manager register --auto-attach --username=`cat ~/.rhel/login` --pas
 rm -rf ~/.rhel
 trap "subscription-manager unregister" EXIT
 
-/var/lib/testvm/atomic.setup
+# HACK: docker falls over regularly, print its log if it does
+systemctl start docker || journalctl -u docker
 
 docker pull rhel7/rhel-tools
+
+/var/lib/testvm/atomic.setup

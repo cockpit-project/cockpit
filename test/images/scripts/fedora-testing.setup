@@ -87,14 +87,17 @@ echo "config_opts['yum.conf'] += '[updates-testing]\nenabled=1'" >>/etc/mock/def
 srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
 su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
 
-# docker images that we need for integration testing
-/var/lib/testvm/docker-images.setup
+# HACK: docker falls over regularly, print its log if it does
+systemctl start docker || journalctl -u docker
 
 # Setup basics for building images
 docker build -t cockpit/base /var/tmp/cockpit-base
 
 # Configure kubernetes
 /var/lib/testvm/kubernetes.setup
+
+# docker images that we need for integration testing
+/var/lib/testvm/docker-images.setup
 
 # reduce image size
 dnf clean all

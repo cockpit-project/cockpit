@@ -820,7 +820,7 @@ define([
                     if (mount_from === '' || mount_to === '')
                         return;
 
-                    if (mount_mode == '') {
+                    if (mount_mode === '') {
                         volume_bindings.push(mount_to + ':' + mount_from);
                     } else {
                         volume_bindings.push(mount_to + ':' + mount_from + ':' + mount_mode);

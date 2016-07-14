@@ -33,18 +33,16 @@ def prepare_resolv(machine, address):
 
 @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "atomic: missing bind-utils")
 class TestRealms(MachineCase):
+    additional_machines = {
+        'ipa': { 'machine': { 'image': 'ipa' } }
+    }
 
     def testIpa(self):
         m = self.machine
         b = self.browser
 
-        # Start the FreeIPA instance and use it as the DNS server
-        #
-        ipa = self.new_machine(image="ipa")
-        ipa.start()
-        ipa.wait_boot()
-
-        prepare_resolv(m, ipa.address)
+        # Use the FreeIPA instance as the DNS server
+        prepare_resolv(m, self.machines['ipa'].address)
 
         # Wait for DNS to work as expected.
         # https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
@@ -127,13 +125,8 @@ class TestRealms(MachineCase):
 
         m.execute("echo -e '[providers]\nsssd = no\n' >>%s" % realmd_distro_conf)
 
-        # Start the FreeIPA instance and use it as the DNS server
-        #
-        ipa = self.new_machine(image="ipa")
-        ipa.start()
-        ipa.wait_boot()
-
-        prepare_resolv(m, ipa.address)
+        # Use the FreeIPA instance as the DNS server
+        prepare_resolv(m, self.machines['ipa'].address)
 
         # Wait for DNS to work as expected.
         # https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
@@ -191,17 +184,14 @@ ipa-getkeytab -q -s f0.cockpit.lan -p HTTP/x0.cockpit.lan -k /etc/krb5.keytab
 # This is here because our test framework can't run ipa VM's twice
 @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "atomic: missing bind-utils")
 class TestKerberos(MachineCase):
-    def setUp(self):
-        MachineCase.setUp(self)
-
-        self.ipa = self.new_machine(image="ipa")
-        self.ipa.start()
-        self.ipa.wait_boot()
+    additional_machines = {
+        'ipa': { 'machine': { 'image': 'ipa' } }
+    }
 
     def configure_kerberos(self):
         # Setup a place for kerberos caches
-        args = { "addr": self.ipa.address, "password": "foobarfoo" }
-        prepare_resolv(self.machine, self.ipa.address)
+        args = { "addr": self.machines['ipa'].address, "password": "foobarfoo" }
+        prepare_resolv(self.machine, self.machines['ipa'].address)
         self.machine.execute(script=JOIN_SCRIPT % args)
 
     def tearDown(self):

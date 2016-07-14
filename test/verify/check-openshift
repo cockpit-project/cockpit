@@ -51,13 +51,14 @@ def wait_project(machine, project):
 
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
 class TestOpenshift(MachineCase, OpenshiftCommonTests):
+    additional_machines = {
+        'openshift': { 'machine': { 'image': 'openshift' } }
+    }
 
     def setUp(self):
         super(TestOpenshift, self).setUp()
 
-        self.openshift = self.new_machine(image="openshift")
-        self.openshift.start()
-        self.openshift.wait_boot()
+        self.openshift = self.machines['openshift']
         self.openshift.upload(["verify/files/mock-app-openshift.json"], "/tmp")
         tmpfile = os.path.join(self.tmpdir, "config")
         self.openshift.download("/root/.kube/config", tmpfile)
@@ -288,13 +289,14 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
 
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
 class TestRegistry(MachineCase):
+    additional_machines = {
+        'openshift': { 'machine': { 'image': 'openshift' } }
+    }
+
     def setUp(self):
         super(TestRegistry, self).setUp()
 
-        # Start openshift machine
-        self.openshift = self.new_machine(image="openshift")
-        self.openshift.start()
-        self.openshift.wait_boot()
+        self.openshift = self.machines['openshift']
 
         # Sync over the kube config file
         tmpfile = os.path.join(self.tmpdir, "config")

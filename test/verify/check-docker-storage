@@ -92,7 +92,7 @@ class TestDockerStorage(MachineCase):
         # the pool would kill the cockpit-ws container.
 
         if "atomic" in self.machine.image:
-            m = self.new_machine()
+            m = self.new_machine(machine_key='additional')
             m.start()
             m.wait_boot()
         else:

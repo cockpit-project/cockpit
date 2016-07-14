@@ -22,7 +22,7 @@ import json
 import parent
 from testlib import *
 
-class TestDashboard(MachineCase):
+class DashBoardHelpers:
     def inject_extras(self, b):
         b.eval_js("""
         dashboard_addresses = function () {
@@ -70,17 +70,18 @@ class TestDashboard(MachineCase):
             b.click('#dashboard_setup_server_dialog .btn-primary')
         b.wait_popdown('dashboard_setup_server_dialog')
 
+class TestBasicDashboard(MachineCase, DashBoardHelpers):
+    additional_machines = {
+        'machine2': { },
+        'machine3': { }
+    }
+
     def testBasic(self):
         b = self.browser
         m = self.machine
 
-        m2 = self.new_machine()
-        m2.start()
-        m2.wait_boot()
-
-        m3 = self.new_machine()
-        m3.start()
-        m3.wait_boot()
+        m2 = self.machines['machine2']
+        m3 = self.machines['machine3']
 
         self.login_and_go("/dashboard")
         self.inject_extras(b)
@@ -183,43 +184,16 @@ class TestDashboard(MachineCase):
         self.allow_hostkey_messages()
         self.allow_journal_messages(".*server offered unsupported authentication methods: password public-key.*")
 
-    def testEdit(self):
-        b = self.browser
-        m = self.machine
-
-        self.login_and_go("/dashboard")
-        self.inject_extras(b)
-        self.wait_dashboard_addresses (b, [ "localhost" ])
-        old_style = b.attr("#dashboard-hosts .list-group-item[data-address='localhost']", "style")
-
-        b.wait_not_visible('#dashboard-hosts a:first-child button.pficon-edit')
-        b.click('#dashboard-enable-edit')
-        b.wait_visible('#dashboard-hosts a:first-child button.pficon-edit')
-
-        b.click('#dashboard-hosts a:first-child button.pficon-edit')
-        b.wait_not_visible('#dashboard-hosts a:first-child button.pficon-edit')
-
-        b.wait_popup('host-edit-dialog')
-        b.set_val('#host-edit-name', "Horst")
-        b.click('#host-edit-color')
-        b.wait_visible('#host-edit-color-popover')
-        b.wait_visible('#host-edit-user[disabled]')
-        b.click('#host-edit-color-popover div.popover-content > div:first-child > div:nth-child(3)')
-        b.wait_not_visible('#host-edit-color-popover')
-        b.click('#host-edit-apply')
-        b.wait_popdown('host-edit-dialog')
-
-        b.wait_in_text('#dashboard-hosts a:first-child span.host-label', "Horst")
-        b.wait_not_attr("#dashboard-hosts .list-group-item[data-address='localhost']", "style", old_style)
-        self.assertEqual(m.execute("hostnamectl --pretty"), "Horst\n")
+class TestDashboardSetup(MachineCase, DashBoardHelpers):
+    additional_machines = {
+        'machine2': { }
+    }
 
     def testSetup(self):
         b = self.browser
 
         m1 = self.machine
-        m2 = self.new_machine()
-        m2.start()
-        m2.wait_boot()
+        m2 = self.machines['machine2']
 
         # lockout admin
         m2.execute("echo admin:badpass | chpasswd")
@@ -302,6 +276,37 @@ class TestDashboard(MachineCase):
 
         m2.execute("ps aux | grep cockpit-bridge | grep admin")
         self.allow_hostkey_messages()
+
+class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
+    def testEdit(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/dashboard")
+        self.inject_extras(b)
+        self.wait_dashboard_addresses (b, [ "localhost" ])
+        old_style = b.attr("#dashboard-hosts .list-group-item[data-address='localhost']", "style")
+
+        b.wait_not_visible('#dashboard-hosts a:first-child button.pficon-edit')
+        b.click('#dashboard-enable-edit')
+        b.wait_visible('#dashboard-hosts a:first-child button.pficon-edit')
+
+        b.click('#dashboard-hosts a:first-child button.pficon-edit')
+        b.wait_not_visible('#dashboard-hosts a:first-child button.pficon-edit')
+
+        b.wait_popup('host-edit-dialog')
+        b.set_val('#host-edit-name', "Horst")
+        b.click('#host-edit-color')
+        b.wait_visible('#host-edit-color-popover')
+        b.wait_visible('#host-edit-user[disabled]')
+        b.click('#host-edit-color-popover div.popover-content > div:first-child > div:nth-child(3)')
+        b.wait_not_visible('#host-edit-color-popover')
+        b.click('#host-edit-apply')
+        b.wait_popdown('host-edit-dialog')
+
+        b.wait_in_text('#dashboard-hosts a:first-child span.host-label', "Horst")
+        b.wait_not_attr("#dashboard-hosts .list-group-item[data-address='localhost']", "style", old_style)
+        self.assertEqual(m.execute("hostnamectl --pretty"), "Horst\n")
 
 
     def testLimits(self):

@@ -105,7 +105,7 @@ class RegistryMachine(OCMachine):
 
 class OCCase(kubelib.KubernetesCase):
     def setUp(self, macaddr=None, memory_mb=None, cpus=None):
-        self.machine = self.new_machine(image='openshift')
+        self.machine = self.new_machine(machine_key='openshift', image='openshift')
         self.machine.start(macaddr=macaddr, memory_mb=memory_mb, cpus=cpus)
         self.machine.wait_boot()
 

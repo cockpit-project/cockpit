@@ -106,18 +106,17 @@ def change_ssh_port(machine, port=None, timeout_sec=120):
 
     raise error
 
+class TestMultiMachineAdd(MachineCase):
+    additional_machines = {
+        'machine2': { },
+        'machine3': { }
+    }
 
-class TestMultiMachine(MachineCase):
     def setUp(self):
         MachineCase.setUp(self)
-        self.machine2 = self.new_machine()
-        self.machine2.start()
-        self.machine2.wait_boot()
+        self.machine2 = self.machines['machine2']
         self.machine2.execute("hostnamectl set-hostname machine2")
-
-        self.machine3 = self.new_machine()
-        self.machine3.start()
-        self.machine3.wait_boot()
+        self.machine3 = self.machines['machine3']
         self.machine3.execute("hostnamectl set-hostname machine3")
 
     def tearDown(self):
@@ -179,6 +178,24 @@ class TestMultiMachine(MachineCase):
                                     "Received message for unknown channel: .*",
                                     ".*: error reading from ssh",
                                     ".*: bridge program failed: Child process exited with code .*")
+
+
+class TestMultiMachine(MachineCase):
+    additional_machines = {
+        'machine2': { }
+    }
+
+    def setUp(self):
+        MachineCase.setUp(self)
+        self.machine2 = self.machines['machine2']
+        self.machine2.execute("hostnamectl set-hostname machine2")
+
+    def tearDown(self):
+        if self.runner and self.runner.wasSuccessful():
+            self.check_journal_messages(self.machine2)
+            if self.machine3:
+                self.check_journal_messages(self.machine3)
+        MachineCase.tearDown(self)
 
     def testExternalPage(self):
         b = self.browser

@@ -1151,6 +1151,9 @@ class VirtMachine(Machine):
         if not self.event_handler.wait_for_running(self._domain, timeout_sec=wait_for_running_timeout ):
             raise Failure("Machine %s didn't start." % (self.address))
 
+        if not self.address:
+            self.address = self._ip_from_mac(self.macaddr)
+
         # if we allow a reboot, the connection to test for a finished boot may be interrupted
         # by the reboot, causing an exception
         try:

@@ -431,13 +431,18 @@ class MachineCase(unittest.TestCase):
     machine = None
     machine_class = None
     browser = None
-    machines = [ ]
+    machines = { }
+
+    # additional_machines is a dictionary of dictionaries, one for each additional machine to be created, e.g.:
+    # additional_machines = { 'openshift' : { machine: { 'image': 'openshift' }, 'start': { 'memory_mb': 1024 } } }
+    # These will be instantiated during setUp
+    additional_machines = { }
 
     def label(self):
         (unused, sep, label) = self.id().partition(".")
         return label.replace(".", "-")
 
-    def new_machine(self, image=None):
+    def new_machine(self, machine_key, image=None):
         import testvm
         machine_class = self.machine_class
         if opts.address:
@@ -453,7 +458,7 @@ class MachineCase(unittest.TestCase):
             machine = machine_class(verbose=opts.trace, image=image, label=self.label(), fetch=opts.network)
             self.addCleanup(lambda: machine.kill())
 
-        self.machines.append(machine)
+        self.machines[machine_key] = machine
         return machine
 
     def new_browser(self, address=None, port=9090):
@@ -491,13 +496,29 @@ class MachineCase(unittest.TestCase):
                 stopTestRun()
 
     def setUp(self, macaddr=None, memory_mb=None, cpus=None):
-        self.machines = [ ]
-        self.machine = self.new_machine()
-        self.machine.start(macaddr=macaddr, memory_mb=memory_mb, cpus=cpus)
-        if not opts.address:
-            if opts.trace:
-                print "starting machine %s" % (self.machine.address)
-            self.machine.wait_boot()
+        self.machines = { }
+        self.machine = self.new_machine(machine_key='0')
+
+        self.machine.start(macaddr=macaddr, memory_mb=memory_mb, cpus=cpus, wait_for_ip=False)
+
+        # first create all additional machines, wait for them later
+        for machine_name, machine_options in self.additional_machines.iteritems():
+            if not 'machine' in machine_options:
+                machine_options['machine'] = { }
+            if not 'start' in machine_options:
+                machine_options['start'] = { }
+            machine = self.new_machine(machine_key=machine_name, **machine_options['machine'])
+            options = machine_options['start']
+            options['wait_for_ip'] = False
+            machine.start(**options)
+
+        # now wait for the other machines to be up
+        for machine_name, machine in self.machines.iteritems():
+            if machine_name != '0' or not opts.address:
+                if opts.trace:
+                    print "starting machine %s (%s)" % (machine.image, machine.address)
+                machine.wait_boot()
+
         self.browser = self.new_browser()
         self.tmpdir = tempfile.mkdtemp()
 
@@ -640,7 +661,7 @@ class MachineCase(unittest.TestCase):
             self.browser.snapshot(title, label)
 
     def copy_journal(self, title, label=None):
-        for m in self.machines:
+        for name, m in self.machines.iteritems():
             if m.address:
                 log = "%s-%s-%s.log" % (label or self.label(), m.address, title)
                 with open(log, "w") as fp:

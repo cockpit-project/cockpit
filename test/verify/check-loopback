@@ -35,7 +35,10 @@ class TestLoopback(MachineCase):
         else:
             cockpit_ws = "/usr/libexec/cockpit-ws"
 
+        # Start Cockpit with option to access SSH
         m.spawn(cockpit_ws + " --local-ssh --no-tls", "cockpit-ws");
+        m.wait_for_cockpit_running()
+
         b.login_and_go("/system", user="admin")
 
         m.execute("sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config")

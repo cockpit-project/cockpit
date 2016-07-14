@@ -134,7 +134,7 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
 
 def copy_avocado_logs(machine, title):
     if machine and machine.address:
-        dir = "%s-%s.avocado" % (machine.address, title)
+        dir = os.path.join(testinfra.TEST_DIR, "tmp", "%s-%s.avocado" % (machine.address, title))
         # check if the remote directory exists (if it doesn't, we want to quit silently)
         test_command = "if test -d '{0}'; then echo exists; fi".format(avocado_results_dir)
         if "exists" not in machine.execute(command=test_command,quiet=True):
@@ -149,6 +149,7 @@ def copy_avocado_logs(machine, title):
             # compress the logs and attach that
             archive = os.path.join(arg_attachments_dir, "{0}.tar.gz".format(dir))
             subprocess.call(["tar", "cfz", archive, dir])
+            shutil.rmtree(dir)
 
 def wait_for_selenium_running(machine, host, port=4444):
     WAIT_SELENIUM_RUNNING = """#!/bin/sh

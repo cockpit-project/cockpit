@@ -396,8 +396,17 @@
         <input type="text" name="host" class="form-control" placeholder="{{placeholder}}">
       </div>
       <div class="form-group">
-        <label translatable="yes">{{mount_mode_label}}</label>
-        <input type="text" name="mode" class="form-control" placeholder="{{placeholder}}">
+        <div class="btn-group dropdown mount-mode">
+          <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+            <span translatable="yes">Default</span>
+            <div class="caret"></div>
+          </button>
+          <ul class="dropdown-menu">
+            <li><a translatable="yes">Default</a></li>
+            <li><a translatable="yes">ReadWrite</a></li>
+            <li><a translatable="yes">ReadOnly</a></li>
+          </ul>
+        </div>
       </div>
       <div hidden>
         <span class="help-block"/>

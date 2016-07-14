@@ -621,7 +621,6 @@ define([
 
                 var row = $(Mustache.render(template, {
                     host_volume_label: _('to host path'),
-                    mount_mode_label: _('mode'),
                     placeholder: _('none')
                 }));
                 row.children("button.fa-plus").on('click', add_row);
@@ -645,6 +644,11 @@ define([
                 row_host_input.on('keydown', $.proxy(self, "update", "keydown", "volumes"));
                 row_host_input.on('input', $.proxy(self, "update", "input", "volumes"));
                 row_host_input.on('focusout change', $.proxy(self, "update", "changeFocus", "volumes"));
+                var mount_mode_select = row.find("div .mount-mode");
+                mount_mode_select.find('a').on('click', function() {
+                    mount_mode_select.find("button span").text($(this).text());
+                    self.update("changeOption", "volumes");
+                });
 
                 $("#select-mounted-volumes").append(row);
             }
@@ -800,15 +804,26 @@ define([
                     }).get();
                     mount_from = input_volumes[0];
                     mount_to = input_volumes[1];
-                    mount_mode = input_volumes[2];
+                    var mount_mode_text = $(this).find('button span').text();
+                    switch (mount_mode_text) {
+                        case 'ReadOnly':
+                            mount_mode = 'ro';
+                            break;
+                        case 'ReadWrite':
+                            mount_mode = 'rw';
+                            break;
+                        default:
+                            mount_mode = '';
+                            break;
+                    }
 
                     if (mount_from === '' || mount_to === '')
                         return;
 
-                    if (mount_mode) {
-                        volume_bindings.push(mount_to + ':' + mount_from + ':' + mount_mode);
-                    } else {
+                    if (mount_mode == '') {
                         volume_bindings.push(mount_to + ':' + mount_from);
+                    } else {
+                        volume_bindings.push(mount_to + ':' + mount_from + ':' + mount_mode);
                     }
                 });
             }

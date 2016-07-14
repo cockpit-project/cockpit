@@ -16,6 +16,10 @@
 
 %if %{defined gitcommit}
 %define extra_flags CFLAGS='-O2 -Wall -Werror -fPIC -g -DWITH_DEBUG'
+%define stable_api %{gitcommit}
+%else
+# The first version with a stable APIs
+%define stable_api 0.114
 %endif
 
 %if 0%{?centos}
@@ -344,7 +348,7 @@ test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 
 %package shell
 Summary: Cockpit Shell user interface package
-Requires: %{name}-bridge = %{version}-%{release}
+Requires: %{name}-bridge >= %{stable_api}
 Requires: shadow-utils
 Requires: grep
 Requires: libpwquality
@@ -366,7 +370,8 @@ This package contains the Cockpit shell UI assets.
 
 %package storaged
 Summary: Cockpit user interface for storage, using Storaged
-Requires: %{name}-shell = %{version}-%{release}
+Requires: %{name}-bridge >= %{stable_api}
+Requires: %{name}-shell >= %{stable_api}
 Requires: storaged >= 2.1.1
 %if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
 Recommends: storaged-lvm2 >= 2.1.1
@@ -386,7 +391,8 @@ The Cockpit component for managing storage.  This package uses Storaged.
 
 %package ostree
 Summary: Cockpit user interface for rpm-ostree
-Requires: %{name}-shell = %{version}-%{release}
+Requires: %{name}-bridge >= %{stable_api}
+Requires: %{name}-shell >= %{stable_api}
 %if 0%{?fedora} > 0 && 0%{?fedora} < 24
 Requires: rpm-ostree >= 2015.10-1
 %else
@@ -404,7 +410,8 @@ The Cockpit components for managing software updates for ostree based systems.
 
 %package sosreport
 Summary: Cockpit user interface for diagnostic reports
-Requires: %{name}-shell = %{version}-%{release}
+Requires: %{name}-bridge >= %{stable_api}
+Requires: %{name}-shell >= %{stable_api}
 Requires: sos
 BuildArch: noarch
 
@@ -416,7 +423,8 @@ sosreport tool.
 
 %package subscriptions
 Summary: Cockpit subscription user interface package
-Requires: %{name}-shell = %{version}-%{release}
+Requires: %{name}-bridge >= %{stable_api}
+Requires: %{name}-shell >= %{stable_api}
 Requires: subscription-manager >= 1.13
 BuildArch: noarch
 
@@ -428,7 +436,8 @@ subscription management.
 
 %package networkmanager
 Summary: Cockpit user interface for networking, using NetworkManager
-Requires: %{name}-shell = %{version}-%{release}
+Requires: %{name}-bridge >= %{stable_api}
+Requires: %{name}-shell >= %{stable_api}
 Requires: NetworkManager
 BuildArch: noarch
 
@@ -443,7 +452,8 @@ The Cockpit component for managing networking.  This package uses NetworkManager
 
 %package selinux
 Summary: Cockpit SELinux package
-Requires: %{name}-shell = %{version}-%{release}
+Requires: %{name}-bridge >= %{stable_api}
+Requires: %{name}-shell >= %{stable_api}
 Requires: setroubleshoot-server >= 3.3.3
 BuildArch: noarch
 
@@ -459,7 +469,8 @@ utility setroubleshoot to diagnose and resolve SELinux issues.
 
 %package docker
 Summary: Cockpit user interface for Docker containers
-Requires: %{name}-shell = %{version}-%{release}
+Requires: %{name}-bridge >= %{stable_api}
+Requires: %{name}-shell >= %{stable_api}
 Requires: docker >= 1.3.0
 
 %description docker
@@ -475,7 +486,8 @@ This package is not yet complete.
 %package kubernetes
 Summary: Cockpit user interface for Kubernetes cluster
 Requires: /usr/bin/kubectl
-Requires: %{name}-shell = %{version}-%{release}
+Requires: %{name}-bridge >= %{stable_api}
+Requires: %{name}-shell >= %{stable_api}
 BuildRequires: golang-bin
 BuildRequires: golang-src
 
@@ -493,7 +505,8 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 
 %package test-assets
 Summary: Additional stuff for testing Cockpit
-Requires: %{name}-shell = %{version}-%{release}
+Requires: %{name}-bridge >= %{stable_api}
+Requires: %{name}-shell >= %{stable_api}
 Requires: openssh-clients
 
 %description test-assets

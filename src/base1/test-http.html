@@ -152,6 +152,29 @@ asyncTest("close", function() {
         });
 });
 
+asyncTest("close all", function() {
+    expect(4);
+
+    var http = cockpit.http({ "internal": "/test-server" });
+    var req = http.get("/mock/stream");
+
+    var at = 0;
+    req.stream(function(resp) {
+            at += 1;
+            equal(resp, "0 ", "first stream part");
+            http.close("bad-boy");
+        })
+        .fail(function(ex) {
+            equal(ex.problem, "bad-boy", "right problem");
+        })
+        .always(function() {
+            equal(at, 1, "stream got cancelled");
+            equal(this.state(), "rejected", "cancelling a response rejects it");
+            http.close("closed");  // This should be a no-op now
+            start();
+        });
+});
+
 asyncTest("headers", function() {
     expect(3);
 

@@ -1,0 +1,506 @@
+#! /usr/bin/python
+
+# This utility fills in the gaps between the Atomic image storage API
+# and the Cockpit UI.  Specifically, it replicates some bits of
+# Storaged and hosts some code that is too experimental to even
+# consider adding it to "atomic storage".
+#
+# It can 'monitor', 'reset-and-reduce', 'add', and 'reset-and-add'.
+
+# MONITOR
+#
+# When monitoring, it outputs the current state of the pool as JSON.
+# It runs forever and prints a new line whenever something has
+# changed.
+#
+# The output contains the following fields:
+#
+# 'pool_devices': Array of block devices that are part of the pool.
+# See below for details of how block devices are represented.
+#
+# 'extra_devices': Array of additional devices that are available but
+# are not part of the pool, in the same format are 'pool_devices'.
+#
+# 'used': Number of bytes used for Docker images and containers.
+#
+# 'total': Total number of bytes available for Docker images and
+# containers.  This is the number of bytes that could be consumed if
+# nothing else on the system consumes storage.  Often the storage for
+# the pool is shared with the OS and other components.  Thus, 'total'
+# might decrease/increase over time as other parts use/release
+# storage.
+#
+# A device in the 'pool_devices' and 'extra_devices' arrays is a
+# object with the following fields:
+#
+# 'path': A pathname, probably in "/dev", for this device.
+#
+# 'sort_index': A number that can be used to sort the devices into a
+# useful order.
+#
+# 'name': A relatively short human readable name for it.
+#
+# 'class': A symbolic class of this drive.  One of "hdd", "sdd", "drive".
+#
+# 'size': The size of the device in bytes.
+#
+# Pool devices also have this field:
+#
+# 'shared': True when this device holds other data than the Atomic
+# image storage pool
+
+# RESET-AND-REDUCE
+#
+# This combines "atomic storage reset" and the removal of unused
+# physical volumes.  It also stops/starts Docker as appropriate.
+
+# ADD
+#
+# This combines simple wiping of block devices with adding them to the
+# pool.
+
+# RESET-AND-ADD
+#
+# This resets the pool before adding the devices, with the hope that
+# this will get us into a better configuration.  This is used when the
+# pool is in the devicemapper-on-loopback emergency mode, and the
+# reset will allow docker-storage-setup to finally succeed and create
+# a proper thinpool.
+
+import sys
+import os
+import subprocess
+import json
+import re
+import time
+import select
+
+## Utils
+
+def check_output(cmd):
+    return subprocess.check_output(cmd, close_fds=True).decode(errors='replace')
+
+def check_call(cmd, stdout=None):
+    return subprocess.check_call(cmd, stdout=stdout, close_fds=True)
+
+def call(cmd, stdout=None):
+    return subprocess.call(cmd, stdout=stdout, close_fds=True)
+
+ds_conf_file = "/etc/sysconfig/docker-storage"
+
+def query_lvs(lvol, vgroup, fields):
+    return check_output([ "lvs", "--noheadings", "-o",  fields, "--unit", "b", vgroup + "/" + lvol ]).split()
+
+def query_pvs(pv, fields):
+    return check_output([ "pvs", "--noheadings", "-o",  fields, "--unit", "b", pv ]).split()
+
+def list_pvs(vgroup):
+    res = [ ]
+    for l in check_output([ "pvs", "--noheadings", "-o",  "vg_name,pv_name" ]).splitlines():
+        fields = l.split()
+        if len(fields) == 2 and fields[0] == vgroup:
+            res.append(fields[1])
+    return res
+
+def list_lvs(vgroup):
+    return map(lambda s: s.strip(),
+               check_output([ "lvs", "--noheadings", "-o", "name", vgroup ]).splitlines())
+
+def list_parents(dev):
+    return check_output([ "lsblk", "-snlp", "-o", "NAME", dev ]).splitlines()[1:]
+
+def list_children(dev):
+    return check_output([ "lsblk", "-nlp", "-o", "NAME", dev ]).splitlines()[1:]
+
+def sh_make_var_pattern(var):
+    return '^[ \t]*%s[ \t]*=[ \t]*"(.*)"[ \t]*$' % re.escape(var)
+
+def sh_modify_var_in_text(text, var, modifier, default=""):
+    def sub(match):
+        return var + '="' + modifier(match.group(1)) + '"'
+    (new_text, n_subs) = re.subn(sh_make_var_pattern(var), sub, text, flags=re.MULTILINE)
+    if n_subs != 0:
+        return new_text
+    else:
+        return text + '\n' + var + '="' + modifier(default) + '"\n'
+
+def sh_modify_var_in_file(path, var, modifier, default=""):
+    if os.path.exists(path):
+        with open(path, "r") as f:
+            text = f.read()
+    else:
+        text = ""
+    with open(path, "w") as f:
+        f.write(sh_modify_var_in_text(text, var, modifier, default))
+
+def sh_get_var_in_text(text, var, default=""):
+    match = None
+    for match in re.finditer(sh_make_var_pattern(var), text, flags=re.MULTILINE):
+        pass
+    if match:
+        return match.group(1)
+    else:
+        return default
+
+def sh_get_var_in_file(path, var, default=""):
+    if os.path.exists(path):
+        with open(path, "r") as f:
+            return sh_get_var_in_text(f.read(), var, default)
+    else:
+        return default
+
+def sh_set_add(a, b):
+    return " ".join(list(set(a.split()) | set(b)))
+
+def sh_set_del(a, b):
+    return " ".join(list(set(a.split()) - set(b)))
+
+## Monitor
+
+def get_driver_info():
+    driver = None
+    lvol = None
+    vgroup = None
+
+    def get_dev_lvol_and_vgroup(dev):
+        try:
+            return check_output([ "lvs", "--noheadings", "-o",  "lv_name,vg_name", dev ]).split()
+        except:
+            return (None, None)
+
+    def get_rootfs_lvol_and_vgroup():
+        root_dev = None
+        for l in open("/proc/mounts", "r").readlines():
+            fields = l.split()
+            if fields[1] == "/" and fields[0].startswith("/dev"):
+                return get_dev_lvol_and_vgroup(fields[0])
+        return (None, None)
+
+    if os.path.exists(ds_conf_file):
+        conf = open(ds_conf_file, "r").read()
+    else:
+        conf = ""
+    m = re.search("dm.thinpooldev=([^ ]*)", conf)
+    if m:
+        driver = "thinpool"
+        (lvol, vgroup) = get_dev_lvol_and_vgroup(m.group(1))
+    else:
+        driver = "rootfs"
+        (lvol, vgroup) = get_rootfs_lvol_and_vgroup()
+
+    return (driver, lvol, vgroup)
+
+def get_adjusted_thinpool_size(lvol, vgroup):
+    fields = query_lvs(lvol, vgroup, "lv_size,vg_free,lv_profile")
+    lv_size = int(fields[0][:-1])
+    vg_free = int(fields[1][:-1])
+
+    if len(fields) > 2 and fields[2] != "":
+        config = check_output([ "lvmconfig", "--mergedconfig",
+                                "--metadataprofile", fields[2],
+                                "activation/thin_pool_autoextend_threshold" ]).strip().split("=")
+        if len(config) == 2 and int(config[1]) != 100:
+            lv_size += vg_free
+
+    return lv_size
+
+def get_overlayfs_usage():
+    # We sum up all the reported layer sizes.  This is quite cheap to
+    # compute but seems to be off by about 20%.  We artificially
+    # compensate for the missing 20%.
+    usage = 0
+    layerdb = "/var/lib/docker/image/overlay/layerdb/sha256"
+    if os.path.exists(layerdb):
+        for name in os.listdir(layerdb):
+            try:
+                usage += int(open(os.path.join(layerdb, name, "size"), "r").read())
+            except:
+                pass
+    return int(usage*1.2)
+
+def get_graph_usage():
+    # For docker 1.8 on Debian
+    usage = 0
+    graphdir = "/var/lib/docker/graph"
+    if os.path.exists(graphdir):
+        for name in os.listdir(graphdir):
+            try:
+                usage += int(open(os.path.join(graphdir, name, "layersize"), "r").read())
+            except:
+                pass
+    return int(usage*1.1)
+
+def get_loopback_usage():
+    if os.path.exists("/var/lib/docker/devicemapper/devicemapper/data"):
+        return os.stat("/var/lib/docker/devicemapper/devicemapper/data").st_blocks * 512
+    else:
+        return 0
+
+def get_devicemapper_thinpool_usage(dev):
+    table_fields = check_output([ "dmsetup", "table", dev ]).split()
+    status_fields = check_output([ "dmsetup", "status", dev ]).split()
+    data_blocksize = int(table_fields[5])
+    data_used = int(status_fields[5].split("/")[0])
+    return data_used*data_blocksize*512
+
+class BlockDevice:
+    def __init__(self, path):
+        self.path = path
+        self._props = { }
+        for l in check_output([ "udevadm", "info", "-x", path ]).splitlines():
+            if l.startswith("P: "):
+                self.sysfs_path = l[3:]
+            elif l.startswith("N: "):
+                self.name = l[3:]
+            elif l.startswith("E: "):
+                (var, val) = l[3:].split("=", 1)
+                self._props[var] = val
+
+    def get(self, var, default=None):
+        if var in self._props:
+            return self._props[var]
+        else:
+            return default
+
+    def attr(self, name):
+        s = "/sys" + os.path.join(self.sysfs_path, name)
+        if os.path.exists(s):
+            with open(s, "r") as f:
+                return f.read()
+        else:
+            return None
+
+def list_block_devices():
+    return map(BlockDevice, check_output([ "lsblk", "-lpno", "NAME" ]).splitlines())
+
+def is_drive(d):
+
+    def has_vpn(d):
+        return (d.get('ID_SERIAL')
+                or d.get('ID_WWN_WITH_EXTENSION')
+                or d.get('ID_PATH'))
+
+    def is_virtio_drive(d):
+        return d.name.startswith("vd")
+
+    def is_vmware_drive(d):
+        return (d.name.startswith("sd")
+                and d.get('ID_VENDOR') == "VMware"
+                and d.get('ID_MODEL').startswith("Virtual"))
+
+    return (d.get('DEVTYPE') == "disk"
+            and (has_vpn(d)
+                 or is_virtio_drive(d)
+                 or is_vmware_drive(d)))
+
+def drive_model(d):
+    model = d.get('ID_MODEL')
+    if not model and d.name.startswith("vd"):
+        model = "Virtio Disk"
+    if not model:
+        model = "Unknown"
+    return model
+
+def drive_vendor(d):
+    return d.get('ID_VENDOR')
+
+def drive_wwn(d):
+    return d.get('ID_WWN_WITH_EXTENSION')
+
+def drive_serial(d):
+    return d.get('ID_SERIAL_SHORT') or d.get('ID_SERIAL') or d.get('ID_SCSI_SERIAL')
+
+def drive_name(d):
+    vendor = drive_vendor(d)
+    model = drive_model(d)
+    serial = drive_serial(d)
+    wwn = drive_wwn(d)
+
+    name = ""
+    if vendor:
+        name += vendor + " "
+    name += drive_model(d)
+    if serial:
+        name += " (" + serial + ")"
+    elif wwn:
+        name += " (" + wwn + ")"
+
+    return name
+
+def drive_class(d):
+    if d.attr("removable") == "1\n":
+        return "drive"
+    elif d.attr("queue/rotational") == "1\n":
+        return "hdd"
+    else:
+        return "sdd"
+
+can_manage = None
+
+def get_info():
+    try:
+        drives = { }
+        for d in list_block_devices():
+            if is_drive(d):
+                drives[d.path] = { "path": d.path,
+                                   "sort_index": int(d.get('MAJOR', "0"))*100000 + int(d.get('MINOR', "0")),
+                                   "name": drive_name(d),
+                                   "class": drive_class(d),
+                                   "size": int(d.attr("size"))*512 }
+
+        (driver, lvol, vgroup) = get_driver_info()
+
+        pool_devices = [ ]
+        pool_drives = { }
+        extra_devices = [ ]
+
+        if vgroup:
+            other_parents = set()
+            for l in list_lvs(vgroup):
+                if l != lvol:
+                    other_parents |= set(list_parents(query_lvs(l, vgroup, "lv_dmpath")[0]))
+
+            for pv in list_pvs(vgroup):
+                for p in list_parents(pv):
+                    if p in drives:
+                        pool_drives[p] = True
+                        pool_devices.append({ "path": pv,
+                                              "sort_index": drives[p]["sort_index"],
+                                              "name": drives[p]["name"],
+                                              "class": drives[p]["class"],
+                                              "size": drives[p]["size"],
+                                              "shared": pv in other_parents })
+
+        for d in drives:
+            if d not in pool_drives:
+                extra_devices.append(drives[d])
+
+        if driver == "thinpool":
+            total = get_adjusted_thinpool_size(lvol, vgroup)
+            dm_path = query_lvs(lvol, vgroup, "lv_dm_path")[0]
+            used = get_devicemapper_thinpool_usage(dm_path)
+        else:
+            used = get_overlayfs_usage() + get_loopback_usage() + get_graph_usage()
+            fs_stat = os.statvfs("/var")
+            fs_used = (fs_stat.f_blocks - fs_stat.f_bfree)*fs_stat.f_frsize
+            if lvol:
+                fs_total = get_adjusted_thinpool_size(lvol, vgroup)
+            else:
+                fs_total = fs_stat.f_blocks * fs_stat.f_frsize
+            total =  fs_total - fs_used + used
+
+        return { "loopback": os.path.exists("/var/lib/docker/devicemapper/devicemapper/data"),
+                 "can_manage": can_manage,
+                 "total": total,
+                 "used": used,
+                 "pool_devices": pool_devices,
+                 "extra_devices": extra_devices }
+
+    except:
+        return None
+
+def print_info(data):
+    if data:
+        sys.stdout.write(json.dumps(data) + "\n")
+        sys.stdout.flush()
+
+def cmd_monitor():
+    # Figure out whether we can manage the pool.  For that, we need
+    # both a volume group to work with, and a recent enough version of
+    # the "atomic" utility.
+    global can_manage
+    can_manage = False
+    try:
+        if get_dss_vgroup() != "":
+            with open("/dev/null", "w") as dev_null:
+                can_manage = call([ "atomic", "storage", "--help" ], stdout=dev_null) == 0
+    except:
+        pass
+
+    old_info = get_info()
+    print_info(old_info)
+
+    mon = subprocess.Popen([ "stdbuf", "-o", "L", "udevadm", "monitor", "-u", "-s", "block"],
+                           bufsize=1, stdout=subprocess.PIPE)
+    while mon.poll() == None:
+        (r, _, _) = select.select([ mon.stdout ], [] , [], 5)
+        got_event = False
+        if len(r) > 0:
+            if mon.stdout.readline().decode().startswith("UDEV  "):
+                got_event = True
+        # XXX - skip udev/lvm stuff on pure timeouts
+        info = get_info()
+        if info != old_info:
+            print_info(info)
+            old_info = info
+
+## Reset-and-reduce
+
+def get_dss_vgroup():
+    vgroup = sh_get_var_in_file("/etc/sysconfig/docker-storage-setup", "VG", "")
+    if vgroup == "":
+        root_dev = None
+        for l in open("/proc/mounts", "r").readlines():
+            fields = l.split()
+            if fields[1] == "/" and fields[0].startswith("/dev"):
+                vgroup = check_output([ "lvs", "--noheadings", "-o",  "vg_name", fields[0]]).strip()
+    return vgroup
+
+def cmd_reset_and_reduce():
+    vgroup = get_dss_vgroup()
+    dss_conf = "/etc/sysconfig/docker-storage-setup"
+    try:
+        check_call([ "systemctl", "stop", "docker" ])
+        check_call([ "atomic", "storage", "reset" ])
+        pvs = list_pvs(vgroup)
+        lvs = list_lvs(vgroup)
+        n_pvs = len(pvs)
+        for pv in pvs:
+            if query_pvs(pv, "pv_used")[0][:-1] == '0':
+                if n_pvs > 1:
+                    check_call([ "vgreduce", vgroup, pv ])
+                elif len(lvs) == 0:
+                    check_call([ "vgremove", vgroup ])
+                n_pvs -= 1
+                check_call([ "wipefs", "-a", pv ])
+                parents = list_parents(pv)
+                sh_modify_var_in_file(dss_conf, "DEVS",
+                                      lambda old: sh_set_del(old, parents))
+                if len(parents) == 1:
+                    children = list_children(parents[0])
+                    if len(children) == 1 and children[0] == pv:
+                        check_call([ "wipefs", "-a", parents[0] ])
+    finally:
+        call([ "systemctl", "start", "docker" ])
+
+## Add
+
+def cmd_add(devs):
+    atomic_cmd = [ "atomic", "storage", "modify" ]
+    for d in devs:
+        check_call([ "wipefs", "-a", d ])
+        atomic_cmd.extend([ "--add-device", d ])
+    check_call(atomic_cmd)
+
+def cmd_reset_and_add(devs):
+    atomic_cmd = [ "atomic", "storage", "modify" ]
+    for d in devs:
+        check_call([ "wipefs", "-a", d ])
+        atomic_cmd.extend([ "--add-device", d ])
+    try:
+        check_call([ "systemctl", "stop", "docker" ])
+        check_call([ "atomic", "storage", "reset" ])
+        check_call(atomic_cmd)
+    finally:
+        call([ "systemctl", "start", "docker" ])
+
+## Main
+
+if sys.argv[1] == "monitor":
+    cmd_monitor()
+elif sys.argv[1] == "reset-and-reduce":
+    cmd_reset_and_reduce()
+elif sys.argv[1] == "add":
+    cmd_add(sys.argv[2:])
+elif sys.argv[1] == "reset-and-add":
+    cmd_reset_and_add(sys.argv[2:])

@@ -462,6 +462,7 @@ utility setroubleshoot to diagnose and resolve SELinux issues.
 Summary: Cockpit user interface for Docker containers
 Requires: %{name}-shell = %{version}-%{release}
 Requires: docker >= 1.3.0
+Requires: python
 
 %description docker
 The Cockpit components for interacting with Docker and user interface.

@@ -47,6 +47,8 @@ define([
 
         /* This is a named function because we call it recursively */
         function connect_events() {
+            if (!connected)
+                return;
 
             /* Trigger the event signal when JSON from /events */
             events = http.get("/v1.12/events");
@@ -180,8 +182,10 @@ define([
                     });
                 }).
                 fail(function(ex) {
-                    got_failure = true;
-                    $(self).trigger("failure", [ex]);
+                    if (connected) {
+                        got_failure = true;
+                        $(self).trigger("failure", [ex]);
+                    }
                 });
         }
 
@@ -312,8 +316,10 @@ define([
                     });
                 }).
                 fail(function(ex) {
-                    got_failure = true;
-                    $(self).trigger("failure", [ex]);
+                    if (connected) {
+                        got_failure = true;
+                        $(self).trigger("failure", [ex]);
+                    }
                 });
         }
 
@@ -323,7 +329,7 @@ define([
                     util.docker_debug("info failed:", ex);
 
                     /* Failed to connect */
-                    if (connected.state() == "pending")
+                    if (connected && connected.state() == "pending")
                         connected.reject(ex);
                 })
                 .done(function(data) {
@@ -332,15 +338,17 @@ define([
                     $(self).triggerHandler("info", self.info);
 
                     /* Ready to display stuff */
-                    if (connected.state() == "pending")
+                    if (connected && connected.state() == "pending")
                         connected.resolve();
                 });
         }
 
         $(self).on("event", function() {
-            fetch_containers();
-            fetch_images();
-            fetch_info();
+            if (connected) {
+                fetch_containers();
+                fetch_images();
+                fetch_info();
+            }
         });
 
         function perform_connect() {
@@ -638,6 +646,7 @@ define([
                 $(usage_grid).off();
                 usage_grid = null;
             }
+            http.close("closed");
             connected = null;
         };
 

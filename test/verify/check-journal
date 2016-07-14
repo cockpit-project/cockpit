@@ -30,6 +30,8 @@ class TestJournal(MachineCase):
 
     def testBasic(self):
         b = self.browser
+        b.wait_timeout(120)
+
         m = self.machine
 
         self.allow_restart_journal_messages()

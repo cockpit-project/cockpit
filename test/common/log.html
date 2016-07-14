@@ -135,8 +135,8 @@
         <script>
 
 var tap_range = /^([0-9]+)\.\.([0-9]+)$/m;
-var tap_result = /^(ok|not ok) ([0-9]+) (.*$)/gm;
-var tap_skipped = /^ok [0-9]+ ([^#].*) # SKIP (.*$)/gm;
+var tap_result = /^(ok|not ok) ([0-9]+) (.*\))(?: duration: ([0-9]+s))?(?: # SKIP .*)?$$/gm;
+var tap_skipped = /^ok [0-9]+ ([^#].*\))(?: duration: ([^#]*))? # SKIP (.*$)/gm;
 var image_file = /([A-Za-z0-9-]+)\.(png)$/gm;
 var journal_file = /(Journal extracted to )([A-Za-z0-9\-\.]+)\.(log)$/gm;
 var test_header_start = "# ----------------------------------------------------------------------"
@@ -198,11 +198,16 @@ function extract(text) {
             } else if (m = tap_result.exec(segment)) {
                 entry.idx = m[2];
                 entry.id = m[2];
+                // our regex cuts this off
+                m[3] += ")";
                 entry.title = entry.id + ": " + m[3];
+                if (m[4])
+                    entry.title += ", duration: " + m[4];
+
                 if(m[1] == "ok") {
                     if (m = tap_skipped.exec(segment)) {
                         entry.title = entry.id + ": " + m[1];
-                        entry.reason = m[2];
+                        entry.reason = m[3];
                         entry.skipped = true;
                         entry.passed = false;
                         skipped += 1;

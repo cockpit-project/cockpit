@@ -827,25 +827,22 @@ define([
     });
 
     $(init);
-    // Timer Creation
-    // The following are variables that keeps the count of each repeat times.
+    /* Timer Creation
+     * timer_unit  contains all the user's valid inputs from create-timer modal.
+     */
     $("#create-timer").on("click", function() {
         timer_init();
         $("#timer-dialog").modal("show");
     });
 
-    $("#timer-dialog").on("click", "#save-button", function() {
+    $("#timer-dialog").on("click", "#timer-save-button", function() {
         var close_modal = create_timer();
         if (close_modal)
             $("#timer-dialog").modal("toggle");
     });
 
-    var timer_unit = {
-        Calendar_or_Boot : "Boot",
-        time_unit :"sec",
-        repeat : "Don't Repeat"
-    };
-    var repeat_array = [];
+    var timer_unit = { };
+    var repeat_array = [ ];
     var error = false;
     var repeat_hourly_template = $("#repeat-hourly-tmpl").html();
     mustache.parse(repeat_hourly_template);
@@ -857,26 +854,47 @@ define([
     mustache.parse(repeat_monthly_template);
     var repeat_yearly_template = $("#repeat-yearly-tmpl").html();
     mustache.parse(repeat_yearly_template);
-    // Removes error notification when user inputs error-field
+    // Removes error notification when user starts typing in the error-field.
     $("#timer-dialog").on("keypress", ".form-control", function() {
-        $(this).removeClass("has-errors");
+        $(this).removeClass("has-error");
         if ($(this).attr("id") == "hr")
-            $(this).siblings("#hr_error_specific").text("");
+            $("#hr-error").text("");
         else if ($(this).attr("id") == "min")
-            $(this).siblings("#min_error_specific").text("");
+            $("#min-error").text("");
         else if ($(this).attr("data-content") == "hours")
-            $(this).siblings("[data-content='hr_error']").text("");
+            $(this).siblings("[data-content='hr-error']").text("");
         else if ($(this).attr("data-content") == "minutes")
-            $(this).siblings("[data-content='min_error']").text("");
+            $(this).siblings("[data-content='min-error']").text("");
         else
-            $(this).siblings(".error_text").text("");
+            $(this).parents("tr").next().hide();
     });
-    // HACK - bootstrap datepicker gives wrong position on long modals (having scrollbar)
+    /* HACK - bootstrap datepicker positions itself incorrectly on modals
+     * that has scroll bar. This hack finds how much user has scrolled
+     * and places the datepicker element correctly.
+     */
+    var scroll_top = 0;
+    var scroll_top_datepicker = 0;
+    // Datepicker is hidden initially and shown in correct position when clicked.
     $("#timer-dialog").on('click', "[data-content='datepicker']", function() {
+        scroll_top = $("#timer-dialog").scrollTop();
+        $(this).removeClass("has-error");
+        var index = $(this).attr('data-index');
+        $("[data-index='" + index + "'][data-content='date-error']").text("");
         $(".datepicker-dropdown").css("margin-top", $("#timer-dialog").scrollTop());
         $(".datepicker-dropdown").css("visibility", "visible");
-        $(".datepicker-dropdown .prev").css("visibility", "visible");
-        $(".datepicker-dropdown .next").css("visibility", "visible");
+        $(".datepicker-dropdown .next").show();
+        $(".datepicker-dropdown .prev").show();
+    });
+    // This avoids datepicker incorrect positioning when a click occurs inside it.
+    $("#timer-dialog").on('click', ".datepicker.datepicker-dropdown.dropdown-menu", function() {
+        if (scroll_top_datepicker > scroll_top)
+            $(".datepicker.datepicker-dropdown.dropdown-menu").css("margin-top", scroll_top_datepicker);
+        else
+            $(".datepicker.datepicker-dropdown.dropdown-menu").css("margin-top", scroll_top);
+    });
+    // Calculates the new position when a scroll occurs.
+    $("#timer-dialog").on('mouseenter', ".datepicker.datepicker-dropdown [class*='datepicker-'] thead", function() {
+        scroll_top_datepicker = $("#timer-dialog").scrollTop();
     });
 
     $(".form-table-ct").on("click", "[value]", ".btn-group.bootstrap-select.dropdown.form-control", function(ev) {
@@ -884,41 +902,45 @@ define([
         $("span", target).first().text(ev.target.text);
         $("span", target).first().attr("value", ev.currentTarget.value);
         switch(target.attr('id')) {
-            case "boot_specific" : set_calendar_or_boot(Number(ev.currentTarget.value));
+            case "boot-or-specific-time" : set_boot_or_calendar(Number(ev.currentTarget.value));
             break;
-            case "drop_time" : set_boottime_unit(Number(ev.currentTarget.value));
+            case "drop-time" : set_boot_time_unit(Number(ev.currentTarget.value));
             break;
-            case "drop_repeat" : repeat_options(Number(ev.currentTarget.value));
+            case "drop-repeat" : repeat_options(Number(ev.currentTarget.value));
             break;
         }
     });
-    // Initialises timer display to default options
+    // Initialises create timer modal to default options.
     function timer_init() {
         $("#command").val("");
         $("#description").val("");
-        $("#filename").val("");
-        $("#boot_time").val("00");
-        $("#hr").val("00");
-        $("#min").val("00");
-        set_calendar_or_boot(1);
-        $("span", $("#boot_specific")).first().text("After system boot");
+        $("#servicename").val("");
+        set_boot_or_calendar(1);
+        $("span", $("#boot-or-specific-time")).first().text("After system boot");
+        $("span", $("#drop-time")).first().text("Seconds");
+        $("span", $("#drop-time")).first().attr("value", "1");
         repeat_array = [ ];
-        $(".form-control").removeClass("has-errors");
-        $(".control-label").removeClass("label-postion-on-error");
-        $(".error_text").text("");
+        $(".form-control").removeClass("has-error");
+        $(".has-error").hide();
+        timer_unit = {
+            Calendar_or_Boot : "Boot",
+            boot_time_unit :"sec",
+            repeat : "Don't Repeat"
+        };
     }
 
     function repeat_options(val) {
+        if ($("#specific-time-error-row").is(":visible")) {
+            $("#specific-time-error-row").hide();
+            $("#hr").removeClass("has-error");
+            $("#min").removeClass("has-error");
+        }
         switch(val) {
-            case 0 : $("#specific_time_without_repeat").show();
-                $("#repeat_time_options").hide();
+            case 0 : $("#specific-time-without-repeat").show();
+                $("#repeat-time-option").hide();
                 $("#close_button").hide();
                 $("#hr").val("00");
                 $("#min").val("00");
-                $("#hr").removeClass("has-errors");
-                $("#min").removeClass("has-errors");
-                $("#hr_error_specific").text("");
-                $("#min_error_specific").text("");
                 timer_unit.repeat = "Don't Repeat";
                 break;
             case 60 : timer_unit.repeat = "Repeat Hourly";// 60min
@@ -933,14 +955,14 @@ define([
                 break;
         }
         if (val) {
-            $("#specific_time_without_repeat").hide();
-            $("#repeat_time_options").show();
-            repeat_array = [];
-            repeat_selected_element();
+            $("#specific-time-without-repeat").hide();
+            $("#repeat-time-option").show();
+            repeat_array = [ ];
+            repeat_element();
         }
     }
 
-    function repeat_selected_element() {
+    function repeat_element() {
         var close = "enabled";
         if (repeat_array.length === 0)
             close = "disabled";
@@ -952,6 +974,7 @@ define([
             minutes:"00",
             days_value:"1",
             days_text:"Monday",
+            date_to_parse:new Date(),
             date:moment().format("YYYY-MM-DD")
         };
 
@@ -991,7 +1014,7 @@ define([
             check_inputs();
     }
 
-    $("#repeat_time_options").on("click", ".btn.btn-default.dropdown-toggle.fa.fa-plus", repeat_selected_element);
+    $("#repeat-time-option").on("click", ".btn.btn-default.dropdown-toggle.fa.fa-plus", repeat_element);
 
     $(".form-table-ct").on("click", ".btn.btn-default.dropdown-toggle.pficon-close", function() {
         sync_repeat();
@@ -1008,31 +1031,31 @@ define([
     });
 
     function display_repeat() {
-        if(timer_unit.repeat == "Repeat Hourly") {
+        if (timer_unit.repeat == "Repeat Hourly") {
             var repeat_hourly_text = mustache.render(repeat_hourly_template, {
                 repeat: repeat_array
             });
-            $("#repeat_time").html(repeat_hourly_text);
+            $("#repeat-time").html(repeat_hourly_text);
         } else if (timer_unit.repeat == "Repeat Daily") {
             var repeat_daily_text = mustache.render(repeat_daily_template, {
                 repeat: repeat_array
             });
-            $("#repeat_time").html(repeat_daily_text);
+            $("#repeat-time").html(repeat_daily_text);
         } else if (timer_unit.repeat == "Repeat Weekly") {
             var repeat_weekly_text = mustache.render(repeat_weekly_template, {
                 repeat: repeat_array
             });
-            $("#repeat_time").html(repeat_weekly_text);
+            $("#repeat-time").html(repeat_weekly_text);
         } else if (timer_unit.repeat == "Repeat Monthly") {
             var repeat_monthly_text = mustache.render(repeat_monthly_template, {
                 repeat: repeat_array
             });
-            $("#repeat_time").html(repeat_monthly_text);
+            $("#repeat-time").html(repeat_monthly_text);
         } else if (timer_unit.repeat == "Repeat Yearly") {
             var repeat_yearly_text = mustache.render(repeat_yearly_template, {
                 repeat: repeat_array
             });
-            $("#repeat_time").html(repeat_yearly_text);
+            $("#repeat-time").html(repeat_yearly_text);
             var nowDate = new Date();
             var today = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), 0, 0, 0, 0);
             for (var i = 0; i < repeat_array.length; i++) {
@@ -1050,29 +1073,30 @@ define([
 
     function sync_repeat() {
         var i = 0;
-        if( timer_unit.repeat == "Repeat Hourly" ) {
+        if ( timer_unit.repeat == "Repeat Hourly" ) {
             for (; i < repeat_array.length; i++) {
                 repeat_array[i].minutes = $("[data-index='"+i+"'][data-content='minutes']").val().trim();
             }
-        } else if( timer_unit.repeat == "Repeat Daily" ) {
+        } else if ( timer_unit.repeat == "Repeat Daily" ) {
             for (; i < repeat_array.length; i++) {
                 repeat_array[i].minutes = $("[data-index='"+i+"'][data-content='minutes']").val().trim();
                 repeat_array[i].hours = $("[data-index='"+i+"'][data-content='hours']").val().trim();
             }
-        } else if( timer_unit.repeat == "Repeat Weekly" ) {
+        } else if ( timer_unit.repeat == "Repeat Weekly" ) {
             for (; i < repeat_array.length; i++) {
                 repeat_array[i].minutes = $("[data-index='"+i+"'][data-content='minutes']").val().trim();
                 repeat_array[i].hours = $("[data-index='"+i+"'][data-content='hours']").val().trim();
                 repeat_array[i].days_text = $("span", $("[data-content='week-days'][data-index='"+i+"']")).first().text();
+                repeat_array[i].days_value = $("span", $("[data-content='week-days'][data-index='"+i+"']")).first().attr("value");
             }
-        } else if( timer_unit.repeat == "Repeat Monthly" ) {
+        } else if ( timer_unit.repeat == "Repeat Monthly" ) {
             for (; i < repeat_array.length; i++) {
                 repeat_array[i].minutes = $("[data-index='"+i+"'][data-content='minutes']").val().trim();
                 repeat_array[i].hours = $("[data-index='"+i+"'][data-content='hours']").val().trim();
                 repeat_array[i].days_text = $("span", $("[data-content='month-days'][data-index='"+i+"']")).first().text();
                 repeat_array[i].days_value = $("span", $("[data-content='month-days'][data-index='"+i+"']")).first().attr("value");
             }
-        } else if( timer_unit.repeat == "Repeat Yearly" ) {
+        } else if ( timer_unit.repeat == "Repeat Yearly" ) {
             for (; i < repeat_array.length; i++) {
                 repeat_array[i].minutes = $("[data-index='"+i+"'][data-content='minutes']").val().trim();
                 repeat_array[i].hours = $("[data-index='"+i+"'][data-content='hours']").val().trim();
@@ -1082,72 +1106,79 @@ define([
         }
     }
 
-    function set_calendar_or_boot(value) {
-        $("label[for=boot_specific]").toggleClass("label-postion-on-error", false);
+    function set_boot_or_calendar(value) {
         if (value == 1) {
+            // boot timer
             $("#boot").show();
-            $("#repeat_options").hide();
-            $("#repeat_time_options").hide();
-            $("#specific_time_without_repeat").hide();
-            $("#boot_time").val("00");
-            $("#boot_time_error").text("");
-            $("#boot_time").removeClass("has-errors");
+            $("#boot-error-row").hide();
+            $("#specific-time-without-repeat").hide();
+            $("#specific-time-error-row").hide();
+            $("#repeat-options").hide();
+            $("#repeat-time-option").hide();
+            $("#boot-time").val("00");
+            $("#boot-time").removeClass("has-error");
             timer_unit.Calendar_or_Boot = "Boot";
         } else if (value == 2) {
+            //calendar timer
             $("#boot").hide();
-            $("#repeat_options").show();
-            $("#close_button").hide();
-            $("#specific_time_without_repeat").show();
-            $("#repeat_time_options").hide();
-            $("span", $("#drop_repeat")).first().text("Don't Repeat");
+            $("#boot-error-row").hide();
+            $("#specific-time-error-row").hide();
+            $("#repeat-options").show();
+            repeat_options(0);
+            $("span", $("#drop-repeat")).first().text("Don't Repeat");
             timer_unit.Calendar_or_Boot = "Calendar";
         }
     }
 
-    function set_boottime_unit(value) {
+    function set_boot_time_unit(value) {
         value = Number(value);
         switch (value) {
-            case 1 : timer_unit.time_unit = "sec";
+            case 1 : timer_unit.boot_time_unit = "sec";
                 break;
-            case 60 : timer_unit.time_unit = "min"; //60sec
+            case 60 : timer_unit.boot_time_unit = "min"; //60sec
                 break;
-            case 3600 : timer_unit.time_unit = "hr"; //60*60sec
+            case 3600 : timer_unit.boot_time_unit = "hr"; //60*60sec
                 break;
-            case 604800 : timer_unit.time_unit = "week";//7*24*60*60sec
+            case 604800 : timer_unit.boot_time_unit = "weeks";//7*24*60*60sec
                 break;
         }
     }
     // Validation of Inputs
     function check_inputs() {
         error = false; // made global to show existing errors when + and x are clicked.
-        var str = $("#filename").val().replace(/\s/g, ''); // no spaces allowed in filename
-        if ( str.length < 1 ) {
-            $("#filename_error").text(_("This field cannot be empty."));
-            $("#filename").addClass('has-errors');
+        var str = $("#servicename").val();
+        if ( str.trim().length < 1 ) {
+            $("#servicename-error").text(_("This field cannot be empty."));
+            $("#servicename-error-row").show();
+            $("#servicename").addClass('has-error');
             error = true;
-            $("label[for=filename]").toggleClass("label-postion-on-error", error);
+        } else if (! /^[a-zA-Z0-9:_.@-]+$/.test(str)) {
+            $("#servicename-error").text(_("Only alphabets, numbers, : , _ , . , @ , - are allowed."));
+            $("#servicename-error-row").show();
+            $("#servicename").addClass('has-error');
+            error = true;
         }
         str = $("#description").val().trim();
         if ( str.length < 1 ) {
-            $("#description_error").text(_("This field cannot be empty."));
-            $("#description").addClass('has-errors');
+            $("#description-error").text(_("This field cannot be empty."));
+            $("#description-error-row").show();
+            $("#description").addClass('has-error');
             error = true;
-            $("label[for=description]").toggleClass("label-postion-on-error", error);
         }
         str = $("#command").val().trim();
         if ( str.length < 1 ) {
-            $("#command_error").text(_("This field cannot be empty."));
-            $("#command").addClass('has-errors');
+            $("#command-error").text(_("This field cannot be empty."));
+            $("#command-error-row").show();
+            $("#command").addClass('has-error');
             error = true;
-            $("label[for=command]").toggleClass("label-postion-on-error", error);
         }
         if ( timer_unit.Calendar_or_Boot == "Boot" ) {
-            str = $("#boot_time").val();
+            str = $("#boot-time").val();
             if (!/^[0-9]+$/.test(str.trim())) {
-                $("#boot_time_error").text(_("Invalid number."));
-                $("#boot_time").addClass('has-errors');
+                $("#boot-error").text(_("Invalid number."));
+                $("#boot-error-row").show();
+                $("#boot-time").addClass('has-error');
                 error = true;
-                $("label[for=boot_specific]").toggleClass("label-postion-on-error", error);
             }
         } else {
             //Calendar timer cases
@@ -1155,23 +1186,25 @@ define([
             if (timer_unit.repeat == "Don't Repeat") {
                 var hr = $("#hr").val().trim();
                 var min = $("#min").val().trim();
+                $("#hr-error").text("");
+                $("#min-error").text("");
                 if (!(/^[0-9]+$/.test(hr) && hr <= 23 && hr >= 0)) {
-                    $("#hr_error_specific").text(_("Hour needs to be a number between 0-23"));
-                    $("#hr").addClass('has-errors');
+                    $("#hr-error").text(_("Hour needs to be a number between 0-23"));
+                    $("#specific-time-error-row").show();
+                    $("#hr").addClass('has-error');
                     error = true;
-                    $("label[for=specific_time_without_repeat]").toggleClass("label-postion-on-error", error);
                 }
                 if (!(/^[0-9]+$/.test(min) && min <= 59 && min >= 0)) {
-                    $("#min_error_specific").text(_("Minute needs to be a number between 0-59"));
-                    $("#min").addClass('has-errors');
+                    $("#min-error").text(_("Minute needs to be a number between 0-59"));
+                    $("#specific-time-error-row").show();
+                    $("#min").addClass('has-error');
                     error = true;
-                    $("label[for=specific_time_without_repeat]").toggleClass("label-postion-on-error", error);
                 }
             } else if (timer_unit.repeat == "Repeat Hourly") {
                 for (; i < repeat_array.length; i++) {
                     if (!(/^[0-9]+$/.test(repeat_array[i].minutes.trim()) && repeat_array[i].minutes.trim() <= 59 && repeat_array[i].minutes.trim() >= 0)) {
-                        $("[data-index='" + i + "'][data-content='minutes']").addClass('has-errors');
-                        $("[data-index='" + i + "'][data-content='min_error']").text(_("Minute needs to be a number between 0-59"));
+                        $("[data-index='" + i + "'][data-content='minutes']").addClass('has-error');
+                        $("[data-index='" + i + "'][data-content='min-error']").text(_("Minute needs to be a number between 0-59"));
                         error = true;
                     }
                 }
@@ -1179,13 +1212,20 @@ define([
                 for (; i < repeat_array.length; i++) {
                     if (!(/^[0-9]+$/.test(repeat_array[i].minutes.trim()) && repeat_array[i].minutes.trim() <= 59 && repeat_array[i].minutes.trim() >= 0)) {
                         error = true;
-                        $("[data-index='" + i + "'][data-content='minutes']").addClass('has-errors');
-                        $("[data-index='" + i + "'][data-content='min_error']").text(_("Minute needs to be a number between 0-59"));
+                        $("[data-index='" + i + "'][data-content='minutes']").addClass('has-error');
+                        $("[data-index='" + i + "'][data-content='min-error']").text(_("Minute needs to be a number between 0-59"));
                     }
                     if (!(/^[0-9]+$/.test(repeat_array[i].hours.trim()) && repeat_array[i].hours.trim() <= 23 && repeat_array[i].hours.trim() >= 0)) {
                         error = true;
-                        $("[data-index='" + i + "'][data-content='hours']").addClass('has-errors');
-                        $("[data-index='" + i + "'][data-content='hr_error']").text(_("Hour needs to be a number between 0-23"));
+                        $("[data-index='" + i + "'][data-content='hours']").addClass('has-error');
+                        $("[data-index='" + i + "'][data-content='hr-error']").text(_("Hour needs to be a number between 0-23"));
+                    }
+                    if (timer_unit.repeat == "Repeat Yearly") {
+                        if (isNaN(repeat_array[i].date_to_parse.getTime()) || repeat_array[i].date_to_parse.getTime() < 0) {
+                            error = true;
+                            $("[data-index='" + i + "'][data-content='datepicker']").addClass('has-error');
+                            $("[data-index='" + i + "'][data-content='date-error']").text(_("Invalid date format."));
+                        }
                     }
                 }
             }
@@ -1198,85 +1238,79 @@ define([
         var error = check_inputs();
         if (error)
             return false;
-        timer_unit.name = $("#filename").val().replace(/\s/g, '');
+        timer_unit.name = $("#servicename").val().replace(/\s/g, '');
         timer_unit.Description = $("#description").val();
         timer_unit.Command = $("#command").val();
-        timer_unit.boot_time = $("#boot_time").val();
+        timer_unit.boot_time = $("#boot-time").val();
 
         if (timer_unit.repeat == "Don't Repeat") {
             timer_unit.repeat_hour = Number($("#hr").val().trim());
             timer_unit.repeat_minute = Number($("#min").val().trim());
-            timer_unit.OnCalendar = "*-*-* " + timer_unit.repeat_hour + ":" + timer_unit.repeat_minute + ":00";
-        } else {
+            var today = new Date();
+            timer_unit.OnCalendar = "OnCalendar=" + today.getFullYear() + "-" + (today.getMonth()+1) + "-" + today.getDate() + " " + timer_unit.repeat_hour + ":" + timer_unit.repeat_minute + ":00";
+        } else if (timer_unit.repeat == "Repeat Hourly") {
             timer_unit.repeat_minute = repeat_array.map(function (item) {
                 return Number(item.minutes);
             });
+            timer_unit.OnCalendar = "OnCalendar=*-*-* *:" + timer_unit.repeat_minute + ":00";
+        } else if (timer_unit.repeat == "Repeat Daily") {
             timer_unit.repeat_hour = repeat_array.map(function (item) {
                 return Number(item.hours);
             });
-            if (timer_unit.repeat == "Repeat Hourly") {
-                timer_unit.repeat_hour = "*";
-                timer_unit.repeat_days = "";
-                timer_unit.OnCalendar = timer_unit.repeat_days + "*-*-* "+ timer_unit.repeat_hour + ":" + timer_unit.repeat_minute + ":00";
-            } else if(timer_unit.repeat == "Repeat Daily") {
-                timer_unit.repeat_days = "";
-                timer_unit.OnCalendar = timer_unit.repeat_days + "*-*-* " + timer_unit.repeat_hour + ":" + timer_unit.repeat_minute + ":00";
-            } else if(timer_unit.repeat == "Repeat Weekly") {
-                timer_unit.repeat_days = repeat_array.map(function (item) {
-                    return item.days_text.slice(0,3);
-                });
-                timer_unit.OnCalendar = timer_unit.repeat_days + " *-*-* " + timer_unit.repeat_hour + ":" + timer_unit.repeat_minute + ":00";
-            } else if(timer_unit.repeat == "Repeat Monthly") {
-                timer_unit.repeat_days = repeat_array.map(function (item) {
-                    return item.days_value;
-                });
-                timer_unit.OnCalendar = "*-*-" + timer_unit.repeat_days + " " + timer_unit.repeat_hour + ":" + timer_unit.repeat_minute + ":00";
-            } else if(timer_unit.repeat == "Repeat Yearly") {
-                var array_year = repeat_array.map(function (item) {
-                    return moment(item.date_to_parse).format('YYYY');
-                });
-                var array_month = repeat_array.map(function (item) {
-                    return moment(item.date_to_parse).format('MM');
-                });
-                var array_day = repeat_array.map(function (item) {
-                    return moment(item.date_to_parse).format('DD');
-                });
-                timer_unit.OnCalendar = array_year.toString() + "-" + array_month.toString() + "-" + array_day.toString() + " " + timer_unit.repeat_hour + ":" + timer_unit.repeat_minute + ":00";
-            }
+            timer_unit.repeat_minute = repeat_array.map(function (item) {
+                return Number(item.minutes);
+            });
+            timer_unit.OnCalendar = "OnCalendar=*-*-* " + timer_unit.repeat_hour + ":" + timer_unit.repeat_minute + ":00";
+        } else if (timer_unit.repeat == "Repeat Weekly") {
+            timer_unit.OnCalendar = repeat_array.map(function (item) {
+                return "OnCalendar=" + item.days_text.slice(0,3) + " *-*-* " + Number(item.hours) + ":" + Number(item.minutes) + ":00";
+            });
+            timer_unit.OnCalendar = timer_unit.OnCalendar.toString().replace(/,/g,"\n");
+        } else if (timer_unit.repeat == "Repeat Monthly") {
+            timer_unit.OnCalendar = repeat_array.map(function (item) {
+                return "OnCalendar=*-*-" + item.days_value + " " + Number(item.hours) + ":" + Number(item.minutes) + ":00";
+            });
+            timer_unit.OnCalendar = timer_unit.OnCalendar.toString().replace(/,/g,"\n");
+        } else if (timer_unit.repeat == "Repeat Yearly") {
+            timer_unit.OnCalendar = repeat_array.map(function (item) {
+                return "OnCalendar=" + moment(item.date_to_parse).format('YYYY') + "-" + moment(item.date_to_parse).format('MM') + "-" + moment(item.date_to_parse).format('DD') + " " +Number(item.hours) + ":" + Number(item.minutes) + ":00";
+            });
+            timer_unit.OnCalendar = timer_unit.OnCalendar.toString().replace(/,/g,"\n");
         }
-        create_timer_file();
-        init_units(); // for displaying updated timer
+        var invalid = create_timer_file();
+        if (invalid)
+            return false;
+        init_units();
         return true;
     }
-
     function create_timer_file() {
         var unit = "[Unit]\nDescription=";
         var service = "\n[Service]\nType=oneshot\nExecStart=";
         var timer = "\n[Timer]\n";
-        var service_file = unit+timer_unit.Description+service+timer_unit.Command;
-        var timer_file = "";
-        if(timer_unit.Calendar_or_Boot == "Boot" ) {
-            var boottimer = timer +"OnBootSec=" +timer_unit.boot_time + timer_unit.time_unit;
-            timer_file=unit+timer_unit.Description+boottimer;
+        var service_file = unit + timer_unit.Description + service + timer_unit.Command;
+        var timer_file = " ";
+        if (timer_unit.Calendar_or_Boot == "Boot" ) {
+            var boottimer = timer +"OnBootSec=" + timer_unit.boot_time + timer_unit.boot_time_unit;
+            timer_file = unit + timer_unit.Description + boottimer;
         }
         else if (timer_unit.Calendar_or_Boot == "Calendar") {
-            var calendartimer = timer + "OnCalendar=" + timer_unit.OnCalendar;
-            timer_file=unit+timer_unit.Description+calendartimer;
+            var calendartimer = timer + timer_unit.OnCalendar;
+            timer_file = unit + timer_unit.Description + calendartimer;
         }
         // writing to file
-        var service_path = "/etc/systemd/system/"+timer_unit.name+".service";
-        var file = cockpit.file(service_path,{superuser:'try'});
+        var service_path = "/etc/systemd/system/" + timer_unit.name + ".service";
+        var file = cockpit.file(service_path, { superuser: 'try' });
         file.replace(service_file).
-        fail(function(error) {
-            console.log(error);
-        });
-        console.log("Service file\n"+service_file);
-        var timer_path = "/etc/systemd/system/"+timer_unit.name+".timer";
-        file = cockpit.file(timer_path,{superuser:'try'});
+            fail(function(error) {
+                console.log(error);
+            });
+        console.log("#Service file#\n" + service_file);
+        var timer_path = "/etc/systemd/system/" + timer_unit.name + ".timer";
+        file = cockpit.file(timer_path, { superuser: 'try' });
         file.replace(timer_file).
-        fail(function(error) {
-            console.log(error);
-        });
-        console.log("Timer file\n"+timer_file);
+            fail(function(error) {
+                console.log(error);
+            });
+        console.log("#Timer file#\n" + timer_file);
     }
 });

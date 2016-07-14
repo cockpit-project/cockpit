@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
     <link href="host.css" type="text/css" rel="stylesheet">
+    <link href="timer.css" type="text/css" rel="stylesheet">
     <script data-main="system/init" src="../base1/bundle.js"></script>
     <script src="bundle.js"></script>
 </head>
@@ -54,7 +55,7 @@
         <button class="btn btn-default" data-pattern="\.timer$" translatable="yes">Timers</button>
         <button class="btn btn-default" data-pattern="\.path$" translatable="yes">Paths</button>
       </div>
-      <button id="create-timer" data-toggle="#timer-dialog" data-target="#timer-dialog" class="btn btn-primary pull-right" hidden>Create Timer</button>
+      <button id="create-timer" data-toggle="#timer-dialog" data-target="#timer-dialog" class="btn btn-primary pull-right" >Create Timer</button>
     </div>
 
     <div class="container-fluid">
@@ -145,8 +146,7 @@
       <input type="text" value="{{minutes}}" data-index="{{index}}" data-content="minutes" class="form-control">
       <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
       <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
-      <div data-content="hr_error" class="repeat_error" data-index="{{index}}"></div>
-      <div data-content="min_error" class="repeat_error" data-index="{{index}}"></div>
+      <div data-content="min-error" class="repeat-error" data-index="{{index}}"></div>
     </div>
   {{/repeat}}
   </script>
@@ -159,8 +159,8 @@
       <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
       <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
       <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
-      <div data-content="hr_error" class="repeat_error" data-index="{{index}}"></div>
-      <div data-content="min_error" class="repeat_error" data-index="{{index}}"></div>
+      <div data-content="hr-error" class="repeat-error" data-index="{{index}}"></div>
+      <div data-content="min-error" class="repeat-error" data-index="{{index}}"></div>
     </div>
   {{/repeat}}
   </script>
@@ -188,8 +188,8 @@
       <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
       <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
       <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
-      <div data-content="hr_error" class="repeat_error" data-index="{{index}}"></div>
-      <div data-content="min_error" class="repeat_error" data-index="{{index}}"></div>
+      <div data-content="hr-error" class="repeat-error" data-index="{{index}}"></div>
+      <div data-content="min-error" class="repeat-error" data-index="{{index}}"></div>
     </div>
   {{/repeat}}
   </script>
@@ -241,8 +241,8 @@
       <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
       <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
       <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
-      <div data-content="hr_error" class="repeat_error" data-index="{{index}}"></div>
-      <div data-content="min_error" class="repeat_error" data-index="{{index}}"></div>
+      <div data-content="hr-error" class="repeat-error" data-index="{{index}}"></div>
+      <div data-content="min-error" class="repeat-error" data-index="{{index}}"></div>
     </div>
   {{/repeat}}
   </script>
@@ -251,7 +251,7 @@
   {{#repeat}}
     <div class="form-inline">
       <div data-content="datepicker" data-index="{{index}}" class="input-group date">
-        <input type="text" value="{{date}}" data-index="{{index}}" class="form-control bootstrap-datepicker" readonly>
+        <input type="text" value="{{date}}" data-index="{{index}}" class="form-control bootstrap-datepicker" >
         <span class="input-group-addon"><span class="fa fa-calendar"></span></span>
       </div>
       <input type="text" value="{{hours}}" data-index="{{index}}" data-content="hours" class="form-control" >
@@ -259,8 +259,9 @@
       <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
       <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
       <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
-      <div data-content="hr_error" class="repeat_error" data-index="{{index}}"></div>
-      <div data-content="min_error" class="repeat_error" data-index="{{index}}"></div>
+      <div data-content="hr-error" class="repeat-error" data-index="{{index}}"></div>
+      <div data-content="min-error" class="repeat-error" data-index="{{index}}"></div>
+      <div data-content="date-error" class="repeat-error" data-index="{{index}}"></div>
     </div>
   {{/repeat}}
   </script>
@@ -325,47 +326,64 @@
     </div>
   </div>
 
-  <div class="modal" id="timer-dialog" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="Labelmodal" aria-hidden="true">
-    <div class="modal-dialog cockpit-modal-md">
+  <div class="modal" id="timer-dialog"
+     tabindex="-1" role="dialog"
+     data-backdrop="static">
+    <div class="modal-dialog cockpit-timer-modal-md">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" id="Labelmodal">Create Timers</h4>
+          <h4 class="modal-title">Create Timers</h4>
         </div>
         <div class="modal-body">
           <table class="form-table-ct">
-            <tr>
+            <tr id="servicename-row">
               <td>
-                <label class="control-label" for="filename">Service name</label>
+                <label class="control-label" for="servicename">Service name</label>
               </td>
               <td>
-                <input type="text" id="filename" class="form-control"></div>
-                <div id="filename_error" class="error_text"></div>
+                <input type="text" id="servicename" class="form-control">
               </td>
             </tr>
-            <tr>
+            <tr id="servicename-error-row" class="has-error">
+              <td></td>
+              <td>
+                <span id="servicename-error" class="help-block"></span>
+              </td>
+            </tr>
+            <tr id="description-row" >
               <td>
                 <label class="control-label" for="description">Desciption</label>
               </td>
               <td>
-                <input type="text" id="description" class="form-control"></div>
-                <div id="description_error" class="error_text"></div>
+                <input type="text" id="description" class="form-control">
               </td>
             </tr>
-            <tr>
+            <tr id="description-error-row" class="has-error">
+              <td></td>
+              <td>
+                <span id="description-error" class="help-block"></span>
+              </td>
+            </tr>
+            <tr id="command-row" >
               <td>
                 <label class="control-label" for="command">Command</label>
               </td>
               <td>
                 <input type="text" data-placement="bottom" id="command" class="form-control">
-                <div id="command_error" class="error_text"></div>
               </td>
             </tr>
-            <tr>
+            <tr id="command-error-row" class="has-error">
+              <td></td>
               <td>
-                <label class="control-label" for="boot_specific">Run</label>
+                <span id="command-error" class="help-block"></span>
+              </td>
+            </tr>
+            <tr id="boot-specific-row">
+              <td>
+                <label class="control-label" for="boot-or-specific-time">Run</label>
               </td>
               <td>
-                <div class="btn-group bootstrap-select dropdown form-control" id="boot_specific">
+                <div class="btn-group bootstrap-select dropdown form-control" id="boot-or-specific-time">
                   <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
                     <span class="pull-left" value="1" translatable="yes">After system boot</span>
                     <span class="caret"></span>
@@ -375,10 +393,10 @@
                     <li value="2"><a>At specific time</a></li>
                   </ul>
                 </div>
-                <div id="boot" >
-                  <label class="control-label" id="boot_label" for="boot_time">After</label>
-                  <input type="text" id="boot_time" value="00" class="move-top form-control">
-                  <div class="btn-group bootstrap-select dropdown form-control" id="drop_time">
+                <div id="boot">
+                  <label class="control-label" id="boot-label" for="boot-time">After</label>
+                  <input type="text" id="boot-time" value="00" class="form-control">
+                  <div class="btn-group bootstrap-select dropdown form-control" id="drop-time">
                     <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
                       <span class="pull-left" value="1" translatable="yes">Seconds</span>
                       <span class="caret"></span>
@@ -390,14 +408,19 @@
                       <li value="604800"><a>Weeks</a></li>
                     </ul>
                   </div>
-                  <div id="boot_time_error" class="error_text"></div>
                 </div>
               </td>
             </tr>
-            <tr id="repeat_options" hidden>
+            <tr id="boot-error-row" class="has-error">
               <td></td>
               <td>
-                <div class="btn-group bootstrap-select dropdown form-control" id="drop_repeat">
+                <span id="boot-error" class="help-block"></span>
+              </td>
+            </tr>
+            <tr id="repeat-options" hidden>
+              <td></td>
+              <td>
+                <div class="btn-group bootstrap-select dropdown form-control" id="drop-repeat">
                   <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
                     <span class="pull-left" value="0" translatable="yes">Don't Repeat</span>
                     <span class="caret"></span>
@@ -413,28 +436,33 @@
                 </div>
               </td>
             </tr>
-            <tr id="specific_time_without_repeat" hidden>
+            <tr id="specific-time-without-repeat" hidden>
               <td>
-                <label for="specific_time_without_repeat" class="control-label" >Hour : Minute</label>
+                <label for="specific-time-without-repeat" class="control-label" >Hour : Minute</label>
               </td>
-              <td id="specific_time">
+              <td>
                 <input type="text" value="00" id="hr" class="hr form-control">
                 <div class="position-colon">:</div>
                 <input type="text" value="00" id="min" class="min form-control">
-                <div id="hr_error_specific" class="error_text"></div>
-                <div id="min_error_specific" class="error_text"></div>
               </td>
             </tr>
-            <tr id="repeat_time_options">
+            <tr id="specific-time-error-row" class="has-error">
               <td></td>
-              <td id="repeat_time">
+              <td>
+                <span id="min-error" class="help-block"></span>
+                <span id="hr-error" class="help-block"></span>
+              </td>
+            </tr>
+            <tr id="repeat-time-option">
+              <td></td>
+              <td id="repeat-time">
               </td>
             </tr>
           </table>
         </div>
         <div class="modal-footer">
-          <button type="button" id="cancel-button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-          <button type="button" id="save-button" class="btn btn-primary">Save</button>
+          <button type="button" id="timer-cancel-button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" id="timer-save-button" class="btn btn-primary">Save</button>
         </div>
       </div>
     </div>

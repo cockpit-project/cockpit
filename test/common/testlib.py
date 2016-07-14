@@ -788,17 +788,17 @@ class TapResult(unittest.TestResult):
         super(TapResult, self).__init__(stream, descriptions, verbosity)
 
     def ok(self, test):
-        data = "ok {0} {1}\n".format(self.offset, str(test))
+        data = "ok {0} {1} duration: {2}s\n".format(self.offset, str(test), int(time.time() - self.start_time))
         sys.stdout.write(data)
 
     def not_ok(self, test, err):
-        data = "not ok {0} {1}\n".format(self.offset, str(test))
+        data = "not ok {0} {1} duration: {2}s\n".format(self.offset, str(test), int(time.time() - self.start_time))
         if err:
             data += self._exc_info_to_string(err, test)
         sys.stdout.write(data)
 
     def skip(self, test, reason):
-        sys.stdout.write("ok {0} {1} # SKIP {2}\n".format(self.offset, str(test), reason))
+        sys.stdout.write("ok {0} {1} duration: {2}s # SKIP {3}\n".format(self.offset, str(test), int(time.time() - self.start_time), reason))
 
     def known_issue(self, test, err):
         string = self._exc_info_to_string(err, test)
@@ -812,6 +812,7 @@ class TapResult(unittest.TestResult):
         super(TapResult, self).stop()
 
     def startTest(self, test):
+        self.start_time = time.time()
         self.offset += 1
         sys.stdout.write("# {0}\n# {1}\n#\n".format('-' * 70, str(test)))
         super(TapResult, self).startTest(test)

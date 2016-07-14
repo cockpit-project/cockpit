@@ -51,11 +51,13 @@ import time
 
 @unittest.skipIf("rhel-7" != os.environ.get("TEST_OS", ""), "Only testing subscriptions on RHEL systems.")
 class TestSubscriptions(MachineCase):
+    additional_machines = {
+        'candlepin': { 'machine': { 'image': 'candlepin' } }
+    }
+
     def setUp(self):
         MachineCase.setUp(self)
-        self.candlepin = self.new_machine(image="candlepin")
-        self.candlepin.start()
-        self.candlepin.wait_boot()
+        self.candlepin = self.machines['candlepin']
 
         # wait for candlepin to be active and verify
         self.candlepin.execute("systemctl start tomcat")

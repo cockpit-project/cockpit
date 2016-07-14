@@ -62,6 +62,9 @@ KEY_IDS_MD5 = [
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=805030
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No ssh keys on Debian (yet).")
 class TestMultiMachineKeyAuth(MachineCase):
+    additional_machines = {
+        'machine2': { }
+    }
 
     def load_key(self, name, password):
         self.browser.switch_to_top()
@@ -83,9 +86,8 @@ class TestMultiMachineKeyAuth(MachineCase):
 
     def setUp(self):
         MachineCase.setUp(self)
-        self.machine2 = self.new_machine()
-        self.machine2.start()
-        self.machine2.wait_boot()
+        self.machine2 = self.machines['machine2']
+
         # Add user
         self.machine2.disconnect()
         self.machine2.execute("useradd user -c 'User' || true", direct=True)

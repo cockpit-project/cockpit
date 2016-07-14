@@ -63,6 +63,10 @@ def new_add_machine(b, address):
     b.wait_popdown('dashboard_setup_server_dialog')
 
 class TestMultiOS(MachineCase):
+    additional_machines = {
+        'fedora-stock': { 'machine': { 'image': 'fedora-stock' } }
+    }
+
     def check_spawn(self, b, address):
         result = b.call_js_func("""(function(address) {
             return require("base1/cockpit").spawn(['echo', 'hi'], { host: address });
@@ -75,7 +79,7 @@ class TestMultiOS(MachineCase):
                 .proxy("org.freedesktop.DBus", "/").call("GetId");
         })""", address)
 
-    def checkStock(self, image):
+    def checkStock(self):
         dev_m = self.machine
         dev_b = self.browser
 
@@ -113,9 +117,7 @@ class TestMultiOS(MachineCase):
             browser.switch_to_frame(frame)
             browser.wait_visible('#' + page)
 
-        stock_m = self.new_machine(image=image)
-        stock_m.start()
-        stock_m.wait_boot()
+        stock_m = self.machines['fedora-stock']
         stock_b = self.new_browser(stock_m.address)
 
         stock_login_and_go(stock_b, "dashboard", href="/dashboard/list", host=None)
@@ -172,7 +174,7 @@ class TestMultiOS(MachineCase):
         self.allow_journal_messages("usermod: user 'postfix' does not exist")
 
     def testFedora22(self):
-        self.checkStock('fedora-stock')
+        self.checkStock()
 
 if __name__ == '__main__':
     test_main()

@@ -54,6 +54,12 @@ def trigger_pull(github, opts):
                 continue
         sys.stderr.write("{0}: triggering on pull request {1}\n".format(context, opts.pull))
         changes = { "state": "pending", "description": testinfra.NOT_TESTED, "context": context }
+
+        # Keep the old link for reference, until testing starts again
+        link = status.get("target_url", None)
+        if link:
+            changes["target_url"] = link
+
         github.post("statuses/" + revision, changes)
 
     return ret

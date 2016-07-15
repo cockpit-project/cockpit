@@ -37,6 +37,10 @@ import unittest
 # Returns whether Cockpit can add disks and reset the pool.
 #
 def can_manage(machine, vg):
+    # RHEL Atomic is all set.
+    if machine.image == "rhel-atomic":
+        return True
+
     # Fedora 24 has new enough "atomic", but the OS is not in a volume
     # group by default.  We can manage it when we explicitly configure
     # a dedicated volume group.

@@ -166,18 +166,19 @@ def run_avocado(avocado_tests, verbose, browser, download_logs):
     selenium = testvm.VirtMachine(image="selenium", label="selenium", verbose=verbose) if use_selenium else None
 
     try:
-        machine.start()
+        # just start the machine without waiting for it to boot, get the ip address later
+        machine.start(wait_for_ip=False)
         if selenium:
+            # actually wait here, because starting selenium takes a while
             selenium.start()
-
-        machine.wait_boot()
-        machine.start_cockpit()
-        if selenium:
             selenium.wait_boot()
 
             # start selenium on the server
             selenium.upload([ "avocado/selenium_start.sh"], "/root")
             selenium.execute(command="/root/selenium_start.sh")
+
+        machine.wait_boot()
+        machine.start_cockpit()
 
         machine.execute("adduser test")
         machine.execute("echo superhardpasswordtest5554 | passwd --stdin test")

@@ -96,22 +96,14 @@ define([
     /* D-Bus proxies
      */
 
-    var STORAGED_SERVICE =   "org.storaged.Storaged";
-    var STORAGED_OPATH_PFX = "/org/storaged/Storaged";
-    var STORAGED_IFACE_PFX = "org.storaged.Storaged";
-
-    /* This might happen eventually.
-     */
-    if (false) {
-       STORAGED_SERVICE =   "org.freedesktop.UDisks2";
-       STORAGED_OPATH_PFX = "/org/freedesktop/UDisks2";
-       STORAGED_IFACE_PFX = "org.freedesktop.UDisks2";
-    }
+    var STORAGED_SERVICE;
+    var STORAGED_OPATH_PFX;
+    var STORAGED_IFACE_PFX;
 
     client.time_offset = undefined;  /* Number of milliseconds that the server is ahead of us. */
     client.features = undefined;
 
-    client.storaged_client = cockpit.dbus(STORAGED_SERVICE);
+    client.storaged_client = undefined;
 
     function proxy(iface, path) {
         return client.storaged_client.proxy(STORAGED_IFACE_PFX + "." + iface,
@@ -130,32 +122,32 @@ define([
                                               { watch: false });
     }
 
-    client.storaged_client.watch({ path_namespace: STORAGED_OPATH_PFX });
+    function init_proxies () {
+        client.storaged_client.watch({ path_namespace: STORAGED_OPATH_PFX });
 
-    client.manager = proxy("Manager", "Manager");
+        client.mdraids = proxies("MDRaid");
+        client.vgroups = proxies("VolumeGroup");
+        client.lvols = proxies("LogicalVolume");
+        client.drives = proxies("Drive");
+        client.drives_ata = proxies("Drive.Ata");
+        client.blocks = proxies("Block");
+        client.blocks_ptable = proxies("PartitionTable");
+        client.blocks_part = proxies("Partition");
+        client.blocks_lvm2 = proxies("Block.LVM2");
+        client.blocks_pvol = proxies("PhysicalVolume");
+        client.blocks_fsys = proxies("Filesystem");
+        client.blocks_crypto = proxies("Encrypted");
+        client.iscsi_sessions = proxies("ISCSI.Session");
+        client.storaged_jobs = proxies("Job");
 
-    client.mdraids = proxies("MDRaid");
-    client.vgroups = proxies("VolumeGroup");
-    client.lvols = proxies("LogicalVolume");
-    client.drives = proxies("Drive");
-    client.drives_ata = proxies("Drive.Ata");
-    client.blocks = proxies("Block");
-    client.blocks_ptable = proxies("PartitionTable");
-    client.blocks_part = proxies("Partition");
-    client.blocks_lvm2 = proxies("Block.LVM2");
-    client.blocks_pvol = proxies("PhysicalVolume");
-    client.blocks_fsys = proxies("Filesystem");
-    client.blocks_crypto = proxies("Encrypted");
-    client.iscsi_sessions = proxies("ISCSI.Session");
-    client.storaged_jobs = proxies("Job");
-
-    if (STORAGED_SERVICE != "org.freedesktop.UDisks2") {
-        client.udisks_client = cockpit.dbus("org.freedesktop.UDisks2");
-        client.udisks_jobs = client.udisks_client.proxies("org.freedesktop.UDisks2.Job",
-                                                          "/org/freedesktop/UDisks2");
-    } else {
-        client.udisks_client = null;
-        client.udisks_jobs = { };
+        if (STORAGED_SERVICE != "org.freedesktop.UDisks2") {
+            client.udisks_client = cockpit.dbus("org.freedesktop.UDisks2");
+            client.udisks_jobs = client.udisks_client.proxies("org.freedesktop.UDisks2.Job",
+                                                              "/org/freedesktop/UDisks2");
+        } else {
+            client.udisks_client = null;
+            client.udisks_jobs = { };
+        }
     }
 
     /* Monitors
@@ -388,7 +380,34 @@ define([
                  });
     }
 
-    client.init = init_model;
+    function init_storaged(callback) {
+        /* Storaged 2.6 and later uses the UDisks2 API names, so we
+         * try them first.
+         */
+
+        STORAGED_SERVICE =   "org.freedesktop.UDisks2";
+        STORAGED_OPATH_PFX = "/org/freedesktop/UDisks2";
+        STORAGED_IFACE_PFX = "org.freedesktop.UDisks2";
+
+        client.storaged_client = cockpit.dbus(STORAGED_SERVICE);
+        client.manager = proxy("Manager", "Manager");
+
+        client.manager.wait(function () {
+            if (!client.manager.valid || client.manager.EnableModules === undefined) {
+                STORAGED_SERVICE =   "org.storaged.Storaged";
+                STORAGED_OPATH_PFX = "/org/storaged/Storaged";
+                STORAGED_IFACE_PFX = "org.storaged.Storaged";
+
+                client.storaged_client = cockpit.dbus(STORAGED_SERVICE);
+                client.manager = proxy("Manager", "Manager");
+            }
+
+            init_proxies();
+            init_model(callback);
+        });
+    }
+
+    client.init = init_storaged;
 
     return client;
 });

@@ -19,6 +19,15 @@ EXCLUDE = [
     'check-example'
 ]
 
+# some tests are known to take significantly longer than others
+# prioritize them here
+RUN_FIRST = [
+    'check-openshift',
+    'check-multi-machine',
+    'check-realms',
+    'check-kubernetes',
+]
+
 def check_valid(filename):
     name = os.path.basename(filename)
     if name in EXCLUDE:
@@ -47,7 +56,10 @@ def run(opts):
     # Now actually load the tests, any modules that start with "check-*"
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
-    for filename in glob.glob(os.path.join(os.path.dirname(__file__), "check-*")):
+    # see if we have any tests that should be prioritized
+    candidates = glob.glob(os.path.join(os.path.dirname(__file__), "check-*"))
+    candidates = sorted(candidates, key=lambda c: os.path.split(c)[1] not in RUN_FIRST)
+    for filename in candidates:
         name = check_valid(filename)
         if not name or not os.path.isfile(filename):
             continue

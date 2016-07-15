@@ -83,7 +83,7 @@ class TestSystemInfo(MachineCase):
 
         supports_alt = False
         try:
-            m.execute("ssh-keygen -l -f /etc/ssh/weirdname -E md5")
+            m.execute(command="ssh-keygen -l -f /etc/ssh/weirdname -E md5", quiet=True)
             supports_alt = True
         except subprocess.CalledProcessError:
             pass

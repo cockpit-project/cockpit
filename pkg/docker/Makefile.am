@@ -54,7 +54,7 @@ docker_BUNDLE = \
 	pkg/docker/mustache.min.js \
 	pkg/docker/patterns.min.js \
 	pkg/docker/plot.min.js \
-	pkg/docker/react.js \
+	pkg/docker/react.min.js \
 	pkg/docker/storage.min.js \
 	pkg/docker/overview.min.js \
 	pkg/docker/run.min.js \
@@ -73,6 +73,8 @@ pkg/docker/flot.min.js: pkg/docker/flot.js
 pkg/docker/mustache.min.js: pkg/docker/mustache.js
 	$(MIN_JS_RULE)
 pkg/docker/term.min.js: pkg/docker/term.js
+	$(MIN_JS_RULE)
+pkg/docker/react.min.js: pkg/docker/react.js
 	$(MIN_JS_RULE)
 
 dockerimagesdir = $(pkgdatadir)/docker/images

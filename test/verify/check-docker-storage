@@ -214,6 +214,8 @@ class TestDockerStorage(MachineCase):
         check_loopback(False)
 
     def testDevmapperVGroup(self):
+        if not initially_loopbacked(self.machine):
+            return unittest.skip("Switching vgroups not yet tested")
         self.testDevmapper("dockah")
 
 if __name__ == '__main__':

@@ -192,6 +192,13 @@ class Machine:
 
         control = os.path.join(testinfra.TEST_DIR, "tmp", "ssh-%h-%p-%r-" + str(os.getpid()))
 
+        # unix domain socket names aren't allowed to be too long
+        # Since python doesn't expose the max allowed value as a constant
+        # we hard code 108 as a magic number, based on the default
+        # MAX_UNIX_FILE value on most linux systems.
+        if len(control) > 108:
+            control = os.path.join(tempfile.tempdir, "ssh-%h-%p-%r-" + str(os.getpid()))
+
         cmd = [
             "ssh",
             "-p", str(self.ssh_port),

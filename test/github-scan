@@ -35,7 +35,7 @@ def main():
                         help='The test context to scan for tasks')
     opts = parser.parse_args()
 
-    github = testinfra.GitHub("/repos/cockpit-project/cockpit/")
+    github = testinfra.GitHub()
 
     for entry in github.scan(not opts.dry, opts.context, opts.except_context):
         sys.stdout.write("{0}: {1}\n".format(entry.priority, entry.task.description()))

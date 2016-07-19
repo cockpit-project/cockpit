@@ -50,7 +50,7 @@ def main():
 
     future_timestamp = datetime.datetime.utcnow() + datetime.timedelta(seconds=3600)
 
-    github = testinfra.GitHub("/repos/cockpit-project/cockpit/")
+    github = testinfra.GitHub()
     headers = { 'If-Modified-Since': httpdate(future_timestamp) }
     response = github.request("GET", "git/refs/heads/master", "", headers)
     sys.stdout.write("Rate limits:\n")

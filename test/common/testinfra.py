@@ -153,6 +153,34 @@ __all__ = (
     'TEST_DIR',
 )
 
+def determine_github_base():
+    # pick a base
+    try:
+        # see where we get master from, e.g. origin
+        get_remote_command = ["git", "config", "--local", "--get", "branch.master.remote"]
+        remote = subprocess.Popen(get_remote_command, stdout=subprocess.PIPE, cwd=TEST_DIR).communicate()[0].strip()
+        # see if we have a git checkout - it can be in https or ssh format
+        formats = [
+            re.compile("""https:\/\/github\.com\/(.*)\.git"""),
+            re.compile("""git@github.com:(.*)\.git""")
+            ]
+        remote_output = subprocess.Popen(
+                ["git", "ls-remote", "--get-url", remote],
+                stdout=subprocess.PIPE, cwd=TEST_DIR
+            ).communicate()[0].strip()
+        for f in formats:
+            m = f.match(remote_output)
+            if m:
+                return list(m.groups())[0]
+    except:
+        sys.stderr.write("Unable to get git repo information, using defaults\n")
+
+    # if we still don't have something, default to cockpit-project/cockpit
+    return "cockpit-project/cockpit"
+
+# github base to use
+GITHUB_BASE = "/repos/{0}/".format(os.environ.get("GITHUB_BASE", determine_github_base()))
+
 def read_whitelist():
     # Try to load the whitelists
     # Always expect the in-tree version to be present
@@ -281,7 +309,7 @@ def dict_is_subset(full, check):
     return True
 
 class GitHub(object):
-    def __init__(self, base="/repos/cockpit-project/cockpit/"):
+    def __init__(self, base=GITHUB_BASE):
         self.base = base
         self.conn = None
         self.token = None

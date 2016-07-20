@@ -20,6 +20,21 @@
 (function() {
     "use strict";
 
+    var angular = require('angular');
+    require('angular-route');
+    require('angular-bootstrap/ui-bootstrap.js');
+    require('angular-bootstrap/ui-bootstrap-tpls.js');
+
+    require('./app');
+    require('./date');
+    require('./images');
+    require('./projects');
+    require('./policy');
+    require('./kube-client');
+    require('./kube-client-cockpit');
+
+    require('../views/registry-dashboard-page.html');
+
     var MAX_RECENT_STREAMS = 15;
     var MAX_RECENT_TAGS = 8;
 

@@ -17,10 +17,13 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* globals cockpit */
-
 (function() {
     "use strict";
+
+    var angular = require('angular');
+    var cockpit = require('cockpit');
+
+    require('./kube-client');
 
     function debug() {
         if (window.debugging == "all" || window.debugging == "kube")
@@ -71,7 +74,6 @@
 
     angular.module("kubeClient.cockpit", [
         "kubeClient",
-        "kubeUtils",
     ])
 
     .factory("CockpitKubeWatch", [

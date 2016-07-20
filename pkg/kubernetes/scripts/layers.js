@@ -22,6 +22,10 @@
 (function() {
     "use strict";
 
+    var angular = require('angular');
+
+    require('../views/image-layers.html');
+
     function v1CompatibilityLabel(layer, lower) {
         var cmd, last;
         if (layer.v1Compatibility.container_config) {

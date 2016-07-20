@@ -20,6 +20,30 @@
 (function() {
     "use strict";
 
+    var angular = require('angular');
+
+    require('./dialog');
+    require('./kube-client');
+    require('./date');
+    require('./listing');
+    require('./layers');
+    require('./tags');
+
+    require('../views/images-page.html');
+    require('../views/imagestream-page.html');
+    require('../views/image-page.html');
+    require('../views/image-panel.html');
+    require('../views/image-body.html');
+    require('../views/image-config.html');
+    require('../views/image-meta.html');
+    require('../views/imagestream-body.html');
+    require('../views/imagestream-meta.html');
+    require('../views/image-listing.html');
+    require('../views/imagestream-delete.html');
+    require('../views/imagestream-modify.html');
+    require('../views/imagestream-modify.html');
+    require('../views/image-delete.html');
+
     /*
      * Executes callback for each stream.status.tag[x].item[y]
      * in a stream. Similar behavior to angular.forEach()

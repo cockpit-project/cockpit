@@ -20,6 +20,21 @@
 (function() {
     "use strict";
 
+    var angular = require('angular');
+
+    require('./dialog');
+    require('./kube-client-cockpit');
+    require('./utils');
+
+    require('../views/auth-form.html');
+    require('../views/auth-rejected-cert.html');
+    require('../views/container-page.html');
+    require('../views/containers-page.html');
+    require('../views/containers-listing.html');
+    require('../views/container-page-inline.html');
+    require('../views/container-body.html');
+    require('../views/pod-body.html');
+
     angular.module('kubernetes.connection', [
         'ui.cockpit',
         'kubeClient',

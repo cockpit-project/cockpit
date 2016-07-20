@@ -20,6 +20,54 @@
 (function() {
     "use strict";
 
+    var angular = require('angular');
+    require('kubernetes-object-describer/dist/object-describer.js');
+
+    require('./containers');
+    require('./date');
+    require('./dialog');
+    require('./kube-client');
+    require('./listing');
+    require('./utils');
+    require('./volumes');
+
+    require('../views/details-page.html');
+    require('../views/pod-container.html');
+    require('../views/details-page.html');
+    require('../views/item-delete.html');
+    require('../views/route-modify.html');
+    require('../views/replicationcontroller-modify.html');
+    require('../views/service-modify.html');
+    require('../views/deploymentconfig-body.html');
+    require('../views/replicationcontroller-pods.html');
+    require('../views/replicationcontroller-body.html');
+    require('../views/route-body.html');
+    require('../views/service-body.html');
+    require('../views/service-endpoint.html');
+
+    require('../views/pod-page.html');
+    require('../views/image-page.html');
+    require('../views/registry-dashboard-page.html');
+    require('../views/details-page.html');
+    require('../views/project-page.html');
+    require('../views/topology-page.html');
+    require('../views/node-page.html');
+    require('../views/dashboard-page.html');
+    require('../views/nodes-page.html');
+    require('../views/deploymentconfig-page.html');
+    require('../views/pv-page.html');
+    require('../views/container-page.html');
+    require('../views/service-page.html');
+    require('../views/group-page.html');
+    require('../views/containers-page.html');
+    require('../views/projects-page.html');
+    require('../views/user-page.html');
+    require('../views/images-page.html');
+    require('../views/replicationcontroller-page.html');
+    require('../views/route-page.html');
+    require('../views/imagestream-page.html');
+    require('../views/volumes-page.html');
+
     function validItem(item, type) {
         var valid = (item && (!type || item.kind === type) &&
                      item.spec && item.metadata);

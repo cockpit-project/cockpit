@@ -37,8 +37,8 @@ import unittest
 # Returns whether Cockpit can add disks and reset the pool.
 #
 def can_manage(machine, vg):
-    # RHEL Atomic is all set.
-    if machine.image == "rhel-atomic" or machine.image == "continuous-atomic":
+    # Atomic is all set.
+    if machine.image in [ "rhel-atomic", "fedora-atomic", "continuous-atomic" ]:
         return True
 
     # Fedora 24 has new enough "atomic", but the OS is not in a volume

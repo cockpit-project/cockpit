@@ -12,6 +12,10 @@ var info = {
             "kubernetes/styles/registry.less",
             "kubernetes/scripts/registry.js",
         ],
+        "ostree/ostree": [
+            "ostree/app.js",
+            "ostree/ostree.css",
+        ],
         "selinux/selinux": [
             "selinux/setroubleshoot.js",
             "selinux/setroubleshoot.css",
@@ -35,6 +39,9 @@ var info = {
         "kubernetes/override.json",
         "kubernetes/index.html",
         "kubernetes/registry.html",
+
+        "ostree/manifest.json",
+        "ostree/index.html",
 
         "selinux/manifest.json",
         "selinux/setroubleshoot.html",

@@ -38,7 +38,7 @@ import unittest
 #
 def can_manage(machine, vg):
     # RHEL Atomic is all set.
-    if machine.image == "rhel-atomic":
+    if machine.image == "rhel-atomic" or machine.image == "continuous-atomic":
         return True
 
     # Fedora 24 has new enough "atomic", but the OS is not in a volume

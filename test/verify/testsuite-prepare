@@ -48,6 +48,8 @@ if __name__ == "__main__":
         build_os = "fedora-23"
     elif test_os == "rhel-atomic":
         build_os = "rhel-7"
+    elif test_os == "continuous-atomic":
+        build_os = "centos-7"
 
     os.system(os.path.join(testinfra.TEST_DIR,"vm-reset"))
     try:

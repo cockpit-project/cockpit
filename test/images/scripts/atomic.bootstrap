@@ -25,7 +25,11 @@ base=$2
 prefix=$3
 
 # download the newest base image
-pattern="$prefix-[0-9\.]+.x86_64.qcow2"
+if [[ "$prefix" == *qcow2 ]]; then
+    pattern="$prefix"
+else
+    pattern="$prefix-[0-9\.]+.x86_64.qcow2"
+fi
 newest=`wget -q -O- $base | egrep -o $pattern | sort -V | tail -1`
 
 if [ -n "$TEST_DATA" -a -f "$TEST_DATA/$newest" ]; then

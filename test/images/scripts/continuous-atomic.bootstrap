@@ -1,0 +1,10 @@
+#! /bin/bash
+# -*- coding: utf-8 -*-
+
+set -e
+
+url="http://cloud.centos.org/centos/7/atomic/images"
+prefix="CentOS-Atomic-Host-[0-9\.]+-GenericCloud.qcow2"
+
+BASE=$(dirname $0)
+$BASE/atomic.bootstrap "$1" "$url" "$prefix"

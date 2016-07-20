@@ -348,7 +348,7 @@ test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 
 %package shell
 Summary: Cockpit Shell user interface package
-Requires: %{name}-bridge >= %{stable_api}
+Requires: %{name}-bridge = %{version}-%{release}
 Requires: shadow-utils
 Requires: grep
 Requires: libpwquality

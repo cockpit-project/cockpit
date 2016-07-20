@@ -1,13 +1,17 @@
-require([
-    "base1/cockpit",
-    "updates/moment",
-    "shell/po",
-    "updates/client",
-], function(cockpit, moment, po, client) {
-    'use strict';
+(function() {
+    "use strict";
+
+    var cockpit = require('cockpit');
+    var moment = require('moment');
+
+    var angular = require('angular');
+    require('angular-route');
+    require('angular-bootstrap/ui-bootstrap.js');
+    require('angular-bootstrap/ui-bootstrap-tpls.js');
+
+    var client = require('./client');
 
     var _ = cockpit.gettext;
-    cockpit.locale(po);
     cockpit.translate();
 
     var phantom_checkpoint = phantom_checkpoint || function () { };
@@ -341,4 +345,5 @@ require([
     angular.bootstrap(document, ["ostree"], {
         strictDi: true
     });
-});
+
+}());

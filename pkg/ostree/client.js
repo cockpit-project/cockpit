@@ -1,7 +1,7 @@
-define([
-    "base1/cockpit",
-], function(cockpit) {
+(function() {
     "use strict";
+
+    var cockpit = require('cockpit');
     var _ = cockpit.gettext;
 
     var DEST = 'org.projectatomic.rpmostree1';
@@ -546,4 +546,4 @@ define([
 
     /* singleton client instance */
     return new RPMOSTreeDBusClient();
-});
+}());

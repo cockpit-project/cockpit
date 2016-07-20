@@ -158,11 +158,11 @@ func main() {
 	if isRegistry {
 		registry_override := path.Join(*confDir, "registry-dashboard-override.json")
 		linkFiles(registry_override, "/usr/share/cockpit/kubernetes/override.json")
-		linkFiles("/usr/share/cockpit/kubernetes/registry.min.html.gz",
-				  "/usr/share/cockpit/kubernetes/index.min.html.gz")
+		linkFiles("/usr/share/cockpit/kubernetes/registry.html.gz",
+				  "/usr/share/cockpit/kubernetes/index.html.gz")
 	} else {
 		linkFiles("/usr/share/cockpit/kubernetes/original-index.gz",
-				  "/usr/share/cockpit/kubernetes/index.min.html.gz")
+				  "/usr/share/cockpit/kubernetes/index.html.gz")
 	}
 
 	syscall.Exec(args[0], args, os.Environ())

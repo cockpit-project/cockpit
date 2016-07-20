@@ -20,6 +20,24 @@
 (function() {
     "use strict";
 
+    var angular = require('angular');
+    require('angular-route');
+
+    require('./date');
+    require('./dialog');
+    require('./listing');
+    require('./kube-client');
+
+    require('../views/volumes-page.html');
+    require('../views/pv-page.html');
+    require('../views/pv-body.html');
+    require('../views/pvc-body.html');
+    require('../views/pv-claim.html');
+    require('../views/volume-body.html');
+    require('../views/pvc-delete.html');
+    require('../views/pv-delete.html');
+    require('../views/pv-modify.html');
+
     var VOLUME_FACTORY_SUFFIX = "VolumeFields";
 
     angular.module('kubernetes.volumes', [

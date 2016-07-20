@@ -20,6 +20,8 @@
 (function() {
     "use strict";
 
+    var angular = require('angular');
+
     angular.module("kubeUtils", [])
 
     .factory("KubeMapNamedArray", [

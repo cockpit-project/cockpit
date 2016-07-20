@@ -2,44 +2,59 @@
  * Fill in module info here.
  */
 
-var entries = {
-    "selinux/selinux": [
-        "selinux/setroubleshoot.js",
-        "selinux/setroubleshoot.css",
-    ],
-    "sosreport/sosreport": [
-        "sosreport/index.js",
-        "sosreport/sosreport.css",
-    ],
-    "subscriptions/subscriptions": [
-        "subscriptions/main.js",
-        "subscriptions/subscriptions.css",
-    ],
-    "users/users": [
-        "users/local.js",
-        "users/users.css",
+var info = {
+    entries: {
+        "kubernetes/kubernetes": [
+            "kubernetes/styles/main.less",
+            "kubernetes/scripts/main.js",
+        ],
+        "kubernetes/registry": [
+            "kubernetes/styles/registry.less",
+            "kubernetes/scripts/registry.js",
+        ],
+        "selinux/selinux": [
+            "selinux/setroubleshoot.js",
+            "selinux/setroubleshoot.css",
+        ],
+        "sosreport/sosreport": [
+            "sosreport/index.js",
+            "sosreport/sosreport.css",
+        ],
+        "subscriptions/subscriptions": [
+            "subscriptions/main.js",
+            "subscriptions/subscriptions.css",
+        ],
+        "users/users": [
+            "users/local.js",
+            "users/users.css",
+        ]
+    },
+
+    files: [
+        "kubernetes/manifest.json",
+        "kubernetes/override.json",
+        "kubernetes/index.html",
+        "kubernetes/registry.html",
+
+        "selinux/manifest.json",
+        "selinux/setroubleshoot.html",
+
+        "sosreport/index.html",
+        "sosreport/sosreport.png",
+        "sosreport/manifest.json",
+
+        "users/index.html",
+        "users/manifest.json",
+
+        "subscriptions/index.html",
+        "subscriptions/manifest.json",
     ]
 };
 
-var files = [
-    "selinux/manifest.json",
-    "selinux/setroubleshoot.html",
-
-    "sosreport/index.html",
-    "sosreport/sosreport.png",
-    "sosreport/manifest.json",
-
-    "users/index.html",
-    "users/manifest.json",
-
-    "subscriptions/index.html",
-    "subscriptions/manifest.json",
-];
-
 var externals = {
-    "jquery": "$",
     "cockpit": "cockpit",
-};
+    "jquery": "$",
+}
 
 /* ---------------------------------------------------------------------
  * Implementation
@@ -48,6 +63,7 @@ var externals = {
 var webpack = require("webpack");
 var copy = require("copy-webpack-plugin");
 var extract = require("extract-text-webpack-plugin");
+var extend = require("extend");
 var path = require("path");
 
 /* For node 0.10.x we need this defined */
@@ -68,19 +84,22 @@ var production = process.env.NODE_ENV === 'production';
  */
 
 /* Qualify all the paths in entries */
-Object.keys(entries).forEach(function(key) {
-    entries[key] = entries[key].map(function(value) {
-        return pkgdir + path.sep + value;
+Object.keys(info.entries).forEach(function(key) {
+    info.entries[key] = info.entries[key].map(function(value) {
+        if (value.indexOf("/") === -1)
+            return value;
+        else
+            return pkgdir + path.sep + value;
     });
 });
 
 /* Qualify all the paths in files listed */
-files = files.map(function(value) {
+info.files = info.files.map(function(value) {
     return { from: pkgdir + path.sep + value, to: value };
 });
 
 var plugins = [
-    new copy(files),
+    new copy(info.files),
     new extract("[name].css")
 ];
 
@@ -96,16 +115,20 @@ if (production) {
 module.exports = {
     resolve: {
         alias: {
+            "angular": "angular/angular.js",
+            "angular-route": "angular-route/angular-route.js",
+            "d3": "d3/d3.js",
+            "moment": "momentjs/moment.js",
             "mustache": "mustache/mustache.js",
             "react": "react-lite-cockpit/dist/react-lite.js",
-            "moment": "momentjs/moment.js",
+            "term": "term.js-cockpit/src/term.js",
         },
         modulesDirectories: [ srcdir + path.sep + "lib" ]
     },
     resolveLoader: {
         root: path.resolve(srcdir, 'node_modules')
     },
-    entry: entries,
+    entry: info.entries,
     output: {
         path: distdir,
         filename: "[name].js",
@@ -144,6 +167,18 @@ module.exports = {
             {
                 test: /\.es6$/,
                 loader: "babel-loader"
+            },
+            {
+                test: /\.less$/,
+                loader: extract.extract('css?sourceMap!' + 'less?sourceMap')
+            },
+            {
+                test: /views\/[^\/]+\.html$/,
+                loader: "ng-cache?prefix=[dir]"
+            },
+            {
+                test: /[\/]angular\.js$/,
+                loader: "exports?angular"
             }
         ]
     },
@@ -161,5 +196,5 @@ module.exports = {
                 console.log(loader.resource + ":" + err.line + ":" + err.character + ": " + err.reason);
             });
         }
-    }
+    },
 };

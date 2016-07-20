@@ -20,6 +20,8 @@
 (function() {
     "use strict";
 
+    var angular = require('angular');
+
     /*
      * Some notes on the create fields.
      *

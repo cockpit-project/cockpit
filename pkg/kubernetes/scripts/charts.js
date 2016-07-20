@@ -17,10 +17,13 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* globals d3 */
-
 (function() {
     "use strict";
+
+    var angular = require('angular');
+    require('angular-bootstrap/ui-bootstrap.js');
+
+    var d3 = require('d3');
 
     var focusedClasses = {
         "chart-focused": true,

@@ -27,45 +27,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   <link rel="stylesheet" href="kubernetes.css">
   <script src="../base1/cockpit.js"></script>
   <script src="kubernetes.js"></script>
-
-  <!-- debug:start -->
-  <link rel="stylesheet/less" type="text/css" href="styles/main.less" nonce="lessgenerated"/>
-  <script src="less.js" type="text/javascript"></script>
-  <script src="angular.js"></script>
-  <script src="angular-route.js"></script>
-  <script src="d3.js"></script>
-  <script src="moment.js"></script>
-  <script src="ui-bootstrap.js"></script>
-  <script src="ui-bootstrap-tpls.js"></script>
-  <script src="term.js"></script>
-  <script src="scripts/kube-client.js"></script>
-  <script src="scripts/kube-client-cockpit.js"></script>
-  <script src="scripts/charts.js"></script>
-  <script src="scripts/container-terminal.js"></script>
-  <script src="scripts/connection.js"></script>
-  <script src="scripts/object-describer.js"></script>
-  <script src="scripts/date.js"></script>
-  <script src="scripts/utils.js"></script>
-  <script src="scripts/app.js"></script>
-  <script src="scripts/main.js"></script>
-  <script src="scripts/graphs.js"></script>
-  <script src="scripts/dialog.js"></script>
-  <script src="scripts/listing.js"></script>
-  <script src="scripts/dashboard.js"></script>
-  <script src="scripts/nodes.js"></script>
-  <script src="scripts/containers.js"></script>
-  <script src="scripts/details.js"></script>
-  <script src="scripts/topology.js"></script>
-  <script src="scripts/topology-graph.js"></script>
-  <script src="scripts/layers.js"></script>
-  <script src="scripts/tags.js"></script>
-  <script src="scripts/images.js"></script>
-  <script src="scripts/policy.js"></script>
-  <script src="scripts/projects.js"></script>
-  <script src="scripts/volumes.js"></script>
-  <!-- debug:end -->
-
 </head>
+
 <body ng-app='kubernetes' ng-controller="MainCtrl" ng-class="{'cards-pf': viewActive(null)}" hidden>
     <div ng-cloak ng-if="!curtains">
         <div class="nav-pf-vertical nav-sidebar">

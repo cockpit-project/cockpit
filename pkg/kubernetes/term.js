@@ -1,1 +1,0 @@
-../../lib/term.js-cockpit/src/term.js

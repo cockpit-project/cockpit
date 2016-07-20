@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* globals d3 */
-
 /* This is here to support cockpit.jump
  * If this ever needs to be used outsite of cockpit
  * then we'll need abstract this away in kube-client-cockpit
@@ -27,6 +25,26 @@
 
 (function() {
     "use strict";
+
+    var angular = require('angular');
+    var d3 = require('d3');
+    require('angular-route');
+
+    require('./charts');
+    require('./date');
+    require('./dialog');
+    require('./kube-client');
+    require('./listing');
+    require('./utils');
+
+    require('../views/nodes-page.html');
+    require('../views/node-page.html');
+    require('../views/node-body.html');
+    require('../views/node-capacity.html');
+    require('../views/node-stats.html');
+    require('../views/node-add.html');
+    require('../views/node-delete.html');
+    require('../views/node-alerts.html');
 
     angular.module('kubernetes.nodes', [
         'ngRoute',

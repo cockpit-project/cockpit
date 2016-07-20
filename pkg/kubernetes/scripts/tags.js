@@ -17,9 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 (function() {
     "use strict";
+
+    var angular = require('angular');
 
     var REGTAG = /[\u200B\s,]+/;
     function parseNodes(parent) {

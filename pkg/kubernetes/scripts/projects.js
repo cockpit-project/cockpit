@@ -20,6 +20,40 @@
 (function() {
     "use strict";
 
+    var angular = require('angular');
+    require('angular-route');
+
+    require('./dialog');
+    require('./kube-client');
+    require('./listing');
+    require('./policy');
+
+    require('../views/projects-page.html');
+    require('../views/project-page.html');
+    require('../views/user-page.html');
+    require('../views/group-page.html');
+    require('../views/project-panel.html');
+    require('../views/project-body.html');
+    require('../views/user-body.html');
+    require('../views/group-panel.html');
+    require('../views/user-panel.html');
+    require('../views/project-listing.html');
+    require('../views/project-modify.html');
+    require('../views/project-modify.html');
+    require('../views/project-delete.html');
+    require('../views/add-group-dialog.html');
+    require('../views/user-group-add.html');
+    require('../views/user-group-remove.html');
+    require('../views/group-delete.html');
+    require('../views/add-user-dialog.html');
+    require('../views/user-modify.html');
+    require('../views/user-add-membership.html');
+    require('../views/user-remove-membership.html');
+    require('../views/user-delete.html');
+    require('../views/add-member-role-dialog.html');
+    require('../views/remove-role-dialog.html');
+    require('../views/add-role-dialog.html');
+
     function toName(object) {
         if (object && typeof object == "object")
             return object.metadata.name;

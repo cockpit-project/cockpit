@@ -19,6 +19,13 @@
 
 (function() {
     "use strict";
+
+    var angular = require('angular');
+    require('angular-route');
+    require('./kube-client');
+    require('./dialog');
+    require('./listing');
+
     var phantom_checkpoint = phantom_checkpoint || function () { };
 
     angular.module('kubernetes.containers', [

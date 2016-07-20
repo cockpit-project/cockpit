@@ -20,6 +20,15 @@
 (function() {
     "use strict";
 
+    var angular = require('angular');
+    require('angular-route');
+    require('kubernetes-topology-graph/dist/topology-graph.js');
+
+    require('./kube-client');
+    require('./details');
+
+    require('../views/topology-page.html');
+
     var icons = {
         Pod: '#vertex-Pod',
         ReplicationController: '#vertex-ReplicationController',

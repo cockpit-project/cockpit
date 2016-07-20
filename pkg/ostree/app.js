@@ -1,12 +1,9 @@
-/* global angular */
-
 require([
-    "jquery",
     "base1/cockpit",
     "updates/moment",
     "shell/po",
     "updates/client",
-], function($, cockpit, moment, po, client) {
+], function(cockpit, moment, po, client) {
     'use strict';
 
     var _ = cockpit.gettext;
@@ -108,14 +105,14 @@ require([
                 $scope.curtains = { state: 'silent' };
                 var timeout = window.setTimeout(function() {
                     set_curtains({ state: 'connecting' });
-                    $("body").show();
+                    document.body.removeAttribute('hidden');
                     timeout = null;
                 }, 1000);
 
                 function handle(promise) {
                     promise
                         .always(function() {
-                            $("body").show();
+                            document.body.removeAttribute('hidden');
                             window.clearTimeout(timeout);
                             timeout = null;
                         })
@@ -125,10 +122,11 @@ require([
                         .fail(show_failure);
                 }
 
-                $(client).on("connectionLost.main", function(event, ex) {
+                function on_connection_lost(event, ex) {
                     show_failure(ex);
-                });
-                $(client).on("changed.main", check_empty);
+                }
+                client.addEventListener("connectionLost", on_connection_lost);
+                client.addEventListener("changed", check_empty);
 
                 handle(client.connect());
                 $scope.reconnect = function reconnect() {
@@ -137,7 +135,8 @@ require([
                 };
 
                 $scope.$on("$destroy", function() {
-                    $(client).off(".main");
+                    client.removeEventListener("connectionLost", on_connection_lost);
+                    client.removeEventListener("changed", check_empty);
                 });
             }
         ])
@@ -163,23 +162,21 @@ require([
                     return client.item_matches(item, proxy_arg);
                 };
 
+                function on_changed() {
+                    $scope.$applyAsync(function() {
+                        $scope.runningMethod = client.running_method;
+                        $scope.os_list = client.os_list;
+                    });
+                }
+
                 client.connect().
                     done(function () {
-                        $(client).on("changed.ostreeIndex", function() {
-                            $scope.$applyAsync(function() {
-                                $scope.runningMethod = client.running_method;
-                                $scope.os_list = client.os_list;
-                            });
-                        });
-
-                        $scope.$applyAsync(function() {
-                            $scope.runningMethod = client.running_method;
-                            $scope.os_list = client.os_list;
-                        });
+                        client.addEventListener("changed", on_changed);
+                        on_changed();
                     });
 
                 $scope.$on("$destroy", function() {
-                    $(client).off(".ostreeIndex");
+                    client.removeEventListener("changed", on_changed);
                 });
         }])
 
@@ -253,12 +250,14 @@ require([
                         scope.id = track_id(scope.item);
                         scope.active = 'tree';
 
-                        scope.packages = client.packages(scope.item);
-                        $(scope.packages).on("changed", function() {
+                        function on_changed() {
                             scope.$digest();
-                        });
+                        }
+
+                        scope.packages = client.packages(scope.item);
+                        scope.packages.addEventListener("changed", on_changed);
                         scope.$on("$destroy", function() {
-                            $(scope.packages).off();
+                            scope.packages.removeEventListener("changed", on_changed);
                         });
 
                         scope.isRunning = false;
@@ -339,10 +338,7 @@ require([
             };
         });
 
-    /* Initialize once document is loaded */
-    $(function() {
-        angular.bootstrap(document, ["ostree"], {
-            strictDi: true
-        });
+    angular.bootstrap(document, ["ostree"], {
+        strictDi: true
     });
 });

@@ -1,7 +1,6 @@
 define([
-    "jquery",
     "base1/cockpit",
-], function($, cockpit) {
+], function(cockpit) {
     "use strict";
     var _ = cockpit.gettext;
 
@@ -135,6 +134,8 @@ define([
         self.ready = false;
         self.empty = false;
 
+        cockpit.event_target(self);
+
         promise
             .done(function(result) {
                 var empty = true;
@@ -154,18 +155,21 @@ define([
             })
             .always(function() {
                 self.ready = true;
-                $(self).triggerHandler("changed");
+                self.dispatchEvent("changed");
             });
     }
 
     function RPMOSTreeDBusClient() {
         var self = this;
 
+        cockpit.event_target(self);
+
         self.connection_error = null;
         self.os_list = [];
 
         var sysroot = null;
         var os_proxies = {};
+        var os_proxies_added = null;
 
         var os_names = {};
         var packages_cache = {};
@@ -208,17 +212,18 @@ define([
 
         function trigger_changed() {
             if (!timer) {
-                $(self).triggerHandler("changed");
+                self.dispatchEvent("changed");
                 timer = window.setTimeout(function() {
                     timer = null;
                     if (skipped)
-                        $(self).triggerHandler("changed");
+                        self.dispatchEvent("changed");
                     skipped = false;
                 }, 300);
             } else {
                 skipped = true;
             }
         }
+
 
         function get_client() {
             if (!client) {
@@ -227,6 +232,7 @@ define([
 
                 sysroot = null;
                 os_proxies = {};
+                os_proxies_added = null;
 
                 os_names = {};
                 packages_cache = {};
@@ -237,40 +243,41 @@ define([
                 var timer = null;
                 var skipped = false;
 
-                waits = $.Callbacks("once memory");
-                waits.add(trigger_changed);
+                waits = cockpit.defer();
+                waits.promise.done(trigger_changed);
 
                 client = cockpit.dbus(DEST, {"superuser" : true,
                                              "capabilities" : ["address"]});
 
                 /* Watch before listening for close because watch fires first */
                 client.watch(PATH).fail(tear_down);
-                $(client).on("close", closing);
+                client.addEventListener("close", closing);
 
                 sysroot = client.proxy(SYSROOT, SYSROOT_PATH);
-                $(sysroot).on("changed", on_sysroot_changed);
+                sysroot.addEventListener("changed", on_sysroot_changed);
                 sysroot.wait(function() {
                     if (sysroot && sysroot.valid)
                         build_os_list(sysroot.Deployments);
 
                     if (client) {
                         os_proxies = client.proxies(OS, PATH);
-                        $(os_proxies).on("changed", trigger_changed);
-                        $(os_proxies).on("added", function(event, proxy) {
+                        os_proxies_added = function(event, proxy) {
                             if (proxy.Name)
                                 os_names[proxy.Name] = proxy.path;
                             trigger_changed();
-                        });
+                        };
+                        os_proxies.addEventListener("changed", trigger_changed);
+                        os_proxies.addEventListener("added", os_proxies_added);
 
                         os_proxies.wait(function() {
                             for (var path in os_proxies) {
                                 var proxy = os_proxies[path];
                                 os_names[path] = path;
                             }
-                            waits.fire();
+                            waits.resolve();
                         });
                     } else {
-                        waits.fire();
+                        waits.resolve();
                     }
                 });
 
@@ -284,18 +291,20 @@ define([
             client = null;
             self.connection_error = ex;
             if (sysroot) {
-                $(sysroot).off();
+                sysroot.removeEventListener("changed", on_sysroot_changed);
                 sysroot = null;
             }
             if (os_proxies) {
-                $(os_proxies).off();
+                if (os_proxies_added)
+                    os_proxies.removeEventListener("added", os_proxies_added);
+                os_proxies_added = null;
                 os_proxies = {};
             }
         }
 
         function closing(event, ex) {
             tear_down(ex);
-            $(self).triggerHandler("connectionLost", [ ex ]);
+            self.dispatchEvent("connectionLost", [ ex ]);
         }
 
         /* The order of deployments indicates
@@ -329,15 +338,15 @@ define([
         }
 
         self.connect = function() {
-            var dp = $.Deferred();
+            var dp = cockpit.defer();
             get_client();
-            waits.add(function() {
+            waits.promise.done(function() {
                 if (self.connection_error)
                     dp.reject(self.connection_error);
                 else
                     dp.resolve(client);
             });
-            return dp;
+            return dp.promise;
         };
 
         self.known_versions_for = function(os_name) {
@@ -448,13 +457,13 @@ define([
             local_running = method + ":" + os;
             var transaction_client = null;
             var subscription = null;
-            var dp = $.Deferred();
+            var dp = cockpit.defer();
             var i;
             var reboot = false;
 
-            if ($.isArray(method_args)) {
+            if (Array.isArray(method_args)) {
                 for (i = 0; i < method_args.length; i++) {
-                    if ($.isPlainObject(method_args[i])) {
+                    if ("reboot" in method_args[i]) {
                         reboot = method_args[i].reboot;
                         break;
                     }
@@ -467,7 +476,7 @@ define([
                     if (subscription)
                         subscription.remove();
 
-                    $(transaction_client).off();
+                    transaction_client.removeEventListener("close", on_close);
                     transaction_client.close();
                 }
                 transaction_client = null;
@@ -478,6 +487,10 @@ define([
             function fail(ex) {
                 dp.reject(ex);
                 cleanup();
+            }
+
+            function on_close(event, ex) {
+                fail(ex);
             }
 
             self.connect()
@@ -501,9 +514,7 @@ define([
                                 cockpit.hint('restart');
 
                             transaction_client = cockpit.dbus(null, connect_args);
-                            $(transaction_client).on("close", function(event, ex) {
-                                fail(ex);
-                            });
+                            transaction_client.addEventListener("close", on_close);
 
                             subscription = transaction_client.subscribe({ 'path' : "/", },
                                 function(path, iface, signal, args) {

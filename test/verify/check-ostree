@@ -111,6 +111,8 @@ class OstreeRestartCase(MachineCase):
 
         if "rhel-atomic" in m.image:
             name = "rhel-atomic-host"
+        elif 'continuous' in m.image:
+            name = 'centos-atomic-host'
         else:
             name = "fedora-atomic"
 

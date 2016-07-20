@@ -126,13 +126,13 @@ class TestMultiMachineKeyAuth(MachineCase):
         if 'atomic' in m1.image:
             self.load_key('id_rsa', 'foobar')
             b.wait_js_cond('loaded === true');
-            if 'rhel' in m1.image or 'centos' in m1.image:
+            if 'rhel' in m1.image or 'centos' in m1.image or m1.image == "continuous-atomic":
                 self.check_keys([
                     "2048 93:40:9e:67:82:78:a8:99:89:39:d5:ba:e0:50:70:e1 id_rsa (RSA)"])
             else:
                 self.check_keys([
                     "2048 SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw id_rsa (RSA)"])
-        elif 'rhel' in m1.image or 'centos' in m1.image:
+        elif 'rhel' in m1.image or 'centos' in m1.image or m1.image == "continuous-atomic":
             self.check_keys(KEY_IDS_MD5)
         else:
             # Check our keys were loaded.

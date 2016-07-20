@@ -132,7 +132,7 @@ class TestMetrics(MachineCase):
         m.execute("kill %d" % net_pid)
 
     @unittest.skipIf("rhel" in os.environ.get("TEST_OS", ""), "No PCP on RHEL.")
-    @unittest.skipIf("fedora-atomic" in os.environ.get("TEST_OS", ""), "No PCP on Fedora Atomic.")
+    @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "No PCP on Atomics.")
     def testPcp(self):
         b = self.browser
         m = self.machine

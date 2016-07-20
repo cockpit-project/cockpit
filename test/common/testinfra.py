@@ -54,6 +54,7 @@ DEFAULT_VERIFY = {
     'verify/fedora-23': [ 'master' ],
     'verify/fedora-24': [ 'master', 'pulls' ],
     'verify/centos-7': [ 'master', 'pulls' ],
+    'verify/continuous-atomic': [ 'master' ],
     'verify/rhel-7': [ 'master', 'pulls' ],
     'verify/fedora-atomic': [ 'master', 'pulls' ],
     'verify/rhel-atomic': [ 'master', 'pulls' ],

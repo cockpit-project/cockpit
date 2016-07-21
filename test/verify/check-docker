@@ -261,6 +261,75 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
 
         self.del_container_from_details("PROBE2")
 
+    def testVolumesAndEnvironment(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("systemctl start docker")
+
+        self.login_and_go("/docker")
+        b.wait_in_text("#containers-images", "busybox:latest")
+
+        # Select to view all running containers
+        b.wait_visible("#containers-containers-filter button")
+        b.click("#containers-containers-filter button")
+        b.click("#containers-containers-filter li a[value='all']")
+
+        # Create an updated image, add environment variable
+        m.execute("mkdir /var/tmp/container-probe")
+        m.execute("""echo -e '
+FROM busybox
+ENV zero=GGG
+CMD ["/bin/sh"]
+' > /var/tmp/container-probe/Dockerfile""")
+        image_name = "test/container-probe"
+        m.execute("docker build -t %s /var/tmp/container-probe" % (image_name))
+        m.execute("rm -rf /var/tmp/container-probe")
+
+        # Wait for it to appear
+        b.wait_visible("#containers-images")
+        b.wait_in_text("#containers-images", image_name)
+
+        # Run it and add another environment variable via the ui
+        b.click("#containers-images tr:contains(\"%s\") button.fa-play" % (image_name))
+        b.wait_popup("containers_run_image_dialog")
+        b.set_val("#containers-run-image-name", "PROBE4")
+        b.set_val("#containers-run-image-command", "/bin/sh -c \"set; ls /blah/; sleep 100000\"")
+
+        # Two environment variables
+        b.wait_val("#select-claimed-envvars form:eq(1) input:eq(0)", "zero")
+        b.wait_val("#select-claimed-envvars form:eq(1) input:eq(1)", "GGG")
+        b.click("#select-claimed-envvars form:eq(0) .fa-plus")
+        b.set_val("#select-claimed-envvars form:eq(2) input:eq(0)", "SECOND")
+        b.set_val("#select-claimed-envvars form:eq(2) input:eq(1)", "marmalade")
+
+        # And a mount point
+        b.click("#mount-volumes")
+        b.set_val("#select-mounted-volumes form:eq(0) input:eq(0)", "/blah")
+        b.set_val("#select-mounted-volumes form:eq(0) input:eq(1)", "/mnt")
+        if m.image not in [ "debian-unstable" ]:
+            m.execute("chcon -Rt svirt_sandbox_file_t /mnt")
+        m.execute("touch /mnt/dripping.txt")
+
+        # And run it without a terminal
+        b.click("#containers-run-image-with-terminal");
+        b.click("#containers-run-image-run");
+        b.wait_popdown("containers_run_image_dialog")
+        b.wait_in_text("#containers-containers", "PROBE4")
+
+        # Check output of the probe
+        b.wait_present('#containers-containers tr:contains("PROBE4")')
+        b.wait_visible('#containers-containers tr:contains("PROBE4")')
+        b.click('#containers-containers tr:contains("PROBE4")')
+        b.wait_visible("#container-details")
+
+        # Make sure they've started
+        b.wait_in_text("#container-details", "zero='GGG'")
+        b.wait_in_text("#container-details", "SECOND='marmalade'")
+        b.wait_in_text("#container-details", "dripping.txt")
+
+        self.allow_journal_messages('.*denied.*name_connect.*docker.*')
+
     @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "we can't use cockpit on atomic if docker is stopped")
     def testFailure(self):
         b = self.browser

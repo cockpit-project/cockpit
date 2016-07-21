@@ -134,21 +134,25 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
 
 def copy_avocado_logs(machine, title):
     if machine and machine.address:
-        dir = "%s-%s.avocado" % (machine.address, title)
         # check if the remote directory exists (if it doesn't, we want to quit silently)
         test_command = "if test -d '{0}'; then echo exists; fi".format(avocado_results_dir)
         if "exists" not in machine.execute(command=test_command,quiet=True):
             return
-        machine.download_dir(avocado_results_dir, dir)
-        if os.path.exists(dir):
-            # avocado creates a "latest" symlink, we can delete that here
-            shutil.rmtree(path=os.path.join(dir, "latest"), ignore_errors=True)
-            print "Avocado results copied to %s" % (dir)
-            for screenshot in glob.glob(os.path.join(dir,'*.png')):
-                shutil.move(screenshot, arg_attachments_dir)
-            # compress the logs and attach that
-            archive = os.path.join(arg_attachments_dir, "{0}.tar.gz".format(dir))
-            subprocess.call(["tar", "cfz", archive, dir])
+
+        # get the screenshots first and move them on the guest so they won't get archived
+        remote_screenshots = os.path.join(avocado_results_dir, "*.png")
+        remote_archive_dir = os.path.split(avocado_results_dir)[0]
+        test_command_screenshots = """for f in "{0}/"*.png; do [ -e  "$f" ] && echo "exists"; break; done""".format(avocado_results_dir)
+        if "exists" in machine.execute(command=test_command_screenshots,quiet=True):
+            machine.download(remote_screenshots, arg_attachments_dir)
+
+        # create a compressed archive on the remote host
+        remote_archive = os.path.join(remote_archive_dir, "avocado_logs.tar.gz")
+        machine.execute("cd {0} && tar cfz {1} {2} --exclude='*.png'".format(remote_archive_dir, remote_archive, os.path.split(avocado_results_dir)[1]))
+
+        # download and attach to our test
+        local_archive = os.path.join(arg_attachments_dir, "{0}-{1}.avocado.tar.gz".format(machine.address, title))
+        machine.download(remote_archive, local_archive)
 
 def wait_for_selenium_running(machine, host, port=4444):
     WAIT_SELENIUM_RUNNING = """#!/bin/sh

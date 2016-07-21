@@ -176,6 +176,7 @@ class TestMultiMachineAdd(MachineCase):
         # Might happen when killing the bridge.
         self.allow_journal_messages("localhost: dropping message while waiting for child to exit",
                                     "Received message for unknown channel: .*",
+                                    '.*: Socket error: disconnected',
                                     ".*: error reading from ssh",
                                     ".*: bridge program failed: Child process exited with code .*")
 
@@ -305,6 +306,7 @@ class TestMultiMachine(MachineCase):
         # Might happen when killing the bridge.
         self.allow_journal_messages("localhost: dropping message while waiting for child to exit",
                                     "Received message for unknown channel: .*",
+                                    '.*: Socket error: disconnected',
                                     ".*: error reading from ssh",
                                     ".*: bridge program failed: Child process exited with code .*",
                                     "/playground/test.html: failed to retrieve resource: authentication-failed")
@@ -496,6 +498,7 @@ class TestMultiMachine(MachineCase):
                                     '.* host key for server has changed to: .*',
                                     '.* spawning remote bridge failed .*',
                                     '.*: received truncated .*',
+                                    '.*: Socket error: disconnected',
                                     '.*: host key for this server changed key type: .*',
                                     '.*: server offered unsupported authentication methods: .*')
 

@@ -104,6 +104,29 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         self.login_and_go("/system/logs")
         inject_extras()
 
+        b.eval_js("""
+            localTime = function(time) {
+                var month_names = [
+                    'January',
+                    'February',
+                    'March',
+                    'April',
+                    'May',
+                    'June',
+                    'July',
+                    'August',
+                    'September',
+                    'October',
+                    'November',
+                    'December'
+                ];
+                var d = new Date(time);
+                return month_names[d.getMonth()] + ' ' + d.getDate().toFixed() + ', ' + d.getFullYear().toFixed();
+            }
+        """)
+        # January 1, 2050 00:00:00Z in browser time
+        expected_date = b.eval_js("localTime(2524608000000)")
+
         def wait_log_lines(expected):
             b.wait_js_func("""(function (expected) {
           var lines = ph_get_log_lines ();
@@ -125,7 +148,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
             b.wait_js_func ("""(function () {
           var lines = ph_get_log_lines();
 
-          if (lines[0] != "January 1, 2050")
+          if (lines[0] != "%s")
             return false;
 
           var seq = 123;
@@ -158,7 +181,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
           }
 
           return true;
-        })""")
+        })""" % expected_date)
 
         m.execute("systemctl start log123")
 
@@ -178,7 +201,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         wait_journal_empty()
 
         def wait_slow10():
-            wait_log_lines([ "January 1, 2050", [ "sh", "SLOW", "10" ]
+            wait_log_lines([ expected_date, [ "sh", "SLOW", "10" ]
                        ])
 
         m.execute("systemctl start slow10")
@@ -194,7 +217,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         m.execute("systemctl start systemd-journald.service")
         m.execute("logger -p user.err --tag check-journal BEFORE BOOT");
         b.go("#/?tag=check-journal")
-        wait_log_lines([ "January 1, 2050", [ "check-journal", "BEFORE BOOT", "" ] ])
+        wait_log_lines([ expected_date, [ "check-journal", "BEFORE BOOT", "" ] ])
         m.execute("systemctl stop systemd-journald.service")
 
         # Now reboot things
@@ -208,20 +231,20 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         inject_extras()
 
         b.go("#/?tag=check-journal")
-        wait_log_lines([ "January 1, 2050",
+        wait_log_lines([ expected_date,
                          [ "check-journal", "AFTER BOOT", "" ],
                          [ "", "Reboot", "" ],
                          [ "check-journal", "BEFORE BOOT", "" ]
                      ])
 
         b.go("#/?start=boot&tag=check-journal")
-        wait_log_lines([ "January 1, 2050",
+        wait_log_lines([ expected_date,
                          [ "check-journal", "AFTER BOOT", "" ],
                          "Load earlier entries",
                      ])
 
         b.click('#journal-load-earlier')
-        wait_log_lines([ "January 1, 2050",
+        wait_log_lines([ expected_date,
                          [ "check-journal", "AFTER BOOT", "2" ],
                          [ "", "Reboot", "" ],
                          [ "check-journal", "BEFORE BOOT", "" ]

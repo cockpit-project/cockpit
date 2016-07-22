@@ -340,7 +340,6 @@ BOWER_CLEAN = \
 	$(BOWER)/bootstrap-switch/ \
 	$(BOWER)/bootstrap-touchspin/ \
 	$(BOWER)/bootstrap-treeview \
-	$(BOWER)/c3 \
 	$(BOWER)/datatables* \
 	$(BOWER)/google-code-prettify \
 	$(BOWER)/matchHeight \

@@ -98,6 +98,9 @@ DEFAULT_IMAGE_REFRESH = {
     },
     'centos-7': {
         'triggers': [ "verify/centos-7", ]
+    },
+    'continuous-atomic': {
+        'triggers': [ "verify/continuous-atomic", ]
     }
 }
 

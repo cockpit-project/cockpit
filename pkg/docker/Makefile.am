@@ -3,6 +3,7 @@ dockerdir = $(pkgdatadir)/docker
 nodist_docker_DATA = \
 	pkg/docker/bundle.min.js.gz \
 	pkg/docker/console.min.html.gz \
+	pkg/docker/console.min.js.gz \
 	pkg/docker/docker.min.css.gz \
 	pkg/docker/docker.min.js.gz \
 	pkg/docker/index.min.html.gz \
@@ -22,6 +23,7 @@ dockerdebug_DATA = \
 	pkg/docker/docker.css \
 	pkg/docker/docker.js \
 	pkg/docker/console.html \
+	pkg/docker/console.js \
 	pkg/docker/containers.js \
 	pkg/docker/flot.js \
 	pkg/docker/image.js \
@@ -91,6 +93,7 @@ TESTS += $(docker_TESTS)
 CLEANFILES += \
 	pkg/docker/bundle.min.js \
 	pkg/docker/console.min.html \
+	pkg/docker/console.min.js \
 	pkg/docker/docker.min.css \
 	pkg/docker/index.min.html \
 	pkg/docker/plot.min.css \
@@ -101,6 +104,7 @@ CLEANFILES += \
 EXTRA_DIST += \
 	pkg/docker/bundle.min.js \
 	pkg/docker/console.min.html \
+	pkg/docker/console.min.js \
 	pkg/docker/docker.min.css \
 	pkg/docker/index.min.html \
 	pkg/docker/plot.min.css \

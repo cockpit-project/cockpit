@@ -5,47 +5,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
-    <link href="../base1/docker.css" type="text/css" rel="stylesheet" id="term-style">
+    <link href="docker.css" type="text/css" rel="stylesheet" id="term-style">
     <script src="../base1/bundle.js"></script>
-<script>
-require([
-    "jquery",
-    "base1/cockpit",
-    "docker/docker"
-], function($, cockpit, docker) {
-
-    var box;
-    function update() {
-        if (box && box.close)
-            box.close();
-
-        var path = cockpit.location.path;
-        if (path.length === 0) {
-            box = $("<pre>").text("usage: console.html#/container_id");
-        } else if (path.length !== 1) {
-            console.warn("not a container id: " + path);
-            cockpit.location = '';
-        } else {
-            box = docker.console(path[0]);
-            $("title").text(path[0]);
-
-            /*
-             * TODO: Once we get more code into the docker module this
-             * should reflect the actual docker container state and
-             * become typable when the container is running.
-             */
-            box.typeable(true);
-            box.connect();
-        }
-
-        $("#container").empty().append(box);
-        $("body").show();
-    }
-
-    $(cockpit).on("locationchanged", update);
-    $(update);
-});
-</script>
+    <script src="bundle.js"></script>
+    <script src="console.js"></script>
 </head>
 <body hidden>
     <div class="container-fluid">

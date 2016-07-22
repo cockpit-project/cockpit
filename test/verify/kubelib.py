@@ -78,7 +78,8 @@ class VolumeTests(object):
         m.execute("kubectl create namespace another && kubectl create --namespace=another -f /tmp/mock-volume-tiny-app.json")
 
         b.wait_present(".pvc-notice a")
-        b.wait_in_text(".pvc-notice a", "2 pending volume claims")
+        b.wait_in_text(".pvc-notice a", "2")
+        b.wait_in_text(".pvc-notice a", "pending volume claims")
         b.click(".pvc-notice a")
         b.wait_present(".pvc-listing")
 

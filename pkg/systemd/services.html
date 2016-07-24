@@ -332,13 +332,13 @@
     <div class="modal-dialog cockpit-timer-modal-md">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">Create Timers</h4>
+          <h4 class="modal-title" translatable="yes">Create Timers</h4>
         </div>
         <div class="modal-body">
           <table class="form-table-ct">
             <tr id="servicename-row">
               <td>
-                <label class="control-label" for="servicename">Service name</label>
+                <label class="control-label" for="servicename" translatable="yes">Service name</label>
               </td>
               <td>
                 <input type="text" id="servicename" class="form-control">
@@ -352,7 +352,7 @@
             </tr>
             <tr id="description-row" >
               <td>
-                <label class="control-label" for="description">Desciption</label>
+                <label class="control-label" for="description" translatable="yes">Desciption</label>
               </td>
               <td>
                 <input type="text" id="description" class="form-control">
@@ -366,7 +366,7 @@
             </tr>
             <tr id="command-row" >
               <td>
-                <label class="control-label" for="command">Command</label>
+                <label class="control-label" for="command" translatable="yes">Command</label>
               </td>
               <td>
                 <input type="text" data-placement="bottom" id="command" class="form-control">
@@ -380,7 +380,7 @@
             </tr>
             <tr id="boot-specific-row">
               <td>
-                <label class="control-label" for="boot-or-specific-time">Run</label>
+                <label class="control-label" for="boot-or-specific-time" translatable="yes">Run</label>
               </td>
               <td>
                 <div class="btn-group bootstrap-select dropdown form-control" id="boot-or-specific-time">
@@ -389,8 +389,8 @@
                     <span class="caret"></span>
                   </button>
                   <ul class="dropdown-menu">
-                    <li value="1"><a>After system boot</a></li>
-                    <li value="2"><a>At specific time</a></li>
+                    <li value="1"><a translatable="yes">After system boot</a></li>
+                    <li value="2"><a translatable="yes">At specific time</a></li>
                   </ul>
                 </div>
                 <div id="boot">
@@ -402,10 +402,10 @@
                       <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
-                      <li value="1"><a>Seconds</a></li>
-                      <li value="60"><a>Minutes</a></li>
-                      <li value="3600"><a>Hours</a></li>
-                      <li value="604800"><a>Weeks</a></li>
+                      <li value="1"><a translatable="yes">Seconds</a></li>
+                      <li value="60"><a translatable="yes">Minutes</a></li>
+                      <li value="3600"><a translatable="yes">Hours</a></li>
+                      <li value="604800"><a translatable="yes">Weeks</a></li>
                     </ul>
                   </div>
                 </div>
@@ -426,23 +426,23 @@
                     <span class="caret"></span>
                   </button>
                   <ul class="dropdown-menu">
-                    <li value="0"><a>Don't Repeat</a></li>
-                    <li value="60"><a>Repeat Hourly</a></li>
-                    <li value="1440"><a>Repeat Daily</a></li>
-                    <li value="10080"><a>Repeat Weekly</a></li>
-                    <li value="44640"><a>Repeat Monthly</a></li>
-                    <li value="525600"><a>Repeat Yearly</a></li>
+                    <li value="0"><a translatable="yes">Don't Repeat</a></li>
+                    <li value="60"><a translatable="yes">Repeat Hourly</a></li>
+                    <li value="1440"><a translatable="yes">Repeat Daily</a></li>
+                    <li value="10080"><a translatable="yes">Repeat Weekly</a></li>
+                    <li value="44640"><a translatable="yes">Repeat Monthly</a></li>
+                    <li value="525600"><a translatable="yes">Repeat Yearly</a></li>
                   </ul>
                 </div>
               </td>
             </tr>
             <tr id="specific-time-without-repeat" hidden>
               <td>
-                <label for="specific-time-without-repeat" class="control-label" >Hour : Minute</label>
+                <label for="specific-time-without-repeat" class="control-label" translatable="yes">Hour : Minute</label>
               </td>
               <td>
                 <input type="text" value="00" id="hr" class="hr form-control">
-                <div class="position-colon">:</div>
+                <div class="position-colon" translatable="yes">:</div>
                 <input type="text" value="00" id="min" class="min form-control">
               </td>
             </tr>
@@ -461,8 +461,8 @@
           </table>
         </div>
         <div class="modal-footer">
-          <button type="button" id="timer-cancel-button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-          <button type="button" id="timer-save-button" class="btn btn-primary">Save</button>
+          <button type="button" id="timer-cancel-button" class="btn btn-default" data-dismiss="modal" translatable="yes">Cancel</button>
+          <button type="button" id="timer-save-button" class="btn btn-primary" translatable="yes">Save</button>
         </div>
       </div>
     </div>

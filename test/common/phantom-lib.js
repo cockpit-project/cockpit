@@ -7,12 +7,49 @@
 
 localStorage.clear();
 
-function ph_select(sel) {
-    var list, i, els = [];
-    if (window.jQuery)
-        list = window.jQuery(sel);
-    else
+function ph_select_query(sel) {
+    var list, i, els = [], startIdx, braceCounter, searchText, containsSelector;
+    containsSelector = ':contains(';
+    startIdx = sel.indexOf(containsSelector);
+    if (startIdx !== -1) {
+        // in jQuery we have :contains, try to simulate that
+        // behavior here - at least for plain text
+
+        // we assume that our :contains() condition is the last condition of the selector
+        braceCounter = 1;
+        for (i = startIdx+containsSelector.length; i < sel.length; i++) {
+            if (sel[i] == '(')
+                braceCounter++;
+            else if (sel[i] == ')')
+                braceCounter--;
+
+            if (!braceCounter)
+                break;
+        }
+        // if there's more after the :contains() condition, bail out
+        if ((i + 1) < sel.length)
+            throw "'" + sel + "': we can only handle :contains without jquery if it's the last condition";
+        searchText = sel.substr(startIdx + containsSelector.length, i - startIdx - containsSelector.length);
+        list = Array.prototype.filter.call(
+            document.querySelectorAll(sel.substr(0, startIdx)),function(x) {
+                return x.textContent.indexOf(searchText) > -1;
+            }
+        );
+    } else {
         list = document.querySelectorAll(sel);
+    }
+    for (i = 0; i < list.length; i++)
+        els.push(list[i]);
+    return els;
+}
+
+function ph_select(sel) {
+    // if jQuery isn't available, use querySelectorAll
+    if (!window.jQuery)
+      return ph_select_query(sel);
+
+    var list = window.jQuery(sel);
+    var i, els = [];
     for (i = 0; i < list.length; i++)
         els.push(list[i]);
     return els;

@@ -35,7 +35,7 @@ ostree checkout centos-atomic-continuous:centos-atomic-host/7/x86_64/devel/conti
 
 systemctl start docker || journalctl -u docker
 
-# we need cockpit/ws as well
+# we cockpit/ws as well
 docker pull cockpit/ws
 
 # docker images that we need for integration testing

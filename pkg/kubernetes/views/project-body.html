@@ -1,9 +1,14 @@
-<p ng-if="sharedImages(project()) == true">
+<p ng-if="sharedImages(project()) == 'anonymous'">
     <span translatable="yes">
-        <a ng-click="modifyProject(project())">Project access policy</a> allows all authenticated users to pull images. Grant additional access to specific members below.
+        <a ng-click="modifyProject(project())">Project access policy</a> allows anonymous users to pull images. Grant additional push or admin access to specific members below.
     </span>
 </p>
-<p ng-if="sharedImages(project()) == false">
+<p ng-if="sharedImages(project()) == 'shared'">
+    <span translatable="yes">
+        <a ng-click="modifyProject(project())">Project access policy</a> allows any authenticated user to pull images. Grant additional push or admin access to specific members below.
+    </span>
+</p>
+<p ng-if="sharedImages(project()) == 'private'">
     <span translatable="yes">
         <a ng-click="modifyProject(project())">Project access policy</a> only allows specific members to access images. Grant access to specific members below.
     </span>

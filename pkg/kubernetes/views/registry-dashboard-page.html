@@ -28,9 +28,11 @@
             <table class="table table-striped table-hover">
                 <tr ng-repeat="(key, project) in projects() track by key" data-name="{{ project.metadata.name }}">
                     <td>
-                        <i ng-if="sharedImages(project) == true" title="Images shared with non-members"
-                            class="fa fa-unlock imagestream-lock dashboard-access"></i>
-                        <i ng-if="sharedImages(project) == false" title="Images only accessible to members"
+                        <i ng-if="sharedImages(project) == 'anonymous'" title="Images accessible to anonymous users"
+                          class="fa fa-unlock imagestream-lock dashboard-access"></i>
+                        <i ng-if="sharedImages(project) == 'shared'" title="Images accessible to authenticated users"
+                            class="fa fa-unlock-alt imagestream-lock dashboard-access"></i>
+                        <i ng-if="sharedImages(project) == 'private'" title="Images only accessible to members"
                             class="fa fa-lock imagestream-lock dashboard-access"></i>
                         <i ng-if="sharedImages(project) == null" title="Accessibility data not yet loaded"
                             class="fa fa-ellipsis-h imagestream-lock dashboard-access"></i>

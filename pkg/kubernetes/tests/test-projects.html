@@ -95,7 +95,7 @@ function suite(fixtures) {
         }
     ]);
 
-    projectsTest("policy checks", 10, fixtures, [
+    projectsTest("policy checks", 11, fixtures, [
         "projectData",
         'kubeSelect',
         function(projectUtil, select) {
@@ -117,7 +117,8 @@ function suite(fixtures) {
             regRolesArray = projectUtil.getRegistryRoles();
             equal(regRolesArray.length, 0, "no values passed 4");
 
-            equal(projectUtil.isRegistryRole(user.one(), "Admin", "financeprj"), true, "check if registry role");
+            equal(projectUtil.isRegistryRole(user.one(), "Admin", "financeprj"), true, "check if Admin registry role");
+            equal(projectUtil.isRegistryRole("system:anonymous", "Pull", "financeprj"), true, "check if Pull registry role");
             equal(projectUtil.isRoles(user.one(), "financeprj"), true, "check if any role exist");
             start();
         }
@@ -342,6 +343,10 @@ suite([
               {
                 "kind": "User",
                 "name": "sunny"
+              },
+              {
+                "kind": "SystemGroup",
+                "name": "system:anonymous"
               }
             ],
             "roleRef": {

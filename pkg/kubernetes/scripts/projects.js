@@ -421,18 +421,32 @@
             var sharedResource = "imagestreams/layers";
             var sharedRole = "registry-viewer";
             var sharedKind = "Group";
-            var sharedSubject = "system:authenticated";
+            var anonymousGroup = "system:anonymous";
+            var sharedGroup = "system:authenticated";
             var registryAdmin = "registry-admin";
 
-            function shareImages(project, shared) {
-                var subject = {
+            function shareImages(project, accessPolicy) {
+                var anonSubject = {
                     kind: sharedKind,
-                    name: sharedSubject,
+                    name: anonymousGroup,
                 };
-                if (shared)
-                    return policy.addToRole(project, sharedRole, subject);
-                else
-                    return policy.removeFromRole(project, sharedRole, subject);
+                var sharedSubject = {
+                    kind: sharedKind,
+                    name: sharedGroup,
+                };
+                if (accessPolicy === "anonymous") {
+                    return policy.addToRole(project, sharedRole, anonSubject);
+                } else if (accessPolicy === "shared") {
+                    return policy.removeFromRole(project, sharedRole, anonSubject)
+                        .then(function() {
+                            return policy.addToRole(project, sharedRole, sharedSubject);
+                        });
+                } else {
+                    return policy.removeFromRole(project, sharedRole, anonSubject)
+                        .then(function() {
+                            return policy.removeFromRole(project, sharedRole, sharedSubject);
+                        });
+                }
             }
 
             function sharedImages(project) {
@@ -445,11 +459,13 @@
 
                 var i, len, groups = response.groups || [];
                 for (i = 0, len = groups.length; i < len; i++) {
-                    if (groups[i] == sharedSubject)
-                        return true;
+                    if (groups[i] == anonymousGroup)
+                        return "anonymous";
+                    else if (groups[i] == sharedGroup)
+                        return "shared";
                 }
 
-                return false;
+                return "private";
             }
 
             function makeRegistryAdmin(project, currentUser) {
@@ -971,7 +987,7 @@
             var DISPLAY = "openshift.io/display-name";
             var DESCRIPTION = "openshift.io/description";
 
-            var shared = false;
+            var shared;
             if (meta.name)
                 shared = projectData.sharedImages(meta.name);
 
@@ -979,14 +995,15 @@
                 name: meta.name || "",
                 display: annotations[DISPLAY] || "",
                 description: annotations[DESCRIPTION] || "",
-                access: shared ? "shared" : "private",
+                access: shared,
             };
             angular.extend($scope, projectData);
             $scope.fields = fields;
             $scope.labels = {
                 access: {
-                    "private": "Allow only specific users or groups to pull images",
-                    "shared": "Allow any authenticated user to pull images",
+                    "private": "Private: Allow only specific users or groups to pull images",
+                    "shared": "Shared: Allow any authenticated user to pull images",
+                    "anonymous" : "Anonymous: Allow all unauthenticated users to pull images",
                 }
             };
             function getProjects() {
@@ -1022,7 +1039,7 @@
                         return methods.create(request);
                     })
                     .then(function(){
-                        return projectData.shareImages(name, fields.access === "shared");
+                        return projectData.shareImages(name, fields.access);
                     })
                     .then(function(){
                         return projectData.makeRegistryAdmin(name, dialogData.currUser);
@@ -1044,7 +1061,7 @@
                     .then(function() {
                         return $q.all([
                             methods.patch(project, data),
-                            projectData.shareImages(project, fields.access === "shared")
+                            projectData.shareImages(project, fields.access)
                         ]);
                     });
             };
